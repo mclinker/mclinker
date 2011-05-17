@@ -1,0 +1,22 @@
+
+
+                            BOLD Project
+
+==============================
+   Introduction
+==============================
+  BOLD is a BSD license linkage editor. 
+
+
+==============================
+   Directory Structure
+==============================
+README               - this document
+Makefile.am          - input of automake
+configure.ac         - input of autoconf
+src/                 - source code of verification tool
+include/             - include file, exported interface
+lib/                 - source code of exported interface
+debug/               - placeholder of object files which are compiled for debugging
+optimized/           - placeholder of object files which are compiled for optimization
+
