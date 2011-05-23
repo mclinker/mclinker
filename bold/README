@@ -2,15 +2,31 @@
 
                             BOLD Project
 
-==============================
-   Introduction
-==============================
+============
+Introduction
+============
   BOLD is a BSD license linkage editor. 
 
+========================
+Compilation Instructions
+========================
+  The simplest way to compile this package is:
 
-==============================
-   Directory Structure
-==============================
+  1. Type `cd' to the directory containing the source code.
+
+  2. If there are no `configure' shell script in the directory, type
+     `./autogen.sh' to generate `configure' script.
+
+  3. Type `./configure` to configure the package for your system. See INSTALL
+     for more details.
+
+  4. Type `make` to compile the package
+
+  5. Type `make install` to install the package into your system.
+
+===================
+Directory Structure
+===================
 README               - this document
 Makefile.am          - input of automake
 configure.ac         - input of autoconf
@@ -19,4 +35,4 @@ include/             - include file, exported interface
 lib/                 - source code of exported interface
 debug/               - placeholder of object files which are compiled for debugging
 optimized/           - placeholder of object files which are compiled for optimization
-
+test/                - placeholder of testcases
