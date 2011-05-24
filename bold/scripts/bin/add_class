@@ -1,0 +1,92 @@
+#!/bin/bash
+##############################################################################
+#   Copyright (C) 2011-
+#   Embedded and Web Computing Lab, National Taiwan University
+#   MediaTek, Inc.
+#
+
+############################
+# Design Pattern - Builder, using BASH
+# 0. watch configuration
+# 1. ask name
+# 2. ask email
+#  i. write back to configuration
+# 3. ask file type
+# 4. ask file name
+# 5. copy templates
+# 6. replace the keywords
+
+############################
+# Variable Dictionary
+BOLD_CONFIG_DIR=$HOME/.bold
+AUTHOR=
+EMAIL=
+CLASS_NAME=
+BRIEF=
+FILE_TYPE=
+
+# 0. watch configuration
+if [ -d "${BOLD_CONFIG_DIR}" ]; then
+	if [ -f "${BOLD_CONFIG_DIR}/config" ]; then
+		source ${BOLD_CONFIG_DIR}/config
+	fi
+else
+	mkdir ${BOLD_CONFIG_DIR}
+fi
+
+# 1. ask name
+#  i. write back to configuration
+if [ -z "${AUTHOR}" ]; then
+	echo -n "name? ";
+	read AUTHOR
+	echo "AUTHOR=\"${AUTHOR}\"" >> ${BOLD_CONFIG_DIR}/config
+fi
+
+# 2. ask email
+#  i. write back to configuration
+if [ -z "${EMAIL}" ]; then
+	echo -n "e-mail? ";
+	read EMAIL
+	echo "EMAIL=\"${EMAIL}\"" >> ${BOLD_CONFIG_DIR}/config
+fi
+
+# 3. ask file type
+echo "What type of files you want to create?";
+echo " 1) normal source code"
+echo " 2) test case"
+
+while [ -z "${FILE_TYPE}" ]; do
+	echo -n "your choice? ";
+	read FILE_TYPE
+
+	case "$FILE_TYPE" in
+	 1 ) source ${BOLDTOP}/script/normal_files.sh;;
+	 2 ) source ${BOLDTOP}/script/test_files.sh;;
+	 * ) FILE_TYPE="" ;;
+	esac
+done
+
+# 4. ask file name
+ask_filename
+read CLASS_NAME
+
+ask_brief ${CLASS_NAME}
+read BRIEF
+
+# 5. copy the templates
+TARGET_FILE=$(copy_template_header ${CLASS_NAME})
+
+# 6. replace the keywords
+replace_author  ${TARGET_FILE} ${AUTHOR}
+repalce_email ${TARGET_FILE} ${EMAIL} 
+replace_class ${TARGET_FILE} ${CLASS_NAME} 
+replace_brief ${TARGET_FILE} ${BRIEF}
+
+# 5. copy the templates
+TARGET_FILE=$(copy_template_impl ${CLASS_NAME})
+
+# 6. replace the keywords
+replace_author  ${TARGET_FILE} ${AUTHOR}
+repalce_email ${TARGET_FILE} ${EMAIL} 
+replace_class ${TARGET_FILE} ${CLASS_NAME} 
+replace_brief ${TARGET_FILE} ${BRIEF}
