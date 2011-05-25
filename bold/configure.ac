@@ -6,6 +6,9 @@
 ##############################################################################
 ### WARNING: this file contains embedded tabs.  Do not run untabify on this file.
 
+####################
+#  m4 includes
+m4_include(m4/acx_pthread.m4)
 
 ####################
 #  Versioning, see VERSION
@@ -20,25 +23,50 @@ PKG_VERSION="$MAJOR.$MINOR.$CHANGE"
 
 ####################
 #  Autoconf/Automake Initialization
-AC_PREREQ(2.59)
 
 AC_INIT([bold],[0.0.0],[jush.msn@gmail.com])
-AM_INIT_AUTOMAKE
+AC_PREREQ(2.59)
 
+AC_CONFIG_SRCDIR([./COPYING])
+AC_CONFIG_MACRO_DIR([m4])
+
+AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 
 ####################
-#  CPP
+#  Languages
+AC_PROG_CC
 AC_PROG_CXX
+AC_LANG([C++])
+AC_PROG_LIBTOOL
 
 ####################
 #  Check for libraries
 
+#  Configure pthreads.
+AC_ARG_WITH([pthreads],
+            [AS_HELP_STRING([--with-pthreads],
+               [use pthreads (default is yes)])],
+            [with_pthreads=$withval],
+            [with_pthreads=check])
+
+have_pthreads=no
+AS_IF([test "x$with_pthreads" != "xno"],
+      [ACX_PTHREAD(
+        [],
+        [AS_IF([test "x$with_pthreads" != "xcheck"],
+               [AC_MSG_FAILURE(
+                 [--with-pthreads was specified, but unable to be used])])])
+       have_pthreads="$acx_pthread_ok"])
+AM_CONDITIONAL([HAVE_PTHREADS],[test "x$have_pthreads" == "xyes"])
+AC_SUBST(PTHREAD_CFLAGS)
+AC_SUBST(PTHREAD_LIBS)
+
 ####################
 # OUTPUT
-AC_CONFIG_FILES([
-	Makefile
-	debug/Makefile
-	optimized/Makefile
-])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([debug/Makefile])
+AC_CONFIG_FILES([optimized/Makefile])
+AC_CONFIG_FILES([utils/Makefile])
+AC_CONFIG_FILES([utils/gtest/Makefile])
 
 AC_OUTPUT

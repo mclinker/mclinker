@@ -1,0 +1,15 @@
+------------------------------------------------------------------------------
+                            BOLD Project
+------------------------------------------------------------------------------
+
+  gtest/ contains Google Test 1.6.0. Bold removes the original building system
+and integrates gtest in Bold's building system.
+
+===========
+Enhancement
+===========
+=======
+Details
+=======
+  see [ticket:37]
+
