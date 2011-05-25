@@ -37,7 +37,7 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG([C++])
-AC_PROG_LIBTOOL
+LT_INIT
 
 ####################
 #  Check for libraries
@@ -68,5 +68,6 @@ AC_CONFIG_FILES([debug/Makefile])
 AC_CONFIG_FILES([optimized/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
 AC_CONFIG_FILES([utils/gtest/Makefile])
+AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 
 AC_OUTPUT
