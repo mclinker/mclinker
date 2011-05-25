@@ -19,7 +19,7 @@ function ask_brief
 function copy_template_header
 {
 	local NAME=$1
-	local TARGET_FILE="${BOLDTOP}/src/${NAME}.h";
+	local TARGET_FILE="${BOLDTOP}/include/${NAME}.h";
 	local SOURCE_FILE="${BOLDTOP}/templates/header.h";
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
