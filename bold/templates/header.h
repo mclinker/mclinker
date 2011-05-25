@@ -7,6 +7,9 @@
  ****************************************************************************/
 #ifndef ${CLASS_NAME}_H
 #define ${CLASS_NAME}_H
+#ifdef ENABLE_UNITTEST
+#include <gtest.h>
+#endif
 
 namespace BOLD
 {
@@ -19,6 +22,10 @@ namespace BOLD
  */
 class ${class_name}
 {
+
+#ifdef ENABLE_UNITTEST
+FRIEND_TEST( ${class_name}Test, method_name);
+#endif
 };
 
 } // namespace of BOLD
