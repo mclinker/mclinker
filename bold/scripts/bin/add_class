@@ -60,8 +60,8 @@ while [ -z "${FILE_TYPE}" ]; do
 	read FILE_TYPE
 
 	case "$FILE_TYPE" in
-	 1 ) source ${BOLDTOP}/script/normal_files.sh;;
-	 2 ) source ${BOLDTOP}/script/test_files.sh;;
+	 1 ) source ${BOLDTOP}/scripts/normal_files.sh;;
+	 2 ) source ${BOLDTOP}/scripts/test_files.sh;;
 	 * ) FILE_TYPE="" ;;
 	esac
 done
