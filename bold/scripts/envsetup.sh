@@ -34,4 +34,4 @@ function gettop()
 #############################
 #  Variable Dictionary
 export BOLDTOP=$(gettop)
-export PATH="${BOLDTOP}/script/bin:$PATH"
+export PATH="${BOLDTOP}/scripts/bin:$PATH"
