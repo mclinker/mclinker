@@ -11,7 +11,7 @@
 int unit_test( int argc, char* argv[] )
 {
 	::testing::InitGoogleTest( &argc, argv );
-	return RUN_ALL_TEST();
+	return RUN_ALL_TESTS();
 }
 
 #endif
@@ -22,7 +22,7 @@ int main( int argc, char* argv[] )
 #ifdef ENABLE_UNITTEST
 	// since the command line interface is not written, always call 
 	// unit-test()
-	unit_test();
+	return unit_test( argc, argv );
 #endif
 
 }
