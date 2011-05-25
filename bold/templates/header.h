@@ -23,9 +23,6 @@ namespace BOLD
 class ${class_name}
 {
 
-#ifdef ENABLE_UNITTEST
-FRIEND_TEST( ${class_name}Test, method_name);
-#endif
 };
 
 } // namespace of BOLD
