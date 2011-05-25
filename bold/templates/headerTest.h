@@ -41,17 +41,9 @@ public:
 	// TearDown() will be called immediately after each test.
 	virtual void TearDown();
 
-private:
+protected:
 	BOLD::${class_name}* m_pTestee;
 };
-
-/** remove the mark when you starts writting testcases
-
-TEST_F( ${class_name}Test, ${member function of ${class_name}} ) {
-	Write you exercise here
-}
-
-**/
 
 } // namespace of BOLDTEST
 
