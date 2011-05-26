@@ -73,6 +73,9 @@ AC_ARG_ENABLE(unittest,
              [unittest=false])
 AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 
+# Configure LLVM
+CHECK_LLVM([2.9])
+
 ####################
 # OUTPUT
 AC_CONFIG_FILES([Makefile])

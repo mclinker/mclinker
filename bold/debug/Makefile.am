@@ -6,12 +6,22 @@ UNITTEST=${TOPLEVEL}/unittests
 bin_PROGRAMS = bold
 
 if ENABLE_UNITTEST
-bold_CPPFLAGS = -g -O1 -DENABLE_UNITTEST -DDEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests
-bold_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/
+bold_CPPFLAGS = -g -O1 -DENABLE_UNITTEST -DDEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS}
+bold_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
-bold_CPPFLAGS = -g -O1 -DDEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include
-bold_LDADD =
+bold_CPPFLAGS = -g -O1 -DDEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
+bold_LDADD = ${LLVM_LDFLAGS}
 endif
 
-bold_SOURCES = ${SRCDIR}/main.cpp
+NORMAL_SOURCE = ${SRCDIR}/main.cpp \
+	${SRCDIR}/Normal.cpp
 
+if ENABLE_UNITTEST
+SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/NormalTest.h \
+	${UNITTEST}/NormalTest.cpp
+else
+SOURCE = ${NORMAL_SOURCE}
+endif
+
+bold_SOURCES = ${SOURCE}
