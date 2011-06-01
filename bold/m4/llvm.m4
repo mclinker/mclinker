@@ -52,20 +52,20 @@ AC_DEFUN([CHECK_LLVM],
 	dnl   4. the libs
 	AC_MSG_CHECKING(for llvm - version >= $1)
 	cur_version="`${LLVM_CONFIG_BIN} --version`";
-	major_version="`${LLVM_CONFIG_BIN} --version | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\1/'`"
-	minor_version="`${LLVM_CONFIG_BIN} --version | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\2/'`"
+	tool_major="`${LLVM_CONFIG_BIN} --version | sed 's/svn//' | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\1/'`"
+	tool_minor="`${LLVM_CONFIG_BIN} --version | sed 's/svn//'| sed 's/\([[0-9]]*\).\([[0-9]]*\)/\2/'`"
 
-	given_major="`echo $1 | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\1/'`"
-	given_minor="`echo $1 | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\2/'`"
+	require_major="`echo $1 | sed 's/svn//' | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\1/'`"
+	require_minor="`echo $1 | sed 's/svn//' | sed 's/\([[0-9]]*\).\([[0-9]]*\)/\2/'`"
 
-	if test "${major_version}" -lt "${given_major}"; then
+	if test "${tool_major}" -lt "${require_major}"; then
 		AC_MSG_RESULT([no])
 		AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)]) 
-	fi
-
-	if test "${minor_version}" -lt "${given_minor}"; then
-		AC_MSG_RESULT([no])
-		AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)]) 
+	elif test "${tool_major}" -eq "${require_major}"; then
+		if test "${tool_minor}" -lt "${require_minor}"; then
+			AC_MSG_RESULT([no])
+			AC_MSG_ERROR([*** The version of LLVM is too low! (${cur_version}<$1)]) 
+		fi
 	fi
 	AC_MSG_RESULT([yes]) 
 
