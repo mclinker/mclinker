@@ -37,9 +37,6 @@ class DarwinARMLDBackend : public ARMLDBackend {
 //implement member functions of DarwinARMLDBackend
 
 
-
-
-
 TargetLDBackend  *mcld::createARMLDBackend(const Target &T,
                                            const std::string &TT) {
 

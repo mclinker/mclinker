@@ -1,6 +1,8 @@
 
 TOPLEVEL=..
 SRCDIR=${TOPLEVEL}/src
+LIBDIR=${TOPLEVEL}/lib
+INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
 bin_PROGRAMS = bold
@@ -14,12 +16,11 @@ bold_LDADD = ${LLVM_LDFLAGS}
 endif
 
 NORMAL_SOURCE = ${SRCDIR}/main.cpp \
-	${SRCDIR}/Normal.cpp
+	${LIBDIR}/CodeGen/TargetMachine.cpp \
+	${INCDIR}/Target/TargetMachine.h
 
 if ENABLE_UNITTEST
-SOURCE = ${NORMAL_SOURCE} \
-	${UNITTEST}/NormalTest.h \
-	${UNITTEST}/NormalTest.cpp
+SOURCE = ${NORMAL_SOURCE} 
 else
 SOURCE = ${NORMAL_SOURCE}
 endif

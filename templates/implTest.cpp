@@ -10,8 +10,8 @@
 #include <${class_name}.h>
 #include <${class_name}Test.h>
 
-using namespace BOLD;
-using namespace BOLDTEST;
+using namespace mcld;
+using namespace mcldTEST;
 
 
 // Constructor can do set-up work for all test here.

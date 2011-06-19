@@ -12,13 +12,13 @@
 
 #include <gtest.h>
 
-namespace BOLD
+namespace mcld
 {
 class ${class_name};
 
 } // namespace for BOLD
 
-namespace BOLDTEST
+namespace mcldTEST
 {
 
 /** \class ${class_name}Test
@@ -42,7 +42,7 @@ public:
 	virtual void TearDown();
 
 protected:
-	BOLD::${class_name}* m_pTestee;
+	mcld::${class_name}* m_pTestee;
 };
 
 } // namespace of BOLDTEST

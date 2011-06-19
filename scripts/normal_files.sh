@@ -28,7 +28,7 @@ function copy_template_header
 function copy_template_impl
 {
 	local NAME=$1
-	local TARGET_FILE="${BOLDTOP}/src/${NAME}.cpp";
+	local TARGET_FILE="${BOLDTOP}/lib/${NAME}.cpp";
 	local SOURCE_FILE="${BOLDTOP}/templates/impl.cpp";
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";

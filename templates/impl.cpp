@@ -7,7 +7,7 @@
  ****************************************************************************/
 #include <${class_name}.h>
 
-using namespace BOLD;
+using namespace mcld;
 
 //==========================
 // ${class_name}

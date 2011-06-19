@@ -11,7 +11,7 @@
 #include <gtest.h>
 #endif
 
-namespace BOLD
+namespace mcld
 {
 
 /** \class ${class_name}
