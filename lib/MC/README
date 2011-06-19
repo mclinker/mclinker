@@ -1,0 +1,8 @@
+MCLDStreamer is similar to MCObjectStreamer
+MCLinker is similar to MCAssembler
+MCLDWriter is similar to MCObjectWriter
+
+MCELFObjectReader parses ELF object files
+to MCInst classes
+
+
