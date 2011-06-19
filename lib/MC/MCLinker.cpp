@@ -6,7 +6,7 @@
  *   Jush Lu <jush.msn@gmail.com>                                            *
  ****************************************************************************/
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCBackend.h>
+#include <mcld/MC/MCLDBackend.h>
 #include <mcld/MC/MCLDCommand.h>
 #include <mcld/MC/MCLDLayout.h>
 #include <mcld/MC/MCLDFile.h>
