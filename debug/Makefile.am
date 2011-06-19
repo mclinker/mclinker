@@ -17,7 +17,9 @@ endif
 
 NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/TargetMachine.cpp \
-	${INCDIR}/Target/TargetMachine.h
+	${INCDIR}/Target/TargetMachine.h \
+	${LIBDIR}/CodeGen/LDPrinter.cpp \
+	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} 

@@ -298,7 +298,7 @@ int main( int argc, char* argv[] )
     formatted_raw_ostream FOS(Out->os());
 
     // Ask the target to add backend passes as necessary.
-    if( mcld::addPassesToEmitFile( PM, FOS, FileType, OLvl, NoVerify)) {
+    if( mcld::addPassesToEmitFile( Target, PM, FOS, FileType, OLvl, NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
       return 1;
