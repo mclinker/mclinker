@@ -12,6 +12,7 @@
 # 2. ask email
 #  i. write back to configuration
 # 3. ask file type
+#  i. ask deployment
 # 4. ask file name
 # 5. copy templates
 # 6. replace the keywords
@@ -60,11 +61,35 @@ while [ -z "${FILE_TYPE}" ]; do
 	read FILE_TYPE
 
 	case "$FILE_TYPE" in
-	 1 ) source ${BOLDTOP}/scripts/normal_files.sh;;
-	 2 ) source ${BOLDTOP}/scripts/test_files.sh;;
-	 * ) FILE_TYPE="" ;;
+	1 ) source ${BOLDTOP}/scripts/normal_files.sh;
+		FILE_TYPE="normal";
+		;;
+	2 ) source ${BOLDTOP}/scripts/test_files.sh;
+		FILE_TYPE="testcase";
+		;;
+	* ) FILE_TYPE="" ;;
 	esac
 done
+
+# 3.i ask deployment
+if [ "${FILE_TYPE}" = "normal" ]; then
+	echo "Where you what to deploy?";
+	echo " 1) MC"
+	echo " 2) Target"
+	echo " 3) CodeGen"
+
+	while [ -z "${DEPLOYMENT}" ]; do
+		echo -n "your choice? ";
+		read DEPLOYMENT
+
+		case "${DEPLOYMENT}" in
+		1 ) DEPLOYMENT="MC";;
+		2 ) DEPLOYMENT="Target";;
+		3 ) DEPLOYMENT="CodeGen";;
+		* ) DEPLOYMENT="";;
+		esac
+	done
+fi
 
 # 4. ask file name
 ask_filename
@@ -74,7 +99,7 @@ ask_brief ${CLASS_NAME}
 read BRIEF
 
 # 5. copy the templates
-TARGET_FILE=$(copy_template_header ${CLASS_NAME})
+TARGET_FILE=$(copy_template_header ${CLASS_NAME} ${DEPLOYMENT})
 
 # 6. replace the keywords
 replace_author  ${TARGET_FILE} ${AUTHOR}
@@ -83,7 +108,7 @@ replace_class ${TARGET_FILE} ${CLASS_NAME}
 replace_brief ${TARGET_FILE} ${BRIEF}
 
 # 5. copy the templates
-TARGET_FILE=$(copy_template_impl ${CLASS_NAME})
+TARGET_FILE=$(copy_template_impl ${CLASS_NAME} ${DEPLOYMENT})
 
 # 6. replace the keywords
 replace_author  ${TARGET_FILE} ${AUTHOR}

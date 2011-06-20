@@ -19,7 +19,8 @@ function ask_brief
 function copy_template_header
 {
 	local NAME=$1
-	local TARGET_FILE="${BOLDTOP}/include/${NAME}.h";
+	local DEPLOYMENT=$2
+	local TARGET_FILE="${BOLDTOP}/include/mcld/${DEPLOYMENT}/${NAME}.h";
 	local SOURCE_FILE="${BOLDTOP}/templates/header.h";
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
@@ -28,7 +29,8 @@ function copy_template_header
 function copy_template_impl
 {
 	local NAME=$1
-	local TARGET_FILE="${BOLDTOP}/lib/${NAME}.cpp";
+	local DEPLOYMENT=$2
+	local TARGET_FILE="${BOLDTOP}/lib/${DEPLOYMENT}/${NAME}.cpp";
 	local SOURCE_FILE="${BOLDTOP}/templates/impl.cpp";
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
