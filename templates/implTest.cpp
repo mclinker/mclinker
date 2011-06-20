@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Test Suite of The BOLD Project,                                         *
+ *   Test Suite of The MCLinker Project,                                     *
  *                                                                           *
  *   Copyright (C), 2011 -                                                   *
  *   Embedded and Web Computing Lab, National Taiwan University              *
@@ -11,7 +11,7 @@
 #include <${class_name}Test.h>
 
 using namespace mcld;
-using namespace mcldTEST;
+using namespace mcldtest;
 
 
 // Constructor can do set-up work for all test here.

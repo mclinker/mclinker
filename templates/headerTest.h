@@ -1,5 +1,5 @@
 /*****************************************************************************
- *   Test Suite of The BOLD Project,                                         *
+ *   Test Suite of The MCLinker Project,                                     *
  *                                                                           *
  *   Copyright (C), 2011 -                                                   *
  *   Embedded and Web Computing Lab, National Taiwan University              *
@@ -16,9 +16,9 @@ namespace mcld
 {
 class ${class_name};
 
-} // namespace for BOLD
+} // namespace for mcld
 
-namespace mcldTEST
+namespace mcldtest
 {
 
 /** \class ${class_name}Test
@@ -45,7 +45,7 @@ protected:
 	mcld::${class_name}* m_pTestee;
 };
 
-} // namespace of BOLDTEST
+} // namespace of mcldtest
 
 #endif
 
