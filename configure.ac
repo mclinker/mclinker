@@ -24,7 +24,7 @@ PKG_VERSION="$MAJOR.$MINOR.$CHANGE"
 ####################
 #  Autoconf/Automake Initialization
 
-AC_INIT([bold],[0.0.0],[jush.msn@gmail.com])
+AC_INIT([MCLinker],[0.0.0],[lubatang@mediatek.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
