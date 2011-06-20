@@ -25,6 +25,11 @@
 #include <llvm/Support/Host.h>
 #include <mcld/Target/TargetMachine.h>
 
+#ifdef DEBUG
+#include <iostream>
+using namespace std;
+#endif
+
 using namespace llvm;
 
 #ifdef ENABLE_UNITTEST
@@ -116,6 +121,9 @@ GetFileNameRoot(const std::string &InputFilename) {
 static tool_output_file *GetOutputStream(const char *TargetName,
                                          Triple::OSType OS,
                                          const char *ProgName) {
+  #ifdef DEBUG
+    cerr << "TargetName=" << TargetName << endl;
+  #endif
   // If we don't yet have an output filename, make one.
   if (OutputFilename.empty()) {
     if (InputFilename == "-")
@@ -125,47 +133,29 @@ static tool_output_file *GetOutputStream(const char *TargetName,
 
       switch (FileType) {
       default: assert(0 && "Unknown file type");
-      case TargetMachine::CGFT_AssemblyFile:
-        if (TargetName[0] == 'c') {
-          if (TargetName[1] == 0)
-            OutputFilename += ".cbe.c";
-          else if (TargetName[1] == 'p' && TargetName[2] == 'p')
-            OutputFilename += ".cpp";
-          else
-            OutputFilename += ".s";
-        } else
-          OutputFilename += ".s";
+      case mcld::CGFT_DSOFile:
+          OutputFilename += ".so";
         break;
-      case TargetMachine::CGFT_ObjectFile:
-        if (OS == Triple::Win32)
-          OutputFilename += ".obj";
-        else
-          OutputFilename += ".o";
+      case mcld::CGFT_EXEFile:
+          OutputFilename += ".exe";
         break;
-      case TargetMachine::CGFT_Null:
+      case mcld::CGFT_Null:
         OutputFilename += ".null";
         break;
       }
     }
   }
 
-  // Decide if we need "binary" output.
-  bool Binary = false;
-  switch (FileType) {
-  default: assert(0 && "Unknown file type");
-  case TargetMachine::CGFT_AssemblyFile:
-    break;
-  case TargetMachine::CGFT_ObjectFile:
-  case TargetMachine::CGFT_Null:
-    Binary = true;
-    break;
-  }
+  // we need "binary" output.
+  bool Binary = true;
 
   // Open the file.
   std::string error;
   unsigned OpenFlags = 0;
-  if (Binary) OpenFlags |= raw_fd_ostream::F_Binary;
-  tool_output_file *FDOut = new tool_output_file(OutputFilename.c_str(), error,
+  if (Binary)
+    OpenFlags |= raw_fd_ostream::F_Binary;
+  tool_output_file *FDOut = new tool_output_file(OutputFilename.c_str(),
+                                                 error,
                                                  OpenFlags);
   if (!error.empty()) {
     errs() << error << '\n';
@@ -267,7 +257,7 @@ int main( int argc, char* argv[] )
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file> Out
-    (GetOutputStream(TheTarget->getName(), TheTriple.getOS(), argv[0]));
+    (GetOutputStream( TheTarget->getName(), TheTriple.getOS(), argv[0]));
   if (!Out) return 1;
 
   CodeGenOpt::Level OLvl = CodeGenOpt::Default;
