@@ -1,8 +1,25 @@
 Index: TargetMachine.h
 ===================================================================
---- TargetMachine.h	(revision 133418)
+--- TargetMachine.h	(revision 133423)
 +++ TargetMachine.h	(working copy)
-@@ -301,17 +301,16 @@
+@@ -289,6 +289,16 @@
+                                  bool = true) {
+     return true;
+   }
++
++  /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
++  /// both emitting to assembly files or machine code output.
++  ///
++  virtual bool addCommonCodeGenPasses(PassManagerBase &,
++                              CodeGenOpt::Level,
++                              bool DisableVerify,
++                              MCContext *&OutCtx) {
++    return true;
++  }
+ };
+ 
+ /// LLVMTargetMachine - This class describes a target machine that is
+@@ -301,17 +311,16 @@
    LLVMTargetMachine(const Target &T, const std::string &TargetTriple);
  
  private:
