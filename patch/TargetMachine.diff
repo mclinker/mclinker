@@ -1,0 +1,26 @@
+Index: TargetMachine.h
+===================================================================
+--- TargetMachine.h	(revision 133418)
++++ TargetMachine.h	(working copy)
+@@ -301,17 +301,16 @@
+   LLVMTargetMachine(const Target &T, const std::string &TargetTriple);
+ 
+ private:
++  virtual void setCodeModelForJIT();
++  virtual void setCodeModelForStatic();
++
++public:
+   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
+   /// both emitting to assembly files or machine code output.
+   ///
+   bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
+                               bool DisableVerify, MCContext *&OutCtx);
+ 
+-  virtual void setCodeModelForJIT();
+-  virtual void setCodeModelForStatic();
+-
+-public:
+-
+   const std::string &getTargetTriple() const { return TargetTriple; }
+ 
+   /// addPassesToEmitFile - Add passes to the specified pass manager to get the
