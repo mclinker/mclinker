@@ -1,0 +1,5 @@
+
+This directory contains all patches being applied on LLVM
+
+------------------------------------------------------------
+TargetMachine.diff  ${llvm}/include/Target/TargetMachine.h
