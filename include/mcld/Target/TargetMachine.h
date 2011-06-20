@@ -30,7 +30,7 @@ enum CodeGenFileType {
   CGFT_EXEFile
 };
 
-extern "C" bool addPassesToEmitFile(TargetMachine &,
+bool addPassesToEmitFile(TargetMachine &,
 			   PassManagerBase &,
 			   formatted_raw_ostream &,
 			   mcld::CodeGenFileType,

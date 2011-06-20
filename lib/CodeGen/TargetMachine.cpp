@@ -16,8 +16,9 @@
 using namespace mcld;
 using namespace llvm;
 
-extern "C" 
+namespace mcld
 {
+
 //==========================
 // TargetMachine
 bool addPassesToEmitFile(TargetMachine &pTarget,
@@ -48,4 +49,4 @@ bool addPassesToEmitFile(TargetMachine &pTarget,
   }
 }
 
-}
+} // namespace of mcld
