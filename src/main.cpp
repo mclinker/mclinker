@@ -147,7 +147,11 @@ static tool_output_file *GetOutputStream(const char *TargetName,
   }
 
   // we need "binary" output.
+<<<<<<< HEAD
   bool Binary = true;
+=======
+  bool Binary = ture;
+>>>>>>> 6dd7074906b6965d56cd891db270aed480a6fa55
 
   // Open the file.
   std::string error;
