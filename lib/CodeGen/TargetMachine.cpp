@@ -55,27 +55,30 @@ bool addPassesToEmitFile(TargetMachine &pTarget,
   if (hasMCSaveTempLabels())
     Context->setAllowTemporaryLabels(false);
 
-  OwningPtr<MCStreamer> AsmStreamer;
+  OwingPtr<MCLDDriver> LDDriver;   //OwningPtr<MCStreamer> AsmStreamer;
 
 
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {
     MCCodeEmitter *MCE = getTarget().createCodeEmitter(*this, *Context);
-    TargetAsmBackend *TAB = getTarget().createAsmBackend(TargetTriple);
+    //TargetAsmBackend *TAB = getTarget().createAsmBackend(TargetTriple);
 
     // FIXME: TargetLDBackend needs implementation
     TargetLDBackend *TDB = getTarget().createLDBackend(TargetTriple);   
 
-    if (MCE == 0 || TAB == 0)
+    if (MCE == 0 || TDB == 0)
       return true;
 
-    AsmStreamer.reset(getTarget().createObjectStreamer(TargetTriple, *Context,
-                                                       *TAB, Out, MCE,
-                                                       hasMCRelaxAll(),
-                                                       hasMCNoExecStack()));
+    //AsmStreamer.reset(getTarget().createObjectStreamer(TargetTriple, *Context,
+    //                                                   *TAB, Out, MCE,
+    //                                                   hasMCRelaxAll(),
+    //                                                   hasMCNoExecStack()));
 
-    AsmStreamer.get()->InitSections();
+
+    LDDriver.reset(getTarget.createLDDriver());
+
+    //AsmStreamer.get()->InitSections();
    
     // create MCLDPrinter
     // PM.add();
