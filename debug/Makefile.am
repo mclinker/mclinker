@@ -16,7 +16,7 @@ MCLinker_LDADD = ${LLVM_LDFLAGS}
 endif
 
 NORMAL_SOURCE = ${SRCDIR}/main.cpp \
-	${LIBDIR}/CodeGen/TargetMachine.cpp \
+	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/Target/TargetMachine.h
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
