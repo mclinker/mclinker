@@ -73,9 +73,11 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_CPPFLAGS="`${LLVM_CONFIG_BIN} --cxxflags`"
 	LLVM_LDFLAGS="`${LLVM_CONFIG_BIN} --ldflags --libs`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
+	LLVM_VERSION=${tool_major}
 	
 	AC_SUBST(LLVM_CFLAGS)
 	AC_SUBST(LLVM_CPPFLAGS)
 	AC_SUBST(LLVM_LDFLAGS)
+	AC_SUBST(LLVM_VERSION)
 	ifelse([$2], , , [$2])
 ])

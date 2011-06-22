@@ -252,8 +252,10 @@ int main( int argc, char* argv[] )
   assert(target.get() && "Could not allocate target machine!");
   TargetMachine &Target = *target.get();
 
+#if LLVM_VERSION > 2
   Target.setMCUseLoc(false);
   Target.setMCUseCFI(false);
+#endif
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file> Out
