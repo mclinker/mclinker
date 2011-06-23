@@ -19,14 +19,15 @@ Index: TargetMachine.h
  };
  
  /// LLVMTargetMachine - This class describes a target machine that is
-@@ -301,17 +311,16 @@
+@@ -300,18 +310,16 @@
+ protected: // Can only create subclasses.
    LLVMTargetMachine(const Target &T, const std::string &TargetTriple);
  
- private:
+-private:
++public:
 +  virtual void setCodeModelForJIT();
 +  virtual void setCodeModelForStatic();
 +
-+public:
    /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
    /// both emitting to assembly files or machine code output.
    ///
