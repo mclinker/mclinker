@@ -11,6 +11,10 @@
 #include <gtest.h>
 #endif
 
+#include "mcld/MC/MCLDCommand.h"
+
+#include <list>
+
 namespace mcld
 {
 
@@ -36,8 +40,8 @@ namespace mcld
     void addLdFile( MCLDFile& pLDFile );
   
   private:
-    typedef iplist<MCLDCommand> CommandListTy;
-    typedef iplist<MCLDFile> LDFileListTy;
+    typedef list<MCLDCommand> CommandListTy;
+    typedef list<MCLDFile> LDFileListTy;
   private:
     CommandListTy m_CommandList;
     LDFileListTy m_LDFileList;
