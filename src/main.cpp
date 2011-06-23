@@ -25,7 +25,7 @@
 #include <llvm/Support/Host.h>
 #include <mcld/Target/TargetMachine.h>
 
-#ifdef DEBUG
+#ifdef MCLD_DEBUG
 #include <iostream>
 using namespace std;
 #endif
