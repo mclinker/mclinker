@@ -25,7 +25,7 @@ class ${class_name}
 
 };
 
-} // namespace of BOLD
+} // namespace of mcld
 
 #endif
 
