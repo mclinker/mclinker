@@ -247,10 +247,10 @@ int main( int argc, char* argv[] )
     FeaturesStr = Features.getString();
   }
 
-  std::auto_ptr<TargetMachine>
-    target(TheTarget->createTargetMachine(TheTriple.getTriple(), FeaturesStr));
+  std::auto_ptr<mcld::LLVMTargetMachine>
+    target( new mcld::LLVMTargetMachine( *TheTarget->createTargetMachine(TheTriple.getTriple(), FeaturesStr)));
   assert(target.get() && "Could not allocate target machine!");
-  TargetMachine &Target = *target.get();
+  mcld::LLVMTargetMachine &Target = *target.get();
 
 #if LLVM_VERSION > 2
   Target.setMCUseLoc(false);
@@ -290,7 +290,7 @@ int main( int argc, char* argv[] )
     formatted_raw_ostream FOS(Out->os());
 
     // Ask the target to add backend passes as necessary.
-    if( mcld::addPassesToEmitFile( Target, PM, FOS, FileType, OLvl, NoVerify)) {
+    if( Target.addPassesToEmitFile( PM, FOS, FileType, OLvl, NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
       return 1;

@@ -34,21 +34,24 @@
 using namespace mcld;
 using namespace llvm;
 
-namespace mcld
-{
 
 //==========================
 // TargetMachine
-bool addPassesToEmitFile(TargetMachine &pTarget,
-			   PassManagerBase &pPM,
-			   formatted_raw_ostream &pOS,
-			   mcld::CodeGenFileType pFileType,
-			   CodeGenOpt::Level pOptLvl,
-			   bool pDisableVerify ) 
-{
+mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM)
+  : m_TM(pTM) {
+}
+
+mcld::LLVMTargetMachine::~LLVMTargetMachine() {
+}
+
+bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
+                                         formatted_raw_ostream &pOS,
+                                         mcld::CodeGenFileType pFileType,
+                                         CodeGenOpt::Level pOptLvl,
+                                         bool pDisableVerify ) {
 
   MCContext* Context = 0;
-  if (pTarget.addCommonCodeGenPasses( pPM, pOptLvl, pDisableVerify, Context))
+  if (getTM().addCommonCodeGenPasses( pPM, pOptLvl, pDisableVerify, Context))
     return true;
 
   //not in addPassesToMC
@@ -112,4 +115,3 @@ bool addPassesToEmitFile(TargetMachine &pTarget,
   return false;
 }
 
-} // namespace of mcld
