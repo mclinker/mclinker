@@ -11,11 +11,13 @@
 #include <gtest.h>
 #endif
 #include <llvm/Target/TargetMachine.h>
+#include <string>
 
 namespace llvm
 {
 class Target;
 class TargetData;
+class TargetMachine;
 class PassManagerBase;
 class formatted_raw_ostream;
 
@@ -24,61 +26,68 @@ class formatted_raw_ostream;
 namespace mcld
 {
 
-  using namespace llvm;
+class Target;
+using namespace llvm;
 
-  enum CodeGenFileType {
-    CGFT_Null = 2,
-    CGFT_DSOFile,
-    CGFT_EXEFile
-  };
+enum CodeGenFileType {
+  CGFT_Null = 2,
+  CGFT_DSOFile,
+  CGFT_EXEFile
+};
 
 
-  /** \class mcld::LLVMTargetMachine
-   *  \brief mcld::LLVMTargetMachine is a object adapter of 
-   *  llvm::LLVMTargetMachine.
-   *
-   *  @author Luba Tang <lubatang@mediatek.com>
-   */
-  class LLVMTargetMachine
-  {
-  public:
-    /// Adapter of llvm::TargetMachine
-    ///
-    LLVMTargetMachine(llvm::TargetMachine &pTM);
-    ~LLVMTargetMachine();
+/** \class mcld::LLVMTargetMachine
+ *  \brief mcld::LLVMTargetMachine is a object adapter of 
+ *  llvm::LLVMTargetMachine.
+ *
+ *  @author Luba Tang <lubatang@mediatek.com>
+ */
+class LLVMTargetMachine
+{
+public:
+  /// Adapter of llvm::TargetMachine
+  ///
+  LLVMTargetMachine(llvm::TargetMachine &pTM, const std::string& Triple);
+  ~LLVMTargetMachine();
 
-    /// getTarget - adapt llvm::TargetMachine::getTarget
-    ///
-    const llvm::Target& getTarget() const { return m_TM.getTarget(); }
+  /// getTarget - adapt llvm::TargetMachine::getTarget
+  ///
+  const mcld::Target& getTarget() const;
 
-    /// getTargetMachine - return adapted the llvm::TargetMachine.
-    ///
-    const TargetMachine& getTM() const { return m_TM; }
-    TargetMachine& getTM() { return m_TM; }
+  /// getTargetMachine - return adapted the llvm::TargetMachine.
+  ///
+  const llvm::TargetMachine& getTM() const { return m_TM; }
+  llvm::TargetMachine& getTM() { return m_TM; }
 
-    /// appPassesToEmitFile - The target function which we has to modify as
-    /// upstreaming.
-    ///
-    bool addPassesToEmitFile(PassManagerBase &,
-                             formatted_raw_ostream &,
-                             mcld::CodeGenFileType,
-                             CodeGenOpt::Level,
-                             bool DisableVerify= true); 
+  /// appPassesToEmitFile - The target function which we has to modify as
+  /// upstreaming.
+  ///
+  bool addPassesToEmitFile(PassManagerBase &,
+                           formatted_raw_ostream &,
+                           mcld::CodeGenFileType,
+                           CodeGenOpt::Level,
+                           bool DisableVerify= true); 
 
-    /// getTargetData
-    ///
-    const TargetData *getTargetData() const { return m_TM.getTargetData(); }
+  /// getTargetData
+  ///
+  const TargetData *getTargetData() const { return m_TM.getTargetData(); }
 
-    /// setAsmVerbosityDefault
-    ///
-    static void setAsmVerbosityDefault(bool pAsmVerbose) { 
-      TargetMachine::setAsmVerbosityDefault(pAsmVerbose); 
-    }
+  /// setAsmVerbosityDefault
+  ///
+  static void setAsmVerbosityDefault(bool pAsmVerbose) { 
+    llvm::TargetMachine::setAsmVerbosityDefault(pAsmVerbose); 
+  }
 
-    
-  private:
-    llvm::TargetMachine& m_TM;
-  };
+private:
+  /// setCodeModelForStatic
+  ///
+  void setCodeModelForStatic();
+
+private:
+  llvm::TargetMachine &m_TM;
+  mcld::Target *m_pTarget;
+  std::string m_Triple;
+};
 
 } // namespace of mcld
 

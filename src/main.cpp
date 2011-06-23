@@ -248,7 +248,10 @@ int main( int argc, char* argv[] )
   }
 
   std::auto_ptr<mcld::LLVMTargetMachine>
-    target( new mcld::LLVMTargetMachine( *TheTarget->createTargetMachine(TheTriple.getTriple(), FeaturesStr)));
+    target(
+      new mcld::LLVMTargetMachine(
+                               *TheTarget->createTargetMachine( TheTriple.getTriple(), FeaturesStr),
+                               TheTriple.getTriple()));
   assert(target.get() && "Could not allocate target machine!");
   mcld::LLVMTargetMachine &Target = *target.get();
 

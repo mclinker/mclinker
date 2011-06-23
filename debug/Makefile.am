@@ -17,7 +17,9 @@ endif
 
 NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
-	${INCDIR}/Target/TargetMachine.h
+	${INCDIR}/Target/TargetMachine.h \
+	${INCDIR}/Target/TargetRegistry.h \
+	${LIBDIR}/Target/Target.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 

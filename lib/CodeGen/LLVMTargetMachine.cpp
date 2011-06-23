@@ -5,43 +5,57 @@
  *                                                                           *
  *   Jush Lu <jush.msn@gmail.com>                                            *
  ****************************************************************************/
+#include <mcld/Target/TargetRegistry.h>
 #include <mcld/Target/TargetMachine.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/MC/MCLDDriver.h>
 
-#include "llvm/PassManager.h"
-#include "llvm/Analysis/Passes.h"
-#include "llvm/Analysis/Verifier.h"
-#include "llvm/Assembly/PrintModulePass.h"
-#include "llvm/CodeGen/AsmPrinter.h"
-#include "llvm/CodeGen/MachineFunctionAnalysis.h"
-#include "llvm/CodeGen/MachineModuleInfo.h"
-#include "llvm/CodeGen/GCStrategy.h"
-#include "llvm/CodeGen/Passes.h"
-#include "llvm/Target/TargetLowering.h"
-#include "llvm/Target/TargetOptions.h"
-#include "llvm/MC/MCAsmInfo.h"
-#include "llvm/MC/MCStreamer.h"
-#include "llvm/Target/TargetAsmInfo.h"
-#include "llvm/Target/TargetData.h"
-#include "llvm/Target/TargetRegistry.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/ADT/OwningPtr.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/Support/FormattedStream.h"
+#include <llvm/PassManager.h>
+#include <llvm/Analysis/Passes.h>
+#include <llvm/Analysis/Verifier.h>
+#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/CodeGen/AsmPrinter.h>
+#include <llvm/CodeGen/MachineFunctionAnalysis.h>
+#include <llvm/CodeGen/MachineModuleInfo.h>
+#include <llvm/CodeGen/GCStrategy.h>
+#include <llvm/CodeGen/Passes.h>
+#include <llvm/Target/TargetLowering.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/MC/MCAsmInfo.h>
+#include <llvm/MC/MCStreamer.h>
+#include <llvm/Target/TargetAsmInfo.h>
+#include <llvm/Target/TargetData.h>
+#include <llvm/Target/TargetRegistry.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/ADT/OwningPtr.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Debug.h>
+#include <llvm/Support/FormattedStream.h>
 
 
 
 using namespace mcld;
 using namespace llvm;
 
+/* ** */
 
-//==========================
-// TargetMachine
-mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM)
-  : m_TM(pTM) {
+mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM, const std::string& pTriple)
+  : m_TM(pTM), m_Triple(pTriple) {
+   m_pTarget = new mcld::Target(getTM().getTarget());
 }
 
 mcld::LLVMTargetMachine::~LLVMTargetMachine() {
+  delete m_pTarget;
+}
+
+const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
+{
+  return *m_pTarget;
+}
+
+void mcld::LLVMTargetMachine::setCodeModelForStatic()
+{
+  static_cast<llvm::LLVMTargetMachine&>(m_TM).setCodeModelForStatic();
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -55,20 +69,20 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     return true;
 
   //not in addPassesToMC
-  if (hasMCSaveTempLabels())
+  if (getTM().hasMCSaveTempLabels())
     Context->setAllowTemporaryLabels(false);
 
-  OwingPtr<MCLDDriver> LDDriver;   //OwningPtr<MCStreamer> AsmStreamer;
+  OwningPtr<MCLDDriver> LDDriver;
 
 
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {
-    MCCodeEmitter *MCE = getTarget().createCodeEmitter(*this, *Context);
+    llvm::MCCodeEmitter *MCE = getTarget().createCodeEmitter(*this, *Context);
     //TargetAsmBackend *TAB = getTarget().createAsmBackend(TargetTriple);
 
     // FIXME: TargetLDBackend needs implementation
-    TargetLDBackend *TDB = getTarget().createLDBackend(TargetTriple);   
+    TargetLDBackend *TDB = getTarget().createLDBackend();
 
     if (MCE == 0 || TDB == 0)
       return true;
@@ -79,7 +93,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     //                                                   hasMCNoExecStack()));
 
 
-    LDDriver.reset(getTarget.createLDDriver());
+    LDDriver.reset(getTarget().createLDDriver());
 
     //AsmStreamer.get()->InitSections();
    
@@ -95,23 +109,16 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
 
-  // not in addPassesToMC
-  if (EnableMCLogging)
-    AsmStreamer.reset(createLoggingStreamer(AsmStreamer.take(), errs()));
-
   // Create the AsmPrinter, which takes ownership of AsmStreamer if successful.
-  FunctionPass *Printer = getTarget().createAsmPrinter(*this, *AsmStreamer);
-  if (Printer == 0)
-    return true;
+  // FunctionPass *Printer = getTarget().createAsmPrinter(getTM(), *AsmStreamer);
+  //if (Printer == 0)
+  //  return true;
 
-  // If successful, createAsmPrinter took ownership of AsmStreamer.
-  AsmStreamer.take();
-
-  PM.add(Printer);
+  //pPM.add(Printer);
 
   // Make sure the code model is set.
-  setCodeModelForStatic(); //using setCodeModelForJIT() in addPassesToMC
-  PM.add(createGCInfoDeleter()); // not in addPassesToMC
+  setCodeModelForStatic();
+  pPM.add(createGCInfoDeleter()); // not in addPassesToMC
   return false;
 }
 
