@@ -35,3 +35,4 @@ function gettop()
 #  Variable Dictionary
 export BOLDTOP=$(gettop)
 export PATH="${BOLDTOP}/scripts/bin:$PATH"
+ln -sf ${BOLDTOP}/debug/MCLinker ${BOLDTOP}/scripts/bin/MCLinker
