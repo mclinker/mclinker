@@ -36,3 +36,4 @@ function gettop()
 export BOLDTOP=$(gettop)
 export PATH="${BOLDTOP}/scripts/bin:$PATH"
 ln -sf ${BOLDTOP}/debug/MCLinker ${BOLDTOP}/scripts/bin/MCLinker
+alias mk="make -C ${BOLDTOP}"
