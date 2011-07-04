@@ -1,61 +1,21 @@
+/*****************************************************************************
+ *   The MCLinker Project, Copyright (C), 2011 -                             *
+ *   Embedded and Web Computing Lab, National Taiwan University              *
+ *   MediaTek, Inc.                                                          *
+ *                                                                           *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
+ ****************************************************************************/
+#include <mcld/Target/TargetRegistry.h>
+#include "ARM.h"
+#include "ARMLDBackend.h"
 
-namespace mcld {
-class ARMMachObjectWriter : public MCMachObjectTargetWriter {
-public:
-  ARMMachObjectWriter(bool Is64Bit, uint32_t CPUType,
-                      uint32_t CPUSubtype)
-    : MCMachObjectTargetWriter(Is64Bit, CPUType, CPUSubtype,
-                               /*UseAggressiveSymbolFolding=*/true) {}
-};
+using namespace mcld;
 
-class ARMELFObjectWriter : public MCELFObjectTargetWriter {
-public:
-  ARMELFObjectWriter(Triple::OSType OSType)
-    : MCELFObjectTargetWriter(/*Is64Bit*/ false, OSType, ELF::EM_ARM,
-                              /*HasRelocationAddend*/ false) {}
-};
-
-
-class ARMLDBackend : public TargetLDBackend {
-
-};
-//implement ARMLDbackend
+//=============================
+// Force static initialization.
+extern "C" void LLVMInitializeARMLDBackend() {
+  // Register the linker backend
+  RegisterLDBackend<ARMLDBackend> A(TheARMTarget);
+}
 
 
-
-
-class ELFARMLDBackend : public ARMLDBackend {
-  
-};
-//implement member functions of ELFARMLDBackend
-
-
-class DarwinARMLDBackend : public ARMLDBackend {
-
-
-};
-//implement member functions of DarwinARMLDBackend
-
-
-TargetLDBackend  *mcld::createARMLDBackend(const Target &T,
-                                           const std::string &TT) {
-
-  Triple TheTriple(TT);
-
-  if (TheTriple().isOSDarwin()) {
-    if (TheTriple.getArchName() == "armv6" ||
-        TheTriple.getArchName() == "thumbv6")
-      return DarwinARMLDBackend(T, object::mach::CSARM_V6);
-    return DarwinARMLDBackend(T, object::mach::CSARM_V7);
-
-  }
-
-  if (TheTriple.isOSWindows())
-    assert(0 && "Windows not supported on ARM");
-
-  return ELFARMLDBackend(T, Triple(TT).getOS());
-};
-
-
-
-} //end namespace mcld 

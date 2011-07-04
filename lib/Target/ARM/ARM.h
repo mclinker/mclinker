@@ -5,7 +5,15 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
+#ifndef MCLD_ARM_H
+#define MCLD_ARM_H
+#include <mcld/Target/TargetMachine.h>
 
-extern "C" void LLVMInitializeARMLDTarget() {
-}
+namespace mcld {
+
+extern mcld::Target TheARMTarget;
+
+} // namespace of mcld
+
+#endif
 

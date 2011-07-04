@@ -3,9 +3,18 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Luba Tang <lubatang@gmail.com>                                          *
  ****************************************************************************/
+#include <mcld/Target/TargetLDBackend.h>
 
-extern "C" void LLVMInitializeARMLDTarget() {
+using namespace mcld;
+
+/* ** */
+TargetLDBackend::TargetLDBackend()
+{
+}
+
+TargetLDBackend::~TargetLDBackend()
+{
 }
 

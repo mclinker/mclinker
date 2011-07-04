@@ -40,12 +40,11 @@ using namespace llvm;
 /* ** */
 
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM, const std::string& pTriple)
-  : m_TM(pTM), m_Triple(pTriple) {
-   m_pTarget = new mcld::Target(getTM().getTarget());
+  : m_TM(pTM), m_Triple(pTriple), m_pTarget(mcld::TargetRegistry::lookupTarget(pTM.getTarget())) {
 }
 
 mcld::LLVMTargetMachine::~LLVMTargetMachine() {
-  delete m_pTarget;
+  m_pTarget = 0;
 }
 
 const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
@@ -77,7 +76,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {
-    llvm::MCCodeEmitter *MCE = getTarget().createCodeEmitter(*this, *Context);
+    llvm::MCCodeEmitter *MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
     //TargetAsmBackend *TAB = getTarget().createAsmBackend(TargetTriple);
 
     // FIXME: TargetLDBackend needs implementation
@@ -92,7 +91,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     //                                                   hasMCNoExecStack()));
 
 
-    LDDriver.reset(getTarget().createLDDriver());
+    //LDDriver.reset(getTarget().createLDDriver());
 
     //AsmStreamer.get()->InitSections();
    

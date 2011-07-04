@@ -85,7 +85,7 @@ private:
 
 private:
   llvm::TargetMachine &m_TM;
-  mcld::Target *m_pTarget;
+  const mcld::Target *m_pTarget;
   std::string m_Triple;
 };
 

@@ -177,7 +177,8 @@ int main( int argc, char* argv[] )
   InitializeAllTargets();
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
-  mcld::InitializeAllSectLinkers();
+  mcld::InitializeAllTargets();
+  mcld::InitializeAllLDBackends();
   cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
 
 #ifdef ENABLE_UNITTEST

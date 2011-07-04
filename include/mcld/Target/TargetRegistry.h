@@ -8,6 +8,8 @@
  ****************************************************************************/
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
+#include <llvm/Target/TargetRegistry.h>
+#include <list>
 
 namespace llvm {
 class Target;
@@ -31,35 +33,29 @@ class Target
   friend class mcld::TargetRegistry;
 public:  
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)();
-  typedef MCLDDriver       *(*MCLDDriverCtorTy)();
 
 private:
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
-  MCLDDriverCtorTy MCLDDriverCtorFn;
-
-private:
-  explicit Target(const llvm::Target& pTarget);
-  ~Target();
 
 public:
+  Target();
+
+  void setTarget(const llvm::Target& pTarget) {
+    m_pT = &pTarget;
+  }
+
   TargetLDBackend *createLDBackend() const {
     if (!TargetLDBackendCtorFn)
       return 0;
     return TargetLDBackendCtorFn();
   }
 
-  MCLDDriver *createLDDriver() const {
-    if (!MCLDDriverCtorFn)
-      return 0;
-    return MCLDDriverCtorFn();
-  }  
-
-  /// createCodeEmitter - Create a target specific code emitter.
-  llvm::MCCodeEmitter *createCodeEmitter(mcld::LLVMTargetMachine &TM,
-                                         llvm::MCContext &Ctx) const; 
+  const llvm::Target* get() const {
+    return m_pT;
+  }
 
 private:
-  const llvm::Target& m_T;
+  const llvm::Target* m_pT;
 };
 
 //===----------------------------------------------------------------------===//
@@ -69,14 +65,75 @@ private:
 class TargetRegistry 
 {
 public:
-  static void RegistryTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
-    if (0==T.TargetLDBackendCtorFn)
+  typedef std::list<mcld::Target*> TargetListTy;
+
+private:
+  static TargetListTy s_TargetList;
+
+public:
+  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
+    if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
   }
 
-  static void RegisterMCLDDriver(mcld::Target &T, mcld::Target::Target::MCLDDriverCtorTy Fn) {
-    if (0==T.MCLDDriverCtorFn)
-      T.MCLDDriverCtorFn = Fn;
+  /// RegisterTarget - Register the given target. Attempts to register a
+  /// target which has already been registered will be ignored.
+  ///
+  /// Clients are responsible for ensuring that registration doesn't occur
+  /// while another thread is attempting to access the registry. Typically
+  /// this is done by initializing all targets at program startup.
+  ///
+  /// @param T - The target being registered.
+  static void RegisterTarget(mcld::Target &T);
+
+  /// lookupTarget - Lookup a target based on a llvm::Target.
+  ///
+  /// @param T - The llvm::Target to find
+  static const mcld::Target *lookupTarget(const llvm::Target& T);
+};
+
+/// RegisterTarget - Helper function for registering a target, for use in the
+/// target's initialization function. Usage:
+///
+/// Target TheFooTarget; // The global target instance.
+///
+/// extern "C" void LLVMInitializeFooTargetInfo() {
+///   RegisterTarget X(TheFooTarget, "foo", "Foo description");
+/// }
+struct RegisterTarget 
+{
+  RegisterTarget(mcld::Target &T, const char *Name) {
+    llvm::TargetRegistry::iterator TIter, TEnd = llvm::TargetRegistry::end();
+    // lookup llvm::Target
+    for( TIter=llvm::TargetRegistry::begin(); TIter!=TEnd; ++TIter ) {
+      if( 0==strcmp(TIter->getName(), Name) )
+        break;
+    }
+    T.setTarget(*TIter);
+
+    TargetRegistry::RegisterTarget(T);
+  }
+};
+
+
+/// RegisterLDBackend - Helper template for registering a target specific
+/// linker backend, for use in the target machine initialization function. 
+/// Usage:
+///
+/// extern "C" void LLVMInitializeFooLDBackend() {
+///   extern Target TheFooTarget;
+///   RegisterLDBackend<FooSectLinker> X(TheFooTarget);
+/// }
+template<class LDBackendImpl>
+struct RegisterLDBackend
+{
+  RegisterLDBackend(mcld::Target &T) {
+    mcld::TargetRegistry::RegisterTargetLDBackend(T, &Allocator);
+  }
+
+private:
+  static TargetLDBackend *Allocator() {
+    return new LDBackendImpl();
   }
 };
 

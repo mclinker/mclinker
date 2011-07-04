@@ -19,9 +19,15 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/Target/TargetMachine.h \
 	${INCDIR}/Target/TargetRegistry.h \
+	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Target/Target.cpp \
 	${INCDIR}/Target/TargetSelect.h \
-	${LIBDIR}/Target/ARM/ARMSectLinker.cpp
+	${INCDIR}/Target/TargetLDBackend.h \
+	${LIBDIR}/Target/TargetLDBackend.cpp \
+	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
+	${LIBDIR}/Target/ARM/ARMLDBackend.h \
+	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
+	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 

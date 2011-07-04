@@ -15,17 +15,7 @@ using namespace llvm;
 using namespace mcld;
 
 /* ** */
-mcld::Target::Target(const llvm::Target& pTarget)
-  : m_T(pTarget), TargetLDBackendCtorFn(0), MCLDDriverCtorFn(0) {
+mcld::Target::Target()
+  : m_pT(0), TargetLDBackendCtorFn(0) {
 }
 
-mcld::Target::~Target() {
-  TargetLDBackendCtorFn = 0;
-  MCLDDriverCtorFn = 0;
-}
-
-llvm::MCCodeEmitter *mcld::Target::createCodeEmitter(
-                                     mcld::LLVMTargetMachine &TM,
-                                     MCContext &Ctx) const {
-  return m_T.createCodeEmitter(TM.getTM(), Ctx);
-}

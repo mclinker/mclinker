@@ -59,8 +59,10 @@ AC_DEFUN([ENUM_LLVM_TARGETS],
 	LLVM_ENUM_TARGETS=""
 	LLVM_ENUM_LINKERS=""
 	for target_to_build in $TARGETS_TO_BUILD; do
-	  LLVM_ENUM_TARGETS="LLVM_TARGET($target_to_build) $LLVM_ENUM_TARGETS"
-	  if test -f ${srcdir}/lib/Target/${target_to_build}/*SectLinker.cpp ; then
+	  if test -d ${srcdir}/lib/Target/${target_to_build} ; then
+	    LLVM_ENUM_TARGETS="LLVM_TARGET($target_to_build) $LLVM_ENUM_TARGETS"
+	  fi
+	  if test -f ${srcdir}/lib/Target/${target_to_build}/*LDBackend.cpp ; then
 	    LLVM_ENUM_LINKERS="LLVM_LINKER($target_to_build) $LLVM_ENUM_LINKERS";
 	  fi
 	done
