@@ -74,7 +74,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   OwningPtr<MCLDDriver> LDDriver;
 
-
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {

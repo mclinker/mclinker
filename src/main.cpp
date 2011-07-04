@@ -24,6 +24,7 @@
 #include <llvm/LLVMContext.h>
 #include <llvm/Support/Host.h>
 #include <mcld/Target/TargetMachine.h>
+#include <mcld/Target/TargetSelect.h>
 
 #ifdef MCLD_DEBUG
 #include <iostream>
@@ -176,6 +177,7 @@ int main( int argc, char* argv[] )
   InitializeAllTargets();
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
+  mcld::InitializeAllSectLinkers();
   cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
