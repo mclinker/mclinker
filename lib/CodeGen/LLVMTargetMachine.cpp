@@ -39,8 +39,10 @@ using namespace llvm;
 
 /* ** */
 
-mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM, const mcld::Target& pTarget)
-  : m_TM(pTM), m_pTarget(&pTarget) {
+mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
+                                           const mcld::Target& pTarget,
+                                           const std::string& pTriple )
+  : m_TM(pTM), m_pTarget(&pTarget), m_Triple(pTriple) {
 }
 
 mcld::LLVMTargetMachine::~LLVMTargetMachine() {
@@ -71,32 +73,14 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   if (getTM().hasMCSaveTempLabels())
     Context->setAllowTemporaryLabels(false);
 
-  OwningPtr<MCLDDriver> LDDriver;
-
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {
     llvm::MCCodeEmitter *MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
-    //TargetAsmBackend *TAB = getTarget().createAsmBackend(TargetTriple);
-
-    // FIXME: TargetLDBackend needs implementation
-    TargetLDBackend *TDB = getTarget().createLDBackend();
+    TargetLDBackend *TDB = getTarget().createLDBackend(*getTarget().get(), m_Triple);
 
     if (MCE == 0 || TDB == 0)
       return true;
-
-    //AsmStreamer.reset(getTarget().createObjectStreamer(TargetTriple, *Context,
-    //                                                   *TAB, Out, MCE,
-    //                                                   hasMCRelaxAll(),
-    //                                                   hasMCNoExecStack()));
-
-
-    //LDDriver.reset(getTarget().createLDDriver());
-
-    //AsmStreamer.get()->InitSections();
-   
-    // create MCLDPrinter
-    // PM.add();
     break;
   }
   case CGFT_EXEFile: {
@@ -107,14 +91,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
 
-  // Create the AsmPrinter, which takes ownership of AsmStreamer if successful.
-  // FunctionPass *Printer = getTarget().createAsmPrinter(getTM(), *AsmStreamer);
-  //if (Printer == 0)
-  //  return true;
-
-  //pPM.add(Printer);
-
-  // Make sure the code model is set.
   setCodeModelForStatic();
   pPM.add(createGCInfoDeleter()); // not in addPassesToMC
   return false;

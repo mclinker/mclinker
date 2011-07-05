@@ -13,6 +13,8 @@ namespace mcld {
 
 extern mcld::Target TheARMTarget;
 
+TargetLDBackend *createARMLDBackend(const llvm::Target&, const std::string&);
+
 } // namespace of mcld
 
 #endif

@@ -34,8 +34,10 @@ class Target
   friend class mcld::TargetRegistry;
 public:  
   typedef mcld::LLVMTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
-                                                          llvm::TargetMachine &);
-  typedef TargetLDBackend  *(*TargetLDBackendCtorTy)();
+                                                          llvm::TargetMachine &,
+                                                          const std::string&);
+  typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
+                                                     const std::string&);
 
 private:
   TargetMachineCtorTy TargetMachineCtorFn;
@@ -46,12 +48,6 @@ public:
 
   void setTarget(const llvm::Target& pTarget) {
     m_pT = &pTarget;
-  }
-
-  TargetLDBackend *createLDBackend() const {
-    if (!TargetLDBackendCtorFn)
-      return 0;
-    return TargetLDBackendCtorFn();
   }
 
   mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
@@ -66,9 +62,18 @@ public:
 #else
       if (tm=m_pT->createTargetMachine(pTriple, pFeatures))
 #endif
-        return TargetMachineCtorFn(*this, *tm);
+        return TargetMachineCtorFn(*this, *tm, pTriple);
     }
     return 0;
+  }
+
+  /// createLDBackend - create target-specific LDBackend
+  ///
+  /// @return created TargetLDBackend
+  TargetLDBackend *createLDBackend(const llvm::Target& T, const std::string& Triple) const {
+    if (!TargetLDBackendCtorFn)
+      return 0;
+    return TargetLDBackendCtorFn(T, Triple);
   }
 
   const llvm::Target* get() const {
@@ -99,12 +104,6 @@ public:
   static size_t size() { return s_TargetList.size(); }
   static bool empty() { return s_TargetList.empty(); }
 
-
-  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
-    if (!T.TargetLDBackendCtorFn)
-      T.TargetLDBackendCtorFn = Fn;
-  }
-
   /// RegisterTarget - Register the given target. Attempts to register a
   /// target which has already been registered will be ignored.
   ///
@@ -124,6 +123,16 @@ public:
     // Ignore duplicate registration.
     if (!T.TargetMachineCtorFn)
       T.TargetMachineCtorFn = Fn;
+  }
+
+  /// RegisterTargetLDBackend - Register a TargetLDBackend implementation for
+  /// the given target.
+  ///
+  /// @param T - The target being registered
+  /// @param Fn - A function to create TargetLDBackend for the target
+  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
+    if (!T.TargetLDBackendCtorFn)
+      T.TargetLDBackendCtorFn = Fn;
   }
 
 
@@ -180,30 +189,9 @@ struct RegisterTargetMachine
 
 private:
   static mcld::LLVMTargetMachine *Allocator(const mcld::Target &T,
-                                            llvm::TargetMachine& TM) {
-    return new TargetMachineImpl(TM, T);
-  }
-};
-
-
-/// RegisterLDBackend - Helper template for registering a target specific
-/// linker backend, for use in the target machine initialization function. 
-/// Usage:
-///
-/// extern "C" void LLVMInitializeFooLDBackend() {
-///   extern Target TheFooTarget;
-///   RegisterLDBackend<FooSectLinker> X(TheFooTarget);
-/// }
-template<class LDBackendImpl>
-struct RegisterLDBackend
-{
-  RegisterLDBackend(mcld::Target &T) {
-    mcld::TargetRegistry::RegisterTargetLDBackend(T, &Allocator);
-  }
-
-private:
-  static TargetLDBackend *Allocator() {
-    return new LDBackendImpl();
+                                            llvm::TargetMachine& TM,
+                                            const std::string &Triple) {
+    return new TargetMachineImpl(TM, T, Triple);
   }
 };
 
