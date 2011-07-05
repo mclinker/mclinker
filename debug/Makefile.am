@@ -8,10 +8,10 @@ UNITTEST=${TOPLEVEL}/unittests
 bin_PROGRAMS = MCLinker
 
 if ENABLE_UNITTEST
-MCLinker_CPPFLAGS = -g -O1 -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS}
 MCLinker_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
-MCLinker_CPPFLAGS = -g -O1 -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DMCLD_DEBUG  -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
 MCLinker_LDADD = ${LLVM_LDFLAGS}
 endif
 
@@ -28,6 +28,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp
+#        ${UNITTEST}/TargetRegistryTest.h \
+#        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
