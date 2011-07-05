@@ -47,7 +47,7 @@ class LLVMTargetMachine
 public:
   /// Adapter of llvm::TargetMachine
   ///
-  LLVMTargetMachine(llvm::TargetMachine &pTM, const std::string& Triple);
+  LLVMTargetMachine(llvm::TargetMachine &pTM, const mcld::Target &pTarget);
   ~LLVMTargetMachine();
 
   /// getTarget - adapt llvm::TargetMachine::getTarget
