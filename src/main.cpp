@@ -25,6 +25,7 @@
 #include <llvm/Support/Host.h>
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetSelect.h>
+#include <mcld/Target/TargetRegistry.h>
 
 #ifdef MCLD_DEBUG
 #include <iostream>
@@ -209,12 +210,12 @@ int main( int argc, char* argv[] )
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
   // name, because it might be a backend that has no mapping to a target triple.
-  const Target *TheTarget = 0;
+  const mcld::Target *TheTarget = 0;
   if (!MArch.empty()) {
-    for (TargetRegistry::iterator it = TargetRegistry::begin(),
-           ie = TargetRegistry::end(); it != ie; ++it) {
-      if (MArch == it->getName()) {
-        TheTarget = &*it;
+    for (mcld::TargetRegistry::iterator it = mcld::TargetRegistry::begin(),
+           ie = mcld::TargetRegistry::end(); it != ie; ++it) {
+      if (MArch == (*it)->get()->getName()) {
+        TheTarget = *it;
         break;
       }
     }
@@ -231,7 +232,7 @@ int main( int argc, char* argv[] )
       TheTriple.setArch(Type);
   } else {
     std::string Err;
-    TheTarget = TargetRegistry::lookupTarget(TheTriple.getTriple(), Err);
+    TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), Err);
     if (TheTarget == 0) {
       errs() << argv[0] << ": error auto-selecting target for module '"
              << Err << "'.  Please use the -march option to explicitly "
@@ -250,22 +251,19 @@ int main( int argc, char* argv[] )
     FeaturesStr = Features.getString();
   }
 
-  std::auto_ptr<mcld::LLVMTargetMachine>
-    target(
-      new mcld::LLVMTargetMachine(
-                               *TheTarget->createTargetMachine( TheTriple.getTriple(), FeaturesStr),
-                               TheTriple.getTriple()));
+  std::auto_ptr<mcld::LLVMTargetMachine> target( 
+          TheTarget->createTargetMachine(TheTriple.getTriple(), FeaturesStr));
   assert(target.get() && "Could not allocate target machine!");
-  mcld::LLVMTargetMachine &Target = *target.get();
+  mcld::LLVMTargetMachine &TheTargetMachine = *target.get();
 
 #if LLVM_VERSION > 2
-  Target.setMCUseLoc(false);
-  Target.setMCUseCFI(false);
+  TheTargetMachine.getTM().setMCUseLoc(false);
+  TheTargetMachine.getTM().setMCUseCFI(false);
 #endif
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file> Out
-    (GetOutputStream( TheTarget->getName(), TheTriple.getOS(), argv[0]));
+    (GetOutputStream( TheTarget->get()->getName(), TheTriple.getOS(), argv[0]));
   if (!Out) return 1;
 
   CodeGenOpt::Level OLvl = CodeGenOpt::Default;
@@ -284,19 +282,19 @@ int main( int argc, char* argv[] )
   PassManager PM;
 
   // Add the target data from the target machine, if it exists, or the module.
-  if (const TargetData *TD = Target.getTargetData())
+  if (const TargetData *TD = TheTargetMachine.getTM().getTargetData())
     PM.add(new TargetData(*TD));
   else
     PM.add(new TargetData(&mod));
 
   // Override default to generate verbose assembly.
-  Target.setAsmVerbosityDefault(true);
+  TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
   {
     formatted_raw_ostream FOS(Out->os());
 
     // Ask the target to add backend passes as necessary.
-    if( Target.addPassesToEmitFile( PM, FOS, FileType, OLvl, NoVerify)) {
+    if( TheTargetMachine.addPassesToEmitFile( PM, FOS, FileType, OLvl, NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
       return 1;

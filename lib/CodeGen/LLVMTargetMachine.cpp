@@ -39,8 +39,8 @@ using namespace llvm;
 
 /* ** */
 
-mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM, const std::string& pTriple)
-  : m_TM(pTM), m_Triple(pTriple), m_pTarget(mcld::TargetRegistry::lookupTarget(pTM.getTarget())) {
+mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM, const mcld::Target& pTarget)
+  : m_TM(pTM), m_pTarget(&pTarget) {
 }
 
 mcld::LLVMTargetMachine::~LLVMTargetMachine() {

@@ -13,6 +13,7 @@
 
 namespace llvm {
 class Target;
+class TargetMachine;
 class MCCodeEmitter;
 class MCContext;
 } // namespace of llvm
@@ -32,9 +33,12 @@ class Target
   friend class mcld::LLVMTargetMachine;
   friend class mcld::TargetRegistry;
 public:  
+  typedef mcld::LLVMTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
+                                                          llvm::TargetMachine &);
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)();
 
 private:
+  TargetMachineCtorTy TargetMachineCtorFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
 
 public:
@@ -48,6 +52,16 @@ public:
     if (!TargetLDBackendCtorFn)
       return 0;
     return TargetLDBackendCtorFn();
+  }
+
+  mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
+                                               const std::string &pFeatures) const {
+    if (TargetMachineCtorFn && m_pT) {
+      llvm::TargetMachine *tm = 0;
+      if (tm=m_pT->createTargetMachine(pTriple, pFeatures))
+        return TargetMachineCtorFn(*this, *tm);
+    }
+    return 0;
   }
 
   const llvm::Target* get() const {
@@ -66,11 +80,19 @@ class TargetRegistry
 {
 public:
   typedef std::list<mcld::Target*> TargetListTy;
+  typedef TargetListTy::iterator iterator;
 
 private:
   static TargetListTy s_TargetList;
 
 public:
+  static iterator begin() { return s_TargetList.begin(); }
+  static iterator end() { return s_TargetList.end(); }
+
+  static size_t size() { return s_TargetList.size(); }
+  static bool empty() { return s_TargetList.empty(); }
+
+
   static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
     if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
@@ -86,10 +108,29 @@ public:
   /// @param T - The target being registered.
   static void RegisterTarget(mcld::Target &T);
 
+  /// RegisterTargetMachine - Register a TargetMachine implementation for the
+  /// given target.
+  ///
+  /// @param T - The target being registered.
+  /// @param Fn - A function to construct a TargetMachine for the target.
+  static void RegisterTargetMachine(mcld::Target &T, mcld::Target::TargetMachineCtorTy Fn) {
+    // Ignore duplicate registration.
+    if (!T.TargetMachineCtorFn)
+      T.TargetMachineCtorFn = Fn;
+  }
+
+
   /// lookupTarget - Lookup a target based on a llvm::Target.
   ///
   /// @param T - The llvm::Target to find
   static const mcld::Target *lookupTarget(const llvm::Target& T);
+
+  /// lookupTarget - function wrapper of llvm::TargetRegistry::lookupTarget
+  ///
+  /// @param Triple - The Triple string
+  /// @param Error  - The returned error message
+  static const mcld::Target *lookupTarget(const std::string &Triple,
+                                          std::string &Error);
 };
 
 /// RegisterTarget - Helper function for registering a target, for use in the
@@ -112,6 +153,28 @@ struct RegisterTarget
     T.setTarget(*TIter);
 
     TargetRegistry::RegisterTarget(T);
+  }
+};
+
+/// RegisterTargetMachine - Helper template for registering a target machine
+/// implementation, for use in the target machine initialization
+/// function. Usage:
+///
+/// extern "C" void LLVMInitializeFooTarget() {
+///   extern mcld::Target TheFooTarget;
+///   RegisterTargetMachine<mcld::FooTargetMachine> X(TheFooTarget);
+/// }
+template<class TargetMachineImpl>
+struct RegisterTargetMachine 
+{
+  RegisterTargetMachine(mcld::Target &T) {
+    TargetRegistry::RegisterTargetMachine(T, &Allocator);
+  }
+
+private:
+  static mcld::LLVMTargetMachine *Allocator(const mcld::Target &T,
+                                            llvm::TargetMachine& TM) {
+    return new TargetMachineImpl(TM, T);
   }
 };
 
