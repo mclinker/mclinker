@@ -14,7 +14,6 @@
 #include <llvm/Support/IRReader.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FormattedStream.h>
-#include <llvm/Target/SubtargetFeature.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetRegistry.h>
@@ -26,6 +25,12 @@
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetSelect.h>
 #include <mcld/Target/TargetRegistry.h>
+
+#if LLVM_VERSION > 2
+#include <llvm/MC/SubtargetFeature.h>
+#else
+#include <llvm/Target/SubtargetFeature.h>
+#endif
 
 #ifdef MCLD_DEBUG
 #include <iostream>
@@ -243,6 +248,14 @@ int main( int argc, char* argv[] )
 
   // Package up features to be passed to target/subtarget
   std::string FeaturesStr;
+#if LLVM_VERSION > 2
+  if (MAttrs.size()) {
+    SubtargetFeatures Features;
+    for (unsigned i = 0; i != MAttrs.size(); ++i)
+      Features.AddFeature(MAttrs[i]);
+    FeaturesStr = Features.getString();
+  }
+#else
   if (MCPU.size() || MAttrs.size()) {
     SubtargetFeatures Features;
     Features.setCPU(MCPU);
@@ -250,9 +263,14 @@ int main( int argc, char* argv[] )
       Features.AddFeature(MAttrs[i]);
     FeaturesStr = Features.getString();
   }
+#endif
 
   std::auto_ptr<mcld::LLVMTargetMachine> target( 
-          TheTarget->createTargetMachine(TheTriple.getTriple(), FeaturesStr));
+          TheTarget->createTargetMachine(TheTriple.getTriple(), 
+#if LLVM_VERSION > 2
+                                         MCPU,
+#endif
+                                         FeaturesStr));
   assert(target.get() && "Could not allocate target machine!");
   mcld::LLVMTargetMachine &TheTargetMachine = *target.get();
 
