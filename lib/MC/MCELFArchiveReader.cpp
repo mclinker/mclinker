@@ -5,30 +5,17 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCELFOBJECTREADER_H
-#define MCELFOBJECTREADER_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
-#include <mcld/MC/MCObjectReader.h>
+#include <mcld/MC/MCELFArchiveReader.h>
 
-namespace mcld
+using namespace mcld;
+
+//==========================
+// MCELFArchiveReader
+MCELFArchiveReader::MCELFArchiveReader(TargetLDBackend::TargetArchiveReaderCtorFnTy pCtorFn)
+  : MCArchiveReader(pCtorFn) {
+}
+
+MCELFArchiveReader::~MCELFArchiveReader()
 {
-
-/** \class MCELFObjectReader
- *  \brief MCELFObjectReader reads target-independent parts of ELF object file.
- *
- *  \see
- *  \author Duo <pinronglu@gmail.com>
- */
-class MCELFObjectReader : public MCObjectReader
-{
-public:
-  MCELFObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn);
-  ~MCELFObjectReader();
-};
-
-} // namespace of mcld
-
-#endif
-
+}
+ 

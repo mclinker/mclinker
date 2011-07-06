@@ -1,29 +1,21 @@
-#include "mcld/MC/MCELFObjectReader.h"
-#include <vector>
-typedef std::vector<std::pair<unsigned char, const char*> > ByteArrayTy;
+/*****************************************************************************
+ *   The MCLinker Project, Copyright (C), 2011 -                             *
+ *   Embedded and Web Computing Lab, National Taiwan University              *
+ *   MediaTek, Inc.                                                          *
+ *                                                                           *
+ *   Duo <pinronglu@gmail.com>                                               *
+ ****************************************************************************/
+#include <mcld/MC/MCELFObjectReader.h>
 
-namespace mcld {
+using namespace mcld;
 
-  bool MCELFObjectReader::getMCInstruction(const MCDisassembler &DisAsm,
-                                      const ByteArrayTy &Byte) {
-    // Wrap the vector in a MemoryObject.
-    VectorMemoryObject memoryObject(Bytes);
+//==========================
+// MCELFObjectReader
+MCELFObjectReader::MCELFObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn)
+  : MCObjectReader(pCtorFn) {
+}
 
-    // Disassemble it to strings.
-    uint64_t Size;
-    uint64_t Index;
+MCELFObjectReader::~MCELFObjectReader()
+{
+}
 
-    for (Index = 0; Index < Bytes.size(); Index += Size) {
-      MCInst Inst;
-
-      if (DisAsm.getInstruction(Inst, Size, memoryObject, Index,
-                               /*REMOVE*/ nulls())) {
-        //FIXME : Add Inst to LD MCInst list
-      } else {
-        if (Size == 0)
-          Size = 1; // skip illegible bytes
-      }
-    }
-  }
-
-} //end namespace mcld

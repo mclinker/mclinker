@@ -5,27 +5,24 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCELFOBJECTREADER_H
-#define MCELFOBJECTREADER_H
+#ifndef TARGETOBJECTREADER_H
+#define TARGETOBJECTREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCObjectReader.h>
 
 namespace mcld
 {
 
-/** \class MCELFObjectReader
- *  \brief MCELFObjectReader reads target-independent parts of ELF object file.
+/** \class TargetObjectReader
+ *  \brief TargetObjectReader provides an interface for target-dependent object readers.
  *
  *  \see
  *  \author Duo <pinronglu@gmail.com>
  */
-class MCELFObjectReader : public MCObjectReader
+class TargetObjectReader
 {
-public:
-  MCELFObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn);
-  ~MCELFObjectReader();
+
 };
 
 } // namespace of mcld
