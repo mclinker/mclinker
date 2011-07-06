@@ -27,7 +27,15 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
-	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp
+	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${INCDIR}/MC/MCObjectReader.h \
+	${LIBDIR}/MC/MCObjectReader.cpp \
+	${INCDIR}/MC/MCELFObjectReader.h \
+	${LIBDIR}/MC/MCELFObjectReader.cpp \
+	${INCDIR}/MC/MCArchiveReader.h \
+	${LIBDIR}/MC/MCArchiveReader.cpp \
+	${INCDIR}/MC/MCELFArchiveReader.h \
+	${LIBDIR}/MC/MCELFArchiveReader.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \

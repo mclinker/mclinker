@@ -3,19 +3,21 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@gmail.com>                                          *
+ *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/MC/MCArchiveReader.h>
+#include <mcld/Target/TargetArchiveReader.h>
 
 using namespace mcld;
 
-/* ** */
-TargetLDBackend::TargetLDBackend(TargetLDBackend::TargetArchiveReaderCtorFnTy pTACF, 
-                                 TargetLDBackend::TargetObjectReaderCtorFnTy pTOCF)
-{
+//==========================
+// MCArchiveReader
+
+MCArchiveReader::MCArchiveReader(TargetLDBackend::TargetArchiveReaderCtorFnTy pCtorFn)
+  : m_pReader(pCtorFn()) {
 }
 
-TargetLDBackend::~TargetLDBackend()
+MCArchiveReader::~MCArchiveReader()
 {
+  delete m_pReader;
 }
-
