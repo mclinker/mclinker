@@ -38,6 +38,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCELFObjectTargetReader.cpp \
 	${INCDIR}/MC/MCObjectWriter.h \
 	${LIBDIR}/MC/MCObjectWriter.cpp \
+  ${INCDIR}/MC/MCObjectFile.h \
+	${LIBDIR}/MC/MCObjectFile.cpp \
 	${INCDIR}/MC/MCELFObjectWriter.h \
 	${LIBDIR}/MC/MCELFObjectWriter.cpp \
 	${INCDIR}/MC/MCELFObjectTargetWriter.h \
