@@ -11,8 +11,8 @@ using namespace mcld;
 
 //==========================
 // MCELFArchiveReader
-MCELFArchiveReader::MCELFArchiveReader(TargetLDBackend::TargetArchiveReaderCtorFnTy pCtorFn)
-  : MCArchiveReader(pCtorFn) {
+MCELFArchiveReader::MCELFArchiveReader(const MCELFArchiveTargetReader *pTargetReader)
+  : m_pTargetReader(pTargetReader) {
 }
 
 MCELFArchiveReader::~MCELFArchiveReader()

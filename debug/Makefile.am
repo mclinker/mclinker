@@ -24,6 +24,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/Target/TargetSelect.h \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
+	${INCDIR}/Target/ELFUnixLDBackend.h \
+	${LIBDIR}/Target/ELFUnixLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
@@ -32,10 +34,26 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCObjectReader.cpp \
 	${INCDIR}/MC/MCELFObjectReader.h \
 	${LIBDIR}/MC/MCELFObjectReader.cpp \
+	${INCDIR}/MC/MCELFObjectTargetReader.h \
+	${LIBDIR}/MC/MCELFObjectTargetReader.cpp \
+	${INCDIR}/MC/MCObjectWriter.h \
+	${LIBDIR}/MC/MCObjectWriter.cpp \
+	${INCDIR}/MC/MCELFObjectWriter.h \
+	${LIBDIR}/MC/MCELFObjectWriter.cpp \
+	${INCDIR}/MC/MCELFObjectTargetWriter.h \
+	${LIBDIR}/MC/MCELFObjectTargetWriter.cpp \
 	${INCDIR}/MC/MCArchiveReader.h \
 	${LIBDIR}/MC/MCArchiveReader.cpp \
 	${INCDIR}/MC/MCELFArchiveReader.h \
-	${LIBDIR}/MC/MCELFArchiveReader.cpp
+	${LIBDIR}/MC/MCELFArchiveReader.cpp \
+	${INCDIR}/MC/MCELFArchiveTargetReader.h \
+	${LIBDIR}/MC/MCELFArchiveTargetReader.cpp \
+	${LIBDIR}/Target/ARM/ARMELFArchiveReader.h \
+	${LIBDIR}/Target/ARM/ARMELFArchiveReader.cpp \
+	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
+	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
+	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
+	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \

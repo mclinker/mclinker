@@ -7,17 +7,43 @@
  ****************************************************************************/
 #ifndef ARM_LDBACKEND_H
 #define ARM_LDBACKEND_H
-#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Target/ELFUnixLDBackend.h>
 
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
-/// ARMLDBackend - linker backend of ARM target
+/// ARMELFLDBackend - linker backend of ARM target of ELF format
 ///
-class ARMLDBackend : public TargetLDBackend
+class ARMELFLDBackend : public ELFUnixLDBackend
 {
+public:
+  ARMELFLDBackend();
+  ~ARMELFLDBackend();
+
+private:
+  MCELFArchiveTargetReader *createArchiveTargetReader() const;
+  MCELFObjectTargetReader *createObjectTargetReader() const;
+  MCELFObjectTargetWriter *createObjectTargetWriter() const;
+
 };
 
+//===----------------------------------------------------------------------===//
+/// ARMMachOLDBackend - linker backend of ARM target of MachO format
+///
+/**
+class ARMMachOLDBackend : public DarwinARMLDBackend
+{
+public:
+  ARMMachOLDBackend();
+  ~ARMMachOLDBackend();
+
+private:
+  MCMachOTargetArchiveReader *createTargetArchiveReader() const;
+  MCMachOTargetObjectReader *createTargetObjectReader() const;
+  MCMachOTargetObjectWriter *createTargetObjectWriter() const;
+
+};
+**/
 } // namespace of mcld
 
 #endif

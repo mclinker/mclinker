@@ -6,18 +6,16 @@
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
 #include <mcld/MC/MCArchiveReader.h>
-#include <mcld/Target/TargetArchiveReader.h>
 
 using namespace mcld;
 
 //==========================
 // MCArchiveReader
 
-MCArchiveReader::MCArchiveReader(TargetLDBackend::TargetArchiveReaderCtorFnTy pCtorFn)
-  : m_pReader(pCtorFn()) {
+MCArchiveReader::MCArchiveReader()
+{
 }
 
 MCArchiveReader::~MCArchiveReader()
 {
-  delete m_pReader;
 }

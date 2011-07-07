@@ -9,21 +9,61 @@
 #include <mcld/Target/TargetRegistry.h>
 #include "ARM.h"
 #include "ARMLDBackend.h"
+#include "ARMELFArchiveReader.h"
+#include "ARMELFObjectReader.h"
+#include "ARMELFObjectWriter.h"
 
 using namespace mcld;
 
+ARMELFLDBackend::ARMELFLDBackend()
+{
+}
+
+ARMELFLDBackend::~ARMELFLDBackend()
+{
+}
+
+MCELFArchiveTargetReader *ARMELFLDBackend::createArchiveTargetReader() const
+{
+  return new ARMELFArchiveReader();
+}
+
+MCELFObjectTargetReader *ARMELFLDBackend::createObjectTargetReader() const
+{
+  return new ARMELFObjectReader();
+}
+
+MCELFObjectTargetWriter *ARMELFLDBackend::createObjectTargetWriter() const
+{
+  return new ARMELFObjectWriter();
+}
+
 namespace mcld {
 
+//===----------------------------------------------------------------------===//
+/// createARMLDBackend - the help funtion to create corresponding ARMLDBackend
+///
 TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget, 
                                     const std::string& pTriple)
 {
   Triple theTriple(pTriple);
-  if (theTriple.isOSDarwin())
-    assert(0 && "MC Linker for Darwin has not been supported yet");
-  if (theTriple.isOSWindows())
-    assert(0 && "MC Linker for Windows has not been supported yet");
-  assert(0 && "MC Linker for ELF system has not been supported yet");
-  //return new ELFARMLDBackend(pTarget, pTriple);
+  if (theTriple.isOSDarwin()) {
+    assert(0 && "MachO linker is not supported yet");
+    /**
+    return new ARMMachOLDBackend(createARMMachOArchiveReader,
+                               createARMMachOObjectReader,
+                               createARMMachOObjectWriter);
+    **/
+  }
+  if (theTriple.isOSWindows()) {
+    assert(0 && "COFF linker is not supported yet");
+    /**
+    return new ARMCOFFLDBackend(createARMCOFFArchiveReader,
+                               createARMCOFFObjectReader,
+                               createARMCOFFObjectWriter);
+    **/
+  }
+  return new ARMELFLDBackend();
 }
 
 } // namespace of mcld
@@ -34,5 +74,3 @@ extern "C" void LLVMInitializeARMLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget, createARMLDBackend);
 }
-
-

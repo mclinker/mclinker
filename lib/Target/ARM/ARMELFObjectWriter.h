@@ -3,33 +3,27 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef MCELFARCHIVEREADER_H
-#define MCELFARCHIVEREADER_H
+#ifndef ARMELFOBJECTWRITER_H
+#define ARMELFOBJECTWRITER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-
-#include <mcld/MC/MCArchiveReader.h>
+#include <mcld/MC/MCELFObjectTargetWriter.h>
 
 namespace mcld
 {
-class MCELFArchiveTargetReader;
-/** \class MCELFArchiveReader
- *  \brief MCELFArchiveReader reads the target-independent parts of an archive file.
+
+/** \class ARMELFObjectWriter
+ *  \brief ARMELFObjectWriter writes target-dependent parts of ELF object file.
  *
  *  \see
- *  \author Duo <pinronglu@gmail.com>
+ *  \author Luba Tang <lubatang@mediatek.com>
  */
-class MCELFArchiveReader : public MCArchiveReader
+class ARMELFObjectWriter : public MCELFObjectTargetWriter
 {
-public:
-  MCELFArchiveReader(const MCELFArchiveTargetReader *pTargetReader);
-  ~MCELFArchiveReader();
 
-private:
-  const MCELFArchiveTargetReader *m_pTargetReader;
 };
 
 } // namespace of mcld

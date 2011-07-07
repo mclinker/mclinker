@@ -14,6 +14,7 @@
 
 namespace mcld
 {
+class MCELFObjectTargetReader;
 
 /** \class MCELFObjectReader
  *  \brief MCELFObjectReader reads target-independent parts of ELF object file.
@@ -24,8 +25,11 @@ namespace mcld
 class MCELFObjectReader : public MCObjectReader
 {
 public:
-  MCELFObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn);
+  MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader);
   ~MCELFObjectReader();
+
+private:
+  const MCELFObjectTargetReader *m_pTargetReader;
 };
 
 } // namespace of mcld

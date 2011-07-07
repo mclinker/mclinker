@@ -10,12 +10,9 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
-
-class TargetArchiveReader;
 
 /** \class MCArchiveReader
  *  \brief MCArchiveReader provides the interface of reading an archive.
@@ -25,12 +22,10 @@ class TargetArchiveReader;
  */
 class MCArchiveReader
 {
+protected:
+  MCArchiveReader();
 public:
-  MCArchiveReader(TargetLDBackend::TargetArchiveReaderCtorFnTy pCtorFn);
   virtual ~MCArchiveReader();
-
-private:
-  TargetArchiveReader *m_pReader;
 };
 
 } // namespace of mcld
