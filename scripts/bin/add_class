@@ -91,6 +91,26 @@ if [ "${FILE_TYPE}" = "normal" ]; then
 	done
 fi
 
+# 3.ii ask Target
+if [ "${DEPLOYMENT}" = "Target" ]; then
+	echo "What is your Target?";
+	echo " 1) Target"
+	echo " 2) Target/ARM"
+
+	while [ -z "${TARGET}" ]; do
+		echo -n "your choice? ";
+		read TARGET
+		case "${TARGET}" in
+		1 ) TARGET=".";;
+		2 ) TARGET="ARM"
+		    source ${BOLDTOP}/scripts/target_files.sh;
+			;;
+		* ) TARGET="";;
+		esac
+	done
+	DEPLOYMENT="${DEPLOYMENT}/${TARGET}"
+fi
+
 # 4. ask file name
 ask_filename
 read CLASS_NAME
