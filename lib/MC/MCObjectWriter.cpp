@@ -3,19 +3,20 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/MC/MCELFObjectReader.h>
+#include <mcld/MC/MCObjectWriter.h>
 
 using namespace mcld;
 
 //==========================
-// MCELFObjectReader
-MCELFObjectReader::MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader)
-  : m_pTargetReader(pTargetReader) {
-}
+// MCObjectWriter
 
-MCELFObjectReader::~MCELFObjectReader()
+
+MCObjectWriter::MCObjectWriter() 
 {
 }
 
+MCObjectWriter::~MCObjectWriter() 
+{
+}

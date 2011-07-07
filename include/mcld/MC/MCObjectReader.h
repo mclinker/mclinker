@@ -10,12 +10,9 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
-
-class TargetObjectReader;
 
 /** \class MCObjectReader
  *  \brief MCObjectReader provides an interface for different object formats.
@@ -25,13 +22,10 @@ class TargetObjectReader;
  */
 class MCObjectReader
 {
+protected:
+  MCObjectReader();
 public:
-  MCObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn);
   virtual ~MCObjectReader();
-
-private:
-  TargetObjectReader *m_pReader;
-
 };
 
 } // namespace of mcld

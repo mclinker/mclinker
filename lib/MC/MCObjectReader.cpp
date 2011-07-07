@@ -12,11 +12,10 @@ using namespace mcld;
 //==========================
 // MCObjectReader
 
-MCObjectReader::MCObjectReader(TargetLDBackend::TargetObjectReaderCtorFnTy pCtorFn)
-  : m_pReader(pCtorFn()) {
+MCObjectReader::MCObjectReader()
+{
 }
 
 MCObjectReader::~MCObjectReader()
 {
-  delete m_pReader;
 }

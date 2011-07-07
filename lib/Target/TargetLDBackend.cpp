@@ -10,8 +10,7 @@
 using namespace mcld;
 
 /* ** */
-TargetLDBackend::TargetLDBackend(TargetLDBackend::TargetArchiveReaderCtorFnTy pTACF, 
-                                 TargetLDBackend::TargetObjectReaderCtorFnTy pTOCF)
+TargetLDBackend::TargetLDBackend()
 {
 }
 

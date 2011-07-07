@@ -3,33 +3,30 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef MCELFARCHIVEREADER_H
-#define MCELFARCHIVEREADER_H
+#ifndef MCELFOBJECTTARGETREADER_H
+#define MCELFOBJECTTARGETREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCArchiveReader.h>
-
 namespace mcld
 {
-class MCELFArchiveTargetReader;
-/** \class MCELFArchiveReader
- *  \brief MCELFArchiveReader reads the target-independent parts of an archive file.
+
+/** \class MCELFObjectTargetReader
+ *  \brief MCELFObjectTargetReader provides an abstract interface for target-dependent object readers.
  *
  *  \see
- *  \author Duo <pinronglu@gmail.com>
+ *  \author Luba Tang <lubatang@mediatek.com>
  */
-class MCELFArchiveReader : public MCArchiveReader
+class MCELFObjectTargetReader
 {
+protected:
+  MCELFObjectTargetReader();
 public:
-  MCELFArchiveReader(const MCELFArchiveTargetReader *pTargetReader);
-  ~MCELFArchiveReader();
+  virtual ~MCELFObjectTargetReader();
 
-private:
-  const MCELFArchiveTargetReader *m_pTargetReader;
 };
 
 } // namespace of mcld
