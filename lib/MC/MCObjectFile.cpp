@@ -15,10 +15,8 @@ using namespace mcld;
 MCObjectFile::MCObjectFile(llvm::StringRef FileName)
 	: mFileName(FileName)
 {
-	mp_Context = new MCLDContext();
 }
 
 MCObjectFile::~MCObjectFile()
 {
-	delete mp_Context;
 }
