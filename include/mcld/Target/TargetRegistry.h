@@ -16,14 +16,15 @@ class Target;
 class TargetMachine;
 class MCCodeEmitter;
 class MCContext;
+class AsmPrinter;
 } // namespace of llvm
 
 namespace mcld {
-
-class TargetLDBackend;
 class LLVMTargetMachine;
 class TargetRegistry;
+class SectLinker;
 class MCLDDriver;
+class TargetLDBackend;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -36,11 +37,15 @@ public:
   typedef mcld::LLVMTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
                                                           llvm::TargetMachine &,
                                                           const std::string&);
+  typedef SectLinker *(*SectLinkerCtorTy)(const std::string&,
+                                          llvm::AsmPrinter&,
+                                          TargetLDBackend&);
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
 
 private:
   TargetMachineCtorTy TargetMachineCtorFn;
+  SectLinkerCtorTy SectLinkerCtorFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
 
 public:
@@ -65,6 +70,17 @@ public:
         return TargetMachineCtorFn(*this, *tm, pTriple);
     }
     return 0;
+  }
+
+  /// createSectLinker - create target-specific SectLinker
+  ///
+  /// @return created SectLinker
+  SectLinker *createSectLinker(const std::string &pTriple,
+                               llvm::AsmPrinter& pAP,
+                               TargetLDBackend& pLDBackend) const {
+    if (!SectLinkerCtorFn)
+      return 0;
+    return SectLinkerCtorFn(pTriple, pAP, pLDBackend);
   }
 
   /// createLDBackend - create target-specific LDBackend
@@ -123,6 +139,16 @@ public:
     // Ignore duplicate registration.
     if (!T.TargetMachineCtorFn)
       T.TargetMachineCtorFn = Fn;
+  }
+
+  /// RegisterSectLinker - Register a SectLinker implementation for the given
+  /// target.
+  ///
+  /// @param T - the target being registered
+  /// @param Fn - A function to create SectLinker for the target
+  static void RegisterSectLinker(mcld::Target &T, mcld::Target::SectLinkerCtorTy Fn) {
+    if (!T.SectLinkerCtorFn)
+      T.SectLinkerCtorFn = Fn;
   }
 
   /// RegisterTargetLDBackend - Register a TargetLDBackend implementation for

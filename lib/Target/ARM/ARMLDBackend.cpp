@@ -12,11 +12,14 @@
 #include "ARMELFArchiveReader.h"
 #include "ARMELFObjectReader.h"
 #include "ARMELFObjectWriter.h"
+#include <iostream>
+using namespace std;
 
 using namespace mcld;
 
 ARMELFLDBackend::ARMELFLDBackend()
 {
+  cerr << "ARM ELF LDBackend" << endl;
 }
 
 ARMELFLDBackend::~ARMELFLDBackend()

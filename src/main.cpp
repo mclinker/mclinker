@@ -43,7 +43,7 @@ using namespace llvm;
 #include <gtest.h>
 
 static cl::opt<bool>
-UnitTest("unit-test",  cl::desc("do unit test") );
+UnitTest("unittest",  cl::desc("do unit test") );
 
 
 
@@ -128,9 +128,6 @@ GetFileNameRoot(const std::string &InputFilename) {
 static tool_output_file *GetOutputStream(const char *TargetName,
                                          Triple::OSType OS,
                                          const char *ProgName) {
-  #ifdef DEBUG
-    cerr << "TargetName=" << TargetName << endl;
-  #endif
   // If we don't yet have an output filename, make one.
   if (OutputFilename.empty()) {
     if (InputFilename == "-")
@@ -184,7 +181,7 @@ int main( int argc, char* argv[] )
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
   mcld::InitializeAllTargets();
-  mcld::InitializeAllLDBackends();
+  mcld::InitializeAllLinkers();
   cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
@@ -318,8 +315,10 @@ int main( int argc, char* argv[] )
       return 1;
     }
 
+#if LLVM_VERSION > 2
     // Before executing passes, print the final values of the LLVM options.
     cl::PrintOptionValues();
+#endif
 
     PM.run(mod);
   }

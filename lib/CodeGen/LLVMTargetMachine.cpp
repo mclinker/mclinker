@@ -9,6 +9,7 @@
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
+#include <string>
 
 #include <llvm/PassManager.h>
 #include <llvm/Analysis/Passes.h>
@@ -32,13 +33,19 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FormattedStream.h>
 
-
-
 using namespace mcld;
 using namespace llvm;
 
-/* ** */
+//===----------------------------------------------------------------------===//
+/// Arguments
+static cl::opt<std::string>
+ArgEntry(cl::value_desc("test"),
+         "e",
+         cl::desc("entry_pointer")
+         );
 
+//===----------------------------------------------------------------------===//
+/// LLVMTargetMachine
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
                                            const std::string& pTriple )
