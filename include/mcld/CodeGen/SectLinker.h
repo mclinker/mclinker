@@ -60,8 +60,8 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
-    llvm::AsmPrinter &m_AsmPrinter;
-    TargetLDBackend &m_LDBackend;
+    llvm::AsmPrinter *m_pAsmPrinter;
+    TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
 
   private:

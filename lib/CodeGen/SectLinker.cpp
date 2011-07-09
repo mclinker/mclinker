@@ -10,6 +10,7 @@
 #include <llvm/CodeGen/AsmPrinter.h>
 #include <llvm/CodeGen/MachineFunction.h>
 #include <mcld/CodeGen/SectLinker.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
 
 #ifdef MCLD_DEBUG
@@ -25,12 +26,14 @@ char SectLinker::m_ID = 0;
 //===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(llvm::AsmPrinter& pPrinter, TargetLDBackend& pLDBackend)
-  : MachineFunctionPass(m_ID), m_AsmPrinter(pPrinter), m_LDBackend(pLDBackend) {
+  : MachineFunctionPass(m_ID), m_pAsmPrinter(&pPrinter), m_pLDBackend(&pLDBackend) {
   m_pLDDriver = new MCLDDriver(pLDBackend);
 }
 
 SectLinker::~SectLinker()
 {
+  delete m_pAsmPrinter;
+  delete m_pLDBackend;
   delete m_pLDDriver;
 }
 
