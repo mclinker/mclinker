@@ -20,7 +20,11 @@ extern "C" {
 #define LLVM_TARGET(TargetName) void LLVMInitialize##TargetName##LDTarget();
 #include "mcld/Config/Targets.def"
 
-  // Declare all of the available linker initialization functions.
+  // Declare all of the available linker environment.
+#define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##SectLinker();
+#include "mcld/Config/Linkers.def"
+
+  // Declare all of the available target-specific linker
 #define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##LDBackend();
 #include "mcld/Config/Linkers.def"
 } // extern "C"
@@ -49,12 +53,15 @@ namespace mcld
 #include "mcld/Config/Targets.def"
   }
 
-  /// InitializeAllSectLinkers - The main program should call this function if it
+  /// InitializeAllLinkers - The main program should call this function if it
   /// wants all linkers that LLVM is configured to support, to make them
   /// available via the TargetRegistry.
   ///
   /// It is legal for a client to make multiple calls to this function.
-  inline void InitializeAllLDBackends() {
+  inline void InitializeAllLinkers() {
+#define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##SectLinker();
+#include "mcld/Config/Linkers.def"
+
 #define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##LDBackend();
 #include "mcld/Config/Linkers.def"
   }

@@ -8,7 +8,9 @@
 #include <mcld/Target/TargetRegistry.h>
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/CodeGen/SectLinker.h>
 #include <mcld/MC/MCLDDriver.h>
+#include <string>
 
 #include <llvm/PassManager.h>
 #include <llvm/Analysis/Passes.h>
@@ -32,13 +34,19 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FormattedStream.h>
 
-
-
 using namespace mcld;
 using namespace llvm;
 
-/* ** */
+//===----------------------------------------------------------------------===//
+/// Arguments
+static cl::opt<std::string>
+ArgEntry(cl::value_desc("test"),
+         "e",
+         cl::desc("entry_pointer")
+         );
 
+//===----------------------------------------------------------------------===//
+/// LLVMTargetMachine
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
                                            const std::string& pTriple )
@@ -68,19 +76,41 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   MCContext* Context = 0;
   if (getTM().addCommonCodeGenPasses( pPM, pOptLvl, pDisableVerify, Context))
     return true;
+  assert(Context != 0 && "Failed to get MCContext");
 
-  //not in addPassesToMC
   if (getTM().hasMCSaveTempLabels())
     Context->setAllowTemporaryLabels(false);
+
+  const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
+  
+  llvm::MCCodeEmitter *MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+  llvm::TargetAsmBackend *TAB = getTarget().get()->createAsmBackend(m_Triple);
+  if (MCE == 0 || TAB == 0)
+    return true;
+
+  OwningPtr<MCStreamer> AsmStreamer;
+  AsmStreamer.reset(getTarget().get()->createObjectStreamer(m_Triple,
+                                                            *Context,
+                                                            *TAB, pOS, MCE,
+                                                            getTM().hasMCRelaxAll(),
+                                                            getTM().hasMCNoExecStack()));
+  AsmStreamer.get()->InitSections();
+  AsmPrinter* Printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+  if (Printer == 0)
+    return true;
+
+  // If successful, createAsmPrinter took ownership of AsmStreamer
+  AsmStreamer.take();
+
+  TargetLDBackend *TDB = getTarget().createLDBackend(*getTarget().get(), m_Triple);
+  if (TDB == 0)
+    return true;
+  // SectLinker has the ownership of TargetLDBackend
+  FunctionPass* Linker = getTarget().createSectLinker(m_Triple, *Printer, *TDB);
 
   switch( pFileType ) {
   default: return true;
   case CGFT_DSOFile: {
-    llvm::MCCodeEmitter *MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
-    TargetLDBackend *TDB = getTarget().createLDBackend(*getTarget().get(), m_Triple);
-
-    if (MCE == 0 || TDB == 0)
-      return true;
     break;
   }
   case CGFT_EXEFile: {
@@ -90,6 +120,8 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     assert("Null File");
     break;
   }
+
+  pPM.add(Linker);
 
   setCodeModelForStatic();
   pPM.add(createGCInfoDeleter()); // not in addPassesToMC
