@@ -30,7 +30,6 @@ public:
 	MCSectionData &operator= ( MCSectionData & );
 	///DO NOT do memory copy , just create MCSectionData 	
 
-
 private:
 	llvm::MCSectionData *mpSectionData;
 };
