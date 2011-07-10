@@ -6,6 +6,7 @@
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
 #include <mcld/MC/MCObjectFile.h>
+#include "llvm/Support/system_error.h"
 
 using namespace mcld;
 
@@ -13,10 +14,12 @@ using namespace mcld;
 // MCObjectFile
 
 MCObjectFile::MCObjectFile(llvm::StringRef FileName)
-	: mFileName(FileName)
-{
+	: mFileName(FileName),
+	  mpBuffer(NULL) {
+
+
 }
 
 MCObjectFile::~MCObjectFile()
-{
-}
+{ }
+

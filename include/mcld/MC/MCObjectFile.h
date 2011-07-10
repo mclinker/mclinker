@@ -16,45 +16,25 @@
 #include "llvm/Support/MemoryBuffer.h"
 
 
-
 namespace mcld
 {
-///forward declaration
-class MCObjectFile;
-
-/// SectionRef means Section header in linkint layer
-class SectionRef
-{
-private:
-	const MCObjectFile *OwningObject;
-	const llvm::MCSectionData *OwningSectionData;
-public:	
-	SectionRef() : OwningObject(NULL) {}
-
-	bool operator==(const SectionRef& ) const;
-};
-
-
-class SymbolRef
-{
-private:
-	const MCObjectFile *OwningObject;
-	const llvm::MCSymbolData *OwningSymbolData;
+///  Proxy of llvm::MCSectionData
+class MCSectionData :public llvm::ilist_node<MCSectionData> {
+	friend class MCObjectFile;
 public:
-	SymbolRef() : OwningObject(NULL) {}
+	MCSectionData() {
+	};
+	~MCSectionData(){
+	};
+	
+	MCSectionData &operator= ( MCSectionData & );
+	///DO NOT do memory copy , just create MCSectionData 	
 
-	bool operator==(const SymbolRef& ) const;
+
+private:
+	llvm::MCSectionData *mpSectionData;
 };
 
-
-class MCLDContext
-{	
-  llvm::iplist<llvm::MCSectionData> Sections;
-	llvm::iplist<llvm::MCSymbolData> Symbols;
-
-/// MCSection header
-/// FIXME
-};
 
 
 
@@ -72,20 +52,40 @@ public:
 	MCObjectFile(llvm::StringRef FilePath);
 	~MCObjectFile();
 
-/// random access
-	
-/// sequential access
+	MCSectionData getSectionData(llvm::StringRef SectionName);
+
+
+private:
+	llvm::StringRef mFileName;
+
+	llvm::OwningPtr<llvm::MemoryBuffer> mpBuffer;
+
+	llvm::iplist<MCSectionData> Sections;
+	llvm::iplist<llvm::MCSymbolData> Symbols;
+
+
+	/// FIXME
+	//llvm::DenseMap<llvm::MCSection, MCSectionData*> SectionMap;
+	//llvm::DenseMap<llvm::MCSymbol, llvm::MCSymbolData*> SymbolMap;
+
+
+///
 /// iterator of SectionRef
-	
+///
+
+public: 
 	class section_iterator 
 	{
-		SectionRef Current;
+		private:
+		section_iterator(); // DO NOT IMPLEMENT
+		
+		MCSectionData *Current;
+	
 		public:
-		section_iterator(SectionRef sectb)
-			: Current(sectb) {}
-
-		const SectionRef* operator->() const {
-			return &Current;
+		
+		MCSectionData operator=(const section_iterator &it) {
+			Current = it.Current;
+			return *Current;
 		}
 
 		bool operator==(const section_iterator &other) const {
@@ -97,21 +97,18 @@ public:
 			return !(*this == other);
 			/// Section implement operator!=
 		}	
-
-		section_iterator& increment() {
-			/// FIXME :How to implement getNext() 			
-			/// form different formats(ELF,MachOs).
-			/// call the corresponding Reader ?
-		}
-
 		
-		llvm::MCSectionData &operator*();
+		MCSectionData &operator*();
 		/// FIXME: copy data when first derefernece
+
+		const MCSectionData *operator->() const ;
+
 
 	};
 
-	section_iterator begin_sections();
-	section_iterator end_sections();
+	friend class section_iterator;
+	section_iterator begin_section();
+	section_iterator end_section();
 
 /// End of MCObjectFile::section_iterator
 
@@ -120,13 +117,15 @@ public:
 
 	class symbol_iterator 
 	{
-		SymbolRef Current;
-		public:
-		symbol_iterator(SymbolRef symb)
-			: Current(symb) {}
+		symbol_iterator(); // DO NOT IMPLEMENT
+	
+		llvm::MCSymbolData *Current;
 
-		const SymbolRef* operator->() const {
-			return &Current;
+		public:
+		
+		llvm::MCSymbolData operator=(const symbol_iterator &it) {
+			Current = it.Current;	
+			return *Current;
 		}
 
 		bool operator==(const symbol_iterator &other) const {
@@ -139,31 +138,23 @@ public:
 			/// Section implement operator!=
 		}	
 
-		symbol_iterator& increment() {
-			/// FIXME :How to implement getNext() 			
-			/// form different formats(ELF,MachOs).
-			/// call the corresponding Reader ?
-		}
-
 		llvm::MCSymbolData &operator*();
 		/// FIXME: copy data when first dereference
 
+		const llvm::MCSymbolData *operator->() const;
+	
 	};
 
+	friend class symbol_iterator;
+	symbol_iterator begin_symbol() {
+					
+	};
 
-	symbol_iterator begin_symbols();
-	symbol_iterator end_symbols();
+	symbol_iterator end_symbol() {
+	
+	};
 
 /// End of MCObjectFile::symbol_iterator
-
-
-
-private:
-	const llvm::StringRef mFileName;
-
-	const llvm::OwningPtr<llvm::MemoryBuffer> mpBuffer;
-
-	MCLDContext *mpContext;	
 
 };// end of MCObjectFile
 
