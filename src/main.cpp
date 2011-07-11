@@ -94,15 +94,21 @@ MAttrs("mattr",
   cl::value_desc("a1,+a2,-a3,..."));
 
 cl::opt<mcld::CodeGenFileType>
-FileType("filetype", cl::init(mcld::CGFT_DSOFile),
+FileType("filetype", cl::init(mcld::CGFT_EXEFile),
   cl::desc("Choose a file type (not all types are supported by all targets):"),
   cl::values(
-       clEnumValN(mcld::CGFT_Null, "null",
-                  "Emit nothing, for performance testing"),
+       clEnumValN(mcld::CGFT_ASMFile, "asm",
+                  "Emit an assembly ('.s') file"),
+       clEnumValN(mcld::CGFT_OBJFile, "obj",
+                  "Emit a relocatable object ('.o') file"),
+       clEnumValN(mcld::CGFT_ARCFile, "arc",
+                  "Emit an archive ('.a') file"),
        clEnumValN(mcld::CGFT_DSOFile, "dso",
                   "Emit an dynamic shared object ('.so') file"),
        clEnumValN(mcld::CGFT_EXEFile, "exe",
                   "Emit a executable ('.exe') file"),
+       clEnumValN(mcld::CGFT_NULLFile, "null",
+                  "Emit nothing, for performance testing"),
        clEnumValEnd));
 
 cl::opt<bool> NoVerify("disable-verify", cl::Hidden,
@@ -127,7 +133,8 @@ GetFileNameRoot(const std::string &InputFilename) {
 
 static tool_output_file *GetOutputStream(const char *TargetName,
                                          Triple::OSType OS,
-                                         const char *ProgName) {
+                                         const char *ProgName,
+                                         mcld::CodeGenFileType pFileType) {
   // If we don't yet have an output filename, make one.
   if (OutputFilename.empty()) {
     if (InputFilename == "-")
@@ -135,16 +142,25 @@ static tool_output_file *GetOutputStream(const char *TargetName,
     else {
       OutputFilename = GetFileNameRoot(InputFilename);
 
-      switch (FileType) {
-      default: assert(0 && "Unknown file type");
+      switch (pFileType) {
+      default: 
+      case mcld::CGFT_NULLFile:
+        assert(0 && "File type has not been supported yet");
+        break;
+      case mcld::CGFT_ASMFile:
+        OutputFilename += ".s";
+        break;
+      case mcld::CGFT_OBJFile:
+        OutputFilename += ".o";
+        break;
+      case mcld::CGFT_ARCFile:
+        OutputFilename += ".a";
+        break;
       case mcld::CGFT_DSOFile:
-          OutputFilename += ".so";
+        OutputFilename += ".so";
         break;
       case mcld::CGFT_EXEFile:
-          OutputFilename += ".exe";
-        break;
-      case mcld::CGFT_Null:
-        OutputFilename += ".null";
+        OutputFilename += ".exe";
         break;
       }
     }
@@ -278,7 +294,7 @@ int main( int argc, char* argv[] )
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file> Out
-    (GetOutputStream( TheTarget->get()->getName(), TheTriple.getOS(), argv[0]));
+    (GetOutputStream( TheTarget->get()->getName(), TheTriple.getOS(), argv[0], FileType));
   if (!Out) return 1;
 
   CodeGenOpt::Level OLvl = CodeGenOpt::Default;

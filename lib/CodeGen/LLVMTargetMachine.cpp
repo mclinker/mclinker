@@ -39,12 +39,20 @@ using namespace llvm;
 
 //===----------------------------------------------------------------------===//
 /// Arguments
-static cl::opt<std::string>
-ArgEntry(cl::value_desc("test"),
-         "e",
-         cl::desc("entry_pointer")
-         );
+static cl::opt<bool>
+ArgShowMCEncoding("lshow-mc-encoding",
+                cl::Hidden,
+                cl::desc("Show encoding in .s output"));
 
+static cl::opt<bool>
+ArgAsmVerbose("fverbose-asm",
+           cl::desc("Put extra commentary information in the \
+generated assembly code to make it more readable."));
+
+static cl::opt<bool>
+ArgShowMCInst("lshow-mc-inst",
+              cl::Hidden,
+              cl::desc("Show instruction structure in .s output"));
 //===----------------------------------------------------------------------===//
 /// LLVMTargetMachine
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
@@ -82,46 +90,75 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     Context->setAllowTemporaryLabels(false);
 
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
-  
-  llvm::MCCodeEmitter *MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
-  llvm::TargetAsmBackend *TAB = getTarget().get()->createAsmBackend(m_Triple);
-  if (MCE == 0 || TAB == 0)
-    return true;
-
+  MCCodeEmitter *MCE = 0;
+  TargetAsmBackend *TAB = 0;
   OwningPtr<MCStreamer> AsmStreamer;
-  AsmStreamer.reset(getTarget().get()->createObjectStreamer(m_Triple,
-                                                            *Context,
-                                                            *TAB, pOS, MCE,
-                                                            getTM().hasMCRelaxAll(),
-                                                            getTM().hasMCNoExecStack()));
-  AsmStreamer.get()->InitSections();
-  AsmPrinter* Printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
-  if (Printer == 0)
-    return true;
-
-  // If successful, createAsmPrinter took ownership of AsmStreamer
-  AsmStreamer.take();
-
-  TargetLDBackend *TDB = getTarget().createLDBackend(*getTarget().get(), m_Triple);
-  if (TDB == 0)
-    return true;
-  // SectLinker has the ownership of TargetLDBackend
-  FunctionPass* Linker = getTarget().createSectLinker(m_Triple, *Printer, *TDB);
+  MachineFunctionPass *funcPass = 0;
 
   switch( pFileType ) {
-  default: return true;
-  case CGFT_DSOFile: {
+  default:
+  case mcld::CGFT_NULLFile: 
+    assert(0 && "fatal: file type is not set!");
+    break;
+  case CGFT_ASMFile: {
+    MCInstPrinter *InstPrinter =
+      getTarget().get()->createMCInstPrinter(getTM(), MAI.getAssemblerDialect(), MAI);
+
+    // Create a code emitter if asked to show the encoding.
+    if (ArgShowMCEncoding) {
+      MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+      TAB = getTarget().get()->createAsmBackend(m_Triple);
+      if (MCE == 0 || TAB == 0)
+        return true;
+    }
+
+    MCStreamer *S = getTarget().get()->createAsmStreamer(*Context, pOS,
+                                                         ArgAsmVerbose,
+                                                         getTM().hasMCUseLoc(),
+                                                         getTM().hasMCUseCFI(),
+                                                         InstPrinter,
+                                                         MCE, TAB,
+                                                         ArgShowMCInst);
+    AsmStreamer.reset(S);
+    funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+    if (funcPass == 0)
+      return true;
+    // If successful, createAsmPrinter took ownership of AsmStreamer
+    AsmStreamer.take();
+    pPM.add(funcPass);
+    break;
+  }
+  case CGFT_OBJFile: {
+    // Create the code emitter for the target if it exists.  If not, .o file
+    // emission fails.
+    MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+    TAB = getTarget().get()->createAsmBackend(m_Triple);
+    if (MCE == 0 || TAB == 0)
+      return true;
+
+    AsmStreamer.reset(getTarget().get()->createObjectStreamer(m_Triple, *Context,
+                                                       *TAB, pOS, MCE,
+                                                       getTM().hasMCRelaxAll(),
+                                                       getTM().hasMCNoExecStack()));
+    AsmStreamer.get()->InitSections();
+    funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+    if (funcPass == 0)
+      return true;
+    // If successful, createAsmPrinter took ownership of AsmStreamer
+    AsmStreamer.take();
+    pPM.add(funcPass);
+    break;
+  }
+  case CGFT_ARCFile: {
     break;
   }
   case CGFT_EXEFile: {
     break;
   }
-  case mcld::CGFT_Null: 
-    assert("Null File");
+  case CGFT_DSOFile: {
     break;
   }
-
-  pPM.add(Linker);
+  } // switch
 
   setCodeModelForStatic();
   pPM.add(createGCInfoDeleter()); // not in addPassesToMC

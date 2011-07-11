@@ -30,9 +30,12 @@ class Target;
 using namespace llvm;
 
 enum CodeGenFileType {
-  CGFT_Null = 2,
+  CGFT_ASMFile,
+  CGFT_OBJFile,
+  CGFT_ARCFile,
   CGFT_DSOFile,
-  CGFT_EXEFile
+  CGFT_EXEFile,
+  CGFT_NULLFile
 };
 
 
