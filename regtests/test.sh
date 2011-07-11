@@ -9,12 +9,18 @@ for DIR in ${DIRS}; do
 		source ./test.sh
 		TEST=`basename ${DIR}`
 		echo -n "#${TEST}		";
-		test &> /dev/null;
+		setup &> /dev/null;
+		RESULT1=$?
+		testcase &> /dev/null;
+		RESULT2=$?
+		teardown &> /dev/null
+		RESULT3=$?
+		test ${RESULT1} -eq 0 && test ${RESULT2} -eq 0 && test ${RESULT3} -eq 0
 		RESULT=$?
-		if [ ${RESULT} -eq 1 ]; then
-			echo "Not Passed!";
+		if [ ${RESULT} -eq 0 ]; then
+			echo "Passed!";
 		else
-			echo "Passed";
+			echo "Not Passed";
 		fi
 		cd ${TOPLEVEL};
 	fi
