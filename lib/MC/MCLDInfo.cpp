@@ -5,27 +5,10 @@
  *                                                                           *
  *   csmon7507 <csmon7507@gmail.com>                                         *
  ****************************************************************************/
-#ifndef MCLDINFO_H
-#define MCLDINFO_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
+#include <mcld/MC/MCLDInfo.h>
 
-namespace mcld
-{
+using namespace mcld;
 
-/** \class MCLDInfo
- *  \brief MCLDInfo is composed of argumments of MCLDDriver.
- *
- *  \see
- *  \author csmon7507 <csmon7507@gmail.com>
- */
-class MCLDInfo
-{
-
-};
-
-} // namespace of mcld
-
-#endif
+//==========================
+// MCLDInfo
 
