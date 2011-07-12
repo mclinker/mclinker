@@ -10,6 +10,7 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/MC/MCLDDriver.h>
+#include <mcld/MC/MCAsmObjectReader.h>
 #include <string>
 
 #include <llvm/PassManager.h>
@@ -33,6 +34,14 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/FormattedStream.h>
+#include <llvm/MC/MCInstrInfo.h>
+#include <llvm/MC/MCSubtargetInfo.h>
+#include <llvm/Target/TargetSubtargetInfo.h>
+#include <llvm/Target/TargetInstrInfo.h>
+#include <llvm/MC/MCObjectStreamer.h>
+#include <llvm/MC/MCAssembler.h>
+#include <llvm/MC/MCObjectWriter.h>
+
 
 using namespace mcld;
 using namespace llvm;
@@ -75,6 +84,15 @@ void mcld::LLVMTargetMachine::setCodeModelForStatic()
   static_cast<llvm::LLVMTargetMachine&>(m_TM).setCodeModelForStatic();
 }
 
+bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
+                                                     CodeGenOpt::Level Level,
+                                                     bool DisableVerify,
+                                                     MCContext *&OutCtx)
+{
+  return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
+                                            PM, Level, DisableVerify, OutCtx);
+}
+
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                          formatted_raw_ostream &pOS,
                                          mcld::CodeGenFileType pFileType,
@@ -82,7 +100,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                          bool pDisableVerify ) {
 
   MCContext* Context = 0;
-  if (getTM().addCommonCodeGenPasses( pPM, pOptLvl, pDisableVerify, Context))
+  if (addCommonCodeGenPasses(pPM, pOptLvl, pDisableVerify, Context))
     return true;
   assert(Context != 0 && "Failed to get MCContext");
 
@@ -92,8 +110,8 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
   MCCodeEmitter *MCE = 0;
   TargetAsmBackend *TAB = 0;
-  OwningPtr<MCStreamer> AsmStreamer;
   MachineFunctionPass *funcPass = 0;
+  OwningPtr<MCStreamer> AsmStreamer;
 
   switch( pFileType ) {
   default:
@@ -102,11 +120,16 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   case CGFT_ASMFile: {
     MCInstPrinter *InstPrinter =
-      getTarget().get()->createMCInstPrinter(getTM(), MAI.getAssemblerDialect(), MAI);
+      getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI);
 
     // Create a code emitter if asked to show the encoding.
     if (ArgShowMCEncoding) {
+#if LLVM_VERSION > 2
+      const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+      MCE = getTarget().get()->createCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
+#else
       MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+#endif
       TAB = getTarget().get()->createAsmBackend(m_Triple);
       if (MCE == 0 || TAB == 0)
         return true;
@@ -131,7 +154,12 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   case CGFT_OBJFile: {
     // Create the code emitter for the target if it exists.  If not, .o file
     // emission fails.
+#if LLVM_VERSION > 2
+      const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+      MCE = getTarget().get()->createCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+#else
     MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+#endif
     TAB = getTarget().get()->createAsmBackend(m_Triple);
     if (MCE == 0 || TAB == 0)
       return true;
@@ -150,12 +178,48 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_ARCFile: {
+    assert(0 && "Output to archive file has not been supported yet!");
     break;
   }
   case CGFT_EXEFile: {
+    assert(0 && "Output to executable file will be supported soon.");
     break;
   }
   case CGFT_DSOFile: {
+    // Create the code emitter for the target if it exists.  If not, .o file
+    // emission fails.
+#if LLVM_VERSION > 2
+    const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+    MCE = getTarget().get()->createCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+#else
+    MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+#endif
+    TAB = getTarget().get()->createAsmBackend(m_Triple);
+    if (MCE == 0 || TAB == 0)
+      return true;
+
+    MCStreamer* AsmStreamer = getTarget().get()->createObjectStreamer(m_Triple, 
+                                                              *Context,
+                                                              *TAB,
+                                                              llvm::nulls(),
+                                                              MCE,
+                                                              getTM().hasMCRelaxAll(),
+                                                              getTM().hasMCNoExecStack());
+
+    MCAsmObjectReader *objReader = new MCAsmObjectReader(
+                                             *static_cast<MCObjectStreamer*>(AsmStreamer));
+    AsmStreamer->InitSections();
+    AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
+    if (0 == printer )
+      return true;
+
+    TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
+    if (0 == ldBackend)
+      return true;
+    funcPass = getTarget().createSectLinker(m_Triple, *printer, *ldBackend); 
+    if (0 == funcPass)
+      return true;
+    pPM.add(funcPass);
     break;
   }
   } // switch

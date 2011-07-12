@@ -62,7 +62,9 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDDriver.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
-	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp
+	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
+	${INCDIR}/MC/MCAsmObjectReader.h \
+	${LIBDIR}/MC/MCAsmObjectReader.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \

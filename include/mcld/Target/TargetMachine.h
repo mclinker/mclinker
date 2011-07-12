@@ -88,6 +88,12 @@ private:
   ///
   void setCodeModelForStatic();
 
+  /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
+  /// both emitting to assembly files or machine code output.
+  ///
+  bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
+                              bool DisableVerify, MCContext *&OutCtx);
+
 private:
   llvm::TargetMachine &m_TM;
   const mcld::Target *m_pTarget;

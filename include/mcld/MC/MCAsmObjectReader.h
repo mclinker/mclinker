@@ -15,6 +15,8 @@
 
 namespace llvm
 {
+class MCStreamer;
+class MCObjectStreamer;
 class MCAsmLayout;
 class MCAssembler;
 class MCFixup;
@@ -40,7 +42,7 @@ using namespace llvm;
 class MCAsmObjectReader : public llvm::MCObjectWriter
 {
 public:
-  MCAsmObjectReader(const MCObjectWriter& pWriter);
+  MCAsmObjectReader(MCObjectStreamer& pStreamer);
   ~MCAsmObjectReader();
 
   void ExecutePostLayoutBinding(MCAssembler &Asm,

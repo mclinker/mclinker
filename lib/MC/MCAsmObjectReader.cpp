@@ -12,14 +12,19 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/MC/MCAsmLayout.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/MC/MCObjectStreamer.h>
+#include <llvm/Support/Casting.h>
+#include <iostream>
 
 using namespace llvm;
 using namespace mcld;
 
 //==========================
 // MCAsmObjectReader
-MCAsmObjectReader::MCAsmObjectReader(const llvm::MCObjectWriter& pWriter)
-  : MCObjectWriter(llvm::nulls(), pWriter.isLittleEndian()) {
+MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer& pStreamer)
+  : MCObjectWriter(llvm::nulls(), 
+                   pStreamer.getAssembler().getWriter().isLittleEndian()) {
+  pStreamer.getAssembler().setWriter(*this);
 }
 
 MCAsmObjectReader::~MCAsmObjectReader()
@@ -29,6 +34,7 @@ MCAsmObjectReader::~MCAsmObjectReader()
 void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
                                                  const MCAsmLayout &Layout)
 {
+	std::cerr << "Csmon: I'm the king of the world" << std::endl;
 }
 
 void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
@@ -37,6 +43,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCFixup &Fixup, MCValue Target,
                                          uint64_t &FixedValue)
 {
+	std::cerr << "Chris: I'm stupid" << std::endl;
 }
 
 bool
@@ -47,10 +54,12 @@ MCAsmObjectReader::IsSymbolRefDifferenceFullyResolvedImpl(
                                          bool InSet,
                                          bool IsPCRel) const
 {
+	std::cerr << "Duo: I love nowar" << std::endl;
 }
 
 void MCAsmObjectReader::WriteObject(MCAssembler &Asm,
                                     const MCAsmLayout &Layout)
 {
+	std::cerr << "Nowar: I'm cleaver" << std::endl;
 }
 
