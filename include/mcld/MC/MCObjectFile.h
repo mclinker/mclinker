@@ -53,6 +53,13 @@ public:
 
 	MCSectionData getSectionData(llvm::StringRef SectionName);
 
+	void Test_iterator(){
+		llvm::ilist_iterator<MCSectionData> it = Sections.begin();
+		MCSectionData *p = new MCSectionData();
+		Sections.insert(it,p);
+		it++;
+	}
+
 
 private:
 	llvm::StringRef mFileName;

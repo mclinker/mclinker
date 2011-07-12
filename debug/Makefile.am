@@ -38,8 +38,6 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCELFObjectTargetReader.cpp \
 	${INCDIR}/MC/MCObjectWriter.h \
 	${LIBDIR}/MC/MCObjectWriter.cpp \
-	${INCDIR}/MC/MCObjectFile.h \
-	${LIBDIR}/MC/MCObjectFile.cpp \
 	${INCDIR}/MC/MCELFObjectWriter.h \
 	${LIBDIR}/MC/MCELFObjectWriter.cpp \
 	${INCDIR}/MC/MCELFObjectTargetWriter.h \
@@ -64,7 +62,11 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \
-	${LIBDIR}/MC/MCAsmObjectReader.cpp
+	${LIBDIR}/MC/MCAsmObjectReader.cpp \
+	${INCDIR}/MC/MCFragment.h \
+	${LIBDIR}/MC/MCFragment.cpp \
+	${INCDIR}/MC/MCLDContext.h \
+	${LIBDIR}/MC/MCLDContext.cpp 
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
