@@ -62,11 +62,9 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \
-	${LIBDIR}/MC/MCAsmObjectReader.cpp \
-	${INCDIR}/MC/MCFragment.h \
-	${LIBDIR}/MC/MCFragment.cpp \
-	${INCDIR}/MC/MCLDContext.h \
-	${LIBDIR}/MC/MCLDContext.cpp 
+	${LIBDIR}/MC/MCAsmObjectReader.cpp 
+#	${INCDIR}/MC/MCLDContext.h \
+#	${LIBDIR}/MC/MCLDContext.cpp 
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
