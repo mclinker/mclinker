@@ -25,30 +25,31 @@ char SectLinker::m_ID = 0;
 
 //===----------------------------------------------------------------------===//
 // SectLinker
-SectLinker::SectLinker(llvm::AsmPrinter& pPrinter, TargetLDBackend& pLDBackend)
-  : MachineFunctionPass(m_ID), m_pAsmPrinter(&pPrinter), m_pLDBackend(&pLDBackend) {
+SectLinker::SectLinker(TargetLDBackend& pLDBackend)
+  : MachineFunctionPass(m_ID), m_pLDBackend(&pLDBackend) {
   m_pLDDriver = new MCLDDriver(pLDBackend);
 }
 
 SectLinker::~SectLinker()
 {
-  delete m_pAsmPrinter;
   delete m_pLDBackend;
   delete m_pLDDriver;
 }
 
 bool SectLinker::doInitialization(Module &pM)
 {
-  cerr << "initialize! ho ho !" << endl;
+  // set up all parameters into MCLDInfo
+  // create MCLinker, pass MCLDInfo as one of arguments
 }
 
 bool SectLinker::doFinalization(Module &pM)
 {
-  cerr << "finalization! ho ho !" << endl;
+  // get MCSectionData
+  // real linking
+  // emit object file
 }
 
 bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 {
-  cerr << "a machine function! ha ha!" << endl;
 }
 

@@ -24,7 +24,7 @@ namespace mcld
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(llvm::AsmPrinter &pPrinter, TargetLDBackend &pLDBackend);
+  ARMELFSectLinker(TargetLDBackend &pLDBackend);
   ~ARMELFSectLinker();
 };
 

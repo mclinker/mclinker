@@ -10,9 +10,8 @@
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(llvm::AsmPrinter &pPrinter,
-                                   TargetLDBackend &pLDBackend)
-  : SectLinker(pPrinter, pLDBackend) {
+ARMELFSectLinker::ARMELFSectLinker(TargetLDBackend &pLDBackend)
+  : SectLinker(pLDBackend) {
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()

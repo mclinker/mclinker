@@ -17,7 +17,6 @@ namespace llvm
 {
   class Module;
   class MachineFunction;
-  class AsmPrinter;
 } // namespace of llvm
 
 namespace mcld
@@ -40,7 +39,7 @@ namespace mcld
   class SectLinker : public llvm::MachineFunctionPass
   {
   protected:
-    SectLinker(llvm::AsmPrinter &pPrinter, TargetLDBackend &pLDBackend);
+    SectLinker(TargetLDBackend &pLDBackend);
 
   public:
     virtual ~SectLinker();
@@ -60,7 +59,6 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
-    llvm::AsmPrinter *m_pAsmPrinter;
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
 

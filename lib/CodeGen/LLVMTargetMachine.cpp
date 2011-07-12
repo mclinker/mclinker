@@ -208,15 +208,17 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     MCAsmObjectReader *objReader = new MCAsmObjectReader(
                                              *static_cast<MCObjectStreamer*>(AsmStreamer));
+
     AsmStreamer->InitSections();
     AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
     if (0 == printer )
       return true;
+    pPM.add(printer);
 
     TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
     if (0 == ldBackend)
       return true;
-    funcPass = getTarget().createSectLinker(m_Triple, *printer, *ldBackend); 
+    funcPass = getTarget().createSectLinker(m_Triple, *ldBackend); 
     if (0 == funcPass)
       return true;
     pPM.add(funcPass);

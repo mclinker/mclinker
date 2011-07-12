@@ -38,7 +38,6 @@ public:
                                                           llvm::TargetMachine &,
                                                           const std::string&);
   typedef SectLinker *(*SectLinkerCtorTy)(const std::string&,
-                                          llvm::AsmPrinter&,
                                           TargetLDBackend&);
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
@@ -76,11 +75,10 @@ public:
   ///
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
-                               llvm::AsmPrinter& pAP,
                                TargetLDBackend& pLDBackend) const {
     if (!SectLinkerCtorFn)
       return 0;
-    return SectLinkerCtorFn(pTriple, pAP, pLDBackend);
+    return SectLinkerCtorFn(pTriple, pLDBackend);
   }
 
   /// createLDBackend - create target-specific LDBackend

@@ -18,7 +18,6 @@ namespace mcld {
 /// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
 ///
 SectLinker* createARMSectLinker(const std::string &pTriple,
-                                llvm::AsmPrinter &pAsmPrinter,
                                 mcld::TargetLDBackend &pLDBackend)
 {
   Triple theTriple(pTriple);
@@ -28,7 +27,7 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new ARMELFSectLinker(pAsmPrinter, pLDBackend);
+  return new ARMELFSectLinker(pLDBackend);
 }
 
 } // namespace of mcld
