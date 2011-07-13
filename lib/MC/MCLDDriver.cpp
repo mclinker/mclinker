@@ -8,10 +8,11 @@
  ****************************************************************************/
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/MC/MCLDInfo.h>
 
 using namespace mcld;
 
-MCLDDriver::MCLDDriver(TargetLDBackend& pLDBackend)
+MCLDDriver::MCLDDriver(const MCLDInfo &pInfo, TargetLDBackend& pLDBackend)
   : m_LDBackend(pLDBackend) {
 }
 

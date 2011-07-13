@@ -16,6 +16,7 @@
 namespace mcld
 {
 
+class MCLDContext;
 /** \class MCLDFile
  *  \brief A objet file for linking.
  *
@@ -24,18 +25,16 @@ namespace mcld
  */
 class MCLDFile
 {
-	
-
 public:
-	typedef MCLDContext::section_iterator section_iterator;
-	typedef MCLDContext::const_section_iterator const_section_iterator;
+  MCLDFile();
+	~MCLDFile();
 
-	typedef MCLDContext::symbol_iterator symbol_iteartor;
-	typedef MCLDContext::const_symbol_iterator const_symbol_iteartor;
-};
+	bool isRecognized() const;
 
 private:
-	MCLDContext *mpContext;
+	MCLDContext *m_pContext;
+	std::string m_Filename;
+};
 
 } // namespace of mcld
 

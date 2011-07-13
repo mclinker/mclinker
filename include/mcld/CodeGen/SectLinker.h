@@ -21,6 +21,8 @@ namespace llvm
 
 namespace mcld
 {
+  class MCLDInfo;
+  class MCLDFile;
   class MCLDDriver;
   class TargetLDBackend;
 
@@ -39,7 +41,8 @@ namespace mcld
   class SectLinker : public llvm::MachineFunctionPass
   {
   protected:
-    SectLinker(TargetLDBackend &pLDBackend);
+    SectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
+    virtual MCLDInfo* createLDInfo() const = 0;
 
   public:
     virtual ~SectLinker();
@@ -47,12 +50,12 @@ namespace mcld
     /// doInitialization - Read all parameters and set up the AsmPrinter.
     /// If your pass overrides this, it must make sure to explicitly call 
     /// this implementation.
-    bool doInitialization(llvm::Module &pM);
+    virtual bool doInitialization(llvm::Module &pM);
 
     /// doFinalization - Shut down the AsmPrinter, and do really linking.
     /// If you override this in your pass, you must make sure to call it 
     /// explicitly.
-    bool doFinalization(llvm::Module &pM);
+    virtual bool doFinalization(llvm::Module &pM);
 
     /// runOnMachineFunction
     /// redirect to AsmPrinter
@@ -61,6 +64,8 @@ namespace mcld
   protected:
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
+    MCLDInfo* m_pInfo;
+    MCLDFile* m_pDefaultBitcode;
 
   private:
     static char m_ID;

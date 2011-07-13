@@ -58,13 +58,17 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
+	${INCDIR}/MC/MCLDFile.h \
+	${LIBDIR}/MC/MCLDFile.cpp \
+	${INCDIR}/MC/MCLDContext.h \
+	${LIBDIR}/MC/MCLDContext.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \
-	${LIBDIR}/MC/MCAsmObjectReader.cpp 
-#	${INCDIR}/MC/MCLDContext.h \
-#	${LIBDIR}/MC/MCLDContext.cpp 
+	${LIBDIR}/MC/MCAsmObjectReader.cpp \
+	${INCDIR}/MC/MCLDInfo.h \
+	${LIBDIR}/MC/MCLDInfo.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
