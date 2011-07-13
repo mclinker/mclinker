@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld {
 class MCLDInfo;
@@ -25,7 +26,7 @@ public:
   MCLDDriver(const MCLDInfo& pInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
-  void addInputFile(StringRef pFilename);
+  void addInputFile(llvm::StringRef pFilename);
   void enterGroup();
   void leaveGroup();
 private:

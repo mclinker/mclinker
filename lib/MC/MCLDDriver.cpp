@@ -20,7 +20,7 @@ MCLDDriver::~MCLDDriver()
 {
 }
 
-void MCLDDriver::addInputFile(StringRef pFilename)
+void MCLDDriver::addInputFile(llvm::StringRef pFilename)
 {
 }
 
