@@ -20,3 +20,15 @@ MCLDDriver::~MCLDDriver()
 {
 }
 
+void MCLDDriver::addInputFile(StringRef pFilename)
+{
+}
+
+void MCLDDriver::enterGroup()
+{
+}
+
+void MCLDDriver::leaveGroup()
+{
+}
+

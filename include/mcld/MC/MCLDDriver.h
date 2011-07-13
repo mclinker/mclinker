@@ -25,6 +25,9 @@ public:
   MCLDDriver(const MCLDInfo& pInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
+  void addInputFile(StringRef pFilename);
+  void enterGroup();
+  void leaveGroup();
 private:
   TargetLDBackend &m_LDBackend;
 };
