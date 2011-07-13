@@ -25,6 +25,7 @@ class TargetRegistry;
 class SectLinker;
 class MCLDDriver;
 class TargetLDBackend;
+class MCLDFile;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -38,7 +39,8 @@ public:
                                                           llvm::TargetMachine &,
                                                           const std::string&);
   typedef SectLinker *(*SectLinkerCtorTy)(const std::string&,
-                                          TargetLDBackend&);
+                                          TargetLDBackend&,
+                                          MCLDFile*);
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
 
@@ -75,10 +77,11 @@ public:
   ///
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
-                               TargetLDBackend& pLDBackend) const {
+                               TargetLDBackend& pLDBackend,
+                               MCLDFile *pDftBitcode) const {
     if (!SectLinkerCtorFn)
       return 0;
-    return SectLinkerCtorFn(pTriple, pLDBackend);
+    return SectLinkerCtorFn(pTriple, pLDBackend, pDftBitcode);
   }
 
   /// createLDBackend - create target-specific LDBackend

@@ -21,9 +21,11 @@ using namespace mcld;
 
 //==========================
 // MCAsmObjectReader
-MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer& pStreamer)
+MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
+                                     MCLDFile &pDefaultBitcode)
   : MCObjectWriter(llvm::nulls(), 
-                   pStreamer.getAssembler().getWriter().isLittleEndian()) {
+                   pStreamer.getAssembler().getWriter().isLittleEndian()),
+    m_DftBitcode(pDefaultBitcode) {
   pStreamer.getAssembler().setWriter(*this);
 }
 

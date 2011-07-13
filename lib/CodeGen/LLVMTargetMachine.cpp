@@ -11,6 +11,7 @@
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCAsmObjectReader.h>
+#include <mcld/MC/MCLDFile.h>
 #include <string>
 
 #include <llvm/PassManager.h>
@@ -206,8 +207,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                                               getTM().hasMCRelaxAll(),
                                                               getTM().hasMCNoExecStack());
 
+    OwningPtr<MCLDFile> defaultBitcode;
+    defaultBitcode.reset(new MCLDFile());
     MCAsmObjectReader *objReader = new MCAsmObjectReader(
-                                             *static_cast<MCObjectStreamer*>(AsmStreamer));
+                                             *static_cast<MCObjectStreamer*>(AsmStreamer),
+                                             *defaultBitcode.get());
 
     AsmStreamer->InitSections();
     AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
@@ -218,9 +222,10 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
     if (0 == ldBackend)
       return true;
-    funcPass = getTarget().createSectLinker(m_Triple, *ldBackend); 
+    funcPass = getTarget().createSectLinker(m_Triple, *ldBackend, defaultBitcode.get()); 
     if (0 == funcPass)
       return true;
+    defaultBitcode.take();
     pPM.add(funcPass);
     break;
   }

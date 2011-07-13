@@ -31,6 +31,7 @@ class raw_ostream;
 namespace mcld
 {
 
+class MCLDFile;
 using namespace llvm;
 
 /** \class MCAsmObjectReader
@@ -42,7 +43,8 @@ using namespace llvm;
 class MCAsmObjectReader : public llvm::MCObjectWriter
 {
 public:
-  MCAsmObjectReader(MCObjectStreamer& pStreamer);
+  MCAsmObjectReader(MCObjectStreamer& pStreamer,
+                    MCLDFile& pDefaultBitcode);
   ~MCAsmObjectReader();
 
   void ExecutePostLayoutBinding(MCAssembler &Asm,
@@ -63,6 +65,8 @@ public:
 
   void WriteObject(MCAssembler &Asm, const MCAsmLayout &Layout);
 
+private:
+  MCLDFile &m_DftBitcode;
 };
 
 } // namespace of mcld

@@ -8,6 +8,7 @@
 #include <llvm/ADT/Triple.h>
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/Target/TargetRegistry.h>
+#include <mcld/MC/MCLDFile.h>
 #include "ARM.h"
 #include "ARMELFSectLinker.h"
 
@@ -18,7 +19,8 @@ namespace mcld {
 /// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
 ///
 SectLinker* createARMSectLinker(const std::string &pTriple,
-                                mcld::TargetLDBackend &pLDBackend)
+                                mcld::TargetLDBackend &pLDBackend,
+                                MCLDFile *pDftBitcode)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -27,7 +29,7 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new ARMELFSectLinker(pLDBackend);
+  return new ARMELFSectLinker(pLDBackend, pDftBitcode);
 }
 
 } // namespace of mcld
