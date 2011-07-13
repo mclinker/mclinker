@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function setup {
-	make -f ./Makefile
+	make -f ./Makefile.correct
 	if [ ! -f ./func.ll ]; then
 		return 1;
 	fi
@@ -41,16 +41,25 @@ function teardown {
 		rm ./func.exe;
 	fi
 
-	if [ -f ./result ]; then
-		rm ./result;
+	if [ -f ./result.correct ]; then
+		rm ./result.correct;
+	fi
+	if [ -f ./result.error ]; then
+		rm ./result.error;
 	fi
 	return 0;
 }
 
 function testcase {
-	LIBC=`cat ./result | grep -lm`
+	LIBC=`cat ./result.correct | grep -e '-lm'`
 	if [ -z "${LIBC}" ]; then
 		echo "failed to search -lm" > /dev/stderr
+		return 1;
+	fi
+	make -f ./Makefile.correct
+	RESULT=`cat ./result.error | grep 'bitcode/llvm asm'`
+	if [ -z ${RESULT} ]; then
+		echo "failed to be failed.";
 		return 1;
 	fi
 	return 0;
