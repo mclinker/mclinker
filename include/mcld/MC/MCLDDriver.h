@@ -13,6 +13,7 @@
 #endif
 
 namespace mcld {
+class MCLDInfo;
 class TargetLDBackend;
 
 //===----------------------------------------------------------------------===//
@@ -21,7 +22,7 @@ class TargetLDBackend;
 class MCLDDriver 
 {
 public:
-  MCLDDriver(TargetLDBackend& pLDBackend);
+  MCLDDriver(const MCLDInfo& pInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
 private:

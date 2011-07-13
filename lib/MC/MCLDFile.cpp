@@ -3,36 +3,27 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   csmon7507 <csmon7507@gmail.com>                                         *
+ *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#include <mcld/MC/MCLDInfo.h>
-#include <string>
+#include <mcld/MC/MCLDFile.h>
+#include <mcld/MC/MCLDContext.h>
 
 using namespace mcld;
 
 //==========================
-// MCLDInfo
-bool MCLDInfo::hasDefaultBitcode() const 
-{
+// MCLDFile
+MCLDFile::MCLDFile()
+  : m_pContext(0) {
 }
 
-MCLDFile* MCLDInfo::defaultBitcode() const
+MCLDFile::~MCLDFile()
 {
+  if (m_pContext)
+	  delete m_pContext;
 }
 
-void MCLDInfo::setDefaultBitcode(MCLDFile &pLDFile)
+bool MCLDFile::isRecognized() const
 {
-}
-
-bool MCLDInfo::hasDefaultLDScript() const
-{
-}
-
-const char* MCLDInfo::defaultLDScript() const
-{
-}
-
-void MCLDInfo::setDefaultLDScript(const std::string& pFilename)
-{
+  return m_pContext;
 }
 

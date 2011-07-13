@@ -6,15 +6,21 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/CodeGen/SectLinker.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDFile.h>
 #include "ARMELFSectLinker.h"
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(TargetLDBackend &pLDBackend)
-  : SectLinker(pLDBackend) {
+ARMELFSectLinker::ARMELFSectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode)
+  : SectLinker(pLDBackend, pDefaultBitcode) {
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()
+{
+}
+
+MCLDInfo* ARMELFSectLinker::createLDInfo() const
 {
 }
 

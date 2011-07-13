@@ -15,6 +15,8 @@
 namespace mcld
 {
 
+class MCLDInfo;
+
 /** \class ARMELFSectLinker
  *  \brief ARMELFSectLinker sets up the environment for linking.
  *
@@ -24,8 +26,11 @@ namespace mcld
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(TargetLDBackend &pLDBackend);
+  ARMELFSectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
   ~ARMELFSectLinker();
+
+private:
+  MCLDInfo* createLDInfo() const;
 };
 
 } // namespace of mcld
