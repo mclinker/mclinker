@@ -12,28 +12,35 @@
 #endif
 
 #include <mcld/MC/MCLDContext.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <string>
+
 
 namespace mcld
 {
-
 class MCLDContext;
-/** \class MCLDFile
- *  \brief A objet file for linking.
- *
- *  \see
- *  \author Duo <pinronglu@gmail.com>
- */
+
+
 class MCLDFile
 {
 public:
-  MCLDFile();
+  enum attribute {
+    GROUP_START,
+    GROUP_END,
+    NORMAL_FILE,
+    UNKNOW
+  };
+
+  MCLDFile(/*FIXME*/ );
 	~MCLDFile();
 
-	bool isRecognized() const;
-
+ 	bool isRecognized() const;
+	
 private:
-	MCLDContext *m_pContext;
 	std::string m_Filename;
+  attribute m_Attribute;
+
+	MCLDContext *m_pContext;
 };
 
 } // namespace of mcld

@@ -5,26 +5,33 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#include <mcld/MC/MCLDFile.h>
-#include <mcld/MC/MCLDContext.h>
-#include <string>
+#include <mcld/MC/MCLDFileTree.h>
+
+
+
 using namespace mcld;
 
 //==========================
-// MCLDFile
-MCLDFile::MCLDFile()
-  : m_pContext(0) {
+// MCLDFileTree
+
+MCLDFileTree::MCLDFileTree()
+  : m_pRoot(0),
+    m_pCurrent(0) {
 }
 
-MCLDFile::~MCLDFile()
-{
-  if (m_pContext)
-	  delete m_pContext;
+MCLDFileTree::~MCLDFileTree() {
+   /// traversal the tree and delete it
 }
 
-
-bool MCLDFile::isRecognized() const
-{
-  return m_pContext;
+void MCLDFileTree::addMCLDFile(std::string str, attribute attr = UNKNOW) {
+  if(m_pRoot) {
+    m_pCurrent->setNext( new MCLDFile(str ,attr) ); 
+    m_pCurrent = m_pCurrent->getNext(); 
+    assert( m_pCurrent->getNext() != NULL );
+  }
+  else { 
+    m_pRoot = new MCLDFile(str ,attr);
+    m_pCurrent = m_pRoot;
+  }
 }
 
