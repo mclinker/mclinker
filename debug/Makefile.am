@@ -68,7 +68,9 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/MC/MCLDInfo.h \
 	${LIBDIR}/MC/MCLDInfo.cpp \
 	${INCDIR}/MC/MCLDContext.h \
-	${LIBDIR}/MC/MCLDContext.cpp 
+	${LIBDIR}/MC/MCLDContext.cpp \
+	${INCDIR}/Support/SearchDirs.h \
+	${LIBDIR}/Support/SearchDirs.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
