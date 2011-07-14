@@ -25,19 +25,23 @@ class MCLDInfo
 {
 public:
   MCLDInfo();
-	~MCLDInfo();
+  ~MCLDInfo();
 
   bool hasDefaultBitcode() const;
-	MCLDFile* defaultBitcode() const;
-	void setDefaultBitcode(MCLDFile &pLDFile);
+  MCLDFile* defaultBitcode() const;
+  void setDefaultBitcode(MCLDFile &pLDFile);
 
-	bool hasDefaultLDScript() const;
-	const char* defaultLDScript() const;
-	void setDefaultLDScript(const std::string& pFilename);
+  bool hasDefaultLDScript() const;
+  const char* defaultLDScript() const;
+  void setDefaultLDScript(const std::string& pFilename);
 
+  const char* sysroot() const;
+  void setSysroot(const std::string& pAbsPath);
+  
 private:
   MCLDFile* m_pDefaultBitcode;
-	std::string m_DefaultLDScript;
+  std::string m_DefaultLDScript;
+  std::string m_AbsSysRootPath;
 };
 
 } // namespace of mcld

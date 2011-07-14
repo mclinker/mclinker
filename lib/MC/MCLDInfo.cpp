@@ -36,3 +36,13 @@ void MCLDInfo::setDefaultLDScript(const std::string& pFilename)
 {
 }
 
+const char* MCLDInfo::sysroot() const
+{
+  return m_AbsSysRootPath.c_str();
+}
+
+void MCLDInfo::setSysroot(const std::string& pAbsPath)
+{
+  m_AbsSysRootPath = pAbsPath;
+}
+
