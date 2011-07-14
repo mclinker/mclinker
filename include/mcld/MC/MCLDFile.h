@@ -32,15 +32,15 @@ public:
   };
 
   MCLDFile(/*FIXME*/ );
-	~MCLDFile();
+  ~MCLDFile();
 
- 	bool isRecognized() const;
-	
+   bool isRecognized() const;
+  
 private:
-	std::string m_Filename;
+  std::string m_Filename;
   attribute m_Attribute;
 
-	MCLDContext *m_pContext;
+  MCLDContext *m_pContext;
 };
 
 } // namespace of mcld
