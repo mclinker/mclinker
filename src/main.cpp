@@ -61,7 +61,10 @@ int unit_test( int argc, char* argv[] )
 // and back-end code generation options are specified with the target machine.
 //
 static cl::opt<std::string>
-InputFilename(cl::Positional, cl::desc("<input bitcode>"), cl::init("-"));
+InputFilename("dB",
+              cl::Required,
+              cl::desc("<input bitcode>"),
+              cl::init("-"));
 
 static cl::opt<std::string>
 OutputFilename("o", cl::desc("Output filename"), cl::value_desc("filename"));
@@ -213,6 +216,7 @@ int main( int argc, char* argv[] )
   M.reset(ParseIRFile(InputFilename, Err, Context));
   if (M.get() == 0) {
     Err.Print(argv[0], errs());
+    errs() << "** First positional argument must be a bitcode/llvm asm file. **\n";
     return 1;
   }
   Module &mod = *M.get();
