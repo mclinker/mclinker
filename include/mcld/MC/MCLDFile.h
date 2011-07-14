@@ -13,6 +13,7 @@
 
 #include <mcld/MC/MCLDContext.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
 #include <string>
 
 
@@ -20,26 +21,22 @@ namespace mcld
 {
 class MCLDContext;
 
-
-class MCLDFile
+/** \class MCLDFile
+ *  \brief MCLDFile represents the file being linked or produced.
+ *
+ *  \see llvm::sys::Path
+ */
+class MCLDFile : public llvm::sys::Path
 {
 public:
-  enum attribute {
-    GROUP_START,
-    GROUP_END,
-    NORMAL_FILE,
-    UNKNOW
-  };
-
-  MCLDFile(/*FIXME*/ );
+  MCLDFile();
   ~MCLDFile();
 
-   bool isRecognized() const;
-  
-private:
-  std::string m_Filename;
-  attribute m_Attribute;
+  bool isRecognized() const;
 
+private:
+  std::string m_AbsFilePath;
+  std::string m_ArgName;
   MCLDContext *m_pContext;
 };
 
