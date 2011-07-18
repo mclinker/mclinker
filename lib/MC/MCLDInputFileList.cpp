@@ -19,36 +19,58 @@ MCLDInputFileList::MCLDInputFileList ()
     m_pTail(0) { 
 }
 
+MCLDInputFileList &MCLDInputFileList::insert(MCLDFile &file ,FileAttribute attr) {
+  Node *newNodePtr = new Node(file,attr);
+
+  if (attr == MCLDInputFileList::GROUP_START) 
+    this->m_Stack.push(newNodePtr);
+  else if (attr == MCLDInputFileList::GROUP_END) { 
+    newNodePtr->m_pBack = this->m_Stack.top();
+    this->m_Stack.pop();
+  }
+
+  if (m_pTail) {
+    m_pTail->m_pNext = newNodePtr;
+  }
+  else {
+    this->m_pHead = newNodePtr;
+  } 
+  this->m_pTail = newNodePtr;
+
+  return *this;
+}
+
+MCLDInputFileList &MCLDInputFileList::insert(iterator position ,
+                                             iterator it_begin ,
+                                             iterator it_end) {
+  it_end.m_pNode->m_pNext = position.m_pNode->m_pNext;
+  position.m_pNode->m_pNext = it_begin.m_pNode;  
+  return *this;
+}
+
+//MCLDInputFileList &
 /// -------  MCLDInputFileList::Node  -------
 MCLDInputFileList::Node::Node(MCLDFile &file,FileAttribute attr) 
   : m_File(file), 
     m_pNext(0),
     m_pBack(0),
+    visited(false),
     m_Attr(attr) {
 }
 
 
-/// ------  MCLDInputFileList::Iterator  --------
-MCLDInputFileList::iterator &MCLDInputFileList::iterator::insert(MCLDFile &file ,
-                                                                MCLDInputFileList::FileAttribute attr) {	
-  Node *nextPtr = new Node(file,attr);
-  if(attr == MCLDInputFileList::GROUP_START) 
-   // m_Stack.push_back(nextPtr);
-  if(attr == MCLDInputFileList::GROUP_END)
-   //nextPtr->m_pBack = m_Stack.pop_back();
-
-  if( m_pNode ) { /// List is not empty
-    /// Middel of list
-    if(m_pNode->m_pNext) { 
-      nextPtr->m_pNext = m_pNode->m_pNext;
-      m_pNode->m_pNext = nextPtr;
-    }
-    m_pNode->m_pNext = nextPtr;
-  }
-  /// empty list
-	else {
-	}
+/// ------- iterator ---------
+MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator++() {
+  if((m_pNode->m_pBack) && (!m_pNode->visited))
+    m_pNode = m_pNode->m_pBack;
+  else
+    m_pNode = m_pNode->m_pNext;
+  return *this;
 }
 
-MCLDFile *MCLDInputFileList::iterator::remove( MCLDInputFileList::iterator &IT ) {
+MCLDInputFileList::iterator MCLDInputFileList::iterator::operator++(int) {
+  iterator tmp = *this;
+  ++*this;
+  return tmp;
 }
+

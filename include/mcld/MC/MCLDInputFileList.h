@@ -40,6 +40,7 @@ private:
     ~Node();
     Node *m_pNext;
     Node *m_pBack;
+    bool visited;
 
     FileAttribute m_Attr;
     MCLDFile &m_File;
@@ -67,23 +68,14 @@ public:
     }
    
     /// Increment and decrement operators
-    iterator &operator++() {
-      m_pNode = m_pNode->m_pNext;
-      return *this;
-    }
-    iterator operator++(int) {
-      iterator tmp = *this;
-      ++*this;
-      return tmp;
-    }    
+    iterator &operator++();
+      
+    iterator operator++(int);
 
     /// Accessor
     MCLDFile &operator*() {
       return m_pNode->m_File; 
     }
-
-    iterator &insert(MCLDFile & ,FileAttribute);
-    MCLDFile *remove(iterator &);
 
   private:
     Node *m_pNode;  
@@ -92,11 +84,11 @@ public:
   friend class iterator;
   iterator begin() { return iterator(m_pHead); }
   iterator end() { return iterator(m_pTail); }
-
-  /// FIXME : users don't know what is Node
-  void setHead(Node *head) { m_pHead = head; }
-  void setTail(Node *tail) { m_pTail = tail; }
-
+	
+  MCLDInputFileList &insert(MCLDFile & ,FileAttribute);
+  MCLDInputFileList &insert(iterator ,iterator ,iterator);
+  MCLDInputFileList &remove(iterator);
+ 
 private:
   Node *m_pHead;
   Node *m_pTail;
