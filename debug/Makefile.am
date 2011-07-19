@@ -71,8 +71,14 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDInputFileList.cpp \
 	${INCDIR}/MC/MCLDContext.h \
 	${LIBDIR}/MC/MCLDContext.cpp \
-	${INCDIR}/Support/SearchDirs.h \
-	${LIBDIR}/Support/SearchDirs.cpp
+	${INCDIR}/Support/Path.h \
+	${LIBDIR}/Support/Path.cpp \
+	${INCDIR}/Support/FileSytem.h \
+	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/MC/MCLDDirectory.h \
+	${LIBDIR}/MC/MCLDDirectory.cpp \
+	${INCDIR}/Support/CommandLine.h \
+	${LIBDIR}/Support/CommandLine.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \

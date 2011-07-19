@@ -63,11 +63,14 @@ int unit_test( int argc, char* argv[] )
 static cl::opt<std::string>
 InputFilename("dB",
               cl::Required,
-              cl::desc("<input bitcode>"),
+              cl::desc("set default bitcode"),
+              cl::value_desc("bitcode"),
               cl::init("-"));
 
 static cl::opt<std::string>
-OutputFilename("o", cl::desc("Output filename"), cl::value_desc("filename"));
+OutputFilename("o",
+               cl::desc("Output filename"),
+               cl::value_desc("filename"));
 
 // Determine optimization level.
 static cl::opt<char>

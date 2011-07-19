@@ -36,6 +36,8 @@ namespace mcld
    *  - control AsmPrinter, make sure AsmPrinter has already prepared 
    *    all MCSectionDatas for linking
    *
+   *  SectLinker resolves the absolue paths of input arguments.
+   *
    *  \see MachineFunctionPass MCLDDriver
    */
   class SectLinker : public llvm::MachineFunctionPass

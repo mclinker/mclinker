@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <mcld/Support/FileSystem.h>
 
 namespace mcld
 {
@@ -35,13 +36,15 @@ public:
   const char* defaultLDScript() const;
   void setDefaultLDScript(const std::string& pFilename);
 
-  const char* sysroot() const;
-  void setSysroot(const std::string& pAbsPath);
+  const sys::fs::Path& sysroot() const {
+    return m_Sysroot;
+  }
+  void setSysroot(const sys::fs::Path &pPath);
   
 private:
   MCLDFile* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
-  std::string m_AbsSysRootPath;
+  sys::fs::Path m_Sysroot;
 };
 
 } // namespace of mcld

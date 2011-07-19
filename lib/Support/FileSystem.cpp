@@ -5,31 +5,25 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef SEARCHDIRS_H
-#define SEARCHDIRS_H
-#ifdef ENABLE_UNITTEST
-#include <gtest.h>
-#endif
-#include <llvm/ADT/StringRef.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 
-namespace mcld
+using namespace mcld::sys::fs;
+
+
+//===--------------------------------------------------------------------===//
+// SearchDirs
+SearchDirs::SearchDirs()
 {
-class MCLDFile;
-/** \class SearchDirs
- *  \brief SearchDirs contains the list of paths that MCLinker will search for
- *  archive libraries and control scripts.
- *
- *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
- */
-class SearchDirs
+}
+
+SearchDirs::~SearchDirs()
 {
-public:
-  MCLDFile* hasFile(llvm::StringRef pNamespec, std::string& pAbsPath);
-  MCLDFile* hasFile(llvm::StringRef pAbsPath);
-};
+}
 
-} // namespace of mcld
+void SearchDirs::add(const mcld::sys::fs::Directory &pDir)
+{
+}
 
-#endif
-
+//===--------------------------------------------------------------------===//
+// non-member functions

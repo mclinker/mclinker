@@ -5,28 +5,41 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef SEARCHDIRS_H
-#define SEARCHDIRS_H
+#ifndef MCLDDIRECTORY_H
+#define MCLDDIRECTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/FileSystem.h>
 #include <llvm/ADT/StringRef.h>
+#include <string>
 
 namespace mcld
 {
-class MCLDFile;
-/** \class SearchDirs
- *  \brief SearchDirs contains the list of paths that MCLinker will search for
- *  archive libraries and control scripts.
+
+/** \class MCLDDirectory
+ *  \brief MCLDDirectory is an directory entry for library search.
  *
  *  \see
  *  \author Luba Tang <lubatang@mediatek.com>
  */
-class SearchDirs
+class MCLDDirectory : public sys::fs::Directory
 {
 public:
-  MCLDFile* hasFile(llvm::StringRef pNamespec, std::string& pAbsPath);
-  MCLDFile* hasFile(llvm::StringRef pAbsPath);
+  MCLDDirectory();
+  MCLDDirectory(const std::string& pName);
+  ~MCLDDirectory();
+
+  bool isInSysroot() const;
+  const sys::fs::Path &path() const;
+  llvm::StringRef name() const;
+
+  /// setSysroot - if in sysroot, 
+  void setSysroot(const sys::fs::Path& pPath);
+
+private:
+  std::string m_Name;
+  bool m_bInSysroot;
 };
 
 } // namespace of mcld

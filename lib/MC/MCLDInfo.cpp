@@ -6,6 +6,7 @@
  *   csmon7507 <csmon7507@gmail.com>                                         *
  ****************************************************************************/
 #include <mcld/MC/MCLDInfo.h>
+#include <mcld/Support/FileSystem.h>
 #include <string>
 
 using namespace mcld;
@@ -36,13 +37,8 @@ void MCLDInfo::setDefaultLDScript(const std::string& pFilename)
 {
 }
 
-const char* MCLDInfo::sysroot() const
+void MCLDInfo::setSysroot(const mcld::sys::fs::Path &pSysroot)
 {
-  return m_AbsSysRootPath.c_str();
-}
-
-void MCLDInfo::setSysroot(const std::string& pAbsPath)
-{
-  m_AbsSysRootPath = pAbsPath;
+  m_Sysroot = pSysroot;
 }
 
