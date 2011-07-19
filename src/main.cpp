@@ -62,7 +62,7 @@ int unit_test( int argc, char* argv[] )
 //
 static cl::opt<std::string>
 InputFilename("dB",
-              cl::Required,
+              cl::Optional,
               cl::desc("set default bitcode"),
               cl::value_desc("bitcode"),
               cl::init("-"));
