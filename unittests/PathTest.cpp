@@ -41,9 +41,45 @@ void PathTest::TearDown()
 // Testcases
 //
 
-/** 
-TEST_F( PathTest, name of  the testcase for Path ) {
-	Write you exercise here
+TEST_F( PathTest, should_exist ) {
+  const std::string root = "/";
+  m_pTestee->assign(root);
+  EXPECT_TRUE(exists(*m_pTestee));
+  
+  delete m_pTestee;
+  m_pTestee = new Path(root);
+  EXPECT_TRUE(exists(*m_pTestee));
 }
-**/
+
+TEST_F( PathTest, should_not_exist ) {
+  const std::string root = "/fuck";
+  m_pTestee->assign(root);
+  EXPECT_FALSE(exists(*m_pTestee));
+  
+  delete m_pTestee;
+  m_pTestee = new Path(root);
+  EXPECT_FALSE(exists(*m_pTestee));
+}
+
+TEST_F( PathTest, should_is_directory ) {
+  const std::string root = "/";
+  m_pTestee->assign(root);
+  EXPECT_TRUE(exists(*m_pTestee));
+  EXPECT_TRUE(is_directory(*m_pTestee));
+  delete m_pTestee;
+  m_pTestee = new Path(root);
+  EXPECT_TRUE(exists(*m_pTestee));
+  EXPECT_TRUE(is_directory(*m_pTestee));
+}
+
+TEST_F( PathTest, should_not_is_directory ) {
+  const std::string root = "/fuck";
+  m_pTestee->assign(root);
+  EXPECT_FALSE(exists(*m_pTestee));
+  EXPECT_FALSE(is_directory(*m_pTestee));
+  delete m_pTestee;
+  m_pTestee = new Path(root);
+  EXPECT_FALSE(exists(*m_pTestee));
+  EXPECT_FALSE(is_directory(*m_pTestee));
+}
 
