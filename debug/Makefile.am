@@ -79,13 +79,15 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp
-#        ${UNITTEST}/TargetRegistryTest.h \
-#        ${UNITTEST}/TargetRegistryTest.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
-SOURCE = ${NORMAL_SOURCE} 
+SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/PathTest.h \
+	${UNITTEST}/PathTest.cpp
+#        ${UNITTEST}/TargetRegistryTest.h \
+#        ${UNITTEST}/TargetRegistryTest.cpp
 else
 SOURCE = ${NORMAL_SOURCE}
 endif
