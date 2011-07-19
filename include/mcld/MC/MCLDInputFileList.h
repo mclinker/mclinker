@@ -12,7 +12,6 @@
 #endif
 
 #include <stack>
-#include <string> ///FIXME : could be forward declaration
 
 namespace mcld
 {
@@ -21,6 +20,8 @@ class MCLDFile;
 
 class MCLDInputFileList
 {
+  MCLDInputFileList(const MCLDInputFileList &); // DO NOT IMPLEMENT
+  void operator=(const MCLDInputFileList &); // DO NOT IMPLEMENT
 public:
   MCLDInputFileList();
   ~MCLDInputFileList();
@@ -29,14 +30,14 @@ public:
     GROUP_START,
     GROUP_END,
     NORMAL_FILE,
-    UNKNOW
+    UNKNOWN
   };
 
 private:
   /// internal use only 
   class Node {
   public:
-    Node(MCLDFile & ,FileAttribute);
+    Node(MCLDFile &, FileAttribute);
     ~Node();
     Node *m_pNext;
     Node *m_pChild;
@@ -79,15 +80,15 @@ public:
 
   private:
     Node *m_pNode;  
-    std::stack<Node *> m_Stack;
+    std::stack<Node *> m_ITStack;
   };
 
   friend class iterator;
   iterator begin() { return iterator(m_pHead); }
   iterator end() { return iterator(m_pTail); }
 	
-  MCLDInputFileList &insert(MCLDFile & ,FileAttribute);
-  MCLDInputFileList &insert(iterator ,iterator ,iterator);
+  MCLDInputFileList &insert(MCLDFile &, FileAttribute);
+  MCLDInputFileList &insert(iterator, iterator, iterator);
  
 private:
   Node *m_pHead;
