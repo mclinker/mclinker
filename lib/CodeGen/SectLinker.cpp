@@ -58,6 +58,43 @@ ArgInputObjectFiles(cl::Positional,
                     cl::desc("[input object files]"),
                     cl::ZeroOrMore);
 
+static cl::list<std::string>
+ArgNameSpecList("l",
+            cl::ZeroOrMore,
+            cl::desc("Add the archive or object file specified by namespec to the list of files to link."),
+            cl::value_desc("namespec"),
+            cl::Prefix);
+
+static cl::alias
+ArgNameSpecListAlias("library",
+                 cl::desc("alias for -l"),
+                 cl::aliasopt(ArgNameSpecList));
+
+static cl::list<std::string>
+ArgStartGroupList("start-group",
+                  cl::ZeroOrMore,
+                  cl::ValueDisallowed,
+                  cl::desc("start to record a group of archives"),
+                  cl::value_desc("archives"),
+                  cl::Prefix);
+static cl::alias
+ArgStartGroupListAlias("(",
+                       cl::desc("alias for --start-group"),
+                       cl::aliasopt(ArgStartGroupList));
+
+static cl::list<std::string>
+ArgEndGroupList("end-group",
+                cl::ZeroOrMore,
+                cl::ValueDisallowed,
+                cl::desc("stop recording a group of archives"),
+                cl::value_desc("archives"),
+                cl::Prefix);
+
+static cl::alias
+ArgEndGroupListAlias(")",
+                     cl::desc("alias for --end-group"),
+                     cl::aliasopt(ArgEndGroupList));
+
 //===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(TargetLDBackend& pLDBackend, MCLDFile* pDefaultBitcode)
@@ -102,6 +139,35 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   /// add all namespecs
+  cl::list<std::string>::iterator ns;
+  cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
+  for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
+    // search file in SearchDirs
+    // calculate position
+  }
+
+  /// add all start-group
+  cl::list<std::string>::iterator sg;
+  cl::list<std::string>::iterator sgEnd = ArgStartGroupList.end();
+  for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
+    // calculate position
+  }
+
+  /// add all end-group
+  cl::list<std::string>::iterator eg;
+  cl::list<std::string>::iterator egEnd = ArgEndGroupList.end();
+  for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
+    // calculate position
+  }
+
+  /// add all object files
+  cl::list<mcld::sys::fs::Path>::iterator obj;
+  cl::list<mcld::sys::fs::Path>::iterator objEnd = ArgInputObjectFiles.end();
+  for (obj=ArgInputObjectFiles.begin(); obj!=objEnd; ++obj) {
+    // calculate position
+  }
+
+  /// sort all input files
 
   m_pLDDriver = new MCLDDriver(*ldInfo, *m_pLDBackend);
 }
