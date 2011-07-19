@@ -39,7 +39,7 @@ private:
     Node(MCLDFile & ,FileAttribute);
     ~Node();
     Node *m_pNext;
-    Node *m_pBack;
+    Node *m_pChild;
     bool visited;
 
     FileAttribute m_Attr;
@@ -79,6 +79,7 @@ public:
 
   private:
     Node *m_pNode;  
+    std::stack<Node *> m_Stack;
   };
 
   friend class iterator;
@@ -87,12 +88,12 @@ public:
 	
   MCLDInputFileList &insert(MCLDFile & ,FileAttribute);
   MCLDInputFileList &insert(iterator ,iterator ,iterator);
-  MCLDInputFileList &remove(iterator);
  
 private:
   Node *m_pHead;
   Node *m_pTail;
- 
+  Node *m_pEnd;
+
   std::stack<Node *> m_Stack; 
 };
 
