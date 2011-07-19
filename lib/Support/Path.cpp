@@ -37,6 +37,10 @@ Path::Path(const Path::StringType &s )
   : m_PathName(s) {
 }
 
+Path::~Path()
+{
+}
+
 Path& Path::assign(const Path::StringType &s)
 {
   m_PathName.assign(s);
