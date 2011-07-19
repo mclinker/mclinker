@@ -24,23 +24,32 @@ bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option &O,
                        llvm::StringRef Arg,
                        mcld::sys::fs::Path &Val)
 {
-  cerr << "==================" << endl;
-  cerr << "ArgName=" << ArgName.str() << endl;
-  cerr << "Arg=" << Arg.str() << endl;
-  cerr << "------------------" << endl;
   Val.assign<llvm::StringRef::const_iterator>(Arg.begin(), Arg.end());
   return false;
 }
+
+static const size_t MaxOptWidth = 8;  // arbitrary spacing for printOptionDiff
 
 void parser<mcld::sys::fs::Path>::printOptionDiff(const llvm::cl::Option &O,
                                                   const mcld::sys::fs::Path &V,
                                                   parser<mcld::sys::fs::Path>::OptVal Default,
                                                   size_t GlobalWidth) const
 {
+  printOptionName(O, GlobalWidth);
+  outs() << "= " << V;
+  size_t VSize = V.native().size();
+  size_t NumSpaces = MaxOptWidth > VSize ? MaxOptWidth - VSize : 0;
+  outs().indent(NumSpaces) << " (default: ";
+  if (Default.hasValue())
+    outs() << Default.getValue().c_str();
+  else
+    outs() << "*no default*";
+  outs() << ")\n";
 }
 
 void parser<mcld::sys::fs::Path>::anchor()
 {
+  // do nothing
 }
 
 //--------------------------------------------------
@@ -51,7 +60,8 @@ bool parser<mcld::MCLDDirectory>::parse(llvm::cl::Option &O,
                                 llvm::StringRef Arg,
                                 mcld::MCLDDirectory &Val)
 {
-	cerr << "wa wa" << endl;
+  Val.assign(Arg);
+  return false;
 }
 
 void parser<mcld::MCLDDirectory>::printOptionDiff(const llvm::cl::Option &O,
@@ -59,9 +69,20 @@ void parser<mcld::MCLDDirectory>::printOptionDiff(const llvm::cl::Option &O,
                                                   parser<mcld::MCLDDirectory>::OptVal Default,
                                                   size_t GlobalWidth) const
 {
+  printOptionName(O, GlobalWidth);
+  outs() << "= " << V.name();
+  size_t VSize = V.name().size();
+  size_t NumSpaces = MaxOptWidth > VSize ? MaxOptWidth - VSize : 0;
+  outs().indent(NumSpaces) << " (default: ";
+  if (Default.hasValue())
+    outs() << Default.getValue().name();
+  else
+    outs() << "*no default*";
+  outs() << ")\n";
 }
 
 void parser<mcld::MCLDDirectory>::anchor()
 {
+  // do nothing
 }
 

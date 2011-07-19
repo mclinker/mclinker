@@ -38,7 +38,8 @@ char SectLinker::m_ID = 0;
 static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgSysRoot("sysroot",
            cl::desc("Use directory as the location of the sysroot, overriding the configure-time default."),
-           cl::value_desc("directory"));
+           cl::value_desc("directory"),
+           cl::ValueRequired);
 
 static cl::list<mcld::MCLDDirectory, bool, llvm::cl::parser<mcld::MCLDDirectory> >
 ArgSearchDirList("L",
