@@ -2,4 +2,7 @@
 This directory contains all patches being applied on LLVM
 
 ------------------------------------------------------------
-TargetMachine.diff  ${llvm}/include/Target/TargetMachine.h
+MCAssembler.h.patch     ${llvm}/include/MC/MCAssembler.h
+MCAssembler.cpp.patch   ${llvm}/lib/MC/MCAssembler.cpp
+TargetMachine.h.patch   ${llvm}/include/Target/TargetMachine.h
+

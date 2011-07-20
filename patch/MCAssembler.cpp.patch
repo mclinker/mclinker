@@ -1,0 +1,13 @@
+diff --git a/lib/MC/MCAssembler.cpp b/lib/MC/MCAssembler.cpp
+index 527a63c..61308ef 100644
+--- a/lib/MC/MCAssembler.cpp
++++ b/lib/MC/MCAssembler.cpp
+@@ -197,7 +197,7 @@ MCSymbolData::MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment,
+ MCAssembler::MCAssembler(MCContext &Context_, TargetAsmBackend &Backend_,
+                          MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
+                          raw_ostream &OS_)
+-  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(Writer_),
++  : Context(Context_), Backend(Backend_), Emitter(Emitter_), m_pWriter(&Writer_),
+     OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
+ {
+ }
