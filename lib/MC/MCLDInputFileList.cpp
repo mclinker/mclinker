@@ -25,14 +25,14 @@ MCLDInputFileList::~MCLDInputFileList() {
   MCLDInputFileList::iterator it = begin() ;
   while (it != end()){
     iterator temp_it = it++;
-    delete temp_it.m_pNode; 
+    delete temp_it.m_pCurrent; 
   } 
   delete m_pEnd;
 }
 
-MCLDInputFileList &MCLDInputFileList::insert(MCLDFile &file, FileAttribute attr) {
+MCLDInputFileList &MCLDInputFileList::insert(MCLDFile *file, FileAttribute attr) {
   
-  Node *newNodePtr = new Node(file, attr);
+  Node *newNodePtr = new Node(*file, attr);
 
   if(!m_pHead) { 
     m_pHead = newNodePtr;
@@ -56,49 +56,41 @@ MCLDInputFileList &MCLDInputFileList::insert(MCLDFile &file, FileAttribute attr)
   return *this;
 }
 
-MCLDInputFileList &MCLDInputFileList::insert(iterator position,
+MCLDInputFileList &MCLDInputFileList::append(iterator position,
                                              iterator it_begin,
                                              iterator it_end) {
-  if(position.m_pNode->m_pChild) {
-    std::cerr << "error : m_pChild already exist\n";
-    return *this;
-  }
-  if (!position.m_pNode->m_pChild) {
-    position.m_pNode->m_pChild = it_begin.m_pNode;  
-    it_end.m_pNode->m_pNext = 0;
+  position.m_pCurrent->m_Attr = LDSCRIPT; 
+  if (!position.m_pCurrent->m_pChild) {
+    position.m_pCurrent->m_pChild = it_begin.m_pCurrent;  
+    it_end.m_pCurrent->m_pNext = 0;
   }
   return *this;
 }
 
-
 /// -------  MCLDInputFileList::Node  -------
 MCLDInputFileList::Node::Node(MCLDFile &file,FileAttribute attr) 
-  : m_File(file), 
+  : m_pFile(&file), 
     m_pNext(0),
     m_pChild(0),
     visited(false),
     m_Attr(attr) {
 }
 
-MCLDInputFileList::Node::~Node() {
-  delete &m_File;
+/// ------- iterator ---------
+MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator=(const MCLDInputFileList::iterator &it) {
+  m_pCurrent = it.m_pCurrent;
+  m_pFrom = it.m_pFrom;
+  m_ITStack = it.m_ITStack;
+  return *this;
 }
 
+MCLDInputFileList::iterator::iterator(MCLDInputFileList::Node *NP)
+  : m_pCurrent(NP),
+    m_pFrom(NP) {
+}
 
-/// ------- iterator ---------
 MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator++() {
-
-  if (m_pNode->m_pChild) {
-    m_ITStack.push(m_pNode) ;
-    m_pNode = m_pNode->m_pNext;
-  }
-  else if (!m_pNode->m_pNext) { 
-    m_pNode = m_ITStack.top();
-    m_ITStack.pop() ;
-  }
-  else 
-    m_pNode = m_pNode->m_pNext;
-
+/// FIXME
   return *this;
 }
 
@@ -108,3 +100,6 @@ MCLDInputFileList::iterator MCLDInputFileList::iterator::operator++(int) {
   return tmp;
 }
 
+MCLDFile &MCLDInputFileList::iterator::operator*() {
+  return *(m_pCurrent->m_pFile);
+}

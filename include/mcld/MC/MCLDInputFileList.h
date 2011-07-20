@@ -29,7 +29,7 @@ public:
   enum FileAttribute {
     GROUP_START,
     GROUP_END,
-    NORMAL_FILE,
+    LDSCRIPT,
     UNKNOWN
   };
 
@@ -44,42 +44,35 @@ private:
     bool visited;
 
     FileAttribute m_Attr;
-    MCLDFile &m_File;
+    MCLDFile *m_pFile;
   };
 
 public:
   class iterator {
   friend class MCLDInputFileList;
   public:
-    iterator( Node *NP ) : m_pNode(NP) {}
-    iterator( Node &NR ) : m_pNode(&NR) {}
-
+    iterator(Node *);
     /// Assignment
-    iterator &operator=(const iterator &RHS) { 
-      m_pNode = RHS.m_pNode; 
-      return *this;
-    }
+    iterator &operator=(const iterator &RHS);
 
     /// Comparison operators
     bool operator==(const iterator &RHS) const { 
-      return m_pNode == RHS.m_pNode; 
+      return m_pCurrent == RHS.m_pCurrent;
     }
-    bool operator!=(const iterator &RHS) const { 
-      return m_pNode != RHS.m_pNode; 
+    bool operator!=(const iterator &RHS) const {
+      return m_pCurrent != RHS.m_pCurrent;  
     }
    
     /// Increment and decrement operators
-    iterator &operator++();
-      
+    iterator &operator++();  
     iterator operator++(int);
 
     /// Accessor
-    MCLDFile &operator*() {
-      return m_pNode->m_File; 
-    }
+    MCLDFile &operator*();
 
   private:
-    Node *m_pNode;  
+    Node *m_pCurrent; 
+    Node *m_pFrom;
     std::stack<Node *> m_ITStack;
   };
 
@@ -87,8 +80,8 @@ public:
   iterator begin() { return iterator(m_pHead); }
   iterator end() { return iterator(m_pTail); }
 	
-  MCLDInputFileList &insert(MCLDFile &, FileAttribute);
-  MCLDInputFileList &insert(iterator, iterator, iterator);
+  MCLDInputFileList &insert(MCLDFile *, FileAttribute);
+  MCLDInputFileList &append(iterator, iterator, iterator);
  
 private:
   Node *m_pHead;
