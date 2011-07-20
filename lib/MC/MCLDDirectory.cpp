@@ -20,6 +20,18 @@ MCLDDirectory::MCLDDirectory(const std::string &pName)
   m_bInSysroot = ('=' == m_Name.c_str()[0]);
 }
 
+MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
+  : Directory(sys::fs::Path(pName)), m_Name(pName) {
+  m_bInSysroot = ('=' == m_Name.c_str()[0]);
+}
+
+MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
+{
+  Directory::m_Path.assign(pName);
+  m_Name = pName;
+  m_bInSysroot = ('=' == m_Name.c_str()[0]);
+}
+
 MCLDDirectory::~MCLDDirectory()
 {
 }

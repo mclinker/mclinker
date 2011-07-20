@@ -28,13 +28,16 @@ class MCLDDirectory : public sys::fs::Directory
 public:
   MCLDDirectory();
   MCLDDirectory(const std::string& pName);
+  MCLDDirectory(llvm::StringRef pName);
   ~MCLDDirectory();
 
+public:
+  MCLDDirectory &assign(llvm::StringRef pName);
   bool isInSysroot() const;
   const sys::fs::Path &path() const;
   llvm::StringRef name() const;
 
-  /// setSysroot - if in sysroot, 
+  /// setSysroot - if MCLDDirectory is in sysroot, modify the path.
   void setSysroot(const sys::fs::Path& pPath);
 
 private:
