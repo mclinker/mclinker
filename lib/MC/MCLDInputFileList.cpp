@@ -76,6 +76,10 @@ MCLDInputFileList::Node::Node(MCLDFile &file,FileAttribute attr)
     m_Attr(attr) {
 }
 
+MCLDInputFileList::Node::~Node() {
+  delete m_pFile;
+}
+
 /// ------- iterator ---------
 MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator=(const MCLDInputFileList::iterator &it) {
   m_pCurrent = it.m_pCurrent;
