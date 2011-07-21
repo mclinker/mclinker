@@ -34,7 +34,16 @@ using namespace llvm;
 char SectLinker::m_ID = 0;
 
 //===----------------------------------------------------------------------===//
-// Arguments
+// Command Line Options
+// There are four kinds of command line options:
+//   1. input, (may be a file, such as -m and /tmp/XXXX.o.)
+//   2. attribute of inputs, (describing the attributes of inputs, such as 
+//      --as-needed and --whole-archive. usually be positional.)
+//   3. scripting options, (represent a subset of link scripting language, such
+//      as --defsym.)
+//   4. and general options. (the rest of options)
+//===----------------------------------------------------------------------===//
+// General Options
 static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgSysRoot("sysroot",
            cl::desc("Use directory as the location of the sysroot, overriding the configure-time default."),
@@ -53,6 +62,8 @@ ArgSearchDirListAlias("library-path",
                       cl::desc("alias for -L"),
                       cl::aliasopt(ArgSearchDirList));
 
+//===----------------------------------------------------------------------===//
+// Inputs
 static cl::list<mcld::sys::fs::Path>
 ArgInputObjectFiles(cl::Positional,
                     cl::desc("[input object files]"),
@@ -96,6 +107,12 @@ ArgEndGroupListAlias(")",
                      cl::aliasopt(ArgEndGroupList));
 
 //===----------------------------------------------------------------------===//
+// Attributes of Inputs
+
+//===----------------------------------------------------------------------===//
+// Scripting Options
+
+//===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(TargetLDBackend& pLDBackend, MCLDFile* pDefaultBitcode)
   : MachineFunctionPass(m_ID),
@@ -117,14 +134,14 @@ bool SectLinker::doInitialization(Module &pM)
   if (0 != m_pDefaultBitcode)
     ldInfo->setDefaultBitcode(*m_pDefaultBitcode);
 
-  /// set up all target-independent parameters into MCLDInfo
+  /// -----  Set up General Options  -----
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
       ldInfo->setSysroot(ArgSysRoot);
   }
   
-  /// add all search directories
+  // add all search directories
   OwningPtr<SearchDirs> search_dir_list;
   search_dir_list.reset(new SearchDirs());
   cl::list<mcld::MCLDDirectory>::iterator sd;
@@ -138,7 +155,8 @@ bool SectLinker::doInitialization(Module &pM)
       errs() << "search directory is wrong: -L" << sd->name();
   }
 
-  /// add all namespecs
+  /// -----  Set up Inputs  -----
+  // add all namespecs
   cl::list<std::string>::iterator ns;
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
@@ -169,6 +187,8 @@ bool SectLinker::doInitialization(Module &pM)
 
   /// sort all input files
 
+  /// -----  Set up Attributes of Inputs  -----
+  /// -----  Set up Scripting Options  -----
   m_pLDDriver = new MCLDDriver(*ldInfo, *m_pLDBackend);
 }
 
