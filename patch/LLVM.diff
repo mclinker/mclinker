@@ -1,0 +1,86 @@
+Index: include/llvm/Target/TargetMachine.h
+===================================================================
+--- include/llvm/Target/TargetMachine.h	(revision 134968)
++++ include/llvm/Target/TargetMachine.h	(working copy)
+@@ -301,6 +301,16 @@
+                                  bool = true) {
+     return true;
+   }
++
++  /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
++  /// both emitting to assembly files or machine code output.
++  ///
++  virtual bool addCommonCodeGenPasses(PassManagerBase &,
++                              CodeGenOpt::Level,
++                              bool DisableVerify,
++                              MCContext *&OutCtx) {
++    return true;
++  }
+ };
+ 
+ /// LLVMTargetMachine - This class describes a target machine that is
+@@ -311,17 +321,17 @@
+   LLVMTargetMachine(const Target &T, StringRef TargetTriple,
+                     StringRef CPU, StringRef FS);
+ 
+-private:
++public:
++
++  virtual void setCodeModelForJIT();
++  virtual void setCodeModelForStatic();
++
++
+   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
+   /// both emitting to assembly files or machine code output.
+   ///
+   bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
+                               bool DisableVerify, MCContext *&OutCtx);
+-
+-  virtual void setCodeModelForJIT();
+-  virtual void setCodeModelForStatic();
+-
+-public:
+   /// addPassesToEmitFile - Add passes to the specified pass manager to get the
+   /// specified file emitted.  Typically this will involve several steps of code
+   /// generation.  If OptLevel is None, the code generator should emit code as
+Index: include/llvm/MC/MCAssembler.h
+===================================================================
+--- include/llvm/MC/MCAssembler.h	(revision 134968)
++++ include/llvm/MC/MCAssembler.h	(working copy)
+@@ -664,7 +664,7 @@
+ 
+   MCCodeEmitter &Emitter;
+ 
+-  MCObjectWriter &Writer;
++  MCObjectWriter *m_pWriter;
+ 
+   raw_ostream &OS;
+ 
+@@ -791,8 +791,13 @@
+ 
+   MCCodeEmitter &getEmitter() const { return Emitter; }
+ 
+-  MCObjectWriter &getWriter() const { return Writer; }
++  MCObjectWriter &getWriter() const { return *m_pWriter; }
+ 
++  void setWriter(MCObjectWriter &pObjectWriter) {
++    delete m_pWriter;
++    m_pWriter = &pObjectWriter;
++  }
++
+   /// Finish - Do final processing and write the object to the output stream.
+   /// \arg Writer is used for custom object writer (as the MCJIT does),
+   /// if not specified it is automatically created from backend.
+Index: lib/MC/MCAssembler.cpp
+===================================================================
+--- lib/MC/MCAssembler.cpp	(revision 134968)
++++ lib/MC/MCAssembler.cpp	(working copy)
+@@ -197,7 +197,7 @@
+ MCAssembler::MCAssembler(MCContext &Context_, TargetAsmBackend &Backend_,
+                          MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
+                          raw_ostream &OS_)
+-  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(Writer_),
++  : Context(Context_), Backend(Backend_), Emitter(Emitter_), m_pWriter(&Writer_),
+     OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
+ {
+ }

@@ -1,0 +1,85 @@
+diff --git a/include/llvm/MC/MCAssembler.h b/include/llvm/MC/MCAssembler.h
+index fc91966..5ee3a59 100644
+--- a/include/llvm/MC/MCAssembler.h
++++ b/include/llvm/MC/MCAssembler.h
+@@ -664,7 +664,7 @@ private:
+ 
+   MCCodeEmitter &Emitter;
+ 
+-  MCObjectWriter &Writer;
++  MCObjectWriter *m_pWriter;
+ 
+   raw_ostream &OS;
+ 
+@@ -791,7 +791,12 @@ public:
+ 
+   MCCodeEmitter &getEmitter() const { return Emitter; }
+ 
+-  MCObjectWriter &getWriter() const { return Writer; }
++  MCObjectWriter &getWriter() const { return *m_pWriter; }
++
++  void setWriter(MCObjectWriter &pObjectWriter) {
++    delete m_pWriter;
++    m_pWriter = &pObjectWriter;
++  }
+ 
+   /// Finish - Do final processing and write the object to the output stream.
+   /// \arg Writer is used for custom object writer (as the MCJIT does),
+diff --git a/include/llvm/Target/TargetMachine.h b/include/llvm/Target/TargetMachine.h
+index f4c845a..561f032 100644
+--- a/include/llvm/Target/TargetMachine.h
++++ b/include/llvm/Target/TargetMachine.h
+@@ -293,6 +293,16 @@ public:
+                                  bool = true) {
+     return true;
+   }
++
++  /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
++  /// both emitting to assembly files or machine code output.
++  ///
++  virtual bool addCommonCodeGenPasses(PassManagerBase &,
++                              CodeGenOpt::Level,
++                              bool DisableVerify,
++                              MCContext *&OutCtx) {
++    return true;
++  }
+ };
+ 
+ /// LLVMTargetMachine - This class describes a target machine that is
+@@ -303,17 +313,17 @@ protected: // Can only create subclasses.
+   LLVMTargetMachine(const Target &T, StringRef TargetTriple,
+                     StringRef CPU, StringRef FS, Reloc::Model RM);
+ 
+-private:
++public:
++
++  virtual void setCodeModelForJIT();
++  virtual void setCodeModelForStatic();
++
++
+   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
+   /// both emitting to assembly files or machine code output.
+   ///
+   bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
+                               bool DisableVerify, MCContext *&OutCtx);
+-
+-  virtual void setCodeModelForJIT();
+-  virtual void setCodeModelForStatic();
+-
+-public:
+   /// addPassesToEmitFile - Add passes to the specified pass manager to get the
+   /// specified file emitted.  Typically this will involve several steps of code
+   /// generation.  If OptLevel is None, the code generator should emit code as
+diff --git a/lib/MC/MCAssembler.cpp b/lib/MC/MCAssembler.cpp
+index 527a63c..61308ef 100644
+--- a/lib/MC/MCAssembler.cpp
++++ b/lib/MC/MCAssembler.cpp
+@@ -197,7 +197,7 @@ MCSymbolData::MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment,
+ MCAssembler::MCAssembler(MCContext &Context_, TargetAsmBackend &Backend_,
+                          MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
+                          raw_ostream &OS_)
+-  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(Writer_),
++  : Context(Context_), Backend(Backend_), Emitter(Emitter_), m_pWriter(&Writer_),
+     OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
+ {
+ }
