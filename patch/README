@@ -2,4 +2,11 @@
 This directory contains all patches being applied on LLVM
 
 ------------------------------------------------------------
-TargetMachine.diff  ${llvm}/include/Target/TargetMachine.h
+LLVM.diff is used by the command "patch"
+LLVM.diff.patch is used by "git apply"
+
+For building MCLinker project,
+Choosing one of them is enough.
+
+All patches are for LLVM r135569
+Applying patches from $(LLVM_ROOT)
