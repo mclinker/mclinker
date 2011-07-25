@@ -5,46 +5,38 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/Support/SearchDirs.h>
-#include <mcld/Support/FileSystem.h>
+#include <mcld/MC/MCLDOptions.h>
 
 using namespace mcld;
 
 //==========================
-// SearchDirs
-sys::fs::Path& SearchDirs::iterator::operator*()
+// MCLDOptions
+bool GeneralOptions::hasDefaultBitcode() const 
 {
 }
 
-const sys::fs::Path& SearchDirs::const_iterator::operator*()
+MCLDFile* GeneralOptions::defaultBitcode() const
 {
 }
 
-SearchDirs::iterator SearchDirs::begin()
+void GeneralOptions::setDefaultBitcode(MCLDFile &pLDFile)
 {
 }
 
-SearchDirs::iterator SearchDirs::end()
+bool GeneralOptions::hasDefaultLDScript() const
 {
 }
 
-SearchDirs::const_iterator SearchDirs::begin() const
+const char* GeneralOptions::defaultLDScript() const
 {
 }
 
-SearchDirs::const_iterator SearchDirs::end() const
+void GeneralOptions::setDefaultLDScript(const std::string& pFilename)
 {
 }
 
-SearchDirs::iterator SearchDirs::find(const std::string& pNamespec)
+void GeneralOptions::setSysroot(const mcld::sys::fs::Path &pSysroot)
 {
-}
-
-SearchDirs::const_iterator SearchDirs::find(const std::string& pNamespec) const
-{
-}
-
-void SearchDirs::add(const MCLDDirectory& pDirectory)
-{
+  m_Sysroot = pSysroot;
 }
 

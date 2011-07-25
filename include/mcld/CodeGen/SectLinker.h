@@ -11,7 +11,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/StringRef.h>
 #include <llvm/CodeGen/MachineFunctionPass.h>
+#include <mcld/Support/FileSystem.h>
+#include <vector>
 
 namespace llvm
 {
@@ -42,6 +45,63 @@ namespace mcld
    */
   class SectLinker : public llvm::MachineFunctionPass
   {
+  protected:
+    class PositionDependentOption
+    {
+    public:
+      enum Type {
+        NAMESPEC,
+        START_GROUP,
+        END_GROUP,
+        INPUT_FILE
+      };
+
+    public:
+      PositionDependentOption(unsigned int pPosition,
+                             Type pType)
+        : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec(0) {
+      }
+
+      PositionDependentOption(unsigned int pPosition,
+                             const sys::fs::Path& pInputFile,
+                             Type pType = INPUT_FILE)
+        : m_Type(pType), m_Position(pPosition),
+          m_pPath(&pInputFile), m_pNamespec(0) {
+      }
+
+      PositionDependentOption(unsigned int pPosition,
+                             const sys::fs::Path& pLibrary,
+                             llvm::StringRef pNamespec,
+                             Type pType = NAMESPEC)
+        : m_Type(pType), m_Position(pPosition),
+          m_pPath(&pLibrary), m_pNamespec(&pNamespec) {
+      }
+
+      const Type& type() const {
+        return m_Type;
+      }
+
+      unsigned int position() const {
+        return m_Position;
+      }
+
+      const sys::fs::Path& path() const {
+        return *m_pPath;
+      }
+
+      llvm::StringRef namespec() const {
+        return *m_pNamespec;
+      }
+
+    private:
+      Type m_Type;
+      unsigned int m_Position;
+      const sys::fs::Path *m_pPath;
+      llvm::StringRef *m_pNamespec;
+    };
+
+    typedef std::vector<PositionDependentOption*> PositionDependentOptions;
+
   protected:
     SectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
     virtual MCLDInfo* createLDInfo() const = 0;

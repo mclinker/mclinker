@@ -13,32 +13,3 @@ using namespace mcld;
 
 //==========================
 // MCLDInfo
-bool MCLDInfo::hasDefaultBitcode() const 
-{
-}
-
-MCLDFile* MCLDInfo::defaultBitcode() const
-{
-}
-
-void MCLDInfo::setDefaultBitcode(MCLDFile &pLDFile)
-{
-}
-
-bool MCLDInfo::hasDefaultLDScript() const
-{
-}
-
-const char* MCLDInfo::defaultLDScript() const
-{
-}
-
-void MCLDInfo::setDefaultLDScript(const std::string& pFilename)
-{
-}
-
-void MCLDInfo::setSysroot(const mcld::sys::fs::Path &pSysroot)
-{
-  m_Sysroot = pSysroot;
-}
-

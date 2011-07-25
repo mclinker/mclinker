@@ -5,24 +5,33 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#include <mcld/MC/MCLDInputFileList.h>
+#include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/MCLDFile.h>
 
 
 using namespace mcld;
 
-//==========================
-// MCLDInputFileList
+//===----------------------------------------------------------------------===//
+// MCLDInputTree::Input
+MCLDInputTree::Input::Input(MCLDFile* pFile)
+  : m_pFile(pFile), m_PositionalEdge(0), m_InclusiveEdge(0) {
+}
 
-MCLDInputFileList::MCLDInputFileList () 
+MCLDInputTree::Input::~Input()
+{
+}
+
+//===----------------------------------------------------------------------===//
+// MCLDInputTree
+MCLDInputTree::MCLDInputTree () 
   : m_pHead(0),
     m_pTail(0) { 
   MCLDFile *NullFile = new MCLDFile();
   m_pEnd= new Node(*NullFile, UNKNOWN);
 }
 
-MCLDInputFileList::~MCLDInputFileList() {
-  MCLDInputFileList::iterator it = begin() ;
+MCLDInputTree::~MCLDInputTree() {
+  MCLDInputTree::iterator it = begin() ;
   while (it != end()){
     iterator temp_it = it++;
     delete temp_it.m_pNode; 
@@ -30,18 +39,18 @@ MCLDInputFileList::~MCLDInputFileList() {
   delete m_pEnd;
 }
 
-MCLDInputFileList &MCLDInputFileList::insert(MCLDFile &file, FileAttribute attr) {
+MCLDInputTree &MCLDInputTree::insert(MCLDFile &file, FileAttribute attr) {
   
   Node *newNodePtr = new Node(file, attr);
 
   if(!m_pHead) { 
     m_pHead = newNodePtr;
   }
-  else if (m_pTail->m_Attr == MCLDInputFileList::GROUP_START) {
+  else if (m_pTail->m_Attr == MCLDInputTree::GROUP_START) {
     m_Stack.push(m_pTail);
     m_pTail->m_pChild = newNodePtr;  
   }
-  else if (m_pTail->m_Attr == MCLDInputFileList::GROUP_END) { 
+  else if (m_pTail->m_Attr == MCLDInputTree::GROUP_END) { 
     m_pTail->m_pNext = 0;
     m_pTail = m_Stack.top();
     m_Stack.pop();
@@ -56,7 +65,7 @@ MCLDInputFileList &MCLDInputFileList::insert(MCLDFile &file, FileAttribute attr)
   return *this;
 }
 
-MCLDInputFileList &MCLDInputFileList::insert(iterator position,
+MCLDInputTree &MCLDInputTree::insert(iterator position,
                                              iterator it_begin,
                                              iterator it_end) {
   if(position.m_pNode->m_pChild) {
@@ -71,8 +80,8 @@ MCLDInputFileList &MCLDInputFileList::insert(iterator position,
 }
 
 
-/// -------  MCLDInputFileList::Node  -------
-MCLDInputFileList::Node::Node(MCLDFile &file,FileAttribute attr) 
+/// -------  MCLDInputTree::Node  -------
+MCLDInputTree::Node::Node(MCLDFile &file,FileAttribute attr) 
   : m_File(file), 
     m_pNext(0),
     m_pChild(0),
@@ -80,13 +89,13 @@ MCLDInputFileList::Node::Node(MCLDFile &file,FileAttribute attr)
     m_Attr(attr) {
 }
 
-MCLDInputFileList::Node::~Node() {
+MCLDInputTree::Node::~Node() {
   delete &m_File;
 }
 
 
 /// ------- iterator ---------
-MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator++() {
+MCLDInputTree::iterator &MCLDInputTree::iterator::operator++() {
 
   if (m_pNode->m_pChild) {
     m_ITStack.push(m_pNode) ;
@@ -102,7 +111,7 @@ MCLDInputFileList::iterator &MCLDInputFileList::iterator::operator++() {
   return *this;
 }
 
-MCLDInputFileList::iterator MCLDInputFileList::iterator::operator++(int) {
+MCLDInputTree::iterator MCLDInputTree::iterator::operator++(int) {
   iterator tmp = *this;
   ++*this;
   return tmp;

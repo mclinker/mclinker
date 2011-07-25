@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <mcld/MC/MCLDOptions.h>
 #include <mcld/Support/FileSystem.h>
 
 namespace mcld
@@ -28,23 +29,16 @@ public:
   MCLDInfo();
   ~MCLDInfo();
 
-  bool hasDefaultBitcode() const;
-  MCLDFile* defaultBitcode() const;
-  void setDefaultBitcode(MCLDFile &pLDFile);
-
-  bool hasDefaultLDScript() const;
-  const char* defaultLDScript() const;
-  void setDefaultLDScript(const std::string& pFilename);
-
-  const sys::fs::Path& sysroot() const {
-    return m_Sysroot;
+  GeneralOptions* options() {
+    return &m_Options;
   }
-  void setSysroot(const sys::fs::Path &pPath);
-  
+
+  const GeneralOptions* options() const {
+    return &m_Options;
+  }
+
 private:
-  MCLDFile* m_pDefaultBitcode;
-  std::string m_DefaultLDScript;
-  sys::fs::Path m_Sysroot;
+  GeneralOptions m_Options;
 };
 
 } // namespace of mcld

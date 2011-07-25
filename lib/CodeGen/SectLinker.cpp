@@ -132,36 +132,56 @@ bool SectLinker::doInitialization(Module &pM)
   // create MCLDInfo
   MCLDInfo *ldInfo = createLDInfo();
   if (0 != m_pDefaultBitcode)
-    ldInfo->setDefaultBitcode(*m_pDefaultBitcode);
+    ldInfo->options()->setDefaultBitcode(*m_pDefaultBitcode);
 
   /// -----  Set up General Options  -----
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      ldInfo->setSysroot(ArgSysRoot);
+      ldInfo->options()->setSysroot(ArgSysRoot);
   }
   
   // add all search directories
-  OwningPtr<SearchDirs> search_dir_list;
-  search_dir_list.reset(new SearchDirs());
   cl::list<mcld::MCLDDirectory>::iterator sd;
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot()) 
-      sd->setSysroot(ArgSysRoot);
+      sd->setSysroot(ldInfo->options()->sysroot());
     if (exists(sd->path()) && is_directory(sd->path()))
-      search_dir_list.get()->add(*sd);
-    else
+      ldInfo->options()->directories()->add(*sd);
+    else {
+      // FIXME: need a warning function
       errs() << "search directory is wrong: -L" << sd->name();
+    }
   }
 
   /// -----  Set up Inputs  -----
+  unsigned int input_size = ArgNameSpecList.size() +
+                            ArgStartGroupList.size() +
+                            ArgEndGroupList.size() +
+                            ArgInputObjectFiles.size();
+                            
+  PositionDependentOptions pos_dep_options(input_size);
+
   // add all namespecs
   cl::list<std::string>::iterator ns;
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
     // search file in SearchDirs
-    // calculate position
+    SearchDirs::iterator library = ldInfo->options()->directories()->find(*ns);
+    if (ldInfo->options()->directories()->end()!=library) { // found
+      // calculate position
+      pos_dep_options.push_back(new PositionDependentOption(
+                                      ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
+                                      *library,
+                                      *ns,
+                                      PositionDependentOption::NAMESPEC));
+    }
+    else {
+      // FIXME: need a fetal error function
+      errs() << "can not find " << (*ns);
+      exit (1);
+    }
   }
 
   /// add all start-group
@@ -169,6 +189,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator sgEnd = ArgStartGroupList.end();
   for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
     // calculate position
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgStartGroupList.getPosition(sg-ArgStartGroupList.begin()),
+                                    PositionDependentOption::START_GROUP));
   }
 
   /// add all end-group
@@ -176,6 +199,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator egEnd = ArgEndGroupList.end();
   for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
     // calculate position
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgEndGroupList.getPosition(eg-ArgEndGroupList.begin()),
+                                    PositionDependentOption::END_GROUP));
   }
 
   /// add all object files
@@ -183,12 +209,16 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<mcld::sys::fs::Path>::iterator objEnd = ArgInputObjectFiles.end();
   for (obj=ArgInputObjectFiles.begin(); obj!=objEnd; ++obj) {
     // calculate position
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgInputObjectFiles.getPosition(obj-ArgInputObjectFiles.begin()),
+                                    *obj,
+                                    PositionDependentOption::INPUT_FILE));
   }
-
-  /// sort all input files
 
   /// -----  Set up Attributes of Inputs  -----
   /// -----  Set up Scripting Options  -----
+
+  /// ----- convert position dependent options into tree of input files  -----
   m_pLDDriver = new MCLDDriver(*ldInfo, *m_pLDBackend);
 }
 

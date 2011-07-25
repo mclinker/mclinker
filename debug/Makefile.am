@@ -65,16 +65,18 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCAsmObjectReader.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
+	${INCDIR}/MC/MCLDOptions.h \
+	${LIBDIR}/MC/MCLDOptions.cpp \
 	${INCDIR}/MC/MCLDInfo.h \
 	${LIBDIR}/MC/MCLDInfo.cpp \
-	${INCDIR}/MC/MCLDInputFileList.h \
-	${LIBDIR}/MC/MCLDInputFileList.cpp \
 	${INCDIR}/MC/MCLDContext.h \
 	${LIBDIR}/MC/MCLDContext.cpp \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
 	${INCDIR}/Support/FileSytem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/Support/SearchDirs.h \
+	${LIBDIR}/Support/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
 	${INCDIR}/Support/CommandLine.h \

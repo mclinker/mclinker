@@ -5,97 +5,78 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCLDINPUTFILELIST_H
-#define MCLDINPUTFILELIST_H
+#ifndef MCLDINPUTREE_H
+#define MCLDINPUTREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-
+#include <iterator>
 #include <stack>
 
 namespace mcld
 {
 class MCLDFile;
 
-
-class MCLDInputFileList
+/** \class MCLDInputTree
+ *  \brief MCLDInputTree is the input tree to contains all inputs from the
+ *  command line.
+ *
+ *  @see MCLDFile
+ */
+class MCLDInputTree
 {
-  MCLDInputFileList(const MCLDInputFileList &); // DO NOT IMPLEMENT
-  void operator=(const MCLDInputFileList &); // DO NOT IMPLEMENT
-public:
-  MCLDInputFileList();
-  ~MCLDInputFileList();
-
-  enum FileAttribute {
-    GROUP_START,
-    GROUP_END,
-    NORMAL_FILE,
-    UNKNOWN
-  };
-
 private:
-  /// internal use only 
-  class Node {
+  class Input
+  {
+    friend class MCLDInputTree;
+    Input(MCLDFile* pFile);
+
   public:
-    Node(MCLDFile &, FileAttribute);
-    ~Node();
-    Node *m_pNext;
-    Node *m_pChild;
-    bool visited;
+    ~Input();
 
-    FileAttribute m_Attr;
-    MCLDFile &m_File;
-  };
+    Input* next()                   { return m_PositionalEdge; }
+    Input* component()              { return m_InclusiveEdge; }
 
-public:
-  class iterator {
-  friend class MCLDInputFileList;
-  public:
-    iterator( Node *NP ) : m_pNode(NP) {}
-    iterator( Node &NR ) : m_pNode(&NR) {}
-
-    /// Assignment
-    iterator &operator=(const iterator &RHS) { 
-      m_pNode = RHS.m_pNode; 
-      return *this;
-    }
-
-    /// Comparison operators
-    bool operator==(const iterator &RHS) const { 
-      return m_pNode == RHS.m_pNode; 
-    }
-    bool operator!=(const iterator &RHS) const { 
-      return m_pNode != RHS.m_pNode; 
-    }
-   
-    /// Increment and decrement operators
-    iterator &operator++();
-      
-    iterator operator++(int);
-
-    /// Accessor
-    MCLDFile &operator*() {
-      return m_pNode->m_File; 
-    }
+    bool isGroup() const            { return (0==m_pFile); }
+    void precede(Input* pNext)      { m_PositionalEdge = pNext; }
+    void contain(Input* pComponent) { m_InclusiveEdge = pComponent; }
 
   private:
-    Node *m_pNode;  
-    std::stack<Node *> m_ITStack;
+    Input *m_PositionalEdge;
+    Input *m_InclusiveEdge;
+    MCLDFile *m_pFile;
   };
 
+private:
+  MCLDInputTree(const MCLDInputTree &); // DO NOT IMPLEMENT
+  void operator=(const MCLDInputTree &); // DO NOT IMPLEMENT
+
+public:
+  MCLDInputTree();
+  ~MCLDInputTree();
+
+  // -----  iterator  -----
   friend class iterator;
-  iterator begin() { return iterator(m_pHead); }
-  iterator end() { return iterator(m_pTail); }
-	
-  MCLDInputFileList &insert(MCLDFile &, FileAttribute);
-  MCLDInputFileList &insert(iterator, iterator, iterator);
+  iterator begin();
+  iterator end();
+  const_iterator begin() const;
+  const_iterator end() const;
+
+  // -----  observers -----
+  unsigned int size() const;
+  bool empty() const;
+
+  // -----  modify  -----
+  MCLDInputTree &append(MCLDFile* pFile);
+  MCLDInputTree &enterGroup();
+  MCLDInputTree &leaveGroup();
+
+  MCLDInputTree &absorb(iterator pPosition, MCLDInputTree& pTree);
  
 private:
-  Node *m_pHead;
-  Node *m_pTail;
-  Node *m_pEnd;
-
-  std::stack<Node *> m_Stack; 
+  Input *m_pRoot;
+  Input *m_pCurrent;
+  unsigned int m_Size;
 };
 
 } // namespace of mcld
