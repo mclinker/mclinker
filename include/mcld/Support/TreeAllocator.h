@@ -27,6 +27,9 @@ public:
   typedef DataType*       value_ptr;
   typedef DataType&       value_reference;
 
+  typedef DataAlloc                          DataAllocType;
+  typedef NodeAllocator<DataType, DataAlloc> NodeAllocType;
+
 private:
   typedef std::multiset<node_type*> NodeListType;
 
@@ -62,7 +65,7 @@ public:
     typename NodeListType::iterator node;
     typename NodeListType::iterator nodeEnd = m_NodeList.end();
     for (node = m_NodeList.begin(); node!=nodeEnd; ++node) {
-      m_DataAlloc.deallocate((*node)->data, 1);
+      m_DataAlloc.deallocate(&(*node)->data, 1);
       delete (*node);
     }
     m_NodeList.clear();

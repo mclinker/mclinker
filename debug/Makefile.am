@@ -79,6 +79,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
+	${INCDIR}/MC/MCLDInputTree.h \
+	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \

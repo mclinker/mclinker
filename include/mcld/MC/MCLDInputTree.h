@@ -11,6 +11,8 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/BinTree.h>
+#include <mcld/MC/MCLDFile.h>
 #include <string>
 
 namespace mcld
@@ -23,7 +25,7 @@ class MCLDFile;
  *
  *  @see MCLDFile
  */
-class InputTree
+class InputTree : public BinTree<MCLDFile> 
 {
 public:
   enum Direction {
@@ -39,12 +41,9 @@ public:
     Input
   };
 
+  typedef BinTree<MCLDFile>::iterator       iterator;
+  typedef BinTree<MCLDFile>::const_iterator const_iterator;
 public:
-  class iterator {
-  };
-
-  class const_iterator {
-  };
 
   class Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
@@ -66,19 +65,6 @@ private:
 public:
   InputTree();
   ~InputTree();
-
-  // -----  iterator  -----
-  friend class iterator;
-  iterator root();
-  iterator begin();
-  iterator end();
-  const_iterator root() const;
-  const_iterator begin() const;
-  const_iterator end() const;
-
-  // -----  observers -----
-  unsigned int size() const;
-  bool empty() const;
 
   // -----  modify  -----
   InputTree& insert(iterator pPosition,

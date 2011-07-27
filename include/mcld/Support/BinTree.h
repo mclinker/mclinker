@@ -39,9 +39,9 @@ struct IteratorBase
     Leftward,
     Rightward
   };
-  typedef size_t               size_type;
-  typedef ptrdiff_t            difference_type;
-  typedef bidirectional_iterator_tag iterator_category;
+  typedef size_t                          size_type;
+  typedef ptrdiff_t                       difference_type;
+  typedef std::bidirectional_iterator_tag iterator_category;
 
   NodeBase* m_pNode;
 
@@ -94,14 +94,14 @@ public:
   typedef typename traits::pointer       pointer;
   typedef typename traits::reference     reference;
 
-  typedef TreeIterator<value_type, traits>          Self;
+  typedef TreeIterator<value_type, Traits>          Self;
   typedef Node<value_type>                          node_type;
 
   typedef typename traits::nonconst_traits          nonconst_traits;
   typedef TreeIterator<value_type, nonconst_traits> iterator;
   typedef typename traits::const_traits             const_traits;
   typedef TreeIterator<value_type, const_traits>    const_iterator;
-  typedef bidirectional_iterator_tag                iterator_category;
+  typedef std::bidirectional_iterator_tag           iterator_category;
   typedef size_t                                    size_type;
   typedef ptrdiff_t                                 difference_type;
 
@@ -144,7 +144,7 @@ public:
 
 //===----------------------------------------------------------------------===//
 // Tree
-template<class DataType, class Alloc>
+template<class DataType, class Alloc = NodeAllocator<DataType> >
 class BinTreeBase
 {
 protected:
@@ -220,37 +220,52 @@ protected:
 /** \class BinTree
  *  \brief An abstract data type of binary tree.
  *
- *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
+ *  @see mcld::InputTree
  */
-template<class DataType, class Alloc = NodeAllocator<DataType> >
-class BinTree : public BinTreeBase<DataType, Alloc>
+template<class DataType>
+class BinTree : public BinTreeBase<DataType>
 {
 public:
-  typedef BinTree<DataType, Alloc>  Self;
-public:
-  typedef DataType value_type;
-  typedef value_type* pointer;
-
-  typedef const value_type* const_pointer;
-  typedef value_type& reference;
-  typedef const value_type& const_reference;
+  typedef BinTree<DataType>  Self;
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 
+  typedef DataType value_type;
+  typedef value_type* pointer;
+  typedef value_type& reference;
+  typedef const value_type* const_pointer;
+  typedef const value_type& const_reference;
+
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
-  typedef Node<value_type>            node_type;
 
+protected:
+  typedef Node<value_type>            node_type;
 
 public:
   // -----  constructors and destructor  ----- //
   BinTree();
   BinTree(const BinTree& pCopy);
-  ~BinTree();
+  virtual ~BinTree();
 
-  // -----  node operator  ----- //
-  const_reference root() const;
+  // -----  iterators  ----- //
+  iterator root() {
+  }
+
+  const_iterator root() const {
+  }
+
+  iterator begin() {
+  }
+
+  iterator end() {
+  }
+
+  const_iterator begin() const {
+  }
+
+  const_iterator end() const {
+  }
 
   // ----- modifiers  ----- //
   /// join - create a leaf node and merge it in the tree.
@@ -278,63 +293,44 @@ public:
   // -----  observers  ----- //
   unsigned int size() const;
   bool empty() const;
-
-  // -----  iterators  ----- //
-  iterator begin() {
-  }
-
-  iterator end() {
-  }
-
-  const_iterator begin() const {
-  }
-
-  const_iterator end() const {
-  }
 };
 
 } // namespace of mcld
 
 //===----------------------------------------------------------------------===//
 // implementation
-template<class DataType, class Alloc>
-BinTree<DataType, Alloc>::BinTree()
-  : BinTreeBase() {
+template<class DataType>
+mcld::BinTree<DataType>::BinTree()
+  : BinTreeBase<DataType>() {
 }
 
-template<class DataType, class Alloc>
-BinTree<DataType, Alloc>::BinTree(const BinTree<DataType, Alloc>& pCopy)
-  : BinTreeBase(pCopy) {
+template<class DataType>
+mcld::BinTree<DataType>::BinTree(const BinTree<DataType>& pCopy)
+  : BinTreeBase<DataType>(pCopy) {
 }
 
-template<class DataType, class Alloc>
-BinTree<DataType, Alloc>::~BinTree()
+template<class DataType>
+mcld::BinTree<DataType>::~BinTree()
 {
 }
 
-template<class DataType, class Alloc>
-BinTree<DataType, Alloc>::const_reference BinTree<DataType, Alloc>::root() const
+template<class DataType>
+void mcld::BinTree<DataType>::clear()
 {
-  return *begin();
+  BinTreeBase<DataType>::clear();
+  BinTreeBase<DataType>::init();
 }
 
-template<class DataType, class Alloc>
-void BinTree<DataType, Alloc>::clear()
+template<class DataType>
+unsigned int mcld::BinTree<DataType>::size() const
 {
-  BinTreeBase::clear();
-  BinTreeBase::init();
+  return BinTreeBase<DataType>::m_TreeImpl.size();
 }
 
-template<class DataType, class Alloc>
-unsigned int BinTree<DataType, Alloc>::size() const
+template<class DataType>
+bool mcld::BinTree<DataType>::empty() const
 {
-  return BinTreeBase::m_TreeImpl.size();
-}
-
-template<class DataType, class Alloc>
-bool BinTree<DataType, Alloc>::empty() const
-{
-  return BinTreeBase::m_TreeImpl.empty();
+  return BinTreeBase<DataType>::m_TreeImpl.empty();
 }
 
 #endif

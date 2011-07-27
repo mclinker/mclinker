@@ -5,8 +5,8 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef MCLD_TREE_BASE
-#define MCLD_TREE_BASE
+#ifndef MCLD_TREE_BASE_H
+#define MCLD_TREE_BASE_H
 
 template<typename DataType>
 struct NonConstTraits;
@@ -15,6 +15,8 @@ template<typename DataType>
 struct ConstTraits
 {
   typedef DataType                 value_type;
+  typedef const DataType*          pointer;
+  typedef const DataType&          reference;
   typedef size_t                   size_type;
   typedef ConstTraits<DataType>    const_traits;
   typedef NonConstTraits<DataType> nonconst_traits;
@@ -24,6 +26,8 @@ template<typename DataType>
 struct NonConstTraits
 {
   typedef DataType                 value_type;
+  typedef DataType*                pointer;
+  typedef DataType&                reference;
   typedef size_t                   size_type;
   typedef ConstTraits<DataType>    const_traits;
   typedef NonConstTraits<DataType> nonconst_traits;
