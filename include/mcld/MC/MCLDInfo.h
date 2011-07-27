@@ -30,20 +30,20 @@ public:
   MCLDInfo();
   ~MCLDInfo();
 
-  GeneralOptions* options() {
-    return &m_Options;
+  GeneralOptions& options() {
+    return m_Options;
   }
 
-  const GeneralOptions* options() const {
-    return &m_Options;
+  const GeneralOptions& options() const {
+    return m_Options;
   }
 
-  InputTree* inputs() {
-    return &m_InputTree;
+  InputTree& inputs() {
+    return m_InputTree;
   }
 
-  const InputTree* inputs() const {
-    return &m_InputTree;
+  const InputTree& inputs() const {
+    return m_InputTree;
   }
 
 private:
