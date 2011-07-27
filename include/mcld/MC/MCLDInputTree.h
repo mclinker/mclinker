@@ -10,7 +10,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <iterator>
+#include <mcld/Support/FileSystem.h>
+#include <string>
 
 namespace mcld
 {
@@ -24,28 +25,40 @@ class MCLDFile;
  */
 class InputTree
 {
-private:
-  class Input
-  {
-    friend class InputTree;
-    Input(MCLDFile* pFile);
-
-  public:
-    ~Input();
-
-    Input* next()                   { return m_PositionalEdge; }
-    Input* component()              { return m_InclusiveEdge; }
-
-    bool isGroup() const            { return (0==m_pFile); }
-    void precede(Input* pNext)      { m_PositionalEdge = pNext; }
-    void contain(Input* pComponent) { m_InclusiveEdge = pComponent; }
-
-  private:
-    Input *m_PositionalEdge;
-    Input *m_InclusiveEdge;
-    MCLDFile *m_pFile;
+public:
+  enum Direction {
+    Positional,
+    Inclusive
   };
 
+  enum InputType {
+    Archive,
+    Object,
+    Script,
+    Group,
+    Input
+  };
+
+public:
+  class iterator {
+  };
+
+  class const_iterator {
+  };
+
+  class Connector {
+    virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
+  };
+
+  class Succeeder : public Connector {
+    virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+    }
+  };
+
+  class Includer : public Connector {
+    virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+    }
+  };
 private:
   InputTree(const InputTree &); // DO NOT IMPLEMENT
   void operator=(const InputTree &); // DO NOT IMPLEMENT
@@ -56,18 +69,26 @@ public:
 
   // -----  iterator  -----
   friend class iterator;
-//  iterator begin();
-//  iterator end();
-//  const_iterator begin() const;
-//  const_iterator end() const;
+  iterator root();
+  iterator begin();
+  iterator end();
+  const_iterator root() const;
+  const_iterator begin() const;
+  const_iterator end() const;
 
   // -----  observers -----
-//  unsigned int size() const;
-//  bool empty() const;
+  unsigned int size() const;
+  bool empty() const;
 
   // -----  modify  -----
- 
-  unsigned int m_Size;
+  InputTree& insert(iterator pPosition,
+                    InputType pInputType,
+                    const std::string& pNamespec,
+                    const sys::fs::Path& pPath,
+                    const Connector& pConnector);
+
+  InputTree& enterGroup(iterator pPosition,
+                        const Connector& pConnector);
 };
 
 } // namespace of mcld

@@ -48,12 +48,12 @@ public:
   void setSysroot(const sys::fs::Path &pPath);
 
   /// search directory
-  SearchDirs* directories() {
-    return &m_SearchDirs;
+  SearchDirs& directories() {
+    return m_SearchDirs;
   }
 
-  const SearchDirs* directories() const {
-    return &m_SearchDirs;
+  const SearchDirs& directories() const {
+    return m_SearchDirs;
   }
 
 private:

@@ -13,3 +13,11 @@ using namespace mcld;
 
 //==========================
 // MCLDInfo
+MCLDInfo::MCLDInfo()
+{
+}
+
+MCLDInfo::~MCLDInfo()
+{
+}
+

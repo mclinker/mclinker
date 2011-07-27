@@ -30,7 +30,7 @@ public:
   ~ARMELFSectLinker();
 
 private:
-  MCLDInfo* createLDInfo() const;
+  void initializeLDInfo(MCLDInfo& pLDInfo) const;
 };
 
 } // namespace of mcld

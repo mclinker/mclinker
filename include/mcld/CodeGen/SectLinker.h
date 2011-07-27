@@ -45,7 +45,7 @@ namespace mcld
    */
   class SectLinker : public llvm::MachineFunctionPass
   {
-  protected:
+  public:
     class PositionDependentOption
     {
     public:
@@ -74,7 +74,7 @@ namespace mcld
                              llvm::StringRef pNamespec,
                              Type pType = NAMESPEC)
         : m_Type(pType), m_Position(pPosition),
-          m_pPath(&pLibrary), m_pNamespec(&pNamespec) {
+          m_pPath(&pLibrary), m_pNamespec(pNamespec.data()) {
       }
 
       const Type& type() const {
@@ -85,26 +85,26 @@ namespace mcld
         return m_Position;
       }
 
-      const sys::fs::Path& path() const {
-        return *m_pPath;
+      const sys::fs::Path* path() const {
+        return m_pPath;
       }
 
-      llvm::StringRef namespec() const {
-        return *m_pNamespec;
+      const char* namespec() const {
+        return m_pNamespec;
       }
 
     private:
       Type m_Type;
       unsigned int m_Position;
       const sys::fs::Path *m_pPath;
-      llvm::StringRef *m_pNamespec;
+      const char *m_pNamespec;
     };
 
     typedef std::vector<PositionDependentOption*> PositionDependentOptions;
 
   protected:
     SectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
-    virtual MCLDInfo* createLDInfo() const = 0;
+    virtual void initializeLDInfo(MCLDInfo& pLDInfo) const = 0;
 
   public:
     virtual ~SectLinker();
@@ -124,9 +124,12 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
+    void initializeInputTree(MCLDInfo& pLDInfo,
+                             const PositionDependentOptions &pOptions) const;
+
+  protected:
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
-    MCLDInfo* m_pInfo;
     MCLDFile* m_pDefaultBitcode;
 
   private:

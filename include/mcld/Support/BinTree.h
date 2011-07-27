@@ -5,54 +5,18 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef BINTREE_H
-#define BINTREE_H
+#ifndef MCLD_BINARY_TREE_H
+#define MCLD_BINARY_TREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <iterator>
 #include <memory>
 #include <set>
+#include <mcld/Support/TreeAllocator.h>
 
 namespace mcld
 {
-
-//===----------------------------------------------------------------------===//
-// Traits
-template <class DataType>
-struct NonconstTraits;
-
-template <class DataType>
-struct ConstTraits {
-  typedef DataType                 value_type;
-  typedef const DataType&          reference;
-  typedef const DataType*          pointer;
-  typedef ConstTraits<DataType>    ConstTraits;
-  typedef NonConstTraits<DataType> NonConstTraits;
-};
-
-template <class DataType>
-struct NonConstTraits {
-  typedef DataType                 value_type;
-  typedef DataType&                reference;
-  typedef DataType*                pointer;
-  typedef ConstTraits<DataType>    ConstTraits;
-  typedef NonConstTraits<DataType> NonConstTraits;
-};
-
-//===----------------------------------------------------------------------===//
-// Nodes
-struct NodeBase
-{
-  NodeBase *left;
-  NodeBase *right;
-};
-
-template<typename DataTy>
-struct Node : public NodeBase
-{
-  DataTy* data;
-};
 
 //===----------------------------------------------------------------------===//
 // iterator
@@ -60,6 +24,11 @@ namespace proxy
 {
   template<size_t DIRECT>
   inline void move(NodeBase *X) {
+    assert(0 && "not allowed");
+  }
+
+  template<size_t DIRECT>
+  inline void hook(NodeBase* X, NodeBase* Y) {
     assert(0 && "not allowed");
   }
 } // namespace of template proxy
@@ -103,27 +72,40 @@ namespace proxy
   inline void move<IteratorBase::Rightward>(NodeBase* X) {
     X = X->right;
   }
+
+  template<>
+  inline void hook<IteratorBase::Leftward>(NodeBase* X, NodeBase* Y) {
+    X->left = Y;
+  }
+
+  template<>
+  inline void hook<IteratorBase::Rightward>(NodeBase* X, NodeBase* Y) {
+    X->right = Y;
+  }
+
 } //namespace of template proxy
 
 template<class DataType, class Traits>
 struct TreeIterator : public IteratorBase
 {
+public:
   typedef DataType                       value_type;
-  typedef typename Traits::pointer       pointer;
-  typedef typename Traits::reference     reference;
+  typedef Traits                         traits;
+  typedef typename traits::pointer       pointer;
+  typedef typename traits::reference     reference;
 
-  typedef TreeIterator<DataType, Traits> Self;
-  typedef typename Traits::NonConstTraits        NonConstTraits;
-  typedef TreeIterator<DataType, NonConstTraits> iterator;
-  typedef typename Traits::ConstTraits           ConstTraits;
-  typedef TreeIterator<DataType, ConstTraits>    const_iterator;
+  typedef TreeIterator<value_type, traits>          Self;
+  typedef Node<value_type>                          node_type;
 
-  typedef bidirectional_iterator_tag           iterator_category;
-  typedef Node<DataType>                 Node;
-  typedef size_t                         size_type;
-  typedef ptrdiff_t                      difference_type;
+  typedef typename traits::nonconst_traits          nonconst_traits;
+  typedef TreeIterator<value_type, nonconst_traits> iterator;
+  typedef typename traits::const_traits             const_traits;
+  typedef TreeIterator<value_type, const_traits>    const_iterator;
+  typedef bidirectional_iterator_tag                iterator_category;
+  typedef size_t                                    size_type;
+  typedef ptrdiff_t                                 difference_type;
 
-
+public:
   TreeIterator()
     : IteratorBase(0) {}
 
@@ -135,7 +117,7 @@ struct TreeIterator : public IteratorBase
 
   // -----  operators  ----- //
   reference operator*() const 
-  { return static_cast<Node*>(m_pNode)->data; }
+  { return static_cast<node_type*>(m_pNode)->data; }
 
   Self& operator++() {
     this->move<IteratorBase::Rightward>();
@@ -193,8 +175,14 @@ protected:
     return m_TreeImpl.NodeAllocType::allocate(1);
   }
 
+  Node<DataType> *createNode(const DataType &pValue) {
+    Node<DataType> *result = m_TreeImpl.NodeAllocType::allocate(1);
+    m_TreeImpl.NodeAllocType::construct(result, pValue);
+    return result;
+  }
+
   void destroyNode(Node<DataType> *pNode) {
-    m_TreeImple.NodeAllocType::deallocate(pNode, 1);
+    m_TreeImpl.NodeAllocType::deallocate(pNode, 1);
   }
 
 public:
@@ -225,70 +213,8 @@ protected:
   }
 
   void clear() {
-    m_TreeImple.NodeAllocType::clear();
+    m_TreeImpl.NodeAllocType::clear();
   }
-};
-
-template<typename DataType, typename DataAlloc = std::allocator<DataType> >
-class NodeAllocator
-{
-public:
-  typedef typename        DataAlloc                          DataAllocType;
-  typedef typename        NodeAllocator<DataType, DataAlloc> NodeAllocType;
-  typedef size_t          size_type;
-  typedef ptrdiff_t       difference_type;
-  typedef DataType*       pointer;
-  typedef const DataType* const_pointer;
-  typedef DataType&       reference;
-  typedef const DataType& const_reference;
-  typedef DataType        value_type;
-  typedef Node<DataType>  NodeType;
-
-private:
-  typedef std::multiset<NodeType*> NodeListType;
-public:
-  NodeAllocator() {
-  }
-
-  NodeAllocator(const NodeAllocator& pCopy) 
-    : m_NodeList(pCopy.m_NodeList) {
-  }
-
-  ~NodeAllocator() {
-     clear();
-  }
-
-  Node<DataType>* allocate(size_type N) {
-    DataType *data = DataAlloc.allocate(1);
-    Node<DataType> *result = new Node<DataType>();
-    result->data = data;
-    m_NodeList.insert(result);
-    return result;
-  }
-
-  void deallocate(Node<DataType>*& pNode, size_type N) {
-    DataAlloc.deallocate(pNode->data, 1);
-    NodeListType::iterator position = m_NodeList.find(pNode);
-    m_NodeList.erase(position);
-    delete pNode;
-    pNode = 0;
-  }
-
-  void clear() {
-    NodeListType::iterator node;
-    NodeListType::iterator nodeEnd = m_NodeList.end();
-    for (node = m_NodeList.begin(); node!=nodeEnd; ++node) {
-      DataAlloc.deallocate((*node)->data, 1);
-      delete (*node);
-    }
-    m_NodeList.clear();
-  }
-
-  unsigned int size() const {
-    return m_NodeList.size();
-  }
-private:
-  NodeListType m_NodeList;
 };
 
 /** \class BinTree
@@ -302,9 +228,6 @@ class BinTree : public BinTreeBase<DataType, Alloc>
 {
 public:
   typedef BinTree<DataType, Alloc>  Self;
-  typedef Node<DataType>            Node;
-  typedef NodeBase                  NodeBase;
-
 public:
   typedef DataType value_type;
   typedef value_type* pointer;
@@ -315,8 +238,10 @@ public:
   typedef size_t size_type;
   typedef ptrdiff_t difference_type;
 
-  typedef typename TreeIterator<DataType, NonConstTraits<DataType> >  iterator;
-  typedef typename TreeIterator<DataType, ConstTraits<DataType> >     const_iterator;
+  typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
+  typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
+  typedef Node<value_type>            node_type;
+
 
 public:
   // -----  constructors and destructor  ----- //
@@ -334,6 +259,8 @@ public:
   //  @param value the value being pushed.
   template<size_t DIRECT>
   BinTree& join(iterator position, const DataType& value) {
+    node_type *node = createNode(value);
+    proxy::hook<DIRECT>(position.IteratorBase::m_pNode, node);
   }
 
   /// merge - merge the tree
@@ -388,22 +315,26 @@ BinTree<DataType, Alloc>::~BinTree()
 template<class DataType, class Alloc>
 BinTree<DataType, Alloc>::const_reference BinTree<DataType, Alloc>::root() const
 {
-  BinTreeBase::m_TreeImpl
+  return *begin();
 }
 
 template<class DataType, class Alloc>
 void BinTree<DataType, Alloc>::clear()
 {
+  BinTreeBase::clear();
+  BinTreeBase::init();
 }
 
 template<class DataType, class Alloc>
 unsigned int BinTree<DataType, Alloc>::size() const
 {
+  return BinTreeBase::m_TreeImpl.size();
 }
 
 template<class DataType, class Alloc>
 bool BinTree<DataType, Alloc>::empty() const
 {
+  return BinTreeBase::m_TreeImpl.empty();
 }
 
 #endif

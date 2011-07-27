@@ -20,7 +20,7 @@ ARMELFSectLinker::~ARMELFSectLinker()
 {
 }
 
-MCLDInfo* ARMELFSectLinker::createLDInfo() const
+void ARMELFSectLinker::initializeLDInfo(MCLDInfo& pLDInfo) const
 {
 }
 
