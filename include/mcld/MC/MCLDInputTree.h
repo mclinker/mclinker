@@ -5,30 +5,29 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCLDINPUTREE_H
-#define MCLDINPUTREE_H
+#ifndef MCLD_INPUTREE_H
+#define MCLD_INPUTREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <iterator>
-#include <stack>
 
 namespace mcld
 {
 class MCLDFile;
 
-/** \class MCLDInputTree
- *  \brief MCLDInputTree is the input tree to contains all inputs from the
+/** \class InputTree
+ *  \brief InputTree is the input tree to contains all inputs from the
  *  command line.
  *
  *  @see MCLDFile
  */
-class MCLDInputTree
+class InputTree
 {
 private:
   class Input
   {
-    friend class MCLDInputTree;
+    friend class InputTree;
     Input(MCLDFile* pFile);
 
   public:
@@ -48,34 +47,26 @@ private:
   };
 
 private:
-  MCLDInputTree(const MCLDInputTree &); // DO NOT IMPLEMENT
-  void operator=(const MCLDInputTree &); // DO NOT IMPLEMENT
+  InputTree(const InputTree &); // DO NOT IMPLEMENT
+  void operator=(const InputTree &); // DO NOT IMPLEMENT
 
 public:
-  MCLDInputTree();
-  ~MCLDInputTree();
+  InputTree();
+  ~InputTree();
 
   // -----  iterator  -----
   friend class iterator;
-  iterator begin();
-  iterator end();
-  const_iterator begin() const;
-  const_iterator end() const;
+//  iterator begin();
+//  iterator end();
+//  const_iterator begin() const;
+//  const_iterator end() const;
 
   // -----  observers -----
-  unsigned int size() const;
-  bool empty() const;
+//  unsigned int size() const;
+//  bool empty() const;
 
   // -----  modify  -----
-  MCLDInputTree &append(MCLDFile* pFile);
-  MCLDInputTree &enterGroup();
-  MCLDInputTree &leaveGroup();
-
-  MCLDInputTree &absorb(iterator pPosition, MCLDInputTree& pTree);
  
-private:
-  Input *m_pRoot;
-  Input *m_pCurrent;
   unsigned int m_Size;
 };
 

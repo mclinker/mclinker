@@ -13,6 +13,7 @@
 #include <string>
 #include <mcld/MC/MCLDOptions.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/MC/MCLDInputTree.h>
 
 namespace mcld
 {
@@ -37,8 +38,17 @@ public:
     return &m_Options;
   }
 
+  InputTree* inputs() {
+    return &m_InputTree;
+  }
+
+  const InputTree* inputs() const {
+    return &m_InputTree;
+  }
+
 private:
   GeneralOptions m_Options;
+  InputTree m_InputTree;
 };
 
 } // namespace of mcld
