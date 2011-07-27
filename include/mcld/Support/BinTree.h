@@ -284,6 +284,9 @@ public:
     m_NodeList.clear();
   }
 
+  unsigned int size() const {
+    return m_NodeList.size();
+  }
 private:
   NodeListType m_NodeList;
 };
@@ -325,12 +328,12 @@ public:
   const_reference root() const;
 
   // ----- modifiers  ----- //
-  /// merge - create a leaf node and merge it in the tree.
+  /// join - create a leaf node and merge it in the tree.
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
   template<size_t DIRECT>
-  BinTree& merge(iterator position, const DataType& value) {
+  BinTree& join(iterator position, const DataType& value) {
   }
 
   /// merge - merge the tree
@@ -369,12 +372,12 @@ public:
 // implementation
 template<class DataType, class Alloc>
 BinTree<DataType, Alloc>::BinTree()
-{
+  : BinTreeBase() {
 }
 
 template<class DataType, class Alloc>
 BinTree<DataType, Alloc>::BinTree(const BinTree<DataType, Alloc>& pCopy)
-{
+  : BinTreeBase(pCopy) {
 }
 
 template<class DataType, class Alloc>
@@ -385,6 +388,7 @@ BinTree<DataType, Alloc>::~BinTree()
 template<class DataType, class Alloc>
 BinTree<DataType, Alloc>::const_reference BinTree<DataType, Alloc>::root() const
 {
+  BinTreeBase::m_TreeImpl
 }
 
 template<class DataType, class Alloc>
