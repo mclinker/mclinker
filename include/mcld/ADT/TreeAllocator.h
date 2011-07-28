@@ -30,7 +30,7 @@ namespace mcld
  *  @see LinearAllocator
  */
 template<typename DataType>
-class NodeFactory : private LinearAllocator<typename mcld::Node<DataType>, 64>
+class NodeFactory : private LinearAllocator<mcld::Node<DataType>, 64>
 {
   NodeFactory(const NodeFactory& pCopy); /// NOT TO IMPLEMENT
   NodeFactory& operator=(const NodeFactory& pCopy); /// NOT TO IMPLEMENT
@@ -40,6 +40,7 @@ private:
 
 public:
   typedef Node<DataType>           NodeType;
+  typedef NodeFactory<DataType>    Self;
 
   /// iterator
   class iterator
@@ -80,7 +81,7 @@ public:
   class const_iterator
   {
     friend class NodeFactory;
-    const_iterator(typename const Alloc::Chunk* pInChunk, unsigned int pPos)
+    const_iterator(const typename Alloc::Chunk* pInChunk, unsigned int pPos)
     : m_pInChunk(const_cast<typename Alloc::Chunk*>(pInChunk)), m_Pos(pPos)
     { }
   public:
@@ -135,7 +136,7 @@ public:
     if (pClient.empty())
       return;
 
-    if (empty()) {
+    if (Alloc::empty()) {
       replace(pClient);
       pClient.renounce();
       return;
@@ -148,19 +149,19 @@ public:
 
   // -----  iterators  ----- //
   iterator begin() {
-    return iterator(this, m_pRoot, 0);
+    return iterator(Alloc::m_pRoot, 0);
   }
 
   const_iterator begin() const {
-    return const_iterator(this, m_pRoot, 0);
+    return const_iterator(Alloc::m_pRoot, 0);
   }
 
   iterator end() {
-    return iterator(this, m_pCurrent, m_FirstFree);
+    return iterator(Alloc::m_pCurrent, Alloc::m_FirstFree);
   }
 
   const_iterator end() const {
-    return const_iterator(this, m_pCurrent, m_FirstFree);
+    return const_iterator(Alloc::m_pCurrent, Alloc::m_FirstFree);
   }
 
 private:

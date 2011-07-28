@@ -12,7 +12,6 @@
 #endif
 #include <iterator>
 #include <memory>
-#include <set>
 #include <mcld/ADT/TreeAllocator.h>
 
 namespace mcld
@@ -38,7 +37,7 @@ namespace proxy
  *
  *  @see TreeIterator
  */
-struct IteratorBase
+struct TreeIteratorBase
 {
 public:
   enum Direct {
@@ -54,7 +53,7 @@ public:
   NodeBase* m_pNode;
 
 public:
-  IteratorBase(NodeBase *X)
+  TreeIteratorBase(NodeBase *X)
     : m_pNode(X) {
   }
 
@@ -63,36 +62,39 @@ public:
     proxy::move<DIRECT>(m_pNode);
   }
 
-  bool operator==(const IteratorBase& y) const
+  bool operator==(const TreeIteratorBase& y) const
   { return this->m_pNode == y.m_pNode; }
 
-  bool operator!=(const IteratorBase& y) const
+  bool operator!=(const TreeIteratorBase& y) const
   { return this->m_pNode != y.m_pNode; }
 };
 
 namespace proxy
 {
   template<>
-  inline void move<IteratorBase::Leftward>(NodeBase *&X) {
+  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X) {
     X = X->left;
   }
 
   template<>
-  inline void move<IteratorBase::Rightward>(NodeBase *&X) {
+  inline void move<TreeIteratorBase::Rightward>(NodeBase *&X) {
     X = X->right;
   }
 
   template<>
-  inline void hook<IteratorBase::Leftward>(NodeBase *X, NodeBase *Y) {
+  inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, NodeBase *Y) {
     X->left = Y;
   }
 
   template<>
-  inline void hook<IteratorBase::Rightward>(NodeBase* X, NodeBase* Y) {
+  inline void hook<TreeIteratorBase::Rightward>(NodeBase* X, NodeBase* Y) {
     X->right = Y;
   }
 
 } //namespace of template proxy
+
+template<class DataType>
+class BinaryTree;
 
 /** \class TreeIterator
  *  \brief TreeIterator provides full functions of binary tree's iterator.
@@ -101,7 +103,7 @@ namespace proxy
  *  TreeIterator is bi-directional. Incremental direction means to move
  *  rightward, and decremental direction is leftward.
  *
- *  @see IteratorBase
+ *  @see TreeIteratorBase
  */
 template<class DataType, class Traits>
 struct TreeIterator : public TreeIteratorBase
@@ -137,28 +139,27 @@ public:
   { return static_cast<node_type*>(m_pNode)->data; }
 
   Self& operator++() {
-    this->move<IteratorBase::Rightward>();
+    this->move<TreeIteratorBase::Rightward>();
     return *this;
   }
 
   Self operator++(int) {
     Self tmp = *this;
-    this->move<IteratorBase::Rightward>();
+    this->move<TreeIteratorBase::Rightward>();
     return tmp;
   }
 
   Self& operator--() {
-    this->move<IteratorBase::Leftward>();
+    this->move<TreeIteratorBase::Leftward>();
     return *this;
   }
 
   Self operator--(int) {
     Self tmp = *this;
-    this->move<IteratorBase::Leftward>();
+    this->move<TreeIteratorBase::Leftward>();
     return tmp;
   }
 private:
-  template<class DataType>
   friend class BinaryTree<DataType>;
 
   explicit TreeIterator(NodeBase* X)
@@ -180,6 +181,8 @@ private:
 template<class DataType>
 class BinaryTreeBase
 {
+public:
+  typedef Node<DataType> NodeType;
 protected:
   /// TreeImpl - TreeImpl records the root node and the number of nodes
   //
@@ -201,7 +204,7 @@ protected:
 
   public:
     TreeImpl()
-      : NodeAllocType<DataType>() {
+      : NodeFactory<DataType>() {
       node.left = node.right = &node;
     }
 
@@ -229,14 +232,14 @@ protected:
 
 protected:
   NodeType *createNode(const DataType &pValue) {
-    NodeType *result = m_Root.NodeFactory::allocate();
-    m_Root.NodeFactory::construct(result, pValue);
+    NodeType *result = m_Root.allocate();
+    m_Root.construct(result, pValue);
     result->left = result->right = m_Root.node;
     return result;
   }
 
   void destroyNode(NodeType *pNode) {
-    m_Root.NodeFactory::deallocate(pNode);
+    m_Root.deallocate(pNode);
   }
 
 public:
@@ -261,7 +264,7 @@ public:
 
 protected:
   void clear() {
-    m_Root.NodeFactory::clear();
+    m_Root.clear();
   }
 };
 
@@ -270,8 +273,8 @@ protected:
  *
  *  @see mcld::InputTree
  */
-template<class DataType, class Alloc = NodeFactory<DataType> >
-class BinaryTree : public BinaryTreeBase<DataType, Alloc>
+template<class DataType>
+class BinaryTree : public BinaryTreeBase<DataType>
 {
 public:
   typedef size_t             size_type;
@@ -292,11 +295,11 @@ protected:
 public:
   // -----  constructors and destructor  ----- //
   BinaryTree()
-  : BinaryTreeBase()
+  : BinaryTreeBase<DataType>()
   { }
 
   BinaryTree(const BinaryTree& pCopy)
-  : BinaryTreeBase(pCopy.m_Root)
+  : BinaryTreeBase<DataType>(pCopy.m_Root)
   { }
 
   ~BinaryTree() {
@@ -304,27 +307,27 @@ public:
 
   // -----  iterators  ----- //
   iterator root() {
-    return iterator(&(m_Root.node));
+    return iterator(&(BinaryTreeBase<DataType>::m_Root.node));
   }
 
   const_iterator root() const {
-    return const_iterator(&(m_Root.node));
+    return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node));
   }
 
   iterator begin() {
-    return iterator(m_Root.node.right);
+    return iterator(BinaryTreeBase<DataType>::m_Root.node.right);
   }
 
   iterator end() {
-    return iterator(m_Root.node.left);
+    return iterator(BinaryTreeBase<DataType>::m_Root.node.left);
   }
 
   const_iterator begin() const {
-    return const_iterator(m_Root.node.right);
+    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
   }
 
   const_iterator end() const {
-    return const_iterator(m_Root.node.left);
+    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
   }
 
   // ----- modifiers  ----- //
@@ -348,8 +351,9 @@ public:
   BinaryTree& merge(iterator position, BinaryTree& pTree) {
     if (!pTree.empty()) {
       proxy::hook<DIRECT>(position.m_pNode, pTree.m_Root.node.right);
-      m_Root.summon(pTree.m_Root);
-      m_Root.delegate(pTree.m_Root);
+      BinaryTreeBase<DataType>::m_Root.summon(
+                                   pTree.BinaryTreeBase<DataType>::m_Root);
+      BinaryTreeBase<DataType>::m_Root.delegate(pTree.m_Root);
       pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
     }
     return *this;

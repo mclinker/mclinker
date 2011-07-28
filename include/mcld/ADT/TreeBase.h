@@ -8,6 +8,9 @@
 #ifndef MCLD_TREE_BASE_H
 #define MCLD_TREE_BASE_H
 
+namespace mcld
+{
+
 template<typename DataType>
 struct NonConstTraits;
 
@@ -48,6 +51,8 @@ public:
 public:
   value_type data;
 };
+
+} // namespace of mcld
 
 #endif
 

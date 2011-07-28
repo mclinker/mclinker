@@ -11,13 +11,12 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/FileSystem.h>
-#include <mcld/Support/BinTree.h>
+#include <mcld/ADT/BinTree.h>
 #include <mcld/MC/MCLDFile.h>
 #include <string>
 
 namespace mcld
 {
-class MCLDFile;
 
 /** \class InputTree
  *  \brief InputTree is the input tree to contains all inputs from the
@@ -25,7 +24,7 @@ class MCLDFile;
  *
  *  @see MCLDFile
  */
-class InputTree : public BinTree<MCLDFile> 
+class InputTree : public BinaryTree<MCLDFile> 
 {
 public:
   enum Direction {
@@ -41,8 +40,8 @@ public:
     Input
   };
 
-  typedef BinTree<MCLDFile>::iterator       iterator;
-  typedef BinTree<MCLDFile>::const_iterator const_iterator;
+  typedef BinaryTree<MCLDFile>::iterator       iterator;
+  typedef BinaryTree<MCLDFile>::const_iterator const_iterator;
 public:
 
   class Connector {
