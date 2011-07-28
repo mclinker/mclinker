@@ -74,20 +74,22 @@ done
 # 3.i ask deployment
 if [ "${FILE_TYPE}" = "normal" ]; then
 	echo "Where you what to deploy?";
-	echo " 1) MC"
-	echo " 2) Target"
-	echo " 3) CodeGen"
-	echo " 4) Support"
+	echo " 1) ADT"
+	echo " 2) MC"
+	echo " 3) Target"
+	echo " 4) CodeGen"
+	echo " 5) Support"
 
 	while [ -z "${DEPLOYMENT}" ]; do
 		echo -n "your choice? ";
 		read DEPLOYMENT
 
 		case "${DEPLOYMENT}" in
-		1 ) DEPLOYMENT="MC";;
-		2 ) DEPLOYMENT="Target";;
-		3 ) DEPLOYMENT="CodeGen";;
-		4 ) DEPLOYMENT="Support";;
+		1 ) DEPLOYMENT="ADT";;
+		2 ) DEPLOYMENT="MC";;
+		3 ) DEPLOYMENT="Target";;
+		4 ) DEPLOYMENT="CodeGen";;
+		5 ) DEPLOYMENT="Support";;
 		* ) DEPLOYMENT="";;
 		esac
 	done
