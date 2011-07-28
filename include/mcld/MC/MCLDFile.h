@@ -49,13 +49,34 @@ private:
 namespace std
 {
 
+/** \class StackAllocator
+ *  \brief a stack allocator which create a new chunk while it has not enough
+ *   memory.
+ *
+ *  This allocator is designed for a sequence of allocations and 
+ *  deallocations. It also releases all memory before destruction.
+ */
+class StackAllocator
+{
+protected:
+  enum { MaxBytes = 128 };
+  enum { Align = sizeof(pointer) };
+  enum { ChunkSize = (size_t)MaxBytes/(size_t)Align };
+
+protected:
+  struct Chunk {
+    char* volatile m_FreeList
+  };
+  static char* volatile m_FreeList[ChunkSize];
+};
+
 /** \class MCLDFileFactory
  *  \brief The allocator of MCLDFile
  *
  *  \see llvm::sys::Path
  */
 template<>
-class allocator<mcld::MCLDFile>
+class allocator<mcld::MCLDFile> : private ChunkAllocator
 {
 public:
   typedef mcld::MCLDFile        value_type;
@@ -70,17 +91,22 @@ public:
   allocator() {
   }
 
-  allocator(const allocator& pCopy) {
+  allocator(const allocator& pCopy)
+    : m_FileList() {
   }
 
   ~allocator() {
+    LDFileList::iterator file, fEnd = m_FileList.end();
+    for (file = m_FileList.begin(); file!=fEnd; ++file) {
+      delete (*file);
+    }
   }
 
-  pointer       address(reference X) const {
-  }
+  pointer address(reference X) const
+  { return &X; }
 
-  const_pointer address(const_reference X) const {
-  }
+  const_pointer address(const_reference X) const
+  { return &X;  }
 
   pointer allocate(size_type N, const void* = 0) {
   }

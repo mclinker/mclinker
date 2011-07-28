@@ -10,67 +10,54 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <cstdlib>
 
 namespace mcld
 {
 
 /** \class LinearAllocator
- *  \brief LinearAllocator is a allocator that follows two-phase memory
- *  allocation.
+ *  \brief LinearAllocator is a simple allocator which is limited in use of
+ *  two-phase memory allocation.
  *
- *  Two-phase memory allocation clear separates the allocation of memory into
- *  'allocation' and 'deallocation' phases. There are no interleaving
- *  allocation and deallocation in the use.
+ *  Two-phase memory allocation clear separates the use of memory into 'claim'
+ *  and 'release' phases. There are no interleaving allocation and
+ *  deallocation. Interleaving 'allocate' and 'deallocate' increases the size
+ *  of allocated memory, and causes bad locality.
+ *
+ *  The underlying concept of LinearAllocator is a memory pool. LinearAllocator
+ *  is a simple implementation of boost::pool's ordered_malloc() and
+ *  ordered_free().
  *
  *  template argument DataType is the DataType to be allocated
- *  template argument DataNum is the number of data to be pre-allocated while
- *  construction.
+ *  template argument ChunkSize is the number of bytes of a chunk
  */
-template<typename DataType, size_t DataNum>
+template<typename DataType, size_t ChunkSize>
 class LinearAllocator
 {
+  LinearAllocator(const LinearAllocator& pCopy); /// NOT TO IMPLEMENT
+  LinearAllocator& operator=(
+                          const LinearAllocator& pCopy); /// NOT TO IMPLEMENT
+
 public:
-  typedef std::allocator<DataType>            DataAlloc;
-  typedef typename DataAlloc::pointer         pointer;
-  typedef typename DataAlloc::const_pointer   const_pointer;
-  typedef typename DataAlloc::reference       reference;
-  typedef typename DataAlloc::const_reference const_reference;
-  typedef typename DataAlloc::type_value      type_value;
-  typedef typename DataAlloc::size_type       size_type;
-  typedef typename DataAlloc::difference_type difference_type;
-  typedef unsigned char                       byte_type;
+  typedef DataType*       pointer;
+  typedef DataType&       reference;
+  typedef const DataType* const_pointer;
+  typedef const DataType& const_reference;
+  typedef DataType        type_value;
+  typedef size_t          size_type;
+  typedef ptrdiff_t       difference_type;
+  typedef unsigned char   byte_type;
 
 public:
   LinearAllocator()
-    : m_DataAlloc(),
-      m_pRoot(0),
+    : m_pRoot(0),
       m_pCurrent(0),
       m_FirstFree(0),
       m_AllocatedNum(0) {
   }
 
-  LinearAllocator(const LinearAllocator& pCopy)
-    : m_DataAlloc(pCopy.m_DataAlloc),
-      m_FirstFree(pCopy.m_FirstFree),
-      m_AllocateNum(0) {
-    if (0 == pCopy.m_pRoot) {
-      m_pRoot = 0;
-      m_pCurrent = 0;
-      return;
-    }
-    m_pRoot = createChunk();
-    copyChunkData(m_pRoot, const_cast<const Chunk*>(pCopy.m_pRoot));
-    // ---- //
-    Chunk *copy_cur = pCopy.m_pRoot->next;
-    while (0 != copy_cur) {
-      createChunk();
-      copyChunkData(m_pCurrent, const_cast<const Chunk*>(copy_cur));
-      copy_cur = copy_cur->next;
-    }
-  }
-
-  virtual ~LinearAllocator() {
-  }
+  virtual ~LinearAllocator()
+  { }
 
   pointer address(reference X) const
   { return &X; }
@@ -78,8 +65,9 @@ public:
   const_pointer address(const_reference X) const
   { return &X; }
 
-  /// allocate - allocate N data.
-  //  disallow to allocate a chunk whose size is bigger than a chunk.
+  /// allocate - allocate N data in order.
+  //  - Disallow to allocate a chunk whose size is bigger than a chunk.
+  //
   //  @param N the number of allocated data.
   //  @return the start address of the allocated memory
   pointer allocate(size_type N) {
@@ -94,62 +82,91 @@ public:
     return &(m_pCurrent->data[m_FirstFree]);
   }
 
+  /// allocate - clone function of allocating one datum.
+  pointer allocate() {
+    if (m_FirstFree == ElementNum) {
+      createChunk();
+      m_FirstFree = 0;
+    }
+    return &(m_pCurrent->data[m_FirstFree]);
+  }
+
+  /// deallocate - deallocate N data from the pPtr
+  //  - if we can simply release some memory, then do it. Otherwise, do 
+  //    nothing.
+  void deallocate(pointer pPtr, size_type N) {
+    if (0 == N || N > ElementNum || 0 == m_FirstFree || N >= m_FirstFree)
+      return;
+    m_FirstFree -= N;
+  }
+
+  /// deallocate - clone function of deallocating one datum
+  void deallocate(pointer pPtr) {
+    if (0 == m_FirstFree)
+      return;
+    m_FirstFree -= 1;
+  }
+
   size_type max_size() const
   { return m_AllocatedNum; }
 
-  /// standard construct - construct data on arbitrary address
+  /// standard construct - constructing an object on the location pointed by
+  //  pPtr, and using its copy constructor to initialized its value to pValue.
+  //
   //  @param pPtr the address where the object to be constructed
   //  @param pValue the value to be constructed
-  void construct(pointer pPtr, const_reference pValue) {
-    //if (!isIn(pPtr))
-    //  return;
-    m_DataAlloc.construct(pPtr, pValue);
-  }
+  void construct(pointer pPtr, const_reference pValue)
+  { new (pPtr) DataType(pValue); }
 
   /// standard destroy - destroy data on arbitrary address
   //  @para pPtr the address where the data to be destruected.
-  void destroy(pointer pPtr) {
-    //if (!isIn(pPtr))
-    //  return;
-    m_DataAlloc.destroy(pPtr);
-  }
-
-  /// construct - overloading of standard construct. construct data on
-  //  the first free element
-  //  @param pValue the value to be constructed on the first element.
-  pointer construct(const_reference pValue) {
-    pointer result = &(m_pCurrent->data[m_FirstFree]);
-    m_DataAlloc.construct( result, pValue);
-    if (m_FirstFree == ElementNum) {
-      createChunk();
-      m_FirstFree = 1;
-    }
-    else
-      ++m_FirstFree;
-    return result;
-  }
-
-  /// destroy - overloading of standard destroy. destroy data on
-  //  the first free element
-  void destroy() {
-    m_DataAlloc.destroy(&(m_pCurrent->data[m_FirstFree]));
-    if (m_FirstFree > 0)
-      --m_FirstFree;
-  }
+  void destroy(pointer pPtr)
+  { pPtr->~DataType(); }
 
   bool empty() const {
     return (0 == m_pRoot);
   }
+
+  /// clear - clear all chunks
+  void clear() {
+    Chunk* cur = m_pRoot;
+    while (0 != cur) {
+      Chunk* chunk = cur;
+      cur = cur->next;
+      free(chunk);
+    }
+
+    m_pRoot = 0;
+    m_pCurrent = 0;
+    m_FirstFree = m_AllocatedNum = 0;
+  }
+
+  /// isIn - whether the pPtr is in the current chunk?
+  bool isIn(pointer pPtr) const {
+    if (pPtr >= &(m_pCurrent->data[FirstElement]) && 
+        pPtr <= &(m_pCurrent->data[LastElement]))
+      return true;
+    return false;
+  }
+
+  /// isIn - whether the pPtr is allocated, and can be constructed.
+  bool isAvailable(pointer pPtr) const {
+    if (pPtr >= &(m_pCurrent->data[m_FirstFree]) && 
+        pPtr <= &(m_pCurrent->data[LastElement]))
+      return true;
+    return false;
+  }
+
 protected:
-  enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)DataNum };
+  enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)ChunkSize };
   enum { ElementBytes = (size_type)sizeof(DataType) };
-  enum { ElementNum = (size_type)DataNum };
+  enum { ElementNum = (size_type)ChunkSize };
   enum { FirstElement = 0 };
   enum { LastElement = ElementNum - 1 };
 
-protected:
+public:
   struct Chunk {
-    byte_type volatile data[MaxBytes];
+    DataType volatile data[ChunkSize];
     Chunk *next;
   };
 
@@ -163,24 +180,7 @@ protected:
     return result;
   }
 
-  void copyChunkData(Chunk* pTo, const Chunk* pFrom) const {
-    for (size_t i=0; i<ElementNum; ++i) {
-      pTo->data[i] = pFrom->data[i];
-    }
-  }
-
-  bool isIn(pointer pPtr) {
-    Chunk* cur = m_pRoot;
-    while (0 != cur) {
-      if (pPtr >= &(cur->data[FirstElement]) && 
-          pPtr <= &(cur->data[LastElement]))
-        return true;
-      cur = cur->next;
-    }
-    return false;
-  }
 protected:
-  DataAlloc m_DataAlloc;
   Chunk *m_pRoot;
   Chunk *m_pCurrent;
   size_type m_FirstFree;

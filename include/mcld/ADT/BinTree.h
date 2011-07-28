@@ -13,7 +13,7 @@
 #include <iterator>
 #include <memory>
 #include <set>
-#include <mcld/Support/TreeAllocator.h>
+#include <mcld/ADT/TreeAllocator.h>
 
 namespace mcld
 {
@@ -33,6 +33,11 @@ namespace proxy
   }
 } // namespace of template proxy
 
+/** \class TreeIteratorBase
+ *  \brief TreeIteratorBase provides the motion functions on a binary tree.
+ *
+ *  @see TreeIterator
+ */
 struct IteratorBase
 {
 public:
@@ -40,6 +45,7 @@ public:
     Leftward,
     Rightward
   };
+
   typedef size_t                          size_type;
   typedef ptrdiff_t                       difference_type;
   typedef std::bidirectional_iterator_tag iterator_category;
@@ -88,8 +94,17 @@ namespace proxy
 
 } //namespace of template proxy
 
+/** \class TreeIterator
+ *  \brief TreeIterator provides full functions of binary tree's iterator.
+ *
+ *  TreeIterator is designed to compatible with STL iterators.
+ *  TreeIterator is bi-directional. Incremental direction means to move
+ *  rightward, and decremental direction is leftward.
+ *
+ *  @see IteratorBase
+ */
 template<class DataType, class Traits>
-struct TreeIterator : public IteratorBase
+struct TreeIterator : public TreeIteratorBase
 {
 public:
   typedef DataType                       value_type;
@@ -110,10 +125,10 @@ public:
 
 public:
   TreeIterator()
-    : IteratorBase(0) {}
+    : TreeIteratorBase(0) {}
 
   TreeIterator(const iterator &X)
-    : IteratorBase(X.m_pNode) {}
+    : TreeIteratorBase(X.m_pNode) {}
 
   ~TreeIterator() {}
 
@@ -144,22 +159,28 @@ public:
   }
 private:
   template<class DataType>
-  friend class BinTree<DataType>;
+  friend class BinaryTree<DataType>;
 
   explicit TreeIterator(NodeBase* X)
-    : IteratorBase(X) {}
+    : TreeIteratorBase(X) {}
 };
 
 //===----------------------------------------------------------------------===//
 // Tree
-template<class DataType, class Alloc = NodeFactory<DataType> >
-class BinTreeBase
+
+/** \class BinaryTreeBase
+ *  \brief BinaryTreeBase gives root node and memory management.
+ *
+ *  The memory management of nodes in is hidden by BinaryTreeBase.
+ *  BinaryTreeBase also provides the basic functions for merging a tree and 
+ *  inserton of a node.
+ * 
+ *  @see BinaryTree
+ */
+template<class DataType>
+class BinaryTreeBase
 {
 protected:
-  typedef typename Alloc::NodeFactory     node_factory;
-  typedef typename Alloc::DataFactory     data_factory;
-  typedef typename node_factory::NodeType node_type;
-
   /// TreeImpl - TreeImpl records the root node and the number of nodes
   //
   //    +---> Root(end) <---+
@@ -169,23 +190,34 @@ protected:
   //    |  Left     Right   |
   //    +---/         \-----+
   //     
-  struct TreeImpl : public node_factory
+  class TreeImpl : public NodeFactory<DataType>
   {
+  public:
+    typedef typename NodeFactory<DataType>::iterator       iterator;
+    typedef typename NodeFactory<DataType>::const_iterator const_iterator;
+
   public:
     NodeBase node;
 
   public:
     TreeImpl()
-      : NodeAllocType() {
+      : NodeAllocType<DataType>() {
       node.left = node.right = &node;
     }
 
-    TreeImpl(const NodeAllocType& pCopy)
-      : NodeAllocType(pCopy), node(pCopy.node) {
-    }
+    ~TreeImpl()
+    { }
 
-    void delegate(TreeImpl& pTree) {
-      node_factory::delegate(node, pTree.node_factory);
+    /// summon - change the final edges of pClient to our root
+    void summon(TreeImpl& pClient) {
+      iterator data;
+      iterator dEnd = pClient.end();
+      for (data = pClient.begin(); data!=dEnd; data.next() ) {
+        if (data.get()->left == &pClient.node)
+          data.get()->left = &node;
+        if (data.get()->right == &pClient.node)
+          data.get()->right = &node;
+      }
     }
   };
 
@@ -197,25 +229,27 @@ protected:
 
 protected:
   NodeType *createNode(const DataType &pValue) {
-    NodeType *result = m_Root.node_factory::allocate();
-    m_Root.node_factory::construct(result, pValue);
+    NodeType *result = m_Root.NodeFactory::allocate();
+    m_Root.NodeFactory::construct(result, pValue);
     result->left = result->right = m_Root.node;
     return result;
   }
 
   void destroyNode(NodeType *pNode) {
-    m_Root.node_factory::deallocate(pNode);
+    m_Root.NodeFactory::deallocate(pNode);
   }
 
 public:
-  BinTreeBase() : m_Root()
+  BinaryTreeBase()
+  : m_Root()
   { }
 
-  BinTreeBase(const BinTreeBase& pCopy) : m_Root(pCopy.m_Root)
+  BinaryTreeBase(const BinaryTreeBase& pCopy)
+  : m_Root(pCopy.m_Root)
   { }
 
-  virtual ~BinTreeBase()
-  { clear(); }
+  virtual ~BinaryTreeBase()
+  { }
 
   size_t size() const {
     return m_Root.size();
@@ -227,17 +261,17 @@ public:
 
 protected:
   void clear() {
-    m_Root.node_factory::clear();
+    m_Root.NodeFactory::clear();
   }
 };
 
-/** \class BinTree
+/** \class BinaryTree
  *  \brief An abstract data type of binary tree.
  *
  *  @see mcld::InputTree
  */
 template<class DataType, class Alloc = NodeFactory<DataType> >
-class BinTree : public BinTreeBase<DataType, Alloc>
+class BinaryTree : public BinaryTreeBase<DataType, Alloc>
 {
 public:
   typedef size_t             size_type;
@@ -248,7 +282,7 @@ public:
   typedef const value_type*  const_pointer;
   typedef const value_type&  const_reference;
 
-  typedef BinTree<DataType>  Self;
+  typedef BinaryTree<DataType>  Self;
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
 
@@ -257,15 +291,15 @@ protected:
 
 public:
   // -----  constructors and destructor  ----- //
-  BinTree()
-  : BinTreeBase()
+  BinaryTree()
+  : BinaryTreeBase()
   { }
 
-  BinTree(const BinTree& pCopy)
-  : BinTreeBase(pCopy.m_Root)
+  BinaryTree(const BinaryTree& pCopy)
+  : BinaryTreeBase(pCopy.m_Root)
   { }
 
-  ~BinTree() {
+  ~BinaryTree() {
   }
 
   // -----  iterators  ----- //
@@ -299,7 +333,7 @@ public:
   //  @param position the parent node
   //  @param value the value being pushed.
   template<size_t DIRECT>
-  BinTree& join(iterator position, const DataType& value) {
+  BinaryTree& join(iterator position, const DataType& value) {
     node_type *node = createNode(value);
     proxy::hook<DIRECT>(position.m_pNode, node);
     return *this;
@@ -311,10 +345,12 @@ public:
   //  @param the tree being joined.
   //  @return the joined tree
   template<size_t DIRECT>
-  BinTree& merge(iterator position, BinTree& pTree) {
+  BinaryTree& merge(iterator position, BinaryTree& pTree) {
     if (!pTree.empty()) {
       proxy::hook<DIRECT>(position.m_pNode, pTree.m_Root.node.right);
+      m_Root.summon(pTree.m_Root);
       m_Root.delegate(pTree.m_Root);
+      pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
     }
     return *this;
   }
