@@ -101,6 +101,9 @@ protected:
 template<size_t NUM>
 class MCLDFileFactory : public GCFactory<MCLDFile, NUM>
 {
+  MCLDFileFactory(const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
+  MCLDFileFactory& operator=(
+                      const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
 public:
   typedef GCFactory<MCLDFile, NUM> Alloc;
 

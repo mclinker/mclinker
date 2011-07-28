@@ -173,6 +173,9 @@ public:
   }
 };
 
+template<class DataType>
+class BinaryTree;
+
 /** \class TreeIterator
  *  \brief TreeIterator provides full functions of binary tree's iterator.
  *
