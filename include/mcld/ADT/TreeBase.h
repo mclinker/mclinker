@@ -36,20 +36,36 @@ struct NonConstTraits
   typedef NonConstTraits<DataType> nonconst_traits;
 };
 
-struct NodeBase
+class NodeBase
 {
+public:
   NodeBase *left;
   NodeBase *right;
+
+public:
+  NodeBase()
+  : left(0), right(0)
+  { }
 };
 
 template<typename DataType>
-struct Node
+class Node : public NodeBase
 {
 public:
-  typedef DataType value_type;
+  typedef DataType        value_type;
 
 public:
-  value_type data;
+  value_type* data;
+
+public:
+  Node()
+  : NodeBase(), data(0)
+  { }
+
+  Node(const value_type& pValue)
+  : NodeBase(), data(&pValue)
+  { }
+
 };
 
 } // namespace of mcld

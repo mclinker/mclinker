@@ -231,14 +231,15 @@ protected:
   TreeImpl m_Root;
 
 protected:
-  NodeType *createNode(const DataType &pValue) {
-    NodeType *result = m_Root.allocate();
-    m_Root.construct(result, pValue);
+  NodeType *createNode() {
+    NodeType *result = m_Root.produce();
     result->left = result->right = m_Root.node;
     return result;
   }
 
   void destroyNode(NodeType *pNode) {
+    pNode->left = pNode->right = 0;
+    pNode->data = 0;
     m_Root.deallocate(pNode);
   }
 

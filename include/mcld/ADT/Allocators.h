@@ -118,6 +118,14 @@ public:
   void construct(pointer pPtr, const_reference pValue)
   { new (pPtr) DataType(pValue); }
 
+  /// default construct - constructing an object on the location pointed by
+  //  pPtr, and using its default constructor to initialized its value to
+  //  pValue.
+  //
+  //  @param pPtr the address where the object to be constructed
+  void construct(pointer pPtr)
+  { new (pPtr) DataType(); }
+
   /// standard destroy - destroy data on arbitrary address
   //  @para pPtr the address where the data to be destruected.
   void destroy(pointer pPtr)

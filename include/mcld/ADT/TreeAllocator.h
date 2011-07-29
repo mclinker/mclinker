@@ -112,6 +112,7 @@ public:
   };
 
 public:
+  /// default constructor
   NodeFactory()
   : Alloc(), m_NodeNum(0)
   { }
@@ -120,11 +121,15 @@ public:
   virtual ~NodeFactory()
   { Alloc::clear(); }
 
+  /// produce - produce a node, add it under control
   NodeType* produce() {
     ++m_NodeNum;
-    return Alloc::allocate();
+    NodeType* result = Alloc::allocate();
+    Alloc::construct(result);
+    return result;
   }
 
+  /// size - the number of created nodes.
   unsigned int size() const {
     return m_NodeNum;
   }
