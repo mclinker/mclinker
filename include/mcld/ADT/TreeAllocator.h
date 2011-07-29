@@ -32,9 +32,6 @@ namespace mcld
 template<typename DataType>
 class NodeFactory : private LinearAllocator<mcld::Node<DataType>, 64>
 {
-  NodeFactory(const NodeFactory& pCopy); /// NOT TO IMPLEMENT
-  NodeFactory& operator=(const NodeFactory& pCopy); /// NOT TO IMPLEMENT
-
 private:
   typedef LinearAllocator<typename mcld::Node<DataType>, 64> Alloc;
 

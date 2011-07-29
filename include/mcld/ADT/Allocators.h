@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <cstdlib>
+#include <mcld/ADT/Uncopyable.h>
 
 namespace mcld
 {
@@ -32,12 +33,8 @@ namespace mcld
  *  template argument ChunkSize is the number of bytes of a chunk
  */
 template<typename DataType, size_t ChunkSize>
-class LinearAllocator
+class LinearAllocator : private Uncopyable
 {
-  LinearAllocator(const LinearAllocator& pCopy); /// NOT TO IMPLEMENT
-  LinearAllocator& operator=(
-                          const LinearAllocator& pCopy); /// NOT TO IMPLEMENT
-
 public:
   typedef DataType*       pointer;
   typedef DataType&       reference;

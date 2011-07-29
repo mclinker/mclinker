@@ -12,6 +12,7 @@
 #endif
 #include <iterator>
 #include <memory>
+#include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TreeAllocator.h>
 
 namespace mcld
@@ -179,7 +180,7 @@ private:
  *  @see BinaryTree
  */
 template<class DataType>
-class BinaryTreeBase
+class BinaryTreeBase : private Uncopyable
 {
 public:
   typedef Node<DataType> NodeType;
@@ -248,10 +249,6 @@ public:
   : m_Root()
   { }
 
-  BinaryTreeBase(const BinaryTreeBase& pCopy)
-  : m_Root(pCopy.m_Root)
-  { }
-
   virtual ~BinaryTreeBase()
   { }
 
@@ -297,10 +294,6 @@ public:
   // -----  constructors and destructor  ----- //
   BinaryTree()
   : BinaryTreeBase<DataType>()
-  { }
-
-  BinaryTree(const BinaryTree& pCopy)
-  : BinaryTreeBase<DataType>(pCopy.m_Root)
   { }
 
   ~BinaryTree() {
