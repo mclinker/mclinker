@@ -101,9 +101,13 @@ protected:
 template<size_t NUM>
 class MCLDFileFactory : public GCFactory<MCLDFile, NUM>
 {
-  MCLDFileFactory(const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
-  MCLDFileFactory& operator=(
-                      const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
+private:
+  typedef LinearAllocator<MCLDFile, 64> Alloc;
+
+public:
+  typedef Alloc::iterator               iterator;
+  typedef Alloc::const_iterator         const_iterator;
+
 public:
   typedef GCFactory<MCLDFile, NUM> Alloc;
 
