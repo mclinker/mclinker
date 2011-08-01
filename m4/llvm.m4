@@ -80,4 +80,65 @@ AC_DEFUN([CHECK_LLVM],
 	AC_SUBST(LLVM_LDFLAGS)
 	AC_SUBST(LLVM_VERSION)
 	ifelse([$2], , , [$2])
+
+	AC_CACHE_CHECK([type of operating system we're going to host on],
+        		[llvm_cv_platform_type],
+			[case $host in
+			*-*-aix*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-irix*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-cygwin*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-darwin*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-minix*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-freebsd*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-openbsd*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-netbsd*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-dragonfly*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-hpux*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-interix*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-linux*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-solaris*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-auroraux*)
+				llvm_cv_platform_type="Unix" ;;
+			*-*-win32*)
+				llvm_cv_platform_type="Win32" ;;
+			*-*-mingw*)
+				llvm_cv_platform_type="Win32" ;;
+			*-*-haiku*)
+				llvm_cv_platform_type="Unix" ;;
+			*-unknown-eabi*)
+				llvm_cv_platform_type="Unix" ;;
+			*-unknown-elf*)
+				llvm_cv_platform_type="Unix" ;;
+			*)
+				llvm_cv_platform_type="Unknown" ;;
+			esac])
+
+	dnl Set the "LLVM_ON_*" variables based on llvm_cv_llvm_cv_platform_type
+	dnl This is used by lib/Support to determine the basic kind of implementation
+	dnl to use.
+	case $llvm_cv_platform_type in
+	Unix)
+		AC_DEFINE([LLVM_ON_UNIX],[1],[Define if this is Unixish platform])
+		AC_SUBST(LLVM_ON_UNIX,[1])
+		AC_SUBST(LLVM_ON_WIN32,[0])
+	;;
+	Win32)
+		AC_DEFINE([LLVM_ON_WIN32],[1],[Define if this is Win32ish platform])
+		AC_SUBST(LLVM_ON_UNIX,[0])
+		AC_SUBST(LLVM_ON_WIN32,[1])
+	;;
+	esac
 ])
