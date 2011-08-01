@@ -18,77 +18,6 @@
 namespace mcld
 {
 
-//===----------------------------------------------------------------------===//
-// iterator
-namespace proxy
-{
-  template<size_t DIRECT>
-  inline void move(NodeBase *&X)
-  { assert(0 && "not allowed"); }
-
-  template<size_t DIRECT>
-  inline void hook(NodeBase *X, const NodeBase *Y)
-  { assert(0 && "not allowed"); }
-
-} // namespace of template proxy
-
-/** \class TreeIteratorBase
- *  \brief TreeIteratorBase provides the motion functions on a binary tree.
- *
- *  @see TreeIterator
- */
-struct TreeIteratorBase
-{
-public:
-  enum Direct {
-    Leftward,
-    Rightward
-  };
-
-  typedef size_t                          size_type;
-  typedef ptrdiff_t                       difference_type;
-  typedef std::bidirectional_iterator_tag iterator_category;
-
-public:
-  NodeBase* m_pNode;
-
-public:
-  TreeIteratorBase(NodeBase *X)
-    : m_pNode(X) {
-  }
-
-  template<typename DIRECT>
-  inline void move() {
-    proxy::move<DIRECT>(m_pNode);
-  }
-
-  bool operator==(const TreeIteratorBase& y) const
-  { return this->m_pNode == y.m_pNode; }
-
-  bool operator!=(const TreeIteratorBase& y) const
-  { return this->m_pNode != y.m_pNode; }
-};
-
-namespace proxy
-{
-  template<>
-  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X) 
-  { X = X->left; }
-
-  template<>
-  inline void move<TreeIteratorBase::Rightward>(NodeBase *&X)
-  { X = X->right; }
-
-  template<>
-  inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, const NodeBase *Y)
-  { X->left = const_cast<NodeBase*>(Y); }
-
-  template<>
-  inline void hook<TreeIteratorBase::Rightward>(NodeBase* X, const NodeBase* Y)
-  { X->right = const_cast<NodeBase*>(Y); }
-
-} //namespace of template proxy
-
 template<class DataType>
 class BinaryTree;
 
@@ -162,9 +91,6 @@ private:
     : TreeIteratorBase(X) {}
 };
 
-//===----------------------------------------------------------------------===//
-// Tree
-
 /** \class BinaryTreeBase
  *  \brief BinaryTreeBase gives root node and memory management.
  *
@@ -191,7 +117,6 @@ protected:
   //     
   class TreeImpl : public NodeFactory<DataType>
   {
-  public:
     typedef typename NodeFactory<DataType>::iterator       iterator;
     typedef typename NodeFactory<DataType>::const_iterator const_iterator;
 
@@ -295,29 +220,23 @@ public:
   }
 
   // -----  iterators  ----- //
-  iterator root() {
-    return iterator(&(BinaryTreeBase<DataType>::m_Root.node));
-  }
+  iterator root()
+  { return iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
 
-  const_iterator root() const {
-    return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node));
-  }
+  const_iterator root() const
+  { return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
 
-  iterator begin() {
-    return iterator(BinaryTreeBase<DataType>::m_Root.node.right);
-  }
+  iterator begin()
+  { return iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  iterator end() {
-    return iterator(BinaryTreeBase<DataType>::m_Root.node.left);
-  }
+  iterator end()
+  { return iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
-  const_iterator begin() const {
-    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right);
-  }
+  const_iterator begin() const
+  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  const_iterator end() const {
-    return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left);
-  }
+  const_iterator end() const
+  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
   // ----- modifiers  ----- //
   /// join - create a leaf node and merge it in the tree.

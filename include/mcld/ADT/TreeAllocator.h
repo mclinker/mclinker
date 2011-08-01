@@ -11,8 +11,8 @@
 #include <gtest.h>
 #endif
 #include <set>
-#include <mcld/ADT/TreeBase.h>
 #include <mcld/ADT/Allocators.h>
+#include <mcld/ADT/TreeBase.h>
 
 namespace mcld
 {

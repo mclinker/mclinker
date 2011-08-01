@@ -12,9 +12,112 @@
 #endif
 #include <cstdlib>
 #include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/TypeTraits.h>
 
 namespace mcld
 {
+
+/** \class Chunk
+ *  \brief Chunk is the basict unit of the storage of the LinearAllocator
+ *
+ *  @see LinearAllocator
+ */
+template<typename DataType, size_t ChunkSize>
+struct Chunk
+{
+public:
+  typedef DataType value_type;
+  enum { chunk_size = ChunkSize };
+
+public:
+  Chunk *next;
+  DataType data[ChunkSize];
+
+};
+
+template<typename ChunkType>
+struct DataIteratorBase
+{
+public:
+  ChunkType* m_pChunk;
+  unsigned int m_Pos;
+
+public:
+  DataIteratorBase(ChunkType* X, unsigned int pPos)
+  : m_pChunk(X), m_Pos(pPos)
+  { }
+
+  inline void advance() {
+    ++m_Pos;
+    if (m_Pos == ChunkType::chunk_size-1) {
+      m_Pos = 0;
+      m_pChunk = m_pChunk->next;
+    }
+  }
+
+  bool operator==(const DataIteratorBase& y) const
+  { return this->m_pChunk == y.m_pChunk; }
+
+  bool operator!=(const DataIteratorBase& y) const
+  { return this->m_pChunk != y.m_pChunk; }
+};
+
+/** \class DataIterator
+ *  \brief DataIterator provides STL compatible iterator for allocators
+ */
+template<typename ChunkType, class Traits>
+class DataIterator : public DataIteratorBase<ChunkType>
+{
+public:
+  typedef typename ChunkType::value_type  value_type;
+  typedef Traits                          traits;
+  typedef typename traits::pointer        pointer;
+  typedef typename traits::reference      reference;
+  typedef DataIterator<ChunkType, Traits> Self;
+  typedef DataIteratorBase<ChunkType>     Base;
+
+  typedef typename traits::nonconst_traits         nonconst_traits;
+  typedef DataIterator<ChunkType, nonconst_traits> iterator;
+  typedef typename traits::const_traits            const_traits;
+  typedef DataIterator<ChunkType, const_traits>    const_iterator;
+  typedef std::forward_iterator_tag                iterator_category;
+  typedef size_t                                   size_type;
+  typedef ptrdiff_t                                difference_type;
+
+public:
+  DataIterator()
+  : Base(0, 0)
+  { }
+
+  DataIterator(ChunkType* pChunk, unsigned int pPos)
+  : Base(pChunk, pPos)
+  { }
+
+  DataIterator(const DataIterator& pCopy)
+  : Base(pCopy.m_pChunk, pCopy.m_Pos)
+  { }
+
+  ~DataIterator()
+  { }
+
+  // -----  operators  ----- //
+  reference operator*() {
+    if (0 == Base::m_pChunk)
+      assert(0 && "data iterator goes to a invalid position");
+    return Base::m_pChunk->data[Base::m_Pos];
+  }
+
+  Self& operator++() {
+    this->Base::advance();
+    return *this;
+  }
+
+  Self operator++(int) {
+    Self tmp = *this;
+    this->Base::advance();
+    return tmp;
+  }
+};
 
 /** \class LinearAllocator
  *  \brief LinearAllocator is a simple allocator which is limited in use of
@@ -36,14 +139,15 @@ template<typename DataType, size_t ChunkSize>
 class LinearAllocator : private Uncopyable
 {
 public:
-  typedef DataType*       pointer;
-  typedef DataType&       reference;
-  typedef const DataType* const_pointer;
-  typedef const DataType& const_reference;
-  typedef DataType        type_value;
-  typedef size_t          size_type;
-  typedef ptrdiff_t       difference_type;
-  typedef unsigned char   byte_type;
+  typedef DataType*                  pointer;
+  typedef DataType&                  reference;
+  typedef const DataType*            const_pointer;
+  typedef const DataType&            const_reference;
+  typedef DataType                   value_type;
+  typedef size_t                     size_type;
+  typedef ptrdiff_t                  difference_type;
+  typedef unsigned char              byte_type;
+  typedef Chunk<DataType, ChunkSize> chunk_type;
 
 protected:
   enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)ChunkSize };
@@ -52,86 +156,9 @@ protected:
   enum { FirstElement = 0 };
   enum { LastElement = ElementNum - 1 };
 
-protected:
-  struct Chunk {
-    DataType volatile data[ChunkSize];
-    Chunk *next;
-  };
-
 public:
-  /// iterator of all allocated data
-  class iterator
-  {
-    friend class LinearAllocator<DataType, ChunkSize>;
-
-    iterator(Chunk* pInChunk, unsigned int pPos)
-    : m_pInChunk(pInChunk), m_Pos(pPos)
-    { }
-
-  public:
-    iterator()
-    : m_pInChunk(0), m_Pos(0)
-    { }
-
-    ~iterator()
-    { }
-
-    iterator& next() {
-      if (ElementNum == m_Pos) {
-        m_pInChunk = m_pInChunk->next;
-        m_Pos = 0;
-      }
-      else
-        ++m_Pos;
-      return *this;
-    }
-
-    DataType* get() {
-      return &(m_pInChunk->data[m_Pos]);
-    }
-
-  private:
-    Chunk* m_pInChunk;
-    unsigned int m_Pos;
-  };
-  friend class iterator;
-
-  /// const_iterator of all allocated data
-  class const_iterator
-  {
-    friend class LinearAllocator<DataType, ChunkSize>;
-
-    const_iterator(const Chunk* pInChunk, unsigned int pPos)
-    : m_pInChunk(const_cast<Chunk*>(pInChunk)), m_Pos(pPos)
-    { }
-
-  public:
-    const_iterator()
-    : m_pInChunk(0), m_Pos(0)
-    { }
-
-    ~const_iterator()
-    { }
-
-    const_iterator& next() {
-      if (ElementNum == m_Pos) {
-        m_pInChunk = m_pInChunk->next;
-        m_Pos = 0;
-      }
-      else
-        ++m_Pos;
-      return *this;
-    }
-
-    const DataType* get() const {
-      return const_cast<const DataType*>(&(m_pInChunk->data[m_Pos]));
-    }
-
-  private:
-    Chunk* m_pInChunk;
-    unsigned int m_Pos;
-  };
-  friend class const_iterator;
+  typedef DataIterator<chunk_type, NonConstTraits<value_type> > iterator;
+  typedef DataIterator<chunk_type, ConstTraits<value_type> >    const_iterator;
 
 public:
   LinearAllocator()
@@ -222,13 +249,21 @@ public:
 
   /// clear - clear all chunks
   void clear() {
-    Chunk* cur = m_pRoot;
-    while (0 != cur) {
-      Chunk* chunk = cur;
-      cur = cur->next;
-      free(chunk);
+    // call all destructors
+    iterator data, dEnd = end();
+    for (data = begin(); data!=dEnd; ++data) {
+      destroy(&(*data));
     }
 
+    // free all chunks
+    ChunkType *cur = m_pRoot, *prev;
+    while (0 != cur) {
+      prev = cur;
+      free(prev);
+      cur = cur->next;
+    }
+
+    // reset
     m_pRoot = 0;
     m_pCurrent = 0;
     m_FirstFree = m_AllocatedNum = 0;
@@ -251,25 +286,24 @@ public:
   }
 
   // -----  iterators  ----- //
-  iterator begin() {
-    return iterator(m_pRoot, 0);
-  }
+  iterator begin()
+  { return iterator(m_pRoot, 0); }
 
-  const_iterator begin() const {
-    return const_iterator(m_pRoot, 0);
-  }
+  const_iterator begin() const
+  { return const_iterator(m_pRoot, 0); }
 
-  iterator end() {
-    return iterator(m_pCurrent, m_FirstFree);
-  }
+  iterator end()
+  { return iterator(m_pCurrent, m_FirstFree); }
 
-  const_iterator end() const {
-    return const_iterator(m_pCurrent, m_FirstFree);
-  }
+  const_iterator end() const
+  { return const_iterator(m_pCurrent, m_FirstFree); }
 
 protected:
-  Chunk *createChunk() {
-    Chunk* result = (Chunk*)malloc(sizeof(Chunk));
+  typedef Chunk<DataType, ChunkSize> ChunkType;
+
+protected:
+  ChunkType *createChunk() {
+    ChunkType* result = (ChunkType*)malloc(sizeof(ChunkType));
     result->next = 0;
     m_pCurrent->next = result;
     m_pCurrent = result;
@@ -278,8 +312,8 @@ protected:
   }
 
 protected:
-  Chunk *m_pRoot;
-  Chunk *m_pCurrent;
+  ChunkType *m_pRoot;
+  ChunkType *m_pCurrent;
   size_type m_FirstFree;
   size_type m_AllocatedNum;
 };
