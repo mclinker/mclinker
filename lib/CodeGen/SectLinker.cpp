@@ -68,6 +68,15 @@ ArgSearchDirListAlias("library-path",
                       cl::desc("alias for -L"),
                       cl::aliasopt(ArgSearchDirList));
 
+static cl::opt<bool>
+ArgTrace("t",
+         cl::desc("Print the names of the input files as ld processes them."));
+
+static cl::alias
+ArgTraceAlias("trace",
+              cl::desc("alias for -t"),
+              cl::aliasopt(ArgTrace));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -162,6 +171,9 @@ bool SectLinker::doInitialization(Module &pM)
       errs() << "search directory is wrong: -L" << sd->name();
     }
   }
+
+  // set up trace
+  ldInfo.options().setTrace(ArgTrace);
 
   /// -----  Set up Inputs  -----
   unsigned int input_size = ArgNameSpecList.size() +

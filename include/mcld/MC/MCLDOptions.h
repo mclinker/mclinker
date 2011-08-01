@@ -42,25 +42,31 @@ public:
   void setDefaultLDScript(const std::string& pFilename);
 
   /// sysroot
-  const sys::fs::Path& sysroot() const {
-    return m_Sysroot;
-  }
+  const sys::fs::Path& sysroot() const
+  { return m_Sysroot; }
+
   void setSysroot(const sys::fs::Path &pPath);
 
   /// search directory
-  SearchDirs& directories() {
-    return m_SearchDirs;
-  }
+  SearchDirs& directories()
+  { return m_SearchDirs; }
 
-  const SearchDirs& directories() const {
-    return m_SearchDirs;
-  }
+  const SearchDirs& directories() const
+  { return m_SearchDirs; }
+
+  /// trace
+  void setTrace(bool pEnableTrace = true)
+  { m_bTrace = pEnableTrace; }
+
+  bool trace() const
+  { return m_bTrace; }
 
 private:
   MCLDFile* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
   sys::fs::Path m_Sysroot;
   SearchDirs m_SearchDirs;
+  bool m_bTrace;
 };
 
 } // namespace of mcld
