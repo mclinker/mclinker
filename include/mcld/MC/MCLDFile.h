@@ -11,8 +11,8 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/StringRef.h>
 #include <mcld/MC/MCLDContext.h>
-#include <llvm/Support/MemoryBuffer.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/ADT/Allocators.h>
 #include <string>
@@ -27,7 +27,10 @@ class MCLDContext;
 /** \class MCLDFile
  *  \brief MCLDFile represents the file being linked or produced.
  *
- *  \see llvm::sys::Path
+ *  MCLDFile is the storage of name, path and type
+ *  It just refers to MCLDContext.
+ *
+ *  @see mcld::sys::fs::Path MCLDContext
  */
 class MCLDFile
 {
@@ -41,19 +44,33 @@ public:
 
 public:
   MCLDFile();
+  MCLDFile(llvm::StringRef pName,
+           const sys::fs::Path& pPath,
+           unsigned int pType = Unknown);
+
   ~MCLDFile();
 
+  // -----  modifiers  ----- //
+  void setType(Type pType)
+  { m_Type = pType; }
+
+  // -----  observers  ----- //
   bool isRecognized() const
   { return (m_Type != Unknown); }
 
-  Type type() const
+  unsigned int type() const
   { return m_Type; }
+
+  llvm::StringRef name() const;
+
+  const sys::fs::Path& path() const
+  { return m_Path; }
 
 private:
   sys::fs::Path m_Path;
-  std::string   m_InputName;
+  char* m_InputName;
   MCLDContext   *m_pContext;
-  Type          m_Type;
+  unsigned int m_Type;
 };
 
 /** \class MCLDFileFactory
@@ -83,18 +100,23 @@ public:
   { Alloc::clear(); }
 
   // -----  production  ----- //
-  MCLDFile* produce() {
-    MCLDFile* result = Alloc::allocate();
-    Alloc::construct(result);
-    ++m_NumCreatedFiles;
-    return result;
-  }
+  MCLDFile* produce(llvm::StringRef pName,
+                    const sys::fs::Path& pPath,
+                    unsigned int pType = MCLDFile::Unknown);
   
+  MCLDFile* produce();
   // -----  iterators  ----- //
   iterator begin()             { return Alloc::begin(); }
   iterator end()               { return Alloc::end(); }
   const_iterator begin() const { return Alloc::begin(); }
   const_iterator end() const   { return Alloc::end(); }
+
+  // -----  observers  ----- //
+  unsigned int size() const
+  { return m_NumCreatedFiles; }
+
+  bool empty() const
+  { return Alloc::empty(); }
 
 private:
   unsigned int m_NumCreatedFiles;

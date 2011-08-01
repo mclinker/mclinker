@@ -27,8 +27,8 @@ class MCLDFile;
 class MCLDInfo
 {
 public:
-  MCLDInfo();
-  ~MCLDInfo();
+  explicit MCLDInfo();
+  virtual ~MCLDInfo();
 
   GeneralOptions& options() {
     return m_Options;

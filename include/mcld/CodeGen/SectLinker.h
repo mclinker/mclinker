@@ -14,6 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/CodeGen/MachineFunctionPass.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <vector>
 
 namespace llvm
@@ -24,7 +25,6 @@ namespace llvm
 
 namespace mcld
 {
-  class MCLDInfo;
   class MCLDFile;
   class MCLDDriver;
   class TargetLDBackend;
@@ -103,8 +103,8 @@ namespace mcld
     typedef std::vector<PositionDependentOption*> PositionDependentOptions;
 
   protected:
-    SectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
-    virtual void initializeLDInfo(MCLDInfo& pLDInfo) const = 0;
+    SectLinker(MCLDInfo& pLDInfo,
+               TargetLDBackend &pLDBackend);
 
   public:
     virtual ~SectLinker();
@@ -124,13 +124,13 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
-    void initializeInputTree(MCLDInfo& pLDInfo,
+    void initializeInputTree(InputTree &pInputTree,
                              const PositionDependentOptions &pOptions) const;
 
   protected:
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
-    MCLDFile* m_pDefaultBitcode;
+    MCLDInfo& m_LDInfo;
 
   private:
     static char m_ID;

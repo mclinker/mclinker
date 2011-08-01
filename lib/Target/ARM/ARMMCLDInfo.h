@@ -5,10 +5,23 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <Allocators.h>
+#ifndef ARM_MCLDINFO_H
+#define ARM_MCLDINFO_H
+#ifdef ENABLE_UNITTEST
+#include <gtest.h>
+#endif
+#include <mcld/MC/MCLDInfo.h>
 
-using namespace mcld;
+namespace mcld
+{
 
-//==========================
-// Allocators
+class ARMELFLDInfo : public MCLDInfo
+{
+public:
+  explicit ARMELFLDInfo();
+};
+
+} // namespace of mcld
+
+#endif
 

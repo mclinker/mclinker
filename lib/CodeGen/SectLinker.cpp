@@ -129,33 +129,26 @@ ArgEndGroupListAlias(")",
 
 //===----------------------------------------------------------------------===//
 // SectLinker
-SectLinker::SectLinker(TargetLDBackend& pLDBackend, MCLDFile* pDefaultBitcode)
+SectLinker::SectLinker(MCLDInfo& pLDInfo,
+                       TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
-    m_pLDBackend(&pLDBackend),
-    m_pDefaultBitcode(pDefaultBitcode) {
+    m_LDInfo(pLDInfo),
+    m_pLDBackend(&pLDBackend) {
 }
 
 SectLinker::~SectLinker()
 {
   delete m_pLDBackend;
   delete m_pLDDriver;
-  delete m_pDefaultBitcode;
 }
 
 bool SectLinker::doInitialization(Module &pM)
 {
-  // create MCLDInfo
-  static MCLDInfo ldInfo;
-  initializeLDInfo(ldInfo);
-
-  if (0 != m_pDefaultBitcode)
-    ldInfo.options().setDefaultBitcode(*m_pDefaultBitcode);
-
-  /// -----  Set up General Options  -----
+  /// -----  Set up General Options  ----- //
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      ldInfo.options().setSysroot(ArgSysRoot);
+      m_LDInfo.options().setSysroot(ArgSysRoot);
   }
   
   // add all search directories
@@ -163,9 +156,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot()) 
-      sd->setSysroot(ldInfo.options().sysroot());
+      sd->setSysroot(m_LDInfo.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path()))
-      ldInfo.options().directories().add(*sd);
+      m_LDInfo.options().directories().add(*sd);
     else {
       // FIXME: need a warning function
       errs() << "search directory is wrong: -L" << sd->name();
@@ -173,7 +166,7 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   // set up trace
-  ldInfo.options().setTrace(ArgTrace);
+  m_LDInfo.options().setTrace(ArgTrace);
 
   /// -----  Set up Inputs  -----
   unsigned int input_size = ArgNameSpecList.size() +
@@ -189,8 +182,8 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
     // search file in SearchDirs
-    SearchDirs::iterator library = ldInfo.options().directories().find(*ns);
-    if (ldInfo.options().directories().end()!=library) { // found
+    SearchDirs::iterator library = m_LDInfo.options().directories().find(*ns);
+    if (m_LDInfo.options().directories().end()!=library) { // found
       // calculate position
       pos_dep_options.push_back(new PositionDependentOption(
                                       ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
@@ -236,13 +229,13 @@ bool SectLinker::doInitialization(Module &pM)
                                     PositionDependentOption::INPUT_FILE));
   }
 
-  /// -----  Set up Attributes of Inputs  -----
-  /// -----  Set up Scripting Options  -----
+  /// -----  Set up Attributes of Inputs  ----- //
+  /// -----  Set up Scripting Options  ----- //
 
-  /// ----- convert position dependent options into tree of input files  -----
+  /// ----- convert position dependent options into tree of input files  ----- //
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
-  initializeInputTree(ldInfo, pos_dep_options);
-  m_pLDDriver = new MCLDDriver(ldInfo, *m_pLDBackend);
+  initializeInputTree(m_LDInfo.inputs(), pos_dep_options);
+  m_pLDDriver = new MCLDDriver(*m_pLDBackend);
 }
 
 bool SectLinker::doFinalization(Module &pM)
@@ -256,7 +249,7 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 {
 }
 
-void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
+void SectLinker::initializeInputTree(InputTree& pInputs,
                         const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
@@ -273,25 +266,25 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
   std::stack<InputTree::iterator> returnStack;
   switch ((*cur_char)->type()) {
   case PositionDependentOption::INPUT_FILE:
-    pLDInfo.inputs().insert(pLDInfo.inputs().root(),
-                            InputTree::Input,
-                            "file",
-                            *(*cur_char)->path(),
-                            *prev_ward);
+    pInputs.insert(pInputs.root(),
+                   InputTree::Input,
+                   "file",
+                   *(*cur_char)->path(),
+                   *prev_ward);
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::NAMESPEC:
-    pLDInfo.inputs().insert(pLDInfo.inputs().root(),
-                            InputTree::Input,
-                            (*cur_char)->namespec(),
-                            *(*cur_char)->path(),
-                            *prev_ward);
+    pInputs.insert(pInputs.root(),
+                   InputTree::Input,
+                   (*cur_char)->namespec(),
+                   *(*cur_char)->path(),
+                   *prev_ward);
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::START_GROUP:
-    pLDInfo.inputs().enterGroup(pLDInfo.inputs().root(),
-                                *prev_ward);
-    returnStack.push(pLDInfo.inputs().begin());
+    pInputs.enterGroup(pInputs.root(),
+                       *prev_ward);
+    returnStack.push(pInputs.begin());
     prev_ward = &InputTree::Downward;
     break;
   case PositionDependentOption::END_GROUP:
@@ -302,30 +295,30 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
   }
 
   // --- //
-  InputTree::iterator cur_node = pLDInfo.inputs().begin();
+  InputTree::iterator cur_node = pInputs.begin();
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   ++cur_char;
   
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {
     case PositionDependentOption::INPUT_FILE:
-      pLDInfo.inputs().insert(cur_node,
-                              InputTree::Input,
-                              "file",
-                              *(*cur_char)->path(),
-                              *prev_ward);
+      pInputs.insert(cur_node,
+                     InputTree::Input,
+                     "file",
+                     *(*cur_char)->path(),
+                     *prev_ward);
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::NAMESPEC:
-      pLDInfo.inputs().insert(cur_node,
-                              InputTree::Input,
-                              (*cur_char)->namespec(),
-                              *(*cur_char)->path(),
-                              *prev_ward);
+      pInputs.insert(cur_node,
+                     InputTree::Input,
+                     (*cur_char)->namespec(),
+                     *(*cur_char)->path(),
+                     *prev_ward);
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::START_GROUP:
-      pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
+      pInputs.enterGroup(cur_node, *prev_ward);
       returnStack.push(cur_node);
       prev_ward = &InputTree::Downward;
       break;

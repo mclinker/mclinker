@@ -20,6 +20,10 @@ extern "C" {
 #define LLVM_TARGET(TargetName) void LLVMInitialize##TargetName##LDTarget();
 #include "mcld/Config/Targets.def"
 
+  // Declare all of the target-depedent linker information
+#define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##LDInfo();
+#include "mcld/Config/Linkers.def"
+
   // Declare all of the available linker environment.
 #define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##SectLinker();
 #include "mcld/Config/Linkers.def"
@@ -59,6 +63,9 @@ namespace mcld
   ///
   /// It is legal for a client to make multiple calls to this function.
   inline void InitializeAllLinkers() {
+#define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##LDInfo();
+#include "mcld/Config/Linkers.def"
+
 #define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##SectLinker();
 #include "mcld/Config/Linkers.def"
 

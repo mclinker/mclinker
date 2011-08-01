@@ -31,20 +31,20 @@ class raw_ostream;
 namespace mcld
 {
 
-class MCLDFile;
+class MCLDInfo;
 using namespace llvm;
 
 /** \class MCAsmObjectReader
- *  \brief MCAsmObjectReader records all MCSectionData while writing data in MCAssembler.
+ *  \brief MCAsmObjectReader records all MCSectionData while writing data in
+ *   MCAssembler.
  *
- *  \see
+ *  @see MCObjectWriter
  *  \author Luba Tang <lubatang@mediatek.com>
  */
 class MCAsmObjectReader : public llvm::MCObjectWriter
 {
 public:
-  MCAsmObjectReader(MCObjectStreamer& pStreamer,
-                    MCLDFile& pDefaultBitcode);
+  MCAsmObjectReader(MCObjectStreamer& pStreamer, MCLDInfo& pLDInfo);
   ~MCAsmObjectReader();
 
   void ExecutePostLayoutBinding(MCAssembler &Asm,
@@ -66,7 +66,7 @@ public:
   void WriteObject(MCAssembler &Asm, const MCAsmLayout &Layout);
 
 private:
-  MCLDFile &m_DftBitcode;
+  MCLDInfo& m_LDInfo;
 };
 
 } // namespace of mcld

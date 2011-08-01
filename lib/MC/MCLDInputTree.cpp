@@ -12,7 +12,8 @@ using namespace mcld;
 InputTree::Succeeder InputTree::Afterward;
 InputTree::Includer  InputTree::Downward;
 
-
+//===----------------------------------------------------------------------===//
+// InputTree
 InputTree::InputTree()
 {
 }
@@ -27,12 +28,30 @@ InputTree& InputTree::insert(InputTree::iterator pPosition,
                              const sys::fs::Path& pPath,
                              const InputTree::Connector& pConnector)
 {
+  BinaryTree<MCLDFile>::node_type* node = createNode();
+  node->data = m_FileFactory.produce(pNamespec, pPath, pInputType);;
+  pConnector.connect(pPosition, iterator(node));
+  return *this;
 }
 
 
 InputTree& InputTree::enterGroup(InputTree::iterator pPosition,
                                  const InputTree::Connector& pConnector)
 {
+  NodeBase* node = createNode();
+  pConnector.connect(pPosition, iterator(node));
+  return *this;
 }
 
+//===----------------------------------------------------------------------===//
+// non-member functions
+bool isGroup(const InputTree::iterator& pos)
+{
+  return !pos.hasData();
+}
+
+bool isGroup(const InputTree::const_iterator& pos)
+{
+  return !pos.hasData();
+}
 

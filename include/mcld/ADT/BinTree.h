@@ -60,8 +60,11 @@ public:
   ~TreeIterator() {}
 
   // -----  operators  ----- //
-  reference operator*() const 
+  pointer operator*() const 
   { return static_cast<node_type*>(m_pNode)->data; }
+
+  bool hasData() const
+  { return (0 == static_cast<node_type*>(m_pNode)->data); }
 
   Self& operator++() {
     this->move<TreeIteratorBase::Rightward>();
@@ -84,8 +87,6 @@ public:
     this->move<TreeIteratorBase::Leftward>();
     return tmp;
   }
-private:
-  friend class BinaryTree<DataType>;
 
   explicit TreeIterator(NodeBase* X)
     : TreeIteratorBase(X) {}
@@ -143,7 +144,7 @@ protected:
           data.get()->right = &node;
       }
     }
-  };
+  }; // TreeImpl
 
 protected:
   /// m_Root is a special object who responses:
@@ -154,7 +155,7 @@ protected:
 protected:
   NodeType *createNode() {
     NodeType *result = m_Root.produce();
-    result->left = result->right = m_Root.node;
+    result->left = result->right = &m_Root.node;
     return result;
   }
 
@@ -240,12 +241,14 @@ public:
 
   // ----- modifiers  ----- //
   /// join - create a leaf node and merge it in the tree.
+  //  This version of join determines the direction on compilation time.
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
   template<size_t DIRECT>
   BinaryTree& join(iterator position, const DataType& value) {
-    node_type *node = createNode(value);
+    node_type *node = BinaryTreeBase<DataType>::createNode();
+    node->data = const_cast<DataType*>(&value);
     proxy::hook<DIRECT>(position.m_pNode,
                         const_cast<const node_type*>(node));
     return *this;

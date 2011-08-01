@@ -12,23 +12,11 @@
 
 using namespace mcld;
 
-MCLDDriver::MCLDDriver(const MCLDInfo &pInfo, TargetLDBackend& pLDBackend)
+MCLDDriver::MCLDDriver(TargetLDBackend& pLDBackend)
   : m_LDBackend(pLDBackend) {
 }
 
 MCLDDriver::~MCLDDriver()
-{
-}
-
-void MCLDDriver::addInputFile(llvm::StringRef pFilename)
-{
-}
-
-void MCLDDriver::enterGroup()
-{
-}
-
-void MCLDDriver::leaveGroup()
 {
 }
 

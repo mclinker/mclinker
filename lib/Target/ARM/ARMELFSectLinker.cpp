@@ -12,15 +12,12 @@
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode)
-  : SectLinker(pLDBackend, pDefaultBitcode) {
+ARMELFSectLinker::ARMELFSectLinker(MCLDInfo& pLDInfo,
+                                   TargetLDBackend &pLDBackend)
+  : SectLinker(pLDInfo, pLDBackend) {
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()
-{
-}
-
-void ARMELFSectLinker::initializeLDInfo(MCLDInfo& pLDInfo) const
 {
 }
 

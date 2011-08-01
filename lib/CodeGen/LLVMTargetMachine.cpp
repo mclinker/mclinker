@@ -207,11 +207,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                                               getTM().hasMCRelaxAll(),
                                                               getTM().hasMCNoExecStack());
 
-    OwningPtr<MCLDFile> defaultBitcode;
-    defaultBitcode.reset(new MCLDFile());
+    MCLDInfo* ldInfo = getTarget().createLDInfo(m_Triple);
+
     MCAsmObjectReader *objReader = new MCAsmObjectReader(
                                              *static_cast<MCObjectStreamer*>(AsmStreamer),
-                                             *defaultBitcode.get());
+                                             *ldInfo);
 
     AsmStreamer->InitSections();
     AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
@@ -222,10 +222,9 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
     if (0 == ldBackend)
       return true;
-    funcPass = getTarget().createSectLinker(m_Triple, *ldBackend, defaultBitcode.get()); 
+    funcPass = getTarget().createSectLinker(m_Triple, *ldInfo, *ldBackend);
     if (0 == funcPass)
       return true;
-    defaultBitcode.take();
     pPM.add(funcPass);
     break;
   }

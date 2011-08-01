@@ -27,6 +27,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/Target/ELFUnixLDBackend.h \
 	${LIBDIR}/Target/ELFUnixLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
+	${LIBDIR}/Target/ARM/ARMMCLDInfo.h \
+	${LIBDIR}/Target/ARM/ARMMCLDInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \

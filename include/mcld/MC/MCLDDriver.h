@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <mcld/MC/MCLDInfo.h>
 
 namespace mcld {
 class MCLDInfo;
@@ -23,12 +24,9 @@ class TargetLDBackend;
 class MCLDDriver 
 {
 public:
-  MCLDDriver(const MCLDInfo& pInfo, TargetLDBackend& pLDBackend);
+  MCLDDriver(TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
-  void addInputFile(llvm::StringRef pFilename);
-  void enterGroup();
-  void leaveGroup();
 private:
   TargetLDBackend &m_LDBackend;
 };

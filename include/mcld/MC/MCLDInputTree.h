@@ -22,6 +22,8 @@ namespace mcld
  *  \brief InputTree is the input tree to contains all inputs from the
  *  command line.
  *
+ *  InputTree, of course, is uncopyable.
+ *
  *  @see MCLDFile
  */
 class InputTree : public BinaryTree<MCLDFile> 
@@ -36,25 +38,24 @@ public:
     Archive = MCLDFile::Archive,
     Object = MCLDFile::Object,
     Script = MCLDFile::Script,
-    Input = MCLDFile::Unknown,
-    Group = MCLDFile::Unknown+1
+    Input = MCLDFile::Unknown
   };
 
   typedef BinaryTree<MCLDFile>::iterator       iterator;
   typedef BinaryTree<MCLDFile>::const_iterator const_iterator;
 
 public:
-  class Connector {
+  struct Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
   };
 
-  class Succeeder : public Connector {
+  struct Succeeder : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
       proxy::hook<Positional>(pFrom.m_pNode, pTo.m_pNode);
     }
   };
 
-  class Includer : public Connector {
+  struct Includer : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
       proxy::hook<Inclusive>(pFrom.m_pNode, pTo.m_pNode);
     }
@@ -64,15 +65,16 @@ public:
   static Succeeder Afterward;
   static Includer  Downward;
 
-private:
-  InputTree(const InputTree &); // DO NOT IMPLEMENT
-  void operator=(const InputTree &); // DO NOT IMPLEMENT
-
 public:
   InputTree();
   ~InputTree();
 
-  // -----  modify  -----
+  // -----  modify  ----- //
+  /// insert - create a leaf node and merge it in the tree.
+  //  This version of join determines the direction at run time.
+  //  @param position the parent node
+  //  @param value the value being pushed.
+  //  @param pConnector the direction of the connecting edge of the parent node.
   InputTree& insert(iterator pPosition,
                     InputType pInputType,
                     const std::string& pNamespec,
@@ -81,7 +83,21 @@ public:
 
   InputTree& enterGroup(iterator pPosition,
                         const Connector& pConnector);
+
+  // -----  observers  ----- //
+  unsigned int fileSize() const
+  { return m_FileFactory.size(); }
+
+  bool hasFiles() const
+  { return m_FileFactory.empty(); }
+
+private:
+  MCLDFileFactory m_FileFactory;
+
 };
+
+bool isGroup(const InputTree::iterator& pos);
+bool isGroup(const InputTree::const_iterator& pos);
 
 } // namespace of mcld
 

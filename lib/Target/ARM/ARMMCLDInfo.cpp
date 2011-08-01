@@ -5,22 +5,26 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <llvm/ADT/Triple.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/Target/TargetRegistry.h>
-#include <mcld/MC/MCLDInfo.h>
 #include "ARM.h"
-#include "ARMELFSectLinker.h"
+#include "ARMMCLDInfo.h"
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/Target/TargetRegistry.h>
+#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
+using namespace llvm;
 
-namespace mcld {
 //===----------------------------------------------------------------------===//
-/// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
+/// ARMELFLDInfo - ARM ELF emulator of linker
 ///
-SectLinker* createARMSectLinker(const std::string &pTriple,
-                                MCLDInfo& pLDInfo,
-                                mcld::TargetLDBackend &pLDBackend)
+ARMELFLDInfo::ARMELFLDInfo()
+{
+}
+
+//===----------------------------------------------------------------------===//
+/// createARMLDInfo - the help funtion to create corresponding ARMLDInfo
+///
+MCLDInfo* createARMLDInfo(const std::string &pTriple)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -29,15 +33,14 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new ARMELFSectLinker(pLDInfo, pLDBackend);
+  // FIXME: Android ARM EABI may be different than ARM Linux ABI?
+  return new ARMELFLDInfo();
 }
 
-} // namespace of mcld
-
 //==========================
-// ARMSectLinker
-extern "C" void LLVMInitializeARMSectLinker() {
-  // Register the linker frontend
-  mcld::TargetRegistry::RegisterSectLinker(TheARMTarget, createARMSectLinker);
+// ARMMCLDInfo
+extern "C" void LLVMInitializeARMLDInfo() {
+  // Register the linker information
+  mcld::TargetRegistry::RegisterLDInfo(TheARMTarget, createARMLDInfo);
 }
 

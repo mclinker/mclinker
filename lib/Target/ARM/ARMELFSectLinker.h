@@ -26,11 +26,8 @@ class MCLDInfo;
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(TargetLDBackend &pLDBackend, MCLDFile* pDefaultBitcode = 0);
+  ARMELFSectLinker(MCLDInfo& pLDInfo, TargetLDBackend &pLDBackend);
   ~ARMELFSectLinker();
-
-private:
-  void initializeLDInfo(MCLDInfo& pLDInfo) const;
 };
 
 } // namespace of mcld

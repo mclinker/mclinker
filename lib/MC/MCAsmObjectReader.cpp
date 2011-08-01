@@ -22,10 +22,10 @@ using namespace mcld;
 //==========================
 // MCAsmObjectReader
 MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
-                                     MCLDFile &pDefaultBitcode)
+                                     MCLDInfo& pLDInfo)
   : MCObjectWriter(llvm::nulls(), 
                    pStreamer.getAssembler().getWriter().isLittleEndian()),
-    m_DftBitcode(pDefaultBitcode) {
+    m_LDInfo(pLDInfo) {
   pStreamer.getAssembler().setWriter(*this);
 }
 
