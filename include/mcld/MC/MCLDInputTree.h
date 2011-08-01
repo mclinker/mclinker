@@ -28,35 +28,42 @@ class InputTree : public BinaryTree<MCLDFile>
 {
 public:
   enum Direction {
-    Positional,
-    Inclusive
+    Positional = TreeIteratorBase::Leftward,
+    Inclusive  = TreeIteratorBase::Rightward
   };
 
   enum InputType {
-    Archive,
-    Object,
-    Script,
-    Group,
-    Input
+    Archive = MCLDFile::Archive,
+    Object = MCLDFile::Object,
+    Script = MCLDFile::Script,
+    Input = MCLDFile::Unknown,
+    Group = MCLDFile::Unknown+1
   };
 
   typedef BinaryTree<MCLDFile>::iterator       iterator;
   typedef BinaryTree<MCLDFile>::const_iterator const_iterator;
-public:
 
+public:
   class Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
   };
 
   class Succeeder : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+      proxy::hook<Positional>(pFrom.m_pNode, pTo.m_pNode);
     }
   };
 
   class Includer : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+      proxy::hook<Inclusive>(pFrom.m_pNode, pTo.m_pNode);
     }
   };
+
+public:
+  static Succeeder Afterward;
+  static Includer  Downward;
+
 private:
   InputTree(const InputTree &); // DO NOT IMPLEMENT
   void operator=(const InputTree &); // DO NOT IMPLEMENT

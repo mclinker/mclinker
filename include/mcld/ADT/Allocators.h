@@ -45,6 +45,94 @@ public:
   typedef ptrdiff_t       difference_type;
   typedef unsigned char   byte_type;
 
+protected:
+  enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)ChunkSize };
+  enum { ElementBytes = (size_type)sizeof(DataType) };
+  enum { ElementNum = (size_type)ChunkSize };
+  enum { FirstElement = 0 };
+  enum { LastElement = ElementNum - 1 };
+
+protected:
+  struct Chunk {
+    DataType volatile data[ChunkSize];
+    Chunk *next;
+  };
+
+public:
+  /// iterator of all allocated data
+  class iterator
+  {
+    friend class LinearAllocator<DataType, ChunkSize>;
+
+    iterator(Chunk* pInChunk, unsigned int pPos)
+    : m_pInChunk(pInChunk), m_Pos(pPos)
+    { }
+
+  public:
+    iterator()
+    : m_pInChunk(0), m_Pos(0)
+    { }
+
+    ~iterator()
+    { }
+
+    iterator& next() {
+      if (ElementNum == m_Pos) {
+        m_pInChunk = m_pInChunk->next;
+        m_Pos = 0;
+      }
+      else
+        ++m_Pos;
+      return *this;
+    }
+
+    DataType* get() {
+      return &(m_pInChunk->data[m_Pos]);
+    }
+
+  private:
+    Chunk* m_pInChunk;
+    unsigned int m_Pos;
+  };
+  friend class iterator;
+
+  /// const_iterator of all allocated data
+  class const_iterator
+  {
+    friend class LinearAllocator<DataType, ChunkSize>;
+
+    const_iterator(const Chunk* pInChunk, unsigned int pPos)
+    : m_pInChunk(const_cast<Chunk*>(pInChunk)), m_Pos(pPos)
+    { }
+
+  public:
+    const_iterator()
+    : m_pInChunk(0), m_Pos(0)
+    { }
+
+    ~const_iterator()
+    { }
+
+    const_iterator& next() {
+      if (ElementNum == m_Pos) {
+        m_pInChunk = m_pInChunk->next;
+        m_Pos = 0;
+      }
+      else
+        ++m_Pos;
+      return *this;
+    }
+
+    const DataType* get() const {
+      return const_cast<const DataType*>(&(m_pInChunk->data[m_Pos]));
+    }
+
+  private:
+    Chunk* m_pInChunk;
+    unsigned int m_Pos;
+  };
+  friend class const_iterator;
+
 public:
   LinearAllocator()
     : m_pRoot(0),
@@ -85,7 +173,7 @@ public:
       createChunk();
       m_FirstFree = 0;
     }
-    return &(m_pCurrent->data[m_FirstFree]);
+    return const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
   }
 
   /// deallocate - deallocate N data from the pPtr
@@ -162,18 +250,22 @@ public:
     return false;
   }
 
-protected:
-  enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)ChunkSize };
-  enum { ElementBytes = (size_type)sizeof(DataType) };
-  enum { ElementNum = (size_type)ChunkSize };
-  enum { FirstElement = 0 };
-  enum { LastElement = ElementNum - 1 };
+  // -----  iterators  ----- //
+  iterator begin() {
+    return iterator(m_pRoot, 0);
+  }
 
-public:
-  struct Chunk {
-    DataType volatile data[ChunkSize];
-    Chunk *next;
-  };
+  const_iterator begin() const {
+    return const_iterator(m_pRoot, 0);
+  }
+
+  iterator end() {
+    return iterator(m_pCurrent, m_FirstFree);
+  }
+
+  const_iterator end() const {
+    return const_iterator(m_pCurrent, m_FirstFree);
+  }
 
 protected:
   Chunk *createChunk() {

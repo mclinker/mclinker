@@ -9,6 +9,10 @@
 
 using namespace mcld;
 
+InputTree::Succeeder InputTree::Afterward;
+InputTree::Includer  InputTree::Downward;
+
+
 InputTree::InputTree()
 {
 }

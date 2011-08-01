@@ -23,14 +23,13 @@ namespace mcld
 namespace proxy
 {
   template<size_t DIRECT>
-  inline void move(NodeBase *&X) {
-    assert(0 && "not allowed");
-  }
+  inline void move(NodeBase *&X)
+  { assert(0 && "not allowed"); }
 
   template<size_t DIRECT>
-  inline void hook(NodeBase *X, NodeBase *Y) {
-    assert(0 && "not allowed");
-  }
+  inline void hook(NodeBase *X, const NodeBase *Y)
+  { assert(0 && "not allowed"); }
+
 } // namespace of template proxy
 
 /** \class TreeIteratorBase
@@ -73,24 +72,20 @@ public:
 namespace proxy
 {
   template<>
-  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X) {
-    X = X->left;
-  }
+  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X) 
+  { X = X->left; }
 
   template<>
-  inline void move<TreeIteratorBase::Rightward>(NodeBase *&X) {
-    X = X->right;
-  }
+  inline void move<TreeIteratorBase::Rightward>(NodeBase *&X)
+  { X = X->right; }
 
   template<>
-  inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, NodeBase *Y) {
-    X->left = Y;
-  }
+  inline void hook<TreeIteratorBase::Leftward>(NodeBase *X, const NodeBase *Y)
+  { X->left = const_cast<NodeBase*>(Y); }
 
   template<>
-  inline void hook<TreeIteratorBase::Rightward>(NodeBase* X, NodeBase* Y) {
-    X->right = Y;
-  }
+  inline void hook<TreeIteratorBase::Rightward>(NodeBase* X, const NodeBase* Y)
+  { X->right = const_cast<NodeBase*>(Y); }
 
 } //namespace of template proxy
 
@@ -332,7 +327,8 @@ public:
   template<size_t DIRECT>
   BinaryTree& join(iterator position, const DataType& value) {
     node_type *node = createNode(value);
-    proxy::hook<DIRECT>(position.m_pNode, node);
+    proxy::hook<DIRECT>(position.m_pNode,
+                        const_cast<const node_type*>(node));
     return *this;
   }
 
@@ -344,7 +340,8 @@ public:
   template<size_t DIRECT>
   BinaryTree& merge(iterator position, BinaryTree& pTree) {
     if (!pTree.empty()) {
-      proxy::hook<DIRECT>(position.m_pNode, pTree.m_Root.node.right);
+      proxy::hook<DIRECT>(position.m_pNode,
+                        const_cast<const NodeBase*>(pTree.m_Root.node.right));
       BinaryTreeBase<DataType>::m_Root.summon(
                                    pTree.BinaryTreeBase<DataType>::m_Root);
       BinaryTreeBase<DataType>::m_Root.delegate(pTree.m_Root);

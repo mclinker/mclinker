@@ -256,9 +256,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
        (*cur_char)->type() == PositionDependentOption::END_GROUP))
     return;
 
-  InputTree::Succeeder Afterward;
-  InputTree::Includer  Downward;
-  InputTree::Connector *prev_ward = &Downward;
+  InputTree::Connector *prev_ward = &InputTree::Downward;
 
   std::stack<InputTree::iterator> returnStack;
   switch ((*cur_char)->type()) {
@@ -268,7 +266,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                             "file",
                             *(*cur_char)->path(),
                             *prev_ward);
-    prev_ward = &Afterward;
+    prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::NAMESPEC:
     pLDInfo.inputs().insert(pLDInfo.inputs().root(),
@@ -276,13 +274,13 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                             (*cur_char)->namespec(),
                             *(*cur_char)->path(),
                             *prev_ward);
-    prev_ward = &Afterward;
+    prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::START_GROUP:
     pLDInfo.inputs().enterGroup(pLDInfo.inputs().root(),
                                 *prev_ward);
     returnStack.push(pLDInfo.inputs().begin());
-    prev_ward = &Downward;
+    prev_ward = &InputTree::Downward;
     break;
   case PositionDependentOption::END_GROUP:
   default:
@@ -304,7 +302,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                               "file",
                               *(*cur_char)->path(),
                               *prev_ward);
-      prev_ward = &Afterward;
+      prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::NAMESPEC:
       pLDInfo.inputs().insert(cur_node,
@@ -312,17 +310,17 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                               (*cur_char)->namespec(),
                               *(*cur_char)->path(),
                               *prev_ward);
-      prev_ward = &Afterward;
+      prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::START_GROUP:
       pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
       returnStack.push(cur_node);
-      prev_ward = &Downward;
+      prev_ward = &InputTree::Downward;
       break;
     case PositionDependentOption::END_GROUP:
       cur_node = returnStack.top();
       returnStack.pop();
-      prev_ward = &Afterward;
+      prev_ward = &InputTree::Afterward;
       break;
     default:
       // FIXME: need a fetal error function

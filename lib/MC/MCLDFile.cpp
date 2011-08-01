@@ -22,9 +22,3 @@ MCLDFile::~MCLDFile()
 	  delete m_pContext;
 }
 
-
-bool MCLDFile::isRecognized() const
-{
-  return m_pContext;
-}
-

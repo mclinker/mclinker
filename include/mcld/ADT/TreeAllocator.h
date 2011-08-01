@@ -30,83 +30,15 @@ namespace mcld
  *  @see LinearAllocator
  */
 template<typename DataType>
-class NodeFactory : private LinearAllocator<mcld::Node<DataType>, 64>
+class NodeFactory : private LinearAllocator<Node<DataType>, 64>
 {
 private:
-  typedef LinearAllocator<typename mcld::Node<DataType>, 64> Alloc;
+  typedef LinearAllocator<Node<DataType>, 64> Alloc;
 
 public:
-  typedef Node<DataType>           NodeType;
-  typedef NodeFactory<DataType>    Self;
-
-  /// iterator
-  class iterator
-  {
-    friend class NodeFactory;
-    iterator(typename Alloc::Chunk* pInChunk, unsigned int pPos)
-    : m_pInChunk(pInChunk), m_Pos(pPos)
-    { }
-
-  public:
-    iterator()
-    : m_pInChunk(0), m_Pos(0)
-    { }
-
-    ~iterator()
-    { }
-
-    iterator& next() {
-      if (Alloc::ElementNum == m_Pos) {
-        m_pInChunk = m_pInChunk->next;
-        m_Pos = 0;
-      }
-      else
-        ++m_Pos;
-      return *this;
-    }
-
-    DataType* get() {
-      return &(m_pInChunk->data[m_Pos]);
-    }
-
-  private:
-    typename Alloc::Chunk* m_pInChunk;
-    unsigned int m_Pos;
-  };
-
-  /// const_iterator
-  class const_iterator
-  {
-    friend class NodeFactory;
-    const_iterator(const typename Alloc::Chunk* pInChunk, unsigned int pPos)
-    : m_pInChunk(const_cast<typename Alloc::Chunk*>(pInChunk)), m_Pos(pPos)
-    { }
-  public:
-    const_iterator()
-    : m_pInChunk(0), m_Pos(0)
-    { }
-
-    ~const_iterator()
-    { }
-
-    const_iterator& next() {
-      if (Alloc::ElementNum == m_Pos) {
-        m_pInChunk = m_pInChunk->next;
-        m_Pos = 0;
-      }
-      else
-        ++m_Pos;
-      return *this;
-    }
-
-    const DataType* get() const {
-      return const_cast<const DataType*>(&(m_pInChunk->data[m_Pos]));
-    }
-
-  private:
-    typename Alloc::Chunk* m_pInChunk;
-    unsigned int m_Pos;
-  };
+  typedef Node<DataType>                 NodeType;
+  typedef typename Alloc::iterator       iterator;
+  typedef typename Alloc::const_iterator const_iterator;
 
 public:
   /// default constructor
@@ -149,23 +81,6 @@ public:
     pClient.renounce();
   }
 
-  // -----  iterators  ----- //
-  iterator begin() {
-    return iterator(Alloc::m_pRoot, 0);
-  }
-
-  const_iterator begin() const {
-    return const_iterator(Alloc::m_pRoot, 0);
-  }
-
-  iterator end() {
-    return iterator(Alloc::m_pCurrent, Alloc::m_FirstFree);
-  }
-
-  const_iterator end() const {
-    return const_iterator(Alloc::m_pCurrent, Alloc::m_FirstFree);
-  }
-
 private:
   /// renounce - give up the control of all chunks
   void renounce() {
@@ -191,6 +106,12 @@ private:
     Alloc::m_AllocatedNum += pClient.Alloc::m_AllocatedNum;
     m_NodeNum += pClient.m_NodeNum;
   }
+
+  // -----  iterators  ----- //
+  iterator begin()             { return Alloc::begin(); }
+  iterator end()               { return Alloc::end(); }
+  const_iterator begin() const { return Alloc::begin(); }
+  const_iterator end() const   { return Alloc::end(); }
 
 private:
   unsigned int m_NodeNum;

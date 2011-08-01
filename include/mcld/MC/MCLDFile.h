@@ -5,19 +5,17 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCLDFILE_H
-#define MCLDFILE_H
+#ifndef MCLD_LDFILE_H
+#define MCLD_LDFILE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/MC/MCLDContext.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <llvm/Support/Path.h>
+#include <mcld/Support/FileSystem.h>
 #include <mcld/ADT/Allocators.h>
 #include <string>
-#include <list>
-#include <memory>
 
 #include "mcld/MC/MCLDContext.h"
 
@@ -31,37 +29,75 @@ class MCLDContext;
  *
  *  \see llvm::sys::Path
  */
-class MCLDFile : public llvm::sys::Path
+class MCLDFile
 {
 public:
-  bool isRecognized() const;
-  const MCSectionELF *getELFSection(StringRef Section, unsigned Type,
-                                    unsigned Flags, SectionKind Kind,
-                                    unsigned EntrySize, StringRef Group);
+  enum Type {
+    Archive,
+    Object,
+    Script,
+    Unknown
+  };
 
-  MCLDContext *m_pContext;
+public:
+  MCLDFile();
+  ~MCLDFile();
+
+  bool isRecognized() const
+  { return (m_Type != Unknown); }
+
+  Type type() const
+  { return m_Type; }
 
 private:
-  std::string m_AbsFilePath;
-  std::string m_ArgName;
+  sys::fs::Path m_Path;
+  std::string   m_InputName;
+  MCLDContext   *m_pContext;
+  Type          m_Type;
 };
 
 /** \class MCLDFileFactory
- *  \brief The allocator of MCLDFile
+ *  \brief MCLDFileFactory controls the production and destruction of
+ *  MCLDFiles.
+ *
+ *  All MCLDFiles created by MCLDFileFactory are guaranteed to be destructed
+ *  while MCLDFileFactory is destructed.
  *
  *  \see llvm::sys::Path
  */
 class MCLDFileFactory : private LinearAllocator<MCLDFile, 64>
 {
-  MCLDFileFactory(const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
-  MCLDFileFactory& operator=(
-                      const MCLDFileFactory& pCopy); /// NOT TO IMPLEMENT
+private:
+  typedef LinearAllocator<MCLDFile, 64> Alloc;
+
+public:
+  typedef Alloc::iterator               iterator;
+  typedef Alloc::const_iterator         const_iterator;
+
 public:
   MCLDFileFactory()
+  : m_NumCreatedFiles(0)
   { }
 
-  ~MCLDFileFactory()
-  { }
+  virtual ~MCLDFileFactory()
+  { Alloc::clear(); }
+
+  // -----  production  ----- //
+  MCLDFile* produce() {
+    MCLDFile* result = Alloc::allocate();
+    Alloc::construct(result);
+    ++m_NumCreatedFiles;
+    return result;
+  }
+  
+  // -----  iterators  ----- //
+  iterator begin()             { return Alloc::begin(); }
+  iterator end()               { return Alloc::end(); }
+  const_iterator begin() const { return Alloc::begin(); }
+  const_iterator end() const   { return Alloc::end(); }
+
+private:
+  unsigned int m_NumCreatedFiles;
 };
 
 } // namespace of mcld
