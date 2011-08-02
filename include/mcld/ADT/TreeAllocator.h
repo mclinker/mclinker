@@ -70,6 +70,9 @@ public:
   //  after calling delegate(), client will renouce its control
   //  of memory space.
   void delegate(NodeFactory& pClient) {
+    if (this == &pClient)
+      return;
+
     if (pClient.empty())
       return;
 
