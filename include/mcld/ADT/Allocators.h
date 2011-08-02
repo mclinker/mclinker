@@ -49,17 +49,17 @@ public:
 
   inline void advance() {
     ++m_Pos;
-    if (m_Pos == ChunkType::chunk_size-1) {
+    if (m_Pos == ChunkType::chunk_size) {
       m_Pos = 0;
       m_pChunk = m_pChunk->next;
     }
   }
 
   bool operator==(const DataIteratorBase& y) const
-  { return this->m_pChunk == y.m_pChunk; }
+  { return ((this->m_pChunk == y.m_pChunk) && (this->m_Pos == y.m_Pos)); }
 
   bool operator!=(const DataIteratorBase& y) const
-  { return this->m_pChunk != y.m_pChunk; }
+  { return ((this->m_pChunk != y.m_pChunk) || (this->m_Pos != y.m_Pos)); }
 };
 
 /** \class DataIterator
