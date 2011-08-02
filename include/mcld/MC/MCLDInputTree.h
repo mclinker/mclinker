@@ -30,8 +30,8 @@ class InputTree : public BinaryTree<MCLDFile>
 {
 public:
   enum Direction {
-    Positional = TreeIteratorBase::Leftward,
-    Inclusive  = TreeIteratorBase::Rightward
+    Positional = TreeIteratorBase::Rightward,
+    Inclusive  = TreeIteratorBase::Leftward
   };
 
   enum InputType {
@@ -89,7 +89,7 @@ public:
   { return m_FileFactory.size(); }
 
   bool hasFiles() const
-  { return m_FileFactory.empty(); }
+  { return !m_FileFactory.empty(); }
 
 private:
   MCLDFileFactory m_FileFactory;

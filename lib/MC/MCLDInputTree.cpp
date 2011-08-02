@@ -45,12 +45,12 @@ InputTree& InputTree::enterGroup(InputTree::iterator pPosition,
 
 //===----------------------------------------------------------------------===//
 // non-member functions
-bool isGroup(const InputTree::iterator& pos)
+bool mcld::isGroup(const InputTree::iterator& pos)
 {
   return !pos.hasData();
 }
 
-bool isGroup(const InputTree::const_iterator& pos)
+bool mcld::isGroup(const InputTree::const_iterator& pos)
 {
   return !pos.hasData();
 }

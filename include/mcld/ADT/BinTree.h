@@ -64,8 +64,11 @@ public:
   pointer operator*() const 
   { return static_cast<node_type*>(m_pNode)->data; }
 
-  bool hasData() const
-  { return (0 == static_cast<node_type*>(m_pNode)->data); }
+  bool isRoot() const
+  { return (m_pNode->right == m_pNode); }
+
+  bool hasData() const 
+  { return (!isRoot() && (0 != static_cast<node_type*>(m_pNode)->data)); }
 
   Self& operator++() {
     this->move<TreeIteratorBase::Rightward>();
@@ -111,7 +114,7 @@ protected:
   /// TreeImpl - TreeImpl records the root node and the number of nodes
   //
   //    +---> Root(end) <---+
-  //    |        |right     |
+  //    |        |left      |
   //    |      begin        |
   //    |     /     \       |
   //    |  Left     Right   |
@@ -232,16 +235,16 @@ public:
   { return const_iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
 
   iterator begin()
-  { return iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
-
-  iterator end()
   { return iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
+  iterator end()
+  { return iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+
   const_iterator begin() const
-  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
   const_iterator end() const
-  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  { return const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
   // ----- modifiers  ----- //
   /// join - create a leaf node and merge it in the tree.
@@ -253,8 +256,12 @@ public:
   BinaryTree& join(iterator position, const DataType& value) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&value);
-    proxy::hook<DIRECT>(position.m_pNode,
-                        const_cast<const node_type*>(node));
+    if (position.isRoot())
+      proxy::hook<TreeIteratorBase::Rightward>(position.m_pNode,
+                          const_cast<const node_type*>(node));
+    else
+      proxy::hook<DIRECT>(position.m_pNode,
+                          const_cast<const node_type*>(node));
     return *this;
   }
 
