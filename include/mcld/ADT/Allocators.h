@@ -30,9 +30,14 @@ public:
   enum { chunk_size = ChunkSize };
 
 public:
+  Chunk()
+  : bound(0), next(0)
+  { }
+
+public:
   Chunk *next;
   DataType data[ChunkSize];
-
+  size_t bound;
 };
 
 template<typename ChunkType>
@@ -49,9 +54,11 @@ public:
 
   inline void advance() {
     ++m_Pos;
-    if (m_Pos == ChunkType::chunk_size) {
-      m_Pos = 0;
+    if ((m_Pos == m_pChunk->bound) && (0 == m_pChunk->next))
+      return;
+    if (m_Pos == m_pChunk->bound) {
       m_pChunk = m_pChunk->next;
+      m_Pos = 0;
     }
   }
 
@@ -150,8 +157,6 @@ public:
   typedef Chunk<DataType, ChunkSize> chunk_type;
 
 protected:
-  enum { MaxBytes = (size_type)sizeof(DataType)*(size_type)ChunkSize };
-  enum { ElementBytes = (size_type)sizeof(DataType) };
   enum { ElementNum = (size_type)ChunkSize };
   enum { FirstElement = 0 };
   enum { LastElement = ElementNum - 1 };
@@ -164,7 +169,6 @@ public:
   LinearAllocator()
     : m_pRoot(0),
       m_pCurrent(0),
-      m_FirstFree(0),
       m_AllocatedNum(0) {
   }
 
@@ -189,17 +193,12 @@ public:
     if (0 == m_pRoot)
       initialize();
 
-    size_type rest_num_elem = ElementNum - m_FirstFree + 1;
+    size_type rest_num_elem = ElementNum - m_pCurrent->bound;
     pointer result = 0;
-    if (N > rest_num_elem) {
+    if (N > rest_num_elem)
       createChunk();
-      result = const_cast<pointer>(&(m_pCurrent->data[0]));
-      m_FirstFree = 0;
-    }
-    else {
-      result = const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
-      ++m_FirstFree;
-    }
+    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+    m_pCurrent->bound += N;
     return result;
   }
 
@@ -208,12 +207,11 @@ public:
     if (0 == m_pRoot)
       initialize();
 
-    pointer result = const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
-    ++m_FirstFree;
-    if (m_FirstFree == ElementNum) {
+    pointer result = 0;
+    if (ElementNum == m_pCurrent->bound)
       createChunk();
-      m_FirstFree = 0;
-    }
+    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+    ++m_pCurrent->bound;
     return result;
   }
 
@@ -221,16 +219,20 @@ public:
   //  - if we can simply release some memory, then do it. Otherwise, do 
   //    nothing.
   void deallocate(pointer pPtr, size_type N) {
-    if (0 == N || N > ElementNum || 0 == m_FirstFree || N >= m_FirstFree)
+    if (0 == N || N > ElementNum || 0 == m_pCurrent->bound || N >= m_pCurrent->bound)
       return;
-    m_FirstFree -= N;
+    if (!isAvaliable(pPtr))
+      return;
+    m_pCurrent->bound -= N;
   }
 
   /// deallocate - clone function of deallocating one datum
   void deallocate(pointer pPtr) {
-    if (0 == m_FirstFree)
+    if (0 == m_pCurrent->bound)
       return;
-    m_FirstFree -= 1;
+    if (!isAvaliable(pPtr))
+      return;
+    m_pCurrent->bound -= 1;
   }
 
   size_type max_size() const
@@ -273,14 +275,14 @@ public:
     ChunkType *cur = m_pRoot, *prev;
     while (0 != cur) {
       prev = cur;
-      free(prev);
       cur = cur->next;
+      free(prev);
     }
 
     // reset
     m_pRoot = 0;
     m_pCurrent = 0;
-    m_FirstFree = m_AllocatedNum = 0;
+    m_AllocatedNum = 0;
   }
 
   /// isIn - whether the pPtr is in the current chunk?
@@ -293,7 +295,7 @@ public:
 
   /// isIn - whether the pPtr is allocated, and can be constructed.
   bool isAvailable(pointer pPtr) const {
-    if (pPtr >= &(m_pCurrent->data[m_FirstFree]) && 
+    if (pPtr >= &(m_pCurrent->data[m_pCurrent->bound]) && 
         pPtr <= &(m_pCurrent->data[LastElement]))
       return true;
     return false;
@@ -307,28 +309,29 @@ public:
   { return const_iterator(m_pRoot, 0); }
 
   iterator end()
-  { return iterator(m_pCurrent, m_FirstFree); }
+  { return iterator(m_pCurrent, m_pCurrent->bound); }
 
   const_iterator end() const
-  { return const_iterator(m_pCurrent, m_FirstFree); }
+  { return const_iterator(m_pCurrent, m_pCurrent->bound); }
 
 protected:
   typedef Chunk<DataType, ChunkSize> ChunkType;
 
 protected:
-  ChunkType *initialize() {
-    ChunkType* result = (ChunkType*)malloc(sizeof(ChunkType));
-    result->next = 0;
-    m_pCurrent = result;
+  inline void initialize() {
+    m_pRoot = (ChunkType*)malloc(sizeof(ChunkType));
+    new (m_pRoot) ChunkType();
+    m_pCurrent = m_pRoot;
+    m_pCurrent->next = 0;
     m_AllocatedNum += ElementNum;
-    return result;
   }
 
-  ChunkType *createChunk() {
+  inline ChunkType *createChunk() {
     ChunkType* result = (ChunkType*)malloc(sizeof(ChunkType));
-    result->next = 0;
+    new (result) ChunkType();
     m_pCurrent->next = result;
     m_pCurrent = result;
+    m_pCurrent->next = 0;
     m_AllocatedNum += ElementNum;
     return result;
   }
@@ -336,7 +339,6 @@ protected:
 protected:
   ChunkType *m_pRoot;
   ChunkType *m_pCurrent;
-  size_type m_FirstFree;
   size_type m_AllocatedNum;
 };
 
