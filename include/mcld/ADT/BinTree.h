@@ -15,6 +15,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TreeAllocator.h>
 
+
 namespace mcld
 {
 
@@ -137,11 +138,11 @@ protected:
     void summon(TreeImpl& pClient) {
       iterator data;
       iterator dEnd = pClient.end();
-      for (data = pClient.begin(); data!=dEnd; data.next() ) {
-        if (data.get()->left == &pClient.node)
-          data.get()->left = &node;
-        if (data.get()->right == &pClient.node)
-          data.get()->right = &node;
+      for (data = pClient.begin(); data!=dEnd; ++data ) {
+        if ((*data).left == &pClient.node)
+          (*data).left = &node;
+        if ((*data).right == &pClient.node)
+          (*data).right = &node;
       }
     }
   }; // TreeImpl

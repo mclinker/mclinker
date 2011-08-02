@@ -59,10 +59,13 @@ public:
   }
 
   /// size - the number of created nodes.
-  unsigned int size() const {
-    return m_NodeNum;
-  }
+  unsigned int size() const
+  { return m_NodeNum; }
 
+  /// empty - is there any node under control?
+  bool empty() const
+  { return (0 == m_NodeNum); }
+  
   /// delegate - get the control of chunks owned by the client
   //  after calling delegate(), client will renouce its control
   //  of memory space.
@@ -76,24 +79,29 @@ public:
       return;
     }
 
-    // neither is empty
+    // neither me nor client is empty
     concatenate(pClient);
     pClient.renounce();
   }
+
+  // -----  iterators  ----- //
+  iterator begin()             { return Alloc::begin(); }
+  iterator end()               { return Alloc::end(); }
+  const_iterator begin() const { return Alloc::begin(); }
+  const_iterator end() const   { return Alloc::end(); }
 
 private:
   /// renounce - give up the control of all chunks
   void renounce() {
     Alloc::m_pRoot = 0;
     Alloc::m_pCurrent = 0;
-    Alloc::m_FirstFree = Alloc::m_AllocatedNum = m_NodeNum = 0;
+    Alloc::m_AllocatedNum = m_NodeNum = 0;
   }
 
   /// replace - be the agent of client.
   void replace(NodeFactory& pClient) {
     Alloc::m_pRoot = pClient.Alloc::m_pRoot;
     Alloc::m_pCurrent = pClient.Alloc::m_pCurrent;
-    Alloc::m_FirstFree = pClient.Alloc::m_FirstFree;
     Alloc::m_AllocatedNum = pClient.Alloc::m_AllocatedNum;
     m_NodeNum = pClient.m_NodeNum;
   }
@@ -102,16 +110,9 @@ private:
   void concatenate(NodeFactory& pClient) {
     Alloc::m_pCurrent->next = pClient.Alloc::m_pRoot;
     Alloc::m_pCurrent = pClient.Alloc::m_pCurrent;
-    Alloc::m_FirstFree = pClient.Alloc::m_FirstFree;
     Alloc::m_AllocatedNum += pClient.Alloc::m_AllocatedNum;
     m_NodeNum += pClient.m_NodeNum;
   }
-
-  // -----  iterators  ----- //
-  iterator begin()             { return Alloc::begin(); }
-  iterator end()               { return Alloc::end(); }
-  const_iterator begin() const { return Alloc::begin(); }
-  const_iterator end() const   { return Alloc::end(); }
 
 private:
   unsigned int m_NodeNum;

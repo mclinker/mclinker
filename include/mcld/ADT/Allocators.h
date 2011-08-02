@@ -109,9 +109,9 @@ public:
 
   // -----  operators  ----- //
   reference operator*() {
-    if (0 == Base::m_pChunk)
+    if (0 == this->m_pChunk)
       assert(0 && "data iterator goes to a invalid position");
-    return Base::m_pChunk->data[Base::m_Pos];
+    return this->m_pChunk->data[Base::m_Pos];
   }
 
   Self& operator++() {
