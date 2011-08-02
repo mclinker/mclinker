@@ -139,3 +139,5 @@ TEST_F( LinearAllocatorTest, multi_allocN_ctor_iterate ) {
 	}
 }
 
+TEST_F( LinearAllocatorTest, immediate_destruct ) {
+}
