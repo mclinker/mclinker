@@ -136,6 +136,9 @@ protected:
 
     /// summon - change the final edges of pClient to our root
     void summon(TreeImpl& pClient) {
+      if (this == &pClient)
+        return;
+
       iterator data;
       iterator dEnd = pClient.end();
       for (data = pClient.begin(); data!=dEnd; ++data ) {
@@ -262,6 +265,9 @@ public:
   //  @return the joined tree
   template<size_t DIRECT>
   BinaryTree& merge(iterator position, BinaryTree& pTree) {
+    if (this == &pTree)
+      return *this;
+
     if (!pTree.empty()) {
       proxy::hook<DIRECT>(position.m_pNode,
                         const_cast<const NodeBase*>(pTree.m_Root.node.right));
