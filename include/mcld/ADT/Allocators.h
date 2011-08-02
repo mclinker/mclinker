@@ -308,11 +308,17 @@ public:
   const_iterator begin() const
   { return const_iterator(m_pRoot, 0); }
 
-  iterator end()
-  { return iterator(m_pCurrent, m_pCurrent->bound); }
+  iterator end() {
+    return (0 == m_pCurrent)? 
+             begin():
+             iterator(m_pCurrent, m_pCurrent->bound);
+  }
 
-  const_iterator end() const
-  { return const_iterator(m_pCurrent, m_pCurrent->bound); }
+  const_iterator end() const {
+    return (0 == m_pCurrent)? 
+             begin():
+             const_iterator(m_pCurrent, m_pCurrent->bound);
+  }
 
 protected:
   typedef Chunk<DataType, ChunkSize> ChunkType;
