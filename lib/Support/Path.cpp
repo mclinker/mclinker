@@ -26,7 +26,7 @@ namespace { // anonymous
 //===--------------------------------------------------------------------===//
 // Path
 Path::Path()
-{
+  : m_PathName() {
 }
 
 Path::Path(const Path::ValueType* s )
@@ -132,4 +132,12 @@ llvm::raw_ostream &mcld::sys::fs::operator<<(llvm::raw_ostream &pOS,
 {
   return pOS << pPath.native();
 }
+
+// Include the truly platform-specific parts.
+#if defined(LLVM_ON_UNIX)
+#include "Unix/PathV3.inc"
+#endif
+#if defined(LLVM_ON_WIN32)
+#include "Windows/PathV3.inc"
+#endif
 

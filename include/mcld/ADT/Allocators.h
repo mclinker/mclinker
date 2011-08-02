@@ -186,21 +186,35 @@ public:
     if (0 == N || N > ElementNum)
       return 0;
 
+    if (0 == m_pRoot)
+      initialize();
+
     size_type rest_num_elem = ElementNum - m_FirstFree + 1;
+    pointer result = 0;
     if (N > rest_num_elem) {
       createChunk();
+      result = const_cast<pointer>(&(m_pCurrent->data[0]));
       m_FirstFree = 0;
     }
-    return &(m_pCurrent->data[m_FirstFree]);
+    else {
+      result = const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
+      ++m_FirstFree;
+    }
+    return result;
   }
 
   /// allocate - clone function of allocating one datum.
   pointer allocate() {
+    if (0 == m_pRoot)
+      initialize();
+
+    pointer result = const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
+    ++m_FirstFree;
     if (m_FirstFree == ElementNum) {
       createChunk();
       m_FirstFree = 0;
     }
-    return const_cast<pointer>(&(m_pCurrent->data[m_FirstFree]));
+    return result;
   }
 
   /// deallocate - deallocate N data from the pPtr
@@ -302,6 +316,14 @@ protected:
   typedef Chunk<DataType, ChunkSize> ChunkType;
 
 protected:
+  ChunkType *initialize() {
+    ChunkType* result = (ChunkType*)malloc(sizeof(ChunkType));
+    result->next = 0;
+    m_pCurrent = result;
+    m_AllocatedNum += ElementNum;
+    return result;
+  }
+
   ChunkType *createChunk() {
     ChunkType* result = (ChunkType*)malloc(sizeof(ChunkType));
     result->next = 0;

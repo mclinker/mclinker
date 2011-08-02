@@ -66,41 +66,6 @@ inline bool operator!=(const FileStatus& rhs, const FileStatus& lhs ) {
   return !(rhs == lhs);
 }
 
-/** \class Directory
- *  \brief A Directory object stores a Path object, a FileStatus object for
- *   non-symbolic link status, and a FileStatus object for symbolic link
- *   status. The FileStatus objects act as value caches.
- */
-class Directory
-{
-public:
-  Directory() {}
-  explicit Directory(const Path& pPath,
-                     FileStatus st = FileStatus(),
-                     FileStatus symlink_st = FileStatus())
-    : m_Path(pPath), m_FileStatus(st), m_SymLinkStatus(symlink_st)
-    {}
-
-  virtual ~Directory() {}
-
-protected:
-  Path m_Path;
-  mutable FileStatus m_FileStatus;
-  mutable FileStatus m_SymLinkStatus;
-};
-
-/** \class SearchDirs
- *
- */
-class SearchDirs
-{
-public:
-  SearchDirs();
-  ~SearchDirs();
-
-  void add(const Directory& pDir);
-};
-
 } // namespace of fs
 } // namespace of sys
 } // namespace of mcld

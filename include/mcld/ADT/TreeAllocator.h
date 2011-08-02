@@ -14,6 +14,11 @@
 #include <mcld/ADT/Allocators.h>
 #include <mcld/ADT/TreeBase.h>
 
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
+
 namespace mcld
 {
 
@@ -54,6 +59,7 @@ public:
   NodeType* produce() {
     ++m_NodeNum;
     NodeType* result = Alloc::allocate();
+    cerr << "************ max_size=" << Alloc::max_size() << endl;
     Alloc::construct(result);
     return result;
   }

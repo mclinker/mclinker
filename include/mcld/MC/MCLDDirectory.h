@@ -3,7 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
  ****************************************************************************/
 #ifndef MCLDDIRECTORY_H
 #define MCLDDIRECTORY_H
@@ -20,8 +20,6 @@ namespace mcld
 /** \class MCLDDirectory
  *  \brief MCLDDirectory is an directory entry for library search.
  *
- *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class MCLDDirectory : public sys::fs::Directory
 {

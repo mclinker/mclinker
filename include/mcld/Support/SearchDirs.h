@@ -30,23 +30,22 @@ public:
   class iterator
   {
   public:
-    sys::fs::Path& operator*();
+    MCLDDirectory& operator*();
   };
 
   class const_iterator
   {
   public:
-    const sys::fs::Path& operator*();
+    const MCLDDirectory& operator*();
   };
-public:
 
+public:
   iterator begin();
   iterator end();
   const_iterator begin() const;
   const_iterator end() const;
 
-  iterator find(const std::string& pNamespec);
-  const_iterator find(const std::string& pNamespec) const;
+  sys::fs::Path find(const std::string& pNamespec) const;
 
   void add(const MCLDDirectory& pDirectory);
 };

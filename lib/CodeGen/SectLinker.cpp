@@ -144,7 +144,7 @@ SectLinker::~SectLinker()
 
 bool SectLinker::doInitialization(Module &pM)
 {
-  /// -----  Set up General Options  ----- //
+  // -----  Set up General Options  ----- //
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
@@ -168,7 +168,7 @@ bool SectLinker::doInitialization(Module &pM)
   // set up trace
   m_LDInfo.options().setTrace(ArgTrace);
 
-  /// -----  Set up Inputs  -----
+  // -----  Set up Inputs  ----- //
   unsigned int input_size = ArgNameSpecList.size() +
                             ArgStartGroupList.size() +
                             ArgEndGroupList.size() +
@@ -182,12 +182,12 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
     // search file in SearchDirs
-    SearchDirs::iterator library = m_LDInfo.options().directories().find(*ns);
-    if (m_LDInfo.options().directories().end()!=library) { // found
+    Path library = m_LDInfo.options().directories().find(*ns);
+    if (!library.empty()) { // found
       // calculate position
       pos_dep_options.push_back(new PositionDependentOption(
                                       ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
-                                      *library,
+                                      library,
                                       *ns,
                                       PositionDependentOption::NAMESPEC));
     }

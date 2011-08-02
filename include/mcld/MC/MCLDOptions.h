@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/SearchDirs.h>
+#include <mcld/Support/FileSystem.h>
 
 namespace mcld
 {

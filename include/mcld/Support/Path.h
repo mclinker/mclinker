@@ -3,6 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
+ *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  *****************************************************************************
  * This file declares the llvm::sys::fs:: namespace. It follows TR2/boost    *
@@ -15,6 +16,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/Support/raw_ostream.h>
+#include <string>
 
 namespace mcld {
 namespace sys  {
@@ -26,7 +28,6 @@ namespace fs   {
  *
  *  FIXME: current Path library only support UTF-8 chararcter set.
  *
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class Path
 {
@@ -44,7 +45,7 @@ public:
   Path(const StringType &s );
   ~Path();
 
-  //  -----  assignments  -----
+  // -----  assignments  ----- //
   template <class InputIterator>
   Path& assign(InputIterator begin, InputIterator end);
 
@@ -52,11 +53,11 @@ public:
 
   Path& assign(const ValueType* s, unsigned int length);
 
-  //  -----  appends  -----
+  //  -----  appends  ----- //
   template <class InputIterator>
   Path& append(InputIterator begin, InputIterator end);
 
-  //  -----  observers  -----
+  //  -----  observers  ----- //
   bool empty() const;
   const StringType &native() const { return m_PathName; }
   const ValueType* c_str() const   { return m_PathName.c_str(); }

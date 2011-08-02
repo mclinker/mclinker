@@ -29,7 +29,7 @@ InputTree& InputTree::insert(InputTree::iterator pPosition,
                              const InputTree::Connector& pConnector)
 {
   BinaryTree<MCLDFile>::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pInputType);;
+  node->data = m_FileFactory.produce(pNamespec, pPath, pInputType);
   pConnector.connect(pPosition, iterator(node));
   return *this;
 }

@@ -13,17 +13,6 @@ using namespace mcld::sys::fs;
 
 //===--------------------------------------------------------------------===//
 // SearchDirs
-SearchDirs::SearchDirs()
-{
-}
-
-SearchDirs::~SearchDirs()
-{
-}
-
-void SearchDirs::add(const mcld::sys::fs::Directory &pDir)
-{
-}
 
 //===--------------------------------------------------------------------===//
 // non-member functions
