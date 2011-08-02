@@ -68,7 +68,7 @@ public:
 
 private:
   sys::fs::Path m_Path;
-  char* m_InputName;
+  std::string m_InputName;
   MCLDContext   *m_pContext;
   unsigned int m_Type;
 };
