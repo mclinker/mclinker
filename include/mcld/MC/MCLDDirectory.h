@@ -10,6 +10,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/Directory.h>
 #include <mcld/Support/FileSystem.h>
 #include <llvm/ADT/StringRef.h>
 #include <string>

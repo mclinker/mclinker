@@ -54,7 +54,7 @@ protected:
  */
 class DirIterator
 {
-public;
+public:
   DirIterator();
   DirIterator(const DirIterator& pCopy);
   DirIterator(const Directory& pDir);

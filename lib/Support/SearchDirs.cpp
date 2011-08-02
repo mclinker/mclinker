@@ -12,11 +12,11 @@ using namespace mcld;
 
 //==========================
 // SearchDirs
-sys::fs::Path& SearchDirs::iterator::operator*()
+MCLDDirectory& SearchDirs::iterator::operator*()
 {
 }
 
-const sys::fs::Path& SearchDirs::const_iterator::operator*()
+const MCLDDirectory& SearchDirs::const_iterator::operator*()
 {
 }
 
@@ -36,11 +36,7 @@ SearchDirs::const_iterator SearchDirs::end() const
 {
 }
 
-SearchDirs::iterator SearchDirs::find(const std::string& pNamespec)
-{
-}
-
-SearchDirs::const_iterator SearchDirs::find(const std::string& pNamespec) const
+sys::fs::Path SearchDirs::find(const std::string& pNamespec) const
 {
 }
 

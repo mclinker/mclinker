@@ -12,6 +12,7 @@
 #endif
 #include <llvm/ADT/StringRef.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld
 {
