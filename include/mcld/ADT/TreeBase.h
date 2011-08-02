@@ -56,7 +56,7 @@ public:
     : m_pNode(X) {
   }
 
-  template<typename DIRECT>
+  template<size_t DIRECT>
   inline void move() {
     proxy::move<DIRECT>(m_pNode);
   }
