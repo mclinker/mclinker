@@ -1,0 +1,10 @@
+Using commandline :
+  $./MCELFObjectReader libhello-jni.so
+
+The reader will read all entry in section table & symbol table
+into MCSectionELF MCSectionData MCSymbol MCSymbolData.
+
+MCELFObjectReader will dump content of all data structures of MC 
+which are mentioned as above(ex: MCSymbolData).
+
+
