@@ -3,7 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *  Duo <pinronglu@gmail.com>                                                *
+ *  Jush Lu <Jush.Lu@mediatek.com>                                             *
  ****************************************************************************/
 #ifndef MCLDCONTEXT_H
 #define MCLDCONTEXT_H
@@ -11,9 +11,21 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/ADT/OwningPtr.h>
-#include <llvm/Support/MemoryBuffer.h>
+#include "llvm/ADT/DenseMap.h"
+#include "llvm/ADT/ilist.h"
+#include "llvm/ADT/OwningPtr.h"
+#include "llvm/ADT/StringMap.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCSectionELF.h"
+#include "llvm/MC/MCSymbol.h"
+#include "llvm/Support/Allocator.h"
+#include "llvm/Support/MemoryBuffer.h"
+
+
+using namespace llvm;
+
+typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
 
 namespace llvm
 {
@@ -23,81 +35,140 @@ class MCSectionData;
 
 namespace mcld
 {
-/**
-class LDSectionData :public llvm::ilist_node<LDSectionData>{
-	LDSectionData(); // DO NOT IMPLEMENT
-public:
-	LDSectionData(llvm::MCSection &MS) 
-		:m_SD(&MS) {	
-	}
-	~LDSectionData();
 
-private:
-	llvm::MCSectionData m_SD;
-**/
+  class MCLDContext
+  {
+    private:
+      /// Allocator - Allocator object used for creating machine code objects.
+      ///
+      /// We use a bump pointer allocator to avoid the need to track all allocated
+      /// objects.
+      BumpPtrAllocator Allocator;
 
-class MCLDContext
-{
-/**
-private:
-	llvm::iplist<LDSectionData> Sections;
-	llvm::iplist<llvm::MCSymbolData> Symbols;
+    public:
+      MCLDContext() : Allocator(), SymTab(Allocator) {
+        ELFUniquingMap = 0;
+      }
+
+      ~MCLDContext(){};
+
+      typedef iplist<MCSectionData> SectionDataListType;
+      typedef iplist<MCSymbolData> SymbolDataListType;
+
+      typedef StringMap<MCSymbol*, BumpPtrAllocator&> SymbolTableType;
+
+      typedef SectionDataListType::const_iterator const_iterator;
+      typedef SectionDataListType::iterator iterator;
+
+      typedef SymbolDataListType::const_iterator const_symbol_iterator;
+      typedef SymbolDataListType::iterator symbol_iterator;
 
 
-public:
-	typedef llvm::iplist<llvm::MCSymbolData> SymbolDataListType;
+      //Section List Access
+      SectionDataListType Sections;
+      SymbolDataListType Symbols;
+      SymbolTableType SymTab;
 
-	typedef SymbolDataListType::const_iterator const_symbol_iterator;
-	typedef SymbolDataListType::iterator symbol_iterator;
+      const SectionDataListType &getSectionList() const { return Sections; }
+      SectionDataListType &getSectionList() { return Sections; }
 
-	//FIXME: implement with prag???
-	MCLDContext();
+      iterator begin() { return Sections.begin(); }
+      const_iterator begin() const { return Sections.begin(); }
 
-	//FIXME: implement in this or MCLDFile
-	//       getOrCreate MCSection , pass to MCSectionData( MCSection );
-	llvm::MCSectionData getSectionData(llvm::StringRef);
-	
-	class section_iterator {
-	private:
-		section_iterator(); // DO NOT IMPLEMENT
+      iterator end() { return Sections.end(); }
+      const_iterator end() const { return Sections.end(); }
 
-		LDSectionData *Current;
+      size_t size() const { return Sections.size(); }
 
-	public:
 
-		llvm::MCSectionData operator=(const section_iterator &it) {
-			Current = it.Current;
-			return *Current;
-		}
+      //Symbol List Access
+      const SymbolDataListType &getSymbolList() const { return Symbols; }
+      SymbolDataListType &getSymbolList() { return Symbols; }
 
-		bool operator==(const section_iterator &other) const {
-			return Current == other.Current;
-			/// SectionRef implement operator==
-		}
+      symbol_iterator symbol_begin() { return Symbols.begin(); }
+      const_symbol_iterator symbol_begin() const { return Symbols.begin(); }
 
-		bool operator!=(const section_iterator &other) const {
-			return !(*this == other);
-			/// Section implement operator!=
-		}
+      symbol_iterator symbol_end() { return Symbols.end(); }
+      const_symbol_iterator symbol_end() const { return Symbols.end(); }
 
-		llvm::MCSectionData &operator*(const section_iterator &it) {
-		};
 
-		/// FIXME: copy data when first derefernece
-		const llvm::MCSectionData *operator->() const ;
+      // FIXME: Avoid this indirection?
+      DenseMap<const MCSection*, MCSectionData*> SectionMap;
 
-	};
+      // FIXME: Avoid this indirection?
+      DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
 
-	friend class section_iterator;
-	section_iterator begin_section();
-	section_iterator end_section();
+      void *ELFUniquingMap;
 
-// FIXME: implement const_section_iterator
+    public:
+      MCSymbol *getOrCreateSymbol(StringRef Name);
+      MCSymbol *createSymbol(StringRef Name);
 
-**/
-};
+      const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
+                    unsigned Flags, SectionKind Kind);
+
+      const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
+                    unsigned Flags, SectionKind Kind,
+                    unsigned EntrySize, StringRef Group);   
+
+      MCSectionData &getOrCreateSectionData(const MCSection &Section,
+                                            bool *Created = 0);
+
+      MCSymbolData &getSymbolData(const MCSymbol &Symbol) const;
+
+      MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
+                                          bool *Create = 0);
+
+      void dump();
+
+      void *Allocate(unsigned Size, unsigned Align = 8) {
+        return Allocator.Allocate(Size, Align);
+      }
+      void Deallocate(void *Ptr) {
+      }
+  };
 
 } // namespace of mcld
 
+// operator new and delete aren't allowed inside namespaces.
+// The throw specifications are mandated by the standard.
+/// @brief Placement new for using the MCContext's allocator.
+///
+/// This placement form of operator new uses the MCContext's allocator for
+/// obtaining memory. It is a non-throwing new, which means that it returns
+/// null on error. (If that is what the allocator does. The current does, so if
+/// this ever changes, this operator will have to be changed, too.)
+/// Usage looks like this (assuming there's an MCContext 'Context' in scope):
+/// @code
+/// // Default alignment (16)
+/// IntegerLiteral *Ex = new (Context) IntegerLiteral(arguments);
+/// // Specific alignment
+/// IntegerLiteral *Ex2 = new (Context, 8) IntegerLiteral(arguments);
+/// @endcode
+/// Please note that you cannot use delete on the pointer; it must be
+/// deallocated using an explicit destructor call followed by
+/// @c Context.Deallocate(Ptr).
+///
+/// @param Bytes The number of bytes to allocate. Calculated by the compiler.
+/// @param C The MCContext that provides the allocator.
+/// @param Alignment The alignment of the allocated memory (if the underlying
+///                  allocator supports it).
+/// @return The allocated memory. Could be NULL.
+inline void *operator new(size_t Bytes, mcld::MCLDContext &C,
+                                size_t Alignment = 16) throw () {
+  return C.Allocate(Bytes, Alignment);
+}
+/// @brief Placement delete companion to the new above.
+///
+/// This operator is just a companion to the new above. There is no way of
+/// invoking it directly; see the new operator for more details. This operator
+/// is called implicitly by the compiler if a placement new expression using
+/// the MCContext throws in the object constructor.
+inline void operator delete(void *Ptr, mcld::MCLDContext &C, size_t)
+              throw () {
+  C.Deallocate(Ptr);
+}
+
 #endif
+
 

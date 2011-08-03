@@ -11,14 +11,15 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCLDContext.h>
-#include <llvm/Support/MemoryBuffer.h>
-#include <llvm/Support/Path.h>
+#include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/Path.h"
 #include <string>
 
+#include "mcld/MC/MCLDContext.h"
 
 namespace mcld
 {
+class MCContext;
 class MCLDContext;
 
 /** \class MCLDFile
@@ -29,15 +30,16 @@ class MCLDContext;
 class MCLDFile : public llvm::sys::Path
 {
 public:
-  MCLDFile();
-  ~MCLDFile();
-
   bool isRecognized() const;
+  const MCSectionELF *getELFSection(StringRef Section, unsigned Type,
+                                    unsigned Flags, SectionKind Kind,
+                                    unsigned EntrySize, StringRef Group);
+
+  MCLDContext *m_pContext;
 
 private:
   std::string m_AbsFilePath;
   std::string m_ArgName;
-  MCLDContext *m_pContext;
 };
 
 } // namespace of mcld

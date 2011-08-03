@@ -3,7 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
+ *   Jush Lu <Jush.Lu@mediatek.com>                                            *
  ****************************************************************************/
 #ifndef MCOBJECTREADER_H
 #define MCOBJECTREADER_H
@@ -11,21 +11,21 @@
 #include <gtest.h>
 #endif
 
+#include "mcld/MC/MCLDFile.h"
+#include "llvm/Support/system_error.h"
+
 namespace mcld
 {
 
-/** \class MCObjectReader
- *  \brief MCObjectReader provides an interface for different object formats.
- *
- *  \see
- *  \author Duo <pinronglu@gmail.com>
- */
+//MCObjectReader provides an interface for different object formats.
 class MCObjectReader
 {
 protected:
   MCObjectReader();
 public:
   virtual ~MCObjectReader();
+  virtual llvm::error_code readObject(const std::string &ObjectFile, 
+                                      MCLDFile &) = 0;
 };
 
 } // namespace of mcld
