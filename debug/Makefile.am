@@ -86,14 +86,24 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/MC/MCLDInputTree.h \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/Support/CommandLine.h \
-	${LIBDIR}/Support/CommandLine.cpp
+	${LIBDIR}/Support/CommandLine.cpp \
+	${INCDIR}/ADT/Uncopyable.h \
+	${INCDIR}/ADT/TypeTraits.h \
+	${INCDIR}/ADT/TreeBase.h \
+	${INCDIR}/ADT/Allocators.h \
+	${INCDIR}/ADT/TreeAllocator.h \
+	${INCDIR}/ADT/BinTree.h 
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/PathTest.h \
-	${UNITTEST}/PathTest.cpp
+	${UNITTEST}/PathTest.cpp \
+	${UNITTEST}/BinTreeTest.h \
+	${UNITTEST}/BinTreeTest.cpp\
+	${UNITTEST}/InputTreeTest.h \
+	${UNITTEST}/InputTreeTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

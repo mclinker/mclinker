@@ -10,6 +10,8 @@
 #ifndef BINTREE_TEST_H
 #define BINTREE_TEST_H
 
+#include <mcld/ADT/BinTree.h>
+
 #include <gtest.h>
 
 namespace mcld
@@ -42,7 +44,7 @@ public:
 	virtual void TearDown();
 
 protected:
-	mcld::BinTree<int>* m_pTestee;
+	mcld::BinaryTree<int>* m_pTestee;
 };
 
 } // namespace of mcldtest

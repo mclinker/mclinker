@@ -56,6 +56,8 @@ public:
     : m_pNode(X) {
   }
 
+  virtual ~TreeIteratorBase(){};
+
   template<size_t DIRECT>
   inline void move() {
     proxy::move<DIRECT>(m_pNode);

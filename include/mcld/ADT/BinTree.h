@@ -12,15 +12,166 @@
 #endif
 #include <iterator>
 #include <memory>
+#include <stack>
+#include <queue>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TreeAllocator.h>
-
-
+#include <iostream>
+using namespace std;
 namespace mcld
 {
 
 template<class DataType>
 class BinaryTree;
+
+struct TraversalIteratorBase
+{
+public:
+  typedef size_t                          size_type;
+  typedef ptrdiff_t                       difference_type;
+  typedef std::forward_iterator_tag       iterator_category;
+
+public:
+  NodeBase* m_pNode;
+
+public:
+  TraversalIteratorBase(NodeBase *X)
+    : m_pNode(X) {
+  }
+
+  virtual ~TraversalIteratorBase(){};
+
+  bool hasRightChild() const
+  { return ((m_pNode->right) != (m_pNode->right->right)); }
+
+  bool hasLeftChild() const
+  { return ((m_pNode->left) != (m_pNode->left->right)); }
+
+  bool operator==(const TraversalIteratorBase& y) const
+  { return this->m_pNode == y.m_pNode; }
+
+  bool operator!=(const TraversalIteratorBase& y) const
+  { return this->m_pNode != y.m_pNode; }
+};
+
+struct DFSIterator : public TraversalIteratorBase
+{
+public:
+  DFSIterator(NodeBase *X)
+    : TraversalIteratorBase(X) {
+  }
+
+  void advance() {
+    if(m_Stack.empty())
+    {
+      if(hasRightChild())
+        m_Stack.push(m_pNode->right);
+      if(hasLeftChild())
+        m_Stack.push(m_pNode->left);
+      if(m_Stack.empty())
+        m_pNode = m_pNode->right;
+    }
+    if(!m_Stack.empty())
+    {
+      m_pNode = m_Stack.top();
+      m_Stack.pop();
+      if(hasRightChild())
+        m_Stack.push(m_pNode->right);
+      if(hasLeftChild())
+        m_Stack.push(m_pNode->left);
+    }
+  }
+
+private:
+    std::stack<NodeBase *> m_Stack;
+};
+
+struct BFSIterator : public TraversalIteratorBase
+{
+public:
+  BFSIterator(NodeBase *X)
+    : TraversalIteratorBase(X) {
+    }
+
+  virtual ~BFSIterator(){};
+
+  void advance() { 
+    if(m_Queue.empty())
+    {
+      if(hasLeftChild())
+        m_Queue.push(m_pNode->left);
+      if(hasRightChild())
+        m_Queue.push(m_pNode->right);
+      if(m_Queue.empty())
+        m_pNode = m_pNode->right;
+    }
+    if(!m_Queue.empty())
+    {
+      m_pNode = m_Queue.front();
+      m_Queue.pop();
+      if(hasLeftChild())
+        m_Queue.push(m_pNode->left);
+      if(hasRightChild())
+        m_Queue.push(m_pNode->right);
+    }
+  }
+
+private:
+    std::queue<NodeBase *> m_Queue;
+};
+
+template<class DataType, class Traits, class IteratorType>
+struct VarietyIterator : public IteratorType
+{
+  typedef DataType                       value_type;
+  typedef Traits                         traits;
+  typedef typename traits::pointer       pointer;
+  typedef typename traits::reference     reference;
+  
+  typedef VarietyIterator<value_type, Traits, IteratorType>           Self;
+  typedef Node<value_type>                                            node_type;
+  typedef typename traits::nonconst_traits                            nonconst_traits;
+  typedef VarietyIterator<value_type, nonconst_traits, IteratorType>  iterator;
+  typedef typename traits::const_traits                               const_traits;
+  typedef VarietyIterator<value_type, const_traits, IteratorType>     const_iterator;
+  typedef std::forward_iterator_tag                                   iterator_category;
+  typedef size_t                                                      size_type;
+  typedef ptrdiff_t                                                   difference_type;
+
+public:
+  VarietyIterator()
+    : IteratorType(0) {}
+
+  VarietyIterator(const iterator &X)
+    : IteratorType(X.m_pNode) {}
+
+  ~VarietyIterator() {}
+
+  // -----  operators  ----- //
+  pointer operator*() const 
+  { return static_cast<node_type*>(IteratorType::m_pNode)->data; }
+
+  bool isRoot() const
+  { return (IteratorType::m_pNode->right == IteratorType::m_pNode); }
+
+  bool hasData() const 
+  { return (!isRoot() && (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
+
+  Self& operator++() {  
+    IteratorType::advance();
+    return *this;
+  }
+
+  Self operator++(int) {
+    Self tmp = *this;
+    IteratorType::advance();
+    return tmp;
+  }
+
+  explicit VarietyIterator(NodeBase* X)
+    : IteratorType(X) {}
+
+};
 
 /** \class TreeIterator
  *  \brief TreeIterator provides full functions of binary tree's iterator.
@@ -215,6 +366,11 @@ public:
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
 
+  typedef VarietyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
+  typedef VarietyIterator<value_type, ConstTraits<value_type>, DFSIterator>    dfs_const_iterator;
+  typedef VarietyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
+  typedef VarietyIterator<value_type, ConstTraits<value_type>, BFSIterator>    bfs_const_iterator;
+
 protected:
   typedef Node<value_type> node_type;
 
@@ -228,6 +384,30 @@ public:
   }
 
   // -----  iterators  ----- //
+  bfs_iterator bfs_begin()
+  { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+
+  bfs_iterator bfs_end()
+  { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+
+  bfs_const_iterator bfs_const_begin() const
+  { return bfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+
+  bfs_const_iterator bfs_const_end() const
+  { return bfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+
+  dfs_iterator dfs_begin()
+  { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+
+  dfs_iterator dfs_end()
+  { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+
+  dfs_const_iterator dfs_const_begin() const
+  { return dfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+
+  dfs_const_iterator dfs_const_end() const
+  { return dfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+
   iterator root()
   { return iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }
 
@@ -257,7 +437,7 @@ public:
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&value);
     if (position.isRoot())
-      proxy::hook<TreeIteratorBase::Rightward>(position.m_pNode,
+      proxy::hook<TreeIteratorBase::Leftward>(position.m_pNode,
                           const_cast<const node_type*>(node));
     else
       proxy::hook<DIRECT>(position.m_pNode,

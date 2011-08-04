@@ -75,6 +75,21 @@ public:
   //  @param position the parent node
   //  @param value the value being pushed.
   //  @param pConnector the direction of the connecting edge of the parent node.
+
+  template<size_t DIRECT>
+  InputTree& insert(iterator pPosition,
+                    InputType pInputType,
+                    const std::string& pNamespec,
+                    const sys::fs::Path& pPath);
+
+  template<size_t DIRECT>
+  InputTree& enterGroup(iterator pPosition);
+
+
+  InputTree& merge(iterator pPosition,
+                   InputTree& pTree,
+                   const Connector& pConnector);
+
   InputTree& insert(iterator pPosition,
                     InputType pInputType,
                     const std::string& pNamespec,
