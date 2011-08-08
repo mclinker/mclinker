@@ -4,16 +4,17 @@
  *   MediaTek, Inc.                                                          *
  *                                                                           *
  *   Jush Lu <jush.msn@gmail.com>                                            *
+ *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCLDBackend.h>
-#include <mcld/MC/MCLDCommand.h>
 #include <mcld/MC/MCLDLayout.h>
 #include <mcld/MC/MCLDFile.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 using namespace mcld;
 
-MCLinker::MCLinker( MCLDBackend& pBackend )
+MCLinker::MCLinker( TargetLDBackend& pBackend )
+: m_pBackend(pBackend)
 {
 }
 

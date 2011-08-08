@@ -4,6 +4,7 @@
  *   MediaTek, Inc.                                                          *
  *                                                                           *
  *   Jush Lu <jush.msn@gmail.com>                                            *
+ *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #ifndef MCLD_LINKER_H
 #define MCLD_LINKER_H
@@ -11,16 +12,17 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDCommand.h"
-
 #include <list>
+#include "mcld/MC/MCLDCommand.h"
 
 namespace mcld
 {
 
-  using namespace llvm;
-
   class MCLDCommand;
+  class MCLDFile;
+  class MCLDLayout;
+
+  class TargetLDBackend;
 
   /** \class MCLinker
    *  \brief MCLinker provides a pass to link object files.
@@ -30,7 +32,7 @@ namespace mcld
    */
   class MCLinker {
   public:
-    explicit MCLinker( MCLDBackend& pBackend );
+    explicit MCLinker( TargetLDBackend& pBackend );
     ~MCLinker();
   public:
     // FIXME: see #80
@@ -38,13 +40,22 @@ namespace mcld
     // FIXME: see #80
     void setLayout( MCLDLayout& pLayout );
     void addLdFile( MCLDFile& pLDFile );
-  
+
+    // We act as Gold, using 3 phase
+    // read -> scan -> relocate
+    // TODO(Nowar): Implement these functions.
+    void read_reloc();
+    void scan_reloc();
+    void relocate_reloc();
+
   private:
-    typedef list<MCLDCommand> CommandListTy;
-    typedef list<MCLDFile> LDFileListTy;
+    typedef std::list<MCLDCommand> CommandListTy;
+    typedef std::list<MCLDFile> LDFileListTy;
   private:
     CommandListTy m_CommandList;
     LDFileListTy m_LDFileList;
+
+    TargetLDBackend& m_pBackend;
   };
 
 } // namespace of BOLD

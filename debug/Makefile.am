@@ -60,6 +60,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
+  ${INCDIR}/MC/MCLinker.h \
+  ${LIBDIR}/MC/MCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
