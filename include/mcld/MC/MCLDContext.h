@@ -32,6 +32,11 @@ using namespace llvm;
 
 typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
 
+
+using namespace llvm;
+
+typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
+
 namespace llvm
 {
   class MCSection;
