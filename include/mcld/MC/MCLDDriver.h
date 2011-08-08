@@ -24,11 +24,12 @@ class TargetLDBackend;
 class MCLDDriver 
 {
 public:
-  MCLDDriver(TargetLDBackend& pLDBackend);
+  MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
 private:
   TargetLDBackend &m_LDBackend;
+  MCLDInfo& m_LDInfo;
 };
 
 } //end namespace mcld 

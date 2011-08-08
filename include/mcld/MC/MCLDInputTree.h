@@ -37,6 +37,7 @@ public:
   enum InputType {
     Archive = MCLDFile::Archive,
     Object = MCLDFile::Object,
+    DynObj = MCLDFile::DynObj,
     Script = MCLDFile::Script,
     Input = MCLDFile::Unknown
   };
@@ -107,7 +108,7 @@ public:
   { return !m_FileFactory.empty(); }
 
 private:
-  MCLDFileFactory m_FileFactory;
+  MCLDFileFactory<64> m_FileFactory;
 
 };
 

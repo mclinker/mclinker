@@ -12,8 +12,8 @@
 
 using namespace mcld;
 
-MCLDDriver::MCLDDriver(TargetLDBackend& pLDBackend)
-  : m_LDBackend(pLDBackend) {
+MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
+  : m_LDInfo(pLDInfo), m_LDBackend(pLDBackend) {
 }
 
 MCLDDriver::~MCLDDriver()

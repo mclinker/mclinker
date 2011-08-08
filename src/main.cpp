@@ -200,9 +200,6 @@ int main( int argc, char* argv[] )
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
   // Initialize targets first, so that --version shows registered targets.
   InitializeAllTargets();
-#ifdef LLVM_VERSION > 2
-  InitializeAllMCAsmInfos();
-#endif
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
   mcld::InitializeAllTargets();

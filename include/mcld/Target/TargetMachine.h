@@ -84,10 +84,6 @@ public:
   }
 
 private:
-  /// setCodeModelForStatic
-  ///
-  void setCodeModelForStatic();
-
   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
   /// both emitting to assembly files or machine code output.
   ///

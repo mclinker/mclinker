@@ -14,7 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <mcld/MC/MCLDContext.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/ADT/Allocators.h>
+#include <mcld/ADT/GCFactory.h>
 #include <string>
 
 #include "mcld/MC/MCLDContext.h"
@@ -38,6 +38,8 @@ public:
   enum Type {
     Archive,
     Object,
+    DynObj,
+    Exec,
     Script,
     Unknown
   };
@@ -80,49 +82,49 @@ private:
  *  All MCLDFiles created by MCLDFileFactory are guaranteed to be destructed
  *  while MCLDFileFactory is destructed.
  *
+ *  MCLDFileFactory also provides the MCLCContextFactory to MCLDFile.
+ *  MCLDFile is responsed for the life of MCLDContext, therefore, the best
+ *  idea is let MCLDFile control the life of MCLDContext. Since SectLinker
+ *  has the need to count the number of MCLDContext, we give a central factory
+ *  for MCLDContext.
+ *
  *  \see llvm::sys::Path
  */
-class MCLDFileFactory : private LinearAllocator<MCLDFile, 64>
+template<size_t NUM>
+class MCLDFileFactory : public GCFactory<MCLDFile, NUM>
 {
-private:
-  typedef LinearAllocator<MCLDFile, 64> Alloc;
-
 public:
-  typedef Alloc::iterator               iterator;
-  typedef Alloc::const_iterator         const_iterator;
-
+  typedef GCFactory<MCLDFile, NUM> Alloc;
 public:
-  MCLDFileFactory()
-  : m_NumCreatedFiles(0)
-  { }
-
-  virtual ~MCLDFileFactory()
-  { Alloc::clear(); }
-
   // -----  production  ----- //
   MCLDFile* produce(llvm::StringRef pName,
                     const sys::fs::Path& pPath,
                     unsigned int pType = MCLDFile::Unknown);
   
   MCLDFile* produce();
-  // -----  iterators  ----- //
-  iterator begin()             { return Alloc::begin(); }
-  iterator end()               { return Alloc::end(); }
-  const_iterator begin() const { return Alloc::begin(); }
-  const_iterator end() const   { return Alloc::end(); }
-
-  // -----  observers  ----- //
-  unsigned int size() const
-  { return m_NumCreatedFiles; }
-
-  bool empty() const
-  { return Alloc::empty(); }
-
-private:
-  unsigned int m_NumCreatedFiles;
 };
 
 } // namespace of mcld
+
+//===----------------------------------------------------------------------===//
+// MCLDFileFactory
+template<size_t NUM>
+mcld::MCLDFile* mcld::MCLDFileFactory<NUM>::produce(llvm::StringRef pName,
+                                   const mcld::sys::fs::Path& pPath,
+                                   unsigned int pType)
+{
+    mcld::MCLDFile* result = Alloc::allocate();
+    new (result) mcld::MCLDFile(pName, pPath, pType);
+    return result;
+}
+
+template<size_t NUM>
+mcld::MCLDFile* mcld::MCLDFileFactory<NUM>::produce()
+{
+    mcld::MCLDFile* result = Alloc::allocate();
+    new (result) mcld::MCLDFile();
+    return result;
+}
 
 #endif
 

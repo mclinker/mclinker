@@ -8,7 +8,7 @@ UNITTEST=${TOPLEVEL}/unittests
 bin_PROGRAMS = MCLinker
 
 if ENABLE_UNITTEST
-MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
 MCLinker_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
 MCLinker_CPPFLAGS = -g -O1 -DMCLD_DEBUG  -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
@@ -24,8 +24,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/Target/TargetSelect.h \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
-	${INCDIR}/Target/ELFUnixLDBackend.h \
-	${LIBDIR}/Target/ELFUnixLDBackend.cpp \
+	${INCDIR}/Target/GNULDBackend.h \
+	${LIBDIR}/Target/GNULDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMMCLDInfo.h \
 	${LIBDIR}/Target/ARM/ARMMCLDInfo.cpp \
@@ -46,12 +46,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCELFObjectTargetWriter.cpp \
 	${INCDIR}/MC/MCArchiveReader.h \
 	${LIBDIR}/MC/MCArchiveReader.cpp \
-	${INCDIR}/MC/MCELFArchiveReader.h \
-	${LIBDIR}/MC/MCELFArchiveReader.cpp \
-	${INCDIR}/MC/MCELFArchiveTargetReader.h \
-	${LIBDIR}/MC/MCELFArchiveTargetReader.cpp \
-	${LIBDIR}/Target/ARM/ARMELFArchiveReader.h \
-	${LIBDIR}/Target/ARM/ARMELFArchiveReader.cpp \
+	${INCDIR}/MC/MCGNUArchiveReader.h \
+	${LIBDIR}/MC/MCGNUArchiveReader.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
@@ -93,6 +89,7 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
 	${INCDIR}/ADT/Allocators.h \
+	${INCDIR}/ADT/GCFactory.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h 
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
@@ -103,9 +100,7 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \
-	${UNITTEST}/BinTreeTest.cpp\
-	${UNITTEST}/InputTreeTest.h \
-	${UNITTEST}/InputTreeTest.cpp
+	${UNITTEST}/BinTreeTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

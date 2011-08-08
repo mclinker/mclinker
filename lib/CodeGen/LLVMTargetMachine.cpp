@@ -27,7 +27,6 @@
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/MC/MCAsmInfo.h>
 #include <llvm/MC/MCStreamer.h>
-#include <llvm/Target/TargetAsmInfo.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetRegistry.h>
 #include <llvm/Transforms/Scalar.h>
@@ -80,11 +79,6 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
   return *m_pTarget;
 }
 
-void mcld::LLVMTargetMachine::setCodeModelForStatic()
-{
-  static_cast<llvm::LLVMTargetMachine&>(m_TM).setCodeModelForStatic();
-}
-
 bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
                                                      CodeGenOpt::Level Level,
                                                      bool DisableVerify,
@@ -110,7 +104,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
   MCCodeEmitter *MCE = 0;
-  TargetAsmBackend *TAB = 0;
+  MCAsmBackend *MAB = 0;
   MachineFunctionPass *funcPass = 0;
   OwningPtr<MCStreamer> AsmStreamer;
 
@@ -127,12 +121,12 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (ArgShowMCEncoding) {
 #if LLVM_VERSION > 2
       const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-      MCE = getTarget().get()->createCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
+      MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
 #else
-      MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+      MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
 #endif
-      TAB = getTarget().get()->createAsmBackend(m_Triple);
-      if (MCE == 0 || TAB == 0)
+      MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+      if (MCE == 0 || MAB == 0)
         return true;
     }
 
@@ -141,7 +135,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                                          getTM().hasMCUseLoc(),
                                                          getTM().hasMCUseCFI(),
                                                          InstPrinter,
-                                                         MCE, TAB,
+                                                         MCE, MAB,
                                                          ArgShowMCInst);
     AsmStreamer.reset(S);
     funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
@@ -157,16 +151,16 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     // emission fails.
 #if LLVM_VERSION > 2
       const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-      MCE = getTarget().get()->createCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+      MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
 #else
-    MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
 #endif
-    TAB = getTarget().get()->createAsmBackend(m_Triple);
-    if (MCE == 0 || TAB == 0)
+    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+    if (MCE == 0 || MAB == 0)
       return true;
 
-    AsmStreamer.reset(getTarget().get()->createObjectStreamer(m_Triple, *Context,
-                                                       *TAB, pOS, MCE,
+    AsmStreamer.reset(getTarget().get()->createMCObjectStreamer(m_Triple, *Context,
+                                                       *MAB, pOS, MCE,
                                                        getTM().hasMCRelaxAll(),
                                                        getTM().hasMCNoExecStack()));
     AsmStreamer.get()->InitSections();
@@ -191,17 +185,17 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     // emission fails.
 #if LLVM_VERSION > 2
     const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-    MCE = getTarget().get()->createCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+    MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
 #else
-    MCE = getTarget().get()->createCodeEmitter(getTM(), *Context);
+    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
 #endif
-    TAB = getTarget().get()->createAsmBackend(m_Triple);
-    if (MCE == 0 || TAB == 0)
+    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+    if (MCE == 0 || MAB == 0)
       return true;
 
-    MCStreamer* AsmStreamer = getTarget().get()->createObjectStreamer(m_Triple, 
+    MCStreamer* AsmStreamer = getTarget().get()->createMCObjectStreamer(m_Triple, 
                                                               *Context,
-                                                              *TAB,
+                                                              *MAB,
                                                               llvm::nulls(),
                                                               MCE,
                                                               getTM().hasMCRelaxAll(),
@@ -230,7 +224,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   }
   } // switch
 
-  setCodeModelForStatic();
   pPM.add(createGCInfoDeleter()); // not in addPassesToMC
   return false;
 }

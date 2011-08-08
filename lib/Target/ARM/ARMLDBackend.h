@@ -7,24 +7,22 @@
  ****************************************************************************/
 #ifndef ARM_LDBACKEND_H
 #define ARM_LDBACKEND_H
-#include <mcld/Target/ELFUnixLDBackend.h>
+#include <mcld/Target/GNULDBackend.h>
 
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
-/// ARMELFLDBackend - linker backend of ARM target of ELF format
+/// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
 ///
-class ARMELFLDBackend : public ELFUnixLDBackend
+class ARMGNULDBackend : public GNULDBackend
 {
 public:
-  ARMELFLDBackend();
-  ~ARMELFLDBackend();
+  ARMGNULDBackend();
+  ~ARMGNULDBackend();
 
 private:
-  MCELFArchiveTargetReader *createArchiveTargetReader() const;
   MCELFObjectTargetReader *createObjectTargetReader() const;
   MCELFObjectTargetWriter *createObjectTargetWriter() const;
-
 };
 
 //===----------------------------------------------------------------------===//

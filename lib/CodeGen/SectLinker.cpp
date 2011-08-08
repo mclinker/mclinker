@@ -11,6 +11,7 @@
 #include <llvm/MC/MCObjectWriter.h>
 #include <llvm/CodeGen/MachineFunction.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ErrorHandling.h>
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
@@ -192,13 +193,12 @@ bool SectLinker::doInitialization(Module &pM)
                                       PositionDependentOption::NAMESPEC));
     }
     else {
-      // FIXME: need a fetal error function
-      errs() << "can not find " << (*ns);
-      exit (1);
+      llvm::Twine error_mesg("can not find");
+      report_fatal_error(error_mesg.concat((*ns)));
     }
   }
 
-  /// add all start-group
+  // add all start-group
   cl::list<std::string>::iterator sg;
   cl::list<std::string>::iterator sgEnd = ArgStartGroupList.end();
   for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
@@ -208,7 +208,7 @@ bool SectLinker::doInitialization(Module &pM)
                                     PositionDependentOption::START_GROUP));
   }
 
-  /// add all end-group
+  // add all end-group
   cl::list<std::string>::iterator eg;
   cl::list<std::string>::iterator egEnd = ArgEndGroupList.end();
   for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
@@ -218,7 +218,7 @@ bool SectLinker::doInitialization(Module &pM)
                                     PositionDependentOption::END_GROUP));
   }
 
-  /// add all object files
+  // add all object files
   cl::list<mcld::sys::fs::Path>::iterator obj;
   cl::list<mcld::sys::fs::Path>::iterator objEnd = ArgInputObjectFiles.end();
   for (obj=ArgInputObjectFiles.begin(); obj!=objEnd; ++obj) {
@@ -229,24 +229,33 @@ bool SectLinker::doInitialization(Module &pM)
                                     PositionDependentOption::INPUT_FILE));
   }
 
-  /// -----  Set up Attributes of Inputs  ----- //
-  /// -----  Set up Scripting Options  ----- //
+  // -----  Set up Attributes of Inputs  ----- //
+  // -----  Set up Scripting Options  ----- //
 
-  /// ----- convert position dependent options into tree of input files  ----- //
+  // ----- convert position dependent options into tree of input files  ----- //
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
   initializeInputTree(m_LDInfo.inputs(), pos_dep_options);
-  m_pLDDriver = new MCLDDriver(*m_pLDBackend);
+
+  // Now, all input arguments are prepared well, send it into MCLDDriver
+  m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
+
 }
 
 bool SectLinker::doFinalization(Module &pM)
 {
-  // get MCSectionData
-  // real linking
-  // emit object file
+/**
+  m_pLDDriver->normalize();
+  if (!m_pLDDriver->linkable())
+    return true;
+  m_pLDDriver->resolveSymbols();
+  m_pLDDriver->relocation();
+  m_pLDDriver->writeOut();
+**/
 }
 
 bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 {
+  // basically, linkers do nothing during function is generated.
 }
 
 void SectLinker::initializeInputTree(InputTree& pInputs,
@@ -289,12 +298,9 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
     break;
   case PositionDependentOption::END_GROUP:
   default:
-    // FIXME: need a fetal error function
-    errs() << "illegal syntax of input files";
-    exit (1);
+    report_fatal_error("illegal syntax of input files");
   }
 
-  // --- //
   InputTree::iterator cur_node = pInputs.begin();
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   ++cur_char;
@@ -328,17 +334,13 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
       prev_ward = &InputTree::Afterward;
       break;
     default:
-      // FIXME: need a fetal error function
-      errs() << "can not find the type of input file";
-      exit (1);
+      report_fatal_error("can not find the type of input file");
     }
     ++cur_char;
   }
 
   if (!returnStack.empty()) {
-    // FIXME: need a fetal error function
-    errs() << "no matched --start-group and --end-group";
-    exit (1);
+    report_fatal_error("no matched --start-group and --end-group");
   }
 }
 

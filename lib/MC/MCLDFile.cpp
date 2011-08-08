@@ -10,9 +10,6 @@
 #include <mcld/Support/FileSystem.h>
 #include <cstring>
 #include <cstdlib>
-#include <iostream>
-
-using namespace std;
 
 using namespace mcld;
 
@@ -37,25 +34,5 @@ MCLDFile::~MCLDFile()
 llvm::StringRef MCLDFile::name() const
 {
   return llvm::StringRef(m_InputName);
-}
-
-//===----------------------------------------------------------------------===//
-// MCLDFileFactory
-MCLDFile* MCLDFileFactory::produce(llvm::StringRef pName,
-                                   const sys::fs::Path& pPath,
-                                   unsigned int pType)
-{
-    MCLDFile* result = Alloc::allocate();
-    new (result) MCLDFile(pName, pPath, pType);
-    ++m_NumCreatedFiles;
-    return result;
-}
-
-MCLDFile* MCLDFileFactory::produce()
-{
-    MCLDFile* result = Alloc::allocate();
-    new (result) MCLDFile();
-    ++m_NumCreatedFiles;
-    return result;
 }
 

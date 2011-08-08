@@ -40,95 +40,9 @@ public:
   size_t bound;
 };
 
-template<typename ChunkType>
-struct DataIteratorBase
-{
-public:
-  ChunkType* m_pChunk;
-  unsigned int m_Pos;
-
-public:
-  DataIteratorBase(ChunkType* X, unsigned int pPos)
-  : m_pChunk(X), m_Pos(pPos)
-  { }
-
-  inline void advance() {
-    ++m_Pos;
-    if ((m_Pos == m_pChunk->bound) && (0 == m_pChunk->next))
-      return;
-    if (m_Pos == m_pChunk->bound) {
-      m_pChunk = m_pChunk->next;
-      m_Pos = 0;
-    }
-  }
-
-  bool operator==(const DataIteratorBase& y) const
-  { return ((this->m_pChunk == y.m_pChunk) && (this->m_Pos == y.m_Pos)); }
-
-  bool operator!=(const DataIteratorBase& y) const
-  { return ((this->m_pChunk != y.m_pChunk) || (this->m_Pos != y.m_Pos)); }
-};
-
-/** \class DataIterator
- *  \brief DataIterator provides STL compatible iterator for allocators
- */
-template<typename ChunkType, class Traits>
-class DataIterator : public DataIteratorBase<ChunkType>
-{
-public:
-  typedef typename ChunkType::value_type  value_type;
-  typedef Traits                          traits;
-  typedef typename traits::pointer        pointer;
-  typedef typename traits::reference      reference;
-  typedef DataIterator<ChunkType, Traits> Self;
-  typedef DataIteratorBase<ChunkType>     Base;
-
-  typedef typename traits::nonconst_traits         nonconst_traits;
-  typedef DataIterator<ChunkType, nonconst_traits> iterator;
-  typedef typename traits::const_traits            const_traits;
-  typedef DataIterator<ChunkType, const_traits>    const_iterator;
-  typedef std::forward_iterator_tag                iterator_category;
-  typedef size_t                                   size_type;
-  typedef ptrdiff_t                                difference_type;
-
-public:
-  DataIterator()
-  : Base(0, 0)
-  { }
-
-  DataIterator(ChunkType* pChunk, unsigned int pPos)
-  : Base(pChunk, pPos)
-  { }
-
-  DataIterator(const DataIterator& pCopy)
-  : Base(pCopy.m_pChunk, pCopy.m_Pos)
-  { }
-
-  ~DataIterator()
-  { }
-
-  // -----  operators  ----- //
-  reference operator*() {
-    if (0 == this->m_pChunk)
-      assert(0 && "data iterator goes to a invalid position");
-    return this->m_pChunk->data[Base::m_Pos];
-  }
-
-  Self& operator++() {
-    this->Base::advance();
-    return *this;
-  }
-
-  Self operator++(int) {
-    Self tmp = *this;
-    this->Base::advance();
-    return tmp;
-  }
-};
-
 /** \class LinearAllocator
- *  \brief LinearAllocator is a simple allocator which is limited in use of
- *  two-phase memory allocation.
+ *  \brief LinearAllocator is another bump pointer allocator which should be
+ *  limited in use of two-phase memory allocation.
  *
  *  Two-phase memory allocation clear separates the use of memory into 'claim'
  *  and 'release' phases. There are no interleaving allocation and
@@ -160,10 +74,6 @@ protected:
   enum { ElementNum = (size_type)ChunkSize };
   enum { FirstElement = 0 };
   enum { LastElement = ElementNum - 1 };
-
-public:
-  typedef DataIterator<chunk_type, NonConstTraits<value_type> > iterator;
-  typedef DataIterator<chunk_type, ConstTraits<value_type> >    const_iterator;
 
 public:
   LinearAllocator()
@@ -266,13 +176,17 @@ public:
   /// clear - clear all chunks
   void clear() {
     // call all destructors
-    iterator data, dEnd = end();
-    for (data = begin(); data!=dEnd; ++data) {
-      destroy(&(*data));
+    ChunkType *cur = m_pRoot, *prev;
+    while (0 != cur) {
+      int idx=0;
+      while (idx != cur->bound) {
+        destroy(&cur->data[idx]);
+        ++idx;
+      }
+      cur = cur->next;
     }
 
     // free all chunks
-    ChunkType *cur = m_pRoot, *prev;
     while (0 != cur) {
       prev = cur;
       cur = cur->next;
@@ -299,25 +213,6 @@ public:
         pPtr <= &(m_pCurrent->data[LastElement]))
       return true;
     return false;
-  }
-
-  // -----  iterators  ----- //
-  iterator begin()
-  { return iterator(m_pRoot, 0); }
-
-  const_iterator begin() const
-  { return const_iterator(m_pRoot, 0); }
-
-  iterator end() {
-    return (0 == m_pCurrent)? 
-             begin():
-             iterator(m_pCurrent, m_pCurrent->bound);
-  }
-
-  const_iterator end() const {
-    return (0 == m_pCurrent)? 
-             begin():
-             const_iterator(m_pCurrent, m_pCurrent->bound);
   }
 
 protected:

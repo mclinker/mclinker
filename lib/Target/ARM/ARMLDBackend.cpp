@@ -9,7 +9,6 @@
 #include <mcld/Target/TargetRegistry.h>
 #include "ARM.h"
 #include "ARMLDBackend.h"
-#include "ARMELFArchiveReader.h"
 #include "ARMELFObjectReader.h"
 #include "ARMELFObjectWriter.h"
 #include <iostream>
@@ -17,26 +16,21 @@ using namespace std;
 
 using namespace mcld;
 
-ARMELFLDBackend::ARMELFLDBackend()
+ARMGNULDBackend::ARMGNULDBackend()
 {
-  cerr << "ARM ELF LDBackend" << endl;
+  cerr << "ARM GNU LDBackend" << endl;
 }
 
-ARMELFLDBackend::~ARMELFLDBackend()
+ARMGNULDBackend::~ARMGNULDBackend()
 {
 }
 
-MCELFArchiveTargetReader *ARMELFLDBackend::createArchiveTargetReader() const
-{
-  return new ARMELFArchiveReader();
-}
-
-MCELFObjectTargetReader *ARMELFLDBackend::createObjectTargetReader() const
+MCELFObjectTargetReader *ARMGNULDBackend::createObjectTargetReader() const
 {
   return new ARMELFObjectReader();
 }
 
-MCELFObjectTargetWriter *ARMELFLDBackend::createObjectTargetWriter() const
+MCELFObjectTargetWriter *ARMGNULDBackend::createObjectTargetWriter() const
 {
   return new ARMELFObjectWriter();
 }
@@ -66,7 +60,7 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                createARMCOFFObjectWriter);
     **/
   }
-  return new ARMELFLDBackend();
+  return new ARMGNULDBackend();
 }
 
 } // namespace of mcld
