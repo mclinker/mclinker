@@ -17,7 +17,7 @@
 #endif
 #include <llvm/Support/raw_ostream.h>
 #include <string>
-
+//#include <mcld/Support/Directory.h>
 namespace mcld {
 namespace sys  {
 namespace fs   {
@@ -63,6 +63,8 @@ public:
   const ValueType* c_str() const   { return m_PathName.c_str(); }
   std::string string() const;
 
+  // -----  generic form observers  ----- //
+  const StringType &generic_string() const;
 private:
   StringType::size_type m_append_separator_if_needed();
   void m_erase_redundant_separator(StringType &pPathName,
@@ -71,6 +73,8 @@ private:
 private:
   StringType m_PathName;
 };
+bool operator==(const Path& pLHS, const Path& pRHS);
+bool operator!=(const Path& pLHS, const Path& pRHS);
 
 //--------------------------------------------------------------------------------------//
 //                              non-member functions                                    //
