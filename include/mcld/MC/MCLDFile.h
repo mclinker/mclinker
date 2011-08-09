@@ -28,7 +28,7 @@ class MCLDContext;
  *  \brief MCLDFile represents the file being linked or produced.
  *
  *  MCLDFile is the storage of name, path and type
- *  It just refers to MCLDContext.
+ *  A MCLDFile just refers to MCLDContext, not owns it.
  *
  *  @see mcld::sys::fs::Path MCLDContext
  */
@@ -68,10 +68,23 @@ public:
   const sys::fs::Path& path() const
   { return m_Path; }
 
+  void setContext(MCLDContext& pContext)
+  { m_pContext = &pContext; }
+
+  bool hasContext() const
+  { return (0 == m_pContext); }
+
+  MCLDContext* context()
+  { return m_pContext; }
+
+  const MCLDContext* context() const
+  { return m_pContext; }
+
 private:
   sys::fs::Path m_Path;
   std::string m_InputName;
   MCLDContext   *m_pContext;
+  MCAttribute *m_pAttribute;
   unsigned int m_Type;
 };
 
@@ -95,6 +108,7 @@ class MCLDFileFactory : public GCFactory<MCLDFile, NUM>
 {
 public:
   typedef GCFactory<MCLDFile, NUM> Alloc;
+
 public:
   // -----  production  ----- //
   MCLDFile* produce(llvm::StringRef pName,

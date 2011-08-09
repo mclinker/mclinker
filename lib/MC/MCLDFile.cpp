@@ -27,8 +27,6 @@ MCLDFile::MCLDFile(llvm::StringRef pName,
 
 MCLDFile::~MCLDFile()
 {
-  if (m_pContext)
-    delete m_pContext;
 }
 
 llvm::StringRef MCLDFile::name() const

@@ -56,8 +56,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
-  ${INCDIR}/MC/MCLinker.h \
-  ${LIBDIR}/MC/MCLinker.cpp \
+ 	${INCDIR}/MC/MCLinker.h \
+	${LIBDIR}/MC/MCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
@@ -83,6 +83,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
 	${INCDIR}/MC/MCLDInputTree.h \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
+	${INCDIR}/MC/MCLDAttribute.h \
+	${LIBDIR}/MC/MCLDAttribute.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/ADT/Uncopyable.h \
@@ -100,7 +102,11 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \
-	${UNITTEST}/BinTreeTest.cpp
+	${UNITTEST}/BinTreeTest.cpp \
+	${UNITTEST}/LinearAllocatorTest.h \
+	${UNITTEST}/LinearAllocatorTest.cpp \
+	${UNITTEST}/InputTreeTest.h \
+	${UNITTEST}/InputTreeTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

@@ -109,7 +109,6 @@ public:
 
 private:
   MCLDFileFactory<64> m_FileFactory;
-
 };
 
 bool isGroup(const InputTree::iterator& pos);
