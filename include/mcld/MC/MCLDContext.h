@@ -22,6 +22,10 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include <mcld/ADT/GCFactory.h>
+#include <mcld/Support/FileSystem.h>
+#include <map>
+#include <utility>
 
 
 using namespace llvm;
@@ -37,57 +41,57 @@ class MCSectionData;
 namespace mcld
 {
 
-  /** \class MCLDContext
-   *  \brief MCLDContext stores the data which a object file should has
-   */
-  class MCLDContext
-  {
-  private:
-    /// Allocator - Allocator object used for creating machine code objects.
-    ///
-    /// We use a bump pointer allocator to avoid the need to track all allocated
-    /// objects.
-    BumpPtrAllocator Allocator;
+/** \class MCLDContext
+ *  \brief MCLDContext stores the data which a object file should has
+ */
+class MCLDContext
+{
+private:
+  /// Allocator - Allocator object used for creating machine code objects.
+  ///
+  /// We use a bump pointer allocator to avoid the need to track all allocated
+  /// objects.
+  BumpPtrAllocator Allocator;
 
-  public:
-    MCLDContext() : Allocator(), SymTab(Allocator) {
-      ELFUniquingMap = 0;
-    }
+public:
+  MCLDContext() : Allocator(), SymTab(Allocator) {
+    ELFUniquingMap = 0;
+  }
 
-    ~MCLDContext(){};
+  ~MCLDContext(){};
 
-    typedef iplist<MCSectionData> SectionDataListType;
-    typedef iplist<MCSymbolData> SymbolDataListType;
+  typedef iplist<MCSectionData> SectionDataListType;
+  typedef iplist<MCSymbolData> SymbolDataListType;
 
-    typedef StringMap<MCSymbol*, BumpPtrAllocator&> SymbolTableType;
+  typedef StringMap<MCSymbol*, BumpPtrAllocator&> SymbolTableType;
 
-    typedef SectionDataListType::const_iterator const_iterator;
-    typedef SectionDataListType::iterator iterator;
+  typedef SectionDataListType::const_iterator const_iterator;
+  typedef SectionDataListType::iterator iterator;
 
-    typedef SymbolDataListType::const_iterator const_symbol_iterator;
-    typedef SymbolDataListType::iterator symbol_iterator;
-
-
-    //Section List Access
-    SectionDataListType Sections;
-    SymbolDataListType Symbols;
-    SymbolTableType SymTab;
-
-    const SectionDataListType &getSectionList() const { return Sections; }
-    SectionDataListType &getSectionList() { return Sections; }
-
-    iterator begin() { return Sections.begin(); }
-    const_iterator begin() const { return Sections.begin(); }
-
-    iterator end() { return Sections.end(); }
-    const_iterator end() const { return Sections.end(); }
-
-    size_t size() const { return Sections.size(); }
+  typedef SymbolDataListType::const_iterator const_symbol_iterator;
+  typedef SymbolDataListType::iterator symbol_iterator;
 
 
-    //Symbol List Access
-    const SymbolDataListType &getSymbolList() const { return Symbols; }
-    SymbolDataListType &getSymbolList() { return Symbols; }
+  //Section List Access
+  SectionDataListType Sections;
+  SymbolDataListType Symbols;
+  SymbolTableType SymTab;
+
+  const SectionDataListType &getSectionList() const { return Sections; }
+  SectionDataListType &getSectionList() { return Sections; }
+
+  iterator begin() { return Sections.begin(); }
+  const_iterator begin() const { return Sections.begin(); }
+
+  iterator end() { return Sections.end(); }
+  const_iterator end() const { return Sections.end(); }
+
+  size_t size() const { return Sections.size(); }
+
+
+  //Symbol List Access
+  const SymbolDataListType &getSymbolList() const { return Symbols; }
+  SymbolDataListType &getSymbolList() { return Symbols; }
 
     symbol_iterator symbol_begin() { return Symbols.begin(); }
     const_symbol_iterator symbol_begin() const { return Symbols.begin(); }
@@ -118,57 +122,49 @@ namespace mcld
     MCSectionData &getOrCreateSectionData(const MCSection &Section,
                                           bool *Created = 0);
 
-    MCSymbolData &getSymbolData(const MCSymbol &Symbol) const;
+  MCSymbolData &getSymbolData(const MCSymbol &Symbol) const;
 
-    MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
+  MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
                                         bool *Create = 0);
 
-    void dump();
-  };
+  void dump();
+};
 
 /** \class MCLDContextFactory
  *  \brief MCLDContextFactory constructs and destructs MCLDContexts. It also
  *  garantee to destruct all its own MCLDContext.
- *
+ */
 template<size_t NUM>
-class MCLDContextFactory : private LinearAllocator<MCLDContext, NUM>
+class MCLDContextFactory : public GCFactory<MCLDContext, NUM>
 {
 private:
-  typedef LinearAllocator<MCLDContext, NUM> Alloc;
-
+  typedef GCFactory<MCLDContext, NUM> Alloc;
+  typedef std::map<sys::fs::Path, MCLDContext*> CntxtMap;
 public:
-  typedef typename Alloc::iterator iterator;
-  typedef typename Alloc::const_iterator const_iterator;
-
-public:
-  MCLDContextFactory()
-  : m_NumCreatedContext(0)
-  { }
-
-  virtual ~MCLDContextFactory()
-  { Alloc::clear(); }
-
   // ----- production  ----- //
-  MCLDContext* produce();
-
-  // -----  iterators  ----- //
-  iterator begin()             { return Alloc::begin(); }
-  iterator end()               { return Alloc::end(); }
-  const_iterator begin() const { return Alloc::begin(); }
-  const_iterator end() const   { return Alloc::end(); }
-
-  // -----  observers  ----- //
-  unsigned int size() const
-  { return m_NumCreatedContext; }
-
-  bool empty() const
-  { return Alloc::empty(); }
+  MCLDContext* produce(const sys::fs::Path& pPath);
 
 private:
-  unsigned int m_NumCreatedContext;
+  CntxtMap m_CntxtMap;
 };
-*/
+
 } // namespace of mcld
+
+//===----------------------------------------------------------------------===//
+// MCLDContextFactory
+
+template<size_t NUM>
+mcld::MCLDContext* mcld::MCLDContextFactory<NUM>::produce(const sys::fs::Path& pPath)
+{
+  CntxtMap::iterator ctx = m_CntxtMap.find(pPath);
+  if (ctx != m_CntxtMap.end())
+    return ctx->second;
+
+  mcld::MCLDContext* result = Alloc::allocate();
+  new (result) MCLDContext();
+  m_CntxtMap.insert(std::make_pair<mcld::sys::fs::Path, mcld::MCLDContext*>(pPath, result));
+  return result;
+}
 
 #endif
 

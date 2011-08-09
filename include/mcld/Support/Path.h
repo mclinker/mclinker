@@ -16,7 +16,9 @@
 #include <gtest.h>
 #endif
 #include <llvm/Support/raw_ostream.h>
+#include <functional>
 #include <string>
+
 //#include <mcld/Support/Directory.h>
 namespace mcld {
 namespace sys  {
@@ -73,19 +75,27 @@ private:
 private:
   StringType m_PathName;
 };
+
 bool operator==(const Path& pLHS, const Path& pRHS);
 bool operator!=(const Path& pLHS, const Path& pRHS);
 
-//--------------------------------------------------------------------------------------//
-//                              non-member functions                                    //
-//--------------------------------------------------------------------------------------//
-/// @param value a character
-/// @result true if \a value is a path separator character on the host OS
+//--------------------------------------------------------------------------//
+//                              non-member functions                        //
+//--------------------------------------------------------------------------//
+
+/// is_separator - is the given character a separator of a path.
+// @param value a character
+// @result true if \a value is a path separator character on the host OS
 bool is_separator(char value);
+
 bool exists(const Path &pPath);
+
 bool is_directory(const Path &pPath);
+
 std::ostream &operator<<(std::ostream& pOS, const Path& pPath);
+
 std::istream &operator>>(std::istream& pOS, const Path& pPath);
+
 llvm::raw_ostream &operator<<(llvm::raw_ostream &OS, const Path &pPath);
 
 
@@ -116,6 +126,25 @@ Path& Path::append(InputIterator begin, InputIterator end)
 } // namespace of fs
 } // namespace of sys
 } // namespace of mcld
+
+//-------------------------------------------------------------------------//
+//                              STL compatible functions                   //
+//-------------------------------------------------------------------------//
+namespace std {
+
+template<>
+struct less<mcld::sys::fs::Path> : public binary_function<mcld::sys::fs::Path,
+                                                         mcld::sys::fs::Path,
+                                                         bool>
+{
+  bool operator() (const mcld::sys::fs::Path& pX, const mcld::sys::fs::Path& pY) const {
+    if (pX.generic_string().size() < pY.generic_string().size())
+      return true;
+    return (pX.generic_string() < pY.generic_string());
+  }
+};
+
+} // namespace of std
 
 #endif
 
