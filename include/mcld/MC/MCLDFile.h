@@ -56,6 +56,12 @@ public:
   void setType(Type pType)
   { m_Type = pType; }
 
+  void setContext(MCLDContext& pContext)
+  { m_pContext = &pContext; }
+
+  void setAttribute(const MCLDAttribute& pAttr)
+  { m_pAttr = const_cast<MCLDAttribute*>(&pAttr); }
+
   // -----  observers  ----- //
   bool isRecognized() const
   { return (m_Type != Unknown); }
@@ -68,9 +74,6 @@ public:
   const sys::fs::Path& path() const
   { return m_Path; }
 
-  void setContext(MCLDContext& pContext)
-  { m_pContext = &pContext; }
-
   bool hasContext() const
   { return (0 == m_pContext); }
 
@@ -80,11 +83,14 @@ public:
   const MCLDContext* context() const
   { return m_pContext; }
 
+  const MCLDAttribute* attribute() const
+  { return m_pAttr; }
+
 private:
   sys::fs::Path m_Path;
   std::string m_InputName;
   MCLDContext   *m_pContext;
-  MCAttribute *m_pAttribute;
+  MCLDAttribute *m_pAttr;
   unsigned int m_Type;
 };
 
