@@ -23,6 +23,8 @@ namespace mcld
   class MCLDLayout;
 
   class TargetLDBackend;
+  class MCLDInfo;
+  class RelocData;
 
   /** \class MCLinker
    *  \brief MCLinker provides a pass to link object files.
@@ -32,7 +34,7 @@ namespace mcld
    */
   class MCLinker {
   public:
-    explicit MCLinker( TargetLDBackend& pBackend );
+    explicit MCLinker(TargetLDBackend&, MCLDInfo&);
     ~MCLinker();
   public:
     // FIXME: see #80
@@ -41,12 +43,11 @@ namespace mcld
     void setLayout( MCLDLayout& pLayout );
     void addLdFile( MCLDFile& pLDFile );
 
-    // We act as Gold, using 3 phase
-    // read -> scan -> relocate
-    // TODO(Nowar): Implement these functions.
-    void read_reloc();
-    void scan_reloc();
-    void relocate_reloc();
+    void relocate();
+  private:
+    void read_relocs();
+    void scan_relocs();
+    void relocate_relocs();
 
   private:
     typedef std::list<MCLDCommand> CommandListTy;
@@ -56,6 +57,8 @@ namespace mcld
     LDFileListTy m_LDFileList;
 
     TargetLDBackend& m_pBackend;
+    MCLDInfo& m_pInfo;
+    RelocData* m_pRelocData;
   };
 
 } // namespace of BOLD

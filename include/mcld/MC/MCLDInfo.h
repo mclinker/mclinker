@@ -49,6 +49,8 @@ public:
 private:
   GeneralOptions m_Options;
   InputTree m_InputTree;
+  // MCLDInfo will have a Output containing global symble table
+  //Output m_Output;
 };
 
 } // namespace of mcld
