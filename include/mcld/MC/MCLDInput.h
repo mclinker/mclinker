@@ -35,6 +35,7 @@ public:
   };
 
 public:
+  Input();
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const MCLDAttribute& pAttr,
@@ -43,7 +44,7 @@ public:
   ~Input();
 
   bool isRecognized() const
-  { return (m_Type != Input); }
+  { return (m_Type != Unknown); }
 
   const MCLDAttribute* attribute() const
   { return m_pAttr; }

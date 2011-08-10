@@ -65,6 +65,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCAsmObjectReader.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
+	${INCDIR}/MC/MCLDInput.h \
+	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/MCLDOptions.h \
 	${LIBDIR}/MC/MCLDOptions.cpp \
 	${INCDIR}/MC/MCLDInfo.h \
@@ -81,10 +83,10 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
-	${INCDIR}/MC/MCLDInputTree.h \
-	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/MC/MCLDAttribute.h \
 	${LIBDIR}/MC/MCLDAttribute.cpp \
+	${INCDIR}/MC/MCLDInputTree.h \
+	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/ADT/Uncopyable.h \

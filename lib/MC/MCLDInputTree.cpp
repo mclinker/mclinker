@@ -22,63 +22,32 @@ InputTree::~InputTree()
 {
 }
 
-template<size_t DIRECT>
-InputTree& InputTree::insert(InputTree::iterator pPosition,
-                             InputTree::InputType pInputType,
-                             const std::string& pNamespec,
-                             const sys::fs::Path& pPath)
-{
-  BinaryTree<MCLDFile>::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pInputType); 
-  if (pPosition.isRoot())
-    proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
-        const_cast<const node_type*>(node));
-  else
-    proxy::hook<DIRECT>(pPosition.m_pNode,
-        const_cast<const node_type*>(node));
-  return *this;
-}
-
-template<size_t DIRECT>
-InputTree& InputTree::enterGroup(InputTree::iterator pPosition)
-{
-  NodeBase* node = createNode(); 
-  if (pPosition.isRoot())
-    proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
-        const_cast<const node_type*>(node));
-  else
-    proxy::hook<DIRECT>(pPosition.m_pNode,
-        const_cast<const node_type*>(node));
-  return *this;
-}
-
-
 InputTree& InputTree::merge(InputTree::iterator pPosition, 
-                            InputTree& pTree,
-                            const InputTree::Connector& pConnector) 
+                            const InputTree::Connector& pConnector,
+                            InputTree& pTree)
 {
   if (this == &pTree)
     return *this;
 
   if (!pTree.empty()) {
     pConnector.connect(pPosition, iterator(pTree.m_Root.node.right));
-    BinaryTreeBase<MCLDFile>::m_Root.summon(
-        pTree.BinaryTreeBase<MCLDFile>::m_Root);
-    BinaryTreeBase<MCLDFile>::m_Root.delegate(pTree.m_Root);
+    BinaryTreeBase<Input>::m_Root.summon(
+        pTree.BinaryTreeBase<Input>::m_Root);
+    BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
     pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
   }
   return *this;
 }
 
-
 InputTree& InputTree::insert(InputTree::iterator pPosition,
-                             InputTree::InputType pInputType,
+                             const InputTree::Connector& pConnector,
                              const std::string& pNamespec,
                              const sys::fs::Path& pPath,
-                             const InputTree::Connector& pConnector)
+                             const MCLDAttribute& pAttr,
+                             unsigned int pType)
 {
-  BinaryTree<MCLDFile>::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pInputType);
+  BinaryTree<Input>::node_type* node = createNode();
+  node->data = m_FileFactory.produce(pNamespec, pPath, pAttr, pType);
   pConnector.connect(pPosition, iterator(node));
   return *this;
 }

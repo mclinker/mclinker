@@ -11,6 +11,10 @@ using namespace mcld;
 
 //==========================
 // MCInput
+Input::Input()
+ : MCLDFile(), m_pAttr(0){
+}
+
 Input::Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const MCLDAttribute& pAttr,

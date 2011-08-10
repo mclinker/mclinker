@@ -5,18 +5,20 @@
  *                                                                           *
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
-#ifndef MCLD_INPUTREE_H
-#define MCLD_INPUTREE_H
+#ifndef MCLD_INPUT_TREE_H
+#define MCLD_INPUT_TREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <mcld/Support/FileSystem.h>
 #include <mcld/ADT/BinTree.h>
-#include <mcld/MC/MCLDFile.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDAttribute.h>
 #include <string>
 
 namespace mcld
 {
+class MCLDAttribute;
 
 /** \class InputTree
  *  \brief InputTree is the input tree to contains all inputs from the
@@ -24,26 +26,21 @@ namespace mcld
  *
  *  InputTree, of course, is uncopyable.
  *
- *  @see MCLDFile
+ *  @see Input
  */
-class InputTree : public BinaryTree<MCLDFile> 
+class InputTree : public BinaryTree<Input>
 {
+private:
+  typedef BinaryTree<Input> BinTreeTy;
+
 public:
   enum Direction {
     Positional = TreeIteratorBase::Rightward,
     Inclusive  = TreeIteratorBase::Leftward
   };
 
-  enum InputType {
-    Archive = MCLDFile::Archive,
-    Object = MCLDFile::Object,
-    DynObj = MCLDFile::DynObj,
-    Script = MCLDFile::Script,
-    Input = MCLDFile::Unknown
-  };
-
-  typedef BinaryTree<MCLDFile>::iterator       iterator;
-  typedef BinaryTree<MCLDFile>::const_iterator const_iterator;
+  typedef BinaryTree<Input>::iterator       iterator;
+  typedef BinaryTree<Input>::const_iterator const_iterator;
 
 public:
   struct Connector {
@@ -79,42 +76,79 @@ public:
 
   template<size_t DIRECT>
   InputTree& insert(iterator pPosition,
-                    InputType pInputType,
-                    const std::string& pNamespec,
-                    const sys::fs::Path& pPath);
-
-  template<size_t DIRECT>
-  InputTree& enterGroup(iterator pPosition);
-
-
-  InputTree& merge(iterator pPosition,
-                   InputTree& pTree,
-                   const Connector& pConnector);
-
-  InputTree& insert(iterator pPosition,
-                    InputType pInputType,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
-                    const Connector& pConnector);
+                    const MCLDAttribute& pAttr,
+                    unsigned int pType = Input::Unknown);
 
-  InputTree& enterGroup(iterator pPosition,
-                        const Connector& pConnector);
+  template<size_t DIRECT>
+  InputTree& enterGroup(InputTree::iterator pPosition);
+
+  InputTree& merge(InputTree::iterator pPosition, 
+                   const InputTree::Connector& pConnector,
+                   InputTree& pTree);
+
+  InputTree& insert(InputTree::iterator pPosition,
+                    const InputTree::Connector& pConnector,
+                    const std::string& pNamespec,
+                    const sys::fs::Path& pPath,
+                    const MCLDAttribute& pAttr,
+                    unsigned int pType = Input::Unknown);
+
+  InputTree& enterGroup(InputTree::iterator pPosition,
+                        const InputTree::Connector& pConnector);
 
   // -----  observers  ----- //
-  unsigned int fileSize() const
+  unsigned int numOfInputs() const
   { return m_FileFactory.size(); }
 
-  bool hasFiles() const
+  bool hasInput() const
   { return !m_FileFactory.empty(); }
 
 private:
-  MCLDFileFactory<64> m_FileFactory;
+  InputFactory<64> m_FileFactory;
+
 };
 
 bool isGroup(const InputTree::iterator& pos);
 bool isGroup(const InputTree::const_iterator& pos);
 
 } // namespace of mcld
+
+//===----------------------------------------------------------------------===//
+// template member functions
+template<size_t DIRECT>
+mcld::InputTree&
+mcld::InputTree::insert(mcld::InputTree::iterator pPosition,
+                        const std::string& pNamespec,
+                        const mcld::sys::fs::Path& pPath,
+                        const mcld::MCLDAttribute& pAttr,
+                        unsigned int pType)
+{
+  BinTreeTy::node_type* node = createNode();
+  node->data = m_FileFactory.produce(pNamespec, pPath, pAttr, pType); 
+  if (pPosition.isRoot())
+    proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
+        const_cast<const node_type*>(node));
+  else
+    proxy::hook<DIRECT>(pPosition.m_pNode,
+        const_cast<const node_type*>(node));
+  return *this;
+}
+
+template<size_t DIRECT>
+mcld::InputTree&
+mcld::InputTree::enterGroup(mcld::InputTree::iterator pPosition)
+{
+  BinTreeTy::node_type* node = createNode(); 
+  if (pPosition.isRoot())
+    proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
+        const_cast<const node_type*>(node));
+  else
+    proxy::hook<DIRECT>(pPosition.m_pNode,
+        const_cast<const node_type*>(node));
+  return *this;
+}
 
 #endif
 

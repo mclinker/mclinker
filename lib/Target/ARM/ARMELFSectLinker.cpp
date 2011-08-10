@@ -15,6 +15,14 @@ using namespace mcld;
 ARMELFSectLinker::ARMELFSectLinker(MCLDInfo& pLDInfo,
                                    TargetLDBackend &pLDBackend)
   : SectLinker(pLDInfo, pLDBackend) {
+  // set attributes
+  attrFactory()->reserve(32);
+  MCLDAttribute* def_attr = attrFactory()->produce();  
+  def_attr->setWholeArchive();
+  def_attr->unsetAsNeeded();
+  def_attr->setDynamic();
+
+  attrFactory()->setDefault(*def_attr);
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()

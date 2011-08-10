@@ -28,6 +28,7 @@ namespace mcld
   class MCLDFile;
   class MCLDDriver;
   class TargetLDBackend;
+  class AttributeFactory;
 
   /** \class SectLinker
    *  \brief SectLinker provides a linking pass for standard compilation flow
@@ -51,14 +52,20 @@ namespace mcld
     public:
       enum Type {
         NAMESPEC,
+        INPUT_FILE,
         START_GROUP,
         END_GROUP,
-        INPUT_FILE
+        WHOLE_ARCHIVE,
+        NO_WHOLE_ARCHIVE,
+        AS_NEEDED,
+        NO_AS_NEEDED,
+        BDYNAMIC,
+        BSTATIC
       };
 
     public:
       PositionDependentOption(unsigned int pPosition,
-                             Type pType)
+                              Type pType)
         : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec(0) {
       }
 
@@ -125,12 +132,17 @@ namespace mcld
 
   protected:
     void initializeInputTree(InputTree &pInputTree,
+                             AttributeFactory& pAttrFactory,
                              const PositionDependentOptions &pOptions) const;
+
+    AttributeFactory* attrFactory()
+    { return m_pAttrFactory; }
 
   protected:
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
     MCLDInfo& m_LDInfo;
+    AttributeFactory *m_pAttrFactory;
 
   private:
     static char m_ID;

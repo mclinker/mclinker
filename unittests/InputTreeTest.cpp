@@ -45,15 +45,15 @@ void InputTreeTest::TearDown()
 
 TEST_F( InputTreeTest, Basic_operation ) {
   InputTree::iterator node = m_pTestee->root();
-
-  m_pTestee->insert(node, InputTree::Input, "FileSpec", "path1", InputTree::Downward);
+  MCLDAttribute* attr = new MCLDAttribute();
+  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1", *attr);
 
   InputTree::const_iterator const_node = node;
 
   ASSERT_TRUE(isGroup(node));
   ASSERT_TRUE(isGroup(const_node));
-  ASSERT_TRUE(m_pTestee->hasFiles());
-  ASSERT_EQ(1, m_pTestee->fileSize());
+  ASSERT_TRUE(m_pTestee->hasInput());
+  ASSERT_EQ(1, m_pTestee->numOfInputs());
 
   --node;
 
@@ -65,8 +65,8 @@ TEST_F( InputTreeTest, Basic_operation ) {
 
   ASSERT_FALSE(isGroup(node));
   ASSERT_FALSE(isGroup(const_node2));
-  ASSERT_TRUE(m_pTestee->hasFiles());
-  ASSERT_FALSE(m_pTestee->fileSize()==0);
+  ASSERT_TRUE(m_pTestee->hasInput());
+  ASSERT_FALSE(m_pTestee->numOfInputs()==0);
 
   ASSERT_TRUE(m_pTestee->size()==2);
 }
@@ -75,13 +75,14 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
   InputTree::iterator node = m_pTestee->root();
 
   
-  m_pTestee->insert(node, InputTree::Input, "FileSpec", "path1", InputTree::Downward);
+  MCLDAttribute* attr = new MCLDAttribute();
+  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1", *attr);
   InputTree::const_iterator const_node = node;
   --node;
 
   for(int i=0 ; i<100 ; ++i) 
   {
-    m_pTestee->insert(node, InputTree::Input, "FileSpec", "path1", InputTree::Downward);
+    m_pTestee->insert<InputTree::Inclusive>(node,"FileSpec", "path1", *attr);
     ++node;
   }
 
@@ -90,8 +91,8 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
 
   ASSERT_FALSE(node.isRoot());
   ASSERT_TRUE(isGroup(node));
-  ASSERT_TRUE(m_pTestee->hasFiles());
-  ASSERT_FALSE(m_pTestee->fileSize()==100);
+  ASSERT_TRUE(m_pTestee->hasInput());
+  ASSERT_FALSE(m_pTestee->numOfInputs()==100);
 
   ASSERT_TRUE(m_pTestee->size()==102);
 }
@@ -99,19 +100,20 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
 TEST_F( InputTreeTest, Nesting_Case ) {
   InputTree::iterator node = m_pTestee->root(); 
 
+  MCLDAttribute* attr = new MCLDAttribute();
   for(int i=0 ; i<50 ; ++i) 
   {
     m_pTestee->enterGroup(node, InputTree::Downward);
     --node;
 
-    m_pTestee->insert(node, InputTree::Input, "FileSpec", "path1", InputTree::Afterward);
+    m_pTestee->insert(node, InputTree::Afterward, "FileSpec", "path1", *attr);
     ++node;
   }
   
   ASSERT_FALSE(node.isRoot());
   ASSERT_FALSE(isGroup(node));
-  ASSERT_TRUE(m_pTestee->hasFiles());
-  ASSERT_TRUE(m_pTestee->fileSize()==50);
+  ASSERT_TRUE(m_pTestee->hasInput());
+  ASSERT_TRUE(m_pTestee->numOfInputs()==50);
   ASSERT_TRUE(m_pTestee->size()==100);
 }
 

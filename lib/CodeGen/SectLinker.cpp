@@ -20,6 +20,8 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/CommandLine.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDAttribute.h>
 #include <algorithm>
 #include <stack>
 
@@ -97,25 +99,20 @@ ArgNameSpecListAlias("library",
                  cl::desc("alias for -l"),
                  cl::aliasopt(ArgNameSpecList));
 
-static cl::list<std::string>
+static cl::list<bool>
 ArgStartGroupList("start-group",
-                  cl::ZeroOrMore,
                   cl::ValueDisallowed,
-                  cl::desc("start to record a group of archives"),
-                  cl::value_desc("archives"),
-                  cl::Prefix);
+                  cl::desc("start to record a group of archives"));
+
 static cl::alias
 ArgStartGroupListAlias("(",
                        cl::desc("alias for --start-group"),
                        cl::aliasopt(ArgStartGroupList));
 
-static cl::list<std::string>
+static cl::list<bool>
 ArgEndGroupList("end-group",
-                cl::ZeroOrMore,
                 cl::ValueDisallowed,
-                cl::desc("stop recording a group of archives"),
-                cl::value_desc("archives"),
-                cl::Prefix);
+                cl::desc("stop recording a group of archives"));
 
 static cl::alias
 ArgEndGroupListAlias(")",
@@ -124,6 +121,60 @@ ArgEndGroupListAlias(")",
 
 //===----------------------------------------------------------------------===//
 // Attributes of Inputs
+static cl::list<bool>
+ArgWholeArchiveList("whole-archive",
+                    cl::ValueDisallowed,
+                    cl::desc("For each archive mentioned on the command line after the --whole-archive option, include all object files in the archive."));
+
+static cl::list<bool>
+ArgNoWholeArchiveList("no-whole-archive",
+                    cl::ValueDisallowed,
+                    cl::desc("Turn off the effect of the --whole-archive option for subsequent archive files."));
+
+static cl::list<bool>
+ArgAsNeededList("as-needed",
+                cl::ValueDisallowed,
+                cl::desc("This option affects ELF DT_NEEDED tags for dynamic libraries mentioned on the command line after the --as-needed option."));
+
+static cl::list<bool>
+ArgNoAsNeededList("no-as-needed",
+                cl::ValueDisallowed,
+                cl::desc("Turn off the effect of the --as-needed option for subsequent dynamic libraries"));
+
+static cl::list<bool>
+ArgBDynamicList("Bdynamic",
+                cl::ValueDisallowed,
+                cl::desc("Link against dynamic library"));
+
+static cl::alias
+ArgBDynamicListAlias1("dy",
+                     cl::desc("alias for --Bdynamic"),
+                     cl::aliasopt(ArgBDynamicList));
+
+static cl::alias
+ArgBDynamicListAlias2("call_shared",
+                     cl::desc("alias for --Bdynamic"),
+                     cl::aliasopt(ArgBDynamicList));
+
+static cl::list<bool>
+ArgBStaticList("Bstatic",
+                cl::ValueDisallowed,
+                cl::desc("Link against static library"));
+
+static cl::alias
+ArgBStaticListAlias1("dn",
+                     cl::desc("alias for --Bstatic"),
+                     cl::aliasopt(ArgBStaticList));
+
+static cl::alias
+ArgBStaticListAlias2("static",
+                     cl::desc("alias for --Bstatic"),
+                     cl::aliasopt(ArgBStaticList));
+
+static cl::alias
+ArgBStaticListAlias3("non_shared",
+                     cl::desc("alias for --Bstatic"),
+                     cl::aliasopt(ArgBStaticList));
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
@@ -134,13 +185,15 @@ SectLinker::SectLinker(MCLDInfo& pLDInfo,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_LDInfo(pLDInfo),
-    m_pLDBackend(&pLDBackend) {
+    m_pLDBackend(&pLDBackend),
+    m_pAttrFactory(new AttributeFactory()) {
 }
 
 SectLinker::~SectLinker()
 {
   delete m_pLDBackend;
   delete m_pLDDriver;
+  delete m_pAttrFactory;
 }
 
 bool SectLinker::doInitialization(Module &pM)
@@ -199,8 +252,8 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   // add all start-group
-  cl::list<std::string>::iterator sg;
-  cl::list<std::string>::iterator sgEnd = ArgStartGroupList.end();
+  cl::list<bool>::iterator sg;
+  cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
   for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
     // calculate position
     pos_dep_options.push_back(new PositionDependentOption(
@@ -209,8 +262,8 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   // add all end-group
-  cl::list<std::string>::iterator eg;
-  cl::list<std::string>::iterator egEnd = ArgEndGroupList.end();
+  cl::list<bool>::iterator eg;
+  cl::list<bool>::iterator egEnd = ArgEndGroupList.end();
   for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
     // calculate position
     pos_dep_options.push_back(new PositionDependentOption(
@@ -230,11 +283,69 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   // -----  Set up Attributes of Inputs  ----- //
+  // --whole-archive
+  cl::list<bool>::iterator attr = ArgWholeArchiveList.begin();
+  cl::list<bool>::iterator attrEnd = ArgWholeArchiveList.end();
+  for (; attr!=attrEnd; ++attr) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgWholeArchiveList.getPosition(attr-ArgWholeArchiveList.begin()),
+                                    PositionDependentOption::WHOLE_ARCHIVE));
+  }
+
+  // --no-whole-archive
+  attr = ArgNoWholeArchiveList.begin();
+  attrEnd = ArgNoWholeArchiveList.end();
+  for (; attr!=attrEnd; ++attr) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgNoWholeArchiveList.getPosition(attr-ArgNoWholeArchiveList.begin()),
+                                    PositionDependentOption::NO_WHOLE_ARCHIVE));
+  }
+
+  // --as-needed
+  attr = ArgAsNeededList.begin();
+  attrEnd = ArgAsNeededList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgAsNeededList.getPosition(attr-ArgAsNeededList.begin()),
+                                    PositionDependentOption::AS_NEEDED));
+    ++attr;
+  }
+
+  // --no-as-needed
+  attr = ArgNoAsNeededList.begin();
+  attrEnd = ArgNoAsNeededList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgNoAsNeededList.getPosition(attr-ArgNoAsNeededList.begin()),
+                                    PositionDependentOption::NO_AS_NEEDED));
+    ++attr;
+  }
+
+  // -Bdynamic
+  attr = ArgBDynamicList.begin();
+  attrEnd = ArgBDynamicList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgBDynamicList.getPosition(attr-ArgBDynamicList.begin()),
+                                    PositionDependentOption::BDYNAMIC));
+    ++attr;
+  }
+
+  // -Bstatic
+  attr = ArgBStaticList.begin();
+  attrEnd = ArgBStaticList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgBStaticList.getPosition(attr-ArgBStaticList.begin()),
+                                    PositionDependentOption::BSTATIC));
+    ++attr;
+  }
+
   // -----  Set up Scripting Options  ----- //
 
   // ----- convert position dependent options into tree of input files  ----- //
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
-  initializeInputTree(m_LDInfo.inputs(), pos_dep_options);
+  initializeInputTree(m_LDInfo.inputs(), *m_pAttrFactory, pos_dep_options);
 
   // Now, all input arguments are prepared well, send it into MCLDDriver
   m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
@@ -259,6 +370,7 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 }
 
 void SectLinker::initializeInputTree(InputTree& pInputs,
+                                     AttributeFactory& pAttrFactory,
                         const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
@@ -266,28 +378,29 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
 
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() && 
-      ((*cur_char)->type() == PositionDependentOption::START_GROUP ||
-       (*cur_char)->type() == PositionDependentOption::END_GROUP))
+      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
+      (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
+  MCLDAttribute* attr = 0; 
   InputTree::Connector *prev_ward = &InputTree::Downward;
 
   std::stack<InputTree::iterator> returnStack;
   switch ((*cur_char)->type()) {
   case PositionDependentOption::INPUT_FILE:
-    pInputs.insert(pInputs.root(),
-                   InputTree::Input,
-                   "file",
-                   *(*cur_char)->path(),
-                   *prev_ward);
+    pInputs.insert<InputTree::Inclusive>(pInputs.root(),
+                                         "file",
+                                         *(*cur_char)->path(),
+                                         *pAttrFactory.defaultAttribute(),
+                                         (*cur_char)->type());
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::NAMESPEC:
-    pInputs.insert(pInputs.root(),
-                   InputTree::Input,
-                   (*cur_char)->namespec(),
-                   *(*cur_char)->path(),
-                   *prev_ward);
+    pInputs.insert<InputTree::Inclusive>(pInputs.root(),
+                                         (*cur_char)->namespec(),
+                                         *(*cur_char)->path(),
+                                         *pAttrFactory.defaultAttribute(),
+                                         (*cur_char)->type());
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::START_GROUP:
@@ -296,31 +409,60 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
     returnStack.push(pInputs.begin());
     prev_ward = &InputTree::Downward;
     break;
+  case PositionDependentOption::WHOLE_ARCHIVE:
+    attr = pAttrFactory.produce();
+    attr->setWholeArchive();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
+  case PositionDependentOption::NO_WHOLE_ARCHIVE:
+    attr = pAttrFactory.produce();
+    attr->unsetWholeArchive();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
+  case PositionDependentOption::AS_NEEDED:
+    attr = pAttrFactory.produce();
+    attr->setAsNeeded();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
+  case PositionDependentOption::NO_AS_NEEDED:
+    attr = pAttrFactory.produce();
+    attr->unsetAsNeeded();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
+  case PositionDependentOption::BDYNAMIC:
+    attr = pAttrFactory.produce();
+    attr->setDynamic();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
+  case PositionDependentOption::BSTATIC:
+    attr = pAttrFactory.produce();
+    attr->setStatic();
+    pAttrFactory.recordOrReplace(attr);
+    break; 
   case PositionDependentOption::END_GROUP:
   default:
     report_fatal_error("illegal syntax of input files");
   }
 
+  ++cur_char;
   InputTree::iterator cur_node = pInputs.begin();
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
-  ++cur_char;
-  
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {
     case PositionDependentOption::INPUT_FILE:
       pInputs.insert(cur_node,
-                     InputTree::Input,
+                     *prev_ward,
                      "file",
                      *(*cur_char)->path(),
-                     *prev_ward);
+                     const_cast<const MCLDAttribute&>(*attr));
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::NAMESPEC:
       pInputs.insert(cur_node,
-                     InputTree::Input,
+                     *prev_ward,
                      (*cur_char)->namespec(),
                      *(*cur_char)->path(),
-                     *prev_ward);
+                     const_cast<const MCLDAttribute&>(*attr));
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::START_GROUP:
@@ -333,6 +475,36 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
       returnStack.pop();
       prev_ward = &InputTree::Afterward;
       break;
+    case PositionDependentOption::WHOLE_ARCHIVE:
+      attr = pAttrFactory.produce();
+      attr->setWholeArchive();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
+    case PositionDependentOption::NO_WHOLE_ARCHIVE:
+      attr = pAttrFactory.produce();
+      attr->unsetWholeArchive();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
+    case PositionDependentOption::AS_NEEDED:
+      attr = pAttrFactory.produce();
+      attr->setAsNeeded();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
+    case PositionDependentOption::NO_AS_NEEDED:
+      attr = pAttrFactory.produce();
+      attr->unsetAsNeeded();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
+    case PositionDependentOption::BDYNAMIC:
+      attr = pAttrFactory.produce();
+      attr->setDynamic();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
+    case PositionDependentOption::BSTATIC:
+      attr = pAttrFactory.produce();
+      attr->setStatic();
+      pAttrFactory.recordOrReplace(attr);
+      break; 
     default:
       report_fatal_error("can not find the type of input file");
     }
