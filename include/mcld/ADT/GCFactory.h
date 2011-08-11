@@ -176,6 +176,76 @@ protected:
   unsigned int m_NumAllocData;
 };
 
+/** \class RTGCFactory
+ *  \brief RTGCFactory provides a factory that guaratees to remove all allocated
+ *  data.
+ */
+template<typename DataType>
+class RTGCFactory : protected RTLinearAllocator<DataType>
+{
+public:
+  typedef RTLinearAllocator<DataType> Alloc;
+  typedef DataIterator<typename Alloc::chunk_type,
+                       NonConstTraits<
+                         typename Alloc::value_type> > iterator;
+  typedef DataIterator<typename Alloc::chunk_type,
+                       ConstTraits<
+                         typename Alloc::value_type> > const_iterator;
+
+
+public:
+  explicit RTGCFactory(size_t pNum)
+  : RTLinearAllocator<DataType>(pNum), m_NumAllocData(0)
+  { }
+
+  virtual ~GCFactory()
+  { Alloc::clear(); }
+
+  // -----  modifiers  ----- //
+  DataType* allocate() {
+    ++m_NumAllocData;
+    return Alloc::allocate();
+  }
+
+  void reset() {
+    Alloc::m_pRoot = 0;
+    Alloc::m_pCurrent = 0;
+    Alloc::m_AllocatedNum = m_NumAllocData = 0;
+  }
+
+  // -----  iterators  ----- //
+  iterator begin()
+  { return iterator(Alloc::m_pRoot, 0); }
+
+  const_iterator begin() const
+  { return const_iterator(Alloc::m_pRoot, 0); }
+
+  iterator end() {
+    return (0 == Alloc::m_pCurrent)? 
+             begin():
+             iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
+  }
+
+  const_iterator end() const {
+    return (0 == Alloc::m_pCurrent)? 
+             begin():
+             const_iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
+  }
+
+  // -----  observers  ----- //
+  bool empty() const
+  { return Alloc::empty(); }
+
+  unsigned int capacity() const
+  { return Alloc::max_size(); }
+
+  unsigned int size() const
+  { return m_NumAllocData; }
+
+protected:
+  unsigned int m_NumAllocData;
+};
+
 } // namespace of mcld
 
 #endif
