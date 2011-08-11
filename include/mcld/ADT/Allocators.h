@@ -13,13 +13,12 @@
 #include <cstdlib>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TypeTraits.h>
-#include <llvm/Support/Allocator.h>
 
 namespace mcld
 {
 
 /** \class Chunk
- *  \brief Chunk is the basict unit of the storage of the LinearAllocator
+ *  \brief Chunk is the basic unit of the storage of the LinearAllocator
  *
  *  @see LinearAllocator
  */
@@ -244,6 +243,31 @@ protected:
   size_type m_AllocatedNum;
 };
 
+/** \class RTChunk
+ *  \brief RTChunk is the basic unit of the storage of the RTLinearAllocator
+ *
+ *  @see RTLinearAllocator
+ */
+template<typename DataType>
+struct RTChunk
+{
+public:
+  typedef DataType value_type;
+
+public:
+  RTChunk(size_t pSize)
+  : bound(0), next(0)
+  { data = (DataType*)malloc(pSize*sizeof(DataType)); }
+
+  ~RTChunk()
+  { free(data); }
+
+public:
+  RTChunk *next;
+  DataType* data;
+  size_t bound;
+};
+
 /** \class RTLinearAllocator
  *  \brief RTLinearAllocator is another linear allocator whose size can be
  *   given at run-time by constructor.
@@ -260,14 +284,15 @@ public:
   typedef size_t                     size_type;
   typedef ptrdiff_t                  difference_type;
   typedef unsigned char              byte_type;
-  typedef llvm::BumpPtrAllocator     Alloc;
+  typedef RTChunk<DataType>          chunk_type;
 
 public:
-  RTLinearAllocator(size_t pSize,
-                    size_t pThreshold = 4096)
-  : m_Allocator(pSize, pThreshold)
+  explicit RTLinearAllocator(size_t pSize)
+    : m_pRoot(0),
+      m_pCurrent(0),
+      m_AllocatedNum(0),
+      m_ElementNum(pSize)
   { }
-
 
   virtual ~RTLinearAllocator()
   { }
@@ -284,24 +309,56 @@ public:
   //  @param N the number of allocated data.
   //  @return the start address of the allocated memory
   pointer allocate(size_type N) {
+    if (0 == N || N > m_ElementNum)
+      return 0;
+
+    if (0 == m_pRoot)
+      initialize();
+
+    size_type rest_num_elem = m_ElementNum - m_pCurrent->bound;
+    pointer result = 0;
+    if (N > rest_num_elem)
+      createChunk();
+    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+    m_pCurrent->bound += N;
+    return result;
   }
 
   /// allocate - clone function of allocating one datum.
   pointer allocate() {
+    if (0 == m_pRoot)
+      initialize();
+
+    pointer result = 0;
+    if (m_ElementNum == m_pCurrent->bound)
+      createChunk();
+    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+    ++m_pCurrent->bound;
+    return result;
   }
 
   /// deallocate - deallocate N data from the pPtr
   //  - if we can simply release some memory, then do it. Otherwise, do 
   //    nothing.
   void deallocate(pointer pPtr, size_type N) {
+    if (0 == N || N > m_ElementNum || 0 == m_pCurrent->bound || N >= m_pCurrent->bound)
+      return;
+    if (!isAvaliable(pPtr))
+      return;
+    m_pCurrent->bound -= N;
   }
 
   /// deallocate - clone function of deallocating one datum
   void deallocate(pointer pPtr) {
+    if (0 == m_pCurrent->bound)
+      return;
+    if (!isAvaliable(pPtr))
+      return;
+    m_pCurrent->bound -= 1;
   }
 
   size_type max_size() const
-  { return 0; }
+  { return m_AllocatedNum; }
 
   /// standard construct - constructing an object on the location pointed by
   //  pPtr, and using its copy constructor to initialized its value to pValue.
@@ -324,15 +381,74 @@ public:
   void destroy(pointer pPtr)
   { pPtr->~DataType(); }
 
-  bool empty() const
-  { return true; }
+  bool empty() const {
+    return (0 == m_pRoot);
+  }
 
   /// clear - clear all chunks
   void clear() {
+    // call all destructors
+    ChunkType *cur = m_pRoot, *prev;
+    while (0 != cur) {
+      int idx=0;
+      while (idx != cur->bound) {
+        destroy(&cur->data[idx]);
+        ++idx;
+      }
+      cur = cur->next;
+    }
+
+    // free all chunks
+    while (0 != cur) {
+      prev = cur;
+      cur = cur->next;
+      free(prev);
+    }
+
+    // reset
+    m_pRoot = 0;
+    m_pCurrent = 0;
+    m_AllocatedNum = 0;
+  }
+
+  /// isIn - whether the pPtr is in the current chunk?
+  bool isIn(pointer pPtr) const {
+    if (pPtr >= &(m_pCurrent->data[0]) && 
+        pPtr <= &(m_pCurrent->data[m_ElementNum-1]))
+      return true;
+    return false;
+  }
+
+  /// isIn - whether the pPtr is allocated, and can be constructed.
+  bool isAvailable(pointer pPtr) const {
+    if (pPtr >= &(m_pCurrent->data[m_pCurrent->bound]) && 
+        pPtr <= &(m_pCurrent->data[m_ElementNum-1]))
+      return true;
+    return false;
   }
 
 protected:
-  Alloc m_Allocator;
+  inline void initialize() {
+    m_pRoot = new chunk_type(m_ElementNum);
+    m_pCurrent = m_pRoot;
+    m_pCurrent->next = 0;
+    m_AllocatedNum += m_ElementNum;
+  }
+
+  inline ChunkType *createChunk() {
+    chunk_type* result = new chunk_type(m_ElementNum);
+    m_pCurrent->next = result;
+    m_pCurrent = result;
+    m_pCurrent->next = 0;
+    m_AllocatedNum += m_ElementNum;
+    return result;
+  }
+
+protected:
+  chunk_type* m_pRoot;
+  chunk_type* m_pCurrent;
+  size_type m_AllocatedNum;
+  size_type m_ElementNum;
 };
 
 } // namespace of mcld
