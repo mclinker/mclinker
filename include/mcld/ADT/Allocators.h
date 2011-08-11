@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <llvm/Support/Allocator.h>
 
 namespace mcld
 {
@@ -241,6 +242,98 @@ protected:
   ChunkType *m_pRoot;
   ChunkType *m_pCurrent;
   size_type m_AllocatedNum;
+};
+
+/** \class RTLinearAllocator
+ *  \brief RTLinearAllocator is another linear allocator whose size can be
+ *   given at run-time by constructor.
+ */
+template<typename DataType>
+class RTLinearAllocator : private Uncopyable
+{
+public:
+  typedef DataType*                  pointer;
+  typedef DataType&                  reference;
+  typedef const DataType*            const_pointer;
+  typedef const DataType&            const_reference;
+  typedef DataType                   value_type;
+  typedef size_t                     size_type;
+  typedef ptrdiff_t                  difference_type;
+  typedef unsigned char              byte_type;
+  typedef llvm::BumpPtrAllocator     Alloc;
+
+public:
+  RTLinearAllocator(size_t pSize,
+                    size_t pThreshold = 4096,
+                    SlabAllocator &pAlloc = Alloc::DefaultSlabAllocator)
+  : m_Allocator(pSize, pThreshold, pAlloc)
+  { }
+
+
+  virtual ~RTLinearAllocator()
+  { }
+
+  pointer address(reference X) const
+  { return &X; }
+
+  const_pointer address(const_reference X) const
+  { return &X; }
+
+  /// allocate - allocate N data in order.
+  //  - Disallow to allocate a chunk whose size is bigger than a chunk.
+  //
+  //  @param N the number of allocated data.
+  //  @return the start address of the allocated memory
+  pointer allocate(size_type N) {
+  }
+
+  /// allocate - clone function of allocating one datum.
+  pointer allocate() {
+  }
+
+  /// deallocate - deallocate N data from the pPtr
+  //  - if we can simply release some memory, then do it. Otherwise, do 
+  //    nothing.
+  void deallocate(pointer pPtr, size_type N) {
+  }
+
+  /// deallocate - clone function of deallocating one datum
+  void deallocate(pointer pPtr) {
+  }
+
+  size_type max_size() const
+  { return 0; }
+
+  /// standard construct - constructing an object on the location pointed by
+  //  pPtr, and using its copy constructor to initialized its value to pValue.
+  //
+  //  @param pPtr the address where the object to be constructed
+  //  @param pValue the value to be constructed
+  void construct(pointer pPtr, const_reference pValue)
+  { new (pPtr) DataType(pValue); }
+
+  /// default construct - constructing an object on the location pointed by
+  //  pPtr, and using its default constructor to initialized its value to
+  //  pValue.
+  //
+  //  @param pPtr the address where the object to be constructed
+  void construct(pointer pPtr)
+  { new (pPtr) DataType(); }
+
+  /// standard destroy - destroy data on arbitrary address
+  //  @para pPtr the address where the data to be destruected.
+  void destroy(pointer pPtr)
+  { pPtr->~DataType(); }
+
+  bool empty() const
+  { return true; }
+
+  /// clear - clear all chunks
+  void clear() {
+  }
+
+protected:
+  Alloc m_Allocator;
 };
 
 } // namespace of mcld
