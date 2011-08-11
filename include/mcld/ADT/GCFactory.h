@@ -198,7 +198,7 @@ public:
   : RTLinearAllocator<DataType>(pNum), m_NumAllocData(0)
   { }
 
-  virtual ~GCFactory()
+  virtual ~RTGCFactory()
   { Alloc::clear(); }
 
   // -----  modifiers  ----- //
