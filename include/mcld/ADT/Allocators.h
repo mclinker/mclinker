@@ -265,7 +265,7 @@ public:
 public:
   RTLinearAllocator(size_t pSize,
                     size_t pThreshold = 4096,
-                    SlabAllocator &pAlloc = Alloc::DefaultSlabAllocator)
+                    llvm::SlabAllocator &pAlloc = Alloc::DefaultSlabAllocator)
   : m_Allocator(pSize, pThreshold, pAlloc)
   { }
 
