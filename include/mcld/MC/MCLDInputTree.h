@@ -82,21 +82,29 @@ public:
                     unsigned int pType = Input::Unknown);
 
   template<size_t DIRECT>
-  InputTree& enterGroup(InputTree::iterator pPosition);
+  InputTree& enterGroup(iterator pPosition);
 
-  InputTree& merge(InputTree::iterator pPosition, 
-                   const InputTree::Connector& pConnector,
+  template<size_t DIRECT>
+  InputTree& insert(iterator pPosition,
+                    const Input& pInput);
+
+  InputTree& merge(iterator pPosition, 
+                   const Connector& pConnector,
                    InputTree& pTree);
 
-  InputTree& insert(InputTree::iterator pPosition,
-                    const InputTree::Connector& pConnector,
+  InputTree& insert(iterator pPosition,
+                    const Connector& pConnector,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
                     const MCLDAttribute& pAttr,
                     unsigned int pType = Input::Unknown);
 
-  InputTree& enterGroup(InputTree::iterator pPosition,
-                        const InputTree::Connector& pConnector);
+  InputTree& insert(iterator pPosition,
+                    const Connector& pConnector,
+                    const Input& pInput);
+
+  InputTree& enterGroup(iterator pPosition,
+                        const Connector& pConnector);
 
   // -----  observers  ----- //
   unsigned int numOfInputs() const
@@ -147,6 +155,21 @@ mcld::InputTree::enterGroup(mcld::InputTree::iterator pPosition)
   else
     proxy::hook<DIRECT>(pPosition.m_pNode,
         const_cast<const node_type*>(node));
+  return *this;
+}
+
+template<size_t DIRECT>
+mcld::InputTree& mcld::InputTree::insert(mcld::InputTree::iterator pPosition,
+	                                 const mcld::Input& pInput)
+{
+  BinTreeTy::node_type* node = createNode();
+  node->data = const_cast<mcld::Input*>(&pInput);
+  if (pPosition.isRoot())
+    proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
+                                         const_cast<const node_type*>(node));
+  else
+    proxy::hook<DIRECT>(pPosition.m_pNode,
+                        const_cast<const node_type*>(node));
   return *this;
 }
 

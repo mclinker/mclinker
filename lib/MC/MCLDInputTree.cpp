@@ -52,7 +52,6 @@ InputTree& InputTree::insert(InputTree::iterator pPosition,
   return *this;
 }
 
-
 InputTree& InputTree::enterGroup(InputTree::iterator pPosition,
                                  const InputTree::Connector& pConnector)
 {
@@ -60,6 +59,18 @@ InputTree& InputTree::enterGroup(InputTree::iterator pPosition,
   pConnector.connect(pPosition, iterator(node));
   return *this;
 }
+
+InputTree& InputTree::insert(InputTree::iterator pPosition,
+                             const InputTree::Connector& pConnector,
+                             const mcld::Input& pInput)
+{
+  BinaryTree<Input>::node_type* node = createNode();
+  node->data = const_cast<mcld::Input*>(&pInput);
+  pConnector.connect(pPosition, iterator(node));
+  return *this;
+}
+
+
 
 //===----------------------------------------------------------------------===//
 // non-member functions
