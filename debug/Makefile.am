@@ -95,7 +95,7 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/GCFactory.h \
 	${INCDIR}/ADT/TreeAllocator.h \
-	${INCDIR}/ADT/BinTree.h 
+	${INCDIR}/ADT/BinTree.h
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
@@ -108,7 +108,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/LinearAllocatorTest.h \
 	${UNITTEST}/LinearAllocatorTest.cpp \
 	${UNITTEST}/InputTreeTest.h \
-	${UNITTEST}/InputTreeTest.cpp
+	${UNITTEST}/InputTreeTest.cpp \
+	${UNITTEST}/RTLinearAllocatorTest.h \
+	${UNITTEST}/RTLinearAllocatorTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else
