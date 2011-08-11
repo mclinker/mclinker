@@ -388,7 +388,7 @@ public:
   /// clear - clear all chunks
   void clear() {
     // call all destructors
-    ChunkType *cur = m_pRoot, *prev;
+    chunk_type *cur = m_pRoot, *prev;
     while (0 != cur) {
       int idx=0;
       while (idx != cur->bound) {
@@ -435,7 +435,7 @@ protected:
     m_AllocatedNum += m_ElementNum;
   }
 
-  inline ChunkType *createChunk() {
+  inline chunk_type *createChunk() {
     chunk_type* result = new chunk_type(m_ElementNum);
     m_pCurrent->next = result;
     m_pCurrent = result;
