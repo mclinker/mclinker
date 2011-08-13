@@ -182,18 +182,22 @@ ArgBStaticListAlias3("non_shared",
 //===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(MCLDInfo& pLDInfo,
+                       const std::string& pInputFile,
+                       const std::string& pOutputFile,
+                       unsigned int pOutputLinkType,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_LDInfo(pLDInfo),
-    m_pLDBackend(&pLDBackend),
-    m_pAttrFactory(new AttributeFactory()) {
+    m_pLDBackend(&pLDBackend) {
+    // create the "clean" default attribute
+    // create the default input, and assign the default attribute to it.
+    // create the default output 
 }
 
 SectLinker::~SectLinker()
 {
   delete m_pLDBackend;
   delete m_pLDDriver;
-  delete m_pAttrFactory;
 }
 
 bool SectLinker::doInitialization(Module &pM)
@@ -514,6 +518,35 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
   if (!returnStack.empty()) {
     report_fatal_error("no matched --start-group and --end-group");
   }
+}
+
+//===----------------------------------------------------------------------===//
+// PositionDependentOption
+SectLinker::PositionDependentOption::PositionDependentOption(
+                              unsigned int pPosition,
+                              SectLinker::PositionDependentOption::Type pType)
+  : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec(0) {
+}
+
+SectLinker::PositionDependentOption::PositionDependentOption(
+                               unsigned int pPosition,
+                              const sys::fs::Path& pInputFile,
+                              SectLinker::PositionDependentOption::Type pType)
+  : m_Type(pType),
+    m_Position(pPosition),
+    m_pPath(&pInputFile),
+    m_pNamespec(0) {
+}
+
+SectLinker::PositionDependentOption::PositionDependentOption(
+                              unsigned int pPosition,
+                              const sys::fs::Path& pLibrary,
+                              llvm::StringRef pNamespec,
+                              SectLinker::PositionDependentOption::Type pType)
+  : m_Type(pType),
+    m_Position(pPosition),
+    m_pPath(&pLibrary),
+    m_pNamespec(pNamespec.data()) {
 }
 
 //===----------------------------------------------------------------------===//

@@ -65,40 +65,21 @@ namespace mcld
 
     public:
       PositionDependentOption(unsigned int pPosition,
-                              Type pType)
-        : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec(0) {
-      }
+                              Type pType);
 
       PositionDependentOption(unsigned int pPosition,
                              const sys::fs::Path& pInputFile,
-                             Type pType = INPUT_FILE)
-        : m_Type(pType), m_Position(pPosition),
-          m_pPath(&pInputFile), m_pNamespec(0) {
-      }
+                             Type pType = INPUT_FILE);
 
       PositionDependentOption(unsigned int pPosition,
                              const sys::fs::Path& pLibrary,
                              llvm::StringRef pNamespec,
-                             Type pType = NAMESPEC)
-        : m_Type(pType), m_Position(pPosition),
-          m_pPath(&pLibrary), m_pNamespec(pNamespec.data()) {
-      }
+                             Type pType = NAMESPEC);
 
-      const Type& type() const {
-        return m_Type;
-      }
-
-      unsigned int position() const {
-        return m_Position;
-      }
-
-      const sys::fs::Path* path() const {
-        return m_pPath;
-      }
-
-      const char* namespec() const {
-        return m_pNamespec;
-      }
+      const Type& type() const          { return m_Type; }
+      unsigned int position() const     { return m_Position; }
+      const sys::fs::Path* path() const { return m_pPath; }
+      const char* namespec() const      { return m_pNamespec; }
 
     private:
       Type m_Type;
@@ -110,7 +91,20 @@ namespace mcld
     typedef std::vector<PositionDependentOption*> PositionDependentOptions;
 
   protected:
+    // Constructor. Although SectLinker has only two arguments, 
+    // TargetSectLinker should handle
+    // - enabled attributes
+    // - the default attribute
+    // - the default link script
+    // - the standard symbols
+    //
+    // SectLinker constructor handles
+    // - the default input
+    // - the default output (filename and link type)
     SectLinker(MCLDInfo& pLDInfo,
+               const std::string& pInputFile,
+               const std::string& pOutputFile,
+               unsigned int pOutputLinkType,
                TargetLDBackend &pLDBackend);
 
   public:

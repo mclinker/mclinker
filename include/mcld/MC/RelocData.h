@@ -3,22 +3,36 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Reloc.h <nowar100@gmail.com>                                            *
  ****************************************************************************/
-#ifndef ARM_MCLDINFO_H
-#define ARM_MCLDINFO_H
+#ifndef RELOCDATA_H
+#define RELOCDATA_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCLDInfo.h>
+
+#include <vector>
 
 namespace mcld
 {
 
-class ARMELFLDInfo : public MCLDInfo
+// Data about a single relocation section.  This is read in
+// read_relocs and processed in scan_relocs.
+struct SectionRelocData {
+  //MCLDFile* contents;
+};
+
+
+/** \class RelocData
+ *  \brief Information of relocations in an object file.
+ *
+ *  \see
+ *  \author Reloc.h <nowar100@gmail.com>
+ */
+struct RelocData
 {
-public:
-  explicit ARMELFLDInfo();
+  typedef std::vector<SectionRelocData> SectionRelocList;
+  SectionRelocList relocs;
 };
 
 } // namespace of mcld

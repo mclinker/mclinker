@@ -9,7 +9,6 @@
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCAsmObjectReader.h>
 #include <mcld/MC/MCLDFile.h>
 #include <string>
@@ -62,7 +61,29 @@ static cl::opt<bool>
 ArgShowMCInst("lshow-mc-inst",
               cl::Hidden,
               cl::desc("Show instruction structure in .s output"));
-//===----------------------------------------------------------------------===//
+
+
+//===---------------------------------------------------------------------===//
+/// Non-member functions
+static tool_output_file *GetOutputStream(const std::string& pOutputFilename)
+{
+  std::string error;
+  unsigned OpenFlags = 0;
+  if (pFileType != mcld::CGFT_ASMFile)
+    OpenFlags |= raw_fd_ostream::F_Binary;
+  tool_output_file *FDOut = new tool_output_file(pOutputFilename.c_str(),
+                                                 error,
+                                                 OpenFlags);
+  if (!error.empty()) {
+    errs() << error << '\n';
+    delete FDOut;
+    return 0;
+  }
+
+  return FDOut;
+}
+
+//===---------------------------------------------------------------------===//
 /// LLVMTargetMachine
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
@@ -88,12 +109,16 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
                                             PM, Level, DisableVerify, OutCtx);
 }
 
-bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
-                                         formatted_raw_ostream &pOS,
-                                         mcld::CodeGenFileType pFileType,
-                                         CodeGenOpt::Level pOptLvl,
-                                         bool pDisableVerify ) {
+bool mcld::LLVMTargetMachine::addPassesToEmitFile(
+                                             PassManagerBase &pPM,
+                                             const std::string& pInputFilename,
+                                             const std::string& pOutputFilename,
+                                             mcld::CodeGenFileType pFileType,
+                                             CodeGenOpt::Level pOptLvl,
+                                             bool pDisableVerify)
+{
 
+  // MCContext
   MCContext* Context = 0;
   if (addCommonCodeGenPasses(pPM, pOptLvl, pDisableVerify, Context))
     return true;
@@ -102,74 +127,23 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   if (getTM().hasMCSaveTempLabels())
     Context->setAllowTemporaryLabels(false);
 
-  const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
-  MCCodeEmitter *MCE = 0;
-  MCAsmBackend *MAB = 0;
-  MachineFunctionPass *funcPass = 0;
-  OwningPtr<MCStreamer> AsmStreamer;
-
   switch( pFileType ) {
   default:
   case mcld::CGFT_NULLFile: 
     assert(0 && "fatal: file type is not set!");
     break;
   case CGFT_ASMFile: {
-    MCInstPrinter *InstPrinter =
-      getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI);
-
-    // Create a code emitter if asked to show the encoding.
-    if (ArgShowMCEncoding) {
-#if LLVM_VERSION > 2
-      const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-      MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
-#else
-      MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
-#endif
-      MAB = getTarget().get()->createMCAsmBackend(m_Triple);
-      if (MCE == 0 || MAB == 0)
-        return true;
-    }
-
-    MCStreamer *S = getTarget().get()->createAsmStreamer(*Context, pOS,
-                                                         ArgAsmVerbose,
-                                                         getTM().hasMCUseLoc(),
-                                                         getTM().hasMCUseCFI(),
-                                                         InstPrinter,
-                                                         MCE, MAB,
-                                                         ArgShowMCInst);
-    AsmStreamer.reset(S);
-    funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
-    if (funcPass == 0)
+    if (addCompilerPasses(pPM,
+                          pOutputFilename,
+                          Context))
       return true;
-    // If successful, createAsmPrinter took ownership of AsmStreamer
-    AsmStreamer.take();
-    pPM.add(funcPass);
     break;
   }
   case CGFT_OBJFile: {
-    // Create the code emitter for the target if it exists.  If not, .o file
-    // emission fails.
-#if LLVM_VERSION > 2
-      const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-      MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
-#else
-    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
-#endif
-    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
-    if (MCE == 0 || MAB == 0)
+    if (addAssemblerPasses(pPM,
+                           pOutputFilename,
+                           Context))
       return true;
-
-    AsmStreamer.reset(getTarget().get()->createMCObjectStreamer(m_Triple, *Context,
-                                                       *MAB, pOS, MCE,
-                                                       getTM().hasMCRelaxAll(),
-                                                       getTM().hasMCNoExecStack()));
-    AsmStreamer.get()->InitSections();
-    funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
-    if (funcPass == 0)
-      return true;
-    // If successful, createAsmPrinter took ownership of AsmStreamer
-    AsmStreamer.take();
-    pPM.add(funcPass);
     break;
   }
   case CGFT_ARCFile: {
@@ -177,54 +151,171 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_EXEFile: {
-    assert(0 && "Output to executable file will be supported soon.");
+    if (addLinkerPasses(pPM,
+                        pInputFilename,
+                        pOutputFilename,
+                        MCLDFile::Exec,
+                        Context))
+      return true;
     break;
   }
   case CGFT_DSOFile: {
-    // Create the code emitter for the target if it exists.  If not, .o file
-    // emission fails.
-#if LLVM_VERSION > 2
-    const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-    MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
-#else
-    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
-#endif
-    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
-    if (MCE == 0 || MAB == 0)
+    if (addLinkerPasses(pPM,
+                        pInputFilename,
+                        pOutputFilename,
+                        MCLDFile::DynObj,
+                        Context))
       return true;
-
-    MCStreamer* AsmStreamer = getTarget().get()->createMCObjectStreamer(m_Triple, 
-                                                              *Context,
-                                                              *MAB,
-                                                              llvm::nulls(),
-                                                              MCE,
-                                                              getTM().hasMCRelaxAll(),
-                                                              getTM().hasMCNoExecStack());
-
-    MCLDInfo* ldInfo = getTarget().createLDInfo(m_Triple);
-
-    MCAsmObjectReader *objReader = new MCAsmObjectReader(
-                                             *static_cast<MCObjectStreamer*>(AsmStreamer),
-                                             *ldInfo);
-
-    AsmStreamer->InitSections();
-    AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
-    if (0 == printer )
-      return true;
-    pPM.add(printer);
-
-    TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
-    if (0 == ldBackend)
-      return true;
-    funcPass = getTarget().createSectLinker(m_Triple, *ldInfo, *ldBackend);
-    if (0 == funcPass)
-      return true;
-    pPM.add(funcPass);
     break;
   }
   } // switch
 
   pPM.add(createGCInfoDeleter()); // not in addPassesToMC
+  return false;
+}
+
+bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
+                                                const std::string& pOutputFilename,
+                                                MCContext *&Context)
+{
+  const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
+
+  MCInstPrinter *InstPrinter =
+    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI);
+
+  MCCodeEmitter* MCE = 0;
+  // MCCodeEmitter
+  if (ArgShowMCEncoding) {
+#if LLVM_VERSION > 2
+    const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+    MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
+#else
+    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
+#endif
+  }
+
+  // MCAsmBackend
+  MCAsmBackend *MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+  if (MCE == 0 || MAB == 0)
+    return true;
+
+  tool_output_file *Output = GetOutputStream(pOutputFilename);
+
+  // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
+  OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createAsmStreamer(*Context,
+                                                                         Output->os(),
+                                                                         ArgAsmVerbose,
+                                                                         getTM().hasMCUseLoc(),
+                                                                         getTM().hasMCUseCFI(),
+                                                                         InstPrinter,
+                                                                         MCE,
+                                                                         MAB,
+                                                                         ArgShowMCInst));
+
+  llvm::MachineFunctrionPass* funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+  if (funcPass == 0)
+    return true;
+  // If successful, createAsmPrinter took ownership of AsmStreamer
+  AsmStreamer.take();
+  pPM.add(funcPass);
+  return false;
+}
+
+bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
+                                                 const std::string& pOutputFilename,
+                                                 MCContext *&Context)
+{
+  // MCCodeEmitter
+#if LLVM_VERSION > 2
+  const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+#else
+  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
+#endif
+
+  // MCAsmBackend
+  MCAsmBackend* MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+  if (MCE == 0 || MAB == 0)
+    return true;
+
+  // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
+  tool_output_file *Output = GetOutputStream(pOutputFilename);
+  OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createMCObjectStreamer(
+                                                              m_Triple,
+                                                              *Context,
+                                                              *MAB,
+                                                              Output->os(),
+                                                              MCE,
+                                                              getTM().hasMCRelaxAll(),
+                                                              getTM().hasMCNoExecStack()));
+  AsmStreamer.get()->InitSections();
+  MachineFunctionPass *funcPass = getTarget().get()->createAsmPrinter(getTM(),
+                                                                      *AsmStreamer.get());
+  if (funcPass == 0)
+    return true;
+  // If successful, createAsmPrinter took ownership of AsmStreamer
+  AsmStreamer.take();
+  pPM.add(funcPass);
+  return false;
+}
+
+bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
+                                              const std::string& pInputFilename,
+                                              const std::string& pOutputFilename,
+                                              unsigned int pOutputLinkType,
+                                              MCContext *&Context)
+{
+  // Initialize MCAsmStreamer first, than chain its output into SectLinker.
+  // MCCodeEmitter
+#if LLVM_VERSION > 2
+  const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
+  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(),
+                                                              STI,
+                                                              *Context);
+#else
+  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(getTM(),
+                                                              *Context);
+#endif
+  // MCAsmBackend
+  MCAsmBackend *MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+  if (MCE == 0 || MAB == 0)
+    return true;
+
+  // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
+  OwningPtr<MCStreamer> AsmStreamer(
+                            getTarget().get()->createMCObjectStreamer(
+                                                  m_Triple,
+                                                  *Context,
+                                                  *MAB,
+                                                  llvm::nulls(),
+                                                  MCE,
+                                                  getTM().hasMCRelaxAll(),
+                                                  getTM().hasMCNoExecStack()));
+
+  MCAsmObjectReader *objReader = 
+                         new MCAsmObjectReader(
+                                *static_cast<MCObjectStreamer*>(AsmStreamer),
+                                getLDInfo());
+
+  AsmStreamer->InitSections();
+  AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
+  if (0 == printer )
+    return true;
+  pPM.add(printer);
+
+  TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
+  if (0 == ldBackend)
+    return true;
+
+  MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple, 
+                                                               pInputFilename,
+                                                               pOutputFilename,
+                                                               pLinkType,
+                                                               getLDInfo(),
+                                                               *ldBackend);
+  if (0 == funcPass)
+    return true;
+  pPM.add(funcPass);
   return false;
 }
 
