@@ -26,7 +26,12 @@ class MCLDInfo;
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(MCLDInfo& pLDInfo, TargetLDBackend &pLDBackend);
+  ARMELFSectLinker(const std::string &pInputFilename,
+                   const std::string &pOutputFilename,
+                   unsigned int pOutputLinkType,
+                   MCLDInfo& pLDInfo,
+                   mcld::TargetLDBackend &pLDBackend);
+
   ~ARMELFSectLinker();
 };
 

@@ -106,15 +106,10 @@ public:
   }
 };
 
-/** \class GCFactory
- *  \brief GCFactory provides a factory that guaratees to remove all allocated
- *  data.
- */
-template<typename DataType, size_t Num>
-class GCFactory : protected LinearAllocator<DataType, Num>
+template<typename Alloc>
+class GCFactoryBase : public Alloc
 {
 public:
-  typedef LinearAllocator<DataType, Num> Alloc;
   typedef DataIterator<typename Alloc::chunk_type,
                        NonConstTraits<
                          typename Alloc::value_type> > iterator;
@@ -122,25 +117,47 @@ public:
                        ConstTraits<
                          typename Alloc::value_type> > const_iterator;
 
-
-public:
-  GCFactory()
-  : m_NumAllocData(0)
+protected:
+  GCFactoryBase()
+  : Alloc(), m_NumAllocData(0)
   { }
 
-  virtual ~GCFactory()
+  GCFactoryBase(size_t pNum)
+  : Alloc(pNum), m_NumAllocData(0)
+  { }
+
+public:
+  virtual ~GCFactoryBase()
   { Alloc::clear(); }
 
   // -----  modifiers  ----- //
+  DataType* allocate(size_t N) {
+    DataType* result = Alloc::allocate(N);
+    if (0 != result)
+      m_NumAllocData += N;
+    return result;
+  }
+
   DataType* allocate() {
     ++m_NumAllocData;
     return Alloc::allocate();
   }
 
+  void deallocate(pointer &pPtr, size_type N) {
+    Alloc::deallocate(pPtr, N);
+    if (0 == pPtr)
+      m_NumAllocData -= N;
+  }
+
+  void deallocate(pointer &pPtr) {
+    Alloc::deallocate(pPtr);
+    if (0 == pPtr)
+      --m_NumAllocData;
+  }
+
   void reset() {
-    Alloc::m_pRoot = 0;
-    Alloc::m_pCurrent = 0;
-    Alloc::m_AllocatedNum = m_NumAllocData = 0;
+    Alloc::reset();
+    m_NumAllocData = 0;
   }
 
   // -----  iterators  ----- //
@@ -176,74 +193,26 @@ protected:
   unsigned int m_NumAllocData;
 };
 
-/** \class RTGCFactory
- *  \brief RTGCFactory provides a factory that guaratees to remove all allocated
+/** \class GCFactory
+ *  \brief GCFactory provides a factory that guaratees to remove all allocated
  *  data.
  */
-template<typename DataType>
-class RTGCFactory : protected RTLinearAllocator<DataType>
+template<typename DataType, size_t ChunkSize>
+class GCFactory : public GCFactoryBase<LinearAllocator<DataType, ChunkSize> >
 {
 public:
-  typedef RTLinearAllocator<DataType> Alloc;
-  typedef DataIterator<typename Alloc::chunk_type,
-                       NonConstTraits<
-                         typename Alloc::value_type> > iterator;
-  typedef DataIterator<typename Alloc::chunk_type,
-                       ConstTraits<
-                         typename Alloc::value_type> > const_iterator;
-
-
-public:
-  explicit RTGCFactory(size_t pNum)
-  : RTLinearAllocator<DataType>(pNum), m_NumAllocData(0)
+  GCFactory()
+  : GCFactoryBase()
   { }
+};
 
-  virtual ~RTGCFactory()
-  { Alloc::clear(); }
-
-  // -----  modifiers  ----- //
-  DataType* allocate() {
-    ++m_NumAllocData;
-    return Alloc::allocate();
-  }
-
-  void reset() {
-    Alloc::m_pRoot = 0;
-    Alloc::m_pCurrent = 0;
-    Alloc::m_AllocatedNum = m_NumAllocData = 0;
-  }
-
-  // -----  iterators  ----- //
-  iterator begin()
-  { return iterator(Alloc::m_pRoot, 0); }
-
-  const_iterator begin() const
-  { return const_iterator(Alloc::m_pRoot, 0); }
-
-  iterator end() {
-    return (0 == Alloc::m_pCurrent)? 
-             begin():
-             iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
-  }
-
-  const_iterator end() const {
-    return (0 == Alloc::m_pCurrent)? 
-             begin():
-             const_iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
-  }
-
-  // -----  observers  ----- //
-  bool empty() const
-  { return Alloc::empty(); }
-
-  unsigned int capacity() const
-  { return Alloc::max_size(); }
-
-  unsigned int size() const
-  { return m_NumAllocData; }
-
-protected:
-  unsigned int m_NumAllocData;
+template<typename DataType>
+class GCFactory<DataType, 0> : public GCFactoryBase<LinearAllocator<DataType, 0> >
+{
+public:
+  GCFactory(size_t pNum)
+  : GCFactoryBase(pNum)
+  { }
 };
 
 } // namespace of mcld

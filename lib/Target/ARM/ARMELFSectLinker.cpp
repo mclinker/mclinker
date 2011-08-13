@@ -12,17 +12,16 @@
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(MCLDInfo& pLDInfo,
+ARMELFSectLinker::ARMELFSectLinker(const std::string &pInputFilename,
+                                   const std::string &pOutputFilename,
+                                   unsigned int pOutputLinkType,
+                                   MCLDInfo& pLDInfo,
                                    TargetLDBackend &pLDBackend)
-  : SectLinker(pLDInfo, pLDBackend) {
-  // set attributes
-  attrFactory()->reserve(32);
-  MCLDAttribute* def_attr = attrFactory()->produce();  
-  def_attr->setWholeArchive();
-  def_attr->unsetAsNeeded();
-  def_attr->setDynamic();
-
-  attrFactory()->setDefault(*def_attr);
+  : SectLinker(pInputFilename,
+               pOutputFilename,
+               pOutputLinkType,
+               pLDInfo,
+               pLDBackend) {
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()
