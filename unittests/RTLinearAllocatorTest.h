@@ -11,7 +11,7 @@
 #define RTLINEARALLOCATOR_TEST_H
 
 #include <gtest.h>
-#include <mcld/ADT/Allocators.h>
+#include <mcld/Support/Allocators.h>
 
 namespace mcldtest
 {
@@ -66,7 +66,7 @@ public:
   enum {  CHUNK_SIZE = 32  };
 
 protected:
-	mcld::RTLinearAllocator<Data>* m_pTestee;
+	mcld::LinearAllocator<Data,0>* m_pTestee;
 };
 
 } // namespace of mcldtest

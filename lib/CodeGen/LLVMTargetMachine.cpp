@@ -40,6 +40,8 @@
 #include <llvm/MC/MCObjectStreamer.h>
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCObjectWriter.h>
+#include <llvm/MC/MCContext.h>
+#include <llvm/Support/ToolOutputFile.h>
 
 
 using namespace mcld;
@@ -65,15 +67,13 @@ ArgShowMCInst("lshow-mc-inst",
 
 //===---------------------------------------------------------------------===//
 /// Non-member functions
-static tool_output_file *GetOutputStream(const std::string& pOutputFilename)
+inline static tool_output_file *
+GetOutputStream(const std::string& pOutputFilename, unsigned int pOpenFlags)
 {
   std::string error;
-  unsigned OpenFlags = 0;
-  if (pFileType != mcld::CGFT_ASMFile)
-    OpenFlags |= raw_fd_ostream::F_Binary;
   tool_output_file *FDOut = new tool_output_file(pOutputFilename.c_str(),
                                                  error,
-                                                 OpenFlags);
+                                                 pOpenFlags);
   if (!error.empty()) {
     errs() << error << '\n';
     delete FDOut;
@@ -103,14 +103,13 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
 bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
                                                      CodeGenOpt::Level Level,
                                                      bool DisableVerify,
-                                                     MCContext *&OutCtx)
+                                                     llvm::MCContext *&OutCtx)
 {
   return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
                                             PM, Level, DisableVerify, OutCtx);
 }
 
-bool mcld::LLVMTargetMachine::addPassesToEmitFile(
-                                             PassManagerBase &pPM,
+bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              const std::string& pInputFilename,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
@@ -119,7 +118,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(
 {
 
   // MCContext
-  MCContext* Context = 0;
+  llvm::MCContext* Context = 0;
   if (addCommonCodeGenPasses(pPM, pOptLvl, pDisableVerify, Context))
     return true;
   assert(Context != 0 && "Failed to get MCContext");
@@ -176,7 +175,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(
 
 bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                 const std::string& pOutputFilename,
-                                                MCContext *&Context)
+                                                llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
 
@@ -199,11 +198,12 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   if (MCE == 0 || MAB == 0)
     return true;
 
-  tool_output_file *Output = GetOutputStream(pOutputFilename);
+  tool_output_file *Output = GetOutputStream(pOutputFilename, raw_fd_ostream::F_Binary);
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
+  formatted_raw_ostream FOS(Output->os());
   OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createAsmStreamer(*Context,
-                                                                         Output->os(),
+                                                                         FOS,
                                                                          ArgAsmVerbose,
                                                                          getTM().hasMCUseLoc(),
                                                                          getTM().hasMCUseCFI(),
@@ -212,7 +212,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                                          MAB,
                                                                          ArgShowMCInst));
 
-  llvm::MachineFunctrionPass* funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+  llvm::MachineFunctionPass* funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
   if (funcPass == 0)
     return true;
   // If successful, createAsmPrinter took ownership of AsmStreamer
@@ -223,7 +223,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 
 bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                  const std::string& pOutputFilename,
-                                                 MCContext *&Context)
+                                                 llvm::MCContext *&Context)
 {
   // MCCodeEmitter
 #if LLVM_VERSION > 2
@@ -239,7 +239,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  tool_output_file *Output = GetOutputStream(pOutputFilename);
+  tool_output_file *Output = GetOutputStream(pOutputFilename, 0);
   OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createMCObjectStreamer(
                                                               m_Triple,
                                                               *Context,
@@ -263,7 +263,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               const std::string& pInputFilename,
                                               const std::string& pOutputFilename,
                                               unsigned int pOutputLinkType,
-                                              MCContext *&Context)
+                                              llvm::MCContext *&Context)
 {
   // Initialize MCAsmStreamer first, than chain its output into SectLinker.
   // MCCodeEmitter
@@ -294,13 +294,14 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 
   MCAsmObjectReader *objReader = 
                          new MCAsmObjectReader(
-                                *static_cast<MCObjectStreamer*>(AsmStreamer),
-                                getLDInfo());
+                                  static_cast<MCObjectStreamer&>(*AsmStreamer.get()),
+                                  getLDInfo());
 
   AsmStreamer->InitSections();
   AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
   if (0 == printer )
     return true;
+  AsmStreamer.take();
   pPM.add(printer);
 
   TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
@@ -310,7 +311,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple, 
                                                                pInputFilename,
                                                                pOutputFilename,
-                                                               pLinkType,
+                                                               pOutputLinkType,
                                                                getLDInfo(),
                                                                *ldBackend);
   if (0 == funcPass)

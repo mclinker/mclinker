@@ -11,7 +11,7 @@
 #include <gtest.h>
 #endif
 #include <set>
-#include <mcld/ADT/GCFactory.h>
+#include <mcld/Support/GCFactory.h>
 #include <mcld/ADT/TreeBase.h>
 
 namespace mcld

@@ -45,7 +45,7 @@ public:
   Path();
   Path(const ValueType* s );
   Path(const StringType &s );
-  ~Path();
+  virtual ~Path();
 
   // -----  assignments  ----- //
   template <class InputIterator>

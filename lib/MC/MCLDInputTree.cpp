@@ -6,6 +6,7 @@
  *   Duo <pinronglu@gmail.com>                                               *
  ****************************************************************************/
 #include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/InputFactory.h>
 
 using namespace mcld;
 
@@ -14,8 +15,8 @@ InputTree::Includer  InputTree::Downward;
 
 //===----------------------------------------------------------------------===//
 // InputTree
-InputTree::InputTree()
-{
+InputTree::InputTree(InputFactory& pInputFactory)
+  : m_FileFactory(pInputFactory) {
 }
 
 InputTree::~InputTree()
@@ -43,11 +44,10 @@ InputTree& InputTree::insert(InputTree::iterator pPosition,
                              const InputTree::Connector& pConnector,
                              const std::string& pNamespec,
                              const sys::fs::Path& pPath,
-                             const MCLDAttribute& pAttr,
                              unsigned int pType)
 {
   BinaryTree<Input>::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pAttr, pType);
+  node->data = m_FileFactory.produce(pNamespec, pPath, pType);
   pConnector.connect(pPosition, iterator(node));
   return *this;
 }

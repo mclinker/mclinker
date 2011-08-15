@@ -6,6 +6,7 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/MC/MCLDOptions.h>
+#include <mcld/MC/MCLDInput.h>
 
 using namespace mcld;
 
@@ -15,11 +16,11 @@ bool GeneralOptions::hasDefaultBitcode() const
 {
 }
 
-MCLDFile* GeneralOptions::defaultBitcode() const
+mcld::Input* GeneralOptions::defaultBitcode() const
 {
 }
 
-void GeneralOptions::setDefaultBitcode(MCLDFile &pLDFile)
+void GeneralOptions::setDefaultBitcode(mcld::Input &pInput)
 {
 }
 

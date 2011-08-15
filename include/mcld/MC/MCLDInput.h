@@ -11,12 +11,12 @@
 #include <gtest.h>
 #endif
 #include <mcld/MC/MCLDFile.h>
-#include <mcld/ADT/GCFactory.h>
 
 namespace mcld
 {
 
 class MCLDAttribute;
+class InputFactory;
 
 /** \class Input
  *  \brief Input provides the information of a input file.
@@ -25,6 +25,7 @@ class MCLDAttribute;
  */
 class Input : public MCLDFile
 {
+friend class InputFactory;
 public:
   enum Type {
     Archive = MCLDFile::Archive,
@@ -34,65 +35,30 @@ public:
     Unknown = MCLDFile::Unknown
   };
 
-public:
-  Input();
+private:
+  explicit Input(const MCLDAttribute& pAttr);
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const MCLDAttribute& pAttr,
         unsigned int pType = Unknown);
 
+public:
   ~Input();
 
   bool isRecognized() const
   { return (m_Type != Unknown); }
 
-  const MCLDAttribute* attribute() const
+  MCLDAttribute* attribute()
   { return m_pAttr; }
 
-  void setAttribute(const MCLDAttribute& pAttr)
-  { m_pAttr = const_cast<MCLDAttribute*>(&pAttr); }
+  const MCLDAttribute* attribute() const
+  { return m_pAttr; }
 
 private:
   MCLDAttribute *m_pAttr;
 };
 
-/** \class InputFactory
- *  \brief InputFactory controls the production and destruction of
- *  MCLDInput.
- *
- *  All MCLDFiles created by MCLDFileFactory are guaranteed to be destructed
- *  while MCLDFileFactory is destructed.
- *
- *  \see llvm::sys::Path
- */
-template<size_t NUM>
-class InputFactory : public GCFactory<Input, NUM>
-{
-public:
-  typedef GCFactory<Input, NUM> Alloc;
-
-public:
-  // -----  production  ----- //
-  Input* produce(llvm::StringRef pName,
-                 const sys::fs::Path& pPath,
-                 const MCLDAttribute& pAttr,
-                 unsigned int pType = Input::Unknown);
-};
-
 } // namespace of mcld
-
-//===----------------------------------------------------------------------===//
-// Template Functions
-template<size_t NUM>
-mcld::Input* mcld::InputFactory<NUM>::produce(llvm::StringRef pName,
-                                              const sys::fs::Path& pPath,
-                                              const MCLDAttribute& pAttr,
-                                              unsigned int pType)
-{
-    mcld::Input* result = Alloc::allocate();
-    new (result) mcld::Input(pName, pPath, pAttr, pType);
-    return result;
-}
  
 #endif
 

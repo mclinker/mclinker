@@ -9,13 +9,16 @@
 #include <mcld/Target/TargetMachine.h>
 #include <llvm/Target/TargetRegistry.h>
 #include <llvm/Target/TargetMachine.h>
-#include <llvm/MC/MCContext.h>
 
 using namespace llvm;
 using namespace mcld;
 
 /* ** */
 mcld::Target::Target()
-  : m_pT(0), TargetLDBackendCtorFn(0) {
+  : m_pT(0),
+    TargetLDBackendCtorFn(0),
+    TargetMachineCtorFn(0),
+    SectLinkerCtorFn(0)
+{
 }
 

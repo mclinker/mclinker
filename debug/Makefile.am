@@ -26,9 +26,6 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
-	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
-	${LIBDIR}/Target/ARM/ARMMCLDInfo.h \
-	${LIBDIR}/Target/ARM/ARMMCLDInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
@@ -48,6 +45,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCArchiveReader.cpp \
 	${INCDIR}/MC/MCGNUArchiveReader.h \
 	${LIBDIR}/MC/MCGNUArchiveReader.cpp \
+	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
+	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
@@ -67,14 +66,20 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
+	${INCDIR}/MC/InputFactory.h \
+	${LIBDIR}/MC/InputFactory.cpp \
 	${INCDIR}/MC/MCLDOptions.h \
 	${LIBDIR}/MC/MCLDOptions.cpp \
 	${INCDIR}/MC/MCLDInfo.h \
 	${LIBDIR}/MC/MCLDInfo.cpp \
 	${INCDIR}/MC/MCLDContext.h \
 	${LIBDIR}/MC/MCLDContext.cpp \
+	${INCDIR}/MC/ContextFactory.h \
+	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
+	${INCDIR}/Support/RealPath.h \
+	${LIBDIR}/Support/RealPath.cpp \
 	${INCDIR}/Support/Directory.h \
 	${LIBDIR}/Support/Directory.cpp \
 	${INCDIR}/Support/FileSytem.h \
@@ -85,6 +90,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
 	${INCDIR}/MC/MCLDAttribute.h \
 	${LIBDIR}/MC/MCLDAttribute.cpp \
+	${INCDIR}/MC/AttributeFactory.h \
+	${LIBDIR}/MC/AttributeFactory.cpp \
 	${INCDIR}/MC/MCLDInputTree.h \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/Support/CommandLine.h \

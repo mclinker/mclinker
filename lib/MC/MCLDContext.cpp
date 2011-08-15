@@ -33,7 +33,7 @@ MCSymbol *MCLDContext::createSymbol(StringRef Name) {
   //FIXME : use more implement from the same function in MCContext
   //StringMapEntry<bool> *NameEntry = &Used
 
-  MCSymbol *Result = new(*this) MCSymbol(Name, isTemporary);
+  MCSymbol *Result = new MCSymbol(Name, isTemporary);
   return Result;
 }
 
@@ -67,7 +67,7 @@ getELFSection(StringRef SectionName, unsigned Type,
   if (!Group.empty())
     GroupSym = getOrCreateSymbol(Group);
 
-  MCSectionELF *Result = new(*this) MCSectionELF(Entry.getKey(), Type, Flags,
+  MCSectionELF *Result = new MCSectionELF(Entry.getKey(), Type, Flags,
                                            Kind, EntrySize, GroupSym);
 
   Entry.setValue(Result);
@@ -81,7 +81,7 @@ MCSectionData &MCLDContext::getOrCreateSectionData(const MCSection &Section,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSectionData(Section, Sections);
+    Entry = new MCSectionData(Section);
 
   return *Entry;
 }
@@ -98,7 +98,7 @@ MCSymbolData &MCLDContext::getOrCreateSymbolData(const MCSymbol &Symbol,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSymbolData(Symbol, 0, 0, Symbols);
+    Entry = new MCSymbolData(Symbol, 0, 0);
 }
 
 void MCLDContext::dump() {

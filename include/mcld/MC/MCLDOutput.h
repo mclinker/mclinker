@@ -3,32 +3,30 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/Support/RealPath.h>
+#ifndef MCLD_OUTPUT_H
+#define MCLD_OUTPUT_H
+#ifdef ENABLE_UNITTEST
+#include <gtest.h>
+#endif
+#include <mcld/MC/MCLDFile.h>
 
-using namespace mcld::sys::fs;
-
-//==========================
-// RealPath
-RealPath::RealPath()
+namespace mcld
 {
-}
 
-RealPath::RealPath(const RealPath::ValueType* s )
+/** \class MCLDOutput
+ *  \brief MCLDOutput provides the information about the output.
+ *
+ *  \see
+ *  \author Luba Tang <lubatang@mediatek.com>
+ */
+class Output : public MCLDFile
 {
-}
 
-RealPath::RealPath(const RealPath::StringType &s )
-{
-}
+};
 
-RealPath::RealPath(const Path& pPath)
-{
-}
+} // namespace of mcld
 
-RealPath::~RealPath()
-{
-}
-
+#endif
 

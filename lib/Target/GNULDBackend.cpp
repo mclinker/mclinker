@@ -12,7 +12,6 @@
 
 using namespace mcld;
 
-
 //==========================
 // GNULDBackend
 GNULDBackend::GNULDBackend()
@@ -29,21 +28,21 @@ GNULDBackend::~GNULDBackend()
     delete m_pObjectWriter;
 }
 
-MCObjectReader *GNULDBackend::getObjectReader()
+mcld::MCObjectReader *GNULDBackend::getObjectReader()
 {
   if (!m_pObjectReader)
     m_pObjectReader = new MCELFObjectReader(createObjectTargetReader());
   return m_pObjectReader;
 }
 
-MCArchiveReader *GNULDBackend::getArchiveReader()
+mcld::MCArchiveReader *GNULDBackend::getArchiveReader()
 {
   if (!m_pArchiveReader)
     m_pArchiveReader = new MCGNUArchiveReader();
   return m_pArchiveReader;
 }
 
-MCObjectWriter *GNULDBackend::getObjectWriter()
+mcld::MCObjectWriter *GNULDBackend::getObjectWriter()
 {
   if (!m_pObjectWriter)
     m_pObjectWriter = new MCELFObjectWriter(createObjectTargetWriter());

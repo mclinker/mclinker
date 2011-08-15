@@ -18,7 +18,6 @@
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Target/TargetRegistry.h>
 #include <llvm/Target/TargetSelect.h>
-#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/Support/Host.h>
@@ -120,78 +119,77 @@ FileType("filetype", cl::init(mcld::CGFT_EXEFile),
 cl::opt<bool> NoVerify("disable-verify", cl::Hidden,
                        cl::desc("Do not verify input module"));
 
+//===----------------------------------------------------------------------===//
+/// non-member functions
+
 // GetFileNameRoot - Helper function to get the basename of a filename.
-static inline std::string
-GetFileNameRoot(const std::string &InputFilename) {
-  std::string IFN = InputFilename;
+static inline void
+GetFileNameRoot(const std::string &pInputFilename, std::string& pFileNameRoot)
+{
   std::string outputFilename;
+  /* *** */
+  const std::string& IFN = InputFilename;
   int Len = IFN.length();
   if ((Len > 2) &&
       IFN[Len-3] == '.' &&
       ((IFN[Len-2] == 'b' && IFN[Len-1] == 'c') ||
-       (IFN[Len-2] == 'l' && IFN[Len-1] == 'l'))) {
-    outputFilename = std::string(IFN.begin(), IFN.end()-3); // s/.bc/.s/
-  } else {
-    outputFilename = IFN;
-  }
-  return outputFilename;
+       (IFN[Len-2] == 'l' && IFN[Len-1] == 'l'))) 
+    pFileNameRoot = std::string(IFN.begin(), IFN.end()-3); // s/.bc/.s/
+  else
+    pFileNameRoot = std::string(IFN);
 }
 
-static tool_output_file *GetOutputStream(const char *TargetName,
-                                         Triple::OSType OS,
-                                         const char *ProgName,
-                                         mcld::CodeGenFileType pFileType) {
+static void GetOutputName(const char* pTargetName,
+                          Triple::OSType pOSType,
+                          mcld::CodeGenFileType pFileType,
+                          const std::string& pInputFilename,
+                          std::string& pOutputFilename)
+{
   // If we don't yet have an output filename, make one.
-  if (OutputFilename.empty()) {
-    if (InputFilename == "-")
-      OutputFilename = "-";
+  if (pOutputFilename.empty()) {
+    if (pInputFilename == "-")
+      pOutputFilename = "-";
     else {
-      OutputFilename = GetFileNameRoot(InputFilename);
+      GetFileNameRoot(pInputFilename, pOutputFilename);
 
       switch (pFileType) {
-      default: 
-      case mcld::CGFT_NULLFile:
-        assert(0 && "File type has not been supported yet");
-        break;
       case mcld::CGFT_ASMFile:
-        OutputFilename += ".s";
+        if (pTargetName[0] == 'c') {
+          if (pTargetName[1] == 0)
+            pOutputFilename += ".cbe.c";
+          else if (pTargetName[1] == 'p' && pTargetName[2] == 'p')
+            pOutputFilename += ".cpp";
+          else
+            pOutputFilename += ".s";
+        } 
+        else
+          pOutputFilename += ".s";
         break;
       case mcld::CGFT_OBJFile:
-        OutputFilename += ".o";
-        break;
-      case mcld::CGFT_ARCFile:
-        OutputFilename += ".a";
+        if (pOSType == Triple::Win32)
+          pOutputFilename += ".obj";
+        else
+          pOutputFilename += ".o";
         break;
       case mcld::CGFT_DSOFile:
-        OutputFilename += ".so";
+        if (pOSType == Triple::Win32)
+         pOutputFilename += ".dll";
+        else
+         pOutputFilename += ".so";
+        break;
+      case mcld::CGFT_ARCFile:
+         pOutputFilename += ".a";
         break;
       case mcld::CGFT_EXEFile:
-        OutputFilename += ".exe";
+      case mcld::CGFT_NULLFile:
+        // do nothing
         break;
+      default:
+        assert(0 && "Unknown file type");
       }
     }
   }
-
-  // we need "binary" output.
-  bool Binary = true;
-
-  // Open the file.
-  std::string error;
-  unsigned OpenFlags = 0;
-  if (Binary)
-    OpenFlags |= raw_fd_ostream::F_Binary;
-  tool_output_file *FDOut = new tool_output_file(OutputFilename.c_str(),
-                                                 error,
-                                                 OpenFlags);
-  if (!error.empty()) {
-    errs() << error << '\n';
-    delete FDOut;
-    return 0;
-  }
-
-  return FDOut;
 }
-
 
 int main( int argc, char* argv[] )
 {
@@ -255,7 +253,8 @@ int main( int argc, char* argv[] )
     Triple::ArchType Type = Triple::getArchTypeForLLVMName(MArch);
     if (Type != Triple::UnknownArch)
       TheTriple.setArch(Type);
-  } else {
+  }
+  else {
     std::string Err;
     TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), Err);
     if (TheTarget == 0) {
@@ -285,24 +284,26 @@ int main( int argc, char* argv[] )
   }
 #endif
 
-  std::auto_ptr<mcld::LLVMTargetMachine> target( 
+  std::auto_ptr<mcld::LLVMTargetMachine> target_machine( 
           TheTarget->createTargetMachine(TheTriple.getTriple(), 
 #if LLVM_VERSION > 2
                                          MCPU,
 #endif
                                          FeaturesStr));
-  assert(target.get() && "Could not allocate target machine!");
-  mcld::LLVMTargetMachine &TheTargetMachine = *target.get();
+  assert(target_machine.get() && "Could not allocate target machine!");
+  mcld::LLVMTargetMachine &TheTargetMachine = *target_machine.get();
 
 #if LLVM_VERSION > 2
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 #endif
 
-  // Figure out where we are going to send the output...
-  OwningPtr<tool_output_file> Out
-    (GetOutputStream( TheTarget->get()->getName(), TheTriple.getOS(), argv[0], FileType));
-  if (!Out) return 1;
+  // get Output Filename
+  GetOutputName(TheTarget->get()->getName(),
+                TheTriple.getOS(),
+                FileType,
+                InputFilename,
+                OutputFilename);
 
   CodeGenOpt::Level OLvl = CodeGenOpt::Default;
   switch (OptLevel) {
@@ -329,10 +330,13 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
   {
-    formatted_raw_ostream FOS(Out->os());
-
     // Ask the target to add backend passes as necessary.
-    if( TheTargetMachine.addPassesToEmitFile( PM, FOS, FileType, OLvl, NoVerify)) {
+    if( TheTargetMachine.addPassesToEmitFile(PM,
+                                             InputFilename,
+                                             OutputFilename,
+                                             FileType,
+                                             OLvl,
+                                             NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
       return 1;
@@ -345,8 +349,5 @@ int main( int argc, char* argv[] )
 
     PM.run(mod);
   }
-
-  // Declare success.
-  Out->keep();
 }
 

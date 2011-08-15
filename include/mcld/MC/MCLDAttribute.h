@@ -10,139 +10,121 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/ADT/GCFactory.h>
-#include <mcld/ADT/Uncopyable.h>
 #include <vector>
 
 namespace mcld
 {
+class AttributeFactory;
+
+/** \class AttributeBase
+ *  \brief The base class of attributes. Providing the raw operations of an
+ *  attributes
+ */
+class AttributeBase
+{
+public:
+  AttributeBase()
+  : m_WholeArchive(false),
+    m_AsNeeded(false),
+    m_Static(false)
+  { }
+
+  AttributeBase(const AttributeBase& pBase)
+  : m_WholeArchive(pBase.m_WholeArchive),
+    m_AsNeeded(pBase.m_AsNeeded),
+    m_Static(pBase.m_Static)
+  { }
+
+  ~AttributeBase()
+  { }
+
+  // ----- observers  ----- //
+  bool isWholeArchive() const
+  { return m_WholeArchive; }
+
+  bool isAsNeeded() const
+  { return m_AsNeeded; }
+
+  bool isStatic() const
+  { return m_Static; }
+
+  bool isDynamic() const
+  { return !m_Static; }
+
+  // -----  modifiers  ----- //
+  void setWholeArchive()
+  { m_WholeArchive = true; }
+
+  void unsetWholeArchive()
+  { m_WholeArchive = false; }
+
+  void setAsNeeded()
+  { m_AsNeeded = true; }
+
+  void unsetAsNeeded()
+  { m_AsNeeded = false; }
+
+  void setStatic()
+  { m_Static = true; }
+
+  void setDynamic()
+  { m_Static = false; }
+
+private:
+  bool m_WholeArchive;
+  bool m_AsNeeded;
+  bool m_Static;
+};
 
 /** \class MCLDAttribute
  *  \brief MCLDAttributes is the attribute of input options.
  */
 class MCLDAttribute
 {
-public:
-  MCLDAttribute();
-  MCLDAttribute(const MCLDAttribute& pAttr);
+private:
+  friend class AttributeFactory;
+
+  explicit MCLDAttribute(AttributeFactory& pParent, AttributeBase& pBase);
   ~MCLDAttribute();
 
-  // -----  whole-archive  ----- //
-  inline void setWholeArchive()
-  { m_bWholeArchive = true; }
+public:
+  // ----- observers  ----- //
+  bool isWholeArchive() const;
+  bool isAsNeeded() const;
+  bool isStatic() const;
+  bool isDynamic() const;
 
-  inline void unsetWholeArchive()
-  { m_bWholeArchive = false; }
-
-  inline bool isWholeArchive() const
-  { return m_bWholeArchive; }
-
-  // -----  as-needed  ----- //
-  inline bool isAsNeeded() const
-  { return m_bAsNeeded; }
-
-  inline void setAsNeeded()
-  { m_bAsNeeded = true; }
-
-  inline void unsetAsNeeded()
-  { m_bAsNeeded = false; }
-
-  // -----  static/dynamic  ----- //
-  inline bool isStatic() const
-  { return m_bStatic; }
-
-  inline bool isDynamic() const
-  { return !m_bStatic; }
-
-  inline void setStatic()
-  { m_bStatic = true; }
-
-  inline void setDynamic()
-  { m_bStatic = false; }
-
-  bool operator== (const MCLDAttribute& pRHS) const {
-    return ((m_bWholeArchive == pRHS.m_bWholeArchive) &&
-            (m_bAsNeeded == pRHS.m_bAsNeeded));
-  }
-
-  bool operator!= (const MCLDAttribute& pRHS) const {
-    return !(this->operator==(pRHS));
-  }
+  // -----  modifiers  ----- //
+  void setWholeArchive();
+  void unsetWholeArchive();
+  void setAsNeeded();
+  void unsetAsNeeded();
+  void setStatic();
+  void setDynamic();
 
 private:
-  bool m_bWholeArchive;
-  bool m_bAsNeeded;
-  bool m_bStatic;
+  MCLDAttribute* clone() const;
+
+  void change(AttributeBase* pBase)
+  { m_pBase = pBase; }
+
+private:
+  AttributeFactory &m_Parent;
+  AttributeBase *m_pBase;
 };
 
-/** \class AttributeFactory
- *  \brief AttributeFactory contructs the MCLDAttributes.
- *
- *  Since the number of MCLDAttributes is usually small, a simple vector is enough.
- */
-class AttributeFactory : private Uncopyable
+// -----  comparisons  ----- //
+inline bool operator== (const AttributeBase& pLHS, const AttributeBase& pRHS)
 {
-private:
-  typedef std::vector<MCLDAttribute*> AttrSet;
+  return ((pLHS.isWholeArchive() == pRHS.isWholeArchive()) &&
+    (pLHS.isAsNeeded() == pRHS.isAsNeeded()) && 
+    (pLHS.isStatic() == pRHS.isStatic()));
+}
 
-public:
-  typedef AttrSet::iterator iterator;
-  typedef AttrSet::const_iterator const_iterator;
-
-public:
-  AttributeFactory();
-  explicit AttributeFactory(size_t pNum);
-  ~AttributeFactory();
-
-  // reserve - reserve the memory space for attributes
-  // @param pNum the number of reserved attributes
-  void reserve(size_t pNum);
-
-  // setDefault - set the default attribute
-  void setDefault(const MCLDAttribute& pAttr);
-
-  // defaultAttribute - return the default attribute
-  const MCLDAttribute* defaultAttribute() const
-  { return m_pDefaultAttribute; }
-  
-  // produce - produce a attribute, but do not record it.
-  // If the default attribute is given, the produced attribute is identical to
-  // default attribute.
-  MCLDAttribute* produce();
-
-  // recordOrReplace - if the given attribute has been recorded, return false
-  // and replace the pointer to the recorded one, and release the memory.
-  bool recordOrReplace(MCLDAttribute *&pAttr);
-
-  // find - return the recorded attribute whose content is identical to the
-  // input. Since the number of recorded element is small, use sequential
-  // search.
-  MCLDAttribute* find(const MCLDAttribute& pAttr) const;
-
-  // -----  observers  ----- //
-  size_t size() const
-  { return m_AttrSet.size(); }
-
-  bool empty() const
-  { return m_AttrSet.empty(); }
-
-  // -----  iterators  ----- //
-  iterator begin()
-  { return m_AttrSet.begin(); }
-
-  iterator end()
-  { return m_AttrSet.end(); }
-
-  const_iterator begin() const
-  { return m_AttrSet.begin(); }
-
-  const_iterator end() const
-  { return m_AttrSet.end(); }
-
-private:
-  AttrSet m_AttrSet;
-  MCLDAttribute *m_pDefaultAttribute;
-};
+inline bool operator!= (const AttributeBase& pLHS, const AttributeBase& pRHS)
+{
+  return !(pLHS == pRHS);
+}
 
 } // namespace of mcld
 

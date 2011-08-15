@@ -15,6 +15,7 @@
 
 namespace mcld
 {
+class Input;
 
 /** \class ScriptOptions
  *
@@ -34,8 +35,8 @@ class GeneralOptions
 public:
   /// default bitcode
   bool hasDefaultBitcode() const;
-  MCLDFile* defaultBitcode() const;
-  void setDefaultBitcode(MCLDFile &pLDFile);
+  Input* defaultBitcode() const;
+  void setDefaultBitcode(Input& pInput);
 
   /// default link script
   bool hasDefaultLDScript() const;
@@ -63,7 +64,7 @@ public:
   { return m_bTrace; }
 
 private:
-  MCLDFile* m_pDefaultBitcode;
+  Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
   sys::fs::Path m_Sysroot;
   SearchDirs m_SearchDirs;

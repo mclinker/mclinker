@@ -3,8 +3,8 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *  Jush Lu <Jush.Lu@mediatek.com>                                           *
- *  Luba Tang <luba.tang@mediatek.com>                                       *
+ *   Jush Lu <Jush.Lu@mediatek.com>                                          *
+ *   Luba Tang <luba.tang@mediatek.com>                                      *
  ****************************************************************************/
 #ifndef MCLD_CONTEXT_H
 #define MCLD_CONTEXT_H
@@ -22,7 +22,6 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <mcld/ADT/GCFactory.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>
 #include <utility>
@@ -128,91 +127,10 @@ public:
                                         bool *Create = 0);
 
   void dump();
-
-  void *Allocate(unsigned Size, unsigned Align = 8) {
-    return Allocator.Allocate(Size, Align);
-  }
-
-  void Deallocate(void *Ptr) {
-  }
-
 };
 
-/** \class MCLDContextFactory
- *  \brief MCLDContextFactory constructs and destructs MCLDContexts. It also
- *  garantee to destruct all its own MCLDContext.
- */
-template<size_t NUM>
-class MCLDContextFactory : public GCFactory<MCLDContext, NUM>
-{
-private:
-  typedef GCFactory<MCLDContext, NUM> Alloc;
-  typedef std::map<sys::fs::Path, MCLDContext*> CntxtMap;
-public:
-  // ----- production  ----- //
-  MCLDContext* produce(const sys::fs::Path& pPath);
-
-private:
-  CntxtMap m_CntxtMap;
-};
 
 } // namespace of mcld
-
-//===----------------------------------------------------------------------===//
-// MCLDContextFactory
-
-template<size_t NUM>
-mcld::MCLDContext* mcld::MCLDContextFactory<NUM>::produce(const sys::fs::Path& pPath)
-{
-  CntxtMap::iterator ctx = m_CntxtMap.find(pPath);
-  if (ctx != m_CntxtMap.end())
-    return ctx->second;
-
-  mcld::MCLDContext* result = Alloc::allocate();
-  new (result) MCLDContext();
-  m_CntxtMap.insert(std::make_pair<mcld::sys::fs::Path, mcld::MCLDContext*>(pPath, result));
-  return result;
-}
-
-// operator new and delete aren't allowed inside namespaces.
-// The throw specifications are mandated by the standard.
-/// @brief Placement new for using the MCContext's allocator.
-///
-/// This placement form of operator new uses the MCContext's allocator for
-/// obtaining memory. It is a non-throwing new, which means that it returns
-/// null on error. (If that is what the allocator does. The current does, so if
-/// this ever changes, this operator will have to be changed, too.)
-/// Usage looks like this (assuming there's an MCContext 'Context' in scope):
-/// @code
-/// // Default alignment (16)
-/// IntegerLiteral *Ex = new (Context) IntegerLiteral(arguments);
-/// // Specific alignment
-/// IntegerLiteral *Ex2 = new (Context, 8) IntegerLiteral(arguments);
-/// @endcode
-/// Please note that you cannot use delete on the pointer; it must be
-/// deallocated using an explicit destructor call followed by
-/// @c Context.Deallocate(Ptr).
-///
-/// @param Bytes The number of bytes to allocate. Calculated by the compiler.
-/// @param C The MCContext that provides the allocator.
-/// @param Alignment The alignment of the allocated memory (if the underlying
-///                  allocator supports it).
-/// @return The allocated memory. Could be NULL.
-inline void *operator new(size_t Bytes, mcld::MCLDContext &C,
-                                size_t Alignment = 16) throw () {
-  return C.Allocate(Bytes, Alignment);
-}
-
-/// @brief Placement delete companion to the new above.
-///
-/// This operator is just a companion to the new above. There is no way of
-/// invoking it directly; see the new operator for more details. This operator
-/// is called implicitly by the compiler if a placement new expression using
-/// the MCContext throws in the object constructor.
-inline void operator delete(void *Ptr, mcld::MCLDContext &C, size_t)
-              throw () {
-  C.Deallocate(Ptr);
-}
 
 #endif
 

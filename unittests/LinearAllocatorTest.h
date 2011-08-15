@@ -7,11 +7,11 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef LINEARALLOCATOR_TEST_H
-#define LINEARALLOCATOR_TEST_H
+#ifndef LINEAR_ALLOCATOR_TEST_H
+#define LINEAR_ALLOCATOR_TEST_H
 
 #include <gtest.h>
-#include <mcld/ADT/Allocators.h>
+#include <mcld/Support/Allocators.h>
 
 namespace mcldtest
 {

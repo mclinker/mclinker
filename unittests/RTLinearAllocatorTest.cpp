@@ -7,7 +7,7 @@
  *                                                                           *
  *   Reloc.h <nowar100@gmail.com>                                            *
  ****************************************************************************/
-#include <mcld/ADT/Allocators.h>
+#include <mcld/Support/Allocators.h>
 #include <RTLinearAllocatorTest.h>
 
 using namespace mcld;
@@ -18,7 +18,7 @@ using namespace mcldtest;
 RTLinearAllocatorTest::RTLinearAllocatorTest()
 {
 	// create testee. modify it if need
-	m_pTestee = new RTLinearAllocator<Data>(CHUNK_SIZE);
+	m_pTestee = new LinearAllocator<Data, 0>(CHUNK_SIZE);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.

@@ -19,6 +19,9 @@ namespace mcld {
 /// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
 ///
 SectLinker* createARMSectLinker(const std::string &pTriple,
+                                const std::string &pInputFilename,
+                                const std::string &pOutputFilename,
+                                unsigned int pOutputLinkType,
                                 MCLDInfo& pLDInfo,
                                 mcld::TargetLDBackend &pLDBackend)
 {
@@ -29,7 +32,11 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new ARMELFSectLinker(pLDInfo, pLDBackend);
+  return new ARMELFSectLinker(pInputFilename,
+                              pOutputFilename,
+                              pOutputLinkType,
+                              pLDInfo,
+                              pLDBackend);
 }
 
 } // namespace of mcld

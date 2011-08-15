@@ -27,6 +27,9 @@ class MCLDDriver;
 class TargetLDBackend;
 class MCLDFile;
 class MCLDInfo;
+class AttributeFactory;
+class InputFactory;
+class ContextFactory;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -40,9 +43,10 @@ public:
                                                           llvm::TargetMachine &,
                                                           const std::string&);
 
-  typedef MCLDInfo *(*LDInfoCtorTy)(const std::string&);
-
-  typedef SectLinker *(*SectLinkerCtorTy)(const std::string&,
+  typedef SectLinker *(*SectLinkerCtorTy)(const std::string& pTriple,
+                                          const std::string& pInputFilename,
+                                          const std::string& pOutputFilename,
+                                          unsigned int pLinkType,
                                           MCLDInfo&,
                                           TargetLDBackend&);
 
@@ -51,7 +55,6 @@ public:
 
 private:
   TargetMachineCtorTy TargetMachineCtorFn;
-  LDInfoCtorTy LDInfoCtorFn;
   SectLinkerCtorTy SectLinkerCtorFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
 
@@ -79,24 +82,23 @@ public:
     return 0;
   }
 
-  /// createLDInfo - create target-specific MCLDInfo
-  ///
-  /// @return create MCLDInfo
-  MCLDInfo *createLDInfo(const std::string &pTriple) const {
-    if (!LDInfoCtorFn)
-      return 0;
-    return LDInfoCtorFn(pTriple);
-  }
-
   /// createSectLinker - create target-specific SectLinker
   ///
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
-                               MCLDInfo& pLDInfo,
-                               TargetLDBackend& pLDBackend) const {
+                               const std::string &pInputFilename,
+                               const std::string &pOutputFilename,
+                               unsigned int pOutputLinkType,
+                               MCLDInfo &pLDInfo,
+                               TargetLDBackend &pLDBackend) const {
     if (!SectLinkerCtorFn)
       return 0;
-    return SectLinkerCtorFn(pTriple, pLDInfo, pLDBackend);
+    return SectLinkerCtorFn(pTriple,
+                            pInputFilename,
+                            pOutputFilename,
+                            pOutputLinkType,
+                            pLDInfo,
+                            pLDBackend);
   }
 
   /// createLDBackend - create target-specific LDBackend
@@ -157,15 +159,6 @@ public:
       T.TargetMachineCtorFn = Fn;
   }
 
-  /// RegisterLDInfo - Register a MCLDInfo implementation for the given target
-  ///
-  /// @param T - the target being registered
-  /// @param Fn - A function to create SectLinker for the target
-  static void RegisterLDInfo(mcld::Target &T, mcld::Target::LDInfoCtorTy Fn) {
-    if (!T.LDInfoCtorFn)
-      T.LDInfoCtorFn = Fn;
-  }
-
   /// RegisterSectLinker - Register a SectLinker implementation for the given
   /// target.
   ///
@@ -185,7 +178,6 @@ public:
     if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
   }
-
 
   /// lookupTarget - Lookup a target based on a llvm::Target.
   ///

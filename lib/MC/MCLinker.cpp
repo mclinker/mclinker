@@ -7,7 +7,7 @@
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #include <llvm/Support/raw_ostream.h>
-#include <mcld/ADT/RelocData.h>
+#include <mcld/MC/RelocData.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDLayout.h>
 #include <mcld/MC/MCLDFile.h>

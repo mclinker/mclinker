@@ -8,6 +8,7 @@
  *   MCLDFile <pinronglu@gmail.com>                                          *
  ****************************************************************************/
 #include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <InputTreeTest.h>
 
 using namespace mcld;
@@ -18,13 +19,17 @@ using namespace mcldtest;
 InputTreeTest::InputTreeTest()
 {
 	// create testee. modify it if need
-	m_pTestee = new InputTree();
+	m_pAttr = new mcld::AttributeFactory(2);
+        m_pAlloc = new mcld::InputFactory(10, *m_pAttr);
+	m_pTestee = new InputTree(*m_pAlloc);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
 InputTreeTest::~InputTreeTest()
 {
 	delete m_pTestee;
+	delete m_pAlloc;
+	delete m_pAttr;
 }
 
 // SetUp() will be called immediately before each test.
@@ -45,8 +50,7 @@ void InputTreeTest::TearDown()
 
 TEST_F( InputTreeTest, Basic_operation ) {
   InputTree::iterator node = m_pTestee->root();
-  MCLDAttribute* attr = new MCLDAttribute();
-  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1", *attr);
+  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1");
 
   InputTree::const_iterator const_node = node;
 
@@ -75,14 +79,13 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
   InputTree::iterator node = m_pTestee->root();
 
   
-  MCLDAttribute* attr = new MCLDAttribute();
-  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1", *attr);
+  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1");
   InputTree::const_iterator const_node = node;
   --node;
 
   for(int i=0 ; i<100 ; ++i) 
   {
-    m_pTestee->insert<InputTree::Inclusive>(node,"FileSpec", "path1", *attr);
+    m_pTestee->insert<InputTree::Inclusive>(node,"FileSpec", "path1");
     ++node;
   }
 
@@ -100,13 +103,12 @@ TEST_F( InputTreeTest, forLoop_TEST ) {
 TEST_F( InputTreeTest, Nesting_Case ) {
   InputTree::iterator node = m_pTestee->root(); 
 
-  MCLDAttribute* attr = new MCLDAttribute();
   for(int i=0 ; i<50 ; ++i) 
   {
     m_pTestee->enterGroup(node, InputTree::Downward);
     --node;
 
-    m_pTestee->insert(node, InputTree::Afterward, "FileSpec", "path1", *attr);
+    m_pTestee->insert(node, InputTree::Afterward, "FileSpec", "path1");
     ++node;
   }
   

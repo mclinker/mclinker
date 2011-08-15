@@ -22,6 +22,15 @@ ARMELFSectLinker::ARMELFSectLinker(const std::string &pInputFilename,
                pOutputLinkType,
                pLDInfo,
                pLDBackend) {
+  // set up target-dependent constraints of attibutes
+  pLDInfo.attrFactory().constraint().setWholeArchive();
+  pLDInfo.attrFactory().constraint().unsetAsNeeded();
+  pLDInfo.attrFactory().constraint().setDynamic();
+
+  // set up the predefined attributes
+  pLDInfo.attrFactory().predefined().setWholeArchive();
+  pLDInfo.attrFactory().predefined().setDynamic();
+
 }
 
 ARMELFSectLinker::~ARMELFSectLinker()

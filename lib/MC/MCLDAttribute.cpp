@@ -6,91 +6,111 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/AttributeFactory.h>
 
 using namespace mcld;
 
 //==========================
 // MCAttribute
-MCLDAttribute::MCLDAttribute()
-  : m_bWholeArchive(false), m_bAsNeeded(false), m_bStatic(true) {
-}
-
-MCLDAttribute::MCLDAttribute(const MCLDAttribute& pAttr)
-  : m_bWholeArchive(pAttr.m_bWholeArchive),
-    m_bAsNeeded(pAttr.m_bAsNeeded),
-    m_bStatic(pAttr.m_bStatic) {
+MCLDAttribute::MCLDAttribute(AttributeFactory& pParent, AttributeBase& pBase)
+  : m_Parent(pParent), m_pBase(&pBase) {
 }
 
 MCLDAttribute::~MCLDAttribute()
 {
 }
 
-//==========================
-// AttributeFactory
-AttributeFactory::AttributeFactory(size_t pNum)
-  : m_AttrSet(), m_pDefaultAttribute(0) {
-  m_AttrSet.reserve(pNum);
-}
-
-AttributeFactory::AttributeFactory()
-  : m_AttrSet(), m_pDefaultAttribute(0) {
-}
-
-AttributeFactory::~AttributeFactory()
+bool MCLDAttribute::isWholeArchive() const
 {
-  iterator cur = m_AttrSet.begin();
-  iterator aEnd = m_AttrSet.end();
-  while(cur != aEnd) {
-    delete (*cur);
-    ++cur;
-  }
-  m_AttrSet.clear();
-}
-
-void AttributeFactory::reserve(size_t pNum)
-{
-  m_AttrSet.reserve(pNum);
-}
-
-void AttributeFactory::setDefault(const MCLDAttribute& pAttr)
-{
-  m_pDefaultAttribute = const_cast<MCLDAttribute*>(&pAttr);
-  recordOrReplace(m_pDefaultAttribute);
-}
-
-MCLDAttribute* AttributeFactory::produce()
-{
-  MCLDAttribute *result = 0;
-  if (0 == m_pDefaultAttribute )
-    result = new MCLDAttribute();
+  if (m_Parent.constraint().isWholeArchive())
+    return m_pBase->isWholeArchive();
   else
-    result = new MCLDAttribute(*m_pDefaultAttribute);
-  return result;
-}
-
-MCLDAttribute* AttributeFactory::find(const MCLDAttribute& pAttr) const
-{
-  const_iterator cur = m_AttrSet.begin();
-  const_iterator aEnd = m_AttrSet.end();
-  while(cur != aEnd) {
-    if (*(*cur) == pAttr)
-      return *cur;
-    ++cur;
-  }
-  return 0;
-}
-
-bool AttributeFactory::recordOrReplace(MCLDAttribute *&pAttr)
-{
-  if (0 == pAttr)
     return false;
-  MCLDAttribute* result = find(*pAttr);
-  if (0 == result) {
-    m_AttrSet.push_back(pAttr);
+}
+
+bool MCLDAttribute::isAsNeeded() const
+{
+  if (m_Parent.constraint().isAsNeeded())
+    return m_pBase->isAsNeeded();
+  else
+    return false;
+}
+
+bool MCLDAttribute::isStatic() const
+{
+  if (m_Parent.constraint().isStatic())
+    return m_pBase->isStatic();
+  else
     return true;
+}
+
+bool MCLDAttribute::isDynamic() const
+{
+  if (m_Parent.constraint().isStatic())
+    return m_pBase->isDynamic();
+  else
+    return false;
+}
+
+static inline void ReplaceOrRecord(AttributeFactory& pParent,
+                                   AttributeBase *&pBase,
+                                   AttributeBase *&pCopy)
+{
+  AttributeBase *result = pParent.exists(*pCopy);
+  if (0 == result) { // can not find
+    pParent.record(*pCopy);
+    pBase = pCopy;
   }
-  delete pAttr;
-  pAttr = result;
-  return false;
+  else { // find
+    delete pCopy;
+    pBase = result;
+  }
+}
+
+void MCLDAttribute::setWholeArchive()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->setWholeArchive();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+void MCLDAttribute::unsetWholeArchive()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->unsetWholeArchive();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+void MCLDAttribute::setAsNeeded()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->setAsNeeded();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+void MCLDAttribute::unsetAsNeeded()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->unsetAsNeeded();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+void MCLDAttribute::setStatic()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->setStatic();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+void MCLDAttribute::setDynamic()
+{
+  AttributeBase *copy = new AttributeBase(*m_pBase);
+  copy->setDynamic();
+  ReplaceOrRecord(m_Parent, m_pBase, copy);
+}
+
+MCLDAttribute* MCLDAttribute::clone() const
+{
+  return new MCLDAttribute(m_Parent, *m_pBase);
 }
 

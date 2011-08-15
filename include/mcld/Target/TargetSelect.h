@@ -63,9 +63,6 @@ namespace mcld
   ///
   /// It is legal for a client to make multiple calls to this function.
   inline void InitializeAllLinkers() {
-#define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##LDInfo();
-#include "mcld/Config/Linkers.def"
-
 #define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##SectLinker();
 #include "mcld/Config/Linkers.def"
 

@@ -101,10 +101,10 @@ namespace mcld
     // SectLinker constructor handles
     // - the default input
     // - the default output (filename and link type)
-    SectLinker(MCLDInfo& pLDInfo,
-               const std::string& pInputFile,
+    SectLinker(const std::string& pInputFile,
                const std::string& pOutputFile,
                unsigned int pOutputLinkType,
+               MCLDInfo& pLDInfo,
                TargetLDBackend &pLDBackend);
 
   public:
@@ -125,8 +125,7 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
-    void initializeInputTree(InputTree &pInputTree,
-                             AttributeFactory& pAttrFactory,
+    void initializeInputTree(MCLDInfo& pLDInfo,
                              const PositionDependentOptions &pOptions) const;
 
     AttributeFactory* attrFactory()

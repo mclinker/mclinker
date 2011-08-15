@@ -13,12 +13,11 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/ADT/BinTree.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/InputFactory.h>
 #include <string>
 
 namespace mcld
 {
-class MCLDAttribute;
 
 /** \class InputTree
  *  \brief InputTree is the input tree to contains all inputs from the
@@ -64,7 +63,7 @@ public:
   static Includer  Downward;
 
 public:
-  InputTree();
+  InputTree(InputFactory& pInputFactory);
   ~InputTree();
 
   // -----  modify  ----- //
@@ -78,7 +77,6 @@ public:
   InputTree& insert(iterator pPosition,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
-                    const MCLDAttribute& pAttr,
                     unsigned int pType = Input::Unknown);
 
   template<size_t DIRECT>
@@ -96,7 +94,6 @@ public:
                     const Connector& pConnector,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
-                    const MCLDAttribute& pAttr,
                     unsigned int pType = Input::Unknown);
 
   InputTree& insert(iterator pPosition,
@@ -114,7 +111,7 @@ public:
   { return !m_FileFactory.empty(); }
 
 private:
-  InputFactory<64> m_FileFactory;
+  InputFactory& m_FileFactory;
 
 };
 
@@ -130,11 +127,10 @@ mcld::InputTree&
 mcld::InputTree::insert(mcld::InputTree::iterator pPosition,
                         const std::string& pNamespec,
                         const mcld::sys::fs::Path& pPath,
-                        const mcld::MCLDAttribute& pAttr,
                         unsigned int pType)
 {
   BinTreeTy::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pAttr, pType); 
+  node->data = m_FileFactory.produce(pNamespec, pPath, pType); 
   if (pPosition.isRoot())
     proxy::hook<TreeIteratorBase::Leftward>(pPosition.m_pNode,
         const_cast<const node_type*>(node));

@@ -5,13 +5,14 @@
  *                                                                           *
  *   Jush Lu <jush.msn@gmail.com>                                            *
  ****************************************************************************/
-#ifndef TARGETMACHINE_H
-#define TARGETMACHINE_H
+#ifndef MCLD_TARGET_MACHINE_H
+#define MCLD_TARGET_MACHINE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <llvm/Target/TargetMachine.h>
 #include <string>
+#include <mcld/MC/MCLDInfo.h>
 
 namespace llvm
 {
@@ -43,7 +44,9 @@ enum CodeGenFileType {
  *  \brief mcld::LLVMTargetMachine is a object adapter of 
  *  llvm::LLVMTargetMachine.
  *
- *  @author Luba Tang <lubatang@mediatek.com>
+ *  mcld::LLVMTargetMachine is also in charge of MCLDInfo.
+ *
+ *  @see MCLDInfo
  */
 class LLVMTargetMachine
 {
@@ -53,32 +56,32 @@ public:
   LLVMTargetMachine(llvm::TargetMachine &pTM,
                     const mcld::Target &pTarget,
                     const std::string &pTriple);
-  ~LLVMTargetMachine();
+  virtual ~LLVMTargetMachine();
 
   /// getTarget - adapt llvm::TargetMachine::getTarget
-  ///
   const mcld::Target& getTarget() const;
 
-  /// getTargetMachine - return adapted the llvm::TargetMachine.
-  ///
+  /// getTM - return adapted the llvm::TargetMachine.
   const llvm::TargetMachine& getTM() const { return m_TM; }
   llvm::TargetMachine& getTM() { return m_TM; }
 
+  /// getLDInfo - return the mcld::MCLDInfo
+  virtual mcld::MCLDInfo& getLDInfo() = 0;
+  virtual const mcld::MCLDInfo& getLDInfo() const = 0;
+
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.
-  ///
   bool addPassesToEmitFile(PassManagerBase &,
-                           formatted_raw_ostream &,
+                           const std::string &pInputFilename,
+                           const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
                            bool DisableVerify= true); 
 
   /// getTargetData
-  ///
   const TargetData *getTargetData() const { return m_TM.getTargetData(); }
 
   /// setAsmVerbosityDefault
-  ///
   static void setAsmVerbosityDefault(bool pAsmVerbose) { 
     llvm::TargetMachine::setAsmVerbosityDefault(pAsmVerbose); 
   }
@@ -86,9 +89,24 @@ public:
 private:
   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
   /// both emitting to assembly files or machine code output.
-  ///
-  bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
-                              bool DisableVerify, MCContext *&OutCtx);
+  bool addCommonCodeGenPasses(PassManagerBase &,
+                              CodeGenOpt::Level,
+                              bool DisableVerify,
+                              llvm::MCContext *&OutCtx);
+
+  bool addCompilerPasses(PassManagerBase &,
+                         const std::string& pOutputFilename,
+                         llvm::MCContext *&OutCtx);
+
+  bool addAssemblerPasses(PassManagerBase &,
+                          const std::string& pOutputFilename,
+                          llvm::MCContext *&OutCtx);
+
+  bool addLinkerPasses(PassManagerBase &,
+                       const std::string& pInputFileName,
+                       const std::string& pOutputFilename,
+                       unsigned int pOutputLinkType,
+                       llvm::MCContext *&OutCtx);
 
 private:
   llvm::TargetMachine &m_TM;

@@ -11,7 +11,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/ADT/TypeTraits.h>
-#include <mcld/ADT/Allocators.h>
+#include <mcld/Support/Allocators.h>
 
 namespace mcld
 {
@@ -117,6 +117,11 @@ public:
                        ConstTraits<
                          typename Alloc::value_type> > const_iterator;
 
+  typedef typename Alloc::value_type value_type;
+  typedef typename Alloc::pointer    pointer;
+  typedef typename Alloc::reference  reference;
+  typedef typename Alloc::size_type  size_type;
+
 protected:
   GCFactoryBase()
   : Alloc(), m_NumAllocData(0)
@@ -131,14 +136,14 @@ public:
   { Alloc::clear(); }
 
   // -----  modifiers  ----- //
-  DataType* allocate(size_t N) {
-    DataType* result = Alloc::allocate(N);
+  value_type* allocate(size_t N) {
+    value_type* result = Alloc::allocate(N);
     if (0 != result)
       m_NumAllocData += N;
     return result;
   }
 
-  DataType* allocate() {
+  value_type* allocate() {
     ++m_NumAllocData;
     return Alloc::allocate();
   }
@@ -202,7 +207,7 @@ class GCFactory : public GCFactoryBase<LinearAllocator<DataType, ChunkSize> >
 {
 public:
   GCFactory()
-  : GCFactoryBase()
+  : GCFactoryBase<LinearAllocator<DataType, ChunkSize> >()
   { }
 };
 
@@ -211,7 +216,7 @@ class GCFactory<DataType, 0> : public GCFactoryBase<LinearAllocator<DataType, 0>
 {
 public:
   GCFactory(size_t pNum)
-  : GCFactoryBase(pNum)
+  : GCFactoryBase<LinearAllocator<DataType, 0> >(pNum)
   { }
 };
 

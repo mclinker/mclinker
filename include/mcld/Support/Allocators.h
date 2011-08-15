@@ -17,44 +17,38 @@
 namespace mcld
 {
 
-class ChunkBase
-{
-public:
-  ChunkBase()
-  : next(0), bound(0)
-  { }
-
-public:
-  ChunkBase* next;
-  size_t bound;
-};
-
 /** \class Chunk
  *  \brief Chunk is the basic unit of the storage of the LinearAllocator
  *
  *  @see LinearAllocator
  */
 template<typename DataType, size_t ChunkSize>
-struct Chunk : public ChunkBase
+struct Chunk
 {
 public:
   typedef DataType value_type;
 public:
+  Chunk()
+  : next(0), bound(0)
+  { }
+
   static size_t size() { return ChunkSize; }
 
 public:
+  Chunk* next;
+  size_t bound;
   DataType data[ChunkSize];
 };
 
 template<typename DataType>
-struct Chunk<DataType, 0> : public ChunkBase
+struct Chunk<DataType, 0>
 {
 public:
   typedef DataType value_type;
 
 public:
   Chunk()
-  : ChunkBase() {
+  : next(0), bound(0) {
     if (0 != m_Size)
       data = (DataType*)malloc(sizeof(DataType)*m_Size);
     else
@@ -70,6 +64,8 @@ public:
   static void setSize(size_t pSize) { m_Size = pSize; }
 
 public:
+  Chunk* next;
+  size_t bound;
   DataType *data;
   static size_t m_Size;
 };
@@ -85,8 +81,8 @@ public:
   typedef typename ChunkType::value_type        value_type;
   typedef typename ChunkType::value_type*       pointer;
   typedef typename ChunkType::value_type&       reference;
-  typedef typename const ChunkType::value_type* const_pointer;
-  typedef typename const ChunkType::value_type& const_reference;
+  typedef const typename ChunkType::value_type* const_pointer;
+  typedef const typename ChunkType::value_type& const_reference;
   typedef size_t                                size_type;
   typedef ptrdiff_t                             difference_type;
   typedef unsigned char                         byte_type;
@@ -210,23 +206,6 @@ public:
     m_AllocatedNum = 0;
   }
 
-protected:
-  inline void initialize() {
-    m_pRoot = new chunk_type();
-    m_pCurrent = m_pRoot;
-    m_pCurrent->next = 0;
-    m_AllocatedNum += chunk_type::size();
-  }
-
-  inline ChunkType *createChunk() {
-    m_pRoot = new chunk_type();
-    m_pCurrent->next = result;
-    m_pCurrent = result;
-    m_pCurrent->next = 0;
-    m_AllocatedNum += chunk_type::size();
-    return result;
-  }
-
   /// clear - clear all chunks
   void clear() {
     chunk_type *cur = m_pRoot, *prev;
@@ -250,6 +229,21 @@ protected:
 
   size_type max_size() const
   { return m_AllocatedNum; }
+
+protected:
+  inline void initialize() {
+    m_pRoot = new chunk_type();
+    m_pCurrent = m_pRoot;
+    m_AllocatedNum += chunk_type::size();
+  }
+
+  inline chunk_type *createChunk() {
+    chunk_type *result = new chunk_type();
+    m_pCurrent->next = result;
+    m_pCurrent = result;
+    m_AllocatedNum += chunk_type::size();
+    return result;
+  }
 
 protected:
   chunk_type *m_pRoot;
@@ -278,10 +272,10 @@ class LinearAllocator : public LinearAllocatorBase<Chunk<DataType, ChunkSize> >
 {
 public:
   LinearAllocator()
-    : LinearAllocatorBase() {
+    : LinearAllocatorBase<Chunk<DataType, ChunkSize> >() {
   }
 
-  virtual ~LinearAllocatorBase()
+  virtual ~LinearAllocator()
   { }
 };
 
@@ -290,11 +284,11 @@ class LinearAllocator<DataType, 0> : public LinearAllocatorBase<Chunk<DataType, 
 {
 public:
   LinearAllocator(size_t pNum)
-    : LinearAllcoatorBase() {
-    chunk_type::setSize(pNum);
+    : LinearAllocatorBase<Chunk<DataType, 0> >() {
+    Chunk<DataType, 0>::setSize(pNum);
   }
 
-  virtual ~LinearAllocatorBase()
+  virtual ~LinearAllocator()
   { }
 };
 

@@ -30,6 +30,12 @@ function gettop()
 	
 }
 
+function wc_pndk()
+{
+	local H=`find ${BOLDTOP} | grep '\.h'`
+	local C=`find ${BOLDTOP} | grep '\.cpp'`
+	wc ${C} ${H}
+}
 
 #############################
 #  Variable Dictionary
@@ -37,3 +43,4 @@ export BOLDTOP=$(gettop)
 export PATH="${BOLDTOP}/scripts/bin:$PATH"
 ln -sf ${BOLDTOP}/debug/MCLinker ${BOLDTOP}/scripts/bin/MCLinker
 alias mk="make -C ${BOLDTOP}"
+

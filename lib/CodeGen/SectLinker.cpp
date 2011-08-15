@@ -15,13 +15,10 @@
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
-#include <mcld/MC/MCLDFile.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/CommandLine.h>
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/Support/FileSystem.h>
 #include <algorithm>
 #include <stack>
 
@@ -181,15 +178,14 @@ ArgBStaticListAlias3("non_shared",
 
 //===----------------------------------------------------------------------===//
 // SectLinker
-SectLinker::SectLinker(MCLDInfo& pLDInfo,
-                       const std::string& pInputFile,
+SectLinker::SectLinker(const std::string& pInputFile,
                        const std::string& pOutputFile,
                        unsigned int pOutputLinkType,
+                       MCLDInfo& pLDInfo,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_LDInfo(pLDInfo),
     m_pLDBackend(&pLDBackend) {
-    // create the "clean" default attribute
     // create the default input, and assign the default attribute to it.
     // create the default output 
 }
@@ -349,7 +345,7 @@ bool SectLinker::doInitialization(Module &pM)
 
   // ----- convert position dependent options into tree of input files  ----- //
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
-  initializeInputTree(m_LDInfo.inputs(), *m_pAttrFactory, pos_dep_options);
+  initializeInputTree(m_LDInfo, pos_dep_options);
 
   // Now, all input arguments are prepared well, send it into MCLDDriver
   m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
@@ -373,8 +369,7 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
   // basically, linkers do nothing during function is generated.
 }
 
-void SectLinker::initializeInputTree(InputTree& pInputs,
-                                     AttributeFactory& pAttrFactory,
+void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                         const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
@@ -386,62 +381,47 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
-  MCLDAttribute* attr = 0; 
   InputTree::Connector *prev_ward = &InputTree::Downward;
 
   std::stack<InputTree::iterator> returnStack;
   switch ((*cur_char)->type()) {
   case PositionDependentOption::INPUT_FILE:
-    pInputs.insert<InputTree::Inclusive>(pInputs.root(),
-                                         "file",
-                                         *(*cur_char)->path(),
-                                         *pAttrFactory.defaultAttribute(),
-                                         (*cur_char)->type());
+    pLDInfo.inputs().insert<InputTree::Inclusive>(pLDInfo.inputs().root(),
+                                                 "file",
+                                                 *(*cur_char)->path(),
+                                                 (*cur_char)->type());
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::NAMESPEC:
-    pInputs.insert<InputTree::Inclusive>(pInputs.root(),
+    pLDInfo.inputs().insert<InputTree::Inclusive>(pLDInfo.inputs().root(),
                                          (*cur_char)->namespec(),
                                          *(*cur_char)->path(),
-                                         *pAttrFactory.defaultAttribute(),
                                          (*cur_char)->type());
     prev_ward = &InputTree::Afterward;
     break;
   case PositionDependentOption::START_GROUP:
-    pInputs.enterGroup(pInputs.root(),
+    pLDInfo.inputs().enterGroup(pLDInfo.inputs().root(),
                        *prev_ward);
-    returnStack.push(pInputs.begin());
+    returnStack.push(pLDInfo.inputs().begin());
     prev_ward = &InputTree::Downward;
     break;
   case PositionDependentOption::WHOLE_ARCHIVE:
-    attr = pAttrFactory.produce();
-    attr->setWholeArchive();
-    pAttrFactory.recordOrReplace(attr);
+    pLDInfo.attrFactory().last().setWholeArchive();
     break; 
   case PositionDependentOption::NO_WHOLE_ARCHIVE:
-    attr = pAttrFactory.produce();
-    attr->unsetWholeArchive();
-    pAttrFactory.recordOrReplace(attr);
+    pLDInfo.attrFactory().last().unsetWholeArchive();
     break; 
   case PositionDependentOption::AS_NEEDED:
-    attr = pAttrFactory.produce();
-    attr->setAsNeeded();
-    pAttrFactory.recordOrReplace(attr);
+    pLDInfo.attrFactory().last().setAsNeeded();
     break; 
   case PositionDependentOption::NO_AS_NEEDED:
-    attr = pAttrFactory.produce();
-    attr->unsetAsNeeded();
-    pAttrFactory.recordOrReplace(attr);
-    break; 
-  case PositionDependentOption::BDYNAMIC:
-    attr = pAttrFactory.produce();
-    attr->setDynamic();
-    pAttrFactory.recordOrReplace(attr);
+    pLDInfo.attrFactory().last().unsetAsNeeded();
     break; 
   case PositionDependentOption::BSTATIC:
-    attr = pAttrFactory.produce();
-    attr->setStatic();
-    pAttrFactory.recordOrReplace(attr);
+    pLDInfo.attrFactory().last().setStatic();
+    break; 
+  case PositionDependentOption::BDYNAMIC:
+    pLDInfo.attrFactory().last().setDynamic();
     break; 
   case PositionDependentOption::END_GROUP:
   default:
@@ -449,28 +429,26 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
   }
 
   ++cur_char;
-  InputTree::iterator cur_node = pInputs.begin();
+  InputTree::iterator cur_node = pLDInfo.inputs().begin();
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {
     case PositionDependentOption::INPUT_FILE:
-      pInputs.insert(cur_node,
+      pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
                      "file",
-                     *(*cur_char)->path(),
-                     const_cast<const MCLDAttribute&>(*attr));
+                     *(*cur_char)->path());
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::NAMESPEC:
-      pInputs.insert(cur_node,
+      pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
                      (*cur_char)->namespec(),
-                     *(*cur_char)->path(),
-                     const_cast<const MCLDAttribute&>(*attr));
+                     *(*cur_char)->path());
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::START_GROUP:
-      pInputs.enterGroup(cur_node, *prev_ward);
+      pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
       returnStack.push(cur_node);
       prev_ward = &InputTree::Downward;
       break;
@@ -480,34 +458,22 @@ void SectLinker::initializeInputTree(InputTree& pInputs,
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      attr = pAttrFactory.produce();
-      attr->setWholeArchive();
-      pAttrFactory.recordOrReplace(attr);
+      pLDInfo.attrFactory().last().setWholeArchive();
       break; 
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      attr = pAttrFactory.produce();
-      attr->unsetWholeArchive();
-      pAttrFactory.recordOrReplace(attr);
+      pLDInfo.attrFactory().last().unsetWholeArchive();
       break; 
     case PositionDependentOption::AS_NEEDED:
-      attr = pAttrFactory.produce();
-      attr->setAsNeeded();
-      pAttrFactory.recordOrReplace(attr);
+      pLDInfo.attrFactory().last().setAsNeeded();
       break; 
     case PositionDependentOption::NO_AS_NEEDED:
-      attr = pAttrFactory.produce();
-      attr->unsetAsNeeded();
-      pAttrFactory.recordOrReplace(attr);
-      break; 
-    case PositionDependentOption::BDYNAMIC:
-      attr = pAttrFactory.produce();
-      attr->setDynamic();
-      pAttrFactory.recordOrReplace(attr);
+      pLDInfo.attrFactory().last().unsetAsNeeded();
       break; 
     case PositionDependentOption::BSTATIC:
-      attr = pAttrFactory.produce();
-      attr->setStatic();
-      pAttrFactory.recordOrReplace(attr);
+      pLDInfo.attrFactory().last().setStatic();
+      break; 
+    case PositionDependentOption::BDYNAMIC:
+      pLDInfo.attrFactory().last().setDynamic();
       break; 
     default:
       report_fatal_error("can not find the type of input file");

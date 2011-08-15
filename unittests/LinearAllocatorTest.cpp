@@ -7,7 +7,7 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/ADT/Allocators.h>
+#include <mcld/Support/Allocators.h>
 #include "LinearAllocatorTest.h"
 #ifdef MCLD_DEBUG
 #include <iostream>

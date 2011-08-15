@@ -5,25 +5,24 @@
  *                                                                           *
  *   Jush Lu <Jush.Lu@mediatek.com>                                            *
  ****************************************************************************/
-#include "mcld/MC/MCELFObjectReader.h"
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/MC/MCELFObjectReader.h>
+#include <mcld/MC/MCLDFile.h>
 
-#include "llvm/ADT/OwningPtr.h"
-#include "llvm/ADT/Triple.h"
-#include "llvm/CodeGen/MachineModuleInfo.h"
-#include "llvm/MC/MCContext.h"
-#include "llvm/Target/TargetAsmInfo.h"
-#include "llvm/Target/TargetLowering.h"
-#include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetRegistry.h"
-#include "llvm/Target/TargetSelect.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/ELF.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/MemoryBuffer.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/system_error.h"
+#include <llvm/ADT/OwningPtr.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/CodeGen/MachineModuleInfo.h>
+#include <llvm/MC/MCContext.h>
+#include <llvm/Target/TargetLowering.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetRegistry.h>
+#include <llvm/Target/TargetSelect.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/system_error.h>
 
 using namespace llvm;
 using namespace mcld;
@@ -49,11 +48,8 @@ MCELFObjectReader::~MCELFObjectReader()
 }
 
 error_code MCELFObjectReader::readObject(const std::string &ObjectFile, 
-                                         MCLDFile &LDFile) {
-  MCLDContext *LDContext = new MCLDContext;
-  LDFile.setContext(*LDContext);
-
-
+                                         MCLDFile &LDFile)
+{
   OwningPtr<MemoryBuffer> File;
   error_code ec;
   ec = MemoryBuffer::getFile(ObjectFile, File);

@@ -3,36 +3,31 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Reloc.h <nowar100@gmail.com>                                            *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef RELOCDATA_H
-#define RELOCDATA_H
+#ifndef MCELFARCHIVETARGETREADER_H
+#define MCELFARCHIVETARGETREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <vector>
-
 namespace mcld
 {
 
-// Data about a single relocation section.  This is read in
-// read_relocs and processed in scan_relocs.
-struct SectionRelocData {
-  //MCLDFile* contents;
-};
-
-
-/** \class RelocData
- *  \brief Information of relocations in an object file.
+/** \class MCELFArchiveTargetReader
+ *  \brief MCELFArchiveTargetReader provides an interface for target-dependent archive reader.
  *
  *  \see
- *  \author Reloc.h <nowar100@gmail.com>
+ *  \author Luba Tang <lubatang@mediatek.com>
  */
-struct RelocData
+class MCELFArchiveTargetReader
 {
-  typedef std::vector<SectionRelocData> SectionRelocList;
-  SectionRelocList relocs;
+protected:
+  MCELFArchiveTargetReader();
+
+public:
+  virtual ~MCELFArchiveTargetReader();
+
 };
 
 } // namespace of mcld

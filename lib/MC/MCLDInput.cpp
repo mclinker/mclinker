@@ -6,13 +6,15 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDAttribute.h>
 
 using namespace mcld;
 
 //==========================
 // MCInput
-Input::Input()
- : MCLDFile(), m_pAttr(0){
+Input::Input(const MCLDAttribute& pAttr)
+ : MCLDFile(),
+   m_pAttr(const_cast<MCLDAttribute*>(&pAttr)) {
 }
 
 Input::Input(llvm::StringRef pName,
@@ -25,5 +27,6 @@ Input::Input(llvm::StringRef pName,
 
 Input::~Input()
 {
+  // do nothing. Attribute is deleted by AttributeFactory
 }
 

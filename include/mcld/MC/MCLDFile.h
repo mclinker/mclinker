@@ -14,7 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <mcld/MC/MCLDContext.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/ADT/GCFactory.h>
+#include <mcld/Support/GCFactory.h>
 #include <string>
 
 #include "mcld/MC/MCLDContext.h"
