@@ -20,7 +20,9 @@ NORMAL_SOURCE = \
 	$(LIBDIR)/MC/MCELFObjectReader.cpp \
 	$(LIBDIR)/MC/MCELFObjectTargetReader.cpp \
 	$(LIBDIR)/MC/MCLDContext.cpp \
-	$(LIBDIR)/MC/MCObjectReader.cpp
+	$(LIBDIR)/MC/MCLDFile.cpp \
+	$(LIBDIR)/MC/MCObjectReader.cpp \
+	$(LIBDIR)/Support/Path.cpp
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE}

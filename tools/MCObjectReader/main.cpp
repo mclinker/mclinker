@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   MCELFObjectReader Reader(TargetReader);
   Reader.readObject(InputFilename, File);
 
-  File.m_pContext->dump();
+  File.context()->dump();
 
   return 0;
 }

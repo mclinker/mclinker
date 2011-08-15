@@ -50,7 +50,9 @@ MCELFObjectReader::~MCELFObjectReader()
 
 error_code MCELFObjectReader::readObject(const std::string &ObjectFile, 
                                          MCLDFile &LDFile) {
-  LDFile.m_pContext = new MCLDContext();
+  MCLDContext *LDContext = new MCLDContext;
+  LDFile.setContext(*LDContext);
+
 
   OwningPtr<MemoryBuffer> File;
   error_code ec;
@@ -109,25 +111,30 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
     }
 
     const MCSectionELF *ShEntry = 
-      LDFile.m_pContext->getELFSection(SectionName, sh->sh_type,
+      LDFile.context()->getELFSection(SectionName, sh->sh_type,
                                        0, SectionKind::getReadOnly(),
                                        sh->sh_size, "");
    
     MCSymbol *SymEntry = NULL;
     if (!SectionName.empty()) {
-      SymEntry = LDFile.m_pContext->getOrCreateSymbol(SectionName);
+  errs()<<"jush Before using context()\n";
+      SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
+  errs()<<"jush end of for loop\n";
       MCSymbolData &SymDataEntry = 
-        LDFile.m_pContext->getOrCreateSymbolData(*SymEntry);    
+        LDFile.context()->getOrCreateSymbolData(*SymEntry);    
     }
+
   }
 
 
   StringRef SymTabName = getNameString(ShStringTable, SymbolTable->sh_name);
 
   const MCSectionELF *SymTabSection = 
-     LDFile.m_pContext->getELFSection(SymTabName, ELF::SHT_STRTAB, 
+     LDFile.context()->getELFSection(SymTabName, ELF::SHT_STRTAB, 
                                       0, SectionKind::getReadOnly(),
                                       SymbolTable->sh_size ,"");
+
+
 
   CopySymbolEntryToLDFile(LDFile, SymTabSection);
 
@@ -179,7 +186,7 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
      StringRef SymbolName = getNameString(StringTable, SymEntry->st_name);
 
      MCSectionData &SymTabSD =
-       File.m_pContext->getOrCreateSectionData(*SymTabSection);
+       File.context()->getOrCreateSectionData(*SymTabSection);
 
      MCDataFragment *F = new MCDataFragment(&SymTabSD);
 
@@ -190,8 +197,8 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 
      MCSymbol *Sym = NULL; 
      if (!SymbolName.empty()) {
-       Sym = File.m_pContext->getOrCreateSymbol(SymbolName);
-       MCSymbolData &SymData =File.m_pContext->getOrCreateSymbolData(*Sym);
+       Sym = File.context()->getOrCreateSymbol(SymbolName);
+       MCSymbolData &SymData =File.context()->getOrCreateSymbolData(*Sym);
      }
   }
 
