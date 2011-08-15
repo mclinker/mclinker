@@ -117,9 +117,7 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
    
     MCSymbol *SymEntry = NULL;
     if (!SectionName.empty()) {
-  errs()<<"jush Before using context()\n";
       SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
-  errs()<<"jush end of for loop\n";
       MCSymbolData &SymDataEntry = 
         LDFile.context()->getOrCreateSymbolData(*SymEntry);    
     }
