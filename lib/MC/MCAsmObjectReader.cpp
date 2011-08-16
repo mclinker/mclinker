@@ -23,7 +23,7 @@ using namespace mcld;
 // MCAsmObjectReader
 MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
                                      MCLDInfo& pLDInfo)
-  : MCObjectWriter(llvm::nulls(), 
+  : MCObjectWriter(llvm::nulls(),
                    pStreamer.getAssembler().getWriter().isLittleEndian()),
     m_LDInfo(pLDInfo) {
   pStreamer.getAssembler().setWriter(*this);

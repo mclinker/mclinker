@@ -292,14 +292,14 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                                   getTM().hasMCRelaxAll(),
                                                   getTM().hasMCNoExecStack()));
 
-  MCAsmObjectReader *objReader = 
+  MCAsmObjectReader *objReader =
                          new MCAsmObjectReader(
                                   static_cast<MCObjectStreamer&>(*AsmStreamer.get()),
                                   getLDInfo());
 
   AsmStreamer->InitSections();
   AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
-  if (0 == printer )
+  if (0 == printer)
     return true;
   AsmStreamer.take();
   pPM.add(printer);
@@ -308,7 +308,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == ldBackend)
     return true;
 
-  MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple, 
+  MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
                                                                pInputFilename,
                                                                pOutputFilename,
                                                                pOutputLinkType,

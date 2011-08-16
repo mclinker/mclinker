@@ -32,14 +32,6 @@ using namespace llvm;
 using namespace mcld;
 using namespace ELF;
 
-
-static cl::opt<std::string>
-MCPU("mcpu",
-  cl::desc("Target a specific cpu type (-mcpu=help for details)"),
-  cl::value_desc("cpu-name"),
-  cl::init(""));
-
-
 //==========================
 // MCELFObjectReader
 MCELFObjectReader::MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader)
