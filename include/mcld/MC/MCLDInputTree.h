@@ -19,6 +19,46 @@
 namespace mcld
 {
 
+template<typename Traits, typename IteratorType>
+class PolicyIterator<Input, Traits, IteratorType> : public PolicyIteratorBase<Input, Traits, IteratorType>
+{
+public:
+  typedef PolicyIterator<Input, Traits, IteratorType> Self;
+  typedef PolicyIteratorBase<Input, Traits, IteratorType> Base;
+  typedef PolicyIterator<Input, typename Traits::nonconst_traits, IteratorType> iterator;
+  typedef PolicyIterator<Input, typename Traits::const_traits, IteratorType>    const_iterator;
+
+public:
+  PolicyIterator()
+    : Base() {}
+
+  PolicyIterator(const iterator &X)
+    : Base(X.m_pNode) {}
+
+  explicit PolicyIterator(NodeBase* X)
+    : Base(X) {}
+
+  virtual ~PolicyIterator() {}
+
+  bool isGroup() const
+  { return !Base::hasData(); }
+
+  Self& operator++() {
+    IteratorType::advance();
+    if (isGroup())
+      IteratorType::advance();
+    return *this;
+  }
+
+  Self operator++(int) {
+    Self tmp = *this;
+    IteratorType::advance();
+    if (isGroup())
+      IteratorType::advance();
+    return tmp;
+  }
+};
+
 /** \class InputTree
  *  \brief InputTree is the input tree to contains all inputs from the
  *  command line.
@@ -40,6 +80,10 @@ public:
 
   typedef BinaryTree<Input>::iterator       iterator;
   typedef BinaryTree<Input>::const_iterator const_iterator;
+  typedef PolicyIterator<Input, NonConstTraits<Input>, DFSIterator> dfs_iterator;
+  typedef PolicyIterator<Input, ConstTraits<Input>, DFSIterator>    const_dfs_iterator;
+  typedef PolicyIterator<Input, NonConstTraits<Input>, BFSIterator> bfs_iterator;
+  typedef PolicyIterator<Input, ConstTraits<Input>, BFSIterator>    const_bfs_iterator;
 
 public:
   struct Connector {
@@ -110,6 +154,31 @@ public:
   bool hasInput() const
   { return !m_FileFactory.empty(); }
 
+  // -----  iterators  ----- //
+  bfs_iterator bfs_begin()
+  { return bfs_iterator(m_Root.node.left); }
+
+  bfs_iterator bfs_end()
+  { return bfs_iterator(m_Root.node.right); }
+
+  const_bfs_iterator bfs_begin() const
+  { return const_bfs_iterator(m_Root.node.left); }
+
+  const_bfs_iterator bsf_end() const
+  { return const_bfs_iterator(m_Root.node.right); }
+
+  dfs_iterator dfs_begin()
+  { return dfs_iterator(m_Root.node.left); }
+
+  dfs_iterator dfs_end()
+  { return dfs_iterator(m_Root.node.right); }
+
+  const_dfs_iterator dfs_begin() const
+  { return const_dfs_iterator(m_Root.node.left); }
+
+  const_dfs_iterator dfs_end() const
+  { return const_dfs_iterator(m_Root.node.right); }
+
 private:
   InputFactory& m_FileFactory;
 
@@ -117,6 +186,10 @@ private:
 
 bool isGroup(const InputTree::iterator& pos);
 bool isGroup(const InputTree::const_iterator& pos);
+bool isGroup(const InputTree::dfs_iterator& pos);
+bool isGroup(const InputTree::const_dfs_iterator& pos);
+bool isGroup(const InputTree::bfs_iterator& pos);
+bool isGroup(const InputTree::const_bfs_iterator& pos);
 
 } // namespace of mcld
 
