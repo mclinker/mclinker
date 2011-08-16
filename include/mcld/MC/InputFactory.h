@@ -40,6 +40,8 @@ public:
   ~InputFactory();
 
   // -----  production  ----- //
+  Input* produce(llvm::StringRef pName);
+
   Input* produce(llvm::StringRef pName,
                  const sys::fs::Path& pPath,
                  unsigned int pType = Input::Unknown);

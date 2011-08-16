@@ -26,6 +26,7 @@ namespace mcld
  *  \brief MCLDInfo is composed of argumments of MCLDDriver.
  *   options()        - the general options.
  *   inputs()         - the tree of inputs
+ *   bitcode()        - the bitcode being linked
  *   output()         - the output file
  *   inputFactory()   - the list of all inputs
  *   attrFactory()    - the list of all attributes
@@ -42,6 +43,10 @@ public:
 
   const GeneralOptions& options() const
   { return m_Options; }
+
+  void setBitcode(const Input& pInput);
+  Input& bitcode();
+  const Input& bitcode() const;
 
   Output& output()
   { return *m_pOutput; }
@@ -81,7 +86,7 @@ private:
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
   Output* m_pOutput;
-
+  Input* m_pBitcode;
 };
 
 } // namespace of mcld

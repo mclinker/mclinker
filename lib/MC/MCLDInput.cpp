@@ -12,8 +12,8 @@ using namespace mcld;
 
 //==========================
 // MCInput
-Input::Input(const AttributeProxy& pProxy)
- : MCLDFile(),
+Input::Input(llvm::StringRef pName, const AttributeProxy& pProxy)
+ : MCLDFile(pName),
    m_pAttr(const_cast<Attribute*>(pProxy.attr())) {
 }
 

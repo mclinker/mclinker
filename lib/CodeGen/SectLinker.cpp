@@ -188,6 +188,14 @@ SectLinker::SectLinker(const std::string& pInputFile,
     m_LDInfo(pLDInfo),
     m_pLDBackend(&pLDBackend) {
   // create the default input, and assign the default attribute to it.
+  m_LDInfo.inputs().insert<InputTree::Inclusive>(m_LDInfo.inputs().root(),
+                                                 "default bitcode",
+                                                 RealPath(pInputFile),
+                                                 Input::Object);
+  Input* bitcode = *m_LDInfo.inputs().begin();
+  bitcode->setContext(m_LDInfo.contextFactory().produce(bitcode->path()));
+  m_LDInfo.setBitcode(*bitcode);
+
   // create the default output
   m_LDInfo.output().setType(pOutputLinkType); 
   m_LDInfo.output().setPath(sys::fs::RealPath(pOutputFile));
@@ -387,55 +395,11 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
-  InputTree::Connector *prev_ward = &InputTree::Downward;
+  InputTree::Connector *prev_ward = &InputTree::Afterward;
 
   std::stack<InputTree::iterator> returnStack;
-  switch ((*cur_char)->type()) {
-  case PositionDependentOption::INPUT_FILE:
-    pLDInfo.inputs().insert<InputTree::Inclusive>(pLDInfo.inputs().root(),
-                                                 "file",
-                                                 *(*cur_char)->path(),
-                                                 (*cur_char)->type());
-    prev_ward = &InputTree::Afterward;
-    break;
-  case PositionDependentOption::NAMESPEC:
-    pLDInfo.inputs().insert<InputTree::Inclusive>(pLDInfo.inputs().root(),
-                                         (*cur_char)->namespec(),
-                                         *(*cur_char)->path(),
-                                         (*cur_char)->type());
-    prev_ward = &InputTree::Afterward;
-    break;
-  case PositionDependentOption::START_GROUP:
-    pLDInfo.inputs().enterGroup(pLDInfo.inputs().root(),
-                       *prev_ward);
-    returnStack.push(pLDInfo.inputs().begin());
-    prev_ward = &InputTree::Downward;
-    break;
-  case PositionDependentOption::WHOLE_ARCHIVE:
-    pLDInfo.attrFactory().last().setWholeArchive();
-    break; 
-  case PositionDependentOption::NO_WHOLE_ARCHIVE:
-    pLDInfo.attrFactory().last().unsetWholeArchive();
-    break; 
-  case PositionDependentOption::AS_NEEDED:
-    pLDInfo.attrFactory().last().setAsNeeded();
-    break; 
-  case PositionDependentOption::NO_AS_NEEDED:
-    pLDInfo.attrFactory().last().unsetAsNeeded();
-    break; 
-  case PositionDependentOption::BSTATIC:
-    pLDInfo.attrFactory().last().setStatic();
-    break; 
-  case PositionDependentOption::BDYNAMIC:
-    pLDInfo.attrFactory().last().setDynamic();
-    break; 
-  case PositionDependentOption::END_GROUP:
-  default:
-    report_fatal_error("illegal syntax of input files");
-  }
-
-  ++cur_char;
   InputTree::iterator cur_node = pLDInfo.inputs().begin();
+
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {

@@ -17,7 +17,7 @@ using namespace mcld;
 //==========================
 // MCLDInfo
 MCLDInfo::MCLDInfo(size_t pAttrNum, size_t pInputNum)
-  : m_Options()
+  : m_Options(), m_pBitcode(0)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);
@@ -33,5 +33,22 @@ MCLDInfo::~MCLDInfo()
   delete m_pCntxtFactory;
   delete m_pInputFactory;
   delete m_pInputTree;
+}
+
+void MCLDInfo::setBitcode(const Input& pInput)
+{
+  m_pBitcode = const_cast<Input*>(&pInput);
+}
+
+Input& MCLDInfo::bitcode()
+{
+  assert((0 != m_pBitcode) && "default bitcode is not set");
+  return *m_pBitcode;
+}
+
+const Input& MCLDInfo::bitcode() const
+{
+  assert((0 != m_pBitcode) && "default bitcode is not set");
+  return *m_pBitcode;
 }
 

@@ -20,9 +20,16 @@ InputFactory::~InputFactory()
 {
 }
 
-mcld::Input* mcld::InputFactory::produce(llvm::StringRef pName,
-                                         const sys::fs::Path& pPath,
-                                         unsigned int pType)
+Input* InputFactory::produce(llvm::StringRef pName)
+{
+  mcld::Input* result = Alloc::allocate();
+  new (result) mcld::Input(pName, m_AttrFactory.last());
+  return result;
+}
+
+Input* InputFactory::produce(llvm::StringRef pName,
+                             const sys::fs::Path& pPath,
+                             unsigned int pType)
 {
   mcld::Input* result = Alloc::allocate();
   new (result) mcld::Input(pName, pPath, m_AttrFactory.last(), pType);

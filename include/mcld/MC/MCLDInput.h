@@ -37,7 +37,9 @@ public:
   };
 
 private:
-  explicit Input(const AttributeProxy& pAttr);
+  explicit Input(llvm::StringRef pName,
+                 const AttributeProxy& pAttr);
+
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const AttributeProxy& pAttr,
