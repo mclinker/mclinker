@@ -151,6 +151,9 @@ public:
   pointer operator*() const 
   { return static_cast<node_type*>(IteratorType::m_pNode)->data; }
 
+  reference operator->() const
+  { return *static_cast<node_type*>(IteratorType::m_pNode)->data; }
+
   bool isRoot() const
   { return (IteratorType::m_pNode->right == IteratorType::m_pNode); }
 
@@ -214,6 +217,9 @@ public:
   // -----  operators  ----- //
   pointer operator*() const 
   { return static_cast<node_type*>(m_pNode)->data; }
+
+  reference operator->() const
+  { return *static_cast<node_type*>(m_pNode)->data; }
 
   bool isRoot() const
   { return (m_pNode->right == m_pNode); }
@@ -367,9 +373,9 @@ public:
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
 
   typedef VarietyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
-  typedef VarietyIterator<value_type, ConstTraits<value_type>, DFSIterator>    dfs_const_iterator;
+  typedef VarietyIterator<value_type, ConstTraits<value_type>, DFSIterator>    const_dfs_iterator;
   typedef VarietyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
-  typedef VarietyIterator<value_type, ConstTraits<value_type>, BFSIterator>    bfs_const_iterator;
+  typedef VarietyIterator<value_type, ConstTraits<value_type>, BFSIterator>    const_bfs_iterator;
 
 protected:
   typedef Node<value_type> node_type;
@@ -390,11 +396,11 @@ public:
   bfs_iterator bfs_end()
   { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  bfs_const_iterator bfs_const_begin() const
-  { return bfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  const_bfs_iterator bfs_const_begin() const
+  { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
-  bfs_const_iterator bfs_const_end() const
-  { return bfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  const_bfs_iterator bfs_const_end() const
+  { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
   dfs_iterator dfs_begin()
   { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
@@ -402,11 +408,11 @@ public:
   dfs_iterator dfs_end()
   { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  dfs_const_iterator dfs_const_begin() const
-  { return dfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
+  const_dfs_iterator dfs_const_begin() const
+  { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
-  dfs_const_iterator dfs_const_end() const
-  { return dfs_const_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
+  const_dfs_iterator dfs_const_end() const
+  { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
   iterator root()
   { return iterator(&(BinaryTreeBase<DataType>::m_Root.node)); }

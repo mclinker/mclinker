@@ -33,7 +33,6 @@ mcld::MCLDContext* mcld::ContextFactory::produce(const Path& pPath)
   MCLDContext* result = Alloc::allocate();
   new (result) MCLDContext();
   m_CntxtMap.insert(make_pair(pPath, result));
-  //m_CntxtMap.insert(make_pair<RealPath, MCLDContext*>(pPath, result));
   return result;
 }
 

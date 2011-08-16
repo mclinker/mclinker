@@ -66,6 +66,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
+	${INCDIR}/MC/MCLDOutput.h \
+	${LIBDIR}/MC/MCLDOutput.cpp \
 	${INCDIR}/MC/InputFactory.h \
 	${LIBDIR}/MC/InputFactory.cpp \
 	${INCDIR}/MC/MCLDOptions.h \

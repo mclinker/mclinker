@@ -21,7 +21,7 @@ mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
   : mcld::LLVMTargetMachine(pPM, pTarget, pTriple) {
   // arg1 - the number of total attributes
   // arg2 - the most possible number of input files
-  m_pLDInfo = new MCLDInfo( 32, 64);
+  m_pLDInfo = new MCLDInfo(32, 64);
 }
 
 mcld::ARMBaseTargetMachine::~ARMBaseTargetMachine()

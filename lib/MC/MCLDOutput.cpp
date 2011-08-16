@@ -5,10 +5,22 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <MCLDOutput.h>
+#include <mcld/MC/MCLDOutput.h>
 
 using namespace mcld;
 
 //==========================
 // MCLDOutput
+Output::Output()
+  : MCLDFile("output") {
+}
+
+Output::Output(const sys::fs::Path& pRealPath,
+               Output::Type pType)
+  : MCLDFile("output", pRealPath, pType) {
+}
+                  
+Output::~Output()
+{
+}
 

@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <vector>
+#include <string>
 
 namespace mcld
 {
@@ -147,7 +148,7 @@ public:
   bool isStaticSystem() const
   { return m_Static; }
   
-  bool isLegal(const Attribute& pAttr) const;
+  bool isLegal(const Attribute& pAttr, std::string& pErrMesg) const;
 };
 
 // -----  comparisons  ----- //

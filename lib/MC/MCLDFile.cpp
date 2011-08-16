@@ -19,6 +19,10 @@ MCLDFile::MCLDFile()
   : m_Type(Unknown), m_pContext(0), m_Path(), m_InputName() {
 }
 
+MCLDFile::MCLDFile(llvm::StringRef pName)
+  : m_Type(Unknown), m_pContext(0), m_Path(), m_InputName(pName.data()) {
+}
+
 MCLDFile::MCLDFile(llvm::StringRef pName,
                    const sys::fs::Path& pPath,
                    unsigned int pType)

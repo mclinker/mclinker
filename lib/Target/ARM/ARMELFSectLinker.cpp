@@ -23,9 +23,9 @@ ARMELFSectLinker::ARMELFSectLinker(const std::string &pInputFilename,
                pLDInfo,
                pLDBackend) {
   // set up target-dependent constraints of attibutes
-  pLDInfo.attrFactory().constraint().setWholeArchive();
-  pLDInfo.attrFactory().constraint().unsetAsNeeded();
-  pLDInfo.attrFactory().constraint().setDynamic();
+  pLDInfo.attrFactory().constraint().enableWholeArchive();
+  pLDInfo.attrFactory().constraint().disableAsNeeded();
+  pLDInfo.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
   pLDInfo.attrFactory().predefined().setWholeArchive();

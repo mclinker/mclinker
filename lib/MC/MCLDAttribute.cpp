@@ -11,7 +11,36 @@
 using namespace mcld;
 
 //==========================
-// MCAttribute
+// AttrConstraint
+bool AttrConstraint::isLegal(const Attribute& pAttr, std::string &pErrMesg) const
+{
+  if (!isWholeArchive() && pAttr.isWholeArchive()) {
+    pErrMesg = std::string("Target does not support --whole-archive");
+    return false;
+  }
+  if (!isAsNeeded() && pAttr.isAsNeeded()) {
+    pErrMesg = std::string("Target does not support --as-needed");
+    return false;
+  }
+  if (isStaticSystem() && pAttr.isDynamic()) {
+    pErrMesg = std::string("Target does not support --Bdynamic");
+    return false;
+  }
+  // FIXME: may be it's legal, but ignored by GNU ld.
+  if (isStaticSystem() && pAttr.isAsNeeded()) {
+    pErrMesg = std::string("Can't enable --as-needed on a target which does not support dynamic linking");
+    return false;
+  }
+  // FIXME: may be it's legal, but ignored by GNU ld.
+  if (pAttr.isAsNeeded() && pAttr.isStatic()) {
+    pErrMesg = std::string("Can't mix --static with --as-needed");
+    return false;
+  }
+  return true;
+}
+
+//==========================
+// AttributeProxy
 AttributeProxy::AttributeProxy(AttributeFactory& pParent, Attribute& pBase)
   : m_Parent(pParent), m_pBase(&pBase) {
 }

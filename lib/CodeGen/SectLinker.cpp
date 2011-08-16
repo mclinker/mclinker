@@ -19,6 +19,7 @@
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/CommandLine.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/RealPath.h>
 #include <algorithm>
 #include <stack>
 
@@ -186,8 +187,13 @@ SectLinker::SectLinker(const std::string& pInputFile,
   : MachineFunctionPass(m_ID),
     m_LDInfo(pLDInfo),
     m_pLDBackend(&pLDBackend) {
-    // create the default input, and assign the default attribute to it.
-    // create the default output 
+  // create the default input, and assign the default attribute to it.
+  // create the default output
+  m_LDInfo.output().setType(pOutputLinkType); 
+  m_LDInfo.output().setPath(sys::fs::RealPath(pOutputFile));
+  m_LDInfo.output().setContext(
+                          m_LDInfo.contextFactory().produce(
+                                                   m_LDInfo.output().path()));
 }
 
 SectLinker::~SectLinker()
@@ -354,10 +360,10 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
-/**
-  m_pLDDriver->normalize();
   if (!m_pLDDriver->linkable())
     return true;
+/**
+  m_pLDDriver->normalize();
   m_pLDDriver->resolveSymbols();
   m_pLDDriver->relocation();
   m_pLDDriver->writeOut();

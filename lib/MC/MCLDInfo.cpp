@@ -23,10 +23,12 @@ MCLDInfo::MCLDInfo(size_t pAttrNum, size_t pInputNum)
   m_pCntxtFactory = new ContextFactory(pInputNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
+  m_pOutput = new mcld::Output();
 }
 
 MCLDInfo::~MCLDInfo()
 {
+  delete m_pOutput;
   delete m_pAttrFactory;
   delete m_pCntxtFactory;
   delete m_pInputFactory;
