@@ -3,7 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Reloc.h <nowar100@gmail.com>                                            *
+ *   Nowar <nowar100@gmail.com>                                              *
  ****************************************************************************/
 #ifndef RELOCDATA_H
 #define RELOCDATA_H
@@ -13,27 +13,47 @@
 
 #include <vector>
 
+namespace llvm {
+  class MCFixup;
+}
+
 namespace mcld
 {
+  struct RelocationEntry {
+  };
 
-// Data about a single relocation section.  This is read in
-// read_relocs and processed in scan_relocs.
+  struct RelocationTable {
+    RelocationTable() {}
+
+    // FIXME(Nowar): Better data structure?
+    std::vector<RelocationEntry> RelocEntry;
+  };
+
+#if 0
 struct SectionRelocData {
-  //MCLDFile* contents;
+  // index of section header array
+  unsigned int m_Index;
+  // section type
+  unsigned int m_SectType;
+  // sh_size / reloc_size  TODO(Nowar): Why can we get counts by this?
+  unsigned int m_RelocEntryCount;
+  // output section  TODO(Nowar): Determine the output sectuib data structure
+  //OutputSection* m_pOutputSection;
 };
-
 
 /** \class RelocData
  *  \brief Information of relocations in an object file.
  *
  *  \see
- *  \author Reloc.h <nowar100@gmail.com>
+ *  \author Nowar <nowar100@gmail.com>
  */
 struct RelocData
 {
-  typedef std::vector<SectionRelocData> SectionRelocList;
-  SectionRelocList relocs;
+  //std::vector<SectionRelocData> m_Relocs;
+  std::vector<SectionRelocData *> m_Data;
 };
+
+#endif
 
 } // namespace of mcld
 

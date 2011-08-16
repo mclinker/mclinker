@@ -24,7 +24,6 @@ namespace mcld
 
   class TargetLDBackend;
   class MCLDInfo;
-  class RelocData;
 
   /** \class MCLinker
    *  \brief MCLinker provides a pass to link object files.
@@ -36,7 +35,7 @@ namespace mcld
   public:
     explicit MCLinker(TargetLDBackend&, MCLDInfo&);
     ~MCLinker();
-  public:
+
     // FIXME: see #80
     void addCommand( MCLDCommand& pCommand );
     // FIXME: see #80
@@ -44,21 +43,16 @@ namespace mcld
     void addLdFile( MCLDFile& pLDFile );
 
     void relocate();
-  private:
-    void read_relocs();
-    void scan_relocs();
-    void relocate_relocs();
 
   private:
     typedef std::list<MCLDCommand> CommandListTy;
     typedef std::list<MCLDFile> LDFileListTy;
-  private:
+
     CommandListTy m_CommandList;
     LDFileListTy m_LDFileList;
 
     TargetLDBackend& m_pBackend;
     MCLDInfo& m_pInfo;
-    RelocData* m_pRelocData;
   };
 
 } // namespace of BOLD

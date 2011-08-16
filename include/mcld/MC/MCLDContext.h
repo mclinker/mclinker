@@ -22,6 +22,7 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include <mcld/MC/RelocationTable.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>
 #include <utility>
@@ -106,6 +107,8 @@ public:
     DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
 
     void *ELFUniquingMap;
+    // Each File should have their own relocation table.
+    RelocationTable RelocTable;
 
   public:
     MCSymbol *getOrCreateSymbol(StringRef Name);
@@ -116,7 +119,7 @@ public:
 
     const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
                   unsigned Flags, SectionKind Kind,
-                  unsigned EntrySize, StringRef Group);   
+                  unsigned EntrySize, StringRef Group);
 
     MCSectionData &getOrCreateSectionData(const MCSection &Section,
                                           bool *Created = 0);
