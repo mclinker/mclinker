@@ -200,6 +200,7 @@ int main( int argc, char* argv[] )
   InitializeAllTargets();
   InitializeAllAsmPrinters();
   InitializeAllAsmParsers();
+  InitializeAllTargetMCs();
   mcld::InitializeAllTargets();
   mcld::InitializeAllLinkers();
   cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
