@@ -27,6 +27,8 @@ public:
   MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
+  void normalize();
+
   /// linkable - check the linkability of current MCLDInfo
   //  Check list:
   //  - check the Attributes are not violate the constaint

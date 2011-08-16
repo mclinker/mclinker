@@ -29,11 +29,11 @@ class Input : public MCLDFile
 friend class InputFactory;
 public:
   enum Type {
-    Archive = MCLDFile::Archive,
+    Unknown = MCLDFile::Unknown,
     Object = MCLDFile::Object,
     DynObj = MCLDFile::DynObj,
-    Script = MCLDFile::Script,
-    Unknown = MCLDFile::Unknown
+    Archive = MCLDFile::Archive,
+    Script = MCLDFile::Script
   };
 
 private:

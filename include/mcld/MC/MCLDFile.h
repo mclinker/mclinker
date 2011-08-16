@@ -36,12 +36,13 @@ class MCLDFile
 {
 public:
   enum Type {
-    Archive,
+    Unknown,
     Object,
-    DynObj,
     Exec,
+    DynObj,
+    CoreFile,
     Script,
-    Unknown
+    Archive
   };
 
 public:

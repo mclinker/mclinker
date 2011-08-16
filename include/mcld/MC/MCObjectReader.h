@@ -12,6 +12,7 @@
 #endif
 
 #include "mcld/MC/MCLDFile.h"
+#include "mcld/MC/MCLDInput.h"
 #include "llvm/Support/system_error.h"
 
 namespace mcld
@@ -24,6 +25,9 @@ protected:
   MCObjectReader();
 public:
   virtual ~MCObjectReader();
+
+  virtual bool isMyFormat(MCLDFile &File) const = 0;
+  virtual Input::Type fileType(MCLDFile &File) const = 0;
   virtual llvm::error_code readObject(const std::string &ObjectFile, 
                                       MCLDFile &) = 0;
 };

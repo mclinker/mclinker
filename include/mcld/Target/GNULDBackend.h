@@ -41,7 +41,6 @@ protected:
   virtual MCELFObjectTargetReader *createObjectTargetReader() const = 0;
   virtual MCELFObjectTargetWriter *createObjectTargetWriter() const = 0;
 
-private:
   MCObjectReader *m_pObjectReader;
   MCArchiveReader *m_pArchiveReader;
   MCObjectWriter *m_pObjectWriter;

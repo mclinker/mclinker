@@ -24,6 +24,10 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/system_error.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/fcntl.h>
+
 using namespace llvm;
 using namespace mcld;
 using namespace ELF;
@@ -45,6 +49,31 @@ MCELFObjectReader::MCELFObjectReader(const MCELFObjectTargetReader *pTargetReade
 
 MCELFObjectReader::~MCELFObjectReader()
 {
+}
+
+bool MCELFObjectReader::isMyFormat(MCLDFile &File) const {
+  int fd;
+  unsigned char magic[16];
+ 
+  fd = open(File.path().c_str(), 0644);
+  lseek(fd, 0, SEEK_SET);
+  read(fd, &magic, sizeof(magic));
+  close(fd);
+
+  return true;
+}
+
+Input::Type MCELFObjectReader::fileType(MCLDFile &File) const {
+  int fd;
+  uint16_t e_type;
+ 
+  fd = open(File.path().c_str(), 0644);
+  lseek(fd, 0, SEEK_SET);
+  lseek(fd, sizeof(char)*16, SEEK_SET);
+  read(fd, &e_type, sizeof(e_type));
+  close(fd);
+
+  return (Input::Type)e_type;
 }
 
 error_code MCELFObjectReader::readObject(const std::string &ObjectFile, 

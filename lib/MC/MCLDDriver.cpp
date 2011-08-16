@@ -7,10 +7,13 @@
  *   Luba Tang <luba.tang@mediatek.com>                                      *
  ****************************************************************************/
 #include <llvm/Support/ErrorHandling.h>
+
+#include <mcld/MC/MCObjectReader.h>
 #include <mcld/MC/MCLDDriver.h>
-#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <string>
+#include <mcld/Support/RealPath.h>
+#include <mcld/Target/TargetLDBackend.h>
+
 
 using namespace mcld;
 
@@ -21,6 +24,29 @@ MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
 MCLDDriver::~MCLDDriver()
 {
 }
+
+void MCLDDriver::normalize() {
+  InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+  Input::Type type;
+  const sys::fs::Path pPath;
+  for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    //ObjectFile or Dynamic Object
+    if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
+      switch (type = m_LDBackend.getObjectReader()->fileType(*(*input))) {
+      case Input::DynObj:
+      case Input::Object:
+        (*input)->setType(type);
+        (*input)->setContext(m_LDInfo.contextFactory().produce(pPath));
+        break;
+      default:
+        report_fatal_error("can not link file: " + (*input)->path().string());
+        break;
+      }
+    continue;
+    }
+  }
+}
+
 
 bool MCLDDriver::linkable() const
 {

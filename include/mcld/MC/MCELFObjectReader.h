@@ -13,6 +13,8 @@
 
 #include "llvm/MC/MCObjectWriter.h"
 #include "llvm/Support/ELF.h"
+
+#include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCObjectReader.h"
 
 using namespace llvm;
@@ -29,6 +31,8 @@ public:
   MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader);
   ~MCELFObjectReader();
 
+  bool isMyFormat(MCLDFile &File) const;
+  Input::Type fileType(MCLDFile &File) const;
   virtual llvm::error_code readObject(const std::string &ObjectFile,
                                       MCLDFile &File);
 
