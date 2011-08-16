@@ -20,11 +20,14 @@ namespace llvm {
 namespace mcld
 {
   struct RelocationEntry {
+    // Make it large enough for ELF 32-bit and 64-bit
+    uint64_t m_Offset;
+    uint64_t m_Addend;
+    uint64_t m_Index;   // symbol table index
+    uint64_t m_Type;  // Target-dependent relocation type
   };
 
   struct RelocationTable {
-    RelocationTable() {}
-
     // FIXME(Nowar): Better data structure?
     std::vector<RelocationEntry> RelocEntry;
   };
