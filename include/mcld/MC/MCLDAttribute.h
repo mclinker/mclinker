@@ -16,26 +16,26 @@ namespace mcld
 {
 class AttributeFactory;
 
-/** \class AttributeBase
+/** \class Attribute
  *  \brief The base class of attributes. Providing the raw operations of an
  *  attributes
  */
-class AttributeBase
+class Attribute
 {
 public:
-  AttributeBase()
+  Attribute()
   : m_WholeArchive(false),
     m_AsNeeded(false),
     m_Static(false)
   { }
 
-  AttributeBase(const AttributeBase& pBase)
+  Attribute(const Attribute& pBase)
   : m_WholeArchive(pBase.m_WholeArchive),
     m_AsNeeded(pBase.m_AsNeeded),
     m_Static(pBase.m_Static)
   { }
 
-  ~AttributeBase()
+  ~Attribute()
   { }
 
   // ----- observers  ----- //
@@ -76,16 +76,16 @@ private:
   bool m_Static;
 };
 
-/** \class MCLDAttribute
- *  \brief MCLDAttributes is the attribute of input options.
+/** \class AttributeProxy
+ *  \brief AttributeProxys is the attribute of input options.
  */
-class MCLDAttribute
+class AttributeProxy
 {
 private:
   friend class AttributeFactory;
 
-  explicit MCLDAttribute(AttributeFactory& pParent, AttributeBase& pBase);
-  ~MCLDAttribute();
+  explicit AttributeProxy(AttributeFactory& pParent, Attribute& pBase);
+  ~AttributeProxy();
 
 public:
   // ----- observers  ----- //
@@ -93,6 +93,10 @@ public:
   bool isAsNeeded() const;
   bool isStatic() const;
   bool isDynamic() const;
+  Attribute* attr()
+  { return m_pBase; }
+  const Attribute* attr() const
+  { return m_pBase; }
 
   // -----  modifiers  ----- //
   void setWholeArchive();
@@ -103,25 +107,25 @@ public:
   void setDynamic();
 
 private:
-  MCLDAttribute* clone() const;
+  AttributeProxy* clone() const;
 
-  void change(AttributeBase* pBase)
+  void change(Attribute* pBase)
   { m_pBase = pBase; }
 
 private:
   AttributeFactory &m_Parent;
-  AttributeBase *m_pBase;
+  Attribute *m_pBase;
 };
 
 // -----  comparisons  ----- //
-inline bool operator== (const AttributeBase& pLHS, const AttributeBase& pRHS)
+inline bool operator== (const Attribute& pLHS, const Attribute& pRHS)
 {
   return ((pLHS.isWholeArchive() == pRHS.isWholeArchive()) &&
     (pLHS.isAsNeeded() == pRHS.isAsNeeded()) && 
     (pLHS.isStatic() == pRHS.isStatic()));
 }
 
-inline bool operator!= (const AttributeBase& pLHS, const AttributeBase& pRHS)
+inline bool operator!= (const Attribute& pLHS, const Attribute& pRHS)
 {
   return !(pLHS == pRHS);
 }

@@ -7,7 +7,7 @@ UNITTEST = ${TOPLEVEL}/unittests
 bin_PROGRAMS = MCObjectReader
 
 if ENABLE_UNITTEST
-MCObjectReader_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DOBJECTREADER_DEBUG -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS}
+MCObjectReader_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DOBJECTREADER_DEBUG -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
 
 MCObjectReader_LDADD = -lgtest -L$(srcdir)/../../utils/gtest/lib ${LLVM_LDFLAGS}
 else

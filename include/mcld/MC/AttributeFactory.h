@@ -17,15 +17,15 @@ namespace mcld
 {
 
 /** \class AttributeFactory
- *  \brief AttributeFactory contructs the MCLDAttributes.
+ *  \brief AttributeFactory contructs the AttributeProxys.
  *
- *  Since the number of MCLDAttributes is usually small, sequential search
+ *  Since the number of AttributeProxys is usually small, sequential search
  *  on a small vector is enough.
  */
 class AttributeFactory : private Uncopyable
 {
 private:
-  typedef std::vector<AttributeBase*> AttrSet;
+  typedef std::vector<Attribute*> AttrSet;
 
 public:
   typedef AttrSet::iterator iterator;
@@ -41,30 +41,30 @@ public:
   void reserve(size_t pNum);
 
   // predefined - return the predefined attribute
-  AttributeBase& predefined();
-  const AttributeBase& predefined() const;
+  Attribute& predefined();
+  const Attribute& predefined() const;
   
   // constraint - return the constraint of attributes
-  AttributeBase& constraint()
+  Attribute& constraint()
   { return m_Constraint; }
 
-  const AttributeBase& constraint() const
+  const Attribute& constraint() const
   { return m_Constraint; }
 
   // produce - produce a attribute, but do not record it yet.
   // the produced attribute is identical to the pre-defined attribute.
-  MCLDAttribute* produce();
+  AttributeProxy* produce();
 
   // last - the last touched attribute.
-  MCLDAttribute& last();
-  const MCLDAttribute& last() const;
+  AttributeProxy& last();
+  const AttributeProxy& last() const;
 
   // exists- return the recorded attribute whose content is identical to the
   // input attribute.
-  AttributeBase *exists(const AttributeBase& pAttr) const;
+  Attribute *exists(const Attribute& pAttr) const;
 
   // record - record the attribute no mater if it has been recorded.
-  void record(AttributeBase& pAttr);
+  void record(Attribute& pAttr);
 
   // -----  observers  ----- //
   size_t size() const
@@ -88,8 +88,8 @@ public:
 
 private:
   AttrSet m_AttrSet;
-  AttributeBase m_Constraint;
-  MCLDAttribute *m_pLast;
+  Attribute m_Constraint;
+  AttributeProxy *m_pLast;
 };
 
 } // namespace of mcld

@@ -12,17 +12,17 @@ using namespace mcld;
 
 //==========================
 // MCInput
-Input::Input(const MCLDAttribute& pAttr)
+Input::Input(const AttributeProxy& pProxy)
  : MCLDFile(),
-   m_pAttr(const_cast<MCLDAttribute*>(&pAttr)) {
+   m_pAttr(const_cast<Attribute*>(pProxy.attr())) {
 }
 
 Input::Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
-        const MCLDAttribute& pAttr,
+        const AttributeProxy& pProxy,
         unsigned int pType)
   : MCLDFile(pName, pPath, pType),
-    m_pAttr(const_cast<MCLDAttribute*>(&pAttr)) {
+    m_pAttr(const_cast<Attribute*>(pProxy.attr())) {
 }
 
 Input::~Input()

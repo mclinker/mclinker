@@ -15,7 +15,8 @@
 namespace mcld
 {
 
-class MCLDAttribute;
+class AttributeProxy;
+class Attribute;
 class InputFactory;
 
 /** \class Input
@@ -36,10 +37,10 @@ public:
   };
 
 private:
-  explicit Input(const MCLDAttribute& pAttr);
+  explicit Input(const AttributeProxy& pAttr);
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
-        const MCLDAttribute& pAttr,
+        const AttributeProxy& pAttr,
         unsigned int pType = Unknown);
 
 public:
@@ -48,14 +49,14 @@ public:
   bool isRecognized() const
   { return (m_Type != Unknown); }
 
-  MCLDAttribute* attribute()
+  Attribute* attribute()
   { return m_pAttr; }
 
-  const MCLDAttribute* attribute() const
+  const Attribute* attribute() const
   { return m_pAttr; }
 
 private:
-  MCLDAttribute *m_pAttr;
+  Attribute *m_pAttr;
 };
 
 } // namespace of mcld

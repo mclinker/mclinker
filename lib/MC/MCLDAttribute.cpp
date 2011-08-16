@@ -12,15 +12,15 @@ using namespace mcld;
 
 //==========================
 // MCAttribute
-MCLDAttribute::MCLDAttribute(AttributeFactory& pParent, AttributeBase& pBase)
+AttributeProxy::AttributeProxy(AttributeFactory& pParent, Attribute& pBase)
   : m_Parent(pParent), m_pBase(&pBase) {
 }
 
-MCLDAttribute::~MCLDAttribute()
+AttributeProxy::~AttributeProxy()
 {
 }
 
-bool MCLDAttribute::isWholeArchive() const
+bool AttributeProxy::isWholeArchive() const
 {
   if (m_Parent.constraint().isWholeArchive())
     return m_pBase->isWholeArchive();
@@ -28,7 +28,7 @@ bool MCLDAttribute::isWholeArchive() const
     return false;
 }
 
-bool MCLDAttribute::isAsNeeded() const
+bool AttributeProxy::isAsNeeded() const
 {
   if (m_Parent.constraint().isAsNeeded())
     return m_pBase->isAsNeeded();
@@ -36,7 +36,7 @@ bool MCLDAttribute::isAsNeeded() const
     return false;
 }
 
-bool MCLDAttribute::isStatic() const
+bool AttributeProxy::isStatic() const
 {
   if (m_Parent.constraint().isStatic())
     return m_pBase->isStatic();
@@ -44,7 +44,7 @@ bool MCLDAttribute::isStatic() const
     return true;
 }
 
-bool MCLDAttribute::isDynamic() const
+bool AttributeProxy::isDynamic() const
 {
   if (m_Parent.constraint().isStatic())
     return m_pBase->isDynamic();
@@ -53,10 +53,10 @@ bool MCLDAttribute::isDynamic() const
 }
 
 static inline void ReplaceOrRecord(AttributeFactory& pParent,
-                                   AttributeBase *&pBase,
-                                   AttributeBase *&pCopy)
+                                   Attribute *&pBase,
+                                   Attribute *&pCopy)
 {
-  AttributeBase *result = pParent.exists(*pCopy);
+  Attribute *result = pParent.exists(*pCopy);
   if (0 == result) { // can not find
     pParent.record(*pCopy);
     pBase = pCopy;
@@ -67,50 +67,50 @@ static inline void ReplaceOrRecord(AttributeFactory& pParent,
   }
 }
 
-void MCLDAttribute::setWholeArchive()
+void AttributeProxy::setWholeArchive()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->setWholeArchive();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-void MCLDAttribute::unsetWholeArchive()
+void AttributeProxy::unsetWholeArchive()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->unsetWholeArchive();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-void MCLDAttribute::setAsNeeded()
+void AttributeProxy::setAsNeeded()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->setAsNeeded();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-void MCLDAttribute::unsetAsNeeded()
+void AttributeProxy::unsetAsNeeded()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->unsetAsNeeded();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-void MCLDAttribute::setStatic()
+void AttributeProxy::setStatic()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->setStatic();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-void MCLDAttribute::setDynamic()
+void AttributeProxy::setDynamic()
 {
-  AttributeBase *copy = new AttributeBase(*m_pBase);
+  Attribute *copy = new Attribute(*m_pBase);
   copy->setDynamic();
   ReplaceOrRecord(m_Parent, m_pBase, copy);
 }
 
-MCLDAttribute* MCLDAttribute::clone() const
+AttributeProxy* AttributeProxy::clone() const
 {
-  return new MCLDAttribute(m_Parent, *m_pBase);
+  return new AttributeProxy(m_Parent, *m_pBase);
 }
 
