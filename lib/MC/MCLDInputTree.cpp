@@ -84,3 +84,23 @@ bool mcld::isGroup(const InputTree::const_iterator& pos)
   return !pos.hasData();
 }
 
+bool mcld::isGroup(const InputTree::dfs_iterator& pos)
+{
+  return !pos.hasData();
+}
+
+bool mcld::isGroup(const InputTree::const_dfs_iterator& pos)
+{
+  return !pos.hasData();
+}
+
+bool mcld::isGroup(const InputTree::bfs_iterator& pos)
+{
+  return !pos.hasData();
+}
+
+bool mcld::isGroup(const InputTree::const_bfs_iterator& pos)
+{
+  return !pos.hasData();
+}
+

@@ -54,12 +54,15 @@ public:
   { return this->m_pNode != y.m_pNode; }
 };
 
-struct DFSIterator : public TraversalIteratorBase
+class DFSIterator : public TraversalIteratorBase
 {
 public:
   DFSIterator(NodeBase *X)
     : TraversalIteratorBase(X) {
   }
+
+  virtual ~DFSIterator()
+  { }
 
   void advance() {
     if(m_Stack.empty())
@@ -86,14 +89,15 @@ private:
     std::stack<NodeBase *> m_Stack;
 };
 
-struct BFSIterator : public TraversalIteratorBase
+class BFSIterator : public TraversalIteratorBase
 {
 public:
   BFSIterator(NodeBase *X)
     : TraversalIteratorBase(X) {
     }
 
-  virtual ~BFSIterator(){};
+  virtual ~BFSIterator()
+  { }
 
   void advance() { 
     if(m_Queue.empty())
@@ -121,31 +125,35 @@ private:
 };
 
 template<class DataType, class Traits, class IteratorType>
-struct VarietyIterator : public IteratorType
+class PolicyIteratorBase : public IteratorType
 {
+public:
   typedef DataType                       value_type;
   typedef Traits                         traits;
   typedef typename traits::pointer       pointer;
   typedef typename traits::reference     reference;
   
-  typedef VarietyIterator<value_type, Traits, IteratorType>           Self;
-  typedef Node<value_type>                                            node_type;
-  typedef typename traits::nonconst_traits                            nonconst_traits;
-  typedef VarietyIterator<value_type, nonconst_traits, IteratorType>  iterator;
-  typedef typename traits::const_traits                               const_traits;
-  typedef VarietyIterator<value_type, const_traits, IteratorType>     const_iterator;
-  typedef std::forward_iterator_tag                                   iterator_category;
-  typedef size_t                                                      size_type;
-  typedef ptrdiff_t                                                   difference_type;
+  typedef PolicyIteratorBase<value_type, Traits, IteratorType>          Self;
+  typedef Node<value_type>                                              node_type;
+  typedef typename traits::nonconst_traits                              nonconst_traits;
+  typedef PolicyIteratorBase<value_type, nonconst_traits, IteratorType> iterator;
+  typedef typename traits::const_traits                                 const_traits;
+  typedef PolicyIteratorBase<value_type, const_traits, IteratorType>    const_iterator;
+  typedef std::forward_iterator_tag                                     iterator_category;
+  typedef size_t                                                        size_type;
+  typedef ptrdiff_t                                                     difference_type;
 
 public:
-  VarietyIterator()
+  PolicyIteratorBase()
     : IteratorType(0) {}
 
-  VarietyIterator(const iterator &X)
+  PolicyIteratorBase(const iterator &X)
     : IteratorType(X.m_pNode) {}
 
-  ~VarietyIterator() {}
+  explicit PolicyIteratorBase(NodeBase* X)
+    : IteratorType(X) {}
+
+  virtual ~PolicyIteratorBase() {}
 
   // -----  operators  ----- //
   pointer operator*() const 
@@ -160,7 +168,30 @@ public:
   bool hasData() const 
   { return (!isRoot() && (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
 
-  Self& operator++() {  
+};
+
+template<class DataType, class Traits, class IteratorType>
+class PolicyIterator : public PolicyIteratorBase<DataType, Traits, IteratorType>
+{
+public:
+  typedef PolicyIterator<DataType, Traits, IteratorType> Self;
+  typedef PolicyIteratorBase<DataType, Traits, IteratorType> Base;
+  typedef PolicyIterator<DataType, typename Traits::nonconst_traits, IteratorType> iterator;
+  typedef PolicyIterator<DataType, typename Traits::const_traits, IteratorType>    const_iterator;
+
+public:
+  PolicyIterator()
+    : Base() {}
+
+  PolicyIterator(const iterator &X)
+    : Base(X.m_pNode) {}
+
+  explicit PolicyIterator(NodeBase* X)
+    : Base(X) {}
+
+  virtual ~PolicyIterator() {}
+
+  Self& operator++() {
     IteratorType::advance();
     return *this;
   }
@@ -170,10 +201,6 @@ public:
     IteratorType::advance();
     return tmp;
   }
-
-  explicit VarietyIterator(NodeBase* X)
-    : IteratorType(X) {}
-
 };
 
 /** \class TreeIterator
@@ -372,10 +399,10 @@ public:
   typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
   typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
 
-  typedef VarietyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
-  typedef VarietyIterator<value_type, ConstTraits<value_type>, DFSIterator>    const_dfs_iterator;
-  typedef VarietyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
-  typedef VarietyIterator<value_type, ConstTraits<value_type>, BFSIterator>    const_bfs_iterator;
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, DFSIterator>    const_dfs_iterator;
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, BFSIterator>    const_bfs_iterator;
 
 protected:
   typedef Node<value_type> node_type;
@@ -396,10 +423,10 @@ public:
   bfs_iterator bfs_end()
   { return bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  const_bfs_iterator bfs_const_begin() const
+  const_bfs_iterator bfs_begin() const
   { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
-  const_bfs_iterator bfs_const_end() const
+  const_bfs_iterator bfs_end() const
   { return const_bfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
   dfs_iterator dfs_begin()
@@ -408,10 +435,10 @@ public:
   dfs_iterator dfs_end()
   { return dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
-  const_dfs_iterator dfs_const_begin() const
+  const_dfs_iterator dfs_begin() const
   { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.left); }
 
-  const_dfs_iterator dfs_const_end() const
+  const_dfs_iterator dfs_end() const
   { return const_dfs_iterator(BinaryTreeBase<DataType>::m_Root.node.right); }
 
   iterator root()

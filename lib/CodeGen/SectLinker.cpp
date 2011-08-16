@@ -12,6 +12,7 @@
 #include <llvm/CodeGen/MachineFunction.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/raw_ostream.h>
 #include <mcld/CodeGen/SectLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
@@ -368,10 +369,35 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
+  //m_pLDDriver->normalize();
+  
+  if (m_LDInfo.options().trace()) {
+    outs() << "** name\ttype\tpath\n";
+    mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+    for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+      outs() << "* " << (*input)->name();
+      switch((*input)->type()) {
+      case Input::Archive:
+        outs() << "\tarchive\t(";
+        break;
+      case Input::Object:
+        outs() << "\tobject\t(";
+        break;
+      case Input::DynObj:
+        outs() << "\tshared\t(";
+        break;
+      case Input::Script:
+        outs() << "\tscript\t(";
+        break;
+      default:
+        report_fatal_error("** Trace a unsupported file. It must be an internal bug!");
+      }
+      outs() << (*input)->path().c_str() << ")\n";
+    }
+  }
   if (!m_pLDDriver->linkable())
     return true;
 /**
-  m_pLDDriver->normalize();
   m_pLDDriver->resolveSymbols();
   m_pLDDriver->relocation();
   m_pLDDriver->writeOut();
