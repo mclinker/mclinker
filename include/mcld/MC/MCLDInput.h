@@ -49,9 +49,6 @@ public:
   bool isRecognized() const
   { return (m_Type != Unknown); }
 
-  Attribute* attribute()
-  { return m_pAttr; }
-
   const Attribute* attribute() const
   { return m_pAttr; }
 

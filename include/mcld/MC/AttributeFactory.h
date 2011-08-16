@@ -45,10 +45,10 @@ public:
   const Attribute& predefined() const;
   
   // constraint - return the constraint of attributes
-  Attribute& constraint()
+  AttrConstraint& constraint()
   { return m_Constraint; }
 
-  const Attribute& constraint() const
+  const AttrConstraint& constraint() const
   { return m_Constraint; }
 
   // produce - produce a attribute, but do not record it yet.
@@ -88,7 +88,7 @@ public:
 
 private:
   AttrSet m_AttrSet;
-  Attribute m_Constraint;
+  AttrConstraint m_Constraint;
   AttributeProxy *m_pLast;
 };
 

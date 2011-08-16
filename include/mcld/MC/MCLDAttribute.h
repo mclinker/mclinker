@@ -16,26 +16,22 @@ namespace mcld
 {
 class AttributeFactory;
 
-/** \class Attribute
- *  \brief The base class of attributes. Providing the raw operations of an
- *  attributes
- */
-class Attribute
+class AttributeBase
 {
 public:
-  Attribute()
+  AttributeBase()
   : m_WholeArchive(false),
     m_AsNeeded(false),
     m_Static(false)
   { }
 
-  Attribute(const Attribute& pBase)
+  AttributeBase(const AttributeBase& pBase)
   : m_WholeArchive(pBase.m_WholeArchive),
     m_AsNeeded(pBase.m_AsNeeded),
     m_Static(pBase.m_Static)
   { }
 
-  ~Attribute()
+  virtual ~AttributeBase()
   { }
 
   // ----- observers  ----- //
@@ -50,7 +46,19 @@ public:
 
   bool isDynamic() const
   { return !m_Static; }
+public:
+  bool m_WholeArchive;
+  bool m_AsNeeded;
+  bool m_Static;
+};
 
+/** \class Attribute
+ *  \brief The base class of attributes. Providing the raw operations of an
+ *  attributes
+ */
+class Attribute : public AttributeBase
+{
+public:
   // -----  modifiers  ----- //
   void setWholeArchive()
   { m_WholeArchive = true; }
@@ -69,11 +77,6 @@ public:
 
   void setDynamic()
   { m_Static = false; }
-
-private:
-  bool m_WholeArchive;
-  bool m_AsNeeded;
-  bool m_Static;
 };
 
 /** \class AttributeProxy
@@ -115,6 +118,36 @@ private:
 private:
   AttributeFactory &m_Parent;
   Attribute *m_pBase;
+};
+
+class AttrConstraint : public AttributeBase
+{
+public:
+  void enableWholeArchive()
+  { m_WholeArchive = true; }
+
+  void disableWholeArchive()
+  { m_WholeArchive = false; }
+
+  void enableAsNeeded()
+  { m_AsNeeded = true; }
+
+  void disableAsNeeded()
+  { m_AsNeeded = false; }
+
+  void setSharedSystem()
+  { m_Static = false; }
+
+  void setStaticSystem()
+  { m_Static = true; }
+
+  bool isSharedSystem() const
+  { return !m_Static; }
+
+  bool isStaticSystem() const
+  { return m_Static; }
+  
+  bool isLegal(const Attribute& pAttr) const;
 };
 
 // -----  comparisons  ----- //

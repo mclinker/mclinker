@@ -5,12 +5,13 @@
  *                                                                           *
  *   csmon7507 <csmon7507@gmail.com>                                         *
  ****************************************************************************/
-#ifndef MCLDINFO_H
-#define MCLDINFO_H
+#ifndef MCLD_LDINFO_H
+#define MCLD_LDINFO_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <string>
+#include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDOptions.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDInputTree.h>
@@ -25,6 +26,7 @@ namespace mcld
  *  \brief MCLDInfo is composed of argumments of MCLDDriver.
  *   options()        - the general options.
  *   inputs()         - the tree of inputs
+ *   output()         - the output file
  *   inputFactory()   - the list of all inputs
  *   attrFactory()    - the list of all attributes
  *   contextFactory() - the list of all contexts.
@@ -40,6 +42,12 @@ public:
 
   const GeneralOptions& options() const
   { return m_Options; }
+
+  Output& output()
+  { return *m_pOutput; }
+
+  const Output& output() const
+  { return *m_pOutput; }
 
   InputTree& inputs()
   { return *m_pInputTree; }
@@ -72,6 +80,7 @@ private:
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
+  Output* m_pOutput;
 
 };
 

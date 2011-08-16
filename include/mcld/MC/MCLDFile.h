@@ -46,6 +46,7 @@ public:
 
 public:
   MCLDFile();
+  MCLDFile(llvm::StringRef pName);
   MCLDFile(llvm::StringRef pName,
            const sys::fs::Path& pPath,
            unsigned int pType = Unknown);
@@ -53,11 +54,14 @@ public:
   virtual ~MCLDFile();
 
   // -----  modifiers  ----- //
-  void setType(Type pType)
+  void setType(unsigned int pType)
   { m_Type = pType; }
 
-  void setContext(MCLDContext& pContext)
-  { m_pContext = &pContext; }
+  void setContext(MCLDContext* pContext)
+  { m_pContext = pContext; }
+
+  void setPath(const sys::fs::Path& pPath)
+  { m_Path = pPath; }
 
   // -----  observers  ----- //
   unsigned int type() const
