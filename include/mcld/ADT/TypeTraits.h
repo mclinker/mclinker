@@ -11,6 +11,8 @@
 #include <gtest.h>
 #endif
 
+#include <cstdlib>
+
 namespace mcld
 {
 template<typename DataType>

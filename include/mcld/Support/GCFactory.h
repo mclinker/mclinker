@@ -13,6 +13,9 @@
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/Support/Allocators.h>
 
+#include <assert.h>
+#include <iterator>
+
 namespace mcld
 {
 
