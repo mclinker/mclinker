@@ -79,8 +79,6 @@ public:
   const ContextFactory& contextFactory() const
   { return *m_pCntxtFactory; }
 
-  bool trace();
-
 private:
   GeneralOptions m_Options;
   InputTree *m_pInputTree;
