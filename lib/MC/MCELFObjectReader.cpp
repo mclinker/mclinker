@@ -35,9 +35,9 @@ using namespace ELF;
 //==========================
 // MCELFObjectReader
 MCELFObjectReader::MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader)
-  : m_pTargetReader(pTargetReader), ShStringTable(0), 
-    StringTable(0), DynStringTable(0), SymbolTable(0), 
-    DynSymbolTable(0){ }
+  : m_pTargetReader(pTargetReader), ShStringTable(0),
+    StringTable(0), DynStringTable(0), SymbolTable(0),
+    DynSymbolTable(0) {}
 
 MCELFObjectReader::~MCELFObjectReader()
 {
@@ -46,7 +46,7 @@ MCELFObjectReader::~MCELFObjectReader()
 bool MCELFObjectReader::isMyFormat(MCLDFile &File) const {
   int fd;
   unsigned char magic[16];
- 
+
   fd = open(File.path().c_str(), 0644);
   lseek(fd, 0, SEEK_SET);
   read(fd, &magic, sizeof(magic));
@@ -58,7 +58,7 @@ bool MCELFObjectReader::isMyFormat(MCLDFile &File) const {
 Input::Type MCELFObjectReader::fileType(MCLDFile &File) const {
   int fd;
   uint16_t e_type;
- 
+
   fd = open(File.path().c_str(), 0644);
   lseek(fd, 0, SEEK_SET);
   lseek(fd, sizeof(char)*16, SEEK_SET);
@@ -68,7 +68,7 @@ Input::Type MCELFObjectReader::fileType(MCLDFile &File) const {
   return (Input::Type)e_type;
 }
 
-error_code MCELFObjectReader::readObject(const std::string &ObjectFile, 
+error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
                                          MCLDFile &LDFile)
 {
   OwningPtr<MemoryBuffer> File;
@@ -100,7 +100,7 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
         if (StringTableSection[sh->sh_size - 1] != 0)
           // FIXME: Proper error handling.
           report_fatal_error("String table must end with a null terminator!");
-   
+
         continue;
       }
 
@@ -187,7 +187,7 @@ const char *MCELFObjectReader::getNameString(const Elf32_Shdr *Shdr,
 }
 
 
-error_code 
+error_code
 MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
                                            const MCSectionELF *SymTabSection) {
   error_code ec;
@@ -207,10 +207,10 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 
      MCDataFragment *ShndxF = NULL;
      WriteSymbolEntry(F, ShndxF, SymEntry->st_name, SymEntry->st_value,
-                      SymEntry->st_size, SymEntry->st_info, 
+                      SymEntry->st_size, SymEntry->st_info,
                       SymEntry->st_other, SymEntry->st_shndx, 1);
 
-     MCSymbol *Sym = NULL; 
+     MCSymbol *Sym = NULL;
      if (!SymbolName.empty()) {
        Sym = File.context()->getOrCreateSymbol(SymbolName);
        MCSymbolData &SymData =File.context()->getOrCreateSymbolData(*Sym);
@@ -224,22 +224,22 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 void MCELFObjectReader::WriteSymbolEntry(MCDataFragment *SymtabF,
                                          MCDataFragment *ShndxF,
                                          const uint64_t name,
-                                         const uint8_t info, 
+                                         const uint8_t info,
                                          const uint64_t value,
-                                         const uint64_t size, 
+                                         const uint64_t size,
                                          const uint8_t other,
                                          const uint32_t shndx,
                                          bool Reserved) {
   if (ShndxF) {
     if (shndx >= ELF::SHN_LORESERVE && !Reserved)
       String32(*ShndxF, shndx);
-  else
-    String32(*ShndxF, 0);
-  }                      
+    else
+      String32(*ShndxF, 0);
+  }
 
   uint16_t Index = (shndx >= ELF::SHN_LORESERVE && !Reserved) ?
-    uint16_t(ELF::SHN_XINDEX) : shndx;     
-           
+    uint16_t(ELF::SHN_XINDEX) : shndx;
+
   if (is64Bit()) {
     String32(*SymtabF, name);  // st_name
     String8(*SymtabF, info);   // st_info

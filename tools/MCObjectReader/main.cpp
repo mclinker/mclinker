@@ -27,7 +27,7 @@ static cl::opt<std::string>
 InputFilename(cl::Positional, cl::desc("<input bitcode>"), cl::init("-"));
 
 
-int main(int argc, char** argv) {  
+int main(int argc, char** argv) {
   cl::ParseCommandLineOptions(argc, argv, "MCObjectReader");
 
   MCLDFile File;
@@ -40,5 +40,3 @@ int main(int argc, char** argv) {
 
   return 0;
 }
-
-

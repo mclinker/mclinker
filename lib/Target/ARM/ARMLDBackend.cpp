@@ -40,7 +40,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createARMLDBackend - the help funtion to create corresponding ARMLDBackend
 ///
-TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget, 
+TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                     const std::string& pTriple)
 {
   Triple theTriple(pTriple);
