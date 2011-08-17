@@ -26,9 +26,9 @@ MCLDDriver::~MCLDDriver()
 }
 
 void MCLDDriver::normalize() {
+
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   Input::Type type;
-  const sys::fs::Path pPath;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
     //ObjectFile or Dynamic Object
     if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
@@ -36,7 +36,7 @@ void MCLDDriver::normalize() {
       case Input::DynObj:
       case Input::Object:
         (*input)->setType(type);
-        (*input)->setContext(m_LDInfo.contextFactory().produce(pPath));
+        (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
         break;
       default:
         report_fatal_error("can not link file: " + (*input)->path().string());
@@ -58,7 +58,7 @@ bool MCLDDriver::linkable() const
       report_fatal_error(error_code);
   }
 
-  // after normalization, all input files are regnized.
+  // after normalization, all input files are recognized.
   mcld::InputTree::const_bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
   for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == mcld::Input::DynObj && (*input)->attribute()->isStatic())
