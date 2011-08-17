@@ -25,6 +25,7 @@ struct RelocationEntry {
     : offset(offset), addend(addend), info(info), symbol(symbol)
   {}
 
+  bool has_addend;
   uint32_t offset;  // r_offset
   int32_t addend; // r_addend
 
