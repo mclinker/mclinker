@@ -8,7 +8,9 @@
  ****************************************************************************/
 #include <llvm/Support/ErrorHandling.h>
 
+#include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/MCObjectReader.h>
+#include <mcld/MC/MCArchiveReader.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/Support/RealPath.h>
@@ -19,7 +21,7 @@ using namespace mcld;
 
 MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
   : m_LDInfo(pLDInfo), m_LDBackend(pLDBackend) {
-  }
+}
 
 MCLDDriver::~MCLDDriver()
 {
@@ -42,10 +44,22 @@ void MCLDDriver::normalize() {
         report_fatal_error("can not link file: " + (*input)->path().string());
         break;
       }
+    continue;
+    }
+    // archive file
+    if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
+      (*input)->setType(Input::Archive);
+      mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);
+      if(!archive_member) 
+        report_fatal_error("wrong format archive" + (*input)->path().string());
+
+      m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
       continue;
     }
+
   }
 }
+
 
 bool MCLDDriver::linkable() const
 {
@@ -64,3 +78,4 @@ bool MCLDDriver::linkable() const
       report_fatal_error("Can't link shared object with -static option");
   }
 }
+

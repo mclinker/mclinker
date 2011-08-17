@@ -14,6 +14,7 @@
 #include <mcld/ADT/BinTree.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputFactory.h>
+#include <mcld/ADT/TypeTraits.h>
 #include <string>
 
 namespace mcld
@@ -80,10 +81,6 @@ public:
 
   typedef BinaryTree<Input>::iterator       iterator;
   typedef BinaryTree<Input>::const_iterator const_iterator;
-  typedef PolicyIterator<Input, NonConstTraits<Input>, DFSIterator> dfs_iterator;
-  typedef PolicyIterator<Input, ConstTraits<Input>, DFSIterator>    const_dfs_iterator;
-  typedef PolicyIterator<Input, NonConstTraits<Input>, BFSIterator> bfs_iterator;
-  typedef PolicyIterator<Input, ConstTraits<Input>, BFSIterator>    const_bfs_iterator;
 
 public:
   struct Connector {
@@ -107,6 +104,9 @@ public:
   static Includer  Downward;
 
 public:
+
+  using BinTreeTy::merge;
+
   InputTree(InputFactory& pInputFactory);
   ~InputTree();
 
@@ -153,31 +153,6 @@ public:
 
   bool hasInput() const
   { return !m_FileFactory.empty(); }
-
-  // -----  iterators  ----- //
-  bfs_iterator bfs_begin()
-  { return bfs_iterator(m_Root.node.left); }
-
-  bfs_iterator bfs_end()
-  { return bfs_iterator(m_Root.node.right); }
-
-  const_bfs_iterator bfs_begin() const
-  { return const_bfs_iterator(m_Root.node.left); }
-
-  const_bfs_iterator bsf_end() const
-  { return const_bfs_iterator(m_Root.node.right); }
-
-  dfs_iterator dfs_begin()
-  { return dfs_iterator(m_Root.node.left); }
-
-  dfs_iterator dfs_end()
-  { return dfs_iterator(m_Root.node.right); }
-
-  const_dfs_iterator dfs_begin() const
-  { return const_dfs_iterator(m_Root.node.left); }
-
-  const_dfs_iterator dfs_end() const
-  { return const_dfs_iterator(m_Root.node.right); }
 
 private:
   InputFactory& m_FileFactory;

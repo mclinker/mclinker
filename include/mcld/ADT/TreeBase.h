@@ -63,6 +63,13 @@ public:
     proxy::move<DIRECT>(m_pNode);
   }
 
+
+  bool hasRightChild() const
+  { return ((m_pNode->right) != (m_pNode->right->right)); }
+
+  bool hasLeftChild() const
+  { return ((m_pNode->left) != (m_pNode->left->right)); }
+
   bool operator==(const TreeIteratorBase& y) const
   { return this->m_pNode == y.m_pNode; }
 

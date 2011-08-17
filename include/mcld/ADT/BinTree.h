@@ -24,41 +24,11 @@ namespace mcld
 template<class DataType>
 class BinaryTree;
 
-struct TraversalIteratorBase
-{
-public:
-  typedef size_t                          size_type;
-  typedef ptrdiff_t                       difference_type;
-  typedef std::forward_iterator_tag       iterator_category;
-
-public:
-  NodeBase* m_pNode;
-
-public:
-  TraversalIteratorBase(NodeBase *X)
-    : m_pNode(X) {
-  }
-
-  virtual ~TraversalIteratorBase(){};
-
-  bool hasRightChild() const
-  { return ((m_pNode->right) != (m_pNode->right->right)); }
-
-  bool hasLeftChild() const
-  { return ((m_pNode->left) != (m_pNode->left->right)); }
-
-  bool operator==(const TraversalIteratorBase& y) const
-  { return this->m_pNode == y.m_pNode; }
-
-  bool operator!=(const TraversalIteratorBase& y) const
-  { return this->m_pNode != y.m_pNode; }
-};
-
-class DFSIterator : public TraversalIteratorBase
+class DFSIterator : public TreeIteratorBase
 {
 public:
   DFSIterator(NodeBase *X)
-    : TraversalIteratorBase(X) {
+    : TreeIteratorBase(X) {
   }
 
   virtual ~DFSIterator()
@@ -89,11 +59,11 @@ private:
     std::stack<NodeBase *> m_Stack;
 };
 
-class BFSIterator : public TraversalIteratorBase
+class BFSIterator : public TreeIteratorBase
 {
 public:
   BFSIterator(NodeBase *X)
-    : TraversalIteratorBase(X) {
+    : TreeIteratorBase(X) {
     }
 
   virtual ~BFSIterator()
@@ -465,8 +435,8 @@ public:
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
-  template<size_t DIRECT>
-  BinaryTree& join(iterator position, const DataType& value) {
+  template<class Iterator, size_t DIRECT>
+  BinaryTree& join(Iterator position, const DataType& value) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&value);
     if (position.isRoot())
@@ -484,7 +454,7 @@ public:
   //  @param the tree being joined.
   //  @return the joined tree
   template<size_t DIRECT>
-  BinaryTree& merge(iterator position, BinaryTree& pTree) {
+  BinaryTree& merge(TreeIteratorBase& position, BinaryTree& pTree) {
     if (this == &pTree)
       return *this;
 
