@@ -22,7 +22,7 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <mcld/MC/RelocationTable.h>
+#include <mcld/MC/ELFRelocation.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>
 #include <utility>
@@ -58,7 +58,7 @@ public:
     ELFUniquingMap = 0;
   }
 
-  ~MCLDContext(){};
+  ~MCLDContext() {}
 
   typedef iplist<MCSectionData> SectionDataListType;
   typedef iplist<MCSymbolData> SymbolDataListType;
@@ -107,8 +107,8 @@ public:
     DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
 
     void *ELFUniquingMap;
-    // Each File should have their own relocation table.
-    RelocationTable RelocTable;
+    // FIXME(Nowar): We only use ELF
+    ELFRelocationInfo m_RelocInfo;
 
   public:
     MCSymbol *getOrCreateSymbol(StringRef Name);
@@ -128,6 +128,8 @@ public:
 
   MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
                                         bool *Create = 0);
+
+  ELFRelocationInfo& getRelocationInfo() { return m_RelocInfo; }
 
   void dump();
 };

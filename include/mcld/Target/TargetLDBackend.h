@@ -19,7 +19,7 @@ class MCObjectWriter;
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
 ///
-class TargetLDBackend 
+class TargetLDBackend
 {
   TargetLDBackend(const TargetLDBackend &);   // DO NOT IMPLEMENT
   void operator=(const TargetLDBackend &);  // DO NOT IMPLEMENT
