@@ -34,8 +34,8 @@ typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
 
 namespace llvm
 {
-class MCSection;
-class MCSectionData;
+  class MCSection;
+  class MCSectionData;
 } // namespace of llvm
 
 namespace mcld
@@ -71,11 +71,14 @@ public:
   typedef SymbolDataListType::const_iterator const_symbol_iterator;
   typedef SymbolDataListType::iterator symbol_iterator;
 
+  typedef std::vector<RelocationEntry>::const_iterator const_reloc_iterator;
+  typedef std::vector<RelocationEntry>::iterator reloc_iterator;
 
   //Section List Access
   SectionDataListType Sections;
   SymbolDataListType Symbols;
   SymbolTableType SymTab;
+  RelocationSection m_RelocSec;
 
   const SectionDataListType &getSectionList() const { return Sections; }
   SectionDataListType &getSectionList() { return Sections; }
@@ -88,46 +91,49 @@ public:
 
   size_t size() const { return Sections.size(); }
 
-
   //Symbol List Access
   const SymbolDataListType &getSymbolList() const { return Symbols; }
   SymbolDataListType &getSymbolList() { return Symbols; }
 
-    symbol_iterator symbol_begin() { return Symbols.begin(); }
-    const_symbol_iterator symbol_begin() const { return Symbols.begin(); }
+  symbol_iterator symbol_begin() { return Symbols.begin(); }
+  const_symbol_iterator symbol_begin() const { return Symbols.begin(); }
 
-    symbol_iterator symbol_end() { return Symbols.end(); }
-    const_symbol_iterator symbol_end() const { return Symbols.end(); }
+  symbol_iterator symbol_end() { return Symbols.end(); }
+  const_symbol_iterator symbol_end() const { return Symbols.end(); }
+
+  // Relocation sequential access
+  reloc_iterator reloc_begin() { return m_RelocSec.entries.begin(); }
+  const_reloc_iterator reloc_begin() const { return m_RelocSec.entries.begin(); }
+  reloc_iterator reloc_end() { return m_RelocSec.entries.end(); }
+  const_reloc_iterator reloc_end() const { return m_RelocSec.entries.end(); }
 
 
-    // FIXME: Avoid this indirection?
-    DenseMap<const MCSection*, MCSectionData*> SectionMap;
+  // FIXME: Avoid this indirection?
+  DenseMap<const MCSection*, MCSectionData*> SectionMap;
 
-    // FIXME: Avoid this indirection?
-    DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
+  // FIXME: Avoid this indirection?
+  DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
 
-    void *ELFUniquingMap;
+  void *ELFUniquingMap;
 
-    RelocationSection m_RelocSec;
+public:
+  MCSymbol *getOrCreateSymbol(StringRef Name);
+  MCSymbol *createSymbol(StringRef Name);
 
-  public:
-    MCSymbol *getOrCreateSymbol(StringRef Name);
-    MCSymbol *createSymbol(StringRef Name);
+  const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
+                                    unsigned Flags, SectionKind Kind);
 
-    const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
-                  unsigned Flags, SectionKind Kind);
+  const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
+                                    unsigned Flags, SectionKind Kind,
+                                    unsigned EntrySize, StringRef Group);
 
-    const MCSectionELF *getELFSection(StringRef SectionName, unsigned Type,
-                  unsigned Flags, SectionKind Kind,
-                  unsigned EntrySize, StringRef Group);
-
-    MCSectionData &getOrCreateSectionData(const MCSection &Section,
-                                          bool *Created = 0);
+  MCSectionData &getOrCreateSectionData(const MCSection &Section,
+                                        bool *Created = 0);
 
   MCSymbolData &getSymbolData(const MCSymbol &Symbol) const;
 
   MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
-                                        bool *Create = 0);
+                                      bool *Create = 0);
 
   RelocationSection& getRelocSection() { return m_RelocSec; }
   const RelocationSection& getRelocSection() const { return m_RelocSec; }

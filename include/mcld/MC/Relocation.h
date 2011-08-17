@@ -40,10 +40,8 @@ struct RelocationEntry {
   llvm::MCSymbolData* symbol;
 };
 
-class RelocationSection {
-public:
+struct RelocationSection {
   void push_back(const RelocationEntry& RE) { entries.push_back(RE); }
-private:
   std::vector<RelocationEntry> entries;
 };
 
