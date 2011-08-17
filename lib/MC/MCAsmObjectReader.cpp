@@ -115,12 +115,12 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   if (!hasRelocationAddend()) {
     Addend = 0;
   }
-#endif
 
   // Record relocation information into MCLDContext of the bitcode
   ELFRelocationInfo& ERI = m_LDInfo.bitcode().context()->getRelocationInfo();
   ELFRelocationEntry ERE(Offset, Addend, Index, Type, Symbol);
   ERI.RelocEntries[Fragment->getParent()].push_back(ERE);
+#endif
 }
 
 bool
