@@ -27,7 +27,15 @@ struct RelocationEntry {
 
   uint32_t offset;  // r_offset
   int32_t addend; // r_addend
-  uint32_t info;  // ELF and MachO have different ways to interpret
+
+  // ELF and MachO have different interpretation way.
+  // ELF: symbol_table_index(24) + r_type(8)
+  // MachO: symbol_table_index(24) + r_pcrel(1)
+  //                               + r_length(2)
+  //                               + r_extern(1)
+  //                               + r_type(4)
+  uint32_t info;
+
   llvm::MCSymbolData* symbol;
 };
 
