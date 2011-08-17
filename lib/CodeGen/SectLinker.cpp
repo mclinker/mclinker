@@ -23,6 +23,7 @@
 #include <mcld/Support/RealPath.h>
 #include <algorithm>
 #include <stack>
+#include <string>
 
 #ifdef MCLD_DEBUG
 #include <llvm/ADT/SmallVector.h>
@@ -369,7 +370,7 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
-  //m_pLDDriver->normalize();
+  m_pLDDriver->normalize();
   
   if (m_LDInfo.options().trace()) {
     outs() << "** name\ttype\tpath\n";
