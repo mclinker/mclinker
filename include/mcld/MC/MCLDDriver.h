@@ -21,7 +21,7 @@ class TargetLDBackend;
 //===----------------------------------------------------------------------===//
 /// MCLDDriver - MCLDDriver prepares parameters for MCLinker.
 ///
-class MCLDDriver 
+class MCLDDriver
 {
 public:
   MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
@@ -35,12 +35,19 @@ public:
   //  - check every Input has a correct Attribute
   bool linkable() const;
 
+#if 0
+  // Create relocation section, asking TargetLDBackend to
+  // read the relocation information into RelocationEntry
+  // and push_back into the relocation section
+  void readRelocation();
+#endif
+
 private:
   TargetLDBackend &m_LDBackend;
   MCLDInfo& m_LDInfo;
 };
 
-} //end namespace mcld 
+} //end namespace mcld
 
 #endif
 

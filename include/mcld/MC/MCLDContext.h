@@ -22,7 +22,7 @@
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
-#include <mcld/MC/ELFRelocation.h>
+#include <mcld/MC/Relocation.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>
 #include <utility>
@@ -107,8 +107,8 @@ public:
     DenseMap<const MCSymbol*,MCSymbolData*> SymbolMap;
 
     void *ELFUniquingMap;
-    // FIXME(Nowar): We only use ELF
-    ELFRelocationInfo m_RelocInfo;
+
+    RelocationSection m_RelocSec;
 
   public:
     MCSymbol *getOrCreateSymbol(StringRef Name);
@@ -129,7 +129,8 @@ public:
   MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
                                         bool *Create = 0);
 
-  ELFRelocationInfo& getRelocationInfo() { return m_RelocInfo; }
+  RelocationSection& getRelocSection() { return m_RelocSec; }
+  const RelocationSection& getRelocSection() const { return m_RelocSec; }
 
   void dump();
 };

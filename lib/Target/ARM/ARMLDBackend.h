@@ -20,6 +20,9 @@ public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
 
+  // TODO(Nowar): Add correct behavior
+  virtual void readRelocation() {}
+
 private:
   MCELFObjectTargetReader *createObjectTargetReader() const;
   MCELFObjectTargetWriter *createObjectTargetWriter() const;

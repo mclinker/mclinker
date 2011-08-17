@@ -33,6 +33,8 @@ public:
   virtual MCArchiveReader *getArchiveReader() = 0;
   virtual MCObjectReader *getObjectReader() = 0;
   virtual MCObjectWriter *getObjectWriter() = 0;
+
+  virtual void readRelocation() = 0;
 };
 
 } // End mcld namespace

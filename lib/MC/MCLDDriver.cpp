@@ -19,7 +19,7 @@ using namespace mcld;
 
 MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
   : m_LDInfo(pLDInfo), m_LDBackend(pLDBackend) {
-}
+  }
 
 MCLDDriver::~MCLDDriver()
 {
@@ -42,11 +42,10 @@ void MCLDDriver::normalize() {
         report_fatal_error("can not link file: " + (*input)->path().string());
         break;
       }
-    continue;
+      continue;
     }
   }
 }
-
 
 bool MCLDDriver::linkable() const
 {
@@ -65,4 +64,3 @@ bool MCLDDriver::linkable() const
       report_fatal_error("Can't link shared object with -static option");
   }
 }
-

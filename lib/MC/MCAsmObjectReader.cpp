@@ -7,7 +7,7 @@
  ****************************************************************************/
 #include <mcld/MC/MCAsmObjectReader.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/ELFRelocation.h>
+#include <mcld/MC/Relocation.h>
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCValue.h>
 #include <llvm/MC/MCFixup.h>
@@ -45,10 +45,70 @@ void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
 }
 
 #if 0
-static bool isFixupKindPCRel(const MCAssembler& Asm, unsigned Kind) {
+static bool ELFObjectWriter::isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
   const MCFixupKindInfo &FKI =
-      Asm.getBackend().getFixupKindInfo((MCFixupKind)Kind);
+    Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
+
   return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
+}
+
+const MCSymbol *ELFObjectWriter::SymbolToReloc(const MCAssembler &Asm,
+                                               const MCValue &Target,
+                                               const MCFragment &F,
+                                               const MCFixup &Fixup,
+                                               bool IsPCRel) const {
+  const MCSymbol &Symbol = Target.getSymA()->getSymbol();
+  const MCSymbol &ASymbol = Symbol.AliasedSymbol();
+  const MCSymbol *Renamed = Renames.lookup(&Symbol);
+  const MCSymbolData &SD = Asm.getSymbolData(Symbol);
+
+  if (ASymbol.isUndefined()) {
+    if (Renamed)
+      return Renamed;
+    return &ASymbol;
+  }
+
+  if (SD.isExternal()) {
+    if (Renamed)
+      return Renamed;
+    return &Symbol;
+  }
+
+  const MCSectionELF &Section =
+    static_cast<const MCSectionELF&>(ASymbol.getSection());
+  const SectionKind secKind = Section.getKind();
+
+  if (secKind.isBSS())
+    return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
+
+  if (secKind.isThreadLocal()) {
+    if (Renamed)
+      return Renamed;
+    return &Symbol;
+  }
+
+  MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();
+  const MCSectionELF &Sec2 =
+    static_cast<const MCSectionELF&>(F.getParent()->getSection());
+
+  if (&Sec2 != &Section &&
+      (Kind == MCSymbolRefExpr::VK_PLT ||
+       Kind == MCSymbolRefExpr::VK_GOTPCREL ||
+       Kind == MCSymbolRefExpr::VK_GOTOFF)) {
+    if (Renamed)
+      return Renamed;
+    return &Symbol;
+  }
+
+  if (Section.getFlags() & ELF::SHF_MERGE) {
+    if (Target.getConstant() == 0)
+      return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
+    if (Renamed)
+      return Renamed;
+    return &Symbol;
+  }
+
+  return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
 }
 #endif
 
@@ -58,7 +118,10 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCFixup &Fixup, MCValue Target,
                                          uint64_t &FixedValue)
 {
-	std::cerr << "Chris: I'm stupid" << std::endl;
+	std::cerr << "Nowar: I love bugs!" << std::endl;
+
+  RelocationEntry RE; // FIXME(Nowar): Make it correct
+  m_LDInfo.bitcode().context()->getRelocSection().push_back(RE);
 
 #if 0
   int64_t Addend = 0;
@@ -116,7 +179,6 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
     Addend = 0;
   }
 
-  // Record relocation information into MCLDContext of the bitcode
   ELFRelocationInfo& ERI = m_LDInfo.bitcode().context()->getRelocationInfo();
   ELFRelocationEntry ERE(Offset, Addend, Index, Type, Symbol);
   ERI.RelocEntries[Fragment->getParent()].push_back(ERE);
