@@ -2,4 +2,4 @@ MCLinker=MCLinker
 TESTLDFLAGS=-lm
 all:
 	clang++ -emit-llvm -S ./func.cpp -I. -o func.ll -ccc-host-triple arm-none-linux-gnueabi
-	${MCLinker} -t ${TESTLDFLAGS} -relocation-model=pic -filetype=dso -march=arm -o ./func.so ./test.o -dB ./func.ll > result.error
+	${MCLinker} -t ${TESTLDFLAGS} -filetype=dso -march=arm -o ./func.so ./test.o -dB ./func.ll > result.error
