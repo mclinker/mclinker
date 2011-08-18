@@ -92,7 +92,7 @@ Type stringToType(const std::string &str)
 /// Public API
 bool MCArchiveReader::isMyFormat(Input &input)
 {
-  OwningPtr<MemoryBuffer> mapFile; 
+  OwningPtr<MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(input.path().c_str(), mapFile);
   const char *pFile = mapFile->getBufferStart();
   
@@ -188,8 +188,23 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
     /// If if a member is the other archive, recursive call setupNewArchive
     /// Finally, construct a corresponding mcld::Input, and insert it into
     /// the original InputTree.
-  }
+    off_t nestedOff = 0;
+    size_t memberOffset = parseMemberHeader(mapFile, archiveMap[i].fileOffset, &archiveMemberName, &nestedOff, extendedName);
+    /// normal member ie. relocatable object file.
+    /// FIXME: new Input and insert to InputTree
+    if(!isThinArchive)
+      continue;
 
+    if(nestedOff > 0)
+    {
+      /// FIXME: recursive call setupNewArchive
+      continue;
+    }
+    ///external member
+    ///FIXME: add new Input to InputTree
+    ///       But how about the path??
+
+  }
 }
 
 
