@@ -132,6 +132,11 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
       DynSymbolTable = sh;
     }
 
+    if (sh->sh_type == SHT_REL || sh->sh_type == SHT_RELA) {
+      // TODO(Nowar): Call TargetLDBackend to read into RelocationEntry.
+      //              The question is: how to do?
+    }
+
     const MCSectionELF *ShEntry = 
       LDFile.context()->getELFSection(SectionName, sh->sh_type,
                                        0, SectionKind::getReadOnly(),

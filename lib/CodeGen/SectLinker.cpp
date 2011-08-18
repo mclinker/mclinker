@@ -46,7 +46,7 @@ bool compare_options(const SectLinker::PositionDependentOption* X,
 // Command Line Options
 // There are four kinds of command line options:
 //   1. input, (may be a file, such as -m and /tmp/XXXX.o.)
-//   2. attribute of inputs, (describing the attributes of inputs, such as 
+//   2. attribute of inputs, (describing the attributes of inputs, such as
 //      --as-needed and --whole-archive. usually be positional.)
 //   3. scripting options, (represent a subset of link scripting language, such
 //      as --defsym.)
@@ -199,7 +199,7 @@ SectLinker::SectLinker(const std::string& pInputFile,
   m_LDInfo.setBitcode(*bitcode);
 
   // create the default output
-  m_LDInfo.output().setType(pOutputLinkType); 
+  m_LDInfo.output().setType(pOutputLinkType);
   m_LDInfo.output().setPath(sys::fs::RealPath(pOutputFile));
   m_LDInfo.output().setContext(
                           m_LDInfo.contextFactory().produce(
@@ -220,12 +220,12 @@ bool SectLinker::doInitialization(Module &pM)
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
       m_LDInfo.options().setSysroot(ArgSysRoot);
   }
-  
+
   // add all search directories
   cl::list<mcld::MCLDDirectory>::iterator sd;
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
-    if (sd->isInSysroot()) 
+    if (sd->isInSysroot())
       sd->setSysroot(m_LDInfo.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path()))
       m_LDInfo.options().directories().add(*sd);
@@ -243,7 +243,7 @@ bool SectLinker::doInitialization(Module &pM)
                             ArgStartGroupList.size() +
                             ArgEndGroupList.size() +
                             ArgInputObjectFiles.size();
-                            
+
   PositionDependentOptions pos_dep_options;
   pos_dep_options.reserve(input_size);
 
@@ -371,7 +371,7 @@ bool SectLinker::doInitialization(Module &pM)
 bool SectLinker::doFinalization(Module &pM)
 {
   m_pLDDriver->normalize();
-  
+
   if (m_LDInfo.options().trace()) {
     outs() << "** name\ttype\tpath\n";
     mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
@@ -417,7 +417,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
     return;
 
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
-  if (1 == pPosDepOptions.size() && 
+  if (1 == pPosDepOptions.size() &&
       ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
@@ -456,22 +456,22 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
       pLDInfo.attrFactory().last().setWholeArchive();
-      break; 
+      break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
       pLDInfo.attrFactory().last().unsetWholeArchive();
-      break; 
+      break;
     case PositionDependentOption::AS_NEEDED:
       pLDInfo.attrFactory().last().setAsNeeded();
-      break; 
+      break;
     case PositionDependentOption::NO_AS_NEEDED:
       pLDInfo.attrFactory().last().unsetAsNeeded();
-      break; 
+      break;
     case PositionDependentOption::BSTATIC:
       pLDInfo.attrFactory().last().setStatic();
-      break; 
+      break;
     case PositionDependentOption::BDYNAMIC:
       pLDInfo.attrFactory().last().setDynamic();
-      break; 
+      break;
     default:
       report_fatal_error("can not find the type of input file");
     }

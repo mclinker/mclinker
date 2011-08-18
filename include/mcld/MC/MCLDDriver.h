@@ -39,7 +39,7 @@ public:
   // Create relocation section, asking TargetLDBackend to
   // read the relocation information into RelocationEntry
   // and push_back into the relocation section
-  void readRelocation();
+  void relocation();
 #endif
 
 private:

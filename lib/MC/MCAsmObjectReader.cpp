@@ -9,6 +9,7 @@
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/Relocation.h>
 #include <llvm/MC/MCAssembler.h>
+#include <llvm/MC/MCExpr.h>
 #include <llvm/MC/MCValue.h>
 #include <llvm/MC/MCFixup.h>
 #include <llvm/MC/MCFixupKindInfo.h>
@@ -44,14 +45,14 @@ void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
 	std::cerr << "Csmon: I'm the king of the world" << std::endl;
 }
 
-#if 0
-static bool ELFObjectWriter::isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
+static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
   const MCFixupKindInfo &FKI =
     Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
 
   return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
 }
 
+#if 0
 const MCSymbol *ELFObjectWriter::SymbolToReloc(const MCAssembler &Asm,
                                                const MCValue &Target,
                                                const MCFragment &F,
@@ -120,69 +121,59 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
 {
 	std::cerr << "Nowar: I love bugs!" << std::endl;
 
-  RelocationEntry RE; // FIXME(Nowar): Make it correct
-  m_LDInfo.bitcode().context()->getRelocSection().push_back(RE);
-
-#if 0
   int64_t Addend = 0;
   int Index = 0;
   int64_t Value = Target.getConstant();
-  const MCSymbol* RelocSymbol = NULL;
+  const MCSymbol *RelocSymbol = NULL;
+  unsigned Type= 0;
 
+  const MCFixupKindInfo& FKI =
+    Asm.getBackend().getFixupKindInfo((MCFixupKind)Fixup.getKind());
   bool IsPCRel = isFixupKindPCRel(Asm, Fixup.getKind());
+
   if (!Target.isAbsolute()) {
     const MCSymbol &Symbol = Target.getSymA()->getSymbol();
     const MCSymbol &ASymbol = Symbol.AliasedSymbol();
-    RelocSymbol = SymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel);
+    // FIXME(Nowar): Need MCELFObjectTargetWriter
+    //RelocSymbol = SymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel);
 
     if (const MCSymbolRefExpr* RefB = Target.getSymB()) {
-      const MCSymbol &SymbolB = RefB->getSymbol();
-      MCSymbolData &SDB = Asm.getSymbolData(SymbolB);
+      const MCSymbol& SymbolB = RefB->getSymbol();
+      MCSymbolData& SDB = Asm.getSymbolData(SymbolB);
       IsPCRel = true;
 
       // Offset of the symbol in the section
       int64_t a = Layout.getSymbolOffset(&SDB);
 
-      // Ofeset of the relocation in the section
+      // Offset of the relocation in the section
       int64_t b = Layout.getFragmentOffset(Fragment) + Fixup.getOffset();
-      Value += b - a;
+      Value += b-a;
     }
 
     if (!RelocSymbol) {
-      MCSymbolData &SD = Asm.getSymbolData(ASymbol);
-      MCFragment *F = SD.getFragment();
-
-      Index = F->getParent()->getOrdinal() + 1;
+      MCSymbolData& SD = Asm.getSymbolData(ASymbol);
+      MCFragment* F = SD.getFragment();
 
       // Offset of the symbol in the section
       Value += Layout.getSymbolOffset(&SD);
-    } else {
-      if (Asm.getSymbolData(Symbol).getFlags() & ELF_Other_Weakref)
-        WeakrefUsedInReloc.insert(RelocSymbol);
-      else
-        UsedInReloc.insert(RelocSymbol);
-      Index = -1;
     }
+
     Addend = Value;
-    // Compensate for the addend on i386.
-    if (is64Bit()) {
-      Value = 0;
-    }
   }
 
   FixedValue = Value;
-  unsigned Type = GetRelocType(Target, Fixup, IsPCRel,
-                               (RelocSymbol != 0), Addend);
-  uint64_t RelocOffset = Layout.getFragmentOffset(Fragment)
-                         + Fixup.getOffset();
-  if (!hasRelocationAddend()) {
-    Addend = 0;
-  }
+  // FIXME(Nowar): Need MCELFObjectTargetWriter
+  //Type = GetRelocType(Target, Fixup, IsPCRel,
+  //                    (RelocSymbol != 0), Addend);
+  MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
+  unsigned Info = (SD.Index << 8) + (unsigned char)Type;
+  uint64_t RelocOffset = Layout.getFragmentOffset(Fragment) + Fixup.getOffset();
 
-  ELFRelocationInfo& ERI = m_LDInfo.bitcode().context()->getRelocationInfo();
-  ELFRelocationEntry ERE(Offset, Addend, Index, Type, Symbol);
-  ERI.RelocEntries[Fragment->getParent()].push_back(ERE);
-#endif
+  // FIXME(Nowar): Need MCELFObjectTargetWriter
+  //if (!hasRelocationAddend()) Addend = 0;
+
+  RelocationEntry RE(RelocOffset, Addend, Info, &SD);
+  m_LDInfo.bitcode().context()->getRelocSection().push_back(RE);
 }
 
 bool

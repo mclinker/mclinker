@@ -12,9 +12,12 @@
 #endif
 
 #include <vector>
+#include <llvm/Support/ELF.h>
 
 namespace mcld
 {
+
+  using namespace llvm::ELF;
 
 struct RelocationEntry {
   RelocationEntry()
@@ -25,9 +28,8 @@ struct RelocationEntry {
     : offset(offset), addend(addend), info(info), symbol(symbol)
   {}
 
-  bool has_addend;
-  uint32_t offset;  // r_offset
-  int32_t addend; // r_addend
+  Elf32_Addr offset;  // r_offset
+  Elf32_Sword addend; // r_addend
 
   // ELF and MachO have different interpretation way.
   // ELF: symbol_table_index(24) + r_type(8)
@@ -35,7 +37,7 @@ struct RelocationEntry {
   //                               + r_length(2)
   //                               + r_extern(1)
   //                               + r_type(4)
-  uint32_t info;
+  Elf32_Word info;
 
   llvm::MCSymbolData* symbol;
 };
