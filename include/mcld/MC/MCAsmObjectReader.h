@@ -15,24 +15,25 @@
 
 namespace llvm
 {
-class MCStreamer;
-class MCObjectStreamer;
-class MCAsmLayout;
-class MCAssembler;
-class MCFixup;
-class MCFragment;
-class MCSymbol;
-class MCSymbolData;
-class MCSymbolRefExpr;
-class MCValue;
-class raw_ostream;
+  class MCStreamer;
+  class MCObjectStreamer;
+  class MCAsmLayout;
+  class MCAssembler;
+  class MCFixup;
+  class MCFragment;
+  class MCSymbol;
+  class MCSymbolData;
+  class MCSymbolRefExpr;
+  class MCValue;
+  class raw_ostream;
 } // namespace of llvm
 
 namespace mcld
 {
 
-class MCLDInfo;
-using namespace llvm;
+  class MCLDInfo;
+  class TargetLDBackend;
+  using namespace llvm;
 
 /** \class MCAsmObjectReader
  *  \brief MCAsmObjectReader records all MCSectionData while writing data in
@@ -44,7 +45,7 @@ using namespace llvm;
 class MCAsmObjectReader : public llvm::MCObjectWriter
 {
 public:
-  MCAsmObjectReader(MCObjectStreamer& pStreamer, MCLDInfo& pLDInfo);
+  MCAsmObjectReader(MCObjectStreamer&, TargetLDBackend&, MCLDInfo&);
   ~MCAsmObjectReader();
 
   void ExecutePostLayoutBinding(MCAssembler &Asm,
@@ -56,16 +57,17 @@ public:
                         const MCFixup &Fixup, MCValue Target,
                         uint64_t &FixedValue);
   bool
-  IsSymbolRefDifferenceFullyResolvedImpl(const MCAssembler &Asm,
-                                         const MCSymbolData &DataA,
-                                         const MCFragment &FB,
-                                         bool InSet,
-                                         bool IsPCRel) const;
+    IsSymbolRefDifferenceFullyResolvedImpl(const MCAssembler &Asm,
+                                           const MCSymbolData &DataA,
+                                           const MCFragment &FB,
+                                           bool InSet,
+                                           bool IsPCRel) const;
 
 
   void WriteObject(MCAssembler &Asm, const MCAsmLayout &Layout);
 
 private:
+  TargetLDBackend& m_Backend;
   MCLDInfo& m_LDInfo;
 };
 

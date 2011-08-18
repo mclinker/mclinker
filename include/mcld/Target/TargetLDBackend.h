@@ -34,7 +34,7 @@ public:
   virtual MCObjectReader *getObjectReader() = 0;
   virtual MCObjectWriter *getObjectWriter() = 0;
 
-  virtual void readRelocation() = 0;
+  //virtual void readRelocation() = 0;
 };
 
 } // End mcld namespace

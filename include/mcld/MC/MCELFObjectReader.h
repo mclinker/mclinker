@@ -16,19 +16,19 @@
 
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCObjectReader.h"
+#include "mcld/MC/MCELFObjectTargetReader.h"
 
 using namespace llvm;
 using namespace ELF;
 
 namespace mcld
 {
-class MCELFObjectTargetReader;
 
 //MCELFObjectReader reads target-independent parts of ELF object file
 class MCELFObjectReader : public MCObjectReader
 {
 public:
-  MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader);
+  MCELFObjectReader(MCELFObjectTargetReader *pTargetReader);
   ~MCELFObjectReader();
 
   bool isMyFormat(MCLDFile &File) const;
@@ -40,8 +40,12 @@ public:
   bool isLittleEndian() const { return true; }
   bool is64Bit() const { return false; }
 
+  virtual MCELFObjectTargetReader* getObjectTargetReader() {
+    return m_pTargetReader;
+  }
+
 private:
-  const MCELFObjectTargetReader *m_pTargetReader;
+  MCELFObjectTargetReader *m_pTargetReader;
 
   const char *FileBase;
   const Elf32_Ehdr *ELFHeader;

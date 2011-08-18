@@ -17,6 +17,7 @@
 
 namespace mcld
 {
+  class MCObjectTargetReader;
 
 //MCObjectReader provides an interface for different object formats.
 class MCObjectReader
@@ -30,6 +31,8 @@ public:
   virtual Input::Type fileType(MCLDFile &File) const = 0;
   virtual llvm::error_code readObject(const std::string &ObjectFile, 
                                       MCLDFile &) = 0;
+
+  virtual MCObjectTargetReader* getObjectTargetReader() = 0;
 };
 
 } // namespace of mcld

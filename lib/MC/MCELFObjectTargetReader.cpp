@@ -18,4 +18,3 @@ MCELFObjectTargetReader::MCELFObjectTargetReader()
 MCELFObjectTargetReader::~MCELFObjectTargetReader()
 {
 }
-

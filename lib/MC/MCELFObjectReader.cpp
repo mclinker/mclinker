@@ -34,7 +34,7 @@ using namespace ELF;
 
 //==========================
 // MCELFObjectReader
-MCELFObjectReader::MCELFObjectReader(const MCELFObjectTargetReader *pTargetReader)
+MCELFObjectReader::MCELFObjectReader(MCELFObjectTargetReader *pTargetReader)
   : m_pTargetReader(pTargetReader), ShStringTable(0),
     StringTable(0), DynStringTable(0), SymbolTable(0),
     DynSymbolTable(0) {}

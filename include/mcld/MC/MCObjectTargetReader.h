@@ -3,42 +3,51 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
-#ifndef ARMELFOBJECTREADER_H
-#define ARMELFOBJECTREADER_H
+#ifndef MCOBJECTTARGETREADER_H_
+#define MCOBJECTTARGETREADER_H_
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCELFObjectTargetReader.h>
+namespace llvm {
+  class MCValue;
+  class MCSymbol;
+  class MCFixup;
+  class MCAssembler;
+  class MCFragment;
+}
 
 namespace mcld
 {
+  using namespace llvm;
 
-/** \class ARMELFObjectReader
- *  \brief ARMELFObjectReader is a target-dependent ELF object reader.
+/** \class MCObjectTargetReader
+ *  \brief MCObjectTargetReader provides an abstract interface for target-dependent object readers.
  *
  *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
+ *  \author Nowar Gu <nowar100@gmail.com>
  */
-class ARMELFObjectReader : public MCELFObjectTargetReader
+class MCObjectTargetReader
 {
+protected:
+  MCObjectTargetReader() {}
 public:
-  virtual bool hasRelocationAddend();
+  virtual ~MCObjectTargetReader() {}
+
+  virtual bool hasRelocationAddend() = 0;
   virtual unsigned getRelocType(const MCValue&,
                                 const MCFixup&,
                                 bool IsPCRel,
                                 bool IsRelocWithSymbol,
-                                int64_t);
+                                int64_t) = 0;
   virtual const MCSymbol* explicitRelSym(const MCAssembler&,
                                          const MCValue&,
                                          const MCFragment&,
                                          const MCFixup&,
-                                         bool) const;
+                                         bool) const = 0;
 };
 
 } // namespace of mcld
 
 #endif
-

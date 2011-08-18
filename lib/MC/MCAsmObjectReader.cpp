@@ -8,6 +8,9 @@
 #include <mcld/MC/MCAsmObjectReader.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/Relocation.h>
+#include <mcld/MC/MCObjectReader.h>
+#include <mcld/MC/MCObjectTargetReader.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCExpr.h>
 #include <llvm/MC/MCValue.h>
@@ -20,17 +23,79 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/MC/MCObjectStreamer.h>
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/ELF.h>
 #include <iostream>
 
 using namespace llvm;
 using namespace mcld;
 
+//======================
+// Helper functions
+static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
+  const MCFixupKindInfo &FKI =
+    Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
+
+  return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
+}
+
+static const MCSymbol* transSymbolToReloc(const MCAssembler &Asm,
+                                          const MCValue &Target,
+                                          const MCFragment &F,
+                                          const MCFixup &Fixup,
+                                          bool IsPCRel,
+                                          MCObjectTargetReader* TR) {
+  const MCSymbol &Symbol = Target.getSymA()->getSymbol();
+  const MCSymbol &ASymbol = Symbol.AliasedSymbol();
+  const MCSymbolData &SD = Asm.getSymbolData(Symbol);
+
+  if (ASymbol.isUndefined()) {
+    return &ASymbol;
+  }
+
+  if (SD.isExternal()) {
+    return &Symbol;
+  }
+
+  const MCSectionELF &Section =
+    static_cast<const MCSectionELF&>(ASymbol.getSection());
+  const SectionKind secKind = Section.getKind();
+
+  if (secKind.isBSS())
+    return TR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
+
+  if (secKind.isThreadLocal()) {
+    return &Symbol;
+  }
+
+  MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();
+  const MCSectionELF &Sec2 =
+    static_cast<const MCSectionELF&>(F.getParent()->getSection());
+
+  if (&Sec2 != &Section &&
+      (Kind == MCSymbolRefExpr::VK_PLT ||
+       Kind == MCSymbolRefExpr::VK_GOTPCREL ||
+       Kind == MCSymbolRefExpr::VK_GOTOFF)) {
+    return &Symbol;
+  }
+
+  if (Section.getFlags() & ELF::SHF_MERGE) {
+    if (Target.getConstant() == 0)
+      return TR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
+    return &Symbol;
+  }
+
+  return TR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
+}
+
+
 //==========================
 // MCAsmObjectReader
 MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
+                                     TargetLDBackend& pBackend,
                                      MCLDInfo& pLDInfo)
   : MCObjectWriter(llvm::nulls(),
                    pStreamer.getAssembler().getWriter().isLittleEndian()),
+    m_Backend(pBackend),
     m_LDInfo(pLDInfo) {
   pStreamer.getAssembler().setWriter(*this);
 }
@@ -45,73 +110,6 @@ void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
 	std::cerr << "Csmon: I'm the king of the world" << std::endl;
 }
 
-static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
-  const MCFixupKindInfo &FKI =
-    Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
-
-  return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
-}
-
-#if 0
-const MCSymbol *ELFObjectWriter::SymbolToReloc(const MCAssembler &Asm,
-                                               const MCValue &Target,
-                                               const MCFragment &F,
-                                               const MCFixup &Fixup,
-                                               bool IsPCRel) const {
-  const MCSymbol &Symbol = Target.getSymA()->getSymbol();
-  const MCSymbol &ASymbol = Symbol.AliasedSymbol();
-  const MCSymbol *Renamed = Renames.lookup(&Symbol);
-  const MCSymbolData &SD = Asm.getSymbolData(Symbol);
-
-  if (ASymbol.isUndefined()) {
-    if (Renamed)
-      return Renamed;
-    return &ASymbol;
-  }
-
-  if (SD.isExternal()) {
-    if (Renamed)
-      return Renamed;
-    return &Symbol;
-  }
-
-  const MCSectionELF &Section =
-    static_cast<const MCSectionELF&>(ASymbol.getSection());
-  const SectionKind secKind = Section.getKind();
-
-  if (secKind.isBSS())
-    return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-
-  if (secKind.isThreadLocal()) {
-    if (Renamed)
-      return Renamed;
-    return &Symbol;
-  }
-
-  MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();
-  const MCSectionELF &Sec2 =
-    static_cast<const MCSectionELF&>(F.getParent()->getSection());
-
-  if (&Sec2 != &Section &&
-      (Kind == MCSymbolRefExpr::VK_PLT ||
-       Kind == MCSymbolRefExpr::VK_GOTPCREL ||
-       Kind == MCSymbolRefExpr::VK_GOTOFF)) {
-    if (Renamed)
-      return Renamed;
-    return &Symbol;
-  }
-
-  if (Section.getFlags() & ELF::SHF_MERGE) {
-    if (Target.getConstant() == 0)
-      return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-    if (Renamed)
-      return Renamed;
-    return &Symbol;
-  }
-
-  return ExplicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-}
-#endif
 
 void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCAsmLayout &Layout,
@@ -130,12 +128,12 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   const MCFixupKindInfo& FKI =
     Asm.getBackend().getFixupKindInfo((MCFixupKind)Fixup.getKind());
   bool IsPCRel = isFixupKindPCRel(Asm, Fixup.getKind());
+  MCObjectTargetReader* TR = m_Backend.getObjectReader()->getObjectTargetReader();
 
   if (!Target.isAbsolute()) {
     const MCSymbol &Symbol = Target.getSymA()->getSymbol();
     const MCSymbol &ASymbol = Symbol.AliasedSymbol();
-    // FIXME(Nowar): Need MCELFObjectTargetWriter
-    //RelocSymbol = SymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel);
+    RelocSymbol = transSymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel, TR);
 
     if (const MCSymbolRefExpr* RefB = Target.getSymB()) {
       const MCSymbol& SymbolB = RefB->getSymbol();
@@ -162,15 +160,12 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   }
 
   FixedValue = Value;
-  // FIXME(Nowar): Need MCELFObjectTargetWriter
-  //Type = GetRelocType(Target, Fixup, IsPCRel,
-  //                    (RelocSymbol != 0), Addend);
+  Type = TR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
   MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
   unsigned Info = (SD.Index << 8) + (unsigned char)Type;
   uint64_t RelocOffset = Layout.getFragmentOffset(Fragment) + Fixup.getOffset();
 
-  // FIXME(Nowar): Need MCELFObjectTargetWriter
-  //if (!hasRelocationAddend()) Addend = 0;
+  if (!TR->hasRelocationAddend()) Addend = 0;
 
   RelocationEntry RE(RelocOffset, Addend, Info, &SD);
   m_LDInfo.bitcode().context()->getRelocSection().push_back(RE);

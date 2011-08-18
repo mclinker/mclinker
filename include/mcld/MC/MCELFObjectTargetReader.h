@@ -11,25 +11,40 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/MC/MCObjectTargetReader.h>
+
 namespace mcld
 {
 
 /** \class MCELFObjectTargetReader
- *  \brief MCELFObjectTargetReader provides an abstract interface for target-dependent object readers.
+ *  \brief MCELFObjectTargetReader provides an ELF interface for target-dependent object readers.
  *
  *  \see
  *  \author Luba Tang <lubatang@mediatek.com>
  */
-class MCELFObjectTargetReader
+class MCELFObjectTargetReader : public MCObjectTargetReader
 {
 protected:
   MCELFObjectTargetReader();
+
 public:
   virtual ~MCELFObjectTargetReader();
 
+  virtual bool hasRelocationAddend() = 0;
+  virtual unsigned getRelocType(const MCValue&,
+                                const MCFixup&,
+                                bool IsPCRel,
+                                bool IsRelocWithSymbol,
+                                int64_t) = 0;
+  virtual const MCSymbol* explicitRelSym(const MCAssembler&,
+                                         const MCValue&,
+                                         const MCFragment&,
+                                         const MCFixup&,
+                                         bool) const {
+    return NULL;
+  }
 };
 
 } // namespace of mcld
 
 #endif
-
