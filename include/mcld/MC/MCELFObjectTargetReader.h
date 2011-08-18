@@ -11,18 +11,26 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCObjectTargetReader.h>
+namespace llvm {
+  class MCValue;
+  class MCSymbol;
+  class MCFixup;
+  class MCAssembler;
+  class MCFragment;
+}
 
 namespace mcld
 {
+  using namespace llvm;
 
 /** \class MCELFObjectTargetReader
- *  \brief MCELFObjectTargetReader provides an ELF interface for target-dependent object readers.
+ *  \brief MCELFObjectTargetReader provides an abstract ELF interface
+ *         for target-dependent object readers.
  *
  *  \see
  *  \author Luba Tang <lubatang@mediatek.com>
  */
-class MCELFObjectTargetReader : public MCObjectTargetReader
+class MCELFObjectTargetReader
 {
 protected:
   MCELFObjectTargetReader();

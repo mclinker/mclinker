@@ -32,7 +32,17 @@ public:
   virtual llvm::error_code readObject(const std::string &ObjectFile, 
                                       MCLDFile &) = 0;
 
-  virtual MCObjectTargetReader* getObjectTargetReader() = 0;
+  virtual bool hasRelocationAddend() = 0;
+  virtual unsigned getRelocType(const MCValue& Target,
+                                const MCFixup& Fixup,
+                                bool IsPCRel,
+                                bool IsRelocWithSymbol,
+                                int64_t Addend) = 0;
+  virtual const MCSymbol* explicitRelSym(const MCAssembler& Asm,
+                                         const MCValue& Target,
+                                         const MCFragment& F,
+                                         const MCFixup& Fixup,
+                                         bool IsPCRel) const = 0;
 };
 
 } // namespace of mcld

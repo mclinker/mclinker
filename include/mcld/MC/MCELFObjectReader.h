@@ -16,13 +16,13 @@
 
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCObjectReader.h"
-#include "mcld/MC/MCELFObjectTargetReader.h"
 
 using namespace llvm;
 using namespace ELF;
 
 namespace mcld
 {
+  class MCELFObjectTargetReader;
 
 //MCELFObjectReader reads target-independent parts of ELF object file
 class MCELFObjectReader : public MCObjectReader
@@ -40,9 +40,17 @@ public:
   bool isLittleEndian() const { return true; }
   bool is64Bit() const { return false; }
 
-  virtual MCELFObjectTargetReader* getObjectTargetReader() {
-    return m_pTargetReader;
-  }
+  bool hasRelocationAddend();
+  unsigned getRelocType(const MCValue& Target,
+                        const MCFixup& Fixup,
+                        bool IsPCRel,
+                        bool IsRelocWithSymbol,
+                        int64_t Addend);
+  const MCSymbol* explicitRelSym(const MCAssembler& Asm,
+                                 const MCValue& Target,
+                                 const MCFragment& F,
+                                 const MCFixup& Fixup,
+                                 bool IsPCRel) const;
 
 private:
   MCELFObjectTargetReader *m_pTargetReader;

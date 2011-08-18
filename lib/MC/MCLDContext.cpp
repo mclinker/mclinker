@@ -70,7 +70,7 @@ MCSectionData &MCLDContext::getOrCreateSectionData(const MCSection &Section,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSectionData(Section, Sections);
+    Entry = new MCSectionData(Section, 0);
 
   return *Entry;
 }
@@ -87,7 +87,7 @@ MCSymbolData &MCLDContext::getOrCreateSymbolData(const MCSymbol &Symbol,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSymbolData(Symbol, 0, 0, Symbols);
+    Entry = new MCSymbolData(Symbol, 0, 0, 0);
 
   return *Entry;
 }

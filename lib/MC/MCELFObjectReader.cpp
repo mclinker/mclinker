@@ -6,6 +6,7 @@
  *   Jush Lu <Jush.Lu@mediatek.com>                                            *
  ****************************************************************************/
 #include <mcld/MC/MCELFObjectReader.h>
+#include <mcld/MC/MCELFObjectTargetReader.h>
 #include <mcld/MC/MCLDFile.h>
 
 #include <llvm/ADT/OwningPtr.h>
@@ -159,6 +160,34 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
     CopySymbolEntryToLDFile(LDFile, DynSymbolTable, DynStringTable);
 
   return ec;
+}
+
+bool MCELFObjectReader::hasRelocationAddend() {
+  return m_pTargetReader->hasRelocationAddend();
+}
+
+unsigned MCELFObjectReader::getRelocType(const MCValue& Target,
+                                         const MCFixup& Fixup,
+                                         bool IsPCRel,
+                                         bool IsRelocWithSymbol,
+                                         int64_t Addend) {
+  return m_pTargetReader->getRelocType(Target,
+                                       Fixup,
+                                       IsPCRel,
+                                       IsRelocWithSymbol,
+                                       Addend);
+}
+
+const MCSymbol* MCELFObjectReader::explicitRelSym(const MCAssembler& Asm,
+                                                  const MCValue& Target,
+                                                  const MCFragment& F,
+                                                  const MCFixup& Fixup,
+                                                  bool IsPCRel) const {
+  return m_pTargetReader->explicitRelSym(Asm,
+                                         Target,
+                                         F,
+                                         Fixup,
+                                         IsPCRel);
 }
 
 const Elf32_Shdr *MCELFObjectReader::getShdrEntry(Elf32_Half index) const {
