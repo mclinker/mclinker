@@ -435,8 +435,8 @@ public:
   //  @param DIRECT the direction of the connecting edge of the parent node.
   //  @param position the parent node
   //  @param value the value being pushed.
-  template<class Iterator, size_t DIRECT>
-  BinaryTree& join(Iterator position, const DataType& value) {
+  template<size_t DIRECT, class Pos>
+  BinaryTree& join(Pos position, const DataType& value) {
     node_type *node = BinaryTreeBase<DataType>::createNode();
     node->data = const_cast<DataType*>(&value);
     if (position.isRoot())
@@ -453,8 +453,8 @@ public:
   //  @param position the parent node
   //  @param the tree being joined.
   //  @return the joined tree
-  template<size_t DIRECT>
-  BinaryTree& merge(TreeIteratorBase& position, BinaryTree& pTree) {
+  template<size_t DIRECT, class Pos>
+  BinaryTree& merge(Pos position, BinaryTree& pTree) {
     if (this == &pTree)
       return *this;
 
