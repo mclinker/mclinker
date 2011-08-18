@@ -69,6 +69,15 @@ convertToSectionSizeTy(const From from)
   return convertType<sectionSizeTy, From>(from);
 }
 
+inline void endian_swap(unsigned int& x)
+{
+  x = (x>>24) |
+      ((x<<8) & 0x00FF0000) |
+      ((x>>8) & 0x0000FF00) |
+      (x<<24);
+}
+
+
 /// convert string to size_t
 template<class Type>
 Type stringToType(const std::string &str)
@@ -143,7 +152,7 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
   }
 
   off += archiveMagicSize ;
-  size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);  
+  size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
   /// symbol table header
   if(archiveMemberName.empty())
   {
@@ -275,6 +284,10 @@ void MCArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFil
   const char *startPtr = mapFile->getBufferStart() + start;
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
+  ///FIXME: intel and ARM are littel-endian , Sparc is big-endian
+  ///symbolNum read from archive is big-endian 
+  ///This is portibility issue.
+  endian_swap(symbolNum); 
   ++p_Word;
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
@@ -284,7 +297,9 @@ void MCArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFil
   for(unsigned int i=0 ; i<symbolNum ; ++i)
   {
     /// assign member offset
-    archiveMap[i].fileOffset = *p_Word;
+    unsigned int memberOffset = *p_Word;
+    endian_swap(memberOffset);
+    archiveMap[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
     /// assign member name
     off_t nameEnd = strlen(p_Name) + 1;

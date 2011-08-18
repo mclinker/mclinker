@@ -46,7 +46,6 @@ void BinTreeTest::TearDown()
 
 
 /// General 
-/*
 TEST_F( BinTreeTest,Two_non_null_tree_merge) 
 {
   BinaryTree<int>::iterator pos = m_pTestee->root();
@@ -152,4 +151,3 @@ TEST_F( BinTreeTest, DFSIterator_BasicTraversal)
   } 
   cout<<endl; 
 }
-*/
