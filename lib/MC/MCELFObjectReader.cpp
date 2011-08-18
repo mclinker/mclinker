@@ -130,6 +130,7 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
       if (DynSymbolTable != 0)
         continue;
       DynSymbolTable = sh;
+      continue;
     }
 
     if (sh->sh_type == SHT_REL || sh->sh_type == SHT_RELA) {
@@ -137,31 +138,25 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
       //              The question is: how to do?
     }
 
-    const MCSectionELF *ShEntry = 
+    const MCSectionELF *ShEntry =
       LDFile.context()->getELFSection(SectionName, sh->sh_type,
                                        0, SectionKind::getReadOnly(),
                                        sh->sh_size, "");
-   
+
     MCSymbol *SymEntry = NULL;
     if (!SectionName.empty()) {
       SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
-      MCSymbolData &SymDataEntry = 
-        LDFile.context()->getOrCreateSymbolData(*SymEntry);    
+      MCSymbolData &SymDataEntry =
+        LDFile.context()->getOrCreateSymbolData(*SymEntry);
     }
 
   }
 
+  if (SymbolTable)
+    CopySymbolEntryToLDFile(LDFile, SymbolTable, StringTable);
 
-  StringRef SymTabName = getNameString(ShStringTable, SymbolTable->sh_name);
-
-  const MCSectionELF *SymTabSection = 
-     LDFile.context()->getELFSection(SymTabName, ELF::SHT_STRTAB, 
-                                      0, SectionKind::getReadOnly(),
-                                      SymbolTable->sh_size ,"");
-
-
-
-  CopySymbolEntryToLDFile(LDFile, SymTabSection);
+  if (DynSymbolTable)
+    CopySymbolEntryToLDFile(LDFile, DynSymbolTable, DynStringTable);
 
   return ec;
 }
@@ -199,16 +194,24 @@ const char *MCELFObjectReader::getNameString(const Elf32_Shdr *Shdr,
 
 error_code
 MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
-                                           const MCSectionELF *SymTabSection) {
+                                           const Elf32_Shdr *ShSym,
+                                           const Elf32_Shdr *ShStr) {
   error_code ec;
 
-  for (const char *i = FileBase + SymbolTable->sh_offset,
+  StringRef SymTabName = getNameString(ShStringTable, ShSym->sh_name);
+
+  const MCSectionELF *SymTabSection =
+     File.context()->getELFSection(SymTabName, ELF::SHT_STRTAB,
+                                      0, SectionKind::getReadOnly(),
+                                      ShSym->sh_size ,"");
+
+  for (const char *i = FileBase + ShSym->sh_offset,
                   *e = FileBase +
-                       SymbolTable->sh_offset +
-                       SymbolTable->sh_size;
-                  i!=e; i+= SymbolTable->sh_entsize) {
+                       ShSym->sh_offset +
+                       ShSym->sh_size;
+                  i!=e; i+= ShSym->sh_entsize) {
      const Elf32_Sym *SymEntry = reinterpret_cast<const Elf32_Sym *>(i);
-     StringRef SymbolName = getNameString(StringTable, SymEntry->st_name);
+     StringRef SymbolName = getNameString(ShStr, SymEntry->st_name);
 
      MCSectionData &SymTabSD =
        File.context()->getOrCreateSectionData(*SymTabSection);

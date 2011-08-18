@@ -31,9 +31,12 @@ int main(int argc, char** argv) {
   cl::ParseCommandLineOptions(argc, argv, "MCObjectReader");
 
   MCLDFile File;
-  MCELFObjectTargetReader *TargetReader;
+  MCLDContext *LDContext = new MCLDContext();
+  File.setContext(LDContext);
 
+  MCELFObjectTargetReader *TargetReader;
   MCELFObjectReader Reader(TargetReader);
+
   Reader.readObject(InputFilename, File);
 
   File.context()->dump();

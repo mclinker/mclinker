@@ -21,20 +21,9 @@ MCSymbol *MCLDContext::getOrCreateSymbol(StringRef Name) {
   if (Sym)
     return Sym;
 
-  Sym = createSymbol(Name);
+  Sym = new (*this) MCSymbol(Entry.getKey(), false);
   Entry.setValue(Sym);
   return Sym;
-}
-
-MCSymbol *MCLDContext::createSymbol(StringRef Name) {
-  //Determine whether this is an assembler temporary or normal label, if used.
-  bool isTemporary = false;
-
-  //FIXME : use more implement from the same function in MCContext
-  //StringMapEntry<bool> *NameEntry = &Used
-
-  MCSymbol *Result = new MCSymbol(Name, isTemporary);
-  return Result;
 }
 
 const MCSectionELF *MCLDContext::
@@ -67,11 +56,11 @@ getELFSection(StringRef SectionName, unsigned Type,
   if (!Group.empty())
     GroupSym = getOrCreateSymbol(Group);
 
-  MCSectionELF *Result = new MCSectionELF(Entry.getKey(), Type, Flags,
+  MCSectionELF *Result = new (*this) MCSectionELF(Entry.getKey(), Type, Flags,
                                            Kind, EntrySize, GroupSym);
 
   Entry.setValue(Result);
-  return Result;  
+  return Result;
 }
 
 
@@ -81,7 +70,7 @@ MCSectionData &MCLDContext::getOrCreateSectionData(const MCSection &Section,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSectionData(Section);
+    Entry = new MCSectionData(Section, Sections);
 
   return *Entry;
 }
@@ -98,7 +87,9 @@ MCSymbolData &MCLDContext::getOrCreateSymbolData(const MCSymbol &Symbol,
 
   if (Created) *Created = !Entry;
   if (!Entry)
-    Entry = new MCSymbolData(Symbol, 0, 0);
+    Entry = new MCSymbolData(Symbol, 0, 0, Symbols);
+
+  return *Entry;
 }
 
 void MCLDContext::dump() {

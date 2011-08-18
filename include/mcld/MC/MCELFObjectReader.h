@@ -58,9 +58,11 @@ private:
   const char *getNameString(Elf32_Half index, uint32_t offset) const;
   const char *getNameString(const Elf32_Shdr *section, uint32_t offset) const;
 
-  error_code CopySymbolEntryToLDFile(MCLDFile &File, const MCSectionELF *SymTabSection);
+  error_code CopySymbolEntryToLDFile(MCLDFile &File,
+                                     const Elf32_Shdr *ShSym,
+                                     const Elf32_Shdr *ShStr);
 
-  void WriteSymbolEntry(MCDataFragment *SymtabF, 
+  void WriteSymbolEntry(MCDataFragment *SymtabF,
                         MCDataFragment *ShndxF,
                         uint64_t name,
                         uint8_t info, uint64_t value,
