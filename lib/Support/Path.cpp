@@ -3,19 +3,15 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
  ****************************************************************************/
 #include <mcld/Support/Path.h>
 #include <llvm/ADT/StringRef.h>
+#include <mcld/Support/FileSystem.h>
 #include <locale>
-// Include the truly platform-specific parts.
-#if defined(LLVM_ON_UNIX)
-#include "Unix/PathV3.inc"
-#endif
-#if defined(LLVM_ON_WIN32)
-#include "Windows/PathV3.inc"
-#endif
 #include <stdio.h>
+#include <string.h>
+
 using namespace mcld;
 using namespace mcld::sys::fs;
 
@@ -62,6 +58,29 @@ Path& Path::assign(const Path::ValueType* s, unsigned int length)
   return *this;
 }
 
+//a,/b a/,b a/,b/ a,b is a/b
+Path& Path::append(const Path& pPath)
+{
+  //first path is a/,second path is /b 
+  if(m_PathName[m_PathName.length()-1] == separator &&
+     pPath.native()[0] == separator) { 
+    unsigned int old_size = m_PathName.size()-1;
+    unsigned int new_size = old_size + pPath.native().size();
+
+    m_PathName.resize(new_size);
+    strcpy(const_cast<char*>(m_PathName.data()+old_size), pPath.native().data());
+  }
+  else if(this->string()[this->native().size()-1] != separator &&
+          pPath.string()[0] != separator) { //first path is a,second path is b
+    m_PathName.append("/");
+    m_PathName.append(pPath.native());
+  }
+  else { // a/,b or a,/b just append
+    m_PathName.append(pPath.native());
+  }
+  return *this;
+}
+
 bool Path::empty() const
 {
   return m_PathName.empty();
@@ -72,9 +91,19 @@ std::string Path::string() const
   return m_PathName;
 }
 
+Path::StringType Path::generic_string() const
+{  
+  return detail::canonical_form(*this);
+}
+
+void Path::canonicalize()
+{  
+  detail::canonical_form(*this);
+}
+
 Path::StringType::size_type Path::m_append_separator_if_needed()
 {
-  if (!m_PathName.empty() &&
+  if (!m_PathName.empty() && is_directory(*this) &&
 #ifdef LLVM_ON_WIN32
       *(m_PathName.end()-1) != colon && 
 #endif
@@ -86,47 +115,73 @@ Path::StringType::size_type Path::m_append_separator_if_needed()
   return 0;
 }
 
-void Path::m_erase_redundant_separator(StringType &pPathName,
-                                       Path::StringType::size_type pSepPos) const
+void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos)
 {
-  if (pSepPos                         // a separator was added
-      && pSepPos < pPathName.size()         // and something was appended
-      && (pPathName[pSepPos+1] == separator // and it was also separator
-#ifdef LLVM_ON_WIN32
-       || pPathName[pSepPos+1] == preferred_separator  // or preferred_separator
-#endif
-      )) {
-    pPathName.erase(pSepPos, 1);
-  } // erase the added separator
+  size_t begin=pSepPos;
+  // skip '/'
+  while(separator == m_PathName[pSepPos])
+    ++pSepPos;
+
+  if(begin!=pSepPos)
+    m_PathName.erase(begin+1,pSepPos-begin-1);
 }
 
+Path Path::spec_to_name() const
+{
+  std::string result;
+  result.append("lib");
+  result.append(m_PathName);
+  result.append("lib");
+  return result;
+}
+
+Path Path::stem() const
+{
+  std::string result;
+  size_t found;
+  found = m_PathName.find_last_of(separator);
+  result = m_PathName.substr(found+1);
+  found = result.find_first_of(".");
+  result = result.substr(0,found-1);
+  Path p(result);
+  return p;
+}
+
+Path Path::extension() const
+{
+  std::string result;
+  size_t found;
+  found = m_PathName.find_last_of(separator);
+  result = m_PathName.substr(found+1);
+  found = result.find_first_of(".");
+  result = m_PathName.substr(found+1);
+  Path p(result);
+  return p;
+}
 
 //===--------------------------------------------------------------------===//
 // non-member functions
-
-inline bool mcld::sys::fs::exists(FileStatus f)
+static bool mcld::sys::fs::exists(FileStatus f)
 {
   return (f.type() != StatusError)&&(f.type() != FileNotFound);
 }
-inline bool mcld::sys::fs::is_directory(FileStatus f)
+
+static bool mcld::sys::fs::is_directory(FileStatus f)
 {
-  return f.type() == DirectoryFile;
+  return f.type() == mcld::sys::fs::DirectoryFile;
 }
 
-bool mcld::sys::fs::operator==(const Path& pLHS, const Path& pRHS)
+bool mcld::sys::fs::operator==(const Path& pLHS,const Path& pRHS)
 {
-//csmon! I'm here
- printf("operator ==\n");
- return (detail::is_equal(pLHS,pRHS));
-}
-bool mcld::sys::fs::operator!=(const Path& pLHS, const Path& pRHS)
-{
-//csmon! I'm here
- printf("operator !=\n");
- return !(detail::is_equal(pLHS,pRHS));
+  return (pLHS.generic_string()==pRHS.generic_string());
 }
 
-inline bool mcld::sys::fs::is_separator(char value)
+bool mcld::sys::fs::operator!=(const Path& pLHS,const Path& pRHS)
+{
+  return !(pLHS==pRHS);
+}
+
+bool mcld::sys::fs::is_separator(char value)
 {
   return (value == separator
 #ifdef LLVM_ON_WIN32
@@ -137,14 +192,16 @@ inline bool mcld::sys::fs::is_separator(char value)
 
 bool mcld::sys::fs::exists(const Path &pPath)
 {
-  // csmon! I'm here
-  return exists(detail::status(pPath));
+  FileStatus pFileStatus;
+  detail::status(pPath, pFileStatus);
+  return exists(pFileStatus);
 }
 
 bool mcld::sys::fs::is_directory(const Path &pPath)
 {
-  // csmon! I'm here
-  return is_directory(detail::status(pPath));
+  FileStatus pFileStatus;
+  detail::status(pPath, pFileStatus);
+  return is_directory(pFileStatus);
 }
 
 std::ostream &mcld::sys::fs::operator<<(std::ostream& pOS,
@@ -156,7 +213,7 @@ std::ostream &mcld::sys::fs::operator<<(std::ostream& pOS,
 std::istream &mcld::sys::fs::operator>>(std::istream& pOS,
                                         const Path& pPath)
 {
-  // FIXME
+  return pOS >> pPath.native();
 }
 
 llvm::raw_ostream &mcld::sys::fs::operator<<(llvm::raw_ostream &pOS,
@@ -164,5 +221,4 @@ llvm::raw_ostream &mcld::sys::fs::operator<<(llvm::raw_ostream &pOS,
 {
   return pOS << pPath.native();
 }
-
 

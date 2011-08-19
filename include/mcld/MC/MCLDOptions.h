@@ -10,6 +10,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/Path.h>
 #include <mcld/Support/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
 

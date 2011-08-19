@@ -9,16 +9,14 @@
  * filesystem (v3), but modified to remove exception handling and the        *
  * path class.                                                               *
  ****************************************************************************/
-#ifndef FILESYSTEM_H
-#define FILESYSTEM_H
+#ifndef MCLD_FILE_SYSTEM_H
+#define MCLD_FILE_SYSTEM_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <string>
 #include <iosfwd>
 #include <locale>
-#include <mcld/Support/Path.h>
-
 namespace mcld {
 namespace sys {
 namespace fs {
@@ -37,6 +35,8 @@ enum FileType
   SocketFile,
   ReparseFile,
   TypeUnknown,
+  StatusKnown,
+  IsSymLink
 };
 
 /** \class FileStatus
@@ -51,7 +51,7 @@ public:
   explicit FileStatus(FileType v)
     : m_Value(v) {}
 
-  void type(FileType v)   { m_Value = v; }
+  void setType(FileType v)   { m_Value = v; }
   FileType type() const   { return m_Value; }
 
 private:
@@ -66,6 +66,36 @@ inline bool operator!=(const FileStatus& rhs, const FileStatus& lhs ) {
   return !(rhs == lhs);
 }
 
+class Path;
+class DirIterator;
+class Directory;
+
+bool exists(const Path &pPath);
+bool is_directory(const Path &pPath);
+static bool exists(FileStatus f);
+static bool is_directory(FileStatus f);
+
+namespace detail
+{
+
+extern std::string static_library_extension;
+extern std::string shared_library_extension;
+extern std::string executable_extension;
+extern std::string relocatable_extension;
+extern std::string assembly_extension;
+extern std::string bitcode_extension;
+
+
+std::string canonical_form(const Path& pPath);
+void canonical_form(Path& pPath);
+bool not_found_error(int perrno);
+void status(const Path& p, FileStatus& pFileStatus);
+void symlink_status(const Path& p, FileStatus& pFileStatus);
+void directory_iterator_increment(DirIterator& pIter);
+void open_dir(Directory& pDir);
+void close_dir(Directory& pDir);
+
+} // namespace of detail
 } // namespace of fs
 } // namespace of sys
 } // namespace of mcld

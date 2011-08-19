@@ -247,26 +247,6 @@ bool SectLinker::doInitialization(Module &pM)
   PositionDependentOptions pos_dep_options;
   pos_dep_options.reserve(input_size);
 
-  // add all namespecs
-  cl::list<std::string>::iterator ns;
-  cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
-  for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
-    // search file in SearchDirs
-    Path library = m_LDInfo.options().directories().find(*ns);
-    if (!library.empty()) { // found
-      // calculate position
-      pos_dep_options.push_back(new PositionDependentOption(
-                                      ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
-                                      library,
-                                      *ns,
-                                      PositionDependentOption::NAMESPEC));
-    }
-    else {
-      llvm::Twine error_mesg("can not find");
-      report_fatal_error(error_mesg.concat((*ns)));
-    }
-  }
-
   // add all start-group
   cl::list<bool>::iterator sg;
   cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
@@ -285,6 +265,17 @@ bool SectLinker::doInitialization(Module &pM)
     pos_dep_options.push_back(new PositionDependentOption(
                                     ArgEndGroupList.getPosition(eg-ArgEndGroupList.begin()),
                                     PositionDependentOption::END_GROUP));
+  }
+
+  // add all namespecs
+  cl::list<std::string>::iterator ns;
+  cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
+  for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
+    // calculate position
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
+                                    *ns,
+                                    PositionDependentOption::NAMESPEC));
   }
 
   // add all object files
@@ -437,13 +428,26 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                      *(*cur_char)->path());
       prev_ward = &InputTree::Afterward;
       break;
-    case PositionDependentOption::NAMESPEC:
+    case PositionDependentOption::NAMESPEC: {
+      Path* path = 0;
+      if (pLDInfo.attrFactory().last().isStatic())
+        path = pLDInfo.options().directories().find(
+                                               (*cur_char)->namespec(),
+                                               Input::Archive);
+      else
+        path = pLDInfo.options().directories().find(
+                                               (*cur_char)->namespec(),
+                                               Input::DynObj);
+      if (0 == path)
+        llvm::report_fatal_error(std::string("Can't find namespec: ")+
+                                 (*cur_char)->namespec());
       pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
                      (*cur_char)->namespec(),
-                     *(*cur_char)->path());
+                     *path);
       prev_ward = &InputTree::Afterward;
       break;
+    }
     case PositionDependentOption::START_GROUP:
       pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
       returnStack.push(cur_node);

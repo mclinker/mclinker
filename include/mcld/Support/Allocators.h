@@ -283,7 +283,7 @@ template<typename DataType>
 class LinearAllocator<DataType, 0> : public LinearAllocatorBase<Chunk<DataType, 0> >
 {
 public:
-  LinearAllocator(size_t pNum)
+  explicit LinearAllocator(size_t pNum)
     : LinearAllocatorBase<Chunk<DataType, 0> >() {
     Chunk<DataType, 0>::setSize(pNum);
   }

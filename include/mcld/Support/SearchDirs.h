@@ -11,13 +11,18 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/Path.h>
+#include <mcld/MC/MCLDInput.h>
 
 namespace mcld
 {
 class MCLDFile;
 class MCLDDirectory;
+namespace sys {
+namespace fs {
+class Path;
+} // namespace of fs
+} // namespace of sys
+
 /** \class SearchDirs
  *  \brief SearchDirs contains the list of paths that MCLinker will search for
  *  archive libraries and control scripts.
@@ -28,37 +33,36 @@ class MCLDDirectory;
 class SearchDirs
 {
 public:
-  class iterator
-  {
-  public:
-    MCLDDirectory& operator*();
-  };
-
-  class const_iterator
-  {
-  public:
-    const MCLDDirectory& operator*();
-  };
+  typedef std::vector<MCLDDirectory*> DirList;
+  typedef DirList::iterator iterator;
+  typedef DirList::const_iterator const_iterator;
 
 public:
-  iterator begin();
-  iterator end();
-  const_iterator begin() const;
-  const_iterator end() const;
+  SearchDirs();
+  ~SearchDirs();
 
-  sys::fs::Path find(const std::string& pNamespec) const;
+  /// find - give a namespec, return a real path of the shared object.
+  sys::fs::Path* find(const std::string& pNamespec, mcld::Input::Type pType);
 
+  // -----  iterators  ----- //
+  iterator begin()
+  { return m_DirList.begin(); }
+
+  iterator end()
+  { return m_DirList.end(); }
+
+  const_iterator begin() const
+  { return m_DirList.begin(); }
+
+  const_iterator end() const
+  { return m_DirList.end(); }
+
+  // -----  modifiers  ----- //
   void add(const MCLDDirectory& pDirectory);
+
+private:
+  DirList m_DirList;
 };
-
-inline bool operator==(const SearchDirs::iterator& X, 
-                       const SearchDirs::iterator& Y)
-{
-}
-
-inline bool operator!=(const SearchDirs::iterator& X, 
-                       const SearchDirs::iterator& Y)
-{ return !(X==Y); }
 
 } // namespace of mcld
 

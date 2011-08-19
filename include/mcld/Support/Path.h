@@ -50,34 +50,50 @@ public:
   // -----  assignments  ----- //
   template <class InputIterator>
   Path& assign(InputIterator begin, InputIterator end);
-
   Path& assign(const StringType &s);
-
   Path& assign(const ValueType* s, unsigned int length);
 
   //  -----  appends  ----- //
   template <class InputIterator>
   Path& append(InputIterator begin, InputIterator end);
+  Path& append(const Path& pPath);
 
   //  -----  observers  ----- //
   bool empty() const;
-  const StringType &native() const { return m_PathName; }
-  const ValueType* c_str() const   { return m_PathName.c_str(); }
+
+  bool is_from_root()const
+  { return (m_PathName[0]=='/'); }
+
+  const StringType &native() const
+  { return m_PathName; }
+
+  StringType &native()
+  { return m_PathName; }
+
+  const ValueType* c_str() const
+  { return m_PathName.c_str(); }
+
   std::string string() const;
 
-  // -----  generic form observers  ----- //
-  const StringType &generic_string() const;
-private:
-  StringType::size_type m_append_separator_if_needed();
-  void m_erase_redundant_separator(StringType &pPathName,
-                                   StringType::size_type sep_pos) const;
+  // -----  decomposition  ----- //
+  Path spec_to_name() const;
+  Path stem() const;
+  Path extension() const;
 
-private:
+  // -----  generic form observers  ----- //
+  StringType generic_string() const;
+  void canonicalize();
+
+public:
+  StringType::size_type m_append_separator_if_needed();
+  void m_erase_redundant_separator(StringType::size_type sep_pos);
+
+protected:
   StringType m_PathName;
 };
 
-bool operator==(const Path& pLHS, const Path& pRHS);
-bool operator!=(const Path& pLHS, const Path& pRHS);
+bool operator==(const Path& pLHS,const Path& pRHS);
+bool operator!=(const Path& pLHS,const Path& pRHS);
 
 //--------------------------------------------------------------------------//
 //                              non-member functions                        //
@@ -86,11 +102,14 @@ bool operator!=(const Path& pLHS, const Path& pRHS);
 /// is_separator - is the given character a separator of a path.
 // @param value a character
 // @result true if \a value is a path separator character on the host OS
+//bool status_known(FileStatus f) { return f.type() != StatusError; }
+
 bool is_separator(char value);
 
 bool exists(const Path &pPath);
 
 bool is_directory(const Path &pPath);
+
 
 std::ostream &operator<<(std::ostream& pOS, const Path& pPath);
 
@@ -119,7 +138,7 @@ Path& Path::append(InputIterator begin, InputIterator end)
   StringType::size_type sep_pos(m_append_separator_if_needed());
   m_PathName.append<InputIterator>(begin, end);
   if (sep_pos)
-    m_erase_redundant_separator(m_PathName, sep_pos);
+    m_erase_redundant_separator(sep_pos);
   return *this;
 }
 
@@ -137,7 +156,7 @@ struct less<mcld::sys::fs::Path> : public binary_function<mcld::sys::fs::Path,
                                                          mcld::sys::fs::Path,
                                                          bool>
 {
-  bool operator() (const mcld::sys::fs::Path& pX, const mcld::sys::fs::Path& pY) const {
+  bool operator() (const mcld::sys::fs::Path& pX,const mcld::sys::fs::Path& pY)  {
     if (pX.generic_string().size() < pY.generic_string().size())
       return true;
     return (pX.generic_string() < pY.generic_string());

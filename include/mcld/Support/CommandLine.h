@@ -5,8 +5,8 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef COMMANDLINE_H
-#define COMMANDLINE_H
+#ifndef MCLD_COMMANDLINE_H
+#define MCLD_COMMANDLINE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

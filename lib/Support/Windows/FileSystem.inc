@@ -5,33 +5,23 @@
  *                                                                           *
  *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
  ****************************************************************************/
-#include <mcld/Support/RealPath.h>
-#include <mcld/Support/FileSystem.h>
+#include <string>
 
-using namespace mcld::sys::fs;
+namespace mcld{
+namespace sys{
+namespace fs{
+namespace detail{
 
-//==========================
-// RealPath
-RealPath::RealPath()
-  : Path() {
-}
+std::string static_library_extension = ".lib";
+std::string shared_library_extension = ".dll";
+std::string executable_extension = ".exe";
+std::string relocatable_extension = ".obj";
+std::string assembly_extension = ".s";
+std::string bitcode_extension = ".bc";
 
-RealPath::RealPath(const RealPath::ValueType* s )
-  : Path(s) {
-  detail::canonical_form(*this);
-}
 
-RealPath::RealPath(const RealPath::StringType &s )
-  : Path(s) {
-  detail::canonical_form(*this);
-}
-
-RealPath::RealPath(const Path& pPath)
- : Path(pPath) {
-  detail::canonical_form(*this);
-}
-
-RealPath::~RealPath()
-{
-}
+} // namespace of detail
+} // namespace of fs
+} // namespace of sys
+} // namespace of mcld
 

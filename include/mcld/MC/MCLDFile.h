@@ -13,6 +13,7 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <mcld/MC/MCLDContext.h>
+#include <mcld/Support/Path.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/GCFactory.h>
 #include <string>

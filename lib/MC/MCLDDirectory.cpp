@@ -6,30 +6,58 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/MC/MCLDDirectory.h>
+#include <mcld/Support/FileSystem.h>
 
 using namespace mcld;
+using namespace mcld::sys::fs;
 
 //==========================
 // MCLDDirectory
 MCLDDirectory::MCLDDirectory()
-  : m_bInSysroot(false) {
+  : Directory(), m_Name(), m_bInSysroot(false) {
 }
 
 MCLDDirectory::MCLDDirectory(const std::string &pName)
-  : Directory(sys::fs::Path(pName)), m_Name(pName) {
-  m_bInSysroot = ('=' == m_Name.c_str()[0]);
+  : Directory(), m_Name(pName) {
+  Directory::m_Path.assign(pName);
+
+  if (!Directory::m_Path.empty())
+    m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
+
+  if (m_bInSysroot)
+    Directory::m_Path.native().erase(Directory::m_Path.native().begin());
+  detail::open_dir(*this);
 }
 
 MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
-  : Directory(sys::fs::Path(pName)), m_Name(pName) {
-  m_bInSysroot = ('=' == m_Name.c_str()[0]);
+  : Directory(), m_Name(pName.data(), pName.size()) {
+  Directory::m_Path.assign(pName.str());
+
+  if (!Directory::m_Path.empty())
+    m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
+
+  if (m_bInSysroot)
+    Directory::m_Path.native().erase(Directory::m_Path.native().begin());
+
+  detail::open_dir(*this);
 }
 
 MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
 {
-  Directory::m_Path.assign(pName);
-  m_Name = pName;
-  m_bInSysroot = ('=' == m_Name.c_str()[0]);
+  m_Name.assign(pName.data(), pName.size());
+  Directory::m_Path.assign(pName.str());
+
+  if (!Directory::m_Path.empty())
+    m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
+
+  if (m_bInSysroot)
+    Directory::m_Path.native().erase(Directory::m_Path.native().begin());
+
+  detail::open_dir(*this);
+  Directory::m_FileStatus = FileStatus();
+  Directory::m_SymLinkStatus = FileStatus();
+  Directory::m_Cache.clear();
+  Directory::m_Handler = 0;
 }
 
 MCLDDirectory::~MCLDDirectory()
@@ -44,20 +72,11 @@ bool MCLDDirectory::isInSysroot() const
 void MCLDDirectory::setSysroot(const sys::fs::Path& pPath)
 {
   if (m_bInSysroot) {
-    std::string::const_iterator sB = pPath.native().begin();
-    std::string::const_iterator sE = pPath.native().end();
-    ++sB; // skip '='
-    Directory::m_Path = pPath;
-    Directory::m_Path.append<std::string::const_iterator>(sB, sE);
+    std::string old_path = Directory::m_Path.native();
+    Directory::m_Path.native() = pPath.native();
+    Directory::m_Path.m_append_separator_if_needed();
+    Directory::m_Path.native() += old_path;
+    detail::canonical_form(Directory::m_Path.native());
   }
 }
 
-const sys::fs::Path &MCLDDirectory::path() const
-{
-  return Directory::m_Path;
-}
-
-llvm::StringRef MCLDDirectory::name() const
-{
-  return m_Name;
-}
