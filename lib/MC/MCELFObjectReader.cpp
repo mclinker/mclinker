@@ -28,10 +28,16 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
+#include <string>
 
 using namespace llvm;
 using namespace mcld;
 using namespace ELF;
+
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
 
 //==========================
 // MCELFObjectReader
@@ -44,11 +50,17 @@ MCELFObjectReader::~MCELFObjectReader()
 {
 }
 
-bool MCELFObjectReader::isMyFormat(MCLDFile &File) const {
-  int fd;
-  unsigned char magic[16];
+bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
+{
+  if( !exists(pFile.path()) || is_directory(pFile.path()))
+    return false;
 
-  fd = open(File.path().c_str(), 0644);
+  int fd = 0;
+  cerr << "input file name = " << pFile.path().native() << endl;
+  if(-1 == (fd=open(pFile.path().native().c_str(), 0644)))
+    llvm::report_fatal_error(std::string("can not open: ")+pFile.path().native());
+
+  unsigned char magic[16];
   lseek(fd, 0, SEEK_SET);
   read(fd, &magic, sizeof(magic));
   close(fd);

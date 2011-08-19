@@ -67,25 +67,31 @@ namespace mcld
       PositionDependentOption(unsigned int pPosition,
                               Type pType);
 
-      PositionDependentOption(unsigned int pPosition,
+      explicit PositionDependentOption(unsigned int pPosition,
                              const sys::fs::Path& pInputFile,
                              Type pType = INPUT_FILE);
 
-      PositionDependentOption(unsigned int pPosition,
-                             const sys::fs::Path& pLibrary,
-                             llvm::StringRef pNamespec,
+      explicit PositionDependentOption(unsigned int pPosition,
+                             const std::string& pNamespec,
                              Type pType = NAMESPEC);
 
-      const Type& type() const          { return m_Type; }
-      unsigned int position() const     { return m_Position; }
-      const sys::fs::Path* path() const { return m_pPath; }
-      const char* namespec() const      { return m_pNamespec; }
+      const Type& type() const
+      { return m_Type; }
+
+      unsigned int position() const
+      { return m_Position; }
+
+      const sys::fs::Path* path() const
+      { return m_pPath; }
+
+      const std::string& namespec() const
+      { return m_pNamespec; }
 
     private:
       Type m_Type;
       unsigned int m_Position;
       const sys::fs::Path *m_pPath;
-      const char *m_pNamespec;
+      std::string m_pNamespec;
     };
 
     typedef std::vector<PositionDependentOption*> PositionDependentOptions;
