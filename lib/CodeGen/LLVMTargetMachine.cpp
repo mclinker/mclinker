@@ -295,7 +295,6 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
   if (0 == printer)
     return true;
-  AsmStreamer.take();
   pPM.add(printer);
 
   TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
@@ -316,6 +315,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == funcPass)
     return true;
   pPM.add(funcPass);
+  AsmStreamer.take();
   return false;
 }
 
