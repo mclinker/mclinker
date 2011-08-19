@@ -438,9 +438,11 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
         path = pLDInfo.options().directories().find(
                                                (*cur_char)->namespec(),
                                                Input::DynObj);
-      if (0 == path)
+      if (0 == path) {
+        cerr << "namespec=" << (*cur_char)->namespec() << endl;
         llvm::report_fatal_error(std::string("Can't find namespec: ")+
                                  (*cur_char)->namespec());
+      }
       pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
                      (*cur_char)->namespec(),
@@ -492,27 +494,26 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
 SectLinker::PositionDependentOption::PositionDependentOption(
                               unsigned int pPosition,
                               SectLinker::PositionDependentOption::Type pType)
-  : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec(0) {
+  : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec() {
 }
 
 SectLinker::PositionDependentOption::PositionDependentOption(
-                               unsigned int pPosition,
+                              unsigned int pPosition,
                               const sys::fs::Path& pInputFile,
                               SectLinker::PositionDependentOption::Type pType)
   : m_Type(pType),
     m_Position(pPosition),
     m_pPath(&pInputFile),
-    m_pNamespec(0) {
+    m_pNamespec() {
 }
 
 SectLinker::PositionDependentOption::PositionDependentOption(
                               unsigned int pPosition,
-                              const sys::fs::Path& pLibrary,
-                              llvm::StringRef pNamespec,
+                              const std::string& pNamespec,
                               SectLinker::PositionDependentOption::Type pType)
   : m_Type(pType),
     m_Position(pPosition),
-    m_pPath(&pLibrary),
+    m_pPath(0),
     m_pNamespec(pNamespec.data()) {
 }
 
