@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <string>
 
 using namespace std;
 
@@ -20,6 +21,29 @@ namespace mcld{
 namespace sys{
 namespace fs{
 namespace detail{
+
+static void read_dir(DIR* pDir, std::string& pOutFilename)
+{
+  dirent *cur_dir = ::readdir(pDir);
+  if (0 == cur_dir && 0 != errno) {
+    // FIXME: use error_code
+    llvm::report_fatal_error("failed to read the directory");
+  }
+
+  // idx does not stay at the end, but all elements had beed put into cache.
+  if (0 == cur_dir) {
+    return;
+  }
+  
+  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
+  if ((name.size() == 1 && name[0] == '.') ||
+      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
+    return read_dir(pDir, pOutFilename);
+
+  // find a new directory
+  pOutFilename.assign(name.data(), name.size());
+  return;
+}
 
 string canonical_form(const Path& pPath)
 {
@@ -306,6 +330,13 @@ void open_dir(Directory& pDir)
     llvm::report_fatal_error(std::string("Can't open directory: ")+
                        pDir.path().native());
   pDir.m_Handler = reinterpret_cast<intptr_t>(dip);
+  // read one entry for advance the end element of the cache.
+  std::string pEntry;
+  read_dir(dip, pEntry);
+
+  // find a new directory
+  Path& path = pDir.m_Cache.GetOrCreateValue(pEntry).getValue();
+  path.assign(pEntry);
 }
 
 void close_dir(Directory& pDir)
