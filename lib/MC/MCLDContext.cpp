@@ -37,18 +37,18 @@ getELFSection(StringRef SectionName, unsigned Type,
               unsigned Flags, SectionKind Kind,
               unsigned EntrySize, StringRef Group) {
   if (ELFUniquingMap == 0)
-    ELFUniquingMap = new ELFUniqueMapTy(); 
+    ELFUniquingMap = new ELFUniqueMapTy();
 
   ELFUniqueMapTy &Map= *(ELFUniqueMapTy*)ELFUniquingMap;
 
   //Do the lookup, if we have a hit, return it.
-  StringMapEntry<const MCSectionELF*> 
+  StringMapEntry<const MCSectionELF*>
     &Entry = Map.GetOrCreateValue(SectionName);
 
   if (Entry.getValue()) return Entry.getValue();
 
   // Possibly refine the entry size first.
-  if (!EntrySize) 
+  if (!EntrySize)
     EntrySize = MCSectionELF::DetermineEntrySize(Kind);
 
   MCSymbol *GroupSym = NULL;

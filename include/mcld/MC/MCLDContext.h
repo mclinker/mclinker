@@ -15,13 +15,13 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/OwningPtr.h>
-#include <llvm/ADT/StringMap.h>
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCContext.h>
 #include <llvm/MC/MCSectionELF.h>
 #include <llvm/MC/MCSymbol.h>
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include <mcld/ADT/StringMap.h>
 #include <mcld/MC/Relocation.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>

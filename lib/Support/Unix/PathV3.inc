@@ -192,7 +192,7 @@ void canonical_form(mcld::sys::fs::Path& pPath)
     }
   }
   pPath.assign(PathResult);
-  pPath.m_append_separator_if_needed(); 
+  pPath.m_append_separator_if_needed();
 }
 
 //if pLHS equal to pRHS, return true FIXME:not use
@@ -277,7 +277,7 @@ static bool read_dir(intptr_t& pDir, std::string& pOutFilename)
   if (NULL == cur_dir) {
     return false;
   }
-  
+
   llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
 //  std::string name(cur_dir->d_name, strlen(cur_dir->d_name));
   if ((name.size() == 1 && name[0] == '.') ||
@@ -297,16 +297,15 @@ static bool read_dir(intptr_t& pDir, std::string& pOutFilename)
 //     of cache. (a real end)
 //  2. Some but not all elements had beed put into cache, and we stoped.
 //     An iterator now is staying at the end of cache. (a temporal end)
-bool bring_one_into_cache(DirIterator& pIter, std::string& pPath)
+Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
 {
-  if (read_dir(pIter.m_pParent->m_Handler, pPath)) {
-    pIter.m_pPath = new Path(pPath);
-    llvm::StringMapEntry<Path*>& Entry = pIter.m_pParent->m_Cache.GetOrCreateValue(pPath);
-    Entry.setValue(pIter.m_pPath);
-    return true;
+  std::string path;
+  if (read_dir(pIter.m_pParent->m_Handler, path)) {
+    pIter.m_pPath = new Path(path);
+    return pIter.m_pParent->m_Cache.GetOrCreateValue(path, pIter.m_pPath);
   }
-  else // meat real end
-    return false;
+  else // meet real end
+    return pIter.m_pParent->m_Cache.end();
 }
 
 void open_dir(Directory& pDir)
@@ -319,8 +318,7 @@ void open_dir(Directory& pDir)
   std::string path;
   if (read_dir(pDir.m_Handler, path)) {
     // find a new directory
-    llvm::StringMapEntry<Path*>& Entry = pDir.m_Cache.GetOrCreateValue(path);
-    Entry.setValue(new Path(path));
+    pDir.m_Cache.GetOrCreateValue(path, new Path(path));
   }
 }
 

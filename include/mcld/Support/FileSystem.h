@@ -17,6 +17,7 @@
 #include <string>
 #include <iosfwd>
 #include <locale>
+#include <mcld/ADT/StringMap.h>
 namespace mcld {
 namespace sys {
 namespace fs {
@@ -45,7 +46,7 @@ enum FileType
 class FileStatus
 {
 public:
-  FileStatus() 
+  FileStatus()
     : m_Value(StatusError) {}
 
   explicit FileStatus(FileType v)
@@ -91,7 +92,7 @@ void canonical_form(Path& pPath);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
-bool bring_one_into_cache(DirIterator& pIter, std::string& pPath);
+llvm::StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 

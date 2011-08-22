@@ -11,9 +11,9 @@
 #include <gtest.h>
 #endif
 #include <llvm/Support/Allocator.h>
-#include <llvm/ADT/StringMap.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Path.h>
+#include <mcld/ADT/StringMap.h>
 #include <mcld/ADT/TypeTraits.h>
 
 #ifdef MCLD_DEBUG
@@ -35,7 +35,7 @@ class DirIterator;
  */
 class Directory
 {
-friend bool detail::bring_one_into_cache(DirIterator& pIter, std::string& pPath);
+friend llvm::StringMap<sys::fs::Path*>::iterator detail::bring_one_into_cache(DirIterator& pIter);
 friend void detail::open_dir(Directory& pDir);
 friend void detail::close_dir(Directory& pDir);
 private:
@@ -66,7 +66,7 @@ public:
   virtual ~Directory();
 
   /// Since we have default construtor, we must provide assign.
-  void assign(const Path& pPath, 
+  void assign(const Path& pPath,
               FileStatus st = FileStatus(),
               FileStatus symlink_st = FileStatus());
 
@@ -92,7 +92,7 @@ protected:
   mcld::sys::fs::Path m_Path;
   mutable FileStatus m_FileStatus;
   mutable FileStatus m_SymLinkStatus;
-  intptr_t m_Handler;  
+  intptr_t m_Handler;
   // the cache of directory
   PathCache m_Cache;
 };
@@ -109,7 +109,7 @@ protected:
  */
 class DirIterator
 {
-friend bool detail::bring_one_into_cache(DirIterator& pIter, std::string& pPath);
+friend Directory::PathCache::iterator detail::bring_one_into_cache(DirIterator& pIter);
 friend class Directory;
 public:
   typedef Directory::PathCache            DirCache;

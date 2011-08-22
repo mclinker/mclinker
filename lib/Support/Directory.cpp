@@ -148,7 +148,7 @@ Path* DirIterator::path()
   if (m_pParent == 0) // end
     return 0;
   if (m_Idx != m_pParent->m_Cache.end())
-    return (*m_Idx).getValue(); 
+    return (*m_Idx).getValue();
   return 0;
 }
 
@@ -157,7 +157,7 @@ const Path* DirIterator::path() const
   if (m_pParent == 0 )
     return 0;
   if (m_Idx != m_pParent->m_Cache.end())
-    return (*m_Idx).getValue(); 
+    return (*m_Idx).getValue();
   return 0;
 }
 
@@ -172,13 +172,13 @@ DirIterator& DirIterator::operator++()
 {
   if (0 == m_pParent) // Directory::end()
     return *this;
-  std::string path;
-  if (!detail::bring_one_into_cache(*this, path)) {
+  Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
+  if (it == m_pParent->m_Cache.end()) {
       m_Idx = m_pParent->m_Cache.begin();
       m_pParent = 0;
       return *this;
   }
-  m_Idx = m_pParent->m_Cache.find(path);
+  m_Idx = it;
   return *this;
 }
 
@@ -187,13 +187,13 @@ DirIterator DirIterator::operator++(int)
   DirIterator tmp(*this);
   if (0 == m_pParent)
     return tmp;
-  std::string path;
-  if (!detail::bring_one_into_cache(*this, path)) {
+  Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
+  if (it == m_pParent->m_Cache.end()) {
       m_Idx = m_pParent->m_Cache.begin();
       m_pParent = 0;
       return *this;
   }
-  m_Idx = m_pParent->m_Cache.find(path);
+  m_Idx = it;
   return tmp;
 }
 

@@ -29,6 +29,7 @@ static unsigned getRelocTypeInner(const MCValue& Target,
 
   unsigned Type = 0;
   if (IsPCRel) {
+    llvm::errs() << (unsigned)Fixup.getKind() << "\n";
     switch ((unsigned)Fixup.getKind()) {
     default: assert(0 && "Unimplemented");
     case FK_Data_4:
@@ -157,9 +158,6 @@ unsigned ARMELFObjectReader::getRelocType(const MCValue& Target,
                                           bool IsPCRel,
                                           bool IsRelocWithSymbol,
                                           int64_t Addend) {
-  MCSymbolRefExpr::VariantKind Modifier = Target.isAbsolute() ?
-    MCSymbolRefExpr::VK_None : Target.getSymA()->getKind();
-
   return getRelocTypeInner(Target, Fixup, IsPCRel);
 }
 
