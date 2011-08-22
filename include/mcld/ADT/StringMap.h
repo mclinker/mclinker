@@ -20,12 +20,12 @@ namespace llvm {
 
 /// This file is a partial specialization of llvm::StringMap.
 /// We need more suitable interface when using our mcld::Path
-template<>
-class StringMap<Path*, MallocAllocator> : public StringMapImpl {
+template<typename AllocatorTy>
+class StringMap<Path*, AllocatorTy> : public StringMapImpl {
   typedef Path* ValueTy;
-  typedef MallocAllocator AllocatorTy;
-  AllocatorTy Allocator;
   typedef StringMapEntry<ValueTy> MapEntryTy;
+
+  AllocatorTy Allocator;
 public:
   StringMap() : StringMapImpl(static_cast<unsigned>(sizeof(MapEntryTy))) {}
   explicit StringMap(unsigned InitialSize)
@@ -47,8 +47,8 @@ public:
     clear();
   }
 
-  typedef ReferenceAdder<AllocatorTy>::result AllocatorRefTy;
-  typedef ReferenceAdder<const AllocatorTy>::result AllocatorCRefTy;
+  typedef typename ReferenceAdder<AllocatorTy>::result AllocatorRefTy;
+  typedef typename ReferenceAdder<const AllocatorTy>::result AllocatorCRefTy;
   AllocatorRefTy getAllocator() { return Allocator; }
   AllocatorCRefTy getAllocator() const { return Allocator; }
 
