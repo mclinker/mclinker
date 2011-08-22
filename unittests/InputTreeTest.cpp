@@ -45,9 +45,6 @@ void InputTreeTest::TearDown()
 //==========================================================================//
 // Testcases
 //
-
-
-
 TEST_F( InputTreeTest, Basic_operation ) {
   InputTree::iterator node = m_pTestee->root();
   m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1");
@@ -119,4 +116,29 @@ TEST_F( InputTreeTest, Nesting_Case ) {
   ASSERT_TRUE(m_pTestee->size()==100);
 }
 
+TEST_F( InputTreeTest, DFSIterator_BasicTraversal)
+{
+  
+  InputTree::iterator node = m_pTestee->root(); 
+  m_pTestee->insert<InputTree::Inclusive>(node, "111", "/");
+  node.move<InputTree::Inclusive>();
+
+  m_pTestee->insert<InputTree::Positional>(node, "10", "/");
+  m_pTestee->enterGroup<InputTree::Inclusive>(node);
+  node.move<InputTree::Inclusive>();
+  m_pTestee->insert<InputTree::Inclusive>(node, "7", "/");
+  m_pTestee->insert<InputTree::Positional>(node, "8", "/");
+
+  InputTree::dfs_iterator dfs_it = m_pTestee->dfs_begin(); 
+  InputTree::dfs_iterator dfs_end = m_pTestee->dfs_end(); 
+  ASSERT_STREQ("111", (*dfs_it)->name().c_str());
+  ++dfs_it;
+  ASSERT_STREQ("7", (**dfs_it).name().c_str());
+  ++dfs_it;
+  ASSERT_STREQ("8", (**dfs_it).name().c_str());
+  ++dfs_it;
+  ASSERT_STREQ("10", (**dfs_it).name().c_str());
+  ++dfs_it;
+  ASSERT_TRUE(dfs_it ==  dfs_end);
+}
 

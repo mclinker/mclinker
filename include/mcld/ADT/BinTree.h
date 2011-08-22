@@ -27,6 +27,10 @@ class BinaryTree;
 class DFSIterator : public TreeIteratorBase
 {
 public:
+  DFSIterator()
+  : TreeIteratorBase()
+  { }
+
   DFSIterator(NodeBase *X)
     : TreeIteratorBase(X) {
     if (hasRightChild())
@@ -40,7 +44,7 @@ public:
 
   void advance() {
     if (m_Stack.empty()) { // reach the end
-      m_pNode = m_pNode->left; // should be root
+      m_pNode = m_pNode->right; // should be root
       return;
     }
     m_pNode = m_Stack.top();
@@ -58,6 +62,10 @@ private:
 class BFSIterator : public TreeIteratorBase
 {
 public:
+  BFSIterator()
+  : TreeIteratorBase()
+  { }
+
   BFSIterator(NodeBase *X)
     : TreeIteratorBase(X) {
     if (hasLeftChild())
@@ -71,7 +79,7 @@ public:
 
   void advance() { 
     if (m_Queue.empty()) { // reach the end
-      m_pNode = m_pNode->left; // should be root
+      m_pNode = m_pNode->right; // should be root
       return;
     }
     m_pNode = m_Queue.front();
@@ -107,7 +115,7 @@ public:
 
 public:
   PolicyIteratorBase()
-    : IteratorType(0) {}
+    : IteratorType() {}
 
   PolicyIteratorBase(const iterator &X)
     : IteratorType(X.m_pNode) {}
@@ -199,7 +207,7 @@ public:
 
 public:
   TreeIterator()
-    : TreeIteratorBase(0) {}
+  : TreeIteratorBase() {}
 
   TreeIterator(const iterator &X)
     : TreeIteratorBase(X.m_pNode) {}

@@ -52,9 +52,13 @@ public:
   NodeBase* m_pNode;
 
 public:
+  TreeIteratorBase()
+  : m_pNode(0)
+  { }
+
   TreeIteratorBase(NodeBase *X)
-    : m_pNode(X) {
-  }
+  : m_pNode(X)
+  { }
 
   virtual ~TreeIteratorBase(){};
 

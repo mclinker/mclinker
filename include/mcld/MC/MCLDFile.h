@@ -69,7 +69,7 @@ public:
   unsigned int type() const
   { return m_Type; }
 
-  llvm::StringRef name() const;
+  const std::string& name() const;
 
   const sys::fs::Path& path() const
   { return m_Path; }

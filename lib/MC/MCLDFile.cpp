@@ -33,8 +33,8 @@ MCLDFile::~MCLDFile()
 {
 }
 
-llvm::StringRef MCLDFile::name() const
+const std::string& MCLDFile::name() const
 {
-  return llvm::StringRef(m_InputName);
+  return m_InputName;
 }
 
