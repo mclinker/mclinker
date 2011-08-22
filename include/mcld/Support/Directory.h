@@ -35,12 +35,12 @@ class DirIterator;
  */
 class Directory
 {
-friend void detail::directory_iterator_increment(DirIterator& pIter);
+friend bool detail::bring_one_into_cache(DirIterator& pIter, std::string& pPath);
 friend void detail::open_dir(Directory& pDir);
 friend void detail::close_dir(Directory& pDir);
 private:
   friend class DirIterator;
-  typedef llvm::StringMap<sys::fs::Path, llvm::BumpPtrAllocator> PathCache;
+  typedef llvm::StringMap<sys::fs::Path*> PathCache;
 
 public:
   typedef DirIterator iterator;
@@ -70,6 +70,11 @@ public:
               FileStatus st = FileStatus(),
               FileStatus symlink_st = FileStatus());
 
+  /// clear - clear the cache and close the directory handler
+  void clear();
+
+  bool isGood() const;
+
   /// path - the path of the directory
   const Path& path() const
   { return m_Path; }
@@ -83,6 +88,7 @@ public:
   iterator begin();
   iterator end();
 
+  PathCache& cache() { return m_Cache; }
 protected:
   mcld::sys::fs::Path m_Path;
   mutable FileStatus m_FileStatus;
@@ -104,9 +110,9 @@ protected:
  */
 class DirIterator
 {
-friend void detail::directory_iterator_increment(DirIterator& pIter);
+friend bool detail::bring_one_into_cache(DirIterator& pIter, std::string& pPath);
 friend class Directory;
-private:
+public:
   typedef Directory::PathCache            DirCache;
 
 public:
@@ -118,10 +124,11 @@ public:
   typedef ptrdiff_t                       difference_type;
 
 private:
-  explicit DirIterator(Directory& pDirectory, const DirCache::iterator& pIter);
+  explicit DirIterator(Directory* pParent,
+                       const DirCache::iterator& pIter);
 
 public:
-  DirIterator();
+  // Since StringMapIterator has no default constructor, we also have none.
   DirIterator(const DirIterator &X);
   ~DirIterator();
   DirIterator& operator=(const DirIterator& pCopy);
@@ -129,19 +136,16 @@ public:
   DirIterator& operator++();
   DirIterator operator++(int);
 
-  Path* path()
-  { return m_pPath; }
-
-  const Path* path() const
-  { return m_pPath; }
+  Path* path();
+  const Path* path() const;
 
   bool operator==(const DirIterator& y) const;
   bool operator!=(const DirIterator& y) const;
 
 private:
-  Directory* m_pParent;
-  Path* m_pPath;
-  Directory::PathCache::iterator* m_pIdx;
+  Directory* m_pParent; // get handler
+  Directory::PathCache::iterator m_Idx;
+  Path *m_pPath; // may  be need, may not
 };
 
 } // namespace of fs

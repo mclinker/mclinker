@@ -44,12 +44,8 @@ void PathTest::TearDown()
 //==========================================================================//
 // Testcases
 //
-
-
-
-
 TEST_F( PathTest, should_exist ) {
-  const std::string root = "Makefile";
+  const std::string root = "/etc/hosts";
   m_pTestee->assign(root);
   EXPECT_TRUE(exists(*m_pTestee));
   
@@ -120,12 +116,11 @@ TEST_F( PathTest, append_success ) {
   m_pTestee->assign(root);
   m_pTestee->append("aaa");
   string a("aa/aaa");
-  EXPECT_TRUE(m_pTestee->string()=="aa/aaa");
-  cout << m_pTestee->string()<<endl; 
+  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa/");
   m_pTestee->append("/aaa");
-  EXPECT_TRUE(m_pTestee->string()=="aa//aaa");
+  EXPECT_TRUE(m_pTestee->string()=="aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa");
   m_pTestee->append("/aaa");
@@ -137,14 +132,9 @@ TEST_F( PathTest, append_success ) {
 }
 
 TEST_F( PathTest, should_become_generic_string ) {
-  const std::string root = "..///pndk-luba/../pndk-luba/debug//Makefile";
-  m_pTestee->assign(root);
-  EXPECT_FALSE(is_directory(*m_pTestee));
-  EXPECT_TRUE(m_pTestee->generic_string()=="/proj/mtk03931/temp/pndk-luba/debug/Makefile");
-  delete m_pTestee;
-  m_pTestee = new Path("../pndk-luba/include/..//");
+  m_pTestee->assign("/etc/../dev/../usr//lib//");
+  EXPECT_TRUE(m_pTestee->generic_string()=="/usr/lib/");
   EXPECT_TRUE(is_directory(*m_pTestee));
-  EXPECT_TRUE(m_pTestee->generic_string()=="/proj/mtk03931/temp/pndk-luba/");
 }
 //function not available
 //TEST_F( PathTest, should_erase_redundant_separator) {

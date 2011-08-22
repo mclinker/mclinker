@@ -65,12 +65,8 @@ bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
   read(fd, &magic, sizeof(magic));
   close(fd);
 
-  if (magic[0] == '\177' && magic[1] == 'E' &&
-      magic[2] == 'L' && magic[3] == 'F')
-    return true;
-
-  else
-    return false;
+  return (magic[0] == '\177' && magic[1] == 'E' &&
+      magic[2] == 'L' && magic[3] == 'F');
 }
 
 Input::Type MCELFObjectReader::fileType(MCLDFile &File) const {

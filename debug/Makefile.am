@@ -119,7 +119,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/InputTreeTest.h \
 	${UNITTEST}/InputTreeTest.cpp \
 	${UNITTEST}/RTLinearAllocatorTest.h \
-	${UNITTEST}/RTLinearAllocatorTest.cpp
+	${UNITTEST}/RTLinearAllocatorTest.cpp \
+	${UNITTEST}/DirIteratorTest.h \
+	${UNITTEST}/DirIteratorTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

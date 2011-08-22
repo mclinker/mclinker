@@ -91,7 +91,7 @@ void canonical_form(Path& pPath);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
-void directory_iterator_increment(DirIterator& pIter);
+bool bring_one_into_cache(DirIterator& pIter, std::string& pPath);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 

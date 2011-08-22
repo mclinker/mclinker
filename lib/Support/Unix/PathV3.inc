@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <string>
 
+#include <iostream>
 using namespace std;
 
 namespace mcld{
@@ -22,28 +23,6 @@ namespace sys{
 namespace fs{
 namespace detail{
 
-static void read_dir(DIR* pDir, std::string& pOutFilename)
-{
-  dirent *cur_dir = ::readdir(pDir);
-  if (0 == cur_dir && 0 != errno) {
-    // FIXME: use error_code
-    llvm::report_fatal_error("failed to read the directory");
-  }
-
-  // idx does not stay at the end, but all elements had beed put into cache.
-  if (0 == cur_dir) {
-    return;
-  }
-  
-  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
-  if ((name.size() == 1 && name[0] == '.') ||
-      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
-    return read_dir(pDir, pOutFilename);
-
-  // find a new directory
-  pOutFilename.assign(name.data(), name.size());
-  return;
-}
 
 string canonical_form(const Path& pPath)
 {
@@ -285,6 +264,32 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
     pFileStatus.setType(TypeUnknown);
 }
 
+/// read_dir - return true if we read one entry
+static bool read_dir(intptr_t& pDir, std::string& pOutFilename)
+{
+  dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
+  if (0 == cur_dir && 0 != errno) {
+    // FIXME: use error_code
+    llvm::report_fatal_error("failed to read the directory");
+  }
+
+  // idx does not stay at the end, but all elements had beed put into cache.
+  if (NULL == cur_dir) {
+    return false;
+  }
+  
+  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
+//  std::string name(cur_dir->d_name, strlen(cur_dir->d_name));
+  if ((name.size() == 1 && name[0] == '.') ||
+      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
+    return read_dir(pDir, pOutFilename);
+
+  // find a new directory
+  pOutFilename.assign(name.data(), name.size());
+//  pOutFilename.assign(name);
+  return true;
+}
+
 /// directory_iterator_increment - increment function implementation
 //
 //  iterator will call this function in two situations:
@@ -292,58 +297,38 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
 //     of cache. (a real end)
 //  2. Some but not all elements had beed put into cache, and we stoped.
 //     An iterator now is staying at the end of cache. (a temporal end)
-void directory_iterator_increment(DirIterator& pIter)
+bool bring_one_into_cache(DirIterator& pIter, std::string& pPath)
 {
-  if (0 == pIter.m_pParent || 0 == pIter.m_pIdx) // situation 1, empty iterator
-    return;
-
-  if (0 == pIter.m_pPath) // situation 1, we are at real end
-    return;
-
-  // try to read more one.
-  dirent *cur_dir = ::readdir(reinterpret_cast<DIR *>(pIter.m_pParent->m_Handler));
-  if (0 == cur_dir && 0 != errno) {
-    // FIXME: use error_code
-    llvm::report_fatal_error("failed to read the directory");
+  if (read_dir(pIter.m_pParent->m_Handler, pPath)) {
+    pIter.m_pPath = new Path(pPath);
+    llvm::StringMapEntry<Path*>& Entry = pIter.m_pParent->m_Cache.GetOrCreateValue(pPath);
+    Entry.setValue(pIter.m_pPath);
+    return true;
   }
-  // idx does not stay at the end, but all elements had beed put into cache.
-  if (0 == cur_dir) {
-    pIter.m_pPath = 0;
-    return;
-  }
-  
-  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
-  if ((name.size() == 1 && name[0] == '.') ||
-      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
-    return directory_iterator_increment(pIter);
-
-  // find a new directory
-  pIter.m_pPath = &pIter.m_pParent->m_Cache.GetOrCreateValue(name).getValue();
-  pIter.m_pPath->assign(name.data(), name.size());
-  new(pIter.m_pIdx) DirIterator::DirCache::iterator(pIter.m_pParent->m_Cache.end());
+  else // meat real end
+    return false;
 }
 
 void open_dir(Directory& pDir)
 {
-  DIR* dip = opendir(pDir.path().c_str());
-  if (0 == dip)
+  pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
+  if (NULL == pDir.m_Handler)
     llvm::report_fatal_error(std::string("Can't open directory: ")+
                        pDir.path().native());
-  pDir.m_Handler = reinterpret_cast<intptr_t>(dip);
   // read one entry for advance the end element of the cache.
-  std::string pEntry;
-  read_dir(dip, pEntry);
-
-  // find a new directory
-  Path& path = pDir.m_Cache.GetOrCreateValue(pEntry).getValue();
-  path.assign(pEntry);
+  std::string path;
+  if (read_dir(pDir.m_Handler, path)) {
+    // find a new directory
+    llvm::StringMapEntry<Path*>& Entry = pDir.m_Cache.GetOrCreateValue(path);
+    Entry.setValue(new Path(path));
+  }
 }
 
 void close_dir(Directory& pDir)
 {
   if (pDir.m_Handler)
     closedir(reinterpret_cast<DIR *>(pDir.m_Handler));
-  pDir.m_Handler = 0;
+  pDir.m_Handler = NULL;
 }
 
 } // namespace of detail

@@ -44,11 +44,11 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
   SpecToFilename(pNamespec, file);
   // for all MCLDDirectorys
   DirList::iterator mcld_dir, mcld_dir_end = m_DirList.end();
-  MCLDDirectory::iterator entry, enEnd;
   for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
     // for all entries in MCLDDirectory
-    enEnd = (*mcld_dir)->end();
-    for (entry = (*mcld_dir)->begin(); entry!=enEnd; ++entry) {
+    MCLDDirectory::iterator entry = (*mcld_dir)->begin();
+    MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
+    while (entry!=enEnd) {
       if (file == entry.path()->stem()) {
         switch(pType) {
         case mcld::Input::Archive:
@@ -59,6 +59,7 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
             return entry.path();
         }
       }
+      ++entry;
     }
   }
   return 0;

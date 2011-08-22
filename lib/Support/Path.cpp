@@ -70,12 +70,14 @@ Path& Path::append(const Path& pPath)
     m_PathName.resize(new_size);
     strcpy(const_cast<char*>(m_PathName.data()+old_size), pPath.native().data());
   }
+  //first path is a,second path is b
   else if(this->string()[this->native().size()-1] != separator &&
-          pPath.string()[0] != separator) { //first path is a,second path is b
+          pPath.string()[0] != separator) {
     m_PathName.append("/");
     m_PathName.append(pPath.native());
   }
-  else { // a/,b or a,/b just append
+  // a/,b or a,/b just append
+  else {
     m_PathName.append(pPath.native());
   }
   return *this;
