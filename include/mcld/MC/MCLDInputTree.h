@@ -75,8 +75,8 @@ private:
 
 public:
   enum Direction {
-    Positional = TreeIteratorBase::Rightward,
-    Inclusive  = TreeIteratorBase::Leftward
+    Inclusive  = TreeIteratorBase::Leftward,
+    Positional = TreeIteratorBase::Rightward
   };
 
   typedef BinaryTree<Input>::iterator       iterator;

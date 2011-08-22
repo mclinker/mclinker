@@ -8,9 +8,10 @@
  *   MCLDFile <pinronglu@gmail.com>                                          *
  ****************************************************************************/
 #include <mcld/ADT/TypeTraits.h>
-#include <BinTreeTest.h>
+#include <mcld/MC/MCLDInputTree.h>
 #include <iostream>
 #include <string>
+#include "BinTreeTest.h"
 
 using namespace std;
 using namespace mcld;
@@ -126,28 +127,79 @@ TEST_F( BinTreeTest, DFSIterator_BasicTraversal)
   int a = 111;
   BinaryTree<int>::iterator pos = m_pTestee->root();
   
-  m_pTestee->join<TreeIteratorBase::Leftward>(pos,a);
-  --pos;
-  m_pTestee->join<TreeIteratorBase::Rightward>(pos,10);
-  m_pTestee->join<TreeIteratorBase::Leftward>(pos,9);
-  --pos;
-  m_pTestee->join<TreeIteratorBase::Rightward>(pos,8);
-  m_pTestee->join<TreeIteratorBase::Leftward>(pos,7);
+  m_pTestee->join<InputTree::Inclusive>(pos,a);
+  pos.move<InputTree::Inclusive>();
+  m_pTestee->join<InputTree::Positional>(pos,10);
+  m_pTestee->join<InputTree::Inclusive>(pos,9);
+  pos.move<InputTree::Inclusive>();
+  m_pTestee->join<InputTree::Positional>(pos,8);
+  m_pTestee->join<InputTree::Inclusive>(pos,7);
   
   BinaryTree<int>::dfs_iterator dfs_it = m_pTestee->dfs_begin(); 
   BinaryTree<int>::dfs_iterator dfs_end = m_pTestee->dfs_end(); 
 
-  for( ; dfs_it != dfs_end ; ++dfs_it ) 
-  {
-    cout<<**dfs_it<<"  ";
-  } 
-  cout<<endl; 
+  ASSERT_EQ(111, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(9, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(7, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(8, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(10, **dfs_it);
+  ++dfs_it;
+  cerr << "stack size=" << dfs_it.m_Stack.size() << endl;
+  ASSERT_TRUE( dfs_it ==  dfs_end);
   BinaryTree<int>::bfs_iterator bfs_it = m_pTestee->bfs_begin(); 
   BinaryTree<int>::bfs_iterator bfs_end = m_pTestee->bfs_end(); 
 
-  for( ; bfs_it != bfs_end ; ++bfs_it ) 
-  {
+  for( ; bfs_it != bfs_end ; ++bfs_it ) {
     cout<<**bfs_it<<"  ";
   } 
   cout<<endl; 
 }
+
+TEST_F( BinTreeTest, DFSIterator_RightMostTree)
+{
+  BinaryTree<int>::iterator pos = m_pTestee->root();
+  m_pTestee->join<InputTree::Inclusive>(pos,0);
+  pos.move<InputTree::Inclusive>();
+  m_pTestee->join<InputTree::Positional>(pos,1);
+  pos.move<InputTree::Positional>();
+  m_pTestee->join<InputTree::Positional>(pos,2);
+  pos.move<InputTree::Positional>();
+  m_pTestee->join<InputTree::Positional>(pos,3);
+  pos.move<InputTree::Positional>();
+  m_pTestee->join<InputTree::Positional>(pos,4);
+  
+  BinaryTree<int>::dfs_iterator dfs_it = m_pTestee->dfs_begin(); 
+  BinaryTree<int>::dfs_iterator dfs_end = m_pTestee->dfs_end(); 
+
+  ASSERT_EQ(0, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(1, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(2, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(3, **dfs_it);
+  ++dfs_it;
+  ASSERT_EQ(4, **dfs_it);
+  ++dfs_it;
+  ASSERT_TRUE( dfs_it ==  dfs_end);
+}
+
+
+TEST_F( BinTreeTest, DFSIterator_SingleNode)
+{
+  BinaryTree<int>::iterator pos = m_pTestee->root();
+  m_pTestee->join<InputTree::Inclusive>(pos,0);
+  BinaryTree<int>::dfs_iterator dfs_it = m_pTestee->dfs_begin(); 
+  BinaryTree<int>::dfs_iterator dfs_end = m_pTestee->dfs_end(); 
+  int counter = 0;
+  while( dfs_it != dfs_end ) {
+    ++counter;
+    ++dfs_it;
+  }
+  ASSERT_EQ(1, counter);
+}
+

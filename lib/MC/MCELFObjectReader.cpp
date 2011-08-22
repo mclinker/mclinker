@@ -56,7 +56,6 @@ bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
     return false;
 
   int fd = 0;
-  cerr << "input file name = " << pFile.path().native() << endl;
   if(-1 == (fd=open(pFile.path().native().c_str(), 0644)))
     llvm::report_fatal_error(std::string("can not open: ")+pFile.path().native());
 
@@ -69,11 +68,12 @@ bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
       magic[2] == 'L' && magic[3] == 'F');
 }
 
-Input::Type MCELFObjectReader::fileType(MCLDFile &File) const {
+Input::Type MCELFObjectReader::fileType(MCLDFile &pFile) const
+{
   int fd;
   uint16_t e_type;
 
-  fd = open(File.path().c_str(), 0644);
+  fd = open(pFile.path().c_str(), 0644);
   lseek(fd, 0, SEEK_SET);
   lseek(fd, sizeof(char)*16, SEEK_SET);
   read(fd, &e_type, sizeof(e_type));

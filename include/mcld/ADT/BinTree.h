@@ -29,33 +29,29 @@ class DFSIterator : public TreeIteratorBase
 public:
   DFSIterator(NodeBase *X)
     : TreeIteratorBase(X) {
+    if (hasRightChild())
+      m_Stack.push(m_pNode->right);
+    if (hasLeftChild())
+      m_Stack.push(m_pNode->left);
   }
 
   virtual ~DFSIterator()
   { }
 
   void advance() {
-    if(m_Stack.empty())
-    {
-      if(hasRightChild())
-        m_Stack.push(m_pNode->right);
-      if(hasLeftChild())
-        m_Stack.push(m_pNode->left);
-      if(m_Stack.empty())
-        m_pNode = m_pNode->right;
+    if (m_Stack.empty()) { // reach the end
+      m_pNode = m_pNode->left; // should be root
+      return;
     }
-    if(!m_Stack.empty())
-    {
-      m_pNode = m_Stack.top();
-      m_Stack.pop();
-      if(hasRightChild())
-        m_Stack.push(m_pNode->right);
-      if(hasLeftChild())
-        m_Stack.push(m_pNode->left);
-    }
+    m_pNode = m_Stack.top();
+    m_Stack.pop();
+    if (hasRightChild())
+      m_Stack.push(m_pNode->right);
+    if (hasLeftChild())
+      m_Stack.push(m_pNode->left);
   }
 
-private:
+public:
     std::stack<NodeBase *> m_Stack;
 };
 

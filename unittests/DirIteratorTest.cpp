@@ -42,14 +42,8 @@ void DirIteratorTest::TearDown()
 // Testcases
 //
 TEST_F( DirIteratorTest, open_dir ) {
-	cerr << "============" << endl;
-	cerr << m_pDir->path().native() << endl;
-	cerr << "is open? " << m_pDir->isGood() << endl;
-	cerr << "cache size=" << m_pDir->cache().size() << endl;
-	DirIterator::DirCache::iterator cc = m_pDir->cache().begin(), ccEnd = m_pDir->cache().end();
-	for (; cc!=ccEnd; ++cc) {
-		cerr << "\t" << (*cc).getValue()->native() << endl;
-	}
+	ASSERT_TRUE( Path(".") == m_pDir->path() );
+	ASSERT_TRUE( m_pDir->isGood() );
 
 	Directory::iterator entry = m_pDir->begin();
 	Directory::iterator enEnd = m_pDir->end();
@@ -57,10 +51,6 @@ TEST_F( DirIteratorTest, open_dir ) {
 	while( entry!=enEnd ) {
 		if (0 == entry.path()) {
 			cerr << "\tpath is null" << endl;
-			DirIterator::DirCache::iterator cc = m_pDir->cache().begin(), ccEnd = m_pDir->cache().end();
-			for (; cc!=ccEnd; ++cc) {
-				cerr << "\t\t\t" << (*cc).getValue()->native() << endl;
-			}
 		}
 		else
 			cerr << "\t" <<  counter << ":" << entry.path()->native() << "<EOL>" << endl;

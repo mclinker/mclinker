@@ -16,6 +16,10 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
 
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
 
 using namespace mcld;
 
@@ -31,7 +35,10 @@ void MCLDDriver::normalize() {
 
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   Input::Type type;
+  static int counter = 0;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    counter++;
+    cerr << "c: " << counter << endl;
     //ObjectFile or Dynamic Object
     if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
       switch (type = m_LDBackend.getObjectReader()->fileType(*(*input))) {
