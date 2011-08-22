@@ -51,7 +51,7 @@ public:
       m_Stack.push(m_pNode->left);
   }
 
-public:
+private:
     std::stack<NodeBase *> m_Stack;
 };
 
@@ -60,30 +60,26 @@ class BFSIterator : public TreeIteratorBase
 public:
   BFSIterator(NodeBase *X)
     : TreeIteratorBase(X) {
-    }
+    if (hasLeftChild())
+      m_Queue.push(m_pNode->left);
+    if (hasRightChild())
+      m_Queue.push(m_pNode->right);
+  }
 
   virtual ~BFSIterator()
   { }
 
   void advance() { 
-    if(m_Queue.empty())
-    {
-      if(hasLeftChild())
-        m_Queue.push(m_pNode->left);
-      if(hasRightChild())
-        m_Queue.push(m_pNode->right);
-      if(m_Queue.empty())
-        m_pNode = m_pNode->right;
+    if (m_Queue.empty()) { // reach the end
+      m_pNode = m_pNode->left; // should be root
+      return;
     }
-    if(!m_Queue.empty())
-    {
-      m_pNode = m_Queue.front();
-      m_Queue.pop();
-      if(hasLeftChild())
-        m_Queue.push(m_pNode->left);
-      if(hasRightChild())
-        m_Queue.push(m_pNode->right);
-    }
+    m_pNode = m_Queue.front();
+    m_Queue.pop();
+    if (hasLeftChild())
+      m_Queue.push(m_pNode->left);
+    if (hasRightChild())
+      m_Queue.push(m_pNode->right);
   }
 
 private:
