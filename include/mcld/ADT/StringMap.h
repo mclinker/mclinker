@@ -158,7 +158,8 @@ public:
     Bucket.Item = NewItem;
 
     RehashTable();
-    return iterator(&Bucket);
+    BucketNo = LookupBucketFor(Key);
+    return iterator(&TheTable[BucketNo]);
   }
 
   iterator GetOrCreateValue(StringRef Key) {
