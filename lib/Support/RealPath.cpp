@@ -35,3 +35,8 @@ RealPath::~RealPath()
 {
 }
 
+RealPath& RealPath::assign(const Path& pPath)
+{
+  Path::m_PathName.assign(pPath.native());
+}
+

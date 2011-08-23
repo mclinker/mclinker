@@ -34,6 +34,8 @@ public:
   explicit RealPath(const Path& pPath);
 
   ~RealPath();
+
+  RealPath& assign(const Path& pPath);
 };
 
 } // namespace of fs
