@@ -223,8 +223,7 @@ Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
   std::string path;
   switch (read_dir(pIter.m_pParent->m_Handler, path)) {
   case 1:
-    pIter.m_pPath = new Path(path);
-    return pIter.m_pParent->m_Cache.GetOrCreateValue(path, pIter.m_pPath);
+    return pIter.m_pParent->m_Cache.GetOrCreateValue(path, new Path(path));
   case 0:// meet real end
     return pIter.m_pParent->m_Cache.end();
   case -1:
@@ -259,6 +258,13 @@ void close_dir(Directory& pDir)
   if (pDir.m_Handler)
     closedir(reinterpret_cast<DIR *>(pDir.m_Handler));
   pDir.m_Handler = NULL;
+}
+
+void get_pwd(std::string& pPWD)
+{
+  char* pwd = get_current_dir_name();
+  pPWD.assign(pwd);
+  free(pwd);
 }
 
 } // namespace of detail

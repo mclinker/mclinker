@@ -444,9 +444,8 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       }
 
       if (0 == path) {
-        cerr << "namespec=" << (*cur_char)->namespec() << endl;
         llvm::report_fatal_error(std::string("Can't find namespec: ")+
-                                 path->native());
+                                 (*cur_char)->namespec());
       }
       pLDInfo.inputs().insert(cur_node,
                      *prev_ward,

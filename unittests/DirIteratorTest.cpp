@@ -42,7 +42,6 @@ void DirIteratorTest::TearDown()
 // Testcases
 //
 TEST_F( DirIteratorTest, open_dir ) {
-	ASSERT_TRUE( Path(".") == m_pDir->path() );
 	ASSERT_TRUE( m_pDir->isGood() );
 
 	Directory::iterator entry = m_pDir->begin();

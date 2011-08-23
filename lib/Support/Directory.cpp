@@ -40,7 +40,9 @@ Directory::Directory(const Path& pPath,
     m_SymLinkStatus(symlink_st),
     m_Cache(),
     m_Handler(NULL) {
-  // cache may be empty if the directory is empty
+  if (m_Path.native() == ".")
+    detail::get_pwd(m_Path.native());
+  m_Path.m_append_separator_if_needed();
   mcld::sys::fs::detail::open_dir(*this);
 }
 
@@ -60,7 +62,7 @@ Directory::~Directory()
 
 bool Directory::isGood() const
 {
-  return NULL != m_Handler;
+  return (NULL != m_Handler);
 }
 
 Directory& Directory::operator=(const Directory& pCopy)
@@ -77,6 +79,10 @@ void Directory::assign(const Path& pPath,
     clear();
 
   m_Path = pPath;
+  if (m_Path.native() == ".")
+    detail::get_pwd(m_Path.native());
+  m_Path.m_append_separator_if_needed();
+
   m_FileStatus = st;
   m_SymLinkStatus = symlink_st;
   detail::open_dir(*this);
@@ -132,11 +138,11 @@ void Directory::clear()
 // DirIterator
 DirIterator::DirIterator(Directory* pParent,
                          const DirIterator::DirCache::iterator& pIter)
-  : m_pParent(pParent), m_Idx(pIter), m_pPath(0) {
+  : m_pParent(pParent), m_Idx(pIter) {
 }
 
 DirIterator::DirIterator(const DirIterator& pCopy)
-  : m_pParent(pCopy.m_pParent), m_Idx(pCopy.m_Idx), m_pPath(pCopy.m_pPath) {
+  : m_pParent(pCopy.m_pParent), m_Idx(pCopy.m_Idx) {
 }
 
 DirIterator::~DirIterator()
@@ -147,8 +153,9 @@ Path* DirIterator::path()
 {
   if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end())
+  if (m_Idx != m_pParent->m_Cache.end()) {
     return (*m_Idx).getValue();
+  }
   return 0;
 }
 
@@ -165,7 +172,6 @@ DirIterator& DirIterator::operator=(const DirIterator& pCopy)
 {
   m_pParent = pCopy.m_pParent;
   m_Idx = pCopy.m_Idx;
-  m_pPath = pCopy.m_pPath;
 }
 
 DirIterator& DirIterator::operator++()

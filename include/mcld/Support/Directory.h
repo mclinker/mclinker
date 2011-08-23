@@ -144,7 +144,6 @@ public:
 private:
   Directory* m_pParent; // get handler
   Directory::PathCache::iterator m_Idx;
-  Path *m_pPath; // may  be need, may not
 };
 
 } // namespace of fs

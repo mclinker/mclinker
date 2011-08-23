@@ -26,7 +26,8 @@ MCLDDirectory::MCLDDirectory(const std::string &pName)
 
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
-  detail::open_dir(*this);
+  else
+    detail::open_dir(*this);
 }
 
 MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
@@ -38,8 +39,8 @@ MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
 
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
-
-  detail::open_dir(*this);
+  else
+    detail::open_dir(*this);
 }
 
 MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
@@ -52,8 +53,8 @@ MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
 
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
-
-  detail::open_dir(*this);
+  else
+    detail::open_dir(*this);
   Directory::m_FileStatus = FileStatus();
   Directory::m_SymLinkStatus = FileStatus();
   Directory::m_Cache.clear();
@@ -69,14 +70,15 @@ bool MCLDDirectory::isInSysroot() const
   return m_bInSysroot;
 }
 
-void MCLDDirectory::setSysroot(const sys::fs::Path& pPath)
+void MCLDDirectory::setSysroot(const sys::fs::Path& pSysroot)
 {
   if (m_bInSysroot) {
     std::string old_path = Directory::m_Path.native();
-    Directory::m_Path.native() = pPath.native();
+    Directory::m_Path.native() = pSysroot.native();
     Directory::m_Path.m_append_separator_if_needed();
     Directory::m_Path.native() += old_path;
     detail::canonicalize(Directory::m_Path.native());
+    detail::open_dir(*this);
   }
 }
 

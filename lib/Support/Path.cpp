@@ -123,7 +123,7 @@ bool Path::canonicalize()
 
 Path::StringType::size_type Path::m_append_separator_if_needed()
 {
-  if (!m_PathName.empty() && is_directory(*this) &&
+  if (!m_PathName.empty() &&
 #ifdef LLVM_ON_WIN32
       *(m_PathName.end()-1) != colon && 
 #endif
@@ -158,7 +158,7 @@ Path Path::extension() const
 {
   size_t slash_pos = m_PathName.find_last_of(separator);
   size_t begin_pos = m_PathName.find_last_of(".", slash_pos);
-  Path result_path(m_PathName.substr(slash_pos));
+  Path result_path(m_PathName.substr(begin_pos));
   return result_path;
 }
 

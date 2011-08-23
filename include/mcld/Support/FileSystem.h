@@ -95,6 +95,8 @@ llvm::StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 
+void get_pwd(std::string& pPWD);
+
 } // namespace of detail
 } // namespace of fs
 } // namespace of sys
