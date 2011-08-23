@@ -265,29 +265,28 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
 }
 
 /// read_dir - return true if we read one entry
-static bool read_dir(intptr_t& pDir, std::string& pOutFilename)
+//  @return value -1: read error
+//                 0: read the end
+//                 1: success
+static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 {
   dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
-  if (0 == cur_dir && 0 != errno) {
-    // FIXME: use error_code
-    llvm::report_fatal_error("failed to read the directory");
-  }
+  if (0 == cur_dir && 0 != errno)
+    return -1;
 
   // idx does not stay at the end, but all elements had beed put into cache.
   if (NULL == cur_dir) {
-    return false;
+    return 0;
   }
 
   llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
-//  std::string name(cur_dir->d_name, strlen(cur_dir->d_name));
   if ((name.size() == 1 && name[0] == '.') ||
       (name.size() == 2 && name[0] == '.' && name[1] == '.'))
     return read_dir(pDir, pOutFilename);
 
   // find a new directory
   pOutFilename.assign(name.data(), name.size());
-//  pOutFilename.assign(name);
-  return true;
+  return 1;
 }
 
 /// directory_iterator_increment - increment function implementation
@@ -300,12 +299,16 @@ static bool read_dir(intptr_t& pDir, std::string& pOutFilename)
 Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
 {
   std::string path;
-  if (read_dir(pIter.m_pParent->m_Handler, path)) {
+  switch (read_dir(pIter.m_pParent->m_Handler, path)) {
+  case 1:
     pIter.m_pPath = new Path(path);
     return pIter.m_pParent->m_Cache.GetOrCreateValue(path, pIter.m_pPath);
-  }
-  else // meet real end
+  case 0:// meet real end
     return pIter.m_pParent->m_Cache.end();
+  case -1:
+    llvm::report_fatal_error(std::string("Can't read directory: ")+
+                             pIter.m_pParent->path().native());
+  }
 }
 
 void open_dir(Directory& pDir)
@@ -316,9 +319,16 @@ void open_dir(Directory& pDir)
                        pDir.path().native());
   // read one entry for advance the end element of the cache.
   std::string path;
-  if (read_dir(pDir.m_Handler, path)) {
+  switch (read_dir(pDir.m_Handler, path)) {
+  case 1:
     // find a new directory
     pDir.m_Cache.GetOrCreateValue(path, new Path(path));
+    return;
+  case 0:
+    return;
+  case -1:
+    llvm::report_fatal_error(std::string("Can't read directory: ")+
+                             pDir.path().native());
   }
 }
 

@@ -5,7 +5,7 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/Support/SearchDirs.h>
+#include <mcld/MC/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDDirectory.h>
 

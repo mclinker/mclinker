@@ -227,8 +227,10 @@ bool SectLinker::doInitialization(Module &pM)
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot())
       sd->setSysroot(m_LDInfo.options().sysroot());
-    if (exists(sd->path()) && is_directory(sd->path()))
+    if (exists(sd->path()) && is_directory(sd->path())) {
+      cerr << "L:" << sd->path().native() << endl;
       m_LDInfo.options().directories().add(*sd);
+    }
     else {
       // FIXME: need a warning function
       errs() << "search directory is wrong: -L" << sd->name();
@@ -409,7 +411,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
 
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
-      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
+      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE &&
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
@@ -441,7 +443,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       if (0 == path) {
         cerr << "namespec=" << (*cur_char)->namespec() << endl;
         llvm::report_fatal_error(std::string("Can't find namespec: ")+
-                                 (*cur_char)->namespec());
+                                 path->native());
       }
       pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
@@ -505,6 +507,7 @@ SectLinker::PositionDependentOption::PositionDependentOption(
     m_Position(pPosition),
     m_pPath(&pInputFile),
     m_pNamespec() {
+  cerr << "OBJ!!" << m_pPath->native() << endl;
 }
 
 SectLinker::PositionDependentOption::PositionDependentOption(

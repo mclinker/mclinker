@@ -52,8 +52,9 @@ TEST_F( DirIteratorTest, open_dir ) {
 		if (0 == entry.path()) {
 			cerr << "\tpath is null" << endl;
 		}
-		else
+		else {
 			cerr << "\t" <<  counter << ":" << entry.path()->native() << "<EOL>" << endl;
+                }
                 cerr << "\t\titerator increase" << endl;
 		counter++;
 		++entry;

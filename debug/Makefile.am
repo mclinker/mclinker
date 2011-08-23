@@ -86,8 +86,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/Directory.cpp \
 	${INCDIR}/Support/FileSytem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
-	${INCDIR}/Support/SearchDirs.h \
-	${LIBDIR}/Support/SearchDirs.cpp \
+	${INCDIR}/MC/SearchDirs.h \
+	${LIBDIR}/MC/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
 	${INCDIR}/MC/MCLDAttribute.h \

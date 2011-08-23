@@ -12,18 +12,6 @@ using namespace mcld;
 
 //==========================
 // MCLDOptions
-bool GeneralOptions::hasDefaultBitcode() const 
-{
-}
-
-mcld::Input* GeneralOptions::defaultBitcode() const
-{
-}
-
-void GeneralOptions::setDefaultBitcode(mcld::Input &pInput)
-{
-}
-
 bool GeneralOptions::hasDefaultLDScript() const
 {
 }

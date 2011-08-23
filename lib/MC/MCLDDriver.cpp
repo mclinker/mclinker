@@ -35,10 +35,9 @@ void MCLDDriver::normalize() {
 
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   Input::Type type;
-  static int counter = 0;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-    counter++;
-    cerr << "c: " << counter << endl;
+    if ((*input)->type() == Input::Object)
+      continue;
     //ObjectFile or Dynamic Object
     if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
       switch (type = m_LDBackend.getObjectReader()->fileType(*(*input))) {
@@ -51,7 +50,7 @@ void MCLDDriver::normalize() {
         report_fatal_error("can not link file: " + (*input)->path().string());
         break;
       }
-    continue;
+      continue;
     }
     // archive file
     if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
@@ -63,7 +62,6 @@ void MCLDDriver::normalize() {
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
       continue;
     }
-
   }
 }
 

@@ -11,7 +11,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/Path.h>
-#include <mcld/Support/SearchDirs.h>
+#include <mcld/MC/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
 
 namespace mcld
@@ -34,11 +34,6 @@ class ScriptOption
 class GeneralOptions
 {
 public:
-  /// default bitcode
-  bool hasDefaultBitcode() const;
-  Input* defaultBitcode() const;
-  void setDefaultBitcode(Input& pInput);
-
   /// default link script
   bool hasDefaultLDScript() const;
   const char* defaultLDScript() const;
