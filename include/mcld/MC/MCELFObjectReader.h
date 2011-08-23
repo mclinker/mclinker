@@ -3,26 +3,26 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                            *
+ *   Jush Lu <Jush.Lu@mediatek.com>                                          *
  ****************************************************************************/
-#ifndef MCELFOBJECTREADER_H
-#define MCELFOBJECTREADER_H
+#ifndef MCLD_ELF_OBJECT_READER_H
+#define MCLD_ELF_OBJECT_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "llvm/MC/MCObjectWriter.h"
-#include "llvm/Support/ELF.h"
+#include <llvm/MC/MCObjectWriter.h>
+#include <llvm/Support/ELF.h>
 
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCObjectReader.h"
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCObjectReader.h>
 
 using namespace llvm;
 using namespace ELF;
 
 namespace mcld
 {
-  class MCELFObjectTargetReader;
+class MCELFObjectTargetReader;
 
 //MCELFObjectReader reads target-independent parts of ELF object file
 class MCELFObjectReader : public MCObjectReader
@@ -31,8 +31,8 @@ public:
   MCELFObjectReader(MCELFObjectTargetReader *pTargetReader);
   ~MCELFObjectReader();
 
-  bool isMyFormat(MCLDFile &File) const;
-  Input::Type fileType(MCLDFile &File) const;
+  bool isMyFormat(mcld::Input &pFile) const;
+  Input::Type fileType(mcld::Input &pFile) const;
   virtual llvm::error_code readObject(const std::string &ObjectFile,
                                       MCLDFile &File);
 

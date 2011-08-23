@@ -50,7 +50,7 @@ MCELFObjectReader::~MCELFObjectReader()
 {
 }
 
-bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
+bool MCELFObjectReader::isMyFormat(mcld::Input &pFile) const
 {
   if( !exists(pFile.path()) || is_directory(pFile.path()))
     return false;
@@ -59,27 +59,38 @@ bool MCELFObjectReader::isMyFormat(MCLDFile &pFile) const
   if(-1 == (fd=open(pFile.path().native().c_str(), 0644)))
     llvm::report_fatal_error(std::string("can not open: ")+pFile.path().native());
 
+  cerr << "obj reader file=" << pFile.path().native() << endl;
   unsigned char magic[16];
   lseek(fd, 0, SEEK_SET);
   read(fd, &magic, sizeof(magic));
   close(fd);
-
-  return (magic[0] == '\177' && magic[1] == 'E' &&
+  return (magic[0] == 0x7F && magic[1] == 'E' &&
       magic[2] == 'L' && magic[3] == 'F');
 }
 
-Input::Type MCELFObjectReader::fileType(MCLDFile &pFile) const
+Input::Type MCELFObjectReader::fileType(mcld::Input &pFile) const
 {
   int fd;
   uint16_t e_type;
+  Input::Type result;
 
   fd = open(pFile.path().c_str(), 0644);
   lseek(fd, 0, SEEK_SET);
   lseek(fd, sizeof(char)*16, SEEK_SET);
   read(fd, &e_type, sizeof(e_type));
+  switch(e_type) {
+  case ET_REL:
+    result = Input::Object;
+    break;
+  case ET_DYN:
+    result = Input::DynObj;
+    break;
+  default:
+    result = Input::Unknown;
+  }
   close(fd);
 
-  return (Input::Type)e_type;
+  return result;
 }
 
 error_code MCELFObjectReader::readObject(const std::string &ObjectFile,

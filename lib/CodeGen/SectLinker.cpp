@@ -228,7 +228,6 @@ bool SectLinker::doInitialization(Module &pM)
     if (sd->isInSysroot())
       sd->setSysroot(m_LDInfo.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path())) {
-      cerr << "L:" << sd->path().native() << endl;
       m_LDInfo.options().directories().add(*sd);
     }
     else {
@@ -384,6 +383,7 @@ bool SectLinker::doFinalization(Module &pM)
         outs() << "\tscript\t(";
         break;
       default:
+        cerr << "type=" << (*input)->type() << endl;
         report_fatal_error("** Trace a unsupported file. It must be an internal bug!");
       }
       outs() << (*input)->path().c_str() << ")\n";
@@ -509,7 +509,6 @@ SectLinker::PositionDependentOption::PositionDependentOption(
     m_Position(pPosition),
     m_pPath(&pInputFile),
     m_pNamespec() {
-  cerr << "OBJ!!" << m_pPath->native() << endl;
 }
 
 SectLinker::PositionDependentOption::PositionDependentOption(

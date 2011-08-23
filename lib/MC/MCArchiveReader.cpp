@@ -90,11 +90,12 @@ Type stringToType(const std::string &str)
 
 /// MCArchiveReader Operations
 /// Public API
-bool MCArchiveReader::isMyFormat(Input &input)
+bool MCArchiveReader::isMyFormat(Input &pInput)
 {
   OwningPtr<MemoryBuffer> mapFile;
-  llvm::MemoryBuffer::getFile(input.path().c_str(), mapFile);
-  const char *pFile = mapFile->getBufferStart();
+  cerr << "input in archive reader=" << pInput.path().native() << endl;
+  llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
+  const char* pFile = mapFile->getBufferStart();
   
   /// FIXME: compare size_t with int 
   /// check archive format.
@@ -106,19 +107,18 @@ bool MCArchiveReader::isMyFormat(Input &input)
   return true;
 }
 
-InputTree *MCArchiveReader::readArchive(Input &input)
+InputTree *MCArchiveReader::readArchive(Input &pInput)
 {
   OwningPtr<MemoryBuffer> mapFile; 
-  mapToMemory(mapFile, input.path()); 
-  return setupNewArchive(mapFile, 0); 
+  mapToMemory(mapFile, pInput.path());
+  return setupNewArchive(mapFile, 0);
 }
 
 /// Internal used
 bool MCArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                   sys::fs::Path archPath)
 { 
-  if(llvm::MemoryBuffer::getFile(archPath.c_str(), mapFile))
-  {
+  if(llvm::MemoryBuffer::getFile(archPath.c_str(), mapFile)) {
     assert(0=="ArchiveReader:can't map a file to MemoryBuffer\n");
     return false;
   }
@@ -137,16 +137,10 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
   /// FIXME: compare size_t with int 
   /// check archive format.
   if(mapFile->getBufferSize() <= archiveMagicSize)
-  {
-    assert(0=="archive file size is small than 8\n");
     return NULL;
-  }
-  else
-  {
+  else {
     isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
-    if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
-    {
-      assert(0=="Wrong fromat : not an archive file.\n");
+    if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0) {
       return NULL;
     }
   }
@@ -154,17 +148,14 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
   off += archiveMagicSize ;
   size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
   /// symbol table header
-  if(archiveMemberName.empty())
-  {
+  if(archiveMemberName.empty()) {
     readArchiveMap(mapFile, archiveMap, off+sizeof(MCArchiveReader::ArchiveMemberHeader), archiveMapSize);
     off = off + sizeof(MCArchiveReader::ArchiveMemberHeader) + archiveMapSize;
   }
-  else if(true)
-  {
+  else if(true) {
     ///FIXME: check whole-archive from option
   } 
-  else
-  {
+  else {
     assert(0=="fatal error : need symbol table\n");
     return NULL;
   }
@@ -174,8 +165,7 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
   
   size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
   /// extended Name table 
-  if(archiveMemberName == "/")
-  {
+  if(archiveMemberName == "/") {
     pFile += off;
     extendedName.assign(pFile,extendedSize);
   }
@@ -220,8 +210,7 @@ size_t MCArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &m
   const ArchiveMemberHeader *header = reinterpret_cast<const ArchiveMemberHeader *>(pFile);
   
   /// check magic number of member header 
-  if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic))
-  {
+  if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic)) {
     assert(0=="archive member header magic number false");
     return 0;
   }
@@ -251,38 +240,38 @@ size_t MCArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &m
       p_NestedOff = 0;
   }
   /// symbol table
-  else if(header->name[1] == ' ')
-  {
+  else if(header->name[1] == ' ') {
     if(!p_Name->empty())
       p_Name->clear();
   }
   /// extended name table
-  else if(header->name[1] == '/')
-  {
+  else if(header->name[1] == '/') {
     p_Name->assign(1,'/');
   }
   /// thin archive member
-  else
-  {
+  else {
     std::string nameString(header->name,sizeof(header->name));
     char *end;
     long extendedNameOff = strtol(&nameString[0], &end, 10);
     long nestedOff = 0;  
     if(*end == ':')
       nestedOff = strtol(end+1, &end, 10);
-    if(*end != ' ' || extendedNameOff < 0 || static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size())
-    {
+
+    if(*end != ' ' || 
+       extendedNameOff < 0 || 
+       static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size()) {
       assert(0=="extended name");
       return 0;
     }
+
     const char *name = p_ExtendedName.data() + extendedNameOff;
     const char *nameEnd = strchr(name, '\n');
     
-    if(nameEnd[-1] != '/' || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size())
-    {
+    if(nameEnd[-1] != '/' || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size()) {
       assert(0=="p_ExtendedName substring is not end with / \n");
       return 0;
     }
+
     p_Name->assign(name, nameEnd-name-1);
     if(p_NestedOff)
      *p_NestedOff = nestedOff;

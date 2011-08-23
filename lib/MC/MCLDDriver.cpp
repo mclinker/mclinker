@@ -39,7 +39,7 @@ void MCLDDriver::normalize() {
     if ((*input)->type() == Input::Object)
       continue;
     //ObjectFile or Dynamic Object
-    if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
+    else if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
       switch (type = m_LDBackend.getObjectReader()->fileType(*(*input))) {
       case Input::DynObj:
       case Input::Object:
@@ -50,17 +50,14 @@ void MCLDDriver::normalize() {
         report_fatal_error("can not link file: " + (*input)->path().string());
         break;
       }
-      continue;
     }
-    // archive file
-    if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
+    else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
       (*input)->setType(Input::Archive);
       mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);
       if(!archive_member) 
         report_fatal_error("wrong format archive" + (*input)->path().string());
 
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
-      continue;
     }
   }
 }

@@ -8,6 +8,11 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
 
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
+
 using namespace mcld::sys::fs;
 
 //==========================
@@ -46,14 +51,13 @@ void RealPath::initialize()
     detail::canonicalize(m_PathName);
   }
   else if (isFromPWD()) {
-    char* prefix = get_current_dir_name();
-    size_t prefix_len = strlen(prefix);
     std::string path_name;
-    path_name.reserve(prefix_len+m_PathName.size()+2);
-    path_name += prefix;
+    detail::get_pwd(path_name);
     path_name += '/';
     path_name += m_PathName;
+    cerr << "before can=" << path_name << endl;
     detail::canonicalize(path_name);
+    cerr << "after can=" << path_name << endl;
     m_PathName = path_name;
   }
 }

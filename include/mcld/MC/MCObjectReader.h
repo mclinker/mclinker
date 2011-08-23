@@ -3,21 +3,20 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                            *
+ *   Jush Lu <Jush.Lu@mediatek.com>                                          *
  ****************************************************************************/
-#ifndef MCOBJECTREADER_H
-#define MCOBJECTREADER_H
+#ifndef MCLD_OBJECT_READER_H
+#define MCLD_OBJECT_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDFile.h"
-#include "mcld/MC/MCLDInput.h"
-#include "llvm/Support/system_error.h"
+#include <mcld/MC/MCLDInput.h>
+#include <llvm/Support/system_error.h>
 
 namespace mcld
 {
-  class MCObjectTargetReader;
+class MCObjectTargetReader;
 
 //MCObjectReader provides an interface for different object formats.
 class MCObjectReader
@@ -27,8 +26,8 @@ protected:
 public:
   virtual ~MCObjectReader();
 
-  virtual bool isMyFormat(MCLDFile &File) const = 0;
-  virtual Input::Type fileType(MCLDFile &File) const = 0;
+  virtual bool isMyFormat(mcld::Input &pFile) const = 0;
+  virtual Input::Type fileType(mcld::Input &pFile) const = 0;
   virtual llvm::error_code readObject(const std::string &ObjectFile, 
                                       MCLDFile &) = 0;
 

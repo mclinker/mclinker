@@ -156,8 +156,7 @@ Path Path::stem() const
 
 Path Path::extension() const
 {
-  size_t slash_pos = m_PathName.find_last_of(separator);
-  size_t begin_pos = m_PathName.find_last_of(".", slash_pos);
+  size_t begin_pos = m_PathName.find_last_of('.');
   Path result_path(m_PathName.substr(begin_pos));
   return result_path;
 }

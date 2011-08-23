@@ -161,10 +161,11 @@ Path* DirIterator::path()
 
 const Path* DirIterator::path() const
 {
-  if (m_pParent == 0 )
+  if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end())
+  if (m_Idx != m_pParent->m_Cache.end()) {
     return (*m_Idx).getValue();
+  }
   return 0;
 }
 

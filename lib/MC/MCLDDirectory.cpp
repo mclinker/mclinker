@@ -24,6 +24,7 @@ MCLDDirectory::MCLDDirectory(const std::string &pName)
   if (!Directory::m_Path.empty())
     m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
 
+  Directory::m_Path.m_append_separator_if_needed();
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
@@ -37,6 +38,7 @@ MCLDDirectory::MCLDDirectory(llvm::StringRef pName)
   if (!Directory::m_Path.empty())
     m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
 
+  Directory::m_Path.m_append_separator_if_needed();
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else
@@ -51,6 +53,7 @@ MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
   if (!Directory::m_Path.empty())
     m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
 
+  Directory::m_Path.m_append_separator_if_needed();
   if (m_bInSysroot)
     Directory::m_Path.native().erase(Directory::m_Path.native().begin());
   else

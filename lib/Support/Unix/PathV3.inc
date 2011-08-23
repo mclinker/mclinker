@@ -72,7 +72,7 @@ size_t canonicalize(std::string& pathname)
             return handler;
           switch (pathname[next]) {
             case separator: { // '/./'
-              pathname.erase(handler, 3);
+              pathname.erase(handler, 2);
               break;
             }
             case '.': { // '/..'
@@ -207,7 +207,7 @@ static int read_dir(intptr_t& pDir, std::string& pOutFilename)
     return read_dir(pDir, pOutFilename);
 
   // find a new directory
-  pOutFilename.assign(name.data(), name.size());
+  pOutFilename.append(name.data(), name.size());
   return 1;
 }
 
@@ -220,7 +220,7 @@ static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 //     An iterator now is staying at the end of cache. (a temporal end)
 Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
 {
-  std::string path;
+  std::string path(pIter.m_pParent->m_Path.native());
   switch (read_dir(pIter.m_pParent->m_Handler, path)) {
   case 1:
     return pIter.m_pParent->m_Cache.GetOrCreateValue(path, new Path(path));

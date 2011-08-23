@@ -135,6 +135,8 @@ public:
   DirIterator& operator++();
   DirIterator operator++(int);
 
+  Path* generic_path();
+
   Path* path();
   const Path* path() const;
 

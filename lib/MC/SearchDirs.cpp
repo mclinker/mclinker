@@ -43,18 +43,8 @@ void SearchDirs::add(const MCLDDirectory& pDirectory)
 
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
-  switch(pType) {
-  case mcld::Input::DynObj:
-  cerr << "type=dyn or static" << endl;
-    break;
-  case mcld::Input::Archive:
-  cerr << "type=static" << endl;
-    break;
-  }
   std::string file;
   SpecToFilename(pNamespec, file);
-  cerr << "filename: " << file << endl;
-  cerr << "list size=" << m_DirList.size() << endl;
   // for all MCLDDirectorys
   DirList::iterator mcld_dir, mcld_dir_end = m_DirList.end();
   for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
@@ -62,17 +52,17 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
     while (entry!=enEnd) {
-      cerr << "\tpath stem: " << entry.path()->stem() << endl;
-      if (file == entry.path()->stem()) {
-        switch(pType) {
-        case mcld::Input::DynObj:
-            if (mcld::sys::fs::detail::shared_library_extension == entry.path()->extension())
-              return entry.path();
-        case mcld::Input::Archive:
-            if (mcld::sys::fs::detail::static_library_extension == entry.path()->extension())
-              return entry.path();
-        }
-      }
+      if (file == entry.path()->stem() &&
+          mcld::sys::fs::detail::shared_library_extension == entry.path()->extension())
+        return entry.path();
+      ++entry;
+    }
+
+    entry = (*mcld_dir)->begin();
+    while (entry!=enEnd) {
+      if (file == entry.path()->stem() &&
+          mcld::sys::fs::detail::static_library_extension == entry.path()->extension())
+        return entry.path();
       ++entry;
     }
   }
