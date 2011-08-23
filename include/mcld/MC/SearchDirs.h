@@ -11,12 +11,15 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <mcld/ADT/Uncopyable.h>
 #include <mcld/MC/MCLDInput.h>
 
 namespace mcld
 {
+
 class MCLDFile;
 class MCLDDirectory;
+
 namespace sys {
 namespace fs {
 class Path;
@@ -27,10 +30,12 @@ class Path;
  *  \brief SearchDirs contains the list of paths that MCLinker will search for
  *  archive libraries and control scripts.
  *
- *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
+ *  SearchDirs is customized for linking. It handles -L on the command line
+ *  and SEARCH_DIR macro in the link script.
+ *
+ *  @see MCLDDirectory.
  */
-class SearchDirs
+class SearchDirs : private Uncopyable
 {
 public:
   typedef std::vector<MCLDDirectory*> DirList;

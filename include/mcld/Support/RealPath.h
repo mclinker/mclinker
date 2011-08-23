@@ -36,6 +36,9 @@ public:
   ~RealPath();
 
   RealPath& assign(const Path& pPath);
+
+protected:
+  void initialize();
 };
 
 } // namespace of fs

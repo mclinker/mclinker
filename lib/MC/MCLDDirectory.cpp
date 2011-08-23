@@ -76,7 +76,7 @@ void MCLDDirectory::setSysroot(const sys::fs::Path& pPath)
     Directory::m_Path.native() = pPath.native();
     Directory::m_Path.m_append_separator_if_needed();
     Directory::m_Path.native() += old_path;
-    detail::canonical_form(Directory::m_Path.native());
+    detail::canonicalize(Directory::m_Path.native());
   }
 }
 

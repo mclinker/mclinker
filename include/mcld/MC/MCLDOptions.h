@@ -10,7 +10,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/Path.h>
+#include <mcld/Support/RealPath.h>
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
 
@@ -62,7 +62,7 @@ public:
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
-  sys::fs::Path m_Sysroot;
+  sys::fs::RealPath m_Sysroot;
   SearchDirs m_SearchDirs;
   bool m_bTrace;
 };

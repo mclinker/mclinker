@@ -26,6 +26,6 @@ void GeneralOptions::setDefaultLDScript(const std::string& pFilename)
 
 void GeneralOptions::setSysroot(const mcld::sys::fs::Path &pSysroot)
 {
-  m_Sysroot = pSysroot;
+  m_Sysroot.assign(pSysroot);
 }
 

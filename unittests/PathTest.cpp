@@ -11,6 +11,8 @@
 //
 #include <iostream>
 #include <string>
+#include <mcld/Support/FileSystem.h>
+
 using namespace std;
 //
 using namespace mcld;
@@ -88,16 +90,19 @@ TEST_F( PathTest, should_not_is_directory ) {
 }
 
 TEST_F( PathTest, should_equal ) {
-  const std::string root = "aaa/bbb/../../ccc";
-  Path* p2=new Path("ccc///////");
-//  p2->assign(root);
+  const std::string root = "aaa/bbb/../../ccc/";
   m_pTestee->assign(root);
+
+  Path* p2 = new Path("ccc///////");
+
+  cerr << "should be ccc, but is :" << m_pTestee->generic_string() << endl;
   EXPECT_TRUE(*m_pTestee==*p2);
   
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(*m_pTestee==*m_pTestee);
 }
+
 TEST_F( PathTest, should_not_equal ) {
   const std::string root = "aa/";
   Path* p2=new Path("aaa//");
@@ -133,18 +138,8 @@ TEST_F( PathTest, append_success ) {
 
 TEST_F( PathTest, should_become_generic_string ) {
   m_pTestee->assign("/etc/../dev/../usr//lib//");
-  EXPECT_TRUE(m_pTestee->generic_string()=="/usr/lib/");
+  cerr << m_pTestee->native() << endl;
+  EXPECT_STREQ("/usr/lib/", m_pTestee->generic_string().c_str());
   EXPECT_TRUE(is_directory(*m_pTestee));
 }
-//function not available
-//TEST_F( PathTest, should_erase_redundant_separator) {
-//  std::string root = "//aa/";
-//  m_pTestee->assign(root);
-//  m_pTestee->m_erase_redundant_separator(0);
-//  EXPECT_TRUE(m_pTestee->string()=="/aa/");
-//  
-//  delete m_pTestee;
-//  m_pTestee = new Path(root);
-//  m_pTestee->m_erase_redundant_separator(0);
-//  EXPECT_TRUE(m_pTestee->string()=="/aa/");
-//}
+

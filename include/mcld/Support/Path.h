@@ -61,8 +61,8 @@ public:
   //  -----  observers  ----- //
   bool empty() const;
 
-  bool is_from_root()const
-  { return (m_PathName[0]=='/'); }
+  bool isFromRoot() const;
+  bool isFromPWD() const;
 
   const StringType &native() const
   { return m_PathName; }
@@ -76,13 +76,12 @@ public:
   std::string string() const;
 
   // -----  decomposition  ----- //
-  Path spec_to_name() const;
   Path stem() const;
   Path extension() const;
 
   // -----  generic form observers  ----- //
   StringType generic_string() const;
-  void canonicalize();
+  bool canonicalize();
 
 public:
   StringType::size_type m_append_separator_if_needed();

@@ -432,14 +432,17 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       break;
     case PositionDependentOption::NAMESPEC: {
       Path* path = 0;
-      if (pLDInfo.attrFactory().last().isStatic())
+      if (pLDInfo.attrFactory().last().isStatic()) {
         path = pLDInfo.options().directories().find(
                                                (*cur_char)->namespec(),
                                                Input::Archive);
-      else
+      }
+      else {
         path = pLDInfo.options().directories().find(
                                                (*cur_char)->namespec(),
                                                Input::DynObj);
+      }
+
       if (0 == path) {
         cerr << "namespec=" << (*cur_char)->namespec() << endl;
         llvm::report_fatal_error(std::string("Can't find namespec: ")+

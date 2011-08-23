@@ -18,17 +18,17 @@ RealPath::RealPath()
 
 RealPath::RealPath(const RealPath::ValueType* s )
   : Path(s) {
-  detail::canonical_form(*this);
+  initialize();
 }
 
 RealPath::RealPath(const RealPath::StringType &s )
   : Path(s) {
-  detail::canonical_form(*this);
+  initialize();
 }
 
 RealPath::RealPath(const Path& pPath)
  : Path(pPath) {
-  detail::canonical_form(*this);
+  initialize();
 }
 
 RealPath::~RealPath()
@@ -38,5 +38,23 @@ RealPath::~RealPath()
 RealPath& RealPath::assign(const Path& pPath)
 {
   Path::m_PathName.assign(pPath.native());
+}
+
+void RealPath::initialize()
+{
+  if (isFromRoot()) {
+    detail::canonicalize(m_PathName);
+  }
+  else if (isFromPWD()) {
+    char* prefix = get_current_dir_name();
+    size_t prefix_len = strlen(prefix);
+    std::string path_name;
+    path_name.reserve(prefix_len+m_PathName.size()+2);
+    path_name += prefix;
+    path_name += '/';
+    path_name += m_PathName;
+    detail::canonicalize(path_name);
+    m_PathName = path_name;
+  }
 }
 

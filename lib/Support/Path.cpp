@@ -12,19 +12,21 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
+
 using namespace mcld;
 using namespace mcld::sys::fs;
 
-namespace { // anonymous
 #ifdef LLVM_ON_WIN32
-  const wchar_t       separator = L'\\';
-  const wchar_t       preferred_separator = L'\\';
+const wchar_t       separator = L'\\';
+const wchar_t       preferred_separator = L'\\';
 #else
-  const char          separator = '/';
-  const char          preferred_separator = '/';
+const char          separator = '/';
+const char          preferred_separator = '/';
 #endif
-
-} // namespace of anonymous
 
 //===--------------------------------------------------------------------===//
 // Path
@@ -42,6 +44,20 @@ Path::Path(const Path::StringType &s )
 
 Path::~Path()
 {
+}
+
+bool Path::isFromRoot() const
+{
+  if (m_PathName.empty())
+    return false;
+  return (separator == m_PathName[0]);
+}
+
+bool Path::isFromPWD() const
+{
+  if (2 > m_PathName.size())
+    return false;
+  return ('.' == m_PathName[0] && separator == m_PathName[1]);
 }
 
 Path& Path::assign(const Path::StringType &s)
@@ -94,13 +110,15 @@ std::string Path::string() const
 }
 
 Path::StringType Path::generic_string() const
-{  
-  return detail::canonical_form(*this);
+{
+  std::string result = m_PathName;
+  detail::canonicalize(result);
+  return result;
 }
 
-void Path::canonicalize()
-{  
-  detail::canonical_form(*this);
+bool Path::canonicalize()
+{
+  return detail::canonicalize(m_PathName);
 }
 
 Path::StringType::size_type Path::m_append_separator_if_needed()
@@ -128,37 +146,20 @@ void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos)
     m_PathName.erase(begin+1,pSepPos-begin-1);
 }
 
-Path Path::spec_to_name() const
-{
-  std::string result;
-  result.append("lib");
-  result.append(m_PathName);
-  result.append("lib");
-  return result;
-}
-
 Path Path::stem() const
 {
-  std::string result;
-  size_t found;
-  found = m_PathName.find_last_of(separator);
-  result = m_PathName.substr(found+1);
-  found = result.find_first_of(".");
-  result = result.substr(0,found-1);
-  Path p(result);
-  return p;
+  size_t begin_pos = m_PathName.find_last_of(separator)+1;
+  size_t end_pos   = m_PathName.find_first_of(".", begin_pos);
+  Path result_path(m_PathName.substr(begin_pos, end_pos - begin_pos));
+  return result_path;
 }
 
 Path Path::extension() const
 {
-  std::string result;
-  size_t found;
-  found = m_PathName.find_last_of(separator);
-  result = m_PathName.substr(found+1);
-  found = result.find_first_of(".");
-  result = m_PathName.substr(found+1);
-  Path p(result);
-  return p;
+  size_t slash_pos = m_PathName.find_last_of(separator);
+  size_t begin_pos = m_PathName.find_last_of(".", slash_pos);
+  Path result_path(m_PathName.substr(slash_pos));
+  return result_path;
 }
 
 //===--------------------------------------------------------------------===//

@@ -8,198 +8,120 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Directory.h>
+#include <mcld/Support/Path.h>
 #include <sys/stat.h>
 #include <cerrno>
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/types.h>
 #include <string>
-
-#include <iostream>
-using namespace std;
+#include <stack>
 
 namespace mcld{
 namespace sys{
 namespace fs{
 namespace detail{
 
+const char          separator = '/';
+const char          preferred_separator = '/';
 
-string canonical_form(const Path& pPath)
+// return the last charactor being handled.
+size_t canonicalize(std::string& pathname)
 {
-  //initial PathResult
-  string PathResult;
-  if(pPath.is_from_root())
-  {
-    PathResult = "/";
-  }
-  else
-  {
-    char TempPath[100];//FIXME:if getcwd() does not need TempPath[], remove it
-    PathResult = getcwd(TempPath, 100);
-    PathResult += '/';
-  }
-  //check slash num and position
-  size_t SepNum = 0;
-  size_t SepPos[100];//FIXME:use array or strmap
-  for(int i=0;i < PathResult.size();++i)
-  {
-    if('/' == PathResult[i])
-    {
-      SepPos[SepNum] = i;
-      SepNum++;
+  // Variable Index //
+  // SepTable - stack of result separators
+  // LR(1) Algorithm //
+  // traverse pPathName
+  //   if we meet '//', '///', '////', ... 
+  //     -> ignore it
+  //     -> push current into stack
+  //     -> jump to the next not '/'
+  //   if we meet '/./' 
+  //     -> ignore
+  //     -> jump to the next not '/'
+  //   if we meet '/../' 
+  //     -> pop previous position of '/' P
+  //     -> erase P+1 to now
+  //   if we meet other else
+  //     -> go go go
+  //   if we meet '/.../', '/..../', ... -> illegal
+  if (pathname.empty())
+    return 0;
+
+  int handler = 0;
+  stack<int> slash_stack;
+  slash_stack.push(-1);
+  while (handler < pathname.size()) {
+    if (separator == pathname[handler]) { // handler = 1st '/'
+      int next = handler + 1;
+      if (next >= pathname.size())
+        return handler;
+      switch(pathname[next]) { // next = handler + 1;
+        case separator: { // '//'
+          while (next < pathname.size() && separator == pathname[next])
+            ++next;
+          // next is the last not '/'
+          pathname.erase(handler, next - handler - 1);
+          // handler is the first '/'
+          slash_stack.push(handler);
+          break;
+        }
+        case '.': { // '/.'
+          ++next; // next = handler + 2
+          if (next >= pathname.size()) // '/.'
+            return handler;
+          switch (pathname[next]) {
+            case separator: { // '/./'
+              pathname.erase(handler, 3);
+              break;
+            }
+            case '.': { // '/..'
+              ++next; // next = handler + 3;
+              if (next >= pathname.size()) // '/..?'
+                return handler;
+              switch(pathname[next]) {
+                case separator: { // '/../'
+                  handler = slash_stack.top();
+                  slash_stack.pop();
+                  pathname.erase(handler+1, next-handler);
+                  if (-1 == handler) {
+                    slash_stack.push(-1);
+                    handler = pathname.find_first_of(separator, handler);
+                  }
+                  break;
+                }
+                case '.': { // '/...', illegal
+                  return handler;
+                  break;
+                }
+                default : { // '/..a'
+                  slash_stack.push(handler);
+                  handler = pathname.find_first_of(separator, handler+3);
+                  break;
+                }
+              }
+              break;
+            }
+            default : { // '/.a'
+              slash_stack.push(handler);
+              handler = pathname.find_first_of(separator, handler+2);
+              break;
+            }
+          }
+          break;
+        }
+        default : { // '/a
+          slash_stack.push(handler);
+          handler = pathname.find_first_of(separator, handler+1);
+          break;
+        }
+      }
+    }
+    else {
+      handler = pathname.find_first_of(separator, handler);
     }
   }
-  //if go parent:SepNum--
-  for(int i = 0;i<pPath.native().size();++i)
-  {
-    switch(pPath.native()[i]){
-      case '/'://FIXME use member function  m_erase_redundant_separator
-      {
-        for(;pPath.native()[i] == '/';++i)
-        {
-          //do nothing
-        }
-        if(i != 1 && PathResult[PathResult.size()-1] != '/')
-        {
-          PathResult += "/";
-        }
-        i--;
-        break;
-      }
-      case '.':
-      {
-        int DotNum=0;
-        for(;pPath.native()[i] == '.';++i){DotNum++;}
-        if(DotNum>2)
-        {
-          cerr<<"illegal path name: "<<pPath.native()<<endl;
-        }
-        else if(2 == DotNum)
-        {
-          SepNum=SepNum - 1;
-          PathResult.erase(SepPos[SepNum -1 ] + 1,
-                           SepPos[SepNum] - SepPos[SepNum - 1]);
-        }
-        else if(1 == DotNum)
-        {
-          //do nothing
-        }
-        else
-        {
-          cerr<<"unknown error when handle dot of path: "<<pPath.native()<<endl;
-        }
-        //i--;//skip '/' because it does not matter
-        break;
-      }
-      default:
-      {
-        int CharNum=0;
-        for(;i < pPath.native().size()&&pPath.native()[i] != '/';++i)
-        {
-          CharNum++;
-        }
-        PathResult.append(pPath.native(),i - CharNum,CharNum);
-        SepPos[SepNum]= SepPos[SepNum - 1] + CharNum + 1;
-        SepNum++;
-        i--;
-        break;
-      }
-    }
-  }
-  if(PathResult[PathResult.size() - 1] != '/'&& !is_directory(pPath))
-  {
-    PathResult += "/";
-  }
-  return PathResult;//FIXME:use return or use reference
 }
-
-//turn path into canonical form
-void canonical_form(mcld::sys::fs::Path& pPath)
-{
-  //erase_redundant_sep
-  for(int i = 0;i<pPath.native().size();++i) {
-    if(pPath.native()[i]=='/'){
-      pPath.m_erase_redundant_separator(i);
-    }
-  }
-
-  //initial PathResult
-  string PathResult;
-  if(pPath.is_from_root()) {
-    PathResult = "/";
-  }
-  else {
-    char TempPath[100];//FIXME:if getcwd() does not need TempPath[], remove it
-    PathResult = getcwd(TempPath, 100);
-    PathResult += '/';
-  }
-
-  //check slash num and position
-  size_t SepNum = 0;
-  size_t SepPos[100];//FIXME:use array or strmap
-  for(int i=0;i < PathResult.size();++i) {
-    if('/' == PathResult[i]) {
-      SepPos[SepNum] = i;
-      SepNum++;
-    }
-  }
-  //if go parent:SepNum--
-  for(int i = 0;i<pPath.native().size();++i) {
-    switch(pPath.native()[i]) {
-      case '/'://FIXME use member function  m_erase_redundant_separator
-      {
-        PathResult += "/";
-        break;
-      }
-      case '.':
-      {
-        int DotNum=0;
-        for(;pPath.native()[i] == '.';++i){DotNum++;}
-        if(DotNum>2)
-        {
-          cerr<<"illegal path name: "<<pPath.native()<<endl;
-        }
-        else if(2 == DotNum)
-        {
-          SepNum=SepNum - 1;
-          PathResult.erase(SepPos[SepNum -1 ] + 1,
-                           SepPos[SepNum] - SepPos[SepNum - 1]);
-        }
-        else if(1 == DotNum)
-        {
-          //do nothing
-        }
-        else
-        {
-          cerr<<"unknown error when handle dot of path: "<<pPath.native()<<endl;
-        }
-        //i--;skip '/' or it is end of path
-        break;
-      }
-      default:
-      {
-        int CharNum=0;
-        for(;i < pPath.native().size()&&pPath.native()[i] != '/';++i)
-        {
-          CharNum++;
-        }
-        PathResult.append(pPath.native(),i - CharNum,CharNum);
-        SepPos[SepNum]= SepPos[SepNum - 1] + CharNum + 1;
-        SepNum++;
-        i--;
-        break;
-      }
-    }
-  }
-  pPath.assign(PathResult);
-  pPath.m_append_separator_if_needed();
-}
-
-//if pLHS equal to pRHS, return true FIXME:not use
-//bool is_equal(Path& pLHS,Path& pRHS)
-//{
-//  return (canonical_form(pLHS)==canonical_form(pRHS));
-//}
 
 bool not_found_error(int perrno)
 {

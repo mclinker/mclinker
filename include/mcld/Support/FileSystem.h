@@ -86,9 +86,8 @@ extern std::string relocatable_extension;
 extern std::string assembly_extension;
 extern std::string bitcode_extension;
 
+size_t canonicalize(std::string& pPathName);
 
-std::string canonical_form(const Path& pPath);
-void canonical_form(Path& pPath);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
