@@ -95,7 +95,7 @@ protected:
   }
 
   virtual ~LinearAllocatorBase()
-  { }
+  { clear(); }
 
 public:
   pointer address(reference X) const
