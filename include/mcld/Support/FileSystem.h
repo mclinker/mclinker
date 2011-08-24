@@ -91,7 +91,7 @@ size_t canonicalize(std::string& pPathName);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
-llvm::StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator& pIter);
+StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 

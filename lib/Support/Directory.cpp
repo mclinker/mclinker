@@ -153,9 +153,8 @@ Path* DirIterator::path()
 {
   if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end()) {
-    return (*m_Idx).getValue();
-  }
+  if (m_Idx != m_pParent->m_Cache.end())
+    return *m_Idx;
   return 0;
 }
 
@@ -163,9 +162,8 @@ const Path* DirIterator::path() const
 {
   if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end()) {
-    return (*m_Idx).getValue();
-  }
+  if (m_Idx != m_pParent->m_Cache.end())
+    return *m_Idx;
   return 0;
 }
 

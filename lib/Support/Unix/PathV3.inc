@@ -32,14 +32,14 @@ size_t canonicalize(std::string& pathname)
   // SepTable - stack of result separators
   // LR(1) Algorithm //
   // traverse pPathName
-  //   if we meet '//', '///', '////', ... 
+  //   if we meet '//', '///', '////', ...
   //     -> ignore it
   //     -> push current into stack
   //     -> jump to the next not '/'
-  //   if we meet '/./' 
+  //   if we meet '/./'
   //     -> ignore
   //     -> jump to the next not '/'
-  //   if we meet '/../' 
+  //   if we meet '/../'
   //     -> pop previous position of '/' P
   //     -> erase P+1 to now
   //   if we meet other else

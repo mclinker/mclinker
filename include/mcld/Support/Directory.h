@@ -35,12 +35,12 @@ class DirIterator;
  */
 class Directory
 {
-friend llvm::StringMap<sys::fs::Path*>::iterator detail::bring_one_into_cache(DirIterator& pIter);
+friend StringMap<sys::fs::Path*>::iterator detail::bring_one_into_cache(DirIterator& pIter);
 friend void detail::open_dir(Directory& pDir);
 friend void detail::close_dir(Directory& pDir);
 private:
   friend class DirIterator;
-  typedef llvm::StringMap<sys::fs::Path*> PathCache;
+  typedef StringMap<sys::fs::Path*> PathCache;
 
 public:
   typedef DirIterator iterator;

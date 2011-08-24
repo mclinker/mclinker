@@ -30,12 +30,7 @@
 
 using namespace llvm;
 
-typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
-
-
-using namespace llvm;
-
-typedef StringMap<const MCSectionELF*> ELFUniqueMapTy;
+typedef llvm::StringMap<const MCSectionELF*> ELFUniqueMapTy;
 
 namespace llvm
 {
@@ -68,7 +63,7 @@ public:
   typedef iplist<MCSectionData> SectionDataListType;
   typedef iplist<MCSymbolData> SymbolDataListType;
 
-  typedef StringMap<MCSymbol*, BumpPtrAllocator&> SymbolTableType;
+  typedef llvm::StringMap<MCSymbol*, BumpPtrAllocator&> SymbolTableType;
 
   typedef SectionDataListType::const_iterator const_iterator;
   typedef SectionDataListType::iterator iterator;
