@@ -5,6 +5,8 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
+#include <llvm/Support/ErrorHandling.h>
+
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDDirectory.h>
@@ -51,19 +53,29 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
     // for all entries in MCLDDirectory
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
-    while (entry!=enEnd) {
-      if (file == entry.path()->stem() &&
-          mcld::sys::fs::detail::shared_library_extension == entry.path()->extension())
-        return entry.path();
-      ++entry;
-    }
 
-    entry = (*mcld_dir)->begin();
-    while (entry!=enEnd) {
-      if (file == entry.path()->stem() &&
-          mcld::sys::fs::detail::static_library_extension == entry.path()->extension())
-        return entry.path();
-      ++entry;
+    switch(pType) {
+      case Input::DynObj:
+        while (entry!=enEnd) {
+          if (file == entry.path()->stem() &&
+            mcld::sys::fs::detail::shared_library_extension == entry.path()->extension())
+          return entry.path();
+
+          ++entry;
+        }
+
+      case Input::Archive :
+        entry = (*mcld_dir)->begin();
+        while ( entry!=enEnd ) {
+          if (file == entry.path()->stem() &&
+            mcld::sys::fs::detail::static_library_extension == entry.path()->extension())
+          return entry.path();
+
+          ++entry;
+       }
+
+     default:
+     llvm::report_fatal_error(std::string("SearchDir can not recoginize unkonwn type!!"));
     }
   }
   return 0;
