@@ -11,6 +11,9 @@
 #include <gtest.h>
 #endif
 
+#include <cstring>
+#include <stdint.h>
+
 namespace llvm {
   class MCValue;
   class MCSymbol;
