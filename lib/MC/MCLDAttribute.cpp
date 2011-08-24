@@ -67,7 +67,7 @@ bool AttributeProxy::isAsNeeded() const
 
 bool AttributeProxy::isStatic() const
 {
-  if (m_Parent.constraint().isStatic())
+  if (m_Parent.constraint().isSharedSystem())
     return m_pBase->isStatic();
   else
     return true;
@@ -75,7 +75,7 @@ bool AttributeProxy::isStatic() const
 
 bool AttributeProxy::isDynamic() const
 {
-  if (m_Parent.constraint().isStatic())
+  if (m_Parent.constraint().isSharedSystem())
     return m_pBase->isDynamic();
   else
     return false;
