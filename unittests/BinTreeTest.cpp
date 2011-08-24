@@ -107,6 +107,7 @@ TEST_F( BinTreeTest, A_non_null_tree_merge_a_null_tree)
 
   //delete m_pTestee;
   EXPECT_TRUE(mergeTree->size()==5);
+  delete mergeTree;
 }
 
 TEST_F( BinTreeTest, Two_null_tree_merge) 
@@ -120,6 +121,7 @@ TEST_F( BinTreeTest, Two_null_tree_merge)
 
   //delete m_pTestee;
   EXPECT_TRUE(mergeTree->size()==0);
+  delete mergeTree;
 }
 
 TEST_F( BinTreeTest, DFSIterator_BasicTraversal)

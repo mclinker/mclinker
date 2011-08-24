@@ -101,6 +101,7 @@ TEST_F( PathTest, should_equal ) {
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(*m_pTestee==*m_pTestee);
+  delete p2;
 }
 
 TEST_F( PathTest, should_not_equal ) {
@@ -113,6 +114,7 @@ TEST_F( PathTest, should_not_equal ) {
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(*m_pTestee!=*p2);
+  delete p2;
 }
 
 TEST_F( PathTest, append_success ) {

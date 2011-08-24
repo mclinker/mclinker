@@ -21,15 +21,15 @@ namespace mcld {
   template <typename ValueTy, typename AllocatorTy>
   class StringMap;
 
+// FIXME(Nowar): Please see destructor description
 template <typename ValueTy>
 class StringMapEntryCreator {
 public:
   template <typename InitTy>
   static ValueTy create(const InitTy &InitVal) {
-    return InitVal;
+    return new (std::nothrow) ValueTy(InitVal);
   }
 };
-
 
 //=====================
 // StringMapIterator
@@ -105,7 +105,7 @@ class StringMap
 
 public:
   StringMap() { m_Content.reserve(8); }
-  ~StringMap() {}
+  ~StringMap();
 
   typedef StringMapIterator<ValueTy, AllocatorTy> iterator;
   typedef StringMapConstIterator<ValueTy, AllocatorTy> const_iterator;
@@ -131,6 +131,17 @@ public:
 
 //==========================
 // StringMap implementation
+// FIXME(Nowar): Delete the object from outside created.
+//               This is just a convenient way for mcld::sys::fs::Path*
+//               We should fix it sooner or later.
+template <typename ValueTy, typename AllocatorTy>
+StringMap<ValueTy, AllocatorTy>::~StringMap() {
+  for (typename std::vector<ValueTy>::iterator i = m_Content.begin(), e = m_Content.end();
+       i != e; ++i) {
+    delete *i;
+  }
+}
+
 template <typename ValueTy, typename AllocatorTy>
 template <typename InitTy>
 typename StringMap<ValueTy, AllocatorTy>::iterator
