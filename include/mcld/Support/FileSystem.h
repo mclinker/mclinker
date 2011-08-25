@@ -114,6 +114,14 @@ public:
   }
 };
 
+template <>
+class StringMapEntryEraser<sys::fs::Path*> {
+public:
+  static void erase(sys::fs::Path*& Val) {
+    delete Val;
+  }
+};
+
 } // namespace mcld
 
 #endif
