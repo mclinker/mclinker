@@ -368,7 +368,7 @@ bool SectLinker::doFinalization(Module &pM)
     outs() << "** name\ttype\tpath\n";
     mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
     for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-      outs() << "* " << (*input)->name();
+      outs() << "*  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
         outs() << "\tarchive\t(";
@@ -383,7 +383,6 @@ bool SectLinker::doFinalization(Module &pM)
         outs() << "\tscript\t(";
         break;
       default:
-        cerr << "type=" << (*input)->type() << endl;
         report_fatal_error("** Trace a unsupported file. It must be an internal bug!");
       }
       outs() << (*input)->path().c_str() << ")\n";
@@ -426,7 +425,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
     case PositionDependentOption::INPUT_FILE:
       pLDInfo.inputs().insert(cur_node,
                      *prev_ward,
-                     "file",
+                     (*cur_char)->path()->native(),
                      *(*cur_char)->path());
       prev_ward = &InputTree::Afterward;
       break;

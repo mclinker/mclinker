@@ -42,11 +42,15 @@ namespace mcld
    *
    *  SectLinker resolves the absolue paths of input arguments.
    *
-   *  \see MachineFunctionPass MCLDDriver
+   *  @see MachineFunctionPass MCLDDriver
    */
   class SectLinker : public llvm::MachineFunctionPass
   {
   public:
+
+    /** \class SectLinker::PositionDependentOption
+     *  \brief PositionDependentOptions converts LLVM options into MCLDInfo
+     */
     class PositionDependentOption
     {
     public:
