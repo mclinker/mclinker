@@ -106,7 +106,6 @@ MCAsmObjectReader::~MCAsmObjectReader()
 void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
                                                  const MCAsmLayout &Layout)
 {
-	std::cerr << "Csmon: I'm the king of the world" << std::endl;
 }
 
 
@@ -116,16 +115,11 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCFixup &Fixup, MCValue Target,
                                          uint64_t &FixedValue)
 {
-	std::cerr << "Nowar: I love bugs!" << std::endl;
-
   int64_t Addend = 0;
   int Index = 0;
   int64_t Value = Target.getConstant();
   const MCSymbol *RelocSymbol = NULL;
-  unsigned Type= 0;
 
-  const MCFixupKindInfo& FKI =
-    Asm.getBackend().getFixupKindInfo((MCFixupKind)Fixup.getKind());
   bool IsPCRel = isFixupKindPCRel(Asm, Fixup.getKind());
   MCObjectReader* OR = m_Backend.getObjectReader();
 
@@ -139,34 +133,29 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
       MCSymbolData& SDB = Asm.getSymbolData(SymbolB);
       IsPCRel = true;
 
-      // Offset of the symbol in the section
-      int64_t a = Layout.getSymbolOffset(&SDB);
-
-      // Offset of the relocation in the section
-      int64_t b = Layout.getFragmentOffset(Fragment) + Fixup.getOffset();
+      int64_t a = Layout.getSymbolOffset(&SDB); // symbol in section
+      int64_t b = Layout.getFragmentOffset(Fragment) + Fixup.getOffset(); // relocation in section
       Value += b-a;
     }
 
     if (!RelocSymbol) {
       MCSymbolData& SD = Asm.getSymbolData(ASymbol);
-      MCFragment* F = SD.getFragment();
-
       // Offset of the symbol in the section
       Value += Layout.getSymbolOffset(&SD);
     }
-
     Addend = Value;
   }
 
-  FixedValue = Value;
-  Type = OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
+  FixedValue = Value; // parameter out
+  unsigned Type = OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
   MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
-  unsigned Info = (SD.Index << 8) + (unsigned char)Type;
-  uint64_t RelocOffset = Layout.getFragmentOffset(Fragment) + Fixup.getOffset();
 
   if (!OR->hasRelocationAddend()) Addend = 0;
 
-  RelocationEntry RE(RelocOffset, Addend, Info, &SD);
+  RelocationEntry RE(Layout.getFragmentOffset(Fragment),  // r_offset
+                     Addend,  // r_addend
+                     SD.Index << 8 + (unsigned char)Type, // r_info
+                     &SD);  // MCSymbolData
   m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
 }
 
@@ -178,12 +167,10 @@ MCAsmObjectReader::IsSymbolRefDifferenceFullyResolvedImpl(
                                          bool InSet,
                                          bool IsPCRel) const
 {
-	std::cerr << "Duo: I love nowar" << std::endl;
 }
 
 void MCAsmObjectReader::WriteObject(MCAssembler &Asm,
                                     const MCAsmLayout &Layout)
 {
-	std::cerr << "Nowar: I'm cleaver" << std::endl;
 }
 
