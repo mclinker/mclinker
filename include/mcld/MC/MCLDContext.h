@@ -22,7 +22,7 @@
 #include <llvm/Support/Allocator.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <mcld/ADT/StringMap.h>
-#include <mcld/MC/Relocation.h>
+#include <mcld/LD/Relocation.h>
 #include <mcld/Support/FileSystem.h>
 #include <map>
 #include <utility>
@@ -78,7 +78,7 @@ public:
   SectionDataListType Sections;
   SymbolDataListType Symbols;
   SymbolTableType SymTab;
-  RelocationSection m_RelocSec;
+  RelocationInfo m_Reloc;
 
   const SectionDataListType &getSectionList() const { return Sections; }
   SectionDataListType &getSectionList() { return Sections; }
@@ -102,10 +102,10 @@ public:
   const_symbol_iterator symbol_end() const { return Symbols.end(); }
 
   // Relocation sequential access
-  reloc_iterator reloc_begin() { return m_RelocSec.entries.begin(); }
-  const_reloc_iterator reloc_begin() const { return m_RelocSec.entries.begin(); }
-  reloc_iterator reloc_end() { return m_RelocSec.entries.end(); }
-  const_reloc_iterator reloc_end() const { return m_RelocSec.entries.end(); }
+  reloc_iterator reloc_begin() { return m_Reloc.entries.begin(); }
+  const_reloc_iterator reloc_begin() const { return m_Reloc.entries.begin(); }
+  reloc_iterator reloc_end() { return m_Reloc.entries.end(); }
+  const_reloc_iterator reloc_end() const { return m_Reloc.entries.end(); }
 
 
   // FIXME: Avoid this indirection?
@@ -134,8 +134,8 @@ public:
   MCSymbolData &getOrCreateSymbolData(const MCSymbol &Symbol,
                                       bool *Create = 0);
 
-  RelocationSection& getRelocSection() { return m_RelocSec; }
-  const RelocationSection& getRelocSection() const { return m_RelocSec; }
+  RelocationInfo& getRelocInfo() { return m_Reloc; }
+  const RelocationInfo& getRelocInfo() const { return m_Reloc; }
 
   void dump();
 

@@ -5,9 +5,9 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
+#include <mcld/LD/Relocation.h>
 #include <mcld/MC/MCAsmObjectReader.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/Relocation.h>
 #include <mcld/MC/MCObjectReader.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/MC/MCAssembler.h>
@@ -167,7 +167,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   if (!OR->hasRelocationAddend()) Addend = 0;
 
   RelocationEntry RE(RelocOffset, Addend, Info, &SD);
-  m_LDInfo.bitcode().context()->getRelocSection().push_back(RE);
+  m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
 }
 
 bool
