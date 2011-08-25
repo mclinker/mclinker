@@ -79,6 +79,7 @@ if [ "${FILE_TYPE}" = "normal" ]; then
 	echo " 3) Target"
 	echo " 4) CodeGen"
 	echo " 5) Support"
+	echo " 6) LD"
 
 	while [ -z "${DEPLOYMENT}" ]; do
 		echo -n "your choice? ";
@@ -90,6 +91,7 @@ if [ "${FILE_TYPE}" = "normal" ]; then
 		3 ) DEPLOYMENT="Target";;
 		4 ) DEPLOYMENT="CodeGen";;
 		5 ) DEPLOYMENT="Support";;
+		6 ) DEPLOYMENT="LD";;
 		* ) DEPLOYMENT="";;
 		esac
 	done
