@@ -94,8 +94,11 @@ protected:
       m_AllocatedNum(0) {
   }
 
+  // LinearAllocatorBase does NOT mean to destroy the allocated memory.
+  // If you want a memory allocator to release memory at destruction, please
+  // use GCFactory series.
   virtual ~LinearAllocatorBase()
-  { clear(); }
+  { }
 
 public:
   pointer address(reference X) const
