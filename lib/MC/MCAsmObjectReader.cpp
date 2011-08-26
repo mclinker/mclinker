@@ -28,9 +28,10 @@
 using namespace llvm;
 using namespace mcld;
 
-//======================
-// Helper functions
-static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind) {
+//===----------------------------------------------------------------------===//
+// non-member functions
+static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind)
+{
   const MCFixupKindInfo &FKI =
     Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
 
@@ -42,7 +43,8 @@ static const MCSymbol* transSymbolToReloc(const MCAssembler &Asm,
                                           const MCFragment &F,
                                           const MCFixup &Fixup,
                                           bool IsPCRel,
-                                          MCObjectReader* OR) {
+                                          MCObjectReader* OR)
+{
   const MCSymbol &Symbol = Target.getSymA()->getSymbol();
   const MCSymbol &ASymbol = Symbol.AliasedSymbol();
   const MCSymbolData &SD = Asm.getSymbolData(Symbol);
@@ -87,7 +89,7 @@ static const MCSymbol* transSymbolToReloc(const MCAssembler &Asm,
 }
 
 
-//==========================
+//===----------------------------------------------------------------------===//
 // MCAsmObjectReader
 MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
                                      TargetLDBackend& pBackend,
@@ -112,7 +114,8 @@ void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
 void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCAsmLayout &Layout,
                                          const MCFragment *Fragment,
-                                         const MCFixup &Fixup, MCValue Target,
+                                         const MCFixup &Fixup,
+                                         MCValue Target,
                                          uint64_t &FixedValue)
 {
   int64_t Addend = 0;
@@ -150,23 +153,14 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   unsigned Type = OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
   MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
 
-  if (!OR->hasRelocationAddend()) Addend = 0;
+  if (!OR->hasRelocationAddend())
+    Addend = 0;
 
   RelocationEntry RE(Layout.getFragmentOffset(Fragment),  // r_offset
                      Addend,  // r_addend
                      SD.Index << 8 + (unsigned char)Type, // r_info
                      &SD);  // MCSymbolData
   m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
-}
-
-bool
-MCAsmObjectReader::IsSymbolRefDifferenceFullyResolvedImpl(
-                                         const MCAssembler &Asm,
-                                         const MCSymbolData &DataA,
-                                         const MCFragment &FB,
-                                         bool InSet,
-                                         bool IsPCRel) const
-{
 }
 
 void MCAsmObjectReader::WriteObject(MCAssembler &Asm,

@@ -3,10 +3,10 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Wen-Han Gu <nowar100@mediatek.com>                                      *
  ****************************************************************************/
-#ifndef MCASMOBJECTREADER_H
-#define MCASMOBJECTREADER_H
+#ifndef MCLD_ASMOBJECT_READER_H
+#define MCLD_ASMOBJECT_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -31,44 +31,39 @@ namespace llvm
 namespace mcld
 {
 
-  class MCLDInfo;
-  class TargetLDBackend;
-  using namespace llvm;
+class MCLDInfo;
+class TargetLDBackend;
 
 /** \class MCAsmObjectReader
  *  \brief MCAsmObjectReader records all MCSectionData while writing data in
  *   MCAssembler.
  *
  *  @see MCObjectWriter
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class MCAsmObjectReader : public llvm::MCObjectWriter
 {
 public:
-  MCAsmObjectReader(MCObjectStreamer&, TargetLDBackend&, MCLDInfo&);
+  MCAsmObjectReader(llvm::MCObjectStreamer&, TargetLDBackend&, MCLDInfo&);
   ~MCAsmObjectReader();
 
-  void ExecutePostLayoutBinding(MCAssembler &Asm,
-                                const MCAsmLayout &Layout);
+  void ExecutePostLayoutBinding(llvm::MCAssembler &Asm,
+                                const llvm::MCAsmLayout &Layout);
 
-  void RecordRelocation(const MCAssembler &Asm,
-                        const MCAsmLayout &Layout,
-                        const MCFragment *Fragment,
-                        const MCFixup &Fixup, MCValue Target,
+  /// RecordRelocation - record relocations
+  /// When a 
+  void RecordRelocation(const llvm::MCAssembler &Asm,
+                        const llvm::MCAsmLayout &Layout,
+                        const llvm::MCFragment *Fragment,
+                        const llvm::MCFixup &Fixup,
+                        llvm::MCValue Target,
                         uint64_t &FixedValue);
-  bool
-    IsSymbolRefDifferenceFullyResolvedImpl(const MCAssembler &Asm,
-                                           const MCSymbolData &DataA,
-                                           const MCFragment &FB,
-                                           bool InSet,
-                                           bool IsPCRel) const;
 
-
-  void WriteObject(MCAssembler &Asm, const MCAsmLayout &Layout);
+  void WriteObject(llvm::MCAssembler &Asm, const llvm::MCAsmLayout &Layout);
 
 private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_LDInfo;
+
 };
 
 } // namespace of mcld
