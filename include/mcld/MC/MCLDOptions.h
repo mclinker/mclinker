@@ -59,12 +59,19 @@ public:
   bool trace() const
   { return m_bTrace; }
 
+  void setVerbose(bool pVerbose = true)
+  { m_bVerbose = pVerbose; }
+
+  bool verbose() const
+  { return m_bVerbose; }
+
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
   sys::fs::RealPath m_Sysroot;
   SearchDirs m_SearchDirs;
   bool m_bTrace;
+  bool m_bVerbose;
 };
 
 } // namespace of mcld

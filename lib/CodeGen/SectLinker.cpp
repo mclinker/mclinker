@@ -80,6 +80,15 @@ ArgTraceAlias("trace",
               cl::desc("alias for -t"),
               cl::aliasopt(ArgTrace));
 
+static cl::opt<bool>
+ArgVerbose("V",
+          cl::desc("Display the version number for ld and list the linker emulations supported."));
+
+static cl::alias
+ArgVerboseAlias("verbose",
+                cl::desc("alias for -V"),
+                cl::aliasopt(ArgVerbose));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -238,6 +247,9 @@ bool SectLinker::doInitialization(Module &pM)
 
   // set up trace
   m_LDInfo.options().setTrace(ArgTrace);
+
+  // set up verbose
+  m_LDInfo.options().setVerbose(ArgVerbose);
 
   // -----  Set up Inputs  ----- //
   unsigned int input_size = ArgNameSpecList.size() +
