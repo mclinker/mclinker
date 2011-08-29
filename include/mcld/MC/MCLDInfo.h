@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <llvm/ADT/Triple.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDOptions.h>
 #include <mcld/Support/FileSystem.h>
@@ -35,7 +36,10 @@ namespace mcld
 class MCLDInfo
 {
 public:
-  explicit MCLDInfo(size_t pAttrNum, size_t InputSize);
+  explicit MCLDInfo(const std::string &pTripleString,
+                    size_t pAttrNum,
+                    size_t InputSize);
+
   virtual ~MCLDInfo();
 
   GeneralOptions& options()
@@ -79,14 +83,23 @@ public:
   const ContextFactory& contextFactory() const
   { return *m_pCntxtFactory; }
 
+  const Triple& triple() const
+  { return m_Triple; }
+
+  static const char* version();
+
 private:
+  // -----  General Options  ----- //
   GeneralOptions m_Options;
   InputTree *m_pInputTree;
+  Input* m_pBitcode;
+  Output* m_pOutput;
+  llvm::Triple m_Triple;
+
+  // -----  factories  ----- //
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
-  Output* m_pOutput;
-  Input* m_pBitcode;
 };
 
 } // namespace of mcld

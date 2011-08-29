@@ -34,11 +34,6 @@ using namespace llvm;
 using namespace mcld;
 using namespace ELF;
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-using namespace std;
-#endif
-
 //==========================
 // MCELFObjectReader
 MCELFObjectReader::MCELFObjectReader(MCELFObjectTargetReader *pTargetReader)
@@ -59,7 +54,6 @@ bool MCELFObjectReader::isMyFormat(mcld::Input &pFile) const
   if(-1 == (fd=open(pFile.path().native().c_str(), 0644)))
     llvm::report_fatal_error(std::string("can not open: ")+pFile.path().native());
 
-  cerr << "obj reader file=" << pFile.path().native() << endl;
   unsigned char magic[16];
   lseek(fd, 0, SEEK_SET);
   read(fd, &magic, sizeof(magic));

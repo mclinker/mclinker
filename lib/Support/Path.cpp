@@ -42,6 +42,10 @@ Path::Path(const Path::StringType &s )
   : m_PathName(s) {
 }
 
+Path::Path(const Path& pCopy)
+ : m_PathName(pCopy.m_PathName) {
+}
+
 Path::~Path()
 {
 }
@@ -213,7 +217,7 @@ std::ostream &mcld::sys::fs::operator<<(std::ostream& pOS,
 }
 
 std::istream &mcld::sys::fs::operator>>(std::istream& pOS,
-                                        const Path& pPath)
+                                        Path& pPath)
 {
   return pOS >> pPath.native();
 }

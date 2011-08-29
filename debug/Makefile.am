@@ -11,7 +11,7 @@ if ENABLE_UNITTEST
 MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
 MCLinker_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
-MCLinker_CPPFLAGS = -g -O1 -DMCLD_DEBUG  -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
 MCLinker_LDADD = ${LLVM_LDFLAGS}
 endif
 
@@ -26,9 +26,6 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
-	${LIBDIR}/Target/ARM/ARMLDBackend.h \
-	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
-	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${INCDIR}/MC/MCObjectReader.h \
 	${LIBDIR}/MC/MCObjectReader.cpp \
 	${INCDIR}/MC/MCELFObjectReader.h \
@@ -45,21 +42,24 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCArchiveReader.cpp \
 	${INCDIR}/MC/MCGNUArchiveReader.h \
 	${LIBDIR}/MC/MCGNUArchiveReader.cpp \
+	${INCDIR}/CodeGen/SectLinker.h \
+	${LIBDIR}/CodeGen/SectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMLDBackend.h \
+	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp \
-	${INCDIR}/CodeGen/SectLinker.h \
-	${LIBDIR}/CodeGen/SectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
+	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
+	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
  	${INCDIR}/MC/MCLinker.h \
 	${LIBDIR}/MC/MCLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
-	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \
 	${LIBDIR}/MC/MCAsmObjectReader.cpp \
 	${INCDIR}/MC/MCLDFile.h \
@@ -111,6 +111,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/StringMapTest.h \
+	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \

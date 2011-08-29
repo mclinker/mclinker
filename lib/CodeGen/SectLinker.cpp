@@ -17,6 +17,8 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/ADT/BinTree.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Support/CommandLine.h>
 #include <mcld/Support/FileSystem.h>
@@ -213,6 +215,8 @@ SectLinker::SectLinker(const std::string& pInputFile,
   m_LDInfo.output().setContext(
                           m_LDInfo.contextFactory().produce(
                                                    m_LDInfo.output().path()));
+
+  // general options
 }
 
 SectLinker::~SectLinker()
@@ -376,11 +380,18 @@ bool SectLinker::doFinalization(Module &pM)
 {
   m_pLDDriver->normalize();
 
+  if (m_LDInfo.options().verbose()) {
+    outs() << "MCLinker (LLVM Sub-project) - ";
+    outs() << MCLDInfo::version();
+    outs() << "\n";
+  }
+
   if (m_LDInfo.options().trace()) {
-    outs() << "** name\ttype\tpath\n";
-    mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+    static int counter = 0;
+    outs() << "** name\ttype\tpath\tsize (" << m_LDInfo.inputs().size() << ")\n";
+    InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
     for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-      outs() << "*  " << (*input)->name();
+      outs() << counter++ << " *  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
         outs() << "\tarchive\t(";
@@ -400,6 +411,7 @@ bool SectLinker::doFinalization(Module &pM)
       outs() << (*input)->path().c_str() << ")\n";
     }
   }
+
   if (!m_pLDDriver->linkable())
     return true;
 /**
@@ -422,7 +434,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
 
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
-      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE &&
+      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
@@ -439,6 +451,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                      *prev_ward,
                      (*cur_char)->path()->native(),
                      *(*cur_char)->path());
+      prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::NAMESPEC: {
@@ -462,11 +475,13 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
                      *prev_ward,
                      (*cur_char)->namespec(),
                      *path);
+      prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
     }
     case PositionDependentOption::START_GROUP:
       pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
+      prev_ward->move(cur_node);
       returnStack.push(cur_node);
       prev_ward = &InputTree::Downward;
       break;
@@ -539,3 +554,4 @@ bool compare_options(const SectLinker::PositionDependentOption* X,
 {
   return (X->position() < Y->position());
 }
+

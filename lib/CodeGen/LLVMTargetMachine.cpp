@@ -282,7 +282,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  OwningPtr<MCStreamer> AsmStreamer(
+  MCStreamer* AsmStreamer =
                             getTarget().get()->createMCObjectStreamer(
                                                   m_Triple,
                                                   *Context,
@@ -290,7 +290,10 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                                   llvm::nulls(),
                                                   MCE,
                                                   getTM().hasMCRelaxAll(),
-                                                  getTM().hasMCNoExecStack()));
+                                                  getTM().hasMCNoExecStack());
+  if (0 == AsmStreamer)
+    return true;
+
   AsmStreamer->InitSections();
   AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
   if (0 == printer)
@@ -301,10 +304,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == ldBackend)
     return true;
 
-  MCAsmObjectReader* objReader =
-      new MCAsmObjectReader(static_cast<MCObjectStreamer&>(*AsmStreamer.get()),
-                            *ldBackend,
-                            getLDInfo());
+  MCAsmObjectReader* objReader = new MCAsmObjectReader(static_cast<MCObjectStreamer&>(*AsmStreamer),
+                                                       *ldBackend,
+                                                       getLDInfo());
 
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
                                                                pInputFilename,
@@ -315,7 +317,6 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == funcPass)
     return true;
   pPM.add(funcPass);
-  AsmStreamer.take();
   return false;
 }
 

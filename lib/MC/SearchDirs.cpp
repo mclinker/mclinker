@@ -55,27 +55,31 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
 
     switch(pType) {
-      case Input::DynObj:
+      case Input::DynObj: {
         while (entry!=enEnd) {
-          if (file == entry.path()->stem() &&
-            mcld::sys::fs::detail::shared_library_extension == entry.path()->extension())
-          return entry.path();
+          if (file == entry.path()->stem().native() ) {
+            if(mcld::sys::fs::detail::shared_library_extension == entry.path()->extension().native()) {
+              return entry.path();
+            }
+          }
 
           ++entry;
         }
+      }
 
-      case Input::Archive :
+      case Input::Archive : {
         entry = (*mcld_dir)->begin();
+        enEnd = (*mcld_dir)->end();
         while ( entry!=enEnd ) {
-          if (file == entry.path()->stem() &&
-            mcld::sys::fs::detail::static_library_extension == entry.path()->extension())
-          return entry.path();
-
+          if (file == entry.path()->stem().native() &&
+            mcld::sys::fs::detail::static_library_extension == entry.path()->extension().native()) {
+            return entry.path();
+          }
           ++entry;
        }
-
+     }
      default:
-     llvm::report_fatal_error(std::string("SearchDir can not recoginize unkonwn type!!"));
+       llvm::report_fatal_error(std::string("SearchDir can not recoginize unkonwn type!!"));
     }
   }
   return 0;

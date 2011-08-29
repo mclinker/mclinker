@@ -3,7 +3,6 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #ifndef ARMELFOBJECTREADER_H
@@ -18,9 +17,6 @@ namespace mcld
 
 /** \class ARMELFObjectReader
  *  \brief ARMELFObjectReader is a target-dependent ELF object reader.
- *
- *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class ARMELFObjectReader : public MCELFObjectTargetReader
 {

@@ -7,14 +7,12 @@
  ****************************************************************************/
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetRegistry.h>
-#include <iostream>
 
 namespace mcld {
 
 mcld::Target TheARMTarget;
 
 extern "C" void LLVMInitializeARMLDTargetInfo() {
-  std::cerr << "target info" << std::endl;
   // register into mcld::TargetRegistry
   mcld::RegisterTarget X(TheARMTarget, "arm" );
 }

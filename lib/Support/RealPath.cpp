@@ -8,11 +8,6 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-using namespace std;
-#endif
-
 using namespace mcld::sys::fs;
 
 //==========================
@@ -55,9 +50,7 @@ void RealPath::initialize()
     detail::get_pwd(path_name);
     path_name += '/';
     path_name += m_PathName;
-    cerr << "before can=" << path_name << endl;
     detail::canonicalize(path_name);
-    cerr << "after can=" << path_name << endl;
     m_PathName = path_name;
   }
 }

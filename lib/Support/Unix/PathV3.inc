@@ -49,7 +49,7 @@ size_t canonicalize(std::string& pathname)
     return 0;
 
   int handler = 0;
-  stack<int> slash_stack;
+  std::stack<int> slash_stack;
   slash_stack.push(-1);
   while (handler < pathname.size()) {
     if (separator == pathname[handler]) { // handler = 1st '/'
@@ -222,7 +222,7 @@ Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
 {
   std::string path(pIter.m_pParent->m_Path.native());
   switch (read_dir(pIter.m_pParent->m_Handler, path)) {
-  case 1:
+  case 1: // read one
     return pIter.m_pParent->m_Cache.GetOrCreateValue(path, new Path(path));
   case 0:// meet real end
     return pIter.m_pParent->m_Cache.end();
@@ -246,6 +246,8 @@ void open_dir(Directory& pDir)
     pDir.m_Cache.GetOrCreateValue(path, new Path(path));
     return;
   case 0:
+    // FIXME: a warning function
+    std::cerr << "empty directory:" << pDir.path().native() << std::endl;
     return;
   case -1:
     llvm::report_fatal_error(std::string("Can't read directory: ")+

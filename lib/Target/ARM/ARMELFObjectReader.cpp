@@ -3,7 +3,6 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #include <llvm/ADT/StringSwitch.h>
@@ -14,7 +13,12 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/raw_ostream.h>
 #include "ARMELFObjectReader.h"
-#include "../lib/Target/ARM/ARMFixupKinds.h"
+#include "ARMFixupKinds.h"
+
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
 
 using namespace llvm;
 using namespace mcld;
@@ -29,9 +33,9 @@ static unsigned getRelocTypeInner(const MCValue& Target,
 
   unsigned Type = 0;
   if (IsPCRel) {
-    llvm::errs() << (unsigned)Fixup.getKind() << "\n";
-    switch ((unsigned)Fixup.getKind()) {
-    default: assert(0 && "Unimplemented");
+    switch (Fixup.getKind()) {
+    default:
+    assert(0 && "Unimplemented");
     case FK_Data_4:
       switch (Modifier) {
       default: assert(!"Unsupported Modifier");
@@ -87,7 +91,8 @@ static unsigned getRelocTypeInner(const MCValue& Target,
       }
       break;
     }
-  } else {
+  }
+  else {
     switch ((unsigned)Fixup.getKind()) {
     default: assert(!"invalid fixup kind!");
     case FK_Data_4:
@@ -174,21 +179,6 @@ const MCSymbol *ARMELFObjectReader::explicitRelSym(const MCAssembler &Asm,
   bool InNormalSection = true;
   unsigned RelocType = 0;
   RelocType = getRelocTypeInner(Target, Fixup, IsPCRel);
-
-  // Debug ***************************************************************//
-  const MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();  //
-  MCSymbolRefExpr::VariantKind Kind2;                                     //
-  Kind2 = Target.getSymB() ?                                              //
-      Target.getSymB()->getKind() : MCSymbolRefExpr::VK_None;             //
-  errs() << "considering symbol "                                         //
-    << Section.getSectionName() << "/"                                    //
-    << Symbol.getName() << "/"                                            //
-    << " Rel:" << (unsigned)RelocType                                     //
-    << " Kind: " << (int)Kind << "/" << (int)Kind2                        //
-    << " Tmp:"                                                            //
-    << Symbol.isAbsolute() << "/" << Symbol.isDefined() << "/"            //
-    << Symbol.isVariable() << "/" << Symbol.isTemporary() << "\n";        //
-  //**********************************************************************//
 
   if (IsPCRel) {
     switch (RelocType) {

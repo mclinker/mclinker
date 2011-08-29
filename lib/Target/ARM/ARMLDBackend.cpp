@@ -11,14 +11,11 @@
 #include "ARMLDBackend.h"
 #include "ARMELFObjectReader.h"
 #include "ARMELFObjectWriter.h"
-#include <iostream>
-using namespace std;
 
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
 {
-  cerr << "ARM GNU LDBackend" << endl;
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()

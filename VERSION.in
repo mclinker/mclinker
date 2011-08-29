@@ -1,4 +1,4 @@
-0.0.3.0-mtk
+@MCLD_VERSION@
 ==================
 Versioning Format:
   [MAJOR].[MINOR].[MICRO].[AGE]-[PKG BUILD]

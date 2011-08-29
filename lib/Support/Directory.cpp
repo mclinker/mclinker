@@ -115,8 +115,9 @@ FileStatus Directory::symlinkStatus() const
 
 Directory::iterator Directory::begin()
 {
-  if (!isGood() || m_Cache.empty())
+  if (!isGood() || m_Cache.empty()) {
     return end();
+  }
   return iterator(this, m_Cache.begin());
 }
 
@@ -175,15 +176,19 @@ DirIterator& DirIterator::operator=(const DirIterator& pCopy)
 
 DirIterator& DirIterator::operator++()
 {
-  if (0 == m_pParent) // Directory::end()
+  if (0 == m_pParent) // real Directory::end() or empty directory
     return *this;
-  Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
-  if (it == m_pParent->m_Cache.end()) {
+
+  ++m_Idx;
+  if (m_Idx == m_pParent->m_Cache.end()) {
+    Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
+    if (it == m_pParent->m_Cache.end()) {
       m_Idx = m_pParent->m_Cache.begin();
       m_pParent = 0;
       return *this;
+    }
+    m_Idx = it;
   }
-  m_Idx = it;
   return *this;
 }
 
@@ -192,13 +197,17 @@ DirIterator DirIterator::operator++(int)
   DirIterator tmp(*this);
   if (0 == m_pParent)
     return tmp;
-  Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
-  if (it == m_pParent->m_Cache.end()) {
+
+  ++m_Idx;
+  if (m_Idx == m_pParent->m_Cache.end()) {
+    Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
+    if (it == m_pParent->m_Cache.end()) {
       m_Idx = m_pParent->m_Cache.begin();
       m_pParent = 0;
-      return *this;
+      return tmp;
+    }
+    m_Idx = it;
   }
-  m_Idx = it;
   return tmp;
 }
 

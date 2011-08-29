@@ -43,8 +43,9 @@ public:
 
 public:
   Path();
-  Path(const ValueType* s );
-  Path(const StringType &s );
+  Path(const ValueType* s);
+  Path(const StringType &s);
+  Path(const Path& pCopy);
   virtual ~Path();
 
   // -----  assignments  ----- //
@@ -112,7 +113,7 @@ bool is_directory(const Path &pPath);
 
 std::ostream &operator<<(std::ostream& pOS, const Path& pPath);
 
-std::istream &operator>>(std::istream& pOS, const Path& pPath);
+std::istream &operator>>(std::istream& pOS, Path& pPath);
 
 llvm::raw_ostream &operator<<(llvm::raw_ostream &OS, const Path &pPath);
 

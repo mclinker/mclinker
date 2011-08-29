@@ -67,7 +67,6 @@ public:
     proxy::move<DIRECT>(m_pNode);
   }
 
-
   bool hasRightChild() const
   { return ((m_pNode->right) != (m_pNode->right->right)); }
 

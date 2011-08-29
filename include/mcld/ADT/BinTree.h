@@ -68,10 +68,10 @@ public:
 
   BFSIterator(NodeBase *X)
     : TreeIteratorBase(X) {
-    if (hasLeftChild())
-      m_Queue.push(m_pNode->left);
     if (hasRightChild())
       m_Queue.push(m_pNode->right);
+    if (hasLeftChild())
+      m_Queue.push(m_pNode->left);
   }
 
   virtual ~BFSIterator()
@@ -84,10 +84,10 @@ public:
     }
     m_pNode = m_Queue.front();
     m_Queue.pop();
-    if (hasLeftChild())
-      m_Queue.push(m_pNode->left);
     if (hasRightChild())
       m_Queue.push(m_pNode->right);
+    if (hasLeftChild())
+      m_Queue.push(m_pNode->left);
   }
 
 private:

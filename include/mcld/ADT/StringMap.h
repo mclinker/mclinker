@@ -13,6 +13,7 @@
 #endif
 
 #include <vector>
+#include <assert.h>
 #include <llvm/ADT/StringMap.h>
 #include <mcld/Support/Path.h>
 
@@ -46,30 +47,58 @@ class StringMapConstIterator
 protected:
   typedef StringMap<ValueTy, AllocatorTy> MapTy;
 
-  MapTy* map;
-  int32_t idx;
+  MapTy* f_Map;
+  int32_t f_Idx;
 
 public:
-  StringMapConstIterator() {}
-  explicit StringMapConstIterator(MapTy* map, int32_t idx = -1)
-  : map(map), idx(idx) {
-    if (idx == -1)  idx = map->m_Content.size();
-  }
-
-  bool operator==(const StringMapConstIterator &RHS) const { return idx == RHS.idx; }
-  bool operator!=(const StringMapConstIterator &RHS) const { return !operator==(RHS); }
-
   typedef ValueTy value_type;
 
-  const value_type& operator*() const {
-    return map->m_Content[idx];
-  }
-  const value_type* operator->() const {
-    return &map->m_Content[idx];
+public:
+  StringMapConstIterator()
+  : f_Map(0), f_Idx(-1)
+  { }
+
+  StringMapConstIterator(const StringMapConstIterator& pCopy)
+  : f_Map(pCopy.f_Map), f_Idx(pCopy.f_Idx)
+  { }
+
+  explicit StringMapConstIterator(MapTy* map, int32_t idx = -1)
+  : f_Map(map), f_Idx(idx) {
+    if (idx == -1)
+      f_Idx = map->m_Content.size();
   }
 
-  StringMapConstIterator& operator++() { ++idx; return *this; }
-  StringMapConstIterator operator++(int) { StringMapConstIterator Tmp(*this); ++idx; return Tmp; }
+  StringMapConstIterator& operator=(const StringMapConstIterator& pCopy) {
+    f_Map = pCopy.f_Map;
+    f_Idx = pCopy.f_Idx;
+  }
+
+  bool operator==(const StringMapConstIterator &RHS) const
+  { return f_Idx == RHS.f_Idx; }
+
+  bool operator!=(const StringMapConstIterator &RHS) const
+  { return !operator==(RHS); }
+
+  const value_type& operator*() const {
+    assert(0 != f_Map);
+    return f_Map->m_Content[f_Idx];
+  }
+
+  const value_type* operator->() const {
+    assert(0 != f_Map);
+    return &f_Map->m_Content[f_Idx];
+  }
+
+  StringMapConstIterator& operator++() {
+    ++f_Idx;
+    return *this;
+  }
+
+  StringMapConstIterator operator++(int) {
+    StringMapConstIterator Tmp(*this);
+    ++f_Idx;
+    return Tmp;
+  }
 };
 
 template <typename ValueTy, typename AllocatorTy>
@@ -79,6 +108,7 @@ class StringMapIterator : public StringMapConstIterator<ValueTy, AllocatorTy>
   typedef typename StringMapConstIterator<ValueTy, AllocatorTy>::value_type value_type;
 public:
   StringMapIterator() {}
+
   explicit StringMapIterator(MapTy* map, int32_t idx = -1)
   : StringMapConstIterator<ValueTy, AllocatorTy>(map, idx) {}
 
@@ -117,13 +147,21 @@ public:
   typedef StringMapIterator<ValueTy, AllocatorTy> iterator;
   typedef StringMapConstIterator<ValueTy, AllocatorTy> const_iterator;
 
-  iterator begin() {  return iterator(this, 0); }
-  const_iterator begin() const {  return const_iterator(this, 0); }
-  iterator end() {  return iterator(this); }
-  const_iterator end() const {  return const_iterator(this); }
+  iterator begin()
+  { return iterator(this, 0); }
+
+  const_iterator begin() const
+  { return const_iterator(this, 0); }
+
+  iterator end()
+  { return iterator(this); }
+
+  const_iterator end() const
+  { return const_iterator(this); }
 
   bool empty() const { return m_Content.empty(); }
   void clear() { m_Map.clear();  m_Content.clear(); }
+  size_t size() const { return m_Content.size(); }
 
   template <typename InitTy>
   inline iterator GetOrCreateValue(llvm::StringRef Key, const InitTy &Val = ValueTy());

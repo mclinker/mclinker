@@ -16,12 +16,18 @@
 #include <mcld/MC/InputFactory.h>
 #include <mcld/ADT/TypeTraits.h>
 #include <string>
+#include <iostream>
+
+using namespace std;
 
 namespace mcld
 {
 
+/** \class template<typename Traits, typename Iterator> PolicyIterator<mcld::Input>
+ *  \brief PolicyIterator<mcld::Input> is a partially specific PolicyIterator
+ */
 template<typename Traits, typename IteratorType>
-class PolicyIterator<Input, Traits, IteratorType> : public PolicyIteratorBase<Input, Traits, IteratorType>
+class PolicyIterator<mcld::Input, Traits, IteratorType> : public PolicyIteratorBase<Input, Traits, IteratorType>
 {
 public:
   typedef PolicyIterator<Input, Traits, IteratorType> Self;
@@ -52,7 +58,7 @@ public:
   }
 
   Self operator++(int) {
-    Self tmp = *this;
+    Self tmp(*this);
     IteratorType::advance();
     if (isGroup())
       IteratorType::advance();
@@ -85,17 +91,26 @@ public:
 public:
   struct Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
+    virtual void move(iterator& pNode) const = 0;
   };
 
   struct Succeeder : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
       proxy::hook<Positional>(pFrom.m_pNode, pTo.m_pNode);
     }
+
+    virtual void move(iterator& pNode) const {
+      pNode.move<Positional>();
+    }
   };
 
   struct Includer : public Connector {
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
       proxy::hook<Inclusive>(pFrom.m_pNode, pTo.m_pNode);
+    }
+
+    virtual void move(iterator& pNode) const {
+      pNode.move<Inclusive>();
     }
   };
 

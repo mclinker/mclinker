@@ -9,28 +9,30 @@
 ####################
 #  m4 includes
 m4_include(m4/acx_pthread.m4)
-
-####################
-#  Versioning, see VERSION
-MAJOR=0
-MINOR=0
-CHANGE=0
-AGE=0
-
-DEV_VERSION="$MAJOR.$MINOR.$CHANGE.$AGE"
-PKG_VERSION="$MAJOR.$MINOR.$CHANGE"
-
-
 ####################
 #  Autoconf/Automake Initialization
 
-AC_INIT([MCLinker],[0.0.0],[lubatang@mediatek.com])
+dnl AC_INIT(PKG_NAME, CONFIG_VERSION, BUG_REPORTER)
+AC_INIT([MCLinker],[1.1],[lubatang@mediatek.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
+
+####################
+#  Versioning, see VERSION
+MAJOR=0
+MINOR=0
+MICRO=3
+AGE=0
+BUILD=mtk
+
+DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
+PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
+MCLD_VERSION=$DEV_VERSION
+AC_SUBST(MCLD_VERSION)
 
 ####################
 #  Languages
@@ -80,6 +82,7 @@ ENUM_LLVM_TARGETS
 
 ####################
 # OUTPUT
+AC_CONFIG_FILES([VERSION])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([debug/Makefile])
 AC_CONFIG_FILES([optimized/Makefile])
@@ -88,7 +91,7 @@ AC_CONFIG_FILES([utils/gtest/Makefile])
 AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
-
+AC_CONFIG_FILES([include/mcld/Config/Config.h])
 AC_CONFIG_FILES([tools/MCObjectReader/Makefile])
 
 AC_OUTPUT

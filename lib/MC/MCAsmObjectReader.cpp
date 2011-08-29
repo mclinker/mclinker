@@ -23,9 +23,7 @@
 #include <llvm/MC/MCObjectStreamer.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
-#include <iostream>
 
-using namespace llvm;
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//

@@ -1304,21 +1304,6 @@ const MCSymbol *ARMELFLDWriter::ExplicitRelSym(const MCAssembler &Asm,
   unsigned RelocType = 0;
   RelocType = GetRelocTypeInner(Target, Fixup, IsPCRel);
 
-  DEBUG(
-      const MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();
-      MCSymbolRefExpr::VariantKind Kind2;
-      Kind2 = Target.getSymB() ?  Target.getSymB()->getKind() :
-        MCSymbolRefExpr::VK_None;
-      dbgs() << "considering symbol "
-        << Section.getSectionName() << "/"
-        << Symbol.getName() << "/"
-        << " Rel:" << (unsigned)RelocType
-        << " Kind: " << (int)Kind << "/" << (int)Kind2
-        << " Tmp:"
-        << Symbol.isAbsolute() << "/" << Symbol.isDefined() << "/"
-        << Symbol.isVariable() << "/" << Symbol.isTemporary()
-        << " Counts:" << PCRelCount << "/" << NonPCRelCount << "\n");
-
   if (IsPCRel || ForceARMElfPIC) { ++PCRelCount;
     switch (RelocType) {
     default:

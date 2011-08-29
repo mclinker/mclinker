@@ -88,6 +88,9 @@ public:
   iterator begin();
   iterator end();
 
+  PathCache& cache()
+  { return m_Cache; }
+
 protected:
   mcld::sys::fs::Path m_Path;
   mutable FileStatus m_FileStatus;

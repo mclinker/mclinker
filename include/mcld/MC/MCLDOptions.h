@@ -65,6 +65,7 @@ public:
   bool verbose() const
   { return m_bVerbose; }
 
+
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
