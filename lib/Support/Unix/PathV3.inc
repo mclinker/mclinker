@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <string>
 #include <stack>
+#include <iostream>
 
 namespace mcld{
 namespace sys{
