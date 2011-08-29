@@ -56,6 +56,18 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${LIBDIR}/Target/X86/X86LDBackend.h \
+	${LIBDIR}/Target/X86/X86LDBackend.cpp \
+	${LIBDIR}/Target/X86/X86TargetMachine.h \
+	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
+	${LIBDIR}/Target/X86/X86ELFObjectReader.h \
+	${LIBDIR}/Target/X86/X86ELFObjectReader.cpp \
+	${LIBDIR}/Target/X86/X86ELFObjectWriter.h \
+	${LIBDIR}/Target/X86/X86ELFObjectWriter.cpp \
+	${LIBDIR}/Target/X86/X86SectLinker.cpp \
+	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
+	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
+	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
  	${INCDIR}/MC/MCLinker.h \
