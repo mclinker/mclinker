@@ -222,13 +222,13 @@ TEST_F( BinTreeTest, BFSIterator_BasicTraversal)
 
   ASSERT_EQ(111, **bfs_it);
   ++bfs_it;
-  ASSERT_EQ(9, **bfs_it);
-  ++bfs_it;
   ASSERT_EQ(10, **bfs_it);
   ++bfs_it;
-  ASSERT_EQ(7, **bfs_it);
+  ASSERT_EQ(9, **bfs_it);
   ++bfs_it;
   ASSERT_EQ(8, **bfs_it);
+  ++bfs_it;
+  ASSERT_EQ(7, **bfs_it);
   ++bfs_it;
   ASSERT_TRUE(bfs_it ==  bfs_end);
   bfs_it = m_pTestee->bfs_begin(); 
