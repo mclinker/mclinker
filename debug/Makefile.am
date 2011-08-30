@@ -127,6 +127,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/SymbolTableTest.h \
+	${UNITTEST}/SymbolTableTest.cpp \
 	${UNITTEST}/StringTableTest.h \
 	${UNITTEST}/StringTableTest.cpp \
 	${UNITTEST}/StringMapTest.h \

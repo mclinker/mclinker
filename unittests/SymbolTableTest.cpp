@@ -7,45 +7,40 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
-#include <mcld/LD/StringTable.h>
-#include <StringTableTest.h>
+#include <mcld/LD/SymbolTable.h>
+#include <SymbolTableTest.h>
 
 using namespace mcld;
 using namespace mcldtest;
 
 
 // Constructor can do set-up work for all test here.
-StringTableTest::StringTableTest()
+SymbolTableTest::SymbolTableTest()
 {
   // create testee. modify it if need
-  m_pTestee = new StringTable();
+  m_pTestee = new SymbolTable<>(m_StrTable);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
-StringTableTest::~StringTableTest()
+SymbolTableTest::~SymbolTableTest()
 {
   delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
-void StringTableTest::SetUp()
+void SymbolTableTest::SetUp()
 {
 }
 
 // TearDown() will be called immediately after each test.
-void StringTableTest::TearDown()
+void SymbolTableTest::TearDown()
 {
 }
 
 //==========================================================================//
 // Testcases
-TEST_F(StringTableTest, add_and_get) {
-  ASSERT_EQ(0, m_pTestee->addCString(""));
-  ASSERT_EQ(1, m_pTestee->addCString("abc"));
-  ASSERT_EQ(5, m_pTestee->addCString("5566"));
-  ASSERT_EQ(10, m_pTestee->size());
-  ASSERT_STREQ("", m_pTestee->getCString(0));
-  ASSERT_STREQ("abc", m_pTestee->getCString(1));
-  ASSERT_STREQ("", m_pTestee->getCString(4));
-  ASSERT_STREQ("5566", m_pTestee->getCString(5));
+TEST_F(SymbolTableTest, init) {
+  mcld::SymbolTable<>::iterator it;
+  it = m_pTestee->begin();
+  ASSERT_EQ(it, m_pTestee->end());
 }

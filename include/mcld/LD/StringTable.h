@@ -19,7 +19,9 @@ namespace mcld
 {
 
 /** \class StringTable
- *  \brief
+ *  \brief A standalone string table for linking.
+ *
+ *  It offers one-way search (index to string), and keep ending null char inside.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
