@@ -22,6 +22,7 @@ function copy_template_header
 	local DEPLOYMENT=$2
 	local TARGET_FILE="${BOLDTOP}/include/mcld/${DEPLOYMENT}/${NAME}.h";
 	local SOURCE_FILE="${BOLDTOP}/templates/header.h";
+	mkdir -p ${BOLDTOP}/include/mcld/${DEPLOYMENT}
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
 }
@@ -32,6 +33,7 @@ function copy_template_impl
 	local DEPLOYMENT=$2
 	local TARGET_FILE="${BOLDTOP}/lib/${DEPLOYMENT}/${NAME}.cpp";
 	local SOURCE_FILE="${BOLDTOP}/templates/impl.cpp";
+	mkdir -p ${BOLDTOP}/lib/${DEPLOYMENT}
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
 }
