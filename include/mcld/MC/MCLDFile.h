@@ -16,6 +16,7 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/ADT/Uncopyable.h>
 #include <string>
 
 #include "mcld/MC/MCLDContext.h"
@@ -24,6 +25,7 @@ namespace mcld
 {
 class MCContext;
 class MCLDContext;
+class MemoryArea;
 
 /** \class MCLDFile
  *  \brief MCLDFile represents the file being linked or produced.
@@ -33,7 +35,7 @@ class MCLDContext;
  *
  *  @see mcld::sys::fs::Path MCLDContext
  */
-class MCLDFile
+class MCLDFile : private Uncopyable
 {
 public:
   enum Type {
@@ -83,11 +85,18 @@ public:
   const MCLDContext* context() const
   { return m_pContext; }
 
+  void open();
+  void close();
+  bool isOpened() const;
+  bool isGood() const;
+
 protected:
   sys::fs::Path m_Path;
   std::string m_InputName;
   MCLDContext   *m_pContext;
   unsigned int m_Type;
+  MemoryArea* m_pMemArea;
+
 };
 
 /** \class MCLDFileFactory
