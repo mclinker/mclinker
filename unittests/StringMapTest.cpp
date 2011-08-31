@@ -59,6 +59,14 @@ TEST_F( StringMapTest, traverse ) {
     cerr << *num << endl;
     ++count;
   }
+  StringMap<int>::iterator it = m_pTestee->begin();
+  ASSERT_EQ(1, *it);
+  ++it;
+  ASSERT_EQ(2, *it);
+  ++it;
+  ASSERT_EQ(5566, *it);
+  ++it;
+  ASSERT_TRUE(it == m_pTestee->end());
   ASSERT_EQ(3, count);
 }
 
