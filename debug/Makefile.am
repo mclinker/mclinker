@@ -106,6 +106,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringMap.h \
+	${INCDIR}/LD/StringUnorderedMap.h \
+	${LIBDIR}/LD/StringUnorderedMap.cpp \
 	${INCDIR}/LD/StringTable.h \
 	${LIBDIR}/LD/StringTable.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
