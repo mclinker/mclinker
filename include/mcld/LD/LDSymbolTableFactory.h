@@ -29,7 +29,7 @@ public:
   LDSymbolTableFactory();
   LDIOSymbolTableIF *Create(StringTable *, const Input&);
   LDIOSymbolTableIF *Create(StringTable *, const Output&);
-  LDSymbolTableIF *Create(StringTable *);
+  LDDirectSymbolTable *Create(StringTable *);
 };
 
 template
@@ -45,7 +45,7 @@ public:
   LDIOSymbolTableIF *Create(StringTable *, const Output&) {
     return new LDOutputSymbolTable(LDSymbolTableFactory::Instance());
   }
-  LDSymbolTableIF *Create(StringTable *) {
+  LDDirectSymbolTable *Create(StringTable *) {
     return new LDDirectSymbolTable(LDSymbolTableFactory::Instance());
   }
 private:

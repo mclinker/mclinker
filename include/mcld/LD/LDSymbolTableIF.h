@@ -28,16 +28,15 @@ class LDSymbolTableStorage;
 class LDSymbolTableIF
 {
   /* draft. */
+  /* For the speed issue, iterator move to the next level interfase. It may be
+   * come back after speed test.(Because the bound may be the "insertSymbol".)
+   */
 protected:
   LDSymbolTableIF(LDSymbolTableStorage *symtab):f_SymbolTableStrorage(symtab){}
   LDSymbolTableStorage *f_SymbolTableStrorage;
 public:
   virtual void insertSymbol(llvm::StringRef) {}
-  virtual const_iterator begin() const {}
-  virtual iterator begin() {}
-  virtual const_iterator end() const {}
-  virtual iterator end() {}
-  virtual size_t size() {}
+  virtual size_t size() const ;
   virtual bool merge(const LDSymbolTableIF*) {}
   virtual ~LDSymbolTableIF {}
 }

@@ -31,18 +31,19 @@ protected:
   LDIOSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
   vector<LDSymbol*> f_Symbols;
 public:
+  typedef vector<LDSymbol*>::iterator iterator;
+  typedef vector<LDSymbol*>::const_iterator const_iterator;
+public:
   LDSymbol *getSymbol(int pX) const {
     return f_Symbols[pX];
   }
+  const_iterator begin() const { return f_Symbols.begin(); }
+  iterator begin() { return f_Symbols.begin(); }
+  const_iterator end() const { return f_Symbols.end(); }
+  iterator end() { return f_Symbols.end(); }
   virtual void insertSymbol(llvm::StringRef) {}
-  virtual const_iterator begin() const {}
-  virtual iterator begin() {}
-  virtual const_iterator end() const {}
-  virtual iterator end() {}
-  virtual size_t size() const {
-    return f_Symbols.size();
-  }
-  virtual bool merge(const LDSymbolTableIF*) {}
+  virtual size_t size() const { return f_Symbols.size(); }
+  virtual bool merge(const LDSymbolTableIF *) {}
 }
 
 } // namespace of mcld

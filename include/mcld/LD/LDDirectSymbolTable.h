@@ -9,6 +9,7 @@
 #define LDDIRECTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
 #include <mcld/LD/LDSymbolTableIF.h>
+#include <mcld/LD/LDSymbolTableStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -29,15 +30,23 @@ class LDDirectSymbolTable : public LDSymbolTableIF
 {
   /* draft. */
 friend class LDSymbolTableFactory;
+public:
+  typedef SymbolTableStrorage::iterator iterator;
+  typedef SymbolTableStrorage::const_iterator const_iterator;
 private:
   LDDirectSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
 public:
-  virtual void insertSymbol(llvm::StringRef) {}
-  virtual const_iterator begin() const {}
-  virtual iterator begin() {}
-  virtual const_iterator end() const {}
-  virtual iterator end() {}
-  virtual bool merge(const LDSymbolTableIF*) {}
+  const_iterator begin() const { return f_SymbolTableStrorage->begin(); }
+  iterator begin() { return f_SymbolTableStrorage->begin(); }
+  const_iterator end() const { return f_SymbolTableStrorage->end(); }
+  iterator end() { return f_SymbolTableStrorage->end(); }
+  virtual void insertSymbol(llvm::StringRef pSymName) {
+    f_SymbolTableStrorage->insertSymbol(pSymName);
+  }
+  virtual size_t size() const { return f_SymbolTableStrorage->size(); }
+  virtual bool merge(const LDSymbolTableIF *) {
+    f_SymbolTableStrorage->merge();
+  }
 }
 
 } // namespace of mcld

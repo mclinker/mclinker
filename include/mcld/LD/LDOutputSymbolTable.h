@@ -33,11 +33,7 @@ private:
   LDOutputSymbolTable(LDSymbolTableStorage *symtab):LDIOSymbolTableIF(symtab){}
 public:
   virtual void insertSymbol(llvm::StringRef) {}
-  virtual const_iterator begin() const {}
-  virtual iterator begin() {}
-  virtual const_iterator end() const {}
-  virtual iterator end() {}
-  virtual bool merge(const LDSymbolTableIF*) {}
+  virtual bool merge(const LDSymbolTableIF *) {}
 }
 
 } // namespace of mcld
