@@ -27,6 +27,7 @@ class LDSymbol;
  */
 class LDDirectSymbolTable : public LDSymbolTableIF
 {
+  /* draft. */
 public:
   LDDirectSymbolTable(StringTable *);
   virtual void insertSymbol(llvm::StringRef) {}

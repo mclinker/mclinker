@@ -24,6 +24,7 @@ namespace mcld
 template<typename bool global>
 class LDSymbolTableFactory
 {
+  /* draft. */
 public:
   LDSymbolTableFactory();
   LDIOSymbolTableIF *Create(StringTable *, const Input&);

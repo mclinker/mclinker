@@ -26,6 +26,7 @@ class LDSymbol;
  */
 class LDIOSymbolTableIF : public LDSymbolTableIF
 {
+  /* draft. */
 private:
   LDIOSymbolTableIF();
 protected:
