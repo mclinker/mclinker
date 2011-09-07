@@ -8,7 +8,7 @@
 #ifndef LDDIRECTSYMBOLTABLE_H
 #define LDDIRECTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDSymbolTalbeIF.h>
+#include <mcld/LD/LDSymbolTableIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -25,7 +25,7 @@ class LDSymbol;
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDDirectSymbolTable : public LDSymbolTalbeIF
+class LDDirectSymbolTable : public LDSymbolTableIF
 {
 public:
   LDDirectSymbolTable(StringTable *);
@@ -34,7 +34,7 @@ public:
   virtual iterator begin() {}
   virtual const_iterator end() const {}
   virtual iterator end() {}
-  virtual bool merge(const LDSymbolTalbeIF*) {}
+  virtual bool merge(const LDSymbolTableIF*) {}
 }
 
 } // namespace of mcld

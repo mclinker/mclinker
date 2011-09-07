@@ -5,8 +5,8 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDSYMBOLTALBEIF_H
-#define LDSYMBOLTALBEIF_H
+#ifndef LDSYMBOLTABLEIF_H
+#define LDSYMBOLTABLEIF_H
 #include <llvm/ADT/StringRef.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
@@ -19,17 +19,17 @@ class LDSymbol;
 class LDSymbolTableStorage;
 
 
-/** \class LDSymbolTalbeIF
+/** \class LDSymbolTableIF
  *  \brief Symbol table interface.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDSymbolTalbeIF
+class LDSymbolTableIF
 {
   /* draft. */
 private:
-  LDSymbolTalbeIF();
+  LDSymbolTableIF();
 protected:
   LDSymbolTableStorage *f_SymbolTableStrorage;
 public:
@@ -39,8 +39,8 @@ public:
   virtual const_iterator end() const {}
   virtual iterator end() {}
   virtual size_t size() {}
-  virtual bool merge(const LDSymbolTalbeIF*) {}
-  virtual ~LDSymbolTalbeIF {}
+  virtual bool merge(const LDSymbolTableIF*) {}
+  virtual ~LDSymbolTableIF {}
 }
 
 } // namespace of mcld

@@ -8,7 +8,7 @@
 #ifndef LDIOSYMBOLTABLEIF_H
 #define LDIOSYMBOLTABLEIF_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDSymbolTalbeIF.h>
+#include <mcld/LD/LDSymbolTableIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -24,7 +24,7 @@ class LDSymbol;
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDIOSymbolTableIF : public LDSymbolTalbeIF
+class LDIOSymbolTableIF : public LDSymbolTableIF
 {
 private:
   LDIOSymbolTableIF();
@@ -42,7 +42,7 @@ public:
   virtual size_t size() const {
     return f_Symbols.size();
   }
-  virtual bool merge(const LDSymbolTalbeIF*) {}
+  virtual bool merge(const LDSymbolTableIF*) {}
 }
 
 } // namespace of mcld

@@ -8,7 +8,7 @@
 #ifndef LDINPUTSYMBOLTABLE_H
 #define LDINPUTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDIOSymbolTalbeIF.h>
+#include <mcld/LD/LDIOSymbolTableIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -33,7 +33,7 @@ public:
   virtual iterator begin() {}
   virtual const_iterator end() const {}
   virtual iterator end() {}
-  virtual bool merge(const LDSymbolTalbeIF*) {}
+  virtual bool merge(const LDSymbolTableIF*) {}
 }
 
 } // namespace of mcld
