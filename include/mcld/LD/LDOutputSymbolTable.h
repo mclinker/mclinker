@@ -7,6 +7,8 @@
  ****************************************************************************/
 #ifndef LDOUTPUTSYMBOLTABLE_H
 #define LDOUTPUTSYMBOLTABLE_H
+#include <llvm/ADT/StringRef.h>
+#include <mcld/LD/LDIOSymbolTalbeIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
