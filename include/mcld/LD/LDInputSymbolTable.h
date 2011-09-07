@@ -5,10 +5,10 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDIOSYMBOLTABLEIF_H
-#define LDIOSYMBOLTABLEIF_H
+#ifndef LDINPUTSYMBOLTABLE_H
+#define LDINPUTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDSymbolTalbeIF.h>
+#include <mcld/LD/LDIOSymbolTalbeIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -18,30 +18,21 @@ namespace mcld
 
 class LDSymbol;
 
-/** \class LDIOSymbolTableIF
- *  \brief IO symbol table interface, for InputSymbolTable and OutputSymbolTable.
+/** \class LDInputSymbolTable
+ *  \brief Input symbol table, for MCLDInput.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDIOSymbolTableIF : public LDSymbolTalbeIF
+class LDInputSymbolTable : public LDIOSymbolTableIF
 {
-private:
-  LDIOSymbolTableIF();
-protected:
-  vector<LDSymbol*> f_Symbols;
 public:
-  LDSymbol *getSymbol(int pX) const {
-    return f_Symbols[pX];
-  }
+  LDInputSymbolTable(StringTable *);
   virtual void insertSymbol(llvm::StringRef) {}
   virtual const_iterator begin() const {}
   virtual iterator begin() {}
   virtual const_iterator end() const {}
   virtual iterator end() {}
-  virtual size_t size() const {
-    return f_Symbols.size();
-  }
   virtual bool merge(const LDSymbolTalbeIF*) {}
 }
 
