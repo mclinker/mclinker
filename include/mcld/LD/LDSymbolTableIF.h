@@ -29,7 +29,7 @@ class LDSymbolTableIF
 {
   /* draft. */
 protected:
-  LDSymbolTableIF();
+  LDSymbolTableIF(LDSymbolTableStorage *symtab):f_SymbolTableStrorage(symtab){}
   LDSymbolTableStorage *f_SymbolTableStrorage;
 public:
   virtual void insertSymbol(llvm::StringRef) {}

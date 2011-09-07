@@ -32,6 +32,29 @@ public:
   LDSymbolTableIF *Create(StringTable *);
 };
 
+template
+class LDSymbolTableFactory<true>
+{
+  /* draft. */
+public:
+  LDSymbolTableFactory() {
+  }
+  LDIOSymbolTableIF *Create(StringTable *, const Input&) {
+    return new LDInputSymbolTable(LDSymbolTableFactory::Instance());
+  }
+  LDIOSymbolTableIF *Create(StringTable *, const Output&) {
+    return new LDOutputSymbolTable(LDSymbolTableFactory::Instance());
+  }
+  LDSymbolTableIF *Create(StringTable *) {
+    return new LDDirectSymbolTable(LDSymbolTableFactory::Instance());
+  }
+private:
+  LDSymbolTableStorage *Instance(StringTable *strtab) {
+    static LDSymbolTableStorage *singleton = new LDSymbolTableStorage(strtab);
+    return singleton;
+  }
+};
+
 } // namespace of mcld
 
 #endif

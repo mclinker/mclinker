@@ -28,7 +28,7 @@ class LDIOSymbolTableIF : public LDSymbolTableIF
 {
   /* draft. */
 protected:
-  LDIOSymbolTableIF();
+  LDIOSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
   vector<LDSymbol*> f_Symbols;
 public:
   LDSymbol *getSymbol(int pX) const {
