@@ -28,9 +28,8 @@ class LDSymbolTableStorage;
 class LDSymbolTableIF
 {
   /* draft. */
-private:
-  LDSymbolTableIF();
 protected:
+  LDSymbolTableIF();
   LDSymbolTableStorage *f_SymbolTableStrorage;
 public:
   virtual void insertSymbol(llvm::StringRef) {}

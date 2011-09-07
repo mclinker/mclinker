@@ -27,8 +27,10 @@ class LDSymbol;
 class LDInputSymbolTable : public LDIOSymbolTableIF
 {
   /* draft. */
-public:
+friend class LDSymbolTableFactory;
+private:
   LDInputSymbolTable(StringTable *);
+public:
   virtual void insertSymbol(llvm::StringRef) {}
   virtual const_iterator begin() const {}
   virtual iterator begin() {}
