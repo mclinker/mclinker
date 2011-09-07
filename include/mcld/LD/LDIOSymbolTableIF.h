@@ -5,9 +5,9 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDSYMBOLTALBEIF_H
-#define LDSYMBOLTALBEIF_H
-#include <llvm/ADT/StringRef.h>
+#ifndef LDIOSYMBOLTABLEIF_H
+#define LDIOSYMBOLTABLEIF_H
+#include <mcld/LD/LDSymbolTalbeIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -16,31 +16,32 @@ namespace mcld
 {
 
 class LDSymbol;
-class LDSymbolTableStorage;
 
-
-/** \class LDSymbolTalbeIF
- *  \brief Symbol table interface.
+/** \class LDIOSymbolTableIF
+ *  \brief IO symbol table interface, for InputSymbolTable and OutputSymbolTable.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDSymbolTalbeIF
+class LDIOSymbolTableIF : public LDSymbolTalbeIF
 {
-  /* draft. */
 private:
-  LDSymbolTalbeIF();
+  LDIOSymbolTableIF();
 protected:
-  LDSymbolTableStorage *f_SymbolTableStrorage;
+  vector<LDSymbol*> f_Symbols;
 public:
+  LDSymbol *getSymbol(int pX) const {
+    return f_Symbols[pX];
+  }
   virtual void insertSymbol(llvm::StringRef) {}
   virtual const_iterator begin() const {}
   virtual iterator begin() {}
   virtual const_iterator end() const {}
   virtual iterator end() {}
-  virtual size_t size() {}
+  virtual size_t size() const {
+    return f_Symbols.size();
+  }
   virtual bool merge(const LDSymbolTalbeIF*) {}
-  virtual ~LDSymbolTalbeIF {}
 }
 
 } // namespace of mcld
