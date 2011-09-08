@@ -15,5 +15,13 @@ using namespace mcld;
 
 virtual void LDInputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
-  f_Symbols.push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
+  f_Symbols->push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
+}
+
+virtual void LDInputSymbolTable::merge_impl(const LDSymbolTableIF &pSymTab)
+{
+  if(this!=&pSymTab) {
+    f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
+    f_Symbols->insert(f_Symbols->end(), pSymTab.begin(), pSymTab.end());
+  }
 }

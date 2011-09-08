@@ -8,7 +8,8 @@
 #ifndef LDOUTPUTSYMBOLTABLE_H
 #define LDOUTPUTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDIOSymbolTableIF.h>
+#include <mcld/LD/LDSymbolTableIF.h>
+#include <mcld/LD/LDSymbolTableStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -24,16 +25,17 @@ class LDSymbol;
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDOutputSymbolTable : public LDIOSymbolTableIF
+class LDOutputSymbolTable : public LDSymbolTableIF
 {
   /* draft. */
 friend class LDSymbolTableFactory;
 private:
-  LDOutputSymbolTable(LDSymbolTableStorage *symtab):LDIOSymbolTableIF(symtab){}
+  LDOutputSymbolTable(LDSymbolTableStorage *pSymTab):LDIOSymbolTableIF(pSymTab){
+    f_Symbols = pSymTab->getSymbols();
+  }
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
-}
-
+  virtual void merge_impl(const LDSymbolTableIF &);
 } // namespace of mcld
 
 #endif

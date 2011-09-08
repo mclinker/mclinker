@@ -30,7 +30,6 @@ public:
   LDSymbolTableFactory();
   LDIOSymbolTableIF *Create(StringTable *, const Input&);
   LDIOSymbolTableIF *Create(StringTable *, const Output&);
-  LDDirectSymbolTable *Create(StringTable *);
 };
 
 template
@@ -40,14 +39,11 @@ class LDSymbolTableFactory<true>
 public:
   LDSymbolTableFactory() {
   }
-  LDIOSymbolTableIF *Create(StringTable *, const Input&) {
-    return new LDInputSymbolTable(LDSymbolTableFactory::Instance());
+  LDIOSymbolTableIF *Create(StringTable *strtab, const Input&) {
+    return new LDInputSymbolTable(LDSymbolTableFactory::Instance(strtab));
   }
   LDIOSymbolTableIF *Create(StringTable *, const Output&) {
-    return new LDOutputSymbolTable(LDSymbolTableFactory::Instance());
-  }
-  LDDirectSymbolTable *Create(StringTable *) {
-    return new LDDirectSymbolTable(LDSymbolTableFactory::Instance());
+    return new LDOutputSymbolTable(LDSymbolTableFactory::Instance(strtab));
   }
 private:
   LDSymbolTableStorage *Instance(StringTable *strtab) {
