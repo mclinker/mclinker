@@ -5,29 +5,30 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#include <mcld/LD/LDOutputSymbolTable.h>
-#include <mcld/LD/LDSymbolTableStorage.h>
+#include <mcld/LD/OutputSymbolTable.h>
+#include <mcld/LD/SymbolStorage.h>
 
 using namespace mcld;
 
 //==========================
-// LDOutputSymbolTable
+// OutputSymbolTable
 
 
-LDOutputSymbolTable::LDOutputSymbolTable(llvm::StringRef pSymName)
-  : LDSymbolTableIF(pSymTab)
+OutputSymbolTable::OutputSymbolTable(SymbolStorage *pSymTab,
+                                     SymbolList *pSymList,
+                                     size_t reserve)
+  : SymbolTableIF(pSymTab), f_Symbols(pSymList)
 {
-  f_Symbols = pSymTab->getSymbols();
+  f_Symbols->reserve(reserve);
 }
 
-virtual void LDOutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
+virtual void OutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
   f_SymbolTableStrorage->insertSymbol(pSymName);
 }
 
-virtual void LDOutputSymbolTable::merge_impl(const LDSymbolTableIF &pSymTab)
+virtual void OutputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
 {
-  if(this!=&pSymTab) {
-    f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
-  }
+  if(this==&pSymTab) return;
+  f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);
 }

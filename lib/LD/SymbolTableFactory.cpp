@@ -5,10 +5,10 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#include <mcld/LD/LDSymbolTableFactory.h>
+#include <mcld/LD/SymbolTableFactory.h>
 
 using namespace mcld;
 
 //==========================
-// LDSymbolTableFactory
+// SymbolTableFactory
 

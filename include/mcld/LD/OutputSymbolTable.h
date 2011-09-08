@@ -5,11 +5,11 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDOUTPUTSYMBOLTABLE_H
-#define LDOUTPUTSYMBOLTABLE_H
+#ifndef OUTPUTSYMBOLTABLE_H
+#define OUTPUTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDSymbolTableIF.h>
-#include <mcld/LD/LDSymbolTableStorage.h>
+#include <mcld/LD/SymbolTableIF.h>
+#include <mcld/LD/SymbolStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,21 +19,21 @@ namespace mcld
 
 class LDSymbol;
 
-/** \class LDOutputSymbolTable
+/** \class OutputSymbolTable
  *  \brief Output symbol table, for MCLDOutput.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDOutputSymbolTable : public LDSymbolTableIF
+class OutputSymbolTable : public SymbolTableIF
 {
   /* draft. */
-friend class LDSymbolTableFactory;
+friend class SymbolTableFactory;
 private:
-  LDOutputSymbolTable(LDSymbolTableStorage *pSymTab);
+  OutputSymbolTable(SymbolStorage *, SymbolList *, size_t);
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
-  virtual void merge_impl(const LDSymbolTableIF &);
+  virtual void merge_impl(const SymbolTableIF &);
 } // namespace of mcld
 
 #endif

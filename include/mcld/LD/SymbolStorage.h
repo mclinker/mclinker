@@ -5,10 +5,9 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDINPUTSYMBOLTABLE_H
-#define LDINPUTSYMBOLTABLE_H
-#include <llvm/ADT/StringRef.h>
-#include <mcld/LD/LDSymbolTableIF.h>
+#ifndef SYMBOLSTORAGE_H
+#define SYMBOLSTORAGE_H
+#include <mcld/LD/StringTable.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -16,26 +15,30 @@
 namespace mcld
 {
 
-class LDSymbol;
-
-/** \class LDInputSymbolTable
- *  \brief Input symbol table, for MCLDInput.
+/** \class SymbolStorage
+ *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDInputSymbolTable : public LDSymbolTableIF
+class SymbolStorage
 {
   /* draft. */
-friend class LDSymbolTableFactory;
-private:
-  LDInputSymbolTable(LDSymbolTableStorage *pSymTab);
-private:
-  virtual void insertSymbol_impl(llvm::StringRef);
-  virtual void merge_impl(const LDSymbolTableIF &);
+  friend class SymbolTableFactory;
+  SymbolStorage(StringTable *pStrTab):m_Strtab(pStrTab){}
 public:
-  virtual ~LDInputSymbolTable();
-}
+  typedef vector<LDSymbol *> SymbolList;
+  void insertSymbol(llvm::StringRef);
+  void merge(const SymbolStorage &);
+private:
+  StringTable *m_Strtab;
+  SymbolList m_SymList;
+  GCFactory<LDSymbol *, 256> m_Allocator;
+private:
+  m_SymbolList *getSymbolList() {
+    return &m_SymbolList;
+  }
+};
 
 } // namespace of mcld
 
