@@ -15,9 +15,11 @@ using namespace mcld;
 
 
 OutputSymbolTable::OutputSymbolTable(SymbolStorage *pSymTab,
-                                         SymbolList *pSymList)
+                                     SymbolList *pSymList,
+                                     size_t reserve)
   : SymbolTableIF(pSymTab), f_Symbols(pSymList)
 {
+  f_Symbols->reserve(reserve);
 }
 
 virtual void OutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)

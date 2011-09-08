@@ -13,10 +13,11 @@ using namespace mcld;
 //==========================
 // InputSymbolTable
 
-InputSymbolTable::InputSymbolTable(SymbolStorage *pSymTab)
+InputSymbolTable::InputSymbolTable(SymbolStorage *pSymTab, size_t reserve)
   : SymbolTableIF(pSymTab)
 {
   f_Symbols = new vector<LDSymbol *>;
+  f_Symbols->reserve(reserve);
 }
 
 virtual void InputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)

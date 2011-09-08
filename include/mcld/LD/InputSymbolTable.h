@@ -29,7 +29,7 @@ class InputSymbolTable : public SymbolTableIF
   /* draft. */
 friend class SymbolTableFactory;
 private:
-  InputSymbolTable(SymbolStorage *pSymTab);
+  InputSymbolTable(SymbolStorage *, size_t);
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
   virtual void merge_impl(const SymbolTableIF &);

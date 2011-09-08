@@ -30,7 +30,7 @@ class OutputSymbolTable : public SymbolTableIF
   /* draft. */
 friend class SymbolTableFactory;
 private:
-  OutputSymbolTable(SymbolStorage *, SymbolList *);
+  OutputSymbolTable(SymbolStorage *, SymbolList *, size_t);
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
   virtual void merge_impl(const SymbolTableIF &);
