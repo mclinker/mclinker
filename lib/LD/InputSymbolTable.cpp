@@ -5,26 +5,26 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#include <mcld/LD/LDInputSymbolTable.h>
-#include <mcld/LD/LDSymbolTableStorage.h>
+#include <mcld/LD/InputSymbolTable.h>
+#include <mcld/LD/SymbolStorage.h>
 
 using namespace mcld;
 
 //==========================
-// LDInputSymbolTable
+// InputSymbolTable
 
-LDInputSymbolTable::LDInputSymbolTable(LDSymbolTableStorage *pSymTab)
-  : LDSymbolTableIF(pSymTab)
+InputSymbolTable::InputSymbolTable(SymbolStorage *pSymTab)
+  : SymbolTableIF(pSymTab)
 {
   f_Symbols = new vector<LDSymbol *>;
 }
 
-virtual void LDInputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
+virtual void InputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
   f_Symbols->push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
 }
 
-virtual void LDInputSymbolTable::merge_impl(const LDSymbolTableIF &pSymTab)
+virtual void InputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
 {
   if(this!=&pSymTab) {
     f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
@@ -32,7 +32,7 @@ virtual void LDInputSymbolTable::merge_impl(const LDSymbolTableIF &pSymTab)
   }
 }
 
-virtual LDInputSymbolTable::~LDInputSymbolTable()
+virtual InputSymbolTable::~InputSymbolTable()
 {
   delete f_Symbols;
 }

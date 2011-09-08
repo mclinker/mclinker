@@ -5,8 +5,8 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef LDSYMBOLTABLESTORAGE_H
-#define LDSYMBOLTABLESTORAGE_H
+#ifndef SYMBOLSTORAGE_H
+#define SYMBOLSTORAGE_H
 #include <mcld/LD/StringTable.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
@@ -15,17 +15,17 @@
 namespace mcld
 {
 
-/** \class LDSymbolTableStorage
+/** \class SymbolStorage
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDSymbolTableStorage
+class SymbolStorage
 {
   /* draft. */
-  friend class LDSymbolTableFactory;
-  LDSymbolTableStorage(StringTable *pStrTab):m_Strtab(pStrTab){}
+  friend class SymbolTableFactory;
+  SymbolStorage(StringTable *pStrTab):m_Strtab(pStrTab){}
 public:
   typedef vector<LDSymbol *> SymbolList;
 private:
