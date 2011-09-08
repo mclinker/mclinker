@@ -18,7 +18,6 @@ namespace mcld
 
 class LDSymbol;
 
-
 /** \class LDOutputSymbolTable
  *  \brief Output symbol table, for MCLDOutput.
  *
@@ -32,8 +31,8 @@ friend class LDSymbolTableFactory;
 private:
   LDOutputSymbolTable(LDSymbolTableStorage *symtab):LDIOSymbolTableIF(symtab){}
 public:
-  virtual void insertSymbol(llvm::StringRef) {}
-  virtual bool merge(const LDSymbolTableIF *) {}
+  virtual void insertSymbol(llvm::StringRef);
+  virtual bool merge(const LDSymbolTableIF *);
 }
 
 } // namespace of mcld

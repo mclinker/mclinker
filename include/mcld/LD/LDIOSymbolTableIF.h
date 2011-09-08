@@ -31,8 +31,8 @@ protected:
   LDIOSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
   vector<LDSymbol*> f_Symbols;
 public:
-  typedef vector<LDSymbol*>::iterator iterator;
-  typedef vector<LDSymbol*>::const_iterator const_iterator;
+  typedef vector<LDSymbol*>::iterator         iterator;
+  typedef vector<LDSymbol*>::const_iterator   const_iterator;
 public:
   LDSymbol *getSymbol(int pX) const {
     return f_Symbols[pX];

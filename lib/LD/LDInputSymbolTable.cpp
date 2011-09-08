@@ -6,9 +6,19 @@
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
 #include <mcld/LD/LDInputSymbolTable.h>
+#include <mcld/LD/LDSymbolTableStorage.h>
 
 using namespace mcld;
 
 //==========================
 // LDInputSymbolTable
 
+virtual void LDInputSymbolTable::insertSymbol(llvm::StringRef pSymName)
+{
+  f_Symbols.push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
+}
+
+virtual bool LDInputSymbolTable::merge(const LDSymbolTableIF *pSymTab)
+{
+  /* Input symbol table doesn't need merge. */
+}

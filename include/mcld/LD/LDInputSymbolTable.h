@@ -31,8 +31,8 @@ friend class LDSymbolTableFactory;
 private:
   LDInputSymbolTable(LDSymbolTableStorage *symtab):LDIOSymbolTableIF(symtab){}
 public:
-  virtual void insertSymbol(llvm::StringRef) {}
-  virtual bool merge(const LDSymbolTableIF *) {}
+  virtual void insertSymbol(llvm::StringRef);
+  virtual bool merge(const LDSymbolTableIF *);
 }
 
 } // namespace of mcld

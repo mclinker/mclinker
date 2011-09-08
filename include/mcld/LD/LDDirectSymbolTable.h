@@ -31,8 +31,8 @@ class LDDirectSymbolTable : public LDSymbolTableIF
   /* draft. */
 friend class LDSymbolTableFactory;
 public:
-  typedef SymbolTableStrorage::iterator iterator;
-  typedef SymbolTableStrorage::const_iterator const_iterator;
+  typedef SymbolTableStrorage::iterator          iterator;
+  typedef SymbolTableStrorage::const_iterator    const_iterator;
 private:
   LDDirectSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
 public:
