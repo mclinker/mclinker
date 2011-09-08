@@ -5,34 +5,53 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
-#ifndef LDSTRINGTABLEIF_H
-#define LDSTRINGTABLEIF_H
+#ifndef LDSTRINGTABLEFACTORY_H
+#define LDSTRINGTABLEFACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 namespace mcld
 {
+  class StringTableIF;
 
-/** \class LDStringTableIF
- *  \brief String table interface.
+/** \class StringTableFactory
+ *  \brief StringTableFactory constructs StringTables.
  *
  *  \see
  *  \author Nowar Gu <nowar100@gmail.com>
  */
-class LDStringTableIF
+template<bool global>
+class StringTableFactory
 {
-protected:
-  LDStringTableIF(LDStringTableStorage* pImpl)
-  : f_Storage(pImpl) {}
-
 public:
-  virtual ~LDStringTableIF() {}
-  const char* insert(llvm::StringRef pStr) { return f_storage.add(pStr); }
-  size_t size() const { return f_storage; }
+  StringTableFactory();
+  StringTableIF* create();
+};
 
-protected:
-  LDStringTableStorage* f_Storage;
+template
+class SymbolTableFactory<true>
+{
+public:
+  StringTableFactory()
+  {}
+
+  StringTableIF* createDyn()
+  {
+    return new DynStrTable(Instance());
+  }
+
+  StringTableIF* create()
+  {
+    return new StrTable(Instance());
+  }
+
+private:
+  StringTableStorage* Instance()
+  {
+    static StringTableStorage* instance = new StringTableStorage();
+    return instance;
+  }
 };
 
 } // namespace of mcld

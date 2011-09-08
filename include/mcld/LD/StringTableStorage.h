@@ -14,12 +14,12 @@
 namespace mcld
 {
 
-class LDStringTableStorage : public GCFactory<char, 4*1024>
+class StringTableStorage : public GCFactory<char, 4*1024>
 {
   typedef GCFactory<char, 4*1024> Factory;
 public:
-  LDStringTableStorage() {}
-  ~LDStringTableStorage() {}
+  StringTableStorage() {}
+  ~StringTableStorage() {}
 
   const char* add(llvm::StringRef pSR)
   {
