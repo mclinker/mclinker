@@ -14,10 +14,10 @@ using namespace mcld;
 // LDOutputSymbolTable
 
 
-LDOutputSymbolTable::LDOutputSymbolTable(llvm::StringRef pSymName)
-  : LDSymbolTableIF(pSymTab)
+LDOutputSymbolTable::LDOutputSymbolTable(LDSymbolTableStorage *pSymTab,
+                                         SymbolList *pSymList)
+  : LDSymbolTableIF(pSymTab), f_Symbols(pSymList)
 {
-  f_Symbols = pSymTab->getSymbols();
 }
 
 virtual void LDOutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)

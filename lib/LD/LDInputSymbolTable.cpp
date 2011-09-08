@@ -13,7 +13,7 @@ using namespace mcld;
 //==========================
 // LDInputSymbolTable
 
-LDInputSymbolTable::LDInputSymbolTable(llvm::StringRef pSymName)
+LDInputSymbolTable::LDInputSymbolTable(LDSymbolTableStorage *pSymTab)
   : LDSymbolTableIF(pSymTab)
 {
   f_Symbols = new vector<LDSymbol *>;

@@ -39,15 +39,16 @@ class LDSymbolTableFactory<true>
 public:
   LDSymbolTableFactory() {
   }
-  LDIOSymbolTableIF *Create(StringTable *strtab, const Input&) {
-    return new LDInputSymbolTable(LDSymbolTableFactory::Instance(strtab));
+  LDIOSymbolTableIF *Create(StringTable *pStrTab, const Input&) {
+    return new LDInputSymbolTable(LDSymbolTableFactory::Instance(pStrTab));
   }
-  LDIOSymbolTableIF *Create(StringTable *, const Output&) {
-    return new LDOutputSymbolTable(LDSymbolTableFactory::Instance(strtab));
+  LDIOSymbolTableIF *Create(StringTable *pStrTab, const Output&) {
+    LDSymbolTableStorage *symtab = LDSymbolTableFactory::Instance(pStrTab);
+    return new LDOutputSymbolTable(symtab, symtab->getSymbolList());
   }
 private:
-  LDSymbolTableStorage *Instance(StringTable *strtab) {
-    static LDSymbolTableStorage *singleton = new LDSymbolTableStorage(strtab);
+  LDSymbolTableStorage *Instance(StringTable *pStrTab) {
+    static LDSymbolTableStorage *singleton = new LDSymbolTableStorage(pStrTab);
     return singleton;
   }
 };
