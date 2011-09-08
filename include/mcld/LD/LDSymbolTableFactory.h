@@ -8,6 +8,7 @@
 #ifndef LDSYMBOLTABLEFACTORY_H
 #define LDSYMBOLTABLEFACTORY_H
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDOutput.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
