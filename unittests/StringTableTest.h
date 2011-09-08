@@ -14,6 +14,8 @@
 
 namespace mcld
 {
+  template <bool Global>
+  class StringTableFactory;
   class StringTable;
 } // namespace for mcld
 
@@ -41,7 +43,8 @@ public:
   virtual void TearDown();
 
 protected:
-  mcld::StringTable* m_pTestee;
+  mcld::StringTableFactory<true>* m_pFactory;
+  mcld::StringTableIF* m_pTestee;
 };
 
 } // namespace of mcldtest

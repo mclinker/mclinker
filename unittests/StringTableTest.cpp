@@ -7,6 +7,7 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
+#include <mcld/LD/StringTableFactory.h>
 #include <mcld/LD/StringTable.h>
 #include <StringTableTest.h>
 
@@ -18,13 +19,15 @@ using namespace mcldtest;
 StringTableTest::StringTableTest()
 {
   // create testee. modify it if need
-  m_pTestee = new StringTable();
+  m_pFactory = new StringTableFactory<true>();
+  m_pTestee = m_pFactory->create();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
 StringTableTest::~StringTableTest()
 {
   delete m_pTestee;
+  delete m_pFactory;
 }
 
 // SetUp() will be called immediately before each test.
@@ -39,13 +42,7 @@ void StringTableTest::TearDown()
 
 //==========================================================================//
 // Testcases
-TEST_F(StringTableTest, add_and_get) {
-  ASSERT_EQ(0, m_pTestee->addCString(""));
-  ASSERT_EQ(1, m_pTestee->addCString("abc"));
-  ASSERT_EQ(5, m_pTestee->addCString("5566"));
-  ASSERT_EQ(10, m_pTestee->size());
-  ASSERT_STREQ("", m_pTestee->getCString(0));
-  ASSERT_STREQ("abc", m_pTestee->getCString(1));
-  ASSERT_STREQ("", m_pTestee->getCString(4));
-  ASSERT_STREQ("5566", m_pTestee->getCString(5));
+TEST_F(StringTableTest, global_storage) {
+  StringTableIF* p = m_pFactory->create();
+  ASSERT_EQ(p->getStorage(), m_pTestee->getStorage());
 }

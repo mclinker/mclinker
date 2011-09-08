@@ -7,6 +7,9 @@
  ****************************************************************************/
 #ifndef LDSTRINGTABLEFACTORY_H
 #define LDSTRINGTABLEFACTORY_H
+#include <mcld/LD/StringTableStorage.h>
+#include <mcld/LD/StringTable.h>
+#include <mcld/LD/DynStrTable.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -29,8 +32,8 @@ public:
   StringTableIF* create();
 };
 
-template
-class SymbolTableFactory<true>
+template <>
+class StringTableFactory<true>
 {
 public:
   StringTableFactory()
@@ -38,12 +41,12 @@ public:
 
   StringTableIF* createDyn()
   {
-    return new DynStrTable(Instance());
+    return new DynStrTable(StringTableFactory<true>::Instance());
   }
 
   StringTableIF* create()
   {
-    return new StrTable(Instance());
+    return new StringTable(StringTableFactory<true>::Instance());
   }
 
 private:

@@ -5,10 +5,9 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
-#ifndef LDSTRINGTABLESTORAGE_H
-#define LDSTRINGTABLESTORAGE_H
-#include <mcld/Support/GCFactory.h>
-#include <llvm/ADT/StringRef.h>
+#ifndef LDSTRINGTABLE_H
+#define LDSTRINGTABLE_H
+#include <mcld/LD/StringTableIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -16,24 +15,19 @@
 namespace mcld
 {
 
-class StringTableStorage : public GCFactory<char, 4*1024>
+/** \class StringTable
+ *  \brief String table
+ *
+ *  \see
+ *  \author Nowar Gu <nowar100@gmail.com>
+ */
+class StringTable : public StringTableIF
 {
-  typedef GCFactory<char, 4*1024> Factory;
-
 public:
-  StringTableStorage() {}
-  ~StringTableStorage() {}
-
-  const char* add(llvm::StringRef pSR)
-  {
-    char* p = Factory::allocate(pSR.size());
-    strcpy(p, pSR.data());
-    return const_cast<const char*>(p);
-  }
-
-  size_t size() const { return Factory::size(); }
+  StringTable(StringTableStorage* pImpl)
+  : StringTableIF(pImpl) {}
 };
 
-}
+} // namespace of mcld
 
 #endif
