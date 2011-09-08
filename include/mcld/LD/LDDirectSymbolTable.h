@@ -30,23 +30,34 @@ class LDDirectSymbolTable : public LDSymbolTableIF
 {
   /* draft. */
 friend class LDSymbolTableFactory;
-public:
-  typedef SymbolTableStrorage::iterator          iterator;
-  typedef SymbolTableStrorage::const_iterator    const_iterator;
 private:
   LDDirectSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
 public:
+  typedef SymbolTableStrorage::iterator          iterator;
+  typedef SymbolTableStrorage::const_iterator    const_iterator;
   const_iterator begin() const { return f_SymbolTableStrorage->begin(); }
   iterator begin() { return f_SymbolTableStrorage->begin(); }
   const_iterator end() const { return f_SymbolTableStrorage->end(); }
   iterator end() { return f_SymbolTableStrorage->end(); }
-  virtual void insertSymbol(llvm::StringRef pSymName) {
+private:
+  virtual void insertSymbol_impl(llvm::StringRef pSymName) {
     f_SymbolTableStrorage->insertSymbol(pSymName);
   }
-  virtual size_t size() const { return f_SymbolTableStrorage->size(); }
-  virtual bool merge(const LDSymbolTableIF *) {
-    f_SymbolTableStrorage->merge();
+  virtual size_t size_impl() const {
+    return f_SymbolTableStrorage->size();
   }
+  virtual void merge_impl(const LDSymbolTableIF &pSymTab) {
+    f_SymbolTableStrorage.merge(pSymTab.f_SymbolTableStrorage);
+  }
+private:
+  /* Iterator operation. */
+  typedef LDSymbolTableIF::iterator          iterator_base;
+  typedef LDSymbolTableIF::const_iterator    const_iterator_base;
+  /* FIXME: Implement iterator to iterator_base. */
+  virtual const_iterator_base begin_impl() const { return begin(); }
+  virtual iterator_base begin_impl() { return begin(); }
+  virtual const_iterator_base end_impl() const { return end(); }
+  virtual iterator_base end_impl() { return end(); }
 }
 
 } // namespace of mcld

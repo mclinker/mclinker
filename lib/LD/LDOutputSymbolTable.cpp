@@ -13,12 +13,7 @@ using namespace mcld;
 //==========================
 // LDOutputSymbolTable
 
-virtual void LDOutputSymbolTable::insertSymbol(llvm::StringRef pSymName)
+virtual void LDOutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
   f_Symbols.push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
-}
-
-virtual bool LDOutputSymbolTable::merge(const LDSymbolTableIF *pSymTab)
-{
-  /* Output symbol table doesn't need merge. */
 }

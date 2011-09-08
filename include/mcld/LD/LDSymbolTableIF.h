@@ -35,10 +35,28 @@ protected:
   LDSymbolTableIF(LDSymbolTableStorage *symtab):f_SymbolTableStrorage(symtab){}
   LDSymbolTableStorage *f_SymbolTableStrorage;
 public:
-  virtual void insertSymbol(llvm::StringRef) {}
-  virtual size_t size() const ;
-  virtual bool merge(const LDSymbolTableIF*) {}
+  void insertSymbol(llvm::StringRef pSymName) { insertSymbol_impl(pSymName); }
+  size_t size() const { return size_impl(); }
+  void merge(const LDSymbolTableIF &pSymTab) { merge_impl(pSymTab); }
   virtual ~LDSymbolTableIF {}
+public:
+  /* Use NVI pattern let the iterator operation can be hidden by derived class.
+   * Then the iterator operation can be fast when know the type.
+   */
+  typedef LDSymbolTableIterator<LDSymbol *> iterator;
+  typedef LDSymbolTableIterator<LDSymbol *> const_iterator;
+  const_iterator begin() const { return begin_impl(); }
+  iterator begin() const { return begin_impl(); }
+  const_iterator end() const { return end_impl(); }
+  iterator end() const { return end_impl(); }
+private:
+  virtual void insertSymbol_impl(llvm::StringRef pSymName) {}
+  virtual size_t size_impl() const {}
+  virtual void merge_impl(const LDSymbolTableIF &pSymTab) {}
+  virtual const_iterator begin() const { }
+  virtual iterator begin() const { }
+  virtual const_iterator end() const { }
+  virtual iterator end() const { }
 }
 
 } // namespace of mcld

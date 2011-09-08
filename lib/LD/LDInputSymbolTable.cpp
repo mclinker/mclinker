@@ -13,12 +13,7 @@ using namespace mcld;
 //==========================
 // LDInputSymbolTable
 
-virtual void LDInputSymbolTable::insertSymbol(llvm::StringRef pSymName)
+virtual void LDInputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
   f_Symbols.push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
-}
-
-virtual bool LDInputSymbolTable::merge(const LDSymbolTableIF *pSymTab)
-{
-  /* Input symbol table doesn't need merge. */
 }

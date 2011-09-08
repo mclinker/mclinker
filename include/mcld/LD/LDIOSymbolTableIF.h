@@ -31,19 +31,36 @@ protected:
   LDIOSymbolTable(LDSymbolTableStorage *symtab):LDSymbolTableIF(symtab){}
   vector<LDSymbol*> f_Symbols;
 public:
-  typedef vector<LDSymbol*>::iterator         iterator;
-  typedef vector<LDSymbol*>::const_iterator   const_iterator;
-public:
   LDSymbol *getSymbol(int pX) const {
     return f_Symbols[pX];
   }
+public:
+  typedef vector<LDSymbol*>::iterator         iterator;
+  typedef vector<LDSymbol*>::const_iterator   const_iterator;
   const_iterator begin() const { return f_Symbols.begin(); }
   iterator begin() { return f_Symbols.begin(); }
   const_iterator end() const { return f_Symbols.end(); }
   iterator end() { return f_Symbols.end(); }
-  virtual void insertSymbol(llvm::StringRef) {}
-  virtual size_t size() const { return f_Symbols.size(); }
-  virtual bool merge(const LDSymbolTableIF *) {}
+private:
+  virtual void insertSymbol_impl(llvm::StringRef) {}
+  virtual size_t size_impl() const {
+    return f_Symbols.size();
+  }
+  virtual bool merge_impl(const LDSymbolTableIF &pSymTab) {
+    if(this!=&pSymTab) {
+      f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
+      f_Symbols.insert(f_Symbols.end(), pSymTab.begin(), pSymTab.end());
+    }
+  }
+private:
+  /* Iterator operation. */
+  typedef LDSymbolTableIF::iterator          iterator_base;
+  typedef LDSymbolTableIF::const_iterator    const_iterator_base;
+  /* FIXME: Implement iterator to iterator_base. */
+  virtual const_iterator_base begin_impl() const { return begin(); }
+  virtual iterator_base begin_impl() { return begin(); }
+  virtual const_iterator_base end_impl() const { return end(); }
+  virtual iterator_base end_impl() { return end(); }
 }
 
 } // namespace of mcld

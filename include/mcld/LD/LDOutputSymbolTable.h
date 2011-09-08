@@ -30,9 +30,8 @@ class LDOutputSymbolTable : public LDIOSymbolTableIF
 friend class LDSymbolTableFactory;
 private:
   LDOutputSymbolTable(LDSymbolTableStorage *symtab):LDIOSymbolTableIF(symtab){}
-public:
-  virtual void insertSymbol(llvm::StringRef);
-  virtual bool merge(const LDSymbolTableIF *);
+private:
+  virtual void insertSymbol_impl(llvm::StringRef);
 }
 
 } // namespace of mcld
