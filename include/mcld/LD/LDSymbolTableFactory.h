@@ -22,7 +22,7 @@ namespace mcld
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-template<typename bool global>
+template<bool global>
 class LDSymbolTableFactory
 {
   /* draft. */
