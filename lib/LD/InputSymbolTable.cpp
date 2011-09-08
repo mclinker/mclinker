@@ -27,10 +27,9 @@ virtual void InputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 
 virtual void InputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
 {
-  if(this!=&pSymTab) {
-    f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
-    f_Symbols->insert(f_Symbols->end(), pSymTab.begin(), pSymTab.end());
-  }
+  if(this==&pSymTab) return;
+  f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);
+  f_Symbols->insert(f_Symbols->end(), pSymTab.begin(), pSymTab.end());
 }
 
 virtual InputSymbolTable::~InputSymbolTable()

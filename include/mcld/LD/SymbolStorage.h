@@ -28,9 +28,12 @@ class SymbolStorage
   SymbolStorage(StringTable *pStrTab):m_Strtab(pStrTab){}
 public:
   typedef vector<LDSymbol *> SymbolList;
+  void insertSymbol(llvm::StringRef);
+  void merge(const SymbolStorage &);
 private:
   StringTable *m_Strtab;
-  vector<LDSymbol *> m_SymbolList;
+  SymbolList m_SymList;
+  GCFactory<LDSymbol *, 256> m_Allocator;
 private:
   m_SymbolList *getSymbolList() {
     return &m_SymbolList;

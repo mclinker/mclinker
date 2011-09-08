@@ -29,7 +29,6 @@ virtual void OutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 
 virtual void OutputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
 {
-  if(this!=&pSymTab) {
-    f_SymbolTableStrorage->merge(pSymTab.f_SymbolTableStrorage);
-  }
+  if(this==&pSymTab) return;
+  f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);
 }
