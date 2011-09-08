@@ -9,6 +9,7 @@
 #define LDSYMBOLTABLEIF_H
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/Uncopyable.h>
+#include <mcld/LD/LDSymbolTableStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -17,7 +18,6 @@ namespace mcld
 {
 
 class LDSymbol;
-class LDSymbolTableStorage;
 
 /** \class LDSymbolTableIF
  *  \brief Symbol table interface.
@@ -26,10 +26,10 @@ class LDSymbolTableStorage;
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-class LDSymbolTableIF : class Uncopyable
+class LDSymbolTableIF : private Uncopyable
 {
 protected:
-  typedef vector<LDSymbol *> SymbolList;
+  typedef LDSymbolTableStorage::SymbolList SymbolList;
   LDSymbolTableIF(LDSymbolTableStorage *pSymTab)
     : f_SymbolTableStrorage(pSymTab), f_Symbols(0) {}
   LDSymbolTableStorage *f_SymbolTableStrorage;

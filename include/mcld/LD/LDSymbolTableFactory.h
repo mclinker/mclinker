@@ -9,6 +9,7 @@
 #define LDSYMBOLTABLEFACTORY_H
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/LD/LDSymbolTableStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
