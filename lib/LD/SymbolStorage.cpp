@@ -5,10 +5,10 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#include <mcld/LD/LDSymbolTableStorage.h>
+#include <mcld/LD/SymbolStorage.h>
 
 using namespace mcld;
 
 //==========================
-// LDSymbolTableStorage
+// SymbolStorage
 
