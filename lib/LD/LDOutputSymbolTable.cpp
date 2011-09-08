@@ -13,6 +13,13 @@ using namespace mcld;
 //==========================
 // LDOutputSymbolTable
 
+
+LDOutputSymbolTable::LDOutputSymbolTable(llvm::StringRef pSymName)
+  : LDSymbolTableIF(pSymTab)
+{
+  f_Symbols = pSymTab->getSymbols();
+}
+
 virtual void LDOutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
 {
   f_SymbolTableStrorage->insertSymbol(pSymName);

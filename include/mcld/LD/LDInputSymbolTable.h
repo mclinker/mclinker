@@ -29,10 +29,12 @@ class LDInputSymbolTable : public LDSymbolTableIF
   /* draft. */
 friend class LDSymbolTableFactory;
 private:
-  LDInputSymbolTable(LDSymbolTableStorage *pSymTab):LDIOSymbolTableIF(pSymTab){}
+  LDInputSymbolTable(LDSymbolTableStorage *pSymTab);
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
   virtual void merge_impl(const LDSymbolTableIF &);
+public:
+  virtual ~LDInputSymbolTable();
 }
 
 } // namespace of mcld

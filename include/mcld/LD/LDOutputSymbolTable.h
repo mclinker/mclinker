@@ -30,9 +30,7 @@ class LDOutputSymbolTable : public LDSymbolTableIF
   /* draft. */
 friend class LDSymbolTableFactory;
 private:
-  LDOutputSymbolTable(LDSymbolTableStorage *pSymTab):LDIOSymbolTableIF(pSymTab){
-    f_Symbols = pSymTab->getSymbols();
-  }
+  LDOutputSymbolTable(LDSymbolTableStorage *pSymTab);
 private:
   virtual void insertSymbol_impl(llvm::StringRef);
   virtual void merge_impl(const LDSymbolTableIF &);

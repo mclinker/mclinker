@@ -29,7 +29,8 @@ class LDSymbolTableStorage;
 class LDSymbolTableIF : class Uncopyable
 {
 protected:
-  LDSymbolTableIF(LDSymbolTableStorage *symtab):f_SymbolTableStrorage(symtab){}
+  LDSymbolTableIF(LDSymbolTableStorage *symtab)
+    : f_SymbolTableStrorage(symtab), f_Symbols(0) {}
   LDSymbolTableStorage *f_SymbolTableStrorage;
   vector<LDSymbol *> *f_Symbols;
 public:
@@ -37,7 +38,7 @@ public:
   void insertSymbol(llvm::StringRef pSymName) { insertSymbol_impl(pSymName); }
   size_t size() const { return f_Symbols->size(); }
   void merge(const LDSymbolTableIF &pSymTab) { merge_impl(pSymTab); }
-  virtual ~LDSymbolTableIF {}
+  virtual ~LDSymbolTableIF() {}
 public:
   typedef vector<LDSymbol *>::iterator         iterator;
   typedef vector<LDSymbol *>::const_iterator   const_terator;
