@@ -215,6 +215,9 @@ SectLinker::SectLinker(const std::string& pInputFile,
   m_LDInfo.output().setContext(
                           m_LDInfo.contextFactory().produce(
                                                    m_LDInfo.output().path()));
+  m_LDInfo.output().setMemArea(
+                          m_LDInfo.memAreaFactory().produce(
+                                                   m_LDInfo.output().path()));
 
   // general options
 }

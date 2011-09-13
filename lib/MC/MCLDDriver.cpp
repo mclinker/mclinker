@@ -45,6 +45,7 @@ void MCLDDriver::normalize() {
       case Input::Object:
         (*input)->setType(type);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+        (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path()));
         break;
       default:
         report_fatal_error("can not link file: " + (*input)->path().string());

@@ -17,6 +17,7 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/ADT/Uncopyable.h>
+#include <mcld/Support/MemoryArea.h>
 #include <string>
 
 #include "mcld/MC/MCLDContext.h"
