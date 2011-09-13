@@ -19,6 +19,7 @@
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 
 namespace mcld
 {
@@ -32,6 +33,7 @@ namespace mcld
  *   inputFactory()   - the list of all inputs
  *   attrFactory()    - the list of all attributes
  *   contextFactory() - the list of all contexts.
+ *   memAreaFactory() - the list of all MemoryAreas.
  */
 class MCLDInfo
 {
@@ -83,6 +85,12 @@ public:
   const ContextFactory& contextFactory() const
   { return *m_pCntxtFactory; }
 
+  MemoryAreaFactory& memAreaFactory()
+  { return *m_pMemAreaFactory; }
+
+  const MemoryAreaFactory& memAreaFactory() const
+  { return *m_pMemAreaFactory; }
+
   const Triple& triple() const
   { return m_Triple; }
 
@@ -100,6 +108,7 @@ private:
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
+  MemoryAreaFactory *m_pMemAreaFactory;
 };
 
 } // namespace of mcld
