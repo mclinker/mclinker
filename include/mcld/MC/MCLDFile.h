@@ -67,6 +67,9 @@ public:
   void setPath(const sys::fs::Path& pPath)
   { m_Path = pPath; }
 
+  void setMemArea(MemoryArea* pMemArea)
+  { m_pMemArea = pMemArea; }
+
   // -----  observers  ----- //
   unsigned int type() const
   { return m_Type; }
@@ -85,16 +88,20 @@ public:
   const MCLDContext* context() const
   { return m_pContext; }
 
-  void open();
-  void close();
-  bool isOpened() const;
-  bool isGood() const;
+  bool hasMemArea() const
+  { return (0 == m_pMemArea); }
+
+  MemoryArea* memory()
+  { return m_pMemArea; }
+
+  const MemoryArea* memory() const
+  { return m_pMemArea; }
 
 protected:
   sys::fs::Path m_Path;
   std::string m_InputName;
-  MCLDContext   *m_pContext;
   unsigned int m_Type;
+  MCLDContext *m_pContext;
   MemoryArea* m_pMemArea;
 
 };

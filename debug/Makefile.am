@@ -102,6 +102,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
 	${LIBDIR}/Support/MemoryRegion.cpp \
+	${INCDIR}/Support/MemoryAreaFactory.h \
+	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
 	${LIBDIR}/MC/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
@@ -145,7 +147,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/RTLinearAllocatorTest.h \
 	${UNITTEST}/RTLinearAllocatorTest.cpp \
 	${UNITTEST}/DirIteratorTest.h \
-	${UNITTEST}/DirIteratorTest.cpp
+	${UNITTEST}/DirIteratorTest.cpp \
+	${UNITTEST}/UniqueGCFactoryBaseTest.h \
+	${UNITTEST}/UniqueGCFactoryBaseTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

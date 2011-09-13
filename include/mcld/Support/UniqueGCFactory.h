@@ -48,7 +48,7 @@ public:
       return dataIter->second;
     DataType* data = Alloc::allocate();
     construct(data);
-    f_KeyMap.insert(make_pair(pKey, data));
+    f_KeyMap.insert(std::make_pair(pKey, data));
     return data;
   }
 
@@ -58,7 +58,7 @@ public:
       return dataIter->second;
     DataType* data = Alloc::allocate();
     construct(data, pValue);
-    f_KeyMap.insert(make_pair(pKey, data));
+    f_KeyMap.insert(std::make_pair(pKey, data));
     return data;
   }
 

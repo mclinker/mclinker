@@ -11,33 +11,32 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/UniqueGCFactory.h>
 #include <mcld/MC/MCLDContext.h>
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Support/RealPath.h>
-#include <map>
+#include <mcld/Support/Path.h>
 
 namespace mcld
 {
 
 /** \class ContextFactory
- *  \brief ContextFactory constructs and destructs MCLDContexts. It also
- *  garantee to destruct all its own MCLDContext.
+ *  \brief ContextFactory avoids the duplicated MCLDContext of the same file.
+ *
+ *  MCLinker is designed for efficient memory usage. Because user can give 
+ *  MCLinker the same input file many times on the command line, MCLinker must
+ *  avoid opening identical file twice.
+ *
+ *  ContextFactory is the guard to prevent redundant opening. MCLinker does not
+ *  create MCLDContext directly. Instead, it creates MCLDContext by ContextFactory.
+ *  ContextFactory returns the identical reference of MCLDContext if it's openend.
+ *
+ *  @see MCLDContext
+ *  @see UniqueGCFactoryBase
  */
-class ContextFactory : public GCFactory<MCLDContext, 0>
+class ContextFactory : public UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>
 {
-private:
-  typedef GCFactory<MCLDContext, 0> Alloc;
-  typedef std::map<sys::fs::RealPath, MCLDContext*> CntxtMap;
-
 public:
   explicit ContextFactory(size_t pNum);
   ~ContextFactory();
-
-  // ----- production  ----- //
-  MCLDContext* produce(const sys::fs::Path& pPath);
-
-private:
-  CntxtMap m_CntxtMap;
 };
 
 } // namespace of mcld
