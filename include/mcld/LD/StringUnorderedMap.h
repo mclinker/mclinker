@@ -61,7 +61,6 @@ template<typename ValueType = size_t,
 class StringUnorderedMap
 {
   /* XXX:draft and test. */
-  /* TODO: XXX: clean() & destructor. */
 public:
   StringUnorderedMap(size_t pMaxSize = 17);
 
@@ -75,6 +74,10 @@ public:
   }
 
   bool empty() {return m_Size == 0;}
+
+  void clear();
+
+  ~StringUnorderedMap();
 
 private:
   struct HashEntry {
@@ -182,6 +185,35 @@ getOrCreate(llvm::StringRef pStr, InitType pInitVal)
   return ans->value;
 }
 
+template<typename ValueType,
+         typename StringType,
+         typename HashFunction,
+         template<class>class Allocator>
+void
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
+clear()
+{
+  if (this->m_HashTable) {
+    for (size_t i = 0; i < this->m_HashMax; ++i)
+      for (HashEntry *j = this->m_HashTable[i]; j != 0; ) {
+        HashEntry *nextJ = j->next;
+        allocator.deallocate(j, 1);
+        j = nextJ;
+      }
+    delete[] m_HashTable;
+  }
+}
+
+
+template<typename ValueType,
+         typename StringType,
+         typename HashFunction,
+         template<class>class Allocator>
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
+~StringUnorderedMap()
+{
+  this->clear();
+}
 
 
 } // namespace of mcld
