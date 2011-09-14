@@ -7,7 +7,7 @@
  ****************************************************************************/
 #ifndef SYMBOLSTORAGE_H
 #define SYMBOLSTORAGE_H
-#include <mcld/LD/StringTable.h>
+#include <mcld/LD/StringTableIF.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -25,13 +25,13 @@ class SymbolStorage
 {
   /* draft. */
   friend class SymbolTableFactory;
-  SymbolStorage(StringTable *pStrTab):m_Strtab(pStrTab){}
+  SymbolStorage(StringTableIF *pStrTab):m_Strtab(pStrTab){}
 public:
   typedef vector<LDSymbol *> SymbolList;
   void insertSymbol(llvm::StringRef);
   void merge(const SymbolStorage &);
 private:
-  StringTable *m_Strtab;
+  StringTableIF *m_Strtab;
   SymbolList m_SymList;
   GCFactory<LDSymbol *, 256> m_Allocator;
 private:

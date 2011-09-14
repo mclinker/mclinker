@@ -29,8 +29,8 @@ class SymbolTableFactory
   /* draft. */
 public:
   SymbolTableFactory();
-  SymbolTableIF *create(StringTable*, const Input&, size_t reserve=256);
-  SymbolTableIF *create(StringTable*, const Output&, size_t reserve=256);
+  SymbolTableIF *create(StringTableIF*, const Input&, size_t reserve=256);
+  SymbolTableIF *create(StringTableIF*, const Output&, size_t reserve=256);
 };
 
 template
@@ -40,15 +40,15 @@ class SymbolTableFactory<true>
 public:
   SymbolTableFactory() {
   }
-  SymbolTableIF *create(StringTable *pStrTab, const Input&, size_t reserve=256) {
+  SymbolTableIF *create(StringTableIF *pStrTab, const Input&, size_t reserve=256) {
     return new InputSymbolTable(SymbolTableFactory::Instance(pStrTab), reserve);
   }
-  SymbolTableIF *create(StringTable *pStrTab, const Output&, size_t reserve=256) {
+  SymbolTableIF *create(StringTableIF *pStrTab, const Output&, size_t reserve=256) {
     SymbolStorage *symtab = SymbolTableFactory::Instance(pStrTab);
     return new OutputSymbolTable(symtab, symtab->getSymbolList(), reserve);
   }
 private:
-  SymbolStorage *instance(StringTable *pStrTab, size_t reserve) {
+  SymbolStorage *instance(StringTableIF *pStrTab, size_t reserve) {
     static SymbolStorage *singleton = new SymbolStorage(pStrTab);
     return singleton;
   }
