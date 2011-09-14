@@ -9,9 +9,13 @@
 #define SEARCHTABLE_H
 #include <llvm/ADT/StringRef.h>
 #include <vector>
+// For std::allocate.
 #include <memory>
+// For uint32_t.
 #include <stdint.h>
 #include <cassert>
+// For memset.
+#include <cstring>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,14 +23,29 @@
 namespace mcld
 {
 
-struct StringUnorderedMapDefaultHash {
+struct StringUnorderedMapDefaultHash
+{
   size_t operator()(llvm::StringRef pStr) {
-    size_t hashVal = 0;
-    for (llvm::StringRef::iterator i = pStr.begin(); i != pStr.end(); ++i)
-      hashVal = 11 * (*i);
+    size_t hashVal = 7;
+    llvm::StringRef::iterator i = pStr.begin();
+    while (i != pStr.end())
+      hashVal = hashVal * 131 + (*i++);
     return hashVal;
   }
 };
+
+template<typename ValueType>
+struct StringUnorderedMapInit
+{
+  template <typename InitType>
+  void operator()(llvm::StringRef &pKey, ValueType &pValue,
+                  llvm::StringRef pStr, InitType &pInitType) {
+    pKey = pStr;
+    pValue = pInitVal;
+  }
+}
+
+uint32_t findNextPrime(uint32_t x);
 
 /** \class StringUnorderedMap
  *  \brief The most simple hash of linked list version.
@@ -34,8 +53,9 @@ struct StringUnorderedMapDefaultHash {
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-template<typename StringUnorderedMapHash = StringUnorderedMapDefaultHash,
-         typename Allocator = std::allocator<size_t> >
+template<typename ValueType = size_t,
+         typename HashFunction = StringUnorderedMapDefaultHash,
+         template<>class Allocator = std::allocator>
 class StringUnorderedMap
 {
   /* XXX:draft and test. */
@@ -43,87 +63,50 @@ public:
   StringUnorderedMap(size_t pMaxSize = 17);
 
   void reserve(size_t pMaxSize);
-  bool insert(llvm::StringRef pStr, size_t value);
-  bool get(llvm::StringRef pStr, size_t &value);
-  size_t &getOrCreate(llvm::StringRef pStr, size_t value);
-  bool exist(llvm::StringRef pStr) {return get(pStr, size_t());}
+
+  template<typename InitType>
+  ValueType &getOrCreate(llvm::StringRef pStr, InitType &pInitVal);
+
+  bool empty() {return m_Size == 0;}
+
 private:
   struct HashEntry {
     size_t hashVal;
-    size_t value;
+    llvm::StringRef str;
+    ValueType value;
     HashEntry *next;
   };
-  Allocator allocator;
-  HashEntry *&get_p(llvm::StringRef pStr);
-  void rehash(size_t pMaxSize);
+
+  Allocator<HashEntry> allocator;
+  HashFunction hash;
+  StringUnorderedMapInit init;
+
   size_t m_HashMax;
+  size_t m_Size;
   HashEntry **m_HashTable;
-  static uint32_t findNextPrime(uint32_t x);
+
+  void rehash(size_t pMaxSize);
 };
 
 
 // =================================implementation============================
 
 
-template<typename StringUnorderedMapHash,
-         typename Allocator>
-uint32_t
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
-findNextPrime(uint32_t x)
-{
-  static const uint32_t primes[] = {
-    17,
-    59,
-    137,
-    313,
-    727,
-    1621,
-    3673,
-    8167,
-    17881,
-    38891,
-    84047,
-    180511,
-    386117,
-    821647,
-    1742539,
-    3681149,
-    7754081,
-    16290073,
-    34136059,
-    71378603,
-    142758821,
-    285514909,
-    571030253,
-    1142061433,
-    2147483647
-  };
-  size_t left = 0;
-  size_t right = sizeof(primes)/sizeof(primes[0]);
-  while (left > right) {
-    size_t mid = left + (right - left) / 2;
-    if ( x > primes[mid] )
-      left = mid + 1;
-    else
-      right = mid;
-  }
-  assert(left < sizeof(primes) && "hash table size > 2147483647");
-  assert(left >= 0);
-  return primes[left];
-}
-
-template<typename StringUnorderedMapHash,
-         typename Allocator>
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
-StringUnorderedMap(size_t pMaxSize):allocator()
+template<typename ValueType
+         typename HashFunction,
+         template<>class Allocator>
+StringUnorderedMap<ValueType, HashFunction, Allocator>::
+StringUnorderedMap(size_t pMaxSize)
+  : allocator(), hash(), init(), m_HashMax(0), m_Size(0), m_HashTable(0)
 {
   this->reserve(pMaxSize);
 }
 
-template<typename StringUnorderedMapHash,
-         typename Allocator>
+template<typename ValueType
+         typename HashFunction,
+         template<>class Allocator>
 void
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
+StringUnorderedMap<ValueType, HashFunction, Allocator>::
 reserve(size_t pMaxSize)
 {
   if (pMaxSize < this->m_HashMax) return;
@@ -134,13 +117,15 @@ reserve(size_t pMaxSize)
     this->rehash(nextSize);
 }
 
-template<typename StringUnorderedMapHash,
-         typename Allocator>
+template<typename ValueType
+         typename HashFunction,
+         template<>class Allocator>
 void
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
+StringUnorderedMap<ValueType, HashFunction, Allocator>::
 rehash(size_t pMaxSize)
 {
   HashEntry **tmpTable = new HashEntry*[pMaxSize];
+  std::memset(tmpTable, 0, pMaxSize * sizeof(HashEntry*));
   if (this->m_HashTable) {
     for (size_t i = 0; i < this->m_HashMax; ++i)
       for (HashEntry *j = this->m_HashTable[i]; j != 0; ) {
@@ -149,41 +134,46 @@ rehash(size_t pMaxSize)
         tmpTable[j->hashVal % pMaxSize] = j;
         j = nextJ;
       }
-    this->m_HashMax = pMaxSize;
     delete[] m_HashTable;
   }
+  this->m_HashMax = pMaxSize;
   this->m_HashTable = tmpTable;
 }
 
-template<typename StringUnorderedMapHash,
-         typename Allocator>
-bool
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
-insert(llvm::StringRef pStr, size_t value)
+template<typename ValueType
+         typename HashFunction,
+         template<>class Allocator>
+template<typename InitType>
+ValueType &
+StringUnorderedMap<ValueType, HashFunction, Allocator>::
+getOrCreate(llvm::StringRef pStr, InitType &pInitVal)
 {
-  StringUnorderedMapHash hash;
   size_t hashVal = hash(pStr);
-  HashEntry *&ptr = this->get_p(pStr, hashVal);
-  if (ptr) {
-    ptr->value = value;
-    return false;
+  HashEntry *&head =  this->m_HashTable[hashVal % this->m_HashMax];
+
+  HashEntry *ans = 0;
+  for(HashEntry *ptr = head; ptr != 0; ptr = ptr->next)
+    if(hashVal == ptr->hashVal && pStr.equals(ptr->str)){
+      ans = ptr;
+      break;
+    }
+  if (ans) {
+    ans->value = value;
   }
   else {
-    ptr = allocator.allocate();
-    ptr->hashVal = hashVal;
-    ptr->value = value;
-    ptr->next = 0;
-    return true;
+    ans = allocator.allocate(1);
+    ans->hashVal = hashVal;
+    init(ans->str, ans->value, pStr, pInitVal);
+    ans->next = head;
+    head = ans;
+    ++m_Size;
+    if(this->m_Size * 4LL >= this->m_HashMax * 3LL)
+      this->reserve(this->m_HashMax+1);
   }
+
+  return ans->value;
 }
 
-template<typename StringUnorderedMapHash,
-         typename Allocator>
-size_t &
-StringUnorderedMap<StringUnorderedMapHash,Allocator>::
-getOrCreate(llvm::StringRef pStr, size_t value)
-{
-}
 
 
 } // namespace of mcld
