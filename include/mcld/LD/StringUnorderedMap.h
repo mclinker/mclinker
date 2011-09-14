@@ -35,14 +35,15 @@ struct StringUnorderedMapDefaultHash
   }
 };
 
-template<typename ValueType>
+template<typename ValueType,
+         typename StringType>
 struct StringUnorderedMapInit
 {
   template <typename InitType>
-  void operator()(llvm::StringRef &pKey, ValueType &pValue,
+  void operator()(StringType &pKey, ValueType &pValue,
                   llvm::StringRef pStr, InitType pInitVal) {
-    pKey = pStr;
-    pValue = pInitVal;
+    ::new ((void*)&pKey) StringType(pStr);
+    ::new ((void*)&pValue) ValueType(pInitVal);
   }
 };
 
@@ -82,14 +83,14 @@ public:
 private:
   struct HashEntry {
     size_t hashVal;
-    llvm::StringRef str;
+    StringType str;
     ValueType value;
     HashEntry *next;
   };
 
   Allocator<HashEntry> allocator;
   HashFunction hash;
-  StringUnorderedMapInit<ValueType> init;
+  StringUnorderedMapInit<ValueType, StringType> init;
 
   size_t m_HashMax;
   size_t m_Size;
@@ -197,6 +198,7 @@ clear()
     for (size_t i = 0; i < this->m_HashMax; ++i)
       for (HashEntry *j = this->m_HashTable[i]; j != 0; ) {
         HashEntry *nextJ = j->next;
+        allocator.destroy(j);
         allocator.deallocate(j, 1);
         j = nextJ;
       }
