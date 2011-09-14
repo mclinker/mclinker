@@ -19,6 +19,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <stdio.h>
 
 namespace mcld
 {
@@ -26,7 +27,7 @@ namespace mcld
 struct StringUnorderedMapDefaultHash
 {
   size_t operator()(llvm::StringRef pStr) {
-    size_t hashVal = 7;
+    size_t hashVal = 31;
     llvm::StringRef::iterator i = pStr.begin();
     while (i != pStr.end())
       hashVal = hashVal * 131 + (*i++);
@@ -39,11 +40,11 @@ struct StringUnorderedMapInit
 {
   template <typename InitType>
   void operator()(llvm::StringRef &pKey, ValueType &pValue,
-                  llvm::StringRef pStr, InitType &pInitType) {
+                  llvm::StringRef pStr, InitType pInitVal) {
     pKey = pStr;
     pValue = pInitVal;
   }
-}
+};
 
 uint32_t findNextPrime(uint32_t x);
 
@@ -54,18 +55,24 @@ uint32_t findNextPrime(uint32_t x);
  *  \author TDYa127 <a127a127@gmail.com>
  */
 template<typename ValueType = size_t,
+         typename StringType = llvm::StringRef,
          typename HashFunction = StringUnorderedMapDefaultHash,
-         template<>class Allocator = std::allocator>
+         template<class>class Allocator = std::allocator>
 class StringUnorderedMap
 {
   /* XXX:draft and test. */
+  /* TODO: XXX: clean() & destructor. */
 public:
   StringUnorderedMap(size_t pMaxSize = 17);
 
   void reserve(size_t pMaxSize);
 
   template<typename InitType>
-  ValueType &getOrCreate(llvm::StringRef pStr, InitType &pInitVal);
+  ValueType &getOrCreate(llvm::StringRef pStr, InitType pInitVal);
+
+  ValueType &getOrCreate(llvm::StringRef pStr) {
+    return getOrCreate(pStr, ValueType());
+  }
 
   bool empty() {return m_Size == 0;}
 
@@ -79,7 +86,7 @@ private:
 
   Allocator<HashEntry> allocator;
   HashFunction hash;
-  StringUnorderedMapInit init;
+  StringUnorderedMapInit<ValueType> init;
 
   size_t m_HashMax;
   size_t m_Size;
@@ -92,21 +99,23 @@ private:
 // =================================implementation============================
 
 
-template<typename ValueType
+template<typename ValueType,
+         typename StringType,
          typename HashFunction,
-         template<>class Allocator>
-StringUnorderedMap<ValueType, HashFunction, Allocator>::
+         template<class>class Allocator>
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
 StringUnorderedMap(size_t pMaxSize)
   : allocator(), hash(), init(), m_HashMax(0), m_Size(0), m_HashTable(0)
 {
   this->reserve(pMaxSize);
 }
 
-template<typename ValueType
+template<typename ValueType,
+         typename StringType,
          typename HashFunction,
-         template<>class Allocator>
+         template<class>class Allocator>
 void
-StringUnorderedMap<ValueType, HashFunction, Allocator>::
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
 reserve(size_t pMaxSize)
 {
   if (pMaxSize < this->m_HashMax) return;
@@ -117,11 +126,12 @@ reserve(size_t pMaxSize)
     this->rehash(nextSize);
 }
 
-template<typename ValueType
+template<typename ValueType,
+         typename StringType,
          typename HashFunction,
-         template<>class Allocator>
+         template<class>class Allocator>
 void
-StringUnorderedMap<ValueType, HashFunction, Allocator>::
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
 rehash(size_t pMaxSize)
 {
   HashEntry **tmpTable = new HashEntry*[pMaxSize];
@@ -129,8 +139,8 @@ rehash(size_t pMaxSize)
   if (this->m_HashTable) {
     for (size_t i = 0; i < this->m_HashMax; ++i)
       for (HashEntry *j = this->m_HashTable[i]; j != 0; ) {
-        HashEntry *nextJ = j->nextJ;
-        j->nextJ = tmpTable[j->hashVal % pMaxSize];
+        HashEntry *nextJ = j->next;
+        j->next = tmpTable[j->hashVal % pMaxSize];
         tmpTable[j->hashVal % pMaxSize] = j;
         j = nextJ;
       }
@@ -140,34 +150,32 @@ rehash(size_t pMaxSize)
   this->m_HashTable = tmpTable;
 }
 
-template<typename ValueType
+template<typename ValueType,
+         typename StringType,
          typename HashFunction,
-         template<>class Allocator>
+         template<class>class Allocator>
 template<typename InitType>
 ValueType &
-StringUnorderedMap<ValueType, HashFunction, Allocator>::
-getOrCreate(llvm::StringRef pStr, InitType &pInitVal)
+StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
+getOrCreate(llvm::StringRef pStr, InitType pInitVal)
 {
   size_t hashVal = hash(pStr);
   HashEntry *&head =  this->m_HashTable[hashVal % this->m_HashMax];
 
   HashEntry *ans = 0;
   for(HashEntry *ptr = head; ptr != 0; ptr = ptr->next)
-    if(hashVal == ptr->hashVal && pStr.equals(ptr->str)){
+    if(hashVal == ptr->hashVal && pStr.equals(ptr->str)) {
       ans = ptr;
       break;
     }
-  if (ans) {
-    ans->value = value;
-  }
-  else {
+  if (ans == 0) {
     ans = allocator.allocate(1);
     ans->hashVal = hashVal;
     init(ans->str, ans->value, pStr, pInitVal);
     ans->next = head;
     head = ans;
     ++m_Size;
-    if(this->m_Size * 4LL >= this->m_HashMax * 3LL)
+    if(this->m_Size * 4LL >= this->m_HashMax * 3LL) // load factor = 0.75
       this->reserve(this->m_HashMax+1);
   }
 

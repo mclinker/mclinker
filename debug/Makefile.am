@@ -121,12 +121,16 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/GCFactory.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
+	${INCDIR}/LD/StringUnorderedMap.h \
+	${LIBDIR}/LD/StringUnorderedMap.cpp \
 	${INCDIR}/ADT/StringMap.h
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/StringUnorderedMapTest.h \
+	${UNITTEST}/StringUnorderedMapTest.cpp \
 	${UNITTEST}/StringTableTest.h \
 	${UNITTEST}/StringTableTest.cpp \
 	${UNITTEST}/StringMapTest.h \

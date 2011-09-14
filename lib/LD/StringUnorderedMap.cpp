@@ -7,12 +7,16 @@
  ****************************************************************************/
 #include <stdint.h>
 #include <cassert>
+#include <stdio.h>
 #include <mcld/LD/StringUnorderedMap.h>
 
 using namespace mcld;
 
 //==========================
 // StringUnorderedMap
+
+namespace mcld
+{
 
 uint32_t findNextPrime(uint32_t x)
 {
@@ -45,7 +49,7 @@ uint32_t findNextPrime(uint32_t x)
   };
   size_t left = 0;
   size_t right = sizeof(primes)/sizeof(primes[0]);
-  while (left > right) {
+  while (left < right) {
     size_t mid = left + (right - left) / 2;
     if ( x > primes[mid] )
       left = mid + 1;
@@ -57,3 +61,4 @@ uint32_t findNextPrime(uint32_t x)
   return primes[left];
 }
 
+}
