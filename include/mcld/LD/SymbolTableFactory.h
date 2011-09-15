@@ -48,9 +48,9 @@ public:
     return new OutputSymbolTable(symtab, symtab->getSymbolList(), reserve);
   }
 private:
-  SymbolStorage *instance(StringTableIF *pStrTab, size_t reserve) {
-    static SymbolStorage *singleton = new SymbolStorage(pStrTab);
-    return singleton;
+  static SymbolStorage *instance(StringTableIF *pStrTab, size_t reserve) {
+    static SymbolStorage singleton(pStrTab);
+    return &singleton;
   }
 };
 
