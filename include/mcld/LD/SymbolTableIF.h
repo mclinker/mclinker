@@ -9,7 +9,6 @@
 #define SYMBOLTABLEIF_H
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/LD/SymbolStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
