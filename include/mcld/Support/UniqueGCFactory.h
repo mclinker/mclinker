@@ -42,23 +42,43 @@ public:
   virtual ~UniqueGCFactoryBase()
   { f_KeyMap.clear(); }
 
-  DataType* produce(const KeyType& pKey) {
+  DataType* find(const KeyType& pKey) {
     typename KeyMap::iterator dataIter = f_KeyMap.find(pKey);
     if (dataIter != f_KeyMap.end())
       return dataIter->second;
+    return 0;
+  }
+
+  const DataType* find(const KeyType& pKey) const {
+    typename KeyMap::const_iterator dataIter = f_KeyMap.find(pKey);
+    if (dataIter != f_KeyMap.end())
+      return dataIter->second;
+    return 0;
+  }
+
+  DataType* produce(const KeyType& pKey, bool& pExist) {
+    typename KeyMap::iterator dataIter = f_KeyMap.find(pKey);
+    if (dataIter != f_KeyMap.end()) {
+      pExist = true;
+      return dataIter->second;
+    }
     DataType* data = Alloc::allocate();
     construct(data);
     f_KeyMap.insert(std::make_pair(pKey, data));
+    pExist = false;
     return data;
   }
 
-  DataType* produce(const KeyType& pKey, const DataType& pValue) {
+  DataType* produce(const KeyType& pKey, const DataType& pValue, bool& pExist) {
     typename KeyMap::iterator dataIter = f_KeyMap.find(pKey);
-    if (dataIter != f_KeyMap.end())
+    if (dataIter != f_KeyMap.end()) {
+      pExist = true;
       return dataIter->second;
+    }
     DataType* data = Alloc::allocate();
     construct(data, pValue);
     f_KeyMap.insert(std::make_pair(pKey, data));
+    pExist = false;
     return data;
   }
 

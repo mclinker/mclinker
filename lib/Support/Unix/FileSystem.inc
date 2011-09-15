@@ -6,6 +6,9 @@
  *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
  ****************************************************************************/
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 namespace mcld{
 namespace sys{
@@ -19,6 +22,15 @@ std::string relocatable_extension = ".o";
 std::string assembly_extension = ".s";
 std::string bitcode_extension = ".bc";
 
+size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset)
+{
+  return ::pread(pFD, (void*) pBuf, pCount, pOffset);
+}
+
+char *strerror(int errnum)
+{
+  return ::strerror(errnum);
+}
 
 } // namespace of detail
 } // namespace of fs

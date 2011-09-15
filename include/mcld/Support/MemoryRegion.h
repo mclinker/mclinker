@@ -14,6 +14,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <llvm/ADT/StringRef.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileSystem.h>
 
 namespace mcld
 {
@@ -27,29 +28,30 @@ namespace mcld
 class MemoryRegion : private Uncopyable
 {
 friend class MemoryArea;
-public:
-  typedef MemoryArea::Address Address;
-
+typedef sys::fs::detail::Address Address;
 private:
-  MemoryRegion(const Address pStart, size_t pSize);
+  MemoryRegion(MemoryArea::Space& pParent, 
+               const Address pVMAStart,
+               size_t pSize);
   ~MemoryRegion();
 
 public:
   const Address start() const
-  { return m_Start; }
+  { return m_VMAStart; }
 
   // end is the next address of the last byte 
   const Address end() const
-  { return m_Start+m_Length; }
+  { return m_VMAStart+m_Length; }
 
   size_t size() const
   { return m_Length; }
 
   const Address getBuffer() const
-  { return m_Start; }
+  { return m_VMAStart; }
 
 private:
-  const Address m_Start;
+  MemoryArea::Space& m_Parent;
+  const Address m_VMAStart;
   size_t m_Length;
 };
 

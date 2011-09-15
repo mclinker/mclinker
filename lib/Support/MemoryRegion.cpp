@@ -11,4 +11,14 @@ using namespace mcld;
 
 //==========================
 // MemoryRegion
+MemoryRegion::MemoryRegion(MemoryArea::Space& pParent, 
+                           const Address pVMAStart,
+                           size_t pSize)
+  : m_Parent(pParent), m_VMAStart(pVMAStart), m_Length(pSize) {
+}
+
+MemoryRegion::~MemoryRegion()
+{
+  --m_Parent.region_counter;
+}
 

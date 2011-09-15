@@ -37,6 +37,8 @@ class ContextFactory : public UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>
 public:
   explicit ContextFactory(size_t pNum);
   ~ContextFactory();
+
+  MCLDContext* produce(const sys::fs::Path& pPath);
 };
 
 } // namespace of mcld

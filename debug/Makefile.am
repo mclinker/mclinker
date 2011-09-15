@@ -149,7 +149,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/DirIteratorTest.h \
 	${UNITTEST}/DirIteratorTest.cpp \
 	${UNITTEST}/UniqueGCFactoryBaseTest.h \
-	${UNITTEST}/UniqueGCFactoryBaseTest.cpp
+	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
+	${UNITTEST}/MemoryAreaTest.h \
+	${UNITTEST}/MemoryAreaTest.cpp
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

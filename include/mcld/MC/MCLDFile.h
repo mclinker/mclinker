@@ -92,10 +92,10 @@ public:
   bool hasMemArea() const
   { return (0 == m_pMemArea); }
 
-  MemoryArea* memory()
+  MemoryArea* memArea()
   { return m_pMemArea; }
 
-  const MemoryArea* memory() const
+  const MemoryArea* memArea() const
   { return m_pMemArea; }
 
 protected:

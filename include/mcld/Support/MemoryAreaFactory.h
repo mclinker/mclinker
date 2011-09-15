@@ -14,6 +14,9 @@
 #include <mcld/Support/UniqueGCFactory.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Path.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 namespace mcld
 {
@@ -42,6 +45,10 @@ class MemoryAreaFactory : public UniqueGCFactoryBase<sys::fs::Path, MemoryArea, 
 public:
   explicit MemoryAreaFactory(size_t pNum);
   ~MemoryAreaFactory();
+
+  // produce - create a MemoryArea and open its file
+  MemoryArea* produce(const sys::fs::Path& pPath, int pFlags);
+  MemoryArea* produce(const sys::fs::Path& pPath, int pFlags, mode_t pMode);
 };
 
 } // namespace of mcld

@@ -69,10 +69,10 @@ TEST_F( UniqueGCFactoryBaseTest, unique_produce2 ) {
 TEST_F( UniqueGCFactoryBaseTest, iterator )
 {
 	MemoryAreaFactory* memFactory = new MemoryAreaFactory(10);
-	MemoryArea* area1 = memFactory->produce("/home/luba");
-	MemoryArea* area2 = memFactory->produce("/home/jush");
+	MemoryArea* area1 = memFactory->produce("/home/luba", O_RDONLY);
+	MemoryArea* area2 = memFactory->produce("/home/jush", O_RDONLY);
 	ASSERT_NE( area1, area2);
-	MemoryArea* area3 = memFactory->produce("/home/jush/../luba");
+	MemoryArea* area3 = memFactory->produce("/home/jush/../luba", O_RDONLY);
 	ASSERT_EQ( area1, area3);
 	ASSERT_FALSE( memFactory->empty());
 	ASSERT_EQ( 2, memFactory->size());

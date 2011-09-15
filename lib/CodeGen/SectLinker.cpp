@@ -215,9 +215,13 @@ SectLinker::SectLinker(const std::string& pInputFile,
   m_LDInfo.output().setContext(
                           m_LDInfo.contextFactory().produce(
                                                    m_LDInfo.output().path()));
+
+  int mode = (Output::Object == m_LDInfo.output().type())? 0666 : 0777;
   m_LDInfo.output().setMemArea(
                           m_LDInfo.memAreaFactory().produce(
-                                                   m_LDInfo.output().path()));
+                                                   m_LDInfo.output().path(),
+                                                   O_RDWR | O_CREAT | O_TRUNC,
+                                                   mode));
 
   // general options
 }
@@ -231,6 +235,13 @@ SectLinker::~SectLinker()
 bool SectLinker::doInitialization(Module &pM)
 {
   // -----  Set up General Options  ----- //
+  //   make sure output is openend successfully.
+  if (!m_LDInfo.output().hasMemArea())
+    report_fatal_error("output is not given on the command line\n");
+
+  if (!m_LDInfo.output().memArea()->isGood())
+    report_fatal_error("can not open output file :"+m_LDInfo.output().path().native());
+
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
