@@ -171,7 +171,7 @@ public:
         0 == m_pCurrent->bound || 
         N >= m_pCurrent->bound)
       return;
-    if (!isAvaliable(pPtr))
+    if (!isAvailable(pPtr))
       return;
     m_pCurrent->bound -= N;
     pPtr = 0;
@@ -181,7 +181,7 @@ public:
   void deallocate(pointer &pPtr) {
     if (0 == m_pCurrent->bound)
       return;
-    if (!isAvaliable(pPtr))
+    if (!isAvailable(pPtr))
       return;
     m_pCurrent->bound -= 1;
     pPtr = 0;
