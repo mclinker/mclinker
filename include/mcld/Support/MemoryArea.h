@@ -101,6 +101,7 @@ private:
   // find - first fit search
   Space* find(off_t pOffset, size_t pLength);
 
+  // release a Space, but does not remove it from space list
   void release(Space* pSpace);
 
   // policy - decide whehter to use dynamic memory or memory mapped I/O

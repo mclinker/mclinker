@@ -10,6 +10,7 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileSystem.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 #include <cerrno>
 #include <sstream>
@@ -123,25 +124,58 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
   return result;
 }
 
+// release - release a MemoryRegion
 void MemoryArea::release(MemoryRegion* pRegion)
 {
+  m_RegionFactory.destroy(pRegion);
+  m_RegionFactory.deallocate(pRegion);
 }
 
 void MemoryArea::clean()
 {
+  m_RegionFactory.clear();
+  
+  SpaceList::iterator sIter, sEnd = m_SpaceList.end();
+  for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
+    release(sIter);
+  }
+  m_SpaceList.clear();
 }
 
 MemoryArea::Space* MemoryArea::find(off_t pOffset, size_t pLength)
 {
+  SpaceList::iterator sIter, sEnd = m_SpaceList.end();
+  for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
+    if (sIter->file_offset <= pOffset && (pOffset+static_cast<off_t>(pLength))
+       <= (sIter->file_offset+static_cast<off_t>(sIter->size)) ) { // within
+      return sIter;
+    }
+  }
+  return 0;
 }
 
 void MemoryArea::release(MemoryArea::Space* pSpace)
 {
+    switch (pSpace->type) {
+      case Space::ALLOCATED_ARRAY: {
+        delete [] pSpace->data;
+        break;
+      }
+      case Space::MMAPED: {
+        ::munmap(pSpace->data, pSpace->size);
+        break;
+      }
+    }
+    delete pSpace;
 }
 
 MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
 {
   // FIXME: implement memory mapped I/O
-  return Space::ALLOCATED_ARRAY;
+//  const size_t threshold = 3072; // 3/4 page size in Linux
+//  if (pLength < threshold)
+    return Space::ALLOCATED_ARRAY;
+//  else
+//    return Space::MMAPED;
 }
 
