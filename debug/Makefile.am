@@ -126,14 +126,14 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
-	${INCDIR}/ADT/StringMap.h
+	${INCDIR}/ADT/StringMap.h \
+        ${INCDIR}/LD/LDSymbol.h \
+        ${LIBDIR}/LD/LDSymbol.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
-	${UNITTEST}/SymbolTableTest.h \
-	${UNITTEST}/SymbolTableTest.cpp \
 	${UNITTEST}/StringTableTest.h \
 	${UNITTEST}/StringTableTest.cpp \
 	${UNITTEST}/StringMapTest.h \
@@ -154,6 +154,8 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
 	${UNITTEST}/MemoryAreaTest.h \
 	${UNITTEST}/MemoryAreaTest.cpp
+#	${UNITTEST}/SymbolTableTest.h \
+#	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else
