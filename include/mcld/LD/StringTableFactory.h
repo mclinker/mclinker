@@ -16,7 +16,6 @@
 
 namespace mcld
 {
-  class StringTableIF;
 
 /** \class StringTableFactory
  *  \brief StringTableFactory constructs StringTables.
@@ -24,16 +23,13 @@ namespace mcld
  *  \see
  *  \author Nowar Gu <nowar100@gmail.com>
  */
-template<bool global>
+template <bool global>
 class StringTableFactory
 {
-public:
-  StringTableFactory();
-  StringTableIF* create();
 };
 
 template <>
-class StringTableFactory<true>
+class StringTableFactory<true> : private Uncopyable
 {
 public:
   StringTableFactory()
@@ -41,19 +37,14 @@ public:
 
   StringTableIF* createDyn()
   {
-    return new DynStrTable(StringTableFactory<true>::Instance());
+    static DynStrTable Tab(new StringTableStorage());
+    return &Tab;
   }
 
   StringTableIF* create()
   {
-    return new StringTable(StringTableFactory<true>::Instance());
-  }
-
-private:
-  StringTableStorage* Instance()
-  {
-    static StringTableStorage* instance = new StringTableStorage();
-    return instance;
+    static StringTable Tab(new StringTableStorage());
+    return &Tab;
   }
 };
 

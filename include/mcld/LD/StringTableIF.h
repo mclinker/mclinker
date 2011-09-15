@@ -29,7 +29,12 @@ protected:
   : f_Storage(pImpl) {}
 
 public:
-  virtual ~StringTableIF() {}
+  virtual ~StringTableIF()
+  {
+    delete f_Storage;
+    f_Storage = NULL;
+  }
+
   const char* insert(llvm::StringRef pStr) { return f_Storage->add(pStr); }
   size_t size() const { return f_Storage->size(); }
 

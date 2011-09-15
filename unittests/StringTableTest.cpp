@@ -7,6 +7,7 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
+#include <iostream>
 #include <mcld/LD/StringTableFactory.h>
 #include <mcld/LD/StringTable.h>
 #include <StringTableTest.h>
@@ -26,7 +27,6 @@ StringTableTest::StringTableTest()
 // Destructor can do clean-up work that doesn't throw exceptions here.
 StringTableTest::~StringTableTest()
 {
-  delete m_pTestee;
   delete m_pFactory;
 }
 
@@ -42,7 +42,12 @@ void StringTableTest::TearDown()
 
 //==========================================================================//
 // Testcases
-TEST_F(StringTableTest, global_storage) {
+TEST_F(StringTableTest, global_table) {
   StringTableIF* p = m_pFactory->create();
-  ASSERT_EQ(p->getStorage(), m_pTestee->getStorage());
+  ASSERT_EQ(p, m_pTestee);
+  StringTableIF* p2 = m_pFactory->createDyn();
+  StringTableIF* p3 = m_pFactory->createDyn();
+  ASSERT_EQ(p2, p3);
+  ASSERT_NE(p2, m_pTestee);
+  ASSERT_NE(p3, m_pTestee);
 }
