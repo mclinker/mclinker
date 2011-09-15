@@ -8,7 +8,7 @@
  *   ${AUTHOR} <${EMAIL}>                                                    *
  ****************************************************************************/
 #include <${class_name}.h>
-#include <${class_name}Test.h>
+#include "${class_name}Test.h"
 
 using namespace mcld;
 using namespace mcldtest;
