@@ -49,21 +49,39 @@ bool MemoryArea::isGood() const
   return (-1 == m_FileDescriptor);
 }
 
+// The layout of MemorySpace in the virtual memory space
+//
+// |  : page boundary
+// [,]: MemoryRegion
+// -  : fillment
+// =  : data
+//
+// |---[=|====|====|==]--|
+// ^   ^              ^  ^
+// |   |              |  |
+// | r_start      +r_len |
+// space.data      +space.size
+//
+// space.file_offset is the offset of the mapped file segment from the start of the file.
+// if the MemorySpace's type is ALLOCATED_ARRAY, the distances of (space.data, r_start)
+// and (r_len, space.size) are zero.
+//
 MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
 {
   Space* space = find(pOffset, pLength);
-  MemoryArea::Address vma_start = 0;
+  MemoryArea::Address r_start = 0;
   if (0 == space) { // not found
     space = new Space();
+    space->file_offset = pOffset;
     m_SpaceList.push_back(space);
     switch(space->type = policy(pOffset, pLength)) {
       case Space::MMAPED: {
         // FIXME: implement memory mapped I/O 
-        // compute correct vma_start
+        // compute correct r_start, space.data, and space.size
+        // space.data and space.size should be on page boundaries.
         break;
       }
       case Space::ALLOCATED_ARRAY: {
-        space->file_offset = pOffset;
         space->size = pLength;
         space->data = new unsigned char[pLength];
         size_t read_bytes = sys::fs::detail::pread(m_FileDescriptor,
@@ -71,7 +89,7 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
                                           space->size,
                                           space->file_offset);
         if (read_bytes == pLength) {
-          vma_start = space->data;
+          r_start = space->data;
           break;
         }
         else {
@@ -96,9 +114,12 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
       } // case
     } // switch
   }
-
+  else { // found
+    off_t distance = pOffset - space->file_offset;
+    r_start = space->data + distance;
+  }
   // now, we have a legal space to hold the new MemoryRegion
-  MemoryRegion* result = m_RegionFactory.produce(vma_start, pLength);
+  MemoryRegion* result = m_RegionFactory.produce(r_start, pLength);
   return result;
 }
 

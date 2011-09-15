@@ -19,6 +19,13 @@
 #include <string>
 #include <list>
 
+#if defined(ENABLE_UNITTEST)
+namespace mcldtest
+{
+  class MemoryAreaTest;
+} // namespace of mcldtest
+
+#endif
 namespace mcld
 {
 
@@ -44,7 +51,7 @@ class RegionFactory;
 class MemoryArea : private Uncopyable
 {
 #if defined(ENABLE_UNITTEST)
-friend class MemoryAreaTest;
+friend class mcldtest::MemoryAreaTest;
 #endif
 
 private:
@@ -61,10 +68,10 @@ private:
     };
 
   public:  
-    Type type;
-    sys::fs::detail::Address data;
-    size_t size;
     off_t file_offset;
+    Type type;
+    size_t size;
+    sys::fs::detail::Address data;
   };
 
   typedef llvm::iplist<Space> SpaceList;
