@@ -5,6 +5,7 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
+#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileSystem.h>
@@ -17,8 +18,8 @@ using namespace mcld;
 
 //===--------------------------------------------------------------------===//
 // MemoryArea
-MemoryArea::MemoryArea(const sys::fs::Path& pPath)
-  : m_FilePath(pPath), m_FileDescriptor(-1) {
+MemoryArea::MemoryArea(RegionFactory& pRegionFactory, const sys::fs::Path& pPath)
+  : m_RegionFactory(pRegionFactory), m_FilePath(pPath), m_FileDescriptor(-1) {
 }
 
 MemoryArea::~MemoryArea()
@@ -97,8 +98,7 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
   }
 
   // now, we have a legal space to hold the new MemoryRegion
-  MemoryRegion* result = new MemoryRegion(*space, vma_start, pLength);
-  ++space->region_counter;
+  MemoryRegion* result = m_RegionFactory.produce(vma_start, pLength);
   return result;
 }
 

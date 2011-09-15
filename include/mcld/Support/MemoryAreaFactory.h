@@ -21,6 +21,7 @@
 namespace mcld
 {
 
+class RegionFactory;
 /** \class MemoryAreaFactory
  *  \brief MemoryAreaFactory avoids creating duplicated MemoryAreas of the
  *   same file.
@@ -49,6 +50,9 @@ public:
   // produce - create a MemoryArea and open its file
   MemoryArea* produce(const sys::fs::Path& pPath, int pFlags);
   MemoryArea* produce(const sys::fs::Path& pPath, int pFlags, mode_t pMode);
+
+private:
+  RegionFactory* m_pRegionFactory;
 };
 
 } // namespace of mcld

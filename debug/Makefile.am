@@ -102,6 +102,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
 	${LIBDIR}/Support/MemoryRegion.cpp \
+	${INCDIR}/Support/RegionFactory.h \
+	${LIBDIR}/Support/RegionFactory.cpp \
 	${INCDIR}/Support/MemoryAreaFactory.h \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \

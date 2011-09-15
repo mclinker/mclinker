@@ -17,11 +17,13 @@
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
 #include <string>
+#include <list>
 
 namespace mcld
 {
 
 class MemoryRegion;
+class RegionFactory;
 
 /** \class MemoryArea
  *  \brief MemoryArea is used to manage distinct MemoryRegions of address space.
@@ -63,13 +65,12 @@ private:
     sys::fs::detail::Address data;
     size_t size;
     off_t file_offset;
-    unsigned int region_counter;
   };
 
   typedef llvm::iplist<Space> SpaceList;
 
 public:
-  MemoryArea(const sys::fs::Path& pPath);
+  MemoryArea(RegionFactory& pRegionFactory, const sys::fs::Path& pPath);
   ~MemoryArea();
 
   // request - create a MemoryRegion within a sufficient space
@@ -79,7 +80,6 @@ public:
   MemoryRegion* request(off_t pOffset, size_t pLength);
 
   // release - release a MemoryRegion.
-  // if the space has no MemoryRegion, then release the space too.
   void release(MemoryRegion* pRegion);
 
   // clean - release all MemoryRegion and unmap all spaces.
@@ -100,6 +100,7 @@ private:
   Space::Type policy(off_t pOffset, size_t pLength);
 
 private:
+  RegionFactory& m_RegionFactory;
   int m_FileDescriptor;
   SpaceList m_SpaceList;
   const sys::fs::Path& m_FilePath;

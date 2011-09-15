@@ -12,8 +12,8 @@
 #endif
 
 #include <mcld/ADT/Uncopyable.h>
+#include <llvm/ADT/ilist.h>
 #include <llvm/ADT/StringRef.h>
-#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/FileSystem.h>
 
 namespace mcld
@@ -23,19 +23,17 @@ namespace mcld
  *  \brief MemoryRegion provides a customized memory map IO for linking purposes.
  *
  *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class MemoryRegion : private Uncopyable
 {
-friend class MemoryArea;
+friend class RegionFactory;
 typedef sys::fs::detail::Address Address;
 private:
-  MemoryRegion(MemoryArea::Space& pParent, 
-               const Address pVMAStart,
+  MemoryRegion(const Address pVMAStart,
                size_t pSize);
+public:
   ~MemoryRegion();
 
-public:
   const Address start() const
   { return m_VMAStart; }
 
@@ -50,7 +48,6 @@ public:
   { return m_VMAStart; }
 
 private:
-  MemoryArea::Space& m_Parent;
   const Address m_VMAStart;
   size_t m_Length;
 };
