@@ -47,7 +47,7 @@ void MemoryArea::close()
 
 bool MemoryArea::isGood() const
 {
-  return (-1 == m_FileDescriptor);
+  return (-1 != m_FileDescriptor);
 }
 
 // The layout of MemorySpace in the virtual memory space
