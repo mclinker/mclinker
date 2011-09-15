@@ -7,8 +7,16 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
+
+
+#include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryAreaFactory.h>
+
 #include "MemoryAreaTest.h"
+
+#include <fcntl.h>
 
 using namespace mcld;
 using namespace mcldtest;
@@ -38,9 +46,32 @@ void MemoryAreaTest::TearDown()
 // Testcases
 //
 
-/** 
-TEST_F( MemoryAreaTest, name of  the testcase for MemoryArea ) {
-	Write you exercise here
+TEST_F( MemoryAreaTest, read_file ) {
+  unsigned char range[16];
+  MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1);
+
+  sys::fs::Path Path("/lib/libc.so.6");
+  m_pTestee = AreaFactory->produce(Path.c_str() ,O_RDONLY);
+
+  MemoryRegion *Region;
+  Region = m_pTestee->request(0, sizeof(range));
+
+  if (!m_pTestee->isGood())
+    FAIL();
+
+  const sys::fs::detail::Address magic = Region->getBuffer();
+
+  if (magic){
+    if (magic[0] == 0x7F && magic[1] == 'E' &&
+        magic[2] == 'L' && magic[3] == 'F')
+      SUCCEED();
+    else
+      FAIL();
+  }
+
+  else
+    FAIL();
+
+  delete AreaFactory;
 }
-**/
 
