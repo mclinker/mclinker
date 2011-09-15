@@ -26,7 +26,7 @@ public:
 
   const char* add(llvm::StringRef pSR)
   {
-    char* p = Factory::allocate(pSR.size());
+    char* p = Factory::allocate(pSR.size()+1);
     strcpy(p, pSR.data());
     return const_cast<const char*>(p);
   }
