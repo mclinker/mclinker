@@ -8,7 +8,7 @@
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
 #include <mcld/LD/SymbolTable.h>
-#include <SymbolTableTest.h>
+#include "SymbolTableTest.h"
 
 using namespace mcld;
 using namespace mcldtest;

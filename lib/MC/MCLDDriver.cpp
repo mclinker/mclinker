@@ -76,11 +76,27 @@ bool MCLDDriver::linkable() const
       report_fatal_error(error_code);
   }
 
-  // after normalization, all input files are recognized.
+
+  bool hasDynObj = false;
+  // can not mix -static with shared objects
   mcld::InputTree::const_bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
   for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == mcld::Input::DynObj && (*input)->attribute()->isStatic())
-      report_fatal_error("Can't link shared object with -static option");
+    if ((*input)->type() == mcld::Input::DynObj ) {
+      hasDynObj = true;
+      if((*input)->attribute()->isStatic())
+        report_fatal_error("Can't link shared object with -static option");
+    }
   }
+
+  // can not mix -r with shared objects
+
+}
+
+void MCLDDriver::readSymbolTables()
+{
+}
+
+void MCLDDriver::mergeSymbolTables()
+{
 }
 

@@ -5,8 +5,8 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef SYMBOLSTORAGE_H
-#define SYMBOLSTORAGE_H
+#ifndef MCLD_SYMBOL_STORAGE_H
+#define MCLD_SYMBOL_STORAGE_H
 #include <mcld/LD/StringTableIF.h>
 #include <mcld/LD/SymbolTableEntry.h>
 #include <mcld/LD/StringUnorderedMap.h>
@@ -27,12 +27,17 @@ class SymbolStorage
 {
   /* draft. */
   friend class SymbolTableFactory;
-  SymbolStorage(StringTableIF *pStrTab):m_Strtab(pStrTab),m_Allocator(256){}
+
+  SymbolStorage(StringTableIF *pStrTab)
+  : m_Strtab(pStrTab), m_Allocator(256)
+  {}
+
 public:
   typedef vector<LDSymbol *> SymbolList;
 
   void insertSymbol(llvm::StringRef);
   void merge(const SymbolStorage &);
+
 private:
   typedef SymbolTableEntry<ShouldOverwrite> SymbolTableEntryType;
   StringTableIF *m_Strtab;
@@ -40,7 +45,10 @@ private:
   GCFactory<SymbolTableEntryType> m_Allocator;
 
   template<typename DataType>
-  class GCFactory256 : public GCFactory<DataType, 256> {};
+  class GCFactory256 : public GCFactory<DataType, 256>
+  {};
+
+private:
   StringUnorderedMap<SymbolTableEntryType *,
                      const char *,
                      StringUnorderedMapDefaultHash,

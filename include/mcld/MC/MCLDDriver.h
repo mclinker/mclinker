@@ -35,12 +35,20 @@ public:
   //  - check every Input has a correct Attribute
   bool linkable() const;
 
-#if 0
+  /// readSymbolTables - read symbol tables from the input files.
+  //  for each input file, loads its symbol table from file.
+  void readSymbolTables();
+
+  /// mergeSymbolTables - merge the symbol tables of input files into the
+  /// output's symbol table.
+  void mergeSymbolTables();
+
+  /// relocation - applying relocation entries and create relocation
+  /// section in the output files
   // Create relocation section, asking TargetLDBackend to
   // read the relocation information into RelocationEntry
   // and push_back into the relocation section
   void relocation();
-#endif
 
 private:
   TargetLDBackend &m_LDBackend;

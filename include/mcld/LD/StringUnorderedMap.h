@@ -5,8 +5,8 @@
  *                                                                           *
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
-#ifndef SEARCHTABLE_H
-#define SEARCHTABLE_H
+#ifndef MCLD_SEARCH_TABLE_H
+#define MCLD_SEARCH_TABLE_H
 #include <llvm/ADT/StringRef.h>
 #include <vector>
 // For std::allocate.

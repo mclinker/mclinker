@@ -128,9 +128,10 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/LD/StringUnorderedMap.h \
 	${LIBDIR}/LD/StringUnorderedMap.cpp \
-	${INCDIR}/ADT/StringMap.h
+	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDSymbol.h \
-	${LIBDIR}/LD/LDSymbol.cpp
+	${LIBDIR}/LD/LDSymbol.cpp \
+	${INCDIR}/LD/SymbolTableIF.h 
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 

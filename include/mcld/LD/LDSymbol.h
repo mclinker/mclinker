@@ -111,12 +111,6 @@ private:
   uint8_t m_Other;
 };
 
-bool operator<(const LDSymbol& pLHS, const LDSymbol& pRHS)
-{
-  // TODO
-  return true;
-}
-
 } // namespace mcld
 
 #endif

@@ -422,6 +422,7 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
+  // 3. - normalize the input tree
   m_pLDDriver->normalize();
 
   if (m_LDInfo.options().verbose()) {
@@ -456,10 +457,21 @@ bool SectLinker::doFinalization(Module &pM)
     }
   }
 
+  // 4. and 5. - check if we can do static linking and if we use split-stack.
   if (!m_pLDDriver->linkable())
     return true;
+
+  // 6. - read all symbol tables of input files.
+  m_pLDDriver->readSymbolTables();
+
+  // 7. - symbol resolution
+  m_pLDDriver->mergeSymbolTables();
+
+  // 8. - add undefined symbols
+//  m_pLDDriver->addUndefinedSymbols();
+
+  
 /**
-  m_pLDDriver->resolveSymbols();
   m_pLDDriver->relocation();
   m_pLDDriver->writeOut();
 **/

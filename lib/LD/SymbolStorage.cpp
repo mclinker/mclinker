@@ -14,11 +14,11 @@ using namespace std;
 
 //==========================
 // SymbolStorage
-
 void SymbolStorage::insertSymbol(llvm::StringRef pSymName)
 {
   /* TODO: insert. */
 }
+
 void SymbolStorage::merge(const SymbolStorage &pSymTab)
 {
   if(this==&pSymTab) return;
