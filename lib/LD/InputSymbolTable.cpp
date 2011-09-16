@@ -20,12 +20,12 @@ InputSymbolTable::InputSymbolTable(SymbolStorage *pSymTab, size_t reserve)
   f_Symbols->reserve(reserve);
 }
 
-virtual void InputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
+virtual void InputSymbolTable::doInsertSymbol(llvm::StringRef pSymName)
 {
   f_Symbols->push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
 }
 
-virtual void InputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
+virtual void InputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
 {
   if(this==&pSymTab) return;
   f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);

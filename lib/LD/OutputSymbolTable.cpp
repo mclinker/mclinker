@@ -22,12 +22,12 @@ OutputSymbolTable::OutputSymbolTable(SymbolStorage *pSymTab,
   f_Symbols->reserve(reserve);
 }
 
-virtual void OutputSymbolTable::insertSymbol_impl(llvm::StringRef pSymName)
+virtual void OutputSymbolTable::doInsertSymbol(llvm::StringRef pSymName)
 {
   f_SymbolTableStrorage->insertSymbol(pSymName);
 }
 
-virtual void OutputSymbolTable::merge_impl(const SymbolTableIF &pSymTab)
+virtual void OutputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
 {
   if(this==&pSymTab) return;
   f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);

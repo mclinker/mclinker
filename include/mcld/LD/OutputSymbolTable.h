@@ -32,8 +32,8 @@ friend class SymbolTableFactory;
 private:
   OutputSymbolTable(SymbolStorage *, SymbolList *, size_t);
 private:
-  virtual void insertSymbol_impl(llvm::StringRef);
-  virtual void merge_impl(const SymbolTableIF &);
+  virtual void doInsertSymbol(llvm::StringRef);
+  virtual void doMerge(const SymbolTableIF &);
 } // namespace of mcld
 
 #endif

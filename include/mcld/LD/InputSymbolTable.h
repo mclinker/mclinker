@@ -31,8 +31,8 @@ friend class SymbolTableFactory;
 private:
   InputSymbolTable(SymbolStorage *, size_t);
 private:
-  virtual void insertSymbol_impl(llvm::StringRef);
-  virtual void merge_impl(const SymbolTableIF &);
+  virtual void doInsertSymbol(llvm::StringRef);
+  virtual void doMerge(const SymbolTableIF &);
 public:
   virtual ~InputSymbolTable();
 }
