@@ -3,20 +3,20 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
+ *   Jush Lu <jush.lu@mediatek.com> (owner)                                  *
+ *   Nowar Gu <nowar100@gmail.com>  (early prototype)                        *
+ *   Luba Tang <luba.tang@mediatek.com> (consistent prototype with proposal) *
  ****************************************************************************/
-#include <mcld/Support/MemoryRegion.h>
+#include <mcld/LD/LDSymbol.h>
 
 using namespace mcld;
 
-//==========================
-// MemoryRegion
-MemoryRegion::MemoryRegion(const MemoryRegion::Address pVMAStart,
-                           size_t pSize)
-  : m_VMAStart(pVMAStart), m_Length(pSize) {
+LDSymbol::LDSymbol()
+ : m_pName(0), m_IsDyn(true), m_Type(NoneType), m_Binding(NoneBinding),
+   m_pSection(0), m_Value(0), m_Size(0), m_Other(0) {
 }
 
-MemoryRegion::~MemoryRegion()
+LDSymbol::~LDSymbol()
 {
 }
 

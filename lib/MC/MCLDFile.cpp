@@ -39,34 +39,3 @@ const std::string& MCLDFile::name() const
   return m_InputName;
 }
 
-void MCLDFile::open()
-{
-  if (0 == m_pMemArea) {
-    // FIXME: create and open file
-  }
-}
-
-void MCLDFile::close()
-{
-  if (0 != m_pMemArea) {
-    // FIXME: close memory area and delete it.
-    m_pMemArea = 0;
-  }
-}
-
-bool MCLDFile::isOpened() const
-{
-  if (0 == m_pMemArea)
-    return false;
-  // FIXME: check more
-  return true;
-}
-
-bool MCLDFile::isGood() const
-{
-  if (0 == m_pMemArea)
-    return false;
-  // FIXME: check more
-  return true;
-}
-

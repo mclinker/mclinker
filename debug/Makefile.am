@@ -102,6 +102,10 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
 	${LIBDIR}/Support/MemoryRegion.cpp \
+	${INCDIR}/Support/RegionFactory.h \
+	${LIBDIR}/Support/RegionFactory.cpp \
+	${INCDIR}/Support/MemoryAreaFactory.h \
+	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
 	${LIBDIR}/MC/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
@@ -114,16 +118,19 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
+	${INCDIR}/Support/GCFactory.h \
+	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
 	${INCDIR}/ADT/Allocators.h \
-	${INCDIR}/ADT/GCFactory.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/LD/StringUnorderedMap.h \
 	${LIBDIR}/LD/StringUnorderedMap.cpp \
 	${INCDIR}/ADT/StringMap.h
+	${INCDIR}/LD/LDSymbol.h \
+	${LIBDIR}/LD/LDSymbol.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
@@ -146,7 +153,13 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/RTLinearAllocatorTest.h \
 	${UNITTEST}/RTLinearAllocatorTest.cpp \
 	${UNITTEST}/DirIteratorTest.h \
-	${UNITTEST}/DirIteratorTest.cpp
+	${UNITTEST}/DirIteratorTest.cpp \
+	${UNITTEST}/UniqueGCFactoryBaseTest.h \
+	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
+	${UNITTEST}/MemoryAreaTest.h \
+	${UNITTEST}/MemoryAreaTest.cpp
+#	${UNITTEST}/SymbolTableTest.h \
+#	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

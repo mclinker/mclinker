@@ -63,6 +63,8 @@ namespace mcld
         NO_WHOLE_ARCHIVE,
         AS_NEEDED,
         NO_AS_NEEDED,
+        ADD_NEEDED,
+        NO_ADD_NEEDED,
         BDYNAMIC,
         BSTATIC
       };

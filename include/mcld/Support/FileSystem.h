@@ -79,6 +79,7 @@ static bool is_directory(FileStatus f);
 namespace detail
 {
 
+typedef unsigned char* Address;
 extern std::string static_library_extension;
 extern std::string shared_library_extension;
 extern std::string executable_extension;
@@ -87,15 +88,15 @@ extern std::string assembly_extension;
 extern std::string bitcode_extension;
 
 size_t canonicalize(std::string& pPathName);
-
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
 StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
-
 void get_pwd(std::string& pPWD);
+size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset);
+char *strerror(int pErrnum);
 
 } // namespace of detail
 } // namespace of fs

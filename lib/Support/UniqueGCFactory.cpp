@@ -5,18 +5,10 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/Support/MemoryRegion.h>
+#include <UniqueGCFactory.h>
 
 using namespace mcld;
 
 //==========================
-// MemoryRegion
-MemoryRegion::MemoryRegion(const MemoryRegion::Address pVMAStart,
-                           size_t pSize)
-  : m_VMAStart(pVMAStart), m_Length(pSize) {
-}
-
-MemoryRegion::~MemoryRegion()
-{
-}
+// UniqueGCFactory
 
