@@ -21,17 +21,22 @@ class StringTableStorage : public GCFactory<char, 4*1024>
   typedef GCFactory<char, 4*1024> Factory;
 
 public:
-  StringTableStorage() {}
+  StringTableStorage()
+  : m_Size(0) {}
   ~StringTableStorage() {}
 
   const char* add(llvm::StringRef pSR)
   {
     char* p = Factory::allocate(pSR.size()+1);
     strcpy(p, pSR.data());
+    m_Size += 1;
     return const_cast<const char*>(p);
   }
 
-  size_t size() const { return Factory::size(); }
+  size_t size() const { return m_Size; }
+
+private:
+  size_t m_Size;
 };
 
 }

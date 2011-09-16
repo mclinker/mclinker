@@ -7,7 +7,7 @@
  *                                                                           *
  *   Nowar Gu <nowar100@gmail.com>                                           *
  ****************************************************************************/
-#include <iostream>
+#include <cstring>
 #include <mcld/LD/StringTableFactory.h>
 #include <mcld/LD/StringTable.h>
 #include <StringTableTest.h>
@@ -50,4 +50,14 @@ TEST_F(StringTableTest, global_table) {
   ASSERT_EQ(p2, p3);
   ASSERT_NE(p2, m_pTestee);
   ASSERT_NE(p3, m_pTestee);
+}
+
+TEST_F(StringTableTest, size_and_content) {
+  const char* a = m_pTestee->insert("");
+  const char* b = m_pTestee->insert("Nowar is peaceful.");
+  ASSERT_EQ(m_pTestee->size(), 2);
+  ASSERT_NE(a, b);
+  ASSERT_EQ(strcmp(a, ""), 0);
+  ASSERT_NE(strcmp(a, " "), 0);
+  ASSERT_EQ(strcmp(b, "Nowar is peaceful."), 0);
 }
