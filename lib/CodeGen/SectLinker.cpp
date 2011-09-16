@@ -153,6 +153,16 @@ ArgNoAsNeededList("no-as-needed",
                 cl::desc("Turn off the effect of the --as-needed option for subsequent dynamic libraries"));
 
 static cl::list<bool>
+ArgAddNeededList("add-needed",
+                cl::ValueDisallowed,
+                cl::desc("--add-needed causes DT_NEEDED tags are always emitted for those libraries from DT_NEEDED tags. This is the default behavior."));
+
+static cl::list<bool>
+ArgNoAddNeededList("no-add-needed",
+                cl::ValueDisallowed,
+                cl::desc("--no-add-needed causes DT_NEEDED tags will never be emitted for those libraries from DT_NEEDED tags"));
+
+static cl::list<bool>
 ArgBDynamicList("Bdynamic",
                 cl::ValueDisallowed,
                 cl::desc("Link against dynamic library"));
@@ -359,6 +369,26 @@ bool SectLinker::doInitialization(Module &pM)
     ++attr;
   }
 
+  // --add-needed
+  attr = ArgAddNeededList.begin();
+  attrEnd = ArgAddNeededList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgAddNeededList.getPosition(attr-ArgAddNeededList.begin()),
+                                    PositionDependentOption::ADD_NEEDED));
+    ++attr;
+  }
+
+  // --no-add-needed
+  attr = ArgNoAddNeededList.begin();
+  attrEnd = ArgNoAddNeededList.end();
+  while(attr != attrEnd) {
+    pos_dep_options.push_back(new PositionDependentOption(
+                                    ArgNoAddNeededList.getPosition(attr-ArgNoAddNeededList.begin()),
+                                    PositionDependentOption::NO_ADD_NEEDED));
+    ++attr;
+  }
+
   // -Bdynamic
   attr = ArgBDynamicList.begin();
   attrEnd = ArgBDynamicList.end();
@@ -515,6 +545,12 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       break;
     case PositionDependentOption::NO_AS_NEEDED:
       pLDInfo.attrFactory().last().unsetAsNeeded();
+      break;
+    case PositionDependentOption::ADD_NEEDED:
+      pLDInfo.attrFactory().last().setAddNeeded();
+      break;
+    case PositionDependentOption::NO_ADD_NEEDED:
+      pLDInfo.attrFactory().last().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
       pLDInfo.attrFactory().last().setStatic();

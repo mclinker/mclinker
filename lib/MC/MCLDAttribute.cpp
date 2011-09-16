@@ -22,6 +22,10 @@ bool AttrConstraint::isLegal(const Attribute& pAttr, std::string &pErrMesg) cons
     pErrMesg = std::string("Target does not support --as-needed");
     return false;
   }
+  if (!isAddNeeded() && pAttr.isAddNeeded()) {
+    pErrMesg = std::string("Target does not support --add-needed");
+    return false;
+  }
   if (isStaticSystem() && pAttr.isDynamic()) {
     pErrMesg = std::string("Target does not support --Bdynamic");
     return false;
@@ -42,7 +46,7 @@ bool AttrConstraint::isLegal(const Attribute& pAttr, std::string &pErrMesg) cons
 //==========================
 // AttributeProxy
 AttributeProxy::AttributeProxy(AttributeFactory& pParent, Attribute& pBase)
-  : m_Parent(pParent), m_pBase(&pBase) {
+  : m_AttrPool(pParent), m_pBase(&pBase) {
 }
 
 AttributeProxy::~AttributeProxy()
@@ -51,7 +55,7 @@ AttributeProxy::~AttributeProxy()
 
 bool AttributeProxy::isWholeArchive() const
 {
-  if (m_Parent.constraint().isWholeArchive())
+  if (m_AttrPool.constraint().isWholeArchive())
     return m_pBase->isWholeArchive();
   else
     return false;
@@ -59,15 +63,23 @@ bool AttributeProxy::isWholeArchive() const
 
 bool AttributeProxy::isAsNeeded() const
 {
-  if (m_Parent.constraint().isAsNeeded())
+  if (m_AttrPool.constraint().isAsNeeded())
     return m_pBase->isAsNeeded();
+  else
+    return false;
+}
+
+bool AttributeProxy::isAddNeeded() const
+{
+  if (m_AttrPool.constraint().isAddNeeded())
+    return m_pBase->isAddNeeded();
   else
     return false;
 }
 
 bool AttributeProxy::isStatic() const
 {
-  if (m_Parent.constraint().isSharedSystem())
+  if (m_AttrPool.constraint().isSharedSystem())
     return m_pBase->isStatic();
   else
     return true;
@@ -75,7 +87,7 @@ bool AttributeProxy::isStatic() const
 
 bool AttributeProxy::isDynamic() const
 {
-  if (m_Parent.constraint().isSharedSystem())
+  if (m_AttrPool.constraint().isSharedSystem())
     return m_pBase->isDynamic();
   else
     return false;
@@ -100,46 +112,60 @@ void AttributeProxy::setWholeArchive()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->setWholeArchive();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 void AttributeProxy::unsetWholeArchive()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->unsetWholeArchive();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 void AttributeProxy::setAsNeeded()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->setAsNeeded();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 void AttributeProxy::unsetAsNeeded()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->unsetAsNeeded();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
+}
+
+void AttributeProxy::setAddNeeded()
+{
+  Attribute *copy = new Attribute(*m_pBase);
+  copy->setAddNeeded();
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
+}
+
+void AttributeProxy::unsetAddNeeded()
+{
+  Attribute *copy = new Attribute(*m_pBase);
+  copy->unsetAddNeeded();
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 void AttributeProxy::setStatic()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->setStatic();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 void AttributeProxy::setDynamic()
 {
   Attribute *copy = new Attribute(*m_pBase);
   copy->setDynamic();
-  ReplaceOrRecord(m_Parent, m_pBase, copy);
+  ReplaceOrRecord(m_AttrPool, m_pBase, copy);
 }
 
 AttributeProxy* AttributeProxy::clone() const
 {
-  return new AttributeProxy(m_Parent, *m_pBase);
+  return new AttributeProxy(m_AttrPool, *m_pBase);
 }
 
