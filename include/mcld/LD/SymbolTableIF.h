@@ -13,11 +13,13 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/Uncopyable.h>
+#include <vector>
 
 namespace mcld
 {
 
 class LDSymbol;
+class SymbolStorage;
 
 /** \class SymbolTableIF
  *  \brief SymbolTableIF is an abstract interfaoce of symbol tables
@@ -35,12 +37,10 @@ class LDSymbol;
  */
 class SymbolTableIF : private Uncopyable
 {
-protected:
-  typedef SymbolStorage::SymbolList SymbolList;
-
 public:
+  typedef std::vector<LDSymbol *> SymbolList;
   typedef SymbolList::iterator         iterator;
-  typedef SymbolList::const_iterator   const_terator;
+  typedef SymbolList::const_iterator   const_iterator;
 
 protected:
   SymbolTableIF(SymbolStorage *pSymTab)
@@ -70,13 +70,13 @@ public:
   const_iterator begin() const
   { return f_pSymbols->begin(); }
 
-  iterator begin() const
+  iterator begin()
   { return f_pSymbols->begin(); }
 
   const_iterator end() const
   { return f_pSymbols->begin(); }
 
-  iterator end() const
+  iterator end()
   { return f_pSymbols->end(); }
 
 private:

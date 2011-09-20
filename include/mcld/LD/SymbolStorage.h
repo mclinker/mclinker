@@ -10,6 +10,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/Allocators.h>
 #include <mcld/LD/StringTableIF.h>
+#include <mcld/LD/SymbolTableIF.h>
 #include <mcld/LD/SymbolTableEntry.h>
 #include <mcld/LD/StringUnorderedMap.h>
 #include <mcld/LD/LDSymbol.h>
@@ -37,6 +38,7 @@ struct ShouldOverwrite
 class SymbolStorage : private Uncopyable
 {
   /* draft. */
+  template<bool>
   friend class SymbolTableFactory;
 
   SymbolStorage(StringTableIF *pStrTab)
@@ -48,7 +50,7 @@ class SymbolStorage : private Uncopyable
   {}
 
 public:
-  typedef std::vector<LDSymbol *> SymbolList;
+  typedef SymbolTableIF::SymbolList SymbolList;
   typedef SymbolTableEntry<ShouldOverwrite> SymbolTableEntryType;
 
   LDSymbol *insertSymbol(llvm::StringRef);
