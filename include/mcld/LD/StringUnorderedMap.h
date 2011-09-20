@@ -19,7 +19,6 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <stdio.h>
 
 namespace mcld
 {
@@ -52,6 +51,8 @@ uint32_t findNextPrime(uint32_t x);
 /** \class StringUnorderedMap
  *  \brief The most simple hash of linked list version.
  *
+ *  TODO: We may use allocator::rebind. But SymbolStorage use GCFactory, and
+ *  GCFactory didn't have rebind. Now, using template class allocator instead.
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
@@ -63,22 +64,25 @@ class StringUnorderedMap
 {
   /* XXX:draft and test. */
 public:
-  StringUnorderedMap(size_t pMaxSize = 17);
+  StringUnorderedMap(size_t pMaxSize = 17)
+  : m_Impl(pMaxSize)
+  {}
 
-  void reserve(size_t pMaxSize);
+  void reserve(size_t pMaxSize)
+  { m_Impl.reserve(pMaxSize); }
 
   template<typename InitType>
-  ValueType &getOrCreate(llvm::StringRef pStr, InitType pInitVal);
+  ValueType &getOrCreate(llvm::StringRef pStr, InitType pInitVal)
+  { return m_Impl.getOrCreate(pStr, pInitVal); }
 
-  ValueType &getOrCreate(llvm::StringRef pStr) {
-    return getOrCreate(pStr, ValueType());
-  }
+  ValueType &getOrCreate(llvm::StringRef pStr)
+  { return getOrCreate(pStr, ValueType()); }
 
-  bool empty() {return m_Size == 0;}
+  bool empty()
+  { return m_Impl.empty(); }
 
-  void clear();
-
-  ~StringUnorderedMap();
+  void clear()
+  { m_Impl.clear(); }
 
 private:
   struct HashEntry {
@@ -88,15 +92,26 @@ private:
     HashEntry *next;
   };
 
-  Allocator<HashEntry> allocator;
-  HashFunction hash;
-  StringUnorderedMapInit<ValueType, StringType> init;
+  struct StringUnorderedMapImpl : private Allocator<HashEntry>{
+    StringUnorderedMapImpl(size_t pMaxSize);
 
-  size_t m_HashMax;
-  size_t m_Size;
-  HashEntry **m_HashTable;
+    void reserve(size_t pMaxSize);
 
-  void rehash(size_t pMaxSize);
+    template<typename InitType>
+    ValueType &getOrCreate(llvm::StringRef pStr, InitType pInitVal);
+
+    bool empty() {return m_Size == 0;}
+
+    void clear();
+
+    ~StringUnorderedMapImpl();
+
+    size_t m_HashMax;
+    size_t m_Size;
+    HashEntry **m_HashTable;
+
+    void rehash(size_t pMaxSize);
+  } m_Impl;
 };
 
 
@@ -108,8 +123,8 @@ template<typename ValueType,
          typename HashFunction,
          template<class>class Allocator>
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-StringUnorderedMap(size_t pMaxSize)
-  : allocator(), hash(), init(), m_HashMax(0), m_Size(0), m_HashTable(0)
+StringUnorderedMapImpl::StringUnorderedMapImpl(size_t pMaxSize)
+  : m_HashMax(0), m_Size(0), m_HashTable(0)
 {
   this->reserve(pMaxSize);
 }
@@ -120,7 +135,7 @@ template<typename ValueType,
          template<class>class Allocator>
 void
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-reserve(size_t pMaxSize)
+StringUnorderedMapImpl::reserve(size_t pMaxSize)
 {
   if (pMaxSize < this->m_HashMax) return;
   size_t nextSize = findNextPrime(static_cast<uint32_t>(pMaxSize));
@@ -136,7 +151,7 @@ template<typename ValueType,
          template<class>class Allocator>
 void
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-rehash(size_t pMaxSize)
+StringUnorderedMapImpl::rehash(size_t pMaxSize)
 {
   HashEntry **tmpTable = new HashEntry*[pMaxSize];
   std::memset(tmpTable, 0, pMaxSize * sizeof(HashEntry*));
@@ -161,8 +176,10 @@ template<typename ValueType,
 template<typename InitType>
 ValueType &
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-getOrCreate(llvm::StringRef pStr, InitType pInitVal)
+StringUnorderedMapImpl::getOrCreate(llvm::StringRef pStr, InitType pInitVal)
 {
+  HashFunction hash;
+  StringUnorderedMapInit<ValueType, StringType> init;
   size_t hashVal = hash(pStr);
   HashEntry *&head =  this->m_HashTable[hashVal % this->m_HashMax];
 
@@ -173,7 +190,7 @@ getOrCreate(llvm::StringRef pStr, InitType pInitVal)
       break;
     }
   if (ans == 0) {
-    ans = allocator.allocate(1);
+    ans = this->allocate(1);
     ans->hashVal = hashVal;
     init(ans->str, ans->value, pStr, pInitVal);
     ans->next = head;
@@ -192,14 +209,14 @@ template<typename ValueType,
          template<class>class Allocator>
 void
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-clear()
+StringUnorderedMapImpl::clear()
 {
   if (this->m_HashTable) {
     for (size_t i = 0; i < this->m_HashMax; ++i)
       for (HashEntry *j = this->m_HashTable[i]; j != 0; ) {
         HashEntry *nextJ = j->next;
-        allocator.destroy(j);
-        allocator.deallocate(j, 1);
+        this->destroy(j);
+        this->deallocate(j, 1);
         j = nextJ;
       }
     delete[] m_HashTable;
@@ -212,7 +229,7 @@ template<typename ValueType,
          typename HashFunction,
          template<class>class Allocator>
 StringUnorderedMap<ValueType, StringType, HashFunction, Allocator>::
-~StringUnorderedMap()
+StringUnorderedMapImpl::~StringUnorderedMapImpl()
 {
   this->clear();
 }
