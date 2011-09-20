@@ -25,7 +25,7 @@ namespace mcld
  */
 class LDSymbol : private Uncopyable
 {
-friend class SymbolTableEntry;
+friend class SymbolStorage;
 public:
   enum Type {
     Defined,
