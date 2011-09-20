@@ -10,9 +10,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/Allocators.h>
 #include <mcld/LD/StringTableIF.h>
-#include <mcld/LD/SymbolTableIF.h>
 #include <mcld/LD/SymbolTableEntry.h>
-#include <mcld/LD/StringUnorderedMap.h>
 #include <mcld/LD/LDSymbol.h>
 #include <vector>
 #ifdef ENABLE_UNITTEST
@@ -29,6 +27,9 @@ struct ShouldOverwrite
   }
 };
 
+template<class, class, class, class> class StringUnorderedMap;
+class StringUnorderedMapDefaultHash;
+
 /** \class SymbolStorage
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
@@ -38,43 +39,54 @@ struct ShouldOverwrite
 class SymbolStorage : private Uncopyable
 {
   /* draft. */
-  template<bool>
   friend class SymbolTableFactory;
+  enum {
+    NumOfEntries = 256
+  };
+  typedef SymbolTableEntry<ShouldOverwrite> SymbolTableEntryType;
+  typedef StringUnorderedMap<SymbolTableEntryType *,
+                             const char *,
+                             StringUnorderedMapDefaultHash,
+                             LinearAllocator<SymbolTableEntryType*,
+                                             NumOfEntries> > SearcherType;
 
-  SymbolStorage(StringTableIF *pStrTab)
-  : m_StrTab(pStrTab), m_EntryAllocator(256), m_SymbolAllocator(256)
-  {}
+
+private:
+  SymbolStorage(StringTableIF &pStrTab);
 
   // TODO: Release all allocated memory.
-  ~SymbolStorage()
-  {}
+  ~SymbolStorage();
 
 public:
-  typedef SymbolTableIF::SymbolList SymbolList;
-  typedef SymbolTableEntry<ShouldOverwrite> SymbolTableEntryType;
+  typedef std::vector<LDSymbol *>      SymbolList;
 
-  LDSymbol *insertSymbol(llvm::StringRef);
+  LDSymbol *insertSymbol(llvm::StringRef,
+                         bool,
+                         LDSymbol::Type,
+                         LDSymbol::Binding,
+                         const llvm::MCSectionData *);
   void merge(const SymbolStorage &);
 
 private:
-  StringTableIF *m_StrTab;
-  SymbolList m_SymList;
+  StringTableIF &m_StrTab;
+  SymbolList m_EntireSymList;
+  SymbolList m_DynamicSymList;
+  SymbolList m_CommonSymList;
   GCFactory<SymbolTableEntryType, 0> m_EntryAllocator;
   LinearAllocator<LDSymbol, 0> m_SymbolAllocator;
 
-  template<typename DataType>
-  class GCFactory256 : public GCFactory<DataType, 256>
-  {};
+private:
+  SearcherType *m_pSymbolSearch;
 
 private:
-  StringUnorderedMap<SymbolTableEntryType *,
-                     const char *,
-                     StringUnorderedMapDefaultHash,
-                     GCFactory256> m_SymbolSearch;
-private:
-  SymbolList *getSymbolList() {
-    return &m_SymList;
-  }
+  SymbolList &entireSymbolList()
+  { return m_EntireSymList; }
+
+  SymbolList &dynamicSymbolList()
+  { return m_DynamicSymList; }
+
+  SymbolList &commonSymbolList()
+  { return m_CommonSymList; }
 };
 
 } // namespace of mcld

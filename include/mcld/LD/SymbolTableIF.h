@@ -13,13 +13,12 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/Uncopyable.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/SymbolStorage.h>
 #include <vector>
 
 namespace mcld
 {
-
-class LDSymbol;
-class SymbolStorage;
 
 /** \class SymbolTableIF
  *  \brief SymbolTableIF is an abstract interfaoce of symbol tables
@@ -38,54 +37,102 @@ class SymbolStorage;
 class SymbolTableIF : private Uncopyable
 {
 public:
-  typedef std::vector<LDSymbol *> SymbolList;
+  typedef SymbolStorage::SymbolList    SymbolList;
   typedef SymbolList::iterator         iterator;
   typedef SymbolList::const_iterator   const_iterator;
 
 protected:
-  SymbolTableIF(SymbolStorage *pSymTab)
-    : f_pSymbolTableStrorage(pSymTab), f_pSymbols(0) {}
+  SymbolTableIF(SymbolStorage &pSymStorage,
+                SymbolList &pEntireSymList,
+                SymbolList &pDynamicSymList,
+                SymbolList &pCommonSymList)
+    : f_SymStorage(pSymStorage),
+      f_EntireSymList(pEntireSymList),
+      f_DynamicSymList(pDynamicSymList),
+      f_CommonSymList(pCommonSymList)
+  {}
 
 public:
   virtual ~SymbolTableIF() {}
 
   // -----  observers  ----- //
   size_t size() const
-  { return f_pSymbols->size(); }
+  { return f_EntireSymList.size(); }
 
   const LDSymbol *getSymbol(int pX) const
-  { return (*f_pSymbols)[pX]; }
+  { return f_EntireSymList[pX]; }
 
   // -----  modifiers  ----- //
   LDSymbol *getSymbol(int pX)
-  { return (*f_pSymbols)[pX]; }
+  { return f_EntireSymList[pX]; }
 
-  void insertSymbol(llvm::StringRef pSymName)
-  { doInsertSymbol(pSymName); }
+  LDSymbol *insertSymbol(llvm::StringRef pSymName,
+                         bool pDynamic,
+                         LDSymbol::Type pType,
+                         LDSymbol::Binding pBinding,
+                         const llvm::MCSectionData* pSection)
+  {
+    LDSymbol *sym = f_SymStorage.insertSymbol(pSymName,
+                                              pDynamic,
+                                              pType,
+                                              pBinding,
+                                              pSection);
+    doInsertSymbol(sym);
+    return sym;
+  }
 
   void merge(const SymbolTableIF &pSymTab)
-  { doMerge(pSymTab); }
+  {
+    f_SymStorage.merge(pSymTab.f_SymStorage);
+    doMerge(pSymTab);
+  }
 
   // -----  iterators  ----- //
   const_iterator begin() const
-  { return f_pSymbols->begin(); }
+  { return f_EntireSymList.begin(); }
 
   iterator begin()
-  { return f_pSymbols->begin(); }
+  { return f_EntireSymList.begin(); }
 
   const_iterator end() const
-  { return f_pSymbols->begin(); }
+  { return f_EntireSymList.begin(); }
 
   iterator end()
-  { return f_pSymbols->end(); }
+  { return f_EntireSymList.end(); }
+
+  const_iterator dyn_begin() const
+  { return f_DynamicSymList.begin(); }
+
+  iterator dyn_begin()
+  { return f_DynamicSymList.begin(); }
+
+  const_iterator dyn_end() const
+  { return f_DynamicSymList.begin(); }
+
+  iterator dyn_end()
+  { return f_DynamicSymList.end(); }
+
+  const_iterator com_begin() const
+  { return f_CommonSymList.begin(); }
+
+  iterator com_begin()
+  { return f_CommonSymList.begin(); }
+
+  const_iterator com_end() const
+  { return f_CommonSymList.begin(); }
+
+  iterator com_end()
+  { return f_CommonSymList.end(); }
 
 private:
-  virtual void doInsertSymbol(llvm::StringRef) = 0;
+  virtual void doInsertSymbol(LDSymbol *) = 0;
   virtual void doMerge(const SymbolTableIF &) = 0;
 
 protected:
-  SymbolStorage *f_pSymbolTableStrorage;
-  SymbolList *f_pSymbols;
+  SymbolStorage &f_SymStorage;
+  SymbolList &f_EntireSymList;
+  SymbolList &f_DynamicSymList;
+  SymbolList &f_CommonSymList;
 };
 
 } // namespace of mcld

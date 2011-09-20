@@ -27,15 +27,15 @@ class LDSymbol;
 class InputSymbolTable : public SymbolTableIF
 {
   /* draft. */
-friend class SymbolTableFactory;
+  friend class SymbolTableFactory;
 private:
-  InputSymbolTable(SymbolStorage *, size_t);
+  InputSymbolTable(SymbolStorage &, size_t);
 private:
-  virtual void doInsertSymbol(llvm::StringRef);
+  virtual void doInsertSymbol(LDSymbol *);
   virtual void doMerge(const SymbolTableIF &);
 public:
   virtual ~InputSymbolTable();
-}
+};
 
 } // namespace of mcld
 

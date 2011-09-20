@@ -134,7 +134,12 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/LD/SymbolTableIF.h \
 	${INCDIR}/LD/SymbolTableEntry.h \
 	${INCDIR}/LD/SymbolStorage.h \
-	${LIBDIR}/LD/SymbolStorage.cpp
+	${LIBDIR}/LD/SymbolStorage.cpp \
+	${INCDIR}/LD/SymbolTableFactory.h \
+	${INCDIR}/LD/InputSymbolTable.h \
+	${LIBDIR}/LD/InputSymbolTable.cpp \
+	${INCDIR}/LD/OutputSymbolTable.h \
+	${LIBDIR}/LD/OutputSymbolTable.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 

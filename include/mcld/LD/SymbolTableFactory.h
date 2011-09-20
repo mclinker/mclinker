@@ -9,6 +9,9 @@
 #define SYMBOLTABLEFACTORY_H
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/LD/SymbolTableIF.h>
+#include <mcld/LD/InputSymbolTable.h>
+#include <mcld/LD/OutputSymbolTable.h>
 #include <mcld/LD/SymbolStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
@@ -17,40 +20,41 @@
 namespace mcld
 {
 
+class StringTableIF;
+
 /** \class SymbolTableFactory
  *  \brief SymbolTableFactory constructs the SymbolTables.
  *
  *  \see
  *  \author TDYa127 <a127a127@gmail.com>
  */
-template<bool global>
 class SymbolTableFactory
 {
   /* draft. */
-public:
-  SymbolTableFactory();
-  SymbolTableIF *create(StringTableIF*, const Input&, size_t reserve=256);
-  SymbolTableIF *create(StringTableIF*, const Output&, size_t reserve=256);
-};
-
-template
-class SymbolTableFactory<true>
-{
-  /* draft. */
+  /* FIXME: Who should delete symbol table. */
 public:
   SymbolTableFactory() {
   }
-  SymbolTableIF *create(StringTableIF *pStrTab, const Input&, size_t reserve=256) {
-    return new InputSymbolTable(SymbolTableFactory::Instance(pStrTab), reserve);
+  SymbolTableIF *create(StringTableIF &pStrTab,
+                        const Input&,
+                        size_t reserve=256) {
+    SymbolStorage &symtab = SymbolTableFactory::instance(pStrTab);
+    return new InputSymbolTable(symtab, reserve);
   }
-  SymbolTableIF *create(StringTableIF *pStrTab, const Output&, size_t reserve=256) {
-    SymbolStorage *symtab = SymbolTableFactory::Instance(pStrTab);
-    return new OutputSymbolTable(symtab, symtab->getSymbolList(), reserve);
+  SymbolTableIF *create(StringTableIF &pStrTab,
+                        const Output&,
+                        size_t reserve=256) {
+    SymbolStorage &symtab = SymbolTableFactory::instance(pStrTab);
+    return new OutputSymbolTable(symtab,
+                                 symtab.entireSymbolList(),
+                                 symtab.dynamicSymbolList(),
+                                 symtab.commonSymbolList(),
+                                 reserve);
   }
 private:
-  static SymbolStorage *instance(StringTableIF *pStrTab, size_t reserve) {
+  static SymbolStorage &instance(StringTableIF &pStrTab) {
     static SymbolStorage singleton(pStrTab);
-    return &singleton;
+    return singleton;
   }
 };
 

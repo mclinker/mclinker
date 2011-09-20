@@ -7,32 +7,50 @@
  ****************************************************************************/
 #include <mcld/LD/InputSymbolTable.h>
 #include <mcld/LD/SymbolStorage.h>
+#include <mcld/LD/LDSymbol.h>
+#include <vector>
 
 using namespace mcld;
 
 //==========================
 // InputSymbolTable
 
-InputSymbolTable::InputSymbolTable(SymbolStorage *pSymTab, size_t reserve)
-  : SymbolTableIF(pSymTab)
+InputSymbolTable::InputSymbolTable(SymbolStorage &pSymStorage, size_t reserve)
+  : SymbolTableIF(pSymStorage,
+                  *new SymbolList(),
+                  *new SymbolList(),
+                  *new SymbolList())
 {
-  f_Symbols = new vector<LDSymbol *>;
-  f_Symbols->reserve(reserve);
+  f_EntireSymList.reserve(reserve);
 }
 
-virtual void InputSymbolTable::doInsertSymbol(llvm::StringRef pSymName)
+void InputSymbolTable::doInsertSymbol(LDSymbol *sym)
 {
-  f_Symbols->push_back(f_SymbolTableStrorage->insertSymbol(pSymName));
+  f_EntireSymList.push_back(sym);
+  if (sym->isDyn())
+    f_DynamicSymList.push_back(sym);
+  if (sym->type() == LDSymbol::Common)
+    f_CommonSymList.push_back(sym);
 }
 
-virtual void InputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
+void InputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
 {
-  if(this==&pSymTab) return;
-  f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);
-  f_Symbols->insert(f_Symbols->end(), pSymTab.begin(), pSymTab.end());
+  if (this == &pSymTab)
+     return;
+  f_EntireSymList.insert(f_EntireSymList.end(),
+                         pSymTab.begin(),
+                         pSymTab.end());
+  f_DynamicSymList.insert(f_DynamicSymList.end(),
+                          pSymTab.dyn_begin(),
+                          pSymTab.dyn_end());
+  f_CommonSymList.insert(f_DynamicSymList.end(),
+                         pSymTab.com_begin(),
+                         pSymTab.com_end());
 }
 
-virtual InputSymbolTable::~InputSymbolTable()
+InputSymbolTable::~InputSymbolTable()
 {
-  delete f_Symbols;
+  delete &f_EntireSymList;
+  delete &f_DynamicSymList;
+  delete &f_CommonSymList;
 }

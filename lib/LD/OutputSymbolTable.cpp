@@ -14,21 +14,27 @@ using namespace mcld;
 // OutputSymbolTable
 
 
-OutputSymbolTable::OutputSymbolTable(SymbolStorage *pSymTab,
-                                     SymbolList *pSymList,
+OutputSymbolTable::OutputSymbolTable(SymbolStorage &pSymStorage,
+                                     SymbolList &pEntireSymList,
+                                     SymbolList &pDynamicSymList,
+                                     SymbolList &pCommonSymList,
                                      size_t reserve)
-  : SymbolTableIF(pSymTab), f_Symbols(pSymList)
+  : SymbolTableIF(pSymStorage,
+                  pEntireSymList,
+                  pDynamicSymList,
+                  pCommonSymList)
 {
-  f_Symbols->reserve(reserve);
+  f_EntireSymList.reserve(reserve);
 }
 
-virtual void OutputSymbolTable::doInsertSymbol(llvm::StringRef pSymName)
+void OutputSymbolTable::doInsertSymbol(LDSymbol *sym)
 {
-  f_SymbolTableStrorage->insertSymbol(pSymName);
+  // OutputSymbolTable didn't have any real containers,
+  // so no need to do anything.
 }
 
-virtual void OutputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
+void OutputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
 {
-  if(this==&pSymTab) return;
-  f_SymbolTableStrorage->merge(*pSymTab.f_SymbolTableStrorage);
+  // OutputSymbolTable didn't have any real containers,
+  // so no need to do anything.
 }

@@ -9,7 +9,6 @@
 #define OUTPUTSYMBOLTABLE_H
 #include <llvm/ADT/StringRef.h>
 #include <mcld/LD/SymbolTableIF.h>
-#include <mcld/LD/SymbolStorage.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -28,12 +27,18 @@ class LDSymbol;
 class OutputSymbolTable : public SymbolTableIF
 {
   /* draft. */
-friend class SymbolTableFactory;
+  friend class SymbolTableFactory;
 private:
-  OutputSymbolTable(SymbolStorage *, SymbolList *, size_t);
+  OutputSymbolTable(SymbolStorage &,
+                    SymbolList &,
+                    SymbolList &,
+                    SymbolList &,
+                    size_t);
 private:
-  virtual void doInsertSymbol(llvm::StringRef);
+  virtual void doInsertSymbol(LDSymbol *);
   virtual void doMerge(const SymbolTableIF &);
+};
+
 } // namespace of mcld
 
 #endif

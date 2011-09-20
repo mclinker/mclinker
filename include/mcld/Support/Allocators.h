@@ -274,6 +274,12 @@ template<typename DataType, size_t ChunkSize>
 class LinearAllocator : public LinearAllocatorBase<Chunk<DataType, ChunkSize> >
 {
 public:
+  template<typename NewDataType>
+  struct rebind {
+    typedef LinearAllocator<NewDataType, ChunkSize> other;
+  };
+
+public:
   LinearAllocator()
     : LinearAllocatorBase<Chunk<DataType, ChunkSize> >() {
   }
@@ -285,6 +291,12 @@ public:
 template<typename DataType>
 class LinearAllocator<DataType, 0> : public LinearAllocatorBase<Chunk<DataType, 0> >
 {
+public:
+  template<typename NewDataType>
+  struct rebind {
+    typedef LinearAllocator<NewDataType, 0> other;
+  };
+
 public:
   explicit LinearAllocator(size_t pNum)
     : LinearAllocatorBase<Chunk<DataType, 0> >() {
