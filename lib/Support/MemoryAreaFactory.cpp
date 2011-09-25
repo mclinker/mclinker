@@ -30,10 +30,10 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath, int pFlags)
   MemoryArea* result = find(pPath);
   if (0 == result) {
     result = allocate();
-    new (result) MemoryArea(*m_pRegionFactory, pPath);
-    f_KeyMap.insert(std::make_pair(pPath, result));
+    new (result) MemoryArea(*m_pRegionFactory);
+    result->map(pPath, pFlags);
   }
-  result->open(pPath, pFlags);
+  f_KeyMap.insert(std::make_pair(pPath, result));
   return result;
 }
 
@@ -42,10 +42,10 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath, int pFlags, m
   MemoryArea* result = find(pPath);
   if (0 == result) {
     result = allocate();
-    new (result) MemoryArea(*m_pRegionFactory, pPath);
-    f_KeyMap.insert(std::make_pair(pPath, result));
+    new (result) MemoryArea(*m_pRegionFactory);
+    result->map(pPath, pFlags, pMode);
   }
-  result->open(pPath, pFlags, pMode);
+  f_KeyMap.insert(std::make_pair(pPath, result));
   return result;
 }
 

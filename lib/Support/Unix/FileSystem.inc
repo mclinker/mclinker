@@ -27,6 +27,11 @@ size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset)
   return ::pread(pFD, (void*) pBuf, pCount, pOffset);
 }
 
+size_t pwrite(int pFD, const Address pBuf, size_t pCount, off_t pOffset)
+{
+  return ::pwrite(pFD, (const void*) pBuf, pCount, pOffset);
+}
+
 char *strerror(int errnum)
 {
   return ::strerror(errnum);

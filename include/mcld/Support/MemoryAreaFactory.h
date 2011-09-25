@@ -48,6 +48,8 @@ public:
   ~MemoryAreaFactory();
 
   // produce - create a MemoryArea and open its file
+  // If the file fails to be opened, the returned MemoryArea::isMapped() 
+  // should be false
   MemoryArea* produce(const sys::fs::Path& pPath, int pFlags);
   MemoryArea* produce(const sys::fs::Path& pPath, int pFlags, mode_t pMode);
 
