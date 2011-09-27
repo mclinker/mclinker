@@ -8,7 +8,7 @@
 #ifndef LDSTRINGTABLEIF_H
 #define LDSTRINGTABLEIF_H
 #include <vector>
-#include <mcld/LD/StringStorage.h>
+#include <mcld/LD/StrSymPool.h>
 #include <llvm/ADT/StringRef.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
@@ -26,7 +26,7 @@ namespace mcld
 class StringTableIF
 {
 protected:
-  StringTableIF(StringStorage* pImpl)
+  StringTableIF(StrSymPool* pImpl)
   : f_Storage(pImpl) {}
 
 public:
@@ -38,18 +38,15 @@ public:
 
   const char* insert(const char* pStr)
   {
-    char* p = f_Storage->allocate(strlen(pStr)+1);
-    f_Storage->construct(p, pStr);
+    const char* p = insertString(pStr);
     f_Track.push_back(p);
     return p;
   }
 
   size_t size() const { return f_Track.size(); }
 
-  StringStorage* getStorage() const  { return f_Storage; }  // For unittest
-
 protected:
-  StringStorage* f_Storage;
+  StrSymPool* f_Storage;
   vector<const char*> f_Track;
 };
 
