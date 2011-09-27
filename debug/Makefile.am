@@ -139,8 +139,6 @@ if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/StringUnorderedMapTest.h \
 	${UNITTEST}/StringUnorderedMapTest.cpp \
-	${UNITTEST}/StringTableTest.h \
-	${UNITTEST}/StringTableTest.cpp \
 	${UNITTEST}/StringMapTest.h \
 	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
