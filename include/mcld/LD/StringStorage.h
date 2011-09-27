@@ -27,7 +27,7 @@ public:
 
   char* allocate(size_t pLength)
   {
-    char* result = Factory::allocate(pLength+1);
+    char* result = Factory::allocate(pLength);
     ++m_Size;
     return result;
   }
