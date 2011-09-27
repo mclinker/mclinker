@@ -7,7 +7,7 @@
  ****************************************************************************/
 #ifndef LDSTRINGTABLEFACTORY_H
 #define LDSTRINGTABLEFACTORY_H
-#include <mcld/LD/StringTableStorage.h>
+#include <mcld/LD/StringStorage.h>
 #include <mcld/LD/StringTable.h>
 #include <mcld/LD/DynStrTable.h>
 #ifdef ENABLE_UNITTEST
@@ -37,13 +37,13 @@ public:
 
   StringTableIF* createDyn()
   {
-    static DynStrTable Tab(new StringTableStorage());
+    static DynStrTable Tab(new StringStorage());
     return &Tab;
   }
 
   StringTableIF* create()
   {
-    static StringTable Tab(new StringTableStorage());
+    static StringTable Tab(new StringStorage());
     return &Tab;
   }
 };

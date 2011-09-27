@@ -16,24 +16,28 @@
 namespace mcld
 {
 
-class StringTableStorage : public GCFactory<char, 4*1024>
+class StringStorage : public GCFactory<char, 4*1024>
 {
   typedef GCFactory<char, 4*1024> Factory;
 
 public:
-  StringTableStorage()
+  StringStorage()
   : m_Size(0) {}
-  ~StringTableStorage() {}
+  ~StringStorage() {}
 
-  const char* add(llvm::StringRef pSR)
+  char* allocate(size_t pLength)
   {
-    char* p = Factory::allocate(pSR.size()+1);
-    strcpy(p, pSR.data());
-    m_Size += 1;
-    return const_cast<const char*>(p);
+    char* result = Factory::allocate(pLength+1);
+    ++m_Size;
+    return result;
   }
 
-  size_t size() const { return m_Size; }
+  void construct(char*& pAddr, const char* pValue)
+  {
+    strcpy(pAddr, pValue);
+  }
+
+  size_t numOfStrings() const { return m_Size; }
 
 private:
   size_t m_Size;

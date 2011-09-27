@@ -7,7 +7,7 @@
  ****************************************************************************/
 #ifndef LDSTRINGTABLEIF_H
 #define LDSTRINGTABLEIF_H
-#include <mcld/LD/StringTableStorage.h>
+#include <mcld/LD/StringStorage.h>
 #include <llvm/ADT/StringRef.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
@@ -25,7 +25,7 @@ namespace mcld
 class StringTableIF
 {
 protected:
-  StringTableIF(StringTableStorage* pImpl)
+  StringTableIF(StringStorage* pImpl)
   : f_Storage(pImpl) {}
 
 public:
@@ -35,13 +35,19 @@ public:
     f_Storage = NULL;
   }
 
-  const char* insert(llvm::StringRef pStr) { return f_Storage->add(pStr); }
-  size_t size() const { return f_Storage->size(); }
+  const char* insert(const char* pStr)
+  {
+    char* p = f_Storage->allocate(strlen(pStr)+1);
+    f_Storage->construct(p, pStr);
+    return p;
+  }
 
-  StringTableStorage* getStorage() const  { return f_Storage; }  // For unittest
+  size_t size() const { return f_Storage->numOfStrings(); }
+
+  StringStorage* getStorage() const  { return f_Storage; }  // For unittest
 
 protected:
-  StringTableStorage* f_Storage;
+  StringStorage* f_Storage;
 };
 
 } // namespace of mcld

@@ -24,7 +24,7 @@ namespace mcld
 class DynStrTable : public StringTableIF
 {
 public:
-  DynStrTable(StringTableStorage* pImpl)
+  DynStrTable(StringStorage* pImpl)
   : StringTableIF(pImpl) {}
 };
 

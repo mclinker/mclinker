@@ -24,7 +24,7 @@ namespace mcld
 class StringTable : public StringTableIF
 {
 public:
-  StringTable(StringTableStorage* pImpl)
+  StringTable(StringStorage* pImpl)
   : StringTableIF(pImpl) {}
 };
 
