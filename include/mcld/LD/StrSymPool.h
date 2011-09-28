@@ -30,6 +30,138 @@ namespace mcld
 class StringTableIF;
 class SymbolTableIF;
 
+
+/** \class SymbolCategorySet
+ *  \brief 
+ *
+ *  \see
+ *  \author TDYa127 <a127a127@gmail.com>
+ */
+class SymbolCategorySet
+{
+public:
+  enum Type {
+    Entire,
+    Dynamic,
+    Common,
+    NumOfCategories
+  };
+  class SymbolCategory : private Uncopyable
+  {
+  public:
+    typedef LDSymbol *                   value_type;
+
+  private:
+    friend class SymbolCategorySet;
+    typedef std::vector<value_type>      SymbolList;
+
+  public:
+    typedef SymbolList::size_type        size_type;
+    typedef SymbolList::iterator         iterator;
+    typedef SymbolList::const_iterator   const_iterator;
+    typedef SymbolList::reference        reference;
+    typedef SymbolList::const_reference  const_reference;
+
+  private:
+    SymbolCategory()
+      : m_Strtab(0)
+    {}
+
+    ~SymbolCategory()
+    {}
+
+    void push_back(const value_type &pVal);
+
+  public:
+
+    iterator begin()
+    { return m_Symbols.begin(); }
+
+    const_iterator begin() const
+    { return m_Symbols.begin(); }
+
+    iterator end()
+    { return m_Symbols.end(); }
+
+    const_iterator end() const
+    { return m_Symbols.end(); }
+
+    reference operator[](size_type pIndex)
+    { return m_Symbols[pIndex]; }
+
+    const_reference operator[](size_type pIndex) const
+    { return m_Symbols[pIndex]; }
+
+    iterator erase(iterator pPosition)
+    { return m_Symbols.erase(pPosition); }
+
+    void reserve(size_type pSize)
+    { m_Symbols.reserve(pSize); }
+
+    size_type size() const
+    { return m_Symbols.size(); }
+
+    template<typename InputIterator>
+    void insert(iterator pPosition, InputIterator pBegin, InputIterator pEnd)
+    { m_Symbols.insert(pPosition, pBegin, pEnd); }
+
+  public:
+    void interpose(StringTableIF *pStrTab)
+    { m_Strtab = pStrTab; }
+
+  private:
+    StringTableIF *m_Strtab;
+    SymbolList m_Symbols;
+  };
+
+public:
+  SymbolCategory& at(size_t pType) {
+    assert(pType<NumOfCategories);
+    return m_SymbolCategorySet[pType];
+  }
+
+  const SymbolCategory& at(size_t pType) const {
+    assert(pType<NumOfCategories);
+    return m_SymbolCategorySet[pType];
+  }
+
+  SymbolCategory& operator[](size_t pType) {
+    return m_SymbolCategorySet[pType];
+  }
+
+  const SymbolCategory& operator[](size_t pType) const {
+    return m_SymbolCategorySet[pType];
+  }
+
+  void insertSymbolPointer(LDSymbol *pSym) {
+    m_SymbolCategorySet[Entire].push_back(pSym);
+    if (pSym->isDyn())
+      m_SymbolCategorySet[Dynamic].push_back(pSym);
+    if (pSym->type() == LDSymbol::Common)
+      m_SymbolCategorySet[Common].push_back(pSym);
+  }
+
+  void moveSymbolToNewCategory(LDSymbol *pOldSym, const LDSymbol &pNewType) {
+    if (pOldSym->type() == LDSymbol::Common &&
+        pNewType.type() != LDSymbol::Common) {
+      /* The only one situation we should move catagory is from Common to
+       * other, so we just remove the old symbol from Common.
+       */
+      m_SymbolCategorySet[Common].erase(
+        find(m_SymbolCategorySet[Common].begin(),
+             m_SymbolCategorySet[Common].end(),
+             pOldSym));
+    }
+    else {
+      assert(false && "We don't know how to move symbol within catagory.");
+    }
+  }
+
+private:
+  SymbolCategory m_SymbolCategorySet[NumOfCategories];
+};
+
+
 /** \class StrSymPool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
@@ -42,16 +174,15 @@ private:
   {
     friend class StrSymPool;
   private:
-    EntryType(){}
+    EntryType(const LDSymbol& pSym)
+      : m_Symbol(pSym)
+    {}
 
   public:
     void replaceSymbol(LDSymbol &new_sym) {
       m_Sections.push_back(m_Symbol.section());
 
-      m_Symbol.setDynamic(new_sym.isDyn());
-      m_Symbol.setType(new_sym.type());
-      m_Symbol.setBinding(new_sym.binding());
-      m_Symbol.setSection(new_sym.section());
+      m_Symbol = new_sym;
     }
 
     void addReferenceSection(const llvm::MCSectionData *pSection) {
@@ -72,68 +203,8 @@ private:
   typedef llvm::StringMap<EntryType *, llvm::BumpPtrAllocator> SearcherType;
 
 public:
-  class CatagorySet
-  {
-  public:
-    enum Type {
-      Entire,
-      Dynamic,
-      Common,
-      NumOfCatagories
-    };
-    typedef std::vector<LDSymbol *> SymbolCatagory;
-
-  public:
-    SymbolCatagory& at(size_t pType) {
-      assert(pType<NumOfCatagories);
-      return m_SymbolCatagorySet[pType];
-    }
-
-    const SymbolCatagory& at(size_t pType) const {
-      assert(pType<NumOfCatagories);
-      return m_SymbolCatagorySet[pType];
-    }
-
-    SymbolCatagory& operator[](size_t pType) {
-      return m_SymbolCatagorySet[pType];
-    }
-
-    const SymbolCatagory& operator[](size_t pType) const {
-      return m_SymbolCatagorySet[pType];
-    }
-
-    void interpose(StringTableIF *pStrTab) {
-      /* TODO FIXME */
-    }
-
-    void insertSymbolPointer(LDSymbol *pSym) {
-      m_SymbolCatagorySet[Entire].push_back(pSym);
-      if (pSym->isDyn())
-        m_SymbolCatagorySet[Dynamic].push_back(pSym);
-      if (pSym->type() == LDSymbol::Common)
-        m_SymbolCatagorySet[Common].push_back(pSym);
-    }
-
-    void moveSymbolToNewCatagory(LDSymbol *pOldSym, const LDSymbol &pNewType) {
-      if (pOldSym->type() == LDSymbol::Common &&
-          pNewType.type() != LDSymbol::Common) {
-        /* The only one situation we should move catagory is from Common to
-         * other, so we just remove the old symbol from Common.
-         */
-        m_SymbolCatagorySet[Common].erase(
-          find(m_SymbolCatagorySet[Common].begin(),
-               m_SymbolCatagorySet[Common].end(),
-               pOldSym));
-      }
-      else {
-        assert(false && "We don't know how to move symbol within catagory.");
-      }
-    }
-
-  private:
-    SymbolCatagory m_SymbolCatagorySet[NumOfCatagories];
-  };
-  typedef CatagorySet::SymbolCatagory       SymbolCatagory;
+  typedef SymbolCategorySet                 CategorySet;
+  typedef CategorySet::SymbolCategory       SymbolCategory;
 
 public:
   /// StrSymPool - constructor
@@ -149,7 +220,10 @@ public:
                          bool pIsDynamic,
                          LDSymbol::Type pSymbolType,
                          LDSymbol::Binding pSymbolBinding,
-                         const llvm::MCSectionData * pSection);
+                         const llvm::MCSectionData * pSection,
+                         uint64_t pValue,
+                         uint64_t pSize,
+                         uint8_t pOther);
 
   const char *insertString(const char *pStr);
 
@@ -160,11 +234,11 @@ public:
 private:
   GCFactory<EntryType, 0> m_EntryAllocator;
   GCFactory<LDSymbol, 0> m_SymbolAllocator;
-  GCFactory<CatagorySet, 0> m_CatagorySetAllocator;
+  GCFactory<CategorySet, 0> m_CategorySetAllocator;
   SearcherType m_SymbolSearch;
   Resolver m_Resolver;
 
-  CatagorySet m_CatagorySet;
+  CategorySet m_CategorySet;
 };
 
 } // namespace of mcld

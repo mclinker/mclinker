@@ -24,29 +24,36 @@ namespace mcld
  */
 class StringTableIF
 {
+private:
+  typedef std::vector<const char*>      TrackType;
 protected:
-  StringTableIF(StrSymPool* pImpl)
+  StringTableIF(StrSymPool& pImpl)
   : f_Storage(pImpl) {}
 
 public:
-  typedef f_Track::const_iterator const_iterator;
-  typedef f_Track::iterator iterator;
+  typedef TrackType::const_iterator   const_iterator;
+  typedef TrackType::iterator         iterator;
 
 public:
   virtual ~StringTableIF() {}
 
   const char* insert(const char* pStr)
   {
-    const char* p = insertString(pStr);
-    f_Track.push_back(p);
+    const char* p = f_Storage.insertString(pStr);
+    insertExisted(p);
     return p;
+  }
+
+  void insertExisted(const char* pStr)
+  {
+    f_Track.push_back(pStr);
   }
 
   size_t size() const { return f_Track.size(); }
 
 protected:
-  StrSymPool* f_Storage;
-  vector<const char*> f_Track;
+  StrSymPool& f_Storage;
+  TrackType f_Track;
 };
 
 } // namespace of mcld

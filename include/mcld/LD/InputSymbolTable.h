@@ -29,7 +29,10 @@ class InputSymbolTable : public SymbolTableIF
   /* draft. */
   friend class SymbolTableFactory;
 private:
-  InputSymbolTable(StrSymPool &, size_t);
+  InputSymbolTable(StrSymPool &pStrSymPool,
+                   size_t pNumOfSymbols,
+                   StringTableIF &pEntireStringTable,
+                   StringTableIF &pDynamicStringTable);
 private:
   virtual void doInsertSymbol(LDSymbol *);
   virtual void doMerge(const SymbolTableIF &);

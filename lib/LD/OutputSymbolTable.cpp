@@ -13,11 +13,18 @@ using namespace mcld;
 // OutputSymbolTable
 
 
-OutputSymbolTable::OutputSymbolTable(StrSymPool &pStrSymPool, size_t reserve)
+OutputSymbolTable::OutputSymbolTable(StrSymPool &pStrSymPool,
+                                     size_t pNumOfSymbols,
+                                     StringTableIF &pEntireStringTable,
+                                     StringTableIF &pDynamicStringTable)
   : SymbolTableIF(pStrSymPool)
 {
   f_StrSymPool.addDirectClient(*this);
-  f_pCatagorySet->at(CatagorySet::Entire).reserve(reserve);
+
+  f_pCategorySet->at(CategorySet::Entire).reserve(pNumOfSymbols);
+
+  f_pCategorySet->at(CategorySet::Entire).interpose(&pEntireStringTable);
+  f_pCategorySet->at(CategorySet::Dynamic).interpose(&pDynamicStringTable);
 }
 
 void OutputSymbolTable::doInsertSymbol(LDSymbol *sym)

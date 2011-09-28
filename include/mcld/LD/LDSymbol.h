@@ -23,7 +23,7 @@ namespace mcld
  *  \brief LDSymbol provides a consistent abstraction for different formats
  *  in different targets.
  */
-class LDSymbol : private Uncopyable
+class LDSymbol
 {
 friend class StrSymPool;
 public:
@@ -44,6 +44,24 @@ public:
 
 private:
   LDSymbol();
+  /* Waiting for C++0x default and delete, for better object code.
+  LDSymbol(const LDSymbol&) = default;
+  LDSymbol& operator=(const LDSymbol&) = default;
+  */
+  LDSymbol(const LDSymbol &pSym)
+  { *this = pSym; }
+
+  LDSymbol& operator=(const LDSymbol &pSym)
+  {
+    m_pName = pSym.m_pName;
+    m_IsDyn = pSym.m_IsDyn;
+    m_Type = pSym.m_Type;
+    m_Binding = pSym.m_Binding;
+    m_pSection = pSym.m_pSection;
+    m_Value = pSym.m_Value;
+    m_Size = pSym.m_Size;
+    m_Other = pSym.m_Other;
+  }
 
 public:
   ~LDSymbol();

@@ -25,8 +25,8 @@ namespace mcld
  *
  *  Although the operations on the symbol tables of the input and the output
  *  files are similar, their memory layouts are very different. Each symbol
- *  table of an input file has its own StrSymPool::SymbolCatagory. But the
- *  output's symbol table shares the StrSymPool::SymbolCatagory with
+ *  table of an input file has its own StrSymPool::SymbolCategory. But the
+ *  output's symbol table shares the StrSymPool::SymbolCategory with
  *  StrSymPool.
  *
  *  SymbolTableIf is the common operations on both input's and output's 
@@ -38,10 +38,10 @@ class SymbolTableIF : private Uncopyable
 {
   friend class StrSymPool;
 public:
-  typedef StrSymPool::CatagorySet          CatagorySet;
-  typedef StrSymPool::SymbolCatagory       SymbolCatagory;
-  typedef SymbolCatagory::iterator         iterator;
-  typedef SymbolCatagory::const_iterator   const_iterator;
+  typedef StrSymPool::CategorySet          CategorySet;
+  typedef StrSymPool::SymbolCategory       SymbolCategory;
+  typedef SymbolCategory::iterator         iterator;
+  typedef SymbolCategory::const_iterator   const_iterator;
 
 protected:
   SymbolTableIF(StrSymPool &pStrSymPool)
@@ -53,26 +53,32 @@ public:
 
   // -----  observers  ----- //
   size_t size() const
-  { return f_pCatagorySet->at(CatagorySet::Entire).size(); }
+  { return f_pCategorySet->at(CategorySet::Entire).size(); }
 
   const LDSymbol *getSymbol(int pX) const
-  { return f_pCatagorySet->at(CatagorySet::Entire)[pX]; }
+  { return f_pCategorySet->at(CategorySet::Entire)[pX]; }
 
   // -----  modifiers  ----- //
   LDSymbol *getSymbol(int pX)
-  { return f_pCatagorySet->at(CatagorySet::Entire)[pX]; }
+  { return f_pCategorySet->at(CategorySet::Entire)[pX]; }
 
   LDSymbol *insertSymbol(const char *pSymName,
                          bool pIsDynamic,
                          LDSymbol::Type pSymbolType,
                          LDSymbol::Binding pSymbolBinding,
-                         const llvm::MCSectionData * pSection)
+                         const llvm::MCSectionData * pSection,
+                         uint64_t pValue,
+                         uint64_t pSize,
+                         uint8_t pOther)
   {
     LDSymbol *sym = f_StrSymPool.insertSymbol(pSymName,
                                               pIsDynamic,
                                               pSymbolType,
                                               pSymbolBinding,
-                                              pSection);
+                                              pSection,
+                                              pValue,
+                                              pSize,
+                                              pOther);
     doInsertSymbol(sym);
     return sym;
   }
@@ -84,47 +90,44 @@ public:
   }
 
   // -----  iterators  ----- //
-  template<size_t Catagory>
+  template<size_t Category>
   iterator begin()
-  { return f_pCatagorySet->at(Catagory).begin(); }
+  { return f_pCategorySet->at(Category).begin(); }
 
-  template<size_t Catagory>
+  template<size_t Category>
   const_iterator begin() const
-  { return f_pCatagorySet->at(Catagory).begin(); }
+  { return f_pCategorySet->at(Category).begin(); }
 
-  template<size_t Catagory>
+  template<size_t Category>
   iterator end()
-  { return f_pCatagorySet->at(Catagory).end(); }
+  { return f_pCategorySet->at(Category).end(); }
 
-  template<size_t Catagory>
+  template<size_t Category>
   const_iterator end() const
-  { return f_pCatagorySet->at(Catagory).end(); }
+  { return f_pCategorySet->at(Category).end(); }
 
-  iterator begin(size_t pCatagory)
-  { return f_pCatagorySet->at(pCatagory).begin(); }
+  iterator begin(size_t pCategory)
+  { return f_pCategorySet->at(pCategory).begin(); }
 
-  const_iterator begin(size_t pCatagory) const
-  { return f_pCatagorySet->at(pCatagory).begin(); }
+  const_iterator begin(size_t pCategory) const
+  { return f_pCategorySet->at(pCategory).begin(); }
 
-  iterator end(size_t pCatagory)
-  { return f_pCatagorySet->at(pCatagory).end(); }
+  iterator end(size_t pCategory)
+  { return f_pCategorySet->at(pCategory).end(); }
 
-  const_iterator end(size_t pCatagory) const
-  { return f_pCatagorySet->at(pCatagory).end(); }
-
-  void interpose(StringTableIF *pStrTab)
-  { f_pCatagorySet->interpose(pStrTab); }
+  const_iterator end(size_t pCategory) const
+  { return f_pCategorySet->at(pCategory).end(); }
 
 private:
   virtual void doInsertSymbol(LDSymbol *) = 0;
   virtual void doMerge(const SymbolTableIF &) = 0;
 
-  void setCatagorySet(CatagorySet *pSymCatagorySet)
-  { f_pCatagorySet = pSymCatagorySet; }
+  void setCategorySet(CategorySet *pSymCategorySet)
+  { f_pCategorySet = pSymCategorySet; }
 
 protected:
   StrSymPool &f_StrSymPool;
-  CatagorySet *f_pCatagorySet;
+  CategorySet *f_pCategorySet;
 };
 
 } // namespace of mcld
