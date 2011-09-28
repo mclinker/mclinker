@@ -52,8 +52,8 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
   }
   else {
     /* If the symbole is not a local symbol, we should check that the same name
-     * symbol already exists or not. If it already exists, we should call
-     * ShouldOverwrite to check which symbol we need to store.
+     * symbol already exists or not. If it already exists, we should use
+     * resolver to decide which symbol we need to store.
      */
     EntryType *&symbolEntry = mapEntry.getValue();
     if (symbolEntry == 0) {

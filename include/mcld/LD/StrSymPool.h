@@ -14,6 +14,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/Resolver.h>
 #include <llvm/ADT/StringMap.h>
 #include <llvm/Support/Allocator.h>
 #include <vector>
@@ -28,14 +29,6 @@ namespace mcld
 
 class StringTableIF;
 class SymbolTableIF;
-class Resolver;
-class Resolver {
-  /* FIXME: remove this. */
-public:
-  bool resolve(const LDSymbol &sym1, const LDSymbol &sym2) {
-    return false;
-  }
-};
 
 /** \class StrSymPool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
@@ -53,7 +46,7 @@ private:
 
   public:
     void addSameNameSymbol(LDSymbol &new_sym, Resolver &pResolver) {
-      if(!pResolver.resolve(m_Symbol, new_sym)) {
+      if(!pResolver.shouldOverwrite(m_Symbol, new_sym)) {
         m_Sections.push_back(new_sym.section());
       }
       else {
