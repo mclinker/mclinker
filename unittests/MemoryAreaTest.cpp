@@ -148,3 +148,68 @@ TEST_F( MemoryAreaTest, write_a_ascii_file_2 )
 	delete AreaFactory;
 }
 
+TEST_F( MemoryAreaTest, read_one_page )
+{
+        Path path(TOPDIR) ;
+	path.append("unittests/test3.txt") ;
+	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ;
+	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
+	ASSERT_TRUE(area->isMapped()) ;
+	ASSERT_TRUE(area->isGood()) ;
+	MemoryRegion* region = area->request(0, 4096) ;
+	ASSERT_EQ('H', region->getBuffer()[0]);
+	ASSERT_EQ('E', region->getBuffer()[1]);
+	delete AreaFactory ;
+}
+
+TEST_F( MemoryAreaTest, write_one_page )
+{
+        Path path(TOPDIR) ;
+	path.append("unittests/test3.txt") ;
+        MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ;
+	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
+	ASSERT_TRUE(area->isMapped()) ;
+	ASSERT_TRUE(area->isGood()) ;
+	MemoryRegion* region = area->request(0, 4096) ;
+	region->getBuffer()[4000] = 'K' ;
+	region->getBuffer()[4001] = 'R' ;
+	region->sync() ;
+	area->unmap() ;
+	area->map(path, O_RDONLY) ;
+	region = area->request( 4000, 4) ;
+	ASSERT_EQ('K', region->getBuffer()[0]);
+	ASSERT_EQ('R', region->getBuffer()[1]);
+	region->getBuffer()[0] = 'O' ;
+	region->getBuffer()[1] = 'H' ;
+        region->sync() ;
+	delete AreaFactory ;
+}
+
+TEST_F( MemoryAreaTest, write_sync )
+{
+        Path path(TOPDIR) ;
+	path.append("unittests/test3.txt") ;
+	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ; 
+	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
+	ASSERT_TRUE(area->isMapped()) ;
+	ASSERT_TRUE(area->isGood()) ;
+	MemoryRegion* region1 = area->request(0, 4096) ;
+	MemoryRegion* region2 = area->request(512, 1024) ;
+	region1->getBuffer()[1000] = 'X' ;
+	region1->getBuffer()[1001] = 'D' ;
+	region2->getBuffer()[488] = ':' ;
+	region2->getBuffer()[489] = ')' ;
+	region1->sync() ;
+	area->unmap();
+	area->map(path, O_RDWR) ;
+	region1 = area->request(0, 1024) ;
+	EXPECT_EQ(':', region1->getBuffer()[1000]) ;
+	EXPECT_EQ(')', region1->getBuffer()[1001]) ;
+	region1->getBuffer()[1000] = '@' ;
+	region1->getBuffer()[1001] = '@' ;
+	region1->sync();
+	delete AreaFactory ;
+}
+
+   
+
