@@ -9,7 +9,6 @@
 #define LDSTRINGTABLEIF_H
 #include <vector>
 #include <mcld/LD/StrSymPool.h>
-#include <llvm/ADT/StringRef.h>
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

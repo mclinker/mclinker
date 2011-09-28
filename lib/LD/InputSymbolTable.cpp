@@ -6,8 +6,6 @@
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
 #include <mcld/LD/InputSymbolTable.h>
-#include <mcld/LD/SymbolStorage.h>
-#include <mcld/LD/LDSymbol.h>
 #include <vector>
 
 using namespace mcld;
@@ -15,42 +13,28 @@ using namespace mcld;
 //==========================
 // InputSymbolTable
 
-InputSymbolTable::InputSymbolTable(SymbolStorage &pSymStorage, size_t reserve)
-  : SymbolTableIF(pSymStorage,
-                  *new SymbolList(),
-                  *new SymbolList(),
-                  *new SymbolList())
+InputSymbolTable::InputSymbolTable(StrSymPool &pStrSymPool, size_t reserve)
+  : SymbolTableIF(pStrSymPool)
 {
-  f_EntireSymList.reserve(reserve);
+  f_StrSymPool.addIndirectClient(*this);
+  f_pCatagorySet->at(CatagorySet::Entire).reserve(reserve);
 }
 
-void InputSymbolTable::doInsertSymbol(LDSymbol *sym)
+void InputSymbolTable::doInsertSymbol(LDSymbol *pSym)
 {
-  f_EntireSymList.push_back(sym);
-  if (sym->isDyn())
-    f_DynamicSymList.push_back(sym);
-  if (sym->type() == LDSymbol::Common)
-    f_CommonSymList.push_back(sym);
+  f_pCatagorySet->insertSymbolPointer(pSym);
 }
 
 void InputSymbolTable::doMerge(const SymbolTableIF &pSymTab)
 {
   if (this == &pSymTab)
      return;
-  f_EntireSymList.insert(f_EntireSymList.end(),
-                         pSymTab.begin(),
-                         pSymTab.end());
-  f_DynamicSymList.insert(f_DynamicSymList.end(),
-                          pSymTab.dyn_begin(),
-                          pSymTab.dyn_end());
-  f_CommonSymList.insert(f_DynamicSymList.end(),
-                         pSymTab.com_begin(),
-                         pSymTab.com_end());
+  for (size_t i = 0; i < CatagorySet::NumOfCatagories; ++i)
+    f_pCatagorySet->at(i).insert(f_pCatagorySet->at(i).end(),
+                                 pSymTab.begin(i),
+                                 pSymTab.end(i));
 }
 
 InputSymbolTable::~InputSymbolTable()
 {
-  delete &f_EntireSymList;
-  delete &f_DynamicSymList;
-  delete &f_CommonSymList;
 }

@@ -6,7 +6,6 @@
  *   TDYa127 <a127a127@gmail.com>                                            *
  ****************************************************************************/
 #include <mcld/LD/OutputSymbolTable.h>
-#include <mcld/LD/SymbolStorage.h>
 
 using namespace mcld;
 
@@ -14,17 +13,11 @@ using namespace mcld;
 // OutputSymbolTable
 
 
-OutputSymbolTable::OutputSymbolTable(SymbolStorage &pSymStorage,
-                                     SymbolList &pEntireSymList,
-                                     SymbolList &pDynamicSymList,
-                                     SymbolList &pCommonSymList,
-                                     size_t reserve)
-  : SymbolTableIF(pSymStorage,
-                  pEntireSymList,
-                  pDynamicSymList,
-                  pCommonSymList)
+OutputSymbolTable::OutputSymbolTable(StrSymPool &pStrSymPool, size_t reserve)
+  : SymbolTableIF(pStrSymPool)
 {
-  f_EntireSymList.reserve(reserve);
+  f_StrSymPool.addDirectClient(*this);
+  f_pCatagorySet->at(CatagorySet::Entire).reserve(reserve);
 }
 
 void OutputSymbolTable::doInsertSymbol(LDSymbol *sym)

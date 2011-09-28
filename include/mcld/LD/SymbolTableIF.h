@@ -14,7 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/SymbolStorage.h>
+#include <mcld/LD/StrSymPool.h>
 #include <vector>
 
 namespace mcld
@@ -25,31 +25,27 @@ namespace mcld
  *
  *  Although the operations on the symbol tables of the input and the output
  *  files are similar, their memory layouts are very different. Each symbol
- *  table of an input file has its own SymbolStorage::SymbolList. But the
- *  output's symbol table shares the SymbolStorage::SymbolList with
- *  SymbolStorage.
+ *  table of an input file has its own StrSymPool::SymbolCatagory. But the
+ *  output's symbol table shares the StrSymPool::SymbolCatagory with
+ *  StrSymPool.
  *
  *  SymbolTableIf is the common operations on both input's and output's 
  *  symbol tables.
  *
- *  @see SymbolStorage
+ *  @see StrSymPool
  */
 class SymbolTableIF : private Uncopyable
 {
+  friend class StrSymPool;
 public:
-  typedef SymbolStorage::SymbolList    SymbolList;
-  typedef SymbolList::iterator         iterator;
-  typedef SymbolList::const_iterator   const_iterator;
+  typedef StrSymPool::CatagorySet          CatagorySet;
+  typedef StrSymPool::SymbolCatagory       SymbolCatagory;
+  typedef SymbolCatagory::iterator         iterator;
+  typedef SymbolCatagory::const_iterator   const_iterator;
 
 protected:
-  SymbolTableIF(SymbolStorage &pSymStorage,
-                SymbolList &pEntireSymList,
-                SymbolList &pDynamicSymList,
-                SymbolList &pCommonSymList)
-    : f_SymStorage(pSymStorage),
-      f_EntireSymList(pEntireSymList),
-      f_DynamicSymList(pDynamicSymList),
-      f_CommonSymList(pCommonSymList)
+  SymbolTableIF(StrSymPool &pStrSymPool)
+    : f_StrSymPool(pStrSymPool)
   {}
 
 public:
@@ -57,25 +53,25 @@ public:
 
   // -----  observers  ----- //
   size_t size() const
-  { return f_EntireSymList.size(); }
+  { return f_pCatagorySet->at(CatagorySet::Entire).size(); }
 
   const LDSymbol *getSymbol(int pX) const
-  { return f_EntireSymList[pX]; }
+  { return f_pCatagorySet->at(CatagorySet::Entire)[pX]; }
 
   // -----  modifiers  ----- //
   LDSymbol *getSymbol(int pX)
-  { return f_EntireSymList[pX]; }
+  { return f_pCatagorySet->at(CatagorySet::Entire)[pX]; }
 
-  LDSymbol *insertSymbol(llvm::StringRef pSymName,
-                         bool pDynamic,
-                         LDSymbol::Type pType,
-                         LDSymbol::Binding pBinding,
-                         const llvm::MCSectionData* pSection)
+  LDSymbol *insertSymbol(const char *pSymName,
+                         bool pIsDynamic,
+                         LDSymbol::Type pSymbolType,
+                         LDSymbol::Binding pSymbolBinding,
+                         const llvm::MCSectionData * pSection)
   {
-    LDSymbol *sym = f_SymStorage.insertSymbol(pSymName,
-                                              pDynamic,
-                                              pType,
-                                              pBinding,
+    LDSymbol *sym = f_StrSymPool.insertSymbol(pSymName,
+                                              pIsDynamic,
+                                              pSymbolType,
+                                              pSymbolBinding,
                                               pSection);
     doInsertSymbol(sym);
     return sym;
@@ -83,56 +79,52 @@ public:
 
   void merge(const SymbolTableIF &pSymTab)
   {
-    f_SymStorage.merge(pSymTab.f_SymStorage);
+    f_StrSymPool.merge(pSymTab.f_StrSymPool);
     doMerge(pSymTab);
   }
 
   // -----  iterators  ----- //
-  const_iterator begin() const
-  { return f_EntireSymList.begin(); }
-
+  template<size_t Catagory>
   iterator begin()
-  { return f_EntireSymList.begin(); }
+  { return f_pCatagorySet->at(Catagory).begin(); }
 
-  const_iterator end() const
-  { return f_EntireSymList.begin(); }
+  template<size_t Catagory>
+  const_iterator begin() const
+  { return f_pCatagorySet->at(Catagory).begin(); }
 
+  template<size_t Catagory>
   iterator end()
-  { return f_EntireSymList.end(); }
+  { return f_pCatagorySet->at(Catagory).end(); }
 
-  const_iterator dyn_begin() const
-  { return f_DynamicSymList.begin(); }
+  template<size_t Catagory>
+  const_iterator end() const
+  { return f_pCatagorySet->at(Catagory).end(); }
 
-  iterator dyn_begin()
-  { return f_DynamicSymList.begin(); }
+  iterator begin(size_t pCatagory)
+  { return f_pCatagorySet->at(pCatagory).begin(); }
 
-  const_iterator dyn_end() const
-  { return f_DynamicSymList.begin(); }
+  const_iterator begin(size_t pCatagory) const
+  { return f_pCatagorySet->at(pCatagory).begin(); }
 
-  iterator dyn_end()
-  { return f_DynamicSymList.end(); }
+  iterator end(size_t pCatagory)
+  { return f_pCatagorySet->at(pCatagory).end(); }
 
-  const_iterator com_begin() const
-  { return f_CommonSymList.begin(); }
+  const_iterator end(size_t pCatagory) const
+  { return f_pCatagorySet->at(pCatagory).end(); }
 
-  iterator com_begin()
-  { return f_CommonSymList.begin(); }
-
-  const_iterator com_end() const
-  { return f_CommonSymList.begin(); }
-
-  iterator com_end()
-  { return f_CommonSymList.end(); }
+  void interpose(StringTableIF *pStrTab)
+  { f_pCatagorySet->interpose(pStrTab); }
 
 private:
   virtual void doInsertSymbol(LDSymbol *) = 0;
   virtual void doMerge(const SymbolTableIF &) = 0;
 
+  void setCatagorySet(CatagorySet *pSymCatagorySet)
+  { f_pCatagorySet = pSymCatagorySet; }
+
 protected:
-  SymbolStorage &f_SymStorage;
-  SymbolList &f_EntireSymList;
-  SymbolList &f_DynamicSymList;
-  SymbolList &f_CommonSymList;
+  StrSymPool &f_StrSymPool;
+  CatagorySet *f_pCatagorySet;
 };
 
 } // namespace of mcld

@@ -126,15 +126,12 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
-	${INCDIR}/LD/StringUnorderedMap.h \
-	${LIBDIR}/LD/StringUnorderedMap.cpp \
 	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/SymbolTableIF.h \
-	${INCDIR}/LD/SymbolTableEntry.h \
-	${INCDIR}/LD/SymbolStorage.h \
-	${LIBDIR}/LD/SymbolStorage.cpp \
+	${INCDIR}/LD/StrSymPool.h \
+	${LIBDIR}/LD/StrSymPool.cpp \
 	${INCDIR}/LD/SymbolTableFactory.h \
 	${INCDIR}/LD/InputSymbolTable.h \
 	${LIBDIR}/LD/InputSymbolTable.cpp \
@@ -145,8 +142,6 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
-	${UNITTEST}/StringUnorderedMapTest.h \
-	${UNITTEST}/StringUnorderedMapTest.cpp \
 	${UNITTEST}/StringMapTest.h \
 	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \

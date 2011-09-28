@@ -25,7 +25,7 @@ namespace mcld
  */
 class LDSymbol : private Uncopyable
 {
-friend class SymbolStorage;
+friend class StrSymPool;
 public:
   enum Type {
     Defined,
@@ -44,9 +44,10 @@ public:
 
 private:
   LDSymbol();
-  ~LDSymbol();
 
 public:
+  ~LDSymbol();
+
   // -----  observers  ----- //
   const char* name() const
   { return m_pName; }
@@ -78,7 +79,7 @@ public:
   // does it for LDSymbol. Thus, this function only redirect the string of name.
   void setName(const char* pCString)
   { m_pName = pCString; }
-  
+
   void setDynamic(bool pEnable=true)
   { m_IsDyn = pEnable; }
 
