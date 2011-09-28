@@ -45,18 +45,17 @@ private:
     EntryType(){}
 
   public:
-    void addSameNameSymbol(LDSymbol &new_sym, Resolver &pResolver) {
-      if(!pResolver.shouldOverwrite(m_Symbol, new_sym)) {
-        m_Sections.push_back(new_sym.section());
-      }
-      else {
-        m_Sections.push_back(m_Symbol.section());
+    void replaceSymbol(LDSymbol &new_sym) {
+      m_Sections.push_back(m_Symbol.section());
 
-        m_Symbol.setDynamic(new_sym.isDyn());
-        m_Symbol.setType(new_sym.type());
-        m_Symbol.setBinding(new_sym.binding());
-        m_Symbol.setSection(new_sym.section());
-      }
+      m_Symbol.setDynamic(new_sym.isDyn());
+      m_Symbol.setType(new_sym.type());
+      m_Symbol.setBinding(new_sym.binding());
+      m_Symbol.setSection(new_sym.section());
+    }
+
+    void addReferenceSection(const llvm::MCSectionData *pSection) {
+      m_Sections.push_back(pSection);
     }
 
     LDSymbol &symbol()
@@ -73,7 +72,6 @@ private:
   typedef llvm::StringMap<EntryType *, llvm::BumpPtrAllocator> SearcherType;
 
 public:
-  typedef std::vector<LDSymbol *> SymbolCatagory;
   class CatagorySet
   {
   public:
@@ -83,7 +81,7 @@ public:
       Common,
       NumOfCatagories
     };
-    typedef StrSymPool::SymbolCatagory       SymbolCatagory;
+    typedef std::vector<LDSymbol *> SymbolCatagory;
 
   public:
     SymbolCatagory& at(size_t pType) {
@@ -116,15 +114,32 @@ public:
         m_SymbolCatagorySet[Common].push_back(pSym);
     }
 
+    void moveSymbolToNewCatagory(LDSymbol *pOldSym, const LDSymbol &pNewType) {
+      if (pOldSym->type() == LDSymbol::Common &&
+          pNewType.type() != LDSymbol::Common) {
+        /* The only one situation we should move catagory is from Common to
+         * other, so we just remove the old symbol from Common.
+         */
+        m_SymbolCatagorySet[Common].erase(
+          find(m_SymbolCatagorySet[Common].begin(),
+               m_SymbolCatagorySet[Common].end(),
+               pOldSym));
+      }
+      else {
+        assert(false && "We don't know how to move symbol within catagory.");
+      }
+    }
+
   private:
     SymbolCatagory m_SymbolCatagorySet[NumOfCatagories];
   };
+  typedef CatagorySet::SymbolCatagory       SymbolCatagory;
 
 public:
   /// StrSymPool - constructor
   StrSymPool(size_t pNumOfSymbols,
-                 size_t pNumOfInputs,
-                 Resolver &pResolver);
+             size_t pNumOfInputs,
+             Resolver &pResolver);
 
   /// ~StrSymPool - destructor, all allcator destroy its own memory.
   ~StrSymPool()

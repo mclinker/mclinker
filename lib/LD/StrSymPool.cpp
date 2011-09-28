@@ -67,6 +67,8 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
       symbol.setType(pType);
       symbol.setBinding(pBinding);
       symbol.setSection(pSection);
+
+      m_CatagorySet.insertSymbolPointer(&symbol);
     }
     else {
       /* There is a same name symbol already exists. */
@@ -76,7 +78,16 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
       new_sym.setBinding(pBinding);
       new_sym.setSection(pSection);
 
-      symbolEntry->addSameNameSymbol(new_sym, m_Resolver);
+      if(!m_Resolver.shouldOverwrite(symbolEntry->symbol(), new_sym)) {
+        symbolEntry->addReferenceSection(pSection);
+      }
+      else {
+        /* should overwrite.*/
+        m_CatagorySet.moveSymbolToNewCatagory(&symbolEntry->symbol(), new_sym);
+
+        symbolEntry->replaceSymbol(new_sym);
+      }
+
     }
     return &symbolEntry->symbol();
   }
