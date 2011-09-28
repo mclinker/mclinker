@@ -5,7 +5,8 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <Resolver.h>
+#include <mcld/LD/Resolver.h>
+#include <mcld/LD/LDSymbol.h>
 
 using namespace mcld;
 

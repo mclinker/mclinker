@@ -5,8 +5,8 @@
  *                                                                           *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef RESOLVER_H
-#define RESOLVER_H
+#ifndef MCLD_SYMBOL_RESOLVER_H
+#define MCLD_SYMBOL_RESOLVER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -14,10 +14,15 @@
 namespace mcld
 {
 
+class LDSymbol;
+
 /** \class Resolver
  *  \brief Resolver binds a symbol reference from one file to a symbol
  *   definition of another file.
  *
+ *  Resolver seals up the algorithm of symbol resolution. The resolution of
+ *  two symbols depends on their type, binding and whether it is belonging to
+ *  a shared object.
  */
 class Resolver
 {
