@@ -67,9 +67,9 @@ public:
                          LDSymbol::Type pSymbolType,
                          LDSymbol::Binding pSymbolBinding,
                          const llvm::MCSectionData * pSection,
-                         uint64_t pValue,
-                         uint64_t pSize,
-                         uint8_t pOther)
+                         uint64_t pValue = 0,
+                         uint64_t pSize = 0,
+                         uint8_t pOther = 0)
   {
     LDSymbol *sym = f_StrSymPool.insertSymbol(pSymName,
                                               pIsDynamic,
