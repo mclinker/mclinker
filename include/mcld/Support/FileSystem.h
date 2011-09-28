@@ -96,6 +96,7 @@ void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 void get_pwd(std::string& pPWD);
 size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset);
+size_t pwrite(int pFD, const Address pBuf, size_t pCount, off_t pOffset);
 char *strerror(int pErrnum);
 
 } // namespace of detail

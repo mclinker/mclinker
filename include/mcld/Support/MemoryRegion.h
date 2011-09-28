@@ -15,21 +15,31 @@
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/StringRef.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MemoryArea.h>
 
 namespace mcld
 {
 
 /** \class MemoryRegion
- *  \brief MemoryRegion provides a customized memory map IO for linking purposes.
+ *  \brief MemoryRegion is a range of virtual memory which is mapped onto a
+ *  range of files which is opened by MemoryArea.
  *
- *  \see
+ *  MemoryArea maps a file onto virtual memory. Clients can get a range of
+ *  mapped memory space by requesting a MemoryRegion from MemoryArea, and
+ *  read/write the mapped file through the MemoryRegion.
+ *
+ *  When two different MemoryRegion may overlap memory space, race condition
+ *  may occurs. Clients must call MemoryRegion::sync() explicit to tell the
+ *  MemoryArea when to synchronize the virtual memory space with the mapped
+ *  file.
  */
 class MemoryRegion : private Uncopyable
 {
 friend class RegionFactory;
 typedef sys::fs::detail::Address Address;
 private:
-  MemoryRegion(const Address pVMAStart,
+  MemoryRegion(MemoryArea::Space* pParentSpace,
+               const Address pVMAStart,
                size_t pSize);
 public:
   ~MemoryRegion();
@@ -47,9 +57,13 @@ public:
   const Address getBuffer() const
   { return m_VMAStart; }
 
+  // sync - consist the memory space with the mapped file.
+  void sync();
+
 private:
   const Address m_VMAStart;
   size_t m_Length;
+  MemoryArea::Space* m_pParentSpace;
 };
 
 } // namespace of mcld

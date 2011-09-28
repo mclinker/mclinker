@@ -12,10 +12,13 @@
 #endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/FileSystem.h>
 
 namespace mcld
 {
+
+class MemoryArea;
 
 /** \class RegionFactory
  *  \brief RegionFactory produces and destroys MemoryRegions
@@ -31,7 +34,8 @@ public:
   ~RegionFactory();
 
   // ----- production ----- //
-  MemoryRegion* produce(const sys::fs::detail::Address pVMAStart,
+  MemoryRegion* produce(MemoryArea::Space* pSpace,
+                        const sys::fs::detail::Address pVMAStart,
                         size_t pSize);
 };
 

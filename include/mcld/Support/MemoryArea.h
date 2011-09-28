@@ -16,6 +16,7 @@
 #include <mcld/Support/Path.h>
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
+#include <fcntl.h>
 #include <string>
 #include <list>
 
@@ -53,11 +54,28 @@ class MemoryArea : private Uncopyable
 #if defined(ENABLE_UNITTEST)
 friend class mcldtest::MemoryAreaTest;
 #endif
+public:
+  enum IOState
+  {
+    GoodBit    = 0,
+    BadBit     = 1L << 0,
+    EOFBit     = 1L << 1,
+    FailBit    = 1L << 2,
+    IOStateEnd = 1L << 16
+  };
+
+  enum AccessMode
+  {
+    ReadOnly = O_RDONLY,
+    WriteOnly = O_WRONLY,
+    ReadWrite = O_RDWR
+  };
 
 private:
   typedef sys::fs::detail::Address Address;
 
   friend class MemoryRegion;
+  friend class RegionFactory;
   struct Space : public llvm::ilist_node<Space>
   {
   public:
@@ -65,19 +83,47 @@ private:
     {
       ALLOCATED_ARRAY,
       MMAPED,
+      UNALLOCATED
     };
 
+  public:
+    Space()
+    : m_pParent(0), type(UNALLOCATED), file_offset(0), size(0), data(0)
+    { }
+
+    Space(MemoryArea* pParent, off_t pOffset, size_t pLength)
+    : m_pParent(pParent),
+      type(UNALLOCATED),
+      file_offset(pOffset),
+      size(pLength),
+      data(0)
+    { }
+
+    ~Space()
+    { }
+
+    void sync()
+    { m_pParent->write(*this); }
+
   public:  
-    off_t file_offset;
     Type type;
+    off_t file_offset;
     size_t size;
     sys::fs::detail::Address data;
+
+  private:
+    MemoryArea* m_pParent;
   };
 
+  friend class Space;
   typedef llvm::iplist<Space> SpaceList;
 
 public:
-  MemoryArea(RegionFactory& pRegionFactory, const sys::fs::Path& pPath);
+  // constructor
+  // @param pRegionFactory the factory to manage MemoryRegions 
+  MemoryArea(RegionFactory& pRegionFactory);
+
+  // destructor
   ~MemoryArea();
 
   // request - create a MemoryRegion within a sufficient space
@@ -87,15 +133,54 @@ public:
   MemoryRegion* request(off_t pOffset, size_t pLength);
 
   // release - release a MemoryRegion.
+  // release a MemoryRegion does not cause 
   void release(MemoryRegion* pRegion);
 
   // clean - release all MemoryRegion and unmap all spaces.
   void clean();
 
-  void open(const sys::fs::Path& pPath, int flags);
-  void open(const sys::fs::Path& pPath, int flags, int mode);
-  void close();
+  // map - open the file pPath and mapped it onto MemoryArea
+  // @param flags see man 2 open
+  void map(const sys::fs::Path& pPath, int flags);
+
+  // map - open the file pPath and mapped it onto MemoryArea
+  // @param flags see man 2 open
+  // @param mode see man 2 open
+  void map(const sys::fs::Path& pPath, int flags, int mode);
+
+  // unmap - close the opened file and unmap the MemoryArea
+  void unmap();
+
+  // path - the path of the mapped file.
+  const sys::fs::Path& path() const
+  { return m_FilePath; }
+
+  // isMapped - check if MemoryArea is mapped to a file
+  bool isMapped() const;
+
+  // isGood - check if the state of the opened area is good for read/write
+  // operations
   bool isGood() const;
+
+  // isBad - check if an error causes the loss of integrity of the memory space
+  bool isBad() const;
+
+  // isFailed - check if an error related to the internal logic of the operation
+  // itself occurs
+  bool isFailed() const;
+
+  // isEOF - check if we reach the end of the file
+  bool isEOF() const;
+
+  // rdstate - get error state flags
+  // Returns the current internal error state flags of the stream
+  int rdstate() const;
+
+  // setState - set error state flag
+  void setState(IOState pState);
+
+  // clear - set error state falg
+  void clear(IOState pState = GoodBit);
 
 private:
   // find - first fit search
@@ -104,15 +189,31 @@ private:
   // release a Space, but does not remove it from space list
   void release(Space* pSpace);
 
+  // write - write back the virtual memory of pSpace into mapped file.
+  void write(const Space& pSpace);
+
   // policy - decide whehter to use dynamic memory or memory mapped I/O
   Space::Type policy(off_t pOffset, size_t pLength);
 
+  // the size of one page
+  static const off_t PageSize = 4096;
+
+  // Given a file size, return the size to read integral pages.
+  static off_t page_boundary(off_t pFileOffset)
+  { return (pFileOffset + (PageSize - 1)) & ~ (PageSize - 1); }
+
+  // Given a file offset, return the page offset.
+  static off_t page_offset(off_t pFileOffset)
+  { return pFileOffset & ~ (PageSize - 1); }
+
 private:
   RegionFactory& m_RegionFactory;
+  sys::fs::Path m_FilePath;
   int m_FileDescriptor;
-  SpaceList m_SpaceList;
-  const sys::fs::Path& m_FilePath;
+  int m_AccessFlags;
+  int m_State;
 
+  SpaceList m_SpaceList;
 };
 
 } // namespace of mcld

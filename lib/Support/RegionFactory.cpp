@@ -6,6 +6,7 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/Support/RegionFactory.h>
+#include <mcld/Support/MemoryArea.h>
 
 using namespace mcld;
 
@@ -19,11 +20,12 @@ RegionFactory::~RegionFactory()
 {
 }
 
-MemoryRegion* RegionFactory::produce(const sys::fs::detail::Address pVMAStart,
-		size_t pSize)
+MemoryRegion* RegionFactory::produce(MemoryArea::Space* pSpace,
+                                     const sys::fs::detail::Address pVMAStart,
+                                     size_t pSize)
 {
   MemoryRegion* result = Alloc::allocate();
-  new (result) MemoryRegion(pVMAStart, pSize);
+  new (result) MemoryRegion(pSpace, pVMAStart, pSize);
   return result;
 }
 

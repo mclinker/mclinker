@@ -8,7 +8,7 @@ UNITTEST=${TOPLEVEL}/unittests
 bin_PROGRAMS = MCLinker
 
 if ENABLE_UNITTEST
-MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
+MCLinker_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
 MCLinker_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
 MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
@@ -147,8 +147,6 @@ if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/StringUnorderedMapTest.h \
 	${UNITTEST}/StringUnorderedMapTest.cpp \
-	${UNITTEST}/StringTableTest.h \
-	${UNITTEST}/StringTableTest.cpp \
 	${UNITTEST}/StringMapTest.h \
 	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
