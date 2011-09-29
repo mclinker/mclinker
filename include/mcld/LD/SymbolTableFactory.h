@@ -10,18 +10,14 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/LD/InputSymbolTable.h>
 #include <mcld/LD/OutputSymbolTable.h>
-#include <mcld/LD/SymbolStorage.h>
 
 namespace mcld
 {
 
 class StringTableIF;
-class Input;
-class Output;
+class StrSymPool;
 
 /** \class SymbolTableFactory
  *  \brief SymbolTableFactory manages SymbolTableIFs.
@@ -41,26 +37,30 @@ public:
   //  symbol tables.
   //  @param pStorage the real storage of created symbols
   explicit SymbolTableFactory(size_t pNumOfSymbolTables,
-                              SymbolStorage& pStorage);
+                              StrSymPool& pStrSymPool);
   /// ~SymbolTableFactory - destructor
   //  destructor destroys all created symbol tables.
   ~SymbolTableFactory();
 
   /// createInputTable - create a symbol table for an input file
-  //  @param pStrTab the string table of created Symbols.
+  //  @param pEntireStringTable the string table of created Symbols.
+  //  @param pDynamicStringTable the string table of created Dynamic Symbols.
   //  @param pReserve Created symbol table must reserve pReserve number of 
   //  storages of symbol for creating symbols.
-  SymbolTableIF *createInputTable(StringTableIF &pStrTab,
+  SymbolTableIF *createInputTable(StringTableIF &pEntireStringTable,
+                                  StringTableIF &pDynamicStringTable,
                                   size_t pReserve=256);
 
   /// createOutputTable - create a symbol table for an output file
-  //  @param pStrTab the string table of created Symbols.
+  //  @param pEntireStringTable the string table of created Symbols.
+  //  @param pDynamicStringTable the string table of created Dynamic Symbols.
   //  @param pReserve Created symbol table must reserve pReserve number of 
   //  storages of symbol for creating symbols.
-  SymbolTableIF *createOutputTable(StringTableIF &pStrTab,
+  SymbolTableIF *createOutputTable(StringTableIF &pEntireStringTable,
+                                   StringTableIF &pDynamicStringTable,
                                    size_t pReserve=256);
 private:
-  SymbolTableFactory &m_Storage;
+  StrSymPool &m_StrSymPool;
   GCFactory<InputSymbolTable, 0> m_InputFactory;
   GCFactory<OutputSymbolTable, 0> m_OutputFactory;
 
