@@ -127,6 +127,7 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringMap.h \
+	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/SymbolTableIF.h \
