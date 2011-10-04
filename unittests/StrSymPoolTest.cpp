@@ -63,7 +63,7 @@ TEST_F( StrSymPoolTest, insertSameString ) {
   ASSERT_EQ(result1, result2);
 }
 
-TEST_F( StrSymPoolTest, insertLocalSymbol ) {
+TEST_F( StrSymPoolTest, insert_local_defined_Symbol ) {
   const char *name = "Hello MCLinker";
   bool isDyn = false;
   LDSymbol::Type type = LDSymbol::Defined;
@@ -113,10 +113,10 @@ TEST_F( StrSymPoolTest, insertLocalSymbol ) {
   ASSERT_NE(sym, sym2);
 }
 
-TEST_F( StrSymPoolTest, insertGlobalSymbol ) {
+TEST_F( StrSymPoolTest, insert_global_reference_Symbol ) {
   const char *name = "Hello MCLinker";
   bool isDyn = false;
-  LDSymbol::Type type = LDSymbol::Defined;
+  LDSymbol::Type type = LDSymbol::Reference;
   LDSymbol::Binding binding = LDSymbol::Global;
   const llvm::MCSectionData *section = 0;
   uint64_t value = 0;
@@ -165,4 +165,97 @@ TEST_F( StrSymPoolTest, insertGlobalSymbol ) {
                                             other);
 
   ASSERT_NE(sym, sym3);
+}
+
+
+TEST_F( StrSymPoolTest, insertSymbol_after_insert_same_string ) {
+  const char *name = "Hello MCLinker";
+  bool isDyn = false;
+  LDSymbol::Type type = LDSymbol::Defined;
+  LDSymbol::Binding binding = LDSymbol::Global;
+  const llvm::MCSectionData *section = 0;
+  uint64_t value = 0;
+  uint64_t size = 0;
+  uint8_t other = 0;
+
+  const char *result1 =  m_pTestee->insertString(name);
+  LDSymbol *sym =  m_pTestee->insertSymbol(name,
+                                           isDyn,
+                                           type,
+                                           binding,
+                                           section,
+                                           value,
+                                           size,
+                                           other);
+
+  ASSERT_STREQ(name, sym->name());
+  ASSERT_EQ(result1, sym->name());
+
+  char s[16];
+  strcpy(s, result1);
+  const char *result2 = m_pTestee->insertString(result1);
+  const char *result3 = m_pTestee->insertString(s);
+
+  ASSERT_EQ(result1, result2);
+  ASSERT_EQ(result1, result3);
+}
+
+
+TEST_F( StrSymPoolTest, insert_16384_weak_reference_symbols ) {
+  char name[16];
+  bool isDyn = false;
+  LDSymbol::Type type = LDSymbol::Reference;
+  LDSymbol::Binding binding = LDSymbol::Weak;
+  const llvm::MCSectionData *section = 0;
+  uint64_t value = 0;
+  uint64_t size = 0;
+  uint8_t other = 0;
+  strcpy(name, "Hello MCLinker");
+  LDSymbol *syms[128][128];
+  for(int i=0; i<128 ;++i) {
+    name[0] = i;
+    for(int j=0; j<128 ;++j) {
+      name[1] = j;
+      syms[i][j] =  m_pTestee->insertSymbol(name,
+                                            isDyn,
+                                            type,
+                                            binding,
+                                            section,
+                                            value,
+                                            size,
+                                            other);
+
+      ASSERT_STREQ(name, syms[i][j]->name());
+    }
+  }
+  for(int i=127; i>=0 ;--i) {
+    name[0] = i;
+    for(int j=0; j<128 ;++j) {
+      name[1] = j;
+      LDSymbol *sym =  m_pTestee->insertSymbol(name,
+                                               isDyn,
+                                               type,
+                                               binding,
+                                               section,
+                                               value,
+                                               size,
+                                               other);
+      ASSERT_EQ(sym, syms[i][j]);
+    }
+  }
+  for(int i=0; i<128 ;++i) {
+    name[0] = i;
+    for(int j=0; j<128 ;++j) {
+      name[1] = j;
+      LDSymbol *sym =  m_pTestee->insertSymbol(name,
+                                               isDyn,
+                                               type,
+                                               binding,
+                                               section,
+                                               value,
+                                               size,
+                                               other);
+      ASSERT_EQ(sym, syms[i][j]);
+    }
+  }
 }
