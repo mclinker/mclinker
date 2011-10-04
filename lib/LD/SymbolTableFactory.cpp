@@ -15,7 +15,7 @@ using namespace mcld;
 SymbolTableFactory::SymbolTableFactory(size_t pNumOfSymbolTables,
                                        StrSymPool& pStrSymPool)
   : m_StrSymPool(pStrSymPool),
-    m_InputFactory(pNumOfSymbolTables)
+    m_InputFactory(pNumOfSymbolTables),
     m_OutputFactory(pNumOfSymbolTables)
 {
 }
@@ -27,9 +27,9 @@ SymbolTableFactory::~SymbolTableFactory()
 SymbolTableIF *SymbolTableFactory::
 createInputTable(StringTableIF &pEntireStringTable,
                  StringTableIF &pDynamicStringTable,
-                 size_t pReserve=256)
+                 size_t pReserve)
 {
-  InputSymbolTable inputSymTab = m_InputFactory.allocate();
+  InputSymbolTable *inputSymTab = m_InputFactory.allocate();
   new (inputSymTab) InputSymbolTable(m_StrSymPool,
                                      pReserve,
                                      pEntireStringTable,
@@ -40,9 +40,9 @@ createInputTable(StringTableIF &pEntireStringTable,
 SymbolTableIF *SymbolTableFactory::
 createOutputTable(StringTableIF &pEntireStringTable,
                   StringTableIF &pDynamicStringTable,
-                  size_t pReserve=256)
+                  size_t pReserve)
 {
-  OutputSymbolTable outputSymTab = m_OutputFactory.allocate();
+  OutputSymbolTable *outputSymTab = m_OutputFactory.allocate();
   new (outputSymTab) OutputSymbolTable(m_StrSymPool,
                                        pReserve,
                                        pEntireStringTable,

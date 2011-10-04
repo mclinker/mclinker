@@ -137,6 +137,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${LIBDIR}/LD/InputSymbolTable.cpp \
 	${INCDIR}/LD/OutputSymbolTable.h \
 	${LIBDIR}/LD/OutputSymbolTable.cpp \
+	${INCDIR}/LD/SymbolTableFactory.h \
+	${LIBDIR}/LD/SymbolTableFactory.cpp \
 	${INCDIR}/LD/Resolver.h \
 	${LIBDIR}/LD/Resolver.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
