@@ -147,6 +147,8 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
+	${UNITTEST}/StrSymPoolTest.h \
+	${UNITTEST}/StrSymPoolTest.cpp \
 	${UNITTEST}/StringMapTest.h \
 	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
