@@ -31,8 +31,8 @@ class OutputSymbolTable : public SymbolTableIF
 private:
   OutputSymbolTable(StrSymPool &pStrSymPool,
                     size_t pNumOfSymbols,
-                    StringTableIF &pEntireStringTable,
-                    StringTableIF &pDynamicStringTable);
+                    StringTable &pEntireStringTable,
+                    StringTable &pDynamicStringTable);
 private:
   virtual void doInsertSymbol(LDSymbol *);
   virtual void doMerge(const SymbolTableIF &);

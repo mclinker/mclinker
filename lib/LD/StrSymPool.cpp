@@ -7,7 +7,7 @@
  ****************************************************************************/
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/SymbolTableIF.h>
-#include <mcld/LD/StringTableIF.h>
+#include <mcld/LD/StringTable.h>
 #include <cassert>
 
 using namespace std;
