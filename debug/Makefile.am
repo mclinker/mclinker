@@ -168,7 +168,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/UniqueGCFactoryBaseTest.h \
 	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
 	${UNITTEST}/MemoryAreaTest.h \
-	${UNITTEST}/MemoryAreaTest.cpp
+	${UNITTEST}/MemoryAreaTest.cpp \
+	${UNITTEST}/StringTableTest.h \
+	${UNITTEST}/StringTableTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
