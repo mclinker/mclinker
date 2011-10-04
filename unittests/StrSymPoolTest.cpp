@@ -49,8 +49,8 @@ void StrSymPoolTest::TearDown()
 TEST_F( StrSymPoolTest, insertString ) {
   const char *s1 = "Hello MCLinker";
   const char *result1 = m_pTestee->insertString(s1);
-  ASSERT_NE(s1, result1);
-  ASSERT_STREQ(s1, result1);
+  EXPECT_NE(s1, result1);
+  EXPECT_STREQ(s1, result1);
 }
 
 TEST_F( StrSymPoolTest, insertSameString ) {
@@ -58,9 +58,9 @@ TEST_F( StrSymPoolTest, insertSameString ) {
   string s2(s1);
   const char *result1 = m_pTestee->insertString(s1);
   const char *result2 = m_pTestee->insertString(s2.c_str());
-  ASSERT_STREQ(s1, result1);
-  ASSERT_STREQ(s2.c_str(), result2);
-  ASSERT_EQ(result1, result2);
+  EXPECT_STREQ(s1, result1);
+  EXPECT_STREQ(s2.c_str(), result2);
+  EXPECT_EQ(result1, result2);
 }
 
 TEST_F( StrSymPoolTest, insert_local_defined_Symbol ) {
@@ -81,15 +81,15 @@ TEST_F( StrSymPoolTest, insert_local_defined_Symbol ) {
                                            value,
                                            size,
                                            other);
-  ASSERT_NE(name, sym->name());
-  ASSERT_STREQ(name, sym->name());
-  ASSERT_EQ(isDyn, sym->isDyn());
-  ASSERT_EQ(type, sym->type());
-  ASSERT_EQ(binding, sym->binding());
-  ASSERT_EQ(section, sym->section());
-  ASSERT_EQ(value, sym->value());
-  ASSERT_EQ(size, sym->size());
-  ASSERT_EQ(other, sym->other());
+  EXPECT_NE(name, sym->name());
+  EXPECT_STREQ(name, sym->name());
+  EXPECT_EQ(isDyn, sym->isDyn());
+  EXPECT_EQ(type, sym->type());
+  EXPECT_EQ(binding, sym->binding());
+  EXPECT_EQ(section, sym->section());
+  EXPECT_EQ(value, sym->value());
+  EXPECT_EQ(size, sym->size());
+  EXPECT_EQ(other, sym->other());
 
   LDSymbol *sym2 =  m_pTestee->insertSymbol(name,
                                             isDyn,
@@ -99,18 +99,18 @@ TEST_F( StrSymPoolTest, insert_local_defined_Symbol ) {
                                             value,
                                             size,
                                             other);
-  ASSERT_NE(name, sym2->name());
-  ASSERT_STREQ(name, sym2->name());
-  ASSERT_EQ(isDyn, sym2->isDyn());
-  ASSERT_EQ(type, sym2->type());
-  ASSERT_EQ(binding, sym2->binding());
-  ASSERT_EQ(section, sym2->section());
-  ASSERT_EQ(value, sym2->value());
-  ASSERT_EQ(size, sym2->size());
-  ASSERT_EQ(other, sym2->other());
+  EXPECT_NE(name, sym2->name());
+  EXPECT_STREQ(name, sym2->name());
+  EXPECT_EQ(isDyn, sym2->isDyn());
+  EXPECT_EQ(type, sym2->type());
+  EXPECT_EQ(binding, sym2->binding());
+  EXPECT_EQ(section, sym2->section());
+  EXPECT_EQ(value, sym2->value());
+  EXPECT_EQ(size, sym2->size());
+  EXPECT_EQ(other, sym2->other());
 
 
-  ASSERT_NE(sym, sym2);
+  EXPECT_NE(sym, sym2);
 }
 
 TEST_F( StrSymPoolTest, insert_global_reference_Symbol ) {
@@ -131,15 +131,15 @@ TEST_F( StrSymPoolTest, insert_global_reference_Symbol ) {
                                            value,
                                            size,
                                            other);
-  ASSERT_NE(name, sym->name());
-  ASSERT_STREQ(name, sym->name());
-  ASSERT_EQ(isDyn, sym->isDyn());
-  ASSERT_EQ(type, sym->type());
-  ASSERT_EQ(binding, sym->binding());
-  ASSERT_EQ(section, sym->section());
-  ASSERT_EQ(value, sym->value());
-  ASSERT_EQ(size, sym->size());
-  ASSERT_EQ(other, sym->other());
+  EXPECT_NE(name, sym->name());
+  EXPECT_STREQ(name, sym->name());
+  EXPECT_EQ(isDyn, sym->isDyn());
+  EXPECT_EQ(type, sym->type());
+  EXPECT_EQ(binding, sym->binding());
+  EXPECT_EQ(section, sym->section());
+  EXPECT_EQ(value, sym->value());
+  EXPECT_EQ(size, sym->size());
+  EXPECT_EQ(other, sym->other());
 
 
   LDSymbol *sym2 =  m_pTestee->insertSymbol(name,
@@ -152,7 +152,7 @@ TEST_F( StrSymPoolTest, insert_global_reference_Symbol ) {
                                             other);
 
 
-  ASSERT_EQ(sym, sym2);
+  EXPECT_EQ(sym, sym2);
 
 
   LDSymbol *sym3 =  m_pTestee->insertSymbol("Different symbol",
@@ -164,7 +164,7 @@ TEST_F( StrSymPoolTest, insert_global_reference_Symbol ) {
                                             size,
                                             other);
 
-  ASSERT_NE(sym, sym3);
+  EXPECT_NE(sym, sym3);
 }
 
 
@@ -188,16 +188,16 @@ TEST_F( StrSymPoolTest, insertSymbol_after_insert_same_string ) {
                                            size,
                                            other);
 
-  ASSERT_STREQ(name, sym->name());
-  ASSERT_EQ(result1, sym->name());
+  EXPECT_STREQ(name, sym->name());
+  EXPECT_EQ(result1, sym->name());
 
   char s[16];
   strcpy(s, result1);
   const char *result2 = m_pTestee->insertString(result1);
   const char *result3 = m_pTestee->insertString(s);
 
-  ASSERT_EQ(result1, result2);
-  ASSERT_EQ(result1, result3);
+  EXPECT_EQ(result1, result2);
+  EXPECT_EQ(result1, result3);
 }
 
 
