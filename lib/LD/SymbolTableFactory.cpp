@@ -25,8 +25,8 @@ SymbolTableFactory::~SymbolTableFactory()
 }
 
 SymbolTableIF *SymbolTableFactory::
-createInputTable(StringTableIF &pEntireStringTable,
-                 StringTableIF &pDynamicStringTable,
+createInputTable(StringTable &pEntireStringTable,
+                 StringTable &pDynamicStringTable,
                  size_t pReserve)
 {
   InputSymbolTable *inputSymTab = m_InputFactory.allocate();
@@ -38,8 +38,8 @@ createInputTable(StringTableIF &pEntireStringTable,
 }
 
 SymbolTableIF *SymbolTableFactory::
-createOutputTable(StringTableIF &pEntireStringTable,
-                  StringTableIF &pDynamicStringTable,
+createOutputTable(StringTable &pEntireStringTable,
+                  StringTable &pDynamicStringTable,
                   size_t pReserve)
 {
   OutputSymbolTable *outputSymTab = m_OutputFactory.allocate();

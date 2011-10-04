@@ -15,8 +15,8 @@ using namespace mcld;
 
 InputSymbolTable::InputSymbolTable(StrSymPool &pStrSymPool,
                                    size_t pNumOfSymbols,
-                                   StringTableIF &pEntireStringTable,
-                                   StringTableIF &pDynamicStringTable)
+                                   StringTable &pEntireStringTable,
+                                   StringTable &pDynamicStringTable)
   : SymbolTableIF(pStrSymPool)
 {
   f_StrSymPool.addIndirectClient(*this);

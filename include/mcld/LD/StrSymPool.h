@@ -27,7 +27,7 @@ namespace llvm
 namespace mcld
 {
 
-class StringTableIF;
+class StringTable;
 class SymbolTableIF;
 
 
@@ -106,11 +106,11 @@ public:
     { m_Symbols.insert(pPosition, pBegin, pEnd); }
 
   public:
-    void interpose(StringTableIF *pStrTab)
+    void interpose(StringTable *pStrTab)
     { m_Strtab = pStrTab; }
 
   private:
-    StringTableIF *m_Strtab;
+    StringTable *m_Strtab;
     SymbolList m_Symbols;
   };
 

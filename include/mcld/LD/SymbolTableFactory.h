@@ -16,7 +16,7 @@
 namespace mcld
 {
 
-class StringTableIF;
+class StringTable;
 class StrSymPool;
 
 /** \class SymbolTableFactory
@@ -47,8 +47,8 @@ public:
   //  @param pDynamicStringTable the string table of created Dynamic Symbols.
   //  @param pReserve Created symbol table must reserve pReserve number of 
   //  storages of symbol for creating symbols.
-  SymbolTableIF *createInputTable(StringTableIF &pEntireStringTable,
-                                  StringTableIF &pDynamicStringTable,
+  SymbolTableIF *createInputTable(StringTable &pEntireStringTable,
+                                  StringTable &pDynamicStringTable,
                                   size_t pReserve=256);
 
   /// createOutputTable - create a symbol table for an output file
@@ -56,8 +56,8 @@ public:
   //  @param pDynamicStringTable the string table of created Dynamic Symbols.
   //  @param pReserve Created symbol table must reserve pReserve number of 
   //  storages of symbol for creating symbols.
-  SymbolTableIF *createOutputTable(StringTableIF &pEntireStringTable,
-                                   StringTableIF &pDynamicStringTable,
+  SymbolTableIF *createOutputTable(StringTable &pEntireStringTable,
+                                   StringTable &pDynamicStringTable,
                                    size_t pReserve=256);
 private:
   StrSymPool &m_StrSymPool;
