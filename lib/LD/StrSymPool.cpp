@@ -31,7 +31,7 @@ void SymbolCategorySet::SymbolCategory::push_back(const value_type &pVal)
 
 StrSymPool::StrSymPool(size_t pNumOfSymbols, 
                        size_t pNumOfInputs,
-                       Resolver &pResolver)
+                       Resolver pResolver)
   : m_EntryAllocator(pNumOfSymbols),
     m_SymbolAllocator(pNumOfSymbols),
     m_CategorySetAllocator(pNumOfInputs),

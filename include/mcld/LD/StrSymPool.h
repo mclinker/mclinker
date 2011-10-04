@@ -210,7 +210,7 @@ public:
   /// StrSymPool - constructor
   StrSymPool(size_t pNumOfSymbols,
              size_t pNumOfInputs,
-             Resolver &pResolver);
+             Resolver pResolver);
 
   /// ~StrSymPool - destructor, all allcator destroy its own memory.
   ~StrSymPool()
