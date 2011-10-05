@@ -130,6 +130,10 @@ NORMAL_SOURCE = ${SRCDIR}/main.cpp \
 	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
+	${INCDIR}/LD/LDWriter.h \
+	${INCDIR}/LD/LDELFWriter.h \
+	${INCDIR}/LD/ELFDSOWriter.h \
+	${LIBDIR}/LD/ELFDSOWriter.cpp \
 	${INCDIR}/LD/SymbolTableIF.h \
 	${INCDIR}/LD/StrSymPool.h \
 	${LIBDIR}/LD/StrSymPool.cpp \
