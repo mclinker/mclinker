@@ -14,6 +14,7 @@
 #include <mcld/Support/MemoryRegion.h>
 
 #include <llvm/Support/DataTypes.h>
+#include <cassert>
 
 namespace mcld{
 
@@ -43,8 +44,14 @@ protected:
       }
 
       void Write8(uint8_t Value) {
-        m_Buffer[Cursor] = char(Value);
-        ++Cursor;
+        if(!m_Buffer)
+          assert(0 && "Try to write null memory buffer!");
+
+        if(Cursor < m_Region->size()) {
+          m_Buffer[Cursor] = char(Value);
+          ++Cursor;
+        } else
+          assert(0 && "Memory access is out of boundary!");
       }
 
       void WriteLE32(uint32_t Value) {
