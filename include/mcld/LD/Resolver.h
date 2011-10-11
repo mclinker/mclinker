@@ -27,10 +27,22 @@ class LDSymbol;
 class Resolver
 {
 public:
+  enum OverrideAction {
+    ERR_O, // Error, other.
+    ERR_D, // Error, duplicate definition.
+    OLD_W, // Use old symbol & WARNING.
+    NEW_W, // Use new symbol & WARNING.
+    OLD,   // Use old symbol.
+    NEW,   // Use new symbol.
+    OLD_B, // Use old symbol & set size to biggest.
+    NEW_B, // Use new symbol & set size to biggest.
+
+    NUMBER_OF_ACTION
+  };
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
   //  @param pOld the symbol which may be overridden.
   //  @param pNew the symbol which is used to replace pOld
-  bool shouldOverride(const LDSymbol& pOld, const LDSymbol& pNew);
+  OverrideAction shouldOverride(const LDSymbol& pOld, const LDSymbol& pNew);
 };
 
 } // namespace of mcld

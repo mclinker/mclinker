@@ -9,6 +9,8 @@
 #include <mcld/LD/SymbolTableIF.h>
 #include <mcld/LD/StringTable.h>
 #include <cassert>
+#include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -80,15 +82,44 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
     }
     else {
       /* There is a same name symbol already exists. */
-      if(!m_Resolver.shouldOverride(symbolEntry->symbol(), new_sym)) {
-        symbolEntry->addReferenceSection(pSection);
-      }
-      else {
-        /* Should override.*/
-        m_CategorySet.moveSymbolToNewCategory(&symbolEntry->symbol(), new_sym);
-        symbolEntry->overrideSymbol(new_sym);
-      }
+      switch (m_Resolver.shouldOverride(symbolEntry->symbol(), new_sym)) {
+      case Resolver::ERR_O:
+        assert(0 && "Symbol override error(other).");
+        break;
+      case Resolver::ERR_D:
+        assert(0 && "Symbol override error(duplicate definition).");
+        break;
 
+      /* XXX: We may let the same code write once. */
+      case Resolver::OLD_W:
+        // FIXME: Warning message.
+        symbolEntry->addReferenceSection(pSection);
+        break;
+      case Resolver::NEW_W:
+        // FIXME: Warning message.
+        m_CategorySet.moveSymbolToNewCategory(symbolEntry->symbol(), new_sym);
+        symbolEntry->overrideSymbol(new_sym);
+        break;
+
+
+      case Resolver::NEW_B: // Set size to biggest before execute NEW action.
+        new_sym.setSize( max(new_sym.size(),
+                             symbolEntry->symbol().size()) );
+        // DO NOT BREAK HERE!
+      case Resolver::NEW:
+        m_CategorySet.moveSymbolToNewCategory(symbolEntry->symbol(), new_sym);
+        symbolEntry->overrideSymbol(new_sym);
+        break;
+
+
+      case Resolver::OLD_B: // Set size to biggest before execute OLD action.
+        symbolEntry->symbol().setSize( max(new_sym.size(),
+                                           symbolEntry->symbol().size()) );
+        // DO NOT BREAK HERE!
+      case Resolver::OLD:
+        symbolEntry->addReferenceSection(pSection);
+        break;
+      }
     }
     return &symbolEntry->symbol();
   }

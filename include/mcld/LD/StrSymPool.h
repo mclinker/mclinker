@@ -141,19 +141,16 @@ public:
       m_SymbolCategorySet[Common].push_back(pSym);
   }
 
-  void moveSymbolToNewCategory(LDSymbol *pOldSym, const LDSymbol &pNewType) {
-    if (pOldSym->type() == LDSymbol::Common &&
-        pNewType.type() != LDSymbol::Common) {
+  void moveSymbolToNewCategory(const LDSymbol &pOldSym, const LDSymbol &pNewSym) {
+    if (pOldSym.type() == LDSymbol::Common &&
+        pNewSym.type() != LDSymbol::Common) {
       /* The only one situation we should move catagory is from Common to
        * other, so we just remove the old symbol from Common.
        */
       m_SymbolCategorySet[Common].erase(
         find(m_SymbolCategorySet[Common].begin(),
              m_SymbolCategorySet[Common].end(),
-             pOldSym));
-    }
-    else {
-      assert(false && "We don't know how to move symbol within catagory.");
+             &pOldSym));
     }
   }
 
