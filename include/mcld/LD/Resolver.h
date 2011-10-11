@@ -27,11 +27,10 @@ class LDSymbol;
 class Resolver
 {
 public:
-  /// shouldOverwrite - Can resolver overwrite the symbol pOld by the
-  /// symbol pNew?
-  //  @param pOld the symbol which may be overwrited.
+  /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
+  //  @param pOld the symbol which may be overridden.
   //  @param pNew the symbol which is used to replace pOld
-  bool shouldOverwrite(const LDSymbol& pOld, const LDSymbol& pNew);
+  bool shouldOverride(const LDSymbol& pOld, const LDSymbol& pNew);
 };
 
 } // namespace of mcld

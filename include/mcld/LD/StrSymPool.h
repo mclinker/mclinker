@@ -179,7 +179,7 @@ private:
     {}
 
   public:
-    void replaceSymbol(LDSymbol &new_sym) {
+    void overrideSymbol(LDSymbol &new_sym) {
       m_Sections.push_back(m_Symbol.section());
 
       m_Symbol = new_sym;

@@ -12,7 +12,7 @@ using namespace mcld;
 
 //==========================
 // Resolver
-bool Resolver::shouldOverwrite(const LDSymbol& pOld, const LDSymbol& pNew)
+bool Resolver::shouldOverride(const LDSymbol& pOld, const LDSymbol& pNew)
 {
 }
 

@@ -80,13 +80,13 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
     }
     else {
       /* There is a same name symbol already exists. */
-      if(!m_Resolver.shouldOverwrite(symbolEntry->symbol(), new_sym)) {
+      if(!m_Resolver.shouldOverride(symbolEntry->symbol(), new_sym)) {
         symbolEntry->addReferenceSection(pSection);
       }
       else {
-        /* should overwrite.*/
+        /* Should override.*/
         m_CategorySet.moveSymbolToNewCategory(&symbolEntry->symbol(), new_sym);
-        symbolEntry->replaceSymbol(new_sym);
+        symbolEntry->overrideSymbol(new_sym);
       }
 
     }
