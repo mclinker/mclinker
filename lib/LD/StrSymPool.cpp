@@ -76,13 +76,15 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
      */
     EntryType *&symbolEntry = mapEntry.getValue();
     if (symbolEntry == 0) {
+      /* New symbol. */
       symbolEntry = m_EntryAllocator.allocate();
       new (symbolEntry) EntryType(new_sym);
       m_CategorySet.insertSymbolPointer(&symbolEntry->symbol());
     }
     else {
+      LDSymbol &old_sym = symbolEntry->symbol();
       /* There is a same name symbol already exists. */
-      switch (m_Resolver.shouldOverride(symbolEntry->symbol(), new_sym)) {
+      switch (m_Resolver.shouldOverride(old_sym, new_sym)) {
       case Resolver::ERR_O:
         assert(0 && "Symbol override error(other).");
         break;
@@ -90,21 +92,14 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
         assert(0 && "Symbol override error(duplicate definition).");
         break;
 
-      /* XXX: We may let the same code write once. */
-      case Resolver::OLD_W:
-        // FIXME: Warning message.
-        symbolEntry->addReferenceSection(pSection);
-        break;
+
       case Resolver::NEW_W:
         // FIXME: Warning message.
-        m_CategorySet.moveSymbolToNewCategory(symbolEntry->symbol(), new_sym);
-        symbolEntry->overrideSymbol(new_sym);
-        break;
-
-
+        // This is a hack, so that we can write NEW action once.
+        new_sym.setSize( old_sym.size() );
+        // DO NOT BREAK HERE!
       case Resolver::NEW_B: // Set size to biggest before execute NEW action.
-        new_sym.setSize( max(new_sym.size(),
-                             symbolEntry->symbol().size()) );
+        new_sym.setSize( max(new_sym.size(), old_sym.size()) );
         // DO NOT BREAK HERE!
       case Resolver::NEW:
         m_CategorySet.moveSymbolToNewCategory(symbolEntry->symbol(), new_sym);
@@ -112,9 +107,13 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
         break;
 
 
+      case Resolver::OLD_W:
+        // FIXME: Warning message.
+        // This is a hack, so that we can write OLD action once.
+        old_sym.setSize( new_sym.size() );
+        // DO NOT BREAK HERE!
       case Resolver::OLD_B: // Set size to biggest before execute OLD action.
-        symbolEntry->symbol().setSize( max(new_sym.size(),
-                                           symbolEntry->symbol().size()) );
+        old_sym.setSize( max(new_sym.size(), old_sym.size()) );
         // DO NOT BREAK HERE!
       case Resolver::OLD:
         symbolEntry->addReferenceSection(pSection);
