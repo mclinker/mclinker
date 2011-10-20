@@ -1,21 +1,22 @@
 
-TOPLEVEL=..
-SRCDIR=${TOPLEVEL}/src
+TOPLEVEL=../..
+TOOLDIR=${TOPLEVEL}/tools/llvm-mcld
 LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
 bin_PROGRAMS = MCLinker
 
+
 if ENABLE_UNITTEST
-MCLinker_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include -I$(srcdir)/../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
-MCLinker_LDADD = -lgtest -L$(srcdir)/../utils/gtest/lib/ ${LLVM_LDFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
+MCLinker_LDADD = -lgtest -L$(srcdir)/../../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
-MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../utils/gtest/include -I$(srcdir)/../include ${LLVM_CPPFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include ${LLVM_CPPFLAGS}
 MCLinker_LDADD = ${LLVM_LDFLAGS}
 endif
 
-NORMAL_SOURCE = ${SRCDIR}/main.cpp \
+NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/Target/TargetMachine.h \
 	${INCDIR}/Target/TargetRegistry.h \

@@ -84,7 +84,6 @@ ENUM_LLVM_TARGETS
 # OUTPUT
 AC_CONFIG_FILES([VERSION])
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([debug/Makefile])
 AC_CONFIG_FILES([optimized/Makefile])
 AC_CONFIG_FILES([utils/Makefile])
 AC_CONFIG_FILES([utils/gtest/Makefile])
@@ -92,6 +91,6 @@ AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
 AC_CONFIG_FILES([include/mcld/Config/Config.h])
-AC_CONFIG_FILES([tools/MCObjectReader/Makefile])
+AC_CONFIG_FILES([tools/llvm-mcld/Makefile])
 
 AC_OUTPUT
