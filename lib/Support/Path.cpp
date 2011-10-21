@@ -15,7 +15,6 @@
 
 #ifdef MCLD_DEBUG
 #include <iostream>
-using namespace std;
 #endif
 
 using namespace mcld;

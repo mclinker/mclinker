@@ -9,7 +9,6 @@
 #include "StringMapTest.h"
 #include <iostream>
 
-using namespace std;
 
 using namespace mcld;
 using namespace mcldtest;

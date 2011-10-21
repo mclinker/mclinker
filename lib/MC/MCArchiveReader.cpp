@@ -20,7 +20,6 @@
 
 #ifdef MCLD_DEBUG
 #include <iostream>
-using namespace std;
 #endif
 
 
@@ -95,7 +94,7 @@ Type stringToType(const std::string &str)
 bool MCArchiveReader::isMyFormat(Input &pInput)
 {
   OwningPtr<MemoryBuffer> mapFile;
-  cerr << "input in archive reader=" << pInput.path().native() << endl;
+  std::cerr << "input in archive reader=" << pInput.path().native() << std::endl;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
@@ -130,7 +129,7 @@ bool MCArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
 InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                             size_t off)
 {
-  vector<ArchiveMapEntry> archiveMap;
+  std::vector<ArchiveMapEntry> archiveMap;
   std::string archiveMemberName;
   std::string extendedName;
   bool isThinArchive;

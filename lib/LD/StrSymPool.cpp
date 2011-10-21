@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace std;
 
 namespace mcld
 {
@@ -100,7 +99,7 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
         new_sym.setSize( old_sym.size() );
         // DO NOT BREAK HERE!
       case Resolver::NEW_B: // Set size to biggest before execute NEW action.
-        new_sym.setSize( max(new_sym.size(), old_sym.size()) );
+        new_sym.setSize( std::max(new_sym.size(), old_sym.size()) );
         // DO NOT BREAK HERE!
       case Resolver::NEW:
         m_CategorySet.moveSymbolToNewCategory(symbolEntry->symbol(), new_sym);
@@ -114,7 +113,7 @@ LDSymbol *StrSymPool::insertSymbol(const char *pSymName,
         old_sym.setSize( new_sym.size() );
         // DO NOT BREAK HERE!
       case Resolver::OLD_B: // Set size to biggest before execute OLD action.
-        old_sym.setSize( max(new_sym.size(), old_sym.size()) );
+        old_sym.setSize( std::max(new_sym.size(), old_sym.size()) );
         // DO NOT BREAK HERE!
       case Resolver::OLD:
         symbolEntry->addReferenceSection(pSection);

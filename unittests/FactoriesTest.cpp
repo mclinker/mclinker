@@ -10,7 +10,6 @@
 #include "FactoriesTest.h"
 #include <string>
 
-using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 

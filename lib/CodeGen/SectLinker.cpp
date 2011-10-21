@@ -31,7 +31,6 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/FileSystem.h"
 #include <iostream>
-using namespace std;
 #endif
 
 using namespace mcld;

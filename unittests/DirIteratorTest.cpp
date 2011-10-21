@@ -10,7 +10,6 @@
 #include "DirIteratorTest.h"
 #include "errno.h"
 
-using namespace std;
 using namespace mcld;
 using namespace mcld::sys::fs;
 using namespace mcldtest;

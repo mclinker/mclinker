@@ -19,7 +19,6 @@
 using namespace mcld;
 
 #include <iostream>
-using namespace std;
 //===--------------------------------------------------------------------===//
 // MemoryArea
 MemoryArea::MemoryArea(RegionFactory& pRegionFactory)

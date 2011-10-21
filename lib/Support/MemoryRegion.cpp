@@ -9,7 +9,6 @@
 #include "mcld/Support/MemoryRegion.h"
 #include <iostream>
 
-using namespace std;
 
 using namespace mcld;
 

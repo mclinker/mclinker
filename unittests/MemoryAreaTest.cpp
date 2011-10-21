@@ -19,7 +19,6 @@
 
 #include <fcntl.h>
 
-using namespace std;
 using namespace mcld;
 using namespace mcld::sys::fs;
 using namespace mcldtest;

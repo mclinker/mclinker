@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/Target/TargetRegistry.h"
 
-using namespace std;
 
 mcld::TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 

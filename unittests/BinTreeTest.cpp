@@ -12,7 +12,6 @@
 #include <string>
 #include "BinTreeTest.h"
 
-using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 

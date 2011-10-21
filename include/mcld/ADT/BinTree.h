@@ -18,7 +18,6 @@
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/ADT/TreeAllocator.h"
 #include <iostream>
-using namespace std;
 namespace mcld
 {
 
