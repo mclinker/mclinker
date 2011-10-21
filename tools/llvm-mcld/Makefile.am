@@ -9,8 +9,8 @@ bin_PROGRAMS = MCLinker
 
 
 if ENABLE_UNITTEST
-MCLinker_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
-MCLinker_LDADD = -lgtest -L$(srcdir)/../../utils/gtest/lib/ ${LLVM_LDFLAGS}
+MCLinker_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../../utils/gtest/include -I../../include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
+MCLinker_LDADD = -lgtest -L../../utils/gtest/lib/ ${LLVM_LDFLAGS}
 else
 MCLinker_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(srcdir)/../../utils/gtest/include -I$(srcdir)/../../include ${LLVM_CPPFLAGS}
 MCLinker_LDADD = ${LLVM_LDFLAGS}
