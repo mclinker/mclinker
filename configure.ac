@@ -1,7 +1,7 @@
-#   Copyright (C) 2011-
-#   Embedded and Web Computing Lab, National Taiwan University
-#   MediaTek, Inc.
+#                     The MCLinker project
 #
+# This file is distributed under the University of Illinois Open Source
+# License. See LICENSE.TXT for details.
 
 ##############################################################################
 ### WARNING: this file contains embedded tabs.  Do not run untabify on this file.

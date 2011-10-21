@@ -1,9 +1,3 @@
-##############################################################################
-#   Copyright (C) 2011-
-#   Embedded and Web Computing Lab, National Taiwan University
-#   MediaTek, Inc.
-#
-
 dnl
 dnl @synopsis CHECK_LLVM([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 dnl

@@ -1,9 +1,8 @@
-#!/bin/bash
-##############################################################################
-#   Copyright (C) 2011-
-#     Embedded and Web Computing Lab, National Taiwan University
-#     MediaTek, Inc.
+#                     The MCLinker project
 #
+# This file is distributed under the University of Illinois Open Source
+# License. See LICENSE.TXT for details.
+
 aclocal -I ./m4
 libtoolize --force
 automake --add-missing

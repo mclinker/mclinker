@@ -1,9 +1,3 @@
-##############################################################################
-#   Copyright (C) 2011-
-#   Embedded and Web Computing Lab, National Taiwan University
-#   MediaTek, Inc.
-#
-
 dnl
 dnl @synopsis ENUM_LLVM_TARGETS
 dnl
