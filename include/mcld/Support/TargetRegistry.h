@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
-#include "llvm/Target/TargetRegistry.h"
+#include "llvm/Support/TargetRegistry.h"
 #include <list>
 
 namespace llvm {
@@ -66,17 +66,11 @@ public:
   }
 
   mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
-#if LLVM_VERSION > 2
                                                const std::string &pCPU,
-#endif
                                                const std::string &pFeatures) const {
     if (TargetMachineCtorFn && m_pT) {
       llvm::TargetMachine *tm = 0;
-#if LLVM_VERSION > 2
       if (tm=m_pT->createTargetMachine(pTriple, pCPU, pFeatures))
-#else
-      if (tm=m_pT->createTargetMachine(pTriple, pFeatures))
-#endif
         return TargetMachineCtorFn(*this, *tm, pTriple);
     }
     return 0;

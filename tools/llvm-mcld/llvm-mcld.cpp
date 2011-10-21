@@ -16,20 +16,16 @@
 #include "llvm/Support/FormattedStream.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
-#include "llvm/Target/TargetRegistry.h"
-#include "llvm/Target/TargetSelect.h"
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/TargetSelect.h"
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/LLVMContext.h"
 #include "llvm/Support/Host.h"
 #include "mcld/Target/TargetMachine.h"
-#include "mcld/Target/TargetSelect.h"
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetSelect.h"
+#include "mcld/Support/TargetRegistry.h"
 
-#if LLVM_VERSION > 2
 #include "llvm/MC/SubtargetFeature.h"
-#else
-#include "llvm/Target/SubtargetFeature.h"
-#endif
 
 #ifdef MCLD_DEBUG
 #include <iostream>
@@ -266,36 +262,22 @@ int main( int argc, char* argv[] )
 
   // Package up features to be passed to target/subtarget
   std::string FeaturesStr;
-#if LLVM_VERSION > 2
   if (MAttrs.size()) {
     SubtargetFeatures Features;
     for (unsigned i = 0; i != MAttrs.size(); ++i)
       Features.AddFeature(MAttrs[i]);
     FeaturesStr = Features.getString();
   }
-#else
-  if (MCPU.size() || MAttrs.size()) {
-    SubtargetFeatures Features;
-    Features.setCPU(MCPU);
-    for (unsigned i = 0; i != MAttrs.size(); ++i)
-      Features.AddFeature(MAttrs[i]);
-    FeaturesStr = Features.getString();
-  }
-#endif
 
   std::auto_ptr<mcld::LLVMTargetMachine> target_machine( 
           TheTarget->createTargetMachine(TheTriple.getTriple(), 
-#if LLVM_VERSION > 2
                                          MCPU,
-#endif
                                          FeaturesStr));
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::LLVMTargetMachine &TheTargetMachine = *target_machine.get();
 
-#if LLVM_VERSION > 2
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
-#endif
 
   // get Output Filename
   GetOutputName(TheTarget->get()->getName(),
@@ -341,10 +323,8 @@ int main( int argc, char* argv[] )
       return 1;
     }
 
-#if LLVM_VERSION > 2
     // Before executing passes, print the final values of the LLVM options.
     cl::PrintOptionValues();
-#endif
 
     PM.run(mod);
   }

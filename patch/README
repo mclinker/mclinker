@@ -8,5 +8,15 @@ LLVM.diff.patch is used by "git apply"
 For building MCLinker project,
 Choosing one of them is enough.
 
-All patches are for LLVM r135569
+All patches are for LLVM r142614
 Applying patches from $(LLVM_ROOT)
+
+------------------------------------------------------------
+commit dce287505919d338f8bc36093dd22479c064c2d9
+Author: Bill Wendling <isanbard@gmail.com>
+Date:   Thu Oct 20 20:33:11 2011 +0000
+
+    Patch to build win64 LLVM on Mingw. Patch by Ruben Van Boxem.
+
+    git-svn-id: https://llvm.org/svn/llvm-project/llvm/branches/release_30@142614 91177308-0d34-0410-b5e6-96231b3b80d8
+

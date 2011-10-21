@@ -1,5 +1,5 @@
 diff --git a/include/llvm/MC/MCAssembler.h b/include/llvm/MC/MCAssembler.h
-index fc91966..b6db5c6 100644
+index b8f8cc4..cc3f3a1 100644
 --- a/include/llvm/MC/MCAssembler.h
 +++ b/include/llvm/MC/MCAssembler.h
 @@ -466,6 +466,7 @@ public:
@@ -69,10 +69,10 @@ index 0583ce5..0df0425 100644
      friend class MCContext;
      MCSymbol(StringRef name, bool isTemporary)
 diff --git a/include/llvm/Target/TargetMachine.h b/include/llvm/Target/TargetMachine.h
-index f4c845a..561f032 100644
+index 8a8d142..fa5bb6c 100644
 --- a/include/llvm/Target/TargetMachine.h
 +++ b/include/llvm/Target/TargetMachine.h
-@@ -293,6 +293,16 @@ public:
+@@ -277,6 +277,16 @@ public:
                                   bool = true) {
      return true;
    }
@@ -89,46 +89,38 @@ index f4c845a..561f032 100644
  };
  
  /// LLVMTargetMachine - This class describes a target machine that is
-@@ -303,17 +313,17 @@ protected: // Can only create subclasses.
-   LLVMTargetMachine(const Target &T, StringRef TargetTriple,
-                     StringRef CPU, StringRef FS, Reloc::Model RM);
+@@ -288,14 +298,13 @@ protected: // Can only create subclasses.
+                     StringRef CPU, StringRef FS,
+                     Reloc::Model RM, CodeModel::Model CM);
  
 -private:
 +public:
-+
-+  virtual void setCodeModelForJIT();
-+  virtual void setCodeModelForStatic();
-+
-+
    /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
    /// both emitting to assembly files or machine code output.
    ///
    bool addCommonCodeGenPasses(PassManagerBase &, CodeGenOpt::Level,
                                bool DisableVerify, MCContext *&OutCtx);
--
--  virtual void setCodeModelForJIT();
--  virtual void setCodeModelForStatic();
--
+ 
 -public:
    /// addPassesToEmitFile - Add passes to the specified pass manager to get the
    /// specified file emitted.  Typically this will involve several steps of code
    /// generation.  If OptLevel is None, the code generator should emit code as
 diff --git a/lib/MC/MCAssembler.cpp b/lib/MC/MCAssembler.cpp
-index 527a63c..40bcf06 100644
+index 06c8aec..ab0ea1c 100644
 --- a/lib/MC/MCAssembler.cpp
 +++ b/lib/MC/MCAssembler.cpp
 @@ -177,6 +177,15 @@ MCSectionData::MCSectionData(const MCSection &_Section, MCAssembler *A)
      A->getSectionList().push_back(this);
  }
  
-+MCSectionData::MCSectionData(const MCSection &_Section, 
++MCSectionData::MCSectionData(const MCSection &_Section,
 +                             iplist<MCSectionData> &Sections)
 +  : Section(&_Section),
-+    Ordinal(~UINT32_C(0)), 
++    Ordinal(~UINT32_C(0)),
 +    Alignment(1),
 +    HasInstructions(false)
 +{
-+  Sections.push_back(this);  
++  Sections.push_back(this);
 +}
  /* *** */
  
@@ -149,7 +141,7 @@ index 527a63c..40bcf06 100644
 +
  /* *** */
  
- MCAssembler::MCAssembler(MCContext &Context_, TargetAsmBackend &Backend_,
+ MCAssembler::MCAssembler(MCContext &Context_, MCAsmBackend &Backend_,
                           MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
                           raw_ostream &OS_)
 -  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(Writer_),

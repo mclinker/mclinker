@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "mcld/Target/TargetMachine.h"
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetRegistry.h"
 
 namespace mcld {
 

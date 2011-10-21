@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "llvm/ADT/Triple.h"
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetRegistry.h"
 #include "ARM.h"
 #include "ARMLDBackend.h"
 #include "ARMELFObjectReader.h"

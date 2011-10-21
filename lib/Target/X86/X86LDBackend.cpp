@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "llvm/ADT/Triple.h"
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetRegistry.h"
 #include "X86.h"
 #include "X86LDBackend.h"
 #include "X86ELFObjectReader.h"

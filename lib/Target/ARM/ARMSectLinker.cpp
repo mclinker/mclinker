@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "llvm/ADT/Triple.h"
 #include "mcld/CodeGen/SectLinker.h"
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetRegistry.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "ARM.h"
 #include "ARMELFSectLinker.h"

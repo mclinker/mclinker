@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Support/TargetRegistry.h"
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Target/TargetLDBackend.h"
 #include "mcld/CodeGen/SectLinker.h"
@@ -28,7 +28,7 @@
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCStreamer.h"
 #include "llvm/Target/TargetData.h"
-#include "llvm/Target/TargetRegistry.h"
+#include "llvm/Support/TargetRegistry.h"
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/ADT/OwningPtr.h"
 #include "llvm/Support/CommandLine.h"
@@ -179,19 +179,15 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                 llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
+  const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
 
   MCInstPrinter *InstPrinter =
-    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI);
+    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI, STI);
 
   MCCodeEmitter* MCE = 0;
   // MCCodeEmitter
   if (ArgShowMCEncoding) {
-#if LLVM_VERSION > 2
-    const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
     MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
-#else
-    MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
-#endif
   }
 
   // MCAsmBackend
@@ -227,12 +223,8 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                  llvm::MCContext *&Context)
 {
   // MCCodeEmitter
-#if LLVM_VERSION > 2
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
   MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
-#else
-  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(getTM(), *Context);
-#endif
 
   // MCAsmBackend
   MCAsmBackend* MAB = getTarget().get()->createMCAsmBackend(m_Triple);
@@ -268,15 +260,10 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 {
   // Initialize MCAsmStreamer first, than chain its output into SectLinker.
   // MCCodeEmitter
-#if LLVM_VERSION > 2
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
   MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(),
                                                               STI,
                                                               *Context);
-#else
-  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(getTM(),
-                                                              *Context);
-#endif
   // MCAsmBackend
   MCAsmBackend *MAB = getTarget().get()->createMCAsmBackend(m_Triple);
   if (MCE == 0 || MAB == 0)
