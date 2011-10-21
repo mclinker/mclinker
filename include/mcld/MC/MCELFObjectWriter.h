@@ -1,16 +1,17 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.lu@mediatek.com>                                          *
- ****************************************************************************/
+//===- MCELFObjectWriter.h ------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCELFOBJECTWRITER_H
 #define MCELFOBJECTWRITER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCObjectWriter.h>
+#include "mcld/MC/MCObjectWriter.h"
 
 namespace mcld
 {
@@ -21,7 +22,6 @@ class MCELFObjectTargetWriter;
  *  MCELFObjectWriter reads a MCLDFile and writes into raw_ostream
  *
  *  \see MCLDFile raw_ostream
- *  \author Jush Lu <jush.lu@mediatek.com>
  */
 class MCELFObjectWriter : public MCObjectWriter
 {

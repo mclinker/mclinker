@@ -1,12 +1,13 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   CSMON <chun-hung.lu@mediatek.com>                                       *
- ****************************************************************************/
-#include <mcld/Support/Directory.h>
-#include <mcld/Support/FileSystem.h>
+//===- Directory.cpp ------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/Support/Directory.h"
+#include "mcld/Support/FileSystem.h"
 #include <cerrno>
 
 using namespace mcld;

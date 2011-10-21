@@ -1,16 +1,17 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.lu@mediatek.com> (owner)                                  *
- ****************************************************************************/
+//===- LDELFWriter.h ------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef MCLD_LD_LDELFWRITER
 #define MCLD_LD_LDELFWRITER
 
-#include <mcld/LD/LDWriter.h>
-#include <llvm/Support/ELF.h>
+#include "mcld/LD/LDWriter.h"
+#include "llvm/Support/ELF.h"
 
 class MemoryArea;
 

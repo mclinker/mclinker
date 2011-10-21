@@ -1,14 +1,15 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
-#include <llvm/ADT/Triple.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/Target/TargetRegistry.h>
-#include <mcld/MC/MCLDInfo.h>
+//===- X86SectLinker.cpp --------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "llvm/ADT/Triple.h"
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/Target/TargetRegistry.h"
+#include "mcld/MC/MCLDInfo.h"
 #include "X86.h"
 #include "X86ELFSectLinker.h"
 

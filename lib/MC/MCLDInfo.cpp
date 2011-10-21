@@ -1,16 +1,17 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   csmon7507 <csmon7507@gmail.com>                                         *
- ****************************************************************************/
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/MC/AttributeFactory.h>
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/Config/Config.h>
+//===- MCLDInfo.cpp -------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/MC/InputFactory.h"
+#include "mcld/MC/AttributeFactory.h"
+#include "mcld/MC/ContextFactory.h"
+#include "mcld/Config/Config.h"
 #include <string>
 
 using namespace mcld;

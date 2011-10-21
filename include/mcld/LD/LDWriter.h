@@ -1,19 +1,20 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.lu@mediatek.com> (owner)                                  *
- ****************************************************************************/
+//===- LDWriter.h ---------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef MCLD_LD_LDWRITER
 #define MCLD_LD_LDWRITER
 
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/MemoryRegion.h>
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/MemoryRegion.h"
 
-#include <llvm/Support/DataTypes.h>
+#include "llvm/Support/DataTypes.h"
 #include <cassert>
 
 namespace mcld{

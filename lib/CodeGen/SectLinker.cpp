@@ -1,35 +1,35 @@
-/*****************************************************************************
- *   The MC Linker Project, Copyright (C), 2011 -                            *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Csmon Lu <chun-hung.lu@mediatek.com>                                    *
- *   Luba Tang <luba.tang@mediatek.com>                                      *
- ****************************************************************************/
-#include <llvm/Module.h>
-#include <llvm/CodeGen/AsmPrinter.h>
-#include <llvm/MC/MCObjectWriter.h>
-#include <llvm/CodeGen/MachineFunction.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/raw_ostream.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <mcld/MC/MCLDDriver.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLDInputTree.h>
-#include <mcld/ADT/BinTree.h>
-#include <mcld/MC/MCLDDirectory.h>
-#include <mcld/Support/CommandLine.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/RealPath.h>
+//===- SectLinker.cpp -----------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "llvm/Module.h"
+#include "llvm/CodeGen/AsmPrinter.h"
+#include "llvm/MC/MCObjectWriter.h"
+#include "llvm/CodeGen/MachineFunction.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/raw_ostream.h"
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/Target/TargetLDBackend.h"
+#include "mcld/MC/MCLDDriver.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/MC/MCLDInputTree.h"
+#include "mcld/ADT/BinTree.h"
+#include "mcld/MC/MCLDDirectory.h"
+#include "mcld/Support/CommandLine.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/RealPath.h"
 #include <algorithm>
 #include <stack>
 #include <string>
 
 #ifdef MCLD_DEBUG
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/Support/FileSystem.h>
+#include "llvm/ADT/SmallVector.h"
+#include "llvm/Support/FileSystem.h"
 #include <iostream>
 using namespace std;
 #endif

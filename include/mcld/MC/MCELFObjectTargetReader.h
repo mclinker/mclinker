@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- MCELFObjectTargetReader.h ------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_ELF_OBJECT_TARGET_READER_H
 #define MCLD_ELF_OBJECT_TARGET_READER_H
 #ifdef ENABLE_UNITTEST
@@ -31,7 +32,6 @@ namespace mcld
  *         for target-dependent object readers.
  *
  *  \see
- *  \author Luba Tang <lubatang@mediatek.com>
  */
 class MCELFObjectTargetReader
 {

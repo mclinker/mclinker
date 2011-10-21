@@ -1,21 +1,22 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                          *
- ****************************************************************************/
+//===- MCELFObjectReader.h ------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_ELF_OBJECT_READER_H
 #define MCLD_ELF_OBJECT_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <llvm/MC/MCObjectWriter.h>
-#include <llvm/Support/ELF.h>
+#include "llvm/MC/MCObjectWriter.h"
+#include "llvm/Support/ELF.h"
 
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCObjectReader.h>
+#include "mcld/MC/MCLDInput.h"
+#include "mcld/MC/MCObjectReader.h"
 
 using namespace llvm;
 using namespace ELF;

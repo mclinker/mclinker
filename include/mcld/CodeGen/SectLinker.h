@@ -1,20 +1,20 @@
-/*****************************************************************************
- *   The MC Linker Project, Copyright (C), 2011 -                            *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.msn@mediatek.com>                                         *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- SectLinker.h -------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef SECTION_LINKER_H
 #define SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/ADT/StringRef.h>
-#include <llvm/CodeGen/MachineFunctionPass.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/MC/MCLDInfo.h>
+#include "llvm/ADT/StringRef.h"
+#include "llvm/CodeGen/MachineFunctionPass.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/MC/MCLDInfo.h"
 #include <vector>
 
 namespace llvm

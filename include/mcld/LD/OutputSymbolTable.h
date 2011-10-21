@@ -1,14 +1,15 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   TDYa127 <a127a127@gmail.com>                                            *
- ****************************************************************************/
+//===- OutputSymbolTable.h ------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef OUTPUTSYMBOLTABLE_H
 #define OUTPUTSYMBOLTABLE_H
-#include <llvm/ADT/StringRef.h>
-#include <mcld/LD/SymbolTableIF.h>
+#include "llvm/ADT/StringRef.h"
+#include "mcld/LD/SymbolTableIF.h"
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -22,7 +23,6 @@ class LDSymbol;
  *  \brief Output symbol table, for MCLDOutput.
  *
  *  \see
- *  \author TDYa127 <a127a127@gmail.com>
  */
 class OutputSymbolTable : public SymbolTableIF
 {

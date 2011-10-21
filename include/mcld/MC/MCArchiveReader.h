@@ -1,17 +1,18 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
- ****************************************************************************/
+//===- MCArchiveReader.h --------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCARCHIVEREADER_H
 #define MCARCHIVEREADER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/Support/Path.h>
+#include "mcld/Support/Path.h"
 
 #include "llvm/ADT/OwningPtr.h"
 
@@ -32,7 +33,6 @@ class Input;
  *  \brief MCArchiveReader provides the interface of reading an archive.
  *
  *  \see TargetArchiveReader
- *  \author Duo <pinronglu@gmail.com>
  */
 class MCArchiveReader
 {

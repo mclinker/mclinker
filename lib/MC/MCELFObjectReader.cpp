@@ -1,29 +1,30 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                            *
- ****************************************************************************/
-#include <mcld/MC/MCELFObjectReader.h>
-#include <mcld/MC/MCELFObjectTargetReader.h>
-#include <mcld/MC/MCLDFile.h>
+//===- MCELFObjectReader.cpp ----------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/MC/MCELFObjectReader.h"
+#include "mcld/MC/MCELFObjectTargetReader.h"
+#include "mcld/MC/MCLDFile.h"
 
-#include <llvm/ADT/OwningPtr.h>
-#include <llvm/ADT/Triple.h>
-#include <llvm/CodeGen/MachineModuleInfo.h>
-#include <llvm/MC/MCContext.h>
-#include <llvm/Target/TargetLowering.h>
-#include <llvm/Target/TargetMachine.h>
-#include <llvm/Target/TargetRegistry.h>
-#include <llvm/Target/TargetSelect.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/Host.h>
-#include <llvm/Support/MemoryBuffer.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/system_error.h>
+#include "llvm/ADT/OwningPtr.h"
+#include "llvm/ADT/Triple.h"
+#include "llvm/CodeGen/MachineModuleInfo.h"
+#include "llvm/MC/MCContext.h"
+#include "llvm/Target/TargetLowering.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetRegistry.h"
+#include "llvm/Target/TargetSelect.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ELF.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/Host.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/system_error.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

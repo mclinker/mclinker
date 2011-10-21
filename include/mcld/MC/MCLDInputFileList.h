@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
- ****************************************************************************/
+//===- MCLDInputFileList.h ------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLDINPUTFILELIST_H
 #define MCLDINPUTFILELIST_H
 #ifdef ENABLE_UNITTEST

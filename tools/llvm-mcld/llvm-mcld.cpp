@@ -1,34 +1,34 @@
-/*****************************************************************************
- *   The BOLD Project, Copyright (C), 2011 -                                 *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@gmail.com>                                          *
- *   Jush Lu <jush.msn@gmail.com>                                            *
- ****************************************************************************/
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Module.h>
-#include <llvm/PassManager.h>
-#include <llvm/Pass.h>
-#include <llvm/ADT/Triple.h>
-#include <llvm/Support/IRReader.h>
-#include <llvm/Support/Debug.h>
-#include <llvm/Support/FormattedStream.h>
-#include <llvm/Target/TargetData.h>
-#include <llvm/Target/TargetMachine.h>
-#include <llvm/Target/TargetRegistry.h>
-#include <llvm/Target/TargetSelect.h>
-#include <llvm/Support/ManagedStatic.h>
-#include <llvm/LLVMContext.h>
-#include <llvm/Support/Host.h>
-#include <mcld/Target/TargetMachine.h>
-#include <mcld/Target/TargetSelect.h>
-#include <mcld/Target/TargetRegistry.h>
+//===- llvm-mcld.cpp ------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Module.h"
+#include "llvm/PassManager.h"
+#include "llvm/Pass.h"
+#include "llvm/ADT/Triple.h"
+#include "llvm/Support/IRReader.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/FormattedStream.h"
+#include "llvm/Target/TargetData.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/Target/TargetRegistry.h"
+#include "llvm/Target/TargetSelect.h"
+#include "llvm/Support/ManagedStatic.h"
+#include "llvm/LLVMContext.h"
+#include "llvm/Support/Host.h"
+#include "mcld/Target/TargetMachine.h"
+#include "mcld/Target/TargetSelect.h"
+#include "mcld/Target/TargetRegistry.h"
 
 #if LLVM_VERSION > 2
-#include <llvm/MC/SubtargetFeature.h>
+#include "llvm/MC/SubtargetFeature.h"
 #else
-#include <llvm/Target/SubtargetFeature.h>
+#include "llvm/Target/SubtargetFeature.h"
 #endif
 
 #ifdef MCLD_DEBUG

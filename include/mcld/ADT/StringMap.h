@@ -1,11 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   TDYa127 <a127a127@gmail.com>                                            *
- *   Nowar Gu <nowar100@gmail.com>                                           *
- ****************************************************************************/
+//===- StringMap.h --------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_STRING_MAP_H_
 #define MCLD_STRING_MAP_H_
 #ifdef ENABLE_UNITTEST
@@ -14,8 +14,8 @@
 
 #include <vector>
 #include <assert.h>
-#include <llvm/ADT/StringMap.h>
-#include <mcld/Support/Path.h>
+#include "llvm/ADT/StringMap.h"
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 

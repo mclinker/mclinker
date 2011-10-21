@@ -1,18 +1,19 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                          *
- ****************************************************************************/
+//===- MCObjectReader.h ---------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_OBJECT_READER_H
 #define MCLD_OBJECT_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCLDInput.h>
-#include <llvm/Support/system_error.h>
+#include "mcld/MC/MCLDInput.h"
+#include "llvm/Support/system_error.h"
 
 namespace mcld
 {

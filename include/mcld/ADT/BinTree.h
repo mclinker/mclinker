@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- BinTree.h ----------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_BINARY_TREE_H
 #define MCLD_BINARY_TREE_H
 #ifdef ENABLE_UNITTEST
@@ -14,8 +15,8 @@
 #include <memory>
 #include <stack>
 #include <queue>
-#include <mcld/ADT/Uncopyable.h>
-#include <mcld/ADT/TreeAllocator.h>
+#include "mcld/ADT/Uncopyable.h"
+#include "mcld/ADT/TreeAllocator.h"
 #include <iostream>
 using namespace std;
 namespace mcld

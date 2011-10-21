@@ -1,17 +1,18 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- InputFactory.h -----------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_INPUT_FACTORY_H
 #define MCLD_INPUT_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/GCFactory.h>
-#include <mcld/MC/MCLDInput.h>
+#include "mcld/Support/GCFactory.h"
+#include "mcld/MC/MCLDInput.h"
 
 namespace mcld
 {

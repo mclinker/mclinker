@@ -1,12 +1,11 @@
-/*****************************************************************************
- *   Test Suite of The BOLD Project,                                         *
- *                                                                           *
- *   Copyright (C), 2011 -                                                   *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.msn@gmail.com>                                            *
- ****************************************************************************/
+//===- TargetMachineTest.cpp ----------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <TargetMachineTest.h>
 
 using namespace mcld;

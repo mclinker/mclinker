@@ -1,25 +1,21 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Chun-Hung Lu <chun-hung.lu@mediatek.com>                                *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- *****************************************************************************
- * This file declares the llvm::sys::fs:: namespace. It follows TR2/boost    *
- * filesystem (v3), but modified to remove exception handling and the        *
- * path class.                                                               *
- ****************************************************************************/
+//===- Path.h -------------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_PATH_H
 #define MCLD_PATH_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/Support/raw_ostream.h>
+#include "llvm/Support/raw_ostream.h"
 #include <functional>
 #include <string>
 
-//#include <mcld/Support/Directory.h>
+//#include "mcld/Support/Directory.h"
 namespace mcld {
 namespace sys  {
 namespace fs   {

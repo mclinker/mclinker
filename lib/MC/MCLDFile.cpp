@@ -1,14 +1,15 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Duo <pinronglu@gmail.com>                                               *
- ****************************************************************************/
-#include <mcld/MC/MCLDFile.h>
-#include <mcld/MC/MCLDContext.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/MemoryArea.h>
+//===- MCLDFile.cpp -------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/MC/MCLDFile.h"
+#include "mcld/MC/MCLDContext.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/MemoryArea.h"
 #include <cstring>
 #include <cstdlib>
 

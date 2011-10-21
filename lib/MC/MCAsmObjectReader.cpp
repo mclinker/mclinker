@@ -1,28 +1,29 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
-#include <mcld/LD/Relocation.h>
-#include <mcld/MC/MCAsmObjectReader.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCObjectReader.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/MC/MCExpr.h>
-#include <llvm/MC/MCValue.h>
-#include <llvm/MC/MCFixup.h>
-#include <llvm/MC/MCFixupKindInfo.h>
-#include <llvm/MC/MCSymbol.h>
-#include <llvm/MC/MCAsmLayout.h>
-#include <llvm/MC/MCAsmBackend.h>
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/MC/MCObjectStreamer.h>
-#include <llvm/Support/Casting.h>
-#include <llvm/Support/ELF.h>
+//===- MCAsmObjectReader.cpp ----------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/LD/Relocation.h"
+#include "mcld/MC/MCAsmObjectReader.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/MC/MCObjectReader.h"
+#include "mcld/Target/TargetLDBackend.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCExpr.h"
+#include "llvm/MC/MCValue.h"
+#include "llvm/MC/MCFixup.h"
+#include "llvm/MC/MCFixupKindInfo.h"
+#include "llvm/MC/MCSymbol.h"
+#include "llvm/MC/MCAsmLayout.h"
+#include "llvm/MC/MCAsmBackend.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/MC/MCObjectStreamer.h"
+#include "llvm/Support/Casting.h"
+#include "llvm/Support/ELF.h"
 
 using namespace mcld;
 

@@ -1,18 +1,19 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- Allocators.h -------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef LLVM_ALLOCATORS_H
 #define LLVM_ALLOCATORS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <cstdlib>
-#include <mcld/ADT/Uncopyable.h>
-#include <mcld/ADT/TypeTraits.h>
+#include "mcld/ADT/Uncopyable.h"
+#include "mcld/ADT/TypeTraits.h"
 
 namespace mcld
 {

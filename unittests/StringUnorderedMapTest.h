@@ -1,16 +1,15 @@
-/*****************************************************************************
- *   Test Suite of The MCLinker Project,                                     *
- *                                                                           *
- *   Copyright (C), 2011 -                                                   *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   TDYa127 <a127a127@gmail.com>                                            *
- ****************************************************************************/
+//===- StringUnorderedMapTest.h -------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef STRINGUNORDEREDMAP_TEST_H
 #define STRINGUNORDEREDMAP_TEST_H
 
-#include <mcld/LD/StringUnorderedMap.h>
+#include "mcld/LD/StringUnorderedMap.h"
 #include <string>
 #include <gtest.h>
 

@@ -1,25 +1,26 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   csmon7507 <csmon7507@gmail.com>                                         *
- ****************************************************************************/
+//===- MCLDInfo.h ---------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_LDINFO_H
 #define MCLD_LDINFO_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <string>
-#include <llvm/ADT/Triple.h>
-#include <mcld/MC/MCLDOutput.h>
-#include <mcld/MC/MCLDOptions.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/MC/MCLDInputTree.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/MC/AttributeFactory.h>
-#include <mcld/MC/ContextFactory.h>
-#include <mcld/Support/MemoryAreaFactory.h>
+#include "llvm/ADT/Triple.h"
+#include "mcld/MC/MCLDOutput.h"
+#include "mcld/MC/MCLDOptions.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/MC/MCLDInputTree.h"
+#include "mcld/MC/InputFactory.h"
+#include "mcld/MC/AttributeFactory.h"
+#include "mcld/MC/ContextFactory.h"
+#include "mcld/Support/MemoryAreaFactory.h"
 
 namespace mcld
 {

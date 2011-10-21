@@ -1,29 +1,29 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <Jush.Lu@mediatek.com>                                          *
- *   Luba Tang <luba.tang@mediatek.com>                                      *
- ****************************************************************************/
+//===- MCLDContext.h ------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_CONTEXT_H
 #define MCLD_CONTEXT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
-#include <llvm/ADT/ilist.h>
-#include <llvm/ADT/OwningPtr.h>
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/MC/MCContext.h>
-#include <llvm/MC/MCSectionELF.h>
-#include <llvm/MC/MCSymbol.h>
-#include <llvm/Support/Allocator.h>
-#include <llvm/Support/MemoryBuffer.h>
-#include <mcld/ADT/StringMap.h>
-#include <mcld/LD/Relocation.h>
-#include <mcld/Support/FileSystem.h>
+#include "llvm/ADT/DenseMap.h"
+#include "llvm/ADT/ilist.h"
+#include "llvm/ADT/OwningPtr.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCSectionELF.h"
+#include "llvm/MC/MCSymbol.h"
+#include "llvm/Support/Allocator.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include "mcld/ADT/StringMap.h"
+#include "mcld/LD/Relocation.h"
+#include "mcld/Support/FileSystem.h"
 #include <map>
 #include <utility>
 

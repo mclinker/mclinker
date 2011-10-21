@@ -1,14 +1,14 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.msn@mediatek.com>                                         *
- *   Luba Tang <luba.tang@mediatek.com>                                      *
- ****************************************************************************/
+//===- TargetRegistry.h ---------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
-#include <llvm/Target/TargetRegistry.h>
+#include "llvm/Target/TargetRegistry.h"
 #include <list>
 
 namespace llvm {

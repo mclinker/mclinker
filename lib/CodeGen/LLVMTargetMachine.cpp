@@ -1,47 +1,48 @@
-/*****************************************************************************
- *   The BOLD Project, Copyright (C), 2011 -                                 *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Jush Lu <jush.msn@gmail.com>                                            *
- ****************************************************************************/
-#include <mcld/Target/TargetRegistry.h>
-#include <mcld/Target/TargetMachine.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCAsmObjectReader.h>
-#include <mcld/MC/MCLDFile.h>
+//===- LLVMTargetMachine.cpp ----------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "mcld/Target/TargetRegistry.h"
+#include "mcld/Target/TargetMachine.h"
+#include "mcld/Target/TargetLDBackend.h"
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/MC/MCAsmObjectReader.h"
+#include "mcld/MC/MCLDFile.h"
 #include <string>
 
-#include <llvm/PassManager.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Assembly/PrintModulePass.h>
-#include <llvm/CodeGen/AsmPrinter.h>
-#include <llvm/CodeGen/MachineFunctionAnalysis.h>
-#include <llvm/CodeGen/MachineModuleInfo.h>
-#include <llvm/CodeGen/GCStrategy.h>
-#include <llvm/CodeGen/Passes.h>
-#include <llvm/Target/TargetLowering.h>
-#include <llvm/Target/TargetOptions.h>
-#include <llvm/MC/MCAsmInfo.h>
-#include <llvm/MC/MCStreamer.h>
-#include <llvm/Target/TargetData.h>
-#include <llvm/Target/TargetRegistry.h>
-#include <llvm/Transforms/Scalar.h>
-#include <llvm/ADT/OwningPtr.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/Debug.h>
-#include <llvm/Support/FormattedStream.h>
-#include <llvm/MC/MCInstrInfo.h>
-#include <llvm/MC/MCSubtargetInfo.h>
-#include <llvm/Target/TargetSubtargetInfo.h>
-#include <llvm/Target/TargetInstrInfo.h>
-#include <llvm/MC/MCObjectStreamer.h>
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/MC/MCObjectWriter.h>
-#include <llvm/MC/MCContext.h>
-#include <llvm/Support/ToolOutputFile.h>
+#include "llvm/PassManager.h"
+#include "llvm/Analysis/Passes.h"
+#include "llvm/Analysis/Verifier.h"
+#include "llvm/Assembly/PrintModulePass.h"
+#include "llvm/CodeGen/AsmPrinter.h"
+#include "llvm/CodeGen/MachineFunctionAnalysis.h"
+#include "llvm/CodeGen/MachineModuleInfo.h"
+#include "llvm/CodeGen/GCStrategy.h"
+#include "llvm/CodeGen/Passes.h"
+#include "llvm/Target/TargetLowering.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/MC/MCAsmInfo.h"
+#include "llvm/MC/MCStreamer.h"
+#include "llvm/Target/TargetData.h"
+#include "llvm/Target/TargetRegistry.h"
+#include "llvm/Transforms/Scalar.h"
+#include "llvm/ADT/OwningPtr.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/FormattedStream.h"
+#include "llvm/MC/MCInstrInfo.h"
+#include "llvm/MC/MCSubtargetInfo.h"
+#include "llvm/Target/TargetSubtargetInfo.h"
+#include "llvm/Target/TargetInstrInfo.h"
+#include "llvm/MC/MCObjectStreamer.h"
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCObjectWriter.h"
+#include "llvm/MC/MCContext.h"
+#include "llvm/Support/ToolOutputFile.h"
 
 
 using namespace mcld;

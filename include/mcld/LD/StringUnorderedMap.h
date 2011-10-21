@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   TDYa127 <a127a127@gmail.com>                                            *
- ****************************************************************************/
+//===- StringUnorderedMap.h -----------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_SEARCH_TABLE_H
 #define MCLD_SEARCH_TABLE_H
 #include <vector>
@@ -51,7 +52,6 @@ uint32_t findNextPrime(uint32_t x);
  *  \brief The most simple hash of linked list version.
  *
  *  \see
- *  \author TDYa127 <a127a127@gmail.com>
  */
 template<typename KeyType,
          typename ValueType,

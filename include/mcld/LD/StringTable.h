@@ -1,14 +1,15 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Nowar Gu <nowar100@gmail.com>                                           *
- ****************************************************************************/
+//===- StringTable.h ------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef LDSTRINGTABLE_H
 #define LDSTRINGTABLE_H
 #include <vector>
-#include <mcld/LD/StrSymPool.h>
+#include "mcld/LD/StrSymPool.h"
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -20,7 +21,6 @@ namespace mcld
  *  \brief String table, which can new different instances.
  *
  *  \see
- *  \author Nowar Gu <nowar100@gmail.com>
  */
 class StringTable
 {
