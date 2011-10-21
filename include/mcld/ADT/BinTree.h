@@ -11,13 +11,15 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <iterator>
-#include <memory>
-#include <stack>
-#include <queue>
+
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/ADT/TreeAllocator.h"
-#include <iostream>
+
+#include <iterator>
+#include <memory>
+#include <queue>
+#include <stack>
+
 namespace mcld
 {
 

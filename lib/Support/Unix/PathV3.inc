@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Directory.h>
 #include <mcld/Support/Path.h>
-#include <sys/stat.h>
+#include <llvm/Support/ErrorHandling.h>
+
 #include <cerrno>
-#include <stdio.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <string>
 #include <stack>
-#include <iostream>
 
 namespace mcld{
 namespace sys{

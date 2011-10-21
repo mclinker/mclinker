@@ -11,14 +11,14 @@
 #include "mcld/Support/MemoryRegion.h"
 #include "mcld/Support/FileSystem.h"
 #include "llvm/Support/ErrorHandling.h"
-#include <sys/mman.h>
+
 #include <fcntl.h>
 #include <cerrno>
 #include <sstream>
+#include <sys/mman.h>
 
 using namespace mcld;
 
-#include <iostream>
 //===--------------------------------------------------------------------===//
 // MemoryArea
 MemoryArea::MemoryArea(RegionFactory& pRegionFactory)

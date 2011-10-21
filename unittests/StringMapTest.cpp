@@ -7,8 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include "StringMapTest.h"
-#include <iostream>
-
 
 using namespace mcld;
 using namespace mcldtest;

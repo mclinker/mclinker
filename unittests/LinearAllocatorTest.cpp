@@ -6,12 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/Allocators.h"
 #include "LinearAllocatorTest.h"
-#ifdef MCLD_DEBUG
-#include <iostream>
-
-#endif
+#include "mcld/Support/Allocators.h"
 
 using namespace mcld;
 using namespace mcldtest;

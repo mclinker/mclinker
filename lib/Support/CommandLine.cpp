@@ -9,10 +9,6 @@
 #include "mcld/Support/CommandLine.h"
 #include "llvm/ADT/StringRef.h"
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-#endif
-
 using namespace llvm;
 using namespace llvm::cl;
 

@@ -6,23 +6,25 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/Module.h"
-#include "llvm/CodeGen/AsmPrinter.h"
-#include "llvm/MC/MCObjectWriter.h"
-#include "llvm/CodeGen/MachineFunction.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/raw_ostream.h"
+#include "mcld/ADT/BinTree.h"
 #include "mcld/CodeGen/SectLinker.h"
-#include "mcld/Target/TargetLDBackend.h"
 #include "mcld/MC/MCLDDriver.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCLDInputTree.h"
-#include "mcld/ADT/BinTree.h"
 #include "mcld/MC/MCLDDirectory.h"
 #include "mcld/Support/CommandLine.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/RealPath.h"
+#include "mcld/Target/TargetLDBackend.h"
+
+#include "llvm/CodeGen/AsmPrinter.h"
+#include "llvm/CodeGen/MachineFunction.h"
+#include "llvm/MC/MCObjectWriter.h"
+#include "llvm/Module.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ErrorHandling.h"
+#include "llvm/Support/raw_ostream.h"
+
 #include <algorithm>
 #include <stack>
 #include <string>
@@ -30,7 +32,6 @@
 #ifdef MCLD_DEBUG
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Support/FileSystem.h"
-#include <iostream>
 #endif
 
 using namespace mcld;

@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "BinTreeTest.h"
+
 #include "mcld/ADT/TypeTraits.h"
 #include "mcld/MC/MCLDInputTree.h"
-#include <iostream>
 #include <string>
-#include "BinTreeTest.h"
 
 using namespace mcld;
 using namespace mcldtest;

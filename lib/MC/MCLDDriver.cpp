@@ -6,8 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/Support/ErrorHandling.h"
-
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCObjectReader.h"
 #include "mcld/MC/MCArchiveReader.h"
@@ -16,9 +14,7 @@
 #include "mcld/Support/RealPath.h"
 #include "mcld/Target/TargetLDBackend.h"
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-#endif
+#include "llvm/Support/ErrorHandling.h"
 
 using namespace mcld;
 

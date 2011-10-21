@@ -11,16 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/Support/Allocator.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/Path.h"
+
 #include "mcld/ADT/StringMap.h"
 #include "mcld/ADT/TypeTraits.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/Path.h"
 
-#ifdef MCLD_DEBUG
-#include<iostream>
-#endif
-
+#include "llvm/Support/Allocator.h"
 
 namespace mcld {
 namespace sys {

@@ -13,15 +13,10 @@
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/system_error.h"
 
+#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdlib>
-
-#ifdef MCLD_DEBUG
-#include <iostream>
-#endif
-
 
 using namespace mcld;
 

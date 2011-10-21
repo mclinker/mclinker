@@ -11,13 +11,14 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/Support/FileSystem.h"
+
 #include "mcld/ADT/BinTree.h"
+#include "mcld/ADT/TypeTraits.h"
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/InputFactory.h"
-#include "mcld/ADT/TypeTraits.h"
+#include "mcld/Support/FileSystem.h"
+
 #include <string>
-#include <iostream>
 
 
 namespace mcld

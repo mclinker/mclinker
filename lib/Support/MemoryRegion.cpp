@@ -7,8 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include "mcld/Support/MemoryRegion.h"
-#include <iostream>
-
 
 using namespace mcld;
 

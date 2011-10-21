@@ -9,9 +9,9 @@
 #include "mcld/LD/StrSymPool.h"
 #include "mcld/LD/SymbolTableIF.h"
 #include "mcld/LD/StringTable.h"
-#include <cassert>
+
 #include <algorithm>
-#include <iostream>
+#include <cassert>
 
 
 namespace mcld

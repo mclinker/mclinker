@@ -7,10 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "PathTest.h"
-//
-#include <iostream>
-#include <string>
 #include "mcld/Support/FileSystem.h"
+#include <string>
 
 //
 using namespace mcld;

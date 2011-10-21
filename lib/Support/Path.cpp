@@ -6,16 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/Support/FileSystem.h"
 #include "mcld/Support/Path.h"
 #include "llvm/ADT/StringRef.h"
-#include "mcld/Support/FileSystem.h"
+
 #include <locale>
 #include <stdio.h>
 #include <string.h>
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-#endif
 
 using namespace mcld;
 using namespace mcld::sys::fs;

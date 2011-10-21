@@ -6,6 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "ARMELFObjectReader.h"
+#include "ARMFixupKinds.h"
+
 #include "llvm/ADT/StringSwitch.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCValue.h"
@@ -13,12 +16,7 @@
 #include "llvm/MC/MCSectionELF.h"
 #include "llvm/Support/ELF.h"
 #include "llvm/Support/raw_ostream.h"
-#include "ARMELFObjectReader.h"
-#include "ARMFixupKinds.h"
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-#endif
 
 using namespace llvm;
 using namespace mcld;

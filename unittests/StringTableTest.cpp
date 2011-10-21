@@ -6,10 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <iostream>
-#include <cstring>
-#include "mcld/LD/StringTable.h"
 #include "StringTableTest.h"
+#include "mcld/LD/StringTable.h"
+#include <cstring>
 
 using namespace mcld;
 using namespace mcldtest;
