@@ -94,7 +94,7 @@ Type stringToType(const std::string &str)
 bool MCArchiveReader::isMyFormat(Input &pInput)
 {
   OwningPtr<MemoryBuffer> mapFile;
-  std::cerr << "input in archive reader=" << pInput.path().native() << std::endl;
+  std::cerr << "input in archive reader=" << pInput.path().native() << '\n';
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   

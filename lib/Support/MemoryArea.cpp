@@ -174,7 +174,7 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
               m_State |= BadBit;
               error_mesg << ": file too short: read only ";
               error_mesg << read_bytes << " of " << space->size << " bytes at ";
-              error_mesg << space->file_offset << std::endl;
+              error_mesg << space->file_offset << '\n';
             }
             else {
               m_State |= BadBit;
