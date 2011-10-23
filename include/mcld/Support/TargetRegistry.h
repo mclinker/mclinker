@@ -12,7 +12,6 @@
 #include <list>
 
 namespace llvm {
-class Target;
 class TargetMachine;
 class MCCodeEmitter;
 class MCContext;
@@ -34,7 +33,7 @@ class ContextFactory;
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
 ///
-class Target 
+class Target
 {
   friend class mcld::LLVMTargetMachine;
   friend class mcld::TargetRegistry;
