@@ -102,11 +102,14 @@ protected:
       }
 
     private:
-          MemoryRegion *m_Region;
+      void *operator new(size_t size) {}
 
-          const Address m_Buffer;
-          bool IsLittleEndian;
-          unsigned int Cursor;
+    private:
+      MemoryRegion *m_Region;
+
+      const Address m_Buffer;
+      bool IsLittleEndian;
+      unsigned int Cursor;
     };
 
 protected:
