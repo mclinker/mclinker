@@ -107,7 +107,6 @@ protected:
       }
 
     private:
-      /// Private operator new - Prohibiting heap-based objects
       void *operator new(size_t size) {}
 
     private:
