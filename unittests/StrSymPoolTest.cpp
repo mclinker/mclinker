@@ -53,7 +53,7 @@ TEST_F( StrSymPoolTest, insertString ) {
 
 TEST_F( StrSymPoolTest, insertSameString ) {
   const char *s1 = "Hello MCLinker";
-  string s2(s1);
+  std::string s2(s1);
   const char *result1 = m_pTestee->insertString(s1);
   const char *result2 = m_pTestee->insertString(s2.c_str());
   EXPECT_STREQ(s1, result1);

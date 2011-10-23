@@ -153,9 +153,9 @@ TEST_F( BinTreeTest, DFSIterator_BasicTraversal)
   BinaryTree<int>::bfs_iterator bfs_end = m_pTestee->bfs_end(); 
 
   for( ; bfs_it != bfs_end ; ++bfs_it ) {
-    cout<<**bfs_it<<"  ";
+    std::cout<<**bfs_it<<"  ";
   } 
-  cout<<endl; 
+  std::cout<<std::endl; 
 }
 
 TEST_F( BinTreeTest, DFSIterator_RightMostTree)
@@ -233,9 +233,9 @@ TEST_F( BinTreeTest, BFSIterator_BasicTraversal)
   bfs_end = m_pTestee->bfs_end(); 
 
   for( ; bfs_it != bfs_end ; ++bfs_it ) {
-    cout<<**bfs_it<<"  ";
+    std::cout<<**bfs_it<<"  ";
   } 
-  cout<<endl; 
+  std::cout<<std::endl; 
 }
 
 TEST_F( BinTreeTest, BFSIterator_RightMostTree)

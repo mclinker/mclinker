@@ -52,7 +52,7 @@ TEST_F( StringMapTest, traverse ) {
   StringMap<int>::iterator num, nEnd = m_pTestee->end();
   size_t count = 0;
   for (num = m_pTestee->begin(); num!=nEnd; ++num) {
-    cerr << *num << endl;
+    std::cerr << *num << std::endl;
     ++count;
   }
   StringMap<int>::iterator it = m_pTestee->begin();
