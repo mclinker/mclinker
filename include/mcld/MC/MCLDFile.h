@@ -23,17 +23,17 @@
 
 namespace mcld
 {
+class LDContext;
 class MCContext;
-class MCLDContext;
 class MemoryArea;
 
 /** \class MCLDFile
  *  \brief MCLDFile represents the file being linked or produced.
  *
  *  MCLDFile is the storage of name, path and type
- *  A MCLDFile just refers to MCLDContext, not owns it.
+ *  A MCLDFile just refers to LDContext, not owns it.
  *
- *  @see mcld::sys::fs::Path MCLDContext
+ *  @see mcld::sys::fs::Path LDContext
  */
 class MCLDFile : private Uncopyable
 {
@@ -61,7 +61,7 @@ public:
   void setType(unsigned int pType)
   { m_Type = pType; }
 
-  void setContext(MCLDContext* pContext)
+  void setContext(LDContext* pContext)
   { m_pContext = pContext; }
 
   void setPath(const sys::fs::Path& pPath)
@@ -82,10 +82,10 @@ public:
   bool hasContext() const
   { return (0 == m_pContext); }
 
-  MCLDContext* context()
+  LDContext* context()
   { return m_pContext; }
 
-  const MCLDContext* context() const
+  const LDContext* context() const
   { return m_pContext; }
 
   bool hasMemArea() const
@@ -101,7 +101,7 @@ protected:
   sys::fs::Path m_Path;
   std::string m_InputName;
   unsigned int m_Type;
-  MCLDContext *m_pContext;
+  LDContext *m_pContext;
   MemoryArea* m_pMemArea;
 
 };
@@ -114,10 +114,10 @@ protected:
  *  while MCLDFileFactory is destructed.
  *
  *  MCLDFileFactory also provides the MCLCContextFactory to MCLDFile.
- *  MCLDFile is responsed for the life of MCLDContext, therefore, the best
- *  idea is let MCLDFile control the life of MCLDContext. Since SectLinker
- *  has the need to count the number of MCLDContext, we give a central factory
- *  for MCLDContext.
+ *  MCLDFile is responsed for the life of LDContext, therefore, the best
+ *  idea is let MCLDFile control the life of LDContext. Since SectLinker
+ *  has the need to count the number of LDContext, we give a central factory
+ *  for LDContext.
  *
  *  \see llvm::sys::Path
  */

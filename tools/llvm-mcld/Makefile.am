@@ -85,8 +85,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLDOptions.cpp \
 	${INCDIR}/MC/MCLDInfo.h \
 	${LIBDIR}/MC/MCLDInfo.cpp \
-	${INCDIR}/MC/MCLDContext.h \
-	${LIBDIR}/MC/MCLDContext.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/Support/Path.h \
@@ -128,11 +126,12 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/LDSymbol.h \
-	${LIBDIR}/LD/LDSymbol.cpp \
-	${INCDIR}/LD/LDWriter.h \
-	${INCDIR}/LD/LDELFWriter.h \
 	${INCDIR}/LD/ELFDSOWriter.h \
 	${LIBDIR}/LD/ELFDSOWriter.cpp \
+	${INCDIR}/LD/LDContext.h \
+	${INCDIR}/LD/LDELFWriter.h \
+	${LIBDIR}/LD/LDSymbol.cpp \
+	${INCDIR}/LD/LDWriter.h \
 	${INCDIR}/LD/SymbolTableIF.h \
 	${INCDIR}/LD/StrSymPool.h \
 	${LIBDIR}/LD/StrSymPool.cpp \

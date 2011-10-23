@@ -11,6 +11,7 @@
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCObjectReader.h"
 #include "mcld/Target/TargetLDBackend.h"
+
 #include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCExpr.h"
 #include "llvm/MC/MCValue.h"
@@ -29,17 +30,17 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // non-member functions
-static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind)
+static bool isFixupKindPCRel(const llvm::MCAssembler &Asm, unsigned Kind)
 {
-  const MCFixupKindInfo &FKI =
-    Asm.getBackend().getFixupKindInfo((MCFixupKind) Kind);
+  const llvm::MCFixupKindInfo &FKI =
+    Asm.getBackend().getFixupKindInfo((llvm::MCFixupKind) Kind);
 
-  return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
+  return FKI.Flags & llvm::MCFixupKindInfo::FKF_IsPCRel;
 }
 
 //===----------------------------------------------------------------------===//
 // MCAsmObjectReader
-MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
+MCAsmObjectReader::MCAsmObjectReader(llvm::MCObjectStreamer &pStreamer,
                                      TargetLDBackend& pBackend,
                                      MCLDInfo& pLDInfo)
   : MCObjectWriter(llvm::nulls(),
@@ -53,15 +54,15 @@ MCAsmObjectReader::~MCAsmObjectReader()
 {
 }
 
-void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
-                                                 const MCAsmLayout &Layout)
+void MCAsmObjectReader::ExecutePostLayoutBinding(llvm::MCAssembler &Asm,
+                                                 const llvm::MCAsmLayout &Layout)
 {
 }
 
 
-void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
-                                         const MCAsmLayout &Layout,
-                                         const MCFragment *Fragment,
+void MCAsmObjectReader::RecordRelocation(const llvm::MCAssembler &Asm,
+                                         const llvm::MCAsmLayout &Layout,
+                                         const llvm::MCFragment *Fragment,
                                          const llvm::MCFixup &Fixup,
                                          llvm::MCValue Target,
                                          uint64_t &FixedValue)
@@ -81,7 +82,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
 
     if (const llvm::MCSymbolRefExpr* RefB = Target.getSymB()) {
       const llvm::MCSymbol& SymbolB = RefB->getSymbol();
-      MCSymbolData& SDB = Asm.getSymbolData(SymbolB);
+      llvm::MCSymbolData& SDB = Asm.getSymbolData(SymbolB);
       IsPCRel = true;
 
       int64_t a = Layout.getSymbolOffset(&SDB); // symbol in section
@@ -90,7 +91,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
     }
 
     if (!RelocSymbol) {
-      MCSymbolData& SD = Asm.getSymbolData(ASymbol);
+      llvm::MCSymbolData& SD = Asm.getSymbolData(ASymbol);
       // Offset of the symbol in the section
       Value += Layout.getSymbolOffset(&SD);
     }
@@ -99,7 +100,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
 
   FixedValue = Value; // parameter out
   unsigned Type = 0;//OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
-  MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
+  llvm::MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
 
   if (!OR->hasRelocationAddend())
     Addend = 0;
@@ -108,11 +109,11 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                      Addend,  // r_addend
                      SD.Index << 8 + (unsigned char)Type, // r_info
                      &SD);  // MCSymbolData
-  m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
+  //m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
 }
 
-void MCAsmObjectReader::WriteObject(MCAssembler &Asm,
-                                    const MCAsmLayout &Layout)
+void MCAsmObjectReader::WriteObject(llvm::MCAssembler &Asm,
+                                    const llvm::MCAsmLayout &Layout)
 {
 }
 

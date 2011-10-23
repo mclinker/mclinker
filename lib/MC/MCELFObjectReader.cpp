@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/MC/MCELFObjectReader.h"
 #include "mcld/MC/MCELFObjectTargetReader.h"
-#include "mcld/MC/MCLDContext.h"
 #include "mcld/MC/MCLDFile.h"
 
 #include "llvm/ADT/OwningPtr.h"
@@ -60,8 +59,11 @@ bool MCELFObjectReader::isMyFormat(mcld::Input &pFile) const
 
   unsigned char magic[16];
   lseek(fd, 0, SEEK_SET);
-  read(fd, &magic, sizeof(magic));
-  close(fd);
+  if (read(fd, &magic, sizeof(magic)))
+    close(fd);
+  else
+    return false;
+
   return (magic[0] == 0x7F && magic[1] == 'E' &&
       magic[2] == 'L' && magic[3] == 'F');
 }
@@ -75,18 +77,22 @@ Input::Type MCELFObjectReader::fileType(mcld::Input &pFile) const
   fd = open(pFile.path().c_str(), 0644);
   lseek(fd, 0, SEEK_SET);
   lseek(fd, sizeof(char)*16, SEEK_SET);
-  read(fd, &e_type, sizeof(e_type));
-  switch(e_type) {
-  case ET_REL:
-    result = Input::Object;
-    break;
-  case ET_DYN:
-    result = Input::DynObj;
-    break;
-  default:
-    result = Input::Unknown;
+  if (read(fd, &e_type, sizeof(e_type))) {
+    switch(e_type) {
+    case ET_REL:
+      result = Input::Object;
+      break;
+    case ET_DYN:
+      result = Input::DynObj;
+      break;
+    default:
+      result = Input::Unknown;
+    }
+    close(fd);
   }
-  close(fd);
+  else {
+    llvm::report_fatal_error(std::string("can not read: ")+pFile.path().native());
+  }
 
   return result;
 }
@@ -156,10 +162,10 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
       //              The question is: how to do?
     }
 
-    const MCSectionELF *ShEntry =
-      LDFile.context()->getELFSection(SectionName, sh->sh_type,
-                                       0, SectionKind::getReadOnly(),
-                                       sh->sh_size, "");
+   // const MCSectionELF *ShEntry =
+   //   LDFile.context()->getELFSection(SectionName, sh->sh_type,
+   //                                    0, SectionKind::getReadOnly(),
+   //                                   sh->sh_size, "");
 
     MCSymbol *SymEntry = NULL;
     if (!SectionName.empty()) {
@@ -235,10 +241,10 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 
   StringRef SymTabName = getNameString(ShStringTable, ShSym->sh_name);
 
-  const MCSectionELF *SymTabSection =
-     File.context()->getELFSection(SymTabName, ELF::SHT_STRTAB,
-                                      0, SectionKind::getReadOnly(),
-                                      ShSym->sh_size ,"");
+  //const MCSectionELF *SymTabSection =
+  //   File.context()->getELFSection(SymTabName, ELF::SHT_STRTAB,
+  //                                    0, SectionKind::getReadOnly(),
+  //                                    ShSym->sh_size ,"");
 
   for (const char *i = FileBase + ShSym->sh_offset,
                   *e = FileBase +
@@ -248,10 +254,10 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
      const Elf32_Sym *SymEntry = reinterpret_cast<const Elf32_Sym *>(i);
      StringRef SymbolName = getNameString(ShStr, SymEntry->st_name);
 
-     MCSectionData &SymTabSD =
-       File.context()->getOrCreateSectionData(*SymTabSection);
+     //MCSectionData &SymTabSD =
+     //  File.context()->getOrCreateSectionData(*SymTabSection);
 
-     llvm::MCDataFragment *F = new llvm::MCDataFragment(&SymTabSD);
+     llvm::MCDataFragment *F = 0;//new llvm::MCDataFragment(&SymTabSD);
 
      llvm::MCDataFragment *ShndxF = NULL;
      WriteSymbolEntry(F, ShndxF, SymEntry->st_name, SymEntry->st_value,
@@ -260,7 +266,7 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 
      MCSymbol *Sym = NULL;
      if (!SymbolName.empty()) {
-       Sym = File.context()->getOrCreateSymbol(SymbolName);
+       //Sym = File.context()->getOrCreateSymbol(SymbolName);
        //llvm::MCSymbolData &SymData = File.context()->getOrCreateSymbolData(*Sym);
      }
   }

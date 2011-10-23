@@ -12,33 +12,33 @@
 #include <gtest.h>
 #endif
 #include "mcld/Support/UniqueGCFactory.h"
-#include "mcld/MC/MCLDContext.h"
 #include "mcld/Support/Path.h"
 
 namespace mcld
 {
+class LDContext;
 
 /** \class ContextFactory
- *  \brief ContextFactory avoids the duplicated MCLDContext of the same file.
+ *  \brief ContextFactory avoids the duplicated LDContext of the same file.
  *
  *  MCLinker is designed for efficient memory usage. Because user can give 
  *  MCLinker the same input file many times on the command line, MCLinker must
  *  avoid opening identical file twice.
  *
  *  ContextFactory is the guard to prevent redundant opening. MCLinker does not
- *  create MCLDContext directly. Instead, it creates MCLDContext by ContextFactory.
- *  ContextFactory returns the identical reference of MCLDContext if it's openend.
+ *  create LDContext directly. Instead, it creates LDContext by ContextFactory.
+ *  ContextFactory returns the identical reference of LDContext if it's openend.
  *
- *  @see MCLDContext
+ *  @see LDContext
  *  @see UniqueGCFactoryBase
  */
-class ContextFactory : public UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>
+class ContextFactory : public UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>
 {
 public:
   explicit ContextFactory(size_t pNum);
   ~ContextFactory();
 
-  MCLDContext* produce(const sys::fs::Path& pPath);
+  LDContext* produce(const sys::fs::Path& pPath);
 };
 
 } // namespace of mcld

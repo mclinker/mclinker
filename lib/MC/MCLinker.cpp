@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/Support/raw_ostream.h"
 #include "mcld/MC/MCLinker.h"
 #include "mcld/MC/MCLDLayout.h"
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLDContext.h"
 #include "mcld/Target/TargetLDBackend.h"
+
+#include "llvm/Support/raw_ostream.h"
 
 namespace mcld {
 

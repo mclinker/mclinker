@@ -42,10 +42,10 @@ void MCLDDriver::normalize() {
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
         (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
         if (!(*input)->memArea()->isGood())
-          report_fatal_error("can not open file: " + (*input)->path().native());
+          llvm::report_fatal_error("can not open file: " + (*input)->path().native());
         break;
       default:
-        report_fatal_error("can not link file: " + (*input)->path().native());
+        llvm::report_fatal_error("can not link file: " + (*input)->path().native());
         break;
       }
     }
@@ -53,7 +53,7 @@ void MCLDDriver::normalize() {
       (*input)->setType(Input::Archive);
       mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);
       if(!archive_member) 
-        report_fatal_error("wrong format archive" + (*input)->path().string());
+        llvm::report_fatal_error("wrong format archive" + (*input)->path().string());
 
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
     }
@@ -68,7 +68,7 @@ bool MCLDDriver::linkable() const
   for (attr=m_LDInfo.attrFactory().begin(); attr!=attrEnd; ++attr) {
     std::string error_code;
     if (!m_LDInfo.attrFactory().constraint().isLegal((**attr), error_code))
-      report_fatal_error(error_code);
+      llvm::report_fatal_error(error_code);
   }
 
 
@@ -79,7 +79,7 @@ bool MCLDDriver::linkable() const
     if ((*input)->type() == mcld::Input::DynObj ) {
       hasDynObj = true;
       if((*input)->attribute()->isStatic())
-        report_fatal_error("Can't link shared object with -static option");
+        llvm::report_fatal_error("Can't link shared object with -static option");
     }
   }
 

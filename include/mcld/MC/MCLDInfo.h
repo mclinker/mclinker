@@ -92,7 +92,7 @@ public:
   const MemoryAreaFactory& memAreaFactory() const
   { return *m_pMemAreaFactory; }
 
-  const Triple& triple() const
+  const llvm::Triple& triple() const
   { return m_Triple; }
 
   static const char* version();

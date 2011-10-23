@@ -47,20 +47,20 @@ TEST_F( UniqueGCFactoryBaseTest, number_constructor ) {
 
 TEST_F( UniqueGCFactoryBaseTest, unique_produce ) {
 	ContextFactory *contextFactory = new ContextFactory(10); 
-	MCLDContext* context1 = contextFactory->produce("/");
+	LDContext* context1 = contextFactory->produce("/");
 	contextFactory->produce("ab/c");
 	ASSERT_EQ( 2, contextFactory->size());
-	MCLDContext* context2 = contextFactory->produce("/");
+	LDContext* context2 = contextFactory->produce("/");
 	ASSERT_EQ( context1, context2 );
 	delete contextFactory;
 }
 
 TEST_F( UniqueGCFactoryBaseTest, unique_produce2 ) {
 	ContextFactory *contextFactory = new ContextFactory(10); 
-	MCLDContext* context1 = contextFactory->produce("abc/def");
+	LDContext* context1 = contextFactory->produce("abc/def");
 	contextFactory->produce("ab/c");
 	ASSERT_EQ( 2, contextFactory->size());
-	MCLDContext* context2 = contextFactory->produce("ttt/../abc/def");
+	LDContext* context2 = contextFactory->produce("ttt/../abc/def");
 	ASSERT_EQ( context1, context2 );
 	delete contextFactory;
 }

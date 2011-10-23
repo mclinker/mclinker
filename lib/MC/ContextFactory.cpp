@@ -6,28 +6,30 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/LD/LDContext.h"
 #include "mcld/MC/ContextFactory.h"
 
-using namespace mcld;
+namespace mcld {
 
 //===---------------------------------------------------------------------===//
-// MCLDContextFactory
+// LDContextFactory
 ContextFactory::ContextFactory(size_t pNum)
-  : UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>(pNum) {
+  : UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>(pNum) {
 }
 
 ContextFactory::~ContextFactory()
 {
 }
 
-MCLDContext* ContextFactory::produce(const sys::fs::Path& pPath)
+LDContext* ContextFactory::produce(const sys::fs::Path& pPath)
 {
-  MCLDContext* result = find(pPath);
+  LDContext* result = find(pPath);
   if (0 == result) {
-    result = UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>::allocate();
-    UniqueGCFactoryBase<sys::fs::Path, MCLDContext, 0>::construct(result);
+    result = UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>::allocate();
+    UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>::construct(result);
     f_KeyMap.insert(std::make_pair(pPath, result));
   }
   return result;
 }
 
+} //end namespace mcld
