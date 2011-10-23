@@ -7,8 +7,6 @@ UNITTEST=${TOPLEVEL}/unittests
 
 bin_PROGRAMS = llvm-mcld
 
-tmp = llvm-mcld
-
 if ENABLE_UNITTEST
 llvm_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(srcdir)/../../utils/gtest/include -I../../include -I$(srcdir)/../../include -I$(srcdir)/../../unittests ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0
 llvm_mcld_LDADD = -lgtest -L../../utils/gtest/lib/ ${LLVM_LDFLAGS}
@@ -29,7 +27,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
 	${INCDIR}/MC/MCObjectReader.h \
-	${LIBDIR}/MC/MCObjectReader.cpp \
 	${INCDIR}/MC/MCELFObjectReader.h \
 	${LIBDIR}/MC/MCELFObjectReader.cpp \
 	${INCDIR}/MC/MCELFObjectTargetReader.h \

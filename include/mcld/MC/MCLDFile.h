@@ -12,16 +12,14 @@
 #include <gtest.h>
 #endif
 
-#include "llvm/ADT/StringRef.h"
-#include "mcld/MC/MCLDContext.h"
-#include "mcld/Support/Path.h"
+#include "mcld/ADT/Uncopyable.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/GCFactory.h"
-#include "mcld/ADT/Uncopyable.h"
 #include "mcld/Support/MemoryArea.h"
-#include <string>
+#include "mcld/Support/Path.h"
 
-#include "mcld/MC/MCLDContext.h"
+#include "llvm/ADT/StringRef.h"
+#include <string>
 
 namespace mcld
 {

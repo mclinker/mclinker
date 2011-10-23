@@ -88,8 +88,7 @@ Type stringToType(const std::string &str)
 /// Public API
 bool MCArchiveReader::isMyFormat(Input &pInput)
 {
-  OwningPtr<MemoryBuffer> mapFile;
-  std::cerr << "input in archive reader=" << pInput.path().native() << '\n';
+  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
@@ -105,7 +104,7 @@ bool MCArchiveReader::isMyFormat(Input &pInput)
 
 InputTree *MCArchiveReader::readArchive(Input &pInput)
 {
-  OwningPtr<MemoryBuffer> mapFile; 
+  llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
   mapToMemory(mapFile, pInput.path());
   return setupNewArchive(mapFile, 0);
 }

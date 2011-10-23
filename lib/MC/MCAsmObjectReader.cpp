@@ -37,57 +37,6 @@ static bool isFixupKindPCRel(const MCAssembler &Asm, unsigned Kind)
   return FKI.Flags & MCFixupKindInfo::FKF_IsPCRel;
 }
 
-static const MCSymbol* transSymbolToReloc(const MCAssembler &Asm,
-                                          const MCValue &Target,
-                                          const MCFragment &F,
-                                          const MCFixup &Fixup,
-                                          bool IsPCRel,
-                                          MCObjectReader* OR)
-{
-  const MCSymbol &Symbol = Target.getSymA()->getSymbol();
-  const MCSymbol &ASymbol = Symbol.AliasedSymbol();
-  const MCSymbolData &SD = Asm.getSymbolData(Symbol);
-
-  if (ASymbol.isUndefined()) {
-    return &ASymbol;
-  }
-
-  if (SD.isExternal()) {
-    return &Symbol;
-  }
-
-  const MCSectionELF &Section =
-    static_cast<const MCSectionELF&>(ASymbol.getSection());
-  const SectionKind secKind = Section.getKind();
-
-  if (secKind.isBSS())
-    return OR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-
-  if (secKind.isThreadLocal()) {
-    return &Symbol;
-  }
-
-  MCSymbolRefExpr::VariantKind Kind = Target.getSymA()->getKind();
-  const MCSectionELF &Sec2 =
-    static_cast<const MCSectionELF&>(F.getParent()->getSection());
-
-  if (&Sec2 != &Section &&
-      (Kind == MCSymbolRefExpr::VK_PLT ||
-       Kind == MCSymbolRefExpr::VK_GOTPCREL ||
-       Kind == MCSymbolRefExpr::VK_GOTOFF)) {
-    return &Symbol;
-  }
-
-  if (Section.getFlags() & ELF::SHF_MERGE) {
-    if (Target.getConstant() == 0)
-      return OR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-    return &Symbol;
-  }
-
-  return OR->explicitRelSym(Asm, Target, F, Fixup, IsPCRel);
-}
-
-
 //===----------------------------------------------------------------------===//
 // MCAsmObjectReader
 MCAsmObjectReader::MCAsmObjectReader(MCObjectStreamer &pStreamer,
@@ -113,25 +62,25 @@ void MCAsmObjectReader::ExecutePostLayoutBinding(MCAssembler &Asm,
 void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
                                          const MCAsmLayout &Layout,
                                          const MCFragment *Fragment,
-                                         const MCFixup &Fixup,
-                                         MCValue Target,
+                                         const llvm::MCFixup &Fixup,
+                                         llvm::MCValue Target,
                                          uint64_t &FixedValue)
 {
   int64_t Addend = 0;
   int Index = 0;
   int64_t Value = Target.getConstant();
-  const MCSymbol *RelocSymbol = NULL;
+  const llvm::MCSymbol *RelocSymbol = NULL;
 
   bool IsPCRel = isFixupKindPCRel(Asm, Fixup.getKind());
   MCObjectReader* OR = m_Backend.getObjectReader();
 
   if (!Target.isAbsolute()) {
-    const MCSymbol &Symbol = Target.getSymA()->getSymbol();
-    const MCSymbol &ASymbol = Symbol.AliasedSymbol();
-    RelocSymbol = transSymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel, OR);
+    const llvm::MCSymbol &Symbol = Target.getSymA()->getSymbol();
+    const llvm::MCSymbol &ASymbol = Symbol.AliasedSymbol();
+    //RelocSymbol = transSymbolToReloc(Asm, Target, *Fragment, Fixup, IsPCRel, OR);
 
-    if (const MCSymbolRefExpr* RefB = Target.getSymB()) {
-      const MCSymbol& SymbolB = RefB->getSymbol();
+    if (const llvm::MCSymbolRefExpr* RefB = Target.getSymB()) {
+      const llvm::MCSymbol& SymbolB = RefB->getSymbol();
       MCSymbolData& SDB = Asm.getSymbolData(SymbolB);
       IsPCRel = true;
 
@@ -149,7 +98,7 @@ void MCAsmObjectReader::RecordRelocation(const MCAssembler &Asm,
   }
 
   FixedValue = Value; // parameter out
-  unsigned Type = OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
+  unsigned Type = 0;//OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
   MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
 
   if (!OR->hasRelocationAddend())

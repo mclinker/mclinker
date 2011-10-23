@@ -249,7 +249,7 @@ void open_dir(Directory& pDir)
     return;
   case 0:
     // FIXME: a warning function
-    std::cerr << "empty directory:" << pDir.path().native() << '\n';
+    //std::cerr << "empty directory:" << pDir.path().native() << '\n';
     return;
   case -1:
     llvm::report_fatal_error(std::string("Can't read directory: ")+

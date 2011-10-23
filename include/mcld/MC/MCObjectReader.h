@@ -17,19 +17,22 @@
 
 namespace mcld
 {
+class MCFixup;
 class MCObjectTargetReader;
+class MCSymbol;
+class MCValue;
 
 //MCObjectReader provides an interface for different object formats.
 class MCObjectReader
 {
 protected:
-  MCObjectReader();
+  MCObjectReader() {}
 public:
-  virtual ~MCObjectReader();
+  virtual ~MCObjectReader(){}
 
   virtual bool isMyFormat(mcld::Input &pFile) const = 0;
   virtual Input::Type fileType(mcld::Input &pFile) const = 0;
-  virtual llvm::error_code readObject(const std::string &ObjectFile, 
+  virtual llvm::error_code readObject(const std::string &ObjectFile,
                                       MCLDFile &) = 0;
 
   virtual bool hasRelocationAddend() = 0;
@@ -38,11 +41,6 @@ public:
                                 bool IsPCRel,
                                 bool IsRelocWithSymbol,
                                 int64_t Addend) = 0;
-  virtual const MCSymbol* explicitRelSym(const MCAssembler& Asm,
-                                         const MCValue& Target,
-                                         const MCFragment& F,
-                                         const MCFixup& Fixup,
-                                         bool IsPCRel) const = 0;
 };
 
 } // namespace of mcld

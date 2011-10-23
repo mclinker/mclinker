@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include "mcld/MC/MCLDFile.h"
-#include "mcld/MC/MCLDContext.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/MemoryArea.h"
 #include <cstring>

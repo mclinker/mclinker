@@ -8,12 +8,15 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/MC/MCELFObjectReader.h"
 #include "mcld/MC/MCELFObjectTargetReader.h"
+#include "mcld/MC/MCLDContext.h"
 #include "mcld/MC/MCLDFile.h"
 
 #include "llvm/ADT/OwningPtr.h"
 #include "llvm/ADT/Triple.h"
 #include "llvm/CodeGen/MachineModuleInfo.h"
+#include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCContext.h"
+#include "llvm/MC/MCSymbol.h"
 #include "llvm/Target/TargetLowering.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Support/TargetRegistry.h"
@@ -160,9 +163,9 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
 
     MCSymbol *SymEntry = NULL;
     if (!SectionName.empty()) {
-      SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
-      MCSymbolData &SymDataEntry =
-        LDFile.context()->getOrCreateSymbolData(*SymEntry);
+      //SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
+      //MCSymbolData &SymDataEntry =
+      //  LDFile.context()->getOrCreateSymbolData(*SymEntry);
     }
 
   }
@@ -192,17 +195,6 @@ unsigned MCELFObjectReader::getRelocType(const MCValue& Target,
                                        Addend);
 }
 
-const MCSymbol* MCELFObjectReader::explicitRelSym(const MCAssembler& Asm,
-                                                  const MCValue& Target,
-                                                  const MCFragment& F,
-                                                  const MCFixup& Fixup,
-                                                  bool IsPCRel) const {
-  return m_pTargetReader->explicitRelSym(Asm,
-                                         Target,
-                                         F,
-                                         Fixup,
-                                         IsPCRel);
-}
 
 const Elf32_Shdr *MCELFObjectReader::getShdrEntry(Elf32_Half index) const {
   if (index == 0 || index >= ELF::SHN_LORESERVE)
@@ -259,9 +251,9 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
      MCSectionData &SymTabSD =
        File.context()->getOrCreateSectionData(*SymTabSection);
 
-     MCDataFragment *F = new MCDataFragment(&SymTabSD);
+     llvm::MCDataFragment *F = new llvm::MCDataFragment(&SymTabSD);
 
-     MCDataFragment *ShndxF = NULL;
+     llvm::MCDataFragment *ShndxF = NULL;
      WriteSymbolEntry(F, ShndxF, SymEntry->st_name, SymEntry->st_value,
                       SymEntry->st_size, SymEntry->st_info,
                       SymEntry->st_other, SymEntry->st_shndx, 1);
@@ -269,7 +261,7 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
      MCSymbol *Sym = NULL;
      if (!SymbolName.empty()) {
        Sym = File.context()->getOrCreateSymbol(SymbolName);
-       MCSymbolData &SymData =File.context()->getOrCreateSymbolData(*Sym);
+       //llvm::MCSymbolData &SymData = File.context()->getOrCreateSymbolData(*Sym);
      }
   }
 
@@ -277,8 +269,8 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
 }
 
 
-void MCELFObjectReader::WriteSymbolEntry(MCDataFragment *SymtabF,
-                                         MCDataFragment *ShndxF,
+void MCELFObjectReader::WriteSymbolEntry(llvm::MCDataFragment *SymtabF,
+                                         llvm::MCDataFragment *ShndxF,
                                          const uint64_t name,
                                          const uint8_t info,
                                          const uint64_t value,
@@ -287,28 +279,28 @@ void MCELFObjectReader::WriteSymbolEntry(MCDataFragment *SymtabF,
                                          const uint32_t shndx,
                                          bool Reserved) {
   if (ShndxF) {
-    if (shndx >= ELF::SHN_LORESERVE && !Reserved)
-      String32(*ShndxF, shndx);
-    else
-      String32(*ShndxF, 0);
+//    if (shndx >= ELF::SHN_LORESERVE && !Reserved)
+//      String32(*ShndxF, shndx);
+//    else
+//      String32(*ShndxF, 0);
   }
 
   uint16_t Index = (shndx >= ELF::SHN_LORESERVE && !Reserved) ?
     uint16_t(ELF::SHN_XINDEX) : shndx;
 
-  if (is64Bit()) {
-    String32(*SymtabF, name);  // st_name
-    String8(*SymtabF, info);   // st_info
-    String8(*SymtabF, other);  // st_other
-    String16(*SymtabF, Index); // st_shndx
-    String64(*SymtabF, value); // st_value
-    String64(*SymtabF, size);  // st_size
-  } else {
-    String32(*SymtabF, name);  // st_name
-    String32(*SymtabF, value); // st_value
-    String32(*SymtabF, size);  // st_size
-    String8(*SymtabF, info);   // st_info
-    String8(*SymtabF, other);  // st_other
-    String16(*SymtabF, Index); // st_shndx
-  }
+//  if (is64Bit()) {
+//    String32(*SymtabF, name);  // st_name
+//    String8(*SymtabF, info);   // st_info
+//    String8(*SymtabF, other);  // st_other
+//    String16(*SymtabF, Index); // st_shndx
+//    String64(*SymtabF, value); // st_value
+//    String64(*SymtabF, size);  // st_size
+//  } else {
+//    String32(*SymtabF, name);  // st_name
+//    String32(*SymtabF, value); // st_value
+//    String32(*SymtabF, size);  // st_size
+//    String8(*SymtabF, info);   // st_info
+//    String8(*SymtabF, other);  // st_other
+//    String16(*SymtabF, Index); // st_shndx
+//  }
 }
