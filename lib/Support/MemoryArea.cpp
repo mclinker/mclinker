@@ -13,7 +13,6 @@
 #include "llvm/Support/ErrorHandling.h"
 
 #include <fcntl.h>
-#include <cerrno>
 #include <sstream>
 #include <sys/mman.h>
 

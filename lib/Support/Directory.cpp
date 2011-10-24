@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/Support/Directory.h"
 #include "mcld/Support/FileSystem.h"
-#include <cerrno>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
