@@ -1,78 +1,8 @@
-diff --git a/include/llvm/MC/MCAssembler.h b/include/llvm/MC/MCAssembler.h
-index b8f8cc4..cc3f3a1 100644
---- a/include/llvm/MC/MCAssembler.h
-+++ b/include/llvm/MC/MCAssembler.h
-@@ -466,6 +466,7 @@ public:
-   // Only for use as sentinel.
-   MCSectionData();
-   MCSectionData(const MCSection &Section, MCAssembler *A = 0);
-+  MCSectionData(const MCSection &Section, iplist<MCSectionData> &Sections);
- 
-   const MCSection &getSection() const { return *Section; }
- 
-@@ -554,6 +555,8 @@ public:
-   MCSymbolData();
-   MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
-                MCAssembler *A = 0);
-+  MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
-+               iplist<MCSymbolData> &Symbols);
- 
-   /// @name Accessors
-   /// @{
-@@ -664,7 +667,7 @@ private:
- 
-   MCCodeEmitter &Emitter;
- 
--  MCObjectWriter &Writer;
-+  MCObjectWriter *m_pWriter;
- 
-   raw_ostream &OS;
- 
-@@ -791,7 +794,12 @@ public:
- 
-   MCCodeEmitter &getEmitter() const { return Emitter; }
- 
--  MCObjectWriter &getWriter() const { return Writer; }
-+  MCObjectWriter &getWriter() const { return *m_pWriter; }
-+
-+  void setWriter(MCObjectWriter &pObjectWriter) {
-+    delete m_pWriter;
-+    m_pWriter = &pObjectWriter;
-+  }
- 
-   /// Finish - Do final processing and write the object to the output stream.
-   /// \arg Writer is used for custom object writer (as the MCJIT does),
-diff --git a/include/llvm/MC/MCSectionELF.h b/include/llvm/MC/MCSectionELF.h
-index c82de71..e19feb0 100644
---- a/include/llvm/MC/MCSectionELF.h
-+++ b/include/llvm/MC/MCSectionELF.h
-@@ -42,7 +42,7 @@ class MCSectionELF : public MCSection {
- 
-   const MCSymbol *Group;
- 
--private:
-+public:
-   friend class MCContext;
-   MCSectionELF(StringRef Section, unsigned type, unsigned flags,
-                SectionKind K, unsigned entrySize, const MCSymbol *group)
-diff --git a/include/llvm/MC/MCSymbol.h b/include/llvm/MC/MCSymbol.h
-index 0583ce5..0df0425 100644
---- a/include/llvm/MC/MCSymbol.h
-+++ b/include/llvm/MC/MCSymbol.h
-@@ -55,7 +55,7 @@ namespace llvm {
-     /// IsUsed - True if this symbol has been used.
-     mutable unsigned IsUsed : 1;
- 
--  private:  // MCContext creates and uniques these.
-+  public:  // MCContext creates and uniques these.
-     friend class MCExpr;
-     friend class MCContext;
-     MCSymbol(StringRef name, bool isTemporary)
-diff --git a/include/llvm/Target/TargetMachine.h b/include/llvm/Target/TargetMachine.h
-index 8a8d142..fa5bb6c 100644
---- a/include/llvm/Target/TargetMachine.h
-+++ b/include/llvm/Target/TargetMachine.h
-@@ -277,6 +277,16 @@ public:
+Index: include/llvm/Target/TargetMachine.h
+===================================================================
+--- include/llvm/Target/TargetMachine.h	(revision 142614)
++++ include/llvm/Target/TargetMachine.h	(working copy)
+@@ -286,6 +286,16 @@
                                   bool = true) {
      return true;
    }
@@ -89,7 +19,7 @@ index 8a8d142..fa5bb6c 100644
  };
  
  /// LLVMTargetMachine - This class describes a target machine that is
-@@ -288,14 +298,13 @@ protected: // Can only create subclasses.
+@@ -297,14 +307,13 @@
                      StringRef CPU, StringRef FS,
                      Reloc::Model RM, CodeModel::Model CM);
  
@@ -105,11 +35,82 @@ index 8a8d142..fa5bb6c 100644
    /// addPassesToEmitFile - Add passes to the specified pass manager to get the
    /// specified file emitted.  Typically this will involve several steps of code
    /// generation.  If OptLevel is None, the code generator should emit code as
-diff --git a/lib/MC/MCAssembler.cpp b/lib/MC/MCAssembler.cpp
-index 06c8aec..ab0ea1c 100644
---- a/lib/MC/MCAssembler.cpp
-+++ b/lib/MC/MCAssembler.cpp
-@@ -177,6 +177,15 @@ MCSectionData::MCSectionData(const MCSection &_Section, MCAssembler *A)
+Index: include/llvm/MC/MCAssembler.h
+===================================================================
+--- include/llvm/MC/MCAssembler.h	(revision 142614)
++++ include/llvm/MC/MCAssembler.h	(working copy)
+@@ -466,6 +466,7 @@
+   // Only for use as sentinel.
+   MCSectionData();
+   MCSectionData(const MCSection &Section, MCAssembler *A = 0);
++  MCSectionData(const MCSection &Section, iplist<MCSectionData> &Sections);
+ 
+   const MCSection &getSection() const { return *Section; }
+ 
+@@ -554,6 +555,8 @@
+   MCSymbolData();
+   MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
+                MCAssembler *A = 0);
++  MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
++               iplist<MCSymbolData> &Symbols);
+ 
+   /// @name Accessors
+   /// @{
+@@ -664,7 +667,7 @@
+ 
+   MCCodeEmitter &Emitter;
+ 
+-  MCObjectWriter &Writer;
++  MCObjectWriter *m_pWriter;
+ 
+   raw_ostream &OS;
+ 
+@@ -791,8 +794,13 @@
+ 
+   MCCodeEmitter &getEmitter() const { return Emitter; }
+ 
+-  MCObjectWriter &getWriter() const { return Writer; }
++  MCObjectWriter &getWriter() const { return *m_pWriter; }
+ 
++  void setWriter(MCObjectWriter &pObjectWriter) {
++    delete m_pWriter;
++    m_pWriter = &pObjectWriter;
++  }
++
+   /// Finish - Do final processing and write the object to the output stream.
+   /// \arg Writer is used for custom object writer (as the MCJIT does),
+   /// if not specified it is automatically created from backend.
+Index: include/llvm/MC/MCSectionELF.h
+===================================================================
+--- include/llvm/MC/MCSectionELF.h	(revision 142614)
++++ include/llvm/MC/MCSectionELF.h	(working copy)
+@@ -42,7 +42,7 @@
+ 
+   const MCSymbol *Group;
+ 
+-private:
++public:
+   friend class MCContext;
+   MCSectionELF(StringRef Section, unsigned type, unsigned flags,
+                SectionKind K, unsigned entrySize, const MCSymbol *group)
+Index: include/llvm/MC/MCSymbol.h
+===================================================================
+--- include/llvm/MC/MCSymbol.h	(revision 142614)
++++ include/llvm/MC/MCSymbol.h	(working copy)
+@@ -55,7 +55,7 @@
+     /// IsUsed - True if this symbol has been used.
+     mutable unsigned IsUsed : 1;
+ 
+-  private:  // MCContext creates and uniques these.
++  public:  // MCContext creates and uniques these.
+     friend class MCExpr;
+     friend class MCContext;
+     MCSymbol(StringRef name, bool isTemporary)
+Index: lib/MC/MCAssembler.cpp
+===================================================================
+--- lib/MC/MCAssembler.cpp	(revision 142614)
++++ lib/MC/MCAssembler.cpp	(working copy)
+@@ -177,6 +177,15 @@
      A->getSectionList().push_back(this);
  }
  
@@ -125,7 +126,7 @@ index 06c8aec..ab0ea1c 100644
  /* *** */
  
  MCSymbolData::MCSymbolData() : Symbol(0) {}
-@@ -192,12 +201,22 @@ MCSymbolData::MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment,
+@@ -192,12 +201,22 @@
      A->getSymbolList().push_back(this);
  }
  

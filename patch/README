@@ -1,15 +1,17 @@
 
-This directory contains all patches being applied on LLVM
-
 ------------------------------------------------------------
-LLVM.diff is used by the command "patch"
-LLVM.diff.patch is used by "git apply"
+For building MCLinker, it needs to build LLVM first.
 
-For building MCLinker project,
-Choosing one of them is enough.
+Before building LLVM,
+the patch "LLVM.patch" should be applied first.
 
-All patches are for LLVM r142614
-Applying patches from $(LLVM_ROOT)
+Following the steps below to apply the patch:
+1. cd $(LLVM_ROOT)
+2. patch -p0 ./patch/LLVM.patch
+
+This patch is for LLVM r142614.
+
+
 
 ------------------------------------------------------------
 commit dce287505919d338f8bc36093dd22479c064c2d9
