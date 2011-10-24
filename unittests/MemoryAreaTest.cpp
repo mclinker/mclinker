@@ -13,10 +13,8 @@
 #include "mcld/Support/MemoryRegion.h"
 #include "mcld/Support/MemoryAreaFactory.h"
 #include "mcld/Support/Path.h"
-#include <iostream>
 
 #include "MemoryAreaTest.h"
-
 #include <fcntl.h>
 
 using namespace mcld;
