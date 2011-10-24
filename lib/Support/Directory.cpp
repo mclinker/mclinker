@@ -63,7 +63,7 @@ Directory::~Directory()
 
 bool Directory::isGood() const
 {
-  return (NULL != m_Handler);
+  return (0 != m_Handler);
 }
 
 Directory& Directory::operator=(const Directory& pCopy)

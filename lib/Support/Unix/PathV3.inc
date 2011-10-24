@@ -237,7 +237,7 @@ Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
 void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
-  if (NULL == pDir.m_Handler)
+  if (0 == pDir.m_Handler)
     llvm::report_fatal_error(std::string("Can't open directory: ")+
                        pDir.path().native());
   // read one entry for advance the end element of the cache.
