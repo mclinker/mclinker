@@ -11,6 +11,7 @@
 #include <mcld/Support/Path.h>
 #include <llvm/Support/ErrorHandling.h>
 
+#include <cerrno>
 #include <dirent.h>
 #include <stdio.h>
 #include <sys/stat.h>

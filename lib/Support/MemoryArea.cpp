@@ -12,6 +12,7 @@
 #include "mcld/Support/FileSystem.h"
 #include "llvm/Support/ErrorHandling.h"
 
+#include <cerrno>
 #include <fcntl.h>
 #include <sstream>
 #include <sys/mman.h>
