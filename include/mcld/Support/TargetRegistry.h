@@ -22,7 +22,6 @@ namespace mcld {
 class LLVMTargetMachine;
 class TargetRegistry;
 class SectLinker;
-class MCLDDriver;
 class TargetLDBackend;
 class MCLDFile;
 class MCLDInfo;
@@ -37,7 +36,7 @@ class Target
 {
   friend class mcld::LLVMTargetMachine;
   friend class mcld::TargetRegistry;
-public:  
+public:
   typedef mcld::LLVMTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
                                                           llvm::TargetMachine &,
                                                           const std::string&);

@@ -67,8 +67,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
-	${INCDIR}/MC/MCLDDriver.h \
-	${LIBDIR}/MC/MCLDDriver.cpp \
  	${INCDIR}/MC/MCLinker.h \
 	${LIBDIR}/MC/MCLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/ADT/BinTree.h"
 #include "mcld/CodeGen/SectLinker.h"
-#include "mcld/MC/MCLDDriver.h"
+#include "mcld/MC/MCLinker.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCLDDirectory.h"
@@ -239,7 +239,7 @@ SectLinker::SectLinker(const std::string& pInputFile,
 SectLinker::~SectLinker()
 {
   delete m_pLDBackend;
-  delete m_pLDDriver;
+  delete m_pLinker;
 }
 
 bool SectLinker::doInitialization(Module &pM)
@@ -415,15 +415,15 @@ bool SectLinker::doInitialization(Module &pM)
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
   initializeInputTree(m_LDInfo, pos_dep_options);
 
-  // Now, all input arguments are prepared well, send it into MCLDDriver
-  m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
+  // Now, all input arguments are prepared well, send it into MCLinker
+  m_pLinker = new MCLinker(m_LDInfo, *m_pLDBackend);
 
 }
 
 bool SectLinker::doFinalization(Module &pM)
 {
   // 3. - normalize the input tree
-  m_pLDDriver->normalize();
+  m_pLinker->normalize();
 
   if (m_LDInfo.options().verbose()) {
     outs() << "MCLinker (LLVM Sub-project) - ";
@@ -458,22 +458,22 @@ bool SectLinker::doFinalization(Module &pM)
   }
 
   // 4. and 5. - check if we can do static linking and if we use split-stack.
-  if (!m_pLDDriver->linkable())
+  if (!m_pLinker->linkable())
     return true;
 
   // 6. - read all symbol tables of input files.
-  m_pLDDriver->readSymbolTables();
+  m_pLinker->readSymbolTables();
 
   // 7. - symbol resolution
-  m_pLDDriver->mergeSymbolTables();
+  m_pLinker->mergeSymbolTables();
 
   // 8. - add undefined symbols
-//  m_pLDDriver->addUndefinedSymbols();
+//  m_pLinker->addUndefinedSymbols();
 
   
 /**
-  m_pLDDriver->relocation();
-  m_pLDDriver->writeOut();
+  m_pLinker->relocation();
+  m_pLinker->writeOut();
 **/
 }
 

@@ -1,4 +1,4 @@
-//===- MCLinker.h ---------------------------------------------------------===//
+//===- MCLinker.h -------------------------------------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -6,55 +6,56 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LINKER_H
-#define MCLD_LINKER_H
+#ifndef MCLDDRIVER_H
+#define MCLDDRIVER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include "llvm/ADT/StringRef.h"
+#include "mcld/MC/MCLDInfo.h"
 
-#include <list>
-#include "mcld/MC/MCLDCommand.h"
+namespace mcld {
+class MCLDInfo;
+class TargetLDBackend;
 
-namespace mcld
+//===----------------------------------------------------------------------===//
+/// MCLinker - MCLinker provides APIs of a linker.
+///
+class MCLinker
 {
+public:
+  MCLinker(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
+  ~MCLinker();
 
-  class MCLDCommand;
-  class MCLDFile;
-  class MCLDLayout;
+  void normalize();
 
-  class TargetLDBackend;
-  class MCLDInfo;
+  /// linkable - check the linkability of current MCLDInfo
+  //  Check list:
+  //  - check the Attributes are not violate the constaint
+  //  - check every Input has a correct Attribute
+  bool linkable() const;
 
-  /** \class MCLinker
-   *  \brief MCLinker provides a pass to link object files.
-   *
-   *  \see
-   */
-  class MCLinker {
-  public:
-    explicit MCLinker(TargetLDBackend&, MCLDInfo&);
-    ~MCLinker();
+  /// readSymbolTables - read symbol tables from the input files.
+  //  for each input file, loads its symbol table from file.
+  void readSymbolTables();
 
-    // FIXME: see #80
-    void addCommand( MCLDCommand& pCommand );
-    // FIXME: see #80
-    void setLayout( MCLDLayout& pLayout );
-    void addLdFile( MCLDFile& pLDFile );
+  /// mergeSymbolTables - merge the symbol tables of input files into the
+  /// output's symbol table.
+  void mergeSymbolTables();
 
-    void relocate();
+  /// relocation - applying relocation entries and create relocation
+  /// section in the output files
+  // Create relocation section, asking TargetLDBackend to
+  // read the relocation information into RelocationEntry
+  // and push_back into the relocation section
+  void relocation();
 
-  private:
-    typedef std::list<MCLDCommand> CommandListTy;
-    typedef std::list<MCLDFile> LDFileListTy;
+private:
+  TargetLDBackend &m_LDBackend;
+  MCLDInfo& m_LDInfo;
+};
 
-    CommandListTy m_CommandList;
-    LDFileListTy m_LDFileList;
-
-    TargetLDBackend& m_pBackend;
-    MCLDInfo& m_pInfo;
-  };
-
-} // namespace of BOLD
+} //end namespace mcld
 
 #endif
 

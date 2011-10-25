@@ -26,7 +26,7 @@ namespace mcld
 {
 
 /** \class MCLDInfo
- *  \brief MCLDInfo is composed of argumments of MCLDDriver.
+ *  \brief MCLDInfo is composed of argumments of MCLinker.
  *   options()        - the general options.
  *   inputs()         - the tree of inputs
  *   bitcode()        - the bitcode being linked
