@@ -16,12 +16,14 @@
 namespace mcld
 {
 
-class MCArchiveReader;
 class MCObjectReader;
-class MCObjectWriter;
-class MCGNUArchiveReader;
 class MCELFObjectTargetReader;
-class MCELFObjectTargetWriter;
+class MCArchiveReader;
+class MCGNUArchiveReader;
+class LDWriter;
+class ELFDSOWriter;
+class ELFEXEWriter;
+class MemoryArea;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -36,15 +38,16 @@ public:
 
   MCArchiveReader *getArchiveReader();
   MCObjectReader  *getObjectReader();
-  MCObjectWriter  *getObjectWriter();
+  LDWriter *getDSOWriter(MemoryArea *Area, bool _IsLittleEndian);
+  LDWriter *getEXEWriter(MemoryArea *Area, bool _IsLittleEndian);
 
 protected:
   virtual MCELFObjectTargetReader *createObjectTargetReader() const = 0;
-  virtual MCELFObjectTargetWriter *createObjectTargetWriter() const = 0;
 
   MCObjectReader *m_pObjectReader;
   MCArchiveReader *m_pArchiveReader;
-  MCObjectWriter *m_pObjectWriter;
+  ELFDSOWriter *m_pELFDSOWriter;
+  ELFEXEWriter *m_pELFEXEWriter;
 };
 
 } // namespace of mcld

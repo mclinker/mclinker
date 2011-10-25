@@ -6,17 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Target/GNULDBackend.h"
+
+#include "mcld/LD/ELFDSOWriter.h"
+#include "mcld/LD/ELFEXEWriter.h"
 #include "mcld/MC/MCGNUArchiveReader.h"
 #include "mcld/MC/MCELFObjectReader.h"
-#include "mcld/MC/MCELFObjectWriter.h"
+#include "mcld/Target/GNULDBackend.h"
 
-using namespace mcld;
+
+namespace mcld{
+
+class MemoryArea;
 
 //==========================
 // GNULDBackend
 GNULDBackend::GNULDBackend()
-  : m_pObjectReader(0), m_pArchiveReader(0), m_pObjectWriter(0) {
+  : m_pObjectReader(0), m_pArchiveReader(0), m_pELFDSOWriter(0), m_pELFEXEWriter(0) {
 }
 
 GNULDBackend::~GNULDBackend()
@@ -25,28 +30,38 @@ GNULDBackend::~GNULDBackend()
     delete m_pObjectReader;
   if (m_pArchiveReader)
     delete m_pArchiveReader;
-  if (m_pObjectWriter)
-    delete m_pObjectWriter;
+  if (m_pELFDSOWriter)
+    delete m_pELFDSOWriter;
+  if (m_pELFEXEWriter)
+    delete m_pELFEXEWriter;
 }
 
-mcld::MCObjectReader *GNULDBackend::getObjectReader()
+MCObjectReader *GNULDBackend::getObjectReader()
 {
   if (!m_pObjectReader)
     m_pObjectReader = new MCELFObjectReader(createObjectTargetReader());
   return m_pObjectReader;
 }
 
-mcld::MCArchiveReader *GNULDBackend::getArchiveReader()
+MCArchiveReader *GNULDBackend::getArchiveReader()
 {
   if (!m_pArchiveReader)
     m_pArchiveReader = new MCGNUArchiveReader();
   return m_pArchiveReader;
 }
 
-mcld::MCObjectWriter *GNULDBackend::getObjectWriter()
+LDWriter *GNULDBackend::getDSOWriter(MemoryArea *Area, bool _IsLittleEndian)
 {
-  if (!m_pObjectWriter)
-    m_pObjectWriter = new MCELFObjectWriter(createObjectTargetWriter());
-  return m_pObjectWriter;
+  if (!m_pELFDSOWriter)
+    m_pELFDSOWriter = new ELFDSOWriter(Area, _IsLittleEndian);
+  return m_pELFDSOWriter;
 }
 
+LDWriter *GNULDBackend::getEXEWriter(MemoryArea *Area, bool _IsLittleEndian)
+{
+  if (!m_pELFEXEWriter)
+    m_pELFEXEWriter = new ELFEXEWriter(Area, _IsLittleEndian);
+  return m_pELFEXEWriter;
+}
+
+} //end namespace mcld

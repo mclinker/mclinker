@@ -11,9 +11,8 @@
 #include "X86.h"
 #include "X86LDBackend.h"
 #include "X86ELFObjectReader.h"
-#include "X86ELFObjectWriter.h"
 
-using namespace mcld;
+namespace mcld {
 
 X86GNULDBackend::X86GNULDBackend()
 {
@@ -27,13 +26,6 @@ MCELFObjectTargetReader *X86GNULDBackend::createObjectTargetReader() const
 {
   return new X86ELFObjectReader();
 }
-
-MCELFObjectTargetWriter *X86GNULDBackend::createObjectTargetWriter() const
-{
-  return new X86ELFObjectWriter();
-}
-
-namespace mcld {
 
 //===----------------------------------------------------------------------===//
 /// createX86LDBackend - the help funtion to create corresponding X86LDBackend
@@ -61,11 +53,11 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
   return new X86GNULDBackend();
 }
 
-} // namespace of mcld
-
 //=============================
 // Force static initialization.
 extern "C" void LLVMInitializeX86LDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheX86Target, createX86LDBackend);
 }
+
+} // namespace of mcld

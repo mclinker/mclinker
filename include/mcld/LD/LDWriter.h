@@ -24,12 +24,12 @@ public:
   virtual void writeFile() = 0;
 
 protected:
-  virtual void writeHeader() = 0;
-
-protected:
   LDWriter(MemoryArea *Area, bool _IsLittleEndian)
   : m_pArea(Area), IsLittleEndian(_IsLittleEndian) {}
 
+  virtual void writeHeader() = 0;
+
+protected:
   virtual ~LDWriter() {};
 
   class RegionWriter {

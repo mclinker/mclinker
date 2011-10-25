@@ -31,12 +31,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCELFObjectReader.cpp \
 	${INCDIR}/MC/MCELFObjectTargetReader.h \
 	${LIBDIR}/MC/MCELFObjectTargetReader.cpp \
-	${INCDIR}/MC/MCObjectWriter.h \
-	${LIBDIR}/MC/MCObjectWriter.cpp \
-	${INCDIR}/MC/MCELFObjectWriter.h \
-	${LIBDIR}/MC/MCELFObjectWriter.cpp \
-	${INCDIR}/MC/MCELFObjectTargetWriter.h \
-	${LIBDIR}/MC/MCELFObjectTargetWriter.cpp \
 	${INCDIR}/MC/MCArchiveReader.h \
 	${LIBDIR}/MC/MCArchiveReader.cpp \
 	${INCDIR}/MC/MCGNUArchiveReader.h \
@@ -49,8 +43,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
-	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
-	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
@@ -61,8 +53,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
 	${LIBDIR}/Target/X86/X86ELFObjectReader.h \
 	${LIBDIR}/Target/X86/X86ELFObjectReader.cpp \
-	${LIBDIR}/Target/X86/X86ELFObjectWriter.h \
-	${LIBDIR}/Target/X86/X86ELFObjectWriter.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
@@ -126,6 +116,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/LDSymbol.h \
 	${INCDIR}/LD/ELFDSOWriter.h \
 	${LIBDIR}/LD/ELFDSOWriter.cpp \
+	${INCDIR}/LD/ELFEXEWriter.h \
+	${LIBDIR}/LD/ELFEXEWriter.cpp \
 	${INCDIR}/LD/LDContext.h \
 	${INCDIR}/LD/LDELFWriter.h \
 	${LIBDIR}/LD/LDSymbol.cpp \

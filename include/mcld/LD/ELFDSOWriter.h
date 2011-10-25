@@ -15,7 +15,7 @@
 class MemoryArea;
 
 namespace mcld {
-class ELFDSOWriter : private LDELFWriter {
+class ELFDSOWriter : public LDELFWriter {
 public:
   ELFDSOWriter(MemoryArea *Area, bool _IsLittleEndian)
   : LDELFWriter(Area, _IsLittleEndian) {}

@@ -23,7 +23,6 @@ public:
 
 private:
   MCELFObjectTargetReader *createObjectTargetReader() const;
-  MCELFObjectTargetWriter *createObjectTargetWriter() const;
 };
 
 //===----------------------------------------------------------------------===//

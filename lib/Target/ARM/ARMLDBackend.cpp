@@ -11,7 +11,6 @@
 #include "ARM.h"
 #include "ARMLDBackend.h"
 #include "ARMELFObjectReader.h"
-#include "ARMELFObjectWriter.h"
 
 using namespace mcld;
 
@@ -26,11 +25,6 @@ ARMGNULDBackend::~ARMGNULDBackend()
 MCELFObjectTargetReader *ARMGNULDBackend::createObjectTargetReader() const
 {
   return new ARMELFObjectReader();
-}
-
-MCELFObjectTargetWriter *ARMGNULDBackend::createObjectTargetWriter() const
-{
-  return new ARMELFObjectWriter();
 }
 
 namespace mcld {
