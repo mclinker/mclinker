@@ -6,6 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// This file provides a number of APIs used by SectLinker.
+// These APIs do the things which a linker should do.
+//
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLDDRIVER_H
 #define MCLDDRIVER_H
 #ifdef ENABLE_UNITTEST

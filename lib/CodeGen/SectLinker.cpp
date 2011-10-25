@@ -6,6 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// This file implements the SectLinker class.
+//
+//===----------------------------------------------------------------------===//
+
 #include "mcld/ADT/BinTree.h"
 #include "mcld/CodeGen/SectLinker.h"
 #include "mcld/MC/MCLinker.h"

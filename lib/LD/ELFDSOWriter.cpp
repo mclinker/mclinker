@@ -6,6 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// This file implements the ELFDSOWriter,
+// which writes the result of linking into a ELF .so file.
+//
+//===----------------------------------------------------------------------===//
 
 #include "mcld/LD/ELFDSOWriter.h"
 

@@ -6,11 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+//  Output class inherits MCLDFile, which is used to represent a output file.
+//
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLD_OUTPUT_H
 #define MCLD_OUTPUT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include "mcld/MC/MCLDFile.h"
 #include "mcld/Support/RealPath.h"
 

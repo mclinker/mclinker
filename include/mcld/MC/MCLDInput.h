@@ -6,11 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+//  Input class inherits MCLDFile, which is used to represent a input file
+//
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLD_INPUT_H
 #define MCLD_INPUT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include "mcld/MC/MCLDFile.h"
 
 namespace mcld

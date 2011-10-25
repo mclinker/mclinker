@@ -6,6 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// ELFDSOWriter writes the result of linking into a ELF .so file.
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef MCLD_LD_ELFDSOWRITER
 #define MCLD_LD_ELFDSOWRITER

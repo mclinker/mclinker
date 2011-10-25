@@ -6,6 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// MCLDFile represents a file, the content of the file is stored in LDContext.
+//
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLD_LDFILE_H
 #define MCLD_LDFILE_H
 #ifdef ENABLE_UNITTEST
@@ -24,7 +29,6 @@
 namespace mcld
 {
 class LDContext;
-class MCContext;
 class MemoryArea;
 
 /** \class MCLDFile

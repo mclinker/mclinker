@@ -6,6 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+//  LDWriter provides an interface used by MCLinker,
+//  which writes the result of linking into a .so file or a executable.
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef MCLD_LD_LDWRITER
 #define MCLD_LD_LDWRITER
@@ -102,6 +107,7 @@ protected:
       }
 
     private:
+      /// Private operator new - Prohibiting heap-based objects
       void *operator new(size_t size) {}
 
     private:

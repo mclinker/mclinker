@@ -25,10 +25,9 @@ class ELFDSOWriter;
 class ELFEXEWriter;
 class MemoryArea;
 
-/** \class GNULDBackend
- *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
- *  LDBackend.
- */
+/// class GNULDBackend:
+/// brief GNULDBackend provides a common interface for all GNU Unix-OS
+/// LDBackend.
 class GNULDBackend : public TargetLDBackend
 {
 protected:

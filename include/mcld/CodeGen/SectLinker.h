@@ -6,6 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+//SectLinker is a base class inherited by target specific linker.
+//This class primarily handles common functionality used by all linkers.
+//
+//===----------------------------------------------------------------------===//
+
 #ifndef SECTION_LINKER_H
 #define SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST

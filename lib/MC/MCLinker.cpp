@@ -6,6 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// This file implements the MCLinker class
+//
+//===----------------------------------------------------------------------===//
+
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCObjectReader.h"
 #include "mcld/MC/MCArchiveReader.h"

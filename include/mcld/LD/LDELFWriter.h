@@ -6,6 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// LDELFWriter provides the APIs which handles
+// the common functionality used by ELFDSOWriter and ELFEXEWriter.
+//
+//===----------------------------------------------------------------------===//
+
 
 #ifndef MCLD_LD_LDELFWRITER
 #define MCLD_LD_LDELFWRITER
