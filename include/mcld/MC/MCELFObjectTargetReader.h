@@ -12,50 +12,19 @@
 #include <gtest.h>
 #endif
 
-#include <cstring>
-#include <stdint.h>
-
-namespace llvm {
-  class MCValue;
-  class MCSymbol;
-  class MCFixup;
-  class MCAssembler;
-  class MCFragment;
-}
-
 namespace mcld
 {
-  using namespace llvm;
 
-/** \class MCELFObjectTargetReader
- *  \brief MCELFObjectTargetReader provides an abstract ELF interface
- *         for target-dependent object readers.
- *
- *  \see
- */
+/// class MCELFObjectTargetReader:
+/// MCELFObjectTargetReader provides an abstract ELF interface
+/// for target-dependent object readers.
 class MCELFObjectTargetReader
 {
-protected:
-  MCELFObjectTargetReader();
-
 public:
   virtual ~MCELFObjectTargetReader();
 
-  virtual bool hasRelocationAddend() = 0;
-
-  virtual unsigned getRelocType(const MCValue&,
-                                const MCFixup&,
-                                bool IsPCRel,
-                                bool IsRelocWithSymbol,
-                                int64_t) = 0;
-
-  virtual const MCSymbol* explicitRelSym(const MCAssembler&,
-                                         const MCValue&,
-                                         const MCFragment&,
-                                         const MCFixup&,
-                                         bool) const {
-    return NULL;
-  }
+protected:
+  MCELFObjectTargetReader();
 };
 
 } // namespace of mcld

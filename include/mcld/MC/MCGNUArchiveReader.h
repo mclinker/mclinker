@@ -17,11 +17,8 @@
 namespace mcld
 {
 
-/** \class MCGNUArchiveReader
- *  \brief MCGNUArchiveReader reads the target-independent parts of an archive file.
- *
- *  \see
- */
+/// MCGNUArchiveReader - MCGNUArchiveReader reads
+/// the target-independent parts of an archive file.
 class MCGNUArchiveReader : public MCArchiveReader
 {
 public:

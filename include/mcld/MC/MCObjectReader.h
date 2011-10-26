@@ -34,13 +34,6 @@ public:
   virtual Input::Type fileType(mcld::Input &pFile) const = 0;
   virtual llvm::error_code readObject(const std::string &ObjectFile,
                                       MCLDFile &) = 0;
-
-  virtual bool hasRelocationAddend() = 0;
-  virtual unsigned getRelocType(const MCValue& Target,
-                                const MCFixup& Fixup,
-                                bool IsPCRel,
-                                bool IsRelocWithSymbol,
-                                int64_t Addend) = 0;
 };
 
 } // namespace of mcld

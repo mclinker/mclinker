@@ -11,20 +11,17 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include "mcld/MC/MCELFArchiveTargetReader.h"
 
 namespace mcld
 {
 
-/** \class X86ELFArchiveReader
- *  \brief X86ELFArchiveReader is a target-dependent reader for ELF archive files.
- *
- *  \see
- */
+/// X86ELFArchiveReader - X86ELFArchiveReader is a
+/// target-dependent reader for ELF archive files.
 class X86ELFArchiveReader : public MCELFArchiveTargetReader
 {
 };
-
 
 } // namespace of mcld
 

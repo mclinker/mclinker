@@ -43,6 +43,7 @@ private:
 public:
   virtual ~MCArchiveReader()
   { }
+
   /// Read an archive and extract each member in.
   /// Construct the coresponding Input for each member.
   InputTree *readArchive(Input &input);
@@ -53,9 +54,9 @@ private:
   /// Map file to MemoryBuffer
   bool mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                    sys::fs::Path archPath);
- 
-  /// set up the archive, including 
-  /// first, read symbol table 
+
+  /// set up the archive, including
+  /// first, read symbol table
   /// second, read extended file name which is used in thin archive
   InputTree *setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                              size_t off);
@@ -70,10 +71,10 @@ private:
   void readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                       std::vector<ArchiveMapEntry> &archiveMap,
                       off_t start,
-                      size_t size); 
+                      size_t size);
 
   llvm::MemoryBuffer *getMemberFile(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                    std::vector<ArchiveMapEntry> &archiveMap); 
+                                    std::vector<ArchiveMapEntry> &archiveMap);
 
 };
 

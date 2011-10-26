@@ -11,20 +11,17 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include "mcld/MC/MCELFArchiveTargetReader.h"
 
 namespace mcld
 {
 
-/** \class ARMELFArchiveReader
- *  \brief ARMELFArchiveReader is a target-dependent reader for ELF archive files.
- *
- *  \see
- */
+/// ARMELFArchiveReader - ARMELFArchiveReader is
+/// a target-dependent reader for ELF archive files.
 class ARMELFArchiveReader : public MCELFArchiveTargetReader
 {
 };
-
 
 } // namespace of mcld
 

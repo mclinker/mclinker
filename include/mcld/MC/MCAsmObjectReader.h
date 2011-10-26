@@ -51,7 +51,6 @@ public:
                                 const llvm::MCAsmLayout &Layout);
 
   /// RecordRelocation - record relocations
-  /// When a 
   void RecordRelocation(const llvm::MCAssembler &Asm,
                         const llvm::MCAsmLayout &Layout,
                         const llvm::MCFragment *Fragment,

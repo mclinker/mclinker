@@ -158,8 +158,8 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
     }
 
     if (sh->sh_type == SHT_REL || sh->sh_type == SHT_RELA) {
-      // TODO(Nowar): Call TargetLDBackend to read into RelocationEntry.
-      //              The question is: how to do?
+      // TODO: Call TargetLDBackend to read into RelocationEntry.
+      //       The question is: how to do?
     }
 
    // const MCSectionELF *ShEntry =
@@ -185,20 +185,25 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
   return ec;
 }
 
+// FIXME: Should it be removed?
 bool MCELFObjectReader::hasRelocationAddend() {
-  return m_pTargetReader->hasRelocationAddend();
+  return false;
+//  return m_pTargetReader->hasRelocationAddend();
 }
 
+
+// FIXME: Should it be removed?
 unsigned MCELFObjectReader::getRelocType(const MCValue& Target,
                                          const MCFixup& Fixup,
                                          bool IsPCRel,
                                          bool IsRelocWithSymbol,
                                          int64_t Addend) {
-  return m_pTargetReader->getRelocType(Target,
-                                       Fixup,
-                                       IsPCRel,
-                                       IsRelocWithSymbol,
-                                       Addend);
+  return 0;
+//  return m_pTargetReader->getRelocType(Target,
+//                                       Fixup,
+//                                       IsPCRel,
+//                                       IsRelocWithSymbol,
+//                                       Addend);
 }
 
 
