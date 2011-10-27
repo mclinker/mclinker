@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <string>
 #include <stack>
+#include <unistd.h>
 
 namespace mcld{
 namespace sys{
@@ -265,7 +266,8 @@ void close_dir(Directory& pDir)
 
 void get_pwd(std::string& pPWD)
 {
-  char* pwd = get_current_dir_name();
+  char* pwd = (char*)malloc(PATH_MAX);
+  getcwd(pwd, PATH_MAX);
   pPWD.assign(pwd);
   free(pwd);
 }
