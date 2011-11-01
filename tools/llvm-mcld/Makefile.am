@@ -61,6 +61,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLinker.cpp \
 	${INCDIR}/MC/MCAsmObjectReader.h \
 	${LIBDIR}/MC/MCAsmObjectReader.cpp \
+	${INCDIR}/MC/MCLDDriver.h \
+	${LIBDIR}/MC/MCLDDriver.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \
