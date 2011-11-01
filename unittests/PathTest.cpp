@@ -46,17 +46,17 @@ TEST_F( PathTest, should_exist ) {
   const std::string root = "/etc/hosts";
   m_pTestee->assign(root);
   EXPECT_TRUE(exists(*m_pTestee));
-  
+
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(exists(*m_pTestee));
 }
 
 TEST_F( PathTest, should_not_exist ) {
-  const std::string root = "/fuck";
+  const std::string root = "/luck";
   m_pTestee->assign(root);
   EXPECT_FALSE(exists(*m_pTestee));
-  
+
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_FALSE(exists(*m_pTestee));
@@ -75,7 +75,7 @@ TEST_F( PathTest, should_is_directory ) {
 }
 
 TEST_F( PathTest, should_not_is_directory ) {
-  const std::string root = "/fuck";
+  const std::string root = "/luck";
   m_pTestee->assign(root);
   EXPECT_FALSE(exists(*m_pTestee));
   EXPECT_FALSE(is_directory(*m_pTestee));
@@ -93,7 +93,7 @@ TEST_F( PathTest, should_equal ) {
 
   std::cerr << "should be ccc, but is :" << m_pTestee->generic_string() << std::endl;
   EXPECT_TRUE(*m_pTestee==*p2);
-  
+
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(*m_pTestee==*m_pTestee);
@@ -106,7 +106,7 @@ TEST_F( PathTest, should_not_equal ) {
 //  p2->assign(root);
   m_pTestee->assign(root);
   EXPECT_TRUE(*m_pTestee!=*p2);
-  
+
   delete m_pTestee;
   m_pTestee = new Path(root);
   EXPECT_TRUE(*m_pTestee!=*p2);
@@ -114,7 +114,7 @@ TEST_F( PathTest, should_not_equal ) {
 }
 
 TEST_F( PathTest, append_success ) {
-  
+
   const std::string root = "aa/";
   m_pTestee->assign(root);
   m_pTestee->append("aaa");
@@ -138,6 +138,5 @@ TEST_F( PathTest, should_become_generic_string ) {
   m_pTestee->assign("/etc/../dev/../usr//lib//");
   std::cerr << m_pTestee->native() << std::endl;
   EXPECT_STREQ("/usr/lib/", m_pTestee->generic_string().c_str());
-  EXPECT_TRUE(is_directory(*m_pTestee));
 }
 
