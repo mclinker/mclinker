@@ -4,7 +4,7 @@
 ============
 Introduction
 ============
-  MCLinker is a BSD license linkage editor. 
+  MCLinker is a linker using LLVM machine code (MC) layer.
 
 ========================
 Compilation Instructions
