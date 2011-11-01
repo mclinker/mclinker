@@ -1,0 +1,15 @@
+//=== ------------------------------------------------------------------ ===//
+//                        MCLinker Project                                  //
+//=== ------------------------------------------------------------------ ===//
+
+  gtest/ contains Google Test 1.6.0. MCLinker removes the original building
+system and integrates gtest in MCLinker's building system.
+
+===========
+Enhancement
+===========
+=======
+Details
+=======
+  see [ticket:37]
+
