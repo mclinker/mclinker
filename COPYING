@@ -1,8 +1,9 @@
 
-==============================================================================
-Copyrights and Licenses for Third Party Software Distributed with Bold Project
-==============================================================================
+================================================
+Copyrights and Licenses for Third Party Software
+Distributed with MCLinker Project
+================================================
 Program             Directory
 -------             ---------
-Google Test         bold/utils/gtest
+Google Test         ${MCLinker}/utils/gtest
 
