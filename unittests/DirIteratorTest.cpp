@@ -51,17 +51,12 @@ TEST_F( DirIteratorTest, open_dir ) {
 
   Directory::iterator entry = m_pDir->begin();
   Directory::iterator enEnd = m_pDir->end();
-  static int counter = 0;
-  while( entry!=enEnd ) {
-    if (0 == entry.path()) {
-      std::cerr << "\tpath is null" << std::endl;
-    }
-    else {
-      std::cerr << "\t" <<  counter << ":" << entry.path()->native() << "<EOL>" << std::endl;
-    }
 
-    std::cerr << "\t\titerator increase" << std::endl;
-    counter++;
+  size_t size = 0;
+  while( entry!=enEnd ) {
+    if (0 != entry.path())
+      size = entry.path()->native().size();
+
     ++entry;
   }
 }

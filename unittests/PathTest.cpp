@@ -91,7 +91,6 @@ TEST_F( PathTest, should_equal ) {
 
   Path* p2 = new Path("ccc///////");
 
-  std::cerr << "should be ccc, but is :" << m_pTestee->generic_string() << std::endl;
   EXPECT_TRUE(*m_pTestee==*p2);
 
   delete m_pTestee;
@@ -136,7 +135,6 @@ TEST_F( PathTest, append_success ) {
 
 TEST_F( PathTest, should_become_generic_string ) {
   m_pTestee->assign("/etc/../dev/../usr//lib//");
-  std::cerr << m_pTestee->native() << std::endl;
   EXPECT_STREQ("/usr/lib/", m_pTestee->generic_string().c_str());
 }
 
