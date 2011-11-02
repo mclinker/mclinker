@@ -1,0 +1,55 @@
+
+.PHONY: FORCE
+
+LEVEL = ..
+DIRS  =
+
+
+SRCDIR=$(realpath $(LEVEL))
+MCLINKER=$(SRCDIR)/debug/MCLinker
+
+
+all:: check-local
+
+# FIXME: hack for "make check"
+check:: check-local
+
+# 'lit' is the default test runner.
+check-local:: check-local-lit
+
+ifdef VERBOSE
+RUNTESTFLAGS := $(VERBOSE)
+LIT_ARGS := -v
+else
+LIT_ARGS := -s -v
+endif
+
+# ulimits like these are redundantly enforced by the buildbots, so
+# just removing them here won't work.
+# Both AuroraUX & Solaris do not have the -m flag for ulimit
+ifeq ($(HOST_OS),SunOS)
+ULIMIT=ulimit -t 600 ; ulimit -d 512000 ; ulimit -v 512000 ;
+else # !SunOS
+ifeq ($(HOST_OS),AuroraUX)
+ULIMIT=ulimit -t 600 ; ulimit -d 512000 ; ulimit -v 512000 ;
+else # !AuroraUX
+# Fedora 13 x86-64 python fails with -v 76800
+ULIMIT=ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ;
+endif # AuroraUX
+endif # SunOS
+
+
+check-local-lit:: lit.site.cfg
+	( $(ULIMIT) \
+	  $(SRCDIR)/utils/lit/lit.py $(LIT_ARGS) . )
+
+lit.site.cfg: FORCE
+	@echo "Making MCLinker 'lit.site.cfg' file..."
+	@echo s=@MCLINKER@=$(MCLINKER)=g > lit.tmp
+	@echo s=@MCLINKER_SOURCE_ROOT@=$(SRCDIR)=g >> lit.tmp
+	@sed -f lit.tmp lit.site.cfg.in > $@
+	@-rm -f lit.tmp
+
+clean: FORCE
+	rm -f lit.site.cfg
+	rm -rf `find $(SRCDIR)/test -name Output -type d -print`
