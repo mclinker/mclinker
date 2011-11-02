@@ -363,6 +363,75 @@ public:
 
 };
 
+template<>
+class MallocAllocator<void>
+{
+public:
+  typedef size_t      size_type;
+  typedef ptrdiff_t   difference_type;
+  typedef void*       pointer;
+  typedef const void* const_pointer;
+  typedef void*       reference;
+  typedef const void* const_reference;
+  typedef void*       value_type;
+
+  template<typename OtherDataType>
+  struct rebind
+  {
+    typedef MallocAllocator<OtherDataType> other;
+  };
+
+public:
+  MallocAllocator() throw()
+  { }
+
+  MallocAllocator(const MallocAllocator&) throw()
+  { }
+
+  ~MallocAllocator() throw()
+  { }
+
+  size_type max_size() const throw() 
+  { return size_t(-1) / sizeof(void*); }
+
+  pointer address(reference X) const
+  { return X; }
+
+  const_pointer address(const_reference X) const
+  { return X; }
+
+  template<typename DataType>
+  DataType* allocate(size_type pNumOfElements, const void* = 0) {
+    return static_cast<DataType*>(
+                       std::malloc(pNumOfElements*sizeof(DataType)));
+  }
+
+  pointer allocate(size_type pNumOfElements, const void* = 0) {
+    return std::malloc(pNumOfElements);
+  }
+
+  template<typename DataType>
+  void deallocate(DataType* pObject, size_type)
+  { std::free(static_cast<void*>(pObject)); }
+
+  void deallocate(pointer pObject, size_type)
+  { std::free(pObject); }
+
+  template<typename DataType>
+  void construct(DataType* pObject, const DataType& pValue) 
+  { /* do nothing */ }
+
+  void construct(pointer pObject, const_reference pValue)
+  { /* do nothing */ }
+
+  template<typename DataType>
+  void destroy(DataType* pObject)
+  { /* do nothing */ }
+
+  void destroy(pointer pObject)
+  { /* do nothing */ }
+};
+
 } // namespace mcld
 
 #endif

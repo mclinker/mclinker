@@ -11,109 +11,237 @@
 // template implementation of HashTable
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::HashTable(size_type pSize)
-  : HashTableImpl<HashEntryTy, HashFunctionTy>(pSize), m_EntryFactory()
+         typename AllocatorTy>
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::HashTable(size_type pSize)
+  : HashTableImpl<HashEntryTy, HashFunctionTy>(pSize), m_Alloc()
+>>>>>>> A HashTable whose hash function is changable
 {
 }
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::~HashTable()
+         typename AllocatorTy>
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::~HashTable()
 {
-  if (BaseTy::empty())
-    return;
-
-  /** clean up **/
-  for (unsigned int i=0; i < BaseTy::m_NumOfBuckets; ++i) {
-    if (bucket_type::getEmptyBucket() != BaseTy::m_Buckets[i].Entry &&
-        bucket_type::getTombstone() != BaseTy::m_Buckets[i].Entry ) {
-      m_EntryFactory.destroy(BaseTy::m_Buckets[i].Entry);
-    }
-  }
 }
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-void HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::clear()
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::begin()
+{
+  return iterator(this, 0);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::end()
+{
+  return iterator(0, 0);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::const_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::begin() const
+{
+  return const_iterator(this, 0);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::const_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::end() const
+{
+  return const_iterator(0, 0);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::bucket_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::begin(
+    const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey)
+{
+  return bucket_iterator(this, pKey);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::bucket_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::end(
+    const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey)
+{
+  return bucket_iterator();
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::const_bucket_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::begin(
+  const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey) const
+{
+  return const_bucket_iterator(this, pKey);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::const_bucket_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::end(
+  const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey) const
+{
+  return const_bucket_iterator();
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+void HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::clear()
 {
   if (BaseTy::empty())
     return;
-
-  /** clean up **/
-  for (unsigned int i=0; i < BaseTy::m_NumOfBuckets; ++i) {
-    if (bucket_type::getEmptyBucket() != BaseTy::m_Buckets[i].Entry ) {
-      if (bucket_type::getTombstone() != BaseTy::m_Buckets[i].Entry ) {
-        m_EntryFactory.destroy(BaseTy::m_Buckets[i].Entry);
-      }
-      BaseTy::m_Buckets[i].Entry = bucket_type::getEmptyBucket();
-    }
+  iterator entry, eEnd = end();
+  for (entry = begin(); entry != eEnd; ++entry) {
+    entry.getEntry()->~HashEntryTy();
+    m_Alloc.deallocate(entry.getEntry());
+    entry.getEntry() = BucketTy::getEmptyBucket();
   }
-  BaseTy::m_NumOfEntries = 0;
+  BaseTy::m_NumOfItems = 0;
   BaseTy::m_NumOfTombstones = 0;
 }
 
-/// insert - insert a new element to the container. If the element already
-//  exist, return the element.
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::entry_type*
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::insert(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey,
-  bool& pExist)
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::value_type*
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::emplace(llvm::StringRef pString, bool& pExist)
 {
-  unsigned int index = BaseTy::lookUpBucketFor(pKey);
-  bucket_type& bucket = BaseTy::m_Buckets[index];
-  entry_type* entry = bucket.Entry;
-  if (bucket_type::getEmptyBucket() != entry &&
-      bucket_type::getTombstone() != entry) {
+  value_type* result = 0;
+  unsigned int index = BaseTy::lookUpBucketFor(pString);
+  BucketTy &bucket = BaseTy::m_Buckets[index];
+  if (BucketTy::getEmptyBucket() != bucket.Item &&
+      BucketTy::getTombstone() != bucket.Item) {
     // Already exist in the table
     pExist = true;
-    return entry;
+    return bucket.Item;
+  }
+  if (BucketTy::getTombstone() == bucket.Item) {
+    --BaseTy::m_NumOfTombstones;
   }
 
-  // find a tombstone
-  if (bucket_type::getTombstone() == entry)
-    --BaseTy::m_NumOfTombstones;
+  unsigned int str_len = pString.size();
+  unsigned int alloc_size = sizeof(HashEntryTy)+str_len;
+  result = static_cast<HashEntryTy*>(m_Alloc.allocate(alloc_size));
+  new (result) HashEntryTy();
+  result->setKey(pString.data(), str_len);
 
-  entry = bucket.Entry = m_EntryFactory.produce(pKey);
-  ++BaseTy::m_NumOfEntries;
-  BaseTy::mayRehash();
-  return entry;
+  bucket.Item = result;
+  ++BaseTy::m_NumOfItems;
+
+  rehash();
+  pExist =false;
+  return result;
 }
 
-/// erase - remove the elements with the pKey
-//  @return the number of removed elements.
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::erase(
-        const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::value_type*
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::emplace(const char* pString, bool &pExist)
 {
-  int index;
-  if (-1 == (index = BaseTy::findKey(pKey)))
-    return 0;
+  value_type* result = 0;
+  llvm::StringRef llvm_string(pString);
+  unsigned int index = BaseTy::lookUpBucketFor(llvm_string);
+  BucketTy &bucket = BaseTy::m_Buckets[index];
+  if (BucketTy::getEmptyBucket() != bucket.Item &&
+      BucketTy::getTombstone() != bucket.Item) {
+    // Already exist in the table
+    pExist = true;
+    return bucket.Item;
+  }
+  if (BucketTy::getTombstone() == bucket.Item) {
+    --BaseTy::m_NumOfTombstones;
+  }
 
-  bucket_type& bucket = BaseTy::m_Buckets[index];
-  m_EntryFactory.destroy(bucket.Entry);
-  bucket.Entry = bucket_type::getTombstone();
+  unsigned int str_len = llvm_string.size();
+  unsigned int alloc_size = sizeof(HashEntryTy)+str_len;
+  result = static_cast<HashEntryTy*>(m_Alloc.allocate(alloc_size));
+  new (result) HashEntryTy();
+  result->setKey(llvm_string.data(), str_len);
 
-  --BaseTy::m_NumOfEntries;
-  ++BaseTy::m_NumOfTombstones;
-  BaseTy::mayRehash();
-  return 1;
+  bucket.Item = result;
+  ++BaseTy::m_NumOfItems;
+
+  rehash();
+  pExist = false;
+  return result;
 }
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::find(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::value_type*
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::emplace(const std::string& pString, bool &pExist)
+{
+  value_type* result = 0;
+  llvm::StringRef llvm_string(pString);
+  unsigned int index = BaseTy::lookUpBucketFor(llvm_string);
+  BucketTy &bucket = BaseTy::m_Buckets[index];
+  if (BucketTy::getEmptyBucket() != bucket.Item &&
+      BucketTy::getTombstone() != bucket.Item) {
+    // Already exist in the table
+    pExist = true;
+    return bucket.Item;
+  }
+  if (BucketTy::getTombstone() == bucket.Item) {
+    --BaseTy::m_NumOfTombstones;
+  }
+
+  unsigned int str_len = llvm_string.size();
+  unsigned int alloc_size = sizeof(HashEntryTy)+str_len;
+  result = static_cast<HashEntryTy*>(m_Alloc.allocate(alloc_size));
+  new (result) HashEntryTy();
+  result->setKey(llvm_string.data(), str_len);
+
+  bucket.Item = result;
+  ++BaseTy::m_NumOfItems;
+
+  rehash();
+  pExist = false;
+  return result;
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::size_type
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::erase(
+        const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey)
+{
+  iterator bucket, bEnd = end(pKey);
+  size_type counter = 0;
+  for (bucket = begin(pKey); bucket != bEnd; ++bucket, ++counter) {
+    bucket.getEntry()->~HashEntryTy();
+    m_Alloc.deallocate(bucket.getEntry());
+    bucket.getEntry() = BucketTy::getEmptyBucket();
+  }
+  rehash();
+  return counter;
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::find(llvm::StringRef pKey)
 {
   int index;
   if (-1 == (index = BaseTy::findKey(pKey)))
@@ -123,10 +251,9 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::find(
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::find(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::const_iterator
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::find(llvm::StringRef pKey) const
 {
   int index;
   if (-1 == (index = BaseTy::findKey(pKey)))
@@ -136,10 +263,10 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::find(
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::count(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
+         typename AllocatorTy>
+typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::size_type
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::count(
+  const typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::key_type& pKey) const
 {
   const_iterator bucket, bEnd = end(pKey);
   size_type count = 0;
@@ -150,104 +277,19 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::count(
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
-float HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::load_factor() const
+         typename AllocatorTy>
+float HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::load_factor() const
 {
-  return ((float)BaseTy::m_NumOfEntries/(float)BaseTy::m_NumOfBuckets);
+  return (BaseTy::m_NumOfItems/BaseTy::m_NumOfBuckets);
 }
 
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
+         typename AllocatorTy>
 void
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::rehash()
-{
-  BaseTy::mayRehash();
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-void
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::rehash(
-       typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type pCount)
+HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::rehash(
+       typename HashTable<HashEntryTy, HashFunctionTy, AllocatorTy>::size_type pCount)
 {
   BaseTy::doRehash(pCount);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin()
-{
-  return iterator(this, 0);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end()
-{
-  return iterator(0, 0);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin() const
-{
-  return const_iterator(this, 0);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end() const
-{
-  return const_iterator(0, 0);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::chain_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin(
-    const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
-{
-  return chain_iterator(this, pKey);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::chain_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end(
-    const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
-{
-  return chain_iterator();
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_chain_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
-{
-  return const_chain_iterator(this, pKey);
-}
-
-template<typename HashEntryTy,
-         typename HashFunctionTy,
-         typename EntryFactoryTy>
-typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_chain_iterator
-HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end(
-  const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
-{
-  return const_chain_iterator();
 }
 
