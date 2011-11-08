@@ -151,7 +151,7 @@ template<typename HashEntryTy,
          typename EntryFactoryTy>
 float HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::load_factor() const
 {
-  return (BaseTy::m_NumOfItems/BaseTy::m_NumOfBuckets);
+  return (BaseTy::m_NumOfEntries/BaseTy::m_NumOfBuckets);
 }
 
 template<typename HashEntryTy,
