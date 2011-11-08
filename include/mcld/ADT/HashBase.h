@@ -43,8 +43,8 @@ public:
 /** \class HashTableImpl
  *  \brief HashTableImpl is the base class of HashTable.
  *
- *  HashTableImpl uses open-addressing, linear probing hash table.
- *  linear probing hash table obviously has high performance when the
+ *  HashTableImpl uses open-addressing, quadratic probing hash table.
+ *  Quadratic probing hash table obviously has high performance when the
  *  load factor is less than 0.7.
  *  The drawback is that the number of the stored items can notbe more
  *  than the size of the hash table.
@@ -67,7 +67,7 @@ class HashTableImpl
 {
 private:
   enum {
-    NumOfInitBuckets = 16
+    NumOfInitBuckets = 17
   };
 
 public:
@@ -112,8 +112,8 @@ protected:
   //  return the index of the element, or -1 when the element does not exist.
   int findKey(const key_type& pKey) const;
 
-  /// mayRehash - check the load_factor, compute the new size, and then doRehash
-  void mayRehash();
+  /// rehash - check the load_factor, compute the new size, and then doRehash
+  void rehash();
 
   /// doRehash - re-new the hash table, and rehash all elements into the new buckets
   void doRehash(unsigned int pNewSize);

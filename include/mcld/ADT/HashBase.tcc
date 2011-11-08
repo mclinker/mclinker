@@ -7,26 +7,23 @@
  *   DY Tsai <dy.tsai@mediatek.com>                                          *
  *   Jason Lin <sh.lin@mediatek.com>                                         *
  ****************************************************************************/
-#include <iostream>
-using namespace std;
 //===--------------------------------------------------------------------===//
 // internal non-member functions
 inline static unsigned int compute_bucket_count(unsigned int pNumOfBuckets)
 {
   static const unsigned int bucket_size[] =
   {
-    1, 3, 17, 37, 67, 97, 197, 419, 977, 2593, 4099, 8209, 12289,
-    16411, 20483, 32771, 49157, 65537, 98317, 131101, 196613
+    1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209, 12289,
+    16411, 24593, 32771, 49157, 65537, 98317, 131101, 196613, 262147, 393241
   };
 
   const int buckets_count = sizeof(bucket_size) / sizeof(bucket_size[0]);
   unsigned int idx = 0;
   do {
-    if (pNumOfBuckets < bucket_size[idx]) {
+    if (pNumOfBuckets < bucket_size[idx])
       return bucket_size[idx];
-    }
     ++idx;
-  } while(idx < buckets_count);
+  } while( idx < buckets_count );
 
   return (pNumOfBuckets+131101); // rare case. increase constantly
 }
@@ -121,10 +118,10 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::lookUpBucketFor(
   unsigned int full_hash = m_Hasher(pKey);
   unsigned int index = full_hash % m_NumOfBuckets;
 
-  const unsigned int probe = 1;
+  unsigned int probe = 1;
   int firstTombstone = -1;
 
-  // linear probing
+  // quadratic probing
   while(true) {
     bucket_type& bucket = m_Buckets[index];
     // If we found an empty bucket, this key isn't in the table yet, return it.
@@ -138,20 +135,17 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::lookUpBucketFor(
       return index;
     }
 
-    if (bucket_type::getTombstone() == bucket.Entry) {
-      if (-1 == firstTombstone) {
+    if (bucket_type::getTombstone() == bucket.Entry && -1 == firstTombstone) {
         firstTombstone = index;
-      }
     }
     else if (bucket.FullHashValue == full_hash) {
-      if (bucket.Entry->compare(pKey)) {
+      // get string, compare, if match, return index
+      if (bucket.Entry->compare(pKey))
         return index;
-      }
     }
 
-    index += probe;
-    if (index == m_NumOfBuckets)
-      index = 0;
+    index = (index+probe) % m_NumOfBuckets; //& (m_NumOfBuckets-1);
+    ++probe;
   }
 }
 
@@ -167,8 +161,8 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::findKey(
   unsigned int full_hash = m_Hasher(pKey);
   unsigned int index = full_hash % m_NumOfBuckets;
 
-  const unsigned int probe = 1;
-  // linear probing
+  unsigned int probe = 1;
+  // quadratic probing
   while (true) {
     bucket_type &bucket = m_Buckets[index];
 
@@ -183,24 +177,19 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::findKey(
       if (bucket.Entry->compare(pKey))
         return index;
     }
-    index += probe;
-    if (index == m_NumOfBuckets)
-      index = 0;
+    index = (index + probe) % m_NumOfBuckets;
+    ++probe;
   }
 }
 
 template<typename HashEntryTy,
          typename HashFunctionTy>
-void HashTableImpl<HashEntryTy, HashFunctionTy>::mayRehash()
+void HashTableImpl<HashEntryTy, HashFunctionTy>::rehash()
 {
-
   unsigned int new_size;
-  // If the hash table is now more than 3/4 full, or if fewer than 1/8 of
-  // the buckets are empty (meaning that many are filled with tombstones),
-  // grow/rehash the table.
-  if ((m_NumOfEntries<<2) > m_NumOfBuckets*3)
+  if (m_NumOfEntries*4 > m_NumOfBuckets*3)
     new_size = compute_bucket_count(m_NumOfBuckets);
-  else if (((m_NumOfBuckets-(m_NumOfEntries+m_NumOfTombstones))<<3) < m_NumOfBuckets)
+  else if (m_NumOfBuckets-(m_NumOfEntries+m_NumOfTombstones) < m_NumOfBuckets/8)
     new_size = m_NumOfBuckets;
   else
     return;
@@ -215,13 +204,12 @@ void HashTableImpl<HashEntryTy, HashFunctionTy>::doRehash(unsigned int pNewSize)
   bucket_type* new_table = (bucket_type*)calloc(pNewSize, sizeof(bucket_type));
 
   // Rehash all the items into their new buckets.  Luckily :) we already have
-  // the hash values available, so we don't have to recall hash function again.
+  // the hash values available, so we don't have to rehash any strings.
   for (bucket_type *IB = m_Buckets, *E = m_Buckets+m_NumOfBuckets; IB != E; ++IB) {
-    if (IB->Entry != bucket_type::getEmptyBucket() &&
-        IB->Entry != bucket_type::getTombstone()) {
+    if (IB->Entry && IB->Entry != bucket_type::getTombstone()) {
       // Fast case, bucket available.
       unsigned full_hash = IB->FullHashValue;
-      unsigned new_bucket = full_hash % pNewSize;
+      unsigned new_bucket = full_hash % pNewSize; //& (pNewSize-1);
       if (bucket_type::getEmptyBucket() == new_table[new_bucket].Entry) {
         new_table[new_bucket].Entry = IB->Entry;
         new_table[new_bucket].FullHashValue = full_hash;
@@ -229,12 +217,10 @@ void HashTableImpl<HashEntryTy, HashFunctionTy>::doRehash(unsigned int pNewSize)
       }
 
       // Otherwise probe for a spot.
-      const unsigned int probe = 1;
+      unsigned int probe = 1;
       do {
-        new_bucket += probe;
-        if (new_bucket == pNewSize)
-          new_bucket = 0;
-      } while (new_table[new_bucket].Entry != bucket_type::getEmptyBucket());
+        new_bucket = (new_bucket + probe++) % pNewSize;
+      } while (new_table[new_bucket].Entry);
 
       // Finally found a slot.  Fill it in.
       new_table[new_bucket].Entry = IB->Entry;
