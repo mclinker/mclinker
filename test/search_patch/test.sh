@@ -1,4 +1,8 @@
 #!/bin/bash
+# RUN: make
+# RUN: setup
+# RUN: testcase
+# RUN: teardown
 
 function setup {
 	make -f ./Makefile.correct
