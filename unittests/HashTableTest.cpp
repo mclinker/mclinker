@@ -7,11 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/ADT/HashTable.h"
-#include "iostream"
-#include "cstdlib"
-// #include "mcld/ADT/HashEntry.h" // DO NOT INCLUDE, it is a part of test
 #include "HashTableTest.h"
+#include "mcld/ADT/HashEntry.h"
+#include "mcld/ADT/HashTable.h"
+#include <iostream>
+#include <cstdlib>
 
 using namespace std;
 using namespace mcld;
@@ -41,33 +41,61 @@ void HashTableTest::TearDown()
 //==========================================================================//
 // Testcases
 //
-class Int
+struct IntCompare
 {
-public:
-  int value;
+  bool operator()(int X, int Y) const
+  { return (X==Y); }
+};
+
+struct IntHash
+{
+  size_t operator()(int pKey) const
+  { return pKey; }
 };
 
 TEST_F( HashTableTest, constructor ) {
-  HashTable<HashEntry<Int>, StringHash<ELF> > hashTable(16);
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > hashTable(16);
   EXPECT_EQ(17, hashTable.numOfBuckets());
   EXPECT_TRUE(hashTable.empty());
-  EXPECT_EQ(0, hashTable.numOfItems());
+  EXPECT_EQ(0, hashTable.numOfEntries());
 }
 
 TEST_F( HashTableTest, allocattion ) {
-  typedef HashTable<HashEntry<Int>, StringHash<RS> > HashTableTy;
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
   HashTableTy *hashTable = new HashTableTy(22);
-  char *str = (char*)malloc(10);
-  sprintf( str, "%d\0", 12345678);
-  cerr << str << endl;
-  llvm::StringRef key(str, 9);
-  bool exist = false;
-  HashTableTy::value_type* val = hashTable->emplace(key, exist);
+
+  bool exist;
+  int key = 100;
+  HashTableTy::entry_type* val = hashTable->insert(key, exist);
+  val->setValue(999);
   EXPECT_FALSE(hashTable->empty());
   EXPECT_FALSE(exist);
   EXPECT_FALSE(NULL == val);
-  val->value = 999;
-  HashTableTy::iterator entry = hashTable->find( key );
-  cerr << entry.getEntry()->value << endl;
+  HashTableTy::iterator entry = hashTable->find(key);
+  EXPECT_EQ(999, entry.getEntry()->value());
   delete hashTable;
 }
+
+TEST_F( HashTableTest, alloc100 ) {
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy(22);
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+  for (unsigned int key=0; key<100; ++key) {
+    entry = hashTable->insert(key, exist);
+    EXPECT_FALSE(hashTable->empty());
+    EXPECT_FALSE(exist);
+    EXPECT_FALSE(NULL == entry);
+    EXPECT_EQ(key, entry->key());
+    entry->setValue(key+10);
+  }
+
+  EXPECT_FALSE(hashTable->empty());
+  EXPECT_EQ(100, hashTable->numOfEntries());
+  EXPECT_EQ(197, hashTable->numOfBuckets());
+}
+
