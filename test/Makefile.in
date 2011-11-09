@@ -1,15 +1,14 @@
-
 .PHONY: FORCE
 
 LEVEL = ..
 DIRS  =
 
-
 SRCDIR=$(realpath $(LEVEL))
 MCLINKER=$(SRCDIR)/debug/MCLinker
+LLVM_CONFIG_BIN = @LLVM_CONFIG_BIN@
 
-
-all:: check-local
+# FIXME: hack for "make"
+all::
 
 # FIXME: hack for "make check"
 check:: check-local
@@ -40,13 +39,14 @@ endif # SunOS
 
 
 check-local-lit:: lit.site.cfg
-	( $(ULIMIT) \
+	@( $(ULIMIT) \
 	  $(SRCDIR)/utils/lit/lit.py $(LIT_ARGS) . )
 
 lit.site.cfg: FORCE
 	@echo "Making MCLinker 'lit.site.cfg' file..."
 	@echo s=@MCLINKER@=$(MCLINKER)=g > lit.tmp
 	@echo s=@MCLINKER_SOURCE_ROOT@=$(SRCDIR)=g >> lit.tmp
+	@echo s=@LLVM_CONFIG@=$(LLVM_CONFIG_BIN)=g >> lit.tmp
 	@sed -f lit.tmp lit.site.cfg.in > $@
 	@-rm -f lit.tmp
 

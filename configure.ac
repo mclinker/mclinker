@@ -92,5 +92,6 @@ AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
 AC_CONFIG_FILES([include/mcld/Config/Config.h])
 AC_CONFIG_FILES([tools/llvm-mcld/Makefile])
+AC_CONFIG_FILES([test/Makefile])
 
 AC_OUTPUT

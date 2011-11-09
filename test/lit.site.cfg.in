@@ -4,6 +4,7 @@
 # Do not edit!
 config.mclinker_src_root = "@MCLINKER_SOURCE_ROOT@"
 config.mclinker = "@MCLINKER@"
+config.llvm_config = "@LLVM_CONFIG@"
 
 # Let the main config do the real work.
 lit.load_config(config, os.path.join(config.mclinker_src_root, 'test/lit.cfg'))
