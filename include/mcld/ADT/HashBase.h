@@ -67,7 +67,7 @@ class HashTableImpl
 {
 private:
   enum {
-    NumOfInitBuckets = 17
+    NumOfInitBuckets = 16
   };
 
 public:
@@ -112,8 +112,8 @@ protected:
   //  return the index of the element, or -1 when the element does not exist.
   int findKey(const key_type& pKey) const;
 
-  /// rehash - check the load_factor, compute the new size, and then doRehash
-  void rehash();
+  /// mayRehash - check the load_factor, compute the new size, and then doRehash
+  void mayRehash();
 
   /// doRehash - re-new the hash table, and rehash all elements into the new buckets
   void doRehash(unsigned int pNewSize);
