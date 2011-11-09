@@ -1,0 +1,10 @@
+clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -ccc-host-triple arm-none-linux-gnueabi &&
+/proj/mtk03872/pndk/debug/MCLinker -filetype=asm -march=arm -dB ./Output/func.ll -o ./Output/func.s &&
+/proj/mtk03872/pndk/debug/MCLinker -filetype=obj -march=arm -dB ./Output/func.ll -o ./Output/func.o &&
+/proj/mtk03872/pndk/debug/MCLinker -filetype=dso -march=arm -dB ./Output/func.ll -o ./Output/func.so &&
+/proj/mtk03872/pndk/debug/MCLinker -filetype=exe -march=arm ./Output/func.ll -o ./Output/func.exe &&
+/proj/mtk03872/pndk/debug/MCLinker -filetype=arc -march=arm ./Output/func.ll -o ./Output/func.a &&
+file Output/func.s | grep assembler &&
+file Output/func.o | grep relocatable &&
+file Output/func.so | grep shared &&
+file Output/func.exe | grep executable

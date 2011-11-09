@@ -1,0 +1,2 @@
+clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -ccc-host-triple arm-none-linux-gnueabi &&
+/proj/mtk03872/pndk/debug/MCLinker -t -lm -filetype=dso -march=arm -o ./Output/func.so -dB ./Output/func.ll ./func.o | grep -v "\-lm"

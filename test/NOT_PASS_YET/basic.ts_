@@ -1,0 +1,11 @@
+RUN: clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -ccc-host-triple arm-none-linux-gnueabi
+RUN: %MCLinker -filetype=asm -march=arm -dB ./Output/func.ll -o ./Output/func.s
+RUN: %MCLinker -filetype=obj -march=arm -dB ./Output/func.ll -o ./Output/func.o
+RUN: %MCLinker -filetype=dso -march=arm -dB ./Output/func.ll -o ./Output/func.so
+RUN: %MCLinker -filetype=exe -march=arm ./Output/func.ll -o ./Output/func.exe
+RUN: %MCLinker -filetype=arc -march=arm ./Output/func.ll -o ./Output/func.a
+
+RUN: file Output/func.s | grep assembler
+RUN: file Output/func.o | grep relocatable
+RUN: file Output/func.so | grep shared
+RUN: file Output/func.exe | grep executable

@@ -1,0 +1,10 @@
+RUN: clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -ccc-host-triple arm-none-linux-gnueabi
+RUN: %MCLinker -V -L/usr/lib -dB ./Output/func.ll --start-group -Bdynamic -lm --end-group -o ./Output/test.so
+RUN: %MCLinker -dy -t -L/usr/lib -dB ./Output/func.ll -lm -lz --start-group ./func.o --end-group -o ./Output/test.so
+RUN: %MCLinker -dy -t -L/usr/lib -dB ./Output/func.ll -lz ./func.o -lm -o ./Output/test.so
+RUN: %MCLinker -dy -t -L/usr/lib -dB ./Output/func.ll -\( ./func.o -\) -lm -o ./Output/test.so
+RUN: %MCLinker -Bstatic -t -L/usr/lib -\( -dB ./func.ll ./func.o -\) -lm -o ./Output/test.so
+RUN: %MCLinker -dy -t -L/usr/lib -dB ./Output/func.ll ./func.o -Bstatic -lm -o ./Output/test.so
+RUN: %MCLinker -t ./test2.o ./test1.o -filetype=dso ./test3.o -march=arm -lc -lm -dB ./Output/func.ll -o ./Output/func.so -L.
+RUN: %MCLinker -relocation-model=pic -filetype=exe -march=arm ./Output/func.ll -o ./Output/func.exe
+RUN: %MCLinker -relocation-model=pic -filetype=arc -march=arm ./Output/func.ll -o ./Output/func.a

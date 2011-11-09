@@ -1,8 +1,0 @@
-MCLinker=MCLinker
-TESTLDFLAGS=-lm
-all:
-	clang++ -emit-llvm -S ./func.cpp -I. -o func.ll -ccc-host-triple arm-none-linux-gnueabi
-	${MCLinker} ./test3.o -t ${TESTLDFLAGS} -filetype=dso -march=arm ./test2.o -o ./func.so -dB ./func.ll ./test.o > result.correct
-#	${MCLinker} -t ${TESTLDFLAGS} -filetype=dso -march=arm -o ./func.so > result
-#	${MCLinker} -filetype=exe -march=arm ./func.ll -o ./func.exe
-#	${MCLinker} -filetype=arc -march=arm ./func.ll -o ./func.a
