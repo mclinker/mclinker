@@ -38,6 +38,7 @@ class HashEntry
 public:
   typedef KeyType key_type;
   typedef ValueType value_type;
+  typedef KeyCompare key_compare;
 
 private:
   typedef HashEntry<KeyType, ValueType, KeyCompare> Self;

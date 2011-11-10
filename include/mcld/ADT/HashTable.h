@@ -24,10 +24,10 @@ namespace mcld
 {
 
 /** \class HashTable
- *  \brief HashTable is a hash table which follows boost::unordered_map, but
- *  the type of key is limited to llvm::String
+ *  \brief HashTable is a hash table which follows boost::unordered_map, but it
+ *  is open addressing and can linear probing.
  *
- *  mcld::HashTable is a quadratic probing hash table. It does not allocate
+ *  mcld::HashTable is a linear probing hash table. It does not allocate
  *  the memory space of the entries by itself. Instead, entries are allocated
  *  outside and then emplaced into the hash table.
  */
