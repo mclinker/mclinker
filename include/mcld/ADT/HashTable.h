@@ -46,7 +46,6 @@ public:
   typedef HashEntryTy entry_type;
   typedef typename BaseTy::bucket_type bucket_type;
   typedef typename HashEntryTy::key_type key_type;
-  typedef typename HashEntryTy::value_type value_type;
 
   typedef HashIterator<ChainIteratorBase<BaseTy>,
                        NonConstTraits<HashEntryTy> > chain_iterator;
@@ -94,7 +93,12 @@ public:
   // -----  hash policy  ----- //
   float load_factor() const;
 
+  /// rehash - if the load factor is larger than 75%, or the empty buckets is
+  //  less than 12.5%, the rehash the hash table
   void rehash();
+
+  /// rehash - immediately re-new the hash table to the size pCount, and
+  //  rehash all elements.
   void rehash(size_type pCount);
 
   // -----  iterators  ----- //
