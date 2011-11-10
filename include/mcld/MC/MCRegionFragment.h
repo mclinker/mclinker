@@ -20,7 +20,7 @@ namespace mcld
 {
 
 /** \class MCRegionFragment
- *  \brief MCRegionFragment is a kind of MCFragment containing
+ *  \brief MCRegionFragment is a kind of MCFragment containing 
  *  mcld::MemoryRegion
  */
 class MCRegionFragment : public llvm::MCFragment
