@@ -94,7 +94,7 @@ public:
   // -----  hash policy  ----- //
   float load_factor() const;
 
-  using HashTableImpl<HashEntryTy, HashFunctionTy>::rehash;
+  void rehash();
   void rehash(size_type pCount);
 
   // -----  iterators  ----- //

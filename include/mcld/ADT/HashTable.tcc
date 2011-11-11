@@ -66,24 +66,23 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::insert(
   bool& pExist)
 {
   unsigned int index = BaseTy::lookUpBucketFor(pKey);
-  bucket_type &bucket = BaseTy::m_Buckets[index];
-  if (bucket_type::getEmptyBucket() != bucket.Entry &&
-      bucket_type::getTombstone() != bucket.Entry) {
+  bucket_type& bucket = BaseTy::m_Buckets[index];
+  entry_type* entry = bucket.Entry;
+  if (bucket_type::getEmptyBucket() != entry &&
+      bucket_type::getTombstone() != entry) {
     // Already exist in the table
     pExist = true;
-    return bucket.Entry;
+    return entry;
   }
 
   // find a tombstone
-  if (bucket_type::getTombstone() == bucket.Entry)
+  if (bucket_type::getTombstone() == entry)
     --BaseTy::m_NumOfTombstones;
 
-  bucket.Entry = m_EntryFactory.produce(pKey);
+  entry = bucket.Entry = m_EntryFactory.produce(pKey);
   ++BaseTy::m_NumOfEntries;
-
-  rehash();
-  pExist =false;
-  return bucket.Entry;
+  BaseTy::mayRehash();
+  return entry;
 }
 
 /// erase - remove the elements with the pKey
@@ -102,7 +101,7 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::erase(
     entry.getBucket()->Entry = bucket_type::getEmptyBucket();
   }
   BaseTy::m_NumOfEntries -= counter;
-  rehash();
+  BaseTy::mayRehash();
   return counter;
 }
 
@@ -151,7 +150,16 @@ template<typename HashEntryTy,
          typename EntryFactoryTy>
 float HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::load_factor() const
 {
-  return (BaseTy::m_NumOfEntries/BaseTy::m_NumOfBuckets);
+  return ((float)BaseTy::m_NumOfEntries/(float)BaseTy::m_NumOfBuckets);
+}
+
+template<typename HashEntryTy,
+         typename HashFunctionTy,
+         typename EntryFactoryTy>
+void
+HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::rehash()
+{
+  BaseTy::mayRehash();
 }
 
 template<typename HashEntryTy,
