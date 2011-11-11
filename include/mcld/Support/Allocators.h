@@ -1,4 +1,4 @@
-//===- Allocators.h -------------------------------------------------------===//
+//===- Allocators.h ---------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #ifndef LLVM_ALLOCATORS_H
 #define LLVM_ALLOCATORS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <cstdlib>
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/ADT/TypeTraits.h"
+#include <cstdlib>
 
 namespace mcld
 {
@@ -306,6 +307,60 @@ public:
 
   virtual ~LinearAllocator()
   { }
+};
+
+template<typename DataType>
+class MallocAllocator
+{
+public:
+  typedef size_t          size_type;
+  typedef ptrdiff_t       difference_type;
+  typedef DataType*       pointer;
+  typedef const DataType* const_pointer;
+  typedef DataType&       reference;
+  typedef const DataType& const_reference;
+  typedef DataType        value_type;
+
+  template<typename OtherDataType>
+  struct rebind
+  {
+    typedef MallocAllocator<OtherDataType> other;
+  };
+
+public:
+  MallocAllocator() throw()
+  { }
+
+  MallocAllocator(const MallocAllocator&) throw()
+  { }
+
+  ~MallocAllocator() throw()
+  { }
+
+  pointer address(reference X) const
+  { return &X; }
+
+  const_pointer address(const_reference X) const
+  { return &X; }
+
+  pointer allocate(size_type pNumOfElements, const void* = 0)
+  {
+    return static_cast<DataType*>(
+                       std::malloc(pNumOfElements*sizeof(DataType)));
+  }
+
+  void deallocate(pointer pObject, size_type)
+  { std::free(static_cast<void*>(pObject)); }
+
+  size_type max_size() const throw() 
+  { return size_t(-1) / sizeof(DataType); }
+
+  void construct(pointer pObject, const DataType& pValue) 
+  { ::new((void *)pObject) value_type(pValue); }
+
+  void destroy(pointer pObject)
+  { pObject->~DataType(); }
+
 };
 
 } // namespace mcld
