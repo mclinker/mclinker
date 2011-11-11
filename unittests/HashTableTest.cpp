@@ -98,5 +98,100 @@ TEST_F( HashTableTest, alloc100 ) {
   EXPECT_FALSE(hashTable->empty());
   EXPECT_EQ(100, hashTable->numOfEntries());
   EXPECT_EQ(197, hashTable->numOfBuckets());
+  delete hashTable;
 }
 
+TEST_F( HashTableTest, rehash_test ) {
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy(0);
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+  for (unsigned int key=0; key<400000; ++key) {
+    entry = hashTable->insert(key, exist);
+    entry->setValue(key+10);
+  }
+
+  HashTableTy::iterator iter;
+  for (unsigned int key=0; key<400000; ++key) {
+    iter = hashTable->find(key);
+    EXPECT_EQ((key+10), iter.getEntry()->value());
+  }
+}
+
+TEST_F( HashTableTest, bucket_iterator ) {
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy(0);
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+  for (unsigned int key=0; key<400000; ++key) {
+    entry = hashTable->insert(key, exist);
+    entry->setValue(key+10);
+  }
+
+  HashTableTy::iterator iter, iEnd = hashTable->end();
+  unsigned int counter = 0;
+  for (iter = hashTable->begin(); iter != iEnd; ++iter) {
+    EXPECT_EQ(iter.getEntry()->key()+10, iter.getEntry()->value());
+    ++counter;
+  }
+  EXPECT_EQ(400000, counter);
+}
+
+
+TEST_F( HashTableTest, chain_iterator_single ) {
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy();
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+  for (unsigned int key=0; key<16; ++key) {
+    entry = hashTable->insert(key*37, exist);
+    entry->setValue(key+10);
+  }
+  for (unsigned int key=0; key<16; ++key) {
+    unsigned int counter = 0;
+    HashTableTy::chain_iterator iter, iEnd = hashTable->end(key*37);
+    for (iter = hashTable->begin(key*37); iter != iEnd; ++iter) {
+      EXPECT_EQ(key+10, iter.getEntry()->value());
+      ++counter;
+    }
+    EXPECT_EQ(1, counter);
+  }
+}
+
+struct FixHash
+{
+  size_t operator()(int pKey) const {
+    return 10;
+  }
+};
+
+
+TEST_F( HashTableTest, chain_iterator_list ) {
+  typedef HashEntry<int, int, IntCompare> HashEntryType;
+  typedef HashTable<HashEntryType, FixHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy();
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+  for (unsigned int key=0; key<16; ++key) {
+    entry = hashTable->insert(key, exist);
+    ASSERT_FALSE(exist);
+    entry->setValue(key);
+  }
+  ASSERT_EQ(16, hashTable->numOfEntries());
+  ASSERT_EQ(37, hashTable->numOfBuckets());
+
+  unsigned int key = 0;
+  unsigned int count = 0;
+  HashTableTy::chain_iterator iter, iEnd = hashTable->end(key);
+  for (iter = hashTable->begin(key); iter != iEnd; ++iter) {
+    count++;
+  }
+  ASSERT_EQ(16, count);
+}
