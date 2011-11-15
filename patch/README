@@ -7,7 +7,7 @@ the patch "LLVM.patch" should be applied first.
 
 Following the steps below to apply the patch:
 1. cd $(LLVM_ROOT)
-2. patch -p0 ./patch/LLVM.patch
+2. patch -p0 < ./patch/LLVM.patch
 
 This patch is for LLVM release_30@142614.
 
