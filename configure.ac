@@ -77,7 +77,7 @@ AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 
 ####################
 # Configure LLVM
-CHECK_LLVM([2.9])
+CHECK_LLVM([3.0])
 ENUM_LLVM_TARGETS
 
 ####################
