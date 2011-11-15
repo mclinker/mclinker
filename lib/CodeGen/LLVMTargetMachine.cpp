@@ -44,6 +44,7 @@
 #include "llvm/MC/MCContext.h"
 #include "llvm/Support/ToolOutputFile.h"
 
+#include <string>
 
 using namespace mcld;
 using namespace llvm;

@@ -11,6 +11,9 @@
 #include "ARM.h"
 #include "ARMTargetMachine.h"
 
+#include <mcld/Target/TargetMachine.h>
+#include <mcld/Support/TargetRegistry.h>
+
 extern "C" void LLVMInitializeARMLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
   mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> X(mcld::TheARMTarget);

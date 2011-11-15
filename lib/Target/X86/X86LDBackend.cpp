@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/ADT/Triple.h"
 #include "mcld/Support/TargetRegistry.h"
+#include "llvm/ADT/Triple.h"
 #include "X86.h"
 #include "X86LDBackend.h"
 #include "X86ELFObjectReader.h"

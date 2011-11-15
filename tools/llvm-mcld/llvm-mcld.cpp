@@ -28,7 +28,6 @@
 #include "llvm/Target/TargetMachine.h"
 
 
-
 using namespace llvm;
 
 #ifdef ENABLE_UNITTEST

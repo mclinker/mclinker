@@ -12,6 +12,9 @@
 #include "ARMLDBackend.h"
 #include "ARMELFObjectReader.h"
 
+#include <llvm/ADT/Triple.h>
+#include <mcld/Support/TargetRegistry.h>
+
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
