@@ -1,2 +1,3 @@
-RUN: %MCLinker -version | grep "llvm version 3.0"
-RUN: llvm-objdump -version | grep "llvm version 3.0"
+RUN: %MCLinker -version | FileCheck %s
+RUN: llvm-objdump -version | FileCheck %s
+CHECK: llvm version 3.0
