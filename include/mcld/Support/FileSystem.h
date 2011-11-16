@@ -6,15 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+// This file declares the mcld::sys::fs:: namespace. It follows TR2/boost
+// filesystem (v3), but modified to remove exception handling and the
+// path class.
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLD_FILE_SYSTEM_H
 #define MCLD_FILE_SYSTEM_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
+#include "mcld/ADT/StringMap.h"
 #include <string>
 #include <iosfwd>
 #include <locale>
-#include "mcld/ADT/StringMap.h"
+
 namespace mcld {
 namespace sys {
 namespace fs {

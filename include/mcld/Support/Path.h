@@ -6,11 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+// This file declares the mcld::sys::fs:: namespace. It follows TR2/boost
+// filesystem (v3), but modified to remove exception handling and the
+// path class.
+//===----------------------------------------------------------------------===//
+
 #ifndef MCLD_PATH_H
 #define MCLD_PATH_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include "llvm/Support/raw_ostream.h"
 #include <functional>
 #include <string>
