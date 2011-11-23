@@ -94,6 +94,9 @@ public:
   size_t numOfEntries() const
   { return m_NumOfEntries; }
 
+  size_t NumOfTombstones() const
+  { return m_NumOfTombstones; }
+
   hasher& hash()
   { return m_Hasher; }
 

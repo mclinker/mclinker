@@ -46,7 +46,7 @@ void HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::clear()
   for (unsigned int i=0; i < BaseTy::m_NumOfBuckets; ++i) {
     if (bucket_type::getEmptyBucket() != BaseTy::m_Buckets[i].Entry ) {
       if (bucket_type::getTombstone() != BaseTy::m_Buckets[i].Entry ) {
-        m_EntryFactory.destroy(BaseTy::m_Backets[i].Entry);
+        m_EntryFactory.destroy(BaseTy::m_Buckets[i].Entry);
       }
       BaseTy::m_Buckets[i].Entry = bucket_type::getEmptyBucket();
     }
@@ -96,11 +96,16 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::erase(
 {
   chain_iterator entry, bEnd = end(pKey);
   size_type counter = 0;
-  for (entry= begin(pKey); entry!= bEnd; ++entry, ++counter) {
-    m_EntryFactory.detroy(entry.getEntry());
-    entry.getBucket()->Entry = bucket_type::getEmptyBucket();
+  for (entry= begin(pKey); entry!= bEnd; ++entry) {
+    if (entry.getEntry()->compare(pKey)) {
+      m_EntryFactory.destroy(entry.getEntry());
+      entry.getBucket()->Entry = bucket_type::getTombstone();
+      ++counter;
+    }
   }
+
   BaseTy::m_NumOfEntries -= counter;
+  BaseTy::m_NumOfTombstones += counter;
   BaseTy::mayRehash();
   return counter;
 }
