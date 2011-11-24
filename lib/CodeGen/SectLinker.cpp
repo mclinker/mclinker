@@ -231,7 +231,7 @@ SectLinker::SectLinker(const std::string& pInputFile,
                           m_LDInfo.contextFactory().produce(
                                                    m_LDInfo.output().path()));
 
-  int mode = (Output::Object == m_LDInfo.output().type())? 0666 : 0777;
+  int mode = (Output::Object == m_LDInfo.output().type())? 0544 : 0755;
   m_LDInfo.output().setMemArea(
                           m_LDInfo.memAreaFactory().produce(
                                                    m_LDInfo.output().path(),
