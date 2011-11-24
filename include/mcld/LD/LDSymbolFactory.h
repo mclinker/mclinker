@@ -3,33 +3,30 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Diana Chen <diana.chen@mediatek.com>                                    *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef PASCAL_ZERO_END_STRING_FACTORY_H
-#define PASCAL_ZERO_END_STRING_FACTORY_H
+#ifndef LD_SYMBOL_FACTORY_H
+#define LD_SYMBOL_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/ADT/StringRef.h>
-#include <string>
+#include <mcld/LD/LDSymbol.h>
 
 namespace mcld
 {
-class PZString;
 
-/** \class PZStringFactory
- *  \brief PZStringFactory is the factory for PZString.
+/** \class LDSymbolFactory
+ *  \brief LDSymbolFactory produces LDSymbols
  */
-class PZStringFactory
+class LDSymbolFactory
 {
 public:
-  PZString* create(const char* pStr);
-  PZString* create(const char* pStr, size_t pLength);
-  PZString* create(const char* pStart, const char* pLast);
-  PZString* create(const std::string& pStr);
-  PZString* create(const llvm::StringRef& pStr);
-  void destroy(PZString* pString);
+  typedef LDSymbol entry_type;
+  typedef LDSymbol::key_type   key_type;
+
+public:
+  entry_type* produce(const key_type& pKey);
+  void destroy(entry_type* pSymbol);
 };
 
 } // namespace of mcld

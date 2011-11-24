@@ -21,10 +21,14 @@ namespace mcld
 /** \class LDSymbol
  *  \brief LDSymbol provides a consistent abstraction for different formats
  *  in different targets.
+ *
+ *  Because LDSymbol is a kind of class that its size is various, LDSymbol
+ *  can only be declared in dynamic storage. In order to make sure this,
+ *  LDSymbolFactory creates LDSymbols.
  */
 class LDSymbol
 {
-friend class StrSymPool;
+friend class LDSymbolFactory;
 public:
   enum Type {
     Defined,
@@ -41,94 +45,88 @@ public:
     NoneBinding
   };
 
-private:
-  LDSymbol();
-  /* Waiting for C++0x default and delete, for better object code.
-  LDSymbol(const LDSymbol&) = default;
-  LDSymbol& operator=(const LDSymbol&) = default;
-  */
-  LDSymbol(const LDSymbol &pSym)
-  { *this = pSym; }
+  // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
+  typedef uint64_t ValueType;
+  typedef uint64_t SizeType;
 
-  LDSymbol& operator=(const LDSymbol &pSym)
-  {
-    m_pName = pSym.m_pName;
-    m_IsDyn = pSym.m_IsDyn;
-    m_Type = pSym.m_Type;
-    m_Binding = pSym.m_Binding;
-    m_pSection = pSym.m_pSection;
-    m_Value = pSym.m_Value;
-    m_Size = pSym.m_Size;
-    m_Other = pSym.m_Other;
-  }
+  typedef llvm::StringRef key_type;
 
 public:
-  ~LDSymbol();
-
   // -----  observers  ----- //
   const char* name() const
-  { return m_pName; }
+  { return m_String; }
+
+  llvm::StringRef str() const
+  { return llvm::StringRef(m_String, m_StrLength); }
 
   bool isDyn() const
   { return m_IsDyn; }
 
-  Type type() const
+  unsigned int type() const
   { return m_Type; }
 
-  Binding binding() const
+  unsigned int binding() const
   { return m_Binding; }
 
   const llvm::MCSectionData* section() const
   { return m_pSection; }
 
-  uint64_t value() const
+  ValueType value() const
   { return m_Value; }
 
-  uint64_t size() const
+  SizeType size() const
   { return m_Size; }
 
   uint8_t other() const
   { return m_Other; }
 
-  // -----  modifiers  ----- //
-  // setName - direct the string of name to the address in the string table.
-  // LDSymbol doest not store the string of the name. Instead, string table
-  // does it for LDSymbol. Thus, this function only redirect the string of name.
-  void setName(const char* pCString)
-  { m_pName = pCString; }
+  bool compare(const key_type& pKey);
 
+  // -----  modifiers  ----- //
   void setDynamic(bool pEnable=true)
   { m_IsDyn = pEnable; }
 
-  void setType(Type pType)
+  void setType(unsigned int pType)
   { m_Type = pType; }
 
-  void setBinding(Binding pBinding)
+  void setBinding(unsigned int pBinding)
   { m_Binding = pBinding; }
 
   void setSection(const llvm::MCSectionData* pSection)
   { m_pSection = pSection; }
 
-  void setValue(uint64_t pValue)
+  void setValue(ValueType pValue)
   { m_Value = pValue; }
 
-  void setSize(uint64_t pSize)
+  void setSize(SizeType pSize)
   { m_Size = pSize; }
 
   void setOther(uint8_t pOther)
   { m_Other = pOther; }
 
 private:
-  const char* m_pName;
+  LDSymbol();
+  LDSymbol(const LDSymbol& pCopy);
+  LDSymbol& operator=(const LDSymbol& pCopy);
+  ~LDSymbol();
+
+private:
+  // -----  Symbol's fields  ----- //
+  unsigned int m_Type : 3;
+  unsigned int m_Binding : 2;
   bool m_IsDyn : 1;
-  Type m_Type;
-  Binding m_Binding;
-  const llvm::MCSectionData* m_pSection;
-  uint64_t m_Value;
-  uint64_t m_Size;
   uint8_t m_Other;
+
+  const llvm::MCSectionData* m_pSection;
+  ValueType m_Value; 
+  SizeType m_Size;
+
+  // -----  Symbol and String's fields  ----- //
+  size_t m_StrLength;
+  char m_String[0];
 };
 
 } // namespace mcld
 
 #endif
+

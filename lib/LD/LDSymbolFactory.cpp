@@ -3,38 +3,33 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Diana Chen <diana.chen@mediatek.com>                                    *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#include <mcld/ADT/PZStringFactory.h>
-#include <mcld/ADT/PZString.h>
+#include <mcld/LD/LDSymbolFactory.h>
 #include <cstdlib>
+#include <cstring>
 
 using namespace mcld;
 
 //==========================
-// PZStringFactory
-PZString* PZStringFactory::create(const char* pStr)
+// LDSymbolFactory
+LDSymbolFactory::entry_type*
+LDSymbolFactory::produce(const LDSymbolFactory::key_type& pKey)
 {
+  entry_type* result = static_cast<entry_type*>(
+                                    malloc(sizeof(entry_type)+pKey.size()+1));
+  if (NULL == result)
+    return NULL;
+
+  new (result) entry_type();
+  std::memcpy(result->m_String, pKey.data(), pKey.size());
+  result->m_String[pKey.size()] = '\0';
+  return result;
 }
 
-PZString* PZStringFactory::create(const char* pStr, size_t pLength)
+void LDSymbolFactory::destroy(LDSymbolFactory::entry_type* pSymbol)
 {
-}
-
-PZString* PZStringFactory::create(const char* pStart, const char* pLast)
-{
-}
-
-PZString* PZStringFactory::create(const std::string& pStr)
-{
-}
-
-PZString* PZStringFactory::create(const llvm::StringRef& pStr)
-{
-}
-
-void PZStringFactory::destroy(PZString* pString)
-{
+  if (NULL != pSymbol)
+    free(pSymbol);
 }
 

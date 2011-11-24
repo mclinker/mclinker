@@ -116,6 +116,11 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/LDSymbol.h \
+	${LIBDIR}/LD/LDSymbol.cpp \
+	${INCDIR}/LD/LDSymbolFactory.h \
+	${LIBDIR}/LD/LDSymbolFactory.cpp \
+	${INCDIR}/LD/LDWriter.h \
+	${INCDIR}/LD/LDELFWriter.h \
 	${INCDIR}/LD/ELFDSOWriter.h \
 	${LIBDIR}/LD/ELFDSOWriter.cpp \
 	${INCDIR}/LD/ELFEXEWriter.h \
@@ -125,26 +130,13 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/LDWriter.h \
 	${INCDIR}/LD/SymbolTableIF.h \
-	${INCDIR}/LD/StrSymPool.h \
-	${LIBDIR}/LD/StrSymPool.cpp \
-	${INCDIR}/LD/SymbolTableFactory.h \
-	${INCDIR}/LD/InputSymbolTable.h \
-	${LIBDIR}/LD/InputSymbolTable.cpp \
-	${INCDIR}/LD/OutputSymbolTable.h \
-	${LIBDIR}/LD/OutputSymbolTable.cpp \
-	${INCDIR}/LD/SymbolTableFactory.h \
-	${LIBDIR}/LD/SymbolTableFactory.cpp \
 	${INCDIR}/LD/Resolver.h \
-	${LIBDIR}/LD/Resolver.cpp \
-	${INCDIR}/LD/StringTable.h \
-	${LIBDIR}/LD/StringTable.cpp
+	${LIBDIR}/LD/Resolver.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
-	${UNITTEST}/StrSymPoolTest.h \
-	${UNITTEST}/StrSymPoolTest.cpp \
 	${UNITTEST}/StringMapTest.h \
 	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
@@ -163,8 +155,8 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
 	${UNITTEST}/MemoryAreaTest.h \
 	${UNITTEST}/MemoryAreaTest.cpp \
-	${UNITTEST}/StringTableTest.h \
-	${UNITTEST}/StringTableTest.cpp
+        ${UNITTEST}/LDSymbolTest.h \
+        ${UNITTEST}/LDSymbolTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
