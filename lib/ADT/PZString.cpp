@@ -36,6 +36,14 @@ PZString::const_iterator PZString::rend() const
 {
 }
 
+const char& PZString::at(PZString::size_type pPos) const
+{
+}
+
+char& PZString::at(PZString::size_type pPos)
+{
+}
+
 PZString& PZString::assign(const char* pStr, PZString::Alloc& pFactory)
 {
 }
