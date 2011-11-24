@@ -176,7 +176,6 @@ TEST_F( HashTableTest, tombstone ) {
     EXPECT_TRUE(iter == hashTable->end());
   }
   EXPECT_EQ(80, hashTable->numOfEntries());
-  EXPECT_EQ(20, hashTable->NumOfTombstones());
 
   for (unsigned int key=20; key<100; ++key) {
     iter = hashTable->find(key);
@@ -186,8 +185,8 @@ TEST_F( HashTableTest, tombstone ) {
   for (unsigned int key=0; key<20; ++key) {
     entry = hashTable->insert(key, exist);
   }
-  EXPECT_EQ(0, hashTable->NumOfTombstones());
   EXPECT_EQ(100, hashTable->numOfEntries());
+  EXPECT_EQ(197, hashTable->numOfBuckets());
 
   delete hashTable;
 }

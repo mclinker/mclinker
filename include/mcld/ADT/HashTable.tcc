@@ -94,20 +94,18 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::erase(
         const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
 {
-  chain_iterator entry, bEnd = end(pKey);
-  size_type counter = 0;
-  for (entry= begin(pKey); entry!= bEnd; ++entry) {
-    if (entry.getEntry()->compare(pKey)) {
-      m_EntryFactory.destroy(entry.getEntry());
-      entry.getBucket()->Entry = bucket_type::getTombstone();
-      ++counter;
-    }
-  }
+  int index;
+  if (-1 == (index = BaseTy::findKey(pKey)))
+    return 0;
 
-  BaseTy::m_NumOfEntries -= counter;
-  BaseTy::m_NumOfTombstones += counter;
+  bucket_type& bucket = BaseTy::m_Buckets[index];
+  m_EntryFactory.destroy(bucket.Entry);
+  bucket.Entry = bucket_type::getTombstone();
+
+  --BaseTy::m_NumOfEntries;
+  ++BaseTy::m_NumOfTombstones;
   BaseTy::mayRehash();
-  return counter;
+  return 1;
 }
 
 template<typename HashEntryTy,
