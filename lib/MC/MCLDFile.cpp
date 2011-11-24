@@ -17,25 +17,20 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // MCLDFile
 MCLDFile::MCLDFile()
-  : m_Type(Unknown), m_pContext(0), m_Path(), m_InputName(), m_pMemArea(0) {
+  : m_Type(Unknown), m_pContext(0), m_Path(), m_Name(), m_pMemArea(0) {
 }
 
 MCLDFile::MCLDFile(llvm::StringRef pName)
-  : m_Type(Unknown), m_pContext(0), m_Path(), m_InputName(pName.data()), m_pMemArea(0) {
+  : m_Type(Unknown), m_pContext(0), m_Path(), m_Name(pName.data()), m_pMemArea(0) {
 }
 
 MCLDFile::MCLDFile(llvm::StringRef pName,
                    const sys::fs::Path& pPath,
                    unsigned int pType)
-  : m_Type(pType), m_pContext(0), m_Path(pPath), m_InputName(pName.data()), m_pMemArea(0) {
+  : m_Type(pType), m_pContext(0), m_Path(pPath), m_Name(pName.data()), m_pMemArea(0) {
 }
 
 MCLDFile::~MCLDFile()
 {
-}
-
-const std::string& MCLDFile::name() const
-{
-  return m_InputName;
 }
 

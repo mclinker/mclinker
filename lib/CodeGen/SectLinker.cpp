@@ -205,6 +205,14 @@ ArgBStaticListAlias3("non_shared",
 //===----------------------------------------------------------------------===//
 // Scripting Options
 
+
+//===----------------------------------------------------------------------===//
+// Generic options
+static cl::opt<std::string>
+SONAME("soname",
+  cl::desc("Set internal name of shared library"),
+  cl::value_desc("name"));
+
 //===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(const std::string& pInputFile,
@@ -225,6 +233,7 @@ SectLinker::SectLinker(const std::string& pInputFile,
   m_LDInfo.setBitcode(*bitcode);
 
   // create the default output
+  m_LDInfo.output().setSONAME(SONAME);
   m_LDInfo.output().setType(pOutputLinkType);
   m_LDInfo.output().setPath(sys::fs::RealPath(pOutputFile));
   m_LDInfo.output().setContext(

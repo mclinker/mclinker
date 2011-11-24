@@ -13,12 +13,12 @@ using namespace mcld;
 //==========================
 // MCLDOutput
 Output::Output()
-  : MCLDFile("output") {
+  : MCLDFile("") {
 }
 
 Output::Output(const sys::fs::Path& pRealPath,
                Output::Type pType)
-  : MCLDFile("output", pRealPath, pType) {
+  : MCLDFile("", pRealPath, pType) {
 }
                   
 Output::~Output()

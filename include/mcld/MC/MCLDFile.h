@@ -78,7 +78,8 @@ public:
   unsigned int type() const
   { return m_Type; }
 
-  const std::string& name() const;
+  const std::string& name() const
+  { return m_Name; }
 
   const sys::fs::Path& path() const
   { return m_Path; }
@@ -103,7 +104,7 @@ public:
 
 protected:
   sys::fs::Path m_Path;
-  std::string m_InputName;
+  std::string m_Name;
   unsigned int m_Type;
   LDContext *m_pContext;
   MemoryArea* m_pMemArea;

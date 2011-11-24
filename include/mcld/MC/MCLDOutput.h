@@ -43,6 +43,10 @@ public:
                   Type pType);
 
   ~Output();
+
+  void setSONAME(std::string SONAME) {
+    m_Name.assign(SONAME);
+  }
 };
 
 } // namespace of mcld
