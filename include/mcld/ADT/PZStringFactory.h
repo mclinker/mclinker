@@ -11,9 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/StringRef.h>
+#include <string>
 
 namespace mcld
 {
+class PZString;
 
 /** \class PZStringFactory
  *  \brief PZStringFactory is the factory for PZString.
@@ -21,10 +24,12 @@ namespace mcld
 class PZStringFactory
 {
 public:
-  PZStringFactory();
-  ~PZStringFactory();
-
-  
+  PZString* create(const char* pStr);
+  PZString* create(const char* pStr, size_t pLength);
+  PZString* create(const char* pStart, const char* pLast);
+  PZString* create(const std::string& pStr);
+  PZString* create(const llvm::StringRef& pStr);
+  void destroy(PZString* pString);
 };
 
 } // namespace of mcld

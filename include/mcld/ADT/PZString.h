@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 #include <string>
-#include <PZStringFactory.h>
+#include <mcld/ADT/PZStringFactory.h>
 
 namespace mcld
 {
