@@ -18,6 +18,7 @@
 #include "mcld/Support/MemoryArea.h"
 #include "mcld/Support/MemoryAreaFactory.h"
 #include "mcld/Support/MemoryRegion.h"
+#include "mcld/Support/FileSystem.h"
 
 #include "llvm/Support/DataTypes.h"
 #include <cassert>
@@ -38,7 +39,7 @@ protected:
   virtual ~LDWriter() {};
 
   class RegionWriter {
-    typedef unsigned char* Address;
+    typedef sys::fs::detail::Address Address; // FIXME: use SizeTrait<T>::Address
 
     public:
       RegionWriter(MemoryRegion *Region, bool _IsLittleEndian)

@@ -83,7 +83,8 @@ static bool is_directory(FileStatus f);
 namespace detail
 {
 
-typedef unsigned char* Address;
+typedef char* Address;
+typedef off_t Offset;
 extern std::string static_library_extension;
 extern std::string shared_library_extension;
 extern std::string executable_extension;

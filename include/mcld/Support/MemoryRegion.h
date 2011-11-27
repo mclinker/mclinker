@@ -13,10 +13,11 @@
 #endif
 
 #include "mcld/ADT/Uncopyable.h"
-#include "llvm/ADT/ilist.h"
-#include "llvm/ADT/StringRef.h"
+#include "mcld/ADT/SizeTraits.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/MemoryArea.h"
+#include "llvm/ADT/ilist.h"
+#include "llvm/ADT/StringRef.h"
 
 namespace mcld
 {
@@ -37,7 +38,10 @@ namespace mcld
 class MemoryRegion : private Uncopyable
 {
 friend class RegionFactory;
-typedef sys::fs::detail::Address Address;
+
+typedef mcld::sys::fs::detail::Address Address; // FIXME: use SizeTrait<T>::Address
+typedef mcld::sys::fs::detail::Offset Offset; // FIXME: use SizeTrait<T>::Offset
+
 private:
   MemoryRegion(MemoryArea::Space* pParentSpace,
                const Address pVMAStart,
@@ -45,24 +49,32 @@ private:
 public:
   ~MemoryRegion();
 
+  Address start()
+  { return m_VMAStart; }
+
   const Address start() const
   { return m_VMAStart; }
 
-  // end is the next address of the last byte 
+  Address end()
+  { return m_VMAStart+m_Length; }
+
   const Address end() const
   { return m_VMAStart+m_Length; }
 
   size_t size() const
   { return m_Length; }
 
-  const Address getBuffer() const
-  { return m_VMAStart; }
+  Address getBuffer(Offset pOffset = 0)
+  { return m_VMAStart+pOffset; }
+
+  const Address getBuffer(Offset pOffset = 0) const
+  { return m_VMAStart+pOffset; }
 
   // sync - consist the memory space with the mapped file.
   void sync();
 
 private:
-  const Address m_VMAStart;
+  Address m_VMAStart;
   size_t m_Length;
   MemoryArea::Space* m_pParentSpace;
 };

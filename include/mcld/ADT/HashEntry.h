@@ -83,8 +83,8 @@ public:
   EntryFactory();
   ~EntryFactory();
 
-  void destroy(HashEntryTy* pEntry);
   HashEntryTy* produce(const key_type& pKey);
+  void destroy(HashEntryTy* pEntry);
 };
 
 #include "HashEntry.tcc"

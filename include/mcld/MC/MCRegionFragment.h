@@ -26,9 +26,6 @@ namespace mcld
 class MCRegionFragment : public llvm::MCFragment
 {
 public:
-  static const unsigned int FT_Region = llvm::MCFragment::FT_LEB+1;
-
-public:
   MCRegionFragment(MemoryRegion& pRegion, llvm::MCSectionData* pSD = 0);
   ~MCRegionFragment();
 
@@ -39,7 +36,7 @@ public:
   { return m_Region; }
 
   static bool classof(const MCFragment *F)
-  { return F->getKind() == FT_Region; }
+  { return F->getKind() == llvm::MCFragment::FT_Region; }
 
   static bool classof(const MCRegionFragment *)
   { return true; }
