@@ -12,20 +12,39 @@
 using namespace mcld;
 
 LDSymbol::LDSymbol()
- : m_StrLength(0), m_IsDyn(true), m_Type(NoneType), m_Binding(NoneBinding),
-   m_pSection(0), m_Value(0), m_Size(0), m_Other(0) {
+  : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Size(0) {
 }
 
 LDSymbol::~LDSymbol()
 {
+  if (NULL != m_pFragRef)
+    delete m_pFragRef;
 }
 
-bool LDSymbol::compare(const LDSymbol::key_type& pKey)
+LDSymbol::LDSymbol(const LDSymbol& pCopy)
+  : m_pResolveInfo(pCopy.m_pResolveInfo),
+    m_pFragRef(pCopy.m_pFragRef),
+    m_Size(pCopy.m_Size) {
+}
+
+LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
 {
-  if (m_StrLength != pKey.size())
-    return false;
-  if (m_StrLength == 0)
-    return true;
-  return (0 == std::memcmp(pKey.data(), m_String, m_StrLength));
+  m_pResolveInfo = pCopy.m_pResolveInfo;
+  m_pFragRef = pCopy.m_pFragRef;
+  m_Size = pCopy.m_Size;
+}
+
+void LDSymbol::setFragmentRef(llvm::MCFragment& pFragment, LDSymbol::Offset pOffset)
+{
+  if (NULL == m_pFragRef) {
+    m_pFragRef = new MCFragmentRef(pFragment, pOffset);
+    return;
+  }
+  m_pFragRef->assign(pFragment, pOffset);
+}
+
+void LDSymbol::setResolveInfo(const ResolveInfo& pInfo)
+{
+  m_pResolveInfo = &pInfo;
 }
 
