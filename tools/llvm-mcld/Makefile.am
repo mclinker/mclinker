@@ -154,9 +154,7 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/UniqueGCFactoryBaseTest.h \
 	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
 	${UNITTEST}/MemoryAreaTest.h \
-	${UNITTEST}/MemoryAreaTest.cpp \
-        ${UNITTEST}/LDSymbolTest.h \
-        ${UNITTEST}/LDSymbolTest.cpp
+	${UNITTEST}/MemoryAreaTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
