@@ -3,7 +3,7 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   ChinYen Chou <chinyen.chou@mediatek.com>                                *
+ *   Chinyen Chou <chinyen.chou@mediatek.com>                                *
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #ifndef MCLD_RESOLVE_INFO_H
@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/Support/DataTypes.h>
 namespace mcld
 {
 
@@ -27,7 +28,10 @@ namespace mcld
  */
 class ResolveInfo
 {
+friend class ResolveInfoFactory;
 public:
+  typedef uint64_t ValueType;
+
   enum Type {
     Defined,
     Reference,
@@ -38,8 +42,8 @@ public:
 
   enum Binding {
     Global,
-    Local,
     Weak,
+    Local,
     NoneBinding
   };
 
@@ -62,6 +66,9 @@ public:
 
   void setVisibility(Visibility pVisibility);
 
+  void setValue(ValueType pValue)
+  { m_Value = pValue; }
+
   void overrideAttributes(const ResolveInfo& pFrom);
 
   void overrideVisibility(const ResolveInfo& pFrom);
@@ -78,24 +85,29 @@ public:
 
   Visibility visibility() const;
 
+  ValueType value() const
+  { return m_Value; }
+
   const char* name() const
   { return m_Name; }
 
 private:
-  const uint32_t DEF_BIT = 0x0;
-  const uint32_t REF_BIT = 1 << 1;
-  const uint32_t COM_BIT = 1 << 3;
+  static const uint32_t TYPE_OFSET = 2;
+  static const uint32_t TYPE_MASK = 0x3 << TYPE_OFSET;
 
-  const uint32_t REG_BIT = 0x0;
-  const uint32_t DYN_BIT = 1 << 1;
+  static const uint32_t DYN_OFFSET = 1;
+  static const uint32_t DYN_MASK = 1 << DYN_OFFSET;
 
-  const uint32_t GLOBAL_BIT = 0x0;
-  const uint32_t WEAK_BIT = 1;
-  const uint32_t LOCAL_BIT = 1 << 4;
+  static const uint32_t BINDING_OFFSET = 0;
+  static const uint32_t BINDING_MASK = 1;
+  static const uint32_t LOCAL_OFFSET = 4;
+  static const uint32_t LOCAL_MASK = 1 << LOCAL_OFFSET;
 
-  const uint32_t VISIBILITY = 0x3 << 5;
+  static const uint32_t VISIBILITY_OFFSET = 5;
+  static const uint32_t VISIBILITY_MASK = 0x3 << VISIBILITY_OFFSET;
 
-  const uint32_t RESOLVE_MASK = 0xF;
+  static const uint32_t NAME_LENGTH_OFFSET = 8;
+  static const uint32_t RESOLVE_MASK = 0xF;
 
 private:
   ResolveInfo();
@@ -109,6 +121,7 @@ private:
    * | length of m_Name |reserved|ELF visibility|Local|Com|Ref|Dyn|Weak|
    */
   uint32_t m_BitField;
+  ValueType m_Value;
   char m_Name[0];
 };
 
