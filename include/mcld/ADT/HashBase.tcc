@@ -138,8 +138,10 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::lookUpBucketFor(
       return index;
     }
 
-    if (bucket_type::getTombstone() == bucket.Entry && -1 == firstTombstone) {
+    if (bucket_type::getTombstone() == bucket.Entry) {
+      if (-1 == firstTombstone) {
         firstTombstone = index;
+      }
     }
     else if (bucket.FullHashValue == full_hash) {
       if (bucket.Entry->compare(pKey)) {
@@ -147,7 +149,9 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::lookUpBucketFor(
       }
     }
 
-    index = (index+probe) % m_NumOfBuckets;
+    index += probe;
+    if (index == m_NumOfBuckets)
+      index = 0;
   }
 }
 
@@ -179,7 +183,9 @@ HashTableImpl<HashEntryTy, HashFunctionTy>::findKey(
       if (bucket.Entry->compare(pKey))
         return index;
     }
-    index = (index + probe) % m_NumOfBuckets;
+    index += probe;
+    if (index == m_NumOfBuckets)
+      index = 0;
   }
 }
 
@@ -225,7 +231,9 @@ void HashTableImpl<HashEntryTy, HashFunctionTy>::doRehash(unsigned int pNewSize)
       // Otherwise probe for a spot.
       const unsigned int probe = 1;
       do {
-        new_bucket = (new_bucket + probe) % pNewSize;
+        new_bucket += probe;
+        if (new_bucket == pNewSize)
+          new_bucket = 0;
       } while (new_table[new_bucket].Entry != bucket_type::getEmptyBucket());
 
       // Finally found a slot.  Fill it in.

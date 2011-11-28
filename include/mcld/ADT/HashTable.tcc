@@ -46,7 +46,7 @@ void HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::clear()
   for (unsigned int i=0; i < BaseTy::m_NumOfBuckets; ++i) {
     if (bucket_type::getEmptyBucket() != BaseTy::m_Buckets[i].Entry ) {
       if (bucket_type::getTombstone() != BaseTy::m_Buckets[i].Entry ) {
-        m_EntryFactory.destroy(BaseTy::m_Backets[i].Entry);
+        m_EntryFactory.destroy(BaseTy::m_Buckets[i].Entry);
       }
       BaseTy::m_Buckets[i].Entry = bucket_type::getEmptyBucket();
     }
@@ -94,15 +94,18 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::erase(
         const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
 {
-  chain_iterator entry, bEnd = end(pKey);
-  size_type counter = 0;
-  for (entry= begin(pKey); entry!= bEnd; ++entry, ++counter) {
-    m_EntryFactory.detroy(entry.getEntry());
-    entry.getBucket()->Entry = bucket_type::getEmptyBucket();
-  }
-  BaseTy::m_NumOfEntries -= counter;
+  int index;
+  if (-1 == (index = BaseTy::findKey(pKey)))
+    return 0;
+
+  bucket_type& bucket = BaseTy::m_Buckets[index];
+  m_EntryFactory.destroy(bucket.Entry);
+  bucket.Entry = bucket_type::getTombstone();
+
+  --BaseTy::m_NumOfEntries;
+  ++BaseTy::m_NumOfTombstones;
   BaseTy::mayRehash();
-  return counter;
+  return 1;
 }
 
 template<typename HashEntryTy,

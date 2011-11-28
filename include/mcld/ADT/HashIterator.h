@@ -40,13 +40,18 @@ public:
     const unsigned int probe = 1;
     while(true) {
       bucket_type &bucket = m_pHashTable->m_Buckets[m_Index];
-      if (m_HashValue == bucket.FullHashValue) {
+      if (bucket_type::getTombstone() == bucket.Entry) {
+        // Ignore tombstones.
+      }
+      else if (m_HashValue == bucket.FullHashValue) {
         if (bucket.Entry->compare(pKey)) {
           m_EndIndex = m_Index;
           break;
         }
       }
-      m_Index = (m_Index + probe) % (m_pHashTable->m_NumOfBuckets);
+      m_Index += probe;
+      if (m_Index == m_pHashTable->m_NumOfBuckets)
+        m_Index = 0;
       // doesn't exist
       if (m_EndIndex == m_Index) {
         reset();
@@ -104,7 +109,9 @@ public:
   inline void advance() {
     const unsigned int probe = 1;
     while(true) {
-      m_Index = (m_Index + probe) % (m_pHashTable->m_NumOfBuckets);
+      m_Index += probe;
+      if (m_Index == m_pHashTable->m_NumOfBuckets)
+        m_Index = 0;
       // reach end()
       if (m_Index == m_EndIndex) {
         reset();
