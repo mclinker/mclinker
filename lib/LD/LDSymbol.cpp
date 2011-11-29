@@ -45,6 +45,6 @@ void LDSymbol::setFragmentRef(llvm::MCFragment& pFragment, LDSymbol::Offset pOff
 
 void LDSymbol::setResolveInfo(const ResolveInfo& pInfo)
 {
-  m_pResolveInfo = &pInfo;
+  m_pResolveInfo = const_cast<ResolveInfo*>(&pInfo);
 }
 
