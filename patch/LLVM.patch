@@ -116,6 +116,23 @@ Index: include/llvm/MC/MCSymbol.h
      friend class MCExpr;
      friend class MCContext;
      MCSymbol(StringRef name, bool isTemporary)
+Index: include/llvm/Support/CommandLine.h
+===================================================================
+--- include/llvm/Support/CommandLine.h	(revision 142614)
++++ include/llvm/Support/CommandLine.h	(working copy)
+@@ -339,7 +339,11 @@
+ 
+   bool hasValue() const { return false; }
+ 
+-  const DataType &getValue() const { assert(false && "no default value"); }
++  const DataType &getValue() const {
++    assert(false && "no default value");
++    DataType *p = 0;
++    return *p;
++  }
+ 
+   // Some options may take their value from a different data type.
+   template<class DT>
 Index: lib/MC/MCAssembler.cpp
 ===================================================================
 --- lib/MC/MCAssembler.cpp	(revision 142614)

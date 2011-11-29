@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
 
   M.reset(ParseIRFile(InputFilename, Err, Context));
   if (M.get() == 0) {
-    Err.print(argv[0], errs());
+    Err.Print(argv[0], errs());
     errs() << "** First positional argument must be a bitcode/llvm asm file. **\n";
     return 1;
   }
@@ -220,7 +220,7 @@ int main( int argc, char* argv[] )
 
   Triple TheTriple(mod.getTargetTriple());
   if (TheTriple.getTriple().empty())
-    TheTriple.setTriple(sys::getDefaultTargetTriple());
+    TheTriple.setTriple(sys::getHostTriple());
 
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by

@@ -103,11 +103,12 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
 }
 
 bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
+                                                     CodeGenOpt::Level Level,
                                                      bool DisableVerify,
                                                      llvm::MCContext *&OutCtx)
 {
   return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
-                                            PM, DisableVerify, OutCtx);
+                                            PM, Level, DisableVerify, OutCtx);
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -120,7 +121,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   // MCContext
   llvm::MCContext* Context = 0;
-  if (addCommonCodeGenPasses(pPM, pDisableVerify, Context))
+  if (addCommonCodeGenPasses(pPM, pOptLvl,pDisableVerify, Context))
     return true;
   assert(Context != 0 && "Failed to get MCContext");
 
@@ -129,7 +130,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   switch( pFileType ) {
   default:
-  case mcld::CGFT_NULLFile: 
+  case mcld::CGFT_NULLFile:
     assert(0 && "fatal: file type is not set!");
     break;
   case CGFT_ASMFile: {
@@ -204,7 +205,6 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                                          ArgAsmVerbose,
                                                                          getTM().hasMCUseLoc(),
                                                                          getTM().hasMCUseCFI(),
-                                                                         getTM().hasMCUseDwarfDirectory(),
                                                                          InstPrinter,
                                                                          MCE,
                                                                          MAB,

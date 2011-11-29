@@ -108,9 +108,6 @@ protected:
       }
 
     private:
-      void *operator new(size_t size) {}
-
-    private:
       MemoryRegion *m_Region;
 
       const Address m_Buffer;
