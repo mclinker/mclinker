@@ -32,6 +32,7 @@ LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
   m_pResolveInfo = pCopy.m_pResolveInfo;
   m_pFragRef = pCopy.m_pFragRef;
   m_Size = pCopy.m_Size;
+  return (*this);
 }
 
 void LDSymbol::setFragmentRef(llvm::MCFragment& pFragment, LDSymbol::Offset pOffset)

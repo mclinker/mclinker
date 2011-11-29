@@ -15,10 +15,12 @@ using namespace mcld;
 // MCLDOptions
 bool GeneralOptions::hasDefaultLDScript() const
 {
+  return true;
 }
 
 const char* GeneralOptions::defaultLDScript() const
 {
+  return NULL;
 }
 
 void GeneralOptions::setDefaultLDScript(const std::string& pFilename)

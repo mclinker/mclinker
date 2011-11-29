@@ -172,6 +172,7 @@ DirIterator& DirIterator::operator=(const DirIterator& pCopy)
 {
   m_pParent = pCopy.m_pParent;
   m_Idx = pCopy.m_Idx;
+  return (*this);
 }
 
 DirIterator& DirIterator::operator++()

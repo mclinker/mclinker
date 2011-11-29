@@ -429,9 +429,9 @@ bool SectLinker::doInitialization(Module &pM)
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
   initializeInputTree(m_LDInfo, pos_dep_options);
 
-  // Now, all input arguments are prepared well, send it into MCLinker
-  m_pLinker = new MCLinker(m_LDInfo, *m_pLDBackend);
-
+  // Now, all input arguments are prepared well, send it into MCLDDriver
+  m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
+  return false;
 }
 
 bool SectLinker::doFinalization(Module &pM)
@@ -489,11 +489,13 @@ bool SectLinker::doFinalization(Module &pM)
   m_pLinker->relocation();
   m_pLinker->writeOut();
 **/
+  return false;
 }
 
 bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 {
   // basically, linkers do nothing during function is generated.
+  return false;
 }
 
 void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,

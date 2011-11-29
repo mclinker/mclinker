@@ -190,6 +190,7 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
     ///       But how about the path??
 
   }
+  return NULL; // FIXME: where to return the result??
 }
 
 
@@ -311,4 +312,5 @@ llvm::MemoryBuffer *MCArchiveReader::getMemberFile(llvm::OwningPtr<llvm::MemoryB
                                                    std::vector<ArchiveMapEntry> &archiveMap)
 {
   /// FIXME: Do we really need this??
+  return NULL;
 }

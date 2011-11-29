@@ -63,6 +63,7 @@ MCLDDirectory &MCLDDirectory::assign(llvm::StringRef pName)
   Directory::m_SymLinkStatus = FileStatus();
   Directory::m_Cache.clear();
   Directory::m_Handler = 0;
+  return (*this);
 }
 
 MCLDDirectory::~MCLDDirectory()

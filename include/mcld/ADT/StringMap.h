@@ -71,6 +71,7 @@ public:
   StringMapConstIterator& operator=(const StringMapConstIterator& pCopy) {
     f_Map = pCopy.f_Map;
     f_Idx = pCopy.f_Idx;
+    return (*this);
   }
 
   bool operator==(const StringMapConstIterator &RHS) const

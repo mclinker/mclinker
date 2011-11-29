@@ -124,6 +124,7 @@ size_t canonicalize(std::string& pathname)
       handler = pathname.find_first_of(separator, handler);
     }
   }
+  return handler;
 }
 
 bool not_found_error(int perrno)
@@ -229,9 +230,11 @@ Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
     return pIter.m_pParent->m_Cache.GetOrCreateValue(path, new Path(path));
   case 0:// meet real end
     return pIter.m_pParent->m_Cache.end();
+  default:
   case -1:
     llvm::report_fatal_error(std::string("Can't read directory: ")+
                              pIter.m_pParent->path().native());
+    return pIter.m_pParent->m_Cache.end();
   }
 }
 
@@ -251,6 +254,7 @@ void open_dir(Directory& pDir)
   case 0:
     // FIXME: a warning function
     return;
+  default:
   case -1:
     llvm::report_fatal_error(std::string("Can't read directory: ")+
                              pDir.path().native());

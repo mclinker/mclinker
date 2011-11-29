@@ -103,12 +103,11 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
 }
 
 bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
-                                                     CodeGenOpt::Level Level,
                                                      bool DisableVerify,
                                                      llvm::MCContext *&OutCtx)
 {
   return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
-                                            PM, Level, DisableVerify, OutCtx);
+                                            PM, DisableVerify, OutCtx);
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -121,7 +120,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   // MCContext
   llvm::MCContext* Context = 0;
-  if (addCommonCodeGenPasses(pPM, pOptLvl, pDisableVerify, Context))
+  if (addCommonCodeGenPasses(pPM, pDisableVerify, Context))
     return true;
   assert(Context != 0 && "Failed to get MCContext");
 
@@ -205,6 +204,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                                          ArgAsmVerbose,
                                                                          getTM().hasMCUseLoc(),
                                                                          getTM().hasMCUseCFI(),
+                                                                         getTM().hasMCUseDwarfDirectory(),
                                                                          InstPrinter,
                                                                          MCE,
                                                                          MAB,
