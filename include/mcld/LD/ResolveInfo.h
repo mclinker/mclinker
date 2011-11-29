@@ -25,6 +25,7 @@ namespace mcld
  *  - Type - Defined, Reference, Common or Indirect
  *  - Binding - Global, Local, Weak
  *  - IsDyn - appear in dynamic objects or regular objects
+ *  - Value - the value of the symbol
  *  In order to save the memory and speed up the performance, MCLinker uses
  *  a bit field to store all attributes.
  */
@@ -32,8 +33,7 @@ class ResolveInfo
 {
 friend class ResolveInfoFactory;
 public:
-  typedef uint64_t ValueType;
-  typedef llvm::StringRef KeyType;
+  typedef uint64_t ValueType; // FIXME: use SizeTrait<T>::Word
 
   enum Type {
     Defined,
@@ -56,6 +56,9 @@ public:
     Hidden = 2,
     Protected = 3
   };
+
+  // -----  For HashTable  ----- //
+  typedef llvm::StringRef key_type;
 
 public:
   // -----  modifiers  ----- //
@@ -88,13 +91,17 @@ public:
 
   Visibility visibility() const;
 
-  KeyType key() const;
-
   ValueType value() const
   { return m_Value; }
 
   const char* name() const
   { return m_Name; }
+
+  unsigned int nameSize() const
+  { return (m_BitField >> NAME_LENGTH_OFFSET); }
+
+  // -----  For HashTable  ----- //
+  bool compare(const key_type& pKey);
 
 private:
   static const uint32_t TYPE_OFSET = 2;
@@ -121,12 +128,12 @@ private:
   ~ResolveInfo();
 
 private:
+  ValueType m_Value;
   /** m_BitField
    *  31     ...       8    7     6    ..      5   4    3   2   1   0
    * | length of m_Name |reserved|ELF visibility|Local|Com|Ref|Dyn|Weak|
    */
   uint32_t m_BitField;
-  ValueType m_Value;
   char m_Name[0];
 };
 

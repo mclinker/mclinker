@@ -7,6 +7,7 @@
  *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
 #include <mcld/LD/ResolveInfo.h>
+#include <cstring>
 
 using namespace mcld;
 
@@ -18,13 +19,13 @@ ResolveInfo::ResolveInfo()
 
 ResolveInfo::~ResolveInfo()
 {
-  m_BitField = 0x0;
 }
 
 void ResolveInfo::overrideAttributes(const ResolveInfo& pFrom)
 {
   m_BitField &= ~RESOLVE_MASK;
   m_BitField |= (pFrom.m_BitField & RESOLVE_MASK);
+  m_Value = pFrom.m_Value;
 }
 
 void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
@@ -70,7 +71,7 @@ void ResolveInfo::setVisibility(ResolveInfo::Visibility pVisibility)
 
 bool ResolveInfo::isDyn() const
 {
-  return (m_BitField & DYN_MASK) >> DYN_OFFSET;
+  return (0 != (m_BitField & DYN_MASK));
 }
 
 unsigned int ResolveInfo::type() const
@@ -92,7 +93,14 @@ unsigned int ResolveInfo::binding() const
 ResolveInfo::Visibility ResolveInfo::visibility() const
 {
   uint8_t val = (m_BitField & ~VISIBILITY_MASK) >> VISIBILITY_OFFSET;
-  ResolveInfo::Visibility vis = static_cast<ResolveInfo::Visibility>(val);
-  return vis;
+  return static_cast<ResolveInfo::Visibility>(val);
+}
+
+bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
+{
+  size_t length = nameSize();
+  if (length != pKey.size())
+    return false;
+  return (0 == std::memcmp(m_Name, pKey.data(), length));
 }
 
