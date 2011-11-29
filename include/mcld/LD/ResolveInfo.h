@@ -13,6 +13,8 @@
 #endif
 
 #include <llvm/Support/DataTypes.h>
+#include <llvm/ADT/StringRef.h>
+
 namespace mcld
 {
 
@@ -31,6 +33,7 @@ class ResolveInfo
 friend class ResolveInfoFactory;
 public:
   typedef uint64_t ValueType;
+  typedef llvm::StringRef KeyType;
 
   enum Type {
     Defined,
@@ -84,6 +87,8 @@ public:
   { return (uint8_t)visibility(); }
 
   Visibility visibility() const;
+
+  KeyType key() const;
 
   ValueType value() const
   { return m_Value; }

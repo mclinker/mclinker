@@ -103,6 +103,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/AttributeFactory.cpp \
 	${INCDIR}/MC/MCLDInputTree.h \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
+	${INCDIR}/MC/MCFragmentRef.h \
+	${LIBDIR}/MC/MCFragmentRef.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
@@ -115,23 +117,17 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDSection.h \
+	${INCDIR}/LD/ResolveInfo.h \
+	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
-	${INCDIR}/LD/LDSymbolFactory.h \
-	${LIBDIR}/LD/LDSymbolFactory.cpp \
 	${INCDIR}/LD/LDWriter.h \
 	${INCDIR}/LD/LDELFWriter.h \
 	${INCDIR}/LD/ELFDSOWriter.h \
 	${LIBDIR}/LD/ELFDSOWriter.cpp \
-	${INCDIR}/LD/ELFEXEWriter.h \
-	${LIBDIR}/LD/ELFEXEWriter.cpp \
-	${INCDIR}/LD/LDContext.h \
-	${INCDIR}/LD/LDELFWriter.h \
-	${LIBDIR}/LD/LDSymbol.cpp \
-	${INCDIR}/LD/LDWriter.h \
-	${INCDIR}/LD/SymbolTableIF.h \
-	${INCDIR}/LD/Resolver.h \
-	${LIBDIR}/LD/Resolver.cpp
+	${INCDIR}/LD/SymbolTableIF.h
+#	${INCDIR}/LD/Resolver.h \
+#	${LIBDIR}/LD/Resolver.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 
