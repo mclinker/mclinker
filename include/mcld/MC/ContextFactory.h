@@ -11,17 +11,17 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
+#include "mcld/LD/LDContext.h"
 #include "mcld/Support/UniqueGCFactory.h"
 #include "mcld/Support/Path.h"
 
 namespace mcld
 {
-class LDContext;
-
 /** \class ContextFactory
  *  \brief ContextFactory avoids the duplicated LDContext of the same file.
  *
- *  MCLinker is designed for efficient memory usage. Because user can give 
+ *  MCLinker is designed for efficient memory usage. Because user can give
  *  MCLinker the same input file many times on the command line, MCLinker must
  *  avoid opening identical file twice.
  *

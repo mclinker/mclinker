@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/LD/LDContext.h"
 #include "mcld/MC/MCELFObjectReader.h"
 #include "mcld/MC/MCELFObjectTargetReader.h"
 #include "mcld/MC/MCLDFile.h"
@@ -101,6 +102,86 @@ error_code MCELFObjectReader::readObject(const std::string &ObjectFile,
                                          MCLDFile &LDFile)
 {
   error_code ec;
+  ec = MemoryBuffer::getFile(ObjectFile, File);
+  FileBase = File->getBufferStart();
+
+  ELFHeader = reinterpret_cast<const Elf32_Ehdr *>(FileBase);
+  SectionHeaderTable =
+    reinterpret_cast<const Elf32_Shdr *>(FileBase + ELFHeader->e_shoff);
+
+  ShStringTable = getShdrEntry(ELFHeader->e_shstrndx);
+  const char *st = reinterpret_cast<const char*>(ShStringTable);
+
+
+  for (const char *i = reinterpret_cast<const char *>(SectionHeaderTable),
+                  *e = i + ELFHeader->e_shnum * ELFHeader->e_shentsize;
+                   i != e; i += ELFHeader->e_shentsize) {
+    const Elf32_Shdr *sh = reinterpret_cast<const Elf32_Shdr*>(i);
+    StringRef SectionName(getNameString(ShStringTable, sh->sh_name));
+
+
+    if (sh->sh_type == SHT_STRTAB) {
+      if (SectionName == ".strtab") {
+        if (StringTable != 0)
+          continue;
+        StringTable = sh;
+        const char *StringTableSection = FileBase + sh->sh_offset;
+        if (StringTableSection[sh->sh_size - 1] != 0)
+          // FIXME: Proper error handling.
+          report_fatal_error("String table must end with a null terminator!");
+
+        continue;
+      }
+
+      else if (SectionName == ".dynstr") {
+        if (DynStringTable != 0)
+          continue;
+        DynStringTable = sh;
+      }
+
+      else
+        continue;
+    }
+
+    if (sh->sh_type == SHT_SYMTAB) {
+      if (SymbolTable != 0)
+        continue;
+      SymbolTable = sh;
+      continue;
+    }
+
+    if (sh->sh_type == SHT_DYNSYM) {
+      if (DynSymbolTable != 0)
+        continue;
+      DynSymbolTable = sh;
+      continue;
+    }
+
+    if (sh->sh_type == SHT_REL || sh->sh_type == SHT_RELA) {
+      // TODO(Nowar): Call TargetLDBackend to read into RelocationEntry.
+      //              The question is: how to do?
+    }
+
+    const MCSectionELF *ShEntry = 0;
+      //LDFile.context()->getELFSection(SectionName, sh->sh_type,
+      //                                 0, SectionKind::getReadOnly(),
+      //                                 sh->sh_size, "");
+
+    MCSymbol *SymEntry = NULL;
+    if (!SectionName.empty()) {
+      //SymEntry = LDFile.context()->getOrCreateSymbol(SectionName);
+      //MCSymbolData &SymDataEntry =
+      //  LDFile.context()->getOrCreateSymbolData(*SymEntry);
+    }
+
+  }
+
+  if (SymbolTable)
+    CopySymbolEntryToLDFile(LDFile, SymbolTable, StringTable);
+
+  if (DynSymbolTable)
+    CopySymbolEntryToLDFile(LDFile, DynSymbolTable, DynStringTable);
+
   return ec;
 }
 
@@ -156,6 +237,38 @@ MCELFObjectReader::CopySymbolEntryToLDFile(MCLDFile &File,
                                            const Elf32_Shdr *ShSym,
                                            const Elf32_Shdr *ShStr) {
   error_code ec;
+
+  StringRef SymTabName = getNameString(ShStringTable, ShSym->sh_name);
+
+  const MCSectionELF *SymTabSection = 0;
+     //File.context()->getELFSection(SymTabName, ELF::SHT_STRTAB,
+     //                                 0, SectionKind::getReadOnly(),
+     //                                 ShSym->sh_size ,"");
+
+  for (const char *i = FileBase + ShSym->sh_offset,
+                  *e = FileBase +
+                       ShSym->sh_offset +
+                       ShSym->sh_size;
+                  i!=e; i+= ShSym->sh_entsize) {
+     const Elf32_Sym *SymEntry = reinterpret_cast<const Elf32_Sym *>(i);
+     StringRef SymbolName = getNameString(ShStr, SymEntry->st_name);
+
+     MCSectionData SymTabSD;
+     //  File.context()->getOrCreateSectionData(*SymTabSection);
+
+     MCDataFragment *F = new MCDataFragment(&SymTabSD);
+
+     MCDataFragment *ShndxF = NULL;
+     WriteSymbolEntry(F, ShndxF, SymEntry->st_name, SymEntry->st_value,
+                      SymEntry->st_size, SymEntry->st_info,
+                      SymEntry->st_other, SymEntry->st_shndx, 1);
+
+     MCSymbol *Sym = NULL;
+     if (!SymbolName.empty()) {
+       //Sym = File.context()->getOrCreateSymbol(SymbolName);
+       //MCSymbolData &SymData =File.context()->getOrCreateSymbolData(*Sym);
+     }
+  }
 
   return ec;
 }

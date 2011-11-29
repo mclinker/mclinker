@@ -11,16 +11,17 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <string>
-#include "llvm/ADT/Triple.h"
+
 #include "mcld/MC/MCLDOutput.h"
 #include "mcld/MC/MCLDOptions.h"
-#include "mcld/Support/FileSystem.h"
 #include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/InputFactory.h"
 #include "mcld/MC/AttributeFactory.h"
 #include "mcld/MC/ContextFactory.h"
+#include "mcld/Support/FileSystem.h"
 #include "mcld/Support/MemoryAreaFactory.h"
+
+#include "llvm/ADT/Triple.h"
+#include <string>
 
 namespace mcld
 {

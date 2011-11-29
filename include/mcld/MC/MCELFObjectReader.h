@@ -19,6 +19,10 @@ namespace llvm {
 class MCDataFragment;
 }
 
+namespace llvm {
+class MCDataFragment;
+};
+
 namespace mcld
 {
 class Input;
@@ -77,6 +81,67 @@ private:
                         uint64_t size, uint8_t other,
                         uint32_t shndx,
                         bool Reserved);
+ 
+  //String Writing
+  void StringLE16(char *buf, uint16_t Value) {
+    buf[0] = char(Value >> 0);
+    buf[1] = char(Value >> 8);
+  }
+
+  void StringLE32(char *buf, uint32_t Value) {
+    StringLE16(buf, uint16_t(Value >> 0));
+    StringLE16(buf + 2, uint16_t(Value >> 16));
+  }
+
+  void StringLE64(char *buf, uint64_t Value) {
+    StringLE32(buf, uint32_t(Value >> 0));
+    StringLE32(buf + 4, uint32_t(Value >> 32));
+  }
+
+  void StringBE16(char *buf ,uint16_t Value) {
+    buf[0] = char(Value >> 8);
+    buf[1] = char(Value >> 0);
+  }
+
+  void StringBE32(char *buf, uint32_t Value) {
+    StringBE16(buf, uint16_t(Value >> 16));
+    StringBE16(buf + 2, uint16_t(Value >> 0));
+  }
+
+  void StringBE64(char *buf, uint64_t Value) {
+    StringBE32(buf, uint32_t(Value >> 32));
+    StringBE32(buf + 4, uint32_t(Value >> 0));
+  }
+
+  void String8(MCDataFragment &F, uint8_t Value) {
+    char buf[1];
+    buf[0] = Value;
+  }
+
+  void String16(MCDataFragment &F, uint16_t Value) {
+    char buf[2];
+    if (isLittleEndian())
+      StringLE16(buf,Value);
+    else
+      StringBE16(buf, Value);
+  }
+
+  void String32(MCDataFragment &F, uint32_t Value) {
+    char buf[4];
+    if (isLittleEndian())
+      StringLE32(buf, Value);
+    else
+      StringBE32(buf, Value);
+  }
+
+  void String64(MCDataFragment &F, uint64_t Value) {
+    char buf[8];
+    if (isLittleEndian())
+      StringLE64(buf, Value);
+    else
+      StringBE64(buf, Value);
+  }
+
 };
 
 } // namespace of mcld

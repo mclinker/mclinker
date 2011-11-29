@@ -18,17 +18,17 @@
 #endif
 
 #include "mcld/ADT/Uncopyable.h"
+#include "mcld/LD/LDContext.h"
+#include "mcld/Support/Path.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/GCFactory.h"
 #include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/Path.h"
-
 #include "llvm/ADT/StringRef.h"
 #include <string>
 
+
 namespace mcld
 {
-class LDContext;
 class MemoryArea;
 
 /** \class MCLDFile

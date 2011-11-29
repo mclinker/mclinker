@@ -11,20 +11,20 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/MCObjectReader.h"
-#include "mcld/MC/MCArchiveReader.h"
 #include "mcld/MC/MCLinker.h"
+#include "mcld/MC/MCLDLayout.h"
+#include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCLDInfo.h"
-#include "mcld/Support/RealPath.h"
+#include "mcld/LD/LDContext.h"
 #include "mcld/Target/TargetLDBackend.h"
+#include "llvm/Support/raw_ostream.h"
 
-#include "llvm/Support/ErrorHandling.h"
+namespace mcld {
 
-using namespace mcld;
-
-MCLinker::MCLinker(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
-  : m_LDInfo(pLDInfo), m_LDBackend(pLDBackend) {
+MCLinker::MCLinker(TargetLDBackend& pBackend, MCLDInfo& pInfo)
+: m_pBackend(pBackend), m_pInfo(pInfo)
+{
+>>>>>>> Move MC/MCLDContext to LD/LDContext.
 }
 
 MCLinker::~MCLinker()

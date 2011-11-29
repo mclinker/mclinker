@@ -118,6 +118,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringMap.h \
+	${INCDIR}/LD/LDContext.h \
 	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
