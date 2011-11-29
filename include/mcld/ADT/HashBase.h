@@ -75,7 +75,6 @@ public:
   typedef HashFunctionTy hasher;
   typedef HashEntryTy entry_type;
   typedef typename HashEntryTy::key_type key_type;
-  typedef typename HashEntryTy::value_type value_type;
   typedef HashBucket<HashEntryTy> bucket_type;
   typedef HashTableImpl<HashEntryTy, HashFunctionTy> Self;
 
