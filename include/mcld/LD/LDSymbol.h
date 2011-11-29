@@ -80,7 +80,7 @@ public:
     return m_pResolveInfo->other();
   }
 
-  ValueType value() const
+  ValueType value() const {
     assert(NULL != m_pResolveInfo);
     return m_pResolveInfo->value();
   }
