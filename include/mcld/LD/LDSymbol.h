@@ -16,6 +16,7 @@
 #include "mcld/LD/ResolveInfo.h"
 #include "mcld/MC/MCFragmentRef.h"
 #include "llvm/MC/MCAssembler.h"
+#include <assert.h>
 
 namespace mcld
 {
@@ -39,26 +40,50 @@ public:
   ~LDSymbol();
 
   // -----  observers  ----- //
-  const char* name() const
-  { return m_pResolveInfo->name(); }
+  const char* name() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->name();
+  }
 
-  llvm::StringRef str() const
-  { return m_pResolveInfo->key(); }
+  unsigned int nameSize() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->nameSize();
+  }
 
-  bool isDyn() const
-  { return m_pResolveInfo->isDyn(); }
+  llvm::StringRef str() const {
+    assert(NULL != m_pResolveInfo);
+    return llvm::StringRef(m_pResolveInfo->name(), m_pResolveInfo->nameSize());
+  }
 
-  unsigned int type() const
-  { return m_pResolveInfo->type(); }
+  bool isDyn() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->isDyn();
+  }
 
-  unsigned int binding() const
-  { return m_pResolveInfo->binding(); }
+  unsigned int type() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->type();
+  }
 
-  uint8_t other() const
-  { return m_pResolveInfo->other(); }
+  unsigned int binding() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->binding();
+  }
 
-  uint8_t visibility() const
-  { return m_pResolveInfo->other(); }
+  uint8_t other() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->other();
+  }
+
+  uint8_t visibility() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->other();
+  }
+
+  ValueType value() const
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->value();
+  }
 
   const MCFragmentRef* fragRef() const
   { return m_pFragRef; }
@@ -66,12 +91,14 @@ public:
   SizeType size() const
   { return m_Size; }
 
-  ValueType value() const
-  { return m_pResolveInfo->value(); }
-
   // -----  modifiers  ----- //
   void setSize(SizeType pSize)
   { m_Size = pSize; }
+
+  void setValue(ValueType pValue) {
+    assert(NULL != m_pResolveInfo);
+    m_pResolveInfo->setValue(pValue);
+  }
 
   void setFragmentRef(llvm::MCFragment& pFragment, Offset pOffset);
 
