@@ -91,6 +91,7 @@ public:
 
 public:
   struct Connector {
+    virtual ~Connector() {}
     virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
     virtual void move(iterator& pNode) const = 0;
   };

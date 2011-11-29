@@ -29,6 +29,12 @@ MCFragmentRef::~MCFragmentRef()
   m_Offset = 0;
 }
 
+void MCFragmentRef::assign(llvm::MCFragment& pFrag, MCFragmentRef::Offset pOffset)
+{
+  m_pFragment = &pFrag;
+  m_Offset = pOffset;
+}
+
 MCFragmentRef::Address MCFragmentRef::deref()
 {
   if (NULL == m_pFragment)
