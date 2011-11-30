@@ -73,6 +73,7 @@ public:
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.
   bool addPassesToEmitFile(PassManagerBase &,
+                           formatted_raw_ostream &Out,
                            const std::string &pInputFilename,
                            const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
@@ -96,10 +97,12 @@ private:
                               llvm::MCContext *&OutCtx);
 
   bool addCompilerPasses(PassManagerBase &,
+                         formatted_raw_ostream &Out,
                          const std::string& pOutputFilename,
                          llvm::MCContext *&OutCtx);
 
   bool addAssemblerPasses(PassManagerBase &,
+                          formatted_raw_ostream &Out,
                           const std::string& pOutputFilename,
                           llvm::MCContext *&OutCtx);
 

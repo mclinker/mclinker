@@ -21,12 +21,11 @@
 #include "llvm/Support/FormattedStream.h"
 #include "llvm/Support/Host.h"
 #include "llvm/Support/IRReader.h"
+#include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/TargetRegistry.h"
 #include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/ManagedStatic.h"
 #include "llvm/Target/TargetData.h"
 #include "llvm/Target/TargetMachine.h"
-
 
 using namespace llvm;
 
@@ -130,7 +129,7 @@ GetFileNameRoot(const std::string &pInputFilename, std::string& pFileNameRoot)
     pFileNameRoot = std::string(IFN);
 }
 
-static void GetOutputName(const char* pTargetName,
+static tool_output_file *GetOutputStream(const char* pTargetName,
                           Triple::OSType pOSType,
                           mcld::CodeGenFileType pFileType,
                           const std::string& pInputFilename,
@@ -180,6 +179,32 @@ static void GetOutputName(const char* pTargetName,
       }
     }
   }
+
+  // Decide if we need "binary" output.
+  bool Binary = false;
+  switch (FileType) {
+  default: assert(0 && "Unknown file type");
+  case TargetMachine::CGFT_AssemblyFile:
+    break;
+  case TargetMachine::CGFT_ObjectFile:
+  case TargetMachine::CGFT_Null:
+    Binary = true;
+    break;
+  }
+
+  // Open the file.
+  std::string error;
+  unsigned OpenFlags = 0;
+  if (Binary) OpenFlags |= raw_fd_ostream::F_Binary;
+  tool_output_file *FDOut = new tool_output_file(OutputFilename.c_str(), error,
+                                                 OpenFlags);
+  if (!error.empty()) {
+    errs() << error << '\n';
+    delete FDOut;
+    return 0;
+  }
+
+  return FDOut;
 }
 
 int main( int argc, char* argv[] )
@@ -266,8 +291,8 @@ int main( int argc, char* argv[] )
     FeaturesStr = Features.getString();
   }
 
-  std::auto_ptr<mcld::LLVMTargetMachine> target_machine( 
-          TheTarget->createTargetMachine(TheTriple.getTriple(), 
+  std::auto_ptr<mcld::LLVMTargetMachine> target_machine(
+          TheTarget->createTargetMachine(TheTriple.getTriple(),
                                          MCPU,
                                          FeaturesStr));
   assert(target_machine.get() && "Could not allocate target machine!");
@@ -276,12 +301,14 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
-  // get Output Filename
-  GetOutputName(TheTarget->get()->getName(),
-                TheTriple.getOS(),
-                FileType,
-                InputFilename,
-                OutputFilename);
+  // Figure out where we are going to send the output...
+  OwningPtr<tool_output_file>
+  Out(GetOutputStream(TheTarget->get()->getName(),
+                      TheTriple.getOS(),
+                      FileType,
+                      InputFilename,
+                      OutputFilename));
+  if (!Out) return 1;
 
   CodeGenOpt::Level OLvl = CodeGenOpt::Default;
   switch (OptLevel) {
@@ -308,8 +335,11 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
   {
+    formatted_raw_ostream FOS(Out->os());
+
     // Ask the target to add backend passes as necessary.
     if( TheTargetMachine.addPassesToEmitFile(PM,
+                                             FOS,
                                              InputFilename,
                                              OutputFilename,
                                              FileType,
@@ -325,5 +355,10 @@ int main( int argc, char* argv[] )
 
     PM.run(mod);
   }
+
+  // Declare success.
+  Out->keep();
+
+  return 0;
 }
 

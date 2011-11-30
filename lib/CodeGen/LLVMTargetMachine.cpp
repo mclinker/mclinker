@@ -68,24 +68,6 @@ ArgShowMCInst("lshow-mc-inst",
 
 
 //===---------------------------------------------------------------------===//
-/// Non-member functions
-inline static tool_output_file *
-GetOutputStream(const std::string& pOutputFilename, unsigned int pOpenFlags)
-{
-  std::string error;
-  tool_output_file *FDOut = new tool_output_file(pOutputFilename.c_str(),
-                                                 error,
-                                                 pOpenFlags);
-  if (!error.empty()) {
-    errs() << error << '\n';
-    delete FDOut;
-    return 0;
-  }
-
-  return FDOut;
-}
-
-//===---------------------------------------------------------------------===//
 /// LLVMTargetMachine
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
@@ -112,6 +94,7 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
+                                             formatted_raw_ostream &Out,
                                              const std::string& pInputFilename,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
@@ -135,6 +118,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   case CGFT_ASMFile: {
     if (addCompilerPasses(pPM,
+                          Out,
                           pOutputFilename,
                           Context))
       return true;
@@ -142,6 +126,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   }
   case CGFT_OBJFile: {
     if (addAssemblerPasses(pPM,
+                           Out,
                            pOutputFilename,
                            Context))
       return true;
@@ -176,6 +161,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
+                                                formatted_raw_ostream &Out,
                                                 const std::string& pOutputFilename,
                                                 llvm::MCContext *&Context)
 {
@@ -196,21 +182,21 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   if (MCE == 0 || MAB == 0)
     return true;
 
-  tool_output_file *Output = GetOutputStream(pOutputFilename, raw_fd_ostream::F_Binary);
-
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  formatted_raw_ostream FOS(Output->os());
-  OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createAsmStreamer(*Context,
-                                                                         FOS,
-                                                                         ArgAsmVerbose,
-                                                                         getTM().hasMCUseLoc(),
-                                                                         getTM().hasMCUseCFI(),
-                                                                         InstPrinter,
-                                                                         MCE,
-                                                                         MAB,
-                                                                         ArgShowMCInst));
+  OwningPtr<MCStreamer> AsmStreamer(
+    getTarget().get()->createAsmStreamer(*Context,
+                                         Out,
+                                         ArgAsmVerbose,
+                                         getTM().hasMCUseLoc(),
+                                         getTM().hasMCUseCFI(),
+                                         InstPrinter,
+                                         MCE,
+                                         MAB,
+                                         ArgShowMCInst));
 
-  llvm::MachineFunctionPass* funcPass = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+  llvm::MachineFunctionPass* funcPass =
+    getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer.get());
+
   if (funcPass == 0)
     return true;
   // If successful, createAsmPrinter took ownership of AsmStreamer
@@ -220,6 +206,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
+                                                 formatted_raw_ostream &Out,
                                                  const std::string& pOutputFilename,
                                                  llvm::MCContext *&Context)
 {
@@ -233,12 +220,11 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
     return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  tool_output_file *Output = GetOutputStream(pOutputFilename, 0);
   OwningPtr<MCStreamer> AsmStreamer(getTarget().get()->createMCObjectStreamer(
                                                               m_Triple,
                                                               *Context,
                                                               *MAB,
-                                                              Output->os(),
+                                                              Out,
                                                               MCE,
                                                               getTM().hasMCRelaxAll(),
                                                               getTM().hasMCNoExecStack()));
@@ -272,14 +258,13 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   MCStreamer* AsmStreamer =
-                            getTarget().get()->createMCObjectStreamer(
-                                                  m_Triple,
-                                                  *Context,
-                                                  *MAB,
-                                                  llvm::nulls(),
-                                                  MCE,
-                                                  getTM().hasMCRelaxAll(),
-                                                  getTM().hasMCNoExecStack());
+    getTarget().get()->createMCObjectStreamer(m_Triple,
+                                              *Context,
+                                              *MAB,
+                                              llvm::nulls(),
+                                              MCE,
+                                              getTM().hasMCRelaxAll(),
+                                              getTM().hasMCNoExecStack());
   if (0 == AsmStreamer)
     return true;
 
