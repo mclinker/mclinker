@@ -21,8 +21,8 @@
 #include "llvm/MC/MCAsmLayout.h"
 #include "llvm/MC/MCAsmBackend.h"
 #include "llvm/MC/MCAssembler.h"
-#include "llvm/Support/raw_ostream.h"
 #include "llvm/MC/MCObjectStreamer.h"
+#include "llvm/Support/raw_ostream.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/ELF.h"
 
@@ -102,14 +102,15 @@ void MCAsmObjectReader::RecordRelocation(const llvm::MCAssembler &Asm,
   unsigned Type = 0;//OR->getRelocType(Target, Fixup, IsPCRel, (RelocSymbol != 0), Addend);
   llvm::MCSymbolData& SD = Asm.getSymbolData(*RelocSymbol);
 
-  //if (!OR->hasRelocationAddend())
-  //  Addend = 0;
-
-  //RelocationEntry RE(Layout.getFragmentOffset(Fragment),  // r_offset
-  //                   Addend,  // r_addend
-  //                   SD.Index << 8 + (unsigned char)Type, // r_info
-  //                   &SD);  // MCSymbolData
-  //m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
+  if (!OR->hasRelocationAddend())
+    Addend = 0;
+/*
+  LDRelocation RE(Layout.getFragmentOffset(Fragment),  // r_offset
+                     Addend,  // r_addend
+                     SD.Index << 8 + (unsigned char)Type, // r_info
+                     &SD);  // MCSymbolData
+  m_LDInfo.bitcode().context()->getRelocInfo().entries.push_back(RE);
+*/
 }
 
 void MCAsmObjectReader::WriteObject(llvm::MCAssembler &Asm,

@@ -20,7 +20,6 @@
 #endif
 
 #include "mcld/ADT/StringMap.h"
-#include "mcld/LD/Relocation.h"
 #include "mcld/Support/FileSystem.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/ilist.h"
@@ -70,13 +69,10 @@ public:
   typedef SymbolDataListType::const_iterator const_symbol_iterator;
   typedef SymbolDataListType::iterator symbol_iterator;
 
-  typedef std::vector<RelocationEntry>::const_iterator const_reloc_iterator;
-  typedef std::vector<RelocationEntry>::iterator reloc_iterator;
 
   //Section List Access
   SectionDataListType Sections;
   SymbolDataListType Symbols;
-  RelocationInfo m_Reloc;
 
   const SectionDataListType &getSectionList() const { return Sections; }
   SectionDataListType &getSectionList() { return Sections; }
@@ -99,11 +95,6 @@ public:
   symbol_iterator symbol_end() { return Symbols.end(); }
   const_symbol_iterator symbol_end() const { return Symbols.end(); }
 
-  // Relocation sequential access
-  reloc_iterator reloc_begin() { return m_Reloc.entries.begin(); }
-  const_reloc_iterator reloc_begin() const { return m_Reloc.entries.begin(); }
-  reloc_iterator reloc_end() { return m_Reloc.entries.end(); }
-  const_reloc_iterator reloc_end() const { return m_Reloc.entries.end(); }
 
 
   // FIXME: Avoid this indirection?
@@ -114,9 +105,6 @@ public:
 
   void *ELFUniquingMap;
 
-public:
-  RelocationInfo& getRelocInfo() { return m_Reloc; }
-  const RelocationInfo& getRelocInfo() const { return m_Reloc; }
 };
 
 
