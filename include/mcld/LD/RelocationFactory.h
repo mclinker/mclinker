@@ -5,16 +5,14 @@
  *                                                                           *
  *   Diana Chen <diana.chen@mediatek.com>                                    *
  ****************************************************************************/
-#ifndef LDRELOCATIONFACTORY_H
-#define LDRELOCATIONFACTORY_H
+#ifndef LD_RELOCATION_FACTORY_H
+#define LD_RELOCATION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <mcld/Support/GCFactory.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDHowto.h>
-#include <mcld/MC/MCFragmentRef.h>
+#include <mcld/LD/Howto.h>
+#include <mcld/LD/LDSymbol.h>
 
 namespace mcld
 {
@@ -23,26 +21,28 @@ class LDHowto;
 class ResolveInfo;
 class MCFragmentRef;
 
-/** \class LDRelocationFactory
- *  \brief LDRelocationFactory for producing LDRelocation
+/** \class RelocationFactory
+ *  \brief RelocationFactory provides the interface for generating target
+ *  relocation
  *
- *  \see
- *  \author Diana Chen <diana.chen@mediatek.com>
  */
-class LDRelocationFactory : public GCFactory<LDRelocation, 0>
+class RelocationFactory : public GCFactory<Relocation, 0>
 {
 public:
-  typedef GCFactory<LDRelocation, 0> Alloc;
+  typedef Howto::Type Type;
+  typedef Howto::Address Address;
 
 public:
-  LDRelocationFactory(size_t pNum);
-  ~LDRelocationFactory();
+  RelocationFactory(size_t pNum);
+  virtual ~RelocationFactory();
   
   // ----- production ----- //
-  LDRelocation* produce(const LDHowto& pHowto, 
-	       MCFragmentRef& pFragmentRef, 
-	       uint64_t pAddend,
-		   uint32_t pType); 
+  Relocation* produce(Type pType,
+                      const LDSymbol& pSymbol,
+                      Address pOffset,
+                      Address pAddend = 0);
+
+  void destroy(Relocation* pRelocation);
 };
 
 } // namespace of mcld
