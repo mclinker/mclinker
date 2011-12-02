@@ -13,7 +13,7 @@
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCInst.h>
 #include <llvm/ADT/SmallString.h>
-#include <mcld/LD/LDRelocation.h>
+#include <mcld/LD/Relocation.h>
 
 
 namespace mcld
@@ -33,11 +33,11 @@ private:
   llvm::MCInstFragment* m_pFragment;
   
   /// m_Relocation - The list of relocations in this fragment
-  std::vector<LDRelocation> m_Relocations;
+  std::vector<Relocation> m_Relocations;
   
 public:
-  typedef std::vector<LDRelocation>::const_iterator const_relocation_iterator;
-  typedef std::vector<LDRelocation>::iterator relocation_iterator;
+  typedef std::vector<Relocation>::const_iterator const_relocation_iterator;
+  typedef std::vector<Relocation>::iterator relocation_iterator;
 
 public:
   MCInstFragment( llvm::MCInstFragment& pFragment )
@@ -61,10 +61,10 @@ public:
   void setInst(llvm::MCInst pValue) { m_pFragment->setInst(pValue); }
 
   // relocation access
-  void addRelocation(LDRelocation pReloc){  m_Relocations.push_back(pReloc); }
+  void addRelocation(Relocation pReloc){  m_Relocations.push_back(pReloc); }
   
-  std::vector<LDRelocation> &getRelocations() { return m_Relocations; }
-  const std::vector<LDRelocation> &getRelcoations() const { return m_Relocations; }
+  std::vector<Relocation> &getRelocations() { return m_Relocations; }
+  const std::vector<Relocation> &getRelcoations() const { return m_Relocations; }
 
   relocation_iterator relocation_begin() { return m_Relocations.begin(); }
   const_relocation_iterator relocation_begin() const { return m_Relocations.begin(); }
