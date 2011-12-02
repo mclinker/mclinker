@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/Relocation.h"
 #include "mcld/MC/MCAsmObjectReader.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCObjectReader.h"
