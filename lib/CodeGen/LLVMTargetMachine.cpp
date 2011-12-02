@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Target/TargetLDBackend.h"
 #include "mcld/CodeGen/SectLinker.h"
 #include "mcld/MC/MCAsmObjectReader.h"
 #include "mcld/MC/MCLDFile.h"
-#include <string>
 
-#include "llvm/PassManager.h"
+#include "llvm/ADT/OwningPtr.h"
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Analysis/Verifier.h"
 #include "llvm/Assembly/PrintModulePass.h"
@@ -23,26 +23,26 @@
 #include "llvm/CodeGen/MachineModuleInfo.h"
 #include "llvm/CodeGen/GCStrategy.h"
 #include "llvm/CodeGen/Passes.h"
-#include "llvm/Target/TargetLowering.h"
-#include "llvm/Target/TargetOptions.h"
 #include "llvm/MC/MCAsmInfo.h"
 #include "llvm/MC/MCStreamer.h"
-#include "llvm/Target/TargetData.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Transforms/Scalar.h"
-#include "llvm/ADT/OwningPtr.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/Support/FormattedStream.h"
 #include "llvm/MC/MCInstrInfo.h"
 #include "llvm/MC/MCSubtargetInfo.h"
-#include "llvm/Target/TargetSubtargetInfo.h"
-#include "llvm/Target/TargetInstrInfo.h"
 #include "llvm/MC/MCObjectStreamer.h"
 #include "llvm/MC/MCAssembler.h"
 #include "llvm/MC/MCObjectWriter.h"
 #include "llvm/MC/MCContext.h"
+#include "llvm/PassManager.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/TargetRegistry.h"
+#include "llvm/Support/FormattedStream.h"
 #include "llvm/Support/ToolOutputFile.h"
+#include "llvm/Target/TargetData.h"
+#include "llvm/Target/TargetInstrInfo.h"
+#include "llvm/Target/TargetLowering.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/Target/TargetSubtargetInfo.h"
+#include "llvm/Transforms/Scalar.h"
 
 #include <string>
 
@@ -278,9 +278,10 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == ldBackend)
     return true;
 
-  MCAsmObjectReader* objReader = new MCAsmObjectReader(static_cast<MCObjectStreamer&>(*AsmStreamer),
-                                                       *ldBackend,
-                                                       getLDInfo());
+  MCBitcodeInterceptor* objReader = new MCBitcodeInterceptor(
+                                 static_cast<MCObjectStreamer&>(*AsmStreamer),
+                                 *ldBackend,
+                                 getLDInfo());
 
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
                                                                pInputFilename,

@@ -59,10 +59,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
  	${INCDIR}/MC/MCLinker.h \
 	${LIBDIR}/MC/MCLinker.cpp \
-	${INCDIR}/MC/MCAsmObjectReader.h \
-	${LIBDIR}/MC/MCAsmObjectReader.cpp \
-	${INCDIR}/MC/MCLDDriver.h \
-	${LIBDIR}/MC/MCLDDriver.cpp \
+	${INCDIR}/MC/MCBitcodeInterceptor.h \
+	${LIBDIR}/MC/MCBitcodeInterceptor.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \

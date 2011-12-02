@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/MC/MCFragmentRef.h>
+#include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Howto.h>
 
 namespace mcld
@@ -23,6 +24,7 @@ class Relocation
 friend class RelocationFactory;
 public:
   typedef Howto::Address Address; // FIXME: use SizeTrait<T>::Address instead
+  typedef Howto::DWord DWord; // FIXME: use SizeTrait<T>::Word instead
   typedef Howto::Type Type;
 
 private:
@@ -55,20 +57,29 @@ public:
   const Howto* howto() const
   { return m_pHowto; }
   
-  /// target - the target address to relocate
-  Address target()
+  /// target - the target data to relocate
+  DWord& target()
   { return m_Target; }
   
-  /// target - the target address to relocate
-  const MCFragmentRef& target() const
+  /// target - the target data to relocate
+  const DWord& target() const
   { return m_Target; }
+
+  /// targetRef - the reference of the target data
+  MCFragmentRef& targetRef()
+  { return m_TargetAddress; }
+
+  /// targetRef - the reference of the target data
+  const MCFragmentRef& targetRef() const
+  { return m_TargetAddress; }
   
 private:
   /// m_pSymInfo - Resolved symbol info of relocation target symbol
   ResolveInfo* m_pSymInfo;
 
   /// m_Target - MCFragmentRef of the place being relocated
-  MCFragmentRef m_Target;
+  MCFragmentRef m_TargetAddress;
+  DWord m_Target;
   Address m_Addend;
   const Howto* m_pHowto;
 
