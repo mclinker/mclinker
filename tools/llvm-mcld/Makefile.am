@@ -158,6 +158,8 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/UniqueGCFactoryBaseTest.cpp \
 	${UNITTEST}/MemoryAreaTest.h \
 	${UNITTEST}/MemoryAreaTest.cpp \
+	${UNITTEST}/HashTableTest.h \
+	${UNITTEST}/HashTableTest.cpp \
         ${UNITTEST}/LDSymbolTest.h \
         ${UNITTEST}/LDSymbolTest.cpp \
         ${UNITTEST}/MCFragmentRefTest.h \

@@ -141,7 +141,7 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::size_type
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::count(
   const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
 {
-  const_iterator bucket, bEnd = end(pKey);
+  const_chain_iterator bucket, bEnd = end(pKey);
   size_type count = 0;
   for (bucket = begin(pKey); bucket != bEnd; ++bucket)
     ++count;
@@ -181,7 +181,14 @@ template<typename HashEntryTy,
 typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin()
 {
-  return iterator(this, 0);
+  if (BaseTy::empty())
+    return iterator(this, 0);
+  unsigned int index = 0;
+  while (bucket_type::getTombstone() == BaseTy::m_Buckets[index].Entry ||
+         bucket_type::getEmptyBucket() == BaseTy::m_Buckets[index].Entry) {
+    ++index;
+  }
+  return iterator(this, index);
 }
 
 template<typename HashEntryTy,
@@ -199,7 +206,14 @@ template<typename HashEntryTy,
 typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin() const
 {
-  return const_iterator(this, 0);
+  if (BaseTy::empty())
+    return const_iterator(this, 0);
+  unsigned int index = 0;
+  while (bucket_type::getTombstone() == BaseTy::m_Buckets[index].Entry ||
+         bucket_type::getEmptyBucket() == BaseTy::m_Buckets[index].Entry) {
+    ++index;
+  }
+  return const_iterator(this, index);
 }
 
 template<typename HashEntryTy,

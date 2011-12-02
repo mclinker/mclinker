@@ -118,7 +118,9 @@ protected:
   void doRehash(unsigned int pNewSize);
 
 friend class ChainIteratorBase<Self>;
+friend class ChainIteratorBase<const Self>;
 friend class EntryIteratorBase<Self>;
+friend class EntryIteratorBase<const Self>;
 protected:
   // Array of Buckets
   bucket_type* m_Buckets;

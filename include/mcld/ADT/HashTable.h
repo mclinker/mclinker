@@ -49,12 +49,12 @@ public:
 
   typedef HashIterator<ChainIteratorBase<BaseTy>,
                        NonConstTraits<HashEntryTy> > chain_iterator;
-  typedef HashIterator<ChainIteratorBase<BaseTy>,
+  typedef HashIterator<ChainIteratorBase<const BaseTy>,
                        ConstTraits<HashEntryTy> >    const_chain_iterator;
 
   typedef HashIterator<EntryIteratorBase<BaseTy>,
                        NonConstTraits<HashEntryTy> > entry_iterator;
-  typedef HashIterator<EntryIteratorBase<BaseTy>,
+  typedef HashIterator<EntryIteratorBase<const BaseTy>,
                        ConstTraits<HashEntryTy> >    const_entry_iterator;
 
   typedef entry_iterator                             iterator;
