@@ -11,15 +11,17 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/ilist_node.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Howto.h>
+
 
 namespace mcld
 {
 class ResolveInfo;
 
-class Relocation
+class Relocation : llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
 public:
