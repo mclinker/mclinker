@@ -7,8 +7,7 @@
  *   DY Tsai <dy.tsai@mediatek.com>                                          *
  *   Jason Lin <sh.lin@mediatek.com>                                         *
  ****************************************************************************/
-#include <iostream>
-using namespace std;
+
 //===--------------------------------------------------------------------===//
 // internal non-member functions
 inline static unsigned int compute_bucket_count(unsigned int pNumOfBuckets)

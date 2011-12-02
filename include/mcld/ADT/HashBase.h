@@ -11,6 +11,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <cstdlib>
 
 namespace mcld {
 
