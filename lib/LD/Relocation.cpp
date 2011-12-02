@@ -12,10 +12,12 @@
 using namespace mcld;
 
 Relocation::Relocation(const Howto& pHowto,
-                       const MCFragmentRef& pTarget,
+                       const MCFragmentRef& pTargetRef,
+                       Relocation::DWord pTarget,
                        Relocation::Address pAddend)
   : m_pHowto(&pHowto),
-    m_FragmentRef(pTarget),
+    m_Target(pTarget),
+    m_TargetAddress(pTargetRef),
     m_Addend(pAddend) {
 }
 
@@ -25,9 +27,11 @@ Relocation::~Relocation()
 
 Relocation::Type Relocation::type() const
 {
+  return 0; // TODO
 }
 
 Relocation::Address Relocation::place() const
 {
+  return 0; // TODO
 }
 

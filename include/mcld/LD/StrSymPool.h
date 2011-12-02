@@ -12,11 +12,12 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/LD/ResolveInfo.h"
-#include "mcld/LD/ResolveInfoFactory.h"
 #include "mcld/ADT/HashTable.h"
 #include "mcld/ADT/StringHash.h"
+#include "mcld/ADT/Uncopyable.h"
+#include "mcld/LD/Resolver.h"
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/ResolveInfoFactory.h"
 
 namespace llvm
 {
@@ -44,6 +45,10 @@ public:
   StrSymPool(size_type pSize = 3);
   ~StrSymPool();
 
+  // -----  symbol resolution  ----- //
+
+  // -----  modifiers  ----- //
+
   // -----  observers  ----- //
   size_type size() const
   { return m_Table.numOfEntries(); }
@@ -57,6 +62,7 @@ public:
   size_type capacity() const;
 
 private:
+  Resolver m_Resolver;
   Table m_Table;
 
 };

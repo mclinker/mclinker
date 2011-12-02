@@ -12,13 +12,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLDDRIVER_H
-#define MCLDDRIVER_H
+#ifndef MCLD_MCLINKER_H
+#define MCLD_MCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/ADT/StringRef.h"
 #include "mcld/MC/MCLDInfo.h"
+#include "llvm/ADT/StringRef.h"
 
 namespace mcld {
 class MCLDInfo;
@@ -33,35 +33,30 @@ public:
   MCLinker(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLinker();
 
-  void normalize();
+class MCLDCommand;
+class MCLDFile;
+class Layout;
 
-  /// linkable - check the linkability of current MCLDInfo
-  //  Check list:
-  //  - check the Attributes are not violate the constaint
-  //  - check every Input has a correct Attribute
-  bool linkable() const;
+class TargetLDBackend;
+class MCLDInfo;
 
-  /// readSymbolTables - read symbol tables from the input files.
-  //  for each input file, loads its symbol table from file.
-  void readSymbolTables();
+/** \class MCLinker
+ *  \brief MCLinker provides a pass to link object files.
+ */
+class MCLinker
+{
+public:
+  explicit MCLinker(TargetLDBackend&, MCLDInfo&);
+  ~MCLinker();
 
-  /// mergeSymbolTables - merge the symbol tables of input files into the
-  /// output's symbol table.
-  void mergeSymbolTables();
-
-  /// relocation - applying relocation entries and create relocation
-  /// section in the output files
-  // Create relocation section, asking TargetLDBackend to
-  // read the relocation information into RelocationEntry
-  // and push_back into the relocation section
-  void relocation();
+  void applyRelocations();
 
 private:
-  TargetLDBackend &m_LDBackend;
-  MCLDInfo& m_LDInfo;
+  TargetLDBackend& m_pBackend;
+  MCLDInfo& m_pInfo;
 };
 
-} //end namespace mcld
+} // namespace of mcld
 
 #endif
 

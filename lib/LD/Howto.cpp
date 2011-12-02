@@ -11,7 +11,6 @@ using namespace mcld;
 
 //==========================
 // Howto
-
 void Howto::apply(Relocation& pRel)
 {
 }
@@ -19,6 +18,7 @@ void Howto::apply(Relocation& pRel)
 
 Howto::Type Howto::type() const
 {
+  return 0; // TODO
 }
 
 

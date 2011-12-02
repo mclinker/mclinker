@@ -6,6 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/LD/Relocation.h"
+#include "mcld/LD/Layout.h"
 #include "mcld/Target/TargetLDBackend.h"
 
 using namespace mcld;
@@ -16,6 +18,10 @@ TargetLDBackend::TargetLDBackend()
 }
 
 TargetLDBackend::~TargetLDBackend()
+{
+}
+
+void TargetLDBackend::applyRelocation(Relocation& pReloc, const Layout& pLayout)
 {
 }
 

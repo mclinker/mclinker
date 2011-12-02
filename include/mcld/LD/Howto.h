@@ -10,7 +10,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/LD/Relocation.h>
+
+#include <stdint.h>
 
 namespace mcld
 {

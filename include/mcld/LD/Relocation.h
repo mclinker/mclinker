@@ -29,7 +29,8 @@ public:
 
 private:
   Relocation(const Howto& pHowto,
-             const MCFragmentRef& pTarget,
+             const MCFragmentRef& pTargetRef,
+             DWord pTarget,
              Address pAddend);
 
   ~Relocation();

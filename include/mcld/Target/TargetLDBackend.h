@@ -10,10 +10,14 @@
 #define LLVM_TARGET_TARGETLDBACKEND_H
 
 namespace mcld {
-class LDWriter;
+
+class MCELFLDTargetWriter;
+class MCLDWriter;
 class MCArchiveReader;
 class MCObjectReader;
-class MemoryArea;
+class MCObjectWriter;
+class Relocation;
+class Layout;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -31,9 +35,9 @@ public:
 
   virtual MCArchiveReader *getArchiveReader() = 0;
   virtual MCObjectReader *getObjectReader() = 0;
-  virtual LDWriter *getDSOWriter(MemoryArea *Area, bool _IsLittleEndian) = 0;
-  virtual LDWriter *getEXEWriter(MemoryArea *Area, bool _IsLittleEndian) = 0;
-  //virtual void readRelocation() = 0;
+  virtual MCObjectWriter *getObjectWriter() = 0;
+
+  void applyRelocation(Relocation& pRelocation, const Layout& pLayout);
 };
 
 } // End mcld namespace
