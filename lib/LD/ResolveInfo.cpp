@@ -69,6 +69,11 @@ void ResolveInfo::setVisibility(ResolveInfo::Visibility pVisibility)
   m_BitField |= pVisibility << VISIBILITY_OFFSET;
 }
 
+bool ResolveInfo::hasAttributes() const
+{
+  return (0 != (RESOLVE_MASK & m_BitField));
+}
+
 bool ResolveInfo::isDyn() const
 {
   return (0 != (m_BitField & DYN_MASK));

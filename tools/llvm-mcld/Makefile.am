@@ -124,6 +124,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/ResolveInfoFactory.h \
 	${LIBDIR}/LD/ResolveInfoFactory.cpp \
+	${INCDIR}/LD/Resolver.h \
+	${LIBDIR}/LD/Resolver.cpp \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/Relocation.h \
@@ -137,8 +139,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ELFDSOWriter.h \
 	${LIBDIR}/LD/ELFDSOWriter.cpp \
 	${INCDIR}/LD/SymbolTableIF.h
-#	${INCDIR}/LD/Resolver.h \
-#	${LIBDIR}/LD/Resolver.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 

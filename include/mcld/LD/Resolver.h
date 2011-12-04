@@ -11,11 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <string>
 
 namespace mcld
 {
 
-class LDSymbol;
+class ResolveInfo;
+class StrSymPool;
 
 /** \class Resolver
  *  \brief Resolver binds a symbol reference from one file to a symbol
@@ -28,22 +30,43 @@ class LDSymbol;
 class Resolver
 {
 public:
-  enum OverrideAction {
-    ERR_O, // Error, other.
-    ERR_D, // Error, duplicate definition.
-    OLD_W, // Use old symbol & WARNING.
-    NEW_W, // Use new symbol & WARNING.
-    OLD,   // Use old symbol.
-    NEW,   // Use new symbol.
-    OLD_B, // Use old symbol & set size to biggest.
-    NEW_B, // Use new symbol & set size to biggest.
-
-    NUMBER_OF_ACTION
+  enum Action {
+    Success,
+    Warning,
+    Abort,
+    LastAction
   };
+
+public:
+  Resolver();
+
+  virtual ~Resolver();
+
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
-  //  @param pOld the symbol which may be overridden.
-  //  @param pNew the symbol which is used to replace pOld
-  OverrideAction shouldOverride(const LDSymbol& pOld, const LDSymbol& pNew);
+  /// @return the action should be taken.
+  /// @param pOld the symbol which may be overridden.
+  /// @param pNew the symbol which is used to replace pOld
+  virtual unsigned int resolve(const ResolveInfo & __restrict__ pOld,
+                               const ResolveInfo & __restrict__ pNew,
+                               bool &pOverride) = 0;
+
+  /// resolveAgain - Can override by derived classes.
+  /// @return if pStrSymPool is changed, return true. Otherwise, return false.
+  /// @param pAction the action returned by resolve()
+  virtual bool resolveAgain(StrSymPool& pStrSymPool,
+                            unsigned int pAction,
+                            const ResolveInfo& __restrict__ pOld,
+                            const ResolveInfo& __restrict__ pNew)
+  { return false; }
+
+  const std::string& mesg() const
+  { return m_Mesg; }
+
+  void clearMesg();
+
+protected:
+  std::string m_Mesg;
+
 };
 
 } // namespace of mcld

@@ -80,6 +80,8 @@ public:
   void overrideVisibility(const ResolveInfo& pFrom);
 
   // -----  observers  ----- //
+  bool hasAttributes() const;
+
   bool isDyn() const;
 
   unsigned int type() const;

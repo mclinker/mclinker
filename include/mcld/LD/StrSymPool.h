@@ -14,8 +14,8 @@
 
 #include "mcld/ADT/HashTable.h"
 #include "mcld/ADT/StringHash.h"
+#include "llvm/ADT/StringRef.h"
 #include "mcld/ADT/Uncopyable.h"
-#include "mcld/LD/Resolver.h"
 #include "mcld/LD/ResolveInfo.h"
 #include "mcld/LD/ResolveInfoFactory.h"
 
@@ -27,13 +27,14 @@ namespace llvm
 namespace mcld
 {
 
+class Resolver;
 class StringTable;
 class SymbolTableIF;
 
 /** \class StrSymPool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
- *  - SectLinker is responsed for creating StrSymPool.
+ *  - MCLinker is responsed for creating StrSymPool.
  */
 class StrSymPool : private Uncopyable
 {
@@ -42,12 +43,23 @@ public:
   typedef size_t size_type;
 
 public:
-  StrSymPool(size_type pSize = 3);
+  StrSymPool(Resolver& pResolver, size_type pSize = 3);
   ~StrSymPool();
 
-  // -----  symbol resolution  ----- //
-
   // -----  modifiers  ----- //
+  /// insertSymbol - insert a symbol and resolve the symbol immediately
+  /// @return if the table is changed, return true. Otherwise, return false
+  bool insertSymbol(const llvm::StringRef& pName,
+                    bool pIsDyn,
+                    ResolveInfo::Type pType,
+                    ResolveInfo::Binding pBinding,
+                    ResolveInfo::ValueType pValue,
+                    ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+
+  /// insertString - insert a string
+  /// if the string has existed, modify pString to the existing string
+  /// @return the StringRef points to the hash table
+  llvm::StringRef insertString(const llvm::StringRef& pString);
 
   // -----  observers  ----- //
   size_type size() const
@@ -62,7 +74,7 @@ public:
   size_type capacity() const;
 
 private:
-  Resolver m_Resolver;
+  Resolver& m_Resolver;
   Table m_Table;
 
 };
