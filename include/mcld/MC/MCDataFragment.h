@@ -26,17 +26,19 @@ namespace mcld
  */
 class MCDataFragment : public  llvm::MCFragment
 {
+public:
+   typedef std::vector<Relocation*> RelocationsType;
 private:
 
   ///  m_pFragment - llvm MCDataFragment for this MCDataFragment
   llvm::MCDataFragment* m_pFragment;
  
   /// m_Relocation - The list of relocations in this fragment
-  std::vector<Relocation> m_Relocations;
+  RelocationsType m_Relocations;
 
 public:
-  typedef std::vector<Relocation>::const_iterator const_relocation_iterator;
-  typedef std::vector<Relocation>::iterator relocation_iterator;
+  typedef RelocationsType::const_iterator const_relocation_iterator;
+  typedef RelocationsType::iterator relocation_iterator;
 
 public:
   MCDataFragment(llvm::MCDataFragment& pFragment)
@@ -52,10 +54,10 @@ public:
   const llvm::SmallString<32> &getContents() const { return m_pFragment->getContents();  }
 
   // relocation access
-  void addRelocation(Relocation pReloc){  m_Relocations.push_back(pReloc); }
+  void addRelocation(Relocation &pReloc){  m_Relocations.push_back(&pReloc); }
   
-  std::vector<Relocation> &getRelocations() { return m_Relocations; }
-  const std::vector<Relocation> &getRelcoations() const { return m_Relocations; }
+  RelocationsType &getRelocations() { return m_Relocations; }
+  const RelocationsType &getRelcoations() const { return m_Relocations; }
 
   relocation_iterator relocation_begin() { return m_Relocations.begin(); }
   const_relocation_iterator relocation_begin() const { return m_Relocations.begin(); }
