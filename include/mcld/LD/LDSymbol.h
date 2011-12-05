@@ -91,6 +91,9 @@ public:
   SizeType size() const
   { return m_Size; }
 
+  const ResolveInfo* resolveInfo() const 
+  { return m_pResolveInfo; }
+    
   // -----  modifiers  ----- //
   void setSize(SizeType pSize)
   { m_Size = pSize; }
