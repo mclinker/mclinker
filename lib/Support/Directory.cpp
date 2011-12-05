@@ -29,7 +29,12 @@ bool is_symlink(FileStatus f)
 //==========================
 // Directory
 Directory::Directory()
-  : m_Path(), m_FileStatus(), m_SymLinkStatus(), m_Cache(), m_Handler(NULL) {
+  : m_Path(),
+    m_FileStatus(),
+    m_SymLinkStatus(),
+    m_Cache(),
+    m_Handler(NULL),
+    m_CacheFull(false) {
 }
 
 Directory::Directory(const Path& pPath,
@@ -39,7 +44,8 @@ Directory::Directory(const Path& pPath,
     m_FileStatus(st),
     m_SymLinkStatus(symlink_st),
     m_Cache(),
-    m_Handler(NULL) {
+    m_Handler(NULL),
+    m_CacheFull(false) {
   if (m_Path.native() == ".")
     detail::get_pwd(m_Path.native());
   m_Path.m_append_separator_if_needed();
@@ -51,7 +57,8 @@ Directory::Directory(const Directory& pCopy)
     m_FileStatus(pCopy.m_FileStatus),
     m_SymLinkStatus(pCopy.m_SymLinkStatus),
     m_Cache(),
-    m_Handler(NULL) {
+    m_Handler(NULL),
+    m_CacheFull(false) {
   mcld::sys::fs::detail::open_dir(*this);
 }
 
@@ -115,15 +122,12 @@ FileStatus Directory::symlinkStatus() const
 
 Directory::iterator Directory::begin()
 {
-  if (!isGood() || m_Cache.empty()) {
-    return end();
-  }
-  return iterator(this, m_Cache.begin());
+  return iterator(this, mcld::sys::fs::PathCache::iterator(&m_Cache, 0));
 }
 
 Directory::iterator Directory::end()
 {
-  return iterator(0, m_Cache.begin());
+  return iterator(0, m_Cache.end());
 }
 
 void Directory::clear()
@@ -139,11 +143,20 @@ void Directory::clear()
 // DirIterator
 DirIterator::DirIterator(Directory* pParent,
                          const DirIterator::DirCache::iterator& pIter)
-  : m_pParent(pParent), m_Idx(pIter) {
+  : m_pParent(pParent), m_Iter(pIter), m_pEntry(0) {
+  if (0 != m_pParent) { // must begin
+    if (m_pParent->m_Cache.empty() && m_pParent->m_CacheFull) {
+      // reset to end()
+      m_Iter = m_pParent->m_Cache.end();
+      m_pEntry = 0;
+      m_pParent = 0;
+      return;
+    }
+  }
 }
 
 DirIterator::DirIterator(const DirIterator& pCopy)
-  : m_pParent(pCopy.m_pParent), m_Idx(pCopy.m_Idx) {
+  : m_pParent(pCopy.m_pParent), m_Iter(pCopy.m_Iter), m_pEntry(pCopy.m_pEntry) {
 }
 
 DirIterator::~DirIterator()
@@ -154,24 +167,25 @@ Path* DirIterator::path()
 {
   if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end())
-    return *m_Idx;
-  return 0;
+  if (0 == m_pEntry)
+    return m_pParent->m_Cache.begin().getEntry()->value();
+  return m_pEntry->value();
 }
 
 const Path* DirIterator::path() const
 {
   if (m_pParent == 0) // end
     return 0;
-  if (m_Idx != m_pParent->m_Cache.end())
-    return *m_Idx;
-  return 0;
+  if (0 == m_pEntry)
+    return m_pParent->m_Cache.begin().getEntry()->value();
+  return m_pEntry->value();
 }
 
 DirIterator& DirIterator::operator=(const DirIterator& pCopy)
 {
   m_pParent = pCopy.m_pParent;
-  m_Idx = pCopy.m_Idx;
+  m_Iter = pCopy.m_Iter;
+  m_pEntry = pCopy.m_pEntry;
   return (*this);
 }
 
@@ -180,16 +194,19 @@ DirIterator& DirIterator::operator++()
   if (0 == m_pParent) // real Directory::end() or empty directory
     return *this;
 
-  ++m_Idx;
-  if (m_Idx == m_pParent->m_Cache.end()) {
-    Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
-    if (it == m_pParent->m_Cache.end()) {
-      m_Idx = m_pParent->m_Cache.begin();
-      m_pParent = 0;
-      return *this;
-    }
-    m_Idx = it;
+  if (m_pParent->m_CacheFull) {
+    if (NULL == m_Iter.getEntry()) // possible begin
+      ++m_Iter;
+    ++m_Iter;
+    m_pEntry = m_Iter.getEntry();
   }
+  else {
+    m_pEntry = detail::bring_one_into_cache(*this);
+  }
+
+  if (0 == m_pEntry)
+    m_pParent = 0;
+
   return *this;
 }
 
@@ -199,16 +216,19 @@ DirIterator DirIterator::operator++(int)
   if (0 == m_pParent)
     return tmp;
 
-  ++m_Idx;
-  if (m_Idx == m_pParent->m_Cache.end()) {
-    Directory::PathCache::iterator it(detail::bring_one_into_cache(*this));
-    if (it == m_pParent->m_Cache.end()) {
-      m_Idx = m_pParent->m_Cache.begin();
-      m_pParent = 0;
-      return tmp;
-    }
-    m_Idx = it;
+  if (m_pParent->m_CacheFull) {
+    if (NULL == m_Iter.getEntry()) // possible begin
+      ++m_Iter;
+    ++m_Iter;
+    m_pEntry = m_Iter.getEntry();
   }
+  else {
+    m_pEntry = detail::bring_one_into_cache(*this);
+  }
+
+  if (0 == m_pEntry)
+    m_pParent = 0;
+
   return tmp;
 }
 

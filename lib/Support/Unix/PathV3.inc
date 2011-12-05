@@ -222,20 +222,29 @@ static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 //     of cache. (a real end)
 //  2. Some but not all elements had beed put into cache, and we stoped.
 //     An iterator now is staying at the end of cache. (a temporal end)
-Directory::PathCache::iterator bring_one_into_cache(DirIterator& pIter)
+mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 {
+  mcld::sys::fs::PathCache::entry_type* entry = 0;
   std::string path(pIter.m_pParent->m_Path.native());
   switch (read_dir(pIter.m_pParent->m_Handler, path)) {
-  case 1: // read one
-    return pIter.m_pParent->m_Cache.GetOrCreateValue(path, new Path(path));
+  case 1: {
+    // read one
+    bool exist = false;
+    entry = pIter.m_pParent->m_Cache.insert(path, exist);
+    if (!exist)
+      entry->setValue(new Path(path));
+    break;
+  }
   case 0:// meet real end
-    return pIter.m_pParent->m_Cache.end();
+    pIter.m_pParent->m_CacheFull = true;
+    break;
   default:
   case -1:
     llvm::report_fatal_error(std::string("Can't read directory: ")+
                              pIter.m_pParent->path().native());
-    return pIter.m_pParent->m_Cache.end();
+    break;
   }
+  return entry;
 }
 
 void open_dir(Directory& pDir)
@@ -247,12 +256,18 @@ void open_dir(Directory& pDir)
   // read one entry for advance the end element of the cache.
   std::string path;
   switch (read_dir(pDir.m_Handler, path)) {
-  case 1:
+  case 1: {
     // find a new directory
-    pDir.m_Cache.GetOrCreateValue(path, new Path(path));
+    bool exist = false;
+    mcld::sys::fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
+    if (!exist)
+      entry->setValue(new Path(path));
     return;
+  }
   case 0:
     // FIXME: a warning function
+    std::cerr << "empty directory:" << pDir.path().native() << std::endl;
+    pDir.m_CacheFull = true;
     return;
   default:
   case -1:

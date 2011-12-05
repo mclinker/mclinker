@@ -16,8 +16,9 @@
 #include "mcld/ADT/TypeTraits.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/Path.h"
-
+#include "mcld/Support/PathCache.h"
 #include "llvm/Support/Allocator.h"
+
 
 namespace mcld {
 namespace sys {
@@ -32,12 +33,11 @@ class DirIterator;
  */
 class Directory
 {
-friend StringMap<sys::fs::Path*>::iterator detail::bring_one_into_cache(DirIterator& pIter);
+friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(DirIterator& pIter);
 friend void detail::open_dir(Directory& pDir);
 friend void detail::close_dir(Directory& pDir);
 private:
   friend class DirIterator;
-  typedef StringMap<sys::fs::Path*> PathCache;
 
 public:
   typedef DirIterator iterator;
@@ -85,16 +85,14 @@ public:
   iterator begin();
   iterator end();
 
-  PathCache& cache()
-  { return m_Cache; }
-
 protected:
   mcld::sys::fs::Path m_Path;
   mutable FileStatus m_FileStatus;
   mutable FileStatus m_SymLinkStatus;
   intptr_t m_Handler;
   // the cache of directory
-  PathCache m_Cache;
+  mcld::sys::fs::PathCache m_Cache;
+  bool m_CacheFull;
 };
 
 /** \class DirIterator
@@ -109,10 +107,10 @@ protected:
  */
 class DirIterator
 {
-friend Directory::PathCache::iterator detail::bring_one_into_cache(DirIterator& pIter);
+friend mcld::sys::fs::PathCache::entry_type* detail::bring_one_into_cache(DirIterator& pIter);
 friend class Directory;
 public:
-  typedef Directory::PathCache            DirCache;
+  typedef mcld::sys::fs::PathCache            DirCache;
 
 public:
   typedef Directory                       value_type;
@@ -145,7 +143,8 @@ public:
 
 private:
   Directory* m_pParent; // get handler
-  Directory::PathCache::iterator m_Idx;
+  DirCache::iterator m_Iter; // for full situation
+  DirCache::entry_type* m_pEntry; // for non-full situation
 };
 
 } // namespace of fs

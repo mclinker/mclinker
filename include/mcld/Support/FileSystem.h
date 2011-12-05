@@ -18,6 +18,7 @@
 #endif
 
 #include "mcld/ADT/StringMap.h"
+#include "mcld/Support/PathCache.h"
 #include <string>
 #include <iosfwd>
 #include <locale>
@@ -96,7 +97,7 @@ size_t canonicalize(std::string& pPathName);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
-StringMap<mcld::sys::fs::Path*>::iterator bring_one_into_cache(DirIterator& pIter);
+mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 void get_pwd(std::string& pPWD);
