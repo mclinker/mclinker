@@ -13,12 +13,12 @@ using namespace mcld;
 
 Relocation::Relocation(const Howto& pHowto,
                        const MCFragmentRef& pTargetRef,
-                       Relocation::DWord pTarget,
-                       Relocation::Address pAddend)
+                       Relocation::Address pAddend,
+		       const ResolveInfo& pSymInfo)
   : m_pHowto(&pHowto),
-    m_Target(pTarget),
     m_TargetAddress(pTargetRef),
-    m_Addend(pAddend) {
+    m_Addend(pAddend),
+    m_pSymInfo(&pSymInfo){
 }
 
 Relocation::~Relocation()
@@ -27,7 +27,7 @@ Relocation::~Relocation()
 
 Relocation::Type Relocation::type() const
 {
-  return 0; // TODO
+  return m_pHowto->type();  
 }
 
 Relocation::Address Relocation::place() const

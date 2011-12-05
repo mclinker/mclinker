@@ -21,7 +21,7 @@ namespace mcld
 {
 class ResolveInfo;
 
-class Relocation : llvm::ilist_node<Relocation>
+class Relocation : public llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
 public:
@@ -32,12 +32,11 @@ public:
 private:
   Relocation(const Howto& pHowto,
              const MCFragmentRef& pTargetRef,
-             DWord pTarget,
-             Address pAddend);
+             Address pAddend,
+	     const ResolveInfo& pSymInfo);
+public:
 
   ~Relocation();
-
-public:
   // -----  observers  ----- //
   /// relocation type
   Type type() const;
@@ -77,12 +76,15 @@ public:
   { return m_TargetAddress; }
   
 private:
-  /// m_pSymInfo - Resolved symbol info of relocation target symbol
-  ResolveInfo* m_pSymInfo;
+  /// m_pSymInfo - resolved symbol info of relocation target symbol
+  const ResolveInfo* m_pSymInfo;
 
-  /// m_Target - MCFragmentRef of the place being relocated
+  /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
+  
+  /// m_Target - target data of the place being relocated
   DWord m_Target;
+  
   Address m_Addend;
   const Howto* m_pHowto;
 

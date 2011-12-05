@@ -12,14 +12,13 @@
 #endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/Howto.h>
-#include <mcld/LD/LDSymbol.h>
 
 namespace mcld
 {
 
-class LDHowto;
 class ResolveInfo;
 class MCFragmentRef;
+class LDSymbol;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -35,11 +34,14 @@ public:
 public:
   RelocationFactory(size_t pNum);
   virtual ~RelocationFactory();
-  
+
+  /// typeToHowto - get related Howto from pRelocType
+  const Howto* typeToHowto(Type pRelocType) const;
+
   // ----- production ----- //
   Relocation* produce(Type pType,
                       const LDSymbol& pSymbol,
-                      Address pOffset,
+                      MCFragmentRef& pFragRef,
                       Address pAddend = 0);
 
   void destroy(Relocation* pRelocation);

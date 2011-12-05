@@ -6,6 +6,8 @@
  *   Diana Chen <diana.chen@mediatek.com>                                    *
  ****************************************************************************/
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/Relocation.h>
 
 using namespace mcld;
 
@@ -19,12 +21,22 @@ RelocationFactory::~RelocationFactory()
 {
 }
 
-Relocation* RelocationFactory::produce(Type pType,
+const Howto* RelocationFactory::typeToHowto(RelocationFactory::Type pRelocType) const
+{
+   return 0;
+}
+
+Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        const LDSymbol& pSymbol,
-                                       Address pOffset,
-                                       Address pAddend)
+                                       MCFragmentRef& pFragRef,
+                                       RelocationFactory::Address pAddend)
 
 {
+  Relocation* result = GCFactory<Relocation, 0>::allocate();
+  const Howto *howto = RelocationFactory::typeToHowto(pType);
+  const ResolveInfo *info = pSymbol.resolveInfo();
+  new (result) Relocation(*howto, pFragRef, pAddend, *info);
+  return result;
 }
 
 void RelocationFactory::destroy(Relocation* pRelocation)

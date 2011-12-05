@@ -18,7 +18,7 @@ void Howto::apply(Relocation& pRel)
 
 Howto::Type Howto::type() const
 {
-  return 0; // TODO
+  return m_Type;
 }
 
 

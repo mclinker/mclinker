@@ -130,6 +130,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/Relocation.h \
 	${LIBDIR}/LD/Relocation.cpp \
+	${INCDIR}/LD/RelocationFactory.h \
+	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/Howto.h \
 	${LIBDIR}/LD/Howto.cpp \
 	${INCDIR}/LD/StrSymPool.h \
