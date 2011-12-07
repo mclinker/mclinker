@@ -11,12 +11,14 @@
 
 namespace mcld {
 
+class MCLinker;
 class MCELFLDTargetWriter;
 class MCLDWriter;
 class MCArchiveReader;
 class MCObjectReader;
 class MCObjectWriter;
 class Relocation;
+class RelocationFactory;
 class Layout;
 
 //===----------------------------------------------------------------------===//
@@ -32,12 +34,16 @@ protected:
 
 public:
   virtual ~TargetLDBackend();
+  virtual void addTargetSegments(MCLinker& pLinker) { }
+  virtual void addTargetSections(MCLinker& pLinker) { }
+  virtual void addTargetSymbols(MCLinker& pLinker) { }
+  virtual void addTargetRelocation(MCLinker& pLinker) { }
 
   virtual MCArchiveReader *getArchiveReader() = 0;
   virtual MCObjectReader *getObjectReader() = 0;
   virtual MCObjectWriter *getObjectWriter() = 0;
+  virtual RelocationFactory* getRelocFactory() = 0;
 
-  void applyRelocation(Relocation& pRelocation, const Layout& pLayout);
 };
 
 } // End mcld namespace
