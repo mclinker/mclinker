@@ -41,7 +41,7 @@ public:
 private:
   unsigned int m_EntrySize;
   unsigned int m_EntryNum;
-  unsigned char* m_Table; // gold uses vector<Got_entry>
+  unsigned char* m_Table; // FIXME: gold uses vector<Got_entry>
 };
 
 } // namespace of mcld

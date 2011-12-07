@@ -3,47 +3,38 @@
  *   Embedded and Web Computing Lab, National Taiwan University              *
  *   MediaTek, Inc.                                                          *
  *                                                                           *
- *   Diana Chen <diana.chen@mediatek.com>                                    *
+ *   Luba Tang <lubatang@mediatek.com>                                       *
  ****************************************************************************/
-#ifndef LD_RELOCATION_FACTORY_H
-#define LD_RELOCATION_FACTORY_H
+#ifndef X86_RELOCATION_FACTORY_H
+#define X86_RELOCATION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/LD/Relocation.h>
+#include <mcld/LD/RelocationFactory.h>
 
 namespace mcld
 {
 
-class LDSymbol;
-class ResolveInfo;
-class MCFragmentRef;
-
-/** \class RelocationFactory
- *  \brief RelocationFactory provides the interface for generating target
- *  relocation
- *
+/** \class X86RelocationFactory
+ *  \brief X86RelocationFactory creates and destroys X86Relocations.
  */
-class RelocationFactory
+class X86RelocationFactory : public RelocationFactory
 {
 public:
-  typedef Relocation::Type Type;
-  typedef Relocation::Address Address;
-  typedef Relocation::DWord DWord;
+  X86RelocationFactory(size_t pNum)
+  { }
 
-public:
-  RelocationFactory();
-  virtual ~RelocationFactory();
+  ~X86RelocationFactory()
+  { }
 
   // ----- production ----- //
   virtual Relocation* produce(Type pType,
                               const LDSymbol& pSymbol,
                               MCFragmentRef& pFragRef,
                               DWord* pTargetData = NULL,
-                              Address pAddend = 0) = 0;
+                              Address pAddend = 0) { return NULL; }
 
-  virtual void destroy(Relocation* pRelocation) = 0;
-
+  virtual void destroy(Relocation* pRelocation) { }
 };
 
 } // namespace of mcld

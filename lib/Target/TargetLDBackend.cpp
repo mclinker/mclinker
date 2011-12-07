@@ -21,7 +21,3 @@ TargetLDBackend::~TargetLDBackend()
 {
 }
 
-void TargetLDBackend::applyRelocation(Relocation& pReloc, const Layout& pLayout)
-{
-}
-

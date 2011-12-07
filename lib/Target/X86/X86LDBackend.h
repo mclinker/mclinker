@@ -9,6 +9,7 @@
 #ifndef X86_LDBACKEND_H
 #define X86_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
+#include "X86RelocationFactory.h"
 
 namespace mcld {
 
@@ -21,8 +22,14 @@ public:
   X86GNULDBackend();
   ~X86GNULDBackend();
 
+  X86RelocationFactory* getRelocFactory();
+
 private:
   MCELFObjectTargetReader *createObjectTargetReader() const;
+  MCELFObjectTargetWriter *createObjectTargetWriter() const;
+
+private:
+  X86RelocationFactory* m_pRelocFactory;
 };
 
 //===----------------------------------------------------------------------===//

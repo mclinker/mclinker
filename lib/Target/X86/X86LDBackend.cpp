@@ -15,17 +15,34 @@
 namespace mcld {
 
 X86GNULDBackend::X86GNULDBackend()
-{
+  : m_pRelocFactory(0) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
 {
+  if (0 != m_pRelocFactory)
+    delete m_pRelocFactory;
 }
 
 MCELFObjectTargetReader *X86GNULDBackend::createObjectTargetReader() const
 {
   return new X86ELFObjectReader();
 }
+
+MCELFObjectTargetWriter *X86GNULDBackend::createObjectTargetWriter() const
+{
+  return new X86ELFObjectWriter();
+}
+
+X86RelocationFactory* X86GNULDBackend::getRelocFactory()
+{
+  if (0 == m_pRelocFactory)
+    m_pRelocFactory = new X86RelocationFactory(1024);
+  return m_pRelocFactory;
+}
+
+
+namespace mcld {
 
 //===----------------------------------------------------------------------===//
 /// createX86LDBackend - the help funtion to create corresponding X86LDBackend

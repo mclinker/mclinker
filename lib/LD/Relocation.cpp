@@ -11,11 +11,13 @@
 
 using namespace mcld;
 
-Relocation::Relocation(const Howto& pHowto,
+Relocation::Relocation(Relocation::Type pType,
+                       Relocation::DWord& pTargetData,
                        const MCFragmentRef& pTargetRef,
                        Relocation::Address pAddend,
 		       const ResolveInfo& pSymInfo)
-  : m_pHowto(&pHowto),
+  : m_Type(pType),
+    m_Target(pTargetData),
     m_TargetAddress(pTargetRef),
     m_Addend(pAddend),
     m_pSymInfo(&pSymInfo){
@@ -23,11 +25,6 @@ Relocation::Relocation(const Howto& pHowto,
 
 Relocation::~Relocation()
 {
-}
-
-Relocation::Type Relocation::type() const
-{
-  return m_pHowto->type();  
 }
 
 Relocation::Address Relocation::place() const

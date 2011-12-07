@@ -9,6 +9,7 @@
 #ifndef ARM_LDBACKEND_H
 #define ARM_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
+#include "ARMRelocationFactory.h"
 
 namespace mcld {
 
@@ -21,8 +22,15 @@ public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
 
+  /// getRelocFactory - co-variant return type
+  ARMRelocationFactory* getRelocFactory();
+
 private:
   MCELFObjectTargetReader *createObjectTargetReader() const;
+  MCELFObjectTargetWriter *createObjectTargetWriter() const;
+
+private:
+  ARMRelocationFactory* m_pRelocFactory;
 };
 
 //===----------------------------------------------------------------------===//

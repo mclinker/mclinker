@@ -12,34 +12,37 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/ilist_node.h>
+#include <llvm/Support/DataTypes.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/Howto.h>
 
 
 namespace mcld
 {
+class Layout;
 class ResolveInfo;
 
 class Relocation : public llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
 public:
-  typedef Howto::Address Address; // FIXME: use SizeTrait<T>::Address instead
-  typedef Howto::DWord DWord; // FIXME: use SizeTrait<T>::Word instead
-  typedef Howto::Type Type;
+  typedef uint8_t Type;
+  typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
+  typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
 
-private:
-  Relocation(const Howto& pHowto,
+protected:
+  Relocation(Type pType,
+             DWord& pTargetData,
              const MCFragmentRef& pTargetRef,
              Address pAddend,
 	     const ResolveInfo& pSymInfo);
 public:
+  virtual ~Relocation();
 
-  ~Relocation();
   // -----  observers  ----- //
   /// relocation type
-  Type type() const;
+  Type type() const
+  { return m_Type; }
   
   /// symbol value - S value
   Address symValue() const
@@ -56,9 +59,6 @@ public:
   const ResolveInfo* symInfo() const
   { return m_pSymInfo; }
 
-  const Howto* howto() const
-  { return m_pHowto; }
-  
   /// target - the target data to relocate
   DWord& target()
   { return m_Target; }
@@ -75,7 +75,12 @@ public:
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
   
+  virtual void apply(Layout& pLayout) = 0;
+
 private:
+  /// m_Type - the type of the relocation entries
+  Type m_Type;
+
   /// m_pSymInfo - resolved symbol info of relocation target symbol
   const ResolveInfo* m_pSymInfo;
 
@@ -83,10 +88,10 @@ private:
   MCFragmentRef m_TargetAddress;
   
   /// m_Target - target data of the place being relocated
-  DWord m_Target;
+  DWord& m_Target;
   
+  /// m_Addend - the addend
   Address m_Addend;
-  const Howto* m_pHowto;
 
 };
 

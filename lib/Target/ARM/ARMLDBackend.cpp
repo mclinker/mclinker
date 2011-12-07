@@ -18,7 +18,7 @@
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
-{
+  : m_pRelocFactory(0) {
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()
@@ -28,6 +28,18 @@ ARMGNULDBackend::~ARMGNULDBackend()
 MCELFObjectTargetReader *ARMGNULDBackend::createObjectTargetReader() const
 {
   return new ARMELFObjectReader();
+}
+
+MCELFObjectTargetWriter *ARMGNULDBackend::createObjectTargetWriter() const
+{
+  return new ARMELFObjectWriter();
+}
+
+ARMRelocationFactory* ARMGNULDBackend::getRelocFactory()
+{
+  if (NULL == m_pRelocFactory)
+    m_pRelocFactory = new ARMRelocationFactory(1024);
+  return m_pRelocFactory;
 }
 
 namespace mcld {

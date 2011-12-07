@@ -45,6 +45,12 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
+	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
+	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp \
+	${LIBDIR}/Target/ARM/ARMRelocation.h \
+	${LIBDIR}/Target/ARM/ARMRelocation.cpp \
+	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
+	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
@@ -55,6 +61,10 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
 	${LIBDIR}/Target/X86/X86ELFObjectReader.h \
 	${LIBDIR}/Target/X86/X86ELFObjectReader.cpp \
+	${LIBDIR}/Target/X86/X86ELFObjectWriter.h \
+	${LIBDIR}/Target/X86/X86ELFObjectWriter.cpp \
+	${LIBDIR}/Target/X86/X86RelocationFactory.h \
+	${LIBDIR}/Target/X86/X86RelocationFactory.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
@@ -132,8 +142,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/Relocation.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
-	${INCDIR}/LD/Howto.h \
-	${LIBDIR}/LD/Howto.cpp \
 	${INCDIR}/LD/StrSymPool.h \
 	${LIBDIR}/LD/StrSymPool.cpp \
 	${INCDIR}/LD/LDWriter.h \
