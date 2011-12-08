@@ -31,17 +31,16 @@ public:
   typedef Relocation::Type Type;
   typedef Relocation::Address Address;
   typedef Relocation::DWord DWord;
-  typedef Relocation::Pointer Pointer;
 
 public:
   RelocationFactory(size_t pNum);
   virtual ~RelocationFactory();
 
   virtual void destroy(Relocation* pRelocation) = 0;
+ 
+  /// apply - general apply function
+  virtual void apply(Relocation& pRelocation) = 0; 
   
-  /// getApply - get apply fnuction for relocation type pRelType
-  virtual const Pointer getApply(Type pRelType) const = 0;
-
   // ----- production ----- //
   Relocation* produce(Type pType,
                       MCFragmentRef& pFragRef,

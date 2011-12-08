@@ -23,12 +23,14 @@ namespace mcld
 class ARMRelocationFactory : public RelocationFactory
 {
 public:
+  typedef void (ARMRelocationFactory::*Pointer)(Relocation&);
+
+public:
   ARMRelocationFactory(size_t pNum);
   ~ARMRelocationFactory();
 
-  /// getApply - get apply fnuction for relocation type pRelType
-  const Pointer getApply(Type pRelType) const;
-  
+  void apply(Relocation& pRelocation); 
+
   void destroy(Relocation* pRelocation);
 
 private:

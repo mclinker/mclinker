@@ -21,12 +21,13 @@ namespace mcld
 class X86RelocationFactory : public RelocationFactory
 {
 public:
+  typedef void (X86RelocationFactory::*Pointer)(Relocation&); 
+
+public:
   X86RelocationFactory(size_t pNum);
   ~X86RelocationFactory();
 
-  /// getApply - get apply fnuction for relocation type pRelType
-  const Pointer getApply(Type pRelType) const;
-
+  void apply(Relocation& pRelocation);
   void destroy(Relocation* pRelocation);
 
 private:  

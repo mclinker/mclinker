@@ -20,12 +20,10 @@ ARMRelocationFactory::~ARMRelocationFactory()
 {
 }
 
-
-const RelocationFactory::Pointer ARMRelocationFactory::getApply(
-                                 RelocationFactory::Type pRelType) const
+void ARMRelocationFactory::apply(Relocation& Relocation)
 {
-   return 0; //TODO
 }
+
 void ARMRelocationFactory::destroy(Relocation* pRelocation)
 {
   /** GCFactory will recycle the relocation **/

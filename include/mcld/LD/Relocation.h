@@ -31,11 +31,9 @@ public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
   typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
   typedef uint8_t Type;
-  typedef void (RelocationFactory::*Pointer)(Relocation&);
 
 private:
   Relocation(Type pType,
-	     Pointer pApply,
              const MCFragmentRef& pTargetRef,
              Address pAddend,
              DWord pTarget,
@@ -82,10 +80,6 @@ public:
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
  
-  /// apply - function to apply this relocation
-  void apply()
-  { (m_pFactory->*m_pApply)(*this); }
-
 private:
   /// m_Type - the type of the relocation entries
   Type m_Type;
@@ -101,9 +95,6 @@ private:
   
   /// m_Addend - the addend
   Address m_Addend;
-
-  /// m_pApply - function pointer to the apply function
-  Pointer m_pApply;
 
   /// m_pFactory - the RelocationFactory who produce this relocation
   RelocationFactory *m_pFactory;

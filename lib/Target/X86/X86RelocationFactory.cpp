@@ -21,10 +21,8 @@ X86RelocationFactory::~X86RelocationFactory()
 {
 }
 
-const RelocationFactory::Pointer X86RelocationFactory::getApply(
-                                 RelocationFactory::Type pRelType) const
+void X86RelocationFactory::apply(Relocation& pRelocation)
 {
-  return 0; //TODO:
 }
 
 void X86RelocationFactory::destroy(Relocation* pRelocation)

@@ -14,14 +14,12 @@
 using namespace mcld;
 
 Relocation::Relocation(Relocation::Type pType,
-                       Relocation::Pointer pApply,
                        const MCFragmentRef& pTargetRef,
                        Relocation::Address pAddend,
 		       Relocation::DWord pTarget,
 		       RelocationFactory &pFactory
 		       )
   : m_Type(pType),
-    m_pApply(pApply),    
     m_TargetAddress(pTargetRef),
     m_Addend(pAddend),
     m_Target(pTarget),
