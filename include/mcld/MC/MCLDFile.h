@@ -85,7 +85,7 @@ public:
   { return m_Path; }
 
   bool hasContext() const
-  { return (0 == m_pContext); }
+  { return (0 != m_pContext); }
 
   LDContext* context()
   { return m_pContext; }
