@@ -1,6 +1,6 @@
 Index: include/llvm/Target/TargetMachine.h
 ===================================================================
---- include/llvm/Target/TargetMachine.h	(revision 142614)
+--- include/llvm/Target/TargetMachine.h	(revision 145672)
 +++ include/llvm/Target/TargetMachine.h	(working copy)
 @@ -277,6 +277,16 @@
                                   bool = true) {
@@ -37,19 +37,21 @@ Index: include/llvm/Target/TargetMachine.h
    /// generation.  If OptLevel is None, the code generator should emit code as
 Index: include/llvm/MC/MCAssembler.h
 ===================================================================
---- include/llvm/MC/MCAssembler.h	(revision 142614)
+--- include/llvm/MC/MCAssembler.h	(revision 145672)
 +++ include/llvm/MC/MCAssembler.h	(working copy)
-@@ -53,7 +53,8 @@
+@@ -53,7 +53,10 @@
      FT_Org,
      FT_Dwarf,
      FT_DwarfFrame,
 -    FT_LEB
 +    FT_LEB,
-+    FT_Region
++    FT_Region,
++    FT_GOT,
++    FT_PLT
    };
  
  private:
-@@ -466,6 +467,7 @@
+@@ -466,6 +469,7 @@
    // Only for use as sentinel.
    MCSectionData();
    MCSectionData(const MCSection &Section, MCAssembler *A = 0);
@@ -57,7 +59,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    const MCSection &getSection() const { return *Section; }
  
-@@ -554,6 +556,8 @@
+@@ -554,6 +558,8 @@
    MCSymbolData();
    MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
                 MCAssembler *A = 0);
@@ -66,7 +68,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    /// @name Accessors
    /// @{
-@@ -664,7 +668,7 @@
+@@ -664,7 +670,7 @@
  
    MCCodeEmitter &Emitter;
  
@@ -75,7 +77,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    raw_ostream &OS;
  
-@@ -791,8 +795,13 @@
+@@ -791,8 +797,13 @@
  
    MCCodeEmitter &getEmitter() const { return Emitter; }
  
@@ -92,7 +94,7 @@ Index: include/llvm/MC/MCAssembler.h
    /// if not specified it is automatically created from backend.
 Index: include/llvm/MC/MCSectionELF.h
 ===================================================================
---- include/llvm/MC/MCSectionELF.h	(revision 142614)
+--- include/llvm/MC/MCSectionELF.h	(revision 145672)
 +++ include/llvm/MC/MCSectionELF.h	(working copy)
 @@ -42,7 +42,7 @@
  
@@ -105,7 +107,7 @@ Index: include/llvm/MC/MCSectionELF.h
                 SectionKind K, unsigned entrySize, const MCSymbol *group)
 Index: include/llvm/MC/MCSymbol.h
 ===================================================================
---- include/llvm/MC/MCSymbol.h	(revision 142614)
+--- include/llvm/MC/MCSymbol.h	(revision 145672)
 +++ include/llvm/MC/MCSymbol.h	(working copy)
 @@ -55,7 +55,7 @@
      /// IsUsed - True if this symbol has been used.
@@ -118,7 +120,7 @@ Index: include/llvm/MC/MCSymbol.h
      MCSymbol(StringRef name, bool isTemporary)
 Index: include/llvm/Support/CommandLine.h
 ===================================================================
---- include/llvm/Support/CommandLine.h	(revision 142614)
+--- include/llvm/Support/CommandLine.h	(revision 145672)
 +++ include/llvm/Support/CommandLine.h	(working copy)
 @@ -339,7 +339,11 @@
  
@@ -135,7 +137,7 @@ Index: include/llvm/Support/CommandLine.h
    template<class DT>
 Index: lib/MC/MCAssembler.cpp
 ===================================================================
---- lib/MC/MCAssembler.cpp	(revision 142614)
+--- lib/MC/MCAssembler.cpp	(revision 145672)
 +++ lib/MC/MCAssembler.cpp	(working copy)
 @@ -177,6 +177,15 @@
      A->getSectionList().push_back(this);
