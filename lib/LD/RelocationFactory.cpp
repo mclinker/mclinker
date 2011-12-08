@@ -22,7 +22,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
 {
   Relocation* result = GCFactory<Relocation, 0>::allocate();
   const RelocationFactory::Pointer fptr = getApply(pType);
-  new (result) Relocation(pType, fptr, pFragRef, pAddend, pTarget);
+  new (result) Relocation(pType, fptr, pFragRef, pAddend, pTarget, *this);
   return result;
 }
 

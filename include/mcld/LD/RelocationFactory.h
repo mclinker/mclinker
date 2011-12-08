@@ -47,6 +47,9 @@ public:
                       MCFragmentRef& pFragRef,
 		      DWord pTarget,
                       Address pAddend = 0);
+
+  // TODO: RelocationFactory should hold the GOT/PLT offset
+  // for applying functions
 };
 
 } // namespace of mcld

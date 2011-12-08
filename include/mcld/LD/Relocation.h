@@ -21,6 +21,7 @@ namespace mcld
 {
 class Layout;
 class ResolveInfo;
+class RelocationFactory;
 
 class Relocation : public llvm::ilist_node<Relocation>
 {
@@ -30,14 +31,15 @@ public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
   typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
   typedef uint8_t Type;
-  typedef void(*Pointer)(Relocation&);
+  typedef void (RelocationFactory::*Pointer)(Relocation&);
 
 private:
   Relocation(Type pType,
 	     Pointer pApply,
              const MCFragmentRef& pTargetRef,
              Address pAddend,
-             DWord pTarget);
+             DWord pTarget,
+	     RelocationFactory &pFactory);
 public:
   ~Relocation();
   
@@ -82,7 +84,7 @@ public:
  
   /// apply - function to apply this relocation
   void apply()
-  { m_pApply(*this); }
+  { (m_pFactory->*m_pApply)(*this); }
 
 private:
   /// m_Type - the type of the relocation entries
@@ -102,6 +104,9 @@ private:
 
   /// m_pApply - function pointer to the apply function
   Pointer m_pApply;
+
+  /// m_pFactory - the RelocationFactory who produce this relocation
+  RelocationFactory *m_pFactory;
 
   /// m_pDynRelocTables - a pointer to hold the DynRelocTables in MCLinker
   // TODO :  

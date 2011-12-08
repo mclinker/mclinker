@@ -7,6 +7,7 @@
  *   Diana Chen <diana.chen@mediatek.com>                                    *
  ****************************************************************************/
 #include <mcld/LD/Relocation.h>
+#include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Layout.h>
 
@@ -16,12 +17,15 @@ Relocation::Relocation(Relocation::Type pType,
                        Relocation::Pointer pApply,
                        const MCFragmentRef& pTargetRef,
                        Relocation::Address pAddend,
-		       Relocation::DWord pTarget)
+		       Relocation::DWord pTarget,
+		       RelocationFactory &pFactory
+		       )
   : m_Type(pType),
     m_pApply(pApply),    
     m_TargetAddress(pTargetRef),
     m_Addend(pAddend),
-    m_Target(pTarget){
+    m_Target(pTarget),
+    m_pFactory(&pFactory){
 }
 
 Relocation::~Relocation()
