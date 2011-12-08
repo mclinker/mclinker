@@ -471,24 +471,42 @@ bool SectLinker::doFinalization(Module &pM)
     }
   }
 
-  // 4. and 5. - check if we can do static linking and if we use split-stack.
-  if (!m_pLinker->linkable())
+  // 4. - check if we can do static linking and if we use split-stack.
+  if (!m_pLDDriver->linkable())
     return true;
 
-  // 6. - read all symbol tables of input files.
-  m_pLinker->readSymbolTables();
+  // 5. - initialize output's standard segments and sections
+  if (!m_pLDDriver->initMCLinker())
+    return true;
 
-  // 7. - symbol resolution
-  m_pLinker->mergeSymbolTables();
+  // 6. - read all sections
+  if (!m_pLDDriver->readSections() ||
+      !m_pLDDriver->mergeSections())
+    return true;
 
-  // 8. - add undefined symbols
-//  m_pLinker->addUndefinedSymbols();
+  // 7. - read all symbol tables of input files and resolve them
+  if (!m_pLDDriver->readSymbolTables() ||
+      !m_pLDDriver->mergeSymbolTables())
+    return true;
 
-  
-/**
-  m_pLinker->relocation();
-  m_pLinker->writeOut();
-**/
+  // 7.a - add standard symbols and target-dependent symbols
+  // m_pLDDriver->addUndefSymbols();
+  if (!m_pLDDriver->addStandardSymbols() ||
+      !m_pLDDriver->addTargetSymbols())
+    return true;
+
+  // 8. - read all relocation entries of input files
+  m_pLDDriver->readRelocations();
+
+  // 9. - linear layout
+  m_pLDDriver->layout();
+
+  // 10. - apply relocations
+  m_pLDDriver->relocate();
+
+  // 11. - write out output
+  m_pLDDriver->emitOutput();
+
   return false;
 }
 
