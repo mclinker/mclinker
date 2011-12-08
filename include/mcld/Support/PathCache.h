@@ -14,6 +14,7 @@
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld {
 namespace sys  {

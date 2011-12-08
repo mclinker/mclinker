@@ -110,27 +110,5 @@ char *strerror(int pErrnum);
 } // namespace of sys
 } // namespace of mcld
 
-namespace mcld
-{
-
-template <>
-class StringMapEntryCreator<sys::fs::Path*> {
-public:
-  template <typename InitTy>
-  static sys::fs::Path* create(const InitTy& InitVal) {
-    return InitVal;
-  }
-};
-
-template <>
-class StringMapEntryEraser<sys::fs::Path*> {
-public:
-  static void erase(sys::fs::Path*& Val) {
-    delete Val;
-  }
-};
-
-} // namespace mcld
-
 #endif
 

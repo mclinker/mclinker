@@ -19,7 +19,7 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/StringMap.h"
+#include "mcld/Support/FileSystem.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/ilist.h"
 #include "llvm/ADT/OwningPtr.h"
@@ -27,7 +27,6 @@
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCSectionELF.h"
 #include "llvm/Support/Allocator.h"
-#include "mcld/Support/FileSystem.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include <map>
 #include <utility>

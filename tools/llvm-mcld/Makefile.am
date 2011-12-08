@@ -127,7 +127,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
-	${INCDIR}/ADT/StringMap.h \
 	${INCDIR}/LD/LDContext.h \
 	${INCDIR}/LD/LDSection.h \
 	${INCDIR}/LD/ResolveInfo.h \
@@ -154,8 +153,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
-	${UNITTEST}/StringMapTest.h \
-	${UNITTEST}/StringMapTest.cpp \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \
