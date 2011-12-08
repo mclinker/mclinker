@@ -94,7 +94,7 @@ public:
   { return m_pContext; }
 
   bool hasMemArea() const
-  { return (0 == m_pMemArea); }
+  { return (0 != m_pMemArea); }
 
   MemoryArea* memArea()
   { return m_pMemArea; }
