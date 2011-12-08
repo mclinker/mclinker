@@ -10,6 +10,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/GCFactory.h>
 #include <mcld/LD/Relocation.h>
 
 namespace mcld
@@ -24,26 +25,28 @@ class MCFragmentRef;
  *  relocation
  *
  */
-class RelocationFactory
+class RelocationFactory : public GCFactory<Relocation, 0>
 {
 public:
   typedef Relocation::Type Type;
   typedef Relocation::Address Address;
   typedef Relocation::DWord DWord;
+  typedef Relocation::Pointer Pointer;
 
 public:
-  RelocationFactory();
+  RelocationFactory(size_t pNum);
   virtual ~RelocationFactory();
 
-  // ----- production ----- //
-  virtual Relocation* produce(Type pType,
-                              const LDSymbol& pSymbol,
-                              MCFragmentRef& pFragRef,
-                              DWord* pTargetData = NULL,
-                              Address pAddend = 0) = 0;
-
   virtual void destroy(Relocation* pRelocation) = 0;
+  
+  /// getApply - get apply fnuction for relocation type pRelType
+  virtual const Pointer getApply(Type pRelType) const = 0;
 
+  // ----- production ----- //
+  Relocation* produce(Type pType,
+                      MCFragmentRef& pFragRef,
+		      DWord pTarget,
+                      Address pAddend = 0);
 };
 
 } // namespace of mcld

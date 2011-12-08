@@ -20,20 +20,32 @@ namespace mcld
  *  \brief ARMRelocationFactory creates and destroys the ARM relocations.
  *
  */
-class ARMRelocationFactory : public RelocationFactory, private GCFactory<Relocation, 0>
+class ARMRelocationFactory : public RelocationFactory
 {
 public:
   ARMRelocationFactory(size_t pNum);
   ~ARMRelocationFactory();
 
-  // ----- production ----- //
-  Relocation* produce(Type pType,
-                      const LDSymbol& pSymbol,
-                      MCFragmentRef& pFragRef,
-                      DWord* pTargetData = NULL,
-                      Address pAddend = 0);
-
+  /// getApply - get apply fnuction for relocation type pRelType
+  const Pointer getApply(Type pRelType) const;
+  
   void destroy(Relocation* pRelocation);
+
+private:
+  /// m_ApplyFuncs - An array to map relocation type to its apply function
+  static Pointer m_ApplyFuncs[];
+
+/** list all relocation
+  static Relocations[] = {
+    
+  };
+
+  // clone a relocation
+  // set up the relocation
+  // return the relocation
+**/
+
+
 };
 
 } // namespace of mcld

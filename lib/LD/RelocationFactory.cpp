@@ -10,8 +10,20 @@ using namespace mcld;
 
 //==========================
 // RelocationFactory
-RelocationFactory::RelocationFactory()
+RelocationFactory::RelocationFactory(size_t pNum)
+  : GCFactory<Relocation, 0>(pNum) {
+}
+
+Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
+                                       MCFragmentRef& pFragRef,
+				       RelocationFactory::DWord pTarget,
+                                       RelocationFactory::Address pAddend)
+
 {
+  Relocation* result = GCFactory<Relocation, 0>::allocate();
+  const RelocationFactory::Pointer fptr = getApply(pType);
+  new (result) Relocation(pType, fptr, pFragRef, pAddend, pTarget);
+  return result;
 }
 
 RelocationFactory::~RelocationFactory()

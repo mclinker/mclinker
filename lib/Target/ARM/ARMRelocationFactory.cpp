@@ -12,32 +12,20 @@ using namespace mcld;
 
 //==========================
 // ARMRelocationFactory
-ARMRelocationFactory::ARMRelocationFactory(size_t pNum)
-  : GCFactory<Relocation, 0>(pNum) {
+ARMRelocationFactory::ARMRelocationFactory(size_t pNum) : RelocationFactory(pNum)
+{
 }
 
 ARMRelocationFactory::~ARMRelocationFactory()
 {
 }
 
-Relocation* ARMRelocationFactory::produce(Type pType,
-                                          const LDSymbol& pSymbol,
-                                          MCFragmentRef& pFragRef,
-                                          DWord* pTargetData,
-                                          Address pAddend)
+
+const RelocationFactory::Pointer ARMRelocationFactory::getApply(
+                                 RelocationFactory::Type pRelType) const
 {
-/** list all relocation
-  static Relocations[] = {
-    
-  };
-
-  // clone a relocation
-  // set up the relocation
-  // return the relocation
-**/
-  return NULL;
+   return 0; //TODO
 }
-
 void ARMRelocationFactory::destroy(Relocation* pRelocation)
 {
   /** GCFactory will recycle the relocation **/

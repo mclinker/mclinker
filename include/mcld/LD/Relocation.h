@@ -25,26 +25,27 @@ class ResolveInfo;
 class Relocation : public llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
+
 public:
-  typedef uint8_t Type;
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
   typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
+  typedef uint8_t Type;
+  typedef void(*Pointer)(Relocation&);
 
-protected:
+private:
   Relocation(Type pType,
-             DWord& pTargetData,
+	     Pointer pApply,
              const MCFragmentRef& pTargetRef,
              Address pAddend,
-	     const ResolveInfo& pSymInfo);
+             DWord pTarget);
 public:
-  virtual ~Relocation();
-
-  // -----  observers  ----- //
-  /// relocation type
+  ~Relocation();
+  
+  /// type - relocation type
   Type type() const
   { return m_Type; }
   
-  /// symbol value - S value
+  /// symValue - symbol value - S value
   Address symValue() const
   { return m_pSymInfo->value(); }
 
@@ -53,12 +54,16 @@ public:
   { return m_Addend; }
   
   /// place - P value
-  Address place() const;
+  Address place(Layout& pLayout) const;
 
   /// symbol info - binding, type
   const ResolveInfo* symInfo() const
   { return m_pSymInfo; }
 
+  /// symbol info - binding, type
+  ResolveInfo* symInfo()
+  { return m_pSymInfo; }
+  
   /// target - the target data to relocate
   DWord& target()
   { return m_Target; }
@@ -74,25 +79,32 @@ public:
   /// targetRef - the reference of the target data
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
-  
-  virtual void apply(Layout& pLayout) = 0;
+ 
+  /// apply - function to apply this relocation
+  void apply()
+  { m_pApply(*this); }
 
 private:
   /// m_Type - the type of the relocation entries
   Type m_Type;
 
   /// m_pSymInfo - resolved symbol info of relocation target symbol
-  const ResolveInfo* m_pSymInfo;
+  ResolveInfo* m_pSymInfo;
 
   /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
   
   /// m_Target - target data of the place being relocated
-  DWord& m_Target;
+  DWord m_Target;
   
   /// m_Addend - the addend
   Address m_Addend;
 
+  /// m_pApply - function pointer to the apply function
+  Pointer m_pApply;
+
+  /// m_pDynRelocTables - a pointer to hold the DynRelocTables in MCLinker
+  // TODO :  
 };
 
 } // namespace of mcld

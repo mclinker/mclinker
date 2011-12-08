@@ -8,26 +8,27 @@
  ****************************************************************************/
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/Layout.h>
 
 using namespace mcld;
 
 Relocation::Relocation(Relocation::Type pType,
-                       Relocation::DWord& pTargetData,
+                       Relocation::Pointer pApply,
                        const MCFragmentRef& pTargetRef,
                        Relocation::Address pAddend,
-		       const ResolveInfo& pSymInfo)
+		       Relocation::DWord pTarget)
   : m_Type(pType),
-    m_Target(pTargetData),
+    m_pApply(pApply),    
     m_TargetAddress(pTargetRef),
     m_Addend(pAddend),
-    m_pSymInfo(&pSymInfo){
+    m_Target(pTarget){
 }
 
 Relocation::~Relocation()
 {
 }
 
-Relocation::Address Relocation::place() const
+Relocation::Address Relocation::place(Layout& pLayout) const
 {
   return 0; // TODO
 }

@@ -12,3 +12,21 @@ using namespace mcld;
 //==========================
 // X86RelocationFactory
 
+X86RelocationFactory::X86RelocationFactory(size_t pNum) : 
+                                           RelocationFactory(pNum)
+{
+}
+
+X86RelocationFactory::~X86RelocationFactory()
+{
+}
+
+const RelocationFactory::Pointer X86RelocationFactory::getApply(
+                                 RelocationFactory::Type pRelType) const
+{
+  return 0; //TODO:
+}
+
+void X86RelocationFactory::destroy(Relocation* pRelocation)
+{
+}

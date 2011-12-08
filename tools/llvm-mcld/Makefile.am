@@ -47,8 +47,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
 	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp \
-	${LIBDIR}/Target/ARM/ARMRelocation.h \
-	${LIBDIR}/Target/ARM/ARMRelocation.cpp \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \

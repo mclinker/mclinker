@@ -21,20 +21,18 @@ namespace mcld
 class X86RelocationFactory : public RelocationFactory
 {
 public:
-  X86RelocationFactory(size_t pNum)
-  { }
+  X86RelocationFactory(size_t pNum);
+  ~X86RelocationFactory();
 
-  ~X86RelocationFactory()
-  { }
+  /// getApply - get apply fnuction for relocation type pRelType
+  const Pointer getApply(Type pRelType) const;
 
-  // ----- production ----- //
-  virtual Relocation* produce(Type pType,
-                              const LDSymbol& pSymbol,
-                              MCFragmentRef& pFragRef,
-                              DWord* pTargetData = NULL,
-                              Address pAddend = 0) { return NULL; }
+  void destroy(Relocation* pRelocation);
 
-  virtual void destroy(Relocation* pRelocation) { }
+private:  
+  /// m_ApplyFuncs - An array to map relocation type to its apply function
+  static Pointer m_ApplyFuncs[];
+
 };
 
 } // namespace of mcld
