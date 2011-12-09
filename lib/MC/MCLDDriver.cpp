@@ -12,11 +12,15 @@
 namespace mcld {
 
 MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
-  : m_LDInfo(pLDInfo), m_LDBackend(pLDBackend) {
+  : m_LDInfo(pLDInfo),
+    m_LDBackend(pLDBackend),
+    m_pLinker(0) {
 }
 
 MCLDDriver::~MCLDDriver()
 {
+  if (0 != m_pLinker)
+    delete m_pLinker;
 }
 
 void MCLDDriver::normalize() {
@@ -88,6 +92,19 @@ bool MCLDDriver::linkable() const
 ///  Connect all components in MCLinker
 bool MCLDDriver::initMCLinker()
 {
+  if (0 == m_pLinker)
+    m_pLinker = new MCLinker(m_LDBackend, m_LDInfo);
+
+  // initialize the readers and writers
+  // Because constructor can not be failed, we initalize all readers and
+  // writers outside the MCLinker constructors.
+  if (!m_LDBackend.initArchiveReader(*m_pLinker) ||
+      !m_LDBackend.initObjectReader(*m_pLinker) ||
+      !m_LDBackend.initDynObjReader(*m_pLinker) ||
+      !m_LDBackend.initObjectWriter(*m_pLinker) ||
+      !m_LDBackend.initDynObjWriter(*m_pLinker))
+    return false;
+
   return true;
 }
 

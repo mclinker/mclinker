@@ -18,11 +18,23 @@
 #include <gtest.h>
 #endif
 
-//FIXME: The implementation of MCLDDriver is currently
-//       in SectLinker::doInitialization. those code should
-//       be migrated here.
-namespace mcld {
-class MCLDDriver {
+namespace mcld
+{
+
+class MCLinker;
+class MCLDInfo;
+class TargetLDBackend;
+
+//===----------------------------------------------------------------------===//
+/// MCLDDriver - MCLDDriver prepares parameters for MCLinker.
+///
+class MCLDDriver
+{
+public:
+  MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
+  ~MCLDDriver();
+
+  void normalize();
 
   /// linkable - check the linkability of current MCLDInfo
   ///  Check list:
@@ -83,6 +95,7 @@ class MCLDDriver {
 private:
   TargetLDBackend &m_LDBackend;
   MCLDInfo& m_LDInfo;
+  MCLinker* m_pLinker;
 };
 
 } // end namespace mcld

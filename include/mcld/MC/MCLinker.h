@@ -46,14 +46,12 @@ class MCLDInfo;
 class MCLinker
 {
 public:
-  explicit MCLinker(TargetLDBackend&, MCLDInfo&);
+  explicit MCLinker(TargetLDBackend& pBackend, MCLDInfo& pLDInfo);
   ~MCLinker();
 
-  void applyRelocations();
-
 private:
-  TargetLDBackend& m_pBackend;
-  MCLDInfo& m_pInfo;
+  TargetLDBackend& m_Backend;
+  MCLDInfo& m_Info;
 };
 
 } // namespace of mcld

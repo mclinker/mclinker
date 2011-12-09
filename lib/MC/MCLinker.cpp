@@ -18,10 +18,10 @@
 #include "mcld/Target/TargetLDBackend.h"
 #include "llvm/Support/raw_ostream.h"
 
-namespace mcld {
+using namespace mcld;
 
 MCLinker::MCLinker(TargetLDBackend& pBackend, MCLDInfo& pInfo)
-: m_pBackend(pBackend), m_pInfo(pInfo)
+: m_Backend(pBackend), m_Info(pInfo)
 {
 >>>>>>> Move MC/MCLDContext to LD/LDContext.
 }
@@ -30,8 +30,3 @@ MCLinker::~MCLinker()
 {
 }
 
-void MCLinker::applyRelocations()
-{
-}
-
-} // namespace mcld
