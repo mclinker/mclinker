@@ -7,7 +7,18 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "mcld/MC/MCLinker.h"
+#include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCLDDriver.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/LD/ArchiveReader.h"
+#include "mcld/LD/ObjectReader.h"
+#include "mcld/LD/DynObjReader.h"
+#include "mcld/LD/ObjectWriter.h"
+#include "mcld/LD/DynObjWriter.h"
+#include "mcld/Support/RealPath.h"
+#include "mcld/Target/TargetLDBackend.h"
+#include "llvm/Support/ErrorHandling.h"
 
 namespace mcld {
 
