@@ -3,22 +3,21 @@
 For building MCLinker, it needs to build LLVM first.
 
 Before building LLVM,
-the patch "LLVM.patch" should be applied first.
+the patch "${MCLINKER_SRC}/patch/LLVM.patch" should be applied first.
 
 Following the steps below to apply the patch:
 1. cd $(LLVM_ROOT)
-2. patch -p0 < ./patch/LLVM.patch
+2. patch -p0 < ${MCLINKER_SRC}/patch/LLVM.patch
 
-This patch is for LLVM release_30@142614.
+This patch is for LLVM RELEASE_30@145348.
 
 
 
 ------------------------------------------------------------
-commit dce287505919d338f8bc36093dd22479c064c2d9
+commit 6358f5b0e7a1da34b97a83317973842fe1e3db09
 Author: Bill Wendling <isanbard@gmail.com>
-Date:   Thu Oct 20 20:33:11 2011 +0000
+Date:   Tue Nov 29 01:20:37 2011 +0000
 
-    Patch to build win64 LLVM on Mingw. Patch by Ruben Van Boxem.
-
-    git-svn-id: https://llvm.org/svn/llvm-project/llvm/branches/release_30@142614 91177308-0d34-0410-b5e6-96231b3b80d8
-
+    Creating release candidate final from release_30 branch
+    
+    git-svn-id: https://llvm.org/svn/llvm-project/llvm/tags/RELEASE_30@145348 91177308-0d34-0410-b5e6-96231b3b80d8
