@@ -179,3 +179,17 @@ Index: lib/MC/MCAssembler.cpp
      OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
  {
  }
+Index: include/llvm/MC/MCSection.h
+===================================================================
+--- include/llvm/MC/MCSection.h	(revision 145672)
++++ include/llvm/MC/MCSection.h	(working copy)
+@@ -31,7 +31,8 @@
+     enum SectionVariant {
+       SV_COFF = 0,
+       SV_ELF,
+-      SV_MachO
++      SV_MachO,
++      SV_LDContext
+     };
+ 
+   private:
