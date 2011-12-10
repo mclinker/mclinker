@@ -12,6 +12,7 @@
 #endif
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/ADT/SizeTraits.h>
+#include <mcld/ADT/TypeTraits.h>
 
 namespace mcld
 {
@@ -24,7 +25,8 @@ class MCFragmentRef
 {
 public:
   typedef size_t Offset; // FIXME: use SizeTraits<T>::Offset
-  typedef char* Address; // FIXME: use SizeTraits<T>::Address
+  typedef NonConstTraits<char*>::value_type Address;
+  typedef ConstTraits<char*>::value_type ConstAddress;
 
 public:
   MCFragmentRef();
@@ -46,12 +48,12 @@ public:
 
   // -----  dereference  ----- //
   Address deref();
-  const Address deref() const;
+  ConstAddress deref() const;
 
   Address operator*()
   { return deref(); }
 
-  const Address operator*() const
+  ConstAddress operator*() const
   { return deref(); }
   
 private:

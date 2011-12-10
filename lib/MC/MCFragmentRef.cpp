@@ -63,7 +63,7 @@ MCFragmentRef::Address MCFragmentRef::deref()
   return base + m_Offset;
 }
 
-const MCFragmentRef::Address MCFragmentRef::deref() const
+MCFragmentRef::ConstAddress MCFragmentRef::deref() const
 {
   if (NULL == m_pFragment)
     return NULL;
