@@ -127,6 +127,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/LD/LDContext.h \
 	${INCDIR}/LD/LDSection.h \
+	${LIBDIR}/LD/LDSection.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/ResolveInfoFactory.h \
