@@ -1,0 +1,14 @@
+                TODO list for MCLinker
+                ----------------------
+2011-12-11 luba.tang
+
+* Define SectionMap and SegmentMap for section merge.
+* Initial standard SectionMap and SegmentMap in MCLinker.
+  Triggered by MCLDDriver::initMCLinker().
+* Targets need to modify SegmentMap and SectionMap. To provide APIs in TargetLDBackend.
+
+2011-11-27 luba.tang
+
+* precise numeral system
+  remove big-enough numeral system. Use precise SizeTraits<T> everywhere.
+
