@@ -4,24 +4,41 @@
 ============
 Introduction
 ============
-  MCLinker is a linker using LLVM machine code (MC) layer.
+  MCLinker is a UIUC license linkage editor. 
 
 ========================
 Compilation Instructions
 ========================
   The simplest way to compile this package is:
 
-  1. Type `cd' to the directory containing the source code.
+------------
+Prepare LLVM
+------------
+  0.a Download LLVM 3.0@r145675
+      `svn co -r 145675 http://llvm.org/svn/llvm-project/llvm/tags/RELEASE_30/final llvm-src'
 
-  2. If there are no `configure' shell script in the directory, type
-     `./autogen.sh' to generate `configure' script.
+  0.b Type `cd llvm-src' to enter the directory containing LLVM source code
 
-  3. Type `./configure` to configure the package for your system. See INSTALL
-     for more details.
+  0.c Apply patches from MCLinker
+      `patch -p0 < ${MCLinker}/patch/LLVM.patch'
 
-  4. Type `make` to compile the package
+  0.d Build and install LLVM
 
-  5. Type `make install` to install the package into your system.
+--------------
+Build MCLinker
+--------------
+
+  1.  Type `cd ${MCLinker}' to the directory containing the source code.
+
+  2.  If there are no `configure' shell script in the directory, type
+      `./autogen.sh' to generate `configure' script.
+
+  3.  Type `./configure` to configure the package for your system. See INSTALL
+      for more details.
+
+  4.  Type `make` to compile the package
+
+  5.  Type `make install` to install the package into your system.
 
 ===================
 Directory Structure
