@@ -43,9 +43,17 @@ void MCLDDriver::normalize() {
     // already got type - for example, bitcode
     if ((*input)->type() == Input::Object)
       continue;
-    else if (m_LDBackend.getObjectReader()->isMyFormat(**input) ||
-             m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
-        (*input)->setType(type);
+    else if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
+        (*input)->setType(Input::Ojbect);
+        (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+        (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
+        if (!(*input)->memArea()->isGood()) {
+          llvm::report_fatal_error("can not open file: " + (*input)->path().native());
+          return;
+        }
+    }
+    else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
+        (*input)->setType(Input::DynObj);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
         (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
         if (!(*input)->memArea()->isGood()) {
@@ -117,18 +125,26 @@ bool MCLDDriver::initMCLinker()
       !m_LDBackend.initDynObjWriter(*m_pLinker))
     return false;
 
+  // initialize standard segments and sections
+
+  // initialize target-dependent segments and sections
+
   return true;
 }
 
 /// readSections - read all input section headers
 bool MCLDDriver::readSections()
 {
+  // Bitcode is read by the other path. This function reads sections in object
+  // files.
   return true;
 }
 
 /// mergeSections - put allinput sections into output sections
 bool MCLDDriver::mergeSections()
 {
+  // TODO: when MCLinker can read other object files, we have to merge
+  // sections
   return true;
 }
 
@@ -136,6 +152,11 @@ bool MCLDDriver::mergeSections()
 ///  for each input file, loads its symbol table from file.
 bool MCLDDriver::readSymbolTables()
 {
+  mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+    if ((*input)->type() == mcld::Input::DynObj ) {
+    }
+  }
   return true;
 }
 
