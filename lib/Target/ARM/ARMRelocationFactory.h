@@ -34,23 +34,20 @@ public:
 
   void apply(Relocation& pRelocation); 
 
-  void destroy(Relocation* pRelocation);
 
 private:
   /// m_ApplyFuncs - An array to map relocation type to its apply function
   static Pointer m_ApplyFuncs[];
 
-/** list all relocation
-  static Relocations[] = {
-    
-  };
-
-  // clone a relocation
-  // set up the relocation
-  // return the relocation
-**/
-
-
+private:
+  DWord thumbBit(Relocation &pReloc);
+  // Relocation applying function for performing all types of relocations
+  void none(Relocation& pReloc);
+  void abs32(Relocation& pReloc);
+  void rel32(Relocation& pReloc);
+  void gotoff32(Relocation& pReloc);
+  void got_brel(Relocation& pReloc);
+  // TODO: Implement all relocation applying functions
 };
 
 } // namespace of mcld

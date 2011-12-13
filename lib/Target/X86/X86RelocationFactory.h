@@ -30,7 +30,6 @@ public:
   ~X86RelocationFactory();
 
   void apply(Relocation& pRelocation);
-  void destroy(Relocation* pRelocation);
 
 private:  
   /// m_ApplyFuncs - An array to map relocation type to its apply function

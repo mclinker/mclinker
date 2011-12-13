@@ -98,9 +98,6 @@ private:
 
   /// m_pFactory - the RelocationFactory who produce this relocation
   RelocationFactory *m_pFactory;
-
-  /// m_pDynRelocTables - a pointer to hold the DynRelocTables in MCLinker
-  // TODO :  
 };
 
 } // namespace of mcld

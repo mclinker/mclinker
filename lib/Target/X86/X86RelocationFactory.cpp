@@ -27,6 +27,3 @@ void X86RelocationFactory::apply(Relocation& pRelocation)
 {
 }
 
-void X86RelocationFactory::destroy(Relocation* pRelocation)
-{
-}

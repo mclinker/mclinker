@@ -30,3 +30,8 @@ RelocationFactory::~RelocationFactory()
 {
 }
 
+void RelocationFactory::destroy(Relocation* pRelocation)
+{
+   /** GCFactory will recycle the relocation **/
+}
+

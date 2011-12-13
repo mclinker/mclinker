@@ -20,6 +20,7 @@ namespace mcld
 class LDSymbol;
 class ResolveInfo;
 class MCFragmentRef;
+class Layout;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -36,8 +37,6 @@ public:
 public:
   RelocationFactory(size_t pNum);
   virtual ~RelocationFactory();
-
-  virtual void destroy(Relocation* pRelocation) = 0;
  
   /// apply - general apply function
   virtual void apply(Relocation& pRelocation) = 0; 
@@ -47,9 +46,26 @@ public:
                       MCFragmentRef& pFragRef,
 		      DWord pTarget,
                       Address pAddend = 0);
+  void destroy(Relocation* pRelocation);
 
-  // TODO: RelocationFactory should hold the GOT/PLT offset
-  // for applying functions
+  // ------ observers -----//
+  const Layout* layout() const
+  { return m_Layout; }
+  
+  Layout* layout()
+  { return m_Layout; }
+  
+  Address gotorg() const
+  { return m_gotOrigin; }
+
+  Address& gotorg()
+  { return m_gotOrigin; }  
+
+private:
+  Address m_gotOrigin;	
+  Layout *m_Layout;
+  // TODO: Add pointer to dynamic relocation table
+  /// m_pDynRelocTables
 };
 
 } // namespace of mcld
