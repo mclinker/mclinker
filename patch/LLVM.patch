@@ -1,6 +1,6 @@
 Index: include/llvm/Target/TargetMachine.h
 ===================================================================
---- include/llvm/Target/TargetMachine.h	(revision 145348)
+--- include/llvm/Target/TargetMachine.h	(revision 145958)
 +++ include/llvm/Target/TargetMachine.h	(working copy)
 @@ -277,6 +277,16 @@
                                   bool = true) {
@@ -37,7 +37,7 @@ Index: include/llvm/Target/TargetMachine.h
    /// generation.  If OptLevel is None, the code generator should emit code as
 Index: include/llvm/MC/MCAssembler.h
 ===================================================================
---- include/llvm/MC/MCAssembler.h	(revision 145348)
+--- include/llvm/MC/MCAssembler.h	(revision 145958)
 +++ include/llvm/MC/MCAssembler.h	(working copy)
 @@ -53,7 +53,10 @@
      FT_Org,
@@ -51,7 +51,24 @@ Index: include/llvm/MC/MCAssembler.h
    };
  
  private:
-@@ -664,7 +667,7 @@
+@@ -466,6 +469,7 @@
+   // Only for use as sentinel.
+   MCSectionData();
+   MCSectionData(const MCSection &Section, MCAssembler *A = 0);
++  MCSectionData(const MCSection &Section, iplist<MCSectionData> &Sections);
+ 
+   const MCSection &getSection() const { return *Section; }
+ 
+@@ -554,6 +558,8 @@
+   MCSymbolData();
+   MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
+                MCAssembler *A = 0);
++  MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment, uint64_t _Offset,
++               iplist<MCSymbolData> &Symbols);
+ 
+   /// @name Accessors
+   /// @{
+@@ -664,7 +670,7 @@
  
    MCCodeEmitter &Emitter;
  
@@ -60,38 +77,47 @@ Index: include/llvm/MC/MCAssembler.h
  
    raw_ostream &OS;
  
-@@ -791,8 +794,13 @@
+@@ -791,8 +797,10 @@
  
    MCCodeEmitter &getEmitter() const { return Emitter; }
  
 -  MCObjectWriter &getWriter() const { return Writer; }
 +  MCObjectWriter &getWriter() const { return *m_pWriter; }
  
-+  void setWriter(MCObjectWriter &pObjectWriter) {
-+    delete m_pWriter;
-+    m_pWriter = &pObjectWriter;
-+  }
++  void setWriter(MCObjectWriter &pObjectWriter);
 +
    /// Finish - Do final processing and write the object to the output stream.
    /// \arg Writer is used for custom object writer (as the MCJIT does),
    /// if not specified it is automatically created from backend.
-Index: include/llvm/MC/MCSection.h
+Index: include/llvm/MC/MCSectionELF.h
 ===================================================================
---- include/llvm/MC/MCSection.h	(revision 145348)
-+++ include/llvm/MC/MCSection.h	(working copy)
-@@ -31,7 +31,8 @@
-     enum SectionVariant {
-       SV_COFF = 0,
-       SV_ELF,
--      SV_MachO
-+      SV_MachO,
-+      SV_LDContext
-     };
+--- include/llvm/MC/MCSectionELF.h	(revision 145958)
++++ include/llvm/MC/MCSectionELF.h	(working copy)
+@@ -42,7 +42,7 @@
  
-   private:
+   const MCSymbol *Group;
+ 
+-private:
++public:
+   friend class MCContext;
+   MCSectionELF(StringRef Section, unsigned type, unsigned flags,
+                SectionKind K, unsigned entrySize, const MCSymbol *group)
+Index: include/llvm/MC/MCSymbol.h
+===================================================================
+--- include/llvm/MC/MCSymbol.h	(revision 145958)
++++ include/llvm/MC/MCSymbol.h	(working copy)
+@@ -55,7 +55,7 @@
+     /// IsUsed - True if this symbol has been used.
+     mutable unsigned IsUsed : 1;
+ 
+-  private:  // MCContext creates and uniques these.
++  public:  // MCContext creates and uniques these.
+     friend class MCExpr;
+     friend class MCContext;
+     MCSymbol(StringRef name, bool isTemporary)
 Index: include/llvm/Support/CommandLine.h
 ===================================================================
---- include/llvm/Support/CommandLine.h	(revision 145348)
+--- include/llvm/Support/CommandLine.h	(revision 145958)
 +++ include/llvm/Support/CommandLine.h	(working copy)
 @@ -339,7 +339,11 @@
  
@@ -108,9 +134,40 @@ Index: include/llvm/Support/CommandLine.h
    template<class DT>
 Index: lib/MC/MCAssembler.cpp
 ===================================================================
---- lib/MC/MCAssembler.cpp	(revision 145348)
+--- lib/MC/MCAssembler.cpp	(revision 145958)
 +++ lib/MC/MCAssembler.cpp	(working copy)
-@@ -197,7 +197,7 @@
+@@ -177,6 +177,15 @@
+     A->getSectionList().push_back(this);
+ }
+ 
++MCSectionData::MCSectionData(const MCSection &_Section,
++                             iplist<MCSectionData> &Sections)
++  : Section(&_Section),
++    Ordinal(~UINT32_C(0)),
++    Alignment(1),
++    HasInstructions(false)
++{
++  Sections.push_back(this);
++}
+ /* *** */
+ 
+ MCSymbolData::MCSymbolData() : Symbol(0) {}
+@@ -192,12 +201,22 @@
+     A->getSymbolList().push_back(this);
+ }
+ 
++MCSymbolData::MCSymbolData(const MCSymbol &_Symbol, MCFragment *_Fragment,
++                           uint64_t _Offset, iplist<MCSymbolData> &Symbols)
++  : Symbol(&_Symbol), Fragment(_Fragment), Offset(_Offset),
++    IsExternal(false), IsPrivateExtern(false),
++    CommonSize(0), SymbolSize(0), CommonAlign(0),
++    Flags(0), Index(0)
++{
++  Symbols.push_back(this);
++}
++
+ /* *** */
+ 
  MCAssembler::MCAssembler(MCContext &Context_, MCAsmBackend &Backend_,
                           MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
                           raw_ostream &OS_)
@@ -119,3 +176,15 @@ Index: lib/MC/MCAssembler.cpp
      OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
  {
  }
+@@ -205,6 +224,11 @@
+ MCAssembler::~MCAssembler() {
+ }
+ 
++void MCAssembler::setWriter(MCObjectWriter &pObjectWriter) {
++  delete m_pWriter;
++  m_pWriter = &pObjectWriter;
++}
++
+ bool MCAssembler::isSymbolLinkerVisible(const MCSymbol &Symbol) const {
+   // Non-temporary labels should always be visible to the linker.
+   if (!Symbol.isTemporary())
