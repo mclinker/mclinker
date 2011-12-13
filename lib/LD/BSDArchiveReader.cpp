@@ -26,7 +26,7 @@ InputTree *BSDArchiveReader::readArchive(Input &input)
   return NULL;
 }
 
-bool BSDArchiveReader::isMyFormat(Input& pInput)
+bool BSDArchiveReader::isMyFormat(Input& pInput) const
 {
   // TODO
   return false;

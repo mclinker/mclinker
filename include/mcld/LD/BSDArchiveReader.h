@@ -30,7 +30,7 @@ public:
   ~BSDArchiveReader();
 
   InputTree *readArchive(Input &input);
-  bool isMyFormat(Input& pInput);
+  bool isMyFormat(Input& pInput) const;
 };
 
 } // namespace of mcld
