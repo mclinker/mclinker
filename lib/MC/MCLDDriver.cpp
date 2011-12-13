@@ -44,7 +44,7 @@ void MCLDDriver::normalize() {
     if ((*input)->type() == Input::Object)
       continue;
     else if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
-        (*input)->setType(Input::Ojbect);
+        (*input)->setType(Input::Object);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
         (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
         if (!(*input)->memArea()->isGood()) {
@@ -153,7 +153,7 @@ bool MCLDDriver::mergeSections()
 bool MCLDDriver::readSymbolTables()
 {
   mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == mcld::Input::DynObj ) {
     }
   }

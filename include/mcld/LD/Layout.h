@@ -11,9 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include "mcld/LD/LDFileFormat.h"
+#include "llvm/MC/MCAssembler.h"
 
 namespace mcld
 {
+class MCLinker;
 
 /** \class Layout
  *  \brief Layout records the order and offset of all regions
@@ -32,7 +35,7 @@ public:
   /// layoutFragment - perform layout for single fragment
   /// Assuming the previous fragment has already been laid out correctly.
   /// @return the offset of the file to laid out the fragment
-  uint64_t layoutFragment(MCFragment& pFrag);
+  uint64_t layoutFragment(llvm::MCFragment& pFrag);
 
   // -----  modifiers  ----- //
   bool layout(MCLinker& pLinker, LDFileFormat& pFormat);
