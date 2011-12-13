@@ -67,7 +67,7 @@ MCFragmentRef::ConstAddress MCFragmentRef::deref() const
 {
   if (NULL == m_pFragment)
     return NULL;
-  Address base = NULL;
+  ConstAddress base = NULL;
   switch(m_pFragment->getKind()) {
     case llvm::MCFragment::FT_Inst:
       base = static_cast<const llvm::MCInstFragment*>(m_pFragment)->getCode().data();
