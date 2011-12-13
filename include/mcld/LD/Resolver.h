@@ -46,7 +46,7 @@ public:
   /// @return the action should be taken.
   /// @param pOld the symbol which may be overridden.
   /// @param pNew the symbol which is used to replace pOld
-  virtual unsigned int resolve(const ResolveInfo & __restrict__ pOld,
+  virtual unsigned int resolve(ResolveInfo & __restrict__ pOld,
                                const ResolveInfo & __restrict__ pNew,
                                bool &pOverride) = 0;
 
@@ -55,7 +55,7 @@ public:
   /// @param pAction the action returned by resolve()
   virtual bool resolveAgain(StrSymPool& pStrSymPool,
                             unsigned int pAction,
-                            const ResolveInfo& __restrict__ pOld,
+                            ResolveInfo& __restrict__ pOld,
                             const ResolveInfo& __restrict__ pNew)
   { return false; }
 
