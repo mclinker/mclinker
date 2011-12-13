@@ -1,4 +1,4 @@
-//===- RelocationFactory.h ------------------------------------------------===//
+//===- Relocation.h -------------------------------------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -11,8 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/Support/GCFactory.h"
-#include "mcld/LD/Relocation.h"
+#include <mcld/Support/GCFactory.h>
+#include <mcld/LD/Relocation.h>
 
 namespace mcld
 {
@@ -37,10 +37,10 @@ public:
 public:
   RelocationFactory(size_t pNum);
   virtual ~RelocationFactory();
- 
+
   /// apply - general apply function
-  virtual void apply(Relocation& pRelocation) = 0; 
-  
+  virtual void apply(Relocation& pRelocation) = 0;
+
   // ----- production ----- //
   Relocation* produce(Type pType,
                       MCFragmentRef& pFragRef,
@@ -51,18 +51,18 @@ public:
   // ------ observers -----//
   const Layout* layout() const
   { return m_Layout; }
-  
+
   Layout* layout()
   { return m_Layout; }
-  
+
   Address gotorg() const
   { return m_gotOrigin; }
 
   Address& gotorg()
-  { return m_gotOrigin; }  
+  { return m_gotOrigin; }
 
 private:
-  Address m_gotOrigin;	
+  Address m_gotOrigin;
   Layout *m_Layout;
   // TODO: Add pointer to dynamic relocation table
   /// m_pDynRelocTables

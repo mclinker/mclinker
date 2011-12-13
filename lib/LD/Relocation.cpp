@@ -16,9 +16,8 @@ using namespace mcld;
 Relocation::Relocation(Relocation::Type pType,
                        const MCFragmentRef& pTargetRef,
                        Relocation::Address pAddend,
-		       Relocation::DWord pTarget,
-		       RelocationFactory &pFactory
-		       )
+		                   Relocation::DWord pTarget,
+		                   RelocationFactory &pFactory)
   : m_Type(pType),
     m_TargetAddress(pTargetRef),
     m_Addend(pAddend),

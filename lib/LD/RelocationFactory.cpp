@@ -17,7 +17,7 @@ RelocationFactory::RelocationFactory(size_t pNum)
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        MCFragmentRef& pFragRef,
-				       RelocationFactory::DWord pTarget,
+                                       RelocationFactory::DWord pTarget,
                                        RelocationFactory::Address pAddend)
 
 {

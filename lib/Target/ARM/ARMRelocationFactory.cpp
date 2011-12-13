@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <llvm/Support/ELF.h>
 #include "ARMRelocationFactory.h"
 
 using namespace mcld;
@@ -34,26 +35,23 @@ ARMRelocationFactory::Pointer ARMRelocationFactory::m_ApplyFuncs[]=
                                         // --------------------------
   &ARMRelocationFactory::none,          // 0      R_ARM_NONE
   &ARMRelocationFactory::none,          // 1      R_ARM_PC24
-  &ARMRelocationFactory::abs32,         // 2      R_ARM_ABS32    
+  &ARMRelocationFactory::abs32,         // 2      R_ARM_ABS32
   &ARMRelocationFactory::rel32          // 3      R_ARM_REL32
   // TODO:
 };
 
 RelocationFactory::DWord ARMRelocationFactory::thumbBit(Relocation& pReloc)
-{ 
+{
   // Set thumb bit if
   // - symbol has type of STT_ARM_TFUNC (?) or
   // - symbol has type of STT_FUNC, is defined and with bit 0 of its value set
-  DWord thumbBit =     
-     (((pReloc.symInfo()->type() == 13) ||    // FIXME: STT_ARM_TFUNC) ||
-      ((pReloc.symInfo()->type() == 2) &&     // FIXME: STT_FUNC) &&
-                                              // FIXME: symbol is undefined      
-       ((pReloc.symInfo()->value()&1) != 0))) 
-     ? 1:0 ) ;
+  DWord thumbBit =                          //FIXME: check symbol is not undef
+        (((pReloc.symInfo()->type() == llvm::ELF::STT_FUNC) &&
+        ((pReloc.symInfo()->value()&1) != 0))
+        ? 1:0 ) ;
   return thumbBit;
 }
 
-	
 // R_ARM_NONE and those unsupported/deprecated relocation type
 void ARMRelocationFactory::none(Relocation& pReloc)
 {
@@ -73,7 +71,7 @@ void ARMRelocationFactory::rel32(Relocation& pReloc)
 {
   DWord t_bit = thumbBit(pReloc);
   DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = ((pReloc.symValue() + addend) | t_bit) 
+  pReloc.target() = ((pReloc.symValue() + addend) | t_bit)
                     - pReloc.place(*layout());
 }
 

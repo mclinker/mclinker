@@ -1,4 +1,4 @@
-//===- Relocation.h -------------------------------------------------------===//
+//===- Relocation.h ----------------------------------------------------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
@@ -11,10 +11,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/ADT/ilist_node.h"
-#include "llvm/Support/DataTypes.h"
-#include "mcld/MC/MCFragmentRef.h"
-#include "mcld/LD/ResolveInfo.h"
+#include <llvm/ADT/ilist_node.h>
+#include <llvm/Support/DataTypes.h>
+#include <mcld/MC/MCFragmentRef.h>
+#include <mcld/LD/ResolveInfo.h>
 
 
 namespace mcld
@@ -40,11 +40,11 @@ private:
 	     RelocationFactory &pFactory);
 public:
   ~Relocation();
-  
+
   /// type - relocation type
   Type type() const
   { return m_Type; }
-  
+
   /// symValue - symbol value - S value
   Address symValue() const
   { return m_pSymInfo->value(); }
@@ -52,7 +52,7 @@ public:
   /// addend - A value
   Address addend() const
   { return m_Addend; }
-  
+
   /// place - P value
   Address place(Layout& pLayout) const;
 
@@ -63,11 +63,11 @@ public:
   /// symbol info - binding, type
   ResolveInfo* symInfo()
   { return m_pSymInfo; }
-  
+
   /// target - the target data to relocate
   DWord& target()
   { return m_Target; }
-  
+
   /// target - the target data to relocate
   const DWord& target() const
   { return m_Target; }
@@ -79,7 +79,7 @@ public:
   /// targetRef - the reference of the target data
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
- 
+
 private:
   /// m_Type - the type of the relocation entries
   Type m_Type;
@@ -89,10 +89,10 @@ private:
 
   /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
-  
+
   /// m_Target - target data of the place being relocated
   DWord m_Target;
-  
+
   /// m_Addend - the addend
   Address m_Addend;
 

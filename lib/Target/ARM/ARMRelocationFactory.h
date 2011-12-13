@@ -32,7 +32,7 @@ public:
   ARMRelocationFactory(size_t pNum);
   ~ARMRelocationFactory();
 
-  void apply(Relocation& pRelocation); 
+  void apply(Relocation& pRelocation);
 
 
 private:
