@@ -29,7 +29,7 @@ class LDSymbol
 {
 public:
   // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
-  typedef uint64_t SizeType;
+  typedef ResolveInfo::SizeType SizeType;
   typedef ResolveInfo::ValueType ValueType;
   typedef MCFragmentRef::Offset Offset;
 
@@ -89,14 +89,16 @@ public:
   { return m_pFragRef; }
 
   SizeType size() const
-  { return m_Size; }
+  { return m_pResolveInfo->size(); }
 
   const ResolveInfo* resolveInfo() const 
   { return m_pResolveInfo; }
     
   // -----  modifiers  ----- //
-  void setSize(SizeType pSize)
-  { m_Size = pSize; }
+  void setSize(SizeType pSize) {
+    assert(NULL != m_pResolveInfo);
+    m_pResolveInfo->setSize(pSize);
+  }
 
   void setValue(ValueType pValue) {
     assert(NULL != m_pResolveInfo);
@@ -111,7 +113,6 @@ private:
   // -----  Symbol's fields  ----- //
   ResolveInfo* m_pResolveInfo;
   MCFragmentRef* m_pFragRef;
-  SizeType m_Size;
 
 };
 

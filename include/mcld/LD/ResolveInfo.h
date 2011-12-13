@@ -33,11 +33,12 @@ class ResolveInfo
 {
 friend class ResolveInfoFactory;
 public:
-  typedef uint64_t ValueType; // FIXME: use SizeTrait<T>::Word
+  typedef uint64_t SizeType;
+  typedef uint64_t ValueType;
 
   enum Type {
-    Defined,
-    Reference,
+    Undefined,
+    Define,
     Common,
     Indirect,
     NoneType
@@ -73,7 +74,17 @@ public:
   void setVisibility(Visibility pVisibility);
 
   void setValue(ValueType pValue)
-  { m_Value = pValue; }
+  { m_Value.value = pValue; }
+
+  void setLink(ResolveInfo* pTarget) {
+    m_Value.ptr = pTarget;
+    m_BitField |= indirect_flag;
+  }
+
+  void setSize(SizeType pSize)
+  { m_Size = pSize; }
+
+  void override(const ResolveInfo& pForm);
 
   void overrideAttributes(const ResolveInfo& pFrom);
 
@@ -82,7 +93,17 @@ public:
   // -----  observers  ----- //
   bool hasAttributes() const;
 
+  bool isWeak() const;
+
+  bool isDefine() const;
+
+  bool isUndef() const;
+
   bool isDyn() const;
+
+  bool isCommon() const;
+
+  bool isIndirect() const;
 
   unsigned int type() const;
 
@@ -94,7 +115,16 @@ public:
   Visibility visibility() const;
 
   ValueType value() const
-  { return m_Value; }
+  { return m_Value.value; }
+
+  ResolveInfo* link()
+  { return m_Value.ptr; }
+
+  const ResolveInfo* link() const
+  { return m_Value.ptr; }
+
+  SizeType size() const
+  { return m_Size; }
 
   const char* name() const
   { return m_Name; }
@@ -102,26 +132,50 @@ public:
   unsigned int nameSize() const
   { return (m_BitField >> NAME_LENGTH_OFFSET); }
 
+  uint32_t info() const
+  { return (m_BitField & RESOLVE_MASK); }
+
   // -----  For HashTable  ----- //
   bool compare(const key_type& pKey);
 
 private:
-  static const uint32_t TYPE_OFSET = 2;
-  static const uint32_t TYPE_MASK = 0x3 << TYPE_OFSET;
+  static const uint32_t BINDING_OFFSET = 0;
+  static const uint32_t BINDING_MASK = 1;
 
   static const uint32_t DYN_OFFSET = 1;
   static const uint32_t DYN_MASK = 1 << DYN_OFFSET;
 
-  static const uint32_t BINDING_OFFSET = 0;
-  static const uint32_t BINDING_MASK = 1;
+  static const uint32_t TYPE_OFFSET = 2;
+  static const uint32_t TYPE_MASK = 0x3 << TYPE_OFFSET;
+
   static const uint32_t LOCAL_OFFSET = 4;
   static const uint32_t LOCAL_MASK = 1 << LOCAL_OFFSET;
 
   static const uint32_t VISIBILITY_OFFSET = 5;
   static const uint32_t VISIBILITY_MASK = 0x3 << VISIBILITY_OFFSET;
 
+  static const uint32_t TOUCH_OFFSET = 7;
+  static const uint32_t TOUCH_MASK = 1 << TOUCH_OFFSET;
+
   static const uint32_t NAME_LENGTH_OFFSET = 8;
   static const uint32_t RESOLVE_MASK = 0xF;
+
+  union ValOrPtr {
+    ValueType value;
+    ResolveInfo* ptr;
+  };
+
+public:
+  static const uint32_t global_flag = 0 << BINDING_OFFSET;
+  static const uint32_t weak_flag = 1 << BINDING_OFFSET;
+  static const uint32_t regular_flag = 0 << DYN_OFFSET;
+  static const uint32_t dynamic_flag = 1 << DYN_OFFSET;
+  static const uint32_t undefine_flag = 0 << TYPE_OFFSET;
+  static const uint32_t define_flag = 1 << TYPE_OFFSET;
+  static const uint32_t common_flag = 2 << TYPE_OFFSET;
+  static const uint32_t indirect_flag = 3 << TYPE_OFFSET;
+  static const uint32_t local_flag = 1 << LOCAL_OFFSET;
+  static const uint32_t touch_flag = 1 << TOUCH_OFFSET;
 
 private:
   ResolveInfo();
@@ -130,10 +184,11 @@ private:
   ~ResolveInfo();
 
 private:
-  ValueType m_Value;
+  SizeType m_Size;
+  ValOrPtr m_Value;
   /** m_BitField
    *  31     ...       8    7     6    ..      5   4    3   2   1   0
-   * | length of m_Name |reserved|ELF visibility|Local|Com|Ref|Dyn|Weak|
+   * | length of m_Name |touched|ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
   char m_Name[0];

@@ -14,20 +14,30 @@ using namespace mcld;
 //==========================
 // ResolveInfo
 ResolveInfo::ResolveInfo()
-  : m_BitField(0), m_Value(0) {
+  : m_BitField(0), m_Size(0) {
+  m_Value.value = 0;
 }
 
 ResolveInfo::~ResolveInfo()
 {
 }
 
+void ResolveInfo::override(const ResolveInfo& pFrom)
+{
+  m_Size = pFrom.m_Size;
+  m_Value.value = pFrom.m_Value.value;
+  overrideAttributes(pFrom);
+  overrideVisibility(pFrom);
+}
+
 void ResolveInfo::overrideAttributes(const ResolveInfo& pFrom)
 {
   m_BitField &= ~RESOLVE_MASK;
   m_BitField |= (pFrom.m_BitField & RESOLVE_MASK);
-  m_Value = pFrom.m_Value;
 }
 
+/// overrideVisibility - override the visibility
+///   always use the most strict visibility
 void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
 {
   ResolveInfo::Visibility vis =
@@ -46,7 +56,7 @@ void ResolveInfo::setDyn(bool pDyn)
 void ResolveInfo::setType(ResolveInfo::Type pType)
 {
   m_BitField &= ~TYPE_MASK;
-  m_BitField |= pType << TYPE_OFSET;
+  m_BitField |= pType << TYPE_OFFSET;
 }
 
 void ResolveInfo::setBinding(ResolveInfo::Binding pBinding)
@@ -79,9 +89,34 @@ bool ResolveInfo::isDyn() const
   return (0 != (m_BitField & DYN_MASK));
 }
 
+bool ResolveInfo::isDefine() const
+{
+  return (0 != (m_BitField & define_flag));
+}
+
+bool ResolveInfo::isUndef() const
+{
+  return !isDefine();
+}
+
+bool ResolveInfo::isWeak() const
+{
+  return (0 != (m_BitField & weak_flag));
+}
+
+bool ResolveInfo::isCommon() const
+{
+  return (0 != (m_BitField & common_flag));
+}
+
+bool ResolveInfo::isIndirect() const
+{
+  return (0 != (m_BitField & indirect_flag));
+}
+
 unsigned int ResolveInfo::type() const
 {
-  return (m_BitField & TYPE_MASK) >> TYPE_OFSET;
+  return (m_BitField & TYPE_MASK) >> TYPE_OFFSET;
 }
 
 unsigned int ResolveInfo::binding() const
