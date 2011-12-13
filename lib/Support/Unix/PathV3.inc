@@ -266,7 +266,6 @@ void open_dir(Directory& pDir)
   }
   case 0:
     // FIXME: a warning function
-    std::cerr << "empty directory:" << pDir.path().native() << std::endl;
     pDir.m_CacheFull = true;
     return;
   default:

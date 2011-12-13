@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/MC/MCFragmentRef.h"
 #include "mcld/MC/MCRegionFragment.h"
-#include <iostream>
 
 using namespace std;
 using namespace mcld;
@@ -60,7 +59,7 @@ MCFragmentRef::Address MCFragmentRef::deref()
     default:
       return NULL;
   }
-  cerr << base << endl;
+  //cerr << base << endl;
   return base + m_Offset;
 }
 

@@ -11,8 +11,6 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <iostream>
-using namespace std;
 
 namespace mcld {
 

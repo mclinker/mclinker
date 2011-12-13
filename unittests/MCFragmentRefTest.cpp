@@ -13,14 +13,10 @@
 #include "mcld/Support/Path.h"
 #include "MCFragmentRefTest.h"
 
-#include <iostream>
-
 using namespace mcld;
 using namespace mcld::sys::fs;
 using namespace mcld::sys::fs::detail;
 using namespace mcldtest;
-using namespace std;
-
 
 // Constructor can do set-up work for all test here.
 MCFragmentRefTest::MCFragmentRefTest()

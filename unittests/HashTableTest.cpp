@@ -10,7 +10,6 @@
 #include "HashTableTest.h"
 #include "mcld/ADT/HashEntry.h"
 #include "mcld/ADT/HashTable.h"
-#include <iostream>
 #include <cstdlib>
 
 using namespace std;

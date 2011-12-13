@@ -18,12 +18,6 @@
 #include <vector>
 #include <cstdlib>
 
-#ifdef MCLD_DEBUG
-#include <iostream>
-using namespace std;
-#endif
-
-
 using namespace mcld;
 
 typedef size_t sectionSizeTy;
@@ -95,7 +89,6 @@ Type stringToType(const std::string &str)
 bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
   OwningPtr<MemoryBuffer> mapFile;
-  cerr << "input in archive reader=" << pInput.path().native() << endl;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
@@ -130,7 +123,7 @@ bool GNUArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
 InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                             size_t off)
 {
-  vector<ArchiveMapEntry> archiveMap;
+  std::vector<ArchiveMapEntry> archiveMap;
   std::string archiveMemberName;
   std::string extendedName;
   bool isThinArchive;
