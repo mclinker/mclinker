@@ -20,7 +20,8 @@ namespace mcld
 {
 
 // Each apply function should return its relocation status
-enum ARM_Reloc_Status {
+enum ARM_Reloc_Status
+{
   STATUS_OK,
   STATUS_OVERFLOW,
   STATUS_BAD_RELOC
@@ -52,9 +53,19 @@ private:
   ARM_Reloc_Status none(Relocation& pReloc);
   ARM_Reloc_Status abs32(Relocation& pReloc);
   ARM_Reloc_Status rel32(Relocation& pReloc);
+  ARM_Reloc_Status thm_call(Relocation& pReloc);
   ARM_Reloc_Status gotoff32(Relocation& pReloc);
   ARM_Reloc_Status got_brel(Relocation& pReloc);
-  // TODO: Implement all relocation applying functions
+  ARM_Reloc_Status call(Relocation& pReloc);
+  ARM_Reloc_Status jump24(Relocation& pReloc);
+  ARM_Reloc_Status movw_abs_nc(Relocation& pReloc);
+  ARM_Reloc_Status movt_abs(Relocation& pReloc);
+  ARM_Reloc_Status movw_prel_nc(Relocation& pReloc);
+  ARM_Reloc_Status movt_prel(Relocation& pReloc);
+  ARM_Reloc_Status thm_movw_abs_nc(Relocation& pReloc);
+  ARM_Reloc_Status thm_movt_abs(Relocation& pReloc);
+  ARM_Reloc_Status thm_movw_prel_nc(Relocation& pReloc);
+  ARM_Reloc_Status thm_movt_prel(Relocation& pReloc);
 };
 
 } // namespace of mcld
