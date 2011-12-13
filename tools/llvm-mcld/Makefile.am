@@ -18,7 +18,35 @@ llvm_mcld_LDADD = ${LLVM_LDFLAGS}
 endif
 
 NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
+	${INCDIR}/ADT/Uncopyable.h \
+	${INCDIR}/ADT/TypeTraits.h \
+	${INCDIR}/ADT/TreeBase.h \
+	${INCDIR}/ADT/Allocators.h \
+	${INCDIR}/ADT/TreeAllocator.h \
+	${INCDIR}/ADT/BinTree.h \
+	${INCDIR}/Support/Path.h \
+	${LIBDIR}/Support/Path.cpp \
+	${INCDIR}/Support/RealPath.h \
+	${LIBDIR}/Support/RealPath.cpp \
+	${INCDIR}/Support/Directory.h \
+	${LIBDIR}/Support/Directory.cpp \
+	${INCDIR}/Support/FileSytem.h \
+	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/Support/MemoryArea.h \
+	${LIBDIR}/Support/MemoryArea.cpp \
+	${INCDIR}/Support/MemoryRegion.h \
+	${LIBDIR}/Support/MemoryRegion.cpp \
+	${INCDIR}/Support/RegionFactory.h \
+	${LIBDIR}/Support/RegionFactory.cpp \
+	${INCDIR}/Support/MemoryAreaFactory.h \
+	${LIBDIR}/Support/MemoryAreaFactory.cpp \
+	${INCDIR}/Support/CommandLine.h \
+	${LIBDIR}/Support/CommandLine.cpp \
+	${INCDIR}/Support/GCFactory.h \
+	${INCDIR}/Support/UniqueGCFactory.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
+	${INCDIR}/CodeGen/SectLinker.h \
+	${LIBDIR}/CodeGen/SectLinker.cpp \
 	${INCDIR}/Target/TargetMachine.h \
 	${INCDIR}/Target/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \
@@ -28,25 +56,10 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
-	${INCDIR}/MC/MCObjectReader.h \
-	${INCDIR}/MC/MCELFObjectReader.h \
-	${LIBDIR}/MC/MCELFObjectReader.cpp \
-	${INCDIR}/MC/MCELFObjectTargetReader.h \
-	${LIBDIR}/MC/MCELFObjectTargetReader.cpp \
-	${INCDIR}/MC/MCArchiveReader.h \
-	${LIBDIR}/MC/MCArchiveReader.cpp \
-	${INCDIR}/MC/MCGNUArchiveReader.h \
-	${LIBDIR}/MC/MCGNUArchiveReader.cpp \
-	${INCDIR}/CodeGen/SectLinker.h \
-	${LIBDIR}/CodeGen/SectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
-	${LIBDIR}/Target/ARM/ARMELFObjectReader.h \
-	${LIBDIR}/Target/ARM/ARMELFObjectReader.cpp \
-	${LIBDIR}/Target/ARM/ARMELFObjectWriter.h \
-	${LIBDIR}/Target/ARM/ARMELFObjectWriter.cpp \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
@@ -57,16 +70,14 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
-	${LIBDIR}/Target/X86/X86ELFObjectReader.h \
-	${LIBDIR}/Target/X86/X86ELFObjectReader.cpp \
-	${LIBDIR}/Target/X86/X86ELFObjectWriter.h \
-	${LIBDIR}/Target/X86/X86ELFObjectWriter.cpp \
 	${LIBDIR}/Target/X86/X86RelocationFactory.h \
 	${LIBDIR}/Target/X86/X86RelocationFactory.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
+	${INCDIR}/MC/MCLDDriver.h \
+	${LIBDIR}/MC/MCLDDriver.cpp \
  	${INCDIR}/MC/MCLinker.h \
 	${LIBDIR}/MC/MCLinker.cpp \
 	${INCDIR}/MC/MCBitcodeInterceptor.h \
@@ -85,22 +96,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLDInfo.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
-	${INCDIR}/Support/Path.h \
-	${LIBDIR}/Support/Path.cpp \
-	${INCDIR}/Support/RealPath.h \
-	${LIBDIR}/Support/RealPath.cpp \
-	${INCDIR}/Support/Directory.h \
-	${LIBDIR}/Support/Directory.cpp \
-	${INCDIR}/Support/FileSytem.h \
-	${LIBDIR}/Support/FileSystem.cpp \
-	${INCDIR}/Support/MemoryArea.h \
-	${LIBDIR}/Support/MemoryArea.cpp \
-	${INCDIR}/Support/MemoryRegion.h \
-	${LIBDIR}/Support/MemoryRegion.cpp \
-	${INCDIR}/Support/RegionFactory.h \
-	${LIBDIR}/Support/RegionFactory.cpp \
-	${INCDIR}/Support/MemoryAreaFactory.h \
-	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
 	${LIBDIR}/MC/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
@@ -115,19 +110,9 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCRegionFragment.cpp \
 	${INCDIR}/MC/MCFragmentRef.h \
 	${LIBDIR}/MC/MCFragmentRef.cpp \
-	${INCDIR}/Support/CommandLine.h \
-	${LIBDIR}/Support/CommandLine.cpp \
-	${INCDIR}/Support/GCFactory.h \
-	${INCDIR}/Support/UniqueGCFactory.h \
-	${INCDIR}/ADT/Uncopyable.h \
-	${INCDIR}/ADT/TypeTraits.h \
-	${INCDIR}/ADT/TreeBase.h \
-	${INCDIR}/ADT/Allocators.h \
-	${INCDIR}/ADT/TreeAllocator.h \
-	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/LD/LDContext.h \
+	${LIBDIR}/LD/LDContext.cpp \
 	${INCDIR}/LD/LDSection.h \
-	${LIBDIR}/LD/LDSection.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/ResolveInfoFactory.h \
@@ -142,13 +127,40 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/StrSymPool.h \
 	${LIBDIR}/LD/StrSymPool.cpp \
+	${INCDIR}/LD/LDReader.h \
+	${LIBDIR}/LD/LDReader.cpp \
 	${INCDIR}/LD/LDWriter.h \
-	${INCDIR}/LD/LDELFWriter.h \
-	${INCDIR}/LD/ELFDSOWriter.h \
-	${LIBDIR}/LD/ELFDSOWriter.cpp \
-	${INCDIR}/LD/SymbolTableIF.h
+	${LIBDIR}/LD/LDWriter.cpp \
+	${INCDIR}/LD/ArchiveReader.h \
+	${LIBDIR}/LD/ArchiveReader.cpp \
+	${INCDIR}/LD/ObjectReader.h \
+	${LIBDIR}/LD/ObjectReader.cpp \
+	${INCDIR}/LD/DynObjReader.h \
+	${LIBDIR}/LD/DynObjReader.cpp \
+	${INCDIR}/LD/ObjectWriter.h \
+	${LIBDIR}/LD/ObjectWriter.cpp \
+	${INCDIR}/LD/DynObjWriter.h \
+	${LIBDIR}/LD/DynObjWriter.cpp \
+	${INCDIR}/LD/ELFReader.h \
+	${LIBDIR}/LD/ELFReader.cpp \
+	${INCDIR}/LD/ELFWriter.h \
+	${LIBDIR}/LD/ELFWriter.cpp \
+	${INCDIR}/LD/GNUArchiveReader.h \
+	${LIBDIR}/LD/GNUArchiveReader.cpp \
+	${INCDIR}/LD/BSDArchiveReader.h \
+	${LIBDIR}/LD/BSDArchiveReader.cpp \
+	${INCDIR}/LD/ELFObjectReader.h \
+	${LIBDIR}/LD/ELFObjectReader.cpp \
+	${INCDIR}/LD/ELFDynObjReader.h \
+	${LIBDIR}/LD/ELFDynObjReader.cpp \
+	${INCDIR}/LD/ELFObjectWriter.h \
+	${LIBDIR}/LD/ELFObjectWriter.cpp \
+	${INCDIR}/LD/ELFDynObjWriter.h \
+	${LIBDIR}/LD/ELFDynObjWriter.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
+#	${INCDIR}/Support/ScopedRegion.h \
+#	${LIBDIR}/Support/ScopedRegion.cpp
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \

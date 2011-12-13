@@ -18,6 +18,7 @@
 #include "mcld/LD/DynObjWriter.h"
 #include "mcld/Support/RealPath.h"
 #include "mcld/Target/TargetLDBackend.h"
+
 #include "llvm/Support/ErrorHandling.h"
 
 namespace mcld {
@@ -39,31 +40,31 @@ void MCLDDriver::normalize() {
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   Input::Type type;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    // already got type - for example, bitcode
     if ((*input)->type() == Input::Object)
       continue;
-    //ObjectFile or Dynamic Object
-    else if (m_LDBackend.getObjectReader()->isMyFormat(*(*input))) {
-      switch (type = m_LDBackend.getObjectReader()->fileType(*(*input))) {
-      case Input::DynObj:
-      case Input::Object:
+    else if (m_LDBackend.getObjectReader()->isMyFormat(**input) ||
+             m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
         (*input)->setType(type);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
         (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
-        if (!(*input)->memArea()->isGood())
-          report_fatal_error("can not open file: " + (*input)->path().native());
-        break;
-      default:
-        report_fatal_error("can not link file: " + (*input)->path().native());
-        break;
-      }
+        if (!(*input)->memArea()->isGood()) {
+          llvm::report_fatal_error("can not open file: " + (*input)->path().native());
+          return;
+        }
     }
     else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
       (*input)->setType(Input::Archive);
       mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);
-      if(!archive_member) 
-        report_fatal_error("wrong format archive" + (*input)->path().string());
+      if(!archive_member)  {
+        llvm::report_fatal_error("wrong format archive" + (*input)->path().string());
+        return;
+      }
 
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
+    }
+    else {
+      llvm::report_fatal_error("can not link file: " + (*input)->path().native());
     }
   }
 }
@@ -100,7 +101,7 @@ bool MCLDDriver::linkable() const
 }
 
 /// initMCLinker - initialize MCLinker
-///  Connect all components in MCLinker
+///  Connect all components with MCLinker
 bool MCLDDriver::initMCLinker()
 {
   if (0 == m_pLinker)
@@ -195,4 +196,4 @@ bool MCLDDriver::emitOutput()
   return true;
 }
 
-} // end namespace mcld
+} //end namespace mcld

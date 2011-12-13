@@ -1,12 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- *   DY Tsai <dy.tsai@mediatek.com>                                          *
- *   Jason Lin <sh.lin@mediatek.com>                                         *
- ****************************************************************************/
+//===- HashBase.tcc -------------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 
 //===--------------------------------------------------------------------===//
 // internal non-member functions

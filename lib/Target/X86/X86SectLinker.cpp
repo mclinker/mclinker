@@ -13,10 +13,10 @@
 #include "X86.h"
 #include "X86ELFSectLinker.h"
 
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/Support/TargetRegistry.h>
-#include <llvm/ADT/Triple.h>
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/Support/TargetRegistry.h"
+#include "llvm/ADT/Triple.h"
 
 using namespace mcld;
 

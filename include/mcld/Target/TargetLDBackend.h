@@ -12,14 +12,14 @@
 namespace mcld {
 
 class MCLinker;
-class MCELFLDTargetWriter;
-class MCLDWriter;
-class MCArchiveReader;
-class MCObjectReader;
-class MCObjectWriter;
 class Relocation;
 class RelocationFactory;
 class Layout;
+class ArchiveReader;
+class ObjectReader;
+class DynObjReader;
+class ObjectWriter;
+class DynObjWriter;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -34,14 +34,24 @@ protected:
 
 public:
   virtual ~TargetLDBackend();
+
   virtual void addTargetSegments(MCLinker& pLinker) { }
   virtual void addTargetSections(MCLinker& pLinker) { }
   virtual void addTargetSymbols(MCLinker& pLinker) { }
   virtual void addTargetRelocation(MCLinker& pLinker) { }
 
-  virtual MCArchiveReader *getArchiveReader() = 0;
-  virtual MCObjectReader *getObjectReader() = 0;
-  virtual MCObjectWriter *getObjectWriter() = 0;
+  virtual bool initArchiveReader(MCLinker&) = 0;
+  virtual bool initObjectReader(MCLinker&) = 0;
+  virtual bool initDynObjReader(MCLinker&) = 0;
+  virtual bool initObjectWriter(MCLinker&) = 0;
+  virtual bool initDynObjWriter(MCLinker&) = 0;
+
+  virtual ArchiveReader *getArchiveReader() = 0;
+  virtual ObjectReader *getObjectReader() = 0;
+  virtual DynObjReader *getDynObjReader() = 0;
+  virtual ObjectWriter *getObjectWriter() = 0;
+  virtual DynObjWriter *getDynObjWriter() = 0;
+
   virtual RelocationFactory* getRelocFactory() = 0;
 
 };

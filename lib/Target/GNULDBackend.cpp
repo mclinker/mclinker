@@ -7,61 +7,92 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/LD/ELFDSOWriter.h"
-#include "mcld/LD/ELFEXEWriter.h"
-#include "mcld/MC/MCGNUArchiveReader.h"
-#include "mcld/MC/MCELFObjectReader.h"
 #include "mcld/Target/GNULDBackend.h"
 
-
-namespace mcld{
-
-class MemoryArea;
+using namespace mcld;
 
 //==========================
 // GNULDBackend
 GNULDBackend::GNULDBackend()
-  : m_pObjectReader(0), m_pArchiveReader(0), m_pELFDSOWriter(0), m_pELFEXEWriter(0) {
+  : m_pArchiveReader(0),
+    m_pObjectReader(0),
+    m_pDynObjReader(0),
+    m_pObjectWriter(0),
+    m_pDynObjWriter(0) {
 }
 
 GNULDBackend::~GNULDBackend()
 {
-  if (m_pObjectReader)
-    delete m_pObjectReader;
   if (m_pArchiveReader)
     delete m_pArchiveReader;
-  if (m_pELFDSOWriter)
-    delete m_pELFDSOWriter;
-  if (m_pELFEXEWriter)
-    delete m_pELFEXEWriter;
+  if (m_pObjectReader)
+    delete m_pObjectReader;
+  if (m_pDynObjReader)
+    delete m_pDynObjReader;
+  if (m_pObjectWriter)
+    delete m_pObjectWriter;
+  if (m_pDynObjWriter)
+    delete m_pDynObjWriter;
 }
 
-MCObjectReader *GNULDBackend::getObjectReader()
+bool GNULDBackend::initArchiveReader(MCLinker&)
 {
-  if (!m_pObjectReader)
-    m_pObjectReader = new MCELFObjectReader(createObjectTargetReader());
-  return m_pObjectReader;
+  // TODO
+  return true;
 }
 
-MCArchiveReader *GNULDBackend::getArchiveReader()
+bool GNULDBackend::initObjectReader(MCLinker&)
 {
-  if (!m_pArchiveReader)
-    m_pArchiveReader = new MCGNUArchiveReader();
-  return m_pArchiveReader;
+  // TODO
+  return true;
 }
 
-LDWriter *GNULDBackend::getDSOWriter(MemoryArea *Area, bool _IsLittleEndian)
+bool GNULDBackend::initDynObjReader(MCLinker&)
 {
-  if (!m_pELFDSOWriter)
-    m_pELFDSOWriter = new ELFDSOWriter(Area, _IsLittleEndian);
-  return m_pELFDSOWriter;
+  // TODO
+  return true;
 }
 
-LDWriter *GNULDBackend::getEXEWriter(MemoryArea *Area, bool _IsLittleEndian)
+bool GNULDBackend::initObjectWriter(MCLinker&)
 {
-  if (!m_pELFEXEWriter)
-    m_pELFEXEWriter = new ELFEXEWriter(Area, _IsLittleEndian);
-  return m_pELFEXEWriter;
+  // TODO
+  return true;
 }
 
-} //end namespace mcld
+bool GNULDBackend::initDynObjWriter(MCLinker&)
+{
+  // TODO
+  return true;
+}
+
+ArchiveReader *GNULDBackend::getArchiveReader()
+{
+  // TODO
+  return NULL;
+}
+
+ObjectReader *GNULDBackend::getObjectReader()
+{
+  // TODO
+  return NULL;
+}
+
+DynObjReader *GNULDBackend::getDynObjReader()
+{
+  // TODO
+  return NULL;
+}
+
+ObjectWriter *GNULDBackend::getObjectWriter()
+{
+  // TODO
+  return NULL;
+}
+
+DynObjWriter *GNULDBackend::getDynObjWriter()
+{
+  // TODO
+  return NULL;
+}
+
+

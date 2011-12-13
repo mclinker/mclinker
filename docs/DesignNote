@@ -1,0 +1,11 @@
+Design Note
+===================
+1st Milestone:
+
+Architecture     | ARM v7
+Operating System | Android
+Runtime Support  | without C-runtime library
+Inputs           | bitcode, shared object
+Output           | shared object
+Numeral system   | imprecise 64-bit (sufficiently large number)
+

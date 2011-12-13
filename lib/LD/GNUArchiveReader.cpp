@@ -1,22 +1,28 @@
-//===- MCArchiveReader.cpp ------------------------------------------------===//
+//===- GNUArchiveReader.cpp -----------------------------------------------===//
 //
-//                     The MCLinker Project
+//                     The LLVM Compiler Infrastructure
 //
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCArchiveReader.h"
-#include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCLDInput.h"
+#include "mcld/MC/MCLDInputTree.h"
+#include "mcld/LD/GNUArchiveReader.h"
 
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/system_error.h"
 
-#include <cstdlib>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
+
+#ifdef MCLD_DEBUG
+#include <iostream>
+using namespace std;
+#endif
+
 
 using namespace mcld;
 
@@ -30,7 +36,7 @@ const char archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>',
 const char thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
 const char archiveFinalMagic[2] = { '`', '\n' };
 
-struct MCArchiveReader::ArchiveMemberHeader 
+struct GNUArchiveReader::ArchiveMemberHeader 
 {
   char name[16];
   char date[12];
@@ -41,7 +47,7 @@ struct MCArchiveReader::ArchiveMemberHeader
   char finalMagic[2];
 };
 
-struct MCArchiveReader::ArchiveMapEntry
+struct GNUArchiveReader::ArchiveMapEntry
 {
   off_t fileOffset;
   std::string name;
@@ -84,11 +90,12 @@ Type stringToType(const std::string &str)
   return n;
 }
 
-/// MCArchiveReader Operations
+/// GNUArchiveReader Operations
 /// Public API
-bool MCArchiveReader::isMyFormat(Input &pInput)
+bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
-  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
+  OwningPtr<MemoryBuffer> mapFile;
+  cerr << "input in archive reader=" << pInput.path().native() << endl;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
@@ -102,28 +109,28 @@ bool MCArchiveReader::isMyFormat(Input &pInput)
   return true;
 }
 
-InputTree *MCArchiveReader::readArchive(Input &pInput)
+InputTree *GNUArchiveReader::readArchive(Input &pInput)
 {
-  llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
+  OwningPtr<MemoryBuffer> mapFile; 
   mapToMemory(mapFile, pInput.path());
   return setupNewArchive(mapFile, 0);
 }
 
 /// Internal used
-bool MCArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+bool GNUArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                   sys::fs::Path archPath)
 { 
   if(llvm::MemoryBuffer::getFile(archPath.c_str(), mapFile)) {
-    assert(0=="ArchiveReader:can't map a file to MemoryBuffer\n");
+    assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return false;
   }
   return true;
 }
 
-InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                             size_t off)
 {
-  std::vector<ArchiveMapEntry> archiveMap;
+  vector<ArchiveMapEntry> archiveMap;
   std::string archiveMemberName;
   std::string extendedName;
   bool isThinArchive;
@@ -144,8 +151,8 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
   size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
   /// symbol table header
   if(archiveMemberName.empty()) {
-    readArchiveMap(mapFile, archiveMap, off+sizeof(MCArchiveReader::ArchiveMemberHeader), archiveMapSize);
-    off = off + sizeof(MCArchiveReader::ArchiveMemberHeader) + archiveMapSize;
+    readArchiveMap(mapFile, archiveMap, off+sizeof(GNUArchiveReader::ArchiveMemberHeader), archiveMapSize);
+    off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + archiveMapSize;
   }
   else if(true) {
     ///FIXME: check whole-archive from option
@@ -195,7 +202,7 @@ InputTree *MCArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> 
 
 
 /// Parse the member header and return the size of member
-size_t MCArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                   off_t off,
                                   std::string *p_Name,
                                   off_t *p_NestedOff,
@@ -276,7 +283,7 @@ size_t MCArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &m
   return memberSize;
 }
 
-void MCArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                      std::vector<ArchiveMapEntry> &archiveMap,
                                      off_t start,
                                      size_t size)
@@ -308,7 +315,7 @@ void MCArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFil
   }
 }
  
-llvm::MemoryBuffer *MCArchiveReader::getMemberFile(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile, 
+llvm::MemoryBuffer *GNUArchiveReader::getMemberFile(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile, 
                                                    std::vector<ArchiveMapEntry> &archiveMap)
 {
   /// FIXME: Do we really need this??

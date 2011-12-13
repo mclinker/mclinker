@@ -1,11 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Robert Lai <rober.lai@mediatek.com>                                     *
- *   Luba Tang <luba.tang@mediatek.com>                                      *
- ****************************************************************************/
+//===- Group.h ------------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef LD_GROUP_H
 #define LD_GROUP_H
 #ifdef ENABLE_UNITTEST

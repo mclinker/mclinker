@@ -1,16 +1,17 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <luba.tang@mediatek.com>                                      *
- ****************************************************************************/
+//===- MCBitcodeInterceptor.h ---------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCLD_BITCODE_INTERCEPTOR_H
 #define MCLD_BITCODE_INTERCEPTOR_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/MC/MCObjectWriter.h>
+#include "llvm/MC/MCObjectWriter.h"
 
 
 namespace llvm

@@ -1,45 +1,22 @@
-//===- ELFDSOWriter.h -----------------------------------------------------===//
+//===- LDContext.h --------------------------------------------------------===//
 //
-//                     The MCLinker Project
+//                     The LLVM Compiler Infrastructure
 //
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-//
-// LDContext stores the real content of a file.
-// It is possible that multiple libraries reference to a same file,
-// this shared file will be converted into a LDContext.
-//
-//===----------------------------------------------------------------------===//
-
-#ifndef MCLD_LD_LDCONTEXT_H
-#define MCLD_LD_LDCONTEXT_H
+#ifndef MCLD_LDCONTEXT_H
+#define MCLD_LDCONTEXT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/Support/FileSystem.h"
-#include "llvm/ADT/DenseMap.h"
-#include "llvm/ADT/ilist.h"
-#include "llvm/ADT/OwningPtr.h"
 #include "llvm/MC/MCAssembler.h"
-#include "llvm/MC/MCContext.h"
-#include "llvm/MC/MCSectionELF.h"
-#include "llvm/Support/Allocator.h"
-#include "llvm/Support/MemoryBuffer.h"
-#include <map>
-#include <utility>
+#include <vector>
+
 
 using namespace llvm;
-
-typedef llvm::StringMap<const MCSectionELF*> ELFUniqueMapTy;
-
-namespace llvm
-{
-  class MCSection;
-  class MCSectionData;
-} // namespace of llvm
 
 namespace mcld
 {
@@ -50,43 +27,42 @@ namespace mcld
 class LDContext
 {
 public:
-  LDContext() {
-    ELFUniquingMap = 0;
-  }
+  typedef std::vector<llvm::MCSectionData*> SectionTable;
+  typedef SectionTable::iterator sect_iterator;
+  typedef SectionTable::const_iterator const_sect_iterator;
 
-  ~LDContext() {}
+public:
+  LDContext();
 
-  typedef iplist<MCSectionData> SectionDataListType;
+  ~LDContext();
 
-  typedef SectionDataListType::const_iterator const_iterator;
-  typedef SectionDataListType::iterator iterator;
+  SectionTable& getSectionTable()
+  { return m_SectionTable; }
 
-  //Section List Access
-  SectionDataListType Sections;
+  const SectionTable& getSectionTable() const
+  { return m_SectionTable; }
 
-  const SectionDataListType &getSectionList() const { return Sections; }
-  SectionDataListType &getSectionList() { return Sections; }
+  sect_iterator begin()
+  { return m_SectionTable.begin(); }
 
-  iterator begin() { return Sections.begin(); }
-  const_iterator begin() const { return Sections.begin(); }
+  sect_iterator end()
+  { return m_SectionTable.end(); }
 
-  iterator end() { return Sections.end(); }
-  const_iterator end() const { return Sections.end(); }
+  const_sect_iterator begin() const
+  { return m_SectionTable.begin(); }
 
-  size_t size() const { return Sections.size(); }
+  const_sect_iterator end() const
+  { return m_SectionTable.end(); }
 
+  size_t numOfSections() const
+  { return m_SectionTable.size(); }
 
-  // FIXME: Avoid this indirection?
-  DenseMap<const MCSection*, MCSectionData*> SectionMap;
-
-  void *ELFUniquingMap;
+private:
+  SectionTable m_SectionTable;
 
 };
-
 
 } // namespace of mcld
 
 #endif
 
-
->>>>>>> Move MC/MCLDContext to LD/LDContext.

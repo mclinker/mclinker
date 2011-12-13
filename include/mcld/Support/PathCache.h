@@ -1,9 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- ****************************************************************************/
+//===- PathCache.h --------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 
 #ifndef MCLD_PATHCACHE_H
 #define MCLD_PATHCACHE_H
@@ -11,10 +13,10 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/ADT/HashEntry.h>
-#include <mcld/ADT/HashTable.h>
-#include <mcld/ADT/StringHash.h>
-#include <mcld/Support/Path.h>
+#include "mcld/ADT/HashEntry.h"
+#include "mcld/ADT/HashTable.h"
+#include "mcld/ADT/StringHash.h"
+#include "mcld/Support/Path.h"
 
 namespace mcld {
 namespace sys  {

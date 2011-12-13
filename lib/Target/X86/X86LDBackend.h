@@ -25,10 +25,6 @@ public:
   X86RelocationFactory* getRelocFactory();
 
 private:
-  MCELFObjectTargetReader *createObjectTargetReader() const;
-  MCELFObjectTargetWriter *createObjectTargetWriter() const;
-
-private:
   X86RelocationFactory* m_pRelocFactory;
 };
 

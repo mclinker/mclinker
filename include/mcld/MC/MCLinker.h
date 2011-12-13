@@ -17,21 +17,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/MC/MCLDInfo.h"
-#include "llvm/ADT/StringRef.h"
+
+#include "mcld/MC/MCLDCommand.h"
 
 namespace mcld {
-class MCLDInfo;
-class TargetLDBackend;
-
-//===----------------------------------------------------------------------===//
-/// MCLinker - MCLinker provides APIs of a linker.
-///
-class MCLinker
-{
-public:
-  MCLinker(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
-  ~MCLinker();
 
 class MCLDCommand;
 class MCLDFile;

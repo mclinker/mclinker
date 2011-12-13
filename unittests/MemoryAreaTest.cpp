@@ -49,7 +49,7 @@ void MemoryAreaTest::TearDown()
 TEST_F( MemoryAreaTest, read_by_malloc )
 {
 	Path path(TOPDIR);
-	path.append("unittests/MemoryArea-read.txt");
+	path.append("unittests/test3.txt");
 	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1);
 	MemoryArea* area = AreaFactory->produce(path, O_RDONLY);
 	MemoryRegion* region = area->request(3, 2);
@@ -61,7 +61,7 @@ TEST_F( MemoryAreaTest, read_by_malloc )
 TEST_F( MemoryAreaTest, write_by_malloc )
 {
 	Path path(TOPDIR);
-	path.append("unittests/MemoryArea-write.txt");
+	path.append("unittests/test2.txt");
 	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1);
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR);
         ASSERT_TRUE(area->isMapped());
@@ -85,7 +85,7 @@ TEST_F( MemoryAreaTest, write_by_malloc )
 TEST_F( MemoryAreaTest, read_one_page )
 {
         Path path(TOPDIR) ;
-	path.append("unittests/MemoryArea-read.txt") ;
+	path.append("unittests/test3.txt") ;
 	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ;
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
 	ASSERT_TRUE(area->isMapped()) ;
@@ -99,7 +99,7 @@ TEST_F( MemoryAreaTest, read_one_page )
 TEST_F( MemoryAreaTest, write_one_page )
 {
         Path path(TOPDIR) ;
-	path.append("unittests/MemoryArea-write.txt") ;
+	path.append("unittests/test2.txt") ;
         MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ;
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
 	ASSERT_TRUE(area->isMapped()) ;
@@ -122,7 +122,7 @@ TEST_F( MemoryAreaTest, write_one_page )
 TEST_F( MemoryAreaTest, write_sync )
 {
         Path path(TOPDIR) ;
-	path.append("unittests/MemoryArea-write.txt") ;
+	path.append("unittests/test2.txt") ;
 	MemoryAreaFactory *AreaFactory = new MemoryAreaFactory(1) ;
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
 	ASSERT_TRUE(area->isMapped()) ;

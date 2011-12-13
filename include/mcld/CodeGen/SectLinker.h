@@ -32,7 +32,7 @@ namespace llvm
 namespace mcld
 {
   class MCLDFile;
-  class MCLinker;
+  class MCLDDriver;
   class TargetLDBackend;
   class AttributeFactory;
 
@@ -42,13 +42,13 @@ namespace mcld
    *  SectLinker is responded for
    *  - provide an interface for target-specific SectLinekr
    *  - collect all target-independent parameters, and set up environment for
-   *    MCLinker
+   *    MCLDDriver
    *  - control AsmPrinter, make sure AsmPrinter has already prepared 
    *    all MCSectionDatas for linking
    *
    *  SectLinker resolves the absolue paths of input arguments.
    *
-   *  @see MachineFunctionPass MCLinker
+   *  @see MachineFunctionPass MCLDDriver
    */
   class SectLinker : public llvm::MachineFunctionPass
   {
@@ -151,7 +151,7 @@ namespace mcld
 
   protected:
     TargetLDBackend *m_pLDBackend;
-    MCLinker *m_pLinker;
+    MCLDDriver *m_pLDDriver;
     MCLDInfo& m_LDInfo;
     AttributeFactory *m_pAttrFactory;
 

@@ -1,16 +1,16 @@
-/*****************************************************************************
- *   Test Suite of The MCLinker Project,                                     *
- *                                                                           *
- *   Copyright (C), 2011 -                                                   *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
-#include <mcld/MC/MCFragmentRef.h>
-#include <mcld/MC/MCRegionFragment.h>
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/Path.h>
+//===- MCFragmentRefTest --------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+
+#include "mcld/MC/MCFragmentRef.h"
+#include "mcld/MC/MCRegionFragment.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/Path.h"
 #include "MCFragmentRefTest.h"
 
 #include <iostream>

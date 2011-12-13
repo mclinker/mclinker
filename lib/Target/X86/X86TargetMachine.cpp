@@ -11,8 +11,8 @@
 #include "X86.h"
 #include "X86TargetMachine.h"
 
-#include <mcld/Target/TargetMachine.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/Target/TargetMachine.h"
+#include "mcld/Support/TargetRegistry.h"
 
 extern "C" void LLVMInitializeX86LDTarget() {
   // Register createTargetMachine function pointer to mcld::Target

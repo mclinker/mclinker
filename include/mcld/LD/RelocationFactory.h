@@ -1,17 +1,18 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Diana Chen <diana.chen@mediatek.com>                                    *
- ****************************************************************************/
+//===- RelocationFactory.h ------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef LD_RELOCATION_FACTORY_H
 #define LD_RELOCATION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/GCFactory.h>
-#include <mcld/LD/Relocation.h>
+#include "mcld/Support/GCFactory.h"
+#include "mcld/LD/Relocation.h"
 
 namespace mcld
 {

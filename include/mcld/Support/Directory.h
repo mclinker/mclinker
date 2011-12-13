@@ -12,7 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/StringMap.h"
 #include "mcld/ADT/TypeTraits.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/Path.h"

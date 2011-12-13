@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Chin-Yen Chou <chinyen.chou@mediatek.com>                               *
- ****************************************************************************/
+//===- BranchIsland.h -----------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef BRANCHISLAND_H
 #define BRANCHISLAND_H
 #ifdef ENABLE_UNITTEST

@@ -26,10 +26,6 @@ public:
   ARMRelocationFactory* getRelocFactory();
 
 private:
-  MCELFObjectTargetReader *createObjectTargetReader() const;
-  MCELFObjectTargetWriter *createObjectTargetWriter() const;
-
-private:
   ARMRelocationFactory* m_pRelocFactory;
 };
 

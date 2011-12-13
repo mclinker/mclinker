@@ -6,7 +6,7 @@
 
 function gettop() 
 {
-	local TOPFILE=src/main.cpp
+	local TOPFILE=tools/llvm-mcld/llvm-mcld.cpp
 	if [ -n "${BOLDTOP}" -a -f "${BOLDTOP}/${TOPFILE}" ]; then
 		echo ${BOLDTOP}
 	else
@@ -39,7 +39,6 @@ function wc_pndk()
 #  Variable Dictionary
 export BOLDTOP=$(gettop)
 export PATH="${BOLDTOP}/scripts/bin:$PATH"
-ln -sf ${BOLDTOP}/debug/MCLinker ${BOLDTOP}/scripts/bin/MCLinker
 alias mk="make -C ${BOLDTOP}"
 
 SERVER=`grep mtksgt01 /etc/hosts`

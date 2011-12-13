@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/TargetRegistry.h"
-#include "llvm/ADT/Triple.h"
 #include "X86.h"
 #include "X86LDBackend.h"
-#include "X86ELFObjectReader.h"
 
-namespace mcld {
+#include "mcld/Support/TargetRegistry.h"
+#include "llvm/ADT/Triple.h"
+
+using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
   : m_pRelocFactory(0) {
@@ -22,16 +22,6 @@ X86GNULDBackend::~X86GNULDBackend()
 {
   if (0 != m_pRelocFactory)
     delete m_pRelocFactory;
-}
-
-MCELFObjectTargetReader *X86GNULDBackend::createObjectTargetReader() const
-{
-  return new X86ELFObjectReader();
-}
-
-MCELFObjectTargetWriter *X86GNULDBackend::createObjectTargetWriter() const
-{
-  return new X86ELFObjectWriter();
 }
 
 X86RelocationFactory* X86GNULDBackend::getRelocFactory()
@@ -70,11 +60,11 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
   return new X86GNULDBackend();
 }
 
+} // namespace of mcld
+
 //=============================
 // Force static initialization.
 extern "C" void LLVMInitializeX86LDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheX86Target, createX86LDBackend);
 }
-
-} // namespace of mcld

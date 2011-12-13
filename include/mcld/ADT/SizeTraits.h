@@ -1,15 +1,18 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Luba Tang <lubatang@mediatek.com>                                       *
- ****************************************************************************/
+//===- SizeTraits.h -------------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef SIZETRAITS_H
 #define SIZETRAITS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
+#include <stdint.h>
 
 namespace mcld
 {

@@ -17,6 +17,7 @@
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/MC/MCLDDirectory.h"
+#include "mcld/MC/MCLDDriver.h"
 #include "mcld/Support/CommandLine.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/RealPath.h"
@@ -253,7 +254,7 @@ SectLinker::SectLinker(const std::string& pInputFile,
 SectLinker::~SectLinker()
 {
   delete m_pLDBackend;
-  delete m_pLinker;
+  delete m_pLDDriver;
 }
 
 bool SectLinker::doInitialization(Module &pM)
@@ -437,7 +438,7 @@ bool SectLinker::doInitialization(Module &pM)
 bool SectLinker::doFinalization(Module &pM)
 {
   // 3. - normalize the input tree
-  m_pLinker->normalize();
+  m_pLDDriver->normalize();
 
   if (m_LDInfo.options().verbose()) {
     outs() << "MCLinker (LLVM Sub-project) - ";

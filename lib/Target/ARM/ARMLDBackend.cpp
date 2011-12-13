@@ -6,14 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/ADT/Triple.h"
-#include "mcld/Support/TargetRegistry.h"
 #include "ARM.h"
 #include "ARMLDBackend.h"
-#include "ARMELFObjectReader.h"
-
-#include <llvm/ADT/Triple.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/Support/TargetRegistry.h"
+#include "llvm/ADT/Triple.h"
 
 using namespace mcld;
 
@@ -23,16 +19,6 @@ ARMGNULDBackend::ARMGNULDBackend()
 
 ARMGNULDBackend::~ARMGNULDBackend()
 {
-}
-
-MCELFObjectTargetReader *ARMGNULDBackend::createObjectTargetReader() const
-{
-  return new ARMELFObjectReader();
-}
-
-MCELFObjectTargetWriter *ARMGNULDBackend::createObjectTargetWriter() const
-{
-  return new ARMELFObjectWriter();
 }
 
 ARMRelocationFactory* ARMGNULDBackend::getRelocFactory()

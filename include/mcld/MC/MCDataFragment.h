@@ -1,19 +1,20 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Diana Chen <diana.chen@mediatek.com>                                    *
- ****************************************************************************/
+//===- MCDataFragment.h ---------------------------------------------------===//
+//
+//                     The LLVM Compiler Infrastructure
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #ifndef MCDATAFRAGMENT_H
 #define MCDATAFRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/MC/MCAssembler.h>
-#include <llvm/MC/MCInst.h>
-#include <llvm/ADT/SmallString.h>
-#include <mcld/LD/Relocation.h>
+#include "llvm/MC/MCAssembler.h"
+#include "llvm/MC/MCInst.h"
+#include "llvm/ADT/SmallString.h"
+#include "mcld/LD/Relocation.h"
 
 namespace mcld
 {

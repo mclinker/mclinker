@@ -18,15 +18,15 @@
 #include "mcld/Target/TargetLDBackend.h"
 #include "llvm/Support/raw_ostream.h"
 
-using namespace mcld;
+namespace mcld {
 
 MCLinker::MCLinker(TargetLDBackend& pBackend, MCLDInfo& pInfo)
 : m_Backend(pBackend), m_Info(pInfo)
 {
->>>>>>> Move MC/MCLDContext to LD/LDContext.
 }
 
 MCLinker::~MCLinker()
 {
 }
 
+} //end namespace mcld

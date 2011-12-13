@@ -17,7 +17,6 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/StringMap.h"
 #include "mcld/Support/PathCache.h"
 #include <string>
 #include <iosfwd>

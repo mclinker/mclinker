@@ -7,12 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/MC/MCBitcodeInterceptor.h"
+#include "mcld/MC/MCLDFile.h"
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Target/TargetLDBackend.h"
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/MC/MCAsmObjectReader.h"
-#include "mcld/MC/MCLDFile.h"
 
 #include "llvm/ADT/OwningPtr.h"
 #include "llvm/Analysis/Passes.h"

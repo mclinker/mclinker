@@ -13,11 +13,11 @@
 #include "ARM.h"
 #include "ARMELFSectLinker.h"
 
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/Support/TargetRegistry.h>
+#include "mcld/CodeGen/SectLinker.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "mcld/Support/TargetRegistry.h"
 
-#include <llvm/ADT/Triple.h>
+#include "llvm/ADT/Triple.h"
 
 using namespace mcld;
 
