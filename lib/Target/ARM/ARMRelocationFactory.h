@@ -19,6 +19,13 @@
 namespace mcld
 {
 
+// Each apply function should return its relocation status
+enum ARM_Reloc_Status {
+  STATUS_OK,
+  STATUS_OVERFLOW,
+  STATUS_BAD_RELOC
+};
+
 /** \class ARMRelocationFactory
  *  \brief ARMRelocationFactory creates and destroys the ARM relocations.
  *
@@ -26,7 +33,7 @@ namespace mcld
 class ARMRelocationFactory : public RelocationFactory
 {
 public:
-  typedef void (ARMRelocationFactory::*Pointer)(Relocation&);
+  typedef ARM_Reloc_Status (ARMRelocationFactory::*Pointer)(Relocation&);
 
 public:
   ARMRelocationFactory(size_t pNum);
@@ -42,11 +49,11 @@ private:
 private:
   DWord thumbBit(Relocation &pReloc);
   // Relocation applying function for performing all types of relocations
-  void none(Relocation& pReloc);
-  void abs32(Relocation& pReloc);
-  void rel32(Relocation& pReloc);
-  void gotoff32(Relocation& pReloc);
-  void got_brel(Relocation& pReloc);
+  ARM_Reloc_Status none(Relocation& pReloc);
+  ARM_Reloc_Status abs32(Relocation& pReloc);
+  ARM_Reloc_Status rel32(Relocation& pReloc);
+  ARM_Reloc_Status gotoff32(Relocation& pReloc);
+  ARM_Reloc_Status got_brel(Relocation& pReloc);
   // TODO: Implement all relocation applying functions
 };
 

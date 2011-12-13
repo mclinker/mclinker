@@ -8,6 +8,8 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/Support/ELF.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/ErrorHandling.h>
 #include "ARMRelocationFactory.h"
 
 using namespace mcld;
@@ -26,7 +28,26 @@ ARMRelocationFactory::~ARMRelocationFactory()
 void ARMRelocationFactory::apply(Relocation& Relocation)
 {
    Pointer perform = m_ApplyFuncs[Relocation.type()];
-   (this->*perform)(Relocation);
+   ARM_Reloc_Status stts = (this->*perform)(Relocation);
+   switch (stts) {
+     default: {
+       llvm_unreachable("Why are you here?");
+     }
+     case STATUS_OK: {
+       break;
+     }
+     case STATUS_OVERFLOW: {
+       llvm::report_fatal_error(llvm::StringRef("Relocation overflow on ") +
+                                Relocation.symInfo()->name());
+       break;
+     }
+     case STATUS_BAD_RELOC: {
+       llvm::report_fatal_error(llvm::StringRef("Unexpected opcode while "
+                                "applying relocation on ") +
+                                Relocation.symInfo()->name());
+       break;
+     }
+   }
 }
 
 ARMRelocationFactory::Pointer ARMRelocationFactory::m_ApplyFuncs[]=
@@ -53,38 +74,43 @@ RelocationFactory::DWord ARMRelocationFactory::thumbBit(Relocation& pReloc)
 }
 
 // R_ARM_NONE and those unsupported/deprecated relocation type
-void ARMRelocationFactory::none(Relocation& pReloc)
+ARM_Reloc_Status ARMRelocationFactory::none(Relocation& pReloc)
 {
-  return;
+  return STATUS_OK;
 }
 
 //R_ARM_ABS32: (S + A) | T
-void ARMRelocationFactory::abs32(Relocation& pReloc)
+ARM_Reloc_Status ARMRelocationFactory::abs32(Relocation& pReloc)
 {
   DWord t_bit = thumbBit(pReloc);
   DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = (pReloc.symValue() + addend) | t_bit;
+  return STATUS_OK;
 }
 
 //R_ARM_REL32: ((S + A) | T) - P
-void ARMRelocationFactory::rel32(Relocation& pReloc)
+ARM_Reloc_Status ARMRelocationFactory::rel32(Relocation& pReloc)
 {
   DWord t_bit = thumbBit(pReloc);
   DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit)
                     - pReloc.place(*layout());
+  return STATUS_OK;
 }
 
 //R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
-void ARMRelocationFactory::gotoff32(Relocation& pReloc)
+ARM_Reloc_Status ARMRelocationFactory::gotoff32(Relocation& pReloc)
 {
   DWord t_bit = thumbBit(pReloc);
   DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - gotorg();
+  return STATUS_OK;
 }
 
 //R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
-void ARMRelocationFactory::got_brel(Relocation& pReloc)
+ARM_Reloc_Status ARMRelocationFactory::got_brel(Relocation& pReloc)
 {
+  // TODO: Apply relocation
+  return STATUS_OK;
 }
 
