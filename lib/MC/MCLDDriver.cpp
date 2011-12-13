@@ -152,11 +152,6 @@ bool MCLDDriver::mergeSections()
 ///  for each input file, loads its symbol table from file.
 bool MCLDDriver::readSymbolTables()
 {
-  mcld::InputTree::const_dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == mcld::Input::DynObj ) {
-    }
-  }
   return true;
 }
 
