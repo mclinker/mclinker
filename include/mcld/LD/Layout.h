@@ -11,11 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/LDFileFormat.h"
 #include "llvm/MC/MCAssembler.h"
 
 namespace mcld
 {
+class MCLinker;
+
 class MCLinker;
 
 /** \class Layout
@@ -38,7 +39,7 @@ public:
   uint64_t layoutFragment(llvm::MCFragment& pFrag);
 
   // -----  modifiers  ----- //
-  bool layout(MCLinker& pLinker, LDFileFormat& pFormat);
+  bool layout(MCLinker& pLinker);
 
   // -----  iterators  ----- //
   sect_iterator sect_begin()

@@ -25,7 +25,7 @@ uint64_t Layout::layoutFragment(MCFragment& pFrag)
 {
 }
 
-bool Layout::layout(MCLinker& pLinker, LDFileFormat& pFormat)
+bool Layout::layout(MCLinker& pLinker)
 {
 }
 
