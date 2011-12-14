@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <string>
 #include <llvm/Support/ELF.h>
-#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ErrorHandling.h>
 #include "ARMRelocationFactory.h"
 
@@ -37,12 +37,12 @@ void ARMRelocationFactory::apply(Relocation& Relocation)
        break;
      }
      case STATUS_OVERFLOW: {
-       llvm::report_fatal_error(llvm::StringRef("Relocation overflow on ") +
+       llvm::report_fatal_error(std::string("Relocation overflow on ") +
                                 Relocation.symInfo()->name());
        break;
      }
      case STATUS_BAD_RELOC: {
-       llvm::report_fatal_error(llvm::StringRef("Unexpected opcode while "
+       llvm::report_fatal_error(std::string("Unexpected opcode while "
                                 "applying relocation on ") +
                                 Relocation.symInfo()->name());
        break;
