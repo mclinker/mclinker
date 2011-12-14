@@ -15,7 +15,7 @@ using namespace mcld;
 // ScopedRegion
 ScopedWriter::ScopedWriter(MemoryRegion *pRegion, bool pSameEndian)
   : m_Region(pRegion),
-    m_Buffer(m_Region->getBuffer()),
+    m_Buffer(pRegion->getBuffer()),
     m_SameEndian(pSameEndian),
     m_Cursor(0) {
 }
