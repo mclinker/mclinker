@@ -49,6 +49,14 @@ public:
   bool mergeSymbolTable(Input& pInput)
   { return true; }
 
+  // -----  observers  ----- //
+
+  MCLDInfo& getLDInfo()
+  { return m_Info; }
+
+  const MCLDInfo& getLDInfo() const
+  { return m_Info; }
+
 private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
