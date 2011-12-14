@@ -26,7 +26,6 @@ class Input;
  */
 class DynObjReader : public LDReader
 {
-
 protected:
   DynObjReader(TargetLDBackend& pLDBackend)
   : m_TargetLDBackend(pLDBackend)
@@ -36,6 +35,8 @@ public:
   virtual ~DynObjReader() { }
 
   virtual llvm::error_code readDSO(Input& pFile) = 0;
+
+  virtual llvm::error_code readSymbols(Input& pFile) = 0;
 
   TargetLDBackend& target()
   { return m_TargetLDBackend; }
