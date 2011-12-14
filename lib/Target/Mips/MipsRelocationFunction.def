@@ -1,0 +1,34 @@
+//===- MipsRelocationFunction.def -----------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef MIPS_RELOC_FUNC_DECL
+#define MIPS_RELOC_FUNC_DECL(FuncName)
+#endif
+
+#ifndef MIPS_RELOC_FUNC
+#define MIPS_RELOC_FUNC(FuncName, Num, Name)
+#endif
+
+MIPS_RELOC_FUNC_DECL(none)
+
+MIPS_RELOC_FUNC(none,  0, R_MIPS_NONE/Unsupport/Deprecated)
+MIPS_RELOC_FUNC(none,  1, R_MIPS_16)
+MIPS_RELOC_FUNC(none,  2, R_MIPS_32)
+MIPS_RELOC_FUNC(none,  3, R_MIPS_REL32)
+MIPS_RELOC_FUNC(none,  4, R_MIPS_26)
+MIPS_RELOC_FUNC(none,  5, R_MIPS_HI16)
+MIPS_RELOC_FUNC(none,  6, R_MIPS_LO16)
+MIPS_RELOC_FUNC(none,  7, R_MIPS_GPREL16)
+MIPS_RELOC_FUNC(none,  8, R_MIPS_LITERAL)
+MIPS_RELOC_FUNC(none,  9, R_MIPS_GOT16)
+MIPS_RELOC_FUNC(none, 10, R_MIPS_PC16)
+MIPS_RELOC_FUNC(none, 11, R_MIPS_CALL16)
+MIPS_RELOC_FUNC(none, 12, R_MIPS_GPREL32)
+
+#undef MIPS_RELOC_FUNC_DECL
+#undef MIPS_RELOC_FUNC

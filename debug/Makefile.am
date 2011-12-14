@@ -70,6 +70,18 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${LIBDIR}/Target/Mips/MipsLDBackend.h \
+	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
+	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
+	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
+	${LIBDIR}/Target/Mips/MipsRelocationFactory.h \
+	${LIBDIR}/Target/Mips/MipsRelocationFactory.cpp \
+	${LIBDIR}/Target/Mips/MipsSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsELFSectLinker.h \
+	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
+	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
+	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
