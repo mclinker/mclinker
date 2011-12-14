@@ -17,9 +17,6 @@ namespace mcld
 
 /** \class ${class_name}
  *  \brief ${brief}
- *
- *  \see
- *  \author ${AUTHOR} <${EMAIL}>
  */
 class ${class_name}
 {
