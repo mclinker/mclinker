@@ -20,7 +20,7 @@ namespace mcld
 {
 
 // Each apply function should return its relocation status
-enum ARM_Reloc_Status
+enum ARMRelocStatus
 {
   STATUS_OK,
   STATUS_OVERFLOW,
@@ -34,7 +34,7 @@ enum ARM_Reloc_Status
 class ARMRelocationFactory : public RelocationFactory
 {
 public:
-  typedef ARM_Reloc_Status (ARMRelocationFactory::*Pointer)(Relocation&);
+  typedef ARMRelocStatus (ARMRelocationFactory::*Pointer)(Relocation&);
 
 public:
   ARMRelocationFactory(size_t pNum);
@@ -48,24 +48,15 @@ private:
   static Pointer m_ApplyFuncs[];
 
 private:
-  DWord thumbBit(Relocation &pReloc);
+  DWord getThumbBit(Relocation &pReloc);
   // Relocation applying function for performing all types of relocations
-  ARM_Reloc_Status none(Relocation& pReloc);
-  ARM_Reloc_Status abs32(Relocation& pReloc);
-  ARM_Reloc_Status rel32(Relocation& pReloc);
-  ARM_Reloc_Status thm_call(Relocation& pReloc);
-  ARM_Reloc_Status gotoff32(Relocation& pReloc);
-  ARM_Reloc_Status got_brel(Relocation& pReloc);
-  ARM_Reloc_Status call(Relocation& pReloc);
-  ARM_Reloc_Status jump24(Relocation& pReloc);
-  ARM_Reloc_Status movw_abs_nc(Relocation& pReloc);
-  ARM_Reloc_Status movt_abs(Relocation& pReloc);
-  ARM_Reloc_Status movw_prel_nc(Relocation& pReloc);
-  ARM_Reloc_Status movt_prel(Relocation& pReloc);
-  ARM_Reloc_Status thm_movw_abs_nc(Relocation& pReloc);
-  ARM_Reloc_Status thm_movt_abs(Relocation& pReloc);
-  ARM_Reloc_Status thm_movw_prel_nc(Relocation& pReloc);
-  ARM_Reloc_Status thm_movt_prel(Relocation& pReloc);
+#ifdef ARM_RELOC_FUNC_DECL
+# error "ARM_RELOC_FUNC_DECL should be undefined."
+#else
+# define ARM_RELOC_FUNC_DECL(FuncName) \
+    ARMRelocStatus FuncName(Relocation& pReloc);
+# include "ARMRelocationFunction.def"
+#endif
 };
 
 } // namespace of mcld
