@@ -1,10 +1,11 @@
-/*****************************************************************************
- *   The MCLinker Project, Copyright (C), 2011 -                             *
- *   Embedded and Web Computing Lab, National Taiwan University              *
- *   MediaTek, Inc.                                                          *
- *                                                                           *
- *   Anders Cheng <Anders.Cheng@mediatek.com>                                *
- ****************************************************************************/
+//===- X86AndroidSectLinker.cpp -------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 
 #include <mcld/Target/AndroidSectLinker.h>
 #include <mcld/MC/MCLDInfo.h>
