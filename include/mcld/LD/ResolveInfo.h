@@ -160,7 +160,7 @@ private:
   static const uint32_t VISIBILITY_MASK = 0x3 << VISIBILITY_OFFSET;
 
   static const uint32_t PLT_OFFSET = 7;
-  static const uint32_t PLT_MASK = 1 << TOUCH_OFFSET;
+  static const uint32_t PLT_MASK = 1 << PLT_OFFSET;
 
   static const uint32_t NAME_LENGTH_OFFSET = 8;
   static const uint32_t RESOLVE_MASK = 0xF;
