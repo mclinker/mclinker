@@ -437,7 +437,11 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
-  // 3. - normalize the input tree
+  // 3. - initialize output's standard segments and sections
+  if (!m_pLDDriver->initMCLinker())
+    return true;
+
+  // 4. - normalize the input tree
   m_pLDDriver->normalize();
 
   if (m_LDInfo.options().verbose()) {
@@ -472,13 +476,10 @@ bool SectLinker::doFinalization(Module &pM)
     }
   }
 
-  // 4. - check if we can do static linking and if we use split-stack.
+  // 5. - check if we can do static linking and if we use split-stack.
   if (!m_pLDDriver->linkable())
     return true;
 
-  // 5. - initialize output's standard segments and sections
-  if (!m_pLDDriver->initMCLinker())
-    return true;
 
   // 6. - read all sections
   if (!m_pLDDriver->readSections() ||
