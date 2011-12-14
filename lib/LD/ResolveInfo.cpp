@@ -40,9 +40,29 @@ void ResolveInfo::overrideAttributes(const ResolveInfo& pFrom)
 ///   always use the most strict visibility
 void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
 {
-  ResolveInfo::Visibility vis =
-    static_cast<ResolveInfo::Visibility>(pFrom.m_BitField & VISIBILITY_MASK);
-  setVisibility(vis);
+  // Reference: Google gold linker: resolve.cc
+  //
+  // The rule for combining visibility is that we always choose the
+  // most constrained visibility.  In order of increasing constraint,
+  // visibility goes PROTECTED, HIDDEN, INTERNAL.  This is the reverse
+  // of the numeric values, so the effect is that we always want the
+  // smallest non-zero value.
+  //
+  // enum {
+  //   STV_DEFAULT = 0,
+  //   STV_INTERNAL = 1,
+  //   STV_HIDDEN = 2,
+  //   STV_PROTECTED = 3
+  // };
+
+  Visibility from_vis = pFrom.visibility();
+  Visibility cur_vis = visibility();
+  if (0 != from_vis ) {
+    if (0 == cur_vis)
+      setVisibility(from_vis);
+    else if (cur_vis > from_vis)
+      setVisibility(from_vis);
+  }
 }
 
 void ResolveInfo::setDyn(bool pDyn)
