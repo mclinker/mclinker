@@ -49,6 +49,8 @@ public:
 
   bool isMyFormat(Input &input) const;
 
+  LDReader::Endian endian(Input& pFile) const;
+
 private:
   /// Map file to MemoryBuffer
   bool mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,

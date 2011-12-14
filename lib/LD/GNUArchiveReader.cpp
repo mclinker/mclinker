@@ -84,10 +84,21 @@ Type stringToType(const std::string &str)
   return n;
 }
 
+GNUArchiveReader::GNUArchiveReader()
+{
+}
+
+GNUArchiveReader::~GNUArchiveReader()
+{
+}
+
 /// GNUArchiveReader Operations
 /// Public API
 bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
+  // FIXME: The code below is broken and needs to be fixed.
+  return false;
+
   OwningPtr<MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
@@ -100,6 +111,12 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
     return false;
   return true;
+}
+
+LDReader::Endian GNUArchiveReader::endian(Input& pFile) const
+{
+  // TODO
+  return LDReader::LittleEndian;
 }
 
 InputTree *GNUArchiveReader::readArchive(Input &pInput)

@@ -37,7 +37,9 @@ GNULDBackend::~GNULDBackend()
 
 bool GNULDBackend::initArchiveReader(MCLinker&)
 {
-  // TODO
+  if (0 == m_pArchiveReader)
+    // FIXME: What is the correct ctor for GNUArchiveReader?
+    m_pArchiveReader = new GNUArchiveReader();
   return true;
 }
 
@@ -70,8 +72,8 @@ bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
 
 ArchiveReader *GNULDBackend::getArchiveReader()
 {
-  // TODO
-  return NULL;
+  assert(0 != m_pArchiveReader);
+  return m_pArchiveReader;
 }
 
 ObjectReader *GNULDBackend::getObjectReader()
