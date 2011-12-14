@@ -7,8 +7,8 @@
 function gettop() 
 {
 	local TOPFILE=tools/llvm-mcld/llvm-mcld.cpp
-	if [ -n "${BOLDTOP}" -a -f "${BOLDTOP}/${TOPFILE}" ]; then
-		echo ${BOLDTOP}
+	if [ -n "${MCLINKERTOP}" -a -f "${MCLINKERTOP}/${TOPFILE}" ]; then
+		echo ${MCLINKERTOP}
 	else
 		if [ -f "${TOPFILE}" ]; then
 			echo `pwd`;
@@ -30,16 +30,20 @@ function gettop()
 
 function wc_pndk()
 {
-	local H=`find ${BOLDTOP} | grep '\.h'`
-	local C=`find ${BOLDTOP} | grep '\.cpp'`
+	local H=`find ${MCLINKERTOP} | grep '\.h'`
+	local C=`find ${MCLINKERTOP} | grep '\.cpp'`
 	wc ${C} ${H}
 }
 
 #############################
 #  Variable Dictionary
-export BOLDTOP=$(gettop)
-export PATH="${BOLDTOP}/scripts/bin:$PATH"
-alias mk="make -C ${BOLDTOP}"
+export MCLINKERTOP=$(gettop)
+export PATH="${MCLINKERTOP}/scripts/bin:$PATH"
+if [ -x "${MCLINKERTOP}/debug/llvm-mcld" ]; then
+	ln -sf ${MCLINKERTOP}/debug/llvm-mcld ${MCLINKERTOP}/scripts/bin/MCLinker
+fi
+
+alias mk="make -C ${MCLINKERTOP}"
 
 SERVER=`grep mtksgt01 /etc/hosts`
 if [ ! -z "${SERVER}" ]; then

@@ -6,10 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <string>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/ADT/Twine.h>
 #include "ARMRelocationFactory.h"
 
 using namespace mcld;
@@ -37,13 +36,13 @@ void ARMRelocationFactory::apply(Relocation& Relocation)
        break;
      }
      case STATUS_OVERFLOW: {
-       llvm::report_fatal_error(std::string("Relocation overflow on ") +
+       llvm::report_fatal_error(llvm::Twine("Relocation overflow on ") +
                                 Relocation.symInfo()->name());
        break;
      }
      case STATUS_BAD_RELOC: {
-       llvm::report_fatal_error(std::string("Unexpected opcode while "
-                                "applying relocation on ") +
+       llvm::report_fatal_error(llvm::Twine("Unexpected opcode while ") +
+                                llvm::Twine("applying relocation on ") +
                                 Relocation.symInfo()->name());
        break;
      }
