@@ -38,7 +38,7 @@ public:
 
   virtual bool readSymbols(Input& pFile) = 0;
 
-  virtual bool readSections(Input& pFile);
+  virtual bool readSections(Input& pFile) = 0;
 
   inline TargetLDBackend& target()
   { return m_TargetLDBackend; }
