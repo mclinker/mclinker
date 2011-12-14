@@ -11,6 +11,7 @@
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "X86.h"
+#include "X86AndroidSectLinker.h"
 #include "X86ELFSectLinker.h"
 
 #include "mcld/CodeGen/SectLinker.h"
@@ -38,11 +39,13 @@ SectLinker* createX86SectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new X86ELFSectLinker(pInputFilename,
-                              pOutputFilename,
-                              pOutputLinkType,
-                              pLDInfo,
-                              pLDBackend);
+
+  // For now, use Android SectLinker directly
+  return new X86AndroidSectLinker(pInputFilename,
+                                  pOutputFilename,
+                                  pOutputLinkType,
+                                  pLDInfo,
+                                  pLDBackend);
 }
 
 } // namespace of mcld

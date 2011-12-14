@@ -11,6 +11,7 @@
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "ARM.h"
+#include "ARMAndroidSectLinker.h"
 #include "ARMELFSectLinker.h"
 
 #include "mcld/CodeGen/SectLinker.h"
@@ -39,11 +40,13 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
   }
-  return new ARMELFSectLinker(pInputFilename,
-                              pOutputFilename,
-                              pOutputLinkType,
-                              pLDInfo,
-                              pLDBackend);
+
+  // For now, use Android SectLinker directly
+  return new ARMAndroidSectLinker(pInputFilename,
+                                  pOutputFilename,
+                                  pOutputLinkType,
+                                  pLDInfo,
+                                  pLDBackend);
 }
 
 } // namespace of mcld

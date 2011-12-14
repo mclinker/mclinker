@@ -56,6 +56,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
+	${INCDIR}/Target/AndroidSectLinker.h \
+	${LIBDIR}/Target/AndroidSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
@@ -65,6 +67,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
+	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
@@ -75,6 +79,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
+	${LIBDIR}/Target/X86/X86AndroidSectLinker.h \
+	${LIBDIR}/Target/X86/X86AndroidSectLinker.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
