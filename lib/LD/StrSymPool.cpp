@@ -15,12 +15,14 @@ using namespace mcld;
 
 //==========================
 // StrSymPool
-StrSymPool::StrSymPool(Resolver& pResolver, StrSymPool::size_type pSize)
-  : m_Resolver(pResolver), m_Table(pSize) {
+StrSymPool::StrSymPool(const Resolver& pResolver, StrSymPool::size_type pSize)
+  : m_pResolver(pResolver.clone()), m_Table(pSize) {
 }
 
 StrSymPool::~StrSymPool()
 {
+  if (0 != m_pResolver)
+    delete m_pResolver;
 }
 
 /// insertSymbol - insert a symbol and resolve it immediately
@@ -64,18 +66,18 @@ bool StrSymPool::insertSymbol(const llvm::StringRef& pName,
   // symbol resolution
   bool override = false;
   unsigned int action = Resolver::LastAction;
-  switch(m_Resolver.resolve(*old_symbol, *new_symbol, override)) {
+  switch(m_pResolver->resolve(*old_symbol, *new_symbol, override)) {
     case Resolver::Success:
       return override;
     case Resolver::Warning:
-      llvm::errs() << "WARNING: " << m_Resolver.mesg() << "\n";
-      m_Resolver.clearMesg();
+      llvm::errs() << "WARNING: " << m_pResolver->mesg() << "\n";
+      m_pResolver->clearMesg();
       return override;
     case Resolver::Abort:
-      llvm::report_fatal_error(m_Resolver.mesg());
+      llvm::report_fatal_error(m_pResolver->mesg());
       return false;
     default:
-      return m_Resolver.resolveAgain(*this, action, *old_symbol, *new_symbol);
+      return m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol);
   }
 }
 

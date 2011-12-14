@@ -18,7 +18,9 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDCommand.h"
+#include <mcld/MC/MCLDCommand.h>
+#include <mcld/LD/StrSymPool.h>
+#include <mcld/LD/StaticResolver.h>
 
 namespace mcld {
 
@@ -35,12 +37,15 @@ class MCLDInfo;
 class MCLinker
 {
 public:
-  explicit MCLinker(TargetLDBackend& pBackend, MCLDInfo& pLDInfo);
+  MCLinker(TargetLDBackend& pBackend,
+           MCLDInfo& pLDInfo,
+           const Resolver& pResolver = StaticResolver());
   ~MCLinker();
 
 private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
+  StrSymPool m_StrSymPool;
 };
 
 } // namespace of mcld

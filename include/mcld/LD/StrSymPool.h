@@ -43,7 +43,7 @@ public:
   typedef size_t size_type;
 
 public:
-  StrSymPool(Resolver& pResolver, size_type pSize = 3);
+  StrSymPool(const Resolver& pResolver, size_type pSize = 3);
   ~StrSymPool();
 
   // -----  modifiers  ----- //
@@ -74,7 +74,7 @@ public:
   size_type capacity() const;
 
 private:
-  Resolver& m_Resolver;
+  Resolver* m_pResolver;
   Table m_Table;
 
 };

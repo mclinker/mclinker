@@ -11,17 +11,19 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/MC/MCLinker.h"
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/LD/LDContext.h"
-#include "mcld/Target/TargetLDBackend.h"
-#include "llvm/Support/raw_ostream.h"
+#include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <llvm/Support/raw_ostream.h>
 
-namespace mcld {
+using namespace mcld;
 
-MCLinker::MCLinker(TargetLDBackend& pBackend, MCLDInfo& pInfo)
-: m_Backend(pBackend), m_Info(pInfo)
+MCLinker::MCLinker(TargetLDBackend& pBackend,
+                   MCLDInfo& pInfo,
+                   const Resolver& pResolver)
+: m_Backend(pBackend), m_Info(pInfo), m_StrSymPool(pResolver)
 {
 }
 
@@ -29,4 +31,3 @@ MCLinker::~MCLinker()
 {
 }
 
-} //end namespace mcld
