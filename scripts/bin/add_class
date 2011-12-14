@@ -18,7 +18,7 @@
 
 ############################
 # Variable Dictionary
-BOLD_CONFIG_DIR=$HOME/.bold
+MCLINKER_CONFIG_DIR=$HOME/.bold
 AUTHOR=
 EMAIL=
 CLASS_NAME=
@@ -26,12 +26,12 @@ BRIEF=
 FILE_TYPE=
 
 # 0. watch configuration
-if [ -d "${BOLD_CONFIG_DIR}" ]; then
-	if [ -f "${BOLD_CONFIG_DIR}/config" ]; then
-		source ${BOLD_CONFIG_DIR}/config
+if [ -d "${MCLINKER_CONFIG_DIR}" ]; then
+	if [ -f "${MCLINKER_CONFIG_DIR}/config" ]; then
+		source ${MCLINKER_CONFIG_DIR}/config
 	fi
 else
-	mkdir ${BOLD_CONFIG_DIR}
+	mkdir ${MCLINKER_CONFIG_DIR}
 fi
 
 # 1. ask name
@@ -39,7 +39,7 @@ fi
 if [ -z "${AUTHOR}" ]; then
 	echo -n "name? ";
 	read AUTHOR
-	echo "AUTHOR=\"${AUTHOR}\"" >> ${BOLD_CONFIG_DIR}/config
+	echo "AUTHOR=\"${AUTHOR}\"" >> ${MCLINKER_CONFIG_DIR}/config
 fi
 
 # 2. ask email
@@ -47,7 +47,7 @@ fi
 if [ -z "${EMAIL}" ]; then
 	echo -n "e-mail? ";
 	read EMAIL
-	echo "EMAIL=\"${EMAIL}\"" >> ${BOLD_CONFIG_DIR}/config
+	echo "EMAIL=\"${EMAIL}\"" >> ${MCLINKER_CONFIG_DIR}/config
 fi
 
 # 3. ask file type
@@ -60,10 +60,10 @@ while [ -z "${FILE_TYPE}" ]; do
 	read FILE_TYPE
 
 	case "$FILE_TYPE" in
-	1 ) source ${BOLDTOP}/scripts/normal_files.sh;
+	1 ) source ${MCLINKERTOP}/scripts/normal_files.sh;
 		FILE_TYPE="normal";
 		;;
-	2 ) source ${BOLDTOP}/scripts/test_files.sh;
+	2 ) source ${MCLINKERTOP}/scripts/test_files.sh;
 		FILE_TYPE="testcase";
 		;;
 	* ) FILE_TYPE="" ;;
@@ -109,10 +109,10 @@ if [ "${DEPLOYMENT}" = "Target" ]; then
 		case "${TARGET}" in
 		1 ) TARGET=".";;
 		2 ) TARGET="ARM"
-		    source ${BOLDTOP}/scripts/target_files.sh;
+		    source ${MCLINKERTOP}/scripts/target_files.sh;
 			;;
 		3 ) TARGET="X86"
-		    source ${BOLDTOP}/scripts/target_files.sh;
+		    source ${MCLINKERTOP}/scripts/target_files.sh;
 			;;
 		* ) TARGET="";;
 		esac
