@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include "mcld/Target/GNULDBackend.h"
+#include <mcld/Target/GNULDBackend.h>
+#include <cassert>
 
 using namespace mcld;
 
@@ -41,15 +41,17 @@ bool GNULDBackend::initArchiveReader(MCLinker&)
   return true;
 }
 
-bool GNULDBackend::initObjectReader(MCLinker&)
+bool GNULDBackend::initObjectReader(MCLinker& pLinker)
 {
-  // TODO
+  if (0 == m_pObjectReader)
+    m_pObjectReader = new ELFObjectReader(*this, pLinker);
   return true;
 }
 
-bool GNULDBackend::initDynObjReader(MCLinker&)
+bool GNULDBackend::initDynObjReader(MCLinker& pLinker)
 {
-  // TODO
+  if (0 == m_pDynObjReader)
+    m_pDynObjReader = new ELFDynObjReader(*this, pLinker);
   return true;
 }
 
@@ -59,9 +61,10 @@ bool GNULDBackend::initObjectWriter(MCLinker&)
   return true;
 }
 
-bool GNULDBackend::initDynObjWriter(MCLinker&)
+bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
 {
-  // TODO
+  if (0 == m_pDynObjWriter)
+    m_pDynObjWriter = new ELFDynObjWriter(*this, pLinker);
   return true;
 }
 
@@ -73,14 +76,14 @@ ArchiveReader *GNULDBackend::getArchiveReader()
 
 ObjectReader *GNULDBackend::getObjectReader()
 {
-  // TODO
-  return NULL;
+  assert(0 != m_pObjectReader);
+  return m_pObjectReader;
 }
 
 DynObjReader *GNULDBackend::getDynObjReader()
 {
-  // TODO
-  return NULL;
+  assert(0 != m_pDynObjReader);
+  return m_pDynObjReader;
 }
 
 ObjectWriter *GNULDBackend::getObjectWriter()
@@ -91,8 +94,7 @@ ObjectWriter *GNULDBackend::getObjectWriter()
 
 DynObjWriter *GNULDBackend::getDynObjWriter()
 {
-  // TODO
-  return NULL;
+  assert(0 != m_pDynObjWriter);
+  return m_pDynObjWriter;
 }
-
 

@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef GNU_LDBACKEND_H
-#define GNU_LDBACKEND_H
+#ifndef MCLD_GNU_LDBACKEND_H
+#define MCLD_GNU_LDBACKEND_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/LD/GNUArchiveReader.h"
-#include "mcld/LD/ELFDynObjReader.h"
-#include "mcld/LD/ELFDynObjWriter.h"
-#include "mcld/LD/ELFObjectReader.h"
-#include "mcld/LD/ELFObjectWriter.h"
-#include "mcld/Target/TargetLDBackend.h"
+#include <mcld/LD/GNUArchiveReader.h>
+#include <mcld/LD/ELFDynObjReader.h>
+#include <mcld/LD/ELFDynObjWriter.h>
+#include <mcld/LD/ELFObjectReader.h>
+#include <mcld/LD/ELFObjectWriter.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
@@ -39,11 +39,11 @@ protected:
 public:
   virtual ~GNULDBackend();
 
-  bool initArchiveReader(MCLinker&);
-  bool initObjectReader(MCLinker&);
-  bool initDynObjReader(MCLinker&);
-  bool initObjectWriter(MCLinker&);
-  bool initDynObjWriter(MCLinker&);
+  bool initArchiveReader(MCLinker& pLinker);
+  bool initObjectReader(MCLinker& pLinker);
+  bool initDynObjReader(MCLinker& pLinker);
+  bool initObjectWriter(MCLinker& pLinker);
+  bool initDynObjWriter(MCLinker& pLinker);
 
   ArchiveReader *getArchiveReader();
   ObjectReader *getObjectReader();
