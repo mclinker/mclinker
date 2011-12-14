@@ -39,6 +39,7 @@ class MemoryRegion : private Uncopyable
 {
 friend class RegionFactory;
 
+public:
 typedef mcld::sys::fs::detail::Address Address; // FIXME: use SizeTrait<T>::Address
 typedef mcld::sys::fs::detail::Offset Offset; // FIXME: use SizeTrait<T>::Offset
 
