@@ -75,12 +75,12 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   unsigned int result = Resolver::Success;
   pOverride = false;
   ResolveInfo* old = &pOld;
+  LinkAction action;
   do {
-    LinkAction action;
     result = Resolver::Success;
-
     cycle = false;
     action = link_action[row][col];
+
     switch(action) {
       case FAIL: {       /* abort.  */
         result = Resolver::Abort;
@@ -217,6 +217,7 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         }
 
         old = old->link();
+        col = getOrdinate(*old);
         cycle = true;
         break;
       }
