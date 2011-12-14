@@ -60,17 +60,14 @@ Index: include/llvm/MC/MCAssembler.h
  
    raw_ostream &OS;
  
-@@ -791,8 +794,13 @@
+@@ -791,8 +794,10 @@
  
    MCCodeEmitter &getEmitter() const { return Emitter; }
  
 -  MCObjectWriter &getWriter() const { return Writer; }
 +  MCObjectWriter &getWriter() const { return *m_pWriter; }
  
-+  void setWriter(MCObjectWriter &pObjectWriter) {
-+    delete m_pWriter;
-+    m_pWriter = &pObjectWriter;
-+  }
++  void setWriter(MCObjectWriter &pObjectWriter);
 +
    /// Finish - Do final processing and write the object to the output stream.
    /// \arg Writer is used for custom object writer (as the MCJIT does),
@@ -119,3 +116,15 @@ Index: lib/MC/MCAssembler.cpp
      OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
  {
  }
+@@ -205,6 +205,11 @@
+ MCAssembler::~MCAssembler() {
+ }
+ 
++void MCAssembler::setWriter(MCObjectWriter &pObjectWriter) {
++  delete m_pWriter;
++  m_pWriter = &pObjectWriter;
++}
++
+ bool MCAssembler::isSymbolLinkerVisible(const MCSymbol &Symbol) const {
+   // Non-temporary labels should always be visible to the linker.
+   if (!Symbol.isTemporary())
