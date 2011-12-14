@@ -36,7 +36,7 @@ public:
 
   virtual llvm::error_code readDSO(Input& pFile) = 0;
 
-  virtual llvm::error_code readSymbols(Input& pFile) = 0;
+  virtual bool readSymbols(Input& pFile) = 0;
 
   TargetLDBackend& target()
   { return m_TargetLDBackend; }

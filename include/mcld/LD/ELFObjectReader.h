@@ -44,6 +44,8 @@ public:
 
   bool readSections(Input& pFile);
 
+  bool readSymbols(Input& pFile);
+
 private:
   MCLinker& m_Linker;
 

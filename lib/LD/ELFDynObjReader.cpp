@@ -41,7 +41,7 @@ llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
   return llvm::error_code();
 }
 
-llvm::error_code ELFDynObjReader::readSymbols(Input& pFile)
+bool ELFDynObjReader::readSymbols(Input& pFile)
 {
   // TODO
   return llvm::error_code();

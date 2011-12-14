@@ -36,6 +36,8 @@ public:
 
   virtual llvm::error_code readObject(Input& pFile) = 0;
 
+  virtual bool readSymbols(Input& pFile) = 0;
+
   virtual bool readSections(Input& pFile);
 
   inline TargetLDBackend& target()

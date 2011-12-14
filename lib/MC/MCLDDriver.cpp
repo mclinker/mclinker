@@ -152,6 +152,18 @@ bool MCLDDriver::mergeSections()
 ///  for each input file, loads its symbol table from file.
 bool MCLDDriver::readSymbolTables()
 {
+  // TODO: check the result of reading
+  mcld::InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    switch((*input)->type()) {
+    case Input::DynObj:
+      m_LDBackend.getDynObjReader()->readSymbols(**input);
+      break;
+    case Input::Object:
+      m_LDBackend.getObjectReader()->readSymbols(**input);
+      break;
+    }
+  }
   return true;
 }
 
@@ -159,6 +171,11 @@ bool MCLDDriver::readSymbolTables()
 /// output's symbol table.
 bool MCLDDriver::mergeSymbolTables()
 {
+  mcld::InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
+  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    if (!m_pLinker->mergeSymbolTable(**input))
+      return false;
+  }
   return true;
 }
 

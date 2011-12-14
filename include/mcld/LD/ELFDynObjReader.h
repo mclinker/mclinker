@@ -39,7 +39,7 @@ public:
   // -----  readers  ----- //
   llvm::error_code readDSO(Input& pFile);
 
-  llvm::error_code readSymbols(Input& pFile);
+  bool readSymbols(Input& pFile);
 
 private:
   MCLinker& m_Linker;

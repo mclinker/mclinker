@@ -26,6 +26,7 @@ namespace mcld {
 
 class MCLDCommand;
 class MCLDFile;
+class Input;
 class Layout;
 
 class TargetLDBackend;
@@ -41,6 +42,12 @@ public:
            MCLDInfo& pLDInfo,
            const Resolver& pResolver = StaticResolver());
   ~MCLinker();
+
+  /// mergeSymbolTable - merge the symbol table and resolve symbols.
+  ///   Since in current design, MCLinker resolves symbols when reading symbol
+  ///   tables, this function do nothing.
+  bool mergeSymbolTable(Input& pInput)
+  { return true; }
 
 private:
   TargetLDBackend& m_Backend;

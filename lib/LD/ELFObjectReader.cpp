@@ -52,3 +52,9 @@ bool ELFObjectReader::readSections(Input& pFile)
   return true;
 }
 
+bool ELFObjectReader::readSymbols(Input& pFile)
+{
+  // TODO
+  return true;
+}
+
