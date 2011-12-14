@@ -80,6 +80,11 @@ RelocationFactory::DWord ARMRelocationFactory::getThumbBit(Relocation& pReloc)
   return thumbBit;
 }
 
+
+//=========================================//
+// Each relocation function implementation //
+//=========================================//
+
 // R_ARM_NONE and those unsupported/deprecated relocation type
 ARMRelocStatus ARMRelocationFactory::none(Relocation& pReloc)
 {
@@ -102,5 +107,14 @@ ARMRelocStatus ARMRelocationFactory::rel32(Relocation& pReloc)
   DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit)
                     - pReloc.place(*layout());
+  return STATUS_OK;
+}
+
+// R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
+ARMRelocStatus ARMRelocationFactory::gotoff32(Relocation& pReloc)
+{
+  DWord t_bit = getThumbBit(pReloc);
+  DWord addend = pReloc.target() + pReloc.addend();
+  pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - gotorg();
   return STATUS_OK;
 }
