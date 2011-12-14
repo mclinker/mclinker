@@ -6,27 +6,27 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Target/TargetMachine.h"
-#include "mcld/Support/TargetSelect.h"
-#include "mcld/Support/TargetRegistry.h"
+#include <mcld/Target/TargetMachine.h>
+#include <mcld/Support/TargetSelect.h>
+#include <mcld/Support/TargetRegistry.h>
 
-#include "llvm/Module.h"
-#include "llvm/PassManager.h"
-#include "llvm/Pass.h"
-#include "llvm/ADT/Triple.h"
-#include "llvm/LLVMContext.h"
-#include "llvm/MC/SubtargetFeature.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/Debug.h"
-#include "llvm/Support/FormattedStream.h"
-#include "llvm/Support/Host.h"
-#include "llvm/Support/IRReader.h"
-#include "llvm/Support/ManagedStatic.h"
-#include "llvm/Support/TargetRegistry.h"
-#include "llvm/Support/TargetSelect.h"
-#include "llvm/Support/ToolOutputFile.h"
-#include "llvm/Target/TargetData.h"
-#include "llvm/Target/TargetMachine.h"
+#include <llvm/Module.h>
+#include <llvm/PassManager.h>
+#include <llvm/Pass.h>
+#include <llvm/ADT/Triple.h>
+#include <llvm/LLVMContext.h>
+#include <llvm/MC/SubtargetFeature.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Debug.h>
+#include <llvm/Support/FormattedStream.h>
+#include <llvm/Support/Host.h>
+#include <llvm/Support/IRReader.h>
+#include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/ToolOutputFile.h>
+#include <llvm/Target/TargetData.h>
+#include <llvm/Target/TargetMachine.h>
 
 using namespace llvm;
 
@@ -36,11 +36,9 @@ using namespace llvm;
 static cl::opt<bool>
 UnitTest("unittest",  cl::desc("do unit test") );
 
-
-
 int unit_test( int argc, char* argv[] )
 {
-  ::testing::InitGoogleTest( &argc, argv );
+  testing::InitGoogleTest( &argc, argv );
   return RUN_ALL_TESTS();
 }
 
