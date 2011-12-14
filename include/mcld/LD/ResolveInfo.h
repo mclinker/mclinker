@@ -73,6 +73,8 @@ public:
 
   void setVisibility(Visibility pVisibility);
 
+  void setHasPLT(bool pHasPLT);
+
   void setValue(ValueType pValue)
   { m_Value.value = pValue; }
 
@@ -105,6 +107,8 @@ public:
   bool isCommon() const;
 
   bool isIndirect() const;
+
+  bool hasPLT() const;
 
   unsigned int type() const;
 
@@ -155,8 +159,8 @@ private:
   static const uint32_t VISIBILITY_OFFSET = 5;
   static const uint32_t VISIBILITY_MASK = 0x3 << VISIBILITY_OFFSET;
 
-  static const uint32_t TOUCH_OFFSET = 7;
-  static const uint32_t TOUCH_MASK = 1 << TOUCH_OFFSET;
+  static const uint32_t PLT_OFFSET = 7;
+  static const uint32_t PLT_MASK = 1 << PLT_OFFSET;
 
   static const uint32_t NAME_LENGTH_OFFSET = 8;
   static const uint32_t RESOLVE_MASK = 0xF;
@@ -176,7 +180,7 @@ public:
   static const uint32_t common_flag = 2 << TYPE_OFFSET;
   static const uint32_t indirect_flag = 3 << TYPE_OFFSET;
   static const uint32_t local_flag = 1 << LOCAL_OFFSET;
-  static const uint32_t touch_flag = 1 << TOUCH_OFFSET;
+  static const uint32_t has_plt_flag = 1 << PLT_OFFSET;
 
 private:
   ResolveInfo();
@@ -188,8 +192,8 @@ private:
   SizeType m_Size;
   ValOrPtr m_Value;
   /** m_BitField
-   *  31     ...       8    7     6    ..      5   4    3   2   1   0
-   * | length of m_Name |touched|ELF visibility|Local|Com|Def|Dyn|Weak|
+   *  31     ...       8  7   6  ..    5      4    3   2   1   0
+   * | length of m_Name |PLT|ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
   char m_Name[0];
