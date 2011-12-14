@@ -12,8 +12,8 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDInput.h"
-#include "llvm/Support/ELF.h"
+#include <mcld/MC/MCLDInput.h>
+#include <llvm/Support/ELF.h>
 
 namespace mcld
 {
@@ -30,6 +30,8 @@ public:
   bool isLittleEndian(mcld::Input &pFile) const;
 
   bool is64Bit(mcld::Input &pFile) const;
+
+  bool readDynSymbols(mcld::Input &pFile) const;
 };
 
 } // namespace of mcld

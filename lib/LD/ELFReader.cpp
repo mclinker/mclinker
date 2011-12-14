@@ -27,3 +27,8 @@ bool ELFReader::is64Bit(mcld::Input &pFile) const
   return false; // TODO
 }
 
+bool ELFReader::readDynSymbols(mcld::Input &pFile) const
+{
+  return false; // TODO
+}
+

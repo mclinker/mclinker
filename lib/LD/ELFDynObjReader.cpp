@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/ELFDynObjReader.h"
-#include "mcld/MC/MCLinker.h"
-#include "mcld/Target/TargetLDBackend.h"
-#include "mcld/MC/MCLDInput.h"
+#include <mcld/LD/ELFDynObjReader.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/MC/MCLDInput.h>
 
 using namespace mcld;
 
@@ -43,7 +43,6 @@ llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
 
 bool ELFDynObjReader::readSymbols(Input& pFile)
 {
-  // TODO
-  return llvm::error_code();
+  return ELFReader::readDynSymbols(pFile);
 }
 
