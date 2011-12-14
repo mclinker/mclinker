@@ -99,6 +99,14 @@ void ResolveInfo::setVisibility(ResolveInfo::Visibility pVisibility)
   m_BitField |= pVisibility << VISIBILITY_OFFSET;
 }
 
+void ResolveInfo::setHasPLT(bool pHasPLT)
+{
+  if (pHasPLT)
+    m_BitField |= has_plt_flag;
+  else
+    m_BitField &= ~has_plt_flag;
+}
+
 bool ResolveInfo::hasAttributes() const
 {
   return (0 != (RESOLVE_MASK & m_BitField));
@@ -132,6 +140,11 @@ bool ResolveInfo::isCommon() const
 bool ResolveInfo::isIndirect() const
 {
   return (0 != (m_BitField & indirect_flag));
+}
+
+bool ResolveInfo::hasPLT() const
+{
+  return (0 != (m_BitField & has_plt_flag));
 }
 
 unsigned int ResolveInfo::type() const
