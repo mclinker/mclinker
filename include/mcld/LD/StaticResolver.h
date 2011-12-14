@@ -12,8 +12,8 @@
 #include <gtest.h>
 #endif
 #include <string>
-#include "mcld/LD/Resolver.h"
-#include "mcld/LD/ResolveInfo.h"
+#include <mcld/LD/Resolver.h>
+#include <mcld/LD/ResolveInfo.h>
 
 namespace mcld
 {
@@ -71,7 +71,7 @@ private:
     w_D  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::define_flag,
     d_D  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
     wd_D = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
-    U    = ResolveInfo::global_flag | ResolveInfo::regular_falg | ResolveInfo::undefine_flag,
+    U    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,
     w_U  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,
     d_U  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,
     wd_U = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,
@@ -96,7 +96,7 @@ private:
     d_U_ORD,
     wd_U_ORD,
     C_ORD,
-    wC_ORD,
+    w_C_ORD,
     Cs_ORD,
     Is_ORD,
     LAST_ORD
@@ -104,6 +104,8 @@ private:
 
 public:
   StaticResolver();
+
+  StaticResolver(const StaticResolver& pCopy);
 
   virtual ~StaticResolver();
 
@@ -124,11 +126,15 @@ public:
                             const ResolveInfo& __restrict__ pNew)
   { return false; }
 
+  StaticResolver* doClone() const {
+    return new StaticResolver(*this);
+  }
+
 private:
-  inline unsigned int getOrdinate(const pResolveInfo& pInfo) const {
+  inline unsigned int getOrdinate(const ResolveInfo& pInfo) const {
     if (pInfo.isCommon() && pInfo.isDyn())
       return Cs_ORD;
-    if (pInfo.isCommon() && pInfo.isDef())
+    if (pInfo.isCommon() && pInfo.isDefine())
       return C_ORD;
     if (pInfo.isCommon() && pInfo.isWeak())
       return w_C_ORD;

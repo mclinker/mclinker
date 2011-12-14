@@ -40,6 +40,8 @@ public:
 public:
   Resolver();
 
+  Resolver(const Resolver& pCopy);
+
   virtual ~Resolver();
 
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
@@ -64,9 +66,15 @@ public:
 
   void clearMesg();
 
+  Resolver* clone() const {
+    return doClone();
+  }
+
 protected:
   std::string m_Mesg;
 
+private:
+  virtual Resolver* doClone() const = 0;
 };
 
 } // namespace of mcld

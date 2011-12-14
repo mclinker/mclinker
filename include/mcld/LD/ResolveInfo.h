@@ -65,21 +65,16 @@ public:
   // -----  modifiers  ----- //
   void setDyn(bool pDyn = true);
 
-  void setType(Type pType);
+  void setType(uint32_t pType);
 
-  void setBinding(Binding pBinding);
+  void setBinding(uint32_t pBinding);
 
-  void setOther(uint8_t pOther);
+  void setOther(uint32_t pOther);
 
   void setVisibility(Visibility pVisibility);
 
   void setValue(ValueType pValue)
   { m_Value.value = pValue; }
-
-  void setLink(ResolveInfo* pTarget) {
-    m_Value.ptr = pTarget;
-    m_BitField |= indirect_flag;
-  }
 
   void setSize(SizeType pSize)
   { m_Size = pSize; }
@@ -89,6 +84,12 @@ public:
   void overrideAttributes(const ResolveInfo& pFrom);
 
   void overrideVisibility(const ResolveInfo& pFrom);
+
+  void setLink(const ResolveInfo* pTarget) {
+    m_Value.ptr = const_cast<ResolveInfo*>(pTarget);
+    m_BitField |= indirect_flag;
+  }
+
 
   // -----  observers  ----- //
   bool hasAttributes() const;

@@ -73,13 +73,13 @@ void ResolveInfo::setDyn(bool pDyn)
     m_BitField &= ~DYN_MASK;
 }
 
-void ResolveInfo::setType(ResolveInfo::Type pType)
+void ResolveInfo::setType(uint32_t pType)
 {
   m_BitField &= ~TYPE_MASK;
   m_BitField |= pType << TYPE_OFFSET;
 }
 
-void ResolveInfo::setBinding(ResolveInfo::Binding pBinding)
+void ResolveInfo::setBinding(uint32_t pBinding)
 {
   m_BitField &= ~(BINDING_MASK | LOCAL_MASK);
   if (pBinding == ResolveInfo::Local)
@@ -88,7 +88,7 @@ void ResolveInfo::setBinding(ResolveInfo::Binding pBinding)
     m_BitField |= BINDING_MASK;
 }
 
-void ResolveInfo::setOther(uint8_t pOther)
+void ResolveInfo::setOther(uint32_t pOther)
 {
   setVisibility(static_cast<ResolveInfo::Visibility>(pOther & 0x3));
 }

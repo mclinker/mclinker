@@ -17,6 +17,10 @@ Resolver::Resolver()
   : m_Mesg() {
 }
 
+Resolver::Resolver(const Resolver& pCopy)
+  : m_Mesg(pCopy.m_Mesg) {
+}
+
 Resolver::~Resolver()
 {
   m_Mesg.clear();
