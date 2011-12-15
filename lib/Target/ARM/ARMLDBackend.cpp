@@ -30,6 +30,11 @@ ARMRelocationFactory* ARMGNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
+uint32_t ARMGNULDBackend::machine() const
+{
+  return EM_ARM;
+}
+
 namespace mcld {
 
 static const uint32_t arm_plt0[] = {

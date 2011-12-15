@@ -9,6 +9,8 @@
 #ifndef LLVM_TARGET_TARGETLDBACKEND_H
 #define LLVM_TARGET_TARGETLDBACKEND_H
 
+#include <llvm/Support/DataTypes.h>
+
 namespace mcld {
 
 class MCLinker;
@@ -53,6 +55,9 @@ public:
   virtual DynObjWriter *getDynObjWriter() = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;
+
+  /* The return value of machine() it the same as e_machine in the EFL header*/
+  virtual uint32_t machine() const = 0;
 
 };
 

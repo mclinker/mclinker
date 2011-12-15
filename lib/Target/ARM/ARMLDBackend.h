@@ -25,6 +25,8 @@ public:
   /// getRelocFactory - co-variant return type
   ARMRelocationFactory* getRelocFactory();
 
+  uint32_t machine() const;
+
 private:
   ARMRelocationFactory* m_pRelocFactory;
 };

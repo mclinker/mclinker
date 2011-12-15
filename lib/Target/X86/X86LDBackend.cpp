@@ -31,6 +31,10 @@ X86RelocationFactory* X86GNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
+uint32_t X86GNULDBackend::machine() const
+{
+  return ELF::EM_386;
+}
 
 namespace mcld {
 

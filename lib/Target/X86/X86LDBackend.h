@@ -24,6 +24,8 @@ public:
 
   X86RelocationFactory* getRelocFactory();
 
+  uint32_t machine() const;
+
 private:
   X86RelocationFactory* m_pRelocFactory;
 };
