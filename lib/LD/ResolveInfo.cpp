@@ -65,27 +65,45 @@ void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
   }
 }
 
-void ResolveInfo::setDyn(bool pDyn)
+void ResolveInfo::setRegular()
 {
-  if (pDyn)
-    m_BitField |= DYN_MASK << DYN_OFFSET;
-  else
+  m_BitField &= ~DYN_MASK;
+}
+
+void ResolveInfo::setDynamic()
+{
+  m_BitField |= dynamic_flag;
+}
+
+void ResolveInfo::setSource(bool pIsDyn)
+{
+  if (pIsDyn)
     m_BitField &= ~DYN_MASK;
+  else
+    m_BitField |= dynamic_flag;
 }
 
 void ResolveInfo::setType(uint32_t pType)
 {
   m_BitField &= ~TYPE_MASK;
-  m_BitField |= pType << TYPE_OFFSET;
+  m_BitField |= (pType << TYPE_OFFSET);
+}
+
+void ResolveInfo::setDesc(uint32_t pDesc)
+{
+  m_BitField &= ~DESC_MASK;
+  m_BitField |= (pDesc << DESC_OFFSET);
 }
 
 void ResolveInfo::setBinding(uint32_t pBinding)
 {
-  m_BitField &= ~(BINDING_MASK | LOCAL_MASK);
-  if (pBinding == ResolveInfo::Local)
-    m_BitField |= LOCAL_MASK;
-  else if (pBinding == ResolveInfo::Weak)
-    m_BitField |= BINDING_MASK;
+  m_BitField &= ~BINDING_MASK;
+  if (pBinding == ResolveInfo::Local) {
+    m_BitField |= local_flag;
+    return;
+  }
+  if (pBinding == ResolveInfo::Weak)
+    m_BitField |= weak_flag;
 }
 
 void ResolveInfo::setOther(uint32_t pOther)
@@ -107,44 +125,62 @@ void ResolveInfo::setHasPLT(bool pHasPLT)
     m_BitField &= ~has_plt_flag;
 }
 
-bool ResolveInfo::hasAttributes() const
+void ResolveInfo::setIsSymbol(bool pIsSymbol)
 {
-  return (0 != (RESOLVE_MASK & m_BitField));
+  if (pIsSymbol)
+    m_BitField |= is_symbol_flag;
+  else
+    m_BitField &= ~is_symbol_flag;
 }
 
 bool ResolveInfo::isDyn() const
 {
-  return (0 != (m_BitField & DYN_MASK));
-}
-
-bool ResolveInfo::isDefine() const
-{
-  return (0 != (m_BitField & define_flag));
+  return (dynamic_flag == (m_BitField & DYN_MASK));
 }
 
 bool ResolveInfo::isUndef() const
 {
-  return !isDefine();
+  return (undefine_flag == (m_BitField & DESC_MASK));
 }
 
-bool ResolveInfo::isWeak() const
+bool ResolveInfo::isDefine() const
 {
-  return (0 != (m_BitField & weak_flag));
+  return (define_flag == (m_BitField & DESC_MASK));
 }
 
 bool ResolveInfo::isCommon() const
 {
-  return (0 != (m_BitField & common_flag));
+  return (common_flag == (m_BitField & DESC_MASK));
 }
 
 bool ResolveInfo::isIndirect() const
 {
-  return (indirect_flag == (m_BitField & indirect_flag));
+  return (indirect_flag == (m_BitField & DESC_MASK));
+}
+
+bool ResolveInfo::isGlobal() const
+{
+  return (global_flag == (m_BitField & BINDING_MASK));
+}
+
+bool ResolveInfo::isWeak() const
+{
+  return (weak_flag == (m_BitField & BINDING_MASK));
+}
+
+bool ResolveInfo::isLocal() const
+{
+  return (local_flag == (m_BitField & BINDING_MASK));
 }
 
 bool ResolveInfo::hasPLT() const
 {
-  return (0 != (m_BitField & has_plt_flag));
+  return (has_plt_flag == (m_BitField & PLT_MASK));
+}
+
+bool ResolveInfo::isSymbol() const
+{
+  return (is_symbol_flag == (m_BitField & ISSYMBOL_MASK));
 }
 
 unsigned int ResolveInfo::type() const
@@ -152,21 +188,25 @@ unsigned int ResolveInfo::type() const
   return (m_BitField & TYPE_MASK) >> TYPE_OFFSET;
 }
 
+unsigned int ResolveInfo::desc() const
+{
+  return (m_BitField & DESC_MASK) >> DESC_OFFSET;
+}
+
 unsigned int ResolveInfo::binding() const
 {
   if (m_BitField & LOCAL_MASK) {
-    if (m_BitField & BINDING_MASK) {
+    if (m_BitField & GLOBAL_MASK) {
       return ResolveInfo::NoneBinding;
     }
     return ResolveInfo::Local;
   }
-  return m_BitField & BINDING_MASK;
+  return m_BitField & GLOBAL_MASK;
 }
 
 ResolveInfo::Visibility ResolveInfo::visibility() const
 {
-  uint8_t val = (m_BitField & ~VISIBILITY_MASK) >> VISIBILITY_OFFSET;
-  return static_cast<ResolveInfo::Visibility>(val);
+  return static_cast<ResolveInfo::Visibility>((m_BitField & VISIBILITY_MASK) >> VISIBILITY_OFFSET);
 }
 
 bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)

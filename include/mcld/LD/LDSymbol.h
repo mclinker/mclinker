@@ -65,6 +65,10 @@ public:
     return m_pResolveInfo->type();
   }
 
+  unsigned int desc() const {
+    assert(NULL != m_pResolveInfo);
+    return m_pResolveInfo->desc();
+  }
   unsigned int binding() const {
     assert(NULL != m_pResolveInfo);
     return m_pResolveInfo->binding();

@@ -35,7 +35,7 @@ StrSymPool::~StrSymPool()
 ///
 bool StrSymPool::insertSymbol(const llvm::StringRef& pName,
                               bool pIsDyn,
-                              ResolveInfo::Type pType,
+                              ResolveInfo::Desc pDesc,
                               ResolveInfo::Binding pBinding,
                               ResolveInfo::ValueType pValue,
                               ResolveInfo::Visibility pVisibility)
@@ -52,15 +52,15 @@ bool StrSymPool::insertSymbol(const llvm::StringRef& pName,
   bool exist = false;
   ResolveInfo* old_symbol = m_Table.insert(pName, exist);
   ResolveInfo* new_symbol = NULL;
-  new_symbol = (exist && old_symbol->hasAttributes())?
+  new_symbol = (exist && old_symbol->isSymbol())?
     m_Table.getEntryFactory().produce(pName):
     old_symbol;
-  new_symbol->setDyn(pIsDyn);
-  new_symbol->setType(pType);
+  new_symbol->setSource(pIsDyn);
+  new_symbol->setDesc(pDesc);
   new_symbol->setBinding(pBinding);
   new_symbol->setVisibility(pVisibility);
   new_symbol->setValue(pValue);
-  if (!exist || !old_symbol->hasAttributes())
+  if (!exist || !old_symbol->isSymbol())
     return true;
 
   // symbol resolution

@@ -48,10 +48,10 @@ void StaticResolverTest::TearDown()
 TEST_F( StaticResolverTest, MDEF ) {
   ResolveInfo* old_sym = m_pFactory->produce("abc");
   ResolveInfo* new_sym = m_pFactory->produce("abc");
-  new_sym->setType(ResolveInfo::Define);
-  old_sym->setType(ResolveInfo::Define);
-  ASSERT_EQ( mcld::ResolveInfo::Define, new_sym->type());
-  ASSERT_EQ( mcld::ResolveInfo::Define, old_sym->type());
+  new_sym->setDesc(ResolveInfo::Define);
+  old_sym->setDesc(ResolveInfo::Define);
+  ASSERT_EQ( mcld::ResolveInfo::Define, new_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Define, old_sym->desc());
   ASSERT_TRUE( mcld::ResolveInfo::define_flag == new_sym->info());
   ASSERT_TRUE( mcld::ResolveInfo::define_flag == old_sym->info());
   bool override = true;
@@ -91,15 +91,15 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
   ResolveInfo* old_sym = m_pFactory->produce("abc");
   ResolveInfo* new_sym = m_pFactory->produce("abc");
   
-  new_sym->setType(ResolveInfo::Common);
-  old_sym->setType(ResolveInfo::Common);
+  new_sym->setDesc(ResolveInfo::Common);
+  old_sym->setDesc(ResolveInfo::Common);
   new_sym->setSize(999);
   old_sym->setSize(0);
   new_sym->setValue(999);
   old_sym->setValue(111);
 
-  ASSERT_EQ( mcld::ResolveInfo::Common, new_sym->type());
-  ASSERT_EQ( mcld::ResolveInfo::Common, old_sym->type());
+  ASSERT_EQ( mcld::ResolveInfo::Common, new_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Common, old_sym->desc());
 
   ASSERT_TRUE( mcld::ResolveInfo::common_flag == new_sym->info());
   ASSERT_TRUE( mcld::ResolveInfo::common_flag == old_sym->info());
@@ -116,16 +116,16 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
   ResolveInfo* old_sym = m_pFactory->produce("abc");
   ResolveInfo* new_sym = m_pFactory->produce("abc");
   
-  new_sym->setType(ResolveInfo::Common);
-  old_sym->setType(ResolveInfo::Common);
+  new_sym->setDesc(ResolveInfo::Common);
+  old_sym->setDesc(ResolveInfo::Common);
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setSize(999);
   old_sym->setSize(0);
   new_sym->setValue(999);
   old_sym->setValue(111);
 
-  ASSERT_EQ( ResolveInfo::Common, new_sym->type());
-  ASSERT_EQ( ResolveInfo::Common, old_sym->type());
+  ASSERT_EQ( ResolveInfo::Common, new_sym->desc());
+  ASSERT_EQ( ResolveInfo::Common, old_sym->desc());
   ASSERT_EQ( ResolveInfo::Weak, old_sym->binding());
 
   ASSERT_TRUE( ResolveInfo::common_flag == new_sym->info());
@@ -144,16 +144,16 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   ResolveInfo* old_sym = m_pFactory->produce("abc");
   ResolveInfo* new_sym = m_pFactory->produce("abc");
   
-  old_sym->setType(ResolveInfo::Common);
+  old_sym->setDesc(ResolveInfo::Common);
   old_sym->setSize(0);
   old_sym->setValue(111);
 
-  new_sym->setType(ResolveInfo::Define);
+  new_sym->setDesc(ResolveInfo::Define);
   new_sym->setSize(999);
   new_sym->setValue(999);
 
-  ASSERT_EQ( ResolveInfo::Define, new_sym->type());
-  ASSERT_EQ( ResolveInfo::Common, old_sym->type());
+  ASSERT_EQ( ResolveInfo::Define, new_sym->desc());
+  ASSERT_EQ( ResolveInfo::Common, old_sym->desc());
 
   ASSERT_TRUE( ResolveInfo::define_flag == new_sym->info());
   ASSERT_TRUE( ResolveInfo::common_flag == old_sym->info());
@@ -167,5 +167,182 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   
   ASSERT_STREQ("definition of 'abc' is overriding common.", m_pResolver->mesg().c_str() );
 
+}
+
+TEST_F( StaticResolverTest, SetUpDesc)
+{
+  ResolveInfo* sym = m_pFactory->produce("abc");
+  
+  sym->setIsSymbol(true);
+
+//  ASSERT_FALSE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setIsSymbol(false);
+  ASSERT_FALSE( sym->isSymbol() );
+//  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setDesc(ResolveInfo::Define);
+  ASSERT_FALSE( sym->isSymbol() );
+//  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_TRUE( sym->isDefine() );
+  ASSERT_FALSE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( ResolveInfo::Define, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setDesc(ResolveInfo::Common);
+  ASSERT_FALSE( sym->isSymbol() );
+//  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_FALSE( sym->isUndef() );
+  ASSERT_TRUE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( ResolveInfo::Common, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setDesc(ResolveInfo::Indirect);
+  ASSERT_FALSE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_FALSE( sym->isUndef() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_TRUE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( ResolveInfo::Indirect, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setDesc(ResolveInfo::Undefined);
+  ASSERT_FALSE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+}
+
+TEST_F( StaticResolverTest, SetUpBinding)
+{
+  ResolveInfo* sym = m_pFactory->produce("abc");
+  
+  sym->setIsSymbol(true);
+
+//  ASSERT_FALSE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( 0, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setBinding(ResolveInfo::Global);
+  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_TRUE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( ResolveInfo::Global, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setBinding(ResolveInfo::Weak);
+  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_FALSE( sym->isGlobal() );
+  ASSERT_TRUE( sym->isWeak() );
+  ASSERT_FALSE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( ResolveInfo::Weak, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
+
+  sym->setBinding(ResolveInfo::Local);
+  ASSERT_TRUE( sym->isSymbol() );
+  ASSERT_FALSE( sym->isGlobal() );
+  ASSERT_FALSE( sym->isWeak() );
+  ASSERT_TRUE( sym->isLocal() );
+  ASSERT_FALSE( sym->isDyn() );
+  ASSERT_FALSE( sym->isDefine() );
+  ASSERT_TRUE( sym->isUndef() );
+  ASSERT_FALSE( sym->isCommon() );
+  ASSERT_FALSE( sym->isIndirect() );
+  ASSERT_FALSE( sym->hasPLT() );
+  ASSERT_EQ( ResolveInfo::NoType, sym->type());
+  ASSERT_EQ( 0, sym->desc() );
+  ASSERT_EQ( ResolveInfo::Local, sym->binding() );
+  ASSERT_EQ( 0, sym->other() );
 }
 

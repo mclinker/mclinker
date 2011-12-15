@@ -51,7 +51,7 @@ public:
   /// @return if the table is changed, return true. Otherwise, return false
   bool insertSymbol(const llvm::StringRef& pName,
                     bool pIsDyn,
-                    ResolveInfo::Type pType,
+                    ResolveInfo::Desc pDesc,
                     ResolveInfo::Binding pBinding,
                     ResolveInfo::ValueType pValue,
                     ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
