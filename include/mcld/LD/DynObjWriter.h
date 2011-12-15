@@ -34,6 +34,8 @@ protected:
 public:
   virtual ~DynObjWriter() { }
 
+  virtual bool WriteObject() { return false; }
+
   TargetLDBackend& target()
   { return m_TargetLDBackend; }
 

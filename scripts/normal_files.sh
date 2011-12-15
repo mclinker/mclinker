@@ -19,9 +19,9 @@ function copy_template_header
 {
 	local NAME=$1
 	local DEPLOYMENT=$2
-	local TARGET_FILE="${BOLDTOP}/include/mcld/${DEPLOYMENT}/${NAME}.h";
-	local SOURCE_FILE="${BOLDTOP}/templates/header.h";
-	mkdir -p ${BOLDTOP}/include/mcld/${DEPLOYMENT}
+	local TARGET_FILE="${MCLINKERTOP}/include/mcld/${DEPLOYMENT}/${NAME}.h";
+	local SOURCE_FILE="${MCLINKERTOP}/templates/header.h";
+	mkdir -p ${MCLINKERTOP}/include/mcld/${DEPLOYMENT}
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
 }
@@ -30,9 +30,9 @@ function copy_template_impl
 {
 	local NAME=$1
 	local DEPLOYMENT=$2
-	local TARGET_FILE="${BOLDTOP}/lib/${DEPLOYMENT}/${NAME}.cpp";
-	local SOURCE_FILE="${BOLDTOP}/templates/impl.cpp";
-	mkdir -p ${BOLDTOP}/lib/${DEPLOYMENT}
+	local TARGET_FILE="${MCLINKERTOP}/lib/${DEPLOYMENT}/${NAME}.cpp";
+	local SOURCE_FILE="${MCLINKERTOP}/templates/impl.cpp";
+	mkdir -p ${MCLINKERTOP}/lib/${DEPLOYMENT}
 	cp ${SOURCE_FILE} ${TARGET_FILE}
 	echo "${TARGET_FILE}";
 }

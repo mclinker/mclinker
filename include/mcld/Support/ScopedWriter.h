@@ -17,9 +17,9 @@
 
 namespace mcld
 {
-
-#define WRITE_SAME_DATA(TYPE) void WriteSame##TYPE ( TYPE pValue ) { \
-    if(m_Cursor+sizeof(TYPE) < m_Region->size()) { \
+// For performance concern, WriteSameuint(8/16/32)_t takes uint32_t
+#define WRITE_SAME_DATA(TYPE) void WriteSame##TYPE (uint32_t pValue) { \
+    if(m_Cursor+sizeof(TYPE) <= m_Region->size()) { \
       *(( TYPE *)(m_Buffer+m_Cursor)) = pValue; \
       m_Cursor += sizeof(TYPE); \
     } \
@@ -44,6 +44,10 @@ public:
 
   ~ScopedWriter()
   { m_Region->sync(); }
+
+  void Write8(uint32_t pValue) {
+    WriteSameuint8_t(pValue);
+  }
 
   void Write16(uint32_t pValue) {
     if (m_SameEndian)
@@ -74,7 +78,7 @@ private:
 
 
   void WriteOpposite16(uint32_t pValue) {
-    if(m_Cursor+sizeof(uint16_t) < m_Region->size()) { 
+    if(m_Cursor+sizeof(uint16_t) <= m_Region->size()) {
       m_Buffer[m_Cursor] = (uint8_t)(pValue >> 8);
       m_Buffer[m_Cursor+1] = (uint8_t)pValue;
     } 
@@ -83,7 +87,7 @@ private:
   }
 
   void WriteOpposite32(uint32_t pValue) {
-    if(m_Cursor+sizeof(uint32_t) < m_Region->size()) { 
+    if(m_Cursor+sizeof(uint32_t) <= m_Region->size()) {
       m_Buffer[m_Cursor]   = (uint8_t)(pValue >> 24);
       m_Buffer[m_Cursor+1] = (uint8_t)(pValue >> 16);
       m_Buffer[m_Cursor+2] = (uint8_t)(pValue >> 8);
@@ -93,8 +97,17 @@ private:
       llvm::report_fatal_error("Memory access is out of boundary!"); 
   }
 
+  void WriteSameuint64_t(uint64_t pValue) {
+    if(m_Cursor+sizeof(uint64_t) <= m_Region->size()) {
+      *((uint64_t *)(m_Buffer+m_Cursor)) = pValue; \
+      m_Cursor += sizeof(uint64_t); \
+    }
+    else
+      llvm::report_fatal_error("Memory access is out of boundary!");
+  }
+
   void WriteOpposite64(uint64_t pValue) {
-    if(m_Cursor+sizeof(uint64_t) < m_Region->size()) { 
+    if(m_Cursor+sizeof(uint64_t) <= m_Region->size()) {
       m_Buffer[m_Cursor]   = (uint8_t)(pValue >> 56);
       m_Buffer[m_Cursor+1] = (uint8_t)(pValue >> 48);
       m_Buffer[m_Cursor+2] = (uint8_t)(pValue >> 40);

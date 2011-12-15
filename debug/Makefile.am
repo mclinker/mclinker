@@ -44,6 +44,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
+	${INCDIR}/Support/ScopedWriter.h \
+	${LIBDIR}/Support/ScopedWriter.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \

@@ -139,7 +139,7 @@ bool ResolveInfo::isCommon() const
 
 bool ResolveInfo::isIndirect() const
 {
-  return (0 != (m_BitField & indirect_flag));
+  return (indirect_flag == (m_BitField & indirect_flag));
 }
 
 bool ResolveInfo::hasPLT() const

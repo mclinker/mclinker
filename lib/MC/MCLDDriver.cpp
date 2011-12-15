@@ -227,7 +227,11 @@ bool MCLDDriver::relocate()
 /// emitOutput - emit the output file.
 bool MCLDDriver::emitOutput()
 {
-  return true;
+  if (m_LDInfo.output().type() == MCLDFile::DynObj) {
+    DynObjWriter *dsoWriter = m_LDBackend.getDynObjWriter();
+    return dsoWriter->WriteObject();
+  }
+  return false;
 }
 
 } //end namespace mcld

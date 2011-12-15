@@ -27,7 +27,8 @@ class ELFDynObjWriter : public DynObjWriter, private ELFWriter
 {
 public:
   ELFDynObjWriter(TargetLDBackend& pBackend, MCLinker& pLinker);
-
+  bool WriteObject();
+  bool WriteHeader();
   ~ELFDynObjWriter();
 
 private:

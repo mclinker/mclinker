@@ -67,14 +67,14 @@ private:
    */
   enum
   {
-    D    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::define_flag,
-    w_D  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::define_flag,
-    d_D  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
-    wd_D = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
     U    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,
     w_U  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::undefine_flag,
     d_U  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,
     wd_U = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::undefine_flag,
+    D    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::define_flag,
+    w_D  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::define_flag,
+    d_D  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
+    wd_D = ResolveInfo::weak_flag   | ResolveInfo::dynamic_flag | ResolveInfo::define_flag,
     C    = ResolveInfo::global_flag | ResolveInfo::regular_flag | ResolveInfo::common_flag, 
     w_C  = ResolveInfo::weak_flag   | ResolveInfo::regular_flag | ResolveInfo::common_flag,
     d_C  = ResolveInfo::global_flag | ResolveInfo::dynamic_flag | ResolveInfo::common_flag,
@@ -87,14 +87,14 @@ private:
 
   enum ORDINATE
   {
-    D_ORD,
-    w_D_ORD,
-    d_D_ORD,
-    wd_D_ORD,
     U_ORD,
     w_U_ORD,
     d_U_ORD,
     wd_U_ORD,
+    D_ORD,
+    w_D_ORD,
+    d_D_ORD,
+    wd_D_ORD,
     C_ORD,
     w_C_ORD,
     Cs_ORD,
