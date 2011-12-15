@@ -41,19 +41,19 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
    */
   static const enum LinkAction link_action[LAST_ORD][LAST_ORD] =
   {
-    /* new\old  D      w_D    d_D    wd_D   U       w_U     d_U    wd_U   C      w_C,   Cs,    Is */
-    /* D    */ {MDEF,  DEF,   DEF,   DEF,   DEF,    DEF,    DEF,   DEF,   CDEF,  CDEF,  CDEF,  MDEF },
-    /* w_D  */ {NOACT, NOACT, DEFW,  DEFW,  DEFW,   DEFW,   DEFW,  DEFW,  NOACT, NOACT, NOACT, NOACT},
-    /* d_D  */ {NOACT, NOACT, NOACT, NOACT, MDEFD,  MDEFD,  DEFD,  DEFD,  NOACT, NOACT, NOACT, MDEF },
-    /* wd_D */ {NOACT, NOACT, NOACT, NOACT, MDEFWD, MDEFWD, DEFWD, DEFWD, NOACT, NOACT, NOACT, NOACT},
-    /* U    */ {NOACT, NOACT, DUND,  DUNDW, NOACT,  UND,    UND,   UND,   NOACT, NOACT, NOACT, REFC },
-    /* w_U  */ {NOACT, NOACT, DUND,  DUNDW, NOACT,  NOACT,  NOACT, WEAK,  NOACT, NOACT, NOACT, REFC },
-    /* d_U  */ {NOACT, NOACT, NOACT, NOACT, NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
-    /* wd_U */ {NOACT, NOACT, NOACT, NOACT, NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
-    /* C    */ {CREF,  COM,   COM,   COM,   COM,    COM,    COM,   COM,   MBIG,  COM,   BIG,   REFC },
-    /* w_C  */ {NOACT, NOACT, NOACT, NOACT, COM,    COM,    COM,   COM,   NOACT, NOACT, NOACT, REFC },
-    /* Cs   */ {NOACT, NOACT, NOACT, NOACT, COM,    COM,    COM,   COM,   MBIG,  MBIG,  MBIG,  REFC },
-    /* Is   */ {MDEF,  IND,   IND,   IND,   IND,    IND,    IND,   IND,   CIND,  CIND,  CIND,  MIND }
+    /* new\old  U       w_U     d_U    wd_U   D      w_D    d_D    wd_D   C      w_C,   Cs,    Is   */
+    /* U    */ {NOACT,  UND,    UND,   UND,   NOACT, NOACT, DUND,  DUNDW, NOACT, NOACT, NOACT, REFC },
+    /* w_U  */ {NOACT,  NOACT,  NOACT, WEAK,  NOACT, NOACT, DUND,  DUNDW, NOACT, NOACT, NOACT, REFC },
+    /* d_U  */ {NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
+    /* wd_U */ {NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
+    /* D    */ {DEF,    DEF,    DEF,   DEF,   MDEF,  DEF,   DEF,   DEF,   CDEF,  CDEF,  CDEF,  MDEF },
+    /* w_D  */ {DEFW,   DEFW,   DEFW,  DEFW,  NOACT, NOACT, DEFW,  DEFW,  NOACT, NOACT, NOACT, NOACT},
+    /* d_D  */ {MDEFD,  MDEFD,  DEFD,  DEFD,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, MDEF },
+    /* wd_D */ {MDEFWD, MDEFWD, DEFWD, DEFWD, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT},
+    /* C    */ {COM,    COM,    COM,   COM,   CREF,  COM,   COM,   COM,   MBIG,  COM,   BIG,   REFC },
+    /* w_C  */ {COM,    COM,    COM,   COM,   NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
+    /* Cs   */ {COM,    COM,    COM,   COM,   NOACT, NOACT, NOACT, NOACT, MBIG,  MBIG,  MBIG,  REFC },
+    /* Is   */ {IND,    IND,    IND,   IND,   MDEF,  IND,   IND,   IND,   CIND,  CIND,  CIND,  MIND }
   };
 
   // Special cases:
@@ -201,7 +201,7 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       /* Fall through */
       case MDEF: {       /* multiple definition error.  */
-        m_Mesg = std::string("multiple definition of `") +
+        m_Mesg = std::string("multiple definitions of `") +
                  pNew.name() +
                  std::string("'.");
         result = Resolver::Abort;
