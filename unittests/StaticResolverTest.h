@@ -14,6 +14,7 @@
 namespace mcld
 {
 class StaticResolver;
+class ResolveInfoFactory;
 
 } // namespace for mcld
 
@@ -42,6 +43,7 @@ public:
 
 protected:
 	mcld::StaticResolver* m_pResolver;
+	mcld::ResolveInfoFactory* m_pFactory;
 };
 
 } // namespace of mcldtest

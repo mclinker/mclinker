@@ -139,6 +139,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       case CDEF: {       /* redefine existing common symbol.  */
         // We've seen a common symbol and now we see a definition.  The
         // definition overrides.
+        //
+	// NOTE: m_Mesg uses 'name' instead of `name' for being compatible to GNU ld.
         m_Mesg = std::string("definition of '") +
                  old->name() +
                  std::string("' is overriding common.");

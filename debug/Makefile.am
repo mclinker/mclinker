@@ -207,7 +207,9 @@ SOURCE = ${NORMAL_SOURCE} \
         ${UNITTEST}/LDSymbolTest.h \
         ${UNITTEST}/LDSymbolTest.cpp \
         ${UNITTEST}/MCFragmentRefTest.h \
-        ${UNITTEST}/MCFragmentRefTest.cpp
+        ${UNITTEST}/MCFragmentRefTest.cpp \
+        ${UNITTEST}/StaticResolverTest.h \
+        ${UNITTEST}/StaticResolverTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
