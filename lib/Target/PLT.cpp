@@ -13,13 +13,16 @@ using namespace mcld;
 
 //===--------------------------------------------------------------------===//
 // PLTEntry
-PLTEntry::PLTEntry()
-  : llvm::MCFragment(llvm::MCFragment::FT_PLT)
+PLTEntry::PLTEntry(unsigned int size, unsigned char* content)
+  : m_EntrySize(size), m_pContent(content),
+    llvm::MCFragment(llvm::MCFragment::FT_PLT)
 {
 }
 
-PLT::Entry::~PLTEntry()
+PLTEntry::~PLTEntry()
 {
+  delete m_pContent;
+  m_pContent = 0;
 }
 
 //===--------------------------------------------------------------------===//

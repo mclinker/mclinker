@@ -13,15 +13,10 @@ using namespace mcld;
 
 //==========================
 // GOT
-GOT::GOT(unsigned int pEntrySize)
+GOTEntry::GOTEntry(unsigned int size, unsigned char* content)
   : llvm::MCFragment(llvm::MCFragment::FT_GOT),
-    m_EntrySize(pEntrySize),
-    m_EntryNum(0),
-    m_Table(0) {
+    m_EntrySize(size), m_pContent(content) {
 }
 
-GOT::~GOT()
-{
-  if (0 != m_Table)
-    free(m_Table);
+GOTEntry::~GOTEntry() {
 }

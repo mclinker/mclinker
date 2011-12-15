@@ -49,6 +49,10 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
+	${INCDIR}/Target/PLT.h\
+	${LIBDIR}/Target/PLT.cpp\
+	${INCDIR}/Target/GOT.h \
+	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
 	${INCDIR}/Target/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \

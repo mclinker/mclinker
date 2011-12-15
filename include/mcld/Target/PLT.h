@@ -25,44 +25,37 @@ class LDSymbol;
 class PLTEntry : public llvm::MCFragment
 {
 public:
-  PLTEntry();
+  PLTEntry(unsigned int size, unsigned char* content);
   virtual ~PLTEntry();
-
-  PLTEntry* cloneFirstEntry() const
-  { return doCloneFirstEntry(); }
-
-  PLTEntry* cloneNormalEntry() const
-  { return doCloneNormalEntry(); }
-
-  /**
-  PLTEntry* cloneTLSDescEntry() const
-  { return doTLSDescEntry(); }
-  **/
-
-  unsigned char* getContent() const
-  { return doGetContent(); }
 
   static bool classof(const MCFragment* F)
   { return F->getKind() == llvm::MCFragment::FT_PLT; }
 
-  static bool classof(const Entry*)
+  static bool classof(const PLTEntry*)
   { return true; }
 
-private:
-  virtual PLTEntry* doCloneFirstEntry() = 0;
-  virtual PLTEntry* doCloneNormalEntry() = 0;
-  // virtual PLTEntry* doCloneTLSDescEntry() = 0;
-  virtual unsigned char* doGetContent() = 0;
+  unsigned int getEntrySize() const {
+    return m_EntrySize;
+  }
+  unsigned char* getContent() const {
+    return m_pContent;
+  }
 
+protected:
+  virtual void initPLTEntry() = 0;
+
+protected:
+  unsigned int m_EntrySize;
+  unsigned char* m_pContent;
 };
 
 /** \class PLT
  *  \brief Procedure linkage table
  */
-class PLT 
+class PLT
 {
 public:
-  typedef iplist<PLTEntry> EntryListType;
+  typedef llvm::iplist<llvm::MCFragment> EntryListType;
 
 public:
   PLT(GOT& pGOT);

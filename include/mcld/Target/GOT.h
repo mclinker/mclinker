@@ -16,33 +16,39 @@
 namespace mcld
 {
 
+
+
 /** \class GOT
  *  \brief Global Offset Table
  */
-class GOT : public llvm::MCFragment
+class GOTEntry : public llvm::MCFragment
 {
 public:
-  GOT(unsigned int pEntrySize);
-  ~GOT();
+  GOTEntry(unsigned int size ,
+           unsigned char* content);
 
-  /** void addEntry(); **/
-
-  unsigned int entrySize() const
-  { return m_EntrySize; }
-
-  unsigned int entryNum() const
-  { return m_EntryNum; }
+  virtual ~GOTEntry();
 
   static bool classof(llvm::MCFragment* F)
   { return (F->getKind() == llvm::MCFragment::FT_GOT); }
 
-  static bool classof(GOT* F)
+  static bool classof(GOTEntry* F)
   { return true; }
 
-private:
+  unsigned int getEntrySize() const {
+    return m_EntrySize;
+  }
+
+  unsigned char* getContent() const {
+    return m_pContent;
+  }
+
+protected:
+  virtual void initGOTEntry() = 0;
+
+protected:
   unsigned int m_EntrySize;
-  unsigned int m_EntryNum;
-  unsigned char* m_Table; // FIXME: gold uses vector<Got_entry>
+  unsigned char* m_pContent;
 };
 
 } // namespace of mcld
