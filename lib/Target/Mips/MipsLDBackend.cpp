@@ -29,6 +29,11 @@ MipsRelocationFactory* MipsGNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
+uint32_t MipsGNULDBackend::machine() const
+{
+  return EM_MIPS;
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

@@ -25,6 +25,8 @@ public:
   /// getRelocFactory - co-variant return type
   MipsRelocationFactory* getRelocFactory();
 
+  uint32_t machine() const;
+
 private:
   MipsRelocationFactory* m_pRelocFactory;
 };
