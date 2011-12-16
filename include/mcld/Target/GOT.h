@@ -17,25 +17,6 @@
 namespace mcld
 {
 
-/** \class GOT
- *  \brief The Global Offset Table
- */
-class GOT
-{
-protected:
-  GOT(LDSection* pSection);
-
-public:
-  virtual ~GOT();
-
-  LDSection& getSection();
-
-  const LDSection& getSection() const;
-
-protected:
-  LDSection* m_pSection;
-};
-
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
  */
@@ -61,6 +42,25 @@ protected:
 protected:
   unsigned int m_EntrySize;
   unsigned char* m_pContent;
+};
+
+/** \class GOT
+ *  \brief The Global Offset Table
+ */
+class GOT
+{
+protected:
+  GOT(LDSection* pSection);
+
+public:
+  virtual ~GOT();
+
+  LDSection& getSection();
+
+  const LDSection& getSection() const;
+
+protected:
+  LDSection* m_pSection;
 };
 
 } // namespace of mcld
