@@ -16,8 +16,8 @@
 #include "mcld/ADT/SizeTraits.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/MemoryArea.h"
-#include "llvm/ADT/ilist.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/ilist.h>
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld
 {

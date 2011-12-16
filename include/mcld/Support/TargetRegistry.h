@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
-#include "llvm/Support/TargetRegistry.h"
+#include <llvm/Support/TargetRegistry.h>
 #include <list>
 
 namespace llvm {

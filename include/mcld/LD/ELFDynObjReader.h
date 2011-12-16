@@ -13,7 +13,7 @@
 #endif
 #include "mcld/LD/ELFReader.h"
 #include "mcld/LD/DynObjReader.h"
-#include "llvm/Support/system_error.h"
+#include <llvm/Support/system_error.h>
 
 namespace mcld
 {

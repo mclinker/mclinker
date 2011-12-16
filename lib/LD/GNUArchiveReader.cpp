@@ -10,8 +10,8 @@
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/LD/GNUArchiveReader.h"
 
-#include "llvm/Support/MemoryBuffer.h"
-#include "llvm/Support/system_error.h"
+#include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/system_error.h>
 
 #include <sstream>
 #include <string>

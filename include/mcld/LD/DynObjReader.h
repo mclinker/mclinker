@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 #include "mcld/LD/LDReader.h"
-#include "llvm/Support/system_error.h"
+#include <llvm/Support/system_error.h>
 
 namespace mcld
 {

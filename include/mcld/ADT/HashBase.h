@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 #include <cstdlib>
 
 namespace mcld {

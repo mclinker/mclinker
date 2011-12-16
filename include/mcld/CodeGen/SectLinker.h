@@ -17,8 +17,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/ADT/StringRef.h"
-#include "llvm/CodeGen/MachineFunctionPass.h"
+#include <llvm/ADT/StringRef.h>
+#include <llvm/CodeGen/MachineFunctionPass.h>
 #include "mcld/Support/FileSystem.h"
 #include "mcld/MC/MCLDInfo.h"
 #include <vector>

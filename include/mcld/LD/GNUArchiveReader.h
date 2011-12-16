@@ -14,7 +14,7 @@
 
 #include "mcld/LD/ArchiveReader.h"
 #include "mcld/Support/Path.h"
-#include "llvm/ADT/OwningPtr.h"
+#include <llvm/ADT/OwningPtr.h>
 
 #include <vector>
 #include <string>

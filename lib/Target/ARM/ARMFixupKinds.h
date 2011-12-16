@@ -9,7 +9,7 @@
 #ifndef MCLD_LIB_TARGET_ARM_ARM_FIXUP_KINDS_H_
 #define MCLD_LIB_TARGET_ARM_ARM_FIXUP_KINDS_H_
 
-#include "llvm/MC/MCFixup.h"
+#include <llvm/MC/MCFixup.h>
 
 namespace mcld {
 namespace ARM {

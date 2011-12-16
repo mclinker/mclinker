@@ -15,7 +15,7 @@
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/LD/ResolveInfo.h"
 #include "mcld/MC/MCFragmentRef.h"
-#include "llvm/MC/MCAssembler.h"
+#include <llvm/MC/MCAssembler.h>
 #include <assert.h>
 
 namespace mcld

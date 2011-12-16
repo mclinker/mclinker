@@ -13,7 +13,7 @@
 #endif
 #include "mcld/Support/Directory.h"
 #include "mcld/Support/FileSystem.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 #include <string>
 
 namespace mcld

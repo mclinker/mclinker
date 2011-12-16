@@ -13,10 +13,10 @@
 #include <gtest.h>
 #endif
 
-#include "llvm/MC/MCSection.h"
-#include "llvm/MC/SectionKind.h"
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/DataTypes.h"
+#include <llvm/MC/MCSection.h>
+#include <llvm/MC/SectionKind.h>
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld {
 

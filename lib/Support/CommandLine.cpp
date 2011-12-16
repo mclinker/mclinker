@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "mcld/Support/CommandLine.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 
 using namespace llvm;
 using namespace llvm::cl;

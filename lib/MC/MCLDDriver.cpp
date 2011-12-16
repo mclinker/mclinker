@@ -19,7 +19,7 @@
 #include "mcld/Support/RealPath.h"
 #include "mcld/Target/TargetLDBackend.h"
 
-#include "llvm/Support/ErrorHandling.h"
+#include <llvm/Support/ErrorHandling.h>
 
 namespace mcld {
 

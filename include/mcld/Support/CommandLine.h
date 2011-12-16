@@ -11,8 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/CommandLine.h"
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/CommandLine.h>
 #include "mcld/Support/FileSystem.h"
 #include "mcld/MC/MCLDDirectory.h"
 

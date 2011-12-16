@@ -17,7 +17,7 @@
 #include <gtest.h>
 #endif
 
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/raw_ostream.h>
 #include <functional>
 #include <string>
 

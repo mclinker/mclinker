@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/MC/MCObjectWriter.h"
+#include <llvm/MC/MCObjectWriter.h>
 
 
 namespace llvm

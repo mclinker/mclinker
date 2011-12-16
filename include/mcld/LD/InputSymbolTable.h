@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef INPUTSYMBOLTABLE_H
 #define INPUTSYMBOLTABLE_H
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 #include "mcld/LD/SymbolTableIF.h"
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>

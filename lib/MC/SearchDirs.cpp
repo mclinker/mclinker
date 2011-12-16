@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "llvm/Support/ErrorHandling.h"
+#include <llvm/Support/ErrorHandling.h>
 
 #include "mcld/MC/SearchDirs.h"
 #include "mcld/Support/FileSystem.h"

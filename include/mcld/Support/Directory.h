@@ -16,7 +16,7 @@
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/Path.h"
 #include "mcld/Support/PathCache.h"
-#include "llvm/Support/Allocator.h"
+#include <llvm/Support/Allocator.h>
 
 
 namespace mcld {

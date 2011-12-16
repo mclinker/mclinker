@@ -23,7 +23,7 @@
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/GCFactory.h"
 #include "mcld/Support/MemoryArea.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 #include <string>
 
 

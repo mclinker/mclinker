@@ -9,7 +9,7 @@
 #include "ARM.h"
 #include "ARMLDBackend.h"
 #include "mcld/Support/TargetRegistry.h"
-#include "llvm/ADT/Triple.h"
+#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
 

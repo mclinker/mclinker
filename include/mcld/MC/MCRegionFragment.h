@@ -14,7 +14,7 @@
 #endif
 
 #include "mcld/Support/MemoryRegion.h"
-#include "llvm/MC/MCAssembler.h"
+#include <llvm/MC/MCAssembler.h>
 
 namespace mcld
 {

@@ -10,7 +10,7 @@
 #include "X86LDBackend.h"
 
 #include "mcld/Support/TargetRegistry.h"
-#include "llvm/ADT/Triple.h"
+#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
 

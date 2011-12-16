@@ -9,7 +9,7 @@
 
 #include "mcld/LD/StrSymPool.h"
 #include "mcld/LD/Resolver.h"
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/raw_ostream.h>
 
 using namespace mcld;
 

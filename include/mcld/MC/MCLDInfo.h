@@ -20,7 +20,7 @@
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/MemoryAreaFactory.h"
 
-#include "llvm/ADT/Triple.h"
+#include <llvm/ADT/Triple.h>
 #include <string>
 
 namespace mcld

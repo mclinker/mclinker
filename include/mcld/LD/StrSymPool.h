@@ -14,7 +14,7 @@
 
 #include "mcld/ADT/HashTable.h"
 #include "mcld/ADT/StringHash.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/LD/ResolveInfo.h"
 #include "mcld/LD/ResolveInfoFactory.h"

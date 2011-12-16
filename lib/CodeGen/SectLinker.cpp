@@ -23,21 +23,21 @@
 #include "mcld/Support/RealPath.h"
 #include "mcld/Target/TargetLDBackend.h"
 
-#include "llvm/CodeGen/AsmPrinter.h"
-#include "llvm/CodeGen/MachineFunction.h"
-#include "llvm/MC/MCObjectWriter.h"
-#include "llvm/Module.h"
-#include "llvm/Support/CommandLine.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/CodeGen/AsmPrinter.h>
+#include <llvm/CodeGen/MachineFunction.h>
+#include <llvm/MC/MCObjectWriter.h>
+#include <llvm/Module.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <stack>
 #include <string>
 
 #ifdef MCLD_DEBUG
-#include "llvm/ADT/SmallVector.h"
-#include "llvm/Support/FileSystem.h"
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/Support/FileSystem.h>
 #endif
 
 using namespace mcld;

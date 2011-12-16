@@ -10,7 +10,7 @@
 #include "mcld/Support/MemoryArea.h"
 #include "mcld/Support/MemoryRegion.h"
 #include "mcld/Support/FileSystem.h"
-#include "llvm/Support/ErrorHandling.h"
+#include <llvm/Support/ErrorHandling.h>
 
 #include <cerrno>
 #include <fcntl.h>

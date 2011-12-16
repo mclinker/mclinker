@@ -11,9 +11,9 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/MC/MCAssembler.h"
-#include "llvm/MC/MCInst.h"
-#include "llvm/ADT/SmallString.h"
+#include <llvm/MC/MCAssembler.h>
+#include <llvm/MC/MCInst.h>
+#include <llvm/ADT/SmallString.h>
 #include "mcld/LD/Relocation.h"
 
 namespace mcld

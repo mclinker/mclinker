@@ -11,8 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "llvm/MC/MCAssembler.h"
-#include "llvm/ADT/ilist.h"
+#include <llvm/MC/MCAssembler.h>
+#include <llvm/ADT/ilist.h>
 
 namespace mcld
 {

@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 
-#include "llvm/Support/ELF.h"
+#include <llvm/Support/ELF.h>
 
 namespace mcld
 {

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/Path.h"
-#include "llvm/ADT/StringRef.h"
+#include <llvm/ADT/StringRef.h>
 
 #include <locale>
 #include <stdio.h>
