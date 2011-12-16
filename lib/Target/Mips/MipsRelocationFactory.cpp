@@ -90,3 +90,21 @@ none(Relocation& pReloc, const MipsRelocationFactory& pParent)
   return MipsRelocationFactory::OK;
 }
 
+// R_MIPS_32: S + A
+MipsRelocationFactory::Result
+abs32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+  pReloc.target() = pReloc.symValue() + addend;
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_REL32: A - EA + S
+MipsRelocationFactory::Result
+rel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+  pReloc.target() = addend - pReloc.place(pParent.getLayout())
+                           + pReloc.symValue();
+  return MipsRelocationFactory::OK;
+}

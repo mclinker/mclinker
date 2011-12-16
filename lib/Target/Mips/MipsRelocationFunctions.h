@@ -8,14 +8,16 @@
 //===----------------------------------------------------------------------===//
 
 #define DECL_MIPS_APPLY_RELOC_FUNCS \
-static MipsRelocationFactory::Result none(Relocation& pEntry, const MipsRelocationFactory& pParent);
+static MipsRelocationFactory::Result none (Relocation& pEntry, const MipsRelocationFactory& pParent); \
+static MipsRelocationFactory::Result abs32(Relocation& pEntry, const MipsRelocationFactory& pParent); \
+static MipsRelocationFactory::Result rel32(Relocation& pEntry, const MipsRelocationFactory& pParent);
 
 
 #define DECL_MIPS_APPLY_RELOC_FUNC_PTRS \
   { &none,  0, "R_MIPS_NONE"    },  \
   { &none,  1, "R_MIPS_16"      },  \
-  { &none,  2, "R_MIPS_32"      },  \
-  { &none,  3, "R_MIPS_REL32"   },  \
+  { &abs32, 2, "R_MIPS_32"      },  \
+  { &rel32, 3, "R_MIPS_REL32"   },  \
   { &none,  4, "R_MIPS_26"      },  \
   { &none,  5, "R_MIPS_HI16"    },  \
   { &none,  6, "R_MIPS_LO16"    },  \
