@@ -131,7 +131,7 @@ public:
   // find an existing space to hold the MemoryRegion.
   // if MemoryArea does not find such space, then it creates a new space and
   // assign a MemoryRegion into the space.
-  MemoryRegion* request(off_t pOffset, size_t pLength);
+  MemoryRegion* request(off_t pOffset, size_t pLength, bool iswrite = true);
 
   // release - release a MemoryRegion.
   // release a MemoryRegion does not cause 

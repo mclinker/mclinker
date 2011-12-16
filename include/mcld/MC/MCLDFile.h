@@ -72,7 +72,16 @@ public:
   { m_Path = pPath; }
 
   void setMemArea(MemoryArea* pMemArea)
-  { m_pMemArea = pMemArea; }
+  {
+    struct stat sb;
+    if (stat(m_Path.c_str(), &sb))
+      return;
+    if (!S_ISREG(sb.st_mode))
+      return;
+
+    m_filesize = (size_t)sb.st_size;
+    m_pMemArea = pMemArea;
+  }
 
   // -----  observers  ----- //
   unsigned int type() const
@@ -83,6 +92,9 @@ public:
 
   const sys::fs::Path& path() const
   { return m_Path; }
+
+  size_t filesize() const
+  { return m_filesize;}
 
   bool hasContext() const
   { return (0 != m_pContext); }
@@ -108,7 +120,7 @@ protected:
   unsigned int m_Type;
   LDContext *m_pContext;
   MemoryArea* m_pMemArea;
-
+  size_t m_filesize;
 };
 
 /** \class MCLDFileFactory

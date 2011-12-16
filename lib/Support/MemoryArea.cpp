@@ -124,7 +124,7 @@ void MemoryArea::clear(MemoryArea::IOState pState)
 // if the MemorySpace's type is ALLOCATED_ARRAY, the distances of (space.data, r_start)
 // and (r_len, space.size) are zero.
 //
-MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
+MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
 {
   if (!isMapped() || !isGood())
     return 0;
@@ -135,15 +135,18 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength)
     m_SpaceList.push_back(space);
     switch(space->type = policy(pOffset, pLength)) {
       case Space::MMAPED: {
+        int mm_flag = iswrite ? (PROT_READ | PROT_WRITE) : (PROT_READ);
         // compute correct r_start, space.data, and space.size
         // space.data and space.size should be on page boundaries.
         space->file_offset = page_boundary(pOffset);
         space->size = page_offset(pOffset+pLength) - space->file_offset;
         space->data = (Address) ::mmap(NULL,
                              space->size,
-                             PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED,
+                             mm_flag, MAP_FILE | MAP_SHARED,
                              m_FileDescriptor,
                              space->file_offset);
+        if (space->data == MAP_FAILED)
+          llvm::report_fatal_error (std::string("Cannot Mapfile:") + strerror(errno));
         r_start = space->data + (pOffset - space->file_offset);
         break;
       }
