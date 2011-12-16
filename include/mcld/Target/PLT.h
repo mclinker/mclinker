@@ -28,12 +28,6 @@ public:
   PLTEntry(unsigned int size, unsigned char* content);
   virtual ~PLTEntry();
 
-  static bool classof(const MCFragment* F)
-  { return F->getKind() == llvm::MCFragment::FT_PLT; }
-
-  static bool classof(const PLTEntry*)
-  { return true; }
-
   unsigned int getEntrySize() const {
     return m_EntrySize;
   }

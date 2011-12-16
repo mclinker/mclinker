@@ -47,12 +47,6 @@ public:
 
   virtual ~GOTEntry();
 
-  static bool classof(llvm::MCFragment* F)
-  { return (F->getKind() == llvm::MCFragment::FT_GOT); }
-
-  static bool classof(GOTEntry* F)
-  { return true; }
-
   unsigned int getEntrySize() const {
     return m_EntrySize;
   }
