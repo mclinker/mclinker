@@ -18,6 +18,7 @@
 #include <gtest.h>
 #endif
 
+#include <vector>
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/StaticResolver.h>
@@ -42,6 +43,11 @@ class SectionMap;
  */
 class MCLinker
 {
+public:
+  typedef std::vector<llvm::MCSectionData*> SectionListTy;
+  typedef SectionListTy::iterator section_list_iterator;
+  typedef SectionListTy::const_iterator const_section_list_iterator;
+
 public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
@@ -68,12 +74,32 @@ public:
   const SectionMap& getSectionMap() const
   { return m_SectionMap; }
 
+  SectionListTy& getSectionList()
+  { return m_SectionList; }
+
+  const SectionListTy& getSectionList() const
+  { return m_SectionList; }
+
+  // -----  iterators ----- //
+  section_list_iterator section_list_begin()
+  { return m_SectionList.begin(); }
+
+  section_list_iterator section_list_end()
+  { return m_SectionList.end(); }
+
+  const_section_list_iterator section_list_begin() const
+  { return m_SectionList.begin(); }
+
+  const_section_list_iterator section_list_end() const
+  { return m_SectionList.end(); }
+
 private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
   StrSymPool m_StrSymPool;
   SectionFactory m_SectionFactory;
   SectionMap m_SectionMap;
+  std::vector<llvm::MCSectionData*> m_SectionList;
 };
 
 } // namespace of mcld
