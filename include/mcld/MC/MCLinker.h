@@ -23,6 +23,7 @@
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/SectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
+#include <mcld/LD/SectionMap.h>
 
 namespace mcld {
 
@@ -33,6 +34,8 @@ class Layout;
 
 class TargetLDBackend;
 class MCLDInfo;
+
+class SectionMap;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -59,11 +62,18 @@ public:
   const MCLDInfo& getLDInfo() const
   { return m_Info; }
 
+  SectionMap& getSectionMap()
+  { return m_SectionMap; }
+
+  const SectionMap& getSectionMap() const
+  { return m_SectionMap; }
+
 private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
   StrSymPool m_StrSymPool;
   SectionFactory m_SectionFactory;
+  SectionMap m_SectionMap;
 };
 
 } // namespace of mcld
