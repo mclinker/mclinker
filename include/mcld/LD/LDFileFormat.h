@@ -20,6 +20,11 @@ namespace mcld
  */
 class LDFileFormat
 {
+public:
+  enum Kind {
+    GOT
+  };
+
 protected:
   LDFileFormat();
 
