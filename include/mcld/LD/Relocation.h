@@ -36,8 +36,9 @@ private:
   Relocation(Type pType,
              const MCFragmentRef& pTargetRef,
              Address pAddend,
-             DWord pTarget,
-      	     RelocationFactory &pFactory);
+             DWord* pTargetData,
+             RelocationFactory &pParent);
+
 public:
   ~Relocation();
 
@@ -54,7 +55,7 @@ public:
   { return m_Addend; }
 
   /// place - P value
-  Address place(Layout& pLayout) const;
+  Address place(const Layout& pLayout) const;
 
   /// symbol info - binding, type
   const ResolveInfo* symInfo() const
@@ -66,11 +67,11 @@ public:
 
   /// target - the target data to relocate
   DWord& target()
-  { return m_Target; }
+  { return *m_pTargetData; }
 
   /// target - the target data to relocate
   const DWord& target() const
-  { return m_Target; }
+  { return *m_pTargetData; }
 
   /// targetRef - the reference of the target data
   MCFragmentRef& targetRef()
@@ -79,6 +80,8 @@ public:
   /// targetRef - the reference of the target data
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
+
+  void apply();
 
 private:
   /// m_Type - the type of the relocation entries
@@ -90,14 +93,14 @@ private:
   /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
 
-  /// m_Target - target data of the place being relocated
-  DWord m_Target;
+  /// m_TargetData - target data of the place being relocated
+  DWord* m_pTargetData;
 
   /// m_Addend - the addend
   Address m_Addend;
 
-  /// m_pFactory - the RelocationFactory who produce this relocation
-  RelocationFactory *m_pFactory;
+  /// m_Parent - the RelocationFactory who produce this relocation
+  RelocationFactory& m_Parent;
 };
 
 } // namespace of mcld

@@ -21,6 +21,8 @@ class LDSymbol;
 class ResolveInfo;
 class MCFragmentRef;
 class Layout;
+class GOT;
+class TargetLDBackend;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -35,35 +37,42 @@ public:
   typedef Relocation::DWord DWord;
 
 public:
-  RelocationFactory(size_t pNum);
+  RelocationFactory(size_t pNum,
+                    TargetLDBackend& pParent);
+
   virtual ~RelocationFactory();
 
   /// apply - general apply function
-  virtual void apply(Relocation& pRelocation) = 0;
+  virtual void applyRelocation(Relocation& pRelocation) = 0;
 
   // ----- production ----- //
+  /// produce - produce a relocation entry
+  /// @param pType - the type of the relocation entry
+  /// @param pFragRef - the place to apply the relocation
+  /// @param pSameEndian - do host and target machines have the same endians
   Relocation* produce(Type pType,
                       MCFragmentRef& pFragRef,
-                      DWord pTarget,
                       Address pAddend = 0);
+
   void destroy(Relocation* pRelocation);
 
+  void setLayout(const Layout& pLayout);
+
   // ------ observers -----//
-  const Layout* layout() const
-  { return m_Layout; }
+  const Layout& getLayout() const;
 
-  Layout* layout()
-  { return m_Layout; }
+  GOT& getGOT();
 
-  Address gotorg() const
-  { return m_gotOrigin; }
-
-  Address& gotorg()
-  { return m_gotOrigin; }
+  const GOT& getGOT() const;
 
 private:
-  Address m_gotOrigin;
-  Layout *m_Layout;
+  typedef GCFactory<DWord, 0> TargetDataFactory;
+
+private:
+  const Layout* m_pLayout;
+  TargetDataFactory* m_pTargetDataFactory;
+  TargetLDBackend& m_Parent;
+
   // TODO: Add pointer to dynamic relocation table
   /// m_pDynRelocTables
 };
