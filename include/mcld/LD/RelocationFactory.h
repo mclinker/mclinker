@@ -44,7 +44,7 @@ public:
   // ----- production ----- //
   Relocation* produce(Type pType,
                       MCFragmentRef& pFragRef,
-	            	      DWord pTarget,
+                      DWord pTarget,
                       Address pAddend = 0);
   void destroy(Relocation* pRelocation);
 

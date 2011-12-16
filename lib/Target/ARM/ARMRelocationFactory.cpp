@@ -30,14 +30,16 @@ void ARMRelocationFactory::apply(Relocation& pRelocation)
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
     llvm::report_fatal_error(llvm::Twine("Unexpected relocation type while "
-                             "applying relocation on ") +
+                                         "applying relocation on ") +
                              pRelocation.symInfo()->name());
   }
   Pointer perform = m_ApplyFuncs[type];
   ARMRelocStatus stts = (this->*perform)(pRelocation);
   switch (stts) {
     default: {
-      llvm_unreachable("Why are you here?");
+      std::string msg("Wrong ARMRelocStatus while applying relocation on ");
+      msg += pRelocation.symInfo()->name();
+      llvm_unreachable(msg.c_str());
     }
     case STATUS_OK: {
       break;
@@ -49,7 +51,7 @@ void ARMRelocationFactory::apply(Relocation& pRelocation)
     }
     case STATUS_BAD_RELOC: {
       llvm::report_fatal_error(llvm::Twine("Unexpected opcode while "
-                               "applying relocation on ") +
+                                           "applying relocation on ") +
                                pRelocation.symInfo()->name());
       break;
     }
