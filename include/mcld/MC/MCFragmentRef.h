@@ -49,6 +49,7 @@ public:
 
   // -----  dereference  ----- //
   Address deref();
+
   ConstAddress deref() const;
 
   Address operator*()
