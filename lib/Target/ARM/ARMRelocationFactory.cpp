@@ -9,7 +9,6 @@
 
 #include <string>
 #include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
 #include "ARMRelocationFactory.h"
 
@@ -74,7 +73,7 @@ RelocationFactory::DWord ARMRelocationFactory::getThumbBit(Relocation& pReloc)
   // - symbol has type of STT_ARM_TFUNC (?) or
   // - symbol has type of STT_FUNC, is defined and with bit 0 of its value set
   DWord thumbBit =                          //FIXME: check symbol is not undef
-        (((pReloc.symInfo()->type() == llvm::ELF::STT_FUNC) &&
+        (((pReloc.symInfo()->type() == ResolveInfo::Function) &&
         ((pReloc.symInfo()->value()&1) != 0))
         ? 1:0 ) ;
   return thumbBit;

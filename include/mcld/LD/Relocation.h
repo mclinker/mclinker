@@ -37,7 +37,7 @@ private:
              const MCFragmentRef& pTargetRef,
              Address pAddend,
              DWord pTarget,
-	     RelocationFactory &pFactory);
+      	     RelocationFactory &pFactory);
 public:
   ~Relocation();
 
