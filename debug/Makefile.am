@@ -66,6 +66,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/AndroidSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
+	${LIBDIR}/Target/ARM/ARMGOT.h \
+	${LIBDIR}/Target/ARM/ARMGOT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
@@ -78,6 +80,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
+	${LIBDIR}/Target/Mips/MipsGOT.h \
+	${LIBDIR}/Target/Mips/MipsGOT.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
 	${LIBDIR}/Target/Mips/MipsRelocationFactory.h \
@@ -90,6 +94,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
+	${LIBDIR}/Target/X86/X86GOT.h \
+	${LIBDIR}/Target/X86/X86GOT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
 	${LIBDIR}/Target/X86/X86RelocationFactory.h \
@@ -137,6 +143,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/LDContext.h \
 	${LIBDIR}/LD/LDContext.cpp \
 	${INCDIR}/LD/LDSection.h \
+	${LIBDIR}/LD/LDSection.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/ResolveInfoFactory.h \
