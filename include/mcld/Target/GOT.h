@@ -12,14 +12,32 @@
 #include <gtest.h>
 #endif
 #include <llvm/MC/MCAssembler.h>
+#include <mcld/LD/LDSection.h>
 
 namespace mcld
 {
 
-
-
 /** \class GOT
- *  \brief Global Offset Table
+ *  \brief The Global Offset Table
+ */
+class GOT
+{
+protected:
+  GOT(LDSection* pSection);
+
+public:
+  virtual ~GOT();
+
+  LDSection& getSection();
+
+  const LDSection& getSection() const;
+
+protected:
+  LDSection* m_pSection;
+};
+
+/** \class GOTEntry
+ *  \brief The entry of Global Offset Table
  */
 class GOTEntry : public llvm::MCFragment
 {
