@@ -39,11 +39,11 @@ class LDSection : public llvm::MCSection
 public:
   LDSection(LDFileFormat::Kind pKind,
             const std::string& pName,
+            uint32_t pFlag = 0, // wait for change
+            uint32_t pType = 0, // wait for change
             uint64_t pSize = 0,
             uint64_t pOffset = 0,
-            uint64_t pAddr = 0,
-            uint32_t pFlag = 0,
-            uint32_t pType = 0);
+            uint64_t pAddr = 0);
 
   const std::string& name() const
   { return m_Name; }

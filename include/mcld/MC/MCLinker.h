@@ -18,8 +18,11 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/MC/MCAssembler.h>
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/StaticResolver.h>
+#include <mcld/LD/SectionFactory.h>
+#include <mcld/LD/LDFileFormat.h>
 
 namespace mcld {
 
@@ -60,6 +63,7 @@ private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
   StrSymPool m_StrSymPool;
+  SectionFactory m_SectionFactory;
 };
 
 } // namespace of mcld

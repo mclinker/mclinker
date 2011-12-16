@@ -23,7 +23,7 @@ using namespace mcld;
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
                    const Resolver& pResolver)
-: m_Backend(pBackend), m_Info(pInfo), m_StrSymPool(pResolver)
+: m_Backend(pBackend), m_Info(pInfo), m_StrSymPool(pResolver), m_SectionFactory(0)
 {
 }
 

@@ -189,7 +189,9 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ELFObjectWriter.h \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
 	${INCDIR}/LD/ELFDynObjWriter.h \
-	${LIBDIR}/LD/ELFDynObjWriter.cpp
+	${LIBDIR}/LD/ELFDynObjWriter.cpp \
+	${INCDIR}/LD/SectionFactory.h \
+	${LIBDIR}/LD/SectionFactory.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 #	${INCDIR}/Support/ScopedRegion.h \
