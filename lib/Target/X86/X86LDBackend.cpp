@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "X86.h"
 #include "X86LDBackend.h"
-
+#include "X86RelocationFactory.h"
 #include "mcld/Support/TargetRegistry.h"
 #include <llvm/ADT/Triple.h>
 
@@ -24,10 +24,10 @@ X86GNULDBackend::~X86GNULDBackend()
     delete m_pRelocFactory;
 }
 
-X86RelocationFactory* X86GNULDBackend::getRelocFactory()
+RelocationFactory* X86GNULDBackend::getRelocFactory()
 {
   if (0 == m_pRelocFactory)
-    m_pRelocFactory = new X86RelocationFactory(1024);
+    m_pRelocFactory = new X86RelocationFactory(1024, *this);
   return m_pRelocFactory;
 }
 

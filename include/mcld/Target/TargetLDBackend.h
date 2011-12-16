@@ -23,6 +23,8 @@ class DynObjReader;
 class ObjectWriter;
 class DynObjWriter;
 
+class GOT;
+
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
 ///
@@ -59,6 +61,19 @@ public:
   /* The return value of machine() it the same as e_machine in the EFL header*/
   virtual uint32_t machine() const = 0;
 
+  /** Is the target machine little endian? **/
+  virtual bool isLittleEndian() const = 0;
+
+  /** bit class. the bit length of the target machine, 32 or 64 **/
+  virtual unsigned int bitclass() const = 0;
+
+  /// getGOT - return the GOT
+  /// Target can use co-variant return type to return its own GOT
+  virtual GOT& getGOT() = 0;
+
+  /// getGOT - return the GOT
+  /// Target can use co-variant return type to return its own GOT
+  virtual const GOT& getGOT() const = 0;
 };
 
 } // End mcld namespace

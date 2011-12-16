@@ -11,27 +11,52 @@
 #include "mcld/Support/TargetRegistry.h"
 #include "Mips.h"
 #include "MipsLDBackend.h"
+#include "MipsRelocationFactory.h"
 
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0) {
+  : m_pRelocFactory(0), m_GOT() {
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
+  if (0 != m_pRelocFactory)
+    delete m_pRelocFactory;
 }
 
-MipsRelocationFactory* MipsGNULDBackend::getRelocFactory()
+RelocationFactory* MipsGNULDBackend::getRelocFactory()
 {
   if (NULL == m_pRelocFactory)
-    m_pRelocFactory = new MipsRelocationFactory(1024);
+    m_pRelocFactory = new MipsRelocationFactory(1024, *this);
   return m_pRelocFactory;
 }
 
 uint32_t MipsGNULDBackend::machine() const
 {
   return EM_MIPS;
+}
+
+bool MipsGNULDBackend::isLittleEndian() const
+{
+  /** is Mips little endian? I guess it is.**/
+  return true;
+}
+
+unsigned int MipsGNULDBackend::bitclass() const
+{
+  /** is Mips 32 bit machine. I think it should be **/
+  return 32;
+}
+
+MipsGOT& MipsGNULDBackend::getGOT()
+{
+  return m_GOT;
+}
+
+const MipsGOT& MipsGNULDBackend::getGOT() const
+{
+  return m_GOT;
 }
 
 namespace mcld {

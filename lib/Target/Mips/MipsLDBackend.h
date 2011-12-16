@@ -9,7 +9,7 @@
 #ifndef MIPS_LDBACKEND_H
 #define MIPS_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
-#include "MipsRelocationFactory.h"
+#include "MipsGOT.h"
 
 namespace mcld {
 
@@ -22,13 +22,21 @@ public:
   MipsGNULDBackend();
   ~MipsGNULDBackend();
 
-  /// getRelocFactory - co-variant return type
-  MipsRelocationFactory* getRelocFactory();
+  RelocationFactory* getRelocFactory();
 
   uint32_t machine() const;
 
+  bool isLittleEndian() const;
+
+  unsigned int bitclass() const;
+
+  MipsGOT& getGOT();
+
+  const MipsGOT& getGOT() const;
+
 private:
-  MipsRelocationFactory* m_pRelocFactory;
+  RelocationFactory* m_pRelocFactory;
+  MipsGOT m_GOT;
 };
 
 } // namespace of mcld

@@ -9,7 +9,7 @@
 #ifndef X86_LDBACKEND_H
 #define X86_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
-#include "X86RelocationFactory.h"
+#include "X86GOT.h"
 
 namespace mcld {
 
@@ -22,12 +22,25 @@ public:
   X86GNULDBackend();
   ~X86GNULDBackend();
 
-  X86RelocationFactory* getRelocFactory();
+  RelocationFactory* getRelocFactory();
 
   uint32_t machine() const;
 
+  bool isLittleEndian() const
+  { return true; }
+
+  X86GOT& getGOT()
+  { return m_GOT; }
+
+  const X86GOT& getGOT() const
+  { return m_GOT; }
+
+  unsigned int bitclass() const
+  { return 32; }
+
 private:
-  X86RelocationFactory* m_pRelocFactory;
+  RelocationFactory* m_pRelocFactory;
+  X86GOT m_GOT;
 };
 
 //===----------------------------------------------------------------------===//

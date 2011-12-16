@@ -11,73 +11,81 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
 #include "ARMRelocationFactory.h"
+#include "ARMRelocationFunctions.h"
 
 using namespace mcld;
 
-//==========================
+DECL_ARM_APPLY_RELOC_FUNCS
+
+//===----------------------------------------------------------------------===//
 // ARMRelocationFactory
-ARMRelocationFactory::ARMRelocationFactory(size_t pNum) :
-                                           RelocationFactory(pNum)
-{
+ARMRelocationFactory::ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent)
+  : RelocationFactory(pNum, pParent) {
 }
 
 ARMRelocationFactory::~ARMRelocationFactory()
 {
 }
 
-void ARMRelocationFactory::apply(Relocation& pRelocation)
+void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
-    llvm::report_fatal_error(llvm::Twine("Unexpected relocation type while "
-                                         "applying relocation on ") +
-                             pRelocation.symInfo()->name());
+    llvm::report_fatal_error(llvm::Twine("Unknown relocation type. To symbol `") +
+                             pRelocation.symInfo()->name() +
+                             llvm::Twine("'."));
+    return;
   }
-  Pointer perform = m_ApplyFuncs[type];
-  ARMRelocStatus stts = (this->*perform)(pRelocation);
-  switch (stts) {
-    default: {
-      std::string msg("Wrong ARMRelocStatus while applying relocation on ");
-      msg += pRelocation.symInfo()->name();
-      llvm_unreachable(msg.c_str());
-    }
-    case STATUS_OK: {
-      break;
-    }
-    case STATUS_OVERFLOW: {
-      llvm::report_fatal_error(llvm::Twine("Relocation overflow on ") +
-                               pRelocation.symInfo()->name());
-      break;
-    }
-    case STATUS_BAD_RELOC: {
-      llvm::report_fatal_error(llvm::Twine("Unexpected opcode while "
-                                           "applying relocation on ") +
-                               pRelocation.symInfo()->name());
-      break;
-    }
+
+  /// the prototype of applying function
+  typedef Result (*ApplyFunctionType)(Relocation& pReloc, const ARMRelocationFactory& pParent);
+
+  // the table entry of applying functions
+  struct ApplyFunctionTriple {
+    ApplyFunctionType func;
+    unsigned int type;
+    const char* name;
+  };
+
+  // declare the table of applying functions
+  static ApplyFunctionTriple apply_functions[] = {
+    DECL_ARM_APPLY_RELOC_FUNC_PTRS
+  };
+
+  // apply the relocation 
+  Result result = apply_functions[type].func(pRelocation, *this);
+
+  // check result
+  if (Overflow == result) {
+    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
+                             llvm::Twine(apply_functions[type].name) +
+                             llvm::Twine("' causes overflow. on symbol: `") +
+                             llvm::Twine(pRelocation.symInfo()->name()) +
+                             llvm::Twine("'."));
+    return;
+  }
+
+  if (BadReloc == result) {
+    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
+                             llvm::Twine(apply_functions[type].name) +
+                             llvm::Twine("' encounters unexpected opcode. on symbol: `") +
+                             llvm::Twine(pRelocation.symInfo()->name()) +
+                             llvm::Twine("'."));
+    return;
   }
 }
 
-ARMRelocationFactory::Pointer ARMRelocationFactory::m_ApplyFuncs[]=
-{
-#ifdef ARM_RELOC_FUNC
-# error "ARM_RELOC_FUNC should be undefined."
-#else
-# define ARM_RELOC_FUNC(FuncName, Num, Name) \
-    &ARMRelocationFactory::FuncName,
-# include "ARMRelocationFunction.def"
-#endif
-};
-
-RelocationFactory::DWord ARMRelocationFactory::getThumbBit(Relocation& pReloc)
+//===----------------------------------------------------------------------===//
+// non-member functions
+static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
 {
   // Set thumb bit if
-  // - symbol has type of STT_ARM_TFUNC (?) or
   // - symbol has type of STT_FUNC, is defined and with bit 0 of its value set
-  DWord thumbBit =                          //FIXME: check symbol is not undef
-        (((pReloc.symInfo()->type() == ResolveInfo::Function) &&
-        ((pReloc.symInfo()->value()&1) != 0))
-        ? 1:0 ) ;
+  RelocationFactory::DWord thumbBit = 
+       ((pReloc.symInfo()->desc() != ResolveInfo::Undefined) && 
+        (pReloc.symInfo()->type() == ResolveInfo::Function) &&
+        ((pReloc.symInfo()->value() & 0x1) != 0))?
+        1:0;
   return thumbBit;
 }
 
@@ -86,36 +94,38 @@ RelocationFactory::DWord ARMRelocationFactory::getThumbBit(Relocation& pReloc)
 // Each relocation function implementation //
 //=========================================//
 
-// R_ARM_NONE and those unsupported/deprecated relocation type
-ARMRelocStatus ARMRelocationFactory::none(Relocation& pReloc)
+// R_ARM_NONE
+ARMRelocationFactory::Result none(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
-  return STATUS_OK;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_ABS32: (S + A) | T
-ARMRelocStatus ARMRelocationFactory::abs32(Relocation& pReloc)
+ARMRelocationFactory::Result abs32(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
-  DWord t_bit = getThumbBit(pReloc);
-  DWord addend = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = (pReloc.symValue() + addend) | t_bit;
-  return STATUS_OK;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_REL32: ((S + A) | T) - P
-ARMRelocStatus ARMRelocationFactory::rel32(Relocation& pReloc)
+ARMRelocationFactory::Result rel32(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
-  DWord t_bit = getThumbBit(pReloc);
-  DWord addend = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit)
-                    - pReloc.place(*layout());
-  return STATUS_OK;
+                    - pReloc.place(pParent.getLayout());
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
-ARMRelocStatus ARMRelocationFactory::gotoff32(Relocation& pReloc)
+ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
-  DWord t_bit = getThumbBit(pReloc);
-  DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - gotorg();
-  return STATUS_OK;
+  ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::Address got_addr = pParent.getGOT().getSection().offset();
+  pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - got_addr;
+  return ARMRelocationFactory::OK;
 }
+

@@ -12,7 +12,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/RelocationFactory.h"
+#include <mcld/LD/RelocationFactory.h>
+#include "X86LDBackend.h"
 
 namespace mcld
 {
@@ -23,17 +24,10 @@ namespace mcld
 class X86RelocationFactory : public RelocationFactory
 {
 public:
-  typedef void (X86RelocationFactory::*Pointer)(Relocation&); 
-
-public:
-  X86RelocationFactory(size_t pNum);
+  X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
   ~X86RelocationFactory();
 
-  void apply(Relocation& pRelocation);
-
-private:  
-  /// m_ApplyFuncs - An array to map relocation type to its apply function
-  static Pointer m_ApplyFuncs[];
+  void applyRelocation(Relocation& pRelocation);
 
 };
 

@@ -9,9 +9,9 @@
 #ifndef ARM_LDBACKEND_H
 #define ARM_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
+#include "ARMGOT.h"
 #include "mcld/Target/GOT.h"
 #include "mcld/Target/PLT.h"
-#include "ARMRelocationFactory.h"
 
 namespace mcld {
 
@@ -95,13 +95,25 @@ public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
 
-  /// getRelocFactory - co-variant return type
-  ARMRelocationFactory* getRelocFactory();
+  /// getRelocFactory
+  RelocationFactory* getRelocFactory();
 
   uint32_t machine() const;
 
+  bool isLittleEndian() const;
+
+  unsigned int bitclass() const
+  { return 32; }
+
+  ARMGOT& getGOT()
+  { return m_GOT; }
+
+  const ARMGOT& getGOT() const
+  { return m_GOT; }
+
 private:
-  ARMRelocationFactory* m_pRelocFactory;
+  RelocationFactory* m_pRelocFactory;
+  ARMGOT m_GOT;
 };
 
 //===----------------------------------------------------------------------===//

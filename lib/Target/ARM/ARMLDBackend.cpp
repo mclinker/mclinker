@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "ARM.h"
 #include "ARMLDBackend.h"
+#include "ARMRelocationFactory.h"
 #include "mcld/Support/TargetRegistry.h"
 #include <llvm/ADT/Triple.h>
 
@@ -21,16 +22,21 @@ ARMGNULDBackend::~ARMGNULDBackend()
 {
 }
 
-ARMRelocationFactory* ARMGNULDBackend::getRelocFactory()
+RelocationFactory* ARMGNULDBackend::getRelocFactory()
 {
   if (NULL == m_pRelocFactory)
-    m_pRelocFactory = new ARMRelocationFactory(1024);
+    m_pRelocFactory = new ARMRelocationFactory(1024, *this);
   return m_pRelocFactory;
 }
 
 uint32_t ARMGNULDBackend::machine() const
 {
   return EM_ARM;
+}
+
+bool ARMGNULDBackend::isLittleEndian() const
+{
+  return true;
 }
 
 namespace mcld {
