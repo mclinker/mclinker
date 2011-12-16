@@ -56,6 +56,19 @@ public:
   { return m_NameMap.end(); }
 
 private:
+  void initializeMap();
+
+private:
+  struct SectionNameMapping {
+    const char* from;
+    const char* to;
+  };
+
+  // FIXME: general mappings for elf format (this is based on gold)
+  static const SectionNameMapping m_GeneralMap[];
+
+  static const int m_GeneralMapSize;
+
   NameMapTy m_NameMap;
 };
 
