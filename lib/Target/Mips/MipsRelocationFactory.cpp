@@ -36,7 +36,7 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
   /* Can Mips relocation functions get all resources from such kind of function prototype?
    * If not, please add new parameters or change to non-constant MipsRelocationFactory.
    */
-  typedef Result (*ApplyFunctionType)(Relocation&, const MipsRelocationFactory& );
+  typedef Result (*ApplyFunctionType)(Relocation&, const MipsRelocationFactory&);
 
   // the table entry of applying functions
   struct ApplyFunctionTriple {

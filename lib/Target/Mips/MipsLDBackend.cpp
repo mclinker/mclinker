@@ -45,7 +45,6 @@ bool MipsGNULDBackend::isLittleEndian() const
 
 unsigned int MipsGNULDBackend::bitclass() const
 {
-  /** is Mips 32 bit machine. I think it should be **/
   return 32;
 }
 

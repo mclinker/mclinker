@@ -40,7 +40,6 @@ public:
   ~MipsRelocationFactory();
 
   void applyRelocation(Relocation& pRelocation);
-
 };
 
 } // namespace of mcld

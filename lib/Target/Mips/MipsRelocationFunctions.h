@@ -1,4 +1,4 @@
-//===- MipsRelocationFunction.def -----------------------------------------===//
+//===- MipsRelocationFunction.h -------------------------------------------===//
 //
 //                     The MCLinker Project
 //
