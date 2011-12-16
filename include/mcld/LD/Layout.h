@@ -38,6 +38,10 @@ public:
   /// @return the offset of the file to laid out the fragment
   uint64_t layoutFragment(llvm::MCFragment& pFrag);
 
+  /// getFragmentOffset - Get the offset of the given fragment inside its
+  /// containing section.
+  uint64_t getFragmentOffset(const llvm::MCFragment *F) const;
+
   // -----  modifiers  ----- //
   bool layout(MCLinker& pLinker);
 
