@@ -28,10 +28,11 @@ class ELFDynObjWriter : public DynObjWriter, private ELFWriter
 public:
   ELFDynObjWriter(TargetLDBackend& pBackend, MCLinker& pLinker);
   bool WriteObject();
-  bool WriteHeader();
+  bool WriteELFHeader();
   ~ELFDynObjWriter();
 
 private:
+  const static uint32_t DefaultEABIVersion = 0x05000000;
   MCLinker& m_Linker;
 };
 
