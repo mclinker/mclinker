@@ -6,18 +6,20 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/LDSection.h"
+#include <mcld/LD/LDSection.h>
+#include <llvm/MC/SectionKind.h>
 
 using namespace mcld;
 
-LDSection::LDSection(llvm::SectionKind pKind,
-                     const llvm::StringRef& pName,
+LDSection::LDSection(LDFileFormat::Kind pKind,
+                     const std::string& pName,
                      uint64_t pSize,
                      uint64_t pOffset,
                      uint64_t pAddr,
                      uint32_t pFlag,
                      uint32_t pType)
-  : llvm::MCSection(llvm::MCSection::SV_LDContext, pKind),
+  : llvm::MCSection(llvm::MCSection::SV_LDContext, llvm::SectionKind::getMetadata()),
+    m_Kind(pKind),
     m_Name(pName),
     m_Size(pSize),
     m_Offset(pOffset),

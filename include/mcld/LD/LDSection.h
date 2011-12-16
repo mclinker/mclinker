@@ -14,12 +14,19 @@
 #endif
 
 #include <llvm/MC/MCSection.h>
-#include <llvm/MC/SectionKind.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
+#include <mcld/LD/LDFileFormat.h>
+#include <string>
+
+namespace llvm {
+
+class MCAsmInfo;
+class raw_ostream;
+
+} // namespace of llvm
 
 namespace mcld {
-
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
  *  abstraction for various file formats.
@@ -30,16 +37,20 @@ namespace mcld {
 class LDSection : public llvm::MCSection
 {
 public:
-  LDSection(llvm::SectionKind pKind,
-            const llvm::StringRef& pName,
-            uint64_t pSize,
-            uint64_t pOffset,
-            uint64_t pAddr,
-            uint32_t pFlag,
-            uint32_t pType);
+  LDSection(LDFileFormat::Kind pKind,
+            const std::string& pName,
+            uint64_t pSize = 0,
+            uint64_t pOffset = 0,
+            uint64_t pAddr = 0,
+            uint32_t pFlag = 0,
+            uint32_t pType = 0);
 
-  const llvm::StringRef& name() const
+  const std::string& name() const
   { return m_Name; }
+
+  /// kind - the kind of this section, such as Text, BSS, GOT, and so on.
+  uint32_t kind() const
+  { return m_Kind; }
 
   /// size - An integer specifying the size in bytes of the virtual memory
   /// occupied by this section.
@@ -100,9 +111,21 @@ public:
   static bool classof(const LDSection *)
   { return true; }
 
-private:
-  llvm::StringRef m_Name;
+  // -----  methods for adapt to llvm::MCSection  ----- //
+  void PrintSwitchToSection(const llvm::MCAsmInfo &MAI,
+                            llvm::raw_ostream &OS) const
+  { }
 
+  bool UseCodeAlign() const
+  { return true; }
+
+  bool isVirtualSection() const
+  { return false; }
+
+private:
+  std::string m_Name;
+
+  uint32_t m_Kind;
   uint64_t m_Size;
   uint64_t m_Offset;
   uint64_t m_Addr;
