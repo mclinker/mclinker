@@ -18,7 +18,6 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCLDCommand.h>
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/StaticResolver.h>
 
