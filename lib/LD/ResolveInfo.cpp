@@ -98,11 +98,9 @@ void ResolveInfo::setDesc(uint32_t pDesc)
 void ResolveInfo::setBinding(uint32_t pBinding)
 {
   m_BitField &= ~BINDING_MASK;
-  if (pBinding == ResolveInfo::Local) {
+  if (pBinding == Local || pBinding == Absolute)
     m_BitField |= local_flag;
-    return;
-  }
-  if (pBinding == ResolveInfo::Weak)
+  if (pBinding == Weak || pBinding == Absolute)
     m_BitField |= weak_flag;
 }
 
@@ -158,19 +156,28 @@ bool ResolveInfo::isIndirect() const
   return (indirect_flag == (m_BitField & DESC_MASK));
 }
 
+// isGlobal - [L,W] == [0, 0]
 bool ResolveInfo::isGlobal() const
 {
   return (global_flag == (m_BitField & BINDING_MASK));
 }
 
+// isWeak - [L,W] == [0, 1]
 bool ResolveInfo::isWeak() const
 {
   return (weak_flag == (m_BitField & BINDING_MASK));
 }
 
+// isLocal - [L,W] == [1, 0]
 bool ResolveInfo::isLocal() const
 {
   return (local_flag == (m_BitField & BINDING_MASK));
+}
+
+// isAbsolute - [L,W] == [1, 1]
+bool ResolveInfo::isAbsolute() const
+{
+  return (absolute_flag == (m_BitField & BINDING_MASK));
 }
 
 bool ResolveInfo::hasPLT() const
@@ -197,7 +204,7 @@ unsigned int ResolveInfo::binding() const
 {
   if (m_BitField & LOCAL_MASK) {
     if (m_BitField & GLOBAL_MASK) {
-      return ResolveInfo::NoneBinding;
+      return ResolveInfo::Absolute;
     }
     return ResolveInfo::Local;
   }

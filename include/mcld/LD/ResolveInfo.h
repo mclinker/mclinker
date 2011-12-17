@@ -74,6 +74,7 @@ public:
     Global,
     Weak,
     Local,
+    Absolute,
     NoneBinding
   };
 
@@ -139,6 +140,8 @@ public:
   bool isWeak() const;
 
   bool isLocal() const;
+
+  bool isAbsolute() const;
 
   bool isDefine() const;
 
@@ -232,6 +235,7 @@ public:
   static const uint32_t common_flag    = 2        << DESC_OFFSET;
   static const uint32_t indirect_flag  = 3        << DESC_OFFSET;
   static const uint32_t local_flag     = 1        << LOCAL_OFFSET;
+  static const uint32_t absolute_flag  = BINDING_MASK;
   static const uint32_t has_plt_flag   = 1        << PLT_OFFSET;
   static const uint32_t object_flag    = Object   << TYPE_OFFSET;
   static const uint32_t function_flag  = Function << TYPE_OFFSET;
