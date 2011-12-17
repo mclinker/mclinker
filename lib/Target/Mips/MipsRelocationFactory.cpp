@@ -108,3 +108,44 @@ rel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
                            + pReloc.symValue();
   return MipsRelocationFactory::OK;
 }
+
+// R_MIPS_LO16:
+//   local/external: AHL + S
+//   _gp_disp      : AHL + GP - P + 4
+MipsRelocationFactory::Result
+hi16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_HI16:
+//   local/external: ((AHL + S) - (short)(AHL + S)) >> 16
+//   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16
+MipsRelocationFactory::Result
+lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_GOT16:
+//   local   : tbd
+//   external: G
+MipsRelocationFactory::Result
+got16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_CALL16: G
+MipsRelocationFactory::Result
+call16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_GPREL32: A + S + GP0 - GP
+MipsRelocationFactory::Result
+gprel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  return MipsRelocationFactory::OK;
+}
