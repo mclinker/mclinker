@@ -5,7 +5,7 @@ LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
-ANDROID_CPPFLAGS=-Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
+ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
 bin_PROGRAMS = llvm-mcld
 
