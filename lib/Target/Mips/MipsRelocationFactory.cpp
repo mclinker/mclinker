@@ -109,21 +109,42 @@ rel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
   return MipsRelocationFactory::OK;
 }
 
-// R_MIPS_LO16:
-//   local/external: AHL + S
-//   _gp_disp      : AHL + GP - P + 4
-MipsRelocationFactory::Result
-hi16(Relocation& pReloc, const MipsRelocationFactory& pParent)
-{
-  return MipsRelocationFactory::OK;
-}
-
 // R_MIPS_HI16:
 //   local/external: ((AHL + S) - (short)(AHL + S)) >> 16
 //   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16
 MipsRelocationFactory::Result
+hi16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+{
+  // Nothing to do. Process this relocation in the 'lo16' routine.
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_LO16:
+//   local/external: AHL + S
+//   _gp_disp      : AHL + GP - P + 4
+MipsRelocationFactory::Result
 lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
 {
+  // TODO (simon): Consider to support GNU extension -
+  // multiple R_MIPS_HI16 entries for single R_MIPS_LO16.
+
+  Relocation *hiReloc = pReloc.getPrevNode();
+
+  // TODO (simon): Implement relocation for _gp_disp
+
+  RelocationFactory::DWord loPart = pReloc.addend() & 0xffff;
+
+  if (hiReloc != 0 && hiReloc->type() == R_MIPS_HI16) {
+    RelocationFactory::DWord hiPart = hiReloc->addend() +
+                                      ((loPart + 0x8000) & 0xffff);
+
+    RelocationFactory::DWord hiAddend = hiReloc->target() + hiPart;
+    hiReloc->target() = (hiReloc->symValue() + hiAddend) >> 16;
+  }
+
+  RelocationFactory::DWord addend = pReloc.target() + loPart;
+  pReloc.target() = pReloc.symValue() + addend;
+
   return MipsRelocationFactory::OK;
 }
 
