@@ -15,7 +15,7 @@
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
-  : m_pRelocFactory(0) {
+  : m_pRelocFactory(0), m_GOT(".got") {
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()

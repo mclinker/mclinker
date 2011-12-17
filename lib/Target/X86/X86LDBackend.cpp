@@ -15,7 +15,7 @@
 using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
-  : m_pRelocFactory(0) {
+  : m_pRelocFactory(0), m_GOT(".got") {
 }
 
 X86GNULDBackend::~X86GNULDBackend()

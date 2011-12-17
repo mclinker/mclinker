@@ -23,7 +23,7 @@ namespace mcld
 class X86GOT : public GOT
 {
 public:
-  X86GOT();
+  X86GOT(const std::string pSectionName);
   ~X86GOT();
 };
 

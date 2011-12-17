@@ -13,7 +13,8 @@ using namespace mcld;
 
 //==========================
 // X86GOT
-X86GOT::X86GOT()
+X86GOT::X86GOT(const std::string pSectionName)
+  : GOT(pSectionName)
 {
 }
 

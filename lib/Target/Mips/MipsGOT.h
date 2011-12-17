@@ -23,7 +23,7 @@ namespace mcld
 class MipsGOT : public GOT
 {
 public:
-  MipsGOT();
+  MipsGOT(const std::string pSectionName);
   ~MipsGOT();
 };
 

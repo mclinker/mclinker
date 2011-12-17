@@ -12,7 +12,8 @@ using namespace mcld;
 
 //==========================
 // MipsGOT
-MipsGOT::MipsGOT()
+MipsGOT::MipsGOT(const std::string pSectionName)
+  : GOT(pSectionName)
 {
 }
 

@@ -50,7 +50,7 @@ protected:
 class GOT
 {
 protected:
-  GOT();
+  GOT(const std::string pSectionName);
 
 public:
   virtual ~GOT();

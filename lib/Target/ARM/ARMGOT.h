@@ -41,6 +41,9 @@ public:
  */
 class ARMGOT : public GOT
 {
+public:
+  ARMGOT(const std::string pSectionName);
+  ~ARMGOT();
 };
 
 } // namespace of mcld

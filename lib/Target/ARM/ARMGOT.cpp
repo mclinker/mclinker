@@ -14,3 +14,11 @@ using namespace mcld;
 //==========================
 // ARMGOT
 
+ARMGOT::ARMGOT(const std::string pSectionName)
+  : GOT(pSectionName)
+{
+}
+
+ARMGOT::~ARMGOT()
+{
+}

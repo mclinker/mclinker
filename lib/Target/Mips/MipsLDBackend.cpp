@@ -16,7 +16,7 @@
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0), m_GOT() {
+  : m_pRelocFactory(0), m_GOT(".got") {
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()

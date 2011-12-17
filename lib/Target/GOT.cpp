@@ -13,7 +13,8 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOT
-GOT::GOT() : m_Section(LDFileFormat::GOT, ".got")
+GOT::GOT(const std::string pSectionName)
+  : m_Section(LDFileFormat::GOT, pSectionName)
 {
 }
 
