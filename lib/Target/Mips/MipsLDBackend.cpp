@@ -39,7 +39,7 @@ uint32_t MipsGNULDBackend::machine() const
 
 bool MipsGNULDBackend::isLittleEndian() const
 {
-  /** is Mips little endian? I guess it is.**/
+  // Now we support little endian (mipsel) target only.
   return true;
 }
 
