@@ -11,6 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
+#include "mcld/LD/LDSection.h"
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/ADT/ilist.h>
 
@@ -52,7 +54,7 @@ public:
   typedef llvm::iplist<llvm::MCFragment> EntryListType;
 
 public:
-  PLT(GOT& pGOT);
+  PLT(GOT& pGOTPLT);
   virtual ~PLT();
 
   // -----  modifiers  ----- //
@@ -69,9 +71,9 @@ public:
   { return m_EntryList.size(); }
 
 private:
+  LDSection m_Section;
   EntryListType m_EntryList;
-  GOT& m_GOT;
-
+  GOT& m_GOTPLT;
 };
 
 } // namespace of mcld

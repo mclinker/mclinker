@@ -22,7 +22,9 @@ class LDFileFormat
 {
 public:
   enum Kind {
-    GOT
+    GOT,
+    PLT,
+    GOTPLT
   };
 
 protected:

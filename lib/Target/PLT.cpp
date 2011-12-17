@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "mcld/Target/PLT.h"
-#include "mcld/Target/GOT.h"
 
 using namespace mcld;
+
+class GOT;
 
 //===--------------------------------------------------------------------===//
 // PLTEntry
@@ -21,14 +22,16 @@ PLTEntry::PLTEntry(unsigned int size, unsigned char* content)
 
 PLTEntry::~PLTEntry()
 {
-  delete m_pContent;
-  m_pContent = 0;
+  if (!m_pContent) {
+    delete m_pContent;
+    m_pContent = 0;
+  }
 }
 
 //===--------------------------------------------------------------------===//
 // PLT
-PLT::PLT(GOT& pGOT)
-  : m_GOT(pGOT) {
+PLT::PLT(GOT& pGOTPLT)
+  : m_Section(LDFileFormat::PLT, ".plt"), m_GOTPLT(pGOTPLT) {
 }
 
 PLT::~PLT()
