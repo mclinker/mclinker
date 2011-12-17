@@ -7,7 +7,7 @@
 LIBTOOLIZE=libtoolize
 my_uname=`uname`
 
-if [ ${my_uname} == "Darwin" ]; then
+if [ ${my_uname} = "Darwin" ]; then
   LIBTOOLIZE=glibtoolize
 fi
 root=`dirname $0`
