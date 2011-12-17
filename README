@@ -30,15 +30,17 @@ Build MCLinker
 
   1.  Type `cd ${MCLinker}' to the directory containing the source code.
 
-  2.  If there are no `configure' shell script in the directory, type
+  2.  source ./scripts/envsetup.sh
+
+  3.  If there are no `configure' shell script in the directory, type
       `./autogen.sh' to generate `configure' script.
 
-  3.  Type `./configure` to configure the package for your system. See INSTALL
+  4.  Type `./configure` to configure the package for your system. See INSTALL
       for more details.
 
-  4.  Type `make` to compile the package
+  5.  Type `make` to compile the package
 
-  5.  Type `make install` to install the package into your system.
+  6.  Type `make install` to install the package into your system.
 
 ===================
 Directory Structure
