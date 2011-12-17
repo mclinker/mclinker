@@ -263,9 +263,9 @@ struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, size_
  *  \brief the template StringCompare class, for specification
  */
 template<typename STRING_TYPE>
-struct StringCompare : public std::binary_function<const STRING_TYPE&, const STRING_TYPE&, bool>
+struct StringCompare : public std::binary_function<const STRING_TYPE, const STRING_TYPE, bool>
 {
-  bool operator()(const STRING_TYPE& X, const STRING_TYPE& Y) const
+  bool operator()(const STRING_TYPE X, const STRING_TYPE Y) const
   { return X == Y; }
 };
 

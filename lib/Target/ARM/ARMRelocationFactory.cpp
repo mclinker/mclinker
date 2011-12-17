@@ -124,7 +124,9 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
 {
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  ARMRelocationFactory::Address got_addr = pParent.getGOT().getSection().offset();
+  ARMRelocationFactory::Address got_addr =
+    pParent.getGOT().getSection()->offset();
+
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - got_addr;
   return ARMRelocationFactory::OK;
 }

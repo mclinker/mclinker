@@ -41,9 +41,6 @@ public:
  */
 class ARMGOT : public GOT
 {
-public:
-  ARMGOT();
-  ~ARMGOT();
 };
 
 } // namespace of mcld

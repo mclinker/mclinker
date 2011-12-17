@@ -14,7 +14,7 @@ using namespace mcld;
 //==========================
 // X86GOT
 X86GOT::X86GOT()
-  : GOT(new LDSection(LDFileFormat::GOT, ".got")) {
+{
 }
 
 X86GOT::~X86GOT()

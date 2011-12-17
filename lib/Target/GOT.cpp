@@ -6,32 +6,29 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/GOT.h>
-#include <mcld/LD/LDSection.h>
-#include <cstdlib>
+#include "mcld/LD/LDSection.h"
+#include "mcld/Target/GOT.h"
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOT
-GOT::GOT(LDSection* pSection)
-  : m_pSection(pSection) {
+GOT::GOT() : m_Section(LDFileFormat::GOT, ".got")
+{
 }
 
 GOT::~GOT()
 {
-  if (0 != m_pSection)
-    delete m_pSection;
 }
 
-LDSection& GOT::getSection()
+LDSection* GOT::getSection()
 {
-  return *m_pSection;
+  return &m_Section;
 }
 
-const LDSection& GOT::getSection() const
+const LDSection* GOT::getSection() const
 {
-  return *m_pSection;
+  return &m_Section;
 }
 
 //===----------------------------------------------------------------------===//

@@ -50,17 +50,17 @@ protected:
 class GOT
 {
 protected:
-  GOT(LDSection* pSection);
+  GOT();
 
 public:
   virtual ~GOT();
 
-  LDSection& getSection();
+  LDSection* getSection();
 
-  const LDSection& getSection() const;
+  const LDSection* getSection() const;
 
 protected:
-  LDSection* m_pSection;
+  LDSection m_Section;
 };
 
 } // namespace of mcld

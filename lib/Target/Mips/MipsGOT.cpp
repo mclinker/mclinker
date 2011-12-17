@@ -13,7 +13,7 @@ using namespace mcld;
 //==========================
 // MipsGOT
 MipsGOT::MipsGOT()
-  : GOT(new LDSection(LDFileFormat::GOT, ".got")) {
+{
 }
 
 MipsGOT::~MipsGOT()

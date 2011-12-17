@@ -13,11 +13,4 @@ using namespace mcld;
 
 //==========================
 // ARMGOT
-ARMGOT::ARMGOT()
-  : GOT(new LDSection(LDFileFormat::GOT, ".got")) {
-}
-
-ARMGOT::~ARMGOT()
-{
-}
 
