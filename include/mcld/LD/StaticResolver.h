@@ -132,6 +132,8 @@ public:
 
 private:
   inline unsigned int getOrdinate(const ResolveInfo& pInfo) const {
+    if (pInfo.isAbsolute())
+      return D_ORD;
     if (pInfo.isCommon() && pInfo.isDyn())
       return Cs_ORD;
     if (pInfo.isCommon() && pInfo.isDefine())
