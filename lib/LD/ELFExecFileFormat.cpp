@@ -1,4 +1,4 @@
-//===- impl.cpp -----------------------------------------------------------===//
+//===- ELFExecFileFormat.cpp ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,10 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/DynObjFormat.h>
+#include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/MC/MCLinker.h>
 
 using namespace mcld;
-
-//==========================
-// DynObjFormat
 

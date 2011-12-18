@@ -13,6 +13,9 @@
 
 namespace mcld {
 
+class MCLinker;
+class LDContext;
+
 //===----------------------------------------------------------------------===//
 /// MipsGNULDBackend - linker backend of Mips target of GNU ELF format
 ///
@@ -34,9 +37,11 @@ public:
 
   const MipsGOT& getGOT() const;
 
+  void initTargetSections(MCLinker& pLinker, LDContext& pContext);
+
 private:
   RelocationFactory* m_pRelocFactory;
-  MipsGOT m_GOT;
+  MipsGOT* m_pGOT;
 };
 
 } // namespace of mcld

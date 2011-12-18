@@ -12,21 +12,19 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
-#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/ELFDynObjFileFormat.h>
+#include <mcld/LD/ELFExecFileFormat.h>
 
 namespace mcld
 {
 
-class GNUArchiveReader;
-class ELFObjectReader;
-class ELFDynObjReader;
-class ELFObjectWriter;
-class ELFDynObjWriter;
+class LDContext;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -45,18 +43,29 @@ public:
   bool initObjectWriter(MCLinker& pLinker);
   bool initDynObjWriter(MCLinker& pLinker);
 
-  ArchiveReader *getArchiveReader();
-  ObjectReader *getObjectReader();
-  DynObjReader *getDynObjReader();
-  ObjectWriter *getObjectWriter();
-  DynObjWriter *getDynObjWriter();
+  bool initExecSections(MCLinker& pMCLinker, LDContext& pContext);
+  bool initDynObjSections(MCLinker& pMCLinker, LDContext& pContext);
+
+  GNUArchiveReader *getArchiveReader();
+  ELFObjectReader *getObjectReader();
+  ELFDynObjReader *getDynObjReader();
+  ELFObjectWriter *getObjectWriter();
+  ELFDynObjWriter *getDynObjWriter();
+
+  ELFDynObjFileFormat* getDynObjFileFormat();
+  ELFExecFileFormat* getExecFileFormat();
 
 protected:
+  // ----- readers and writers ----- //
   GNUArchiveReader* m_pArchiveReader;
   ELFObjectReader* m_pObjectReader;
   ELFDynObjReader* m_pDynObjReader;
   ELFObjectWriter* m_pObjectWriter;
   ELFDynObjWriter* m_pDynObjWriter;
+
+  // -----  file formats  ----- //
+  ELFDynObjFileFormat* m_pDynObjFileFormat;
+  ELFExecFileFormat* m_pExecFileFormat;
 
 };
 

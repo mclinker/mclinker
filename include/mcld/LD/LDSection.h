@@ -37,20 +37,36 @@ namespace mcld {
 class LDSection : public llvm::MCSection
 {
 public:
-  LDSection(LDFileFormat::Kind pKind,
-            const std::string& pName,
-            uint32_t pFlag = 0, // wait for change
-            uint32_t pType = 0, // wait for change
+  LDSection(const std::string& pName,
+            LDFileFormat::Kind pKind,
+            uint32_t pType,
+            uint32_t pFlag,
             uint64_t pSize = 0,
             uint64_t pOffset = 0,
             uint64_t pAddr = 0);
 
+  /// name - the name of this section.
   const std::string& name() const
   { return m_Name; }
 
   /// kind - the kind of this section, such as Text, BSS, GOT, and so on.
+  /// from LDFileFormat::Kind
   uint32_t kind() const
   { return m_Kind; }
+
+  /// type - The categorizes the section's contents and semantics. It's
+  /// different from llvm::SectionKind. Type is format-dependent, but
+  /// llvm::SectionKind is format independent and is used for bit-code.
+  ///   In ELF, it is sh_type
+  ///   In MachO, it's type field of struct section::flags
+  uint32_t type() const
+  { return m_Type; }
+
+  /// flag - An integer describes miscellaneous attributes.
+  ///   In ELF, it is sh_flags.
+  ///   In MachO, it's attribute field of struct section::flags
+  uint32_t flag() const
+  { return m_Flag; }
 
   /// size - An integer specifying the size in bytes of the virtual memory
   /// occupied by this section.
@@ -75,20 +91,6 @@ public:
   ///   store the address of the output here. The address is in Layout
   uint64_t addr() const
   { return m_Addr; }
-
-  /// flag - An integer describes miscellaneous attributes.
-  ///   In ELF, it is sh_flags.
-  ///   In MachO, it's attribute field of struct section::flags
-  uint32_t flag() const
-  { return m_Flag; }
-
-  /// type - The categorizes the section's contents and semantics. It's
-  /// different from llvm::SectionKind. Type is format-dependent, but
-  /// llvm::SectionKind is format independent and is used for bit-code.
-  ///   In ELF, it is sh_type
-  ///   In MachO, it's type field of struct section::flags
-  uint32_t type() const
-  { return m_Type; }
 
   void setSize(uint64_t size)
   { m_Size = size; }

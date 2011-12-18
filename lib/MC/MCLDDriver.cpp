@@ -6,22 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include "mcld/MC/MCLinker.h"
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/MCLDDriver.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/LD/ArchiveReader.h"
-#include "mcld/LD/ObjectReader.h"
-#include "mcld/LD/DynObjReader.h"
-#include "mcld/LD/ObjectWriter.h"
-#include "mcld/LD/DynObjWriter.h"
-#include "mcld/Support/RealPath.h"
-#include "mcld/Target/TargetLDBackend.h"
-
+#include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/MCLDDriver.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LD/ArchiveReader.h>
+#include <mcld/LD/ObjectReader.h>
+#include <mcld/LD/DynObjReader.h>
+#include <mcld/LD/ObjectWriter.h>
+#include <mcld/LD/DynObjWriter.h>
+#include <mcld/Support/RealPath.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/ErrorHandling.h>
 
-namespace mcld {
+using namespace llvm;
+using namespace mcld;
 
 MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
   : m_LDInfo(pLDInfo),
@@ -126,6 +125,32 @@ bool MCLDDriver::initMCLinker()
     return false;
 
   // initialize standard segments and sections
+  switch (m_LDInfo.output().type()) {
+    case Output::DynObj: {
+      // intialize standard and target-dependent sections
+      if (!m_LDBackend.initDynObjSections(*m_pLinker, *m_LDInfo.output().context()))
+        return false;
+      break;
+    }
+    case Output::Exec: {
+      // intialize standard and target-dependent sections
+      if (!m_LDBackend.initExecSections(*m_pLinker, *m_LDInfo.output().context()))
+        return false;
+      break;
+    }
+    case Output::Object: {
+      llvm::report_fatal_error(llvm::Twine("output type is not implemented yet. file: `") +
+                               m_LDInfo.output().name() +
+                               llvm::Twine("'."));
+      return false;
+    }
+    default: {
+      llvm::report_fatal_error(llvm::Twine("unknown output type of file `") +
+                               m_LDInfo.output().name() +
+                               llvm::Twine("'."));
+       return false;
+    }
+  } // end of switch
 
   // initialize target-dependent segments and sections
 
@@ -234,4 +259,3 @@ bool MCLDDriver::emitOutput()
   return false;
 }
 
-} //end namespace mcld

@@ -99,7 +99,7 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   // FIXME: The code below is broken and needs to be fixed.
   return false;
 
-  OwningPtr<MemoryBuffer> mapFile;
+  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
@@ -121,7 +121,7 @@ LDReader::Endian GNUArchiveReader::endian(Input& pFile) const
 
 InputTree *GNUArchiveReader::readArchive(Input &pInput)
 {
-  OwningPtr<MemoryBuffer> mapFile; 
+  llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
   mapToMemory(mapFile, pInput.path());
   return setupNewArchive(mapFile, 0);
 }

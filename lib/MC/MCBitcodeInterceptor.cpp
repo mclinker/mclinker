@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/Relocation.h"
-#include "mcld/MC/MCBitcodeInterceptor.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/Target/TargetLDBackend.h"
+#include <mcld/LD/Relocation.h>
+#include <mcld/MC/MCBitcodeInterceptor.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <llvm/MC/MCAssembler.h>
 #include <llvm/MC/MCExpr.h>
 #include <llvm/MC/MCValue.h>
@@ -24,6 +24,7 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
 
+using namespace llvm;
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//

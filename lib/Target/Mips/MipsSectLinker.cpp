@@ -28,7 +28,7 @@ SectLinker* createMipsSectLinker(const std::string &pTriple,
                                  MCLDInfo& pLDInfo,
                                  mcld::TargetLDBackend &pLDBackend)
 {
-  Triple theTriple(pTriple);
+  llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
   }

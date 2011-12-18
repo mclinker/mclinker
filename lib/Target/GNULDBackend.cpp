@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/MC/MCLDOutput.h>
 #include <cassert>
 
 using namespace mcld;
@@ -18,7 +19,9 @@ GNULDBackend::GNULDBackend()
     m_pObjectReader(0),
     m_pDynObjReader(0),
     m_pObjectWriter(0),
-    m_pDynObjWriter(0) {
+    m_pDynObjWriter(0),
+    m_pDynObjFileFormat(0),
+    m_pExecFileFormat(0) {
 }
 
 GNULDBackend::~GNULDBackend()
@@ -33,6 +36,10 @@ GNULDBackend::~GNULDBackend()
     delete m_pObjectWriter;
   if (m_pDynObjWriter)
     delete m_pDynObjWriter;
+  if (m_pDynObjFileFormat)
+    delete m_pDynObjFileFormat;
+  if (m_pExecFileFormat)
+    delete m_pExecFileFormat;
 }
 
 bool GNULDBackend::initArchiveReader(MCLinker&)
@@ -70,33 +77,68 @@ bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
   return true;
 }
 
-ArchiveReader *GNULDBackend::getArchiveReader()
+bool GNULDBackend::initExecSections(MCLinker& pMCLinker, LDContext& pContext)
+{
+  if (0 == m_pExecFileFormat)
+    m_pExecFileFormat = new ELFExecFileFormat();
+
+  // initialize standard sections
+  m_pExecFileFormat->initStdSections(pMCLinker, pContext);
+  initTargetSections(pMCLinker, pContext);
+  return true;
+}
+
+bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker, LDContext& pContext)
+{
+  if (0 == m_pDynObjFileFormat)
+    m_pDynObjFileFormat = new ELFDynObjFileFormat();
+
+  // initialize standard sections
+  m_pDynObjFileFormat->initStdSections(pMCLinker, pContext);
+  initTargetSections(pMCLinker, pContext);
+  return true;
+}
+
+GNUArchiveReader *GNULDBackend::getArchiveReader()
 {
   assert(0 != m_pArchiveReader);
   return m_pArchiveReader;
 }
 
-ObjectReader *GNULDBackend::getObjectReader()
+ELFObjectReader *GNULDBackend::getObjectReader()
 {
   assert(0 != m_pObjectReader);
   return m_pObjectReader;
 }
 
-DynObjReader *GNULDBackend::getDynObjReader()
+ELFDynObjReader *GNULDBackend::getDynObjReader()
 {
   assert(0 != m_pDynObjReader);
   return m_pDynObjReader;
 }
 
-ObjectWriter *GNULDBackend::getObjectWriter()
+ELFObjectWriter *GNULDBackend::getObjectWriter()
 {
   // TODO
   return NULL;
 }
 
-DynObjWriter *GNULDBackend::getDynObjWriter()
+ELFDynObjWriter *GNULDBackend::getDynObjWriter()
 {
   assert(0 != m_pDynObjWriter);
   return m_pDynObjWriter;
+}
+
+
+ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
+{
+  assert(0 != m_pDynObjFileFormat);
+  return m_pDynObjFileFormat;
+}
+
+ELFExecFileFormat* GNULDBackend::getExecFileFormat()
+{
+  assert(0 != m_pExecFileFormat);
+  return m_pExecFileFormat;
 }
 

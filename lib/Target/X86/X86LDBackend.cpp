@@ -9,19 +9,23 @@
 #include "X86.h"
 #include "X86LDBackend.h"
 #include "X86RelocationFactory.h"
-#include "mcld/Support/TargetRegistry.h"
 #include <llvm/ADT/Triple.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/MC/MCLinker.h>
 
 using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
-  : m_pRelocFactory(0), m_GOT(".got") {
+  : m_pRelocFactory(0), m_pGOT(0) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
 {
   if (0 != m_pRelocFactory)
     delete m_pRelocFactory;
+  if (0 != m_pGOT)
+    delete m_pGOT;
 }
 
 RelocationFactory* X86GNULDBackend::getRelocFactory()
@@ -34,6 +38,32 @@ RelocationFactory* X86GNULDBackend::getRelocFactory()
 uint32_t X86GNULDBackend::machine() const
 {
   return ELF::EM_386;
+}
+
+X86GOT& X86GNULDBackend::getGOT()
+{
+  assert(0 != m_pGOT);
+  return *m_pGOT;
+}
+
+const X86GOT& X86GNULDBackend::getGOT() const
+{
+  assert(0 != m_pGOT);
+  return *m_pGOT;
+}
+
+unsigned int X86GNULDBackend::bitclass() const
+{
+  return 32;
+}
+
+void X86GNULDBackend::initTargetSections(MCLinker& pLinker, LDContext& pContext)
+{
+  const LDSection& got = pContext.getOrCreateSection(".got",
+                                                     LDFileFormat::GOT,
+                                                     ELF::SHT_PROGBITS,
+                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  m_pGOT = new X86GOT(got);
 }
 
 namespace mcld {

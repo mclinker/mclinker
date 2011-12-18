@@ -6,15 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/ELFDynObjWriter.h"
-#include "mcld/Target/TargetLDBackend.h"
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCLDOutput.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLinker.h"
-#include "mcld/Support/ScopedWriter.h"
-#include "llvm/Support/ELF.h"
+#include <mcld/LD/ELFDynObjWriter.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLDOutput.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/ScopedWriter.h>
+#include <llvm/Support/ELF.h>
 
+using namespace llvm;
 using namespace mcld;
 
 //==========================

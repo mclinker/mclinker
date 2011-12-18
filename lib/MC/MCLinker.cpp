@@ -15,6 +15,9 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/LDContext.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/SectionFactory.h>
+#include <mcld/LD/SectionMap.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -26,8 +29,7 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
 : m_Backend(pBackend),
   m_Info(pInfo),
   m_StrSymPool(pResolver),
-  m_SectionFactory(0),
-  m_SectionMap()
+  m_LDSymbolFactory(128)
 {
 }
 

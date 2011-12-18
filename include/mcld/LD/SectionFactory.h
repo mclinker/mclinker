@@ -1,4 +1,4 @@
-//===- header.h -----------------------------------------------------------===//
+//===- SectionFactory.h ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SECTIONFACTORY_H
-#define SECTIONFACTORY_H
+#ifndef MCLD_SECTION_FACTORY_H
+#define MCLD_SECTION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/MC/MCAssembler.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDFileFormat.h>
+#include <string>
 
 namespace mcld
 {
@@ -22,24 +22,30 @@ namespace mcld
 /** \class SectionFactory
  *  \brief provide the interface to create and delete section data for output
  */
-class SectionFactory : public GCFactory<llvm::MCSectionData, 0>
+class SectionFactory : public GCFactory<LDSection, 0>
 {
 public:
+  /// SectionFactory - the factory of LDSection
+  /// pNum is the average number of the LDSections in the system.
   SectionFactory(size_t pNum);
   ~SectionFactory();
 
-  llvm::MCSectionData* produce(LDFileFormat::Kind pKind,
-                               const std::string& pName,
-                               uint32_t pFlag = 0,
-                               uint32_t pType = 0);
+  /// produce - produce an empty section information.
+  /// This function will create an empty MCSectionData and its LDSection.
+  /// @param pName - The name of the section.
+  /// @param pKind - The kind of the section. Used to create default section map
+  /// @param pType - sh_type in ELF.
+  /// @param pFlag - is the same as sh_flags.
+  LDSection* produce(const std::string& pName,
+                     LDFileFormat::Kind pKind,
+                     uint32_t pType,
+                     uint32_t pFlag);
 
-  void destroy(llvm::MCSectionData* pSD);
+  /// destroy - destruct the LDSection.
+  /// @oaram - the reference of the pointer to the destructed LDSection.
+  ///          after the destruction, the pointer is set to zero.
+  void destroy(LDSection*& pSD);
 
-private:
-  typedef GCFactory<LDSection, 0> SectHeaderFactory;
-
-private:
-  SectHeaderFactory m_HeaderFactory;
 };
 
 } // namespace of mcld

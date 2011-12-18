@@ -12,17 +12,16 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/MC/MCAssembler.h>
-#include <mcld/ADT/TypeTraits.h>
 #include <vector>
-
-
-using namespace llvm;
+#include <mcld/LD/LDFileFormat.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld
 {
 
 class LDSymbol;
+class LDSection;
+class SectionFactory;
 
 /** \class LDContext
  *  \brief LDContext stores the data which a object file should has
@@ -30,7 +29,7 @@ class LDSymbol;
 class LDContext
 {
 public:
-  typedef std::vector<llvm::MCSectionData*> SectionTable;
+  typedef std::vector<LDSection*> SectionTable;
   typedef SectionTable::iterator sect_iterator;
   typedef SectionTable::const_iterator const_sect_iterator;
 
@@ -44,28 +43,44 @@ public:
   typedef SymbolTable::const_iterator const_sym_iterator;
 
 public:
-  LDContext();
+  LDContext(SectionFactory& pSectionFactory);
 
   ~LDContext();
 
   // -----  sections  ----- //
+  SectionFactory& getSectFactory()
+  { return m_SectionFactory; }
+  
   SectionTable& getSectionTable()
   { return m_SectionTable; }
 
   const SectionTable& getSectionTable() const
   { return m_SectionTable; }
 
-  sect_iterator begin()
+  sect_iterator sectBegin()
   { return m_SectionTable.begin(); }
 
-  sect_iterator end()
+  sect_iterator sectEnd()
   { return m_SectionTable.end(); }
 
-  const_sect_iterator begin() const
+  const_sect_iterator sectBegin() const
   { return m_SectionTable.begin(); }
 
-  const_sect_iterator end() const
+  const_sect_iterator sectEnd() const
   { return m_SectionTable.end(); }
+
+  LDSection* getSection(unsigned int pIdx);
+
+  const LDSection* getSection(unsigned int pIdx) const;
+
+  LDSection* getSection(const std::string& pName);
+
+  const LDSection* getSection(const std::string& pName) const;
+
+  const LDSection& getOrCreateSection(const std::string& pName,
+                                      LDFileFormat::Kind pKind,
+                                      uint32_t pType,
+                                      uint32_t pFlag);
 
   size_t numOfSections() const
   { return m_SectionTable.size(); }
@@ -78,16 +93,16 @@ public:
   const SymbolTable& getSymTable() const;
 
   template<size_t CATEGORY>
-  sym_iterator begin();
+  sym_iterator symBegin();
 
   template<size_t CATEGORY>
-  sym_iterator end();
+  sym_iterator symEnd();
 
   template<size_t CATEGORY>
-  const_sym_iterator begin() const;
+  const_sym_iterator symBegin() const;
 
   template<size_t CATEGORY>
-  const_sym_iterator end() const;
+  const_sym_iterator symEnd() const;
 
   SymbolTable& symtab()
   { return m_SymTab; }
@@ -106,6 +121,7 @@ private:
   SymbolTable m_SymTab;
   SymbolTable m_DynSym;
 
+  SectionFactory& m_SectionFactory;
 };
 
 //===----------------------------------------------------------------------===//
@@ -167,25 +183,25 @@ const LDContext::SymbolTable& LDContext::getSymTable() const
 }
 
 template<size_t CATEGORY>
-LDContext::sym_iterator LDContext::begin()
+LDContext::sym_iterator LDContext::symBegin()
 {
   return proxy::get_symtab<CATEGORY>(this).begin();
 }
 
 template<size_t CATEGORY>
-LDContext::sym_iterator LDContext::end()
+LDContext::sym_iterator LDContext::symEnd()
 {
   return proxy::get_symtab<CATEGORY>(this).end();
 }
 
 template<size_t CATEGORY>
-LDContext::const_sym_iterator LDContext::begin() const
+LDContext::const_sym_iterator LDContext::symBegin() const
 {
   return proxy::get_const_symtab<CATEGORY>(this).begin();
 }
 
 template<size_t CATEGORY>
-LDContext::const_sym_iterator LDContext::end() const
+LDContext::const_sym_iterator LDContext::symEnd() const
 {
   return proxy::get_const_symtab<CATEGORY>(this).end();
 }

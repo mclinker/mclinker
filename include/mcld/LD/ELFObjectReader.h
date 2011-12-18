@@ -12,11 +12,9 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/LD/ELFReader.h"
-#include "mcld/LD/ObjectReader.h"
+#include <mcld/LD/ELFReader.h>
+#include <mcld/LD/ObjectReader.h>
 #include <llvm/Support/system_error.h>
-
-using namespace ELF;
 
 namespace mcld
 {

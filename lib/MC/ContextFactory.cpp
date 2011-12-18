@@ -6,15 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/LDContext.h"
-#include "mcld/MC/ContextFactory.h"
+#include <mcld/LD/LDContext.h>
+#include <mcld/MC/ContextFactory.h>
 
-namespace mcld {
+using namespace mcld;
 
 //===---------------------------------------------------------------------===//
 // LDContextFactory
 ContextFactory::ContextFactory(size_t pNum)
-  : UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>(pNum) {
+  : UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>(pNum),
+    m_SectionFactory(10) // the average number of sections. assume 10.
+{
 }
 
 ContextFactory::~ContextFactory()
@@ -26,10 +28,9 @@ LDContext* ContextFactory::produce(const sys::fs::Path& pPath)
   LDContext* result = find(pPath);
   if (0 == result) {
     result = UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>::allocate();
-    UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>::construct(result);
+    new (result) LDContext(m_SectionFactory);
     f_KeyMap.insert(std::make_pair(pPath, result));
   }
   return result;
 }
 
-} //end namespace mcld

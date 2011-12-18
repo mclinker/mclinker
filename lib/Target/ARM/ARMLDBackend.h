@@ -6,13 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ARM_LDBACKEND_H
-#define ARM_LDBACKEND_H
+#ifndef MCLD_ARM_LDBACKEND_H
+#define MCLD_ARM_LDBACKEND_H
 
 #include "ARMGOT.h"
-#include "mcld/Target/GNULDBackend.h"
+#include <mcld/Target/GNULDBackend.h>
 
 namespace mcld {
+
+class LDContext;
+class MCLinker;
 
 //===----------------------------------------------------------------------===//
 /// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
@@ -22,6 +25,9 @@ class ARMGNULDBackend : public GNULDBackend
 public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
+
+  /// initTargetSections - initialize target dependent sections in output.
+  void initTargetSections(MCLinker& pLinker, LDContext& pContext);
 
   /// getRelocFactory
   RelocationFactory* getRelocFactory();
@@ -33,15 +39,13 @@ public:
   unsigned int bitclass() const
   { return 32; }
 
-  ARMGOT& getGOT()
-  { return m_GOT; }
+  ARMGOT& getGOT();
 
-  const ARMGOT& getGOT() const
-  { return m_GOT; }
+  const ARMGOT& getGOT() const;
 
 private:
   RelocationFactory* m_pRelocFactory;
-  ARMGOT m_GOT;
+  ARMGOT* m_pGOT;
 };
 
 //===----------------------------------------------------------------------===//

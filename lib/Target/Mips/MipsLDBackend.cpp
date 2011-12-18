@@ -8,21 +8,25 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/ADT/Triple.h>
-#include "mcld/Support/TargetRegistry.h"
+#include <llvm/Support/ELF.h>
+#include <mcld/Support/TargetRegistry.h>
 #include "Mips.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
 
+using namespace llvm;
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0), m_GOT(".got") {
+  : m_pRelocFactory(0), m_pGOT(0) {
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
   if (0 != m_pRelocFactory)
     delete m_pRelocFactory;
+  if (0 != m_pGOT)
+    delete m_pGOT;
 }
 
 RelocationFactory* MipsGNULDBackend::getRelocFactory()
@@ -34,7 +38,7 @@ RelocationFactory* MipsGNULDBackend::getRelocFactory()
 
 uint32_t MipsGNULDBackend::machine() const
 {
-  return EM_MIPS;
+  return ELF::EM_MIPS;
 }
 
 bool MipsGNULDBackend::isLittleEndian() const
@@ -48,14 +52,27 @@ unsigned int MipsGNULDBackend::bitclass() const
   return 32;
 }
 
+void MipsGNULDBackend::initTargetSections(MCLinker& pLinker, LDContext& pContext)
+{
+  const LDSection& got = pContext.getOrCreateSection(".got",
+                                                     LDFileFormat::GOT,
+                                                     ELF::SHT_PROGBITS,
+                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  m_pGOT = new MipsGOT(got);
+
+  // add target dependent sections here.
+}
+
 MipsGOT& MipsGNULDBackend::getGOT()
 {
-  return m_GOT;
+  assert(0 != m_pGOT);
+  return *m_pGOT;
 }
 
 const MipsGOT& MipsGNULDBackend::getGOT() const
 {
-  return m_GOT;
+  assert(0 != m_pGOT);
+  return *m_pGOT;
 }
 
 namespace mcld {

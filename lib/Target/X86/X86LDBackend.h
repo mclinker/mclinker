@@ -20,6 +20,7 @@ class X86GNULDBackend : public GNULDBackend
 {
 public:
   X86GNULDBackend();
+
   ~X86GNULDBackend();
 
   RelocationFactory* getRelocFactory();
@@ -29,18 +30,17 @@ public:
   bool isLittleEndian() const
   { return true; }
 
-  X86GOT& getGOT()
-  { return m_GOT; }
+  X86GOT& getGOT();
 
-  const X86GOT& getGOT() const
-  { return m_GOT; }
+  const X86GOT& getGOT() const;
 
-  unsigned int bitclass() const
-  { return 32; }
+  unsigned int bitclass() const;
+
+  void initTargetSections(MCLinker& pLinker, LDContext&); 
 
 private:
   RelocationFactory* m_pRelocFactory;
-  X86GOT m_GOT;
+  X86GOT* m_pGOT;
 };
 
 //===----------------------------------------------------------------------===//

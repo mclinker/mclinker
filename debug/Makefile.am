@@ -190,12 +190,20 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
 	${INCDIR}/LD/ELFDynObjWriter.h \
 	${LIBDIR}/LD/ELFDynObjWriter.cpp \
+	${INCDIR}/LD/LDFileFormat.h \
+	${LIBDIR}/LD/LDFileFormat.cpp \
+	${INCDIR}/LD/ELFFileFormat.h \
+	${LIBDIR}/LD/ELFFileFormat.cpp \
+	${INCDIR}/LD/ELFDynObjFileFormat.h \
+	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
+	${INCDIR}/LD/ELFExecFileFormat.h \
+	${LIBDIR}/LD/ELFExecFileFormat.cpp \
 	${INCDIR}/LD/SectionFactory.h \
 	${LIBDIR}/LD/SectionFactory.cpp \
 	${INCDIR}/LD/SectionMap.h \
-	${LIBDIR}/LD/SectionMap.cpp \
-	${INCDIR}/LD/SectionMerger.h \
-	${LIBDIR}/LD/SectionMerger.cpp
+	${LIBDIR}/LD/SectionMap.cpp
+#	${INCDIR}/LD/SectionMerger.h
+#	${LIBDIR}/LD/SectionMerger.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 #	${INCDIR}/Support/ScopedRegion.h \

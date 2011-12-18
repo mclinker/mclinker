@@ -1,4 +1,4 @@
-//===- impl.cpp -----------------------------------------------------------===//
+//===- SectionFactory.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -13,33 +13,27 @@ using namespace mcld;
 //==========================
 // SectionFactory
 SectionFactory::SectionFactory(size_t pNum)
-  : GCFactory<llvm::MCSectionData, 0>(pNum),
-    m_HeaderFactory(pNum) {
+  : GCFactory<LDSection, 0>(pNum) {
 }
 
 SectionFactory::~SectionFactory()
 {
 }
 
-llvm::MCSectionData* SectionFactory::produce(LDFileFormat::Kind pKind,
-                                             const std::string& pName,
-                                             uint32_t pFlag,
-                                             uint32_t pType)
+LDSection* SectionFactory::produce(const std::string& pName,
+                                   LDFileFormat::Kind pKind,
+                                   uint32_t pType,
+                                   uint32_t pFlag)
 {
   // create a LDSection
-  LDSection* header = m_HeaderFactory.allocate();
-  new (header) LDSection(pKind, pName, pFlag, pType);
-
-  // create a MCSectionData
-  MCSectionData* result = allocate();
-  new (result) MCSectionData(*header);
-
+  LDSection* result = allocate();
+  new (result) LDSection(pName, pKind, pType, pFlag);
   return result;
 }
 
-void SectionFactory::destroy(llvm::MCSectionData* pSectionData)
+void SectionFactory::destroy(LDSection*& pSection)
 {
   // do not recycle LDSection. HeaderFactory will do that job.
-  deallocate(pSectionData);
+  deallocate(pSection);
 }
 

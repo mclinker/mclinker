@@ -39,20 +39,20 @@ AndroidSectLinker::~AndroidSectLinker()
   // SectLinker will delete m_pLDBackend and m_pLDDriver;
 }
 
-bool AndroidSectLinker::doInitialization(Module &pM)
+bool AndroidSectLinker::doInitialization(llvm::Module &pM)
 {
   // -----  Set up General Options  ----- //
   //   make sure output is openend successfully.
   if (!m_LDInfo.output().hasMemArea())
-    report_fatal_error("output is not given on the command line\n");
+    llvm::report_fatal_error("output is not given on the command line\n");
 
   if (!m_LDInfo.output().memArea()->isGood())
-    report_fatal_error(
+    llvm::report_fatal_error(
       "can not open output file :" + m_LDInfo.output().path().native());
 
   InputTree::iterator iter = m_LDInfo.inputs().begin();
 
-  for (Module::LibraryListType::const_iterator I = pM.lib_begin(),
+  for (llvm::Module::LibraryListType::const_iterator I = pM.lib_begin(),
     E = pM.lib_end(); I != E; ++I) {
     std::ostringstream libName;
     std::ostringstream libPath;

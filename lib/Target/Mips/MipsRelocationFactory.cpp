@@ -13,6 +13,8 @@
 #include "MipsRelocationFactory.h"
 #include "MipsRelocationFunctions.h"
 
+using namespace llvm;
+using namespace llvm::ELF;
 using namespace mcld;
 
 DECL_MIPS_APPLY_RELOC_FUNCS
