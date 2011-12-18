@@ -11,14 +11,19 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ARMGOT
-
-ARMGOT::ARMGOT(const std::string pSectionName)
-  : GOT(pSectionName)
+ARMGOT::ARMGOT(const LDSection& pSection)
+  : GOT(pSection, 4) // ARM uses 32-bit GOT entry
 {
 }
 
 ARMGOT::~ARMGOT()
 {
 }
+
+ARMGOT::Entry* ARMGOT::createEntry(uint64_t pData)
+{
+  return new Entry(pData, this);
+}
+

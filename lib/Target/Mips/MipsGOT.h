@@ -17,14 +17,21 @@
 namespace mcld
 {
 
+class LDSection;
+
 /** \class MipsGOT
  *  \brief Mips Global Offset Table.
  */
 class MipsGOT : public GOT
 {
 public:
-  MipsGOT(const std::string pSectionName);
+  typedef GOTEntry Entry;
+
+public:
+  MipsGOT(const LDSection& pSection);
   ~MipsGOT();
+
+  Entry* createEntry(uint64_t pData = 0);
 };
 
 } // namespace of mcld

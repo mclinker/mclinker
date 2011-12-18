@@ -12,12 +12,16 @@ using namespace mcld;
 
 //==========================
 // MipsGOT
-MipsGOT::MipsGOT(const std::string pSectionName)
-  : GOT(pSectionName)
-{
+MipsGOT::MipsGOT(const LDSection& pSection)
+  : GOT(pSection, 4) { // Does Mips use 32-bit GOT entry?
 }
 
 MipsGOT::~MipsGOT()
 {
+}
+
+MipsGOT::Entry* MipsGOT::createEntry(uint64_t pData)
+{
+  return new Entry(pData, this);
 }
 

@@ -6,38 +6,39 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/LDSection.h"
-#include "mcld/Target/GOT.h"
+#include <mcld/LD/LDSection.h>
+#include <mcld/Target/GOT.h>
+#include <cstring>
+#include <cstdlib>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// GOT
-GOT::GOT(const std::string pSectionName)
-  : m_Section(LDFileFormat::GOT, pSectionName)
+// GOTEntry
+GOTEntry::GOTEntry(uint64_t pContent, GOT* pParent)
+  : llvm::MCFragment(llvm::MCFragment::FT_GOT, pParent),
+    f_Content(pContent) {
+  uint64_t mask = uint64_t(-1) >> (pParent->entryBytes()*8);
+  f_Content &= mask;
+}
+
+GOTEntry::~GOTEntry()
 {
+}
+
+//===----------------------------------------------------------------------===//
+// GOT
+GOT::GOT(const LDSection& pSection, unsigned int pEntryBytes)
+  : llvm::MCSectionData(pSection),
+    f_EntryBytes(pEntryBytes) {
 }
 
 GOT::~GOT()
 {
 }
 
-LDSection* GOT::getSection()
+unsigned int GOT::entryBytes() const
 {
-  return &m_Section;
+  return f_EntryBytes;
 }
 
-const LDSection* GOT::getSection() const
-{
-  return &m_Section;
-}
-
-//===----------------------------------------------------------------------===//
-// GOTEntry
-GOTEntry::GOTEntry(unsigned int size, unsigned char* content)
-  : llvm::MCFragment(llvm::MCFragment::FT_GOT),
-    m_EntrySize(size), m_pContent(content) {
-}
-
-GOTEntry::~GOTEntry() {
-}

@@ -17,24 +17,7 @@
 namespace mcld
 {
 
-class ARMGOTEntry : public GOTEntry {
-  typedef uint32_t GOTEntryType;
-
-public:
-
- ARMGOTEntry() : GOTEntry(sizeof(GOTEntryType), 0) {
-   initGOTEntry();
- }
-
- ~ARMGOTEntry() {
-   delete m_pContent;
-   m_pContent = 0;
- }
-
- void initGOTEntry() {
-   m_pContent = static_cast<unsigned char*>(malloc(m_EntrySize));
- }
-};
+class LDSection;
 
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
@@ -42,8 +25,13 @@ public:
 class ARMGOT : public GOT
 {
 public:
-  ARMGOT(const std::string pSectionName);
+  typedef GOTEntry Entry;
+
+public:
+  ARMGOT(const LDSection& pSection);
   ~ARMGOT();
+
+  Entry* createEntry(uint64_t pData = 0);
 };
 
 } // namespace of mcld

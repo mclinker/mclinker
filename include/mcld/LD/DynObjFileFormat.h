@@ -6,29 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_X86_GOT_H
-#define MCLD_X86_GOT_H
+#ifndef DYNOBJFORMAT_H
+#define DYNOBJFORMAT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/Target/GOT.h>
-
 namespace mcld
 {
 
-/** \class X86GOT
- *  \brief X86 Global Offset Table.
+/** \class DynObjFormat
+ *  \brief DynObjFormat describes the file format for dynamic objects.
  */
-class X86GOT : public GOT
+class DynObjFormat : public LDFileFormat
 {
-public:
-  typedef GOTEntry Entry;
-public:
-  X86GOT(const LDSection& pSection);
-  ~X86GOT();
 
-  Entry* createEntry(uint64_t pData = 0);
 };
 
 } // namespace of mcld

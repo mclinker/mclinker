@@ -17,50 +17,46 @@
 namespace mcld
 {
 
+class GOT;
+
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
  */
 class GOTEntry : public llvm::MCFragment
 {
 public:
-  GOTEntry(unsigned int size ,
-           unsigned char* content);
+  explicit GOTEntry(uint64_t pContent, GOT* pParent);
 
   virtual ~GOTEntry();
 
-  unsigned int getEntrySize() const {
-    return m_EntrySize;
-  }
+  uint64_t& getContent()
+  { return f_Content; }
 
-  unsigned char* getContent() const {
-    return m_pContent;
-  }
+  const uint64_t& getContent() const
+  { return f_Content; }
 
 protected:
-  virtual void initGOTEntry() = 0;
-
-protected:
-  unsigned int m_EntrySize;
-  unsigned char* m_pContent;
+  uint64_t f_Content;
 };
 
 /** \class GOT
  *  \brief The Global Offset Table
  */
-class GOT
+class GOT : public llvm::MCSectionData
 {
 protected:
-  GOT(const std::string pSectionName);
+  GOT(const LDSection& pSection, unsigned int pEntrySize);
 
 public:
   virtual ~GOT();
 
-  LDSection* getSection();
+  /// entrySize - the number of bytes per entry
+  unsigned int entryBytes() const;
 
-  const LDSection* getSection() const;
+  virtual GOTEntry* createEntry(uint64_t pData = 0) = 0;
 
 protected:
-  LDSection m_Section;
+  unsigned int f_EntryBytes;
 };
 
 } // namespace of mcld
