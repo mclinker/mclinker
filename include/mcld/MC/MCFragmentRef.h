@@ -26,8 +26,8 @@ class MCFragmentRef
 {
 public:
   typedef size_t Offset; // FIXME: use SizeTraits<T>::Offset
-  typedef NonConstTraits<char>::pointer Address;
-  typedef ConstTraits<char>::pointer ConstAddress;
+  typedef NonConstTraits<unsigned char>::pointer Address;
+  typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
 public:
   MCFragmentRef();

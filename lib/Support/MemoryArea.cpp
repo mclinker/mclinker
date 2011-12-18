@@ -151,7 +151,7 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
         break;
       }
       case Space::ALLOCATED_ARRAY: {
-        space->data = new char[pLength];
+        space->data = new unsigned char[pLength];
 	r_start = space->data;
         if (WriteOnly & m_AccessFlags)
           break;

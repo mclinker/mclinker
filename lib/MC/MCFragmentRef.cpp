@@ -42,10 +42,10 @@ MCFragmentRef::Address MCFragmentRef::deref()
   Address base = NULL;
   switch(m_pFragment->getKind()) {
     case llvm::MCFragment::FT_Inst:
-      base = static_cast<llvm::MCInstFragment*>(m_pFragment)->getCode().data();
+      base = (Address)static_cast<llvm::MCInstFragment*>(m_pFragment)->getCode().data();
       break;
     case llvm::MCFragment::FT_Data:
-      base = static_cast<llvm::MCDataFragment*>(m_pFragment)->getContents().data();
+      base = (Address)static_cast<llvm::MCDataFragment*>(m_pFragment)->getContents().data();
       break;
     case llvm::MCFragment::FT_Region:
       base = static_cast<mcld::MCRegionFragment*>(m_pFragment)->getRegion().getBuffer();
@@ -70,10 +70,10 @@ MCFragmentRef::ConstAddress MCFragmentRef::deref() const
   ConstAddress base = NULL;
   switch(m_pFragment->getKind()) {
     case llvm::MCFragment::FT_Inst:
-      base = static_cast<const llvm::MCInstFragment*>(m_pFragment)->getCode().data();
+      base = (ConstAddress)static_cast<const llvm::MCInstFragment*>(m_pFragment)->getCode().data();
       break;
     case llvm::MCFragment::FT_Data:
-      base = static_cast<const llvm::MCDataFragment*>(m_pFragment)->getContents().data();
+      base = (ConstAddress)static_cast<const llvm::MCDataFragment*>(m_pFragment)->getContents().data();
       break;
     case llvm::MCFragment::FT_Region:
       base = static_cast<const mcld::MCRegionFragment*>(m_pFragment)->getRegion().getBuffer();
