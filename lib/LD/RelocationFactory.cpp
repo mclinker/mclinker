@@ -42,7 +42,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   // data.
   DWord* target_data = NULL;
   target_data = m_pTargetDataFactory->allocate();
-  std::memcpy(target_data, pFragRef.deref(), sizeof(DWord));
+  pFragRef.memcpy(target_data, (m_Parent.bitclass()/8));
 
   // make target_data get right value
   // old target_data:

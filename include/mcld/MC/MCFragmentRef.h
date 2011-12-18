@@ -37,6 +37,14 @@ public:
   // -----  modifiers  ----- //
   void assign(llvm::MCFragment& pFrag, Offset pOffset = 0);
 
+  /// memcpy - copy memory
+  /// copy memory from the fragment to the pDesc.
+  /// @pDest - the destination address
+  /// @pNBytes - copies pNBytes from the fragment[offset()+pOffset]
+  /// @pOffset - additional offset. 
+  ///            the start address offset from fragment[offset()]
+  void memcpy(void* pDest, size_t pNBytes, Offset pOffset = 0) const;
+
   // -----  observers  ----- //
   llvm::MCFragment* frag()
   { return m_pFragment; }
