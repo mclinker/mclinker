@@ -17,8 +17,7 @@ using namespace mcld;
 
 SectionMerger::SectionMerger(MCLinker& pLinker)
 : m_Linker(pLinker),
-  m_SectionMap(pLinker.getSectionMap()),
-  m_SectionList(pLinker.getSectionList())
+  m_SectionMap(pLinker.getSectionMap())
 {
   // initialize the map from "name" to associated "section data"
   for (MCLinker::section_list_iterator it = m_Linker.section_list_begin();

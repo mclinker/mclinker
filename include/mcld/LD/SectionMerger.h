@@ -55,7 +55,6 @@ public:
 
 private:
   MCLinker& m_Linker;
-  MCLinker::SectionListTy& m_SectionList;
   SectionMap& m_SectionMap;
   SectionDataMapTy m_SectionDataMap;
 };
