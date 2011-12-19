@@ -20,7 +20,6 @@
 namespace mcld
 {
 class Layout;
-class ResolveInfo;
 class RelocationFactory;
 
 class Relocation : public llvm::ilist_node<Relocation>

@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Layout.h>
 
 using namespace mcld;
@@ -31,7 +30,8 @@ Relocation::~Relocation()
 
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
-  return 0; // TODO
+  Address offset = m_TargetAddress.offset();
+  return pLayout.getFragmentOffset(m_TargetAddress.frag()) + offset;
 }
 
 void Relocation::apply()

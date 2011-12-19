@@ -154,6 +154,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/Resolver.cpp \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
+	${INCDIR}/LD/Layout.h \
+	${LIBDIR}/LD/Layout.cpp\
 	${INCDIR}/LD/Relocation.h \
 	${LIBDIR}/LD/Relocation.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
