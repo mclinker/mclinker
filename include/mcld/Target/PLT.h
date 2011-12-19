@@ -51,27 +51,13 @@ protected:
 class PLT : public llvm::MCSectionData
 {
 public:
-  typedef llvm::iplist<llvm::MCFragment> EntryListType;
-
-public:
   PLT(const LDSection& pSection, GOT& pGOTPLT);
   virtual ~PLT();
 
   // -----  modifiers  ----- //
   virtual void addEntry(LDSymbol& pSymbol) = 0;
 
-  // -----  observers  ----- //
-  EntryListType& getEntryList()
-  { return m_EntryList; }
-
-  const EntryListType& getEntryList() const
-  { return m_EntryList; }
-
-  unsigned int entryCount() const
-  { return m_EntryList.size(); }
-
 private:
-  EntryListType m_EntryList;
   GOT& m_GOTPLT;
 };
 
