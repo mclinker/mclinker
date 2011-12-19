@@ -64,6 +64,20 @@ public:
   }
 };
 
+/** \class ARMPLT
+ *  \brief ARM Procedure Linkage Table
+ */
+class ARMPLT : public PLT
+{
+public:
+   typedef PLTEntry Entry;
+
+public:
+   ARMPLT(const LDSection& pSection, GOT& pGOTPLT);
+   ~ARMPLT();
+   void addEntry(LDSymbol& pSym);
+};
+
 } // namespace of mcld
 
 #endif

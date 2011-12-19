@@ -68,6 +68,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMGOT.h \
 	${LIBDIR}/Target/ARM/ARMGOT.cpp \
+	${LIBDIR}/Target/ARM/ARMPLT.h \
+	${LIBDIR}/Target/ARM/ARMPLT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \

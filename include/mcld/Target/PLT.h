@@ -48,13 +48,13 @@ protected:
 /** \class PLT
  *  \brief Procedure linkage table
  */
-class PLT
+class PLT : public llvm::MCSectionData
 {
 public:
   typedef llvm::iplist<llvm::MCFragment> EntryListType;
 
 public:
-  PLT(GOT& pGOTPLT);
+  PLT(const LDSection& pSection, GOT& pGOTPLT);
   virtual ~PLT();
 
   // -----  modifiers  ----- //
@@ -71,7 +71,6 @@ public:
   { return m_EntryList.size(); }
 
 private:
-  LDSection m_Section;
   EntryListType m_EntryList;
   GOT& m_GOTPLT;
 };
@@ -79,4 +78,3 @@ private:
 } // namespace of mcld
 
 #endif
-
