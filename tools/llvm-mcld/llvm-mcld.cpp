@@ -27,7 +27,6 @@
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
-#include <llvm/Target/TargetOptions.h>
 
 using namespace llvm;
 
