@@ -14,8 +14,8 @@ Compilation Instructions
 ------------
 Prepare LLVM
 ------------
-  0.a Download LLVM 3.0@r145675
-      `svn co -r 145675 http://llvm.org/svn/llvm-project/llvm/tags/RELEASE_30/final llvm-src'
+  0.a Download LLVM 3.1@r146714
+      `svn co -r 146714 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
 
   0.b Type `cd llvm-src' to enter the directory containing LLVM source code
 
