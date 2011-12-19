@@ -84,7 +84,6 @@ bool GNULDBackend::initExecSections(MCLinker& pMCLinker, LDContext& pContext)
 
   // initialize standard sections
   m_pExecFileFormat->initStdSections(pMCLinker, pContext);
-  initTargetSections(pMCLinker, pContext);
   return true;
 }
 
@@ -95,7 +94,6 @@ bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker, LDContext& pContext)
 
   // initialize standard sections
   m_pDynObjFileFormat->initStdSections(pMCLinker, pContext);
-  initTargetSections(pMCLinker, pContext);
   return true;
 }
 

@@ -153,6 +153,7 @@ bool MCLDDriver::initMCLinker()
   } // end of switch
 
   // initialize target-dependent segments and sections
+  m_LDBackend.initTargetSections(*m_pLinker, *m_LDInfo.output().context());
 
   return true;
 }
