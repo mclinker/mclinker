@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ${CLASS_NAME}_H
-#define ${CLASS_NAME}_H
+#ifndef MCLD_${CLASS_NAME}_H
+#define MCLD_${CLASS_NAME}_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
