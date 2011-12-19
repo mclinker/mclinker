@@ -15,6 +15,8 @@
 #include <vector>
 #include <mcld/LD/LDFileFormat.h>
 #include <llvm/Support/DataTypes.h>
+#include <string>
+#include <cassert>
 
 namespace mcld
 {
