@@ -35,11 +35,12 @@ public:
   virtual void initObjectType(MCLinker& pLinker, LDContext& pContext) = 0;
 
 protected:
+  //         variable name         :  ELF
   LDSection* f_pELFNULLSection;
-  LDSection* f_pELFSymTab;
-  LDSection* f_pELFStrTab;
-  LDSection* f_pELFComment;
-  LDSection* f_pELFSectStrTab;
+  LDSection* f_pELFSymTab;         // .symtab
+  LDSection* f_pELFStrTab;         // .strtab
+  LDSection* f_pELFComment;        // .comment
+  LDSection* f_pELFSectStrTab;     // .shstrtab
 };
 
 } // namespace of mcld

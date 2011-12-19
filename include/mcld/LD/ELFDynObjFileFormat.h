@@ -29,18 +29,24 @@ public:
   void initObjectType(MCLinker& pLinker, LDContext& pContext);
 
 protected:
-  LDSection* f_pDynSymTab;
-  LDSection* f_pDynStrTab;
-  LDSection* f_pInterp;
-  LDSection* f_pHashTab;
-  LDSection* f_pDynamic;
-  LDSection* f_pRelaDyn;
-  LDSection* f_pRelaPlt;
-  LDSection* f_pRelDyn;
-  LDSection* f_pRelPlt;
-  LDSection* f_pGOT;
-  LDSection* f_pPLT;
-  LDSection* f_pGOTPLT;
+  //         variable name         :  ELF
+  LDSection* f_pDynSymTab;         // .dynsym
+  LDSection* f_pDynStrTab;         // .dynstr
+  LDSection* f_pInterp;            // .interp
+  LDSection* f_pHashTab;           // .hash
+  LDSection* f_pDynamic;           // .dynamic
+  LDSection* f_pRelaDyn;           // .rela.dyn
+  LDSection* f_pRelaPlt;           // .rela.plt
+  LDSection* f_pRelDyn;            // .rel.dyn
+  LDSection* f_pRelPlt;            // .rel.plt
+  LDSection* f_pGOT;               // .got
+  LDSection* f_pPLT;               // .plt
+  LDSection* f_pGOTPLT;            // .got.plt
+  LDSection* f_pPreInitArray;      // .preinit_array
+  LDSection* f_pInitArray;         // .init_array
+  LDSection* f_pFiniArray;         // .fini_array
+  LDSection* f_pCtors;             // .ctors
+  LDSection* f_pDtors;             // .dtors
 };
 
 } // namespace of mcld
