@@ -68,7 +68,7 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_LDFLAGS="`${LLVM_CONFIG_BIN} --libs`"
 	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --ldflags`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
-	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main//g'`"
+	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main -lgtest//g'`"
 	LLVM_VERSION=${tool_major}
 	
 	AC_SUBST(LLVM_CFLAGS)
