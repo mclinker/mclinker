@@ -87,6 +87,37 @@ MAttrs("mattr",
   cl::desc("Target specific attributes (-mattr=help for details)"),
   cl::value_desc("a1,+a2,-a3,..."));
 
+static cl::opt<Reloc::Model>
+RelocModel("relocation-model",
+             cl::desc("Choose relocation model"),
+             cl::init(Reloc::Default),
+             cl::values(
+            clEnumValN(Reloc::Default, "default",
+                       "Target default relocation model"),
+            clEnumValN(Reloc::Static, "static",
+                       "Non-relocatable code"),
+            clEnumValN(Reloc::PIC_, "pic",
+                       "Fully relocatable, position independent code"),
+            clEnumValN(Reloc::DynamicNoPIC, "dynamic-no-pic",
+                       "Relocatable external references, non-relocatable code"),
+            clEnumValEnd));
+
+static cl::opt<llvm::CodeModel::Model>
+CMModel("code-model",
+        cl::desc("Choose code model"),
+        cl::init(CodeModel::Default),
+        cl::values(clEnumValN(CodeModel::Default, "default",
+                              "Target default code model"),
+                   clEnumValN(CodeModel::Small, "small",
+                              "Small code model"),
+                   clEnumValN(CodeModel::Kernel, "kernel",
+                              "Kernel code model"),
+                   clEnumValN(CodeModel::Medium, "medium",
+                              "Medium code model"),
+                   clEnumValN(CodeModel::Large, "large",
+                              "Large code model"),
+                   clEnumValEnd));
+
 cl::opt<mcld::CodeGenFileType>
 FileType("filetype", cl::init(mcld::CGFT_EXEFile),
   cl::desc("Choose a file type (not all types are supported by all targets):"),
@@ -232,7 +263,7 @@ int main( int argc, char* argv[] )
 
   M.reset(ParseIRFile(InputFilename, Err, Context));
   if (M.get() == 0) {
-    Err.Print(argv[0], errs());
+    Err.print(argv[0], errs());
     errs() << "** First positional argument must be a bitcode/llvm asm file. **\n";
     return 1;
   }
@@ -244,7 +275,7 @@ int main( int argc, char* argv[] )
 
   Triple TheTriple(mod.getTargetTriple());
   if (TheTriple.getTriple().empty())
-    TheTriple.setTriple(sys::getHostTriple());
+    TheTriple.setTriple(sys::getDefaultTargetTriple());
 
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
@@ -290,10 +321,47 @@ int main( int argc, char* argv[] )
     FeaturesStr = Features.getString();
   }
 
+  CodeGenOpt::Level OLvl = CodeGenOpt::Default;
+  switch (OptLevel) {
+  default:
+    errs() << argv[0] << ": invalid optimization level.\n";
+    return 1;
+  case ' ': break;
+  case '0': OLvl = CodeGenOpt::None; break;
+  case '1': OLvl = CodeGenOpt::Less; break;
+  case '2': OLvl = CodeGenOpt::Default; break;
+  case '3': OLvl = CodeGenOpt::Aggressive; break;
+  }
+
+  TargetOptions Options;
+  Options.LessPreciseFPMADOption = EnableFPMAD;
+  Options.PrintMachineCode = PrintCode;
+  Options.NoFramePointerElim = DisableFPElim;
+  Options.NoFramePointerElimNonLeaf = DisableFPElimNonLeaf;
+  Options.NoExcessFPPrecision = DisableExcessPrecision;
+  Options.UnsafeFPMath = EnableUnsafeFPMath;
+  Options.NoInfsFPMath = EnableNoInfsFPMath;
+  Options.NoNaNsFPMath = EnableNoNaNsFPMath;
+  Options.HonorSignDependentRoundingFPMathOption =
+      EnableHonorSignDependentRoundingFPMath;
+  Options.UseSoftFloat = GenerateSoftFloatCalls;
+  if (FloatABIForCalls != FloatABI::Default)
+    Options.FloatABIType = FloatABIForCalls;
+  Options.NoZerosInBSS = DontPlaceZerosInBSS;
+  Options.JITExceptionHandling = EnableJITExceptionHandling;
+  Options.JITEmitDebugInfo = EmitJitDebugInfo;
+  Options.JITEmitDebugInfoToDisk = EmitJitDebugInfoToDisk;
+  Options.GuaranteedTailCallOpt = EnableGuaranteedTailCallOpt;
+  Options.StackAlignmentOverride = OverrideStackAlignment;
+  Options.RealignStack = EnableRealignStack;
+  Options.DisableJumpTables = DisableSwitchTables;
+  Options.TrapFuncName = TrapFuncName;
+  Options.EnableSegmentedStacks = SegmentedStacks;
+
   std::auto_ptr<mcld::LLVMTargetMachine> target_machine(
           TheTarget->createTargetMachine(TheTriple.getTriple(),
-                                         MCPU,
-                                         FeaturesStr));
+                                         MCPU, FeaturesStr, Options,
+                                         RelocModel, CMModel, OLvl));
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::LLVMTargetMachine &TheTargetMachine = *target_machine.get();
 
@@ -308,18 +376,6 @@ int main( int argc, char* argv[] )
                       InputFilename,
                       OutputFilename));
   if (!Out) return 1;
-
-  CodeGenOpt::Level OLvl = CodeGenOpt::Default;
-  switch (OptLevel) {
-  default:
-    errs() << argv[0] << ": invalid optimization level.\n";
-    return 1;
-  case ' ': break;
-  case '0': OLvl = CodeGenOpt::None; break;
-  case '1': OLvl = CodeGenOpt::Less; break;
-  case '2': OLvl = CodeGenOpt::Default; break;
-  case '3': OLvl = CodeGenOpt::Aggressive; break;
-  }
 
   // Build up all of the passes that we want to do to the module.
   PassManager PM;

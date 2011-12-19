@@ -9,15 +9,14 @@ Following the steps below to apply the patch:
 1. cd $(LLVM_ROOT)
 2. patch -p0 < ${MCLINKER_SRC}/patch/LLVM.patch
 
-This patch is for LLVM RELEASE_30@145348.
-
+This patch is for LLVM trunk@146714.
 
 
 ------------------------------------------------------------
-commit 6358f5b0e7a1da34b97a83317973842fe1e3db09
-Author: Bill Wendling <isanbard@gmail.com>
-Date:   Tue Nov 29 01:20:37 2011 +0000
+commit ddecfe54a35ffbe0675f7f33e493734fd60b2495
+Author: Jim Grosbach <grosbach@apple.com>
+Date:   Fri Dec 16 00:12:22 2011 +0000
 
-    Creating release candidate final from release_30 branch
-    
-    git-svn-id: https://llvm.org/svn/llvm-project/llvm/tags/RELEASE_30@145348 91177308-0d34-0410-b5e6-96231b3b80d8
+ARM NEON aliases for vmovq.f*
+
+git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@146714 91177308-0d34-0410-b5e6-96231b3b80d8

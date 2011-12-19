@@ -64,11 +64,14 @@ public:
   }
 
   mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
-                                               const std::string &pCPU,
-                                               const std::string &pFeatures) const {
+                          const std::string &pCPU, const std::string &pFeatures,
+                          const llvm::TargetOptions &Options,
+                          llvm::Reloc::Model RM = llvm::Reloc::Default,
+                          llvm::CodeModel::Model CM = llvm::CodeModel::Default,
+                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const {
     if (TargetMachineCtorFn && m_pT) {
       llvm::TargetMachine *tm = 0;
-      if (tm=m_pT->createTargetMachine(pTriple, pCPU, pFeatures))
+      if (tm=m_pT->createTargetMachine(pTriple, pCPU, pFeatures, Options, RM, CM, OL))
         return TargetMachineCtorFn(*this, *tm, pTriple);
     }
     return 0;

@@ -57,14 +57,24 @@ ArgShowMCEncoding("lshow-mc-encoding",
                 cl::desc("Show encoding in .s output"));
 
 static cl::opt<bool>
-ArgAsmVerbose("fverbose-asm",
-           cl::desc("Put extra commentary information in the \
-generated assembly code to make it more readable."));
-
-static cl::opt<bool>
 ArgShowMCInst("lshow-mc-inst",
               cl::Hidden,
               cl::desc("Show instruction structure in .s output"));
+
+static cl::opt<cl::boolOrDefault>
+ArgAsmVerbose("fverbose-asm",
+              cl::desc("Put extra commentary information in the \
+                       generated assembly code to make it more readable."),
+              cl::init(cl::BOU_UNSET));
+
+static bool getVerboseAsm() {
+  switch (ArgAsmVerbose) {
+  default:
+  case cl::BOU_UNSET: return TargetMachine::getAsmVerbosityDefault();
+  case cl::BOU_TRUE:  return true;
+  case cl::BOU_FALSE: return false;
+  }
+}
 
 
 //===---------------------------------------------------------------------===//
@@ -90,7 +100,7 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
                                                      llvm::MCContext *&OutCtx)
 {
   return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
-                                            PM, Level, DisableVerify, OutCtx);
+                                            PM, DisableVerify, OutCtx);
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -184,14 +194,13 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(
-    getTarget().get()->createAsmStreamer(*Context,
-                                         Out,
-                                         ArgAsmVerbose,
+    getTarget().get()->createAsmStreamer(*Context, Out,
+                                         getVerboseAsm(),
                                          getTM().hasMCUseLoc(),
                                          getTM().hasMCUseCFI(),
+                                         getTM().hasMCUseDwarfDirectory(),
                                          InstPrinter,
-                                         MCE,
-                                         MAB,
+                                         MCE, MAB,
                                          ArgShowMCInst));
 
   llvm::MachineFunctionPass* funcPass =
