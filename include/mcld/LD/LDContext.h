@@ -134,14 +134,15 @@ namespace proxy
   inline LDContext::SymbolTable&
   get_symtab(LDContext* pContext) {
     assert(0 && "not allowed");
-    return 0;
+    static LDContext::SymbolTable fake_symtab;
+    return fake_symtab;
   }
 
   template<size_t CATEGORY>
   inline const LDContext::SymbolTable&
   get_const_symtab(const LDContext* pContext) {
     assert(0 && "not allowed");
-    return 0;
+    return static_cast<const LDContext::SymbolTable&>(0);
   }
 
   template<>
