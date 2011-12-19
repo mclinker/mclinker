@@ -136,17 +136,22 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
     switch(space->type = policy(pOffset, pLength)) {
       case Space::MMAPED: {
         int mm_flag = iswrite ? (PROT_READ | PROT_WRITE) : (PROT_READ);
-        // compute correct r_start, space.data, and space.size
-        // space.data and space.size should be on page boundaries.
-        space->file_offset = page_boundary(pOffset);
-        space->size = page_offset(pOffset+pLength) - space->file_offset;
+        space->file_offset = page_offset(pOffset);
+        // The size may large than filesize
+        // TODO: Let size = file_size - file_offset;
+        space->size = page_boundary(pLength + (pOffset - space->file_offset));
         space->data = (Address) ::mmap(NULL,
                              space->size,
                              mm_flag, MAP_FILE | MAP_SHARED,
                              m_FileDescriptor,
                              space->file_offset);
-        if (space->data == MAP_FAILED)
-          llvm::report_fatal_error (std::string("Cannot Mapfile:") + strerror(errno));
+        if (space->data == MAP_FAILED) {
+          std::stringstream error_mesg;
+          error_mesg << "Cannot Mapfile ";
+          error_mesg << m_FilePath.native();
+          error_mesg << " (" << sys::fs::detail::strerror(errno) << ")";
+          llvm::report_fatal_error (error_mesg.str());
+        }
         r_start = space->data + (pOffset - space->file_offset);
         break;
       }
