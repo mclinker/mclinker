@@ -11,3 +11,5 @@ depcomp
 install-sh
 ltmain.sh
 missing
+m4/ltoptions.m4
+ltoptions.m4
