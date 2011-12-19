@@ -25,15 +25,71 @@ using namespace mcld;
 
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
+                   LDContext& pContext,
+//                   SectionMap& pSectionMap,
                    const Resolver& pResolver)
 : m_Backend(pBackend),
   m_Info(pInfo),
+  m_Output(pContext),
   m_StrSymPool(pResolver),
+//  m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128)
 {
 }
 
 MCLinker::~MCLinker()
 {
+}
+
+/// addSymbol - add a symbol and resolve it immediately
+LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
+                                    bool pIsDyn,
+                                    ResolveInfo::Desc pDesc,
+                                    ResolveInfo::Binding pBinding,
+                                    ResolveInfo::ValueType pValue,
+                                    ResolveInfo::SizeType pSize,
+                                    ResolveInfo::Visibility pVisibility)
+{
+  if (pBinding == ResolveInfo::Local)
+    return NULL;
+
+  std::pair<ResolveInfo*, bool> resolved_result;
+  resolved_result = m_StrSymPool.insertSymbol(pName,
+                                             pIsDyn,
+                                             pDesc,
+                                             pBinding,
+                                             pValue,
+                                             pSize,
+                                             pVisibility);
+
+  LDSymbol* result = m_LDSymbolFactory.allocate();
+  new (result) LDSymbol();
+  if (NULL == resolved_result.first)
+    return NULL;
+
+  result->setResolveInfo(*resolved_result.first);
+  m_Output.symtab().push_back(result);
+  return result;
+}
+
+LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
+                                   ResolveInfo::Desc pDesc,
+                                   ResolveInfo::ValueType pValue,
+                                   ResolveInfo::SizeType pSize,
+                                   ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* resolve_info =  m_StrSymPool.createSymbol(pName,
+                                                         false,
+                                                         pDesc,
+                                                         ResolveInfo::Local,
+                                                         pValue,
+                                                         pSize,
+                                                         pVisibility);
+  LDSymbol* result = m_LDSymbolFactory.allocate();
+  new (result) LDSymbol();
+  result->setResolveInfo(*resolve_info);
+
+  m_Output.symtab().push_back(result);
+  return result;
 }
 

@@ -24,7 +24,7 @@
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/SectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/SectionMap.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld {
@@ -34,7 +34,6 @@ class Layout;
 class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
-class SectionMap;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -48,16 +47,26 @@ public:
 public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
+           LDContext& pContext,
            const Resolver& pResolver = StaticResolver());
   ~MCLinker();
 
   // ----- about symbols  ----- //
-  LDSymbol* addSymbol(const llvm::StringRef& pName,
-                      bool pIsDyn,
-                      ResolveInfo::Desc pDesc,
-                      ResolveInfo::Binding pBinding,
-                      ResolveInfo::ValueType pValue,
-                      ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  /// addGlobalSymbol - add a symbol and resolve it immediately
+  LDSymbol* addGlobalSymbol(const llvm::StringRef& pName,
+                            bool pIsDyn,
+                            ResolveInfo::Desc pDesc,
+                            ResolveInfo::Binding pBinding,
+                            ResolveInfo::ValueType pValue,
+                            ResolveInfo::SizeType pSize,
+                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+
+  /// addLocalSymbol - create a local symbol and add it into the output.
+  LDSymbol* addLocalSymbol(const llvm::StringRef& pName,
+                           ResolveInfo::Desc pDesc,
+                           ResolveInfo::ValueType pValue,
+                           ResolveInfo::SizeType pSize,
+                           ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// mergeSymbolTable - merge the symbol table and resolve symbols.
   ///   Since in current design, MCLinker resolves symbols when reading symbol
@@ -67,8 +76,8 @@ public:
 
   // -----  sections  ----- //
   /// getSectionMap - getSectionMap to change the behavior of SectionMerger
-  SectionMap& getSectionMap()
-  { return m_SectionMap; }
+  /// SectionMap& getSectionMap()
+  /// { return m_SectionMap; }
 
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
@@ -81,12 +90,12 @@ private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
 
 private:
-  MCLDInfo& m_Info;
   TargetLDBackend& m_Backend;
-
+  MCLDInfo& m_Info;
+  LDContext& m_Output;
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
-  SectionMap m_SectionMap;
+  // SectionMap& m_SectionMap;
 };
 
 } // namespace of mcld
