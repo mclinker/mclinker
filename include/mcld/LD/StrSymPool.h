@@ -12,12 +12,13 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/HashTable.h"
-#include "mcld/ADT/StringHash.h"
 #include <llvm/ADT/StringRef.h>
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/LD/ResolveInfo.h"
-#include "mcld/LD/ResolveInfoFactory.h"
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/StringHash.h>
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/ResolveInfoFactory.h>
+#include <utility>
 
 namespace llvm
 {
@@ -47,14 +48,25 @@ public:
   ~StrSymPool();
 
   // -----  modifiers  ----- //
+  /// createSymbol - create a symbol but do not insert into the pool.
+  ResolveInfo* createSymbol(const llvm::StringRef& pName,
+                            bool pIsDyn,
+                            ResolveInfo::Desc pDesc,
+                            ResolveInfo::Binding pBinding,
+                            ResolveInfo::ValueType pValue,
+                            ResolveInfo::SizeType pSize,
+                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  
   /// insertSymbol - insert a symbol and resolve the symbol immediately
   /// @return if the table is changed, return true. Otherwise, return false
-  bool insertSymbol(const llvm::StringRef& pName,
-                    bool pIsDyn,
-                    ResolveInfo::Desc pDesc,
-                    ResolveInfo::Binding pBinding,
-                    ResolveInfo::ValueType pValue,
-                    ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  std::pair<ResolveInfo*, bool> insertSymbol(const llvm::StringRef& pName,
+                                             bool pIsDyn,
+                                             ResolveInfo::Desc pDesc,
+                                             ResolveInfo::Binding pBinding,
+                                             ResolveInfo::ValueType pValue,
+                                             ResolveInfo::SizeType pSize,
+                                             ResolveInfo::Visibility pVisibility =
+                                                 ResolveInfo::Default);
 
   /// insertString - insert a string
   /// if the string has existed, modify pString to the existing string

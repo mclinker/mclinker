@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <utility>
 
 namespace mcld
 {
@@ -55,11 +56,11 @@ public:
   /// resolveAgain - Can override by derived classes.
   /// @return if pStrSymPool is changed, return true. Otherwise, return false.
   /// @param pAction the action returned by resolve()
-  virtual bool resolveAgain(StrSymPool& pStrSymPool,
-                            unsigned int pAction,
-                            ResolveInfo& __restrict__ pOld,
-                            const ResolveInfo& __restrict__ pNew)
-  { return false; }
+  virtual std::pair<ResolveInfo*, bool> resolveAgain(StrSymPool& pStrSymPool,
+                                                     unsigned int pAction,
+                                                     ResolveInfo& __restrict__ pOld,
+                                                     const ResolveInfo& __restrict__ pNew)
+  { return std::pair<ResolveInfo*, bool>(NULL, false); }
 
   const std::string& mesg() const
   { return m_Mesg; }

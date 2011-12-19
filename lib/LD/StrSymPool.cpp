@@ -25,25 +25,45 @@ StrSymPool::~StrSymPool()
     delete m_pResolver;
 }
 
+/// createSymbol - create a symbol
+ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
+                                      bool pIsDyn,
+                                      ResolveInfo::Desc pDesc,
+                                      ResolveInfo::Binding pBinding,
+                                      ResolveInfo::ValueType pValue,
+                                      ResolveInfo::SizeType pSize,
+                                      ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* result = m_Table.getEntryFactory().produce(pName);
+  result->setIsSymbol(true);
+  result->setSource(pIsDyn);
+  result->setDesc(pDesc);
+  result->setBinding(pBinding);
+  result->setVisibility(pVisibility);
+  result->setSize(pSize);
+  result->setValue(pValue);
+  return result;
+}
+
 /// insertSymbol - insert a symbol and resolve it immediately
-/// @return is the global symbol table changed
+/// @return is the symbol overriden
 ///
 /// If the symbol is a local symbol, we don't care if there are existing symbols
 /// with the same name. We insert the local symbol into the output's symbol table
 /// immediately. On the other side, if the symbol is not a local symbol, we use
 /// resolver to decide which symbol should be reserved.
 ///
-bool StrSymPool::insertSymbol(const llvm::StringRef& pName,
-                              bool pIsDyn,
-                              ResolveInfo::Desc pDesc,
-                              ResolveInfo::Binding pBinding,
-                              ResolveInfo::ValueType pValue,
-                              ResolveInfo::Visibility pVisibility)
+std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pName,
+                                                       bool pIsDyn,
+                                                       ResolveInfo::Desc pDesc,
+                                                       ResolveInfo::Binding pBinding,
+                                                       ResolveInfo::ValueType pValue,
+                                                       ResolveInfo::SizeType pSize,
+                                                       ResolveInfo::Visibility pVisibility)
 {
   // insert local symbol immediately
-  if (ResolveInfo::Local == pBinding) {
-    return false;
-  }
+  if (ResolveInfo::Local == pBinding)
+    return std::pair<ResolveInfo*, bool>(NULL, false);
 
   // If the symbole is not a local symbol, we should check if there is any
   // symbol with the same name existed. If it already exists, we should use
@@ -55,27 +75,32 @@ bool StrSymPool::insertSymbol(const llvm::StringRef& pName,
   new_symbol = (exist && old_symbol->isSymbol())?
     m_Table.getEntryFactory().produce(pName):
     old_symbol;
+  new_symbol->setIsSymbol(true);
   new_symbol->setSource(pIsDyn);
   new_symbol->setDesc(pDesc);
   new_symbol->setBinding(pBinding);
   new_symbol->setVisibility(pVisibility);
   new_symbol->setValue(pValue);
-  if (!exist || !old_symbol->isSymbol())
-    return true;
+  new_symbol->setSize(pSize);
+  if (new_symbol == old_symbol) // not exit or not a symbol
+    return std::pair<ResolveInfo*, bool>(old_symbol, true);
 
+  // exit and is a symbol
   // symbol resolution
   bool override = false;
   unsigned int action = Resolver::LastAction;
   switch(m_pResolver->resolve(*old_symbol, *new_symbol, override)) {
-    case Resolver::Success:
-      return override;
-    case Resolver::Warning:
+    case Resolver::Success: {
+      return std::pair<ResolveInfo*, bool>(old_symbol, override);
+    }
+    case Resolver::Warning: {
       llvm::errs() << "WARNING: " << m_pResolver->mesg() << "\n";
       m_pResolver->clearMesg();
-      return override;
+      return std::pair<ResolveInfo*, bool>(old_symbol, override);
+    }
     case Resolver::Abort:
       llvm::report_fatal_error(m_pResolver->mesg());
-      return false;
+      return std::pair<ResolveInfo*, bool>(old_symbol, false);
     default:
       return m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol);
   }

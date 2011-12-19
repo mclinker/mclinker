@@ -117,15 +117,6 @@ public:
                                const ResolveInfo & __restrict__ pNew,
                                bool &pOverride);
 
-  /// resolveAgain - Can override by derived classes.
-  /// @return if pStrSymPool is changed, return true. Otherwise, return false.
-  /// @param pAction the action returned by resolve()
-  virtual bool resolveAgain(StrSymPool& pStrSymPool,
-                            unsigned int pAction,
-                            ResolveInfo& __restrict__ pOld,
-                            const ResolveInfo& __restrict__ pNew)
-  { return false; }
-
   StaticResolver* doClone() const {
     return new StaticResolver(*this);
   }
