@@ -27,6 +27,7 @@
 #include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
 
 using namespace llvm;
 
@@ -138,6 +139,133 @@ FileType("filetype", cl::init(mcld::CGFT_EXEFile),
 
 cl::opt<bool> NoVerify("disable-verify", cl::Hidden,
                        cl::desc("Do not verify input module"));
+
+static cl::opt<bool>
+EnableFPMAD("enable-fp-mad",
+  cl::desc("Enable less precise MAD instructions to be generated"),
+  cl::init(false));
+
+static cl::opt<bool>
+PrintCode("print-machineinstrs",
+  cl::desc("Print generated machine code"),
+  cl::init(false));
+
+static cl::opt<bool>
+DisableFPElim("disable-fp-elim",
+  cl::desc("Disable frame pointer elimination optimization"),
+  cl::init(false));
+
+static cl::opt<bool>
+DisableFPElimNonLeaf("disable-non-leaf-fp-elim",
+  cl::desc("Disable frame pointer elimination optimization for non-leaf funcs"),
+  cl::init(false));
+
+static cl::opt<bool>
+DisableExcessPrecision("disable-excess-fp-precision",
+  cl::desc("Disable optimizations that may increase FP precision"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableUnsafeFPMath("enable-unsafe-fp-math",
+  cl::desc("Enable optimizations that may decrease FP precision"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableNoInfsFPMath("enable-no-infs-fp-math",
+  cl::desc("Enable FP math optimizations that assume no +-Infs"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableNoNaNsFPMath("enable-no-nans-fp-math",
+  cl::desc("Enable FP math optimizations that assume no NaNs"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableHonorSignDependentRoundingFPMath("enable-sign-dependent-rounding-fp-math",
+  cl::Hidden,
+  cl::desc("Force codegen to assume rounding mode can change dynamically"),
+  cl::init(false));
+
+static cl::opt<bool>
+GenerateSoftFloatCalls("soft-float",
+  cl::desc("Generate software floating point library calls"),
+  cl::init(false));
+
+static cl::opt<llvm::FloatABI::ABIType>
+FloatABIForCalls("float-abi",
+  cl::desc("Choose float ABI type"),
+  cl::init(FloatABI::Default),
+  cl::values(
+    clEnumValN(FloatABI::Default, "default",
+               "Target default float ABI type"),
+    clEnumValN(FloatABI::Soft, "soft",
+               "Soft float ABI (implied by -soft-float)"),
+    clEnumValN(FloatABI::Hard, "hard",
+               "Hard float ABI (uses FP registers)"),
+    clEnumValEnd));
+
+static cl::opt<bool>
+DontPlaceZerosInBSS("nozero-initialized-in-bss",
+  cl::desc("Don't place zero-initialized symbols into bss section"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableJITExceptionHandling("jit-enable-eh",
+  cl::desc("Emit exception handling information"),
+  cl::init(false));
+
+// In debug builds, make this default to true.
+#ifdef NDEBUG
+#define EMIT_DEBUG false
+#else
+#define EMIT_DEBUG true
+#endif
+static cl::opt<bool>
+EmitJitDebugInfo("jit-emit-debug",
+  cl::desc("Emit debug information to debugger"),
+  cl::init(EMIT_DEBUG));
+#undef EMIT_DEBUG
+
+static cl::opt<bool>
+EmitJitDebugInfoToDisk("jit-emit-debug-to-disk",
+  cl::Hidden,
+  cl::desc("Emit debug info objfiles to disk"),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableGuaranteedTailCallOpt("tailcallopt",
+  cl::desc("Turn fastcc calls into tail calls by (potentially) changing ABI."),
+  cl::init(false));
+
+static cl::opt<unsigned>
+OverrideStackAlignment("stack-alignment",
+  cl::desc("Override default stack alignment"),
+  cl::init(0));
+
+static cl::opt<bool>
+EnableRealignStack("realign-stack",
+  cl::desc("Realign stack if needed"),
+  cl::init(true));
+
+static cl::opt<bool>
+DisableSwitchTables(cl::Hidden, "disable-jump-tables",
+  cl::desc("Do not generate jump tables."),
+  cl::init(false));
+
+static cl::opt<bool>
+EnableStrongPHIElim(cl::Hidden, "strong-phi-elim",
+  cl::desc("Use strong PHI elimination."),
+  cl::init(false));
+
+static cl::opt<std::string>
+TrapFuncName("trap-func", cl::Hidden,
+  cl::desc("Emit a call to trap function rather than a trap instruction"),
+  cl::init(""));
+
+static cl::opt<bool>
+SegmentedStacks("segmented-stacks",
+  cl::desc("Use segmented stacks if possible."),
+  cl::init(false));
 
 //===----------------------------------------------------------------------===//
 /// non-member functions
