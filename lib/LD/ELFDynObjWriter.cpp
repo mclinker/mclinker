@@ -87,10 +87,25 @@ uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
        E = context->symEnd<LDContext::RegSymTable>();
        I != E;
        ++I) {
-    uint8_t info = (((*I)->binding()) << 4) + (((*I)->type()) & 0x0f);
 
     if (!(*I)->isDyn())
       continue;
+
+    uint8_t resolve_binding = (*I)->binding();
+    uint8_t elf_binding;
+
+    switch (resolve_binding)
+    {
+      case ResolveInfo::Absolute:
+      case ResolveInfo::Global: elf_binding = ELF::STB_GLOBAL; break;
+      case ResolveInfo::Local: elf_binding = ELF::STB_LOCAL; break;
+      case ResolveInfo::Weak: elf_binding = ELF::STB_WEAK; break;
+      case ResolveInfo::NoneBinding:
+      default: assert(0 && "unknown binding!");
+    }
+
+    uint8_t info = (elf_binding << 4) + (((*I)->type()) & 0x0f);
+
 
     file_offset += WriteSymbolEntry(file_offset,
                                     str_index,     /* name  */
