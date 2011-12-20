@@ -86,13 +86,13 @@ void ResolveInfo::setSource(bool pIsDyn)
 void ResolveInfo::setType(uint32_t pType)
 {
   m_BitField &= ~TYPE_MASK;
-  m_BitField |= (pType << TYPE_OFFSET);
+  m_BitField |= ((pType << TYPE_OFFSET) & TYPE_MASK);
 }
 
 void ResolveInfo::setDesc(uint32_t pDesc)
 {
   m_BitField &= ~DESC_MASK;
-  m_BitField |= (pDesc << DESC_OFFSET);
+  m_BitField |= ((pDesc << DESC_OFFSET) & DESC_MASK);
 }
 
 void ResolveInfo::setBinding(uint32_t pBinding)
@@ -102,6 +102,12 @@ void ResolveInfo::setBinding(uint32_t pBinding)
     m_BitField |= local_flag;
   if (pBinding == Weak || pBinding == Absolute)
     m_BitField |= weak_flag;
+}
+
+void ResolveInfo::setReserved(uint32_t pReserved)
+{
+  m_BitField &= ~RESERVED_MASK;
+  m_BitField |= ((pReserved << RESERVED_OFFSET) & RESERVED_MASK);
 }
 
 void ResolveInfo::setOther(uint32_t pOther)
@@ -115,20 +121,12 @@ void ResolveInfo::setVisibility(ResolveInfo::Visibility pVisibility)
   m_BitField |= pVisibility << VISIBILITY_OFFSET;
 }
 
-void ResolveInfo::setHasPLT(bool pHasPLT)
-{
-  if (pHasPLT)
-    m_BitField |= has_plt_flag;
-  else
-    m_BitField &= ~has_plt_flag;
-}
-
 void ResolveInfo::setIsSymbol(bool pIsSymbol)
 {
   if (pIsSymbol)
-    m_BitField |= is_symbol_flag;
+    m_BitField |= symbol_flag;
   else
-    m_BitField &= ~is_symbol_flag;
+    m_BitField &= ~symbol_flag;
 }
 
 bool ResolveInfo::isDyn() const
@@ -180,27 +178,27 @@ bool ResolveInfo::isAbsolute() const
   return (absolute_flag == (m_BitField & BINDING_MASK));
 }
 
-bool ResolveInfo::hasPLT() const
-{
-  return (has_plt_flag == (m_BitField & PLT_MASK));
-}
-
 bool ResolveInfo::isSymbol() const
 {
-  return (is_symbol_flag == (m_BitField & ISSYMBOL_MASK));
+  return (symbol_flag == (m_BitField & SYMBOL_MASK));
 }
 
-unsigned int ResolveInfo::type() const
+bool ResolveInfo::isString() const
+{
+  return (string_flag == (m_BitField & SYMBOL_MASK));
+}
+
+uint32_t ResolveInfo::type() const
 {
   return (m_BitField & TYPE_MASK) >> TYPE_OFFSET;
 }
 
-unsigned int ResolveInfo::desc() const
+uint32_t ResolveInfo::desc() const
 {
   return (m_BitField & DESC_MASK) >> DESC_OFFSET;
 }
 
-unsigned int ResolveInfo::binding() const
+uint32_t ResolveInfo::binding() const
 {
   if (m_BitField & LOCAL_MASK) {
     if (m_BitField & GLOBAL_MASK) {
@@ -209,6 +207,11 @@ unsigned int ResolveInfo::binding() const
     return ResolveInfo::Local;
   }
   return m_BitField & GLOBAL_MASK;
+}
+
+uint32_t ResolveInfo::reserved() const
+{
+  return (m_BitField & RESERVED_MASK) >> RESERVED_OFFSET;
 }
 
 ResolveInfo::Visibility ResolveInfo::visibility() const

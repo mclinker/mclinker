@@ -63,26 +63,26 @@ public:
    *   In ELF, is a part of st_shndx
    */
   enum Desc {
-    Undefined,
-    Define,
-    Common,
-    Indirect,
+    Undefined    = 0,
+    Define       = 1,
+    Common       = 2,
+    Indirect     = 3,
     NoneDesc
   };
 
   enum Binding {
-    Global,
-    Weak,
-    Local,
-    Absolute,
+    Global       = 0,
+    Weak         = 1,
+    Local        = 2,
+    Absolute     = 3,
     NoneBinding
   };
 
   enum Visibility {
-    Default = 0,
-    Internal = 1,
-    Hidden = 2,
-    Protected = 3
+    Default      = 0,
+    Internal     = 1,
+    Hidden       = 2,
+    Protected    = 3
   };
 
   // -----  For HashTable  ----- //
@@ -110,9 +110,9 @@ public:
 
   void setVisibility(Visibility pVisibility);
 
-  void setHasPLT(bool pHasPLT);
-
   void setIsSymbol(bool pIsSymbol);
+
+  void setReserved(uint32_t pReserved);
 
   void setValue(ValueType pValue)
   { m_Value.value = pValue; }
@@ -135,6 +135,8 @@ public:
   // -----  observers  ----- //
   bool isSymbol() const;
 
+  bool isString() const;
+
   bool isGlobal() const;
 
   bool isWeak() const;
@@ -153,13 +155,13 @@ public:
 
   bool isIndirect() const;
 
-  bool hasPLT() const;
+  uint32_t type() const;
 
-  unsigned int type() const;
+  uint32_t desc() const;
 
-  unsigned int desc() const;
+  uint32_t binding() const;
 
-  unsigned int binding() const;
+  uint32_t reserved() const;
 
   uint8_t other() const
   { return (uint8_t)visibility(); }
@@ -191,34 +193,33 @@ public:
   bool compare(const key_type& pKey);
 
 private:
-  static const uint32_t GLOBAL_OFFSET = 0;
-  static const uint32_t GLOBAL_MASK = 1;
+  static const uint32_t GLOBAL_OFFSET      = 0;
+  static const uint32_t GLOBAL_MASK        = 1;
 
-  static const uint32_t DYN_OFFSET = 1;
-  static const uint32_t DYN_MASK = 1 << DYN_OFFSET;
+  static const uint32_t DYN_OFFSET         = 1;
+  static const uint32_t DYN_MASK           = 1   << DYN_OFFSET;
 
-  static const uint32_t DESC_OFFSET = 2;
-  static const uint32_t DESC_MASK = 0x3 << DESC_OFFSET;
+  static const uint32_t DESC_OFFSET        = 2;
+  static const uint32_t DESC_MASK          = 0x3 << DESC_OFFSET;
 
-  static const uint32_t LOCAL_OFFSET = 4;
-  static const uint32_t LOCAL_MASK = 1 << LOCAL_OFFSET;
+  static const uint32_t LOCAL_OFFSET       = 4;
+  static const uint32_t LOCAL_MASK         = 1   << LOCAL_OFFSET;
 
-  static const uint32_t BINDING_MASK = GLOBAL_MASK | LOCAL_MASK;
+  static const uint32_t BINDING_MASK       = GLOBAL_MASK | LOCAL_MASK;
 
-  static const uint32_t VISIBILITY_OFFSET = 5;
-  static const uint32_t VISIBILITY_MASK = 0x3 << VISIBILITY_OFFSET;
+  static const uint32_t VISIBILITY_OFFSET  = 5;
+  static const uint32_t VISIBILITY_MASK    = 0x3 << VISIBILITY_OFFSET;
 
-  static const uint32_t PLT_OFFSET = 7;
-  static const uint32_t PLT_MASK = 1 << PLT_OFFSET;
+  static const uint32_t TYPE_OFFSET        = 7;
+  static const uint32_t TYPE_MASK          = 0xF << TYPE_OFFSET;
 
-  static const uint32_t TYPE_OFFSET = 8;
-  static const uint32_t TYPE_MASK = 0xF << TYPE_OFFSET;
+  static const uint32_t SYMBOL_OFFSET      = 11;
+  static const uint32_t SYMBOL_MASK        = 1   << SYMBOL_OFFSET;
 
-  static const uint32_t ISSYMBOL_OFFSET = 12;
-  static const uint32_t ISSYMBOL_MASK = 1 << ISSYMBOL_OFFSET;
-
+  static const uint32_t RESERVED_OFFSET    = 12;
+  static const uint32_t RESERVED_MASK      = 0xF << RESERVED_OFFSET;
   static const uint32_t NAME_LENGTH_OFFSET = 16;
-  static const uint32_t RESOLVE_MASK = 0xFFF;
+  static const uint32_t RESOLVE_MASK       = 0xFFFF;
 
   union ValOrPtr {
     ValueType value;
@@ -236,12 +237,12 @@ public:
   static const uint32_t indirect_flag  = 3        << DESC_OFFSET;
   static const uint32_t local_flag     = 1        << LOCAL_OFFSET;
   static const uint32_t absolute_flag  = BINDING_MASK;
-  static const uint32_t has_plt_flag   = 1        << PLT_OFFSET;
   static const uint32_t object_flag    = Object   << TYPE_OFFSET;
   static const uint32_t function_flag  = Function << TYPE_OFFSET;
   static const uint32_t section_flag   = Section  << TYPE_OFFSET;
   static const uint32_t file_flag      = File     << TYPE_OFFSET;
-  static const uint32_t is_symbol_flag = 1        << ISSYMBOL_OFFSET;
+  static const uint32_t string_flag    = 0        << SYMBOL_OFFSET;
+  static const uint32_t symbol_flag    = 1        << SYMBOL_OFFSET;
 
 private:
   ResolveInfo();
@@ -254,8 +255,8 @@ private:
   ValOrPtr m_Value;
 
   /** m_BitField
-   *  31     ...    16 15    13 12     11..8 7   6      ..    5 4     3   2   1   0
-   * |length of m_Name|reserved|Symbol|Type |PLT|ELF visibility|Local|Com|Def|Dyn|Weak|
+   *  31     ...    16 15    12 11     10..7 6      ..    5 4     3   2   1   0
+   * |length of m_Name|reserved|Symbol|Type |ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
   char m_Name[0];
