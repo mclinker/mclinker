@@ -43,7 +43,7 @@ void MemoryArea::truncate(off_t length)
   if( -1 == ftruncate(m_FileDescriptor, length)) {
     std::stringstream error_mesg;
     error_mesg << "Cannot truncate `";
-    error_mesg << error_mesg << m_FilePath.native();
+    error_mesg << m_FilePath.native();
     error_mesg << "' to size: " << length;
     llvm::report_fatal_error (error_mesg.str());
   }
@@ -54,10 +54,20 @@ void MemoryArea::map(const sys::fs::Path& pPath, int pFlags)
   m_AccessFlags = pFlags;
   m_FilePath = pPath;
   m_FileDescriptor = ::open(m_FilePath.c_str(), m_AccessFlags);
-  if (-1 == m_FileDescriptor)
+
+  if (-1 == m_FileDescriptor) {
     m_State |= FailBit;
-  else
-    m_State = GoodBit;
+  }
+  else {
+    struct stat st;
+
+    if (!stat(m_FilePath.c_str(), &st))
+      m_FileSize = (off_t) st.st_size;
+    else
+      m_FileSize = 0;
+
+     m_State = GoodBit;
+  }
 }
 
 void MemoryArea::map(const sys::fs::Path& pPath, int pFlags, int pMode)
@@ -65,10 +75,20 @@ void MemoryArea::map(const sys::fs::Path& pPath, int pFlags, int pMode)
   m_AccessFlags = pFlags;
   m_FilePath = pPath;
   m_FileDescriptor = ::open(m_FilePath.c_str(), m_AccessFlags, pMode);
-  if (-1 == m_FileDescriptor)
+
+  if (-1 == m_FileDescriptor) {
     m_State |= FailBit;
-  else
-    m_State = GoodBit;
+  }
+  else {
+    struct stat st;
+
+    if (!stat(m_FilePath.c_str(), &st))
+      m_FileSize = (off_t) st.st_size;
+    else
+      m_FileSize = 0;
+
+     m_State = GoodBit;
+  }
 }
 
 void MemoryArea::unmap()
