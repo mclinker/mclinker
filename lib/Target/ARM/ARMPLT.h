@@ -69,13 +69,18 @@ public:
  */
 class ARMPLT : public PLT
 {
-public:
-   typedef PLTEntry Entry;
+  typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
 
 public:
-   ARMPLT(const LDSection& pSection, GOT& pGOTPLT);
+   ARMPLT(const LDSection& pSection, GOT& m_pGOTPLT);
    ~ARMPLT();
-   void addEntry(LDSymbol& pSym);
+
+public:
+   // Override pure virtual function
+   PLTEntry* getOrCreateGOTPLT(ResolveInfo& pInfo);
+
+private:
+   SymbolIndexType m_SymbolIndexMap;
 };
 
 } // namespace of mcld

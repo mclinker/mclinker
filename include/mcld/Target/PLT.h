@@ -20,7 +20,7 @@ namespace mcld
 {
 
 class GOT;
-class LDSymbol;
+class ResolveInfo;
 
 /** \class PLTEntry
  */
@@ -50,15 +50,23 @@ protected:
  */
 class PLT : public llvm::MCSectionData
 {
+  typedef GOT GOTPLTType;
+
 public:
   PLT(const LDSection& pSection, GOT& pGOTPLT);
   virtual ~PLT();
 
-  // -----  modifiers  ----- //
-  virtual void addEntry(LDSymbol& pSymbol) = 0;
+  GOTPLTType& getGOTPLT()
+  { return m_GOTPLT; }
 
-private:
-  GOT& m_GOTPLT;
+  const GOTPLTType& getGOTPLT() const
+  { return m_GOTPLT; }
+
+public:
+  virtual PLTEntry* getOrCreateGOTPLT(const ResolveInfo& info) = 0;
+
+protected:
+  GOTPLTType& m_GOTPLT;
 };
 
 } // namespace of mcld
