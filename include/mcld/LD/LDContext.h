@@ -23,7 +23,6 @@ namespace mcld
 
 class LDSymbol;
 class LDSection;
-class SectionFactory;
 
 /** \class LDContext
  *  \brief LDContext stores the data which a object file should has
@@ -45,14 +44,11 @@ public:
   typedef SymbolTable::const_iterator const_sym_iterator;
 
 public:
-  LDContext(SectionFactory& pSectionFactory);
+  LDContext();
 
   ~LDContext();
 
   // -----  sections  ----- //
-  SectionFactory& getSectFactory()
-  { return m_SectionFactory; }
-  
   SectionTable& getSectionTable()
   { return m_SectionTable; }
 
@@ -122,8 +118,6 @@ private:
   SectionTable m_SectionTable;
   SymbolTable m_SymTab;
   SymbolTable m_DynSym;
-
-  SectionFactory& m_SectionFactory;
 };
 
 //===----------------------------------------------------------------------===//

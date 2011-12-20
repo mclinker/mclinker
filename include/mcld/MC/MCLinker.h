@@ -34,6 +34,7 @@ class Layout;
 class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
+class SectionFactory;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -79,6 +80,15 @@ public:
   /// SectionMap& getSectionMap()
   /// { return m_SectionMap; }
 
+  /// getSectFactory - getSectFactory to create LDSection
+  SectionFactory& getSectFactory()
+  { return m_SectionFactory; }
+
+  const LDSection* getOrCreateSection(const std::string& pName,
+                                LDFileFormat::Kind pKind,
+                                uint32_t pType,
+                                uint32_t pFlag);
+
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
   { return m_Info; }
@@ -95,6 +105,7 @@ private:
   LDContext& m_Output;
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
+  SectionFactory m_SectionFactory;
   // SectionMap& m_SectionMap;
 };
 

@@ -33,7 +33,8 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_Output(pContext),
   m_StrSymPool(pResolver),
 //  m_SectionMap(pSectionMap),
-  m_LDSymbolFactory(128)
+  m_LDSymbolFactory(128),
+  m_SectionFactory(10) // the average number of sections. (assuming 10.)
 {
 }
 
@@ -91,5 +92,13 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
 
   m_Output.symtab().push_back(result);
   return result;
+}
+
+const LDSection* MCLinker::getOrCreateSection(const std::string& pName,
+                                        LDFileFormat::Kind pKind,
+                                        uint32_t pType,
+                                        uint32_t pFlag)
+{
+  return NULL;
 }
 

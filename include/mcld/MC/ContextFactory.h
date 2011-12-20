@@ -13,7 +13,6 @@
 #endif
 
 #include <mcld/LD/LDContext.h>
-#include <mcld/LD/SectionFactory.h>
 #include <mcld/Support/UniqueGCFactory.h>
 #include <mcld/Support/Path.h>
 
@@ -40,9 +39,6 @@ public:
   ~ContextFactory();
 
   LDContext* produce(const sys::fs::Path& pPath);
-
-private:
-  SectionFactory m_SectionFactory;
 };
 
 } // namespace of mcld

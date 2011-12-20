@@ -14,8 +14,7 @@ using namespace mcld;
 //===---------------------------------------------------------------------===//
 // LDContextFactory
 ContextFactory::ContextFactory(size_t pNum)
-  : UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>(pNum),
-    m_SectionFactory(10) // the average number of sections. assume 10.
+  : UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>(pNum)
 {
 }
 
@@ -28,7 +27,7 @@ LDContext* ContextFactory::produce(const sys::fs::Path& pPath)
   LDContext* result = find(pPath);
   if (0 == result) {
     result = UniqueGCFactoryBase<sys::fs::Path, LDContext, 0>::allocate();
-    new (result) LDContext(m_SectionFactory);
+    new (result) LDContext();
     f_KeyMap.insert(std::make_pair(pPath, result));
   }
   return result;
