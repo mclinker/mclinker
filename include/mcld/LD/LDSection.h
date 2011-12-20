@@ -32,7 +32,7 @@ namespace mcld {
  *  abstraction for various file formats.
  *
  *  LDSection contains both the format-dependent data and LLVM specific data.
- *  
+ *
  */
 class LDSection : public llvm::MCSection
 {
@@ -92,6 +92,14 @@ public:
   uint64_t addr() const
   { return m_Addr; }
 
+  /// link - ELF::sh_link, which means the section links to another section.
+  uint64_t link() const
+  { return m_Link; }
+
+  /// info - ELF::sh_info, which represent the additional section information.
+  uint64_t info() const
+  { return m_Info; }
+
   void setSize(uint64_t size)
   { m_Size = size; }
 
@@ -106,6 +114,12 @@ public:
 
   void setType(uint32_t type)
   { m_Type = type; }
+
+  void setLink(uint64_t link)
+  { m_Link = link; }
+
+  void setInfo(uint64_t info)
+  { m_Info = info; }
 
   static bool classof(const MCSection *S)
   { return S->getVariant() == SV_LDContext; }
@@ -134,6 +148,9 @@ private:
 
   uint32_t m_Flag;
   uint32_t m_Type;
+
+  uint64_t m_Link;
+  uint64_t m_Info;
 
 }; // end of LDSection
 
