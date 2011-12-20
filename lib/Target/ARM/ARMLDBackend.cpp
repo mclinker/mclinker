@@ -49,7 +49,19 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
   assert(NULL != got);
   m_pGOT = new ARMGOT(*got);
-    
+
+  m_pEXIDX             = pLinker.getOrCreateSectHdr(".ARM.exidx",
+                                                    LDFileFormat::MetaData,
+                                                    ELF::SHT_ARM_EXIDX,
+                                                    ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
+  m_pEXTAB             = pLinker.getOrCreateSectHdr(".ARM.extab",
+                                                    LDFileFormat::MetaData,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC);
+  m_pAttributes        = pLinker.getOrCreateSectHdr(".ARM.attributes",
+                                                    LDFileFormat::MetaData,
+                                                    ELF::SHT_ARM_ATTRIBUTES,
+                                                    ELF::SHF_ALLOC);
 }
 
 ARMGOT& ARMGNULDBackend::getGOT()

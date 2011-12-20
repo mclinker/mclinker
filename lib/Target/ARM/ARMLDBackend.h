@@ -11,6 +11,7 @@
 
 #include "ARMGOT.h"
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/LD/LDSection.h>
 
 namespace mcld {
 
@@ -45,6 +46,13 @@ public:
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;
+  //     variable name           :  ELF
+  LDSection* m_pEXIDX;           // .ARM.exidx
+  LDSection* m_pEXTAB;           // .ARM.extab
+  LDSection* m_pAttributes;      // .ARM.attributes
+//  LDSection* m_pPreemptMap;      // .ARM.preemptmap
+//  LDSection* m_pDebugOverlay;    // .ARM.debug_overlay
+//  LDSection* m_pOverlayTable;    // .ARM.overlay_table
 };
 
 //===----------------------------------------------------------------------===//
