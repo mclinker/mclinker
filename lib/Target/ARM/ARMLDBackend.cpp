@@ -43,7 +43,7 @@ bool ARMGNULDBackend::isLittleEndian() const
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got = pLinker.getOrCreateSection(".got",
+  const LDSection* got = pLinker.getOrCreateSectHdr(".got",
                                                     LDFileFormat::GOT,
                                                     ELF::SHT_PROGBITS,
                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);

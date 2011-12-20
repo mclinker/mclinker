@@ -95,7 +95,7 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   return result;
 }
 
-LDSection* MCLinker::getOrCreateSection(const std::string& pName,
+LDSection* MCLinker::getOrCreateSectHdr(const std::string& pName,
                                         LDFileFormat::Kind pKind,
                                         uint32_t pType,
                                         uint32_t pFlag)
@@ -106,3 +106,7 @@ LDSection* MCLinker::getOrCreateSection(const std::string& pName,
   return result;
 }
 
+llvm::MCSectionData* MCLinker::getOrCreateSectData(const std::string& pName)
+{
+  return NULL;
+}

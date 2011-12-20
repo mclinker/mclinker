@@ -76,11 +76,15 @@ public:
   /// SectionMap& getSectionMap()
   /// { return m_SectionMap; }
 
-  //// getOrCreateSection - to get or create a standard/target section header of output file
-  LDSection* getOrCreateSection(const std::string& pName,
+  /// getOrCreateSectHdr - for standard/target format to get or create a
+  ///                      section header of output file
+  LDSection* getOrCreateSectHdr(const std::string& pName,
                                 LDFileFormat::Kind pKind,
                                 uint32_t pType,
                                 uint32_t pFlag);
+
+  /// getOrCreateSectData - for reader to map and perform section merging immediately
+  llvm::MCSectionData* getOrCreateSectData(const std::string& pName);
 
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
