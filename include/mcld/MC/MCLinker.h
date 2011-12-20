@@ -22,7 +22,7 @@
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/StaticResolver.h>
-#include <mcld/LD/SectionFactory.h>
+#include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Support/GCFactory.h>
@@ -34,17 +34,13 @@ class Layout;
 class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
-class SectionFactory;
+class LDSectionFactory;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
  */
 class MCLinker
 {
-public:
-  typedef SectionFactory::iterator sect_iterator;
-  typedef SectionFactory::const_iterator const_sect_iterator;
-
 public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
@@ -80,10 +76,7 @@ public:
   /// SectionMap& getSectionMap()
   /// { return m_SectionMap; }
 
-  /// getSectFactory - getSectFactory to create LDSection
-  SectionFactory& getSectFactory()
-  { return m_SectionFactory; }
-
+  //// getOrCreateSection - to get or create a standard/target section header of output file
   LDSection* getOrCreateSection(const std::string& pName,
                                 LDFileFormat::Kind pKind,
                                 uint32_t pType,
@@ -105,7 +98,7 @@ private:
   LDContext& m_Output;
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
-  SectionFactory m_SectionFactory;
+  LDSectionFactory m_OutputSectHdrFactory;
   // SectionMap& m_SectionMap;
 };
 

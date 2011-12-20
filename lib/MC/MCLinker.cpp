@@ -16,10 +16,11 @@
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/SectionFactory.h>
+#include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
+#include <cstdio>
 
 using namespace mcld;
 
@@ -34,7 +35,7 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_StrSymPool(pResolver),
 //  m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
-  m_SectionFactory(10) // the average number of sections. (assuming 10.)
+  m_OutputSectHdrFactory(10) // the average number of sections. (assuming 10.)
 {
 }
 
@@ -99,6 +100,9 @@ LDSection* MCLinker::getOrCreateSection(const std::string& pName,
                                         uint32_t pType,
                                         uint32_t pFlag)
 {
-  return NULL;
+  LDSection* result = m_OutputSectHdrFactory.find(pName);
+  if (NULL == result)
+    result = m_OutputSectHdrFactory.produce(pName, pKind, pType, pFlag);
+  return result;
 }
 

@@ -1,4 +1,4 @@
-//===- SectionFactory.h ---------------------------------------------------===//
+//===- LDSectionFactory.h -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SECTION_FACTORY_H
-#define MCLD_SECTION_FACTORY_H
+#ifndef MCLD_LDSECTION_FACTORY_H
+#define MCLD_LDSECTION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,16 +19,16 @@
 namespace mcld
 {
 
-/** \class SectionFactory
+/** \class LDSectionFactory
  *  \brief provide the interface to create and delete section data for output
  */
-class SectionFactory : public GCFactory<LDSection, 0>
+class LDSectionFactory : public GCFactory<LDSection, 0>
 {
 public:
-  /// SectionFactory - the factory of LDSection
+  /// LDSectionFactory - the factory of LDSection
   /// pNum is the average number of the LDSections in the system.
-  SectionFactory(size_t pNum);
-  ~SectionFactory();
+  LDSectionFactory(size_t pNum);
+  ~LDSectionFactory();
 
   /// produce - produce an empty section information.
   /// This function will create an empty MCSectionData and its LDSection.
@@ -46,6 +46,10 @@ public:
   ///          after the destruction, the pointer is set to zero.
   void destroy(LDSection*& pSD);
 
+  /// find - find the LDSection* in factory from the given section name.
+  ///        return NULL if not found.
+  /// @param pName - the name of section
+  LDSection* find(const std::string& pName);
 };
 
 } // namespace of mcld

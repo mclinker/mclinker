@@ -1,4 +1,4 @@
-//===- SectionFactory.cpp -------------------------------------------------===//
+//===- LDSectionFactory.cpp -----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,21 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/SectionFactory.h>
+#include <mcld/LD/LDSectionFactory.h>
 
 using namespace mcld;
 
 //==========================
-// SectionFactory
-SectionFactory::SectionFactory(size_t pNum)
+// LDSectionFactory
+LDSectionFactory::LDSectionFactory(size_t pNum)
   : GCFactory<LDSection, 0>(pNum) {
 }
 
-SectionFactory::~SectionFactory()
+LDSectionFactory::~LDSectionFactory()
 {
 }
 
-LDSection* SectionFactory::produce(const std::string& pName,
+LDSection* LDSectionFactory::produce(const std::string& pName,
                                    LDFileFormat::Kind pKind,
                                    uint32_t pType,
                                    uint32_t pFlag)
@@ -31,9 +31,19 @@ LDSection* SectionFactory::produce(const std::string& pName,
   return result;
 }
 
-void SectionFactory::destroy(LDSection*& pSection)
+void LDSectionFactory::destroy(LDSection*& pSection)
 {
   // do not recycle LDSection. HeaderFactory will do that job.
   deallocate(pSection);
 }
 
+LDSection* LDSectionFactory::find(const std::string& pName)
+{
+  iterator sect_iter, sect_end = end();
+  for (sect_iter = begin(); sect_iter != sect_end; ++sect_iter)
+    if ((*sect_iter).name() == pName)
+      break;
+  if (sect_iter == sect_end)
+    return NULL;
+  return &(*sect_iter);
+}
