@@ -10,6 +10,7 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInput.h>
+#include <sstream>
 
 using namespace mcld;
 
