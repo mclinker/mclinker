@@ -344,6 +344,7 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
   case mcld::CGFT_ASMFile:
     break;
   case mcld::CGFT_ARCFile:
+  case mcld::CGFT_OBJFile:
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:
   case mcld::CGFT_NULLFile:
