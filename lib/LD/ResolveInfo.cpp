@@ -67,7 +67,7 @@ void ResolveInfo::overrideVisibility(const ResolveInfo& pFrom)
 
 void ResolveInfo::setRegular()
 {
-  m_BitField &= ~DYN_MASK;
+  m_BitField &= (~dynamic_flag);
 }
 
 void ResolveInfo::setDynamic()
@@ -78,9 +78,9 @@ void ResolveInfo::setDynamic()
 void ResolveInfo::setSource(bool pIsDyn)
 {
   if (pIsDyn)
-    m_BitField &= ~DYN_MASK;
-  else
     m_BitField |= dynamic_flag;
+  else
+    m_BitField &= (~dynamic_flag);
 }
 
 void ResolveInfo::setType(uint32_t pType)
