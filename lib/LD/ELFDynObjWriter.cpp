@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFDynObjWriter.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
@@ -31,10 +32,103 @@ ELFDynObjWriter::~ELFDynObjWriter()
 
 bool ELFDynObjWriter::WriteObject()
 {
+uint32_t file_offset = (32 == target().bitclass()) ?
+                       sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf32_Ehdr);
+
+  // Write out .dynsym
+  file_offset += WriteDynSymTab(file_offset);
+
+  // Write out .dynstr
+  file_offset += WriteDynStrTab(file_offset);
+
   if (!WriteELFHeader())
     return false;
 
   return true;
+}
+
+uint32_t ELFDynObjWriter::WriteDynStrTab(uint32_t file_offset)
+{
+  assert(!dynstrTab.empty());
+
+  uint32_t str_size = dynstrTab.back().second;
+  dynstrTab.pop_back();
+
+  MemoryArea *mem = m_Linker.getLDInfo().output().memArea();
+  MemoryRegion* pRegion = mem->request(file_offset, str_size);
+  ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
+
+  for (StrTab::iterator I = dynstrTab.begin(), E = dynstrTab.end();
+       I != E;
+       ++I) {
+    const char *c = I->first;
+    while (*c != '\0') {
+      pWriter->Write8(*c);
+      c++;
+    }
+    pWriter->Write8(0);
+  }
+
+  delete pWriter;
+  return str_size;
+}
+
+uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
+{
+  LDContext *context = m_Linker.getLDInfo().output().context();
+  uint32_t str_index = 1;
+  uint32_t dynsym_cnt = 1;
+
+  // The first entry is undefined.
+  file_offset += WriteSymbolEntry(file_offset, 0, 0, 0, 0, 0, ELF::SHN_UNDEF);
+  dynstrTab.push_back(std::make_pair("",0));
+
+  for (LDContext::sym_iterator I = context->symBegin<LDContext::RegSymTable>(),
+       E = context->symEnd<LDContext::RegSymTable>();
+       I != E;
+       ++I) {
+    uint8_t info = (((*I)->binding()) << 4) + (((*I)->type()) & 0x0f);
+
+    if (!(*I)->isDyn())
+      continue;
+
+    file_offset += WriteSymbolEntry(file_offset,
+                                    str_index,     /* name  */
+                                    (*I)->value(), /* value */
+                                    (*I)->size(),  /* size  */
+                                    info,          /* info  */
+                                    (*I)->other(), /* other */
+                                    0        /* shndx, TODO */);
+    // construct dynamic string
+    dynstrTab.push_back(std::make_pair((*I)->name(), str_index));
+    str_index += (*I)->nameSize() + 1;
+    ++dynsym_cnt;
+  }
+
+  // save the total string size at the end
+  dynstrTab.push_back(std::make_pair("",str_index));
+
+  return dynsym_cnt * sizeof(ELF::Elf32_Sym);
+}
+
+uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
+                                       uint32_t name, uint8_t info,
+                                       uint32_t value, uint32_t size,
+                                       uint8_t other, uint32_t shndx)
+{
+  MemoryArea *mem = m_Linker.getLDInfo().output().memArea();
+  MemoryRegion* pRegion = mem->request(file_offset, sizeof(ELF::Elf32_Sym));
+  ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
+
+  pWriter->Write32(name);  // st_name
+  pWriter->Write32(value); // st_value
+  pWriter->Write32(size);  // st_size
+  pWriter->Write8(info);   // st_info
+  pWriter->Write8(other);  // st_other
+  pWriter->Write16(shndx); // st_shndx
+
+  delete pWriter;
+  return sizeof(ELF::Elf32_Sym);
 }
 
 bool ELFDynObjWriter::WriteELFHeader()

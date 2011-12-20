@@ -11,8 +11,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/DynObjWriter.h"
-#include "mcld/LD/ELFWriter.h"
+#include <mcld/LD/DynObjWriter.h>
+#include <mcld/LD/ELFWriter.h>
+#include <vector>
+#include <utility>
 
 namespace mcld
 {
@@ -26,6 +28,9 @@ class TargetLDBackend;
 class ELFDynObjWriter : public DynObjWriter, private ELFWriter
 {
 public:
+  typedef std::vector< std::pair<const char *, uint32_t> > StrTab;
+
+public:
   ELFDynObjWriter(TargetLDBackend& pBackend, MCLinker& pLinker);
   bool WriteObject();
   bool WriteELFHeader();
@@ -33,6 +38,22 @@ public:
 
 private:
   const static uint32_t DefaultEABIVersion = 0x05000000;
+
+  uint32_t WriteDynSymTab(uint32_t file_offset);
+
+  uint32_t WriteDynStrTab(uint32_t file_offset);
+
+  uint32_t WriteSymbolEntry(uint32_t file_offset,
+                        uint32_t name, uint8_t info,
+                        uint32_t value, uint32_t size,
+                        uint8_t other, uint32_t shndx);
+
+  // .dynstr
+  StrTab dynstrTab;
+
+  // .shstrtab
+  StrTab shstrTab;
+
   MCLinker& m_Linker;
 };
 
