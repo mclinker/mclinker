@@ -1,5 +1,5 @@
 BUILDTOP=..
-TOPLEVEL=${MCLINKERTOP}
+TOPLEVEL=${srcdir}/..
 TOOLDIR=${TOPLEVEL}/tools/llvm-mcld
 LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
@@ -10,7 +10,7 @@ ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=no
 bin_PROGRAMS = llvm-mcld
 
 if ENABLE_UNITTEST
-llvm_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${TOPLEVEL}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
+llvm_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
 llvm_mcld_LDADD = -L$(BUILDTOP)/utils/gtest/lib/ ${LLVM_LDFLAGS} -lgtest
 else
 llvm_mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
