@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/LD/LDContext.h>
 
 using namespace mcld;
 
@@ -22,9 +21,9 @@ LDFileFormat::~LDFileFormat()
 {
 }
 
-void LDFileFormat::initStdSections(MCLinker& pLinker, LDContext& pContext)
+void LDFileFormat::initStdSections(MCLinker& pLinker)
 {
-  initObjectFormat(pLinker, pContext);
-  initObjectType(pLinker, pContext);
+  initObjectFormat(pLinker);
+  initObjectType(pLinker);
 }
 

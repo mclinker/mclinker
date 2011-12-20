@@ -16,7 +16,6 @@ namespace mcld
 {
 
 class MCLinker;
-class LDContext;
 class LDSection;
 
 /** \class LDFileFormat
@@ -44,15 +43,15 @@ public:
   virtual ~LDFileFormat();
 
   /// initStdSections - initialize all standard sections.
-  void initStdSections(MCLinker& pLinker, LDContext& pFile);
+  void initStdSections(MCLinker& pLinker);
 
   /// initObjectFormat - different format, such as ELF and MachO, should
   /// implement this
-  virtual void initObjectFormat(MCLinker& pLinker, LDContext& pFile) = 0;
+  virtual void initObjectFormat(MCLinker& pLinker) = 0;
 
   /// initObjectType - different types, such as shared object, executable
   /// files, should implement this
-  virtual void initObjectType(MCLinker& pLinker, LDContext& pFile) = 0;
+  virtual void initObjectType(MCLinker& pLinker) = 0;
 
 protected:
   //         variable name         :  ELF               MachO

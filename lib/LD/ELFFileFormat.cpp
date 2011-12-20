@@ -9,8 +9,6 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDFile.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/SectionFactory.h>
 #include <llvm/Support/ELF.h>
 
 using namespace mcld;
@@ -28,9 +26,9 @@ ELFFileFormat::~ELFFileFormat()
 {
 }
 
-void ELFFileFormat::initObjectFormat(MCLinker& pLinker, LDContext& pContext)
+void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
 {
-  SectionFactory& alloc = pContext.getSectFactory();
+  SectionFactory& alloc = pLinker.getSectFactory();
 
   f_pELFNULLSection  = alloc.produce("",
                                      LDFileFormat::MetaData,
@@ -71,8 +69,5 @@ void ELFFileFormat::initObjectFormat(MCLinker& pLinker, LDContext& pContext)
                                      LDFileFormat::StringTable,
                                      ELF::SHT_STRTAB,
                                      0);
-
-  // the first section must be NULL in ELF.
-  pContext.getSectionTable().push_back(f_pELFNULLSection);
 }
 

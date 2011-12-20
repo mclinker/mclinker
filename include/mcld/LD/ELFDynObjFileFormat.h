@@ -16,7 +16,6 @@
 namespace mcld
 {
 
-class LDContext;
 class MCLinker;
 class LDSection;
 
@@ -26,7 +25,7 @@ class LDSection;
 class ELFDynObjFileFormat : public ELFFileFormat
 {
 public:
-  void initObjectType(MCLinker& pLinker, LDContext& pContext);
+  void initObjectType(MCLinker& pLinker);
 
 protected:
   //         variable name         :  ELF

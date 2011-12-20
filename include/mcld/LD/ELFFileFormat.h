@@ -17,7 +17,6 @@ namespace mcld
 {
 
 class MCLinker;
-class LDContext;
 class LDSection;
 
 /** \class ELFFileFormat
@@ -30,9 +29,9 @@ public:
 
   virtual ~ELFFileFormat();
 
-  virtual void initObjectFormat(MCLinker& pLinker, LDContext& pContext);
+  virtual void initObjectFormat(MCLinker& pLinker);
 
-  virtual void initObjectType(MCLinker& pLinker, LDContext& pContext) = 0;
+  virtual void initObjectType(MCLinker& pLinker) = 0;
 
 protected:
   //         variable name         :  ELF

@@ -8,8 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/SectionFactory.h>
-#include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/MC/MCLinker.h>
 #include <llvm/Support/ELF.h>
@@ -17,9 +15,9 @@
 using namespace mcld;
 using namespace llvm;
 
-void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker, LDContext& pContext)
+void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
 {
-  SectionFactory &alloc = pContext.getSectFactory();
+  SectionFactory &alloc = pLinker.getSectFactory();
 
   f_pDynSymTab    = alloc.produce(".dynsym",
                                  LDFileFormat::SymbolTable,

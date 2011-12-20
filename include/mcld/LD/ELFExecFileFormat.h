@@ -25,7 +25,7 @@ class MCLinker;
 class ELFExecFileFormat : public ELFFileFormat
 {
 public:
-  void initObjectType(MCLinker& pLinker, LDContext& pContext)
+  void initObjectType(MCLinker& pLinker)
   { /** TODO **/ }
 };
 
