@@ -46,7 +46,8 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
 }
 
 /// insertSymbol - insert a symbol and resolve it immediately
-/// @return is the symbol overriden
+/// @return the pointer of resolved ResolveInfo
+/// @return is the symbol existent?
 ///
 /// If the symbol is a local symbol, we don't care if there are existing symbols
 /// with the same name. We insert the local symbol into the output's symbol table
@@ -72,9 +73,15 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   bool exist = false;
   ResolveInfo* old_symbol = m_Table.insert(pName, exist);
   ResolveInfo* new_symbol = NULL;
-  new_symbol = (exist && old_symbol->isSymbol())?
-    m_Table.getEntryFactory().produce(pName):
-    old_symbol;
+  if (exist && old_symbol->isSymbol()) {
+    exist = true;
+    new_symbol = m_Table.getEntryFactory().produce(pName):
+  }
+  else {
+    exist = false;
+    new_symbol = old_symbol;
+  }
+
   new_symbol->setIsSymbol(true);
   new_symbol->setSource(pIsDyn);
   new_symbol->setDesc(pDesc);
@@ -82,8 +89,9 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   new_symbol->setVisibility(pVisibility);
   new_symbol->setValue(pValue);
   new_symbol->setSize(pSize);
-  if (new_symbol == old_symbol) // not exit or not a symbol
-    return std::pair<ResolveInfo*, bool>(old_symbol, true);
+
+  if (!exist) // not exit or not a symbol
+    return std::pair<ResolveInfo*, bool>(old_symbol, exist);
 
   // exit and is a symbol
   // symbol resolution
@@ -91,12 +99,12 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   unsigned int action = Resolver::LastAction;
   switch(m_pResolver->resolve(*old_symbol, *new_symbol, override)) {
     case Resolver::Success: {
-      return std::pair<ResolveInfo*, bool>(old_symbol, override);
+      return std::pair<ResolveInfo*, bool>(old_symbol, exist);
     }
     case Resolver::Warning: {
       llvm::errs() << "WARNING: " << m_pResolver->mesg() << "\n";
       m_pResolver->clearMesg();
-      return std::pair<ResolveInfo*, bool>(old_symbol, override);
+      return std::pair<ResolveInfo*, bool>(old_symbol, exist);
     }
     case Resolver::Abort:
       llvm::report_fatal_error(m_pResolver->mesg());

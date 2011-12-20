@@ -58,7 +58,8 @@ public:
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
   
   /// insertSymbol - insert a symbol and resolve the symbol immediately
-  /// @return if the table is changed, return true. Otherwise, return false
+  /// @return the pointer to resolved ResolveInfo
+  /// @return if the symbol is existent, return true. Otherwise, return false
   std::pair<ResolveInfo*, bool> insertSymbol(const llvm::StringRef& pName,
                                              bool pIsDyn,
                                              ResolveInfo::Desc pDesc,

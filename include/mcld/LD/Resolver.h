@@ -54,8 +54,8 @@ public:
                                bool &pOverride) = 0;
 
   /// resolveAgain - Can override by derived classes.
-  /// @return if pStrSymPool is changed, return true. Otherwise, return false.
-  /// @param pAction the action returned by resolve()
+  /// @return the pointer to resolved ResolveInfo
+  /// @return is the symbol existent?
   virtual std::pair<ResolveInfo*, bool> resolveAgain(StrSymPool& pStrSymPool,
                                                      unsigned int pAction,
                                                      ResolveInfo& __restrict__ pOld,

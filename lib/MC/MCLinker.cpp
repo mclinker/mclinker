@@ -55,23 +55,27 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local)
     return NULL;
 
+  // <resolved_info, exist?>
   std::pair<ResolveInfo*, bool> resolved_result;
   resolved_result = m_StrSymPool.insertSymbol(pName,
-                                             pIsDyn,
-                                             pDesc,
-                                             pBinding,
-                                             pValue,
-                                             pSize,
-                                             pVisibility);
+                                              pIsDyn,
+                                              pDesc,
+                                              pBinding,
+                                              pValue,
+                                              pSize,
+                                              pVisibility);
 
-  LDSymbol* result = m_LDSymbolFactory.allocate();
-  new (result) LDSymbol();
-  if (NULL == resolved_result.first)
-    return NULL;
+  assert(NULL != resolved_result.first);
 
-  result->setResolveInfo(*resolved_result.first);
-  m_Output.symtab().push_back(result);
-  return result;
+  if (!resolved_result.second) { // new symbol
+    LDSymbol* result = m_LDSymbolFactory.allocate();
+    new (result) LDSymbol();
+    result->setResolveInfo(*resolved_result.first);
+    m_Output.symtab().push_back(result);
+    return result;
+  }
+  // the symbol has been adden
+  return NULL;
 }
 
 LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
