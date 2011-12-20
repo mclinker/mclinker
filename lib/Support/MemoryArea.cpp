@@ -24,13 +24,29 @@ using namespace mcld;
 MemoryArea::MemoryArea(RegionFactory& pRegionFactory)
   : m_RegionFactory(pRegionFactory),
     m_FileDescriptor(-1),
+    m_FileSize(0),
     m_AccessFlags(0),
     m_State(BadBit) {
 }
 
 MemoryArea::~MemoryArea()
 {
+  // truncate the file to real size
+  if ((m_AccessFlags & WriteOnly) || (m_AccessFlags & ReadWrite))
+    truncate(m_FileSize);
+
   unmap();
+}
+
+void MemoryArea::truncate(off_t length)
+{
+  if( -1 == ftruncate(m_FileDescriptor, length)) {
+    std::stringstream error_mesg;
+    error_mesg << "Cannot truncate `";
+    error_mesg << error_mesg << m_FilePath.native();
+    error_mesg << "' to size: " << length;
+    llvm::report_fatal_error (error_mesg.str());
+  }
 }
 
 void MemoryArea::map(const sys::fs::Path& pPath, int pFlags)
@@ -128,6 +144,19 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
 {
   if (!isMapped() || !isGood())
     return 0;
+
+  if (iswrite) {
+    off_t real_size = (m_FileSize+PageSize-1)/PageSize*PageSize;
+
+    if ((pOffset+pLength) > real_size) {
+       off_t new_size = (pOffset+pLength+PageSize-1)/PageSize*PageSize;
+      truncate(new_size);
+    }
+  }
+
+  // set the file size
+  m_FileSize = (pOffset+pLength) > m_FileSize ? pOffset+pLength : m_FileSize;
+
   Space* space = find(pOffset, pLength);
   MemoryArea::Address r_start = 0;
   if (0 == space) { // not found, first reach the memory space

@@ -156,6 +156,10 @@ public:
   const sys::fs::Path& path() const
   { return m_FilePath; }
 
+  // size - the real size of the mapped file.
+  uint32_t size() const
+  { return m_FileSize; }
+
   // isMapped - check if MemoryArea is mapped to a file
   bool isMapped() const;
 
@@ -180,7 +184,7 @@ public:
   // setState - set error state flag
   void setState(IOState pState);
 
-  // clear - set error state falg
+  // clear - set error state flag
   void clear(IOState pState = GoodBit);
 
 private:
@@ -192,6 +196,9 @@ private:
 
   // write - write back the virtual memory of pSpace into mapped file.
   void write(const Space& pSpace);
+
+  // truncate - truncate the file size to length.
+  void truncate(off_t length);
 
   // policy - decide whehter to use dynamic memory or memory mapped I/O
   Space::Type policy(off_t pOffset, size_t pLength);
@@ -211,6 +218,7 @@ private:
   RegionFactory& m_RegionFactory;
   sys::fs::Path m_FilePath;
   int m_FileDescriptor;
+  off_t m_FileSize;
   int m_AccessFlags;
   int m_State;
 
