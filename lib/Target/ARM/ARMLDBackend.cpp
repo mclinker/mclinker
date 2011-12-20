@@ -41,13 +41,13 @@ bool ARMGNULDBackend::isLittleEndian() const
   return true;
 }
 
-void ARMGNULDBackend::initTargetSections(MCLinker& pLinker, LDContext& pContext)
+void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection& got = pContext.getOrCreateSection(".got",
-                                                     LDFileFormat::GOT,
-                                                     ELF::SHT_PROGBITS,
-                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  m_pGOT = new ARMGOT(got);
+  const LDSection* got = pLinker.getOrCreateSection(".got",
+                                                    LDFileFormat::GOT,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  m_pGOT = new ARMGOT(*got);
     
 }
 

@@ -36,7 +36,7 @@ public:
 
   unsigned int bitclass() const;
 
-  void initTargetSections(MCLinker& pLinker, LDContext&); 
+  void initTargetSections(MCLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

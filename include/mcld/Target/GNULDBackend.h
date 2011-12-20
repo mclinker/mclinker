@@ -24,8 +24,6 @@
 namespace mcld
 {
 
-class LDContext;
-
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
  *  LDBackend.
@@ -43,8 +41,8 @@ public:
   bool initObjectWriter(MCLinker& pLinker);
   bool initDynObjWriter(MCLinker& pLinker);
 
-  bool initExecSections(MCLinker& pMCLinker, LDContext& pContext);
-  bool initDynObjSections(MCLinker& pMCLinker, LDContext& pContext);
+  bool initExecSections(MCLinker& pMCLinker);
+  bool initDynObjSections(MCLinker& pMCLinker);
 
   GNUArchiveReader *getArchiveReader();
   ELFObjectReader *getObjectReader();

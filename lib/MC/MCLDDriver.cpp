@@ -130,13 +130,13 @@ bool MCLDDriver::initMCLinker()
   switch (m_LDInfo.output().type()) {
     case Output::DynObj: {
       // intialize standard and target-dependent sections
-      if (!m_LDBackend.initDynObjSections(*m_pLinker, *m_LDInfo.output().context()))
+      if (!m_LDBackend.initDynObjSections(*m_pLinker))
         return false;
       break;
     }
     case Output::Exec: {
       // intialize standard and target-dependent sections
-      if (!m_LDBackend.initExecSections(*m_pLinker, *m_LDInfo.output().context()))
+      if (!m_LDBackend.initExecSections(*m_pLinker))
         return false;
       break;
     }
@@ -155,7 +155,7 @@ bool MCLDDriver::initMCLinker()
   } // end of switch
 
   // initialize target-dependent segments and sections
-  m_LDBackend.initTargetSections(*m_pLinker, *m_LDInfo.output().context());
+  m_LDBackend.initTargetSections(*m_pLinker);
 
   return true;
 }

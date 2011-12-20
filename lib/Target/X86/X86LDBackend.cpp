@@ -57,13 +57,13 @@ unsigned int X86GNULDBackend::bitclass() const
   return 32;
 }
 
-void X86GNULDBackend::initTargetSections(MCLinker& pLinker, LDContext& pContext)
+void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection& got = pContext.getOrCreateSection(".got",
-                                                     LDFileFormat::GOT,
-                                                     ELF::SHT_PROGBITS,
-                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  m_pGOT = new X86GOT(got);
+  const LDSection* got = pLinker.getOrCreateSection(".got",
+                                                    LDFileFormat::GOT,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  m_pGOT = new X86GOT(*got);
 }
 
 namespace mcld {

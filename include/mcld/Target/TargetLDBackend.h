@@ -43,7 +43,7 @@ public:
 
   // -----  target dependent  ----- //
   virtual void initTargetSegments(MCLinker& pLinker) { }
-  virtual void initTargetSections(MCLinker& pLinker, LDContext&) { }
+  virtual void initTargetSections(MCLinker& pLinker) { }
   virtual void initTargetSymbols(MCLinker& pLinker) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
 
@@ -54,8 +54,8 @@ public:
   virtual bool initObjectWriter(MCLinker&) = 0;
   virtual bool initDynObjWriter(MCLinker&) = 0;
 
-  virtual bool initExecSections(MCLinker&, LDContext& ) = 0;
-  virtual bool initDynObjSections(MCLinker&, LDContext& ) = 0;
+  virtual bool initExecSections(MCLinker&) = 0;
+  virtual bool initDynObjSections(MCLinker&) = 0;
 
   virtual ArchiveReader *getArchiveReader() = 0;
   virtual ObjectReader *getObjectReader() = 0;

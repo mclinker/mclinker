@@ -14,7 +14,6 @@
 
 namespace mcld {
 
-class LDContext;
 class MCLinker;
 
 //===----------------------------------------------------------------------===//
@@ -27,7 +26,7 @@ public:
   ~ARMGNULDBackend();
 
   /// initTargetSections - initialize target dependent sections in output.
-  void initTargetSections(MCLinker& pLinker, LDContext& pContext);
+  void initTargetSections(MCLinker& pLinker);
 
   /// getRelocFactory
   RelocationFactory* getRelocFactory();

@@ -77,23 +77,23 @@ bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
   return true;
 }
 
-bool GNULDBackend::initExecSections(MCLinker& pMCLinker, LDContext& pContext)
+bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
 {
   if (0 == m_pExecFileFormat)
     m_pExecFileFormat = new ELFExecFileFormat();
 
   // initialize standard sections
-  m_pExecFileFormat->initStdSections(pMCLinker, pContext);
+  m_pExecFileFormat->initStdSections(pMCLinker);
   return true;
 }
 
-bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker, LDContext& pContext)
+bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
 {
   if (0 == m_pDynObjFileFormat)
     m_pDynObjFileFormat = new ELFDynObjFileFormat();
 
   // initialize standard sections
-  m_pDynObjFileFormat->initStdSections(pMCLinker, pContext);
+  m_pDynObjFileFormat->initStdSections(pMCLinker);
   return true;
 }
 

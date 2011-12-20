@@ -37,7 +37,7 @@ public:
 
   const MipsGOT& getGOT() const;
 
-  void initTargetSections(MCLinker& pLinker, LDContext& pContext);
+  void initTargetSections(MCLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;
