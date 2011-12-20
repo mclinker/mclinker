@@ -47,6 +47,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                     LDFileFormat::GOT,
                                                     ELF::SHT_PROGBITS,
                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  assert(NULL != got);
   m_pGOT = new ARMGOT(*got);
     
 }

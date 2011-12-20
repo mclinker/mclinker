@@ -17,75 +17,73 @@ using namespace llvm;
 
 void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
 {
-  SectionFactory &alloc = pLinker.getSectFactory();
-
-  f_pDynSymTab    = alloc.produce(".dynsym",
-                                 LDFileFormat::SymbolTable,
-                                 ELF::SHT_DYNSYM,
-                                 ELF::SHF_ALLOC);
-  f_pDynStrTab    = alloc.produce(".dynstr",
-                                 LDFileFormat::StringTable,
-                                 ELF::SHT_STRTAB,
-                                 ELF::SHF_ALLOC);
-  f_pInterp       = alloc.produce(".interp",
-                                 LDFileFormat::MetaData,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC);
-  f_pHashTab      = alloc.produce(".hash",
-                                 LDFileFormat::MetaData,
-                                 ELF::SHT_HASH,
-                                 ELF::SHF_ALLOC);
-  f_pDynamic      = alloc.produce(".dynamic",
-                                 LDFileFormat::MetaData,
-                                 ELF::SHT_DYNAMIC,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pRelaDyn      = alloc.produce(".rela.dyn",
-                                 LDFileFormat::ReadOnly,
-                                 ELF::SHT_RELA,
-                                 ELF::SHF_ALLOC);
-  f_pRelaPlt      = alloc.produce(".rela.plt",
-                                 LDFileFormat::ReadOnly,
-                                 ELF::SHT_RELA,
-                                 ELF::SHF_ALLOC);
-  f_pRelaDyn      = alloc.produce(".rel.dyn",
-                                 LDFileFormat::ReadOnly,
-                                 ELF::SHT_REL,
-                                 ELF::SHF_ALLOC);
-  f_pRelaPlt      = alloc.produce(".rel.plt",
-                                 LDFileFormat::ReadOnly,
-                                 ELF::SHT_REL,
-                                 ELF::SHF_ALLOC);
-  f_pGOT          = alloc.produce(".got",
-                                 LDFileFormat::GOT,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pPLT          = alloc.produce(".plt",
-                                 LDFileFormat::PLT,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
-  f_pGOTPLT       = alloc.produce(".got.plt",
-                                 LDFileFormat::GOT,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pPreInitArray = alloc.produce(".preinit_array",
-                                 LDFileFormat::Data,
-                                 ELF::SHT_PREINIT_ARRAY,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pInitArray    = alloc.produce(".init_array",
-                                 LDFileFormat::Data,
-                                 ELF::SHT_INIT_ARRAY,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pFiniArray    = alloc.produce(".fini_array",
-                                 LDFileFormat::Data,
-                                 ELF::SHT_FINI_ARRAY,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pCtors        = alloc.produce(".ctors",
-                                 LDFileFormat::Data,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  f_pDtors        = alloc.produce(".dtors",
-                                 LDFileFormat::Data,
-                                 ELF::SHT_PROGBITS,
-                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pDynSymTab    = pLinker.getOrCreateSection(".dynsym",
+                                               LDFileFormat::SymbolTable,
+                                               ELF::SHT_DYNSYM,
+                                               ELF::SHF_ALLOC);
+  f_pDynStrTab    = pLinker.getOrCreateSection(".dynstr",
+                                               LDFileFormat::StringTable,
+                                               ELF::SHT_STRTAB,
+                                               ELF::SHF_ALLOC);
+  f_pInterp       = pLinker.getOrCreateSection(".interp",
+                                               LDFileFormat::MetaData,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC);
+  f_pHashTab      = pLinker.getOrCreateSection(".hash",
+                                               LDFileFormat::MetaData,
+                                               ELF::SHT_HASH,
+                                               ELF::SHF_ALLOC);
+  f_pDynamic      = pLinker.getOrCreateSection(".dynamic",
+                                               LDFileFormat::MetaData,
+                                               ELF::SHT_DYNAMIC,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pRelaDyn      = pLinker.getOrCreateSection(".rela.dyn",
+                                               LDFileFormat::ReadOnly,
+                                               ELF::SHT_RELA,
+                                               ELF::SHF_ALLOC);
+  f_pRelaPlt      = pLinker.getOrCreateSection(".rela.plt",
+                                               LDFileFormat::ReadOnly,
+                                               ELF::SHT_RELA,
+                                               ELF::SHF_ALLOC);
+  f_pRelaDyn      = pLinker.getOrCreateSection(".rel.dyn",
+                                               LDFileFormat::ReadOnly,
+                                               ELF::SHT_REL,
+                                               ELF::SHF_ALLOC);
+  f_pRelaPlt      = pLinker.getOrCreateSection(".rel.plt",
+                                               LDFileFormat::ReadOnly,
+                                               ELF::SHT_REL,
+                                               ELF::SHF_ALLOC);
+  f_pGOT          = pLinker.getOrCreateSection(".got",
+                                               LDFileFormat::GOT,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pPLT          = pLinker.getOrCreateSection(".plt",
+                                               LDFileFormat::PLT,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+  f_pGOTPLT       = pLinker.getOrCreateSection(".got.plt",
+                                               LDFileFormat::GOT,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pPreInitArray = pLinker.getOrCreateSection(".preinit_array",
+                                               LDFileFormat::Data,
+                                               ELF::SHT_PREINIT_ARRAY,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pInitArray    = pLinker.getOrCreateSection(".init_array",
+                                               LDFileFormat::Data,
+                                               ELF::SHT_INIT_ARRAY,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pFiniArray    = pLinker.getOrCreateSection(".fini_array",
+                                               LDFileFormat::Data,
+                                               ELF::SHT_FINI_ARRAY,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pCtors        = pLinker.getOrCreateSection(".ctors",
+                                               LDFileFormat::Data,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pDtors        = pLinker.getOrCreateSection(".dtors",
+                                               LDFileFormat::Data,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
 }
 

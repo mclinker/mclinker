@@ -84,7 +84,7 @@ public:
   SectionFactory& getSectFactory()
   { return m_SectionFactory; }
 
-  const LDSection* getOrCreateSection(const std::string& pName,
+  LDSection* getOrCreateSection(const std::string& pName,
                                 LDFileFormat::Kind pKind,
                                 uint32_t pType,
                                 uint32_t pFlag);

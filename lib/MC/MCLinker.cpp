@@ -94,7 +94,7 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   return result;
 }
 
-const LDSection* MCLinker::getOrCreateSection(const std::string& pName,
+LDSection* MCLinker::getOrCreateSection(const std::string& pName,
                                         LDFileFormat::Kind pKind,
                                         uint32_t pType,
                                         uint32_t pFlag)
