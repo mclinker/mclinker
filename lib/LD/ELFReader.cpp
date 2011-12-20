@@ -12,9 +12,6 @@
 #include "mcld/Support/MemoryArea.h"
 #include "mcld/Support/MemoryRegion.h"
 
-#include "mcld/LD/ResolveInfo.h"
-#include "mcld/LD/ResolveInfoFactory.h"
-
 #include "mcld/Support/rslinker/utils/serialize.h"
 #include "mcld/Support/rslinker/ELFObject.h"
 
@@ -58,5 +55,66 @@ ELFReader::createELFObject(mcld::Input &pFile) const
   // For now, ELF32-EL object is used
   ArchiveReaderLE AR(image, fsize);
   return std::auto_ptr<ELFObject<32> >(ELFObject<32>::read(AR));
+}
+
+ResolveInfo::Binding
+ELFReader::getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const
+{
+  ResolveInfo::Binding ret;
+  int bind = sym->getBindingAttribute();
+  bool error = false;
+
+  switch (bind) {
+    case 0:
+      ret = ResolveInfo::Local;
+      error = isDSO;
+      break;
+    case 1:
+      ret = ResolveInfo::Global;
+      break;
+    case 2:
+      ret = ResolveInfo::Weak;
+      break;
+    default:
+      error = true;
+  }
+
+  if (error) {
+    std::stringstream err_msg;
+    err_msg << "Unexcpect Symbol Binding Type:" << sym->getName(isDSO);
+    err_msg << " with binding type " << bind;
+    llvm::report_fatal_error(err_msg.str());
+  }
+
+  //FIXME: Check ABS Symbol
+  return ret;
+}
+
+ResolveInfo::Visibility
+ELFReader::getVisibilityResolveInfo(ELFSymbol<32>* sym) const
+{
+  // Only Regular object check visibility
+  ResolveInfo::Visibility ret;
+  int visibility = sym->getVisibility();
+  switch (visibility) {
+    case 0:
+      ret = ResolveInfo::Default;
+      break;
+    case 1:
+      ret = ResolveInfo::Internal;
+      break;
+    case 2:
+      ret = ResolveInfo::Hidden;
+      break;
+    case 3:
+      ret = ResolveInfo::Protected;
+      break;
+    default:
+      std::stringstream err_msg;
+      err_msg << "Unexcpect Symbol Visibility Type:" << sym->getName(false);
+      err_msg << " with visibility type " << visibility;
+      llvm::report_fatal_error(err_msg.str());
+  }
+  return ret;
 }
 

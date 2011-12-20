@@ -13,6 +13,8 @@
 #endif
 
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/ResolveInfoFactory.h>
 #include <mcld/Support/rslinker/ELFObject.h>
 
 #include <llvm/Support/ELF.h>
@@ -34,6 +36,9 @@ public:
   bool is64Bit(mcld::Input &pFile) const;
 
   std::auto_ptr<ELFObject<32> > createELFObject(mcld::Input &pFile) const;
+
+  ResolveInfo::Binding getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const;
+  ResolveInfo::Visibility getVisibilityResolveInfo(ELFSymbol<32>* sym) const;
 };
 
 } // namespace of mcld

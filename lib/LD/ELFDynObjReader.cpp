@@ -10,7 +10,9 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInput.h>
+
 #include <sstream>
+#include <string>
 
 using namespace mcld;
 
@@ -32,34 +34,16 @@ LDReader::Endian ELFDynObjReader::endian(Input& pFile) const
 
 bool ELFDynObjReader::isMyFormat(Input &pFile) const
 {
-  // TODO:Open The file, Check Type and Machine
-  return true;
+  // TODO: Since normalize use this function before read symbol,
+  //       so we check extension first.
+  // NOTE: Add ELFObject Cache, check Type and Machine
+  return pFile.path().extension().native().find(".so") != std::string::npos;
 }
 
 llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
 {
   // TODO
   return llvm::error_code();
-}
-
-static ResolveInfo::Binding getBindingAttribute(ELFSymbol<32>* sym)
-{
-  ResolveInfo::Binding ret;
-  int bind = sym->getBindingAttribute();
-  switch (bind) {
-    case 1:
-      ret = ResolveInfo::Global;
-      break;
-    case 2:
-      ret = ResolveInfo::Weak;
-      break;
-    default:
-      std::stringstream err_msg;
-      err_msg << "Unexcpect Symbol Binding Type:" << sym->getName();
-      err_msg << " with binding type " << bind;
-      llvm::report_fatal_error(err_msg.str());
-  }
-  return ret;
 }
 
 bool ELFDynObjReader::readSymbols(Input& pFile)
@@ -89,7 +73,7 @@ bool ELFDynObjReader::readSymbols(Input& pFile)
          ResolveInfo::SizeType pSize,
          ResolveInfo::Visibility pVisibility = ResolveInfo::Default); */
 
-    ResolveInfo::Binding bind = getBindingAttribute(sym);
+    ResolveInfo::Binding bind = ELFReader::getBindingResolveInfo(sym, true);
     // TODO: Double check undefine logic in DSO.
     ResolveInfo::Desc desc =
       (sym->getSectionIndex() == SHN_UNDEF) ?
