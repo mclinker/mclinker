@@ -6,7 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#include "mcld/MC/MCLinker.h"
 #include "mcld/LD/ELFReader.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MemoryRegion.h"
+
+#include "mcld/LD/ResolveInfo.h"
+#include "mcld/LD/ResolveInfoFactory.h"
+
+#include "mcld/Support/rslinker/utils/serialize.h"
+#include "mcld/Support/rslinker/ELFObject.h"
 
 using namespace mcld;
 
@@ -14,7 +24,9 @@ using namespace mcld;
 // ELFReader
 Input::Type ELFReader::fileType(mcld::Input &pFile) const
 {
-  return Input::Object; // TODO
+  // TODO: We don't use this function for now
+  llvm_unreachable("ELFReader::fileType");
+  return Input::Object;
 }
 
 bool ELFReader::isLittleEndian(mcld::Input &pFile) const
@@ -27,8 +39,24 @@ bool ELFReader::is64Bit(mcld::Input &pFile) const
   return false; // TODO
 }
 
-bool ELFReader::readDynSymbols(mcld::Input &pFile) const
+std::auto_ptr<ELFObject<32> >
+ELFReader::createELFObject(mcld::Input &pFile) const
 {
-  return false; // TODO
+  size_t fsize = pFile.filesize();
+  unsigned char* image =
+    pFile.memArea()->request ( 0, fsize, false /*iswrite*/)->start();
+
+  if (fsize < EI_NIDENT) {
+    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
+  }
+
+  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
+    llvm::report_fatal_error("ERROR: Unknown machine class.");
+  }
+
+  // TODO: We can decide LE or BE, ELF-32 or ELF-64 from image
+  // For now, ELF32-EL object is used
+  ArchiveReaderLE AR(image, fsize);
+  return std::auto_ptr<ELFObject<32> >(ELFObject<32>::read(AR));
 }
 

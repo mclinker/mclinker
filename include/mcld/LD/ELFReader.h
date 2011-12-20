@@ -13,6 +13,8 @@
 #endif
 
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/Support/rslinker/ELFObject.h>
+
 #include <llvm/Support/ELF.h>
 
 namespace mcld
@@ -31,7 +33,7 @@ public:
 
   bool is64Bit(mcld::Input &pFile) const;
 
-  bool readDynSymbols(mcld::Input &pFile) const;
+  std::auto_ptr<ELFObject<32> > createELFObject(mcld::Input &pFile) const;
 };
 
 } // namespace of mcld
