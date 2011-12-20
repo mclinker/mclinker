@@ -339,12 +339,14 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
 
   // Decide if we need "binary" output.
   bool Binary = false;
-  switch (FileType) {
+  switch (pFileType) {
   default: assert(0 && "Unknown file type");
-  case TargetMachine::CGFT_AssemblyFile:
+  case mcld::CGFT_ASMFile:
     break;
-  case TargetMachine::CGFT_ObjectFile:
-  case TargetMachine::CGFT_Null:
+  case mcld::CGFT_ARCFile:
+  case mcld::CGFT_DSOFile:
+  case mcld::CGFT_EXEFile:
+  case mcld::CGFT_NULLFile:
     Binary = true;
     break;
   }
