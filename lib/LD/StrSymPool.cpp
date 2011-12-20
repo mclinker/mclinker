@@ -75,7 +75,7 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   ResolveInfo* new_symbol = NULL;
   if (exist && old_symbol->isSymbol()) {
     exist = true;
-    new_symbol = m_Table.getEntryFactory().produce(pName):
+    new_symbol = m_Table.getEntryFactory().produce(pName);
   }
   else {
     exist = false;
