@@ -23,7 +23,7 @@ ARMPLT::~ARMPLT()
 {
 }
 
-PLTEntry* ARMPLT::getOrCreateGOTPLT(ResolveInfo& pInfo) {
+PLTEntry* ARMPLT::getOrCreateGOTPLT(const ResolveInfo& pInfo) {
   ARMPLT1 *&plt1_entry = m_SymbolIndexMap[&pInfo];
 
   if (plt1_entry) {

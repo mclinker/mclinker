@@ -77,7 +77,7 @@ public:
 
 public:
    // Override pure virtual function
-   PLTEntry* getOrCreateGOTPLT(ResolveInfo& pInfo);
+   PLTEntry* getOrCreateGOTPLT(const ResolveInfo& pInfo);
 
 private:
    SymbolIndexType m_SymbolIndexMap;
