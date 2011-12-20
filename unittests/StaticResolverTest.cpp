@@ -61,6 +61,96 @@ TEST_F( StaticResolverTest, MDEF ) {
   ASSERT_STREQ( "multiple definitions of `abc'.", m_pResolver->mesg().c_str() );
 }
 
+TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
+  ResolveInfo* old_sym = m_pFactory->produce("abc");
+  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  
+  new_sym->setBinding(ResolveInfo::Global);
+  old_sym->setBinding(ResolveInfo::Global);
+  new_sym->setDesc(ResolveInfo::Undefined);
+  old_sym->setDesc(ResolveInfo::Define);
+  new_sym->setSource(true);
+  old_sym->setSource(true);
+
+  new_sym->setSize(0);
+  new_sym->setValue(0);
+
+  old_sym->setSize(1);
+  old_sym->setValue(1);
+
+  ASSERT_EQ( mcld::ResolveInfo::Global,    new_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Global,    old_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Undefined, new_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Define,    old_sym->desc());
+
+  bool override = false;
+  unsigned int result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  ASSERT_EQ( Resolver::Success, result);
+  ASSERT_FALSE( override );
+  ASSERT_EQ(1, old_sym->size());
+  ASSERT_EQ(1, old_sym->value());
+}
+
+TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
+  ResolveInfo* old_sym = m_pFactory->produce("abc");
+  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  
+  new_sym->setBinding(ResolveInfo::Global);
+  old_sym->setBinding(ResolveInfo::Global);
+  new_sym->setDesc(ResolveInfo::Define);
+  old_sym->setDesc(ResolveInfo::Define);
+  new_sym->setSource(true);
+  old_sym->setSource(true);
+
+  new_sym->setSize(0);
+  new_sym->setValue(0);
+
+  old_sym->setSize(1);
+  old_sym->setValue(1);
+
+  ASSERT_EQ( mcld::ResolveInfo::Global, new_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Global, old_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Define, new_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Define, old_sym->desc());
+
+  bool override = false;
+  unsigned int result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  ASSERT_EQ( Resolver::Success, result);
+  ASSERT_FALSE( override );
+  ASSERT_EQ(1, old_sym->size());
+  ASSERT_EQ(1, old_sym->value());
+}
+
+TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
+  ResolveInfo* old_sym = m_pFactory->produce("abc");
+  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  
+  new_sym->setBinding(ResolveInfo::Global);
+  old_sym->setBinding(ResolveInfo::Global);
+  new_sym->setDesc(ResolveInfo::Undefined);
+  old_sym->setDesc(ResolveInfo::Undefined);
+  new_sym->setSource(true);
+  old_sym->setSource(true);
+
+  new_sym->setSize(0);
+  new_sym->setValue(0);
+
+  old_sym->setSize(1);
+  old_sym->setValue(1);
+
+  ASSERT_EQ( mcld::ResolveInfo::Global,    new_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Global,    old_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Undefined, new_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Undefined, old_sym->desc());
+
+  bool override = false;
+  unsigned int result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  ASSERT_EQ( Resolver::Success, result);
+  ASSERT_FALSE( override );
+  ASSERT_EQ(1, old_sym->size());
+  ASSERT_EQ(1, old_sym->value());
+}
+
 TEST_F( StaticResolverTest, OverrideWeakByGlobal )
 {
   ResolveInfo* old_sym = m_pFactory->produce("abc");
@@ -84,6 +174,38 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
   ASSERT_TRUE( override );
   ASSERT_EQ(0, old_sym->size());
   ASSERT_EQ(0, old_sym->value());
+}
+
+TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
+  ResolveInfo* old_sym = m_pFactory->produce("abc");
+  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  
+  old_sym->setBinding(ResolveInfo::Weak);
+  new_sym->setBinding(ResolveInfo::Global);
+
+  new_sym->setSource(true);
+  old_sym->setSource(true);
+
+  old_sym->setDesc(ResolveInfo::Define);
+  new_sym->setDesc(ResolveInfo::Define);
+
+  new_sym->setSize(0);
+  new_sym->setValue(0);
+
+  old_sym->setSize(1);
+  old_sym->setValue(1);
+
+  ASSERT_EQ( mcld::ResolveInfo::Weak,   old_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Global, new_sym->binding());
+  ASSERT_EQ( mcld::ResolveInfo::Define, old_sym->desc());
+  ASSERT_EQ( mcld::ResolveInfo::Define, new_sym->desc());
+
+  bool override = false;
+  unsigned int result = m_pResolver->resolve(*old_sym, *new_sym, override);
+  ASSERT_EQ( Resolver::Success, result);
+  ASSERT_FALSE( override );
+  ASSERT_EQ(1, old_sym->size());
+  ASSERT_EQ(1, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, MarkByBiggerCommon )
