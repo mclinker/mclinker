@@ -307,7 +307,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isDyn() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -324,7 +323,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isDyn() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -341,7 +339,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isDyn() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( ResolveInfo::Define, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -358,7 +355,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isUndef() );
   ASSERT_TRUE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( ResolveInfo::Common, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -374,7 +370,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isUndef() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_TRUE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( ResolveInfo::Indirect, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -390,7 +385,6 @@ TEST_F( StaticResolverTest, SetUpDesc)
   ASSERT_FALSE( sym->isDefine() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -413,7 +407,6 @@ TEST_F( StaticResolverTest, SetUpBinding)
   ASSERT_FALSE( sym->isDyn() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( 0, sym->binding() );
@@ -429,7 +422,6 @@ TEST_F( StaticResolverTest, SetUpBinding)
   ASSERT_FALSE( sym->isDyn() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( ResolveInfo::Global, sym->binding() );
@@ -445,7 +437,6 @@ TEST_F( StaticResolverTest, SetUpBinding)
   ASSERT_TRUE( sym->isUndef() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( ResolveInfo::Weak, sym->binding() );
@@ -461,7 +452,6 @@ TEST_F( StaticResolverTest, SetUpBinding)
   ASSERT_TRUE( sym->isUndef() );
   ASSERT_FALSE( sym->isCommon() );
   ASSERT_FALSE( sym->isIndirect() );
-  ASSERT_FALSE( sym->hasPLT() );
   ASSERT_EQ( ResolveInfo::NoType, sym->type());
   ASSERT_EQ( 0, sym->desc() );
   ASSERT_EQ( ResolveInfo::Local, sym->binding() );
