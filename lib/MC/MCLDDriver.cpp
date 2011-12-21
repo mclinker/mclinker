@@ -262,6 +262,15 @@ bool MCLDDriver::createDynSymTable()
   return true;
 }
 
+/// finalizeSymbolValue - finalize the resolved symbol value.
+///   Before relocate(), after layout(), MCLinker should correct value of all
+///   symbol.
+bool MCLDDriver::finalizeSymbolValue()
+{
+  // TODO
+  return true;
+}
+
 /// emitOutput - emit the output file.
 bool MCLDDriver::emitOutput()
 {

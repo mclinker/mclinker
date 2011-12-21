@@ -95,6 +95,9 @@ public:
   /// hash table.
   bool createDynSymTable();
 
+  /// finalizeSymbolValue - finalize the symbol value
+  bool finalizeSymbolValue();
+
   /// emitOutput - emit the output file.
   bool emitOutput();
 

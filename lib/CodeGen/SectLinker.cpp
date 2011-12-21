@@ -506,10 +506,13 @@ bool SectLinker::doFinalization(Module &pM)
   // 10. - linear layout
   m_pLDDriver->layout();
 
-  // 11. - apply relocations
+  // 11. - finalize symbol value
+  m_pLDDriver->finalizeSymbolValue();
+
+  // 12. - apply relocations
   m_pLDDriver->relocate();
 
-  // 12. - write out output
+  // 13. - write out output
   m_pLDDriver->emitOutput();
 
   return false;
