@@ -18,6 +18,8 @@
 namespace mcld
 {
 
+class LDSymbol;
+
 /** \class ResolveInfo
  *  \brief ResolveInfo records the information about how to resolve a symbol.
  *
@@ -27,7 +29,7 @@ namespace mcld
  *  - IsDyn - appear in dynamic objects or regular objects
  *  - Type - what the symbol points to
  *  - Size  - the size of the symbol point to
- *  - Value - the value of the symbol
+ *  - Value - the pointer to another LDSymbol
  *  In order to save the memory and speed up the performance, MCLinker uses
  *  a bit field to store all attributes.
  *
@@ -38,7 +40,6 @@ class ResolveInfo
 friend class ResolveInfoFactory;
 public:
   typedef uint64_t SizeType;
-  typedef uint64_t ValueType;
 
   /** \enum Type
    *  \brief What the symbol stand for
@@ -114,9 +115,6 @@ public:
 
   void setReserved(uint32_t pReserved);
 
-  void setValue(ValueType pValue)
-  { m_Value.value = pValue; }
-
   void setSize(SizeType pSize)
   { m_Size = pSize; }
 
@@ -126,8 +124,11 @@ public:
 
   void overrideVisibility(const ResolveInfo& pFrom);
 
+  void setSymPtr(const LDSymbol* pSymPtr)
+  { m_Ptr.sym_ptr = const_cast<LDSymbol*>(pSymPtr); }
+
   void setLink(const ResolveInfo* pTarget) {
-    m_Value.ptr = const_cast<ResolveInfo*>(pTarget);
+    m_Ptr.info_ptr = const_cast<ResolveInfo*>(pTarget);
     m_BitField |= indirect_flag;
   }
 
@@ -168,14 +169,17 @@ public:
 
   Visibility visibility() const;
 
-  ValueType value() const
-  { return m_Value.value; }
+  LDSymbol* outSymbol()
+  { return m_Ptr.sym_ptr; }
+
+  const LDSymbol* outSymbol() const
+  { return m_Ptr.sym_ptr; }
 
   ResolveInfo* link()
-  { return m_Value.ptr; }
+  { return m_Ptr.info_ptr; }
 
   const ResolveInfo* link() const
-  { return m_Value.ptr; }
+  { return m_Ptr.info_ptr; }
 
   SizeType size() const
   { return m_Size; }
@@ -221,9 +225,9 @@ private:
   static const uint32_t NAME_LENGTH_OFFSET = 16;
   static const uint32_t RESOLVE_MASK       = 0xFFF;
 
-  union ValOrPtr {
-    ValueType value;
-    ResolveInfo* ptr;
+  union SymOrInfo {
+    LDSymbol*    sym_ptr;
+    ResolveInfo* info_ptr;
   };
 
 public:
@@ -252,7 +256,7 @@ private:
 
 private:
   SizeType m_Size;
-  ValOrPtr m_Value;
+  SymOrInfo m_Ptr;
 
   /** m_BitField
    *  31     ...    16 15    12 11     10..7 6      ..    5 4     3   2   1   0

@@ -152,7 +152,6 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       case BIG: {        /* override by symbol common using largest size.  */
         if (old->size() < pNew.size())
           old->setSize(pNew.size());
-        old->setValue(pNew.value());
         old->overrideAttributes(pNew);
         old->overrideVisibility(pNew);
         pOverride = true;

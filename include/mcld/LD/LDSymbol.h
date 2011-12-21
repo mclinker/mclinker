@@ -30,7 +30,7 @@ class LDSymbol
 public:
   // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
   typedef ResolveInfo::SizeType SizeType;
-  typedef ResolveInfo::ValueType ValueType;
+  typedef uint64_t ValueType;
   typedef MCFragmentRef::Offset Offset;
 
 public:

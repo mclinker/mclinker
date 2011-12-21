@@ -15,7 +15,7 @@ using namespace mcld;
 // ResolveInfo
 ResolveInfo::ResolveInfo()
   : m_BitField(0), m_Size(0) {
-  m_Value.value = 0;
+  m_Ptr.sym_ptr = 0;
 }
 
 ResolveInfo::~ResolveInfo()
@@ -25,7 +25,6 @@ ResolveInfo::~ResolveInfo()
 void ResolveInfo::override(const ResolveInfo& pFrom)
 {
   m_Size = pFrom.m_Size;
-  m_Value.value = pFrom.m_Value.value;
   overrideAttributes(pFrom);
   overrideVisibility(pFrom);
 }

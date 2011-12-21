@@ -53,7 +53,6 @@ public:
                             bool pIsDyn,
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
-                            ResolveInfo::ValueType pValue,
                             ResolveInfo::SizeType pSize,
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
   
@@ -64,7 +63,6 @@ public:
                                              bool pIsDyn,
                                              ResolveInfo::Desc pDesc,
                                              ResolveInfo::Binding pBinding,
-                                             ResolveInfo::ValueType pValue,
                                              ResolveInfo::SizeType pSize,
                                              ResolveInfo::Visibility pVisibility =
                                                  ResolveInfo::Default);

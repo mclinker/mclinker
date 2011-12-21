@@ -15,6 +15,7 @@
 #include <llvm/Support/DataTypes.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDSymbol.h>
 
 
 namespace mcld
@@ -47,7 +48,7 @@ public:
 
   /// symValue - symbol value - S value
   Address symValue() const
-  { return m_pSymInfo->value(); }
+  { return m_pSymInfo->outSymbol()->value(); }
 
   /// addend - A value
   Address addend() const

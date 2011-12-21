@@ -73,10 +73,8 @@ TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
   old_sym->setSource(true);
 
   new_sym->setSize(0);
-  new_sym->setValue(0);
 
   old_sym->setSize(1);
-  old_sym->setValue(1);
 
   ASSERT_EQ( mcld::ResolveInfo::Global,    new_sym->binding());
   ASSERT_EQ( mcld::ResolveInfo::Global,    old_sym->binding());
@@ -88,7 +86,6 @@ TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_FALSE( override );
   ASSERT_EQ(1, old_sym->size());
-  ASSERT_EQ(1, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
@@ -103,10 +100,8 @@ TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
   old_sym->setSource(true);
 
   new_sym->setSize(0);
-  new_sym->setValue(0);
 
   old_sym->setSize(1);
-  old_sym->setValue(1);
 
   ASSERT_EQ( mcld::ResolveInfo::Global, new_sym->binding());
   ASSERT_EQ( mcld::ResolveInfo::Global, old_sym->binding());
@@ -118,7 +113,6 @@ TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_FALSE( override );
   ASSERT_EQ(1, old_sym->size());
-  ASSERT_EQ(1, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
@@ -133,10 +127,8 @@ TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
   old_sym->setSource(true);
 
   new_sym->setSize(0);
-  new_sym->setValue(0);
 
   old_sym->setSize(1);
-  old_sym->setValue(1);
 
   ASSERT_EQ( mcld::ResolveInfo::Global,    new_sym->binding());
   ASSERT_EQ( mcld::ResolveInfo::Global,    old_sym->binding());
@@ -148,7 +140,6 @@ TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_FALSE( override );
   ASSERT_EQ(1, old_sym->size());
-  ASSERT_EQ(1, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, OverrideWeakByGlobal )
@@ -160,8 +151,6 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setSize(0);
   old_sym->setSize(1);
-  new_sym->setValue(0);
-  old_sym->setValue(1);
 
   ASSERT_EQ( mcld::ResolveInfo::Global, new_sym->binding());
   ASSERT_EQ( mcld::ResolveInfo::Weak, old_sym->binding());
@@ -173,7 +162,6 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_TRUE( override );
   ASSERT_EQ(0, old_sym->size());
-  ASSERT_EQ(0, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
@@ -190,10 +178,8 @@ TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
   new_sym->setDesc(ResolveInfo::Define);
 
   new_sym->setSize(0);
-  new_sym->setValue(0);
 
   old_sym->setSize(1);
-  old_sym->setValue(1);
 
   ASSERT_EQ( mcld::ResolveInfo::Weak,   old_sym->binding());
   ASSERT_EQ( mcld::ResolveInfo::Global, new_sym->binding());
@@ -205,7 +191,6 @@ TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_FALSE( override );
   ASSERT_EQ(1, old_sym->size());
-  ASSERT_EQ(1, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, MarkByBiggerCommon )
@@ -217,8 +202,6 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
   old_sym->setDesc(ResolveInfo::Common);
   new_sym->setSize(999);
   old_sym->setSize(0);
-  new_sym->setValue(999);
-  old_sym->setValue(111);
 
   ASSERT_EQ( mcld::ResolveInfo::Common, new_sym->desc());
   ASSERT_EQ( mcld::ResolveInfo::Common, old_sym->desc());
@@ -230,7 +213,6 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_FALSE( override );
   ASSERT_EQ(999, old_sym->size());
-  ASSERT_EQ(111, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, OverrideByBiggerCommon )
@@ -243,8 +225,6 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setSize(999);
   old_sym->setSize(0);
-  new_sym->setValue(999);
-  old_sym->setValue(111);
 
   ASSERT_EQ( ResolveInfo::Common, new_sym->desc());
   ASSERT_EQ( ResolveInfo::Common, old_sym->desc());
@@ -258,7 +238,6 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
   ASSERT_EQ( Resolver::Success, result);
   ASSERT_TRUE( override );
   ASSERT_EQ(999, old_sym->size());
-  ASSERT_EQ(999, old_sym->value());
 }
 
 TEST_F( StaticResolverTest, OverrideCommonByDefine)
@@ -268,11 +247,9 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   
   old_sym->setDesc(ResolveInfo::Common);
   old_sym->setSize(0);
-  old_sym->setValue(111);
 
   new_sym->setDesc(ResolveInfo::Define);
   new_sym->setSize(999);
-  new_sym->setValue(999);
 
   ASSERT_EQ( ResolveInfo::Define, new_sym->desc());
   ASSERT_EQ( ResolveInfo::Common, old_sym->desc());
@@ -285,7 +262,6 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   ASSERT_EQ(Resolver::Warning, result);
   ASSERT_TRUE( override );
   ASSERT_EQ(999, old_sym->size());
-  ASSERT_EQ(999, old_sym->value());
   
   ASSERT_STREQ("definition of 'abc' is overriding common.", m_pResolver->mesg().c_str() );
 

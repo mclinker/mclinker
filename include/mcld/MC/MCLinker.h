@@ -54,14 +54,12 @@ public:
                             bool pIsDyn,
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
-                            ResolveInfo::ValueType pValue,
                             ResolveInfo::SizeType pSize,
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// addLocalSymbol - create a local symbol and add it into the output.
   LDSymbol* addLocalSymbol(const llvm::StringRef& pName,
                            ResolveInfo::Desc pDesc,
-                           ResolveInfo::ValueType pValue,
                            ResolveInfo::SizeType pSize,
                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 

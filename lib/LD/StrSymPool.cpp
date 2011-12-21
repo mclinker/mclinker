@@ -30,7 +30,6 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
                                       bool pIsDyn,
                                       ResolveInfo::Desc pDesc,
                                       ResolveInfo::Binding pBinding,
-                                      ResolveInfo::ValueType pValue,
                                       ResolveInfo::SizeType pSize,
                                       ResolveInfo::Visibility pVisibility)
 {
@@ -41,7 +40,6 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
   result->setBinding(pBinding);
   result->setVisibility(pVisibility);
   result->setSize(pSize);
-  result->setValue(pValue);
   return result;
 }
 
@@ -58,7 +56,6 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
                                                        bool pIsDyn,
                                                        ResolveInfo::Desc pDesc,
                                                        ResolveInfo::Binding pBinding,
-                                                       ResolveInfo::ValueType pValue,
                                                        ResolveInfo::SizeType pSize,
                                                        ResolveInfo::Visibility pVisibility)
 {
@@ -87,7 +84,6 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   new_symbol->setDesc(pDesc);
   new_symbol->setBinding(pBinding);
   new_symbol->setVisibility(pVisibility);
-  new_symbol->setValue(pValue);
   new_symbol->setSize(pSize);
 
   if (!exist) // not exit or not a symbol

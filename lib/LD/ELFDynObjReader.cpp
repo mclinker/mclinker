@@ -83,9 +83,7 @@ bool ELFDynObjReader::readSymbols(Input& pFile)
     uint64_t sym_value = sym->getValue();
 
     m_Linker.addGlobalSymbol(
-      llvm::StringRef(sym->getName()), true, desc, bind,
-      sym_size, sym_value
-    );
+      llvm::StringRef(sym->getName()), true, desc, bind, sym_size);
   }
 
   return true;

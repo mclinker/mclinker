@@ -99,12 +99,12 @@ bool ELFObjectReader::readSymbols(Input& pFile)
 
     if (local_sym) {
       m_Linker.addLocalSymbol(
-        llvm::StringRef(sym->getName(false)), desc, sym_size, sym_value, vis);
+        llvm::StringRef(sym->getName(false)), desc, sym_size, vis);
     }
     else {
       m_Linker.addGlobalSymbol(
         llvm::StringRef(sym->getName(false)), false, desc, bind,
-        sym_size, sym_value, vis
+        sym_size, vis
       );
     }
   }

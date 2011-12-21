@@ -85,7 +85,7 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
   RelocationFactory::DWord thumbBit = 
        ((pReloc.symInfo()->desc() != ResolveInfo::Undefined) && 
         (pReloc.symInfo()->type() == ResolveInfo::Function) &&
-        ((pReloc.symInfo()->value() & 0x1) != 0))?
+        ((pReloc.symValue() & 0x1) != 0))?
         1:0;
   return thumbBit;
 }

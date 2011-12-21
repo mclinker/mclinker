@@ -48,7 +48,6 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
                                     bool pIsDyn,
                                     ResolveInfo::Desc pDesc,
                                     ResolveInfo::Binding pBinding,
-                                    ResolveInfo::ValueType pValue,
                                     ResolveInfo::SizeType pSize,
                                     ResolveInfo::Visibility pVisibility)
 {
@@ -56,47 +55,58 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
     return NULL;
 
   // <resolved_info, exist?>
-  std::pair<ResolveInfo*, bool> resolved_result;
-  resolved_result = m_StrSymPool.insertSymbol(pName,
-                                              pIsDyn,
-                                              pDesc,
-                                              pBinding,
-                                              pValue,
-                                              pSize,
-                                              pVisibility);
+  std::pair<ResolveInfo*, bool> resolved_info = m_StrSymPool.insertSymbol(pName,
+                                                                          pIsDyn,
+                                                                          pDesc,
+                                                                          pBinding,
+                                                                          pSize,
+                                                                          pVisibility);
 
-  assert(NULL != resolved_result.first);
+  // the return ResolveInfo should not NULL
+  assert(NULL != resolved_info.first);
 
-  if (!resolved_result.second) { // new symbol
-    LDSymbol* result = m_LDSymbolFactory.allocate();
-    new (result) LDSymbol();
-    result->setResolveInfo(*resolved_result.first);
-    m_Output.symtab().push_back(result);
-    return result;
+  // create a LDSymbol for the input file.
+  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
+  new (input_sym) LDSymbol();
+  input_sym->setResolveInfo(*resolved_info.first);
+
+  // if it is a new symbol, create a LDSymbol for the output
+  if (!resolved_info.second) {
+    LDSymbol* output_sym = m_LDSymbolFactory.allocate();
+    new (output_sym) LDSymbol();
+    output_sym->setResolveInfo(*resolved_info.first);
+    m_Output.symtab().push_back(output_sym);
   }
-  // the symbol has been adden
-  return NULL;
+  return input_sym;
 }
 
 LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
                                    ResolveInfo::Desc pDesc,
-                                   ResolveInfo::ValueType pValue,
                                    ResolveInfo::SizeType pSize,
                                    ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* resolve_info =  m_StrSymPool.createSymbol(pName,
-                                                         false,
-                                                         pDesc,
-                                                         ResolveInfo::Local,
-                                                         pValue,
-                                                         pSize,
-                                                         pVisibility);
-  LDSymbol* result = m_LDSymbolFactory.allocate();
-  new (result) LDSymbol();
-  result->setResolveInfo(*resolve_info);
+  ResolveInfo* resolved_info =  m_StrSymPool.createSymbol(pName,
+                                                          false,
+                                                          pDesc,
+                                                          ResolveInfo::Local,
+                                                          pSize,
+                                                          pVisibility);
 
-  m_Output.symtab().push_back(result);
-  return result;
+  // the return ResolveInfo should not NULL
+  assert(NULL != resolved_info);
+
+  // create a LDSymbol for the input file.
+  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
+  new (input_sym) LDSymbol();
+  input_sym->setResolveInfo(*resolved_info);
+
+  // create a LDSymbol for the output
+  LDSymbol* output_sym = m_LDSymbolFactory.allocate();
+  new (output_sym) LDSymbol();
+  output_sym->setResolveInfo(*resolved_info);
+  m_Output.symtab().push_back(output_sym);
+
+  return input_sym;
 }
 
 LDSection* MCLinker::getOrCreateSectHdr(const std::string& pName,
