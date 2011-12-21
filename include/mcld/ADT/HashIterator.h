@@ -106,6 +106,8 @@ public:
   }
 
   inline void advance() {
+    if (0 == m_pHashTable)
+      return;
     const unsigned int probe = 1;
     while(true) {
       m_Index += probe;
@@ -213,6 +215,8 @@ public:
   }
 
   inline void advance() {
+    if (0 == m_pHashTable)
+      return;
     do {
       ++m_Index;
       if (m_pHashTable->m_NumOfBuckets == m_Index) { // to the end
