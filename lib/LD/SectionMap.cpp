@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <cassert>
 #include <cstring>
 #include <mcld/LD/SectionMap.h>
 
@@ -17,37 +16,57 @@ using namespace mcld;
 
 SectionMap::SectionMap()
 {
-  initializeMap();
 }
 
 SectionMap::~SectionMap()
-{}
-
-bool SectionMap::addNameMapping(const std::string& pFrom, const std::string& pTo)
 {
+}
+
+bool SectionMap::push_back(const std::string& pInput,
+                           const std::string& pOutput,
+                           const uint64_t pOffset)
+{
+  // Now only check if the mapping exists in the map already
+  // TODO: handle the cases such as overriding the exist mapping and drawing
+  //       exception from the given SECTIONS command
   iterator it;
-  // check if the mapping exists in the map already
   for (it = begin(); it != end(); ++it) {
-    if (pFrom == (*it).first)
+    if (pInput == (*it).inputSubStr)
       return false;
   }
-  m_NameMap.push_back(NamePairTy(pFrom, pTo));
+  struct Mapping mapping = {
+    pInput,
+    pOutput,
+    pOffset,
+  };
+  m_SectMap.push_back(mapping);
   return true;
 }
 
-const std::string& SectionMap::getOutputSectionName(const std::string& pFrom)
+SectionMap::iterator SectionMap::find(const std::string& pInput)
 {
   iterator it;
   for (it = begin(); it != end(); ++it) {
-    if (0 == strncmp((*it).first.c_str(), pFrom.c_str(), (*it).first.length()))
+    if(pInput == (*it).inputSubStr)
       break;
   }
-  assert(end() != it);
-  return (*it).second;
+  return it;
 }
 
-// general mappings for elf format.
-const SectionMap::SectionNameMapping SectionMap::m_GeneralMap[] =
+SectionMap::Mapping* SectionMap::at(const std::string& pInput)
+{
+  iterator it;
+  for (it = begin(); it != end(); ++it) {
+    if(pInput == (*it).inputSubStr)
+      break;
+  }
+  if (end() == it)
+    return NULL;
+  return &(*it);
+}
+
+// ELF mappings from gold
+const SectionMap::SectionNameMapping SectionMap::m_StdELFMap[] =
 {
   {".text", ".text"},
   {".rodata", ".rodata"},
@@ -92,13 +111,13 @@ const SectionMap::SectionNameMapping SectionMap::m_GeneralMap[] =
   {".gnu.linkonce.armexidx", ".ARM.exidx"},
 };
 
-const int SectionMap::m_GeneralMapSize =
-  (sizeof(SectionMap::m_GeneralMap) / sizeof(SectionMap::m_GeneralMap[0]));
+const int SectionMap::m_StdELFMapSize =
+  (sizeof(SectionMap::m_StdELFMap) / sizeof(SectionMap::m_StdELFMap[0]));
 
-void SectionMap::initializeMap()
+void SectionMap::addStdELFMap()
 {
-  for (int i = 0; i < m_GeneralMapSize; ++i)
-    m_NameMap.push_back(NamePairTy(std::string(m_GeneralMap[i].from),
-                                   std::string(m_GeneralMap[i].to)));
-  assert(m_GeneralMapSize == m_NameMap.size());
+  for (int i = 0; i < m_StdELFMapSize; ++i)
+    push_back(std::string(m_StdELFMap[i].from),
+              std::string(m_StdELFMap[i].to),
+              0);
 }

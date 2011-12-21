@@ -6,12 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SECTIONMAP_H
-#define SECTIONMAP_H
+#ifndef MCLD_SECTION_MAP_H
+#define MCLD_SECTION_MAP_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
+#include <llvm/Support/DataTypes.h>
 #include <vector>
 #include <string>
 
@@ -20,43 +21,64 @@ namespace mcld
 
 /** \class SectionMap
  *  \brief descirbe the mappings of input section's name (or prefix) to
- *         its associated output section's name
+ *         its associated output section's name and offset
  */
 class SectionMap
 {
 public:
-  typedef std::pair<std::string, std::string> NamePairTy;
-  typedef std::vector<NamePairTy> NameMapTy;
+  // a mapping in SectionMap is the triple of
+  // {input substr, output section's name, output section's offset}
+  struct Mapping {
+    std::string inputSubStr;
+    std::string outputStr;
+    uint64_t offset;
+  };
 
-  typedef NameMapTy::iterator iterator;
-  typedef NameMapTy::const_iterator const_iterator;
+  typedef std::vector<struct Mapping> SectionMappingTy;
+
+  typedef SectionMappingTy::iterator iterator;
+  typedef SectionMappingTy::const_iterator const_iterator;
 
 public:
   SectionMap();
   ~SectionMap();
 
-  // add a mapping from input name (maybe prefix) to output name.
-  // return true if succeeding to add one, and return false if failing.
-  bool addNameMapping(const std::string& pFrom, const std::string& pTo);
+  // add a mapping from input substr to output name and offset.
+  bool push_back(const std::string& pInput,
+                 const std::string& pOutput,
+                 const uint64_t pOffset);
 
-  // return the corresponding name of output section from the given input
-  const std::string& getOutputSectionName(const std::string& pFrom);
+  // find - return the iterator to the mapping
+  iterator find(const std::string& pInput);
+
+  // at - return the pointer to the mapping
+  Mapping* at(const std::string& pInput);
+
+  // -----  observers  ----- //
+  bool empty() const
+  { return m_SectMap.empty(); }
+
+  size_t size() const
+  { return m_SectMap.size(); }
+
+  size_t capacity () const
+  { return m_SectMap.capacity(); }
 
   // -----  iterators  ----- //
   iterator begin()
-  { return m_NameMap.begin(); }
+  { return m_SectMap.begin(); }
 
   iterator end()
-  { return m_NameMap.end(); }
+  { return m_SectMap.end(); }
 
   const_iterator begin() const
-  { return m_NameMap.begin(); }
+  { return m_SectMap.begin(); }
 
   const_iterator end() const
-  { return m_NameMap.end(); }
+  { return m_SectMap.end(); }
 
-private:
-  void initializeMap();
+  // addStdElFMap - add elf mappings to SectionMap
+  void addStdELFMap();
 
 private:
   struct SectionNameMapping {
@@ -64,12 +86,12 @@ private:
     const char* to;
   };
 
-  // FIXME: general mappings for elf format (this is based on gold)
-  static const SectionNameMapping m_GeneralMap[];
+  // ELF mappings from gold
+  static const SectionNameMapping m_StdELFMap[];
 
-  static const int m_GeneralMapSize;
+  static const int m_StdELFMapSize;
 
-  NameMapTy m_NameMap;
+  SectionMappingTy m_SectMap;
 };
 
 } // namespace of mcld
