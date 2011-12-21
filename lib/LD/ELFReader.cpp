@@ -39,9 +39,10 @@ bool ELFReader::is64Bit(mcld::Input &pFile) const
 std::auto_ptr<ELFObject<32> >
 ELFReader::createELFObject(mcld::Input &pFile) const
 {
-  size_t fsize = pFile.filesize();
+  MemoryArea* mapfile = pFile.memArea();
+  size_t fsize = mapfile->size();
   unsigned char* image =
-    pFile.memArea()->request ( 0, fsize, false /*iswrite*/)->start();
+    mapfile->request (0, fsize, false /*iswrite*/)->start();
 
   if (fsize < EI_NIDENT) {
     llvm::report_fatal_error("ERROR: ELF identification corrupted.");

@@ -157,7 +157,7 @@ public:
   { return m_FilePath; }
 
   // size - the real size of the mapped file.
-  uint32_t size() const
+  size_t size() const
   { return m_FileSize; }
 
   // isMapped - check if MemoryArea is mapped to a file
