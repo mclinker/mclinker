@@ -89,6 +89,12 @@ public:
   /// and push_back into the relocation section
   bool relocate();
 
+  /// createDynSymTable - create dynamic symbol table section and hash
+  /// sections
+  /// dump all dynamic symbols from MCLinker and build the format-dependent
+  /// hash table.
+  bool createDynSymTable();
+
   /// emitOutput - emit the output file.
   bool emitOutput();
 

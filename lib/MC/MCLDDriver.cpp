@@ -252,6 +252,16 @@ bool MCLDDriver::relocate()
   return true;
 }
 
+/// createDynSymTable - create dynamic symbol table section and hash
+/// sections
+/// dump all dynamic symbols from MCLinker and build the format-dependent
+/// hash table.
+bool MCLDDriver::createDynSymTable()
+{
+  // TODO
+  return true;
+}
+
 /// emitOutput - emit the output file.
 bool MCLDDriver::emitOutput()
 {

@@ -497,16 +497,19 @@ bool SectLinker::doFinalization(Module &pM)
       !m_pLDDriver->addTargetSymbols())
     return true;
 
-  // 8. - read all relocation entries of input files
+  // 8. - create dynamic symbol section and hash section
+  m_pLDDriver->createDynSymTable();
+
+  // 9. - read all relocation entries of input files
   m_pLDDriver->readRelocations();
 
-  // 9. - linear layout
+  // 10. - linear layout
   m_pLDDriver->layout();
 
-  // 10. - apply relocations
+  // 11. - apply relocations
   m_pLDDriver->relocate();
 
-  // 11. - write out output
+  // 12. - write out output
   m_pLDDriver->emitOutput();
 
   return false;
