@@ -59,10 +59,10 @@ unsigned int X86GNULDBackend::bitclass() const
 
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got = pLinker.getOrCreateSectHdr(".got",
-                                                    LDFileFormat::GOT,
-                                                    ELF::SHT_PROGBITS,
-                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  const LDSection* got = pLinker.createSectHdr(".got",
+                                               LDFileFormat::GOT,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
   assert(NULL != got);
   m_pGOT = new X86GOT(*got);
 }

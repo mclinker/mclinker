@@ -51,47 +51,47 @@ bool ARMGNULDBackend::isLittleEndian() const
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got = pLinker.getOrCreateSectHdr(".got",
-                                                    LDFileFormat::GOT,
-                                                    ELF::SHT_PROGBITS,
-                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  const LDSection* got   = pLinker.createSectHdr(".got",
+                                                 LDFileFormat::GOT,
+                                                 ELF::SHT_PROGBITS,
+                                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
   assert(NULL != got);
   m_pGOT = new ARMGOT(*got);
 
-  const LDSection* plt = pLinker.getOrCreateSectHdr(".plt",
-                                                    LDFileFormat::PLT,
-                                                    ELF::SHT_PROGBITS,
-                                                    ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);           
+  const LDSection* plt   = pLinker.createSectHdr(".plt",
+                                                 LDFileFormat::PLT,
+                                                 ELF::SHT_PROGBITS,
+                                                 ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   assert(NULL != plt);
   m_pPLT = new ARMPLT(*plt);
 
   
-  const LDSection* reldyn = pLinker.getOrCreateSectHdr(".rel.dyn",
-                                                    LDFileFormat::Data,
-                                                    ELF::SHT_REL,
-                                                    ELF::SHF_ALLOC);           
+  const LDSection* reldyn = pLinker.createSectHdr(".rel.dyn",
+                                                  LDFileFormat::Data,
+                                                  ELF::SHT_REL,
+                                                  ELF::SHF_ALLOC);
   assert(NULL != reldyn);
   m_pRelDyn = new llvm::MCSectionData(*reldyn);
 
-  const LDSection* relplt = pLinker.getOrCreateSectHdr(".rel.plt",
-                                                    LDFileFormat::Data,
-                                                    ELF::SHT_REL,
-                                                    ELF::SHF_ALLOC);           
+  const LDSection* relplt = pLinker.createSectHdr(".rel.plt",
+                                                  LDFileFormat::Data,
+                                                  ELF::SHT_REL,
+                                                  ELF::SHF_ALLOC);
   assert(NULL != relplt);
   m_pRelPLT = new llvm::MCSectionData(*relplt);
   
-  m_pEXIDX             = pLinker.getOrCreateSectHdr(".ARM.exidx",
-                                                    LDFileFormat::MetaData,
-                                                    ELF::SHT_ARM_EXIDX,
-                                                    ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
-  m_pEXTAB             = pLinker.getOrCreateSectHdr(".ARM.extab",
-                                                    LDFileFormat::MetaData,
-                                                    ELF::SHT_PROGBITS,
-                                                    ELF::SHF_ALLOC);
-  m_pAttributes        = pLinker.getOrCreateSectHdr(".ARM.attributes",
-                                                    LDFileFormat::MetaData,
-                                                    ELF::SHT_ARM_ATTRIBUTES,
-                                                    ELF::SHF_ALLOC);
+  m_pEXIDX                = pLinker.createSectHdr(".ARM.exidx",
+                                                  LDFileFormat::MetaData,
+                                                  ELF::SHT_ARM_EXIDX,
+                                                  ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
+  m_pEXTAB                = pLinker.createSectHdr(".ARM.extab",
+                                                  LDFileFormat::MetaData,
+                                                  ELF::SHT_PROGBITS,
+                                                  ELF::SHF_ALLOC);
+  m_pAttributes           = pLinker.createSectHdr(".ARM.attributes",
+                                                  LDFileFormat::MetaData,
+                                                  ELF::SHT_ARM_ATTRIBUTES,
+                                                  ELF::SHF_ALLOC);
 }
 
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc)
