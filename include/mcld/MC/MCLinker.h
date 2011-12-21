@@ -35,6 +35,7 @@ class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
 class LDSectionFactory;
+class SectionMap;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -45,6 +46,7 @@ public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
            LDContext& pContext,
+           SectionMap& pSectionMap,
            const Resolver& pResolver = StaticResolver());
   ~MCLinker();
 
@@ -101,7 +103,7 @@ private:
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_OutputSectHdrFactory;
-  // SectionMap& m_SectionMap;
+  SectionMap& m_SectionMap;
 };
 
 } // namespace of mcld

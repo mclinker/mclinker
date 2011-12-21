@@ -27,13 +27,13 @@ using namespace mcld;
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
                    LDContext& pContext,
-//                   SectionMap& pSectionMap,
+                   SectionMap& pSectionMap,
                    const Resolver& pResolver)
 : m_Backend(pBackend),
   m_Info(pInfo),
   m_Output(pContext),
   m_StrSymPool(pResolver),
-//  m_SectionMap(pSectionMap),
+  m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
   m_OutputSectHdrFactory(10) // the average number of sections. (assuming 10.)
 {

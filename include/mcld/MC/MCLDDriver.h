@@ -18,6 +18,7 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/LD/SectionMap.h>
 namespace mcld
 {
 
@@ -105,6 +106,7 @@ private:
   TargetLDBackend &m_LDBackend;
   MCLDInfo& m_LDInfo;
   MCLinker* m_pLinker;
+  SectionMap m_SectionMap;
 };
 
 } // end namespace mcld

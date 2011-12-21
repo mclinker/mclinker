@@ -114,7 +114,8 @@ bool MCLDDriver::initMCLinker()
   if (0 == m_pLinker)
     m_pLinker = new MCLinker(m_LDBackend,
                              m_LDInfo,
-                             *m_LDInfo.output().context());
+                             *m_LDInfo.output().context(),
+                             m_SectionMap);
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
