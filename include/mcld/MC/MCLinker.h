@@ -76,12 +76,11 @@ public:
   /// SectionMap& getSectionMap()
   /// { return m_SectionMap; }
 
-  /// getOrCreateSectHdr - for standard/target format to get or create a
-  ///                      section header of output file
-  LDSection* getOrCreateSectHdr(const std::string& pName,
-                                LDFileFormat::Kind pKind,
-                                uint32_t pType,
-                                uint32_t pFlag);
+  /// createSectHdr - for reader and standard/target format to create a section header
+  LDSection* createSectHdr(const std::string& pName,
+                           LDFileFormat::Kind pKind,
+                           uint32_t pType,
+                           uint32_t pFlag);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData* getOrCreateSectData(const std::string& pName);
@@ -102,7 +101,7 @@ private:
   LDContext& m_Output;
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
-  LDSectionFactory m_OutputSectHdrFactory;
+  LDSectionFactory m_LDSectHdrFactory;
   SectionMap& m_SectionMap;
 };
 

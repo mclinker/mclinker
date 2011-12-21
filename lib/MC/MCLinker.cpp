@@ -35,7 +35,7 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_StrSymPool(pResolver),
   m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
-  m_OutputSectHdrFactory(10) // the average number of sections. (assuming 10.)
+  m_LDSectHdrFactory(10) // the average number of sections. (assuming 10.)
 {
 }
 
@@ -109,14 +109,25 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   return input_sym;
 }
 
-LDSection* MCLinker::getOrCreateSectHdr(const std::string& pName,
-                                        LDFileFormat::Kind pKind,
-                                        uint32_t pType,
-                                        uint32_t pFlag)
+LDSection* MCLinker::createSectHdr(const std::string& pName,
+                                   LDFileFormat::Kind pKind,
+                                   uint32_t pType,
+                                   uint32_t pFlag)
 {
-  LDSection* result = m_OutputSectHdrFactory.find(pName);
-  if (NULL == result)
-    result = m_OutputSectHdrFactory.produce(pName, pKind, pType, pFlag);
+  // for user such as reader, standard/target fromat
+  LDSection* result =
+    m_LDSectHdrFactory.produce(pName, pKind, pType, pFlag);
+
+  // check if we need to create a output section for output LDContext
+  const std::string& sect_name = m_SectionMap.getOutputSectName(pName);
+  LDSection* output_sect = m_Output.getSection(sect_name);
+
+  if (NULL == output_sect) {
+  // create a output section and push it into output LDContext
+    output_sect =
+      m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    m_Output.getSectionTable().push_back(output_sect);
+  }
   return result;
 }
 
