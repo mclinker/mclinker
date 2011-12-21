@@ -47,6 +47,14 @@ public:
   virtual void initTargetSymbols(MCLinker& pLinker) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
 
+  /// scanRelocation - determine the empty entries are needed or not for
+  /// pReloc. If yes, create the empty entries.
+  /// MCLinker traverse relocations to generate empty entries, such as
+  /// GOT and dynamic relocation entries and other target dependent
+  /// entries. These entries are generated for layout to adjust the ouput
+  /// offset.
+  virtual void scanRelocation(Relocation& pReloc) { }
+
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLinker&) = 0;
   virtual bool initObjectReader(MCLinker&) = 0;
@@ -76,14 +84,6 @@ public:
 
   /** bit class. the bit length of the target machine, 32 or 64 **/
   virtual unsigned int bitclass() const = 0;
-
-  /// getGOT - return the GOT
-  /// Target can use co-variant return type to return its own GOT
-  virtual GOT& getGOT() = 0;
-
-  /// getGOT - return the GOT
-  /// Target can use co-variant return type to return its own GOT
-  virtual const GOT& getGOT() const = 0;
 };
 
 } // End mcld namespace

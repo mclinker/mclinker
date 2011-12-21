@@ -64,6 +64,10 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                     ELF::SHF_ALLOC);
 }
 
+void ARMGNULDBackend::scanRelocation(Relocation& pReloc)
+{
+}
+
 ARMGOT& ARMGNULDBackend::getGOT()
 {
   assert(0 != m_pGOT);

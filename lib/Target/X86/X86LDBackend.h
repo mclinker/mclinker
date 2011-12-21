@@ -38,6 +38,14 @@ public:
 
   void initTargetSections(MCLinker& pLinker);
 
+  /// scanRelocation - determine the empty entries are needed or not and create
+  /// the empty entries if needed.
+  /// For X86, following entries are check to create:
+  /// - GOT entry (for .got and .got.plt sections)
+  /// - PLT entry (for .plt section)
+  /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
+  void scanRelocation(Relocation& pReloc);
+
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;

@@ -32,6 +32,14 @@ public:
   /// getRelocFactory
   RelocationFactory* getRelocFactory();
 
+  /// scanRelocation - determine the empty entries are needed or not and create
+  /// the empty entries if needed.
+  /// For ARM, following entries are check to create:
+  /// - GOT entry (for .got section)
+  /// - PLT entry (for .plt section)
+  /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
+  void scanRelocation(Relocation& pReloc);
+
   uint32_t machine() const;
 
   bool isLittleEndian() const;

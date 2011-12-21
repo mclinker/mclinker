@@ -65,6 +65,11 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
   // add target dependent sections here.
 }
 
+
+void MipsGNULDBackend::scanRelocation(Relocation& pReloc)
+{
+}
+
 MipsGOT& MipsGNULDBackend::getGOT()
 {
   assert(0 != m_pGOT);
