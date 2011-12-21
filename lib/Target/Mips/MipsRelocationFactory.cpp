@@ -85,6 +85,8 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
 // Relocation functions implementation     //
 //=========================================//
 
+static const char * const GP_DISP_NAME = "_gp_disp";
+
 // R_MIPS_NONE and those unsupported/deprecated relocation type
 MipsRelocationFactory::Result
 none(Relocation& pReloc, const MipsRelocationFactory& pParent)
@@ -132,20 +134,22 @@ lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
 
   Relocation *hiReloc = static_cast<Relocation*>(pReloc.getPrevNode());
 
-  // TODO (simon): Implement relocation for _gp_disp
+  if (strcmp(pReloc.symInfo()->name(), GP_DISP_NAME) == 0) {
+    // TODO (simon): Implement relocation for _gp_disp
+  } else {
+    RelocationFactory::DWord loPart = pReloc.addend() & 0xffff;
 
-  RelocationFactory::DWord loPart = pReloc.addend() & 0xffff;
+    if (hiReloc != 0 && hiReloc->type() == R_MIPS_HI16) {
+        RelocationFactory::DWord hiPart = hiReloc->addend() +
+            ((loPart + 0x8000) & 0xffff);
 
-  if (hiReloc != 0 && hiReloc->type() == R_MIPS_HI16) {
-    RelocationFactory::DWord hiPart = hiReloc->addend() +
-                                      ((loPart + 0x8000) & 0xffff);
+        RelocationFactory::DWord hiAddend = hiReloc->target() + hiPart;
+        hiReloc->target() = (hiReloc->symValue() + hiAddend) >> 16;
+    }
 
-    RelocationFactory::DWord hiAddend = hiReloc->target() + hiPart;
-    hiReloc->target() = (hiReloc->symValue() + hiAddend) >> 16;
+    RelocationFactory::DWord addend = pReloc.target() + loPart;
+    pReloc.target() = pReloc.symValue() + addend;
   }
-
-  RelocationFactory::DWord addend = pReloc.target() + loPart;
-  pReloc.target() = pReloc.symValue() + addend;
 
   return MipsRelocationFactory::OK;
 }
