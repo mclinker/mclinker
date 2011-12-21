@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <sstream>
 #include <sys/mman.h>
+#include <sys/stat.h>
 
 using namespace mcld;
 
