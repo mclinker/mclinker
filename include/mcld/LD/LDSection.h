@@ -14,6 +14,7 @@
 #endif
 
 #include <llvm/MC/MCSection.h>
+#include <llvm/MC/MCAssembler.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <mcld/LD/LDFileFormat.h>
@@ -124,6 +125,12 @@ public:
   bool isVirtualSection() const
   { return false; }
 
+  llvm::MCSectionData* getSectionData()
+  { return m_pSectionData; }
+
+  void setSectionData(llvm::MCSectionData* pSD)
+  { m_pSectionData = pSD; }
+
 private:
   std::string m_Name;
 
@@ -134,6 +141,9 @@ private:
 
   uint32_t m_Flag;
   uint32_t m_Type;
+
+  // pointer to MCSectionData.
+  llvm::MCSectionData* m_pSectionData;
 
 }; // end of LDSection
 
