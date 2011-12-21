@@ -42,23 +42,21 @@ void MCLDDriver::normalize() {
     // already got type - for example, bitcode
     if ((*input)->type() == Input::Object)
       continue;
-    else if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
+
+    
+    (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
+    if (!(*input)->memArea()->isGood()) {
+        llvm::report_fatal_error("can not open file: " + (*input)->path().native());
+        return;
+    }
+
+    if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
         (*input)->setType(Input::Object);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
-        (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
-        if (!(*input)->memArea()->isGood()) {
-          llvm::report_fatal_error("can not open file: " + (*input)->path().native());
-          return;
-        }
     }
     else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
         (*input)->setType(Input::DynObj);
         (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
-        (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
-        if (!(*input)->memArea()->isGood()) {
-          llvm::report_fatal_error("can not open file: " + (*input)->path().native());
-          return;
-        }
     }
     else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
       (*input)->setType(Input::Archive);
