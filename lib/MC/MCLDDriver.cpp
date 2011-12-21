@@ -165,6 +165,13 @@ bool MCLDDriver::readSections()
 {
   // Bitcode is read by the other path. This function reads sections in object
   // files.
+  mcld::InputTree::bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
+  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+    if ((*input)->type() == Input::Object) {
+      if (!m_LDBackend.getObjectReader()->readSections(**input))
+        return false;
+    }
+  }
   return true;
 }
 
