@@ -22,6 +22,14 @@ ARMGNULDBackend::ARMGNULDBackend()
 
 ARMGNULDBackend::~ARMGNULDBackend()
 {
+  if(m_pGOT)
+    delete m_pGOT;
+  if(m_pPLT)
+    delete m_pPLT;
+  if(m_pRelDyn)
+    delete m_pRelDyn;
+  if(m_pRelPLT)
+    delete m_pRelPLT;
 }
 
 RelocationFactory* ARMGNULDBackend::getRelocFactory()
@@ -50,6 +58,28 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
   assert(NULL != got);
   m_pGOT = new ARMGOT(*got);
 
+  const LDSection* plt = pLinker.getOrCreateSectHdr(".plt",
+                                                    LDFileFormat::PLT,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);           
+  assert(NULL != plt);
+  m_pPLT = new ARMPLT(*plt);
+
+  
+  const LDSection* reldyn = pLinker.getOrCreateSectHdr(".rel.dyn",
+                                                    LDFileFormat::Data,
+                                                    ELF::SHT_REL,
+                                                    ELF::SHF_ALLOC);           
+  assert(NULL != reldyn);
+  m_pRelDyn = new llvm::MCSectionData(*reldyn);
+
+  const LDSection* relplt = pLinker.getOrCreateSectHdr(".rel.plt",
+                                                    LDFileFormat::Data,
+                                                    ELF::SHT_REL,
+                                                    ELF::SHF_ALLOC);           
+  assert(NULL != relplt);
+  m_pRelPLT = new llvm::MCSectionData(*relplt);
+  
   m_pEXIDX             = pLinker.getOrCreateSectHdr(".ARM.exidx",
                                                     LDFileFormat::MetaData,
                                                     ELF::SHT_ARM_EXIDX,

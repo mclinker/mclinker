@@ -10,6 +10,7 @@
 #define MCLD_ARM_LDBACKEND_H
 
 #include "ARMGOT.h"
+#include "ARMPLT.h"
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/LD/LDSection.h>
 
@@ -48,12 +49,26 @@ public:
   { return 32; }
 
   ARMGOT& getGOT();
-
   const ARMGOT& getGOT() const;
+
+  ARMPLT& getPLT();
+  const ARMPLT& getPLT() const;
+
+  llvm::MCSectionData& getRelDyn();
+  const llvm::MCSectionData& getRelDyn() const;
+
+  llvm::MCSectionData& getRelPLT();
+  const llvm::MCSectionData& getRelPLT() const;
 
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;
+  ARMPLT* m_pPLT;
+  /// m_RelDyn - dynamic relocation table of .rel.dyn
+  llvm::MCSectionData* m_pRelDyn;
+  /// m_RelPLT - dynamic relocation table of .rel.plt
+  llvm::MCSectionData* m_pRelPLT;
+
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx
   LDSection* m_pEXTAB;           // .ARM.extab
