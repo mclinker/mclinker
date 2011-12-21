@@ -219,7 +219,7 @@ private:
   static const uint32_t RESERVED_OFFSET    = 12;
   static const uint32_t RESERVED_MASK      = 0xF << RESERVED_OFFSET;
   static const uint32_t NAME_LENGTH_OFFSET = 16;
-  static const uint32_t RESOLVE_MASK       = 0xFFFF;
+  static const uint32_t RESOLVE_MASK       = 0xFFF;
 
   union ValOrPtr {
     ValueType value;
