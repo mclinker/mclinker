@@ -131,7 +131,7 @@ LDSection* MCLinker::createSectHdr(const std::string& pName,
   return result;
 }
 
-llvm::MCSectionData* MCLinker::getOrCreateSectData(const std::string& pName)
+llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
 {
   return NULL;
 }

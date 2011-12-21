@@ -83,7 +83,7 @@ public:
                            uint32_t pFlag);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
-  llvm::MCSectionData* getOrCreateSectData(const std::string& pName);
+  llvm::MCSectionData* getOrCreateSectData(LDSection* pSection);
 
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
