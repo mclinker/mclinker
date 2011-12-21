@@ -23,7 +23,7 @@ namespace mcld
 class Layout;
 class RelocationFactory;
 
-class Relocation : public llvm::ilist_node<Relocation>
+class Relocation : public llvm::MCFragment
 {
 friend class RelocationFactory;
 

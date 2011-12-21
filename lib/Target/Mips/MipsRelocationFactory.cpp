@@ -130,7 +130,7 @@ lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
   // TODO (simon): Consider to support GNU extension -
   // multiple R_MIPS_HI16 entries for single R_MIPS_LO16.
 
-  Relocation *hiReloc = pReloc.getPrevNode();
+  Relocation *hiReloc = static_cast<Relocation*>(pReloc.getPrevNode());
 
   // TODO (simon): Implement relocation for _gp_disp
 
