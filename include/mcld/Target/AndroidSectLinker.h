@@ -6,9 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// AndroidSectLinker is a customized linker pass for Android platform.
+// This pass set up default parameters for Android.
+//
+//===----------------------------------------------------------------------===//
 
-#ifndef ANDROIDSECTLINKER_H
-#define ANDROIDSECTLINKER_H
+#ifndef ANDROID_SECTLINKER_H
+#define ANDROID_SECTLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -16,13 +21,6 @@
 
 namespace mcld
 {
-
-/** \class AndroidSectLinker
- *  \brief Section Linker for Android (ELF format is used).
- *
- *  \see
- *  \author Anders Cheng <Anders.Cheng@mediatek.com>
- */
 
 class AndroidSectLinker : public SectLinker
 {
@@ -35,7 +33,12 @@ public:
 
   virtual ~AndroidSectLinker();
 
-  virtual bool doInitialization(llvm::Module &pM);
+  /// addInputsBeforeCMD - if there are any inputs should add before the
+  /// command line, override this function
+  virtual void addInputsBeforeCMD(llvm::Module &pM,
+                                  MCLDInfo& pLDInfo,
+                                  PositionDependentOptions &pOptions);
+
 };
 
 } // namespace of mcld

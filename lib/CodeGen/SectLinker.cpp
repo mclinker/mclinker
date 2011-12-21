@@ -303,6 +303,9 @@ bool SectLinker::doInitialization(Module &pM)
   PositionDependentOptions pos_dep_options;
   pos_dep_options.reserve(input_size);
 
+  // override the parameters before all positional options
+  addInputsBeforeCMD(pM, m_LDInfo, pos_dep_options);
+
   // add all start-group
   cl::list<bool>::iterator sg;
   cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
@@ -425,6 +428,9 @@ bool SectLinker::doInitialization(Module &pM)
   }
 
   // -----  Set up Scripting Options  ----- //
+
+  // override the parameters after all positional options
+  addInputsAfterCMD(pM, m_LDInfo, pos_dep_options);
 
   // ----- convert position dependent options into tree of input files  ----- //
   std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);

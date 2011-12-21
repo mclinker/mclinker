@@ -12,10 +12,8 @@
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDDirectory.h>
-
+#include <llvm/Support/ErrorHandling.h>
 #include <llvm/Module.h>
-
-#include <sstream>
 
 using namespace mcld;
 
@@ -39,34 +37,27 @@ AndroidSectLinker::~AndroidSectLinker()
   // SectLinker will delete m_pLDBackend and m_pLDDriver;
 }
 
-bool AndroidSectLinker::doInitialization(llvm::Module &pM)
+void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
+                                           MCLDInfo& pLDInfo,
+                                           SectLinker::PositionDependentOptions &pOptions)
 {
   // -----  Set up General Options  ----- //
-  //   make sure output is openend successfully.
-  if (!m_LDInfo.output().hasMemArea())
-    llvm::report_fatal_error("output is not given on the command line\n");
-
-  if (!m_LDInfo.output().memArea()->isGood())
-    llvm::report_fatal_error(
-      "can not open output file :" + m_LDInfo.output().path().native());
-
-  InputTree::iterator iter = m_LDInfo.inputs().begin();
-
-  for (llvm::Module::LibraryListType::const_iterator I = pM.lib_begin(),
-    E = pM.lib_end(); I != E; ++I) {
-    std::ostringstream libName;
-    std::ostringstream libPath;
-    libName << "l" << *I;
-    // For now, libPath must in /system/lib
-    libPath << "/system/lib/lib" << *I << ".so";
-    Input* deplib = m_LDInfo.inputFactory().produce(
-                      libName.str(), sys::fs::Path(libPath.str()));
-    m_LDInfo.inputs().insert<InputTree::Positional> (iter, *deplib);
-    iter++;
+  MCLDDirectory search_path("=/system/lib");
+  search_path.setSysroot(pLDInfo.options().sysroot());
+  if (exists(search_path.path()) && is_directory(search_path.path()))
+    pLDInfo.options().directories().add(search_path);
+  else {
+    // FIXME: need a warning function
+    llvm::errs() << "search directory is wrong: -L" << search_path.name();
   }
 
-  // Now, all input arguments are prepared well, send it into MCLDDriver
-  m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
-  return false;
+  // -----  Read namespec from bitcode  -----//
+  llvm::Module::LibraryListType::const_iterator namespec, specEnd = pM.lib_end();
+  for (namespec = pM.lib_begin(); namespec != specEnd; ++namespec) {
+    pOptions.push_back(new SectLinker::PositionDependentOption(
+                                                   0, // most early
+                                                   *namespec,
+                                                   PositionDependentOption::NAMESPEC));
+  }
 }
 

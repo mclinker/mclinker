@@ -128,6 +128,20 @@ namespace mcld
   public:
     virtual ~SectLinker();
 
+    /// addInputsBeforeCMD - if there are any inputs should add before the
+    /// command line, override this function
+    virtual void addInputsBeforeCMD(llvm::Module &pM,
+                                    MCLDInfo& pLDInfo,
+                                    PositionDependentOptions &pOptions)
+    { }
+
+    /// addInputsAfterCMD - if there are any inputs should add after the
+    /// command line, override this function
+    virtual void addInputsAfterCMD(llvm::Module &pM,
+                                    MCLDInfo& pLDInfo,
+                                    PositionDependentOptions &pOptions)
+    { }
+
     /// doInitialization - Read all parameters and set up the AsmPrinter.
     /// If your pass overrides this, it must make sure to explicitly call 
     /// this implementation.
