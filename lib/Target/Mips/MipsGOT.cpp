@@ -20,8 +20,11 @@ MipsGOT::~MipsGOT()
 {
 }
 
-MipsGOT::Entry* MipsGOT::createEntry(uint64_t pData)
+void MipsGOT::reserveEntry(int pNum)
 {
-  return new Entry(pData, this);
 }
 
+MipsGOT::Entry* MipsGOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+{
+  return 0;
+}

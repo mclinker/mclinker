@@ -22,8 +22,12 @@ ARMGOT::~ARMGOT()
 {
 }
 
-ARMGOT::Entry* ARMGOT::createEntry(uint64_t pData)
+void ARMGOT::reserveEntry(int pNum)
 {
-  return new Entry(pData, this);
 }
 
+ARMGOT::Entry* ARMGOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+{
+  // TODO
+  return 0;
+}

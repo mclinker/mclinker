@@ -31,7 +31,10 @@ public:
   ARMGOT(const LDSection& pSection);
   ~ARMGOT();
 
-  Entry* createEntry(uint64_t pData = 0);
+  void reserveEntry(int pNum = 1);
+
+  Entry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+
 };
 
 } // namespace of mcld

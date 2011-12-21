@@ -22,8 +22,12 @@ X86GOT::~X86GOT()
 {
 }
 
-X86GOT::Entry* X86GOT::createEntry(uint64_t pData)
+void X86GOT::reserveEntry(int pNum)
 {
-  return new Entry(pData, this);
 }
 
+X86GOT::Entry* X86GOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+{
+  // TODO
+  return 0;
+}

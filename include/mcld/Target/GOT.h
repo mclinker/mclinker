@@ -18,6 +18,7 @@ namespace mcld
 {
 
 class GOT;
+class ResolveInfo;
 
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
@@ -53,7 +54,18 @@ public:
   /// entrySize - the number of bytes per entry
   unsigned int entryBytes() const;
 
-  virtual GOTEntry* createEntry(uint64_t pData = 0) = 0;
+
+  /// reserveEntry - reseve number of pNum of empty entries
+  /// Before layout, we scan all relocations to determine if GOT entries are
+  /// needed. If an entry is needed, the empty entry is reserved for layout
+  /// to adjust the fragment offset. After that, we fill up the entries when
+  /// applying relocations.
+  virtual void reserveEntry(int pNum = 1) = 0;
+
+  /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
+  /// @param pSymbol - the target symbol
+  /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
+  virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
   unsigned int f_EntryBytes;
