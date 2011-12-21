@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <cassert>
 #include <cstring>
 #include <mcld/LD/SectionMap.h>
 
@@ -20,6 +21,22 @@ SectionMap::SectionMap()
 
 SectionMap::~SectionMap()
 {
+}
+
+const std::string& SectionMap::getOutputSectName(const std::string& pInput)
+{
+  iterator it;
+  for (it = begin(); it != end(); ++it) {
+    if(0 == strncmp(pInput.c_str(),
+                    (*it).inputSubStr.c_str(),
+                    (*it).inputSubStr.length()))
+      break;
+  }
+  // FIXME: Assuming that no "special" or user-defined sections so far,
+  // and our mapping rules can cover the current cases.
+  assert(it != end());
+  
+  return (*it).outputStr;
 }
 
 bool SectionMap::push_back(const std::string& pInput,
