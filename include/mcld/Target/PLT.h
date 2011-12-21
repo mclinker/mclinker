@@ -19,7 +19,6 @@
 namespace mcld
 {
 
-class GOT;
 class ResolveInfo;
 
 /** \class PLTEntry
@@ -50,23 +49,19 @@ protected:
  */
 class PLT : public llvm::MCSectionData
 {
-  typedef GOT GOTPLTType;
-
 public:
-  PLT(const LDSection& pSection, GOT& pGOTPLT);
+  PLT(const LDSection& pSection);
   virtual ~PLT();
 
-  GOTPLTType& getGOTPLT()
-  { return m_GOTPLT; }
-
-  const GOTPLTType& getGOTPLT() const
-  { return m_GOTPLT; }
-
 public:
-  virtual PLTEntry* getOrCreateGOTPLT(const ResolveInfo& info) = 0;
+  /// reserveEntry - reseve the number of pNum of empty entries
+  /// The empty entris are reserved for layout to adjust the fragment offset.
+  virtual void reserveEntry(int pNum = 1) = 0;
 
-protected:
-  GOTPLTType& m_GOTPLT;
+  /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
+  /// @param pSymbol - the target symbol
+  /// @param pExist - ture if the a filled entry with pSymbol existed, otherwise false.
+  virtual PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 };
 
 } // namespace of mcld

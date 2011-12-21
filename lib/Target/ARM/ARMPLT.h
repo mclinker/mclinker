@@ -72,15 +72,18 @@ class ARMPLT : public PLT
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
 
 public:
-   ARMPLT(const LDSection& pSection, GOT& m_pGOTPLT);
-   ~ARMPLT();
+  ARMPLT(const LDSection& pSection);
+  ~ARMPLT();
 
 public:
-   // Override pure virtual function
-   PLTEntry* getOrCreateGOTPLT(const ResolveInfo& pInfo);
+  // Override pure virtual function
+  PLTEntry* getOrCreateGOTPLT(const ResolveInfo& pInfo);
+
+  void reserveEntry(int pNum = 1) ;
+  PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
 private:
-   SymbolIndexType m_SymbolIndexMap;
+  SymbolIndexType m_SymbolIndexMap;
 };
 
 } // namespace of mcld
