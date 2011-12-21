@@ -12,7 +12,7 @@
 using namespace mcld;
 
 LDSymbol::LDSymbol()
-  : m_pResolveInfo(NULL), m_pFragRef(NULL) {
+  : m_pResolveInfo(NULL), m_pFragRef(NULL), m_Value(0) {
 }
 
 LDSymbol::~LDSymbol()
@@ -23,13 +23,15 @@ LDSymbol::~LDSymbol()
 
 LDSymbol::LDSymbol(const LDSymbol& pCopy)
   : m_pResolveInfo(pCopy.m_pResolveInfo),
-    m_pFragRef(pCopy.m_pFragRef) {
+    m_pFragRef(pCopy.m_pFragRef),
+    m_Value(pCopy.m_Value) {
 }
 
 LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
 {
   m_pResolveInfo = pCopy.m_pResolveInfo;
   m_pFragRef = pCopy.m_pFragRef;
+  m_Value = pCopy.m_Value;
   return (*this);
 }
 

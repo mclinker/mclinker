@@ -64,8 +64,7 @@ public:
     assert(NULL != m_pResolveInfo);
     return m_pResolveInfo->type();
   }
-
-  unsigned int desc() const {
+ unsigned int desc() const {
     assert(NULL != m_pResolveInfo);
     return m_pResolveInfo->desc();
   }
@@ -84,10 +83,8 @@ public:
     return m_pResolveInfo->other();
   }
 
-  ValueType value() const {
-    assert(NULL != m_pResolveInfo);
-    return m_pResolveInfo->value();
-  }
+  ValueType value() const
+  { return m_Value; }
 
   const MCFragmentRef* fragRef() const
   { return m_pFragRef; }
@@ -104,10 +101,8 @@ public:
     m_pResolveInfo->setSize(pSize);
   }
 
-  void setValue(ValueType pValue) {
-    assert(NULL != m_pResolveInfo);
-    m_pResolveInfo->setValue(pValue);
-  }
+  void setValue(ValueType pValue)
+  { m_Value = pValue; }
 
   void setFragmentRef(llvm::MCFragment& pFragment, Offset pOffset);
 
@@ -117,6 +112,7 @@ private:
   // -----  Symbol's fields  ----- //
   ResolveInfo* m_pResolveInfo;
   MCFragmentRef* m_pFragRef;
+  ValueType m_Value;
 
 };
 
