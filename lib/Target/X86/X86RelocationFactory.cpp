@@ -14,8 +14,8 @@ using namespace mcld;
 //==========================
 // X86RelocationFactory
 X86RelocationFactory::X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent)
-  : RelocationFactory(pNum, pParent)
-{
+  : RelocationFactory(pNum),
+    m_Target(pParent) {
 }
 
 X86RelocationFactory::~X86RelocationFactory()

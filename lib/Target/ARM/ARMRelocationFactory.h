@@ -41,6 +41,15 @@ public:
   ~ARMRelocationFactory();
 
   void applyRelocation(Relocation& pRelocation);
+
+  ARMGNULDBackend& getTarget()
+  { return m_Target; }
+
+  const ARMGNULDBackend& getTarget() const
+  { return m_Target; }
+
+private:
+  ARMGNULDBackend& m_Target;
 };
 
 } // namespace of mcld

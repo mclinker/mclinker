@@ -17,12 +17,10 @@ using namespace mcld;
 
 //==========================
 // RelocationFactory
-RelocationFactory::RelocationFactory(size_t pNum,
-                                     TargetLDBackend& pParent)
+RelocationFactory::RelocationFactory(size_t pNum)
   : GCFactory<Relocation, 0>(pNum),
     m_pTargetDataFactory(new TargetDataFactory(pNum)),
-    m_pLayout(0),
-    m_Parent(pParent) {
+    m_pLayout(0) {
 }
 
 RelocationFactory::~RelocationFactory()
@@ -42,7 +40,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   // data.
   DWord* target_data = NULL;
   target_data = m_pTargetDataFactory->allocate();
-  pFragRef.memcpy(target_data, (m_Parent.bitclass()/8));
+  pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
 
   // make target_data get right value
   // old target_data:
@@ -53,7 +51,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   // shift  right 32 bits
   //
   // |00000000|AAAAAAAA|
-  (*target_data) >>= (sizeof(DWord)*8 - m_Parent.bitclass());
+  (*target_data) >>= (sizeof(DWord)*8 - getTarget().bitclass());
 
   new (result) Relocation(pType,
                           pFragRef,
@@ -77,15 +75,5 @@ const Layout& RelocationFactory::getLayout() const
 {
   assert(0 != m_pLayout);
   return *m_pLayout;
-}
-
-GOT& RelocationFactory::getGOT()
-{
-  return m_Parent.getGOT();
-}
-
-const GOT& RelocationFactory::getGOT() const
-{
-  return m_Parent.getGOT();
 }
 

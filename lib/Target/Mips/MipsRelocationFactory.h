@@ -40,6 +40,15 @@ public:
   ~MipsRelocationFactory();
 
   void applyRelocation(Relocation& pRelocation);
+
+  MipsGNULDBackend& getTarget()
+  { return m_Target; }
+
+  const MipsGNULDBackend& getTarget() const
+  { return m_Target; }
+
+private:
+  MipsGNULDBackend& m_Target;
 };
 
 } // namespace of mcld

@@ -29,6 +29,14 @@ public:
 
   void applyRelocation(Relocation& pRelocation);
 
+  X86GNULDBackend& getTarget()
+  { return m_Target; }
+
+  const X86GNULDBackend& getTarget() const
+  { return m_Target; }
+
+private:
+  X86GNULDBackend& m_Target;
 };
 
 } // namespace of mcld

@@ -37,8 +37,7 @@ public:
   typedef Relocation::DWord DWord;
 
 public:
-  RelocationFactory(size_t pNum,
-                    TargetLDBackend& pParent);
+  explicit RelocationFactory(size_t pNum);
 
   virtual ~RelocationFactory();
 
@@ -61,9 +60,9 @@ public:
   // ------ observers -----//
   const Layout& getLayout() const;
 
-  GOT& getGOT();
+  virtual TargetLDBackend& getTarget() = 0;
 
-  const GOT& getGOT() const;
+  virtual const TargetLDBackend& getTarget() const = 0;
 
 private:
   typedef GCFactory<DWord, 0> TargetDataFactory;
@@ -71,10 +70,7 @@ private:
 private:
   const Layout* m_pLayout;
   TargetDataFactory* m_pTargetDataFactory;
-  TargetLDBackend& m_Parent;
 
-  // TODO: Add pointer to dynamic relocation table
-  /// m_pDynRelocTables
 };
 
 } // namespace of mcld

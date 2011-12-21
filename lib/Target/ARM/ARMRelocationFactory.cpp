@@ -20,7 +20,8 @@ DECL_ARM_APPLY_RELOC_FUNCS
 //===----------------------------------------------------------------------===//
 // ARMRelocationFactory
 ARMRelocationFactory::ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent)
-  : RelocationFactory(pNum, pParent) {
+  : RelocationFactory(pNum),
+    m_Target(pParent) {
 }
 
 ARMRelocationFactory::~ARMRelocationFactory()
@@ -125,7 +126,7 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
   ARMRelocationFactory::Address got_addr =
-           static_cast<const LDSection&>(pParent.getGOT().getSection()).offset();
+           static_cast<const LDSection&>(pParent.getTarget().getGOT().getSection()).offset();
 
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - got_addr;
   return ARMRelocationFactory::OK;
