@@ -15,6 +15,8 @@
 #include "mcld/Support/rslinker/utils/serialize.h"
 #include "mcld/Support/rslinker/ELFObject.h"
 
+#include <sstream>
+
 using namespace mcld;
 
 //==========================
