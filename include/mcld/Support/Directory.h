@@ -143,7 +143,7 @@ public:
 private:
   Directory* m_pParent; // get handler
   DirCache::iterator m_Iter; // for full situation
-  DirCache::entry_type* m_pEntry; // for non-full situation
+  DirCache::entry_type* m_pEntry;
 };
 
 } // namespace of fs

@@ -27,6 +27,7 @@ class MCLDDirectory : public sys::fs::Directory
 {
 public:
   MCLDDirectory();
+  MCLDDirectory(const char* pName);
   MCLDDirectory(const std::string& pName);
   MCLDDirectory(llvm::StringRef pName);
   virtual ~MCLDDirectory();

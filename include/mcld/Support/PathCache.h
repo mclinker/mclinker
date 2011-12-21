@@ -23,7 +23,9 @@ namespace sys  {
 namespace fs   {
 
 namespace {
-  typedef HashEntry<llvm::StringRef, mcld::sys::fs::Path*, StringCompare<const llvm::StringRef&> > HashEntryType;
+  typedef HashEntry<llvm::StringRef,
+                    mcld::sys::fs::Path*,
+                    StringCompare<const llvm::StringRef&> > HashEntryType;
 } // anonymous namespace
 
 typedef HashTable<HashEntryType, StringHash<BKDR>, EntryFactory<HashEntryType> > PathCache;
@@ -33,3 +35,4 @@ typedef HashTable<HashEntryType, StringHash<BKDR>, EntryFactory<HashEntryType> >
 } // namespace of mcld
 
 #endif
+

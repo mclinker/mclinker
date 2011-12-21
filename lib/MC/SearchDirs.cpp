@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/ADT/Twine.h>
 
 #include "mcld/MC/SearchDirs.h"
 #include "mcld/Support/FileSystem.h"
@@ -46,11 +47,12 @@ void SearchDirs::add(const MCLDDirectory& pDirectory)
 
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
+  static int c=0;
   std::string file;
   SpecToFilename(pNamespec, file);
   // for all MCLDDirectorys
   DirList::iterator mcld_dir, mcld_dir_end = m_DirList.end();
-  for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
+  for (mcld_dir=m_DirList.begin(); mcld_dir!=m_DirList.end(); ++mcld_dir) {
     // for all entries in MCLDDirectory
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();
@@ -79,8 +81,11 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           ++entry;
        }
      }
-     default:
-       llvm::report_fatal_error(std::string("SearchDir can not recoginize unkonwn type!!"));
+     default: {
+       llvm::report_fatal_error(llvm::Twine("SearchDir can not recoginize namespec: `") +
+                                pNamespec +
+                                llvm::Twine("'."));
+     }
     }
   }
   return 0;

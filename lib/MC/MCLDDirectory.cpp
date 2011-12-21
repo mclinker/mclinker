@@ -18,6 +18,20 @@ MCLDDirectory::MCLDDirectory()
   : Directory(), m_Name(), m_bInSysroot(false) {
 }
 
+MCLDDirectory::MCLDDirectory(const char* pName)
+  : Directory(), m_Name(pName) {
+  Directory::m_Path.assign(pName);
+
+  if (!Directory::m_Path.empty())
+    m_bInSysroot = ('=' == Directory::m_Path.native()[0]);
+
+  Directory::m_Path.m_append_separator_if_needed();
+  if (m_bInSysroot)
+    Directory::m_Path.native().erase(Directory::m_Path.native().begin());
+  else
+    detail::open_dir(*this);
+}
+
 MCLDDirectory::MCLDDirectory(const std::string &pName)
   : Directory(), m_Name(pName) {
   Directory::m_Path.assign(pName);
