@@ -138,5 +138,5 @@ llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
 
 bool MCLinker::initStdSectionMap(SectionMap& pSectionMap)
 {
-  return true;
+  return pSectionMap.addStdSectionMap();
 }
