@@ -15,11 +15,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOTEntry
-GOTEntry::GOTEntry(uint64_t pContent, GOT* pParent)
-  : llvm::MCFragment(llvm::MCFragment::FT_GOT, pParent),
+GOTEntry::GOTEntry(uint64_t pContent)
+  : llvm::MCFragment(llvm::MCFragment::FT_GOT, 0),
     f_Content(pContent) {
-  uint64_t mask = uint64_t(-1) >> (pParent->entryBytes()*8);
-  f_Content &= mask;
 }
 
 GOTEntry::~GOTEntry()

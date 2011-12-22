@@ -28,7 +28,7 @@ void ARMPLT::reserveEntry(int pNum)
   ARMPLT1* plt1_entry = new ARMPLT1();
   getFragmentList().push_back(plt1_entry);
 
-  GOTEntry* got_entry= new GOTEntry(0, &m_GOT);
+  GOTEntry* got_entry= new GOTEntry(0);
   m_GOT.GOTPLTEntries->getEntryList().push_back(got_entry);
 }
 

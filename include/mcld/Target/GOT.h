@@ -26,7 +26,7 @@ class ResolveInfo;
 class GOTEntry : public llvm::MCFragment
 {
 public:
-  explicit GOTEntry(uint64_t pContent, GOT* pParent);
+  explicit GOTEntry(uint64_t pContent);
 
   virtual ~GOTEntry();
 

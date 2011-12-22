@@ -26,13 +26,13 @@ ARMGOT::ARMGOT(const LDSection& pSection)
   Fragments.push_back(GeneralGOTEntries);
 
   // Create GOT0 entries.
-  GOTEntry* Entry1 = new (std::nothrow) GOTEntry(0, this);
+  GOTEntry* Entry1 = new (std::nothrow) GOTEntry(0);
   GOT0Entries->getEntryList().push_back(Entry1);
 
-  GOTEntry* Entry2 = new (std::nothrow) GOTEntry(0, this);
+  GOTEntry* Entry2 = new (std::nothrow) GOTEntry(0);
   GOT0Entries->getEntryList().push_back(Entry2);
 
-  GOTEntry* Entry3 = new (std::nothrow) GOTEntry(0, this);
+  GOTEntry* Entry3 = new (std::nothrow) GOTEntry(0);
   GOT0Entries->getEntryList().push_back(Entry3);
 }
 
@@ -47,7 +47,7 @@ void ARMGOT::reserveEntry(int pNum)
     llvm::report_fatal_error("GOT0Entries is NULL! "
                              "Allocating new memory in constructor failed" );
 
-  GOTEntry* Entry = new (std::nothrow) GOTEntry(0, this);
+  GOTEntry* Entry = new (std::nothrow) GOTEntry(0);
 
   if (!Entry)
     llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
