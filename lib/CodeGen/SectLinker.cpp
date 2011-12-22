@@ -284,7 +284,9 @@ bool SectLinker::doInitialization(Module &pM)
     }
     else {
       // FIXME: need a warning function
-      errs() << "search directory is wrong: -L" << sd->name();
+      errs() << "WARNING: can not open search directory `-L"
+             << sd->name()
+             << "'.\n";
     }
   }
 
