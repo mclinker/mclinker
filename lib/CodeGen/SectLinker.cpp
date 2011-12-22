@@ -223,15 +223,8 @@ SectLinker::SectLinker(const llvm::cl::opt<std::string>& pInputFile,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_LDInfo(pLDInfo),
-    m_pLDBackend(&pLDBackend) {
-  // create the default input, and assign the default attribute to it.
-  m_LDInfo.inputs().insert<InputTree::Inclusive>(m_LDInfo.inputs().root(),
-                                                 "default bitcode",
-                                                 RealPath(pInputFile),
-                                                 Input::Object);
-  Input* bitcode = *m_LDInfo.inputs().begin();
-  bitcode->setContext(m_LDInfo.contextFactory().produce(bitcode->path()));
-  m_LDInfo.setBitcode(*bitcode);
+    m_pLDBackend(&pLDBackend),
+    m_InputBitcode(pInputFile) {
 
   // create the default output
   m_LDInfo.output().setSONAME(SONAME);
@@ -307,6 +300,24 @@ bool SectLinker::doInitialization(Module &pM)
 
   // override the parameters before all positional options
   addInputsBeforeCMD(pM, m_LDInfo, pos_dep_options);
+
+  // -----  read bitcode  -----//
+  // add bitcode input, and assign the default attribute to it.
+  RealPath *bitcode_path = new RealPath(m_InputBitcode);
+  pos_dep_options.push_back(new PositionDependentOption(
+                                          m_InputBitcode.getPosition(),
+                                          *bitcode_path,
+                                          PositionDependentOption::BITCODE));
+  
+  // read libraries from the bitcode
+  llvm::Module::LibraryListType::const_iterator bitns, bitnsEnd = pM.lib_end();
+  for (bitns = pM.lib_begin(); bitns != bitnsEnd; ++bitns) {
+    pos_dep_options.push_back(new SectLinker::PositionDependentOption(
+                                                   m_InputBitcode.getPosition(),
+                                                   *bitns,
+                                                   PositionDependentOption::NAMESPEC));
+  }
+
 
   // add all start-group
   cl::list<bool>::iterator sg;
@@ -440,6 +451,12 @@ bool SectLinker::doInitialization(Module &pM)
 
   // Now, all input arguments are prepared well, send it into MCLDDriver
   m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
+
+  // clear up positional dependent options
+  PositionDependentOptions::iterator pdoption, pdoptionEnd = pos_dep_options.end();
+  for (pdoption = pos_dep_options.begin(); pdoption != pdoptionEnd; ++pdoption)
+    delete *pdoption;
+  delete bitcode_path;
   return false;
 }
 
@@ -544,19 +561,30 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
-  InputTree::Connector *prev_ward = &InputTree::Afterward;
+  InputTree::Connector *prev_ward = &InputTree::Downward;
 
   std::stack<InputTree::iterator> returnStack;
-  InputTree::iterator cur_node = pLDInfo.inputs().begin();
+  InputTree::iterator cur_node = pLDInfo.inputs().root();
 
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {
+    case PositionDependentOption::BITCODE:
+      // threat bitcode as a script in this version.
+      pLDInfo.inputs().insert(cur_node,
+                              *prev_ward,
+                              (*cur_char)->path()->native(),
+                              *(*cur_char)->path(),
+                              Input::Script);
+      pLDInfo.setBitcode(**cur_node);
+      prev_ward->move(cur_node);
+      prev_ward = &InputTree::Afterward;
+      break;
     case PositionDependentOption::INPUT_FILE:
       pLDInfo.inputs().insert(cur_node,
-                     *prev_ward,
-                     (*cur_char)->path()->native(),
-                     *(*cur_char)->path());
+                              *prev_ward,
+                             (*cur_char)->path()->native(),
+                             *(*cur_char)->path());
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;

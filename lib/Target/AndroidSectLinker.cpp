@@ -51,14 +51,5 @@ void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
     // FIXME: need a warning function
     llvm::errs() << "WARNING: can not open search directory: `-L" << search_path.name() << "'.\n";
   }
-
-  // -----  Read namespec from bitcode  -----//
-  llvm::Module::LibraryListType::const_iterator namespec, specEnd = pM.lib_end();
-  for (namespec = pM.lib_begin(); namespec != specEnd; ++namespec) {
-    pOptions.push_back(new SectLinker::PositionDependentOption(
-                                                   0, // most early
-                                                   *namespec,
-                                                   PositionDependentOption::NAMESPEC));
-  }
 }
 

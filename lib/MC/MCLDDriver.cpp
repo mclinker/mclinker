@@ -40,7 +40,10 @@ void MCLDDriver::normalize() {
   Input::Type type;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode
-    if ((*input)->type() == Input::Object)
+    if ((*input)->type() == Input::Script ||
+        (*input)->type() == Input::Object ||
+        (*input)->type() == Input::DynObj  ||
+        (*input)->type() == Input::Archive)
       continue;
 
     

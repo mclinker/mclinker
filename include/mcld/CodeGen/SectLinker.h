@@ -62,6 +62,7 @@ namespace mcld
     {
     public:
       enum Type {
+        BITCODE,
         NAMESPEC,
         INPUT_FILE,
         START_GROUP,
@@ -169,6 +170,7 @@ namespace mcld
     MCLDDriver *m_pLDDriver;
     MCLDInfo& m_LDInfo;
     AttributeFactory *m_pAttrFactory;
+    llvm::cl::opt<std::string> m_InputBitcode;
 
   private:
     static char m_ID;
