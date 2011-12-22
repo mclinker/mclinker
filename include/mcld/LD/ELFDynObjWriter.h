@@ -67,7 +67,9 @@ private:
 
   uint32_t WriteSectionHeader(uint32_t file_offset);
 
-  uint32_t WriteSectionEnrty(const LDSection *section, uint32_t file_offset);
+  uint32_t WriteSectionEnrty(LDSection *section, uint32_t file_offset);
+
+  SectionExtInfo& getOrCreateSectionExtInfo(const LDSection *section);
 
   // .dynstr
   StrTab dynstrTab;
