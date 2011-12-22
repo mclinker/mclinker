@@ -48,7 +48,7 @@ void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
     pLDInfo.options().directories().add(search_path);
   else {
     // FIXME: need a warning function
-    llvm::errs() << "search directory is wrong: -L" << search_path.name();
+    llvm::errs() << "WARNING: can not open search directory: `-L" << search_path.name() << "'.\n";
   }
 
   // -----  Read namespec from bitcode  -----//
