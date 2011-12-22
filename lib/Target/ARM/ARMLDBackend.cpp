@@ -52,6 +52,10 @@ bool ARMGNULDBackend::isLittleEndian() const
 
 bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 {
+  if (!pSectionMap.push_back(".ARM.exidx", ".ARM.exidx") ||
+      !pSectionMap.push_back(".ARM.extab", ".ARM.extab") ||
+      !pSectionMap.push_back(".ARM.attributes", ".ARM.attributes"))
+    return false;
   return true;
 }
 

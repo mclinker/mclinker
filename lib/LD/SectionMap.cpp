@@ -124,11 +124,6 @@ const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
   {".gnu.linkonce.lr", ".lrodata"},
   {".gnu.linkonce.l", ".ldata"},
   {".gnu.linkonce.lb", ".lbss"},
-  // FIXME: add target dependent mappings in Backend.
-  {".ARM.extab", ".ARM.extab"},
-  {".gnu.linkonce.armextab", ".ARM.extab"},
-  {".ARM.exidx", ".ARM.exidx"},
-  {".gnu.linkonce.armexidx", ".ARM.exidx"},
 };
 
 const int SectionMap::m_StdSectionMapSize =
@@ -137,8 +132,7 @@ const int SectionMap::m_StdSectionMapSize =
 bool SectionMap::addStdSectionMap()
 {
   for (int i = 0; i < m_StdSectionMapSize; ++i) {
-    if (!push_back(std::string(m_StdSectionMap[i].from),
-                   std::string(m_StdSectionMap[i].to)))
+    if (!push_back(m_StdSectionMap[i].from, m_StdSectionMap[i].to))
       return false;
   }
   return true;
