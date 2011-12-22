@@ -13,15 +13,18 @@
 using namespace mcld;
 
 Relocation::Relocation(Relocation::Type pType,
-                       const MCFragmentRef& pTargetRef,
+                       MCFragmentRef* pTargetRef,
                        Relocation::Address pAddend,
                        Relocation::DWord* pTargetData,
                        RelocationFactory &pParent)
   : m_Type(pType),
-    m_TargetAddress(pTargetRef),
     m_Addend(pAddend),
     m_pTargetData(pTargetData),
-    m_Parent(pParent) {
+    m_pSymInfo(0),
+    m_Parent(pParent)
+{       
+  if(pTargetRef)
+     m_TargetAddress = *pTargetRef ;    
 }
 
 Relocation::~Relocation()
@@ -39,3 +42,12 @@ void Relocation::apply()
   m_Parent.applyRelocation(*this);
 }
 
+void Relocation::setType(Type pType)
+{ 
+  m_Type = pType;
+}
+
+void Relocation::setAddend(Address pAddend)
+{ 
+  m_Addend = pAddend; 
+}

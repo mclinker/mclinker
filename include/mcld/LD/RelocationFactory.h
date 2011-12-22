@@ -48,10 +48,14 @@ public:
   /// produce - produce a relocation entry
   /// @param pType - the type of the relocation entry
   /// @param pFragRef - the place to apply the relocation
-  /// @param pSameEndian - do host and target machines have the same endians
+  /// @param pAddend - the addend of the relocation entry
   Relocation* produce(Type pType,
                       MCFragmentRef& pFragRef,
                       Address pAddend = 0);
+
+  /// produceEmptyEntry - produce an empty relocation which
+  /// occupied memory space but all contents set to zero.
+  Relocation* produceEmptyEntry();
 
   void destroy(Relocation* pRelocation);
 

@@ -34,7 +34,7 @@ public:
 
 private:
   Relocation(Type pType,
-             const MCFragmentRef& pTargetRef,
+             MCFragmentRef* pTargetRef,
              Address pAddend,
              DWord* pTargetData,
              RelocationFactory &pParent);
@@ -82,6 +82,11 @@ public:
   { return m_TargetAddress; }
 
   void apply();
+
+  /// ----- modifiers ----- ///
+  void setType(Type pType);
+
+  void setAddend(Address pAddend);
 
 private:
   /// m_Type - the type of the relocation entries

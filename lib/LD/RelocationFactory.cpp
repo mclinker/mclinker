@@ -54,10 +54,17 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   (*target_data) >>= (sizeof(DWord)*8 - getTarget().bitclass());
 
   new (result) Relocation(pType,
-                          pFragRef,
+                          &pFragRef,
                           pAddend,
                           target_data,
                           *this);
+  return result;
+}
+
+Relocation* RelocationFactory::produceEmptyEntry()
+{
+  Relocation* result = allocate();
+  new (result) Relocation(0, 0, 0, 0, *this);
   return result;
 }
 
