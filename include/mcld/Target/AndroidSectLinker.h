@@ -25,11 +25,11 @@ namespace mcld
 class AndroidSectLinker : public SectLinker
 {
 public:
-  AndroidSectLinker(const std::string &pInputFilename,
-                   const std::string &pOutputFilename,
-                   unsigned int pOutputLinkType,
-                   MCLDInfo& pLDInfo,
-                   mcld::TargetLDBackend &pLDBackend);
+  AndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+                    const std::string &pOutputFilename,
+                    unsigned int pOutputLinkType,
+                    MCLDInfo& pLDInfo,
+                    mcld::TargetLDBackend &pLDBackend);
 
   virtual ~AndroidSectLinker();
 

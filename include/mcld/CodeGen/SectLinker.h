@@ -17,10 +17,11 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/Support/CommandLine.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/CodeGen/MachineFunctionPass.h>
-#include "mcld/Support/FileSystem.h"
-#include "mcld/MC/MCLDInfo.h"
+#include <mcld/Support/FileSystem.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <vector>
 
 namespace llvm
@@ -119,7 +120,7 @@ namespace mcld
     // SectLinker constructor handles
     // - the default input
     // - the default output (filename and link type)
-    SectLinker(const std::string& pInputFile,
+    SectLinker(const llvm::cl::opt<std::string>& pInputFile,
                const std::string& pOutputFile,
                unsigned int pOutputLinkType,
                MCLDInfo& pLDInfo,

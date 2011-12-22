@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/CommandLine.h>
 #include <string>
 #include "mcld/MC/MCLDInfo.h"
 
@@ -74,7 +75,7 @@ public:
   /// upstreaming.
   bool addPassesToEmitFile(PassManagerBase &,
                            formatted_raw_ostream &Out,
-                           const std::string &pInputFilename,
+                           const llvm::cl::opt<std::string> &pInputFilename,
                            const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
@@ -107,7 +108,7 @@ private:
                           llvm::MCContext *&OutCtx);
 
   bool addLinkerPasses(PassManagerBase &,
-                       const std::string& pInputFileName,
+                       const llvm::cl::opt<std::string> &pInputFilename,
                        const std::string& pOutputFilename,
                        unsigned int pOutputLinkType,
                        llvm::MCContext *&OutCtx);

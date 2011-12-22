@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/CodeGen/SectLinker.h"
+#include <mcld/CodeGen/SectLinker.h>
 
 namespace mcld
 {
@@ -20,13 +20,11 @@ class MCLDInfo;
 
 /** \class MipsELFSectLinker
  *  \brief MipsELFSectLinker sets up the environment for linking.
- *
- *  \see
  */
 class MipsELFSectLinker : public SectLinker
 {
 public:
-  MipsELFSectLinker(const std::string &pInputFilename,
+  MipsELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                     const std::string &pOutputFilename,
                     unsigned int pOutputLinkType,
                     MCLDInfo& pLDInfo,

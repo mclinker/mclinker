@@ -216,7 +216,7 @@ SONAME("soname",
 
 //===----------------------------------------------------------------------===//
 // SectLinker
-SectLinker::SectLinker(const std::string& pInputFile,
+SectLinker::SectLinker(const llvm::cl::opt<std::string>& pInputFile,
                        const std::string& pOutputFile,
                        unsigned int pOutputLinkType,
                        MCLDInfo& pLDInfo,

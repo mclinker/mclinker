@@ -8,9 +8,10 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/ADT/Triple.h>
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/Support/TargetRegistry.h"
-#include "mcld/MC/MCLDInfo.h"
+#include <llvm/Support/CommandLine.h>
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/MC/MCLDInfo.h>
 #include "Mips.h"
 #include "MipsAndroidSectLinker.h"
 
@@ -22,7 +23,7 @@ namespace mcld {
 /// corresponding MipsSectLinker
 ///
 SectLinker* createMipsSectLinker(const std::string &pTriple,
-                                 const std::string &pInputFilename,
+                                 const llvm::cl::opt<std::string> &pInputFilename,
                                  const std::string &pOutputFilename,
                                  unsigned int pOutputLinkType,
                                  MCLDInfo& pLDInfo,

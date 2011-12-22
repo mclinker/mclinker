@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/CodeGen/SectLinker.h"
+#include <mcld/CodeGen/SectLinker.h>
 
 namespace mcld
 {
@@ -26,7 +26,7 @@ class MCLDInfo;
 class X86ELFSectLinker : public SectLinker
 {
 public:
-  X86ELFSectLinker(const std::string &pInputFilename,
+  X86ELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                    const std::string &pOutputFilename,
                    unsigned int pOutputLinkType,
                    MCLDInfo& pLDInfo,

@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDFile.h>
 #include "X86ELFSectLinker.h"
 
 using namespace mcld;
 
-X86ELFSectLinker::X86ELFSectLinker(const std::string &pInputFilename,
+X86ELFSectLinker::X86ELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                                    const std::string &pOutputFilename,
                                    unsigned int pOutputLinkType,
                                    MCLDInfo& pLDInfo,

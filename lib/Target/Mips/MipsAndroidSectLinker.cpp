@@ -7,14 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/Target/AndroidSectLinker.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/Target/AndroidSectLinker.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDFile.h>
 #include "MipsAndroidSectLinker.h"
 
 using namespace mcld;
 
-MipsAndroidSectLinker::MipsAndroidSectLinker(const std::string &pInputFilename,
+MipsAndroidSectLinker::MipsAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                                              const std::string &pOutputFilename,
                                              unsigned int pOutputLinkType,
                                              MCLDInfo& pLDInfo,

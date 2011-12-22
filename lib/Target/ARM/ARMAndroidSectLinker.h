@@ -28,7 +28,7 @@ class MCLDInfo;
 class ARMAndroidSectLinker : public AndroidSectLinker
 {
 public:
-  ARMAndroidSectLinker(const std::string &pInputFilename,
+  ARMAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                        const std::string &pOutputFilename,
                        unsigned int pOutputLinkType,
                        MCLDInfo& pLDInfo,

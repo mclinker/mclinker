@@ -27,7 +27,7 @@ class MCLDInfo;
 class MipsAndroidSectLinker : public AndroidSectLinker
 {
 public:
-  MipsAndroidSectLinker(const std::string &pInputFilename,
+  MipsAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                         const std::string &pOutputFilename,
                         unsigned int pOutputLinkType,
                         MCLDInfo& pLDInfo,

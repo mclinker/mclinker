@@ -14,7 +14,7 @@
 
 using namespace mcld;
 
-ARMAndroidSectLinker::ARMAndroidSectLinker(const std::string &pInputFilename,
+ARMAndroidSectLinker::ARMAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                                            const std::string &pOutputFilename,
                                            unsigned int pOutputLinkType,
                                            MCLDInfo& pLDInfo,

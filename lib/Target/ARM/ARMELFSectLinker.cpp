@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDFile.h>
 #include "ARMELFSectLinker.h"
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(const std::string &pInputFilename,
+ARMELFSectLinker::ARMELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                                    const std::string &pOutputFilename,
                                    unsigned int pOutputLinkType,
                                    MCLDInfo& pLDInfo,

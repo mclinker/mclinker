@@ -7,18 +7,17 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Triple.h>
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/Support/TargetRegistry.h"
-#include "mcld/MC/MCLDInfo.h"
+#include <llvm/Support/CommandLine.h>
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/Support/TargetRegistry.h>
 #include "ARM.h"
 #include "ARMAndroidSectLinker.h"
 #include "ARMELFSectLinker.h"
 
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/Support/TargetRegistry.h"
-
-#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
 
@@ -27,7 +26,7 @@ namespace mcld {
 /// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
 ///
 SectLinker* createARMSectLinker(const std::string &pTriple,
-                                const std::string &pInputFilename,
+                                const llvm::cl::opt<std::string> &pInputFilename,
                                 const std::string &pOutputFilename,
                                 unsigned int pOutputLinkType,
                                 MCLDInfo& pLDInfo,

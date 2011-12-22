@@ -9,6 +9,8 @@
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
 #include <llvm/Support/TargetRegistry.h>
+#include <llvm/Support/CommandLine.h>
+#include <string>
 #include <list>
 
 namespace llvm {
@@ -42,7 +44,7 @@ public:
                                                           const std::string&);
 
   typedef SectLinker *(*SectLinkerCtorTy)(const std::string& pTriple,
-                                          const std::string& pInputFilename,
+                                          const llvm::cl::opt<std::string>& pInputFilename,
                                           const std::string& pOutputFilename,
                                           unsigned int pLinkType,
                                           MCLDInfo&,
@@ -81,7 +83,7 @@ public:
   ///
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
-                               const std::string &pInputFilename,
+                               const llvm::cl::opt<std::string> &pInputFilename,
                                const std::string &pOutputFilename,
                                unsigned int pOutputLinkType,
                                MCLDInfo &pLDInfo,

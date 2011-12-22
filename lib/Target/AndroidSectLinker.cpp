@@ -7,20 +7,21 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Module.h>
 #include <mcld/Target/AndroidSectLinker.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDDirectory.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Module.h>
 
 using namespace mcld;
 
 //==========================
 // AndroidSectLinker
 
-AndroidSectLinker::AndroidSectLinker(const std::string &pInputFilename,
+AndroidSectLinker::AndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                                      const std::string &pOutputFilename,
                                      unsigned int OutputLinkType,
                                      MCLDInfo &pLDInfo,

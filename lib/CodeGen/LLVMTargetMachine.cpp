@@ -105,7 +105,7 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              formatted_raw_ostream &Out,
-                                             const std::string& pInputFilename,
+                                             const llvm::cl::opt<std::string>& pInputFilename,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
@@ -249,7 +249,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
-                                              const std::string& pInputFilename,
+                                              const llvm::cl::opt<std::string>& pInputFilename,
                                               const std::string& pOutputFilename,
                                               unsigned int pOutputLinkType,
                                               llvm::MCContext *&Context)

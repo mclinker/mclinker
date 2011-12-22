@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/CodeGen/SectLinker.h"
+#include <mcld/CodeGen/SectLinker.h>
 
 namespace mcld
 {
@@ -26,7 +26,7 @@ class MCLDInfo;
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(const std::string &pInputFilename,
+  ARMELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
                    const std::string &pOutputFilename,
                    unsigned int pOutputLinkType,
                    MCLDInfo& pLDInfo,
