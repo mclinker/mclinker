@@ -25,6 +25,7 @@
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
+#include <mcld/LD/SectionMerger.h>
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld {
@@ -105,6 +106,7 @@ private:
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;
   SectionMap& m_SectionMap;
+  SectionMerger m_SectionMerger;
 };
 
 } // namespace of mcld

@@ -205,9 +205,9 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/LDSectionFactory.h \
 	${LIBDIR}/LD/LDSectionFactory.cpp \
 	${INCDIR}/LD/SectionMap.h \
-	${LIBDIR}/LD/SectionMap.cpp
-#	${INCDIR}/LD/SectionMerger.h
-#	${LIBDIR}/LD/SectionMerger.cpp
+	${LIBDIR}/LD/SectionMap.cpp \
+	${INCDIR}/LD/SectionMerger.h \
+	${LIBDIR}/LD/SectionMerger.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 #	${INCDIR}/Support/ScopedRegion.h \
