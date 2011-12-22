@@ -73,7 +73,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                  ELF::SHT_PROGBITS,
                                                  ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   assert(NULL != plt);
-  m_pPLT = new ARMPLT(*plt);
+  m_pPLT = new ARMPLT(*plt, *m_pGOT);
 
   
   const LDSection* reldyn = pLinker.createSectHdr(".rel.dyn",
