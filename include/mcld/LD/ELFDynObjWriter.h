@@ -81,7 +81,7 @@ private:
 
   MCLinker& m_Linker;
   LDContext *m_pContext;
-  MemoryArea *m_pmemArea;
+  MemoryArea *m_pMemArea;
 };
 
 } // namespace of mcld

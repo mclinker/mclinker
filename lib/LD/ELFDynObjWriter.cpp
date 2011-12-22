@@ -28,7 +28,7 @@ ELFDynObjWriter::ELFDynObjWriter(TargetLDBackend& pBackend, MCLinker& pLinker)
   : DynObjWriter(pBackend), ELFWriter(), m_Linker(pLinker) {
 
   MCLDFile &ldFile = m_Linker.getLDInfo().output();
-  m_pmemArea = ldFile.memArea();
+  m_pMemArea = ldFile.memArea();
   m_pContext = ldFile.context();
 }
 
@@ -47,6 +47,7 @@ bool ELFDynObjWriter::WriteObject()
   // Write out .dynstr
   file_offset += WriteDynStrTab(file_offset);
 
+  // Write out .shstrtab
   file_offset += WriteShStrTab(file_offset);
 
   // Write out section header table
@@ -54,8 +55,6 @@ bool ELFDynObjWriter::WriteObject()
 
   // Write out ELF header
   WriteELFHeader(file_offset);
-
-
 
   return true;
 }
@@ -163,7 +162,7 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
 {
   bool is32BitClass = (32 == target().bitclass());
 
-  ScopedWriter *pWriter = new ScopedWriter(m_pmemArea->request(0,
+  ScopedWriter *pWriter = new ScopedWriter(m_pMemArea->request(0,
     (is32BitClass) ? sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr)), true);
 
   /* ELF Identification */
@@ -196,7 +195,7 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
   }
 
   //FIXME: ARM should add enrty point judgement
-  if (ELF::EM_ARM == target().machine())    //e_flags
+  if (ELF::EM_ARM == target().machine())       //e_flags
     pWriter->Write32(ELF::EF_ARM_EABIMASK & DefaultEABIVersion);
   else
     pWriter->Write32(0x0);
@@ -204,14 +203,14 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
                     sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr)); //e_ehsize = elf header size
 
   //FIXME
-  pWriter->Write16(0x0);                    //e_phentsize
-  pWriter->Write16(0x0);                    //e_phnum
+  pWriter->Write16((is32BitClass) ?
+                    sizeof(ELF::Elf32_Phdr) : sizeof(ELF::Elf64_Phdr)); //e_phentsize
+  pWriter->Write16(0x0);                                                //e_phnum
 
-  //FIXME
   pWriter->Write16((is32BitClass) ?
                     sizeof(ELF::Elf32_Shdr) : sizeof(ELF::Elf64_Shdr)); //e_shentsize
-  pWriter->Write16(m_pContext->numOfSections());                //e_shnum
-  pWriter->Write16(m_pContext->numOfSections() - 1);              //e_shstrndx
+  pWriter->Write16(m_pContext->numOfSections());                        //e_shnum
+  pWriter->Write16(m_pContext->numOfSections() - 1);                    //e_shstrndx
 
   delete pWriter;
 
@@ -235,14 +234,11 @@ uint32_t ELFDynObjWriter::WriteShStrTab(uint32_t file_offset)
     for (sect_iter = m_pContext->sectBegin(); sect_iter < m_pContext->sectEnd(); ++sect_iter)
     {
         const LDSection &section = *(*sect_iter);
-        //cout << "shstrtab: section name: " << section.name() << endl;
-
         SectionExtInfo & sec_ext_info = getOrCreateSectionExtInfo(&section);
         sec_ext_info.sh_name = sh_name_idx;
 
-        MemoryRegion *mr = m_pmemArea->request((file_offset + sh_name_idx), section.name().size() + 1 );
+        MemoryRegion *mr = m_pMemArea->request((file_offset + sh_name_idx), section.name().size() + 1 );
         memcpy(mr->start(), section.name().data(), section.name().size() + 1);
-        //memcpy(mr->start() + section.name().size(), "\0", 1);
         mr->sync();
 
         sh_name_idx += section.name().size() + 1;
@@ -287,7 +283,7 @@ uint32_t ELFDynObjWriter::WriteSectionEnrty(LDSection *section, uint32_t file_of
     sec_header.sh_addralign = 0;
     sec_header.sh_entsize   = sec_ext_info.sh_entsize;
 
-    MemoryRegion *mr = m_pmemArea->request(file_offset, sizeof(ELF::Elf32_Shdr));
+    MemoryRegion *mr = m_pMemArea->request(file_offset, sizeof(ELF::Elf32_Shdr));
     memcpy(mr->start(), &sec_header, sizeof(ELF::Elf32_Shdr));
     mr->sync();
 
