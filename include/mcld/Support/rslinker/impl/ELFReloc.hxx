@@ -14,48 +14,63 @@
  * limitations under the License.
  */
 
-#ifndef ELF_SECTION_HEADER_HXX
-#define ELF_SECTION_HEADER_HXX
-
-#include "mcld/Support/rslinker/ELFObject.h"
-
-template <unsigned Bitwidth>
-char const *ELFSectionHeader_CRTP<Bitwidth>::getName() const {
-  return owner->getSectionName(getNameIndex());
-}
+#ifndef ELF_RELOC_HXX
+#define ELF_RELOC_HXX
 
 template <unsigned Bitwidth>
 template <typename Archiver>
-typename ELFSectionHeader_CRTP<Bitwidth>::ELFSectionHeaderTy *
-ELFSectionHeader_CRTP<Bitwidth>::read(Archiver &AR,
-                                      ELFObjectTy const *owner,
-                                      size_t index) {
-
+inline ELFReloc<Bitwidth> *
+ELFReloc_CRTP<Bitwidth>::readRela(Archiver &AR, size_t index) {
   if (!AR) {
     // Archiver is in bad state before calling read function.
     // Return NULL and do nothing.
     return 0;
   }
 
-  llvm::OwningPtr<ELFSectionHeaderTy> sh(new ELFSectionHeaderTy());
+  llvm::OwningPtr<ELFRelocTy> sh(new ELFRelocTy());
 
-  if (!sh->serialize(AR)) {
+  if (!sh->serializeRela(AR)) {
     // Unable to read the structure.  Return NULL.
     return 0;
   }
 
   if (!sh->isValid()) {
-    // Header read from archiver is not valid.  Return NULL.
+    // Rel read from archiver is not valid.  Return NULL.
     return 0;
   }
 
   // Set the section header index
   sh->index = index;
 
-  // Set the owner elf object
-  sh->owner = owner;
+  return sh.take();
+}
+
+template <unsigned Bitwidth>
+template <typename Archiver>
+inline ELFReloc<Bitwidth> *
+ELFReloc_CRTP<Bitwidth>::readRel(Archiver &AR, size_t index) {
+  if (!AR) {
+    // Archiver is in bad state before calling read function.
+    // Return NULL and do nothing.
+    return 0;
+  }
+
+  llvm::OwningPtr<ELFRelocTy> sh(new ELFRelocTy());
+
+  sh->r_addend = 0;
+  if (!sh->serializeRel(AR)) {
+    return 0;
+  }
+
+  if (!sh->isValid()) {
+    // Rel read from archiver is not valid.  Return NULL.
+    return 0;
+  }
+
+  // Set the section header index
+  sh->index = index;
 
   return sh.take();
 }
 
-#endif // ELF_SECTION_HEADER_HXX
+#endif // ELF_RELOC_HXX

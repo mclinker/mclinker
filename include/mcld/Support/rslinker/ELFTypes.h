@@ -20,16 +20,18 @@
 #include "utils/traits.h"
 
 #include <stdint.h>
-#include <llvm/Support/raw_ostream.h>
-
 
 // ELF structure forward declarations
 template <unsigned Bitwidth> class ELFHeader;
 template <unsigned Bitwidth> class ELFObject;
 template <unsigned Bitwidth> class ELFProgramHeader;
+template <unsigned Bitwidth> class ELFReloc;
+template <unsigned Bitwidth> class ELFRelocRel; // For TypeTraits
+template <unsigned Bitwidth> class ELFRelocRela; // For TypeTraits
 template <unsigned Bitwidth> class ELFSection;
 template <unsigned Bitwidth> class ELFSectionHeader;
 template <unsigned Bitwidth> class ELFSectionHeaderTable;
+template <unsigned Bitwidth> class ELFSectionRelTable;
 template <unsigned Bitwidth> class ELFSectionStrTab;
 template <unsigned Bitwidth> class ELFSectionSymTab;
 template <unsigned Bitwidth> class ELFSymbol;
@@ -49,6 +51,11 @@ TYPE_TRAITS_SPECIALIZE(ELFSectionHeader<64> , 64, 8)
 TYPE_TRAITS_SPECIALIZE(ELFSymbol<32>        , 16, 4)
 TYPE_TRAITS_SPECIALIZE(ELFSymbol<64>        , 24, 8)
 
+TYPE_TRAITS_SPECIALIZE(ELFRelocRel<32>      , 8, 4)
+TYPE_TRAITS_SPECIALIZE(ELFRelocRel<64>      , 16, 8)
+
+TYPE_TRAITS_SPECIALIZE(ELFRelocRela<32>     , 12, 4)
+TYPE_TRAITS_SPECIALIZE(ELFRelocRela<64>     , 24, 8)
 
 // ELF primitive type wrappers
 namespace detail {
@@ -76,15 +83,6 @@ namespace detail {
   ELF_TYPE_WRAPPER(ELF64Offset  , uint64_t)
 
 #undef ELF_TYPE_WRAPPER
-
-  extern llvm::raw_ostream &operator<<(llvm::raw_ostream &,
-                                       ELF32Address const &);
-  extern llvm::raw_ostream &operator<<(llvm::raw_ostream &,
-                                       ELF32Offset const &);
-  extern llvm::raw_ostream &operator<<(llvm::raw_ostream &,
-                                       ELF64Address const &);
-  extern llvm::raw_ostream &operator<<(llvm::raw_ostream &,
-                                       ELF64Offset const &);
 }
 
 // Note: Following TypeTraits specialization MUST be compliant to the
@@ -148,9 +146,13 @@ struct ELFPrimitiveTypes<64> {
   typedef ELFHeader<BITWIDTH>             ELFHeaderTy;                      \
   typedef ELFObject<BITWIDTH>             ELFObjectTy;                      \
   typedef ELFProgramHeader<BITWIDTH>      ELFProgramHeaderTy;               \
+  typedef ELFReloc<BITWIDTH>              ELFRelocTy;                       \
+  typedef ELFRelocRel<BITWIDTH>           ELFRelocRelTy;                    \
+  typedef ELFRelocRela<BITWIDTH>          ELFRelocRelaTy;                   \
   typedef ELFSection<BITWIDTH>            ELFSectionTy;                     \
   typedef ELFSectionHeader<BITWIDTH>      ELFSectionHeaderTy;               \
   typedef ELFSectionHeaderTable<BITWIDTH> ELFSectionHeaderTableTy;          \
+  typedef ELFSectionRelTable<BITWIDTH>    ELFSectionRelTableTy;             \
   typedef ELFSectionStrTab<BITWIDTH>      ELFSectionStrTabTy;               \
   typedef ELFSectionSymTab<BITWIDTH>      ELFSectionSymTabTy;               \
   typedef ELFSymbol<BITWIDTH>             ELFSymbolTy;

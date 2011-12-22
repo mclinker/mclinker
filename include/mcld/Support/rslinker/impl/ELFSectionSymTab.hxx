@@ -107,17 +107,4 @@ ELFSectionSymTab<Bitwidth>::read(Archiver &AR,
   return st.take();
 }
 
-template <unsigned Bitwidth>
-void ELFSectionSymTab<Bitwidth>::print() const {
-  using namespace llvm;
-
-  outs().changeColor(raw_ostream::WHITE, true);
-  outs() << "Symbol Table" << '\n';
-  outs().resetColor();
-
-  for (size_t i = 0; i < table.size(); ++i) {
-    table[i]->print();
-  }
-}
-
 #endif // ELF_SECTION_SYM_TAB_HXX

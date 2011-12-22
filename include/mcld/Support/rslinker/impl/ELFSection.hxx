@@ -17,11 +17,10 @@
 #ifndef ELF_SECTION_HXX
 #define ELF_SECTION_HXX
 
-#include <llvm/Support/raw_ostream.h>
-
 #include "mcld/Support/rslinker/ELFSectionHeader.h"
 #include "mcld/Support/rslinker/ELFSectionStrTab.h"
 #include "mcld/Support/rslinker/ELFSectionSymTab.h"
+#include "mcld/Support/rslinker/ELFSectionRelTable.h"
 
 template <unsigned Bitwidth>
 template <typename Archiver>
@@ -30,7 +29,6 @@ ELFSection<Bitwidth>::read(Archiver &AR,
                            ELFObjectTy *owner,
                            ELFSectionHeaderTy const *sh) {
   using namespace std;
-
   switch (sh->getType()) {
     default:
       // Uknown type of ELF section.  Return NULL.
@@ -43,6 +41,10 @@ ELFSection<Bitwidth>::read(Archiver &AR,
     case SHT_DYNSYM:
     case SHT_SYMTAB:
       return ELFSectionSymTabTy::read(AR, owner, sh);
+
+    case SHT_REL:
+    case SHT_RELA:
+      return ELFSectionRelTableTy::read(AR, sh);
 
     case SHT_NULL:
       // TODO: Not Yet Implemented

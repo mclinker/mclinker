@@ -22,13 +22,8 @@
 #include <llvm/ADT/OwningPtr.h>
 #include <stdint.h>
 
-class ELFSectionHeaderHelperMixin {
-protected:
-  static char const *getSectionTypeStr(uint32_t type);
-};
-
 template <unsigned Bitwidth>
-class ELFSectionHeader_CRTP : private ELFSectionHeaderHelperMixin {
+class ELFSectionHeader_CRTP {
 public:
   ELF_TYPE_INTRO_TO_TEMPLATE_SCOPE(Bitwidth);
 
@@ -87,8 +82,6 @@ public:
   template <typename Archiver>
   static ELFSectionHeaderTy *
   read(Archiver &AR, ELFObjectTy const *owner, size_t index = 0);
-
-  void print(bool shouldPrintHeader = false) const;
 
 private:
   ELFSectionHeaderTy *concrete() {

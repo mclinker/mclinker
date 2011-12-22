@@ -18,8 +18,6 @@
 #define ELF_SECTION_STR_TAB_HXX
 
 #include <llvm/ADT/OwningPtr.h>
-#include <llvm/Support/Format.h>
-#include <llvm/Support/raw_ostream.h>
 
 template <unsigned Bitwidth>
 template <typename Archiver>

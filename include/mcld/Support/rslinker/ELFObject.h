@@ -18,7 +18,6 @@
 #define ELF_OBJECT_H
 
 #include "ELFTypes.h"
-#include "MemChunk.h"
 
 #include <llvm/ADT/OwningPtr.h>
 
@@ -48,6 +47,10 @@ public:
 
   ELFSectionHeaderTableTy const *getSectionHeaderTable() const {
     return shtab.get();
+  }
+
+  size_t getSectionNumber() const {
+    return stab.size();
   }
 
   char const *getSectionName(size_t i) const;
