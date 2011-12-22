@@ -53,6 +53,8 @@ public:
   ELFDynObjFileFormat* getDynObjFileFormat();
   ELFExecFileFormat* getExecFileFormat();
 
+  size_t sectionStartOffset() const;
+
 protected:
   // ----- readers and writers ----- //
   GNUArchiveReader* m_pArchiveReader;

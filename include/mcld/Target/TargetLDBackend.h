@@ -78,7 +78,7 @@ public:
 
   virtual RelocationFactory* getRelocFactory() = 0;
 
-  /* The return value of machine() it the same as e_machine in the EFL header*/
+  /* The return value of machine() it the same as e_machine in the ELF header*/
   virtual uint32_t machine() const = 0;
 
   /** Is the target machine little endian? **/
@@ -86,6 +86,9 @@ public:
 
   /** bit class. the bit length of the target machine, 32 or 64 **/
   virtual unsigned int bitclass() const = 0;
+
+  /** section start offset in the output file **/
+  virtual size_t sectionStartOffset() const = 0;
 };
 
 } // End mcld namespace

@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <llvm/Support/ELF.h>
 #include <cassert>
 
 using namespace mcld;
@@ -40,6 +41,12 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
     delete m_pExecFileFormat;
+}
+
+size_t GNULDBackend::sectionStartOffset() const
+{
+  // FIXME: use fixed offset, we need 4 segments by default
+  return sizeof(llvm::ELF::Elf32_Ehdr)+4*sizeof(llvm::ELF::Elf32_Phdr);
 }
 
 bool GNULDBackend::initArchiveReader(MCLinker&)
