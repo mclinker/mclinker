@@ -1,4 +1,4 @@
-//===- header.h -----------------------------------------------------------===//
+//===- SectionMerger.h ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,57 +6,83 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SECTIONMERGER_H
-#define SECTIONMERGER_H
+#ifndef MCLD_SECTION_MERGER_H
+#define MCLD_SECTION_MERGER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <map>
+#include <vector>
 #include <string>
 #include <llvm/MC/MCAssembler.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/SectionMap.h>
 
 namespace mcld
 {
 class MCLinker;
-class SectionMap;
 
 /** \class SectionMerger
- *  \brief maintain the mappings of section name to associated section data
+ *  \brief maintain the mappings of substr of input section name to associated
+ *         output section (data)
  */
 class SectionMerger
 {
 public:
-  typedef std::map<const std::string, llvm::MCSectionData*> SectionDataMapTy;
+  struct Mapping {
+    std::string inputSubStr;
+    LDSection* outputSection;
+  };
+  typedef std::vector<Mapping> LDSectionMapTy;
 
-  typedef SectionDataMapTy::iterator iterator;
-  typedef SectionDataMapTy::const_iterator const_iterator;
+  typedef LDSectionMapTy::iterator iterator;
+  typedef LDSectionMapTy::const_iterator const_iterator;
 
 public:
-  SectionMerger(MCLinker& pLinker);
+  SectionMerger(SectionMap& pSectionMap, LDContext& pContext);
   ~SectionMerger();
 
-  llvm::MCSectionData& getOutputSectionData(const std::string& pInputSectName);
+  /// getOutputSectHdr - return a associated output section header
+  LDSection* getOutputSectHdr(const std::string& pName);
+
+  /// getOutputSectData - return a associated output section data
+  llvm::MCSectionData* getOutputSectData(const std::string& pName);
+
+  // -----  observers  ----- //
+  bool empty() const
+  { return m_LDSectionMap.empty(); }
+
+  size_t size() const
+  { return m_LDSectionMap.size(); }
+
+  size_t capacity () const
+  { return m_LDSectionMap.capacity(); }
 
   // -----  iterators  ----- //
   iterator begin()
-  { return m_SectionDataMap.begin(); }
+  { return m_LDSectionMap.begin(); }
 
   iterator end()
-  { return m_SectionDataMap.end(); }
+  { return m_LDSectionMap.end(); }
 
   const_iterator begin() const
-  { return m_SectionDataMap.begin(); }
+  { return m_LDSectionMap.begin(); }
 
   const_iterator end() const
-  { return m_SectionDataMap.end(); }
+  { return m_LDSectionMap.end(); }
 
 private:
-  MCLinker& m_Linker;
-  SectionMap& m_SectionMap;
-  SectionDataMapTy m_SectionDataMap;
+  /// initOutputSectMap - initialize the map from input substr to associated
+  /// output LDSection*
+  void initOutputSectMap();
+
+private:
+  SectionMap& m_SectionNameMap;
+
+  LDContext& m_Output;
+
+  LDSectionMapTy m_LDSectionMap;
 };
 
 } // namespace of mcld
