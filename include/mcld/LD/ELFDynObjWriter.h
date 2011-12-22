@@ -74,9 +74,6 @@ private:
   // .dynstr
   StrTab dynstrTab;
 
-  // .shstrtab
-  StrTab shstrTab;
-
   SHExtTab_T shtExtab;
 
   MCLinker& m_Linker;

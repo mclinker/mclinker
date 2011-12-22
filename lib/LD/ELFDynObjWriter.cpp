@@ -65,9 +65,9 @@ uint32_t ELFDynObjWriter::WriteDynStrTab(uint32_t file_offset)
 
   uint32_t str_size = dynstrTab.back().second;
   dynstrTab.pop_back();
+  uint32_t section_offset = file_offset;
 
-  MemoryArea *mem = m_Linker.getLDInfo().output().memArea();
-  MemoryRegion* pRegion = mem->request(file_offset, str_size);
+  MemoryRegion* pRegion = m_pMemArea->request(file_offset, str_size);
   ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
 
   for (StrTab::iterator I = dynstrTab.begin(), E = dynstrTab.end();
@@ -81,6 +81,17 @@ uint32_t ELFDynObjWriter::WriteDynStrTab(uint32_t file_offset)
     pWriter->Write8(0);
   }
 
+  // update .dynsym section header
+  LDSection *dynstr = m_pContext->getSection(".dynstr");
+  dynstr->setSize(str_size);
+  dynstr->setOffset(section_offset);
+  dynstr->setAddr(section_offset);
+
+  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(dynstr);
+  sec_ext_info.sh_link = 0;
+  sec_ext_info.sh_info = 0;
+  sec_ext_info.sh_entsize = 0;
+
   delete pWriter;
   return str_size;
 }
@@ -90,6 +101,7 @@ uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
   LDContext *context = m_Linker.getLDInfo().output().context();
   uint32_t str_index = 1;
   uint32_t dynsym_cnt = 1;
+  uint32_t section_offset = file_offset;
 
   // The first entry is undefined.
   file_offset += WriteSymbolEntry(file_offset, 0, 0, 0, 0, 0, ELF::SHN_UNDEF);
@@ -135,6 +147,17 @@ uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
   // save the total string size at the end
   dynstrTab.push_back(std::make_pair("",str_index));
 
+  // update .dynsym section header
+  LDSection *dynsym = m_pContext->getSection(".dynsym");
+  dynsym->setSize(dynsym_cnt * sizeof(ELF::Elf32_Sym));
+  dynsym->setOffset(section_offset);
+  dynsym->setAddr(section_offset);
+
+  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(dynsym);
+  sec_ext_info.sh_link = 0; // TODO: get .dynstr index from Layout
+  sec_ext_info.sh_info = 0;
+  sec_ext_info.sh_entsize = sizeof(ELF::Elf32_Sym);
+
   return dynsym_cnt * sizeof(ELF::Elf32_Sym);
 }
 
@@ -143,8 +166,7 @@ uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
                                        uint32_t value, uint32_t size,
                                        uint8_t other, uint32_t shndx)
 {
-  MemoryArea *mem = m_Linker.getLDInfo().output().memArea();
-  MemoryRegion* pRegion = mem->request(file_offset, sizeof(ELF::Elf32_Sym));
+  MemoryRegion* pRegion = m_pMemArea->request(file_offset, sizeof(ELF::Elf32_Sym));
   ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
 
   pWriter->Write32(name);  // st_name
