@@ -47,7 +47,9 @@ public:
   /// - GOT entry (for .got and .got.plt sections)
   /// - PLT entry (for .plt section)
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
-  void scanRelocation(Relocation& pReloc);
+  void scanRelocation(Relocation& pReloc,
+                      MCLinker& pLinker,
+                      unsigned int pType);
 
 private:
   RelocationFactory* m_pRelocFactory;

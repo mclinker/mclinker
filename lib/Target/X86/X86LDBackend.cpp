@@ -73,7 +73,9 @@ void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
   m_pGOT = new X86GOT(*got);
 }
 
-void X86GNULDBackend::scanRelocation(Relocation& pReloc)
+void X86GNULDBackend::scanRelocation(Relocation& pReloc,
+                                     MCLinker& pLinker,
+                                     unsigned int pType)
 {
 }
 

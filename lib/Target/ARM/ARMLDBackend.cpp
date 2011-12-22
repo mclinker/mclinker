@@ -104,7 +104,9 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                   ELF::SHF_ALLOC);
 }
 
-void ARMGNULDBackend::scanRelocation(Relocation& pReloc)
+void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
+                                     MCLinker& pLinker,
+                                     unsigned int pType)
 {
 }
 

@@ -43,7 +43,9 @@ public:
   /// - GOT entry (for .got section)
   /// - PLT entry (for .plt section)
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
-  void scanRelocation(Relocation& pReloc);
+  void scanRelocation(Relocation& pReloc,
+                      MCLinker& pLinker,
+                      unsigned int pType);
 
   uint32_t machine() const;
 

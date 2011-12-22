@@ -10,6 +10,7 @@
 #define LLVM_TARGET_TARGETLDBACKEND_H
 
 #include <llvm/Support/DataTypes.h>
+#include <mcld/MC/MCLDOutput.h>
 
 namespace mcld {
 
@@ -55,7 +56,10 @@ public:
   /// GOT and dynamic relocation entries and other target dependent
   /// entries. These entries are generated for layout to adjust the ouput
   /// offset.
-  virtual void scanRelocation(Relocation& pReloc) { }
+  /// @param pType - the MCLDOutput type of ouput file type
+  virtual void scanRelocation(Relocation& pReloc,
+                              MCLinker& pLinker,
+                              unsigned int pType) { }
 
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLinker&) = 0;

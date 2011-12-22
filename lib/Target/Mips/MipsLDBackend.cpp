@@ -72,7 +72,9 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 }
 
 
-void MipsGNULDBackend::scanRelocation(Relocation& pReloc)
+void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
+                                      MCLinker& pLinker,
+                                      unsigned int pType)
 {
 }
 
