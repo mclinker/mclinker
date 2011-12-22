@@ -23,6 +23,7 @@ class DynObjReader;
 class ObjectWriter;
 class DynObjWriter;
 class LDContext;
+class SectionMap;
 
 class LDFileFormat;
 class GOT;
@@ -42,6 +43,7 @@ public:
   virtual ~TargetLDBackend();
 
   // -----  target dependent  ----- //
+  virtual bool initTargetSectionMap(SectionMap& pSectionMap) { return true;}
   virtual void initTargetSegments(MCLinker& pLinker) { }
   virtual void initTargetSections(MCLinker& pLinker) { }
   virtual void initTargetSymbols(MCLinker& pLinker) { }

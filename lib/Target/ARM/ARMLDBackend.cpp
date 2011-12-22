@@ -11,6 +11,7 @@
 #include "ARMRelocationFactory.h"
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/LD/SectionMap.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
@@ -45,6 +46,11 @@ uint32_t ARMGNULDBackend::machine() const
 }
 
 bool ARMGNULDBackend::isLittleEndian() const
+{
+  return true;
+}
+
+bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 {
   return true;
 }

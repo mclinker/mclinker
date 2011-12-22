@@ -17,6 +17,7 @@
 namespace mcld {
 
 class MCLinker;
+class SectionMap;
 
 //===----------------------------------------------------------------------===//
 /// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
@@ -26,6 +27,9 @@ class ARMGNULDBackend : public GNULDBackend
 public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
+
+  /// initTargetSectionMap - initialize target dependent section mapping
+  bool initTargetSectionMap(SectionMap& pSectionMap);
 
   /// initTargetSections - initialize target dependent sections in output.
   void initTargetSections(MCLinker& pLinker);

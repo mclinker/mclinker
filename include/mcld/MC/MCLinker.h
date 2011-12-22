@@ -85,6 +85,8 @@ public:
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData* getOrCreateSectData(LDSection* pSection);
 
+  bool initStdSectionMap(SectionMap& pSectionMap);
+
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
   { return m_Info; }

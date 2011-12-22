@@ -13,6 +13,7 @@
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/LD/SectionMap.h>
 
 using namespace mcld;
 
@@ -55,6 +56,11 @@ const X86GOT& X86GNULDBackend::getGOT() const
 unsigned int X86GNULDBackend::bitclass() const
 {
   return 32;
+}
+
+bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
+{
+  return true;
 }
 
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)

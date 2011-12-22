@@ -11,6 +11,7 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/LD/SectionMap.h>
 #include "Mips.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
@@ -51,6 +52,11 @@ bool MipsGNULDBackend::isLittleEndian() const
 unsigned int MipsGNULDBackend::bitclass() const
 {
   return 32;
+}
+
+bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
+{
+  return true;
 }
 
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)

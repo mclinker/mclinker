@@ -36,6 +36,9 @@ public:
 
   unsigned int bitclass() const;
 
+  /// initTargetSectionMap - initialize target dependent section mapping
+  bool initTargetSectionMap(SectionMap& pSectionMap);
+
   void initTargetSections(MCLinker& pLinker);
 
   /// scanRelocation - determine the empty entries are needed or not and create

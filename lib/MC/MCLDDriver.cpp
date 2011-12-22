@@ -125,6 +125,12 @@ bool MCLDDriver::initMCLinker()
       !m_LDBackend.initDynObjWriter(*m_pLinker))
     return false;
 
+  /// initialize section mapping for standard format, target-dependent section,
+  /// (and user-defined mapping)
+  if (!m_pLinker->initStdSectionMap(m_SectionMap) ||
+      !m_LDBackend.initTargetSectionMap(m_SectionMap))
+    return false;
+
   // initialize standard segments and sections
   switch (m_LDInfo.output().type()) {
     case Output::DynObj: {

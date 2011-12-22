@@ -14,7 +14,7 @@
 namespace mcld {
 
 class MCLinker;
-class LDContext;
+class SectionMap;
 
 //===----------------------------------------------------------------------===//
 /// MipsGNULDBackend - linker backend of Mips target of GNU ELF format
@@ -36,6 +36,8 @@ public:
   MipsGOT& getGOT();
 
   const MipsGOT& getGOT() const;
+
+  bool initTargetSectionMap(SectionMap& pSectionMap);
 
   void initTargetSections(MCLinker& pLinker);
 
