@@ -27,14 +27,17 @@ const std::string& SectionMap::getOutputSectName(const std::string& pInput)
 {
   iterator it;
   for (it = begin(); it != end(); ++it) {
-    if(0 == strncmp(pInput.c_str(),
-                    (*it).inputSubStr.c_str(),
-                    (*it).inputSubStr.length()))
+    if (0 == strncmp(pInput.c_str(),
+                     (*it).inputSubStr.c_str(),
+                     (*it).inputSubStr.length()))
+      break;
+    // wildcard to a user-defined output section.
+    else if (0 == strcmp("*", (*it).inputSubStr.c_str()))
       break;
   }
-  // FIXME: Assuming that no "special" or user-defined sections so far,
-  // and our mapping rules can cover the current cases.
-  assert(it != end());
+  // if still no matching, just let a output seciton has the same input name
+  if (it == end())
+    return pInput;
   
   return (*it).outputStr;
 }
