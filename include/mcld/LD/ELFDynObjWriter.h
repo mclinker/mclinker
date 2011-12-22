@@ -63,8 +63,6 @@ private:
 
   uint32_t WriteELFHeader(uint32_t file_offset);
 
-  uint32_t PrepareSectionHeader();
-
   uint32_t WriteShStrTab(uint32_t file_offset);
 
   uint32_t WriteSectionHeader(uint32_t file_offset);

@@ -48,7 +48,6 @@ bool ELFDynObjWriter::WriteObject()
   file_offset += WriteDynStrTab(file_offset);
 
   // Write out section header table
-  PrepareSectionHeader();
 
   file_offset += WriteShStrTab(file_offset);
 
@@ -218,35 +217,6 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
   delete pWriter;
 
   return (is32BitClass) ? sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr);
-}
-
-uint32_t ELFDynObjWriter::PrepareSectionHeader()
-{
-  //Preparing fake LDSections for testing
-  /*
-  LDSection *m_null          = new LDSection("",
-                                             LDFileFormat::MetaData,
-                                             ELF::SHT_NULL,
-                                             ELF::SHN_UNDEF);
-  */
-  LDSection *m_pEXIDX        = new LDSection(".ARM.exidx",
-                                             LDFileFormat::MetaData,
-                                             ELF::SHT_ARM_EXIDX,
-                                             ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
-  LDSection *m_pEXTAB        = new LDSection(".ARM.extab",
-                                             LDFileFormat::MetaData,
-                                             ELF::SHT_PROGBITS,
-                                             ELF::SHF_ALLOC);
-  LDSection *m_pAttributes   = new LDSection(".ARM.attributes",
-                                             LDFileFormat::MetaData,
-                                             ELF::SHT_ARM_ATTRIBUTES,
-                                             ELF::SHF_ALLOC);
-
-  //m_pContext->getSectionTable().push_back(m_null);
-  m_pContext->getSectionTable().push_back(m_pEXIDX);
-  m_pContext->getSectionTable().push_back(m_pEXTAB);
-  m_pContext->getSectionTable().push_back(m_pAttributes);
-  return 0;
 }
 
 uint32_t ELFDynObjWriter::WriteShStrTab(uint32_t file_offset)
