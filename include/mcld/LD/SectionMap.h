@@ -50,7 +50,7 @@ public:
   // add a mapping from input substr to output name and offset.
   bool push_back(const std::string& pInput,
                  const std::string& pOutput,
-                 const uint64_t pOffset);
+                 const uint64_t pOffset = 0);
 
   // find - return the iterator to the mapping
   iterator find(const std::string& pInput);
@@ -81,8 +81,9 @@ public:
   const_iterator end() const
   { return m_SectMap.end(); }
 
-  // addStdElFMap - add elf mappings to SectionMap
-  void addStdELFMap();
+  // addStdSectionMap - add common mappings of ELF and other formats
+  // to SectionMap
+  bool addStdSectionMap();
 
 private:
   struct SectionNameMapping {
@@ -90,10 +91,10 @@ private:
     const char* to;
   };
 
-  // ELF mappings from gold
-  static const SectionNameMapping m_StdELFMap[];
+  // used to store common mappings of ELF and other formants
+  static const SectionNameMapping m_StdSectionMap[];
 
-  static const int m_StdELFMapSize;
+  static const int m_StdSectionMapSize;
 
   SectionMappingTy m_SectMap;
 };

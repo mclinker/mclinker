@@ -85,8 +85,8 @@ SectionMap::Mapping* SectionMap::at(const std::string& pInput)
   return &(*it);
 }
 
-// ELF mappings from gold
-const SectionMap::SectionNameMapping SectionMap::m_StdELFMap[] =
+// Common mappings of ELF and other formants. Now only ELF specific mappings are added
+const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
 {
   {".text", ".text"},
   {".rodata", ".rodata"},
@@ -131,13 +131,15 @@ const SectionMap::SectionNameMapping SectionMap::m_StdELFMap[] =
   {".gnu.linkonce.armexidx", ".ARM.exidx"},
 };
 
-const int SectionMap::m_StdELFMapSize =
-  (sizeof(SectionMap::m_StdELFMap) / sizeof(SectionMap::m_StdELFMap[0]));
+const int SectionMap::m_StdSectionMapSize =
+  (sizeof(SectionMap::m_StdSectionMap) / sizeof(SectionMap::m_StdSectionMap[0]));
 
-void SectionMap::addStdELFMap()
+bool SectionMap::addStdSectionMap()
 {
-  for (int i = 0; i < m_StdELFMapSize; ++i)
-    push_back(std::string(m_StdELFMap[i].from),
-              std::string(m_StdELFMap[i].to),
-              0);
+  for (int i = 0; i < m_StdSectionMapSize; ++i) {
+    if (!push_back(std::string(m_StdSectionMap[i].from),
+                   std::string(m_StdSectionMap[i].to)))
+      return false;
+  }
+  return true;
 }
