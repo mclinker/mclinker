@@ -97,6 +97,7 @@ public:
 
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
+  typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
 
 private:
   TargetLDBackend& m_Backend;
@@ -105,6 +106,7 @@ private:
   StrSymPool m_StrSymPool;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;
+  LDSectionDataFactory m_LDSectDataFactory;
   SectionMap& m_SectionMap;
   SectionMerger m_SectionMerger;
 };

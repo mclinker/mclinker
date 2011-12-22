@@ -20,7 +20,6 @@
 #include <mcld/LD/SectionMap.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
-#include <cstdio>
 
 using namespace mcld;
 
@@ -36,6 +35,7 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
+  m_LDSectDataFactory(10),
   m_SectionMerger(pSectionMap, pContext)
 {
 }
@@ -134,7 +134,31 @@ LDSection* MCLinker::createSectHdr(const std::string& pName,
 
 llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
 {
-  return NULL;
+  assert(NULL != pSection);
+  // if there is already a section data pointed by section, return it.
+  llvm::MCSectionData* sect_data = pSection->getSectionData();
+  if (NULL != sect_data)
+    return sect_data;
+
+  // try to get one from output sections in the output context
+  LDSection* output_sect =
+    m_SectionMerger.getOutputSectHdr(pSection->name());
+  assert(NULL != output_sect);
+  sect_data = output_sect->getSectionData();
+  if (NULL != sect_data) {
+    (*pSection).setSectionData(sect_data);
+    return sect_data;
+  }
+
+  // if not found, create one and attach it to both input (pSection) and
+  // the associated section in output context
+  sect_data = m_LDSectDataFactory.allocate();
+  new (sect_data) llvm::MCSectionData(*output_sect);
+
+  (*pSection).setSectionData(sect_data);
+  (*output_sect).setSectionData(sect_data);
+
+  return sect_data;
 }
 
 bool MCLinker::initStdSectionMap(SectionMap& pSectionMap)
