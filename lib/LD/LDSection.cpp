@@ -25,6 +25,7 @@ LDSection::LDSection(const std::string& pName,
     m_Flag(pFlag),
     m_Size(pSize),
     m_Offset(pOffset),
-    m_Addr(pAddr) {
+    m_Addr(pAddr),
+    m_pSectionData(NULL) {
 }
 
