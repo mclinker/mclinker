@@ -250,9 +250,10 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
-  if (0 == pDir.m_Handler)
-    llvm::report_fatal_error(std::string("Can't open directory: ")+
-                       pDir.path().native());
+  if (NULL == pDir.m_Handler) {
+    pDir.m_CacheFull = true;
+    return;
+  }
   // read one entry for advance the end element of the cache.
   std::string path;
   switch (read_dir(pDir.m_Handler, path)) {
