@@ -14,8 +14,8 @@ using namespace mcld;
 // ARMDynRelSection
 
 
-ARMDynRelSection::ARMDynRelSection(llvm::MCSectionData& pSectionData)
-                                   : m_pSectionData(&pSectionData)
+ARMDynRelSection::ARMDynRelSection(llvm::MCSectionData* pSectionData)
+                                   : m_pSectionData(pSectionData)
 {
 }
 
