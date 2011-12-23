@@ -180,61 +180,52 @@ uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
 
 uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
 {
-  bool is32BitClass = (32 == target().bitclass());
+    //Currently only support 32bit file type
+    bool is32BitClass = (32 == target().bitclass());
+    ELF::Elf32_Ehdr elf_header;
 
-  ScopedWriter *pWriter = new ScopedWriter(m_pMemArea->request(0,
-    (is32BitClass) ? sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr)), true);
+    memcpy(elf_header.e_ident, ELF::ElfMagic, strlen(ELF::ElfMagic));
+    elf_header.e_ident[ELF::EI_CLASS] = (is32BitClass) ? ELF::ELFCLASS32 : ELF::ELFCLASS64;
+    elf_header.e_ident[ELF::EI_DATA] = target().isLittleEndian() ?
+                                                         ELF::ELFDATA2LSB : ELF::ELFDATA2MSB;
+    elf_header.e_ident[ELF::EI_VERSION] = ELF::EV_CURRENT;
+    elf_header.e_ident[ELF::EI_OSABI] = 0x0;
+    elf_header.e_ident[ELF::EI_ABIVERSION] = 0x0;
 
-  /* ELF Identification */
-  pWriter->Write8(ELF::ElfMagic[0]);   //EI_MAG0
-  pWriter->Write8(ELF::ElfMagic[1]);   //EI_MAG1
-  pWriter->Write8(ELF::ElfMagic[2]);   //EI_MAG2
-  pWriter->Write8(ELF::ElfMagic[3]);   //EI_MAG3
-  pWriter->Write8((is32BitClass) ? ELF::ELFCLASS32 : ELF::ELFCLASS64);     //EI_CLASS
-  pWriter->Write8(target().isLittleEndian() ? ELF::ELFDATA2LSB : ELF::ELFDATA2MSB); //EI_DATA
-  pWriter->Write8(ELF::EV_CURRENT);    //EI_VERSION
-  pWriter->Write8(0x0);                //EI_OSABI
-  pWriter->Write8(0x0);                //EI_ABIVERSION
-  for (int i = (ELF::EI_NIDENT - ELF::EI_PAD); i > 0; --i)
-    pWriter->Write8(0x0);              //EI_PAD
+    elf_header.e_type = ELF::ET_DYN;
+    elf_header.e_machine = target().machine();
+    elf_header.e_version = elf_header.e_ident[ELF::EI_VERSION];
+    // FIXME:
+    elf_header.e_entry   = 0x0;
+    elf_header.e_phoff   = sizeof(ELF::Elf32_Ehdr);
+    elf_header.e_shoff   = file_offset;
 
-  pWriter->Write16(ELF::ET_DYN);            //e_type
-  pWriter->Write16(target().machine());     //e_machine
-  pWriter->Write32(ELF::EV_CURRENT);        //e_version
+    switch (target().machine())
+    {
+        // FIXME:
+        case ELF::EM_ARM :
+            elf_header.e_flags = ELF::EF_ARM_EABIMASK & DefaultEABIVersion;
+            break;
+        case ELF::EM_386 :
+        case ELF::EM_MIPS :
+        default :
+            elf_header.e_flags = 0x0;
+            break;
+    }
 
-  //FIXME:
-  if (is32BitClass)
-  {
-    pWriter->Write32(0x0);                     //e_entry, it seems pointing to the first .text section
-    pWriter->Write32(sizeof(ELF::Elf32_Ehdr)); //e_phoff = program header offset
-    pWriter->Write32(file_offset);             //e_shoff = section header offset FIXME
-  }else{
-    pWriter->Write64(0x0);
-    pWriter->Write64(sizeof(ELF::Elf64_Ehdr));
-    pWriter->Write64(file_offset);
-  }
+    elf_header.e_ehsize = sizeof(ELF::Elf32_Ehdr);
+    elf_header.e_phentsize = sizeof(ELF::Elf32_Phdr);
+    // FIXME:
+    elf_header.e_phnum = 0x0;
+    elf_header.e_shentsize = sizeof(ELF::Elf32_Shdr);
+    elf_header.e_shnum = m_pContext->numOfSections();
+    elf_header.e_shstrndx = m_pContext->numOfSections() - 1;
 
-  //FIXME: ARM should add enrty point judgement
-  if (ELF::EM_ARM == target().machine())       //e_flags
-    pWriter->Write32(ELF::EF_ARM_EABIMASK & DefaultEABIVersion);
-  else
-    pWriter->Write32(0x0);
-  pWriter->Write16((is32BitClass) ?
-                    sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr)); //e_ehsize = elf header size
+    MemoryRegion *mr = m_pMemArea->request(0, sizeof(ELF::Elf32_Ehdr));
+    memcpy(mr->start(), &elf_header, sizeof(ELF::Elf32_Ehdr));
+    mr->sync();
 
-  //FIXME
-  pWriter->Write16((is32BitClass) ?
-                    sizeof(ELF::Elf32_Phdr) : sizeof(ELF::Elf64_Phdr)); //e_phentsize
-  pWriter->Write16(0x0);                                                //e_phnum
-
-  pWriter->Write16((is32BitClass) ?
-                    sizeof(ELF::Elf32_Shdr) : sizeof(ELF::Elf64_Shdr)); //e_shentsize
-  pWriter->Write16(m_pContext->numOfSections());                        //e_shnum
-  pWriter->Write16(m_pContext->numOfSections() - 1);                    //e_shstrndx
-
-  delete pWriter;
-
-  return (is32BitClass) ? sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf64_Ehdr);
+    return elf_header.e_ehsize;
 }
 
 uint32_t ELFDynObjWriter::WriteShStrTab(uint32_t file_offset)
@@ -257,7 +248,8 @@ uint32_t ELFDynObjWriter::WriteShStrTab(uint32_t file_offset)
         SectionExtInfo & sec_ext_info = getOrCreateSectionExtInfo(&section);
         sec_ext_info.sh_name = sh_name_idx;
 
-        MemoryRegion *mr = m_pMemArea->request((file_offset + sh_name_idx), section.name().size() + 1 );
+        MemoryRegion *mr = m_pMemArea->request((file_offset + sh_name_idx),
+                                                section.name().size() + 1 );
         memcpy(mr->start(), section.name().data(), section.name().size() + 1);
         mr->sync();
 
@@ -320,7 +312,8 @@ SectionExtInfo& ELFDynObjWriter::getOrCreateSectionExtInfo(const LDSection *sect
     else
     {
         SectionExtInfo *sec_ext_info = new SectionExtInfo();
-        iter = shtExtab.insert( std::pair<const LDSection*, SectionExtInfo>(section, *sec_ext_info)).first;
+        iter = shtExtab.insert( std::pair<const LDSection*,
+                                SectionExtInfo>(section, *sec_ext_info)).first;
     }
     return (*iter).second;
 }
