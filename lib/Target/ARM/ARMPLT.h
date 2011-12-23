@@ -40,6 +40,7 @@ public:
     m_pContent = 0;
   }
 
+private:
   void initPLTEntry() {
     m_pContent = static_cast<unsigned char*>(malloc(m_EntrySize));
 
@@ -59,6 +60,7 @@ public:
     m_pContent = 0;
   }
 
+private:
   void initPLTEntry() {
     m_pContent = static_cast<unsigned char*>(malloc(m_EntrySize));
 
