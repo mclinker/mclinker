@@ -15,12 +15,10 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Support/ScopedWriter.h>
 #include <llvm/Support/ELF.h>
-#include <iostream>
 #include <vector>
 
 using namespace llvm;
 using namespace mcld;
-using namespace std;
 
 //==========================
 // ELFDynObjWriter
@@ -252,7 +250,7 @@ uint32_t ELFDynObjWriter::WriteShStrTab(uint32_t file_offset)
     uint32_t sh_name_idx = 0;
 
     // Iterate all the the sections in SectionTable
-    vector<LDSection *>::const_iterator sect_iter;
+    LDContext::const_sect_iterator sect_iter;
     for (sect_iter = m_pContext->sectBegin(); sect_iter < m_pContext->sectEnd(); ++sect_iter)
     {
         const LDSection &section = *(*sect_iter);
@@ -277,7 +275,7 @@ uint32_t ELFDynObjWriter::WriteSectionHeader(uint32_t file_offset)
     uint32_t sec_off = 0;
 
     // Iterate the SectionTable in LDContext
-    vector<LDSection *>::const_iterator sect_iter;
+    LDContext::const_sect_iterator sect_iter;
     for (sect_iter = m_pContext->sectBegin(); sect_iter < m_pContext->sectEnd(); ++sect_iter)
     {
         LDSection *section = *sect_iter;
@@ -322,7 +320,7 @@ SectionExtInfo& ELFDynObjWriter::getOrCreateSectionExtInfo(const LDSection *sect
     else
     {
         SectionExtInfo *sec_ext_info = new SectionExtInfo();
-        iter = shtExtab.insert( pair<const LDSection*, SectionExtInfo>(section, *sec_ext_info)).first;
+        iter = shtExtab.insert( std::pair<const LDSection*, SectionExtInfo>(section, *sec_ext_info)).first;
     }
     return (*iter).second;
 }
