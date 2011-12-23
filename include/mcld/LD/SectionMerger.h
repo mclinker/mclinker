@@ -60,6 +60,8 @@ public:
   { return m_LDSectionMap.capacity(); }
 
   // -----  iterators  ----- //
+  iterator find(const std::string& pName);
+
   iterator begin()
   { return m_LDSectionMap.begin(); }
 

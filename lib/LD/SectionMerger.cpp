@@ -20,18 +20,18 @@ SectionMerger::SectionMerger(SectionMap& pSectionMap, LDContext& pContext)
   m_Output(pContext),
   m_LDSectionMap(pSectionMap.size())
 {
+  initOutputSectMap();
 }
 
 SectionMerger::~SectionMerger()
 {
 }
 
-LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
+SectionMerger::iterator SectionMerger::find(const std::string& pName)
 {
   if (empty())
     initOutputSectMap();
 
-  LDSection* section;
   iterator it;
   for (it = begin(); it != end(); ++it) {
     if (0 == strncmp(pName.c_str(),
@@ -42,6 +42,13 @@ LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
     else if(0 == strcmp("*", (*it).inputSubStr.c_str()))
       break;
   }
+  return it;
+}
+
+LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
+{
+  LDSection* section;
+  iterator it = find(pName);
 
   // check if we can find a matched LDSection.
   // If not, we need to find it in output context. But this should be rare.
