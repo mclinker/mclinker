@@ -290,9 +290,12 @@ uint32_t ELFDynObjWriter::WriteSectionEnrty(LDSection *section, uint32_t file_of
     sec_header.sh_size      = section->size();
     sec_header.sh_link      = sec_ext_info.sh_link;
     sec_header.sh_info      = sec_ext_info.sh_info;
-    //Currently we still couldn't get MCSectionData
-    //sec_header.sh_addralign = m_Linker.getOrCreateSectData(section)->getAlignment();
-    sec_header.sh_addralign = 0;
+
+    if (NULL != section->getSectionData())
+        sec_header.sh_addralign = section->getSectionData()->getAlignment();
+    else
+        sec_header.sh_addralign = 0x0;
+
     sec_header.sh_entsize   = sec_ext_info.sh_entsize;
 
     MemoryRegion *mr = m_pMemArea->request(file_offset, sizeof(ELF::Elf32_Shdr));
