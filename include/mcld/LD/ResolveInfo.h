@@ -53,6 +53,7 @@ public:
     Function = 2,
     Section  = 3,
     File     = 4,
+    Common   = 5,
     LoProc   = 13,
     HiProc   = 15
   };
