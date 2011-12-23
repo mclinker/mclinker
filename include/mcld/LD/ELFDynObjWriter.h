@@ -41,7 +41,6 @@ struct SectionExtInfo {
 class ELFDynObjWriter : public DynObjWriter, private ELFWriter
 {
 public:
-  typedef std::vector< std::pair<const char *, uint32_t> > StrTab;
   typedef llvm::DenseMap<const LDSection*, SectionExtInfo > SHExtTab_T;
 
 public:
@@ -52,14 +51,16 @@ public:
 private:
   const static uint32_t DefaultEABIVersion = 0x05000000;
 
-  uint32_t WriteDynSymTab(uint32_t file_offset);
+  uint32_t WriteDynSymTab(LDSection *pSection, uint32_t file_offset);
 
-  uint32_t WriteDynStrTab(uint32_t file_offset);
+  uint32_t WriteDynStrTab(LDSection *pSection, uint32_t file_offset);
 
-  uint32_t WriteSymbolEntry(uint32_t file_offset,
-                        uint32_t name, uint8_t info,
-                        uint32_t value, uint32_t size,
-                        uint8_t other, uint32_t shndx);
+  uint32_t WriteRelocationTab(LDSection *pSection, uint32_t file_offset, 
+                              bool addend=false);
+
+  uint32_t WriteDynamicTab(LDSection *pSection, uint32_t file_offset);
+
+  uint32_t WriteSectionData(LDSection *pSection, uint32_t file_offset);
 
   uint32_t WriteELFHeader(uint32_t file_offset);
 
@@ -67,12 +68,31 @@ private:
 
   uint32_t WriteSectionHeader(uint32_t file_offset);
 
+  // ELF::Elf32_Sym
+  uint32_t WriteSymbolEntry(uint32_t file_offset,
+                            uint32_t name, 
+                            uint8_t info,
+                            uint32_t value, 
+                            uint32_t size,
+                            uint8_t other, 
+                            uint32_t shndx);
+
+  // ELF::Elf32_Rel 
+  uint32_t WriteRelEntry(uint32_t file_offset, 
+                         uint32_t r_offset, 
+                         uint32_t r_info);
+
+  // ELF::Elf32_Rela 
+  uint32_t WriteRelaEntry(uint32_t file_offset,
+                          uint32_t r_offset, 
+                          uint32_t r_info, 
+                          uint32_t r_addend);
+
+  // ELF::Elf32_Shdr
   uint32_t WriteSectionEnrty(LDSection *section, uint32_t file_offset);
 
   SectionExtInfo& getOrCreateSectionExtInfo(const LDSection *section);
 
-  // .dynstr
-  StrTab dynstrTab;
 
   SHExtTab_T shtExtab;
 

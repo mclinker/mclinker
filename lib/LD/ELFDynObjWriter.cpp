@@ -36,14 +36,72 @@ ELFDynObjWriter::~ELFDynObjWriter()
 
 bool ELFDynObjWriter::WriteObject()
 {
-  uint32_t file_offset = (32 == target().bitclass()) ?
-                       sizeof(ELF::Elf32_Ehdr) : sizeof(ELF::Elf32_Ehdr);
+  uint32_t file_offset = target().sectionStartOffset();
 
-  // Write out .dynsym
-  file_offset += WriteDynSymTab(file_offset);
+  // Assume layout is done correctly.
+  for (LDContext::const_sect_iterator I = m_pContext->sectBegin(),
+       E = m_pContext->sectEnd();
+       I != E;
+       ++I) {
+       LDSection *pSection = *I;
 
-  // Write out .dynstr
-  file_offset += WriteDynStrTab(file_offset);
+    switch((*I)->type()) {
+
+      case ELF::SHT_SYMTAB:
+        // .symtab could be eliminated.
+        break;
+
+      case ELF::SHT_DYNSYM:
+        file_offset += WriteDynSymTab(pSection, file_offset);
+        break;
+
+      case ELF::SHT_STRTAB:
+        file_offset += WriteDynStrTab(pSection, file_offset);
+        break;
+
+      case ELF::SHT_REL:
+        file_offset += WriteRelocationTab(pSection, file_offset);
+        break;
+
+      case ELF::SHT_RELA:
+        file_offset += WriteRelocationTab(pSection, file_offset,
+                                          /*addend=*/true);
+        break;
+
+      case ELF::SHT_DYNAMIC:
+        file_offset += WriteDynamicTab(pSection, file_offset);
+        break;
+
+      /// other section could use generic section data writer
+      case ELF::SHT_NULL:
+      case ELF::SHT_HASH:
+      case ELF::SHT_NOBITS:
+      case ELF::SHT_PROGBITS:
+      case ELF::SHT_NOTE:
+      case ELF::SHT_SHLIB:
+      case ELF::SHT_INIT_ARRAY:
+      case ELF::SHT_FINI_ARRAY:
+      case ELF::SHT_PREINIT_ARRAY:
+      case ELF::SHT_GROUP:
+        file_offset += WriteSectionData(pSection, file_offset);
+        break;
+
+      case ELF::SHT_SYMTAB_SHNDX:
+        llvm::report_fatal_error("SHT_SYMTAB_SHNDX not implmented!");
+        break;
+
+      default:
+        // Target specific section type
+        // Should we call backend to write target-specific section data?
+        if ((*I)->type() >= ELF::SHT_LOPROC) {
+          file_offset += WriteSectionData(pSection, file_offset);
+        }
+        // unknown type
+        else {
+          file_offset += WriteSectionData(pSection, file_offset);
+        }
+    } // end switch
+  }
 
   // Write out .shstrtab
   file_offset += WriteShStrTab(file_offset);
@@ -57,53 +115,51 @@ bool ELFDynObjWriter::WriteObject()
   return true;
 }
 
-uint32_t ELFDynObjWriter::WriteDynStrTab(uint32_t file_offset)
+uint32_t ELFDynObjWriter::WriteSectionData(LDSection *pSection, uint32_t file_offset)
 {
-  assert(!dynstrTab.empty());
+  // update section header
+  pSection->setSize(0);
+  pSection->setOffset(0);
+  pSection->setAddr(0);
 
-  uint32_t str_size = dynstrTab.back().second;
-  dynstrTab.pop_back();
-  uint32_t section_offset = file_offset;
-
-  MemoryRegion* pRegion = m_pMemArea->request(file_offset, str_size);
-  ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
-
-  for (StrTab::iterator I = dynstrTab.begin(), E = dynstrTab.end();
-       I != E;
-       ++I) {
-    const char *c = I->first;
-    while (*c != '\0') {
-      pWriter->Write8(*c);
-      c++;
-    }
-    pWriter->Write8(0);
-  }
-
-  // update .dynsym section header
-  LDSection *dynstr = m_pContext->getSection(".dynstr");
-  dynstr->setSize(str_size);
-  dynstr->setOffset(section_offset);
-  dynstr->setAddr(section_offset);
-
-  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(dynstr);
+  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(pSection);
   sec_ext_info.sh_link = 0;
   sec_ext_info.sh_info = 0;
   sec_ext_info.sh_entsize = 0;
 
-  delete pWriter;
-  return str_size;
+  // TODO
+  return 0;
 }
 
-uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
+uint32_t ELFDynObjWriter::WriteDynStrTab(LDSection *pSection, uint32_t file_offset)
 {
+  // FIXME: Due to design change,
+  // We should read dynstr from m_Linker.getOrCreateSectData(pSection)
+
+  pSection->setSize(0);
+  pSection->setOffset(file_offset);
+  // FIXME: addr should be adjust by segment information
+  pSection->setAddr(file_offset);
+
+  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(pSection);
+  sec_ext_info.sh_link = 0;
+  sec_ext_info.sh_info = 0;
+  sec_ext_info.sh_entsize = 0;
+
+  return 0;
+}
+
+uint32_t ELFDynObjWriter::WriteDynSymTab(LDSection *pSection, uint32_t file_offset)
+{
+  // FIXME: Due to design change,
+  // We should read dynsym from m_Linker.getOrCreateSectData(pSection)
+
   LDContext *context = m_Linker.getLDInfo().output().context();
-  uint32_t str_index = 1;
   uint32_t dynsym_cnt = 1;
   uint32_t section_offset = file_offset;
 
   // The first entry is undefined.
   file_offset += WriteSymbolEntry(file_offset, 0, 0, 0, 0, 0, ELF::SHN_UNDEF);
-  dynstrTab.push_back(std::make_pair("",0));
 
   for (LDContext::sym_iterator I = context->symBegin<LDContext::RegSymTable>(),
        E = context->symEnd<LDContext::RegSymTable>();
@@ -130,41 +186,86 @@ uint32_t ELFDynObjWriter::WriteDynSymTab(uint32_t file_offset)
 
 
     file_offset += WriteSymbolEntry(file_offset,
-                                    str_index,     /* name  */
+                                    0,       /* name, TODO  */
                                     (*I)->value(), /* value */
                                     (*I)->size(),  /* size  */
                                     info,          /* info  */
                                     (*I)->other(), /* other */
                                     0        /* shndx, TODO */);
-    // construct dynamic string
-    dynstrTab.push_back(std::make_pair((*I)->name(), str_index));
-    str_index += (*I)->nameSize() + 1;
     ++dynsym_cnt;
   }
 
-  // save the total string size at the end
-  dynstrTab.push_back(std::make_pair("",str_index));
-
   // update .dynsym section header
-  LDSection *dynsym = m_pContext->getSection(".dynsym");
-  dynsym->setSize(dynsym_cnt * sizeof(ELF::Elf32_Sym));
-  dynsym->setOffset(section_offset);
-  dynsym->setAddr(section_offset);
+  pSection->setSize(dynsym_cnt*sizeof(ELF::Elf32_Sym));
+  pSection->setOffset(section_offset);
 
-  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(dynsym);
+  pSection->setAddr(section_offset);
+
+  SectionExtInfo &sec_ext_info = getOrCreateSectionExtInfo(pSection);
   sec_ext_info.sh_link = 0; // TODO: get .dynstr index from Layout
   sec_ext_info.sh_info = 0;
   sec_ext_info.sh_entsize = sizeof(ELF::Elf32_Sym);
-
-  return dynsym_cnt * sizeof(ELF::Elf32_Sym);
+  // FIXME: addr should be adjust by segment information
+  return dynsym_cnt*sizeof(ELF::Elf32_Sym);
 }
 
-uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
-                                       uint32_t name, uint8_t info,
-                                       uint32_t value, uint32_t size,
-                                       uint8_t other, uint32_t shndx)
+uint32_t ELFDynObjWriter::WriteDynamicTab(LDSection *pSection, uint32_t file_offset)
 {
-  MemoryRegion* pRegion = m_pMemArea->request(file_offset, sizeof(ELF::Elf32_Sym));
+  // TODO
+  return 0;
+}
+
+uint32_t ELFDynObjWriter::WriteRelocationTab(LDSection *pSection,
+                                             uint32_t file_offset,
+                                             bool addend)
+{
+  // TODO
+  return 0;
+}
+
+uint32_t ELFDynObjWriter::WriteRelEntry(uint32_t file_offset,
+                                        uint32_t r_offset,
+                                        uint32_t r_info)
+{
+  MemoryRegion* pRegion = m_pMemArea->request(file_offset,
+                                  sizeof(ELF::Elf32_Rel));
+  ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
+
+  pWriter->Write32(r_offset);
+  pWriter->Write32(r_info);
+
+  delete pWriter;
+  return sizeof(ELF::Elf32_Rel);
+}
+
+uint32_t ELFDynObjWriter::WriteRelaEntry(uint32_t file_offset,
+                                        uint32_t r_offset,
+                                        uint32_t r_info,
+                                        uint32_t r_addend)
+{
+  MemoryRegion* pRegion = m_pMemArea->request(file_offset,
+                                  sizeof(ELF::Elf32_Rel));
+  ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
+
+  pWriter->Write32(r_offset);
+  pWriter->Write32(r_info);
+  pWriter->Write32(r_addend);
+
+  delete pWriter;
+  return sizeof(ELF::Elf32_Rela);
+}
+
+
+uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
+                                           uint32_t name,
+                                           uint8_t info,
+                                           uint32_t value,
+                                           uint32_t size,
+                                           uint8_t other,
+                                           uint32_t shndx)
+{
+  MemoryRegion* pRegion = m_pMemArea->request(file_offset,
+                                  sizeof(ELF::Elf32_Sym));
   ScopedWriter *pWriter = new ScopedWriter(pRegion, true);
 
   pWriter->Write32(name);  // st_name
