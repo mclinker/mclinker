@@ -25,11 +25,6 @@
 #include <string>
 #include <algorithm>
 
-#ifdef MACOSX
-#include <malloc/malloc.h>
-#else
-#include <malloc.h>
-#endif
 #include <stdint.h>
 #include <stdlib.h>
 
