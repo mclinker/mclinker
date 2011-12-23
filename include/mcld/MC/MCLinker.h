@@ -25,6 +25,7 @@
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
+#include <mcld/LD/Relocation.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/Support/GCFactory.h>
 
@@ -87,6 +88,20 @@ public:
   llvm::MCSectionData* getOrCreateSectData(LDSection* pSection);
 
   bool initStdSectionMap(SectionMap& pSectionMap);
+
+  // -----  relocations ----- //
+  /// addRelocation - add a relocation entry in MCLinker (only for object file)
+  /// @param pType - the type of the relocation
+  /// @param pSymbol - the symbol indicate the start address of relocation's target
+  ///                  the symbol should be the symbol in the input file. MCLinker
+  ///                  computes the real applied address by the output symbol.
+  /// @param pOffset - the byte offset from the beginning of the section to the storage
+  ///                  unit addected by the relocation.
+  /// @param pAddend - the addend value for applying relocation
+  Relocation* addRelocation(Relocation::Type pType,
+                            LDSymbol& pSymbol,
+                            Relocation::Address pOffset,
+                            Relocation::Address pAddend = 0);
 
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()

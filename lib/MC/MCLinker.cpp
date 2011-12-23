@@ -163,3 +163,14 @@ bool MCLinker::initStdSectionMap(SectionMap& pSectionMap)
 {
   return pSectionMap.addStdSectionMap();
 }
+
+/// addRelocation - add a relocation entry in MCLinker (only for object file)
+Relocation* MCLinker::addRelocation(Relocation::Type pType,
+                                    LDSymbol& pSymbol,
+                                    Relocation::Address pOffset,
+                                    Relocation::Address pAddend)
+{
+  // TODO
+  return NULL;
+}
+
