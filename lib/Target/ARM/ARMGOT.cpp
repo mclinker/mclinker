@@ -15,15 +15,15 @@ namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
-ARMGOT::ARMGOT(const LDSection& pSection)
-  : GOT0Entries(new (std::nothrow) ARMGOTEntries),
-    GOTPLTEntries(new (std::nothrow) ARMGOTEntries),
-    GeneralGOTEntries(new (std::nothrow) ARMGOTEntries),
-    GOT(pSection, 4) // ARM uses 32-bit GOT entry
-{
-  Fragments.push_back(GOT0Entries);
-  Fragments.push_back(GOTPLTEntries);
-  Fragments.push_back(GeneralGOTEntries);
+ARMGOT::ARMGOT(llvm::MCSectionData* pSectionData)
+             : GOT0Entries(new (std::nothrow) ARMGOTEntries),
+               GOTPLTEntries(new (std::nothrow) ARMGOTEntries),
+               GeneralGOTEntries(new (std::nothrow) ARMGOTEntries),
+               GOT(pSectionData, 4 /*ARM uses 32-bit GOT entry */) {
+
+  pSectionData->getFragmentList().push_back(GOT0Entries);
+  pSectionData->getFragmentList().push_back(GOTPLTEntries);
+  pSectionData->getFragmentList().push_back(GeneralGOTEntries);
 
   // Create GOT0 entries.
   GOTEntry* Entry1 = new (std::nothrow) GOTEntry(0);

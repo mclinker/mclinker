@@ -43,10 +43,11 @@ protected:
 /** \class GOT
  *  \brief The Global Offset Table
  */
-class GOT : public llvm::MCSectionData
+class GOT
 {
 protected:
-  GOT(const LDSection& pSection, unsigned int pEntrySize);
+  GOT(llvm::MCSectionData* pSectionData,
+      const unsigned int pEntrySize);
 
 public:
   virtual ~GOT();
@@ -54,7 +55,11 @@ public:
   /// entrySize - the number of bytes per entry
   unsigned int entryBytes() const;
 
+  llvm::MCSectionData* getSectionData() const {
+    return SectionData;
+  }
 
+public:
   /// reserveEntry - reseve number of pNum of empty entries
   /// Before layout, we scan all relocations to determine if GOT entries are
   /// needed. If an entry is needed, the empty entry is reserved for layout
@@ -68,7 +73,8 @@ public:
   virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
-  unsigned int f_EntryBytes;
+  llvm::MCSectionData* SectionData;
+  const unsigned int f_EntryBytes;
 };
 
 } // namespace of mcld

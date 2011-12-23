@@ -13,8 +13,8 @@ using namespace mcld;
 
 //==========================
 // X86GOT
-X86GOT::X86GOT(const LDSection& pSection)
-  : GOT(pSection, 4)
+X86GOT::X86GOT(llvm::MCSectionData* pSectionData)
+  : GOT(pSectionData, 4)
 {
 }
 

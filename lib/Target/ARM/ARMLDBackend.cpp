@@ -61,21 +61,33 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got   = pLinker.createSectHdr(".got",
-                                                 LDFileFormat::GOT,
-                                                 ELF::SHT_PROGBITS,
-                                                 ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  LDSection* got  = pLinker.createSectHdr(".got", LDFileFormat::GOT,
+                                          ELF::SHT_PROGBITS,
+                                          ELF::SHF_ALLOC | ELF::SHF_WRITE);
   assert(NULL != got);
-  m_pGOT = new ARMGOT(*got);
 
-  const LDSection* plt   = pLinker.createSectHdr(".plt",
-                                                 LDFileFormat::PLT,
-                                                 ELF::SHT_PROGBITS,
-                                                 ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+  llvm::MCSectionData* GOTSectionData = pLinker.getOrCreateSectData(got);
+
+  if (!GOTSectionData)
+    llvm::report_fatal_error("Creating GOT MCSectionData failed!");
+
+  else
+    m_pGOT = new ARMGOT(GOTSectionData);
+
+  LDSection* plt   = pLinker.createSectHdr(".plt",
+                                        LDFileFormat::PLT,
+                                        ELF::SHT_PROGBITS,
+                                        ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   assert(NULL != plt);
-  m_pPLT = new ARMPLT(*plt, *m_pGOT);
 
-  
+  llvm::MCSectionData* PLTSectionData = pLinker.getOrCreateSectData(plt);
+
+  if (!PLTSectionData)
+    llvm::report_fatal_error("Creating PLT MCSectionData failed!");
+
+  else
+    m_pPLT = new ARMPLT(*plt, *m_pGOT);
+
   const LDSection* reldyn = pLinker.createSectHdr(".rel.dyn",
                                                   LDFileFormat::Data,
                                                   ELF::SHT_REL,

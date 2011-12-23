@@ -65,12 +65,19 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got = pLinker.createSectHdr(".got",
-                                               LDFileFormat::GOT,
-                                               ELF::SHT_PROGBITS,
-                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  LDSection* got = pLinker.createSectHdr(".got",
+                                         LDFileFormat::GOT,
+                                         ELF::SHT_PROGBITS,
+                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
   assert(NULL != got);
-  m_pGOT = new X86GOT(*got);
+
+  llvm::MCSectionData* GOTSectionData = pLinker.getOrCreateSectData(got);
+
+  if (GOTSectionData)
+    llvm::report_fatal_error("Creating GOT MCSectionData failed!");
+
+  else
+    m_pGOT = new X86GOT(GOTSectionData);
 }
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,

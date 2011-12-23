@@ -61,12 +61,19 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  const LDSection* got = pLinker.createSectHdr(".got",
-                                               LDFileFormat::GOT,
-                                               ELF::SHT_PROGBITS,
-                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  LDSection* got = pLinker.createSectHdr(".got",
+                                         LDFileFormat::GOT,
+                                         ELF::SHT_PROGBITS,
+                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
+
+  llvm::MCSectionData* GOTSectionData = pLinker.getOrCreateSectData(got);
+
   assert(NULL != got);
-  m_pGOT = new MipsGOT(*got);
+
+  if (GOTSectionData)
+    llvm::report_fatal_error("Creating GOT MCSectionData failed!");
+  else
+    m_pGOT = new MipsGOT(GOTSectionData);
 
   // add target dependent sections here.
 }

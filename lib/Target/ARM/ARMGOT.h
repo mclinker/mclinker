@@ -69,7 +69,8 @@ class ARMGOT : public GOT
 friend void mcld::ARMPLT::reserveEntry(int pNum);
 
 public:
-  ARMGOT(const LDSection& pSection);
+  ARMGOT(llvm::MCSectionData* pSectionData);
+
   ~ARMGOT();
 
   //Reserve general GOT entries.
