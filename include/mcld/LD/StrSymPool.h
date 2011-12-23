@@ -17,6 +17,7 @@
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfoFactory.h>
 #include <utility>
 
@@ -57,15 +58,14 @@ public:
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
   
   /// insertSymbol - insert a symbol and resolve the symbol immediately
-  /// @return the pointer to resolved ResolveInfo
-  /// @return if the symbol is existent, return true. Otherwise, return false
-  std::pair<ResolveInfo*, bool> insertSymbol(const llvm::StringRef& pName,
-                                             bool pIsDyn,
-                                             ResolveInfo::Desc pDesc,
-                                             ResolveInfo::Binding pBinding,
-                                             ResolveInfo::SizeType pSize,
-                                             ResolveInfo::Visibility pVisibility =
-                                                 ResolveInfo::Default);
+  /// @param pResult the result of symbol resultion.
+  void insertSymbol(const llvm::StringRef& pName,
+                    bool pIsDyn,
+                    ResolveInfo::Desc pDesc,
+                    ResolveInfo::Binding pBinding,
+                    ResolveInfo::SizeType pSize,
+                    ResolveInfo::Visibility pVisibility,
+                    Resolver::Result& pResult);
 
   /// insertString - insert a string
   /// if the string has existed, modify pString to the existing string

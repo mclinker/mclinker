@@ -38,6 +38,15 @@ public:
     LastAction
   };
 
+  /** \class Resolver::Result
+   *  \brief the result of symbol resolution
+   */
+  struct Result {
+    ResolveInfo* info;
+    bool existent;
+    bool overriden;
+  };
+
 public:
   Resolver();
 
@@ -56,11 +65,15 @@ public:
   /// resolveAgain - Can override by derived classes.
   /// @return the pointer to resolved ResolveInfo
   /// @return is the symbol existent?
-  virtual std::pair<ResolveInfo*, bool> resolveAgain(StrSymPool& pStrSymPool,
-                                                     unsigned int pAction,
-                                                     ResolveInfo& __restrict__ pOld,
-                                                     const ResolveInfo& __restrict__ pNew)
-  { return std::pair<ResolveInfo*, bool>(NULL, false); }
+  virtual void resolveAgain(StrSymPool& pStrSymPool,
+                              unsigned int pAction,
+                              ResolveInfo& __restrict__ pOld,
+                              const ResolveInfo& __restrict__ pNew,
+                              Result& pResult) {
+    pResult.info = NULL;
+    pResult.existent = false;
+    pResult.overriden = false;
+  }
 
   const std::string& mesg() const
   { return m_Mesg; }

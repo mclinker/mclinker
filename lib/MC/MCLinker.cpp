@@ -14,6 +14,7 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDInfo.h>
+#include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSectionFactory.h>
@@ -55,27 +56,24 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local)
     return NULL;
 
-  // <resolved_info, exist?>
-  std::pair<ResolveInfo*, bool> resolved_info = m_StrSymPool.insertSymbol(pName,
-                                                                          pIsDyn,
-                                                                          pDesc,
-                                                                          pBinding,
-                                                                          pSize,
-                                                                          pVisibility);
+  // <resolved_info, exist?, override>
+  Resolver::Result resolved_result;
+  m_StrSymPool.insertSymbol(pName, pIsDyn, pDesc, pBinding, pSize, pVisibility,
+                            resolved_result);
 
   // the return ResolveInfo should not NULL
-  assert(NULL != resolved_info.first);
+  assert(NULL != resolved_result.info);
 
   // create a LDSymbol for the input file.
   LDSymbol* input_sym = m_LDSymbolFactory.allocate();
   new (input_sym) LDSymbol();
-  input_sym->setResolveInfo(*resolved_info.first);
+  input_sym->setResolveInfo(*resolved_result.info);
 
   // if it is a new symbol, create a LDSymbol for the output
-  if (!resolved_info.second) {
+  if (!resolved_result.existent) {
     LDSymbol* output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
-    output_sym->setResolveInfo(*resolved_info.first);
+    output_sym->setResolveInfo(*resolved_result.info);
     m_Output.symtab().push_back(output_sym);
   }
   return input_sym;

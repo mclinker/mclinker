@@ -52,16 +52,21 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
 /// immediately. On the other side, if the symbol is not a local symbol, we use
 /// resolver to decide which symbol should be reserved.
 ///
-std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pName,
-                                                       bool pIsDyn,
-                                                       ResolveInfo::Desc pDesc,
-                                                       ResolveInfo::Binding pBinding,
-                                                       ResolveInfo::SizeType pSize,
-                                                       ResolveInfo::Visibility pVisibility)
+void StrSymPool::insertSymbol(const llvm::StringRef& pName,
+                              bool pIsDyn,
+                              ResolveInfo::Desc pDesc,
+                              ResolveInfo::Binding pBinding,
+                              ResolveInfo::SizeType pSize,
+                              ResolveInfo::Visibility pVisibility,
+                              Resolver::Result& pResult)
 {
   // insert local symbol immediately
-  if (ResolveInfo::Local == pBinding)
-    return std::pair<ResolveInfo*, bool>(NULL, false);
+  if (ResolveInfo::Local == pBinding) {
+    pResult.info = NULL;
+    pResult.existent = false;
+    pResult.overriden = false;
+    return;
+  }
 
   // If the symbole is not a local symbol, we should check if there is any
   // symbol with the same name existed. If it already exists, we should use
@@ -86,8 +91,12 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   new_symbol->setVisibility(pVisibility);
   new_symbol->setSize(pSize);
 
-  if (!exist) // not exit or not a symbol
-    return std::pair<ResolveInfo*, bool>(old_symbol, exist);
+  if (!exist) { // not exit or not a symbol
+    pResult.info = old_symbol;
+    pResult.existent = exist;
+    pResult.overriden = false;
+    return;
+  }
 
   // exit and is a symbol
   // symbol resolution
@@ -95,19 +104,32 @@ std::pair<ResolveInfo*, bool> StrSymPool::insertSymbol(const llvm::StringRef& pN
   unsigned int action = Resolver::LastAction;
   switch(m_pResolver->resolve(*old_symbol, *new_symbol, override)) {
     case Resolver::Success: {
-      return std::pair<ResolveInfo*, bool>(old_symbol, exist);
+      pResult.info = old_symbol;
+      pResult.existent = exist;
+      pResult.overriden = override;
+      break;
     }
     case Resolver::Warning: {
       llvm::errs() << "WARNING: " << m_pResolver->mesg() << "\n";
       m_pResolver->clearMesg();
-      return std::pair<ResolveInfo*, bool>(old_symbol, exist);
+      pResult.info = old_symbol;
+      pResult.existent = exist;
+      pResult.overriden = override;
+      break;
     }
-    case Resolver::Abort:
+    case Resolver::Abort: {
       llvm::report_fatal_error(m_pResolver->mesg());
-      return std::pair<ResolveInfo*, bool>(old_symbol, false);
-    default:
-      return m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol);
+      pResult.info = old_symbol;
+      pResult.existent = exist;
+      pResult.overriden = override;
+      break;
+    }
+    default: {
+      m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol, pResult);
+      break;
+    }
   }
+  return;
 }
 
 llvm::StringRef StrSymPool::insertString(const llvm::StringRef& pString)
