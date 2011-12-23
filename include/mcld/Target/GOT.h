@@ -65,7 +65,7 @@ public:
   /// needed. If an entry is needed, the empty entry is reserved for layout
   /// to adjust the fragment offset. After that, we fill up the entries when
   /// applying relocations.
-  virtual void reserveEntry(int pNum = 1) = 0;
+  virtual void reserveEntry(const int pNum = 1) = 0;
 
   /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol

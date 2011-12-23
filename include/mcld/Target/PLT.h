@@ -26,21 +26,26 @@ class ResolveInfo;
 class PLTEntry : public llvm::MCFragment
 {
 public:
-  PLTEntry(unsigned int size, unsigned char* content);
+  PLTEntry(const unsigned int size);
   virtual ~PLTEntry();
 
   unsigned int getEntrySize() const {
     return m_EntrySize;
   }
+
+  void setContent(unsigned char* pContent) {
+    m_pContent = pContent;
+  }
+
   unsigned char* getContent() const {
     return m_pContent;
   }
 
-protected:
-  virtual void initPLTEntry() = 0;
+  //Used by llvm::cast<>.
+  static bool classof(const MCFragment *O) { return true; }
 
 protected:
-  unsigned int m_EntrySize;
+  const unsigned int m_EntrySize;
   unsigned char* m_pContent;
 };
 

@@ -14,15 +14,15 @@ class GOT;
 
 //===--------------------------------------------------------------------===//
 // PLTEntry
-PLTEntry::PLTEntry(unsigned int size, unsigned char* content)
-  : m_EntrySize(size), m_pContent(content),
+PLTEntry::PLTEntry(const unsigned int size)
+  : m_EntrySize(size), m_pContent(0),
     llvm::MCFragment(llvm::MCFragment::FT_PLT)
 {
 }
 
 PLTEntry::~PLTEntry()
 {
-  if (!m_pContent) {
+  if (m_pContent) {
     delete m_pContent;
     m_pContent = 0;
   }

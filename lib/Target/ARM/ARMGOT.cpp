@@ -40,19 +40,22 @@ ARMGOT::~ARMGOT()
 {
 }
 
-void ARMGOT::reserveEntry(int pNum)
+void ARMGOT::reserveEntry(const int pNum)
 {
-
   if (!GOT0Entries)
     llvm::report_fatal_error("GOT0Entries is NULL! "
                              "Allocating new memory in constructor failed" );
 
-  GOTEntry* Entry = new (std::nothrow) GOTEntry(0);
+  GOTEntry* Entry = 0;
 
-  if (!Entry)
-    llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
+  for (int i = 0; i < pNum; i++) {
+    Entry = new (std::nothrow) GOTEntry(0);
 
-  GOT0Entries->getEntryList().push_back(Entry);
+    if (!Entry)
+      llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
+
+    GOT0Entries->getEntryList().push_back(Entry);
+  }
 }
 
 
