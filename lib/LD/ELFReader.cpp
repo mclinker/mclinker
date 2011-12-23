@@ -60,6 +60,26 @@ ELFReader::createELFObject(mcld::Input &pFile) const
   return std::auto_ptr<ELFObject<32> >(ELFObject<32>::read(AR));
 }
 
+LDFileFormat::Kind
+ELFReader::getLDSectionKind(const llvm::StringRef& name) const
+{
+  if (name.startswith(".text")) {
+    return LDFileFormat::Text;
+  }
+  else if (name.startswith(".data")) {
+    return LDFileFormat::Data;
+  }
+  else if (name.startswith(".bss")) {
+    return LDFileFormat::BSS;
+  }
+  else if (name.startswith(".rodata")) {
+    return LDFileFormat::ReadOnly;
+  }
+  else {
+    return LDFileFormat::MetaData;
+  }
+}
+
 ResolveInfo::Binding
 ELFReader::getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const
 {

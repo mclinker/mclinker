@@ -39,6 +39,8 @@ public:
 
   ResolveInfo::Binding getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const;
   ResolveInfo::Visibility getVisibilityResolveInfo(ELFSymbol<32>* sym) const;
+
+  LDFileFormat::Kind getLDSectionKind(const llvm::StringRef& name) const;
 };
 
 } // namespace of mcld

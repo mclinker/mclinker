@@ -10,6 +10,9 @@
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCLinker.h"
 #include "mcld/Target/TargetLDBackend.h"
+#include "mcld/MC/MCRegionFragment.h"
+#include "mcld/Support/rslinker/ELFSectionHeaderTable.h"
+#include "mcld/Support/rslinker/ELFSectionRelTable.h"
 
 #include <string>
 
@@ -52,7 +55,50 @@ llvm::error_code ELFObjectReader::readObject(Input& pFile)
 
 bool ELFObjectReader::readSections(Input& pFile)
 {
-  // TODO
+  std::auto_ptr<ELFObject<32> > object =
+    ELFReader::createELFObject(pFile);
+
+  const ELFSectionHeaderTable<32> *shtab =
+    object->getSectionHeaderTable();
+
+  for (size_t i = 1; i < object->getSectionNumber(); ++i) {
+
+    const ELFSectionHeader<32> *sh = (*shtab)[i];
+#if 0
+    llvm::errs() << "Reading Section:" << sh->getName() << " type: " << (int) sh->getType() << "\n";
+#endif
+
+    if (sh->getType() != SHT_PROGBITS && sh->getType() != SHT_NOBITS) {
+      continue;
+    }
+
+    // FIXME: Skip debug section.
+    if (std::string(sh->getName()).find(".debug") != std::string::npos) {
+      continue;
+    }
+
+#if 0
+    llvm::errs() << "Reading Section:" << sh->getName() << " Start: 0x" ;
+    llvm::errs().write_hex(sh->getOffset());
+    llvm::errs() << " Length: 0x" ;
+    llvm::errs().write_hex(sh->getSize());
+    llvm::errs() << "\n";
+#endif
+
+    LDSection* ldSect = m_Linker.createSectHdr(sh->getName(), ELFReader::getLDSectionKind(sh->getName()), sh->getType(), sh->getFlags());
+    llvm::MCSectionData* mcSectData = m_Linker.getOrCreateSectData(ldSect);
+    MCFragment *mcFrag = NULL;
+    if (sh->getType() == SHT_PROGBITS)
+      mcFrag = new MCRegionFragment(*pFile.memArea()->request(sh->getOffset(),sh->getSize()),mcSectData);
+    else
+      mcFrag = new MCFillFragment(0,1,sh->getSize());
+
+    if (!mcFrag)
+      llvm::report_fatal_error("MCFragment can't be NULL.");
+
+    mcSectData->getFragmentList().push_back(mcFrag);
+  }
+
   return true;
 }
 
