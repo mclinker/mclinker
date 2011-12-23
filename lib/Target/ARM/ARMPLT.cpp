@@ -14,8 +14,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ARMPLT
 
-ARMPLT::ARMPLT(const LDSection& pSection, ARMGOT &pGOT)
-  : PLT(pSection), m_GOT(pGOT)
+ARMPLT::ARMPLT(llvm::MCSectionData* pSectionData, ARMGOT &pGOT)
+  : PLT(pSectionData), m_GOT(pGOT)
 {
 }
 
@@ -26,7 +26,7 @@ ARMPLT::~ARMPLT()
 void ARMPLT::reserveEntry(int pNum)
 {
   ARMPLT1* plt1_entry = new ARMPLT1();
-  getFragmentList().push_back(plt1_entry);
+  m_pSectionData->getFragmentList().push_back(plt1_entry);
 
   GOTEntry* got_entry= new GOTEntry(0);
   m_GOT.GOTPLTEntries->getEntryList().push_back(got_entry);

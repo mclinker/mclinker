@@ -77,7 +77,7 @@ class ARMPLT : public PLT
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
 
 public:
-  ARMPLT(const LDSection& pSection, ARMGOT& pGOT);
+  ARMPLT(llvm::MCSectionData* pSectionData, ARMGOT& pGOT);
   ~ARMPLT();
 
 public:

@@ -47,11 +47,15 @@ protected:
 /** \class PLT
  *  \brief Procedure linkage table
  */
-class PLT : public llvm::MCSectionData
+class PLT
 {
 public:
-  PLT(const LDSection& pSection);
+  PLT(llvm::MCSectionData* pSectionData);
   virtual ~PLT();
+
+  llvm::MCSectionData* getSectionData() {
+    return m_pSectionData;
+  }
 
 public:
   /// reserveEntry - reseve the number of pNum of empty entries
@@ -62,6 +66,9 @@ public:
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if the a filled entry with pSymbol existed, otherwise false.
   virtual PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
+
+protected:
+  llvm::MCSectionData* m_pSectionData;
 };
 
 } // namespace of mcld

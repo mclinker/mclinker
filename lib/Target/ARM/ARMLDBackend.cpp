@@ -86,7 +86,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
     llvm::report_fatal_error("Creating PLT MCSectionData failed!");
 
   else
-    m_pPLT = new ARMPLT(*plt, *m_pGOT);
+    m_pPLT = new ARMPLT(PLTSectionData, *m_pGOT);
 
   const LDSection* reldyn = pLinker.createSectHdr(".rel.dyn",
                                                   LDFileFormat::Data,

@@ -56,7 +56,7 @@ public:
   unsigned int entryBytes() const;
 
   llvm::MCSectionData* getSectionData() const {
-    return SectionData;
+    return m_pSectionData;
   }
 
 public:
@@ -73,7 +73,7 @@ public:
   virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
-  llvm::MCSectionData* SectionData;
+  llvm::MCSectionData* m_pSectionData;
   const unsigned int f_EntryBytes;
 };
 

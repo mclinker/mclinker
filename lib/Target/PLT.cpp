@@ -30,8 +30,8 @@ PLTEntry::~PLTEntry()
 
 //===--------------------------------------------------------------------===//
 // PLT
-PLT::PLT(const LDSection& pSection)
-  : llvm::MCSectionData(pSection)
+PLT::PLT(llvm::MCSectionData* pSectionData)
+  : m_pSectionData(pSectionData)
 {
 }
 
