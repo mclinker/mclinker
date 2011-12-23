@@ -193,6 +193,9 @@ public:
   uint32_t info() const
   { return (m_BitField & RESOLVE_MASK); }
 
+  uint32_t bitfield() const
+  { return m_BitField; }
+
   // -----  For HashTable  ----- //
   bool compare(const key_type& pKey);
 
@@ -223,7 +226,7 @@ private:
   static const uint32_t RESERVED_OFFSET    = 12;
   static const uint32_t RESERVED_MASK      = 0xF << RESERVED_OFFSET;
   static const uint32_t NAME_LENGTH_OFFSET = 16;
-  static const uint32_t RESOLVE_MASK       = 0xFFF;
+  static const uint32_t RESOLVE_MASK       = 0xF;
 
   union SymOrInfo {
     LDSymbol*    sym_ptr;
