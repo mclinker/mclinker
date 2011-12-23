@@ -146,7 +146,7 @@ llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
   assert(NULL != output_sect);
   sect_data = output_sect->getSectionData();
   if (NULL != sect_data) {
-    (*pSection).setSectionData(sect_data);
+    pSection->setSectionData(sect_data);
     return sect_data;
   }
 
@@ -155,8 +155,8 @@ llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
   sect_data = m_LDSectDataFactory.allocate();
   new (sect_data) llvm::MCSectionData(*output_sect);
 
-  (*pSection).setSectionData(sect_data);
-  (*output_sect).setSectionData(sect_data);
+  pSection->setSectionData(sect_data);
+  output_sect->setSectionData(sect_data);
 
   return sect_data;
 }
