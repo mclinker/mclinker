@@ -73,7 +73,7 @@ void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 
   llvm::MCSectionData* GOTSectionData = pLinker.getOrCreateSectData(got);
 
-  if (GOTSectionData)
+  if (!GOTSectionData)
     llvm::report_fatal_error("Creating GOT MCSectionData failed!");
 
   else

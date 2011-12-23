@@ -70,7 +70,7 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 
   assert(NULL != got);
 
-  if (GOTSectionData)
+  if (!GOTSectionData)
     llvm::report_fatal_error("Creating GOT MCSectionData failed!");
   else
     m_pGOT = new MipsGOT(GOTSectionData);
