@@ -83,6 +83,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
 
     switch(action) {
       case FAIL: {       /* abort.  */
+        m_Mesg = std::string("internal error [StaticResolver.cpp:loc 86].\n") +
+                 std::string("Please report to `mclinker@googlegroups.com'.\n");
         result = Resolver::Abort;
         break;
       }
