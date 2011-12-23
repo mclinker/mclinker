@@ -49,6 +49,11 @@ public:
   /// getOutputSectData - return a associated output section data
   llvm::MCSectionData* getOutputSectData(const std::string& pName);
 
+  /// addMapping - add a mapping as creating one new output LDSection
+  /// @param pName - a input section name
+  /// @param pSection - the output LDSection*
+  bool addMapping(const std::string& pName, LDSection* pSection);
+
   // -----  observers  ----- //
   bool empty() const
   { return m_LDSectionMap.empty(); }

@@ -126,6 +126,7 @@ LDSection* MCLinker::createSectHdr(const std::string& pName,
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     m_Output.getSectionTable().push_back(output_sect);
+    m_SectionMerger.addMapping(pName, output_sect);
   }
   return result;
 }

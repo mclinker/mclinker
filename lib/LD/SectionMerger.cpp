@@ -20,7 +20,6 @@ SectionMerger::SectionMerger(SectionMap& pSectionMap, LDContext& pContext)
   m_Output(pContext),
   m_LDSectionMap(pSectionMap.size())
 {
-  initOutputSectMap();
 }
 
 SectionMerger::~SectionMerger()
@@ -66,6 +65,18 @@ llvm::MCSectionData* SectionMerger::getOutputSectData(const std::string& pName)
   return getOutputSectHdr(pName)->getSectionData();
 }
 
+bool SectionMerger::addMapping(const std::string& pName, LDSection* pSection)
+{
+  iterator it = find(pName);
+  if (it != end()) {
+    assert(NULL == (*it).outputSection);
+    (*it).outputSection = pSection;
+    return true;
+  }
+  // the mapping rule is not in SectionMap, and this is handled in getOutputSectHdr.
+  return false;
+}
+
 void SectionMerger::initOutputSectMap()
 {
   // Based on SectionMap to initialize the map from a input substr to its 
@@ -74,7 +85,7 @@ void SectionMerger::initOutputSectMap()
   for (it = m_SectionNameMap.begin(); it != m_SectionNameMap.end(); ++it) {
     struct Mapping mapping = {
       (*it).inputSubStr,
-      m_Output.getSection((*it).outputStr),
+      NULL,
     };
     m_LDSectionMap.push_back(mapping);
   }
