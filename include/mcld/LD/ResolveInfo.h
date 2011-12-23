@@ -48,14 +48,14 @@ public:
    *  MachO does not need this, and can not jump between Thumb and ARM code.
    */
   enum Type {
-    NoType   = 0,
-    Object   = 1,
-    Function = 2,
-    Section  = 3,
-    File     = 4,
-    Common   = 5,
-    LoProc   = 13,
-    HiProc   = 15
+    NoType        = 0,
+    Object        = 1,
+    Function      = 2,
+    Section       = 3,
+    File          = 4,
+    CommonBlock   = 5,
+    LoProc        = 13,
+    HiProc        = 15
   };
 
   /** \enum Desc
