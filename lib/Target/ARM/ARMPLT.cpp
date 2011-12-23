@@ -44,8 +44,6 @@ ARMPLT::ARMPLT(llvm::MCSectionData* pSectionData, ARMGOT &pGOT)
   ARMPLT0* plt0_entry = new ARMPLT0();
   m_pSectionData->getFragmentList().push_back(plt0_entry);
 
-  //TODO: Check whether iterator will get the end() here, and
-  //      then stay at the end(). If it will, this will be buggy.
   iter = pSectionData->begin();
 }
 
@@ -82,10 +80,10 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
    if (!Entry) {
      pExist = 0;
 
-     assert(iter != m_pSectionData->end() &&
+     // This will skip PLT0.
+     assert((++iter) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
 
-     ++iter; // This will skip PLT0.
      Entry = llvm::cast<ARMPLT1>(&(*iter));
    }
 
