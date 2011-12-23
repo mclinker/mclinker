@@ -10,6 +10,7 @@
 #include "ARMPLT.h"
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <new>
 
 using namespace mcld;
 
@@ -54,11 +55,23 @@ ARMPLT::~ARMPLT()
 
 void ARMPLT::reserveEntry(int pNum)
 {
-  ARMPLT1* plt1_entry = new ARMPLT1();
-  m_pSectionData->getFragmentList().push_back(plt1_entry);
+  ARMPLT1* plt1_entry = 0;
+  GOTEntry* got_entry = 0;
 
-  GOTEntry* got_entry= new GOTEntry(0);
-  m_GOT.GOTPLTEntries->getEntryList().push_back(got_entry);
+  for (int i = 0; i < pNum; i++) {
+    plt1_entry = new (std::nothrow) ARMPLT1();
+
+    if (!plt1_entry)
+      llvm::report_fatal_error("Allocating new memory for ARMPLT1 failed!");
+
+    m_pSectionData->getFragmentList().push_back(plt1_entry);
+
+    got_entry= new (std::nothrow) GOTEntry(0);
+
+    if (!got_entry)
+      llvm::report_fatal_error("Allocating new memory for GOT failed!");
+    m_GOT.GOTPLTEntries->getEntryList().push_back(got_entry);
+  }
 }
 
 PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
