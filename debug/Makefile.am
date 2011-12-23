@@ -79,6 +79,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMDynRelSection.h \
+	${LIBDIR}/Target/ARM/ARMDynRelSection.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
