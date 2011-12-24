@@ -25,6 +25,7 @@ ResolveInfo::~ResolveInfo()
 void ResolveInfo::override(const ResolveInfo& pFrom)
 {
   m_Size = pFrom.m_Size;
+  m_Ptr = pFrom.m_Ptr;
   overrideAttributes(pFrom);
   overrideVisibility(pFrom);
 }
