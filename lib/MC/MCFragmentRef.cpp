@@ -30,10 +30,18 @@ MCFragmentRef::~MCFragmentRef()
   m_Offset = 0;
 }
 
-void MCFragmentRef::assign(llvm::MCFragment& pFrag, MCFragmentRef::Offset pOffset)
+MCFragmentRef& MCFragmentRef::assign(const MCFragmentRef& pCopy)
+{
+  m_pFragment = const_cast<llvm::MCFragment*>(pCopy.m_pFragment);
+  m_Offset = pCopy.m_Offset;
+  return *this;
+}
+
+MCFragmentRef& MCFragmentRef::assign(llvm::MCFragment& pFrag, MCFragmentRef::Offset pOffset)
 {
   m_pFragment = &pFrag;
   m_Offset = pOffset;
+  return *this;
 }
 
 void MCFragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const

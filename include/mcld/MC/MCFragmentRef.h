@@ -35,7 +35,9 @@ public:
   ~MCFragmentRef();
 
   // -----  modifiers  ----- //
-  void assign(llvm::MCFragment& pFrag, Offset pOffset = 0);
+  MCFragmentRef& assign(const MCFragmentRef& pCopy);
+
+  MCFragmentRef& assign(llvm::MCFragment& pFrag, Offset pOffset = 0);
 
   /// memcpy - copy memory
   /// copy memory from the fragment to the pDesc.
