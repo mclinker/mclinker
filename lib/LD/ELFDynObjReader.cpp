@@ -134,7 +134,9 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
         if (NULL == sect_hdr)
           llvm::report_fatal_error(llvm::Twine("section[") +
                                    llvm::Twine(sh_shndx) +
-                                   llvm::Twine("] is invalid.\n"));
+                                   llvm::Twine("] is invalid in file `") +
+                                   pInput.path().native() +
+                                   llvm::Twine(".\n"));
 
         ld_frag_ref = m_Linker.getLayout().getFragmentRef(*sect_hdr,
                                                          rs_sym->getValue());
