@@ -77,6 +77,9 @@ ELFReader::getLDSectionKind(const llvm::StringRef& name) const
   else if (name.startswith(".rodata")) {
     return LDFileFormat::ReadOnly;
   }
+  else if (name.startswith(".debug")) {
+    return LDFileFormat::Debug;
+  }
   else {
     return LDFileFormat::MetaData;
   }
