@@ -145,3 +145,33 @@ ELFReader::getVisibilityResolveInfo(ELFSymbol<32>* sym) const
   return ret;
 }
 
+std::string ELFReader::getSymbolTypeName(unsigned int pType) const
+{
+  switch(pType) {
+  case llvm::ELF::STT_NOTYPE:
+    return "STT_NOTYPE";
+  case llvm::ELF::STT_OBJECT:
+    return "STT_OBJECT";
+  case llvm::ELF::STT_FUNC:
+    return "STT_FUNC";
+  case llvm::ELF::STT_SECTION:
+    return "STT_SECTION";
+  case llvm::ELF::STT_FILE:
+    return "STT_FILE";
+  case llvm::ELF::STT_COMMON:
+    return "STT_COMMON";
+  case llvm::ELF::STT_TLS:
+    return "STT_TLS";
+  case llvm::ELF::STT_GNU_IFUNC:
+    return "STT_GNU_IFUNC";
+  default:
+    if (pType >= llvm::ELF::STT_LOOS &&
+        pType <= llvm::ELF::STT_HIOS)
+      return "STT_LOOS .. STT_HIOS";
+    if (pType >= llvm::ELF::STT_LOPROC &&
+        pType <= llvm::ELF::STT_HIPROC)
+      return "STT_LOPROC .. STT_HIPROC";
+  }
+  return "`unknow type in ELF'";
+}
+

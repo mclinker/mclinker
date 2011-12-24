@@ -92,10 +92,10 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
       case llvm::ELF::STT_FILE:
       default: {
         llvm::errs() << "WARNING: do not support symbol type `"
-                     << ld_type
+                     << getSymbolTypeName(ld_type)
                      << "' of symbol `"
                      << ld_name.str()
-                     << ".\n";
+                     << "'.\n";
         break;
       }
     }

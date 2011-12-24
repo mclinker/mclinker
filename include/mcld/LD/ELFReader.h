@@ -41,6 +41,8 @@ public:
   ResolveInfo::Visibility getVisibilityResolveInfo(ELFSymbol<32>* sym) const;
 
   LDFileFormat::Kind getLDSectionKind(const llvm::StringRef& name) const;
+
+  std::string getSymbolTypeName(unsigned int pType) const;
 };
 
 } // namespace of mcld
