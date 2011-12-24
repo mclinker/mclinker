@@ -15,6 +15,8 @@
 #include "mcld/Support/rslinker/utils/serialize.h"
 #include "mcld/Support/rslinker/ELFObject.h"
 
+#include <llvm/Support/ELF.h>
+#include <llvm/ADT/Twine.h>
 #include <sstream>
 
 using namespace mcld;
@@ -84,32 +86,34 @@ ResolveInfo::Binding
 ELFReader::getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const
 {
   ResolveInfo::Binding ret;
-  int bind = sym->getBindingAttribute();
+  unsigned int bind = sym->getBindingAttribute();
   bool error = false;
 
   switch (bind) {
-    case 0:
+    case llvm::ELF::STB_LOCAL:
       ret = ResolveInfo::Local;
       error = isDSO;
       break;
-    case 1:
+    case llvm::ELF::STB_GLOBAL:
       ret = ResolveInfo::Global;
       break;
-    case 2:
+    case llvm::ELF::STB_WEAK:
       ret = ResolveInfo::Weak;
       break;
     default:
-      error = true;
+      error = (bind < llvm::ELF::STB_LOOS);
   }
+
+  if (llvm::ELF::SHN_ABS == sym->getSectionIndex())
+    ret = ResolveInfo::Absolute;
 
   if (error) {
-    std::stringstream err_msg;
-    err_msg << "Unexcpect Symbol Binding Type:" << sym->getName(isDSO);
-    err_msg << " with binding type " << bind;
-    llvm::report_fatal_error(err_msg.str());
+    llvm::report_fatal_error(llvm::Twine("Unexcpect ELF symbol binding Type:") +
+                             llvm::Twine(sym->getName(isDSO)) +
+                             llvm::Twine(" with binding type `") +
+                             llvm::Twine(bind) +
+                             llvm::Twine(".\n"));
   }
-
-  //FIXME: Check ABS Symbol
   return ret;
 }
 

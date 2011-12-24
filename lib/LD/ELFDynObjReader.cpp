@@ -6,12 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInput.h>
 
-#include <sstream>
 #include <string>
 
 using namespace mcld;
@@ -46,45 +47,113 @@ llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
   return llvm::error_code();
 }
 
-bool ELFDynObjReader::readSymbols(Input& pFile)
+bool ELFDynObjReader::readSymbols(Input& pInput)
 {
-  std::auto_ptr<ELFObject<32> > object =
-    ELFReader::createELFObject(pFile);
+  std::auto_ptr<ELFObject<32> > rs_object =
+    ELFReader::createELFObject(pInput);
 
-  ELFSectionSymTab<32>* symtab =
-    static_cast<ELFSectionSymTab<32> *>(object->getSectionByName(".dynsym"));
+  ELFSectionSymTab<32>* rs_symtab =
+    static_cast<ELFSectionSymTab<32> *>(rs_object->getSectionByName(".dynsym"));
 
   // Skip Start NULL Symbol
-  for (size_t i = 1 ; i < symtab->size() ; i++) {
-    ELFSymbol<32>* sym = (*symtab)[i];
+  size_t rs_sym_idx = 1;
 
-#if 0
-      llvm::errs () << "ADD Symbol: " << (*symtab)[i]->getName() << " Binding: ";
-      llvm::errs () << (int)(*symtab)[i]->getBindingAttribute();
-      llvm::errs () << " Type: " << (int)(*symtab)[i]->getType() << ".\n";
-#endif
+  // for all symbol, add into MCLinker
+  for (; rs_sym_idx < rs_symtab->size() ; ++rs_sym_idx) {
+    ELFSymbol<32>* rs_sym = (*rs_symtab)[rs_sym_idx];
 
-    /* LDSymbol* addGlobalSymbol(
-         const llvm::StringRef& pName,
-         bool pIsDyn,
-         ResolveInfo::Desc pDesc,
-         ResolveInfo::Binding pBinding,
-         ResolveInfo::ValueType pValue,
-         ResolveInfo::SizeType pSize,
-         ResolveInfo::Visibility pVisibility = ResolveInfo::Default); */
+    /// convert to name
+    llvm::StringRef ld_name(rs_sym->getName());
 
-    ResolveInfo::Binding bind = ELFReader::getBindingResolveInfo(sym, true);
-    // TODO: Double check undefine logic in DSO.
-    ResolveInfo::Desc desc =
-      (sym->getSectionIndex() == SHN_UNDEF) ?
-      ResolveInfo::Undefined : ResolveInfo::Define;
+    /// convert to ResolveInfo::Binding
+    ResolveInfo::Binding ld_binding = ELFReader::getBindingResolveInfo(rs_sym, false);
 
-    uint64_t sym_size = sym->getSize();
-    uint64_t sym_value = sym->getValue();
+    if (ResolveInfo::Local == ld_binding) {
+      llvm::report_fatal_error(llvm::Twine("read a local symbol `") +
+                               ld_name +
+                               llvm::Twine("' in the shared object `") +
+                               pInput.path().native() +
+                               llvm::Twine("'.\n"));
+    }
 
-    m_Linker.addGlobalSymbol(
-      llvm::StringRef(sym->getName()), true, desc, bind, sym_size);
-  }
+    /// convert to ResolveInfo::Type
+    // type in LDSymbol is one-one mapping to ELF_ST_TYPE
+    // Only handle NOTYPE, OBJECT and FUNC
+    ResolveInfo::Type ld_type;
+    switch(ld_type = static_cast<ResolveInfo::Type>(rs_sym->getType())) {
+      case llvm::ELF::STT_NOTYPE:
+      case llvm::ELF::STT_OBJECT:
+      case llvm::ELF::STT_FUNC:
+      case llvm::ELF::STT_COMMON: {
+        // assigned
+        break;
+      }
+      case llvm::ELF::STT_SECTION:
+      case llvm::ELF::STT_FILE:
+      default: {
+        llvm::errs() << "WARNING: do not support symbol type `"
+                     << ld_type
+                     << "' of symbol `"
+                     << ld_name.str()
+                     << ".\n";
+        break;
+      }
+    }
+
+    /// convert to ResolveInfo::Desc
+    ResolveInfo::Desc ld_desc;
+    switch (rs_sym->getSectionIndex()) {
+    case llvm::ELF::SHN_COMMON:
+      ld_desc = ResolveInfo::Common;
+      break;
+    case llvm::ELF::SHN_UNDEF:
+      ld_desc = ResolveInfo::Undefined;
+      break;
+    default:
+      // FIXME: handle with indirect symbol
+      // ELF weak alias should be handled as indirect symbol.
+      ld_desc = ResolveInfo::Define;
+      break;
+    }
+
+    /// convert to ResolveInfo::SizeType
+    ResolveInfo::SizeType ld_size = rs_sym->getSize();
+
+    /// get the input fragment.
+    MCFragmentRef ld_frag_ref;
+    unsigned int sh_shndx;
+    switch (sh_shndx = rs_sym->getSectionIndex()) {
+      case llvm::ELF::SHN_ABS:
+      case llvm::ELF::SHN_COMMON:
+      case llvm::ELF::SHN_UNDEF: {
+        // do nothing
+        break;
+      }
+      default: {
+        LDSection* sect_hdr = pInput.context()->getSection(sh_shndx);
+        if (NULL == sect_hdr)
+          llvm::report_fatal_error(llvm::Twine("section[") +
+                                   llvm::Twine(sh_shndx) +
+                                   llvm::Twine("] is invalid.\n"));
+
+        ld_frag_ref = m_Linker.getLayout().getFragmentRef(*sect_hdr,
+                                                         rs_sym->getValue());
+        break;
+      }
+    }
+    /// convert to ResolveInfo::Visibility
+    ResolveInfo::Visibility ld_vis = ELFReader::getVisibilityResolveInfo(rs_sym);
+
+
+    m_Linker.addGlobalSymbol(ld_name,
+                             false,
+                             ld_type,
+                             ld_desc,
+                             ld_binding,
+                             ld_size,
+                             ld_frag_ref,
+                             ld_vis);
+  } // end of for
 
   return true;
 }
