@@ -127,7 +127,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
 
 
     m_Linker.addGlobalSymbol(ld_name,
-                             false,
+                             true,
                              ld_type,
                              ld_desc,
                              ld_binding,
