@@ -48,9 +48,11 @@ MCLinker::~MCLinker()
 /// addSymbol - add a symbol and resolve it immediately
 LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
                                     bool pIsDyn,
+                                    ResolveInfo::Type pType,
                                     ResolveInfo::Desc pDesc,
                                     ResolveInfo::Binding pBinding,
                                     ResolveInfo::SizeType pSize,
+                                    const MCFragmentRef& pFragmentRef,
                                     ResolveInfo::Visibility pVisibility)
 {
   if (pBinding == ResolveInfo::Local)
@@ -58,7 +60,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
 
   // <resolved_info, exist?, override>
   Resolver::Result resolved_result;
-  m_StrSymPool.insertSymbol(pName, pIsDyn, pDesc, pBinding, pSize, pVisibility,
+  m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
                             resolved_result);
 
   // the return ResolveInfo should not NULL
@@ -68,24 +70,29 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   LDSymbol* input_sym = m_LDSymbolFactory.allocate();
   new (input_sym) LDSymbol();
   input_sym->setResolveInfo(*resolved_result.info);
+  input_sym->setFragmentRef(pFragmentRef);
 
   // if it is a new symbol, create a LDSymbol for the output
   if (!resolved_result.existent) {
     LDSymbol* output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
+    output_sym->setFragmentRef(pFragmentRef);
     m_Output.symtab().push_back(output_sym);
   }
   return input_sym;
 }
 
 LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
+                                   ResolveInfo::Type pType,
                                    ResolveInfo::Desc pDesc,
                                    ResolveInfo::SizeType pSize,
+                                   const MCFragmentRef& pFragmentRef,
                                    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* resolved_info =  m_StrSymPool.createSymbol(pName,
                                                           false,
+                                                          pType,
                                                           pDesc,
                                                           ResolveInfo::Local,
                                                           pSize,
@@ -98,11 +105,13 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   LDSymbol* input_sym = m_LDSymbolFactory.allocate();
   new (input_sym) LDSymbol();
   input_sym->setResolveInfo(*resolved_info);
+  input_sym->setFragmentRef(pFragmentRef);
 
   // create a LDSymbol for the output
   LDSymbol* output_sym = m_LDSymbolFactory.allocate();
   new (output_sym) LDSymbol();
   output_sym->setResolveInfo(*resolved_info);
+  output_sym->setFragmentRef(pFragmentRef);
   m_Output.symtab().push_back(output_sym);
 
   return input_sym;

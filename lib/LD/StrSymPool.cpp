@@ -28,6 +28,7 @@ StrSymPool::~StrSymPool()
 /// createSymbol - create a symbol
 ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
                                       bool pIsDyn,
+                                      ResolveInfo::Type pType,
                                       ResolveInfo::Desc pDesc,
                                       ResolveInfo::Binding pBinding,
                                       ResolveInfo::SizeType pSize,
@@ -36,6 +37,7 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
   ResolveInfo* result = m_Table.getEntryFactory().produce(pName);
   result->setIsSymbol(true);
   result->setSource(pIsDyn);
+  result->setType(pType);
   result->setDesc(pDesc);
   result->setBinding(pBinding);
   result->setVisibility(pVisibility);
@@ -54,6 +56,7 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
 ///
 void StrSymPool::insertSymbol(const llvm::StringRef& pName,
                               bool pIsDyn,
+                              ResolveInfo::Type pType,
                               ResolveInfo::Desc pDesc,
                               ResolveInfo::Binding pBinding,
                               ResolveInfo::SizeType pSize,
@@ -86,6 +89,7 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
 
   new_symbol->setIsSymbol(true);
   new_symbol->setSource(pIsDyn);
+  new_symbol->setType(pType);
   new_symbol->setDesc(pDesc);
   new_symbol->setBinding(pBinding);
   new_symbol->setVisibility(pVisibility);

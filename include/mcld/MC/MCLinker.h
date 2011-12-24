@@ -27,12 +27,12 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/SectionMerger.h>
+#include <mcld/LD/Layout.h>
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld {
 
 class Input;
-class Layout;
 class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
@@ -56,15 +56,19 @@ public:
   /// addGlobalSymbol - add a symbol and resolve it immediately
   LDSymbol* addGlobalSymbol(const llvm::StringRef& pName,
                             bool pIsDyn,
+                            ResolveInfo::Type pType,
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
                             ResolveInfo::SizeType pSize,
+                            const MCFragmentRef& pFragmentRef,
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// addLocalSymbol - create a local symbol and add it into the output.
   LDSymbol* addLocalSymbol(const llvm::StringRef& pName,
+                           ResolveInfo::Type pType,
                            ResolveInfo::Desc pDesc,
                            ResolveInfo::SizeType pSize,
+                           const MCFragmentRef& pFragmentRef,
                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// mergeSymbolTable - merge the symbol table and resolve symbols.
@@ -103,6 +107,10 @@ public:
                             Relocation::Address pOffset,
                             Relocation::Address pAddend = 0);
 
+  // -----  layout  ----- //
+  const Layout& getLayout() const
+  { return m_Layout; }
+
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
   { return m_Info; }
@@ -124,6 +132,7 @@ private:
   LDSectionDataFactory m_LDSectDataFactory;
   SectionMap& m_SectionMap;
   SectionMerger m_SectionMerger;
+  Layout m_Layout;
 };
 
 } // namespace of mcld

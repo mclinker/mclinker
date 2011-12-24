@@ -52,6 +52,7 @@ public:
   /// createSymbol - create a symbol but do not insert into the pool.
   ResolveInfo* createSymbol(const llvm::StringRef& pName,
                             bool pIsDyn,
+                            ResolveInfo::Type pType,
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
                             ResolveInfo::SizeType pSize,
@@ -61,6 +62,7 @@ public:
   /// @param pResult the result of symbol resultion.
   void insertSymbol(const llvm::StringRef& pName,
                     bool pIsDyn,
+                    ResolveInfo::Type pType,
                     ResolveInfo::Desc pDesc,
                     ResolveInfo::Binding pBinding,
                     ResolveInfo::SizeType pSize,
