@@ -19,7 +19,11 @@
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
-  : m_pRelocFactory(0), m_pGOT(0) {
+  : m_pRelocFactory(0),
+    m_pGOT(0),
+    m_pPLT(0),
+    m_pRelDyn(0),
+    m_pRelPLT(0) {
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()
