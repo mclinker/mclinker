@@ -33,6 +33,7 @@ public:
     StringTable,
     GOT,
     PLT,
+    Debug,
     MetaData,
   };
 
