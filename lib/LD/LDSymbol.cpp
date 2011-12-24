@@ -35,6 +35,15 @@ LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
   return (*this);
 }
 
+void LDSymbol::setFragmentRef(const MCFragmentRef& pFragmentRef)
+{
+  if (NULL == m_pFragRef) {
+    m_pFragRef = new MCFragmentRef();
+    return;
+  }
+  m_pFragRef->assign(pFragmentRef);
+}
+
 void LDSymbol::setFragmentRef(llvm::MCFragment& pFragment, LDSymbol::Offset pOffset)
 {
   if (NULL == m_pFragRef) {
