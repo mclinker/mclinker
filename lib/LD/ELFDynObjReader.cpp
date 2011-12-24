@@ -121,28 +121,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
 
     /// get the input fragment.
     MCFragmentRef ld_frag_ref;
-    unsigned int sh_shndx;
-    switch (sh_shndx = rs_sym->getSectionIndex()) {
-      case llvm::ELF::SHN_ABS:
-      case llvm::ELF::SHN_COMMON:
-      case llvm::ELF::SHN_UNDEF: {
-        // do nothing
-        break;
-      }
-      default: {
-        LDSection* sect_hdr = pInput.context()->getSection(sh_shndx);
-        if (NULL == sect_hdr)
-          llvm::report_fatal_error(llvm::Twine("section[") +
-                                   llvm::Twine(sh_shndx) +
-                                   llvm::Twine("] is invalid in file `") +
-                                   pInput.path().native() +
-                                   llvm::Twine(".\n"));
 
-        ld_frag_ref = m_Linker.getLayout().getFragmentRef(*sect_hdr,
-                                                         rs_sym->getValue());
-        break;
-      }
-    }
     /// convert to ResolveInfo::Visibility
     ResolveInfo::Visibility ld_vis = ELFReader::getVisibilityResolveInfo(rs_sym);
 
