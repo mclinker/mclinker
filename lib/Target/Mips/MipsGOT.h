@@ -28,7 +28,7 @@ public:
   typedef GOTEntry Entry;
 
 public:
-  MipsGOT(llvm::MCSectionData* pSectionData);
+  MipsGOT(llvm::MCSectionData& pSectionData);
   ~MipsGOT();
 
   void reserveEntry(int pNum = 1);

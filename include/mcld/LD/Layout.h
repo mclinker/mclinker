@@ -11,8 +11,11 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/ilist.h>
+#include <llvm/ADT/ilist_node.h>
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/MC/MCFragmentRef.h>
+#include <map>
 
 namespace mcld
 {
@@ -40,7 +43,7 @@ public:
 
   /// getFragmentOffset - Get the offset of the given fragment inside its
   /// containing section.
-  uint64_t getFragmentOffset(const llvm::MCFragment *F) const;
+  uint64_t getFragmentOffset(const llvm::MCFragment& F) const;
 
   /// getFragmentRef - give a LDSection in input file and an offset, return
   /// the fragment reference.
@@ -50,6 +53,8 @@ public:
 
   // -----  modifiers  ----- //
   bool layout(MCLinker& pLinker);
+
+  void addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr);
 
   // -----  iterators  ----- //
   sect_iterator sect_begin()
@@ -65,8 +70,21 @@ public:
   { return m_SectionOrder.end(); }
 
 private:
+  struct Range : public llvm::ilist_node<Range>
+  {
+    LDSection* header;
+    llvm::MCFragment* prevRear;
+  };
+
+  typedef llvm::iplist<Range> RangeList;
+
+  typedef std::map<llvm::MCSectionData*, RangeList> InputRangeList;
+
+private:
   /// a vector to describe the order of sections
   SectionOrder m_SectionOrder;
+
+  InputRangeList m_InputRangeList;
 };
 
 } // namespace of mcld

@@ -66,15 +66,15 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  m_pEXIDX        = pLinker.createSectHdr(".ARM.exidx",
+  m_pEXIDX        = &pLinker.createSectHdr(".ARM.exidx",
                                           LDFileFormat::MetaData,
                                           ELF::SHT_ARM_EXIDX,
                                                   ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
-  m_pEXTAB        = pLinker.createSectHdr(".ARM.extab",
+  m_pEXTAB        = &pLinker.createSectHdr(".ARM.extab",
                                           LDFileFormat::MetaData,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC);
-  m_pAttributes   = pLinker.createSectHdr(".ARM.attributes",
+  m_pAttributes   = &pLinker.createSectHdr(".ARM.attributes",
                                           LDFileFormat::MetaData,
                                           ELF::SHT_ARM_ATTRIBUTES,
                                           ELF::SHF_ALLOC);
@@ -82,11 +82,11 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
 {
-  LDSection* got  = pLinker.createSectHdr(".got",
+  LDSection& got  = pLinker.createSectHdr(".got",
                                           LDFileFormat::GOT,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC | ELF::SHF_WRITE);
-  assert(NULL != got && "Failed to create LDSection for .got");
+
   // create MCsectionData and ARMGOT
   m_pGOT = new ARMGOT(pLinker.getOrCreateSectData(got));
 }
@@ -96,33 +96,30 @@ void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
   // Create .got section if it dosen't exist
   if(!m_pGOT)
     createARMGOT(pLinker);
-  LDSection* plt  = pLinker.createSectHdr(".plt",
+  LDSection& plt  = pLinker.createSectHdr(".plt",
                                           LDFileFormat::PLT,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
-  assert(NULL != plt && "Failed to create LDSection for .plt");
   // create MCsectionData and ARMPLT
   m_pPLT = new ARMPLT(pLinker.getOrCreateSectData(plt), *m_pGOT);
 }
 
 void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
 {
-  LDSection* reldyn = pLinker.createSectHdr(".rel.dyn",
+  LDSection& reldyn = pLinker.createSectHdr(".rel.dyn",
                                             LDFileFormat::Data,
                                             ELF::SHT_REL,
                                             ELF::SHF_ALLOC);
-  assert(NULL != reldyn && "Failed to create LDSection for .rel.dyn");
   // create MCsectionData and ARMRelDynSection
   m_pRelDyn = new ARMDynRelSection(pLinker.getOrCreateSectData(reldyn));
 }
 
 void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
 {
-  LDSection* relplt = pLinker.createSectHdr(".rel.plt",
+  LDSection& relplt = pLinker.createSectHdr(".rel.plt",
                                             LDFileFormat::Data,
                                             ELF::SHT_REL,
                                             ELF::SHF_ALLOC);
-  assert(NULL != relplt && "Failed to create LDSection for .rel.plt");
   // create MCsectionData and ARMRelDynSection
   m_pRelPLT = new ARMDynRelSection(pLinker.getOrCreateSectData(relplt));
 }

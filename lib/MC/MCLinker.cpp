@@ -117,7 +117,7 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   return input_sym;
 }
 
-LDSection* MCLinker::createSectHdr(const std::string& pName,
+LDSection& MCLinker::createSectHdr(const std::string& pName,
                                    LDFileFormat::Kind pKind,
                                    uint32_t pType,
                                    uint32_t pFlag)
@@ -127,7 +127,7 @@ LDSection* MCLinker::createSectHdr(const std::string& pName,
     m_LDSectHdrFactory.produce(pName, pKind, pType, pFlag);
 
   // check if we need to create a output section for output LDContext
-  const std::string& sect_name = m_SectionMap.getOutputSectName(pName);
+  std::string sect_name = m_SectionMap.getOutputSectName(pName);
   LDSection* output_sect = m_Output.getSection(sect_name);
 
   if (NULL == output_sect) {
@@ -137,36 +137,41 @@ LDSection* MCLinker::createSectHdr(const std::string& pName,
     m_Output.getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
-  return result;
+  return *result;
 }
 
-llvm::MCSectionData* MCLinker::getOrCreateSectData(LDSection* pSection)
+llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 {
-  assert(NULL != pSection);
   // if there is already a section data pointed by section, return it.
-  llvm::MCSectionData* sect_data = pSection->getSectionData();
-  if (NULL != sect_data)
-    return sect_data;
-
-  // try to get one from output sections in the output context
-  LDSection* output_sect =
-    m_SectionMerger.getOutputSectHdr(pSection->name());
-  assert(NULL != output_sect);
-  sect_data = output_sect->getSectionData();
+  llvm::MCSectionData* sect_data = pSection.getSectionData();
   if (NULL != sect_data) {
-    pSection->setSectionData(sect_data);
-    return sect_data;
+    m_Layout.addInputRange(*sect_data, pSection);
+    return *sect_data;
   }
 
-  // if not found, create one and attach it to both input (pSection) and
-  // the associated section in output context
+  // create a new section data
+  // try to get one from output LDSection
+  LDSection* output_sect =
+    m_SectionMerger.getOutputSectHdr(pSection.name());
+
+  assert(NULL != output_sect);
+
+  sect_data = output_sect->getSectionData();
+
+  if (NULL != sect_data) {
+    pSection.setSectionData(sect_data);
+    m_Layout.addInputRange(*sect_data, pSection);
+    return *sect_data;
+  }
+
+  // if the output LDSection also has no MCSectionData, then create one.
   sect_data = m_LDSectDataFactory.allocate();
   new (sect_data) llvm::MCSectionData(*output_sect);
-
-  pSection->setSectionData(sect_data);
+  pSection.setSectionData(sect_data);
   output_sect->setSectionData(sect_data);
 
-  return sect_data;
+  m_Layout.addInputRange(*sect_data, pSection);
+  return *sect_data;
 }
 
 bool MCLinker::initStdSectionMap(SectionMap& pSectionMap)

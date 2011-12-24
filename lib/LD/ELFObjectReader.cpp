@@ -71,32 +71,28 @@ bool ELFObjectReader::readSections(Input& pInput)
 
     const ELFSectionHeader<32> *sh = (*shtab)[i];
 
-    LDSection* ldSect = m_Linker.createSectHdr(sh->getName(),
+    LDSection& ldSect = m_Linker.createSectHdr(sh->getName(),
                                                ELFReader::getLDSectionKind(sh->getName()),
                                                sh->getType(),
                                                sh->getFlags());
 
-    assert((NULL != ldSect) && "MCLinker::createSectHdr should never return NULL.");
-    pInput.context()->getSectionTable().push_back(ldSect);
+    pInput.context()->getSectionTable().push_back(&ldSect);
     // FIXME: Skip debug section.
-    if (LDFileFormat::Debug == ldSect->kind())
+    if (LDFileFormat::Debug == ldSect.kind())
       continue;
 
     if (sh->getType() != SHT_PROGBITS && sh->getType() != SHT_NOBITS) {
       continue;
     }
 
-    llvm::MCSectionData* mcSectData = m_Linker.getOrCreateSectData(ldSect);
+    llvm::MCSectionData& mcSectData = m_Linker.getOrCreateSectData(ldSect);
     MCFragment *mcFrag = NULL;
     if (sh->getType() == SHT_PROGBITS)
-      mcFrag = new MCRegionFragment(*pInput.memArea()->request(sh->getOffset(),sh->getSize()),mcSectData);
+      mcFrag = new MCRegionFragment(*pInput.memArea()->request(sh->getOffset(),sh->getSize()),
+                                    &mcSectData);
     else
-      mcFrag = new MCFillFragment(0,1,sh->getSize());
-
-    if (!mcFrag)
-      llvm::report_fatal_error("MCFragment can't be NULL.");
-
-    mcSectData->getFragmentList().push_back(mcFrag);
+      mcFrag = new MCFillFragment(0,1,sh->getSize(),&mcSectData);
+    assert(NULL != mcFrag);
   }
 
   return true;

@@ -27,7 +27,7 @@ uint64_t Layout::layoutFragment(llvm::MCFragment& pFrag)
   return 0; // TODO
 }
 
-uint64_t Layout::getFragmentOffset(const llvm::MCFragment *F) const
+uint64_t Layout::getFragmentOffset(const llvm::MCFragment& F) const
 {
   return 0; // TODO
 }
@@ -44,5 +44,9 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
 {
   // TODO
   return MCFragmentRef();
+}
+
+void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr)
+{
 }
 

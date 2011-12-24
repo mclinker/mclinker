@@ -55,11 +55,11 @@ protected:
 class PLT
 {
 public:
-  PLT(llvm::MCSectionData* pSectionData);
+  PLT(llvm::MCSectionData& pSectionData);
   virtual ~PLT();
 
-  llvm::MCSectionData* getSectionData() {
-    return m_pSectionData;
+  llvm::MCSectionData& getSectionData() {
+    return *m_pSectionData;
   }
 
 public:

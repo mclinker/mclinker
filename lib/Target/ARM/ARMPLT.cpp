@@ -38,13 +38,12 @@ ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
 //===----------------------------------------------------------------------===//
 // ARMPLT
 
-ARMPLT::ARMPLT(llvm::MCSectionData* pSectionData, ARMGOT &pGOT)
-  : PLT(pSectionData), m_GOT(pGOT), iter()
-{
+ARMPLT::ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT &pGOT)
+  : PLT(pSectionData), m_GOT(pGOT), iter() {
   ARMPLT0* plt0_entry = new ARMPLT0();
-  m_pSectionData->getFragmentList().push_back(plt0_entry);
+  pSectionData.getFragmentList().push_back(plt0_entry);
 
-  iter = pSectionData->begin();
+  iter = pSectionData.begin();
 }
 
 ARMPLT::~ARMPLT()

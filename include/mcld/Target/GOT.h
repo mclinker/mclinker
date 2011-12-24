@@ -46,7 +46,7 @@ protected:
 class GOT
 {
 protected:
-  GOT(llvm::MCSectionData* pSectionData,
+  GOT(llvm::MCSectionData& pSectionData,
       const unsigned int pEntrySize);
 
 public:

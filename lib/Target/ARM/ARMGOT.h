@@ -69,7 +69,7 @@ class ARMGOT : public GOT
 friend void mcld::ARMPLT::reserveEntry(int pNum);
 
 public:
-  ARMGOT(llvm::MCSectionData* pSectionData);
+  ARMGOT(llvm::MCSectionData& pSectionData);
 
   ~ARMGOT();
 

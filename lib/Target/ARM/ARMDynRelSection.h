@@ -34,7 +34,7 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  ARMDynRelSection(llvm::MCSectionData* pSectionData);
+  ARMDynRelSection(llvm::MCSectionData& pSectionData);
   ~ARMDynRelSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);

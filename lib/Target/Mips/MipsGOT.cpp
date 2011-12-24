@@ -12,7 +12,7 @@ using namespace mcld;
 
 //==========================
 // MipsGOT
-MipsGOT::MipsGOT(llvm::MCSectionData* pSectionData)
+MipsGOT::MipsGOT(llvm::MCSectionData& pSectionData)
   : GOT(pSectionData, 4 /* Mips uses 32-bit GOT entry */) {
 }
 

@@ -13,7 +13,7 @@ using namespace mcld;
 
 //==========================
 // X86GOT
-X86GOT::X86GOT(llvm::MCSectionData* pSectionData)
+X86GOT::X86GOT(llvm::MCSectionData& pSectionData)
   : GOT(pSectionData, 4)
 {
 }

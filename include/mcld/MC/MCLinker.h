@@ -83,13 +83,13 @@ public:
   /// { return m_SectionMap; }
 
   /// createSectHdr - for reader and standard/target format to create a section header
-  LDSection* createSectHdr(const std::string& pName,
+  LDSection& createSectHdr(const std::string& pName,
                            LDFileFormat::Kind pKind,
                            uint32_t pType,
                            uint32_t pFlag);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
-  llvm::MCSectionData* getOrCreateSectData(LDSection* pSection);
+  llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
 
   bool initStdSectionMap(SectionMap& pSectionMap);
 
