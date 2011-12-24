@@ -24,12 +24,16 @@ LDContext::~LDContext()
 
 LDSection* LDContext::getSection(unsigned int pIdx)
 {
-  return m_SectionTable.at(pIdx);
+  if (pIdx > m_SectionTable.size())
+    return NULL;
+  return m_SectionTable[pIdx];
 }
 
 const LDSection* LDContext::getSection(unsigned int pIdx) const
 {
-  return m_SectionTable.at(pIdx);
+  if (pIdx > m_SectionTable.size())
+    return NULL;
+  return m_SectionTable[pIdx];
 }
 
 LDSection* LDContext::getSection(const std::string& pName)
