@@ -75,11 +75,6 @@ public:
 
   const LDSection* getSection(const std::string& pName) const;
 
-  const LDSection& getOrCreateSection(const std::string& pName,
-                                      LDFileFormat::Kind pKind,
-                                      uint32_t pType,
-                                      uint32_t pFlag);
-
   size_t numOfSections() const
   { return m_SectionTable.size(); }
 
