@@ -18,6 +18,7 @@
 #include "mcld/Support/rslinker/ELFSectionRelTable.h"
 
 #include <string>
+#include <cassert>
 
 using namespace llvm;
 using namespace mcld;
@@ -56,43 +57,39 @@ llvm::error_code ELFObjectReader::readObject(Input& pFile)
   return llvm::error_code();
 }
 
-bool ELFObjectReader::readSections(Input& pFile)
+bool ELFObjectReader::readSections(Input& pInput)
 {
   std::auto_ptr<ELFObject<32> > object =
-    ELFReader::createELFObject(pFile);
+    ELFReader::createELFObject(pInput);
 
   const ELFSectionHeaderTable<32> *shtab =
     object->getSectionHeaderTable();
 
-  for (size_t i = 1; i < object->getSectionNumber(); ++i) {
+  // skip first NULL section
+  size_t i = 1;
+  for (; i < object->getSectionNumber(); ++i) {
 
     const ELFSectionHeader<32> *sh = (*shtab)[i];
-#if 0
-    llvm::errs() << "Reading Section:" << sh->getName() << " type: " << (int) sh->getType() << "\n";
-#endif
+
+    LDSection* ldSect = m_Linker.createSectHdr(sh->getName(),
+                                               ELFReader::getLDSectionKind(sh->getName()),
+                                               sh->getType(),
+                                               sh->getFlags());
+
+    assert((NULL != ldSect) && "MCLinker::createSectHdr should never return NULL.");
+    pInput.context()->getSectionTable().push_back(ldSect);
+    // FIXME: Skip debug section.
+    if (LDFileFormat::Debug == ldSect->kind())
+      continue;
 
     if (sh->getType() != SHT_PROGBITS && sh->getType() != SHT_NOBITS) {
       continue;
     }
 
-    // FIXME: Skip debug section.
-    if (std::string(sh->getName()).find(".debug") != std::string::npos) {
-      continue;
-    }
-
-#if 0
-    llvm::errs() << "Reading Section:" << sh->getName() << " Start: 0x" ;
-    llvm::errs().write_hex(sh->getOffset());
-    llvm::errs() << " Length: 0x" ;
-    llvm::errs().write_hex(sh->getSize());
-    llvm::errs() << "\n";
-#endif
-
-    LDSection* ldSect = m_Linker.createSectHdr(sh->getName(), ELFReader::getLDSectionKind(sh->getName()), sh->getType(), sh->getFlags());
     llvm::MCSectionData* mcSectData = m_Linker.getOrCreateSectData(ldSect);
     MCFragment *mcFrag = NULL;
     if (sh->getType() == SHT_PROGBITS)
-      mcFrag = new MCRegionFragment(*pFile.memArea()->request(sh->getOffset(),sh->getSize()),mcSectData);
+      mcFrag = new MCRegionFragment(*pInput.memArea()->request(sh->getOffset(),sh->getSize()),mcSectData);
     else
       mcFrag = new MCFillFragment(0,1,sh->getSize());
 
