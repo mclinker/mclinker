@@ -24,6 +24,8 @@
 
 #include <string.h>
 
+using namespace llvm::ELF;
+
 template <unsigned Bitwidth>
 class ELFHeader {
 public:
