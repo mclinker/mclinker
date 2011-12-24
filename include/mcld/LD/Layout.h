@@ -12,12 +12,12 @@
 #include <gtest.h>
 #endif
 #include <llvm/MC/MCAssembler.h>
+#include <mcld/MC/MCFragmentRef.h>
 
 namespace mcld
 {
 class MCLinker;
-
-class MCLinker;
+class LDSection;
 
 /** \class Layout
  *  \brief Layout records the order and offset of all regions
@@ -41,6 +41,12 @@ public:
   /// getFragmentOffset - Get the offset of the given fragment inside its
   /// containing section.
   uint64_t getFragmentOffset(const llvm::MCFragment *F) const;
+
+  /// getFragmentRef - give a LDSection in input file and an offset, return
+  /// the fragment reference.
+  MCFragmentRef getFragmentRef(const LDSection& pInputSection,
+                               uint64_t pOffset) const;
+
 
   // -----  modifiers  ----- //
   bool layout(MCLinker& pLinker);

@@ -10,6 +10,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/LD/LDSection.h>
 
 using namespace mcld;
 
@@ -34,5 +35,14 @@ uint64_t Layout::getFragmentOffset(const llvm::MCFragment *F) const
 bool Layout::layout(MCLinker& pLinker)
 {
  return 0; // TODO
+}
+
+/// getFragmentRef - give a LDSection in input file and an offset, return
+/// the fragment reference.
+MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
+                                     uint64_t pOffset) const
+{
+  // TODO
+  return MCFragmentRef();
 }
 
