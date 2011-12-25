@@ -6,11 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#define DECL_ARM_APPLY_RELOC_FUNC(Name) \
+static ARMRelocationFactory::Result Name    (Relocation& pEntry, const ARMRelocationFactory& pParent);
+
 #define DECL_ARM_APPLY_RELOC_FUNCS \
-static ARMRelocationFactory::Result none    (Relocation& pEntry, const ARMRelocationFactory& pParent); \
-static ARMRelocationFactory::Result abs32   (Relocation& pEntry, const ARMRelocationFactory& pParent); \
-static ARMRelocationFactory::Result rel32   (Relocation& pEntry, const ARMRelocationFactory& pParent); \
-static ARMRelocationFactory::Result gotoff32(Relocation& pEntry, const ARMRelocationFactory& pParent);
+DECL_ARM_APPLY_RELOC_FUNC(none)     \
+DECL_ARM_APPLY_RELOC_FUNC(abs32)    \
+DECL_ARM_APPLY_RELOC_FUNC(rel32)    \
+DECL_ARM_APPLY_RELOC_FUNC(gotoff32) \
+DECL_ARM_APPLY_RELOC_FUNC(gotbrel)  \
+DECL_ARM_APPLY_RELOC_FUNC(plt32)    \
+DECL_ARM_APPLY_RELOC_FUNC(jump24)
 
 
 #define DECL_ARM_APPLY_RELOC_FUNC_PTRS \
@@ -40,10 +47,10 @@ static ARMRelocationFactory::Result gotoff32(Relocation& pEntry, const ARMReloca
   { &none,      23, "R_ARM_RELATIVE"          },  \
   { &gotoff32,  24, "R_ARM_GOTOFF32"          },  \
   { &none,      25, "R_ARM_BASE_PREL"         },  \
-  { &none,      26, "R_ARM_GOT_BREL"          },  \
-  { &none,      27, "R_ARM_PLT32"             },  \
+  { &gotbrel,   26, "R_ARM_GOT_BREL"          },  \
+  { &plt32,     27, "R_ARM_PLT32"             },  \
   { &none,      28, "R_ARM_CALL"              },  \
-  { &none,      29, "R_ARM_JUMP24"            },  \
+  { &jump24,    29, "R_ARM_JUMP24"            },  \
   { &none,      30, "R_ARM_THM_JUMP24"        },  \
   { &none,      31, "R_ARM_BASE_ABS"          },  \
   { &none,      32, "R_ARM_ALU_PCREL_7_0"     },  \

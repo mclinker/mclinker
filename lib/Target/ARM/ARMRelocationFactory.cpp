@@ -132,3 +132,20 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
   return ARMRelocationFactory::OK;
 }
 
+// R_ARM_GOT_BREL: GOT(S) + A – GOT_ORG
+ARMRelocationFactory::Result gotbrel(Relocation& pReloc, const ARMRelocationFactory& pParent)
+{
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_PLT32: ((S + A) | T) – P
+ARMRelocationFactory::Result plt32(Relocation& pReloc, const ARMRelocationFactory& pParent)
+{
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_JUMP24: ((S + A) | T) – P
+ARMRelocationFactory::Result jump24(Relocation& pReloc, const ARMRelocationFactory& pParent)
+{
+  return ARMRelocationFactory::OK;
+}
