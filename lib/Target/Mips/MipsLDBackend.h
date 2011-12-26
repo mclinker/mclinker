@@ -102,8 +102,11 @@ private:
 
   void createGOTSec(MCLinker& pLinker);
   void createRelDynSec(MCLinker& pLinker);
+  void createPltSec(MCLinker& pLinker);
+  void createMipsStubsSec(MCLinker& pLinker);
 
   bool isSymbolNeedsDynRel(ResolveInfo& pSym, unsigned int pType);
+  bool isSymbolNeedsPLT(ResolveInfo& pSym, unsigned int pType);
 };
 
 } // namespace of mcld

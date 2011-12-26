@@ -55,6 +55,9 @@ unsigned int MipsGNULDBackend::bitclass() const
 
 bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 {
+  if (!pSectionMap.push_back(".MIPS.stubs", ".MIPS.stubs"))
+    return false;
+
   return true;
 }
 
@@ -62,7 +65,6 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
   // add target dependent sections here.
 }
-
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
@@ -181,6 +183,37 @@ void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)
   m_pGOT.reset(new MipsGOT(data));
 }
 
+void MipsGNULDBackend::createMipsStubsSec(MCLinker& pLinker)
+{
+  LDSection& sec = pLinker.createSectHdr(".MIPS.stubs",
+                                         LDFileFormat::Target,
+                                         ELF::SHT_PROGBITS,
+                                         ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+
+  // TODO: (simon) Create wrapper
+}
+
+void MipsGNULDBackend::createPltSec(MCLinker& pLinker)
+{
+  if (NULL == m_pGOT.get())
+    createGOTSec(pLinker);
+
+  if (NULL == m_pRelDynSec.get())
+    createRelDynSec(pLinker);
+
+  LDSection& secGotPlt = pLinker.createSectHdr(".got.plt",
+                                               LDFileFormat::Target,
+                                               ELF::SHT_PROGBITS,
+                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
+
+  LDSection& secPlt = pLinker.createSectHdr(".plt",
+                                            LDFileFormat::Target,
+                                            ELF::SHT_PROGBITS,
+                                            ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+
+  // TODO: (simon) Create wrapper
+}
+
 bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
                                            unsigned int pType)
 {
@@ -194,6 +227,15 @@ bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
     return true;
 
   return false;
+}
+
+bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
+                                        unsigned int pType)
+{
+  // FIXME: (simon) extend conditions
+  return Output::DynObj == pType &&
+         ResolveInfo::Function == pSym.type() &&
+         pSym.isDyn() || pSym.isUndef();
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()
