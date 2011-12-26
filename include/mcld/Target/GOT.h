@@ -36,6 +36,12 @@ public:
   const uint64_t& getContent() const
   { return f_Content; }
 
+  void setContent(uint64_t pValue)
+  { f_Content = pValue; }
+
+  //Used by llvm::cast<>.
+  static bool classof(const MCFragment *O) { return true; }
+
 protected:
   uint64_t f_Content;
 };
@@ -70,7 +76,7 @@ public:
   /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
-  virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
+  virtual GOTEntry* getEntry(const ResolveInfo* pSymbol, bool& pExist) = 0;
 
 protected:
   llvm::MCSectionData* m_pSectionData;

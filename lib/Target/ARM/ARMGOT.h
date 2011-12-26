@@ -68,6 +68,9 @@ class ARMGOT : public GOT
 {
 friend void mcld::ARMPLT::reserveEntry(int pNum);
 
+typedef ARMGOTEntries::iterator GOTIteratorType;
+typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+
 public:
   ARMGOT(llvm::MCSectionData& pSectionData);
 
@@ -76,16 +79,24 @@ public:
   //Reserve general GOT entries.
   void reserveEntry(int pNum = 1);
 
-  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+  GOTEntry* getEntry(const ResolveInfo* pSymbol, bool& pExist);
+
+  void applyGOT0(uint64_t pAddress);
+
+  void applyGOTPLT(uint64_t pAddress);
 
 private:
 
   //Keep first three GOT entries in .got section.
-  ARMGOTEntries* GOT0Entries;
+  ARMGOTEntries* m_pGOT0Entries;
 
-  ARMGOTEntries* GOTPLTEntries;
+  ARMGOTEntries* m_pGOTPLTEntries;
 
-  ARMGOTEntries* GeneralGOTEntries;
+  ARMGOTEntries* m_pGeneralGOTEntries;
+
+  GOTIteratorType m_GeneralGOTIterator;
+
+  SymbolIndexMapType m_SymbolIndexMap;
 };
 
 } // namespace of mcld

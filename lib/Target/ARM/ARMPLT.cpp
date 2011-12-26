@@ -67,7 +67,7 @@ void ARMPLT::reserveEntry(int pNum)
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
-    m_GOT.GOTPLTEntries->getEntryList().push_back(got_entry);
+    m_GOT.m_pGOTPLTEntries->getEntryList().push_back(got_entry);
   }
 }
 

@@ -24,7 +24,7 @@ void MipsGOT::reserveEntry(int pNum)
 {
 }
 
-MipsGOT::Entry* MipsGOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+MipsGOT::Entry* MipsGOT::getEntry(const ResolveInfo* pSymbol, bool& pExist)
 {
   return 0;
 }
