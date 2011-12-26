@@ -153,6 +153,31 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
 ARMRelocationFactory::Result gotbrel(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  // XXX: Constant RelocationFactory get constant LDBackend,
+  //      and get constant GOT, then I can't call getEntry(it's non-const).
+  ARMGNULDBackend& ld_backend = const_cast<ARMGNULDBackend&>(pParent.getTarget());
+
+  bool exist;
+  // XXX: Why GOT.getEntry use rsym, but RelDyn.getEntry use *rsym?
+  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(rsym, exist);
+  if (!exist) {
+    // We don't need to initialize GOT.
+  }
+  if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
+    // Need a dynamic relocation entry in rel.dyn.
+    Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, exist);
+    if (!exist) {
+      // If we first get the dynamic relocation entry, we should initialize it.
+      rel_entry->setType(R_ARM_GLOB_DAT);
+      // FIXME: Set ResolveInfo.
+    }
+  }
+
+  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+  // Apply
+  pReloc.target() = helper_GOT(pParent, got_entry) + addend - helper_GOT_ORG(pParent);
   return ARMRelocationFactory::OK;
 }
 
