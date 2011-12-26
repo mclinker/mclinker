@@ -70,15 +70,15 @@ public:
   { return m_SectionOrder.end(); }
 
 private:
-  struct Range : public llvm::ilist_node<Range>
+  struct Range
   {
-    LDSection* header;
+    const LDSection* header;
     llvm::MCFragment* prevRear;
   };
 
-  typedef llvm::iplist<Range> RangeList;
+  typedef std::vector<Range> RangeList;
 
-  typedef std::map<llvm::MCSectionData*, RangeList> InputRangeList;
+  typedef std::map<const llvm::MCSectionData*, RangeList*> InputRangeList;
 
 private:
   /// a vector to describe the order of sections
