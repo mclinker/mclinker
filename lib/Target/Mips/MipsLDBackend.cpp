@@ -125,6 +125,21 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
+  if (NULL == m_pGOT.get() &&
+      strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_") == 0) {
+    // TODO: (simon) Check that we do not create .dyn.rel for this sym
+    createGOTSec(pLinker);
+  }
+
+  if (isSymbolNeedsPLT(*rsym, pType) /* TODO: check the sym hasn't a PLT offset */) {
+    if (Output::DynObj == pType) {
+      // TODO: (simon) Reserve .MIPS.stubs entry
+    }
+    else if (isSymbolNeedsDynRel(*rsym, pType)) {
+      // TODO: (simon) Reserve .plt entry
+    }
+  }
+
   switch (pReloc.type()){
     case ELF::R_MIPS_NONE:
       break;
