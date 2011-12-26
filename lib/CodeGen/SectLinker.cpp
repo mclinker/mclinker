@@ -97,6 +97,16 @@ ArgVerboseAlias("verbose",
                 cl::desc("alias for -V"),
                 cl::aliasopt(ArgVerbose));
 
+static cl::opt<std::string>
+ArgEntry("e",
+         cl::desc("Use entry as the explicit symbol for beginning execution of your program."),
+         cl::value_desc("entry"),
+         cl::ValueRequired);
+
+static cl::alias
+ArgEntryAlias("entry",
+              cl::desc("alias for -e"),
+              cl::aliasopt(ArgEntry));
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -288,6 +298,9 @@ bool SectLinker::doInitialization(Module &pM)
 
   // set up verbose
   m_LDInfo.options().setVerbose(ArgVerbose);
+
+  // set up entry
+  m_LDInfo.options().setEntry(ArgEntry);
 
   // -----  Set up Inputs  ----- //
   unsigned int input_size = ArgNameSpecList.size() +
