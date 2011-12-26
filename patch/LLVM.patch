@@ -38,15 +38,26 @@ Index: include/llvm/MC/MCAssembler.h
 ===================================================================
 --- include/llvm/MC/MCAssembler.h	(revision 146714)
 +++ include/llvm/MC/MCAssembler.h	(working copy)
-@@ -40,6 +40,7 @@
+@@ -21,6 +21,10 @@
+ #include "llvm/Support/DataTypes.h"
+ #include <vector> // FIXME: Shouldn't be needed.
+ 
++namespace mcld {
++class Layout;
++}
++
+ namespace llvm {
+ class raw_ostream;
+ class MCAsmLayout;
+@@ -40,6 +44,7 @@
  
  class MCFragment : public ilist_node<MCFragment> {
    friend class MCAsmLayout;
-+  friend class Layout;
++  friend class mcld::Layout;
  
    MCFragment(const MCFragment&);     // DO NOT IMPLEMENT
    void operator=(const MCFragment&); // DO NOT IMPLEMENT
-@@ -53,7 +54,10 @@
+@@ -53,7 +58,10 @@
      FT_Org,
      FT_Dwarf,
      FT_DwarfFrame,
@@ -58,15 +69,15 @@ Index: include/llvm/MC/MCAssembler.h
    };
  
  private:
-@@ -425,6 +429,7 @@
+@@ -425,6 +433,7 @@
  // keep it out is for API abstraction.
  class MCSectionData : public ilist_node<MCSectionData> {
    friend class MCAsmLayout;
-+  friend class Layout;
++  friend class mcld::Layout;
  
    MCSectionData(const MCSectionData&);  // DO NOT IMPLEMENT
    void operator=(const MCSectionData&); // DO NOT IMPLEMENT
-@@ -438,7 +443,7 @@
+@@ -438,7 +447,7 @@
    typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
    typedef FragmentListType::reverse_iterator reverse_iterator;
  
@@ -75,7 +86,7 @@ Index: include/llvm/MC/MCAssembler.h
    FragmentListType Fragments;
    const MCSection *Section;
  
-@@ -466,6 +471,7 @@
+@@ -466,6 +475,7 @@
    // Only for use as sentinel.
    MCSectionData();
    MCSectionData(const MCSection &Section, MCAssembler *A = 0);
@@ -83,7 +94,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    const MCSection &getSection() const { return *Section; }
  
-@@ -664,7 +670,7 @@
+@@ -664,7 +674,7 @@
  
    MCCodeEmitter &Emitter;
  
@@ -92,7 +103,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    raw_ostream &OS;
  
-@@ -792,8 +798,10 @@
+@@ -792,8 +802,10 @@
  
    MCCodeEmitter &getEmitter() const { return Emitter; }
  
