@@ -97,6 +97,8 @@ private:
   void scanGlobalRelocation(Relocation& pReloc,
                             MCLinker& pLinker,
                             unsigned int pType);
+
+  void createGOTSec(MCLinker& pLinker);
 };
 
 } // namespace of mcld

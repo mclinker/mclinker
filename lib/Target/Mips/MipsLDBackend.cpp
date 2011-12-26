@@ -20,15 +20,13 @@ using namespace llvm;
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0), m_pGOT(0) {
+  : m_pRelocFactory(0) {
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
   if (0 != m_pRelocFactory)
     delete m_pRelocFactory;
-  if (0 != m_pGOT)
-    delete m_pGOT;
 }
 
 RelocationFactory* MipsGNULDBackend::getRelocFactory()
@@ -61,17 +59,9 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  LDSection& sec = pLinker.createSectHdr(".got",
-                                         LDFileFormat::Target,
-                                         ELF::SHT_PROGBITS,
-                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
-
-  llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
-
-  m_pGOT.reset(new MipsGOT(data));
-
   // add target dependent sections here.
 }
+
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
@@ -100,7 +90,10 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
-      // TODO: (simon) Reserve .got entry
+      if (NULL == m_pGOT.get())
+        createGOTSec(pLinker);
+
+      m_pGOT->reserveEntry();
       break;
     case ELF::R_MIPS_GPREL32:
       break;
@@ -128,7 +121,10 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
-      // TODO: (simon) Reserve .got entry
+      if (NULL == m_pGOT.get())
+        createGOTSec(pLinker);
+
+      m_pGOT->reserveEntry();
       break;
     case ELF::R_MIPS_GPREL32:
       llvm::report_fatal_error(llvm::Twine("R_MIPS_GPREL32 not defined for ") +
@@ -144,16 +140,28 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
   }
 }
 
+void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)
+{
+  LDSection& sec = pLinker.createSectHdr(".got",
+                                         LDFileFormat::Target,
+                                         ELF::SHT_PROGBITS,
+                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
+
+  llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
+
+  m_pGOT.reset(new MipsGOT(data));
+}
+
 MipsGOT& MipsGNULDBackend::getGOT()
 {
-  assert(0 != m_pGOT);
-  return *m_pGOT;
+  assert(NULL != m_pGOT.get());
+  return *m_pGOT.get();
 }
 
 const MipsGOT& MipsGNULDBackend::getGOT() const
 {
-  assert(0 != m_pGOT);
-  return *m_pGOT;
+  assert(NULL != m_pGOT.get());
+  return *m_pGOT.get();
 }
 
 namespace mcld {
