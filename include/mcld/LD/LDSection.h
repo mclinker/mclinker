@@ -81,7 +81,8 @@ public:
   uint64_t offset() const
   { return m_Offset; }
 
-  /// addr - An integer specifying the offset of this section in the file.
+  /// addr - An integer specifying the virtual address of this section in the
+  /// virtual image.
   ///   Before layouting, output's LDSection::offset() should return zero.
   ///   ELF uses sh_addralign to set alignment constraints. In LLVM, alignment
   ///   constraint is set in MCSectionData::setAlignment. addr() contains the
@@ -133,6 +134,9 @@ public:
 
   void setSectionData(llvm::MCSectionData* pSD)
   { m_pSectionData = pSD; }
+
+  bool hasSectionData() const
+  { return (NULL != m_pSectionData); }
 
 private:
   std::string m_Name;
