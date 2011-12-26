@@ -16,7 +16,6 @@
 #include <mcld/Support/ScopedWriter.h>
 #include <llvm/Support/ELF.h>
 #include <vector>
-#include <iostream>
 
 using namespace llvm;
 using namespace mcld;
@@ -424,7 +423,6 @@ uint32_t ELFDynObjWriter::WriteProgramHeader(uint32_t file_offset)
             section = m_pContext->getSection(".ARM.exidx");
             if (NULL != section)
             {
-                std::cout << "Writer out .ARM.exidx segment in program header." << std::endl;
                 prog_off += WriteProgramHeaderEntry(file_offset + prog_off,
                                                     0x70000001, //PT_ARM_EXIDX
                                                     ELF::PF_R,
