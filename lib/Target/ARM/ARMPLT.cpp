@@ -39,11 +39,11 @@ ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
 // ARMPLT
 
 ARMPLT::ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT &pGOT)
-  : PLT(pSectionData), m_GOT(pGOT), iter() {
+  : PLT(pSectionData), m_GOT(pGOT), m_MCFragmentIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0();
   pSectionData.getFragmentList().push_back(plt0_entry);
 
-  iter = pSectionData.begin();
+  m_MCFragmentIterator = pSectionData.begin();
 }
 
 ARMPLT::~ARMPLT()
@@ -80,10 +80,10 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++iter) != m_pSectionData->end() &&
+     assert((++m_MCFragmentIterator) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
 
-     Entry = llvm::cast<ARMPLT1>(&(*iter));
+     Entry = llvm::cast<ARMPLT1>(&(*m_MCFragmentIterator));
    }
 
    return Entry;
@@ -91,7 +91,7 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
 
 void ARMPLT::applyPLT0(const uint32_t pOffset) {
 
-  MCFragmentIterator first = m_pSectionData->getFragmentList().begin();
+  MCFragmentIteratorType first = m_pSectionData->getFragmentList().begin();
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   uint32_t* data = 0;

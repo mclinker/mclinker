@@ -31,7 +31,7 @@ public:
 class ARMPLT : public PLT
 {
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
-  typedef llvm::MCSectionData::iterator MCFragmentIterator;
+  typedef llvm::MCSectionData::iterator MCFragmentIteratorType;
 
 public:
   ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT& pGOT);
@@ -54,7 +54,7 @@ private:
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.
-  MCFragmentIterator iter;
+  MCFragmentIteratorType m_MCFragmentIterator;
 
   SymbolIndexType m_SymbolIndexMap;
 };
