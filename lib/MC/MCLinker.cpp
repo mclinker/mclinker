@@ -32,13 +32,14 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
 : m_Backend(pBackend),
   m_Info(pInfo),
   m_Output(pContext),
-  m_StrSymPool(pResolver),
   m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext)
+  m_SectionMerger(pSectionMap, pContext),
+  m_StrSymPool(pResolver, 128)
 {
+  m_Info.setNamePool(m_StrSymPool);
 }
 
 MCLinker::~MCLinker()
