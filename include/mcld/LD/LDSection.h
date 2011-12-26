@@ -128,6 +128,9 @@ public:
   llvm::MCSectionData* getSectionData()
   { return m_pSectionData; }
 
+  const llvm::MCSectionData* getSectionData() const
+  { return m_pSectionData; }
+
   void setSectionData(llvm::MCSectionData* pSD)
   { m_pSectionData = pSD; }
 
