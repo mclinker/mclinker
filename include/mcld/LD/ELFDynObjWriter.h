@@ -55,14 +55,14 @@ private:
 
   uint32_t WriteDynStrTab(LDSection *pSection, uint32_t file_offset);
 
-  uint32_t WriteRelocationTab(LDSection *pSection, uint32_t file_offset, 
+  uint32_t WriteRelocationTab(LDSection *pSection, uint32_t file_offset,
                               bool addend=false);
 
   uint32_t WriteDynamicTab(LDSection *pSection, uint32_t file_offset);
 
   uint32_t WriteSectionData(LDSection *pSection, uint32_t file_offset);
 
-  uint32_t WriteELFHeader(uint32_t file_offset);
+  uint32_t WriteELFHeader(uint32_t sht_offset, uint32_t pht_num);
 
   uint32_t WriteShStrTab(uint32_t file_offset);
 
@@ -70,29 +70,40 @@ private:
 
   // ELF::Elf32_Sym
   uint32_t WriteSymbolEntry(uint32_t file_offset,
-                            uint32_t name, 
+                            uint32_t name,
                             uint8_t info,
-                            uint32_t value, 
+                            uint32_t value,
                             uint32_t size,
-                            uint8_t other, 
+                            uint8_t other,
                             uint32_t shndx);
 
-  // ELF::Elf32_Rel 
-  uint32_t WriteRelEntry(uint32_t file_offset, 
-                         uint32_t r_offset, 
+  // ELF::Elf32_Rel
+  uint32_t WriteRelEntry(uint32_t file_offset,
+                         uint32_t r_offset,
                          uint32_t r_info);
 
-  // ELF::Elf32_Rela 
+  // ELF::Elf32_Rela
   uint32_t WriteRelaEntry(uint32_t file_offset,
-                          uint32_t r_offset, 
-                          uint32_t r_info, 
+                          uint32_t r_offset,
+                          uint32_t r_info,
                           uint32_t r_addend);
 
   // ELF::Elf32_Shdr
-  uint32_t WriteSectionEnrty(LDSection *section, uint32_t file_offset);
+  uint32_t WriteSectionHeaderEntry(LDSection *section, uint32_t file_offset);
+
+  uint32_t WriteProgramHeader(uint32_t file_offset);
+
+  uint32_t WriteProgramHeaderEntry(uint32_t file_offset,
+                                   uint32_t p_type,
+                                   uint32_t p_flags,
+                                   uint64_t p_offset,
+                                   uint64_t p_vaddr,
+                                   uint64_t p_paddr,
+                                   uint64_t p_filesz,
+                                   uint64_t p_memsz,
+                                   uint64_t p_align);
 
   SectionExtInfo& getOrCreateSectionExtInfo(const LDSection *section);
-
 
   SHExtTab_T shtExtab;
 

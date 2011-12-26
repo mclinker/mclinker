@@ -16,6 +16,7 @@
 #include <mcld/Support/ScopedWriter.h>
 #include <llvm/Support/ELF.h>
 #include <vector>
+#include <iostream>
 
 using namespace llvm;
 using namespace mcld;
@@ -37,6 +38,7 @@ ELFDynObjWriter::~ELFDynObjWriter()
 bool ELFDynObjWriter::WriteObject()
 {
   uint32_t file_offset = target().sectionStartOffset();
+  uint32_t pht_num = 0;
 
   // Assume layout is done correctly.
   for (LDContext::const_sect_iterator I = m_pContext->sectBegin(),
@@ -109,8 +111,11 @@ bool ELFDynObjWriter::WriteObject()
   // Write out section header table
   WriteSectionHeader(file_offset);
 
+  // Wrtie out program header table
+  pht_num = WriteProgramHeader(sizeof(ELF::Elf32_Ehdr));
+
   // Write out ELF header
-  WriteELFHeader(file_offset);
+  WriteELFHeader(file_offset, pht_num);
 
   return true;
 }
@@ -279,7 +284,7 @@ uint32_t ELFDynObjWriter::WriteSymbolEntry(uint32_t file_offset,
   return sizeof(ELF::Elf32_Sym);
 }
 
-uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
+uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t sht_offset, uint32_t pht_num)
 {
     //Currently only support 32bit file type
     bool is32BitClass = (32 == target().bitclass());
@@ -299,7 +304,7 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
     // FIXME:
     elf_header.e_entry   = 0x0;
     elf_header.e_phoff   = sizeof(ELF::Elf32_Ehdr);
-    elf_header.e_shoff   = file_offset;
+    elf_header.e_shoff   = sht_offset;
 
     switch (target().machine())
     {
@@ -317,7 +322,7 @@ uint32_t ELFDynObjWriter::WriteELFHeader(uint32_t file_offset)
     elf_header.e_ehsize = sizeof(ELF::Elf32_Ehdr);
     elf_header.e_phentsize = sizeof(ELF::Elf32_Phdr);
     // FIXME:
-    elf_header.e_phnum = 0x0;
+    elf_header.e_phnum = pht_num;
     elf_header.e_shentsize = sizeof(ELF::Elf32_Shdr);
     elf_header.e_shnum = m_pContext->numOfSections();
     elf_header.e_shstrndx = m_pContext->numOfSections() - 1;
@@ -372,13 +377,13 @@ uint32_t ELFDynObjWriter::WriteSectionHeader(uint32_t file_offset)
     for (sect_iter = m_pContext->sectBegin(); sect_iter < m_pContext->sectEnd(); ++sect_iter)
     {
         LDSection *section = *sect_iter;
-        sec_off += WriteSectionEnrty(section, file_offset + sec_off);
+        sec_off += WriteSectionHeaderEntry(section, file_offset + sec_off);
     }
 
     return sec_off;
 }
 
-uint32_t ELFDynObjWriter::WriteSectionEnrty(LDSection *section, uint32_t file_offset)
+uint32_t ELFDynObjWriter::WriteSectionHeaderEntry(LDSection *section, uint32_t file_offset)
 {
     SectionExtInfo & sec_ext_info = getOrCreateSectionExtInfo(section);
 
@@ -404,6 +409,79 @@ uint32_t ELFDynObjWriter::WriteSectionEnrty(LDSection *section, uint32_t file_of
     mr->sync();
 
     return  sizeof(ELF::Elf32_Shdr);
+}
+
+uint32_t ELFDynObjWriter::WriteProgramHeader(uint32_t file_offset)
+{
+    uint32_t prog_off = 0;
+    uint32_t prg_header_num = 0;
+    LDSection *section;
+
+    //Segments before text segment
+    switch (target().machine())
+    {
+        case ELF::EM_ARM :
+            section = m_pContext->getSection(".ARM.exidx");
+            if (NULL != section)
+            {
+                std::cout << "Writer out .ARM.exidx segment in program header." << std::endl;
+                prog_off += WriteProgramHeaderEntry(file_offset + prog_off,
+                                                    0x70000001, //PT_ARM_EXIDX
+                                                    ELF::PF_R,
+                                                    section->offset(),
+                                                    section->addr(),
+                                                    section->addr(),
+                                                    section->size(),
+                                                    section->size(),
+                                                    (NULL == section->getSectionData()) ?
+                                                     0 : section->getSectionData()->getAlignment());
+                ++prg_header_num;
+            }
+            break;
+        default :
+            break;
+    }
+
+    //text segment
+
+    //data segment
+
+    //dynamic segment
+
+    //note segment
+
+    //segment after above
+
+    return prg_header_num;
+
+}
+
+uint32_t ELFDynObjWriter::WriteProgramHeaderEntry(uint32_t file_offset,
+                                                  uint32_t p_type,
+                                                  uint32_t p_flags,
+                                                  uint64_t p_offset,
+                                                  uint64_t p_vaddr,
+                                                  uint64_t p_paddr,
+                                                  uint64_t p_filesz,
+                                                  uint64_t p_memsz,
+                                                  uint64_t p_align)
+{
+    // 32bit Program header entry
+    ELF::Elf32_Phdr phdr;
+    phdr.p_type   = p_type;
+    phdr.p_offset = p_offset;
+    phdr.p_vaddr  = p_vaddr;
+    phdr.p_paddr  = p_paddr;
+    phdr.p_filesz = p_filesz;
+    phdr.p_memsz  = p_memsz;
+    phdr.p_flags  = p_flags;
+    phdr.p_align  = p_align;
+
+    MemoryRegion *mr = m_pMemArea->request(file_offset, sizeof(ELF::Elf32_Phdr));
+    memcpy(mr->start(), &phdr, sizeof(ELF::Elf32_Phdr));
+    mr->sync();
+
+    return sizeof(ELF::Elf32_Phdr);
 }
 
 SectionExtInfo& ELFDynObjWriter::getOrCreateSectionExtInfo(const LDSection *section)
