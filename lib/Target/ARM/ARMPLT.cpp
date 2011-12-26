@@ -89,7 +89,20 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
    return Entry;
 }
 
+ARMPLT0* ARMPLT::getPLT0() const {
+  if (!m_pSectionData)
+    llvm::report_fatal_error("m_pSectionData is NULL!");
+
+  MCFragmentIteratorType first = m_pSectionData->getFragmentList().begin();
+  ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
+
+  return plt0;
+}
+
 void ARMPLT::applyPLT0(const uint32_t pOffset) {
+
+  if (!m_pSectionData)
+    llvm::report_fatal_error("m_pSectionData is NULL!");
 
   MCFragmentIteratorType first = m_pSectionData->getFragmentList().begin();
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));

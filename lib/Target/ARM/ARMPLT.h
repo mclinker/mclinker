@@ -43,7 +43,11 @@ public:
   // Additionally, reserveEntry is ARMGOT friend function.
   void reserveEntry(int pNum = 1) ;
 
+  // Override virtual function.
   PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+
+public:
+  ARMPLT0* getPLT0() const;
 
   void applyPLT0(const uint32_t pOffset);
 
