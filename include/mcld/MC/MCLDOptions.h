@@ -66,6 +66,14 @@ public:
   bool verbose() const
   { return m_bVerbose; }
 
+  bool hasEntry() const
+  { return !m_Entry.empty(); }
+
+  void setEntry(const std::string& pEntry)
+  { m_Entry = pEntry; }
+
+  const std::string& entry() const
+  { return m_Entry; }
 
 private:
   Input* m_pDefaultBitcode;
@@ -74,6 +82,7 @@ private:
   SearchDirs m_SearchDirs;
   bool m_bTrace;
   bool m_bVerbose;
+  std::string m_Entry;
 };
 
 } // namespace of mcld
