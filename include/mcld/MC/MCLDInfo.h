@@ -12,16 +12,19 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDOutput.h"
-#include "mcld/MC/MCLDOptions.h"
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/AttributeFactory.h"
-#include "mcld/MC/ContextFactory.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/MemoryAreaFactory.h"
-
 #include <llvm/ADT/Triple.h>
+
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/MC/MCLDOutput.h>
+#include <mcld/MC/MCLDOptions.h>
+#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/AttributeFactory.h>
+#include <mcld/MC/ContextFactory.h>
+#include <mcld/LD/StrSymPool.h>
+
 #include <string>
+#include <cassert>
 
 namespace mcld
 {
@@ -98,6 +101,19 @@ public:
 
   static const char* version();
 
+  void setNamePool(StrSymPool& pPool)
+  { m_pStrSymPool = &pPool; }
+
+  StrSymPool& getStrSymPool() {
+    assert(NULL != m_pStrSymPool);
+    return *m_pStrSymPool;
+  }
+
+  const StrSymPool& getStrSymPool() const {
+    assert(NULL != m_pStrSymPool);
+    return *m_pStrSymPool;
+  }
+
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
@@ -111,6 +127,9 @@ private:
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
   MemoryAreaFactory *m_pMemAreaFactory;
+
+  // -----  string and symbols  ----- //
+  StrSymPool* m_pStrSymPool;
 };
 
 } // namespace of mcld

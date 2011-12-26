@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/MC/InputFactory.h"
-#include "mcld/MC/AttributeFactory.h"
-#include "mcld/MC/ContextFactory.h"
-#include "mcld/Config/Config.h"
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/MC/InputFactory.h>
+#include <mcld/MC/AttributeFactory.h>
+#include <mcld/MC/ContextFactory.h>
+#include <mcld/Config/Config.h>
 #include <string>
 
 using namespace mcld;
@@ -21,7 +21,10 @@ using namespace mcld;
 MCLDInfo::MCLDInfo(const std::string& pTripleString,
                    size_t pAttrNum,
                    size_t pInputNum)
-  : m_Options(), m_pBitcode(0), m_Triple(pTripleString)
+  : m_Options(),
+    m_pBitcode(0),
+    m_pStrSymPool(0),
+    m_Triple(pTripleString)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);
