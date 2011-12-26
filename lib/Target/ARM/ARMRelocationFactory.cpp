@@ -10,6 +10,7 @@
 #include <string>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/LD/Layout.h>
 #include "ARMRelocationFactory.h"
 #include "ARMRelocationFunctions.h"
 
@@ -90,6 +91,24 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
   return thumbBit;
 }
 
+//=========================================//
+// Relocation helper function              //
+//=========================================//
+
+ARMRelocationFactory::Address helper_GOT_ORG(const ARMRelocationFactory& pParent)
+{
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    pParent.getTarget().getGOT().getSectionData()->getSection()
+  );
+  return ld_section.offset();
+}
+
+ARMRelocationFactory::Address helper_GOT(const ARMRelocationFactory& pParent,
+                                         const GOTEntry& pGOTEntry)
+{
+  return pParent.getLayout().getFragmentOffset(pGOTEntry);
+}
+
 
 //=========================================//
 // Each relocation function implementation //
@@ -125,26 +144,25 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
 {
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  ARMRelocationFactory::Address got_addr = static_cast<const LDSection&>
-    (pParent.getTarget().getGOT().getSectionData()->getSection()).offset();
+  ARMRelocationFactory::Address got_addr = helper_GOT_ORG(pParent);
 
   pReloc.target() = ((pReloc.symValue() + addend) | t_bit) - got_addr;
   return ARMRelocationFactory::OK;
 }
 
-// R_ARM_GOT_BREL: GOT(S) + A – GOT_ORG
+// R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
 ARMRelocationFactory::Result gotbrel(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
 }
 
-// R_ARM_PLT32: ((S + A) | T) – P
+// R_ARM_PLT32: ((S + A) | T) - P
 ARMRelocationFactory::Result plt32(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
 }
 
-// R_ARM_JUMP24: ((S + A) | T) – P
+// R_ARM_JUMP24: ((S + A) | T) - P
 ARMRelocationFactory::Result jump24(Relocation& pReloc, const ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
