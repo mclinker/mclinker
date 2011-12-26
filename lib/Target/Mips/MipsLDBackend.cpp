@@ -77,6 +77,71 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
                                       unsigned int pType)
 {
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  if (rsym->isLocal())
+    scanLocalRelocation(pReloc, pLinker, pType);
+  else if (rsym->isGlobal())
+    scanGlobalRelocation(pReloc, pLinker, pType);
+}
+
+void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
+                                           MCLinker& pLinker,
+                                           unsigned int pType)
+{
+  switch (pReloc.type()){
+    case ELF::R_MIPS_NONE:
+      break;
+    case ELF::R_MIPS_32:
+      // TODO: (simon) Reserve .rel.dyn entry
+      break;
+    case ELF::R_MIPS_HI16:
+    case ELF::R_MIPS_LO16:
+      break;
+    case ELF::R_MIPS_GOT16:
+    case ELF::R_MIPS_CALL16:
+      // TODO: (simon) Reserve .got entry
+      break;
+    case ELF::R_MIPS_GPREL32:
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unknown relocation type. ") +
+                               llvm::Twine("To symbol `") +
+                               pReloc.symInfo()->name() +
+                               llvm::Twine("'."));
+  }
+}
+
+void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
+                                            MCLinker& pLinker,
+                                            unsigned int pType)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  switch (pReloc.type()){
+    case ELF::R_MIPS_NONE:
+      break;
+    case ELF::R_MIPS_32:
+    case ELF::R_MIPS_HI16:
+    case ELF::R_MIPS_LO16:
+      // TODO: (simon) Reserve .rel.dyn entry
+      break;
+    case ELF::R_MIPS_GOT16:
+    case ELF::R_MIPS_CALL16:
+      // TODO: (simon) Reserve .got entry
+      break;
+    case ELF::R_MIPS_GPREL32:
+      llvm::report_fatal_error(llvm::Twine("R_MIPS_GPREL32 not defined for ") +
+                               llvm::Twine("global symbol `") +
+                               pReloc.symInfo()->name() +
+                               llvm::Twine("'."));
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unknown relocation type. ") +
+                               llvm::Twine("To symbol `") +
+                               pReloc.symInfo()->name() +
+                               llvm::Twine("'."));
+  }
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()

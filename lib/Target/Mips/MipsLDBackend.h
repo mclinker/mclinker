@@ -88,6 +88,15 @@ private:
   RelocationFactory* m_pRelocFactory;
 
   std::auto_ptr<MipsGOT> m_pGOT;            // .got
+
+private:
+  void scanLocalRelocation(Relocation& pReloc,
+                           MCLinker& pLinker,
+                           unsigned int pType);
+
+  void scanGlobalRelocation(Relocation& pReloc,
+                            MCLinker& pLinker,
+                            unsigned int pType);
 };
 
 } // namespace of mcld
