@@ -78,15 +78,19 @@ friend void mcld::ARMPLT::reserveEntry(int pNum);
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
-  template <typename EntryIteratorTy>
+  template <typename EntryIteratorType>
   class GOTIterator {
+
+    typedef typename EntryIteratorType::reference reference;
+    typedef typename EntryIteratorType::pointer pointer;
+
     public:
       GOTIterator(GroupsIterator pGroupIterator,
-                  EntryIteratorTy pIterator)
+                  EntryIteratorType pIterator)
                   : m_GroupsIterator(pGroupIterator),
                     m_EntryIterator(pIterator) { }
 
-      GOTIterator operator++ () {
+      GOTIterator& operator++() {
         m_EntryIterator++;
         if (m_EntryIterator == llvm::cast<ARMGOTEntries>
                                ((*m_GroupsIterator)).getEntryList().end()) {
@@ -94,11 +98,25 @@ public:
           m_EntryIterator = llvm::cast<ARMGOTEntries>
                             ((*m_GroupsIterator)).getEntryList().begin();
         }
+
+        return *this;
+      }
+
+      bool operator!=(const GOTIterator& pIterator) const {
+        return (m_EntryIterator != pIterator.m_EntryIterator);
+      }
+
+      reference operator*() const {
+        return *m_EntryIterator;
+      }
+
+      pointer operator->() const {
+        return &operator*();
       }
 
     private:
       GroupsIterator m_GroupsIterator;
-      EntryIteratorTy m_EntryIterator;
+      EntryIteratorType m_EntryIterator;
   };
 
 public:
