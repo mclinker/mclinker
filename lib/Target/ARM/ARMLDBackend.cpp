@@ -68,15 +68,15 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
   m_pEXIDX        = &pLinker.createSectHdr(".ARM.exidx",
-                                          LDFileFormat::MetaData,
+                                          LDFileFormat::Target,
                                           ELF::SHT_ARM_EXIDX,
                                                   ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
   m_pEXTAB        = &pLinker.createSectHdr(".ARM.extab",
-                                          LDFileFormat::MetaData,
+                                          LDFileFormat::Target,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC);
   m_pAttributes   = &pLinker.createSectHdr(".ARM.attributes",
-                                          LDFileFormat::MetaData,
+                                          LDFileFormat::Target,
                                           ELF::SHT_ARM_ATTRIBUTES,
                                           ELF::SHF_ALLOC);
 }
@@ -84,7 +84,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
 {
   LDSection& got  = pLinker.createSectHdr(".got",
-                                          LDFileFormat::GOT,
+                                          LDFileFormat::Target,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC | ELF::SHF_WRITE);
 
@@ -98,7 +98,7 @@ void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
   if(!m_pGOT)
     createARMGOT(pLinker);
   LDSection& plt  = pLinker.createSectHdr(".plt",
-                                          LDFileFormat::PLT,
+                                          LDFileFormat::Target,
                                           ELF::SHT_PROGBITS,
                                           ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   // create MCsectionData and ARMPLT
@@ -108,7 +108,7 @@ void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
 void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
 {
   LDSection& reldyn = pLinker.createSectHdr(".rel.dyn",
-                                            LDFileFormat::Data,
+                                            LDFileFormat::Relocation,
                                             ELF::SHT_REL,
                                             ELF::SHF_ALLOC);
   // create MCsectionData and ARMRelDynSection
@@ -118,7 +118,7 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
 void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
 {
   LDSection& relplt = pLinker.createSectHdr(".rel.plt",
-                                            LDFileFormat::Data,
+                                            LDFileFormat::Relocation,
                                             ELF::SHT_REL,
                                             ELF::SHF_ALLOC);
   // create MCsectionData and ARMRelDynSection

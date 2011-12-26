@@ -66,7 +66,7 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
   LDSection& got = pLinker.createSectHdr(".got",
-                                         LDFileFormat::GOT,
+                                         LDFileFormat::Target,
                                          ELF::SHT_PROGBITS,
                                          ELF::SHF_ALLOC | ELF::SHF_WRITE);
   llvm::MCSectionData& GOTSectionData = pLinker.getOrCreateSectData(got);

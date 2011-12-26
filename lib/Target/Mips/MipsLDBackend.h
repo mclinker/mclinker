@@ -29,9 +29,44 @@ public:
 
   uint32_t machine() const;
 
+  /// OSABI - the value of e_ident[EI_OSABI]
+  /// FIXME:
+  uint8_t OSABI() const
+  { return llvm::ELF::ELFOSABI_NONE; }
+  
+  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
+  /// FIXME:
+  uint8_t ABIVersion() const
+  { return 0x0; }
+
+  /// flags - the value of ElfXX_Ehdr::e_flags
+  /// FIXME:
+  uint64_t flags() const
+  { return llvm::ELF::EF_MIPS_ARCH_32; }
+
   bool isLittleEndian() const;
 
   unsigned int bitclass() const;
+
+  /// emitSectionData - write out the section data into the memory region.
+  /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
+  /// call back target backend to emit the data.
+  ///
+  /// Backends handle the target-special tables (plt, gp,...) by themselves.
+  /// Backend can put the data of the tables in MCSectionData directly
+  ///  - LDSection.getSectionData can get the section data.
+  /// Or, backend can put the data into special data structure
+  ///  - backend can maintain its own map<LDSection, table> to get the table
+  /// from given LDSection.
+  ///
+  /// @param pSection - the given LDSection
+  /// @param pRegion - the region to write out data
+  /// @return the size of the table in the file.
+  uint64_t emitSectionData(const LDSection& pSection,
+                           MemoryRegion& pRegion) const {
+    // FIXME
+    return 0x0;
+  }
 
   MipsGOT& getGOT();
 

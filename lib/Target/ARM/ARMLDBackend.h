@@ -95,21 +95,44 @@ public:
 
   uint32_t machine() const;
 
+  /// OSABI - the value of e_ident[EI_OSABI]
+  virtual uint8_t OSABI() const
+  { return llvm::ELF::ELFOSABI_NONE; }
+  
+  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
+  virtual uint8_t ABIVersion() const
+  { return 0x0; }
+
+  /// flags - the value of ElfXX_Ehdr::e_flags
+  virtual uint64_t flags() const
+  { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }
+
   bool isLittleEndian() const;
 
   unsigned int bitclass() const
   { return 32; }
 
+  /// emitSectionData - emit target-dependent section data
+  uint64_t emitSectionData(const LDSection& pSection,
+                           MemoryRegion& pRegion) const {
+    // TODO
+    return 0x0;
+  }
+
   ARMGOT& getGOT();
+
   const ARMGOT& getGOT() const;
 
   ARMPLT& getPLT();
+
   const ARMPLT& getPLT() const;
 
   ARMDynRelSection& getRelDyn();
+
   const ARMDynRelSection& getRelDyn() const;
 
   ARMDynRelSection& getRelPLT();
+
   const ARMDynRelSection& getRelPLT() const;
 
 private:

@@ -62,7 +62,7 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
   LDSection& got = pLinker.createSectHdr(".got",
-                                         LDFileFormat::GOT,
+                                         LDFileFormat::Target,
                                          ELF::SHT_PROGBITS,
                                          ELF::SHF_ALLOC | ELF::SHF_WRITE);
 
