@@ -88,6 +88,11 @@ public:
 
   void setAddend(Address pAddend);
 
+  // Relocation is a kind of MCFragment with type of FT_Reloc
+  static bool classof(const MCFragment *F)
+  { return F->getKind() == MCFragment::FT_Reloc;}
+  static bool classof(const Relocation *) { return true; }
+
 private:
   /// m_Type - the type of the relocation entries
   Type m_Type;

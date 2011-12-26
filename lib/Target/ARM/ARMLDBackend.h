@@ -34,7 +34,7 @@ public:
    *  \brief The reserved entry type of reserved space in ResolveInfo.
    *
    *  This is used for sacnRelocation to record what kinds of entries are
-   *  reserved for this resolved symbol.  
+   *  reserved for this resolved symbol
    *
    *  In ARM, there are three kinds of entries, GOT, PLT, and dynamic reloction.
    *  GOT may needs a corresponding relocation to relocate itself, so we
@@ -45,9 +45,9 @@ public:
    *
    *  bit:  3       2      1     0
    *   | PLT | GOTRel | GOT | Rel |
-   *  
+   *
    *  value    Name         - Description
-   *   
+   *
    *  0000     None         - no reserved entry
    *  0001     ReserveRel   - reserve an dynamic relocation entry
    *  0010     ReserveGOT   - reserve an GOT entry
@@ -55,7 +55,7 @@ public:
    *                          Rel for different location.
    *  0100     GOTRel       - reserve an GOT entry and the corresponding Dyncamic
    *                          relocation entry which relocate this GOT entry
-   *  0101     GOTRelandRel - For different relocation, we've reserved GOTRel 
+   *  0101     GOTRelandRel - For different relocation, we've reserved GOTRel
    *                          and relocation entry for different location.
    *  1000     ReservePLT   - reserve an PLT entry and the corresponding GOT,
    *                          Dynamic relocation entries
@@ -70,7 +70,7 @@ public:
     GOTRel       = 4,
     GOTRelandRel = 5,
     ReservePLT   = 8,
-    PLTandRel    = 9 
+    PLTandRel    = 9
   };
 
 public:

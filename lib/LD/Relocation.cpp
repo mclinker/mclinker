@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <llvm/MC/MCAssembler.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
@@ -21,10 +22,11 @@ Relocation::Relocation(Relocation::Type pType,
     m_Addend(pAddend),
     m_pTargetData(pTargetData),
     m_pSymInfo(0),
-    m_Parent(pParent)
-{       
+    m_Parent(pParent),
+    MCFragment(llvm::MCFragment::FT_Reloc)
+{
   if(pTargetRef)
-     m_TargetAddress = *pTargetRef ;    
+     m_TargetAddress = *pTargetRef ;
 }
 
 Relocation::~Relocation()
@@ -43,11 +45,11 @@ void Relocation::apply()
 }
 
 void Relocation::setType(Type pType)
-{ 
+{
   m_Type = pType;
 }
 
 void Relocation::setAddend(Address pAddend)
-{ 
-  m_Addend = pAddend; 
+{
+  m_Addend = pAddend;
 }
