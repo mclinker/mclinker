@@ -43,6 +43,10 @@ public:
 
   /// getFragmentOffset - Get the offset of the given fragment inside its
   /// containing section.
+  uint64_t getFragmentRefOffset(const MCFragmentRef& F) const;
+
+  /// getFragmentOffset - Get the offset of the given fragment inside its
+  /// containing section.
   uint64_t getFragmentOffset(const llvm::MCFragment& F) const;
 
   /// getFragmentRef - give a LDSection in input file and an offset, return
@@ -50,6 +54,12 @@ public:
   MCFragmentRef getFragmentRef(const LDSection& pInputSection,
                                uint64_t pOffset) const;
 
+
+  /// numOfSections - the number of sections
+  size_t numOfSections() const;
+
+  /// numOfSegments - the number of segments
+  size_t numOfSegments() const;
 
   // -----  modifiers  ----- //
   bool layout(MCLinker& pLinker);

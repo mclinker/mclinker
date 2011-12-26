@@ -34,6 +34,12 @@ uint64_t Layout::getFragmentOffset(const llvm::MCFragment& F) const
   return 0; // TODO
 }
 
+/// getFragmentOffset - Get the offset of the given fragment inside its
+uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& F) const
+{
+  return 0; // TODO
+}
+
 bool Layout::layout(MCLinker& pLinker)
 {
  return 0; // TODO
@@ -77,5 +83,17 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInp
     range.prevRear =
       const_cast<llvm::MCFragment*>(&pSD.getFragmentList().back());
   sect_data->push_back(range);
+}
+
+size_t Layout::numOfSections() const
+{
+  // TODO
+  return 0;
+}
+
+size_t Layout::numOfSegments() const
+{
+  // TODO
+  return 0;
 }
 
