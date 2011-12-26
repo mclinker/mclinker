@@ -289,9 +289,17 @@ bool MCLDDriver::finalizeSymbolValue()
 /// emitOutput - emit the output file.
 bool MCLDDriver::emitOutput()
 {
-  if (m_LDInfo.output().type() == MCLDFile::DynObj) {
-    DynObjWriter *dsoWriter = m_LDBackend.getDynObjWriter();
-    return dsoWriter->WriteObject();
+  switch(m_LDInfo.output().type()) {
+    case Output::Object:
+      m_LDBackend.getObjectWriter()->writeObject(m_LDInfo.output());
+      return true;
+    case Output::DynObj:
+      m_LDBackend.getDynObjWriter()->writeDynObj(m_LDInfo.output());
+      return true;
+    /** TODO: open the executable file writer **/
+    // case Output::Exec:
+      // m_LDBackend.getExecWriter()->writeObject(m_LDInfo.output());
+      // return true;
   }
   return false;
 }
