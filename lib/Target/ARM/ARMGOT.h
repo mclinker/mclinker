@@ -17,7 +17,6 @@
 
 namespace mcld
 {
-
 class LDSection;
 
 // GOT entries on ARM can be arranged into three categories,
@@ -68,8 +67,43 @@ class ARMGOT : public GOT
 {
 friend void mcld::ARMPLT::reserveEntry(int pNum);
 
-typedef ARMGOTEntries::iterator GOTIteratorType;
-typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+  // .got section is divided into three group.
+  // they are GOT0, GOTPLT, and general GOT entries.
+  typedef llvm::MCSectionData::iterator GroupsIterator;
+
+  // Iterator for entries in a group.
+  typedef ARMGOTEntries::iterator EntryIterator;
+  typedef ARMGOTEntries::const_iterator const_EntryIterator;
+
+  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+
+public:
+  template <typename EntryIteratorTy>
+  class GOTIterator {
+    public:
+      GOTIterator(GroupsIterator pGroupIterator,
+                  EntryIteratorTy pIterator)
+                  : m_GroupsIterator(pGroupIterator),
+                    m_EntryIterator(pIterator) { }
+
+      GOTIterator operator++ () {
+        m_EntryIterator++;
+        if (m_EntryIterator == llvm::cast<ARMGOTEntries>
+                               ((*m_GroupsIterator)).getEntryList().end()) {
+          m_GroupsIterator++;
+          m_EntryIterator = llvm::cast<ARMGOTEntries>
+                            ((*m_GroupsIterator)).getEntryList().begin();
+        }
+      }
+
+    private:
+      GroupsIterator m_GroupsIterator;
+      EntryIteratorTy m_EntryIterator;
+  };
+
+public:
+  typedef GOTIterator<EntryIterator> iterator;
+  typedef GOTIterator<const_EntryIterator> const_iterator;
 
 public:
   ARMGOT(llvm::MCSectionData& pSectionData);
@@ -85,6 +119,14 @@ public:
 
   void applyGOTPLT(uint64_t pAddress);
 
+  iterator begin();
+
+  const_iterator begin() const;
+
+  iterator end();
+
+  const_iterator end() const;
+
 private:
 
   //Keep first three GOT entries in .got section.
@@ -94,7 +136,7 @@ private:
 
   ARMGOTEntries* m_pGeneralGOTEntries;
 
-  GOTIteratorType m_GeneralGOTIterator;
+  EntryIterator m_GeneralGOTEntryIt;
 
   SymbolIndexMapType m_SymbolIndexMap;
 };
