@@ -69,6 +69,14 @@ public:
                     ResolveInfo::Visibility pVisibility,
                     Resolver::Result& pResult);
 
+  /// findSymbol - find the resolved output LDSymbol
+  LDSymbol* findSymbol(const llvm::StringRef& pName);
+  const LDSymbol* findSymbol(const llvm::StringRef& pName) const;
+
+  /// findInfo - find the resolved ResolveInfo
+  ResolveInfo* findInfo(const llvm::StringRef& pName);
+  const ResolveInfo* findInfo(const llvm::StringRef& pName) const;
+
   /// insertString - insert a string
   /// if the string has existed, modify pString to the existing string
   /// @return the StringRef points to the hash table

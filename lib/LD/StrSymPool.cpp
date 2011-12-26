@@ -153,3 +153,35 @@ StrSymPool::size_type StrSymPool::capacity() const
   return (m_Table.numOfBuckets() - m_Table.numOfEntries());
 }
 
+/// findInfo - find the resolved ResolveInfo
+ResolveInfo* StrSymPool::findInfo(const llvm::StringRef& pName)
+{
+  Table::iterator iter = m_Table.find(pName);
+  return iter.getEntry();
+}
+
+/// findInfo - find the resolved ResolveInfo
+const ResolveInfo* StrSymPool::findInfo(const llvm::StringRef& pName) const
+{
+  Table::const_iterator iter = m_Table.find(pName);
+  return iter.getEntry();
+}
+
+/// findSymbol - find the resolved output LDSymbol
+LDSymbol* StrSymPool::findSymbol(const llvm::StringRef& pName)
+{
+  ResolveInfo* info = findInfo(pName);
+  if (NULL == info)
+    return NULL;
+  return info->outSymbol();
+}
+
+/// findSymbol - find the resolved output LDSymbol
+const LDSymbol* StrSymPool::findSymbol(const llvm::StringRef& pName) const
+{
+  const ResolveInfo* info = findInfo(pName);
+  if (NULL == info)
+    return NULL;
+  return info->outSymbol();
+}
+
