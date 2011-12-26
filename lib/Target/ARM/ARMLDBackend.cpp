@@ -13,6 +13,7 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/SectionMap.h>
 #include <llvm/ADT/Triple.h>
+#include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
 
@@ -167,7 +168,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_ABS32:
       case ELF::R_ARM_ABS32_NOI: {
         // If buiding PIC object (shared library or PIC executable),
-        // A dynamic relocations with RELATIVE type to this location is needed.
+        // a dynamic relocations with RELATIVE type to this location is needed.
         // Reserve an entry in .rel.dyn
         if(Output::DynObj == pType) {
           // create .rel.dyn section if not exist
@@ -190,7 +191,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_THM_MOVW_ABS_NC:
       case ELF::R_ARM_THM_MOVT_ABS: {
         // If building PIC object (shared library or PIC executable),
-        // A dynamic relocation for this location is needed.
+        // a dynamic relocation for this location is needed.
         // Reserve an entry in .rel.dyn
         if(Output::DynObj == pType) {
           // create .rel.dyn section if not exist
@@ -212,7 +213,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
       case ELF::R_ARM_GOT_BREL:
       case ELF::R_ARM_GOT_PREL: {
-        // A GOT entry is needed for these relocation type
+        // A GOT entry is needed for these relocation type.
         // return if we already create GOT for this symbol
         if(rsym->reserved() & 0x6u)
           return;
@@ -234,6 +235,21 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // set GOT bit
         rsym->setReserved(rsym->reserved() | 0x2u);
         return;
+      }
+
+      case ELF::R_ARM_COPY:
+      case ELF::R_ARM_GLOB_DAT:
+      case ELF::R_ARM_JUMP_SLOT:
+      case ELF::R_ARM_RELATIVE: {
+        // These are relocation type for dynamic linker, shold not
+        // appear in object file.
+        llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
+                                 llvm::Twine(pReloc.type()) +
+                                 llvm::Twine("in object file"));
+        break;
+      }
+      default: {
+        break;
       }
     } // end switch
   } // end if(rsym->isLocal)
@@ -369,7 +385,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(rsym->reserved() & 0x8u)
           return;
         // if symbol is defined in the ouput file and it's protected
-        // and hidden, no need plt
+        // or hidden, no need plt
         if(rsym->isDefine() && !rsym->isDyn()
            && (rsym->other() == ResolveInfo::Hidden
                || rsym->other() == ResolveInfo::Protected))
@@ -401,9 +417,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(!m_pGOT)
           createARMGOT(pLinker);
         m_pGOT->reserveEntry();
-        // If building shared object or the symbol undefined, a dynamic
-        // relocation with is needed to relocate this GOT entry. Reserve
-        // an entry in .rel.dyn
+        // If building shared object or the symbol is undefined, a dynamic
+        // relocation is needed to relocate this GOT entry. Reserve an
+        // entry in .rel.dyn
         if(Output::DynObj == pType || rsym->isUndef() || rsym->isDyn()) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
@@ -416,6 +432,21 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // set GOT bit
         rsym->setReserved(rsym->reserved() | 0x2u);
         return;
+      }
+
+      case ELF::R_ARM_COPY:
+      case ELF::R_ARM_GLOB_DAT:
+      case ELF::R_ARM_JUMP_SLOT:
+      case ELF::R_ARM_RELATIVE: {
+        // These are relocation type for dynamic linker, shold not
+        // appear in object file.
+        llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
+                                 llvm::Twine(pReloc.type()) +
+                                 llvm::Twine("in object file"));
+        break;
+      }
+      default: {
+        break;
       }
     } // end switch
   } // end if(rsym->isGlobal)
