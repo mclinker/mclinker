@@ -11,15 +11,16 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/ObjectWriter.h"
-#include "mcld/LD/ELFWriter.h"
+#include <llvm/Support/system_error.h>
+#include <mcld/LD/ObjectWriter.h>
+#include <mcld/LD/ELFWriter.h>
 
 namespace mcld
 {
 
 class Input;
 class MCLinker;
-class TargetLDBackend;
+class GNULDBackend;
 
 /** \class ELFObjectWriter
  *  \brief ELFObjectWriter writes the target-independent parts of object files.
@@ -29,9 +30,12 @@ class TargetLDBackend;
 class ELFObjectWriter : public ObjectWriter, protected ELFWriter
 {
 public:
-  ELFObjectWriter(TargetLDBackend& pBackend, MCLinker& pLinker);
+  ELFObjectWriter(GNULDBackend& pBackend, MCLinker& pLinker);
 
   ~ELFObjectWriter();
+
+  llvm::error_code writeObject(Output& pOutput)
+  { return llvm::make_error_code(llvm::errc::not_supported); }
 
 private:
   MCLinker& m_Linker;

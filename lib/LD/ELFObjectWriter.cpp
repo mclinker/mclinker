@@ -12,8 +12,8 @@ using namespace mcld;
 
 //==========================
 // ELFObjectWriter
-ELFObjectWriter::ELFObjectWriter(TargetLDBackend& pBackend, MCLinker& pLinker)
-  : ObjectWriter(pBackend), ELFWriter(), m_Linker(pLinker) {
+ELFObjectWriter::ELFObjectWriter(GNULDBackend& pBackend, MCLinker& pLinker)
+  : ObjectWriter(pBackend), ELFWriter(pBackend), m_Linker(pLinker) {
 }
 
 ELFObjectWriter::~ELFObjectWriter()

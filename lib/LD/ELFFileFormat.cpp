@@ -18,8 +18,7 @@ ELFFileFormat::ELFFileFormat()
   : f_pELFNULLSection(0),
     f_pELFSymTab(0),
     f_pELFStrTab(0),
-    f_pELFComment(0),
-    f_pELFSectStrTab(0) {
+    f_pELFComment(0) {
 }
 
 ELFFileFormat::~ELFFileFormat()
@@ -29,15 +28,15 @@ ELFFileFormat::~ELFFileFormat()
 void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
 {
   f_pELFNULLSection  = &pLinker.createSectHdr("",
-                                              LDFileFormat::MetaData,
+                                              LDFileFormat::Null,
                                               ELF::SHT_NULL,
                                               0);
   f_pTextSection     = &pLinker.createSectHdr(".text",
-                                              LDFileFormat::Text,
+                                              LDFileFormat::Regular,
                                               ELF::SHT_PROGBITS,
                                               ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   f_pDataSection     = &pLinker.createSectHdr(".data",
-                                              LDFileFormat::Data,
+                                              LDFileFormat::Regular,
                                               ELF::SHT_PROGBITS,
                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
   f_pBSSSection      = &pLinker.createSectHdr(".bss",
@@ -45,27 +44,23 @@ void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
                                               ELF::SHT_NOBITS,
                                               ELF::SHF_ALLOC | ELF::SHF_WRITE);
   f_pReadOnlySection = &pLinker.createSectHdr(".rodata",
-                                              LDFileFormat::ReadOnly,
+                                              LDFileFormat::Regular,
                                               ELF::SHT_PROGBITS,
                                               ELF::SHF_ALLOC);
   // In ELF Spec Book I, p1-16. If symbol table and string table are in 
   // loadable segments, set the attribute to SHF_ALLOC bit. But in the
   // real world, this bit always turn off.
   f_pELFSymTab       = &pLinker.createSectHdr(".symtab",
-                                              LDFileFormat::SymbolTable,
+                                              LDFileFormat::NamePool,
                                               ELF::SHT_SYMTAB,
                                               0);
   f_pELFStrTab       = &pLinker.createSectHdr(".strtab",
-                                              LDFileFormat::StringTable,
+                                              LDFileFormat::NamePool,
                                               ELF::SHT_STRTAB,
                                               0);
   f_pELFComment      = &pLinker.createSectHdr(".comment",
                                               LDFileFormat::MetaData,
                                               ELF::SHT_PROGBITS,
-                                              0);
-  f_pELFSectStrTab   = &pLinker.createSectHdr(".shstrtab",
-                                              LDFileFormat::StringTable,
-                                              ELF::SHT_STRTAB,
                                               0);
 }
 

@@ -63,26 +63,67 @@ ELFReader::createELFObject(mcld::Input &pFile) const
 }
 
 LDFileFormat::Kind
-ELFReader::getLDSectionKind(const llvm::StringRef& name) const
+ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr) const
 {
-  if (name.startswith(".text")) {
-    return LDFileFormat::Text;
-  }
-  else if (name.startswith(".data")) {
-    return LDFileFormat::Data;
-  }
-  else if (name.startswith(".bss")) {
+  uint32_t type = pHdr.getType();
+  switch(type) {
+  case llvm::ELF::SHT_PROGBITS:
+    return LDFileFormat::Regular;
+  case llvm::ELF::SHT_SYMTAB:
+  case llvm::ELF::SHT_DYNSYM:
+  case llvm::ELF::SHT_STRTAB:
+    return LDFileFormat::NamePool;
+  case llvm::ELF::SHT_RELA:
+  case llvm::ELF::SHT_REL:
+    return LDFileFormat::Relocation;
+  case llvm::ELF::SHT_NOBITS:
     return LDFileFormat::BSS;
-  }
-  else if (name.startswith(".rodata")) {
-    return LDFileFormat::ReadOnly;
-  }
-  else if (name.startswith(".debug")) {
-    return LDFileFormat::Debug;
-  }
-  else {
+  case llvm::ELF::SHT_NOTE:
+    return LDFileFormat::Note;
+  case llvm::ELF::SHT_HASH:
+  case llvm::ELF::SHT_DYNAMIC:
+  case llvm::ELF::SHT_SHLIB:
     return LDFileFormat::MetaData;
+  default:
+    if ( type >= llvm::ELF::SHT_LOPROC && type <= llvm::ELF::SHT_HIPROC) {
+      return LDFileFormat::Target;
+    }
+    llvm::report_fatal_error(llvm::Twine("unsupported ELF section type: ") +
+                             llvm::Twine(type) + llvm::Twine(".\n"));
   }
+  return LDFileFormat::MetaData;
+}
+
+LDFileFormat::Kind
+ELFReader::getLDSectionKind(const ELFSectionHeader<64>& pHdr) const
+{
+  uint64_t type = pHdr.getType();
+  switch(type) {
+  case llvm::ELF::SHT_PROGBITS:
+    return LDFileFormat::Regular;
+  case llvm::ELF::SHT_SYMTAB:
+  case llvm::ELF::SHT_DYNSYM:
+  case llvm::ELF::SHT_STRTAB:
+    return LDFileFormat::NamePool;
+  case llvm::ELF::SHT_RELA:
+  case llvm::ELF::SHT_REL:
+    return LDFileFormat::Relocation;
+  case llvm::ELF::SHT_NOBITS:
+    return LDFileFormat::BSS;
+  case llvm::ELF::SHT_NOTE:
+    return LDFileFormat::Note;
+  case llvm::ELF::SHT_HASH:
+  case llvm::ELF::SHT_DYNAMIC:
+  case llvm::ELF::SHT_SHLIB:
+    return LDFileFormat::MetaData;
+  default:
+    if ( type >= llvm::ELF::SHT_LOPROC && type <= llvm::ELF::SHT_HIPROC) {
+      return LDFileFormat::Target;
+    }
+    llvm::report_fatal_error(llvm::Twine("unsupported ELF section type: ") +
+                             llvm::Twine(type) + llvm::Twine(".\n"));
+  }
+  return LDFileFormat::MetaData;
 }
 
 ResolveInfo::Binding

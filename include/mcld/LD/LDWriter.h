@@ -16,7 +16,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-
+#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
@@ -27,6 +27,12 @@ namespace mcld
  */
 class LDWriter
 {
+protected:
+  LDWriter() { }
+
+public:
+  virtual ~LDWriter() { }
+
 };
 
 } //end namespace

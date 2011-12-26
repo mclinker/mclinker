@@ -72,7 +72,7 @@ bool ELFObjectReader::readSections(Input& pInput)
     const ELFSectionHeader<32> *sh = (*shtab)[i];
 
     LDSection& ldSect = m_Linker.createSectHdr(sh->getName(),
-                                               ELFReader::getLDSectionKind(sh->getName()),
+                                               ELFReader::getLDSectionKind(*sh),
                                                sh->getType(),
                                                sh->getFlags());
 

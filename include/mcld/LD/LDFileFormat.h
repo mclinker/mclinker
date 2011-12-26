@@ -25,15 +25,14 @@ class LDFileFormat
 {
 public:
   enum Kind {
-    Text,
-    Data,
+    Null,
+    Regular,
     BSS,
-    ReadOnly,
-    SymbolTable,
-    StringTable,
-    GOT,
-    PLT,
+    NamePool,
+    Relocation,
     Debug,
+    Target,
+    Note,
     MetaData,
   };
 

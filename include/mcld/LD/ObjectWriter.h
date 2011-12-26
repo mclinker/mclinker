@@ -11,11 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/Support/system_error.h>
 
 namespace mcld
 {
 
-class TargetLDBackend;
+class Output;
+class GNULDBackend;
 
 /** \class ObjectWriter
  *  \brief ObjectWriter provides a common interface for object file writers.
@@ -23,19 +25,12 @@ class TargetLDBackend;
 class ObjectWriter
 {
 protected:
-  ObjectWriter(TargetLDBackend& pBackend);
+  ObjectWriter(GNULDBackend& pBackend);
 
 public:
   virtual ~ObjectWriter();
 
-  TargetLDBackend& target()
-  { return m_LDBackend; }
-
-  const TargetLDBackend& target() const
-  { return m_LDBackend; }
-
-private:
-  TargetLDBackend& m_LDBackend;
+  virtual llvm::error_code writeObject(Output& pOutput) = 0;
 };
 
 } // namespace of mcld

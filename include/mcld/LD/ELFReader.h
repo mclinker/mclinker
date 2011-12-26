@@ -38,9 +38,12 @@ public:
   std::auto_ptr<ELFObject<32> > createELFObject(mcld::Input &pFile) const;
 
   ResolveInfo::Binding getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const;
+
   ResolveInfo::Visibility getVisibilityResolveInfo(ELFSymbol<32>* sym) const;
 
-  LDFileFormat::Kind getLDSectionKind(const llvm::StringRef& name) const;
+  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<32>& pHeader) const;
+
+  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<64>& pHeader) const;
 
   std::string getSymbolTypeName(unsigned int pType) const;
 };

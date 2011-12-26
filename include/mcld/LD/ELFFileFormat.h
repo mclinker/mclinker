@@ -39,7 +39,6 @@ protected:
   LDSection* f_pELFSymTab;         // .symtab
   LDSection* f_pELFStrTab;         // .strtab
   LDSection* f_pELFComment;        // .comment
-  LDSection* f_pELFSectStrTab;     // .shstrtab
 };
 
 } // namespace of mcld

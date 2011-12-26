@@ -11,13 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/LDWriter.h"
+#include <mcld/MC/MCLDOutput.h>
+#include <mcld/LD/LDWriter.h>
 #include <llvm/Support/system_error.h>
 
 namespace mcld
 {
-
-class TargetLDBackend;
 
 /** \class DynObjWriter
  *  \brief DynObjWriter provides an common interface for different object
@@ -25,26 +24,15 @@ class TargetLDBackend;
  */
 class DynObjWriter : public LDWriter
 {
-
 protected:
+  // force to have a TargetLDBackend
   DynObjWriter(TargetLDBackend& pLDBackend)
-  : m_TargetLDBackend(pLDBackend)
   { }
 
 public:
   virtual ~DynObjWriter() { }
 
-  virtual bool WriteObject() { return false; }
-
-  TargetLDBackend& target()
-  { return m_TargetLDBackend; }
-
-  const TargetLDBackend& target() const
-  { return m_TargetLDBackend; }
-  
-private:
-  TargetLDBackend& m_TargetLDBackend;
-
+  virtual llvm::error_code writeDynObj(Output& pOutput) = 0;
 };
 
 } // namespace of mcld
