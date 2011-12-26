@@ -454,14 +454,50 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
 ARMGOT& ARMGNULDBackend::getGOT()
 {
-  assert(0 != m_pGOT);
+  assert(0 != m_pGOT && "GOT section not exist");
   return *m_pGOT;
 }
 
 const ARMGOT& ARMGNULDBackend::getGOT() const
 {
-  assert(0 != m_pGOT);
+  assert(0 != m_pGOT && "GOT section not exist");
   return *m_pGOT;
+}
+
+ARMPLT& ARMGNULDBackend::getPLT()
+{
+  assert(0 != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+const ARMPLT& ARMGNULDBackend::getPLT() const
+{
+  assert(0 != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+ARMDynRelSection& ARMGNULDBackend::getRelDyn()
+{
+  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  return *m_pRelDyn;
+}
+   
+const ARMDynRelSection& ARMGNULDBackend::getRelDyn() const
+{
+  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  return *m_pRelDyn;
+}
+
+ARMDynRelSection& ARMGNULDBackend::getRelPLT()
+{
+  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  return *m_pRelPLT;
+}
+   
+const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
+{
+  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  return *m_pRelPLT;
 }
 
 namespace mcld {

@@ -106,15 +106,15 @@ public:
   ARMPLT& getPLT();
   const ARMPLT& getPLT() const;
 
-  llvm::MCSectionData& getRelDyn();
-  const llvm::MCSectionData& getRelDyn() const;
+  ARMDynRelSection& getRelDyn();
+  const ARMDynRelSection& getRelDyn() const;
 
-  llvm::MCSectionData& getRelPLT();
-  const llvm::MCSectionData& getRelPLT() const;
+  ARMDynRelSection& getRelPLT();
+  const ARMDynRelSection& getRelPLT() const;
 
 private:
   void createARMGOT(MCLinker& pLinker);
-  void createARMPLT(MCLinker& pLinker); 
+  void createARMPLT(MCLinker& pLinker);
   void createARMRelDyn(MCLinker& pLinker);
   void createARMRelPLT(MCLinker& pLinker);
   bool isSymbolNeedsPLT(ResolveInfo& pSym, unsigned int pType);
