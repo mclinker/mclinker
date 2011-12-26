@@ -147,3 +147,19 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat()
   return m_pExecFileFormat;
 }
 
+/// emitRegNamePools - emit regular name pools - .symtab, .strtab
+uint64_t GNULDBackend::emitRegNamePools(Output& pOutput,
+                                        const MCLDInfo& pLDInfo) const
+{
+  // TODO
+  return 0;
+}
+
+/// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
+uint64_t GNULDBackend::emitDynNamePools(Output& pOutput,
+                                        const MCLDInfo& pLDInfo) const
+{
+  // TODO
+  return 0;
+}
+
