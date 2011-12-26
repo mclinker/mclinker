@@ -86,7 +86,8 @@ public:
 
 private:
   RelocationFactory* m_pRelocFactory;
-  MipsGOT* m_pGOT;
+
+  std::auto_ptr<MipsGOT> m_pGOT;            // .got
 };
 
 } // namespace of mcld
