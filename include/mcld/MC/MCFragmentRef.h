@@ -25,7 +25,7 @@ namespace mcld
 class MCFragmentRef
 {
 public:
-  typedef size_t Offset; // FIXME: use SizeTraits<T>::Offset
+  typedef uint64_t Offset; // FIXME: use SizeTraits<T>::Offset
   typedef NonConstTraits<unsigned char>::pointer Address;
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
