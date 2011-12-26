@@ -95,6 +95,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsDynRelSection.h \
+	${LIBDIR}/Target/Mips/MipsDynRelSection.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \

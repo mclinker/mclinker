@@ -14,6 +14,7 @@
 namespace mcld {
 
 class MCLinker;
+class MipsDynRelSection;
 class SectionMap;
 
 //===----------------------------------------------------------------------===//
@@ -87,7 +88,8 @@ public:
 private:
   RelocationFactory* m_pRelocFactory;
 
-  std::auto_ptr<MipsGOT> m_pGOT;            // .got
+  std::auto_ptr<MipsGOT> m_pGOT;                    // .got
+  std::auto_ptr<MipsDynRelSection> m_pRelDynSec;    // .rel.dyn
 
 private:
   void scanLocalRelocation(Relocation& pReloc,
@@ -99,6 +101,9 @@ private:
                             unsigned int pType);
 
   void createGOTSec(MCLinker& pLinker);
+  void createRelDynSec(MCLinker& pLinker);
+
+  bool isSymbolNeedsDynRel(ResolveInfo& pSym, unsigned int pType);
 };
 
 } // namespace of mcld

@@ -13,6 +13,7 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/SectionMap.h>
 #include "Mips.h"
+#include "MipsDynRelSection.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
 
@@ -79,11 +80,22 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
                                            MCLinker& pLinker,
                                            unsigned int pType)
 {
+  ResolveInfo* rsym = pReloc.symInfo();
+
   switch (pReloc.type()){
     case ELF::R_MIPS_NONE:
       break;
     case ELF::R_MIPS_32:
-      // TODO: (simon) Reserve .rel.dyn entry
+      if (Output::DynObj == pType) {
+        // TODO: (simon) Check section flag SHF_EXECINSTR
+        // half_t shndx = rsym->getSectionIndex();
+        if (true) {
+          if (NULL == m_pRelDynSec.get())
+            createRelDynSec(pLinker);
+
+          m_pRelDynSec->reserveEntry(*m_pRelocFactory);
+        }
+      }
       break;
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
@@ -117,7 +129,12 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
     case ELF::R_MIPS_32:
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
-      // TODO: (simon) Reserve .rel.dyn entry
+      if (isSymbolNeedsDynRel(*rsym, pType)) {
+        if (NULL == m_pRelDynSec.get())
+          createRelDynSec(pLinker);
+
+        m_pRelDynSec->reserveEntry(*m_pRelocFactory);
+      }
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
@@ -140,6 +157,18 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
   }
 }
 
+void MipsGNULDBackend::createRelDynSec(MCLinker& pLinker)
+{
+  LDSection& sec = pLinker.createSectHdr(".rel.dyn",
+                                         LDFileFormat::Relocation,
+                                         ELF::SHT_REL,
+                                         ELF::SHF_ALLOC);
+
+  llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
+
+  m_pRelDynSec.reset(new MipsDynRelSection(data));
+}
+
 void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)
 {
   LDSection& sec = pLinker.createSectHdr(".got",
@@ -150,6 +179,21 @@ void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
   m_pGOT.reset(new MipsGOT(data));
+}
+
+bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
+                                           unsigned int pType)
+{
+  if(pSym.isUndef() && (pType==Output::Exec))
+    return false;
+  if(pSym.isAbsolute())
+    return false;
+  if(pType==Output::DynObj)
+    return true;
+  if(pSym.isDyn() || pSym.isUndef())
+    return true;
+
+  return false;
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()
