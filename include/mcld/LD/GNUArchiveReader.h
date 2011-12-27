@@ -27,6 +27,7 @@ class MemoryBuffer;
 
 namespace mcld
 {
+class MCLDInfo;
 class Input;
 class InputTree;
 
@@ -40,8 +41,20 @@ private:
   struct ArchiveMapEntry;
 
 public:
-  GNUArchiveReader();
-  ~GNUArchiveReader();
+  //FIXME:temp use ,still don't know how to get MCLDInfo from GNULDBackend.
+  GNUArchiveReader()
+  : m_pInfo(0),
+    m_endian(LDReader::LittleEndian)
+  {
+  }
+
+  GNUArchiveReader(LDReader::Endian endian, MCLDInfo *info)
+  : m_pInfo(info),
+    m_endian(endian)
+  { }
+
+  ~GNUArchiveReader()
+  { }
 
   /// Read an archive and extract each member in.
   /// Construct the coresponding Input for each member.
@@ -52,10 +65,6 @@ public:
   LDReader::Endian endian(Input& pFile) const;
 
 private:
-  /// Map file to MemoryBuffer
-  bool mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                   sys::fs::Path archPath);
- 
   /// set up the archive, including 
   /// first, read symbol table 
   /// second, read extended file name which is used in thin archive
@@ -74,9 +83,9 @@ private:
                       off_t start,
                       size_t size); 
 
-  llvm::MemoryBuffer *getMemberFile(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                    std::vector<ArchiveMapEntry> &archiveMap); 
-
+private:
+  MCLDInfo *m_pInfo;
+  LDReader::Endian m_endian;  
 };
 
 } // namespace of mcld

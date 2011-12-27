@@ -84,21 +84,11 @@ Type stringToType(const std::string &str)
   return n;
 }
 
-GNUArchiveReader::GNUArchiveReader()
-{
-}
-
-GNUArchiveReader::~GNUArchiveReader()
-{
-}
 
 /// GNUArchiveReader Operations
 /// Public API
 bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
-  // FIXME: The code below is broken and needs to be fixed.
-  return false;
-
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
@@ -122,20 +112,13 @@ LDReader::Endian GNUArchiveReader::endian(Input& pFile) const
 InputTree *GNUArchiveReader::readArchive(Input &pInput)
 {
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
-  mapToMemory(mapFile, pInput.path());
+  if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile)) {
+    assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
+    return NULL;
+  }
   return setupNewArchive(mapFile, 0);
 }
 
-/// Internal used
-bool GNUArchiveReader::mapToMemory(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                  sys::fs::Path archPath)
-{ 
-  if(llvm::MemoryBuffer::getFile(archPath.c_str(), mapFile)) {
-    assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
-    return false;
-  }
-  return true;
-}
 
 InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                             size_t off)
@@ -178,6 +161,7 @@ InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer>
   size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
   /// extended Name table 
   if(archiveMemberName == "/") {
+    off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
     pFile += off;
     extendedName.assign(pFile,extendedSize);
   }
@@ -191,7 +175,8 @@ InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer>
     /// Finally, construct a corresponding mcld::Input, and insert it into
     /// the original InputTree.
     off_t nestedOff = 0;
-    size_t memberOffset = parseMemberHeader(mapFile, archiveMap[i].fileOffset, &archiveMemberName, &nestedOff, extendedName);
+    size_t memberOffset = parseMemberHeader(mapFile, archiveMap[i].fileOffset,
+                                            &archiveMemberName, &nestedOff, extendedName);
     /// normal member ie. relocatable object file.
     /// FIXME: new Input and insert to InputTree
     if(!isThinArchive)
@@ -239,7 +224,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
 
   /// switch case for each format.
   /// normal archive member : object file 
-  if(header->name[0] == '/')
+  if(header->name[0] != '/')
   {
     const char* nameEnd = strchr(header->name, '/');
     if(nameEnd == NULL || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
@@ -261,11 +246,10 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   else if(header->name[1] == '/') {
     p_Name->assign(1,'/');
   }
-  /// thin archive member
+  /// exteranal member or nested member
   else {
-    std::string nameString(header->name,sizeof(header->name));
     char *end;
-    long extendedNameOff = strtol(&nameString[0], &end, 10);
+    long extendedNameOff = strtol(header->name+1, &end, 10);
     long nestedOff = 0;  
     if(*end == ':')
       nestedOff = strtol(end+1, &end, 10);
@@ -279,12 +263,10 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
 
     const char *name = p_ExtendedName.data() + extendedNameOff;
     const char *nameEnd = strchr(name, '\n');
-    
     if(nameEnd[-1] != '/' || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size()) {
       assert(0=="p_ExtendedName substring is not end with / \n");
       return 0;
     }
-
     p_Name->assign(name, nameEnd-name-1);
     if(p_NestedOff)
      *p_NestedOff = nestedOff;
@@ -301,10 +283,11 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
   const char *startPtr = mapFile->getBufferStart() + start;
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
-  ///FIXME: intel and ARM are littel-endian , Sparc is big-endian
+  ///Intel and ARM are littel-endian , Sparc is big-endian
   ///symbolNum read from archive is big-endian 
   ///This is portibility issue.
-  endian_swap(symbolNum); 
+  if(m_endian == LDReader::LittleEndian) 
+    endian_swap(symbolNum); 
   ++p_Word;
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
@@ -325,9 +308,4 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
   }
 }
  
-llvm::MemoryBuffer *GNUArchiveReader::getMemberFile(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile, 
-                                                   std::vector<ArchiveMapEntry> &archiveMap)
-{
-  /// FIXME: Do we really need this??
-  return NULL;
-}
+
