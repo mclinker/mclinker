@@ -13,6 +13,7 @@
 #include <mcld/LD/Layout.h>
 #include "ARMRelocationFactory.h"
 #include "ARMRelocationFunctions.h"
+#include <stdint.h>
 
 using namespace mcld;
 
@@ -77,6 +78,8 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
   }
 }
 
+
+
 //===----------------------------------------------------------------------===//
 // non-member functions
 static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
@@ -90,6 +93,9 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
         1:0;
   return thumbBit;
 }
+
+
+
 
 //=========================================//
 // Relocation helper function              //
@@ -110,6 +116,19 @@ ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
                                          const GOTEntry& pGOTEntry)
 {
   return helper_GOT_ORG(pParent) + pParent.getLayout().getFragmentOffset(pGOTEntry);
+}
+
+
+
+// Using uint64_t to make sure those complicate operations won't cause
+// undefined behavior.
+static
+uint64_t helper_sign_extend(uint64_t pVal, uint64_t pOri_width)
+{
+  assert(pOri_width <= 64);
+  uint64_t sign_bit = 1 << (pOri_width - 1);
+  return (pVal ^ sign_bit) - sign_bit;
+  // Reverse sign bit, then subtract sign bit.
 }
 
 
@@ -146,6 +165,8 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc, ARMRelocationFactory& pPar
   }
   return got_entry;
 }
+
+
 
 
 //=========================================//
