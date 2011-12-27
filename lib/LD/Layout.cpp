@@ -80,10 +80,12 @@ uint64_t Layout::getFragmentOffset(const llvm::MCFragment& pFrag) const
   return pFrag.Offset;
 }
 
-/// getFragmentOffset - Get the offset of the given fragment inside its
-uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& F) const
+/// getFragmentOffset - Get the offset of the given fragment reference inside its
+/// containing section.
+uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
 {
-  return 0; // TODO
+  assert(NULL != pFragRef.frag());
+  return pFragRef.frag()->Offset + pFragRef.offset();
 }
 
 bool Layout::layout(MCLinker& pLinker)
@@ -96,30 +98,75 @@ bool Layout::layout(MCLinker& pLinker)
 MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
                                      uint64_t pOffset) const
 {
-  // TODO
-  return MCFragmentRef();
+  // find out which SectionData covers the range of input section header
+  InputRangeList::const_iterator sd_range_iter =
+    m_InputRangeList.find(pInputSection.getSectionData());
+  if (sd_range_iter == m_InputRangeList.end())
+    llvm::report_fatal_error(
+      llvm::Twine("Attempt to get FragmentRef in section '") +
+      pInputSection.name() +
+      llvm::Twine("' but without SectionData\n"));
+
+  RangeList* sd_range = sd_range_iter->second;
+
+  // find out the specific part in SectionData range
+  RangeList::iterator it, range_end = sd_range->end();
+  for (it = sd_range->begin(); it != range_end; ++it) {
+    if (&pInputSection == it->header)
+      break;
+  }
+  if (it == range_end)
+    llvm::report_fatal_error(
+      llvm::Twine("Attempt to find a non-exsiting range from section '") +
+      pInputSection.name());
+
+  // get the begin fragment in the range of input section
+  llvm::MCFragment* frag = it->prevRear;
+  if (NULL == frag)
+    frag =
+      const_cast<llvm::MCFragment*>(&*pInputSection.getSectionData()->begin());
+  else
+    frag = frag->getNextNode();
+
+  // advance the iterator to get the rear fragment in the interested range
+  const llvm::MCFragment* rear = (++it != range_end) ? it->prevRear :
+    (&pInputSection.getSectionData()->getFragmentList().back());
+  assert(NULL != frag && NULL != rear);
+
+  // make sure that rear fragment and all MCFragments before rear are valid
+  ensureValid(*rear);
+
+  uint64_t target_offset = frag->Offset + pOffset;
+  if (rear->Offset < target_offset)
+    llvm::report_fatal_error(
+      llvm::Twine("The given offset exceeds the actual range of Section '") +
+      pInputSection.name() +
+      llvm::Twine("'\n"));
+
+  // find out the target fragment in the range of input section
+  while (frag->getNextNode() && (frag->getNextNode()->Offset < target_offset))
+    frag = frag->getNextNode();
+
+  return MCFragmentRef(*frag, target_offset - frag->Offset);
 }
 
 void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr)
 {
   // check if mapping the input range to a existing SectionData or a new one
-  InputRangeList::iterator sect_data_iter = m_InputRangeList.find(&pSD);
-  RangeList* sect_data;
-  if (sect_data_iter != m_InputRangeList.end()) {
-    sect_data = sect_data_iter->second;
-    assert(NULL != sect_data);
+  InputRangeList::iterator sd_range_iter = m_InputRangeList.find(&pSD);
+  RangeList* sd_range;
+  if (sd_range_iter != m_InputRangeList.end()) {
+    sd_range = sd_range_iter->second;
     // check if we already built a mapping for the same input section header
     RangeList::iterator it;
-    for (it = sect_data->begin(); it != sect_data->end(); ++it) {
-      if (&pInputHdr == &(*(it->header)))
+    for (it = sd_range->begin(); it != sd_range->end(); ++it) {
+      if (&pInputHdr == it->header)
         llvm::report_fatal_error(llvm::Twine("Trying to map second range of ") +
                                  pInputHdr.name() +
                                  llvm::Twine(" into the same SectionData!\n"));
     }
-  } else {
-    sect_data = m_InputRangeList[&pSD] = new RangeList();
-    assert(NULL != sect_data);
-  }
+  } else
+    sd_range = m_InputRangeList[&pSD] = new RangeList();
 
   Range range = {
     &pInputHdr,
@@ -128,7 +175,7 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInp
   if (!pSD.getFragmentList().empty())
     range.prevRear =
       const_cast<llvm::MCFragment*>(&pSD.getFragmentList().back());
-  sect_data->push_back(range);
+  sd_range->push_back(range);
 }
 
 size_t Layout::numOfSections() const
