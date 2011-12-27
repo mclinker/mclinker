@@ -38,13 +38,12 @@ ELFObjectReader::~ELFObjectReader()
 
 bool ELFObjectReader::isMyFormat(Input &pFile) const
 {
-  // TODO
-  return true;
+  return (MCLDFile::Object == ELFReader::fileType(pFile));
 }
 
 LDReader::Endian ELFObjectReader::endian(Input &pFile) const
 {
-  if (isLittleEndian(pFile))
+  if (ELFReader::isLittleEndian(pFile))
     return LDReader::LittleEndian;
   return LDReader::BigEndian;
 }

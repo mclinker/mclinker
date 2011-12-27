@@ -30,16 +30,14 @@ ELFDynObjReader::~ELFDynObjReader()
 
 LDReader::Endian ELFDynObjReader::endian(Input& pFile) const
 {
-  // TODO
-  return LDReader::LittleEndian;
+  if (ELFReader::isLittleEndian(pFile))
+    return LDReader::LittleEndian;
+  return LDReader::BigEndian;
 }
 
 bool ELFDynObjReader::isMyFormat(Input &pFile) const
 {
-  // TODO: Since normalize use this function before read symbol,
-  //       so we check extension first.
-  // NOTE: Add ELFObject Cache, check Type and Machine
-  return pFile.path().extension().native().find(".so") != std::string::npos;
+  return (MCLDFile::DynObj == ELFReader::fileType(pFile));
 }
 
 llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
