@@ -59,15 +59,13 @@ bool ELFObjectReader::readSections(Input& pInput)
   ELFObject<32> *object = ELFReader::createELF32Object(pInput);
   llvm::OwningPtr<ELFObject<32> > own_ptr(object);
 
-  const ELFSectionHeaderTable<32> *shtab =
-    object->getSectionHeaderTable();
+  const ELFSectionHeaderTable<32> *shtab = object->getSectionHeaderTable();
 
   // skip first NULL section
   size_t i = 1;
   for (; i < object->getSectionNumber(); ++i) {
 
     const ELFSectionHeader<32> *sh = (*shtab)[i];
-
     LDSection& ldSect = m_Linker.createSectHdr(sh->getName(),
                                                ELFReader::getLDSectionKind(*sh, sh->getName()),
                                                sh->getType(),
@@ -133,11 +131,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
       case llvm::ELF::STT_SECTION:
       case llvm::ELF::STT_FILE:
       default: {
-        llvm::errs() << "WARNING: do not support symbol type `"
-                     << getSymbolTypeName(ld_type)
-                     << "' of symbol `"
-                     << ld_name.str()
-                     << "'.\n";
+        // FIXME: support these kinds of symbols
         break;
       }
     }

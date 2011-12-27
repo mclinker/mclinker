@@ -36,14 +36,6 @@ ELFDynObjWriter::~ELFDynObjWriter()
 
 llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
 {
-  // Write out ELF header
-  if (32 == target().bitclass())
-    writeELF32Header(m_Linker.getLDInfo(), m_Linker.getLayout(), target(), pOutput);
-  else if (64 == target().bitclass())
-    writeELF64Header(m_Linker.getLDInfo(), m_Linker.getLayout(), target(), pOutput);
-  else
-    return make_error_code(errc::not_supported);
-
   // FIXME:
   // Write out ELF program header
 
@@ -121,8 +113,35 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
   // FIXME:
   // Write out dynamic section .dynamic
 
-  // Write out section header table
-  emitSectionHeader(pOutput, m_Linker, cur_offset);
+  // Write out .shstrtab
+  m_Linker.createSectHdr(".shstrtab",
+                         LDFileFormat::NamePool,
+                         llvm::ELF::SHT_STRTAB,
+                         0x0);
+  LDSection* shstrtab = pOutput.context()->getSection(".shstrtab");
+  cur_offset += emitShStrTab(pOutput, *shstrtab, cur_offset);
+
+  // Write out ELF header and section header table
+  if (32 == target().bitclass()) {
+    writeELF32Header(m_Linker.getLDInfo(),
+                     m_Linker.getLayout(),
+                     target(),
+                     pOutput,
+                     cur_offset);
+
+    cur_offset += emitELF32SectionHeader(pOutput, m_Linker, cur_offset);
+  }
+  else if (64 == target().bitclass()) {
+    writeELF64Header(m_Linker.getLDInfo(),
+                     m_Linker.getLayout(),
+                     target(),
+                     pOutput,
+                     cur_offset);
+
+    cur_offset += emitELF64SectionHeader(pOutput, m_Linker, cur_offset);
+  }
+  else
+    return make_error_code(errc::not_supported);
 
   return llvm::make_error_code(llvm::errc::success);
 }

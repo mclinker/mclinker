@@ -22,6 +22,7 @@ class MCLDInfo;
 class Layout;
 class GNULDBackend;
 class Relocation;
+class LDSection;
 
 /** \class ELFWriter
  *  \brief ELFWriter provides basic functions to write ELF sections, symbols,
@@ -46,15 +47,17 @@ public:
   const GNULDBackend& target() const
   { return f_Backend; }
 
-  virtual void writeELF32Header(const MCLDInfo& pInfo,
-                                const Layout& pLayout,
-                                const GNULDBackend& pBackend,
-                                Output& pOutput) const;
+  virtual FileOffset writeELF32Header(const MCLDInfo& pInfo,
+                                      const Layout& pLayout,
+                                      const GNULDBackend& pBackend,
+                                      Output& pOutput,
+                                      FileOffset pShdrOffset) const;
 
-  virtual void writeELF64Header(const MCLDInfo& pInfo,
-                                const Layout& pLayout,
-                                const GNULDBackend& pBackend,
-                                Output& pOutput) const;
+  virtual FileOffset writeELF64Header(const MCLDInfo& pInfo,
+                                      const Layout& pLayout,
+                                      const GNULDBackend& pBackend,
+                                      Output& pOutput,
+                                      FileOffset pShdrOffset) const;
 
   virtual uint64_t getEntry(const MCLDInfo& pInfo,
                             const Layout& pLayout,
@@ -62,9 +65,18 @@ public:
                             const Output& pOutput) const;
 
 protected:
-  FileOffset emitSectionHeader(Output& pOutput,
-                               MCLinker& pLinker,
-                               FileOffset pStartOffset) const;
+  FileOffset emitELF32SectionHeader(Output& pOutput,
+                                    MCLinker& pLinker,
+                                    FileOffset pStartOffset) const;
+
+  FileOffset emitELF64SectionHeader(Output& pOutput,
+                                    MCLinker& pLinker,
+                                    FileOffset pStartOffset) const;
+
+  // emitShStrTab - emit .shstrtab
+  FileOffset emitShStrTab(Output& pOutput,
+                          LDSection& pShStrSect,
+                          FileOffset pStartOffset) const;
 
   FileOffset emitSectionData(const LDSection& pSection,
                              MemoryRegion& pRegion) const;
@@ -76,6 +88,16 @@ protected:
                           MemoryRegion& pRegion,
                           FileOffset pOffset,
                           bool pIsRela = false ) const;
+
+private:
+  // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
+  uint64_t getSectEntrySize(const LDSection& pSection) const;
+
+  // getSectEntrySize - compute ElfXX_Shdr::sh_link
+  uint64_t getSectLink(const LDSection& pSection, const Output& pOutput) const;
+
+  // getSectEntrySize - compute ElfXX_Shdr::sh_info
+  uint64_t getSectInfo(const LDSection& pSection, const Output& pOutput) const;
 
 protected:
   GNULDBackend& f_Backend;
