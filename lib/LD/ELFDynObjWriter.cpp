@@ -60,7 +60,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     LDSection* sect = pOutput.context()->getSection(secIdx);
     MemoryRegion* region = NULL;
     // request output region
-    switch(sect->type()) {
+    switch(sect->kind()) {
       case LDFileFormat::Regular:
       case LDFileFormat::Relocation:
       case LDFileFormat::Target: {
@@ -76,20 +76,26 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
         }
         break;
       }
+      case LDFileFormat::Null:
       case LDFileFormat::NamePool:
       case LDFileFormat::BSS:
+      case LDFileFormat::Debug:
+      case LDFileFormat::Note:
+      case LDFileFormat::MetaData:
         // ignore these sections
         continue;
       default: {
-        llvm::errs() << "WARNING: unsupported section type: "
-                     << sect->type()
+        llvm::errs() << "WARNING: unsupported section kind: "
+                     << sect->kind()
+                     << " of section "
+                     << sect->name()
                      << ".\n";
         continue;
       }
     }
 
     // write out sections with data
-    switch(sect->type()) {
+    switch(sect->kind()) {
       case LDFileFormat::Regular: {
         cur_offset += emitSectionData(*sect, *region);
         break;
