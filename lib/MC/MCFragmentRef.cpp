@@ -53,13 +53,6 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
 
     case llvm::MCFragment::FT_Region:
       return static_cast<const MCRegionFragment&>(pFrag).getRegion().size();
-
-    case llvm::MCFragment::FT_Reloc:
-    case llvm::MCFragment::FT_GOT:
-    case llvm::MCFragment::FT_PLT:
-      // TODO
-      assert(0 && "Not implemented yet");
-      return 0;
   }
 
   assert(0 && "invalid fragment kind");
