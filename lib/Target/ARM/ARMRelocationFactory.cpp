@@ -40,7 +40,7 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
   }
 
   /// the prototype of applying function
-  typedef Result (*ApplyFunctionType)(Relocation& pReloc, const ARMRelocationFactory& pParent);
+  typedef Result (*ApplyFunctionType)(Relocation& pReloc, ARMRelocationFactory& pParent);
 
   // the table entry of applying functions
   struct ApplyFunctionTriple {
@@ -95,7 +95,7 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
 // Relocation helper function              //
 //=========================================//
 
-ARMRelocationFactory::Address helper_GOT_ORG(const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 {
   const LDSection& ld_section = static_cast<const LDSection&>(
     pParent.getTarget().getGOT().getSectionData()->getSection()
@@ -103,7 +103,7 @@ ARMRelocationFactory::Address helper_GOT_ORG(const ARMRelocationFactory& pParent
   return ld_section.offset();
 }
 
-ARMRelocationFactory::Address helper_GOT(const ARMRelocationFactory& pParent,
+ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
                                          const GOTEntry& pGOTEntry)
 {
   return pParent.getLayout().getFragmentOffset(pGOTEntry);
@@ -115,13 +115,13 @@ ARMRelocationFactory::Address helper_GOT(const ARMRelocationFactory& pParent,
 //=========================================//
 
 // R_ARM_NONE
-ARMRelocationFactory::Result none(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result none(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
 }
 
 // R_ARM_ABS32: (S + A) | T
-ARMRelocationFactory::Result abs32(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result abs32(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
@@ -130,7 +130,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc, const ARMRelocationFactor
 }
 
 // R_ARM_REL32: ((S + A) | T) - P
-ARMRelocationFactory::Result rel32(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result rel32(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
@@ -140,7 +140,7 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc, const ARMRelocationFactor
 }
 
 // R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
-ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result gotoff32(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
   ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
@@ -151,13 +151,11 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, const ARMRelocationFac
 }
 
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
-ARMRelocationFactory::Result gotbrel(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result gotbrel(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  // XXX: Constant RelocationFactory get constant LDBackend,
-  //      and get constant GOT, then I can't call getEntry(it's non-const).
-  ARMGNULDBackend& ld_backend = const_cast<ARMGNULDBackend&>(pParent.getTarget());
+  ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
   // XXX: Why GOT.getEntry use rsym, but RelDyn.getEntry use *rsym?
@@ -182,13 +180,13 @@ ARMRelocationFactory::Result gotbrel(Relocation& pReloc, const ARMRelocationFact
 }
 
 // R_ARM_PLT32: ((S + A) | T) - P
-ARMRelocationFactory::Result plt32(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result plt32(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
 }
 
 // R_ARM_JUMP24: ((S + A) | T) - P
-ARMRelocationFactory::Result jump24(Relocation& pReloc, const ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result jump24(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
 }

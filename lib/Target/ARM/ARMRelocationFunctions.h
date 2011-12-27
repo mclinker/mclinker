@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #define DECL_ARM_APPLY_RELOC_FUNC(Name) \
-static ARMRelocationFactory::Result Name    (Relocation& pEntry, const ARMRelocationFactory& pParent);
+static ARMRelocationFactory::Result Name    (Relocation& pEntry, ARMRelocationFactory& pParent);
 
 #define DECL_ARM_APPLY_RELOC_FUNCS \
 DECL_ARM_APPLY_RELOC_FUNC(none)     \
