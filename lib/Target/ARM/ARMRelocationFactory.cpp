@@ -198,6 +198,26 @@ ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
 }
 
 
+static ARMRelocationFactory::DWord
+helper_extract_movw_movt_addend(ARMRelocationFactory::DWord target)
+{
+  // imm: 19-16, 11-0
+  return helper_sign_extend((((target >> 4)) & 0xf000U) | (target & 0xfffU),
+                            16);
+}
+
+static ARMRelocationFactory::DWord
+helper_insert_val_movw_movt_inst(ARMRelocationFactory::DWord target,
+                                 ARMRelocationFactory::DWord imm)
+{
+  // imm: 19-16, 11-0
+  target &= 0xfff0f000U;
+  target |= X & 0x0fffU;
+  target |= (X & 0xf000U) << 4;
+  return target;
+}
+
+
 
 //=========================================//
 // Each relocation function implementation //
@@ -324,10 +344,7 @@ ARMRelocationFactory::Result movw(Relocation& pReloc,
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   // imm: 19-16, 11-0
-  ARMRelocationFactory::DWord A =
-      helper_sign_extend((pReloc.target() >> 4 & 0xf000U) |
-                         (pReloc.target() & 0xfffU),
-                         16);
+  ARMRelocationFactory::DWord A = helper_sign_extend(pReloc.target());
   ARMRelocationFactory::DWord X;
 
   if (pReloc.type() == R_ARM_MOVW_ABS_NC) {
@@ -336,10 +353,7 @@ ARMRelocationFactory::Result movw(Relocation& pReloc,
     X = ((S + A) | T) - P;
   }
 
-  pReloc.target() &= 0xfff0f000U;
-  pReloc.target() |= X & 0x0fffU;
-  pReloc.target() |= (X & 0xf000U) << 4;
-
+  pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
   return ARMRelocationFactory::OK;
 }
 
@@ -350,10 +364,7 @@ ARMRelocationFactory::Result movt(Relocation& pReloc,
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
-  ARMRelocationFactory::DWord A =
-      helper_sign_extend((pReloc.target() >> 4 & 0xf000U) |
-                         (pReloc.target() & 0xfffU),
-                         16);
+  ARMRelocationFactory::DWord A = helper_sign_extend(pReloc.target());
   ARMRelocationFactory::DWord X;
 
   if (pReloc.type() == R_ARM_MOVT_ABS) {
@@ -364,9 +375,7 @@ ARMRelocationFactory::Result movt(Relocation& pReloc,
 
   X >>= 16;
 
-  pReloc.target() &= 0xfff0f000U;
-  pReloc.target() |= X & 0x0fffU;
-  pReloc.target() |= (X & 0xf000U) << 4;
+  pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
 
   // check 16-bit overflow
   int32_t max = (1 << (16 - 1)) - 1;
