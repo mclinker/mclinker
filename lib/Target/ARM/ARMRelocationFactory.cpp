@@ -297,3 +297,15 @@ ARMRelocationFactory::Result call(Relocation& pReloc, ARMRelocationFactory& pPar
   pReloc.target() |= (X & 0x00FFFFFFu);
   return ARMRelocationFactory::OK;
 }
+
+// R_ARM_MOVW_ABS_NC: (S + A) | T
+ARMRelocationFactory::Result movwabs(Relocation& pReloc, ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xFFFFUL), 16);
+
+  pReloc.target() &= 0xFFFF0000UL;
+  ARMRelocationFactory::Address S = (pReloc.target() + A) | T;
+  S &= 0xFFFFUL;  // result mask
+  pReloc.target() |= S;
+}

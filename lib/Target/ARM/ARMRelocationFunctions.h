@@ -18,7 +18,8 @@ DECL_ARM_APPLY_RELOC_FUNC(gotoff32) \
 DECL_ARM_APPLY_RELOC_FUNC(gotbrel)  \
 DECL_ARM_APPLY_RELOC_FUNC(plt32)    \
 DECL_ARM_APPLY_RELOC_FUNC(call)     \
-DECL_ARM_APPLY_RELOC_FUNC(jump24)
+DECL_ARM_APPLY_RELOC_FUNC(jump24)   \
+DECL_ARM_APPLY_RELOC_FUNC(movwabs)
 
 
 #define DECL_ARM_APPLY_RELOC_FUNC_PTRS \
@@ -65,7 +66,7 @@ DECL_ARM_APPLY_RELOC_FUNC(jump24)
   { &none,      40, "R_ARM_V4BX"              },  \
   { &none,      41, "R_ARM_TARGET2"           },  \
   { &none,      42, "R_ARM_PREL31"            },  \
-  { &none,      43, "R_ARM_MOVW_ABS_NC"       },  \
+  { &movwabs,   43, "R_ARM_MOVW_ABS_NC"       },  \
   { &none,      44, "R_ARM_MOVT_ABS"          },  \
   { &none,      45, "R_ARM_MOVW_PREL_NC"      },  \
   { &none,      46, "R_ARM_MOVT_PREL"         },  \
