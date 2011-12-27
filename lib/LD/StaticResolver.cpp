@@ -122,11 +122,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       case DUNDW: {
         old->setBinding(pNew.binding());
         old->overrideVisibility(pNew);
-        m_Mesg = std::string("dynamic symbol `") +
-                 old->name() +
-                 std::string("' uses the binding in the regular file.");
         pOverride = false;
-        result = Resolver::Warning;
+        result = Resolver::Success;
         break;
       }
       case CREF: {       /* Possibly warn about common reference to defined symbol.  */
