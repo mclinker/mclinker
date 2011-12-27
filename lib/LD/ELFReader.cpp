@@ -19,6 +19,7 @@
 #include <mcld/LD/ELFReader.h>
 #include "mcld/Support/rslinker/utils/serialize.h"
 
+#include <sstream>
 #include <cstring>
 
 using namespace mcld;
