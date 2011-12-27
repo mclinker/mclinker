@@ -56,3 +56,13 @@ const LDSection* LDContext::getSection(const std::string& pName) const
   return NULL;
 }
 
+size_t LDContext::getSectionIdx(const std::string& pName) const
+{
+  size_t result = 0;
+  size_t size = m_SectionTable.size();
+  for (; result != size; ++result)
+    if (m_SectionTable[result]->name() == pName)
+      return result;
+  return (size_t)-1;
+}
+

@@ -70,6 +70,8 @@ public:
 
   const LDSection* getSection(const std::string& pName) const;
 
+  size_t getSectionIdx(const std::string& pName) const;
+
   size_t numOfSections() const
   { return m_SectionTable.size(); }
 
