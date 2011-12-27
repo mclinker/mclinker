@@ -16,86 +16,118 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/rslinker/ELFObject.h>
-#include "mcld/LD/ELFReader.h"
+#include <mcld/LD/ELFReader.h>
 #include "mcld/Support/rslinker/utils/serialize.h"
 
-#include <sstream>
+#include <cstring>
 
 using namespace mcld;
 
 //==========================
 // ELFReader
-Input::Type ELFReader::fileType(mcld::Input &pFile) const
+bool ELFReader::isELF(Input& pInput) const
 {
-  // TODO: We don't use this function for now
-  llvm_unreachable("ELFReader::fileType");
-  return Input::Object;
+  // get the e_ident
+  uint8_t* e_ident = pInput.memArea()->request(0,
+                                             llvm::ELF::EI_NIDENT,
+                                             false)->start();
+  // the same endian
+  if (llvm::sys::isLittleEndianHost() == isLittleEndian(pInput)) {
+    if (0 == memcmp(llvm::ELF::ElfMagic, e_ident, 4))
+      return true;
+    return false;
+  }
+  // different endian
+  else {
+    if (llvm::ELF::ElfMagic[3] != e_ident[llvm::ELF::EI_MAG0] ||
+        llvm::ELF::ElfMagic[2] != e_ident[llvm::ELF::EI_MAG1] ||
+        llvm::ELF::ElfMagic[1] != e_ident[llvm::ELF::EI_MAG2] ||
+        llvm::ELF::ElfMagic[0] != e_ident[llvm::ELF::EI_MAG3])
+      return false;
+    return true; 
+  }
 }
 
-bool ELFReader::isLittleEndian(mcld::Input &pFile) const
+MCLDFile::Type ELFReader::fileType(Input &pInput) const
 {
-  return true; // TODO
+  // is it a ELF file?
+  if (!isELF(pInput)) {
+    return MCLDFile::Unknown;
+  }
+
+  // it is a ELF file
+  // same endian
+  uint32_t e_type = 0x0;
+  uint8_t* data = pInput.memArea()->request(0,
+                                           sizeof(llvm::ELF::Elf64_Ehdr),
+                                           false)->start();
+
+  // the same endian
+  if (llvm::sys::isLittleEndianHost() == isLittleEndian(pInput)) {
+    e_type |= (data[llvm::ELF::EI_NIDENT] << 8);
+    e_type |= data[llvm::ELF::EI_NIDENT+1];
+  }
+  // different endian
+  else {
+    e_type |= data[llvm::ELF::EI_NIDENT];
+    e_type |= (data[llvm::ELF::EI_NIDENT+1] << 8);
+  }
+
+  switch(e_type) {
+  case llvm::ELF::ET_REL:
+    return MCLDFile::Object;
+  case llvm::ELF::ET_EXEC:
+    return MCLDFile::Exec;
+  case llvm::ELF::ET_DYN:
+    return MCLDFile::DynObj;
+  case llvm::ELF::ET_CORE:
+    return MCLDFile::CoreFile;
+  case llvm::ELF::ET_NONE:
+  default:
+    return MCLDFile::Unknown;
+  }
+}
+
+bool ELFReader::isLittleEndian(Input &pInput) const
+{
+  // get the e_ident
+  uint8_t* e_ident = pInput.memArea()->request(0,
+                                               llvm::ELF::EI_NIDENT,
+                                               false)->start();
+  switch (e_ident[llvm::ELF::EI_DATA]) {
+  case llvm::ELF::ELFDATANONE:
+    llvm::report_fatal_error(llvm::Twine("invalied data encoding.\n"));
+    break;
+  case llvm::ELF::ELFDATA2LSB:
+    return true;
+  case llvm::ELF::ELFDATA2MSB:
+    return false;
+  }
+  return false;
 }
   
-bool ELFReader::is64Bit(mcld::Input &pFile) const
+unsigned int ELFReader::bitclass(Input &pInput) const
 {
-  return false; // TODO
-}
-
-ELFHeader<32>* ELFReader::createELF32Header(mcld::Input &pFile) const
-{
-  MemoryArea* mapfile = pFile.memArea();
-  size_t fsize = mapfile->size();
-  unsigned char* image =
-    mapfile->request (0, fsize, false /*iswrite*/)->start();
-
-  if (fsize < EI_NIDENT) {
-    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
+  // get the e_ident
+  uint8_t* e_ident = pInput.memArea()->request(0,
+                                               llvm::ELF::EI_NIDENT,
+                                               false)->start();
+  switch (e_ident[llvm::ELF::EI_CLASS]) {
+  case llvm::ELF::ELFCLASSNONE:
+    llvm::report_fatal_error(llvm::Twine("invalied e_ident[EI_CLASS] class.\n"));
+    break;
+  case llvm::ELF::ELFCLASS32:
+    return 32;
+  case llvm::ELF::ELFCLASS64:
+    return 64;
   }
-
-  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
-    llvm::report_fatal_error("ERROR: Unknown machine class.");
-  }
-
-  if (llvm::sys::isLittleEndianHost()) {
-    ArchiveReaderLE AR(image, fsize);
-    return ELFHeader<32>::read(AR);
-  }
-  else {
-    ArchiveReaderBE AR(image, fsize);
-    return ELFHeader<32>::read(AR);
-  }
-}
-  
-ELFHeader<64>* ELFReader::createELF64Header(mcld::Input &pFile) const
-{
-  MemoryArea* mapfile = pFile.memArea();
-  size_t fsize = mapfile->size();
-  unsigned char* image =
-    mapfile->request (0, fsize, false /*iswrite*/)->start();
-
-  if (fsize < EI_NIDENT) {
-    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
-  }
-
-  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
-    llvm::report_fatal_error("ERROR: Unknown machine class.");
-  }
-
-  if (llvm::sys::isLittleEndianHost()) {
-    ArchiveReaderLE AR(image, fsize);
-    return ELFHeader<64>::read(AR);
-  }
-  else {
-    ArchiveReaderBE AR(image, fsize);
-    return ELFHeader<64>::read(AR);
-  }
+  return 0;
 }
 
 ELFObject<32>* 
-ELFReader::createELF32Object(mcld::Input &pFile) const
+ELFReader::createELF32Object(Input &pInput) const
 {
-  MemoryArea* mapfile = pFile.memArea();
+  MemoryArea* mapfile = pInput.memArea();
   size_t fsize = mapfile->size();
   unsigned char* image =
     mapfile->request (0, fsize, false /*iswrite*/)->start();
@@ -115,9 +147,9 @@ ELFReader::createELF32Object(mcld::Input &pFile) const
 }
 
 ELFObject<64>* 
-ELFReader::createELF64Object(mcld::Input &pFile) const
+ELFReader::createELF64Object(Input &pInput) const
 {
-  MemoryArea* mapfile = pFile.memArea();
+  MemoryArea* mapfile = pInput.memArea();
   size_t fsize = mapfile->size();
   unsigned char* image =
     mapfile->request (0, fsize, false /*iswrite*/)->start();

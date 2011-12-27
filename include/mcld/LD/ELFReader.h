@@ -29,19 +29,17 @@ namespace mcld
 class ELFReader
 {
 public:
-  Input::Type fileType(mcld::Input &pFile) const;
+  bool isELF(Input& pInput) const;
 
-  bool isLittleEndian(mcld::Input &pFile) const;
+  MCLDFile::Type fileType(Input &pInput) const;
 
-  bool is64Bit(mcld::Input &pFile) const;
+  bool isLittleEndian(Input &pInput) const;
 
-  ELFHeader<32>* createELF32Header(mcld::Input &pFile) const;
+  unsigned int bitclass(Input &pInput) const;
 
-  ELFHeader<64>* createELF64Header(mcld::Input &pFile) const;
+  ELFObject<32>* createELF32Object(Input &pInput) const;
 
-  ELFObject<32>* createELF32Object(mcld::Input &pFile) const;
-
-  ELFObject<64>* createELF64Object(mcld::Input &pFile) const;
+  ELFObject<64>* createELF64Object(Input &pInput) const;
 
   ResolveInfo::Binding getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const;
 
