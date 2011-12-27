@@ -105,45 +105,6 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
 // Relocation helper function              //
 //=========================================//
 
-static
-ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
-{
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    pParent.getTarget().getGOT().getSectionData()->getSection()
-  );
-  return ld_section.offset();
-}
-
-
-static
-ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
-                                         const GOTEntry& pGOTEntry)
-{
-  return helper_GOT_ORG(pParent) +
-         pParent.getLayout().getFragmentOffset(pGOTEntry);
-}
-
-
-static
-ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
-{
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    // XXX: Why this getSectionData is reference, but GOT is not.
-    pParent.getTarget().getPLT().getSectionData().getSection()
-  );
-  return ld_section.offset();
-}
-
-
-static
-ARMRelocationFactory::Address helper_PLT(ARMRelocationFactory& pParent,
-                                         const PLTEntry& pPLTEntry)
-{
-  return helper_PLT_ORG(pParent) +
-         pParent.getLayout().getFragmentOffset(pPLTEntry);
-}
-
-
 // Using uint64_t to make sure those complicate operations won't cause
 // undefined behavior.
 static
@@ -167,6 +128,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   bool exist;
   GOTEntry& got_entry = *ld_backend.getGOT().getEntry(*rsym, exist);
   if (!exist) {
+    // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
       // No corresponding dynamic relocation, initialize to the symbol value.
       got_entry.setContent(pReloc.symValue());
@@ -177,9 +139,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 
       // Initialize corresponding dynamic relocation.
       Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, exist);
-      if (exist) {
-        llvm::report_fatal_error("Don't exist GOT, but exist DynRel!");
-      }
+      assert(!exist && "Don't exist GOT, but exist DynRel!");
       rel_entry->setType(R_ARM_GLOB_DAT);
       rel_entry->targetRef().assign(got_entry);
       rel_entry->setSymInfo(rsym);
@@ -191,6 +151,51 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   return got_entry;
 }
 
+
+static
+ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
+{
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    pParent.getTarget().getGOT().getSectionData()->getSection()
+  );
+  return ld_section.offset();
+}
+
+
+static
+ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
+                                         ARMRelocationFactory& pParent)
+{
+  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  return helper_GOT_ORG(pParent) +
+         pParent.getLayout().getFragmentOffset(got_entry);
+}
+
+
+static
+ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
+{
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    // XXX: Why this getSectionData is reference, but GOT is not.
+    pParent.getTarget().getPLT().getSectionData().getSection()
+  );
+  return ld_section.offset();
+}
+
+
+static
+ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
+                                         ARMRelocationFactory& pParent)
+{
+  // TODO: Dynamic relocation for got.plt..
+  // TODO: Write a helper_get_PLT_and_init().
+  bool exist;
+  PLTEntry& plt_entry = *pParent.getTarget()
+                                .getPLT()
+                                .getEntry(*pReloc.symInfo(), exist);
+  return helper_PLT_ORG(pParent) +
+         pParent.getLayout().getFragmentOffset(plt_entry);
+}
 
 
 
@@ -249,13 +254,11 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
   // Only allow this two reserve entry type.
   case ARMGNULDBackend::ReserveGOT:
   case ARMGNULDBackend::GOTRel:
-    GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-    // Get addend.
-    ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+    ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
+    ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
+    ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
     // Apply relocation.
-    pReloc.target() = helper_GOT(pParent, got_entry) +
-                      addend -
-                      helper_GOT_ORG(pParent);
+    pReloc.target() = GOT_S + A - GOT_ORG;
     return ARMRelocationFactory::OK;
   }
 }
@@ -280,14 +283,11 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 {
   // TODO: Some issue have not been considered, e.g. thumb, overflow?
 
-  ARMRelocationFactory::Address S;
-  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A =
+  ARMRelocationFactory::Address S; // S dependent on exist PLT or not.
+  ARMRelocationFactory::DWord   T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord   A =
     helper_sign_extend((pReloc.target() & 0x00FFFFFFu), 24) + pReloc.addend();
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
-  ARMRelocationFactory::DWord X;
-
-  pReloc.target() &= 0xFF000000u;
 
   switch (pReloc.symInfo()->reserved()) {
   default:
@@ -297,23 +297,21 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     S = pReloc.symValue();
     break;
   case ARMGNULDBackend::ReservePLT:
-    T = 0;
-    // TODO: Dynamic relocation for got.plt..
-    // TODO: Write a helper_get_PLT_and_init().
-    bool exist;
-    PLTEntry& plt_entry = *pParent.getTarget()
-                                  .getPLT()
-                                  .getEntry(*pReloc.symInfo(), exist);
-    P = helper_PLT(pParent, plt_entry);
+    S = helper_PLT(pReloc, pParent);
+    T = 0;  // PLT is not thumb.
     break;
   }
-  X = ((S + A) | T) - P;
-  X >>= 2;
-  X &= 0xFFFFFFFFu;
-  if (X > 0x007FFFFFu && X < 0xFF800000u) {  // Check X is 24bit sign interger.
-    llvm::report_fatal_error("Jump or Call target too far!");
+
+  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
+
+  if (X & 0x03u) {  // Lowest two bit is not zero.
+    llvm::report_fatal_error("Target is thumb, need stub!");
   }
-  pReloc.target() |= (X & 0x00FFFFFFu);
+  // Check X is 24bit sign int. If not, we should use stub or PLT before apply.
+  assert((X & 0xFFFFFFFFu) > 0x01FFFFFFu &&
+         (X & 0xFFFFFFFFu) < 0xFE000000u && "Jump or Call target too far!");
+  //                    Make sure the Imm is 0.          Result Mask.
+  pReloc.target() = (pReloc.target() & 0xFF000000u) | ((X & 0x03FFFFFEu) >> 2);
   return ARMRelocationFactory::OK;
 }
 
@@ -369,7 +367,7 @@ ARMRelocationFactory::Result mov(Relocation& pReloc,
     }
     case R_ARM_MOVT_ABS:
     case R_ARM_MOVT_PREL: {
-      if (S > 0x0000ffffUL && S < 0xffff0000UL) {  // Check X is 16bit sign interger.
+      if (S > 0x00007fffUL && S < 0xffff8000UL) {  // Check X is 16bit sign interger.
         return ARMRelocationFactory::BadReloc;
       }
       break;
