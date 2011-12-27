@@ -299,27 +299,29 @@ ARMRelocationFactory::Result call(Relocation& pReloc, ARMRelocationFactory& pPar
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
-ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc, ARMRelocationFactory& pParent)
-{
-  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xFFFFUL), 16);
-
-  pReloc.target() &= 0xFFFF0000UL;
-  ARMRelocationFactory::Address S = (pReloc.target() + A) | T;
-  S &= 0xFFFFUL;  // result mask
-  pReloc.target() |= S;
-}
-
 // R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
-ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc, ARMRelocationFactory& pParent)
+// R_ARM_THM_MOVW_ABS_NC: (S + A) | T
+// R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
+ARMRelocationFactory::Result movw_nc(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xFFFFUL), 16);
+  ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xffffUL), 16);
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord S;
 
-  pReloc.target() &= 0xFFFF0000UL;
-  ARMRelocationFactory::Address S = ((pReloc.target() + A) | T)
-                                    - pReloc.place(pParent.getLayout());
-  S &= 0xFFFFUL;  // result mask
+  pReloc.target() &= 0xffff0000UL;
+
+  if (pReloc.type() == R_ARM_MOVW_ABS_NC || pReloc.type() == R_ARM_THM_MOVW_ABS_NC) {
+    S = (pReloc.target() + A) | T;
+  } else {    // pc-relative
+    S = ((pReloc.target() + A) | T) - P;
+  }
+
+  if (pReloc.type() == R_ARM_MOVW_ABS_NC || pReloc.type() == R_ARM_MOVW_PREL_NC) {
+    S &= 0xffffUL;
+  } else {    // thumb-32
+    S &= 0x0000ffffUL;
+  }
+
   pReloc.target() |= S;
-}
 }
