@@ -43,7 +43,7 @@ public:
 
   /// getFragmentRefOffset - Get the offset of the given fragment inside its
   /// containing section.
-  uint64_t getFragmentRefOffset(const MCFragmentRef& pFrag) const;
+  uint64_t getFragmentRefOffset(const MCFragmentRef& pFragRef) const;
 
   /// getFragmentOffset - Get the offset of the given fragment inside its
   /// containing section.
