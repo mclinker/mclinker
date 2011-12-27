@@ -23,7 +23,7 @@ DECL_ARM_APPLY_RELOC_FUNC(jump24)
 
 #define DECL_ARM_APPLY_RELOC_FUNC_PTRS \
   { &none,       0, "R_ARM_NONE"              },  \
-  { &call,       1, "R_ARM_PC24"              },  \
+  { &none,       1, "R_ARM_PC24"              },  \
   { &abs32,      2, "R_ARM_ABS32"             },  \
   { &rel32,      3, "R_ARM_REL32"             },  \
   { &none,       4, "R_ARM_LDR_PC_G0"         },  \
