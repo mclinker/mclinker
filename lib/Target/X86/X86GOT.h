@@ -30,7 +30,7 @@ public:
 
   void reserveEntry(int pNum = 1);
 
-  Entry* getEntry(const ResolveInfo* pSymbol, bool& pExist);
+  Entry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
 };
 

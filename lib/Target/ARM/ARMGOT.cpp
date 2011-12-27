@@ -64,11 +64,9 @@ void ARMGOT::reserveEntry(const int pNum)
 }
 
 
-GOTEntry* ARMGOT::getEntry(const ResolveInfo* pInfo, bool& pExist)
+GOTEntry* ARMGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  assert((!(pInfo)) && "ResolvedInfo is NULL!");
-
-  GOTEntry *&GeneralGOTEntry = m_SymbolIndexMap[pInfo];
+  GOTEntry *&GeneralGOTEntry = m_SymbolIndexMap[&pInfo];
   pExist = 1;
 
   if (!GeneralGOTEntry) {

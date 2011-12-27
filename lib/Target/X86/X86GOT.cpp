@@ -26,7 +26,7 @@ void X86GOT::reserveEntry(int pNum)
 {
 }
 
-X86GOT::Entry* X86GOT::getEntry(const ResolveInfo* pSymbol, bool& pExist)
+X86GOT::Entry* X86GOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
   // TODO
   return 0;

@@ -76,7 +76,7 @@ public:
   /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
-  virtual GOTEntry* getEntry(const ResolveInfo* pSymbol, bool& pExist) = 0;
+  virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
   llvm::MCSectionData* m_pSectionData;

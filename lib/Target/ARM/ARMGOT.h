@@ -131,7 +131,7 @@ public:
   //Reserve general GOT entries.
   void reserveEntry(int pNum = 1);
 
-  GOTEntry* getEntry(const ResolveInfo* pSymbol, bool& pExist);
+  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
   void applyGOT0(uint64_t pAddress);
 
