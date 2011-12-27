@@ -119,6 +119,24 @@ ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
 }
 
 
+static
+ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
+{
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    // XXX: Why this getSectionData is reference, but GOT is not.
+    pParent.getTarget().getPLT().getSectionData().getSection()
+  );
+  return ld_section.offset();
+}
+
+
+static
+ARMRelocationFactory::Address helper_PLT(ARMRelocationFactory& pParent,
+                                         const PLTEntry& pPLTEntry)
+{
+  return helper_PLT_ORG(pParent) + pParent.getLayout().getFragmentOffset(pPLTEntry);
+}
+
 
 // Using uint64_t to make sure those complicate operations won't cause
 // undefined behavior.
@@ -231,11 +249,51 @@ ARMRelocationFactory::Result gotbrel(Relocation& pReloc, ARMRelocationFactory& p
 // R_ARM_PLT32: ((S + A) | T) - P
 ARMRelocationFactory::Result plt32(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
-  return ARMRelocationFactory::OK;
+  return call(pReloc, pParent);
 }
 
 // R_ARM_JUMP24: ((S + A) | T) - P
 ARMRelocationFactory::Result jump24(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
+  return call(pReloc, pParent);
+}
+
+// R_ARM_CALL: ((S + A) | T) - P
+ARMRelocationFactory::Result call(Relocation& pReloc, ARMRelocationFactory& pParent)
+{
+  // TODO: Some issue have not been considered, e.g. thumb, overflow?
+
+  ARMRelocationFactory::Address S;
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A =
+    helper_sign_extend((pReloc.target() & 0x00FFFFFFu), 24) + pReloc.addend();
+  ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord X;
+
+  pReloc.target() &= 0xFF000000u;
+
+  switch (pReloc.symInfo()->reserved()) {
+  default:
+    return ARMRelocationFactory::BadReloc;
+
+  case ARMGNULDBackend::None:
+    S = pReloc.symValue();
+    break;
+  case ARMGNULDBackend::ReservePLT:
+    T = 0;
+    // TODO: Dynamic relocation for got.plt..
+    // TODO: Write a helper_get_PLT_and_init().
+    bool exist;
+    PLTEntry& plt_entry = *pParent.getTarget().getPLT().getEntry(*pReloc.symInfo(), exist);
+    P = helper_PLT(pParent, plt_entry);
+    break;
+  }
+  X = ((S + A) | T) - P;
+  X >>= 2;
+  X &= 0xFFFFFFFFu;
+  if (X > 0x007FFFFFu && X < 0xFF800000u) {  // Check X is 24bit sign interger.
+    llvm::report_fatal_error("Jump or Call target too far!");
+  }
+  pReloc.target() |= (X & 0x00FFFFFFu);
   return ARMRelocationFactory::OK;
 }
