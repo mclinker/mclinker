@@ -175,27 +175,45 @@ ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr, const llvm::String
   // name rules
   if (pName.startswith(".debug"))
     return LDFileFormat::Debug;
+  if (pName.startswith(".comment"))
+    return LDFileFormat::MetaData;
+  if (pName.startswith(".interp") || pName.startswith(".dynamic"))
+    return LDFileFormat::Note;
 
   // type rules
   uint32_t type = pHdr.getType();
   switch(type) {
-  case llvm::ELF::SHT_PROGBITS:
-    return LDFileFormat::Regular;
+  case llvm::ELF::SHT_NULL:
+    return LDFileFormat::Null;
+
   case llvm::ELF::SHT_SYMTAB:
   case llvm::ELF::SHT_DYNSYM:
   case llvm::ELF::SHT_STRTAB:
+  case llvm::ELF::SHT_HASH:
     return LDFileFormat::NamePool;
+  
+  case llvm::ELF::SHT_PREINIT_ARRAY:
+  case llvm::ELF::SHT_INIT_ARRAY:
+  case llvm::ELF::SHT_FINI_ARRAY:
+  case llvm::ELF::SHT_PROGBITS:
+    return LDFileFormat::Regular;
+
   case llvm::ELF::SHT_RELA:
   case llvm::ELF::SHT_REL:
     return LDFileFormat::Relocation;
+
   case llvm::ELF::SHT_NOBITS:
     return LDFileFormat::BSS;
+
   case llvm::ELF::SHT_NOTE:
     return LDFileFormat::Note;
-  case llvm::ELF::SHT_HASH:
+
   case llvm::ELF::SHT_DYNAMIC:
+    return LDFileFormat::Note;
+
   case llvm::ELF::SHT_SHLIB:
     return LDFileFormat::MetaData;
+
   default:
     if ( type >= llvm::ELF::SHT_LOPROC && type <= llvm::ELF::SHT_HIPROC) {
       return LDFileFormat::Target;
