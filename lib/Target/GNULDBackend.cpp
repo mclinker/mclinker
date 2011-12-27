@@ -46,7 +46,7 @@ GNULDBackend::~GNULDBackend()
 size_t GNULDBackend::sectionStartOffset() const
 {
   // FIXME: use fixed offset, we need 4 segments by default
-  return sizeof(llvm::ELF::Elf32_Ehdr)+4*sizeof(llvm::ELF::Elf32_Phdr);
+  return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
 }
 
 bool GNULDBackend::initArchiveReader(MCLinker&)
