@@ -53,3 +53,21 @@ void Relocation::setAddend(Address pAddend)
 {
   m_Addend = pAddend;
 }
+ 
+void Relocation::setSymInfo(ResolveInfo* pSym)
+{
+  m_pSymInfo = pSym;
+}
+
+Relocation::DWord& Relocation::target()
+{ 
+  assert(!m_pTargetData);
+  return *m_pTargetData; 
+}
+
+const Relocation::DWord& Relocation::target() const
+{ 
+  assert(!m_pTargetData); 
+  return *m_pTargetData; 
+}
+

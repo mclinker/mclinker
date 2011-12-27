@@ -66,12 +66,10 @@ public:
   { return m_pSymInfo; }
 
   /// target - the target data to relocate
-  DWord& target()
-  { return *m_pTargetData; }
+  DWord& target();
 
   /// target - the target data to relocate
-  const DWord& target() const
-  { return *m_pTargetData; }
+  const DWord& target() const;
 
   /// targetRef - the reference of the target data
   MCFragmentRef& targetRef()
@@ -87,6 +85,8 @@ public:
   void setType(Type pType);
 
   void setAddend(Address pAddend);
+
+  void setSymInfo(ResolveInfo* pSym);
 
   // Relocation is a kind of MCFragment with type of FT_Reloc
   static bool classof(const MCFragment *F)
