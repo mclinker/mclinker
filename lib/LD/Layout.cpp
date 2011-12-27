@@ -24,9 +24,8 @@ Layout::~Layout()
 {
 }
 
-uint64_t Layout::layoutFragment(llvm::MCFragment& pFrag)
+void Layout::layoutFragment(llvm::MCFragment& pFrag)
 {
-  return 0; // TODO
 }
 
 uint64_t Layout::getFragmentOffset(const llvm::MCFragment& F) const

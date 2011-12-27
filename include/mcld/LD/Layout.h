@@ -13,6 +13,7 @@
 #endif
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
+#include <llvm/ADT/DenseMap.h>
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <map>
@@ -38,22 +39,24 @@ public:
 
   /// layoutFragment - perform layout for single fragment
   /// Assuming the previous fragment has already been laid out correctly.
-  /// @return the offset of the file to laid out the fragment
-  uint64_t layoutFragment(llvm::MCFragment& pFrag);
+  void layoutFragment(llvm::MCFragment& pFrag);
+
+  /// getFragmentRefOffset - Get the offset of the given fragment inside its
+  /// containing section.
+  uint64_t getFragmentRefOffset(const MCFragmentRef& pFrag) const;
 
   /// getFragmentOffset - Get the offset of the given fragment inside its
   /// containing section.
-  uint64_t getFragmentRefOffset(const MCFragmentRef& F) const;
-
-  /// getFragmentOffset - Get the offset of the given fragment inside its
-  /// containing section.
-  uint64_t getFragmentOffset(const llvm::MCFragment& F) const;
+  uint64_t getFragmentOffset(const llvm::MCFragment& pFrag) const;
 
   /// getFragmentRef - give a LDSection in input file and an offset, return
   /// the fragment reference.
   MCFragmentRef getFragmentRef(const LDSection& pInputSection,
                                uint64_t pOffset) const;
 
+  /// \brief Invalidate all following fragments because a fragment has been
+  /// resized. The fragments size should have already been updated.
+  void invalidate(llvm::MCFragment& pFrag);
 
   /// numOfSections - the number of sections
   size_t numOfSections() const;
@@ -80,7 +83,14 @@ public:
   { return m_SectionOrder.end(); }
 
 private:
-  struct Range
+  /// \brief Make sure that the layout for the given fragment is valid, lazily
+  /// computing it if necessary.
+  void ensureValid(const llvm::MCFragment& pFrag) const;
+
+  bool isFragmentUpToDate(const llvm::MCFragment& pFrag) const;
+
+private:
+ struct Range
   {
     const LDSection* header;
     llvm::MCFragment* prevRear;
@@ -95,6 +105,12 @@ private:
   SectionOrder m_SectionOrder;
 
   InputRangeList m_InputRangeList;
+
+  /// The last fragment which was laid out, or 0 if nothing has been laid
+  /// out. Fragments are always laid out in order, so all fragments with a
+  /// lower ordinal will be up to date.
+  mutable llvm::DenseMap<const llvm::MCSectionData*, llvm::MCFragment*> m_LastValidFragment;
+
 };
 
 } // namespace of mcld
