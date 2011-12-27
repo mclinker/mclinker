@@ -18,6 +18,8 @@
 namespace mcld
 {
 
+class Layout;
+
 /// compunteFragmentSize - compute the specific MCFragment size
 uint64_t computeFragmentSize(const Layout& pLayout,
                              const llvm::MCFragment& pFrag);
