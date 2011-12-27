@@ -40,7 +40,7 @@ public:
    *  GOT may needs a corresponding relocation to relocate itself, so we
    *  separate GOT to two situations: GOT and GOTRel. Besides, for the same
    *  symbol, there might be two kinds of entries reserved for different location.
-   *  For example, refernce to the same symbol, one may use GOT and the other may
+   *  For example, reference to the same symbol, one may use GOT and the other may
    *  use dynamic relocation.
    *
    *  bit:  3       2      1     0
