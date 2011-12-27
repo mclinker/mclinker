@@ -106,7 +106,7 @@ ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
                                          const GOTEntry& pGOTEntry)
 {
-  return pParent.getLayout().getFragmentOffset(pGOTEntry);
+  return helper_GOT_ORG(pParent) + pParent.getLayout().getFragmentOffset(pGOTEntry);
 }
 
 
