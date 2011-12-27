@@ -57,20 +57,20 @@ MCLDFile::Type ELFReader::fileType(Input &pInput) const
 
   // it is a ELF file
   // same endian
-  uint32_t e_type = 0x0;
   uint8_t* data = pInput.memArea()->request(0,
                                            sizeof(llvm::ELF::Elf64_Ehdr),
                                            false)->start();
 
+  uint32_t e_type = 0x0;
   // the same endian
   if (llvm::sys::isLittleEndianHost() == isLittleEndian(pInput)) {
-    e_type |= (data[llvm::ELF::EI_NIDENT] << 8);
-    e_type |= data[llvm::ELF::EI_NIDENT+1];
+    e_type |= data[llvm::ELF::EI_NIDENT];
+    e_type |= (data[llvm::ELF::EI_NIDENT+1] << 8);
   }
   // different endian
   else {
-    e_type |= data[llvm::ELF::EI_NIDENT];
-    e_type |= (data[llvm::ELF::EI_NIDENT+1] << 8);
+    e_type |= (data[llvm::ELF::EI_NIDENT] << 8);
+    e_type |= data[llvm::ELF::EI_NIDENT+1];
   }
 
   switch(e_type) {
@@ -200,7 +200,10 @@ ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr, const llvm::String
       return LDFileFormat::Target;
     }
     llvm::report_fatal_error(llvm::Twine("unsupported ELF section type: ") +
-                             llvm::Twine(type) + llvm::Twine(".\n"));
+                             llvm::Twine(type) +
+                             llvm::Twine(" of section ") +
+                             pName +
+                             llvm::Twine(".\n"));
   }
   return LDFileFormat::MetaData;
 }
