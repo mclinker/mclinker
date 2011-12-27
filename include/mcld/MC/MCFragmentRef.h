@@ -12,11 +12,15 @@
 #include <gtest.h>
 #endif
 #include <llvm/MC/MCAssembler.h>
-#include "mcld/ADT/SizeTraits.h"
-#include "mcld/ADT/TypeTraits.h"
+#include <mcld/ADT/SizeTraits.h>
+#include <mcld/ADT/TypeTraits.h>
 
 namespace mcld
 {
+
+/// compunteFragmentSize - compute the specific MCFragment size
+uint64_t computeFragmentSize(const Layout& pLayout,
+                             const llvm::MCFragment& pFrag);
 
 /** \class MCFragmentRef
  *  \brief MCFragmentRef is a reference of a MCFragment's contetnt.

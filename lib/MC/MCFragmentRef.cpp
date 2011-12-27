@@ -6,12 +6,63 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <llvm/Support/MathExtras.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/Layout.h>
 #include <cstring>
+#include <cassert>
 
 using namespace std;
 using namespace mcld;
+
+/// compunteFragmentSize - compute the specific MCFragment size
+uint64_t mcld::computeFragmentSize(const Layout& pLayout,
+                                   const llvm::MCFragment& pFrag)
+{
+  switch (pFrag.getKind()) {
+    case llvm::MCFragment::FT_Data:
+      return static_cast<const llvm::MCDataFragment&>(pFrag).getContents().size();
+    case llvm::MCFragment::FT_Fill:
+      return static_cast<const llvm::MCFillFragment&>(pFrag).getSize();
+    case llvm::MCFragment::FT_Inst:
+      return static_cast<const llvm::MCInstFragment&>(pFrag).getInstSize();
+
+    case llvm::MCFragment::FT_LEB:
+      return static_cast<const llvm::MCLEBFragment&>(pFrag).getContents().size();
+
+    case llvm::MCFragment::FT_Align: {
+      const llvm::MCAlignFragment& AF = static_cast<const llvm::MCAlignFragment&>(pFrag);
+      unsigned Offset = pLayout.getFragmentOffset(AF);
+      unsigned Size = llvm::OffsetToAlignment(Offset, AF.getAlignment());
+      if (Size > AF.getMaxBytesToEmit())
+        return 0;
+      return Size;
+    }
+
+    case llvm::MCFragment::FT_Org: {
+      // TODO
+      assert(0 && "FT_Org: Not implemented yet");
+      return 0;
+    }
+
+    case llvm::MCFragment::FT_Dwarf:
+      return static_cast<const llvm::MCDwarfLineAddrFragment&>(pFrag).getContents().size();
+    case llvm::MCFragment::FT_DwarfFrame:
+      return static_cast<const llvm::MCDwarfCallFrameFragment&>(pFrag).getContents().size();
+
+    case llvm::MCFragment::FT_Region:
+    case llvm::MCFragment::FT_Reloc:
+    case llvm::MCFragment::FT_GOT:
+    case llvm::MCFragment::FT_PLT:
+      // TODO
+      assert(0 && "Not implemented yet");
+      return 0;
+  }
+
+  assert(0 && "invalid fragment kind");
+  return 0;
+}
 
 //==========================
 // MCFragmentRef
