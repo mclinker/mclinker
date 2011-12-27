@@ -94,6 +94,9 @@ public:
   uint64_t addr() const
   { return m_Addr; }
 
+  void setKind(LDFileFormat::Kind pKind)
+  { m_Kind = pKind; }
+
   void setSize(uint64_t size)
   { m_Size = size; }
 
@@ -140,14 +143,13 @@ public:
 
 private:
   std::string m_Name;
-
   uint32_t m_Kind;
+  uint32_t m_Type;
+  uint32_t m_Flag;
+
   uint64_t m_Size;
   uint64_t m_Offset;
   uint64_t m_Addr;
-
-  uint32_t m_Flag;
-  uint32_t m_Type;
 
   // pointer to MCSectionData.
   llvm::MCSectionData* m_pSectionData;
