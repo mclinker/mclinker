@@ -349,3 +349,13 @@ ARMRelocationFactory::Result movw_nc(Relocation& pReloc,
   pReloc.target() |= S;
   return ARMRelocationFactory::OK;
 }
+
+// R_ARM_TLS_GD32: GOT(S) + A - P
+// R_ARM_TLS_IE32: GOT(S) + A - P
+// R_ARM_TLS_LE32: S + A - tp
+ARMRelocationFactory::Result tls(Relocation& pReloc,
+                                 ARMRelocationFactory& pParent)
+{
+  llvm::report_fatal_error("We don't support TLS relocation yet.");
+  return ARMRelocationFactory::OK;
+}

@@ -19,7 +19,8 @@ DECL_ARM_APPLY_RELOC_FUNC(got_brel)       \
 DECL_ARM_APPLY_RELOC_FUNC(plt32)          \
 DECL_ARM_APPLY_RELOC_FUNC(call)           \
 DECL_ARM_APPLY_RELOC_FUNC(jump24)         \
-DECL_ARM_APPLY_RELOC_FUNC(movw_nc)
+DECL_ARM_APPLY_RELOC_FUNC(movw_nc)        \
+DECL_ARM_APPLY_RELOC_FUNC(tls)
 
 
 #define DECL_ARM_APPLY_RELOC_FUNC_PTRS \
@@ -127,11 +128,11 @@ DECL_ARM_APPLY_RELOC_FUNC(movw_nc)
   { &none,         101, "R_ARM_GNU_VTINERIT"      },  \
   { &none,         102, "R_ARM_THM_JUMP11"        },  \
   { &none,         103, "R_ARM_THM_JUMP8"         },  \
-  { &none,         104, "R_ARM_TLS_GD32"          },  \
+  { &tls,          104, "R_ARM_TLS_GD32"          },  \
   { &none,         105, "R_ARM_TLS_LDM32"         },  \
   { &none,         106, "R_ARM_TLS_LDO32"         },  \
-  { &none,         107, "R_ARM_TLS_IE32"          },  \
-  { &none,         108, "R_ARM_TLS_LE32"          },  \
+  { &tls,          107, "R_ARM_TLS_IE32"          },  \
+  { &tls,          108, "R_ARM_TLS_LE32"          },  \
   { &none,         109, "R_ARM_TLS_LDO12"         },  \
   { &none,         110, "R_ARM_TLS_LE12"          },  \
   { &none,         111, "R_ARM_TLS_IE12GP"        },  \
