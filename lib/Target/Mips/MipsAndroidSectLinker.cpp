@@ -24,8 +24,6 @@ MipsAndroidSectLinker::MipsAndroidSectLinker(const llvm::cl::opt<std::string> &p
                       pOutputLinkType,
                       pLDInfo,
                       pLDBackend) {
-#if 0
-  // TODO: (simon) What options are required for Mips?
   // set up target-dependent constraints of attibutes
   pLDInfo.attrFactory().constraint().disableWholeArchive();
   pLDInfo.attrFactory().constraint().disableAsNeeded();
@@ -34,7 +32,6 @@ MipsAndroidSectLinker::MipsAndroidSectLinker(const llvm::cl::opt<std::string> &p
   // set up the predefined attributes
   pLDInfo.attrFactory().predefined().unsetWholeArchive();
   pLDInfo.attrFactory().predefined().setDynamic();
-#endif
 }
 
 MipsAndroidSectLinker::~MipsAndroidSectLinker()

@@ -24,8 +24,6 @@ MipsELFSectLinker::MipsELFSectLinker(const llvm::cl::opt<std::string> &pInputFil
                pOutputLinkType,
                pLDInfo,
                pLDBackend) {
-#if 0
-  // TODO: (simon) What options are required for Mips?
   // set up target-dependent constraints of attibutes
   pLDInfo.attrFactory().constraint().enableWholeArchive();
   pLDInfo.attrFactory().constraint().disableAsNeeded();
@@ -34,7 +32,6 @@ MipsELFSectLinker::MipsELFSectLinker(const llvm::cl::opt<std::string> &pInputFil
   // set up the predefined attributes
   pLDInfo.attrFactory().predefined().setWholeArchive();
   pLDInfo.attrFactory().predefined().setDynamic();
-#endif
 }
 
 MipsELFSectLinker::~MipsELFSectLinker()
