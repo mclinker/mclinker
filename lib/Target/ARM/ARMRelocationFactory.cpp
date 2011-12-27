@@ -95,6 +95,7 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
 // Relocation helper function              //
 //=========================================//
 
+static
 ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 {
   const LDSection& ld_section = static_cast<const LDSection&>(
@@ -103,10 +104,48 @@ ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
   return ld_section.offset();
 }
 
+
+static
 ARMRelocationFactory::Address helper_GOT(ARMRelocationFactory& pParent,
                                          const GOTEntry& pGOTEntry)
 {
   return helper_GOT_ORG(pParent) + pParent.getLayout().getFragmentOffset(pGOTEntry);
+}
+
+
+static
+GOTEntry& helper_get_GOT_and_init(Relocation& pReloc, ARMRelocationFactory& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  ARMGNULDBackend& ld_backend = pParent.getTarget();
+
+  bool exist;
+  // XXX: Why GOT.getEntry use rsym, but RelDyn.getEntry use *rsym?
+  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(rsym, exist);
+  if (!exist) {
+    if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
+      // No corresponding dynamic relocation, initialize to the symbol value.
+      got_entry.setContent(pReloc.symValue());
+    }
+    else if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
+      // Initialize to 0 for corresponding dynamic relocation.
+      got_entry.setContent(0);
+
+      // Initialize corresponding dynamic relocation.
+      Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, exist);
+      if (exist) {
+        llvm::report_fatal_error("Don't exist GOT, but exist DynRel!");
+      }
+      rel_entry->setType(R_ARM_GLOB_DAT);
+      rel_entry->targetRef().assign(got_entry);
+      // FIXME: Set ResolveInfo.
+    }
+    else {
+      llvm::report_fatal_error("Didn't reserve GOT!");
+    }
+  }
+  return got_entry;
 }
 
 
@@ -153,30 +192,20 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, ARMRelocationFactory& 
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
 ARMRelocationFactory::Result gotbrel(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  ARMGNULDBackend& ld_backend = pParent.getTarget();
+  switch (pReloc.symInfo()->reserved()) {
+  default:
+    return ARMRelocationFactory::BadReloc;
 
-  bool exist;
-  // XXX: Why GOT.getEntry use rsym, but RelDyn.getEntry use *rsym?
-  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(rsym, exist);
-  if (!exist) {
-    // We don't need to initialize GOT.
+  // Only allow this two reserve entry type.
+  case ARMGNULDBackend::ReserveGOT:
+  case ARMGNULDBackend::GOTRel:
+    GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+    // Get addend.
+    ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
+    // Apply relocation.
+    pReloc.target() = helper_GOT(pParent, got_entry) + addend - helper_GOT_ORG(pParent);
+    return ARMRelocationFactory::OK;
   }
-  if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
-    // Need a dynamic relocation entry in rel.dyn.
-    Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, exist);
-    if (!exist) {
-      // If we first get the dynamic relocation entry, we should initialize it.
-      rel_entry->setType(R_ARM_GLOB_DAT);
-      // FIXME: Set ResolveInfo.
-    }
-  }
-
-  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  // Apply
-  pReloc.target() = helper_GOT(pParent, got_entry) + addend - helper_GOT_ORG(pParent);
-  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_PLT32: ((S + A) | T) - P
