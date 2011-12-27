@@ -7,16 +7,17 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/MC/MCLinker.h"
-#include "mcld/LD/ELFReader.h"
-#include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/MemoryRegion.h"
-
-#include "mcld/Support/rslinker/utils/serialize.h"
-#include "mcld/Support/rslinker/ELFObject.h"
-
 #include <llvm/Support/ELF.h>
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
+
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/rslinker/ELFObject.h>
+#include "mcld/LD/ELFReader.h"
+#include "mcld/Support/rslinker/utils/serialize.h"
+
 #include <sstream>
 
 using namespace mcld;
@@ -63,8 +64,13 @@ ELFReader::createELFObject(mcld::Input &pFile) const
 }
 
 LDFileFormat::Kind
-ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr) const
+ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr, const llvm::StringRef& pName) const
 {
+  // name rules
+  if (pName.startswith(".debug"))
+    return LDFileFormat::Debug;
+
+  // type rules
   uint32_t type = pHdr.getType();
   switch(type) {
   case llvm::ELF::SHT_PROGBITS:
@@ -95,8 +101,13 @@ ELFReader::getLDSectionKind(const ELFSectionHeader<32>& pHdr) const
 }
 
 LDFileFormat::Kind
-ELFReader::getLDSectionKind(const ELFSectionHeader<64>& pHdr) const
+ELFReader::getLDSectionKind(const ELFSectionHeader<64>& pHdr,
+                            const llvm::StringRef& pName) const
 {
+  // name rules
+  if (pName.startswith(".debug"))
+    return LDFileFormat::Debug;
+
   uint64_t type = pHdr.getType();
   switch(type) {
   case llvm::ELF::SHT_PROGBITS:

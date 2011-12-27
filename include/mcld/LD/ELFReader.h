@@ -12,12 +12,12 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/StringRef.h>
+#include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/ResolveInfoFactory.h>
 #include <mcld/Support/rslinker/ELFObject.h>
-
-#include <llvm/Support/ELF.h>
 
 namespace mcld
 {
@@ -41,9 +41,11 @@ public:
 
   ResolveInfo::Visibility getVisibilityResolveInfo(ELFSymbol<32>* sym) const;
 
-  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<32>& pHeader) const;
+  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<32>& pHeader,
+                                      const llvm::StringRef& pName) const;
 
-  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<64>& pHeader) const;
+  LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<64>& pHeader,
+                                      const llvm::StringRef& pName) const;
 
   std::string getSymbolTypeName(unsigned int pType) const;
 };
