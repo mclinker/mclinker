@@ -61,13 +61,13 @@ void Relocation::setSymInfo(ResolveInfo* pSym)
 
 Relocation::DWord& Relocation::target()
 { 
-  assert(!m_pTargetData);
+  assert(0 != m_pTargetData);
   return *m_pTargetData; 
 }
 
 const Relocation::DWord& Relocation::target() const
 { 
-  assert(!m_pTargetData); 
+  assert(0 != m_pTargetData); 
   return *m_pTargetData; 
 }
 
