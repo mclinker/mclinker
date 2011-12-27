@@ -52,6 +52,8 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
       return static_cast<const llvm::MCDwarfCallFrameFragment&>(pFrag).getContents().size();
 
     case llvm::MCFragment::FT_Region:
+      return static_cast<const MCRegionFragment&>(pFrag).getRegion().size();
+
     case llvm::MCFragment::FT_Reloc:
     case llvm::MCFragment::FT_GOT:
     case llvm::MCFragment::FT_PLT:
