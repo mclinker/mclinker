@@ -121,8 +121,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc, ARMRelocationFactory& pPar
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  // XXX: Why GOT.getEntry use rsym, but RelDyn.getEntry use *rsym?
-  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(rsym, exist);
+  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(*rsym, exist);
   if (!exist) {
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
       // No corresponding dynamic relocation, initialize to the symbol value.
@@ -139,7 +138,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc, ARMRelocationFactory& pPar
       }
       rel_entry->setType(R_ARM_GLOB_DAT);
       rel_entry->targetRef().assign(got_entry);
-      // FIXME: Set ResolveInfo.
+      rel_entry->setSymInfo(rsym);
     }
     else {
       llvm::report_fatal_error("Didn't reserve GOT!");
