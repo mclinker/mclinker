@@ -141,6 +141,27 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
   return *result;
 }
 
+/// getOrCreateOutputSectHdr - for reader and standard/target format to get
+/// or create the output's section header
+LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
+                                              LDFileFormat::Kind pKind,
+                                              uint32_t pType,
+                                              uint32_t pFlag)
+{
+  // check if we need to create a output section for output LDContext
+  std::string sect_name = m_SectionMap.getOutputSectName(pName);
+  LDSection* output_sect = m_Output.getSection(sect_name);
+
+  if (NULL == output_sect) {
+  // create a output section and push it into output LDContext
+    output_sect =
+      m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    m_Output.getSectionTable().push_back(output_sect);
+    m_SectionMerger.addMapping(pName, output_sect);
+  }
+  return *output_sect;
+}
+
 llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.

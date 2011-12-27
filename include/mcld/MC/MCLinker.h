@@ -88,6 +88,13 @@ public:
                            uint32_t pType,
                            uint32_t pFlag);
 
+  /// getOrCreateOutputSectHdr - for reader and standard/target format to get
+  /// or create the output's section header
+  LDSection& getOrCreateOutputSectHdr(const std::string& pName,
+                                      LDFileFormat::Kind pKind,
+                                      uint32_t pType,
+                                      uint32_t pFlag);
+
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
 
