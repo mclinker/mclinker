@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Twine.h>
+#include <llvm/ADT/OwningPtr.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/MC/MCLinker.h>
@@ -49,8 +50,9 @@ llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
 
 bool ELFDynObjReader::readSymbols(Input& pInput)
 {
-  std::auto_ptr<ELFObject<32> > rs_object =
-    ELFReader::createELFObject(pInput);
+  
+  ELFObject<32>* rs_object = ELFReader::createELF32Object(pInput);
+  llvm::OwningPtr<ELFObject<32> > own_ptr(rs_object);
 
   ELFSectionSymTab<32>* rs_symtab =
     static_cast<ELFSectionSymTab<32> *>(rs_object->getSectionByName(".dynsym"));

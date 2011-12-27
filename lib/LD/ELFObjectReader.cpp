@@ -38,10 +38,8 @@ ELFObjectReader::~ELFObjectReader()
 
 bool ELFObjectReader::isMyFormat(Input &pFile) const
 {
-  // TODO: Since normalize use this function before read symbol,
-  //       so we check extension first.
-  // NOTE: Add ELFObject Cache, check Type and Machine.
-  return pFile.path().extension().native().find(".o") != std::string::npos;
+  // TODO
+  return true;
 }
 
 LDReader::Endian ELFObjectReader::endian(Input &pFile) const
@@ -59,8 +57,8 @@ llvm::error_code ELFObjectReader::readObject(Input& pFile)
 
 bool ELFObjectReader::readSections(Input& pInput)
 {
-  std::auto_ptr<ELFObject<32> > object =
-    ELFReader::createELFObject(pInput);
+  ELFObject<32> *object = ELFReader::createELF32Object(pInput);
+  llvm::OwningPtr<ELFObject<32> > own_ptr(object);
 
   const ELFSectionHeaderTable<32> *shtab =
     object->getSectionHeaderTable();
@@ -104,7 +102,8 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   assert(pInput.hasContext() && "Input file should has context");
 
   // -----  initialize rslinker  ----- //
-  std::auto_ptr<ELFObject<32> > rs_object = ELFReader::createELFObject(pInput);
+  ELFObject<32>* rs_object = ELFReader::createELF32Object(pInput);
+  llvm::OwningPtr<ELFObject<32> > own_ptr(rs_object);
 
   ELFSectionSymTab<32>* rs_symtab =
     static_cast<ELFSectionSymTab<32> *>(rs_object->getSectionByName(".symtab"));

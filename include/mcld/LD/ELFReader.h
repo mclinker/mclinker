@@ -35,7 +35,13 @@ public:
 
   bool is64Bit(mcld::Input &pFile) const;
 
-  std::auto_ptr<ELFObject<32> > createELFObject(mcld::Input &pFile) const;
+  ELFHeader<32>* createELF32Header(mcld::Input &pFile) const;
+
+  ELFHeader<64>* createELF64Header(mcld::Input &pFile) const;
+
+  ELFObject<32>* createELF32Object(mcld::Input &pFile) const;
+
+  ELFObject<64>* createELF64Object(mcld::Input &pFile) const;
 
   ResolveInfo::Binding getBindingResolveInfo(ELFSymbol<32>* sym, bool isDSO) const;
 

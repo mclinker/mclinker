@@ -10,6 +10,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/Support/Host.h>
 
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryArea.h>
@@ -41,8 +42,58 @@ bool ELFReader::is64Bit(mcld::Input &pFile) const
   return false; // TODO
 }
 
-std::auto_ptr<ELFObject<32> >
-ELFReader::createELFObject(mcld::Input &pFile) const
+ELFHeader<32>* ELFReader::createELF32Header(mcld::Input &pFile) const
+{
+  MemoryArea* mapfile = pFile.memArea();
+  size_t fsize = mapfile->size();
+  unsigned char* image =
+    mapfile->request (0, fsize, false /*iswrite*/)->start();
+
+  if (fsize < EI_NIDENT) {
+    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
+  }
+
+  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
+    llvm::report_fatal_error("ERROR: Unknown machine class.");
+  }
+
+  if (llvm::sys::isLittleEndianHost()) {
+    ArchiveReaderLE AR(image, fsize);
+    return ELFHeader<32>::read(AR);
+  }
+  else {
+    ArchiveReaderBE AR(image, fsize);
+    return ELFHeader<32>::read(AR);
+  }
+}
+  
+ELFHeader<64>* ELFReader::createELF64Header(mcld::Input &pFile) const
+{
+  MemoryArea* mapfile = pFile.memArea();
+  size_t fsize = mapfile->size();
+  unsigned char* image =
+    mapfile->request (0, fsize, false /*iswrite*/)->start();
+
+  if (fsize < EI_NIDENT) {
+    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
+  }
+
+  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
+    llvm::report_fatal_error("ERROR: Unknown machine class.");
+  }
+
+  if (llvm::sys::isLittleEndianHost()) {
+    ArchiveReaderLE AR(image, fsize);
+    return ELFHeader<64>::read(AR);
+  }
+  else {
+    ArchiveReaderBE AR(image, fsize);
+    return ELFHeader<64>::read(AR);
+  }
+}
+
+ELFObject<32>* 
+ELFReader::createELF32Object(mcld::Input &pFile) const
 {
   MemoryArea* mapfile = pFile.memArea();
   size_t fsize = mapfile->size();
@@ -60,7 +111,29 @@ ELFReader::createELFObject(mcld::Input &pFile) const
   // TODO: We can decide LE or BE, ELF-32 or ELF-64 from image
   // For now, ELF32-EL object is used
   ArchiveReaderLE AR(image, fsize);
-  return std::auto_ptr<ELFObject<32> >(ELFObject<32>::read(AR));
+  return ELFObject<32>::read(AR);
+}
+
+ELFObject<64>* 
+ELFReader::createELF64Object(mcld::Input &pFile) const
+{
+  MemoryArea* mapfile = pFile.memArea();
+  size_t fsize = mapfile->size();
+  unsigned char* image =
+    mapfile->request (0, fsize, false /*iswrite*/)->start();
+
+  if (fsize < EI_NIDENT) {
+    llvm::report_fatal_error("ERROR: ELF identification corrupted.");
+  }
+
+  if (image[EI_CLASS] != ELFCLASS32 && image[EI_CLASS] != ELFCLASS64) {
+    llvm::report_fatal_error("ERROR: Unknown machine class.");
+  }
+
+  // TODO: We can decide LE or BE, ELF-32 or ELF-64 from image
+  // For now, ELF32-EL object is used
+  ArchiveReaderLE AR(image, fsize);
+  return ELFObject<64>::read(AR);
 }
 
 LDFileFormat::Kind
