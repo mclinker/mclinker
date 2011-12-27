@@ -228,7 +228,7 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc, ARMRelocationFactory& 
 }
 
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
-ARMRelocationFactory::Result gotbrel(Relocation& pReloc, ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result got_brel(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   switch (pReloc.symInfo()->reserved()) {
   default:
@@ -299,7 +299,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc, ARMRelocationFactory& pPar
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
-ARMRelocationFactory::Result movwabs(Relocation& pReloc, ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc, ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xFFFFUL), 16);
@@ -308,4 +308,18 @@ ARMRelocationFactory::Result movwabs(Relocation& pReloc, ARMRelocationFactory& p
   ARMRelocationFactory::Address S = (pReloc.target() + A) | T;
   S &= 0xFFFFUL;  // result mask
   pReloc.target() |= S;
+}
+
+// R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
+ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc, ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = helper_sign_extend((pReloc.target() & 0xFFFFUL), 16);
+
+  pReloc.target() &= 0xFFFF0000UL;
+  ARMRelocationFactory::Address S = ((pReloc.target() + A) | T)
+                                    - pReloc.place(pParent.getLayout());
+  S &= 0xFFFFUL;  // result mask
+  pReloc.target() |= S;
+}
 }
