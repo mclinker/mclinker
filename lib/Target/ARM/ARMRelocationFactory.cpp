@@ -316,91 +316,125 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
-// R_ARM_MOVT_ABS: S + A
 // R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
-// R_ARM_MOVT_PREL: S + A - P
-// R_ARM_THM_MOVW_ABS_NC: (S + A) | T
-// R_ARM_THM_MOVT_ABS: S + A
-// R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
-// R_ARM_THM_MOVT_PREF: S + A - P
-ARMRelocationFactory::Result mov(Relocation& pReloc,
-                                 ARMRelocationFactory& pParent)
+ARMRelocationFactory::Result movw(Relocation& pReloc,
+                                  ARMRelocationFactory& pParent)
 {
+  ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A =
-      helper_sign_extend((pReloc.target() & 0xffffUL), 16); // initial addend
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
-  ARMRelocationFactory::DWord S;
+  // imm: 19-16, 11-0
+  ARMRelocationFactory::DWord A =
+      helper_sign_extend((pReloc.target() >> 4 & 0xf000U) |
+                         (pReloc.target() & 0xfffU),
+                         16);
+  ARMRelocationFactory::DWord X;
 
-  pReloc.target() &= 0xffff0000UL;
-
-  switch (pReloc.type()) {
-    default: {
-      return ARMRelocationFactory::BadReloc;
-    }
-    case R_ARM_MOVW_ABS_NC:
-    case R_ARM_THM_MOVW_ABS_NC: {
-      S = (pReloc.target() + A) | T;
-      break;
-    }
-    case R_ARM_MOVT_ABS:
-    case R_ARM_THM_MOVT_ABS: {
-      S = pReloc.target() + A;
-      break;
-    }
-    case R_ARM_MOVW_PREL_NC:
-    case R_ARM_THM_MOVW_PREL_NC: {
-      S = ((pReloc.target() + A) | T) - P;
-      break;
-    }
-    case R_ARM_MOVT_PREL:
-    case R_ARM_THM_MOVT_PREL: {
-      S = pReloc.target() + A - P;
-      break;
-    }
+  if (pReloc.type() == R_ARM_MOVW_ABS_NC) {
+    X = (S + A) | T;
+  } else {
+    X = ((S + A) | T) - P;
   }
 
-  // check overflow
-  switch (pReloc.type()) {
-    default: {
-      break;
-    }
-    case R_ARM_MOVT_ABS:
-    case R_ARM_MOVT_PREL: {
-      if (S > 0x00007fffUL && S < 0xffff8000UL) {  // Check X is 16bit sign interger.
-        return ARMRelocationFactory::BadReloc;
-      }
-      break;
-    }
+  pReloc.target() &= 0xfff0f000U;
+  pReloc.target() |= X & 0x0fffU;
+  pReloc.target() |= (X & 0xf000U) << 4;
+
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_MOVT_ABS: S + A
+// R_ARM_MOVT_PREL: S + A - P
+ARMRelocationFactory::Result movt(Relocation& pReloc,
+                                  ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord A =
+      helper_sign_extend((pReloc.target() >> 4 & 0xf000U) |
+                         (pReloc.target() & 0xfffU),
+                         16);
+  ARMRelocationFactory::DWord X;
+
+  if (pReloc.type() == R_ARM_MOVT_ABS) {
+    X = S + A;
+  } else {
+    X = S + A - P;
   }
 
-  switch (pReloc.type()) {
-    default: {
-      return ARMRelocationFactory::BadReloc;
-    }
-    case R_ARM_MOVW_ABS_NC:
-    case R_ARM_MOVW_PREL_NC: {
-      S &= 0xffffUL;
-      break;
-    }
-    case R_ARM_MOVT_ABS:
-    case R_ARM_MOVT_PREL: {
-      S &= 0xffff0000UL;
-      break;
-    }
-    case R_ARM_THM_MOVW_ABS_NC:
-    case R_ARM_THM_MOVW_PREL_NC: {
-      S &= 0x0000ffffUL;
-      break;
-    }
-    case R_ARM_THM_MOVT_ABS:
-    case R_ARM_THM_MOVT_PREL: {
-      S &= 0xffff0000UL;
-      break;
-    }
+  X >>= 16;
+
+  pReloc.target() &= 0xfff0f000U;
+  pReloc.target() |= X & 0x0fffU;
+  pReloc.target() |= (X & 0xf000U) << 4;
+
+  // check 16-bit overflow
+  int32_t max = (1 << (16 - 1)) - 1;
+  int32_t min = -(1 << (16 - 1));
+  int32_t signed_x = static_cast<int32_t>(X);
+  if (signed_x > max || signed_x < min) {
+    return ARMRelocationFactory::Overflow;
+  } else {
+    return ARMRelocationFactory::OK;
+  }
+}
+
+// R_ARM_THM_MOVW_ABS_NC: (S + A) | T
+// R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
+ARMRelocationFactory::Result thm_movw(Relocation& pReloc,
+                                      ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord target = (pReloc.target() << 16) |
+                                        (pReloc.target()+1);
+  ARMRelocationFactory::DWord A =
+      helper_sign_extend((target >> 4 & 0xf000U) |
+                         (target & 0xfffU),
+                         16);
+  ARMRelocationFactory::DWord X;
+  if (pReloc.type() == R_ARM_THM_MOVW_ABS_NC) {
+    X = (S + A) | T;
+  } else {
+    X = ((S + A) | T) - P;
   }
 
-  pReloc.target() |= S;
+  target &= 0xfff0f000U;
+  target |= X & 0x0fffU;
+  target |= (X & 0xf000U) << 4;
+
+  pReloc.target() |= target >> 16;
+  pReloc.target() |= target & 0xffffU;
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_THM_MOVT_ABS: S + A
+// R_ARM_THM_MOVT_PREF: S + A - P
+ARMRelocationFactory::Result thm_movt(Relocation& pReloc,
+                                      ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord target = (pReloc.target() << 16) |
+                                        (pReloc.target()+1);
+  ARMRelocationFactory::DWord A =
+      helper_sign_extend((target >> 4 & 0xf000U) |
+                         (target & 0xfffU),
+                         16);
+  ARMRelocationFactory::DWord X;
+  if (pReloc.type() == R_ARM_THM_MOVT_ABS) {
+    X = S + A;
+  } else {
+    X = S + A - P;
+  }
+
+  target &= 0xfff0f000U;
+  target |= X & 0x0fffU;
+  target |= (X & 0xf000U) << 4;
+
+  pReloc.target() |= target >> 16;
+  pReloc.target() |= target & 0xffffU;
   return ARMRelocationFactory::OK;
 }
 
@@ -413,3 +447,4 @@ ARMRelocationFactory::Result tls(Relocation& pReloc,
   llvm::report_fatal_error("We don't support TLS relocation yet.");
   return ARMRelocationFactory::OK;
 }
+
