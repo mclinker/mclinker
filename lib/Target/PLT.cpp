@@ -33,6 +33,7 @@ PLTEntry::~PLTEntry()
 PLT::PLT(llvm::MCSectionData& pSectionData)
   : m_pSectionData(&pSectionData)
 {
+  assert(m_pSectionData && "m_pSectionData in PLT is NULL!");
 }
 
 PLT::~PLT()

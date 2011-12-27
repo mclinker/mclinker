@@ -31,10 +31,10 @@ public:
 class ARMPLT : public PLT
 {
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
-  typedef llvm::MCSectionData::iterator MCFragmentIteratorType;
+  typedef llvm::MCSectionData::iterator iterator;
 
 public:
-  ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT& pGOT);
+  ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
 public:
@@ -51,14 +51,14 @@ public:
 
   void applyPLT0(const uint32_t pOffset);
 
-  void applyPLT1(const uint32_t pOffset, const ResolveInfo& pInfo);
+  void applyPLT1();
 
 private:
-  ARMGOT& m_GOT;
+  ARMGOT& m_GOTPLT;
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.
-  MCFragmentIteratorType m_MCFragmentIterator;
+  iterator m_MCFragmentIterator;
 
   SymbolIndexType m_SymbolIndexMap;
 };

@@ -78,6 +78,10 @@ public:
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
   virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
+  const unsigned int getEntryBytes() const {
+    return f_EntryBytes;
+  }
+
 protected:
   llvm::MCSectionData* m_pSectionData;
   const unsigned int f_EntryBytes;

@@ -12,8 +12,6 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <new>
 
-using namespace mcld;
-
 namespace {
 
 const uint32_t arm_plt0[] = {
@@ -32,14 +30,16 @@ const uint32_t arm_plt1[] = {
 
 }
 
+namespace mcld {
+
 ARMPLT0::ARMPLT0() : PLTEntry(sizeof(arm_plt0)) {}
 ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
 
-ARMPLT::ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT &pGOT)
-  : PLT(pSectionData), m_GOT(pGOT), m_MCFragmentIterator() {
+ARMPLT::ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT &pGOTPLT)
+  : PLT(pSectionData), m_GOTPLT(pGOTPLT), m_MCFragmentIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0();
   pSectionData.getFragmentList().push_back(plt0_entry);
 
@@ -67,7 +67,7 @@ void ARMPLT::reserveEntry(int pNum)
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
-    m_GOT.m_pGOTPLTEntries->getEntryList().push_back(got_entry);
+    m_GOTPLT.m_pGOTPLTEntries->getEntryList().push_back(got_entry);
   }
 }
 
@@ -93,7 +93,7 @@ ARMPLT0* ARMPLT::getPLT0() const {
   if (!m_pSectionData)
     llvm::report_fatal_error("m_pSectionData is NULL!");
 
-  MCFragmentIteratorType first = m_pSectionData->getFragmentList().begin();
+  iterator first = m_pSectionData->getFragmentList().begin();
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   return plt0;
@@ -104,7 +104,7 @@ void ARMPLT::applyPLT0(const uint32_t pOffset) {
   if (!m_pSectionData)
     llvm::report_fatal_error("m_pSectionData is NULL!");
 
-  MCFragmentIteratorType first = m_pSectionData->getFragmentList().begin();
+  iterator first = m_pSectionData->getFragmentList().begin();
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   uint32_t* data = 0;
@@ -119,10 +119,35 @@ void ARMPLT::applyPLT0(const uint32_t pOffset) {
   plt0->setContent(reinterpret_cast<unsigned char*>(data));
 }
 
-void ARMPLT::applyPLT1(const uint32_t pOffset, const ResolveInfo& pInfo) {
-  ARMPLT1* plt1 = m_SymbolIndexMap[&pInfo];
+void ARMPLT::applyPLT1() {
 
-  if (plt1) {
+  uint64_t plt_base =
+    llvm::cast<LDSection>(m_pSectionData->getSection()).offset();
+  assert(plt_base && ".plt base address is NULL!");
+
+  uint64_t got_base =
+    llvm::cast<LDSection>(m_GOTPLT.getSectionData()->getSection()).offset();
+  assert(got_base && ".got base address is NULL!");
+
+  ARMPLT::iterator it = m_pSectionData->begin();
+  ARMPLT::iterator ie = m_pSectionData->end();
+
+  unsigned int GOTEntrySize = m_GOTPLT.getEntryBytes();
+  uint64_t GOTEntryAddress =
+    got_base +  GOTEntrySize * 3;
+
+  uint64_t PLTEntryAddress =
+    plt_base + llvm::cast<ARMPLT0>((*it)).getEntrySize() + 8; //Offset of PLT0
+
+  ++it; //skip PLT0
+  unsigned int PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
+  ARMPLT1* plt1 = 0;
+
+  unsigned int EntryCounter = 0;
+  uint64_t Offset;
+
+  while (it != ie) {
+    plt1 = &(llvm::cast<ARMPLT1>(*it));
     uint32_t* Out = 0;
     Out = static_cast<uint32_t*>(malloc(plt1->getEntrySize()));
 
@@ -130,11 +155,18 @@ void ARMPLT::applyPLT1(const uint32_t pOffset, const ResolveInfo& pInfo) {
       llvm::report_fatal_error("Allocating new memory for plt1 failed!");
 
     memcpy(Out, arm_plt1, plt1->getEntrySize());
-    uint32_t offset = pOffset;
 
-    uint32_t plt1_data1 = ((offset-8) & 0x0FF00000);
-    uint32_t plt1_data2 = ((offset-4) & 0x000FF000);
-    uint32_t plt1_data3 = (offset & 0x00000FFF);
+    GOTEntryAddress = GOTEntryAddress + GOTEntrySize;
+    PLTEntryAddress = PLTEntryAddress + PLT1EntrySize;
+
+    if (GOTEntryAddress > PLTEntryAddress)
+      Offset = GOTEntryAddress - PLTEntryAddress;
+    else
+      Offset = PLTEntryAddress - GOTEntryAddress;
+
+    uint32_t plt1_data1 = ((Offset-8) & 0x0FF00000);
+    uint32_t plt1_data2 = ((Offset-4) & 0x000FF000);
+    uint32_t plt1_data3 = (Offset & 0x00000FFF);
 
     *Out |= plt1_data1;
     *Out |= plt1_data2;
@@ -143,5 +175,10 @@ void ARMPLT::applyPLT1(const uint32_t pOffset, const ResolveInfo& pInfo) {
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
   }
 
-  llvm::errs()<<"Can not resolve non-exist PLT1 entry!\n";
+  for (ARMGOT::iterator it = m_GOTPLT.begin(),
+       ie = m_GOTPLT.end(); it != ie; ++it)
+    llvm::cast<GOTEntry>((*it)).setContent(plt_base);
 }
+
+} // end namespace mcld
+
