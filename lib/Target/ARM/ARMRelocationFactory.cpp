@@ -318,11 +318,15 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
+// R_ARM_MOVT_ABS: S + A
 // R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
+// R_ARM_MOVT_PREL: S + A - P
 // R_ARM_THM_MOVW_ABS_NC: (S + A) | T
+// R_ARM_THM_MOVT_ABS: S + A
 // R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
-ARMRelocationFactory::Result movw_nc(Relocation& pReloc,
-                                     ARMRelocationFactory& pParent)
+// R_ARM_THM_MOVT_PREF: S + A - P
+ARMRelocationFactory::Result mov(Relocation& pReloc,
+                                 ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A =
@@ -332,18 +336,70 @@ ARMRelocationFactory::Result movw_nc(Relocation& pReloc,
 
   pReloc.target() &= 0xffff0000UL;
 
-  if (pReloc.type() == R_ARM_MOVW_ABS_NC ||
-      pReloc.type() == R_ARM_THM_MOVW_ABS_NC) {
-    S = (pReloc.target() + A) | T;
-  } else {    // pc-relative
-    S = ((pReloc.target() + A) | T) - P;
+  switch (pReloc.type()) {
+    default: {
+      return ARMRelocationFactory::BadReloc;
+    }
+    case R_ARM_MOVW_ABS_NC:
+    case R_ARM_THM_MOVW_ABS_NC: {
+      S = (pReloc.target() + A) | T;
+      break;
+    }
+    case R_ARM_MOVT_ABS:
+    case R_ARM_THM_MOVT_ABS: {
+      S = pReloc.target() + A;
+      break;
+    }
+    case R_ARM_MOVW_PREL_NC:
+    case R_ARM_THM_MOVW_PREL_NC: {
+      S = ((pReloc.target() + A) | T) - P;
+      break;
+    }
+    case R_ARM_MOVT_PREL:
+    case R_ARM_THM_MOVT_PREL: {
+      S = pReloc.target() + A - P;
+      break;
+    }
   }
 
-  if (pReloc.type() == R_ARM_MOVW_ABS_NC ||
-      pReloc.type() == R_ARM_MOVW_PREL_NC) {
-    S &= 0xffffUL;
-  } else {    // thumb-32
-    S &= 0x0000ffffUL;
+  // check overflow
+  switch (pReloc.type()) {
+    default: {
+      break;
+    }
+    case R_ARM_MOVT_ABS:
+    case R_ARM_MOVT_PREL: {
+      if (S > 0x0000ffffUL && S < 0xffff0000UL) {  // Check X is 16bit sign interger.
+        return ARMRelocationFactory::BadReloc;
+      }
+      break;
+    }
+  }
+
+  switch (pReloc.type()) {
+    default: {
+      return ARMRelocationFactory::BadReloc;
+    }
+    case R_ARM_MOVW_ABS_NC:
+    case R_ARM_MOVW_PREL_NC: {
+      S &= 0xffffUL;
+      break;
+    }
+    case R_ARM_MOVT_ABS:
+    case R_ARM_MOVT_PREL: {
+      S &= 0xffff0000UL;
+      break;
+    }
+    case R_ARM_THM_MOVW_ABS_NC:
+    case R_ARM_THM_MOVW_PREL_NC: {
+      S &= 0x0000ffffUL;
+      break;
+    }
+    case R_ARM_THM_MOVT_ABS:
+    case R_ARM_THM_MOVT_PREL: {
+      S &= 0xffff0000UL;
+      break;
+    }
   }
 
   pReloc.target() |= S;
