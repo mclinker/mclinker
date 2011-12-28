@@ -43,7 +43,7 @@ public:
   static bool classof(const MCFragment *O) { return true; }
 
   /// offset - byte offset to the section
-  const uint64_t offset() const
+  uint64_t offset() const
   { return Offset; }
 
 protected:

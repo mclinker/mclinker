@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/LDSection.h>
 #include "MipsDynRelSection.h"
 
 using namespace mcld;
@@ -14,16 +15,20 @@ using namespace mcld;
 // MipsDynRelSection
 
 MipsDynRelSection::MipsDynRelSection(LDSection& pSection,
-                                     llvm::MCSectionData& pSectionData)
+                                     llvm::MCSectionData& pSectionData,
+                                     const unsigned int pEntrySize)
   : m_pSection(&pSection),
-    m_pSectionData(&pSectionData)
-{
+    m_pSectionData(&pSectionData),
+    m_EntryBytes(pEntrySize) {
+
 }
 
 void MipsDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
                                      int pNum)
 {
   m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
+  // update section size
+  m_pSection->setSize(m_pSection->size() + m_EntryBytes);
 }
 
 Relocation* MipsDynRelSection::getEntry(const ResolveInfo& pSymbol,

@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/LDSection.h>
 #include "ARMDynRelSection.h"
 
 using namespace mcld;
@@ -15,9 +16,11 @@ using namespace mcld;
 
 
 ARMDynRelSection::ARMDynRelSection(LDSection& pSection,
-                                   llvm::MCSectionData& pSectionData)
+                                   llvm::MCSectionData& pSectionData,
+                                   const unsigned int pEntrySize)
   : m_pSection(&pSection),
-    m_pSectionData(&pSectionData) {
+    m_pSectionData(&pSectionData),
+    m_EntryBytes(pEntrySize){
 }
 
 ARMDynRelSection::~ARMDynRelSection()
@@ -28,6 +31,8 @@ void ARMDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
                                     int pNum)
 {
   m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
+  // update section size
+  m_pSection->setSize(m_pSection->size() + m_EntryBytes);
 }
 
 Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
@@ -42,7 +47,8 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
   }
 
   // if this relocation is used to relocate GOT (.got or .got.plt),
-  // check if we've get an entry for this symbol before.
+  // check if we've gotton an entry for this symbol before. If yes,
+  // retunrn the found entry in map.
   // Otherwise, this relocation is used to relocate general section
   // (data or text section), return an empty entry directly.
   Relocation* result;

@@ -34,10 +34,13 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  ARMDynRelSection(LDSection& pSection, llvm::MCSectionData& pSectionData);
+  ARMDynRelSection(LDSection& pSection, 
+                   llvm::MCSectionData& pSectionData,
+                   const unsigned int pEntrySize);
   ~ARMDynRelSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
+  
   Relocation* getEntry(const ResolveInfo& pSymbol,
                        bool isForGOT,
                        bool& pExist);
@@ -54,6 +57,9 @@ private:
 
   /// m_SectionData - MCSectionData which contains the dynamic relocations
   llvm::MCSectionData* m_pSectionData;
+
+  /// m_EntryBytes - size of a relocation entry
+  const unsigned int m_EntryBytes;
 };
 
 } // namespace of mcld

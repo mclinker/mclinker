@@ -113,7 +113,8 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
                                                        ELF::SHT_REL,
                                                        ELF::SHF_ALLOC);
   // create MCSectionData and ARMRelDynSection
-  m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn));
+  unsigned int size = bitclass() / 8 * 2;
+  m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn), size);
 }
 
 void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
@@ -123,7 +124,8 @@ void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
                                                        ELF::SHT_REL,
                                                        ELF::SHF_ALLOC);
   // create MCSectionData and ARMRelDynSection
-  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt));
+  unsigned int size = bitclass() / 8 * 2;
+  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt), size);
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
