@@ -16,7 +16,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // GOTEntry
 GOTEntry::GOTEntry(uint64_t pContent)
-  : llvm::MCFragment(llvm::MCFragment::FT_GOT, 0),
+  : llvm::MCFragment(llvm::MCFragment::FT_Target, 0),
     f_Content(pContent) {
 }
 
