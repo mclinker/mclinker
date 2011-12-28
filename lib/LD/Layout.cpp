@@ -129,8 +129,13 @@ uint64_t Layout::getFragmentOffset(const llvm::MCFragment& pFrag) const
 /// containing section.
 uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
 {
-  assert(NULL != pFragRef.frag());
-  return pFragRef.frag()->Offset + pFragRef.offset();
+  const llvm::MCFragment* frag = pFragRef.frag();
+  assert(NULL != frag);
+
+  ensureFragmentOrdered(*frag);
+  ensureValid(*frag);
+
+  return frag->Offset + pFragRef.offset();
 }
 
 bool Layout::layout(MCLinker& pLinker)
