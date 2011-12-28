@@ -275,7 +275,7 @@ bool MCLDDriver::relocate()
 /// hash table.
 bool MCLDDriver::measureNamePool()
 {
-  // TODO
+  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_LDInfo);
   return true;
 }
 

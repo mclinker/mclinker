@@ -25,6 +25,8 @@ class ObjectWriter;
 class DynObjWriter;
 class LDContext;
 class SectionMap;
+class Output;
+class MCLDInfo;
 
 class LDFileFormat;
 class GOT;
@@ -96,6 +98,12 @@ public:
 
   /// computeSectionOrder - compute the layout order of the given section
   virtual unsigned int getSectionOrder(const LDSection& pSectHdr) const = 0;
+
+  /// sizeNamePools - compute the size of regular name pools
+  /// In ELF executable files, regular name pools are .symtab, .strtab.,
+  /// .dynsym, .dynstr, and .hash
+  virtual void
+  sizeNamePools(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
 };
 
 } // End mcld namespace

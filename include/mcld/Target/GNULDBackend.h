@@ -25,6 +25,8 @@
 namespace mcld
 {
 
+class MCLDInfo;
+
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
  *  LDBackend.
@@ -73,6 +75,12 @@ public:
   /// entry - the symbol name of the entry point
   virtual const char* entry() const
   { return "_start"; }
+
+  /// sizeNamePools - compute the size of regular name pools
+  /// In ELF executable files, regular name pools are .symtab, .strtab.,
+  /// .dynsym, .dynstr, and .hash
+  virtual void sizeNamePools(const Output& pOutput,
+                             const MCLDInfo& pLDInfo);
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const Output& pOutput,

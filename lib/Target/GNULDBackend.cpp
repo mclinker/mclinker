@@ -8,12 +8,41 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ELF.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/LD/LDSymbol.h>
 #include <cassert>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
+// non-member functions
+static unsigned int
+hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
+{
+  // @ref Google gold, dynobj.cc:loc 791
+  static const unsigned int buckets[] =
+  {
+    1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209,
+    16411, 32771, 65537, 131101, 262147
+  };
+  const int buckets_count = sizeof buckets / sizeof buckets[0];
+
+  unsigned int result = 1; 
+  for (unsigned int i = 0; i < buckets_count; ++i) {
+    if (pNumOfSymbols < buckets[i])
+      break;
+    result = buckets[i];
+  }
+
+  if (pIsGNUStyle && result < 2)
+    result = 2;
+
+  return result;
+}
+
+//===----------------------------------------------------------------------===//
 // GNULDBackend
 GNULDBackend::GNULDBackend()
   : m_pArchiveReader(0),
@@ -145,6 +174,89 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat()
 {
   assert(0 != m_pExecFileFormat);
   return m_pExecFileFormat;
+}
+
+/// sizeNamePools - compute the size of regular name pools
+/// In ELF executable files, regular name pools are .symtab, .strtab.,
+/// .dynsym, .dynstr, and .hash
+void
+GNULDBackend::sizeNamePools(const Output& pOutput,
+                            const MCLDInfo& pLDInfo)
+{
+  size_t symtab = 0;
+  size_t dynsym = 0;
+  size_t strtab = 1;
+  size_t dynstr = 1;
+  size_t hash   = 0;
+
+  // compute size of .symtab, .dynsym and .strtab
+  LDContext::const_sym_iterator symbol;
+  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
+  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+    size_t str_size = (*symbol)->nameSize() + 1;
+    if ((*symbol)->binding() != ResolveInfo::Local) {
+      ++dynsym;
+      dynstr += str_size;
+    }
+    ++symtab;
+    strtab += str_size;
+  }
+
+  ELFFileFormat* file_format = NULL;
+  switch(pOutput.type()) {
+    // compute size of .dynstr and .hash
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      // TODO: not support yet
+      return;
+  } 
+
+  switch(pOutput.type()) {
+    // compute size of .dynstr and .hash
+    case Output::DynObj:
+    case Output::Exec: {
+      // add DT_NEED strings into .dynstr
+      // Rules:
+      //   1. ignore --no-add-needed
+      //   2. force count in --no-as-needed
+      //   3. judge --as-needed
+      InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
+      for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+        if (Input::DynObj == (*input)->type()) {
+          // --add-needed
+          if ((*input)->attribute()->isAddNeeded()) {
+            // --no-as-needed
+            if (!(*input)->attribute()->isAsNeeded())
+              dynstr += (*input)->name().size() + 1;
+            // --as-needed
+            else if ((*input)->isNeeded())
+              dynstr += (*input)->name().size() + 1;
+          }
+        }
+      } // for
+
+      // compute .hash
+      // Both Elf32_Word and Elf64_Word are 4 bytes
+      hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
+
+      // set size
+      file_format->getDynSymTab().setSize(dynsym);
+      file_format->getDynStrTab().setSize(dynstr);
+      file_format->getHashTab().setSize(hash);
+    }
+    /* fall through */
+    case Output::Object: {
+      file_format->getSymTab().setSize(symtab);
+      file_format->getStrTab().setSize(strtab);
+      break;
+    }
+  }
 }
 
 /// emitRegNamePools - emit regular name pools - .symtab, .strtab
