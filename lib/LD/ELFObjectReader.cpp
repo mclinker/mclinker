@@ -87,6 +87,9 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                llvm::ELF::SHT_NOBITS,
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 
+        llvm::MCSectionData& sectData = m_Linker.getOrCreateSectData(ldSect);
+                             /*  value, valsize, size,          SD */
+        new llvm::MCFillFragment(0x0,   1,       sh->getSize(), &sectData);
         output_bss.setSize( output_bss.size() + sh->getSize());
         break;
       }
