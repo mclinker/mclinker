@@ -81,9 +81,9 @@ public:
   const_iterator end() const
   { return m_SectMap.end(); }
 
-  // addStdSectionMap - add common mappings of ELF and other formats
+  // initStdSectionMap - add common mappings of ELF and other formats
   // to SectionMap
-  bool addStdSectionMap();
+  bool initStdSectionMap();
 
 private:
   struct SectionNameMapping {

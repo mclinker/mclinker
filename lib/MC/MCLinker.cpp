@@ -196,11 +196,6 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
   return *sect_data;
 }
 
-bool MCLinker::initStdSectionMap(SectionMap& pSectionMap)
-{
-  return pSectionMap.addStdSectionMap();
-}
-
 /// addRelocation - add a relocation entry in MCLinker (only for object file)
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     LDSymbol& pSymbol,

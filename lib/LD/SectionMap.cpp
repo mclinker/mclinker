@@ -129,7 +129,7 @@ const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
 const int SectionMap::m_StdSectionMapSize =
   (sizeof(SectionMap::m_StdSectionMap) / sizeof(SectionMap::m_StdSectionMap[0]));
 
-bool SectionMap::addStdSectionMap()
+bool SectionMap::initStdSectionMap()
 {
   for (int i = 0; i < m_StdSectionMapSize; ++i) {
     if (!push_back(m_StdSectionMap[i].from, m_StdSectionMap[i].to))

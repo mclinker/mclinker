@@ -130,7 +130,7 @@ bool MCLDDriver::initMCLinker()
 
   /// initialize section mapping for standard format, target-dependent section,
   /// (and user-defined mapping)
-  if (!m_pLinker->initStdSectionMap(m_SectionMap) ||
+  if (!m_SectionMap.initStdSectionMap() ||
       !m_LDBackend.initTargetSectionMap(m_SectionMap))
     return false;
 

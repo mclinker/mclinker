@@ -98,8 +98,6 @@ public:
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
 
-  bool initStdSectionMap(SectionMap& pSectionMap);
-
   // -----  relocations ----- //
   /// addRelocation - add a relocation entry in MCLinker (only for object file)
   /// @param pType - the type of the relocation
