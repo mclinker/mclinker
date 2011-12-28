@@ -78,6 +78,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      MCLinker& pLinker,
                                      unsigned int pType)
 {
+  llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
+			   llvm::Twine(pReloc.type()) +
+			   llvm::Twine("in object file"));
 }
 
 namespace mcld {
