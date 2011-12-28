@@ -59,7 +59,7 @@ public:
   /// @param pType - the MCLDOutput type of ouput file type
   virtual void scanRelocation(Relocation& pReloc,
                               MCLinker& pLinker,
-                              unsigned int pType) { }
+                              unsigned int pType) = 0;
 
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLinker&) = 0;
@@ -82,16 +82,16 @@ public:
 
   virtual RelocationFactory* getRelocFactory() = 0;
 
-  /* The return value of machine() it the same as e_machine in the ELF header*/
+  /// The return value of machine() it the same as e_machine in the ELF header*/
   virtual uint32_t machine() const = 0;
 
-  /** Is the target machine little endian? **/
+  /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
 
-  /** bit class. the bit length of the target machine, 32 or 64 **/
+  /// bit class. the bit length of the target machine, 32 or 64 **/
   virtual unsigned int bitclass() const = 0;
 
-  /** section start offset in the output file **/
+  /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;
 
   /// computeSectionOrder - compute the layout order of the given section
