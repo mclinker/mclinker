@@ -267,11 +267,13 @@ bool MCLDDriver::relocate()
   return true;
 }
 
-/// createDynSymTable - create dynamic symbol table section and hash
-/// sections
-/// dump all dynamic symbols from MCLinker and build the format-dependent
+/// measureNamePool - compute the size of name pool sections
+/// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
+/// and .hash sections.
+///
+/// dump all symbols and strings from MCLinker and build the format-dependent
 /// hash table.
-bool MCLDDriver::createDynSymTable()
+bool MCLDDriver::measureNamePool()
 {
   // TODO
   return true;

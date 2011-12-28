@@ -535,8 +535,8 @@ bool SectLinker::doFinalization(Module &pM)
       !m_pLDDriver->addTargetSymbols())
     return true;
 
-  // 8. - create dynamic symbol section and hash section
-  m_pLDDriver->createDynSymTable();
+  // 8. - compute the size of .symtab, .strtab, .dynstr, .dynsym.
+  m_pLDDriver->measureNamePool();
 
   // 9. - read all relocation entries of input files
   m_pLDDriver->readRelocations();
