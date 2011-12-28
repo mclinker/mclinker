@@ -72,18 +72,18 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  m_pEXIDX        = &pLinker.createSectHdr(".ARM.exidx",
-                                          LDFileFormat::Target,
-                                          ELF::SHT_ARM_EXIDX,
-                                                  ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
-  m_pEXTAB        = &pLinker.createSectHdr(".ARM.extab",
-                                          LDFileFormat::Target,
-                                          ELF::SHT_PROGBITS,
-                                          ELF::SHF_ALLOC);
-  m_pAttributes   = &pLinker.createSectHdr(".ARM.attributes",
-                                          LDFileFormat::Target,
-                                          ELF::SHT_ARM_ATTRIBUTES,
-                                          ELF::SHF_ALLOC);
+  m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
+                                                      LDFileFormat::Target,
+                                                      ELF::SHT_ARM_EXIDX,
+                                                      ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
+  m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
+                                                      LDFileFormat::Target,
+                                                      ELF::SHT_PROGBITS,
+                                                      ELF::SHF_ALLOC);
+  m_pAttributes   = &pLinker.getOrCreateOutputSectHdr(".ARM.attributes",
+                                                      LDFileFormat::Target,
+                                                      ELF::SHT_ARM_ATTRIBUTES,
+                                                      ELF::SHF_ALLOC);
 }
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
