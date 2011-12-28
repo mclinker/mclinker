@@ -316,6 +316,8 @@ uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
     return sizeof(llvm::ELF::Elf32_Rel);
   if (llvm::ELF::SHT_RELA == pSection.type())
     return sizeof(llvm::ELF::Elf32_Rela);
+  if (llvm::ELF::SHT_HASH == pSection.type())
+    return sizeof(llvm::ELF::Elf32_Word);
   return 0x0;
 }
 
@@ -328,6 +330,8 @@ uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
     return sizeof(llvm::ELF::Elf64_Rel);
   if (llvm::ELF::SHT_RELA == pSection.type())
     return sizeof(llvm::ELF::Elf64_Rela);
+  if (llvm::ELF::SHT_HASH == pSection.type())
+    return sizeof(llvm::ELF::Elf64_Word);
   return 0x0;
 }
 
