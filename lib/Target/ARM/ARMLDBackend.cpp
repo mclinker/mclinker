@@ -469,6 +469,8 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
   uint64_t RegionSize = 0;
 
   if (!std::strcmp(SectionName,".got")) {
+    assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+
     GOTEntry* got = 0;
     EntrySize = m_pGOT->getEntryBytes();
 
@@ -481,6 +483,11 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
   }
 
   else if (!std::strcmp(SectionName, ".plt")) {
+    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+
+    m_pPLT->applyPLT0();
+    m_pPLT->applyPLT1();
+
     ARMPLT::iterator it = m_pPLT->begin();
     unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
 
