@@ -12,15 +12,12 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/Layout.h>
 #include "ARMRelocationFactory.h"
+#include "ARMRelocationFunctions.h"
 #include <stdint.h>
 
 using namespace mcld;
 
-
-#define DECL_ARM_APPLY_RELOC_FUNC_TUPLE(pFunc, pIdx, pName) \
-    static ARMRelocationFactory::Result pFunc \
-    (Relocation& pReloc, ARMRelocationFactory& pParent);
-#include "ARMRelocationFunctions.h"
+DECL_ARM_APPLY_RELOC_FUNCS
 
 //===--------------------------------------------------------------------===//
 // ARMRelocationFactory
@@ -58,9 +55,7 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
 
   // declare the table of applying functions
   static ApplyFunctionTriple apply_functions[] = {
-#define DECL_ARM_APPLY_RELOC_FUNC_TUPLE(pFunc, pIdx, pName) \
-    { &pFunc, pIdx, #pName },
-#include "ARMRelocationFunctions.h"
+    DECL_ARM_APPLY_RELOC_FUNC_PTRS
   };
 
   // apply the relocation
