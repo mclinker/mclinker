@@ -334,8 +334,19 @@ uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
 // getSectEntrySize - compute ElfXX_Shdr::sh_link
 uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput) const
 {
-  // TODO
-  return 0x0;
+  const LDContext* context = pOutput.context();
+  if (llvm::ELF::SHT_DYNAMIC == pSection.type())
+    return context->getSectionIdx(".dynstr");
+  if (llvm::ELF::SHT_HASH == pSection.type())
+    return context->getSectionIdx(".dynsym");
+  if (llvm::ELF::SHT_REL == pSection.type() ||
+      llvm::ELF::SHT_RELA == pSection.type()) {
+    if (pOutput.type() == Output::Object)
+      return context->getSectionIdx(".symtab");
+    else
+      return context->getSectionIdx(".dynsym");
+  }
+  return llvm::ELF::SHN_UNDEF;
 }
 
 // getSectEntrySize - compute ElfXX_Shdr::sh_info
