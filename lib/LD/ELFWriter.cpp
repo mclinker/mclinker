@@ -56,7 +56,7 @@ ELFWriter::FileOffset ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
     }
     elf_header.e_machine   = pBackend.machine();
     elf_header.e_version   = elf_header.e_ident[ELF::EI_VERSION];
-    elf_header.e_entry     = getEntry(pLDInfo, pLayout, pBackend, pOutput);
+    elf_header.e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
     elf_header.e_phoff     = sizeof(ELF::Elf32_Ehdr);
     elf_header.e_shoff     = pShdrOffset;
     elf_header.e_flags     = pBackend.flags();
@@ -111,7 +111,7 @@ ELFWriter::FileOffset ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
     }
     elf_header.e_machine   = pBackend.machine();
     elf_header.e_version   = elf_header.e_ident[ELF::EI_VERSION];
-    elf_header.e_entry     = getEntry(pLDInfo, pLayout, pBackend, pOutput);
+    elf_header.e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
     elf_header.e_phoff     = sizeof(ELF::Elf64_Ehdr);
     elf_header.e_shoff     = pShdrOffset;
     elf_header.e_flags     = pBackend.flags();
@@ -128,10 +128,10 @@ ELFWriter::FileOffset ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
     return sizeof(ELF::Elf64_Ehdr);
 }
 
-uint64_t ELFWriter::getEntry(const MCLDInfo& pLDInfo,
-                             const Layout& pLayout,
-                             const GNULDBackend& pBackend,
-                             const Output& pOutput) const
+uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
+                                  const Layout& pLayout,
+                                  const GNULDBackend& pBackend,
+                                  const Output& pOutput) const
 {
 
   llvm::StringRef entry_name;
