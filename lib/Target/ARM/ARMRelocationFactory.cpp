@@ -242,18 +242,54 @@ static ARMRelocationFactory::DWord
 helper_thumb32_branch_offset(ARMRelocationFactory::DWord pUpper16,
                              ARMRelocationFactory::DWord pLower16)
 {
-  ARMRelocationFactory::DWord s = (pUpper16 & (1U << 10)) >> 10,
-                              u = pUpper16 & 0x3ffU,
-                              l = pLower16 & 0x7ffU,
-                             j1 = (pLower16 & (1U << 13)) >> 13,
-                             j2 = (pLower16 & (1U << 11)) >> 11;
+  ARMRelocationFactory::DWord s = (pUpper16 & (1U << 10)) >> 10,  // 26 bit
+                              u = pUpper16 & 0x3ffU,              // 25-16
+                              l = pLower16 & 0x7ffU,              // 10-0
+                             j1 = (pLower16 & (1U << 13)) >> 13,  // 13
+                             j2 = (pLower16 & (1U << 11)) >> 11;  // 11
   ARMRelocationFactory::DWord i1 = j1 ^ s? 0: 1,
                               i2 = j2 ^ s? 0: 1;
+
+  // [31-25][24][23][22][21-12][11-1][0]
+  //      0   s  i1  i2      u     l  0
   return helper_sign_extend((s << 24) | (i1 << 23) | (i2 << 22) |
                             (u << 12) | (l << 1),
                             25);
 }
 
+static ARMRelocationFactory::DWord
+helper_thumb32_branch_upper(ARMRelocationFactory::DWord pUpper16,
+                            ARMRelocationFactory::DWord pOffset)
+{
+  uint32_t sign = ((pOffset & 0x80000000U) >> 31);
+  return (pUpper16 & ~0x7ffU) | ((pOffset >> 12) & 0x3ffU) | (sign << 10);
+}
+
+static ARMRelocationFactory::DWord
+helper_thumb32_branch_lower(ARMRelocationFactory::DWord pLower16,
+                            ARMRelocationFactory::DWord pOffset)
+{
+  uint32_t sign = ((pOffset & 0x80000000U) >> 31);
+  return ((pLower16 & ~0x2fffU) |
+          ((((pOffset >> 23) & 1) ^ !sign) << 13) |
+          ((((pOffset >> 22) & 1) ^ !sign) << 11) |
+          ((pOffset >> 1) & 0x7ffU));
+}
+
+// Return true if overflow
+static bool
+helper_check_signed_overflow(ARMRelocationFactory::DWord pValue,
+                             unsigned bits)
+{
+  int32_t signed_val = static_cast<int32_t>(pValue);
+  int32_t max = (1 << (bits - 1)) - 1;
+  int32_t min = -(1 << (bits - 1));
+  if (signed_val > max || signed_val < min) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 
 //=========================================//
@@ -376,14 +412,6 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 ARMRelocationFactory::Result thm_call(Relocation& pReloc,
                                       ARMRelocationFactory& pParent)
 {
-  bool is_bl_inst = ((pReloc.target() & 0x1000U) == 0x1000U);
-  bool is_blx_inst = ((pReloc.target() & 0x1000U) == 0x0000U);
-  if (!is_bl_inst && !is_blx_inst) {
-    return ARMRelocationFactory::BadReloc;
-  }
-
-  // FIXME: This function is not work yet. I will study it recently.
-  // TODO: gold #4081
   ARMRelocationFactory::DWord upper16 = ((pReloc.target() & 0xffff0000U) >> 16),
                               lower16 = (pReloc.target() & 0xffffU);
 
@@ -391,17 +419,37 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper16,
                                                                lower16);
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::Address S;
 
-  ARMRelocationFactory::DWord X = ((pReloc.symValue() + A) | T) - P;
+  // FIXME: Follow R_ARM_CALL rule, is it correct?
+  switch (pReloc.symInfo()->reserved()) {
+    default: {
+      return ARMRelocationFactory::BadReloc;
+    }
+    case ARMGNULDBackend::None: {
+      S = pReloc.symValue();
+      break;
+    }
+    case ARMGNULDBackend::ReservePLT: {
+      S = helper_PLT(pReloc, pParent);
+      T = 1;  // PLT is in thumb mode.
+      break;
+    }
+  }
 
-  // TODO: gold #4109
+  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
 
-  ARMRelocationFactory::DWord sign = ((X >> 31) & 0x1U);
-  upper16 = (upper16 & 0xf800U) | ((X >> 12) & 0x3ffU) | (sign << 10);
-  lower16 = (lower16 & 0xdfffU) | ((((X >> 23) & 0x1U) ^ !sign) << 13)
-                                | ((((X >> 22) & 0x1U) ^ !sign) << 11)
-                                | ((X >> 1) & 0x7ffU);
-  pReloc.target() = (upper16 << 16) | lower16;
+  if (helper_check_signed_overflow(X, 25)) {
+    assert(!"Offset is too far. We need stub or PLT before it.");
+    return ARMRelocationFactory::Overflow;
+  }
+
+  upper16 = helper_thumb32_branch_upper(upper16, X);
+  lower16 = helper_thumb32_branch_lower(lower16, X);
+
+  pReloc.target() = (upper16 << 16);
+  pReloc.target() |= lower16;
+
   return ARMRelocationFactory::OK;
 }
 
@@ -449,10 +497,7 @@ ARMRelocationFactory::Result movt(Relocation& pReloc,
   pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
 
   // check 16-bit overflow
-  int32_t max = (1 << (16 - 1)) - 1;
-  int32_t min = -(1 << (16 - 1));
-  int32_t signed_x = static_cast<int32_t>(X);
-  if (signed_x > max || signed_x < min) {
+  if (helper_check_signed_overflow(X, 16)) {
     return ARMRelocationFactory::Overflow;
   } else {
     return ARMRelocationFactory::OK;
