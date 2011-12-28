@@ -62,6 +62,7 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
     result = Entry;
   }
   else {
+    pExist = 0;
     result = llvm::cast<Relocation>(&(*m_pEmpty));
     ++m_pEmpty;
   }
