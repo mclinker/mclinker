@@ -45,7 +45,7 @@ GNULDBackend::~GNULDBackend()
 
 size_t GNULDBackend::sectionStartOffset() const
 {
-  // FIXME: use fixed offset, we need 4 segments by default
+  // FIXME: use fixed offset, we need 10 segments by default
   return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
 }
 
@@ -148,14 +148,20 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat()
 }
 
 /// emitRegNamePools - emit regular name pools - .symtab, .strtab
+///
+/// the size of these tables should be computed before layout
+/// layout should computes the start offset of these tables
 uint64_t GNULDBackend::emitRegNamePools(Output& pOutput,
                                         const MCLDInfo& pLDInfo) const
 {
-  // TODO
+  // write out data
   return 0;
 }
 
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
+///
+/// the size of these tables should be computed before layout
+/// layout should computes the start offset of these tables
 uint64_t GNULDBackend::emitDynNamePools(Output& pOutput,
                                         const MCLDInfo& pLDInfo) const
 {

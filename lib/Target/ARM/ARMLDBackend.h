@@ -17,6 +17,8 @@
 
 namespace mcld {
 
+class Output;
+class MCLDInfo;
 class MCLinker;
 class SectionMap;
 
@@ -112,8 +114,25 @@ public:
   unsigned int bitclass() const
   { return 32; }
 
-  /// emitSectionData - emit target-dependent section data
-  uint64_t emitSectionData(const LDSection& pSection,
+  /// emitSectionData - write out the section data into the memory region.
+  /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
+  /// call back target backend to emit the data.
+  ///
+  /// Backends handle the target-special tables (plt, gp,...) by themselves.
+  /// Backend can put the data of the tables in MCSectionData directly
+  ///  - LDSection.getSectionData can get the section data.
+  /// Or, backend can put the data into special data structure
+  ///  - backend can maintain its own map<LDSection, table> to get the table
+  /// from given LDSection.
+  ///
+  /// @param pOutput - the output file
+  /// @param pSection - the given LDSection
+  /// @param pInfo - all options in the command line.
+  /// @param pRegion - the region to write out data
+  /// @return the size of the table in the file.
+  uint64_t emitSectionData(const Output& pOutput,
+                           const LDSection& pSection,
+                           const MCLDInfo& pInfo,
                            MemoryRegion& pRegion) const;
 
   ARMGOT& getGOT();

@@ -60,10 +60,14 @@ public:
   ///  - backend can maintain its own map<LDSection, table> to get the table
   /// from given LDSection.
   ///
+  /// @param pOutput - the output file
   /// @param pSection - the given LDSection
+  /// @param pInfo - all options in the command line.
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
-  uint64_t emitSectionData(const LDSection& pSection,
+  uint64_t emitSectionData(const Output& pOutput,
+                           const LDSection& pSection,
+                           const MCLDInfo& pInfo,
                            MemoryRegion& pRegion) const {
     // FIXME
     return 0x0;

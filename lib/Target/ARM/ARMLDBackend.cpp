@@ -6,17 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "ARM.h"
-#include "ARMLDBackend.h"
-#include "ARMRelocationFactory.h"
-#include <mcld/LD/SectionMap.h>
-#include <mcld/MC/MCLinker.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/TargetRegistry.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+
+#include <mcld/LD/SectionMap.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDOutput.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/TargetRegistry.h>
+
+#include "ARM.h"
+#include "ARMLDBackend.h"
+#include "ARMRelocationFactory.h"
 
 using namespace mcld;
 
@@ -455,8 +459,11 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   } // end if(rsym->isGlobal)
 }
 
-uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
-                                          MemoryRegion& pRegion) const {
+uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
+                                          const LDSection& pSection,
+                                          const MCLDInfo& pInfo,
+                                          MemoryRegion& pRegion) const
+{
   return 0;
 // TODO: Uncomment the following code when
 //       the size of MemoryRegion is not zero.
@@ -560,8 +567,8 @@ const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
   return *m_pRelPLT;
 }
 
-unsigned int ARMGNULDBackend::computeTargetSectionOrder(
-  const LDSection& pSectHdr) const
+unsigned int
+ARMGNULDBackend::computeTargetSectionOrder(const LDSection& pSectHdr) const
 {
   // TODO
   return ~(0U);

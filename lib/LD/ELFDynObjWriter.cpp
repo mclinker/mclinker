@@ -96,7 +96,10 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
         cur_offset += emitRelocation(*sect, *region);
         break;
       case LDFileFormat::Target:
-        cur_offset += target().emitSectionData(*sect, *region);
+        cur_offset += target().emitSectionData(pOutput,
+                                               *sect,
+                                               m_Linker.getLDInfo(),
+                                               *region);
         break;
       default:
         continue;

@@ -75,7 +75,9 @@ public:
   { return "_start"; }
 
   /// emitSectionData - emit target-dependent section data
-  virtual uint64_t emitSectionData(const LDSection& pSection,
+  virtual uint64_t emitSectionData(const Output& pOutput,
+                                   const LDSection& pSection,
+                                   const MCLDInfo& pInfo,
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
