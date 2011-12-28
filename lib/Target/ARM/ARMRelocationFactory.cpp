@@ -139,13 +139,13 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 
       // Initialize corresponding dynamic relocation.
       Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, true, exist);
-      assert(!exist && "Don't exist GOT, but exist DynRel!");
+      assert(!exist && "GOT entry not exist, but DynRel entry exist!");
       rel_entry->setType(R_ARM_GLOB_DAT);
       rel_entry->targetRef().assign(got_entry);
       rel_entry->setSymInfo(rsym);
     }
     else {
-      llvm::report_fatal_error("Didn't reserve GOT!");
+      llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
     }
   }
   return got_entry;
@@ -167,8 +167,7 @@ ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
   GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return helper_GOT_ORG(pParent) +
-         pParent.getLayout().getFragmentOffset(got_entry);
+  return helper_GOT_ORG(pParent) + got_entry.offset();
 }
 
 
@@ -192,8 +191,7 @@ ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
   PLTEntry& plt_entry = *pParent.getTarget()
                                 .getPLT()
                                 .getEntry(*pReloc.symInfo(), exist);
-  return helper_PLT_ORG(pParent) +
-         pParent.getLayout().getFragmentOffset(plt_entry);
+  return helper_PLT_ORG(pParent) + plt_entry.offset();
 }
 
 
