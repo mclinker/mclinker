@@ -6,9 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/ErrorHandling.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDOutput.h>
-#include <llvm/Support/ELF.h>
 #include <cassert>
 
 using namespace mcld;
@@ -41,6 +43,20 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
     delete m_pExecFileFormat;
+}
+
+size_t GNULDBackend::getRelocEntrySize(const LDSection& pSection) const
+{
+  if( llvm::ELF::SHT_REL == pSection.type())
+    return 8;
+  else if(llvm::ELF::SHT_RELA == pSection.type())
+    return 12;
+  else {
+    llvm::report_fatal_error(
+      llvm::Twine("Unexpected relocation section type ") +
+      llvm::Twine(pSection.type()));
+  }
+  return 0;
 }
 
 size_t GNULDBackend::sectionStartOffset() const

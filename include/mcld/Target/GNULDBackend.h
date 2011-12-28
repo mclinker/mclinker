@@ -55,6 +55,8 @@ public:
   ELFDynObjFileFormat* getDynObjFileFormat();
   ELFExecFileFormat* getExecFileFormat();
 
+  size_t getRelocEntrySize(const LDSection& pSection) const;
+
   size_t sectionStartOffset() const;
 
   /// ELFVersion - the value of e_ident[EI_VERSION]

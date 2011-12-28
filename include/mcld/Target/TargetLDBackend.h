@@ -80,6 +80,8 @@ public:
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;
 
+  virtual size_t getRelocEntrySize(const LDSection& pSection) const = 0;
+
   virtual RelocationFactory* getRelocFactory() = 0;
 
   /* The return value of machine() it the same as e_machine in the ELF header*/
