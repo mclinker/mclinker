@@ -62,7 +62,7 @@ public:
 
   ARMPLT0* getPLT0() const;
 
-  void applyPLT0(const uint32_t pOffset);
+  void applyPLT0();
 
   void applyPLT1();
 

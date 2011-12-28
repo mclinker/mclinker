@@ -96,17 +96,40 @@ ARMPLT0* ARMPLT::getPLT0() const {
     llvm::report_fatal_error("m_pSectionData is NULL!");
 
   iterator first = m_pSectionData->getFragmentList().begin();
+  iterator end = m_pSectionData->getFragmentList().end();
+
+  assert(first!=end && "FragmentList is empty, getPLT0 failed!");
+
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   return plt0;
 }
 
-void ARMPLT::applyPLT0(const uint32_t pOffset) {
+void ARMPLT::applyPLT0() {
 
   if (!m_pSectionData)
     llvm::report_fatal_error("m_pSectionData is NULL!");
 
+  uint64_t plt_base =
+    llvm::cast<LDSection>(m_pSectionData->getSection()).offset();
+  assert(plt_base && ".plt base address is NULL!");
+
+  uint64_t got_base =
+    llvm::cast<LDSection>(m_GOTPLT.getSectionData().getSection()).offset();
+  assert(got_base && ".got base address is NULL!");
+
+  uint32_t offset = 0;
+
+  if (got_base > plt_base)
+    offset = got_base - (plt_base + 16);
+  else
+    offset = (plt_base + 16) - got_base;
+
   iterator first = m_pSectionData->getFragmentList().begin();
+  iterator end = m_pSectionData->getFragmentList().end();
+
+  assert(first!=end && "FragmentList is empty, applyPLT0 failed!");
+
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   uint32_t* data = 0;
@@ -116,7 +139,7 @@ void ARMPLT::applyPLT0(const uint32_t pOffset) {
     llvm::report_fatal_error("Allocating new memory for plt0 failed!");
 
   memcpy(data, arm_plt0, plt0->getEntrySize());
-  data[4] = pOffset;
+  data[4] = offset;
 
   plt0->setContent(reinterpret_cast<unsigned char*>(data));
 }
@@ -133,6 +156,7 @@ void ARMPLT::applyPLT1() {
 
   ARMPLT::iterator it = m_pSectionData->begin();
   ARMPLT::iterator ie = m_pSectionData->end();
+  assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
   unsigned int GOTEntrySize = m_GOTPLT.getEntryBytes();
   uint64_t GOTEntryAddress =
