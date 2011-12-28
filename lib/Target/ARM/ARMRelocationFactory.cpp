@@ -7,13 +7,14 @@
 //
 //===--------------------------------------------------------------------===//
 
-#include <string>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/DataTypes.h>
+
 #include <mcld/LD/Layout.h>
+
 #include "ARMRelocationFactory.h"
 #include "ARMRelocationFunctions.h"
-#include <stdint.h>
 
 using namespace mcld;
 
