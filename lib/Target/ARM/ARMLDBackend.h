@@ -156,11 +156,11 @@ public:
 
 private:
   void createARMGOT(MCLinker& pLinker);
-  void createARMPLT(MCLinker& pLinker);
+  void createARMPLTandRelPLT(MCLinker& pLinker);
   void createARMRelDyn(MCLinker& pLinker);
-  void createARMRelPLT(MCLinker& pLinker);
   bool isSymbolNeedsPLT(ResolveInfo& pSym, unsigned int pType);
   bool isSymbolNeedsDynRel(ResolveInfo& pSym, unsigned int pType);
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

@@ -97,17 +97,30 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
   m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
 }
 
-void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
+void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker)
 {
   // Create .got section if it dosen't exist
   if(!m_pGOT)
     createARMGOT(pLinker);
+
+  // Create .plt section
   LDSection& plt  = pLinker.getOrCreateOutputSectHdr(".plt",
                                                      LDFileFormat::Target,
                                                      ELF::SHT_PROGBITS,
                                                      ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   // create MCSectionData and ARMPLT
   m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
+
+  // create .rel.plt section
+  LDSection& relplt = pLinker.getOrCreateOutputSectHdr(".rel.plt",
+                                                       LDFileFormat::Relocation,
+                                                       ELF::SHT_REL,
+                                                       ELF::SHF_ALLOC);
+  // set info of .rel.plt to .plt
+  relplt.setInfoLink(plt);
+  // create MCSectionData and ARMRelDynSection
+  unsigned int size = 8;
+  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt), size);
 }
 
 void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
@@ -117,19 +130,8 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
                                                        ELF::SHT_REL,
                                                        ELF::SHF_ALLOC);
   // create MCSectionData and ARMRelDynSection
-  unsigned int size = bitclass() / 8 * 2;
+  unsigned int size = 8;
   m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn), size);
-}
-
-void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
-{
-  LDSection& relplt = pLinker.getOrCreateOutputSectHdr(".rel.plt",
-                                                       LDFileFormat::Relocation,
-                                                       ELF::SHT_REL,
-                                                       ELF::SHF_ALLOC);
-  // create MCSectionData and ARMRelDynSection
-  unsigned int size = bitclass() / 8 * 2;
-  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt), size);
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
@@ -282,12 +284,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
           // return if we already create plt for this symbol
           if(rsym->reserved() & 0x8u)
             return;
-          // create .plt if not exist
+          // create .plt and .rel.plt if not exist
           if(!m_pPLT)
-            createARMPLT(pLinker);
-          // create .rel.plt if not exist
-          if(!m_pRelPLT)
-            createARMRelPLT(pLinker);
+            createARMPLTandRelPLT(pLinker);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -397,12 +396,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
            && (rsym->other() == ResolveInfo::Hidden
                || rsym->other() == ResolveInfo::Protected))
           return;
-        // create .plt if not exist
+        // create .plt and .rel.plt if not exist
         if(!m_pPLT)
-           createARMPLT(pLinker);
-        // create .rel.plt if not exist
-        if(!m_pRelPLT)
-           createARMRelPLT(pLinker);
+           createARMPLTandRelPLT(pLinker);
         // Symbol needs PLT entry, we need to reserve a PLT entry
         // and the corresponding GOT and dynamic relocation entry
         // in .got and .rel.plt. (GOT entry will be reserved simultaneously
