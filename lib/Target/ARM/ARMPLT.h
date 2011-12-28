@@ -34,7 +34,9 @@ class ARMPLT : public PLT
   typedef llvm::MCSectionData::iterator iterator;
 
 public:
-  ARMPLT(llvm::MCSectionData& pSectionData, ARMGOT& pGOTPLT);
+  ARMPLT(LDSection& pSection,
+         llvm::MCSectionData& pSectionData,
+         ARMGOT& pGOTPLT);
   ~ARMPLT();
 
 public:

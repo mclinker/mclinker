@@ -30,8 +30,9 @@ PLTEntry::~PLTEntry()
 
 //===--------------------------------------------------------------------===//
 // PLT
-PLT::PLT(llvm::MCSectionData& pSectionData)
-  : m_pSectionData(&pSectionData)
+PLT::PLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+  :m_pSection(&pSection), 
+   m_pSectionData(&pSectionData)
 {
   assert(m_pSectionData && "m_pSectionData in PLT is NULL!");
 }

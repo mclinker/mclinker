@@ -12,8 +12,8 @@ using namespace mcld;
 
 //==========================
 // MipsGOT
-MipsGOT::MipsGOT(llvm::MCSectionData& pSectionData)
-  : GOT(pSectionData, 4 /* Mips uses 32-bit GOT entry */) {
+MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+  : GOT(pSection, pSectionData, 4 /* Mips uses 32-bit GOT entry */) {
 }
 
 MipsGOT::~MipsGOT()

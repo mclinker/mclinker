@@ -83,13 +83,13 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
 {
-  LDSection& got  = pLinker.createSectHdr(".got",
-                                          LDFileFormat::Target,
-                                          ELF::SHT_PROGBITS,
-                                          ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  LDSection& got  = pLinker.getOrCreateOutputSectHdr(".got",
+                                                     LDFileFormat::Target,
+                                                     ELF::SHT_PROGBITS,
+                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
 
-  // create MCsectionData and ARMGOT
-  m_pGOT = new ARMGOT(pLinker.getOrCreateSectData(got));
+  // create MCSectionData and ARMGOT
+  m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
 }
 
 void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
@@ -97,32 +97,32 @@ void ARMGNULDBackend::createARMPLT(MCLinker& pLinker)
   // Create .got section if it dosen't exist
   if(!m_pGOT)
     createARMGOT(pLinker);
-  LDSection& plt  = pLinker.createSectHdr(".plt",
-                                          LDFileFormat::Target,
-                                          ELF::SHT_PROGBITS,
-                                          ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
-  // create MCsectionData and ARMPLT
-  m_pPLT = new ARMPLT(pLinker.getOrCreateSectData(plt), *m_pGOT);
+  LDSection& plt  = pLinker.getOrCreateOutputSectHdr(".plt",
+                                                     LDFileFormat::Target,
+                                                     ELF::SHT_PROGBITS,
+                                                     ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+  // create MCSectionData and ARMPLT
+  m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
 }
 
 void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
 {
-  LDSection& reldyn = pLinker.createSectHdr(".rel.dyn",
-                                            LDFileFormat::Relocation,
-                                            ELF::SHT_REL,
-                                            ELF::SHF_ALLOC);
-  // create MCsectionData and ARMRelDynSection
-  m_pRelDyn = new ARMDynRelSection(pLinker.getOrCreateSectData(reldyn));
+  LDSection& reldyn = pLinker.getOrCreateOutputSectHdr(".rel.dyn",
+                                                       LDFileFormat::Relocation,
+                                                       ELF::SHT_REL,
+                                                       ELF::SHF_ALLOC);
+  // create MCSectionData and ARMRelDynSection
+  m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn));
 }
 
 void ARMGNULDBackend::createARMRelPLT(MCLinker& pLinker)
 {
-  LDSection& relplt = pLinker.createSectHdr(".rel.plt",
-                                            LDFileFormat::Relocation,
-                                            ELF::SHT_REL,
-                                            ELF::SHF_ALLOC);
-  // create MCsectionData and ARMRelDynSection
-  m_pRelPLT = new ARMDynRelSection(pLinker.getOrCreateSectData(relplt));
+  LDSection& relplt = pLinker.getOrCreateOutputSectHdr(".rel.plt",
+                                                       LDFileFormat::Relocation,
+                                                       ELF::SHT_REL,
+                                                       ELF::SHF_ALLOC);
+  // create MCSectionData and ARMRelDynSection
+  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt));
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,

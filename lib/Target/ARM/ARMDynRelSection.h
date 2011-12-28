@@ -34,7 +34,7 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  ARMDynRelSection(llvm::MCSectionData& pSectionData);
+  ARMDynRelSection(LDSection& pSection, llvm::MCSectionData& pSectionData);
   ~ARMDynRelSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
@@ -48,6 +48,9 @@ private:
 
   /// m_SymRelMap - map the resolved symbol to the Relocation entry
   SymRelMapType m_SymRelMap;
+
+  /// m_pSection - LDSection of this Section
+  LDSection* m_pSection;
 
   /// m_SectionData - MCSectionData which contains the dynamic relocations
   llvm::MCSectionData* m_pSectionData;

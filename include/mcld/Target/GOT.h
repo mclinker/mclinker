@@ -42,6 +42,10 @@ public:
   //Used by llvm::cast<>.
   static bool classof(const MCFragment *O) { return true; }
 
+  /// offset - byte offset to the section
+  uint64_t offset() const
+  { return Offset; }
+
 protected:
   uint64_t f_Content;
 };
@@ -52,7 +56,8 @@ protected:
 class GOT
 {
 protected:
-  GOT(llvm::MCSectionData& pSectionData,
+  GOT(LDSection& pSection,
+      llvm::MCSectionData& pSectionData,
       const unsigned int pEntrySize);
 
 public:
@@ -61,9 +66,11 @@ public:
   /// entrySize - the number of bytes per entry
   unsigned int entryBytes() const;
 
-  llvm::MCSectionData& getSectionData() const {
-    return *m_pSectionData;
-  }
+  const LDSection& getSection() const
+  { return *m_pSection; }
+
+  const llvm::MCSectionData& getSectionData() const 
+  { return *m_pSectionData; }
 
 public:
   /// reserveEntry - reseve number of pNum of empty entries
@@ -83,6 +90,7 @@ public:
   }
 
 protected:
+  LDSection* m_pSection;
   llvm::MCSectionData* m_pSectionData;
   const unsigned int f_EntryBytes;
 };

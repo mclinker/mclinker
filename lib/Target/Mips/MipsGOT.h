@@ -28,9 +28,14 @@ public:
   typedef GOTEntry Entry;
 
 public:
-  MipsGOT(llvm::MCSectionData& pSectionData);
+  // for target dependent section, target should maintain its Section size
+  // in LDSection by target itself, so we let GOT holds a pointer to its
+  // LDSection
+  MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
   ~MipsGOT();
 
+  // While reserveEntry, the size in LDSection is also updated. As the result,
+  // layout will get the correct size of GOT section
   void reserveEntry(int pNum = 1);
 
   Entry* getEntry(const ResolveInfo& pSymbol, bool& pExist);

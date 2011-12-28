@@ -13,8 +13,10 @@ using namespace mcld;
 //==========================
 // MipsDynRelSection
 
-MipsDynRelSection::MipsDynRelSection(llvm::MCSectionData& pSectionData)
-  : m_pSectionData(&pSectionData)
+MipsDynRelSection::MipsDynRelSection(LDSection& pSection,
+                                     llvm::MCSectionData& pSectionData)
+  : m_pSection(&pSection),
+    m_pSectionData(&pSectionData)
 {
 }
 

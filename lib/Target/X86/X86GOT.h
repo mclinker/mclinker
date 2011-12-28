@@ -25,7 +25,7 @@ class X86GOT : public GOT
 public:
   typedef GOTEntry Entry;
 public:
-  X86GOT(llvm::MCSectionData& pSectionData);
+  X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
   ~X86GOT();
 
   void reserveEntry(int pNum = 1);

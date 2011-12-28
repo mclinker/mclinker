@@ -176,26 +176,28 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
 
 void MipsGNULDBackend::createRelDynSec(MCLinker& pLinker)
 {
-  LDSection& sec = pLinker.createSectHdr(".rel.dyn",
+  // For output relocation section, create output LDSection directly
+  LDSection& sec = pLinker.getOrCreateOutputSectHdr(".rel.dyn",
                                          LDFileFormat::Relocation,
                                          ELF::SHT_REL,
                                          ELF::SHF_ALLOC);
 
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
-  m_pRelDynSec.reset(new MipsDynRelSection(data));
+  m_pRelDynSec.reset(new MipsDynRelSection(sec, data));
 }
 
 void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)
 {
-  LDSection& sec = pLinker.createSectHdr(".got",
-                                         LDFileFormat::Target,
-                                         ELF::SHT_PROGBITS,
-                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  // For target dependent ouput section, create ouput LDSection directly
+  LDSection& sec = pLinker.getOrCreateOutputSectHdr(".got",
+                                                    LDFileFormat::Target,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
 
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
-  m_pGOT.reset(new MipsGOT(data));
+  m_pGOT.reset(new MipsGOT(sec, data));
 }
 
 void MipsGNULDBackend::createMipsStubsSec(MCLinker& pLinker)

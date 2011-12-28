@@ -44,6 +44,10 @@ public:
   //Used by llvm::cast<>.
   static bool classof(const MCFragment *O) { return true; }
 
+  /// offset - byte offset to the section
+  uint64_t offset() const
+  { return Offset; }
+
 protected:
   const unsigned int m_EntrySize;
   unsigned char* m_pContent;
@@ -55,12 +59,14 @@ protected:
 class PLT
 {
 public:
-  PLT(llvm::MCSectionData& pSectionData);
+  PLT(LDSection& pSection, llvm::MCSectionData& pSectionData);
   virtual ~PLT();
 
-  llvm::MCSectionData& getSectionData() {
-    return *m_pSectionData;
-  }
+  const LDSection& getSection() const
+  { return *m_pSection; }
+
+  const llvm::MCSectionData& getSectionData() const
+  { return *m_pSectionData; }
 
 public:
   /// reserveEntry - reseve the number of pNum of empty entries
@@ -73,6 +79,7 @@ public:
   virtual PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
+  LDSection* m_pSection;
   llvm::MCSectionData* m_pSectionData;
 };
 

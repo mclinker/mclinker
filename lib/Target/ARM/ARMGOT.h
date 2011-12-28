@@ -124,7 +124,7 @@ public:
   typedef GOTIterator<const_EntryIterator> const_iterator;
 
 public:
-  ARMGOT(llvm::MCSectionData& pSectionData);
+  ARMGOT(LDSection &pSection, llvm::MCSectionData& pSectionData);
 
   ~ARMGOT();
 

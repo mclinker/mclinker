@@ -15,12 +15,12 @@ namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
-ARMGOT::ARMGOT(llvm::MCSectionData& pSectionData)
+ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : m_pGOT0Entries(new (std::nothrow) ARMGOTEntries),
                m_pGOTPLTEntries(new (std::nothrow) ARMGOTEntries),
                m_pGeneralGOTEntries(new (std::nothrow) ARMGOTEntries),
                m_GeneralGOTEntryIt(),
-               GOT(pSectionData, 4 /*ARM uses 32-bit GOT entry */) {
+               GOT(pSection, pSectionData, 4 /*ARM uses 32-bit GOT entry */) {
 
   pSectionData.getFragmentList().push_back(m_pGOT0Entries);
   pSectionData.getFragmentList().push_back(m_pGOTPLTEntries);

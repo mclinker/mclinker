@@ -65,13 +65,13 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  LDSection& got = pLinker.createSectHdr(".got",
-                                         LDFileFormat::Target,
-                                         ELF::SHT_PROGBITS,
-                                         ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  LDSection& got = pLinker.getOrCreateOutputSectHdr(".got",
+                                                    LDFileFormat::Target,
+                                                    ELF::SHT_PROGBITS,
+                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
   llvm::MCSectionData& GOTSectionData = pLinker.getOrCreateSectData(got);
 
-  m_pGOT = new X86GOT(GOTSectionData);
+  m_pGOT = new X86GOT(got, GOTSectionData);
 }
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,

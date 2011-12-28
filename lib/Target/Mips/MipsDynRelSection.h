@@ -34,9 +34,10 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  MipsDynRelSection(llvm::MCSectionData& pSectionData);
+  MipsDynRelSection(LDSection& pSection, llvm::MCSectionData& pSectionData);
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
+  
   Relocation* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
 private:
@@ -45,6 +46,9 @@ private:
 
   /// m_SymRelMap - map the resolved symbol to the Relocation entry
   SymRelMapType m_SymRelMap;
+ 
+  /// m_pSection - LDSection for this section
+  LDSection* m_pSection;
 
   /// m_SectionData - MCSectionData which contains the dynamic relocations
   llvm::MCSectionData* m_pSectionData;
