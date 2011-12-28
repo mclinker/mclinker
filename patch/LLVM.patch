@@ -57,7 +57,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    MCFragment(const MCFragment&);     // DO NOT IMPLEMENT
    void operator=(const MCFragment&); // DO NOT IMPLEMENT
-@@ -53,7 +58,10 @@
+@@ -53,10 +58,13 @@
      FT_Org,
      FT_Dwarf,
      FT_DwarfFrame,
@@ -68,7 +68,11 @@ Index: include/llvm/MC/MCAssembler.h
 +    FT_Target
    };
  
- private:
+-private:
++protected:
+   FragmentType Kind;
+ 
+   /// Parent - The data for the section this fragment is in.
 @@ -425,6 +433,7 @@
  // keep it out is for API abstraction.
  class MCSectionData : public ilist_node<MCSectionData> {
