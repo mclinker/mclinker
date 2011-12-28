@@ -211,7 +211,7 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
         if (WriteOnly & m_AccessFlags)
           break;
         else { // read-only or read-write
-          size_t read_bytes = sys::fs::detail::pread(m_FileDescriptor,
+          ssize_t read_bytes = sys::fs::detail::pread(m_FileDescriptor,
                                                      space->data,
                                                      space->size,
                                                      space->file_offset);
