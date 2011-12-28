@@ -73,6 +73,54 @@ void Layout::ensureValid(const llvm::MCFragment& pFrag) const
   }
 }
 
+void Layout::orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear)
+{
+  assert(NULL != pFront && NULL != pRear);
+
+  unsigned int frag_index = 0;
+  if (NULL != pFront->getPrevNode())
+    frag_index = pFront->getPrevNode()->getLayoutOrder() + 1;
+
+  while (pFront != pRear) {
+    pFront->setLayoutOrder(frag_index++);
+    pFront = pFront->getNextNode();
+  }
+}
+
+void Layout::ensureRangeOrdered(const Layout::Range& pRange) const
+{
+  llvm::MCSectionData* sect_data =
+    const_cast<llvm::MCSectionData*>(pRange.header->getSectionData());
+  assert(NULL != sect_data);
+  RangeList* sd_range = m_InputRangeList.find(sect_data)->second;
+  RangeList::iterator it;
+  for (it = sd_range->begin(); it != sd_range->end();) {
+    llvm::MCFragment* front = it->prevRear;
+    if (NULL == front)
+      front = sect_data->begin();
+    else
+      front = front->getNextNode();
+
+    // advance the iterator to get rear fragment in the range
+    ++it;
+    // bypass if the front is ordered because we order a range of fragments once
+    if (front->getLayoutOrder() != ~(0U))
+       continue;
+
+    llvm::MCFragment* rear;
+    if (it != sd_range->end())
+      rear = it->prevRear;
+    else
+      rear = &sect_data->getFragmentList().back();
+
+    const_cast<Layout*>(this)->orderRange(front, rear);
+
+    // break if the requirement is ensured
+    if (pRange.header == it->header)
+      break;
+  }
+}
+
 uint64_t Layout::getFragmentOffset(const llvm::MCFragment& pFrag) const
 {
   ensureValid(pFrag);
@@ -119,6 +167,9 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
     llvm::report_fatal_error(
       llvm::Twine("Attempt to find a non-exsiting range from section '") +
       pInputSection.name());
+
+  // make sure that the fragment order in the interested range is set
+  ensureRangeOrdered(*it);
 
   // get the begin fragment in the range of input section
   llvm::MCFragment* frag = it->prevRear;

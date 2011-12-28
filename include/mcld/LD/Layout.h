@@ -33,6 +33,17 @@ public:
   typedef SectionOrder::iterator sect_iterator;
   typedef SectionOrder::const_iterator const_sect_iterator;
 
+private:
+  struct Range
+  {
+    const LDSection* header;
+    llvm::MCFragment* prevRear;
+  };
+
+  typedef std::vector<Range> RangeList;
+
+  typedef std::map<const llvm::MCSectionData*, RangeList*> InputRangeList;
+
 public:
   Layout();
   ~Layout();
@@ -89,16 +100,13 @@ private:
 
   bool isFragmentUpToDate(const llvm::MCFragment& pFrag) const;
 
-private:
- struct Range
-  {
-    const LDSection* header;
-    llvm::MCFragment* prevRear;
-  };
+  /// orderRange - set fragment layout order in a range
+  /// Assuming the last fragment in previous range is set
+  void orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear);
 
-  typedef std::vector<Range> RangeList;
-
-  typedef std::map<const llvm::MCSectionData*, RangeList*> InputRangeList;
+  /// ensureRangeOrdered - Make sure that the layout order for the given fragment
+  /// range is ordered, lazily setting the fragment order if needed
+  void ensureRangeOrdered(const Layout::Range& pRange) const;
 
 private:
   /// a vector to describe the order of sections
