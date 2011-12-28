@@ -154,7 +154,17 @@ Index: lib/MC/MCAssembler.cpp
 ===================================================================
 --- lib/MC/MCAssembler.cpp	(revision 146714)
 +++ lib/MC/MCAssembler.cpp	(working copy)
-@@ -197,7 +197,7 @@
+@@ -157,7 +157,8 @@
+ }
+ 
+ MCFragment::MCFragment(FragmentType _Kind, MCSectionData *_Parent)
+-  : Kind(_Kind), Parent(_Parent), Atom(0), Offset(~UINT64_C(0))
++  : Kind(_Kind), Parent(_Parent), Atom(0), Offset(~UINT64_C(0)),
++    LayoutOrder(~(0U))
+ {
+   if (Parent)
+     Parent->getFragmentList().push_back(this);
+@@ -197,7 +198,7 @@
  MCAssembler::MCAssembler(MCContext &Context_, MCAsmBackend &Backend_,
                           MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
                           raw_ostream &OS_)
@@ -163,7 +173,7 @@ Index: lib/MC/MCAssembler.cpp
      OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
  {
  }
-@@ -205,6 +205,11 @@
+@@ -205,6 +206,11 @@
  MCAssembler::~MCAssembler() {
  }
  
