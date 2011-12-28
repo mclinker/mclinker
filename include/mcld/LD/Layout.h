@@ -104,9 +104,10 @@ private:
   /// Assuming the last fragment in previous range is set
   void orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear);
 
-  /// ensureRangeOrdered - Make sure that the layout order for the given fragment
-  /// range is ordered, lazily setting the fragment order if needed
-  void ensureRangeOrdered(const Layout::Range& pRange) const;
+  /// ensureFragmentOrdered - Make sure that the layout order of a range that
+  /// covers the given fragment is ordered, lazily setting the fragment order
+  /// if needed
+  void ensureFragmentOrdered(const llvm::MCFragment& pFrag) const;
 
 private:
   /// a vector to describe the order of sections

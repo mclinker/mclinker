@@ -87,17 +87,18 @@ void Layout::orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear)
   }
 }
 
-void Layout::ensureRangeOrdered(const Layout::Range& pRange) const
+void Layout::ensureFragmentOrdered(const llvm::MCFragment& pFrag) const
 {
-  llvm::MCSectionData* sect_data =
-    const_cast<llvm::MCSectionData*>(pRange.header->getSectionData());
-  assert(NULL != sect_data);
-  RangeList* sd_range = m_InputRangeList.find(sect_data)->second;
+  llvm::MCSectionData& sect_data = *pFrag.getParent();
+  RangeList* sd_range = m_InputRangeList.find(&sect_data)->second;
   RangeList::iterator it;
-  for (it = sd_range->begin(); it != sd_range->end();) {
+  // set layout order of a range of fragments until the order of requested
+  // fragment is set
+  for (it = sd_range->begin();
+       (pFrag.getLayoutOrder() == ~(0U)) && (it != sd_range->end());) {
     llvm::MCFragment* front = it->prevRear;
     if (NULL == front)
-      front = sect_data->begin();
+      front = sect_data.begin();
     else
       front = front->getNextNode();
 
@@ -111,13 +112,9 @@ void Layout::ensureRangeOrdered(const Layout::Range& pRange) const
     if (it != sd_range->end())
       rear = it->prevRear;
     else
-      rear = &sect_data->getFragmentList().back();
+      rear = &sect_data.getFragmentList().back();
 
     const_cast<Layout*>(this)->orderRange(front, rear);
-
-    // break if the requirement is ensured
-    if (pRange.header == it->header)
-      break;
   }
 }
 
@@ -168,9 +165,6 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
       llvm::Twine("Attempt to find a non-exsiting range from section '") +
       pInputSection.name());
 
-  // make sure that the fragment order in the interested range is set
-  ensureRangeOrdered(*it);
-
   // get the begin fragment in the range of input section
   llvm::MCFragment* frag = it->prevRear;
   if (NULL == frag)
@@ -183,6 +177,9 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
   const llvm::MCFragment* rear = (++it != range_end) ? it->prevRear :
     (&pInputSection.getSectionData()->getFragmentList().back());
   assert(NULL != frag && NULL != rear);
+
+  // make sure that the order of rear fragment is set
+  ensureFragmentOrdered(*rear);
 
   // make sure that rear fragment and all MCFragments before rear are valid
   ensureValid(*rear);
