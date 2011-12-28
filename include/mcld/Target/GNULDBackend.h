@@ -87,6 +87,13 @@ public:
   virtual uint64_t emitDynNamePools(Output& pOutput,
                                     const MCLDInfo& pLDInfo) const;
 
+  /// computeSectionOrder - compute the layout order of the section
+  unsigned int computeSectionOrder(const LDSection& pSectHdr) const;
+
+  /// computeTargetSectionOrder - compute the layout order of target section
+  virtual unsigned int computeTargetSectionOrder(
+    const LDSection& pSectHdr) const = 0;
+
 protected:
   // ----- readers and writers ----- //
   GNUArchiveReader* m_pArchiveReader;

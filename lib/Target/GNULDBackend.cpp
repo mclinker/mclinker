@@ -179,3 +179,10 @@ uint64_t GNULDBackend::emitDynNamePools(Output& pOutput,
   return 0;
 }
 
+unsigned int GNULDBackend::computeSectionOrder(const LDSection& pSectHdr) const
+{
+  if (LDFileFormat::Target == pSectHdr.kind())
+    return computeTargetSectionOrder(pSectHdr);
+  // TODO
+  return ~(0U);
+}

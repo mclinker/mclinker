@@ -135,6 +135,9 @@ public:
 
   const ARMDynRelSection& getRelPLT() const;
 
+  /// computeTargetSectionOrder - compute the layout order of target section
+  unsigned int computeTargetSectionOrder(const LDSection& pSectHdr) const;
+
 private:
   void createARMGOT(MCLinker& pLinker);
   void createARMPLT(MCLinker& pLinker);

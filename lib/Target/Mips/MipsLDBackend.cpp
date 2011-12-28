@@ -267,6 +267,13 @@ const MipsGOT& MipsGNULDBackend::getGOT() const
   return *m_pGOT.get();
 }
 
+unsigned int MipsGNULDBackend::computeTargetSectionOrder(
+  const LDSection& pSectHdr) const
+{
+  // TODO
+  return ~(0U);
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

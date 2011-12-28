@@ -85,6 +85,9 @@ public:
                       MCLinker& pLinker,
                       unsigned int pType);
 
+  /// computeTargetSectionOrder - compute the layout order of target section
+  unsigned int computeTargetSectionOrder(const LDSection& pSectHdr) const;
+
 private:
   RelocationFactory* m_pRelocFactory;
 
