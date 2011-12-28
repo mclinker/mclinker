@@ -114,10 +114,7 @@ public:
 
   /// emitSectionData - emit target-dependent section data
   uint64_t emitSectionData(const LDSection& pSection,
-                           MemoryRegion& pRegion) const {
-    // TODO
-    return 0x0;
-  }
+                           MemoryRegion& pRegion) const;
 
   ARMGOT& getGOT();
 

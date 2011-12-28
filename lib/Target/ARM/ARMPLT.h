@@ -31,7 +31,10 @@ public:
 class ARMPLT : public PLT
 {
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
+
+public:
   typedef llvm::MCSectionData::iterator iterator;
+  typedef llvm::MCSectionData::const_iterator const_iterator;
 
 public:
   ARMPLT(LDSection& pSection,
@@ -39,16 +42,24 @@ public:
          ARMGOT& pGOTPLT);
   ~ARMPLT();
 
+// Override virtual function.
 public:
 
-  // Override virtual function.
-  // Additionally, reserveEntry is ARMGOT friend function.
+  // reserveEntry is ARMGOT friend function.
   void reserveEntry(int pNum = 1) ;
 
-  // Override virtual function.
   PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
 public:
+
+  iterator begin() { return m_pSectionData->begin(); }
+
+  const_iterator begin() const { return m_pSectionData->begin(); }
+
+  iterator end() { return m_pSectionData->end(); }
+
+  const_iterator end() const { return m_pSectionData->end(); }
+
   ARMPLT0* getPLT0() const;
 
   void applyPLT0(const uint32_t pOffset);

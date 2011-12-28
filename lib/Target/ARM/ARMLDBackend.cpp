@@ -9,9 +9,10 @@
 #include "ARM.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/MC/MCLinker.h>
 #include <mcld/LD/SectionMap.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/TargetRegistry.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
@@ -450,6 +451,56 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       }
     } // end switch
   } // end if(rsym->isGlobal)
+}
+
+uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
+                                          MemoryRegion& pRegion) const {
+  return 0;
+// TODO: Uncomment the following code when
+//       the size of MemoryRegion is not zero.
+/*  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+
+  const char* SectionName = pSection.name().c_str();
+  unsigned char* buffer = pRegion.getBuffer();
+
+  unsigned int EntrySize = 0;
+  uint64_t RegionSize = 0;
+
+  if (!std::strcmp(SectionName,".got")) {
+    GOTEntry* got = 0;
+    EntrySize = m_pGOT->getEntryBytes();
+
+    for (ARMGOT::iterator it = m_pGOT->begin(),
+         ie = m_pGOT->end(); it != ie; ++it) {
+      got = &(llvm::cast<GOTEntry>((*it)));
+      memcpy(buffer + got->offset() ,&(got->getContent()), EntrySize);
+      RegionSize += EntrySize;
+    }
+  }
+
+  else if (!std::strcmp(SectionName, ".plt")) {
+    ARMPLT::iterator it = m_pPLT->begin();
+    unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
+
+    memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), plt0_size);
+    RegionSize += plt0_size;
+    ++it;
+
+    ARMPLT1* plt1 = 0;
+    ARMPLT::iterator ie = m_pPLT->end();
+    while (it != ie) {
+      plt1 = &(llvm::cast<ARMPLT1>(*it));
+      EntrySize = plt1->getEntrySize();
+      memcpy(buffer + plt1->offset(), plt1->getContent(), EntrySize);
+      RegionSize += EntrySize;
+    }
+  }
+
+  else
+    llvm::report_fatal_error("unsupported section name!");
+
+  return RegionSize;
+*/
 }
 
 ARMGOT& ARMGNULDBackend::getGOT()
