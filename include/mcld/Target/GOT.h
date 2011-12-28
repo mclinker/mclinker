@@ -61,8 +61,8 @@ public:
   /// entrySize - the number of bytes per entry
   unsigned int entryBytes() const;
 
-  llvm::MCSectionData* getSectionData() const {
-    return m_pSectionData;
+  llvm::MCSectionData& getSectionData() const {
+    return *m_pSectionData;
   }
 
 public:

@@ -126,7 +126,7 @@ void ARMPLT::applyPLT1() {
   assert(plt_base && ".plt base address is NULL!");
 
   uint64_t got_base =
-    llvm::cast<LDSection>(m_GOTPLT.getSectionData()->getSection()).offset();
+    llvm::cast<LDSection>(m_GOTPLT.getSectionData().getSection()).offset();
   assert(got_base && ".got base address is NULL!");
 
   ARMPLT::iterator it = m_pSectionData->begin();

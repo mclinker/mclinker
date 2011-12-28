@@ -156,7 +156,7 @@ static
 ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 {
   const LDSection& ld_section = static_cast<const LDSection&>(
-    pParent.getTarget().getGOT().getSectionData()->getSection()
+    pParent.getTarget().getGOT().getSectionData().getSection()
   );
   return ld_section.offset();
 }
@@ -176,7 +176,6 @@ static
 ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
 {
   const LDSection& ld_section = static_cast<const LDSection&>(
-    // XXX: Why this getSectionData is reference, but GOT is not.
     pParent.getTarget().getPLT().getSectionData().getSection()
   );
   return ld_section.offset();
