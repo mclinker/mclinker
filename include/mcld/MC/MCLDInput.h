@@ -61,8 +61,15 @@ public:
   const Attribute* attribute() const
   { return m_pAttr; }
 
+  bool isNeeded() const
+  { return m_bNeeded; }
+
+  void setNeeded()
+  { m_bNeeded = true; }
+
 private:
   Attribute *m_pAttr;
+  bool m_bNeeded;
 };
 
 } // namespace of mcld
