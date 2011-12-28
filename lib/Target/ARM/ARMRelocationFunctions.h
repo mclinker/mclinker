@@ -18,6 +18,7 @@ DECL_ARM_APPLY_RELOC_FUNC(gotoff32)       \
 DECL_ARM_APPLY_RELOC_FUNC(got_brel)       \
 DECL_ARM_APPLY_RELOC_FUNC(plt32)          \
 DECL_ARM_APPLY_RELOC_FUNC(call)           \
+DECL_ARM_APPLY_RELOC_FUNC(thm_call)       \
 DECL_ARM_APPLY_RELOC_FUNC(jump24)         \
 DECL_ARM_APPLY_RELOC_FUNC(movw)           \
 DECL_ARM_APPLY_RELOC_FUNC(movt)           \
@@ -37,7 +38,7 @@ DECL_ARM_APPLY_RELOC_FUNC(tls)
   { &none,           7, "R_ARM_THM_ABS5"          },  \
   { &none,           8, "R_ARM_ABS8"              },  \
   { &none,           9, "R_ARM_SBREL32"           },  \
-  { &none,          10, "R_ARM_THM_CALL"          },  \
+  { &thm_call,      10, "R_ARM_THM_CALL"          },  \
   { &none,          11, "R_ARM_THM_PC8"           },  \
   { &none,          12, "R_ARM_BREL_ADJ"          },  \
   { &none,          13, "R_ARM_TLS_DESC"          },  \
