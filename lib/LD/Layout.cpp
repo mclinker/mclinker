@@ -149,8 +149,11 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
                                      uint64_t pOffset) const
 {
   // find out which SectionData covers the range of input section header
+  const llvm::MCSectionData* sect_data = pInputSection.getSectionData();
+  assert(NULL != sect_data);
+
   InputRangeList::const_iterator sd_range_iter =
-    m_InputRangeList.find(pInputSection.getSectionData());
+    m_InputRangeList.find(sect_data);
   if (sd_range_iter == m_InputRangeList.end())
     llvm::report_fatal_error(
       llvm::Twine("Attempt to get FragmentRef in section '") +
@@ -171,16 +174,15 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
       pInputSection.name());
 
   // get the begin fragment in the range of input section
-  llvm::MCFragment* frag = it->prevRear;
+  const llvm::MCFragment* frag = it->prevRear;
   if (NULL == frag)
-    frag =
-      const_cast<llvm::MCFragment*>(&*pInputSection.getSectionData()->begin());
+    frag = sect_data->begin();
   else
     frag = frag->getNextNode();
 
   // advance the iterator to get the rear fragment in the interested range
   const llvm::MCFragment* rear = (++it != range_end) ? it->prevRear :
-    (&pInputSection.getSectionData()->getFragmentList().back());
+    (&sect_data->getFragmentList().back());
   assert(NULL != frag && NULL != rear);
 
   // make sure that the order of rear fragment is set
@@ -200,7 +202,8 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
   while (frag->getNextNode() && (frag->getNextNode()->Offset < target_offset))
     frag = frag->getNextNode();
 
-  return MCFragmentRef(*frag, target_offset - frag->Offset);
+  return MCFragmentRef(const_cast<llvm::MCFragment&>(*frag),
+                       target_offset - frag->Offset);
 }
 
 void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr)
