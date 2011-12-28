@@ -72,7 +72,11 @@ bool ELFObjectReader::readSections(Input& pInput)
     pInput.context()->getSectionTable().push_back(&ldSect);
 
     switch(ldSect.kind()) {
+      // FIXME: support Debug Kind
+      case LDFileFormat::Debug:
+      /** Fall through **/
       case LDFileFormat::Regular:
+      case LDFileFormat::Note:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData: {
         MemoryRegion* region = pInput.memArea()->request(sh->getOffset(), sh->getSize());
@@ -95,8 +99,6 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       // ignore
       case LDFileFormat::Null:
-      case LDFileFormat::Note:
-      case LDFileFormat::Debug:
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
         continue;
