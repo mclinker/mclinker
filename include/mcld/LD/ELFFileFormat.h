@@ -33,6 +33,47 @@ public:
 
   virtual void initObjectType(MCLinker& pLinker) = 0;
 
+  // -----  access functions  ----- //
+  LDSection& getNullSection() {
+    assert(NULL != f_pELFNULLSection);
+    return *f_pELFNULLSection;
+  }
+
+  const LDSection& getNullSection() const {
+    assert(NULL != f_pELFNULLSection);
+    return *f_pELFNULLSection;
+  }
+
+  LDSection& getSymTab() {
+    assert(NULL != f_pELFSymTab);
+    return *f_pELFSymTab;
+  }
+
+  const LDSection& getSymTab() const {
+    assert(NULL != f_pELFSymTab);
+    return *f_pELFSymTab;
+  }
+
+  LDSection& getStrTab() {
+    assert(NULL != f_pELFStrTab);
+    return *f_pELFStrTab;
+  }
+
+  const LDSection& getStrTab() const {
+    assert(NULL != f_pELFStrTab);
+    return *f_pELFStrTab;
+  }
+
+  LDSection& getComment() {
+    assert(NULL != f_pELFComment);
+    return *f_pELFComment;
+  }
+
+  const LDSection& getComment() const {
+    assert(NULL != f_pELFComment);
+    return *f_pELFComment;
+  }
+
 protected:
   //         variable name         :  ELF
   LDSection* f_pELFNULLSection;

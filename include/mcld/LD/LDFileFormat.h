@@ -12,6 +12,8 @@
 #include <gtest.h>
 #endif
 
+#include <cassert>
+
 namespace mcld
 {
 
@@ -53,6 +55,46 @@ public:
   /// files, should implement this
   virtual void initObjectType(MCLinker& pLinker) = 0;
 
+  // -----  access functions  ----- //
+  LDSection& getText() {
+    assert(NULL != f_pTextSection);
+    return *f_pTextSection;
+  }
+
+  const LDSection& getText() const {
+    assert(NULL != f_pTextSection);
+    return *f_pTextSection;
+  }
+
+  LDSection& getData() {
+    assert(NULL != f_pDataSection);
+    return *f_pDataSection;
+  }
+
+  const LDSection& getData() const {
+    assert(NULL != f_pDataSection);
+    return *f_pDataSection;
+  }
+
+  LDSection& getBSS() {
+    assert(NULL != f_pBSSSection);
+    return *f_pBSSSection;
+  }
+
+  const LDSection& getBSS() const {
+    assert(NULL != f_pBSSSection);
+    return *f_pBSSSection;
+  }
+
+  LDSection& getReadOnly() {
+    assert(NULL != f_pReadOnlySection);
+    return *f_pReadOnlySection;
+  }
+
+  const LDSection& getReadOnly() const {
+    assert(NULL != f_pReadOnlySection);
+    return *f_pReadOnlySection;
+  }
 protected:
   //         variable name         :  ELF               MachO
   LDSection* f_pTextSection;       // .text             __text
