@@ -384,6 +384,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     return ARMRelocationFactory::BadReloc;
   }
 
+  // FIXME: This function is not work yet. I will study it recently.
   // TODO: gold #4081
   ARMRelocationFactory::DWord upper16 = ((pReloc.target() & 0xffff0000U) >> 16),
                               lower16 = (pReloc.target() & 0xffffU);
@@ -401,7 +402,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   upper16 = (upper16 & 0xf800U) | ((X >> 12) & 0x3ffU) | (sign << 10);
   lower16 = (lower16 & 0xdfffU) | ((((X >> 23) & 0x1U) ^ !sign) << 13)
                                 | ((((X >> 22) & 0x1U) ^ !sign) << 11)
-                                | ((X >> 1) && 0x7ffU);
+                                | ((X >> 1) & 0x7ffU);
   pReloc.target() = (upper16 << 16) | lower16;
   return ARMRelocationFactory::OK;
 }
