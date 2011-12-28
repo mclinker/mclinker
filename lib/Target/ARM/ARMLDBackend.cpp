@@ -468,21 +468,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (!std::strcmp(SectionName,".got")) {
-    assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
-
-    GOTEntry* got = 0;
-    EntrySize = m_pGOT->getEntryBytes();
-
-    for (ARMGOT::iterator it = m_pGOT->begin(),
-         ie = m_pGOT->end(); it != ie; ++it) {
-      got = &(llvm::cast<GOTEntry>((*it)));
-      memcpy(buffer + got->offset() ,&(got->getContent()), EntrySize);
-      RegionSize += EntrySize;
-    }
-  }
-
-  else if (!std::strcmp(SectionName, ".plt")) {
+  if (!std::strcmp(SectionName, ".plt")) {
     assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
     m_pPLT->applyPLT0();
@@ -501,6 +487,20 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
       plt1 = &(llvm::cast<ARMPLT1>(*it));
       EntrySize = plt1->getEntrySize();
       memcpy(buffer + plt1->offset(), plt1->getContent(), EntrySize);
+      RegionSize += EntrySize;
+    }
+  }
+
+  else if (!std::strcmp(SectionName,".got")) {
+    assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+
+    GOTEntry* got = 0;
+    EntrySize = m_pGOT->getEntryBytes();
+
+    for (ARMGOT::iterator it = m_pGOT->begin(),
+         ie = m_pGOT->end(); it != ie; ++it) {
+      got = &(llvm::cast<GOTEntry>((*it)));
+      memcpy(buffer + got->offset() ,&(got->getContent()), EntrySize);
       RegionSize += EntrySize;
     }
   }
