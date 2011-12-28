@@ -87,12 +87,26 @@ public:
   virtual uint64_t emitDynNamePools(Output& pOutput,
                                     const MCLDInfo& pLDInfo) const;
 
-  /// computeSectionOrder - compute the layout order of the section
-  unsigned int computeSectionOrder(const LDSection& pSectHdr) const;
+  /// getSectionOrder - compute the layout order of the section
+  /// Layout calls this function to get the default order of the pSectHdr.
+  /// If the pSectHdr.type() is LDFileFormat::Target, then getSectionOrder()
+  /// will call getTargetSectionOrder().
+  ///
+  /// If targets favors certain order for general sections, please override
+  /// this function.
+  ///
+  /// @see getTargetSectionOrder
+  virtual unsigned int getSectionOrder(const LDSection& pSectHdr) const;
 
-  /// computeTargetSectionOrder - compute the layout order of target section
-  virtual unsigned int computeTargetSectionOrder(
-    const LDSection& pSectHdr) const = 0;
+  /// getTargetSectionOrder - compute the layout order of target section
+  /// If the target favors certain order for the given gSectHdr, please
+  /// override this function.
+  ///
+  /// By default, this function returns the maximun order, and pSectHdr
+  /// will be the last section to be laid out.
+  virtual unsigned int
+  getTargetSectionOrder(const LDSection& pSectHdr) const
+  { return (unsigned int)-1; }
 
 protected:
   // ----- readers and writers ----- //

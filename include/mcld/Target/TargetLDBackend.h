@@ -95,7 +95,7 @@ public:
   virtual size_t sectionStartOffset() const = 0;
 
   /// computeSectionOrder - compute the layout order of the given section
-  virtual unsigned int computeSectionOrder(const LDSection& pSectHdr) const = 0;
+  virtual unsigned int getSectionOrder(const LDSection& pSectHdr) const = 0;
 };
 
 } // End mcld namespace

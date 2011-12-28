@@ -80,13 +80,6 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 {
 }
 
-unsigned int X86GNULDBackend::computeTargetSectionOrder(
-  const LDSection& pSectHdr) const
-{
-  // TODO
-  return ~(0U);
-}
-
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

@@ -561,13 +561,6 @@ const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
   return *m_pRelPLT;
 }
 
-unsigned int
-ARMGNULDBackend::computeTargetSectionOrder(const LDSection& pSectHdr) const
-{
-  // TODO
-  return ~(0U);
-}
-
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
