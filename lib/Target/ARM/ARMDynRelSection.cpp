@@ -29,7 +29,8 @@ void ARMDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
 }
 
 Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
-                                        bool& pExist)
+                                       bool isForGOT,
+                                       bool& pExist)
 {
   // first time visit this function, set m_pEmpty to Fragments.begin()
   if(m_SymRelMap.empty()) {
@@ -38,17 +39,29 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
     m_pEmpty = m_pSectionData->getFragmentList().begin();
   }
 
-  // get or create entry in m_SymRelMap
-  Relocation *&Entry = m_SymRelMap[&pSymbol];
-  pExist = 1;
+  // if this relocation is used to relocate GOT (.got or .got.plt),
+  // check if we've get an entry for this symbol before.
+  // Otherwise, this relocation is used to relocate general section
+  // (data or text section), return an empty entry directly.
+  Relocation* result;
 
-  if(!Entry) {
-    pExist = 0;
-    assert(m_pEmpty != m_pSectionData->end() &&
-           "No empty relocation entry for the incoming symbol.");
-    Entry = llvm::cast<Relocation>(&(*m_pEmpty));
+  if(isForGOT) {
+    // get or create entry in m_SymRelMap
+    Relocation *&Entry = m_SymRelMap[&pSymbol];
+    pExist = 1;
+
+    if(!Entry) {
+      pExist = 0;
+      assert(m_pEmpty != m_pSectionData->end() &&
+             "No empty relocation entry for the incoming symbol.");
+      Entry = llvm::cast<Relocation>(&(*m_pEmpty));
+      ++m_pEmpty;
+    }
+    result = Entry;
+  }
+  else {
+    result = llvm::cast<Relocation>(&(*m_pEmpty));
     ++m_pEmpty;
   }
-
-  return Entry;
+  return result;
 }

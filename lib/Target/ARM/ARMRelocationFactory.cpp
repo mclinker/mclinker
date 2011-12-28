@@ -138,7 +138,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       got_entry.setContent(0);
 
       // Initialize corresponding dynamic relocation.
-      Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, exist);
+      Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "Don't exist GOT, but exist DynRel!");
       rel_entry->setType(R_ARM_GLOB_DAT);
       rel_entry->targetRef().assign(got_entry);

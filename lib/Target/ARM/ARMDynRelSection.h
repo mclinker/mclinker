@@ -38,7 +38,9 @@ public:
   ~ARMDynRelSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
-  Relocation* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+  Relocation* getEntry(const ResolveInfo& pSymbol,
+                       bool isForGOT,
+                       bool& pExist);
 
 private:
   /// m_pEmpty - point to the top empty entry
