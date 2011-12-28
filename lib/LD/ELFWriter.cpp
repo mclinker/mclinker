@@ -234,7 +234,7 @@ ELFWriter::FileOffset ELFWriter::emitELF32SectionHeader(Output& pOutput,
                                    ld_sect->getSectionData()->getAlignment():
                                    0x0;
 
-    shdr[sectIdx].sh_entsize   = getSectEntrySize(*ld_sect);
+    shdr[sectIdx].sh_entsize   = getELF32SectEntrySize(*ld_sect);
     shdr[sectIdx].sh_link      = getSectLink(*ld_sect, pOutput);
     shdr[sectIdx].sh_info      = getSectInfo(*ld_sect, pOutput);
 
@@ -272,7 +272,7 @@ ELFWriter::FileOffset ELFWriter::emitELF64SectionHeader(Output& pOutput,
                                    ld_sect->getSectionData()->getAlignment():
                                    0x0;
 
-    shdr[sectIdx].sh_entsize   = getSectEntrySize(*ld_sect);
+    shdr[sectIdx].sh_entsize   = getELF64SectEntrySize(*ld_sect);
     shdr[sectIdx].sh_link      = getSectLink(*ld_sect, pOutput);
     shdr[sectIdx].sh_info      = getSectInfo(*ld_sect, pOutput);
 
@@ -307,9 +307,27 @@ ELFWriter::FileOffset ELFWriter::emitRelEntry(const Relocation& pRelocation,
 }
 
 // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
-uint64_t ELFWriter::getSectEntrySize(const LDSection& pSection) const
+uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
 {
-  // TODO
+  if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
+      llvm::ELF::SHT_SYMTAB == pSection.type())
+    return sizeof(llvm::ELF::Elf32_Sym);
+  if (llvm::ELF::SHT_REL == pSection.type())
+    return sizeof(llvm::ELF::Elf32_Rel);
+  if (llvm::ELF::SHT_RELA == pSection.type())
+    return sizeof(llvm::ELF::Elf32_Rela);
+  return 0x0;
+}
+
+uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
+{
+  if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
+      llvm::ELF::SHT_SYMTAB == pSection.type())
+    return sizeof(llvm::ELF::Elf64_Sym);
+  if (llvm::ELF::SHT_REL == pSection.type())
+    return sizeof(llvm::ELF::Elf64_Rel);
+  if (llvm::ELF::SHT_RELA == pSection.type())
+    return sizeof(llvm::ELF::Elf64_Rela);
   return 0x0;
 }
 

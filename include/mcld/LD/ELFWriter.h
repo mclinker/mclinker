@@ -59,10 +59,10 @@ public:
                                       Output& pOutput,
                                       FileOffset pShdrOffset) const;
 
-  virtual uint64_t getEntry(const MCLDInfo& pInfo,
-                            const Layout& pLayout,
-                            const GNULDBackend& pBackend,
-                            const Output& pOutput) const;
+  virtual uint64_t getEntryPoint(const MCLDInfo& pInfo,
+                                 const Layout& pLayout,
+                                 const GNULDBackend& pBackend,
+                                 const Output& pOutput) const;
 
 protected:
   FileOffset emitELF32SectionHeader(Output& pOutput,
@@ -91,7 +91,10 @@ protected:
 
 private:
   // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
-  uint64_t getSectEntrySize(const LDSection& pSection) const;
+  uint64_t getELF32SectEntrySize(const LDSection& pSection) const;
+
+  // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
+  uint64_t getELF64SectEntrySize(const LDSection& pSection) const;
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_link
   uint64_t getSectLink(const LDSection& pSection, const Output& pOutput) const;
