@@ -188,7 +188,7 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
   ensureValid(*rear);
 
   uint64_t target_offset = frag->Offset + pOffset;
-  if (rear->Offset < target_offset)
+  if ((rear->Offset + computeFragmentSize(*this, *rear)) < target_offset)
     llvm::report_fatal_error(
       llvm::Twine("The given offset exceeds the actual range of Section '") +
       pInputSection.name() +
