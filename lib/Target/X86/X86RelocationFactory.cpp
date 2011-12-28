@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <llvm/ADT/Twine.h>
 #include "X86RelocationFactory.h"
 
 using namespace mcld;
@@ -24,5 +25,10 @@ X86RelocationFactory::~X86RelocationFactory()
 
 void X86RelocationFactory::applyRelocation(Relocation& pRelocation)
 {
+  Relocation::Type type = pRelocation.type();
+  llvm::report_fatal_error(llvm::Twine("Unknown relocation type. "
+				       "To symbol `") +
+				       pRelocation.symInfo()->name() +
+				       llvm::Twine("'."));
 }
 
