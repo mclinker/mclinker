@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SIZETRAITS_H
-#define SIZETRAITS_H
+#ifndef MCLD_SIZE_TRAITS_H
+#define MCLD_SIZE_TRAITS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -47,6 +47,21 @@ inline void alignAddress(uint64_t& pAddr, uint64_t pAlignConstraint)
 {
   if (pAlignConstraint != 0)
     pAddr = (pAddr + pAlignConstraint - 1) &~ (pAlignConstraint - 1);
+}
+
+template<size_t Constraint>
+uint64_t Align(uint64_t pAddress);
+
+template<>
+inline uint64_t Align<32>(uint64_t pAddress)
+{
+  return (pAddress + 0x1F) & (~0x1F);
+}
+
+template<>
+inline uint64_t Align<64>(uint64_t pAddress)
+{
+  return (pAddress + 0x3F) & (~0x3F);
 }
 
 } // namespace of mcld
