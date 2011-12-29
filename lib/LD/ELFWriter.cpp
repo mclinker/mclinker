@@ -8,10 +8,12 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/MC/MCAssembler.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCRegionFragment.h>
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
@@ -344,6 +346,41 @@ void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
 void
 ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const
 {
+  const llvm::MCSectionData* data = pSection.getSectionData();
+  llvm::MCSectionData::const_iterator fragIter, fragEnd = data->end();
+  size_t cur_offset = 0;
+  for (fragIter = data->begin(); fragIter != fragEnd; ++fragIter) {
+    switch(fragIter->getKind()) {
+      case llvm::MCFragment::FT_Region: {
+        const MCRegionFragment& region_frag = llvm::cast<MCRegionFragment>(*fragIter);
+        const uint8_t* from = region_frag.getRegion().start();
+        size_t size = region_frag.getRegion().size();
+        memcpy(pRegion.getBuffer(cur_offset), from, size);
+        cur_offset += size;
+        break;
+      }
+      case llvm::MCFragment::FT_Align:
+      case llvm::MCFragment::FT_Data:
+      case llvm::MCFragment::FT_Fill:
+      case llvm::MCFragment::FT_Inst:
+      case llvm::MCFragment::FT_Org:
+      case llvm::MCFragment::FT_Dwarf:
+      case llvm::MCFragment::FT_DwarfFrame:
+      case llvm::MCFragment::FT_LEB: {
+        llvm::report_fatal_error("unsupported fragment yet.\n");
+        break;
+      }
+      case llvm::MCFragment::FT_Reloc:
+        llvm::report_fatal_error("relocation fragment should not be in a regular section.\n");
+        break;
+      case llvm::MCFragment::FT_Target:
+        llvm::report_fatal_error("Target fragment should not be in a regular section.\n");
+        break;
+      default:
+        llvm::report_fatal_error("invalid fragment should not be in a regular section.\n");
+        break;
+    }
+  }
   pRegion.sync();
 }
 
