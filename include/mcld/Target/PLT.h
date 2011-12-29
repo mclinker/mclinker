@@ -44,11 +44,6 @@ public:
   //Used by llvm::cast<>.
   static bool classof(const MCFragment *O) { return true; }
 
-  /// offset - byte offset to the section
-  uint64_t offset() const {
-    return Offset;
-  }
-
   uint64_t getSize() const {
     return m_EntrySize;
   }
