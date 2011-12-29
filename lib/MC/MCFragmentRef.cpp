@@ -9,6 +9,7 @@
 #include <llvm/Support/MathExtras.h>
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/MC/MCRegionFragment.h>
+#include <mcld/MC/MCTargetFragment.h>
 #include <mcld/LD/Layout.h>
 #include <cstring>
 #include <cassert>
@@ -53,6 +54,9 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
 
     case llvm::MCFragment::FT_Region:
       return static_cast<const MCRegionFragment&>(pFrag).getRegion().size();
+
+    case llvm::MCFragment::FT_Target:
+      return static_cast<const MCTargetFragment&>(pFrag).getSize();
   }
 
   assert(0 && "invalid fragment kind");
