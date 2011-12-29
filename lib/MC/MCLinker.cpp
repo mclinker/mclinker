@@ -24,6 +24,7 @@
 
 using namespace mcld;
 
+/// Constructor
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
                    LDContext& pContext,
@@ -42,11 +43,12 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_Info.setNamePool(m_StrSymPool);
 }
 
+/// Destructor
 MCLinker::~MCLinker()
 {
 }
 
-/// addSymbol - add a symbol and resolve it immediately
+/// addGlobalSymbol - add a symbol and resolve it immediately
 LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
                                     bool pIsDyn,
                                     ResolveInfo::Type pType,
@@ -84,6 +86,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   return input_sym;
 }
 
+/// addLocalSymbol
 LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
                                    ResolveInfo::Type pType,
                                    ResolveInfo::Desc pDesc,
@@ -118,6 +121,60 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   return input_sym;
 }
 
+/// defineSymbol - define an output symbol and resolve it immediately
+LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
+                                 bool pIsDyn,
+                                 ResolveInfo::Type pType,
+                                 ResolveInfo::Desc pDesc,
+                                 ResolveInfo::Binding pBinding,
+                                 ResolveInfo::SizeType pSize,
+                                 const MCFragmentRef& pFragmentRef,
+                                 ResolveInfo::Visibility pVisibility)
+{
+  // <resolved_info, exist?, override>
+  Resolver::Result resolved_result;
+  LDSymbol* output_sym = NULL;
+
+  if (pBinding == ResolveInfo::Local) {
+    resolved_result.existent = false;
+    resolved_result.overriden = false;
+    resolved_result.info = m_StrSymPool.createSymbol(pName,
+                                                     pIsDyn,
+                                                     pType,
+                                                     pDesc,
+                                                     pBinding,
+                                                     pSize,
+                                                     pVisibility);
+  }
+  else {
+    m_StrSymPool.insertSymbol(pName,
+                              pIsDyn,
+                              pType,
+                              pDesc,
+                              pBinding,
+                              pSize,
+                              pVisibility,
+                              resolved_result);
+  }
+
+  // the return ResolveInfo should not NULL
+  assert(NULL != resolved_result.info);
+
+  // if it is a new symbol, create a LDSymbol for the output
+  if (!resolved_result.existent) {
+    output_sym = m_LDSymbolFactory.allocate();
+    new (output_sym) LDSymbol();
+    output_sym->setResolveInfo(*resolved_result.info);
+    output_sym->setFragmentRef(pFragmentRef);
+    m_Output.symtab().push_back(output_sym);
+  }
+  else {
+    output_sym = resolved_result.info->outSymbol();
+  }
+  return output_sym;
+}
+
+/// createSectHdr - create the input section header
 LDSection& MCLinker::createSectHdr(const std::string& pName,
                                    LDFileFormat::Kind pKind,
                                    uint32_t pType,
@@ -162,6 +219,7 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
+/// getOrCreateSectData - get or create MCSectionData
 llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.

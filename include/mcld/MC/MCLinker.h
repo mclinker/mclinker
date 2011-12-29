@@ -71,6 +71,21 @@ public:
                            const MCFragmentRef& pFragmentRef,
                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
+  /// defineSymbol - add a symbol and resolve it immediately
+  /// defineSymbol define a output symbol and resolve it immediately.
+  /// The 
+  ///
+  /// @return If the output symbol has existed, return it. Otherwise, create
+  ///         a new symbol and return the new one.
+  LDSymbol* defineSymbol(const llvm::StringRef& pName,
+                         bool pIsDyn,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         const MCFragmentRef& pFragmentRef,
+                         ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+
   /// mergeSymbolTable - merge the symbol table and resolve symbols.
   ///   Since in current design, MCLinker resolves symbols when reading symbol
   ///   tables, this function do nothing.
