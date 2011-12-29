@@ -529,17 +529,17 @@ bool SectLinker::doFinalization(Module &pM)
       !m_pLDDriver->mergeSymbolTables())
     return true;
 
+  // 8. - read all relocation entries of input files
+  m_pLDDriver->readRelocations();
+
   // 7.a - add standard symbols and target-dependent symbols
   // m_pLDDriver->addUndefSymbols();
   if (!m_pLDDriver->addStandardSymbols() ||
       !m_pLDDriver->addTargetSymbols())
     return true;
 
-  // 8. - compute the size of .symtab, .strtab, .dynstr, .dynsym.
+  // 9. - compute the size of .symtab, .strtab, .dynstr, .dynsym.
   m_pLDDriver->measureNamePool();
-
-  // 9. - read all relocation entries of input files
-  m_pLDDriver->readRelocations();
 
   // 10. - linear layout
   m_pLDDriver->layout();
