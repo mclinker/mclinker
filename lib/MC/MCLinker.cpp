@@ -22,6 +22,8 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <iostream>
+using namespace std;
 using namespace mcld;
 
 /// Constructor
@@ -41,6 +43,21 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_StrSymPool(pResolver, 128)
 {
   m_Info.setNamePool(m_StrSymPool);
+
+
+  ResolveInfo* info = m_StrSymPool.createSymbol("",
+                                                false,
+                                                ResolveInfo::NoType,
+                                                ResolveInfo::Undefined,
+                                                ResolveInfo::Local,
+                                                0x0,
+                                                ResolveInfo::Default);
+
+  LDSymbol* null_sym = m_LDSymbolFactory.allocate();
+  new (null_sym) LDSymbol();
+  null_sym->setResolveInfo(*info);
+  null_sym->setValue(0x0);
+  pContext.symtab().push_back(null_sym);
 }
 
 /// Destructor
@@ -196,6 +213,7 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    output_sect->setIndex(m_Output.getSectionTable().size());
     m_Output.getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
@@ -217,6 +235,7 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    output_sect->setIndex(m_Output.getSectionTable().size());
     m_Output.getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
