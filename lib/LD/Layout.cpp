@@ -9,10 +9,13 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <cassert>
 
 using namespace mcld;
@@ -138,9 +141,114 @@ uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
   return frag->Offset + pFragRef.offset();
 }
 
-bool Layout::layout(MCLinker& pLinker)
+void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
 {
- return 0; // TODO
+  typedef std::pair<LDSection*, unsigned int> SectOrder;
+  typedef std::vector<SectOrder > SectListTy;
+  SectListTy sect_list;
+  // get section order from backend
+  for (sect_iterator it = sect_begin(); it != sect_end(); ++it) {
+    sect_list.push_back(std::make_pair(*it, pBackend.getSectionOrder(**it)));
+  }
+
+  // simple insertion sort should be fine for general cases
+  for (unsigned int i = 1; i < sect_list.size(); ++i) {
+    SectOrder order = sect_list[i];
+    unsigned int j = i - 1;
+    while (j >= 0 && sect_list[j].second > order.second) {
+      sect_list[j + 1] = sect_list[j];
+      --j;
+    }
+    sect_list[j + 1] = order;
+  }
+
+  // update the sorting order to m_SectionOrder
+  m_SectionOrder.clear();
+  SectListTy::iterator iter;
+  for (iter = sect_list.begin(); iter != sect_list.end(); ++iter)
+    m_SectionOrder.push_back(iter->first);
+
+}
+
+bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
+{
+  // determine what sections in output context will go into final output, and
+  // push the needed sections into m_SectionOrder for later processing
+  unsigned int index = 0;
+  for (LDContext::sect_iterator it = pOutput.sectBegin();
+       it != pOutput.sectEnd(); ++it, ++index) {
+    LDSection* sect = pOutput.getSection(index);
+    assert(NULL != sect);
+
+    switch (sect->kind()) {
+      // ignore if there is no SectionData for certain section kinds
+      case LDFileFormat::Regular:
+      case LDFileFormat::Note:
+      case LDFileFormat::Debug:
+      case LDFileFormat::Target:
+      case LDFileFormat::MetaData:
+        if (NULL != sect->getSectionData()) {
+          // make sure that all fragments are valid, and compute section size
+          llvm::MCFragment& frag =
+            sect->getSectionData()->getFragmentList().back();
+          ensureFragmentOrdered(frag);
+          ensureValid(frag);
+          sect->setSize(frag.Offset + computeFragmentSize(*this, frag));
+          m_SectionOrder.push_back(sect);
+        }
+        break;
+      // take BSS and NULL directly
+      case LDFileFormat::BSS:
+      case LDFileFormat::Null:
+        m_SectionOrder.push_back(sect);
+        break;
+      // ignore if section size is 0 for NamePool and Relocation
+      case LDFileFormat::NamePool:
+      case LDFileFormat::Relocation:
+        if (0 != sect->size())
+          m_SectionOrder.push_back(sect);
+        break;
+      default:
+        assert(0 && "Unknown section kind");
+        break;
+    }
+  }
+
+  // perform sorting on m_SectionOrder to get a final ordering
+  sortSectionOrder(pBackend);
+
+  // compute the section offset and addr, and handle alignment also.
+  // ignore the section 0 (NULL in ELF/COFF), and MachO starts from section 1
+  unsigned int isBSSLaidOut = 0;
+  for (index = 1; index < m_SectionOrder.size(); ++index) {
+    uint64_t offset;
+    LDSection* cur = m_SectionOrder[index];
+    LDSection* prev = m_SectionOrder[index - 1];
+
+    // Backend defines the section start offset for section 1.
+    if (LDFileFormat::Null != prev->kind())
+      offset = alignAddress(prev->offset() + prev->size(), pBackend.bitclass());
+    else
+      offset = alignAddress(pBackend.sectionStartOffset(), pBackend.bitclass());
+
+    // FIXME: if .bss is laid out, set its addr to 0
+    if (0 == isBSSLaidOut)
+      cur->setAddr(offset);
+    else
+      cur->setAddr(0);
+    cur->setOffset(offset);
+
+    if (LDFileFormat::BSS == cur->kind())
+      isBSSLaidOut = 1;
+  }
+
+  // FIXME: Currently writer writes sections based on the section table in
+  // output context, we have to update its content..
+  pOutput.getSectionTable().clear();
+  for (index = 0; index < m_SectionOrder.size(); ++index)
+    pOutput.getSectionTable().push_back(m_SectionOrder[index]);
+
+  return true;
 }
 
 /// getFragmentRef - give a LDSection in input file and an offset, return

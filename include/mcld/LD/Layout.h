@@ -22,6 +22,8 @@ namespace mcld
 {
 class MCLinker;
 class LDSection;
+class LDContext;
+class TargetLDBackend;
 
 /** \class Layout
  *  \brief Layout records the order and offset of all regions
@@ -29,7 +31,7 @@ class LDSection;
 class Layout
 {
 public:
-  typedef std::vector<llvm::MCSectionData*> SectionOrder;
+  typedef std::vector<LDSection*> SectionOrder;
   typedef SectionOrder::iterator sect_iterator;
   typedef SectionOrder::const_iterator const_sect_iterator;
 
@@ -76,7 +78,7 @@ public:
   size_t numOfSegments() const;
 
   // -----  modifiers  ----- //
-  bool layout(MCLinker& pLinker);
+  bool layout(LDContext& pOutput, const TargetLDBackend& pBackend);
 
   void addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr);
 
@@ -108,6 +110,10 @@ private:
   /// covers the given fragment is ordered, lazily setting the fragment order
   /// if needed
   void ensureFragmentOrdered(const llvm::MCFragment& pFrag) const;
+
+  /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
+  /// ordering
+  void sortSectionOrder(const TargetLDBackend& pBackend);
 
 private:
   /// a vector to describe the order of sections
