@@ -487,7 +487,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
     while (it != ie) {
       plt1 = &(llvm::cast<ARMPLT1>(*it));
       EntrySize = plt1->getEntrySize();
-      memcpy(buffer + plt1->offset(), plt1->getContent(), EntrySize);
+      memcpy(buffer + RegionSize, plt1->getContent(), EntrySize);
       RegionSize += EntrySize;
     }
   }
@@ -496,18 +496,18 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
     GOTEntry* got = 0;
-    EntrySize = m_pGOT->getEntryBytes();
+    EntrySize = m_pGOT->getEntrySize();
 
     for (ARMGOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it) {
       got = &(llvm::cast<GOTEntry>((*it)));
-      memcpy(buffer + got->offset() ,&(got->getContent()), EntrySize);
+      memcpy(buffer + RegionSize, &(got->getContent()), EntrySize);
       RegionSize += EntrySize;
     }
   }
-
   else
-    llvm::report_fatal_error("unsupported section name!");
+    llvm::report_fatal_error("unsupported section name "
+                             + pSection.name() + " !");
 
   return RegionSize;
 */
