@@ -96,7 +96,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
                      << "' of symbol `"
                      << ld_name.str()
                      << "'.\n";
-        break;
+        continue;
       }
     }
 
@@ -124,7 +124,6 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
 
     /// convert to ResolveInfo::Visibility
     ResolveInfo::Visibility ld_vis = ELFReader::getVisibilityResolveInfo(rs_sym);
-
 
     m_Linker.addGlobalSymbol(ld_name,
                              true,
