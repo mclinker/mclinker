@@ -82,6 +82,9 @@ public:
   /// initTargetSections - initialize target dependent sections in output.
   void initTargetSections(MCLinker& pLinker);
 
+  /// initTargetSymbols - initialize target dependent symbols in output.
+  void initTargetSymbols(MCLinker& pLinker);
+  
   /// getRelocFactory
   RelocationFactory* getRelocFactory();
 

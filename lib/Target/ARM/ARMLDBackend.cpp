@@ -86,6 +86,21 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                       ELF::SHF_ALLOC);
 }
 
+void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
+{
+  // create symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
+  if(m_pGOT) {
+    pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
+                         false,
+                         ResolveInfo::Object,
+                         ResolveInfo::Define,
+                         ResolveInfo::Local,
+                         m_pGOT->getEntrySize(),
+                         *(new MCFragmentRef(*(m_pGOT->begin()))),
+                         ResolveInfo::Hidden);
+  }
+}
+
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
 {
   LDSection& got  = pLinker.getOrCreateOutputSectHdr(".got",
