@@ -69,6 +69,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                sh->getType(),
                                                sh->getFlags());
 
+    ldSect.setIndex(pInput.context()->getSectionTable().size());
     pInput.context()->getSectionTable().push_back(&ldSect);
 
     switch(ldSect.kind()) {
@@ -147,7 +148,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
       case llvm::ELF::STT_FILE:
       default: {
         // FIXME: support these kinds of symbols
-        break;
+        continue;
       }
     }
 
@@ -199,7 +200,6 @@ bool ELFObjectReader::readSymbols(Input& pInput)
     }
     /// convert to ResolveInfo::Visibility
     ResolveInfo::Visibility ld_vis = ELFReader::getVisibilityResolveInfo(rs_sym);
-
 
     if (ResolveInfo::Local == ld_binding) {
       m_Linker.addLocalSymbol(ld_name,
