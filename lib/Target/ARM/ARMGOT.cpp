@@ -103,4 +103,24 @@ void ARMGOT::applyGOTPLT(const uint64_t pAddress)
     llvm::cast<GOTEntry>(*(it)).setContent(pAddress);
 }
 
+ARMGOT::iterator ARMGOT::begin()
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+ARMGOT::const_iterator ARMGOT::begin() const
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+ARMGOT::iterator ARMGOT::end()
+{
+  return m_SectionData.getFragmentList().end();
+}
+
+ARMGOT::const_iterator ARMGOT::end() const
+{
+  return m_SectionData.getFragmentList().end();
+}
+
 } //end mcld namespace
