@@ -76,7 +76,7 @@ DECL_ARM_APPLY_RELOC_FUNC(tls)
   { &movw,          45, "R_ARM_MOVW_PREL_NC"      },  \
   { &movt,          46, "R_ARM_MOVT_PREL"         },  \
   { &thm_movw,      47, "R_ARM_THM_MOVW_ABS_NC"   },  \
-  { &thm_movt,      48, "R_ARM_THM_MOVT_ARBS"     },  \
+  { &thm_movt,      48, "R_ARM_THM_MOVT_ABS"      },  \
   { &thm_movw,      49, "R_ARM_THM_MOVW_PREL_NC"  },  \
   { &thm_movt,      50, "R_ARM_THM_MOVT_PREL"     },  \
   { &none,          51, "R_ARM_THM_JUMP19"        },  \
