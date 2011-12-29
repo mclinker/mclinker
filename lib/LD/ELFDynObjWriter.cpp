@@ -101,11 +101,11 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
   }
 
   // Write out name pool sections: .dynsym, .dynstr, .hash
-  target().emitDynNamePools(pOutput, m_Linker.getLDInfo());
+  target().emitDynNamePools(pOutput, m_Linker.getLayout(), m_Linker.getLDInfo());
 
   // Write out name pool sections: .symtab, .strtab
   // FIXME: remove this after testing.
-  target().emitRegNamePools(pOutput, m_Linker.getLDInfo());
+  target().emitRegNamePools(pOutput, m_Linker.getLayout(), m_Linker.getLDInfo());
 
   // FIXME:
   // Write out dynamic section .dynamic

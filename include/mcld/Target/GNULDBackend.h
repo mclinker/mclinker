@@ -26,6 +26,7 @@ namespace mcld
 {
 
 class MCLDInfo;
+class Layout;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -89,11 +90,13 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual uint64_t emitRegNamePools(Output& pOutput,
-                                    const MCLDInfo& pLDInfo) const;
+  virtual void emitRegNamePools(Output& pOutput,
+                                const Layout& pLayout,
+                                const MCLDInfo& pLDInfo);
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual uint64_t emitDynNamePools(Output& pOutput,
-                                    const MCLDInfo& pLDInfo) const;
+  virtual void emitDynNamePools(Output& pOutput,
+                                const Layout& pLayout,
+                                const MCLDInfo& pLDInfo);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
@@ -115,6 +118,11 @@ public:
   virtual unsigned int
   getTargetSectionOrder(const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
+
+protected:
+  uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
+
+  uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
 
 protected:
   // ----- readers and writers ----- //

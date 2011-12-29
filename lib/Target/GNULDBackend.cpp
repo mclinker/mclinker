@@ -12,6 +12,9 @@
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDInputTree.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/Layout.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <cassert>
 
 using namespace mcld;
@@ -29,7 +32,7 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
   };
   const int buckets_count = sizeof buckets / sizeof buckets[0];
 
-  unsigned int result = 1; 
+  unsigned int result = 1;
   for (unsigned int i = 0; i < buckets_count; ++i) {
     if (pNumOfSymbols < buckets[i])
       break;
@@ -185,8 +188,8 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 {
   size_t symtab = 0;
   size_t dynsym = 0;
-  size_t strtab = 1;
-  size_t dynstr = 1;
+  size_t strtab = 0;
+  size_t dynstr = 0;
   size_t hash   = 0;
 
   // compute size of .symtab, .dynsym and .strtab
@@ -215,7 +218,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     default:
       // TODO: not support yet
       return;
-  } 
+  }
 
   switch(pOutput.type()) {
     // compute size of .dynstr and .hash
@@ -246,13 +249,19 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
       hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
 
       // set size
-      file_format->getDynSymTab().setSize(dynsym);
+      if (32 == bitclass())
+        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
+      else
+        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
       file_format->getDynStrTab().setSize(dynstr);
       file_format->getHashTab().setSize(hash);
     }
     /* fall through */
     case Output::Object: {
-      file_format->getSymTab().setSize(symtab);
+      if (32 == bitclass())
+        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf32_Sym));
+      else
+        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));
       file_format->getStrTab().setSize(strtab);
       break;
     }
@@ -263,29 +272,134 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-uint64_t GNULDBackend::emitRegNamePools(Output& pOutput,
-                                        const MCLDInfo& pLDInfo) const
+void GNULDBackend::emitRegNamePools(Output& pOutput,
+                                    const Layout& pLayout,
+                                    const MCLDInfo& pLDInfo)
 {
-  // write out data
-  return 0;
+
+  assert(pOutput.hasMemArea());
+  ELFFileFormat* file_format = NULL;
+  switch(pOutput.type()) {
+    // compute size of .dynstr and .hash
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      // TODO: not support yet
+      return;
+  }
+
+  LDSection& symtab_sect = file_format->getSymTab();
+  LDSection& strtab_sect = file_format->getStrTab();
+
+  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
+                                                           symtab_sect.size(),
+                                                           true);
+  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
+                                                           strtab_sect.size(),
+                                                           true);
+
+  // set up symtab_region
+  llvm::ELF::Elf32_Sym* symtab32 = NULL;
+  llvm::ELF::Elf64_Sym* symtab64 = NULL;
+  if (32 == bitclass())
+    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
+  else if (64 == bitclass())
+    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
+  else
+    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
+                             llvm::Twine(bitclass()) +
+                             llvm::Twine(".\n"));
+
+  // set up strtab_region
+  char* strtab = (char*)strtab_region->start();
+
+  size_t symtabIdx = 0;
+  size_t strtabsize = 0;
+
+  // compute size of .symtab, .dynsym and .strtab
+  LDContext::const_sym_iterator symbol;
+  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
+  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+    // write out symbol
+    if (32 == bitclass()) {
+      symtab32[symtabIdx].st_name  = strtabsize;
+      symtab32[symtabIdx].st_value = (*symbol)->value();
+      symtab32[symtabIdx].st_size  = (*symbol)->size();
+      symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
+      symtab32[symtabIdx].st_other = (*symbol)->visibility();
+      symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
+    }
+    else { // must 64
+      symtab64[symtabIdx].st_name  = strtabsize;
+      symtab64[symtabIdx].st_value = (*symbol)->value();
+      symtab64[symtabIdx].st_size  = (*symbol)->size();
+      symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
+      symtab64[symtabIdx].st_other = (*symbol)->visibility();
+      symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
+    }
+    // write out string
+    strcpy((strtab + strtabsize), (*symbol)->name());
+
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  symtab_region->sync();
+  strtab_region->sync();
 }
 
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-uint64_t GNULDBackend::emitDynNamePools(Output& pOutput,
-                                        const MCLDInfo& pLDInfo) const
+void GNULDBackend::emitDynNamePools(Output& pOutput,
+                                    const Layout& pLayout,
+                                    const MCLDInfo& pLDInfo)
 {
-  // TODO
-  return 0;
+  // FIXME
 }
 
+/// getSectionOrder
 unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 {
   if (LDFileFormat::Target == pSectHdr.kind())
     return getTargetSectionOrder(pSectHdr);
   // TODO
   return ~(0U);
+}
+
+/// getSymbolInfo
+uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
+{
+  // set binding
+  uint8_t bind = 0x0;
+  if (pSymbol.resolveInfo()->isLocal())
+    bind = llvm::ELF::STB_LOCAL;
+  else if (pSymbol.resolveInfo()->isGlobal())
+    bind = llvm::ELF::STB_GLOBAL;
+  else if (pSymbol.resolveInfo()->isWeak())
+    bind = llvm::ELF::STB_WEAK;
+
+  return (pSymbol.resolveInfo()->type() | (bind << 4));
+}
+
+uint64_t
+GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const
+{
+  if (pSymbol.resolveInfo()->isAbsolute())
+    return llvm::ELF::SHN_ABS;
+  if (pSymbol.resolveInfo()->isCommon())
+    return llvm::ELF::SHN_COMMON;
+  if (pSymbol.resolveInfo()->isUndef())
+    return llvm::ELF::SHN_UNDEF;
+  return 0x0;
+  // FIXME: when Layout is ready, open the comment.
+  // return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
 
