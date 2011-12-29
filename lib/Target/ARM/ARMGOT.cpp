@@ -27,7 +27,8 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
 
   // Create GOT0 entries.
   for (int i = 0; i < 3; i++) {
-    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize);
+    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize,
+                                        &m_SectionData);
 
     if (!Entry)
       llvm::report_fatal_error("Allocating GOT0 entries failed!");
@@ -55,7 +56,8 @@ void ARMGOT::reserveEntry(const int pNum)
   GOTEntry* Entry = 0;
 
   for (int i = 0; i < pNum; i++) {
-    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize);
+    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize,
+                                        &m_SectionData);
 
     if (!Entry)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");

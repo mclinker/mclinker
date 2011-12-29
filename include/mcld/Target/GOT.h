@@ -27,7 +27,8 @@ class ResolveInfo;
 class GOTEntry : public MCTargetFragment
 {
 public:
-  explicit GOTEntry(uint64_t pContent, uint64_t pEntrySize);
+  explicit GOTEntry(uint64_t pContent, uint64_t pEntrySize,
+                    llvm::MCSectionData* pParent);
 
   virtual ~GOTEntry();
 

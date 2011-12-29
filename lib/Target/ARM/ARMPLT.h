@@ -18,12 +18,12 @@ class GOTEntry;
 
 class ARMPLT0 : public PLTEntry {
 public:
-  ARMPLT0();
+  ARMPLT0(llvm::MCSectionData* pParent);
 };
 
 class ARMPLT1 : public PLTEntry {
 public:
-  ARMPLT1();
+  ARMPLT1(llvm::MCSectionData* pParent);
 };
 
 /** \class ARMPLT
@@ -55,13 +55,13 @@ public:
 
 public:
 
-  iterator begin() { return m_pSectionData->begin(); }
+  iterator begin() { return m_SectionData.begin(); }
 
-  const_iterator begin() const { return m_pSectionData->begin(); }
+  const_iterator begin() const { return m_SectionData.begin(); }
 
-  iterator end() { return m_pSectionData->end(); }
+  iterator end() { return m_SectionData.end(); }
 
-  const_iterator end() const { return m_pSectionData->end(); }
+  const_iterator end() const { return m_SectionData.end(); }
 
   ARMPLT0* getPLT0() const;
 

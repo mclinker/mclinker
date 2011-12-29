@@ -26,7 +26,7 @@ class ResolveInfo;
 class PLTEntry : public MCTargetFragment
 {
 public:
-  PLTEntry(const unsigned int size);
+  PLTEntry(const unsigned int size, llvm::MCSectionData* pParent);
   virtual ~PLTEntry();
 
   unsigned int getEntrySize() const {
@@ -63,10 +63,10 @@ public:
   virtual ~PLT();
 
   const LDSection& getSection() const
-  { return *m_pSection; }
+  { return m_Section; }
 
   const llvm::MCSectionData& getSectionData() const
-  { return *m_pSectionData; }
+  { return m_SectionData; }
 
 public:
   /// reserveEntry - reseve the number of pNum of empty entries
@@ -79,8 +79,8 @@ public:
   virtual PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
-  LDSection* m_pSection;
-  llvm::MCSectionData* m_pSectionData;
+  LDSection& m_Section;
+  llvm::MCSectionData& m_SectionData;
 };
 
 } // namespace of mcld

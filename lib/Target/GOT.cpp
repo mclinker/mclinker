@@ -14,8 +14,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOTEntry
-GOTEntry::GOTEntry(uint64_t pContent, uint64_t pEntrySize)
-  : MCTargetFragment(llvm::MCFragment::FT_Target, 0),
+GOTEntry::GOTEntry(uint64_t pContent, uint64_t pEntrySize,
+                   llvm::MCSectionData* pParent)
+  : MCTargetFragment(llvm::MCFragment::FT_Target, pParent),
     f_Content(pContent), m_EntrySize(pEntrySize) {
 }
 

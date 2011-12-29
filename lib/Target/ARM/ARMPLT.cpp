@@ -32,8 +32,11 @@ const uint32_t arm_plt1[] = {
 
 namespace mcld {
 
-ARMPLT0::ARMPLT0() : PLTEntry(sizeof(arm_plt0)) {}
-ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
+ARMPLT0::ARMPLT0(llvm::MCSectionData* pParent)
+  : PLTEntry(sizeof(arm_plt0), pParent) {}
+
+ARMPLT1::ARMPLT1(llvm::MCSectionData* pParent)
+  : PLTEntry(sizeof(arm_plt1), pParent) {}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
@@ -42,7 +45,7 @@ ARMPLT::ARMPLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
                ARMGOT &pGOTPLT)
   : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator() {
-  ARMPLT0* plt0_entry = new ARMPLT0();
+  ARMPLT0* plt0_entry = new ARMPLT0(&m_SectionData);
   pSectionData.getFragmentList().push_back(plt0_entry);
 
   m_PLTEntryIterator = pSectionData.begin();
@@ -58,14 +61,15 @@ void ARMPLT::reserveEntry(int pNum)
   GOTEntry* got_entry = 0;
 
   for (int i = 0; i < pNum; i++) {
-    plt1_entry = new (std::nothrow) ARMPLT1();
+    plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
 
     if (!plt1_entry)
       llvm::report_fatal_error("Allocating new memory for ARMPLT1 failed!");
 
-    m_pSectionData->getFragmentList().push_back(plt1_entry);
+    m_SectionData.getFragmentList().push_back(plt1_entry);
 
-    got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize());
+    got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize(),
+                                           &(m_GOT.m_SectionData));
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
@@ -90,7 +94,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
+     assert((++m_PLTEntryIterator) != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
      ++(m_GOT.m_GOTPLTIterator);
 
@@ -114,7 +118,7 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
+     assert((++m_PLTEntryIterator) != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
      ++(m_GOT.m_GOTPLTIterator);
 
@@ -126,11 +130,9 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 }
 
 ARMPLT0* ARMPLT::getPLT0() const {
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL!");
 
-  iterator first = m_pSectionData->getFragmentList().begin();
-  iterator end = m_pSectionData->getFragmentList().end();
+  iterator first = m_SectionData.getFragmentList().begin();
+  iterator end = m_SectionData.getFragmentList().end();
 
   assert(first!=end && "FragmentList is empty, getPLT0 failed!");
 
@@ -141,11 +143,8 @@ ARMPLT0* ARMPLT::getPLT0() const {
 
 void ARMPLT::applyPLT0() {
 
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL!");
-
   uint64_t plt_base =
-    llvm::cast<LDSection>(m_pSectionData->getSection()).offset();
+    llvm::cast<LDSection>(m_SectionData.getSection()).offset();
   assert(plt_base && ".plt base address is NULL!");
 
   uint64_t got_base =
@@ -159,8 +158,8 @@ void ARMPLT::applyPLT0() {
   else
     offset = (plt_base + 16) - got_base;
 
-  iterator first = m_pSectionData->getFragmentList().begin();
-  iterator end = m_pSectionData->getFragmentList().end();
+  iterator first = m_SectionData.getFragmentList().begin();
+  iterator end = m_SectionData.getFragmentList().end();
 
   assert(first!=end && "FragmentList is empty, applyPLT0 failed!");
 
@@ -181,15 +180,15 @@ void ARMPLT::applyPLT0() {
 void ARMPLT::applyPLT1() {
 
   uint64_t plt_base =
-    llvm::cast<LDSection>(m_pSectionData->getSection()).offset();
+    llvm::cast<LDSection>(m_SectionData.getSection()).offset();
   assert(plt_base && ".plt base address is NULL!");
 
   uint64_t got_base =
     llvm::cast<LDSection>(m_GOT.getSectionData().getSection()).offset();
   assert(got_base && ".got base address is NULL!");
 
-  ARMPLT::iterator it = m_pSectionData->begin();
-  ARMPLT::iterator ie = m_pSectionData->end();
+  ARMPLT::iterator it = m_SectionData.begin();
+  ARMPLT::iterator ie = m_SectionData.end();
   assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint64_t GOTEntrySize = m_GOT.getEntrySize();

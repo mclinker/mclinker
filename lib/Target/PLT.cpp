@@ -14,9 +14,9 @@ class GOT;
 
 //===--------------------------------------------------------------------===//
 // PLTEntry
-PLTEntry::PLTEntry(const unsigned int size)
-  : m_EntrySize(size), m_pContent(0),
-    MCTargetFragment(llvm::MCFragment::FT_Target)
+PLTEntry::PLTEntry(const unsigned int size, llvm::MCSectionData* pParent)
+   : MCTargetFragment(llvm::MCFragment::FT_Target, pParent),
+     m_EntrySize(size), m_pContent(0)
 {
 }
 
@@ -31,10 +31,9 @@ PLTEntry::~PLTEntry()
 //===--------------------------------------------------------------------===//
 // PLT
 PLT::PLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
-  :m_pSection(&pSection), 
-   m_pSectionData(&pSectionData)
+  :m_Section(pSection),
+   m_SectionData(pSectionData)
 {
-  assert(m_pSectionData && "m_pSectionData in PLT is NULL!");
 }
 
 PLT::~PLT()
