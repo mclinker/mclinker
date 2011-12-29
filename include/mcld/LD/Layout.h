@@ -71,6 +71,10 @@ public:
   /// LDSection*
   const LDSection* getInputLDSection(const llvm::MCFragment& pFrag) const;
 
+  /// getInputLDSection - give a MCFragment, return the corresponding input
+  /// LDSection*
+  const LDSection* getOutputLDSection(const llvm::MCFragment& pFrag) const;
+
   /// \brief Invalidate all following fragments because a fragment has been
   /// resized. The fragments size should have already been updated.
   void invalidate(llvm::MCFragment& pFrag);

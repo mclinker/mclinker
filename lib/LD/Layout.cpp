@@ -361,3 +361,11 @@ size_t Layout::numOfSegments() const
   return 0;
 }
 
+/// getInputLDSection - give a MCFragment, return the corresponding input
+/// LDSection*
+const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
+{
+  // TODO
+  return NULL;
+}
+
