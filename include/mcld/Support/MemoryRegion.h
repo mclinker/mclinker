@@ -12,10 +12,11 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/ADT/SizeTraits.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/MemoryArea.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/SizeTraits.h>
+#include <mcld/ADT/TypeTraits.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MemoryArea.h>
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/StringRef.h>
 
@@ -40,8 +41,10 @@ class MemoryRegion : private Uncopyable
 friend class RegionFactory;
 
 public:
-typedef mcld::sys::fs::detail::Address Address; // FIXME: use SizeTrait<T>::Address
-typedef mcld::sys::fs::detail::Offset Offset; // FIXME: use SizeTrait<T>::Offset
+typedef NonConstTraits<mcld::sys::fs::detail::Address>::value_type Address;
+typedef ConstTraits<mcld::sys::fs::detail::Address>::value_type    ConstAddress;
+typedef NonConstTraits<mcld::sys::fs::detail::Offset>::value_type  Offset;
+typedef ConstTraits<mcld::sys::fs::detail::Offset>::value_type     ConstOffset;
 
 private:
   MemoryRegion(MemoryArea::Space* pParentSpace,
@@ -53,13 +56,13 @@ public:
   Address start()
   { return m_VMAStart; }
 
-  const Address start() const
+  ConstAddress start() const
   { return m_VMAStart; }
 
   Address end()
   { return m_VMAStart+m_Length; }
 
-  const Address end() const
+  ConstAddress end() const
   { return m_VMAStart+m_Length; }
 
   size_t size() const
@@ -68,7 +71,7 @@ public:
   Address getBuffer(Offset pOffset = 0)
   { return m_VMAStart+pOffset; }
 
-  const Address getBuffer(Offset pOffset = 0) const
+  ConstAddress getBuffer(Offset pOffset = 0) const
   { return m_VMAStart+pOffset; }
 
   // sync - consist the memory space with the mapped file.
