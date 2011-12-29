@@ -159,7 +159,7 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
   // simple insertion sort should be fine for general cases
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
     SectOrder order = sect_list[i];
-    unsigned int j = i - 1;
+    int j = i - 1;
     while (j >= 0 && sect_list[j].second > order.second) {
       sect_list[j + 1] = sect_list[j];
       --j;
