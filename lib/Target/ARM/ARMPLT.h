@@ -14,6 +14,7 @@
 namespace mcld {
 
 class ARMGOT;
+class GOTEntry;
 
 class ARMPLT0 : public PLTEntry {
 public:
@@ -49,6 +50,8 @@ public:
   void reserveEntry(int pNum = 1) ;
 
   PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+
+  GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
 public:
 

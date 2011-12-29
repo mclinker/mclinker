@@ -91,6 +91,12 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
    return Entry;
 }
 
+GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExitst)
+{
+  // TODO
+  return 0;
+}
+
 ARMPLT0* ARMPLT::getPLT0() const {
   if (!m_pSectionData)
     llvm::report_fatal_error("m_pSectionData is NULL!");
