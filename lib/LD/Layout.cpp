@@ -141,6 +141,11 @@ uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
   return frag->Offset + pFragRef.offset();
 }
 
+const LDSection* Layout::getInputLDSection(const llvm::MCFragment& pFrag) const
+{
+  return NULL;
+}
+
 void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
 {
   typedef std::pair<LDSection*, unsigned int> SectOrder;
