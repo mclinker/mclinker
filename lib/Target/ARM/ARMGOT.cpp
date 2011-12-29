@@ -16,26 +16,25 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
-             : m_pGOT0Entries(new (std::nothrow) ARMGOTEntries),
-               m_pGOTPLTEntries(new (std::nothrow) ARMGOTEntries),
-               m_pGeneralGOTEntries(new (std::nothrow) ARMGOTEntries),
-               m_GeneralGOTEntryIt(),
-               GOT(pSection, pSectionData, 4 /*ARM uses 32-bit GOT entry */) {
-
-  pSectionData.getFragmentList().push_back(m_pGOT0Entries);
-  pSectionData.getFragmentList().push_back(m_pGOTPLTEntries);
-  pSectionData.getFragmentList().push_back(m_pGeneralGOTEntries);
+             : GOT(pSection, pSectionData, 4 /*ARM uses 32-bit GOT entry */),
+               m_GOTPLTNum(0), m_GeneralGOTNum(0), m_GeneralGOTIterator()
+{
+  GOTEntry* Entry = 0;
 
   // Create GOT0 entries.
-  GOTEntry* Entry1 = new (std::nothrow) GOTEntry(0);
-  m_pGOT0Entries->getEntryList().push_back(Entry1);
+  for (int i = 0; i < 3; i++) {
+    Entry = new (std::nothrow) GOTEntry(0);
 
-  GOTEntry* Entry2 = new (std::nothrow) GOTEntry(0);
-  m_pGOT0Entries->getEntryList().push_back(Entry2);
+    if (!Entry)
+      llvm::report_fatal_error("Allocating GOT0 entries failed!");
 
-  GOTEntry* Entry3 = new (std::nothrow) GOTEntry(0);
-  m_pGOT0Entries->getEntryList().push_back(Entry3);
+    m_SectionData.getFragmentList().push_back(Entry);
+  }
 
+  // Skip GOT0
+  m_GeneralGOTIterator = m_SectionData.begin();
+  ++m_GeneralGOTIterator;
+  ++m_GeneralGOTIterator;
 }
 
 ARMGOT::~ARMGOT()
@@ -44,110 +43,55 @@ ARMGOT::~ARMGOT()
 
 void ARMGOT::reserveEntry(const int pNum)
 {
-  if (!m_pGeneralGOTEntries)
-    llvm::report_fatal_error("m_pGeneralGOTEntries is NULL! "
-                             "Allocating new memory in constructor failed" );
-
   GOTEntry* Entry = 0;
 
   for (int i = 0; i < pNum; i++) {
     Entry = new (std::nothrow) GOTEntry(0);
 
-    if (m_pGeneralGOTEntries->size() == 1)
-      m_GeneralGOTEntryIt = m_pGeneralGOTEntries->begin();
-
     if (!Entry)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
 
-    m_pGeneralGOTEntries->getEntryList().push_back(Entry);
+    m_SectionData.getFragmentList().push_back(Entry);
+    ++m_GeneralGOTNum;
   }
 }
 
 
 GOTEntry* ARMGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry *&GeneralGOTEntry = m_SymbolIndexMap[&pInfo];
+  GOTEntry *&Entry = m_SymbolIndexMap[&pInfo];
   pExist = 1;
 
-  if (!GeneralGOTEntry) {
+  if (!Entry) {
     pExist = 0;
 
-    assert(m_GeneralGOTEntryIt != m_pGeneralGOTEntries->getEntryList().end()
+    ++m_GeneralGOTIterator;
+    assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end()
            && "The number of GOT Entries and ResolveInfo doesn't match!");
 
-    GeneralGOTEntry = llvm::cast<GOTEntry>(&(*m_GeneralGOTEntryIt));
-    m_GeneralGOTEntryIt++;
+    Entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
   }
 
-  return GeneralGOTEntry;
+  return Entry;
 }
 
 void ARMGOT::applyGOT0(const uint64_t pAddress)
 {
-  if (!m_pGOT0Entries)
-    llvm::report_fatal_error("m_pGOT0Entries is NULL! "
-                             "Allocating new memory in constructor failed" );
-
   llvm::cast<GOTEntry>
-    (*(m_pGeneralGOTEntries->getEntryList().begin())).setContent(pAddress);
+    (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
 void ARMGOT::applyGOTPLT(const uint64_t pAddress)
 {
-  if (!m_pGOTPLTEntries)
-    llvm::report_fatal_error("m_pGOTPLTEntries is NULL! "
-                             "Allocating new memory in constructor failed" );
+  iterator it = m_SectionData.getFragmentList().begin();
 
-  for (EntryIterator it = m_pGOTPLTEntries->getEntryList().begin(),
-       ie = m_pGOTPLTEntries->getEntryList().end(); it != ie; it++)
+  // Skip GOT0
+  ++it;
+  ++it;
+  ++it;
+
+  for (int i = 0; i < m_GOTPLTNum; ++i)
     llvm::cast<GOTEntry>(*(it)).setContent(pAddress);
-}
-
-ARMGOT::iterator ARMGOT::begin() {
-  if (!m_pGOT0Entries)
-    llvm::report_fatal_error("m_pGOT0Entries is NULL! ");
-
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL! ");
-
-  return iterator(m_pSectionData->getFragmentList().begin(),
-                  m_pGOT0Entries->getEntryList().begin());
-}
-
-ARMGOT::const_iterator ARMGOT::begin() const
-{
-  if (!m_pGOT0Entries)
-    llvm::report_fatal_error("m_pGOT0Entries is NULL! ");
-
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL! ");
-
-  return const_iterator(m_pSectionData->getFragmentList().begin(),
-                        m_pGOT0Entries->getEntryList().begin());
-}
-
-ARMGOT::iterator ARMGOT::end()
-{
-  if (!m_pGOT0Entries)
-    llvm::report_fatal_error("m_pGeneralGOTEntries is NULL! ");
-
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL! ");
-
-  return iterator(m_pSectionData->getFragmentList().end(),
-                  m_pGeneralGOTEntries->getEntryList().end());
-}
-
-ARMGOT::const_iterator ARMGOT::end() const
-{
-  if (!m_pGOT0Entries)
-    llvm::report_fatal_error("m_pGOT0Entries is NULL! ");
-
-  if (!m_pSectionData)
-    llvm::report_fatal_error("m_pSectionData is NULL! ");
-
-  return const_iterator(m_pSectionData->getFragmentList().end(),
-                        m_pGeneralGOTEntries->getEntryList().end());
 }
 
 } //end mcld namespace

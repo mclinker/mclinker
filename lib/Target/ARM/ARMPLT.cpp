@@ -41,11 +41,11 @@ ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
 ARMPLT::ARMPLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
                ARMGOT &pGOTPLT)
-  : PLT(pSection, pSectionData), m_GOTPLT(pGOTPLT), m_MCFragmentIterator() {
+  : PLT(pSection, pSectionData), m_GOTPLT(pGOTPLT), m_PLTEntryIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0();
   pSectionData.getFragmentList().push_back(plt0_entry);
 
-  m_MCFragmentIterator = pSectionData.begin();
+  m_PLTEntryIterator = pSectionData.begin();
 }
 
 ARMPLT::~ARMPLT()
@@ -69,7 +69,11 @@ void ARMPLT::reserveEntry(int pNum)
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
-    m_GOTPLT.m_pGOTPLTEntries->getEntryList().push_back(got_entry);
+
+    m_GOTPLT.m_SectionData.getFragmentList().push_back(got_entry);
+
+    ++(m_GOTPLT.m_GOTPLTNum);
+    ++(m_GOTPLT.m_GeneralGOTIterator);
   }
 }
 
@@ -82,10 +86,10 @@ PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++m_MCFragmentIterator) != m_pSectionData->end() &&
+     assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
 
-     Entry = llvm::cast<ARMPLT1>(&(*m_MCFragmentIterator));
+     Entry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
    }
 
    return Entry;
@@ -207,8 +211,9 @@ void ARMPLT::applyPLT1() {
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
   }
 
-  for (ARMGOT::iterator it = m_GOTPLT.begin(),
-       ie = m_GOTPLT.end(); it != ie; ++it)
+  for (ARMGOT::const_iterator
+       it = m_GOTPLT.getSectionData().getFragmentList().begin(),
+       ie = m_GOTPLT.getSectionData().getFragmentList().end(); it != ie; ++it)
     llvm::cast<GOTEntry>((*it)).setContent(plt_base);
 }
 

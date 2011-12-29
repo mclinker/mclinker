@@ -74,7 +74,7 @@ private:
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.
-  iterator m_MCFragmentIterator;
+  iterator m_PLTEntryIterator;
 
   SymbolIndexType m_SymbolIndexMap;
 };

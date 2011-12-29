@@ -67,10 +67,10 @@ public:
   unsigned int entryBytes() const;
 
   const LDSection& getSection() const
-  { return *m_pSection; }
+  { return m_Section; }
 
-  const llvm::MCSectionData& getSectionData() const 
-  { return *m_pSectionData; }
+  const llvm::MCSectionData& getSectionData() const
+  { return m_SectionData; }
 
 public:
   /// reserveEntry - reseve number of pNum of empty entries
@@ -90,8 +90,8 @@ public:
   }
 
 protected:
-  LDSection* m_pSection;
-  llvm::MCSectionData* m_pSectionData;
+  LDSection& m_Section;
+  llvm::MCSectionData& m_SectionData;
   const unsigned int f_EntryBytes;
 };
 

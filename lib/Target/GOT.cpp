@@ -29,8 +29,8 @@ GOTEntry::~GOTEntry()
 GOT::GOT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
          const unsigned int pEntryBytes)
-  : m_pSection(&pSection),
-    m_pSectionData(&pSectionData),
+  : m_Section(pSection),
+    m_SectionData(pSectionData),
     f_EntryBytes(pEntryBytes) {
 }
 
