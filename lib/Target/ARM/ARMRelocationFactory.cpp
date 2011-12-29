@@ -139,11 +139,12 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       got_entry.setContent(0);
 
       // Initialize corresponding dynamic relocation.
-      Relocation* rel_entry = ld_backend.getRelDyn().getEntry(*rsym, true, exist);
+      Relocation& rel_entry =
+        *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      rel_entry->setType(R_ARM_GLOB_DAT);
-      rel_entry->targetRef().assign(got_entry);
-      rel_entry->setSymInfo(rsym);
+      rel_entry.setType(R_ARM_GLOB_DAT);
+      rel_entry.targetRef().assign(got_entry);
+      rel_entry.setSymInfo(rsym);
     }
     else {
       llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
@@ -172,6 +173,38 @@ ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
 }
 
 
+
+PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
+                                  ARMRelocationFactory& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  ARMGNULDBackend& ld_backend = pParent.getTarget();
+
+  bool exist;
+  PLTEntry& plt_entry = *ld_backend.getPLT().getEntry(*rsym, exist);
+  if (!exist) {
+    // If we first get this PLT entry, we should initialize it.
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      GOTEntry& gotplt_entry =
+        *ld_backend.getPLT().getGOTPLTEntry(*rsym, exist);
+      // Initialize corresponding dynamic relocation.
+      Relocation& rel_entry =
+        *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
+      assert(!exist && "PLT entry not exist, but DynRel entry exist!");
+      rel_entry.setType(R_ARM_JUMP_SLOT);
+      rel_entry.targetRef().assign(gotplt_entry);
+      rel_entry.setSymInfo(rsym);
+    }
+    else {
+      llvm::report_fatal_error("No PLT entry reserved for PLT type relocation!");
+    }
+  }
+  return plt_entry;
+}
+
+
+
 static
 ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
 {
@@ -186,12 +219,7 @@ static
 ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
-  // TODO: Dynamic relocation for got.plt..
-  // TODO: Write a helper_get_PLT_and_init().
-  bool exist;
-  PLTEntry& plt_entry = *pParent.getTarget()
-                                .getPLT()
-                                .getEntry(*pReloc.symInfo(), exist);
+  PLTEntry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) + plt_entry.offset();
 }
 
@@ -402,8 +430,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     llvm::report_fatal_error("Target is thumb, need stub!");
   }
   // Check X is 24bit sign int. If not, we should use stub or PLT before apply.
-  assert((X & 0xFFFFFFFFu) > 0x01FFFFFFu &&
-         (X & 0xFFFFFFFFu) < 0xFE000000u && "Jump or Call target too far!");
+  assert(!helper_check_signed_overflow(X, 24) && "Jump or Call target too far!");
   //                    Make sure the Imm is 0.          Result Mask.
   pReloc.target() = (pReloc.target() & 0xFF000000u) | ((X & 0x03FFFFFEu) >> 2);
   return ARMRelocationFactory::OK;
