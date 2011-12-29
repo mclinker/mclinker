@@ -520,6 +520,17 @@ ARMRelocationFactory::Result movw(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
+  switch (pReloc.symInfo()->reserved()) {
+    default: {
+      break;
+    }
+    case ARMGNULDBackend::ReservePLT:
+    case ARMGNULDBackend::PLTandRel: {
+      S = helper_PLT(pReloc, pParent);
+      break;
+    }
+  }
+
   if (pReloc.type() == R_ARM_MOVW_ABS_NC) {
     X = (S + A) | T;
   } else {
@@ -545,6 +556,17 @@ ARMRelocationFactory::Result movt(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
+  switch (pReloc.symInfo()->reserved()) {
+    default: {
+      break;
+    }
+    case ARMGNULDBackend::ReservePLT:
+    case ARMGNULDBackend::PLTandRel: {
+      S = helper_PLT(pReloc, pParent);
+      break;
+    }
+  }
+
   if (pReloc.type() == R_ARM_MOVT_ABS) {
     X = S + A;
   } else {
@@ -568,6 +590,18 @@ ARMRelocationFactory::Result thm_movw(Relocation& pReloc,
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
+
+  switch (pReloc.symInfo()->reserved()) {
+    default: {
+      break;
+    }
+    case ARMGNULDBackend::ReservePLT:
+    case ARMGNULDBackend::PLTandRel: {
+      S = helper_PLT(pReloc, pParent);
+      break;
+    }
+  }
+
   if (pReloc.type() == R_ARM_THM_MOVW_ABS_NC) {
     X = (S + A) | T;
   } else {
@@ -594,6 +628,18 @@ ARMRelocationFactory::Result thm_movt(Relocation& pReloc,
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
+
+  switch (pReloc.symInfo()->reserved()) {
+    default: {
+      break;
+    }
+    case ARMGNULDBackend::ReservePLT:
+    case ARMGNULDBackend::PLTandRel: {
+      S = helper_PLT(pReloc, pParent);
+      break;
+    }
+  }
+
   if (pReloc.type() == R_ARM_THM_MOVT_ABS) {
     X = S + A;
   } else {
