@@ -182,7 +182,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  PLTEntry& plt_entry = *ld_backend.getPLT().getEntry(*rsym, exist);
+  PLTEntry& plt_entry = *ld_backend.getPLT().getPLTEntry(*rsym, exist);
   if (!exist) {
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {

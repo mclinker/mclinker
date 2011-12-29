@@ -25,6 +25,13 @@ class LDSection;
 class ARMGOT : public GOT
 {
   friend void mcld::ARMPLT::reserveEntry(int pNum);
+
+  friend mcld::PLTEntry* mcld::ARMPLT::getPLTEntry(
+         const mcld::ResolveInfo& pSymbol,bool& pExist);
+
+  friend mcld::GOTEntry* mcld::ARMPLT::getGOTPLTEntry(
+         const mcld::ResolveInfo& pSymbol,bool& pExist);
+
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
@@ -58,9 +65,14 @@ private:
   unsigned int m_GeneralGOTNum;
   unsigned int m_GOTPLTNum;
 
+  // Used by getGeneralGOTEntry()
   iterator m_GeneralGOTIterator;
 
-  SymbolIndexMapType m_SymbolIndexMap;
+  // Used by getGOTPLTEntry()
+  iterator m_GOTPLTIterator;
+
+  SymbolIndexMapType m_GOTPLTMap;
+  SymbolIndexMapType m_GeneralGOTMap;
 };
 
 } // namespace of mcld

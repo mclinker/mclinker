@@ -77,28 +77,52 @@ void ARMPLT::reserveEntry(int pNum)
   }
 }
 
-PLTEntry* ARMPLT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-   ARMPLT1 *&Entry = m_SymbolIndexMap[&pSymbol];
+   ARMPLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
+
    pExist = 1;
 
-   if (!Entry) {
+   if (!PLTEntry) {
+     GOTEntry *&GOTPLTEntry = m_GOTPLT.m_GOTPLTMap[&pSymbol];
+     assert(!GOTPLTEntry && "PLT entry and got.plt entry doesn't match!");
+
      pExist = 0;
 
      // This will skip PLT0.
      assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
+     ++(m_GOTPLT.m_GOTPLTIterator);
 
-     Entry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
+     PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOTPLT.m_GOTPLTIterator)));
    }
 
-   return Entry;
+   return PLTEntry;
 }
 
-GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExitst)
+GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-  // TODO
-  return 0;
+   GOTEntry *&GOTPLTEntry = m_GOTPLT.m_GOTPLTMap[&pSymbol];
+
+   pExist = 1;
+
+   if (!GOTPLTEntry) {
+     ARMPLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
+     assert(!PLTEntry && "PLT entry and got.plt entry doesn't match!");
+
+     pExist = 0;
+
+     // This will skip PLT0.
+     assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
+            "The number of PLT Entries and ResolveInfo doesn't match");
+     ++(m_GOTPLT.m_GOTPLTIterator);
+
+     PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOTPLT.m_GOTPLTIterator)));
+   }
+
+   return GOTPLTEntry;
 }
 
 ARMPLT0* ARMPLT::getPLT0() const {
@@ -211,9 +235,16 @@ void ARMPLT::applyPLT1() {
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
   }
 
-  for (ARMGOT::const_iterator
-       it = m_GOTPLT.getSectionData().getFragmentList().begin(),
-       ie = m_GOTPLT.getSectionData().getFragmentList().end(); it != ie; ++it)
+  ARMGOT::const_iterator
+  gotplt_it = m_GOTPLT.getSectionData().getFragmentList().begin(),
+  gotplt_ie = m_GOTPLT.getSectionData().getFragmentList().end();
+
+  // Skip GOT0
+  ++gotplt_it;
+  ++gotplt_it;
+  ++gotplt_it;
+
+  for (; gotplt_it != gotplt_ie; ++gotplt_it)
     llvm::cast<GOTEntry>((*it)).setContent(plt_base);
 }
 

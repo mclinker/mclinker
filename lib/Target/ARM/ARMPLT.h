@@ -49,7 +49,7 @@ public:
   // reserveEntry is ARMGOT friend function.
   void reserveEntry(int pNum = 1) ;
 
-  PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
   GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
@@ -76,7 +76,7 @@ private:
   // instance to a PLT1 Entry.
   iterator m_PLTEntryIterator;
 
-  SymbolIndexType m_SymbolIndexMap;
+  SymbolIndexType m_PLTEntryMap;
 };
 
 } // namespace of mcld

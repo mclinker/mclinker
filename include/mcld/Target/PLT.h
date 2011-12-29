@@ -73,10 +73,10 @@ public:
   /// The empty entris are reserved for layout to adjust the fragment offset.
   virtual void reserveEntry(int pNum = 1) = 0;
 
-  /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
+  /// getPLTEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if the a filled entry with pSymbol existed, otherwise false.
-  virtual PLTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
+  virtual PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
 protected:
   LDSection* m_pSection;

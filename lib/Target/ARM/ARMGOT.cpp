@@ -39,6 +39,11 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   m_GeneralGOTIterator = m_SectionData.begin();
   ++m_GeneralGOTIterator;
   ++m_GeneralGOTIterator;
+
+  // Skip GOT0
+  m_GOTPLTIterator = m_SectionData.begin();
+  ++m_GOTPLTIterator;
+  ++m_GOTPLTIterator;
 }
 
 ARMGOT::~ARMGOT()
@@ -63,7 +68,7 @@ void ARMGOT::reserveEntry(const int pNum)
 
 GOTEntry* ARMGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry *&Entry = m_SymbolIndexMap[&pInfo];
+  GOTEntry *&Entry = m_GeneralGOTMap[&pInfo];
   pExist = 1;
 
   if (!Entry) {
