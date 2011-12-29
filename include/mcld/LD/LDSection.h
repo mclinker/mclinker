@@ -94,6 +94,9 @@ public:
   uint64_t addr() const
   { return m_Addr; }
 
+  size_t index() const
+  { return m_Index; }
+
   /// getInfoLink - return the InfoLink. When a section A needs the other section B
   /// during linking or loading, we say B is A's InfoLink section.
   /// In ELF, InfoLink section control the ElfNN_Shdr::sh_info.
@@ -154,6 +157,9 @@ public:
   void setInfoLink(const LDSection& pLinkInfo)
   { m_pInfoLink = &pLinkInfo; }
 
+  void setIndex(size_t pIndex)
+  { m_Index = pIndex; }
+
 private:
   std::string m_Name;
   uint32_t m_Kind;
@@ -168,6 +174,9 @@ private:
 
   // pointer to MCSectionData.
   llvm::MCSectionData* m_pSectionData;
+
+  // the index of the file
+  size_t m_Index;
 
 }; // end of LDSection
 
