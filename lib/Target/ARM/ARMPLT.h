@@ -70,7 +70,7 @@ public:
   void applyPLT1();
 
 private:
-  ARMGOT& m_GOTPLT;
+  ARMGOT& m_GOT;
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.

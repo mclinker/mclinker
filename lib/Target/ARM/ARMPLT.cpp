@@ -41,7 +41,7 @@ ARMPLT1::ARMPLT1() : PLTEntry(sizeof(arm_plt1)) {}
 ARMPLT::ARMPLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
                ARMGOT &pGOTPLT)
-  : PLT(pSection, pSectionData), m_GOTPLT(pGOTPLT), m_PLTEntryIterator() {
+  : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0();
   pSectionData.getFragmentList().push_back(plt0_entry);
 
@@ -65,15 +65,15 @@ void ARMPLT::reserveEntry(int pNum)
 
     m_pSectionData->getFragmentList().push_back(plt1_entry);
 
-    got_entry= new (std::nothrow) GOTEntry(0, m_GOTPLT.getEntrySize());
+    got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize());
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
 
-    m_GOTPLT.m_SectionData.getFragmentList().push_back(got_entry);
+    m_GOT.m_SectionData.getFragmentList().push_back(got_entry);
 
-    ++(m_GOTPLT.m_GOTPLTNum);
-    ++(m_GOTPLT.m_GeneralGOTIterator);
+    ++(m_GOT.m_GOTPLTNum);
+    ++(m_GOT.m_GeneralGOTIterator);
   }
 }
 
@@ -84,7 +84,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
    pExist = 1;
 
    if (!PLTEntry) {
-     GOTEntry *&GOTPLTEntry = m_GOTPLT.m_GOTPLTMap[&pSymbol];
+     GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
      assert(!GOTPLTEntry && "PLT entry and got.plt entry doesn't match!");
 
      pExist = 0;
@@ -92,10 +92,10 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      // This will skip PLT0.
      assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOTPLT.m_GOTPLTIterator);
+     ++(m_GOT.m_GOTPLTIterator);
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOTPLT.m_GOTPLTIterator)));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
    }
 
    return PLTEntry;
@@ -103,7 +103,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 
 GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-   GOTEntry *&GOTPLTEntry = m_GOTPLT.m_GOTPLTMap[&pSymbol];
+   GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
 
    pExist = 1;
 
@@ -116,10 +116,10 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      // This will skip PLT0.
      assert((++m_PLTEntryIterator) != m_pSectionData->end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOTPLT.m_GOTPLTIterator);
+     ++(m_GOT.m_GOTPLTIterator);
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOTPLT.m_GOTPLTIterator)));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
    }
 
    return GOTPLTEntry;
@@ -149,7 +149,7 @@ void ARMPLT::applyPLT0() {
   assert(plt_base && ".plt base address is NULL!");
 
   uint64_t got_base =
-    llvm::cast<LDSection>(m_GOTPLT.getSectionData().getSection()).offset();
+    llvm::cast<LDSection>(m_GOT.getSectionData().getSection()).offset();
   assert(got_base && ".got base address is NULL!");
 
   uint32_t offset = 0;
@@ -185,14 +185,14 @@ void ARMPLT::applyPLT1() {
   assert(plt_base && ".plt base address is NULL!");
 
   uint64_t got_base =
-    llvm::cast<LDSection>(m_GOTPLT.getSectionData().getSection()).offset();
+    llvm::cast<LDSection>(m_GOT.getSectionData().getSection()).offset();
   assert(got_base && ".got base address is NULL!");
 
   ARMPLT::iterator it = m_pSectionData->begin();
   ARMPLT::iterator ie = m_pSectionData->end();
   assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
-  uint64_t GOTEntrySize = m_GOTPLT.getEntrySize();
+  uint64_t GOTEntrySize = m_GOT.getEntrySize();
   uint64_t GOTEntryAddress =
     got_base +  GOTEntrySize * 3;
 
@@ -236,8 +236,8 @@ void ARMPLT::applyPLT1() {
   }
 
   ARMGOT::const_iterator
-  gotplt_it = m_GOTPLT.getSectionData().getFragmentList().begin(),
-  gotplt_ie = m_GOTPLT.getSectionData().getFragmentList().end();
+  gotplt_it = m_GOT.getSectionData().getFragmentList().begin(),
+  gotplt_ie = m_GOT.getSectionData().getFragmentList().end();
 
   // Skip GOT0
   ++gotplt_it;
