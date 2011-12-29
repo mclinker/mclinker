@@ -38,6 +38,14 @@ class SizeTraits<64>
   typedef int64_t  SWord;
 };
 
+/// alignAddress - helper function to align an address
+inline uint64_t alignAddress(uint64_t pAddr, uint64_t pAlign)
+{
+  if (pAlign != 0)
+    pAddr = (pAddr + pAlign - 1) &~ (pAlign - 1);
+  return pAddr;
+}
+
 } // namespace of mcld
 
 #endif
