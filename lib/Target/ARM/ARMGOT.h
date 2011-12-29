@@ -50,8 +50,6 @@ public:
 
   void applyGOT0(uint64_t pAddress);
 
-  void applyGOTPLT(uint64_t pAddress);
-
   iterator begin();
 
   const_iterator begin() const;

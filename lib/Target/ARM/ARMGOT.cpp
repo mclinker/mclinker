@@ -90,19 +90,6 @@ void ARMGOT::applyGOT0(const uint64_t pAddress)
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
-void ARMGOT::applyGOTPLT(const uint64_t pAddress)
-{
-  iterator it = m_SectionData.getFragmentList().begin();
-
-  // Skip GOT0
-  ++it;
-  ++it;
-  ++it;
-
-  for (int i = 0; i < m_GOTPLTNum; ++i)
-    llvm::cast<GOTEntry>(*(it)).setContent(pAddress);
-}
-
 ARMGOT::iterator ARMGOT::begin()
 {
   return m_SectionData.getFragmentList().begin();

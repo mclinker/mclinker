@@ -204,7 +204,7 @@ void ARMPLT::applyPLT1() {
   ARMPLT1* plt1 = 0;
 
   unsigned int EntryCounter = 0;
-  uint64_t Offset;
+  uint64_t Offset = 0;
 
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));
