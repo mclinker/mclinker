@@ -173,7 +173,7 @@ ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
 }
 
 
-
+static
 PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
                                   ARMRelocationFactory& pParent)
 {
