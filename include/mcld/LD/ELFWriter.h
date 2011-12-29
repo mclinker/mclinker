@@ -47,17 +47,15 @@ public:
   const GNULDBackend& target() const
   { return f_Backend; }
 
-  virtual FileOffset writeELF32Header(const MCLDInfo& pInfo,
-                                      const Layout& pLayout,
-                                      const GNULDBackend& pBackend,
-                                      Output& pOutput,
-                                      FileOffset pShdrOffset) const;
+  virtual void writeELF32Header(const MCLDInfo& pInfo,
+                                const Layout& pLayout,
+                                const GNULDBackend& pBackend,
+                                Output& pOutput) const;
 
-  virtual FileOffset writeELF64Header(const MCLDInfo& pInfo,
-                                      const Layout& pLayout,
-                                      const GNULDBackend& pBackend,
-                                      Output& pOutput,
-                                      FileOffset pShdrOffset) const;
+  virtual void writeELF64Header(const MCLDInfo& pInfo,
+                                const Layout& pLayout,
+                                const GNULDBackend& pBackend,
+                                Output& pOutput) const;
 
   virtual uint64_t getEntryPoint(const MCLDInfo& pInfo,
                                  const Layout& pLayout,
@@ -65,24 +63,18 @@ public:
                                  const Output& pOutput) const;
 
 protected:
-  FileOffset emitELF32SectionHeader(Output& pOutput,
-                                    MCLinker& pLinker,
-                                    FileOffset pStartOffset) const;
+  void emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const;
 
-  FileOffset emitELF64SectionHeader(Output& pOutput,
-                                    MCLinker& pLinker,
-                                    FileOffset pStartOffset) const;
+  void emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const;
 
   // emitShStrTab - emit .shstrtab
-  FileOffset emitShStrTab(Output& pOutput,
-                          LDSection& pShStrSect,
-                          FileOffset pStartOffset) const;
+  void emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const;
 
-  FileOffset emitSectionData(const LDSection& pSection,
-                             MemoryRegion& pRegion) const;
+  void emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const;
 
-  FileOffset emitRelocation(const LDSection& pSection,
-                            MemoryRegion& pRegion) const;
+  void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
+
+  void emitRelocation(const LDSection& pSection, MemoryRegion& pRegion) const;
 
   FileOffset emitRelEntry(const Relocation& pRelocation,
                           MemoryRegion& pRegion,
@@ -101,6 +93,10 @@ private:
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_info
   uint64_t getSectInfo(const LDSection& pSection, const Output& pOutput) const;
+
+  uint64_t getELF32LastStartOffset(const Output& pOutput) const;
+
+  uint64_t getELF64LastStartOffset(const Output& pOutput) const;
 
 protected:
   GNULDBackend& f_Backend;

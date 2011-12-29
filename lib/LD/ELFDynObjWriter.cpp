@@ -20,6 +20,9 @@
 using namespace llvm;
 using namespace mcld;
 
+#include <iostream>
+using namespace std;
+
 //==========================
 // ELFDynObjWriter
 ELFDynObjWriter::ELFDynObjWriter(GNULDBackend& pBackend, MCLinker& pLinker)
@@ -38,12 +41,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
 {
   // FIXME:
   // Write out ELF program header
-
-  // FIXME:
-  // Write out ELF segments
-
-  // Write out ELF sections in the segment
-  uint64_t cur_offset = target().sectionStartOffset();
 
   // Write out regular ELF sections
   unsigned int secIdx = 0;
@@ -89,17 +86,14 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     // write out sections with data
     switch(sect->kind()) {
       case LDFileFormat::Regular: {
-        cur_offset += emitSectionData(*sect, *region);
+        emitSectionData(*sect, *region);
         break;
       }
       case LDFileFormat::Relocation:
-        cur_offset += emitRelocation(*sect, *region);
+        emitRelocation(*sect, *region);
         break;
       case LDFileFormat::Target:
-        cur_offset += target().emitSectionData(pOutput,
-                                               *sect,
-                                               m_Linker.getLDInfo(),
-                                               *region);
+        target().emitSectionData(pOutput, *sect, m_Linker.getLDInfo(), *region);
         break;
       default:
         continue;
@@ -107,41 +101,37 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
   }
 
   // Write out name pool sections: .dynsym, .dynstr, .hash
-  cur_offset += target().emitDynNamePools(pOutput, m_Linker.getLDInfo());
+  target().emitDynNamePools(pOutput, m_Linker.getLDInfo());
 
   // Write out name pool sections: .symtab, .strtab
   // FIXME: remove this after testing.
-  cur_offset += target().emitRegNamePools(pOutput, m_Linker.getLDInfo());
+  target().emitRegNamePools(pOutput, m_Linker.getLDInfo());
 
   // FIXME:
   // Write out dynamic section .dynamic
 
   // Write out .shstrtab
-  m_Linker.createSectHdr(".shstrtab",
-                         LDFileFormat::NamePool,
-                         llvm::ELF::SHT_STRTAB,
-                         0x0);
-  LDSection* shstrtab = pOutput.context()->getSection(".shstrtab");
-  cur_offset += emitShStrTab(pOutput, *shstrtab, cur_offset);
-
-  // Write out ELF header and section header table
+  // Write out ELF header
+  // Write out section header table
   if (32 == target().bitclass()) {
+    emitELF32ShStrTab(pOutput, m_Linker);
+
     writeELF32Header(m_Linker.getLDInfo(),
                      m_Linker.getLayout(),
                      target(),
-                     pOutput,
-                     cur_offset);
+                     pOutput);
 
-    cur_offset += emitELF32SectionHeader(pOutput, m_Linker, cur_offset);
+    emitELF32SectionHeader(pOutput, m_Linker);
   }
   else if (64 == target().bitclass()) {
+    emitELF64ShStrTab(pOutput, m_Linker);
+
     writeELF64Header(m_Linker.getLDInfo(),
                      m_Linker.getLayout(),
                      target(),
-                     pOutput,
-                     cur_offset);
+                     pOutput);
 
-    cur_offset += emitELF64SectionHeader(pOutput, m_Linker, cur_offset);
+    emitELF64SectionHeader(pOutput, m_Linker);
   }
   else
     return make_error_code(errc::not_supported);

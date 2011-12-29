@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ELF.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
@@ -16,118 +18,120 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <cstdlib>
+#include <iostream>
 
-using namespace llvm;
+using namespace llvm::ELF;
 using namespace mcld;
 
-ELFWriter::FileOffset ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
-                                                  const Layout& pLayout,
-                                                  const GNULDBackend& pBackend,
-                                                  Output& pOutput,
-                                                  FileOffset pShdrOffset) const
+/// writeELF32Header - write ELF header
+void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
+                                 const Layout& pLayout,
+                                 const GNULDBackend& pBackend,
+                                 Output& pOutput) const
 {
     assert(pOutput.hasMemArea());
 
-    ELF::Elf32_Ehdr elf_header;
+    // ELF header must start from 0x0
+    MemoryRegion *region = pOutput.memArea()->request(0,
+                                                      sizeof(Elf32_Ehdr),
+                                                      true);
+    Elf32_Ehdr* header = (Elf32_Ehdr*)region->start();
 
-    memcpy(elf_header.e_ident, ELF::ElfMagic, strlen(ELF::ElfMagic));
+    memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
 
-    elf_header.e_ident[ELF::EI_CLASS] = ELF::ELFCLASS32;
-    elf_header.e_ident[ELF::EI_DATA] = pBackend.isLittleEndian() ?
-                                                         ELF::ELFDATA2LSB : ELF::ELFDATA2MSB;
-    elf_header.e_ident[ELF::EI_VERSION] = pBackend.ELFVersion();
-    elf_header.e_ident[ELF::EI_OSABI] = pBackend.OSABI();
-    elf_header.e_ident[ELF::EI_ABIVERSION] = pBackend.ABIVersion();
+    header->e_ident[EI_CLASS]      = ELFCLASS32;
+    header->e_ident[EI_DATA]       = pBackend.isLittleEndian()?
+                                       ELFDATA2LSB : ELFDATA2MSB;
+    header->e_ident[EI_VERSION]    = pBackend.ELFVersion();
+    header->e_ident[EI_OSABI]      = pBackend.OSABI();
+    header->e_ident[EI_ABIVERSION] = pBackend.ABIVersion();
 
     // FIXME: add processor-specific and core file types.
     switch(pOutput.type()) {
     case Output::Object:
-      elf_header.e_type = ELF::ET_REL;
+      header->e_type = ET_REL;
       break;
     case Output::DynObj:
-      elf_header.e_type = ELF::ET_DYN;
+      header->e_type = ET_DYN;
       break;
     case Output::Exec:
-      elf_header.e_type = ELF::ET_EXEC;
+      header->e_type = ET_EXEC;
       break;
     default:
-      errs() << "unspported output file type: " << pOutput.type() << ".\n";
-      elf_header.e_type = ELF::ET_NONE;
+      llvm::errs() << "unspported output file type: " << pOutput.type() << ".\n";
+      header->e_type = ET_NONE;
     }
-    elf_header.e_machine   = pBackend.machine();
-    elf_header.e_version   = elf_header.e_ident[ELF::EI_VERSION];
-    elf_header.e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
-    elf_header.e_phoff     = sizeof(ELF::Elf32_Ehdr);
-    elf_header.e_shoff     = pShdrOffset;
-    elf_header.e_flags     = pBackend.flags();
-    elf_header.e_ehsize    = sizeof(ELF::Elf32_Ehdr);
-    elf_header.e_phentsize = sizeof(ELF::Elf32_Phdr);
-    elf_header.e_phnum     = pLayout.numOfSegments();
-    elf_header.e_shentsize = sizeof(ELF::Elf32_Shdr);
-    elf_header.e_shnum     = pOutput.context()->numOfSections();
-    elf_header.e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
+    header->e_machine   = pBackend.machine();
+    header->e_version   = header->e_ident[EI_VERSION];
+    header->e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
+    header->e_phoff     = sizeof(Elf32_Ehdr);
+    header->e_shoff     = getELF32LastStartOffset(pOutput);
+    header->e_flags     = pBackend.flags();
+    header->e_ehsize    = sizeof(Elf32_Ehdr);
+    header->e_phentsize = sizeof(Elf32_Phdr);
+    header->e_phnum     = pLayout.numOfSegments();
+    header->e_shentsize = sizeof(Elf32_Shdr);
+    header->e_shnum     = pOutput.context()->numOfSections();
+    header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
 
-    MemoryRegion *mr = pOutput.memArea()->request(0,
-                                                  sizeof(ELF::Elf32_Ehdr),
-                                                  true);
-    memcpy(mr->start(), &elf_header, sizeof(ELF::Elf32_Ehdr));
-    mr->sync();
-    return sizeof(ELF::Elf32_Ehdr);
+    region->sync();
 }
 
-ELFWriter::FileOffset ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
-                                                  const Layout& pLayout,
-                                                  const GNULDBackend& pBackend,
-                                                  Output& pOutput,
-                                                  FileOffset pShdrOffset) const
+/// writeELF64Header - write ELF header
+void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
+                                 const Layout& pLayout,
+                                 const GNULDBackend& pBackend,
+                                 Output& pOutput) const
 {
     assert(pOutput.hasMemArea());
 
-    ELF::Elf64_Ehdr elf_header;
+    // ELF header must start from 0x0
+    MemoryRegion *region = pOutput.memArea()->request(0,
+                                                      sizeof(Elf64_Ehdr),
+                                                      true);
+    Elf64_Ehdr* header = (Elf64_Ehdr*)region->start();
 
-    memcpy(elf_header.e_ident, ELF::ElfMagic, strlen(ELF::ElfMagic));
+    memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
 
-    elf_header.e_ident[ELF::EI_CLASS] = ELF::ELFCLASS64;
-    elf_header.e_ident[ELF::EI_DATA] = pBackend.isLittleEndian() ?
-                                                         ELF::ELFDATA2LSB : ELF::ELFDATA2MSB;
-    elf_header.e_ident[ELF::EI_VERSION] = pBackend.ELFVersion();
-    elf_header.e_ident[ELF::EI_OSABI] = pBackend.OSABI();
-    elf_header.e_ident[ELF::EI_ABIVERSION] = pBackend.ABIVersion();
+    header->e_ident[EI_CLASS]      = ELFCLASS64;
+    header->e_ident[EI_DATA]       = pBackend.isLittleEndian()?
+                                       ELFDATA2LSB : ELFDATA2MSB;
+    header->e_ident[EI_VERSION]    = pBackend.ELFVersion();
+    header->e_ident[EI_OSABI]      = pBackend.OSABI();
+    header->e_ident[EI_ABIVERSION] = pBackend.ABIVersion();
 
     // FIXME: add processor-specific and core file types.
     switch(pOutput.type()) {
     case Output::Object:
-      elf_header.e_type = ELF::ET_REL;
+      header->e_type = ET_REL;
       break;
     case Output::DynObj:
-      elf_header.e_type = ELF::ET_DYN;
+      header->e_type = ET_DYN;
       break;
     case Output::Exec:
-      elf_header.e_type = ELF::ET_EXEC;
+      header->e_type = ET_EXEC;
       break;
     default:
-      errs() << "unspported output file type: " << pOutput.type() << ".\n";
-      elf_header.e_type = ELF::ET_NONE;
+      llvm::errs() << "unspported output file type: " << pOutput.type() << ".\n";
+      header->e_type = ET_NONE;
     }
-    elf_header.e_machine   = pBackend.machine();
-    elf_header.e_version   = elf_header.e_ident[ELF::EI_VERSION];
-    elf_header.e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
-    elf_header.e_phoff     = sizeof(ELF::Elf64_Ehdr);
-    elf_header.e_shoff     = pShdrOffset;
-    elf_header.e_flags     = pBackend.flags();
-    elf_header.e_ehsize    = sizeof(ELF::Elf64_Ehdr);
-    elf_header.e_phentsize = sizeof(ELF::Elf64_Phdr);
-    elf_header.e_phnum     = pLayout.numOfSegments();
-    elf_header.e_shentsize = sizeof(ELF::Elf64_Shdr);
-    elf_header.e_shnum     = pOutput.context()->numOfSections();
-    elf_header.e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
+    header->e_machine   = pBackend.machine();
+    header->e_version   = header->e_ident[EI_VERSION];
+    header->e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
+    header->e_phoff     = sizeof(Elf64_Ehdr);
+    header->e_shoff     = getELF64LastStartOffset(pOutput);
+    header->e_flags     = pBackend.flags();
+    header->e_ehsize    = sizeof(Elf64_Ehdr);
+    header->e_phentsize = sizeof(Elf64_Phdr);
+    header->e_phnum     = pLayout.numOfSegments();
+    header->e_shentsize = sizeof(Elf64_Shdr);
+    header->e_shnum     = pOutput.context()->numOfSections();
+    header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
 
-    MemoryRegion *mr = pOutput.memArea()->request(0, sizeof(ELF::Elf64_Ehdr), true);
-    memcpy(mr->start(), &elf_header, sizeof(ELF::Elf64_Ehdr));
-    mr->sync();
-    return sizeof(ELF::Elf64_Ehdr);
+    region->sync();
 }
 
+/// getEntryPoint
 uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
                                   const Layout& pLayout,
                                   const GNULDBackend& pBackend,
@@ -175,49 +179,18 @@ uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
   return result;
 }
 
-ELFWriter::FileOffset ELFWriter::emitShStrTab(Output& pOutput,
-                                              LDSection& pShStrSect,
-                                              FileOffset pStartOffset) const
-
-{
-  // compute size
-  unsigned int shstrsize = 0;
-  LDContext::const_sect_iterator section, sectEnd = pOutput.context()->sectEnd();
-  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
-    shstrsize += (*section)->name().size() + 1;
-  }
-
-  // write out data
-  MemoryRegion* region = pOutput.memArea()->request(pStartOffset, shstrsize, true);
-  unsigned char* data = region->start();
-  shstrsize = 0;
-  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
-    strcpy((char*)(data + shstrsize), (*section)->name().c_str());
-    shstrsize += (*section)->name().size() + 1;
-  }
-  region->sync();
-
-  pShStrSect.setKind(LDFileFormat::NamePool);
-  pShStrSect.setType(llvm::ELF::SHT_STRTAB);
-  pShStrSect.setFlag(0x0);
-  pShStrSect.setSize(shstrsize);
-  pShStrSect.setOffset(pStartOffset);
-  pShStrSect.setAddr(0x0);
-  return shstrsize;
-}
-
-ELFWriter::FileOffset ELFWriter::emitELF32SectionHeader(Output& pOutput,
-                                                        MCLinker& pLinker,
-                                                        FileOffset pStartOffset) const
-
+/// emitELF32SectionHeader - emit Elf32_Shdr
+void
+ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
 {
   // emit section header
   unsigned int sectNum = pOutput.context()->numOfSections();
-  unsigned int header_size = sizeof(llvm::ELF::Elf32_Shdr) * sectNum;
-  MemoryRegion* header_region = pOutput.memArea()->request(pStartOffset,
-                                                           header_size,
-                                                           true);
-  llvm::ELF::Elf32_Shdr* shdr = (llvm::ELF::Elf32_Shdr*)header_region->start();
+  unsigned int header_size = sizeof(Elf32_Shdr) * sectNum;
+  MemoryRegion* region = pOutput.memArea()->request(
+                                   getELF32LastStartOffset(pOutput),
+                                   header_size,
+                                   true);
+  Elf32_Shdr* shdr = (Elf32_Shdr*)region->start();
 
   // Iterate the SectionTable in LDContext
   unsigned int sectIdx = 0;
@@ -231,8 +204,8 @@ ELFWriter::FileOffset ELFWriter::emitELF32SectionHeader(Output& pOutput,
     shdr[sectIdx].sh_offset    = ld_sect->offset();
     shdr[sectIdx].sh_size      = ld_sect->size();
     shdr[sectIdx].sh_addralign = (ld_sect->hasSectionData())?
-                                   ld_sect->getSectionData()->getAlignment():
-                                   0x0;
+                                    ld_sect->getSectionData()->getAlignment():
+                                    0x0;
 
     shdr[sectIdx].sh_entsize   = getELF32SectEntrySize(*ld_sect);
     shdr[sectIdx].sh_link      = getSectLink(*ld_sect, pOutput);
@@ -241,21 +214,21 @@ ELFWriter::FileOffset ELFWriter::emitELF32SectionHeader(Output& pOutput,
     // adjust strshidx
     shstridx += ld_sect->name().size() + 1;
   }
-  header_region->sync();
-  return header_size;
+  region->sync();
 }
 
-ELFWriter::FileOffset ELFWriter::emitELF64SectionHeader(Output& pOutput,
-                                                        MCLinker& pLinker,
-                                                        FileOffset pStartOffset) const
+/// emitELF64SectionHeader - emit Elf64_Shdr
+void
+ELFWriter::emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const
 {
   // emit section header
   unsigned int sectNum = pOutput.context()->numOfSections();
-  unsigned int header_size = sizeof(llvm::ELF::Elf64_Shdr) * sectNum;
-  MemoryRegion* header_region = pOutput.memArea()->request(pStartOffset,
-                                                           header_size,
-                                                           true);
-  llvm::ELF::Elf64_Shdr* shdr = (llvm::ELF::Elf64_Shdr*)header_region->start();
+  unsigned int header_size = sizeof(Elf64_Shdr) * sectNum;
+  MemoryRegion* region = pOutput.memArea()->request(
+                                     getELF64LastStartOffset(pOutput),
+                                     header_size,
+                                     true);
+  Elf64_Shdr* shdr = (Elf64_Shdr*)region->start();
 
   // Iterate the SectionTable in LDContext
   unsigned int sectIdx = 0;
@@ -279,34 +252,121 @@ ELFWriter::FileOffset ELFWriter::emitELF64SectionHeader(Output& pOutput,
     // adjust strshidx
     shstridx += ld_sect->name().size() + 1;
   }
-  header_region->sync();
-  return header_size;
+  region->sync();
 }
 
-ELFWriter::FileOffset ELFWriter::emitSectionData(const LDSection& pSection,
-                                                 MemoryRegion& pRegion) const
+/// emitELF32ShStrTab - emit section string table
+void ELFWriter::emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const
+{
+  uint64_t shstroffset = getELF32LastStartOffset(pOutput);
+
+  // get shstrtab
+  LDSection& shstrtab = pLinker.getOrCreateOutputSectHdr(".shstrtab",
+                                                         LDFileFormat::NamePool,
+                                                         SHT_STRTAB,
+                                                         0x0);
+  if (0 != shstrtab.size())
+    llvm::report_fatal_error(".shstrtab has been set.\n");
+
+  // compute size
+  unsigned int shstrsize = 0;
+  LDContext::const_sect_iterator section, sectEnd = pOutput.context()->sectEnd();
+  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
+    shstrsize += (*section)->name().size() + 1;
+  }
+
+  shstrtab.setSize(shstrsize);
+  shstrtab.setOffset(shstroffset);
+
+  // write out data
+  MemoryRegion* region = pOutput.memArea()->request(shstrtab.offset(),
+                                                    shstrtab.size(),
+                                                    true);
+  unsigned char* data = region->start();
+  shstrsize = 0;
+  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
+    strcpy((char*)(data + shstrsize), (*section)->name().c_str());
+    shstrsize += (*section)->name().size() + 1;
+  }
+  region->sync();
+
+  shstrtab.setKind(LDFileFormat::NamePool);
+  shstrtab.setType(llvm::ELF::SHT_STRTAB);
+  shstrtab.setFlag(0x0);
+  shstrtab.setAddr(0x0);
+}
+
+
+/// emitELF64ShStrTab - emit section string table
+void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
+{
+  uint64_t shstroffset = getELF64LastStartOffset(pOutput);
+
+  // get shstrtab
+  LDSection& shstrtab = pLinker.getOrCreateOutputSectHdr(".shstrtab",
+                                                         LDFileFormat::NamePool,
+                                                         SHT_STRTAB,
+                                                         0x0);
+  if (0 != shstrtab.size())
+    llvm::report_fatal_error(".shstrtab has been set.\n");
+
+  // compute offset
+
+  // compute size
+  unsigned int shstrsize = 0;
+  LDContext::const_sect_iterator section, sectEnd = pOutput.context()->sectEnd();
+  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
+    shstrsize += (*section)->name().size() + 1;
+  }
+
+  shstrtab.setSize(shstrsize);
+  shstrtab.setOffset(shstroffset);
+
+  // write out data
+  MemoryRegion* region = pOutput.memArea()->request(shstrtab.offset(),
+                                                    shstrtab.size(),
+                                                    true);
+  unsigned char* data = region->start();
+  shstrsize = 0;
+  for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
+    strcpy((char*)(data + shstrsize), (*section)->name().c_str());
+    shstrsize += (*section)->name().size() + 1;
+  }
+  region->sync();
+
+  shstrtab.setKind(LDFileFormat::NamePool);
+  shstrtab.setType(llvm::ELF::SHT_STRTAB);
+  shstrtab.setFlag(0x0);
+  shstrtab.setAddr(0x0);
+}
+
+/// emitSectionData
+void
+ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const
+{
+  pRegion.sync();
+}
+
+/// emitRelocation 
+void
+ELFWriter::emitRelocation(const LDSection& pSection, MemoryRegion& pRegion) const
 {
   // TODO
-  return 0x0;
+  pRegion.sync();
 }
-  
-ELFWriter::FileOffset ELFWriter::emitRelocation(const LDSection& pSection,
-                                                MemoryRegion& pRegion) const
-{
-  // TODO
-  return 0x0;
-}
-  
+
+/// emitRelEntry 
 ELFWriter::FileOffset ELFWriter::emitRelEntry(const Relocation& pRelocation,
                                               MemoryRegion& pRegion,
                                               FileOffset pOffset,
                                               bool pIsRela) const
 {
   // TODO
+  pRegion.sync();
   return 0x0;
 }
 
-// getSectEntrySize - compute ElfXX_Shdr::sh_entsize
+/// getSectEntrySize - compute ElfXX_Shdr::sh_entsize
 uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
 {
   if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
@@ -321,6 +381,7 @@ uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
   return 0x0;
 }
 
+/// getELF64SectEntrySize
 uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
 {
   if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
@@ -335,7 +396,7 @@ uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
   return 0x0;
 }
 
-// getSectEntrySize - compute ElfXX_Shdr::sh_link
+/// getSectEntrySize - compute ElfXX_Shdr::sh_link
 uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput) const
 {
   const LDContext* context = pOutput.context();
@@ -353,12 +414,27 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput
   return llvm::ELF::SHN_UNDEF;
 }
 
-// getSectEntrySize - compute ElfXX_Shdr::sh_info
+/// getSectEntrySize - compute ElfXX_Shdr::sh_info
 uint64_t ELFWriter::getSectInfo(const LDSection& pSection, const Output& pOutput) const
 {
   const LDSection* info_link = pSection.getInfoLink();
   if (NULL == info_link)
     return 0x0;
   return pOutput.context()->getSectionIdx(info_link->name());
+}
+
+/// getLastStartOffset
+uint64_t ELFWriter::getELF32LastStartOffset(const Output& pOutput) const
+{
+  LDSection* lastSect = pOutput.context()->getSectionTable().back();
+  assert(lastSect != NULL);
+  return Align<32>(lastSect->offset() + lastSect->size());
+}
+
+uint64_t ELFWriter::getELF64LastStartOffset(const Output& pOutput) const
+{
+  LDSection* lastSect = pOutput.context()->getSectionTable().back();
+  assert(lastSect != NULL);
+  return Align<64>(lastSect->offset() + lastSect->size());
 }
 
