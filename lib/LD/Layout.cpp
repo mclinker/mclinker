@@ -227,9 +227,11 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
 
     // Backend defines the section start offset for section 1.
     if (LDFileFormat::Null != prev->kind())
-      offset = alignAddress(prev->offset() + prev->size(), pBackend.bitclass());
+      offset = prev->offset() + prev->size();
     else
-      offset = alignAddress(pBackend.sectionStartOffset(), pBackend.bitclass());
+      offset = pBackend.sectionStartOffset();
+
+   alignAddress(offset, pBackend.bitclass());
 
     // FIXME: if .bss is laid out, set its addr to 0
     if (0 == isBSSLaidOut)
