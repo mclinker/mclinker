@@ -12,8 +12,8 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/LD/LDSection.h"
-#include <llvm/MC/MCAssembler.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/MC/MCTargetFragment.h>
 #include <llvm/ADT/ilist.h>
 
 namespace mcld
@@ -23,7 +23,7 @@ class ResolveInfo;
 
 /** \class PLTEntry
  */
-class PLTEntry : public llvm::MCFragment
+class PLTEntry : public MCTargetFragment
 {
 public:
   PLTEntry(const unsigned int size);
@@ -49,8 +49,12 @@ public:
     return Offset;
   }
 
+  uint64_t getSize() const {
+    return m_EntrySize;
+  }
+
 protected:
-  const unsigned int m_EntrySize;
+  const uint64_t m_EntrySize;
   unsigned char* m_pContent;
 };
 

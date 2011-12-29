@@ -65,7 +65,7 @@ void ARMPLT::reserveEntry(int pNum)
 
     m_pSectionData->getFragmentList().push_back(plt1_entry);
 
-    got_entry= new (std::nothrow) GOTEntry(0);
+    got_entry= new (std::nothrow) GOTEntry(0, m_GOTPLT.getEntrySize());
 
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
@@ -168,7 +168,7 @@ void ARMPLT::applyPLT1() {
   ARMPLT::iterator ie = m_pSectionData->end();
   assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
-  unsigned int GOTEntrySize = m_GOTPLT.getEntryBytes();
+  uint64_t GOTEntrySize = m_GOTPLT.getEntrySize();
   uint64_t GOTEntryAddress =
     got_base +  GOTEntrySize * 3;
 
@@ -176,7 +176,7 @@ void ARMPLT::applyPLT1() {
     plt_base + llvm::cast<ARMPLT0>((*it)).getEntrySize() + 8; //Offset of PLT0
 
   ++it; //skip PLT0
-  unsigned int PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
+  uint64_t PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
   ARMPLT1* plt1 = 0;
 
   unsigned int EntryCounter = 0;

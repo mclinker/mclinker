@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDSection.h>
 #include <mcld/Target/GOT.h>
 #include <cstring>
 #include <cstdlib>
@@ -15,9 +14,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOTEntry
-GOTEntry::GOTEntry(uint64_t pContent)
-  : llvm::MCFragment(llvm::MCFragment::FT_Target, 0),
-    f_Content(pContent) {
+GOTEntry::GOTEntry(uint64_t pContent, uint64_t pEntrySize)
+  : MCTargetFragment(llvm::MCFragment::FT_Target, 0),
+    f_Content(pContent), m_EntrySize(pEntrySize) {
 }
 
 GOTEntry::~GOTEntry()
@@ -28,18 +27,18 @@ GOTEntry::~GOTEntry()
 // GOT
 GOT::GOT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
-         const unsigned int pEntryBytes)
+         const unsigned int pEntrySize)
   : m_Section(pSection),
     m_SectionData(pSectionData),
-    f_EntryBytes(pEntryBytes) {
+    f_EntrySize(pEntrySize) {
 }
 
 GOT::~GOT()
 {
 }
 
-unsigned int GOT::entryBytes() const
+uint64_t GOT::getEntrySize() const
 {
-  return f_EntryBytes;
+  return f_EntrySize;
 }
 

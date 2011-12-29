@@ -11,19 +11,23 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <new>
 
+namespace {
+  const uint64_t ARMGOTEntrySize = 4;
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
-             : GOT(pSection, pSectionData, 4 /*ARM uses 32-bit GOT entry */),
+             : GOT(pSection, pSectionData, ARMGOTEntrySize),
                m_GOTPLTNum(0), m_GeneralGOTNum(0), m_GeneralGOTIterator()
 {
   GOTEntry* Entry = 0;
 
   // Create GOT0 entries.
   for (int i = 0; i < 3; i++) {
-    Entry = new (std::nothrow) GOTEntry(0);
+    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize);
 
     if (!Entry)
       llvm::report_fatal_error("Allocating GOT0 entries failed!");
@@ -46,7 +50,7 @@ void ARMGOT::reserveEntry(const int pNum)
   GOTEntry* Entry = 0;
 
   for (int i = 0; i < pNum; i++) {
-    Entry = new (std::nothrow) GOTEntry(0);
+    Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize);
 
     if (!Entry)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");

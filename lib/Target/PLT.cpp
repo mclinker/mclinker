@@ -16,7 +16,7 @@ class GOT;
 // PLTEntry
 PLTEntry::PLTEntry(const unsigned int size)
   : m_EntrySize(size), m_pContent(0),
-    llvm::MCFragment(llvm::MCFragment::FT_Target)
+    MCTargetFragment(llvm::MCFragment::FT_Target)
 {
 }
 

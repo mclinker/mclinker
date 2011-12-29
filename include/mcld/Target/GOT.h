@@ -11,8 +11,9 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/LD/LDSection.h>
+#include <mcld/MC/MCTargetFragment.h>
 
 namespace mcld
 {
@@ -23,10 +24,10 @@ class ResolveInfo;
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
  */
-class GOTEntry : public llvm::MCFragment
+class GOTEntry : public MCTargetFragment
 {
 public:
-  explicit GOTEntry(uint64_t pContent);
+  explicit GOTEntry(uint64_t pContent, uint64_t pEntrySize);
 
   virtual ~GOTEntry();
 
@@ -46,8 +47,14 @@ public:
   uint64_t offset() const
   { return Offset; }
 
+  // Override pure virtual function
+  uint64_t getSize() const {
+    return 0;
+  }
+
 protected:
   uint64_t f_Content;
+  uint64_t m_EntrySize;
 };
 
 /** \class GOT
@@ -64,7 +71,7 @@ public:
   virtual ~GOT();
 
   /// entrySize - the number of bytes per entry
-  unsigned int entryBytes() const;
+  uint64_t getEntrySize() const;
 
   const LDSection& getSection() const
   { return m_Section; }
@@ -85,14 +92,10 @@ public:
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
   virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
 
-  const unsigned int getEntryBytes() const {
-    return f_EntryBytes;
-  }
-
 protected:
   LDSection& m_Section;
   llvm::MCSectionData& m_SectionData;
-  const unsigned int f_EntryBytes;
+  const uint64_t f_EntrySize;
 };
 
 } // namespace of mcld
