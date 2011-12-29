@@ -437,6 +437,10 @@ uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
 uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput) const
 {
   const LDContext* context = pOutput.context();
+  if (llvm::ELF::SHT_SYMTAB == pSection.type())
+    return context->getSectionIdx(".strtab");
+  if (llvm::ELF::SHT_DYNSYM == pSection.type())
+    return context->getSectionIdx(".dynstr");
   if (llvm::ELF::SHT_DYNAMIC == pSection.type())
     return context->getSectionIdx(".dynstr");
   if (llvm::ELF::SHT_HASH == pSection.type())
@@ -457,7 +461,7 @@ uint64_t ELFWriter::getSectInfo(const LDSection& pSection, const Output& pOutput
   const LDSection* info_link = pSection.getInfoLink();
   if (NULL == info_link)
     return 0x0;
-  return pOutput.context()->getSectionIdx(info_link->name());
+  return info_link->index();
 }
 
 /// getLastStartOffset
