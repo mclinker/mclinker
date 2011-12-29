@@ -81,6 +81,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
     output_sym->setFragmentRef(pFragmentRef);
+    resolved_result.info->setSymPtr(output_sym);
     m_Output.symtab().push_back(output_sym);
   }
   return input_sym;
@@ -117,6 +118,8 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   output_sym->setResolveInfo(*resolved_info);
   output_sym->setFragmentRef(pFragmentRef);
   m_Output.symtab().push_back(output_sym);
+
+  resolved_info->setSymPtr(output_sym);
 
   return input_sym;
 }
@@ -166,6 +169,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
     output_sym->setFragmentRef(pFragmentRef);
+    resolved_result.info->setSymPtr(output_sym);
     m_Output.symtab().push_back(output_sym);
   }
   else {
