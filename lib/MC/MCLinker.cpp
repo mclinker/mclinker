@@ -206,3 +206,8 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   return NULL;
 }
 
+bool MCLinker::layout()
+{
+  return m_Layout.layout(m_Output, m_Backend);
+}
+

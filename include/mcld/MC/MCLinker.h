@@ -116,6 +116,8 @@ public:
   const Layout& getLayout() const
   { return m_Layout; }
 
+  bool layout();
+
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
   { return m_Info; }

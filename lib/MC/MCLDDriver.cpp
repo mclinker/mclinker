@@ -254,6 +254,8 @@ bool MCLDDriver::readRelocations()
 ///   directly
 bool MCLDDriver::layout()
 {
+  if (!m_pLinker->layout())
+    return false;
   return true;
 }
 
