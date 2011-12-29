@@ -73,6 +73,7 @@ public:
 
   /// defineSymbol - add a symbol and resolve it immediately
   /// defineSymbol define a output symbol and resolve it immediately.
+  ///
   /// @return If the output symbol has existed, return it. Otherwise, create
   ///         a new symbol and return the new one.
   LDSymbol* defineSymbol(const llvm::StringRef& pName,
