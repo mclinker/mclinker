@@ -88,7 +88,8 @@ public:
   // -----  modifiers  ----- //
   bool layout(LDContext& pOutput, const TargetLDBackend& pBackend);
 
-  void addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr);
+  void addInputRange(const llvm::MCSectionData& pSD,
+                     const LDSection& pInputHdr);
 
   // -----  iterators  ----- //
   sect_iterator sect_begin()
@@ -132,7 +133,8 @@ private:
   /// The last fragment which was laid out, or 0 if nothing has been laid
   /// out. Fragments are always laid out in order, so all fragments with a
   /// lower ordinal will be up to date.
-  mutable llvm::DenseMap<const llvm::MCSectionData*, llvm::MCFragment*> m_LastValidFragment;
+  mutable llvm::DenseMap<const llvm::MCSectionData*,
+                         llvm::MCFragment*> m_LastValidFragment;
 
 };
 

@@ -44,7 +44,8 @@ void Layout::layoutFragment(llvm::MCFragment& pFrag)
   llvm::MCFragment* prev = pFrag.getPrevNode();
 
   // We should never try to recompute something which is up-to-date.
-  assert(!isFragmentUpToDate(pFrag) && "Attempt to recompute up-to-date fragment!");
+  assert(!isFragmentUpToDate(pFrag) &&
+         "Attempt to recompute up-to-date fragment!");
   // We should never try to compute the fragment layout if it's predecessor
   // isn't up-to-date.
   assert((!prev || isFragmentUpToDate(*prev)) &&
@@ -107,7 +108,7 @@ void Layout::ensureFragmentOrdered(const llvm::MCFragment& pFrag) const
 
     // advance the iterator to get rear fragment in the range
     ++it;
-    // bypass if the front is ordered because we order a range of fragments once
+    // bypass if the front is ordered since we order a range of fragments once
     if (front->getLayoutOrder() != ~(0U))
        continue;
 
@@ -128,8 +129,8 @@ uint64_t Layout::getFragmentOffset(const llvm::MCFragment& pFrag) const
   return pFrag.Offset;
 }
 
-/// getFragmentOffset - Get the offset of the given fragment reference inside its
-/// containing section.
+/// getFragmentOffset - Get the offset of the given fragment reference inside
+/// its containing section.
 uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
 {
   const llvm::MCFragment* frag = pFragRef.frag();
@@ -316,7 +317,8 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
                        target_offset - frag->Offset);
 }
 
-void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInputHdr)
+void Layout::addInputRange(const llvm::MCSectionData& pSD,
+                           const LDSection& pInputHdr)
 {
   // check if mapping the input range to a existing SectionData or a new one
   InputRangeList::iterator sd_range_iter = m_InputRangeList.find(&pSD);
@@ -327,7 +329,7 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD, const LDSection& pInp
     RangeList::iterator it;
     for (it = sd_range->begin(); it != sd_range->end(); ++it) {
       if (&pInputHdr == it->header)
-        llvm::report_fatal_error(llvm::Twine("Trying to map second range of ") +
+        llvm::report_fatal_error(llvm::Twine("Trying to map 2nd range of ") +
                                  pInputHdr.name() +
                                  llvm::Twine(" into the same SectionData!\n"));
     }
@@ -394,8 +396,9 @@ const LDSection* Layout::getInputLDSection(const llvm::MCFragment& pFrag) const
 const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
 {
   llvm::MCSectionData* sect_data = pFrag.getParent();
-  if (NULL == pFrag.getParent())
+  if (NULL == sect_data)
     return NULL;
+
   return static_cast<const LDSection*>(&sect_data->getSection());
 }
 
