@@ -49,6 +49,7 @@ public:
   ///
   /// This function should be called after symbol resolution.
   virtual bool readRelocations(Input& pFile);
+
 private:
   MCLinker& m_Linker;
 
