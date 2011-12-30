@@ -18,6 +18,10 @@
 #include <string>
 #include <cassert>
 
+namespace llvm {
+class StringRef;
+}
+
 namespace mcld
 {
 
@@ -69,6 +73,8 @@ public:
   LDSection* getSection(const std::string& pName);
 
   const LDSection* getSection(const std::string& pName) const;
+
+  size_t getSymbolIdx(const llvm::StringRef& pName) const;
 
   size_t getSectionIdx(const std::string& pName) const;
 

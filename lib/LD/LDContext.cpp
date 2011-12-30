@@ -9,6 +9,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
+#include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
 
@@ -54,6 +55,11 @@ const LDSection* LDContext::getSection(const std::string& pName) const
       return *sect_iter;
   }
   return NULL;
+}
+
+size_t LDContext::getSymbolIdx(const llvm::StringRef& pName) const
+{
+  return 0;
 }
 
 size_t LDContext::getSectionIdx(const std::string& pName) const
