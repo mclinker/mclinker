@@ -9,10 +9,11 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/ADT/OwningPtr.h>
 #include <llvm/Support/ErrorHandling.h>
+
 #include <mcld/LD/ELFDynObjReader.h>
-#include <mcld/MC/MCLinker.h>
-#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Target/GNULDBackend.h>
 
 #include <string>
 
@@ -20,8 +21,8 @@ using namespace mcld;
 
 //==========================
 // ELFDynObjReader
-ELFDynObjReader::ELFDynObjReader(TargetLDBackend& pBackend, MCLinker& pLinker)
-  : DynObjReader(pBackend), m_Linker(pLinker) {
+ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend, MCLinker& pLinker)
+  : DynObjReader(), ELFReader(pBackend), m_Linker(pLinker) {
 }
 
 ELFDynObjReader::~ELFDynObjReader()

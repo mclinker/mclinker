@@ -22,6 +22,8 @@
 namespace mcld
 {
 
+class GNULDBackend;
+
 /** \class ELFReader
  *  \brief ELFReader provides common functions for all kind of ELF readers.
  *  (ELFObjectReader, ELFDynObjReader)
@@ -29,6 +31,10 @@ namespace mcld
 class ELFReader
 {
 public:
+  ELFReader(GNULDBackend& pBackend);
+
+  virtual ~ELFReader() { }
+
   bool isELF(Input& pInput) const;
 
   MCLDFile::Type fileType(Input &pInput) const;
@@ -52,6 +58,15 @@ public:
                                       const llvm::StringRef& pName) const;
 
   std::string getSymbolTypeName(unsigned int pType) const;
+
+  GNULDBackend& target()
+  { return m_Backend; }
+
+  const GNULDBackend& target() const
+  { return m_Backend; }
+  
+private:
+  GNULDBackend& m_Backend;
 };
 
 } // namespace of mcld

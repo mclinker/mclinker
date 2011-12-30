@@ -17,6 +17,7 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/rslinker/ELFObject.h>
 #include <mcld/LD/ELFReader.h>
+#include <mcld/Target/GNULDBackend.h>
 #include "mcld/Support/rslinker/utils/serialize.h"
 
 #include <sstream>
@@ -26,6 +27,10 @@ using namespace mcld;
 
 //==========================
 // ELFReader
+ELFReader::ELFReader(GNULDBackend& pBackend)
+  : m_Backend(pBackend) {
+}
+
 bool ELFReader::isELF(Input& pInput) const
 {
   // get the e_ident

@@ -11,8 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/ELFReader.h"
-#include "mcld/LD/DynObjReader.h"
+#include <mcld/LD/ELFReader.h>
+#include <mcld/LD/DynObjReader.h>
 #include <llvm/Support/system_error.h>
 
 namespace mcld
@@ -20,6 +20,7 @@ namespace mcld
 
 class Input;
 class MCLinker;
+class GNULDBackend;
 
 /** \class ELFDynObjReader
  *  \brief ELFDynObjReader reads ELF dynamic shared objects.
@@ -28,7 +29,7 @@ class MCLinker;
 class ELFDynObjReader : public DynObjReader, protected ELFReader
 {
 public:
-  ELFDynObjReader(TargetLDBackend& pBackend, MCLinker& pLinker);
+  ELFDynObjReader(GNULDBackend& pBackend, MCLinker& pLinker);
   ~ELFDynObjReader();
 
   // -----  observers  ----- //

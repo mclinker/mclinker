@@ -18,7 +18,6 @@ namespace mcld
 {
 
 class Input;
-class TargetLDBackend;
 
 /** \class ObjectReader
  *  \brief ObjectReader provides an common interface for different object
@@ -27,8 +26,7 @@ class TargetLDBackend;
 class ObjectReader : public LDReader
 {
 protected:
-  ObjectReader(TargetLDBackend& pLDBackend)
-  : m_TargetLDBackend(pLDBackend)
+  ObjectReader()
   { }
 
 public:
@@ -40,14 +38,11 @@ public:
 
   virtual bool readSections(Input& pFile) = 0;
 
-  inline TargetLDBackend& target()
-  { return m_TargetLDBackend; }
+  /// readRelocations - read relocation sections
+  ///
+  /// This function should be called after symbol resolution.
+  virtual bool readRelocations(Input& pFile) = 0;
 
-  inline const TargetLDBackend& target() const
-  { return m_TargetLDBackend; }
-  
-private:
-  TargetLDBackend& m_TargetLDBackend;
 };
 
 } // namespace of mcld

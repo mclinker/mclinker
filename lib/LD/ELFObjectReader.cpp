@@ -9,11 +9,11 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
-#include "mcld/LD/ELFObjectReader.h"
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCLinker.h"
-#include "mcld/Target/TargetLDBackend.h"
-#include "mcld/MC/MCRegionFragment.h"
+#include <mcld/LD/ELFObjectReader.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/Target/GNULDBackend.h>
 #include "mcld/Support/rslinker/ELFSectionHeaderTable.h"
 #include "mcld/Support/rslinker/ELFSectionRelTable.h"
 
@@ -25,9 +25,9 @@ using namespace mcld;
 
 //==========================
 // ELFObjectReader
-ELFObjectReader::ELFObjectReader(TargetLDBackend& pBackend, MCLinker& pLinker)
-  : ObjectReader(pBackend),
-    ELFReader(),
+ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker)
+  : ObjectReader(),
+    ELFReader(pBackend),
     m_Linker(pLinker)
 {
 }
@@ -64,6 +64,7 @@ bool ELFObjectReader::readSections(Input& pInput)
   // handle sections
   for (size_t i=0; i < object->getSectionNumber(); ++i) {
     const ELFSectionHeader<32> *sh = (*shtab)[i];
+    // create an input LDSection
     LDSection& ldSect = m_Linker.createSectHdr(sh->getName(),
                                                ELFReader::getLDSectionKind(*sh, sh->getName()),
                                                sh->getType(),
@@ -221,6 +222,11 @@ bool ELFObjectReader::readSymbols(Input& pInput)
     }
   } // end of for all rs_symbol
 
+  return true;
+}
+
+bool ELFObjectReader::readRelocations(Input& pInput)
+{
   return true;
 }
 

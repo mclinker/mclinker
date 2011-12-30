@@ -21,6 +21,7 @@ namespace mcld
 
 class Input;
 class MCLinker;
+class GNULDBackend;
 
 /** \lclass ELFObjectReader
  *  \brief ELFObjectReader reads target-independent parts of ELF object file
@@ -28,7 +29,7 @@ class MCLinker;
 class ELFObjectReader : public ObjectReader, protected ELFReader
 {
 public:
-  ELFObjectReader(TargetLDBackend& pBackend, MCLinker& pLinker);
+  ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker);
 
   ~ELFObjectReader();
 
@@ -40,10 +41,14 @@ public:
   // -----  readers  ----- //
   llvm::error_code readObject(Input& pFile);
 
-  bool readSections(Input& pFile);
+  virtual bool readSections(Input& pFile);
 
-  bool readSymbols(Input& pFile);
+  virtual bool readSymbols(Input& pFile);
 
+  /// readRelocations - read relocation sections
+  ///
+  /// This function should be called after symbol resolution.
+  virtual bool readRelocations(Input& pFile);
 private:
   MCLinker& m_Linker;
 
