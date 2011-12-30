@@ -37,7 +37,6 @@ public:
 
 public:
   MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
-  ~MipsRelocationFactory();
 
   void applyRelocation(Relocation& pRelocation);
 

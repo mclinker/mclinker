@@ -10,35 +10,28 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+
 #include "MipsRelocationFactory.h"
 #include "MipsRelocationFunctions.h"
 
-using namespace llvm;
-using namespace llvm::ELF;
 using namespace mcld;
 
 DECL_MIPS_APPLY_RELOC_FUNCS
 
 //==========================
 // MipsRelocationFactory
-MipsRelocationFactory::MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent)
+MipsRelocationFactory::MipsRelocationFactory(size_t pNum,
+                                             MipsGNULDBackend& pParent)
   : RelocationFactory(pNum),
-    m_Target(pParent) {
-}
-
-MipsRelocationFactory::~MipsRelocationFactory()
+    m_Target(pParent)
 {
 }
 
 void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
 {
-  Relocation::Type type = pRelocation.type();
-
   /// the prototype of applying function
-  /* Can Mips relocation functions get all resources from such kind of function prototype?
-   * If not, please add new parameters or change to non-constant MipsRelocationFactory.
-   */
-  typedef Result (*ApplyFunctionType)(Relocation&, const MipsRelocationFactory&);
+  typedef Result (*ApplyFunctionType)(Relocation&,
+                                      const MipsRelocationFactory&);
 
   // the table entry of applying functions
   struct ApplyFunctionTriple {
@@ -52,8 +45,11 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
     DECL_MIPS_APPLY_RELOC_FUNC_PTRS
   };
 
+  Relocation::Type type = pRelocation.type();
+
   if (type >= sizeof(apply_functions) / sizeof(apply_functions[0])) {
-    llvm::report_fatal_error(llvm::Twine("Unknown relocation type. To symbol `") +
+    llvm::report_fatal_error(llvm::Twine("Unknown relocation type. "
+                                         "To symbol `") +
                              pRelocation.symInfo()->name() +
                              llvm::Twine("'."));
   }
@@ -74,7 +70,8 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
   if (BadReloc == result) {
     llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
                              llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' encounters unexpected opcode. on symbol: `") +
+                             llvm::Twine("' encounters unexpected opcode. "
+                                         "on symbol: `") +
                              llvm::Twine(pRelocation.symInfo()->name()) +
                              llvm::Twine("'."));
     return;
