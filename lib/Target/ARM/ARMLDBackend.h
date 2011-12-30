@@ -155,11 +155,11 @@ public:
   const ARMDynRelSection& getRelPLT() const;
 
 private:
+  bool isSymbolNeedsPLT(const ResolveInfo& pSym, unsigned int pType);
+  bool isSymbolNeedsDynRel(const ResolveInfo& pSym, unsigned int pType);
   void createARMGOT(MCLinker& pLinker);
   void createARMPLTandRelPLT(MCLinker& pLinker);
   void createARMRelDyn(MCLinker& pLinker);
-  bool isSymbolNeedsPLT(ResolveInfo& pSym, unsigned int pType);
-  bool isSymbolNeedsDynRel(ResolveInfo& pSym, unsigned int pType);
 
 private:
   RelocationFactory* m_pRelocFactory;

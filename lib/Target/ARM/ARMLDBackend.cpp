@@ -147,7 +147,7 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
   m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn), 8);
 }
 
-bool ARMGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
+bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
                                        unsigned int pType)
 {
   return((Output::DynObj == pType)
@@ -156,7 +156,7 @@ bool ARMGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
         );
 }
 
-bool ARMGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
+bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
                                           unsigned int pType)
 {
   if(pSym.isUndef() && (pType==Output::Exec))
@@ -294,9 +294,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // Absolute relocation type, symbol may needs PLT entry or
         // dynamic relocation entry
         if(isSymbolNeedsPLT(*rsym, pType)) {
-          // return if we already create plt for this symbol
+          // break if we already create plt for this symbol
           if(rsym->reserved() & 0x8u)
-            return;
+            break;
           // create .plt and .rel.plt if not exist
           if(!m_pPLT)
             createARMPLTandRelPLT(pLinker);
@@ -309,7 +309,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
           // set PLT bit
           rsym->setReserved(rsym->reserved() | 0x8u);
         }
-        else if(isSymbolNeedsDynRel(*rsym, pType)) {
+        if(isSymbolNeedsDynRel(*rsym, pType)) {
           // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
