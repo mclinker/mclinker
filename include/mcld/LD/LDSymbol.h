@@ -92,9 +92,12 @@ public:
   SizeType size() const
   { return m_pResolveInfo->size(); }
 
+  ResolveInfo* resolveInfo()
+  { return m_pResolveInfo; }
+
   const ResolveInfo* resolveInfo() const 
   { return m_pResolveInfo; }
-    
+
   // -----  modifiers  ----- //
   void setSize(SizeType pSize) {
     assert(NULL != m_pResolveInfo);
