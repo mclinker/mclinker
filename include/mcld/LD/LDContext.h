@@ -97,6 +97,8 @@ public:
 private:
   SectionTable m_SectionTable;
   SymbolTable m_SymTab;
+
+  // FIXME : maintain a map<section name, section index>
 };
 
 
