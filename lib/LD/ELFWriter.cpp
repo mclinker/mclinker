@@ -384,23 +384,34 @@ ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) con
   pRegion.sync();
 }
 
-/// emitRelocation 
+/// emitRelocation
 void
-ELFWriter::emitRelocation(const LDSection& pSection, MemoryRegion& pRegion) const
+ELFWriter::emitRelocation(const Layout& pLayout,
+                          const LDSection& pSection,
+                          MemoryRegion& pRegion) const
 {
-  // TODO
-  pRegion.sync();
-}
+  Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>( pRegion.start());
+  const llvm::MCSectionData* SectionData = pSection.getSectionData();
 
-/// emitRelEntry 
-ELFWriter::FileOffset ELFWriter::emitRelEntry(const Relocation& pRelocation,
-                                              MemoryRegion& pRegion,
-                                              FileOffset pOffset,
-                                              bool pIsRela) const
-{
-  // TODO
+  Relocation* relocation = 0;
+  MCFragmentRef* FragmentRef = 0;
+
+  for (llvm::MCSectionData::const_iterator it = SectionData->begin(),
+       ie = SectionData->end(); it != ie; ++it) {
+
+    relocation = &(llvm::cast<Relocation>(*it));
+    FragmentRef = &(relocation->targetRef());
+
+    rel->r_offset = FragmentRef->offset() + llvm::cast<LDSection>(
+                    FragmentRef->frag()->getParent()->getSection()).addr() +
+                    pLayout.getFragmentRefOffset(*FragmentRef);
+
+    rel->setSymbolAndType(0, // FIXME: Symbol Table Index,
+                          relocation->type());
+  }
+
+
   pRegion.sync();
-  return 0x0;
 }
 
 /// getSectEntrySize - compute ElfXX_Shdr::sh_entsize
