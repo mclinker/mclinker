@@ -402,3 +402,27 @@ const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
   return static_cast<const LDSection*>(&sect_data->getSection());
 }
 
+/// getFragmentRef - give a fragment and a big offset, return the fragment
+/// reference in the section data.
+///
+/// @param pFrag
+/// @parem pBigOffset
+MCFragmentRef*
+Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
+{
+  // TODO
+  return NULL;
+}
+
+/// getFragmentRef - give a fragment and a big offset, return the fragment
+/// reference in the section data.
+///
+/// @param pFrag
+/// @parem pBigOffset
+const MCFragmentRef*
+Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const
+{
+  // TODO
+  return NULL;
+}
+

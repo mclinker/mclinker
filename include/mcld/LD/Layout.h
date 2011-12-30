@@ -48,18 +48,35 @@ private:
 
 public:
   Layout();
+
   ~Layout();
 
   /// layoutFragment - perform layout for single fragment
   /// Assuming the previous fragment has already been laid out correctly.
   void layoutFragment(llvm::MCFragment& pFrag);
 
-  /// getFragmentRefOffset - Get the offset of the given fragment inside its
-  /// containing section.
+  /// getFragmentRef - give a fragment and a big offset, return the fragment
+  /// reference in the section data.
+  ///
+  /// @param pFrag
+  /// @parem pBigOffset
+  MCFragmentRef*
+  getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset);
+
+  /// getFragmentRef - give a fragment and a big offset, return the fragment
+  /// reference in the section data.
+  ///
+  /// @param pFrag
+  /// @parem pBigOffset
+  const MCFragmentRef*
+  getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const;
+
+  /// getFragmentRefOffset - Get the offset of the given fragment inside
+  /// the output's MCSectionData.
   uint64_t getFragmentRefOffset(const MCFragmentRef& pFragRef) const;
 
-  /// getFragmentOffset - Get the offset of the given fragment inside its
-  /// containing section.
+  /// getFragmentOffset - Get the offset of the given fragment inside the
+  /// the output's MCSectionData.
   uint64_t getFragmentOffset(const llvm::MCFragment& pFrag) const;
 
   /// getFragmentRef - give a LDSection in input file and an offset, return
