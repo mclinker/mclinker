@@ -177,6 +177,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
+  assert(0 != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
