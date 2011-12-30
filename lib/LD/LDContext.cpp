@@ -24,14 +24,14 @@ LDContext::~LDContext()
 
 LDSection* LDContext::getSection(unsigned int pIdx)
 {
-  if (pIdx > m_SectionTable.size())
+  if (pIdx >= m_SectionTable.size())
     return NULL;
   return m_SectionTable[pIdx];
 }
 
 const LDSection* LDContext::getSection(unsigned int pIdx) const
 {
-  if (pIdx > m_SectionTable.size())
+  if (pIdx >= m_SectionTable.size())
     return NULL;
   return m_SectionTable[pIdx];
 }
@@ -64,5 +64,19 @@ size_t LDContext::getSectionIdx(const std::string& pName) const
     if (m_SectionTable[result]->name() == pName)
       return result;
   return (size_t)-1;
+}
+
+LDSymbol* LDContext::getSymbol(unsigned int pIdx)
+{
+  if (pIdx >= m_SymTab.size())
+    return NULL;
+  return m_SymTab[pIdx];
+}
+
+const LDSymbol* LDContext::getSymbol(unsigned int pIdx) const
+{
+  if (pIdx >= m_SymTab.size())
+    return NULL;
+  return m_SymTab[pIdx];
 }
 

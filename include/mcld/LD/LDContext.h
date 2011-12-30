@@ -94,6 +94,9 @@ public:
   const SymbolTable& symtab() const
   { return m_SymTab; }
 
+  LDSymbol* getSymbol(unsigned int pIdx);
+
+  const LDSymbol* getSymbol(unsigned int pIdx) const;
 private:
   SectionTable m_SectionTable;
   SymbolTable m_SymTab;
