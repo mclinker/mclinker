@@ -407,11 +407,11 @@ const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
 ///
 /// @param pFrag
 /// @parem pBigOffset
-MCFragmentRef*
+MCFragmentRef
 Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
 {
   // TODO
-  return NULL;
+  return MCFragmentRef();
 }
 
 /// getFragmentRef - give a fragment and a big offset, return the fragment
@@ -419,10 +419,10 @@ Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
 ///
 /// @param pFrag
 /// @parem pBigOffset
-const MCFragmentRef*
+const MCFragmentRef
 Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const
 {
   // TODO
-  return NULL;
+  return MCFragmentRef();
 }
 

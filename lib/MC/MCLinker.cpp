@@ -291,12 +291,12 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                              llvm::Twine("' after resolution is dangling.\n"));
   }
 
-  MCFragmentRef* frag_reg =
+  MCFragmentRef frag_reg =
              getLayout().getFragmentRef(*pSymbol.fragRef()->frag(), 
                                         pSymbol.fragRef()->offset() + pOffset);
 
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
-                                                                *frag_reg,
+                                                                frag_reg,
                                                                 pAddend);
 
   // FIXME: may cause double free(), because GC also clean the relocation

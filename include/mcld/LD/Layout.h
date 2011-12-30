@@ -60,7 +60,7 @@ public:
   ///
   /// @param pFrag
   /// @parem pBigOffset
-  MCFragmentRef*
+  MCFragmentRef
   getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset);
 
   /// getFragmentRef - give a fragment and a big offset, return the fragment
@@ -68,7 +68,7 @@ public:
   ///
   /// @param pFrag
   /// @parem pBigOffset
-  const MCFragmentRef*
+  const MCFragmentRef
   getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const;
 
   /// getFragmentRefOffset - Get the offset of the given fragment inside
