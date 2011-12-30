@@ -236,19 +236,19 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
     if ((*section)->type() == llvm::ELF::SHT_RELA && 32 == target().bitclass()) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF32Rela(**section, *region, m_Linker);
+      return ELFReader::readELF32Rela(**section, *region, *pInput.context(), m_Linker);
     }
     else if ((*section)->type() == llvm::ELF::SHT_REL && 32 == target().bitclass()) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF32Rel(**section, *region, m_Linker);
+      return ELFReader::readELF32Rel(**section, *region, *pInput.context(), m_Linker);
     }
     else if ((*section)->type() == llvm::ELF::SHT_RELA && 64 == target().bitclass()) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF64Rela(**section, *region, m_Linker);
+      return ELFReader::readELF64Rela(**section, *region, *pInput.context(), m_Linker);
     }
     else if ((*section)->type() == llvm::ELF::SHT_REL && 64 == target().bitclass()) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF64Rel(**section, *region, m_Linker);
+      return ELFReader::readELF64Rel(**section, *region, *pInput.context(), m_Linker);
     }
   }
   return true;

@@ -122,7 +122,7 @@ public:
   ///                  unit addected by the relocation.
   /// @param pAddend - the addend value for applying relocation
   Relocation* addRelocation(Relocation::Type pType,
-                            LDSymbol& pSymbol,
+                            const LDSymbol& pSymbol,
                             Relocation::Address pOffset,
                             Relocation::Address pAddend = 0);
 

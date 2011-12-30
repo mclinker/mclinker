@@ -366,9 +366,23 @@ std::string ELFReader::getSymbolTypeName(unsigned int pType) const
 bool
 ELFReader::readELF32Rel(const LDSection& pSection,
                         const MemoryRegion& pRegion,
+                        const LDContext& pContext,
                         MCLinker& pLinker)
 {
-  // TODO
+  size_t entsize = pSection.size() / sizeof(llvm::ELF::Elf32_Rel);
+  llvm::ELF::Elf32_Rel* rel_array = (llvm::ELF::Elf32_Rel*)pRegion.start();
+  for (int idx = 0; idx < entsize; ++idx) {
+    Relocation::Type type = rel_array[idx].getType();
+    const LDSymbol *input_symbol = pContext.getSymbol(rel_array[idx].getSymbol());
+    if (NULL == input_symbol) {
+      llvm::report_fatal_error("the relocation's symbol does not exist.\n");
+      return false;
+    }
+
+    Relocation::Address offset = rel_array[idx].r_offset;
+
+    pLinker.addRelocation(type, *input_symbol, offset);
+  }
   return true;
 }
 
@@ -376,9 +390,25 @@ ELFReader::readELF32Rel(const LDSection& pSection,
 bool
 ELFReader::readELF32Rela(const LDSection& pSection,
                          const MemoryRegion& pRegion,
+                         const LDContext& pContext,
                          MCLinker& pLinker)
 {
-  // TODO
+  size_t entsize = pSection.size() / sizeof(llvm::ELF::Elf32_Rela);
+  llvm::ELF::Elf32_Rela* rela_array = (llvm::ELF::Elf32_Rela*)pRegion.start();
+  for (int idx = 0; idx < entsize; ++idx) {
+    Relocation::Type type = rela_array[idx].getType();
+    const LDSymbol *input_symbol = pContext.getSymbol(rela_array[idx].getSymbol());
+    if (NULL == input_symbol) {
+      llvm::report_fatal_error("the relocation's symbol does not exist.\n");
+      return false;
+    }
+
+    Relocation::Address offset = rela_array[idx].r_offset;
+    Relocation::Address addend = rela_array[idx].r_addend;
+
+    pLinker.addRelocation(type, *input_symbol, offset, addend);
+  }
+
   return true;
 }
 
@@ -386,9 +416,23 @@ ELFReader::readELF32Rela(const LDSection& pSection,
 bool
 ELFReader::readELF64Rel(const LDSection& pSection,
                         const MemoryRegion& pRegion,
+                        const LDContext& pContext,
                         MCLinker& pLinker)
 {
-  // TODO
+  size_t entsize = pSection.size() / sizeof(llvm::ELF::Elf64_Rel);
+  llvm::ELF::Elf64_Rel* rel_array = (llvm::ELF::Elf64_Rel*)pRegion.start();
+  for (int idx = 0; idx < entsize; ++idx) {
+    Relocation::Type type = rel_array[idx].getType();
+    const LDSymbol *input_symbol = pContext.getSymbol(rel_array[idx].getSymbol());
+    if (NULL == input_symbol) {
+      llvm::report_fatal_error("the relocation's symbol does not exist.\n");
+      return false;
+    }
+
+    Relocation::Address offset = rel_array[idx].r_offset;
+
+    pLinker.addRelocation(type, *input_symbol, offset);
+  }
   return true;
 }
 
@@ -396,9 +440,24 @@ ELFReader::readELF64Rel(const LDSection& pSection,
 bool
 ELFReader::readELF64Rela(const LDSection& pSection,
                          const MemoryRegion& pRegion,
+                         const LDContext& pContext,
                          MCLinker& pLinker)
 {
-  // TODO
+  size_t entsize = pSection.size() / sizeof(llvm::ELF::Elf64_Rela);
+  llvm::ELF::Elf64_Rela* rela_array = (llvm::ELF::Elf64_Rela*)pRegion.start();
+  for (int idx = 0; idx < entsize; ++idx) {
+    Relocation::Type type = rela_array[idx].getType();
+    const LDSymbol *input_symbol = pContext.getSymbol(rela_array[idx].getSymbol());
+    if (NULL == input_symbol) {
+      llvm::report_fatal_error("the relocation's symbol does not exist.\n");
+      return false;
+    }
+
+    Relocation::Address offset = rela_array[idx].r_offset;
+    Relocation::Address addend = rela_array[idx].r_addend;
+
+    pLinker.addRelocation(type, *input_symbol, offset, addend);
+  }
   return true;
 }
 

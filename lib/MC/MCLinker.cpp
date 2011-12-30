@@ -279,7 +279,7 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 
 /// addRelocation - add a relocation entry in MCLinker (only for object file)
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
-                                    LDSymbol& pSymbol,
+                                    const LDSymbol& pSymbol,
                                     Relocation::Address pOffset,
                                     Relocation::Address pAddend)
 {
