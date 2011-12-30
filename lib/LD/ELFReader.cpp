@@ -237,7 +237,7 @@ ELFReader::getLDSectionKind(const ELFSectionHeader<64>& pHdr,
                             const llvm::StringRef& pName) const
 {
   // name rules
-  if (pName.startswith(".debug"))
+  if (llvm::StringRef::npos != pName.find(".debug"))
     return LDFileFormat::Debug;
 
   uint64_t type = pHdr.getType();
