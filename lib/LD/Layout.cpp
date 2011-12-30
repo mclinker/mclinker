@@ -141,11 +141,6 @@ uint64_t Layout::getFragmentRefOffset(const MCFragmentRef& pFragRef) const
   return frag->Offset + pFragRef.offset();
 }
 
-const LDSection* Layout::getInputLDSection(const llvm::MCFragment& pFrag) const
-{
-  return NULL;
-}
-
 void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
 {
   typedef std::pair<LDSection*, unsigned int> SectOrder;
@@ -363,9 +358,44 @@ size_t Layout::numOfSegments() const
 
 /// getInputLDSection - give a MCFragment, return the corresponding input
 /// LDSection*
+const LDSection* Layout::getInputLDSection(const llvm::MCFragment& pFrag) const
+{
+  const llvm::MCSectionData* sect_data = pFrag.getParent();
+  if (NULL == sect_data)
+    return NULL;
+
+  InputRangeList::const_iterator sd_range_iter =
+    m_InputRangeList.find(sect_data);
+  if (sd_range_iter == m_InputRangeList.end())
+    return NULL;
+
+  ensureFragmentOrdered(sect_data->getFragmentList().back());
+  // The LayoutOrder of fragment should be initialized.
+  if (~(0U) == pFrag.getLayoutOrder())
+    return NULL;
+
+  // Now we should be able to find out the input section that covers the frag
+  unsigned int i;
+  RangeList& sd_range = *(*sd_range_iter).second;
+  for (i = 1; i < sd_range.size(); ++i) {
+    const llvm::MCFragment* frag = sd_range[i].prevRear->getNextNode();
+    assert(NULL != frag);
+
+    if (frag->getLayoutOrder() == pFrag.getLayoutOrder())
+      return sd_range[i].header;
+    if (frag->getLayoutOrder() > pFrag.getLayoutOrder())
+      return sd_range[i - 1].header;
+  }
+
+  // The fragment is in the last input range (section)
+  return sd_range[i - 1].header;
+}
+
 const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
 {
-  // TODO
-  return NULL;
+  llvm::MCSectionData* sect_data = pFrag.getParent();
+  if (NULL == pFrag.getParent())
+    return NULL;
+  return static_cast<const LDSection*>(&sect_data->getSection());
 }
 

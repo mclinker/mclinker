@@ -71,7 +71,7 @@ public:
   /// LDSection*
   const LDSection* getInputLDSection(const llvm::MCFragment& pFrag) const;
 
-  /// getInputLDSection - give a MCFragment, return the corresponding input
+  /// getOutputLDSection - give a MCFragment, return the corresponding output
   /// LDSection*
   const LDSection* getOutputLDSection(const llvm::MCFragment& pFrag) const;
 
