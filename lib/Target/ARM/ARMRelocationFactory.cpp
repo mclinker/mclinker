@@ -117,6 +117,11 @@ uint64_t helper_sign_extend(uint64_t pVal, uint64_t pOri_width)
   // Reverse sign bit, then subtract sign bit.
 }
 
+static
+uint64_t helper_bit_select(uint64_t pA, uint64_t pB, uint64_t pMask)
+{
+  return (pA & ~pMask) | (pB & pMask) ;
+}
 
 static
 GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
@@ -226,7 +231,7 @@ ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
 // Get an relocation entry in .rel.dyn and set its type to pType,
 // its FragmentRef to pReloc->targetFrag() and its ResolveInfo to pReloc->symInfo()
 static
-void helper_DynRel(Relocation& pReloc, 
+void helper_DynRel(Relocation& pReloc,
                    ARMRelocationFactory::Type pType,
                    ARMRelocationFactory& pParent)
 {
@@ -239,7 +244,7 @@ void helper_DynRel(Relocation& pReloc,
     *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
   rel_entry.setType(pType);
   rel_entry.targetRef() = pReloc.targetRef();
-  rel_entry.setSymInfo(rsym); 
+  rel_entry.setSymInfo(rsym);
 }
 
 static ARMRelocationFactory::DWord
@@ -349,7 +354,7 @@ helper_can_use_relative_reloc(ResolveInfo& pSym)
   // if symbol is dynamic or undefine or preemptible
   if(pSym.isDyn() || pSym.isUndef() || pSym.other() == ResolveInfo::Default)
     return false;
-  
+
   return true;
 }
 
@@ -376,7 +381,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   if(rsym->isLocal() && (rsym->reserved() & 0x1u)) {
     helper_DynRel(pReloc, R_ARM_RELATIVE, pParent);
     pReloc.target() = (S + A) | T ;
-    return ARMRelocationFactory::OK; 
+    return ARMRelocationFactory::OK;
   }
   else if(rsym->isGlobal()) {
     if(rsym->reserved() & 0x8u) {
@@ -391,7 +396,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
         helper_DynRel(pReloc, pReloc.type(), pParent);
     }
     return ARMRelocationFactory::OK;
-  } 
+  }
 
   // perform static relocation
   pReloc.target() = (S + A) | T;
@@ -440,9 +445,11 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
   default:
     return ARMRelocationFactory::BadReloc;
 
-  // Only allow this two reserve entry type.
+  // Only allow these four reserved entry type.
   case ARMGNULDBackend::ReserveGOT:
   case ARMGNULDBackend::GOTRel:
+  case ARMGNULDBackend::GOTandRel:
+  case ARMGNULDBackend::GOTRelandRel:
     ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
     ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
     ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
@@ -510,7 +517,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   // If target is undefined weak symbol, we only need to jump to the
   // next instruction unless it has PLT entry.
   if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
-      !(pReloc.symInfo()->reserved() | ARMGNULDBackend::ReservePLT)) {
+      !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
     pReloc.target() = (0xe000U << 16) | 0xbf00U;
     return ARMRelocationFactory::OK;
   }
@@ -714,6 +721,36 @@ ARMRelocationFactory::Result thm_movt(Relocation& pReloc,
                                                              X);
     return ARMRelocationFactory::OK;
   }
+}
+
+// R_ARM_PREL31: (S + A) | T
+ARMRelocationFactory::Result prel31(Relocation& pReloc,
+                                  ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::DWord target = pReloc.target();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = helper_sign_extend(target, 31) +
+                                  pReloc.addend();
+  ARMRelocationFactory::Address S;
+
+  switch (pReloc.symInfo()->reserved()) {
+  default:
+    return ARMRelocationFactory::BadReloc;
+
+  case ARMGNULDBackend::None:
+    S = pReloc.symValue();
+    break;
+  case ARMGNULDBackend::ReservePLT:
+    S = helper_PLT(pReloc, pParent);
+    T = 0;  // PLT is not thumb.
+    break;
+  }
+
+  ARMRelocationFactory::DWord X = (S + A) | T ;
+  pReloc.target() = helper_bit_select(target, X, 0x7fffffffU);
+  if(helper_check_signed_overflow(X, 31))
+    return ARMRelocationFactory::Overflow;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_TLS_GD32: GOT(S) + A - P
