@@ -303,11 +303,9 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
   ensureValid(*rear);
 
   uint64_t target_offset = frag->Offset + pOffset;
+  // The given offset exceeds the actual range of Section
   if ((rear->Offset + computeFragmentSize(*this, *rear)) < target_offset)
-    llvm::report_fatal_error(
-      llvm::Twine("The given offset exceeds the actual range of Section '") +
-      pInputSection.name() +
-      llvm::Twine("'\n"));
+    return MCFragmentRef();
 
   // find out the target fragment in the range of input section
   while (frag->getNextNode() && (frag->getNextNode()->Offset < target_offset))
@@ -410,8 +408,10 @@ const LDSection* Layout::getOutputLDSection(const llvm::MCFragment& pFrag) const
 MCFragmentRef
 Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
 {
-  // TODO
-  return MCFragmentRef();
+  const LDSection* sect = getInputLDSection(pFrag);
+  assert(NULL != sect);
+
+  return getFragmentRef(*sect, pBigOffset);
 }
 
 /// getFragmentRef - give a fragment and a big offset, return the fragment
@@ -422,7 +422,9 @@ Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
 const MCFragmentRef
 Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const
 {
-  // TODO
-  return MCFragmentRef();
+  const LDSection* sect = getInputLDSection(pFrag);
+  assert(NULL != sect);
+
+  return getFragmentRef(*sect, pBigOffset);
 }
 
