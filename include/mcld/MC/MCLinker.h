@@ -126,6 +126,9 @@ public:
                             Relocation::Address pOffset,
                             Relocation::Address pAddend = 0);
 
+  /// applyRelocations - apply all relocation enties.
+  bool applyRelocations();
+
   // -----  layout  ----- //
   Layout& getLayout()
   { return m_Layout; }

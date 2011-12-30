@@ -266,9 +266,7 @@ bool MCLDDriver::readRelocations()
 ///   directly
 bool MCLDDriver::layout()
 {
-  if (!m_pLinker->layout())
-    return false;
-  return true;
+  return m_pLinker->layout();
 }
 
 /// relocate - applying relocation entries and create relocation
@@ -278,7 +276,7 @@ bool MCLDDriver::layout()
 /// and push_back into the relocation section
 bool MCLDDriver::relocate()
 {
-  return true;
+  return m_pLinker->applyRelocations();
 }
 
 /// measureNamePool - compute the size of name pool sections

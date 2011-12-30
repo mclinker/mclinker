@@ -299,10 +299,19 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                                                 frag_reg,
                                                                 pAddend);
 
-  // FIXME: may cause double free(), because GC also clean the relocation
   m_RelocationList.push_back(relocation);
 
   return relocation;
+}
+
+bool MCLinker::applyRelocations()
+{
+  RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
+  for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
+    llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
+    static_cast<Relocation*>(frag)->apply();
+  }
+  return true;
 }
 
 bool MCLinker::layout()
