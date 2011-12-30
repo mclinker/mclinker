@@ -529,7 +529,7 @@ bool SectLinker::doFinalization(Module &pM)
       !m_pLDDriver->mergeSymbolTables())
     return true;
 
-  // 8. - read all relocation entries of input files
+  // 8. - read all relocation entries from input files
   m_pLDDriver->readRelocations();
 
   // 7.a - add standard symbols and target-dependent symbols
