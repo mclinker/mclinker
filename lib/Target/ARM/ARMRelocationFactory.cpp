@@ -190,7 +190,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
         *ld_backend.getPLT().getGOTPLTEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry =
-        *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
+        *ld_backend.getRelPLT().getEntry(*rsym, true, exist);
       assert(!exist && "PLT entry not exist, but DynRel entry exist!");
       rel_entry.setType(R_ARM_JUMP_SLOT);
       rel_entry.targetRef().assign(gotplt_entry);
@@ -223,6 +223,24 @@ ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
   return helper_PLT_ORG(pParent) + pParent.getLayout().getFragmentOffset(plt_entry);
 }
 
+// Get an relocation entry in .rel.dyn and set its type to pType,
+// its FragmentRef to pReloc->targetFrag() and its ResolveInfo to pReloc->symInfo()
+static
+void helper_DynRel(Relocation& pReloc, 
+                   ARMRelocationFactory::Type pType,
+                   ARMRelocationFactory& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  ARMGNULDBackend& ld_backend = pParent.getTarget();
+  bool exist;
+
+  Relocation& rel_entry =
+    *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
+  rel_entry.setType(pType);
+  rel_entry.targetRef() = pReloc.targetRef();
+  rel_entry.setSymInfo(rsym); 
+}
 
 static ARMRelocationFactory::DWord
 helper_extract_movw_movt_addend(ARMRelocationFactory::DWord pTarget)
@@ -320,6 +338,20 @@ helper_check_signed_overflow(ARMRelocationFactory::DWord pValue,
   }
 }
 
+// Check if symbol can use relocation R_ARM_RELATIVE
+// Only need to check R_ARM_ABS32 and R_ARM_ABS32_NOI
+static bool
+helper_can_use_relative_reloc(ResolveInfo& pSym)
+{
+  // if symbol has plt, should use RELATIVE
+  if(pSym.reserved() & 0x8u)
+    return true;
+  // if symbol is dynamic or undefine or preemptible
+  if(pSym.isDyn() || pSym.isUndef() || pSym.other() == ResolveInfo::Default)
+    return false;
+  
+  return true;
+}
 
 //=========================================//
 // Each relocation function implementation //
@@ -336,9 +368,33 @@ ARMRelocationFactory::Result none(Relocation& pReloc,
 ARMRelocationFactory::Result abs32(Relocation& pReloc,
                                    ARMRelocationFactory& pParent)
 {
-  ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = (pReloc.symValue() + addend) | t_bit;
+  ResolveInfo* rsym = pReloc.symInfo();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::DWord S = pReloc.symValue();
+
+  if(rsym->isLocal() && (rsym->reserved() & 0x1u)) {
+    helper_DynRel(pReloc, R_ARM_RELATIVE, pParent);
+    pReloc.target() = (S + A) | T ;
+    return ARMRelocationFactory::OK; 
+  }
+  else if(rsym->isGlobal()) {
+    if(rsym->reserved() & 0x8u) {
+      S = helper_PLT(pReloc, pParent);
+      T = 0 ; // PLT is not thumb
+      pReloc.target() = (S + A) | T;
+    }
+    if(rsym->reserved() & 0x1u) {
+      if(helper_can_use_relative_reloc(*rsym))
+        helper_DynRel(pReloc, R_ARM_RELATIVE, pParent);
+      else
+        helper_DynRel(pReloc, pReloc.type(), pParent);
+    }
+    return ARMRelocationFactory::OK;
+  } 
+
+  // perform static relocation
+  pReloc.target() = (S + A) | T;
   return ARMRelocationFactory::OK;
 }
 
@@ -346,10 +402,20 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
 ARMRelocationFactory::Result rel32(Relocation& pReloc,
                                    ARMRelocationFactory& pParent)
 {
-  ARMRelocationFactory::DWord t_bit = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = ((pReloc.symValue() + addend) | t_bit)
-                    - pReloc.place(pParent.getLayout());
+  ResolveInfo* rsym = pReloc.symInfo();
+  // if symbol needs dynamic relocation
+  if(rsym->reserved() & 0x1u) {
+     llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
+                              llvm::Twine(pReloc.type()) +
+                              llvm::Twine(", recompile with -fPIC"));
+  }
+  // perform static relocation
+  else {
+    ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+    ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+    pReloc.target() = ((pReloc.symValue() + A) | T)
+      - pReloc.place(pParent.getLayout());
+  }
   return ARMRelocationFactory::OK;
 }
 
@@ -357,21 +423,13 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
 ARMRelocationFactory::Result gotoff32(Relocation& pReloc,
                                       ARMRelocationFactory& pParent)
 {
-  switch (pReloc.symInfo()->reserved()) {
-    default: {
-      return ARMRelocationFactory::BadReloc;
-    }
-    case ARMGNULDBackend::ReserveGOT:
-    case ARMGNULDBackend::GOTRel: {
-      ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-      ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-      ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
-      ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
+  ARMRelocationFactory::Address S = pReloc.symValue();
 
-      pReloc.target() = ((S + A) | T) - GOT_ORG;
-      return ARMRelocationFactory::OK;
-    }
-  }
+  pReloc.target() = ((S + A) | T) - GOT_ORG;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
