@@ -574,10 +574,10 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
-// R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
-ARMRelocationFactory::Result movw(Relocation& pReloc,
+ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
                                   ARMRelocationFactory& pParent)
 {
+  ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
@@ -585,22 +585,45 @@ ARMRelocationFactory::Result movw(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  switch (pReloc.symInfo()->reserved()) {
-    default: {
-      break;
-    }
-    case ARMGNULDBackend::ReservePLT:
-    case ARMGNULDBackend::PLTandRel: {
-      S = helper_PLT(pReloc, pParent);
-      break;
-    }
+  // use plt
+  if(rsym->reserved() & 0x8u) {
+    S = helper_PLT(pReloc, pParent);
+    T = 0 ; // PLT is not thumb
   }
-
-  if (pReloc.type() == R_ARM_MOVW_ABS_NC) {
-    X = (S + A) | T;
+  // use dynamic relocation
+  if(rsym->reserved() & 0x1u) {
+    helper_DynRel(pReloc, pReloc.type(), pParent);
+    return ARMRelocationFactory::OK;
+  }
+  X = (S + A) | T ;
+  // perform static relocation
+  pReloc.target() = (S + A) | T;
+  if (helper_check_signed_overflow(X, 16)) {
+    return ARMRelocationFactory::Overflow;
   } else {
-    X = ((S + A) | T) - P;
+    pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
+    return ARMRelocationFactory::OK;
   }
+}
+
+// R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
+ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
+                                  ARMRelocationFactory& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord A =
+      helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
+  ARMRelocationFactory::DWord X;
+
+  // use dynamic relocation
+  if(rsym->reserved() & 0x1u) {
+    helper_DynRel(pReloc, pReloc.type(), pParent);
+    return ARMRelocationFactory::OK;
+  }
+  X = ((S + A) | T) - P;
 
   if (helper_check_signed_overflow(X, 16)) {
     return ARMRelocationFactory::Overflow;

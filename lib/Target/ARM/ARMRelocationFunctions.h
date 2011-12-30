@@ -20,7 +20,8 @@ DECL_ARM_APPLY_RELOC_FUNC(plt32)          \
 DECL_ARM_APPLY_RELOC_FUNC(call)           \
 DECL_ARM_APPLY_RELOC_FUNC(thm_call)       \
 DECL_ARM_APPLY_RELOC_FUNC(jump24)         \
-DECL_ARM_APPLY_RELOC_FUNC(movw)           \
+DECL_ARM_APPLY_RELOC_FUNC(movw_prel_nc)   \
+DECL_ARM_APPLY_RELOC_FUNC(movw_abs_nc)    \
 DECL_ARM_APPLY_RELOC_FUNC(movt)           \
 DECL_ARM_APPLY_RELOC_FUNC(thm_movw)       \
 DECL_ARM_APPLY_RELOC_FUNC(thm_movt)       \
@@ -72,9 +73,9 @@ DECL_ARM_APPLY_RELOC_FUNC(tls)
   { &none,          40, "R_ARM_V4BX"              },  \
   { &none,          41, "R_ARM_TARGET2"           },  \
   { &prel31,        42, "R_ARM_PREL31"            },  \
-  { &movw,          43, "R_ARM_MOVW_ABS_NC"       },  \
+  { &movw_abs_nc,   43, "R_ARM_MOVW_ABS_NC"       },  \
   { &movt,          44, "R_ARM_MOVT_ABS"          },  \
-  { &movw,          45, "R_ARM_MOVW_PREL_NC"      },  \
+  { &movw_prel_nc,  45, "R_ARM_MOVW_PREL_NC"      },  \
   { &movt,          46, "R_ARM_MOVT_PREL"         },  \
   { &thm_movw,      47, "R_ARM_THM_MOVW_ABS_NC"   },  \
   { &thm_movt,      48, "R_ARM_THM_MOVT_ABS"      },  \
