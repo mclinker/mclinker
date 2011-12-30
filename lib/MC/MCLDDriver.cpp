@@ -242,8 +242,20 @@ bool MCLDDriver::addTargetSymbols()
 }
 
 /// readRelocations - read all relocation entries
+///
+/// All symbols should be read and resolved before this function.
 bool MCLDDriver::readRelocations()
 {
+  // Bitcode is read by the other path. This function reads relocation sections
+  // in object files.
+  mcld::InputTree::bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
+  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+    if ((*input)->type() == Input::Object) {
+      if (!m_LDBackend.getObjectReader()->readRelocations(**input))
+        return false;
+    }
+    // ignore the other kinds of files.
+  }
   return true;
 }
 

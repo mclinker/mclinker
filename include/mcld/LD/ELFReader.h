@@ -57,6 +57,18 @@ public:
   LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<64>& pHeader,
                                       const llvm::StringRef& pName) const;
 
+  bool readELF32Rel(const LDSection& pSection, const MemoryRegion& pRegion,
+                    MCLinker& pLinker);
+
+  bool readELF32Rela(const LDSection& pSection, const MemoryRegion& pRegion,
+                     MCLinker& pLinker);
+
+  bool readELF64Rel(const LDSection& pSection, const MemoryRegion& pRegion,
+                    MCLinker& pLinker);
+
+  bool readELF64Rela(const LDSection& pSection, const MemoryRegion& pRegion,
+                     MCLinker& pLinker);
+
   std::string getSymbolTypeName(unsigned int pType) const;
 
   GNULDBackend& target()

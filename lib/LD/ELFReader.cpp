@@ -362,3 +362,43 @@ std::string ELFReader::getSymbolTypeName(unsigned int pType) const
   return "`unknow type in ELF'";
 }
 
+/// readELF32Rel
+bool
+ELFReader::readELF32Rel(const LDSection& pSection,
+                        const MemoryRegion& pRegion,
+                        MCLinker& pLinker)
+{
+  // TODO
+  return true;
+}
+
+/// readELF32Rela
+bool
+ELFReader::readELF32Rela(const LDSection& pSection,
+                         const MemoryRegion& pRegion,
+                         MCLinker& pLinker)
+{
+  // TODO
+  return true;
+}
+
+/// readELF64Rel
+bool
+ELFReader::readELF64Rel(const LDSection& pSection,
+                        const MemoryRegion& pRegion,
+                        MCLinker& pLinker)
+{
+  // TODO
+  return true;
+}
+
+/// readELF64Rela
+bool
+ELFReader::readELF64Rela(const LDSection& pSection,
+                         const MemoryRegion& pRegion,
+                         MCLinker& pLinker)
+{
+  // TODO
+  return true;
+}
+
