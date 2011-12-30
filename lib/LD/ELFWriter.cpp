@@ -402,7 +402,7 @@ ELFWriter::emitRelocation(const Layout& pLayout,
     relocation = &(llvm::cast<Relocation>(*it));
     FragmentRef = &(relocation->targetRef());
 
-    rel->r_offset = FragmentRef->offset() + llvm::cast<LDSection>(
+    rel->r_offset = llvm::cast<LDSection>(
                     FragmentRef->frag()->getParent()->getSection()).addr() +
                     pLayout.getFragmentRefOffset(*FragmentRef);
 
