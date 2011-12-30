@@ -278,6 +278,13 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is global symbol
   else if(rsym->isGlobal()) {
+    // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
+    // is needed
+    if(0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_")) {
+      if(!m_pGOT)
+        createARMGOT(pLinker);
+    }
+
     switch(pReloc.type()) {
 
       case ELF::R_ARM_ABS32:
