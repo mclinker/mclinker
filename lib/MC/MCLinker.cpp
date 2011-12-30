@@ -19,6 +19,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
+#include <mcld/LD/RelocationFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
 
@@ -43,7 +44,6 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_StrSymPool(pResolver, 128)
 {
   m_Info.setNamePool(m_StrSymPool);
-
 
   ResolveInfo* info = m_StrSymPool.createSymbol("",
                                                 false,
@@ -278,13 +278,31 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 }
 
 /// addRelocation - add a relocation entry in MCLinker (only for object file)
+/// 
+/// All symbols should be read and resolved before calling this function.
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     const LDSymbol& pSymbol,
                                     Relocation::Address pOffset,
                                     Relocation::Address pAddend)
 {
-  // TODO
-  return NULL;
+  if (NULL == pSymbol.fragRef()) {
+    llvm::report_fatal_error(llvm::Twine("The symbol `") +
+                             llvm::Twine(pSymbol.name()) +
+                             llvm::Twine("' after resolution is dangling.\n"));
+  }
+
+  MCFragmentRef* frag_reg =
+             getLayout().getFragmentRef(*pSymbol.fragRef()->frag(), 
+                                        pSymbol.fragRef()->offset() + pOffset);
+
+  Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
+                                                                *frag_reg,
+                                                                pAddend);
+
+  // FIXME: may cause double free(), because GC also clean the relocation
+  m_RelocationList.push_back(relocation);
+
+  return relocation;
 }
 
 bool MCLinker::layout()

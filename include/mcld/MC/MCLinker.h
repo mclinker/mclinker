@@ -17,8 +17,7 @@
 #include <gtest.h>
 #endif
 
-#include <vector>
-#include <string>
+#include <llvm/ADT/ilist.h>
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/LD/StrSymPool.h>
 #include <mcld/LD/StaticResolver.h>
@@ -29,6 +28,7 @@
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/Support/GCFactory.h>
+#include <string>
 
 namespace mcld {
 
@@ -127,6 +127,9 @@ public:
                             Relocation::Address pAddend = 0);
 
   // -----  layout  ----- //
+  Layout& getLayout()
+  { return m_Layout; }
+
   const Layout& getLayout() const
   { return m_Layout; }
 
@@ -142,6 +145,7 @@ public:
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
   typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
+  typedef llvm::iplist<llvm::MCFragment> RelocationListType;
 
 private:
   TargetLDBackend& m_Backend;
@@ -154,6 +158,7 @@ private:
   SectionMap& m_SectionMap;
   SectionMerger m_SectionMerger;
   Layout m_Layout;
+  RelocationListType m_RelocationList;
 };
 
 } // namespace of mcld
