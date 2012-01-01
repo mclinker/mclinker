@@ -68,8 +68,7 @@ private:
   /// set up the archive, including 
   /// first, read symbol table 
   /// second, read extended file name which is used in thin archive
-  InputTree *setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                             size_t off);
+  InputTree *setupNewArchive(Input &pInput, size_t off);
 
   /// parse the archive header, and return the member size
   size_t parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,

@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/LD/GNUArchiveReader.h"
@@ -93,7 +94,6 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
   
-  /// FIXME: compare size_t with int 
   /// check archive format.
   if(mapFile->getBufferSize() <= archiveMagicSize)
     return false;
@@ -105,31 +105,31 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
 
 LDReader::Endian GNUArchiveReader::endian(Input& pFile) const
 {
-  // TODO
-  return LDReader::LittleEndian;
+  return m_endian;
 }
 
 InputTree *GNUArchiveReader::readArchive(Input &pInput)
+{
+  return setupNewArchive(pInput, 0);
+}
+
+
+InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
+                                            size_t off)
 {
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
   if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile)) {
     assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return NULL;
   }
-  return setupNewArchive(mapFile, 0);
-}
 
-
-InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                            size_t off)
-{
+  InputTree *resultTree = new InputTree(m_pInfo->inputFactory());
   std::vector<ArchiveMapEntry> archiveMap;
   std::string archiveMemberName;
   std::string extendedName;
   bool isThinArchive;
   const char *pFile = mapFile->getBufferStart();
 
-  /// FIXME: compare size_t with int 
   /// check archive format.
   if(mapFile->getBufferSize() <= archiveMagicSize)
     return NULL;
@@ -141,15 +141,14 @@ InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer>
   }
 
   off += archiveMagicSize ;
-  size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
-  /// symbol table header
+  size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName,
+                                            NULL, extendedName);
+  /// read archive symbol table
   if(archiveMemberName.empty()) {
-    readArchiveMap(mapFile, archiveMap, off+sizeof(GNUArchiveReader::ArchiveMemberHeader), archiveMapSize);
+    readArchiveMap(mapFile, archiveMap,
+                   off+sizeof(GNUArchiveReader::ArchiveMemberHeader), archiveMapSize);
     off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + archiveMapSize;
   }
-  else if(true) {
-    ///FIXME: check whole-archive from option
-  } 
   else {
     assert(0=="fatal error : need symbol table\n");
     return NULL;
@@ -158,18 +157,20 @@ InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer>
   if((off&1) != 0)
     ++off; 
   
-  size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName, NULL, extendedName);
-  /// extended Name table 
+  size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName,
+                                          NULL, extendedName);
+  /// read extended Name table
   if(archiveMemberName == "/") {
     off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
     pFile += off;
     extendedName.assign(pFile,extendedSize);
   }
 
-  /// for each archive Member 
+  /// traverse all archive members
+  InputTree::iterator node = resultTree->root();
+  int counter= 0;
   for(int i=0 ; i<archiveMap.size() ; ++i)
   {
-    /// FIXME:
     /// We shall get each member at this archive.
     /// If if a member is the other archive, recursive call setupNewArchive
     /// Finally, construct a corresponding mcld::Input, and insert it into
@@ -177,31 +178,46 @@ InputTree *GNUArchiveReader::setupNewArchive(llvm::OwningPtr<llvm::MemoryBuffer>
     off_t nestedOff = 0;
     size_t memberOffset = parseMemberHeader(mapFile, archiveMap[i].fileOffset,
                                             &archiveMemberName, &nestedOff, extendedName);
-    /// normal member ie. relocatable object file.
-    /// FIXME: new Input and insert to InputTree
     if(!isThinArchive)
-      continue;
-
-    if(nestedOff > 0)
     {
-      /// FIXME: recursive call setupNewArchive
+      counter ++;
+      resultTree->insert<InputTree::Positional>(node, archiveMap[i].name,
+                                                 pInput.path(), MCLDFile::Object);
+      if(i==0)
+        node.move<InputTree::Inclusive>();
+      else
+        node.move<InputTree::Positional>();
+
+      /// FIXME:
+      /// New a Input object and assign fileOffset in MCLDFile.
+      /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
       continue;
     }
-    ///external member
-    ///FIXME: add new Input to InputTree
-    ///       But how about the path??
+
+    /// TODO:
+    assert(0=="Thin archive is unfinished");
+    /// Another archive outside this archive
+    if(nestedOff > 0)
+    {
+      /// Create an Input for this archive ,and recursive call setupNewArchive
+      /// InputTree *nextArchiveTree = setupNewArchive();
+      continue;
+    }
+    /// External member , open it as normal object file
+    /// add new Input to InputTree
+    /// But how about the path??
 
   }
-  return NULL; // FIXME: where to return the result??
+  return resultTree;
 }
 
 
 /// Parse the member header and return the size of member
 size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                  off_t off,
-                                  std::string *p_Name,
-                                  off_t *p_NestedOff,
-                                  std::string &p_ExtendedName)
+                                           off_t off,
+                                           std::string *p_Name,
+                                           off_t *p_NestedOff,
+                                           std::string &p_ExtendedName)
 {
   const char *pFile = mapFile->getBufferStart();
   pFile += off;
@@ -222,8 +238,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     return 0;
   }
 
-  /// switch case for each format.
-  /// normal archive member : object file 
+  /// regular file with short name
   if(header->name[0] != '/')
   {
     const char* nameEnd = strchr(header->name, '/');
@@ -246,7 +261,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   else if(header->name[1] == '/') {
     p_Name->assign(1,'/');
   }
-  /// exteranal member or nested member
+  /// regular file with long name
   else {
     char *end;
     long extendedNameOff = strtol(header->name+1, &end, 10);
@@ -307,5 +322,3 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
     p_Name += nameEnd;
   }
 }
- 
-
