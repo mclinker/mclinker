@@ -168,7 +168,6 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   /// traverse all archive members
   InputTree::iterator node = resultTree->root();
-  int counter= 0;
   for(int i=0 ; i<archiveMap.size() ; ++i)
   {
     /// We shall get each member at this archive.
@@ -180,17 +179,19 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             &archiveMemberName, &nestedOff, extendedName);
     if(!isThinArchive)
     {
-      counter ++;
-      resultTree->insert<InputTree::Positional>(node, archiveMap[i].name,
-                                                 pInput.path(), MCLDFile::Object);
+      /// New a Input object and assign fileOffset in MCLDFile.
+      /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
+      /// Finally insert the object to resultTree and move ahead.
+      Input *insertObjectFile = m_pInfo->inputFactory().produce(archiveMap[i].name,
+                                                                pInput.path(),
+                                                                MCLDFile::Object);
+      insertObjectFile->setFileOffset(archiveMap[i].fileOffset + sizeof(ArchiveMemberHeader));
+      resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
       if(i==0)
         node.move<InputTree::Inclusive>();
       else
         node.move<InputTree::Positional>();
 
-      /// FIXME:
-      /// New a Input object and assign fileOffset in MCLDFile.
-      /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
       continue;
     }
 

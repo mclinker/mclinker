@@ -77,6 +77,11 @@ public:
     m_pMemArea = pMemArea;
   }
 
+  void setFileOffset(off_t pOffset)
+  {
+    m_fileOffset = pOffset;
+  }
+
   // -----  observers  ----- //
   unsigned int type() const
   { return m_Type; }
@@ -105,12 +110,16 @@ public:
   const MemoryArea* memArea() const
   { return m_pMemArea; }
 
+  const off_t fileOffset() const
+  { return m_fileOffset; }
+
 protected:
   sys::fs::Path m_Path;
   std::string m_Name;
   unsigned int m_Type;
   LDContext *m_pContext;
   MemoryArea* m_pMemArea;
+  off_t m_fileOffset;
 };
 
 /** \class MCLDFileFactory
