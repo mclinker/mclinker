@@ -591,6 +591,18 @@ const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
   return *m_pRelPLT;
 }
 
+unsigned int
+ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
+{
+  if (pSectHdr.name() == ".got" || pSectHdr.name() == ".got.plt")
+    return SHO_DATA;
+
+  if (pSectHdr.name() == ".plt")
+    return SHO_PLT;
+
+  return SHO_UNDEFINED;
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

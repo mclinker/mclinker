@@ -154,6 +154,9 @@ public:
 
   const ARMDynRelSection& getRelPLT() const;
 
+  /// getTargetSectionOrder - compute the layout order of ARM target sections
+  unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
+
 private:
   bool isSymbolNeedsPLT(const ResolveInfo& pSym, unsigned int pType);
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, unsigned int pType);
