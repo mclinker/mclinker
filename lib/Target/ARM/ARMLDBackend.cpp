@@ -481,19 +481,22 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
                                           const MCLDInfo& pInfo,
                                           MemoryRegion& pRegion) const
 {
-  return 0;
-// TODO: Uncomment the following code when
-//       the size of MemoryRegion is not zero.
-/*  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+  assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
   const char* SectionName = pSection.name().c_str();
-  unsigned char* buffer = pRegion.getBuffer();
 
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (!std::strcmp(SectionName, ".plt")) {
+  if (!std::strcmp(SectionName,".ARM.attributes")) {
+    // FIXME: Unsupport emitting .ARM.attributes.
+    return 0;
+  }
+
+  else if (!std::strcmp(SectionName, ".plt")) {
     assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+
+    unsigned char* buffer = pRegion.getBuffer();
 
     m_pPLT->applyPLT0();
     m_pPLT->applyPLT1();
@@ -518,22 +521,26 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   else if (!std::strcmp(SectionName,".got")) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
+    uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
     GOTEntry* got = 0;
     EntrySize = m_pGOT->getEntrySize();
 
     for (ARMGOT::iterator it = m_pGOT->begin(),
-         ie = m_pGOT->end(); it != ie; ++it) {
+         ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<GOTEntry>((*it)));
-      memcpy(buffer + RegionSize, &(got->getContent()), EntrySize);
+      *buffer = static_cast<uint32_t>(got->getContent());
       RegionSize += EntrySize;
     }
   }
+
   else
     llvm::report_fatal_error("unsupported section name "
                              + pSection.name() + " !");
 
+  pRegion.sync();
+
   return RegionSize;
-*/
 }
 
 ARMGOT& ARMGNULDBackend::getGOT()
