@@ -76,12 +76,18 @@ public:
   /// readRelocations - read all relocation entries
   bool readRelocations();
 
+  /// prelayout - help backend to do some modification before layout
+  bool prelayout();
+
   /// layout - linearly layout all output sections and reserve some space
   /// for GOT/PLT
   ///   Because we do not support instruction relaxing in this early version,
   ///   if there is a branch can not jump to its target, we return false
   ///   directly
   bool layout();
+
+  /// postlayout - help backend to do some modification after layout
+  bool postlayout();
 
   /// relocate - applying relocation entries and create relocation
   /// section in the output files

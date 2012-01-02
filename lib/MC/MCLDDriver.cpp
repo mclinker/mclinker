@@ -259,6 +259,12 @@ bool MCLDDriver::readRelocations()
   return true;
 }
 
+/// prelayout - help backend to do some modification before layout
+bool MCLDDriver::prelayout()
+{
+  return true;
+}
+
 /// layout - linearly layout all output sections and reserve some space
 /// for GOT/PLT
 ///   Because we do not support instruction relaxing in this early version,
@@ -267,6 +273,12 @@ bool MCLDDriver::readRelocations()
 bool MCLDDriver::layout()
 {
   return m_pLinker->layout();
+}
+
+/// prelayout - help backend to do some modification after layout
+bool MCLDDriver::postlayout()
+{
+  return true;
 }
 
 /// relocate - applying relocation entries and create relocation

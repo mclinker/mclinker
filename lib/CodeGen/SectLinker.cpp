@@ -541,8 +541,14 @@ bool SectLinker::doFinalization(Module &pM)
   // 9. - compute the size of .symtab, .strtab, .dynstr, .dynsym.
   m_pLDDriver->measureNamePool();
 
+  // 10.a - pre-layout
+  m_pLDDriver->prelayout();
+
   // 10. - linear layout
   m_pLDDriver->layout();
+
+  // 10.b - post-layout
+  m_pLDDriver->postlayout();
 
   // 11. - finalize symbol value
   m_pLDDriver->finalizeSymbolValue();
