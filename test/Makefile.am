@@ -1,5 +1,5 @@
 
-MCLINKER=$(abs_top_builddir)/debug/MCLinker
+MCLINKER=$(abs_top_builddir)/debug/llvm-mcld
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
 
