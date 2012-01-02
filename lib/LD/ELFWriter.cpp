@@ -387,6 +387,7 @@ ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) con
 /// emitRelocation
 void
 ELFWriter::emitRelocation(const Layout& pLayout,
+                          const Output& pOutput,
                           const LDSection& pSection,
                           MemoryRegion& pRegion) const
 {
@@ -397,17 +398,21 @@ ELFWriter::emitRelocation(const Layout& pLayout,
   MCFragmentRef* FragmentRef = 0;
 
   for (llvm::MCSectionData::const_iterator it = SectionData->begin(),
-       ie = SectionData->end(); it != ie; ++it) {
+       ie = SectionData->end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
     FragmentRef = &(relocation->targetRef());
 
-    rel->r_offset = llvm::cast<LDSection>(
+    rel->r_offset = static_cast<Elf32_Addr>(
+                    llvm::cast<LDSection>(
                     FragmentRef->frag()->getParent()->getSection()).addr() +
-                    pLayout.getFragmentRefOffset(*FragmentRef);
+                    pLayout.getFragmentRefOffset(*FragmentRef));
 
-    rel->setSymbolAndType(0, // FIXME: Symbol Table Index,
-                          relocation->type());
+    Elf32_Word Index = static_cast<Elf32_Word>(
+                       pOutput.context()->getSymbolIdx(
+                       llvm::StringRef(relocation->symInfo()->name())));
+
+    rel->setSymbolAndType(Index, relocation->type());
   }
 
 

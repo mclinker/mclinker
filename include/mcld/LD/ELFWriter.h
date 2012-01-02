@@ -75,6 +75,7 @@ protected:
   void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
 
   void emitRelocation(const Layout& pLayout,
+                      const Output& pOutput,
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
