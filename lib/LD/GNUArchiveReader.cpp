@@ -182,10 +182,11 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
       /// New a Input object and assign fileOffset in MCLDFile.
       /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
       /// Finally insert the object to resultTree and move ahead.
+      off_t fileOffset = archiveMap[i].fileOffset + sizeof(ArchiveMemberHeader);
       Input *insertObjectFile = m_pInfo->inputFactory().produce(archiveMap[i].name,
                                                                 pInput.path(),
-                                                                MCLDFile::Object);
-      insertObjectFile->setFileOffset(archiveMap[i].fileOffset + sizeof(ArchiveMemberHeader));
+                                                                MCLDFile::Object,
+                                                                fileOffset);
       resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
       if(i==0)
         node.move<InputTree::Inclusive>();

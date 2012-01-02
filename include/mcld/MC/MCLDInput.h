@@ -50,7 +50,8 @@ private:
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const AttributeProxy& pAttr,
-        unsigned int pType = Unknown);
+        unsigned int pType = Unknown,
+        off_t pFileOffset = 0);
 
 public:
   ~Input();
@@ -67,9 +68,16 @@ public:
   void setNeeded()
   { m_bNeeded = true; }
 
+  off_t fileOffset() const
+  { return m_fileOffset; }
+
+  void setFileOffset(off_t pFileOffset)
+  { m_fileOffset = pFileOffset; }
+
 private:
   Attribute *m_pAttr;
   bool m_bNeeded;
+  off_t m_fileOffset;
 };
 
 } // namespace of mcld

@@ -43,7 +43,8 @@ public:
   // -----  production  ----- //
   Input* produce(llvm::StringRef pName,
                  const sys::fs::Path& pPath,
-                 unsigned int pType = Input::Unknown);
+                 unsigned int pType = Input::Unknown,
+                 off_t pFileOffset = 0);
 
 private:
   AttributeFactory &m_AttrFactory;

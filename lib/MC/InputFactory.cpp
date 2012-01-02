@@ -23,10 +23,11 @@ InputFactory::~InputFactory()
 
 Input* InputFactory::produce(llvm::StringRef pName,
                              const sys::fs::Path& pPath,
-                             unsigned int pType)
+                             unsigned int pType,
+                             off_t pFileOffset)
 {
   mcld::Input* result = Alloc::allocate();
-  new (result) mcld::Input(pName, pPath, m_AttrFactory.last(), pType);
+  new (result) mcld::Input(pName, pPath, m_AttrFactory.last(), pType, pFileOffset);
   return result;
 }
 

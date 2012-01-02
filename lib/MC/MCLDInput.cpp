@@ -22,10 +22,12 @@ Input::Input(llvm::StringRef pName, const AttributeProxy& pProxy)
 Input::Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
         const AttributeProxy& pProxy,
-        unsigned int pType)
+        unsigned int pType,
+        off_t pFileOffset)
   : MCLDFile(pName, pPath, pType),
     m_pAttr(const_cast<Attribute*>(pProxy.attr())),
-    m_bNeeded(false) {
+    m_bNeeded(false),
+    m_fileOffset(pFileOffset) {
 }
 
 Input::~Input()
