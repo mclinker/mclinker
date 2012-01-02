@@ -24,3 +24,23 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
   return 0;
 }
+
+MipsGOT::iterator MipsGOT::begin()
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+MipsGOT::iterator MipsGOT::end()
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+MipsGOT::const_iterator MipsGOT::begin() const
+{
+  return m_SectionData.getFragmentList().end();
+}
+
+MipsGOT::const_iterator MipsGOT::end() const
+{
+  return m_SectionData.getFragmentList().end();
+}
