@@ -2,4 +2,4 @@ ACLOCAL_AMFLAGS=-I m4
 
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = utils debug
+SUBDIRS = utils debug test
