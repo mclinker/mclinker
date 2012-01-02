@@ -66,6 +66,21 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
   // add target dependent sections here.
 }
 
+void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
+{
+  // Create symbol _GLOBAL_OFFSET_TABLE_ to mark .got section.
+  if (m_pGOT.get()) {
+    pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
+                         false,
+                         ResolveInfo::Object,
+                         ResolveInfo::Define,
+                         ResolveInfo::Local,
+                         m_pGOT->getEntrySize(),
+                         *(new MCFragmentRef(*(m_pGOT->begin()))),
+                         ResolveInfo::Hidden);
+  }
+}
+
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
                                       unsigned int pType)
@@ -124,12 +139,6 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
                                             unsigned int pType)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-
-  if (NULL == m_pGOT.get() &&
-      strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_") == 0) {
-    // TODO: (simon) Check that we do not create .dyn.rel for this sym
-    createGOTSec(pLinker);
-  }
 
   if (isSymbolNeedsPLT(*rsym, pType) /* TODO: check the sym hasn't a PLT offset */) {
     if (Output::DynObj == pType) {

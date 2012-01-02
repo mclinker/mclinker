@@ -81,6 +81,8 @@ public:
 
   void initTargetSections(MCLinker& pLinker);
 
+  void initTargetSymbols(MCLinker& pLinker);
+
   /// scanRelocation - determine the empty entries are needed or not and
   /// create the empty entries if needed.
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
