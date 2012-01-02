@@ -85,6 +85,7 @@ void Layout::orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear)
   if (NULL != pFront->getPrevNode())
     frag_index = pFront->getPrevNode()->getLayoutOrder() + 1;
 
+  // Advance the position until all fragments within the range are ordered
   while (pFront != pRear) {
     pFront->setLayoutOrder(frag_index++);
     pFront = pFront->getNextNode();
@@ -152,7 +153,7 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
     sect_list.push_back(std::make_pair(*it, pBackend.getSectionOrder(**it)));
   }
 
-  // simple insertion sort should be fine for general cases
+  // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
     SectOrder order = sect_list[i];
     int j = i - 1;
@@ -163,7 +164,7 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
     sect_list[j + 1] = order;
   }
 
-  // update the sorting order to m_SectionOrder
+  // update the sorted ordering to m_SectionOrder
   m_SectionOrder.clear();
   SectListTy::iterator iter;
   for (iter = sect_list.begin(); iter != sect_list.end(); ++iter)
@@ -215,7 +216,7 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
     }
   }
 
-  // perform sorting on m_SectionOrder to get a final ordering
+  // perform sorting on m_SectionOrder to get a ordering for final layout
   sortSectionOrder(pBackend);
 
   // compute the section offset and addr, and handle alignment also.
@@ -232,6 +233,7 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
     else
       offset = pBackend.sectionStartOffset();
 
+   // align the offset to target-defined alignment
    alignAddress(offset, pBackend.bitclass());
 
     // FIXME: if .bss is laid out, set its addr to 0
@@ -245,8 +247,8 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
       isBSSLaidOut = 1;
   }
 
-  // FIXME: Currently writer writes sections based on the section table in
-  // output context, we have to update its content..
+  // FIXME: Currently Writer bases on the section table in output context to
+  // write out sections, so we have to update its content..
   pOutput.getSectionTable().clear();
   for (index = 0; index < m_SectionOrder.size(); ++index)
     pOutput.getSectionTable().push_back(m_SectionOrder[index]);
