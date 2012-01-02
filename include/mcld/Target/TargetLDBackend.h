@@ -84,9 +84,6 @@ public:
 
   virtual RelocationFactory* getRelocFactory() = 0;
 
-  /// The return value of machine() it the same as e_machine in the ELF header*/
-  virtual uint32_t machine() const = 0;
-
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
 

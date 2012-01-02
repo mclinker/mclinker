@@ -91,6 +91,9 @@ public:
 
   size_t sectionStartOffset() const;
 
+  /// The return value of machine() it the same as e_machine in the ELF header*/
+  virtual uint32_t machine() const = 0;
+
   /// ELFVersion - the value of e_ident[EI_VERSION]
   virtual uint8_t ELFVersion() const
   { return llvm::ELF::EV_CURRENT; }
