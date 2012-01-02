@@ -41,9 +41,17 @@ bool ELFObjectReader::isMyFormat(Input &pFile) const
   return (MCLDFile::Object == ELFReader::fileType(pFile));
 }
 
-LDReader::Endian ELFObjectReader::endian(Input &pFile) const
+LDReader::Endian ELFObjectReader::endian(Input &pInput) const
 {
-  if (ELFReader::isLittleEndian(pFile))
+  assert(pInput.hasMemArea());
+
+  // Don't warning about the frequently requests.
+  // MemoryArea has a list of cache to handle this.
+  MemoryRegion* region = pInput.memArea()->request(0,
+                                                   sizeof(llvm::ELF::Elf64_Ehdr),
+                                                   false);
+  uint8_t* data = region->start();
+  if (ELFReader::isLittleEndian(data))
     return LDReader::LittleEndian;
   return LDReader::BigEndian;
 }

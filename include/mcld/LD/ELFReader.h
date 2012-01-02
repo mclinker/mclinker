@@ -23,6 +23,7 @@ namespace mcld
 {
 
 class GNULDBackend;
+class MemoryRegion;
 
 /** \class ELFReader
  *  \brief ELFReader provides common functions for all kind of ELF readers.
@@ -35,11 +36,11 @@ public:
 
   virtual ~ELFReader() { }
 
-  bool isELF(Input& pInput) const;
-
   MCLDFile::Type fileType(Input &pInput) const;
 
-  bool isLittleEndian(Input &pInput) const;
+  bool isLittleEndian(const uint8_t pEIdent[]) const;
+
+  bool isELF(const uint8_t pEIdent[]) const;
 
   unsigned int bitclass(Input &pInput) const;
 

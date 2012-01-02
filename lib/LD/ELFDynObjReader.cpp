@@ -14,6 +14,7 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/Support/MemoryRegion.h>
 
 #include <string>
 
@@ -29,16 +30,24 @@ ELFDynObjReader::~ELFDynObjReader()
 {
 }
 
-LDReader::Endian ELFDynObjReader::endian(Input& pFile) const
-{
-  if (ELFReader::isLittleEndian(pFile))
-    return LDReader::LittleEndian;
-  return LDReader::BigEndian;
-}
-
 bool ELFDynObjReader::isMyFormat(Input &pFile) const
 {
   return (MCLDFile::DynObj == ELFReader::fileType(pFile));
+}
+
+LDReader::Endian ELFDynObjReader::endian(Input& pInput) const
+{
+  assert(pInput.hasMemArea());
+
+  // Don't warning about the frequently requests.
+  // MemoryArea has a list of cache to handle this.
+  MemoryRegion* region = pInput.memArea()->request(0,
+                                                   sizeof(llvm::ELF::Elf64_Ehdr),
+                                                   false);
+  uint8_t* data = region->start();
+  if (ELFReader::isLittleEndian(data))
+    return LDReader::LittleEndian;
+  return LDReader::BigEndian;
 }
 
 llvm::error_code ELFDynObjReader::readDSO(Input& pFile)
