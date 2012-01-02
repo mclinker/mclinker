@@ -184,7 +184,7 @@ void MipsGNULDBackend::createRelDynSec(MCLinker& pLinker)
 
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
-  unsigned int size = bitclass()/ 8 * 2 ;
+  unsigned int size = bitclass() / 8 * 2 ;
   m_pRelDynSec.reset(new MipsDynRelSection(sec, data, size));
 }
 

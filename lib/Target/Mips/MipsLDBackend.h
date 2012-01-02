@@ -84,7 +84,6 @@ public:
   /// scanRelocation - determine the empty entries are needed or not and
   /// create the empty entries if needed.
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
-  /// (or there are any other target dependent entries for Mips?)
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
                       unsigned int pType);
