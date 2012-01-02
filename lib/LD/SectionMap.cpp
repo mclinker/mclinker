@@ -100,8 +100,8 @@ const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
   {".fini_array", ".fini_array"},
   {".sdata", ".sdata"},
   {".sbss", ".sbss"},
-  // FIXME: In the GNU linker, .sbss2 and .sdata2 are handled
-  // differently depending on whether it is creating a shared library.
+  // FIXME: in GNU ld, if we are creating a shared object .sdata2 and .sbss2
+  // sections would be handled differently.
   {".sdata2", ".sdata"},
   {".sbss2", ".sbss"},
   {".lrodata", ".lrodata"},
