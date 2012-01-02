@@ -30,9 +30,16 @@ ELFDynObjReader::~ELFDynObjReader()
 {
 }
 
-bool ELFDynObjReader::isMyFormat(Input &pFile) const
+bool ELFDynObjReader::isMyFormat(Input &pInput) const
 {
-  return (MCLDFile::DynObj == ELFReader::fileType(pFile));
+  assert(pInput.hasMemArea());
+
+  // Don't warning about the frequently requests.
+  // MemoryArea has a list of cache to handle this.
+  MemoryRegion* region =
+                   pInput.memArea()->request(0, sizeof(llvm::ELF::Elf64_Ehdr));
+  uint8_t* data = region->start();
+  return (MCLDFile::Object == ELFReader::fileType(data));
 }
 
 LDReader::Endian ELFDynObjReader::endian(Input& pInput) const
@@ -41,9 +48,8 @@ LDReader::Endian ELFDynObjReader::endian(Input& pInput) const
 
   // Don't warning about the frequently requests.
   // MemoryArea has a list of cache to handle this.
-  MemoryRegion* region = pInput.memArea()->request(0,
-                                                   sizeof(llvm::ELF::Elf64_Ehdr),
-                                                   false);
+  MemoryRegion* region =
+                   pInput.memArea()->request(0, sizeof(llvm::ELF::Elf64_Ehdr));
   uint8_t* data = region->start();
   if (ELFReader::isLittleEndian(data))
     return LDReader::LittleEndian;

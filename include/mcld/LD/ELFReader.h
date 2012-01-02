@@ -36,14 +36,6 @@ public:
 
   virtual ~ELFReader() { }
 
-  MCLDFile::Type fileType(Input &pInput) const;
-
-  bool isLittleEndian(const uint8_t pEIdent[]) const;
-
-  bool isELF(const uint8_t pEIdent[]) const;
-
-  unsigned int bitclass(Input &pInput) const;
-
   ELFObject<32>* createELF32Object(Input &pInput) const;
 
   ELFObject<64>* createELF64Object(Input &pInput) const;
@@ -57,6 +49,14 @@ public:
 
   LDFileFormat::Kind getLDSectionKind(const ELFSectionHeader<64>& pHeader,
                                       const llvm::StringRef& pName) const;
+
+  unsigned int bitclass(const uint8_t pEIdent[]) const;
+
+  MCLDFile::Type fileType(const uint8_t pEIdent[]) const;
+
+  bool isLittleEndian(const uint8_t pEIdent[]) const;
+
+  bool isELF(const uint8_t pEIdent[]) const;
 
   bool readELF32Rel(const LDSection& pSection,
                     const MemoryRegion& pRegion,

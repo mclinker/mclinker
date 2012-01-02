@@ -50,30 +50,24 @@ bool ELFReader::isELF(const uint8_t pEIdent[]) const
   }
 }
 
-MCLDFile::Type ELFReader::fileType(Input &pInput) const
+MCLDFile::Type ELFReader::fileType(const uint8_t pEIdent[]) const
 {
-  // it is a ELF file
-  // same endian
-  MemoryRegion* region = pInput.memArea()->request(0,
-                                                   sizeof(llvm::ELF::Elf64_Ehdr),
-                                                   false);
-  uint8_t* data = region->start();
 
   // is it a ELF file?
-  if (!isELF(data)) {
+  if (!isELF(pEIdent)) {
     return MCLDFile::Unknown;
   }
 
   uint32_t e_type = 0x0;
   // the same endian
-  if (llvm::sys::isLittleEndianHost() == isLittleEndian(data)) {
-    e_type |= data[llvm::ELF::EI_NIDENT];
-    e_type |= (data[llvm::ELF::EI_NIDENT+1] << 8);
+  if (llvm::sys::isLittleEndianHost() == isLittleEndian(pEIdent)) {
+    e_type |= pEIdent[llvm::ELF::EI_NIDENT];
+    e_type |= (pEIdent[llvm::ELF::EI_NIDENT+1] << 8);
   }
   // different endian
   else {
-    e_type |= (data[llvm::ELF::EI_NIDENT] << 8);
-    e_type |= data[llvm::ELF::EI_NIDENT+1];
+    e_type |= (pEIdent[llvm::ELF::EI_NIDENT] << 8);
+    e_type |= pEIdent[llvm::ELF::EI_NIDENT+1];
   }
 
   switch(e_type) {
@@ -105,13 +99,9 @@ bool ELFReader::isLittleEndian(const uint8_t pEIdent[]) const
   return false;
 }
   
-unsigned int ELFReader::bitclass(Input &pInput) const
+unsigned int ELFReader::bitclass(const uint8_t pEIdent[]) const
 {
-  // get the e_ident
-  uint8_t* e_ident = pInput.memArea()->request(0,
-                                               llvm::ELF::EI_NIDENT,
-                                               false)->start();
-  switch (e_ident[llvm::ELF::EI_CLASS]) {
+  switch (pEIdent[llvm::ELF::EI_CLASS]) {
   case llvm::ELF::ELFCLASSNONE:
     llvm::report_fatal_error(llvm::Twine("invalied e_ident[EI_CLASS] class.\n"));
     break;

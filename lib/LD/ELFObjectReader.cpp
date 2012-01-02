@@ -36,9 +36,17 @@ ELFObjectReader::~ELFObjectReader()
 {
 }
 
-bool ELFObjectReader::isMyFormat(Input &pFile) const
+bool ELFObjectReader::isMyFormat(Input &pInput) const
 {
-  return (MCLDFile::Object == ELFReader::fileType(pFile));
+  assert(pInput.hasMemArea());
+
+  // Don't warning about the frequently requests.
+  // MemoryArea has a list of cache to handle this.
+  MemoryRegion* region = pInput.memArea()->request(0,
+                                                   sizeof(llvm::ELF::Elf64_Ehdr),
+                                                   false);
+  uint8_t* data = region->start();
+  return (MCLDFile::Object == ELFReader::fileType(data));
 }
 
 LDReader::Endian ELFObjectReader::endian(Input &pInput) const
