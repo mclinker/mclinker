@@ -35,6 +35,37 @@ class Layout;
 class GNULDBackend : public TargetLDBackend
 {
 protected:
+  // Based on Kind in LDFileFormat to define basic section orders for ELF, and
+  // refer gold linker to add more enumerations to handle Regular and BSS kind
+  enum SectionOrder {
+    SHO_INTERP = 1,          // .interp
+    SHO_RO_NOTE,             // .note.ABI-tag, .note.gnu.build-id
+    SHO_NAMEPOOL,            // *.hash, .dynsym, .dynstr
+    SHO_RELOCATION,          // .rel.*, .rela.*
+    SHO_REL_PLT,             // .rel.plt should come after other .rel.*
+    SHO_INIT,                // .init
+    SHO_PLT,                 // .plt
+    SHO_TEXT,                // .text
+    SHO_FINI,                // .fini
+    SHO_RO,                  // .rodata
+    SHO_EHFRAME,             // .eh_frame_hdr, .eh_frame
+    SHO_TLS_DATA,            // .tdata
+    SHO_TLS_BSS,             // .tbss
+    SHO_RELRO_LOCAL,         // .data.rel.ro.local
+    SHO_RELRO,               // .data.rel.ro,
+    SHO_RELRO_LAST,          // for x86 to adjust .got if needed
+    SHO_NON_RELRO_FIRST,     // for x86 to adjust .got.plt if needed
+    SHO_DATA,                // .data
+    SHO_LARGE_DATA,          // .ldata
+    SHO_RW_NOTE,             //
+    SHO_SMALL_DATA,          // .sdata
+    SHO_SMALL_BSS,           // .sbss
+    SHO_BSS,                 // .bss
+    SHO_LARGE_BSS,           // .lbss
+    SHO_UNDEFINED = ~(0U)    // default order
+  };
+
+protected:
   GNULDBackend();
 
 public:
