@@ -23,8 +23,6 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/raw_ostream.h>
 
-#include <iostream>
-using namespace std;
 using namespace mcld;
 
 /// Constructor
@@ -300,7 +298,11 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                                                 pAddend);
 
   relocation->setSymInfo(pSymbol.resolveInfo());
+
   m_RelocationList.push_back(relocation);
+
+  m_Backend.scanRelocation(*relocation, *this, 
+                           m_Info.output().type());
 
   return relocation;
 }
