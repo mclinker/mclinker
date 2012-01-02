@@ -101,6 +101,7 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
 
   switch (pReloc.type()){
     case ELF::R_MIPS_NONE:
+    case ELF::R_MIPS_16:
       break;
     case ELF::R_MIPS_32:
       if (Output::DynObj == pType) {
@@ -114,8 +115,31 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
         }
       }
       break;
+    case ELF::R_MIPS_REL32:
+    case ELF::R_MIPS_26:
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
+    case ELF::R_MIPS_PC16:
+    case ELF::R_MIPS_SHIFT5:
+    case ELF::R_MIPS_SHIFT6:
+    case ELF::R_MIPS_64:
+    case ELF::R_MIPS_GOT_PAGE:
+    case ELF::R_MIPS_GOT_OFST:
+    case ELF::R_MIPS_SUB:
+    case ELF::R_MIPS_INSERT_A:
+    case ELF::R_MIPS_INSERT_B:
+    case ELF::R_MIPS_DELETE:
+    case ELF::R_MIPS_HIGHER:
+    case ELF::R_MIPS_HIGHEST:
+    case ELF::R_MIPS_SCN_DISP:
+    case ELF::R_MIPS_REL16:
+    case ELF::R_MIPS_ADD_IMMEDIATE:
+    case ELF::R_MIPS_PJUMP:
+    case ELF::R_MIPS_RELGOT:
+    case ELF::R_MIPS_JALR:
+    case ELF::R_MIPS_GLOB_DAT:
+    case ELF::R_MIPS_COPY:
+    case ELF::R_MIPS_JUMP_SLOT:
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
@@ -125,10 +149,33 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
       m_pGOT->reserveEntry();
       break;
     case ELF::R_MIPS_GPREL32:
+    case ELF::R_MIPS_GPREL16:
+    case ELF::R_MIPS_LITERAL:
+      break;
+    case ELF::R_MIPS_GOT_DISP:
+    case ELF::R_MIPS_GOT_HI16:
+    case ELF::R_MIPS_CALL_HI16:
+    case ELF::R_MIPS_GOT_LO16:
+    case ELF::R_MIPS_CALL_LO16:
+      break;
+    case ELF::R_MIPS_TLS_DTPMOD32:
+    case ELF::R_MIPS_TLS_DTPREL32:
+    case ELF::R_MIPS_TLS_DTPMOD64:
+    case ELF::R_MIPS_TLS_DTPREL64:
+    case ELF::R_MIPS_TLS_GD:
+    case ELF::R_MIPS_TLS_LDM:
+    case ELF::R_MIPS_TLS_DTPREL_HI16:
+    case ELF::R_MIPS_TLS_DTPREL_LO16:
+    case ELF::R_MIPS_TLS_GOTTPREL:
+    case ELF::R_MIPS_TLS_TPREL32:
+    case ELF::R_MIPS_TLS_TPREL64:
+    case ELF::R_MIPS_TLS_TPREL_HI16:
+    case ELF::R_MIPS_TLS_TPREL_LO16:
       break;
     default:
-      llvm::report_fatal_error(llvm::Twine("Unknown relocation type. ") +
-                               llvm::Twine("To symbol `") +
+      llvm::report_fatal_error(llvm::Twine("Unknown relocation ") +
+                               llvm::Twine(pReloc.type()) +
+                               llvm::Twine("for the local symbol `") +
                                pReloc.symInfo()->name() +
                                llvm::Twine("'."));
   }
@@ -151,8 +198,19 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
 
   switch (pReloc.type()){
     case ELF::R_MIPS_NONE:
+    case ELF::R_MIPS_INSERT_A:
+    case ELF::R_MIPS_INSERT_B:
+    case ELF::R_MIPS_DELETE:
+    case ELF::R_MIPS_TLS_DTPMOD64:
+    case ELF::R_MIPS_TLS_DTPREL64:
+    case ELF::R_MIPS_REL16:
+    case ELF::R_MIPS_ADD_IMMEDIATE:
+    case ELF::R_MIPS_PJUMP:
+    case ELF::R_MIPS_RELGOT:
+    case ELF::R_MIPS_TLS_TPREL64:
       break;
     case ELF::R_MIPS_32:
+    case ELF::R_MIPS_64:
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
       if (isSymbolNeedsDynRel(*rsym, pType)) {
@@ -164,20 +222,68 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
+    case ELF::R_MIPS_GOT_DISP:
+    case ELF::R_MIPS_GOT_HI16:
+    case ELF::R_MIPS_CALL_HI16:
+    case ELF::R_MIPS_GOT_LO16:
+    case ELF::R_MIPS_CALL_LO16:
+    case ELF::R_MIPS_GOT_PAGE:
+    case ELF::R_MIPS_GOT_OFST:
       if (NULL == m_pGOT.get())
         createGOTSec(pLinker);
 
       m_pGOT->reserveEntry();
       break;
+    case ELF::R_MIPS_LITERAL:
     case ELF::R_MIPS_GPREL32:
-      llvm::report_fatal_error(llvm::Twine("R_MIPS_GPREL32 not defined for ") +
-                               llvm::Twine("global symbol `") +
+      llvm::report_fatal_error(llvm::Twine("Relocation ") +
+                               llvm::Twine(pReloc.type()) +
+                               llvm::Twine(" is not defined for the "
+                                           "global symbol `") +
                                pReloc.symInfo()->name() +
                                llvm::Twine("'."));
       break;
+    case ELF::R_MIPS_GPREL16:
+      break;
+    case ELF::R_MIPS_26:
+    case ELF::R_MIPS_PC16:
+      break;
+    case ELF::R_MIPS_16:
+    case ELF::R_MIPS_SHIFT5:
+    case ELF::R_MIPS_SHIFT6:
+    case ELF::R_MIPS_SUB:
+    case ELF::R_MIPS_HIGHER:
+    case ELF::R_MIPS_HIGHEST:
+    case ELF::R_MIPS_SCN_DISP:
+      break;
+    case ELF::R_MIPS_TLS_DTPREL32:
+    case ELF::R_MIPS_TLS_GD:
+    case ELF::R_MIPS_TLS_LDM:
+    case ELF::R_MIPS_TLS_DTPREL_HI16:
+    case ELF::R_MIPS_TLS_DTPREL_LO16:
+    case ELF::R_MIPS_TLS_GOTTPREL:
+    case ELF::R_MIPS_TLS_TPREL32:
+    case ELF::R_MIPS_TLS_TPREL_HI16:
+    case ELF::R_MIPS_TLS_TPREL_LO16:
+      break;
+    case ELF::R_MIPS_REL32:
+      break;
+    case ELF::R_MIPS_JALR:
+      break;
+    case ELF::R_MIPS_COPY:
+    case ELF::R_MIPS_GLOB_DAT:
+    case ELF::R_MIPS_JUMP_SLOT:
+      llvm::report_fatal_error(llvm::Twine("Relocation ") +
+                               llvm::Twine(pReloc.type()) +
+                               llvm::Twine("for the global symbol `") +
+                               pReloc.symInfo()->name() +
+                               llvm::Twine("' should only be seen "
+                                           "by the dynamic linker"));
+      break;
     default:
-      llvm::report_fatal_error(llvm::Twine("Unknown relocation type. ") +
-                               llvm::Twine("To symbol `") +
+      llvm::report_fatal_error(llvm::Twine("Unknown relocation ") +
+                               llvm::Twine(pReloc.type()) +
+                               llvm::Twine("for the global symbol `") +
                                pReloc.symInfo()->name() +
                                llvm::Twine("'."));
   }
