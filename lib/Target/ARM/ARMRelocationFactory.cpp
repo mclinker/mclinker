@@ -10,6 +10,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/DataTypes.h>
+#include <llvm/Support/ELF.h>
 
 #include <mcld/LD/Layout.h>
 
@@ -147,7 +148,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       Relocation& rel_entry =
         *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      rel_entry.setType(R_ARM_GLOB_DAT);
+      rel_entry.setType(llvm::ELF::R_ARM_GLOB_DAT);
       rel_entry.targetRef().assign(got_entry);
       rel_entry.setSymInfo(rsym);
     }
@@ -197,7 +198,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
       Relocation& rel_entry =
         *ld_backend.getRelPLT().getEntry(*rsym, true, exist);
       assert(!exist && "PLT entry not exist, but DynRel entry exist!");
-      rel_entry.setType(R_ARM_JUMP_SLOT);
+      rel_entry.setType(llvm::ELF::R_ARM_JUMP_SLOT);
       rel_entry.targetRef().assign(gotplt_entry);
       rel_entry.setSymInfo(rsym);
     }
@@ -379,7 +380,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   ARMRelocationFactory::DWord S = pReloc.symValue();
 
   if(rsym->isLocal() && (rsym->reserved() & 0x1u)) {
-    helper_DynRel(pReloc, R_ARM_RELATIVE, pParent);
+    helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
     pReloc.target() = (S + A) | T ;
     return ARMRelocationFactory::OK;
   }
@@ -391,7 +392,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
     }
     if(rsym->reserved() & 0x1u) {
       if(helper_use_relative_reloc(*rsym))
-        helper_DynRel(pReloc, R_ARM_RELATIVE, pParent);
+        helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
       else
         helper_DynRel(pReloc, pReloc.type(), pParent);
     }
