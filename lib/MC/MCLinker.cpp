@@ -283,7 +283,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     Relocation::Address pOffset,
                                     Relocation::Address pAddend)
 {
-  if (NULL == pSymbol.fragRef()) {
+  if (NULL == pSymbol.fragRef()->frag()) {
     llvm::report_fatal_error(llvm::Twine("The symbol `") +
                              llvm::Twine(pSymbol.name()) +
                              llvm::Twine("' after resolution is dangling.\n"));
