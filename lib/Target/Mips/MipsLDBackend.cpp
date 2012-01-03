@@ -42,6 +42,17 @@ uint32_t MipsGNULDBackend::machine() const
   return ELF::EM_MIPS;
 }
 
+uint64_t MipsGNULDBackend::flags() const
+{
+  // TODO: (simon) The correct flag's set depend on command line
+  // arguments and flags from input .o files.
+  return llvm::ELF::EF_MIPS_ARCH_32R2 |
+         llvm::ELF::EF_MIPS_NOREORDER |
+         llvm::ELF::EF_MIPS_PIC |
+         llvm::ELF::EF_MIPS_CPIC |
+         0x00001000;    // E_MIPS_ABI_O32
+}
+
 bool MipsGNULDBackend::isLittleEndian() const
 {
   // Now we support little endian (mipsel) target only.

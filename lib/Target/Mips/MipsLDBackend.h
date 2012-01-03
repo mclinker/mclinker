@@ -41,9 +41,7 @@ public:
   { return 0x0; }
 
   /// flags - the value of ElfXX_Ehdr::e_flags
-  /// FIXME:
-  uint64_t flags() const
-  { return llvm::ELF::EF_MIPS_ARCH_32R2; }
+  uint64_t flags() const;
 
   bool isLittleEndian() const;
 
