@@ -32,7 +32,7 @@ protected:
 public:
   virtual ~ObjectReader() { }
 
-  virtual llvm::error_code readObject(Input& pFile) = 0;
+  virtual bool readObject(Input& pFile) = 0;
 
   virtual bool readSymbols(Input& pFile) = 0;
 

@@ -49,18 +49,23 @@ void MCLDDriver::normalize() {
     
     (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
     if (!(*input)->memArea()->isGood()) {
-        llvm::report_fatal_error("can not open file: " + (*input)->path().native());
-        return;
+      llvm::report_fatal_error("can not open file: " + (*input)->path().native());
+      return;
     }
 
+    // is a relocatable object file
     if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
-        (*input)->setType(Input::Object);
-        (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+      (*input)->setType(Input::Object);
+      (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+      m_LDBackend.getObjectReader()->readObject(**input);
     }
+    // is a shared object file
     else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
-        (*input)->setType(Input::DynObj);
-        (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+      (*input)->setType(Input::DynObj);
+      (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
+      m_LDBackend.getDynObjReader()->readDSO(**input);
     }
+    // is an archive
     else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
       (*input)->setType(Input::Archive);
       mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);

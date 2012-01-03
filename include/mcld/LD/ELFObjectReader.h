@@ -12,7 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/ELFReader.h>
 #include <mcld/LD/ObjectReader.h>
 #include <llvm/Support/system_error.h>
 
@@ -22,11 +21,12 @@ namespace mcld
 class Input;
 class MCLinker;
 class GNULDBackend;
+class ELFReaderIF;
 
 /** \lclass ELFObjectReader
  *  \brief ELFObjectReader reads target-independent parts of ELF object file
  */
-class ELFObjectReader : public ObjectReader, protected ELFReader
+class ELFObjectReader : public ObjectReader
 {
 public:
   ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker);
@@ -34,12 +34,10 @@ public:
   ~ELFObjectReader();
 
   // -----  observers  ----- //
-  LDReader::Endian endian(Input& pFile) const;
-
   bool isMyFormat(Input &pFile) const;
 
   // -----  readers  ----- //
-  llvm::error_code readObject(Input& pFile);
+  bool readObject(Input& pFile);
 
   virtual bool readSections(Input& pFile);
 
@@ -52,7 +50,7 @@ public:
 
 private:
   MCLinker& m_Linker;
-
+  ELFReaderIF* m_pELFReader;
 };
 
 } // namespace of mcld

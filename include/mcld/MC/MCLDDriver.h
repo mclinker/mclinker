@@ -35,6 +35,7 @@ public:
   MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
+  /// normalize - normalize the input files
   void normalize();
 
   /// linkable - check the linkability of current MCLDInfo

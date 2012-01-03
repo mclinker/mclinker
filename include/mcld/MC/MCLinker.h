@@ -96,7 +96,10 @@ public:
   /// SectionMap& getSectionMap()
   /// { return m_SectionMap; }
 
-  /// createSectHdr - for reader and standard/target format to create a section header
+  /// createSectHdr - for reader and standard/target format to create a section
+  /// header. This function will create a new LDSection and return it. If the
+  /// output has no related LDSection, this function will also create one and
+  /// push into the output.
   LDSection& createSectHdr(const std::string& pName,
                            LDFileFormat::Kind pKind,
                            uint32_t pType,

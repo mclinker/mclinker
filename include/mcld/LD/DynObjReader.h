@@ -33,7 +33,7 @@ protected:
 public:
   virtual ~DynObjReader() { }
 
-  virtual llvm::error_code readDSO(Input& pFile) = 0;
+  virtual bool readDSO(Input& pFile) = 0;
 
   virtual bool readSymbols(Input& pFile) = 0;
 

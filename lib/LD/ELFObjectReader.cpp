@@ -10,12 +10,11 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ELFObjectReader.h>
+#include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCRegionFragment.h>
 #include <mcld/Target/GNULDBackend.h>
-#include "mcld/Support/rslinker/ELFSectionHeaderTable.h"
-#include "mcld/Support/rslinker/ELFSectionRelTable.h"
 
 #include <string>
 #include <cassert>
@@ -25,73 +24,62 @@ using namespace mcld;
 
 //==========================
 // ELFObjectReader
+/// constructor
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker)
   : ObjectReader(),
-    ELFReader(pBackend),
+    m_pELFReader(0),
     m_Linker(pLinker)
 {
+  if (32 == pBackend.bitclass() && pBackend.isLittleEndian()) {
+    m_pELFReader = new ELFReader<32, true>(pBackend);
+  }
 }
 
+/// destructor
 ELFObjectReader::~ELFObjectReader()
 {
+  delete m_pELFReader;
 }
 
+/// isMyFormat
 bool ELFObjectReader::isMyFormat(Input &pInput) const
 {
   assert(pInput.hasMemArea());
 
   // Don't warning about the frequently requests.
   // MemoryArea has a list of cache to handle this.
-  MemoryRegion* region = pInput.memArea()->request(0,
-                                                   sizeof(llvm::ELF::Elf64_Ehdr),
-                                                   false);
-  uint8_t* data = region->start();
-  return (MCLDFile::Object == ELFReader::fileType(data));
+  size_t hdr_size = m_pELFReader->getELFHeaderSize();
+  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+
+  uint8_t* ELF_hdr = region->start();
+  if (!m_pELFReader->isELF(ELF_hdr))
+    return false;
+  if (!m_pELFReader->isMyEndian(ELF_hdr))
+    return false;
+  if (!m_pELFReader->isMyMachine(ELF_hdr))
+    return false;
+  return (MCLDFile::Object == m_pELFReader->fileType(ELF_hdr));
 }
 
-LDReader::Endian ELFObjectReader::endian(Input &pInput) const
+/// readObject - read section header and create LDSections.
+bool ELFObjectReader::readObject(Input& pInput)
 {
   assert(pInput.hasMemArea());
 
-  // Don't warning about the frequently requests.
-  // MemoryArea has a list of cache to handle this.
-  MemoryRegion* region = pInput.memArea()->request(0,
-                                                   sizeof(llvm::ELF::Elf64_Ehdr),
-                                                   false);
-  uint8_t* data = region->start();
-  if (ELFReader::isLittleEndian(data))
-    return LDReader::LittleEndian;
-  return LDReader::BigEndian;
-}
+  size_t hdr_size = m_pELFReader->getELFHeaderSize();
+  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+  uint8_t* ELF_hdr = region->start();
 
-llvm::error_code ELFObjectReader::readObject(Input& pFile)
-{
-  // TODO
-  return llvm::error_code();
+  return m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
 }
 
 /// readSections - read all regular sections.
 bool ELFObjectReader::readSections(Input& pInput)
 {
-  // -----  initialize rslinker  ----- //
-  ELFObject<32> *object = ELFReader::createELF32Object(pInput);
-  llvm::OwningPtr<ELFObject<32> > own_ptr(object);
-
-  const ELFSectionHeaderTable<32> *shtab = object->getSectionHeaderTable();
-
   // handle sections
-  for (size_t i=0; i < object->getSectionNumber(); ++i) {
-    const ELFSectionHeader<32> *sh = (*shtab)[i];
-    // create an input LDSection
-    LDSection& ldSect = m_Linker.createSectHdr(sh->getName(),
-                                               ELFReader::getLDSectionKind(*sh, sh->getName()),
-                                               sh->getType(),
-                                               sh->getFlags());
-
-    ldSect.setIndex(pInput.context()->getSectionTable().size());
-    pInput.context()->getSectionTable().push_back(&ldSect);
-
-    switch(ldSect.kind()) {
+  LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
+  for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
+    switch((*section)->kind()) {
       // FIXME: support Debug Kind
       case LDFileFormat::Debug:
       /** Fall through **/
@@ -99,9 +87,10 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Note:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData: {
-        MemoryRegion* region = pInput.memArea()->request(sh->getOffset(), sh->getSize());
-        llvm::MCSectionData& mcSectData = m_Linker.getOrCreateSectData(ldSect);
-        new MCRegionFragment(*region, &mcSectData);
+        MemoryRegion* region = pInput.memArea()->request((*section)->offset(),
+                                                         (*section)->size());
+        llvm::MCSectionData& sect_data = m_Linker.getOrCreateSectData(**section);
+        new MCRegionFragment(*region, &sect_data);
         break;
       }
       case LDFileFormat::BSS: {
@@ -111,10 +100,10 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                llvm::ELF::SHT_NOBITS,
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 
-        llvm::MCSectionData& sectData = m_Linker.getOrCreateSectData(ldSect);
-                             /*  value, valsize, size,          SD */
-        new llvm::MCFillFragment(0x0,   1,       sh->getSize(), &sectData);
-        output_bss.setSize( output_bss.size() + sh->getSize());
+        llvm::MCSectionData& sect_data = m_Linker.getOrCreateSectData(**section);
+                             /*  value, valsize, size,               SD */
+        new llvm::MCFillFragment(0x0,   1,       (*section)->size(), &sect_data);
+        output_bss.setSize(output_bss.size() + (*section)->size());
         break;
       }
       // ignore
@@ -131,116 +120,19 @@ bool ELFObjectReader::readSections(Input& pInput)
 /// readSymbols - read symbols into MCLinker from the input relocatable object.
 bool ELFObjectReader::readSymbols(Input& pInput)
 {
-  assert(pInput.hasContext() && "Input file should has context");
+  assert(pInput.hasMemArea());
 
-  // -----  initialize rslinker  ----- //
-  ELFObject<32>* rs_object = ELFReader::createELF32Object(pInput);
-  llvm::OwningPtr<ELFObject<32> > own_ptr(rs_object);
+  LDSection* symtab_shdr = pInput.context()->getSection(".symtab");
+  LDSection* strtab_shdr = pInput.context()->getSection(".strtab");
+  if (NULL == symtab_shdr || NULL == strtab_shdr)
+    return false;
 
-  ELFSectionSymTab<32>* rs_symtab =
-    static_cast<ELFSectionSymTab<32> *>(rs_object->getSectionByName(".symtab"));
-
-  // Skip Start NULL Symbol
-  size_t rs_sym_idx = 1;
-
-  // -----  add symbols ----- //
-  // for all rs_symbol, convert it to LDSymbol
-  for (; rs_sym_idx < rs_symtab->size() ; ++rs_sym_idx) {
-    ELFSymbol<32>* rs_sym = (*rs_symtab)[rs_sym_idx];
-
-    /// convert to name
-    llvm::StringRef ld_name(rs_sym->getName(false));
-
-    /// convert to ResolveInfo::Type
-    // type in LDSymbol is one-one mapping to ELF_ST_TYPE
-    // Only handle NOTYPE, OBJECT and FUNC
-    ResolveInfo::Type ld_type;
-    switch(ld_type = static_cast<ResolveInfo::Type>(rs_sym->getType())) {
-      case llvm::ELF::STT_NOTYPE:
-      case llvm::ELF::STT_OBJECT:
-      case llvm::ELF::STT_FUNC:
-      case llvm::ELF::STT_COMMON: {
-        // assigned
-        break;
-      }
-      case llvm::ELF::STT_SECTION:
-      case llvm::ELF::STT_FILE:
-      default: {
-        // FIXME: support these kinds of symbols
-        continue;
-      }
-    }
-
-    /// convert to ResolveInfo::Desc
-    ResolveInfo::Desc ld_desc;
-    switch (rs_sym->getSectionIndex()) {
-    case llvm::ELF::SHN_COMMON:
-      ld_desc = ResolveInfo::Common;
-      break;
-    case llvm::ELF::SHN_UNDEF:
-      ld_desc = ResolveInfo::Undefined;
-      break;
-    default:
-      // FIXME: handle with indirect symbol
-      // ELF weak alias should be handled as indirect symbol.
-      ld_desc = ResolveInfo::Define;
-      break;
-    }
-
-    /// convert to ResolveInfo::Binding
-    ResolveInfo::Binding ld_binding = ELFReader::getBindingResolveInfo(rs_sym, false);
-
-    /// convert to ResolveInfo::SizeType
-    ResolveInfo::SizeType ld_size = rs_sym->getSize();
-
-    /// get the input fragment.
-    MCFragmentRef ld_frag_ref;
-    unsigned int sh_shndx;
-    switch (sh_shndx = rs_sym->getSectionIndex()) {
-      case llvm::ELF::SHN_ABS:
-      case llvm::ELF::SHN_COMMON:
-      case llvm::ELF::SHN_UNDEF: {
-        // do nothing
-        break;
-      }
-      default: {
-        LDSection* sect_hdr = pInput.context()->getSection(sh_shndx);
-        if (NULL == sect_hdr)
-          llvm::report_fatal_error(llvm::Twine("section[") +
-                                   llvm::Twine(sh_shndx) +
-                                   llvm::Twine("] is invalid in file `") +
-                                   pInput.path().native() +
-                                   llvm::Twine("'.\n"));
-
-        ld_frag_ref = m_Linker.getLayout().getFragmentRef(*sect_hdr,
-                                                         rs_sym->getValue());
-        break;
-      }
-    }
-    /// convert to ResolveInfo::Visibility
-    ResolveInfo::Visibility ld_vis = ELFReader::getVisibilityResolveInfo(rs_sym);
-
-    if (ResolveInfo::Local == ld_binding) {
-      m_Linker.addLocalSymbol(ld_name,
-                              ld_type,
-                              ld_desc,
-                              ld_size,
-                              ld_frag_ref,
-                              ld_vis);
-    }
-    else {
-      m_Linker.addGlobalSymbol(ld_name,
-                               false,
-                               ld_type,
-                               ld_desc,
-                               ld_binding,
-                               ld_size,
-                               ld_frag_ref,
-                               ld_vis);
-    }
-  } // end of for all rs_symbol
-
-  return true;
+  MemoryRegion* symtab_region = pInput.memArea()->request(symtab_shdr->offset(),
+                                                          symtab_shdr->size());
+  MemoryRegion* strtab_region = pInput.memArea()->request(strtab_shdr->offset(),
+                                                          strtab_shdr->size());
+  char* strtab = reinterpret_cast<char*>(strtab_region->start());
+  return m_pELFReader->readSymbols(pInput, m_Linker, *symtab_region, strtab);
 }
 
 bool ELFObjectReader::readRelocations(Input& pInput)
@@ -250,21 +142,15 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   MemoryArea* mem = pInput.memArea();
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
-    if ((*section)->type() == llvm::ELF::SHT_RELA && 32 == target().bitclass()) {
+    if ((*section)->type() == llvm::ELF::SHT_RELA) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF32Rela(**section, *region, *pInput.context(), m_Linker);
+      if (!m_pELFReader->readRela(pInput, m_Linker, *region))
+        return false;
     }
-    else if ((*section)->type() == llvm::ELF::SHT_REL && 32 == target().bitclass()) {
+    else if ((*section)->type() == llvm::ELF::SHT_REL) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF32Rel(**section, *region, *pInput.context(), m_Linker);
-    }
-    else if ((*section)->type() == llvm::ELF::SHT_RELA && 64 == target().bitclass()) {
-      MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF64Rela(**section, *region, *pInput.context(), m_Linker);
-    }
-    else if ((*section)->type() == llvm::ELF::SHT_REL && 64 == target().bitclass()) {
-      MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      return ELFReader::readELF64Rel(**section, *region, *pInput.context(), m_Linker);
+      if (!m_pELFReader->readRel(pInput, m_Linker, *region))
+        return false;
     }
   }
   return true;
