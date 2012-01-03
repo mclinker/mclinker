@@ -22,7 +22,12 @@ namespace mcld {
 MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   : GOT(pSection, pSectionData, MipsGOTEntrySize)
 {
+  // Create reserved entry for the lazy resolver
+  reserveEntry(1);
   m_GeneralGOTIterator = m_SectionData.begin();
+
+  // TODO (simon): Should we support GNU extension
+  // and reserve an entry for a module pointer?
 }
 
 void MipsGOT::reserveEntry(const int pNum)
