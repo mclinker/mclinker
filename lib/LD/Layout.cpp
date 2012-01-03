@@ -81,12 +81,12 @@ void Layout::orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear)
 {
   assert(NULL != pFront && NULL != pRear);
 
-  unsigned int frag_index = 0;
-  if (NULL != pFront->getPrevNode())
-    frag_index = pFront->getPrevNode()->getLayoutOrder() + 1;
+  unsigned int frag_index = (NULL != pFront->getPrevNode())
+                            ? pFront->getPrevNode()->getLayoutOrder() + 1
+                            : 0;
 
   // Advance the position until all fragments within the range are ordered
-  while (pFront != pRear) {
+  while (pRear->getLayoutOrder() == ~(0U)) {
     pFront->setLayoutOrder(frag_index++);
     pFront = pFront->getNextNode();
   }
