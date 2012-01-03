@@ -136,7 +136,7 @@ lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
   } else {
     RelocationFactory::DWord loPart = pReloc.addend() & 0xffff;
 
-    if (hiReloc != 0 && hiReloc->type() == R_MIPS_HI16) {
+    if (hiReloc != 0 && hiReloc->type() == llvm::ELF::R_MIPS_HI16) {
         RelocationFactory::DWord hiPart = hiReloc->addend() +
             ((loPart + 0x8000) & 0xffff);
 
