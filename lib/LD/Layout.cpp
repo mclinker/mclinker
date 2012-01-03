@@ -219,9 +219,8 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
   // perform sorting on m_SectionOrder to get a ordering for final layout
   sortSectionOrder(pBackend);
 
-  // compute the section offset and addr, and handle alignment also.
-  // ignore the section 0 (NULL in ELF/COFF), and MachO starts from section 1
-  unsigned int isBSSLaidOut = 0;
+  // compute the section offset and handle alignment also. And ignore section 0
+  // (NULL in ELF/COFF), and MachO starts from section 1.
   for (index = 1; index < m_SectionOrder.size(); ++index) {
     uint64_t offset;
     LDSection* cur = m_SectionOrder[index];
@@ -233,19 +232,10 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
     else
       offset = pBackend.sectionStartOffset();
 
-   // align the offset to target-defined alignment
-   alignAddress(offset, pBackend.bitclass());
+    // align the offset to target-defined alignment
+    alignAddress(offset, pBackend.bitclass());
 
-    // FIXME: if a start VMA is given from --section-start option or a script,
-    // we have to handle that.
-    if (0 == isBSSLaidOut)
-      cur->setAddr(offset);
-    else
-      cur->setAddr(0);
     cur->setOffset(offset);
-
-    if (LDFileFormat::BSS == cur->kind())
-      isBSSLaidOut = 1;
   }
 
   // FIXME: Currently Writer bases on the section table in output context to
