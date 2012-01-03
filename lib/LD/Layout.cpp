@@ -236,7 +236,8 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
    // align the offset to target-defined alignment
    alignAddress(offset, pBackend.bitclass());
 
-    // FIXME: if .bss is laid out, set its addr to 0
+    // FIXME: if a start VMA is given from --section-start option or a script,
+    // we have to handle that.
     if (0 == isBSSLaidOut)
       cur->setAddr(offset);
     else
