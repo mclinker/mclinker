@@ -39,7 +39,7 @@ bool ELFDynObjReader::isMyFormat(Input &pInput) const
   MemoryRegion* region =
                    pInput.memArea()->request(0, sizeof(llvm::ELF::Elf64_Ehdr));
   uint8_t* data = region->start();
-  return (MCLDFile::Object == ELFReader::fileType(data));
+  return (MCLDFile::DynObj == ELFReader::fileType(data));
 }
 
 LDReader::Endian ELFDynObjReader::endian(Input& pInput) const
