@@ -193,7 +193,27 @@ public:
     assert(NULL != f_pGOTPLT);
     return *f_pGOTPLT;
   }
-  
+
+   LDSection& getInit() {
+    assert(NULL != f_pInit);
+    return *f_pInit;
+  }
+
+  const LDSection& getInit() const {
+    assert(NULL != f_pInit);
+    return *f_pInit;
+  }
+
+  LDSection& getFini() {
+    assert(NULL != f_pFini);
+    return *f_pFini;
+  }
+
+  const LDSection& getFini() const {
+    assert(NULL != f_pFini);
+    return *f_pFini;
+  }
+
   LDSection& getPreInitArray() {
     assert(NULL != f_pPreInitArray);
     return *f_pPreInitArray;
@@ -262,6 +282,8 @@ protected:
   LDSection* f_pGOT;               // .got
   LDSection* f_pPLT;               // .plt
   LDSection* f_pGOTPLT;            // .got.plt
+  LDSection* f_pInit;              // .init
+  LDSection* f_pFini;              // .fini
   LDSection* f_pPreInitArray;      // .preinit_array
   LDSection* f_pInitArray;         // .init_array
   LDSection* f_pFiniArray;         // .fini_array

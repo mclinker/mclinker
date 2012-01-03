@@ -65,6 +65,14 @@ void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
                                            LDFileFormat::Target,
                                            ELF::SHT_PROGBITS,
                                            ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  f_pInit         = &pLinker.getOrCreateOutputSectHdr(".init",
+                                           LDFileFormat::Regular,
+                                           ELF::SHT_PROGBITS,
+                                           ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
+  f_pFini         = &pLinker.getOrCreateOutputSectHdr(".fini",
+                                           LDFileFormat::Regular,
+                                           ELF::SHT_PROGBITS,
+                                           ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
   f_pPreInitArray = &pLinker.getOrCreateOutputSectHdr(".preinit_array",
                                            LDFileFormat::Regular,
                                            ELF::SHT_PREINIT_ARRAY,
