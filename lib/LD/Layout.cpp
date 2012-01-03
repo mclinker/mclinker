@@ -252,17 +252,18 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
 MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
                                      uint64_t pOffset) const
 {
+  MCFragmentRef result;
   // find out which SectionData covers the range of input section header
   const llvm::MCSectionData* sect_data = pInputSection.getSectionData();
-  assert(NULL != sect_data);
+  if (NULL == sect_data)
+    return result;
 
-  InputRangeList::const_iterator sd_range_iter =
-    m_InputRangeList.find(sect_data);
+  InputRangeList::const_iterator sd_range_iter = 
+                                              m_InputRangeList.find(sect_data);
+
+  // range not found
   if (sd_range_iter == m_InputRangeList.end())
-    llvm::report_fatal_error(
-      llvm::Twine("Attempt to get FragmentRef in section '") +
-      pInputSection.name() +
-      llvm::Twine("' but without SectionData\n"));
+    return result;
 
   RangeList* sd_range = sd_range_iter->second;
 
@@ -272,10 +273,10 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
     if (&pInputSection == it->header)
       break;
   }
+
+  // fragment not found
   if (it == range_end)
-    llvm::report_fatal_error(
-      llvm::Twine("Attempt to find a non-exsiting range from section '") +
-      pInputSection.name());
+    return result;
 
   // get the begin fragment in the range of input section
   const llvm::MCFragment* frag = it->prevRear;
@@ -298,14 +299,16 @@ MCFragmentRef Layout::getFragmentRef(const LDSection& pInputSection,
   uint64_t target_offset = frag->Offset + pOffset;
   // The given offset exceeds the actual range of Section
   if ((rear->Offset + computeFragmentSize(*this, *rear)) < target_offset)
-    return MCFragmentRef();
+    return result;
 
   // find out the target fragment in the range of input section
   while (frag->getNextNode() && (frag->getNextNode()->Offset < target_offset))
     frag = frag->getNextNode();
 
-  return MCFragmentRef(const_cast<llvm::MCFragment&>(*frag),
-                       target_offset - frag->Offset);
+  result.assign(const_cast<llvm::MCFragment&>(*frag),
+                target_offset - frag->Offset);
+
+  return result;
 }
 
 void Layout::addInputRange(const llvm::MCSectionData& pSD,
