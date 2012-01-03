@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 
-#include <stdint.h>
+#include <llvm/Support/DataTypes.h>
 
 namespace mcld
 {

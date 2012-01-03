@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <cstdio>
 #include <cassert>
 
 namespace mcld
