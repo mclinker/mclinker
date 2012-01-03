@@ -131,7 +131,7 @@ public:
   // find an existing space to hold the MemoryRegion.
   // if MemoryArea does not find such space, then it creates a new space and
   // assign a MemoryRegion into the space.
-  MemoryRegion* request(off_t pOffset, size_t pLength, bool iswrite = true);
+  MemoryRegion* request(off_t pOffset, size_t pLength, bool pIsWrite = false);
 
   // release - release a MemoryRegion.
   // release a MemoryRegion does not cause 
@@ -206,11 +206,13 @@ private:
   // the size of one page
   static const off_t PageSize = 4096;
 
-  // Given a file size, return the size to read integral pages.
+  // page_boundary - Given a file size, return the size to read integral pages.
+  // return the first page boundary after pFileOffset
   static off_t page_boundary(off_t pFileOffset)
   { return (pFileOffset + (PageSize - 1)) & ~ (PageSize - 1); }
 
   // Given a file offset, return the page offset.
+  // return the first page boundary before pFileOffset
   static off_t page_offset(off_t pFileOffset)
   { return pFileOffset & ~ (PageSize - 1); }
 

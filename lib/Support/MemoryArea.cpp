@@ -6,11 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/RegionFactory.h"
-#include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/MemoryRegion.h"
-#include "mcld/Support/FileSystem.h"
 #include <llvm/Support/ErrorHandling.h>
+#include <llvm/ADT/Twine.h>
+
+#include <mcld/Support/RegionFactory.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/FileSystem.h>
 
 #include <cerrno>
 #include <fcntl.h>
@@ -42,11 +44,11 @@ MemoryArea::~MemoryArea()
 void MemoryArea::truncate(off_t length)
 {
   if( -1 == ftruncate(m_FileDescriptor, length)) {
-    std::stringstream error_mesg;
-    error_mesg << "Cannot truncate `";
-    error_mesg << m_FilePath.native();
-    error_mesg << "' to size: " << length;
-    llvm::report_fatal_error (error_mesg.str());
+    llvm::report_fatal_error(llvm::Twine("Cannot truncate `") +
+                             m_FilePath.native() +
+                             llvm::Twine("' to size: ") +
+                             llvm::Twine(length) +
+                             llvm::Twine(".\n"));
   }
 }
 
@@ -161,19 +163,20 @@ void MemoryArea::clear(MemoryArea::IOState pState)
 // if the MemorySpace's type is ALLOCATED_ARRAY, the distances of (space.data, r_start)
 // and (r_len, space.size) are zero.
 //
-MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
+MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool pIsWrite)
 {
   if (!isMapped() || !isGood())
     return 0;
 
-  if (iswrite) {
+  // find the last truncated file size.
+  if (pIsWrite) {
     // m_FileSize is the offset that really written. 
     // Calculate the page boundary that larger than m_FileSize.
     off_t real_size = page_boundary(m_FileSize);
 
     if ((pOffset+pLength) > real_size) {
        // Expand the file size in page boundary.
-       off_t new_size = page_boundary(pOffset+pLength);
+      off_t new_size = page_boundary(pOffset + pLength);
       truncate(new_size);
     }
   }
@@ -188,23 +191,25 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
     m_SpaceList.push_back(space);
     switch(space->type = policy(pOffset, pLength)) {
       case Space::MMAPED: {
-        int mm_flag = iswrite ? (PROT_READ | PROT_WRITE) : (PROT_READ);
+        int mm_flag = pIsWrite? (PROT_READ | PROT_WRITE) : (PROT_READ);
         space->file_offset = page_offset(pOffset);
         // The size may large than filesize
         // TODO: Let size = file_size - file_offset;
         space->size = page_boundary(pLength + (pOffset - space->file_offset));
         space->data = (Address) ::mmap(NULL,
-                             space->size,
-                             mm_flag, MAP_FILE | MAP_SHARED,
-                             m_FileDescriptor,
-                             space->file_offset);
+                                       space->size,
+                                       mm_flag, MAP_FILE | MAP_SHARED,
+                                       m_FileDescriptor,
+                                       space->file_offset);
+
         if (space->data == MAP_FAILED) {
-          std::stringstream error_mesg;
-          error_mesg << "Cannot Mapfile ";
-          error_mesg << m_FilePath.native();
-          error_mesg << " (" << sys::fs::detail::strerror(errno) << ")";
-          llvm::report_fatal_error (error_mesg.str());
+          llvm::report_fatal_error(llvm::Twine("cannot open memory map file :") +
+                                   m_FilePath.native() +
+                                   llvm::Twine(" (") +
+                                   sys::fs::detail::strerror(errno) +
+                                   llvm::Twine(").\n"));
         }
+
         r_start = space->data + (pOffset - space->file_offset);
         break;
       }
