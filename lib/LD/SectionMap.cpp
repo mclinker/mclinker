@@ -98,6 +98,9 @@ const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
   {".tbss", ".tbss"},
   {".init_array", ".init_array"},
   {".fini_array", ".fini_array"},
+  // TODO: Support DT_INIT_ARRAY for all constructors?
+  {".ctors", ".ctors"},
+  {".dtors", ".dtors"},
   {".sdata", ".sdata"},
   {".sbss", ".sbss"},
   // FIXME: in GNU ld, if we are creating a shared object .sdata2 and .sbss2
