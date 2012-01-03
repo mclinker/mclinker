@@ -12,6 +12,8 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/Support/DataTypes.h>
+
 namespace mcld
 {
 
