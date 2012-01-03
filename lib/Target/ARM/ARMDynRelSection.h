@@ -34,13 +34,13 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  ARMDynRelSection(LDSection& pSection, 
+  ARMDynRelSection(LDSection& pSection,
                    llvm::MCSectionData& pSectionData,
                    const unsigned int pEntrySize);
   ~ARMDynRelSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
-  
+
   Relocation* getEntry(const ResolveInfo& pSymbol,
                        bool isForGOT,
                        bool& pExist);

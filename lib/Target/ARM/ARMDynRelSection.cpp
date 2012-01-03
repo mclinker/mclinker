@@ -20,7 +20,8 @@ ARMDynRelSection::ARMDynRelSection(LDSection& pSection,
                                    const unsigned int pEntrySize)
   : m_pSection(&pSection),
     m_pSectionData(&pSectionData),
-    m_EntryBytes(pEntrySize){
+    m_EntryBytes(pEntrySize),
+    m_pEmpty(0){
 }
 
 ARMDynRelSection::~ARMDynRelSection()
@@ -40,11 +41,14 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
                                        bool& pExist)
 {
   // first time visit this function, set m_pEmpty to Fragments.begin()
-  if(m_SymRelMap.empty()) {
-      assert( !m_pSectionData->getFragmentList().empty() &&
+  if(!m_pEmpty) {
+    assert( !m_pSectionData->getFragmentList().empty() &&
              "DynRelSection contains no entries.");
     m_pEmpty = m_pSectionData->getFragmentList().begin();
   }
+
+  assert(m_pEmpty != m_pSectionData->end() &&
+         "No empty relocation entry for the incoming symbol.");
 
   // if this relocation is used to relocate GOT (.got or .got.plt),
   // check if we've gotton an entry for this symbol before. If yes,
@@ -60,8 +64,6 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
 
     if(!Entry) {
       pExist = 0;
-      assert(m_pEmpty != m_pSectionData->end() &&
-             "No empty relocation entry for the incoming symbol.");
       Entry = llvm::cast<Relocation>(&(*m_pEmpty));
       ++m_pEmpty;
     }
