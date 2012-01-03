@@ -24,6 +24,9 @@ class LDSection;
  */
 class MipsGOT : public GOT
 {
+private:
+  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+
 public:
   typedef llvm::MCSectionData::iterator iterator;
   typedef llvm::MCSectionData::const_iterator const_iterator;
@@ -35,13 +38,17 @@ public:
   // layout will get the correct size of GOT section
   void reserveEntry(int pNum = 1);
 
-  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+  GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 
   iterator begin();
   iterator end();
 
   const_iterator begin() const;
   const_iterator end() const;
+
+private:
+  SymbolIndexMapType m_GeneralGOTMap;
+  iterator m_GeneralGOTIterator;
 };
 
 } // namespace of mcld

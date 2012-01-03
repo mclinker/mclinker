@@ -6,23 +6,55 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#include <llvm/Support/ErrorHandling.h>
+
 #include "MipsGOT.h"
 
-using namespace mcld;
+namespace {
+  const uint64_t MipsGOTEntrySize = 4;
+}
 
-//==========================
+namespace mcld {
+
+//===----------------------------------------------------------------------===//
 // MipsGOT
 MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
-  : GOT(pSection, pSectionData, 4 /* Mips uses 32-bit GOT entry */) {
+  : GOT(pSection, pSectionData, MipsGOTEntrySize)
+{
+  m_GeneralGOTIterator = m_SectionData.begin();
 }
 
-void MipsGOT::reserveEntry(int pNum)
+void MipsGOT::reserveEntry(const int pNum)
 {
+  GOTEntry* Entry = 0;
+
+  for (int i = 0; i < pNum; ++i) {
+    Entry = new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
+
+    if (!Entry)
+      llvm::report_fatal_error("Allocating new GOTEntry failed");
+
+    m_SectionData.getFragmentList().push_back(Entry);
+  }
 }
 
-GOTEntry* MipsGOT::getEntry(const ResolveInfo& pSymbol, bool& pExist)
+GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  return 0;
+  GOTEntry*& Entry = m_GeneralGOTMap[&pInfo];
+
+  pExist = Entry != 0;
+
+  if (!pExist) {
+    ++m_GeneralGOTIterator;
+
+    assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end() &&
+           "The number of GOT Entries and ResolveInfo doesn't match");
+
+    Entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
+  }
+
+  return Entry;
 }
 
 MipsGOT::iterator MipsGOT::begin()
@@ -43,4 +75,6 @@ MipsGOT::const_iterator MipsGOT::begin() const
 MipsGOT::const_iterator MipsGOT::end() const
 {
   return m_SectionData.getFragmentList().end();
+}
+
 }
