@@ -167,10 +167,13 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool iswrite)
     return 0;
 
   if (iswrite) {
-    off_t real_size = (m_FileSize+PageSize-1)/PageSize*PageSize;
+    // m_FileSize is the offset that really written. 
+    // Calculate the page boundary that larger than m_FileSize.
+    off_t real_size = page_boundary(m_FileSize);
 
     if ((pOffset+pLength) > real_size) {
-       off_t new_size = (pOffset+pLength+PageSize-1)/PageSize*PageSize;
+       // Expand the file size in page boundary.
+       off_t new_size = page_boundary(pOffset+pLength);
       truncate(new_size);
     }
   }
