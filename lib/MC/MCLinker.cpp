@@ -279,23 +279,15 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 /// 
 /// All symbols should be read and resolved before calling this function.
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
-                                    LDSymbol& pSymbol,
-                                    Relocation::Address pOffset,
+                                    ResolveInfo& pResolveInfo,
+                                    MCFragmentRef& pFragmentRef,
                                     Relocation::Address pAddend)
 {
-  // the fragRef() of symbols in the dynamic shared object is NULL
-  MCFragmentRef* frag_reg = NULL;
-  if (NULL != pSymbol.fragRef()) {
-    frag_reg =
-             getLayout().getFragmentRef(*pSymbol.fragRef()->frag(), 
-                                        pSymbol.fragRef()->offset() + pOffset);
-  }
-
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
-                                                                frag_reg,
+                                                                pFragmentRef,
                                                                 pAddend);
 
-  relocation->setSymInfo(pSymbol.resolveInfo());
+  relocation->setSymInfo(&pResolveInfo);
 
   m_RelocationList.push_back(relocation);
 

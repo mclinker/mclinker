@@ -286,6 +286,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 /// readRela - read ELF rela and create Relocation
 bool ELFReader<32, true>::readRela(Input& pInput,
                                    MCLinker& pLinker,
+                                   LDSection& pSection,
                                    const MemoryRegion& pRegion) const
 {
   // get the number of rela
@@ -311,7 +312,6 @@ bool ELFReader<32, true>::readRela(Input& pInput,
     uint8_t  r_type = static_cast<unsigned char>(r_info);
     uint32_t r_sym  = (r_info >> 8);
     LDSymbol* symbol = pInput.context()->getSymbol(r_sym);
-
     if (NULL == symbol) {
       llvm::report_fatal_error(llvm::Twine("invalid symbol index :") +
                                llvm::Twine(r_sym) +
@@ -320,7 +320,20 @@ bool ELFReader<32, true>::readRela(Input& pInput,
                                llvm::Twine("'.\n"));
     }
 
-    pLinker.addRelocation(r_type, *symbol, r_offset, r_addend);
+    ResolveInfo* resolve_info = symbol->resolveInfo();
+
+    MCFragmentRef* frag_ref =
+         pLinker.getLayout().getFragmentRef(*pSection.getLinkInfo(), r_offset);
+
+    if (NULL == frag_ref) {
+      llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
+                               llvm::Twine(pSection.getLinkInfo()->index()) +
+                               llvm::Twine(" in the relocation section `") +
+                               pSection.name() +
+                               llvm::Twine("'.\n"));
+    }
+
+    pLinker.addRelocation(r_type, *resolve_info, *frag_ref, r_addend);
   }
   return true;
 }
@@ -328,6 +341,7 @@ bool ELFReader<32, true>::readRela(Input& pInput,
 /// readRel - read ELF rel and create Relocation
 bool ELFReader<32, true>::readRel(Input& pInput,
                                   MCLinker& pLinker,
+                                  LDSection& pSection,
                                   const MemoryRegion& pRegion) const
 {
   // get the number of rela
@@ -349,8 +363,8 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 
     uint8_t  r_type = static_cast<unsigned char>(r_info);
     uint32_t r_sym  = (r_info >> 8);
-    LDSymbol* symbol = pInput.context()->getSymbol(r_sym);
 
+    LDSymbol* symbol = pInput.context()->getSymbol(r_sym);
     if (NULL == symbol) {
       llvm::report_fatal_error(llvm::Twine("invalid symbol index :") +
                                llvm::Twine(r_sym) +
@@ -359,7 +373,20 @@ bool ELFReader<32, true>::readRel(Input& pInput,
                                llvm::Twine("'.\n"));
     }
 
-    pLinker.addRelocation(r_type, *symbol, r_offset);
+    ResolveInfo* resolve_info = symbol->resolveInfo();
+
+    MCFragmentRef* frag_ref =
+         pLinker.getLayout().getFragmentRef(*pSection.getLinkInfo(), r_offset);
+
+    if (NULL == frag_ref) {
+      llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
+                               llvm::Twine(pSection.getLinkInfo()->index()) +
+                               llvm::Twine(" in the relocation section `") +
+                               pSection.name() +
+                               llvm::Twine("'.\n"));
+    }
+
+    pLinker.addRelocation(r_type, *resolve_info, *frag_ref);
   }
   return true;
 }

@@ -74,11 +74,13 @@ public:
   /// readRela - read ELF rela and create Relocation
   virtual bool readRela(Input& pInput,
                         MCLinker& pLinker,
+                        LDSection& pSection,
                         const MemoryRegion& pRegion) const = 0;
 
   /// readRel - read ELF rel and create Relocation
   virtual bool readRel(Input& pInput,
                        MCLinker& pLinker,
+                       LDSection& pSection,
                        const MemoryRegion& pRegion) const = 0;
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
@@ -191,12 +193,14 @@ public:
 
   /// readRela - read ELF rela and create Relocation
   inline bool readRela(Input& pInput,
-                MCLinker& pLinker,
-                const MemoryRegion& pRegion) const;
+                       MCLinker& pLinker,
+                       LDSection& pSection,
+                       const MemoryRegion& pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
   inline bool readRel(Input& pInput,
                       MCLinker& pLinker,
+                      LDSection& pSection,
                       const MemoryRegion& pRegion) const;
 };
 

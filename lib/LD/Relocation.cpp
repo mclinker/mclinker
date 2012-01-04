@@ -25,8 +25,8 @@ Relocation::Relocation(Relocation::Type pType,
     m_pSymInfo(0),
     m_Parent(pParent)
 {
-  if(pTargetRef)
-     m_TargetAddress = *pTargetRef ;
+  if(NULL != pTargetRef)
+     m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;
 }
 
 Relocation::~Relocation()
@@ -35,8 +35,7 @@ Relocation::~Relocation()
 
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
-  Address offset = m_TargetAddress.offset();
-  return pLayout.getOutputOffset(*m_TargetAddress.frag()) + offset;
+  return pLayout.getOutputOffset(m_TargetAddress);
 }
 
 void Relocation::apply()
