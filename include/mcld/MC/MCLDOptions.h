@@ -66,6 +66,12 @@ public:
   bool verbose() const
   { return m_bVerbose; }
 
+  void setBsymbolic(bool pBsymbolic = false)
+  { m_Bsymbolic = pBsymbolic; }
+
+  bool Bsymbolic() const
+  { return m_Bsymbolic; }
+
   bool hasEntry() const
   { return !m_Entry.empty(); }
 
@@ -82,6 +88,7 @@ private:
   SearchDirs m_SearchDirs;
   bool m_bTrace;
   bool m_bVerbose;
+  bool m_Bsymbolic;
   std::string m_Entry;
 };
 

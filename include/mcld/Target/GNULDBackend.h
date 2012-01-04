@@ -34,6 +34,17 @@ class Layout;
  */
 class GNULDBackend : public TargetLDBackend
 {
+  // These dynamic section tags are GNU extension.
+  enum {
+    DT_RELACOUNT  = 0x6ffffff9,
+    DT_RELCOUNT   = 0x6ffffffa,
+    DT_FLAGS_1    = 0x6ffffffb,
+    DT_VERDEF     = 0x6ffffffc,
+    DT_VERDEFNUM  = 0x6ffffffd,
+    DT_VERNEED    = 0x6ffffffe,
+    DT_VERNEEDNUM = 0x6fffffff
+  };
+
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind
@@ -117,6 +128,10 @@ public:
   virtual void sizeNamePools(const Output& pOutput,
                              const MCLDInfo& pLDInfo);
 
+  // sizeDynamic - compute the size of .dynamic section
+  virtual void sizeDynamic(Output& pOutput,
+                           const MCLDInfo& pLDInfo);
+
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const Output& pOutput,
                                    const LDSection& pSection,
@@ -127,10 +142,15 @@ public:
   virtual void emitRegNamePools(Output& pOutput,
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
+
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(Output& pOutput,
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
+
+  /// emitDynamic - emit .dynamic section
+  virtual void emitDynamic(Output& pOutput,
+                           const Layout& pLayout);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.

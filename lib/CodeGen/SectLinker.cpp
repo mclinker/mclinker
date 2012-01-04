@@ -107,6 +107,17 @@ static cl::alias
 ArgEntryAlias("entry",
               cl::desc("alias for -e"),
               cl::aliasopt(ArgEntry));
+
+static cl::opt<bool>
+Bsymbolic("Bsymbolic",
+          cl::desc("Bind references within the shared library."),
+          cl::init(false));
+
+static cl::opt<std::string>
+SONAME("soname",
+       cl::desc("Set internal name of shared library"),
+       cl::value_desc("name"));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -218,13 +229,6 @@ ArgBStaticListAlias3("non_shared",
 
 
 //===----------------------------------------------------------------------===//
-// Generic options
-static cl::opt<std::string>
-SONAME("soname",
-  cl::desc("Set internal name of shared library"),
-  cl::value_desc("name"));
-
-//===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(const llvm::cl::opt<std::string>& pInputFile,
                        const std::string& pOutputFile,
@@ -293,14 +297,13 @@ bool SectLinker::doInitialization(Module &pM)
     }
   }
 
-  // set up trace
   m_LDInfo.options().setTrace(ArgTrace);
 
-  // set up verbose
   m_LDInfo.options().setVerbose(ArgVerbose);
 
-  // set up entry
   m_LDInfo.options().setEntry(ArgEntry);
+
+  m_LDInfo.options().setBsymbolic(Bsymbolic);
 
   // -----  Set up Inputs  ----- //
   unsigned int input_size = ArgNameSpecList.size() +

@@ -22,7 +22,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // non-member functions
-static unsigned int
+namespace {
+
+unsigned int
 hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
 {
   // @ref Google gold, dynobj.cc:loc 791
@@ -45,6 +47,209 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
 
   return result;
 }
+
+void createDynamicEntry(llvm::ELF::Elf32_Sword pTag,
+                        llvm::MCSectionData* SectionData)
+{
+  llvm::ELF::Elf32_Dyn Entry_ptr;
+  Entry_ptr.d_tag = pTag;
+
+  llvm::MCDataFragment* Fragment = new llvm::MCDataFragment(SectionData);
+  Fragment->getContents() +=
+   llvm::StringRef(reinterpret_cast<char*>(&Entry_ptr),
+                   sizeof(llvm::ELF::Elf32_Dyn));
+}
+
+void
+emitDTNULL(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(0);
+}
+
+void
+emitDTPLTRelSZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getRelPlt().size());
+}
+
+void
+emitDTPLTGOT(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getGOT().addr());
+}
+
+void emitDTHash(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getHashTab().addr());
+}
+
+void
+emitDTStrTab(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getStrTab().addr());
+}
+
+void
+emitDTSymTab(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getSymTab().addr());
+}
+
+void
+emitDTRela(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat) {
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getRelaDyn().addr());
+}
+
+void
+emitDTRelaSZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getRelaDyn().size());
+}
+
+void
+emitDTStrSZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getStrTab().size());
+}
+
+void
+emitDTSymEnt(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val =
+    static_cast<llvm::ELF::Elf32_Word>(sizeof(llvm::ELF::Elf32_Sym));
+}
+
+void
+emitDTInit(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getInit().addr());
+}
+
+void
+emitDTFini(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getFini().addr());
+}
+
+void
+emitDTSymbolic(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(0);
+}
+
+void
+emitDTRel(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getRelDyn().addr());
+}
+
+void
+emitDTRelSZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getRelDyn().size());
+}
+
+void
+emitDTRelEnt(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val =
+    static_cast<llvm::ELF::Elf32_Word>(sizeof(llvm::ELF::Elf32_Rel));
+}
+
+void
+emitDTPLTRel(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+   buffer->d_un.d_ptr =
+     static_cast<llvm::ELF::Elf32_Addr>(llvm::ELF::DT_REL);
+}
+
+void
+emitDTJMPRel(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getRelPlt().addr());
+}
+
+void
+emitDTInitArray(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getInitArray().addr());
+}
+
+void
+emitDTFiniArray(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
+                       FileFormat->getFiniArray().addr());
+}
+
+void
+emitDTInitArraySZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getInitArray().size());
+}
+
+void
+emitDTFiniArraySZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+  buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
+                       FileFormat->getFiniArray().size());
+}
+
+const unsigned int dynamic_type_num = 33;
+typedef void (*DynamicEntryFn)(llvm::ELF::Elf32_Dyn*, ELFDynObjFileFormat*);
+DynamicEntryFn emitDynamicEntry[] = {
+  emitDTNULL,
+  0, //DT_NEEDED
+  emitDTPLTRelSZ,
+  emitDTPLTGOT,
+  emitDTHash,
+  emitDTStrTab,
+  emitDTSymTab,
+  emitDTRela,
+  emitDTRelaSZ,
+  0, // DT_RELAENT
+  emitDTStrSZ,
+  emitDTSymEnt,
+  emitDTInit,
+  emitDTFini,
+  0, // DT_SONAME
+  0, //DT_RPATH
+  emitDTSymbolic,
+  emitDTRel,
+  emitDTRelSZ,
+  emitDTRelEnt,
+  emitDTPLTRel,
+  0, // DT_DEBUG
+  0, // DT_TEXTREL
+  emitDTJMPRel,
+  0, // DT_BIND_NOW
+  emitDTInitArray,
+  emitDTFiniArray,
+  emitDTInitArraySZ,
+  emitDTFiniArraySZ,
+  0, // DT_RUNPATH
+  0, // DT_FLAGS
+  0, // DT_ENCODING
+  0, // DT_PREINIT_ARRAY
+  0 // DT_PREINIT_ARRAYSZ
+};
+
+} // end namespace
 
 //===----------------------------------------------------------------------===//
 // GNULDBackend
@@ -269,6 +474,103 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   }
 }
 
+// sizeDynamic - compute the size of .dynamic section
+void GNULDBackend::sizeDynamic(Output& pOutput,
+                               const MCLDInfo& pLDInfo)
+{
+  if (Output::Object == pOutput.type()) {
+    llvm::report_fatal_error(
+    "Relocatable object file should not have .dynamic section!");
+  }
+
+  unsigned int type = pOutput.type();
+  size_t size = 0;
+
+  InputTree::const_bfs_iterator input = pLDInfo.inputs().bfs_begin();
+  InputTree::const_bfs_iterator inputEnd = pLDInfo.inputs().bfs_end();
+
+  ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
+  assert(FileFormat && "DynObjFileFormat is NULL!");
+
+  LDSection* dynamic = &(FileFormat->getDynamic());
+  assert(dynamic && ".dynamic section donesn't exist!");
+
+  llvm::MCSectionData* SectionData = dynamic->getSectionData();
+  assert(SectionData && ".dynamic has no MCSectionData");
+
+  llvm::MCDataFragment* Fragment = 0;
+
+  llvm::ELF::Elf32_Dyn Entry;
+  Entry.d_tag = 0;
+  Entry.d_un.d_val = 0;
+
+  while (input != inputEnd) {
+    // --add-needed
+    if ((*input)->attribute()->isAddNeeded()) {
+      // --no-as-need
+      if (!(*input)->attribute()->isAsNeeded()) {
+        Fragment = new llvm::MCDataFragment(SectionData);
+
+        Entry.d_tag = llvm::ELF::DT_NEEDED;
+        //FIXME: d_un.d_val needs an index into string table.
+        Entry.d_un.d_val = 0;
+
+        Fragment->getContents() += llvm::StringRef(
+          reinterpret_cast<char*>(&Entry), sizeof(llvm::ELF::Elf32_Dyn));
+      }
+
+      // --as-needed
+      else if ((*input)->isNeeded()) {
+        Fragment = new llvm::MCDataFragment(SectionData);
+
+        Entry.d_tag = llvm::ELF::DT_NEEDED;
+        //FIXME: d_un.d_val needs an index into string table.
+        Entry.d_un.d_val = 0;
+
+        Fragment->getContents() += llvm::StringRef(
+          reinterpret_cast<char*>(&Entry), sizeof(llvm::ELF::Elf32_Dyn));
+      }
+    }
+
+    ++input;
+  }
+
+  if (type == Output::DynObj) {
+    // DT_SONAME
+    Fragment = new llvm::MCDataFragment(SectionData);
+
+    Entry.d_tag = llvm::ELF::DT_SONAME;
+    //FIXME: d_un.d_val needs an index into string table.
+    Entry.d_un.d_val = 0;
+
+    Fragment->getContents() += llvm::StringRef(
+              reinterpret_cast<char*>(&Entry),sizeof(llvm::ELF::Elf32_Dyn));
+
+    if (pLDInfo.options().Bsymbolic())
+      createDynamicEntry(llvm::ELF::DT_SYMBOLIC, SectionData);
+  }
+
+  createDynamicEntry(llvm::ELF::DT_INIT, SectionData);
+  createDynamicEntry(llvm::ELF::DT_FINI, SectionData);
+  createDynamicEntry(llvm::ELF::DT_INIT_ARRAY, SectionData);
+  createDynamicEntry(llvm::ELF::DT_FINI_ARRAY, SectionData);
+  createDynamicEntry(llvm::ELF::DT_INIT_ARRAYSZ, SectionData);
+  createDynamicEntry(llvm::ELF::DT_FINI_ARRAYSZ, SectionData);
+  createDynamicEntry(llvm::ELF::DT_HASH, SectionData);
+  createDynamicEntry(llvm::ELF::DT_STRTAB, SectionData);
+  createDynamicEntry(llvm::ELF::DT_SYMTAB, SectionData);
+  createDynamicEntry(llvm::ELF::DT_STRSZ, SectionData);
+  createDynamicEntry(llvm::ELF::DT_SYMENT, SectionData);
+  createDynamicEntry(llvm::ELF::DT_PLTGOT, SectionData);
+  createDynamicEntry(llvm::ELF::DT_PLTRELSZ, SectionData);
+  createDynamicEntry(llvm::ELF::DT_PLTREL, SectionData);
+  createDynamicEntry(llvm::ELF::DT_JMPREL, SectionData);
+  createDynamicEntry(llvm::ELF::DT_REL, SectionData);
+  createDynamicEntry(llvm::ELF::DT_RELSZ, SectionData);
+  createDynamicEntry(llvm::ELF::DT_RELENT, SectionData);
+  createDynamicEntry(llvm::ELF::DT_NULL, SectionData);
+}
+
 /// emitRegNamePools - emit regular name pools - .symtab, .strtab
 ///
 /// the size of these tables should be computed before layout
@@ -364,6 +666,58 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     const MCLDInfo& pLDInfo)
 {
   // FIXME
+}
+
+// emitDynamic - emit .dynamic section
+void GNULDBackend::emitDynamic(Output& pOutput,
+                               const Layout& pLayout)
+{
+  assert(m_pDynObjFileFormat && "m_pDynObjFileFormat is NULL!");
+
+  LDSection* dynamic = &(m_pDynObjFileFormat->getDynamic());
+  assert(dynamic && ".dynamic section donesn't exist!");
+
+  llvm::MCSectionData* SectionData = dynamic->getSectionData();
+  assert(SectionData && ".dynamic section has no MCSectionData");
+
+  MemoryRegion* region = pOutput.memArea()->request(dynamic->offset(),
+                                                    dynamic->size(),
+                                                    true);
+
+  llvm::ELF::Elf32_Dyn* buffer =
+    reinterpret_cast<llvm::ELF::Elf32_Dyn*>(region->getBuffer());
+
+  const llvm::ELF::Elf32_Dyn* DynEntry = 0;
+  DynamicEntryFn emitFn;
+
+  llvm::MCSectionData::iterator it = SectionData->getFragmentList().begin();
+  llvm::MCSectionData::iterator ie = SectionData->getFragmentList().end();
+
+  while (it != ie) {
+    DynEntry = reinterpret_cast<const llvm::ELF::Elf32_Dyn*>(
+                            llvm::cast<llvm::MCDataFragment>(
+                            (*it)).getContents().str().begin());
+
+    llvm::ELF::Elf32_Sword tag = DynEntry->d_tag;
+
+    assert((0 <= tag && tag < dynamic_type_num) &&
+            "Unknown dynamic section tags");
+
+    // Standard dynamic section tags
+    emitFn = emitDynamicEntry[tag];
+
+    if (emitFn) {
+      ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
+      assert(!FileFormat && "ELFDynObjectFileFormat is NULL!");
+
+      emitFn(buffer, FileFormat);
+    }
+
+    else
+      llvm::report_fatal_error("Unsupported dynamic section tags");
+
+    ++it;
+  }
 }
 
 /// getSectionOrder
