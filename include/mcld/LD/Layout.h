@@ -251,9 +251,9 @@ private:
   bool isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const
   {
     if (NULL != pFrag.getNextNode())
-      return (pTargetOffset > pFrag.Offset && pTargetOffset <= pFrag.getNextNode()->Offset);
+      return (pTargetOffset >= pFrag.Offset && pTargetOffset < pFrag.getNextNode()->Offset);
     uint64_t size = computeFragmentSize(*this, pFrag);
-    return (pTargetOffset > pFrag.Offset && pTargetOffset <= (pFrag.Offset + size));
+    return (pTargetOffset >= pFrag.Offset && pTargetOffset < (pFrag.Offset + size));
   }
 
   void setFragmentLayoutOrder(llvm::MCFragment* pFragment);

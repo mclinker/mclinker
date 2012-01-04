@@ -303,8 +303,16 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
   llvm::MCFragment* front = &pFront;
   llvm::MCFragment* rear  = &pRear;
 
+  if (!hasLayoutOffset(*rear)) {
+    // compute layout order, offset
+    setFragmentLayoutOrder(rear);
+    setFragmentLayoutOffset(rear);
+  }
+
+  // from front to read, find the offset which is as large as possible
+  // but smaller than the target_offset.
   while (front != rear) {
-    if (front->getNextNode()->Offset < target_offset) {
+    if (target_offset >= front->getNextNode()->Offset) {
       front = front->getNextNode();
     }
     else {
