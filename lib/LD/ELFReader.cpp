@@ -22,9 +22,6 @@
 
 using namespace mcld;
 
-#include <iostream>
-using namespace std;
-
 //===----------------------------------------------------------------------===//
 // ELFReaderIF
 /// getLDSectionKind
@@ -111,7 +108,7 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx) const
 }
 
 /// getSymFragmentRef
-MCFragmentRef
+MCFragmentRef*
 ELFReaderIF::getSymFragmentRef(Input& pInput,
                                MCLinker& pLinker,
                                uint16_t pShndx,
@@ -119,7 +116,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
 {
   
   if (pShndx == llvm::ELF::SHN_UNDEF || pShndx >= llvm::ELF::SHN_LORESERVE)
-    return MCFragmentRef();
+    return NULL;
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
   if (NULL == sect_hdr) {
@@ -130,7 +127,8 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
                              llvm::Twine("'.\n"));
   }
   
-  return pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
+  MCFragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
+  return result;
 }
 
 /// getSymVisibility

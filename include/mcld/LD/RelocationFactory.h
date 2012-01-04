@@ -50,7 +50,7 @@ public:
   /// @param pFragRef - the place to apply the relocation
   /// @param pAddend - the addend of the relocation entry
   Relocation* produce(Type pType,
-                      MCFragmentRef& pFragRef,
+                      MCFragmentRef* pFragRef,
                       Address pAddend = 0);
 
   /// produceEmptyEntry - produce an empty relocation which

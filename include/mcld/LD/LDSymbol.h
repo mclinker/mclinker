@@ -107,9 +107,7 @@ public:
   void setValue(ValueType pValue)
   { m_Value = pValue; }
  
-  void setFragmentRef(const MCFragmentRef& pFragmentRef);
-
-  void setFragmentRef(llvm::MCFragment& pFragment, Offset pOffset);
+  void setFragmentRef(MCFragmentRef* pFragmentRef);
 
   void setResolveInfo(const ResolveInfo& pInfo);
 

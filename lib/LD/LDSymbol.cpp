@@ -17,8 +17,6 @@ LDSymbol::LDSymbol()
 
 LDSymbol::~LDSymbol()
 {
-  if (NULL != m_pFragRef)
-    delete m_pFragRef;
 }
 
 LDSymbol::LDSymbol(const LDSymbol& pCopy)
@@ -35,22 +33,9 @@ LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
   return (*this);
 }
 
-void LDSymbol::setFragmentRef(const MCFragmentRef& pFragmentRef)
+void LDSymbol::setFragmentRef(MCFragmentRef* pFragmentRef)
 {
-  if (NULL == m_pFragRef) {
-    m_pFragRef = new MCFragmentRef();
-    return;
-  }
-  m_pFragRef->assign(pFragmentRef);
-}
-
-void LDSymbol::setFragmentRef(llvm::MCFragment& pFragment, LDSymbol::Offset pOffset)
-{
-  if (NULL == m_pFragRef) {
-    m_pFragRef = new MCFragmentRef(pFragment, pOffset);
-    return;
-  }
-  m_pFragRef->assign(pFragment, pOffset);
+  m_pFragRef = pFragmentRef;
 }
 
 void LDSymbol::setResolveInfo(const ResolveInfo& pInfo)

@@ -60,7 +60,7 @@ public:
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
                             ResolveInfo::SizeType pSize,
-                            const MCFragmentRef& pFragmentRef,
+                            MCFragmentRef* pFragmentRef,
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// addLocalSymbol - create a local symbol and add it into the output.
@@ -68,7 +68,7 @@ public:
                            ResolveInfo::Type pType,
                            ResolveInfo::Desc pDesc,
                            ResolveInfo::SizeType pSize,
-                           const MCFragmentRef& pFragmentRef,
+                           MCFragmentRef* pFragmentRef,
                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// defineSymbol - add a symbol and resolve it immediately
@@ -82,7 +82,7 @@ public:
                          ResolveInfo::Desc pDesc,
                          ResolveInfo::Binding pBinding,
                          ResolveInfo::SizeType pSize,
-                         const MCFragmentRef& pFragmentRef,
+                         MCFragmentRef* pFragmentRef,
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// mergeSymbolTable - merge the symbol table and resolve symbols.

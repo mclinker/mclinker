@@ -14,7 +14,6 @@
 #include <cstring>
 #include <cassert>
 
-using namespace std;
 using namespace mcld;
 
 /// compunteFragmentSize - compute the specific MCFragment size
@@ -34,7 +33,7 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
 
     case llvm::MCFragment::FT_Align: {
       const llvm::MCAlignFragment& AF = static_cast<const llvm::MCAlignFragment&>(pFrag);
-      unsigned Offset = pLayout.getFragmentOffset(AF);
+      unsigned Offset = pLayout.getOutputOffset(AF);
       unsigned Size = llvm::OffsetToAlignment(Offset, AF.getAlignment());
       if (Size > AF.getMaxBytesToEmit())
         return 0;
@@ -163,7 +162,6 @@ MCFragmentRef::Address MCFragmentRef::deref()
     default:
       return NULL;
   }
-  //cerr << base << endl;
   return base + m_Offset;
 }
 

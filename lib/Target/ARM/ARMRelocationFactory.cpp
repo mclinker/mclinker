@@ -175,7 +175,7 @@ ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
   GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return helper_GOT_ORG(pParent) + pParent.getLayout().getFragmentOffset(got_entry);
+  return helper_GOT_ORG(pParent) + pParent.getLayout().getOutputOffset(got_entry);
 }
 
 
@@ -226,7 +226,7 @@ ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
   PLTEntry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + pParent.getLayout().getFragmentOffset(plt_entry);
+  return helper_PLT_ORG(pParent) + pParent.getLayout().getOutputOffset(plt_entry);
 }
 
 // Get an relocation entry in .rel.dyn and set its type to pType,

@@ -219,10 +219,10 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     uint32_t ld_size = st_size;
 
     // get the input fragment
-    MCFragmentRef ld_frag_ref = getSymFragmentRef(pInput,
-                                                  pLinker,
-                                                  st_shndx,
-                                                  st_value);
+    MCFragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
+                                                   pLinker,
+                                                   st_shndx,
+                                                   st_value);
 
     // get ld_vis
     ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);

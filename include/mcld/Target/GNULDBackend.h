@@ -173,6 +173,10 @@ public:
   getTargetSectionOrder(const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
 
+  virtual unsigned int numOfSegments() const {
+    // FIXME:
+    return 10;
+  }
 protected:
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 

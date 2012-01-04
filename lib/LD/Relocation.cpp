@@ -36,7 +36,7 @@ Relocation::~Relocation()
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
   Address offset = m_TargetAddress.offset();
-  return pLayout.getFragmentOffset(*m_TargetAddress.frag()) + offset;
+  return pLayout.getOutputOffset(*m_TargetAddress.frag()) + offset;
 }
 
 void Relocation::apply()

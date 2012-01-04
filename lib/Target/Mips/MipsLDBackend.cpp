@@ -87,7 +87,7 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
                          ResolveInfo::Define,
                          ResolveInfo::Local,
                          m_pGOT->getEntrySize(),
-                         *(new MCFragmentRef(*(m_pGOT->begin()))),
+                         new MCFragmentRef(*(m_pGOT->begin())),
                          ResolveInfo::Hidden);
   }
 }

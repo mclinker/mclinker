@@ -88,10 +88,10 @@ protected:
 
   ResolveInfo::Binding getSymBinding(uint8_t pBinding, uint16_t pShndx) const;
 
-  MCFragmentRef getSymFragmentRef(Input& pInput,
-                                  MCLinker& pLinker,
-                                  uint16_t pShndx,
-                                  uint32_t pOffset) const;
+  MCFragmentRef* getSymFragmentRef(Input& pInput,
+                                   MCLinker& pLinker,
+                                   uint16_t pShndx,
+                                   uint32_t pOffset) const;
 
   ResolveInfo::Visibility getSymVisibility(uint8_t pVis) const;
 

@@ -71,7 +71,7 @@ void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
     header->e_flags     = pBackend.flags();
     header->e_ehsize    = sizeof(Elf32_Ehdr);
     header->e_phentsize = sizeof(Elf32_Phdr);
-    header->e_phnum     = pLayout.numOfSegments();
+    header->e_phnum     = pBackend.numOfSegments();
     header->e_shentsize = sizeof(Elf32_Shdr);
     header->e_shnum     = pOutput.context()->numOfSections();
     header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
@@ -125,7 +125,7 @@ void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
     header->e_flags     = pBackend.flags();
     header->e_ehsize    = sizeof(Elf64_Ehdr);
     header->e_phentsize = sizeof(Elf64_Phdr);
-    header->e_phnum     = pLayout.numOfSegments();
+    header->e_phnum     = pBackend.numOfSegments();
     header->e_shentsize = sizeof(Elf64_Shdr);
     header->e_shnum     = pOutput.context()->numOfSections();
     header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
@@ -405,8 +405,8 @@ ELFWriter::emitRelocation(const Layout& pLayout,
 
     rel->r_offset = static_cast<Elf32_Addr>(
                     llvm::cast<LDSection>(
-                    FragmentRef->frag()->getParent()->getSection()).addr() +
-                    pLayout.getFragmentRefOffset(*FragmentRef));
+                    FragmentRef->frag()->getParent()->getSection()).offset() +
+                    pLayout.getOutputOffset(*FragmentRef));
 
     Elf32_Word Index = static_cast<Elf32_Word>(
                        pOutput.context()->getSymbolIdx(

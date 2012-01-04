@@ -90,13 +90,14 @@ void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
   // create symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
   if(m_pGOT) {
+    // FIXME: who is responsible for destructing the MCFragmentRef?
     pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
                          false,
                          ResolveInfo::Object,
                          ResolveInfo::Define,
                          ResolveInfo::Local,
                          m_pGOT->getEntrySize(),
-                         *(new MCFragmentRef(*(m_pGOT->begin()))),
+                         new MCFragmentRef(*(m_pGOT->begin())),
                          ResolveInfo::Hidden);
   }
 }

@@ -70,7 +70,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
                                     ResolveInfo::Desc pDesc,
                                     ResolveInfo::Binding pBinding,
                                     ResolveInfo::SizeType pSize,
-                                    const MCFragmentRef& pFragmentRef,
+                                    MCFragmentRef* pFragmentRef,
                                     ResolveInfo::Visibility pVisibility)
 {
   if (pBinding == ResolveInfo::Local)
@@ -107,7 +107,7 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
                                    ResolveInfo::Type pType,
                                    ResolveInfo::Desc pDesc,
                                    ResolveInfo::SizeType pSize,
-                                   const MCFragmentRef& pFragmentRef,
+                                   MCFragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* resolved_info =  m_StrSymPool.createSymbol(pName,
@@ -146,7 +146,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  ResolveInfo::Desc pDesc,
                                  ResolveInfo::Binding pBinding,
                                  ResolveInfo::SizeType pSize,
-                                 const MCFragmentRef& pFragmentRef,
+                                 MCFragmentRef* pFragmentRef,
                                  ResolveInfo::Visibility pVisibility)
 {
   // <resolved_info, exist?, override>
@@ -241,6 +241,7 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
 }
 
 /// getOrCreateSectData - get or create MCSectionData
+/// pSection is input LDSection
 llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.
@@ -270,7 +271,6 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
   new (sect_data) llvm::MCSectionData(*output_sect);
   pSection.setSectionData(sect_data);
   output_sect->setSectionData(sect_data);
-
   m_Layout.addInputRange(*sect_data, pSection);
   return *sect_data;
 }
@@ -283,15 +283,13 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     Relocation::Address pOffset,
                                     Relocation::Address pAddend)
 {
-  if (NULL == pSymbol.fragRef()->frag()) {
-    llvm::report_fatal_error(llvm::Twine("The symbol `") +
-                             llvm::Twine(pSymbol.name()) +
-                             llvm::Twine("' after resolution is dangling.\n"));
-  }
-
-  MCFragmentRef frag_reg =
+  // the fragRef() of symbols in the dynamic shared object is NULL
+  MCFragmentRef* frag_reg = NULL;
+  if (NULL != pSymbol.fragRef()) {
+    frag_reg =
              getLayout().getFragmentRef(*pSymbol.fragRef()->frag(), 
                                         pSymbol.fragRef()->offset() + pOffset);
+  }
 
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
                                                                 frag_reg,

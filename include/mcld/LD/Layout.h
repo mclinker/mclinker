@@ -16,17 +16,23 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/MC/MCAssembler.h>
 #include <mcld/MC/MCFragmentRef.h>
+#include <mcld/Support/GCFactory.h>
+#include <mcld/LD/LDSection.h>
 #include <map>
 
 namespace mcld
 {
 class MCLinker;
-class LDSection;
 class LDContext;
 class TargetLDBackend;
 
 /** \class Layout
- *  \brief Layout records the order and offset of all regions
+ *  \brief Layout maintains the mapping between sections and fragments.
+ *
+ *  MCLinker is a fragment-based linker. But readers and target backends
+ *  still need section information. Layout is used to maintain the mapping
+ *  between sections and fragments. Layout helps readers and target backends
+ *  get the input or output section information from a fragment.
  */
 class Layout
 {
@@ -35,76 +41,80 @@ public:
   typedef SectionOrder::iterator sect_iterator;
   typedef SectionOrder::const_iterator const_sect_iterator;
 
-private:
-  struct Range
-  {
-    const LDSection* header;
-    llvm::MCFragment* prevRear;
-  };
-
-  typedef std::vector<Range> RangeList;
-
-  typedef std::map<const llvm::MCSectionData*, RangeList*> InputRangeList;
-
 public:
+  /// constructor
   Layout();
 
+  /// destructor
   ~Layout();
-
-  /// layoutFragment - perform layout for single fragment
-  /// Assuming the previous fragment has already been laid out correctly.
-  void layoutFragment(llvm::MCFragment& pFrag);
-
-  /// getFragmentRef - give a fragment and a big offset, return the fragment
-  /// reference in the section data.
-  ///
-  /// @param pFrag
-  /// @parem pBigOffset
-  MCFragmentRef
-  getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset);
-
-  /// getFragmentRef - give a fragment and a big offset, return the fragment
-  /// reference in the section data.
-  ///
-  /// @param pFrag
-  /// @parem pBigOffset
-  const MCFragmentRef
-  getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset) const;
-
-  /// getFragmentRefOffset - Get the offset of the given fragment inside
-  /// the output's MCSectionData.
-  uint64_t getFragmentRefOffset(const MCFragmentRef& pFragRef) const;
-
-  /// getFragmentOffset - Get the offset of the given fragment inside the
-  /// the output's MCSectionData.
-  uint64_t getFragmentOffset(const llvm::MCFragment& pFrag) const;
-
-  /// getFragmentRef - give a LDSection in input file and an offset, return
-  /// the fragment reference.
-  MCFragmentRef getFragmentRef(const LDSection& pInputSection,
-                               uint64_t pOffset) const;
 
   /// getInputLDSection - give a MCFragment, return the corresponding input
   /// LDSection*
+  ///
+  /// @return return NULL if the fragment is not found in input
+  LDSection* getInputLDSection(const llvm::MCFragment& pFrag);
+
+  /// getInputLDSection - give a MCFragment, return the corresponding input
+  /// LDSection*
+  ///
+  /// @return return NULL if the fragment is not found in input
   const LDSection* getInputLDSection(const llvm::MCFragment& pFrag) const;
+
+  /// getFragmentRef - give a LDSection in input file and an offset, return
+  /// the fragment reference.
+  ///
+  /// @param pInputSection - the given input section
+  /// @param pOffset - the offset, cannot be larger than this input section.
+  /// @return if found, return the fragment. Otherwise, return NULL.
+  MCFragmentRef*
+  getFragmentRef(const LDSection& pInputSection, uint64_t pOffset);
+
+  /// getFragmentRef - give a fragment and a big offset, return the fragment
+  /// reference in the section data.
+  ///
+  /// @param pFrag - the given fragment
+  /// @param pBigOffset - the offset, can be larger than the fragment, but can
+  ///                     not larger than this input section.
+  /// @return if found, return the fragment. Otherwise, return NULL.
+  MCFragmentRef*
+  getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset);
+
+  /// getOutputOffset - Get the offset of the given fragment inside the
+  /// the output's MCSectionData.
+  uint64_t getOutputOffset(const llvm::MCFragment& pFrag);
+
+  /// getOutputOffset - Get the offset of the given fragment inside the
+  /// the output's MCSectionData.
+  uint64_t getOutputOffset(const llvm::MCFragment& pFrag) const;
+
+  /// getOutputOffset - Get the offset of the given fragment inside
+  /// the output's MCSectionData.
+  ///
+  /// @return return -1 if the fragment is not found in output's MCSectionData.
+
+  uint64_t getOutputOffset(const MCFragmentRef& pFragRef);
+  /// getOutputOffset - Get the offset of the given fragment inside
+  /// the output's MCSectionData.
+  ///
+  /// @return return -1 if the fragment is not found in output's MCSectionData.
+  uint64_t getOutputOffset(const MCFragmentRef& pFragRef) const;
 
   /// getOutputLDSection - give a MCFragment, return the corresponding output
   /// LDSection*
+  ///
+  /// @return return NULL if the fragment is not found in the output
+  LDSection* getOutputLDSection(const llvm::MCFragment& pFrag);
+
+  /// getOutputLDSection - give a MCFragment, return the corresponding output
+  /// LDSection*
+  ///
+  /// @return return NULL if the fragment is not found in the output
   const LDSection* getOutputLDSection(const llvm::MCFragment& pFrag) const;
-
-  /// \brief Invalidate all following fragments because a fragment has been
-  /// resized. The fragments size should have already been updated.
-  void invalidate(llvm::MCFragment& pFrag);
-
-  /// numOfSections - the number of sections
-  size_t numOfSections() const;
-
-  /// numOfSegments - the number of segments
-  size_t numOfSegments() const;
 
   // -----  modifiers  ----- //
   bool layout(LDContext& pOutput, const TargetLDBackend& pBackend);
 
+  /// addInputRange
   void addInputRange(const llvm::MCSectionData& pSD,
                      const LDSection& pInputHdr);
 
@@ -122,20 +132,126 @@ public:
   { return m_SectionOrder.end(); }
 
 private:
-  /// \brief Make sure that the layout for the given fragment is valid, lazily
-  /// computing it if necessary.
-  void ensureValid(const llvm::MCFragment& pFrag) const;
+  /** \class Range
+   *  \brief Range is a <input's LDSection, previous rear fragment> pair
+   */
+  struct Range : public llvm::ilist_node<Range>
+  {
+  public:
+    Range();
+    Range(const LDSection& pHeader);
+    ~Range();
 
-  bool isFragmentUpToDate(const llvm::MCFragment& pFrag) const;
+  public:
+    LDSection* header;
+    llvm::MCFragment* prevRear;
+  };
 
-  /// orderRange - set fragment layout order in a range
-  /// Assuming the last fragment in previous range is set
-  void orderRange(llvm::MCFragment* pFront, llvm::MCFragment* pRear);
+  typedef llvm::iplist<Range> RangeList;
 
-  /// ensureFragmentOrdered - Make sure that the layout order of a range that
-  /// covers the given fragment is ordered, lazily setting the fragment order
-  /// if needed
-  void ensureFragmentOrdered(const llvm::MCFragment& pFrag) const;
+  typedef std::map<const llvm::MCSectionData*, RangeList*> SDRangeMap;
+
+  typedef GCFactory<MCFragmentRef, 0> FragRefFactory;
+
+private:
+  inline bool isFirstRange(const Range& pRange) const
+  { return (NULL == pRange.prevRear); }
+
+  inline bool isLastRange(const Range& pRange) const
+  { return (NULL == pRange.getNextNode()); }
+
+  inline bool isEmptyRange(const Range& pRange) const
+  {
+    return (NULL == pRange.prevRear->getNextNode());
+  }
+
+  // get the front fragment in the range.
+  inline llvm::MCFragment* getFront(Range& pRange) const
+  {
+    if (!pRange.header->hasSectionData())
+      return NULL;
+    if (pRange.header->getSectionData()->getFragmentList().empty())
+      return NULL;
+
+    if (isFirstRange(pRange))
+      return &pRange.header->getSectionData()->getFragmentList().front();
+
+    if (isEmptyRange(pRange))
+      return NULL;
+
+    return pRange.prevRear->getNextNode();
+  }
+
+  inline const llvm::MCFragment* getFront(const Range& pRange) const
+  {
+    if (!pRange.header->hasSectionData())
+      return NULL;
+    if (pRange.header->getSectionData()->getFragmentList().empty())
+      return NULL;
+
+    if (isFirstRange(pRange))
+      return &pRange.header->getSectionData()->getFragmentList().front();
+
+    if (isEmptyRange(pRange))
+      return NULL;
+
+    return pRange.prevRear->getNextNode();
+  }
+
+  // get the rear fragment in the range.
+  inline llvm::MCFragment* getRear(Range& pRange) const
+  {
+    if (!pRange.header->hasSectionData())
+      return NULL;
+    if (pRange.header->getSectionData()->getFragmentList().empty())
+      return NULL;
+
+    if (isLastRange(pRange)) {
+      if (isEmptyRange(pRange))
+        return NULL;
+      return &pRange.header->getSectionData()->getFragmentList().back();
+    }
+    return pRange.getNextNode()->prevRear;
+  }
+
+  inline const llvm::MCFragment* getRear(const Range& pRange) const
+  {
+    if (!pRange.header->hasSectionData())
+      return NULL;
+    if (pRange.header->getSectionData()->getFragmentList().empty())
+      return NULL;
+
+    if (isLastRange(pRange)) {
+      if (isEmptyRange(pRange))
+        return NULL;
+      return &pRange.header->getSectionData()->getFragmentList().back();
+    }
+    return pRange.getNextNode()->prevRear;
+  }
+
+  MCFragmentRef* getFragmentRef(Range &pRange, uint64_t pOffset);
+
+  MCFragmentRef* getFragmentRef(llvm::MCFragment& pFront,
+                                llvm::MCFragment& pRear,
+                                uint64_t pOffset);
+
+  bool hasLayoutOrder(const llvm::MCFragment& pFragment) const
+  { return (pFragment.getLayoutOrder() != ~(0U)); }
+
+  bool hasLayoutOffset(const llvm::MCFragment& pFragment) const
+  { return (pFragment.Offset != ~UINT64_C(0)); }
+
+  bool isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const
+  {
+    if (NULL != pFrag.getNextNode())
+      return (pTargetOffset > pFrag.Offset && pTargetOffset <= pFrag.getNextNode()->Offset);
+    uint64_t size = computeFragmentSize(*this, pFrag);
+    return (pTargetOffset > pFrag.Offset && pTargetOffset <= (pFrag.Offset + size));
+  }
+
+  void setFragmentLayoutOrder(llvm::MCFragment* pFragment);
+
+  void setFragmentLayoutOffset(llvm::MCFragment* pFragment);
 
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering
@@ -145,14 +261,16 @@ private:
   /// a vector to describe the order of sections
   SectionOrder m_SectionOrder;
 
-  InputRangeList m_InputRangeList;
+  /// the map from MCSectionData* to its own RangeList.
+  SDRangeMap m_SDRangeMap;
 
   /// The last fragment which was laid out, or 0 if nothing has been laid
   /// out. Fragments are always laid out in order, so all fragments with a
   /// lower ordinal will be up to date.
-  mutable llvm::DenseMap<const llvm::MCSectionData*,
-                         llvm::MCFragment*> m_LastValidFragment;
+  llvm::DenseMap<const llvm::MCSectionData*,
+                 llvm::MCFragment*> m_LastValidFragment;
 
+  FragRefFactory m_FragRefFactory;
 };
 
 } // namespace of mcld

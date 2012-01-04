@@ -30,7 +30,7 @@ RelocationFactory::~RelocationFactory()
 }
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
-                                       MCFragmentRef& pFragRef,
+                                       MCFragmentRef* pFragRef,
                                        Address pAddend)
 {
   Relocation* result = allocate();
@@ -40,21 +40,25 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   // data.
   DWord* target_data = NULL;
   target_data = m_pTargetDataFactory->allocate();
-  pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
+  if (NULL != pFragRef) {
+    pFragRef->memcpy(target_data, (getTarget().bitclass()/8));
 
-  // make target_data get right value
-  // old target_data:
-  // For 32-bit machine
-  //  63 .. 32  31 .. 0
-  // |AAAAAAAA|BBBBBBBB|
-  //
-  // shift  right 32 bits
-  //
-  // |00000000|AAAAAAAA|
-  (*target_data) >>= (sizeof(DWord)*8 - getTarget().bitclass());
+    // make target_data get right value
+    // old target_data:
+    // For 32-bit machine
+    //  63 .. 32  31 .. 0
+    // |AAAAAAAA|BBBBBBBB|
+    //
+    // shift  right 32 bits
+    //
+    // |00000000|AAAAAAAA|
+    (*target_data) >>= (sizeof(DWord)*8 - getTarget().bitclass());
+  }
+  else
+    *target_data = 0x0;
 
   new (result) Relocation(pType,
-                          &pFragRef,
+                          pFragRef,
                           pAddend,
                           target_data,
                           *this);
