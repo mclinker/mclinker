@@ -495,7 +495,8 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
       case LDFileFormat::Debug:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
-        if (NULL != sect->getSectionData()) {
+        if (NULL != sect->getSectionData() &&
+            !sect->getSectionData()->getFragmentList().empty()) {
           // make sure that all fragments are valid, and compute section size
           llvm::MCFragment& frag =
             sect->getSectionData()->getFragmentList().back();
