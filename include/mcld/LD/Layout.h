@@ -162,6 +162,13 @@ private:
 
   inline bool isEmptyRange(const Range& pRange) const
   {
+    if (isFirstRange(pRange)) {
+      if (!pRange.header->hasSectionData() ||
+          pRange.header->getSectionData()->getFragmentList().empty())
+        return true;
+      else
+        return false;
+    }
     return (NULL == pRange.prevRear->getNextNode());
   }
 
