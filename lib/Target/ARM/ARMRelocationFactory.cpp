@@ -411,9 +411,11 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   // if symbol needs dynamic relocation
   if(rsym->reserved() & 0x1u) {
-     llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                              llvm::Twine(pReloc.type()) +
-                              llvm::Twine(", recompile with -fPIC"));
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_REL32 ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
+                             llvm::Twine(", recompile with -fPIC"));
   }
   // perform static relocation
   else {
@@ -532,7 +534,6 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::Address S;
 
-  // FIXME: Follow R_ARM_CALL rule, is it correct?
   switch (pReloc.symInfo()->reserved()) {
     default: {
       return ARMRelocationFactory::BadReloc;
@@ -651,8 +652,10 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
   }
   // use dynamic relocation
   if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_MOVT_ABS ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
@@ -669,8 +672,10 @@ ARMRelocationFactory::Result movt_prel(Relocation& pReloc,
 {
   // use dynamic relocation
   if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_MOVT_PREL ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
@@ -706,8 +711,10 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
   }
   // use dynamic relocation
   if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_THM_MOVW_ABS_NC ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
@@ -728,8 +735,10 @@ ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
 {
   // use dynamic relocation
   if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_THM_MOVW_PREL_NC ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
@@ -769,8 +778,10 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
   }
   // use dynamic relocation
   if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_THM_MOVT_ABS ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
@@ -793,8 +804,10 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
 {
   // use dynamic relocation
   if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic reloc ") +
-                             llvm::Twine(pReloc.type()) +
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_THM_MOVT_PREL ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
                              llvm::Twine(", recompile with -fPIC"));
   }
 
