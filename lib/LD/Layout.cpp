@@ -334,12 +334,8 @@ Layout::getFragmentRef(const LDSection& pInputSection, uint64_t pOffset)
   const llvm::MCSectionData* sect_data = pInputSection.getSectionData();
 
   // check range list
-  if (0 == m_SDRangeMap.count(sect_data)) {
-    llvm::report_fatal_error(llvm::Twine("section ") +
-                             pInputSection.name() +
-                             llvm::Twine("'s MCSectionData has no") +
-                             llvm::Twine(" correponding range list.\n"));
-  }
+  if (0 == m_SDRangeMap.count(sect_data))
+    return NULL;
 
   if (sect_data->getFragmentList().empty())
     return NULL;
