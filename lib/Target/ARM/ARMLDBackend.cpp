@@ -133,7 +133,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker)
                                                        ELF::SHT_REL,
                                                        ELF::SHF_ALLOC);
   // set info of .rel.plt to .plt
-  relplt.setInfoLink(plt);
+  relplt.setLinkInfo(&plt);
   // create MCSectionData and ARMRelDynSection
   m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt), 8);
 }

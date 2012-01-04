@@ -74,7 +74,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".dynsym");
-  LDSection* strtab_shdr = pInput.context()->getSection(".dynstr");
+  LDSection* strtab_shdr = symtab_shdr->getLinkInfo();
   if (NULL == symtab_shdr || NULL == strtab_shdr)
     return false;
 

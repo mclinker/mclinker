@@ -14,8 +14,7 @@
 //===----------------------------------------------------------------------===//
 // ELFReader<32, true>
 #include <cstring>
-
-using namespace std;
+#include <vector>
 
 /// constructor
 ELFReader<32, true>::ELFReader(GNULDBackend& pBackend)
@@ -117,14 +116,16 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   llvm::ELF::Elf32_Shdr* shdrTab =
                 reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
 
-  // get .shstrtab first
-  llvm::ELF::Elf32_Shdr* shdr = &shdrTab[shstrtab];
   uint32_t sh_name   = 0x0;
   uint32_t sh_type   = 0x0;
   uint32_t sh_flags  = 0x0;
   uint32_t sh_offset = 0x0;
   uint32_t sh_size   = 0x0;
+  uint32_t sh_link   = 0x0;
+  uint32_t sh_info   = 0x0;
 
+  // get .shstrtab first
+  llvm::ELF::Elf32_Shdr* shdr = &shdrTab[shstrtab];
   if (llvm::sys::isLittleEndianHost()) {
     sh_offset = shdr->sh_offset;
     sh_size   = shdr->sh_size;
@@ -136,6 +137,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   const char* sect_name = reinterpret_cast<const char*>(
                        pInput.memArea()->request(sh_offset, sh_size)->start());
 
+  LinkInfoList link_info_list;
+
   // create all LDSections
   for (size_t idx = 0; idx < shnum; ++idx) {
     if (llvm::sys::isLittleEndianHost()) {
@@ -144,6 +147,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
       sh_flags  = shdrTab[idx].sh_flags;
       sh_offset = shdrTab[idx].sh_offset;
       sh_size   = shdrTab[idx].sh_size;
+      sh_link   = shdrTab[idx].sh_link;
+      sh_info   = shdrTab[idx].sh_info;
     }
     else {
       sh_name   = bswap32(shdrTab[idx].sh_name);
@@ -151,6 +156,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
       sh_flags  = bswap32(shdrTab[idx].sh_flags);
       sh_offset = bswap32(shdrTab[idx].sh_offset);
       sh_size   = bswap32(shdrTab[idx].sh_size);
+      sh_link   = bswap32(shdrTab[idx].sh_link);
+      sh_info   = bswap32(shdrTab[idx].sh_info);
     }
 
     LDFileFormat::Kind kind = getLDSectionKind(sh_type,
@@ -165,8 +172,28 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     section.setOffset(sh_offset);
     section.setIndex(pInput.context()->numOfSections());
 
+    if (sh_link != 0x0) {
+      LinkInfo link_info = { idx, sh_link, sh_info };
+      link_info_list.push_back(link_info);
+    }
+
     pInput.context()->getSectionTable().push_back(&section);
   }
+
+  // set up InfoLink
+  LinkInfoList::iterator info, infoEnd = link_info_list.end();
+  for (info = link_info_list.begin(); info != infoEnd; ++info) {
+    LDSection* section = pInput.context()->getSection(info->shndx);
+    if (LDFileFormat::NamePool == section->kind()) {
+      section->setLinkInfo(pInput.context()->getSection(info->sh_link));
+      continue;
+    }
+    if (LDFileFormat::Relocation == section->kind()) {
+      section->setLinkInfo(pInput.context()->getSection(info->sh_info));
+      continue;
+    }
+  }
+
   return true;
 }
 

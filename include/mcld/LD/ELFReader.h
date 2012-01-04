@@ -80,6 +80,15 @@ public:
   virtual bool readRel(Input& pInput,
                        MCLinker& pLinker,
                        const MemoryRegion& pRegion) const = 0;
+protected:
+  /// LinkInfo - some section needs sh_link and sh_info, remember them.
+  struct LinkInfo {
+    uint32_t shndx;
+    uint32_t sh_link;
+    uint32_t sh_info;
+  };
+
+  typedef std::vector<LinkInfo> LinkInfoList;
 
 protected:
   LDFileFormat::Kind getLDSectionKind(uint32_t pType, const char* pName) const;

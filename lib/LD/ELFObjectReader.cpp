@@ -123,7 +123,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".symtab");
-  LDSection* strtab_shdr = pInput.context()->getSection(".strtab");
+  LDSection* strtab_shdr = symtab_shdr->getLinkInfo();
   if (NULL == symtab_shdr || NULL == strtab_shdr)
     return false;
 

@@ -27,6 +27,6 @@ LDSection::LDSection(const std::string& pName,
     m_Offset(pOffset),
     m_Addr(pAddr),
     m_pSectionData(NULL),
-    m_pInfoLink(NULL) {
+    m_pLinkInfo(NULL) {
 }
 
