@@ -157,13 +157,14 @@ bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
 }
 
 bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                                          unsigned int pType)
+                                          unsigned int pType,
+                                          bool isAbsReloc)
 {
   if(pSym.isUndef() && (pType==Output::Exec))
     return false;
   if(pSym.isAbsolute())
     return false;
-  if(pType==Output::DynObj)
+  if(pType==Output::DynObj && isAbsReloc)
     return true;
   if(pSym.isDyn() || pSym.isUndef())
     return true;
@@ -317,7 +318,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
           // set PLT bit
           rsym->setReserved(rsym->reserved() | 0x8u);
         }
-        if(isSymbolNeedsDynRel(*rsym, pType)) {
+        if(isSymbolNeedsDynRel(*rsym, pType, true)) {
           // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
@@ -383,7 +384,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_THM_MOVT_BREL:
       case ELF::R_ARM_THM_MOVW_BREL: {
         // Relative addressing relocation, may needs dynamic relocation
-        if(isSymbolNeedsDynRel(*rsym, pType)) {
+        if(isSymbolNeedsDynRel(*rsym, pType, false)) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
             createARMRelDyn(pLinker);

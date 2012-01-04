@@ -159,7 +159,9 @@ public:
 
 private:
   bool isSymbolNeedsPLT(const ResolveInfo& pSym, unsigned int pType);
-  bool isSymbolNeedsDynRel(const ResolveInfo& pSym, unsigned int pType);
+  bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
+                           unsigned int pType, 
+                           bool isAbsReloc);
   void createARMGOT(MCLinker& pLinker);
   void createARMPLTandRelPLT(MCLinker& pLinker);
   void createARMRelDyn(MCLinker& pLinker);
