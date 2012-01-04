@@ -328,9 +328,11 @@ bool ELFReader<32, true>::readRela(Input& pInput,
     if (NULL == frag_ref) {
       llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
                                llvm::Twine(pSection.getLinkInfo()->index()) +
-                               llvm::Twine(" in the relocation section `") +
+                               llvm::Twine(" of the relocation section `") +
                                pSection.name() +
-                               llvm::Twine("'.\n"));
+                               llvm::Twine("' in file `") +
+                               pInput.path().native() +
+                               llvm::Twine(".\n"));
     }
 
     pLinker.addRelocation(r_type, *resolve_info, *frag_ref, r_addend);
@@ -381,9 +383,11 @@ bool ELFReader<32, true>::readRel(Input& pInput,
     if (NULL == frag_ref) {
       llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
                                llvm::Twine(pSection.getLinkInfo()->index()) +
-                               llvm::Twine(" in the relocation section `") +
+                               llvm::Twine(" of the relocation section `") +
                                pSection.name() +
-                               llvm::Twine("'.\n"));
+                               llvm::Twine("' in file `") +
+                               pInput.path().native() +
+                               llvm::Twine(".\n"));
     }
 
     pLinker.addRelocation(r_type, *resolve_info, *frag_ref);
