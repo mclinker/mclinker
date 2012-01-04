@@ -594,8 +594,11 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
   }
   // use dynamic relocation
   if(rsym->reserved() & 0x1u) {
-    helper_DynRel(pReloc, pReloc.type(), pParent);
-    return ARMRelocationFactory::OK;
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_MOVT_ABS_NC ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
+                             llvm::Twine(", recompile with -fPIC"));
   }
   X = (S + A) | T ;
   // perform static relocation
@@ -622,8 +625,11 @@ ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
 
   // use dynamic relocation
   if(rsym->reserved() & 0x1u) {
-    helper_DynRel(pReloc, pReloc.type(), pParent);
-    return ARMRelocationFactory::OK;
+    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
+                             llvm::Twine("relocation R_ARM_MOVT_PREL_NC ") +
+                             llvm::Twine("for symbol ") +
+                             llvm::Twine(pReloc.symInfo()->name()) +
+                             llvm::Twine(", recompile with -fPIC"));
   }
   X = ((S + A) | T) - P;
 
