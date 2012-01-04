@@ -43,8 +43,8 @@ public:
   llvm::error_code writeDynObj(Output& pOutput);
 
 private:
-  MCLinker& m_Linker;
   GNULDBackend& m_Backend;
+  MCLinker& m_Linker;
 };
 
 } // namespace of mcld

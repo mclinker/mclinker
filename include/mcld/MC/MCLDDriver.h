@@ -112,8 +112,8 @@ public:
   bool emitOutput();
 
 private:
-  TargetLDBackend &m_LDBackend;
   MCLDInfo& m_LDInfo;
+  TargetLDBackend &m_LDBackend;
   MCLinker* m_pLinker;
   SectionMap m_SectionMap;
 };

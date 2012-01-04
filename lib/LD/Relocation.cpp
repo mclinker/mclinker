@@ -18,12 +18,12 @@ Relocation::Relocation(Relocation::Type pType,
                        Relocation::Address pAddend,
                        Relocation::DWord* pTargetData,
                        RelocationFactory &pParent)
-  : m_Type(pType),
+  : MCFragment(llvm::MCFragment::FT_Reloc),
+    m_Type(pType),
     m_Addend(pAddend),
     m_pTargetData(pTargetData),
     m_pSymInfo(0),
-    m_Parent(pParent),
-    MCFragment(llvm::MCFragment::FT_Reloc)
+    m_Parent(pParent)
 {
   if(pTargetRef)
      m_TargetAddress = *pTargetRef ;
@@ -53,21 +53,21 @@ void Relocation::setAddend(Address pAddend)
 {
   m_Addend = pAddend;
 }
- 
+
 void Relocation::setSymInfo(ResolveInfo* pSym)
 {
   m_pSymInfo = pSym;
 }
 
 Relocation::DWord& Relocation::target()
-{ 
+{
   assert(0 != m_pTargetData);
-  return *m_pTargetData; 
+  return *m_pTargetData;
 }
 
 const Relocation::DWord& Relocation::target() const
-{ 
-  assert(0 != m_pTargetData); 
-  return *m_pTargetData; 
+{
+  assert(0 != m_pTargetData);
+  return *m_pTargetData;
 }
 

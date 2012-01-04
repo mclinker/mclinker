@@ -72,8 +72,8 @@ public:
                           llvm::CodeModel::Model CM = llvm::CodeModel::Default,
                           llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const {
     if (TargetMachineCtorFn && m_pT) {
-      llvm::TargetMachine *tm = 0;
-      if (tm=m_pT->createTargetMachine(pTriple, pCPU, pFeatures, Options, RM, CM, OL))
+      llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, Options, RM, CM, OL);
+      if (tm)
         return TargetMachineCtorFn(*this, *tm, pTriple);
     }
     return 0;
@@ -116,10 +116,10 @@ private:
 };
 
 //===----------------------------------------------------------------------===//
-/// TargetRegistry - mcld::TargetRegistry is an object adapter of 
+/// TargetRegistry - mcld::TargetRegistry is an object adapter of
 /// llvm::TargetRegistry
 ///
-class TargetRegistry 
+class TargetRegistry
 {
 public:
   typedef std::list<mcld::Target*> TargetListTy;
@@ -197,7 +197,7 @@ public:
 /// extern "C" void LLVMInitializeFooTargetInfo() {
 ///   RegisterTarget X(TheFooTarget, "foo", "Foo description");
 /// }
-struct RegisterTarget 
+struct RegisterTarget
 {
   RegisterTarget(mcld::Target &T, const char *Name) {
     llvm::TargetRegistry::iterator TIter, TEnd = llvm::TargetRegistry::end();
@@ -221,7 +221,7 @@ struct RegisterTarget
 ///   RegisterTargetMachine<mcld::FooTargetMachine> X(TheFooTarget);
 /// }
 template<class TargetMachineImpl>
-struct RegisterTargetMachine 
+struct RegisterTargetMachine
 {
   RegisterTargetMachine(mcld::Target &T) {
     TargetRegistry::RegisterTargetMachine(T, &Allocator);

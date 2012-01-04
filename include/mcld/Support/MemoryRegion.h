@@ -78,9 +78,9 @@ public:
   void sync();
 
 private:
+  MemoryArea::Space* m_pParentSpace;
   Address m_VMAStart;
   size_t m_Length;
-  MemoryArea::Space* m_pParentSpace;
 };
 
 } // namespace of mcld

@@ -79,9 +79,9 @@ Path& Path::assign(const Path::ValueType* s, unsigned int length)
 //a,/b a/,b a/,b/ a,b is a/b
 Path& Path::append(const Path& pPath)
 {
-  //first path is a/,second path is /b 
+  //first path is a/,second path is /b
   if(m_PathName[m_PathName.length()-1] == separator &&
-     pPath.native()[0] == separator) { 
+     pPath.native()[0] == separator) {
     unsigned int old_size = m_PathName.size()-1;
     unsigned int new_size = old_size + pPath.native().size();
 
@@ -127,7 +127,7 @@ Path::StringType::size_type Path::m_append_separator_if_needed()
 {
   if (!m_PathName.empty() &&
 #ifdef LLVM_ON_WIN32
-      *(m_PathName.end()-1) != colon && 
+      *(m_PathName.end()-1) != colon &&
 #endif
       !is_separator(*(m_PathName.end()-1))) {
         StringType::size_type tmp(m_PathName.size());
@@ -165,16 +165,6 @@ Path Path::extension() const
 
 //===--------------------------------------------------------------------===//
 // non-member functions
-static bool mcld::sys::fs::exists(FileStatus f)
-{
-  return (f.type() != StatusError)&&(f.type() != FileNotFound);
-}
-
-static bool mcld::sys::fs::is_directory(FileStatus f)
-{
-  return f.type() == mcld::sys::fs::DirectoryFile;
-}
-
 bool mcld::sys::fs::operator==(const Path& pLHS,const Path& pRHS)
 {
   return (pLHS.generic_string()==pRHS.generic_string());

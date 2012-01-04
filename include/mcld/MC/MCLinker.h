@@ -157,12 +157,12 @@ private:
   TargetLDBackend& m_Backend;
   MCLDInfo& m_Info;
   LDContext& m_Output;
-  StrSymPool m_StrSymPool;
+  SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;
   LDSectionDataFactory m_LDSectDataFactory;
-  SectionMap& m_SectionMap;
   SectionMerger m_SectionMerger;
+  StrSymPool m_StrSymPool;
   Layout m_Layout;
   RelocationListType m_RelocationList;
 };

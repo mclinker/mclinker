@@ -37,7 +37,6 @@ MCLDDriver::~MCLDDriver()
 void MCLDDriver::normalize() {
 
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  Input::Type type;
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode
     if ((*input)->type() == Input::Script ||
@@ -46,7 +45,7 @@ void MCLDDriver::normalize() {
         (*input)->type() == Input::Archive)
       continue;
 
-    
+
     (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
     if (!(*input)->memArea()->isGood()) {
       llvm::report_fatal_error("can not open file: " + (*input)->path().native());

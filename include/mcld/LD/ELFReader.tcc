@@ -14,7 +14,6 @@
 //===----------------------------------------------------------------------===//
 // ELFReader<32, true>
 #include <cstring>
-#include <iostream>
 
 using namespace std;
 
@@ -79,7 +78,7 @@ MCLDFile::Type ELFReader<32, true>::fileType(void* pELFHeader) const
   case llvm::ELF::ET_CORE:
     return MCLDFile::CoreFile;
   case llvm::ELF::ET_NONE:
-  default: 
+  default:
     return MCLDFile::Unknown;
   }
 }
@@ -188,7 +187,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   uint8_t  st_info  = 0x0;
   uint8_t  st_other = 0x0;
   uint16_t st_shndx = 0x0;
-  for (size_t idx; idx < entsize; ++idx) {
+  for (size_t idx = 0; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
     if (llvm::sys::isLittleEndianHost()) {

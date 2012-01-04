@@ -33,10 +33,10 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
     1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209,
     16411, 32771, 65537, 131101, 262147
   };
-  const int buckets_count = sizeof buckets / sizeof buckets[0];
+  const unsigned buckets_count = sizeof buckets / sizeof buckets[0];
 
   unsigned int result = 1;
-  for (unsigned int i = 0; i < buckets_count; ++i) {
+  for (unsigned i = 0; i < buckets_count; ++i) {
     if (pNumOfSymbols < buckets[i])
       break;
     result = buckets[i];

@@ -39,9 +39,9 @@ class RegionFactory;
  *
  *  Good linkers must well manipulate memory mapped I/O and dynamic memory.
  *  In MCLinker, MemoryArea is the decision-maker to use memory mapped I/O or
- *  dynamic memory. When a client requests MemoryArea for a piece of memory 
+ *  dynamic memory. When a client requests MemoryArea for a piece of memory
  *  to hold a part of a file, MemoryArea is going to see whether the requested
- *  part of the file is already in any existing memory which is requested 
+ *  part of the file is already in any existing memory which is requested
  *  before. If it is, MemoryArea creates a new MemoryRegion within the memory
  *  requested before. Otherwise, MemoryArea uses memory mapped I/O or dynamic
  *  memory to load the file.
@@ -106,14 +106,14 @@ private:
     void sync()
     { m_pParent->write(*this); }
 
-  public:  
+  private:
+    MemoryArea* m_pParent;
+
+  public:
     Type type;
     off_t file_offset;
     size_t size;
     sys::fs::detail::Address data;
-
-  private:
-    MemoryArea* m_pParent;
   };
 
   friend class Space;
@@ -121,7 +121,7 @@ private:
 
 public:
   // constructor
-  // @param pRegionFactory the factory to manage MemoryRegions 
+  // @param pRegionFactory the factory to manage MemoryRegions
   MemoryArea(RegionFactory& pRegionFactory);
 
   // destructor
@@ -134,7 +134,7 @@ public:
   MemoryRegion* request(off_t pOffset, size_t pLength, bool pIsWrite = false);
 
   // release - release a MemoryRegion.
-  // release a MemoryRegion does not cause 
+  // release a MemoryRegion does not cause
   void release(MemoryRegion* pRegion);
 
   // clean - release all MemoryRegion and unmap all spaces.

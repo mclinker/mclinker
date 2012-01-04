@@ -166,12 +166,12 @@ public:
   }
 
   /// deallocate - deallocate N data from the pPtr
-  //  - if we can simply release some memory, then do it. Otherwise, do 
+  //  - if we can simply release some memory, then do it. Otherwise, do
   //    nothing.
   void deallocate(pointer &pPtr, size_type N) {
-    if (0 == N || 
-        N > chunk_type::size() || 
-        0 == m_pCurrent->bound || 
+    if (0 == N ||
+        N > chunk_type::size() ||
+        0 == m_pCurrent->bound ||
         N >= m_pCurrent->bound)
       return;
     if (!isAvailable(pPtr))
@@ -192,7 +192,7 @@ public:
 
   /// isIn - whether the pPtr is in the current chunk?
   bool isIn(pointer pPtr) const {
-    if (pPtr >= &(m_pCurrent->data[0]) && 
+    if (pPtr >= &(m_pCurrent->data[0]) &&
         pPtr <= &(m_pCurrent->data[chunk_type::size()-1]))
       return true;
     return false;
@@ -200,7 +200,7 @@ public:
 
   /// isIn - whether the pPtr is allocated, and can be constructed.
   bool isAvailable(pointer pPtr) const {
-    if (pPtr >= &(m_pCurrent->data[m_pCurrent->bound]) && 
+    if (pPtr >= &(m_pCurrent->data[m_pCurrent->bound]) &&
         pPtr <= &(m_pCurrent->data[chunk_type::size()-1]))
       return true;
     return false;
@@ -216,7 +216,7 @@ public:
   void clear() {
     chunk_type *cur = m_pRoot, *prev;
     while (0 != cur) {
-      int idx=0;
+      unsigned int idx=0;
       prev = cur;
       cur = cur->next;
       while (idx != prev->bound) {
@@ -353,10 +353,10 @@ public:
   void deallocate(pointer pObject, size_type)
   { std::free(static_cast<void*>(pObject)); }
 
-  size_type max_size() const throw() 
+  size_type max_size() const throw()
   { return size_t(-1) / sizeof(DataType); }
 
-  void construct(pointer pObject, const DataType& pValue) 
+  void construct(pointer pObject, const DataType& pValue)
   { ::new((void *)pObject) value_type(pValue); }
 
   void destroy(pointer pObject)
@@ -392,7 +392,7 @@ public:
   ~MallocAllocator() throw()
   { }
 
-  size_type max_size() const throw() 
+  size_type max_size() const throw()
   { return size_t(-1) / sizeof(void*); }
 
   pointer address(reference X) const
@@ -419,7 +419,7 @@ public:
   { std::free(pObject); }
 
   template<typename DataType>
-  void construct(DataType* pObject, const DataType& pValue) 
+  void construct(DataType* pObject, const DataType& pValue)
   { /* do nothing */ }
 
   void construct(pointer pObject, const_reference pValue)

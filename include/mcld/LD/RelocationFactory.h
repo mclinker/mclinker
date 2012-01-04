@@ -72,8 +72,8 @@ private:
   typedef GCFactory<DWord, 0> TargetDataFactory;
 
 private:
-  const Layout* m_pLayout;
   TargetDataFactory* m_pTargetDataFactory;
+  const Layout* m_pLayout;
 
 };
 

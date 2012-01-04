@@ -44,7 +44,7 @@ namespace mcld
    *  - provide an interface for target-specific SectLinekr
    *  - collect all target-independent parameters, and set up environment for
    *    MCLDDriver
-   *  - control AsmPrinter, make sure AsmPrinter has already prepared 
+   *  - control AsmPrinter, make sure AsmPrinter has already prepared
    *    all MCSectionDatas for linking
    *
    *  SectLinker resolves the absolue paths of input arguments.
@@ -111,7 +111,7 @@ namespace mcld
     typedef std::vector<PositionDependentOption*> PositionDependentOptions;
 
   protected:
-    // Constructor. Although SectLinker has only two arguments, 
+    // Constructor. Although SectLinker has only two arguments,
     // TargetSectLinker should handle
     // - enabled attributes
     // - the default attribute
@@ -145,12 +145,12 @@ namespace mcld
     { }
 
     /// doInitialization - Read all parameters and set up the AsmPrinter.
-    /// If your pass overrides this, it must make sure to explicitly call 
+    /// If your pass overrides this, it must make sure to explicitly call
     /// this implementation.
     virtual bool doInitialization(llvm::Module &pM);
 
     /// doFinalization - Shut down the AsmPrinter, and do really linking.
-    /// If you override this in your pass, you must make sure to call it 
+    /// If you override this in your pass, you must make sure to call it
     /// explicitly.
     virtual bool doFinalization(llvm::Module &pM);
 
@@ -166,9 +166,9 @@ namespace mcld
     { return m_pAttrFactory; }
 
   protected:
+    MCLDInfo& m_LDInfo;
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
-    MCLDInfo& m_LDInfo;
     AttributeFactory *m_pAttrFactory;
     llvm::cl::opt<std::string> m_InputBitcode;
 

@@ -17,7 +17,8 @@ inline static unsigned int compute_bucket_count(unsigned int pNumOfBuckets)
     16411, 20483, 32771, 49157, 65537, 98317, 131101, 196613
   };
 
-  const int buckets_count = sizeof(bucket_size) / sizeof(bucket_size[0]);
+  const unsigned int buckets_count =
+      sizeof(bucket_size) / sizeof(bucket_size[0]);
   unsigned int idx = 0;
   do {
     if (pNumOfBuckets < bucket_size[idx]) {
@@ -96,7 +97,7 @@ template<typename HashEntryTy,
 void HashTableImpl<HashEntryTy, HashFunctionTy>::init(unsigned int pInitSize)
 {
   m_NumOfBuckets = pInitSize? compute_bucket_count(pInitSize): NumOfInitBuckets;
-  
+
   m_NumOfEntries = 0;
   m_NumOfTombstones = 0;
 

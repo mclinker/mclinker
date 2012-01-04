@@ -26,12 +26,12 @@ typedef uint32_t elfWord;
 
 /// Archive Header, Magic number, etc..
 
-const int archiveMagicSize = 8;
+const unsigned archiveMagicSize = 8;
 const char archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
 const char thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
 const char archiveFinalMagic[2] = { '`', '\n' };
 
-struct GNUArchiveReader::ArchiveMemberHeader 
+struct GNUArchiveReader::ArchiveMemberHeader
 {
   char name[16];
   char date[12];
@@ -93,7 +93,7 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
   const char* pFile = mapFile->getBufferStart();
-  
+
   /// check archive format.
   if(mapFile->getBufferSize() <= archiveMagicSize)
     return false;
@@ -117,7 +117,7 @@ InputTree *GNUArchiveReader::readArchive(Input &pInput)
 InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             size_t off)
 {
-  llvm::OwningPtr<llvm::MemoryBuffer> mapFile; 
+  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile)) {
     assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return NULL;
@@ -153,10 +153,10 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     assert(0=="fatal error : need symbol table\n");
     return NULL;
   }
-  
+
   if((off&1) != 0)
-    ++off; 
-  
+    ++off;
+
   size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName,
                                           NULL, extendedName);
   /// read extended Name table
@@ -168,7 +168,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   /// traverse all archive members
   InputTree::iterator node = resultTree->root();
-  for(int i=0 ; i<archiveMap.size() ; ++i)
+  for(unsigned i=0 ; i<archiveMap.size() ; ++i)
   {
     /// We shall get each member at this archive.
     /// If if a member is the other archive, recursive call setupNewArchive
@@ -224,8 +224,8 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   const char *pFile = mapFile->getBufferStart();
   pFile += off;
   const ArchiveMemberHeader *header = reinterpret_cast<const ArchiveMemberHeader *>(pFile);
-  
-  /// check magic number of member header 
+
+  /// check magic number of member header
   if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic)) {
     assert(0=="archive member header magic number false");
     return 0;
@@ -250,7 +250,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
       return 0;
     }
     p_Name->assign(header->name, nameEnd - header->name);
-    
+
     if(!p_NestedOff)
       p_NestedOff = 0;
   }
@@ -267,12 +267,12 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   else {
     char *end;
     long extendedNameOff = strtol(header->name+1, &end, 10);
-    long nestedOff = 0;  
+    long nestedOff = 0;
     if(*end == ':')
       nestedOff = strtol(end+1, &end, 10);
 
-    if(*end != ' ' || 
-       extendedNameOff < 0 || 
+    if(*end != ' ' ||
+       extendedNameOff < 0 ||
        static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size()) {
       assert(0=="extended name");
       return 0;
@@ -288,7 +288,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(p_NestedOff)
      *p_NestedOff = nestedOff;
   }
-  
+
   return memberSize;
 }
 
@@ -301,20 +301,20 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
   ///Intel and ARM are littel-endian , Sparc is big-endian
-  ///symbolNum read from archive is big-endian 
+  ///symbolNum read from archive is big-endian
   ///This is portibility issue.
-  if(m_endian == LDReader::LittleEndian) 
-    endian_swap(symbolNum); 
+  if(m_endian == LDReader::LittleEndian)
+    endian_swap(symbolNum);
   ++p_Word;
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
   size_t nameSize = reinterpret_cast<const char *>(startPtr) + size - p_Name;
 
   archiveMap.resize(symbolNum);
-  for(unsigned int i=0 ; i<symbolNum ; ++i)
+  for(unsigned i=0 ; i<symbolNum ; ++i)
   {
     /// assign member offset
-    unsigned int memberOffset = *p_Word;
+    unsigned memberOffset = *p_Word;
     endian_swap(memberOffset);
     archiveMap[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;

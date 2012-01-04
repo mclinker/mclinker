@@ -34,7 +34,7 @@ SearchDirs::SearchDirs()
 
 SearchDirs::~SearchDirs()
 {
-  iterator dir, dirEnd = end(); 
+  iterator dir, dirEnd = end();
   for (dir = begin(); dir!=dirEnd; ++dir) {
     delete (*dir);
   }
@@ -47,12 +47,11 @@ void SearchDirs::add(const MCLDDirectory& pDirectory)
 
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
-  static int c=0;
   std::string file;
   SpecToFilename(pNamespec, file);
   // for all MCLDDirectorys
   DirList::iterator mcld_dir, mcld_dir_end = m_DirList.end();
-  for (mcld_dir=m_DirList.begin(); mcld_dir!=m_DirList.end(); ++mcld_dir) {
+  for (mcld_dir=m_DirList.begin(); mcld_dir!=mcld_dir_end; ++mcld_dir) {
     // for all entries in MCLDDirectory
     MCLDDirectory::iterator entry = (*mcld_dir)->begin();
     MCLDDirectory::iterator enEnd = (*mcld_dir)->end();

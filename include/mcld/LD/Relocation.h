@@ -97,20 +97,20 @@ private:
   /// m_Type - the type of the relocation entries
   Type m_Type;
 
+  /// m_TargetData - target data of the place being relocated
+  DWord* m_pTargetData;
+
   /// m_pSymInfo - resolved symbol info of relocation target symbol
   ResolveInfo* m_pSymInfo;
+
+  /// m_Parent - the RelocationFactory who produce this relocation
+  RelocationFactory& m_Parent;
 
   /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
 
-  /// m_TargetData - target data of the place being relocated
-  DWord* m_pTargetData;
-
   /// m_Addend - the addend
   Address m_Addend;
-
-  /// m_Parent - the RelocationFactory who produce this relocation
-  RelocationFactory& m_Parent;
 };
 
 } // namespace of mcld

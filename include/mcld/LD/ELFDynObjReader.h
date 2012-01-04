@@ -41,8 +41,8 @@ public:
   bool readSymbols(Input& pInput);
 
 private:
-  MCLinker& m_Linker;
   ELFReaderIF *m_pELFReader;
+  MCLinker& m_Linker;
 };
 
 } // namespace of mcld

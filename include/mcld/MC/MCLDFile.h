@@ -106,10 +106,10 @@ public:
   { return m_pMemArea; }
 
 protected:
-  sys::fs::Path m_Path;
-  std::string m_Name;
   unsigned int m_Type;
   LDContext *m_pContext;
+  sys::fs::Path m_Path;
+  std::string m_Name;
   MemoryArea* m_pMemArea;
 };
 
@@ -139,7 +139,7 @@ public:
   MCLDFile* produce(llvm::StringRef pName,
                     const sys::fs::Path& pPath,
                     unsigned int pType = MCLDFile::Unknown);
-  
+
   MCLDFile* produce();
 };
 

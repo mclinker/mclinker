@@ -77,8 +77,14 @@ class Directory;
 
 bool exists(const Path &pPath);
 bool is_directory(const Path &pPath);
-static bool exists(FileStatus f);
-static bool is_directory(FileStatus f);
+
+inline static bool exists(FileStatus f) {
+  return (f.type() != StatusError)&&(f.type() != FileNotFound);
+}
+
+inline static bool is_directory(FileStatus f) {
+  return f.type() == mcld::sys::fs::DirectoryFile;
+}
 
 namespace detail
 {
