@@ -48,6 +48,11 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
   return result;
 }
 
+inline bool isDynamicSymbol(const LDSymbol& pSymbol)
+{
+  return (pSymbol.binding() != ResolveInfo::Local);
+}
+
 void createDynamicEntry(llvm::ELF::Elf32_Sword pTag,
                         llvm::MCSectionData* SectionData)
 {
@@ -413,7 +418,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
   for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
     size_t str_size = (*symbol)->nameSize() + 1;
-    if ((*symbol)->binding() != ResolveInfo::Local) {
+    if (isDynamicSymbol(**symbol)) {
       ++dynsym;
       dynstr += str_size;
     }
@@ -638,6 +643,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   LDContext::const_sym_iterator symbol;
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
   for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+    // FIXME: check the endian between host and target
     // write out symbol
     if (32 == bitclass()) {
       symtab32[symtabIdx].st_name  = strtabsize;
@@ -675,7 +681,135 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     const Layout& pLayout,
                                     const MCLDInfo& pLDInfo)
 {
-  // FIXME
+  assert(pOutput.hasMemArea());
+  ELFFileFormat* file_format = NULL;
+  switch(pOutput.type()) {
+    // compute size of .dynstr and .hash
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      // TODO: not support yet
+      return;
+  }
+
+  LDSection& symtab_sect = file_format->getDynSymTab();
+  LDSection& strtab_sect = file_format->getDynStrTab();
+  LDSection& hash_sect   = file_format->getHashTab();
+
+  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
+                                                           symtab_sect.size(),
+                                                           true);
+  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
+                                                           strtab_sect.size(),
+                                                           true);
+  MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
+                                                         hash_sect.size(),
+                                                         true);
+  // set up symtab_region
+  llvm::ELF::Elf32_Sym* symtab32 = NULL;
+  llvm::ELF::Elf64_Sym* symtab64 = NULL;
+  if (32 == bitclass())
+    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
+  else if (64 == bitclass())
+    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
+  else
+    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
+                             llvm::Twine(bitclass()) +
+                             llvm::Twine(".\n"));
+
+  // set up strtab_region
+  char* strtab = (char*)strtab_region->start();
+
+  size_t symtabIdx = 0;
+  size_t strtabsize = 0;
+
+  // emit of .dynsym, and .dynstr
+  LDContext::const_sym_iterator symbol;
+  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
+  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+    if (!isDynamicSymbol(**symbol))
+      continue;
+    // FIXME: check the endian between host and target
+    // write out symbol
+    if (32 == bitclass()) {
+      symtab32[symtabIdx].st_name  = strtabsize;
+      symtab32[symtabIdx].st_value = (*symbol)->value();
+      symtab32[symtabIdx].st_size  = (*symbol)->size();
+      symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
+      symtab32[symtabIdx].st_other = (*symbol)->visibility();
+      symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
+    }
+    else { // must 64
+      symtab64[symtabIdx].st_name  = strtabsize;
+      symtab64[symtabIdx].st_value = (*symbol)->value();
+      symtab64[symtabIdx].st_size  = (*symbol)->size();
+      symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
+      symtab64[symtabIdx].st_other = (*symbol)->visibility();
+      symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
+    }
+    // write out string
+    strcpy((strtab + strtabsize), (*symbol)->name());
+
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit hash table
+  // FIXME: this verion only emit SVR4 hash section.
+  //        Please add GNU new hash section
+
+  // both 32 and 64 bits hash table use 32-bit entry
+  // set up hash_region
+  uint32_t* word_array = (uint32_t*)hash_region->start();
+  uint32_t& nbucket = word_array[0];
+  uint32_t& nchain  = word_array[1];
+
+  nbucket = hash_bucket_count(symtabIdx, false);
+  nchain  = symtabIdx;
+
+  uint32_t* bucket = (word_array + 2);
+  uint32_t* chain  = (bucket + nbucket);
+
+  StringHash<ELF> hash_func;
+
+  if (32 == bitclass()) {
+    uint32_t* bucket_pos = (uint32_t*)malloc(symtabIdx);
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
+      bucket_pos[sym_idx] = hash_func(name) % nbucket;
+    }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      bucket[bucket_pos[sym_idx]] = sym_idx;
+    }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
+    }
+    free(bucket_pos);
+  }
+  else if (64 == bitclass()) {
+    uint32_t* bucket_pos = (uint32_t*)malloc(symtabIdx);
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
+      bucket_pos[sym_idx] = hash_func(name) % nbucket;
+    }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      bucket[bucket_pos[sym_idx]] = sym_idx;
+    }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
+    }
+    free(bucket_pos);
+  }
+
+  symtab_region->sync();
+  strtab_region->sync();
+  hash_region->sync();
 }
 
 // emitDynamic - emit .dynamic section
