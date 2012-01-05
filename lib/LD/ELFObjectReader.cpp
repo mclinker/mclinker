@@ -142,12 +142,14 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   MemoryArea* mem = pInput.memArea();
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
-    if ((*section)->type() == llvm::ELF::SHT_RELA) {
+    if ((*section)->type() == llvm::ELF::SHT_RELA &&
+        (*section)->kind() == LDFileFormat::Relocation) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
       if (!m_pELFReader->readRela(pInput, m_Linker, **section, *region))
         return false;
     }
-    else if ((*section)->type() == llvm::ELF::SHT_REL) {
+    else if ((*section)->type() == llvm::ELF::SHT_REL &&
+             (*section)->kind() == LDFileFormat::Relocation) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
       if (!m_pELFReader->readRel(pInput, m_Linker, **section, *region))
         return false;
