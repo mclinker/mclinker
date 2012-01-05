@@ -34,7 +34,7 @@ void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
                                            ELF::SHT_HASH,
                                            ELF::SHF_ALLOC);
   f_pDynamic      = &pLinker.getOrCreateOutputSectHdr(".dynamic",
-                                           LDFileFormat::Note,
+                                           LDFileFormat::Target,
                                            ELF::SHT_DYNAMIC,
                                            ELF::SHF_ALLOC | ELF::SHF_WRITE);
   f_pRelaDyn      = &pLinker.getOrCreateOutputSectHdr(".rela.dyn",
