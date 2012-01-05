@@ -48,8 +48,6 @@ ARMPLT::ARMPLT(LDSection& pSection,
   ARMPLT0* plt0_entry = new ARMPLT0(&m_SectionData);
 
   m_Section.setSize(m_Section.size() + plt0_entry->getEntrySize());
-  m_SectionData.getFragmentList().push_back(plt0_entry);
-
 
   m_PLTEntryIterator = pSectionData.begin();
 }
@@ -70,7 +68,6 @@ void ARMPLT::reserveEntry(int pNum)
       llvm::report_fatal_error("Allocating new memory for ARMPLT1 failed!");
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
-    m_SectionData.getFragmentList().push_back(plt1_entry);
 
     got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize(),
                                            &(m_GOT.m_SectionData));
@@ -78,7 +75,6 @@ void ARMPLT::reserveEntry(int pNum)
     if (!got_entry)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
 
-    m_GOT.m_SectionData.getFragmentList().push_back(got_entry);
     m_GOT.m_Section.setSize(m_GOT.m_Section.size() + m_GOT.f_EntrySize);
 
     ++(m_GOT.m_GOTPLTNum);
