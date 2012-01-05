@@ -245,6 +245,7 @@ bool MCLDDriver::addStandardSymbols()
 ///   target symbols, return false
 bool MCLDDriver::addTargetSymbols()
 {
+  m_LDBackend.initTargetSymbols(*m_pLinker);
   return true;
 }
 
