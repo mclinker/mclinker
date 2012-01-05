@@ -707,7 +707,7 @@ void GNULDBackend::emitDynamic(Output& pOutput)
 
     if (emitFn) {
       ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
-      assert(!FileFormat && "ELFDynObjectFileFormat is NULL!");
+      assert(FileFormat && "ELFDynObjectFileFormat is NULL!");
 
       emitFn(buffer, FileFormat);
     }
