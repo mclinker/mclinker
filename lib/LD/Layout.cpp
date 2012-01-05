@@ -495,14 +495,15 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
       case LDFileFormat::Debug:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
-        if (NULL != sect->getSectionData() &&
-            !sect->getSectionData()->getFragmentList().empty()) {
-          // make sure that all fragments are valid, and compute section size
-          llvm::MCFragment& frag =
-            sect->getSectionData()->getFragmentList().back();
-          setFragmentLayoutOrder(&frag);
-          setFragmentLayoutOffset(&frag);
-          sect->setSize(frag.Offset + computeFragmentSize(*this, frag));
+        if (0 != sect->size()) {
+          if (NULL != sect->getSectionData() &&
+              !sect->getSectionData()->getFragmentList().empty()) {
+            // make sure that all fragments are valid
+            llvm::MCFragment& frag =
+              sect->getSectionData()->getFragmentList().back();
+            setFragmentLayoutOrder(&frag);
+            setFragmentLayoutOffset(&frag);
+          }
           m_SectionOrder.push_back(sect);
         }
         break;
@@ -526,23 +527,15 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
   // perform sorting on m_SectionOrder to get a ordering for final layout
   sortSectionOrder(pBackend);
 
+  // Backend defines the section start offset for section 1.
+  uint64_t offset = pBackend.sectionStartOffset();
   // compute the section offset and handle alignment also. And ignore section 0
   // (NULL in ELF/COFF), and MachO starts from section 1.
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
-    uint64_t offset;
-    LDSection* cur = m_SectionOrder[index];
-    LDSection* prev = m_SectionOrder[index - 1];
-
-    // Backend defines the section start offset for section 1.
-    if (LDFileFormat::Null != prev->kind())
-      offset = prev->offset() + prev->size();
-    else
-      offset = pBackend.sectionStartOffset();
-
+    offset += m_SectionOrder[index - 1]->size();
     // align the offset to target-defined alignment
     alignAddress(offset, pBackend.bitclass());
-
-    cur->setOffset(offset);
+    m_SectionOrder[index]->setOffset(offset);
   }
 
   // FIXME: Currently Writer bases on the section table in output context to

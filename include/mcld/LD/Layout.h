@@ -271,12 +271,6 @@ private:
   /// the map from MCSectionData* to its own RangeList.
   SDRangeMap m_SDRangeMap;
 
-  /// The last fragment which was laid out, or 0 if nothing has been laid
-  /// out. Fragments are always laid out in order, so all fragments with a
-  /// lower ordinal will be up to date.
-  llvm::DenseMap<const llvm::MCSectionData*,
-                 llvm::MCFragment*> m_LastValidFragment;
-
   FragRefFactory m_FragRefFactory;
 };
 
