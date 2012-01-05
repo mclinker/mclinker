@@ -34,6 +34,7 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
       llvm::report_fatal_error("Allocating GOT0 entries failed!");
 
     m_SectionData.getFragmentList().push_back(Entry);
+    m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
 
   // Skip GOT0
@@ -63,6 +64,7 @@ void ARMGOT::reserveEntry(const int pNum)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
 
     m_SectionData.getFragmentList().push_back(Entry);
+    m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
     ++m_GeneralGOTNum;
   }
 }

@@ -75,6 +75,7 @@ void ARMPLT::reserveEntry(int pNum)
       llvm::report_fatal_error("Allocating new memory for GOT failed!");
 
     m_GOT.m_SectionData.getFragmentList().push_back(got_entry);
+    m_GOT.m_Section.setSize(m_GOT.m_Section.size() + m_GOT.f_EntrySize);
 
     ++(m_GOT.m_GOTPLTNum);
     ++(m_GOT.m_GeneralGOTIterator);
