@@ -22,9 +22,6 @@
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
 
-#include <iostream>
-using namespace std;
-
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
@@ -182,8 +179,6 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   assert(0 != rsym && "ResolveInfo of relocation not set while scanRelocation");
-
-  cout << "scan type: " << pReloc.type() << endl;
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
