@@ -104,7 +104,7 @@ TEST_F( MemoryAreaTest, write_one_page )
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
 	ASSERT_TRUE(area->isMapped()) ;
 	ASSERT_TRUE(area->isGood()) ;
-	MemoryRegion* region = area->request(0, 4096) ;
+	MemoryRegion* region = area->request(0, 4096, true) ;
 	region->getBuffer()[4000] = 'K' ;
 	region->getBuffer()[4001] = 'R' ;
 	region->sync() ;
@@ -127,8 +127,8 @@ TEST_F( MemoryAreaTest, write_sync )
 	MemoryArea* area = AreaFactory->produce(path, O_RDWR) ;
 	ASSERT_TRUE(area->isMapped()) ;
 	ASSERT_TRUE(area->isGood()) ;
-	MemoryRegion* region1 = area->request(0, 4096) ;
-	MemoryRegion* region2 = area->request(512, 1024) ;
+	MemoryRegion* region1 = area->request(0, 4096, true) ;
+	MemoryRegion* region2 = area->request(512, 1024, true) ;
 	region1->getBuffer()[1000] = 'L' ;
 	region1->getBuffer()[1001] = 'L' ;
 	region2->getBuffer()[488] = 'V' ;
