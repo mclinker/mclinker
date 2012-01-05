@@ -33,7 +33,6 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
     if (!Entry)
       llvm::report_fatal_error("Allocating GOT0 entries failed!");
 
-    m_SectionData.getFragmentList().push_back(Entry);
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
 
@@ -63,7 +62,6 @@ void ARMGOT::reserveEntry(const int pNum)
     if (!Entry)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
 
-    m_SectionData.getFragmentList().push_back(Entry);
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
     ++m_GeneralGOTNum;
   }
