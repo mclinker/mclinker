@@ -90,8 +90,8 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   input_sym->setResolveInfo(*resolved_result.info);
   input_sym->setFragmentRef(pFragmentRef);
 
-  // if it is a new symbol, create a LDSymbol for the output
-  if (!resolved_result.existent) {
+  // if it is a new and regular symbol, create a LDSymbol for the output
+  if (!resolved_result.existent && !pIsDyn) {
     LDSymbol* output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
