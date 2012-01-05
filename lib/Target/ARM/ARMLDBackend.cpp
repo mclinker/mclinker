@@ -22,6 +22,9 @@
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
 
+#include <iostream>
+using namespace std;
+
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
@@ -90,14 +93,13 @@ void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
   // create symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
   if(m_pGOT) {
-    // FIXME: who is responsible for destructing the MCFragmentRef?
     pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
                          false,
                          ResolveInfo::Object,
                          ResolveInfo::Define,
                          ResolveInfo::Local,
-                         m_pGOT->getEntrySize(),
-                         new MCFragmentRef(*(m_pGOT->begin())),
+                         0,
+                         pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
                          ResolveInfo::Hidden);
   }
 }
@@ -180,6 +182,8 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   assert(0 != rsym && "ResolveInfo of relocation not set while scanRelocation");
+
+  cout << "scan type: " << pReloc.type() << endl;
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
