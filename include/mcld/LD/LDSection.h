@@ -52,7 +52,7 @@ public:
 
   /// kind - the kind of this section, such as Text, BSS, GOT, and so on.
   /// from LDFileFormat::Kind
-  uint32_t kind() const
+  LDFileFormat::Kind kind() const
   { return m_Kind; }
 
   /// type - The categorizes the section's contents and semantics. It's
@@ -165,7 +165,7 @@ public:
 
 private:
   std::string m_Name;
-  uint32_t m_Kind;
+  LDFileFormat::Kind m_Kind;
   uint32_t m_Type;
   uint32_t m_Flag;
 

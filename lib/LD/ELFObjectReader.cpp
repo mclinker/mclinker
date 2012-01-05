@@ -87,10 +87,18 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Note:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData: {
+        // create fragment
         MemoryRegion* region = pInput.memArea()->request((*section)->offset(),
                                                          (*section)->size());
         llvm::MCSectionData& sect_data = m_Linker.getOrCreateSectData(**section);
         new MCRegionFragment(*region, &sect_data);
+
+        // resize output LDSection
+        LDSection& out_sect = m_Linker.getOrCreateOutputSectHdr((*section)->name(),
+                                                                (*section)->kind(),
+                                                                (*section)->type(),
+                                                                (*section)->flag());
+        out_sect.setSize(out_sect.size() + (*section)->size());
         break;
       }
       case LDFileFormat::BSS: {
