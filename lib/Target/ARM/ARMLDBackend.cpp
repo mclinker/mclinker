@@ -91,7 +91,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
   m_pAttributes   = &pLinker.getOrCreateOutputSectHdr(".ARM.attributes",
                                                       LDFileFormat::Target,
                                                       ELF::SHT_ARM_ATTRIBUTES,
-                                                      ELF::SHF_ALLOC);
+                                                      0);
 }
 
 void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
