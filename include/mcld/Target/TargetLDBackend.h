@@ -85,6 +85,16 @@ public:
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;
 
+  /// preLayout - Backend can do any needed modification before layout
+  virtual void preLayout(const Output& pOutput,
+                         const MCLDInfo& pInfo,
+                         MCLinker& pLinker) = 0;
+
+  /// postLayout -Backend can do any needed modification after layout
+  virtual void postLayout(const Output& pOutput,
+                          const MCLDInfo& pInfo,
+                          MCLinker& pLinker) = 0;
+
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
 

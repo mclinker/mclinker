@@ -100,6 +100,20 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
   }
 }
 
+void MipsGNULDBackend::preLayout(const Output& pOutput,
+                                 const MCLDInfo& pInfo,
+                                 MCLinker& pLinker)
+{
+  // add any needed modification before layout
+}
+
+void MipsGNULDBackend::postLayout(const Output& pOutput,
+                                  const MCLDInfo& pInfo,
+                                  MCLinker& pLinker)
+{
+  // add any needed modification after layout
+}
+
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
                                       unsigned int pType)

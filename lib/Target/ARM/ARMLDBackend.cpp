@@ -109,6 +109,24 @@ void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
   }
 }
 
+void ARMGNULDBackend::preLayout(const Output& pOutput,
+                                const MCLDInfo& pInfo,
+                                MCLinker& pLinker)
+{
+  // when building shared object, the .got and .synamic section are needed
+  if(pOutput.type() == Output::DynObj) {
+    if(!m_pGOT)
+      createARMGOT(pLinker);
+  //TODO: Add _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
+  }
+}
+
+void ARMGNULDBackend::postLayout(const Output& pOutput,
+                                 const MCLDInfo& pInfo,
+                                 MCLinker& pLinker)
+{
+}
+
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
 {
   LDSection& got  = pLinker.getOrCreateOutputSectHdr(".got",
@@ -581,7 +599,7 @@ ARMDynRelSection& ARMGNULDBackend::getRelDyn()
   assert(0 != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
-   
+
 const ARMDynRelSection& ARMGNULDBackend::getRelDyn() const
 {
   assert(0 != m_pRelDyn && ".rel.dyn section not exist");
@@ -593,7 +611,7 @@ ARMDynRelSection& ARMGNULDBackend::getRelPLT()
   assert(0 != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
-   
+
 const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
 {
   assert(0 != m_pRelPLT && ".rel.plt section not exist");

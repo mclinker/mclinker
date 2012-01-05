@@ -44,6 +44,20 @@ bool X86GNULDBackend::initRelocFactory(const MCLinker& pLinker)
   return true;
 }
 
+void X86GNULDBackend::preLayout(const Output& pOutput,
+                                 const MCLDInfo& pInfo,
+                                 MCLinker& pLinker)
+{
+  // add any needed modification before layout
+}
+
+void X86GNULDBackend::postLayout(const Output& pOutput,
+                                  const MCLDInfo& pInfo,
+                                  MCLinker& pLinker)
+{
+  // add any needed modification after layout
+}
+
 uint32_t X86GNULDBackend::machine() const
 {
   return ELF::EM_386;

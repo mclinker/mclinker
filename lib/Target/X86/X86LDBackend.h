@@ -36,6 +36,16 @@ public:
 
   unsigned int bitclass() const;
 
+  /// preLayout - Backend can do any needed modification before layout
+  void preLayout(const Output& pOutput,
+                 const MCLDInfo& pInfo,
+                 MCLinker& pLinker);
+
+  /// postLayout -Backend can do any needed modification after layout
+  void postLayout(const Output& pOutput,
+                  const MCLDInfo& pInfo,
+                  MCLinker& pLinker);
+
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
   /// call back target backend to emit the data.
