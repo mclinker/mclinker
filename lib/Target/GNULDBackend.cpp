@@ -669,8 +669,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 }
 
 // emitDynamic - emit .dynamic section
-void GNULDBackend::emitDynamic(Output& pOutput,
-                               const Layout& pLayout)
+void GNULDBackend::emitDynamic(Output& pOutput)
 {
   assert(m_pDynObjFileFormat && "m_pDynObjFileFormat is NULL!");
 

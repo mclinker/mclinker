@@ -149,8 +149,7 @@ public:
                                 const MCLDInfo& pLDInfo);
 
   /// emitDynamic - emit .dynamic section
-  virtual void emitDynamic(Output& pOutput,
-                           const Layout& pLayout);
+  virtual void emitDynamic(Output& pOutput);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
