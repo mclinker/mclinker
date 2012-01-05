@@ -32,9 +32,17 @@ MipsGNULDBackend::~MipsGNULDBackend()
 
 RelocationFactory* MipsGNULDBackend::getRelocFactory()
 {
-  if (NULL == m_pRelocFactory)
-    m_pRelocFactory = new MipsRelocationFactory(1024, *this);
+  assert(NULL != m_pRelocFactory);
   return m_pRelocFactory;
+}
+
+bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
+{
+  if (NULL == m_pRelocFactory) {
+    m_pRelocFactory = new MipsRelocationFactory(1024, *this);
+    m_pRelocFactory->setLayout(pLinker.getLayout());
+  }
+  return true;
 }
 
 uint32_t MipsGNULDBackend::machine() const

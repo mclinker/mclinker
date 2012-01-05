@@ -77,6 +77,9 @@ public:
   /// initTargetSectionMap - initialize target dependent section mapping
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
+  // initRelocFactory - create and initialize RelocationFactory
+  bool initRelocFactory(const MCLinker& pLinker);
+
   void initTargetSections(MCLinker& pLinker);
 
   /// scanRelocation - determine the empty entries are needed or not and create

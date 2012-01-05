@@ -169,6 +169,9 @@ bool MCLDDriver::initMCLinker()
   // initialize target-dependent segments and sections
   m_LDBackend.initTargetSections(*m_pLinker);
 
+  // initialize RelocationFactory
+  m_LDBackend.initRelocFactory(*m_pLinker);
+
   return true;
 }
 

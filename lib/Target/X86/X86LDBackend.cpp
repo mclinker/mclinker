@@ -31,9 +31,17 @@ X86GNULDBackend::~X86GNULDBackend()
 
 RelocationFactory* X86GNULDBackend::getRelocFactory()
 {
-  if (0 == m_pRelocFactory)
-    m_pRelocFactory = new X86RelocationFactory(1024, *this);
+  assert(NULL != m_pRelocFactory);
   return m_pRelocFactory;
+}
+
+bool X86GNULDBackend::initRelocFactory(const MCLinker& pLinker)
+{
+  if (NULL == m_pRelocFactory) {
+    m_pRelocFactory = new X86RelocationFactory(1024, *this);
+    m_pRelocFactory->setLayout(pLinker.getLayout());
+  }
+  return true;
 }
 
 uint32_t X86GNULDBackend::machine() const

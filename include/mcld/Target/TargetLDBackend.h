@@ -52,6 +52,9 @@ public:
   virtual void initTargetSymbols(MCLinker& pLinker) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
 
+  virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
+  virtual RelocationFactory* getRelocFactory() = 0;
+
   /// scanRelocation - determine the empty entries are needed or not for
   /// pReloc. If yes, create the empty entries.
   /// MCLinker traverse relocations to generate empty entries, such as
@@ -81,8 +84,6 @@ public:
 
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;
-
-  virtual RelocationFactory* getRelocFactory() = 0;
 
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;

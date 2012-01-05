@@ -44,10 +44,18 @@ ARMGNULDBackend::~ARMGNULDBackend()
     delete m_pRelPLT;
 }
 
+bool ARMGNULDBackend::initRelocFactory(const MCLinker& pLinker)
+{
+  if (NULL == m_pRelocFactory) {
+    m_pRelocFactory = new ARMRelocationFactory(1024, *this);
+    m_pRelocFactory->setLayout(pLinker.getLayout());
+  }
+  return true;
+}
+
 RelocationFactory* ARMGNULDBackend::getRelocFactory()
 {
-  if (NULL == m_pRelocFactory)
-    m_pRelocFactory = new ARMRelocationFactory(1024, *this);
+  assert(m_pRelocFactory!= NULL);
   return m_pRelocFactory;
 }
 

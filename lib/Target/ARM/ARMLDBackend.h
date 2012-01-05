@@ -85,6 +85,9 @@ public:
   /// initTargetSymbols - initialize target dependent symbols in output.
   void initTargetSymbols(MCLinker& pLinker);
   
+  /// initRelocFactory - create and initialize RelocationFactory
+  bool initRelocFactory(const MCLinker& pLinker);
+
   /// getRelocFactory
   RelocationFactory* getRelocFactory();
 
