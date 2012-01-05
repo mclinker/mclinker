@@ -67,6 +67,11 @@ emitDTNULL(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
 }
 
 void
+emitDTNeeded(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+}
+
+void
 emitDTPLTRelSZ(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
 {
   buffer->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
@@ -142,6 +147,11 @@ emitDTFini(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
 }
 
 void
+emitDTSOName(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
+{
+}
+
+void
 emitDTSymbolic(llvm::ELF::Elf32_Dyn* buffer, ELFDynObjFileFormat* FileFormat)
 {
   buffer->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(0);
@@ -214,7 +224,7 @@ const unsigned int dynamic_type_num = 33;
 typedef void (*DynamicEntryFn)(llvm::ELF::Elf32_Dyn*, ELFDynObjFileFormat*);
 DynamicEntryFn emitDynamicEntry[] = {
   emitDTNULL,
-  0, //DT_NEEDED
+  emitDTNeeded,
   emitDTPLTRelSZ,
   emitDTPLTGOT,
   emitDTHash,
@@ -227,7 +237,7 @@ DynamicEntryFn emitDynamicEntry[] = {
   emitDTSymEnt,
   emitDTInit,
   emitDTFini,
-  0, // DT_SONAME
+  emitDTSOName,
   0, //DT_RPATH
   emitDTSymbolic,
   emitDTRel,
