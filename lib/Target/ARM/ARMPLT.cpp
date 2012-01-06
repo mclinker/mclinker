@@ -233,6 +233,7 @@ void ARMPLT::applyPLT1() {
     *Out |= plt1_data3;
 
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
+    ++it;
   }
 
   ARMGOT::const_iterator

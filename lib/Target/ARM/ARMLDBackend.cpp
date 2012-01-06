@@ -872,6 +872,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
       EntrySize = plt1->getEntrySize();
       memcpy(buffer + RegionSize, plt1->getContent(), EntrySize);
       RegionSize += EntrySize;
+      ++it;
     }
   }
 
