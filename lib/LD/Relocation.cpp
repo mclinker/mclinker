@@ -35,7 +35,18 @@ Relocation::~Relocation()
 
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
-  return pLayout.getOutputOffset(m_TargetAddress);
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    m_TargetAddress.frag()->getParent()->getSection()
+  );
+  return ld_section.offset() + pLayout.getOutputOffset(m_TargetAddress);
+}
+
+Relocation::Address Relocation::symValue() const
+{
+  const LDSection& ld_section = static_cast<const LDSection&>(
+    m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection()
+  );
+  return ld_section.offset() + m_pSymInfo->outSymbol()->value();
 }
 
 void Relocation::apply()

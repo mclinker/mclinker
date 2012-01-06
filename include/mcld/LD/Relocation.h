@@ -46,15 +46,14 @@ public:
   Type type() const
   { return m_Type; }
 
-  /// symValue - symbol value - S value
-  Address symValue() const
-  { return m_pSymInfo->outSymbol()->value(); }
+  /// symValue - S value - ouput file offset of the symbol
+  Address symValue() const;
 
   /// addend - A value
   Address addend() const
   { return m_Addend; }
 
-  /// place - P value
+  /// place - P value - output file offset of the place being relocated
   Address place(const Layout& pLayout) const;
 
   /// symbol info - binding, type
