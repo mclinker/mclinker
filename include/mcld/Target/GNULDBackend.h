@@ -128,10 +128,6 @@ public:
   virtual void sizeNamePools(const Output& pOutput,
                              const MCLDInfo& pLDInfo);
 
-  // sizeDynamic - compute the size of .dynamic section
-  virtual void sizeDynamic(Output& pOutput,
-                           const MCLDInfo& pLDInfo);
-
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const Output& pOutput,
                                    const LDSection& pSection,
@@ -147,9 +143,6 @@ public:
   virtual void emitDynNamePools(Output& pOutput,
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
-
-  /// emitDynamic - emit .dynamic section
-  virtual void emitDynamic(Output& pOutput);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.

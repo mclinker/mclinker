@@ -31,6 +31,7 @@ public:
   ARMGNULDBackend();
   ~ARMGNULDBackend();
 public:
+  typedef std::vector<llvm::ELF::Elf32_Dyn*> ELF32DynList;
 
   /** \enum ReservedEntryType
    *  \brief The reserved entry type of reserved space in ResolveInfo.
@@ -130,6 +131,14 @@ public:
                   const MCLDInfo& pInfo,
                   MCLinker& pLinker);
 
+  /// sizeDynamic - compute the size of .dynamic section
+  void sizeELF32Dynamic(const MCLDInfo& pLDInfo);
+
+  void applyELF32Dynamic() const;
+
+  /// emitDynamic - emit .dynamic section
+  void emitELF32Dynamic(MemoryRegion& pRegion) const;
+
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
   /// call back target backend to emit the data.
@@ -179,6 +188,9 @@ private:
   void createARMPLTandRelPLT(MCLinker& pLinker);
   void createARMRelDyn(MCLinker& pLinker);
 
+  void createELF32DynamicEntry(llvm::ELF::Elf32_Sword pTag,
+                               size_t& pSectionSize);
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;
@@ -187,6 +199,9 @@ private:
   ARMDynRelSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
   ARMDynRelSection* m_pRelPLT;
+
+  /// m_pDynamic - .dynamic section for Elf32.
+  ELF32DynList m_ELF32DynList;
 
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx
