@@ -33,6 +33,18 @@ public:
 
   virtual void initObjectType(MCLinker& pLinker) = 0;
 
+  bool hasRelPlt() const {
+    return (NULL != f_pRelPlt);
+  }
+
+  bool hasRelaPlt() const {
+    return (NULL != f_pRelaPlt);
+  }
+
+  bool hasRelDyn() const {
+    return (NULL != f_pRelDyn);
+  }
+
   // -----  access functions  ----- //
   LDSection& getNullSection() {
     assert(NULL != f_pELFNULLSection);

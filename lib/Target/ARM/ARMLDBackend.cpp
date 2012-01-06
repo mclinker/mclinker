@@ -27,171 +27,184 @@ using namespace mcld;
 namespace {
 
 void
-emitDTNULL(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTNULL(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(0);
 }
 
 void
-emitDTNeeded(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTNeeded(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   //FIXME: d_un.d_val needs an index into string table.
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(0);
 }
 
 void
-emitDTPLTRelSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTPLTRelSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getRelPlt().size());
+                       FileFormat.getRelPlt().size());
 }
 
 void
-emitDTPLTGOT(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTPLTGOT(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getGOT().addr());
+                       FileFormat.getGOT().addr());
 }
 
-void emitDTHash(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+void emitDTHash(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getHashTab().addr());
+                       FileFormat.getHashTab().addr());
 }
 
 void
-emitDTStrTab(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTStrTab(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getStrTab().addr());
+                       FileFormat.getStrTab().addr());
 }
 
 void
-emitDTSymTab(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTSymTab(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getSymTab().addr());
+                       FileFormat.getSymTab().addr());
 }
 
 void
-emitDTRela(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat) {
+emitDTRela(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat) {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getRelaDyn().addr());
+                       FileFormat.getRelaDyn().addr());
 }
 
 void
-emitDTRelaSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTRelaSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getRelaDyn().size());
+                       FileFormat.getRelaDyn().size());
 }
 
 void
-emitDTStrSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTStrSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getStrTab().size());
+                       FileFormat.getStrTab().size());
 }
 
 void
-emitDTSymEnt(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTSymEnt(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val =
     static_cast<llvm::ELF::Elf32_Word>(sizeof(llvm::ELF::Elf32_Sym));
 }
 
 void
-emitDTInit(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTInit(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getInit().addr());
+                       FileFormat.getInit().addr());
 }
 
 void
-emitDTFini(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTFini(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getFini().addr());
+                       FileFormat.getFini().addr());
 }
 
 void
-emitDTSOName(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTSOName(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   //FIXME: d_un.d_val needs an index into string table.
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Word>(0);
 }
 
 void
-emitDTSymbolic(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTSymbolic(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(0);
 }
 
 void
-emitDTRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getRelDyn().addr());
+                       FileFormat.getRelDyn().addr());
 }
 
 void
-emitDTRelSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTRelSZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getRelDyn().size());
+                       FileFormat.getRelDyn().size());
 }
 
 void
-emitDTRelEnt(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTRelEnt(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val =
     static_cast<llvm::ELF::Elf32_Word>(sizeof(llvm::ELF::Elf32_Rel));
 }
 
 void
-emitDTPLTRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTPLTRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
-   pEntry->d_un.d_ptr =
-     static_cast<llvm::ELF::Elf32_Addr>(llvm::ELF::DT_REL);
+  if (FileFormat.hasRelPlt()) {
+    pEntry->d_un.d_ptr =
+    static_cast<llvm::ELF::Elf32_Addr>(llvm::ELF::DT_REL);
+
+    return ;
+  }
+
+  if (FileFormat.hasRelaPlt()) {
+    pEntry->d_un.d_ptr =
+    static_cast<llvm::ELF::Elf32_Addr>(llvm::ELF::DT_RELA);
+
+    return ;
+  }
+
+  assert("rel.plt or rela.plt should exist for this DT_PLTREL entry!");
 }
 
 void
-emitDTJMPRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTJMPRel(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getRelPlt().addr());
+                       FileFormat.getRelPlt().addr());
 }
 
 void
-emitDTInitArray(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTInitArray(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getInitArray().addr());
+                       FileFormat.getInitArray().addr());
 }
 
 void
-emitDTFiniArray(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTFiniArray(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_ptr = static_cast<llvm::ELF::Elf32_Addr>(
-                       FileFormat->getFiniArray().addr());
+                       FileFormat.getFiniArray().addr());
 }
 
 void
-emitDTInitArraySZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTInitArraySZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getInitArray().size());
+                       FileFormat.getInitArray().size());
 }
 
 void
-emitDTFiniArraySZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat* FileFormat)
+emitDTFiniArraySZ(llvm::ELF::Elf32_Dyn* pEntry, ELFDynObjFileFormat& FileFormat)
 {
   pEntry->d_un.d_val = static_cast<llvm::ELF::Elf32_Word>(
-                       FileFormat->getFiniArray().size());
+                       FileFormat.getFiniArray().size());
 }
 
 const unsigned int dynamic_type_num = 33;
-typedef void (*DynamicEntryFn)(llvm::ELF::Elf32_Dyn*, ELFDynObjFileFormat*);
+typedef void (*DynamicEntryFn)(llvm::ELF::Elf32_Dyn*, ELFDynObjFileFormat&);
 DynamicEntryFn emitDynamicEntry[] = {
   emitDTNULL,
   emitDTNeeded,
@@ -331,9 +344,10 @@ void ARMGNULDBackend::preLayout(const Output& pOutput,
     if(!m_pGOT)
       createARMGOT(pLinker);
   //TODO: Add _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
+
+    sizeELF32Dynamic(pInfo);
   }
 
-  sizeELF32Dynamic(pInfo);
 }
 
 void ARMGNULDBackend::postLayout(const Output& pOutput,
@@ -770,7 +784,8 @@ void ARMGNULDBackend::sizeELF32Dynamic(const MCLDInfo& pLDInfo) {
   }
 
   if (type == Output::DynObj) {
-    createELF32DynamicEntry(llvm::ELF::DT_SONAME, SectionSize);
+    if (pLDInfo.output().name().size() != 0)
+      createELF32DynamicEntry(llvm::ELF::DT_SONAME, SectionSize);
 
     if (pLDInfo.options().Bsymbolic()) {
       createELF32DynamicEntry(llvm::ELF::DT_SYMBOLIC, SectionSize);
@@ -789,11 +804,21 @@ void ARMGNULDBackend::sizeELF32Dynamic(const MCLDInfo& pLDInfo) {
   createELF32DynamicEntry(llvm::ELF::DT_STRSZ, SectionSize);
   createELF32DynamicEntry(llvm::ELF::DT_SYMENT, SectionSize);
   createELF32DynamicEntry(llvm::ELF::DT_PLTGOT, SectionSize);
-  createELF32DynamicEntry(llvm::ELF::DT_PLTRELSZ, SectionSize);
-  createELF32DynamicEntry(llvm::ELF::DT_PLTREL, SectionSize);
-  createELF32DynamicEntry(llvm::ELF::DT_JMPREL, SectionSize);
-  createELF32DynamicEntry(llvm::ELF::DT_REL, SectionSize);
-  createELF32DynamicEntry(llvm::ELF::DT_RELSZ, SectionSize);
+
+  if (m_pDynObjFileFormat->hasRelPlt()) {
+    createELF32DynamicEntry(llvm::ELF::DT_PLTRELSZ, SectionSize);
+    createELF32DynamicEntry(llvm::ELF::DT_JMPREL, SectionSize);
+  }
+
+  if (m_pDynObjFileFormat->hasRelPlt() || m_pDynObjFileFormat->hasRelaPlt()) {
+    createELF32DynamicEntry(llvm::ELF::DT_PLTREL, SectionSize);
+  }
+
+  if (m_pDynObjFileFormat->hasRelDyn()) {
+    createELF32DynamicEntry(llvm::ELF::DT_REL, SectionSize);
+    createELF32DynamicEntry(llvm::ELF::DT_RELSZ, SectionSize);
+  }
+
   createELF32DynamicEntry(llvm::ELF::DT_RELENT, SectionSize);
   createELF32DynamicEntry(llvm::ELF::DT_NULL, SectionSize);
 
@@ -818,7 +843,7 @@ void ARMGNULDBackend::applyELF32Dynamic() const
       assert(m_pDynObjFileFormat &&
              "m_pDynObjFileFormat in ARMGNULDBackend is NULL!");
 
-      emitFn((*it), m_pDynObjFileFormat);
+      emitFn((*it), *m_pDynObjFileFormat);
     }
 
     else
