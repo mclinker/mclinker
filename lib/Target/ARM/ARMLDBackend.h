@@ -121,23 +121,15 @@ public:
   unsigned int bitclass() const
   { return 32; }
 
-  /// preLayout - Backend can do any needed modification before layout
-  void preLayout(const Output& pOutput,
-                 const MCLDInfo& pInfo,
-                 MCLinker& pLinker);
+  /// doPreLayout - Backend can do any needed modification before layout
+  void doPreLayout(const Output& pOutput,
+                   const MCLDInfo& pInfo,
+                   MCLinker& pLinker);
 
-  /// postLayout -Backend can do any needed modification after layout
-  void postLayout(const Output& pOutput,
-                  const MCLDInfo& pInfo,
-                  MCLinker& pLinker);
-
-  /// sizeDynamic - compute the size of .dynamic section
-  void sizeELF32Dynamic(const MCLDInfo& pLDInfo);
-
-  void applyELF32Dynamic() const;
-
-  /// emitDynamic - emit .dynamic section
-  void emitELF32Dynamic(MemoryRegion& pRegion) const;
+  /// doPostLayout -Backend can do any needed modification after layout
+  void doPostLayout(const Output& pOutput,
+                    const MCLDInfo& pInfo,
+                    MCLinker& pLinker);
 
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
@@ -188,9 +180,6 @@ private:
   void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
   void createARMRelDyn(MCLinker& pLinker, unsigned int pType);
 
-  void createELF32DynamicEntry(llvm::ELF::Elf32_Sword pTag,
-                               size_t& pSectionSize);
-
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;
@@ -199,9 +188,6 @@ private:
   ARMDynRelSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
   ARMDynRelSection* m_pRelPLT;
-
-  /// m_pDynamic - .dynamic section for Elf32.
-  ELF32DynList m_ELF32DynList;
 
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx

@@ -101,16 +101,16 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
   }
 }
 
-void MipsGNULDBackend::preLayout(const Output& pOutput,
-                                 const MCLDInfo& pInfo,
-                                 MCLinker& pLinker)
+void MipsGNULDBackend::doPreLayout(const Output& pOutput,
+                                   const MCLDInfo& pInfo,
+                                   MCLinker& pLinker)
 {
   // add any needed modification before layout
 }
 
-void MipsGNULDBackend::postLayout(const Output& pOutput,
-                                  const MCLDInfo& pInfo,
-                                  MCLinker& pLinker)
+void MipsGNULDBackend::doPostLayout(const Output& pOutput,
+                                    const MCLDInfo& pInfo,
+                                    MCLinker& pLinker)
 {
   // add any needed modification after layout
 }

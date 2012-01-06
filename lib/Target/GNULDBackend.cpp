@@ -66,8 +66,8 @@ GNULDBackend::GNULDBackend()
     m_pDynObjWriter(0),
     m_pDynObjFileFormat(0),
     m_pExecFileFormat(0),
-    m_ELFSegmentFactory(9) // magic number
-{
+    m_ELFSegmentFactory(9), // magic number
+    m_pDynamic(0) {
 }
 
 GNULDBackend::~GNULDBackend()
@@ -86,6 +86,8 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
     delete m_pExecFileFormat;
+  if (m_pDynamic)
+    delete m_pDynamic;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
@@ -268,6 +270,9 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
       file_format->getDynStrTab().setSize(dynstr);
       file_format->getHashTab().setSize(hash);
+
+      // set soname
+      dynstr += pOutput.name().size() + 1;
     }
     /* fall through */
     case Output::Object: {
@@ -359,6 +364,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     // write out string
     strcpy((strtab + strtabsize), (*symbol)->name());
 
+    // write out 
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
@@ -395,6 +401,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
   LDSection& hash_sect   = file_format->getHashTab();
+  LDSection& dyn_sect    = file_format->getDynamic();
 
   MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
                                                            symtab_sect.size(),
@@ -405,6 +412,9 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
                                                          hash_sect.size(),
                                                          true);
+  MemoryRegion* dyn_region = pOutput.memArea()->request(dyn_sect.offset(),
+                                                        dyn_sect.size(),
+                                                        true);
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
@@ -454,6 +464,45 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
   }
+
+  // emit DT_NEED
+  // add DT_NEED strings into .dynstr
+  // Rules:
+  //   1. ignore --no-add-needed
+  //   2. force count in --no-as-needed
+  //   3. judge --as-needed
+  ELFDynamic::iterator dt_need = m_pDynamic->needBegin();
+  InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
+  for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+    if (Input::DynObj == (*input)->type()) {
+      // --add-needed
+      if ((*input)->attribute()->isAddNeeded()) {
+        // --no-as-needed
+        if (!(*input)->attribute()->isAsNeeded()) {
+          strcpy((strtab + strtabsize), (*input)->name().c_str());
+          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+          strtabsize += (*input)->name().size() + 1;
+          ++dt_need;
+        }
+        // --as-needed
+        else if ((*input)->isNeeded()) {
+          strcpy((strtab + strtabsize), (*input)->name().c_str());
+          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+          strtabsize += (*input)->name().size() + 1;
+          ++dt_need;
+        }
+      }
+    }
+  } // for
+
+  // emit soname
+  // initialize value of ELF .dynamic section
+  m_pDynamic->applySoname(strtabsize);
+  m_pDynamic->applyEntries(pLDInfo, *file_format);
+  m_pDynamic->emit(dyn_sect, *dyn_region);
+
+  strcpy((strtab + strtabsize), pOutput.name().c_str());
+  strtabsize += pOutput.name().size() + 1;
 
   // emit hash table
   // FIXME: this verion only emit SVR4 hash section.
@@ -505,6 +554,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   symtab_region->sync();
   strtab_region->sync();
   hash_region->sync();
+  dyn_region->sync();
 }
 
 /// getSectionOrder
@@ -776,3 +826,54 @@ void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
   }
   region->sync();
 }
+
+/// preLayout - Backend can do any needed modification before layout
+void GNULDBackend::preLayout(const Output& pOutput,
+                             const MCLDInfo& pLDInfo,
+                             MCLinker& pLinker)
+{
+  // create .dynamic section
+  m_pDynamic = new ELFDynamic(*this);
+
+  // prelayout target first
+  doPreLayout(pOutput, pLDInfo, pLinker);
+
+  // initialize ELF .dynamic section
+  LDSection* dynamic = NULL;
+  if (Output::DynObj == pOutput.type()) {
+    m_pDynamic->reserveEntries(pLDInfo, *getDynObjFileFormat());
+    dynamic = &(getDynObjFileFormat()->getDynamic());
+  }
+  else if (Output::Exec == pOutput.type()) {
+    m_pDynamic->reserveEntries(pLDInfo, *getExecFileFormat());
+    dynamic = &(getExecFileFormat()->getDynamic());
+  }
+
+  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type()) {
+    InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
+    for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+      if (Input::DynObj == (*input)->type()) {
+        // --add-needed
+        if ((*input)->attribute()->isAddNeeded()) {
+          // --no-as-needed
+          if (!(*input)->attribute()->isAsNeeded())
+            m_pDynamic->reserveNeedEntry();
+          // --as-needed
+          else if ((*input)->isNeeded())
+            m_pDynamic->reserveNeedEntry();
+        }
+      }
+    } // for
+  }
+  dynamic->setSize(m_pDynamic->numOfBytes());
+}
+
+/// postLayout -Backend can do any needed modification after layout
+void GNULDBackend::postLayout(const Output& pOutput,
+                              const MCLDInfo& pInfo,
+                              MCLinker& pLinker)
+{
+  // post layout target first
+  doPostLayout(pOutput, pInfo, pLinker);
+}
+

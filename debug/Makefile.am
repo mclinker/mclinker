@@ -64,6 +64,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/GNULDBackend.cpp \
 	${INCDIR}/Target/AndroidSectLinker.h \
 	${LIBDIR}/Target/AndroidSectLinker.cpp \
+	${INCDIR}/Target/ELFDynamic.h \
+	${LIBDIR}/Target/ELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMGOT.h \

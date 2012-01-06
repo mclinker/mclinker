@@ -23,6 +23,7 @@
 #include <mcld/LD/ELFExecFileFormat.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Target/ELFDynamic.h>
 
 namespace mcld
 {
@@ -205,6 +206,26 @@ private:
     return flag;
   }
 
+  /// preLayout - Backend can do any needed modification before layout
+  void preLayout(const Output& pOutput,
+                 const MCLDInfo& pInfo,
+                 MCLinker& pLinker);
+
+  /// postLayout -Backend can do any needed modification after layout
+  void postLayout(const Output& pOutput,
+                 const MCLDInfo& pInfo,
+                 MCLinker& pLinker);
+
+  ELFDynamic& dynamic() {
+    assert(NULL != m_pDynamic);
+    return *m_pDynamic;
+  }
+
+  const ELFDynamic& dynamic() const {
+    assert(NULL != m_pDynamic);
+    return *m_pDynamic;
+  }
+
 protected:
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 
@@ -212,6 +233,15 @@ protected:
 
 private:
   typedef GCFactory<ELFSegment, 0> ELFSegmentFactory;
+  /// preLayout - Backend can do any needed modification before layout
+  virtual void doPreLayout(const Output& pOutput,
+                         const MCLDInfo& pInfo,
+                         MCLinker& pLinker) = 0;
+
+  /// postLayout -Backend can do any needed modification after layout
+  virtual void doPostLayout(const Output& pOutput,
+                          const MCLDInfo& pInfo,
+                          MCLinker& pLinker) = 0;
 
 protected:
   // ----- readers and writers ----- //
@@ -226,6 +256,8 @@ protected:
   ELFExecFileFormat* m_pExecFileFormat;
 
   ELFSegmentFactory m_ELFSegmentFactory;
+  // -----  ELF special sections  ----- //
+  ELFDynamic* m_pDynamic;
 };
 
 } // namespace of mcld
