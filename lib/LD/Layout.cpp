@@ -54,7 +54,7 @@ void Layout::setFragmentLayoutOrder(llvm::MCFragment* pFrag)
   llvm::MCFragment* first = pFrag;
 
   while (!hasLayoutOrder(*first)) {
-    if (NULL == first->getPrevNode())
+    if (0 == first->getPrevNode())
       break;
     first = first->getPrevNode();
   }
