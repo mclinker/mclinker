@@ -12,12 +12,12 @@
 #include <gtest.h>
 #endif
 #include <mcld/LD/LDFileFormat.h>
+#include <mcld/LD/LDSection.h>
 
 namespace mcld
 {
 
 class MCLinker;
-class LDSection;
 
 /** \class ELFFileFormat
  *  \brief ELFFileFormat describes the common file formats in ELF.
@@ -33,17 +33,75 @@ public:
 
   virtual void initObjectType(MCLinker& pLinker) = 0;
 
-  bool hasRelPlt() const {
-    return (NULL != f_pRelPlt);
-  }
+  // -----  capacity  ----- //
+  bool hasELFNULLSection() const
+  { return (NULL != f_pELFNULLSection) && (0 != f_pELFNULLSection->size()); }
 
-  bool hasRelaPlt() const {
-    return (NULL != f_pRelaPlt);
-  }
+  bool hasSymTab() const
+  { return (NULL != f_pELFSymTab) && (0 != f_pELFSymTab->size()); }
 
-  bool hasRelDyn() const {
-    return (NULL != f_pRelDyn);
-  }
+  bool hasStrTab() const
+  { return (NULL != f_pELFStrTab) && (0 != f_pELFStrTab->size()); }
+
+  bool hasComment() const
+  { return (NULL != f_pELFComment) && (0 != f_pELFComment->size()); }
+
+  bool hasDynSymTab() const
+  { return (NULL != f_pDynSymTab) && (0 != f_pDynSymTab->size()); }
+
+  bool hasDynStrTab() const
+  { return (NULL != f_pDynStrTab) && (0 != f_pDynStrTab->size()); }
+
+  bool hasInterp() const
+  { return (NULL != f_pInterp) && (0 != f_pInterp->size()); }
+
+  bool hasHashTab() const
+  { return (NULL != f_pHashTab) && (0 != f_pHashTab->size()); }
+
+  bool hasDynamic() const
+  { return (NULL != f_pDynamic) && (0 != f_pDynamic->size()); }
+
+  bool hasRelaDyn() const
+  { return (NULL != f_pRelaDyn) && (0 != f_pRelaDyn->size()); }
+
+  bool hasRelaPlt() const
+  { return (NULL != f_pRelaPlt) && (0 != f_pRelaPlt->size()); }
+
+  bool hasRelDyn() const
+  { return (NULL != f_pRelDyn) && (0 != f_pRelDyn->size()); }
+
+  bool hasRelPlt() const
+  { return (NULL != f_pRelPlt) && (0 != f_pRelPlt->size()); }
+
+  bool hasGOT() const
+  { return (NULL != f_pGOT) && (0 != f_pGOT->size()); }
+
+  bool hasPLT() const
+  { return (NULL != f_pPLT) && (0 != f_pPLT->size()); }
+
+  bool hasGOTPLT() const
+  { return (NULL != f_pGOTPLT) && (0 != f_pGOTPLT->size()); }
+
+  bool hasInit() const
+  { return (NULL != f_pInit) && (0 != f_pInit->size()); }
+
+  bool hasFini() const
+  { return (NULL != f_pFini) && (0 != f_pFini->size()); }
+
+  bool hasPreInitArray() const
+  { return (NULL != f_pPreInitArray) && (0 != f_pPreInitArray->size()); }
+
+  bool hasInitArray() const
+  { return (NULL != f_pInitArray) && (0 != f_pInitArray->size()); }
+
+  bool hasFiniArray() const
+  { return (NULL != f_pFiniArray) && (0 != f_pFiniArray->size()); }
+
+  bool hasCtors() const
+  { return (NULL != f_pCtors) && (0 != f_pCtors->size()); }
+
+  bool hasDtors() const
+  { return (NULL != f_pDtors) && (0 != f_pDtors->size()); }
 
   // -----  access functions  ----- //
   LDSection& getNullSection() {
