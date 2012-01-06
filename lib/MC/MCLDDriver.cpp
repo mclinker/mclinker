@@ -15,10 +15,13 @@
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/DynObjWriter.h>
+#include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <iostream>
 
+using namespace std;
 using namespace llvm;
 using namespace mcld;
 
@@ -236,6 +239,7 @@ bool MCLDDriver::mergeSymbolTables()
 ///   standard symbols, return false
 bool MCLDDriver::addStandardSymbols()
 {
+  m_LDBackend.initSTDSymbols(*m_pLinker);
   return true;
 }
 
@@ -270,6 +274,9 @@ bool MCLDDriver::readRelocations()
 /// prelayout - help backend to do some modification before layout
 bool MCLDDriver::prelayout()
 {
+  m_LDBackend.preLayout(m_LDInfo.output(),
+                        m_LDInfo,
+                        *m_pLinker);
   return true;
 }
 
@@ -286,6 +293,9 @@ bool MCLDDriver::layout()
 /// prelayout - help backend to do some modification after layout
 bool MCLDDriver::postlayout()
 {
+  m_LDBackend.postLayout(m_LDInfo.output(),
+                         m_LDInfo,
+                         *m_pLinker);
   return true;
 }
 
@@ -296,6 +306,13 @@ bool MCLDDriver::postlayout()
 /// and push_back into the relocation section
 bool MCLDDriver::relocate()
 {
+  
+  LDContext::sym_iterator symbol, symEnd = m_LDInfo.output().context()->symEnd();
+  for (symbol = m_LDInfo.output().context()->symBegin(); symbol != symEnd; ++symbol) {
+    if ((*symbol)->binding() != ResolveInfo::Local) {
+      cerr << (*symbol)->name() << "\tresolve's=" << (*symbol)->resolveInfo()->name() << endl;
+    }
+  }
   return m_pLinker->applyRelocations();
 }
 
