@@ -45,11 +45,11 @@ void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
                                            LDFileFormat::Relocation,
                                            ELF::SHT_RELA,
                                            ELF::SHF_ALLOC);
-  f_pRelaDyn      = &pLinker.getOrCreateOutputSectHdr(".rel.dyn",
+  f_pRelDyn      = &pLinker.getOrCreateOutputSectHdr(".rel.dyn",
                                            LDFileFormat::Relocation,
                                            ELF::SHT_REL,
                                            ELF::SHF_ALLOC);
-  f_pRelaPlt      = &pLinker.getOrCreateOutputSectHdr(".rel.plt",
+  f_pRelPlt      = &pLinker.getOrCreateOutputSectHdr(".rel.plt",
                                            LDFileFormat::Relocation,
                                            ELF::SHT_REL,
                                            ELF::SHF_ALLOC);
