@@ -21,6 +21,8 @@
 #include <mcld/LD/ELFObjectWriter.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/Support/GCFactory.h>
 
 namespace mcld
 {
@@ -165,20 +167,51 @@ public:
   getTargetSectionOrder(const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
 
-  virtual unsigned int numOfSegments() const {
-    // FIXME:
-    return 10;
-  }
+  /// emitProgramHdrs - emit ELF program headers
+  /// if the target favors other ways to emit program header, please override
+  /// this function
+  virtual void emitProgramHdrs(const Output& pOutput);
+
+  /// numOfSegments - return the number of segments
+  /// if the target favors other ways to emit program header, please override
+  /// this function
+  virtual unsigned int numOfSegments() const
+  { return m_ELFSegmentFactory.size(); }
 
   /// pagesize - the page size of the target machine, we set it to 4K here.
   /// If target favors tht different size of page, please override this function
   virtual unsigned int pagesize() const
   { return 0x1000; }
 
+private:
+  /// createProgramHdrs - base on output sections to create the program headers
+  void createProgramHdrs(LDContext& pContext);
+
+  /// writeELF32ProgramHdrs - write out the ELF32 program headers
+  void writeELF32ProgramHdrs(Output& pOutput);
+
+  /// writeELF64ProgramHdrs - write out the ELF64 program headers
+  void writeELF64ProgramHdrs(Output& pOutput);
+
+  /// getSegmentFlag - give a section flag and return the corresponding segment
+  /// flag
+  inline uint32_t getSegmentFlag(uint32_t pSectionFlag)
+  {
+    uint32_t flag = llvm::ELF::PF_R;
+    if (0 != (pSectionFlag & llvm::ELF::SHF_WRITE))
+      flag |= llvm::ELF::PF_W;
+    if (0 != (pSectionFlag & llvm::ELF::SHF_EXECINSTR))
+      flag |= llvm::ELF::PF_X;
+    return flag;
+  }
+
 protected:
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 
   uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
+
+private:
+  typedef GCFactory<ELFSegment, 0> ELFSegmentFactory;
 
 protected:
   // ----- readers and writers ----- //
@@ -192,6 +225,7 @@ protected:
   ELFDynObjFileFormat* m_pDynObjFileFormat;
   ELFExecFileFormat* m_pExecFileFormat;
 
+  ELFSegmentFactory m_ELFSegmentFactory;
 };
 
 } // namespace of mcld

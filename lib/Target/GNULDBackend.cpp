@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ELF.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
@@ -64,7 +65,9 @@ GNULDBackend::GNULDBackend()
     m_pObjectWriter(0),
     m_pDynObjWriter(0),
     m_pDynObjFileFormat(0),
-    m_pExecFileFormat(0) {
+    m_pExecFileFormat(0),
+    m_ELFSegmentFactory(9) // magic number
+{
 }
 
 GNULDBackend::~GNULDBackend()
@@ -599,3 +602,177 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
   // return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
 
+/// emitProgramHdrs - emit ELF program headers
+void GNULDBackend::emitProgramHdrs(const Output& pOutput)
+{
+  assert(NULL != pOutput.context());
+  createProgramHdrs(const_cast<LDContext&>(*pOutput.context()));
+
+  if (32 == bitclass())
+    writeELF32ProgramHdrs(const_cast<Output&>(pOutput));
+  else
+    writeELF64ProgramHdrs(const_cast<Output&>(pOutput));
+}
+
+/// createProgramHdrs - base on output sections to create the program headers
+void GNULDBackend::createProgramHdrs(LDContext& pContext)
+{
+  // make PT_PHDR
+  ELFSegment* phdr = m_ELFSegmentFactory.allocate();
+  new (phdr) ELFSegment(llvm::ELF::PT_PHDR, llvm::ELF::PF_R);
+
+  // make PT_INTERP
+  LDSection* interp = pContext.getSection(".interp");
+  if (NULL != interp) {
+    ELFSegment* segment = m_ELFSegmentFactory.allocate();
+    new (segment) ELFSegment(llvm::ELF::PT_INTERP,
+                             llvm::ELF::PF_R);
+    segment->addSection(interp);
+    segment->setAlign(bitclass() / 8);
+  }
+
+  uint32_t prev_seg_flag = getSegmentFlag(0);
+  uint64_t pad = 0;
+  ELFSegment* segment;
+  // make possible PT_LOAD segments
+  LDContext::sect_iterator sect, sectEnd = pContext.sectEnd();
+  for (sect = pContext.sectBegin(); sect != sectEnd; ++sect) {
+    if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
+        LDFileFormat::Null != (*sect)->kind())
+      continue;
+
+    // FIXME: Now only separate writable and non-writable PT_LOAD
+    uint32_t cur_seg_flag = getSegmentFlag((*sect)->flag());
+    if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
+         LDFileFormat::Null == (*sect)->kind()) {
+      // create new PT_LOAD segment
+      segment = m_ELFSegmentFactory.allocate();
+      new (segment) ELFSegment(llvm::ELF::PT_LOAD);
+      segment->setAlign(pagesize());
+
+      // check if this segment needs padding
+      pad = 0;
+      if (((*sect)->offset() & (segment->align() - 1)) != 0)
+        pad = segment->align();
+    }
+
+    segment->addSection(*sect);
+    segment->updateFlag(cur_seg_flag);
+
+    // FIXME: set section's vma
+    // need to handle start vma for user-defined one or for executable.
+    (*sect)->setAddr((*sect)->offset() + pad);
+
+    prev_seg_flag = cur_seg_flag;
+  }
+
+  // make PT_DYNAMIC
+  LDSection* dynamic = pContext.getSection(".dynamic");
+  if (NULL != dynamic) {
+    ELFSegment* segment = m_ELFSegmentFactory.allocate();
+    new (segment) ELFSegment(llvm::ELF::PT_INTERP,
+                             llvm::ELF::PF_R | llvm::ELF::PF_W);
+    segment->addSection(dynamic);
+    segment->setAlign(bitclass() / 8);
+  }
+
+  // update segment info
+  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
+  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg) {
+    ELFSegment& segment = *seg;
+
+    // update PT_PHDR
+    if (llvm::ELF::PT_PHDR == segment.type()) {
+      uint64_t offset, phdr_size, filesz;
+      if (32 == bitclass()) {
+        offset = sizeof(llvm::ELF::Elf32_Ehdr);
+        phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
+      }
+      else {
+        offset = sizeof(llvm::ELF::Elf64_Ehdr);
+        phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
+      }
+      segment.setOffset(offset);
+      segment.setVaddr(offset);
+      segment.setPaddr(segment.vaddr());
+      segment.setFilesz(numOfSegments() * phdr_size);
+      segment.setMemsz(numOfSegments() * phdr_size);
+      segment.setAlign(bitclass() / 8);
+      continue;
+    }
+
+    uint64_t file_size = 0, mem_size = 0;
+    ELFSegment::sect_iterator sect, sectEnd = segment.sectEnd();
+    for (sect = segment.sectBegin(); sect != sectEnd; ++sect) {
+      if (LDFileFormat::BSS != (*sect)->kind())
+        file_size += (*sect)->size();
+      mem_size += (*sect)->size();
+    }
+    segment.setOffset((*segment.sectBegin())->offset());
+    segment.setVaddr((*segment.sectBegin())->addr());
+    segment.setPaddr(segment.vaddr());
+    segment.setFilesz(file_size);
+    alignAddress(mem_size, bitclass());
+    segment.setMemsz(mem_size);
+  }
+}
+
+/// writeELF32ProgramHdrs - write out the ELF32 program headers
+void GNULDBackend::writeELF32ProgramHdrs(Output& pOutput)
+{
+  assert(pOutput.hasMemArea());
+
+  uint64_t start_offset, phdr_size;
+
+  start_offset = sizeof(llvm::ELF::Elf32_Ehdr);
+  phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
+  // Program header must start directly after ELF header
+  MemoryRegion *region = pOutput.memArea()->request(start_offset,
+                                                    numOfSegments() *phdr_size,
+                                                    true);
+  llvm::ELF::Elf32_Phdr* phdr = (llvm::ELF::Elf32_Phdr*)region->start();
+
+  size_t index = 0;
+  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
+  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg, ++index) {
+    phdr[index].p_type   = (*seg).type();
+    phdr[index].p_flags  = (*seg).flag();
+    phdr[index].p_offset = (*seg).offset();
+    phdr[index].p_vaddr  = (*seg).vaddr();
+    phdr[index].p_paddr  = (*seg).paddr();
+    phdr[index].p_filesz = (*seg).filesz();
+    phdr[index].p_memsz  = (*seg).memsz();
+    phdr[index].p_align  = (*seg).align();
+  }
+  region->sync();
+}
+
+/// writeELF64ProgramHdrs - write out the ELF64 program headers
+void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
+{
+  assert(pOutput.hasMemArea());
+
+  uint64_t start_offset, phdr_size;
+
+  start_offset = sizeof(llvm::ELF::Elf64_Ehdr);
+  phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
+  // Program header must start directly after ELF header
+  MemoryRegion *region = pOutput.memArea()->request(start_offset,
+                                                    numOfSegments() *phdr_size,
+                                                    true);
+  llvm::ELF::Elf64_Phdr* phdr = (llvm::ELF::Elf64_Phdr*)region->start();
+
+  size_t index = 0;
+  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
+  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg, ++index) {
+    phdr[index].p_type   = (*seg).type();
+    phdr[index].p_flags  = (*seg).flag();
+    phdr[index].p_offset = (*seg).offset();
+    phdr[index].p_vaddr  = (*seg).vaddr();
+    phdr[index].p_paddr  = (*seg).paddr();
+    phdr[index].p_filesz = (*seg).filesz();
+    phdr[index].p_memsz  = (*seg).memsz();
+    phdr[index].p_align  = (*seg).align();
+  }
+  region->sync();
+}
