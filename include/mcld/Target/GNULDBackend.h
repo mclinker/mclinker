@@ -169,6 +169,12 @@ public:
     // FIXME:
     return 10;
   }
+
+  /// pagesize - the page size of the target machine, we set it to 4K here.
+  /// If target favors tht different size of page, please override this function
+  virtual unsigned int pagesize() const
+  { return 0x1000; }
+
 protected:
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 
