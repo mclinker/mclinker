@@ -331,12 +331,15 @@ void ARMGNULDBackend::preLayout(const Output& pOutput,
       createARMGOT(pLinker);
   //TODO: Add _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
   }
+
+  sizeELF32Dynamic(pInfo);
 }
 
 void ARMGNULDBackend::postLayout(const Output& pOutput,
                                  const MCLDInfo& pInfo,
                                  MCLinker& pLinker)
 {
+  applyELF32Dynamic();
 }
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
