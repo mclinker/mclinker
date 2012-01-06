@@ -354,6 +354,8 @@ void ARMGNULDBackend::postLayout(const Output& pOutput,
                                  const MCLDInfo& pInfo,
                                  MCLinker& pLinker)
 {
+  // emit program headers
+  emitProgramHdrs(pOutput);
   applyELF32Dynamic();
 }
 
