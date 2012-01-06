@@ -333,7 +333,7 @@ bool MCLDDriver::measureNamePool()
 ///   symbol.
 bool MCLDDriver::finalizeSymbolValue()
 {
-  return m_pLinker->finalizeSymbols(m_LDInfo.output());
+  return m_pLinker->finalizeSymbols();
 }
 
 /// emitOutput - emit the output file.

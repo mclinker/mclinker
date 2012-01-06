@@ -312,7 +312,7 @@ bool MCLinker::layout()
   return m_Layout.layout(m_Output, m_Backend);
 }
 
-bool MCLinker::finalizeSymbols(Output& pOutput)
+bool MCLinker::finalizeSymbols()
 {
   // TODO
   return true;
