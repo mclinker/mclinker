@@ -316,6 +316,7 @@ void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
                          ResolveInfo::Define,
                          ResolveInfo::Local,
                          0,
+                         0,
                          pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
                          ResolveInfo::Hidden);
   }

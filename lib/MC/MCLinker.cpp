@@ -70,6 +70,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
                                     ResolveInfo::Desc pDesc,
                                     ResolveInfo::Binding pBinding,
                                     ResolveInfo::SizeType pSize,
+                                    LDSymbol::ValueType pValue,
                                     MCFragmentRef* pFragmentRef,
                                     ResolveInfo::Visibility pVisibility)
 {
@@ -89,6 +90,7 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   new (input_sym) LDSymbol();
   input_sym->setResolveInfo(*resolved_result.info);
   input_sym->setFragmentRef(pFragmentRef);
+  input_sym->setValue(pValue);
 
   // if it is a new and regular symbol, create a LDSymbol for the output
   if (!resolved_result.existent && !pIsDyn) {
@@ -97,6 +99,8 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
     output_sym->setResolveInfo(*resolved_result.info);
     output_sym->setFragmentRef(pFragmentRef);
     resolved_result.info->setSymPtr(output_sym);
+    if (resolved_result.info->isAbsolute())
+      output_sym->setValue(pValue);
     m_Output.symtab().push_back(output_sym);
   }
   return input_sym;
@@ -107,6 +111,7 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
                                    ResolveInfo::Type pType,
                                    ResolveInfo::Desc pDesc,
                                    ResolveInfo::SizeType pSize,
+                                   LDSymbol::ValueType pValue,
                                    MCFragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility)
 {
@@ -126,12 +131,15 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   new (input_sym) LDSymbol();
   input_sym->setResolveInfo(*resolved_info);
   input_sym->setFragmentRef(pFragmentRef);
+  input_sym->setValue(pValue);
 
   // create a LDSymbol for the output
   LDSymbol* output_sym = m_LDSymbolFactory.allocate();
   new (output_sym) LDSymbol();
   output_sym->setResolveInfo(*resolved_info);
   output_sym->setFragmentRef(pFragmentRef);
+  if (resolved_info->isAbsolute())
+    output_sym->setValue(pValue);
   m_Output.symtab().push_back(output_sym);
 
   resolved_info->setSymPtr(output_sym);
@@ -146,6 +154,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  ResolveInfo::Desc pDesc,
                                  ResolveInfo::Binding pBinding,
                                  ResolveInfo::SizeType pSize,
+                                 LDSymbol::ValueType pValue,
                                  MCFragmentRef* pFragmentRef,
                                  ResolveInfo::Visibility pVisibility)
 {
@@ -183,13 +192,14 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
     output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
-    output_sym->setFragmentRef(pFragmentRef);
     resolved_result.info->setSymPtr(output_sym);
     m_Output.symtab().push_back(output_sym);
   }
   else {
     output_sym = resolved_result.info->outSymbol();
   }
+  output_sym->setFragmentRef(pFragmentRef);
+  output_sym->setValue(pValue);
   return output_sym;
 }
 
@@ -314,7 +324,16 @@ bool MCLinker::layout()
 
 bool MCLinker::finalizeSymbols()
 {
-  // TODO
+  LDContext::sym_iterator symbol, symEnd = m_Output.symEnd();
+  for (symbol = m_Output.symBegin(); symbol != symEnd; ++symbol) {
+    if (!(*symbol)->resolveInfo()->isAbsolute()) {
+      if (NULL != (*symbol)->fragRef()) {
+        uint32_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
+        (*symbol)->setValue(value);
+      }
+    }
+  }
+
   return true;
 }
 

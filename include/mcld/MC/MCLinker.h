@@ -60,6 +60,7 @@ public:
                             ResolveInfo::Desc pDesc,
                             ResolveInfo::Binding pBinding,
                             ResolveInfo::SizeType pSize,
+                            LDSymbol::ValueType pValue,
                             MCFragmentRef* pFragmentRef,
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
@@ -68,6 +69,7 @@ public:
                            ResolveInfo::Type pType,
                            ResolveInfo::Desc pDesc,
                            ResolveInfo::SizeType pSize,
+                           LDSymbol::ValueType pValue,
                            MCFragmentRef* pFragmentRef,
                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
@@ -82,6 +84,7 @@ public:
                          ResolveInfo::Desc pDesc,
                          ResolveInfo::Binding pBinding,
                          ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
                          MCFragmentRef* pFragmentRef,
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 

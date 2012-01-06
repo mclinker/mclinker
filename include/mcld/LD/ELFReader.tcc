@@ -242,9 +242,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     // get ld_binding
     ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx);
 
-    // get ld_size
-    uint32_t ld_size = st_size;
-
     // get the input fragment
     MCFragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
                                                    pLinker,
@@ -260,7 +257,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       input_sym = pLinker.addLocalSymbol(ld_name,
                                          ld_type,
                                          ld_desc,
-                                         ld_size,
+                                         st_size,
+                                         st_value,
                                          ld_frag_ref,
                                          ld_vis);
     }
@@ -271,7 +269,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                           ld_type,
                                           ld_desc,
                                           ld_binding,
-                                          ld_size,
+                                          st_size,
+                                          st_value,
                                           ld_frag_ref,
                                           ld_vis);
     }
