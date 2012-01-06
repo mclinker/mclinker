@@ -184,9 +184,9 @@ private:
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
                            unsigned int pType, 
                            bool isAbsReloc);
-  void createARMGOT(MCLinker& pLinker);
-  void createARMPLTandRelPLT(MCLinker& pLinker);
-  void createARMRelDyn(MCLinker& pLinker);
+  void createARMGOT(MCLinker& pLinker, unsigned int pType);
+  void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
+  void createARMRelDyn(MCLinker& pLinker, unsigned int pType);
 
   void createELF32DynamicEntry(llvm::ELF::Elf32_Sword pTag,
                                size_t& pSectionSize);

@@ -342,7 +342,7 @@ void ARMGNULDBackend::preLayout(const Output& pOutput,
   // when building shared object, the .got and .synamic section are needed
   if(pOutput.type() == Output::DynObj) {
     if(!m_pGOT)
-      createARMGOT(pLinker);
+      createARMGOT(pLinker, pOutput.type());
   //TODO: Add _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
 
     sizeELF32Dynamic(pInfo);
@@ -357,50 +357,83 @@ void ARMGNULDBackend::postLayout(const Output& pOutput,
   applyELF32Dynamic();
 }
 
-void ARMGNULDBackend::createARMGOT(MCLinker& pLinker)
+void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
 {
-  LDSection& got  = pLinker.getOrCreateOutputSectHdr(".got",
-                                                     LDFileFormat::Target,
-                                                     ELF::SHT_PROGBITS,
-                                                     ELF::SHF_ALLOC | ELF::SHF_WRITE);
-
-  // create MCSectionData and ARMGOT
-  m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
+  // get .got LDSection and create MCSectionData
+  if( pType == Output::DynObj ) {
+    LDSection& got = getDynObjFileFormat()->getGOT();
+    m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
+  }
+  else if( pType == Output::Exec) {
+    LDSection& got = getExecFileFormat()->getGOT();
+    m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
+  }
+  else
+    llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
+                             ("output file type ") +
+                             llvm::Twine(pType));
 }
 
-void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker)
+void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
+                                            unsigned int pType)
 {
   // Create .got section if it dosen't exist
   if(!m_pGOT)
-    createARMGOT(pLinker);
+    createARMGOT(pLinker, pType);
 
-  // Create .plt section
-  LDSection& plt  = pLinker.getOrCreateOutputSectHdr(".plt",
-                                                     LDFileFormat::Target,
-                                                     ELF::SHT_PROGBITS,
-                                                     ELF::SHF_ALLOC | ELF::SHF_EXECINSTR);
-  // create MCSectionData and ARMPLT
-  m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
-
-  // create .rel.plt section
-  LDSection& relplt = pLinker.getOrCreateOutputSectHdr(".rel.plt",
-                                                       LDFileFormat::Relocation,
-                                                       ELF::SHT_REL,
-                                                       ELF::SHF_ALLOC);
-  // set info of .rel.plt to .plt
-  relplt.setLinkInfo(&plt);
-  // create MCSectionData and ARMRelDynSection
-  m_pRelPLT = new ARMDynRelSection(relplt, pLinker.getOrCreateSectData(relplt), 8);
+  // get .plt and .rel.plt LDSection
+  if( pType == Output::DynObj ) {
+    LDSection& plt = getDynObjFileFormat()->getPLT();
+    LDSection& relplt = getDynObjFileFormat()->getRelPlt();
+    // create MCSectionData and ARMPLT
+    m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
+    // set info of .rel.plt to .plt
+    relplt.setLinkInfo(&plt);
+    // create MCSectionData and ARMRelDynSection
+    m_pRelPLT = new ARMDynRelSection(relplt,
+                                     pLinker.getOrCreateSectData(relplt),
+                                     8);
+  }
+  else if( pType == Output::Exec ) {
+    LDSection& plt = getExecFileFormat()->getPLT();
+    LDSection& relplt = getExecFileFormat()->getRelPlt();
+    // create MCSectionData and ARMPLT
+    m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
+    // set info of .rel.plt to .plt
+    relplt.setLinkInfo(&plt);
+    // create MCSectionData and ARMRelDynSection
+    m_pRelPLT = new ARMDynRelSection(relplt,
+                                     pLinker.getOrCreateSectData(relplt),
+                                     8);
+  }
+  else
+    llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
+                             ("output file type ") +
+                             llvm::Twine(pType));
 }
 
-void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker)
+void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
+                                      unsigned int pType)
 {
-  LDSection& reldyn = pLinker.getOrCreateOutputSectHdr(".rel.dyn",
-                                                       LDFileFormat::Relocation,
-                                                       ELF::SHT_REL,
-                                                       ELF::SHF_ALLOC);
-  // create MCSectionData and ARMRelDynSection
-  m_pRelDyn = new ARMDynRelSection(reldyn, pLinker.getOrCreateSectData(reldyn), 8);
+  // get .rel.dyn LDSection and create MCSectionData
+  if( pType == Output::DynObj ) {
+    LDSection& reldyn = getDynObjFileFormat()->getRelDyn();
+    // create MCSectionData and ARMRelDynSection
+    m_pRelDyn = new ARMDynRelSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
+  }
+  else if( pType == Output::Exec) {
+    LDSection& reldyn = getExecFileFormat()->getRelDyn();
+    // create MCSectionData and ARMRelDynSection
+    m_pRelDyn = new ARMDynRelSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
+  }
+  else
+    llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
+                             ("is not support in output file type ") +
+                             llvm::Twine(pType));
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
@@ -468,7 +501,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(Output::DynObj == pType) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | 0x1u);
@@ -491,7 +524,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(Output::DynObj == pType) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | 0x1u);
@@ -502,7 +535,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_GOTOFF12: {
         // A GOT section is needed
         if(!m_pGOT)
-          createARMGOT(pLinker);
+          createARMGOT(pLinker, pType);
         return;
       }
 
@@ -513,7 +546,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(rsym->reserved() & 0x6u)
           return;
         if(!m_pGOT)
-          createARMGOT(pLinker);
+          createARMGOT(pLinker, pType);
         m_pGOT->reserveEntry();
         // If building shared object, a dynamic relocation with
         // type RELATIVE is needed to relocate this GOT entry.
@@ -521,7 +554,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(Output::DynObj == pType) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set GOTRel bit
           rsym->setReserved(rsym->reserved() | 0x4u);
@@ -555,7 +588,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
     // is needed
     if(0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_")) {
       if(!m_pGOT)
-        createARMGOT(pLinker);
+        createARMGOT(pLinker, pType);
     }
 
     switch(pReloc.type()) {
@@ -579,7 +612,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
             break;
           // create .plt and .rel.plt if not exist
           if(!m_pPLT)
-            createARMPLTandRelPLT(pLinker);
+            createARMPLTandRelPLT(pLinker, pType);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -593,7 +626,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
           // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | 0x1u);
@@ -605,7 +638,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_GOTOFF12: {
         // A GOT section is needed
         if(!m_pGOT)
-          createARMGOT(pLinker);
+          createARMGOT(pLinker, pType);
         return;
       }
 
@@ -658,7 +691,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(isSymbolNeedsDynRel(*rsym, pType, false)) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | 0x1u);
@@ -691,7 +724,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
           return;
         // create .plt and .rel.plt if not exist
         if(!m_pPLT)
-           createARMPLTandRelPLT(pLinker);
+           createARMPLTandRelPLT(pLinker, pType);
         // Symbol needs PLT entry, we need to reserve a PLT entry
         // and the corresponding GOT and dynamic relocation entry
         // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -711,7 +744,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(rsym->reserved() & 0x6u)
           return;
         if(!m_pGOT)
-          createARMGOT(pLinker);
+          createARMGOT(pLinker, pType);
         m_pGOT->reserveEntry();
         // If building shared object or the symbol is undefined, a dynamic
         // relocation is needed to relocate this GOT entry. Reserve an
@@ -719,7 +752,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         if(Output::DynObj == pType || rsym->isUndef() || rsym->isDyn()) {
           // create .rel.dyn section if not exist
           if(!m_pRelDyn)
-            createARMRelDyn(pLinker);
+            createARMRelDyn(pLinker, pType);
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
           // set GOTRel bit
           rsym->setReserved(rsym->reserved() | 0x4u);
