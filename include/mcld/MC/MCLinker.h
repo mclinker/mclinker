@@ -91,6 +91,8 @@ public:
   bool mergeSymbolTable(Input& pInput)
   { return true; }
 
+  bool finalizeSymbols(Output& pOutput);
+
   // -----  sections  ----- //
   /// getSectionMap - getSectionMap to change the behavior of SectionMerger
   /// SectionMap& getSectionMap()
