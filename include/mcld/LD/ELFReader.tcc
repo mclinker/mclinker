@@ -256,6 +256,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 
     // push into MCLinker
     LDSymbol* input_sym = NULL;
+    bool is_dyn = (pInput.type() == Input::DynObj);
     if (ResolveInfo::Local == ld_binding) {
       input_sym = pLinker.addLocalSymbol(ld_name,
                                          ld_type,
@@ -265,8 +266,14 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                          ld_frag_ref,
                                          ld_vis);
     }
-    else {
-      bool is_dyn = (pInput.type() == Input::DynObj);
+    // ignore symbols with
+    //  1. local binding
+    //  2. Internal visibility
+    //  3. Hidden visibility
+    else if (!is_dyn ||
+             (is_dyn &&
+               (ld_vis != ResolveInfo::Internal ||
+                ld_vis != ResolveInfo::Hidden))) {
       input_sym = pLinker.addGlobalSymbol(ld_name,
                                           is_dyn,
                                           ld_type,
