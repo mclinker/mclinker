@@ -97,7 +97,7 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) 
 
 /// getSymBinding
 ResolveInfo::Binding
-ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx) const
+ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) const
 {
 
   // TODO:
@@ -105,6 +105,10 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx) const
   if (pShndx == llvm::ELF::SHN_ABS)
     return ResolveInfo::Absolute;
 
+  // any symbol with hidden or internal visibility is local symbol
+  if (pVis == llvm::ELF::STV_INTERNAL || pVis == llvm::ELF::STV_HIDDEN)
+    return ResolveInfo::Local;
+  
   switch(pBinding) {
   case llvm::ELF::STB_LOCAL:
     return ResolveInfo::Local;

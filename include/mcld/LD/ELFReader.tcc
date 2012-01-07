@@ -242,7 +242,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
 
     // get ld_binding
-    ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx);
+    ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx, st_other);
 
     // get ld_value - ld_value must be section relative.
     uint64_t ld_value = getSymValue(st_value, st_shndx, pInput);

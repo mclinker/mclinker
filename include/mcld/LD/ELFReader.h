@@ -97,7 +97,9 @@ protected:
 
   ResolveInfo::Desc getSymDesc(uint16_t pShndx, const Input& pInput) const;
 
-  ResolveInfo::Binding getSymBinding(uint8_t pBinding, uint16_t pShndx) const;
+  ResolveInfo::Binding getSymBinding(uint8_t pBinding,
+                                     uint16_t pShndx,
+                                     uint8_t pVisibility) const;
 
   uint64_t getSymValue(uint64_t pValue,
                        uint16_t pShndx,
