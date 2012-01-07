@@ -237,16 +237,19 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
 
     // get ld_desc
-    ResolveInfo::Desc ld_desc = getSymDesc(st_shndx);
+    ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
 
     // get ld_binding
     ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx);
+
+    // get ld_value - ld_value must be section relative.
+    uint64_t ld_value = getSymValue(st_value, st_shndx, pInput);
 
     // get the input fragment
     MCFragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
                                                    pLinker,
                                                    st_shndx,
-                                                   st_value);
+                                                   ld_value);
 
     // get ld_vis
     ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
@@ -258,7 +261,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                          ld_type,
                                          ld_desc,
                                          st_size,
-                                         st_value,
+                                         ld_value,
                                          ld_frag_ref,
                                          ld_vis);
     }
@@ -270,7 +273,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                           ld_desc,
                                           ld_binding,
                                           st_size,
-                                          st_value,
+                                          ld_value,
                                           ld_frag_ref,
                                           ld_vis);
     }

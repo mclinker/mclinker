@@ -95,9 +95,13 @@ protected:
 protected:
   LDFileFormat::Kind getLDSectionKind(uint32_t pType, const char* pName) const;
 
-  ResolveInfo::Desc getSymDesc(uint16_t pShndx) const;
+  ResolveInfo::Desc getSymDesc(uint16_t pShndx, const Input& pInput) const;
 
   ResolveInfo::Binding getSymBinding(uint8_t pBinding, uint16_t pShndx) const;
+
+  uint64_t getSymValue(uint64_t pValue,
+                       uint16_t pShndx,
+                       const Input& pInput) const;
 
   MCFragmentRef* getSymFragmentRef(Input& pInput,
                                    MCLinker& pLinker,
@@ -187,9 +191,9 @@ public:
 
   /// readSymbols - read ELF symbols and create LDSymbol
   inline bool readSymbols(Input& pInput,
-                   MCLinker& pLinker,
-                   const MemoryRegion& pRegion,
-                   const char* StrTab) const;
+                          MCLinker& pLinker,
+                          const MemoryRegion& pRegion,
+                          const char* StrTab) const;
 
   /// readRela - read ELF rela and create Relocation
   inline bool readRela(Input& pInput,

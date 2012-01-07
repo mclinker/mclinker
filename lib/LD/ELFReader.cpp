@@ -71,13 +71,19 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
 }
 
 /// getSymDesc
-ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx) const
+ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) const
 {
   if (pShndx == llvm::ELF::SHN_UNDEF)
     return ResolveInfo::Undefined;
 
-  if (pShndx < llvm::ELF::SHN_LORESERVE)
+  if (pShndx < llvm::ELF::SHN_LORESERVE) {
+    // an ELF symbol defined in a section which we are not including
+    // must be treated as an Undefined.
+    // @ref Google gold linker: symtab.cc: 1086
+    if (NULL == pInput.context()->getSection(pShndx))
+      return ResolveInfo::Undefined;
     return ResolveInfo::Define;
+  }
 
   if (pShndx == llvm::ELF::SHN_ABS)
     return ResolveInfo::Define;
@@ -93,6 +99,9 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx) const
 ResolveInfo::Binding
 ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx) const
 {
+
+  // TODO:
+  // if --just-symbols option is enabled, the symbol must covert to Absolute
   if (pShndx == llvm::ELF::SHN_ABS)
     return ResolveInfo::Absolute;
 
@@ -136,5 +145,31 @@ ResolveInfo::Visibility
 ELFReaderIF::getSymVisibility(uint8_t pVis) const
 {
   return static_cast<ResolveInfo::Visibility>(pVis);
+}
+
+/// getSymValue - get the section offset of the symbol.
+uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
+                                  uint16_t pShndx,
+                                  const Input& pInput) const
+{
+  if (Input::Object == pInput.type()) {
+    // In relocatable files, st_value holds alignment constraints for a symbol
+    // whose section index is SHN_COMMON
+    if (pShndx == llvm::ELF::SHN_COMMON || pShndx == llvm::ELF::SHN_ABS) {
+      return pValue;
+    }
+
+    // In relocatable files, st_value holds a section offset for a defined symbol.
+    // TODO:
+    // if --just-symbols option are enabled, convert the value from section offset
+    // to virtual address by adding input section's virtual address.
+    // The section's virtual address in relocatable files is normally zero, but
+    // people can use link script to change it.
+    return pValue;
+  }
+
+  // In executable and shared object files, st_value holds a virtual address.
+  // the virtual address is useless during linking.
+  return 0x0;
 }
 
