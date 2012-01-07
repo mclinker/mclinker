@@ -108,7 +108,8 @@ protected:
                                    uint16_t pShndx,
                                    uint32_t pOffset) const;
 
-  ResolveInfo::Visibility getSymVisibility(uint8_t pVis) const;
+  ResolveInfo::Visibility
+  getSymVisibility(uint8_t pVis, const Input& pInput) const;
 
   /// bswap16 - byte swap 16-bit version
   /// @ref binary utilities - elfcpp_swap

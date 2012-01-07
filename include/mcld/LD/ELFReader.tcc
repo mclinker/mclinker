@@ -208,6 +208,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   llvm::ELF::Elf32_Sym* symtab =
                       reinterpret_cast<llvm::ELF::Elf32_Sym*>(pRegion.start());
 
+  bool is_dyn = (pInput.type() == Input::DynObj);
+
   uint32_t st_name  = 0x0;
   uint32_t st_value = 0x0;
   uint32_t st_size  = 0x0;
@@ -252,11 +254,10 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                                    ld_value);
 
     // get ld_vis
-    ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
+    ResolveInfo::Visibility ld_vis = getSymVisibility(st_other, pInput);
 
     // push into MCLinker
     LDSymbol* input_sym = NULL;
-    bool is_dyn = (pInput.type() == Input::DynObj);
     if (ResolveInfo::Local == ld_binding) {
       input_sym = pLinker.addLocalSymbol(ld_name,
                                          ld_type,
