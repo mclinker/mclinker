@@ -92,6 +92,11 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
+  // We merge sections when reading them. So we do not need symbols with
+  // section type
+  if (pType == ResolveInfo::Section)
+    return input_sym;
+
   // if it is a new and regular symbol, create a LDSymbol for the output
   if (!resolved_result.existent && !pIsDyn) {
     LDSymbol* output_sym = m_LDSymbolFactory.allocate();
@@ -132,6 +137,11 @@ LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
   input_sym->setResolveInfo(*resolved_info);
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
+
+  // We merge sections when reading them. So we do not need symbols with
+  // section type
+  if (pType == ResolveInfo::Section)
+    return input_sym;
 
   // create a LDSymbol for the output
   LDSymbol* output_sym = m_LDSymbolFactory.allocate();
