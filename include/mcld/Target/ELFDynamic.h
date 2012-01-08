@@ -144,17 +144,9 @@ public:
   void emit(const LDSection& pSection, MemoryRegion& pRegion) const;
 
 private:
-  void reserveOne()
-  {
-    assert(NULL != m_pEntryFactory);
-    m_EntryList.push_back(new elf_dynamic::Entry<32, true>());
-  }
+  void reserveOne(uint64_t pTag);
 
-  void applyOne(uint64_t pTag, uint64_t pValue) {
-    static size_t idx = 0;
-    m_EntryList[idx]->setValue(pTag, pValue);
-    ++idx;
-  }
+  void applyOne(uint64_t pTag, uint64_t pValue);
 
 private:
   EntryListType m_EntryList;

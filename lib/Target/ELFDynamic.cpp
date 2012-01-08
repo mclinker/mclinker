@@ -72,72 +72,86 @@ size_t ELFDynamic::entrySize() const
   return m_pEntryFactory->size();
 }
 
+void ELFDynamic::reserveOne(uint64_t pTag)
+{
+  assert(NULL != m_pEntryFactory);
+  m_EntryList.push_back(new elf_dynamic::Entry<32, true>());
+}
+
+void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
+{
+  static size_t idx = 0;
+  assert(idx < m_EntryList.size());
+  m_EntryList[idx]->setValue(pTag, pValue);
+  ++idx;
+}
+
 
 /// reserveEntries - reserve entries
 void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
                                 const ELFFileFormat& pFormat)
 {
   if (pLDInfo.output().type() == Output::DynObj) {
-    reserveOne(); // DT_SONAME
+    reserveOne(llvm::ELF::DT_SONAME); // DT_SONAME
 
     if (pLDInfo.options().Bsymbolic())
-      reserveOne(); // DT_SYMBOLIC
+      reserveOne(llvm::ELF::DT_SYMBOLIC); // DT_SYMBOLIC
   }
 
   if (pFormat.hasInit())
-    reserveOne(); // DT_INIT
+    reserveOne(llvm::ELF::DT_INIT); // DT_INIT
 
   if (pFormat.hasFini())
-    reserveOne(); // DT_FINI
+    reserveOne(llvm::ELF::DT_FINI); // DT_FINI
 
   if (pFormat.hasInitArray()) {
-    reserveOne(); // DT_INIT_ARRAY
-    reserveOne(); // DT_INIT_ARRAYSZ
+    reserveOne(llvm::ELF::DT_INIT_ARRAY); // DT_INIT_ARRAY
+    reserveOne(llvm::ELF::DT_INIT_ARRAYSZ); // DT_INIT_ARRAYSZ
   }
 
   if (pFormat.hasFiniArray()) {
-    reserveOne(); // DT_FINI_ARRAY
-    reserveOne(); // DT_FINI_ARRAYSZ
+    reserveOne(llvm::ELF::DT_FINI_ARRAY); // DT_FINI_ARRAY
+    reserveOne(llvm::ELF::DT_FINI_ARRAYSZ); // DT_FINI_ARRAYSZ
   }
 
   if (pFormat.hasHashTab())
-    reserveOne(); // DT_HASH
+    reserveOne(llvm::ELF::DT_HASH); // DT_HASH
 
   if (pFormat.hasSymTab()) {
-    reserveOne(); // DT_SYMTAB
-    reserveOne(); // DT_SYMENT
+    reserveOne(llvm::ELF::DT_SYMTAB); // DT_SYMTAB
+    reserveOne(llvm::ELF::DT_SYMENT); // DT_SYMENT
   }
 
   if (pFormat.hasStrTab()) {
-    reserveOne(); // DT_STRTAB
-    reserveOne(); // DT_STRTABSZ
+    reserveOne(llvm::ELF::DT_STRTAB); // DT_STRTAB
+    reserveOne(llvm::ELF::DT_STRSZ); // DT_STRSZ
   }
 
   if (pFormat.hasGOTPLT() || pFormat.hasGOT()) {
     // FIXME: x86 may not have plt.got but has .got.
-    reserveOne(); // DT_PLTGOT
+    reserveOne(llvm::ELF::DT_PLTGOT); // DT_PLTGOT
   }
 
   if (pFormat.hasRelPlt() || pFormat.hasRelaPlt())
-    reserveOne(); // DT_PLTREL
+    reserveOne(llvm::ELF::DT_PLTREL); // DT_PLTREL
 
   if (pFormat.hasPLT()) {
-    reserveOne(); // DT_JMPREL
-    reserveOne(); // DT_PLTRELSZ
+    reserveOne(llvm::ELF::DT_JMPREL); // DT_JMPREL
+    reserveOne(llvm::ELF::DT_PLTRELSZ); // DT_PLTRELSZ
   }
 
   if (pFormat.hasRelDyn()) {
-    reserveOne(); // DT_REL
-    reserveOne(); // DT_RELSZ
-    reserveOne(); // DT_RELENT
+    reserveOne(llvm::ELF::DT_REL); // DT_REL
+    reserveOne(llvm::ELF::DT_RELSZ); // DT_RELSZ
+    reserveOne(llvm::ELF::DT_RELENT); // DT_RELENT
   }
 
   if (pFormat.hasRelaDyn()) {
-    reserveOne(); // DT_RELA
-    reserveOne(); // DT_RELASZ
-    reserveOne(); // DT_RELAENT
+    reserveOne(llvm::ELF::DT_RELA); // DT_RELA
+    reserveOne(llvm::ELF::DT_RELASZ); // DT_RELASZ
+    reserveOne(llvm::ELF::DT_RELAENT); // DT_RELAENT
   }
-  reserveOne(); // for DT_NULL
+  reserveOne(llvm::ELF::DT_NULL); // for DT_NULL
 }
 
 /// applyEntries - apply entries
