@@ -49,9 +49,28 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
   return result;
 }
 
-inline bool isDynamicSymbol(const LDSymbol& pSymbol)
+// isDynamicSymbol
+// @ref Google gold linker: symtab.cc: 311
+inline bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput)
 {
-  return (pSymbol.binding() != ResolveInfo::Local);
+  // If the symbol is used in backend (usually used by dynamic relocation),
+  // we need to add it.
+  if (0x0 != pSymbol.resolveInfo()->reserved())
+    return true;
+
+  // If a local symbol is in the LDContext's symbol table, it's a real local
+  // symbol. We should not add it
+  if (pSymbol.binding() == ResolveInfo::Local)
+    return false;
+
+  // If we are building shared object, and the visibility is external, we
+  // need to add it.
+  if (Output::DynObj == pOutput.type())
+    if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
+        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
+      return true;
+
+  return false;
 }
 
 } // end namespace
@@ -212,7 +231,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
   for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
     size_t str_size = (*symbol)->nameSize() + 1;
-    if (isDynamicSymbol(**symbol)) {
+    if (isDynamicSymbol(**symbol, pOutput)) {
       ++dynsym;
       dynstr += str_size;
     }
@@ -437,7 +456,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   LDContext::const_sym_iterator symbol;
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
   for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
-    if (!isDynamicSymbol(**symbol))
+    if (!isDynamicSymbol(**symbol, pOutput))
       continue;
     // FIXME: check the endian between host and target
     // write out symbol
