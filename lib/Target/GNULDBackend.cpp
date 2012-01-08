@@ -258,7 +258,10 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     // compute size of .dynstr and .hash
     case Output::DynObj:
     case Output::Exec: {
-      // add DT_NEED strings into .dynstr
+      // create .dynamic section
+      m_pDynamic = new ELFDynamic(*this);
+
+      // add DT_NEED strings into .dynstr and .dynamic
       // Rules:
       //   1. ignore --no-add-needed
       //   2. force count in --no-as-needed
@@ -269,11 +272,15 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
           // --add-needed
           if ((*input)->attribute()->isAddNeeded()) {
             // --no-as-needed
-            if (!(*input)->attribute()->isAsNeeded())
+            if (!(*input)->attribute()->isAsNeeded()) {
               dynstr += (*input)->name().size() + 1;
+              m_pDynamic->reserveNeedEntry();
+            }
             // --as-needed
-            else if ((*input)->isNeeded())
+            else if ((*input)->isNeeded()) {
               dynstr += (*input)->name().size() + 1;
+              m_pDynamic->reserveNeedEntry();
+            }
           }
         }
       } // for
@@ -283,6 +290,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
       hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
 
       // set size
+      dynstr += pOutput.name().size() + 1;
       if (32 == bitclass())
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
       else
@@ -290,8 +298,6 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
       file_format->getDynStrTab().setSize(dynstr);
       file_format->getHashTab().setSize(hash);
 
-      // set soname
-      dynstr += pOutput.name().size() + 1;
     }
     /* fall through */
     case Output::Object: {
@@ -302,6 +308,15 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
       file_format->getStrTab().setSize(strtab);
       break;
     }
+  } // end of switch
+
+  // reserve fixed entries in the .dynamic section.
+  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type()) {
+    // Because some entries in .dynamic section need information of .dynsym,
+    // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
+    // entries untill we get the size of the abovementioned sections
+    m_pDynamic->reserveEntries(pLDInfo, *file_format);
+    file_format->getDynamic().setSize(m_pDynamic->numOfBytes());
   }
 }
 
@@ -851,40 +866,8 @@ void GNULDBackend::preLayout(const Output& pOutput,
                              const MCLDInfo& pLDInfo,
                              MCLinker& pLinker)
 {
-  // create .dynamic section
-  m_pDynamic = new ELFDynamic(*this);
-
   // prelayout target first
   doPreLayout(pOutput, pLDInfo, pLinker);
-
-  // initialize ELF .dynamic section
-  LDSection* dynamic = NULL;
-  if (Output::DynObj == pOutput.type()) {
-    m_pDynamic->reserveEntries(pLDInfo, *getDynObjFileFormat());
-    dynamic = &(getDynObjFileFormat()->getDynamic());
-  }
-  else if (Output::Exec == pOutput.type()) {
-    m_pDynamic->reserveEntries(pLDInfo, *getExecFileFormat());
-    dynamic = &(getExecFileFormat()->getDynamic());
-  }
-
-  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type()) {
-    InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
-    for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
-      if (Input::DynObj == (*input)->type()) {
-        // --add-needed
-        if ((*input)->attribute()->isAddNeeded()) {
-          // --no-as-needed
-          if (!(*input)->attribute()->isAsNeeded())
-            m_pDynamic->reserveNeedEntry();
-          // --as-needed
-          else if ((*input)->isNeeded())
-            m_pDynamic->reserveNeedEntry();
-        }
-      }
-    } // for
-  }
-  dynamic->setSize(m_pDynamic->numOfBytes());
 }
 
 /// postLayout -Backend can do any needed modification after layout

@@ -541,10 +541,7 @@ bool SectLinker::doFinalization(Module &pM)
       !m_pLDDriver->addTargetSymbols())
     return true;
 
-  // 9. - compute the size of .symtab, .strtab, .dynstr, .dynsym.
-  m_pLDDriver->measureNamePool();
-
-  // 10.a - pre-layout
+  // 9. - pre-layout
   m_pLDDriver->prelayout();
 
   // 10. - linear layout

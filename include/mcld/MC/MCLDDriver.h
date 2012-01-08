@@ -97,14 +97,6 @@ public:
   /// and push_back into the relocation section
   bool relocate();
 
-  /// measureNamePool - compute the size of name pool sections
-  /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
-  /// and .hash sections.
-  ///
-  /// dump all symbols and strings from MCLinker and build the format-dependent
-  /// hash table.
-  bool measureNamePool();
-
   /// finalizeSymbolValue - finalize the symbol value
   bool finalizeSymbolValue();
 

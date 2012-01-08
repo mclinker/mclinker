@@ -19,9 +19,7 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/ErrorHandling.h>
-#include <iostream>
 
-using namespace std;
 using namespace llvm;
 using namespace mcld;
 
@@ -277,6 +275,15 @@ bool MCLDDriver::prelayout()
   m_LDBackend.preLayout(m_LDInfo.output(),
                         m_LDInfo,
                         *m_pLinker);
+
+  /// measure NamePools - compute the size of name pool sections
+  /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
+  /// and .hash sections.
+  ///
+  /// dump all symbols and strings from MCLinker and build the format-dependent
+  /// hash table.
+  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_LDInfo);
+
   return true;
 }
 
@@ -306,26 +313,7 @@ bool MCLDDriver::postlayout()
 /// and push_back into the relocation section
 bool MCLDDriver::relocate()
 {
-  
-  LDContext::sym_iterator symbol, symEnd = m_LDInfo.output().context()->symEnd();
-  for (symbol = m_LDInfo.output().context()->symBegin(); symbol != symEnd; ++symbol) {
-    if ((*symbol)->binding() != ResolveInfo::Local) {
-      cerr << (*symbol)->name() << "\tresolve's=" << (*symbol)->resolveInfo()->name() << endl;
-    }
-  }
   return m_pLinker->applyRelocations();
-}
-
-/// measureNamePool - compute the size of name pool sections
-/// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
-/// and .hash sections.
-///
-/// dump all symbols and strings from MCLinker and build the format-dependent
-/// hash table.
-bool MCLDDriver::measureNamePool()
-{
-  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_LDInfo);
-  return true;
 }
 
 /// finalizeSymbolValue - finalize the resolved symbol value.
