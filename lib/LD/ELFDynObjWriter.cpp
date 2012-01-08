@@ -104,11 +104,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
   target().emitDynNamePools(pOutput, m_Linker.getLayout(), m_Linker.getLDInfo());
 
   // Write out name pool sections: .symtab, .strtab
-  // FIXME: remove this after testing.
   target().emitRegNamePools(pOutput, m_Linker.getLayout(), m_Linker.getLDInfo());
-
-  // FIXME:
-  // Write out dynamic section .dynamic
 
   // Write out .shstrtab
   // Write out ELF header
