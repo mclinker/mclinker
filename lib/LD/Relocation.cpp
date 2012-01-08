@@ -11,8 +11,6 @@
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
 
-#include <iostream>
-using namespace std;
 using namespace mcld;
 
 Relocation::Relocation(Relocation::Type pType,
