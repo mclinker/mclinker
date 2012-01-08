@@ -405,6 +405,14 @@ bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
          pSym.isDyn() || pSym.isUndef();
 }
 
+/// finalizeSymbol - finalize the symbol value
+/// If the symbol's reserved field is not zero, MCLinker will call back this
+/// function to ask the final value of the symbol
+void MipsGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
+{
+  // FIXME
+}
+
 MipsGOT& MipsGNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT.get());

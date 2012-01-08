@@ -117,6 +117,8 @@ public:
   /// .dynsym, .dynstr, and .hash
   virtual void
   sizeNamePools(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
+
+  virtual void finalizeSymbol(LDSymbol& pSymbol) const = 0;
 };
 
 } // End mcld namespace

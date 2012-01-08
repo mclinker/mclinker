@@ -614,6 +614,14 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   return RegionSize;
 }
 
+/// finalizeSymbol - finalize the symbol value
+/// If the symbol's reserved field is not zero, MCLinker will call back this
+/// function to ask the final value of the symbol
+void ARMGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
+{
+  // FIXME
+}
+
 ARMGOT& ARMGNULDBackend::getGOT()
 {
   assert(0 != m_pGOT && "GOT section not exist");

@@ -336,11 +336,31 @@ bool MCLinker::finalizeSymbols()
 {
   LDContext::sym_iterator symbol, symEnd = m_Output.symEnd();
   for (symbol = m_Output.symBegin(); symbol != symEnd; ++symbol) {
-    if (!(*symbol)->resolveInfo()->isAbsolute()) {
-      if (NULL != (*symbol)->fragRef()) {
-        uint32_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
-        (*symbol)->setValue(value);
-      }
+
+    if ((*symbol)->resolveInfo()->isAbsolute() ||
+        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
+      // absolute symbols and symbols with function type should have
+      // zero value
+      (*symbol)->setValue(0x0);
+      continue;
+    }
+
+    if (0x0 != (*symbol)->resolveInfo()->reserved()) {
+      // if the symbol is target reserved, target backend is responsible
+      // for finalizing the value.
+      m_Backend.finalizeSymbol(**symbol);
+      continue;
+    }
+
+    if ((*symbol)->hasFragRef()) {
+      // set the virtual address of the symbol. If the output file is
+      // relocatable object file, the section's virtual address becomes zero.
+      // And the symbol's value become section relative offset.
+      uint64_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
+      assert(NULL != (*symbol)->fragRef()->frag());
+      uint64_t addr  = getLayout().getOutputLDSection(*(*symbol)->fragRef()->frag())->addr();
+      (*symbol)->setValue(value + addr);
+      continue;
     }
   }
 

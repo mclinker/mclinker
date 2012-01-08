@@ -171,6 +171,11 @@ public:
   /// getTargetSectionOrder - compute the layout order of ARM target sections
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
+  /// finalizeSymbol - finalize the symbol value
+  /// If the symbol's reserved field is not zero, MCLinker will call back this
+  /// function to ask the final value of the symbol
+  void finalizeSymbol(LDSymbol& pSymbol) const;
+
 private:
   bool isSymbolNeedsPLT(const ResolveInfo& pSym, unsigned int pType);
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
