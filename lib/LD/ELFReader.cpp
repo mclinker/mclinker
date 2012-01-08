@@ -102,8 +102,6 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 
   // TODO:
   // if --just-symbols option is enabled, the symbol must covert to Absolute
-  if (pShndx == llvm::ELF::SHN_ABS)
-    return ResolveInfo::Absolute;
 
   // any symbol with hidden or internal visibility is local symbol
   if (pVis == llvm::ELF::STV_INTERNAL || pVis == llvm::ELF::STV_HIDDEN)
@@ -117,6 +115,10 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
   case llvm::ELF::STB_WEAK:
     return ResolveInfo::Weak;
   }
+
+  if (pShndx == llvm::ELF::SHN_ABS)
+    return ResolveInfo::Absolute;
+
   return ResolveInfo::NoneBinding;
 }
 
