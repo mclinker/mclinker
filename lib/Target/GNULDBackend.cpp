@@ -672,6 +672,7 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
   return (pSymbol.resolveInfo()->type() | (bind << 4));
 }
 
+/// getSymbolShndx
 uint64_t
 GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const
 {
@@ -681,9 +682,16 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     return llvm::ELF::SHN_COMMON;
   if (pSymbol.resolveInfo()->isUndef())
     return llvm::ELF::SHN_UNDEF;
-  return 0x0;
-  // FIXME: when Layout is ready, open the comment.
-  // return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
+
+  if (pSymbol.resolveInfo()->isLocal()) {
+    switch (pSymbol.type()) {
+      case ResolveInfo::NoType:
+      case ResolveInfo::File:
+        return llvm::ELF::SHN_ABS;
+    }
+  }
+  assert(pSymbol.hasFragRef());
+  return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
 
 /// emitProgramHdrs - emit ELF program headers
