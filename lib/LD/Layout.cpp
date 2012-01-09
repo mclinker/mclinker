@@ -534,7 +534,7 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
     offset += m_SectionOrder[index - 1]->size();
     // align the offset to target-defined alignment
-    alignAddress(offset, pBackend.bitclass());
+    alignAddress(offset, pBackend.bitclass() / 8);
     m_SectionOrder[index]->setOffset(offset);
   }
 

@@ -803,7 +803,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     segment.setVaddr((*segment.sectBegin())->addr());
     segment.setPaddr(segment.vaddr());
     segment.setFilesz(file_size);
-    alignAddress(mem_size, bitclass());
+    alignAddress(mem_size, bitclass() / 8);
     segment.setMemsz(mem_size);
   }
 }
