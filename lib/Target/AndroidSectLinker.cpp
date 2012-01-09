@@ -19,15 +19,8 @@ using namespace mcld;
 // AndroidSectLinker
 
 AndroidSectLinker::AndroidSectLinker(SectLinkerOption &pOption,
-                                     const llvm::cl::opt<std::string> &pInputFilename,
-                                     const std::string &pOutputFilename,
-                                     unsigned int OutputLinkType,
                                      TargetLDBackend &pLDBackend)
-  : SectLinker(pOption,
-               pInputFilename,
-               pOutputFilename,
-               OutputLinkType,
-               pLDBackend) {
+  : SectLinker(pOption, pLDBackend) {
 }
 
 AndroidSectLinker::~AndroidSectLinker()

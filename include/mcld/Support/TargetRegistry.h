@@ -9,7 +9,6 @@
 #ifndef TARGET_REGISTRY_H
 #define TARGET_REGISTRY_H
 #include <llvm/Support/TargetRegistry.h>
-#include <llvm/Support/CommandLine.h>
 #include <string>
 #include <list>
 
@@ -44,9 +43,6 @@ public:
 
   typedef SectLinker *(*SectLinkerCtorTy)(const std::string& pTriple,
                                           SectLinkerOption &,
-                                          const llvm::cl::opt<std::string>& pInputFilename,
-                                          const std::string& pOutputFilename,
-                                          unsigned int pLinkType,
                                           TargetLDBackend&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
@@ -83,17 +79,11 @@ public:
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
                                SectLinkerOption &pOption,
-                               const llvm::cl::opt<std::string> &pInputFilename,
-                               const std::string &pOutputFilename,
-                               unsigned int pOutputLinkType,
                                TargetLDBackend &pLDBackend) const {
     if (!SectLinkerCtorFn)
       return 0;
     return SectLinkerCtorFn(pTriple,
                             pOption,
-                            pInputFilename,
-                            pOutputFilename,
-                            pOutputLinkType,
                             pLDBackend);
   }
 

@@ -7,10 +7,11 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "MipsTargetMachine.h"
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Support/TargetRegistry.h"
+#include "mcld/MC/MCLDInfo.h"
 #include "Mips.h"
-#include "MipsTargetMachine.h"
 
 extern "C" void LLVMInitializeMipsLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target

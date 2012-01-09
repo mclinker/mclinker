@@ -45,14 +45,10 @@ static bool CompareOption(const PositionDependentOption* X,
 //===----------------------------------------------------------------------===//
 // SectLinker
 SectLinker::SectLinker(SectLinkerOption &pOption,
-                       const llvm::cl::opt<std::string>& pInputFile,
-                       const std::string& pOutputFile,
-                       unsigned int pOutputLinkType,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
-    m_InputBitcode(pInputFile),
     m_pLDDriver(NULL) { }
 
 SectLinker::~SectLinker()

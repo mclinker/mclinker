@@ -14,7 +14,7 @@
 
 #include <string>
 
-#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/RealPath.h"
 #include "mcld/Support/PositionDependentOption.h"
 
 namespace mcld

@@ -6,13 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Target/TargetMachine.h"
-#include "mcld/Support/TargetRegistry.h"
-#include "ARM.h"
 #include "ARMTargetMachine.h"
 
-#include "mcld/Target/TargetMachine.h"
 #include "mcld/Support/TargetRegistry.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "ARM.h"
 
 extern "C" void LLVMInitializeARMLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target

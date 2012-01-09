@@ -21,9 +21,6 @@ namespace mcld {
 ///
 SectLinker* createMipsSectLinker(const std::string &pTriple,
                                  SectLinkerOption &pOption,
-                                 const llvm::cl::opt<std::string> &pInputFilename,
-                                 const std::string &pOutputFilename,
-                                 unsigned int pOutputLinkType,
                                  mcld::TargetLDBackend &pLDBackend)
 {
   llvm::Triple theTriple(pTriple);
@@ -36,9 +33,6 @@ SectLinker* createMipsSectLinker(const std::string &pTriple,
 
   // For now, use Android SectLinker directly
   return new MipsAndroidSectLinker(pOption,
-                                   pInputFilename,
-                                   pOutputFilename,
-                                   pOutputLinkType,
                                    pLDBackend);
 }
 

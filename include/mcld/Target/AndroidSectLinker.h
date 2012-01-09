@@ -26,9 +26,6 @@ class AndroidSectLinker : public SectLinker
 {
 public:
   AndroidSectLinker(SectLinkerOption &pOption,
-                    const llvm::cl::opt<std::string> &pInputFilename,
-                    const std::string &pOutputFilename,
-                    unsigned int pOutputLinkType,
                     mcld::TargetLDBackend &pLDBackend);
 
   virtual ~AndroidSectLinker();

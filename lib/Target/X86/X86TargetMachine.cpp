@@ -6,13 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Target/TargetMachine.h"
-#include "mcld/Support/TargetRegistry.h"
-#include "X86.h"
 #include "X86TargetMachine.h"
 
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Support/TargetRegistry.h"
+#include "mcld/MC/MCLDInfo.h"
+#include "X86.h"
 
 extern "C" void LLVMInitializeX86LDTarget() {
   // Register createTargetMachine function pointer to mcld::Target

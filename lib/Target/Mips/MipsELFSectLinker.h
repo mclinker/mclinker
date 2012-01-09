@@ -23,9 +23,6 @@ class MipsELFSectLinker : public SectLinker
 {
 public:
   MipsELFSectLinker(SectLinkerOption &pOption,
-                    const llvm::cl::opt<std::string> &pInputFilename,
-                    const std::string &pOutputFilename,
-                    unsigned int pOutputLinkType,
                     mcld::TargetLDBackend &pLDBackend);
 
   ~MipsELFSectLinker();

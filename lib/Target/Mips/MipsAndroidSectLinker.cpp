@@ -14,14 +14,8 @@
 using namespace mcld;
 
 MipsAndroidSectLinker::MipsAndroidSectLinker(SectLinkerOption &pOption,
-                                             const llvm::cl::opt<std::string> &pInputFilename,
-                                             const std::string &pOutputFilename,
-                                             unsigned int pOutputLinkType,
                                              TargetLDBackend &pLDBackend)
   : AndroidSectLinker(pOption,
-                      pInputFilename,
-                      pOutputFilename,
-                      pOutputLinkType,
                       pLDBackend) {
   MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes

@@ -867,7 +867,6 @@ int main( int argc, char* argv[] )
     // Ask the target to add backend passes as necessary.
     if( TheTargetMachine.addPassesToEmitFile(PM,
                                              FOS,
-                                             InputFilename,
                                              OutputFilename,
                                              FileType,
                                              OLvl,

@@ -17,10 +17,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/Support/CommandLine.h>
-#include <llvm/ADT/StringRef.h>
 #include <llvm/CodeGen/MachineFunctionPass.h>
-#include <mcld/Support/FileSystem.h>
 #include <mcld/Support/PositionDependentOption.h>
 #include <vector>
 
@@ -60,14 +57,7 @@ namespace mcld
     // - the default attribute
     // - the default link script
     // - the standard symbols
-    //
-    // SectLinker constructor handles
-    // - the default input
-    // - the default output (filename and link type)
     SectLinker(SectLinkerOption &pOption,
-               const llvm::cl::opt<std::string>& pInputFile,
-               const std::string& pOutputFile,
-               unsigned int pOutputLinkType,
                TargetLDBackend &pLDBackend);
 
   public:
@@ -106,7 +96,6 @@ namespace mcld
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
     AttributeFactory *m_pAttrFactory;
-    llvm::cl::opt<std::string> m_InputBitcode;
 
   private:
     static char m_ID;

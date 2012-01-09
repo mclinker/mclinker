@@ -12,9 +12,8 @@
 #include <gtest.h>
 #endif
 #include <llvm/Target/TargetMachine.h>
-#include <llvm/Support/CommandLine.h>
 #include <string>
-#include "mcld/MC/MCLDInfo.h"
+#include "mcld/MC/MCLDFile.h"
 
 namespace llvm
 {
@@ -30,6 +29,7 @@ namespace mcld
 {
 
 class Target;
+class MCLDInfo;
 class SectLinkerOption;
 using namespace llvm;
 
@@ -76,11 +76,10 @@ public:
   /// upstreaming.
   bool addPassesToEmitFile(PassManagerBase &,
                            formatted_raw_ostream &Out,
-                           const llvm::cl::opt<std::string> &pInputFilename,
                            const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
-                           SectLinkerOption *,
+                           SectLinkerOption *pLinkerOpt = NULL,
                            bool DisableVerify = true);
 
   /// getTargetData
@@ -111,9 +110,8 @@ private:
 
   bool addLinkerPasses(PassManagerBase &,
                        SectLinkerOption *pLinkerOpt,
-                       const llvm::cl::opt<std::string> &pInputFilename,
                        const std::string& pOutputFilename,
-                       unsigned int pOutputLinkType,
+                       MCLDFile::Type pOutputLinkType,
                        llvm::MCContext *&OutCtx);
 
 private:

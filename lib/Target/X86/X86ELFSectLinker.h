@@ -25,9 +25,6 @@ class X86ELFSectLinker : public SectLinker
 {
 public:
   X86ELFSectLinker(SectLinkerOption &pOption,
-                   const llvm::cl::opt<std::string> &pInputFilename,
-                   const std::string &pOutputFilename,
-                   unsigned int pOutputLinkType,
                    mcld::TargetLDBackend &pLDBackend);
 
   ~X86ELFSectLinker();

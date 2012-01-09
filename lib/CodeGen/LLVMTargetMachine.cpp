@@ -107,7 +107,6 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              formatted_raw_ostream &Out,
-                                             const llvm::cl::opt<std::string>& pInputFilename,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
@@ -155,7 +154,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
-                        pInputFilename,
                         pOutputFilename,
                         MCLDFile::Exec,
                         Context))
@@ -168,7 +166,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
-                        pInputFilename,
                         pOutputFilename,
                         MCLDFile::DynObj,
                         Context))
@@ -261,9 +258,8 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               SectLinkerOption *pLinkerOpt,
-                                              const llvm::cl::opt<std::string>& pInputFilename,
-                                              const std::string& pOutputFilename,
-                                              unsigned int pOutputLinkType,
+                                              const std::string &pOutputFilename,
+                                              MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
   // Initialize MCAsmStreamer first, than chain its output into SectLinker.
@@ -309,9 +305,6 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
                                                                *pLinkerOpt,
-                                                               pInputFilename,
-                                                               pOutputFilename,
-                                                               pOutputLinkType,
                                                                *ldBackend);
   if (0 == funcPass)
     return true;
