@@ -310,29 +310,18 @@ bool SectLinker::doInitialization(Module &pM)
   info.options().setBsymbolic(Bsymbolic);
 
   // -----  Set up Inputs  ----- //
-  unsigned int input_size = ArgNameSpecList.size() +
-                            ArgStartGroupList.size() +
-                            ArgEndGroupList.size() +
-                            ArgInputObjectFiles.size();
-
-  PositionDependentOptions &pos_dep_options = m_pOption->pos_dep_options();
-  pos_dep_options.reserve(input_size);
-
-  // override the parameters before all positional options
-  addInputsBeforeCMD(pM, *m_pOption);
-
   // -----  read bitcode  -----//
   // add bitcode input, and assign the default attribute to it.
   RealPath *bitcode_path = new RealPath(m_InputBitcode);
-  pos_dep_options.push_back(new BitcodeOption(m_InputBitcode.getPosition(),
-                                              *bitcode_path));
+  m_pOption->appendOption(new BitcodeOption(m_InputBitcode.getPosition(),
+                                            *bitcode_path));
 
   // add all start-group
   cl::list<bool>::iterator sg;
   cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
   for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
     // calculate position
-    pos_dep_options.push_back(new StartGroupOption(
+    m_pOption->appendOption(new StartGroupOption(
                                     ArgStartGroupList.getPosition(sg-ArgStartGroupList.begin())));
   }
 
@@ -341,7 +330,7 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<bool>::iterator egEnd = ArgEndGroupList.end();
   for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
     // calculate position
-    pos_dep_options.push_back(new EndGroupOption(
+    m_pOption->appendOption(new EndGroupOption(
                                     ArgEndGroupList.getPosition(eg-ArgEndGroupList.begin())));
   }
 
@@ -350,7 +339,7 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
     // calculate position
-    pos_dep_options.push_back(new NamespecOption(
+    m_pOption->appendOption(new NamespecOption(
                                     ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
                                     *ns));
   }
@@ -360,7 +349,7 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<mcld::sys::fs::Path>::iterator objEnd = ArgInputObjectFiles.end();
   for (obj=ArgInputObjectFiles.begin(); obj!=objEnd; ++obj) {
     // calculate position
-    pos_dep_options.push_back(new InputFileOption(
+    m_pOption->appendOption(new InputFileOption(
                                     ArgInputObjectFiles.getPosition(obj-ArgInputObjectFiles.begin()),
                                     *obj));
   }
@@ -370,7 +359,7 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<bool>::iterator attr = ArgWholeArchiveList.begin();
   cl::list<bool>::iterator attrEnd = ArgWholeArchiveList.end();
   for (; attr!=attrEnd; ++attr) {
-    pos_dep_options.push_back(new WholeArchiveOption(
+    m_pOption->appendOption(new WholeArchiveOption(
                                     ArgWholeArchiveList.getPosition(attr-ArgWholeArchiveList.begin())));
   }
 
@@ -378,7 +367,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgNoWholeArchiveList.begin();
   attrEnd = ArgNoWholeArchiveList.end();
   for (; attr!=attrEnd; ++attr) {
-    pos_dep_options.push_back(new NoWholeArchiveOption(
+    m_pOption->appendOption(new NoWholeArchiveOption(
                                     ArgNoWholeArchiveList.getPosition(attr-ArgNoWholeArchiveList.begin())));
   }
 
@@ -386,7 +375,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgAsNeededList.begin();
   attrEnd = ArgAsNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new AsNeededOption(
+    m_pOption->appendOption(new AsNeededOption(
                                     ArgAsNeededList.getPosition(attr-ArgAsNeededList.begin())));
     ++attr;
   }
@@ -395,7 +384,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgNoAsNeededList.begin();
   attrEnd = ArgNoAsNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new NoAsNeededOption(
+    m_pOption->appendOption(new NoAsNeededOption(
                                     ArgNoAsNeededList.getPosition(attr-ArgNoAsNeededList.begin())));
     ++attr;
   }
@@ -404,7 +393,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgAddNeededList.begin();
   attrEnd = ArgAddNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new AddNeededOption(
+    m_pOption->appendOption(new AddNeededOption(
                                     ArgAddNeededList.getPosition(attr-ArgAddNeededList.begin())));
     ++attr;
   }
@@ -413,7 +402,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgNoAddNeededList.begin();
   attrEnd = ArgNoAddNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new NoAddNeededOption(
+    m_pOption->appendOption(new NoAddNeededOption(
                                     ArgNoAddNeededList.getPosition(attr-ArgNoAddNeededList.begin())));
     ++attr;
   }
@@ -422,7 +411,7 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgBDynamicList.begin();
   attrEnd = ArgBDynamicList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new BDynamicOption(
+    m_pOption->appendOption(new BDynamicOption(
                                     ArgBDynamicList.getPosition(attr-ArgBDynamicList.begin())));
   }
 
@@ -430,15 +419,15 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgBStaticList.begin();
   attrEnd = ArgBStaticList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new BStaticOption(
+    m_pOption->appendOption(new BStaticOption(
                                     ArgBStaticList.getPosition(attr-ArgBStaticList.begin())));
     ++attr;
   }
 
   // -----  Set up Scripting Options  ----- //
 
-  // override the parameters after all positional options
-  addInputsAfterCMD(pM, *m_pOption);
+  // let the target override the target-specific parameters
+  addTargetOptions(pM, *m_pOption);
 
   // ----- convert position dependent options into tree of input files  ----- //
   PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
@@ -449,8 +438,8 @@ bool SectLinker::doInitialization(Module &pM)
   m_pLDDriver = new MCLDDriver(info, *m_pLDBackend);
 
   // clear up positional dependent options
-  PositionDependentOptions::iterator pdoption, pdoptionEnd = pos_dep_options.end();
-  for (pdoption = pos_dep_options.begin(); pdoption != pdoptionEnd; ++pdoption)
+  PositionDependentOptions::iterator pdoption, pdoptionEnd = PosDepOpts.end();
+  for (pdoption = PosDepOpts.begin(); pdoption != pdoptionEnd; ++pdoption)
     delete *pdoption;
   delete bitcode_path;
   return false;

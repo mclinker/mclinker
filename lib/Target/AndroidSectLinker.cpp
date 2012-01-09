@@ -35,8 +35,8 @@ AndroidSectLinker::~AndroidSectLinker()
   // SectLinker will delete m_pLDBackend and m_pLDDriver;
 }
 
-void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
-                                           SectLinkerOption &pOption)
+void AndroidSectLinker::addTargetOptions(llvm::Module &pM,
+                                         SectLinkerOption &pOption)
 {
   // -----  Set up General Options  ----- //
   MCLDInfo &info = pOption.info();

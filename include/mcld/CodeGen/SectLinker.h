@@ -74,16 +74,10 @@ namespace mcld
   public:
     virtual ~SectLinker();
 
-    /// addInputsBeforeCMD - if there are any inputs should add before the
-    /// command line, override this function
-    virtual void addInputsBeforeCMD(llvm::Module &pM,
-                                    SectLinkerOption &pOption)
-    { }
-
-    /// addInputsAfterCMD - if there are any inputs should add after the
-    /// command line, override this function
-    virtual void addInputsAfterCMD(llvm::Module &pM,
-                                   SectLinkerOption &pOption)
+    /// addTargetOptions - target SectLinker can hook this function to add
+    /// target-specific inputs
+    virtual void addTargetOptions(llvm::Module &pM,
+                                  SectLinkerOption &pOption)
     { }
 
     /// doInitialization - Read all parameters and set up the AsmPrinter.

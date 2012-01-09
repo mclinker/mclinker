@@ -33,10 +33,9 @@ public:
 
   virtual ~AndroidSectLinker();
 
-  /// addInputsBeforeCMD - if there are any inputs should add before the
-  /// command line, override this function
-  virtual void addInputsBeforeCMD(llvm::Module &pM,
-                                  SectLinkerOption &pOption);
+  // addTargetInputs - add Android-specific linker options
+  virtual void addTargetOptions(llvm::Module &pM,
+                                SectLinkerOption &pOption);
 
 };
 
