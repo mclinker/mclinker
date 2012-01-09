@@ -15,6 +15,7 @@
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCRegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/TargetRegistry.h>
 
@@ -569,8 +570,15 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   uint64_t RegionSize = 0;
 
   if (!std::strcmp(SectionName,".ARM.attributes")) {
-    // FIXME: Unsupport emitting .ARM.attributes.
-    return 0;
+    // FIXME: Currently Emitting .ARM.attributes directly from the input file.
+    const llvm::MCSectionData* SectionData = pSection.getSectionData();
+    assert(SectionData &&
+           "Emit .ARM.attribute failed, MCSectionData doesn't exist!");
+
+    llvm::MCSectionData::const_iterator it = SectionData->begin();
+    memcpy(pRegion.start(),
+           llvm::cast<MCRegionFragment>(*it).getRegion().start(),
+           pRegion.size());
   }
 
   else if (!std::strcmp(SectionName, ".plt")) {
