@@ -507,8 +507,11 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
           m_SectionOrder.push_back(sect);
         }
         break;
-      // take BSS and NULL directly
       case LDFileFormat::BSS:
+        if (0 != sect->size())
+          m_SectionOrder.push_back(sect);
+        break;
+      // take NULL directly
       case LDFileFormat::Null:
         m_SectionOrder.push_back(sect);
         break;
