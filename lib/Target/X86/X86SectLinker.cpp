@@ -7,12 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Triple.h>
-#include <llvm/Support/CommandLine.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCLDInfo.h>
 #include <mcld/Support/TargetRegistry.h>
 
 #include "X86.h"
@@ -26,10 +20,10 @@ namespace mcld {
 /// createX86SectLinker - the help funtion to create corresponding X86SectLinker
 ///
 SectLinker* createX86SectLinker(const std::string &pTriple,
+                                SectLinkerOption &pOption,
                                 const llvm::cl::opt<std::string> &pInputFilename,
                                 const std::string &pOutputFilename,
                                 unsigned int pOutputLinkType,
-                                MCLDInfo& pLDInfo,
                                 mcld::TargetLDBackend &pLDBackend)
 {
   Triple theTriple(pTriple);
@@ -41,10 +35,10 @@ SectLinker* createX86SectLinker(const std::string &pTriple,
   }
 
   // For now, use Android SectLinker directly
-  return new X86AndroidSectLinker(pInputFilename,
+  return new X86AndroidSectLinker(pOption,
+                                  pInputFilename,
                                   pOutputFilename,
                                   pOutputLinkType,
-                                  pLDInfo,
                                   pLDBackend);
 }
 

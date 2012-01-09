@@ -16,8 +16,6 @@
 namespace mcld
 {
 
-class MCLDInfo;
-
 /** \class X86ELFSectLinker
  *  \brief X86ELFSectLinker sets up the environment for linking.
  *
@@ -26,10 +24,10 @@ class MCLDInfo;
 class X86ELFSectLinker : public SectLinker
 {
 public:
-  X86ELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  X86ELFSectLinker(SectLinkerOption &pOption,
+                   const llvm::cl::opt<std::string> &pInputFilename,
                    const std::string &pOutputFilename,
                    unsigned int pOutputLinkType,
-                   MCLDInfo& pLDInfo,
                    mcld::TargetLDBackend &pLDBackend);
 
   ~X86ELFSectLinker();

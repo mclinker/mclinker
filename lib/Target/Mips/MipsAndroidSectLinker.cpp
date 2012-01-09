@@ -7,31 +7,31 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/Target/AndroidSectLinker.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLDFile.h>
 #include "MipsAndroidSectLinker.h"
+
+#include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-MipsAndroidSectLinker::MipsAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+MipsAndroidSectLinker::MipsAndroidSectLinker(SectLinkerOption &pOption,
+                                             const llvm::cl::opt<std::string> &pInputFilename,
                                              const std::string &pOutputFilename,
                                              unsigned int pOutputLinkType,
-                                             MCLDInfo& pLDInfo,
                                              TargetLDBackend &pLDBackend)
-  : AndroidSectLinker(pInputFilename,
+  : AndroidSectLinker(pOption,
+                      pInputFilename,
                       pOutputFilename,
                       pOutputLinkType,
-                      pLDInfo,
                       pLDBackend) {
+  MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes
-  pLDInfo.attrFactory().constraint().disableWholeArchive();
-  pLDInfo.attrFactory().constraint().disableAsNeeded();
-  pLDInfo.attrFactory().constraint().setSharedSystem();
+  info.attrFactory().constraint().disableWholeArchive();
+  info.attrFactory().constraint().disableAsNeeded();
+  info.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  pLDInfo.attrFactory().predefined().unsetWholeArchive();
-  pLDInfo.attrFactory().predefined().setDynamic();
+  info.attrFactory().predefined().unsetWholeArchive();
+  info.attrFactory().predefined().setDynamic();
 }
 
 MipsAndroidSectLinker::~MipsAndroidSectLinker()

@@ -13,6 +13,7 @@
 
 #include "mcld/ADT/BinTree.h"
 #include "mcld/CodeGen/SectLinker.h"
+#include "mcld/CodeGen/SectLinkerOption.h"
 #include "mcld/MC/MCLinker.h"
 #include "mcld/MC/MCLDInfo.h"
 #include "mcld/MC/MCLDInputTree.h"
@@ -48,8 +49,8 @@ using namespace llvm;
 //===----------------------------------------------------------------------===//
 // Forward declarations
 char SectLinker::m_ID = 0;
-bool compare_options(const PositionDependentOption* X,
-                     const PositionDependentOption* Y);
+static bool CompareOption(const PositionDependentOption* X,
+                          const PositionDependentOption* Y);
 
 //===----------------------------------------------------------------------===//
 // Command Line Options
@@ -231,28 +232,28 @@ ArgBStaticListAlias3("non_shared",
 
 //===----------------------------------------------------------------------===//
 // SectLinker
-SectLinker::SectLinker(const llvm::cl::opt<std::string>& pInputFile,
+SectLinker::SectLinker(SectLinkerOption &pOption,
+                       const llvm::cl::opt<std::string>& pInputFile,
                        const std::string& pOutputFile,
                        unsigned int pOutputLinkType,
-                       MCLDInfo& pLDInfo,
                        TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
-    m_LDInfo(pLDInfo),
+    m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
     m_InputBitcode(pInputFile) {
 
-  // create the default output
-  m_LDInfo.output().setSONAME(SONAME);
-  m_LDInfo.output().setType(pOutputLinkType);
-  m_LDInfo.output().setPath(sys::fs::RealPath(pOutputFile));
-  m_LDInfo.output().setContext(
-                          m_LDInfo.contextFactory().produce(
-                                                   m_LDInfo.output().path()));
+  MCLDInfo &info = m_pOption->info();
 
-  int mode = (Output::Object == m_LDInfo.output().type())? 0544 : 0755;
-  m_LDInfo.output().setMemArea(
-                          m_LDInfo.memAreaFactory().produce(
-                                                   m_LDInfo.output().path(),
+  // create the default output
+  info.output().setSONAME(SONAME);
+  info.output().setType(pOutputLinkType);
+  info.output().setPath(sys::fs::RealPath(pOutputFile));
+  info.output().setContext(info.contextFactory().produce(info.output().path()));
+
+  int mode = (Output::Object == info.output().type())? 0544 : 0755;
+  info.output().setMemArea(
+                          info.memAreaFactory().produce(
+                                                   info.output().path(),
                                                    O_RDWR | O_CREAT | O_TRUNC,
                                                    mode));
 
@@ -267,18 +268,20 @@ SectLinker::~SectLinker()
 
 bool SectLinker::doInitialization(Module &pM)
 {
+  MCLDInfo &info = m_pOption->info();
+
   // -----  Set up General Options  ----- //
   //   make sure output is openend successfully.
-  if (!m_LDInfo.output().hasMemArea())
+  if (!info.output().hasMemArea())
     report_fatal_error("output is not given on the command line\n");
 
-  if (!m_LDInfo.output().memArea()->isGood())
-    report_fatal_error("can not open output file :"+m_LDInfo.output().path().native());
+  if (!info.output().memArea()->isGood())
+    report_fatal_error("can not open output file :"+info.output().path().native());
 
   //   set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      m_LDInfo.options().setSysroot(ArgSysRoot);
+      info.options().setSysroot(ArgSysRoot);
   }
 
   // add all search directories
@@ -286,9 +289,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot())
-      sd->setSysroot(m_LDInfo.options().sysroot());
+      sd->setSysroot(info.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path())) {
-      m_LDInfo.options().directories().add(*sd);
+      info.options().directories().add(*sd);
     }
     else {
       // FIXME: need a warning function
@@ -298,13 +301,13 @@ bool SectLinker::doInitialization(Module &pM)
     }
   }
 
-  m_LDInfo.options().setTrace(ArgTrace);
+  info.options().setTrace(ArgTrace);
 
-  m_LDInfo.options().setVerbose(ArgVerbose);
+  info.options().setVerbose(ArgVerbose);
 
-  m_LDInfo.options().setEntry(ArgEntry);
+  info.options().setEntry(ArgEntry);
 
-  m_LDInfo.options().setBsymbolic(Bsymbolic);
+  info.options().setBsymbolic(Bsymbolic);
 
   // -----  Set up Inputs  ----- //
   unsigned int input_size = ArgNameSpecList.size() +
@@ -312,25 +315,17 @@ bool SectLinker::doInitialization(Module &pM)
                             ArgEndGroupList.size() +
                             ArgInputObjectFiles.size();
 
-  PositionDependentOptions pos_dep_options;
+  PositionDependentOptions &pos_dep_options = m_pOption->pos_dep_options();
   pos_dep_options.reserve(input_size);
 
   // override the parameters before all positional options
-  addInputsBeforeCMD(pM, m_LDInfo, pos_dep_options);
+  addInputsBeforeCMD(pM, *m_pOption);
 
   // -----  read bitcode  -----//
   // add bitcode input, and assign the default attribute to it.
   RealPath *bitcode_path = new RealPath(m_InputBitcode);
   pos_dep_options.push_back(new BitcodeOption(m_InputBitcode.getPosition(),
                                               *bitcode_path));
-
-  // read libraries from the bitcode
-  llvm::Module::LibraryListType::const_iterator bitns, bitnsEnd = pM.lib_end();
-  for (bitns = pM.lib_begin(); bitns != bitnsEnd; ++bitns) {
-    pos_dep_options.push_back(new NamespecOption(m_InputBitcode.getPosition(),
-                                                 *bitns));
-  }
-
 
   // add all start-group
   cl::list<bool>::iterator sg;
@@ -443,14 +438,15 @@ bool SectLinker::doInitialization(Module &pM)
   // -----  Set up Scripting Options  ----- //
 
   // override the parameters after all positional options
-  addInputsAfterCMD(pM, m_LDInfo, pos_dep_options);
+  addInputsAfterCMD(pM, *m_pOption);
 
   // ----- convert position dependent options into tree of input files  ----- //
-  std::stable_sort(pos_dep_options.begin(), pos_dep_options.end(), compare_options);
-  initializeInputTree(m_LDInfo, pos_dep_options);
+  PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
+  std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
+  initializeInputTree(PosDepOpts);
 
   // Now, all input arguments are prepared well, send it into MCLDDriver
-  m_pLDDriver = new MCLDDriver(m_LDInfo, *m_pLDBackend);
+  m_pLDDriver = new MCLDDriver(info, *m_pLDBackend);
 
   // clear up positional dependent options
   PositionDependentOptions::iterator pdoption, pdoptionEnd = pos_dep_options.end();
@@ -462,6 +458,8 @@ bool SectLinker::doInitialization(Module &pM)
 
 bool SectLinker::doFinalization(Module &pM)
 {
+  const MCLDInfo &info = m_pOption->info();
+
   // 3. - initialize output's standard segments and sections
   if (!m_pLDDriver->initMCLinker())
     return true;
@@ -469,17 +467,17 @@ bool SectLinker::doFinalization(Module &pM)
   // 4. - normalize the input tree
   m_pLDDriver->normalize();
 
-  if (m_LDInfo.options().verbose()) {
+  if (info.options().verbose()) {
     outs() << "MCLinker (LLVM Sub-project) - ";
     outs() << MCLDInfo::version();
     outs() << "\n";
   }
 
-  if (m_LDInfo.options().trace()) {
+  if (info.options().trace()) {
     static int counter = 0;
-    outs() << "** name\ttype\tpath\tsize (" << m_LDInfo.inputs().size() << ")\n";
-    InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-    for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    outs() << "** name\ttype\tpath\tsize (" << info.inputs().size() << ")\n";
+    InputTree::const_dfs_iterator input, inEnd = info.inputs().dfs_end();
+    for (input=info.inputs().dfs_begin(); input!=inEnd; ++input) {
       outs() << counter++ << " *  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
@@ -552,12 +550,12 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
-void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
-                        const PositionDependentOptions &pPosDepOptions) const
+void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
     return;
 
+  MCLDInfo &info = m_pOption->info();
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
       ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
@@ -567,7 +565,7 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
   InputTree::Connector *prev_ward = &InputTree::Downward;
 
   std::stack<InputTree::iterator> returnStack;
-  InputTree::iterator cur_node = pLDInfo.inputs().root();
+  InputTree::iterator cur_node = info.inputs().root();
 
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   while (cur_char != charEnd ) {
@@ -576,12 +574,12 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       // threat bitcode as a script in this version.
       const BitcodeOption *bitcode_option =
           static_cast<const BitcodeOption*>(*cur_char);
-      pLDInfo.inputs().insert(cur_node,
-                              *prev_ward,
-                              bitcode_option->path()->native(),
-                              *(bitcode_option->path()),
-                              Input::Script);
-      pLDInfo.setBitcode(**cur_node);
+      info.inputs().insert(cur_node,
+                           *prev_ward,
+                           bitcode_option->path()->native(),
+                           *(bitcode_option->path()),
+                           Input::Script);
+      info.setBitcode(**cur_node);
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
@@ -589,10 +587,10 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
     case PositionDependentOption::INPUT_FILE: {
       const InputFileOption *input_file_option =
           static_cast<const InputFileOption*>(*cur_char);
-      pLDInfo.inputs().insert(cur_node,
-                              *prev_ward,
-                              input_file_option->path()->native(),
-                              *(input_file_option->path()));
+      info.inputs().insert(cur_node,
+                           *prev_ward,
+                           input_file_option->path()->native(),
+                           *(input_file_option->path()));
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
@@ -601,31 +599,29 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       Path* path = 0;
       const NamespecOption *namespec_option =
           static_cast<const NamespecOption*>(*cur_char);
-      if (pLDInfo.attrFactory().last().isStatic()) {
-        path = pLDInfo.options().directories().find(
-                                               namespec_option->namespec(),
-                                               Input::Archive);
+      if (info.attrFactory().last().isStatic()) {
+        path = info.options().directories().find(namespec_option->namespec(),
+                                                 Input::Archive);
       }
       else {
-        path = pLDInfo.options().directories().find(
-                                               namespec_option->namespec(),
-                                               Input::DynObj);
+        path = info.options().directories().find(namespec_option->namespec(),
+                                                 Input::DynObj);
       }
 
       if (0 == path) {
         llvm::report_fatal_error(std::string("Can't find namespec: ")+
                                  namespec_option->namespec());
       }
-      pLDInfo.inputs().insert(cur_node,
-                              *prev_ward,
-                              namespec_option->namespec(),
-                              *path);
+      info.inputs().insert(cur_node,
+                           *prev_ward,
+                           namespec_option->namespec(),
+                           *path);
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
     }
     case PositionDependentOption::START_GROUP:
-      pLDInfo.inputs().enterGroup(cur_node, *prev_ward);
+      info.inputs().enterGroup(cur_node, *prev_ward);
       prev_ward->move(cur_node);
       returnStack.push(cur_node);
       prev_ward = &InputTree::Downward;
@@ -636,28 +632,28 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
       prev_ward = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      pLDInfo.attrFactory().last().setWholeArchive();
+      info.attrFactory().last().setWholeArchive();
       break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      pLDInfo.attrFactory().last().unsetWholeArchive();
+      info.attrFactory().last().unsetWholeArchive();
       break;
     case PositionDependentOption::AS_NEEDED:
-      pLDInfo.attrFactory().last().setAsNeeded();
+      info.attrFactory().last().setAsNeeded();
       break;
     case PositionDependentOption::NO_AS_NEEDED:
-      pLDInfo.attrFactory().last().unsetAsNeeded();
+      info.attrFactory().last().unsetAsNeeded();
       break;
     case PositionDependentOption::ADD_NEEDED:
-      pLDInfo.attrFactory().last().setAddNeeded();
+      info.attrFactory().last().setAddNeeded();
       break;
     case PositionDependentOption::NO_ADD_NEEDED:
-      pLDInfo.attrFactory().last().unsetAddNeeded();
+      info.attrFactory().last().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
-      pLDInfo.attrFactory().last().setStatic();
+      info.attrFactory().last().setStatic();
       break;
     case PositionDependentOption::BDYNAMIC:
-      pLDInfo.attrFactory().last().setDynamic();
+      info.attrFactory().last().setDynamic();
       break;
     default:
       report_fatal_error("can not find the type of input file");
@@ -672,8 +668,8 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
-bool compare_options(const PositionDependentOption* X,
-                     const PositionDependentOption* Y)
+static bool CompareOption(const PositionDependentOption* X,
+                          const PositionDependentOption* Y)
 {
   return (X->position() < Y->position());
 }

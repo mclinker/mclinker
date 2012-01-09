@@ -17,8 +17,6 @@
 namespace mcld
 {
 
-class MCLDInfo;
-
 /** \class X86AndroidSectLinker
  *  \brief X86AndroidSectLinker sets up the environment for linking.
  *
@@ -28,10 +26,10 @@ class MCLDInfo;
 class X86AndroidSectLinker : public AndroidSectLinker
 {
 public:
-  X86AndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  X86AndroidSectLinker(SectLinkerOption &pOption,
+                       const llvm::cl::opt<std::string> &pInputFilename,
                        const std::string &pOutputFilename,
                        unsigned int pOutputLinkType,
-                       MCLDInfo& pLDInfo,
                        mcld::TargetLDBackend &pLDBackend);
 
   ~X86AndroidSectLinker();

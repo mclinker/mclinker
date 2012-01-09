@@ -16,18 +16,16 @@
 namespace mcld
 {
 
-class MCLDInfo;
-
 /** \class MipsELFSectLinker
  *  \brief MipsELFSectLinker sets up the environment for linking.
  */
 class MipsELFSectLinker : public SectLinker
 {
 public:
-  MipsELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  MipsELFSectLinker(SectLinkerOption &pOption,
+                    const llvm::cl::opt<std::string> &pInputFilename,
                     const std::string &pOutputFilename,
                     unsigned int pOutputLinkType,
-                    MCLDInfo& pLDInfo,
                     mcld::TargetLDBackend &pLDBackend);
 
   ~MipsELFSectLinker();

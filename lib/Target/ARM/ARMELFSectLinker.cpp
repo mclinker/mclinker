@@ -6,31 +6,31 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLDFile.h>
 #include "ARMELFSectLinker.h"
+
+#include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
+                                   const llvm::cl::opt<std::string> &pInputFilename,
                                    const std::string &pOutputFilename,
                                    unsigned int pOutputLinkType,
-                                   MCLDInfo& pLDInfo,
                                    TargetLDBackend &pLDBackend)
-  : SectLinker(pInputFilename,
+  : SectLinker(pOption,
+               pInputFilename,
                pOutputFilename,
                pOutputLinkType,
-               pLDInfo,
                pLDBackend) {
+  MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes
-  pLDInfo.attrFactory().constraint().enableWholeArchive();
-  pLDInfo.attrFactory().constraint().disableAsNeeded();
-  pLDInfo.attrFactory().constraint().setSharedSystem();
+  info.attrFactory().constraint().enableWholeArchive();
+  info.attrFactory().constraint().disableAsNeeded();
+  info.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  pLDInfo.attrFactory().predefined().setWholeArchive();
-  pLDInfo.attrFactory().predefined().setDynamic();
+  info.attrFactory().predefined().setWholeArchive();
+  info.attrFactory().predefined().setDynamic();
 
 }
 

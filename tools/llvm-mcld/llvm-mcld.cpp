@@ -9,6 +9,7 @@
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>
 #include <llvm/PassManager.h>
@@ -280,7 +281,7 @@ GetFileNameRoot(const std::string &pInputFilename, std::string& pFileNameRoot)
   if ((Len > 2) &&
       IFN[Len-3] == '.' &&
       ((IFN[Len-2] == 'b' && IFN[Len-1] == 'c') ||
-       (IFN[Len-2] == 'l' && IFN[Len-1] == 'l'))) 
+       (IFN[Len-2] == 'l' && IFN[Len-1] == 'l')))
     pFileNameRoot = std::string(IFN.begin(), IFN.end()-3); // s/.bc/.s/
   else
     pFileNameRoot = std::string(IFN);
@@ -308,7 +309,7 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
             pOutputFilename += ".cpp";
           else
             pOutputFilename += ".s";
-        } 
+        }
         else
           pOutputFilename += ".s";
         break;
@@ -369,7 +370,7 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
 
 int main( int argc, char* argv[] )
 {
-  
+
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
   // Initialize targets first, so that --version shows registered targets.
@@ -519,6 +520,10 @@ int main( int argc, char* argv[] )
   // Override default to generate verbose assembly.
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
+  mcld::SectLinkerOption *LinkerOpt =
+      new mcld::SectLinkerOption(mod, InputFilename.getPosition(),
+                                 TheTargetMachine.getLDInfo());
+
   {
     formatted_raw_ostream FOS(Out->os());
 
@@ -529,6 +534,7 @@ int main( int argc, char* argv[] )
                                              OutputFilename,
                                              FileType,
                                              OLvl,
+                                             LinkerOpt,
                                              NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";
@@ -543,6 +549,9 @@ int main( int argc, char* argv[] )
 
   // Declare success.
   Out->keep();
+
+  // clean up
+  delete LinkerOpt;
 
   return 0;
 }

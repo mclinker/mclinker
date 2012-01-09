@@ -18,8 +18,6 @@
 namespace mcld
 {
 
-class MCLDInfo;
-
 /** \class MipsAndroidSectLinker
  *  \brief MipsAndroidSectLinker sets up the environment for linking.
  *
@@ -27,10 +25,10 @@ class MCLDInfo;
 class MipsAndroidSectLinker : public AndroidSectLinker
 {
 public:
-  MipsAndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  MipsAndroidSectLinker(SectLinkerOption &pOption,
+                        const llvm::cl::opt<std::string> &pInputFilename,
                         const std::string &pOutputFilename,
                         unsigned int pOutputLinkType,
-                        MCLDInfo& pLDInfo,
                         mcld::TargetLDBackend &pLDBackend);
 
   ~MipsAndroidSectLinker();

@@ -30,6 +30,7 @@ namespace mcld
 {
 
 class Target;
+class SectLinkerOption;
 using namespace llvm;
 
 enum CodeGenFileType {
@@ -43,7 +44,7 @@ enum CodeGenFileType {
 
 
 /** \class mcld::LLVMTargetMachine
- *  \brief mcld::LLVMTargetMachine is a object adapter of 
+ *  \brief mcld::LLVMTargetMachine is a object adapter of
  *  llvm::LLVMTargetMachine.
  *
  *  mcld::LLVMTargetMachine is also in charge of MCLDInfo.
@@ -79,14 +80,15 @@ public:
                            const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
-                           bool DisableVerify= true); 
+                           SectLinkerOption *,
+                           bool DisableVerify = true);
 
   /// getTargetData
   const TargetData *getTargetData() const { return m_TM.getTargetData(); }
 
   /// setAsmVerbosityDefault
-  static void setAsmVerbosityDefault(bool pAsmVerbose) { 
-    llvm::TargetMachine::setAsmVerbosityDefault(pAsmVerbose); 
+  static void setAsmVerbosityDefault(bool pAsmVerbose) {
+    llvm::TargetMachine::setAsmVerbosityDefault(pAsmVerbose);
   }
 
 private:
@@ -108,6 +110,7 @@ private:
                           llvm::MCContext *&OutCtx);
 
   bool addLinkerPasses(PassManagerBase &,
+                       SectLinkerOption *pLinkerOpt,
                        const llvm::cl::opt<std::string> &pInputFilename,
                        const std::string& pOutputFilename,
                        unsigned int pOutputLinkType,

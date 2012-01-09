@@ -109,6 +109,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
+                                             SectLinkerOption *pLinkerOpt,
                                              bool pDisableVerify)
 {
 
@@ -147,7 +148,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_EXEFile: {
+    if (pLinkerOpt == NULL)
+      return true;
+
     if (addLinkerPasses(pPM,
+                        pLinkerOpt,
                         pInputFilename,
                         pOutputFilename,
                         MCLDFile::Exec,
@@ -156,7 +161,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_DSOFile: {
+    if (pLinkerOpt == NULL)
+      return true;
+
     if (addLinkerPasses(pPM,
+                        pLinkerOpt,
                         pInputFilename,
                         pOutputFilename,
                         MCLDFile::DynObj,
@@ -249,6 +258,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
+                                              SectLinkerOption *pLinkerOpt,
                                               const llvm::cl::opt<std::string>& pInputFilename,
                                               const std::string& pOutputFilename,
                                               unsigned int pOutputLinkType,
@@ -293,10 +303,10 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                  getLDInfo());
 
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
+                                                               *pLinkerOpt,
                                                                pInputFilename,
                                                                pOutputFilename,
                                                                pOutputLinkType,
-                                                               getLDInfo(),
                                                                *ldBackend);
   if (0 == funcPass)
     return true;

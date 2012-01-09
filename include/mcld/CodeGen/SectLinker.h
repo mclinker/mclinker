@@ -22,7 +22,6 @@
 #include <llvm/CodeGen/MachineFunctionPass.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/PositionDependentOption.h>
-#include <mcld/MC/MCLDInfo.h>
 #include <vector>
 
 namespace llvm
@@ -37,6 +36,7 @@ namespace mcld
   class MCLDDriver;
   class TargetLDBackend;
   class AttributeFactory;
+  class SectLinkerOption;
 
   /** \class SectLinker
    *  \brief SectLinker provides a linking pass for standard compilation flow
@@ -65,10 +65,10 @@ namespace mcld
     // SectLinker constructor handles
     // - the default input
     // - the default output (filename and link type)
-    SectLinker(const llvm::cl::opt<std::string>& pInputFile,
+    SectLinker(SectLinkerOption &pOption,
+               const llvm::cl::opt<std::string>& pInputFile,
                const std::string& pOutputFile,
                unsigned int pOutputLinkType,
-               MCLDInfo& pLDInfo,
                TargetLDBackend &pLDBackend);
 
   public:
@@ -77,15 +77,13 @@ namespace mcld
     /// addInputsBeforeCMD - if there are any inputs should add before the
     /// command line, override this function
     virtual void addInputsBeforeCMD(llvm::Module &pM,
-                                    MCLDInfo& pLDInfo,
-                                    PositionDependentOptions &pOptions)
+                                    SectLinkerOption &pOption)
     { }
 
     /// addInputsAfterCMD - if there are any inputs should add after the
     /// command line, override this function
     virtual void addInputsAfterCMD(llvm::Module &pM,
-                                    MCLDInfo& pLDInfo,
-                                    PositionDependentOptions &pOptions)
+                                   SectLinkerOption &pOption)
     { }
 
     /// doInitialization - Read all parameters and set up the AsmPrinter.
@@ -103,14 +101,15 @@ namespace mcld
     virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
   protected:
-    void initializeInputTree(MCLDInfo& pLDInfo,
-                             const PositionDependentOptions &pOptions) const;
+    void initializeInputTree(const PositionDependentOptions &pOptions) const;
 
     AttributeFactory* attrFactory()
     { return m_pAttrFactory; }
 
+  private:
+    SectLinkerOption *m_pOption;
+
   protected:
-    MCLDInfo& m_LDInfo;
     TargetLDBackend *m_pLDBackend;
     MCLDDriver *m_pLDDriver;
     AttributeFactory *m_pAttrFactory;

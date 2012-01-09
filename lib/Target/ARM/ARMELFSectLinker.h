@@ -16,8 +16,6 @@
 namespace mcld
 {
 
-class MCLDInfo;
-
 /** \class ARMELFSectLinker
  *  \brief ARMELFSectLinker sets up the environment for linking.
  *
@@ -26,10 +24,10 @@ class MCLDInfo;
 class ARMELFSectLinker : public SectLinker
 {
 public:
-  ARMELFSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  ARMELFSectLinker(SectLinkerOption &pOption,
+                   const llvm::cl::opt<std::string> &pInputFilename,
                    const std::string &pOutputFilename,
                    unsigned int pOutputLinkType,
-                   MCLDInfo& pLDInfo,
                    mcld::TargetLDBackend &pLDBackend);
 
   ~ARMELFSectLinker();

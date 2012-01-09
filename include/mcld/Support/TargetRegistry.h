@@ -24,9 +24,8 @@ namespace mcld {
 class LLVMTargetMachine;
 class TargetRegistry;
 class SectLinker;
+class SectLinkerOption;
 class TargetLDBackend;
-class MCLDFile;
-class MCLDInfo;
 class AttributeFactory;
 class InputFactory;
 class ContextFactory;
@@ -44,10 +43,10 @@ public:
                                                           const std::string&);
 
   typedef SectLinker *(*SectLinkerCtorTy)(const std::string& pTriple,
+                                          SectLinkerOption &,
                                           const llvm::cl::opt<std::string>& pInputFilename,
                                           const std::string& pOutputFilename,
                                           unsigned int pLinkType,
-                                          MCLDInfo&,
                                           TargetLDBackend&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
@@ -83,18 +82,18 @@ public:
   ///
   /// @return created SectLinker
   SectLinker *createSectLinker(const std::string &pTriple,
+                               SectLinkerOption &pOption,
                                const llvm::cl::opt<std::string> &pInputFilename,
                                const std::string &pOutputFilename,
                                unsigned int pOutputLinkType,
-                               MCLDInfo &pLDInfo,
                                TargetLDBackend &pLDBackend) const {
     if (!SectLinkerCtorFn)
       return 0;
     return SectLinkerCtorFn(pTriple,
+                            pOption,
                             pInputFilename,
                             pOutputFilename,
                             pOutputLinkType,
-                            pLDInfo,
                             pLDBackend);
   }
 

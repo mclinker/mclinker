@@ -7,29 +7,26 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Module.h>
 #include <mcld/Target/AndroidSectLinker.h>
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/MC/MCLDDriver.h>
-#include <mcld/MC/MCLDInfo.h>
+
+#include <llvm/Support/ErrorHandling.h>
 #include <mcld/MC/MCLDDirectory.h>
+#include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
 //==========================
 // AndroidSectLinker
 
-AndroidSectLinker::AndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+AndroidSectLinker::AndroidSectLinker(SectLinkerOption &pOption,
+                                     const llvm::cl::opt<std::string> &pInputFilename,
                                      const std::string &pOutputFilename,
                                      unsigned int OutputLinkType,
-                                     MCLDInfo &pLDInfo,
                                      TargetLDBackend &pLDBackend)
-  : SectLinker(pInputFilename,
+  : SectLinker(pOption,
+               pInputFilename,
                pOutputFilename,
                OutputLinkType,
-               pLDInfo,
                pLDBackend) {
 }
 
@@ -39,14 +36,14 @@ AndroidSectLinker::~AndroidSectLinker()
 }
 
 void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
-                                           MCLDInfo& pLDInfo,
-                                           PositionDependentOptions &pOptions)
+                                           SectLinkerOption &pOption)
 {
   // -----  Set up General Options  ----- //
+  MCLDInfo &info = pOption.info();
   MCLDDirectory search_path("=/system/lib");
-  search_path.setSysroot(pLDInfo.options().sysroot());
+  search_path.setSysroot(info.options().sysroot());
   if (exists(search_path.path()) && is_directory(search_path.path()))
-    pLDInfo.options().directories().add(search_path);
+    info.options().directories().add(search_path);
   else {
     // FIXME: need a warning function
     llvm::errs() << "WARNING: can not open search directory: `-L" << search_path.name() << "'.\n";

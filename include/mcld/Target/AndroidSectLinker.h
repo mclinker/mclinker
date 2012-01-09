@@ -25,10 +25,10 @@ namespace mcld
 class AndroidSectLinker : public SectLinker
 {
 public:
-  AndroidSectLinker(const llvm::cl::opt<std::string> &pInputFilename,
+  AndroidSectLinker(SectLinkerOption &pOption,
+                    const llvm::cl::opt<std::string> &pInputFilename,
                     const std::string &pOutputFilename,
                     unsigned int pOutputLinkType,
-                    MCLDInfo& pLDInfo,
                     mcld::TargetLDBackend &pLDBackend);
 
   virtual ~AndroidSectLinker();
@@ -36,8 +36,7 @@ public:
   /// addInputsBeforeCMD - if there are any inputs should add before the
   /// command line, override this function
   virtual void addInputsBeforeCMD(llvm::Module &pM,
-                                  MCLDInfo& pLDInfo,
-                                  PositionDependentOptions &pOptions);
+                                  SectLinkerOption &pOption);
 
 };
 
