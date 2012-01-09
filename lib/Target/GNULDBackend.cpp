@@ -618,9 +618,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
       } else if (!is_write) {
         return SHO_RO;
       } else {
-        if ((pSectHdr.type() & llvm::ELF::SHT_PREINIT_ARRAY) != 0 ||
-            (pSectHdr.type() & llvm::ELF::SHT_INIT_ARRAY) != 0 ||
-            (pSectHdr.type() & llvm::ELF::SHT_FINI_ARRAY) != 0 ||
+        if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
+            pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
+            pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
             pSectHdr.name() == ".ctors" ||
             pSectHdr.name() == ".dtors")
           return SHO_RELRO;
@@ -632,6 +632,8 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
       return SHO_BSS;
 
     case LDFileFormat::NamePool:
+      if (pSectHdr.name() == ".dynamic")
+        return SHO_RELRO;
       return SHO_NAMEPOOL;
 
     case LDFileFormat::Relocation:
@@ -643,12 +645,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
     case LDFileFormat::Target:
       return getTargetSectionOrder(pSectHdr);
 
-    // handle .interp and .dynamic
+    // handle .interp
     case LDFileFormat::Note:
-      if (!is_write)
-        return SHO_INTERP;
-      else
-        return SHO_RELRO;
+      return SHO_INTERP;
 
     case LDFileFormat::MetaData:
     case LDFileFormat::Debug:
