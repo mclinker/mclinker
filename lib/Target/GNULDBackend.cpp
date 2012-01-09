@@ -176,7 +176,19 @@ GNUArchiveReader *GNULDBackend::getArchiveReader()
   return m_pArchiveReader;
 }
 
+GNUArchiveReader *GNULDBackend::getArchiveReader() const
+{
+  assert(0 != m_pArchiveReader);
+  return m_pArchiveReader;
+}
+
 ELFObjectReader *GNULDBackend::getObjectReader()
+{
+  assert(0 != m_pObjectReader);
+  return m_pObjectReader;
+}
+
+ELFObjectReader *GNULDBackend::getObjectReader() const
 {
   assert(0 != m_pObjectReader);
   return m_pObjectReader;
@@ -188,13 +200,31 @@ ELFDynObjReader *GNULDBackend::getDynObjReader()
   return m_pDynObjReader;
 }
 
+ELFDynObjReader *GNULDBackend::getDynObjReader() const
+{
+  assert(0 != m_pDynObjReader);
+  return m_pDynObjReader;
+}
+
 ELFObjectWriter *GNULDBackend::getObjectWriter()
 {
   // TODO
   return NULL;
 }
 
+ELFObjectWriter *GNULDBackend::getObjectWriter() const
+{
+  // TODO
+  return NULL;
+}
+
 ELFDynObjWriter *GNULDBackend::getDynObjWriter()
+{
+  assert(0 != m_pDynObjWriter);
+  return m_pDynObjWriter;
+}
+
+ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
 {
   assert(0 != m_pDynObjWriter);
   return m_pDynObjWriter;
@@ -207,7 +237,19 @@ ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
   return m_pDynObjFileFormat;
 }
 
+ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat() const
+{
+  assert(0 != m_pDynObjFileFormat);
+  return m_pDynObjFileFormat;
+}
+
 ELFExecFileFormat* GNULDBackend::getExecFileFormat()
+{
+  assert(0 != m_pExecFileFormat);
+  return m_pExecFileFormat;
+}
+
+ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 {
   assert(0 != m_pExecFileFormat);
   return m_pExecFileFormat;

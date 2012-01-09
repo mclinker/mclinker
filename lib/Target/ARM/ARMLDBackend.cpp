@@ -564,12 +564,14 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  const char* SectionName = pSection.name().c_str();
+  ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
+  assert(FileFormat &&
+         "DynObjFileFormat is NULL in ARMGNULDBackend::emitSectionData!");
 
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (!std::strcmp(SectionName,".ARM.attributes")) {
+  if (&pSection == m_pAttributes) {
     // FIXME: Currently Emitting .ARM.attributes directly from the input file.
     const llvm::MCSectionData* SectionData = pSection.getSectionData();
     assert(SectionData &&
@@ -581,7 +583,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
            pRegion.size());
   }
 
-  else if (!std::strcmp(SectionName, ".plt")) {
+  else if (&pSection == &(FileFormat->getPLT())) {
     assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
     unsigned char* buffer = pRegion.getBuffer();
@@ -607,7 +609,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
     }
   }
 
-  else if (!std::strcmp(SectionName,".got")) {
+  else if (&pSection == &(FileFormat->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());

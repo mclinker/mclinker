@@ -95,13 +95,25 @@ public:
   bool initDynObjSections(MCLinker& pMCLinker);
 
   GNUArchiveReader *getArchiveReader();
+  GNUArchiveReader *getArchiveReader() const;
+
   ELFObjectReader *getObjectReader();
+  ELFObjectReader *getObjectReader() const;
+
   ELFDynObjReader *getDynObjReader();
+  ELFDynObjReader *getDynObjReader() const;
+
   ELFObjectWriter *getObjectWriter();
+  ELFObjectWriter *getObjectWriter() const;
+
   ELFDynObjWriter *getDynObjWriter();
+  ELFDynObjWriter *getDynObjWriter() const;
 
   ELFDynObjFileFormat* getDynObjFileFormat();
+  ELFDynObjFileFormat* getDynObjFileFormat() const;
+
   ELFExecFileFormat* getExecFileFormat();
+  ELFExecFileFormat* getExecFileFormat() const;
 
   size_t sectionStartOffset() const;
 
