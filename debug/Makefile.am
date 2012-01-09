@@ -46,9 +46,13 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/ScopedWriter.h \
 	${LIBDIR}/Support/ScopedWriter.cpp \
+	${INCDIR}/Support/PositionDependentOption.h \
+	${INCDIR}/Support/DerivedPositionDependentOptions.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
+	${INCDIR}/CodeGen/SectLinkerOption.h \
+	${LIBDIR}/CodeGen/SectLinkerOption.cpp \
 	${INCDIR}/Target/PLT.h\
 	${LIBDIR}/Target/PLT.cpp\
 	${INCDIR}/Target/GOT.h \
@@ -146,7 +150,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/MC/MCRegionFragment.h \
 	${LIBDIR}/MC/MCRegionFragment.cpp \
-        ${INCDIR}/MC/MCTargetFragment.h \
+	${INCDIR}/MC/MCRegionFragment.h \
 	${INCDIR}/MC/MCFragmentRef.h \
 	${LIBDIR}/MC/MCFragmentRef.cpp \
 	${INCDIR}/LD/LDContext.h \
