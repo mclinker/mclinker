@@ -800,14 +800,12 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
       file_size = segment.getLastSection()->addr()
                   + segment.getLastSection()->size()
                   - segment.vaddr();
-      mem_size = file_size;
       is_first_pt_load = false;
     } else {
       ELFSegment::sect_iterator sect, sectEnd = segment.sectEnd();
       for (sect = segment.sectBegin(); sect != sectEnd; ++sect) {
         if (LDFileFormat::BSS != (*sect)->kind())
           file_size += (*sect)->size();
-        mem_size += (*sect)->size();
       }
     }
 
@@ -815,7 +813,10 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     segment.setVaddr((*segment.sectBegin())->addr());
     segment.setPaddr(segment.vaddr());
     segment.setFilesz(file_size);
-    alignAddress(mem_size, bitclass() / 8);
+
+    mem_size = segment.getLastSection()->addr()
+               + segment.getLastSection()->size()
+               - segment.vaddr();
     segment.setMemsz(mem_size);
   }
 }
