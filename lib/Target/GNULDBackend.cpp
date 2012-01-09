@@ -794,21 +794,23 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     }
 
     uint64_t file_size = 0, mem_size = 0;
-    ELFSegment::sect_iterator sect, sectEnd = segment.sectEnd();
-    for (sect = segment.sectBegin(); sect != sectEnd; ++sect) {
-      if (llvm::ELF::PT_LOAD == segment.type() && is_first_pt_load) {
-        assert(NULL != segment.getLastSection());
-        file_size = segment.getLastSection()->addr()
-                    + segment.getLastSection()->size()
-                    - segment.vaddr();
-        mem_size = file_size;
-        is_first_pt_load = false;
-        continue;
+    // 1st PT_LOAD should include ELF file header and program headers
+    if (llvm::ELF::PT_LOAD == segment.type() && is_first_pt_load) {
+      assert(NULL != segment.getLastSection());
+      file_size = segment.getLastSection()->addr()
+                  + segment.getLastSection()->size()
+                  - segment.vaddr();
+      mem_size = file_size;
+      is_first_pt_load = false;
+    } else {
+      ELFSegment::sect_iterator sect, sectEnd = segment.sectEnd();
+      for (sect = segment.sectBegin(); sect != sectEnd; ++sect) {
+        if (LDFileFormat::BSS != (*sect)->kind())
+          file_size += (*sect)->size();
+        mem_size += (*sect)->size();
       }
-      if (LDFileFormat::BSS != (*sect)->kind())
-        file_size += (*sect)->size();
-      mem_size += (*sect)->size();
     }
+
     segment.setOffset((*segment.sectBegin())->offset());
     segment.setVaddr((*segment.sectBegin())->addr());
     segment.setPaddr(segment.vaddr());
