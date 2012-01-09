@@ -27,6 +27,7 @@ class ELFSegment
 {
 public:
   typedef std::vector<LDSection*>::iterator sect_iterator;
+  typedef std::vector<LDSection*>::const_iterator const_sect_iterator;
 public:
   ELFSegment(uint32_t pType,
              uint32_t pFlag = llvm::ELF::PF_R,
@@ -44,6 +45,42 @@ public:
 
   sect_iterator sectEnd()
   { return m_SectionList.end(); }
+
+  const_sect_iterator sectBegin() const
+  { return m_SectionList.begin(); }
+
+  const_sect_iterator sectEnd() const
+  { return m_SectionList.end(); }
+
+  const LDSection* getFirstSection()
+  {
+    if (0 == m_SectionList.size())
+      return NULL;
+    return m_SectionList[0];
+  }
+
+  const LDSection* getLastSection()
+  {
+    size_t size = m_SectionList.size();
+    if (0 == size)
+      return NULL;
+    return m_SectionList[size - 1];
+  }
+
+  const LDSection* getFirstSection() const
+  {
+    if (0 == m_SectionList.size())
+      return NULL;
+    return m_SectionList[0];
+  }
+
+  const LDSection* getLastSection() const
+  {
+    size_t size = m_SectionList.size();
+    if (0 == size)
+      return NULL;
+    return m_SectionList[size - 1];
+  }
 
   ///  -----  observers  -----  ///
   uint32_t type() const
