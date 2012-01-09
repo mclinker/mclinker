@@ -35,25 +35,13 @@ Relocation::~Relocation()
 
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    m_TargetAddress.frag()->getParent()->getSection()
-  );
-  return ld_section.offset() + pLayout.getOutputOffset(m_TargetAddress);
+  Address sect_addr = pLayout.getOutputLDSection(*(m_TargetAddress.frag()))->addr();
+  return sect_addr + pLayout.getOutputOffset(m_TargetAddress);
 }
 
 Relocation::Address Relocation::symValue() const
 {
-   // if symbol has no fragment reference, which means it's undefine or absolute,
-   // return the symbol value directly.
-  if( m_pSymInfo->outSymbol()->fragRef() == NULL )
-    return m_pSymInfo->outSymbol()->value();
-
-  // otherwise, return the output file offset of the symbol
-  llvm::MCSectionData* md = m_pSymInfo->outSymbol()->fragRef()->frag()->getParent();
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection()
-  );
-  return ld_section.offset() + m_pSymInfo->outSymbol()->value();
+  return m_pSymInfo->outSymbol()->value();
 }
 
 void Relocation::apply()
