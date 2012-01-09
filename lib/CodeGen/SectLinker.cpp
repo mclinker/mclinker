@@ -21,6 +21,7 @@
 #include "mcld/Support/CommandLine.h"
 #include "mcld/Support/FileSystem.h"
 #include "mcld/Support/RealPath.h"
+#include "mcld/Support/DerivedPositionDependentOptions.h"
 #include "mcld/Target/TargetLDBackend.h"
 
 #include <llvm/CodeGen/AsmPrinter.h>
@@ -47,8 +48,8 @@ using namespace llvm;
 //===----------------------------------------------------------------------===//
 // Forward declarations
 char SectLinker::m_ID = 0;
-bool compare_options(const SectLinker::PositionDependentOption* X,
-                     const SectLinker::PositionDependentOption* Y);
+bool compare_options(const PositionDependentOption* X,
+                     const PositionDependentOption* Y);
 
 //===----------------------------------------------------------------------===//
 // Command Line Options
@@ -320,18 +321,14 @@ bool SectLinker::doInitialization(Module &pM)
   // -----  read bitcode  -----//
   // add bitcode input, and assign the default attribute to it.
   RealPath *bitcode_path = new RealPath(m_InputBitcode);
-  pos_dep_options.push_back(new PositionDependentOption(
-                                          m_InputBitcode.getPosition(),
-                                          *bitcode_path,
-                                          PositionDependentOption::BITCODE));
-  
+  pos_dep_options.push_back(new BitcodeOption(m_InputBitcode.getPosition(),
+                                              *bitcode_path));
+
   // read libraries from the bitcode
   llvm::Module::LibraryListType::const_iterator bitns, bitnsEnd = pM.lib_end();
   for (bitns = pM.lib_begin(); bitns != bitnsEnd; ++bitns) {
-    pos_dep_options.push_back(new SectLinker::PositionDependentOption(
-                                                   m_InputBitcode.getPosition(),
-                                                   *bitns,
-                                                   PositionDependentOption::NAMESPEC));
+    pos_dep_options.push_back(new NamespecOption(m_InputBitcode.getPosition(),
+                                                 *bitns));
   }
 
 
@@ -340,9 +337,8 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
   for (sg=ArgStartGroupList.begin(); sg!=sgEnd; ++sg) {
     // calculate position
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgStartGroupList.getPosition(sg-ArgStartGroupList.begin()),
-                                    PositionDependentOption::START_GROUP));
+    pos_dep_options.push_back(new StartGroupOption(
+                                    ArgStartGroupList.getPosition(sg-ArgStartGroupList.begin())));
   }
 
   // add all end-group
@@ -350,9 +346,8 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<bool>::iterator egEnd = ArgEndGroupList.end();
   for (eg=ArgEndGroupList.begin(); eg!=egEnd; ++eg) {
     // calculate position
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgEndGroupList.getPosition(eg-ArgEndGroupList.begin()),
-                                    PositionDependentOption::END_GROUP));
+    pos_dep_options.push_back(new EndGroupOption(
+                                    ArgEndGroupList.getPosition(eg-ArgEndGroupList.begin())));
   }
 
   // add all namespecs
@@ -360,10 +355,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<std::string>::iterator nsEnd = ArgNameSpecList.end();
   for (ns=ArgNameSpecList.begin(); ns!=nsEnd; ++ns) {
     // calculate position
-    pos_dep_options.push_back(new PositionDependentOption(
+    pos_dep_options.push_back(new NamespecOption(
                                     ArgNameSpecList.getPosition(ns-ArgNameSpecList.begin()),
-                                    *ns,
-                                    PositionDependentOption::NAMESPEC));
+                                    *ns));
   }
 
   // add all object files
@@ -371,10 +365,9 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<mcld::sys::fs::Path>::iterator objEnd = ArgInputObjectFiles.end();
   for (obj=ArgInputObjectFiles.begin(); obj!=objEnd; ++obj) {
     // calculate position
-    pos_dep_options.push_back(new PositionDependentOption(
+    pos_dep_options.push_back(new InputFileOption(
                                     ArgInputObjectFiles.getPosition(obj-ArgInputObjectFiles.begin()),
-                                    *obj,
-                                    PositionDependentOption::INPUT_FILE));
+                                    *obj));
   }
 
   // -----  Set up Attributes of Inputs  ----- //
@@ -382,27 +375,24 @@ bool SectLinker::doInitialization(Module &pM)
   cl::list<bool>::iterator attr = ArgWholeArchiveList.begin();
   cl::list<bool>::iterator attrEnd = ArgWholeArchiveList.end();
   for (; attr!=attrEnd; ++attr) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgWholeArchiveList.getPosition(attr-ArgWholeArchiveList.begin()),
-                                    PositionDependentOption::WHOLE_ARCHIVE));
+    pos_dep_options.push_back(new WholeArchiveOption(
+                                    ArgWholeArchiveList.getPosition(attr-ArgWholeArchiveList.begin())));
   }
 
   // --no-whole-archive
   attr = ArgNoWholeArchiveList.begin();
   attrEnd = ArgNoWholeArchiveList.end();
   for (; attr!=attrEnd; ++attr) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgNoWholeArchiveList.getPosition(attr-ArgNoWholeArchiveList.begin()),
-                                    PositionDependentOption::NO_WHOLE_ARCHIVE));
+    pos_dep_options.push_back(new NoWholeArchiveOption(
+                                    ArgNoWholeArchiveList.getPosition(attr-ArgNoWholeArchiveList.begin())));
   }
 
   // --as-needed
   attr = ArgAsNeededList.begin();
   attrEnd = ArgAsNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgAsNeededList.getPosition(attr-ArgAsNeededList.begin()),
-                                    PositionDependentOption::AS_NEEDED));
+    pos_dep_options.push_back(new AsNeededOption(
+                                    ArgAsNeededList.getPosition(attr-ArgAsNeededList.begin())));
     ++attr;
   }
 
@@ -410,9 +400,8 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgNoAsNeededList.begin();
   attrEnd = ArgNoAsNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgNoAsNeededList.getPosition(attr-ArgNoAsNeededList.begin()),
-                                    PositionDependentOption::NO_AS_NEEDED));
+    pos_dep_options.push_back(new NoAsNeededOption(
+                                    ArgNoAsNeededList.getPosition(attr-ArgNoAsNeededList.begin())));
     ++attr;
   }
 
@@ -420,9 +409,8 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgAddNeededList.begin();
   attrEnd = ArgAddNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgAddNeededList.getPosition(attr-ArgAddNeededList.begin()),
-                                    PositionDependentOption::ADD_NEEDED));
+    pos_dep_options.push_back(new AddNeededOption(
+                                    ArgAddNeededList.getPosition(attr-ArgAddNeededList.begin())));
     ++attr;
   }
 
@@ -430,9 +418,8 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgNoAddNeededList.begin();
   attrEnd = ArgNoAddNeededList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgNoAddNeededList.getPosition(attr-ArgNoAddNeededList.begin()),
-                                    PositionDependentOption::NO_ADD_NEEDED));
+    pos_dep_options.push_back(new NoAddNeededOption(
+                                    ArgNoAddNeededList.getPosition(attr-ArgNoAddNeededList.begin())));
     ++attr;
   }
 
@@ -440,19 +427,16 @@ bool SectLinker::doInitialization(Module &pM)
   attr = ArgBDynamicList.begin();
   attrEnd = ArgBDynamicList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgBDynamicList.getPosition(attr-ArgBDynamicList.begin()),
-                                    PositionDependentOption::BDYNAMIC));
-    ++attr;
+    pos_dep_options.push_back(new BDynamicOption(
+                                    ArgBDynamicList.getPosition(attr-ArgBDynamicList.begin())));
   }
 
   // -Bstatic
   attr = ArgBStaticList.begin();
   attrEnd = ArgBStaticList.end();
   while(attr != attrEnd) {
-    pos_dep_options.push_back(new PositionDependentOption(
-                                    ArgBStaticList.getPosition(attr-ArgBStaticList.begin()),
-                                    PositionDependentOption::BSTATIC));
+    pos_dep_options.push_back(new BStaticOption(
+                                    ArgBStaticList.getPosition(attr-ArgBStaticList.begin())));
     ++attr;
   }
 
@@ -588,46 +572,54 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
   PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
   while (cur_char != charEnd ) {
     switch ((*cur_char)->type()) {
-    case PositionDependentOption::BITCODE:
+    case PositionDependentOption::BITCODE: {
       // threat bitcode as a script in this version.
+      const BitcodeOption *bitcode_option =
+          static_cast<const BitcodeOption*>(*cur_char);
       pLDInfo.inputs().insert(cur_node,
                               *prev_ward,
-                              (*cur_char)->path()->native(),
-                              *(*cur_char)->path(),
+                              bitcode_option->path()->native(),
+                              *(bitcode_option->path()),
                               Input::Script);
       pLDInfo.setBitcode(**cur_node);
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
-    case PositionDependentOption::INPUT_FILE:
+    }
+    case PositionDependentOption::INPUT_FILE: {
+      const InputFileOption *input_file_option =
+          static_cast<const InputFileOption*>(*cur_char);
       pLDInfo.inputs().insert(cur_node,
                               *prev_ward,
-                             (*cur_char)->path()->native(),
-                             *(*cur_char)->path());
+                              input_file_option->path()->native(),
+                              *(input_file_option->path()));
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
+    }
     case PositionDependentOption::NAMESPEC: {
       Path* path = 0;
+      const NamespecOption *namespec_option =
+          static_cast<const NamespecOption*>(*cur_char);
       if (pLDInfo.attrFactory().last().isStatic()) {
         path = pLDInfo.options().directories().find(
-                                               (*cur_char)->namespec(),
+                                               namespec_option->namespec(),
                                                Input::Archive);
       }
       else {
         path = pLDInfo.options().directories().find(
-                                               (*cur_char)->namespec(),
+                                               namespec_option->namespec(),
                                                Input::DynObj);
       }
 
       if (0 == path) {
         llvm::report_fatal_error(std::string("Can't find namespec: ")+
-                                 (*cur_char)->namespec());
+                                 namespec_option->namespec());
       }
       pLDInfo.inputs().insert(cur_node,
-                     *prev_ward,
-                     (*cur_char)->namespec(),
-                     *path);
+                              *prev_ward,
+                              namespec_option->namespec(),
+                              *path);
       prev_ward->move(cur_node);
       prev_ward = &InputTree::Afterward;
       break;
@@ -679,37 +671,9 @@ void SectLinker::initializeInputTree(MCLDInfo& pLDInfo,
 }
 
 //===----------------------------------------------------------------------===//
-// PositionDependentOption
-SectLinker::PositionDependentOption::PositionDependentOption(
-                              unsigned int pPosition,
-                              SectLinker::PositionDependentOption::Type pType)
-  : m_Type(pType), m_Position(pPosition), m_pPath(0), m_pNamespec() {
-}
-
-SectLinker::PositionDependentOption::PositionDependentOption(
-                              unsigned int pPosition,
-                              const sys::fs::Path& pInputFile,
-                              SectLinker::PositionDependentOption::Type pType)
-  : m_Type(pType),
-    m_Position(pPosition),
-    m_pPath(&pInputFile),
-    m_pNamespec() {
-}
-
-SectLinker::PositionDependentOption::PositionDependentOption(
-                              unsigned int pPosition,
-                              const std::string& pNamespec,
-                              SectLinker::PositionDependentOption::Type pType)
-  : m_Type(pType),
-    m_Position(pPosition),
-    m_pPath(0),
-    m_pNamespec(pNamespec.data()) {
-}
-
-//===----------------------------------------------------------------------===//
 // Non-member functions
-bool compare_options(const SectLinker::PositionDependentOption* X,
-                     const SectLinker::PositionDependentOption* Y)
+bool compare_options(const PositionDependentOption* X,
+                     const PositionDependentOption* Y)
 {
   return (X->position() < Y->position());
 }

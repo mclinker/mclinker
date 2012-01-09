@@ -40,7 +40,7 @@ AndroidSectLinker::~AndroidSectLinker()
 
 void AndroidSectLinker::addInputsBeforeCMD(llvm::Module &pM,
                                            MCLDInfo& pLDInfo,
-                                           SectLinker::PositionDependentOptions &pOptions)
+                                           PositionDependentOptions &pOptions)
 {
   // -----  Set up General Options  ----- //
   MCLDDirectory search_path("=/system/lib");

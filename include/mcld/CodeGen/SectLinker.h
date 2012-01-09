@@ -21,6 +21,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/CodeGen/MachineFunctionPass.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/PositionDependentOption.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <vector>
 
@@ -53,63 +54,6 @@ namespace mcld
    */
   class SectLinker : public llvm::MachineFunctionPass
   {
-  public:
-
-    /** \class SectLinker::PositionDependentOption
-     *  \brief PositionDependentOptions converts LLVM options into MCLDInfo
-     */
-    class PositionDependentOption
-    {
-    public:
-      enum Type {
-        BITCODE,
-        NAMESPEC,
-        INPUT_FILE,
-        START_GROUP,
-        END_GROUP,
-        WHOLE_ARCHIVE,
-        NO_WHOLE_ARCHIVE,
-        AS_NEEDED,
-        NO_AS_NEEDED,
-        ADD_NEEDED,
-        NO_ADD_NEEDED,
-        BDYNAMIC,
-        BSTATIC
-      };
-
-    public:
-      PositionDependentOption(unsigned int pPosition,
-                              Type pType);
-
-      explicit PositionDependentOption(unsigned int pPosition,
-                             const sys::fs::Path& pInputFile,
-                             Type pType = INPUT_FILE);
-
-      explicit PositionDependentOption(unsigned int pPosition,
-                             const std::string& pNamespec,
-                             Type pType = NAMESPEC);
-
-      const Type& type() const
-      { return m_Type; }
-
-      unsigned int position() const
-      { return m_Position; }
-
-      const sys::fs::Path* path() const
-      { return m_pPath; }
-
-      const std::string& namespec() const
-      { return m_pNamespec; }
-
-    private:
-      Type m_Type;
-      unsigned int m_Position;
-      const sys::fs::Path *m_pPath;
-      std::string m_pNamespec;
-    };
-
-    typedef std::vector<PositionDependentOption*> PositionDependentOptions;
-
   protected:
     // Constructor. Although SectLinker has only two arguments,
     // TargetSectLinker should handle
