@@ -46,7 +46,7 @@ public:
 
   // Override pure virtual function
   uint64_t getSize() const {
-    return 0;
+    return m_EntrySize;
   }
 
 protected:
