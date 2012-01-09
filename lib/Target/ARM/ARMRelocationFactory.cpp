@@ -163,10 +163,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 static
 ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 {
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    pParent.getTarget().getGOT().getSectionData().getSection()
-  );
-  return ld_section.offset();
+  return pParent.getTarget().getGOT().getSection().addr();
 }
 
 
@@ -214,10 +211,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
 static
 ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
 {
-  const LDSection& ld_section = static_cast<const LDSection&>(
-    pParent.getTarget().getPLT().getSectionData().getSection()
-  );
-  return ld_section.offset();
+  return pParent.getTarget().getPLT().getSection().addr();
 }
 
 
