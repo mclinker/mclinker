@@ -43,8 +43,7 @@ namespace mcld
    *
    *  SectLinker is responded for
    *  - provide an interface for target-specific SectLinekr
-   *  - collect all target-independent parameters, and set up environment for
-   *    MCLDDriver
+   *  - set up environment for MCLDDriver
    *  - control AsmPrinter, make sure AsmPrinter has already prepared
    *    all MCSectionDatas for linking
    *

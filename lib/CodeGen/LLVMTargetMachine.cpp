@@ -8,8 +8,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "mcld/CodeGen/SectLinker.h"
+#include "mcld/CodeGen/SectLinkerOption.h"
 #include "mcld/MC/MCBitcodeInterceptor.h"
 #include "mcld/MC/MCLDFile.h"
+#include "mcld/Support/RealPath.h"
 #include "mcld/Support/TargetRegistry.h"
 #include "mcld/Target/TargetMachine.h"
 #include "mcld/Target/TargetLDBackend.h"
@@ -301,6 +303,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                  static_cast<MCObjectStreamer&>(*AsmStreamer),
                                  *ldBackend,
                                  getLDInfo());
+
+  pLinkerOpt->info().output().setPath(sys::fs::RealPath(pOutputFilename));
+  pLinkerOpt->info().output().setType(pOutputLinkType);
 
   MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
                                                                *pLinkerOpt,
