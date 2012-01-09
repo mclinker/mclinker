@@ -762,7 +762,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   LDSection* dynamic = pContext.getSection(".dynamic");
   if (NULL != dynamic) {
     ELFSegment* segment = m_ELFSegmentFactory.allocate();
-    new (segment) ELFSegment(llvm::ELF::PT_INTERP,
+    new (segment) ELFSegment(llvm::ELF::PT_DYNAMIC,
                              llvm::ELF::PF_R | llvm::ELF::PF_W);
     segment->addSection(dynamic);
     segment->setAlign(bitclass() / 8);
