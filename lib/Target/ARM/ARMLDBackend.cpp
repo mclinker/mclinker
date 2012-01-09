@@ -24,7 +24,6 @@
 
 using namespace mcld;
 
-
 ARMGNULDBackend::ARMGNULDBackend()
   : m_pRelocFactory(0),
     m_pGOT(0),
@@ -103,7 +102,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
-  // create symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
+  // define symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
   if(m_pGOT) {
     pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
                          false,
@@ -121,11 +120,21 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
                                   const MCLDInfo& pInfo,
                                   MCLinker& pLinker)
 {
-  // when building shared object, the .got and .synamic section are needed
+  // when building shared object, the .got section is needed
   if(pOutput.type() == Output::DynObj) {
-    if(!m_pGOT)
+    if(!m_pGOT) {
       createARMGOT(pLinker, pOutput.type());
-    //TODO: Add _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
+      // define _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
+      pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
+                           false,
+                           ResolveInfo::Object,
+                           ResolveInfo::Define,
+                           ResolveInfo::Local,
+                           0,
+                           0,
+                           pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
+                           ResolveInfo::Hidden);
+    }
   }
 }
 
@@ -485,8 +494,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // or hidden, no need plt
         if(rsym->isDefine() && !rsym->isDyn()
            && (rsym->other() == ResolveInfo::Hidden
-               || rsym->other() == ResolveInfo::Protected))
+               || rsym->other() == ResolveInfo::Protected)) {
           return;
+        }
         // create .plt and .rel.plt if not exist
         if(!m_pPLT)
            createARMPLTandRelPLT(pLinker, pType);
