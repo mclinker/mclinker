@@ -751,25 +751,25 @@ void GNULDBackend::emitProgramHdrs(const Output& pOutput)
 void GNULDBackend::createProgramHdrs(LDContext& pContext)
 {
   // make PT_PHDR
-  ELFSegment* phdr = m_ELFSegmentFactory.allocate();
-  new (phdr) ELFSegment(llvm::ELF::PT_PHDR, llvm::ELF::PF_R);
+  ELFSegment* phdr_seg = m_ELFSegmentFactory.allocate();
+  new (phdr_seg) ELFSegment(llvm::ELF::PT_PHDR, llvm::ELF::PF_R);
 
   // make PT_INTERP
   LDSection* interp = pContext.getSection(".interp");
   if (NULL != interp) {
-    ELFSegment* segment = m_ELFSegmentFactory.allocate();
-    new (segment) ELFSegment(llvm::ELF::PT_INTERP,
-                             llvm::ELF::PF_R);
-    segment->addSection(interp);
-    segment->setAlign(bitclass() / 8);
+    ELFSegment* interp_seg = m_ELFSegmentFactory.allocate();
+    new (interp_seg) ELFSegment(llvm::ELF::PT_INTERP,
+                                llvm::ELF::PF_R);
+    interp_seg->addSection(interp);
+    interp_seg->setAlign(bitclass() / 8);
   }
 
   uint32_t prev_seg_flag = getSegmentFlag(0);
   uint64_t pad = 0;
-  ELFSegment* segment;
+  ELFSegment* load_seg;
   // make possible PT_LOAD segments
-  LDContext::sect_iterator sect, sectEnd = pContext.sectEnd();
-  for (sect = pContext.sectBegin(); sect != sectEnd; ++sect) {
+  LDContext::sect_iterator sect, sect_end = pContext.sectEnd();
+  for (sect = pContext.sectBegin(); sect != sect_end; ++sect) {
     if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
         LDFileFormat::Null != (*sect)->kind())
       continue;
@@ -779,18 +779,18 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
-      segment = m_ELFSegmentFactory.allocate();
-      new (segment) ELFSegment(llvm::ELF::PT_LOAD);
-      segment->setAlign(pagesize());
+      load_seg = m_ELFSegmentFactory.allocate();
+      new (load_seg) ELFSegment(llvm::ELF::PT_LOAD);
+      load_seg->setAlign(pagesize());
 
       // check if this segment needs padding
       pad = 0;
-      if (((*sect)->offset() & (segment->align() - 1)) != 0)
-        pad = segment->align();
+      if (((*sect)->offset() & (load_seg->align() - 1)) != 0)
+        pad = load_seg->align();
     }
 
-    segment->addSection(*sect);
-    segment->updateFlag(cur_seg_flag);
+    load_seg->addSection(*sect);
+    load_seg->updateFlag(cur_seg_flag);
 
     // FIXME: set section's vma
     // need to handle start vma for user-defined one or for executable.
@@ -802,17 +802,17 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   // make PT_DYNAMIC
   LDSection* dynamic = pContext.getSection(".dynamic");
   if (NULL != dynamic) {
-    ELFSegment* segment = m_ELFSegmentFactory.allocate();
-    new (segment) ELFSegment(llvm::ELF::PT_DYNAMIC,
+    ELFSegment* dyn_seg = m_ELFSegmentFactory.allocate();
+    new (dyn_seg) ELFSegment(llvm::ELF::PT_DYNAMIC,
                              llvm::ELF::PF_R | llvm::ELF::PF_W);
-    segment->addSection(dynamic);
-    segment->setAlign(bitclass() / 8);
+    dyn_seg->addSection(dynamic);
+    dyn_seg->setAlign(bitclass() / 8);
   }
 
   // update segment info
   bool is_first_pt_load = true;
-  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
-  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg) {
+  ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentFactory.end();
+  for (seg = m_ELFSegmentFactory.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
 
     // update PT_PHDR
@@ -844,18 +844,20 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
                   - segment.vaddr();
       is_first_pt_load = false;
     } else {
-      ELFSegment::sect_iterator sect, sectEnd = segment.sectEnd();
-      for (sect = segment.sectBegin(); sect != sectEnd; ++sect) {
+      ELFSegment::sect_iterator sect, sect_end = segment.sectEnd();
+      for (sect = segment.sectBegin(); sect != sect_end; ++sect) {
         if (LDFileFormat::BSS != (*sect)->kind())
           file_size += (*sect)->size();
       }
     }
 
-    segment.setOffset((*segment.sectBegin())->offset());
-    segment.setVaddr((*segment.sectBegin())->addr());
+    assert(NULL != segment.getFirstSection());
+    segment.setOffset(segment.getFirstSection()->offset());
+    segment.setVaddr(segment.getFirstSection()->addr());
     segment.setPaddr(segment.vaddr());
     segment.setFilesz(file_size);
 
+    assert(NULL != segment.getLastSection());
     mem_size = segment.getLastSection()->addr()
                + segment.getLastSection()->size()
                - segment.vaddr();
