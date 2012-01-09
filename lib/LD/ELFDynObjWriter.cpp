@@ -20,8 +20,6 @@
 using namespace llvm;
 using namespace mcld;
 
-#include <iostream>
-using namespace std;
 
 //==========================
 // ELFDynObjWriter

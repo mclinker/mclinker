@@ -10,7 +10,6 @@
 #include <mcld/LD/LDSymbol.h>
 #include <cassert>
 
-using namespace std;
 using namespace mcld;
 
 

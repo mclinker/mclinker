@@ -20,7 +20,6 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <cstdlib>
-#include <iostream>
 
 using namespace llvm::ELF;
 using namespace mcld;
