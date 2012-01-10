@@ -64,6 +64,38 @@ inline uint64_t Align<64>(uint64_t pAddress)
   return (pAddress + 0x3F) & (~0x3F);
 }
 
+/// bswap16 - byte swap 16-bit version
+/// @ref binary utilities - elfcpp_swap
+inline uint16_t bswap16(uint16_t pData)
+{
+   return ((pData >> 8) & 0xFF) | ((pData & 0xFF) << 8);
+}
+
+/// bswap32 - byte swap 32-bit version
+/// @ref elfcpp_swap
+inline uint32_t bswap32(uint32_t pData)
+{
+   return (((pData & 0xFF000000) >> 24) |
+           ((pData & 0x00FF0000) >>  8) |
+           ((pData & 0x0000FF00) <<  8) |
+           ((pData & 0x000000FF) << 24));
+
+}
+
+/// bswap64 - byte swap 64-bit version
+/// @ref binary utilities - elfcpp_swap
+inline uint64_t bswap64(uint64_t pData)
+{
+   return (((pData & 0xFF00000000000000ULL) >> 56) |
+           ((pData & 0x00FF000000000000ULL) >> 40) |
+           ((pData & 0x0000FF0000000000ULL) >> 24) |
+           ((pData & 0x000000FF00000000ULL) >>  8) |
+           ((pData & 0x00000000FF000000ULL) <<  8) |
+           ((pData & 0x0000000000FF0000ULL) << 24) |
+           ((pData & 0x000000000000FF00ULL) << 40) |
+           ((pData & 0x00000000000000FFULL) << 56));
+}
+
 } // namespace of mcld
 
 #endif
