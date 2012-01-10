@@ -479,7 +479,8 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   ARMRelocationFactory::Address S; // S dependent on exist PLT or not.
   ARMRelocationFactory::DWord   T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord   A =
-    helper_sign_extend((pReloc.target() & 0x00FFFFFFu), 24) + pReloc.addend();
+    helper_sign_extend((pReloc.target() & 0x00FFFFFFu) << 2, 26)
+    + pReloc.addend();
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
 
   switch (pReloc.symInfo()->reserved()) {
@@ -501,7 +502,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     llvm::report_fatal_error("Target is thumb, need stub!");
   }
   // Check X is 24bit sign int. If not, we should use stub or PLT before apply.
-  assert(!helper_check_signed_overflow(X, 24) && "Jump or Call target too far!");
+  assert(!helper_check_signed_overflow(X, 26) && "Jump or Call target too far!");
   //                    Make sure the Imm is 0.          Result Mask.
   pReloc.target() = (pReloc.target() & 0xFF000000u) | ((X & 0x03FFFFFEu) >> 2);
   return ARMRelocationFactory::OK;
