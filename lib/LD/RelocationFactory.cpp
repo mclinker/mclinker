@@ -35,23 +35,13 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
 {
   Relocation* result = allocate();
 
-  // If the host and the target have the same endian, directly use the data that
-  // FragRef refers to. Otherwise, use TargetDataFactory to generate temporary
-  // data.
+  // target_data is the place where the relocation applys to.
+  // Use TargetDataFactory to generate temporary data, and copy the
+  // content of the fragment into this data.
   DWord* target_data = NULL;
   target_data = m_pTargetDataFactory->allocate();
+  *target_data = 0;
   pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
-
-  // make target_data get right value
-  // old target_data:
-  // For 32-bit machine
-  //  63 .. 32  31 .. 0
-  // |AAAAAAAA|BBBBBBBB|
-  //
-  // shift  right 32 bits
-  //
-  // |00000000|AAAAAAAA|
-  (*target_data) >>= (sizeof(DWord)*8 - getTarget().bitclass());
 
   new (result) Relocation(pType,
                           &pFragRef,
