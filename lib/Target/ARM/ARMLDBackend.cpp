@@ -144,7 +144,8 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
                                    MCLinker& pLinker)
 {
   // emit program headers
-  emitProgramHdrs(pOutput);
+  if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
+    emitProgramHdrs(pOutput);
 }
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
