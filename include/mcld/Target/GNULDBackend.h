@@ -208,7 +208,7 @@ private:
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
-  inline uint32_t getSegmentFlag(uint32_t pSectionFlag)
+  inline uint32_t getSegmentFlag(const uint32_t pSectionFlag)
   {
     uint32_t flag = llvm::ELF::PF_R;
     if (0 != (pSectionFlag & llvm::ELF::SHF_WRITE))
@@ -267,6 +267,7 @@ protected:
   ELFDynObjFileFormat* m_pDynObjFileFormat;
   ELFExecFileFormat* m_pExecFileFormat;
 
+  // -----  ELF segment factory  ----- //
   ELFSegmentFactory m_ELFSegmentFactory;
   // -----  ELF special sections  ----- //
   ELFDynamic* m_pDynamic;

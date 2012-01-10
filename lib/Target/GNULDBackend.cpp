@@ -758,14 +758,13 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   LDSection* interp = pContext.getSection(".interp");
   if (NULL != interp) {
     ELFSegment* interp_seg = m_ELFSegmentFactory.allocate();
-    new (interp_seg) ELFSegment(llvm::ELF::PT_INTERP,
-                                llvm::ELF::PF_R);
+    new (interp_seg) ELFSegment(llvm::ELF::PT_INTERP, llvm::ELF::PF_R);
     interp_seg->addSection(interp);
     interp_seg->setAlign(bitclass() / 8);
   }
 
-  uint32_t prev_seg_flag = getSegmentFlag(0);
-  uint64_t pad = 0;
+  uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
+  uint64_t padding = 0;
   ELFSegment* load_seg;
   // make possible PT_LOAD segments
   LDContext::sect_iterator sect, sect_end = pContext.sectEnd();
@@ -775,7 +774,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
       continue;
 
     // FIXME: Now only separate writable and non-writable PT_LOAD
-    uint32_t cur_seg_flag = getSegmentFlag((*sect)->flag());
+    cur_seg_flag = getSegmentFlag((*sect)->flag());
     if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
@@ -784,9 +783,9 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
       load_seg->setAlign(pagesize());
 
       // check if this segment needs padding
-      pad = 0;
+      padding = 0;
       if (((*sect)->offset() & (load_seg->align() - 1)) != 0)
-        pad = load_seg->align();
+        padding = load_seg->align();
     }
 
     load_seg->addSection(*sect);
@@ -794,7 +793,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
 
     // FIXME: set section's vma
     // need to handle start vma for user-defined one or for executable.
-    (*sect)->setAddr((*sect)->offset() + pad);
+    (*sect)->setAddr((*sect)->offset() + padding);
 
     prev_seg_flag = cur_seg_flag;
   }
@@ -811,13 +810,14 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
 
   // update segment info
   bool is_first_pt_load = true;
+  uint64_t file_size = 0;
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentFactory.end();
   for (seg = m_ELFSegmentFactory.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
 
     // update PT_PHDR
     if (llvm::ELF::PT_PHDR == segment.type()) {
-      uint64_t offset, phdr_size, filesz;
+      uint64_t offset, phdr_size;
       if (32 == bitclass()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
@@ -835,7 +835,11 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
       continue;
     }
 
-    uint64_t file_size = 0, mem_size = 0;
+    assert(NULL != segment.getFirstSection());
+    segment.setOffset(segment.getFirstSection()->offset());
+    segment.setVaddr(segment.getFirstSection()->addr());
+    segment.setPaddr(segment.vaddr());
+
     // 1st PT_LOAD should include ELF file header and program headers
     if (llvm::ELF::PT_LOAD == segment.type() && is_first_pt_load) {
       assert(NULL != segment.getLastSection());
@@ -844,24 +848,19 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
                   - segment.vaddr();
       is_first_pt_load = false;
     } else {
+      file_size = 0;
       ELFSegment::sect_iterator sect, sect_end = segment.sectEnd();
       for (sect = segment.sectBegin(); sect != sect_end; ++sect) {
         if (LDFileFormat::BSS != (*sect)->kind())
           file_size += (*sect)->size();
       }
     }
-
-    assert(NULL != segment.getFirstSection());
-    segment.setOffset(segment.getFirstSection()->offset());
-    segment.setVaddr(segment.getFirstSection()->addr());
-    segment.setPaddr(segment.vaddr());
     segment.setFilesz(file_size);
 
     assert(NULL != segment.getLastSection());
-    mem_size = segment.getLastSection()->addr()
-               + segment.getLastSection()->size()
-               - segment.vaddr();
-    segment.setMemsz(mem_size);
+    segment.setMemsz(segment.getLastSection()->addr()
+                     + segment.getLastSection()->size()
+                     - segment.vaddr());
   }
 }
 
