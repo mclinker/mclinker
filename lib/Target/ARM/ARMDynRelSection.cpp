@@ -31,9 +31,11 @@ ARMDynRelSection::~ARMDynRelSection()
 void ARMDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
                                     int pNum)
 {
-  m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
-  // update section size
-  m_pSection->setSize(m_pSection->size() + m_EntryBytes);
+  for(int i=0; i<pNum; i++) {
+    m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
+    // update section size
+    m_pSection->setSize(m_pSection->size() + m_EntryBytes);
+  }
 }
 
 Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
