@@ -41,7 +41,30 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   DWord* target_data = NULL;
   target_data = m_pTargetDataFactory->allocate();
   *target_data = 0;
-  pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
+
+  // byte swapping if the host and target have different endian
+  if(llvm::sys::isLittleEndianHost() != getTarget().isLittleEndian()) {
+     uint32_t tmp_data;
+
+     switch(getTarget().bitclass()) {
+      case 32u:
+        pFragRef.memcpy(&tmp_data, 4);
+        tmp_data = bswap32(tmp_data);
+        *target_data = tmp_data;
+        break;
+
+      case 64u:
+        pFragRef.memcpy(target_data, 8);
+        *target_data = bswap64(*target_data);
+        break;
+
+      default:
+        break;
+    }
+  }
+  else {
+    pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
+  }
 
   new (result) Relocation(pType,
                           &pFragRef,
