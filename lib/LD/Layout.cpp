@@ -472,12 +472,13 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
     sect_list[j + 1] = order;
   }
 
-  // update the sorted ordering to m_SectionOrder
+  // update the sorted ordering and output section index to m_SectionOrder
   m_SectionOrder.clear();
   SectListTy::iterator iter;
-  for (iter = sect_list.begin(); iter != sect_list.end(); ++iter)
-    m_SectionOrder.push_back(iter->first);
-
+  for (size_t index = 0; index < sect_list.size(); ++index) {
+    sect_list[index].first->setIndex(index);
+    m_SectionOrder.push_back(sect_list[index].first);
+  }
 }
 
 bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
