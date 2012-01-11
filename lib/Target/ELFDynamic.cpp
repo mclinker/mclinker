@@ -117,12 +117,12 @@ void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
   if (pFormat.hasHashTab())
     reserveOne(llvm::ELF::DT_HASH); // DT_HASH
 
-  if (pFormat.hasSymTab()) {
+  if (pFormat.hasDynSymTab()) {
     reserveOne(llvm::ELF::DT_SYMTAB); // DT_SYMTAB
     reserveOne(llvm::ELF::DT_SYMENT); // DT_SYMENT
   }
 
-  if (pFormat.hasStrTab()) {
+  if (pFormat.hasDynStrTab()) {
     reserveOne(llvm::ELF::DT_STRTAB); // DT_STRTAB
     reserveOne(llvm::ELF::DT_STRSZ); // DT_STRSZ
   }
