@@ -182,14 +182,14 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
   if (pFormat.hasHashTab())
     applyOne(llvm::ELF::DT_HASH, pFormat.getHashTab().addr()); // DT_HASH
 
-  if (pFormat.hasSymTab()) {
-    applyOne(llvm::ELF::DT_SYMTAB, pFormat.getSymTab().addr()); // DT_SYMTAB
+  if (pFormat.hasDynSymTab()) {
+    applyOne(llvm::ELF::DT_SYMTAB, pFormat.getDynSymTab().addr()); // DT_SYMTAB
     applyOne(llvm::ELF::DT_SYMENT, m_pEntryFactory->symbolSize()); // DT_SYMENT
   }
 
-  if (pFormat.hasStrTab()) {
-    applyOne(llvm::ELF::DT_STRTAB, pFormat.getStrTab().addr()); // DT_STRTAB
-    applyOne(llvm::ELF::DT_STRSZ, pFormat.getStrTab().size()); // DT_STRSZ
+  if (pFormat.hasDynStrTab()) {
+    applyOne(llvm::ELF::DT_STRTAB, pFormat.getDynStrTab().addr()); // DT_STRTAB
+    applyOne(llvm::ELF::DT_STRSZ, pFormat.getDynStrTab().size()); // DT_STRSZ
   }
 
   // DT_PLTGOT
