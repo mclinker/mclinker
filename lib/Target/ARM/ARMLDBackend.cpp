@@ -141,15 +141,15 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
                              llvm::Twine(pType));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
-                       false,
-                       ResolveInfo::Object,
-                       ResolveInfo::Define,
-                       ResolveInfo::Local,
-                       0,
-                       0,
-                       pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
-                       ResolveInfo::Hidden);
+  pLinker.defineSymbol<MCLinker::Force>("_GLOBAL_OFFSET_TABLE_",
+                                        false,
+                                        ResolveInfo::Object,
+                                        ResolveInfo::Define,
+                                        ResolveInfo::Local,
+                                        0, // size
+                                        0, // value
+                                        pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
+                                        ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,

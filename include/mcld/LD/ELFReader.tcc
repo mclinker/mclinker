@@ -208,8 +208,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   llvm::ELF::Elf32_Sym* symtab =
                       reinterpret_cast<llvm::ELF::Elf32_Sym*>(pRegion.start());
 
-  bool is_dyn = (pInput.type() == Input::DynObj);
-
   uint32_t st_name  = 0x0;
   uint32_t st_value = 0x0;
   uint32_t st_size  = 0x0;
@@ -254,40 +252,44 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                                    ld_value);
 
     // get ld_vis
-    ResolveInfo::Visibility ld_vis = getSymVisibility(st_other, pInput);
+    ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
 
     // push into MCLinker
     LDSymbol* input_sym = NULL;
-    if (ResolveInfo::Local == ld_binding) {
-      input_sym = pLinker.addLocalSymbol(ld_name,
-                                         ld_type,
-                                         ld_desc,
-                                         st_size,
-                                         ld_value,
-                                         ld_frag_ref,
-                                         ld_vis);
-    }
-    // ignore symbols with
-    //  1. local binding
-    //  2. Internal visibility
-    //  3. Hidden visibility
-    else if (!is_dyn ||
-             (is_dyn &&
-               (ld_vis != ResolveInfo::Internal ||
-                ld_vis != ResolveInfo::Hidden))) {
-      input_sym = pLinker.addGlobalSymbol(ld_name,
-                                          is_dyn,
-                                          ld_type,
-                                          ld_desc,
-                                          ld_binding,
-                                          st_size,
-                                          ld_value,
-                                          ld_frag_ref,
-                                          ld_vis);
-    }
 
-    // push into the input file
-    pInput.context()->symtab().push_back(input_sym);
+    // The first symbol should be reserved as the undefined symbol index.
+    // We don't need this symbol.
+    if (0 == idx) {
+      // push into the input file
+      pInput.context()->symtab().push_back(input_sym);
+      continue;
+    }
+    else if (pInput.type() == Input::Object) {
+      input_sym = pLinker.addSymbol<Input::Object>(ld_name,
+                                                   ld_type,
+                                                   ld_desc,
+                                                   ld_binding,
+                                                   st_size,
+                                                   ld_value,
+                                                   ld_frag_ref,
+                                                   ld_vis);
+      // push into the input file
+      pInput.context()->symtab().push_back(input_sym);
+      continue;
+    }
+    else if (pInput.type() == Input::DynObj) {
+      input_sym = pLinker.addSymbol<Input::DynObj>(ld_name,
+                                                   ld_type,
+                                                   ld_desc,
+                                                   ld_binding,
+                                                   st_size,
+                                                   ld_value,
+                                                   ld_frag_ref,
+                                                   ld_vis);
+      // push into the input file
+      pInput.context()->symtab().push_back(input_sym);
+      continue;
+    }
 
   } // end of for loop
   return true;

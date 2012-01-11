@@ -27,12 +27,12 @@
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/MC/MCLDInput.h>
 #include <mcld/Support/GCFactory.h>
 #include <string>
 
 namespace mcld {
 
-class Input;
 class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
@@ -45,6 +45,13 @@ class SectionMap;
 class MCLinker
 {
 public:
+  enum DefinePolicy
+  {
+    Force,
+    AsRefered
+  };
+
+public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
            LDContext& pContext,
@@ -53,31 +60,23 @@ public:
   ~MCLinker();
 
   // ----- about symbols  ----- //
-  /// addGlobalSymbol - add a symbol and resolve it immediately
-  LDSymbol* addGlobalSymbol(const llvm::StringRef& pName,
-                            bool pIsDyn,
-                            ResolveInfo::Type pType,
-                            ResolveInfo::Desc pDesc,
-                            ResolveInfo::Binding pBinding,
-                            ResolveInfo::SizeType pSize,
-                            LDSymbol::ValueType pValue,
-                            MCFragmentRef* pFragmentRef,
-                            ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
-
-  /// addLocalSymbol - create a local symbol and add it into the output.
-  LDSymbol* addLocalSymbol(const llvm::StringRef& pName,
-                           ResolveInfo::Type pType,
-                           ResolveInfo::Desc pDesc,
-                           ResolveInfo::SizeType pSize,
-                           LDSymbol::ValueType pValue,
-                           MCFragmentRef* pFragmentRef,
-                           ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
+  /// addDynSymbol - add a symbol and resolve it immediately
+  template<Input::Type FROM>
+  LDSymbol* addSymbol(const llvm::StringRef& pName,
+                      ResolveInfo::Type pType,
+                      ResolveInfo::Desc pDesc,
+                      ResolveInfo::Binding pBinding,
+                      ResolveInfo::SizeType pSize,
+                      LDSymbol::ValueType pValue,
+                      MCFragmentRef* pFragmentRef,
+                      ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// defineSymbol - add a symbol and resolve it immediately
   /// defineSymbol define a output symbol and resolve it immediately.
   ///
   /// @return If the output symbol has existed, return it. Otherwise, create
   ///         a new symbol and return the new one.
+  template<DefinePolicy POLICY>
   LDSymbol* defineSymbol(const llvm::StringRef& pName,
                          bool pIsDyn,
                          ResolveInfo::Type pType,
@@ -152,9 +151,50 @@ public:
   { return m_Info; }
 
 private:
+  LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
+                                   bool pIsDyn,
+                                   ResolveInfo::Type pType,
+                                   ResolveInfo::Desc pDesc,
+                                   ResolveInfo::Binding pBinding,
+                                   ResolveInfo::SizeType pSize,
+                                   LDSymbol::ValueType pValue,
+                                   MCFragmentRef* pFragmentRef,
+                                   ResolveInfo::Visibility pVisibility);
+  
+  LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
+                                  bool pIsDyn,
+                                  ResolveInfo::Type pType,
+                                  ResolveInfo::Desc pDesc,
+                                  ResolveInfo::Binding pBinding,
+                                  ResolveInfo::SizeType pSize,
+                                  LDSymbol::ValueType pValue,
+                                  MCFragmentRef* pFragmentRef,
+                                  ResolveInfo::Visibility pVisibility);
+
+  bool shouldForceLocal(const ResolveInfo& pInfo) const;
+
+  LDSymbol* addSymbolFromDynObj(const llvm::StringRef& pName,
+                                ResolveInfo::Type pType,
+                                ResolveInfo::Desc pDesc,
+                                ResolveInfo::Binding pBinding,
+                                ResolveInfo::SizeType pSize,
+                                LDSymbol::ValueType pValue,
+                                MCFragmentRef* pFragmentRef,
+                                ResolveInfo::Visibility pVisibility);
+
+  LDSymbol* addSymbolFromObject(const llvm::StringRef& pName,
+                                ResolveInfo::Type pType,
+                                ResolveInfo::Desc pDesc,
+                                ResolveInfo::Binding pBinding,
+                                ResolveInfo::SizeType pSize,
+                                LDSymbol::ValueType pValue,
+                                MCFragmentRef* pFragmentRef,
+                                ResolveInfo::Visibility pVisibility);
+private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
   typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
   typedef llvm::iplist<llvm::MCFragment> RelocationListType;
+  typedef std::set<LDSymbol*> ForceLocalSymbolTable;
 
 private:
   TargetLDBackend& m_Backend;
@@ -168,7 +208,10 @@ private:
   StrSymPool m_StrSymPool;
   Layout m_Layout;
   RelocationListType m_RelocationList;
+  ForceLocalSymbolTable m_ForceLocalTable;
 };
+
+#include "MCLinker.tcc"
 
 } // namespace of mcld
 

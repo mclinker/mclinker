@@ -63,23 +63,26 @@ MCLinker::~MCLinker()
 {
 }
 
-/// addGlobalSymbol - add a symbol and resolve it immediately
-LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
-                                    bool pIsDyn,
-                                    ResolveInfo::Type pType,
-                                    ResolveInfo::Desc pDesc,
-                                    ResolveInfo::Binding pBinding,
-                                    ResolveInfo::SizeType pSize,
-                                    LDSymbol::ValueType pValue,
-                                    MCFragmentRef* pFragmentRef,
-                                    ResolveInfo::Visibility pVisibility)
+/// addSymbolFromObject - add a symbol from object file and resolve it
+/// immediately
+LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
+                                        ResolveInfo::Type pType,
+                                        ResolveInfo::Desc pDesc,
+                                        ResolveInfo::Binding pBinding,
+                                        ResolveInfo::SizeType pSize,
+                                        LDSymbol::ValueType pValue,
+                                        MCFragmentRef* pFragmentRef,
+                                        ResolveInfo::Visibility pVisibility)
 {
-  if (pBinding == ResolveInfo::Local)
+  // We merge sections when reading them. So we do not need symbols with
+  // section type
+  if (pType == ResolveInfo::Section)
     return NULL;
 
-  // <resolved_info, exist?, override>
+  // insert symbol and resolve it immediately
+  // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
+  m_StrSymPool.insertSymbol(pName, false, pType, pDesc, pBinding, pSize, pVisibility,
                             resolved_result);
 
   // the return ResolveInfo should not NULL
@@ -92,14 +95,10 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
-  // We merge sections when reading them. So we do not need symbols with
-  // section type
-  if (pType == ResolveInfo::Section)
-    return input_sym;
-
-  // if it is a new and regular symbol, create a LDSymbol for the output
-  if (!resolved_result.existent && !pIsDyn) {
-    LDSymbol* output_sym = m_LDSymbolFactory.allocate();
+  LDSymbol* output_sym = NULL;
+  if (!resolved_result.existent) {
+    // if it is a new symbol, create a LDSymbol for the output
+    output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
     output_sym->setFragmentRef(pFragmentRef);
@@ -108,109 +107,150 @@ LDSymbol* MCLinker::addGlobalSymbol(const llvm::StringRef& pName,
       output_sym->setValue(pValue);
     m_Output.symtab().push_back(output_sym);
   }
+  else {
+    // use the resolved output LDSymbol
+    output_sym = resolved_result.info->outSymbol();
+  }
+
   return input_sym;
 }
 
-/// addLocalSymbol
-LDSymbol* MCLinker::addLocalSymbol(const llvm::StringRef& pName,
-                                   ResolveInfo::Type pType,
-                                   ResolveInfo::Desc pDesc,
-                                   ResolveInfo::SizeType pSize,
-                                   LDSymbol::ValueType pValue,
-                                   MCFragmentRef* pFragmentRef,
-                                   ResolveInfo::Visibility pVisibility)
+/// addSymbolFromDynObj - add a symbol from object file and resolve it
+/// immediately
+LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
+                                        ResolveInfo::Type pType,
+                                        ResolveInfo::Desc pDesc,
+                                        ResolveInfo::Binding pBinding,
+                                        ResolveInfo::SizeType pSize,
+                                        LDSymbol::ValueType pValue,
+                                        MCFragmentRef* pFragmentRef,
+                                        ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* resolved_info =  m_StrSymPool.createSymbol(pName,
-                                                          false,
-                                                          pType,
-                                                          pDesc,
-                                                          ResolveInfo::Local,
-                                                          pSize,
-                                                          pVisibility);
-
-  // the return ResolveInfo should not NULL
-  assert(NULL != resolved_info);
-
-  // create a LDSymbol for the input file.
-  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
-  new (input_sym) LDSymbol();
-  input_sym->setResolveInfo(*resolved_info);
-  input_sym->setFragmentRef(pFragmentRef);
-  input_sym->setValue(pValue);
-
   // We merge sections when reading them. So we do not need symbols with
   // section type
   if (pType == ResolveInfo::Section)
-    return input_sym;
+    return NULL;
 
-  // create a LDSymbol for the output
-  LDSymbol* output_sym = m_LDSymbolFactory.allocate();
-  new (output_sym) LDSymbol();
-  output_sym->setResolveInfo(*resolved_info);
-  output_sym->setFragmentRef(pFragmentRef);
-  if (resolved_info->isAbsolute())
-    output_sym->setValue(pValue);
-  m_Output.symtab().push_back(output_sym);
+  // ignore symbols with local binding or that have internal or hidden
+  // visibility
+  if (pBinding == ResolveInfo::Local ||
+      pVisibility == ResolveInfo::Internal ||
+      pVisibility == ResolveInfo::Hidden)
+    return NULL;
 
-  resolved_info->setSymPtr(output_sym);
+  // A protected symbol in a shared library must be treated as a
+  // normal symbol when viewed from outside the shared library.
+  if (pVisibility == ResolveInfo::Protected)
+    pVisibility = ResolveInfo::Default;
 
-  return input_sym;
-}
-
-/// defineSymbol - define an output symbol and resolve it immediately
-LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
-                                 bool pIsDyn,
-                                 ResolveInfo::Type pType,
-                                 ResolveInfo::Desc pDesc,
-                                 ResolveInfo::Binding pBinding,
-                                 ResolveInfo::SizeType pSize,
-                                 LDSymbol::ValueType pValue,
-                                 MCFragmentRef* pFragmentRef,
-                                 ResolveInfo::Visibility pVisibility)
-{
-  // <resolved_info, exist?, override>
+  // insert symbol and resolve it immediately
+  // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  LDSymbol* output_sym = NULL;
-
-  if (pBinding == ResolveInfo::Local) {
-    resolved_result.existent = false;
-    resolved_result.overriden = false;
-    resolved_result.info = m_StrSymPool.createSymbol(pName,
-                                                     pIsDyn,
-                                                     pType,
-                                                     pDesc,
-                                                     pBinding,
-                                                     pSize,
-                                                     pVisibility);
-  }
-  else {
-    m_StrSymPool.insertSymbol(pName,
-                              pIsDyn,
-                              pType,
-                              pDesc,
-                              pBinding,
-                              pSize,
-                              pVisibility,
-                              resolved_result);
-  }
+  m_StrSymPool.insertSymbol(pName, true, pType, pDesc, pBinding, pSize, pVisibility,
+                            resolved_result);
 
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
 
-  // if it is a new symbol, create a LDSymbol for the output
+  // create a LDSymbol for the input file.
+  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
+  new (input_sym) LDSymbol();
+  input_sym->setResolveInfo(*resolved_result.info);
+  input_sym->setFragmentRef(pFragmentRef);
+  input_sym->setValue(pValue);
+
+  LDSymbol* output_sym = NULL;
   if (!resolved_result.existent) {
+    // if it is a new symbol, create a LDSymbol for the output
     output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
+    output_sym->setFragmentRef(pFragmentRef);
     resolved_result.info->setSymPtr(output_sym);
+    if (resolved_result.info->isAbsolute())
+      output_sym->setValue(pValue);
     m_Output.symtab().push_back(output_sym);
   }
   else {
+    // use the resolved output LDSymbol
     output_sym = resolved_result.info->outSymbol();
   }
+
+  // If we are not doing incremental linking, then any symbol with hidden
+  // or internal visibility is forcefully set as a local symbol.
+  if ((resolved_result.info->visibility() == ResolveInfo::Hidden ||
+       resolved_result.info->visibility() == ResolveInfo::Internal) &&
+      (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
+    if (shouldForceLocal(*resolved_result.info))
+      m_ForceLocalTable.insert(output_sym);
+  }
+
+  return input_sym;
+}
+
+/// defineSymbolForcefully - define an output symbol and resolve it immediately
+LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
+                                           bool pIsDyn,
+                                           ResolveInfo::Type pType,
+                                           ResolveInfo::Desc pDesc,
+                                           ResolveInfo::Binding pBinding,
+                                           ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
+                                           MCFragmentRef* pFragmentRef,
+                                           ResolveInfo::Visibility pVisibility)
+{
+  // <resolved_info, existent, override>
+  Resolver::Result result;
+  m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
+                            result);
+
+  LDSymbol* output_sym = m_LDSymbolFactory.allocate();
+  new (output_sym) LDSymbol();
+  output_sym->setResolveInfo(*result.info);
   output_sym->setFragmentRef(pFragmentRef);
-  output_sym->setValue(pValue);
+  if (result.info->isAbsolute())
+    output_sym->setValue(pValue);
+  result.info->setSymPtr(output_sym);
+
+  if (!result.existent && result.info->isLocal()) {
+    // if this symbol is a new symbol, and the binding is local, try to
+    // forcefully set as a local symbol.
+    // @ref Google gold linker: symtab.cc :1764
+    if (shouldForceLocal(*result.info)) {
+      m_ForceLocalTable.insert(output_sym);
+    }
+  }
+
   return output_sym;
+}
+
+/// defineSymbolAsRefered - define an output symbol and resolve it immediately
+LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
+                                           bool pIsDyn,
+                                           ResolveInfo::Type pType,
+                                           ResolveInfo::Desc pDesc,
+                                           ResolveInfo::Binding pBinding,
+                                           ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
+                                           MCFragmentRef* pFragmentRef,
+                                           ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* info = m_StrSymPool.findInfo(pName);
+
+  if (NULL == info || !info->isUndef()) {
+    // only undefined symbol can make a reference
+    return NULL;
+  }
+
+  return defineSymbolForcefully(pName,
+                                pIsDyn,
+                                pType,
+                                pDesc,
+                                pBinding,
+                                pSize,
+                                pValue,
+                                pFragmentRef,
+                                pVisibility);
 }
 
 /// createSectHdr - create the input section header
@@ -365,5 +405,12 @@ bool MCLinker::finalizeSymbols()
   }
 
   return true;
+}
+
+bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
+{
+  if (pInfo.isDefine() || pInfo.isCommon())
+    return true;
+  return false;
 }
 

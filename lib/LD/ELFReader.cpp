@@ -148,13 +148,8 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
 
 /// getSymVisibility
 ResolveInfo::Visibility
-ELFReaderIF::getSymVisibility(uint8_t pVis, const Input& pInput) const
+ELFReaderIF::getSymVisibility(uint8_t pVis) const
 {
-  // A protected symbol in a shared library must be treated as a normal
-  // symbol. @ref Google gold linker: symtab.cc: 1338
-  if (pInput.type() == Input::DynObj && pVis == llvm::ELF::STV_PROTECTED)
-    return ResolveInfo::Default;
-
   return static_cast<ResolveInfo::Visibility>(pVis);
 }
 

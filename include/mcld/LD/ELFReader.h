@@ -110,8 +110,7 @@ protected:
                                    uint16_t pShndx,
                                    uint32_t pOffset) const;
 
-  ResolveInfo::Visibility
-  getSymVisibility(uint8_t pVis, const Input& pInput) const;
+  ResolveInfo::Visibility getSymVisibility(uint8_t pVis) const;
 
 private:
   GNULDBackend& m_Backend;
