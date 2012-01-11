@@ -103,18 +103,6 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
-  // define symbol _GLOBAL_OFFSET_TABLE_ if .got section exist
-  if(m_pGOT) {
-    pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
-                         false,
-                         ResolveInfo::Object,
-                         ResolveInfo::Define,
-                         ResolveInfo::Local,
-                         0,
-                         0,
-                         pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
-                         ResolveInfo::Hidden);
-  }
 }
 
 void ARMGNULDBackend::doPreLayout(const Output& pOutput,
@@ -122,20 +110,8 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
                                   MCLinker& pLinker)
 {
   // when building shared object, the .got section is needed
-  if(pOutput.type() == Output::DynObj) {
-    if(!m_pGOT) {
+  if(pOutput.type() == Output::DynObj && (NULL == m_pGOT)) {
       createARMGOT(pLinker, pOutput.type());
-      // define _GLOBAL_OFFSET_TABLE_ simultaneously when .got created
-      pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
-                           false,
-                           ResolveInfo::Object,
-                           ResolveInfo::Define,
-                           ResolveInfo::Local,
-                           0,
-                           0,
-                           pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
-                           ResolveInfo::Hidden);
-    }
   }
 }
 
@@ -163,6 +139,17 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
     llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
                              ("output file type ") +
                              llvm::Twine(pType));
+
+  // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
+  pLinker.defineSymbol(llvm::StringRef("_GLOBAL_OFFSET_TABLE_"),
+                       false,
+                       ResolveInfo::Object,
+                       ResolveInfo::Define,
+                       ResolveInfo::Local,
+                       0,
+                       0,
+                       pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
+                       ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
@@ -265,6 +252,13 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   // FIXME: Below judgements concern only .so is generated as output
   // FIXME: Below judgements concren nothing about TLS related relocation
 
+  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
+  // is needed
+  if((NULL == m_pGOT) && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
+    createARMGOT(pLinker, pType);
+    return;
+  }
+
   // rsym is local symbol
   if(rsym->isLocal()) {
     switch(pReloc.type()){
@@ -360,12 +354,6 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is global symbol
   else if(rsym->isGlobal()) {
-    // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
-    // is needed
-    if(0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_")) {
-      if(!m_pGOT)
-        createARMGOT(pLinker, pType);
-    }
 
     switch(pReloc.type()) {
 
