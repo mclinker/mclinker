@@ -262,10 +262,10 @@ void
 GNULDBackend::sizeNamePools(const Output& pOutput,
                             const MCLDInfo& pLDInfo)
 {
-  size_t symtab = 0;
-  size_t dynsym = 0;
-  size_t strtab = 0;
-  size_t dynstr = 0;
+  size_t symtab = 1;
+  size_t dynsym = 1;
+  size_t strtab = 1;
+  size_t dynstr = 1;
   size_t hash   = 0;
 
   // compute size of .symtab, .dynsym and .strtab
@@ -409,12 +409,30 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
                              llvm::Twine(bitclass()) +
                              llvm::Twine(".\n"));
 
+  // initialize the first ELF symbol
+  if (32 == bitclass()) {
+    symtab32[0].st_name  = 0;
+    symtab32[0].st_value = 0;
+    symtab32[0].st_size  = 0;
+    symtab32[0].st_info  = 0;
+    symtab32[0].st_other = 0;
+    symtab32[0].st_shndx = 0;
+  }
+  else { // must 64
+    symtab64[0].st_name  = 0;
+    symtab64[0].st_value = 0;
+    symtab64[0].st_size  = 0;
+    symtab64[0].st_info  = 0;
+    symtab64[0].st_other = 0;
+    symtab64[0].st_shndx = 0;
+  }
+
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
+  strtab[0] = '\0';
 
-  size_t symtabIdx = 0;
-  size_t strtabsize = 0;
-
+  size_t symtabIdx = 1;
+  size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
   LDContext::const_sym_iterator symbol;
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
@@ -503,11 +521,29 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
                              llvm::Twine(bitclass()) +
                              llvm::Twine(".\n"));
 
+  // initialize the first ELF symbol
+  if (32 == bitclass()) {
+    symtab32[0].st_name  = 0;
+    symtab32[0].st_value = 0;
+    symtab32[0].st_size  = 0;
+    symtab32[0].st_info  = 0;
+    symtab32[0].st_other = 0;
+    symtab32[0].st_shndx = 0;
+  }
+  else { // must 64
+    symtab64[0].st_name  = 0;
+    symtab64[0].st_value = 0;
+    symtab64[0].st_size  = 0;
+    symtab64[0].st_info  = 0;
+    symtab64[0].st_other = 0;
+    symtab64[0].st_shndx = 0;
+  }
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
+  strtab[0] = '\0';
 
-  size_t symtabIdx = 0;
-  size_t strtabsize = 0;
+  size_t symtabIdx = 1;
+  size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr
   LDContext::const_sym_iterator symbol;
