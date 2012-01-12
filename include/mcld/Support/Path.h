@@ -26,6 +26,14 @@ namespace mcld {
 namespace sys  {
 namespace fs   {
 
+#ifdef LLVM_ON_WIN32
+const wchar_t       separator = L'\\';
+const wchar_t       preferred_separator = L'\\';
+#else
+const char          separator = '/';
+const char          preferred_separator = '/';
+#endif
+
 /** \class Path
  *  \brief Path provides an abstraction for the path to a file or directory in
  *   the operating system's filesystem.

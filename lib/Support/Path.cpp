@@ -18,14 +18,6 @@
 using namespace mcld;
 using namespace mcld::sys::fs;
 
-#ifdef LLVM_ON_WIN32
-const wchar_t       separator = L'\\';
-const wchar_t       preferred_separator = L'\\';
-#else
-const char          separator = '/';
-const char          preferred_separator = '/';
-#endif
-
 //===--------------------------------------------------------------------===//
 // Path
 Path::Path()
