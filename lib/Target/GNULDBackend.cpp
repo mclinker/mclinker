@@ -439,7 +439,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     // write out string
     strcpy((strtab + strtabsize), (*symbol)->name());
 
-    // write out
+    // write out 
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
@@ -613,41 +613,33 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   uint32_t* bucket = (word_array + 2);
   uint32_t* chain  = (bucket + nbucket);
 
-  // initialize bucket and chain
+  // initialize bucket
   bzero((void*)bucket, nbucket);
-  bzero((void*)chain, nchain);
 
   StringHash<ELF> hash_func;
 
   if (32 == bitclass()) {
-    uint32_t bucket_pos = 0;
+    uint32_t* bucket_pos = (uint32_t*)malloc(symtabIdx);
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
       llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
-      bucket_pos = hash_func(name) % nbucket;
-      if (bucket[bucket_pos] == 0)
-        bucket[bucket_pos] = sym_idx;
-      else {
-        uint32_t chain_pos = bucket[bucket_pos];
-        while (chain[chain_pos] != 0)
-            chain_pos = chain[chain_pos];
-        chain[chain_pos] = sym_idx;
-      }
+      bucket_pos[sym_idx] = hash_func(name) % nbucket;
+    }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
+      bucket[bucket_pos[sym_idx]] = sym_idx;
     }
   }
   else if (64 == bitclass()) {
-    uint32_t bucket_pos = 0;
+    uint32_t* bucket_pos = (uint32_t*)malloc(symtabIdx);
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
       llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
-      bucket_pos = hash_func(name) % nbucket;
-      if (bucket[bucket_pos] == 0)
-        bucket[bucket_pos] = sym_idx;
-      else {
-        uint32_t chain_pos = bucket[bucket_pos];
-        while (chain[chain_pos] != 0)
-            chain_pos = chain[chain_pos];
-        chain[chain_pos] = sym_idx;
-      }
+      bucket_pos[sym_idx] = hash_func(name) % nbucket;
     }
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
+      bucket[bucket_pos[sym_idx]] = sym_idx;
+    }
+    free(bucket_pos);
   }
 
   symtab_region->sync();
