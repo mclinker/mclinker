@@ -21,6 +21,7 @@
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
 using namespace mcld;
@@ -336,7 +337,7 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 }
 
 /// addRelocation - add a relocation entry in MCLinker (only for object file)
-/// 
+///
 /// All symbols should be read and resolved before calling this function.
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     ResolveInfo& pResolveInfo,
@@ -351,7 +352,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
 
   m_RelocationList.push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, *this, 
+  m_Backend.scanRelocation(*relocation, *this,
                            m_Info.output().type());
 
   return relocation;
@@ -360,9 +361,35 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
 bool MCLinker::applyRelocations()
 {
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
+  Relocation* reloc;
+
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply();
+    reloc = static_cast<Relocation*>(frag);
+    reloc->apply();
+
+    // Write back relocation target data to MCFragment after perform relocation
+    if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
+       uint64_t tmp_data = 0;
+
+       switch(m_Backend.bitclass()) {
+         case 32u:
+           tmp_data = bswap32(reloc->target());
+           std::memcpy(reloc->targetRef().deref(), &tmp_data, 4);
+           break;
+
+         case 64u:
+           tmp_data = bswap64(reloc->target());
+           std::memcpy(reloc->targetRef().deref(), &tmp_data, 8);
+           break;
+
+         default:
+           break;
+      }
+    }
+    else {
+       std::memcpy(reloc->targetRef().deref(), &reloc->target(), m_Backend.bitclass()/8);
+    }
   }
   return true;
 }
