@@ -329,7 +329,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 
       // compute .hash
       // Both Elf32_Word and Elf64_Word are 4 bytes
-      hash = (2 + hash_bucket_count((dynsym-1), false) + (dynsym-1)) * sizeof(llvm::ELF::Elf32_Word);
+      hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
 
       // set size
       dynstr += pOutput.name().size() + 1;
