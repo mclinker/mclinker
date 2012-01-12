@@ -185,18 +185,6 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
     if (LDFileFormat::NamePool == info->section->kind()) {
       info->section->setLinkInfo(pInput.context()->getSection(info->sh_link));
-
-      if (llvm::ELF::SHT_SYMTAB == info->section->type()) {
-        // we read symbol table only from the first non-local symbol
-        // so, adjust the file offset to the first non-local symbol.
-        //
-        // sh_info is one greater than the symbol table index of the last
-        // local symbol (binding STB_LOCAL). We can see it as the number
-        // of local symbols being skipped.
-        uint64_t skip_size = info->sh_info * sizeof(llvm::ELF::Elf32_Sym);
-        info->section->setOffset(info->section->offset() + skip_size);
-        info->section->setSize(info->section->size() - skip_size);
-      }
       continue;
     }
     if (LDFileFormat::Relocation == info->section->kind()) {
@@ -225,7 +213,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   uint8_t  st_info  = 0x0;
   uint8_t  st_other = 0x0;
   uint16_t st_shndx = 0x0;
-  for (size_t idx = 0; idx < entsize; ++idx) {
+  // skip the first NULL symbol
+  for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
     if (llvm::sys::isLittleEndianHost()) {
@@ -290,8 +279,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                                    ld_value,
                                                    ld_frag_ref,
                                                    ld_vis);
-      // push into the input file
-      pInput.context()->symtab().push_back(input_sym);
       continue;
     }
 
