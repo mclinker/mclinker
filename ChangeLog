@@ -1,2 +1,5 @@
 2011-05-23 Luba Tang <lubatang@gmail.com>
 	* create all basic files and directories.
+
+2012-01-12 Jush Lu <Jush.Lu@mediatek.com>
+	* Trivial cases have worked on ARM.

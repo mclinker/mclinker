@@ -25,7 +25,7 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 #  Versioning, see VERSION
 MAJOR=0
 MINOR=0
-MICRO=3
+MICRO=4
 AGE=0
 BUILD=open
 
