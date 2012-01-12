@@ -262,9 +262,9 @@ void
 GNULDBackend::sizeNamePools(const Output& pOutput,
                             const MCLDInfo& pLDInfo)
 {
-  size_t symtab = 1;
+  size_t symtab = 0;
   size_t dynsym = 1;
-  size_t strtab = 1;
+  size_t strtab = 0;
   size_t dynstr = 1;
   size_t hash   = 0;
 
@@ -329,7 +329,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 
       // compute .hash
       // Both Elf32_Word and Elf64_Word are 4 bytes
-      hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
+      hash = (2 + hash_bucket_count((dynsym-1), false) + (dynsym-1)) * sizeof(llvm::ELF::Elf32_Word);
 
       // set size
       dynstr += pOutput.name().size() + 1;
@@ -408,31 +408,12 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
                              llvm::Twine(bitclass()) +
                              llvm::Twine(".\n"));
-
-  // initialize the first ELF symbol
-  if (32 == bitclass()) {
-    symtab32[0].st_name  = 0;
-    symtab32[0].st_value = 0;
-    symtab32[0].st_size  = 0;
-    symtab32[0].st_info  = 0;
-    symtab32[0].st_other = 0;
-    symtab32[0].st_shndx = 0;
-  }
-  else { // must 64
-    symtab64[0].st_name  = 0;
-    symtab64[0].st_value = 0;
-    symtab64[0].st_size  = 0;
-    symtab64[0].st_info  = 0;
-    symtab64[0].st_other = 0;
-    symtab64[0].st_shndx = 0;
-  }
-
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
 
-  size_t symtabIdx = 1;
-  size_t strtabsize = 1;
+  size_t symtabIdx = 0;
+  size_t strtabsize = 0;
   // compute size of .symtab, .dynsym and .strtab
   LDContext::const_sym_iterator symbol;
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
