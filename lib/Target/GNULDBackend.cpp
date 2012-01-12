@@ -613,6 +613,9 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   uint32_t* bucket = (word_array + 2);
   uint32_t* chain  = (bucket + nbucket);
 
+  // initialize bucket
+  bzero((void*)bucket, nbucket);
+
   StringHash<ELF> hash_func;
 
   if (32 == bitclass()) {
@@ -622,12 +625,9 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
       bucket_pos[sym_idx] = hash_func(name) % nbucket;
     }
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
       bucket[bucket_pos[sym_idx]] = sym_idx;
     }
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      chain[sym_idx] = bucket[bucket_pos[sym_idx]];
-    }
-    free(bucket_pos);
   }
   else if (64 == bitclass()) {
     uint32_t* bucket_pos = (uint32_t*)malloc(symtabIdx);
@@ -636,10 +636,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
       bucket_pos[sym_idx] = hash_func(name) % nbucket;
     }
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      bucket[bucket_pos[sym_idx]] = sym_idx;
-    }
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
       chain[sym_idx] = bucket[bucket_pos[sym_idx]];
+      bucket[bucket_pos[sym_idx]] = sym_idx;
     }
     free(bucket_pos);
   }
