@@ -90,7 +90,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     // No matter if there is a symbol with the same name, insert the symbol
     // into output symbol table. So, we let the existent false.
     resolved_result.existent  = false;
-    resolved_result.overriden = false;
+    resolved_result.overriden = true;
   }
   else {
     // if the symbol is not a local symbol, insert and resolve it immediately
@@ -108,21 +108,32 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
-  LDSymbol* output_sym = NULL;
-  if (!resolved_result.existent) {
+  LDSymbol* output_sym = resolved_result.info->outSymbol();
+  bool in_output = (NULL != output_sym);
+  if (!resolved_result.existent || !in_output) {
     // if it is a new symbol, create a LDSymbol for the output
     output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
-    output_sym->setFragmentRef(pFragmentRef);
     resolved_result.info->setSymPtr(output_sym);
-    if (resolved_result.info->isAbsolute())
-      output_sym->setValue(pValue);
     m_Output.symtab().push_back(output_sym);
   }
-  else {
-    // use the resolved output LDSymbol
-    output_sym = resolved_result.info->outSymbol();
+
+  if (resolved_result.overriden || !in_output) {
+    // should override output LDSymbol
+    output_sym->setFragmentRef(pFragmentRef);
+    if (resolved_result.info->isAbsolute())
+      output_sym->setValue(pValue);
+  }
+
+  // If we are not doing incremental linking, then any symbol with hidden
+  // or internal visibility is forcefully set as a local symbol.
+  if ((resolved_result.info->visibility() == ResolveInfo::Hidden ||
+       resolved_result.info->visibility() == ResolveInfo::Internal) &&
+      (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
+    if (shouldForceLocal(*resolved_result.info)) {
+      m_ForceLocalTable.insert(output_sym);
+    }
   }
 
   return input_sym;
@@ -174,18 +185,11 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
 
   LDSymbol* output_sym = NULL;
   if (!resolved_result.existent) {
-    // if it is a new symbol, create a LDSymbol for the output
-    output_sym = m_LDSymbolFactory.allocate();
-    new (output_sym) LDSymbol();
-    output_sym->setResolveInfo(*resolved_result.info);
-    output_sym->setFragmentRef(pFragmentRef);
-    resolved_result.info->setSymPtr(output_sym);
-    if (resolved_result.info->isAbsolute())
-      output_sym->setValue(pValue);
-    m_Output.symtab().push_back(output_sym);
+    // we get a new symbol, leave it as NULL
+    resolved_result.info->setSymPtr(NULL);
   }
   else {
-    // use the resolved output LDSymbol
+    // we saw the symbol before.
     output_sym = resolved_result.info->outSymbol();
   }
 
@@ -194,8 +198,9 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   if ((resolved_result.info->visibility() == ResolveInfo::Hidden ||
        resolved_result.info->visibility() == ResolveInfo::Internal) &&
       (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
-    if (shouldForceLocal(*resolved_result.info))
+    if (NULL != output_sym && shouldForceLocal(*resolved_result.info)) {
       m_ForceLocalTable.insert(output_sym);
+    }
   }
 
   return input_sym;
@@ -212,18 +217,25 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            MCFragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  // <resolved_info, existent, override>
+  // Result is <info, existent, override>
   Resolver::Result result;
   m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
                             result);
 
-  LDSymbol* output_sym = m_LDSymbolFactory.allocate();
-  new (output_sym) LDSymbol();
-  output_sym->setResolveInfo(*result.info);
-  output_sym->setFragmentRef(pFragmentRef);
-  if (result.info->isAbsolute())
-    output_sym->setValue(pValue);
-  result.info->setSymPtr(output_sym);
+  LDSymbol* output_sym = result.info->outSymbol();
+  bool in_output = (NULL != output_sym);
+  if (!result.existent || !in_output) {
+    output_sym = m_LDSymbolFactory.allocate();
+    new (output_sym) LDSymbol();
+    output_sym->setResolveInfo(*result.info);
+    result.info->setSymPtr(output_sym);
+  }
+
+  if (result.overriden || !in_output) {
+    output_sym->setFragmentRef(pFragmentRef);
+    if (result.info->isAbsolute())
+      output_sym->setValue(pValue);
+  }
 
   if (!result.existent && result.info->isLocal()) {
     // if this symbol is a new symbol, and the binding is local, try to
