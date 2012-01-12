@@ -29,6 +29,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Support/GCFactory.h>
+#include <set>
 #include <string>
 
 namespace mcld {
@@ -160,7 +161,7 @@ private:
                                    LDSymbol::ValueType pValue,
                                    MCFragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility);
-  
+
   LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
                                   bool pIsDyn,
                                   ResolveInfo::Type pType,

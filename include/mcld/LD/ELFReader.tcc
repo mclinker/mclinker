@@ -358,21 +358,21 @@ bool ELFReader<32, true>::readRel(Input& pInput,
                                   LDSection& pSection,
                                   const MemoryRegion& pRegion) const
 {
-  // get the number of rela
+  // get the number of rel
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf32_Rel);
-  llvm::ELF::Elf32_Rel* relaTab =
+  llvm::ELF::Elf32_Rel* relTab =
                       reinterpret_cast<llvm::ELF::Elf32_Rel*>(pRegion.start());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     uint32_t r_offset = 0x0;
     uint32_t r_info   = 0x0;
     if (llvm::sys::isLittleEndianHost()) {
-      r_offset = relaTab[idx].r_offset;
-      r_info   = relaTab[idx].r_info;
+      r_offset = relTab[idx].r_offset;
+      r_info   = relTab[idx].r_info;
     }
     else {
-      r_offset = bswap32(relaTab[idx].r_offset);
-      r_info   = bswap32(relaTab[idx].r_info);
+      r_offset = bswap32(relTab[idx].r_offset);
+      r_info   = bswap32(relTab[idx].r_info);
     }
 
     uint8_t  r_type = static_cast<unsigned char>(r_info);

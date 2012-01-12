@@ -150,7 +150,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLDInputTree.cpp \
 	${INCDIR}/MC/MCRegionFragment.h \
 	${LIBDIR}/MC/MCRegionFragment.cpp \
-	${INCDIR}/MC/MCRegionFragment.h \
+	${INCDIR}/MC/MCTargetFragment.h \
 	${INCDIR}/MC/MCFragmentRef.h \
 	${LIBDIR}/MC/MCFragmentRef.cpp \
 	${INCDIR}/LD/LDContext.h \
