@@ -17,8 +17,9 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDFile.h"
-#include "mcld/Support/RealPath.h"
+#include <mcld/MC/MCLDFile.h>
+#include <mcld/Support/RealPath.h>
+#include <string>
 
 namespace mcld
 {
@@ -44,9 +45,9 @@ public:
 
   ~Output();
 
-  void setSONAME(std::string SONAME) {
-    m_Name.assign(SONAME);
-  }
+  /// setSOName - set the name of the shared object.
+  /// In ELF, this will be written in DT_SONAME
+  void setSOName(const std::string& pName);
 };
 
 } // namespace of mcld

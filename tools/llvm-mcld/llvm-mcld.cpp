@@ -329,14 +329,14 @@ ArgEntryAlias("entry",
               cl::aliasopt(ArgEntry));
 
 static cl::opt<bool>
-Bsymbolic("Bsymbolic",
-          cl::desc("Bind references within the shared library."),
-          cl::init(false));
+ArgBsymbolic("Bsymbolic",
+             cl::desc("Bind references within the shared library."),
+             cl::init(false));
 
 static cl::opt<std::string>
-SONAME("soname",
-       cl::desc("Set internal name of shared library"),
-       cl::value_desc("name"));
+ArgSOName("soname",
+          cl::desc("Set internal name of shared library"),
+          cl::value_desc("name"));
 
 //===----------------------------------------------------------------------===//
 // Inputs
@@ -551,7 +551,8 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
 
 static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   // -----  Set up General Options  ----- //
-  pOption.info().output().setSONAME(SONAME);
+  // set up soname
+  pOption.info().output().setSOName(ArgSOName);
 
   // set up sysroot
   if (!ArgSysRoot.empty()) {
@@ -579,7 +580,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setTrace(ArgTrace);
   pOption.info().options().setVerbose(ArgVerbose);
   pOption.info().options().setEntry(ArgEntry);
-  pOption.info().options().setBsymbolic(Bsymbolic);
+  pOption.info().options().setBsymbolic(ArgBsymbolic);
 
   // -----  Set up Inputs  ----- //
   // inform the bitcode filename

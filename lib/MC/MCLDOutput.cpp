@@ -25,3 +25,9 @@ Output::~Output()
 {
 }
 
+void Output::setSOName(const std::string& pName)
+{
+  /// FIXME: strip ./
+  m_Name = pName;
+}
+

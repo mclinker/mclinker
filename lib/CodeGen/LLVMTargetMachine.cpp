@@ -300,6 +300,14 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                  *ldBackend,
                                  getLDInfo());
 
+  // set up output's SOName
+  if (pOutputLinkType == Output::DynObj &&
+      pLinkerOpt->info().output().name().empty()) {
+    // if the output is a shared object, and the option -soname was not
+    // enable, set soname as the output file name.
+    pLinkerOpt->info().output().setSOName(pOutputFilename);
+  }
+
   pLinkerOpt->info().output().setPath(sys::fs::RealPath(pOutputFilename));
   pLinkerOpt->info().output().setType(pOutputLinkType);
 
