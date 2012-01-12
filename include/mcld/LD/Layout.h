@@ -248,13 +248,7 @@ private:
   bool hasLayoutOffset(const llvm::MCFragment& pFragment) const
   { return (pFragment.Offset != ~UINT64_C(0)); }
 
-  bool isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const
-  {
-    if (NULL != pFrag.getNextNode())
-      return (pTargetOffset >= pFrag.Offset && pTargetOffset < pFrag.getNextNode()->Offset);
-    uint64_t size = computeFragmentSize(*this, pFrag);
-    return (pTargetOffset >= pFrag.Offset && pTargetOffset < (pFrag.Offset + size));
-  }
+  bool isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const;
 
   void setFragmentLayoutOrder(llvm::MCFragment* pFragment);
 

@@ -297,8 +297,6 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
                        llvm::MCFragment& pRear,
                        uint64_t pOffset)
 {
-  uint64_t target_offset = pFront.Offset + pOffset;
-
   llvm::MCFragment* target_frag = NULL;
   llvm::MCFragment* front = &pFront;
   llvm::MCFragment* rear  = &pRear;
@@ -308,6 +306,8 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
     setFragmentLayoutOrder(rear);
     setFragmentLayoutOffset(rear);
   }
+
+  uint64_t target_offset = pFront.Offset + pOffset;
 
   // from front to read, find the offset which is as large as possible
   // but smaller than the target_offset.
@@ -549,5 +549,13 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
     pOutput.getSectionTable().push_back(m_SectionOrder[index]);
 
   return true;
+}
+
+bool Layout::isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const
+{
+  if (NULL != pFrag.getNextNode())
+    return (pTargetOffset >= pFrag.Offset && pTargetOffset < pFrag.getNextNode()->Offset);
+  uint64_t size = computeFragmentSize(*this, pFrag);
+  return (pTargetOffset >= pFrag.Offset && pTargetOffset < (pFrag.Offset + size));
 }
 
