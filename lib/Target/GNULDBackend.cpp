@@ -267,9 +267,9 @@ void
 GNULDBackend::sizeNamePools(const Output& pOutput,
                             const MCLDInfo& pLDInfo)
 {
-  size_t symtab = 0;
+  size_t symtab = 1;
   size_t dynsym = 1;
-  size_t strtab = 0;
+  size_t strtab = 1;
   size_t dynstr = 1;
   size_t hash   = 0;
 
@@ -417,8 +417,26 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
 
-  size_t symtabIdx = 0;
-  size_t strtabsize = 0;
+  // initialize the first ELF symbol
+  if (32 == bitclass()) {
+    symtab32[0].st_name  = 0;
+    symtab32[0].st_value = 0;
+    symtab32[0].st_size  = 0;
+    symtab32[0].st_info  = 0;
+    symtab32[0].st_other = 0;
+    symtab32[0].st_shndx = 0;
+  }
+  else { // must 64
+    symtab64[0].st_name  = 0;
+    symtab64[0].st_value = 0;
+    symtab64[0].st_size  = 0;
+    symtab64[0].st_info  = 0;
+    symtab64[0].st_other = 0;
+    symtab64[0].st_shndx = 0;
+  }
+
+  size_t symtabIdx = 1;
+  size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
   LDContext::const_sym_iterator symbol;
   LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
@@ -726,7 +744,7 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
   return (pSymbol.resolveInfo()->type() | (bind << 4));
 }
 
-/// getSymbolShndx
+/// getSymbolShndx - this function is called after layout()
 uint64_t
 GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const
 {
@@ -744,6 +762,7 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
         return llvm::ELF::SHN_ABS;
     }
   }
+
   assert(pSymbol.hasFragRef());
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }

@@ -134,6 +134,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
     return NULL;
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
+
   if (NULL == sect_hdr) {
     llvm::report_fatal_error(llvm::Twine("section[") +
                              llvm::Twine(pShndx) +

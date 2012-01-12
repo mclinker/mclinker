@@ -85,7 +85,7 @@ public:
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {
-    uint32_t shndx;
+    LDSection* section;
     uint32_t sh_link;
     uint32_t sh_info;
   };

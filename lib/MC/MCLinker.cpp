@@ -51,12 +51,6 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
                                                 ResolveInfo::Local,
                                                 0x0,
                                                 ResolveInfo::Default);
-
-  LDSymbol* null_sym = m_LDSymbolFactory.allocate();
-  new (null_sym) LDSymbol();
-  null_sym->setResolveInfo(*info);
-  null_sym->setValue(0x0);
-  pContext.symtab().push_back(null_sym);
 }
 
 /// Destructor
@@ -312,7 +306,6 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
     return *sect_data;
   }
 
-  // create a new section data
   // try to get one from output LDSection
   LDSection* output_sect =
     m_SectionMerger.getOutputSectHdr(pSection.name());

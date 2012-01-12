@@ -172,8 +172,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     section.setOffset(sh_offset);
     section.setIndex(pInput.context()->numOfSections());
 
-    if (sh_link != 0x0) {
-      LinkInfo link_info = { idx, sh_link, sh_info };
+    if (sh_link != 0x0 || sh_info != 0x0) {
+      LinkInfo link_info = { &section, sh_link, sh_info };
       link_info_list.push_back(link_info);
     }
 
@@ -183,13 +183,24 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   // set up InfoLink
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
-    LDSection* section = pInput.context()->getSection(info->shndx);
-    if (LDFileFormat::NamePool == section->kind()) {
-      section->setLinkInfo(pInput.context()->getSection(info->sh_link));
+    if (LDFileFormat::NamePool == info->section->kind()) {
+      info->section->setLinkInfo(pInput.context()->getSection(info->sh_link));
+
+      if (llvm::ELF::SHT_SYMTAB == info->section->type()) {
+        // we read symbol table only from the first non-local symbol
+        // so, adjust the file offset to the first non-local symbol.
+        //
+        // sh_info is one greater than the symbol table index of the last
+        // local symbol (binding STB_LOCAL). We can see it as the number
+        // of local symbols being skipped.
+        uint64_t skip_size = info->sh_info * sizeof(llvm::ELF::Elf32_Sym);
+        info->section->setOffset(info->section->offset() + skip_size);
+        info->section->setSize(info->section->size() - skip_size);
+      }
       continue;
     }
-    if (LDFileFormat::Relocation == section->kind()) {
-      section->setLinkInfo(pInput.context()->getSection(info->sh_info));
+    if (LDFileFormat::Relocation == info->section->kind()) {
+      info->section->setLinkInfo(pInput.context()->getSection(info->sh_info));
       continue;
     }
   }
@@ -257,14 +268,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     // push into MCLinker
     LDSymbol* input_sym = NULL;
 
-    // The first symbol should be reserved as the undefined symbol index.
-    // We don't need this symbol.
-    if (0 == idx) {
-      // push into the input file
-      pInput.context()->symtab().push_back(input_sym);
-      continue;
-    }
-    else if (pInput.type() == Input::Object) {
+    if (pInput.type() == Input::Object) {
       input_sym = pLinker.addSymbol<Input::Object>(ld_name,
                                                    ld_type,
                                                    ld_desc,
