@@ -103,6 +103,11 @@ public:
   LDSymbol* getSymbol(unsigned int pIdx);
 
   const LDSymbol* getSymbol(unsigned int pIdx) const;
+
+  LDSymbol* getSymbol(const llvm::StringRef& pName);
+
+  const LDSymbol* getSymbol(const llvm::StringRef& pName) const;
+
 private:
   SectionTable m_SectionTable;
   SymbolTable m_SymTab;

@@ -91,3 +91,24 @@ const LDSymbol* LDContext::getSymbol(unsigned int pIdx) const
   return m_SymTab[pIdx];
 }
 
+
+LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName)
+{
+  size_t sym = 0;
+  size_t size = m_SymTab.size();
+  for (; sym < size; ++sym)
+    if (m_SymTab[sym]->name() == pName)
+      return m_SymTab[sym];
+  return NULL;
+}
+
+const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const
+{
+  size_t sym = 0;
+  size_t size = m_SymTab.size();
+  for (; sym < size; ++sym)
+    if (m_SymTab[sym]->name() == pName)
+      return m_SymTab[sym];
+  return NULL;
+}
+
