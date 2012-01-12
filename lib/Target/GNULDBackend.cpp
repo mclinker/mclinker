@@ -752,7 +752,7 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     return llvm::ELF::SHN_ABS;
   if (pSymbol.resolveInfo()->isCommon())
     return llvm::ELF::SHN_COMMON;
-  if (pSymbol.resolveInfo()->isUndef())
+  if (pSymbol.resolveInfo()->isUndef() || pSymbol.isDyn())
     return llvm::ELF::SHN_UNDEF;
 
   if (pSymbol.resolveInfo()->isLocal()) {
