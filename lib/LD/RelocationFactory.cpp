@@ -33,7 +33,9 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        MCFragmentRef& pFragRef,
                                        Address pAddend)
 {
-  Relocation* result = allocate();
+  // FIXME: To prevent relocations from double free by both iplist and
+  // GCFactory, currently we new relocations directly and let iplist
+  // delete them.
 
   // target_data is the place where the relocation applys to.
   // Use TargetDataFactory to generate temporary data, and copy the
@@ -66,19 +68,16 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
   }
 
-  new (result) Relocation(pType,
-                          &pFragRef,
-                          pAddend,
-                          target_data,
-                          *this);
-  return result;
+  return new Relocation(pType, &pFragRef, pAddend, target_data, *this);
 }
 
 Relocation* RelocationFactory::produceEmptyEntry()
 {
-  Relocation* result = allocate();
-  new (result) Relocation(0, 0, 0, 0, *this);
-  return result;
+  // FIXME: To prevent relocations from double free by both iplist and
+  // GCFactory, currently we new relocations directly and let iplist
+  // delete them.
+
+  return new Relocation(0, 0, 0, 0, *this);
 }
 
 void RelocationFactory::destroy(Relocation* pRelocation)
