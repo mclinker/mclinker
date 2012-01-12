@@ -52,7 +52,7 @@ public:
   virtual void initTargetSymbols(MCLinker& pLinker) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
 
-  virtual void initSTDSymbols(MCLinker& pLinker) { }
+  virtual bool initStandardSymbols(MCLinker& pLinker) = 0;
 
   virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
   virtual RelocationFactory* getRelocFactory() = 0;

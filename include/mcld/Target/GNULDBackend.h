@@ -94,6 +94,8 @@ public:
   bool initExecSections(MCLinker& pMCLinker);
   bool initDynObjSections(MCLinker& pMCLinker);
 
+  bool initStandardSymbols(MCLinker& pLinker);
+
   GNUArchiveReader *getArchiveReader();
   GNUArchiveReader *getArchiveReader() const;
 

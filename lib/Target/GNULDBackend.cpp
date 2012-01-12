@@ -170,6 +170,11 @@ bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
   return true;
 }
 
+bool GNULDBackend::initStandardSymbols(MCLinker& pLinker)
+{
+  return true;
+}
+
 GNUArchiveReader *GNULDBackend::getArchiveReader()
 {
   assert(0 != m_pArchiveReader);
