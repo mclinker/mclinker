@@ -243,6 +243,8 @@ private:
 protected:
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 
+  uint64_t getSymbolValue(const LDSymbol& pSymbol) const;
+
   uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
 
 private:

@@ -445,7 +445,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     // write out symbol
     if (32 == bitclass()) {
       symtab32[symtabIdx].st_name  = strtabsize;
-      symtab32[symtabIdx].st_value = (*symbol)->value();
+      symtab32[symtabIdx].st_value = getSymbolValue(**symbol);
       symtab32[symtabIdx].st_size  = (*symbol)->size();
       symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab32[symtabIdx].st_other = (*symbol)->visibility();
@@ -453,7 +453,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     }
     else { // must 64
       symtab64[symtabIdx].st_name  = strtabsize;
-      symtab64[symtabIdx].st_value = (*symbol)->value();
+      symtab64[symtabIdx].st_value = getSymbolValue(**symbol);
       symtab64[symtabIdx].st_size  = (*symbol)->size();
       symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab64[symtabIdx].st_other = (*symbol)->visibility();
@@ -742,6 +742,15 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
     bind = llvm::ELF::STB_WEAK;
 
   return (pSymbol.resolveInfo()->type() | (bind << 4));
+}
+
+/// getSymbolValue - this function is called after layout()
+uint64_t GNULDBackend::getSymbolValue(const LDSymbol& pSymbol) const
+{
+  if (pSymbol.isDyn())
+    return 0x0;
+
+  return pSymbol.value();
 }
 
 /// getSymbolShndx - this function is called after layout()
