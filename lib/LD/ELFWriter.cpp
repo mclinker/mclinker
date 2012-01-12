@@ -402,10 +402,18 @@ ELFWriter::emitRelocation(const Layout& pLayout,
     relocation = &(llvm::cast<Relocation>(*it));
     FragmentRef = &(relocation->targetRef());
 
-    rel->r_offset = static_cast<Elf32_Addr>(
-                    llvm::cast<LDSection>(
-                    FragmentRef->frag()->getParent()->getSection()).offset() +
-                    pLayout.getOutputOffset(*FragmentRef));
+    if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
+      rel->r_offset = static_cast<Elf32_Addr>(
+                      llvm::cast<LDSection>(
+                      FragmentRef->frag()->getParent()->getSection()).addr() +
+                      pLayout.getOutputOffset(*FragmentRef));
+    }
+    else {
+      rel->r_offset = static_cast<Elf32_Addr>(
+                      llvm::cast<LDSection>(
+                      FragmentRef->frag()->getParent()->getSection()).offset() +
+                      pLayout.getOutputOffset(*FragmentRef));
+    }
 
     Elf32_Word Index = static_cast<Elf32_Word>(
                        pOutput.context()->getSymbolIdx(
