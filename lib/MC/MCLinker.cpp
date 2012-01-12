@@ -74,11 +74,29 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (pType == ResolveInfo::Section)
     return NULL;
 
-  // insert symbol and resolve it immediately
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_StrSymPool.insertSymbol(pName, false, pType, pDesc, pBinding, pSize, pVisibility,
-                            resolved_result);
+  if (pBinding == ResolveInfo::Local) {
+    // if the symbol is a local symbol, create a LDSymbol for input, but do not
+    // resolve them.
+    resolved_result.info     = m_StrSymPool.createSymbol(pName,
+                                                         false,
+                                                         pType,
+                                                         pDesc,
+                                                         pBinding,
+                                                         pSize,
+                                                         pVisibility);
+
+    // No matter if there is a symbol with the same name, insert the symbol
+    // into output symbol table. So, we let the existent false.
+    resolved_result.existent  = false;
+    resolved_result.overriden = false;
+  }
+  else {
+    // if the symbol is not a local symbol, insert and resolve it immediately
+    m_StrSymPool.insertSymbol(pName, false, pType, pDesc, pBinding, pSize,
+                              pVisibility, resolved_result);
+  }
 
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
