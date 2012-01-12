@@ -601,6 +601,11 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   else if (&pSection == &(FileFormat->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
+    if(pOutput.type() == Output::DynObj)
+      m_pGOT->applyGOT0(FileFormat->getDynamic().addr());
+    else
+      m_pGOT->applyGOT0(0);
+
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
     GOTEntry* got = 0;
