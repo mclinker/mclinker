@@ -20,6 +20,7 @@
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
@@ -384,26 +385,45 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
 bool MCLinker::applyRelocations()
 {
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
-  Relocation* reloc;
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
-    reloc = static_cast<Relocation*>(frag);
-    reloc->apply();
+    static_cast<Relocation*>(frag)->apply();
+  }
+  return true;
+}
 
-    // Write back relocation target data to MCFragment after perform relocation
+void MCLinker::syncRelocationResult(Output& pOutput) {
+
+  RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
+
+  for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
+
+    llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
+    Relocation* reloc = static_cast<Relocation*>(frag);
+
+    // get output LDSection and file offset
+    LDSection* out_sec = m_Layout.getOutputLDSection(*reloc->targetRef().frag()) ;
+    size_t out_offset = out_sec->offset() + reloc->targetRef().offset();
+
+    //request the target region
+    MemoryRegion* region = pOutput.memArea()->request(out_offset,
+                                                      m_Backend.bitclass()/8,
+                                                      true);
+
+    // byte swapping if target and host has different endian, and then write back
     if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
        uint64_t tmp_data = 0;
 
        switch(m_Backend.bitclass()) {
          case 32u:
            tmp_data = bswap32(reloc->target());
-           std::memcpy(reloc->targetRef().deref(), &tmp_data, 4);
+           std::memcpy(region->getBuffer(), &tmp_data, 4);
            break;
 
          case 64u:
            tmp_data = bswap64(reloc->target());
-           std::memcpy(reloc->targetRef().deref(), &tmp_data, 8);
+           std::memcpy(region->getBuffer(), &tmp_data, 8);
            break;
 
          default:
@@ -411,11 +431,12 @@ bool MCLinker::applyRelocations()
       }
     }
     else {
-       std::memcpy(reloc->targetRef().deref(), &reloc->target(), m_Backend.bitclass()/8);
+      std::memcpy(region->getBuffer(), &reloc->target(), m_Backend.bitclass()/8);
     }
+    region->sync();
   }
-  return true;
 }
+
 
 bool MCLinker::layout()
 {
@@ -463,4 +484,3 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
     return true;
   return false;
 }
-
