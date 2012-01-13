@@ -116,8 +116,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (resolved_result.overriden || !in_output) {
     // should override output LDSymbol
     output_sym->setFragmentRef(pFragmentRef);
-    if (resolved_result.info->isAbsolute())
-      output_sym->setValue(pValue);
+    output_sym->setValue(pValue);
   }
 
   // If we are not doing incremental linking, then any symbol with hidden
