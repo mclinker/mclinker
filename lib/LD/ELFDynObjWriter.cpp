@@ -37,8 +37,17 @@ ELFDynObjWriter::~ELFDynObjWriter()
 
 llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
 {
-  // FIXME:
-  // Write out ELF program header
+  // Write out name pool sections: .dynsym, .dynstr, .hash
+  target().emitDynNamePools(pOutput,
+                            m_Linker.getOutputSymbols(),
+                            m_Linker.getLayout(),
+                            m_Linker.getLDInfo());
+
+  // Write out name pool sections: .symtab, .strtab
+  target().emitRegNamePools(pOutput,
+                            m_Linker.getOutputSymbols(),
+                            m_Linker.getLayout(),
+                            m_Linker.getLDInfo());
 
   // Write out regular ELF sections
   unsigned int secIdx = 0;
@@ -96,24 +105,11 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       default:
         continue;
     }
-  }
+  } // end of for loop
 
-  // Write out name pool sections: .dynsym, .dynstr, .hash
-  target().emitDynNamePools(pOutput,
-                            m_Linker.getOutputSymbols(),
-                            m_Linker.getLayout(),
-                            m_Linker.getLDInfo());
-
-  // Write out name pool sections: .symtab, .strtab
-  target().emitRegNamePools(pOutput,
-                            m_Linker.getOutputSymbols(),
-                            m_Linker.getLayout(),
-                            m_Linker.getLDInfo());
-
-  // Write out .shstrtab
-  // Write out ELF header
-  // Write out section header table
   if (32 == target().bitclass()) {
+    // Write out ELF header
+    // Write out section header table
     emitELF32ShStrTab(pOutput, m_Linker);
 
     writeELF32Header(m_Linker.getLDInfo(),
@@ -124,6 +120,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     emitELF32SectionHeader(pOutput, m_Linker);
   }
   else if (64 == target().bitclass()) {
+    // Write out ELF header
+    // Write out section header table
     emitELF64ShStrTab(pOutput, m_Linker);
 
     writeELF64Header(m_Linker.getLDInfo(),
