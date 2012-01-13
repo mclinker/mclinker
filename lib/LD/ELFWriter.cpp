@@ -383,12 +383,11 @@ ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) con
   pRegion.sync();
 }
 
-/// emitRelocation
-void
-ELFWriter::emitRelocation(const Layout& pLayout,
-                          const Output& pOutput,
-                          const LDSection& pSection,
-                          MemoryRegion& pRegion) const
+/// emitRel
+void ELFWriter::emitRel(const Layout& pLayout,
+                        const Output& pOutput,
+                        const LDSection& pSection,
+                        MemoryRegion& pRegion) const
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>( pRegion.start());
   const llvm::MCSectionData* SectionData = pSection.getSectionData();
@@ -424,6 +423,15 @@ ELFWriter::emitRelocation(const Layout& pLayout,
 
 
   pRegion.sync();
+}
+
+/// emitRela
+void ELFWriter::emitRela(const Layout& pLayout,
+                         const Output& pOutput,
+                         const LDSection& pSection,
+                         MemoryRegion& pRegion) const
+{
+  //FIXME: unsupport emitting .rela section.
 }
 
 /// getSectEntrySize - compute ElfXX_Shdr::sh_entsize

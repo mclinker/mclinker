@@ -88,7 +88,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
         break;
       }
       case LDFileFormat::Relocation:
-        emitRelocation(m_Linker.getLayout(), pOutput, *sect, *region);
+        emitRel(m_Linker.getLayout(), pOutput, *sect, *region);
         break;
       case LDFileFormat::Target:
         target().emitSectionData(pOutput, *sect, m_Linker.getLDInfo(), *region);

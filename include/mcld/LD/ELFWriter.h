@@ -74,10 +74,15 @@ protected:
 
   void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
 
-  void emitRelocation(const Layout& pLayout,
-                      const Output& pOutput,
-                      const LDSection& pSection,
-                      MemoryRegion& pRegion) const;
+  void emitRel(const Layout& pLayout,
+               const Output& pOutput,
+               const LDSection& pSection,
+               MemoryRegion& pRegion) const;
+
+  void emitRela(const Layout& pLayout,
+                const Output& pOutput,
+                const LDSection& pSection,
+                MemoryRegion& pRegion) const;
 
 private:
   // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
