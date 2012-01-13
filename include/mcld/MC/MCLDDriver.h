@@ -103,6 +103,9 @@ public:
   /// emitOutput - emit the output file.
   bool emitOutput();
 
+  /// postProcessing - do modificatiion after all processes
+  bool postProcessing();
+
 private:
   MCLDInfo& m_LDInfo;
   TargetLDBackend &m_LDBackend;

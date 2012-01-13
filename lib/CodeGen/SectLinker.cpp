@@ -176,6 +176,8 @@ bool SectLinker::doFinalization(Module &pM)
   // 13. - write out output
   m_pLDDriver->emitOutput();
 
+  // 14. - post processing
+  m_pLDDriver->postProcessing();
   return false;
 }
 

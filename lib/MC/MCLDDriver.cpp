@@ -342,3 +342,9 @@ bool MCLDDriver::emitOutput()
   return false;
 }
 
+/// postProcessing - do modification after all processes
+bool MCLDDriver::postProcessing()
+{
+  m_pLinker->syncRelocationResult(m_LDInfo.output());
+  return true;
+}
