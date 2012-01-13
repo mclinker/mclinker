@@ -438,8 +438,8 @@ bool MCLinker::layout()
 
 bool MCLinker::finalizeSymbols()
 {
-  LDContext::sym_iterator symbol, symEnd = m_Output.symEnd();
-  for (symbol = m_Output.symBegin(); symbol != symEnd; ++symbol) {
+  SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
+  for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
 
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
