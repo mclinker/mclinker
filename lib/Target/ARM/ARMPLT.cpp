@@ -193,7 +193,7 @@ void ARMPLT::applyPLT1() {
     got_base +  GOTEntrySize * 3;
 
   uint64_t PLTEntryAddress =
-    plt_base + llvm::cast<ARMPLT0>((*it)).getEntrySize() + 8; //Offset of PLT0
+    plt_base + llvm::cast<ARMPLT0>((*it)).getEntrySize(); //Offset of PLT0
 
   ++it; //skip PLT0
   uint64_t PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
@@ -220,13 +220,13 @@ void ARMPLT::applyPLT1() {
     else
       Offset = PLTEntryAddress - GOTEntryAddress;
 
-    uint32_t plt1_data1 = ((Offset-8) & 0x0FF00000);
-    uint32_t plt1_data2 = ((Offset-4) & 0x000FF000);
+    uint32_t plt1_data1 = ((Offset - 8) & 0x0FF00000) >> 20;
+    uint32_t plt1_data2 = ((Offset - 4) & 0x000FF000) >> 12;
     uint32_t plt1_data3 = (Offset & 0x00000FFF);
 
-    *Out |= plt1_data1;
-    *Out |= plt1_data2;
-    *Out |= plt1_data3;
+    Out[0] |= plt1_data1;
+    Out[1] |= plt1_data2;
+    Out[2] |= plt1_data3;
 
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
     ++it;
