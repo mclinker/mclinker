@@ -41,6 +41,30 @@ struct NonConstTraits
   typedef NonConstTraits<DataType> nonconst_traits;
 };
 
+template<typename DataType>
+struct ConstIteratorTraits
+{
+  typedef DataType                          value_type;
+  typedef const DataType*                   pointer;
+  typedef const DataType&                   reference;
+  typedef size_t                            size_type;
+  typedef ConstTraits<DataType>             const_traits;
+  typedef NonConstTraits<DataType>          nonconst_traits;
+  typedef typename DataType::const_iterator iterator;
+};
+
+template<typename DataType>
+struct NonConstIteratorTraits
+{
+  typedef DataType                    value_type;
+  typedef DataType*                   pointer;
+  typedef DataType&                   reference;
+  typedef size_t                      size_type;
+  typedef ConstTraits<DataType>       const_traits;
+  typedef NonConstTraits<DataType>    nonconst_traits;
+  typedef typename DataType::iterator iterator;
+};
+
 } // namespace of mcld
 
 #endif
