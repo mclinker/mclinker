@@ -383,20 +383,37 @@ ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) con
   pRegion.sync();
 }
 
+/// emitRelocation
+void ELFWriter::emitRelocation(const Layout& pLayout,
+                               const Output& pOutput,
+                               const LDSection& pSection,
+                               MemoryRegion& pRegion) const
+{
+  const llvm::MCSectionData* SectionData = pSection.getSectionData();
+  assert(SectionData && "SectionData is NULL in emitRelocation!");
+
+  if (pSection.type() == SHT_REL)
+    emitRel(pLayout, pOutput, *SectionData, pRegion);
+  else if (pSection.type() == SHT_RELA)
+    emitRela(pLayout, pOutput, *SectionData, pRegion);
+  else
+    llvm::report_fatal_error("unsupported relocation section type!");
+}
+
+
 /// emitRel
 void ELFWriter::emitRel(const Layout& pLayout,
                         const Output& pOutput,
-                        const LDSection& pSection,
+                        const llvm::MCSectionData& pSectionData,
                         MemoryRegion& pRegion) const
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>( pRegion.start());
-  const llvm::MCSectionData* SectionData = pSection.getSectionData();
 
   Relocation* relocation = 0;
   MCFragmentRef* FragmentRef = 0;
 
-  for (llvm::MCSectionData::const_iterator it = SectionData->begin(),
-       ie = SectionData->end(); it != ie; ++it, ++rel) {
+  for (llvm::MCSectionData::const_iterator it = pSectionData.begin(),
+       ie = pSectionData.end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
     FragmentRef = &(relocation->targetRef());
@@ -428,7 +445,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
 /// emitRela
 void ELFWriter::emitRela(const Layout& pLayout,
                          const Output& pOutput,
-                         const LDSection& pSection,
+                         const llvm::MCSectionData& pSectionData,
                          MemoryRegion& pRegion) const
 {
   //FIXME: unsupport emitting .rela section.
