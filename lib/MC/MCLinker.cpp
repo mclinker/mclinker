@@ -393,7 +393,7 @@ bool MCLinker::applyRelocations()
   return true;
 }
 
-void MCLinker::syncRelocationResult(Output& pOutput) {
+void MCLinker::syncRelocationResult() {
 
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
 
@@ -402,14 +402,14 @@ void MCLinker::syncRelocationResult(Output& pOutput) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
     Relocation* reloc = static_cast<Relocation*>(frag);
 
-    // get output LDSection and file offset
-    LDSection* out_sec = m_Layout.getOutputLDSection(*reloc->targetRef().frag()) ;
-    size_t out_offset = out_sec->offset() + reloc->targetRef().offset();
+    // get output file offset
+    size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
+                        reloc->targetRef().offset();
 
     //request the target region
-    MemoryRegion* region = pOutput.memArea()->request(out_offset,
-                                                      m_Backend.bitclass()/8,
-                                                      true);
+       MemoryRegion* region = m_Info.output().memArea()->request(out_offset,
+                                                       m_Backend.bitclass()/8,
+                                                       true);
 
     // byte swapping if target and host has different endian, and then write back
     if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {

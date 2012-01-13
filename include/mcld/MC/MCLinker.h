@@ -138,7 +138,7 @@ public:
 
   /// syncRelocationResult - After applying relocation, write back relocation target
   /// data to output file.
-  void syncRelocationResult(Output& pOutput);
+  void syncRelocationResult();
 
   // -----  layout  ----- //
   Layout& getLayout()
