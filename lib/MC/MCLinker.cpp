@@ -117,7 +117,8 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*resolved_result.info);
     resolved_result.info->setSymPtr(output_sym);
-    m_Output.symtab().push_back(output_sym);
+
+    m_OutputSymbols.add(*output_sym);
   }
 
   if (resolved_result.overriden || !in_output) {
@@ -133,7 +134,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
        resolved_result.info->visibility() == ResolveInfo::Internal) &&
       (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
     if (shouldForceLocal(*resolved_result.info)) {
-      m_ForceLocalTable.insert(output_sym);
+      m_OutputSymbols.forceLocal(*output_sym);
     }
   }
 
@@ -200,7 +201,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
        resolved_result.info->visibility() == ResolveInfo::Internal) &&
       (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
     if (NULL != output_sym && shouldForceLocal(*resolved_result.info)) {
-      m_ForceLocalTable.insert(output_sym);
+      m_OutputSymbols.forceLocal(*output_sym);
     }
   }
 
@@ -243,7 +244,7 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     // forcefully set as a local symbol.
     // @ref Google gold linker: symtab.cc :1764
     if (shouldForceLocal(*result.info)) {
-      m_ForceLocalTable.insert(output_sym);
+      m_OutputSymbols.forceLocal(*output_sym);
     }
   }
 

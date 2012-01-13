@@ -12,6 +12,7 @@
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/SymbolCategory.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/Support/MemoryArea.h>
@@ -265,6 +266,7 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 /// .dynsym, .dynstr, and .hash
 void
 GNULDBackend::sizeNamePools(const Output& pOutput,
+                            const SymbolCategory& pSymbols,
                             const MCLDInfo& pLDInfo)
 {
   size_t symtab = 1;
@@ -274,9 +276,9 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   size_t hash   = 0;
 
   // compute size of .symtab, .dynsym and .strtab
-  LDContext::const_sym_iterator symbol;
-  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
-  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+  SymbolCategory::const_iterator symbol;
+  SymbolCategory::const_iterator symEnd = pSymbols.end();
+  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
     size_t str_size = (*symbol)->nameSize() + 1;
     if (isDynamicSymbol(**symbol, pOutput)) {
       ++dynsym;
@@ -372,6 +374,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitRegNamePools(Output& pOutput,
+                                    SymbolCategory& pSymbols,
                                     const Layout& pLayout,
                                     const MCLDInfo& pLDInfo)
 {
@@ -388,6 +391,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
       break;
     case Output::Object:
     default:
+      pOutput.context()->symtab().push_back(NULL);
       // TODO: not support yet
       return;
   }
@@ -438,9 +442,12 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
-  LDContext::const_sym_iterator symbol;
-  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
-  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+  SymbolCategory::iterator symbol;
+  SymbolCategory::iterator symEnd = pSymbols.end();
+  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
+    // maintain output's symtab
+    if (Output::Object == pOutput.type())
+      pOutput.context()->symtab().push_back(*symbol);
     // FIXME: check the endian between host and target
     // write out symbol
     if (32 == bitclass()) {
@@ -477,6 +484,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitDynNamePools(Output& pOutput,
+                                    SymbolCategory& pSymbols,
                                     const Layout& pLayout,
                                     const MCLDInfo& pLDInfo)
 {
@@ -486,9 +494,11 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
     // compute size of .dynstr and .hash
     case Output::DynObj:
       file_format = getDynObjFileFormat();
+      pOutput.context()->symtab().push_back(NULL);
       break;
     case Output::Exec:
       file_format = getExecFileFormat();
+      pOutput.context()->symtab().push_back(NULL);
       break;
     case Output::Object:
     default:
@@ -550,11 +560,16 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr
-  LDContext::const_sym_iterator symbol;
-  LDContext::const_sym_iterator symEnd = pOutput.context()->symEnd();
-  for (symbol = pOutput.context()->symBegin(); symbol != symEnd; ++symbol) {
+  SymbolCategory::iterator symbol;
+  SymbolCategory::iterator symEnd = pSymbols.end();
+  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
+
+    // maintain output's symtab
+    if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
+      pOutput.context()->symtab().push_back(*symbol);
+
     // FIXME: check the endian between host and target
     // write out symbol
     if (32 == bitclass()) {

@@ -27,6 +27,7 @@ class LDContext;
 class SectionMap;
 class Output;
 class MCLDInfo;
+class SymbolCategory;
 
 class LDFileFormat;
 class GOT;
@@ -116,7 +117,9 @@ public:
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void
-  sizeNamePools(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
+  sizeNamePools(const Output& pOutput,
+                const SymbolCategory& pSymbols,
+                const MCLDInfo& pLDInfo) = 0;
 
   virtual void finalizeSymbol(LDSymbol& pSymbol) const = 0;
 };

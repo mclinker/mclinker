@@ -282,7 +282,7 @@ bool MCLDDriver::prelayout()
   ///
   /// dump all symbols and strings from MCLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_LDInfo);
+  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_pLinker->getOutputSymbols(), m_LDInfo);
 
   return true;
 }

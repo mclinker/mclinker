@@ -28,6 +28,7 @@
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/SymbolCategory.h>
 #include <mcld/Support/GCFactory.h>
 #include <set>
 #include <string>
@@ -149,6 +150,13 @@ public:
 
   bool layout();
 
+  // -----  output symbols  ----- //
+  SymbolCategory& getOutputSymbols()
+  { return m_OutputSymbols; }
+
+  const SymbolCategory& getOutputSymbols() const
+  { return m_OutputSymbols; }
+
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
   { return m_Info; }
@@ -201,6 +209,7 @@ private:
   typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
   typedef llvm::iplist<llvm::MCFragment> RelocationListType;
   typedef std::set<LDSymbol*> ForceLocalSymbolTable;
+  typedef std::vector<LDSymbol*> OutputSymbolTable;
 
 private:
   TargetLDBackend& m_Backend;
@@ -214,7 +223,8 @@ private:
   StrSymPool m_StrSymPool;
   Layout m_Layout;
   RelocationListType m_RelocationList;
-  ForceLocalSymbolTable m_ForceLocalTable;
+  SymbolCategory m_OutputSymbols;
+
 };
 
 #include "MCLinker.tcc"

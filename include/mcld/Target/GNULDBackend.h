@@ -30,6 +30,7 @@ namespace mcld
 
 class MCLDInfo;
 class Layout;
+class SymbolCategory;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -143,6 +144,7 @@ public:
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void sizeNamePools(const Output& pOutput,
+                             const SymbolCategory& pSymbols,
                              const MCLDInfo& pLDInfo);
 
   /// emitSectionData - emit target-dependent section data
@@ -153,11 +155,13 @@ public:
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
   virtual void emitRegNamePools(Output& pOutput,
+                                SymbolCategory& pSymbols,
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(Output& pOutput,
+                                SymbolCategory& pSymbols,
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
 
