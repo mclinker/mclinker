@@ -63,7 +63,7 @@ void MCLDDriver::normalize() {
     else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
       (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
-      (*input)->setSONAME();
+      (*input)->setSOName();
       m_LDBackend.getDynObjReader()->readDSO(**input);
     }
     // is an archive

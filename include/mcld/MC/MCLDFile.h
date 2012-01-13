@@ -77,8 +77,8 @@ public:
     m_pMemArea = pMemArea;
   }
 
-  /// setSONAME - for DT_NEEEDED to get correct soname of dependent libs
-  void setSONAME()
+  /// setSOName - for DT_NEEEDED to get correct soname of dependent libs
+  void setSOName()
   {
     size_t begin_pos = m_Path.native().find_last_of(sys::fs::separator) + 1;
     m_Name = m_Path.native().substr(begin_pos);
