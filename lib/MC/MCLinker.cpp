@@ -44,14 +44,6 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_StrSymPool(pResolver, 128)
 {
   m_Info.setNamePool(m_StrSymPool);
-
-  ResolveInfo* info = m_StrSymPool.createSymbol("",
-                                                false,
-                                                ResolveInfo::NoType,
-                                                ResolveInfo::Undefined,
-                                                ResolveInfo::Local,
-                                                0x0,
-                                                ResolveInfo::Default);
 }
 
 /// Destructor
