@@ -144,12 +144,10 @@ ARMPLT0* ARMPLT::getPLT0() const {
 
 void ARMPLT::applyPLT0() {
 
-  uint64_t plt_base =
-    llvm::cast<LDSection>(m_SectionData.getSection()).offset();
+  uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
-  uint64_t got_base =
-    llvm::cast<LDSection>(m_GOT.getSectionData().getSection()).offset();
+  uint64_t got_base = m_GOT.getSection().addr();
   assert(got_base && ".got base address is NULL!");
 
   uint32_t offset = 0;
@@ -180,12 +178,10 @@ void ARMPLT::applyPLT0() {
 
 void ARMPLT::applyPLT1() {
 
-  uint64_t plt_base =
-    llvm::cast<LDSection>(m_SectionData.getSection()).offset();
+  uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
-  uint64_t got_base =
-    llvm::cast<LDSection>(m_GOT.getSectionData().getSection()).offset();
+  uint64_t got_base = m_GOT.getSection().addr();
   assert(got_base && ".got base address is NULL!");
 
   ARMPLT::iterator it = m_SectionData.begin();
