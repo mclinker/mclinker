@@ -59,7 +59,7 @@ const LDSection* LDContext::getSection(const std::string& pName) const
 
 size_t LDContext::getSymbolIdx(const llvm::StringRef& pName) const
 {
-  size_t result = 0;
+  size_t result = 1;
   size_t size = m_SymTab.size();
   for (; result < size; ++result)
     if (m_SymTab[result]->name() == pName)
@@ -69,7 +69,7 @@ size_t LDContext::getSymbolIdx(const llvm::StringRef& pName) const
 
 size_t LDContext::getSectionIdx(const std::string& pName) const
 {
-  size_t result = 0;
+  size_t result = 1;
   size_t size = m_SectionTable.size();
   for (; result != size; ++result)
     if (m_SectionTable[result]->name() == pName)
@@ -94,7 +94,7 @@ const LDSymbol* LDContext::getSymbol(unsigned int pIdx) const
 
 LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName)
 {
-  size_t sym = 0;
+  size_t sym = 1;
   size_t size = m_SymTab.size();
   for (; sym < size; ++sym)
     if (m_SymTab[sym]->name() == pName)
@@ -104,7 +104,7 @@ LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName)
 
 const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const
 {
-  size_t sym = 0;
+  size_t sym = 1;
   size_t size = m_SymTab.size();
   for (; sym < size; ++sym)
     if (m_SymTab[sym]->name() == pName)
