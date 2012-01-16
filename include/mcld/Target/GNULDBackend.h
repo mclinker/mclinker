@@ -245,6 +245,8 @@ private:
   }
 
 protected:
+  uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
+
   uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
 
   uint64_t getSymbolValue(const LDSymbol& pSymbol) const;

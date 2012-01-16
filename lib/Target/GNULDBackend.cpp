@@ -453,7 +453,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     if (32 == bitclass()) {
       symtab32[symtabIdx].st_name  = strtabsize;
       symtab32[symtabIdx].st_value = getSymbolValue(**symbol);
-      symtab32[symtabIdx].st_size  = (*symbol)->size();
+      symtab32[symtabIdx].st_size  = getSymbolSize(**symbol);
       symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab32[symtabIdx].st_other = (*symbol)->visibility();
       symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
@@ -461,7 +461,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     else { // must 64
       symtab64[symtabIdx].st_name  = strtabsize;
       symtab64[symtabIdx].st_value = getSymbolValue(**symbol);
-      symtab64[symtabIdx].st_size  = (*symbol)->size();
+      symtab64[symtabIdx].st_size  = getSymbolSize(**symbol);
       symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab64[symtabIdx].st_other = (*symbol)->visibility();
       symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
@@ -575,7 +575,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
     if (32 == bitclass()) {
       symtab32[symtabIdx].st_name  = strtabsize;
       symtab32[symtabIdx].st_value = (*symbol)->value();
-      symtab32[symtabIdx].st_size  = (*symbol)->size();
+      symtab32[symtabIdx].st_size  = getSymbolSize(**symbol);
       symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab32[symtabIdx].st_other = (*symbol)->visibility();
       symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
@@ -583,7 +583,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
     else { // must 64
       symtab64[symtabIdx].st_name  = strtabsize;
       symtab64[symtabIdx].st_value = (*symbol)->value();
-      symtab64[symtabIdx].st_size  = (*symbol)->size();
+      symtab64[symtabIdx].st_size  = getSymbolSize(**symbol);
       symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
       symtab64[symtabIdx].st_other = (*symbol)->visibility();
       symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
@@ -742,6 +742,16 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
     default:
       return SHO_UNDEFINED;
   }
+}
+
+/// getSymbolSize
+uint64_t GNULDBackend::getSymbolSize(const LDSymbol& pSymbol) const
+{
+  // @ref Google gold linker: symtab.cc: 2780
+  // undefined and dynamic symbols should have zero size.
+  if (pSymbol.isDyn() || pSymbol.desc() == ResolveInfo::Undefined)
+    return 0x0;
+  return pSymbol.resolveInfo()->size();
 }
 
 /// getSymbolInfo
