@@ -485,15 +485,10 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     + pReloc.addend();
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
 
-  if( pReloc.symInfo()->reserved() == 0 ){
-    S = pReloc.symValue();
-  }
-  else if( pReloc.symInfo()->reserved() & 0x8u) {
+  S = pReloc.symValue();
+  if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
-  }
-  else {
-    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
@@ -529,15 +524,11 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::Address S;
 
-  if( pReloc.symInfo()->reserved() == 0 ){
-    S = pReloc.symValue();
-  }
-  else if( pReloc.symInfo()->reserved() & 0x8u) {
+  S = pReloc.symValue();
+  // if symbol has plt
+  if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 1;  // PLT is in thumb mode.
-  }
-  else {
-    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
@@ -837,15 +828,11 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
                                   pReloc.addend();
   ARMRelocationFactory::Address S;
 
-  if( pReloc.symInfo()->reserved() == 0 ){
-    S = pReloc.symValue();
-  }
-  else if( pReloc.symInfo()->reserved() & 0x8u) {
+  S = pReloc.symValue();
+  // if symbol has plt
+  if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
-  }
-  else {
-    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = (S + A) | T ;
