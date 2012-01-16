@@ -438,22 +438,15 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc,
 ARMRelocationFactory::Result got_brel(Relocation& pReloc,
                                       ARMRelocationFactory& pParent)
 {
-  switch (pReloc.symInfo()->reserved()) {
-  default:
+  if(!(pReloc.symInfo()->reserved() & 0x6u)) {
     return ARMRelocationFactory::BadReloc;
-
-  // Only allow these four reserved entry type.
-  case ARMGNULDBackend::ReserveGOT:
-  case ARMGNULDBackend::GOTRel:
-  case ARMGNULDBackend::GOTandRel:
-  case ARMGNULDBackend::GOTRelandRel:
-    ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
-    ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
-    ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
-    // Apply relocation.
-    pReloc.target() = GOT_S + A - GOT_ORG;
-    return ARMRelocationFactory::OK;
   }
+  ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
+  ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
+  // Apply relocation.
+  pReloc.target() = GOT_S + A - GOT_ORG;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_PLT32: ((S + A) | T) - P
@@ -492,17 +485,15 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     + pReloc.addend();
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
 
-  switch (pReloc.symInfo()->reserved()) {
-  default:
-    return ARMRelocationFactory::BadReloc;
-
-  case ARMGNULDBackend::None:
+  if( pReloc.symInfo()->reserved() == 0 ){
     S = pReloc.symValue();
-    break;
-  case ARMGNULDBackend::ReservePLT:
+  }
+  else if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
-    break;
+  }
+  else {
+    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
@@ -538,19 +529,15 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::Address S;
 
-  switch (pReloc.symInfo()->reserved()) {
-    default: {
-      return ARMRelocationFactory::BadReloc;
-    }
-    case ARMGNULDBackend::None: {
-      S = pReloc.symValue();
-      break;
-    }
-    case ARMGNULDBackend::ReservePLT: {
-      S = helper_PLT(pReloc, pParent);
-      T = 1;  // PLT is in thumb mode.
-      break;
-    }
+  if( pReloc.symInfo()->reserved() == 0 ){
+    S = pReloc.symValue();
+  }
+  else if( pReloc.symInfo()->reserved() & 0x8u) {
+    S = helper_PLT(pReloc, pParent);
+    T = 1;  // PLT is in thumb mode.
+  }
+  else {
+    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
@@ -850,17 +837,15 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
                                   pReloc.addend();
   ARMRelocationFactory::Address S;
 
-  switch (pReloc.symInfo()->reserved()) {
-  default:
-    return ARMRelocationFactory::BadReloc;
-
-  case ARMGNULDBackend::None:
+  if( pReloc.symInfo()->reserved() == 0 ){
     S = pReloc.symValue();
-    break;
-  case ARMGNULDBackend::ReservePLT:
+  }
+  else if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
-    break;
+  }
+  else {
+    return ARMRelocationFactory::BadReloc;
   }
 
   ARMRelocationFactory::DWord X = (S + A) | T ;
