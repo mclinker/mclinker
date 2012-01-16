@@ -27,7 +27,10 @@ Output::~Output()
 
 void Output::setSOName(const std::string& pName)
 {
-  /// FIXME: strip ./
-  m_Name = pName;
+  size_t pos = pName.find_last_of(sys::fs::separator);
+  if (std::string::npos == pos)
+    m_Name = pName;
+  else
+    m_Name = pName.substr(pos + 1);
 }
 

@@ -80,8 +80,11 @@ public:
   /// setSOName - for DT_NEEEDED to get correct soname of dependent libs
   void setSOName()
   {
-    size_t begin_pos = m_Path.native().find_last_of(sys::fs::separator) + 1;
-    m_Name = m_Path.native().substr(begin_pos);
+    size_t pos = m_Path.native().find_last_of(sys::fs::separator);
+    if (std::string::npos == pos)
+      m_Name = m_Path.native();
+    else
+      m_Name = m_Path.native().substr(pos + 1);
   }
   // -----  observers  ----- //
   unsigned int type() const
