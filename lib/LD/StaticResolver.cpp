@@ -47,7 +47,7 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
     /* wd_U */ {NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
     /* D    */ {DEF,    DEF,    DEF,   DEF,   MDEF,  DEF,   DEF,   DEF,   CDEF,  CDEF,  CDEF,  MDEF },
     /* w_D  */ {DEFW,   DEFW,   DEFW,  DEFW,  NOACT, NOACT, DEFW,  DEFW,  NOACT, NOACT, NOACT, NOACT},
-    /* d_D  */ {MDEFD,  MDEFD,  DEFD,  DEFD,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, MDEF },
+    /* d_D  */ {DEFD,   MDEFD,  DEFD,  DEFD,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, MDEF },
     /* wd_D */ {MDEFWD, MDEFWD, DEFWD, DEFWD, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT},
     /* C    */ {COM,    COM,    COM,   COM,   CREF,  COM,   COM,   COM,   MBIG,  COM,   BIG,   REFC },
     /* w_C  */ {COM,    COM,    COM,   COM,   NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
@@ -109,7 +109,7 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       case MDEFWD: {     /* mark symbol dynamic weak defined.  */
         uint32_t binding = old->binding();
         old->override(pNew);
-        old->setBinding(ResolveInfo::Weak);
+        old->setBinding(binding);
         m_Mesg = std::string("symbol `") +
                  old->name() +
                  std::string("' uses the type, dynamic, size and type in the dynamic symbol.");
@@ -119,7 +119,10 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       case DUND:
       case DUNDW: {
-        old->setBinding(pNew.binding());
+        if (old->binding() == ResolveInfo::Weak &&
+            pNew.binding() != ResolveInfo::Weak) {
+          old->setBinding(pNew.binding());
+        }
         old->overrideVisibility(pNew);
         pOverride = false;
         result = Resolver::Success;
