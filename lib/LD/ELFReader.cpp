@@ -11,13 +11,11 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/Host.h>
-
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Target/GNULDBackend.h>
-
 #include <cstring>
 
 using namespace mcld;

@@ -62,10 +62,6 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
                                         MCFragmentRef* pFragmentRef,
                                         ResolveInfo::Visibility pVisibility)
 {
-  // We merge sections when reading them. So we do not need symbols with
-  // section type
-  if (pType == ResolveInfo::Section)
-    return NULL;
 
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
@@ -110,7 +106,11 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     output_sym->setResolveInfo(*resolved_result.info);
     resolved_result.info->setSymPtr(output_sym);
 
-    m_OutputSymbols.add(*output_sym);
+    if (pType != ResolveInfo::Section) {
+      // We merge sections when reading them. So we do not need symbols with
+      // section type
+      m_OutputSymbols.add(*output_sym);
+    }
   }
 
   if (resolved_result.overriden || !in_output) {
