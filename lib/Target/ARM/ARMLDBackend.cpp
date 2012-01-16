@@ -498,15 +498,14 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // return if we already create plt for this symbol
         if(rsym->reserved() & 0x8u)
           return;
+
         // if symbol is defined in the ouput file and it's not
         // preemptible, no need plt
         if(rsym->isDefine() && !rsym->isDyn()
            && !isSymbolPreemtible(*rsym, pType, pLDInfo)) {
           return;
         }
-//        if(rsym->isDefine() && !rsym->isDyn()) {
-//          return;
-//        }
+
         // create .plt and .rel.plt if not exist
         if(!m_pPLT)
            createARMPLTandRelPLT(pLinker, pType);
