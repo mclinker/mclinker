@@ -204,9 +204,9 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
   else if (pFormat.hasRelaPlt())
     applyOne(llvm::ELF::DT_PLTREL, llvm::ELF::DT_RELA); // DT_PLTREL
 
-  if (pFormat.hasPLT()) {
-    applyOne(llvm::ELF::DT_JMPREL, pFormat.getPLT().addr()); // DT_JMPREL
-    applyOne(llvm::ELF::DT_PLTRELSZ, pFormat.getPLT().size()); // DT_PLTRELSZ
+  if (pFormat.hasRelPlt()) {
+    applyOne(llvm::ELF::DT_JMPREL, pFormat.getRelPlt().addr()); // DT_JMPREL
+    applyOne(llvm::ELF::DT_PLTRELSZ, pFormat.getRelPlt().size()); // DT_PLTRELSZ
   }
 
   if (pFormat.hasRelDyn()) {
