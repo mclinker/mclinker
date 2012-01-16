@@ -99,6 +99,7 @@ public:
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
                       unsigned int pType);
 
   /// finalizeSymbol - finalize the symbol value

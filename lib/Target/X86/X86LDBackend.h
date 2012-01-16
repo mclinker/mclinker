@@ -100,6 +100,7 @@ public:
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
                       unsigned int pType);
 
   /// finalizeSymbol - finalize the symbol value

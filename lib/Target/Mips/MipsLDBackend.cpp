@@ -117,6 +117,7 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
+                                      const MCLDInfo& pLDInfo,
                                       unsigned int pType)
 {
   ResolveInfo* rsym = pReloc.symInfo();

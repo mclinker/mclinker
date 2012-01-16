@@ -100,6 +100,7 @@ public:
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
                       unsigned int pType);
 
   uint32_t machine() const;
@@ -177,10 +178,15 @@ public:
   void finalizeSymbol(LDSymbol& pSymbol) const;
 
 private:
-  bool isSymbolNeedsPLT(const ResolveInfo& pSym, unsigned int pType);
+  bool isSymbolNeedsPLT(const ResolveInfo& pSym, 
+                        unsigned int pType, 
+                        const MCLDInfo& pLDInfo);
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
                            unsigned int pType, 
                            bool isAbsReloc);
+  bool isSymbolPreemtible(const ResolveInfo& pSym,
+                          unsigned int pType,
+                          const MCLDInfo& pLDInfo);
   void createARMGOT(MCLinker& pLinker, unsigned int pType);
   void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
   void createARMRelDyn(MCLinker& pLinker, unsigned int pType);

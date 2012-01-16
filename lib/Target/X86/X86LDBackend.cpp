@@ -98,6 +98,7 @@ void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      MCLinker& pLinker,
+                                     const MCLDInfo& pLDInfo,
                                      unsigned int pType)
 {
   llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +

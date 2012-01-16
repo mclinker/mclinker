@@ -215,11 +215,13 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
-                                       unsigned int pType)
+                                       unsigned int pType,
+                                       const MCLDInfo& pLDInfo)
 {
   return((Output::DynObj == pType)
          &&(ResolveInfo::Function == pSym.type())
-         &&(pSym.isDyn() || pSym.isUndef())
+         &&(pSym.isDyn() || pSym.isUndef() ||
+            isSymbolPreemtible(pSym, pType, pLDInfo))
         );
 }
 
@@ -239,8 +241,25 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
   return false;
 }
 
+bool ARMGNULDBackend::isSymbolPreemtible(const ResolveInfo& pSym,
+                                         unsigned int pType,
+                                         const MCLDInfo& pLDInfo)
+{
+  if(pSym.other() != ResolveInfo::Default)
+    return false;
+
+  if(pType != Output::DynObj)
+    return false;
+
+  if(pLDInfo.options().Bsymbolic())
+    return false;
+
+  return true;
+}
+
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
                                      MCLinker& pLinker,
+                                     const MCLDInfo& pLDInfo,
                                      unsigned int pType)
 {
   // rsym - The relocation target symbol
@@ -256,7 +275,6 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   // is needed
   if((NULL == m_pGOT) && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
     createARMGOT(pLinker, pType);
-    return;
   }
 
   // rsym is local symbol
@@ -370,7 +388,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
       case ELF::R_ARM_ABS32_NOI: {
         // Absolute relocation type, symbol may needs PLT entry or
         // dynamic relocation entry
-        if(isSymbolNeedsPLT(*rsym, pType)) {
+        if(isSymbolNeedsPLT(*rsym, pType, pLDInfo)) {
           // break if we already create plt for this symbol
           if(rsym->reserved() & 0x8u)
             break;
@@ -480,13 +498,15 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // return if we already create plt for this symbol
         if(rsym->reserved() & 0x8u)
           return;
-        // if symbol is defined in the ouput file and it's protected
-        // or hidden, no need plt
+        // if symbol is defined in the ouput file and it's not
+        // preemptible, no need plt
         if(rsym->isDefine() && !rsym->isDyn()
-           && (rsym->other() == ResolveInfo::Hidden
-               || rsym->other() == ResolveInfo::Protected)) {
+           && !isSymbolPreemtible(*rsym, pType, pLDInfo)) {
           return;
         }
+//        if(rsym->isDefine() && !rsym->isDyn()) {
+//          return;
+//        }
         // create .plt and .rel.plt if not exist
         if(!m_pPLT)
            createARMPLTandRelPLT(pLinker, pType);

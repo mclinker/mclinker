@@ -67,6 +67,7 @@ public:
   /// @param pType - the MCLDOutput type of ouput file type
   virtual void scanRelocation(Relocation& pReloc,
                               MCLinker& pLinker,
+                              const MCLDInfo& pLDInfo,
                               unsigned int pType) = 0;
 
   // -----  format dependent  ----- //
