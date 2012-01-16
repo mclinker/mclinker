@@ -95,7 +95,8 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++m_PLTEntryIterator) != m_SectionData.end() &&
+     ++m_PLTEntryIterator;
+     assert(m_PLTEntryIterator != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
      ++(m_GOT.m_GOTPLTIterator);
 
@@ -119,7 +120,8 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      pExist = 0;
 
      // This will skip PLT0.
-     assert((++m_PLTEntryIterator) != m_SectionData.end() &&
+     ++m_PLTEntryIterator;
+     assert(m_PLTEntryIterator != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
      ++(m_GOT.m_GOTPLTIterator);
 
