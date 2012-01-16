@@ -54,11 +54,6 @@ hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
 // @ref Google gold linker: symtab.cc: 311
 inline bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput)
 {
-  // If the symbol is used in backend (usually used by dynamic relocation),
-  // we need to add it.
-  if (0x0 != pSymbol.resolveInfo()->reserved())
-    return true;
-
   // If a local symbol is in the LDContext's symbol table, it's a real local
   // symbol. We should not add it
   if (pSymbol.binding() == ResolveInfo::Local)
