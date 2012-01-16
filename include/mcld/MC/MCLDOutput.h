@@ -44,10 +44,6 @@ public:
                   Type pType);
 
   ~Output();
-
-  /// setSOName - set the name of the shared object.
-  /// In ELF, this will be written in DT_SONAME
-  void setSOName(const std::string& pName);
 };
 
 } // namespace of mcld

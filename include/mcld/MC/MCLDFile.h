@@ -77,15 +77,10 @@ public:
     m_pMemArea = pMemArea;
   }
 
-  /// setSOName - for DT_NEEEDED to get correct soname of dependent libs
-  void setSOName()
-  {
-    size_t pos = m_Path.native().find_last_of(sys::fs::separator);
-    if (std::string::npos == pos)
-      m_Name = m_Path.native();
-    else
-      m_Name = m_Path.native().substr(pos + 1);
-  }
+  /// setSOName - set the name of the shared object.
+  /// In ELF, this will be written in DT_SONAME
+  void setSOName(const std::string& pName);
+
   // -----  observers  ----- //
   unsigned int type() const
   { return m_Type; }
