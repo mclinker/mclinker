@@ -476,6 +476,15 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 {
   // TODO: Some issue have not been considered, e.g. thumb, overflow?
 
+  // If target is undefined weak symbol, we only need to jump to the
+  // next instruction unless it has PLT entry.
+  if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
+      !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
+    // change target to NOP : mov r0, r0
+    pReloc.target() = (pReloc.target() & 0xf0000000U) | 0x01a00000;
+    return ARMRelocationFactory::OK;
+  }
+
   ARMRelocationFactory::Address S; // S dependent on exist PLT or not.
   ARMRelocationFactory::DWord   T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord   A =
