@@ -178,15 +178,28 @@ public:
   bool finalizeSymbol(LDSymbol& pSymbol) const;
 
 private:
+  void scanLocalReloc(Relocation& pReloc,
+                      MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
+                      unsigned int pType);
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       MCLinker& pLinker,
+                       const MCLDInfo& pLDInfo,
+                       unsigned int pType);
+
   bool isSymbolNeedsPLT(const ResolveInfo& pSym, 
                         unsigned int pType, 
                         const MCLDInfo& pLDInfo);
+
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
                            unsigned int pType, 
                            bool isAbsReloc);
+
   bool isSymbolPreemtible(const ResolveInfo& pSym,
                           unsigned int pType,
                           const MCLDInfo& pLDInfo);
+
   void createARMGOT(MCLinker& pLinker, unsigned int pType);
   void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
   void createARMRelDyn(MCLinker& pLinker, unsigned int pType);
