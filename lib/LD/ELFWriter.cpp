@@ -431,11 +431,13 @@ void ELFWriter::emitRel(const Layout& pLayout,
                       pLayout.getOutputOffset(*FragmentRef));
     }
 
-    assert(NULL != relocation->symInfo());
-
-    Elf32_Word Index = static_cast<Elf32_Word>(
-                       pOutput.context()->getSymbolIdx(
-                         llvm::StringRef(relocation->symInfo()->name())));
+    Elf32_Word Index;
+    if( relocation->symInfo() == NULL )
+      Index = 0;
+    else
+      Index = static_cast<Elf32_Word>(
+              pOutput.context()->getSymbolIdx(
+              llvm::StringRef(relocation->symInfo()->name())));
 
     rel->setSymbolAndType(Index, relocation->type());
   }

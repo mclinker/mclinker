@@ -239,7 +239,11 @@ void helper_DynRel(Relocation& pReloc,
     *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
   rel_entry.setType(pType);
   rel_entry.targetRef() = pReloc.targetRef();
-  rel_entry.setSymInfo(rsym);
+
+  if(pType == llvm::ELF::R_ARM_RELATIVE)
+    rel_entry.setSymInfo(0);
+  else
+    rel_entry.setSymInfo(rsym);
 }
 
 static ARMRelocationFactory::DWord
@@ -387,12 +391,14 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
       pReloc.target() = (S + A) | T;
     }
     if(rsym->reserved() & 0x1u) {
-      if(helper_use_relative_reloc(*rsym))
+      if(helper_use_relative_reloc(*rsym) ) {
         helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
-      else
+      }
+      else {
         helper_DynRel(pReloc, pReloc.type(), pParent);
+        return ARMRelocationFactory::OK;
+      }
     }
-    return ARMRelocationFactory::OK;
   }
 
   // perform static relocation
