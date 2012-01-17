@@ -399,7 +399,7 @@ void MCLinker::syncRelocationResult() {
                         reloc->targetRef().offset();
 
     //request the target region
-       MemoryRegion* region = m_Info.output().memArea()->request(out_offset,
+    MemoryRegion* region = m_Info.output().memArea()->request(out_offset,
                                                        m_Backend.bitclass()/8,
                                                        true);
 
@@ -425,8 +425,9 @@ void MCLinker::syncRelocationResult() {
     else {
       std::memcpy(region->getBuffer(), &reloc->target(), m_Backend.bitclass()/8);
     }
-    region->sync();
-  }
+  } // end of for
+  
+  m_Info.output().memArea()->sync();
 }
 
 
