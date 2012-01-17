@@ -452,8 +452,10 @@ bool MCLinker::finalizeSymbols()
     if (0x0 != (*symbol)->resolveInfo()->reserved()) {
       // if the symbol is target reserved, target backend is responsible
       // for finalizing the value.
-      m_Backend.finalizeSymbol(**symbol);
-      continue;
+      // if target backend does not know this symbol, it will return false
+      // and we have to take over the symbol.
+      if (m_Backend.finalizeSymbol(**symbol))
+        continue;
     }
 
     if ((*symbol)->hasFragRef()) {
