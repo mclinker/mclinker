@@ -55,7 +55,9 @@ void X86GNULDBackend::doPostLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
                                    MCLinker& pLinker)
 {
-  // add any needed modification after layout
+  // emit program headers
+  if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
+    emitProgramHdrs(pOutput);
 }
 
 uint32_t X86GNULDBackend::machine() const
