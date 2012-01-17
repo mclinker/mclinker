@@ -41,6 +41,10 @@ Relocation::Address Relocation::place(const Layout& pLayout) const
 
 Relocation::Address Relocation::symValue() const
 {
+  if(m_pSymInfo->type() == ResolveInfo::Section) {
+    return llvm::cast<LDSection>(
+      m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection()).addr();
+  }
   return m_pSymInfo->outSymbol()->value();
 }
 
