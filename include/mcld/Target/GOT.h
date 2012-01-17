@@ -73,6 +73,9 @@ public:
   const LDSection& getSection() const
   { return m_Section; }
 
+  llvm::MCSectionData& getSectionData()
+  { return m_SectionData; }
+
   const llvm::MCSectionData& getSectionData() const
   { return m_SectionData; }
 

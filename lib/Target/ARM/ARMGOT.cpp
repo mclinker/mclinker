@@ -21,7 +21,8 @@ namespace mcld {
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, ARMGOTEntrySize),
-               m_GOTPLTNum(0), m_GeneralGOTNum(0), m_GeneralGOTIterator()
+               m_GOTPLTNum(0), m_GeneralGOTNum(0), m_LastGOT0(),
+               m_GOTPLTIterator(), m_GeneralGOTIterator()
 {
   GOTEntry* Entry = 0;
 
@@ -36,15 +37,20 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
 
-  // Skip GOT0
-  m_GeneralGOTIterator = m_SectionData.begin();
-  ++m_GeneralGOTIterator;
-  ++m_GeneralGOTIterator;
+  // Skip GOT0 entries.
+  iterator it = m_SectionData.begin();
+  iterator ie = m_SectionData.end();
 
-  // Skip GOT0
-  m_GOTPLTIterator = m_SectionData.begin();
-  ++m_GOTPLTIterator;
-  ++m_GOTPLTIterator;
+  for (int i = 1; i < ARMGOT0Num; ++i) {
+    if (it == ie)
+      llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
+
+    ++it;
+  }
+
+  m_LastGOT0 = it;
+  m_GeneralGOTIterator = it;
+  m_GOTPLTIterator = it;
 }
 
 ARMGOT::~ARMGOT()
@@ -111,5 +117,17 @@ ARMGOT::const_iterator ARMGOT::end() const
 {
   return m_SectionData.getFragmentList().end();
 }
+
+unsigned int ARMGOT::getGOTPLTNum()
+{ return m_GOTPLTNum; }
+
+const unsigned int ARMGOT::getGOTPLTNum() const
+{ return m_GOTPLTNum; }
+
+ARMGOT::iterator ARMGOT::getLastGOT0()
+{ return m_LastGOT0; }
+
+const ARMGOT::iterator ARMGOT::getLastGOT0() const
+{ return m_LastGOT0; }
 
 } //end mcld namespace

@@ -22,6 +22,9 @@ class LDSection;
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
  */
+
+const unsigned int ARMGOT0Num = 3;
+
 class ARMGOT : public GOT
 {
   friend void mcld::ARMPLT::reserveEntry(int pNum);
@@ -58,6 +61,14 @@ public:
 
   const_iterator end() const;
 
+  unsigned int getGOTPLTNum();
+
+  const unsigned int getGOTPLTNum() const;
+
+  iterator getLastGOT0();
+
+  const iterator getLastGOT0() const;
+
 private:
 
   unsigned int m_GeneralGOTNum;
@@ -68,6 +79,9 @@ private:
 
   // Used by getGOTPLTEntry()
   iterator m_GOTPLTIterator;
+
+  // The last GOT0 entry
+  iterator m_LastGOT0;
 
   SymbolIndexMapType m_GOTPLTMap;
   SymbolIndexMapType m_GeneralGOTMap;
