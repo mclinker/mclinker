@@ -17,6 +17,7 @@ lit.site.cfg: FORCE
 	@echo "Making MCLinker 'lit.site.cfg' file..."
 	@echo s=@MCLINKER@=$(MCLINKER)=g > lit.tmp
 	@echo s=@MCLINKER_SOURCE_ROOT@=$(abs_top_srcdir)=g >> lit.tmp
+	@echo s=@MCLINKER_OBJECT_ROOT@=$(abs_top_builddir)=g >> lit.tmp
 	@echo s=@LLVM_CONFIG@=$(LLVM_CONFIG_BIN)=g >> lit.tmp
 	@sed -f lit.tmp $(abs_srcdir)/lit.site.cfg.in > $@
 	@-rm -f lit.tmp
