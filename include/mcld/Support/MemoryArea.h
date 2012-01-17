@@ -140,6 +140,9 @@ public:
   // clean - release all MemoryRegion and unmap all spaces.
   void clean();
 
+  // sync - sync all MemoryRegion
+  void sync();
+
   // map - open the file pPath and mapped it onto MemoryArea
   // @param flags see man 2 open
   void map(const sys::fs::Path& pPath, int flags);

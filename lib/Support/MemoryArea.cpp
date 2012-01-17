@@ -284,6 +284,14 @@ void MemoryArea::clean()
   m_SpaceList.clear();
 }
 
+void MemoryArea::sync()
+{
+  SpaceList::iterator sIter, sEnd = m_SpaceList.end();
+  for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
+    write(*sIter);
+  }
+}
+
 MemoryArea::Space* MemoryArea::find(off_t pOffset, size_t pLength)
 {
   SpaceList::iterator sIter, sEnd = m_SpaceList.end();
