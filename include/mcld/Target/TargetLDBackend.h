@@ -122,7 +122,11 @@ public:
                 const SymbolCategory& pSymbols,
                 const MCLDInfo& pLDInfo) = 0;
 
-  virtual void finalizeSymbol(LDSymbol& pSymbol) const = 0;
+  /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
+  /// then it will ask backend to finalize the symbol value.
+  /// @return ture - if backend set the symbol value sucessfully
+  /// @return false - if backend do not recognize the symbol
+  virtual bool finalizeSymbol(LDSymbol& pSymbol) const = 0;
 };
 
 } // End mcld namespace

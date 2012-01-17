@@ -105,7 +105,7 @@ public:
   /// finalizeSymbol - finalize the symbol value
   /// If the symbol's reserved field is not zero, MCLinker will call back this
   /// function to ask the final value of the symbol
-  void finalizeSymbol(LDSymbol& pSymbol) const;
+  bool finalizeSymbol(LDSymbol& pSymbol) const;
 
 private:
   RelocationFactory* m_pRelocFactory;
