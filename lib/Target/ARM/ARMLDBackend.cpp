@@ -389,21 +389,22 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
         // Absolute relocation type, symbol may needs PLT entry or
         // dynamic relocation entry
         if(isSymbolNeedsPLT(*rsym, pType, pLDInfo)) {
-          // break if we already create plt for this symbol
-          if(rsym->reserved() & 0x8u)
-            break;
-          // create .plt and .rel.plt if not exist
-          if(!m_pPLT)
-            createARMPLTandRelPLT(pLinker, pType);
-          // Symbol needs PLT entry, we need to reserve a PLT entry
-          // and the corresponding GOT and dynamic relocation entry
-          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
-          // when calling ARMPLT->reserveEntry())
-          m_pPLT->reserveEntry();
-          m_pRelPLT->reserveEntry(*m_pRelocFactory);
-          // set PLT bit
-          rsym->setReserved(rsym->reserved() | 0x8u);
+          // create plt for this symbol if it does not have one
+          if(!(rsym->reserved() & 0x8u)){
+            // create .plt and .rel.plt if not exist
+            if(!m_pPLT)
+              createARMPLTandRelPLT(pLinker, pType);
+            // Symbol needs PLT entry, we need to reserve a PLT entry
+            // and the corresponding GOT and dynamic relocation entry
+            // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+            // when calling ARMPLT->reserveEntry())
+            m_pPLT->reserveEntry();
+            m_pRelPLT->reserveEntry(*m_pRelocFactory);
+            // set PLT bit
+            rsym->setReserved(rsym->reserved() | 0x8u);
+          }
         }
+
         if(isSymbolNeedsDynRel(*rsym, pType, true)) {
           // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
           // create .rel.dyn section if not exist
