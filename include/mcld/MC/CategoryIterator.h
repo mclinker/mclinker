@@ -21,7 +21,7 @@ namespace mcld
 class LDSymbol;
 
 template<typename DATA_TRAITS,
-         typename POOL_TRAITS,
+         class POOL,
          typename FORCELOCAL_TRAITS,
          typename OUTPUTSYMBOL_TRAITS>
 class CategoryIterator
@@ -32,19 +32,20 @@ public:
   typedef typename DATA_TRAITS::reference reference;
 
   typedef CategoryIterator<DATA_TRAITS,
-                           POOL_TRAITS,
+                           POOL,
                            FORCELOCAL_TRAITS,
                            OUTPUTSYMBOL_TRAITS> Self;
 
-  typedef typename POOL_TRAITS::value_type Pool;
-  typedef typename POOL_TRAITS::pointer PoolPtr;
   typedef typename FORCELOCAL_TRAITS::value_type ForceLocals;
   typedef typename OUTPUTSYMBOL_TRAITS::value_type OutputSymbols;
 
-private:
-  friend class POOL_TRAITS::value_type;
-
-  CategoryIterator(PoolPtr pPool, size_t pIdx)
+// FIXME:
+// when GCC can support template friend in C++ 11, make this constructor
+// private.
+// private:
+//   friend POOL;
+public:
+  CategoryIterator(POOL* pPool, size_t pIdx)
   : m_pPool(pPool) {
     if (NULL == m_pPool)
       return;
@@ -246,7 +247,7 @@ private:
     } // end of switch
   }
 private:
-  PoolPtr m_pPool;
+  POOL* m_pPool;
   typename FORCELOCAL_TRAITS::iterator m_FLocal;
   typename OUTPUTSYMBOL_TRAITS::iterator m_Symbol;
   State m_State;

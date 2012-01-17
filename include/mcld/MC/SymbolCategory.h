@@ -31,12 +31,12 @@ private:
 
 public:
   typedef CategoryIterator<NonConstTraits<LDSymbol>,
-                           NonConstTraits<SymbolCategory>,
+                           SymbolCategory,
                            NonConstIteratorTraits<ForceLocalSet>,
                            NonConstIteratorTraits<OutputSymbols> > iterator;
 
   typedef CategoryIterator<ConstTraits<LDSymbol>,
-                           ConstTraits<SymbolCategory>,
+                           const SymbolCategory,
                            ConstIteratorTraits<ForceLocalSet>,
                            ConstIteratorTraits<OutputSymbols> > const_iterator;
 
