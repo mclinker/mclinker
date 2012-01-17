@@ -238,10 +238,11 @@ void ARMPLT::applyPLT1() {
 
   if (GOTPLTNum != 0) {
     ARMGOT::iterator gotplt_it = m_GOT.getLastGOT0();
-    ARMGOT::iterator gotplt_ie = m_GOT.getSectionData().getFragmentList().end();
+    ARMGOT::iterator list_ie = m_GOT.getSectionData().getFragmentList().end();
 
+    ++gotplt_it;
     for (int i = 0; i < GOTPLTNum; ++i) {
-      if (gotplt_it == gotplt_ie)
+      if (gotplt_it == list_ie)
         llvm::report_fatal_error(
           "The number of got.plt entries is inconsistent!");
 
