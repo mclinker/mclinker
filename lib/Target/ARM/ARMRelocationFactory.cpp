@@ -347,7 +347,9 @@ helper_use_relative_reloc(ResolveInfo& pSym)
   if(pSym.reserved() & 0x8u)
     return true;
   // if symbol is dynamic or undefine or preemptible
-  if(pSym.isDyn() || pSym.isUndef() || pSym.other() == ResolveInfo::Default)
+  // FIXME: how to judge a symbol is preemptible here?
+  //        or this judgement should be moved to scanRelocation?
+  if(pSym.isDyn() || pSym.isUndef())
     return false;
 
   return true;
@@ -403,21 +405,11 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
                                    ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  // if symbol needs dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_REL32 ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
   // perform static relocation
-  else {
-    ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-    ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-    pReloc.target() = ((pReloc.symValue() + A) | T)
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  pReloc.target() = ((pReloc.symValue() + A) | T)
       - pReloc.place(pParent.getLayout());
-  }
   return ARMRelocationFactory::OK;
 }
 
@@ -605,14 +597,6 @@ ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  // use dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_MOVT_PREL_NC ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
   X = ((S + A) | T) - P;
 
   if (helper_check_signed_overflow(X, 16)) {
@@ -638,14 +622,6 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
   if(rsym->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
   }
-  // use dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_MOVT_ABS ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
 
   X = S + A;
   X >>= 16;
@@ -658,15 +634,6 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
 ARMRelocationFactory::Result movt_prel(Relocation& pReloc,
                                        ARMRelocationFactory& pParent)
 {
-  // use dynamic relocation
-  if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_MOVT_PREL ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
-
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
@@ -697,15 +664,6 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
     S = helper_PLT(pReloc, pParent);
     T = 0; // PLT is not thumb
   }
-  // use dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_THM_MOVW_ABS_NC ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
-
   X = (S + A) | T;
   // check 16-bit overflow
   if (helper_check_signed_overflow(X, 16)) {
@@ -721,15 +679,6 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
 ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
                                       ARMRelocationFactory& pParent)
 {
-  // use dynamic relocation
-  if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_THM_MOVW_PREL_NC ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
-
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
@@ -764,15 +713,6 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
   if(rsym->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
   }
-  // use dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_THM_MOVT_ABS ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
-
   X = S + A;
   X >>= 16;
 
@@ -790,15 +730,6 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
 ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
                                            ARMRelocationFactory& pParent)
 {
-  // use dynamic relocation
-  if(pReloc.symInfo()->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_THM_MOVT_PREL ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
-
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
