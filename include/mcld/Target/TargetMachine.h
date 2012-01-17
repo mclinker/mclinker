@@ -94,6 +94,7 @@ private:
   /// addCommonCodeGenPasses - Add standard LLVM codegen passes used for
   /// both emitting to assembly files or machine code output.
   bool addCommonCodeGenPasses(PassManagerBase &,
+                              mcld::CodeGenFileType,
                               CodeGenOpt::Level,
                               bool DisableVerify,
                               llvm::MCContext *&OutCtx);

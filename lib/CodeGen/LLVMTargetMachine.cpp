@@ -44,6 +44,8 @@
 #include <llvm/Target/TargetLowering.h>
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Target/TargetSubtargetInfo.h>
+#include <llvm/Target/TargetLoweringObjectFile.h>
+#include <llvm/Target/TargetRegisterInfo.h>
 #include <llvm/Transforms/Scalar.h>
 
 #include <string>
@@ -97,12 +99,29 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
 }
 
 bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
+                                                     mcld::CodeGenFileType pFileType,
                                                      CodeGenOpt::Level Level,
                                                      bool DisableVerify,
                                                      llvm::MCContext *&OutCtx)
 {
-  return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
-                                            PM, DisableVerify, OutCtx);
+  if (pFileType == CGFT_EXEFile || pFileType == CGFT_DSOFile) {
+    MachineModuleInfo *MMI = new MachineModuleInfo(
+                                     *m_TM.getMCAsmInfo(),
+                                     *m_TM.getRegisterInfo(),
+                                     &m_TM.getTargetLowering()->getObjFileLowering());
+    PM.add(MMI);
+    OutCtx = &MMI->getContext();
+    // Set up a MachineFunction for the rest of CodeGen to work on.
+    PM.add(new MachineFunctionAnalysis(m_TM));
+
+    return false;
+  }
+  if (pFileType != CGFT_EXEFile && pFileType != CGFT_DSOFile) {
+    // go through the normal path
+    return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
+                                              PM, DisableVerify, OutCtx);
+  }
+  return false;
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -116,32 +135,40 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
   // MCContext
   llvm::MCContext* Context = 0;
-  if (addCommonCodeGenPasses(pPM, pOptLvl,pDisableVerify, Context))
+  if (addCommonCodeGenPasses(pPM, pFileType, pOptLvl,pDisableVerify, Context))
     return true;
-  assert(Context != 0 && "Failed to get MCContext");
 
-  if (getTM().hasMCSaveTempLabels())
-    Context->setAllowTemporaryLabels(false);
-
-  switch( pFileType ) {
+  switch(pFileType) {
   default:
   case mcld::CGFT_NULLFile:
     assert(0 && "fatal: file type is not set!");
     break;
   case CGFT_ASMFile: {
+    assert(Context != 0 && "Failed to get MCContext");
+
+    if (getTM().hasMCSaveTempLabels())
+      Context->setAllowTemporaryLabels(false);
     if (addCompilerPasses(pPM,
                           Out,
                           pOutputFilename,
                           Context))
       return true;
+
+    pPM.add(createGCInfoDeleter()); // not in addPassesToMC
     break;
   }
   case CGFT_OBJFile: {
+    assert(Context != 0 && "Failed to get MCContext");
+
+    if (getTM().hasMCSaveTempLabels())
+      Context->setAllowTemporaryLabels(false);
     if (addAssemblerPasses(pPM,
                            Out,
                            pOutputFilename,
                            Context))
       return true;
+
+    pPM.add(createGCInfoDeleter()); // not in addPassesToMC
     break;
   }
   case CGFT_ARCFile: {
@@ -173,8 +200,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   } // switch
-
-  pPM.add(createGCInfoDeleter()); // not in addPassesToMC
   return false;
 }
 
@@ -262,6 +287,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
+// FIXME: when MCLinker can directly turn bitcode into shared object, turn on this
+// block of code.
+#if 0
   // Initialize MCAsmStreamer first, than chain its output into SectLinker.
   // MCCodeEmitter
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
@@ -290,18 +318,21 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   if (0 == printer)
     return true;
   pPM.add(printer);
-
+#endif
   TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
   if (0 == ldBackend)
     return true;
 
+// FIXME: when MCLinker can directly turn bitcode into shared object, turn on this
+// block of code.
+#if 0
   MCBitcodeInterceptor* objReader = new MCBitcodeInterceptor(
                                  static_cast<MCObjectStreamer&>(*AsmStreamer),
                                  *ldBackend,
                                  getLDInfo());
-
+#endif
   // set up output's SOName
-  if (pOutputLinkType == Output::DynObj &&
+  if (pOutputLinkType == MCLDFile::DynObj &&
       pLinkerOpt->info().output().name().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name.
