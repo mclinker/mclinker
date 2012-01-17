@@ -396,7 +396,7 @@ void MCLinker::syncRelocationResult() {
 
     // get output file offset
     size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
-                        reloc->targetRef().offset();
+                        m_Layout.getOutputOffset(reloc->targetRef());
 
     //request the target region
     MemoryRegion* region = m_Info.output().memArea()->request(out_offset,
