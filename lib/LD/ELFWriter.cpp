@@ -504,6 +504,8 @@ uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
     return sizeof(llvm::ELF::Elf32_Rela);
   if (llvm::ELF::SHT_HASH == pSection.type())
     return sizeof(llvm::ELF::Elf32_Word);
+  if (llvm::ELF::SHT_DYNAMIC == pSection.type())
+    return sizeof(llvm::ELF::Elf32_Dyn);
   return 0x0;
 }
 
