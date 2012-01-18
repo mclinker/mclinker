@@ -544,7 +544,7 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput
   return llvm::ELF::SHN_UNDEF;
 }
 
-/// getSectEntrySize - compute ElfXX_Shdr::sh_info
+/// getSectInfo - compute ElfXX_Shdr::sh_info
 uint64_t ELFWriter::getSectInfo(const LDSection& pSection, const Output& pOutput) const
 {
   const LDSection* info_link = pSection.getLinkInfo();
