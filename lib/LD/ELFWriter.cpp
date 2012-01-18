@@ -522,7 +522,7 @@ uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
   return 0x0;
 }
 
-/// getSectEntrySize - compute ElfXX_Shdr::sh_link
+/// getSectLink - compute ElfXX_Shdr::sh_link
 uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput) const
 {
   const LDContext* context = pOutput.context();
