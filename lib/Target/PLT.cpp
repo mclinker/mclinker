@@ -23,7 +23,7 @@ PLTEntry::PLTEntry(const unsigned int size, llvm::MCSectionData* pParent)
 PLTEntry::~PLTEntry()
 {
   if (m_pContent) {
-    delete m_pContent;
+    free(m_pContent);
     m_pContent = 0;
   }
 }
