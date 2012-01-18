@@ -492,7 +492,7 @@ void ELFWriter::emitRela(const Layout& pLayout,
   pRegion.sync();
 }
 
-/// getSectEntrySize - compute ElfXX_Shdr::sh_entsize
+/// getELF32SectEntrySize - compute Elf32_Shdr::sh_entsize
 uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
 {
   if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
@@ -509,7 +509,7 @@ uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
   return 0x0;
 }
 
-/// getELF64SectEntrySize
+/// getELF64SectEntrySize - compute Elf64_Shdr::sh_entsize
 uint64_t ELFWriter::getELF64SectEntrySize(const LDSection& pSection) const
 {
   if (llvm::ELF::SHT_DYNSYM == pSection.type() ||
@@ -557,7 +557,7 @@ uint64_t ELFWriter::getSectInfo(const LDSection& pSection, const Output& pOutput
   return info_link->index();
 }
 
-/// getLastStartOffset
+/// getELF32LastStartOffset
 uint64_t ELFWriter::getELF32LastStartOffset(const Output& pOutput) const
 {
   LDSection* lastSect = pOutput.context()->getSectionTable().back();
@@ -565,6 +565,7 @@ uint64_t ELFWriter::getELF32LastStartOffset(const Output& pOutput) const
   return Align<32>(lastSect->offset() + lastSect->size());
 }
 
+/// getELF64LastStartOffset
 uint64_t ELFWriter::getELF64LastStartOffset(const Output& pOutput) const
 {
   LDSection* lastSect = pOutput.context()->getSectionTable().back();
