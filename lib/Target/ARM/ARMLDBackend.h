@@ -200,6 +200,7 @@ private:
                           unsigned int pType,
                           const MCLDInfo& pLDInfo);
 
+  void checkValidReloc(Relocation& pReloc, unsigned int pOutputType);
   void createARMGOT(MCLinker& pLinker, unsigned int pType);
   void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
   void createARMRelDyn(MCLinker& pLinker, unsigned int pType);

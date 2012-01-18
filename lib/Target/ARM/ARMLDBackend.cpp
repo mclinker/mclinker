@@ -257,6 +257,41 @@ bool ARMGNULDBackend::isSymbolPreemtible(const ResolveInfo& pSym,
   return true;
 }
 
+/// checkValidReloc - When we attempt to generate a dynamic relocation for
+/// ouput file, check if the relocation is supported by dynamic linker.
+void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
+                                      unsigned int pOutputType)
+{
+  // If not building shared object, no relocation type is invalid
+  // FIXME: This should be check not building PIC
+  if(pOutputType != Output::DynObj)
+    return;
+
+  switch(pReloc.type()) {
+    case ELF::R_ARM_RELATIVE:
+    case ELF::R_ARM_COPY:
+    case ELF::R_ARM_GLOB_DAT:
+    case ELF::R_ARM_JUMP_SLOT:
+    case ELF::R_ARM_ABS32:
+    case ELF::R_ARM_ABS32_NOI:
+    case ELF::R_ARM_PC24:
+    case ELF::R_ARM_TLS_DTPMOD32:
+    case ELF::R_ARM_TLS_DTPOFF32:
+    case ELF::R_ARM_TLS_TPOFF32:
+      break;
+
+    default:
+      llvm::report_fatal_error(llvm::Twine("Attempt to generate unsupported") +
+                               llvm::Twine("relocation type ") +
+                               llvm::Twine(pReloc.type()) +
+                               llvm::Twine(" for symbol ") +
+                               llvm::Twine(pReloc.symInfo()->name()) +
+                               llvm::Twine(", recompile with -fPIC")
+                              );
+      break;
+  }
+}
+
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      MCLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
@@ -296,6 +331,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pType) {
+        checkValidReloc(pReloc, pType);
         // create .rel.dyn section if not exist
         if(!m_pRelDyn)
           createARMRelDyn(pLinker, pType);
@@ -322,7 +358,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if(!m_pGOT)
         createARMGOT(pLinker, pType);
       m_pGOT->reserveEntry();
-      // If building shared object, a dynamic relocation with
+      // If building shared object, a dynamic relocationi with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pType) {
@@ -397,6 +433,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if(isSymbolNeedsDynRel(*rsym, pType, true)) {
+        checkValidReloc(pReloc, pType);
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if(!m_pRelDyn)
@@ -463,6 +500,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_ARM_THM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
       if(isSymbolNeedsDynRel(*rsym, pType, false)) {
+        checkValidReloc(pReloc, pType);
         // create .rel.dyn section if not exist
         if(!m_pRelDyn)
           createARMRelDyn(pLinker, pType);
