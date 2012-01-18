@@ -53,8 +53,8 @@ Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
          "No empty relocation entry for the incoming symbol.");
 
   // if this relocation is used to relocate GOT (.got or .got.plt),
-  // check if we've gotton an entry for this symbol before. If yes,
-  // retunrn the found entry in map.
+  // check if we've gotten an entry for this symbol before. If yes,
+  // return the found entry in map.
   // Otherwise, this relocation is used to relocate general section
   // (data or text section), return an empty entry directly.
   Relocation* result;

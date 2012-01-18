@@ -18,7 +18,7 @@ ARMAndroidSectLinker::ARMAndroidSectLinker(SectLinkerOption &pOption,
   : AndroidSectLinker(pOption,
                       pLDBackend) {
   MCLDInfo &info = pOption.info();
-  // set up target-dependent constraints of attibutes
+  // set up target-dependent constraints of attributes
   info.attrFactory().constraint().disableWholeArchive();
   info.attrFactory().constraint().disableAsNeeded();
   info.attrFactory().constraint().setSharedSystem();

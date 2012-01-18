@@ -17,8 +17,8 @@ using namespace mcld;
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
-/// createARMSectLinker - the help funtion to create corresponding ARMSectLinker
-///
+// createARMSectLinker - the help function to create corresponding ARMSectLinker
+//
 SectLinker* createARMSectLinker(const std::string &pTriple,
                                 SectLinkerOption &pOption,
                                 mcld::TargetLDBackend &pLDBackend)

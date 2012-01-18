@@ -155,7 +155,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
                                             unsigned int pType)
 {
-  // Create .got section if it dosen't exist
+  // Create .got section if it doesn't exist
   if(!m_pGOT)
     createARMGOT(pLinker, pType);
 
@@ -358,7 +358,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if(!m_pGOT)
         createARMGOT(pLinker, pType);
       m_pGOT->reserveEntry();
-      // If building shared object, a dynamic relocationi with
+      // If building shared object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pType) {
@@ -606,7 +606,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
   // FIXME: Below judgements concern only .so is generated as output
-  // FIXME: Below judgements concren nothing about TLS related relocation
+  // FIXME: Below judgements concern nothing about TLS related relocation
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed

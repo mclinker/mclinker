@@ -17,7 +17,7 @@ ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
   : SectLinker(pOption,
                pLDBackend) {
   MCLDInfo &info = pOption.info();
-  // set up target-dependent constraints of attibutes
+  // set up target-dependent constraints of attributes
   info.attrFactory().constraint().enableWholeArchive();
   info.attrFactory().constraint().disableAsNeeded();
   info.attrFactory().constraint().setSharedSystem();
