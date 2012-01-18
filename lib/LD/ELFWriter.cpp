@@ -452,7 +452,44 @@ void ELFWriter::emitRela(const Layout& pLayout,
                          const llvm::MCSectionData& pSectionData,
                          MemoryRegion& pRegion) const
 {
-  //FIXME: unsupport emitting .rela section.
+  Elf32_Rela* rel = reinterpret_cast<Elf32_Rela*>(pRegion.start());
+
+  Relocation* relocation = 0;
+  MCFragmentRef* FragmentRef = 0;
+
+  for (llvm::MCSectionData::const_iterator it = pSectionData.begin(),
+       ie = pSectionData.end(); it != ie; ++it, ++rel) {
+
+    relocation = &(llvm::cast<Relocation>(*it));
+    FragmentRef = &(relocation->targetRef());
+
+    if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
+      rel->r_offset = static_cast<Elf32_Addr>(
+                      llvm::cast<LDSection>(
+                      FragmentRef->frag()->getParent()->getSection()).addr() +
+                      pLayout.getOutputOffset(*FragmentRef));
+    }
+    else {
+      rel->r_offset = static_cast<Elf32_Addr>(
+                      llvm::cast<LDSection>(
+                      FragmentRef->frag()->getParent()->getSection()).offset() +
+                      pLayout.getOutputOffset(*FragmentRef));
+    }
+
+    Elf32_Word Index;
+    if( relocation->symInfo() == NULL )
+      Index = 0;
+    else
+      Index = static_cast<Elf32_Word>(
+              pOutput.context()->getSymbolIdx(
+              llvm::StringRef(relocation->symInfo()->name())));
+
+    rel->setSymbolAndType(Index, relocation->type());
+    rel->r_addend = relocation->addend();
+  }
+
+
+  pRegion.sync();
 }
 
 /// getSectEntrySize - compute ElfXX_Shdr::sh_entsize
