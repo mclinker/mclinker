@@ -526,7 +526,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   // if symbol has plt
   if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
-    T = 1;  // PLT is in thumb mode.
+    T = 0;  // PLT is not thumb.
   }
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
