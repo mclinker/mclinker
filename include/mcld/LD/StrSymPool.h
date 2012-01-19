@@ -67,6 +67,7 @@ public:
                     ResolveInfo::Binding pBinding,
                     ResolveInfo::SizeType pSize,
                     ResolveInfo::Visibility pVisibility,
+                    ResolveInfo* pOldInfo,
                     Resolver::Result& pResult);
 
   /// findSymbol - find the resolved output LDSymbol

@@ -55,6 +55,7 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
                               ResolveInfo::Binding pBinding,
                               ResolveInfo::SizeType pSize,
                               ResolveInfo::Visibility pVisibility,
+                              ResolveInfo* pOldInfo,
                               Resolver::Result& pResult)
 {
   // We should check if there is any symbol with the same name existed.
@@ -81,11 +82,16 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
   new_symbol->setVisibility(pVisibility);
   new_symbol->setSize(pSize);
 
-  if (!exist) { // not exit or not a symbol
-    pResult.info      = old_symbol;
+  if (!exist) {
+    // not exit or not a symbol
+    pResult.info      = new_symbol;
     pResult.existent  = false;
     pResult.overriden = false;
     return;
+  }
+  else if (NULL != pOldInfo) {
+    // existent, remember its attribute
+    pOldInfo->override(*old_symbol);
   }
 
   // exit and is a symbol

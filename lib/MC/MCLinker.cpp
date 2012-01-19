@@ -25,6 +25,10 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <iostream>
+
+using namespace std;
+
 using namespace mcld;
 
 /// Constructor
@@ -65,6 +69,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
+
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
@@ -84,7 +89,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   else {
     // if the symbol is not a local symbol, insert and resolve it immediately
     m_StrSymPool.insertSymbol(pName, false, pType, pDesc, pBinding, pSize,
-                              pVisibility, resolved_result);
+                              pVisibility, NULL, resolved_result);
   }
 
   // the return ResolveInfo should not NULL
@@ -107,9 +112,21 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     resolved_result.info->setSymPtr(output_sym);
 
     if (pType != ResolveInfo::Section) {
-      // We merge sections when reading them. So we do not need symbols with
-      // section type
-      m_OutputSymbols.add(*output_sym);
+      // If we are not doing incremental linking, then any symbol with hidden
+      // or internal visibility is forcefully set as a local symbol.
+      if (m_Info.output().type() != Output::Object &&
+          (resolved_result.info->visibility() == ResolveInfo::Hidden ||
+             resolved_result.info->visibility() == ResolveInfo::Internal) &&
+          (resolved_result.info->isGlobal() ||
+             resolved_result.info->isWeak()) &&
+          shouldForceLocal(*resolved_result.info)) {
+        m_OutputSymbols.forceLocal(*output_sym);
+      }
+      else {
+        // We merge sections when reading them. So we do not need symbols with
+        // section type
+        m_OutputSymbols.add(*output_sym);
+      }
     }
   }
 
@@ -117,16 +134,6 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     // should override output LDSymbol
     output_sym->setFragmentRef(pFragmentRef);
     output_sym->setValue(pValue);
-  }
-
-  // If we are not doing incremental linking, then any symbol with hidden
-  // or internal visibility is forcefully set as a local symbol.
-  if ((resolved_result.info->visibility() == ResolveInfo::Hidden ||
-       resolved_result.info->visibility() == ResolveInfo::Internal) &&
-      (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
-    if (shouldForceLocal(*resolved_result.info)) {
-      m_OutputSymbols.forceLocal(*output_sym);
-    }
   }
 
   return input_sym;
@@ -164,7 +171,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
   m_StrSymPool.insertSymbol(pName, true, pType, pDesc, pBinding, pSize, pVisibility,
-                            resolved_result);
+                            NULL, resolved_result);
 
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
@@ -188,8 +195,9 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
 
   // If we are not doing incremental linking, then any symbol with hidden
   // or internal visibility is forcefully set as a local symbol.
-  if ((resolved_result.info->visibility() == ResolveInfo::Hidden ||
-       resolved_result.info->visibility() == ResolveInfo::Internal) &&
+  if (m_Info.output().type() != Output::Object &&
+      (resolved_result.info->visibility() == ResolveInfo::Hidden ||
+        resolved_result.info->visibility() == ResolveInfo::Internal) &&
       (resolved_result.info->isGlobal() || resolved_result.info->isWeak())) {
     if (NULL != output_sym && shouldForceLocal(*resolved_result.info)) {
       m_OutputSymbols.forceLocal(*output_sym);
@@ -212,16 +220,31 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
 {
   // Result is <info, existent, override>
   Resolver::Result result;
+  ResolveInfo old_info;
   m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
-                            result);
+                            &old_info, result);
 
   LDSymbol* output_sym = result.info->outSymbol();
   bool in_output = (NULL != output_sym);
+
   if (!result.existent || !in_output) {
     output_sym = m_LDSymbolFactory.allocate();
     new (output_sym) LDSymbol();
     output_sym->setResolveInfo(*result.info);
     result.info->setSymPtr(output_sym);
+    if (pType != ResolveInfo::Section) {
+      if (shouldForceLocal(*result.info)) {
+        // if this symbol is a new symbol, and the binding is local, try to
+        // forcefully set as a local symbol.
+        // @ref Google gold linker: symtab.cc :1764
+        m_OutputSymbols.forceLocal(*output_sym);
+      }
+      else {
+        // We merge sections when reading them. So we do not need symbols with
+        // section type
+        m_OutputSymbols.add(*output_sym);
+      }
+    }
   }
 
   if (result.overriden || !in_output) {
@@ -230,13 +253,9 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
       output_sym->setValue(pValue);
   }
 
-  if (!result.existent && result.info->isLocal()) {
-    // if this symbol is a new symbol, and the binding is local, try to
-    // forcefully set as a local symbol.
-    // @ref Google gold linker: symtab.cc :1764
-    if (shouldForceLocal(*result.info)) {
-      m_OutputSymbols.forceLocal(*output_sym);
-    }
+  if (result.overriden && in_output) {
+    // If the symbol is already in the output's symbol table, re-arrange it.
+    m_OutputSymbols.arrange(*output_sym, old_info);
   }
 
   return output_sym;
@@ -479,3 +498,4 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
     return true;
   return false;
 }
+

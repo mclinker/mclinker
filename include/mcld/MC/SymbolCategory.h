@@ -12,39 +12,24 @@
 #include <gtest.h>
 #endif
 #include <mcld/ADT/TypeTraits.h>
-#include <mcld/MC/CategoryIterator.h>
 #include <vector>
-#include <set>
 
 namespace mcld
 {
 
 class LDSymbol;
+class ResolveInfo;
 /** \class SymbolCategory
  *  \brief SymbolCategory groups output LDSymbol into different categories.
  */
 class SymbolCategory
 {
 private:
-  typedef std::set<LDSymbol*> ForceLocalSet;
   typedef std::vector<LDSymbol*> OutputSymbols;
 
 public:
-  typedef CategoryIterator<NonConstTraits<LDSymbol>,
-                           SymbolCategory,
-                           NonConstIteratorTraits<ForceLocalSet>,
-                           NonConstIteratorTraits<OutputSymbols> > iterator;
-
-  typedef CategoryIterator<ConstTraits<LDSymbol>,
-                           const SymbolCategory,
-                           ConstIteratorTraits<ForceLocalSet>,
-                           ConstIteratorTraits<OutputSymbols> > const_iterator;
-
-  typedef ForceLocalSet::iterator force_local_iterator;
-  typedef ForceLocalSet::const_iterator const_force_local_iterator;
-
-  typedef OutputSymbols::iterator class_iterator;
-  typedef OutputSymbols::const_iterator const_class_iterator;
+  typedef OutputSymbols::iterator iterator;
+  typedef OutputSymbols::const_iterator const_iterator;
 
 public:
   SymbolCategory();
@@ -56,10 +41,10 @@ public:
 
   SymbolCategory& forceLocal(LDSymbol& pSymbol);
 
+  SymbolCategory& arrange(LDSymbol& pSymbol, const ResolveInfo& pSourceInfo);
+
   // -----  observers  ----- //
   size_t numOfSymbols() const;
-
-  size_t numOfForceLocals() const;
 
   size_t numOfLocals() const;
 
@@ -68,8 +53,6 @@ public:
   size_t numOfRegulars() const;
 
   bool empty() const;
-
-  bool emptyForceLocals() const;
 
   bool emptyLocals() const;
   
@@ -83,32 +66,75 @@ public:
   const_iterator begin() const;
   const_iterator end() const;
 
-  force_local_iterator forceLocalBegin();
-  force_local_iterator forceLocalEnd();
-  const_force_local_iterator forceLocalBegin() const;
-  const_force_local_iterator forceLocalEnd() const;
+  iterator localBegin();
+  iterator localEnd();
+  const_iterator localBegin() const;
+  const_iterator localEnd() const;
 
-  class_iterator localBegin();
-  class_iterator localEnd();
-  const_class_iterator localBegin() const;
-  const_class_iterator localEnd() const;
+  iterator commonBegin();
+  iterator commonEnd();
+  const_iterator commonBegin() const;
+  const_iterator commonEnd() const;
 
-  class_iterator commonBegin();
-  class_iterator commonEnd();
-  const_class_iterator commonBegin() const;
-  const_class_iterator commonEnd() const;
-
-  class_iterator regularBegin();
-  class_iterator regularEnd();
-  const_class_iterator regularBegin() const;
-  const_class_iterator regularEnd() const;
+  iterator regularBegin();
+  iterator regularEnd();
+  const_iterator regularBegin() const;
+  const_iterator regularEnd() const;
 
 private:
-  ForceLocalSet m_ForceLocal;
-  OutputSymbols m_LocalSymbols;
-  OutputSymbols m_CommonSymbols;
-  OutputSymbols m_RegSymbols;
+  class Category
+  {
+  public:
+    enum Type {
+      File,
+      Local,
+      Common,
+      Weak,
+      Global
+    };
 
+  public:
+    Type type;
+
+    size_t begin;
+    size_t end;
+
+    Category* prev;
+    Category* next;
+
+  public:
+    Category(Type pType)
+      : type(pType),
+        begin(0),
+        end(0),
+        prev(NULL),
+        next(NULL) {
+    }
+
+    size_t size() const
+    { return (end - begin); }
+
+    bool empty() const
+    { return (begin == end); }
+
+    bool isFirst() const
+    { return (NULL == prev); }
+
+    bool isLast() const
+    { return (NULL == next); }
+
+    static Type categorize(const ResolveInfo& pInfo);
+
+  };
+
+private:
+  OutputSymbols m_OutputSymbols;
+
+  Category* m_pFile;
+  Category* m_pLocal;
+  Category* m_pCommon;
+  Category* m_pWeak;
+  Category* m_pGlobal;
 };
 
 } // namespace of mcld

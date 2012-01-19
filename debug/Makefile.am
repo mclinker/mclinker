@@ -126,7 +126,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
- 	${INCDIR}/MC/CategoryIterator.h \
  	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
  	${INCDIR}/MC/MCLinker.h \
