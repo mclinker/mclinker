@@ -40,6 +40,9 @@ public:
 
   /** \class Resolver::Result
    *  \brief the result of symbol resolution
+   *   - info, the pointer to overrided info
+   *   - existent, if true, the info is existent
+   *   - overriden, if true, the info is being overriden.
    */
   struct Result {
     ResolveInfo* info;
