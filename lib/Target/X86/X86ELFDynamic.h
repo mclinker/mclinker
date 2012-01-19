@@ -24,6 +24,11 @@ public:
 private:
   void reservePLTGOT(const ELFFileFormat& pFormat);
   void applyPLTGOT(const ELFFileFormat& pFormat);
+
+  // True if we have .got.plt section, which will avoid GOT0 entries
+  // when PLT isn't used.  To support .got.plt section, we must combine
+  // .got section and .got.plt section into a single GOT.
+  bool m_HasGOTPLT;
 };
 
 } // namespace of mcld
