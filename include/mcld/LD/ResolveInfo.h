@@ -38,6 +38,7 @@ class LDSymbol;
 class ResolveInfo
 {
 friend class ResolveInfoFactory;
+friend class MCLinker;
 public:
   typedef uint64_t SizeType;
 
