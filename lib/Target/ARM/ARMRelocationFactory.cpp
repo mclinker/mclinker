@@ -11,7 +11,7 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
-
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
 
 #include "ARMRelocationFactory.h"
@@ -347,17 +347,21 @@ helper_check_signed_overflow(ARMRelocationFactory::DWord pValue,
 // Check if symbol can use relocation R_ARM_RELATIVE
 // Only need to check R_ARM_ABS32 and R_ARM_ABS32_NOI
 static bool
-helper_use_relative_reloc(ResolveInfo& pSym)
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const MCLDInfo& pLDInfo,
+                          const ARMRelocationFactory& pFactory)
 {
   // if symbol has plt, should use RELATIVE
-  if(pSym.reserved() & 0x8u)
+  if(pSym.reserved() & 0x8u) {
     return true;
+  }
   // if symbol is dynamic or undefine or preemptible
-  // FIXME: how to judge a symbol is preemptible here?
-  //        or this judgement should be moved to scanRelocation?
-  if(pSym.isDyn() || pSym.isUndef())
+  if(pSym.isDyn() ||
+     pSym.isUndef() ||
+     pFactory.getTarget().isSymbolPreemptible(pSym,
+                                              pLDInfo.output().type(),
+                                              pLDInfo))
     return false;
-
   return true;
 }
 
@@ -395,7 +399,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
       pReloc.target() = (S + A) | T;
     }
     if(rsym->reserved() & 0x1u) {
-      if(helper_use_relative_reloc(*rsym) ) {
+      if(helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
       }
       else {

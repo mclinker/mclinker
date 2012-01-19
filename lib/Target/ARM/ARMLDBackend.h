@@ -85,7 +85,7 @@ public:
 
   /// initTargetSymbols - initialize target dependent symbols in output.
   void initTargetSymbols(MCLinker& pLinker);
-  
+
   /// initRelocFactory - create and initialize RelocationFactory
   bool initRelocFactory(const MCLinker& pLinker);
 
@@ -108,7 +108,7 @@ public:
   /// OSABI - the value of e_ident[EI_OSABI]
   virtual uint8_t OSABI() const
   { return llvm::ELF::ELFOSABI_NONE; }
-  
+
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   virtual uint8_t ABIVersion() const
   { return 0x0; }
@@ -177,6 +177,11 @@ public:
   /// function to ask the final value of the symbol
   bool finalizeSymbol(LDSymbol& pSymbol) const;
 
+public:
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
+                           unsigned int pType,
+                           const MCLDInfo& pLDInfo) const;
+
 private:
   void scanLocalReloc(Relocation& pReloc,
                       MCLinker& pLinker,
@@ -188,17 +193,14 @@ private:
                        const MCLDInfo& pLDInfo,
                        unsigned int pType);
 
-  bool isSymbolNeedsPLT(const ResolveInfo& pSym, 
-                        unsigned int pType, 
+  bool isSymbolNeedsPLT(const ResolveInfo& pSym,
+                        unsigned int pType,
                         const MCLDInfo& pLDInfo);
 
-  bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
-                           unsigned int pType, 
+  bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                           unsigned int pType,
                            bool isAbsReloc);
 
-  bool isSymbolPreemptible(const ResolveInfo& pSym,
-                          unsigned int pType,
-                          const MCLDInfo& pLDInfo);
 
   void checkValidReloc(Relocation& pReloc, unsigned int pOutputType);
   void createARMGOT(MCLinker& pLinker, unsigned int pType);
