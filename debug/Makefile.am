@@ -125,6 +125,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.h \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.cpp \
+	${LIBDIR}/Target/X86/X86DynRelSection.h \
+	${LIBDIR}/Target/X86/X86DynRelSection.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
