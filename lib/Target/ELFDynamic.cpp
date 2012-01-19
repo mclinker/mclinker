@@ -170,13 +170,19 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_FINI, pFormat.getFini().addr()); // DT_FINI
 
   if (pFormat.hasInitArray()) {
-    applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().addr()); // DT_INIT_ARRAY
-    applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().size()); // DT_INIT_ARRAYSZ
+    // DT_INIT_ARRAY
+    applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().addr());
+
+    // DT_INIT_ARRAYSZ
+    applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().size());
   }
 
   if (pFormat.hasFiniArray()) {
-    applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().addr()); // DT_FINI_ARRAY
-    applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().size()); // DT_FINI_ARRAYSZ
+    // DT_FINI_ARRAY
+    applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().addr());
+
+    // DT_FINI_ARRAYSZ
+    applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().size());
   }
 
   if (pFormat.hasHashTab())
