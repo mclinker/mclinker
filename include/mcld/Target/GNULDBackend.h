@@ -202,6 +202,16 @@ public:
   virtual unsigned int pagesize() const
   { return 0x1000; }
 
+  /// dynamic - the dynamic section of the target machine.
+  /// If target needs to customize its own dynamic section, can override this
+  /// function and use co-variant return type to return its own dynamic section.
+  virtual ELFDynamic& dynamic();
+
+  /// dynamic - the dynamic section of the target machine.
+  /// If target needs to customize its own dynamic section, can override this
+  /// function and use co-variant return type to return its own dynamic section.
+  virtual const ELFDynamic& dynamic() const;
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(LDContext& pContext);
@@ -233,16 +243,6 @@ private:
   void postLayout(const Output& pOutput,
                  const MCLDInfo& pInfo,
                  MCLinker& pLinker);
-
-  ELFDynamic& dynamic() {
-    assert(NULL != m_pDynamic);
-    return *m_pDynamic;
-  }
-
-  const ELFDynamic& dynamic() const {
-    assert(NULL != m_pDynamic);
-    return *m_pDynamic;
-  }
 
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
@@ -279,6 +279,7 @@ protected:
 
   // -----  ELF segment factory  ----- //
   ELFSegmentFactory m_ELFSegmentFactory;
+
   // -----  ELF special sections  ----- //
   ELFDynamic* m_pDynamic;
 };
