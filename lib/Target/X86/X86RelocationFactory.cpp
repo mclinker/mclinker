@@ -11,7 +11,7 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
-
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
 
 #include "X86RelocationFactory.h"
@@ -40,6 +40,7 @@ void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
 
   /// the prototype of applying function
   typedef Result (*ApplyFunctionType)(Relocation& pReloc,
+				      const MCLDInfo& pLDInfo,
                                       X86RelocationFactory& pParent);
 
   // the table entry of applying functions
@@ -64,7 +65,7 @@ void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
   }
 
   // apply the relocation
-  Result result = apply_functions[type].func(pRelocation, *this);
+  Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result
   if (Overflow == result) {
@@ -220,17 +221,21 @@ void helper_DynRel(Relocation& pReloc,
 // Check if symbol can use relocation R_386_RELATIVE
 // Only need to check R_386_32.
 static bool
-helper_use_relative_reloc(ResolveInfo& pSym)
+helper_use_relative_reloc(const ResolveInfo& pSym,
+			  const MCLDInfo& pLDInfo,
+			  const X86RelocationFactory& pFactory)
+
 {
   // if symbol has plt, should use RELATIVE
   if(pSym.reserved() & X86GNULDBackend::ReservePLT)
     return true;
   // if symbol is dynamic or undefine or preemptible
-  // FIXME: how to judge a symbol is preemptible here?
-  //        or this judgement should be moved to scanRelocation?
-  if(pSym.isDyn() || pSym.isUndef())
+  if(pSym.isDyn() ||
+     pSym.isUndef() ||
+     pFactory.getTarget().isSymbolPreemptible(pSym,
+					     pLDInfo.output().type(),
+					     pLDInfo))
     return false;
-
   return true;
 }
 
@@ -240,6 +245,7 @@ helper_use_relative_reloc(ResolveInfo& pSym)
 
 // R_386_NONE
 X86RelocationFactory::Result none(Relocation& pReloc,
+				  const MCLDInfo& pLDInfo,
                                   X86RelocationFactory& pParent)
 {
   return X86RelocationFactory::OK;
@@ -247,6 +253,7 @@ X86RelocationFactory::Result none(Relocation& pReloc,
 
 // R_386_32: S + A
 X86RelocationFactory::Result abs32(Relocation& pReloc,
+				   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -264,7 +271,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
       pReloc.target() = S + A;
     }
     if(rsym->reserved() & X86GNULDBackend::ReserveRel) {
-      if(helper_use_relative_reloc(*rsym) ) {
+      if(helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
@@ -281,6 +288,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
 
 // R_386_PC32: S + A - P
 X86RelocationFactory::Result rel32(Relocation& pReloc,
+				   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -293,6 +301,7 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
 
 // R_386_GOTOFF: S + A - GOT_ORG
 X86RelocationFactory::Result gotoff32(Relocation& pReloc,
+				      const MCLDInfo& pLDInfo,
                                       X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
@@ -305,7 +314,8 @@ X86RelocationFactory::Result gotoff32(Relocation& pReloc,
 
 // R_386_GOTPC: GOT_ORG + A - P
 X86RelocationFactory::Result gotpc32(Relocation& pReloc,
-                                      X86RelocationFactory& pParent)
+				     const MCLDInfo& pLDInfo,
+                                     X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
@@ -316,6 +326,7 @@ X86RelocationFactory::Result gotpc32(Relocation& pReloc,
 
 // R_386_GOT32: GOT(S) + A - GOT_ORG
 X86RelocationFactory::Result got32(Relocation& pReloc,
+				   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   if(!(pReloc.symInfo()->reserved()
@@ -332,6 +343,7 @@ X86RelocationFactory::Result got32(Relocation& pReloc,
 
 // R_386_PLT32: PLT(S) + A - P
 X86RelocationFactory::Result plt32(Relocation& pReloc,
+				   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   if(!(pReloc.symInfo()->reserved() & X86GNULDBackend::ReservePLT)) {

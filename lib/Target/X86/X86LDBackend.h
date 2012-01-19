@@ -177,6 +177,12 @@ public:
   /// function to ask the final value of the symbol
   bool finalizeSymbol(LDSymbol& pSymbol) const;
 
+public:
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
+                           unsigned int pType,
+                           const MCLDInfo& pLDInfo) const;
+
+private:
   void scanLocalReloc(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
@@ -194,10 +200,6 @@ public:
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
                            unsigned int pType, 
                            bool isAbsReloc);
-
-  bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           unsigned int pType,
-                           const MCLDInfo& pLDInfo);
 
   void createX86GOT(MCLinker& pLinker, unsigned int pType);
   void createX86PLTandRelPLT(MCLinker& pLinker, unsigned int pType);

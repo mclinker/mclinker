@@ -220,7 +220,7 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
 
 bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
                                          unsigned int pType,
-                                         const MCLDInfo& pLDInfo)
+                                         const MCLDInfo& pLDInfo) const
 {
   if(pSym.other() != ResolveInfo::Default)
     return false;

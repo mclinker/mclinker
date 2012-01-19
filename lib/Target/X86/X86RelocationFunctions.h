@@ -8,7 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 #define DECL_X86_APPLY_RELOC_FUNC(Name) \
-static X86RelocationFactory::Result Name    (Relocation& pEntry, X86RelocationFactory& pParent);
+static X86RelocationFactory::Result Name    (Relocation& pEntry, \
+					     const MCLDInfo& pLDInfo, \
+					     X86RelocationFactory& pParent);
 
 #define DECL_X86_APPLY_RELOC_FUNCS \
 DECL_X86_APPLY_RELOC_FUNC(none)             \
