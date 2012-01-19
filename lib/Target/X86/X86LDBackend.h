@@ -9,6 +9,7 @@
 #ifndef X86_LDBACKEND_H
 #define X86_LDBACKEND_H
 #include "mcld/Target/GNULDBackend.h"
+#include "X86ELFDynamic.h"
 #include "X86GOT.h"
 
 namespace mcld {
@@ -47,10 +48,12 @@ public:
                     MCLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
-  ELFDynamic* dynamic();
+  /// Use co-variant return type to return its own dynamic section.
+  X86ELFDynamic& dynamic();
 
   /// dynamic - the dynamic section of the target machine.
-  const ELFDynamic* dynamic() const;
+  /// Use co-variant return type to return its own dynamic section.
+  const X86ELFDynamic& dynamic() const;
 
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
@@ -117,6 +120,7 @@ public:
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;
+  X86ELFDynamic* m_pDynamic;
 };
 
 //===----------------------------------------------------------------------===//

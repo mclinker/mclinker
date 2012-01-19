@@ -21,7 +21,8 @@
 using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
-  : m_pRelocFactory(0), m_pGOT(0) {
+  : m_pRelocFactory(0), m_pGOT(0), m_pDynamic(0)
+{
 }
 
 X86GNULDBackend::~X86GNULDBackend()
@@ -30,6 +31,8 @@ X86GNULDBackend::~X86GNULDBackend()
     delete m_pRelocFactory;
   if (0 != m_pGOT)
     delete m_pGOT;
+  if (0 != m_pDynamic)
+    delete m_pDynamic;
 }
 
 RelocationFactory* X86GNULDBackend::getRelocFactory()
@@ -64,19 +67,21 @@ void X86GNULDBackend::doPostLayout(const Output& pOutput,
 }
 
 /// dynamic - the dynamic section of the target machine.
-ELFDynamic* X86GNULDBackend::dynamic()
+/// Use co-variant return type to return its own dynamic section.
+X86ELFDynamic& X86GNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
     m_pDynamic = new X86ELFDynamic(*this);
 
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 /// dynamic - the dynamic section of the target machine.
-const ELFDynamic* X86GNULDBackend::dynamic() const
+/// Use co-variant return type to return its own dynamic section.
+const X86ELFDynamic& X86GNULDBackend::dynamic() const
 {
   assert( NULL != m_pDynamic);
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 uint32_t X86GNULDBackend::machine() const

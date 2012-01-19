@@ -9,6 +9,7 @@
 #ifndef MCLD_ARM_LDBACKEND_H
 #define MCLD_ARM_LDBACKEND_H
 
+#include "ARMELFDynamic.h"
 #include "ARMGOT.h"
 #include "ARMPLT.h"
 #include "ARMDynRelSection.h"
@@ -17,10 +18,11 @@
 
 namespace mcld {
 
-class Output;
 class MCLDInfo;
 class MCLinker;
+class Output;
 class SectionMap;
+
 
 //===----------------------------------------------------------------------===//
 /// ARMGNULDBackend - linker backend of ARM target of GNU ELF format
@@ -133,10 +135,12 @@ public:
                     MCLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
-  ELFDynamic* dynamic();
+  /// Use co-variant return type to return its own dynamic section.
+  ARMELFDynamic& dynamic();
 
   /// dynamic - the dynamic section of the target machine.
-  const ELFDynamic* dynamic() const;
+  /// Use co-variant return type to return its own dynamic section.
+  const ARMELFDynamic& dynamic() const;
 
 
   /// emitSectionData - write out the section data into the memory region.
@@ -222,6 +226,8 @@ private:
   ARMDynRelSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
   ARMDynRelSection* m_pRelPLT;
+
+  ARMELFDynamic* m_pDynamic;
 
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx

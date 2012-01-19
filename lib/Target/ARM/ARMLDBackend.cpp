@@ -32,6 +32,7 @@ ARMGNULDBackend::ARMGNULDBackend()
     m_pPLT(0),
     m_pRelDyn(0),
     m_pRelPLT(0),
+    m_pDynamic(0),
     m_pEXIDX(0),
     m_pEXTAB(0),
     m_pAttributes(0) {
@@ -49,7 +50,8 @@ ARMGNULDBackend::~ARMGNULDBackend()
     delete m_pRelDyn;
   if(m_pRelPLT)
     delete m_pRelPLT;
-
+  if(m_pDynamic)
+    delete m_pDynamic;
 }
 
 bool ARMGNULDBackend::initRelocFactory(const MCLinker& pLinker)
@@ -126,19 +128,21 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
 }
 
 /// dynamic - the dynamic section of the target machine.
-ELFDynamic* ARMGNULDBackend::dynamic()
+/// Use co-variant return type to return its own dynamic section.
+ARMELFDynamic& ARMGNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
     m_pDynamic = new ARMELFDynamic(*this);
 
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 /// dynamic - the dynamic section of the target machine.
-const ELFDynamic* ARMGNULDBackend::dynamic() const
+/// Use co-variant return type to return its own dynamic section.
+const ARMELFDynamic& ARMGNULDBackend::dynamic() const
 {
   assert( NULL != m_pDynamic);
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)

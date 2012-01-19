@@ -81,8 +81,9 @@ GNULDBackend::GNULDBackend()
     m_pDynObjWriter(0),
     m_pDynObjFileFormat(0),
     m_pExecFileFormat(0),
-    m_ELFSegmentFactory(9), // magic number
-    m_pDynamic(0) {
+    m_ELFSegmentFactory(9)// magic number
+{
+
 }
 
 GNULDBackend::~GNULDBackend()
@@ -101,8 +102,6 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
     delete m_pExecFileFormat;
-  if (m_pDynamic)
-    delete m_pDynamic;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
@@ -270,10 +269,6 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   size_t dynstr = 1;
   size_t hash   = 0;
 
-  ELFDynamic *dynamic_section = dynamic();
-  assert(dynamic_section &&
-         "sizeNamePools failed. dynamic_section is NULL!");
-
   // compute size of .symtab, .dynsym and .strtab
   SymbolCategory::const_iterator symbol;
   SymbolCategory::const_iterator symEnd = pSymbols.end();
@@ -319,12 +314,12 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
             // --no-as-needed
             if (!(*input)->attribute()->isAsNeeded()) {
               dynstr += (*input)->name().size() + 1;
-              dynamic_section->reserveNeedEntry();
+              dynamic().reserveNeedEntry();
             }
             // --as-needed
             else if ((*input)->isNeeded()) {
               dynstr += (*input)->name().size() + 1;
-              dynamic_section->reserveNeedEntry();
+              dynamic().reserveNeedEntry();
             }
           }
         }
@@ -360,8 +355,8 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries untill we get the size of the abovementioned sections
-    dynamic_section->reserveEntries(pLDInfo, *file_format);
-    file_format->getDynamic().setSize(dynamic_section->numOfBytes());
+    dynamic().reserveEntries(pLDInfo, *file_format);
+    file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
 }
 
@@ -598,11 +593,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   //   1. ignore --no-add-needed
   //   2. force count in --no-as-needed
   //   3. judge --as-needed
-  ELFDynamic* dynamic_section = dynamic();
-  assert(dynamic_section &&
-         "emitDynNamePools failed, dynamic_section is NULL!");
-
-  ELFDynamic::iterator dt_need = dynamic_section->needBegin();
+  ELFDynamic::iterator dt_need = dynamic().needBegin();
   InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
   for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
     if (Input::DynObj == (*input)->type()) {
@@ -628,9 +619,9 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 
   // emit soname
   // initialize value of ELF .dynamic section
-  dynamic_section->applySoname(strtabsize);
-  dynamic_section->applyEntries(pLDInfo, *file_format);
-  dynamic_section->emit(dyn_sect, *dyn_region);
+  dynamic().applySoname(strtabsize);
+  dynamic().applyEntries(pLDInfo, *file_format);
+  dynamic().emit(dyn_sect, *dyn_region);
 
   strcpy((strtab + strtabsize), pOutput.name().c_str());
   strtabsize += pOutput.name().size() + 1;

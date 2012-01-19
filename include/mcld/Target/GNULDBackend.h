@@ -256,10 +256,10 @@ private:
                           MCLinker& pLinker) = 0;
 
   /// dynamic - the dynamic section of the target machine.
-  virtual ELFDynamic* dynamic() = 0;
+  virtual ELFDynamic& dynamic() = 0;
 
   /// dynamic - the dynamic section of the target machine.
-  virtual const ELFDynamic* dynamic() const = 0;
+  virtual const ELFDynamic& dynamic() const = 0;
 
 protected:
   // ----- readers and writers ----- //
@@ -277,7 +277,7 @@ protected:
   ELFSegmentFactory m_ELFSegmentFactory;
 
   // -----  ELF special sections  ----- //
-  ELFDynamic* m_pDynamic;
+
 };
 
 } // namespace of mcld

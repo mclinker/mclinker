@@ -24,13 +24,16 @@ using namespace llvm;
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0) {
+  : m_pRelocFactory(0), m_pDynamic(0)
+{
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
   if (0 != m_pRelocFactory)
     delete m_pRelocFactory;
+  if (0 != m_pDynamic)
+    delete m_pDynamic;
 }
 
 RelocationFactory* MipsGNULDBackend::getRelocFactory()
@@ -119,19 +122,21 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
 }
 
 /// dynamic - the dynamic section of the target machine.
-ELFDynamic* MipsGNULDBackend::dynamic()
+/// Use co-variant return type to return its own dynamic section.
+MipsELFDynamic& MipsGNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
     m_pDynamic = new MipsELFDynamic(*this);
 
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 /// dynamic - the dynamic section of the target machine.
-const ELFDynamic* MipsGNULDBackend::dynamic() const
+/// Use co-variant return type to return its own dynamic section.
+const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 {
   assert( NULL != m_pDynamic);
-  return m_pDynamic;
+  return *m_pDynamic;
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
