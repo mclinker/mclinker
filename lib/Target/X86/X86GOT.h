@@ -1,4 +1,4 @@
-//===- header.h -----------------------------------------------------------===//
+//===- X86GOT.h -----------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -12,26 +12,79 @@
 #include <gtest.h>
 #endif
 
+#include "X86PLT.h"
 #include <mcld/Target/GOT.h>
 
 namespace mcld
 {
+class LDSection;
 
 /** \class X86GOT
  *  \brief X86 Global Offset Table.
  */
+
+const unsigned int X86GOT0Num = 3;
+
 class X86GOT : public GOT
 {
+  friend void mcld::X86PLT::reserveEntry(int pNum);
+
+  friend mcld::PLTEntry* mcld::X86PLT::getPLTEntry(
+         const mcld::ResolveInfo& pSymbol,bool& pExist);
+
+  friend mcld::GOTEntry* mcld::X86PLT::getGOTPLTEntry(
+         const mcld::ResolveInfo& pSymbol,bool& pExist);
+
+  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+
 public:
-  typedef GOTEntry Entry;
+  typedef llvm::MCSectionData::iterator iterator;
+  typedef llvm::MCSectionData::const_iterator const_iterator;
+
 public:
   X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
+
   ~X86GOT();
 
+  //Reserve general GOT entries.
   void reserveEntry(int pNum = 1);
 
-  Entry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
+  void applyGOT0(uint64_t pAddress);
+
+  iterator begin();
+
+  const_iterator begin() const;
+
+  iterator end();
+
+  const_iterator end() const;
+
+  unsigned int getGOTPLTNum();
+
+  const unsigned int getGOTPLTNum() const;
+
+  iterator getLastGOT0();
+
+  const iterator getLastGOT0() const;
+
+private:
+
+  unsigned int m_GeneralGOTNum;
+  unsigned int m_GOTPLTNum;
+
+  // Used by getGeneralGOTEntry()
+  iterator m_GeneralGOTIterator;
+
+  // Used by getGOTPLTEntry()
+  iterator m_GOTPLTIterator;
+
+  // The last GOT0 entry
+  iterator m_LastGOT0;
+
+  SymbolIndexMapType m_GOTPLTMap;
+  SymbolIndexMapType m_GeneralGOTMap;
 };
 
 } // namespace of mcld
