@@ -6,9 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include "X86.h"
+#include "X86ELFDynamic.h"
 #include "X86LDBackend.h"
 #include "X86RelocationFactory.h"
+
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/LDSection.h>
@@ -58,6 +61,22 @@ void X86GNULDBackend::doPostLayout(const Output& pOutput,
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pOutput);
+}
+
+/// dynamic - the dynamic section of the target machine.
+ELFDynamic* X86GNULDBackend::dynamic()
+{
+  if (NULL == m_pDynamic)
+    m_pDynamic = new X86ELFDynamic(*this);
+
+  return m_pDynamic;
+}
+
+/// dynamic - the dynamic section of the target machine.
+const ELFDynamic* X86GNULDBackend::dynamic() const
+{
+  assert( NULL != m_pDynamic);
+  return m_pDynamic;
 }
 
 uint32_t X86GNULDBackend::machine() const

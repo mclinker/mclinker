@@ -105,13 +105,6 @@ public:
   typedef EntryListType::const_iterator const_iterator;
 
 public:
-  /// reservePLTGOT - reserve DT_PLTGOT entry
-  virtual void reservePLTGOT(const ELFFileFormat& pFormat);
-
-  /// applyPLTGOT - apply value for DT_PLTGOT entry
-  virtual void applyPLTGOT(const ELFFileFormat& pFormat);
-
-public:
   ELFDynamic(const GNULDBackend& pParent);
 
   virtual ~ELFDynamic();
@@ -150,7 +143,14 @@ public:
   /// emit
   void emit(const LDSection& pSection, MemoryRegion& pRegion) const;
 
-private:
+protected:
+  /// reservePLTGOT - reserve DT_PLTGOT entry
+  virtual void reservePLTGOT(const ELFFileFormat& pFormat) = 0;
+
+  /// applyPLTGOT - apply value for DT_PLTGOT entry
+  virtual void applyPLTGOT(const ELFFileFormat& pFormat) = 0;
+
+protected:
   void reserveOne(uint64_t pTag);
 
   void applyOne(uint64_t pTag, uint64_t pValue);

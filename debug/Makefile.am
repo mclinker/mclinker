@@ -70,6 +70,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/AndroidSectLinker.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${LIBDIR}/Target/ELFDynamic.cpp \
+        ${INCDIR}/Target/ARM/ARMELFDynamic.h \
+        ${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMGOT.h \
@@ -88,6 +90,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMDynRelSection.h \
 	${LIBDIR}/Target/ARM/ARMDynRelSection.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+        ${INCDIR}/Target/Mips/MipsELFDynamic.h \
+        ${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
 	${LIBDIR}/Target/Mips/MipsGOT.h \
@@ -104,6 +108,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsDynRelSection.h \
 	${LIBDIR}/Target/Mips/MipsDynRelSection.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
+        ${INCDIR}/Target/X86/X86ELFDynamic.h \
+        ${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86GOT.h \

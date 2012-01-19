@@ -202,16 +202,6 @@ public:
   virtual unsigned int pagesize() const
   { return 0x1000; }
 
-  /// dynamic - the dynamic section of the target machine.
-  /// If target needs to customize its own dynamic section, can override this
-  /// function and use co-variant return type to return its own dynamic section.
-  virtual ELFDynamic& dynamic();
-
-  /// dynamic - the dynamic section of the target machine.
-  /// If target needs to customize its own dynamic section, can override this
-  /// function and use co-variant return type to return its own dynamic section.
-  virtual const ELFDynamic& dynamic() const;
-
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(LDContext& pContext);
@@ -264,6 +254,12 @@ private:
   virtual void doPostLayout(const Output& pOutput,
                           const MCLDInfo& pInfo,
                           MCLinker& pLinker) = 0;
+
+  /// dynamic - the dynamic section of the target machine.
+  virtual ELFDynamic* dynamic() = 0;
+
+  /// dynamic - the dynamic section of the target machine.
+  virtual const ELFDynamic* dynamic() const = 0;
 
 protected:
   // ----- readers and writers ----- //

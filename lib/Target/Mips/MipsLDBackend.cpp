@@ -9,10 +9,13 @@
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
+
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/SectionMap.h>
+
 #include "Mips.h"
+#include "MipsELFDynamic.h"
 #include "MipsDynRelSection.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
@@ -113,6 +116,22 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
                                     MCLinker& pLinker)
 {
   // add any needed modification after layout
+}
+
+/// dynamic - the dynamic section of the target machine.
+ELFDynamic* MipsGNULDBackend::dynamic()
+{
+  if (NULL == m_pDynamic)
+    m_pDynamic = new MipsELFDynamic(*this);
+
+  return m_pDynamic;
+}
+
+/// dynamic - the dynamic section of the target machine.
+const ELFDynamic* MipsGNULDBackend::dynamic() const
+{
+  assert( NULL != m_pDynamic);
+  return m_pDynamic;
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,

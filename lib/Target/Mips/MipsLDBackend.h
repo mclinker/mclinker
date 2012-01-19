@@ -57,6 +57,12 @@ public:
                     const MCLDInfo& pInfo,
                     MCLinker& pLinker);
 
+  /// dynamic - the dynamic section of the target machine.
+  ELFDynamic* dynamic();
+
+  /// dynamic - the dynamic section of the target machine.
+  const ELFDynamic* dynamic() const;
+
   /// emitSectionData - write out the section data into the memory region.
   /// When writers get a LDSection whose kind is LDFileFormat::Target, writers
   /// call back target backend to emit the data.

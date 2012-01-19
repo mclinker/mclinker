@@ -56,21 +56,6 @@ ELFDynamic::~ELFDynamic()
   }
 }
 
-/// reservePLTGOT - reserve a DT_PLTGOT entry
-void ELFDynamic::reservePLTGOT(const ELFFileFormat& pFormat)
-{
-  if (pFormat.hasGOT())
-    reserveOne(llvm::ELF::DT_PLTGOT);
-}
-
-/// applyPLTGOT - apply value for DT_PLTGOT entry
-void ELFDynamic::applyPLTGOT(const ELFFileFormat& pFormat)
-{
-  if (pFormat.hasGOT())
-    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
-}
-
-
 size_t ELFDynamic::size() const
 {
   return (m_NeedList.size() + m_EntryList.size());

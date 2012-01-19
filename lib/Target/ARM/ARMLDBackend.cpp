@@ -20,6 +20,7 @@
 #include <mcld/Support/TargetRegistry.h>
 
 #include "ARM.h"
+#include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
 
@@ -122,6 +123,22 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pOutput);
+}
+
+/// dynamic - the dynamic section of the target machine.
+ELFDynamic* ARMGNULDBackend::dynamic()
+{
+  if (NULL == m_pDynamic)
+    m_pDynamic = new ARMELFDynamic(*this);
+
+  return m_pDynamic;
+}
+
+/// dynamic - the dynamic section of the target machine.
+const ELFDynamic* ARMGNULDBackend::dynamic() const
+{
+  assert( NULL != m_pDynamic);
+  return m_pDynamic;
 }
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, unsigned int pType)
