@@ -40,7 +40,7 @@ public:
   ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
   ~ARMRelocationFactory();
 
-  void applyRelocation(Relocation& pRelocation);
+  void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
 
   ARMGNULDBackend& getTarget()
   { return m_Target; }

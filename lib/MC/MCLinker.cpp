@@ -380,7 +380,7 @@ bool MCLinker::applyRelocations()
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply();
+    static_cast<Relocation*>(frag)->apply(m_Info);
   }
   return true;
 }
@@ -426,7 +426,7 @@ void MCLinker::syncRelocationResult() {
       std::memcpy(region->getBuffer(), &reloc->target(), m_Backend.bitclass()/8);
     }
   } // end of for
-  
+
   m_Info.output().memArea()->sync();
 }
 

@@ -23,6 +23,7 @@ class MCFragmentRef;
 class Layout;
 class GOT;
 class TargetLDBackend;
+class MCLDInfo;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -42,7 +43,8 @@ public:
   virtual ~RelocationFactory();
 
   /// apply - general apply function
-  virtual void applyRelocation(Relocation& pRelocation) = 0;
+  virtual void applyRelocation(Relocation& pRelocation,
+                               const MCLDInfo& pLDInfo) = 0;
 
   // ----- production ----- //
   /// produce - produce a relocation entry

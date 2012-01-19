@@ -27,7 +27,9 @@ MipsRelocationFactory::MipsRelocationFactory(size_t pNum,
 {
 }
 
-void MipsRelocationFactory::applyRelocation(Relocation& pRelocation)
+void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
+                                            const MCLDInfo& pLDInfo)
+
 {
   /// the prototype of applying function
   typedef Result (*ApplyFunctionType)(Relocation&,

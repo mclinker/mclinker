@@ -33,7 +33,8 @@ ARMRelocationFactory::~ARMRelocationFactory()
 {
 }
 
-void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
+void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
+                                           const MCLDInfo& pLDInfo)
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
@@ -46,6 +47,7 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
 
   /// the prototype of applying function
   typedef Result (*ApplyFunctionType)(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent);
 
   // the table entry of applying functions
@@ -61,7 +63,7 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
   };
 
   // apply the relocation
-  Result result = apply_functions[type].func(pRelocation, *this);
+  Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result
   if (Overflow == result) {
@@ -365,6 +367,7 @@ helper_use_relative_reloc(ResolveInfo& pSym)
 
 // R_ARM_NONE
 ARMRelocationFactory::Result none(Relocation& pReloc,
+                                  const MCLDInfo& pLDInfo,
                                   ARMRelocationFactory& pParent)
 {
   return ARMRelocationFactory::OK;
@@ -372,6 +375,7 @@ ARMRelocationFactory::Result none(Relocation& pReloc,
 
 // R_ARM_ABS32: (S + A) | T
 ARMRelocationFactory::Result abs32(Relocation& pReloc,
+                                   const MCLDInfo& pLDInfo,
                                    ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -408,6 +412,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
 
 // R_ARM_REL32: ((S + A) | T) - P
 ARMRelocationFactory::Result rel32(Relocation& pReloc,
+                                   const MCLDInfo& pLDInfo,
                                    ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -421,6 +426,7 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
 
 // R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
 ARMRelocationFactory::Result gotoff32(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
@@ -434,6 +440,7 @@ ARMRelocationFactory::Result gotoff32(Relocation& pReloc,
 
 // R_ARM_GOT_BREL: GOT(S) + A - GOT_ORG
 ARMRelocationFactory::Result got_brel(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
   if(!(pReloc.symInfo()->reserved() & 0x6u)) {
@@ -448,21 +455,10 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
 }
 
 // R_ARM_PLT32: ((S + A) | T) - P
-ARMRelocationFactory::Result plt32(Relocation& pReloc,
-                                   ARMRelocationFactory& pParent)
-{
-  return call(pReloc, pParent);
-}
-
 // R_ARM_JUMP24: ((S + A) | T) - P
-ARMRelocationFactory::Result jump24(Relocation& pReloc,
-                                    ARMRelocationFactory& pParent)
-{
-  return call(pReloc, pParent);
-}
-
 // R_ARM_CALL: ((S + A) | T) - P
 ARMRelocationFactory::Result call(Relocation& pReloc,
+                                  const MCLDInfo& pLDInfo,
                                   ARMRelocationFactory& pParent)
 {
   // TODO: Some issue have not been considered, e.g. thumb, overflow?
@@ -503,6 +499,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 
 // R_ARM_THM_CALL: ((S + A) | T) - P
 ARMRelocationFactory::Result thm_call(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
   // If target is undefined weak symbol, we only need to jump to the
@@ -557,7 +554,8 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
 ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
-                                  ARMRelocationFactory& pParent)
+                                         const MCLDInfo& pLDInfo,
+                                         ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
@@ -593,7 +591,8 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
 
 // R_ARM_MOVW_PREL_NC: ((S + A) | T) - P
 ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
-                                  ARMRelocationFactory& pParent)
+                                          const MCLDInfo& pLDInfo,
+                                          ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
@@ -615,6 +614,7 @@ ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
 
 // R_ARM_MOVT_ABS: S + A
 ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -638,6 +638,7 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
 
 // R_ARM_MOVT_PREL: S + A - P
 ARMRelocationFactory::Result movt_prel(Relocation& pReloc,
+                                       const MCLDInfo& pLDInfo,
                                        ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
@@ -655,6 +656,7 @@ ARMRelocationFactory::Result movt_prel(Relocation& pReloc,
 
 // R_ARM_THM_MOVW_ABS_NC: (S + A) | T
 ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
+                                             const MCLDInfo& pLDInfo,
                                              ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -683,7 +685,8 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
 
 // R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
 ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
-                                      ARMRelocationFactory& pParent)
+                                              const MCLDInfo& pLDInfo,
+                                              ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
@@ -706,6 +709,7 @@ ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
 
 // R_ARM_THM_MOVT_ABS: S + A
 ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
+                                          const MCLDInfo& pLDInfo,
                                           ARMRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -734,6 +738,7 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
 
 // R_ARM_THM_MOVT_PREL: S + A - P
 ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
+                                           const MCLDInfo& pLDInfo,
                                            ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
@@ -757,7 +762,8 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
 
 // R_ARM_PREL31: (S + A) | T
 ARMRelocationFactory::Result prel31(Relocation& pReloc,
-                                  ARMRelocationFactory& pParent)
+                                    const MCLDInfo& pLDInfo,
+                                    ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::DWord target = pReloc.target();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
@@ -783,6 +789,7 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
 // R_ARM_TLS_IE32: GOT(S) + A - P
 // R_ARM_TLS_LE32: S + A - tp
 ARMRelocationFactory::Result tls(Relocation& pReloc,
+                                 const MCLDInfo& pLDInfo,
                                  ARMRelocationFactory& pParent)
 {
   llvm::report_fatal_error("We don't support TLS relocation yet.");

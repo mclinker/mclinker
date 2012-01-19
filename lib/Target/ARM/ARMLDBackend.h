@@ -196,7 +196,7 @@ private:
                            unsigned int pType, 
                            bool isAbsReloc);
 
-  bool isSymbolPreemtible(const ResolveInfo& pSym,
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
                           unsigned int pType,
                           const MCLDInfo& pLDInfo);
 

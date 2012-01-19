@@ -221,7 +221,7 @@ bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
   return((Output::DynObj == pType)
          &&(ResolveInfo::Function == pSym.type())
          &&(pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemtible(pSym, pType, pLDInfo))
+            isSymbolPreemptible(pSym, pType, pLDInfo))
         );
 }
 
@@ -241,9 +241,9 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
   return false;
 }
 
-bool ARMGNULDBackend::isSymbolPreemtible(const ResolveInfo& pSym,
-                                         unsigned int pType,
-                                         const MCLDInfo& pLDInfo)
+bool ARMGNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
+                                          unsigned int pType,
+                                          const MCLDInfo& pLDInfo)
 {
   if(pSym.other() != ResolveInfo::Default)
     return false;
@@ -532,7 +532,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if(rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemtible(*rsym, pType, pLDInfo)) {
+         !isSymbolPreemptible(*rsym, pType, pLDInfo)) {
         return;
       }
 

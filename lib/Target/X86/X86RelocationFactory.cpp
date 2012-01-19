@@ -23,7 +23,8 @@ X86RelocationFactory::~X86RelocationFactory()
 {
 }
 
-void X86RelocationFactory::applyRelocation(Relocation& pRelocation)
+void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
+                                           const MCLDInfo& pLDInfo)
 {
   Relocation::Type type = pRelocation.type();
   llvm::report_fatal_error(llvm::Twine("Unknown relocation type. "

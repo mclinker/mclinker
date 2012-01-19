@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/MC/MCAssembler.h>
+//#include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
@@ -48,9 +49,9 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply()
+void Relocation::apply(const MCLDInfo& pLDInfo)
 {
-  m_Parent.applyRelocation(*this);
+  m_Parent.applyRelocation(*this, pLDInfo);
 }
 
 void Relocation::setType(Type pType)

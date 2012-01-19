@@ -8,7 +8,9 @@
 //===----------------------------------------------------------------------===//
 
 #define DECL_ARM_APPLY_RELOC_FUNC(Name) \
-static ARMRelocationFactory::Result Name    (Relocation& pEntry, ARMRelocationFactory& pParent);
+static ARMRelocationFactory::Result Name    (Relocation& pEntry, \
+                                             const MCLDInfo& pLDInfo, \
+                                             ARMRelocationFactory& pParent);
 
 #define DECL_ARM_APPLY_RELOC_FUNCS \
 DECL_ARM_APPLY_RELOC_FUNC(none)             \
@@ -16,10 +18,8 @@ DECL_ARM_APPLY_RELOC_FUNC(abs32)            \
 DECL_ARM_APPLY_RELOC_FUNC(rel32)            \
 DECL_ARM_APPLY_RELOC_FUNC(gotoff32)         \
 DECL_ARM_APPLY_RELOC_FUNC(got_brel)         \
-DECL_ARM_APPLY_RELOC_FUNC(plt32)            \
 DECL_ARM_APPLY_RELOC_FUNC(call)             \
 DECL_ARM_APPLY_RELOC_FUNC(thm_call)         \
-DECL_ARM_APPLY_RELOC_FUNC(jump24)           \
 DECL_ARM_APPLY_RELOC_FUNC(movw_prel_nc)     \
 DECL_ARM_APPLY_RELOC_FUNC(movw_abs_nc)      \
 DECL_ARM_APPLY_RELOC_FUNC(movt_abs)         \
@@ -60,9 +60,9 @@ DECL_ARM_APPLY_RELOC_FUNC(tls)
   { &gotoff32,          24, "R_ARM_GOTOFF32"          },  \
   { &none,              25, "R_ARM_BASE_PREL"         },  \
   { &got_brel,          26, "R_ARM_GOT_BREL"          },  \
-  { &plt32,             27, "R_ARM_PLT32"             },  \
+  { &call,              27, "R_ARM_PLT32"             },  \
   { &call,              28, "R_ARM_CALL"              },  \
-  { &jump24,            29, "R_ARM_JUMP24"            },  \
+  { &call,              29, "R_ARM_JUMP24"            },  \
   { &none,              30, "R_ARM_THM_JUMP24"        },  \
   { &none,              31, "R_ARM_BASE_ABS"          },  \
   { &none,              32, "R_ARM_ALU_PCREL_7_0"     },  \

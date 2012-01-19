@@ -22,6 +22,7 @@ namespace mcld
 {
 class Layout;
 class RelocationFactory;
+class MCLDInfo;
 
 class Relocation : public llvm::MCFragment
 {
@@ -78,7 +79,7 @@ public:
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
 
-  void apply();
+  void apply(const MCLDInfo& pLDInfo);
 
   /// ----- modifiers ----- ///
   void setType(Type pType);
