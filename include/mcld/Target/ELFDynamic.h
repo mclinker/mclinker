@@ -105,9 +105,16 @@ public:
   typedef EntryListType::const_iterator const_iterator;
 
 public:
+  /// reservePLTGOT - reserve DT_PLTGOT entry
+  virtual void reservePLTGOT(const ELFFileFormat& pFormat);
+
+  /// applyPLTGOT - apply value for DT_PLTGOT entry
+  virtual void applyPLTGOT(const ELFFileFormat& pFormat);
+
+public:
   ELFDynamic(const GNULDBackend& pParent);
 
-  ~ELFDynamic();
+  virtual ~ELFDynamic();
 
   size_t size() const;
 

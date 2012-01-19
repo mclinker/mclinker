@@ -56,6 +56,20 @@ ELFDynamic::~ELFDynamic()
   }
 }
 
+/// reservePLTGOT - reserve a DT_PLTGOT entry
+void ELFDynamic::reservePLTGOT(const ELFFileFormat& pFormat)
+{
+  if (pFormat.hasGOT())
+    reserveOne(llvm::ELF::DT_PLTGOT);
+}
+
+/// applyPLTGOT - apply value for DT_PLTGOT entry
+void ELFDynamic::applyPLTGOT(const ELFFileFormat& pFormat)
+{
+  if (pFormat.hasGOT())
+    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
+}
+
 
 size_t ELFDynamic::size() const
 {
@@ -127,10 +141,7 @@ void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
     reserveOne(llvm::ELF::DT_STRSZ); // DT_STRSZ
   }
 
-  if (pFormat.hasGOTPLT() || pFormat.hasGOT()) {
-    // FIXME: x86 may not have plt.got but has .got.
-    reserveOne(llvm::ELF::DT_PLTGOT); // DT_PLTGOT
-  }
+  reservePLTGOT(pFormat); // DT_PLTGOT
 
   if (pFormat.hasRelPlt() || pFormat.hasRelaPlt())
     reserveOne(llvm::ELF::DT_PLTREL); // DT_PLTREL
@@ -198,12 +209,7 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_STRSZ, pFormat.getDynStrTab().size()); // DT_STRSZ
   }
 
-  // DT_PLTGOT
-  // let x86 override the same entry twice.
-  if (pFormat.hasGOTPLT() || pFormat.hasGOT()) {
-    // FIXME: x86 needs .got.plt's address
-    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr()); // DT_PLTGOT
-  }
+  applyPLTGOT(pFormat); // DT_PLTGOT
 
   if (pFormat.hasRelPlt())
     applyOne(llvm::ELF::DT_PLTREL, llvm::ELF::DT_REL); // DT_PLTREL
