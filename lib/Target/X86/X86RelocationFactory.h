@@ -6,23 +6,36 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef X86_RELOCATION_FACTORY_H
 #define X86_RELOCATION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/Target/GOT.h>
 #include "X86LDBackend.h"
 
 namespace mcld
 {
 
 /** \class X86RelocationFactory
- *  \brief X86RelocationFactory creates and destroys X86Relocations.
+ *  \brief X86RelocationFactory creates and destroys the X86 relocations.
+ *
  */
 class X86RelocationFactory : public RelocationFactory
 {
+public:
+  /** \enum Reloc
+   *  \brief Reloc is the result of applying functions.
+   */
+  enum Result
+  {
+    OK,
+    Overflow,
+    BadReloc
+  };
+
 public:
   X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
   ~X86RelocationFactory();
