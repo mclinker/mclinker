@@ -198,7 +198,7 @@ bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
   return((Output::DynObj == pType)
          &&(ResolveInfo::Function == pSym.type())
          &&(pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemtible(pSym, pType, pLDInfo))
+            isSymbolPreemptible(pSym, pType, pLDInfo))
         );
 }
 
@@ -218,7 +218,7 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
   return false;
 }
 
-bool X86GNULDBackend::isSymbolPreemtible(const ResolveInfo& pSym,
+bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
                                          unsigned int pType,
                                          const MCLDInfo& pLDInfo)
 {
@@ -331,7 +331,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if(rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemtible(*rsym, pType, pLDInfo)) {
+         !isSymbolPreemptible(*rsym, pType, pLDInfo)) {
         return;
       }
 

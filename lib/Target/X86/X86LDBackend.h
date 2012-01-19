@@ -195,9 +195,9 @@ public:
                            unsigned int pType, 
                            bool isAbsReloc);
 
-  bool isSymbolPreemtible(const ResolveInfo& pSym,
-                          unsigned int pType,
-                          const MCLDInfo& pLDInfo);
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
+                           unsigned int pType,
+                           const MCLDInfo& pLDInfo);
 
   void createX86GOT(MCLinker& pLinker, unsigned int pType);
   void createX86PLTandRelPLT(MCLinker& pLinker, unsigned int pType);
