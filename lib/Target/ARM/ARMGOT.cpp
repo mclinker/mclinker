@@ -21,8 +21,8 @@ namespace mcld {
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, ARMGOTEntrySize),
-               m_GOTPLTNum(0), m_GeneralGOTNum(0), m_LastGOT0(),
-               m_GOTPLTIterator(), m_GeneralGOTIterator()
+               m_GOTPLTNum(0), m_NormalGOTNum(0), m_LastGOT0(),
+               m_GOTPLTIterator(), m_NormalGOTIterator()
 {
   GOTEntry* Entry = 0;
 
@@ -49,7 +49,7 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   }
 
   m_LastGOT0 = it;
-  m_GeneralGOTIterator = it;
+  m_NormalGOTIterator = it;
   m_GOTPLTIterator = it;
 }
 
@@ -69,24 +69,38 @@ void ARMGOT::reserveEntry(const int pNum)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
-    ++m_GeneralGOTNum;
+    ++m_NormalGOTNum;
   }
 }
 
+void ARMGOT::reserveGOTPLTEntry()
+{
+    GOTEntry* got_entry = 0;
+
+    got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
+
+    if (!got_entry)
+      llvm::report_fatal_error("Allocating new memory for GOT failed!");
+
+    m_Section.setSize(m_Section.size() + getEntrySize());
+
+    ++m_GOTPLTNum;
+    ++m_NormalGOTIterator;
+}
 
 GOTEntry* ARMGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry *&Entry = m_GeneralGOTMap[&pInfo];
+  GOTEntry *&Entry = m_NormalGOTMap[&pInfo];
   pExist = 1;
 
   if (!Entry) {
     pExist = 0;
 
-    ++m_GeneralGOTIterator;
-    assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end()
+    ++m_NormalGOTIterator;
+    assert(m_NormalGOTIterator != m_SectionData.getFragmentList().end()
            && "The number of GOT Entries and ResolveInfo doesn't match!");
 
-    Entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
+    Entry = llvm::cast<GOTEntry>(&(*m_NormalGOTIterator));
   }
 
   return Entry;

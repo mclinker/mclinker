@@ -49,6 +49,8 @@ public:
   //Reserve general GOT entries.
   void reserveEntry(int pNum = 1);
 
+  void reserveGOTPLTEntry();
+
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
   void applyGOT0(uint64_t pAddress);
@@ -71,11 +73,11 @@ public:
 
 private:
 
-  unsigned int m_GeneralGOTNum;
+  unsigned int m_NormalGOTNum;
   unsigned int m_GOTPLTNum;
 
   // Used by getGeneralGOTEntry()
-  iterator m_GeneralGOTIterator;
+  iterator m_NormalGOTIterator;
 
   // Used by getGOTPLTEntry()
   iterator m_GOTPLTIterator;
@@ -84,7 +86,7 @@ private:
   iterator m_LastGOT0;
 
   SymbolIndexMapType m_GOTPLTMap;
-  SymbolIndexMapType m_GeneralGOTMap;
+  SymbolIndexMapType m_NormalGOTMap;
 };
 
 } // namespace of mcld

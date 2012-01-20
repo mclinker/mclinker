@@ -59,7 +59,6 @@ ARMPLT::~ARMPLT()
 void ARMPLT::reserveEntry(int pNum)
 {
   ARMPLT1* plt1_entry = 0;
-  GOTEntry* got_entry = 0;
 
   for (int i = 0; i < pNum; i++) {
     plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
@@ -69,16 +68,7 @@ void ARMPLT::reserveEntry(int pNum)
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
-    got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize(),
-                                           &(m_GOT.m_SectionData));
-
-    if (!got_entry)
-      llvm::report_fatal_error("Allocating new memory for GOT failed!");
-
-    m_GOT.m_Section.setSize(m_GOT.m_Section.size() + m_GOT.f_EntrySize);
-
-    ++(m_GOT.m_GOTPLTNum);
-    ++(m_GOT.m_GeneralGOTIterator);
+    m_GOT.reserveGOTPLTEntry();
   }
 }
 
