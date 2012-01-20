@@ -12,7 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include "ARMPLT.h"
 #include "mcld/Target/GOT.h"
 
 namespace mcld
