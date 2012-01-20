@@ -89,6 +89,8 @@ SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
 SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
 {
   m_OutputSymbols.insert(localEnd(), &pSymbol);
+  m_pLocal->end++;
+  m_pCommon->begin++;
   return *this;
 }
 
