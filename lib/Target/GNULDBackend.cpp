@@ -18,6 +18,7 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <string>
+#include <cstring>
 #include <cassert>
 
 using namespace mcld;
@@ -688,9 +689,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
   switch (pSectHdr.kind()) {
     case LDFileFormat::Regular:
       if (is_exec) {
-        if (pSectHdr.name() == ".init")
+        if (strcmp(pSectHdr.name().c_str(), ".init") == 0)
           return SHO_INIT;
-        else if (pSectHdr.name() == ".fini")
+        else if (strcmp(pSectHdr.name().c_str(), ".fini") == 0)
           return SHO_FINI;
         else
           return SHO_TEXT;
@@ -700,8 +701,8 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
         if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
             pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
             pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
-            pSectHdr.name() == ".ctors" ||
-            pSectHdr.name() == ".dtors")
+            strcmp(pSectHdr.name().c_str(), ".ctors") == 0 ||
+            strcmp(pSectHdr.name().c_str(), ".dtors") == 0)
           return SHO_RELRO;
 
         return SHO_DATA;
@@ -711,7 +712,7 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
       return SHO_BSS;
 
     case LDFileFormat::NamePool:
-      if (pSectHdr.name() == ".dynamic")
+      if (strcmp(pSectHdr.name().c_str(), ".dynamic") == 0)
         return SHO_RELRO;
       return SHO_NAMEPOOL;
 
