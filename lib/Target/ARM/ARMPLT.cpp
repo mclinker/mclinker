@@ -224,11 +224,7 @@ void ARMPLT::applyPLT1() {
     ++it;
   }
 
-  ARMGOT::iterator begin = m_GOT.getGOTPLTBegin();
-  ARMGOT::iterator end = m_GOT.getGOTPLTEnd();
-
-  for (;begin != end ;++begin)
-    llvm::cast<GOTEntry>(*begin).setContent(plt_base);
+  m_GOT.applyAllGOTPLT(plt_base);
 }
 
 } // end namespace mcld

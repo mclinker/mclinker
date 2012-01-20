@@ -53,7 +53,9 @@ public:
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-  void applyGOT0(uint64_t pAddress);
+  void applyGOT0(const uint64_t pAddress);
+
+  void applyAllGOTPLT(const uint64_t pPLTBase);
 
   iterator begin();
 
@@ -63,6 +65,7 @@ public:
 
   const_iterator end() const;
 
+private:
   iterator getGOTPLTBegin();
 
   const iterator getGOTPLTEnd();
