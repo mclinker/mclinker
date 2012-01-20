@@ -112,6 +112,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86GOT.h \
 	${LIBDIR}/Target/X86/X86GOT.cpp \
+	${LIBDIR}/Target/X86/X86GOTPLT.h \
+	${LIBDIR}/Target/X86/X86GOTPLT.cpp \
 	${LIBDIR}/Target/X86/X86PLT.h \
 	${LIBDIR}/Target/X86/X86PLT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
