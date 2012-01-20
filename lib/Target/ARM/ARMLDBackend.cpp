@@ -19,6 +19,8 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/TargetRegistry.h>
 
+#include <cstring>
+
 #include "ARM.h"
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
@@ -786,10 +788,10 @@ const ARMDynRelSection& ARMGNULDBackend::getRelPLT() const
 unsigned int
 ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
-  if (pSectHdr.name() == ".got" || pSectHdr.name() == ".got.plt")
+  if (strcmp(pSectHdr.name().c_str(), ".got") == 0)
     return SHO_DATA;
 
-  if (pSectHdr.name() == ".plt")
+  if (strcmp(pSectHdr.name().c_str(), ".plt") == 0)
     return SHO_PLT;
 
   return SHO_UNDEFINED;
