@@ -38,19 +38,6 @@ public:
 
   ~ARMGOT();
 
-  //Reserve general GOT entries.
-  void reserveEntry(int pNum = 1);
-
-  void reserveGOTPLTEntry();
-
-  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
-
-  void applyGOT0(const uint64_t pAddress);
-
-  void applyAllGOTPLT(const uint64_t pPLTBase);
-
-  GOTEntry*& lookupGOTPLTMap(const ResolveInfo& pSymbol);
-
   iterator begin();
 
   const_iterator begin() const;
@@ -59,6 +46,25 @@ public:
 
   const_iterator end() const;
 
+// Fuinction for GOT0
+public:
+  void applyGOT0(const uint64_t pAddress);
+
+// Functions for normal GOT
+public:
+  // Reserve normal GOT entries.
+  void reserveEntry(int pNum = 1);
+
+  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+
+// Functions for GOTPLT
+public:
+  void reserveGOTPLTEntry();
+
+  void applyAllGOTPLT(const uint64_t pPLTBase);
+
+  GOTEntry*& lookupGOTPLTMap(const ResolveInfo& pSymbol);
+
   iterator getNextGOTPLTEntry();
 
   iterator getGOTPLTBegin();
@@ -66,19 +72,16 @@ public:
   const iterator getGOTPLTEnd();
 
 private:
-  unsigned int m_NormalGOTNum;
-
-  // Used by getNormalGOTEntry()
+  // For normal GOT entries
   iterator m_NormalGOTIterator;
+  SymbolIndexMapType m_NormalGOTMap;
 
-  // Used by getGOTPLTEntry()
+  // For GOTPLT entries
   iterator m_GOTPLTIterator;
+  SymbolIndexMapType m_GOTPLTMap;
 
   iterator m_GOTPLTBegin;
   iterator m_GOTPLTEnd;
-
-  SymbolIndexMapType m_GOTPLTMap;
-  SymbolIndexMapType m_NormalGOTMap;
 };
 
 } // namespace of mcld

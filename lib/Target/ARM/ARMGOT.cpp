@@ -21,8 +21,8 @@ namespace mcld {
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, ARMGOTEntrySize),
-               m_NormalGOTNum(0), m_NormalGOTIterator(),
-               m_GOTPLTIterator(), m_GOTPLTBegin(), m_GOTPLTEnd()
+               m_NormalGOTIterator(), m_GOTPLTIterator(),
+               m_GOTPLTBegin(), m_GOTPLTEnd()
 {
   GOTEntry* Entry = 0;
 
@@ -71,7 +71,6 @@ void ARMGOT::reserveEntry(const int pNum)
       llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
-    ++m_NormalGOTNum;
   }
 }
 
