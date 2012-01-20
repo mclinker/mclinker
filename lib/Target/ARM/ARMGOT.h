@@ -46,18 +46,18 @@ public:
 
   const_iterator end() const;
 
-// Fuinction for GOT0
+// For GOT0
 public:
   void applyGOT0(const uint64_t pAddress);
 
-// Functions for normal GOT
+// For normal GOT
 public:
   // Reserve normal GOT entries.
   void reserveEntry(int pNum = 1);
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-// Functions for GOTPLT
+// For GOTPLT
 public:
   void reserveGOTPLTEntry();
 
