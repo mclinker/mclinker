@@ -123,6 +123,11 @@ void ARMGOT::applyAllGOTPLT(const uint64_t pPLTBase)
     llvm::cast<GOTEntry>(*begin).setContent(pPLTBase);
 }
 
+GOTEntry*& ARMGOT::lookupGOTPLTMap(const ResolveInfo& pSymbol)
+{
+  return m_GOTPLTMap[&pSymbol];
+}
+
 ARMGOT::iterator ARMGOT::begin()
 {
   return m_SectionData.getFragmentList().begin();
@@ -143,16 +148,23 @@ ARMGOT::const_iterator ARMGOT::end() const
   return m_SectionData.getFragmentList().end();
 }
 
+ARMGOT::iterator ARMGOT::getNextGOTPLTEntry()
+{
+  return ++m_GOTPLTIterator;
+}
+
 ARMGOT::iterator ARMGOT::getGOTPLTBegin()
 {
   // Move to the first GOTPLT entry from last GOT0 entry.
-  return ++m_GOTPLTBegin;
+  iterator begin = m_GOTPLTBegin;
+  return ++begin;
 }
 
 const ARMGOT::iterator ARMGOT::getGOTPLTEnd()
 {
   // Move to end or the first normal GOT entry from the last GOTPLT entry.
-  return ++m_GOTPLTEnd;
+  iterator end = m_GOTPLTEnd;
+  return ++end;
 }
 
 } //end mcld namespace

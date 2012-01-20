@@ -79,7 +79,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
    pExist = 1;
 
    if (!PLTEntry) {
-     GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
+     GOTEntry *&GOTPLTEntry = m_GOT.lookupGOTPLTMap(pSymbol);
      assert(!GOTPLTEntry && "PLT entry and got.plt entry doesn't match!");
 
      pExist = 0;
@@ -88,10 +88,13 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      ++m_PLTEntryIterator;
      assert(m_PLTEntryIterator != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOT.m_GOTPLTIterator);
+
+     ARMGOT::iterator got_it = m_GOT.getNextGOTPLTEntry();
+     ARMGOT::iterator got_ie = m_GOT.getGOTPLTEnd();
+     assert(got_it != got_ie && "The number of GOTPLT and PLT doesn't match");
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*got_it));
    }
 
    return PLTEntry;
@@ -99,7 +102,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 
 GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-   GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
+   GOTEntry *&GOTPLTEntry = m_GOT.lookupGOTPLTMap(pSymbol);
 
    pExist = 1;
 
@@ -113,10 +116,13 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
      ++m_PLTEntryIterator;
      assert(m_PLTEntryIterator != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOT.m_GOTPLTIterator);
+
+     ARMGOT::iterator got_it = m_GOT.getNextGOTPLTEntry();
+     ARMGOT::iterator got_ie = m_GOT.getGOTPLTEnd();
+     assert(got_it != got_ie && "The number of GOTPLT and PLT doesn't match");
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
+     GOTPLTEntry = llvm::cast<GOTEntry>(&(*got_it));
    }
 
    return GOTPLTEntry;

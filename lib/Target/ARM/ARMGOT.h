@@ -27,14 +27,6 @@ const unsigned int ARMGOT0Num = 3;
 
 class ARMGOT : public GOT
 {
-  friend void mcld::ARMPLT::reserveEntry(int pNum);
-
-  friend mcld::PLTEntry* mcld::ARMPLT::getPLTEntry(
-         const mcld::ResolveInfo& pSymbol,bool& pExist);
-
-  friend mcld::GOTEntry* mcld::ARMPLT::getGOTPLTEntry(
-         const mcld::ResolveInfo& pSymbol,bool& pExist);
-
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
@@ -57,6 +49,8 @@ public:
 
   void applyAllGOTPLT(const uint64_t pPLTBase);
 
+  GOTEntry*& lookupGOTPLTMap(const ResolveInfo& pSymbol);
+
   iterator begin();
 
   const_iterator begin() const;
@@ -65,7 +59,8 @@ public:
 
   const_iterator end() const;
 
-private:
+  iterator getNextGOTPLTEntry();
+
   iterator getGOTPLTBegin();
 
   const iterator getGOTPLTEnd();
