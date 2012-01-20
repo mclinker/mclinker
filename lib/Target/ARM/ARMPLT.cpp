@@ -224,22 +224,11 @@ void ARMPLT::applyPLT1() {
     ++it;
   }
 
-  unsigned int GOTPLTNum = m_GOT.getGOTPLTNum();
+  ARMGOT::iterator begin = m_GOT.getGOTPLTBegin();
+  ARMGOT::iterator end = m_GOT.getGOTPLTEnd();
 
-  if (GOTPLTNum != 0) {
-    ARMGOT::iterator gotplt_it = m_GOT.getLastGOT0();
-    ARMGOT::iterator list_ie = m_GOT.getSectionData().getFragmentList().end();
-
-    ++gotplt_it;
-    for (int i = 0; i < GOTPLTNum; ++i) {
-      if (gotplt_it == list_ie)
-        llvm::report_fatal_error(
-          "The number of got.plt entries is inconsistent!");
-
-      llvm::cast<GOTEntry>(*gotplt_it).setContent(plt_base);
-      ++gotplt_it;
-    }
-  }
+  for (;begin != end ;++begin)
+    llvm::cast<GOTEntry>(*begin).setContent(plt_base);
 }
 
 } // end namespace mcld

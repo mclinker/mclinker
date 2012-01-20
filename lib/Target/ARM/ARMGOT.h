@@ -63,27 +63,21 @@ public:
 
   const_iterator end() const;
 
-  unsigned int getGOTPLTNum();
+  iterator getGOTPLTBegin();
 
-  const unsigned int getGOTPLTNum() const;
-
-  iterator getLastGOT0();
-
-  const iterator getLastGOT0() const;
+  const iterator getGOTPLTEnd();
 
 private:
-
   unsigned int m_NormalGOTNum;
-  unsigned int m_GOTPLTNum;
 
-  // Used by getGeneralGOTEntry()
+  // Used by getNormalGOTEntry()
   iterator m_NormalGOTIterator;
 
   // Used by getGOTPLTEntry()
   iterator m_GOTPLTIterator;
 
-  // The last GOT0 entry
-  iterator m_LastGOT0;
+  iterator m_GOTPLTBegin;
+  iterator m_GOTPLTEnd;
 
   SymbolIndexMapType m_GOTPLTMap;
   SymbolIndexMapType m_NormalGOTMap;

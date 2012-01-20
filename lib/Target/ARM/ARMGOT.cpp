@@ -21,8 +21,8 @@ namespace mcld {
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, ARMGOTEntrySize),
-               m_GOTPLTNum(0), m_NormalGOTNum(0), m_LastGOT0(),
-               m_GOTPLTIterator(), m_NormalGOTIterator()
+               m_NormalGOTNum(0), m_NormalGOTIterator(),
+               m_GOTPLTIterator(), m_GOTPLTBegin(), m_GOTPLTEnd()
 {
   GOTEntry* Entry = 0;
 
@@ -48,9 +48,11 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
     ++it;
   }
 
-  m_LastGOT0 = it;
   m_NormalGOTIterator = it;
   m_GOTPLTIterator = it;
+
+  m_GOTPLTBegin = it;
+  m_GOTPLTEnd = it;
 }
 
 ARMGOT::~ARMGOT()
@@ -84,7 +86,7 @@ void ARMGOT::reserveGOTPLTEntry()
 
     m_Section.setSize(m_Section.size() + getEntrySize());
 
-    ++m_GOTPLTNum;
+    ++m_GOTPLTEnd;
     ++m_NormalGOTIterator;
 }
 
@@ -132,16 +134,16 @@ ARMGOT::const_iterator ARMGOT::end() const
   return m_SectionData.getFragmentList().end();
 }
 
-unsigned int ARMGOT::getGOTPLTNum()
-{ return m_GOTPLTNum; }
+ARMGOT::iterator ARMGOT::getGOTPLTBegin()
+{
+  // Move to the first GOTPLT entry from last GOT0 entry.
+  return ++m_GOTPLTBegin;
+}
 
-const unsigned int ARMGOT::getGOTPLTNum() const
-{ return m_GOTPLTNum; }
-
-ARMGOT::iterator ARMGOT::getLastGOT0()
-{ return m_LastGOT0; }
-
-const ARMGOT::iterator ARMGOT::getLastGOT0() const
-{ return m_LastGOT0; }
+const ARMGOT::iterator ARMGOT::getGOTPLTEnd()
+{
+  // Move to end or the first normal GOT entry from the last GOTPLT entry.
+  return ++m_GOTPLTEnd;
+}
 
 } //end mcld namespace
