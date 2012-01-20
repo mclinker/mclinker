@@ -21,6 +21,8 @@
 #include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCRegionFragment.h>
 
+#include <cstring>
+
 using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
@@ -533,10 +535,15 @@ const X86DynRelSection& X86GNULDBackend::getRelPLT() const
 unsigned int
 X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
-  if (pSectHdr.name() == ".got" || pSectHdr.name() == ".got.plt")
-    return SHO_DATA;
+  // FIXME: if command line option, "-z now", is given, we can let the order of
+  // .got and .got.plt be the same as RELRO sections
+  if (strcmp(pSectHdr.name().c_str(), ".got") == 0)
+    return SHO_RELRO_LAST;
 
-  if (pSectHdr.name() == ".plt")
+  if (strcmp(pSectHdr.name().c_str(), ".got.plt") == 0)
+    return SHO_NON_RELRO_FIRST;
+
+  if (strcmp(pSectHdr.name().c_str(), ".plt") == 0)
     return SHO_PLT;
 
   return SHO_UNDEFINED;
