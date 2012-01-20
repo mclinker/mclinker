@@ -174,7 +174,8 @@ public:
   /// this function.
   ///
   /// @see getTargetSectionOrder
-  virtual unsigned int getSectionOrder(const LDSection& pSectHdr) const;
+  virtual unsigned int getSectionOrder(const Output& pOutput,
+                                       const LDSection& pSectHdr) const;
 
   /// getTargetSectionOrder - compute the layout order of target section
   /// If the target favors certain order for the given gSectHdr, please
@@ -183,7 +184,7 @@ public:
   /// By default, this function returns the maximun order, and pSectHdr
   /// will be the last section to be laid out.
   virtual unsigned int
-  getTargetSectionOrder(const LDSection& pSectHdr) const
+  getTargetSectionOrder(const Output& pOutput, const LDSection& pSectHdr) const
   { return (unsigned int)-1; }
 
   /// emitProgramHdrs - emit ELF program headers

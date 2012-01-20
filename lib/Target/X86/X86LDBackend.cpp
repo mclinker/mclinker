@@ -533,17 +533,32 @@ const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 }
 
 unsigned int
-X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
+X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
+                                       const LDSection& pSectHdr) const
 {
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      assert(0 && "Not support yet.\n");
+      break;
+  }
+
   // FIXME: if command line option, "-z now", is given, we can let the order of
   // .got and .got.plt be the same as RELRO sections
-  if (strcmp(pSectHdr.name().c_str(), ".got") == 0)
+  if (&pSectHdr == &file_format->getGOT())
     return SHO_RELRO_LAST;
 
-  if (strcmp(pSectHdr.name().c_str(), ".got.plt") == 0)
+  if (&pSectHdr == &file_format->getGOTPLT())
     return SHO_NON_RELRO_FIRST;
 
-  if (strcmp(pSectHdr.name().c_str(), ".plt") == 0)
+  if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;
 
   return SHO_UNDEFINED;

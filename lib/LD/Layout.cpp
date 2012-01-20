@@ -13,6 +13,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -451,15 +452,16 @@ uint64_t Layout::getOutputOffset(const MCFragmentRef& pFragRef) const
   return getOutputOffset(*(pFragRef.frag())) + pFragRef.offset();
 }
 
-void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
+void Layout::sortSectionOrder(const Output& pOutput,
+                              const TargetLDBackend& pBackend)
 {
   typedef std::pair<LDSection*, unsigned int> SectOrder;
   typedef std::vector<SectOrder > SectListTy;
   SectListTy sect_list;
   // get section order from backend
-  for (sect_iterator it = sect_begin(); it != sect_end(); ++it) {
-    sect_list.push_back(std::make_pair(*it, pBackend.getSectionOrder(**it)));
-  }
+  for (sect_iterator it = sect_begin(); it != sect_end(); ++it)
+    sect_list.push_back(std::make_pair(*it,
+                                      pBackend.getSectionOrder(pOutput, **it)));
 
   // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
@@ -481,12 +483,14 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend)
   }
 }
 
-bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
+bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
 {
   // determine what sections in output context will go into final output, and
   // push the needed sections into m_SectionOrder for later processing
-  LDContext::sect_iterator it, itEnd = pOutput.sectEnd();
-  for (it = pOutput.sectBegin(); it != itEnd; ++it) {
+  assert(pOutput.hasContext());
+  LDContext& output_context = *pOutput.context();
+  LDContext::sect_iterator it, itEnd = output_context.sectEnd();
+  for (it = output_context.sectBegin(); it != itEnd; ++it) {
     LDSection* sect = *it;
 
     switch (sect->kind()) {
@@ -529,7 +533,7 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
   }
 
   // perform sorting on m_SectionOrder to get a ordering for final layout
-  sortSectionOrder(pBackend);
+  sortSectionOrder(pOutput, pBackend);
 
   // Backend defines the section start offset for section 1.
   uint64_t offset = pBackend.sectionStartOffset();
@@ -544,9 +548,9 @@ bool Layout::layout(LDContext& pOutput, const TargetLDBackend& pBackend)
 
   // FIXME: Currently Writer bases on the section table in output context to
   // write out sections, so we have to update its content..
-  pOutput.getSectionTable().clear();
+  output_context.getSectionTable().clear();
   for (size_t index = 0; index < m_SectionOrder.size(); ++index)
-    pOutput.getSectionTable().push_back(m_SectionOrder[index]);
+    output_context.getSectionTable().push_back(m_SectionOrder[index]);
 
   return true;
 }

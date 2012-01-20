@@ -452,7 +452,7 @@ void MCLinker::syncRelocationResult() {
 
 bool MCLinker::layout()
 {
-  return m_Layout.layout(m_Output, m_Backend);
+  return m_Layout.layout(m_Info.output(), m_Backend);
 }
 
 bool MCLinker::finalizeSymbols()

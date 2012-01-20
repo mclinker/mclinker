@@ -23,7 +23,7 @@
 namespace mcld
 {
 class MCLinker;
-class LDContext;
+class Output;
 class TargetLDBackend;
 
 /** \class Layout
@@ -112,7 +112,7 @@ public:
   const LDSection* getOutputLDSection(const llvm::MCFragment& pFrag) const;
 
   // -----  modifiers  ----- //
-  bool layout(LDContext& pOutput, const TargetLDBackend& pBackend);
+  bool layout(Output& pOutput, const TargetLDBackend& pBackend);
 
   /// addInputRange
   void addInputRange(const llvm::MCSectionData& pSD,
@@ -256,7 +256,8 @@ private:
 
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering
-  void sortSectionOrder(const TargetLDBackend& pBackend);
+  void sortSectionOrder(const Output& pOutput,
+                        const TargetLDBackend& pBackend);
 
 private:
   /// a vector to describe the order of sections

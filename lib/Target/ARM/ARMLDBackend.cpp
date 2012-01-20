@@ -786,12 +786,27 @@ const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
 }
 
 unsigned int
-ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
+ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
+                                       const LDSection& pSectHdr) const
 {
-  if (strcmp(pSectHdr.name().c_str(), ".got") == 0)
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      assert(0 && "Not support yet.\n");
+      break;
+  }
+
+  if (&pSectHdr == &file_format->getGOT())
     return SHO_DATA;
 
-  if (strcmp(pSectHdr.name().c_str(), ".plt") == 0)
+  if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;
 
   return SHO_UNDEFINED;

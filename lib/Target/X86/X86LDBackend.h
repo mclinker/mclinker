@@ -170,7 +170,8 @@ public:
   const OutputRelocSection& getRelPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of X86 target sections
-  unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
+  unsigned int getTargetSectionOrder(const Output& pOutput,
+                                     const LDSection& pSectHdr) const;
 
   /// finalizeSymbol - finalize the symbol value
   /// If the symbol's reserved field is not zero, MCLinker will call back this

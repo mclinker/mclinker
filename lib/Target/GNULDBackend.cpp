@@ -231,7 +231,6 @@ ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
   return m_pDynObjWriter;
 }
 
-
 ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
 {
   assert(0 != m_pDynObjFileFormat);
@@ -672,7 +671,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 }
 
 /// getSectionOrder
-unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
+unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
+                                           const LDSection& pSectHdr) const
 {
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
@@ -684,25 +684,37 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 
   bool is_write = (pSectHdr.flag() & llvm::ELF::SHF_WRITE) != 0;
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      assert(0 && "Not support yet.\n");
+      break;
+  }
 
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
     case LDFileFormat::Regular:
       if (is_exec) {
-        if (strcmp(pSectHdr.name().c_str(), ".init") == 0)
+        if (&pSectHdr == &file_format->getInit())
           return SHO_INIT;
-        else if (strcmp(pSectHdr.name().c_str(), ".fini") == 0)
+        if (&pSectHdr == &file_format->getFini())
           return SHO_FINI;
-        else
-          return SHO_TEXT;
+        return SHO_TEXT;
       } else if (!is_write) {
         return SHO_RO;
       } else {
         if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
             pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
             pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
-            strcmp(pSectHdr.name().c_str(), ".ctors") == 0 ||
-            strcmp(pSectHdr.name().c_str(), ".dtors") == 0)
+            &pSectHdr == &file_format->getCtors() ||
+            &pSectHdr == &file_format->getDtors())
           return SHO_RELRO;
 
         return SHO_DATA;
@@ -712,18 +724,19 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
       return SHO_BSS;
 
     case LDFileFormat::NamePool:
-      if (strcmp(pSectHdr.name().c_str(), ".dynamic") == 0)
+      if (&pSectHdr == &file_format->getDynamic())
         return SHO_RELRO;
       return SHO_NAMEPOOL;
 
     case LDFileFormat::Relocation:
-      if (std::string::npos != pSectHdr.name().find("plt"))
+      if (&pSectHdr == &file_format->getRelPlt() ||
+          &pSectHdr == &file_format->getRelaPlt())
         return SHO_REL_PLT;
       return SHO_RELOCATION;
 
     // get the order from target for target specific sections
     case LDFileFormat::Target:
-      return getTargetSectionOrder(pSectHdr);
+      return getTargetSectionOrder(pOutput, pSectHdr);
 
     // handle .interp
     case LDFileFormat::Note:
