@@ -1,4 +1,4 @@
-//===- MipsDynRelSection.h ------------------------------------------------===//
+//===- OutputRelocSection.h --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MIPSDYNRELSECTION_H
-#define MCLD_MIPSDYNRELSECTION_H
+#ifndef OUTPUTRELOCSECTION_H
+#define OUTPUTRELOCSECTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -22,10 +22,10 @@ namespace mcld
 class ResolveInfo;
 class Relocation;
 
-/** \class MipsDynRelSection
- *  \brief Dynamic relocation section for Mips .rel.dyn and .rel.plt
+/** \class OutputRelocSection
+ *  \brief Dynamic relocation section for ARM .rel.dyn and .rel.plt
  */
-class MipsDynRelSection
+class OutputRelocSection
 {
 public:
   typedef llvm::DenseMap<const ResolveInfo*, Relocation*> SymRelMapType;
@@ -34,13 +34,16 @@ public:
   typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 public:
-  MipsDynRelSection(LDSection& pSection,
-                    llvm::MCSectionData& pSectionData,
-                    const unsigned int pEntrySize);
+  OutputRelocSection(LDSection& pSection,
+                   llvm::MCSectionData& pSectionData,
+                   const unsigned int pEntrySize);
+  ~OutputRelocSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
 
-  Relocation* getEntry(const ResolveInfo& pSymbol, bool& pExist);
+  Relocation* getEntry(const ResolveInfo& pSymbol,
+                       bool isForGOT,
+                       bool& pExist);
 
 private:
   /// m_pEmpty - point to the top empty entry
@@ -49,7 +52,7 @@ private:
   /// m_SymRelMap - map the resolved symbol to the Relocation entry
   SymRelMapType m_SymRelMap;
 
-  /// m_pSection - LDSection for this section
+  /// m_pSection - LDSection of this Section
   LDSection* m_pSection;
 
   /// m_SectionData - MCSectionData which contains the dynamic relocations
@@ -62,3 +65,4 @@ private:
 } // namespace of mcld
 
 #endif
+

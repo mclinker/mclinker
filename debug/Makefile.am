@@ -70,6 +70,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/AndroidSectLinker.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${LIBDIR}/Target/ELFDynamic.cpp \
+	${INCDIR}/Target/OutputRelocSection.h \
+	${LIBDIR}/Target/OutputRelocSection.cpp \
         ${INCDIR}/Target/ARM/ARMELFDynamic.h \
         ${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
@@ -87,8 +89,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMDynRelSection.h \
-	${LIBDIR}/Target/ARM/ARMDynRelSection.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
         ${INCDIR}/Target/Mips/MipsELFDynamic.h \
         ${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
@@ -105,8 +105,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
-	${LIBDIR}/Target/Mips/MipsDynRelSection.h \
-	${LIBDIR}/Target/Mips/MipsDynRelSection.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
         ${INCDIR}/Target/X86/X86ELFDynamic.h \
         ${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
@@ -125,8 +123,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.h \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.cpp \
-	${LIBDIR}/Target/X86/X86DynRelSection.h \
-	${LIBDIR}/Target/X86/X86DynRelSection.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \

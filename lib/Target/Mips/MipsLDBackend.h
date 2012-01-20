@@ -15,7 +15,7 @@
 namespace mcld {
 
 class MCLinker;
-class MipsDynRelSection;
+class OutputRelocSection;
 class SectionMap;
 
 //===----------------------------------------------------------------------===//
@@ -35,7 +35,7 @@ public:
   /// FIXME:
   uint8_t OSABI() const
   { return llvm::ELF::ELFOSABI_NONE; }
-  
+
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   /// FIXME:
   uint8_t ABIVersion() const
@@ -47,7 +47,7 @@ public:
   bool isLittleEndian() const;
 
   unsigned int bitclass() const;
-  
+
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,
@@ -119,8 +119,8 @@ public:
 private:
   RelocationFactory* m_pRelocFactory;
 
-  std::auto_ptr<MipsGOT> m_pGOT;                    // .got
-  std::auto_ptr<MipsDynRelSection> m_pRelDynSec;    // .rel.dyn
+  std::auto_ptr<MipsGOT> m_pGOT;                     // .got
+  std::auto_ptr<OutputRelocSection> m_pRelDynSec;    // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
 private:

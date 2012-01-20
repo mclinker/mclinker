@@ -1,4 +1,4 @@
-//===- ARMDynRelSection.cpp ------------------------------------------------===//
+//===- OutputRelocSection.cpp ---------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,29 +7,29 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDSection.h>
-#include "ARMDynRelSection.h"
+#include <mcld/Target/OutputRelocSection.h>
 
 using namespace mcld;
 
 //==========================
-// ARMDynRelSection
+// OutputRelocSection
 
 
-ARMDynRelSection::ARMDynRelSection(LDSection& pSection,
-                                   llvm::MCSectionData& pSectionData,
-                                   const unsigned int pEntrySize)
+OutputRelocSection::OutputRelocSection(LDSection& pSection,
+                                       llvm::MCSectionData& pSectionData,
+                                       const unsigned int pEntrySize)
   : m_pSection(&pSection),
     m_pSectionData(&pSectionData),
     m_EntryBytes(pEntrySize),
     m_pEmpty(0){
 }
 
-ARMDynRelSection::~ARMDynRelSection()
+OutputRelocSection::~OutputRelocSection()
 {
 }
 
-void ARMDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
-                                    int pNum)
+void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
+                                      int pNum)
 {
   for(int i=0; i<pNum; i++) {
     m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
@@ -38,9 +38,9 @@ void ARMDynRelSection::reserveEntry(RelocationFactory& pRelFactory,
   }
 }
 
-Relocation* ARMDynRelSection::getEntry(const ResolveInfo& pSymbol,
-                                       bool isForGOT,
-                                       bool& pExist)
+Relocation* OutputRelocSection::getEntry(const ResolveInfo& pSymbol,
+                                         bool isForGOT,
+                                         bool& pExist)
 {
   // first time visit this function, set m_pEmpty to Fragments.begin()
   if(!m_pEmpty) {

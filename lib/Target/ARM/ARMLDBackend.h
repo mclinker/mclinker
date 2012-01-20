@@ -12,9 +12,9 @@
 #include "ARMELFDynamic.h"
 #include "ARMGOT.h"
 #include "ARMPLT.h"
-#include "ARMDynRelSection.h"
-#include <mcld/Target/GNULDBackend.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Target/GNULDBackend.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 namespace mcld {
 
@@ -172,13 +172,13 @@ public:
 
   const ARMPLT& getPLT() const;
 
-  ARMDynRelSection& getRelDyn();
+  OutputRelocSection& getRelDyn();
 
-  const ARMDynRelSection& getRelDyn() const;
+  const OutputRelocSection& getRelDyn() const;
 
-  ARMDynRelSection& getRelPLT();
+  OutputRelocSection& getRelPLT();
 
-  const ARMDynRelSection& getRelPLT() const;
+  const OutputRelocSection& getRelPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of ARM target sections
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
@@ -223,9 +223,9 @@ private:
   ARMGOT* m_pGOT;
   ARMPLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
-  ARMDynRelSection* m_pRelDyn;
+  OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
-  ARMDynRelSection* m_pRelPLT;
+  OutputRelocSection* m_pRelPLT;
 
   ARMELFDynamic* m_pDynamic;
 

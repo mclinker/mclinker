@@ -146,9 +146,9 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
     // set info of .rel.plt to .plt
     relplt.setLinkInfo(&plt);
     // create MCSectionData and X86RelDynSection
-    m_pRelPLT = new X86DynRelSection(relplt,
-                                     pLinker.getOrCreateSectData(relplt),
-                                     8);
+    m_pRelPLT = new OutputRelocSection(relplt,
+                                       pLinker.getOrCreateSectData(relplt),
+                                       8);
   }
   else if( pType == Output::Exec ) {
     LDSection& plt = getExecFileFormat()->getPLT();
@@ -159,9 +159,9 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
     // set info of .rel.plt to .plt
     relplt.setLinkInfo(&plt);
     // create MCSectionData and X86RelDynSection
-    m_pRelPLT = new X86DynRelSection(relplt,
-                                     pLinker.getOrCreateSectData(relplt),
-                                     8);
+    m_pRelPLT = new OutputRelocSection(relplt,
+                                       pLinker.getOrCreateSectData(relplt),
+                                       8);
   }
   else
     llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
@@ -176,16 +176,16 @@ void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
   if( pType == Output::DynObj ) {
     LDSection& reldyn = getDynObjFileFormat()->getRelDyn();
     // create MCSectionData and X86RelDynSection
-    m_pRelDyn = new X86DynRelSection(reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
-                                     8);
+    m_pRelDyn = new OutputRelocSection(reldyn,
+                                       pLinker.getOrCreateSectData(reldyn),
+                                       8);
   }
   else if( pType == Output::Exec) {
     LDSection& reldyn = getExecFileFormat()->getRelDyn();
     // create MCSectionData and X86RelDynSection
-    m_pRelDyn = new X86DynRelSection(reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
-                                     8);
+    m_pRelDyn = new OutputRelocSection(reldyn,
+                                       pLinker.getOrCreateSectData(reldyn),
+                                       8);
   }
   else
     llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
@@ -508,25 +508,25 @@ const X86PLT& X86GNULDBackend::getPLT() const
   return *m_pPLT;
 }
 
-X86DynRelSection& X86GNULDBackend::getRelDyn()
+OutputRelocSection& X86GNULDBackend::getRelDyn()
 {
   assert(0 != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
-const X86DynRelSection& X86GNULDBackend::getRelDyn() const
+const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 {
   assert(0 != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
-X86DynRelSection& X86GNULDBackend::getRelPLT()
+OutputRelocSection& X86GNULDBackend::getRelPLT()
 {
   assert(0 != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
-const X86DynRelSection& X86GNULDBackend::getRelPLT() const
+const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 {
   assert(0 != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;

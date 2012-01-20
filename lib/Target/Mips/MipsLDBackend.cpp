@@ -10,13 +10,13 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
-#include <mcld/Support/TargetRegistry.h>
-#include <mcld/MC/MCLinker.h>
 #include <mcld/LD/SectionMap.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 #include "Mips.h"
 #include "MipsELFDynamic.h"
-#include "MipsDynRelSection.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
 
@@ -359,7 +359,7 @@ void MipsGNULDBackend::createRelDynSec(MCLinker& pLinker)
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
   unsigned int size = bitclass() / 8 * 2 ;
-  m_pRelDynSec.reset(new MipsDynRelSection(sec, data, size));
+  m_pRelDynSec.reset(new OutputRelocSection(sec, data, size));
 }
 
 void MipsGNULDBackend::createGOTSec(MCLinker& pLinker)

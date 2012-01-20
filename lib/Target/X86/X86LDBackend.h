@@ -12,9 +12,9 @@
 #include "X86ELFDynamic.h"
 #include "X86GOT.h"
 #include "X86PLT.h"
-#include "X86DynRelSection.h"
-#include <mcld/Target/GNULDBackend.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Target/GNULDBackend.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 namespace mcld {
 
@@ -131,7 +131,7 @@ public:
   /// FIXME
   uint8_t OSABI() const
   { return llvm::ELF::ELFOSABI_NONE; }
-  
+
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   /// FIXME
   uint8_t ABIVersion() const
@@ -140,7 +140,7 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   /// FIXME
   uint64_t flags() const
-  { return 0x0; } 
+  { return 0x0; }
 
   /// initTargetSectionMap - initialize target dependent section mapping
   bool initTargetSectionMap(SectionMap& pSectionMap);
@@ -161,13 +161,13 @@ public:
                       const MCLDInfo& pLDInfo,
                       unsigned int pType);
 
-  X86DynRelSection& getRelDyn();
+  OutputRelocSection& getRelDyn();
 
-  const X86DynRelSection& getRelDyn() const;
+  const OutputRelocSection& getRelDyn() const;
 
-  X86DynRelSection& getRelPLT();
+  OutputRelocSection& getRelPLT();
 
-  const X86DynRelSection& getRelPLT() const;
+  const OutputRelocSection& getRelPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of X86 target sections
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
@@ -193,12 +193,12 @@ private:
                        const MCLDInfo& pLDInfo,
                        unsigned int pType);
 
-  bool isSymbolNeedsPLT(const ResolveInfo& pSym, 
-                        unsigned int pType, 
+  bool isSymbolNeedsPLT(const ResolveInfo& pSym,
+                        unsigned int pType,
                         const MCLDInfo& pLDInfo);
 
-  bool isSymbolNeedsDynRel(const ResolveInfo& pSym, 
-                           unsigned int pType, 
+  bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                           unsigned int pType,
                            bool isAbsReloc);
 
   void createX86GOT(MCLinker& pLinker, unsigned int pType);
@@ -210,9 +210,9 @@ private:
   X86GOT* m_pGOT;
   X86PLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
-  X86DynRelSection* m_pRelDyn;
+  OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
-  X86DynRelSection* m_pRelPLT;
+  OutputRelocSection* m_pRelPLT;
 
   X86ELFDynamic* m_pDynamic;
 };
