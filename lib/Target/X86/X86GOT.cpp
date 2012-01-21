@@ -57,7 +57,7 @@ X86GOT::~X86GOT()
 {
 }
 
-void X86GOT::reserveEntry(int pNum)
+void X86GOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = 0;
 
@@ -92,7 +92,7 @@ GOTEntry* X86GOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   return Entry;
 }
 
-void X86GOT::applyGOT0(const uint64_t pAddress)
+void X86GOT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<GOTEntry>
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
@@ -118,10 +118,7 @@ X86GOT::const_iterator X86GOT::end() const
   return m_SectionData.getFragmentList().end();
 }
 
-unsigned int X86GOT::getGOTPLTNum()
-{ return m_GOTPLTNum; }
-
-const unsigned int X86GOT::getGOTPLTNum() const
+unsigned int X86GOT::getGOTPLTNum() const
 { return m_GOTPLTNum; }
 
 X86GOT::iterator X86GOT::getLastGOT0()

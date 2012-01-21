@@ -36,7 +36,7 @@ public:
 
   // While reserveEntry, the size in LDSection is also updated. As the result,
   // layout will get the correct size of GOT section
-  void reserveEntry(int pNum = 1);
+  void reserveEntry(size_t pNum = 1);
 
   GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 

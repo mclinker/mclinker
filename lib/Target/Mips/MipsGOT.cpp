@@ -30,7 +30,7 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   // and reserve an entry for a module pointer?
 }
 
-void MipsGOT::reserveEntry(const int pNum)
+void MipsGOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = 0;
 

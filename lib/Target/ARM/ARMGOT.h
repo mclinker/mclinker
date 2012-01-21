@@ -21,9 +21,6 @@ class LDSection;
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
  */
-
-const unsigned int ARMGOT0Num = 3;
-
 class ARMGOT : public GOT
 {
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
@@ -31,6 +28,10 @@ class ARMGOT : public GOT
 public:
   typedef llvm::MCSectionData::iterator iterator;
   typedef llvm::MCSectionData::const_iterator const_iterator;
+
+  enum {
+    ARMGOT0Num = 3
+  };
 
 public:
   ARMGOT(LDSection &pSection, llvm::MCSectionData& pSectionData);
@@ -47,12 +48,12 @@ public:
 
 // For GOT0
 public:
-  void applyGOT0(const uint64_t pAddress);
+  void applyGOT0(uint64_t pAddress);
 
 // For normal GOT
 public:
   // Reserve normal GOT entries.
-  void reserveEntry(int pNum = 1);
+  void reserveEntry(size_t pNum = 1);
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
@@ -60,7 +61,7 @@ public:
 public:
   void reserveGOTPLTEntry();
 
-  void applyAllGOTPLT(const uint64_t pPLTBase);
+  void applyAllGOTPLT(uint64_t pPLTBase);
 
   GOTEntry*& lookupGOTPLTMap(const ResolveInfo& pSymbol);
 

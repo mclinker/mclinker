@@ -59,7 +59,7 @@ ARMGOT::~ARMGOT()
 {
 }
 
-void ARMGOT::reserveEntry(const int pNum)
+void ARMGOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = 0;
 
@@ -107,13 +107,13 @@ GOTEntry* ARMGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   return Entry;
 }
 
-void ARMGOT::applyGOT0(const uint64_t pAddress)
+void ARMGOT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<GOTEntry>
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
-void ARMGOT::applyAllGOTPLT(const uint64_t pPLTBase)
+void ARMGOT::applyAllGOTPLT(uint64_t pPLTBase)
 {
   iterator begin = getGOTPLTBegin();
   iterator end = getGOTPLTEnd();

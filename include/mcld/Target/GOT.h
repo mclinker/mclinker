@@ -41,13 +41,15 @@ public:
   void setContent(uint64_t pValue)
   { f_Content = pValue; }
 
-  //Used by llvm::cast<>.
-  static bool classof(const MCFragment *O) { return true; }
+  static bool classof(const MCFragment *pFrag)
+  { return pFrag->getKind() == llvm::MCFragment::FT_Target; }
+
+  static bool classof(const GOTEntry* pFrag)
+  { return true; }
 
   // Override pure virtual function
-  uint64_t getSize() const {
-    return m_EntrySize;
-  }
+  uint64_t getSize() const
+  { return m_EntrySize; }
 
 protected:
   uint64_t f_Content;
@@ -85,7 +87,7 @@ public:
   /// needed. If an entry is needed, the empty entry is reserved for layout
   /// to adjust the fragment offset. After that, we fill up the entries when
   /// applying relocations.
-  virtual void reserveEntry(const int pNum = 1) = 0;
+  virtual void reserveEntry(size_t pNum = 1) = 0;
 
   /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
@@ -95,7 +97,7 @@ public:
 protected:
   LDSection& m_Section;
   llvm::MCSectionData& m_SectionData;
-  const uint64_t f_EntrySize;
+  uint64_t f_EntrySize;
 };
 
 } // namespace of mcld

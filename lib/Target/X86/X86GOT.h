@@ -47,7 +47,7 @@ public:
   ~X86GOT();
 
   //Reserve general GOT entries.
-  void reserveEntry(int pNum = 1);
+  void reserveEntry(size_t pNum = 1);
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
@@ -61,9 +61,7 @@ public:
 
   const_iterator end() const;
 
-  unsigned int getGOTPLTNum();
-
-  const unsigned int getGOTPLTNum() const;
+  unsigned int getGOTPLTNum() const;
 
   iterator getLastGOT0();
 
