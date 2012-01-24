@@ -17,7 +17,7 @@ using namespace mcld;
 
 OutputRelocSection::OutputRelocSection(LDSection& pSection,
                                        llvm::MCSectionData& pSectionData,
-                                       const unsigned int pEntrySize)
+                                       unsigned int pEntrySize)
   : m_pSection(&pSection),
     m_pSectionData(&pSectionData),
     m_EntryBytes(pEntrySize),
@@ -29,7 +29,7 @@ OutputRelocSection::~OutputRelocSection()
 }
 
 void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
-                                      int pNum)
+                                      size_t pNum)
 {
   for(int i=0; i<pNum; i++) {
     m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());

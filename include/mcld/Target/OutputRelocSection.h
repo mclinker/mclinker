@@ -36,10 +36,10 @@ public:
 public:
   OutputRelocSection(LDSection& pSection,
                    llvm::MCSectionData& pSectionData,
-                   const unsigned int pEntrySize);
+                   unsigned int pEntrySize);
   ~OutputRelocSection();
 
-  void reserveEntry(RelocationFactory& pRelFactory, int pNum=1);
+  void reserveEntry(RelocationFactory& pRelFactory, size_t pNum=1);
 
   Relocation* getEntry(const ResolveInfo& pSymbol,
                        bool isForGOT,
@@ -59,7 +59,7 @@ private:
   llvm::MCSectionData* m_pSectionData;
 
   /// m_EntryBytes - size of a relocation entry
-  const unsigned int m_EntryBytes;
+  unsigned int m_EntryBytes;
 };
 
 } // namespace of mcld
