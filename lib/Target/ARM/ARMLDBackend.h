@@ -105,7 +105,8 @@ public:
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
-  uint32_t machine() const;
+  uint32_t machine() const
+  { return llvm::ELF::EM_ARM; }
 
   /// OSABI - the value of e_ident[EI_OSABI]
   virtual uint8_t OSABI() const
@@ -119,7 +120,8 @@ public:
   virtual uint64_t flags() const
   { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }
 
-  bool isLittleEndian() const;
+  bool isLittleEndian() const
+  { return true; }
 
   unsigned int bitclass() const
   { return 32; }

@@ -71,16 +71,6 @@ RelocationFactory* ARMGNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
-uint32_t ARMGNULDBackend::machine() const
-{
-  return ELF::EM_ARM;
-}
-
-bool ARMGNULDBackend::isLittleEndian() const
-{
-  return true;
-}
-
 bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 {
   if (!pSectionMap.push_back(".ARM.exidx", ".ARM.exidx") ||
