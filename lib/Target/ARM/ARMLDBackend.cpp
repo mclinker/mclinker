@@ -29,15 +29,15 @@
 using namespace mcld;
 
 ARMGNULDBackend::ARMGNULDBackend()
-  : m_pRelocFactory(0),
-    m_pGOT(0),
-    m_pPLT(0),
-    m_pRelDyn(0),
-    m_pRelPLT(0),
-    m_pDynamic(0),
-    m_pEXIDX(0),
-    m_pEXTAB(0),
-    m_pAttributes(0) {
+  : m_pRelocFactory(NULL),
+    m_pGOT(NULL),
+    m_pPLT(NULL),
+    m_pRelDyn(NULL),
+    m_pRelPLT(NULL),
+    m_pDynamic(NULL),
+    m_pEXIDX(NULL),
+    m_pEXTAB(NULL),
+    m_pAttributes(NULL) {
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()
@@ -67,7 +67,7 @@ bool ARMGNULDBackend::initRelocFactory(const MCLinker& pLinker)
 
 RelocationFactory* ARMGNULDBackend::getRelocFactory()
 {
-  assert(m_pRelocFactory!= NULL);
+  assert(NULL != m_pRelocFactory);
   return m_pRelocFactory;
 }
 
@@ -104,7 +104,7 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
                                   const MCLDInfo& pInfo,
                                   MCLinker& pLinker)
 {
-  // when building shared object, the .got section is needed
+  // when building shared object, the .got section is must.
   if(pOutput.type() == Output::DynObj && (NULL == m_pGOT)) {
       createARMGOT(pLinker, pOutput);
   }
@@ -403,7 +403,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case ELF::R_ARM_GOTOFF32:
     case ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
@@ -507,7 +507,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_ARM_GOTOFF32:
     case ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
@@ -660,7 +660,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  assert(0 != rsym && "ResolveInfo of relocation not set while scanRelocation");
+  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
@@ -751,49 +751,49 @@ bool ARMGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
 
 ARMGOT& ARMGNULDBackend::getGOT()
 {
-  assert(0 != m_pGOT && "GOT section not exist");
+  assert(NULL != m_pGOT && "GOT section not exist");
   return *m_pGOT;
 }
 
 const ARMGOT& ARMGNULDBackend::getGOT() const
 {
-  assert(0 != m_pGOT && "GOT section not exist");
+  assert(NULL != m_pGOT && "GOT section not exist");
   return *m_pGOT;
 }
 
 ARMPLT& ARMGNULDBackend::getPLT()
 {
-  assert(0 != m_pPLT && "PLT section not exist");
+  assert(NULL != m_pPLT && "PLT section not exist");
   return *m_pPLT;
 }
 
 const ARMPLT& ARMGNULDBackend::getPLT() const
 {
-  assert(0 != m_pPLT && "PLT section not exist");
+  assert(NULL != m_pPLT && "PLT section not exist");
   return *m_pPLT;
 }
 
 OutputRelocSection& ARMGNULDBackend::getRelDyn()
 {
-  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
 const OutputRelocSection& ARMGNULDBackend::getRelDyn() const
 {
-  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
 OutputRelocSection& ARMGNULDBackend::getRelPLT()
 {
-  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
 const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
 {
-  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
