@@ -10,6 +10,7 @@
 #include "ARMPLT.h"
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <new>
 
 namespace {
@@ -28,9 +29,9 @@ const uint32_t arm_plt1[] = {
   0xe5bcf000, // ldr   pc, [ip, #0xNNN]!
 };
 
-}
+} // anonymous namespace
 
-namespace mcld {
+using namespace mcld;
 
 ARMPLT0::ARMPLT0(llvm::MCSectionData* pParent)
   : PLTEntry(sizeof(arm_plt0), pParent) {}
@@ -233,5 +234,27 @@ void ARMPLT::applyPLT1() {
   m_GOT.applyAllGOTPLT(plt_base);
 }
 
-} // end namespace mcld
+uint64_t ARMPLT::emit(MemoryRegion& pRegion)
+{
+  uint64_t result = 0x0;
+  iterator it = begin();
+  unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
+
+  unsigned char* buffer = pRegion.getBuffer();
+  memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), plt0_size);
+  result += plt0_size;
+  ++it;
+
+  ARMPLT1* plt1 = 0;
+  ARMPLT::iterator ie = end();
+  unsigned int entry_size = 0;
+  while (it != ie) {
+    plt1 = &(llvm::cast<ARMPLT1>(*it));
+    entry_size = plt1->getEntrySize();
+    memcpy(buffer + result, plt1->getContent(), entry_size);
+    result += entry_size;
+    ++it;
+  }
+  return result;
+}
 

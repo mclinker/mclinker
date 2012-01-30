@@ -6,15 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ARM_PLT_H
-#define ARM_PLT_H
+#ifndef MCLD_ARM_PLT_H
+#define MCLD_ARM_PLT_H
 
-#include "mcld/Target/PLT.h"
+#include <mcld/Target/PLT.h>
 
 namespace mcld {
 
 class ARMGOT;
 class GOTEntry;
+class MemoryRegion;
 
 class ARMPLT0 : public PLTEntry {
 public:
@@ -54,7 +55,6 @@ public:
   GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
 public:
-
   iterator begin() { return m_SectionData.begin(); }
 
   const_iterator begin() const { return m_SectionData.begin(); }
@@ -68,6 +68,8 @@ public:
   void applyPLT0();
 
   void applyPLT1();
+
+  uint64_t emit(MemoryRegion& pRegion);
 
 private:
   ARMGOT& m_GOT;

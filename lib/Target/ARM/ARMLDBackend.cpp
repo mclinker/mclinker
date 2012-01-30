@@ -733,30 +733,12 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   }
 
   else if (&pSection == &(file_format->getPLT())) {
-    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-
-    ARMPLT::iterator it = m_pPLT->begin();
-    unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
-
-    unsigned char* buffer = pRegion.getBuffer();
-    memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), plt0_size);
-    region_size += plt0_size;
-    ++it;
-
-    ARMPLT1* plt1 = 0;
-    ARMPLT::iterator ie = m_pPLT->end();
-    while (it != ie) {
-      plt1 = &(llvm::cast<ARMPLT1>(*it));
-      entry_size = plt1->getEntrySize();
-      memcpy(buffer + region_size, plt1->getContent(), entry_size);
-      region_size += entry_size;
-      ++it;
-    }
+    assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+    region_size = m_pPLT->emit(pRegion);
   }
 
   else if (&pSection == &(file_format->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
-
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
