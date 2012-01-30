@@ -190,7 +190,7 @@ public:
   /// emitProgramHdrs - emit ELF program headers
   /// if the target favors other ways to emit program header, please override
   /// this function
-  virtual void emitProgramHdrs(const Output& pOutput);
+  virtual void emitProgramHdrs(Output& pOutput);
 
   /// numOfSegments - return the number of segments
   /// if the target favors other ways to emit program header, please override

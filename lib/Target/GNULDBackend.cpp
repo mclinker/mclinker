@@ -807,15 +807,15 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
 }
 
 /// emitProgramHdrs - emit ELF program headers
-void GNULDBackend::emitProgramHdrs(const Output& pOutput)
+void GNULDBackend::emitProgramHdrs(Output& pOutput)
 {
   assert(NULL != pOutput.context());
-  createProgramHdrs(const_cast<LDContext&>(*pOutput.context()));
+  createProgramHdrs(*pOutput.context());
 
   if (32 == bitclass())
-    writeELF32ProgramHdrs(const_cast<Output&>(pOutput));
+    writeELF32ProgramHdrs(pOutput);
   else
-    writeELF64ProgramHdrs(const_cast<Output&>(pOutput));
+    writeELF64ProgramHdrs(pOutput);
 }
 
 /// createProgramHdrs - base on output sections to create the program headers

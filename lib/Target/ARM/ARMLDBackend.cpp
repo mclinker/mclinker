@@ -126,7 +126,7 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
 {
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
-    emitProgramHdrs(pOutput);
+    emitProgramHdrs(pLinker.getLDInfo().output());
 }
 
 /// dynamic - the dynamic section of the target machine.
