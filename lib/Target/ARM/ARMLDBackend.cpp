@@ -597,6 +597,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // Create .got section if it doesn't exist
       if(!m_pGOT)
         createARMGOT(pLinker, pOutput);
+
       // create .plt and .rel.plt if not exist
       if(!m_pPLT)
          createARMPLTandRelPLT(pLinker, pOutput);

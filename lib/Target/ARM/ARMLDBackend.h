@@ -223,7 +223,12 @@ private:
                        const Output& pOutput) const;
 
   void createARMGOT(MCLinker& pLinker, const Output& pOutput);
+
+  /// createARMPLTandRelPLT - create PLT and RELPLT sections.
+  /// Because in ELF sh_info in .rel.plt is the shndx of .plt, these two
+  /// sections should be create together.
   void createARMPLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
+
   void createARMRelDyn(MCLinker& pLinker, const Output& pOutput);
 
 private:
