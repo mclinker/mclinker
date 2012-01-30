@@ -716,9 +716,6 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
       return 0x0;
   } // end of switch
 
-  unsigned int entry_size = 0;
-  uint64_t region_size = 0x0;
-
   if (&pSection == m_pAttributes) {
     // FIXME: Currently Emitting .ARM.attributes directly from the input file.
     const llvm::MCSectionData* sect_data = pSection.getSectionData();
@@ -730,27 +727,28 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
                      sect_data->getFragmentList().front()).getRegion().start();
 
     memcpy(pRegion.start(), start, pRegion.size());
+    pRegion.sync();
+    return pRegion.size();
   }
 
-  else if (&pSection == &(file_format->getPLT())) {
+  if (&pSection == &(file_format->getPLT())) {
     assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-    region_size = m_pPLT->emit(pRegion);
+    uint64_t result = m_pPLT->emit(pRegion);
+    pRegion.sync();
+    return result;
   }
-
-  else if (&pSection == &(file_format->getGOT())) {
+ 
+  if (&pSection == &(file_format->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
-    region_size = m_pGOT->emit(pRegion);
+    uint64_t result = m_pGOT->emit(pRegion);
+    pRegion.sync();
+    return result;
   }
 
-  else {
-    llvm::report_fatal_error("unsupported section name "
-                             + pSection.name() + " !");
-    return 0x0;
-  }
-
-  pRegion.sync();
-
-  return region_size;
+  llvm::report_fatal_error(llvm::Twine("Unable to emit section `") +
+                           pSection.name() +
+                           llvm::Twine("'.\n"));
+  return 0x0;
 }
 
 /// finalizeSymbol - finalize the symbol value
