@@ -700,72 +700,86 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
-  assert(FileFormat &&
-         "DynObjFileFormat is NULL in ARMGNULDBackend::emitSectionData!");
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
+                               llvm::Twine(pOutput.type()));
+      return 0x0;
+  } // end of switch
 
-  unsigned int EntrySize = 0;
-  uint64_t RegionSize = 0;
+  unsigned int entry_size = 0;
+  uint64_t region_size = 0x0;
 
   if (&pSection == m_pAttributes) {
     // FIXME: Currently Emitting .ARM.attributes directly from the input file.
-    const llvm::MCSectionData* SectionData = pSection.getSectionData();
-    assert(SectionData &&
+    const llvm::MCSectionData* sect_data = pSection.getSectionData();
+    assert(sect_data &&
            "Emit .ARM.attribute failed, MCSectionData doesn't exist!");
 
-    llvm::MCSectionData::const_iterator it = SectionData->begin();
-    memcpy(pRegion.start(),
-           llvm::cast<MCRegionFragment>(*it).getRegion().start(),
-           pRegion.size());
+    uint8_t* start =
+              llvm::cast<MCRegionFragment>(
+                     sect_data->getFragmentList().front()).getRegion().start();
+
+    memcpy(pRegion.start(), start, pRegion.size());
   }
 
-  else if (&pSection == &(FileFormat->getPLT())) {
+  else if (&pSection == &(file_format->getPLT())) {
     assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-
-    unsigned char* buffer = pRegion.getBuffer();
 
     ARMPLT::iterator it = m_pPLT->begin();
     unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
 
+    unsigned char* buffer = pRegion.getBuffer();
     memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), plt0_size);
-    RegionSize += plt0_size;
+    region_size += plt0_size;
     ++it;
 
     ARMPLT1* plt1 = 0;
     ARMPLT::iterator ie = m_pPLT->end();
     while (it != ie) {
       plt1 = &(llvm::cast<ARMPLT1>(*it));
-      EntrySize = plt1->getEntrySize();
-      memcpy(buffer + RegionSize, plt1->getContent(), EntrySize);
-      RegionSize += EntrySize;
+      entry_size = plt1->getEntrySize();
+      memcpy(buffer + region_size, plt1->getContent(), entry_size);
+      region_size += entry_size;
       ++it;
     }
   }
 
-  else if (&pSection == &(FileFormat->getGOT())) {
+  else if (&pSection == &(file_format->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
     GOTEntry* got = 0;
-    EntrySize = m_pGOT->getEntrySize();
+    entry_size = m_pGOT->getEntrySize();
 
     for (ARMGOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<GOTEntry>((*it)));
       *buffer = static_cast<uint32_t>(got->getContent());
-      RegionSize += EntrySize;
+      region_size += entry_size;
     }
   }
 
-  else
+  else {
     llvm::report_fatal_error("unsupported section name "
                              + pSection.name() + " !");
+    return 0x0;
+  }
 
   pRegion.sync();
 
-  return RegionSize;
+  return region_size;
 }
 
 /// finalizeSymbol - finalize the symbol value
@@ -887,3 +901,4 @@ extern "C" void LLVMInitializeARMLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget, createARMLDBackend);
 }
+
