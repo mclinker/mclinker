@@ -127,6 +127,43 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pLinker.getLDInfo().output());
+
+  ELFFileFormat *file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
+                               llvm::Twine(pOutput.type()));
+      return;
+  } // end of switch
+
+  // apply PLT
+  if (file_format->hasPLT()) {
+    // Since we already have the size of LDSection PLT, m_pPLT should not be
+    // NULL.
+    assert(NULL != m_pPLT);
+    m_pPLT->applyPLT0();
+    m_pPLT->applyPLT1();
+  }
+
+  // apply GOT
+  if (file_format->hasGOT()) {
+    // Since we already have the size of GOT, m_pGOT should not be NULL.
+    assert(NULL != m_pGOT);
+    if (pOutput.type() == Output::DynObj)
+      m_pGOT->applyGOT0(file_format->getDynamic().addr());
+    else {
+      // executable file and object file? should fill with zero.
+      m_pGOT->applyGOT0(0);
+    }
+  }
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -687,9 +724,6 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 
     unsigned char* buffer = pRegion.getBuffer();
 
-    m_pPLT->applyPLT0();
-    m_pPLT->applyPLT1();
-
     ARMPLT::iterator it = m_pPLT->begin();
     unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
 
@@ -711,10 +745,6 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
   else if (&pSection == &(FileFormat->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
-    if(pOutput.type() == Output::DynObj)
-      m_pGOT->applyGOT0(FileFormat->getDynamic().addr());
-    else
-      m_pGOT->applyGOT0(0);
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
