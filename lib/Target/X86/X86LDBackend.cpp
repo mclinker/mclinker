@@ -104,18 +104,23 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
 void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
-  if( pOutput.type() == Output::DynObj ) {
-    LDSection& got = getDynObjFileFormat()->getGOT();
-    m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
-  }
-  else if( pOutput.type() == Output::Exec) {
-    LDSection& got = getExecFileFormat()->getGOT();
-    m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
-  }
-  else
-    llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
-                             ("output file type ") +
-                             llvm::Twine(pOutput.type()));
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
+                               llvm::Twine("output file type: ") +
+                               llvm::Twine(pOutput.type()));
+      return;
+  } // end of switch
+
+  LDSection& got = file_format->getGOT();
+  m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   pLinker.defineSymbol<MCLinker::Force>("_GLOBAL_OFFSET_TABLE_",
@@ -136,61 +141,58 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
   if(!m_pGOT)
     createX86GOT(pLinker, pOutput);
 
-  // get .plt and .rel.plt LDSection
-  if( pOutput.type() == Output::DynObj ) {
-    LDSection& plt = getDynObjFileFormat()->getPLT();
-    LDSection& relplt = getDynObjFileFormat()->getRelPlt();
-    // create MCSectionData and X86PLT
-    m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT,
-			pOutput);
-    // set info of .rel.plt to .plt
-    relplt.setLinkInfo(&plt);
-    // create MCSectionData and X86RelDynSection
-    m_pRelPLT = new OutputRelocSection(relplt,
-                                       pLinker.getOrCreateSectData(relplt),
-                                       8);
-  }
-  else if( pOutput.type() == Output::Exec ) {
-    LDSection& plt = getExecFileFormat()->getPLT();
-    LDSection& relplt = getExecFileFormat()->getRelPlt();
-    // create MCSectionData and X86PLT
-    m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT,
-			pOutput);
-    // set info of .rel.plt to .plt
-    relplt.setLinkInfo(&plt);
-    // create MCSectionData and X86RelDynSection
-    m_pRelPLT = new OutputRelocSection(relplt,
-                                       pLinker.getOrCreateSectData(relplt),
-                                       8);
-  }
-  else
-    llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
-                             ("output file type ") +
-                             llvm::Twine(pOutput.type()));
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
+                               llvm::Twine("output file type: ") +
+                               llvm::Twine(pOutput.type()));
+      return;
+  } // end of switch
+
+  LDSection& plt = file_format->getPLT();
+  LDSection& relplt = file_format->getRelPlt();
+  // create MCSectionData and X86PLT
+  m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT, pOutput);
+
+  // set info of .rel.plt to .plt
+  relplt.setLinkInfo(&plt);
+  // create MCSectionData and X86RelDynSection
+  m_pRelPLT = new OutputRelocSection(relplt,
+                                     pLinker.getOrCreateSectData(relplt),
+                                     8);
 }
 
 void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
                                       const Output& pOutput)
 {
   // get .rel.dyn LDSection and create MCSectionData
-  if( pOutput.type() == Output::DynObj ) {
-    LDSection& reldyn = getDynObjFileFormat()->getRelDyn();
-    // create MCSectionData and X86RelDynSection
-    m_pRelDyn = new OutputRelocSection(reldyn,
-                                       pLinker.getOrCreateSectData(reldyn),
-                                       8);
-  }
-  else if( pOutput.type() == Output::Exec) {
-    LDSection& reldyn = getExecFileFormat()->getRelDyn();
-    // create MCSectionData and X86RelDynSection
-    m_pRelDyn = new OutputRelocSection(reldyn,
-                                       pLinker.getOrCreateSectData(reldyn),
-                                       8);
-  }
-  else
-    llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
-                             ("is not support in output file type ") +
-                             llvm::Twine(pOutput.type()));
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
+                               llvm::Twine("is not support in output file type: ") +
+                               llvm::Twine(pOutput.type()));
+      return;
+  } // end of switch
+
+  LDSection& reldyn = file_format->getRelDyn();
+  // create MCSectionData and X86RelDynSection
+  m_pRelDyn = new OutputRelocSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
 }
 
 bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
