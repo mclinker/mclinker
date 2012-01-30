@@ -215,10 +215,6 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
                                             const Output& pOutput)
 {
-  // Create .got section if it doesn't exist
-  if(!m_pGOT)
-    createARMGOT(pLinker, pOutput);
-
   ELFFileFormat* file_format = NULL;
   switch (pOutput.type()) {
     case Output::DynObj:
@@ -477,6 +473,9 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if(isSymbolNeedsPLT(*rsym, pOutput, pLDInfo)) {
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & 0x8u)){
+          // Create .got section if it doesn't exist
+          if(!m_pGOT)
+            createARMGOT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
           if(!m_pPLT)
             createARMPLTandRelPLT(pLinker, pOutput);
@@ -595,6 +594,9 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       }
 
+      // Create .got section if it doesn't exist
+      if(!m_pGOT)
+        createARMGOT(pLinker, pOutput);
       // create .plt and .rel.plt if not exist
       if(!m_pPLT)
          createARMPLTandRelPLT(pLinker, pOutput);
