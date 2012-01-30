@@ -56,24 +56,22 @@ X86PLT1::X86PLT1(llvm::MCSectionData* pParent, unsigned int pSize)
 X86PLT::X86PLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
                X86GOT &pGOTPLT,
-	       unsigned int pType)
+	       const Output& pOutput)
   : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator()
 {
-  assert (pType == Output::DynObj || pType == Output::Exec);
-  if (pType == Output::DynObj)
-    {
+  assert (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type());
+  if (Output::DynObj == pOutput.type()) {
       m_PLT0 = x86_dyn_plt0;
       m_PLT1 = x86_dyn_plt1;
       m_PLT0Size = sizeof (x86_dyn_plt0);
       m_PLT1Size = sizeof (x86_dyn_plt1);
-    }
-  else
-    {
+  }
+  else {
       m_PLT0 = x86_exec_plt0;
       m_PLT1 = x86_exec_plt1;
       m_PLT0Size = sizeof (x86_exec_plt0);
       m_PLT1Size = sizeof (x86_exec_plt1);
-    }
+  }
   X86PLT0* plt0_entry = new X86PLT0(&m_SectionData, m_PLT0Size);
 
   m_Section.setSize(m_Section.size() + plt0_entry->getEntrySize());

@@ -142,19 +142,19 @@ const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       MCLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
-                                      unsigned int pType)
+                                      const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
   if (rsym->isLocal())
-    scanLocalRelocation(pReloc, pLinker, pType);
+    scanLocalRelocation(pReloc, pLinker, pOutput);
   else if (rsym->isGlobal())
-    scanGlobalRelocation(pReloc, pLinker, pType);
+    scanGlobalRelocation(pReloc, pLinker, pOutput);
 }
 
 void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
                                            MCLinker& pLinker,
-                                           unsigned int pType)
+                                           const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -163,7 +163,7 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
     case ELF::R_MIPS_16:
       break;
     case ELF::R_MIPS_32:
-      if (Output::DynObj == pType) {
+      if (Output::DynObj == pOutput.type()) {
         // TODO: (simon) Check section flag SHF_EXECINSTR
         // half_t shndx = rsym->getSectionIndex();
         if (true) {
@@ -242,15 +242,15 @@ void MipsGNULDBackend::scanLocalRelocation(Relocation& pReloc,
 
 void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
                                             MCLinker& pLinker,
-                                            unsigned int pType)
+                                            const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
-  if (isSymbolNeedsPLT(*rsym, pType) /* TODO: check the sym hasn't a PLT offset */) {
-    if (Output::DynObj == pType) {
+  if (isSymbolNeedsPLT(*rsym, pOutput) /* TODO: check the sym hasn't a PLT offset */) {
+    if (Output::DynObj == pOutput.type()) {
       // TODO: (simon) Reserve .MIPS.stubs entry
     }
-    else if (isSymbolNeedsDynRel(*rsym, pType)) {
+    else if (isSymbolNeedsDynRel(*rsym, pOutput)) {
       // TODO: (simon) Reserve .plt entry
     }
   }
@@ -272,7 +272,7 @@ void MipsGNULDBackend::scanGlobalRelocation(Relocation& pReloc,
     case ELF::R_MIPS_64:
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
-      if (isSymbolNeedsDynRel(*rsym, pType)) {
+      if (isSymbolNeedsDynRel(*rsym, pOutput)) {
         if (NULL == m_pRelDynSec.get())
           createRelDynSec(pLinker);
 
@@ -407,13 +407,13 @@ void MipsGNULDBackend::createPltSec(MCLinker& pLinker)
 }
 
 bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
-                                           unsigned int pType)
+                                           const Output& pOutput) const
 {
-  if(pSym.isUndef() && (pType==Output::Exec))
+  if(pSym.isUndef() && Output::Exec == pOutput.type())
     return false;
   if(pSym.isAbsolute())
     return false;
-  if(pType==Output::DynObj)
+  if(Output::DynObj == pOutput.type())
     return true;
   if(pSym.isDyn() || pSym.isUndef())
     return true;
@@ -422,10 +422,10 @@ bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
 }
 
 bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
-                                        unsigned int pType)
+                                        const Output& pOutput) const
 {
   // FIXME: (simon) extend conditions
-  return Output::DynObj == pType &&
+  return Output::DynObj == pOutput.type() &&
          ResolveInfo::Function == pSym.type() &&
          pSym.isDyn() || pSym.isUndef();
 }

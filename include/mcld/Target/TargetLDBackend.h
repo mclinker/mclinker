@@ -64,11 +64,11 @@ public:
   /// GOT and dynamic relocation entries and other target dependent
   /// entries. These entries are generated for layout to adjust the ouput
   /// offset.
-  /// @param pType - the MCLDOutput type of ouput file type
+  /// @param pOutput - the ouput file
   virtual void scanRelocation(Relocation& pReloc,
                               MCLinker& pLinker,
                               const MCLDInfo& pLDInfo,
-                              unsigned int pType) = 0;
+                              const Output& pOutput) = 0;
 
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLinker&) = 0;

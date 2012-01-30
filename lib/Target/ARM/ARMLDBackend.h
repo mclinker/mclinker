@@ -103,7 +103,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      unsigned int pType);
+                      const Output& pOutput);
 
   uint32_t machine() const;
 
@@ -191,33 +191,38 @@ public:
 
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           unsigned int pType,
+                           const Output& pOutput,
                            const MCLDInfo& pLDInfo) const;
+
+  bool isPIC(const Output& pOutput, const MCLDInfo& pLDInfo) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      unsigned int pType);
+                      const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                        MCLinker& pLinker,
                        const MCLDInfo& pLDInfo,
-                       unsigned int pType);
+                       const Output& pOutput);
 
   bool isSymbolNeedsPLT(const ResolveInfo& pSym,
-                        unsigned int pType,
-                        const MCLDInfo& pLDInfo);
+                        const Output& pOutput,
+                        const MCLDInfo& pLDInfo) const;
 
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                           unsigned int pType,
-                           bool isAbsReloc);
+                           const Output& pOutput,
+                           bool isAbsReloc) const;
 
 
-  void checkValidReloc(Relocation& pReloc, unsigned int pOutputType);
-  void createARMGOT(MCLinker& pLinker, unsigned int pType);
-  void createARMPLTandRelPLT(MCLinker& pLinker, unsigned int pType);
-  void createARMRelDyn(MCLinker& pLinker, unsigned int pType);
+  void checkValidReloc(Relocation& pReloc,
+                       const MCLDInfo& pLDInfo,
+                       const Output& pOutput) const;
+
+  void createARMGOT(MCLinker& pLinker, const Output& pOutput);
+  void createARMPLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
+  void createARMRelDyn(MCLinker& pLinker, const Output& pOutput);
 
 private:
   RelocationFactory* m_pRelocFactory;

@@ -78,3 +78,4 @@ Relocation* OutputRelocSection::getEntry(const ResolveInfo& pSymbol,
   }
   return result;
 }
+

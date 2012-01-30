@@ -15,15 +15,16 @@ namespace mcld {
 
 class X86GOT;
 class GOTEntry;
+class Output;
 
 class X86PLT0 : public PLTEntry {
 public:
-  X86PLT0(llvm::MCSectionData* pParent, unsigned int pType);
+  X86PLT0(llvm::MCSectionData* pParent, unsigned int pSize);
 };
 
 class X86PLT1 : public PLTEntry {
 public:
-  X86PLT1(llvm::MCSectionData* pParent, unsigned int pType);
+  X86PLT1(llvm::MCSectionData* pParent, unsigned int pSize);
 };
 
 /** \class X86PLT
@@ -41,7 +42,7 @@ public:
   X86PLT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
          X86GOT& pGOTPLT,
-	 unsigned int pType);
+	 const Output& pOutput);
   ~X86PLT();
 
 // Override virtual function.

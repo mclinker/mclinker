@@ -109,7 +109,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      unsigned int pType);
+                      const Output& pOutput);
 
   /// finalizeSymbol - finalize the symbol value
   /// If the symbol's reserved field is not zero, MCLinker will call back this
@@ -126,19 +126,19 @@ private:
 private:
   void scanLocalRelocation(Relocation& pReloc,
                            MCLinker& pLinker,
-                           unsigned int pType);
+                           const Output& pOutput);
 
   void scanGlobalRelocation(Relocation& pReloc,
                             MCLinker& pLinker,
-                            unsigned int pType);
+                            const Output& pOutput);
 
   void createGOTSec(MCLinker& pLinker);
   void createRelDynSec(MCLinker& pLinker);
   void createPltSec(MCLinker& pLinker);
   void createMipsStubsSec(MCLinker& pLinker);
 
-  bool isSymbolNeedsDynRel(ResolveInfo& pSym, unsigned int pType);
-  bool isSymbolNeedsPLT(ResolveInfo& pSym, unsigned int pType);
+  bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
+  bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
 };
 
 } // namespace of mcld

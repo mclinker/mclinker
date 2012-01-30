@@ -159,7 +159,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      unsigned int pType);
+                      const Output& pOutput);
 
   OutputRelocSection& getRelDyn();
 
@@ -180,31 +180,31 @@ public:
 
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           unsigned int pType,
+                           const Output& pOutput,
                            const MCLDInfo& pLDInfo) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      unsigned int pType);
+                      const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                        MCLinker& pLinker,
                        const MCLDInfo& pLDInfo,
-                       unsigned int pType);
+                       const Output& pOutput);
 
   bool isSymbolNeedsPLT(const ResolveInfo& pSym,
-                        unsigned int pType,
-                        const MCLDInfo& pLDInfo);
+                        const Output& pOutput,
+                        const MCLDInfo& pLDInfo) const;
 
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                           unsigned int pType,
-                           bool isAbsReloc);
+                           const Output& pOutput,
+                           bool isAbsReloc) const;
 
-  void createX86GOT(MCLinker& pLinker, unsigned int pType);
-  void createX86PLTandRelPLT(MCLinker& pLinker, unsigned int pType);
-  void createX86RelDyn(MCLinker& pLinker, unsigned int pType);
+  void createX86GOT(MCLinker& pLinker, const Output& pOutput);
+  void createX86PLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
+  void createX86RelDyn(MCLinker& pLinker, const Output& pOutput);
 
 private:
   RelocationFactory* m_pRelocFactory;

@@ -388,7 +388,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   m_RelocationList.push_back(relocation);
 
   m_Backend.scanRelocation(*relocation, *this, m_Info,
-                           m_Info.output().type());
+                           m_Info.output());
 
   return relocation;
 }
