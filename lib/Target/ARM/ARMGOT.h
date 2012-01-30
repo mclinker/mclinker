@@ -12,11 +12,12 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/Target/GOT.h"
+#include <mcld/Target/GOT.h>
 
 namespace mcld
 {
 class LDSection;
+class MemoryRegion;
 
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
@@ -46,6 +47,7 @@ public:
 
   const_iterator end() const;
 
+  uint64_t emit(MemoryRegion& pRegion);
 // For GOT0
 public:
   void applyGOT0(uint64_t pAddress);

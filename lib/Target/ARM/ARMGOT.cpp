@@ -7,15 +7,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARMGOT.h"
-#include "mcld/LD/LDFileFormat.h"
+#include <mcld/LD/LDFileFormat.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <new>
 
 namespace {
   const uint64_t ARMGOTEntrySize = 4;
-}
+} // end of anonymous namespace
 
-namespace mcld {
+using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
@@ -166,4 +167,19 @@ const ARMGOT::iterator ARMGOT::getGOTPLTEnd()
   return ++end;
 }
 
-} //end mcld namespace
+uint64_t ARMGOT::emit(MemoryRegion& pRegion)
+{
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  GOTEntry* got = 0;
+  unsigned int entry_size = getEntrySize();
+  uint64_t result = 0x0;
+  for (iterator it = begin(), ie = end();
+       it != ie; ++it, ++buffer) {
+      got = &(llvm::cast<GOTEntry>((*it)));
+      *buffer = static_cast<uint32_t>(got->getContent());
+      result += entry_size;
+  }
+  return result;
+}
+

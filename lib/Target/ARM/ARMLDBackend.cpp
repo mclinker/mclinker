@@ -739,18 +739,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 
   else if (&pSection == &(file_format->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
-
-    uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
-
-    GOTEntry* got = 0;
-    entry_size = m_pGOT->getEntrySize();
-
-    for (ARMGOT::iterator it = m_pGOT->begin(),
-         ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getContent());
-      region_size += entry_size;
-    }
+    region_size = m_pGOT->emit(pRegion);
   }
 
   else {
