@@ -241,6 +241,7 @@ private:
   OutputRelocSection* m_pRelPLT;
 
   ARMELFDynamic* m_pDynamic;
+  LDSymbol* m_pGOTSymbol;
 
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx
