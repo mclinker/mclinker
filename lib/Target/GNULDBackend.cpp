@@ -111,11 +111,13 @@ size_t GNULDBackend::sectionStartOffset() const
   return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
 }
 
-bool GNULDBackend::initArchiveReader(MCLinker&)
+bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
 {
   if (0 == m_pArchiveReader)
-    // FIXME: What is the correct ctor for GNUArchiveReader?
-    m_pArchiveReader = new GNUArchiveReader();
+  {
+    LDReader::Endian isLittleEndian = LDReader::LittleEndian;
+    m_pArchiveReader = new GNUArchiveReader(pInfo, isLittleEndian);
+  }
   return true;
 }
 

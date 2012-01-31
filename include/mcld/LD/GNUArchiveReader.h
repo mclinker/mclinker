@@ -41,14 +41,7 @@ private:
   struct ArchiveMapEntry;
 
 public:
-  //FIXME:temp use ,still don't know how to get MCLDInfo from GNULDBackend.
-  GNUArchiveReader()
-  : m_pInfo(0),
-    m_endian(LDReader::LittleEndian)
-  {
-  }
-
-  GNUArchiveReader(LDReader::Endian endian, MCLDInfo *info)
+  explicit GNUArchiveReader(MCLDInfo &info, LDReader::Endian endian)
   : m_pInfo(info),
     m_endian(endian)
   { }
@@ -83,7 +76,7 @@ private:
                       size_t size); 
 
 private:
-  MCLDInfo *m_pInfo;
+  MCLDInfo &m_pInfo;
   LDReader::Endian m_endian;  
 };
 

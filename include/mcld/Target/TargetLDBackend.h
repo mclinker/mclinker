@@ -72,7 +72,7 @@ public:
                               const Output& pOutput) = 0;
 
   // -----  format dependent  ----- //
-  virtual bool initArchiveReader(MCLinker&) = 0;
+  virtual bool initArchiveReader(MCLinker&, MCLDInfo&) = 0;
   virtual bool initObjectReader(MCLinker&) = 0;
   virtual bool initDynObjReader(MCLinker&) = 0;
   virtual bool initObjectWriter(MCLinker&) = 0;

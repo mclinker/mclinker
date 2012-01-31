@@ -127,7 +127,7 @@ bool MCLDDriver::initMCLinker()
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the MCLinker constructors.
-  if (!m_LDBackend.initArchiveReader(*m_pLinker) ||
+  if (!m_LDBackend.initArchiveReader(*m_pLinker, m_LDInfo) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||

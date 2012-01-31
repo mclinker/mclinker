@@ -86,7 +86,7 @@ protected:
 public:
   virtual ~GNULDBackend();
 
-  bool initArchiveReader(MCLinker& pLinker);
+  bool initArchiveReader(MCLinker& pLinker, MCLDInfo& pInfo);
   bool initObjectReader(MCLinker& pLinker);
   bool initDynObjReader(MCLinker& pLinker);
   bool initObjectWriter(MCLinker& pLinker);

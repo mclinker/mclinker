@@ -105,7 +105,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     return NULL;
   }
 
-  InputTree *resultTree = new InputTree(m_pInfo->inputFactory());
+  InputTree *resultTree = new InputTree(m_pInfo.inputFactory());
   std::vector<ArchiveMapEntry> archiveMap;
   std::string archiveMemberName;
   std::string extendedName;
@@ -165,10 +165,10 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
       /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
       /// Finally insert the object to resultTree and move ahead.
       off_t fileOffset = archiveMap[i].fileOffset + sizeof(ArchiveMemberHeader);
-      Input *insertObjectFile = m_pInfo->inputFactory().produce(archiveMap[i].name,
-                                                                pInput.path(),
-                                                                MCLDFile::Object,
-                                                                fileOffset);
+      Input *insertObjectFile = m_pInfo.inputFactory().produce(archiveMap[i].name,
+                                                               pInput.path(),
+                                                               MCLDFile::Object,
+                                                               fileOffset);
       resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
       if(i==0)
         node.move<InputTree::Inclusive>();
