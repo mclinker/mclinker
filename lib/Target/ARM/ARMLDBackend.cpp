@@ -191,7 +191,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
     case Output::Exec:
       file_format = getExecFileFormat();
       break;
-    default: 
+    default:
       llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
                                "output file type " +
                                llvm::Twine(pOutput.type()));
@@ -225,7 +225,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
     case Output::Exec:
       file_format = getExecFileFormat();
       break;
-    default: 
+    default:
       llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
                                "output file type " +
                                llvm::Twine(pOutput.type()));
@@ -256,7 +256,7 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
     case Output::Exec:
       file_format = getExecFileFormat();
       break;
-    default: 
+    default:
     llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
                              ("is not support in output file type ") +
                              llvm::Twine(pOutput.type()));
