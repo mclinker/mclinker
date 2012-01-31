@@ -37,8 +37,7 @@ ARMGNULDBackend::ARMGNULDBackend()
     m_pDynamic(NULL),
     m_pEXIDX(NULL),
     m_pEXTAB(NULL),
-    m_pAttributes(NULL),
-    m_pGOTSymbol(NULL) {
+    m_pAttributes(NULL) {
 }
 
 ARMGNULDBackend::~ARMGNULDBackend()
@@ -202,16 +201,16 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   false,
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0, // size
-                   0x0, // value
-                   pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
-                   ResolveInfo::Hidden);
+  pLinker.defineSymbol<MCLinker::Force>(
+    "_GLOBAL_OFFSET_TABLE_",
+    false,
+    ResolveInfo::Object,
+    ResolveInfo::Define,
+    ResolveInfo::Local,
+    0x0, // size
+    0x0, // value
+    pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+    ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
@@ -674,7 +673,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && rsym == m_pGOTSymbol->resolveInfo()) {
+  if(NULL == m_pGOT && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
     createARMGOT(pLinker, pOutput);
   }
 

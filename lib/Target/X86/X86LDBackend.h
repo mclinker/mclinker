@@ -216,7 +216,6 @@ private:
   OutputRelocSection* m_pRelPLT;
 
   X86ELFDynamic* m_pDynamic;
-  LDSymbol* m_pGOTSymbol;
 };
 
 //===----------------------------------------------------------------------===//

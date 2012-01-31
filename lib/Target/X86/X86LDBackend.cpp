@@ -31,8 +31,7 @@ X86GNULDBackend::X86GNULDBackend()
     m_pPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
-    m_pDynamic(NULL),
-    m_pGOTSymbol(NULL){
+    m_pDynamic(NULL) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
@@ -124,16 +123,16 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   false,
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0, // size
-                   0, // value
-                   pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0),
-                   ResolveInfo::Hidden);
+  pLinker.defineSymbol<MCLinker::Force>(
+    "_GLOBAL_OFFSET_TABLE_",
+    false,
+    ResolveInfo::Object,
+    ResolveInfo::Define,
+    ResolveInfo::Local,
+    0x0, // size
+    0x0, // value
+    pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+    ResolveInfo::Hidden);
 }
 
 void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
@@ -405,7 +404,7 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && rsym == m_pGOTSymbol->resolveInfo()) {
+  if(NULL == m_pGOT && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
     createX86GOT(pLinker, pOutput);
   }
 
