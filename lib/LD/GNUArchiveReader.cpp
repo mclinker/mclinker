@@ -48,24 +48,6 @@ struct GNUArchiveReader::ArchiveMapEntry
   std::string name;
 };
 
-
-/// Type Conversion
-
-template<class To, class From>
-To convertType(const From from)
-{
-  To to = from;
-  assert(static_cast<From>(to) == from);
-  return to;
-}
-
-template<class From>
-inline sectionSizeTy
-convertToSectionSizeTy(const From from)
-{
-  return convertType<sectionSizeTy, From>(from);
-}
-
 inline void endian_swap(unsigned int& x)
 {
   x = (x>>24) |
@@ -215,6 +197,11 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
 
 /// Parse the member header and return the size of member
+/// Archive member names :
+/// "/                  " - symbol table(archive map), must be the first member
+/// "//                 " - long name table
+/// "filename.o/        " - regular file with short name
+/// "/5566              " - name at offset 5566 at long name table
 size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                            off_t off,
                                            std::string *p_Name,
@@ -233,16 +220,16 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
 
   /// evaluate member size
   std::string sizeString(header->size, sizeof(header->size)+1);
-  int memberSize = stringToType<int>(sizeString);
+  size_t memberSize = stringToType<size_t>(sizeString);
   if(memberSize < 0)
   {
     assert(0=="member Size Error");
     return 0;
   }
 
-  /// regular file with short name
   if(header->name[0] != '/')
   {
+    /// This is regular file with short name
     const char* nameEnd = strchr(header->name, '/');
     if(nameEnd == NULL || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
     {
@@ -254,17 +241,17 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(!p_NestedOff)
       p_NestedOff = 0;
   }
-  /// symbol table
   else if(header->name[1] == ' ') {
+    /// This is symbol table
     if(!p_Name->empty())
       p_Name->clear();
   }
-  /// extended name table
   else if(header->name[1] == '/') {
+    /// This is long name table
     p_Name->assign(1,'/');
   }
-  /// regular file with long name
   else {
+    /// This is regular file with long name
     char *end;
     long extendedNameOff = strtol(header->name+1, &end, 10);
     long nestedOff = 0;
@@ -300,9 +287,8 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
   const char *startPtr = mapFile->getBufferStart() + start;
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
-  ///Intel and ARM are littel-endian , Sparc is big-endian
-  ///symbolNum read from archive is big-endian
-  ///This is portibility issue.
+  /// Intel and ARM are littel-endian , Sparc is little-endian after verion 9
+  /// symbolNum in archive map is always big-endian
   if(m_endian == LDReader::LittleEndian)
     endian_swap(symbolNum);
   ++p_Word;
