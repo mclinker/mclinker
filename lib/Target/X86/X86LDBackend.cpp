@@ -137,10 +137,6 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
                                             const Output& pOutput)
 {
-  // Create .got section if it dosen't exist
-  if(!m_pGOT)
-    createX86GOT(pLinker, pOutput);
-
   ELFFileFormat* file_format = NULL;
   switch (pOutput.type()) {
     case Output::DynObj:
@@ -292,6 +288,9 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if(isSymbolNeedsPLT(*rsym, pOutput, pLDInfo)) {
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & ReservePLT)){
+          // Create .got section if it dosen't exist
+          if(NULL == m_pGOT)
+             createX86GOT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
           if(NULL == m_pPLT)
             createX86PLTandRelPLT(pLinker, pOutput);
@@ -339,6 +338,9 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       }
 
+      // Create .got section if it dosen't exist
+      if(NULL == m_pGOT)
+         createX86GOT(pLinker, pOutput);
       // create .plt and .rel.plt if not exist
       if(NULL == m_pPLT)
          createX86PLTandRelPLT(pLinker, pOutput);
