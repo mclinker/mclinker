@@ -94,6 +94,12 @@ bool ELFObjectReader::readSections(Input& pInput)
                                             (*section)->type(),
                                             (*section)->flag());
 
+        // FIXME: (Luba)
+        // Handle ARM attributes in the right way.
+        // In current milestone, MCLinker goes through the shortcut.
+        // It reads input's ARM attributes and copies the first ARM attributes
+        // into the output file. The correct way is merge these sections, not
+        // just copy.
         if ((0 == out_sect.name().compare(".ARM.attributes")) &&
             (0 != out_sect.size()))
           break;
