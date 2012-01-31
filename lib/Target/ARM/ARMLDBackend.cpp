@@ -366,7 +366,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pOutput.type()) {
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -390,7 +390,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if(Output::DynObj == pOutput.type()) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -412,7 +412,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
         return;
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building shared object, a dynamic relocation with
@@ -420,7 +420,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pOutput.type()) {
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -476,10 +476,10 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & 0x8u)){
           // Create .got section if it doesn't exist
-          if(!m_pGOT)
+          if(NULL == m_pGOT)
             createARMGOT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
-          if(!m_pPLT)
+          if(NULL == m_pPLT)
             createARMPLTandRelPLT(pLinker, pOutput);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
@@ -496,7 +496,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -562,7 +562,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if(isSymbolNeedsDynRel(*rsym, pOutput, false)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -597,11 +597,11 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       // Create .got section if it doesn't exist
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
 
       // create .plt and .rel.plt if not exist
-      if(!m_pPLT)
+      if(NULL == m_pPLT)
          createARMPLTandRelPLT(pLinker, pOutput);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
@@ -621,7 +621,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
         return;
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
@@ -629,7 +629,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // entry in .rel.dyn
       if(Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -732,9 +732,9 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
     pRegion.sync();
     return result;
   }
- 
+
   if (&pSection == &(file_format->getGOT())) {
-    assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
     uint64_t result = m_pGOT->emit(pRegion);
     pRegion.sync();
     return result;

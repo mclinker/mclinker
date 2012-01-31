@@ -23,7 +23,7 @@ Relocation::Relocation(Relocation::Type pType,
     m_Type(pType),
     m_Addend(pAddend),
     m_pTargetData(pTargetData),
-    m_pSymInfo(0),
+    m_pSymInfo(NULL),
     m_Parent(pParent)
 {
   if(NULL != pTargetRef)

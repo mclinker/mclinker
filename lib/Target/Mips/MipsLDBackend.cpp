@@ -24,15 +24,15 @@ using namespace llvm;
 using namespace mcld;
 
 MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(0), m_pDynamic(0)
+  : m_pRelocFactory(NULL), m_pDynamic(NULL)
 {
 }
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
-  if (0 != m_pRelocFactory)
+  if (NULL != m_pRelocFactory)
     delete m_pRelocFactory;
-  if (0 != m_pDynamic)
+  if (NULL != m_pDynamic)
     delete m_pDynamic;
 }
 

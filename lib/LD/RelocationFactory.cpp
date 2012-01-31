@@ -20,7 +20,7 @@ using namespace mcld;
 RelocationFactory::RelocationFactory(size_t pNum)
   : GCFactory<Relocation, 0>(pNum),
     m_pTargetDataFactory(new TargetDataFactory(pNum)),
-    m_pLayout(0) {
+    m_pLayout(NULL) {
 }
 
 RelocationFactory::~RelocationFactory()

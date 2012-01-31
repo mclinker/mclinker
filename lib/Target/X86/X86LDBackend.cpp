@@ -26,27 +26,27 @@
 using namespace mcld;
 
 X86GNULDBackend::X86GNULDBackend()
-  : m_pRelocFactory(0),
-    m_pGOT(0),
-    m_pPLT(0),
-    m_pRelDyn(0),
-    m_pRelPLT(0),
-    m_pDynamic(0) {
+  : m_pRelocFactory(NULL),
+    m_pGOT(NULL),
+    m_pPLT(NULL),
+    m_pRelDyn(NULL),
+    m_pRelPLT(NULL),
+    m_pDynamic(NULL) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
 {
-  if (0 != m_pRelocFactory)
+  if (NULL != m_pRelocFactory)
     delete m_pRelocFactory;
-  if (0 != m_pGOT)
+  if (NULL != m_pGOT)
     delete m_pGOT;
-  if (0 != m_pPLT)
+  if (NULL != m_pPLT)
     delete m_pPLT;
-  if(m_pRelDyn)
+  if (NULL !=m_pRelDyn)
     delete m_pRelDyn;
-  if(m_pRelPLT)
+  if (NULL != m_pRelPLT)
     delete m_pRelPLT;
-  if (0 != m_pDynamic)
+  if (NULL != m_pDynamic)
     delete m_pDynamic;
 }
 
@@ -254,7 +254,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // Reserve an entry in .rel.dyn
       if(Output::DynObj == pOutput.type()) {
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -265,7 +265,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
     case ELF::R_386_GOTOFF:
     case ELF::R_386_GOTPC:
       // A GOT section is needed
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
 
@@ -293,7 +293,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & ReservePLT)){
           // create .plt and .rel.plt if not exist
-          if(!m_pPLT)
+          if(NULL == m_pPLT)
             createX86PLTandRelPLT(pLinker, pOutput);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
@@ -309,7 +309,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if(isSymbolNeedsDynRel(*rsym, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -320,7 +320,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_386_GOTOFF:
     case ELF::R_386_GOTPC: {
       // A GOT section is needed
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
     }
@@ -340,7 +340,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       // create .plt and .rel.plt if not exist
-      if(!m_pPLT)
+      if(NULL == m_pPLT)
          createX86PLTandRelPLT(pLinker, pOutput);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
@@ -357,7 +357,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if(rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      if(!m_pGOT)
+      if(NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
@@ -365,7 +365,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // entry in .rel.dyn
       if(Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
-        if(!m_pRelDyn)
+        if(NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -392,7 +392,7 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  assert(0 != rsym && "ResolveInfo of relocation not set while scanRelocation");
+  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
@@ -488,49 +488,49 @@ uint32_t X86GNULDBackend::machine() const
 
 X86GOT& X86GNULDBackend::getGOT()
 {
-  assert(0 != m_pGOT);
+  assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
 const X86GOT& X86GNULDBackend::getGOT() const
 {
-  assert(0 != m_pGOT);
+  assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
 X86PLT& X86GNULDBackend::getPLT()
 {
-  assert(0 != m_pPLT && "PLT section not exist");
+  assert(NULL != m_pPLT && "PLT section not exist");
   return *m_pPLT;
 }
 
 const X86PLT& X86GNULDBackend::getPLT() const
 {
-  assert(0 != m_pPLT && "PLT section not exist");
+  assert(NULL != m_pPLT && "PLT section not exist");
   return *m_pPLT;
 }
 
 OutputRelocSection& X86GNULDBackend::getRelDyn()
 {
-  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
 const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 {
-  assert(0 != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
 }
 
 OutputRelocSection& X86GNULDBackend::getRelPLT()
 {
-  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
 const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 {
-  assert(0 != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
   return *m_pRelPLT;
 }
 
