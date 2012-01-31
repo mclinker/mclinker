@@ -159,6 +159,11 @@ private:
   EntryListType m_EntryList;
   EntryListType m_NeedList;
   elf_dynamic::EntryIF* m_pEntryFactory;
+
+  // The entry reserved and the entry being applied are not must matched.
+  // For better performance, we use a simple counter and apply entry one-by-one
+  // by the counter. m_Idx is the counter indicating to the entry being applied.
+  size_t m_Idx;
 };
 
 } // namespace of mcld

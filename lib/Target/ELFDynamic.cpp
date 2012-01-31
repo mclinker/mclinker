@@ -30,7 +30,7 @@ EntryIF::~EntryIF()
 //===----------------------------------------------------------------------===//
 // ELFDynamic
 ELFDynamic::ELFDynamic(const GNULDBackend& pParent)
-  : m_pEntryFactory(NULL) {
+  : m_pEntryFactory(NULL), m_Idx(0) {
   if (32 == pParent.bitclass() && pParent.isLittleEndian()) {
     m_pEntryFactory = new Entry<32, true>();
   }
@@ -79,10 +79,9 @@ void ELFDynamic::reserveOne(uint64_t pTag)
 
 void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
 {
-  static size_t idx = 0;
-  assert(idx < m_EntryList.size());
-  m_EntryList[idx]->setValue(pTag, pValue);
-  ++idx;
+  assert(m_Idx < m_EntryList.size());
+  m_EntryList[m_Idx]->setValue(pTag, pValue);
+  ++m_Idx;
 }
 
 
