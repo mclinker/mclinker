@@ -38,11 +38,11 @@ class GNUArchiveReader : public ArchiveReader
 {
 private:
   struct ArchiveMemberHeader;
-  struct ArchiveMapEntry;
+  struct SymbolTableEntry;
 
 public:
-  explicit GNUArchiveReader(MCLDInfo &info, LDReader::Endian endian)
-  : m_pInfo(info),
+  explicit GNUArchiveReader(MCLDInfo &pLDInfo, LDReader::Endian endian)
+  : m_pLDInfo(pLDInfo),
     m_endian(endian)
   { }
 
@@ -58,8 +58,8 @@ public:
   LDReader::Endian endian(Input& pFile) const;
 
 private:
-  /// set up the archive, including 
-  /// first, read symbol table 
+  /// set up the archive, including
+  /// first, read symbol table
   /// second, read extended file name which is used in thin archive
   InputTree *setupNewArchive(Input &pInput, size_t off);
 
@@ -70,14 +70,14 @@ private:
                    off_t *nestedOff,
                    std::string &p_ExtendedName);
 
-  void readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                      std::vector<ArchiveMapEntry> &archiveMap,
+  void readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+                      std::vector<SymbolTableEntry> &pSymbolTable,
                       off_t start,
-                      size_t size); 
+                      size_t size);
 
 private:
-  MCLDInfo &m_pInfo;
-  LDReader::Endian m_endian;  
+  MCLDInfo &m_pLDInfo;
+  LDReader::Endian m_endian;
 };
 
 } // namespace of mcld

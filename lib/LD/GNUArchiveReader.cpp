@@ -42,7 +42,7 @@ struct GNUArchiveReader::ArchiveMemberHeader
   char finalMagic[2];
 };
 
-struct GNUArchiveReader::ArchiveMapEntry
+struct GNUArchiveReader::SymbolTableEntry
 {
   off_t fileOffset;
   std::string name;
@@ -100,13 +100,14 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             size_t off)
 {
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
-  if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile)) {
+  if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile))
+  {
     assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return NULL;
   }
 
-  InputTree *resultTree = new InputTree(m_pInfo.inputFactory());
-  std::vector<ArchiveMapEntry> archiveMap;
+  InputTree *resultTree = new InputTree(m_pLDInfo.inputFactory());
+  std::vector<SymbolTableEntry> symbolTable;
   std::string archiveMemberName;
   std::string extendedName;
   bool isThinArchive;
@@ -115,23 +116,25 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   /// check archive format.
   if(mapFile->getBufferSize() <= archiveMagicSize)
     return NULL;
-  else {
+  else
+  {
     isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
-    if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0) {
+    if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
       return NULL;
-    }
   }
 
   off += archiveMagicSize ;
-  size_t archiveMapSize = parseMemberHeader(mapFile, off, &archiveMemberName,
+  size_t symbolTableSize = parseMemberHeader(mapFile, off, &archiveMemberName,
                                             NULL, extendedName);
   /// read archive symbol table
-  if(archiveMemberName.empty()) {
-    readArchiveMap(mapFile, archiveMap,
-                   off+sizeof(GNUArchiveReader::ArchiveMemberHeader), archiveMapSize);
-    off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + archiveMapSize;
+  if(archiveMemberName.empty())
+  {
+    readSymbolTable(mapFile, symbolTable,
+                   off+sizeof(GNUArchiveReader::ArchiveMemberHeader), symbolTableSize);
+    off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + symbolTableSize;
   }
-  else {
+  else
+  {
     assert(0=="fatal error : need symbol table\n");
     return NULL;
   }
@@ -141,31 +144,31 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName,
                                           NULL, extendedName);
-  /// read extended Name table
-  if(archiveMemberName == "/") {
+  /// read long Name table
+  if(archiveMemberName == "/")
+  {
     off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
     pFile += off;
     extendedName.assign(pFile,extendedSize);
   }
 
-  /// traverse all archive members
+  /// traverse all the archive members
   InputTree::iterator node = resultTree->root();
-  for(unsigned i=0 ; i<archiveMap.size() ; ++i)
+  for(unsigned i=0 ; i<symbolTable.size() ; ++i)
   {
     /// We shall get each member at this archive.
-    /// If if a member is the other archive, recursive call setupNewArchive
-    /// Finally, construct a corresponding mcld::Input, and insert it into
+    /// Construct a corresponding mcld::Input, and insert it into
     /// the original InputTree.
     off_t nestedOff = 0;
-    size_t memberOffset = parseMemberHeader(mapFile, archiveMap[i].fileOffset,
+    size_t memberOffset = parseMemberHeader(mapFile, symbolTable[i].fileOffset,
                                             &archiveMemberName, &nestedOff, extendedName);
     if(!isThinArchive)
     {
       /// New a Input object and assign fileOffset in MCLDFile.
-      /// fileOffset = archiveMap[i].memberOffset + sizeof(ArchiveMemberHeader);
+      /// fileOffset = symbolTable[i].memberOffset + sizeof(ArchiveMemberHeader);
       /// Finally insert the object to resultTree and move ahead.
-      off_t fileOffset = archiveMap[i].fileOffset + sizeof(ArchiveMemberHeader);
-      Input *insertObjectFile = m_pInfo.inputFactory().produce(archiveMap[i].name,
+      off_t fileOffset = symbolTable[i].fileOffset + sizeof(ArchiveMemberHeader);
+      Input *insertObjectFile = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
                                                                pInput.path(),
                                                                MCLDFile::Object,
                                                                fileOffset);
@@ -178,18 +181,34 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
       continue;
     }
 
-    /// TODO:
-    assert(0=="Thin archive is unfinished");
-    /// Another archive outside this archive
+    /// TODO: Thin archive member
+
+    sys::fs::RealPath path(symbolTable[i].name);
+
     if(nestedOff > 0)
     {
+      /// This is a member of a nested archive.
       /// Create an Input for this archive ,and recursive call setupNewArchive
-      /// InputTree *nextArchiveTree = setupNewArchive();
+      /// Finally, merge the new InputTree with the old one
+      off_t fileOffset = nestedOff + sizeof(ArchiveMemberHeader);
+      Input *newArchive = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
+                                                         path,
+                                                         MCLDFile::Archive,
+                                                         fileOffset);
+
+      InputTree *newArchiveTree = setupNewArchive(*newArchive, fileOffset);
+      resultTree->merge<InputTree::Inclusive>(node, *newArchiveTree);
+      node.move<InputTree::Positional>();
       continue;
     }
     /// External member , open it as normal object file
     /// add new Input to InputTree
-    /// But how about the path??
+    Input *insertObjectFile = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
+                                                               path,
+                                                               MCLDFile::Object,
+                                                               0);
+    resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
+    node.move<InputTree::Positional>();
 
   }
   return resultTree;
@@ -197,11 +216,13 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
 
 /// Parse the member header and return the size of member
-/// Archive member names :
-/// "/                  " - symbol table(archive map), must be the first member
+/// Archive member names in System 5 style :
+///
+/// "/                  " - symbol table, must be the first member
 /// "//                 " - long name table
 /// "filename.o/        " - regular file with short name
 /// "/5566              " - name at offset 5566 at long name table
+
 size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                            off_t off,
                                            std::string *p_Name,
@@ -213,7 +234,8 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   const ArchiveMemberHeader *header = reinterpret_cast<const ArchiveMemberHeader *>(pFile);
 
   /// check magic number of member header
-  if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic)) {
+  if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic))
+  {
     assert(0=="archive member header magic number false");
     return 0;
   }
@@ -231,7 +253,8 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   {
     /// This is regular file with short name
     const char* nameEnd = strchr(header->name, '/');
-    if(nameEnd == NULL || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
+    if(nameEnd == NULL
+       || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
     {
       assert(0=="header name format error\n");
       return 0;
@@ -241,16 +264,19 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(!p_NestedOff)
       p_NestedOff = 0;
   }
-  else if(header->name[1] == ' ') {
+  else if(header->name[1] == ' ')
+  {
     /// This is symbol table
     if(!p_Name->empty())
       p_Name->clear();
   }
-  else if(header->name[1] == '/') {
+  else if(header->name[1] == '/')
+  {
     /// This is long name table
     p_Name->assign(1,'/');
   }
-  else {
+  else
+  {
     /// This is regular file with long name
     char *end;
     long extendedNameOff = strtol(header->name+1, &end, 10);
@@ -258,16 +284,19 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(*end == ':')
       nestedOff = strtol(end+1, &end, 10);
 
-    if(*end != ' ' ||
-       extendedNameOff < 0 ||
-       static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size()) {
+    if(*end != ' '
+       || extendedNameOff < 0
+       || static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size())
+    {
       assert(0=="extended name");
       return 0;
     }
 
     const char *name = p_ExtendedName.data() + extendedNameOff;
     const char *nameEnd = strchr(name, '\n');
-    if(nameEnd[-1] != '/' || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size()) {
+    if(nameEnd[-1] != '/'
+       || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size())
+    {
       assert(0=="p_ExtendedName substring is not end with / \n");
       return 0;
     }
@@ -279,16 +308,17 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   return memberSize;
 }
 
-void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                     std::vector<ArchiveMapEntry> &archiveMap,
+void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+                                     std::vector<SymbolTableEntry> &pSymbolTable,
                                      off_t start,
                                      size_t size)
 {
   const char *startPtr = mapFile->getBufferStart() + start;
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
+  /// Portable Issue on Sparc platform
   /// Intel and ARM are littel-endian , Sparc is little-endian after verion 9
-  /// symbolNum in archive map is always big-endian
+  /// symbolNum in symbol table is always big-endian
   if(m_endian == LDReader::LittleEndian)
     endian_swap(symbolNum);
   ++p_Word;
@@ -296,17 +326,17 @@ void GNUArchiveReader::readArchiveMap(llvm::OwningPtr<llvm::MemoryBuffer> &mapFi
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
   size_t nameSize = reinterpret_cast<const char *>(startPtr) + size - p_Name;
 
-  archiveMap.resize(symbolNum);
+  pSymbolTable.resize(symbolNum);
   for(unsigned i=0 ; i<symbolNum ; ++i)
   {
     /// assign member offset
     unsigned memberOffset = *p_Word;
     endian_swap(memberOffset);
-    archiveMap[i].fileOffset = static_cast<off_t>(memberOffset);
+    pSymbolTable[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
     /// assign member name
     off_t nameEnd = strlen(p_Name) + 1;
-    archiveMap[i].name.assign(p_Name, nameEnd);
+    pSymbolTable[i].name.assign(p_Name, nameEnd);
     p_Name += nameEnd;
   }
 }
