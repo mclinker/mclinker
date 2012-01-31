@@ -363,7 +363,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if(Output::DynObj == pOutput.type()) {
+      if(isPIC(pOutput, pLDInfo)) {
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -386,7 +386,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
-      if(Output::DynObj == pOutput.type()) {
+      if(isPIC(pOutput, pLDInfo)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
@@ -414,10 +414,10 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
-      // If building shared object, a dynamic relocation with
+      // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if(Output::DynObj == pOutput.type()) {
+      if(isPIC(pOutput, pLDInfo)) {
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
