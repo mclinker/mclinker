@@ -211,8 +211,8 @@ void ARMPLT::applyPLT1() {
 
     memcpy(Out, arm_plt1, plt1->getEntrySize());
 
-    GOTEntryAddress = GOTEntryAddress + GOTEntrySize;
-    PLTEntryAddress = PLTEntryAddress + PLT1EntrySize;
+    GOTEntryAddress += GOTEntrySize;
+    PLTEntryAddress += PLT1EntrySize;
 
     if (GOTEntryAddress > PLTEntryAddress)
       Offset = GOTEntryAddress - PLTEntryAddress;
