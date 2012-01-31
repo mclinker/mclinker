@@ -419,7 +419,6 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    ARMRelocationFactory& pParent)
 {
-  ResolveInfo* rsym = pReloc.symInfo();
   // perform static relocation
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
@@ -564,7 +563,6 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -598,7 +596,6 @@ ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
                                           const MCLDInfo& pLDInfo,
                                           ARMRelocationFactory& pParent)
 {
-  ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
@@ -623,7 +620,6 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
-  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
     helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -666,7 +662,6 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -718,7 +713,6 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
-  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;

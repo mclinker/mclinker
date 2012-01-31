@@ -158,7 +158,7 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD,
     range->prevRear =
                   const_cast<llvm::MCFragment*>(&pSD.getFragmentList().back());
   }
-  
+
   // compute the layout order of the previous range.
   if (!isFirstRange(*range)) {
     setFragmentLayoutOrder(range->prevRear);
@@ -298,7 +298,6 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
                        llvm::MCFragment& pRear,
                        uint64_t pOffset)
 {
-  llvm::MCFragment* target_frag = NULL;
   llvm::MCFragment* front = &pFront;
   llvm::MCFragment* rear  = &pRear;
 
@@ -476,7 +475,6 @@ void Layout::sortSectionOrder(const Output& pOutput,
 
   // update the sorted ordering and output section index to m_SectionOrder
   m_SectionOrder.clear();
-  SectListTy::iterator iter;
   for (size_t index = 0; index < sect_list.size(); ++index) {
     sect_list[index].first->setIndex(index);
     m_SectionOrder.push_back(sect_list[index].first);
