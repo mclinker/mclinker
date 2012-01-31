@@ -39,7 +39,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator it = m_SectionData.begin();
   iterator ie = m_SectionData.end();
 
-  for (int i = 1; i < X86GOT0Num; ++i) {
+  for (size_t i = 1; i < X86GOT0Num; ++i) {
     if (it == ie)
       llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
 

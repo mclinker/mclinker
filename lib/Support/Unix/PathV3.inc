@@ -51,12 +51,12 @@ size_t canonicalize(std::string& pathname)
   if (pathname.empty())
     return 0;
 
-  int handler = 0;
-  std::stack<int> slash_stack;
+  size_t handler = 0;
+  std::stack<size_t> slash_stack;
   slash_stack.push(-1);
   while (handler < pathname.size()) {
     if (separator == pathname[handler]) { // handler = 1st '/'
-      int next = handler + 1;
+      size_t next = handler + 1;
       if (next >= pathname.size())
         return handler;
       switch(pathname[next]) { // next = handler + 1;

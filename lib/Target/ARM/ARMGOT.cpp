@@ -64,7 +64,7 @@ void ARMGOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = 0;
 
-  for (int i = 0; i < pNum; i++) {
+  for (size_t i = 0; i < pNum; i++) {
     Entry = new (std::nothrow) GOTEntry(0, ARMGOTEntrySize,
                                         &m_SectionData);
 

@@ -238,7 +238,7 @@ void X86PLT::applyPLT1() {
     memcpy(data, m_PLT1, plt1->getEntrySize());
 
     uint32_t* offset;
-    
+
     offset = reinterpret_cast<uint32_t*>(data + 2);
     *offset = GOTEntryOffset;
     GOTEntryOffset += GOTEntrySize;
@@ -263,7 +263,7 @@ void X86PLT::applyPLT1() {
 
     ++gotplt_it;
     uint64_t PLTEntryAddress = plt_base + m_PLT0Size;
-    for (int i = 0; i < GOTPLTNum; ++i) {
+    for (unsigned int i = 0; i < GOTPLTNum; ++i) {
       if (gotplt_it == list_ie)
         llvm::report_fatal_error(
           "The number of got.plt entries is inconsistent!");
