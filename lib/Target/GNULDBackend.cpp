@@ -836,7 +836,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
 
   uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
   uint64_t padding = 0;
-  ELFSegment* load_seg;
+  ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
   LDContext::sect_iterator sect, sect_end = pContext.sectEnd();
   for (sect = pContext.sectBegin(); sect != sect_end; ++sect) {
@@ -859,6 +859,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
         padding = load_seg->align();
     }
 
+    assert(NULL != load_seg);
     load_seg->addSection(*sect);
     load_seg->updateFlag(cur_seg_flag);
 
