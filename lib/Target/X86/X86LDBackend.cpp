@@ -193,13 +193,13 @@ void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
 }
 
 bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
-                                       const Output& pOutput,
-                                       const MCLDInfo& pLDInfo) const
+                                       const MCLDInfo& pLDInfo,
+                                       const Output& pOutput) const
 {
   return((Output::DynObj == pOutput.type())
          &&(ResolveInfo::Function == pSym.type())
          &&(pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemptible(pSym, pOutput, pLDInfo))
+            isSymbolPreemptible(pSym, pLDInfo, pOutput))
         );
 }
 
@@ -220,8 +220,8 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
 }
 
 bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
-                                         const Output& pOutput,
-                                         const MCLDInfo& pLDInfo) const
+                                         const MCLDInfo& pLDInfo,
+                                         const Output& pOutput) const
 {
   if(pSym.other() != ResolveInfo::Default)
     return false;
@@ -286,7 +286,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if(isSymbolNeedsPLT(*rsym, pOutput, pLDInfo)) {
+      if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
@@ -335,7 +335,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if(rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemptible(*rsym, pOutput, pLDInfo)) {
+         !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
         return;
       }
 

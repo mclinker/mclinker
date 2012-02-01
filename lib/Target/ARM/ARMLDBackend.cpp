@@ -174,7 +174,7 @@ const ARMELFDynamic& ARMGNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-bool ARMGNULDBackend::isPIC(const Output& pOutput, const MCLDInfo& pLDInfo) const
+bool ARMGNULDBackend::isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const
 {
   return (pOutput.type() == Output::DynObj);
 }
@@ -271,13 +271,13 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
-                                       const Output& pOutput,
-                                       const MCLDInfo& pLDInfo) const
+                                       const MCLDInfo& pLDInfo,
+                                       const Output& pOutput) const
 {
   return (Output::DynObj == pOutput.type() &&
           ResolveInfo::Function == pSym.type() &&
           (pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemptible(pSym, pOutput, pLDInfo)));
+            isSymbolPreemptible(pSym, pLDInfo, pOutput)));
 }
 
 bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
@@ -297,8 +297,8 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
 }
 
 bool ARMGNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
-                                          const Output& pOutput,
-                                          const MCLDInfo& pLDInfo) const
+                                          const MCLDInfo& pLDInfo,
+                                          const Output& pOutput) const
 {
   if(pSym.other() != ResolveInfo::Default)
     return false;
@@ -320,7 +320,7 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
 {
   // If not building shared object, no relocation type is invalid
   // FIXME: This should be check not building PIC
-  if (isPIC(pOutput, pLDInfo))
+  if (isPIC(pLDInfo, pOutput))
     return;
 
   switch(pReloc.type()) {
@@ -363,7 +363,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pOutput, pLDInfo)) {
+      if(isPIC(pLDInfo, pOutput)) {
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -386,7 +386,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pOutput, pLDInfo)) {
+      if(isPIC(pLDInfo, pOutput)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
@@ -417,7 +417,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pOutput, pLDInfo)) {
+      if(isPIC(pLDInfo, pOutput)) {
         // create .rel.dyn section if not exist
         if(NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -471,7 +471,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if(isSymbolNeedsPLT(*rsym, pOutput, pLDInfo)) {
+      if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
         if(!(rsym->reserved() & 0x8u)){
           // Create .got section if it doesn't exist
@@ -591,7 +591,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if(rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemptible(*rsym, pOutput, pLDInfo)) {
+         !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
         return;
       }
 

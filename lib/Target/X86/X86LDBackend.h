@@ -180,8 +180,8 @@ public:
 
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           const Output& pOutput,
-                           const MCLDInfo& pLDInfo) const;
+                           const MCLDInfo& pLDInfo,
+                           const Output& pOutput) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
@@ -195,8 +195,8 @@ private:
                        const Output& pOutput);
 
   bool isSymbolNeedsPLT(const ResolveInfo& pSym,
-                        const Output& pOutput,
-                        const MCLDInfo& pLDInfo) const;
+                        const MCLDInfo& pLDInfo,
+                        const Output& pOutput) const;
 
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
                            const Output& pOutput,

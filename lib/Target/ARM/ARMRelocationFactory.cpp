@@ -359,8 +359,8 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
   if(pSym.isDyn() ||
      pSym.isUndef() ||
      pFactory.getTarget().isSymbolPreemptible(pSym,
-                                              pLDInfo.output(),
-                                              pLDInfo))
+                                              pLDInfo,
+                                              pLDInfo.output()))
     return false;
   return true;
 }
