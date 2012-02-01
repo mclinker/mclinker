@@ -300,7 +300,7 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
   return output_sym;
 }
 
-/// defineSymbolAsRefered - define an output symbol and resolve it immediately
+/// defineSymbolAsRefered - define an output symbol and override it immediately
 LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            bool pIsDyn,
                                            ResolveInfo::Type pType,
@@ -379,15 +379,15 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
     // We merge sections when reading them. So we do not need symbols with
     // section type
 
-    if (shouldForceLocal(*result.info)) {
+    if (result.existent)
+      m_OutputSymbols.arrange(*output_sym, old_info);
+    else {
+      if (shouldForceLocal(*result.info)) {
         // if this symbol is a new symbol, and the binding is local, try to
         // forcefully set as a local symbol.
         // @ref Google gold linker: symtab.cc :1764
         m_OutputSymbols.forceLocal(*output_sym);
-    }
-    else {
-      if (result.existent)
-        m_OutputSymbols.arrange(*output_sym, old_info);
+      }
       else
         m_OutputSymbols.add(*output_sym);
     }
