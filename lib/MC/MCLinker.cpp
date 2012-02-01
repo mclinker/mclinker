@@ -139,14 +139,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
     // No matter the symbol is already in the output or not, add it if it
     // should be forcefully set local.
-    // If we are not doing incremental linking, then any symbol with hidden
-    // or internal visibility is forcefully set as a local symbol.
-    if (m_Info.output().type() != Output::Object &&
-        (resolved_result.info->visibility() == ResolveInfo::Hidden ||
-           resolved_result.info->visibility() == ResolveInfo::Internal) &&
-        (resolved_result.info->isGlobal() ||
-           resolved_result.info->isWeak()) &&
-        shouldForceLocal(*resolved_result.info)) {
+    if (shouldForceLocal(*resolved_result.info)) {
       m_OutputSymbols.forceLocal(*output_sym);
     }
     else {
@@ -223,11 +216,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
     // After symbol resolution, visibility is changed to the most restrict one.
     // If we are not doing incremental linking, then any symbol with hidden
     // or internal visibility is forcefully set as a local symbol.
-    if (m_Info.output().type() != Output::Object &&
-        (resolved_result.info->visibility() == ResolveInfo::Hidden ||
-          resolved_result.info->visibility() == ResolveInfo::Internal) &&
-        (resolved_result.info->isGlobal() || resolved_result.info->isWeak()) &&
-          shouldForceLocal(*resolved_result.info)) {
+    if (shouldForceLocal(*resolved_result.info)) {
       m_OutputSymbols.forceLocal(*output_sym);
     }
   }
@@ -267,12 +256,8 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
       // We merge sections when reading them. So we do not need symbols with
       // section type
 
-      if (shouldForceLocal(*result.info)) {
-        // if this symbol is a new symbol, and the binding is local, try to
-        // forcefully set as a local symbol.
-        // @ref Google gold linker: symtab.cc :1764
+      if (shouldForceLocal(*result.info))
         m_OutputSymbols.forceLocal(*output_sym);
-      }
       else
         m_OutputSymbols.add(*output_sym);
     }
@@ -383,9 +368,6 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
       m_OutputSymbols.arrange(*output_sym, old_info);
     else {
       if (shouldForceLocal(*result.info)) {
-        // if this symbol is a new symbol, and the binding is local, try to
-        // forcefully set as a local symbol.
-        // @ref Google gold linker: symtab.cc :1764
         m_OutputSymbols.forceLocal(*output_sym);
       }
       else
@@ -631,7 +613,16 @@ bool MCLinker::finalizeSymbols()
 
 bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 {
-  if (pInfo.isDefine() || pInfo.isCommon())
+  // rules:
+  // 1. We are not doing incremental linking.
+  // 2. The symbol is with Hidden or Internal visibility.
+  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
+  // 4. The symbol is defined or common
+  if (m_Info.output().type() != Output::Object &&
+      (pInfo.visibility() == ResolveInfo::Hidden ||
+         pInfo.visibility() == ResolveInfo::Internal) &&
+      (pInfo.isGlobal() || pInfo.isWeak()) &&
+      (pInfo.isDefine() || pInfo.isCommon()))
     return true;
   return false;
 }
