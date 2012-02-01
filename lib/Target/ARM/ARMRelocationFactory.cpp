@@ -351,10 +351,6 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
                           const MCLDInfo& pLDInfo,
                           const ARMRelocationFactory& pFactory)
 {
-  // if symbol has plt, should use RELATIVE
-  if(pSym.reserved() & 0x8u) {
-    return true;
-  }
   // if symbol is dynamic or undefine or preemptible
   if(pSym.isDyn() ||
      pSym.isUndef() ||
@@ -398,6 +394,9 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
       T = 0 ; // PLT is not thumb
       pReloc.target() = (S + A) | T;
     }
+    // If we generate a dynamic relocation (except R_ARM_RELATIVE)
+    // for a place, we should not perform static relocation on it
+    // in order to keep the addend store in the place correct.
     if(rsym->reserved() & 0x1u) {
       if(helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
