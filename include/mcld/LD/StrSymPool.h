@@ -59,7 +59,11 @@ public:
                             ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
   
   /// insertSymbol - insert a symbol and resolve the symbol immediately
+  /// @param pOldInfo - if pOldInfo is not NULL, the old ResolveInfo being
+  ///                   overriden is kept in pOldInfo.
   /// @param pResult the result of symbol resultion.
+  /// @note pResult.override is true if the output LDSymbol also need to be
+  ///       overriden
   void insertSymbol(const llvm::StringRef& pName,
                     bool pIsDyn,
                     ResolveInfo::Type pType,
