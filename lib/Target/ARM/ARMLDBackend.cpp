@@ -98,6 +98,18 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
+  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+  // same name in input
+  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+                   "_GLOBAL_OFFSET_TABLE_",
+                   false,
+                   ResolveInfo::Object,
+                   ResolveInfo::Define,
+                   ResolveInfo::Local,
+                   0x0,  // size
+                   0x0,  // value
+                   NULL, // FragRef
+                   ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::doPreLayout(const Output& pOutput,
@@ -201,16 +213,31 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   false,
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0, // size
-                   0x0, // value
-                   pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
-                   ResolveInfo::Hidden);
+  if( m_pGOTSymbol != NULL ) {
+    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+
 }
 
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
@@ -688,8 +715,10 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
-    createARMGOT(pLinker, pOutput);
+  if(NULL == m_pGOT && NULL != m_pGOTSymbol) {
+    if(rsym == m_pGOTSymbol->resolveInfo()) {
+      createARMGOT(pLinker, pOutput);
+    }
   }
 
   // rsym is local

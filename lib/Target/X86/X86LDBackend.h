@@ -149,7 +149,9 @@ public:
   bool initRelocFactory(const MCLinker& pLinker);
 
   void initTargetSections(MCLinker& pLinker);
-
+  
+  void initTargetSymbols(MCLinker& pLinker);
+ 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
   /// For X86, following entries are check to create:
@@ -219,6 +221,7 @@ private:
   OutputRelocSection* m_pRelPLT;
 
   X86ELFDynamic* m_pDynamic;
+  LDSymbol* m_pGOTSymbol;
 };
 
 //===----------------------------------------------------------------------===//

@@ -123,16 +123,30 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   false,
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0, // size
-                   0x0, // value
-                   pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
-                   ResolveInfo::Hidden);
+  if( m_pGOTSymbol != NULL ) {
+    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
 }
 
 void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
@@ -413,8 +427,10 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && (0 == strcmp(rsym->name(), "_GLOBAL_OFFSET_TABLE_"))) {
-    createX86GOT(pLinker, pOutput);
+  if(NULL == m_pGOT && NULL != m_pGOTSymbol) {
+    if(rsym == m_pGOTSymbol->resolveInfo()) {
+      createX86GOT(pLinker, pOutput);
+    }
   }
 
   // rsym is local
@@ -590,6 +606,22 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
+}
+
+void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker)
+{
+  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+  // same name in input
+  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+                   "_GLOBAL_OFFSET_TABLE_",
+                   false,
+                   ResolveInfo::Object,
+                   ResolveInfo::Define,
+                   ResolveInfo::Local,
+                   0x0,  // size
+                   0x0,  // value
+                   NULL, // FragRef
+                   ResolveInfo::Hidden);
 }
 
 /// finalizeSymbol - finalize the symbol value
