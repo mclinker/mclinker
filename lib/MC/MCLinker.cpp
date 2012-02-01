@@ -144,10 +144,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
     }
     else {
       // the symbol should not be forcefully local.
-      if (!resolved_result.existent)
-        m_OutputSymbols.add(*output_sym);
-      else
-        m_OutputSymbols.arrange(*output_sym, old_info);
+      m_OutputSymbols.add(*output_sym);
     }
   }
 
@@ -264,9 +261,6 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
   }
   else {
     // the symbol is already in the pool, override it
-    ResolveInfo old_info;
-    old_info.override(*info);
-
     info->setSource(pIsDyn);
     info->setType(pType);
     info->setDesc(pDesc);
@@ -276,7 +270,7 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     info->setSize(pSize);
 
     output_sym = info->outSymbol();
-    m_OutputSymbols.arrange(*output_sym, old_info);
+    m_OutputSymbols.add(*output_sym);
   }
 
   output_sym->setFragmentRef(pFragmentRef);
@@ -304,9 +298,6 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   }
 
   // the symbol is already in the pool, override it
-  ResolveInfo old_info;
-  old_info.override(*info);
-
   info->setSource(pIsDyn);
   info->setType(pType);
   info->setDesc(pDesc);
@@ -319,7 +310,7 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   output_sym->setFragmentRef(pFragmentRef);
   output_sym->setValue(pValue);
 
-  m_OutputSymbols.arrange(*output_sym, old_info);
+  m_OutputSymbols.add(*output_sym);
 
   return output_sym;
 }
@@ -364,15 +355,10 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
     // We merge sections when reading them. So we do not need symbols with
     // section type
 
-    if (result.existent)
-      m_OutputSymbols.arrange(*output_sym, old_info);
-    else {
-      if (shouldForceLocal(*result.info)) {
-        m_OutputSymbols.forceLocal(*output_sym);
-      }
-      else
-        m_OutputSymbols.add(*output_sym);
-    }
+    if (shouldForceLocal(*result.info))
+      m_OutputSymbols.forceLocal(*output_sym);
+    else
+      m_OutputSymbols.add(*output_sym);
   }
 
   return output_sym;
