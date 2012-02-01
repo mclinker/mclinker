@@ -261,6 +261,9 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
   }
   else {
     // the symbol is already in the pool, override it
+    ResolveInfo old_info;
+    old_info.override(*info);
+
     info->setSource(pIsDyn);
     info->setType(pType);
     info->setDesc(pDesc);
@@ -270,11 +273,24 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     info->setSize(pSize);
 
     output_sym = info->outSymbol();
-    m_OutputSymbols.add(*output_sym);
+    if (NULL != output_sym)
+      m_OutputSymbols.arrange(*output_sym, old_info);
+    else {
+      // create a output LDSymbol
+      output_sym = m_LDSymbolFactory.allocate();
+      new (output_sym) LDSymbol();
+
+      output_sym->setResolveInfo(*info);
+      info->setSymPtr(output_sym);
+
+      m_OutputSymbols.add(*output_sym);
+    }
   }
 
-  output_sym->setFragmentRef(pFragmentRef);
-  output_sym->setValue(pValue);
+  if (NULL != output_sym) {
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+  }
 
   return output_sym;
 }
@@ -298,6 +314,9 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   }
 
   // the symbol is already in the pool, override it
+  ResolveInfo old_info;
+  old_info.override(*info);
+
   info->setSource(pIsDyn);
   info->setType(pType);
   info->setDesc(pDesc);
@@ -307,10 +326,21 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   info->setSize(pSize);
 
   LDSymbol* output_sym = info->outSymbol();
-  output_sym->setFragmentRef(pFragmentRef);
-  output_sym->setValue(pValue);
+  if (NULL != output_sym) {
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+    m_OutputSymbols.arrange(*output_sym, old_info);
+  }
+  else {
+    // create a output LDSymbol
+    output_sym = m_LDSymbolFactory.allocate();
+    new (output_sym) LDSymbol();
 
-  m_OutputSymbols.add(*output_sym);
+    output_sym->setResolveInfo(*info);
+    info->setSymPtr(output_sym);
+
+    m_OutputSymbols.add(*output_sym);
+  }
 
   return output_sym;
 }
@@ -357,6 +387,8 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
 
     if (shouldForceLocal(*result.info))
       m_OutputSymbols.forceLocal(*output_sym);
+    else if (has_output_sym)
+      m_OutputSymbols.arrange(*output_sym, old_info);
     else
       m_OutputSymbols.add(*output_sym);
   }
