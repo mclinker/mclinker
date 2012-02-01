@@ -86,7 +86,7 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
     // not exit or not a symbol
     pResult.info      = new_symbol;
     pResult.existent  = false;
-    pResult.overriden = false;
+    pResult.overriden = true;
     return;
   }
   else if (NULL != pOldInfo) {
