@@ -261,7 +261,9 @@ SOURCE = ${NORMAL_SOURCE} \
         ${UNITTEST}/MCFragmentRefTest.h \
         ${UNITTEST}/MCFragmentRefTest.cpp \
         ${UNITTEST}/StaticResolverTest.h \
-        ${UNITTEST}/StaticResolverTest.cpp
+        ${UNITTEST}/StaticResolverTest.cpp \
+	${UNITTEST}/SymbolCategoryTest.h \
+	${UNITTEST}/SymbolCategoryTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
