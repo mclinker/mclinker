@@ -123,16 +123,16 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  pLinker.defineSymbol<MCLinker::Force>(
-    "_GLOBAL_OFFSET_TABLE_",
-    false,
-    ResolveInfo::Object,
-    ResolveInfo::Define,
-    ResolveInfo::Local,
-    0x0, // size
-    0x0, // value
-    pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
-    ResolveInfo::Hidden);
+  pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+                   "_GLOBAL_OFFSET_TABLE_",
+                   false,
+                   ResolveInfo::Object,
+                   ResolveInfo::Define,
+                   ResolveInfo::Local,
+                   0x0, // size
+                   0x0, // value
+                   pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                   ResolveInfo::Hidden);
 }
 
 void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,

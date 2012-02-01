@@ -95,7 +95,8 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
   // Create symbol _GLOBAL_OFFSET_TABLE_ to mark .got section.
   if (m_pGOT.get()) {
-    pLinker.defineSymbol<MCLinker::Force>("_GLOBAL_OFFSET_TABLE_",
+    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+                                          "_GLOBAL_OFFSET_TABLE_",
                                           false,
                                           ResolveInfo::Object,
                                           ResolveInfo::Define,

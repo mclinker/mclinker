@@ -54,6 +54,12 @@ public:
     AsRefered
   };
 
+  enum ResolvePolicy
+  {
+    Unresolve,
+    Resolve
+  };
+
 public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
@@ -74,12 +80,26 @@ public:
                       MCFragmentRef* pFragmentRef,
                       ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
-  /// defineSymbol - add a symbol and resolve it immediately
-  /// defineSymbol define a output symbol and resolve it immediately.
+  /// defineSymbol - add a symbol
+  /// defineSymbol define a output symbol
+  ///
+  /// @tparam POLICY idicate how to define the symbol.
+  ///   - Force
+  ///     - Define the symbol forcefully. If the symbol has existed, override
+  ///       it. Otherwise, define it.
+  ///   - AsRefered
+  ///     - If the symbol has existed, override it. Otherwise, return NULL
+  ///       immediately.
+  ///
+  /// @tparam RESOLVE indicate whether to resolve the symbol or not.
+  ///   - Unresolve
+  ///      - Do not resolve the symbol, and override the symbol immediately.
+  ///   - Resolve
+  ///      - Resolve the defined symbol.
   ///
   /// @return If the output symbol has existed, return it. Otherwise, create
   ///         a new symbol and return the new one.
-  template<DefinePolicy POLICY>
+  template<DefinePolicy POLICY, ResolvePolicy RESOLVE>
   LDSymbol* defineSymbol(const llvm::StringRef& pName,
                          bool pIsDyn,
                          ResolveInfo::Type pType,
@@ -176,6 +196,16 @@ private:
                                    MCFragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility);
 
+  LDSymbol* defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
+                                             bool pIsDyn,
+                                             ResolveInfo::Type pType,
+                                             ResolveInfo::Desc pDesc,
+                                             ResolveInfo::Binding pBinding,
+                                             ResolveInfo::SizeType pSize,
+                                             LDSymbol::ValueType pValue,
+                                             MCFragmentRef* pFragmentRef,
+                                             ResolveInfo::Visibility pVisibility);
+
   LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
                                   bool pIsDyn,
                                   ResolveInfo::Type pType,
@@ -185,6 +215,16 @@ private:
                                   LDSymbol::ValueType pValue,
                                   MCFragmentRef* pFragmentRef,
                                   ResolveInfo::Visibility pVisibility);
+
+  LDSymbol* defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
+                                            bool pIsDyn,
+                                            ResolveInfo::Type pType,
+                                            ResolveInfo::Desc pDesc,
+                                            ResolveInfo::Binding pBinding,
+                                            ResolveInfo::SizeType pSize,
+                                            LDSymbol::ValueType pValue,
+                                            MCFragmentRef* pFragmentRef,
+                                            ResolveInfo::Visibility pVisibility);
 
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
 

@@ -45,7 +45,7 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
 }
 
 // defineSymbol - define a new symbol
-template<MCLinker::DefinePolicy POLICY>
+template<MCLinker::DefinePolicy POLICY, MCLinker::ResolvePolicy RESOLVE>
 LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  bool pIsDyn,
                                  ResolveInfo::Type pType,
@@ -56,9 +56,9 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  MCFragmentRef* pFragmentRef,
                                  ResolveInfo::Visibility pVisibility)
 {
-  // These if/else should be optimized by compiler.
+  // These if/return should be optimized by compiler.
   // This function is defined for clarity.
-  if (MCLinker::Force == POLICY)
+  if (MCLinker::Force == POLICY && MCLinker::Unresolve == RESOLVE)
     return defineSymbolForcefully(pName,
                                   pIsDyn,
                                   pType,
@@ -69,7 +69,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                   pFragmentRef,
                                   pVisibility);
 
-  if (MCLinker::AsRefered == POLICY)
+  if (MCLinker::AsRefered == POLICY && MCLinker::Unresolve == RESOLVE)
     return defineSymbolAsRefered(pName,
                                  pIsDyn,
                                  pType,
@@ -79,5 +79,27 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  pValue,
                                  pFragmentRef,
                                  pVisibility);
+
+  if (MCLinker::Force == POLICY && MCLinker::Resolve == RESOLVE)
+    return defineAndResolveSymbolForcefully(pName,
+                                            pIsDyn,
+                                            pType,
+                                            pDesc,
+                                            pBinding,
+                                            pSize,
+                                            pValue,
+                                            pFragmentRef,
+                                            pVisibility);
+
+  if (MCLinker::AsRefered == POLICY && MCLinker::Resolve == RESOLVE)
+    return defineAndResolveSymbolAsRefered(pName,
+                                           pIsDyn,
+                                           pType,
+                                           pDesc,
+                                           pBinding,
+                                           pSize,
+                                           pValue,
+                                           pFragmentRef,
+                                           pVisibility);
 }
 
