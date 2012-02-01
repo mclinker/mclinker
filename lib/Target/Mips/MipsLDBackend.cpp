@@ -93,6 +93,12 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 
 void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
+}
+
+void MipsGNULDBackend::doPreLayout(const Output& pOutput,
+                                   const MCLDInfo& pInfo,
+                                   MCLinker& pLinker)
+{
   // Create symbol _GLOBAL_OFFSET_TABLE_ to mark .got section.
   if (m_pGOT.get()) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
@@ -106,13 +112,6 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
                                           new MCFragmentRef(*(m_pGOT->begin())),
                                           ResolveInfo::Hidden);
   }
-}
-
-void MipsGNULDBackend::doPreLayout(const Output& pOutput,
-                                   const MCLDInfo& pInfo,
-                                   MCLinker& pLinker)
-{
-  // add any needed modification before layout
 }
 
 void MipsGNULDBackend::doPostLayout(const Output& pOutput,
