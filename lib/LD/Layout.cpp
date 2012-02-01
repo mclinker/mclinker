@@ -510,15 +510,12 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
           m_SectionOrder.push_back(sect);
         }
         break;
-      case LDFileFormat::BSS:
-        if (0 != sect->size())
-          m_SectionOrder.push_back(sect);
-        break;
       // take NULL directly
       case LDFileFormat::Null:
         m_SectionOrder.push_back(sect);
         break;
-      // ignore if section size is 0 for NamePool and Relocation
+      // ignore if section size is 0
+      case LDFileFormat::BSS:
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
         if (0 != sect->size())
