@@ -340,7 +340,7 @@ bool ELFReader<32, true>::readRela(Input& pInput,
                                llvm::Twine(".\n"));
     }
 
-    pLinker.addRelocation(r_type, *resolve_info, *frag_ref, r_addend);
+    pLinker.addRelocation(r_type, *symbol,  *resolve_info, *frag_ref, r_addend);
   }
   return true;
 }
@@ -395,7 +395,7 @@ bool ELFReader<32, true>::readRel(Input& pInput,
                                llvm::Twine(".\n"));
     }
 
-    pLinker.addRelocation(r_type, *resolve_info, *frag_ref);
+    pLinker.addRelocation(r_type, *symbol, *resolve_info, *frag_ref);
   }
   return true;
 }

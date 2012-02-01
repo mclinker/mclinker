@@ -349,6 +349,7 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
+                                     const LDSymbol& pInputSym,
                                      MCLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
@@ -360,6 +361,12 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     case ELF::R_ARM_ABS32:
     case ELF::R_ARM_ABS32_NOI: {
+      // Update value keep in relocation place if we meet a section symbol
+      if(rsym->type() == ResolveInfo::Section) {
+        pReloc.target() = pLinker.getLayout().getOutputOffset(
+                            *pInputSym.fragRef()) + pReloc.target();
+      }
+
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
@@ -383,6 +390,12 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case ELF::R_ARM_MOVT_ABS:
     case ELF::R_ARM_THM_MOVW_ABS_NC:
     case ELF::R_ARM_THM_MOVT_ABS: {
+      // Update value keep in relocation place if we meet a section symbol
+      if(rsym->type() == ResolveInfo::Section) {
+        pReloc.target() = pLinker.getLayout().getOutputOffset(
+                            *pInputSym.fragRef()) + pReloc.target();
+      }
+
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
@@ -449,6 +462,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
+                                      const LDSymbol& pInputSym,
                                       MCLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
@@ -658,6 +672,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
+                                     const LDSymbol& pInputSym,
                                      MCLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
@@ -679,11 +694,11 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if(rsym->isLocal())
-    scanLocalReloc(pReloc, pLinker, pLDInfo, pOutput);
+    scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 
   // rsym is global
   else if(rsym->isGlobal())
-    scanGlobalReloc(pReloc, pLinker, pLDInfo, pOutput);
+    scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 
 }
 

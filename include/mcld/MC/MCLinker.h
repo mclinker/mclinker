@@ -130,6 +130,7 @@ public:
   /// @param pFragmentRef - the fragment reference of the applied address.
   /// @param pAddend - the addend value for applying relocation
   Relocation* addRelocation(Relocation::Type pType,
+                            const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
                             MCFragmentRef& pFragmentRef,
                             Relocation::Address pAddend = 0);

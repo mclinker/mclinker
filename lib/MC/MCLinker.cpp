@@ -375,6 +375,7 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 ///
 /// All symbols should be read and resolved before calling this function.
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
+                                    const LDSymbol& pSym,
                                     ResolveInfo& pResolveInfo,
                                     MCFragmentRef& pFragmentRef,
                                     Relocation::Address pAddend)
@@ -387,7 +388,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
 
   m_RelocationList.push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, *this, m_Info,
+  m_Backend.scanRelocation(*relocation, pSym, *this, m_Info,
                            m_Info.output());
 
   return relocation;

@@ -107,6 +107,7 @@ public:
   /// create the empty entries if needed.
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
   void scanRelocation(Relocation& pReloc,
+                      const LDSymbol& pInputSym,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);

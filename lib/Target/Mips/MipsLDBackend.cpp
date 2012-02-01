@@ -140,6 +140,7 @@ const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
+                                      const LDSymbol& pInputSym,
                                       MCLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)

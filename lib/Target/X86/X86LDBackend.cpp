@@ -236,6 +236,7 @@ bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
 }
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
+                                     const LDSymbol& pInputSym,
                                      MCLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
@@ -246,6 +247,12 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
   switch(pReloc.type()){
 
     case ELF::R_386_32:
+      // Update value keep in relocation place if we meet a section symbol
+      if(rsym->type() == ResolveInfo::Section) {
+        pReloc.target() = pLinker.getLayout().getOutputOffset(
+                            *pInputSym.fragRef()) + pReloc.target();
+      }
+
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
@@ -275,6 +282,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
+                                      const LDSymbol& pInputSym,
                                       MCLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
@@ -389,6 +397,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
+                                     const LDSymbol& pInputSym,
                                      MCLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
@@ -410,11 +419,11 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if(rsym->isLocal())
-    scanLocalReloc(pReloc, pLinker, pLDInfo, pOutput);
+    scanLocalReloc(pReloc, pInputSym,  pLinker, pLDInfo, pOutput);
 
   // rsym is global
   else if(rsym->isGlobal())
-    scanGlobalReloc(pReloc, pLinker, pLDInfo, pOutput);
+    scanGlobalReloc(pReloc, pInputSym ,pLinker, pLDInfo, pOutput);
 
 }
 

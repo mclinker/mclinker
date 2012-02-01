@@ -58,14 +58,15 @@ public:
   virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
   virtual RelocationFactory* getRelocFactory() = 0;
 
-  /// scanRelocation - determine the empty entries are needed or not for
-  /// pReloc. If yes, create the empty entries.
-  /// MCLinker traverse relocations to generate empty entries, such as
-  /// GOT and dynamic relocation entries and other target dependent
-  /// entries. These entries are generated for layout to adjust the ouput
-  /// offset.
+  /// scanRelocation - When read in relocations, backend can do any modification
+  /// to relocation and generate empty entries, such as GOT, dynamic relocation
+  /// entries and other target dependent entries. These entries are generated
+  /// for layout to adjust the ouput offset.
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pOutput - the ouput file
   virtual void scanRelocation(Relocation& pReloc,
+                              const LDSymbol& pInputSym,
                               MCLinker& pLinker,
                               const MCLDInfo& pLDInfo,
                               const Output& pOutput) = 0;

@@ -101,6 +101,7 @@ public:
   /// - PLT entry (for .plt section)
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
+                      const LDSymbol& pInputSym,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
@@ -200,11 +201,13 @@ public:
 
 private:
   void scanLocalReloc(Relocation& pReloc,
+                      const LDSymbol& pInputSym,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
+                       const LDSymbol& pInputSym,
                        MCLinker& pLinker,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
