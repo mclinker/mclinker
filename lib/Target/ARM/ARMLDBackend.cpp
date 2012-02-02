@@ -204,7 +204,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
       break;
     default:
       llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
-                               "output file type " +
+                               llvm::Twine("output file type ") +
                                llvm::Twine(pOutput.type()));
       return;
   } // end of switch
@@ -253,7 +253,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
       break;
     default:
       llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
-                               "output file type " +
+                               llvm::Twine("output file type ") +
                                llvm::Twine(pOutput.type()));
       return;
   } // end of switch
@@ -283,8 +283,9 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
       file_format = getExecFileFormat();
       break;
     default:
-    llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
-                             ("is not support in output file type ") +
+    llvm::report_fatal_error(llvm::Twine("Attempt to generate dynamic ") +
+                             llvm::Twine("relocation that is not support ") +
+                             llvm::Twine("in ouput file type: ") +
                              llvm::Twine(pOutput.type()));
       return;
   } // end of switch
@@ -365,11 +366,11 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
 
     default:
       llvm::report_fatal_error(llvm::Twine("Attempt to generate unsupported") +
-                               llvm::Twine("relocation type ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine(" for symbol ") +
+                               llvm::Twine(" relocation type ") +
+                               llvm::Twine((int)pReloc.type()) +
+                               llvm::Twine(" for symbol '") +
                                llvm::Twine(pReloc.symInfo()->name()) +
-                               llvm::Twine(", recompile with -fPIC")
+                               llvm::Twine("', recompile with -fPIC")
                               );
       break;
   }
@@ -478,8 +479,8 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
       llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine("in object file"));
+                               llvm::Twine((int)pReloc.type()) +
+                               llvm::Twine(" in object file"));
       break;
     }
     default: {
@@ -688,8 +689,8 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
       llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine("in object file"));
+                               llvm::Twine((int)pReloc.type()) +
+                               llvm::Twine(" in object file"));
       break;
     }
     default: {
