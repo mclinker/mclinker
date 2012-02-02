@@ -184,6 +184,28 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol, const ResolveInfo& pS
   return *this;
 }
 
+SymbolCategory& SymbolCategory::changeCommonsToGlobal()
+{
+  if (emptyCommons())
+    return *this;
+
+  size_t com_rear = m_pCommon->end - 1;
+  size_t com_front = m_pCommon->begin;
+  size_t weak_rear = m_pWeak->end - 1;
+  size_t weak_size = m_pWeak->end - m_pWeak->begin;
+  for (size_t sym = com_rear; sym >= com_front; --sym) {
+    std::swap(m_OutputSymbols[weak_rear], m_OutputSymbols[sym]);
+    --weak_rear;
+  }
+
+  m_pWeak->begin = m_pCommon->begin;
+  m_pWeak->end = m_pCommon->begin + weak_size;
+  m_pGlobal->begin = m_pWeak->end;
+  m_pCommon->begin = m_pCommon->end = m_pWeak->begin;
+
+  return *this;
+}
+
 size_t SymbolCategory::numOfSymbols() const
 {
   return m_OutputSymbols.size();

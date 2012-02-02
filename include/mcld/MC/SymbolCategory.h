@@ -43,6 +43,8 @@ public:
 
   SymbolCategory& arrange(LDSymbol& pSymbol, const ResolveInfo& pSourceInfo);
 
+  SymbolCategory& changeCommonsToGlobal();
+
   // -----  observers  ----- //
   size_t numOfSymbols() const;
 
