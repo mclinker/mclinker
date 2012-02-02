@@ -7,3 +7,6 @@
 2012-01-17 Luba Tang <lubatang@gmail.com>
 	* Quake can be linked on ARM Android.
 	* All APIs for backends is ready.
+
+2012-02-02 Luba Tang <lubatang@gmail.com>
+	* Quake can be linked on x86 Android.
