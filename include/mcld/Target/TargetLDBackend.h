@@ -129,6 +129,10 @@ public:
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
   virtual bool finalizeSymbol(LDSymbol& pSymbol) const = 0;
+
+  /// allocateCommonSymbols - allocate common symbols in the corresponding
+  /// sections.
+  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const = 0;
 };
 
 } // End mcld namespace

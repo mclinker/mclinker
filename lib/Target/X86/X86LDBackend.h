@@ -181,6 +181,10 @@ public:
   /// function to ask the final value of the symbol
   bool finalizeSymbol(LDSymbol& pSymbol) const;
 
+  /// allocateCommonSymbols - allocate common symbols in the corresponding
+  /// sections.
+  bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
+
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,
                            const MCLDInfo& pLDInfo,
