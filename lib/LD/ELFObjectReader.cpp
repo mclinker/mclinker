@@ -118,7 +118,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       case LDFileFormat::BSS: {
         LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
-                                               ".bss",
+                                               (*section)->name(),
                                                LDFileFormat::BSS,
                                                llvm::ELF::SHT_NOBITS,
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
