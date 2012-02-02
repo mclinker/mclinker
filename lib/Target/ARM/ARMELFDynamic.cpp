@@ -21,16 +21,16 @@ ARMELFDynamic::~ARMELFDynamic()
 {
 }
 
-/// reservePLTGOT - reserve a DT_PLTGOT entry
-void ARMELFDynamic::reservePLTGOT(const ELFFileFormat& pFormat)
+void ARMELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 {
+  // reservePLTGOT
   if (pFormat.hasGOT())
     reserveOne(llvm::ELF::DT_PLTGOT);
 }
 
-/// applyPLTGOT - apply value for DT_PLTGOT entry
-void ARMELFDynamic::applyPLTGOT(const ELFFileFormat& pFormat)
+void ARMELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
+  // applyPLTGOT
   if (pFormat.hasGOT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 }

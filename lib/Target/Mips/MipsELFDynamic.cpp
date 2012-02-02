@@ -22,15 +22,13 @@ MipsELFDynamic::~MipsELFDynamic()
 {
 }
 
-/// reservePLTGOT - reserve a DT_PLTGOT entry
-void MipsELFDynamic::reservePLTGOT(const ELFFileFormat& pFormat)
+void MipsELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 {
   // FIXME: unsupport reserving DT_PLTGOT entry for Mips
   llvm::report_fatal_error("unsupport reserving DT_PLTGOT entry for Mips!");
 }
 
-/// applyPLTGOT - apply value for DT_PLTGOT entry
-void MipsELFDynamic::applyPLTGOT(const ELFFileFormat& pFormat)
+void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
   // FIXME: unsupport applying value to DT_PLTGOT entry for Mips
   llvm::report_fatal_error(

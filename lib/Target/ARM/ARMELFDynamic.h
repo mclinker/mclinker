@@ -22,8 +22,8 @@ public:
   ~ARMELFDynamic();
 
 private:
-  void reservePLTGOT(const ELFFileFormat& pFormat);
-  void applyPLTGOT(const ELFFileFormat& pFormat);
+  void reserveTargetEntries(const ELFFileFormat& pFormat);
+  void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
 } // namespace of mcld

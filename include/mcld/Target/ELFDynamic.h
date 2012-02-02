@@ -144,11 +144,11 @@ public:
   void emit(const LDSection& pSection, MemoryRegion& pRegion) const;
 
 protected:
-  /// reservePLTGOT - reserve DT_PLTGOT entry
-  virtual void reservePLTGOT(const ELFFileFormat& pFormat) = 0;
+  /// reserveTargetEntries - reserve target dependent entries
+  virtual void reserveTargetEntries(const ELFFileFormat& pFormat) = 0;
 
-  /// applyPLTGOT - apply value for DT_PLTGOT entry
-  virtual void applyPLTGOT(const ELFFileFormat& pFormat) = 0;
+  /// applyTargetEntries - apply target-dependant
+  virtual void applyTargetEntries(const ELFFileFormat& pFormat) = 0;
 
 protected:
   void reserveOne(uint64_t pTag);

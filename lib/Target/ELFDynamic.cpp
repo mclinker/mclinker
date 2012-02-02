@@ -125,7 +125,7 @@ void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
     reserveOne(llvm::ELF::DT_STRSZ); // DT_STRSZ
   }
 
-  reservePLTGOT(pFormat); // DT_PLTGOT
+  reserveTargetEntries(pFormat); // DT_PLTGOT
 
   if (pFormat.hasRelPlt() || pFormat.hasRelaPlt())
     reserveOne(llvm::ELF::DT_PLTREL); // DT_PLTREL
@@ -193,7 +193,7 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_STRSZ, pFormat.getDynStrTab().size()); // DT_STRSZ
   }
 
-  applyPLTGOT(pFormat); // DT_PLTGOT
+  applyTargetEntries(pFormat); // DT_PLTGOT
 
   if (pFormat.hasRelPlt())
     applyOne(llvm::ELF::DT_PLTREL, llvm::ELF::DT_REL); // DT_PLTREL

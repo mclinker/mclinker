@@ -16,15 +16,17 @@
 
 namespace mcld {
 
-class X86ELFDynamic : public ELFDynamic {
+class X86ELFDynamic : public ELFDynamic
+{
 public:
   X86ELFDynamic(const GNULDBackend& pParent);
   ~X86ELFDynamic();
 
 private:
-  void reservePLTGOT(const ELFFileFormat& pFormat);
-  void applyPLTGOT(const ELFFileFormat& pFormat);
+  void reserveTargetEntries(const ELFFileFormat& pFormat);
+  void applyTargetEntries(const ELFFileFormat& pFormat);
 
+private:
   // True if we have .got.plt section, which will avoid GOT0 entries
   // when PLT isn't used.  To support .got.plt section, we must combine
   // .got section and .got.plt section into a single GOT.

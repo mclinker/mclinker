@@ -16,14 +16,15 @@
 
 namespace mcld {
 
-class MipsELFDynamic : public ELFDynamic {
+class MipsELFDynamic : public ELFDynamic
+{
 public:
   MipsELFDynamic(const GNULDBackend& pParent);
   ~MipsELFDynamic();
 
 private:
-  void reservePLTGOT(const ELFFileFormat& pFormat);
-  void applyPLTGOT(const ELFFileFormat& pFormat);
+  void reserveTargetEntries(const ELFFileFormat& pFormat);
+  void applyTargetEntries(const ELFFileFormat& pFormat);
 };
 
 } // namespace of mcld

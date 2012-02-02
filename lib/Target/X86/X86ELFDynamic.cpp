@@ -21,21 +21,20 @@ X86ELFDynamic::~X86ELFDynamic()
 {
 }
 
-/// reservePLTGOT - reserve a DT_PLTGOT entry
-void X86ELFDynamic::reservePLTGOT(const ELFFileFormat& pFormat)
+void X86ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 {
+  // reservePLTGOT
   if (m_HasGOTPLT ? pFormat.hasGOTPLT() : pFormat.hasGOT())
     reserveOne(llvm::ELF::DT_PLTGOT);
 }
 
-/// applyPLTGOT - apply value for DT_PLTGOT entry
-void X86ELFDynamic::applyPLTGOT(const ELFFileFormat& pFormat)
+void X86ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
-  if (m_HasGOTPLT)
-    {
+  // applyPLTGOT
+  if (m_HasGOTPLT) {
       if (pFormat.hasGOTPLT())
 	applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
-    }
+  }
   else if (pFormat.hasGOT())
     applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
 }
