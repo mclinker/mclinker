@@ -37,6 +37,7 @@ public:
     Target,
     Note,
     MetaData,
+    Group,
   };
 
 protected:

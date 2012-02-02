@@ -59,6 +59,8 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
   case llvm::ELF::SHT_HASH:
   case llvm::ELF::SHT_SHLIB:
     return LDFileFormat::MetaData;
+  case llvm::ELF::SHT_GROUP:
+    return LDFileFormat::Group;
   default:
     if (pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC)
       return LDFileFormat::Target;
