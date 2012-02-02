@@ -276,6 +276,8 @@ bool MCLDDriver::prelayout()
                         m_LDInfo,
                         *m_pLinker);
 
+  m_LDBackend.allocateCommonSymbols(m_LDInfo, *m_pLinker);
+
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
   /// and .hash sections.
