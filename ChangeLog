@@ -10,3 +10,8 @@
 
 2012-02-02 Luba Tang <lubatang@gmail.com>
 	* Quake can be linked on x86 Android.
+
+2012-02-03 Luba Tang <lubatang@gmail.com>
+	* allocate common symbols in BSS section
+	* add ThreadLocal type in ResolveInfo::Type
+	* Quake2 can be linked on ARM Android.
