@@ -256,15 +256,19 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 }
 
 /// sizeNamePools - compute the size of regular name pools
-/// In ELF executable files, regular name pools are .symtab, .strtab.,
+/// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, and .hash
 void
 GNULDBackend::sizeNamePools(const Output& pOutput,
                             const SymbolCategory& pSymbols,
                             const MCLDInfo& pLDInfo)
 {
+  // size of string tables starts from 1 to hold the null character in their
+  // first byte
   size_t symtab = 1;
   size_t dynsym = 1;
+  // number of entries in symbol tables starts from 1 to hold the special entry
+  // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
   size_t strtab = 1;
   size_t dynstr = 1;
   size_t hash   = 0;
@@ -354,7 +358,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
   if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type()) {
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
-    // entries untill we get the size of the abovementioned sections
+    // entries until we get the size of the sections mentioned above
     dynamic().reserveEntries(pLDInfo, *file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
@@ -460,7 +464,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     // write out string
     strcpy((strtab + strtabsize), (*symbol)->name());
 
-    // write out 
+    // write out
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
