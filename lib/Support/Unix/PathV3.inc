@@ -255,7 +255,7 @@ void open_dir(Directory& pDir)
     return;
   }
   // read one entry for advance the end element of the cache.
-  std::string path;
+  std::string path(pDir.path().native());
   switch (read_dir(pDir.m_Handler, path)) {
   case 1: {
     // find a new directory
