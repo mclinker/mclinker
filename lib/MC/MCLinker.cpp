@@ -133,7 +133,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
   // After symbol resolution, visibility is changed to the most restrict one.
   // we need to arrange its position in the output symbol .
-  if (pType != ResolveInfo::Section) {
+  if (!has_output_sym && pType != ResolveInfo::Section) {
     // We merge sections when reading them. So we do not need to output symbols
     // with section type
 
