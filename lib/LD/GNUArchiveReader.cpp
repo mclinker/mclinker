@@ -19,6 +19,7 @@
 #include <vector>
 #include <cstdlib>
 
+using namespace std;
 using namespace mcld;
 
 typedef size_t sectionSizeTy;
@@ -95,7 +96,10 @@ InputTree *GNUArchiveReader::readArchive(Input &pInput)
   return setupNewArchive(pInput, 0);
 }
 
-
+/// Read Input as archive. First create a null InputTree.
+/// Then Construct Input object for corresponding member of this archive
+/// and insert the Input object into the InputTree.
+/// Finally, return the InputTree.
 InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             size_t off)
 {
@@ -130,7 +134,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if(archiveMemberName.empty())
   {
     readSymbolTable(mapFile, symbolTable,
-                   off+sizeof(GNUArchiveReader::ArchiveMemberHeader), symbolTableSize);
+                    off+sizeof(GNUArchiveReader::ArchiveMemberHeader), symbolTableSize);
     off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + symbolTableSize;
   }
   else
@@ -144,7 +148,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName,
                                           NULL, extendedName);
-  /// read long Name table
+  /// read long Name table if exist
   if(archiveMemberName == "/")
   {
     off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
@@ -154,24 +158,30 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   /// traverse all the archive members
   InputTree::iterator node = resultTree->root();
+  set<string> haveSeen;
   for(unsigned i=0 ; i<symbolTable.size() ; ++i)
   {
     /// We shall get each member at this archive.
     /// Construct a corresponding mcld::Input, and insert it into
-    /// the original InputTree.
+    /// the original InputTree, resultTree.
     off_t nestedOff = 0;
     size_t memberOffset = parseMemberHeader(mapFile, symbolTable[i].fileOffset,
                                             &archiveMemberName, &nestedOff, extendedName);
+
+    if(haveSeen.find(archiveMemberName)==haveSeen.end())
+      haveSeen.insert(archiveMemberName);
+    else
+      continue;
+
     if(!isThinArchive)
     {
       /// New a Input object and assign fileOffset in MCLDFile.
-      /// fileOffset = symbolTable[i].memberOffset + sizeof(ArchiveMemberHeader);
-      /// Finally insert the object to resultTree and move ahead.
+      /// Insert the object to resultTree and move ahead.
       off_t fileOffset = symbolTable[i].fileOffset + sizeof(ArchiveMemberHeader);
-      Input *insertObjectFile = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
-                                                               pInput.path(),
-                                                               MCLDFile::Object,
-                                                               fileOffset);
+      Input *insertObjectFile = m_pLDInfo.inputFactory().produce(archiveMemberName,
+                                                                 pInput.path(),
+                                                                 MCLDFile::Object,
+                                                                 fileOffset);
       resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
       if(i==0)
         node.move<InputTree::Inclusive>();
@@ -181,35 +191,38 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
       continue;
     }
 
-    /// TODO: Thin archive member
-
-    sys::fs::RealPath path(symbolTable[i].name);
-
+    /// create the real path
+    sys::fs::RealPath realPath(archiveMemberName);
     if(nestedOff > 0)
     {
       /// This is a member of a nested archive.
       /// Create an Input for this archive ,and recursive call setupNewArchive
       /// Finally, merge the new InputTree with the old one
-      off_t fileOffset = nestedOff + sizeof(ArchiveMemberHeader);
-      Input *newArchive = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
-                                                         path,
-                                                         MCLDFile::Archive,
-                                                         fileOffset);
+      Input *newArchive = m_pLDInfo.inputFactory().produce(archiveMemberName,
+                                                           realPath,
+                                                           MCLDFile::Archive,
+                                                           0);
 
-      InputTree *newArchiveTree = setupNewArchive(*newArchive, fileOffset);
+      resultTree->insert<InputTree::Positional>(node, *newArchive);
+      if(i==0)
+        node.move<InputTree::Inclusive>();
+      else
+        node.move<InputTree::Positional>();
+      InputTree *newArchiveTree = setupNewArchive(*newArchive, 0);
       resultTree->merge<InputTree::Inclusive>(node, *newArchiveTree);
-      node.move<InputTree::Positional>();
       continue;
     }
     /// External member , open it as normal object file
     /// add new Input to InputTree
-    Input *insertObjectFile = m_pLDInfo.inputFactory().produce(symbolTable[i].name,
-                                                               path,
+    Input *insertObjectFile = m_pLDInfo.inputFactory().produce(archiveMemberName,
+                                                               realPath,
                                                                MCLDFile::Object,
                                                                0);
     resultTree->insert<InputTree::Positional>(node, *insertObjectFile);
-    node.move<InputTree::Positional>();
-
+    if(i==0)
+      node.move<InputTree::Inclusive>();
+    else
+      node.move<InputTree::Positional>();
   }
   return resultTree;
 }
@@ -309,15 +322,16 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
 }
 
 void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
-                                     std::vector<SymbolTableEntry> &pSymbolTable,
-                                     off_t start,
-                                     size_t size)
+                                       std::vector<SymbolTableEntry> &pSymbolTable,
+                                       off_t start,
+                                       size_t size)
 {
   const char *startPtr = mapFile->getBufferStart() + start;
   const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
   unsigned int symbolNum = *p_Word;
+
   /// Portable Issue on Sparc platform
-  /// Intel and ARM are littel-endian , Sparc is little-endian after verion 9
+  /// Intel, ARM and Mips are littel-endian , Sparc is little-endian after verion 9
   /// symbolNum in symbol table is always big-endian
   if(m_endian == LDReader::LittleEndian)
     endian_swap(symbolNum);
@@ -327,10 +341,10 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
   size_t nameSize = reinterpret_cast<const char *>(startPtr) + size - p_Name;
 
   pSymbolTable.resize(symbolNum);
-  for(unsigned i=0 ; i<symbolNum ; ++i)
+  for(unsigned int i=0 ; i<symbolNum ; ++i)
   {
     /// assign member offset
-    unsigned memberOffset = *p_Word;
+    unsigned int memberOffset = *p_Word;
     endian_swap(memberOffset);
     pSymbolTable[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
