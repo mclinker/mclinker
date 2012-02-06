@@ -13,9 +13,9 @@
 ; RUN: grep -o "\.dynamic *DYNAMIC *[0-9a-f]*" | \
 ; RUN: awk '{print $3}' > %t
 
-; RUN: objdump -D Output/libgotplt.so | \
-; RUN: grep -A 1 "[0-9a-f]* <_GLOBAL_OFFSET_TABLE_>:" | \
-; RUN: awk 'NR==2{print $2}' >> %t
+; RUN: llvm-objdump -s Output/libgotplt.so | \
+; RUN: grep -A 1 "section .got" | \
+; RUN: awk 'NR==2{print $2}' | rev | dd conv=swab >> %t
 
 ; RUN: cat %t | \
 ; RUN: FileCheck %s -check-prefix=GOT0
