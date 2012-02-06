@@ -3,6 +3,8 @@
 ; RUN: -mtriple="armv7-none-linux-gnueabi" \
 ; RUN: -dB %p/../libquake_portable.bc -o Output/libquake_portable.o
 
+; RUN: strip -N %p/../libquake_portable.bc Output/libquake_portable.o
+
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libquake_portable.so \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14  -Bsymbolic \
