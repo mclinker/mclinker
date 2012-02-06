@@ -465,7 +465,7 @@ public:
 
     if (!pTree.empty()) {
       proxy::hook<DIRECT>(position.m_pNode,
-                        const_cast<const NodeBase*>(pTree.m_Root.node.right));
+                        const_cast<const NodeBase*>(pTree.m_Root.node.left));
       BinaryTreeBase<DataType>::m_Root.summon(
                                    pTree.BinaryTreeBase<DataType>::m_Root);
       BinaryTreeBase<DataType>::m_Root.delegate(pTree.m_Root);
