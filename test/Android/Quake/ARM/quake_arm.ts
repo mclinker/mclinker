@@ -1,4 +1,4 @@
-: RUN: cp %p/../libquake_portable.bc ../
+: RUN: cp %p/../quake/libquake_portable.bc ../
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic \
@@ -13,7 +13,7 @@
 ; RUN: Output/libquake_portable.o \
 ; RUN: -dB ../libquake_portable.bc -o Output/libquake_portable.so
 
-; RUN: diff -s Output/libquake_portable.so %p/golden/libquake_portable.so | \
+; RUN: diff -s Output/libquake_portable.so %p/../quake/golden/ARM/libquake_portable.so | \
 ; RUN: awk '{print $6}' | \
 ; RUN: FileCheck %s -check-prefix=Quake
 
