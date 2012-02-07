@@ -287,10 +287,13 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         createX86GOT(pLinker, pOutput);
       return;
 
+    case ELF::R_386_PC32:
+      return;
+
     default:
       llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
                                llvm::Twine((int) pReloc.type()) +
-                               llvm::Twine("in object file"));
+                               llvm::Twine(" in object file"));
       break;
   } // end switch
 }
