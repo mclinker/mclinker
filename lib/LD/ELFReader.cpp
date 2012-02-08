@@ -103,10 +103,6 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
   // TODO:
   // if --just-symbols option is enabled, the symbol must covert to Absolute
 
-  // any symbol with hidden or internal visibility is local symbol
-  if (pVis == llvm::ELF::STV_INTERNAL || pVis == llvm::ELF::STV_HIDDEN)
-    return ResolveInfo::Local;
-  
   switch(pBinding) {
   case llvm::ELF::STB_LOCAL:
     return ResolveInfo::Local;
