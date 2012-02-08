@@ -98,7 +98,9 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
                    NULL, // FragRef
                    ResolveInfo::Default);
 
-  m_pGpDispSymbol->resolveInfo()->setReserved(ReserveGpDisp);
+  if (NULL != m_pGpDispSymbol) {
+    m_pGpDispSymbol->resolveInfo()->setReserved(ReserveGpDisp);
+  }
 }
 
 bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
