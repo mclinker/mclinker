@@ -16,17 +16,24 @@
 
 namespace mcld {
 
+class MipsGNULDBackend;
+
 class MipsELFDynamic : public ELFDynamic
 {
 public:
-  MipsELFDynamic(const GNULDBackend& pParent);
+  MipsELFDynamic(const MipsGNULDBackend& pParent);
   ~MipsELFDynamic();
+
+private:
+  const MipsGNULDBackend& m_pParent;
 
 private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
 
-  uint64_t getSymTabNo(const ELFFileFormat& pFormat) const;
+  size_t getSymTabNum(const ELFFileFormat& pFormat) const;
+  size_t getGotSym(const ELFFileFormat& pFormat) const;
+  size_t getLocalGotNum(const ELFFileFormat& pFormat) const;
 };
 
 } // namespace of mcld

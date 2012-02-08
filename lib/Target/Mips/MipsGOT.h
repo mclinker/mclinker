@@ -48,9 +48,12 @@ public:
 
   GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 
+  size_t getLocalNum() const;
+
 private:
   SymbolIndexMapType m_GeneralGOTMap;
   iterator m_GeneralGOTIterator;
+  size_t m_pLocalNum;
 };
 
 } // namespace of mcld

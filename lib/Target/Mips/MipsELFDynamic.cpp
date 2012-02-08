@@ -10,6 +10,7 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Target/GNULDBackend.h>
 #include "MipsELFDynamic.h"
+#include "MipsLDBackend.h"
 
 using namespace mcld;
 
@@ -23,8 +24,9 @@ enum {
   MIPS_GOTSYM       = 0x70000013,
 };
 
-MipsELFDynamic::MipsELFDynamic(const GNULDBackend& pParent)
-  : ELFDynamic(pParent)
+MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent)
+  : ELFDynamic(pParent),
+    m_pParent(pParent)
 {
 }
 
@@ -55,16 +57,33 @@ void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
   applyOne(MIPS_RLD_VERSION, 1);
   applyOne(MIPS_FLAGS, 0);
   applyOne(MIPS_BASE_ADDRESS, 0);
-  applyOne(MIPS_LOCAL_GOTNO, 0);
-  applyOne(MIPS_SYMTABNO, getSymTabNo(pFormat));
-  applyOne(MIPS_GOTSYM, 0);
+  applyOne(MIPS_LOCAL_GOTNO, getLocalGotNum(pFormat));
+  applyOne(MIPS_SYMTABNO, getSymTabNum(pFormat));
+  applyOne(MIPS_GOTSYM, getGotSym(pFormat));
 }
 
-uint64_t MipsELFDynamic::getSymTabNo(const ELFFileFormat& pFormat) const
+size_t MipsELFDynamic::getSymTabNum(const ELFFileFormat& pFormat) const
 {
   if (!pFormat.hasDynSymTab())
     return 0;
 
   const LDSection& dynsym = pFormat.getDynSymTab();
   return dynsym.size() / symbolSize();
+}
+
+size_t MipsELFDynamic::getGotSym(const ELFFileFormat& pFormat) const
+{
+  if (!pFormat.hasGOT())
+    return 0;
+
+  // FIXME: (simon) This work in case if GOT contains local sym only.
+  return getSymTabNum(pFormat);
+}
+
+size_t MipsELFDynamic::getLocalGotNum(const ELFFileFormat& pFormat) const
+{
+  if (!pFormat.hasGOT())
+    return 0;
+
+  return m_pParent.getGOT().getLocalNum();
 }

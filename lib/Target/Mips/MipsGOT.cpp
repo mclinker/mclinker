@@ -21,7 +21,8 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // MipsGOT
 MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
-  : GOT(pSection, pSectionData, MipsGOTEntrySize)
+  : GOT(pSection, pSectionData, MipsGOTEntrySize),
+    m_pLocalNum(0)
 {
   // Create GOT0 entries.
   for (size_t i = 0; i < MipsGOT0Num; ++i) {
@@ -46,6 +47,7 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   }
 
   m_GeneralGOTIterator = it;
+  m_pLocalNum = MipsGOT0Num;
 }
 
 MipsGOT::iterator MipsGOT::begin()
@@ -115,6 +117,11 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   }
 
   return entry;
+}
+
+size_t MipsGOT::getLocalNum() const
+{
+  return m_pLocalNum;
 }
 
 }
