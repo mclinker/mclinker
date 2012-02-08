@@ -776,6 +776,10 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
     bind = llvm::ELF::STB_GLOBAL;
   else if (pSymbol.resolveInfo()->isWeak())
     bind = llvm::ELF::STB_WEAK;
+  else if (pSymbol.resolveInfo()->isAbsolute()) {
+    // (Luba) Is a absolute but not global (weak or local) symbol meaningful?
+    bind = llvm::ELF::STB_GLOBAL;
+  }
 
   return (pSymbol.resolveInfo()->type() | (bind << 4));
 }
