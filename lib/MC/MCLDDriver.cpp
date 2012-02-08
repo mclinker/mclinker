@@ -78,7 +78,9 @@ void MCLDDriver::normalize() {
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
     }
     else {
-      llvm::report_fatal_error("can not link file: " + (*input)->path().native());
+      llvm::report_fatal_error(llvm::Twine("can not recognize file format: ") +
+                               (*input)->path().native() +
+                               llvm::Twine("\nobject format or target machine is wrong\n"));
     }
   }
 }
