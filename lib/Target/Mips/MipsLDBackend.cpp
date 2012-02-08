@@ -26,6 +26,8 @@ using namespace llvm;
 
 MipsGNULDBackend::MipsGNULDBackend()
   : m_pRelocFactory(NULL),
+    m_pGOT(NULL),
+    m_pRelDyn(NULL),
     m_pDynamic(NULL)
 {
 }
@@ -34,6 +36,10 @@ MipsGNULDBackend::~MipsGNULDBackend()
 {
   if (NULL != m_pRelocFactory)
     delete m_pRelocFactory;
+  if (NULL != m_pGOT)
+    delete m_pGOT;
+  if (NULL != m_pRelDyn)
+    delete m_pRelDyn;
   if (NULL != m_pDynamic)
     delete m_pDynamic;
 }
@@ -122,7 +128,7 @@ void MipsGNULDBackend::doPreLayout(const Output& pOutput,
                                    MCLinker& pLinker)
 {
   // Create symbol _GLOBAL_OFFSET_TABLE_ to mark .got section.
-  if (m_pGOT.get()) {
+  if (m_pGOT) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
                                           "_GLOBAL_OFFSET_TABLE_",
                                           false,
@@ -171,14 +177,14 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
 
 MipsGOT& MipsGNULDBackend::getGOT()
 {
-  assert(NULL != m_pGOT.get());
-  return *m_pGOT.get();
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
 }
 
 const MipsGOT& MipsGNULDBackend::getGOT() const
 {
-  assert(NULL != m_pGOT.get());
-  return *m_pGOT.get();
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
 }
 
 unsigned int
@@ -312,10 +318,10 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // TODO: (simon) Check section flag SHF_EXECINSTR
         // half_t shndx = rsym->getSectionIndex();
         if (true) {
-          if (NULL == m_pRelDynSec.get())
+          if (NULL == m_pRelDyn)
             createRelDyn(pLinker);
 
-          m_pRelDynSec->reserveEntry(*m_pRelocFactory);
+          m_pRelDyn->reserveEntry(*m_pRelocFactory);
         }
       }
       break;
@@ -347,7 +353,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       break;
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
-      if (NULL == m_pGOT.get())
+      if (NULL == m_pGOT)
         createGOT(pLinker);
 
       m_pGOT->reserveEntry();
@@ -418,10 +424,10 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_MIPS_HI16:
     case ELF::R_MIPS_LO16:
       if (isSymbolNeedsDynRel(*rsym, pOutput)) {
-        if (NULL == m_pRelDynSec.get())
+        if (NULL == m_pRelDyn)
           createRelDyn(pLinker);
 
-        m_pRelDynSec->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
       }
       break;
     case ELF::R_MIPS_GOT16:
@@ -433,7 +439,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_MIPS_CALL_LO16:
     case ELF::R_MIPS_GOT_PAGE:
     case ELF::R_MIPS_GOT_OFST:
-      if (NULL == m_pGOT.get())
+      if (NULL == m_pGOT)
         createGOT(pLinker);
 
       m_pGOT->reserveEntry();
@@ -527,7 +533,7 @@ void MipsGNULDBackend::createGOT(MCLinker& pLinker)
 
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
-  m_pGOT.reset(new MipsGOT(sec, data));
+  m_pGOT = new MipsGOT(sec, data);
 }
 
 void MipsGNULDBackend::createRelDyn(MCLinker& pLinker)
@@ -541,7 +547,7 @@ void MipsGNULDBackend::createRelDyn(MCLinker& pLinker)
   llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
 
   unsigned int size = bitclass() / 8 * 2 ;
-  m_pRelDynSec.reset(new OutputRelocSection(sec, data, size));
+  m_pRelDyn = new OutputRelocSection(sec, data, size);
 }
 
 //===----------------------------------------------------------------------===//

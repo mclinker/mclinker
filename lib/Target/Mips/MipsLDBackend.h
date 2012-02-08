@@ -140,8 +140,8 @@ private:
 private:
   RelocationFactory* m_pRelocFactory;
 
-  std::auto_ptr<MipsGOT> m_pGOT;                     // .got
-  std::auto_ptr<OutputRelocSection> m_pRelDynSec;    // .rel.dyn
+  MipsGOT* m_pGOT;                      // .got
+  OutputRelocSection* m_pRelDyn;        // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
 };
