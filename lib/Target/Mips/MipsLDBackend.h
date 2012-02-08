@@ -27,19 +27,38 @@ public:
   MipsGNULDBackend();
   ~MipsGNULDBackend();
 
+public:
+  /// initTargetSectionMap - initialize target dependent section mapping.
+  bool initTargetSectionMap(SectionMap& pSectionMap);
+
+  /// initTargetSections - initialize target dependent sections in output
+  void initTargetSections(MCLinker& pLinker);
+
+  /// initTargetSymbols - initialize target dependent symbols in output.
+  void initTargetSymbols(MCLinker& pLinker);
+
+  /// initRelocFactory - create and initialize RelocationFactory.
+  bool initRelocFactory(const MCLinker& pLinker);
+
+  /// getRelocFactory - return relocation factory.
   RelocationFactory* getRelocFactory();
+
+  /// scanRelocation - determine the empty entries are needed or not and
+  /// create the empty entries if needed.
+  /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
+  void scanRelocation(Relocation& pReloc,
+                      const LDSymbol& pInputSym,
+                      MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
+                      const Output& pOutput);
 
   uint32_t machine() const;
 
   /// OSABI - the value of e_ident[EI_OSABI]
-  /// FIXME:
-  uint8_t OSABI() const
-  { return llvm::ELF::ELFOSABI_NONE; }
+  uint8_t OSABI() const;
 
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
-  /// FIXME:
-  uint8_t ABIVersion() const
-  { return 0x0; }
+  uint8_t ABIVersion() const;
 
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
@@ -85,32 +104,14 @@ public:
   uint64_t emitSectionData(const Output& pOutput,
                            const LDSection& pSection,
                            const MCLDInfo& pInfo,
-                           MemoryRegion& pRegion) const {
-    // FIXME
-    return 0x0;
-  }
+                           MemoryRegion& pRegion) const;
 
   MipsGOT& getGOT();
-
   const MipsGOT& getGOT() const;
 
-  bool initTargetSectionMap(SectionMap& pSectionMap);
-
-  void initTargetSections(MCLinker& pLinker);
-
-  void initTargetSymbols(MCLinker& pLinker);
-
-  // initRelocFactory - create and initialize RelocationFactory
-  bool initRelocFactory(const MCLinker& pLinker);
-
-  /// scanRelocation - determine the empty entries are needed or not and
-  /// create the empty entries if needed.
-  /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
-  void scanRelocation(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
-                      const Output& pOutput);
+  /// getTargetSectionOrder - compute the layout order of ARM target sections
+  unsigned int getTargetSectionOrder(const Output& pOutput,
+                                     const LDSection& pSectHdr) const;
 
   /// finalizeSymbol - finalize the symbol value
   /// If the symbol's reserved field is not zero, MCLinker will call back this
@@ -122,28 +123,27 @@ public:
   bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
 
 private:
+  void scanLocalReloc(Relocation& pReloc,
+                      MCLinker& pLinker,
+                      const Output& pOutput);
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       MCLinker& pLinker,
+                       const Output& pOutput);
+
+  bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
+  bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
+
+  void createGOT(MCLinker& pLinker);
+  void createRelDyn(MCLinker& pLinker);
+
+private:
   RelocationFactory* m_pRelocFactory;
 
   std::auto_ptr<MipsGOT> m_pGOT;                     // .got
   std::auto_ptr<OutputRelocSection> m_pRelDynSec;    // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
-private:
-  void scanLocalRelocation(Relocation& pReloc,
-                           MCLinker& pLinker,
-                           const Output& pOutput);
-
-  void scanGlobalRelocation(Relocation& pReloc,
-                            MCLinker& pLinker,
-                            const Output& pOutput);
-
-  void createGOTSec(MCLinker& pLinker);
-  void createRelDynSec(MCLinker& pLinker);
-  void createPltSec(MCLinker& pLinker);
-  void createMipsStubsSec(MCLinker& pLinker);
-
-  bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
-  bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
 };
 
 } // namespace of mcld
