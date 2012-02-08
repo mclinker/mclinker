@@ -25,6 +25,8 @@ public:
 private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
+
+  uint64_t getSymTabNo(const ELFFileFormat& pFormat) const;
 };
 
 } // namespace of mcld

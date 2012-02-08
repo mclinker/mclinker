@@ -185,7 +185,7 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
 
   if (pFormat.hasDynSymTab()) {
     applyOne(llvm::ELF::DT_SYMTAB, pFormat.getDynSymTab().addr()); // DT_SYMTAB
-    applyOne(llvm::ELF::DT_SYMENT, m_pEntryFactory->symbolSize()); // DT_SYMENT
+    applyOne(llvm::ELF::DT_SYMENT, symbolSize()); // DT_SYMENT
   }
 
   if (pFormat.hasDynStrTab()) {
@@ -218,6 +218,12 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
   }
 
   applyOne(llvm::ELF::DT_NULL, 0x0); // for DT_NULL
+}
+
+/// symbolSize
+size_t ELFDynamic::symbolSize() const
+{
+  return m_pEntryFactory->symbolSize();
 }
 
 /// reserveNeedEntry - reserve on DT_NEED entry.

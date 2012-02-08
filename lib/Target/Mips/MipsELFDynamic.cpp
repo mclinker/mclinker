@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <mcld/LD/ELFFileFormat.h>
+#include <mcld/Target/GNULDBackend.h>
 #include "MipsELFDynamic.h"
 
 using namespace mcld;
@@ -55,7 +56,15 @@ void MipsELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
   applyOne(MIPS_FLAGS, 0);
   applyOne(MIPS_BASE_ADDRESS, 0);
   applyOne(MIPS_LOCAL_GOTNO, 0);
-  applyOne(MIPS_SYMTABNO, size());
+  applyOne(MIPS_SYMTABNO, getSymTabNo(pFormat));
   applyOne(MIPS_GOTSYM, 0);
 }
 
+uint64_t MipsELFDynamic::getSymTabNo(const ELFFileFormat& pFormat) const
+{
+  if (!pFormat.hasDynSymTab())
+    return 0;
+
+  const LDSection& dynsym = pFormat.getDynSymTab();
+  return dynsym.size() / symbolSize();
+}

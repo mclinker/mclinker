@@ -155,6 +155,8 @@ protected:
 
   void applyOne(uint64_t pTag, uint64_t pValue);
 
+  size_t symbolSize() const;
+
 private:
   EntryListType m_EntryList;
   EntryListType m_NeedList;
