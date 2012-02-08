@@ -196,6 +196,7 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
 //                 1: success
 static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 {
+  errno = 0;
   dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
   if (0 == cur_dir && 0 != errno)
     return -1;
@@ -251,6 +252,7 @@ void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
   if (NULL == pDir.m_Handler) {
+    errno = 0; // opendir() will set errno if it failed to open directory.
     pDir.m_CacheFull = true;
     return;
   }
