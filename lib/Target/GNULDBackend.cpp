@@ -781,6 +781,10 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
     bind = llvm::ELF::STB_GLOBAL;
   }
 
+  if (pSymbol.visibility() == llvm::ELF::STV_INTERNAL ||
+      pSymbol.visibility() == llvm::ELF::STV_HIDDEN)
+    bind = llvm::ELF::STB_LOCAL;
+
   return (pSymbol.resolveInfo()->type() | (bind << 4));
 }
 
