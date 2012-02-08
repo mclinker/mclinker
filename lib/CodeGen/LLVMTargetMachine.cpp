@@ -116,12 +116,10 @@ bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
 
     return false;
   }
-  if (pFileType != CGFT_EXEFile && pFileType != CGFT_DSOFile) {
-    // go through the normal path
-    return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
+
+  // go through the normal path
+  return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
                                               PM, DisableVerify, OutCtx);
-  }
-  return false;
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -347,6 +345,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                                                *ldBackend);
   if (0 == funcPass)
     return true;
+
   pPM.add(funcPass);
   return false;
 }
