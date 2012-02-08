@@ -597,14 +597,6 @@ bool MCLinker::finalizeSymbols()
   SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
   for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
 
-    if ((*symbol)->resolveInfo()->isAbsolute() ||
-        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols and symbols with function type should have
-      // zero value
-      (*symbol)->setValue(0x0);
-      continue;
-    }
-
     if (0x0 != (*symbol)->resolveInfo()->reserved()) {
       // if the symbol is target reserved, target backend is responsible
       // for finalizing the value.
@@ -612,6 +604,14 @@ bool MCLinker::finalizeSymbols()
       // and we have to take over the symbol.
       if (m_Backend.finalizeSymbol(**symbol))
         continue;
+    }
+
+    if ((*symbol)->resolveInfo()->isAbsolute() ||
+        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
+      // absolute symbols and symbols with function type should have
+      // zero value
+      (*symbol)->setValue(0x0);
+      continue;
     }
 
     if ((*symbol)->hasFragRef()) {
