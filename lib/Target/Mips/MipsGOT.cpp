@@ -88,8 +88,6 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 
 void MipsGOT::reserveEntry(size_t pNum)
 {
-  GOTEntry* Entry = 0;
-
   for (size_t i = 0; i < pNum; ++i) {
     GOTEntry* entry =
       new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
@@ -97,7 +95,7 @@ void MipsGOT::reserveEntry(size_t pNum)
     if (NULL == entry)
       llvm::report_fatal_error("Allocating new GOTEntry failed");
 
-    m_SectionData.getFragmentList().push_back(entry);
+    m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
   }
 }
 
