@@ -57,12 +57,12 @@ MipsGOT::iterator MipsGOT::begin()
 
 MipsGOT::iterator MipsGOT::end()
 {
-  return m_SectionData.getFragmentList().begin();
+  return m_SectionData.getFragmentList().end();
 }
 
 MipsGOT::const_iterator MipsGOT::begin() const
 {
-  return m_SectionData.getFragmentList().end();
+  return m_SectionData.getFragmentList().begin();
 }
 
 MipsGOT::const_iterator MipsGOT::end() const
