@@ -10,6 +10,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 #include "MipsRelocationFactory.h"
 #include "MipsRelocationFunctions.h"
@@ -79,6 +80,30 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
                              llvm::Twine("'."));
     return;
   }
+}
+
+//=========================================//
+// Relocation helper function              //
+//=========================================//
+
+// Get an relocation entry in .rel.dyn and set its type to R_MIPS_REL32,
+// its FragmentRef to pReloc->targetFrag() and its ResolveInfo
+// to pReloc->symInfo()
+static
+void helper_SetRelDynEntry(Relocation& pReloc,
+                   MipsRelocationFactory& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+
+  bool exist;
+  Relocation& rel_entry =
+    *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
+
+  rel_entry.setType(llvm::ELF::R_MIPS_REL32);
+  rel_entry.targetRef() = pReloc.targetRef();
+  rel_entry.setSymInfo(0);
 }
 
 //=========================================//
