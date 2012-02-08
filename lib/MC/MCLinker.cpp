@@ -129,18 +129,28 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
   // After symbol resolution, visibility is changed to the most restrict one.
   // we need to arrange its position in the output symbol .
-  if (!has_output_sym && pType != ResolveInfo::Section) {
-    // We merge sections when reading them. So we do not need to output symbols
-    // with section type
+  if (pType != ResolveInfo::Section) {
+    if (!has_output_sym) {
+      // We merge sections when reading them. So we do not need to output symbols
+      // with section type
 
-    // No matter the symbol is already in the output or not, add it if it
-    // should be forcefully set local.
-    if (shouldForceLocal(*resolved_result.info)) {
-      m_OutputSymbols.forceLocal(*output_sym);
+      // No matter the symbol is already in the output or not, add it if it
+      // should be forcefully set local.
+      if (shouldForceLocal(*resolved_result.info))
+        m_OutputSymbols.forceLocal(*output_sym);
+      else {
+        // the symbol should not be forcefully local.
+        m_OutputSymbols.add(*output_sym);
+      }
     }
-    else {
-      // the symbol should not be forcefully local.
-      m_OutputSymbols.add(*output_sym);
+    else if (resolved_result.overriden) {
+      if (!shouldForceLocal(old_info) ||
+          !shouldForceLocal(*resolved_result.info)) {
+        // If the old info and the new info are both forcefully local, then
+        // we should keep the output_sym in forcefully local category. Else,
+        // we should re-sort the output_sym
+        m_OutputSymbols.arrange(*output_sym, old_info);
+      }
     }
   }
 
@@ -366,8 +376,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
 
   if (result.overriden || !has_output_sym) {
     output_sym->setFragmentRef(pFragmentRef);
-    if (result.info->isAbsolute())
-      output_sym->setValue(pValue);
+    output_sym->setValue(pValue);
   }
 
   // After symbol resolution, the visibility is changed to the most restrict.
@@ -617,7 +626,7 @@ bool MCLinker::finalizeSymbols()
 
 bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 {
-  // rules:
+  // forced local symbol matches all rules:
   // 1. We are not doing incremental linking.
   // 2. The symbol is with Hidden or Internal visibility.
   // 3. The symbol should be global or weak. Otherwise, local symbol is local.
