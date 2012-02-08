@@ -86,6 +86,8 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
 // Relocation helper function              //
 //=========================================//
 
+static const char * const GP_DISP_NAME = "_gp_disp";
+
 // Get an relocation entry in .rel.dyn and set its type to R_MIPS_REL32,
 // its FragmentRef to pReloc->targetFrag() and its ResolveInfo
 // to pReloc->symInfo()
@@ -116,15 +118,29 @@ Relocation* helper_FindLo16Reloc(Relocation& pReloc)
     if (llvm::ELF::R_MIPS_LO16 == reloc->type() &&
         reloc->symInfo() == pReloc.symInfo())
       return reloc;
+
+    reloc = static_cast<Relocation*>(reloc->getNextNode());
   }
   return NULL;
+}
+
+// Check the symbol is _gp_disp.
+static
+bool helper_isGpDisp(const Relocation& pReloc)
+{
+  const ResolveInfo* rsym = pReloc.symInfo();
+  return 0 == strcmp(GP_DISP_NAME, rsym->name());
+}
+
+static
+MipsRelocationFactory::Address helper_GetGOTAddr(MipsRelocationFactory& pParent)
+{
+  return pParent.getTarget().getGOT().getSection().addr();
 }
 
 //=========================================//
 // Relocation functions implementation     //
 //=========================================//
-
-static const char * const GP_DISP_NAME = "_gp_disp";
 
 // R_MIPS_NONE and those unsupported/deprecated relocation type
 static
@@ -164,6 +180,11 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
   RelocationFactory::DWord AHL = (AHI & 0xFFFF) << 16 + (short)(ALO & 0xFFFF);
   RelocationFactory::DWord S = pReloc.symValue();
 
+  if (helper_isGpDisp(pReloc)) {
+    RelocationFactory::Address P = pReloc.place(pParent.getLayout());
+    S = helper_GetGOTAddr(pParent) - P;
+  }
+
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= (((S + AHL + (int)0x8000) >> 16) & 0xFFFF);
 
@@ -180,6 +201,11 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
+
+  if (helper_isGpDisp(pReloc)) {
+    RelocationFactory::Address P = pReloc.place(pParent.getLayout());
+    S = helper_GetGOTAddr(pParent) - P;
+  }
 
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= ((S + A) & 0xFFFF);
