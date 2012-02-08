@@ -239,5 +239,10 @@ MipsRelocationFactory::Result gprel32(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       MipsRelocationFactory& pParent)
 {
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
+  RelocationFactory::Address GP = helper_GetGOTAddr(pParent);
+
+  pReloc.target() = A + S - GP;
   return MipsRelocationFactory::OK;
 }
