@@ -10,6 +10,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/LD/Layout.h>
 #include <mcld/Target/OutputRelocSection.h>
 
 #include "MipsRelocationFactory.h"
@@ -138,6 +139,39 @@ RelocationFactory::Address helper_GetGOTAddr(MipsRelocationFactory& pParent)
   return pParent.getTarget().getGOT().getSection().addr();
 }
 
+static
+GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
+                             MipsRelocationFactory& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+
+  bool exist;
+  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(*rsym, exist);
+
+  if (exist)
+    return got_entry;
+
+  // If we first get this GOT entry, we should initialize it.
+  if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
+    got_entry.setContent(pReloc.symValue());
+  }
+  else {
+    llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
+  }
+
+  return got_entry;
+}
+
+static
+RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
+                                               MipsRelocationFactory& pParent)
+{
+  GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
+  return pParent.getLayout().getOutputOffset(got_entry);
+}
+
 //=========================================//
 // Relocation functions implementation     //
 //=========================================//
@@ -230,6 +264,11 @@ MipsRelocationFactory::Result call16(Relocation& pReloc,
                                      const MCLDInfo& pLDInfo,
                                      MipsRelocationFactory& pParent)
 {
+  RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
+
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() != (G & 0xFFFF);
+
   return MipsRelocationFactory::OK;
 }
 
