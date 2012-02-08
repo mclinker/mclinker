@@ -26,6 +26,8 @@ class MipsGNULDBackend : public GNULDBackend
 public:
   enum ReservedEntryType {
     None          =  0, // no reserved entry
+    ReserveRel    =  1, // reserve a dynamic relocation entry
+    ReserveGot    =  2, // reserve a GOT entry
     ReserveGpDisp = 32  // reserve _gp_disp symbol
   };
 
