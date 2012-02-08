@@ -25,10 +25,6 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
-#include <iostream>
-
-using namespace std;
-
 using namespace mcld;
 
 /// Constructor
@@ -249,15 +245,10 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     output_sym->setResolveInfo(*result.info);
     result.info->setSymPtr(output_sym);
 
-    if (pType != ResolveInfo::Section) {
-      // We merge sections when reading them. So we do not need symbols with
-      // section type
-
-      if (shouldForceLocal(*result.info))
-        m_OutputSymbols.forceLocal(*output_sym);
-      else
-        m_OutputSymbols.add(*output_sym);
-    }
+    if (shouldForceLocal(*result.info))
+      m_OutputSymbols.forceLocal(*output_sym);
+    else
+      m_OutputSymbols.add(*output_sym);
   }
   else {
     // the symbol is already in the pool, override it
@@ -381,17 +372,12 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
 
   // After symbol resolution, the visibility is changed to the most restrict.
   // arrange the output position
-  if (pType != ResolveInfo::Section) {
-    // We merge sections when reading them. So we do not need symbols with
-    // section type
-
-    if (shouldForceLocal(*result.info))
-      m_OutputSymbols.forceLocal(*output_sym);
-    else if (has_output_sym)
-      m_OutputSymbols.arrange(*output_sym, old_info);
-    else
-      m_OutputSymbols.add(*output_sym);
-  }
+  if (shouldForceLocal(*result.info))
+    m_OutputSymbols.forceLocal(*output_sym);
+  else if (has_output_sym)
+    m_OutputSymbols.arrange(*output_sym, old_info);
+  else
+    m_OutputSymbols.add(*output_sym);
 
   return output_sym;
 }
