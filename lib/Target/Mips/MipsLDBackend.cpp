@@ -265,6 +265,18 @@ const MipsGOT& MipsGNULDBackend::getGOT() const
   return *m_pGOT;
 }
 
+OutputRelocSection& MipsGNULDBackend::getRelDyn()
+{
+  assert(NULL != m_pRelDyn);
+  return *m_pRelDyn;
+}
+
+const OutputRelocSection& MipsGNULDBackend::getRelDyn() const
+{
+  assert(NULL != m_pRelDyn);
+  return *m_pRelDyn;
+}
+
 unsigned int
 MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                         const LDSection& pSectHdr) const

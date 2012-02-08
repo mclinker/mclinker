@@ -115,6 +115,9 @@ public:
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
 
+  OutputRelocSection& getRelDyn();
+  const OutputRelocSection& getRelDyn() const;
+
   /// getTargetSectionOrder - compute the layout order of ARM target sections
   unsigned int getTargetSectionOrder(const Output& pOutput,
                                      const LDSection& pSectHdr) const;
