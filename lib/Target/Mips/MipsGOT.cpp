@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/Support/ErrorHandling.h>
-
+#include <mcld/Support/MemoryRegion.h>
 #include "MipsGOT.h"
 
 namespace {
@@ -22,12 +22,42 @@ namespace mcld {
 MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   : GOT(pSection, pSectionData, MipsGOTEntrySize)
 {
-  // Create reserved entry for the lazy resolver
-  reserveEntry(1);
-  m_GeneralGOTIterator = m_SectionData.begin();
+}
 
-  // TODO (simon): Should we support GNU extension
-  // and reserve an entry for a module pointer?
+MipsGOT::iterator MipsGOT::begin()
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+MipsGOT::iterator MipsGOT::end()
+{
+  return m_SectionData.getFragmentList().begin();
+}
+
+MipsGOT::const_iterator MipsGOT::begin() const
+{
+  return m_SectionData.getFragmentList().end();
+}
+
+MipsGOT::const_iterator MipsGOT::end() const
+{
+  return m_SectionData.getFragmentList().end();
+}
+
+uint64_t MipsGOT::emit(MemoryRegion& pRegion)
+{
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  const uint64_t entry_size = getEntrySize();
+
+  uint64_t result = 0;
+  for (iterator it = begin(), ie = end();
+       it != ie; ++it, ++buffer) {
+    GOTEntry* got = &(llvm::cast<GOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getContent());
+    result += entry_size;
+  }
+  return result;
 }
 
 void MipsGOT::reserveEntry(size_t pNum)
@@ -60,26 +90,6 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   }
 
   return Entry;
-}
-
-MipsGOT::iterator MipsGOT::begin()
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-MipsGOT::iterator MipsGOT::end()
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-MipsGOT::const_iterator MipsGOT::begin() const
-{
-  return m_SectionData.getFragmentList().end();
-}
-
-MipsGOT::const_iterator MipsGOT::end() const
-{
-  return m_SectionData.getFragmentList().end();
 }
 
 }

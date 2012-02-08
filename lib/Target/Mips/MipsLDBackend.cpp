@@ -11,7 +11,9 @@
 #include <llvm/Support/ELF.h>
 
 #include <mcld/LD/SectionMap.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Target/OutputRelocSection.h>
 
@@ -19,6 +21,17 @@
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocationFactory.h"
+
+enum {
+  // The original o32 abi.
+  E_MIPS_ABI_O32    = 0x00001000,
+  // O32 extended to work on 64 bit architectures. 
+  E_MIPS_ABI_O64    = 0x00002000,
+  // EABI in 32 bit mode.
+  E_MIPS_ABI_EABI32 = 0x00003000,
+  // EABI in 64 bit mode.
+  E_MIPS_ABI_EABI64 = 0x00004000
+};
 
 namespace mcld {
 
@@ -46,15 +59,31 @@ MipsGNULDBackend::~MipsGNULDBackend()
 
 bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 {
+  // Nothing to do because we do not support
+  // any MIPS specific sections now.
   return true;
 }
 
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
+  // Nothing to do because we do not support
+  // any MIPS specific sections now.
 }
 
 void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 {
+  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+  // same name in input
+  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+                   "_GLOBAL_OFFSET_TABLE_",
+                   false,
+                   ResolveInfo::Object,
+                   ResolveInfo::Define,
+                   ResolveInfo::Local,
+                   0x0,  // size
+                   0x0,  // value
+                   NULL, // FragRef
+                   ResolveInfo::Hidden);
 }
 
 bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
@@ -78,7 +107,17 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
 {
+  // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
+  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
+
+  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies
+  // that a .got section is needed.
+  if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
+    if (rsym == m_pGOTSymbol->resolveInfo()) {
+      createGOT(pLinker, pOutput);
+    }
+  }
 
   if (rsym->isLocal())
     scanLocalReloc(pReloc, pLinker, pOutput);
@@ -109,7 +148,7 @@ uint64_t MipsGNULDBackend::flags() const
          llvm::ELF::EF_MIPS_NOREORDER |
          llvm::ELF::EF_MIPS_PIC |
          llvm::ELF::EF_MIPS_CPIC |
-         0x00001000;    // E_MIPS_ABI_O32
+         E_MIPS_ABI_O32;
 }
 
 bool MipsGNULDBackend::isLittleEndian() const
@@ -127,18 +166,9 @@ void MipsGNULDBackend::doPreLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
                                    MCLinker& pLinker)
 {
-  // Create symbol _GLOBAL_OFFSET_TABLE_ to mark .got section.
-  if (m_pGOT) {
-    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
-                                          "_GLOBAL_OFFSET_TABLE_",
-                                          false,
-                                          ResolveInfo::Object,
-                                          ResolveInfo::Define,
-                                          ResolveInfo::Local,
-                                          m_pGOT->getEntrySize(),
-                                          0,
-                                          new MCFragmentRef(*(m_pGOT->begin())),
-                                          ResolveInfo::Hidden);
+  // when building shared object, the .got section is must.
+  if (pOutput.type() == Output::DynObj && NULL == m_pGOT) {
+      createGOT(pLinker, pOutput);
   }
 }
 
@@ -146,7 +176,26 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
                                     const MCLDInfo& pInfo,
                                     MCLinker& pLinker)
 {
-  // add any needed modification after layout
+  // emit program headers
+  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
+    emitProgramHdrs(pLinker.getLDInfo().output());
+
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  // apply GOT
+  if (file_format->hasGOT()) {
+    // Since we already have the size of GOT, m_pGOT should not be NULL.
+    assert(NULL != m_pGOT);
+#if 0
+    // FIXME: (simon)
+    if (pOutput.type() == Output::DynObj)
+      m_pGOT->applyGOT0(file_format->getDynamic().addr());
+    else {
+      // executable file and object file should fill with zero.
+      m_pGOT->applyGOT0(0);
+    }
+#endif
+  }
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -172,6 +221,20 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
                                            const MCLDInfo& pInfo,
                                            MemoryRegion& pRegion) const
 {
+  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  if (&pSection == &(file_format->getGOT())) {
+    assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
+    uint64_t result = m_pGOT->emit(pRegion);
+    pRegion.sync();
+    return result;
+  }
+
+  llvm::report_fatal_error(llvm::Twine("Unable to emit section `") +
+                           pSection.name() +
+                           llvm::Twine("'.\n"));
   return 0;
 }
 
@@ -191,6 +254,11 @@ unsigned int
 MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                         const LDSection& pSectHdr) const
 {
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  if (&pSectHdr == &file_format->getGOT())
+    return SHO_DATA;
+
   return SHO_UNDEFINED;
 }
 
@@ -319,7 +387,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // half_t shndx = rsym->getSectionIndex();
         if (true) {
           if (NULL == m_pRelDyn)
-            createRelDyn(pLinker);
+            createRelDyn(pLinker, pOutput);
 
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
         }
@@ -354,7 +422,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case ELF::R_MIPS_GOT16:
     case ELF::R_MIPS_CALL16:
       if (NULL == m_pGOT)
-        createGOT(pLinker);
+        createGOT(pLinker, pOutput);
 
       m_pGOT->reserveEntry();
       break;
@@ -425,7 +493,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_MIPS_LO16:
       if (isSymbolNeedsDynRel(*rsym, pOutput)) {
         if (NULL == m_pRelDyn)
-          createRelDyn(pLinker);
+          createRelDyn(pLinker, pOutput);
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
       }
@@ -440,7 +508,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case ELF::R_MIPS_GOT_PAGE:
     case ELF::R_MIPS_GOT_OFST:
       if (NULL == m_pGOT)
-        createGOT(pLinker);
+        createGOT(pLinker, pOutput);
 
       m_pGOT->reserveEntry();
       break;
@@ -523,31 +591,66 @@ bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
   return false;
 }
 
-void MipsGNULDBackend::createGOT(MCLinker& pLinker)
+void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
 {
-  // For target dependent ouput section, create ouput LDSection directly
-  LDSection& sec = pLinker.getOrCreateOutputSectHdr(".got",
-                                                    LDFileFormat::Target,
-                                                    ELF::SHT_PROGBITS,
-                                                    ELF::SHF_ALLOC | ELF::SHF_WRITE);
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
+  LDSection& got = file_format->getGOT();
+  m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
 
-  m_pGOT = new MipsGOT(sec, data);
+  // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
+  if( m_pGOTSymbol != NULL ) {
+    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     false,
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     ResolveInfo::Hidden);
+  }
 }
 
-void MipsGNULDBackend::createRelDyn(MCLinker& pLinker)
+void MipsGNULDBackend::createRelDyn(MCLinker& pLinker, const Output& pOutput)
 {
-  // For output relocation section, create output LDSection directly
-  LDSection& sec = pLinker.getOrCreateOutputSectHdr(".rel.dyn",
-                                         LDFileFormat::Relocation,
-                                         ELF::SHT_REL,
-                                         ELF::SHF_ALLOC);
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  llvm::MCSectionData& data = pLinker.getOrCreateSectData(sec);
+  // get .rel.dyn LDSection and create MCSectionData
+  LDSection& reldyn = file_format->getRelDyn();
+  // create MCSectionData and ARMRelDynSection
+  m_pRelDyn = new OutputRelocSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
+}
 
-  unsigned int size = bitclass() / 8 * 2 ;
-  m_pRelDyn = new OutputRelocSection(sec, data, size);
+ELFFileFormat* MipsGNULDBackend::getOutputFormat(const Output& pOutput) const
+{
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      return getDynObjFileFormat();
+    case Output::Exec:
+      return getExecFileFormat();
+    case Output::Object:
+      return NULL;
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
+                               llvm::Twine(pOutput.type()));
+      return NULL;
+  }
 }
 
 //===----------------------------------------------------------------------===//

@@ -16,8 +16,8 @@
 
 namespace mcld
 {
-
 class LDSection;
+class MemoryRegion;
 
 /** \class MipsGOT
  *  \brief Mips Global Offset Table.
@@ -34,17 +34,19 @@ public:
 public:
   MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
 
-  // While reserveEntry, the size in LDSection is also updated. As the result,
-  // layout will get the correct size of GOT section
-  void reserveEntry(size_t pNum = 1);
-
-  GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
-
   iterator begin();
   iterator end();
 
   const_iterator begin() const;
   const_iterator end() const;
+
+  uint64_t emit(MemoryRegion& pRegion);
+
+  // While reserveEntry, the size in LDSection is also updated.
+  // As the result, layout will get the correct size of GOT section.
+  void reserveEntry(size_t pNum = 1);
+
+  GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 
 private:
   SymbolIndexMapType m_GeneralGOTMap;

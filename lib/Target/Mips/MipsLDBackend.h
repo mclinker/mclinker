@@ -134,8 +134,10 @@ private:
   bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
   bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
 
-  void createGOT(MCLinker& pLinker);
-  void createRelDyn(MCLinker& pLinker);
+  void createGOT(MCLinker& pLinker, const Output& pOutput);
+  void createRelDyn(MCLinker& pLinker, const Output& pOutput);
+
+  ELFFileFormat* getOutputFormat(const Output& pOutput) const;
 
 private:
   RelocationFactory* m_pRelocFactory;
@@ -144,6 +146,7 @@ private:
   OutputRelocSection* m_pRelDyn;        // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
+  LDSymbol* m_pGOTSymbol;
 };
 
 } // namespace of mcld
