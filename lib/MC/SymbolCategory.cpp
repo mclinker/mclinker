@@ -91,6 +91,12 @@ SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
   m_OutputSymbols.insert(localEnd(), &pSymbol);
   m_pLocal->end++;
   m_pCommon->begin++;
+  m_pCommon->end++;
+  m_pWeak->begin++;
+  m_pWeak->end++;
+  m_pGlobal->begin++;
+  m_pGlobal->end++;
+
   return *this;
 }
 
