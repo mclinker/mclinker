@@ -109,20 +109,6 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
   return MipsRelocationFactory::OK;
 }
 
-// R_MIPS_REL32: A - EA + S
-static
-MipsRelocationFactory::Result rel32(Relocation& pReloc,
-                                    const MCLDInfo& pLDInfo,
-                                    MipsRelocationFactory& pParent)
-{
-  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  RelocationFactory::DWord S = pReloc.symValue();
-  RelocationFactory::DWord EA = pReloc.place(pParent.getLayout());
-
-  pReloc.target() = A - EA + S;
-  return MipsRelocationFactory::OK;
-}
-
 // R_MIPS_HI16:
 //   local/external: ((AHL + S) - (short)(AHL + S)) >> 16
 //   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16

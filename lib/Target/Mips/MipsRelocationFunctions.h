@@ -15,7 +15,6 @@ static MipsRelocationFactory::Result Name(Relocation& pEntry, \
 #define DECL_MIPS_APPLY_RELOC_FUNCS \
 DECL_MIPS_APPLY_RELOC_FUNC(none) \
 DECL_MIPS_APPLY_RELOC_FUNC(abs32) \
-DECL_MIPS_APPLY_RELOC_FUNC(rel32) \
 DECL_MIPS_APPLY_RELOC_FUNC(hi16) \
 DECL_MIPS_APPLY_RELOC_FUNC(lo16) \
 DECL_MIPS_APPLY_RELOC_FUNC(got16) \
@@ -26,7 +25,7 @@ DECL_MIPS_APPLY_RELOC_FUNC(gprel32)
   { &none,     0, "R_MIPS_NONE"            }, \
   { &none,     1, "R_MIPS_16"              }, \
   { &abs32,    2, "R_MIPS_32"              }, \
-  { &rel32,    3, "R_MIPS_REL32"           }, \
+  { &none,     3, "R_MIPS_REL32"           }, \
   { &none,     4, "R_MIPS_26"              }, \
   { &hi16,     5, "R_MIPS_HI16"            }, \
   { &lo16,     6, "R_MIPS_LO16"            }, \
