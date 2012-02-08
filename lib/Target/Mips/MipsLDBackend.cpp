@@ -543,6 +543,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         createGOT(pLinker, pOutput);
 
       m_pGOT->reserveEntry();
+      rsym->setReserved(rsym->reserved() | ReserveGot);
       break;
     case ELF::R_MIPS_LITERAL:
     case ELF::R_MIPS_GPREL32:
