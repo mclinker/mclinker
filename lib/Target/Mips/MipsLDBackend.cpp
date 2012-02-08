@@ -295,7 +295,7 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 bool MipsGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
 {
   if (&pSymbol == m_pGpDispSymbol) {
-    m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FFF);
+    m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
     return true;
   }
   return false;
