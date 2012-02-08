@@ -456,6 +456,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         createGOT(pLinker, pOutput);
 
       m_pGOT->reserveEntry();
+      rsym->setReserved(rsym->reserved() | ReserveGot);
       break;
     case ELF::R_MIPS_GPREL32:
     case ELF::R_MIPS_GPREL16:
