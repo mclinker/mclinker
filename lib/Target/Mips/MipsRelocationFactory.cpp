@@ -33,6 +33,7 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
 {
   /// the prototype of applying function
   typedef Result (*ApplyFunctionType)(Relocation&,
+                                      const MCLDInfo& pLDInfo,
                                       const MipsRelocationFactory&);
 
   // the table entry of applying functions
@@ -57,7 +58,7 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
   }
 
   // apply the relocation 
-  Result result = apply_functions[type].func(pRelocation, *this);
+  Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result
   if (Overflow == result) {
@@ -87,15 +88,19 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
 static const char * const GP_DISP_NAME = "_gp_disp";
 
 // R_MIPS_NONE and those unsupported/deprecated relocation type
-MipsRelocationFactory::Result
-none(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result none(Relocation& pReloc,
+                                   const MCLDInfo& pLDInfo,
+                                   const MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
 
 // R_MIPS_32: S + A
-MipsRelocationFactory::Result
-abs32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result abs32(Relocation& pReloc,
+                                    const MCLDInfo& pLDInfo,
+                                    const MipsRelocationFactory& pParent)
 {
   RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = pReloc.symValue() + addend;
@@ -103,8 +108,10 @@ abs32(Relocation& pReloc, const MipsRelocationFactory& pParent)
 }
 
 // R_MIPS_REL32: A - EA + S
-MipsRelocationFactory::Result
-rel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result rel32(Relocation& pReloc,
+                                    const MCLDInfo& pLDInfo,
+                                    const MipsRelocationFactory& pParent)
 {
   RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
   pReloc.target() = addend - pReloc.place(pParent.getLayout())
@@ -115,8 +122,10 @@ rel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
 // R_MIPS_HI16:
 //   local/external: ((AHL + S) - (short)(AHL + S)) >> 16
 //   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16
-MipsRelocationFactory::Result
-hi16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result hi16(Relocation& pReloc,
+                                   const MCLDInfo& pLDInfo,
+                                   const MipsRelocationFactory& pParent)
 {
   // Nothing to do. Process this relocation in the 'lo16' routine.
   return MipsRelocationFactory::OK;
@@ -125,8 +134,10 @@ hi16(Relocation& pReloc, const MipsRelocationFactory& pParent)
 // R_MIPS_LO16:
 //   local/external: AHL + S
 //   _gp_disp      : AHL + GP - P + 4
-MipsRelocationFactory::Result
-lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result lo16(Relocation& pReloc,
+                                   const MCLDInfo& pLDInfo,
+                                   const MipsRelocationFactory& pParent)
 {
   // TODO (simon): Consider to support GNU extension -
   // multiple R_MIPS_HI16 entries for single R_MIPS_LO16.
@@ -156,22 +167,28 @@ lo16(Relocation& pReloc, const MipsRelocationFactory& pParent)
 // R_MIPS_GOT16:
 //   local   : tbd
 //   external: G
-MipsRelocationFactory::Result
-got16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result got16(Relocation& pReloc,
+                                    const MCLDInfo& pLDInfo,
+                                    const MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
 
 // R_MIPS_CALL16: G
-MipsRelocationFactory::Result
-call16(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result call16(Relocation& pReloc,
+                                     const MCLDInfo& pLDInfo,
+                                     const MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
 
 // R_MIPS_GPREL32: A + S + GP0 - GP
-MipsRelocationFactory::Result
-gprel32(Relocation& pReloc, const MipsRelocationFactory& pParent)
+static
+MipsRelocationFactory::Result gprel32(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
+                                      const MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }

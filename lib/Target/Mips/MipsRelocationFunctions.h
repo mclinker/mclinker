@@ -9,6 +9,7 @@
 
 #define DECL_MIPS_APPLY_RELOC_FUNC(Name) \
 static MipsRelocationFactory::Result Name(Relocation& pEntry, \
+                                          const MCLDInfo& pLDInfo, \
                                           const MipsRelocationFactory& pParent);
 
 #define DECL_MIPS_APPLY_RELOC_FUNCS \
