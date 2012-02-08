@@ -255,6 +255,19 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
                                     MipsRelocationFactory& pParent)
 {
+  RelocationFactory::Address G = 0;
+
+  ResolveInfo* rsym = pReloc.symInfo();
+  if (rsym->isLocal()) {
+    assert(0 && "R_MIPS_GOT16 relocation for a local sym is not implemented");
+  }
+  else {
+    G = helper_GetGOTOffset(pReloc, pParent);
+  }
+
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() != (G & 0xFFFF);
+
   return MipsRelocationFactory::OK;
 }
 
