@@ -106,6 +106,20 @@ void helper_SetRelDynEntry(Relocation& pReloc,
   rel_entry.setSymInfo(0);
 }
 
+// Find next R_MIPS_LO16 relocation paired to pReloc.
+static
+Relocation* helper_FindLo16Reloc(Relocation& pReloc)
+{
+  Relocation* reloc = static_cast<Relocation*>(pReloc.getNextNode());
+  while (NULL != reloc)
+  {
+    if (llvm::ELF::R_MIPS_LO16 == reloc->type() &&
+        reloc->symInfo() == pReloc.symInfo())
+      return reloc;
+  }
+  return NULL;
+}
+
 //=========================================//
 // Relocation functions implementation     //
 //=========================================//
@@ -142,7 +156,17 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    MipsRelocationFactory& pParent)
 {
-  // Nothing to do. Process this relocation in the 'lo16' routine.
+  Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
+  assert(NULL != lo_reloc && "There is no pair for R_MIPS_HI16");
+
+  RelocationFactory::DWord AHI = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord ALO = lo_reloc->target() + lo_reloc->addend();
+  RelocationFactory::DWord AHL = (AHI & 0xFFFF) << 16 + (short)(ALO & 0xFFFF);
+  RelocationFactory::DWord S = pReloc.symValue();
+
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() |= (((S + AHL + (int)0x8000) >> 16) & 0xFFFF);
+
   return MipsRelocationFactory::OK;
 }
 
@@ -154,27 +178,11 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    MipsRelocationFactory& pParent)
 {
-  // TODO (simon): Consider to support GNU extension -
-  // multiple R_MIPS_HI16 entries for single R_MIPS_LO16.
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
 
-  Relocation *hiReloc = static_cast<Relocation*>(pReloc.getPrevNode());
-
-  if (strcmp(pReloc.symInfo()->name(), GP_DISP_NAME) == 0) {
-    // TODO (simon): Implement relocation for _gp_disp
-  } else {
-    RelocationFactory::DWord loPart = pReloc.addend() & 0xffff;
-
-    if (hiReloc != 0 && hiReloc->type() == llvm::ELF::R_MIPS_HI16) {
-        RelocationFactory::DWord hiPart = hiReloc->addend() +
-            ((loPart + 0x8000) & 0xffff);
-
-        RelocationFactory::DWord hiAddend = hiReloc->target() + hiPart;
-        hiReloc->target() = (hiReloc->symValue() + hiAddend) >> 16;
-    }
-
-    RelocationFactory::DWord addend = pReloc.target() + loPart;
-    pReloc.target() = pReloc.symValue() + addend;
-  }
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() |= ((S + A) & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
