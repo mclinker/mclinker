@@ -13,7 +13,7 @@
 
 namespace {
   const uint64_t MipsGOTEntrySize = 4;
-  const size_t MipsGOT0Num = 2;
+  const size_t MipsGOT0Num = 1;
 }
 
 namespace mcld {
