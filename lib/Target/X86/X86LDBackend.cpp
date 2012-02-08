@@ -404,6 +404,12 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
+    case ELF::R_386_PC32:
+      // We allow R_386_PC32 only if it isn't preemptible.  Otherwise
+      // we will generate writable text section in output.
+      if (!isSymbolPreemptible(*rsym, pLDInfo, pOutput))
+	return;
+
     default: {
       llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
                                llvm::Twine((int) pReloc.type()) +
