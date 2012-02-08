@@ -13,6 +13,7 @@
 
 namespace {
   const uint64_t MipsGOTEntrySize = 4;
+  const size_t MipsGOT0Num = 2;
 }
 
 namespace mcld {
@@ -22,6 +23,29 @@ namespace mcld {
 MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   : GOT(pSection, pSectionData, MipsGOTEntrySize)
 {
+  // Create GOT0 entries.
+  for (size_t i = 0; i < MipsGOT0Num; ++i) {
+    GOTEntry* entry =
+      new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
+
+    if (NULL == entry)
+      llvm::report_fatal_error("Allocating GOT0 entries failed!");
+
+    m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
+  }
+
+  // Skip GOT0 entries.
+  iterator it = m_SectionData.begin();
+  iterator ie = m_SectionData.end();
+
+  for (size_t i = 1; i < MipsGOT0Num; ++i) {
+    if (it == ie)
+      llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
+
+    ++it;
+  }
+
+  m_GeneralGOTIterator = it;
 }
 
 MipsGOT::iterator MipsGOT::begin()
@@ -65,20 +89,21 @@ void MipsGOT::reserveEntry(size_t pNum)
   GOTEntry* Entry = 0;
 
   for (size_t i = 0; i < pNum; ++i) {
-    Entry = new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
+    GOTEntry* entry =
+      new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
 
-    if (!Entry)
+    if (NULL == entry)
       llvm::report_fatal_error("Allocating new GOTEntry failed");
 
-    m_SectionData.getFragmentList().push_back(Entry);
+    m_SectionData.getFragmentList().push_back(entry);
   }
 }
 
 GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry*& Entry = m_GeneralGOTMap[&pInfo];
+  GOTEntry*& entry = m_GeneralGOTMap[&pInfo];
 
-  pExist = Entry != 0;
+  pExist = NULL != entry;
 
   if (!pExist) {
     ++m_GeneralGOTIterator;
@@ -86,10 +111,10 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
     assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end() &&
            "The number of GOT Entries and ResolveInfo doesn't match");
 
-    Entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
+    entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
   }
 
-  return Entry;
+  return entry;
 }
 
 }
