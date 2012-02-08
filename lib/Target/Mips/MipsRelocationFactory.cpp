@@ -133,7 +133,7 @@ bool helper_isGpDisp(const Relocation& pReloc)
 }
 
 static
-MipsRelocationFactory::Address helper_GetGOTAddr(MipsRelocationFactory& pParent)
+RelocationFactory::Address helper_GetGOTAddr(MipsRelocationFactory& pParent)
 {
   return pParent.getTarget().getGOT().getSection().addr();
 }
