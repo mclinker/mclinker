@@ -41,7 +41,9 @@ MipsGNULDBackend::MipsGNULDBackend()
   : m_pRelocFactory(NULL),
     m_pGOT(NULL),
     m_pRelDyn(NULL),
-    m_pDynamic(NULL)
+    m_pDynamic(NULL),
+    m_pGOTSymbol(NULL),
+    m_pGpDispSymbol(NULL)
 {
 }
 
@@ -84,6 +86,19 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
                    0x0,  // value
                    NULL, // FragRef
                    ResolveInfo::Hidden);
+
+  m_pGpDispSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+                   "_gp_disp",
+                   false,
+                   ResolveInfo::Section,
+                   ResolveInfo::Define,
+                   ResolveInfo::Absolute,
+                   0x0,  // size
+                   0x0,  // value
+                   NULL, // FragRef
+                   ResolveInfo::Default);
+
+  m_pGpDispSymbol->resolveInfo()->setReserved(ReserveGpDisp);
 }
 
 bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
@@ -267,6 +282,10 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 /// function to ask the final value of the symbol
 bool MipsGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
 {
+  if (&pSymbol == m_pGpDispSymbol) {
+    m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FFF);
+    return true;
+  }
   return false;
 }
 

@@ -24,6 +24,12 @@ class SectionMap;
 class MipsGNULDBackend : public GNULDBackend
 {
 public:
+  enum ReservedEntryType {
+    None          =  0, // no reserved entry
+    ReserveGpDisp = 32  // reserve _gp_disp symbol
+  };
+
+public:
   MipsGNULDBackend();
   ~MipsGNULDBackend();
 
@@ -147,6 +153,7 @@ private:
 
   MipsELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
+  LDSymbol* m_pGpDispSymbol;
 };
 
 } // namespace of mcld
