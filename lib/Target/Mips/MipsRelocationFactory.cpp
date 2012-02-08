@@ -102,8 +102,10 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
                                     const MipsRelocationFactory& pParent)
 {
-  RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = pReloc.symValue() + addend;
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
+
+  pReloc.target() = S + A;
   return MipsRelocationFactory::OK;
 }
 
@@ -113,9 +115,11 @@ MipsRelocationFactory::Result rel32(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
                                     const MipsRelocationFactory& pParent)
 {
-  RelocationFactory::DWord addend = pReloc.target() + pReloc.addend();
-  pReloc.target() = addend - pReloc.place(pParent.getLayout())
-                           + pReloc.symValue();
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
+  RelocationFactory::DWord EA = pReloc.place(pParent.getLayout());
+
+  pReloc.target() = A - EA + S;
   return MipsRelocationFactory::OK;
 }
 
