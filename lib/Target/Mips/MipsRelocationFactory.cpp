@@ -34,7 +34,7 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
   /// the prototype of applying function
   typedef Result (*ApplyFunctionType)(Relocation&,
                                       const MCLDInfo& pLDInfo,
-                                      const MipsRelocationFactory&);
+                                      MipsRelocationFactory&);
 
   // the table entry of applying functions
   struct ApplyFunctionTriple {
@@ -91,7 +91,7 @@ static const char * const GP_DISP_NAME = "_gp_disp";
 static
 MipsRelocationFactory::Result none(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
-                                   const MipsRelocationFactory& pParent)
+                                   MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
@@ -100,7 +100,7 @@ MipsRelocationFactory::Result none(Relocation& pReloc,
 static
 MipsRelocationFactory::Result abs32(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
-                                    const MipsRelocationFactory& pParent)
+                                    MipsRelocationFactory& pParent)
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
@@ -113,7 +113,7 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
 static
 MipsRelocationFactory::Result rel32(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
-                                    const MipsRelocationFactory& pParent)
+                                    MipsRelocationFactory& pParent)
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
@@ -129,7 +129,7 @@ MipsRelocationFactory::Result rel32(Relocation& pReloc,
 static
 MipsRelocationFactory::Result hi16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
-                                   const MipsRelocationFactory& pParent)
+                                   MipsRelocationFactory& pParent)
 {
   // Nothing to do. Process this relocation in the 'lo16' routine.
   return MipsRelocationFactory::OK;
@@ -141,7 +141,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
 static
 MipsRelocationFactory::Result lo16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
-                                   const MipsRelocationFactory& pParent)
+                                   MipsRelocationFactory& pParent)
 {
   // TODO (simon): Consider to support GNU extension -
   // multiple R_MIPS_HI16 entries for single R_MIPS_LO16.
@@ -174,7 +174,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
 static
 MipsRelocationFactory::Result got16(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
-                                    const MipsRelocationFactory& pParent)
+                                    MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
@@ -183,7 +183,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
 static
 MipsRelocationFactory::Result call16(Relocation& pReloc,
                                      const MCLDInfo& pLDInfo,
-                                     const MipsRelocationFactory& pParent)
+                                     MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
@@ -192,7 +192,7 @@ MipsRelocationFactory::Result call16(Relocation& pReloc,
 static
 MipsRelocationFactory::Result gprel32(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
-                                      const MipsRelocationFactory& pParent)
+                                      MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
 }
