@@ -117,6 +117,11 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   return entry;
 }
 
+size_t MipsGOT::getTotalNum() const
+{
+  return m_SectionData.getFragmentList().size();
+}
+
 size_t MipsGOT::getLocalNum() const
 {
   return m_pLocalNum;

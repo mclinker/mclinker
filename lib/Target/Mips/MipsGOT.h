@@ -48,6 +48,7 @@ public:
 
   GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 
+  size_t getTotalNum() const;
   size_t getLocalNum() const;
 
 private:

@@ -76,8 +76,10 @@ size_t MipsELFDynamic::getGotSym(const ELFFileFormat& pFormat) const
   if (!pFormat.hasGOT())
     return 0;
 
-  // FIXME: (simon) This work in case if GOT contains local sym only.
-  return getSymTabNum(pFormat);
+  // FIXME: (simon) Temporary solution.
+  return getSymTabNum(pFormat) -
+         m_pParent.getGOT().getTotalNum() +
+         m_pParent.getGOT().getLocalNum();
 }
 
 size_t MipsELFDynamic::getLocalGotNum(const ELFFileFormat& pFormat) const
