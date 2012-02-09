@@ -266,7 +266,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() != (G & 0xFFFF);
+  pReloc.target() |= ((G - 0x7FF0) & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
@@ -280,7 +280,7 @@ MipsRelocationFactory::Result call16(Relocation& pReloc,
   RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() != (G & 0xFFFF);
+  pReloc.target() |= ((G - 0x7FF0) & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
