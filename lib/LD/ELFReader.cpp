@@ -62,7 +62,9 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
   case llvm::ELF::SHT_GROUP:
     return LDFileFormat::Group;
   default:
-    if (pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC)
+    if ((pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC) ||
+        (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
+        (pType >= llvm::ELF::SHT_LOUSER && pType <= llvm::ELF::SHT_HIUSER))
       return LDFileFormat::Target;
     llvm::report_fatal_error(llvm::Twine("unsupported ELF section type: ") +
                              llvm::Twine(pType) + llvm::Twine(".\n"));
