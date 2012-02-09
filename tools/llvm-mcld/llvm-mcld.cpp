@@ -457,7 +457,7 @@ GetFileNameRoot(const std::string &pInputFilename, std::string& pFileNameRoot)
 {
   std::string outputFilename;
   /* *** */
-  const std::string& IFN = InputFilename;
+  const std::string& IFN = pInputFilename;
   int Len = IFN.length();
   if ((Len > 2) &&
       IFN[Len-3] == '.' &&
@@ -538,7 +538,7 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
   std::string error;
   unsigned OpenFlags = 0;
   if (Binary) OpenFlags |= raw_fd_ostream::F_Binary;
-  tool_output_file *FDOut = new tool_output_file(OutputFilename.c_str(), error,
+  tool_output_file *FDOut = new tool_output_file(pOutputFilename.c_str(), error,
                                                  OpenFlags);
   if (!error.empty()) {
     errs() << error << '\n';
