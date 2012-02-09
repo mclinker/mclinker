@@ -215,6 +215,8 @@ private:
   void createX86PLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
   void createX86RelDyn(MCLinker& pLinker, const Output& pOutput);
 
+  ELFFileFormat* getOutputFormat(const Output& pOutput) const;
+
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;

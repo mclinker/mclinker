@@ -130,21 +130,7 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pLinker.getLDInfo().output());
 
-  ELFFileFormat *file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat *file_format = getOutputFormat(pOutput);
 
   // apply PLT
   if (file_format->hasPLT()) {
@@ -194,20 +180,7 @@ bool ARMGNULDBackend::isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) cons
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
-                               llvm::Twine("output file type ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& got = file_format->getGOT();
   m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
@@ -243,20 +216,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
                                             const Output& pOutput)
 {
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
-                               llvm::Twine("output file type ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   // get .plt and .rel.plt LDSection
   LDSection& plt = file_format->getPLT();
@@ -274,21 +234,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
 void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
                                       const Output& pOutput)
 {
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-    llvm::report_fatal_error(llvm::Twine("Attempt to generate dynamic ") +
-                             llvm::Twine("relocation that is not support ") +
-                             llvm::Twine("in ouput file type: ") +
-                             llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   // get .rel.dyn LDSection and create MCSectionData
   LDSection& reldyn = file_format->getRelDyn();
@@ -296,6 +242,22 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
+}
+
+ELFFileFormat* ARMGNULDBackend::getOutputFormat(const Output& pOutput) const
+{
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      return getDynObjFileFormat();
+    case Output::Exec:
+      return getExecFileFormat();
+    // FIXME: We do not support building .o now
+    case Output::Object:
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
+                               llvm::Twine(pOutput.type()));
+      return NULL;
+  }
 }
 
 bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
@@ -739,21 +701,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
-                               llvm::Twine(pOutput.type()));
-      return 0x0;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSection == m_pAttributes) {
     // FIXME: Currently Emitting .ARM.attributes directly from the input file.
@@ -945,19 +893,7 @@ unsigned int
 ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr) const
 {
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      assert(0 && "Not support yet.\n");
-      break;
-  }
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT())
     return SHO_DATA;

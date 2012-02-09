@@ -104,20 +104,7 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
 void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("GOT is not support in ") +
-                               llvm::Twine("output file type: ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& got = file_format->getGOT();
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
@@ -152,20 +139,7 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
                                             const Output& pOutput)
 {
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("PLT is not support in ") +
-                               llvm::Twine("output file type: ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& plt = file_format->getPLT();
   LDSection& relplt = file_format->getRelPlt();
@@ -184,26 +158,29 @@ void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
                                       const Output& pOutput)
 {
   // get .rel.dyn LDSection and create MCSectionData
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    default:
-      llvm::report_fatal_error(llvm::Twine("Dynamic Relocation ") +
-                               llvm::Twine("is not support in output file type: ") +
-                               llvm::Twine(pOutput.type()));
-      return;
-  } // end of switch
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& reldyn = file_format->getRelDyn();
   // create MCSectionData and X86RelDynSection
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
+}
+
+ELFFileFormat* X86GNULDBackend::getOutputFormat(const Output& pOutput) const
+{
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      return getDynObjFileFormat();
+    case Output::Exec:
+      return getExecFileFormat();
+    // FIXME: We do not support building .o now
+    case Output::Object:
+    default:
+      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
+                               llvm::Twine(pOutput.type()));
+      return NULL;
+  }
 }
 
 bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
@@ -459,9 +436,9 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFDynObjFileFormat* FileFormat = getDynObjFileFormat();
+  ELFFileFormat* FileFormat = getOutputFormat(pOutput);
   assert(FileFormat &&
-         "DynObjFileFormat is NULL in X86GNULDBackend::emitSectionData!");
+         "ELFFileFormat is NULL in X86GNULDBackend::emitSectionData!");
 
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
@@ -575,19 +552,7 @@ unsigned int
 X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr) const
 {
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      assert(0 && "Not support yet.\n");
-      break;
-  }
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   // FIXME: if command line option, "-z now", is given, we can let the order of
   // .got and .got.plt be the same as RELRO sections
