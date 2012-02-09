@@ -15,7 +15,7 @@ using namespace mcld;
 // MemoryAreaFactory
 MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
   : UniqueGCFactoryBase<sys::fs::Path, MemoryArea, 0>(pNum) {
-  // For each loaded file, MCLinker must load ELF header, section header, 
+  // For each loaded file, MCLinker must load ELF header, section header,
   // symbol table, and string table. So, we set the size of chunk quadruple
   // larger than the number of input files.
   m_pRegionFactory = new RegionFactory(pNum*4);
@@ -33,8 +33,8 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath, int pFlags)
     result = allocate();
     new (result) MemoryArea(*m_pRegionFactory);
     result->map(pPath, pFlags);
+    f_KeyMap.insert(std::make_pair(pPath, result));
   }
-  f_KeyMap.insert(std::make_pair(pPath, result));
   return result;
 }
 
@@ -45,8 +45,8 @@ MemoryArea* MemoryAreaFactory::produce(const sys::fs::Path& pPath, int pFlags, m
     result = allocate();
     new (result) MemoryArea(*m_pRegionFactory);
     result->map(pPath, pFlags, pMode);
+    f_KeyMap.insert(std::make_pair(pPath, result));
   }
-  f_KeyMap.insert(std::make_pair(pPath, result));
   return result;
 }
 
