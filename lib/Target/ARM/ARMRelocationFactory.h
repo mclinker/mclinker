@@ -33,7 +33,8 @@ public:
   {
     OK,
     Overflow,
-    BadReloc
+    BadReloc,
+    Unsupport
   };
 
 public:

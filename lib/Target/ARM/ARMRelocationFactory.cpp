@@ -66,6 +66,9 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
   Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result
+  if (OK == result) {
+    return;
+  }
   if (Overflow == result) {
     llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
                              llvm::Twine(apply_functions[type].name) +
@@ -80,6 +83,14 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
                              llvm::Twine(apply_functions[type].name) +
                              llvm::Twine("' encounters unexpected opcode. "
                                          "on symbol: `") +
+                             llvm::Twine(pRelocation.symInfo()->name()) +
+                             llvm::Twine("'."));
+    return;
+  }
+  if (Unsupport == result) {
+    llvm::report_fatal_error(llvm::Twine("Encounter unsupported relocation `") +
+                             llvm::Twine(apply_functions[type].name) +
+                             llvm::Twine("' on symbol: `") +
                              llvm::Twine(pRelocation.symInfo()->name()) +
                              llvm::Twine("'."));
     return;
@@ -571,14 +582,6 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
     S = helper_PLT(pReloc, pParent);
     T = 0 ; // PLT is not thumb
   }
-  // use dynamic relocation
-  if(rsym->reserved() & 0x1u) {
-    llvm::report_fatal_error(llvm::Twine("Requires unsupported dynamic ") +
-                             llvm::Twine("relocation R_ARM_MOVT_ABS_NC ") +
-                             llvm::Twine("for symbol ") +
-                             llvm::Twine(pReloc.symInfo()->name()) +
-                             llvm::Twine(", recompile with -fPIC"));
-  }
   X = (S + A) | T ;
   // perform static relocation
   pReloc.target() = (S + A) | T;
@@ -790,6 +793,12 @@ ARMRelocationFactory::Result tls(Relocation& pReloc,
                                  ARMRelocationFactory& pParent)
 {
   llvm::report_fatal_error("We don't support TLS relocation yet.");
-  return ARMRelocationFactory::OK;
+  return ARMRelocationFactory::Unsupport;
 }
 
+ARMRelocationFactory::Result unsupport(Relocation& pReloc,
+                                       const MCLDInfo& pLDInfo,
+                                       ARMRelocationFactory& pParent)
+{
+  return ARMRelocationFactory::Unsupport;
+}
