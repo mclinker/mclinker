@@ -854,8 +854,7 @@ int main( int argc, char* argv[] )
 
   // Process the linker input from the command line
   mcld::SectLinkerOption *LinkerOpt =
-      new mcld::SectLinkerOption(mod, InputFilename.getPosition(),
-                                 TheTargetMachine.getLDInfo());
+      new mcld::SectLinkerOption(TheTargetMachine.getLDInfo());
 
   if (ProcessLinkerInputsFromCommand(*LinkerOpt)) {
     errs() << argv[0] << ": failed to process inputs from command line!\n";

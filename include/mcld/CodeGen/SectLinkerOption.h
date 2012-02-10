@@ -17,10 +17,6 @@
 
 #include <string>
 
-namespace llvm {
-  class Module;
-}
-
 namespace mcld
 {
   class PositionDependentOption;
@@ -31,10 +27,8 @@ namespace mcld
   class SectLinkerOption
   {
   public:
-    // Constructor. It will take the ownership of @pInputBitcodeOpt
-    SectLinkerOption(const llvm::Module &pModule,
-                     unsigned pInputModulePos,
-                     MCLDInfo &pLDInfo);
+    // Constructor.
+    SectLinkerOption(MCLDInfo &pLDInfo);
 
     // -----  Position-dependent Options  ----- //
     inline void appendOption(PositionDependentOption *pOption)

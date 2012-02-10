@@ -11,7 +11,8 @@
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtend_so.o \
 ; RUN: Output/libquake_portable.o \
-; RUN: -dB ../libquake_portable.bc -o Output/libquake_portable.so
+; RUN: -dB ../libquake_portable.bc -o Output/libquake_portable.so \
+; RUN: -llog -lEGL -lGLESv1_CM -lOpenSLES -lc -lm
 
 ; RUN: diff -s Output/libquake_portable.so %p/../quake/golden/ARM/libquake_portable.so | \
 ; RUN: awk '{print $6}' | \
