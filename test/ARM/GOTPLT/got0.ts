@@ -6,7 +6,7 @@
 ; RUN: -dB Output/gotplt.bc -o Output/gotplt.o
 
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libgotplt.so \
-; RUN: -dB Output/gotplt.bc Output/gotplt.o -o Output/libgotplt.so
+; RUN: Output/gotplt.o -o Output/libgotplt.so
 
 ; Read data from the shared library for comparison.
 ; RUN: readelf -a Output/libgotplt.so | \

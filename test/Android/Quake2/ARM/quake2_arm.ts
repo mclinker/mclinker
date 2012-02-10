@@ -11,7 +11,7 @@
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtend_so.o \
 ; RUN: Output/libquake2.o \
-; RUN: -dB ../libquake2.bc -o Output/libquake2.so \
+; RUN: -o Output/libquake2.so \
 ; RUN: -lGLESv1_CM -llog -lc -lm
 
 ; RUN: diff -s Output/libquake2.so %p/../quake2/golden/ARM/libquake2.so | \

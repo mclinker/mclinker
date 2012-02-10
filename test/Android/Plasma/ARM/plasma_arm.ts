@@ -11,7 +11,7 @@
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtend_so.o \
 ; RUN: Output/libplasma_portable.o \
-; RUN: -dB ../libplasma_portable.bc -o Output/libplasma_portable.so \
+; RUN: -o Output/libplasma_portable.so \
 ; RUN: -lm -llog -ljnigraphics -lc
 
 ; RUN: diff -s Output/libplasma_portable.so %p/../plasma/golden/ARM/libplasma_portable.so | \

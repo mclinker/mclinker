@@ -1,5 +1,5 @@
 ; .so
-; RUN: %MCLinker -march=arm -filetype=dso -Bsymbolic -dB %p/empty.bc %p/ABS32.o -o %t.so
+; RUN: %MCLinker -march=arm -filetype=dso -Bsymbolic %p/ABS32.o -o %t.so
 ; RUN: readelf -r %t.so | FileCheck %s -check-prefix=REL
 ; REL: R_ARM_RELATIVE
 ; REL: R_ARM_RELATIVE

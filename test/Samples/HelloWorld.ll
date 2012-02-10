@@ -11,7 +11,7 @@
 ; ARM_O_OBJDUMP: .symtab
 ; ARM_O_OBJDUMP: .text
 ; .so
-; RUN: %MCLinker -march=arm -filetype=dso -dB %s %t.o -o %t.so
+; RUN: %MCLinker -march=arm -filetype=dso %t.o -o %t.so
 ; RUN: llvm-nm %t.so | FileCheck %s -check-prefix=ARM_SO_NM
 ; ARM_SO_NM: {{[0-9a-fA-F]+}} T main
 ; ARM_SO_NM:          U puts

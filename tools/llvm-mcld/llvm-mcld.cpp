@@ -56,8 +56,7 @@ int unit_test( int argc, char* argv[] )
 static cl::opt<std::string>
 InputFilename("dB",
               cl::desc("set default bitcode"),
-              cl::value_desc("bitcode"),
-              cl::init("-"));
+              cl::value_desc("bitcode"));
 
 static cl::opt<std::string>
 OutputFilename("o",
@@ -583,10 +582,6 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setBsymbolic(ArgBsymbolic);
 
   // -----  Set up Inputs  ----- //
-  // inform the bitcode filename
-  pOption.appendOption(new mcld::BitcodeOption(InputFilename.getPosition(),
-                                         mcld::sys::fs::RealPath(InputFilename)));
-
   // add all start-group
   cl::list<bool>::iterator sg;
   cl::list<bool>::iterator sgEnd = ArgStartGroupList.end();
@@ -721,24 +716,49 @@ int main( int argc, char* argv[] )
 #endif
 
   // Load the module to be compiled...
-  SMDiagnostic Err;
   std::auto_ptr<Module> M;
 
-  M.reset(ParseIRFile(InputFilename, Err, Context));
-  if (M.get() == 0) {
-    Err.print(argv[0], errs());
-    errs() << "** First positional argument must be a bitcode/llvm asm file. **\n";
-    return 1;
+  if (InputFilename.empty() && (FileType != mcld::CGFT_DSOFile)) {
+    // Read from stdin
+    InputFilename = "-";
+  }
+
+  if (!InputFilename.empty()) {
+    SMDiagnostic Err;
+    M.reset(ParseIRFile(InputFilename, Err, Context));
+
+    if (M.get() == 0) {
+      Err.print(argv[0], errs());
+      errs() << "** Failed to to the given bitcode/llvm asm file '"
+             << InputFilename << "'. **\n";
+      return 1;
+    }
+  } else {
+    // If here, output must be dynamic shared object (mcld::CGFT_DSOFile).
+
+    // Create an empty Module
+    M.reset(new Module("Empty Module", Context));
   }
   Module &mod = *M.get();
 
   // If we are supposed to override the target triple, do so now.
-  if (!TargetTriple.empty())
-    mod.setTargetTriple(Triple::normalize(TargetTriple));
+  Triple TheTriple;
+  if (!TargetTriple.empty()) {
+    const std::string &TripleStr = mod.getTargetTriple();
+    TheTriple.setTriple(TripleStr);
+    mod.setTargetTriple(TripleStr);
+  }
 
-  Triple TheTriple(mod.getTargetTriple());
-  if (TheTriple.getTriple().empty())
-    TheTriple.setTriple(sys::getDefaultTargetTriple());
+  // User doesn't specify the triple from command.
+  if (TheTriple.getTriple().empty()) {
+    // Try to get one from the input Module.
+    const std::string &TripleStr = mod.getTargetTriple();
+
+    if (TripleStr.empty())
+      TheTriple.setTriple(sys::getDefaultTargetTriple());
+    else
+      TheTriple.setTriple(TripleStr);
+  }
 
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
