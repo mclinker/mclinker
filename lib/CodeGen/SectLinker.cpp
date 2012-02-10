@@ -195,8 +195,8 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
   MCLDInfo &info = m_pOption->info();
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
-      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE ||
-      (*cur_char)->type() != PositionDependentOption::NAMESPEC))
+      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE &&
+       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
     return;
 
   InputTree::Connector *prev_ward = &InputTree::Downward;
