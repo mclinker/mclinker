@@ -196,6 +196,35 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   return true;
 }
 
+/// readRegularSection - read a regular section and create fragments.
+bool ELFReader<32, true>::readRegularSection(Input& pInput,
+                                             MCLinker& pLinker,
+                                             LDSection& pInputSectHdr) const
+{
+  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
+                                                         pInputSectHdr.kind(),
+                                                         pInputSectHdr.type(),
+                                                         pInputSectHdr.flag());
+
+  MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
+                                                   pInputSectHdr.size());
+
+  llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+
+  new MCRegionFragment(*region, &sect_data);
+
+  out_sect.setSize(out_sect.size() + pInputSectHdr.size());
+  return true;
+}
+
+/// readRegularSection - read a target section and create fragments.
+bool ELFReader<32, true>::readTargetSection(Input& pInput,
+                                            MCLinker& pLinker,
+                                            LDSection& pInputSectHdr) const
+{
+  return target().readSection(pInput, pLinker, pInputSectHdr);
+}
+
 /// readSymbols - read ELF symbols and create LDSymbol
 bool ELFReader<32, true>::readSymbols(Input& pInput,
                                       MCLinker& pLinker,

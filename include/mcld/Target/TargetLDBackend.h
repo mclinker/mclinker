@@ -28,7 +28,7 @@ class SectionMap;
 class Output;
 class MCLDInfo;
 class SymbolCategory;
-
+class Input;
 class LDFileFormat;
 class GOT;
 
@@ -52,10 +52,9 @@ public:
   virtual void initTargetSections(MCLinker& pLinker) { }
   virtual void initTargetSymbols(MCLinker& pLinker) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
-
   virtual bool initStandardSymbols(MCLinker& pLinker) = 0;
-
   virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
+
   virtual RelocationFactory* getRelocFactory() = 0;
 
   /// scanRelocation - When read in relocations, backend can do any modification
@@ -133,6 +132,13 @@ public:
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
   virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const = 0;
+
+  /// readSection - read a target dependent section
+  virtual bool readSection(Input& pInput,
+                           MCLinker& pLinker,
+                           LDSection& pInputSectHdr) const
+  { return true; }
+
 };
 
 } // End mcld namespace

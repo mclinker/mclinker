@@ -15,8 +15,10 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
+#include <llvm/MC/MCAssembler.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/MC/MCRegionFragment.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -64,6 +66,16 @@ public:
   virtual bool readSectionHeaders(Input& pInput,
                                   MCLinker& pLinker,
                                   void* pELFHeader) const = 0;
+
+  /// readRegularSection - read a regular section and create fragments.
+  virtual bool readRegularSection(Input& pInput,
+                                  MCLinker& pLinker,
+                                  LDSection& pSectHdr) const = 0;
+
+  /// readRegularSection - read a target section and create fragments.
+  virtual bool readTargetSection(Input& pInput,
+                                 MCLinker& pLinker,
+                                 LDSection& pSectHdr) const = 0;
 
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
@@ -161,6 +173,16 @@ public:
   inline bool readSectionHeaders(Input& pInput,
                           MCLinker& pLinker,
                           void* pELFHeader) const;
+
+  /// readRegularSection - read a regular section and create fragments.
+  inline bool readRegularSection(Input& pInput,
+                                 MCLinker& pLinker,
+                                 LDSection& pInputSectHdr) const;
+
+  /// readRegularSection - read a target section and create fragments.
+  inline bool readTargetSection(Input& pInput,
+                                MCLinker& pLinker,
+                                LDSection& pInputSectHdr) const;
 
   /// readSymbols - read ELF symbols and create LDSymbol
   inline bool readSymbols(Input& pInput,

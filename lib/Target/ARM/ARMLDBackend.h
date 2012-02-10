@@ -196,6 +196,11 @@ public:
   /// sections.
   bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
 
+  /// readSection - read target dependent sections
+  bool readSection(Input& pInput,
+                   MCLinker& pLinker,
+                   LDSection& pInputSectHdr) const;
+
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,
                            const MCLDInfo& pLDInfo,

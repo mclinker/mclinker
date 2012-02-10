@@ -85,37 +85,24 @@ bool ELFObjectReader::readSections(Input& pInput)
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
-      case LDFileFormat::Target:
       case LDFileFormat::MetaData: {
-
-        LDSection& out_sect =
-          m_Linker.getOrCreateOutputSectHdr((*section)->name(),
-                                            (*section)->kind(),
-                                            (*section)->type(),
-                                            (*section)->flag());
-
-        // FIXME: (Luba)
-        // Handle ARM attributes in the right way.
-        // In current milestone, MCLinker goes through the shortcut.
-        // It reads input's ARM attributes and copies the first ARM attributes
-        // into the output file. The correct way is merge these sections, not
-        // just copy.
-        if ((0 == out_sect.name().compare(".ARM.attributes")) &&
-            (0 != out_sect.size()))
-          break;
-
-        // create fragment
-        MemoryRegion* region = pInput.memArea()->request((*section)->offset(),
-                                                         (*section)->size());
-        llvm::MCSectionData& sect_data =
-          m_Linker.getOrCreateSectData(**section);
-
-        new MCRegionFragment(*region, &sect_data);
-
-        // resize output LDSection
-        out_sect.setSize(out_sect.size() + (*section)->size());
+        if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
+          llvm::report_fatal_error(
+                                llvm::Twine("can not read regular section `") +
+                                (*section)->name() +
+                                llvm::Twine("'.\n"));
         break;
       }
+
+      case LDFileFormat::Target: {
+        if (!m_pELFReader->readTargetSection(pInput, m_Linker, **section))
+          llvm::report_fatal_error(
+                        llvm::Twine("can not read target dependentsection `") +
+                        (*section)->name() +
+                        llvm::Twine("'.\n"));
+        break;
+      }
+
       case LDFileFormat::BSS: {
         LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
                                                (*section)->name(),

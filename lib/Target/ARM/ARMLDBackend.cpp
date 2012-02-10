@@ -841,6 +841,35 @@ ARMGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
   return true;
 }
 
+bool ARMGNULDBackend::readSection(Input& pInput,
+                                  MCLinker& pLinker,
+                                  LDSection& pInputSectHdr) const
+{
+  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
+                                                         pInputSectHdr.kind(),
+                                                         pInputSectHdr.type(),
+                                                         pInputSectHdr.flag());
+  // FIXME: (Luba)
+  // Handle ARM attributes in the right way.
+  // In current milestone, MCLinker goes through the shortcut.
+  // It reads input's ARM attributes and copies the first ARM attributes
+  // into the output file. The correct way is merge these sections, not
+  // just copy.
+  if ((0 == out_sect.name().compare(".ARM.attributes")) &&
+      (0 != out_sect.size()))
+    return true;
+
+  MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
+                                                   pInputSectHdr.size());
+  
+  llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  
+  new MCRegionFragment(*region, &sect_data);
+  
+  out_sect.setSize(out_sect.size() + pInputSectHdr.size());
+  return true;
+}
+
 ARMGOT& ARMGNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT && "GOT section not exist");
