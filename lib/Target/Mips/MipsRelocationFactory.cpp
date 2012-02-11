@@ -134,9 +134,9 @@ bool helper_isGpDisp(const Relocation& pReloc)
 }
 
 static
-RelocationFactory::Address helper_GetGOTAddr(MipsRelocationFactory& pParent)
+RelocationFactory::Address helper_GetGP(MipsRelocationFactory& pParent)
 {
-  return pParent.getTarget().getGOT().getSection().addr();
+  return pParent.getTarget().getGOT().getSection().addr() + 0x7FF0;
 }
 
 static
@@ -169,7 +169,7 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
                                                MipsRelocationFactory& pParent)
 {
   GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
-  return pParent.getLayout().getOutputOffset(got_entry);
+  return pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
 }
 
 //=========================================//
@@ -216,7 +216,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
 
   if (helper_isGpDisp(pReloc)) {
     RelocationFactory::Address P = pReloc.place(pParent.getLayout());
-    S = helper_GetGOTAddr(pParent) - P;
+    S = helper_GetGP(pParent) - P;
   }
 
   pReloc.target() &= 0xFFFF0000;
@@ -238,7 +238,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
 
   if (helper_isGpDisp(pReloc)) {
     RelocationFactory::Address P = pReloc.place(pParent.getLayout());
-    S = helper_GetGOTAddr(pParent) - P;
+    S = helper_GetGP(pParent) - P;
   }
 
   pReloc.target() &= 0xFFFF0000;
@@ -266,7 +266,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= ((G - 0x7FF0) & 0xFFFF);
+  pReloc.target() |= (G & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
@@ -280,7 +280,7 @@ MipsRelocationFactory::Result call16(Relocation& pReloc,
   RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= ((G - 0x7FF0) & 0xFFFF);
+  pReloc.target() |= (G & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
@@ -293,7 +293,7 @@ MipsRelocationFactory::Result gprel32(Relocation& pReloc,
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
-  RelocationFactory::Address GP = helper_GetGOTAddr(pParent);
+  RelocationFactory::Address GP = helper_GetGP(pParent);
 
   pReloc.target() = A + S - GP;
   return MipsRelocationFactory::OK;
