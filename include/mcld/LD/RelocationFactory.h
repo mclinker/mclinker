@@ -11,7 +11,6 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/GCFactory.h>
 #include <mcld/LD/Relocation.h>
 
 namespace mcld

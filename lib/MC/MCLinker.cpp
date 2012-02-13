@@ -531,7 +531,7 @@ bool MCLinker::applyRelocations()
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply(m_Info);
+    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_Info);
   }
   return true;
 }

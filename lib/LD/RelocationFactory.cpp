@@ -62,7 +62,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     pFragRef.memcpy(&target_data, (getTarget().bitclass()/8));
   }
 
-  return new Relocation(pType, &pFragRef, pAddend, target_data, *this);
+  return new Relocation(pType, &pFragRef, pAddend, target_data);
 }
 
 Relocation* RelocationFactory::produceEmptyEntry()
@@ -71,7 +71,7 @@ Relocation* RelocationFactory::produceEmptyEntry()
   // GCFactory, currently we new relocations directly and let iplist
   // delete them.
 
-  return new Relocation(0, 0, 0, 0, *this);
+  return new Relocation(0, 0, 0, 0);
 }
 
 void RelocationFactory::destroy(Relocation* pRelocation)

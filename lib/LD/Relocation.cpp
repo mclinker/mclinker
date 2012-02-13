@@ -17,14 +17,12 @@ using namespace mcld;
 Relocation::Relocation(Relocation::Type pType,
                        MCFragmentRef* pTargetRef,
                        Relocation::Address pAddend,
-                       Relocation::DWord pTargetData,
-                       RelocationFactory &pParent)
+                       Relocation::DWord pTargetData)
   : MCFragment(llvm::MCFragment::FT_Reloc),
     m_Type(pType),
     m_Addend(pAddend),
     m_TargetData(pTargetData),
-    m_pSymInfo(NULL),
-    m_Parent(pParent)
+    m_pSymInfo(NULL)
 {
   if(NULL != pTargetRef)
      m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;
@@ -50,9 +48,10 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply(const MCLDInfo& pLDInfo)
+void Relocation::apply(RelocationFactory& pRelocFactory,
+                       const MCLDInfo& pLDInfo)
 {
-  m_Parent.applyRelocation(*this, pLDInfo);
+  pRelocFactory.applyRelocation(*this, pLDInfo);
 }
 
 void Relocation::setType(Type pType)

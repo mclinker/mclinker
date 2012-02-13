@@ -37,8 +37,7 @@ private:
   Relocation(Type pType,
              MCFragmentRef* pTargetRef,
              Address pAddend,
-             DWord pTargetData,
-             RelocationFactory &pParent);
+             DWord pTargetData);
 
 public:
   ~Relocation();
@@ -79,7 +78,7 @@ public:
   const MCFragmentRef& targetRef() const
   { return m_TargetAddress; }
 
-  void apply(const MCLDInfo& pLDInfo);
+  void apply(RelocationFactory& pRelocFactory, const MCLDInfo& pLDInfo);
 
   /// ----- modifiers ----- ///
   void setType(Type pType);
@@ -102,9 +101,6 @@ private:
 
   /// m_pSymInfo - resolved symbol info of relocation target symbol
   ResolveInfo* m_pSymInfo;
-
-  /// m_Parent - the RelocationFactory who produce this relocation
-  RelocationFactory& m_Parent;
 
   /// m_TargetAddress - MCFragmentRef of the place being relocated
   MCFragmentRef m_TargetAddress;
