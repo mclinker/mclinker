@@ -18,8 +18,7 @@ using namespace mcld;
 //==========================
 // RelocationFactory
 RelocationFactory::RelocationFactory(size_t pNum)
-  : GCFactory<Relocation, 0>(pNum),
-    m_pTargetDataFactory(new TargetDataFactory(pNum)),
+  : m_pTargetDataFactory(new TargetDataFactory(pNum)),
     m_pLayout(NULL) {
 }
 

@@ -30,7 +30,7 @@ class MCLDInfo;
  *  relocation
  *
  */
-class RelocationFactory : public GCFactory<Relocation, 0>
+class RelocationFactory
 {
 public:
   typedef Relocation::Type Type;
