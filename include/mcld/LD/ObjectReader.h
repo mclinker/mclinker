@@ -13,6 +13,10 @@
 #endif
 #include "mcld/LD/LDReader.h"
 #include <llvm/Support/system_error.h>
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/StringHash.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/ResolveInfoFactory.h>
 
 namespace mcld
 {
@@ -43,6 +47,9 @@ public:
   /// This function should be called after symbol resolution.
   virtual bool readRelocations(Input& pFile) = 0;
 
+protected:
+  typedef HashTable<ResolveInfo, StringHash<ELF>, ResolveInfoFactory> Table;
+  Table m_GroupSignatureMap;
 };
 
 } // namespace of mcld

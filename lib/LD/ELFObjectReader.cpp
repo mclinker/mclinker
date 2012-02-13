@@ -79,7 +79,33 @@ bool ELFObjectReader::readSections(Input& pInput)
   // handle sections
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
+    // ignore the section if the LDSection* in input context is NULL
+    if (NULL == *section)
+        continue;
+
     switch((*section)->kind()) {
+      case LDFileFormat::Group: {
+        ResolveInfo* signature =
+              m_pELFReader->readSymbol(pInput, m_Linker, (*section)->getInfo());
+        bool exist = false;
+        m_GroupSignatureMap.insert(signature->name(), exist);
+        // if this is not the first time we see this group signature, then ignore
+        // all the members in this group
+        if (true == exist) {
+          MemoryRegion* region =
+              pInput.memArea()->request((*section)->offset(),
+                                        (*section)->size());
+          llvm::ELF::Elf32_Word* value =
+                      reinterpret_cast<llvm::ELF::Elf32_Word*>(region->start());
+          size_t size = region->size() / sizeof(llvm::ELF::Elf32_Word);
+          if (llvm::ELF::GRP_COMDAT == *value) {
+            for (size_t index = 1; index < size; ++index)
+              pInput.context()->getSectionTable()[value[index]] = NULL;
+          }
+        }
+        break;
+      }
+
       // FIXME: support Debug Kind
       case LDFileFormat::Debug:
       /** Fall through **/
@@ -119,8 +145,15 @@ bool ELFObjectReader::readSections(Input& pInput)
       // ignore
       case LDFileFormat::Null:
       case LDFileFormat::NamePool:
-      case LDFileFormat::Relocation:
         continue;
+
+      // Relocation sections of group members should also be part of the group.
+      // Thus if the associated member sections are ignored, the related
+      // relocations should be ignored also.
+      case LDFileFormat::Relocation:
+        if (NULL == (*section)->getLink())
+          *section = NULL;
+        break;
     }
   } // end of for all sections
 
@@ -152,6 +185,10 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   MemoryArea* mem = pInput.memArea();
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
   for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
+    // ignore the section if the LDSection* in input context is NULL
+    if (NULL == *section)
+        continue;
+
     if ((*section)->type() == llvm::ELF::SHT_RELA &&
         (*section)->kind() == LDFileFormat::Relocation) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());

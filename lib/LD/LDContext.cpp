@@ -41,7 +41,7 @@ LDSection* LDContext::getSection(const std::string& pName)
 {
   sect_iterator sect_iter, sect_end = sectEnd();
   for (sect_iter = sectBegin(); sect_iter != sect_end; ++sect_iter) {
-    if((*sect_iter)->name() == pName)
+    if(NULL != *sect_iter && (*sect_iter)->name() == pName)
       return *sect_iter;
   }
   return NULL;
@@ -51,7 +51,7 @@ const LDSection* LDContext::getSection(const std::string& pName) const
 {
   const_sect_iterator sect_iter, sect_end = sectEnd();
   for (sect_iter = sectBegin(); sect_iter != sect_end; ++sect_iter) {
-    if((*sect_iter)->name() == pName)
+    if(NULL != *sect_iter && (*sect_iter)->name() == pName)
       return *sect_iter;
   }
   return NULL;

@@ -521,6 +521,12 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         if (0 != sect->size())
           m_SectionOrder.push_back(sect);
         break;
+      case LDFileFormat::Group:
+        if (MCLDFile::Object == pOutput.type()) {
+          //TODO
+          ;
+        }
+        break;
       default:
         assert(0 && "Unknown section kind");
         break;

@@ -262,6 +262,15 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       st_shndx = bswap16(symtab[idx].st_shndx);
     }
 
+    // reference to the group member should be made via gloval UNDEF symbols,
+    // if the group member is not included in this object
+    if (pInput.type() == Input::Object &&
+        st_shndx < llvm::ELF::SHN_LORESERVE &&
+        st_shndx != llvm::ELF::SHN_UNDEF) {
+      if (NULL == pInput.context()->getSection(st_shndx))
+        st_shndx = llvm::ELF::SHN_UNDEF;
+    }
+
     // get ld_name
     llvm::StringRef ld_name(pStrTab + st_name);
 
@@ -316,6 +325,72 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 
   } // end of for loop
   return true;
+}
+
+/// readSymbol - read a symbol from the given Input and index in symtab
+ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
+                                             MCLinker& pLinker,
+                                             uint32_t pSymIdx) const
+{
+  LDSection* symtab = pInput.context()->getSection(".symtab");
+  LDSection* strtab = symtab->getLink();
+  assert(NULL != symtab && NULL != strtab);
+
+  uint32_t offset = symtab->offset() + sizeof(llvm::ELF::Elf32_Sym) * pSymIdx;
+  MemoryRegion* symbol_region =
+                pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf32_Sym));
+  llvm::ELF::Elf32_Sym* entry =
+                reinterpret_cast<llvm::ELF::Elf32_Sym*>(symbol_region->start());
+
+  uint32_t st_name  = 0x0;
+  uint32_t st_value = 0x0;
+  uint32_t st_size  = 0x0;
+  uint8_t  st_info  = 0x0;
+  uint8_t  st_other = 0x0;
+  uint16_t st_shndx = 0x0;
+  st_info  = entry->st_info;
+  st_other = entry->st_other;
+  if (llvm::sys::isLittleEndianHost()) {
+    st_name  = entry->st_name;
+    st_value = entry->st_value;
+    st_size  = entry->st_size;
+    st_shndx = entry->st_shndx;
+  }
+  else {
+    st_name  = bswap32(entry->st_name);
+    st_value = bswap32(entry->st_value);
+    st_size  = bswap32(entry->st_size);
+    st_shndx = bswap16(entry->st_shndx);
+  }
+
+  MemoryRegion* strtab_region =
+                    pInput.memArea()->request(strtab->offset(), strtab->size());
+
+  // get ld_name
+  llvm::StringRef ld_name(reinterpret_cast<char*>(strtab_region->start() + st_name));
+
+  // get ld_type
+  ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
+
+  // get ld_desc
+  ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
+
+  // get ld_binding
+  ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx, st_other);
+
+  // get ld_value - ld_value must be section relative.
+  uint64_t ld_value = getSymValue(st_value, st_shndx, pInput);
+
+  // get ld_vis
+  ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
+
+  return pLinker.getLDInfo().getStrSymPool().createSymbol(ld_name,
+                                                          pInput.type() == Input::DynObj,
+                                                          ld_type,
+                                                          ld_desc,
+                                                          ld_binding,
+                                                          st_size,
+                                                          ld_vis);
 }
 
 /// readRela - read ELF rela and create Relocation

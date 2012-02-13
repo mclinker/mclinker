@@ -16,6 +16,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 #include <llvm/MC/MCAssembler.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCRegionFragment.h>
@@ -82,6 +83,11 @@ public:
                            MCLinker& pLinker,
                            const MemoryRegion& pRegion,
                            const char* StrTab) const = 0;
+
+  /// readSymbol - read a symbol from the given Input and index in symtab
+  virtual ResolveInfo* readSymbol(Input& pInput,
+                                  MCLinker& pLinker,
+                                  uint32_t pSymIdx) const = 0;
 
   /// readRela - read ELF rela and create Relocation
   virtual bool readRela(Input& pInput,
@@ -189,6 +195,11 @@ public:
                           MCLinker& pLinker,
                           const MemoryRegion& pRegion,
                           const char* StrTab) const;
+
+  /// readSymbol - read a symbol from the given Input and index in symtab
+  inline ResolveInfo* readSymbol(Input& pInput,
+                                 MCLinker& pLinker,
+                                 uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation
   inline bool readRela(Input& pInput,
