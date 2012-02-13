@@ -23,9 +23,8 @@ DECL_ARM_APPLY_RELOC_FUNCS
 
 //===--------------------------------------------------------------------===//
 // ARMRelocationFactory
-ARMRelocationFactory::ARMRelocationFactory(size_t pNum,
-                                           ARMGNULDBackend& pParent)
-  : RelocationFactory(pNum),
+ARMRelocationFactory::ARMRelocationFactory(ARMGNULDBackend& pParent)
+  : RelocationFactory(),
     m_Target(pParent) {
 }
 

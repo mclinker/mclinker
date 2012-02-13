@@ -17,15 +17,12 @@ using namespace mcld;
 
 //==========================
 // RelocationFactory
-RelocationFactory::RelocationFactory(size_t pNum)
-  : m_pTargetDataFactory(new TargetDataFactory(pNum)),
-    m_pLayout(NULL) {
+RelocationFactory::RelocationFactory()
+  : m_pLayout(NULL) {
 }
 
 RelocationFactory::~RelocationFactory()
 {
-  if (0 != m_pTargetDataFactory)
-    delete m_pTargetDataFactory;
 }
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
@@ -39,9 +36,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   // target_data is the place where the relocation applys to.
   // Use TargetDataFactory to generate temporary data, and copy the
   // content of the fragment into this data.
-  DWord* target_data = NULL;
-  target_data = m_pTargetDataFactory->allocate();
-  *target_data = 0;
+  DWord target_data = 0;
 
   // byte swapping if the host and target have different endian
   if(llvm::sys::isLittleEndianHost() != getTarget().isLittleEndian()) {
@@ -51,12 +46,12 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
       case 32u:
         pFragRef.memcpy(&tmp_data, 4);
         tmp_data = bswap32(tmp_data);
-        *target_data = tmp_data;
+        target_data = tmp_data;
         break;
 
       case 64u:
-        pFragRef.memcpy(target_data, 8);
-        *target_data = bswap64(*target_data);
+        pFragRef.memcpy(&target_data, 8);
+        target_data = bswap64(target_data);
         break;
 
       default:
@@ -64,7 +59,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     }
   }
   else {
-    pFragRef.memcpy(target_data, (getTarget().bitclass()/8));
+    pFragRef.memcpy(&target_data, (getTarget().bitclass()/8));
   }
 
   return new Relocation(pType, &pFragRef, pAddend, target_data, *this);

@@ -17,12 +17,12 @@ using namespace mcld;
 Relocation::Relocation(Relocation::Type pType,
                        MCFragmentRef* pTargetRef,
                        Relocation::Address pAddend,
-                       Relocation::DWord* pTargetData,
+                       Relocation::DWord pTargetData,
                        RelocationFactory &pParent)
   : MCFragment(llvm::MCFragment::FT_Reloc),
     m_Type(pType),
     m_Addend(pAddend),
-    m_pTargetData(pTargetData),
+    m_TargetData(pTargetData),
     m_pSymInfo(NULL),
     m_Parent(pParent)
 {
@@ -72,13 +72,11 @@ void Relocation::setSymInfo(ResolveInfo* pSym)
 
 Relocation::DWord& Relocation::target()
 {
-  assert(0 != m_pTargetData);
-  return *m_pTargetData;
+  return m_TargetData;
 }
 
 const Relocation::DWord& Relocation::target() const
 {
-  assert(0 != m_pTargetData);
-  return *m_pTargetData;
+  return m_TargetData;
 }
 

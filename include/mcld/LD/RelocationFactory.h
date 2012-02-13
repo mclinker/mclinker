@@ -38,7 +38,7 @@ public:
   typedef Relocation::DWord DWord;
 
 public:
-  explicit RelocationFactory(size_t pNum);
+  explicit RelocationFactory();
 
   virtual ~RelocationFactory();
 
@@ -71,10 +71,6 @@ public:
   virtual const TargetLDBackend& getTarget() const = 0;
 
 private:
-  typedef GCFactory<DWord, 0> TargetDataFactory;
-
-private:
-  TargetDataFactory* m_pTargetDataFactory;
   const Layout* m_pLayout;
 
 };

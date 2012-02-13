@@ -36,7 +36,7 @@ public:
   };
 
 public:
-  MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
+  MipsRelocationFactory(MipsGNULDBackend& pParent);
 
   void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
 

@@ -37,7 +37,7 @@ private:
   Relocation(Type pType,
              MCFragmentRef* pTargetRef,
              Address pAddend,
-             DWord* pTargetData,
+             DWord pTargetData,
              RelocationFactory &pParent);
 
 public:
@@ -98,7 +98,7 @@ private:
   Type m_Type;
 
   /// m_TargetData - target data of the place being relocated
-  DWord* m_pTargetData;
+  DWord m_TargetData;
 
   /// m_pSymInfo - resolved symbol info of relocation target symbol
   ResolveInfo* m_pSymInfo;

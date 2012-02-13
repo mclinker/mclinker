@@ -22,9 +22,8 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 
 //==========================
 // MipsRelocationFactory
-MipsRelocationFactory::MipsRelocationFactory(size_t pNum,
-                                             MipsGNULDBackend& pParent)
-  : RelocationFactory(pNum),
+MipsRelocationFactory::MipsRelocationFactory(MipsGNULDBackend& pParent)
+  : RelocationFactory(),
     m_Target(pParent)
 {
 }

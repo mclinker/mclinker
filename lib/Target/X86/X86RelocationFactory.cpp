@@ -23,9 +23,8 @@ DECL_X86_APPLY_RELOC_FUNCS
 
 //===--------------------------------------------------------------------===//
 // X86RelocationFactory
-X86RelocationFactory::X86RelocationFactory(size_t pNum,
-                                           X86GNULDBackend& pParent)
-  : RelocationFactory(pNum),
+X86RelocationFactory::X86RelocationFactory(X86GNULDBackend& pParent)
+  : RelocationFactory(),
     m_Target(pParent) {
 }
 

@@ -37,7 +37,7 @@ public:
   };
 
 public:
-  X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
+  X86RelocationFactory(X86GNULDBackend& pParent);
   ~X86RelocationFactory();
 
   void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
