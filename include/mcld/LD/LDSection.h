@@ -97,16 +97,19 @@ public:
   size_t index() const
   { return m_Index; }
 
-  /// getLinkInfo - return the LinkInfo. When a section A needs the other section B
-  /// during linking or loading, we say B is A's LinkInfo section.
+  /// getLink - return the Link. When a section A needs the other section B
+  /// during linking or loading, we say B is A's Link section.
   /// In ELF, InfoLink section control the ElfNN_Shdr::sh_link and sh_info.
   ///
   /// @return if the section needs no other sections, return NULL
-  LDSection* getLinkInfo()
-  { return m_pLinkInfo; }
+  LDSection* getLink()
+  { return m_pLink; }
 
-  const LDSection* getLinkInfo() const
-  { return m_pLinkInfo; }
+  const LDSection* getLink() const
+  { return m_pLink; }
+
+  size_t getInfo() const
+  { return m_Info; }
 
   void setKind(LDFileFormat::Kind pKind)
   { m_Kind = pKind; }
@@ -155,10 +158,13 @@ public:
   bool hasSectionData() const
   { return (NULL != m_pSectionData); }
 
-  /// setLinkInfo - set the sections should link with.
-  /// if pLinkInfo is NULL, no LinkInfo section is set.
-  void setLinkInfo(LDSection* pLinkInfo)
-  { m_pLinkInfo = pLinkInfo; }
+  /// setLink - set the sections should link with.
+  /// if pLink is NULL, no Link section is set.
+  void setLink(LDSection* pLink)
+  { m_pLink = pLink; }
+
+  void setInfo(size_t pInfo)
+  { m_Info = pInfo; }
 
   void setIndex(size_t pIndex)
   { m_Index = pIndex; }
@@ -173,7 +179,8 @@ private:
   uint64_t m_Offset;
   uint64_t m_Addr;
 
-  LDSection* m_pLinkInfo;
+  size_t m_Info;
+  LDSection* m_pLink;
 
   // pointer to MCSectionData.
   llvm::MCSectionData* m_pSectionData;

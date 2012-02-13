@@ -224,7 +224,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
   // create MCSectionData and ARMPLT
   m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
   // set info of .rel.plt to .plt
-  relplt.setLinkInfo(&plt);
+  relplt.setLink(&plt);
   // create MCSectionData and ARMRelDynSection
   m_pRelPLT = new OutputRelocSection(relplt,
                                      pLinker.getOrCreateSectData(relplt),

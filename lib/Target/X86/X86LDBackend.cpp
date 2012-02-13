@@ -147,7 +147,7 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
   m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT, pOutput);
 
   // set info of .rel.plt to .plt
-  relplt.setLinkInfo(&plt);
+  relplt.setLink(&plt);
   // create MCSectionData and X86RelDynSection
   m_pRelPLT = new OutputRelocSection(relplt,
                                      pLinker.getOrCreateSectData(relplt),

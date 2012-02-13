@@ -551,7 +551,7 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection, const Output& pOutput
 /// getSectInfo - compute ElfXX_Shdr::sh_info
 uint64_t ELFWriter::getSectInfo(const LDSection& pSection, const Output& pOutput) const
 {
-  const LDSection* info_link = pSection.getLinkInfo();
+  const LDSection* info_link = pSection.getLink();
   if (NULL == info_link)
     return 0x0;
   return info_link->index();

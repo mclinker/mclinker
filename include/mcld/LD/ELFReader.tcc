@@ -171,6 +171,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     section.setSize(sh_size);
     section.setOffset(sh_offset);
     section.setIndex(pInput.context()->numOfSections());
+    section.setInfo(sh_info);
 
     if (sh_link != 0x0 || sh_info != 0x0) {
       LinkInfo link_info = { &section, sh_link, sh_info };
@@ -184,11 +185,11 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
     if (LDFileFormat::NamePool == info->section->kind()) {
-      info->section->setLinkInfo(pInput.context()->getSection(info->sh_link));
+      info->section->setLink(pInput.context()->getSection(info->sh_link));
       continue;
     }
     if (LDFileFormat::Relocation == info->section->kind()) {
-      info->section->setLinkInfo(pInput.context()->getSection(info->sh_info));
+      info->section->setLink(pInput.context()->getSection(info->sh_info));
       continue;
     }
   }
@@ -357,11 +358,11 @@ bool ELFReader<32, true>::readRela(Input& pInput,
     ResolveInfo* resolve_info = symbol->resolveInfo();
 
     MCFragmentRef* frag_ref =
-         pLinker.getLayout().getFragmentRef(*pSection.getLinkInfo(), r_offset);
+         pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {
       llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
-                               llvm::Twine(pSection.getLinkInfo()->index()) +
+                               llvm::Twine(pSection.getLink()->index()) +
                                llvm::Twine(" of the relocation section `") +
                                pSection.name() +
                                llvm::Twine("' in file `") +
@@ -412,11 +413,11 @@ bool ELFReader<32, true>::readRel(Input& pInput,
     ResolveInfo* resolve_info = symbol->resolveInfo();
 
     MCFragmentRef* frag_ref =
-         pLinker.getLayout().getFragmentRef(*pSection.getLinkInfo(), r_offset);
+         pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {
       llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
-                               llvm::Twine(pSection.getLinkInfo()->index()) +
+                               llvm::Twine(pSection.getLink()->index()) +
                                llvm::Twine(" of the relocation section `") +
                                pSection.name() +
                                llvm::Twine("' in file `") +
