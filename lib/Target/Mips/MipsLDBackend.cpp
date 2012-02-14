@@ -138,7 +138,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
 
   if (rsym->isLocal())
     scanLocalReloc(pReloc, pLinker, pOutput);
-  else if (rsym->isGlobal())
+  else
     scanGlobalReloc(pReloc, pLinker, pOutput);
 }
 

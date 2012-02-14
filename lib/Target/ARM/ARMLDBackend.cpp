@@ -688,8 +688,8 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   if(rsym->isLocal())
     scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 
-  // rsym is global
-  else if(rsym->isGlobal())
+  // rsym is external
+  else
     scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 
 }
