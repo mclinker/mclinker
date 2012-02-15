@@ -114,6 +114,12 @@ public:
                            const MCLDInfo& pInfo,
                            MemoryRegion& pRegion) const;
 
+  /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
+  virtual void emitDynNamePools(Output& pOutput,
+                                SymbolCategory& pSymbols,
+                                const Layout& pLayout,
+                                const MCLDInfo& pLDInfo);
+
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
 
@@ -162,6 +168,18 @@ private:
 
   std::vector<LDSymbol*> m_LocalGOTSyms;
   std::vector<LDSymbol*> m_GlobalGOTSyms;
+
+private:
+  /// isGOTSymbol - return true if the symbol is the GOT entry.
+  bool isGOTSymbol(const LDSymbol& pSymbol) const;
+  /// emitDynamicSymbol - emit dynamic symbol.
+  void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
+                         llvm::ELF::Elf64_Sym& sym64,
+                         Output& pOutput, 
+                         LDSymbol& pSymbol,
+                         const Layout& pLayout,
+                         char* strtab,
+                         size_t strtabsize);
 };
 
 } // namespace of mcld

@@ -254,6 +254,263 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
                            llvm::Twine("'.\n"));
   return 0;
 }
+/// isGOTSymbol - return true if the symbol is the GOT entry.
+bool MipsGNULDBackend::isGOTSymbol(const LDSymbol& pSymbol) const
+{
+  return std::find(m_LocalGOTSyms.begin(),
+                   m_LocalGOTSyms.end(), &pSymbol) != m_LocalGOTSyms.end() ||
+         std::find(m_GlobalGOTSyms.begin(),
+                   m_GlobalGOTSyms.end(), &pSymbol) != m_GlobalGOTSyms.end();
+}
+
+/// emitDynamicSymbol - emit dynamic symbol.
+void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
+                                         llvm::ELF::Elf64_Sym& sym64,
+                                         Output& pOutput, 
+                                         LDSymbol& pSymbol,
+                                         const Layout& pLayout,
+                                         char* strtab,
+                                         size_t strtabsize)
+{
+  // maintain output's symtab
+  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
+    pOutput.context()->symtab().push_back(&pSymbol);
+
+  // FIXME: check the endian between host and target
+  // write out symbol
+  if (32 == bitclass()) {
+    sym32.st_name  = strtabsize;
+    sym32.st_value = pSymbol.value();
+    sym32.st_size  = getSymbolSize(pSymbol);
+    sym32.st_info  = getSymbolInfo(pSymbol);
+    sym32.st_other = pSymbol.visibility();
+    sym32.st_shndx = getSymbolShndx(pSymbol, pLayout);
+  }
+  else { // must 64
+    sym64.st_name  = strtabsize;
+    sym64.st_value = pSymbol.value();
+    sym64.st_size  = getSymbolSize(pSymbol);
+    sym64.st_info  = getSymbolInfo(pSymbol);
+    sym64.st_other = pSymbol.visibility();
+    sym64.st_shndx = getSymbolShndx(pSymbol, pLayout);
+  }
+  // write out string
+  strcpy((strtab + strtabsize), pSymbol.name());
+}
+
+/// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
+///
+/// the size of these tables should be computed before layout
+/// layout should computes the start offset of these tables
+void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
+                                        SymbolCategory& pSymbols,
+                                        const Layout& pLayout,
+                                        const MCLDInfo& pLDInfo)
+{
+  assert(pOutput.hasMemArea());
+  ELFFileFormat* file_format = NULL;
+  switch (pOutput.type()) {
+    // compute size of .dynstr and .hash
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      pOutput.context()->symtab().push_back(NULL);
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      pOutput.context()->symtab().push_back(NULL);
+      break;
+    case Output::Object:
+    default:
+      // TODO: not support yet
+      return;
+  }
+
+  LDSection& symtab_sect = file_format->getDynSymTab();
+  LDSection& strtab_sect = file_format->getDynStrTab();
+  LDSection& hash_sect   = file_format->getHashTab();
+  LDSection& dyn_sect    = file_format->getDynamic();
+
+  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
+                                                           symtab_sect.size(),
+                                                           true);
+  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
+                                                           strtab_sect.size(),
+                                                           true);
+  MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
+                                                         hash_sect.size(),
+                                                         true);
+  MemoryRegion* dyn_region = pOutput.memArea()->request(dyn_sect.offset(),
+                                                        dyn_sect.size(),
+                                                        true);
+  // set up symtab_region
+  llvm::ELF::Elf32_Sym* symtab32 = NULL;
+  llvm::ELF::Elf64_Sym* symtab64 = NULL;
+  if (32 == bitclass())
+    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
+  else if (64 == bitclass())
+    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
+  else
+    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
+                             llvm::Twine(bitclass()) +
+                             llvm::Twine(".\n"));
+
+  // initialize the first ELF symbol
+  if (32 == bitclass()) {
+    symtab32[0].st_name  = 0;
+    symtab32[0].st_value = 0;
+    symtab32[0].st_size  = 0;
+    symtab32[0].st_info  = 0;
+    symtab32[0].st_other = 0;
+    symtab32[0].st_shndx = 0;
+  }
+  else { // must 64
+    symtab64[0].st_name  = 0;
+    symtab64[0].st_value = 0;
+    symtab64[0].st_size  = 0;
+    symtab64[0].st_info  = 0;
+    symtab64[0].st_other = 0;
+    symtab64[0].st_shndx = 0;
+  }
+  // set up strtab_region
+  char* strtab = (char*)strtab_region->start();
+  strtab[0] = '\0';
+
+  size_t symtabIdx = 1;
+  size_t strtabsize = 1;
+
+  // emit of .dynsym, and .dynstr except GOT entries
+  for (SymbolCategory::iterator symbol = pSymbols.begin(),
+       sym_end = pSymbols.end(); symbol != sym_end; ++symbol) {
+    if (!isDynamicSymbol(**symbol, pOutput))
+      continue;
+
+    if (isGOTSymbol(**symbol))
+      continue;
+
+    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
+                      pOutput, **symbol, pLayout, strtab, strtabsize);
+
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit local GOT
+  for (std::vector<LDSymbol*>::const_iterator symbol = m_LocalGOTSyms.begin(),
+       symbol_end = m_LocalGOTSyms.end();
+       symbol != symbol_end; ++symbol) {
+    if (!isDynamicSymbol(**symbol, pOutput))
+      continue;
+
+    // maintain output's symtab
+    if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
+      pOutput.context()->symtab().push_back(*symbol);
+
+    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
+                      pOutput, **symbol, pLayout, strtab, strtabsize);
+
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit global GOT
+  for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
+       symbol_end = m_GlobalGOTSyms.end();
+       symbol != symbol_end; ++symbol) {
+    if (!isDynamicSymbol(**symbol, pOutput))
+      continue;
+
+    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
+                      pOutput, **symbol, pLayout, strtab, strtabsize);
+
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit DT_NEED
+  // add DT_NEED strings into .dynstr
+  // Rules:
+  //   1. ignore --no-add-needed
+  //   2. force count in --no-as-needed
+  //   3. judge --as-needed
+  ELFDynamic::iterator dt_need = dynamic().needBegin();
+  InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
+  for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+    if (Input::DynObj == (*input)->type()) {
+      // --add-needed
+      if ((*input)->attribute()->isAddNeeded()) {
+        // --no-as-needed
+        if (!(*input)->attribute()->isAsNeeded()) {
+          strcpy((strtab + strtabsize), (*input)->name().c_str());
+          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+          strtabsize += (*input)->name().size() + 1;
+          ++dt_need;
+        }
+        // --as-needed
+        else if ((*input)->isNeeded()) {
+          strcpy((strtab + strtabsize), (*input)->name().c_str());
+          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+          strtabsize += (*input)->name().size() + 1;
+          ++dt_need;
+        }
+      }
+    }
+  } // for
+
+  // emit soname
+  // initialize value of ELF .dynamic section
+  dynamic().applySoname(strtabsize);
+  dynamic().applyEntries(pLDInfo, *file_format);
+  dynamic().emit(dyn_sect, *dyn_region);
+
+  strcpy((strtab + strtabsize), pOutput.name().c_str());
+  strtabsize += pOutput.name().size() + 1;
+
+  // emit hash table
+  // FIXME: this verion only emit SVR4 hash section.
+  //        Please add GNU new hash section
+
+  // both 32 and 64 bits hash table use 32-bit entry
+  // set up hash_region
+  uint32_t* word_array = (uint32_t*)hash_region->start();
+  uint32_t& nbucket = word_array[0];
+  uint32_t& nchain  = word_array[1];
+
+  nbucket = getHashBucketCount(symtabIdx, false);
+  nchain  = symtabIdx;
+
+  uint32_t* bucket = (word_array + 2);
+  uint32_t* chain  = (bucket + nbucket);
+
+  // initialize bucket
+  bzero((void*)bucket, nbucket);
+
+  StringHash<ELF> hash_func;
+
+  if (32 == bitclass()) {
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
+      size_t bucket_pos = hash_func(name) % nbucket;
+      chain[sym_idx] = bucket[bucket_pos];
+      bucket[bucket_pos] = sym_idx;
+    }
+  }
+  else if (64 == bitclass()) {
+    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+      llvm::StringRef name(strtab + symtab64[sym_idx].st_name);
+      size_t bucket_pos = hash_func(name) % nbucket;
+      chain[sym_idx] = bucket[bucket_pos];
+      bucket[bucket_pos] = sym_idx;
+    }
+  }
+
+  symtab_region->sync();
+  strtab_region->sync();
+  hash_region->sync();
+  dyn_region->sync();
+}
 
 MipsGOT& MipsGNULDBackend::getGOT()
 {
