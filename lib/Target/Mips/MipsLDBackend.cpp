@@ -308,22 +308,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                                         const MCLDInfo& pLDInfo)
 {
   assert(pOutput.hasMemArea());
-  ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      pOutput.context()->symtab().push_back(NULL);
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      pOutput.context()->symtab().push_back(NULL);
-      break;
-    case Output::Object:
-    default:
-      // TODO: not support yet
-      return;
-  }
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
@@ -355,6 +340,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                              llvm::Twine(".\n"));
 
   // initialize the first ELF symbol
+  pOutput.context()->symtab().push_back(NULL);
+
   if (32 == bitclass()) {
     symtab32[0].st_name  = 0;
     symtab32[0].st_value = 0;
