@@ -24,7 +24,8 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 // MipsRelocationFactory
 MipsRelocationFactory::MipsRelocationFactory(MipsGNULDBackend& pParent)
   : RelocationFactory(),
-    m_Target(pParent)
+    m_Target(pParent),
+    m_AHL(0)
 {
 }
 
@@ -171,6 +172,19 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
   return pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
 }
 
+static
+int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
+{
+  assert(pHiReloc.type() == llvm::ELF::R_MIPS_HI16 &&
+         pLoReloc.type() == llvm::ELF::R_MIPS_LO16 &&
+         "Incorrect type of relocation for AHL calculation");
+
+  int32_t AHI = pHiReloc.target();
+  int32_t ALO = pLoReloc.target();
+  int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF);
+  return AHL;
+}
+
 //=========================================//
 // Relocation functions implementation     //
 //=========================================//
@@ -206,20 +220,25 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
                                    MipsRelocationFactory& pParent)
 {
   Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
-  assert(NULL != lo_reloc && "There is no pair for R_MIPS_HI16");
+  assert(NULL != lo_reloc && "There is no paired R_MIPS_LO16 for R_MIPS_HI16");
 
-  RelocationFactory::DWord AHI = pReloc.target() + pReloc.addend();
-  RelocationFactory::DWord ALO = lo_reloc->target() + lo_reloc->addend();
-  RelocationFactory::DWord AHL = (AHI & 0xFFFF) << 16 + (short)(ALO & 0xFFFF);
-  RelocationFactory::DWord S = pReloc.symValue();
+  int32_t AHL = helper_CalcAHL(pReloc, *lo_reloc);
+  int32_t res = 0;
+
+  pParent.setAHL(AHL);
 
   if (helper_isGpDisp(pReloc)) {
-    RelocationFactory::Address P = pReloc.place(pParent.getLayout());
-    S = helper_GetGP(pParent) - P;
+    int32_t P = pReloc.place(pParent.getLayout());
+    int32_t GP = helper_GetGP(pParent);
+    res = ((AHL + GP - P) - (int16_t)(AHL + GP - P)) >> 16;
+  }
+  else {
+    int32_t S = pReloc.symValue();
+    res = ((AHL + S) - (int16_t)(AHL + S)) >> 16;
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= (((S + AHL + (int)0x8000) >> 16) & 0xFFFF);
+  pReloc.target() |= res;
 
   return MipsRelocationFactory::OK;
 }
@@ -232,16 +251,21 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    MipsRelocationFactory& pParent)
 {
-  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  RelocationFactory::DWord S = pReloc.symValue();
+  int32_t AHL = pParent.getAHL();
+  int32_t res = 0;
 
   if (helper_isGpDisp(pReloc)) {
-    RelocationFactory::Address P = pReloc.place(pParent.getLayout());
-    S = helper_GetGP(pParent) - P;
+    int32_t P = pReloc.place(pParent.getLayout());
+    int32_t GP = helper_GetGP(pParent);
+    res = AHL + GP - P + 4;
+  }
+  else {
+    int32_t S = pReloc.symValue();
+    res = AHL + S;
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= ((S + A) & 0xFFFF);
+  pReloc.target() |= res;
 
   return MipsRelocationFactory::OK;
 }

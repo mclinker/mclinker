@@ -46,8 +46,17 @@ public:
   const MipsGNULDBackend& getTarget() const
   { return m_Target; }
 
+  // Get last calculated AHL.
+  int32_t getAHL() const
+  { return m_AHL; }
+
+  // Set last calculated AHL.
+  void setAHL(int32_t pAHL)
+  { m_AHL = pAHL; }
+
 private:
   MipsGNULDBackend& m_Target;
+  int32_t m_AHL;
 };
 
 } // namespace of mcld
