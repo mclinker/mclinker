@@ -159,6 +159,9 @@ private:
   MipsELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pGpDispSymbol;
+
+  std::vector<LDSymbol*> m_LocalGOTSyms;
+  std::vector<LDSymbol*> m_GlobalGOTSyms;
 };
 
 } // namespace of mcld

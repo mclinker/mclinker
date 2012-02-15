@@ -459,6 +459,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
       m_pGOT->reserveEntry();
       rsym->setReserved(rsym->reserved() | ReserveGot);
+      m_LocalGOTSyms.push_back(rsym->outSymbol());
       break;
     case ELF::R_MIPS_GPREL32:
     case ELF::R_MIPS_GPREL16:
@@ -537,6 +538,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
       m_pGOT->reserveEntry();
       rsym->setReserved(rsym->reserved() | ReserveGot);
+      m_GlobalGOTSyms.push_back(rsym->outSymbol());
       break;
     case ELF::R_MIPS_LITERAL:
     case ELF::R_MIPS_GPREL32:
