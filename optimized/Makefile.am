@@ -9,7 +9,7 @@ ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=no
 
 bin_PROGRAMS = llvm-mcld
 
-llvm_mcld_CPPFLAGS = -static -pg -g -O2 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+llvm_mcld_CPPFLAGS = -O2 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 llvm_mcld_LDADD = ${LLVM_LDFLAGS}
 
 NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
