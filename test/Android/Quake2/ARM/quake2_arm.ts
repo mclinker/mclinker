@@ -14,9 +14,5 @@
 ; RUN: -o Output/libquake2.so \
 ; RUN: -lGLESv1_CM -llog -lc -lm
 
-; RUN: diff -s Output/libquake2.so %p/../quake2/golden/ARM/libquake2.so | \
-; RUN: awk '{print $6}' | \
-; RUN: FileCheck %s -check-prefix=Quake
-
-; Quake: identical
+; RUN: diff -s Output/libquake2.so %p/../quake2/golden/ARM/libquake2.so
 

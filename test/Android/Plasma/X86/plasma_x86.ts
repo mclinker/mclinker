@@ -11,9 +11,5 @@
 ; RUN: -o Output/libplasma_portable.so \
 ; RUN: -lm -llog -ljnigraphics -lc
 
-; RUN: diff -s Output/libplasma_portable.so %p/../plasma/golden/X86/libplasma_portable.so | \
-; RUN: awk '{print $6}' | \
-; RUN: FileCheck %s -check-prefix=Plasma
-
-; Plasma: identical
+; RUN: diff -s Output/libplasma_portable.so %p/../plasma/golden/X86/libplasma_portable.so
 

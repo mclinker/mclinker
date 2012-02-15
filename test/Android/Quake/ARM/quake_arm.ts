@@ -14,9 +14,5 @@
 ; RUN: -o Output/libquake_portable.so \
 ; RUN: -llog -lEGL -lGLESv1_CM -lOpenSLES -lc -lm
 
-; RUN: diff -s Output/libquake_portable.so %p/../quake/golden/ARM/libquake_portable.so | \
-; RUN: awk '{print $6}' | \
-; RUN: FileCheck %s -check-prefix=Quake
-
-; Quake: identical
+; RUN: diff -s Output/libquake_portable.so %p/../quake/golden/ARM/libquake_portable.so
 
