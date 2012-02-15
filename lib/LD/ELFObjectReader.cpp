@@ -84,19 +84,26 @@ bool ELFObjectReader::readSections(Input& pInput)
         continue;
 
     switch((*section)->kind()) {
+      /** group sections **/
       case LDFileFormat::Group: {
         ResolveInfo* signature =
-              m_pELFReader->readSymbol(pInput, m_Linker, (*section)->getInfo());
+              m_pELFReader->readSymbol(pInput,
+                                       **section,
+                                       m_Linker.getLDInfo(),
+                                       (*section)->getInfo());
+
         bool exist = false;
-        m_GroupSignatureMap.insert(signature->name(), exist);
-        // if this is not the first time we see this group signature, then ignore
-        // all the members in this group
-        if (true == exist) {
+        signatures().insert(signature->name(), exist);
+
+        if (exist) {
+          // if this is not the first time we see this group signature, then
+          // ignore all the members in this group (set NULL)
           MemoryRegion* region =
               pInput.memArea()->request((*section)->offset(),
                                         (*section)->size());
           llvm::ELF::Elf32_Word* value =
                       reinterpret_cast<llvm::ELF::Elf32_Word*>(region->start());
+
           size_t size = region->size() / sizeof(llvm::ELF::Elf32_Word);
           if (llvm::ELF::GRP_COMDAT == *value) {
             for (size_t index = 1; index < size; ++index)
@@ -105,7 +112,17 @@ bool ELFObjectReader::readSections(Input& pInput)
         }
         break;
       }
-
+      /** relocation sections **/
+      case LDFileFormat::Relocation: {
+        if (NULL == (*section)->getLink()) {
+          // Relocation sections of group members should also be part of the
+          // group. Thus, if the associated member sections are ignored, the
+          // related relocations should be also ignored.
+          *section = NULL;
+        }
+        break;
+      }
+      /** normal sections **/
       // FIXME: support Debug Kind
       case LDFileFormat::Debug:
       /** Fall through **/
@@ -119,7 +136,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                                 llvm::Twine("'.\n"));
         break;
       }
-
+      /** target dependent sections **/
       case LDFileFormat::Target: {
         if (!m_pELFReader->readTargetSection(pInput, m_Linker, **section))
           llvm::report_fatal_error(
@@ -128,7 +145,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                         llvm::Twine("'.\n"));
         break;
       }
-
+      /** BSS sections **/
       case LDFileFormat::BSS: {
         LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
                                                (*section)->name(),
@@ -147,13 +164,6 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::NamePool:
         continue;
 
-      // Relocation sections of group members should also be part of the group.
-      // Thus if the associated member sections are ignored, the related
-      // relocations should be ignored also.
-      case LDFileFormat::Relocation:
-        if (NULL == (*section)->getLink())
-          *section = NULL;
-        break;
     }
   } // end of for all sections
 

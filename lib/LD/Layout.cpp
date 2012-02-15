@@ -523,7 +523,7 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         break;
       case LDFileFormat::Group:
         if (MCLDFile::Object == pOutput.type()) {
-          //TODO
+          //TODO: support incremental linking
           ;
         }
         break;

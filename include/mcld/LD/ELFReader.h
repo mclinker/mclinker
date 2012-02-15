@@ -86,7 +86,8 @@ public:
 
   /// readSymbol - read a symbol from the given Input and index in symtab
   virtual ResolveInfo* readSymbol(Input& pInput,
-                                  MCLinker& pLinker,
+                                  LDSection& pSymTab,
+                                  MCLDInfo& pLDInfo,
                                   uint32_t pSymIdx) const = 0;
 
   /// readRela - read ELF rela and create Relocation
@@ -198,7 +199,8 @@ public:
 
   /// readSymbol - read a symbol from the given Input and index in symtab
   inline ResolveInfo* readSymbol(Input& pInput,
-                                 MCLinker& pLinker,
+                                 LDSection& pSymTab,
+                                 MCLDInfo& pLDInfo,
                                  uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation

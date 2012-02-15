@@ -192,7 +192,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ArchiveReader.h \
 	${LIBDIR}/LD/ArchiveReader.cpp \
 	${INCDIR}/LD/ObjectReader.h \
-	${LIBDIR}/LD/ObjectReader.cpp \
 	${INCDIR}/LD/DynObjReader.h \
 	${LIBDIR}/LD/DynObjReader.cpp \
 	${INCDIR}/LD/ObjectWriter.h \

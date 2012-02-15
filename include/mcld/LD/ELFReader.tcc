@@ -249,6 +249,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
+
     if (llvm::sys::isLittleEndianHost()) {
       st_name  = symtab[idx].st_name;
       st_value = symtab[idx].st_value;
@@ -262,8 +263,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       st_shndx = bswap16(symtab[idx].st_shndx);
     }
 
-    // reference to the group member should be made via gloval UNDEF symbols,
-    // if the group member is not included in this object
+    // If the section should not be included, set the st_shndx SHN_UNDEF
+    // - A section in interrelated groups are not included.
     if (pInput.type() == Input::Object &&
         st_shndx < llvm::ELF::SHN_LORESERVE &&
         st_shndx != llvm::ELF::SHN_UNDEF) {
@@ -329,10 +330,11 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 
 /// readSymbol - read a symbol from the given Input and index in symtab
 ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
-                                             MCLinker& pLinker,
+                                             LDSection& pSymTab,
+                                             MCLDInfo& pLDInfo,
                                              uint32_t pSymIdx) const
 {
-  LDSection* symtab = pInput.context()->getSection(".symtab");
+  LDSection* symtab = &pSymTab; 
   LDSection* strtab = symtab->getLink();
   assert(NULL != symtab && NULL != strtab);
 
@@ -384,13 +386,13 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   // get ld_vis
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
 
-  return pLinker.getLDInfo().getStrSymPool().createSymbol(ld_name,
-                                                          pInput.type() == Input::DynObj,
-                                                          ld_type,
-                                                          ld_desc,
-                                                          ld_binding,
-                                                          st_size,
-                                                          ld_vis);
+  return pLDInfo.getStrSymPool().createSymbol(ld_name,
+                                              pInput.type() == Input::DynObj,
+                                              ld_type,
+                                              ld_desc,
+                                              ld_binding,
+                                              st_size,
+                                              ld_vis);
 }
 
 /// readRela - read ELF rela and create Relocation

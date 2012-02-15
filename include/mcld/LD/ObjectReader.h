@@ -30,6 +30,11 @@ class Input;
 class ObjectReader : public LDReader
 {
 protected:
+  typedef HashTable<ResolveInfo,
+                    StringHash<ELF>,
+                    ResolveInfoFactory> GroupSignatureMap;
+
+protected:
   ObjectReader()
   { }
 
@@ -47,9 +52,15 @@ public:
   /// This function should be called after symbol resolution.
   virtual bool readRelocations(Input& pFile) = 0;
 
+  GroupSignatureMap& signatures()
+  { return f_GroupSignatureMap; }
+
+  const GroupSignatureMap& signatures() const
+  { return f_GroupSignatureMap; }
+
 protected:
-  typedef HashTable<ResolveInfo, StringHash<ELF>, ResolveInfoFactory> Table;
-  Table m_GroupSignatureMap;
+  GroupSignatureMap f_GroupSignatureMap;
+
 };
 
 } // namespace of mcld

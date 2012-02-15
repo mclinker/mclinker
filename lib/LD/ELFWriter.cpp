@@ -407,7 +407,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
                         const llvm::MCSectionData& pSectionData,
                         MemoryRegion& pRegion) const
 {
-  Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>( pRegion.start());
+  Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>(pRegion.start());
 
   Relocation* relocation = 0;
   MCFragmentRef* FragmentRef = 0;
