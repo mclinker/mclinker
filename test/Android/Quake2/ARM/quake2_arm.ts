@@ -1,9 +1,9 @@
-: RUN: cp %p/../quake2/libquake2.bc ../
+: RUN: cp %p/../quake2/libquake2.bc ./
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic \
 ; RUN: -mtriple="armv7-none-linux-gnueabi" \
-; RUN: -dB ../libquake2.bc -o Output/libquake2.o
+; RUN: -dB libquake2.bc -o Output/libquake2.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libquake2.so \

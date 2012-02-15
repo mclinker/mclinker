@@ -1,8 +1,8 @@
-: RUN: cp %p/../plasma/libplasma_portable.bc ../
+: RUN: cp %p/../plasma/libplasma_portable.bc ./
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic -march=x86 \
-; RUN: -dB ../libplasma_portable.bc -o Output/libplasma_portable.o
+; RUN: -dB libplasma_portable.bc -o Output/libplasma_portable.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=x86 -soname=libplasma_portable.so \

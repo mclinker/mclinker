@@ -1,9 +1,9 @@
-: RUN: cp %p/../plasma/libplasma_portable.bc ../
+: RUN: cp %p/../plasma/libplasma_portable.bc ./
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic \
 ; RUN: -mtriple="armv7-none-linux-gnueabi" \
-; RUN: -dB ../libplasma_portable.bc -o Output/libplasma_portable.o
+; RUN: -dB libplasma_portable.bc -o Output/libplasma_portable.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libplasma_portable.so \

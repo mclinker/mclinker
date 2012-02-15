@@ -1,8 +1,8 @@
-: RUN: cp %p/../quake/libquake_portable.bc ../
+: RUN: cp %p/../quake/libquake_portable.bc ./
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic -march=x86 \
-; RUN: -dB ../libquake_portable.bc -o Output/libquake_portable.o
+; RUN: -dB libquake_portable.bc -o Output/libquake_portable.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=x86 -soname=libquake_portable.so \

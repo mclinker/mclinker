@@ -1,8 +1,8 @@
-: RUN: cp %p/../quake2/libquake2.bc ../
+: RUN: cp %p/../quake2/libquake2.bc ./
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic -march=x86 \
-; RUN: -dB ../libquake2.bc -o Output/libquake2.o
+; RUN: -dB libquake2.bc -o Output/libquake2.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=x86 -soname=libquake2.so \
