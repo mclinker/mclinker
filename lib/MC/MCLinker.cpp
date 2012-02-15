@@ -536,10 +536,17 @@ bool MCLinker::applyRelocations()
   return true;
 }
 
-void MCLinker::syncRelocationResult() {
+void MCLinker::syncRelocationResult()
+{
+
+  m_Info.output().memArea()->clean();
+  MemoryRegion* region = m_Info.output().memArea()->request(0,
+                              m_Info.output().memArea()->size(),
+                              true);
+
+  uint8_t* data = region->getBuffer();
 
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
-
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
 
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
@@ -549,11 +556,7 @@ void MCLinker::syncRelocationResult() {
     size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
                         m_Layout.getOutputOffset(reloc->targetRef());
 
-    //request the target region
-    MemoryRegion* region = m_Info.output().memArea()->request(out_offset,
-                                                       m_Backend.bitclass()/8,
-                                                       true);
-
+    uint8_t* target_addr = data + out_offset;
     // byte swapping if target and host has different endian, and then write back
     if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
        uint64_t tmp_data = 0;
@@ -561,12 +564,12 @@ void MCLinker::syncRelocationResult() {
        switch(m_Backend.bitclass()) {
          case 32u:
            tmp_data = bswap32(reloc->target());
-           std::memcpy(region->getBuffer(), &tmp_data, 4);
+           std::memcpy(target_addr, &tmp_data, 4);
            break;
 
          case 64u:
            tmp_data = bswap64(reloc->target());
-           std::memcpy(region->getBuffer(), &tmp_data, 8);
+           std::memcpy(target_addr, &tmp_data, 8);
            break;
 
          default:
@@ -574,7 +577,7 @@ void MCLinker::syncRelocationResult() {
       }
     }
     else {
-      std::memcpy(region->getBuffer(), &reloc->target(), m_Backend.bitclass()/8);
+      std::memcpy(target_addr, &reloc->target(), m_Backend.bitclass()/8);
     }
   } // end of for
 

@@ -317,7 +317,6 @@ void MemoryArea::release(MemoryArea::Space* pSpace)
         break;
       }
     }
-    delete pSpace;
 }
 
 MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
