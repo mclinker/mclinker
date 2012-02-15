@@ -24,55 +24,6 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// non-member functions
-namespace {
-
-unsigned int
-hash_bucket_count(unsigned int pNumOfSymbols, bool pIsGNUStyle)
-{
-  // @ref Google gold, dynobj.cc:loc 791
-  static const unsigned int buckets[] =
-  {
-    1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209,
-    16411, 32771, 65537, 131101, 262147
-  };
-  const unsigned buckets_count = sizeof buckets / sizeof buckets[0];
-
-  unsigned int result = 1;
-  for (unsigned i = 0; i < buckets_count; ++i) {
-    if (pNumOfSymbols < buckets[i])
-      break;
-    result = buckets[i];
-  }
-
-  if (pIsGNUStyle && result < 2)
-    result = 2;
-
-  return result;
-}
-
-// isDynamicSymbol
-// @ref Google gold linker: symtab.cc: 311
-inline bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput)
-{
-  // If a local symbol is in the LDContext's symbol table, it's a real local
-  // symbol. We should not add it
-  if (pSymbol.binding() == ResolveInfo::Local)
-    return false;
-
-  // If we are building shared object, and the visibility is external, we
-  // need to add it.
-  if (Output::DynObj == pOutput.type())
-    if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
-        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
-      return true;
-
-  return false;
-}
-
-} // end namespace
-
-//===----------------------------------------------------------------------===//
 // GNULDBackend
 GNULDBackend::GNULDBackend()
   : m_pArchiveReader(0),
@@ -333,7 +284,8 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 
       // compute .hash
       // Both Elf32_Word and Elf64_Word are 4 bytes
-      hash = (2 + hash_bucket_count(dynsym, false) + dynsym) * sizeof(llvm::ELF::Elf32_Word);
+      hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
+             sizeof(llvm::ELF::Elf32_Word);
 
       // set size
       dynstr += pOutput.name().size() + 1;
@@ -642,7 +594,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain  = word_array[1];
 
-  nbucket = hash_bucket_count(symtabIdx, false);
+  nbucket = getHashBucketCount(symtabIdx, false);
   nchain  = symtabIdx;
 
   uint32_t* bucket = (word_array + 2);
@@ -1028,3 +980,48 @@ void GNULDBackend::postLayout(const Output& pOutput,
   doPostLayout(pOutput, pInfo, pLinker);
 }
 
+/// getHashBucketCount - calculate hash bucket count.
+/// @ref Google gold linker, dynobj.cc:791
+unsigned GNULDBackend::getHashBucketCount(unsigned pNumOfSymbols,
+                                          bool pIsGNUStyle)
+{
+  // @ref Google gold, dynobj.cc:loc 791
+  static const unsigned int buckets[] =
+  {
+    1, 3, 17, 37, 67, 97, 131, 197, 263, 521, 1031, 2053, 4099, 8209,
+    16411, 32771, 65537, 131101, 262147
+  };
+  const unsigned buckets_count = sizeof buckets / sizeof buckets[0];
+
+  unsigned int result = 1;
+  for (unsigned i = 0; i < buckets_count; ++i) {
+    if (pNumOfSymbols < buckets[i])
+      break;
+    result = buckets[i];
+  }
+
+  if (pIsGNUStyle && result < 2)
+    result = 2;
+
+  return result;
+}
+
+/// isDynamicSymbol
+/// @ref Google gold linker: symtab.cc:311
+bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
+                                   const Output& pOutput)
+{
+  // If a local symbol is in the LDContext's symbol table, it's a real local
+  // symbol. We should not add it
+  if (pSymbol.binding() == ResolveInfo::Local)
+    return false;
+
+  // If we are building shared object, and the visibility is external, we
+  // need to add it.
+  if (Output::DynObj == pOutput.type())
+    if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
+        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
+      return true;
+
+  return false;
+}

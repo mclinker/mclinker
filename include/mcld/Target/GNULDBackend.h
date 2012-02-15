@@ -279,6 +279,14 @@ protected:
 
   // -----  ELF special sections  ----- //
 
+protected:
+  /// getHashBucketCount - calculate hash bucket count.
+  /// @ref Google gold linker, dynobj.cc:791
+  static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
+
+  /// isDynamicSymbol
+  /// @ref Google gold linker: symtab.cc:311
+  static bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput);
 };
 
 } // namespace of mcld
