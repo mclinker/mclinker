@@ -665,7 +665,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         createGOT(pLinker, pOutput);
 
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveEntry();
+        m_pGOT->reserveLocalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_LocalGOTSyms.push_back(rsym->outSymbol());
       }
@@ -746,7 +746,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         createGOT(pLinker, pOutput);
 
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveEntry();
+        m_pGOT->reserveGlobalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_GlobalGOTSyms.push_back(rsym->outSymbol());
       }

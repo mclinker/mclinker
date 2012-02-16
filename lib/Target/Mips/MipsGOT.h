@@ -42,9 +42,8 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
-  // While reserveEntry, the size in LDSection is also updated.
-  // As the result, layout will get the correct size of GOT section.
-  void reserveEntry(size_t pNum = 1);
+  void reserveLocalEntry();
+  void reserveGlobalEntry();
 
   GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
 
@@ -53,8 +52,13 @@ public:
 
 private:
   SymbolIndexMapType m_GeneralGOTMap;
-  iterator m_GeneralGOTIterator;
+  iterator m_LocalGOTIterator;  // last local GOT entries
+  iterator m_GlobalGOTIterator; // last global GOT entries
   size_t m_pLocalNum;
+
+private:
+  // Use reserveLocalEntry()/reserveGlobalEntry() instead of this routine.
+  void reserveEntry(size_t pNum = 1);
 };
 
 } // namespace of mcld

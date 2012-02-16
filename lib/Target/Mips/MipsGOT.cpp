@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MemoryRegion.h>
 #include "MipsGOT.h"
 
@@ -46,7 +47,8 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
     ++it;
   }
 
-  m_GeneralGOTIterator = it;
+  m_LocalGOTIterator = it;
+  m_GlobalGOTIterator = it;
   m_pLocalNum = MipsGOT0Num;
 }
 
@@ -99,6 +101,21 @@ void MipsGOT::reserveEntry(size_t pNum)
   }
 }
 
+void MipsGOT::reserveLocalEntry()
+{
+  reserveEntry(1);
+  ++m_pLocalNum;
+
+  // Move global entries iterator forward.
+  // We need to put global GOT entries after all local ones.
+  ++m_GlobalGOTIterator;
+}
+
+void MipsGOT::reserveGlobalEntry()
+{
+  reserveEntry(1);
+}
+
 GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
   GOTEntry*& entry = m_GeneralGOTMap[&pInfo];
@@ -106,12 +123,14 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   pExist = NULL != entry;
 
   if (!pExist) {
-    ++m_GeneralGOTIterator;
+    iterator& it = pInfo.isLocal() ? m_LocalGOTIterator : m_GlobalGOTIterator;
 
-    assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end() &&
+    ++it;
+
+    assert(it != m_SectionData.getFragmentList().end() &&
            "The number of GOT Entries and ResolveInfo doesn't match");
 
-    entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
+    entry = llvm::cast<GOTEntry>(&(*it));
   }
 
   return entry;
