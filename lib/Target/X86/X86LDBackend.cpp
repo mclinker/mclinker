@@ -237,7 +237,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
   switch(pReloc.type()){
 
-    case ELF::R_386_32:
+    case llvm::ELF::R_386_32:
       // Update value keep in relocation place if we meet a section symbol
       if(rsym->type() == ResolveInfo::Section) {
         pReloc.target() = pLinker.getLayout().getOutputOffset(
@@ -257,14 +257,14 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       }
       return;
 
-    case ELF::R_386_GOTOFF:
-    case ELF::R_386_GOTPC:
+    case llvm::ELF::R_386_GOTOFF:
+    case llvm::ELF::R_386_GOTPC:
       // A GOT section is needed
       if(NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
 
-    case ELF::R_386_PC32:
+    case llvm::ELF::R_386_PC32:
       return;
 
     default:
@@ -285,7 +285,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
 
   switch(pReloc.type()) {
-    case ELF::R_386_32:
+    case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
       if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
@@ -319,15 +319,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
       return;
 
-    case ELF::R_386_GOTOFF:
-    case ELF::R_386_GOTPC: {
+    case llvm::ELF::R_386_GOTOFF:
+    case llvm::ELF::R_386_GOTPC: {
       // A GOT section is needed
       if(NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
     }
 
-    case ELF::R_386_PLT32:
+    case llvm::ELF::R_386_PLT32:
       // A PLT entry is needed when building shared library
 
       // return if we already create plt for this symbol
@@ -357,7 +357,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
 
-    case ELF::R_386_GOT32:
+    case llvm::ELF::R_386_GOT32:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
       if(rsym->reserved() & (ReserveGOT | GOTRel))
@@ -381,7 +381,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
-    case ELF::R_386_PC32:
+    case llvm::ELF::R_386_PC32:
       // We allow R_386_PC32 only if it isn't preemptible.  Otherwise
       // we will generate writable text section in output.
       if (!isSymbolPreemptible(*rsym, pLDInfo, pOutput))
@@ -497,7 +497,7 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
 }
 uint32_t X86GNULDBackend::machine() const
 {
-  return ELF::EM_386;
+  return llvm::ELF::EM_386;
 }
 
 X86GOT& X86GNULDBackend::getGOT()

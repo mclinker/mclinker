@@ -35,8 +35,6 @@ enum {
 
 namespace mcld {
 
-using namespace llvm;
-
 MipsGNULDBackend::MipsGNULDBackend()
   : m_pRelocFactory(NULL),
     m_pGOT(NULL),
@@ -656,9 +654,9 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
   switch (pReloc.type()){
     case llvm::ELF::R_MIPS_NONE:
-    case ELF::R_MIPS_16:
+    case llvm::ELF::R_MIPS_16:
       break;
-    case ELF::R_MIPS_32:
+    case llvm::ELF::R_MIPS_32:
       if (Output::DynObj == pOutput.type()) {
         // TODO: (simon) Check section flag SHF_EXECINSTR
         // half_t shndx = rsym->getSectionIndex();
@@ -670,34 +668,34 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         }
       }
       break;
-    case ELF::R_MIPS_REL32:
-    case ELF::R_MIPS_26:
-    case ELF::R_MIPS_HI16:
-    case ELF::R_MIPS_LO16:
-    case ELF::R_MIPS_PC16:
-    case ELF::R_MIPS_SHIFT5:
-    case ELF::R_MIPS_SHIFT6:
-    case ELF::R_MIPS_64:
-    case ELF::R_MIPS_GOT_PAGE:
-    case ELF::R_MIPS_GOT_OFST:
-    case ELF::R_MIPS_SUB:
-    case ELF::R_MIPS_INSERT_A:
-    case ELF::R_MIPS_INSERT_B:
-    case ELF::R_MIPS_DELETE:
-    case ELF::R_MIPS_HIGHER:
-    case ELF::R_MIPS_HIGHEST:
-    case ELF::R_MIPS_SCN_DISP:
-    case ELF::R_MIPS_REL16:
-    case ELF::R_MIPS_ADD_IMMEDIATE:
-    case ELF::R_MIPS_PJUMP:
-    case ELF::R_MIPS_RELGOT:
-    case ELF::R_MIPS_JALR:
-    case ELF::R_MIPS_GLOB_DAT:
-    case ELF::R_MIPS_COPY:
-    case ELF::R_MIPS_JUMP_SLOT:
+    case llvm::ELF::R_MIPS_REL32:
+    case llvm::ELF::R_MIPS_26:
+    case llvm::ELF::R_MIPS_HI16:
+    case llvm::ELF::R_MIPS_LO16:
+    case llvm::ELF::R_MIPS_PC16:
+    case llvm::ELF::R_MIPS_SHIFT5:
+    case llvm::ELF::R_MIPS_SHIFT6:
+    case llvm::ELF::R_MIPS_64:
+    case llvm::ELF::R_MIPS_GOT_PAGE:
+    case llvm::ELF::R_MIPS_GOT_OFST:
+    case llvm::ELF::R_MIPS_SUB:
+    case llvm::ELF::R_MIPS_INSERT_A:
+    case llvm::ELF::R_MIPS_INSERT_B:
+    case llvm::ELF::R_MIPS_DELETE:
+    case llvm::ELF::R_MIPS_HIGHER:
+    case llvm::ELF::R_MIPS_HIGHEST:
+    case llvm::ELF::R_MIPS_SCN_DISP:
+    case llvm::ELF::R_MIPS_REL16:
+    case llvm::ELF::R_MIPS_ADD_IMMEDIATE:
+    case llvm::ELF::R_MIPS_PJUMP:
+    case llvm::ELF::R_MIPS_RELGOT:
+    case llvm::ELF::R_MIPS_JALR:
+    case llvm::ELF::R_MIPS_GLOB_DAT:
+    case llvm::ELF::R_MIPS_COPY:
+    case llvm::ELF::R_MIPS_JUMP_SLOT:
       break;
-    case ELF::R_MIPS_GOT16:
-    case ELF::R_MIPS_CALL16:
+    case llvm::ELF::R_MIPS_GOT16:
+    case llvm::ELF::R_MIPS_CALL16:
       if (NULL == m_pGOT)
         createGOT(pLinker, pOutput);
 
@@ -707,29 +705,29 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_LocalGOTSyms.push_back(rsym->outSymbol());
       }
       break;
-    case ELF::R_MIPS_GPREL32:
-    case ELF::R_MIPS_GPREL16:
-    case ELF::R_MIPS_LITERAL:
+    case llvm::ELF::R_MIPS_GPREL32:
+    case llvm::ELF::R_MIPS_GPREL16:
+    case llvm::ELF::R_MIPS_LITERAL:
       break;
-    case ELF::R_MIPS_GOT_DISP:
-    case ELF::R_MIPS_GOT_HI16:
-    case ELF::R_MIPS_CALL_HI16:
-    case ELF::R_MIPS_GOT_LO16:
-    case ELF::R_MIPS_CALL_LO16:
+    case llvm::ELF::R_MIPS_GOT_DISP:
+    case llvm::ELF::R_MIPS_GOT_HI16:
+    case llvm::ELF::R_MIPS_CALL_HI16:
+    case llvm::ELF::R_MIPS_GOT_LO16:
+    case llvm::ELF::R_MIPS_CALL_LO16:
       break;
-    case ELF::R_MIPS_TLS_DTPMOD32:
-    case ELF::R_MIPS_TLS_DTPREL32:
-    case ELF::R_MIPS_TLS_DTPMOD64:
-    case ELF::R_MIPS_TLS_DTPREL64:
-    case ELF::R_MIPS_TLS_GD:
-    case ELF::R_MIPS_TLS_LDM:
-    case ELF::R_MIPS_TLS_DTPREL_HI16:
-    case ELF::R_MIPS_TLS_DTPREL_LO16:
-    case ELF::R_MIPS_TLS_GOTTPREL:
-    case ELF::R_MIPS_TLS_TPREL32:
-    case ELF::R_MIPS_TLS_TPREL64:
-    case ELF::R_MIPS_TLS_TPREL_HI16:
-    case ELF::R_MIPS_TLS_TPREL_LO16:
+    case llvm::ELF::R_MIPS_TLS_DTPMOD32:
+    case llvm::ELF::R_MIPS_TLS_DTPREL32:
+    case llvm::ELF::R_MIPS_TLS_DTPMOD64:
+    case llvm::ELF::R_MIPS_TLS_DTPREL64:
+    case llvm::ELF::R_MIPS_TLS_GD:
+    case llvm::ELF::R_MIPS_TLS_LDM:
+    case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
+    case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
+    case llvm::ELF::R_MIPS_TLS_GOTTPREL:
+    case llvm::ELF::R_MIPS_TLS_TPREL32:
+    case llvm::ELF::R_MIPS_TLS_TPREL64:
+    case llvm::ELF::R_MIPS_TLS_TPREL_HI16:
+    case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
       break;
     default:
       llvm::report_fatal_error(llvm::Twine("Unknown relocation ") +
@@ -747,22 +745,22 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
 
   switch (pReloc.type()){
-    case ELF::R_MIPS_NONE:
-    case ELF::R_MIPS_INSERT_A:
-    case ELF::R_MIPS_INSERT_B:
-    case ELF::R_MIPS_DELETE:
-    case ELF::R_MIPS_TLS_DTPMOD64:
-    case ELF::R_MIPS_TLS_DTPREL64:
-    case ELF::R_MIPS_REL16:
-    case ELF::R_MIPS_ADD_IMMEDIATE:
-    case ELF::R_MIPS_PJUMP:
-    case ELF::R_MIPS_RELGOT:
-    case ELF::R_MIPS_TLS_TPREL64:
+    case llvm::ELF::R_MIPS_NONE:
+    case llvm::ELF::R_MIPS_INSERT_A:
+    case llvm::ELF::R_MIPS_INSERT_B:
+    case llvm::ELF::R_MIPS_DELETE:
+    case llvm::ELF::R_MIPS_TLS_DTPMOD64:
+    case llvm::ELF::R_MIPS_TLS_DTPREL64:
+    case llvm::ELF::R_MIPS_REL16:
+    case llvm::ELF::R_MIPS_ADD_IMMEDIATE:
+    case llvm::ELF::R_MIPS_PJUMP:
+    case llvm::ELF::R_MIPS_RELGOT:
+    case llvm::ELF::R_MIPS_TLS_TPREL64:
       break;
-    case ELF::R_MIPS_32:
-    case ELF::R_MIPS_64:
-    case ELF::R_MIPS_HI16:
-    case ELF::R_MIPS_LO16:
+    case llvm::ELF::R_MIPS_32:
+    case llvm::ELF::R_MIPS_64:
+    case llvm::ELF::R_MIPS_HI16:
+    case llvm::ELF::R_MIPS_LO16:
       if (isSymbolNeedsDynRel(*rsym, pOutput)) {
         if (NULL == m_pRelDyn)
           createRelDyn(pLinker, pOutput);
@@ -770,15 +768,15 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
       }
       break;
-    case ELF::R_MIPS_GOT16:
-    case ELF::R_MIPS_CALL16:
-    case ELF::R_MIPS_GOT_DISP:
-    case ELF::R_MIPS_GOT_HI16:
-    case ELF::R_MIPS_CALL_HI16:
-    case ELF::R_MIPS_GOT_LO16:
-    case ELF::R_MIPS_CALL_LO16:
-    case ELF::R_MIPS_GOT_PAGE:
-    case ELF::R_MIPS_GOT_OFST:
+    case llvm::ELF::R_MIPS_GOT16:
+    case llvm::ELF::R_MIPS_CALL16:
+    case llvm::ELF::R_MIPS_GOT_DISP:
+    case llvm::ELF::R_MIPS_GOT_HI16:
+    case llvm::ELF::R_MIPS_CALL_HI16:
+    case llvm::ELF::R_MIPS_GOT_LO16:
+    case llvm::ELF::R_MIPS_CALL_LO16:
+    case llvm::ELF::R_MIPS_GOT_PAGE:
+    case llvm::ELF::R_MIPS_GOT_OFST:
       if (NULL == m_pGOT)
         createGOT(pLinker, pOutput);
 
@@ -788,8 +786,8 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         m_GlobalGOTSyms.push_back(rsym->outSymbol());
       }
       break;
-    case ELF::R_MIPS_LITERAL:
-    case ELF::R_MIPS_GPREL32:
+    case llvm::ELF::R_MIPS_LITERAL:
+    case llvm::ELF::R_MIPS_GPREL32:
       llvm::report_fatal_error(llvm::Twine("Relocation ") +
                                llvm::Twine(pReloc.type()) +
                                llvm::Twine(" is not defined for the "
@@ -797,36 +795,36 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                pReloc.symInfo()->name() +
                                llvm::Twine("'."));
       break;
-    case ELF::R_MIPS_GPREL16:
+    case llvm::ELF::R_MIPS_GPREL16:
       break;
-    case ELF::R_MIPS_26:
-    case ELF::R_MIPS_PC16:
+    case llvm::ELF::R_MIPS_26:
+    case llvm::ELF::R_MIPS_PC16:
       break;
-    case ELF::R_MIPS_16:
-    case ELF::R_MIPS_SHIFT5:
-    case ELF::R_MIPS_SHIFT6:
-    case ELF::R_MIPS_SUB:
-    case ELF::R_MIPS_HIGHER:
-    case ELF::R_MIPS_HIGHEST:
-    case ELF::R_MIPS_SCN_DISP:
+    case llvm::ELF::R_MIPS_16:
+    case llvm::ELF::R_MIPS_SHIFT5:
+    case llvm::ELF::R_MIPS_SHIFT6:
+    case llvm::ELF::R_MIPS_SUB:
+    case llvm::ELF::R_MIPS_HIGHER:
+    case llvm::ELF::R_MIPS_HIGHEST:
+    case llvm::ELF::R_MIPS_SCN_DISP:
       break;
-    case ELF::R_MIPS_TLS_DTPREL32:
-    case ELF::R_MIPS_TLS_GD:
-    case ELF::R_MIPS_TLS_LDM:
-    case ELF::R_MIPS_TLS_DTPREL_HI16:
-    case ELF::R_MIPS_TLS_DTPREL_LO16:
-    case ELF::R_MIPS_TLS_GOTTPREL:
-    case ELF::R_MIPS_TLS_TPREL32:
-    case ELF::R_MIPS_TLS_TPREL_HI16:
-    case ELF::R_MIPS_TLS_TPREL_LO16:
+    case llvm::ELF::R_MIPS_TLS_DTPREL32:
+    case llvm::ELF::R_MIPS_TLS_GD:
+    case llvm::ELF::R_MIPS_TLS_LDM:
+    case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
+    case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
+    case llvm::ELF::R_MIPS_TLS_GOTTPREL:
+    case llvm::ELF::R_MIPS_TLS_TPREL32:
+    case llvm::ELF::R_MIPS_TLS_TPREL_HI16:
+    case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
       break;
-    case ELF::R_MIPS_REL32:
+    case llvm::ELF::R_MIPS_REL32:
       break;
-    case ELF::R_MIPS_JALR:
+    case llvm::ELF::R_MIPS_JALR:
       break;
-    case ELF::R_MIPS_COPY:
-    case ELF::R_MIPS_GLOB_DAT:
-    case ELF::R_MIPS_JUMP_SLOT:
+    case llvm::ELF::R_MIPS_COPY:
+    case llvm::ELF::R_MIPS_GLOB_DAT:
+    case llvm::ELF::R_MIPS_JUMP_SLOT:
       llvm::report_fatal_error(llvm::Twine("Relocation ") +
                                llvm::Twine(pReloc.type()) +
                                llvm::Twine("for the global symbol `") +
@@ -935,7 +933,7 @@ ELFFileFormat* MipsGNULDBackend::getOutputFormat(const Output& pOutput) const
 static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
                                             const std::string& pTriple)
 {
-  Triple theTriple(pTriple);
+  llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
   }

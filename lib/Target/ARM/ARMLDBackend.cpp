@@ -84,15 +84,15 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
   m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
                                                       LDFileFormat::Target,
-                                                      ELF::SHT_ARM_EXIDX,
-                                                      ELF::SHF_ALLOC | ELF::SHF_LINK_ORDER);
+                                                      llvm::ELF::SHT_ARM_EXIDX,
+                                                      llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER);
   m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
                                                       LDFileFormat::Target,
-                                                      ELF::SHT_PROGBITS,
-                                                      ELF::SHF_ALLOC);
+                                                      llvm::ELF::SHT_PROGBITS,
+                                                      llvm::ELF::SHF_ALLOC);
   m_pAttributes   = &pLinker.getOrCreateOutputSectHdr(".ARM.attributes",
                                                       LDFileFormat::Target,
-                                                      ELF::SHT_ARM_ATTRIBUTES,
+                                                      llvm::ELF::SHT_ARM_ATTRIBUTES,
                                                       0);
 }
 
@@ -314,16 +314,16 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
     return;
 
   switch(pReloc.type()) {
-    case ELF::R_ARM_RELATIVE:
-    case ELF::R_ARM_COPY:
-    case ELF::R_ARM_GLOB_DAT:
-    case ELF::R_ARM_JUMP_SLOT:
-    case ELF::R_ARM_ABS32:
-    case ELF::R_ARM_ABS32_NOI:
-    case ELF::R_ARM_PC24:
-    case ELF::R_ARM_TLS_DTPMOD32:
-    case ELF::R_ARM_TLS_DTPOFF32:
-    case ELF::R_ARM_TLS_TPOFF32:
+    case llvm::ELF::R_ARM_RELATIVE:
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS32_NOI:
+    case llvm::ELF::R_ARM_PC24:
+    case llvm::ELF::R_ARM_TLS_DTPMOD32:
+    case llvm::ELF::R_ARM_TLS_DTPOFF32:
+    case llvm::ELF::R_ARM_TLS_TPOFF32:
       break;
 
     default:
@@ -349,8 +349,8 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
   switch(pReloc.type()){
 
-    case ELF::R_ARM_ABS32:
-    case ELF::R_ARM_ABS32_NOI: {
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS32_NOI: {
       // Update value keep in relocation place if we meet a section symbol
       if(rsym->type() == ResolveInfo::Section) {
         pReloc.target() = pLinker.getLayout().getOutputOffset(
@@ -371,15 +371,15 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_ABS16:
-    case ELF::R_ARM_ABS12:
-    case ELF::R_ARM_THM_ABS5:
-    case ELF::R_ARM_ABS8:
-    case ELF::R_ARM_BASE_ABS:
-    case ELF::R_ARM_MOVW_ABS_NC:
-    case ELF::R_ARM_MOVT_ABS:
-    case ELF::R_ARM_THM_MOVW_ABS_NC:
-    case ELF::R_ARM_THM_MOVT_ABS: {
+    case llvm::ELF::R_ARM_ABS16:
+    case llvm::ELF::R_ARM_ABS12:
+    case llvm::ELF::R_ARM_THM_ABS5:
+    case llvm::ELF::R_ARM_ABS8:
+    case llvm::ELF::R_ARM_BASE_ABS:
+    case llvm::ELF::R_ARM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_MOVT_ABS:
+    case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // Update value keep in relocation place if we meet a section symbol
       if(rsym->type() == ResolveInfo::Section) {
         pReloc.target() = pLinker.getLayout().getOutputOffset(
@@ -400,16 +400,16 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       }
       return;
     }
-    case ELF::R_ARM_GOTOFF32:
-    case ELF::R_ARM_GOTOFF12: {
+    case llvm::ELF::R_ARM_GOTOFF32:
+    case llvm::ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
       if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
 
-    case ELF::R_ARM_GOT_BREL:
-    case ELF::R_ARM_GOT_PREL: {
+    case llvm::ELF::R_ARM_GOT_BREL:
+    case llvm::ELF::R_ARM_GOT_PREL: {
       // A GOT entry is needed for these relocation type.
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
@@ -434,10 +434,10 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_COPY:
-    case ELF::R_ARM_GLOB_DAT:
-    case ELF::R_ARM_JUMP_SLOT:
-    case ELF::R_ARM_RELATIVE: {
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
       llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
@@ -462,17 +462,17 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
   switch(pReloc.type()) {
 
-    case ELF::R_ARM_ABS32:
-    case ELF::R_ARM_ABS16:
-    case ELF::R_ARM_ABS12:
-    case ELF::R_ARM_THM_ABS5:
-    case ELF::R_ARM_ABS8:
-    case ELF::R_ARM_BASE_ABS:
-    case ELF::R_ARM_MOVW_ABS_NC:
-    case ELF::R_ARM_MOVT_ABS:
-    case ELF::R_ARM_THM_MOVW_ABS_NC:
-    case ELF::R_ARM_THM_MOVT_ABS:
-    case ELF::R_ARM_ABS32_NOI: {
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS16:
+    case llvm::ELF::R_ARM_ABS12:
+    case llvm::ELF::R_ARM_THM_ABS5:
+    case llvm::ELF::R_ARM_ABS8:
+    case llvm::ELF::R_ARM_BASE_ABS:
+    case llvm::ELF::R_ARM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_MOVT_ABS:
+    case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_ABS:
+    case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
       if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
@@ -508,59 +508,59 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_GOTOFF32:
-    case ELF::R_ARM_GOTOFF12: {
+    case llvm::ELF::R_ARM_GOTOFF32:
+    case llvm::ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
       if(NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
 
-    case ELF::R_ARM_REL32:
-    case ELF::R_ARM_LDR_PC_G0:
-    case ELF::R_ARM_SBREL32:
-    case ELF::R_ARM_THM_PC8:
-    case ELF::R_ARM_BASE_PREL:
-    case ELF::R_ARM_MOVW_PREL_NC:
-    case ELF::R_ARM_MOVT_PREL:
-    case ELF::R_ARM_THM_MOVW_PREL_NC:
-    case ELF::R_ARM_THM_MOVT_PREL:
-    case ELF::R_ARM_THM_ALU_PREL_11_0:
-    case ELF::R_ARM_THM_PC12:
-    case ELF::R_ARM_REL32_NOI:
-    case ELF::R_ARM_ALU_PC_G0_NC:
-    case ELF::R_ARM_ALU_PC_G0:
-    case ELF::R_ARM_ALU_PC_G1_NC:
-    case ELF::R_ARM_ALU_PC_G1:
-    case ELF::R_ARM_ALU_PC_G2:
-    case ELF::R_ARM_LDR_PC_G1:
-    case ELF::R_ARM_LDR_PC_G2:
-    case ELF::R_ARM_LDRS_PC_G0:
-    case ELF::R_ARM_LDRS_PC_G1:
-    case ELF::R_ARM_LDRS_PC_G2:
-    case ELF::R_ARM_LDC_PC_G0:
-    case ELF::R_ARM_LDC_PC_G1:
-    case ELF::R_ARM_LDC_PC_G2:
-    case ELF::R_ARM_ALU_SB_G0_NC:
-    case ELF::R_ARM_ALU_SB_G0:
-    case ELF::R_ARM_ALU_SB_G1_NC:
-    case ELF::R_ARM_ALU_SB_G1:
-    case ELF::R_ARM_ALU_SB_G2:
-    case ELF::R_ARM_LDR_SB_G0:
-    case ELF::R_ARM_LDR_SB_G1:
-    case ELF::R_ARM_LDR_SB_G2:
-    case ELF::R_ARM_LDRS_SB_G0:
-    case ELF::R_ARM_LDRS_SB_G1:
-    case ELF::R_ARM_LDRS_SB_G2:
-    case ELF::R_ARM_LDC_SB_G0:
-    case ELF::R_ARM_LDC_SB_G1:
-    case ELF::R_ARM_LDC_SB_G2:
-    case ELF::R_ARM_MOVW_BREL_NC:
-    case ELF::R_ARM_MOVT_BREL:
-    case ELF::R_ARM_MOVW_BREL:
-    case ELF::R_ARM_THM_MOVW_BREL_NC:
-    case ELF::R_ARM_THM_MOVT_BREL:
-    case ELF::R_ARM_THM_MOVW_BREL: {
+    case llvm::ELF::R_ARM_REL32:
+    case llvm::ELF::R_ARM_LDR_PC_G0:
+    case llvm::ELF::R_ARM_SBREL32:
+    case llvm::ELF::R_ARM_THM_PC8:
+    case llvm::ELF::R_ARM_BASE_PREL:
+    case llvm::ELF::R_ARM_MOVW_PREL_NC:
+    case llvm::ELF::R_ARM_MOVT_PREL:
+    case llvm::ELF::R_ARM_THM_MOVW_PREL_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_PREL:
+    case llvm::ELF::R_ARM_THM_ALU_PREL_11_0:
+    case llvm::ELF::R_ARM_THM_PC12:
+    case llvm::ELF::R_ARM_REL32_NOI:
+    case llvm::ELF::R_ARM_ALU_PC_G0_NC:
+    case llvm::ELF::R_ARM_ALU_PC_G0:
+    case llvm::ELF::R_ARM_ALU_PC_G1_NC:
+    case llvm::ELF::R_ARM_ALU_PC_G1:
+    case llvm::ELF::R_ARM_ALU_PC_G2:
+    case llvm::ELF::R_ARM_LDR_PC_G1:
+    case llvm::ELF::R_ARM_LDR_PC_G2:
+    case llvm::ELF::R_ARM_LDRS_PC_G0:
+    case llvm::ELF::R_ARM_LDRS_PC_G1:
+    case llvm::ELF::R_ARM_LDRS_PC_G2:
+    case llvm::ELF::R_ARM_LDC_PC_G0:
+    case llvm::ELF::R_ARM_LDC_PC_G1:
+    case llvm::ELF::R_ARM_LDC_PC_G2:
+    case llvm::ELF::R_ARM_ALU_SB_G0_NC:
+    case llvm::ELF::R_ARM_ALU_SB_G0:
+    case llvm::ELF::R_ARM_ALU_SB_G1_NC:
+    case llvm::ELF::R_ARM_ALU_SB_G1:
+    case llvm::ELF::R_ARM_ALU_SB_G2:
+    case llvm::ELF::R_ARM_LDR_SB_G0:
+    case llvm::ELF::R_ARM_LDR_SB_G1:
+    case llvm::ELF::R_ARM_LDR_SB_G2:
+    case llvm::ELF::R_ARM_LDRS_SB_G0:
+    case llvm::ELF::R_ARM_LDRS_SB_G1:
+    case llvm::ELF::R_ARM_LDRS_SB_G2:
+    case llvm::ELF::R_ARM_LDC_SB_G0:
+    case llvm::ELF::R_ARM_LDC_SB_G1:
+    case llvm::ELF::R_ARM_LDC_SB_G2:
+    case llvm::ELF::R_ARM_MOVW_BREL_NC:
+    case llvm::ELF::R_ARM_MOVT_BREL:
+    case llvm::ELF::R_ARM_MOVW_BREL:
+    case llvm::ELF::R_ARM_THM_MOVW_BREL_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_BREL:
+    case llvm::ELF::R_ARM_THM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
       if(isSymbolNeedsDynRel(*rsym, pOutput, false)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
@@ -574,17 +574,17 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_THM_CALL:
-    case ELF::R_ARM_PLT32:
-    case ELF::R_ARM_CALL:
-    case ELF::R_ARM_JUMP24:
-    case ELF::R_ARM_THM_JUMP24:
-    case ELF::R_ARM_SBREL31:
-    case ELF::R_ARM_PREL31:
-    case ELF::R_ARM_THM_JUMP19:
-    case ELF::R_ARM_THM_JUMP6:
-    case ELF::R_ARM_THM_JUMP11:
-    case ELF::R_ARM_THM_JUMP8: {
+    case llvm::ELF::R_ARM_THM_CALL:
+    case llvm::ELF::R_ARM_PLT32:
+    case llvm::ELF::R_ARM_CALL:
+    case llvm::ELF::R_ARM_JUMP24:
+    case llvm::ELF::R_ARM_THM_JUMP24:
+    case llvm::ELF::R_ARM_SBREL31:
+    case llvm::ELF::R_ARM_PREL31:
+    case llvm::ELF::R_ARM_THM_JUMP19:
+    case llvm::ELF::R_ARM_THM_JUMP6:
+    case llvm::ELF::R_ARM_THM_JUMP11:
+    case llvm::ELF::R_ARM_THM_JUMP8: {
       // These are branch relocation (except PREL31)
       // A PLT entry is needed when building shared library
 
@@ -617,9 +617,9 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_GOT_BREL:
-    case ELF::R_ARM_GOT_ABS:
-    case ELF::R_ARM_GOT_PREL: {
+    case llvm::ELF::R_ARM_GOT_BREL:
+    case llvm::ELF::R_ARM_GOT_ABS:
+    case llvm::ELF::R_ARM_GOT_PREL: {
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
@@ -644,10 +644,10 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
-    case ELF::R_ARM_COPY:
-    case ELF::R_ARM_GLOB_DAT:
-    case ELF::R_ARM_JUMP_SLOT:
-    case ELF::R_ARM_RELATIVE: {
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
       llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
