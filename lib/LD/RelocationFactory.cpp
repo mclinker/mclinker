@@ -17,8 +17,9 @@ using namespace mcld;
 
 //==========================
 // RelocationFactory
-RelocationFactory::RelocationFactory()
-  : m_pLayout(NULL) {
+RelocationFactory::RelocationFactory(size_t pNum)
+  : GCFactory<Relocation, 0>(pNum),
+    m_pLayout(NULL) {
 }
 
 RelocationFactory::~RelocationFactory()

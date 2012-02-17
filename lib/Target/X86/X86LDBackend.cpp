@@ -59,7 +59,7 @@ RelocationFactory* X86GNULDBackend::getRelocFactory()
 bool X86GNULDBackend::initRelocFactory(const MCLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new X86RelocationFactory(*this);
+    m_pRelocFactory = new X86RelocationFactory(1024, *this);
     m_pRelocFactory->setLayout(pLinker.getLayout());
   }
   return true;

@@ -22,8 +22,9 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 
 //==========================
 // MipsRelocationFactory
-MipsRelocationFactory::MipsRelocationFactory(MipsGNULDBackend& pParent)
-  : RelocationFactory(),
+MipsRelocationFactory::MipsRelocationFactory(size_t pNum,
+                                             MipsGNULDBackend& pParent)
+  : RelocationFactory(pNum),
     m_Target(pParent),
     m_AHL(0)
 {
@@ -59,7 +60,7 @@ void MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
                              llvm::Twine("'."));
   }
 
-  // apply the relocation 
+  // apply the relocation
   Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result

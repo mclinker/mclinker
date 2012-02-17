@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/GCFactory.h>
 #include <mcld/LD/Relocation.h>
 
 namespace mcld
@@ -29,7 +30,7 @@ class MCLDInfo;
  *  relocation
  *
  */
-class RelocationFactory
+class RelocationFactory : public GCFactory<Relocation, 0>
 {
 public:
   typedef Relocation::Type Type;
@@ -37,7 +38,7 @@ public:
   typedef Relocation::DWord DWord;
 
 public:
-  explicit RelocationFactory();
+  explicit RelocationFactory(size_t pNum);
 
   virtual ~RelocationFactory();
 

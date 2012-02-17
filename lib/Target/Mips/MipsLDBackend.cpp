@@ -104,7 +104,7 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
 bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new MipsRelocationFactory(*this);
+    m_pRelocFactory = new MipsRelocationFactory(1024, *this);
     m_pRelocFactory->setLayout(pLinker.getLayout());
   }
   return true;

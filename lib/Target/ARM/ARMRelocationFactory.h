@@ -38,7 +38,7 @@ public:
   };
 
 public:
-  ARMRelocationFactory(ARMGNULDBackend& pParent);
+  ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
   ~ARMRelocationFactory();
 
   void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
