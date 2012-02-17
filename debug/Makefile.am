@@ -72,8 +72,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
-        ${INCDIR}/Target/ARM/ARMELFDynamic.h \
-        ${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
+	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
+	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMGOT.h \
@@ -90,8 +90,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
-        ${INCDIR}/Target/Mips/MipsELFDynamic.h \
-        ${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
+	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
+	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
 	${LIBDIR}/Target/Mips/MipsGOT.h \
@@ -106,8 +106,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
-        ${INCDIR}/Target/X86/X86ELFDynamic.h \
-        ${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
+	${LIBDIR}/Target/X86/X86ELFDynamic.h \
+	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86GOT.h \
@@ -128,9 +128,9 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
- 	${INCDIR}/MC/SymbolCategory.h \
+	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
- 	${INCDIR}/MC/MCLinker.h \
+	${INCDIR}/MC/MCLinker.h \
 	${LIBDIR}/MC/MCLinker.cpp \
 	${INCDIR}/MC/MCBitcodeInterceptor.h \
 	${LIBDIR}/MC/MCBitcodeInterceptor.cpp \
@@ -255,12 +255,12 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/MemoryAreaTest.cpp \
 	${UNITTEST}/HashTableTest.h \
 	${UNITTEST}/HashTableTest.cpp \
-        ${UNITTEST}/LDSymbolTest.h \
-        ${UNITTEST}/LDSymbolTest.cpp \
-        ${UNITTEST}/MCFragmentRefTest.h \
-        ${UNITTEST}/MCFragmentRefTest.cpp \
-        ${UNITTEST}/StaticResolverTest.h \
-        ${UNITTEST}/StaticResolverTest.cpp \
+	${UNITTEST}/LDSymbolTest.h \
+	${UNITTEST}/LDSymbolTest.cpp \
+	${UNITTEST}/MCFragmentRefTest.h \
+	${UNITTEST}/MCFragmentRefTest.cpp \
+	${UNITTEST}/StaticResolverTest.h \
+	${UNITTEST}/StaticResolverTest.cpp \
 	${UNITTEST}/SymbolCategoryTest.h \
 	${UNITTEST}/SymbolCategoryTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
