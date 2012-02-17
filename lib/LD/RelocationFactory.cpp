@@ -30,10 +30,6 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
                                        MCFragmentRef& pFragRef,
                                        Address pAddend)
 {
-  // FIXME: To prevent relocations from double free by both iplist and
-  // GCFactory, currently we new relocations directly and let iplist
-  // delete them.
-
   // target_data is the place where the relocation applys to.
   // Use TargetDataFactory to generate temporary data, and copy the
   // content of the fragment into this data.
@@ -63,7 +59,9 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     pFragRef.memcpy(&target_data, (getTarget().bitclass()/8));
   }
 
-  return new Relocation(pType, &pFragRef, pAddend, target_data);
+  Relocation *result = allocate();
+  new (result) Relocation(pType, &pFragRef, pAddend, target_data);
+  return result;
 }
 
 Relocation* RelocationFactory::produceEmptyEntry()

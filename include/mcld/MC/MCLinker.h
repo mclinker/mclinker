@@ -30,6 +30,7 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Support/GCFactoryListTraits.h>
 #include <set>
 #include <string>
 
@@ -248,7 +249,8 @@ private:
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
   typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
-  typedef llvm::iplist<llvm::MCFragment> RelocationListType;
+  typedef llvm::iplist<llvm::MCFragment,
+                       GCFactoryListTraits<llvm::MCFragment> > RelocationListType;
   typedef std::set<LDSymbol*> ForceLocalSymbolTable;
   typedef std::vector<LDSymbol*> OutputSymbolTable;
 
