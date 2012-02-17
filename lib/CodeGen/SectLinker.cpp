@@ -53,8 +53,15 @@ SectLinker::SectLinker(SectLinkerOption &pOption,
 
 SectLinker::~SectLinker()
 {
-  delete m_pLDBackend;
   delete m_pLDDriver;
+  // FIXME: current implementation can not change the order of delete.
+  //
+  // Instance of TargetLDBackend was created outside and is not managed by
+  // SectLinker. It should not be destroyed here and by SectLinker. However, in
+  // order to follow the LLVM convention - that is, the pass manages all the
+  // objects it used during the processing, we destroy the object of
+  // TargetLDBackend here.
+  delete m_pLDBackend;
 }
 
 bool SectLinker::doInitialization(Module &pM)
