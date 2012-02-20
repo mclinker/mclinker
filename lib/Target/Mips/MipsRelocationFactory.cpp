@@ -176,7 +176,8 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
 static
 int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
 {
-  assert(pHiReloc.type() == llvm::ELF::R_MIPS_HI16 &&
+  assert((pHiReloc.type() == llvm::ELF::R_MIPS_HI16 ||
+          pHiReloc.type() == llvm::ELF::R_MIPS_GOT16) &&
          pLoReloc.type() == llvm::ELF::R_MIPS_LO16 &&
          "Incorrect type of relocation for AHL calculation");
 
