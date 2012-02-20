@@ -273,22 +273,31 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
 }
 
 // R_MIPS_GOT16:
-//   local   : tbd
+//   local   : G (calculate AHL and put high 16 bit to GOT)
 //   external: G
 static
 MipsRelocationFactory::Result got16(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
                                     MipsRelocationFactory& pParent)
 {
-  RelocationFactory::Address G = 0;
-
   ResolveInfo* rsym = pReloc.symInfo();
+
   if (rsym->isLocal()) {
-    assert(0 && "R_MIPS_GOT16 relocation for a local sym is not implemented");
+    Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
+    assert(NULL != lo_reloc && "There is no paired R_MIPS_LO16 for R_MIPS_GOT16");
+
+    int32_t AHL = helper_CalcAHL(pReloc, *lo_reloc);
+    int32_t S = pReloc.symValue();
+
+    pParent.setAHL(AHL);
+
+    GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
+
+    int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
+    got_entry.setContent(res);
   }
-  else {
-    G = helper_GetGOTOffset(pReloc, pParent);
-  }
+
+  RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
 
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= (G & 0xFFFF);
