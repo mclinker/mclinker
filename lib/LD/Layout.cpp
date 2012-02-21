@@ -497,6 +497,8 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
       case LDFileFormat::Note:
       case LDFileFormat::Debug:
       case LDFileFormat::Target:
+      case LDFileFormat::Exception:
+      case LDFileFormat::Version:
       case LDFileFormat::MetaData:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
@@ -528,7 +530,11 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         }
         break;
       default:
-        assert(0 && "Unknown section kind");
+        llvm::report_fatal_error(llvm::Twine("Unsupported section kind of `") +
+                                 sect->name() +
+                                 llvm::Twine("': ") +
+                                 llvm::Twine(sect->kind()) +
+                                 llvm::Twine(".\n"));
         break;
     }
   }
@@ -550,9 +556,10 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
   // FIXME: Currently Writer bases on the section table in output context to
   // write out sections, so we have to update its content..
   output_context.getSectionTable().clear();
-  for (size_t index = 0; index < m_SectionOrder.size(); ++index)
+  for (size_t index = 0; index < m_SectionOrder.size(); ++index) {
     output_context.getSectionTable().push_back(m_SectionOrder[index]);
-
+    m_SectionOrder[index]->setIndex(index);
+  }
   return true;
 }
 
