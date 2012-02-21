@@ -64,13 +64,5 @@ void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-  f_pCtors        = &pLinker.getOrCreateOutputSectHdr(".ctors",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_PROGBITS,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-  f_pDtors        = &pLinker.getOrCreateOutputSectHdr(".dtors",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_PROGBITS,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 }
 
