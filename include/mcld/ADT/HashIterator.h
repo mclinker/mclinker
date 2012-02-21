@@ -280,13 +280,16 @@ public:
   : IteratorBase()
   { }
 
-  HashIterator(typename IteratorBase::hash_table* pTable,
-               const typename IteratorBase::key_type& pKey)
-  : IteratorBase(pTable, pKey)
-  { }
-
+  /// HashIterator - constructor for EntryIterator
   HashIterator(typename IteratorBase::hash_table* pTable, unsigned int pIndex)
   : IteratorBase(pTable, pIndex)
+  { }
+
+  /// HashIterator - constructor for ChainIterator
+  explicit HashIterator(typename IteratorBase::hash_table* pTable,
+                        const typename IteratorBase::key_type& pKey,
+                        int)
+  : IteratorBase(pTable, pKey)
   { }
 
   HashIterator(const HashIterator& pCopy)

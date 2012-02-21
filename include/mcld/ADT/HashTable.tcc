@@ -197,7 +197,7 @@ template<typename HashEntryTy,
 typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end()
 {
-  return iterator(0, 0);
+  return iterator(NULL, 0);
 }
 
 template<typename HashEntryTy,
@@ -222,7 +222,7 @@ template<typename HashEntryTy,
 typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::end() const
 {
-  return const_iterator(0, 0);
+  return const_iterator(NULL, 0);
 }
 
 template<typename HashEntryTy,
@@ -232,7 +232,7 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::chain_iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin(
     const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey)
 {
-  return chain_iterator(this, pKey);
+  return chain_iterator(this, pKey, 0x0);
 }
 
 template<typename HashEntryTy,
@@ -252,7 +252,7 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_chain_ite
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin(
   const typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::key_type& pKey) const
 {
-  return const_chain_iterator(this, pKey);
+  return const_chain_iterator(this, pKey, 0x0);
 }
 
 template<typename HashEntryTy,

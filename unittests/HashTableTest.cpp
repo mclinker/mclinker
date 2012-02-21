@@ -46,6 +46,21 @@ struct IntCompare
   { return (X==Y); }
 };
 
+struct PtrCompare
+{
+  bool operator()(const int* X, const int* Y) const
+  { return (X==Y); }
+};
+
+struct PtrHash
+{
+  size_t operator()(const int* pKey) const
+  {
+    return (unsigned((uintptr_t)pKey) >> 4) ^
+           (unsigned((uintptr_t)pKey) >> 9);
+  }
+};
+
 struct IntHash
 {
   size_t operator()(int pKey) const
@@ -57,6 +72,27 @@ struct IntMod3Hash
   size_t operator()(int pKey) const
   { return pKey % 3; }
 };
+
+TEST_F( HashTableTest, ptr_entry ) {
+  int A = 1;
+  int* pA = &A;
+
+  typedef HashEntry<int*, int, PtrCompare> HashEntryType;
+  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableTy;
+  HashTableTy *hashTable = new HashTableTy(0);
+
+  bool exist;
+  HashTableTy::entry_type* entry = 0;
+
+  entry = hashTable->insert(pA, exist);
+
+  EXPECT_FALSE(hashTable->empty());
+
+  HashTableTy::iterator iter;
+  iter = hashTable->find(NULL);
+  EXPECT_TRUE(iter==hashTable->end());
+  delete hashTable;
+}
 
 TEST_F( HashTableTest, constructor ) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
