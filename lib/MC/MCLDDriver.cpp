@@ -47,8 +47,14 @@ void MCLDDriver::normalize() {
       continue;
 
 
-    (*input)->setMemArea(m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY));
-    if (!(*input)->memArea()->isGood()) {
+    MemoryArea *input_memory =
+        m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY);
+    if ((input_memory != NULL) && input_memory->isGood()) {
+      // enforce the kenel to load the entire file content into memory
+      input_memory->request(0, input_memory->size());
+      (*input)->setMemArea(input_memory);
+    }
+    else {
       llvm::report_fatal_error("can not open file: " + (*input)->path().native());
       return;
     }
