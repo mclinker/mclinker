@@ -64,26 +64,6 @@ void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-  f_pInit         = &pLinker.getOrCreateOutputSectHdr(".init",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_PROGBITS,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR);
-  f_pFini         = &pLinker.getOrCreateOutputSectHdr(".fini",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_PROGBITS,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR);
-  f_pPreInitArray = &pLinker.getOrCreateOutputSectHdr(".preinit_array",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_PREINIT_ARRAY,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-  f_pInitArray    = &pLinker.getOrCreateOutputSectHdr(".init_array",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_INIT_ARRAY,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-  f_pFiniArray    = &pLinker.getOrCreateOutputSectHdr(".fini_array",
-                                           LDFileFormat::Regular,
-                                           llvm::ELF::SHT_FINI_ARRAY,
-                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
   f_pCtors        = &pLinker.getOrCreateOutputSectHdr(".ctors",
                                            LDFileFormat::Regular,
                                            llvm::ELF::SHT_PROGBITS,
