@@ -17,7 +17,7 @@
 namespace mcld
 {
 
-template<int SIZE>
+template<size_t SIZE>
 struct SizeTraits;
 
 template<>
