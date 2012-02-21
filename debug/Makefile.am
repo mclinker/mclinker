@@ -263,6 +263,8 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/StaticResolverTest.cpp \
 	${UNITTEST}/GCFactoryListTraitsTest.h \
 	${UNITTEST}/GCFactoryListTraitsTest.cpp \
+	${UNITTEST}/LEB128Test.h \
+	${UNITTEST}/LEB128Test.cpp \
 	${UNITTEST}/SymbolCategoryTest.h \
 	${UNITTEST}/SymbolCategoryTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
