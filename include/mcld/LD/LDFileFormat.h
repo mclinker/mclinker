@@ -35,6 +35,8 @@ public:
     Relocation,
     Debug,
     Target,
+    Exception,
+    Version,
     Note,
     MetaData,
     Group,
