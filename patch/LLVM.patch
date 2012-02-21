@@ -133,6 +133,24 @@ Index: include/llvm/MC/MCSection.h
      };
  
    private:
+Index: include/llvm/Support/ELF.h
+===================================================================
+--- include/llvm/Support/ELF.h	(revision 146714)
++++ include/llvm/Support/ELF.h	(working copy)
+@@ -736,6 +736,13 @@
+   SHT_LOOS          = 0x60000000, // Lowest operating system-specific type.
+   SHT_HIOS          = 0x6fffffff, // Highest operating system-specific type.
+   SHT_LOPROC        = 0x70000000, // Lowest processor architecture-specific type.
++
++  SHT_GNU_ATTRIBUTES = 0x6ffffff5, // Object attributes.
++  SHT_GNU_HASH       = 0x6ffffff6, // GNU style dynamic hash table.
++  SHT_GNU_verdef     = 0x6ffffffd, // Versions defined by file.
++  SHT_GNU_verneed    = 0x6ffffffe, // Versions needed by file.
++  SHT_GNU_versym     = 0x6fffffff, // Symbol versions.
++
+   // Fixme: All this is duplicated in MCSectionELF. Why??
+   // Exception Index table
+   SHT_ARM_EXIDX           = 0x70000001U,
 Index: include/llvm/Support/CommandLine.h
 ===================================================================
 --- include/llvm/Support/CommandLine.h	(revision 146714)
