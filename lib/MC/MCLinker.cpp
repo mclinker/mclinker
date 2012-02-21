@@ -439,7 +439,6 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
-    output_sect->setIndex(m_Output.getSectionTable().size());
     m_Output.getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
@@ -461,7 +460,6 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
-    output_sect->setIndex(m_Output.getSectionTable().size());
     m_Output.getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
