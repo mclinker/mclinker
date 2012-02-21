@@ -58,5 +58,5 @@ licenses, and/or restrictions:
 Program             Directory
 -------             ---------
 Google Test         utils/gtest/
-Quake               test/Android/Quake/quake
-Quake2              test/Android/Quake2/quake2
+Quake               test/Android/Quake/
+Quake2              test/Android/Quake2/
