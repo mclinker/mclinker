@@ -174,7 +174,6 @@ private:
   bool isGOTSymbol(const LDSymbol& pSymbol) const;
   /// emitDynamicSymbol - emit dynamic symbol.
   void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                         llvm::ELF::Elf64_Sym& sym64,
                          Output& pOutput, 
                          LDSymbol& pSymbol,
                          const Layout& pLayout,

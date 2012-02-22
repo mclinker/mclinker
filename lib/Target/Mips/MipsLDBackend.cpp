@@ -263,7 +263,6 @@ bool MipsGNULDBackend::isGOTSymbol(const LDSymbol& pSymbol) const
 
 /// emitDynamicSymbol - emit dynamic symbol.
 void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                                         llvm::ELF::Elf64_Sym& sym64,
                                          Output& pOutput,
                                          LDSymbol& pSymbol,
                                          const Layout& pLayout,
@@ -279,22 +278,12 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 
   // FIXME: check the endian between host and target
   // write out symbol
-  if (32 == bitclass()) {
-    sym32.st_name  = strtabsize;
-    sym32.st_value = pSymbol.value();
-    sym32.st_size  = getSymbolSize(pSymbol);
-    sym32.st_info  = getSymbolInfo(pSymbol);
-    sym32.st_other = pSymbol.visibility();
-    sym32.st_shndx = getSymbolShndx(pSymbol, pLayout);
-  }
-  else { // must 64
-    sym64.st_name  = strtabsize;
-    sym64.st_value = pSymbol.value();
-    sym64.st_size  = getSymbolSize(pSymbol);
-    sym64.st_info  = getSymbolInfo(pSymbol);
-    sym64.st_other = pSymbol.visibility();
-    sym64.st_shndx = getSymbolShndx(pSymbol, pLayout);
-  }
+  sym32.st_name  = strtabsize;
+  sym32.st_value = pSymbol.value();
+  sym32.st_size  = getSymbolSize(pSymbol);
+  sym32.st_info  = getSymbolInfo(pSymbol);
+  sym32.st_other = pSymbol.visibility();
+  sym32.st_shndx = getSymbolShndx(pSymbol, pLayout);
   // write out string
   strcpy((strtab + strtabsize), pSymbol.name());
 }
@@ -330,38 +319,21 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                                                         true);
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
-  llvm::ELF::Elf64_Sym* symtab64 = NULL;
-  if (32 == bitclass())
-    symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
-  else if (64 == bitclass())
-    symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
-  else
-    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
-                             llvm::Twine(bitclass()) +
-                             llvm::Twine(".\n"));
+  symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
 
-  if (32 == bitclass()) {
-    symtab32[0].st_name  = 0;
-    symtab32[0].st_value = 0;
-    symtab32[0].st_size  = 0;
-    symtab32[0].st_info  = 0;
-    symtab32[0].st_other = 0;
-    symtab32[0].st_shndx = 0;
-  }
-  else { // must 64
-    symtab64[0].st_name  = 0;
-    symtab64[0].st_value = 0;
-    symtab64[0].st_size  = 0;
-    symtab64[0].st_info  = 0;
-    symtab64[0].st_other = 0;
-    symtab64[0].st_shndx = 0;
-  }
+  symtab32[0].st_name  = 0;
+  symtab32[0].st_value = 0;
+  symtab32[0].st_size  = 0;
+  symtab32[0].st_info  = 0;
+  symtab32[0].st_other = 0;
+  symtab32[0].st_shndx = 0;
 
   // set up strtab_region
-  bool sym_exist = false;
-  HashTableType::entry_type* entry = 0;
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
+
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = 0;
 
   // add index 0 symbol into SymIndexMap
   entry = m_pSymIndexMap->insert(NULL, sym_exist);
@@ -379,8 +351,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     if (isGOTSymbol(**symbol))
       continue;
 
-    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
+    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
+                      strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -394,8 +366,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
 
-    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
+    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
+                      strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -409,8 +381,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
 
-    emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
+    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
+                      strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -477,21 +449,11 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
 
   StringHash<ELF> hash_func;
 
-  if (32 == bitclass()) {
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
-      size_t bucket_pos = hash_func(name) % nbucket;
-      chain[sym_idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = sym_idx;
-    }
-  }
-  else if (64 == bitclass()) {
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      llvm::StringRef name(strtab + symtab64[sym_idx].st_name);
-      size_t bucket_pos = hash_func(name) % nbucket;
-      chain[sym_idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = sym_idx;
-    }
+  for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
+    llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
+    size_t bucket_pos = hash_func(name) % nbucket;
+    chain[sym_idx] = bucket[bucket_pos];
+    bucket[bucket_pos] = sym_idx;
   }
 
   symtab_region->sync();
