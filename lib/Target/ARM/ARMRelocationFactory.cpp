@@ -281,6 +281,8 @@ helper_insert_val_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
 static ARMRelocationFactory::DWord
 helper_extract_thumb_movw_movt_addend(ARMRelocationFactory::DWord pTarget)
 {
+  // TODO: By the rsloader experience: If we use 32bit, we need to consider
+  // endianness problem. We'd better have a thumb instruction type.
   // imm16: [19-16][26][14-12][7-0]
   return helper_sign_extend((((pTarget >> 4) & 0xf000U) |
                              ((pTarget >> 15) & 0x0800U) |
@@ -293,6 +295,8 @@ static ARMRelocationFactory::DWord
 helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
                                        ARMRelocationFactory::DWord pImm)
 {
+  // TODO: By the rsloader experience: If we use 32bit, we need to consider
+  // endianness problem. We'd better have a thumb instruction type.
   // imm16: [19-16][26][14-12][7-0]
   pTarget &= 0xfbf08f00U;
   pTarget |= (pImm & 0xf000U) << 4;
@@ -523,6 +527,15 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     return ARMRelocationFactory::OK;
   }
 
+  // TODO: By the rsloader experience: If we use 32bit, we need to consider
+  // endianness problem. Here is an ugly solution. We'd better have a thumb
+  // instruction type.
+  //uint16_t upper16 = *(
+  //    reinterpret_cast<uint16_t*>(&pReloc.target())
+  //  ),
+  //         lower16 = *(
+  //    reinterpret_cast<uint16_t*>(&pReloc.target()) + 1
+  //  );
   ARMRelocationFactory::DWord upper16 = ((pReloc.target() & 0xffff0000U) >> 16),
                               lower16 = (pReloc.target() & 0xffffU);
 
@@ -538,6 +551,8 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
+
+  // TODO: If the target is not thumb, we should rewrite instruction to BLX.
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
   X >>= 1;
@@ -559,6 +574,11 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   upper16 = helper_thumb32_branch_upper(upper16, X);
   lower16 = helper_thumb32_branch_lower(lower16, X);
 
+  // TODO: By the rsloader experience: If we use 32bit, we need to consider
+  // endianness problem. Here is an ugly solution. We'd better have a thumb
+  // instruction type.
+  //*(reinterpret_cast<uint16_t*>(&preloc.target())) = upper16;
+  //*(reinterpret_cast<uint16_t*>(&preloc.target()) + 1) = lower16;
   pReloc.target() = (upper16 << 16);
   pReloc.target() |= lower16;
 
