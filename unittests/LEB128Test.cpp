@@ -462,3 +462,23 @@ TEST_F( LEB128Test, Other_Test) {
   ASSERT_EQ(leb128::decode<uint64_t>(buffer, size), 154452);
   ASSERT_EQ(size, 3);
 }
+
+TEST_F( LEB128Test, Type_Conversion_Test) {
+  char buffer[5];
+  char *result;
+  size_t size;
+
+  result = buffer;
+  leb128::encode<uint64_t>(result, 154452);
+  ASSERT_EQ(result, buffer + 3);
+  ASSERT_EQ(buffer[0], '\xd4');
+  ASSERT_EQ(buffer[1], '\xb6');
+  ASSERT_EQ(buffer[2], '\x09');
+
+  ASSERT_EQ(leb128::decode<uint64_t>(buffer, size), 154452);
+  ASSERT_EQ(size, 3);
+
+  const char *p = buffer;
+  ASSERT_EQ(leb128::decode<uint64_t>(p), 154452);
+  ASSERT_EQ(p, buffer + 3);
+}

@@ -264,6 +264,26 @@ int64_t decode<int64_t>(const ByteType *&pBuf) {
   return result;
 }
 
+/*
+ * The functions below handle the signed byte stream. This helps the user to get
+ * rid of annoying type conversions when using the LEB128 encoding/decoding APIs
+ * defined above.
+ */
+template<typename IntType>
+void encode(char *&pBuf, IntType pValue) {
+  encode<IntType>(reinterpret_cast<ByteType*&>(pBuf), pValue);
+}
+
+template<typename IntType>
+IntType decode(const char *pBuf, size_t &pSize) {
+  return decode<IntType>(reinterpret_cast<const ByteType*>(pBuf), pSize);
+}
+
+template<typename IntType>
+IntType decode(const char *&pBuf) {
+  return decode<IntType>(reinterpret_cast<const ByteType*&>(pBuf));
+}
+
 } // namespace of leb128
 } // namespace of mcld
 
