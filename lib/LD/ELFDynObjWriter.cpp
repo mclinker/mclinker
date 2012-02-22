@@ -78,6 +78,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::Debug:
       case LDFileFormat::Note:
       case LDFileFormat::MetaData:
+      case LDFileFormat::Exception:
+      case LDFileFormat::Version:
         // ignore these sections
         continue;
       default: {

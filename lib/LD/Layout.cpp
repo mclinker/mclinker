@@ -497,8 +497,6 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
       case LDFileFormat::Note:
       case LDFileFormat::Debug:
       case LDFileFormat::Target:
-      case LDFileFormat::Exception:
-      case LDFileFormat::Version:
       case LDFileFormat::MetaData:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
@@ -527,6 +525,20 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         if (MCLDFile::Object == pOutput.type()) {
           //TODO: support incremental linking
           ;
+        }
+        break;
+      case LDFileFormat::Exception:
+        if (0 != sect->size()) {
+          m_SectionOrder.push_back(sect);
+          llvm::errs() << "WARNING: Exception handling has not supported yet.\n"
+                       << "section `" << sect->name() << "'.\n";
+        }
+        break;
+      case LDFileFormat::Version:
+        if (0 != sect->size()) {
+          m_SectionOrder.push_back(sect);
+          llvm::errs() << "WARNING: Symbolic versioning has not supported yet.\n"
+                       << "section `" << sect->name() << "'.\n";
         }
         break;
       default:
