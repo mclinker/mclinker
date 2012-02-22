@@ -179,7 +179,8 @@ private:
                          LDSymbol& pSymbol,
                          const Layout& pLayout,
                          char* strtab,
-                         size_t strtabsize);
+                         size_t strtabsize,
+                         size_t symtabIdx);
 };
 
 } // namespace of mcld

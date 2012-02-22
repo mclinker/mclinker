@@ -25,7 +25,7 @@
 enum {
   // The original o32 abi.
   E_MIPS_ABI_O32    = 0x00001000,
-  // O32 extended to work on 64 bit architectures. 
+  // O32 extended to work on 64 bit architectures.
   E_MIPS_ABI_O64    = 0x00002000,
   // EABI in 32 bit mode.
   E_MIPS_ABI_EABI32 = 0x00003000,
@@ -264,15 +264,18 @@ bool MipsGNULDBackend::isGOTSymbol(const LDSymbol& pSymbol) const
 /// emitDynamicSymbol - emit dynamic symbol.
 void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
                                          llvm::ELF::Elf64_Sym& sym64,
-                                         Output& pOutput, 
+                                         Output& pOutput,
                                          LDSymbol& pSymbol,
                                          const Layout& pLayout,
                                          char* strtab,
-                                         size_t strtabsize)
+                                         size_t strtabsize,
+                                         size_t symtabIdx)
 {
-  // maintain output's symtab
-  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
-    pOutput.context()->symtab().push_back(&pSymbol);
+  // maintain output's symbol and index map
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = 0;
+  entry = m_pSymIndexMap->insert(&pSymbol, sym_exist);
+  entry->setValue(symtabIdx);
 
   // FIXME: check the endian between host and target
   // write out symbol
@@ -337,9 +340,6 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                              llvm::Twine(bitclass()) +
                              llvm::Twine(".\n"));
 
-  // initialize the first ELF symbol
-  pOutput.context()->symtab().push_back(NULL);
-
   if (32 == bitclass()) {
     symtab32[0].st_name  = 0;
     symtab32[0].st_value = 0;
@@ -356,9 +356,16 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     symtab64[0].st_other = 0;
     symtab64[0].st_shndx = 0;
   }
+
   // set up strtab_region
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = 0;
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
+
+  // add index 0 symbol into SymIndexMap
+  entry = m_pSymIndexMap->insert(NULL, sym_exist);
+  entry->setValue(0);
 
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
@@ -373,7 +380,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
       continue;
 
     emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-                      pOutput, **symbol, pLayout, strtab, strtabsize);
+      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -387,12 +394,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
 
-    // maintain output's symtab
-    if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
-      pOutput.context()->symtab().push_back(*symbol);
-
     emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-                      pOutput, **symbol, pLayout, strtab, strtabsize);
+      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -407,7 +410,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
       continue;
 
     emitDynamicSymbol(symtab32[symtabIdx], symtab64[symtabIdx],
-                      pOutput, **symbol, pLayout, strtab, strtabsize);
+      pOutput, **symbol, pLayout, strtab, strtabsize, symtabIdx);
 
     // sum up counters
     ++symtabIdx;

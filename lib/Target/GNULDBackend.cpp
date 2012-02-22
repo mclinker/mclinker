@@ -35,7 +35,7 @@ GNULDBackend::GNULDBackend()
     m_pExecFileFormat(0),
     m_ELFSegmentFactory(9)// magic number
 {
-
+  m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
@@ -54,6 +54,8 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
     delete m_pExecFileFormat;
+  if(m_pSymIndexMap)
+    delete m_pSymIndexMap;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
@@ -329,6 +331,10 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
 {
 
   assert(pOutput.hasMemArea());
+
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = 0;
+
   ELFFileFormat* file_format = NULL;
   switch(pOutput.type()) {
     // compute size of .dynstr and .hash
@@ -340,7 +346,10 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
       break;
     case Output::Object:
     default:
-      pOutput.context()->symtab().push_back(NULL);
+      // add first symbol into m_pSymIndexMap
+      entry = m_pSymIndexMap->insert(NULL, sym_exist);
+      entry->setValue(0);
+
       // TODO: not support yet
       return;
   }
@@ -394,9 +403,13 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   SymbolCategory::iterator symbol;
   SymbolCategory::iterator symEnd = pSymbols.end();
   for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
-    // maintain output's symtab
-    if (Output::Object == pOutput.type())
-      pOutput.context()->symtab().push_back(*symbol);
+
+     // maintain output's symbol and index map if building .o file
+    if (Output::Object == pOutput.type()) {
+      entry = m_pSymIndexMap->insert(NULL, sym_exist);
+      entry->setValue(symtabIdx);
+    }
+
     // FIXME: check the endian between host and target
     // write out symbol
     if (32 == bitclass()) {
@@ -439,15 +452,17 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 {
   assert(pOutput.hasMemArea());
   ELFFileFormat* file_format = NULL;
+
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = 0;
+
   switch(pOutput.type()) {
     // compute size of .dynstr and .hash
     case Output::DynObj:
       file_format = getDynObjFileFormat();
-      pOutput.context()->symtab().push_back(NULL);
       break;
     case Output::Exec:
       file_format = getExecFileFormat();
-      pOutput.context()->symtab().push_back(NULL);
       break;
     case Output::Object:
     default:
@@ -505,6 +520,10 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
 
+  // add the first symbol into m_pSymIndexMap
+  entry = m_pSymIndexMap->insert(NULL, sym_exist);
+  entry->setValue(0);
+
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
 
@@ -515,9 +534,9 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
 
-    // maintain output's symtab
-    if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
-      pOutput.context()->symtab().push_back(*symbol);
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
 
     // FIXME: check the endian between host and target
     // write out symbol
@@ -770,6 +789,13 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
 
   assert(pSymbol.hasFragRef());
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
+}
+
+/// getSymbolIdx - called by emitRelocation to get the ouput symbol table index
+size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
+{
+   HashTableType::iterator entry = m_pSymIndexMap->find(pSymbol);
+   return entry.getEntry()->value();
 }
 
 /// emitProgramHdrs - emit ELF program headers

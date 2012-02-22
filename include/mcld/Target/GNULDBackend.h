@@ -13,8 +13,8 @@
 #endif
 
 #include <llvm/Support/ELF.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <mcld/LD/GNUArchiveReader.h>
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/HashEntry.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
 #include <mcld/LD/ELFObjectReader.h>
@@ -22,11 +22,28 @@
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
 #include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Target/ELFDynamic.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
+
+struct SymCompare
+{
+  bool operator()(const LDSymbol* X, const LDSymbol* Y) const
+  { return (X==Y); }
+};
+
+struct PtrHash
+{
+  size_t operator()(const LDSymbol* pKey) const
+  {
+    return (unsigned((uintptr_t)pKey) >> 4) ^
+           (unsigned((uintptr_t)pKey) >> 9);
+  }
+};
 
 class MCLDInfo;
 class Layout;
@@ -203,6 +220,9 @@ public:
   virtual unsigned int pagesize() const
   { return 0x1000; }
 
+  /// getSymbolIdx - get the symbol index of ouput symbol table
+  size_t getSymbolIdx(LDSymbol* pSymbol) const;
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(LDContext& pContext);
@@ -287,6 +307,13 @@ protected:
   /// isDynamicSymbol
   /// @ref Google gold linker: symtab.cc:311
   static bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput);
+
+protected:
+  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
+  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
+
+  /// m_pSymIndexMap - Map the LDSymbol to its index in the output symbol table
+  HashTableType* m_pSymIndexMap;
 };
 
 } // namespace of mcld

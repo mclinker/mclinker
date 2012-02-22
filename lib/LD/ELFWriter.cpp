@@ -436,8 +436,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
       Index = 0;
     else
       Index = static_cast<Elf32_Word>(
-              pOutput.context()->getSymbolIdx(
-              llvm::StringRef(relocation->symInfo()->name())));
+              f_Backend.getSymbolIdx(relocation->symInfo()->outSymbol()));
 
     rel->setSymbolAndType(Index, relocation->type());
   }
@@ -481,8 +480,7 @@ void ELFWriter::emitRela(const Layout& pLayout,
       Index = 0;
     else
       Index = static_cast<Elf32_Word>(
-              pOutput.context()->getSymbolIdx(
-              llvm::StringRef(relocation->symInfo()->name())));
+              f_Backend.getSymbolIdx(relocation->symInfo()->outSymbol()));
 
     rel->setSymbolAndType(Index, relocation->type());
     rel->r_addend = relocation->addend();
