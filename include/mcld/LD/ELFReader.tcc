@@ -245,7 +245,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   uint8_t  st_other = 0x0;
   uint16_t st_shndx = 0x0;
   // skip the first NULL symbol
-  pInput.context()->symtab().push_back(NULL);
+  pInput.context()->addSymbol(NULL);
 
   for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
@@ -310,7 +310,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
                                                    ld_frag_ref,
                                                    ld_vis);
       // push into the input file
-      pInput.context()->symtab().push_back(input_sym);
+      pInput.context()->addSymbol(input_sym);
       continue;
     }
     else if (pInput.type() == Input::DynObj) {

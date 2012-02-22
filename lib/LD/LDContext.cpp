@@ -57,16 +57,6 @@ const LDSection* LDContext::getSection(const std::string& pName) const
   return NULL;
 }
 
-size_t LDContext::getSymbolIdx(const llvm::StringRef& pName) const
-{
-  size_t result = 1;
-  size_t size = m_SymTab.size();
-  for (; result < size; ++result)
-    if (m_SymTab[result]->name() == pName)
-      return result;
-  return 0;
-}
-
 size_t LDContext::getSectionIdx(const std::string& pName) const
 {
   size_t result = 1;
@@ -111,4 +101,3 @@ const LDSymbol* LDContext::getSymbol(const llvm::StringRef& pName) const
       return m_SymTab[sym];
   return NULL;
 }
-

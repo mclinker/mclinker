@@ -74,32 +74,12 @@ public:
 
   const LDSection* getSection(const std::string& pName) const;
 
-  size_t getSymbolIdx(const llvm::StringRef& pName) const;
-
   size_t getSectionIdx(const std::string& pName) const;
 
   size_t numOfSections() const
   { return m_SectionTable.size(); }
 
   // -----  symbols  ----- //
-  sym_iterator symBegin()
-  { return m_SymTab.begin(); }
-
-  sym_iterator symEnd()
-  { return m_SymTab.end(); }
-
-  const_sym_iterator symBegin() const
-  { return m_SymTab.begin(); }
-
-  const_sym_iterator symEnd() const
-  { return m_SymTab.end(); }
-
-  SymbolTable& symtab()
-  { return m_SymTab; }
-
-  const SymbolTable& symtab() const
-  { return m_SymTab; }
-
   LDSymbol* getSymbol(unsigned int pIdx);
 
   const LDSymbol* getSymbol(unsigned int pIdx) const;
@@ -107,6 +87,9 @@ public:
   LDSymbol* getSymbol(const llvm::StringRef& pName);
 
   const LDSymbol* getSymbol(const llvm::StringRef& pName) const;
+
+  void addSymbol(LDSymbol* pSym)
+  { m_SymTab.push_back(pSym); }
 
 private:
   SectionTable m_SectionTable;
