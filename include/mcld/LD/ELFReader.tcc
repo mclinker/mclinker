@@ -217,9 +217,13 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
 
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 
-  new MCRegionFragment(*region, &sect_data);
+  MCRegionFragment* frag = new MCRegionFragment(*region);
 
-  out_sect.setSize(out_sect.size() + pInputSectHdr.size());
+  uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                     sect_data,
+                                                     pInputSectHdr.align());
+
+  out_sect.setSize(out_sect.size() + size);
   return true;
 }
 

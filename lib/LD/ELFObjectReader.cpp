@@ -157,9 +157,14 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 
         llvm::MCSectionData& sect_data = m_Linker.getOrCreateSectData(**section);
-                             /*  value, valsize, size,               SD */
-        new llvm::MCFillFragment(0x0,   1,       (*section)->size(), &sect_data);
-        output_bss.setSize(output_bss.size() + (*section)->size());
+                                         /*  value, valsize, size*/
+        llvm::MCFillFragment* frag =
+                    new llvm::MCFillFragment(0x0,   1,       (*section)->size());
+
+        uint64_t size = m_Linker.getLayout().appendFragment(*frag,
+                                                            sect_data,
+                                                            (*section)->align());
+        output_bss.setSize(output_bss.size() + size);
         break;
       }
       // ignore
