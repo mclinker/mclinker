@@ -495,7 +495,6 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
       // ignore if there is no SectionData for certain section kinds
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
-      case LDFileFormat::Debug:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
         if (0 != sect->size()) {
@@ -527,17 +526,24 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
           ;
         }
         break;
+      case LDFileFormat::Debug:
+        if (0 != sect->size()) {
+          m_SectionOrder.push_back(sect);
+          llvm::errs() << "WARNING: DWRAF debugging has not been fully supported yet.\n"
+                       << "section `" << sect->name() << "'.\n";
+        }
+        break;
       case LDFileFormat::Exception:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
-          llvm::errs() << "WARNING: Exception handling has not supported yet.\n"
+          llvm::errs() << "WARNING: Exception handling has not been fully supported yet.\n"
                        << "section `" << sect->name() << "'.\n";
         }
         break;
       case LDFileFormat::Version:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
-          llvm::errs() << "WARNING: Symbolic versioning has not supported yet.\n"
+          llvm::errs() << "WARNING: Symbolic versioning has not been fully supported yet.\n"
                        << "section `" << sect->name() << "'.\n";
         }
         break;
