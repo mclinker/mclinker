@@ -116,13 +116,14 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   llvm::ELF::Elf32_Shdr* shdrTab =
                 reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
 
-  uint32_t sh_name   = 0x0;
-  uint32_t sh_type   = 0x0;
-  uint32_t sh_flags  = 0x0;
-  uint32_t sh_offset = 0x0;
-  uint32_t sh_size   = 0x0;
-  uint32_t sh_link   = 0x0;
-  uint32_t sh_info   = 0x0;
+  uint32_t sh_name      = 0x0;
+  uint32_t sh_type      = 0x0;
+  uint32_t sh_flags     = 0x0;
+  uint32_t sh_offset    = 0x0;
+  uint32_t sh_size      = 0x0;
+  uint32_t sh_link      = 0x0;
+  uint32_t sh_info      = 0x0;
+  uint32_t sh_addralign = 0x0;
 
   // get .shstrtab first
   llvm::ELF::Elf32_Shdr* shdr = &shdrTab[shstrtab];
@@ -142,22 +143,24 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   // create all LDSections
   for (size_t idx = 0; idx < shnum; ++idx) {
     if (llvm::sys::isLittleEndianHost()) {
-      sh_name   = shdrTab[idx].sh_name;
-      sh_type   = shdrTab[idx].sh_type;
-      sh_flags  = shdrTab[idx].sh_flags;
-      sh_offset = shdrTab[idx].sh_offset;
-      sh_size   = shdrTab[idx].sh_size;
-      sh_link   = shdrTab[idx].sh_link;
-      sh_info   = shdrTab[idx].sh_info;
+      sh_name      = shdrTab[idx].sh_name;
+      sh_type      = shdrTab[idx].sh_type;
+      sh_flags     = shdrTab[idx].sh_flags;
+      sh_offset    = shdrTab[idx].sh_offset;
+      sh_size      = shdrTab[idx].sh_size;
+      sh_link      = shdrTab[idx].sh_link;
+      sh_info      = shdrTab[idx].sh_info;
+      sh_addralign = shdrTab[idx].sh_addralign;
     }
     else {
-      sh_name   = bswap32(shdrTab[idx].sh_name);
-      sh_type   = bswap32(shdrTab[idx].sh_type);
-      sh_flags  = bswap32(shdrTab[idx].sh_flags);
-      sh_offset = bswap32(shdrTab[idx].sh_offset);
-      sh_size   = bswap32(shdrTab[idx].sh_size);
-      sh_link   = bswap32(shdrTab[idx].sh_link);
-      sh_info   = bswap32(shdrTab[idx].sh_info);
+      sh_name      = bswap32(shdrTab[idx].sh_name);
+      sh_type      = bswap32(shdrTab[idx].sh_type);
+      sh_flags     = bswap32(shdrTab[idx].sh_flags);
+      sh_offset    = bswap32(shdrTab[idx].sh_offset);
+      sh_size      = bswap32(shdrTab[idx].sh_size);
+      sh_link      = bswap32(shdrTab[idx].sh_link);
+      sh_info      = bswap32(shdrTab[idx].sh_info);
+      sh_addralign = bswap32(shdrTab[idx].sh_addralign);
     }
 
     LDFileFormat::Kind kind = getLDSectionKind(sh_type,
@@ -172,6 +175,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     section.setOffset(sh_offset);
     section.setIndex(pInput.context()->numOfSections());
     section.setInfo(sh_info);
+    section.setAlign(sh_addralign);
 
     if (sh_link != 0x0 || sh_info != 0x0) {
       LinkInfo link_info = { &section, sh_link, sh_info };
