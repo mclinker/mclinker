@@ -118,19 +118,6 @@ public:
   void addInputRange(const llvm::MCSectionData& pSD,
                      const LDSection& pInputHdr);
 
-  // -----  iterators  ----- //
-  sect_iterator sect_begin()
-  { return m_SectionOrder.begin(); }
-
-  sect_iterator sect_end()
-  { return m_SectionOrder.end(); }
-
-  const_sect_iterator sect_begin() const
-  { return m_SectionOrder.begin(); }
-
-  const_sect_iterator sect_end() const
-  { return m_SectionOrder.end(); }
-
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair

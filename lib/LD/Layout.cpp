@@ -458,9 +458,10 @@ void Layout::sortSectionOrder(const Output& pOutput,
   typedef std::vector<SectOrder > SectListTy;
   SectListTy sect_list;
   // get section order from backend
-  for (sect_iterator it = sect_begin(); it != sect_end(); ++it)
-    sect_list.push_back(std::make_pair(*it,
-                                      pBackend.getSectionOrder(pOutput, **it)));
+  for (size_t index = 0; index < m_SectionOrder.size(); ++index)
+    sect_list.push_back(std::make_pair(
+                    m_SectionOrder[index],
+                    pBackend.getSectionOrder(pOutput, *m_SectionOrder[index])));
 
   // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
