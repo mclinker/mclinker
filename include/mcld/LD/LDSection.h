@@ -94,6 +94,11 @@ public:
   uint64_t addr() const
   { return m_Addr; }
 
+  /// align - An integer specifying the align of this section in the file.
+  ///   Before layouting, output's LDSection::align() should return zero.
+  uint32_t align() const
+  { return m_Align; }
+
   size_t index() const
   { return m_Index; }
 
@@ -122,6 +127,9 @@ public:
 
   void setAddr(uint64_t addr)
   { m_Addr = addr; }
+
+  void setAlign(uint32_t align)
+  { m_Align = align; }
 
   void setFlag(uint32_t flag)
   { m_Flag = flag; }
@@ -178,6 +186,7 @@ private:
   uint64_t m_Size;
   uint64_t m_Offset;
   uint64_t m_Addr;
+  uint32_t m_Align;
 
   size_t m_Info;
   LDSection* m_pLink;
