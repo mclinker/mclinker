@@ -136,7 +136,7 @@ public:
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,
                            MCLinker& pLinker,
-                           LDSection& pInputSectHdr) const
+                           LDSection& pInputSectHdr)
   { return true; }
 
 };

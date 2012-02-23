@@ -199,7 +199,7 @@ public:
   /// readSection - read target dependent sections
   bool readSection(Input& pInput,
                    MCLinker& pLinker,
-                   LDSection& pInputSectHdr) const;
+                   LDSection& pInputSectHdr);
 
 public:
   bool isSymbolPreemptible(const ResolveInfo& pSym,

@@ -843,7 +843,7 @@ ARMGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
 
 bool ARMGNULDBackend::readSection(Input& pInput,
                                   MCLinker& pLinker,
-                                  LDSection& pInputSectHdr) const
+                                  LDSection& pInputSectHdr)
 {
   LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
                                                          pInputSectHdr.kind(),
@@ -861,11 +861,11 @@ bool ARMGNULDBackend::readSection(Input& pInput,
 
   MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
                                                    pInputSectHdr.size());
-  
+
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
-  
+
   new MCRegionFragment(*region, &sect_data);
-  
+
   out_sect.setSize(out_sect.size() + pInputSectHdr.size());
   return true;
 }

@@ -222,7 +222,7 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
 /// readRegularSection - read a target section and create fragments.
 bool ELFReader<32, true>::readTargetSection(Input& pInput,
                                             MCLinker& pLinker,
-                                            LDSection& pInputSectHdr) const
+                                            LDSection& pInputSectHdr)
 {
   return target().readSection(pInput, pLinker, pInputSectHdr);
 }
@@ -335,7 +335,7 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
                                              MCLDInfo& pLDInfo,
                                              uint32_t pSymIdx) const
 {
-  LDSection* symtab = &pSymTab; 
+  LDSection* symtab = &pSymTab;
   LDSection* strtab = symtab->getLink();
   assert(NULL != symtab && NULL != strtab);
 

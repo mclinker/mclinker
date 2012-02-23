@@ -50,7 +50,7 @@ public:
   virtual bool isMyEndian(void* pELFHeader) const = 0;
 
   /// isMyMachine - is this ELF file generated for the same machine.
-  virtual bool isMyMachine(void* pELFHeader) const = 0; 
+  virtual bool isMyMachine(void* pELFHeader) const = 0;
 
   /// fileType - the file type of this file
   virtual MCLDFile::Type fileType(void* pELFHeader) const = 0;
@@ -76,7 +76,7 @@ public:
   /// readRegularSection - read a target section and create fragments.
   virtual bool readTargetSection(Input& pInput,
                                  MCLinker& pLinker,
-                                 LDSection& pSectHdr) const = 0;
+                                 LDSection& pSectHdr) = 0;
 
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
@@ -139,7 +139,7 @@ private:
  *  \brief ELFReader is a template scaffolding for partial specification.
  */
 template<size_t BIT, bool LITTLEENDIAN>
-class ELFReader 
+class ELFReader
 { };
 
 /** \class ELFReader<32, true>
@@ -189,7 +189,7 @@ public:
   /// readRegularSection - read a target section and create fragments.
   inline bool readTargetSection(Input& pInput,
                                 MCLinker& pLinker,
-                                LDSection& pInputSectHdr) const;
+                                LDSection& pInputSectHdr);
 
   /// readSymbols - read ELF symbols and create LDSymbol
   inline bool readSymbols(Input& pInput,
