@@ -904,27 +904,14 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     segment.setVaddr(segment.getFirstSection()->addr());
     segment.setPaddr(segment.vaddr());
 
-    // 1st PT_LOAD should include ELF file header and program headers
-    if (llvm::ELF::PT_LOAD == segment.type() && is_first_pt_load) {
-      assert(NULL != segment.getLastSection());
-      file_size = segment.getLastSection()->addr()
-                  + segment.getLastSection()->size()
-                  - segment.vaddr();
-      is_first_pt_load = false;
-    } else {
-      file_size = 0;
-      ELFSegment::sect_iterator sect, sect_end = segment.sectEnd();
-      for (sect = segment.sectBegin(); sect != sect_end; ++sect) {
-        if (LDFileFormat::BSS != (*sect)->kind())
-          file_size += (*sect)->size();
-      }
-    }
+    const LDSection* last_sect = segment.getLastSection();
+    assert(NULL != last_sect);
+    file_size = last_sect->offset() - segment.offset();
+    if (LDFileFormat::BSS != last_sect->kind())
+      file_size += last_sect->size();
     segment.setFilesz(file_size);
 
-    assert(NULL != segment.getLastSection());
-    segment.setMemsz(segment.getLastSection()->addr()
-                     + segment.getLastSection()->size()
-                     - segment.vaddr());
+    segment.setMemsz(last_sect->addr() - segment.vaddr() + last_sect->size());
   }
 }
 
