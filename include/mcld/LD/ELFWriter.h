@@ -76,7 +76,9 @@ protected:
 
   void emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const;
 
-  void emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const;
+  void emitSectionData(const Layout& pLayout,
+                       const LDSection& pSection,
+                       MemoryRegion& pRegion) const;
 
   void emitRelocation(const Layout& pLayout,
                       const Output& pOutput,

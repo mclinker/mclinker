@@ -95,7 +95,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     // write out sections with data
     switch(sect->kind()) {
       case LDFileFormat::Regular: {
-        emitSectionData(*sect, *region);
+        emitSectionData(m_Linker.getLayout(), *sect, *region);
         break;
       }
       case LDFileFormat::Relocation:

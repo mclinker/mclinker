@@ -20,6 +20,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <cstdlib>
+#include <cstring>
 
 using namespace llvm::ELF;
 using namespace mcld;
@@ -343,22 +344,38 @@ void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
 
 /// emitSectionData
 void
-ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) const
+ELFWriter::emitSectionData(const Layout& pLayout,
+                           const LDSection& pSection,
+                           MemoryRegion& pRegion) const
 {
   const llvm::MCSectionData* data = pSection.getSectionData();
   llvm::MCSectionData::const_iterator fragIter, fragEnd = data->end();
   size_t cur_offset = 0;
   for (fragIter = data->begin(); fragIter != fragEnd; ++fragIter) {
+    size_t size = computeFragmentSize(pLayout, *fragIter);
     switch(fragIter->getKind()) {
       case llvm::MCFragment::FT_Region: {
         const MCRegionFragment& region_frag = llvm::cast<MCRegionFragment>(*fragIter);
         const uint8_t* from = region_frag.getRegion().start();
-        size_t size = region_frag.getRegion().size();
         memcpy(pRegion.getBuffer(cur_offset), from, size);
-        cur_offset += size;
         break;
       }
-      case llvm::MCFragment::FT_Align:
+      case llvm::MCFragment::FT_Align: {
+        // TODO: emit values with different sizes (> 1 byte), and emit nops
+        llvm::MCAlignFragment& align_frag = llvm::cast<llvm::MCAlignFragment>(*fragIter);
+        uint64_t count = size / align_frag.getValueSize();
+        switch (align_frag.getValueSize()) {
+          case 1u:
+            std::memset(pRegion.getBuffer(cur_offset),
+                        align_frag.getValue(),
+                        count);
+            break;
+          default:
+            llvm::report_fatal_error("unsupported value size for align fragment emission yet.\n");
+            break;
+        }
+        break;
+      }
       case llvm::MCFragment::FT_Data:
       case llvm::MCFragment::FT_Fill:
       case llvm::MCFragment::FT_Inst:
@@ -379,6 +396,7 @@ ELFWriter::emitSectionData(const LDSection& pSection, MemoryRegion& pRegion) con
         llvm::report_fatal_error("invalid fragment should not be in a regular section.\n");
         break;
     }
+    cur_offset += size;
   }
   pRegion.sync();
 }
