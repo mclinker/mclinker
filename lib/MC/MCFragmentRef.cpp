@@ -32,12 +32,12 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
       return static_cast<const llvm::MCLEBFragment&>(pFrag).getContents().size();
 
     case llvm::MCFragment::FT_Align: {
-      const llvm::MCAlignFragment& AF = static_cast<const llvm::MCAlignFragment&>(pFrag);
-      unsigned Offset = pLayout.getOutputOffset(AF);
-      unsigned Size = llvm::OffsetToAlignment(Offset, AF.getAlignment());
-      if (Size > AF.getMaxBytesToEmit())
+      const llvm::MCAlignFragment& align_frag = static_cast<const llvm::MCAlignFragment&>(pFrag);
+      uint64_t offset = pLayout.getOutputOffset(align_frag);
+      uint64_t size = llvm::OffsetToAlignment(offset, align_frag.getAlignment());
+      if (size > align_frag.getMaxBytesToEmit())
         return 0;
-      return Size;
+      return size;
     }
 
     case llvm::MCFragment::FT_Org: {
@@ -56,10 +56,15 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
 
     case llvm::MCFragment::FT_Target:
       return static_cast<const MCTargetFragment&>(pFrag).getSize();
-  }
 
-  assert(0 && "invalid fragment kind");
-  return 0;
+    case llvm::MCFragment::FT_Reloc:
+      assert(0 && "the size of FT_Reloc fragment is handled by backend");
+      return 0;
+
+    default:
+      assert(0 && "invalid fragment kind");
+      return 0;
+  }
 }
 
 //==========================
