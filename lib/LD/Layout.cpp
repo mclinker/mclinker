@@ -166,6 +166,40 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD,
   }
 }
 
+/// appendFragment - append the given MCFragment to the given MCSectionData,
+/// and insert a MCAlignFragment to preserve the required align constraint if
+/// needed
+uint64_t Layout::appendFragment(llvm::MCFragment& pFrag,
+                                llvm::MCSectionData& pSD,
+                                const uint32_t pAlignConstraint)
+{
+  // insert MCAlignFragment into MCSectionData first if needed
+  llvm::MCAlignFragment* align_frag = NULL;
+  if (pAlignConstraint > 1) {
+    align_frag = new llvm::MCAlignFragment(pAlignConstraint,
+                                           0x0,
+                                           1u,
+                                           pAlignConstraint - 1,
+                                           &pSD);
+    // update the alignment of MCSectionData if needed
+    if (pAlignConstraint > pSD.getAlignment())
+      pSD.setAlignment(pAlignConstraint);
+  }
+
+  // append the fragment to the MCSectionData
+  pFrag.setParent(&pSD);
+  pSD.getFragmentList().push_back(&pFrag);
+
+  // compute the fragment order and offset
+  setFragmentLayoutOrder(&pFrag);
+  setFragmentLayoutOffset(&pFrag);
+
+  if (NULL != align_frag)
+    return pFrag.Offset - align_frag->Offset + computeFragmentSize(*this, pFrag);
+  else
+    return computeFragmentSize(*this, pFrag);
+}
+
 /// getInputLDSection - give a MCFragment, return the corresponding input
 /// LDSection*
 LDSection*

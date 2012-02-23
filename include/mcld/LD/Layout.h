@@ -118,6 +118,14 @@ public:
   void addInputRange(const llvm::MCSectionData& pSD,
                      const LDSection& pInputHdr);
 
+  /// appendFragment - append the given MCFragment to the given MCSectionData,
+  /// and insert a MCAlignFragment to preserve the required align constraint if
+  /// needed
+  /// @return return the inserted size, i.e., the size of pFrag and alignment
+  /// size if any
+  uint64_t appendFragment(llvm::MCFragment& pFrag,
+                          llvm::MCSectionData& pSD,
+                          const uint32_t pAlignConstraint = 1);
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair
