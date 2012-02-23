@@ -559,7 +559,10 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
   // compute the section offset and handle alignment also. And ignore section 0
   // (NULL in ELF/COFF), and MachO starts from section 1.
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
-    offset += m_SectionOrder[index - 1]->size();
+    // if the previous section is BSS, then we should not preserve file space
+    // for the BSS section.
+    if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind())
+      offset += m_SectionOrder[index - 1]->size();
     // align the offset to target-defined alignment
     alignAddress(offset, pBackend.bitclass() / 8);
     m_SectionOrder[index]->setOffset(offset);
