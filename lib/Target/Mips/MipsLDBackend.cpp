@@ -625,11 +625,12 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (Output::DynObj == pOutput.type()) {
         // TODO: (simon) Check section flag SHF_EXECINSTR
         // half_t shndx = rsym->getSectionIndex();
-        if (true) {
+        if (false) {
           if (NULL == m_pRelDyn)
             createRelDyn(pLinker, pOutput);
 
           m_pRelDyn->reserveEntry(*m_pRelocFactory);
+          rsym->setReserved(rsym->reserved() | ReserveRel);
         }
       }
       break;
@@ -731,6 +732,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           createRelDyn(pLinker, pOutput);
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       break;
     case llvm::ELF::R_MIPS_GOT16:

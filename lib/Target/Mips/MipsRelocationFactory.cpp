@@ -187,6 +187,22 @@ int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
   return AHL;
 }
 
+static
+void helper_DynRel(Relocation& pReloc,
+                   MipsRelocationFactory& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+
+  bool exist;
+  Relocation& rel_entry =
+    *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
+
+  rel_entry.setType(llvm::ELF::R_MIPS_REL32);
+  rel_entry.targetRef() = pReloc.targetRef();
+  rel_entry.setSymInfo(0);
+}
+
 //=========================================//
 // Relocation functions implementation     //
 //=========================================//
@@ -206,10 +222,17 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
                                     const MCLDInfo& pLDInfo,
                                     MipsRelocationFactory& pParent)
 {
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  if (rsym->reserved() & MipsGNULDBackend::ReserveRel) {
+    helper_DynRel(pReloc, pParent);
+  }
+
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
   pReloc.target() = S + A;
+
   return MipsRelocationFactory::OK;
 }
 
