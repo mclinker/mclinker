@@ -34,6 +34,8 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
     return LDFileFormat::MetaData;
   if (name.startswith(".interp") || name.startswith(".dynamic"))
     return LDFileFormat::Note;
+  if (name.startswith(".eh_frame"))
+    return LDFileFormat::Exception;
 
   // type rules
   switch(pType) {
