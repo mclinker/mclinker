@@ -343,13 +343,22 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
 
   uint64_t target_offset = pFront.Offset + pOffset;
 
-  // from front to read, find the offset which is as large as possible
+  // from front to rear, find the offset which is as large as possible
   // but smaller than the target_offset.
   while (front != rear) {
+    if (llvm::MCFragment::FT_Align == front->getKind()) {
+      // extend the target offset if we meet a align fragment
+      if (NULL != front->getNextNode())
+        target_offset += front->getNextNode()->Offset - front->Offset;
+      else
+        target_offset += computeFragmentSize(*this, *front);
+    }
     if (target_offset >= front->getNextNode()->Offset) {
       front = front->getNextNode();
     }
     else {
+      // we should not refer to a MCAlignFragment
+      assert(llvm::MCFragment::FT_Align != front->getKind());
       // found
       MCFragmentRef* result = m_FragRefFactory.allocate();
       new (result) MCFragmentRef(*front, target_offset - front->Offset);
@@ -358,6 +367,8 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
   }
 
   if (front == rear) {
+    // we should not refer to a MCAlignFragment
+    assert(llvm::MCFragment::FT_Align != front->getKind());
     if (!isValidOffset(*front, target_offset))
       return NULL;
     MCFragmentRef* result = m_FragRefFactory.allocate();
@@ -531,6 +542,7 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
       case LDFileFormat::Note:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
+      case LDFileFormat::BSS:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
               !sect->getSectionData()->getFragmentList().empty()) {
@@ -548,7 +560,6 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         m_SectionOrder.push_back(sect);
         break;
       // ignore if section size is 0
-      case LDFileFormat::BSS:
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
         if (0 != sect->size())
@@ -607,12 +618,19 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
   // compute the section offset and handle alignment also. And ignore section 0
   // (NULL in ELF/COFF), and MachO starts from section 1.
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
-    // if the previous section is BSS, then we should not preserve file space
-    // for the BSS section.
+    // we should not preserve file space for the BSS section.
     if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind())
       offset += m_SectionOrder[index - 1]->size();
-    // align the offset to target-defined alignment
-    alignAddress(offset, pBackend.bitclass() / 8);
+
+    uint64_t align = 0;
+    if (m_SectionOrder[index]->hasSectionData() &&
+        m_SectionOrder[index]->getSectionData()->getAlignment() > 1)
+      align = m_SectionOrder[index]->getSectionData()->getAlignment();
+    else
+      align = pBackend.bitclass() / 8;
+
+    alignAddress(offset, align);
+
     m_SectionOrder[index]->setOffset(offset);
   }
 
