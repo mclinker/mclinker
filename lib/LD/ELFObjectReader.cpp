@@ -131,6 +131,8 @@ bool ELFObjectReader::readSections(Input& pInput)
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
+      case LDFileFormat::Exception:
+      case LDFileFormat::Version:
       case LDFileFormat::MetaData: {
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
           llvm::report_fatal_error(
