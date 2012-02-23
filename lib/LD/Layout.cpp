@@ -535,9 +535,17 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
         break;
       case LDFileFormat::Exception:
         if (0 != sect->size()) {
-          m_SectionOrder.push_back(sect);
           llvm::errs() << "WARNING: Exception handling has not been fully supported yet.\n"
                        << "section `" << sect->name() << "'.\n";
+          if (NULL != sect->getSectionData() &&
+              !sect->getSectionData()->getFragmentList().empty()) {
+            // make sure that all fragments are valid
+            llvm::MCFragment& frag =
+              sect->getSectionData()->getFragmentList().back();
+            setFragmentLayoutOrder(&frag);
+            setFragmentLayoutOffset(&frag);
+          }
+          m_SectionOrder.push_back(sect);
         }
         break;
       case LDFileFormat::Version:
