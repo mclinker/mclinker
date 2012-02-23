@@ -169,7 +169,7 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().addr());
 
     // DT_INIT_ARRAYSZ
-    applyOne(llvm::ELF::DT_INIT_ARRAY, pFormat.getInitArray().size());
+    applyOne(llvm::ELF::DT_INIT_ARRAYSZ, pFormat.getInitArray().size());
   }
 
   if (pFormat.hasFiniArray()) {
@@ -177,7 +177,7 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().addr());
 
     // DT_FINI_ARRAYSZ
-    applyOne(llvm::ELF::DT_FINI_ARRAY, pFormat.getFiniArray().size());
+    applyOne(llvm::ELF::DT_FINI_ARRAYSZ, pFormat.getFiniArray().size());
   }
 
   if (pFormat.hasHashTab())
