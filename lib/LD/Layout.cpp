@@ -473,10 +473,9 @@ void Layout::sortSectionOrder(const Output& pOutput,
     sect_list[j + 1] = order;
   }
 
-  // update the sorted ordering and output section index to m_SectionOrder
+  // update the sorted ordering to m_SectionOrder
   m_SectionOrder.clear();
   for (size_t index = 0; index < sect_list.size(); ++index) {
-    sect_list[index].first->setIndex(index);
     m_SectionOrder.push_back(sect_list[index].first);
   }
 }
@@ -570,6 +569,7 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
   output_context.getSectionTable().clear();
   for (size_t index = 0; index < m_SectionOrder.size(); ++index) {
     output_context.getSectionTable().push_back(m_SectionOrder[index]);
+    // after sorting, update the correct output section indices
     m_SectionOrder[index]->setIndex(index);
   }
   return true;
