@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/MemoryRegion.h"
+#include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;
 
@@ -24,6 +24,8 @@ MemoryRegion::~MemoryRegion()
 
 void MemoryRegion::sync()
 {
+  if (NULL == m_pParentSpace || 0x0 == m_Length)
+    return;
   m_pParentSpace->sync();
 }
 
