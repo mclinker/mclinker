@@ -32,8 +32,8 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
       return static_cast<const llvm::MCLEBFragment&>(pFrag).getContents().size();
 
     case llvm::MCFragment::FT_Align: {
+      uint64_t offset = pLayout.getOutputOffset(pFrag);
       const llvm::MCAlignFragment& align_frag = static_cast<const llvm::MCAlignFragment&>(pFrag);
-      uint64_t offset = pLayout.getOutputOffset(align_frag);
       uint64_t size = llvm::OffsetToAlignment(offset, align_frag.getAlignment());
       if (size > align_frag.getMaxBytesToEmit())
         return 0;
