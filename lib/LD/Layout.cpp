@@ -55,7 +55,7 @@ void Layout::setFragmentLayoutOrder(llvm::MCFragment* pFrag)
   llvm::MCFragment* first = pFrag;
 
   while (!hasLayoutOrder(*first)) {
-    if (0 == first->getPrevNode())
+    if (NULL == first->getPrevNode())
       break;
     first = first->getPrevNode();
   }
@@ -171,16 +171,17 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD,
 /// needed
 uint64_t Layout::appendFragment(llvm::MCFragment& pFrag,
                                 llvm::MCSectionData& pSD,
-                                const uint32_t pAlignConstraint)
+                                uint32_t pAlignConstraint)
 {
   // insert MCAlignFragment into MCSectionData first if needed
   llvm::MCAlignFragment* align_frag = NULL;
   if (pAlignConstraint > 1) {
-    align_frag = new llvm::MCAlignFragment(pAlignConstraint,
-                                           0x0,
-                                           1u,
-                                           pAlignConstraint - 1,
+    align_frag = new llvm::MCAlignFragment(pAlignConstraint, // alignment
+                                           0x0, // the filled value
+                                           1u,  // the size of filled value
+                                           pAlignConstraint - 1, // max bytes to emit
                                            &pSD);
+
     // update the alignment of MCSectionData if needed
     if (pAlignConstraint > pSD.getAlignment())
       pSD.setAlignment(pAlignConstraint);
@@ -327,6 +328,9 @@ Layout::getFragmentRef(Layout::Range& pRange, uint64_t pOffset)
   return getFragmentRef(*front, *rear, pOffset);
 }
 
+// @param pFront is the first fragment in the range.
+// @param pRear is the last fragment in the range.
+// @pOffset is the offset started from pFront.
 MCFragmentRef*
 Layout::getFragmentRef(llvm::MCFragment& pFront,
                        llvm::MCFragment& pRear,
@@ -341,24 +345,35 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
     setFragmentLayoutOffset(rear);
   }
 
+  // compute the offset from overall start fragment.
   uint64_t target_offset = pFront.Offset + pOffset;
 
   // from front to rear, find the offset which is as large as possible
   // but smaller than the target_offset.
   while (front != rear) {
     if (llvm::MCFragment::FT_Align == front->getKind()) {
-      // extend the target offset if we meet a align fragment
-      if (NULL != front->getNextNode())
-        target_offset += front->getNextNode()->Offset - front->Offset;
-      else
-        target_offset += computeFragmentSize(*this, *front);
+      // alignment fragments were not counted in target_offset.
+      // Count in the size of alignment fragmen in target_offset here.
+      uint64_t align_size = 0x0;
+      if (NULL == front->getNextNode()) {
+        // If the alignment fragment is the last fragment, increase
+        // the target_offset by the alignment fragment's size.
+        align_size = computeFragmentSize(*this, *front);
+      }
+      else {
+        // If the alignment fragment is not the last fragment, the alignment
+        // fragment's size is the distance between the two fragment.
+        align_size = front->getNextNode()->Offset - front->Offset;
+      }
+      target_offset += align_size;
+      front = front->getNextNode();
+      continue;
     }
+
     if (target_offset >= front->getNextNode()->Offset) {
       front = front->getNextNode();
     }
     else {
-      // we should not refer to a MCAlignFragment
-      assert(llvm::MCFragment::FT_Align != front->getKind());
       // found
       MCFragmentRef* result = m_FragRefFactory.allocate();
       new (result) MCFragmentRef(*front, target_offset - front->Offset);
@@ -367,10 +382,12 @@ Layout::getFragmentRef(llvm::MCFragment& pFront,
   }
 
   if (front == rear) {
-    // we should not refer to a MCAlignFragment
-    assert(llvm::MCFragment::FT_Align != front->getKind());
+    if (llvm::MCFragment::FT_Align == front->getKind())
+      return NULL;
+
     if (!isValidOffset(*front, target_offset))
       return NULL;
+
     MCFragmentRef* result = m_FragRefFactory.allocate();
     new (result) MCFragmentRef(*front, target_offset - front->Offset);
     return result;
@@ -647,9 +664,13 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
 
 bool Layout::isValidOffset(const llvm::MCFragment& pFrag, uint64_t pTargetOffset) const
 {
+  uint64_t size = computeFragmentSize(*this, pFrag);
+  if (0x0 == size)
+    return (pTargetOffset == pFrag.Offset);
+
   if (NULL != pFrag.getNextNode())
     return (pTargetOffset >= pFrag.Offset && pTargetOffset < pFrag.getNextNode()->Offset);
-  uint64_t size = computeFragmentSize(*this, pFrag);
+
   return (pTargetOffset >= pFrag.Offset && pTargetOffset < (pFrag.Offset + size));
 }
 

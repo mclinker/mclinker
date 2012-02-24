@@ -183,7 +183,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     }
 
     pInput.context()->getSectionTable().push_back(&section);
-  }
+  } // end of for
 
   // set up InfoLink
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
@@ -217,7 +217,14 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
 
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 
-  MCRegionFragment* frag = new MCRegionFragment(*region);
+  llvm::MCFragment* frag = NULL;
+  if (NULL == region) {
+    // If the input section's size is zero, we got a NULL region.
+    // use a virtual fill fragment
+    frag = new llvm::MCFillFragment(0x0, 0, 0);
+  }
+  else
+    frag = new MCRegionFragment(*region);
 
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      sect_data,

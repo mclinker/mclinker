@@ -125,7 +125,7 @@ public:
   /// size if any
   uint64_t appendFragment(llvm::MCFragment& pFrag,
                           llvm::MCSectionData& pSD,
-                          const uint32_t pAlignConstraint = 1);
+                          uint32_t pAlignConstraint = 1);
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair
