@@ -358,11 +358,9 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   LDSection& strtab_sect = file_format->getStrTab();
 
   MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
-                                                           symtab_sect.size(),
-                                                           true);
+                                                           symtab_sect.size());
   MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
-                                                           strtab_sect.size(),
-                                                           true);
+                                                           strtab_sect.size());
 
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
@@ -476,17 +474,13 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& dyn_sect    = file_format->getDynamic();
 
   MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
-                                                           symtab_sect.size(),
-                                                           true);
+                                                           symtab_sect.size());
   MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
-                                                           strtab_sect.size(),
-                                                           true);
+                                                           strtab_sect.size());
   MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
-                                                         hash_sect.size(),
-                                                         true);
+                                                         hash_sect.size());
   MemoryRegion* dyn_region = pOutput.memArea()->request(dyn_sect.offset(),
-                                                        dyn_sect.size(),
-                                                        true);
+                                                        dyn_sect.size());
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
@@ -929,8 +923,8 @@ void GNULDBackend::writeELF32ProgramHdrs(Output& pOutput)
   phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
   // Program header must start directly after ELF header
   MemoryRegion *region = pOutput.memArea()->request(start_offset,
-                                                    numOfSegments() *phdr_size,
-                                                    true);
+                                                    numOfSegments()*phdr_size);
+
   llvm::ELF::Elf32_Phdr* phdr = (llvm::ELF::Elf32_Phdr*)region->start();
 
   size_t index = 0;
@@ -959,8 +953,7 @@ void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
   phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
   // Program header must start directly after ELF header
   MemoryRegion *region = pOutput.memArea()->request(start_offset,
-                                                    numOfSegments() *phdr_size,
-                                                    true);
+                                                    numOfSegments() *phdr_size);
   llvm::ELF::Elf64_Phdr* phdr = (llvm::ELF::Elf64_Phdr*)region->start();
 
   size_t index = 0;

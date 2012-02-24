@@ -69,7 +69,8 @@ public:
   {
     ReadOnly = O_RDONLY,
     WriteOnly = O_WRONLY,
-    ReadWrite = O_RDWR
+    ReadWrite = O_RDWR,
+    AccessMask = O_ACCMODE
   };
 
 private:
@@ -89,10 +90,10 @@ private:
 
   public:
     Space()
-    : m_pParent(0), type(UNALLOCATED), file_offset(0), size(0), data(0)
+    : m_pParent(NULL), type(UNALLOCATED), file_offset(0), size(0), data(0)
     { }
 
-    Space(MemoryArea* pParent, off_t pOffset, size_t pLength)
+    Space(MemoryArea* pParent, size_t pOffset, size_t pLength)
     : m_pParent(pParent),
       type(UNALLOCATED),
       file_offset(pOffset),
@@ -111,7 +112,7 @@ private:
 
   public:
     Type type;
-    off_t file_offset;
+    size_t file_offset;
     size_t size;
     sys::fs::detail::Address data;
   };
@@ -131,7 +132,7 @@ public:
   // find an existing space to hold the MemoryRegion.
   // if MemoryArea does not find such space, then it creates a new space and
   // assign a MemoryRegion into the space.
-  MemoryRegion* request(off_t pOffset, size_t pLength, bool pIsWrite = false);
+  MemoryRegion* request(size_t pOffset, size_t pLength);
 
   // release - release a MemoryRegion.
   // release a MemoryRegion does not cause
@@ -180,6 +181,12 @@ public:
   // isEOF - check if we reach the end of the file
   bool isEOF() const;
 
+  // isReadable - check if the memory area is readable
+  bool isReadable() const;
+
+  // isWriteable - check if the memory area is writable
+  bool isWritable() const;
+
   // rdstate - get error state flags
   // Returns the current internal error state flags of the stream
   int rdstate() const;
@@ -192,7 +199,7 @@ public:
 
 private:
   // find - first fit search
-  Space* find(off_t pOffset, size_t pLength);
+  Space* find(size_t pOffset, size_t pLength);
 
   // release a Space, but does not remove it from space list
   void release(Space* pSpace);
@@ -201,7 +208,7 @@ private:
   void write(const Space& pSpace);
 
   // truncate - truncate the file size to length.
-  void truncate(off_t length);
+  void truncate(size_t pLength);
 
   // policy - decide whehter to use dynamic memory or memory mapped I/O
   Space::Type policy(off_t pOffset, size_t pLength);
@@ -223,7 +230,7 @@ private:
   RegionFactory& m_RegionFactory;
   sys::fs::Path m_FilePath;
   int m_FileDescriptor;
-  off_t m_FileSize;
+  size_t m_FileSize;
   int m_AccessFlags;
   int m_State;
 

@@ -539,8 +539,7 @@ void MCLinker::syncRelocationResult()
 
   m_Info.output().memArea()->clean();
   MemoryRegion* region = m_Info.output().memArea()->request(0,
-                              m_Info.output().memArea()->size(),
-                              true);
+                              m_Info.output().memArea()->size());
 
   uint8_t* data = region->getBuffer();
 

@@ -35,8 +35,7 @@ void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
 
     // ELF header must start from 0x0
     MemoryRegion *region = pOutput.memArea()->request(0,
-                                                      sizeof(Elf32_Ehdr),
-                                                      true);
+                                                      sizeof(Elf32_Ehdr));
     Elf32_Ehdr* header = (Elf32_Ehdr*)region->start();
 
     memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
@@ -89,8 +88,7 @@ void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
 
     // ELF header must start from 0x0
     MemoryRegion *region = pOutput.memArea()->request(0,
-                                                      sizeof(Elf64_Ehdr),
-                                                      true);
+                                                      sizeof(Elf64_Ehdr));
     Elf64_Ehdr* header = (Elf64_Ehdr*)region->start();
 
     memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
@@ -190,8 +188,7 @@ ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
   unsigned int header_size = sizeof(Elf32_Shdr) * sectNum;
   MemoryRegion* region = pOutput.memArea()->request(
                                    getELF32LastStartOffset(pOutput),
-                                   header_size,
-                                   true);
+                                   header_size);
   Elf32_Shdr* shdr = (Elf32_Shdr*)region->start();
 
   // Iterate the SectionTable in LDContext
@@ -228,8 +225,7 @@ ELFWriter::emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const
   unsigned int header_size = sizeof(Elf64_Shdr) * sectNum;
   MemoryRegion* region = pOutput.memArea()->request(
                                      getELF64LastStartOffset(pOutput),
-                                     header_size,
-                                     true);
+                                     header_size);
   Elf64_Shdr* shdr = (Elf64_Shdr*)region->start();
 
   // Iterate the SectionTable in LDContext
@@ -282,8 +278,7 @@ void ELFWriter::emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const
 
   // write out data
   MemoryRegion* region = pOutput.memArea()->request(shstrtab.offset(),
-                                                    shstrtab.size(),
-                                                    true);
+                                                    shstrtab.size());
   unsigned char* data = region->start();
   shstrsize = 0;
   for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
@@ -326,8 +321,7 @@ void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
 
   // write out data
   MemoryRegion* region = pOutput.memArea()->request(shstrtab.offset(),
-                                                    shstrtab.size(),
-                                                    true);
+                                                    shstrtab.size());
   unsigned char* data = region->start();
   shstrsize = 0;
   for (section = pOutput.context()->sectBegin(); section != sectEnd; ++section) {
@@ -376,8 +370,24 @@ ELFWriter::emitSectionData(const Layout& pLayout,
         }
         break;
       }
+      case llvm::MCFragment::FT_Fill: {
+        llvm::MCFillFragment& fill_frag = llvm::cast<llvm::MCFillFragment>(*fragIter);
+        if (0 == size ||
+            0 == fill_frag.getValueSize() ||
+            0 == fill_frag.getSize()) {
+          // ignore virtual fillment
+          break;
+        }
+
+        uint64_t num_tiles = fill_frag.getSize() / fill_frag.getValueSize();
+        for (uint64_t i = 0; i != num_tiles; ++i) {
+          std::memset(pRegion.getBuffer(cur_offset),
+                      fill_frag.getValue(),
+                      fill_frag.getValueSize());
+        }
+        break;
+      }
       case llvm::MCFragment::FT_Data:
-      case llvm::MCFragment::FT_Fill:
       case llvm::MCFragment::FT_Inst:
       case llvm::MCFragment::FT_Org:
       case llvm::MCFragment::FT_Dwarf:

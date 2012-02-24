@@ -60,9 +60,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::Regular:
       case LDFileFormat::Relocation:
       case LDFileFormat::Target: {
-        region = pOutput.memArea()->request(sect->offset(),
-                                            sect->size(),
-                                            true);
+        region = pOutput.memArea()->request(sect->offset(), sect->size());
         if (NULL == region) {
           llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section[") +
                                    llvm::Twine(secIdx) +

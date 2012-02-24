@@ -28,26 +28,29 @@ MemoryArea::MemoryArea(RegionFactory& pRegionFactory)
   : m_RegionFactory(pRegionFactory),
     m_FileDescriptor(-1),
     m_FileSize(0),
-    m_AccessFlags(0),
+    m_AccessFlags(ReadOnly),
     m_State(BadBit) {
 }
 
 MemoryArea::~MemoryArea()
 {
   // truncate the file to real size
-  if ((m_AccessFlags & WriteOnly) || (m_AccessFlags & ReadWrite))
+  if (isWritable())
     truncate(m_FileSize);
 
   unmap();
 }
 
-void MemoryArea::truncate(off_t length)
+void MemoryArea::truncate(size_t pLength)
 {
-  if( -1 == ftruncate(m_FileDescriptor, length)) {
+  if (!isWritable())
+    return;
+
+  if (-1 == ::ftruncate(m_FileDescriptor, static_cast<off_t>(pLength))) {
     llvm::report_fatal_error(llvm::Twine("Cannot truncate `") +
                              m_FilePath.native() +
                              llvm::Twine("' to size: ") +
-                             llvm::Twine(length) +
+                             llvm::Twine(pLength) +
                              llvm::Twine(".\n"));
   }
 }
@@ -63,13 +66,16 @@ void MemoryArea::map(const sys::fs::Path& pPath, int pFlags)
   }
   else {
     struct stat st;
-
-    if (!stat(m_FilePath.c_str(), &st))
-      m_FileSize = (off_t) st.st_size;
-    else
-      m_FileSize = 0;
-
-     m_State = GoodBit;
+    int stat_result = ::stat(m_FilePath.native().c_str(), &st);
+    if (0x0 == stat_result) {
+      m_FileSize = static_cast<size_t>(st.st_size);
+      m_State = GoodBit;
+    }
+    else {
+      m_FileSize = 0x0;
+      m_State |= FailBit;
+      m_State |= BadBit;
+    }
   }
 }
 
@@ -84,13 +90,16 @@ void MemoryArea::map(const sys::fs::Path& pPath, int pFlags, int pMode)
   }
   else {
     struct stat st;
-
-    if (!stat(m_FilePath.c_str(), &st))
-      m_FileSize = (off_t) st.st_size;
-    else
-      m_FileSize = 0;
-
-     m_State = GoodBit;
+    int stat_result = ::stat(m_FilePath.native().c_str(), &st);
+    if (0x0 == stat_result) {
+      m_FileSize = static_cast<size_t>(st.st_size);
+      m_State = GoodBit;
+    }
+    else {
+      m_FileSize = 0x0;
+      m_State |= FailBit;
+      m_State |= BadBit;
+    }
   }
 }
 
@@ -101,7 +110,7 @@ void MemoryArea::unmap()
       m_State |= FailBit;
     else {
       m_FileDescriptor = -1;
-      m_AccessFlags = 0;
+      m_AccessFlags = ReadOnly;
     }
   }
 }
@@ -113,22 +122,34 @@ bool MemoryArea::isMapped() const
 
 bool MemoryArea::isGood() const
 {
-  return !(m_State & (BadBit | FailBit));
+  return 0x0 == (m_State & (BadBit | FailBit));
 }
 
 bool MemoryArea::isBad() const
 {
-  return (m_State & BadBit);
+  return 0x0 != (m_State & BadBit);
 }
 
 bool MemoryArea::isFailed() const
 {
-  return (m_State & FailBit);
+  return 0x0 != (m_State & FailBit);
 }
 
 bool MemoryArea::isEOF() const
 {
-  return (m_State & EOFBit);
+  return 0x0 != (m_State & EOFBit);
+}
+
+bool MemoryArea::isReadable() const
+{
+  return (((m_AccessFlags & AccessMask) == ReadOnly) ||
+         ((m_AccessFlags & AccessMask) == ReadWrite));
+}
+
+bool MemoryArea::isWritable() const
+{
+  return (((m_AccessFlags & AccessMask) == WriteOnly) ||
+         ((m_AccessFlags & AccessMask) == ReadWrite));
 }
 
 int MemoryArea::rdstate() const
@@ -163,42 +184,51 @@ void MemoryArea::clear(MemoryArea::IOState pState)
 // if the MemorySpace's type is ALLOCATED_ARRAY, the distances of (space.data, r_start)
 // and (r_len, space.size) are zero.
 //
-MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool pIsWrite)
+MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
 {
   if (!isMapped() || !isGood())
-    return 0;
+    return NULL;
 
-  // find the last truncated file size.
-  if (pIsWrite) {
-    // m_FileSize is the offset that really written. 
-    // Calculate the page boundary that larger than m_FileSize.
-    off_t real_size = page_boundary(m_FileSize);
+  if (0x0 == pLength)
+    return NULL;
 
-    if ((pOffset+pLength) > real_size) {
-       // Expand the file size in page boundary.
-      off_t new_size = page_boundary(pOffset + pLength);
-      truncate(new_size);
-    }
+  if (!isWritable() && (pOffset + pLength) > m_FileSize)
+    return NULL;
+
+  if (isWritable() && (pOffset + pLength) > m_FileSize) {
+    // If the memory area is writable, user can expand the size of file by
+    // request a region larger than the file.
+    // MemoryArea should enlarge the file if the requested region is larger
+    // than the file.
+    m_FileSize = page_boundary(pOffset + pLength + 1);
+    truncate(m_FileSize);
   }
-
-  // set the file size
-  m_FileSize = (pOffset+pLength) > m_FileSize ? pOffset+pLength : m_FileSize;
 
   Space* space = find(pOffset, pLength);
   MemoryArea::Address r_start = 0;
-  if (0 == space) { // not found, first reach the memory space
+  if (NULL == space) {
+    // the space does not exist, create a new space.
     space = new Space(this, pOffset, pLength);
     m_SpaceList.push_back(space);
     switch(space->type = policy(pOffset, pLength)) {
       case Space::MMAPED: {
-        int mm_flag = pIsWrite? (PROT_READ | PROT_WRITE) : (PROT_READ);
+        int mm_prot, mm_flag;
+        if (isWritable()) {
+          mm_prot = PROT_READ | PROT_WRITE;
+          mm_flag = MAP_FILE | MAP_SHARED;
+        }
+        else {
+          mm_prot = PROT_READ;
+          mm_flag = MAP_FILE | MAP_PRIVATE;
+        }
+
         space->file_offset = page_offset(pOffset);
-        // The size may large than filesize
-        // TODO: Let size = file_size - file_offset;
-        space->size = page_boundary(pLength + (pOffset - space->file_offset));
+
+        // The space's size may be larger than filesize.
+        space->size = page_boundary(pLength + pOffset + 1 - space->file_offset);
         space->data = (Address) ::mmap(NULL,
                                        space->size,
-                                       mm_flag, MAP_FILE | MAP_SHARED,
+                                       mm_prot, mm_flag,
                                        m_FileDescriptor,
                                        space->file_offset);
 
@@ -214,9 +244,11 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool pIsWrite)
         break;
       }
       case Space::ALLOCATED_ARRAY: {
+        // space->offset and space->size are set in constructor. We only need
+        // to set up data.
         space->data = new unsigned char[pLength];
 	r_start = space->data;
-        if (WriteOnly & m_AccessFlags)
+        if ((m_AccessFlags & AccessMask) == WriteOnly)
           break;
         else { // read-only or read-write
           ssize_t read_bytes = sys::fs::detail::pread(m_FileDescriptor,
@@ -235,8 +267,10 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool pIsWrite)
             }
             else if (read_bytes < pLength) {
               m_State |= EOFBit;
-              if (ReadWrite & m_AccessFlags) // read-write permission allows EOF while pread
+              if ((m_AccessFlags & AccessMask) == ReadWrite) {
+                // read-write permission allows EOF while pread
                 break;
+              }
               m_State |= BadBit;
               error_mesg << ": file too short: read only ";
               error_mesg << read_bytes << " of " << space->size << " bytes at ";
@@ -258,9 +292,9 @@ MemoryRegion* MemoryArea::request(off_t pOffset, size_t pLength, bool pIsWrite)
     off_t distance = pOffset - space->file_offset;
     r_start = space->data + distance;
   }
+
   // now, we have a legal space to hold the new MemoryRegion
-  MemoryRegion* result = m_RegionFactory.produce(space, r_start, pLength);
-  return result;
+  return m_RegionFactory.produce(space, r_start, pLength);
 }
 
 // release - release a MemoryRegion
@@ -292,16 +326,16 @@ void MemoryArea::sync()
   }
 }
 
-MemoryArea::Space* MemoryArea::find(off_t pOffset, size_t pLength)
+MemoryArea::Space* MemoryArea::find(size_t pOffset, size_t pLength)
 {
   SpaceList::iterator sIter, sEnd = m_SpaceList.end();
   for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
-    if (sIter->file_offset <= pOffset && (pOffset+static_cast<off_t>(pLength))
-       <= (sIter->file_offset+static_cast<off_t>(sIter->size)) ) { // within
+    if (sIter->file_offset <= pOffset &&
+       (pOffset+pLength) <= (sIter->file_offset+sIter->size) ) { // within
       return sIter;
     }
   }
-  return 0;
+  return NULL;
 }
 
 void MemoryArea::release(MemoryArea::Space* pSpace)
@@ -330,7 +364,7 @@ MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
 
 void MemoryArea::write(const Space& pSpace)
 {
-  if (!isMapped() || !isGood())
+  if (!isMapped() || !isGood() || !isWritable())
     return;
 
   switch(pSpace.type) {
