@@ -34,7 +34,9 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
     return LDFileFormat::MetaData;
   if (name.startswith(".interp") || name.startswith(".dynamic"))
     return LDFileFormat::Note;
-  if (name.startswith(".eh_frame"))
+  if (name.startswith(".eh_frame") ||
+      name.startswith(".eh_frame_hdr") ||
+      name.startswith(".gcc_except_table"))
     return LDFileFormat::Exception;
 
   // type rules
@@ -63,6 +65,10 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
     return LDFileFormat::MetaData;
   case llvm::ELF::SHT_GROUP:
     return LDFileFormat::Group;
+  case llvm::ELF::SHT_GNU_versym:
+  case llvm::ELF::SHT_GNU_verdef:
+  case llvm::ELF::SHT_GNU_verneed:
+    return LDFileFormat::Version;
   default:
     if ((pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC) ||
         (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
