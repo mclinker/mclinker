@@ -263,7 +263,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= res;
+  pReloc.target() |= (res & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
@@ -290,7 +290,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
   }
 
   pReloc.target() &= 0xFFFF0000;
-  pReloc.target() |= res;
+  pReloc.target() |= (res & 0xFFFF);
 
   return MipsRelocationFactory::OK;
 }
