@@ -672,33 +672,36 @@ X86GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
   com_end = symbol_list.localEnd();
   for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
     if (ResolveInfo::Common == (*com_sym)->desc()) {
-      alignAddress(offset, (*com_sym)->value());
       // We have to reset the description of the symbol here. When doing
       // incremental linking, the output relocatable object may have common
       // symbols. Therefore, we can not treat common symbols as normal symbols
       // when emitting the regular name pools. We must change the symbols'
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size(), &bss_section);
+      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
       (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-      offset += (*com_sym)->size();
+      uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                         bss_section,
+                                                         (*com_sym)->value());
+      offset += size;
     }
   }
 
   // allocate all global common symbols
   com_end = symbol_list.commonEnd();
   for (com_sym = symbol_list.commonBegin(); com_sym != com_end; ++com_sym) {
-    alignAddress(offset, (*com_sym)->value());
-
     // We have to reset the description of the symbol here. When doing
     // incremental linking, the output relocatable object may have common
     // symbols. Therefore, we can not treat common symbols as normal symbols
     // when emitting the regular name pools. We must change the symbols'
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size(), &bss_section);
+    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
     (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-    offset += (*com_sym)->size();
+    uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                       bss_section,
+                                                       (*com_sym)->value());
+    offset += size;
   }
 
   bss_sect_hdr->setSize(offset);
