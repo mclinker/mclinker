@@ -214,14 +214,24 @@ void ARMPLT::applyPLT1() {
     GOTEntryAddress += GOTEntrySize;
     PLTEntryAddress += PLT1EntrySize;
 
-    if (GOTEntryAddress > PLTEntryAddress)
+    uint32_t plt1_data1 = 0x0;
+    uint32_t plt1_data2 = 0x0;
+    uint32_t plt1_data3 = 0x0;
+
+    if (GOTEntryAddress > PLTEntryAddress) {
       Offset = GOTEntryAddress - PLTEntryAddress;
-    else
+
+      plt1_data1 = ((Offset + 8) & 0x0FF00000) >> 20;
+      plt1_data2 = ((Offset + 4) & 0x000FF000) >> 12;
+      plt1_data3 = (Offset & 0x00000FFF);
+    }
+    else {
       Offset = PLTEntryAddress - GOTEntryAddress;
 
-    uint32_t plt1_data1 = ((Offset - 8) & 0x0FF00000) >> 20;
-    uint32_t plt1_data2 = ((Offset - 4) & 0x000FF000) >> 12;
-    uint32_t plt1_data3 = (Offset & 0x00000FFF);
+      plt1_data1 = ((Offset - 8) & 0x0FF00000) >> 20;
+      plt1_data2 = ((Offset - 4) & 0x000FF000) >> 12;
+      plt1_data3 = (Offset & 0x00000FFF);
+    }
 
     Out[0] |= plt1_data1;
     Out[1] |= plt1_data2;
