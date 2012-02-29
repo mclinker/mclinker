@@ -222,8 +222,8 @@ void helper_DynRel(Relocation& pReloc,
 // Only need to check R_386_32.
 static bool
 helper_use_relative_reloc(const ResolveInfo& pSym,
-			  const MCLDInfo& pLDInfo,
-			  const X86RelocationFactory& pFactory)
+                          const MCLDInfo& pLDInfo,
+                          const X86RelocationFactory& pFactory)
 
 {
   // if symbol has plt, should use RELATIVE
@@ -232,9 +232,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
   // if symbol is dynamic or undefine or preemptible
   if(pSym.isDyn() ||
      pSym.isUndef() ||
-     pFactory.getTarget().isSymbolPreemptible(pSym,
-					                                    pLDInfo,
-					                                    pLDInfo.output()))
+     pFactory.getTarget().isSymbolPreemptible(pSym, pLDInfo, pLDInfo.output()))
     return false;
   return true;
 }
@@ -245,7 +243,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 
 // R_386_NONE
 X86RelocationFactory::Result none(Relocation& pReloc,
-				  const MCLDInfo& pLDInfo,
+                                  const MCLDInfo& pLDInfo,
                                   X86RelocationFactory& pParent)
 {
   return X86RelocationFactory::OK;
@@ -253,7 +251,7 @@ X86RelocationFactory::Result none(Relocation& pReloc,
 
 // R_386_32: S + A
 X86RelocationFactory::Result abs32(Relocation& pReloc,
-				   const MCLDInfo& pLDInfo,
+                                   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -288,7 +286,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
 
 // R_386_PC32: S + A - P
 X86RelocationFactory::Result rel32(Relocation& pReloc,
-				   const MCLDInfo& pLDInfo,
+                                   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -301,7 +299,7 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
 
 // R_386_GOTOFF: S + A - GOT_ORG
 X86RelocationFactory::Result gotoff32(Relocation& pReloc,
-				      const MCLDInfo& pLDInfo,
+                                      const MCLDInfo& pLDInfo,
                                       X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
@@ -314,7 +312,7 @@ X86RelocationFactory::Result gotoff32(Relocation& pReloc,
 
 // R_386_GOTPC: GOT_ORG + A - P
 X86RelocationFactory::Result gotpc32(Relocation& pReloc,
-				     const MCLDInfo& pLDInfo,
+                                     const MCLDInfo& pLDInfo,
                                      X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
@@ -326,7 +324,7 @@ X86RelocationFactory::Result gotpc32(Relocation& pReloc,
 
 // R_386_GOT32: GOT(S) + A - GOT_ORG
 X86RelocationFactory::Result got32(Relocation& pReloc,
-				   const MCLDInfo& pLDInfo,
+                                   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   if(!(pReloc.symInfo()->reserved()
@@ -343,7 +341,7 @@ X86RelocationFactory::Result got32(Relocation& pReloc,
 
 // R_386_PLT32: PLT(S) + A - P
 X86RelocationFactory::Result plt32(Relocation& pReloc,
-				   const MCLDInfo& pLDInfo,
+                                   const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
   // PLT_S depends on if there is a PLT entry.
