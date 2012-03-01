@@ -744,9 +744,8 @@ int main( int argc, char* argv[] )
   // If we are supposed to override the target triple, do so now.
   Triple TheTriple;
   if (!TargetTriple.empty()) {
-    const std::string &TripleStr = mod.getTargetTriple();
-    TheTriple.setTriple(TripleStr);
-    mod.setTargetTriple(TripleStr);
+    TheTriple.setTriple(TargetTriple);
+    mod.setTargetTriple(TargetTriple);
   }
 
   // User doesn't specify the triple from command.
