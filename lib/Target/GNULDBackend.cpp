@@ -104,7 +104,7 @@ bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
 bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
 {
   if (0 == m_pExecFileFormat)
-    m_pExecFileFormat = new ELFExecFileFormat();
+    m_pExecFileFormat = new ELFExecFileFormat(*this);
 
   // initialize standard sections
   m_pExecFileFormat->initStdSections(pMCLinker);
@@ -114,7 +114,7 @@ bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
 bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
 {
   if (0 == m_pDynObjFileFormat)
-    m_pDynObjFileFormat = new ELFDynObjFileFormat();
+    m_pDynObjFileFormat = new ELFDynObjFileFormat(*this);
 
   // initialize standard sections
   m_pDynObjFileFormat->initStdSections(pMCLinker);

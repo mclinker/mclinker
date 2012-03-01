@@ -202,10 +202,7 @@ ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
     shdr[sectIdx].sh_addr      = ld_sect->addr();
     shdr[sectIdx].sh_offset    = ld_sect->offset();
     shdr[sectIdx].sh_size      = ld_sect->size();
-    shdr[sectIdx].sh_addralign = (ld_sect->hasSectionData())?
-                                    ld_sect->getSectionData()->getAlignment():
-                                    0x0;
-
+    shdr[sectIdx].sh_addralign = ld_sect->align();
     shdr[sectIdx].sh_entsize   = getELF32SectEntrySize(*ld_sect);
     shdr[sectIdx].sh_link      = getSectLink(*ld_sect, pOutput);
     shdr[sectIdx].sh_info      = getSectInfo(*ld_sect, pOutput);

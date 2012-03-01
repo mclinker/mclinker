@@ -16,8 +16,8 @@
 namespace mcld
 {
 
+class TargetLDBackend;
 class MCLinker;
-class LDSection;
 
 /** \class ELFDynObjFileFormat
  *  \brief ELFDynObjFileFormat describes the format for ELF dynamic objects.
@@ -25,6 +25,9 @@ class LDSection;
 class ELFDynObjFileFormat : public ELFFileFormat
 {
 public:
+  ELFDynObjFileFormat(TargetLDBackend& pBackend) : ELFFileFormat(pBackend)
+  {}
+
   void initObjectType(MCLinker& pLinker);
 
 };

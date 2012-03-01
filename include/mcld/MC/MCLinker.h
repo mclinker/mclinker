@@ -138,7 +138,8 @@ public:
   LDSection& getOrCreateOutputSectHdr(const std::string& pName,
                                       LDFileFormat::Kind pKind,
                                       uint32_t pType,
-                                      uint32_t pFlag);
+                                      uint32_t pFlag,
+                                      uint32_t pAlign = 0);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);

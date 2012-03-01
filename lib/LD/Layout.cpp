@@ -181,15 +181,17 @@ uint64_t Layout::appendFragment(llvm::MCFragment& pFrag,
                                            1u,  // the size of filled value
                                            pAlignConstraint - 1, // max bytes to emit
                                            &pSD);
-
-    // update the alignment of MCSectionData if needed
-    if (pAlignConstraint > pSD.getAlignment())
-      pSD.setAlignment(pAlignConstraint);
   }
 
   // append the fragment to the MCSectionData
   pFrag.setParent(&pSD);
   pSD.getFragmentList().push_back(&pFrag);
+
+  // update the alignment of associated output LDSection if needed
+  LDSection* output_sect = getOutputLDSection(pFrag);
+  assert(NULL != output_sect);
+  if (pAlignConstraint > output_sect->align())
+    output_sect->setAlign(pAlignConstraint);
 
   // compute the fragment order and offset
   setFragmentLayoutOrder(&pFrag);
@@ -639,14 +641,7 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
     if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind())
       offset += m_SectionOrder[index - 1]->size();
 
-    uint64_t align = 0;
-    if (m_SectionOrder[index]->hasSectionData() &&
-        m_SectionOrder[index]->getSectionData()->getAlignment() > 1)
-      align = m_SectionOrder[index]->getSectionData()->getAlignment();
-    else
-      align = pBackend.bitclass() / 8;
-
-    alignAddress(offset, align);
+    alignAddress(offset, m_SectionOrder[index]->align());
 
     m_SectionOrder[index]->setOffset(offset);
   }

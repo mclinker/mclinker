@@ -85,15 +85,18 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
   m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
                                                       LDFileFormat::Target,
                                                       llvm::ELF::SHT_ARM_EXIDX,
-                                                      llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER);
+                                                      llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
+                                                      bitclass() / 8);
   m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
                                                       LDFileFormat::Target,
                                                       llvm::ELF::SHT_PROGBITS,
-                                                      llvm::ELF::SHF_ALLOC);
+                                                      llvm::ELF::SHF_ALLOC,
+                                                      0x1);
   m_pAttributes   = &pLinker.getOrCreateOutputSectHdr(".ARM.attributes",
                                                       LDFileFormat::Target,
                                                       llvm::ELF::SHT_ARM_ATTRIBUTES,
-                                                      0);
+                                                      0x0,
+                                                      0x1);
 }
 
 void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)

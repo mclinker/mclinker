@@ -13,6 +13,7 @@
 #endif
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 namespace mcld
 {
@@ -32,7 +33,7 @@ class MCLinker;
 class ELFFileFormat : public LDFileFormat
 {
 public:
-  ELFFileFormat();
+  ELFFileFormat(TargetLDBackend& pBackend);
 
   virtual ~ELFFileFormat();
 
@@ -595,6 +596,8 @@ public:
   }
 
 protected:
+  TargetLDBackend& f_Backend;
+
   //         variable name         :  ELF
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
   LDSection* f_pNULLSection;

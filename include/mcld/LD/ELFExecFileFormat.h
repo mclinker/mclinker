@@ -16,7 +16,7 @@
 namespace mcld
 {
 
-class LDContext;
+class TargetLDBackend;
 class MCLinker;
 
 /** \class ELFExecFileFormat
@@ -25,6 +25,9 @@ class MCLinker;
 class ELFExecFileFormat : public ELFFileFormat
 {
 public:
+  ELFExecFileFormat(TargetLDBackend& pBackend) : ELFFileFormat(pBackend)
+  {}
+
   void initObjectType(MCLinker& pLinker)
   { /** TODO **/ }
 };
