@@ -1,17 +1,82 @@
-2011-05-23 Luba Tang <lubatang@gmail.com>
-	* create all basic files and directories.
+2012-03-01 Luba Tang <lubatang@gmail.com>
+	* add test/ARM/Relocation:
+	* add test/ARM/GOTPLT:
+	Simple regression testcases. Each case is used for testing a single
+	relocation or GOTPLT entry.
 
-2012-01-12 Jush Lu <Jush.Lu@mediatek.com>
-	* Trivial cases have worked on ARM.
+	* add test/Android/Plasma/ARM, X86, MIPS:
+	* add test/Android/Quake/ARM, X86:
+	* add test/Android/Quake2/ARM, X86:
+	Basic regression testcases for Android platform. The system libraries
+	for each platform are under test/libs/ARM, X86, MIPS.
 
-2012-01-17 Luba Tang <lubatang@gmail.com>
-	* Quake can be linked on ARM Android.
-	* All APIs for backends is ready.
+	* Target/TargetLDBackend:
+	separate readSections() into readRegularSection() and
+	readTargetSection().
 
-2012-02-02 Luba Tang <lubatang@gmail.com>
-	* Quake can be linked on x86 Android.
+	* Target/GNULDBackend:
+	Move hash_bucket_count() and isDynamicSymbol() on successors.
+
+	* Target/MipsLDBackend: Eable to link trivial cases and Android Plasma.
+	* Target/X86LDBackend: Eable to link all Android JNI cases with CRT.
+
+	* CodeGen/SectLinkerOption, llvm-mcld.cpp:
+	get rid of -dB option. MCLinker does not need to ask users for -dB
+	option.
+
+	* MC/MCLinker, LD/ELFObjectReader, LD/ELFObjectWriter:
+	Support symbol visibility.
+
+	* LD/LDSection: Separate LinkInfo into Link and Info. 
+
+	* LD/Relocation:
+	In order to enhance memory footprints:
+	1. Remove Relocation::m_Parent.
+	2. Let target data be a copy, not a pointer.
+
+	* LD/ELFReader, LD/ObjectReader, LD/ELFObjectReader, LD/Layout:
+	Support GROUPT section.
+
+	* LD/LDFileFormat:
+	Support all special sections listed in Linux Standard Base
+	(ISO/IEC 23360).
+
+	* Support/GCFactoryListTraits:
+	Provides GCFactory's trait for llvm::iplist.
+
+	* Support/LEB128: Add LEB128 utilities.
+
+	* Support/HashTable:
+	Identify ambiguous constructors by adding an anonyous parameter.
+
+	* Suppot/MemoryRegion, Support/MemoryArea:
+	1. remove pIsWrite parameter in MemoryArea::request(). MemoryArea knows
+	the file is readable or writable when map() the file.
+	2. MemoryArea allows to request a zero size MemoryRegion.
+
+	* patch/LLVM.patch: complement llvm/Support/ELF.h.
+	Add SHT_GNU_ATTRIBUTES, SHT_GNU_HASH, SHT_GNU_verdef, SHT_GNU_verneed,
+	and SHT_GNU_versym.
+
+	* LD/Layout:
+	1. Work around LDFileFormat::Exception and LDFileFormat::Version.
+	2. appendFragment(): Support merging sections with different alignment
+	constraints.
 
 2012-02-03 Luba Tang <lubatang@gmail.com>
 	* allocate common symbols in BSS section
 	* add ThreadLocal type in ResolveInfo::Type
 	* Quake2 can be linked on ARM Android.
+
+2012-02-02 Luba Tang <lubatang@gmail.com>
+	* Quake can be linked on x86 Android.
+
+2012-01-17 Luba Tang <lubatang@gmail.com>
+	* Quake can be linked on ARM Android.
+	* All APIs for backends is ready.
+
+2012-01-12 Jush Lu <Jush.Lu@mediatek.com>
+	* Trivial cases have worked on ARM.
+
+2011-05-23 Luba Tang <lubatang@gmail.com>
+	* create all basic files and directories.
