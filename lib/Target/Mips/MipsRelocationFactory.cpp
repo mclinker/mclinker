@@ -181,8 +181,8 @@ int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
          pLoReloc.type() == llvm::ELF::R_MIPS_LO16 &&
          "Incorrect type of relocation for AHL calculation");
 
-  int32_t AHI = pHiReloc.target();
-  int32_t ALO = pLoReloc.target();
+  int32_t AHI = pHiReloc.target() + pHiReloc.addend();
+  int32_t ALO = pLoReloc.target() + pLoReloc.addend();
   int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF);
   return AHL;
 }
@@ -231,7 +231,7 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  pReloc.target() = S + A;
+  pReloc.target() |= (S + A);
 
   return MipsRelocationFactory::OK;
 }
@@ -352,6 +352,7 @@ MipsRelocationFactory::Result gprel32(Relocation& pReloc,
   RelocationFactory::DWord S = pReloc.symValue();
   RelocationFactory::Address GP = helper_GetGP(pParent);
 
-  pReloc.target() = A + S - GP;
+  pReloc.target() |= (A + S - GP);
+
   return MipsRelocationFactory::OK;
 }
