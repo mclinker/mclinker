@@ -11,9 +11,9 @@ Compilation Instructions
 ========================
   The simplest way to compile this package is:
 
-------------
-Prepare LLVM
-------------
+----------------------
+Prepare LLVM and Clang
+----------------------
   0.a Download LLVM 3.1@r146714
       `svn co -r 146714 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
 
@@ -22,7 +22,15 @@ Prepare LLVM
   0.c Apply patches from MCLinker
       `patch -p0 < ${MCLinker}/patch/LLVM.patch'
 
-  0.d Build and install LLVM
+  0.d Download Clang @r146744
+      `cd tools'
+      `svn co -r 14744 http://llvm.org/svn/llvm-project/cfe/trunk clang'
+
+  0.e Build and install LLVM
+      `cd ../../'
+      `mkdir llvm-build && cd ./llvm-build'
+      `../llvm/configure --prefix=${LLVM_INSTALL}'
+      `make all install'
 
 --------------
 Build MCLinker
