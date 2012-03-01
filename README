@@ -24,7 +24,7 @@ Prepare LLVM and Clang
 
   0.d Download Clang @r146744
       `cd tools'
-      `svn co -r 14744 http://llvm.org/svn/llvm-project/cfe/trunk clang'
+      `svn co -r 146744 http://llvm.org/svn/llvm-project/cfe/trunk clang'
 
   0.e Build and install LLVM
       `cd ../../'
