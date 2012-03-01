@@ -149,9 +149,9 @@ public:
   bool initRelocFactory(const MCLinker& pLinker);
 
   void initTargetSections(MCLinker& pLinker);
-  
+
   void initTargetSymbols(MCLinker& pLinker);
- 
+
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
   /// For X86, following entries are check to create:
@@ -197,7 +197,7 @@ private:
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
-  void scanGlobalReloc(Relocation& pReloc, 
+  void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
                        MCLinker& pLinker,
                        const MCLDInfo& pLDInfo,
@@ -210,6 +210,10 @@ private:
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
                            const Output& pOutput,
                            bool isAbsReloc) const;
+
+  void updateAddend(Relocation& pReloc,
+                    const LDSymbol& pInputSym,
+                    const Layout& pLayout) const;
 
   void createX86GOT(MCLinker& pLinker, const Output& pOutput);
   void createX86PLTandRelPLT(MCLinker& pLinker, const Output& pOutput);

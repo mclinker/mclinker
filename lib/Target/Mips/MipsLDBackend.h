@@ -141,12 +141,16 @@ public:
 
 private:
   void scanLocalReloc(Relocation& pReloc,
+                      const LDSymbol& pInputSym,
                       MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
-                       MCLinker& pLinker,
-                       const Output& pOutput);
+                      const LDSymbol& pInputSym,
+                      MCLinker& pLinker,
+                      const MCLDInfo& pLDInfo,
+                      const Output& pOutput);
 
   bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
   bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
@@ -155,6 +159,14 @@ private:
   void createRelDyn(MCLinker& pLinker, const Output& pOutput);
 
   ELFFileFormat* getOutputFormat(const Output& pOutput) const;
+
+  /// updateAddend - update addend value of the relocation if the
+  /// the target symbol is a section symbol. Addend is the offset
+  /// in the section. This value should be updated after section
+  /// merged.
+  void updateAddend(Relocation& pReloc,
+                    const LDSymbol& pInputSym,
+                    const Layout& pLayout) const;
 
 private:
   RelocationFactory* m_pRelocFactory;

@@ -226,6 +226,17 @@ bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
   return true;
 }
 
+void X86GNULDBackend::updateAddend(Relocation& pReloc,
+                                   const LDSymbol& pInputSym,
+                                   const Layout& pLayout) const
+{
+  // Update value keep in addend if we meet a section symbol
+  if(pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pReloc.setAddend(pLayout.getOutputOffset(
+                     *pInputSym.fragRef()) + pReloc.addend());
+  }
+}
+
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      MCLinker& pLinker,
@@ -235,15 +246,11 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
+  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+
   switch(pReloc.type()){
 
     case llvm::ELF::R_386_32:
-      // Update value keep in relocation place if we meet a section symbol
-      if(rsym->type() == ResolveInfo::Section) {
-        pReloc.target() = pLinker.getLayout().getOutputOffset(
-                            *pInputSym.fragRef()) + pReloc.target();
-      }
-
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn

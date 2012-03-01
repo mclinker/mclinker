@@ -135,9 +135,9 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   }
 
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pLinker, pOutput);
+    scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
   else
-    scanGlobalReloc(pReloc, pLinker, pOutput);
+    scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 }
 
 uint32_t MipsGNULDBackend::machine() const
@@ -607,11 +607,26 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
   return true;
 }
 
+void MipsGNULDBackend::updateAddend(Relocation& pReloc,
+                                   const LDSymbol& pInputSym,
+                                   const Layout& pLayout) const
+{
+  // Update value keep in addend if we meet a section symbol
+  if(pReloc.symInfo()->type() == ResolveInfo::Section) {
+    pReloc.setAddend(pLayout.getOutputOffset(
+                     *pInputSym.fragRef()) + pReloc.addend());
+  }
+}
+
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
+                                      const LDSymbol& pInputSym,
                                       MCLinker& pLinker,
+                                      const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
+
+  updateAddend(pReloc, pInputSym, pLinker.getLayout());
 
   switch (pReloc.type()){
     case llvm::ELF::R_MIPS_NONE:
@@ -701,7 +716,9 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
+                                       const LDSymbol& pInputSym,
                                        MCLinker& pLinker,
+                                       const MCLDInfo& pLDInfo,
                                        const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();

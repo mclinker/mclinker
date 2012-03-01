@@ -234,6 +234,14 @@ private:
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput) const;
 
+  /// updateAddend - update addend value of the relocation if the
+  /// the target symbol is a section symbol. Addend is the offset
+  /// in the section. This value should be updated after section
+  /// merged.
+  void updateAddend(Relocation& pReloc,
+                    const LDSymbol& pInputSym,
+                    const Layout& pLayout) const;
+
   void createARMGOT(MCLinker& pLinker, const Output& pOutput);
 
   /// createARMPLTandRelPLT - create PLT and RELPLT sections.
