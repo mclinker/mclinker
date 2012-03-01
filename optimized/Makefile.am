@@ -27,6 +27,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/Directory.cpp \
 	${INCDIR}/Support/FileSytem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/Support/LEB128.h \
+	${LIBDIR}/Support/LEB128.cpp \
 	${INCDIR}/Support/MemoryArea.h \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
@@ -187,7 +189,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ArchiveReader.h \
 	${LIBDIR}/LD/ArchiveReader.cpp \
 	${INCDIR}/LD/ObjectReader.h \
-	${LIBDIR}/LD/ObjectReader.cpp \
 	${INCDIR}/LD/DynObjReader.h \
 	${LIBDIR}/LD/DynObjReader.cpp \
 	${INCDIR}/LD/ObjectWriter.h \
