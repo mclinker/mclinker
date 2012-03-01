@@ -634,15 +634,15 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       break;
     case llvm::ELF::R_MIPS_32:
       if (Output::DynObj == pOutput.type()) {
-        // TODO: (simon) Check section flag SHF_EXECINSTR
-        // half_t shndx = rsym->getSectionIndex();
-        if (false) {
-          if (NULL == m_pRelDyn)
-            createRelDyn(pLinker, pOutput);
+        // TODO: (simon) The gold linker does not create an entry in .rel.dyn
+        // section if the symbol section flags contains SHF_EXECINSTR.
+        // 1. Find the reason of this condition.
+        // 2. Check this condition here.
+        if (NULL == m_pRelDyn)
+          createRelDyn(pLinker, pOutput);
 
-          m_pRelDyn->reserveEntry(*m_pRelocFactory);
-          rsym->setReserved(rsym->reserved() | ReserveRel);
-        }
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       break;
     case llvm::ELF::R_MIPS_REL32:
