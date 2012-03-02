@@ -45,130 +45,153 @@ void LEB128Test::TearDown()
 TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_32bits) {
   leb128::ByteType buffer[2];
   leb128::ByteType *result;
+  size_t size;
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 2);
+  size = leb128::encode<uint32_t>(result, 2);
   ASSERT_EQ(buffer[0], 2);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 127);
+  size = leb128::encode<uint32_t>(result, 127);
   ASSERT_EQ(buffer[0], 127);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 128);
+  size = leb128::encode<uint32_t>(result, 128);
   ASSERT_EQ(buffer[0], 0 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 129);
+  size = leb128::encode<uint32_t>(result, 129);
   ASSERT_EQ(buffer[0], 1 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 130);
+  size = leb128::encode<uint32_t>(result, 130);
   ASSERT_EQ(buffer[0], 2 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 12857);
+  size = leb128::encode<uint32_t>(result, 12857);
   ASSERT_EQ(buffer[0], 57 + 0x80);
   ASSERT_EQ(buffer[1], 100);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 }
 
 TEST_F( LEB128Test, EncodeULEB_Example_from_Dwarf3_Figure22_Using_64bits) {
   leb128::ByteType buffer[2];
   leb128::ByteType *result;
+  size_t size;
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 2);
+  size = leb128::encode<uint64_t>(result, 2);
   ASSERT_EQ(buffer[0], 2);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 127);
+  size = leb128::encode<uint64_t>(result, 127);
   ASSERT_EQ(buffer[0], 127);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 128);
+  size = leb128::encode<uint64_t>(result, 128);
   ASSERT_EQ(buffer[0], 0 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 129);
+  size = leb128::encode<uint64_t>(result, 129);
   ASSERT_EQ(buffer[0], 1 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 130);
+  size = leb128::encode<uint64_t>(result, 130);
   ASSERT_EQ(buffer[0], 2 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 12857);
+  size = leb128::encode<uint64_t>(result, 12857);
   ASSERT_EQ(buffer[0], 57 + 0x80);
   ASSERT_EQ(buffer[1], 100);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 }
 
 TEST_F( LEB128Test, EncodeSLEB_Example_from_Dwarf3_Figure22) {
   leb128::ByteType buffer[2];
   leb128::ByteType *result;
+  size_t size;
 
   result = buffer;
-  leb128::encode<int32_t>(result, 2);
+  size = leb128::encode<int32_t>(result, 2);
   ASSERT_EQ(buffer[0], 2);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int32_t>(result, -2);
+  size = leb128::encode<int32_t>(result, -2);
   ASSERT_EQ(buffer[0], 0x7e);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int32_t>(result, 127);
+  size = leb128::encode<int32_t>(result, 127);
   ASSERT_EQ(buffer[0], 127 + 0x80);
   ASSERT_EQ(buffer[1], 0);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<int32_t>(result, -127);
+  size = leb128::encode<int32_t>(result, -127);
   ASSERT_EQ(buffer[0], 1 + 0x80);
   ASSERT_EQ(buffer[1], 0x7f);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<int32_t>(result, 128);
+  size = leb128::encode<int32_t>(result, 128);
   ASSERT_EQ(buffer[0], 0 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<int32_t>(result, -128);
+  size = leb128::encode<int32_t>(result, -128);
   ASSERT_EQ(buffer[0], 0 + 0x80);
   ASSERT_EQ(buffer[1], 0x7f);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<int32_t>(result, 129);
+  size = leb128::encode<int32_t>(result, 129);
   ASSERT_EQ(buffer[0], 1 + 0x80);
   ASSERT_EQ(buffer[1], 1);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<int32_t>(result, -129);
+  size = leb128::encode<int32_t>(result, -129);
   ASSERT_EQ(buffer[0], 0x7f + 0x80);
   ASSERT_EQ(buffer[1], 0x7e);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 }
 
 TEST_F( LEB128Test, DecodeULEB_Example_from_Dwarf3_Figure22) {
@@ -276,80 +299,93 @@ TEST_F( LEB128Test, DecodeULEB_Tests_Found_in_Android_dalvik_dx) {
 TEST_F( LEB128Test, EncodeULEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType buffer[5];
   leb128::ByteType *result;
+  size_t size;
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 0);
+  size = leb128::encode<uint32_t>(result, 0);
   ASSERT_EQ(buffer[0], 0);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 0);
+  size = leb128::encode<uint64_t>(result, 0);
   ASSERT_EQ(buffer[0], 0);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 1);
+  size = leb128::encode<uint32_t>(result, 1);
   ASSERT_EQ(buffer[0], 1);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 1);
+  size = leb128::encode<uint64_t>(result, 1);
   ASSERT_EQ(buffer[0], 1);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 16256);
+  size = leb128::encode<uint32_t>(result, 16256);
   ASSERT_EQ(buffer[0], 0x80);
   ASSERT_EQ(buffer[1], 0x7f);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 16256);
+  size = leb128::encode<uint64_t>(result, 16256);
   ASSERT_EQ(buffer[0], 0x80);
   ASSERT_EQ(buffer[1], 0x7f);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 0x3b4);
+  size = leb128::encode<uint32_t>(result, 0x3b4);
   ASSERT_EQ(buffer[0], 0xb4);
   ASSERT_EQ(buffer[1], 0x07);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 0x3b4);
+  size = leb128::encode<uint64_t>(result, 0x3b4);
   ASSERT_EQ(buffer[0], 0xb4);
   ASSERT_EQ(buffer[1], 0x07);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 0x40c);
+  size = leb128::encode<uint32_t>(result, 0x40c);
   ASSERT_EQ(buffer[0], 0x8c);
   ASSERT_EQ(buffer[1], 0x08);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 0x40c);
+  size = leb128::encode<uint64_t>(result, 0x40c);
   ASSERT_EQ(buffer[0], 0x8c);
   ASSERT_EQ(buffer[1], 0x08);
   ASSERT_EQ(result, buffer + 2);
+  ASSERT_EQ(size, 2);
 
   result = buffer;
-  leb128::encode<uint32_t>(result, 0xffffffff);
+  size = leb128::encode<uint32_t>(result, 0xffffffff);
   ASSERT_EQ(buffer[0], 0xff);
   ASSERT_EQ(buffer[1], 0xff);
   ASSERT_EQ(buffer[2], 0xff);
   ASSERT_EQ(buffer[3], 0xff);
   ASSERT_EQ(buffer[4], 0xf);
   ASSERT_EQ(result, buffer + 5);
+  ASSERT_EQ(size, 5);
 
   result = buffer;
-  leb128::encode<uint64_t>(result, 0xffffffff);
+  size = leb128::encode<uint64_t>(result, 0xffffffff);
   ASSERT_EQ(buffer[0], 0xff);
   ASSERT_EQ(buffer[1], 0xff);
   ASSERT_EQ(buffer[2], 0xff);
   ASSERT_EQ(buffer[3], 0xff);
   ASSERT_EQ(buffer[4], 0xf);
   ASSERT_EQ(result, buffer + 5);
+  ASSERT_EQ(size, 5);
 }
 
 TEST_F( LEB128Test, DecodeSLEB_Tests_Found_in_Android_dalvik_dx) {
@@ -380,36 +416,43 @@ TEST_F( LEB128Test, DecodeSLEB_Tests_Found_in_Android_dalvik_dx) {
 TEST_F( LEB128Test, EncodeSLEB_Tests_Found_in_Android_dalvik_dx) {
   leb128::ByteType buffer[5];
   leb128::ByteType *result;
+  size_t size;
 
   result = buffer;
-  leb128::encode<int32_t>(result, 0);
+  size = leb128::encode<int32_t>(result, 0);
   ASSERT_EQ(buffer[0], 0);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int64_t>(result, 0);
+  size = leb128::encode<int64_t>(result, 0);
   ASSERT_EQ(buffer[0], 0);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int32_t>(result, 1);
+  size = leb128::encode<int32_t>(result, 1);
   ASSERT_EQ(buffer[0], 1);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int64_t>(result, 1);
+  size = leb128::encode<int64_t>(result, 1);
   ASSERT_EQ(buffer[0], 1);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int32_t>(result, -1);
+  size = leb128::encode<int32_t>(result, -1);
   ASSERT_EQ(buffer[0], 0x7f);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 
   result = buffer;
-  leb128::encode<int64_t>(result, -1);
+  size = leb128::encode<int64_t>(result, -1);
   ASSERT_EQ(buffer[0], 0x7f);
   ASSERT_EQ(result, buffer + 1);
+  ASSERT_EQ(size, 1);
 }
 
 TEST_F( LEB128Test, Random_Regression_Test) {
@@ -419,31 +462,35 @@ TEST_F( LEB128Test, Random_Regression_Test) {
     long int value = random();
     uint64_t value2 = value * value;
     leb128::ByteType *result;
-    size_t size;
+    size_t encode_size, decode_size;
 
     // Test encode<uint32_t> and decode<uint64_t> on value
     result = buffer;
-    leb128::encode<uint32_t>(result, value);
-    ASSERT_EQ(leb128::decode<uint64_t>(buffer, size), value);
-    ASSERT_EQ(result, buffer + size);
+    encode_size = leb128::encode<uint32_t>(result, value);
+    ASSERT_EQ(result, buffer + encode_size);
+    ASSERT_EQ(leb128::decode<uint64_t>(buffer, decode_size), value);
+    ASSERT_EQ(encode_size, decode_size);
 
     // Test encode<uint64_t> and decode<uint64_t> on (value * value)
     result = buffer;
-    leb128::encode<uint64_t>(result, value2);
-    ASSERT_EQ(leb128::decode<uint64_t>(buffer, size), value2);
-    ASSERT_EQ(result, buffer + size);
+    encode_size = leb128::encode<uint64_t>(result, value2);
+    ASSERT_EQ(result, buffer + encode_size);
+    ASSERT_EQ(leb128::decode<uint64_t>(buffer, decode_size), value2);
+    ASSERT_EQ(encode_size, decode_size);
 
     // Test encode<uint64_t> and decode<uint64_t> on (value * value)
     result = buffer;
-    leb128::encode<int64_t>(result, value2);
-    ASSERT_EQ(leb128::decode<int64_t>(buffer, size), value2);
-    ASSERT_EQ(result, buffer + size);
+    encode_size = leb128::encode<int64_t>(result, value2);
+    ASSERT_EQ(result, buffer + encode_size);
+    ASSERT_EQ(leb128::decode<int64_t>(buffer, decode_size), value2);
+    ASSERT_EQ(encode_size, decode_size);
 
     // Test encode<uint64_t> and decode<uint64_t> on -(value * value)
     result = buffer;
-    leb128::encode<int64_t>(result, -value2);
-    ASSERT_EQ(leb128::decode<int64_t>(buffer, size), -value2);
-    ASSERT_EQ(result, buffer + size);
+    encode_size = leb128::encode<int64_t>(result, -value2);
+    ASSERT_EQ(result, buffer + encode_size);
+    ASSERT_EQ(leb128::decode<int64_t>(buffer, decode_size), -value2);
+    ASSERT_EQ(encode_size, decode_size);
   }
 }
 

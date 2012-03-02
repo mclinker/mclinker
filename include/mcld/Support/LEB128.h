@@ -24,7 +24,7 @@ typedef unsigned char ByteType;
 
 /* Forward declarations */
 template<typename IntType>
-void encode(ByteType *&pBuf, IntType pValue);
+size_t encode(ByteType *&pBuf, IntType pValue);
 
 template<typename IntType>
 IntType decode(const ByteType *pBuf, size_t &pSize);
@@ -49,22 +49,23 @@ size_t size(IntType pValue) {
 /*
  * Write an unsigned integer in ULEB128 to the given buffer. The client should
  * ensure there's enough space in the buffer to hold the result. Update the
- * given buffer pointer to the point just past the end of the write value.
+ * given buffer pointer to the point just past the end of the write value and
+ * return the number of bytes being written.
  */
 template<>
-void encode<uint64_t>(ByteType *&pBuf, uint64_t pValue);
+size_t encode<uint64_t>(ByteType *&pBuf, uint64_t pValue);
 
 template<>
-void encode<uint32_t>(ByteType *&pBuf, uint32_t pValue);
+size_t encode<uint32_t>(ByteType *&pBuf, uint32_t pValue);
 
 /*
  * Encoding functions for signed LEB128.
  */
 template<>
-void encode<int64_t>(ByteType *&pBuf, int64_t pValue);
+size_t encode<int64_t>(ByteType *&pBuf, int64_t pValue);
 
 template<>
-void encode<int32_t>(ByteType *&pBuf, int32_t pValue);
+size_t encode<int32_t>(ByteType *&pBuf, int32_t pValue);
 
 /*
  * Read an integer encoded in ULEB128 format from the given buffer. pSize will
@@ -96,8 +97,8 @@ int64_t decode<int64_t>(const ByteType *&pBuf);
  * defined above.
  */
 template<typename IntType>
-void encode(char *&pBuf, IntType pValue) {
-  encode<IntType>(reinterpret_cast<ByteType*&>(pBuf), pValue);
+size_t encode(char *&pBuf, IntType pValue) {
+  return encode<IntType>(reinterpret_cast<ByteType*&>(pBuf), pValue);
 }
 
 template<typename IntType>

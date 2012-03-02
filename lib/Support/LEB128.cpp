@@ -14,16 +14,18 @@ namespace leb128 {
 
 //===---------------------- LEB128 Encoding APIs -------------------------===//
 template<>
-void encode<uint64_t>(ByteType *&pBuf, uint64_t pValue) {
+size_t encode<uint64_t>(ByteType *&pBuf, uint64_t pValue) {
+  size_t size = 0;
   do {
     ByteType byte = pValue & 0x7f;
     pValue >>= 7;
     if (pValue)
       byte |= 0x80;
     *pBuf++ = byte;
+    size++;
   } while (pValue);
 
-  return;
+  return size;
 }
 
 /*
@@ -31,33 +33,39 @@ void encode<uint64_t>(ByteType *&pBuf, uint64_t pValue) {
  * generic version defined above.
  */
 template<>
-void encode<uint32_t>(ByteType *&pBuf, uint32_t pValue) {
+size_t encode<uint32_t>(ByteType *&pBuf, uint32_t pValue) {
   if ((pValue & ~0x7f) == 0) {
     *pBuf++ = static_cast<ByteType>(pValue);
+    return 1;
   } else if ((pValue & ~0x3fff) == 0){
     *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>((pValue  >>  7) & 0x7f);
+    return 2;
   } else if ((pValue & ~0x1fffff) == 0) {
     *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>((pValue  >> 14) & 0x7f);
+    return 3;
   } else if ((pValue & ~0xfffffff) == 0) {
     *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 14) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>((pValue  >> 21) & 0x7f);
+    return 4;
   } else {
     *pBuf++ = static_cast<ByteType>((pValue         & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >>  7) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 14) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>(((pValue >> 21) & 0x7f) | 0x80);
     *pBuf++ = static_cast<ByteType>((pValue  >> 28) & 0x7f);
+    return 5;
   }
-  return;
+  // unreachable
 }
 
 template<>
-void encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
+size_t encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
+  size_t size = 0;
   bool more = true;
 
   do {
@@ -71,14 +79,15 @@ void encode<int64_t>(ByteType *&pBuf, int64_t pValue) {
       byte |= 0x80;
 
     *pBuf++ = byte;
+    size++;
   } while (more);
 
-  return;
+  return size;
 }
 
 template<>
-void encode<int32_t>(ByteType *&pBuf, int32_t pValue) {
-  encode<int64_t>(pBuf, static_cast<int64_t>(pValue));
+size_t encode<int32_t>(ByteType *&pBuf, int32_t pValue) {
+  return encode<int64_t>(pBuf, static_cast<int64_t>(pValue));
 }
 
 //===---------------------- LEB128 Decoding APIs -------------------------===//
