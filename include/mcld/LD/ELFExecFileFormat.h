@@ -16,7 +16,7 @@
 namespace mcld
 {
 
-class TargetLDBackend;
+class GNULDBackend;
 class MCLinker;
 
 /** \class ELFExecFileFormat
@@ -25,7 +25,7 @@ class MCLinker;
 class ELFExecFileFormat : public ELFFileFormat
 {
 public:
-  ELFExecFileFormat(TargetLDBackend& pBackend) : ELFFileFormat(pBackend)
+  ELFExecFileFormat(GNULDBackend& pBackend) : ELFFileFormat(pBackend)
   {}
 
   void initObjectType(MCLinker& pLinker)

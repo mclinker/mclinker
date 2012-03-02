@@ -10,10 +10,11 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDFile.h>
 #include <llvm/Support/ELF.h>
+#include <mcld/Target/GNULDBackend.h>
 
 using namespace mcld;
 
-ELFFileFormat::ELFFileFormat(TargetLDBackend& pBackend)
+ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
   : f_Backend(pBackend),
     f_pNULLSection(NULL),
     f_pGOT(NULL),

@@ -139,7 +139,7 @@ public:
                                       LDFileFormat::Kind pKind,
                                       uint32_t pType,
                                       uint32_t pFlag,
-                                      uint32_t pAlign = 0);
+                                      uint32_t pAlign = 0x0);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
