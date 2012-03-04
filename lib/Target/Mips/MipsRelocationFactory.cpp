@@ -348,11 +348,13 @@ MipsRelocationFactory::Result gprel32(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       MipsRelocationFactory& pParent)
 {
-  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  RelocationFactory::DWord S = pReloc.symValue();
-  RelocationFactory::Address GP = helper_GetGP(pParent);
+  int32_t A = pReloc.target();
+  int32_t S = pReloc.symValue();
+  int32_t GP = helper_GetGP(pParent);
 
-  pReloc.target() |= (A + S - GP);
+  // llvm does not emits SHT_MIPS_REGINFO section.
+  // Assume that GP0 is zero.
+  pReloc.target() = (A + S - GP) & 0xFFFFFFFF;
 
   return MipsRelocationFactory::OK;
 }
