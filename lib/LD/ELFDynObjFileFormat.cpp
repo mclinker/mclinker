@@ -11,6 +11,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/MC/MCLinker.h>
 #include <llvm/Support/ELF.h>
+#include <mcld/Target/GNULDBackend.h>
 
 using namespace mcld;
 
