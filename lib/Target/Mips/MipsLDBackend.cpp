@@ -355,27 +355,10 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     strtabsize += (*symbol)->nameSize() + 1;
   }
 
-  // emit local GOT
-  for (std::vector<LDSymbol*>::const_iterator symbol = m_LocalGOTSyms.begin(),
-       symbol_end = m_LocalGOTSyms.end();
-       symbol != symbol_end; ++symbol) {
-    if (!isDynamicSymbol(**symbol, pOutput))
-      continue;
-
-    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
-                      strtabsize, symtabIdx);
-
-    // sum up counters
-    ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
-  }
-
   // emit global GOT
   for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
        symbol_end = m_GlobalGOTSyms.end();
        symbol != symbol_end; ++symbol) {
-    if (!isDynamicSymbol(**symbol, pOutput))
-      continue;
 
     emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
                       strtabsize, symtabIdx);
