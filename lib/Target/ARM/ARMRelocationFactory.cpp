@@ -137,8 +137,25 @@ uint64_t helper_bit_select(uint64_t pA, uint64_t pB, uint64_t pMask)
   return (pA & ~pMask) | (pB & pMask) ;
 }
 
+// Check if symbol can use relocation R_ARM_RELATIVE
+static bool
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const MCLDInfo& pLDInfo,
+                          const ARMRelocationFactory& pFactory)
+{
+  // if symbol is dynamic or undefine or preemptible
+  if(pSym.isDyn() ||
+     pSym.isUndef() ||
+     pFactory.getTarget().isSymbolPreemptible(pSym,
+                                              pLDInfo,
+                                              pLDInfo.output()))
+    return false;
+  return true;
+}
+
 static
 GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+                                  const MCLDInfo& pLDInfo,
                                   ARMRelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
@@ -154,16 +171,25 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       got_entry.setContent(pReloc.symValue());
     }
     else if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
-      // Initialize to 0 for corresponding dynamic relocation.
-      got_entry.setContent(0);
 
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry =
         *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      rel_entry.setType(llvm::ELF::R_ARM_GLOB_DAT);
+      if( rsym->isLocal() ||
+          helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
+        // Initialize got entry to target symbol address
+        got_entry.setContent(pReloc.symValue());
+        rel_entry.setType(llvm::ELF::R_ARM_RELATIVE);
+        rel_entry.setSymInfo(0);
+      }
+      else {
+        // Initialize got entry to 0 for corresponding dynamic relocation.
+        got_entry.setContent(0);
+        rel_entry.setType(llvm::ELF::R_ARM_GLOB_DAT);
+        rel_entry.setSymInfo(rsym);
+      }
       rel_entry.targetRef().assign(got_entry);
-      rel_entry.setSymInfo(rsym);
     }
     else {
       llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
@@ -171,7 +197,6 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   }
   return got_entry;
 }
-
 
 static
 ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
@@ -182,9 +207,10 @@ ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 
 static
 ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
+                                         const MCLDInfo& pLDInfo,
                                          ARMRelocationFactory& pParent)
 {
-  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pLDInfo, pParent);
   return helper_GOT_ORG(pParent) + pParent.getLayout().getOutputOffset(got_entry);
 }
 
@@ -359,22 +385,6 @@ helper_check_signed_overflow(ARMRelocationFactory::DWord pValue,
   }
 }
 
-// Check if symbol can use relocation R_ARM_RELATIVE
-// Only need to check R_ARM_ABS32 and R_ARM_ABS32_NOI
-static bool
-helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const MCLDInfo& pLDInfo,
-                          const ARMRelocationFactory& pFactory)
-{
-  // if symbol is dynamic or undefine or preemptible
-  if(pSym.isDyn() ||
-     pSym.isUndef() ||
-     pFactory.getTarget().isSymbolPreemptible(pSym,
-                                              pLDInfo,
-                                              pLDInfo.output()))
-    return false;
-  return true;
-}
 
 //=========================================//
 // Each relocation function implementation //
@@ -463,7 +473,7 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
   if(!(pReloc.symInfo()->reserved() & 0x6u)) {
     return ARMRelocationFactory::BadReloc;
   }
-  ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
+  ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pLDInfo, pParent);
   ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
   ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
