@@ -194,23 +194,6 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
   // emit program headers
   if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pLinker.getLDInfo().output());
-
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
-
-  // apply GOT
-  if (file_format->hasGOT()) {
-    // Since we already have the size of GOT, m_pGOT should not be NULL.
-    assert(NULL != m_pGOT);
-#if 0
-    // FIXME: (simon)
-    if (pOutput.type() == Output::DynObj)
-      m_pGOT->applyGOT0(file_format->getDynamic().addr());
-    else {
-      // executable file and object file should fill with zero.
-      m_pGOT->applyGOT0(0);
-    }
-#endif
-  }
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -807,7 +790,6 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
                                         const Output& pOutput) const
 {
-  // FIXME: (simon) extend conditions
   return Output::DynObj == pOutput.type() &&
          ResolveInfo::Function == pSym.type() &&
          pSym.isDyn() || pSym.isUndef();
