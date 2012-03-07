@@ -187,8 +187,8 @@ void ARMPLT::applyPLT1() {
   ARMPLT::iterator ie = m_SectionData.end();
   assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
-  uint64_t GOTEntrySize = m_GOT.getEntrySize();
-  uint64_t GOTEntryAddress =
+  uint32_t GOTEntrySize = m_GOT.getEntrySize();
+  uint32_t GOTEntryAddress =
     got_base +  GOTEntrySize * 3;
 
   uint64_t PLTEntryAddress =
@@ -196,49 +196,30 @@ void ARMPLT::applyPLT1() {
 
   ++it; //skip PLT0
   uint64_t PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
-  ARMPLT1* plt1 = 0;
+  ARMPLT1* plt1 = NULL;
 
   unsigned int EntryCounter = 0;
-  uint64_t Offset = 0;
-
+  uint32_t* Out = NULL;
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));
-    uint32_t* Out = 0;
     Out = static_cast<uint32_t*>(malloc(plt1->getEntrySize()));
 
     if (!Out)
       llvm::report_fatal_error("Allocating new memory for plt1 failed!");
 
-    memcpy(Out, arm_plt1, plt1->getEntrySize());
+    // Offset is the distance between the last PLT entry and the associated
+    // GOT entry.
+    int32_t Offset = (GOTEntryAddress - (PLTEntryAddress + 8));
 
-    GOTEntryAddress += GOTEntrySize;
-    PLTEntryAddress += PLT1EntrySize;
-
-    uint32_t plt1_data1 = 0x0;
-    uint32_t plt1_data2 = 0x0;
-    uint32_t plt1_data3 = 0x0;
-
-    if (GOTEntryAddress > PLTEntryAddress) {
-      Offset = GOTEntryAddress - PLTEntryAddress;
-
-      plt1_data1 = ((Offset + 8) & 0x0FF00000) >> 20;
-      plt1_data2 = ((Offset + 4) & 0x000FF000) >> 12;
-      plt1_data3 = (Offset & 0x00000FFF);
-    }
-    else {
-      Offset = PLTEntryAddress - GOTEntryAddress;
-
-      plt1_data1 = ((Offset - 8) & 0x0FF00000) >> 20;
-      plt1_data2 = ((Offset - 4) & 0x000FF000) >> 12;
-      plt1_data3 = (Offset & 0x00000FFF);
-    }
-
-    Out[0] |= plt1_data1;
-    Out[1] |= plt1_data2;
-    Out[2] |= plt1_data3;
+    Out[0] = arm_plt1[0] | ((Offset >> 20) & 0xFF);
+    Out[1] = arm_plt1[1] | ((Offset >> 12) & 0xFF);
+    Out[2] = arm_plt1[2] | (Offset & 0xFFF);
 
     plt1->setContent(reinterpret_cast<unsigned char*>(Out));
     ++it;
+
+    GOTEntryAddress += GOTEntrySize;
+    PLTEntryAddress += PLT1EntrySize;
   }
 
   m_GOT.applyAllGOTPLT(plt_base);
