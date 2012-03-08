@@ -21,7 +21,8 @@ OutputRelocSection::OutputRelocSection(LDSection& pSection,
   : m_pSection(&pSection),
     m_pSectionData(&pSectionData),
     m_EntryBytes(pEntrySize),
-    m_pEmpty(0){
+    m_isVisit(false),
+    m_ValidEntryIterator(){
 }
 
 OutputRelocSection::~OutputRelocSection()
@@ -42,14 +43,16 @@ Relocation* OutputRelocSection::getEntry(const ResolveInfo& pSymbol,
                                          bool isForGOT,
                                          bool& pExist)
 {
-  // first time visit this function, set m_pEmpty to Fragments.begin()
-  if(!m_pEmpty) {
+  // first time visit this function, set m_ValidEntryIterator to
+  // Fragments.begin()
+  if(!m_isVisit) {
     assert( !m_pSectionData->getFragmentList().empty() &&
              "DynRelSection contains no entries.");
-    m_pEmpty = m_pSectionData->getFragmentList().begin();
+    m_ValidEntryIterator = m_pSectionData->getFragmentList().begin();
+    m_isVisit = true;
   }
 
-  assert(m_pEmpty != m_pSectionData->end() &&
+  assert(m_ValidEntryIterator != m_pSectionData->end() &&
          "No empty relocation entry for the incoming symbol.");
 
   // if this relocation is used to relocate GOT (.got or .got.plt),
@@ -66,15 +69,15 @@ Relocation* OutputRelocSection::getEntry(const ResolveInfo& pSymbol,
 
     if(!Entry) {
       pExist = 0;
-      Entry = llvm::cast<Relocation>(&(*m_pEmpty));
-      ++m_pEmpty;
+      Entry = llvm::cast<Relocation>(&(*m_ValidEntryIterator));
+      ++m_ValidEntryIterator;
     }
     result = Entry;
   }
   else {
     pExist = 0;
-    result = llvm::cast<Relocation>(&(*m_pEmpty));
-    ++m_pEmpty;
+    result = llvm::cast<Relocation>(&(*m_ValidEntryIterator));
+    ++m_ValidEntryIterator;
   }
   return result;
 }
