@@ -181,9 +181,12 @@ int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
          pLoReloc.type() == llvm::ELF::R_MIPS_LO16 &&
          "Incorrect type of relocation for AHL calculation");
 
-  int32_t AHI = pHiReloc.target() + (pHiReloc.addend() >> 16);
-  int32_t ALO = pLoReloc.target() + pLoReloc.addend();
-  int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF);
+  // Note the addend is section symbol offset here
+  assert (pHiReloc.addend() == pLoReloc.addend());
+
+  int32_t AHI = pHiReloc.target();
+  int32_t ALO = pLoReloc.target();
+  int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF) + pLoReloc.addend();
   return AHL;
 }
 
