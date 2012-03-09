@@ -268,7 +268,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
   }
-  else if(rsym->isGlobal()) {
+  else if(!rsym->isLocal()) {
     if(rsym->reserved() & X86GNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       pReloc.target() = S + A;

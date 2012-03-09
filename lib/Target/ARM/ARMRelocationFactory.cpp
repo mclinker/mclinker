@@ -413,7 +413,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
     pReloc.target() = (S + A) | T ;
     return ARMRelocationFactory::OK;
   }
-  else if(rsym->isGlobal()) {
+  else if(!rsym->isLocal()) {
     if(rsym->reserved() & 0x8u) {
       S = helper_PLT(pReloc, pParent);
       T = 0 ; // PLT is not thumb
