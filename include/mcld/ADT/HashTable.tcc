@@ -82,6 +82,7 @@ HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::insert(
   entry = bucket.Entry = m_EntryFactory.produce(pKey);
   ++BaseTy::m_NumOfEntries;
   BaseTy::mayRehash();
+  pExist = false;
   return entry;
 }
 
