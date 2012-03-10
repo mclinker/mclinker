@@ -11,14 +11,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/ADT/BinTree.h"
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/CodeGen/SectLinkerOption.h"
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/MCLDDriver.h"
-#include "mcld/Support/DerivedPositionDependentOptions.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Target/TargetLDBackend.h"
+#include <mcld/ADT/BinTree.h>
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/SectLinkerOption.h>
+#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/MCLDDriver.h>
+#include <mcld/Support/DerivedPositionDependentOptions.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Module.h>
 #include <llvm/Support/ErrorHandling.h>
@@ -27,11 +27,6 @@
 #include <algorithm>
 #include <stack>
 #include <string>
-
-#ifdef MCLD_DEBUG
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/Support/FileSystem.h>
-#endif
 
 using namespace mcld;
 using namespace llvm;
