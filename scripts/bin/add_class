@@ -102,6 +102,7 @@ if [ "${DEPLOYMENT}" = "Target" ]; then
 	echo " 1) Target"
 	echo " 2) Target/ARM"
 	echo " 3) Target/X86"
+	echo " 4) Target/Mips"
 
 	while [ -z "${TARGET}" ]; do
 		echo -n "your choice? ";
@@ -112,6 +113,9 @@ if [ "${DEPLOYMENT}" = "Target" ]; then
 		    source ${MCLINKERTOP}/scripts/target_files.sh;
 			;;
 		3 ) TARGET="X86"
+		    source ${MCLINKERTOP}/scripts/target_files.sh;
+			;;
+		4 ) TARGET="Mips"
 		    source ${MCLINKERTOP}/scripts/target_files.sh;
 			;;
 		* ) TARGET="";;
