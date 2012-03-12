@@ -55,6 +55,14 @@ using namespace llvm;
 
 //===----------------------------------------------------------------------===//
 /// Arguments
+// Enable or disable FastISel. Both options are needed, because
+// FastISel is enabled by default with -fast, and we wish to be
+// able to enable or disable fast-isel independently from -O0.
+
+static cl::opt<cl::boolOrDefault>
+ArgEnableFastISelOption("lfast-isel", cl::Hidden,
+  cl::desc("Enable the \"fast\" instruction selector"));
+
 static cl::opt<bool>
 ArgShowMCEncoding("lshow-mc-encoding",
                 cl::Hidden,
@@ -98,28 +106,80 @@ const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
   return *m_pTarget;
 }
 
-bool mcld::LLVMTargetMachine::addCommonCodeGenPasses(PassManagerBase &PM,
-                                                     mcld::CodeGenFileType pFileType,
-                                                     CodeGenOpt::Level Level,
-                                                     bool DisableVerify,
-                                                     llvm::MCContext *&OutCtx)
-{
-  if (pFileType == CGFT_EXEFile || pFileType == CGFT_DSOFile) {
-    MachineModuleInfo *MMI = new MachineModuleInfo(
-                                     *m_TM.getMCAsmInfo(),
-                                     *m_TM.getRegisterInfo(),
-                                     &m_TM.getTargetLowering()->getObjFileLowering());
-    PM.add(MMI);
-    OutCtx = &MMI->getContext();
-    // Set up a MachineFunction for the rest of CodeGen to work on.
-    PM.add(new MachineFunctionAnalysis(m_TM));
+/// Turn exception handling constructs into something the code generators can
+/// handle.
+static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
+                                        PassManagerBase &PM) {
+  switch (TM->getMCAsmInfo()->getExceptionHandlingType()) {
+  case llvm::ExceptionHandling::SjLj:
+    // SjLj piggy-backs on dwarf for this bit. The cleanups done apply to both
+    // Dwarf EH prepare needs to be run after SjLj prepare. Otherwise,
+    // catch info can get misplaced when a selector ends up more than one block
+    // removed from the parent invoke(s). This could happen when a landing
+    // pad is shared by multiple invokes and is also a target of a normal
+    // edge from elsewhere.
+    PM.add(createSjLjEHPass(TM->getTargetLowering()));
+    // FALLTHROUGH
+  case llvm::ExceptionHandling::DwarfCFI:
+  case llvm::ExceptionHandling::ARM:
+  case llvm::ExceptionHandling::Win64:
+    PM.add(createDwarfEHPass(TM));
+    break;
+  case llvm::ExceptionHandling::None:
+    PM.add(createLowerInvokePass(TM->getTargetLowering()));
 
-    return false;
+    // The lower invoke pass may create unreachable code. Remove it.
+    PM.add(createUnreachableBlockEliminationPass());
+    break;
   }
+}
 
-  // go through the normal path
-  return static_cast<llvm::LLVMTargetMachine&>(m_TM).addCommonCodeGenPasses(
-                                              PM, DisableVerify, OutCtx);
+
+static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
+                                     PassManagerBase &PM,
+                                     bool DisableVerify)
+{
+  // Targets may override createPassConfig to provide a target-specific sublass.
+  TargetPassConfig *PassConfig = TM->createPassConfig(PM);
+
+  // Set PassConfig options provided by TargetMachine.
+  PassConfig->setDisableVerify(DisableVerify);
+
+  PM.add(PassConfig);
+
+  PassConfig->addIRPasses();
+
+  addPassesToHandleExceptions(TM, PM);
+
+  PassConfig->addISelPrepare();
+
+  // Install a MachineModuleInfo class, which is an immutable pass that holds
+  // all the per-module stuff we're generating, including MCContext.
+  MachineModuleInfo *MMI =
+    new MachineModuleInfo(*TM->getMCAsmInfo(), *TM->getRegisterInfo(),
+                          &TM->getTargetLowering()->getObjFileLowering());
+  PM.add(MMI);
+  MCContext *Context = &MMI->getContext(); // Return the MCContext by-ref.
+
+  // Set up a MachineFunction for the rest of CodeGen to work on.
+  PM.add(new MachineFunctionAnalysis(*TM));
+
+  // Enable FastISel with -fast, but allow that to be overridden.
+  if (ArgEnableFastISelOption == cl::BOU_TRUE ||
+      (TM->getOptLevel() == CodeGenOpt::None &&
+       ArgEnableFastISelOption != cl::BOU_FALSE))
+    TM->setFastISel(true);
+
+  // Ask the target for an isel.
+  if (PassConfig->addInstSelector())
+    return NULL;
+
+  PassConfig->addMachinePasses();
+
+  PassConfig->setInitialized();
+
+  return Context;
+
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
@@ -131,9 +191,10 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              bool pDisableVerify)
 {
 
-  // MCContext
-  llvm::MCContext* Context = 0;
-  if (addCommonCodeGenPasses(pPM, pFileType, pOptLvl,pDisableVerify, Context))
+  llvm::MCContext* Context =
+          addPassesToGenerateCode(static_cast<llvm::LLVMTargetMachine*>(&m_TM),
+                                  pPM, pDisableVerify);
+  if (!Context)
     return true;
 
   switch(pFileType) {
@@ -146,6 +207,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     if (getTM().hasMCSaveTempLabels())
       Context->setAllowTemporaryLabels(false);
+
     if (addCompilerPasses(pPM,
                           Out,
                           pOutputFilename,
@@ -210,18 +272,16 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
 
   MCInstPrinter *InstPrinter =
-    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI, STI);
+    getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
+                                           Context->getRegisterInfo(), STI);
 
   MCCodeEmitter* MCE = 0;
-  // MCCodeEmitter
+  MCAsmBackend *MAB = 0;
   if (ArgShowMCEncoding) {
     MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
+    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
   }
 
-  // MCAsmBackend
-  MCAsmBackend *MAB = getTarget().get()->createMCAsmBackend(m_Triple);
-  if (MCE == 0 || MAB == 0)
-    return true;
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(

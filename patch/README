@@ -9,14 +9,16 @@ Following the steps below to apply the patch:
 1. cd $(LLVM_ROOT)
 2. patch -p0 < ${MCLINKER_SRC}/patch/LLVM.patch
 
-This patch is for LLVM trunk@146714.
+This patch is for LLVM trunk@152063.
 
 
 ------------------------------------------------------------
-commit ddecfe54a35ffbe0675f7f33e493734fd60b2495
+commit c3384c93c0e4c50da4ad093f08997507f9281c75
 Author: Jim Grosbach <grosbach@apple.com>
-Date:   Fri Dec 16 00:12:22 2011 +0000
+Date:   Mon Mar 5 21:43:40 2012 +0000
 
-ARM NEON aliases for vmovq.f*
+    ARM Refactor VLD/VST spaced pair instructions.
 
-git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@146714 91177308-0d34-0410-b5e6-96231b3b80d8
+    Use the new composite physical registers.
+
+    git-svn-id: https://llvm.org/svn/llvm-project/llvm/trunk@152063

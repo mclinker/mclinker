@@ -254,11 +254,6 @@ DisableSwitchTables(cl::Hidden, "disable-jump-tables",
   cl::desc("Do not generate jump tables."),
   cl::init(false));
 
-static cl::opt<bool>
-EnableStrongPHIElim(cl::Hidden, "strong-phi-elim",
-  cl::desc("Use strong PHI elimination."),
-  cl::init(false));
-
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
   cl::desc("Emit a call to trap function rather than a trap instruction"),

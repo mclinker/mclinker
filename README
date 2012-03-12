@@ -14,8 +14,8 @@ Compilation Instructions
 ----------------------
 Prepare LLVM and Clang
 ----------------------
-  0.a Download LLVM 3.1@r146714
-      `svn co -r 146714 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
+  0.a Download LLVM 3.1@r152063
+      `svn co -r 152063 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
 
   0.b Type `cd llvm-src' to enter the directory containing LLVM source code
 
