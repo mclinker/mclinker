@@ -76,8 +76,10 @@ SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
       break;
     }
     else {
-      std::swap(m_OutputSymbols[current->begin],
-                m_OutputSymbols[current->end]);
+      if (!current->empty()) {
+        std::swap(m_OutputSymbols[current->begin],
+                  m_OutputSymbols[current->end]);
+      }
       current->end++;
       current->begin++;
       current = current->prev;
@@ -122,6 +124,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol, const ResolveInfo& pS
   }
 
   assert(NULL != current);
+  assert(!current->empty());
 
   // find the position of source
   size_t pos = current->begin;
@@ -135,58 +138,46 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol, const ResolveInfo& pS
 
   // The distance is positive. It means we should bubble sort downward.
   if (distance > 0) {
-    size_t rear = current->end - 1;
-    if (pos != rear) {
-      // if pos is not the rear element, swap pos and rear
-      std::swap(m_OutputSymbols[pos], m_OutputSymbols[rear]);
-      pos = rear;
-    }
-    current->end--;
-
     // downward
+    size_t rear;
     do {
-      current = current->next;
-      if (current->isLast() || current->type == target) {
-        current->begin--;
+      if (current->type == target) {
         break;
       }
       else {
+        assert(!current->isLast() && "target category is wrong.");
         rear = current->end - 1;
         std::swap(m_OutputSymbols[pos], m_OutputSymbols[rear]);
         pos = rear;
-        current->begin--;
+        current->next->begin--;
         current->end--;
       }
+      current = current->next;
     } while(NULL != current);
 
     return *this;
-  }
+  } // downward
 
   // The distance is negative. It means we should bubble sort upward.
   if (distance < 0) {
-    if (pos != current->begin) {
-      std::swap(m_OutputSymbols[pos], m_OutputSymbols[current->begin]);
-      pos = current->begin;
-    }
-    current->begin--;
 
     // upward
     do {
-      current = current->prev;
-      if (current->isFirst() || current->type == target) {
-        current->end++;
+      if (current->type == target) {
         break;
       }
       else {
+        assert(!current->isFirst() && "target category is wrong.");
         std::swap(m_OutputSymbols[current->begin], m_OutputSymbols[pos]);
         pos = current->begin;
         current->begin++;
-        current->end++;
+        current->prev->end++;
       }
+      current = current->prev;
     } while(NULL != current);
 
     return *this;
-  }
+  } // upward
   return *this;
 }
 
