@@ -45,6 +45,19 @@ public:
 
   SymbolCategory& changeCommonsToGlobal();
 
+  // -----  access  ----- //
+  LDSymbol& at(size_t pPosition)
+  { return *m_OutputSymbols.at(pPosition); }
+
+  const LDSymbol& at(size_t pPosition) const
+  { return *m_OutputSymbols.at(pPosition); }
+
+  LDSymbol& operator[](size_t pPosition)
+  { return *m_OutputSymbols[pPosition]; }
+
+  const LDSymbol& operator[](size_t pPosition) const
+  { return *m_OutputSymbols[pPosition]; }
+
   // -----  observers  ----- //
   size_t numOfSymbols() const;
 
