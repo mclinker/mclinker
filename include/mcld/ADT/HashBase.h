@@ -68,9 +68,7 @@ template<typename HashEntryTy,
 class HashTableImpl
 {
 private:
-  enum {
-    NumOfInitBuckets = 16
-  };
+  static const unsigned int NumOfInitBuckets = 16;
 
 public:
   typedef size_t size_type;
