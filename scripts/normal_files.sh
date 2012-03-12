@@ -37,11 +37,14 @@ function copy_template_header
 	done
 
 	if [ "${PADDING_LEN}" -gt "0" ]; then # replace and add padding
-		sed -i "" -e "s/header.h /${NAME}.h ${PADDING}/g" ${TARGET_FILE}
+		sed -e "s/header.h /${NAME}.h ${PADDING}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	elif [ "${PADDING_LEN}" -lt "0" ]; then # replace and strip padding
-		sed -i "" -e "s/header.h ${PADDING}/${NAME}.h /g" ${TARGET_FILE}
+		sed -e "s/header.h ${PADDING}/${NAME}.h /g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	else # replace directly
-		sed -i "" -e "s/header/${NAME}/g" ${TARGET_FILE}
+		sed -e "s/header/${NAME}/g" ${TARGET_FILE} >  ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	fi
 
 	echo "${TARGET_FILE}";
@@ -69,11 +72,14 @@ function copy_template_impl
 	done
 
 	if [ "${PADDING_LEN}" -gt "0" ]; then # replace and add padding
-		sed -i "" -e "s/impl.cpp /${NAME}.cpp ${PADDING}/g" ${TARGET_FILE}
+		sed -e "s/impl.cpp /${NAME}.cpp ${PADDING}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	elif [ "${PADDING_LEN}" -lt "0" ]; then # replace and strip padding
-		sed -i "" -e "s/impl.cpp ${PADDING}/${NAME}.cpp /g" ${TARGET_FILE}
+		sed -e "s/impl.cpp ${PADDING}/${NAME}.cpp /g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	else # replace directly
-		sed -i "" -e "s/impl/${NAME}/g" ${TARGET_FILE}
+		sed -e "s/impl/${NAME}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	fi
 
 	echo "${TARGET_FILE}";
@@ -85,14 +91,16 @@ function replace_author
 	shift
 	local AUTHOR=$*
 
-	sed -i "" -e "s/\${AUTHOR}/${AUTHOR}/g" ${TARGET_FILE}
+	sed -e "s/\${AUTHOR}/${AUTHOR}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 }
 
 function repalce_email
 {
 	local TARGET_FILE=$1
 	local EMAIL=$2
-	sed -i "" -e "s/\${EMAIL}/${EMAIL}/g" ${TARGET_FILE}
+	sed -e "s/\${EMAIL}/${EMAIL}/g" ${TARGET_FILE}  > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 
 	# adjust the length of header
 	NEW_SPACE=`grep '>                                                    *' ${TARGET_FILE} | wc -c`
@@ -102,12 +110,14 @@ function repalce_email
 		for (( i=0; i<${NEW_SPACE}; i=i+1 )); do
 			ADDEND="${ADDEND} ";
 		done
-		sed -i "" -e "s/${EMAIL}>/${EMAIL}${ADDEND}/g" ${TARGET_FILE}
+		sed -e "s/${EMAIL}>/${EMAIL}${ADDEND}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	elif [ "${NEW_SPACE}" -lt "0" ]; then # strip space
 		for (( i=${NEW_SPACE}; i<0; i=i+1 )); do
 			ADDEND="${ADDEND} ";
 		done
-		sed -i "" -e "s/${EMAIL}${ADDEND}/${EMAIL}>/g" ${TARGET_FILE}
+		sed -e "s/${EMAIL}${ADDEND}/${EMAIL}>/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+		mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	fi
 }
 
@@ -117,8 +127,10 @@ function replace_class
 	local CLASS_NAME=$2
 	local UPCLASS_NAME=`echo ${CLASS_NAME} | tr [:lower:] [:upper:]`
 
-	sed -i "" -e "s/\${class_name}/${CLASS_NAME}/g" ${TARGET_FILE}
-	sed -i "" -e "s/\${CLASS_NAME}/${UPCLASS_NAME}/g" ${TARGET_FILE}
+	sed -e "s/\${class_name}/${CLASS_NAME}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
+	sed -e "s/\${CLASS_NAME}/${UPCLASS_NAME}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 }
 
 function replace_brief
@@ -126,6 +138,7 @@ function replace_brief
 	local TARGET_FILE=$1
 	shift
 	local BRIEF=$*
-	sed -i "" -e "s/\${brief}/${BRIEF}/g" ${TARGET_FILE}
+	sed -e "s/\${brief}/${BRIEF}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 }
 
