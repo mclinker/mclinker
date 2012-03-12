@@ -27,7 +27,7 @@ X86GOT::X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   GOTEntry* Entry = 0;
 
   // Create GOT0 entries.
-  for (int i = 0; i < X86GOT0Num; i++) {
+  for (unsigned int i = 0; i < X86GOT0Num; i++) {
     Entry = new (std::nothrow) GOTEntry(0, X86GOTEntrySize,
                                         &m_SectionData);
 
@@ -41,7 +41,7 @@ X86GOT::X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator it = m_SectionData.begin();
   iterator ie = m_SectionData.end();
 
-  for (int i = 1; i < X86GOT0Num; ++i) {
+  for (unsigned int i = 1; i < X86GOT0Num; ++i) {
     if (it == ie)
       llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
 
@@ -61,7 +61,7 @@ void X86GOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = 0;
 
-  for (int i = 0; i < pNum; i++) {
+  for (size_t i = 0; i < pNum; i++) {
     Entry = new (std::nothrow) GOTEntry(0, X86GOTEntrySize,
                                         &m_SectionData);
 

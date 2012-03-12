@@ -87,7 +87,7 @@ size_t canonicalize(std::string& pathname)
                   handler = slash_stack.top();
                   slash_stack.pop();
                   pathname.erase(handler+1, next-handler);
-                  if (-1 == handler) {
+                  if (static_cast<size_t>(-1) == handler) {
                     slash_stack.push(-1);
                     handler = pathname.find_first_of(separator, handler);
                   }

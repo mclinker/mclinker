@@ -255,7 +255,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
                                                      space->data,
                                                      space->size,
                                                      space->file_offset);
-          if (read_bytes == pLength)
+          if (static_cast<size_t>(read_bytes) == pLength)
             break;
           else {
             std::stringstream error_mesg;
@@ -265,7 +265,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
               error_mesg << ":pread failed: ";
               error_mesg << sys::fs::detail::strerror(errno) << '\n';
             }
-            else if (read_bytes < pLength) {
+            else if (static_cast<size_t>(read_bytes) < pLength) {
               m_State |= EOFBit;
               if ((m_AccessFlags & AccessMask) == ReadWrite) {
                 // read-write permission allows EOF while pread
@@ -378,17 +378,17 @@ void MemoryArea::write(const Space& pSpace)
       return;
     }
     case Space::ALLOCATED_ARRAY: {
-      int write_bytes = sys::fs::detail::pwrite(m_FileDescriptor,
-                                                pSpace.data,
-                                                pSpace.size,
-                                                pSpace.file_offset);
+      ssize_t write_bytes = sys::fs::detail::pwrite(m_FileDescriptor,
+                                                    pSpace.data,
+                                                    pSpace.size,
+                                                    pSpace.file_offset);
       if (0 > write_bytes) {
         m_State |= FailBit;
         return;
       }
       if (0 == write_bytes && 0 != pSpace.size)
         m_State |= BadBit;
-      if ( pSpace.size > write_bytes )
+      if ( pSpace.size > static_cast<size_t>(write_bytes) )
         m_State |= EOFBit;
       return;
     }

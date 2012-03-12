@@ -32,7 +32,7 @@ OutputRelocSection::~OutputRelocSection()
 void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
                                       size_t pNum)
 {
-  for(int i=0; i<pNum; i++) {
+  for(size_t i=0; i<pNum; i++) {
     m_pSectionData->getFragmentList().push_back(pRelFactory.produceEmptyEntry());
     // update section size
     m_pSection->setSize(m_pSection->size() + m_EntryBytes);
