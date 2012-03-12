@@ -418,7 +418,10 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     }
 
     case llvm::ELF::R_ARM_GOT_BREL:
-    case llvm::ELF::R_ARM_GOT_PREL: {
+    case llvm::ELF::R_ARM_GOT_PREL:
+    // Treat R_ARM_TARGET2 as R_ARM_GOT_PREL
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    case llvm::ELF::R_ARM_TARGET2: {
       // A GOT entry is needed for these relocation type.
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
@@ -628,7 +631,10 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_ARM_GOT_BREL:
     case llvm::ELF::R_ARM_GOT_ABS:
-    case llvm::ELF::R_ARM_GOT_PREL: {
+    case llvm::ELF::R_ARM_GOT_PREL:
+    // Treat R_ARM_TARGET2 as R_ARM_GOT_PREL
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    case llvm::ELF::R_ARM_TARGET2: {
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)

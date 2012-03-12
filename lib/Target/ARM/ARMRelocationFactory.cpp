@@ -451,6 +451,17 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
   return ARMRelocationFactory::OK;
 }
 
+// R_ARM_BASE_PREL: B(S) + A - P
+ARMRelocationFactory::Result base_prel(Relocation& pReloc,
+                                       const MCLDInfo& pLDInfo,
+                                       ARMRelocationFactory& pParent)
+{
+  // perform static relocation
+  ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  pReloc.target() = pReloc.symValue() + A - pReloc.place(pParent.getLayout());
+  return ARMRelocationFactory::OK;
+}
+
 // R_ARM_GOTOFF32: ((S + A) | T) - GOT_ORG
 ARMRelocationFactory::Result gotoff32(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
@@ -478,6 +489,22 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
   ARMRelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + A - GOT_ORG;
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_GOT_PREL: GOT(S) + A - P
+ARMRelocationFactory::Result got_prel(Relocation& pReloc,
+                                      const MCLDInfo& pLDInfo,
+                                      ARMRelocationFactory& pParent)
+{
+  if(!(pReloc.symInfo()->reserved() & 0x6u)) {
+    return ARMRelocationFactory::BadReloc;
+  }
+  ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pLDInfo, pParent);
+  ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
+  ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
+  // Apply relocation.
+  pReloc.target() = GOT_S + A - P;
   return ARMRelocationFactory::OK;
 }
 

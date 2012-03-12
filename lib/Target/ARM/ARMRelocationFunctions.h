@@ -17,6 +17,7 @@ DECL_ARM_APPLY_RELOC_FUNC(none)             \
 DECL_ARM_APPLY_RELOC_FUNC(abs32)            \
 DECL_ARM_APPLY_RELOC_FUNC(rel32)            \
 DECL_ARM_APPLY_RELOC_FUNC(gotoff32)         \
+DECL_ARM_APPLY_RELOC_FUNC(base_prel)        \
 DECL_ARM_APPLY_RELOC_FUNC(got_brel)         \
 DECL_ARM_APPLY_RELOC_FUNC(call)             \
 DECL_ARM_APPLY_RELOC_FUNC(thm_call)         \
@@ -29,6 +30,7 @@ DECL_ARM_APPLY_RELOC_FUNC(thm_movw_prel_nc) \
 DECL_ARM_APPLY_RELOC_FUNC(thm_movt_abs)     \
 DECL_ARM_APPLY_RELOC_FUNC(thm_movt_prel)    \
 DECL_ARM_APPLY_RELOC_FUNC(prel31)           \
+DECL_ARM_APPLY_RELOC_FUNC(got_prel)         \
 DECL_ARM_APPLY_RELOC_FUNC(tls)              \
 DECL_ARM_APPLY_RELOC_FUNC(unsupport)
 
@@ -59,7 +61,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         22, "R_ARM_JUMP_SLOT"         },  \
   { &unsupport,         23, "R_ARM_RELATIVE"          },  \
   { &gotoff32,          24, "R_ARM_GOTOFF32"          },  \
-  { &unsupport,         25, "R_ARM_BASE_PREL"         },  \
+  { &base_prel,         25, "R_ARM_BASE_PREL"         },  \
   { &got_brel,          26, "R_ARM_GOT_BREL"          },  \
   { &call,              27, "R_ARM_PLT32"             },  \
   { &call,              28, "R_ARM_CALL"              },  \
@@ -75,7 +77,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         38, "R_ARM_TARGET1"           },  \
   { &unsupport,         39, "R_ARM_SBREL31"           },  \
   { &unsupport,         40, "R_ARM_V4BX"              },  \
-  { &unsupport,         41, "R_ARM_TARGET2"           },  \
+  { &got_prel,          41, "R_ARM_TARGET2"           },  \
   { &prel31,            42, "R_ARM_PREL31"            },  \
   { &movw_abs_nc,       43, "R_ARM_MOVW_ABS_NC"       },  \
   { &movt_abs,          44, "R_ARM_MOVT_ABS"          },  \
@@ -130,7 +132,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         93, "R_ARM_THM_TLS_CALL"      },  \
   { &unsupport,         94, "R_ARM_PLT32_ABS"         },  \
   { &unsupport,         95, "R_ARM_GOT_ABS"           },  \
-  { &unsupport,         96, "R_ARM_GOT_PREL"          },  \
+  { &got_prel,          96, "R_ARM_GOT_PREL"          },  \
   { &unsupport,         97, "R_ARM_GOT_PREL12"        },  \
   { &unsupport,         98, "R_ARM_GOTOFF12"          },  \
   { &unsupport,         99, "R_ARM_GOTRELAX"          },  \
