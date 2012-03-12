@@ -311,9 +311,8 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput) const
 {
-  // If not building shared object, no relocation type is invalid
-  // FIXME: This should be check not building PIC
-  if (isPIC(pLDInfo, pOutput))
+  // If not building a PIC object, no relocation type is invalid
+  if (!isPIC(pLDInfo, pOutput))
     return;
 
   switch(pReloc.type()) {
