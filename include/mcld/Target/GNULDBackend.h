@@ -214,7 +214,7 @@ public:
   /// if the target favors other ways to emit program header, please override
   /// this function
   virtual unsigned int numOfSegments() const
-  { return m_ELFSegmentFactory.size(); }
+  { return m_ELFSegmentTable.size(); }
 
   /// pagesize - the page size of the target machine, we set it to 4K here.
   /// If target favors tht different size of page, please override this function
@@ -295,7 +295,7 @@ protected:
   ELFExecFileFormat* m_pExecFileFormat;
 
   // -----  ELF segment factory  ----- //
-  ELFSegmentFactory m_ELFSegmentFactory;
+  ELFSegmentFactory m_ELFSegmentTable;
 
   // -----  ELF special sections  ----- //
 

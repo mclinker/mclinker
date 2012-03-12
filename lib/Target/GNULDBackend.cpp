@@ -33,7 +33,7 @@ GNULDBackend::GNULDBackend()
     m_pDynObjWriter(0),
     m_pDynObjFileFormat(0),
     m_pExecFileFormat(0),
-    m_ELFSegmentFactory(9)// magic number
+    m_ELFSegmentTable(9)// magic number
 {
   m_pSymIndexMap = new HashTableType(1024);
 }
@@ -811,12 +811,12 @@ void GNULDBackend::emitProgramHdrs(Output& pOutput)
 void GNULDBackend::createProgramHdrs(LDContext& pContext)
 {
   // make PT_PHDR
-  ELFSegment* phdr_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_PHDR);
+  ELFSegment* phdr_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
   LDSection* interp = pContext.getSection(".interp");
   if (NULL != interp) {
-    ELFSegment* interp_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_INTERP);
+    ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
     interp_seg->addSection(interp);
     interp_seg->setAlign(bitclass() / 8);
   }
@@ -836,7 +836,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
-      load_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_LOAD);
+      load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
       load_seg->setAlign(pagesize());
 
       // check if this segment needs padding
@@ -859,7 +859,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   // make PT_DYNAMIC
   LDSection* dynamic = pContext.getSection(".dynamic");
   if (NULL != dynamic) {
-    ELFSegment* dyn_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_DYNAMIC);
+    ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC);
     dyn_seg->setFlag(llvm::ELF::PF_R | llvm::ELF::PF_W);
     dyn_seg->addSection(dynamic);
     dyn_seg->setAlign(bitclass() / 8);
@@ -868,8 +868,8 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   // update segment info
   bool is_first_pt_load = true;
   uint64_t file_size = 0;
-  ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentFactory.end();
-  for (seg = m_ELFSegmentFactory.begin(); seg != seg_end; ++seg) {
+  ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
+  for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
 
     // update PT_PHDR
@@ -924,8 +924,8 @@ void GNULDBackend::writeELF32ProgramHdrs(Output& pOutput)
   llvm::ELF::Elf32_Phdr* phdr = (llvm::ELF::Elf32_Phdr*)region->start();
 
   size_t index = 0;
-  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
-  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg, ++index) {
+  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
+  for (seg = m_ELFSegmentTable.begin(); seg != segEnd; ++seg, ++index) {
     phdr[index].p_type   = (*seg).type();
     phdr[index].p_flags  = (*seg).flag();
     phdr[index].p_offset = (*seg).offset();
@@ -953,8 +953,8 @@ void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
   llvm::ELF::Elf64_Phdr* phdr = (llvm::ELF::Elf64_Phdr*)region->start();
 
   size_t index = 0;
-  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentFactory.end();
-  for (seg = m_ELFSegmentFactory.begin(); seg != segEnd; ++seg, ++index) {
+  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
+  for (seg = m_ELFSegmentTable.begin(); seg != segEnd; ++seg, ++index) {
     phdr[index].p_type   = (*seg).type();
     phdr[index].p_flags  = (*seg).flag();
     phdr[index].p_offset = (*seg).offset();
