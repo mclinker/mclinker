@@ -790,9 +790,9 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
                                         const Output& pOutput) const
 {
-  return Output::DynObj == pOutput.type() &&
+  return (Output::DynObj == pOutput.type() &&
          ResolveInfo::Function == pSym.type() &&
-         pSym.isDyn() || pSym.isUndef();
+         (pSym.isDyn() || pSym.isUndef()));
 }
 
 bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,

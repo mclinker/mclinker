@@ -256,7 +256,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   /// evaluate member size
   std::string sizeString(header->size, sizeof(header->size)+1);
   size_t memberSize = stringToType<size_t>(sizeString);
-  if(memberSize < 0)
+  if(memberSize == 0)
   {
     assert(0=="member Size Error");
     return 0;

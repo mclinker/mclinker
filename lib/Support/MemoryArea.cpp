@@ -285,6 +285,8 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
             llvm::report_fatal_error(error_mesg.str());
           }
         }
+      default:
+        llvm::report_fatal_error("unhandled space type\n");
       } // case
     } // switch
   }
@@ -350,6 +352,8 @@ void MemoryArea::release(MemoryArea::Space* pSpace)
         ::munmap(pSpace->data, pSpace->size);
         break;
       }
+      default:
+        break;
     }
 }
 
