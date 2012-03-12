@@ -26,6 +26,7 @@
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/ELFSegmentFactory.h>
 
 namespace mcld
 {
@@ -265,7 +266,6 @@ protected:
   uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
 
 private:
-  typedef GCFactory<ELFSegment, 0> ELFSegmentFactory;
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(const Output& pOutput,
                          const MCLDInfo& pInfo,

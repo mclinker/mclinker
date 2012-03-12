@@ -811,14 +811,12 @@ void GNULDBackend::emitProgramHdrs(Output& pOutput)
 void GNULDBackend::createProgramHdrs(LDContext& pContext)
 {
   // make PT_PHDR
-  ELFSegment* phdr_seg = m_ELFSegmentFactory.allocate();
-  new (phdr_seg) ELFSegment(llvm::ELF::PT_PHDR, llvm::ELF::PF_R);
+  ELFSegment* phdr_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
   LDSection* interp = pContext.getSection(".interp");
   if (NULL != interp) {
-    ELFSegment* interp_seg = m_ELFSegmentFactory.allocate();
-    new (interp_seg) ELFSegment(llvm::ELF::PT_INTERP, llvm::ELF::PF_R);
+    ELFSegment* interp_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_INTERP);
     interp_seg->addSection(interp);
     interp_seg->setAlign(bitclass() / 8);
   }
@@ -838,8 +836,7 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
-      load_seg = m_ELFSegmentFactory.allocate();
-      new (load_seg) ELFSegment(llvm::ELF::PT_LOAD);
+      load_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_LOAD);
       load_seg->setAlign(pagesize());
 
       // check if this segment needs padding
@@ -862,9 +859,8 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   // make PT_DYNAMIC
   LDSection* dynamic = pContext.getSection(".dynamic");
   if (NULL != dynamic) {
-    ELFSegment* dyn_seg = m_ELFSegmentFactory.allocate();
-    new (dyn_seg) ELFSegment(llvm::ELF::PT_DYNAMIC,
-                             llvm::ELF::PF_R | llvm::ELF::PF_W);
+    ELFSegment* dyn_seg = m_ELFSegmentFactory.produce(llvm::ELF::PT_DYNAMIC);
+    dyn_seg->setFlag(llvm::ELF::PF_R | llvm::ELF::PF_W);
     dyn_seg->addSection(dynamic);
     dyn_seg->setAlign(bitclass() / 8);
   }
