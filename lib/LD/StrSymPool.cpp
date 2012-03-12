@@ -89,6 +89,10 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
     pResult.overriden = true;
     return;
   }
+  else if (NULL != pOldInfo) {
+    // existent, remember its attribute
+    pOldInfo->override(*old_symbol);
+  }
 
   // exit and is a symbol
   // symbol resolution
@@ -120,11 +124,7 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
       m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol, pResult);
       break;
     }
-  } // end of switch
-
-  if (NULL != pOldInfo)
-    pOldInfo->override(*old_symbol);
-
+  }
   return;
 }
 
