@@ -811,7 +811,7 @@ void GNULDBackend::emitProgramHdrs(Output& pOutput)
 void GNULDBackend::createProgramHdrs(LDContext& pContext)
 {
   // make PT_PHDR
-  ELFSegment* phdr_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
+  m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
   LDSection* interp = pContext.getSection(".interp");
@@ -866,7 +866,6 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   }
 
   // update segment info
-  bool is_first_pt_load = true;
   uint64_t file_size = 0;
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {

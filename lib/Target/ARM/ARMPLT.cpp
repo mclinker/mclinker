@@ -198,7 +198,6 @@ void ARMPLT::applyPLT1() {
   uint64_t PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
   ARMPLT1* plt1 = NULL;
 
-  unsigned int EntryCounter = 0;
   uint32_t* Out = NULL;
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));

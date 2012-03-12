@@ -294,7 +294,6 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
-  ResolveInfo* rsym = pReloc.symInfo();
   // perform static relocation
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   pReloc.target() = pReloc.symValue() + A
