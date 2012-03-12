@@ -13,7 +13,7 @@
 using namespace mcld;
 
 X86ELFDynamic::X86ELFDynamic(const GNULDBackend& pParent)
-  : m_HasGOTPLT(false), ELFDynamic(pParent)
+  : ELFDynamic(pParent), m_HasGOTPLT(false)
 {
 }
 

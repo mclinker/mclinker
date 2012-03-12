@@ -20,9 +20,9 @@ Relocation::Relocation(Relocation::Type pType,
                        Relocation::DWord pTargetData)
   : MCFragment(llvm::MCFragment::FT_Reloc),
     m_Type(pType),
-    m_Addend(pAddend),
     m_TargetData(pTargetData),
-    m_pSymInfo(NULL)
+    m_pSymInfo(NULL),
+    m_Addend(pAddend)
 {
   if(NULL != pTargetRef)
      m_TargetAddress.assign(*pTargetRef->frag(), pTargetRef->offset()) ;

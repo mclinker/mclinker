@@ -21,8 +21,8 @@ namespace mcld {
 // X86GOT
 X86GOT::X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, X86GOTEntrySize),
-               m_GOTPLTNum(0), m_GeneralGOTNum(0), m_LastGOT0(),
-               m_GOTPLTIterator(), m_GeneralGOTIterator()
+               m_GeneralGOTNum(0), m_GOTPLTNum(0), m_GeneralGOTIterator(),
+               m_GOTPLTIterator(), m_LastGOT0()
 {
   GOTEntry* Entry = 0;
 

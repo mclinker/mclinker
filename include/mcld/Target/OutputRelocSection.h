@@ -46,15 +46,6 @@ public:
                        bool& pExist);
 
 private:
-  /// m_ValidEntryIterator - point to the first valid entry
-  MCFragmentIterator m_ValidEntryIterator;
-
-  /// m_SymRelMap - map the resolved symbol to the Relocation entry
-  SymRelMapType m_SymRelMap;
-
-  /// m_isVisit - First time visit the function getEntry() or not
-  bool m_isVisit ;
-
   /// m_pSection - LDSection of this Section
   LDSection* m_pSection;
 
@@ -63,6 +54,15 @@ private:
 
   /// m_EntryBytes - size of a relocation entry
   unsigned int m_EntryBytes;
+
+  /// m_isVisit - First time visit the function getEntry() or not
+  bool m_isVisit ;
+
+  /// m_ValidEntryIterator - point to the first valid entry
+  MCFragmentIterator m_ValidEntryIterator;
+
+  /// m_SymRelMap - map the resolved symbol to the Relocation entry
+  SymRelMapType m_SymRelMap;
 };
 
 } // namespace of mcld

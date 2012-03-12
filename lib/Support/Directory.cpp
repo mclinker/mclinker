@@ -32,8 +32,8 @@ Directory::Directory()
   : m_Path(),
     m_FileStatus(),
     m_SymLinkStatus(),
-    m_Cache(),
     m_Handler(NULL),
+    m_Cache(),
     m_CacheFull(false) {
 }
 
@@ -43,8 +43,8 @@ Directory::Directory(const Path& pPath,
   : m_Path(pPath),
     m_FileStatus(st),
     m_SymLinkStatus(symlink_st),
-    m_Cache(),
     m_Handler(NULL),
+    m_Cache(),
     m_CacheFull(false) {
   if (m_Path.native() == ".")
     detail::get_pwd(m_Path.native());
@@ -56,8 +56,8 @@ Directory::Directory(const Directory& pCopy)
   : m_Path(pCopy.m_Path),
     m_FileStatus(pCopy.m_FileStatus),
     m_SymLinkStatus(pCopy.m_SymLinkStatus),
-    m_Cache(),
     m_Handler(NULL),
+    m_Cache(),
     m_CacheFull(false) {
   mcld::sys::fs::detail::open_dir(*this);
 }

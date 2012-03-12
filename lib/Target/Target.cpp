@@ -16,10 +16,10 @@ using namespace mcld;
 
 /* ** */
 mcld::Target::Target()
-  : m_pT(0),
+  : TargetMachineCtorFn(0),
+    SectLinkerCtorFn(0),
     TargetLDBackendCtorFn(0),
-    TargetMachineCtorFn(0),
-    SectLinkerCtorFn(0)
+    m_pT(0)
 {
 }
 

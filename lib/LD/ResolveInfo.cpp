@@ -14,7 +14,7 @@ using namespace mcld;
 //==========================
 // ResolveInfo
 ResolveInfo::ResolveInfo()
-  : m_BitField(0), m_Size(0) {
+  : m_Size(0), m_BitField(0) {
   m_Ptr.sym_ptr = 0;
 }
 
