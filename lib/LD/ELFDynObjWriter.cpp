@@ -13,7 +13,6 @@
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/Support/ScopedWriter.h>
 #include <llvm/Support/ELF.h>
 #include <vector>
 
