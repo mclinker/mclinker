@@ -42,7 +42,7 @@ public:
   static bool classof(const MCFragment *O)
   { return true; }
 
-  uint64_t getSize() const
+  size_t getSize() const
   { return m_EntrySize; }
 
 protected:
@@ -68,7 +68,7 @@ public:
 public:
   /// reserveEntry - reseve the number of pNum of empty entries
   /// The empty entris are reserved for layout to adjust the fragment offset.
-  virtual void reserveEntry(int pNum = 1) = 0;
+  virtual void reserveEntry(size_t pNum = 1) = 0;
 
   /// getPLTEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
@@ -83,3 +83,4 @@ protected:
 } // namespace of mcld
 
 #endif
+

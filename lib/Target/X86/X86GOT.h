@@ -27,7 +27,7 @@ const unsigned int X86GOT0Num = 3;
 
 class X86GOT : public GOT
 {
-  friend void mcld::X86PLT::reserveEntry(int pNum);
+  friend void mcld::X86PLT::reserveEntry(size_t pNum);
 
   friend mcld::PLTEntry* mcld::X86PLT::getPLTEntry(
          const mcld::ResolveInfo& pSymbol,bool& pExist);

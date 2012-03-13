@@ -57,11 +57,11 @@ ARMPLT::~ARMPLT()
 {
 }
 
-void ARMPLT::reserveEntry(int pNum)
+void ARMPLT::reserveEntry(size_t pNum)
 {
   ARMPLT1* plt1_entry = 0;
 
-  for (int i = 0; i < pNum; i++) {
+  for (size_t i = 0; i < pNum; ++i) {
     plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
 
     if (!plt1_entry)

@@ -49,7 +49,7 @@ public:
 public:
 
   // reserveEntry is X86GOT friend function.
-  void reserveEntry(int pNum = 1) ;
+  void reserveEntry(size_t pNum = 1) ;
 
   PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
