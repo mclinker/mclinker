@@ -366,10 +366,11 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
   switch(pReloc.type()){
 
-    case llvm::ELF::R_ARM_ABS32:
-    // Treat R_ARM_TARGET1 as R_ARM_ABS32
+    // Set R_ARM_TARGET1 to R_ARM_ABS32
     // Ref: GNU gold 1.11 arm.cc, line 9892
     case llvm::ELF::R_ARM_TARGET1:
+       pReloc.setType(llvm::ELF::R_ARM_ABS32);
+    case llvm::ELF::R_ARM_ABS32:
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
@@ -422,11 +423,12 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
-    case llvm::ELF::R_ARM_GOT_BREL:
-    case llvm::ELF::R_ARM_GOT_PREL:
-    // Treat R_ARM_TARGET2 as R_ARM_GOT_PREL
+    // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
     // Ref: GNU gold 1.11 arm.cc, line 9892
-    case llvm::ELF::R_ARM_TARGET2: {
+    case llvm::ELF::R_ARM_TARGET2:
+      pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
+    case llvm::ELF::R_ARM_GOT_BREL:
+    case llvm::ELF::R_ARM_GOT_PREL: {
       // A GOT entry is needed for these relocation type.
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
@@ -479,10 +481,11 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
   switch(pReloc.type()) {
 
-    case llvm::ELF::R_ARM_ABS32:
-    // Treat R_ARM_TARGET1 as R_ARM_ABS32
+    // Set R_ARM_TARGET1 to R_ARM_ABS32
     // Ref: GNU gold 1.11 arm.cc, line 9892
     case llvm::ELF::R_ARM_TARGET1:
+      pReloc.setType(llvm::ELF::R_ARM_ABS32);
+    case llvm::ELF::R_ARM_ABS32:
     case llvm::ELF::R_ARM_ABS16:
     case llvm::ELF::R_ARM_ABS12:
     case llvm::ELF::R_ARM_THM_ABS5:
@@ -637,12 +640,13 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
+    // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    case llvm::ELF::R_ARM_TARGET2:
+      pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
     case llvm::ELF::R_ARM_GOT_BREL:
     case llvm::ELF::R_ARM_GOT_ABS:
-    case llvm::ELF::R_ARM_GOT_PREL:
-    // Treat R_ARM_TARGET2 as R_ARM_GOT_PREL
-    // Ref: GNU gold 1.11 arm.cc, line 9892
-    case llvm::ELF::R_ARM_TARGET2: {
+    case llvm::ELF::R_ARM_GOT_PREL: {
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
       if(rsym->reserved() & 0x6u)
