@@ -46,8 +46,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
-	${INCDIR}/Support/ScopedWriter.h \
-	${LIBDIR}/Support/ScopedWriter.cpp \
 	${INCDIR}/Support/PositionDependentOption.h \
 	${INCDIR}/Support/DerivedPositionDependentOptions.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
