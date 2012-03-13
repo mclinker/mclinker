@@ -71,7 +71,7 @@ TEST_F( MemoryAreaTest, write_by_malloc )
 	region->getBuffer()[1] = 'i';
 	region->getBuffer()[2] = 'n';
 	region->getBuffer()[3] = 'k';
-	region->sync();
+        area->sync();
 	area->unmap();
         area->map(path, O_RDONLY);
         ASSERT_TRUE(area->isMapped());
@@ -107,7 +107,7 @@ TEST_F( MemoryAreaTest, write_one_page )
 	MemoryRegion* region = area->request(0, 4096) ;
 	region->getBuffer()[4000] = 'K' ;
 	region->getBuffer()[4001] = 'R' ;
-	region->sync() ;
+	area->sync() ;
 	area->unmap() ;
 	area->map(path, O_RDONLY) ;
 	region = area->request(4000, 4) ;
@@ -115,7 +115,7 @@ TEST_F( MemoryAreaTest, write_one_page )
 	ASSERT_EQ('R', region->getBuffer()[1]);
 	region->getBuffer()[0] = 'O' ;
 	region->getBuffer()[1] = 'H' ;
-        region->sync() ;
+        area->sync() ;
 	delete AreaFactory ;
 }
 
@@ -133,7 +133,7 @@ TEST_F( MemoryAreaTest, write_sync )
 	region1->getBuffer()[1001] = 'L' ;
 	region2->getBuffer()[488] = 'V' ;
 	region2->getBuffer()[489] = 'M' ;
-	region1->sync() ;
+	area->sync() ;
 	area->unmap();
 	area->map(path, O_RDWR) ;
 	region1 = area->request(0, 1024) ;
@@ -141,7 +141,7 @@ TEST_F( MemoryAreaTest, write_sync )
 	EXPECT_EQ('M', region1->getBuffer()[1001]) ;
 	region1->getBuffer()[1000] = '@' ;
 	region1->getBuffer()[1001] = '@' ;
-	region1->sync();
+	area->sync();
 	delete AreaFactory ;
 }
 

@@ -247,7 +247,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
         // space->offset and space->size are set in constructor. We only need
         // to set up data.
         space->data = new unsigned char[pLength];
-	r_start = space->data;
+        r_start = space->data;
         if ((m_AccessFlags & AccessMask) == WriteOnly)
           break;
         else { // read-only or read-write
@@ -304,9 +304,15 @@ void MemoryArea::release(MemoryRegion* pRegion)
 {
   if (!isMapped() || !isGood())
     return;
-  pRegion->sync();
-  m_RegionFactory.destroy(pRegion);
-  m_RegionFactory.deallocate(pRegion);
+
+  Space *space = pRegion->parent();
+  m_RegionFactory.destruct(pRegion);
+
+  if (0 == space->region_num) {
+    write(*space);
+    m_SpaceList.remove(*space);
+    release(space);
+  }
 }
 
 void MemoryArea::clean()
@@ -315,6 +321,7 @@ void MemoryArea::clean()
   
   SpaceList::iterator sIter, sEnd = m_SpaceList.end();
   for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
+    write(*sIter);
     release(sIter);
   }
   m_SpaceList.clear();
@@ -342,19 +349,18 @@ MemoryArea::Space* MemoryArea::find(size_t pOffset, size_t pLength)
 
 void MemoryArea::release(MemoryArea::Space* pSpace)
 {
-    write(*pSpace);
-    switch (pSpace->type) {
-      case Space::ALLOCATED_ARRAY: {
-        delete [] pSpace->data;
-        break;
-      }
-      case Space::MMAPED: {
-        ::munmap(pSpace->data, pSpace->size);
-        break;
-      }
-      default:
-        break;
+  switch (pSpace->type) {
+    case Space::ALLOCATED_ARRAY: {
+      delete [] pSpace->data;
+      break;
     }
+    case Space::MMAPED: {
+      ::munmap(pSpace->data, pSpace->size);
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
@@ -392,8 +398,8 @@ void MemoryArea::write(const Space& pSpace)
         m_State |= EOFBit;
       return;
     }
-    default: {
-    }
+    default:
+      return;
   }
 }
 

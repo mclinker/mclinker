@@ -741,21 +741,18 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
                      sect_data->getFragmentList().front()).getRegion().start();
 
     memcpy(pRegion.start(), start, pRegion.size());
-    pRegion.sync();
     return pRegion.size();
   }
 
   if (&pSection == &(file_format->getPLT())) {
     assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
     uint64_t result = m_pPLT->emit(pRegion);
-    pRegion.sync();
     return result;
   }
 
   if (&pSection == &(file_format->getGOT())) {
     assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
     uint64_t result = m_pGOT->emit(pRegion);
-    pRegion.sync();
     return result;
   }
 

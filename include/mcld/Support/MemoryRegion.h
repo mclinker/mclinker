@@ -85,9 +85,6 @@ public:
   ConstAddress getBuffer(Offset pOffset = 0) const
   { return m_VMAStart+pOffset; }
  
-  // sync - consist the memory space with the mapped file.
-  void sync();
-
 private:
   MemoryArea::Space* m_pParentSpace;
   Address m_VMAStart;

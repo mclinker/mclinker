@@ -24,10 +24,11 @@ MemoryRegion::~MemoryRegion()
   drift();
 }
 
-void MemoryRegion::sync()
+void MemoryRegion::drift()
 {
-  if (NULL == m_pParentSpace || 0x0 == m_Length)
+  if (NULL == m_pParentSpace)
     return;
-  m_pParentSpace->sync();
+  m_pParentSpace->region_num--;
+  m_pParentSpace = NULL;
 }
 

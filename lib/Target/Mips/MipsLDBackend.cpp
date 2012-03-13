@@ -226,7 +226,6 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
   if (&pSection == &(file_format->getGOT())) {
     assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
     uint64_t result = m_pGOT->emit(pRegion);
-    pRegion.sync();
     return result;
   }
 
@@ -418,10 +417,6 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     bucket[bucket_pos] = sym_idx;
   }
 
-  symtab_region->sync();
-  strtab_region->sync();
-  hash_region->sync();
-  dyn_region->sync();
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()

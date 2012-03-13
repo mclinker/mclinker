@@ -74,8 +74,6 @@ void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
     header->e_shentsize = sizeof(Elf32_Shdr);
     header->e_shnum     = pOutput.context()->numOfSections();
     header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
-
-    region->sync();
 }
 
 /// writeELF64Header - write ELF header
@@ -127,8 +125,6 @@ void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
     header->e_shentsize = sizeof(Elf64_Shdr);
     header->e_shnum     = pOutput.context()->numOfSections();
     header->e_shstrndx  = pOutput.context()->getSectionIdx(".shstrtab");
-
-    region->sync();
 }
 
 /// getEntryPoint
@@ -210,7 +206,6 @@ ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
     // adjust strshidx
     shstridx += ld_sect->name().size() + 1;
   }
-  region->sync();
 }
 
 /// emitELF64SectionHeader - emit Elf64_Shdr
@@ -247,7 +242,6 @@ ELFWriter::emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const
     // adjust strshidx
     shstridx += ld_sect->name().size() + 1;
   }
-  region->sync();
 }
 
 /// emitELF32ShStrTab - emit section string table
@@ -282,7 +276,6 @@ void ELFWriter::emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const
     strcpy((char*)(data + shstrsize), (*section)->name().c_str());
     shstrsize += (*section)->name().size() + 1;
   }
-  region->sync();
 
   shstrtab.setKind(LDFileFormat::NamePool);
   shstrtab.setType(llvm::ELF::SHT_STRTAB);
@@ -325,7 +318,6 @@ void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
     strcpy((char*)(data + shstrsize), (*section)->name().c_str());
     shstrsize += (*section)->name().size() + 1;
   }
-  region->sync();
 
   shstrtab.setKind(LDFileFormat::NamePool);
   shstrtab.setType(llvm::ELF::SHT_STRTAB);
@@ -405,7 +397,6 @@ ELFWriter::emitSectionData(const Layout& pLayout,
     }
     cur_offset += size;
   }
-  pRegion.sync();
 }
 
 /// emitRelocation
@@ -465,9 +456,6 @@ void ELFWriter::emitRel(const Layout& pLayout,
 
     rel->setSymbolAndType(Index, relocation->type());
   }
-
-
-  pRegion.sync();
 }
 
 /// emitRela
@@ -510,9 +498,6 @@ void ELFWriter::emitRela(const Layout& pLayout,
     rel->setSymbolAndType(Index, relocation->type());
     rel->r_addend = relocation->addend();
   }
-
-
-  pRegion.sync();
 }
 
 /// getELF32SectEntrySize - compute Elf32_Shdr::sh_entsize

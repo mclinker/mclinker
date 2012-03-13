@@ -434,9 +434,6 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
   }
-
-  symtab_region->sync();
-  strtab_region->sync();
 }
 
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
@@ -634,11 +631,6 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
       bucket[bucket_pos] = sym_idx;
     }
   }
-
-  symtab_region->sync();
-  strtab_region->sync();
-  hash_region->sync();
-  dyn_region->sync();
 }
 
 /// getSectionOrder
@@ -934,7 +926,6 @@ void GNULDBackend::writeELF32ProgramHdrs(Output& pOutput)
     phdr[index].p_memsz  = (*seg).memsz();
     phdr[index].p_align  = (*seg).align();
   }
-  region->sync();
 }
 
 /// writeELF64ProgramHdrs - write out the ELF64 program headers
@@ -963,7 +954,6 @@ void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
     phdr[index].p_memsz  = (*seg).memsz();
     phdr[index].p_align  = (*seg).align();
   }
-  region->sync();
 }
 
 /// preLayout - Backend can do any needed modification before layout

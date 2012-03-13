@@ -498,8 +498,6 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
     llvm::report_fatal_error("unsupported section name "
                              + pSection.name() + " !");
 
-  pRegion.sync();
-
   return RegionSize;
 }
 uint32_t X86GNULDBackend::machine() const
