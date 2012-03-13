@@ -367,6 +367,9 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
   switch(pReloc.type()){
 
     case llvm::ELF::R_ARM_ABS32:
+    // Treat R_ARM_TARGET1 as R_ARM_ABS32
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    case llvm::ELF::R_ARM_TARGET1:
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
@@ -477,6 +480,9 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   switch(pReloc.type()) {
 
     case llvm::ELF::R_ARM_ABS32:
+    // Treat R_ARM_TARGET1 as R_ARM_ABS32
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    case llvm::ELF::R_ARM_TARGET1:
     case llvm::ELF::R_ARM_ABS16:
     case llvm::ELF::R_ARM_ABS12:
     case llvm::ELF::R_ARM_THM_ABS5:

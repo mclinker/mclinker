@@ -74,7 +74,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         35, "R_ARM_LDR_SBREL_11_0_NC" },  \
   { &unsupport,         36, "R_ARM_ALU_SBREL_19_12_NC"},  \
   { &unsupport,         37, "R_ARM_ALU_SBREL_27_20_CK"},  \
-  { &unsupport,         38, "R_ARM_TARGET1"           },  \
+  { &abs32,             38, "R_ARM_TARGET1"           },  \
   { &unsupport,         39, "R_ARM_SBREL31"           },  \
   { &unsupport,         40, "R_ARM_V4BX"              },  \
   { &got_prel,          41, "R_ARM_TARGET2"           },  \
