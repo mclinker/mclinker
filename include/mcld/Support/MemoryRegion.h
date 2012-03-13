@@ -39,6 +39,7 @@ namespace mcld
 class MemoryRegion : private Uncopyable
 {
 friend class RegionFactory;
+friend class MemoryArea;
 
 public:
 typedef NonConstTraits<mcld::sys::fs::detail::Address>::value_type Address;
@@ -50,6 +51,16 @@ private:
   MemoryRegion(MemoryArea::Space* pParentSpace,
                const Address pVMAStart,
                size_t pSize);
+
+  // drift - leave parent space
+  void drift();
+
+  MemoryArea::Space* parent()
+  { return m_pParentSpace; }
+
+  const MemoryArea::Space* parent() const
+  { return m_pParentSpace; }
+
 public:
   ~MemoryRegion();
 
@@ -73,7 +84,7 @@ public:
 
   ConstAddress getBuffer(Offset pOffset = 0) const
   { return m_VMAStart+pOffset; }
-
+ 
   // sync - consist the memory space with the mapped file.
   void sync();
 
