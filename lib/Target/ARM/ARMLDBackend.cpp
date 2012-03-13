@@ -82,13 +82,15 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
+ // FIXME: Currently we set exidx and extab to "Exception" and directly emit
+ // them from input
   m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
-                                                      LDFileFormat::Target,
+                                                      LDFileFormat::Exception,
                                                       llvm::ELF::SHT_ARM_EXIDX,
                                                       llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
                                                       bitclass() / 8);
   m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
-                                                      LDFileFormat::Target,
+                                                      LDFileFormat::Exception,
                                                       llvm::ELF::SHT_PROGBITS,
                                                       llvm::ELF::SHF_ALLOC,
                                                       0x1);
