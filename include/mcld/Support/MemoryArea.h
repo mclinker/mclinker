@@ -205,11 +205,21 @@ public:
   void clear(IOState pState = GoodBit);
 
 private:
+  // readFromBackend - read data from the file behind this MemorySpace and store
+  // those bytes in pBuf. Return the number of byte read or -1 on error.
+  ssize_t readFromBackend(sys::fs::detail::Address pBuf,
+                          size_t pSize, size_t pOffset);
+
+private:
   // find - first fit search
   Space* find(size_t pOffset, size_t pLength);
 
   // release a Space, but does not remove it from space list
   void release(Space* pSpace);
+
+  // read - read data from mapped file into virtual memroy of pSpace. Return
+  // false on error.
+  bool read(Space& pSpace);
 
   // write - write back the virtual memory of pSpace into mapped file.
   void write(const Space& pSpace);

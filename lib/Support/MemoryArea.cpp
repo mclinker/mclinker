@@ -16,7 +16,6 @@
 
 #include <cerrno>
 #include <fcntl.h>
-#include <sstream>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
@@ -248,46 +247,24 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
         // to set up data.
         space->data = new unsigned char[pLength];
         r_start = space->data;
-        if ((m_AccessFlags & AccessMask) == WriteOnly)
-          break;
-        else { // read-only or read-write
-          ssize_t read_bytes = sys::fs::detail::pread(m_FileDescriptor,
-                                                     space->data,
-                                                     space->size,
-                                                     space->file_offset);
-          if (static_cast<size_t>(read_bytes) == pLength)
-            break;
-          else {
-            std::stringstream error_mesg;
-            error_mesg << m_FilePath.native();
-            if (read_bytes < 0) {
-              m_State |= FailBit;
-              error_mesg << ":pread failed: ";
-              error_mesg << sys::fs::detail::strerror(errno) << '\n';
-            }
-            else if (static_cast<size_t>(read_bytes) < pLength) {
-              m_State |= EOFBit;
-              if ((m_AccessFlags & AccessMask) == ReadWrite) {
-                // read-write permission allows EOF while pread
-                break;
-              }
-              m_State |= BadBit;
-              error_mesg << ": file too short: read only ";
-              error_mesg << read_bytes << " of " << space->size << " bytes at ";
-              error_mesg << space->file_offset << '\n';
-            }
-            else {
-              m_State |= BadBit;
-              error_mesg << ": implementation of detail::pread reads exceeding bytes.\n";
-              error_mesg << "pread( " << m_FilePath.native() << ", buf, "
-                         << space->size << ", " << space->file_offset << '\n';
-            }
-            llvm::report_fatal_error(error_mesg.str());
+        if ((m_AccessFlags & AccessMask) != WriteOnly) {
+          // Read data from the backend file.
+          if (!read(*space)) {
+            llvm::report_fatal_error(llvm::Twine("Failed to read data from ") +
+                                     m_FilePath.native() +
+                                     llvm::Twine(" (") +
+                                     sys::fs::detail::strerror(errno) +
+                                     llvm::Twine(") at offset ") +
+                                     llvm::Twine(pOffset) +
+                                     llvm::Twine(" lenght ") +
+                                     llvm::Twine(pLength) + llvm::Twine(".\n"));
           }
         }
-      default:
-        llvm::report_fatal_error("unhandled space type\n");
+        break;
       } // case
+      default: {
+        llvm::report_fatal_error("unhandled space type\n");
+      }
     } // switch
   }
   else { // found
@@ -318,7 +295,7 @@ void MemoryArea::release(MemoryRegion* pRegion)
 void MemoryArea::clean()
 {
   m_RegionFactory.clear();
-  
+
   SpaceList::iterator sIter, sEnd = m_SpaceList.end();
   for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
     write(*sIter);
@@ -371,6 +348,50 @@ MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
   else
     return Space::MMAPED;
 }
+
+ssize_t MemoryArea::readFromBackend(sys::fs::detail::Address pBuf,
+                                    size_t pSize, size_t pOffset) {
+  assert(((m_AccessFlags & AccessMask) != WriteOnly) &&
+         "Write-only file cannot be read!");
+
+  ssize_t read_bytes = sys::fs::detail::pread(m_FileDescriptor, pBuf,
+                                              pSize, pOffset);
+  if (static_cast<size_t>(read_bytes) != pSize) {
+    // Some error occurred during pread().
+    if (read_bytes < 0) {
+      m_State |= FailBit;
+    }
+    else if (static_cast<size_t>(read_bytes) < pSize) {
+      m_State |= EOFBit;
+      if ((m_AccessFlags & AccessMask) != ReadWrite) {
+        // Files which is not read-write are not allowed read beyonds the EOF
+        // marker.
+        m_State |= BadBit;
+      }
+    }
+    else {
+      m_State |= BadBit;
+    }
+  }
+  return read_bytes;
+}
+
+bool MemoryArea::read(Space& pSpace) {
+  if (!isGood() || !isReadable())
+    return false;
+
+  if (pSpace.type == Space::ALLOCATED_ARRAY) {
+    readFromBackend(pSpace.data, pSpace.size, pSpace.file_offset);
+    return isGood();
+  }
+  else {
+    // Data associated with mmap()'ed space is already at the position the
+    // pSpace points to.
+    assert((pSpace.type == Space::MMAPED) && "Unknown type of Space!");
+    return true;
+  }
+}
+
 
 void MemoryArea::write(const Space& pSpace)
 {
