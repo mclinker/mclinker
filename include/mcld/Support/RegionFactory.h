@@ -38,6 +38,8 @@ public:
   MemoryRegion* produce(MemoryArea::Space* pSpace,
                         const sys::fs::detail::Address pVMAStart,
                         size_t pSize);
+
+  void destruct(MemoryRegion* pRegion);
 };
 
 } // namespace of mcld

@@ -30,3 +30,10 @@ MemoryRegion* RegionFactory::produce(MemoryArea::Space* pSpace,
   return result;
 }
 
+void RegionFactory::destruct(MemoryRegion* pRegion)
+{
+  pRegion->drift();
+  destroy(pRegion);
+  deallocate(pRegion);
+}
+
