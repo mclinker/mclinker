@@ -52,13 +52,17 @@ bool ELFObjectReader::isMyFormat(Input &pInput) const
   MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
 
   uint8_t* ELF_hdr = region->start();
+  bool result = true;
   if (!m_pELFReader->isELF(ELF_hdr))
-    return false;
-  if (!m_pELFReader->isMyEndian(ELF_hdr))
-    return false;
-  if (!m_pELFReader->isMyMachine(ELF_hdr))
-    return false;
-  return (MCLDFile::Object == m_pELFReader->fileType(ELF_hdr));
+    result = false;
+  else if (!m_pELFReader->isMyEndian(ELF_hdr))
+    result = false;
+  else if (!m_pELFReader->isMyMachine(ELF_hdr))
+    result = false;
+  else if (MCLDFile::Object != m_pELFReader->fileType(ELF_hdr))
+    result = false;
+  pInput.memArea()->release(region);
+  return result;
 }
 
 /// readObject - read section header and create LDSections.
@@ -69,8 +73,9 @@ bool ELFObjectReader::readObject(Input& pInput)
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
   MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
   uint8_t* ELF_hdr = region->start();
-
-  return m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
+  bool result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
+  pInput.memArea()->release(region);
+  return result;
 }
 
 /// readSections - read all regular sections.
@@ -110,6 +115,7 @@ bool ELFObjectReader::readSections(Input& pInput)
             for (size_t index = 1; index < size; ++index)
               pInput.context()->getSectionTable()[value[index]] = NULL;
           }
+          pInput.memArea()->release(region);
         }
         break;
       }
@@ -195,7 +201,13 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   MemoryRegion* strtab_region = pInput.memArea()->request(strtab_shdr->offset(),
                                                           strtab_shdr->size());
   char* strtab = reinterpret_cast<char*>(strtab_region->start());
-  return m_pELFReader->readSymbols(pInput, m_Linker, *symtab_region, strtab);
+  bool result = m_pELFReader->readSymbols(pInput,
+                                          m_Linker,
+                                          *symtab_region,
+                                          strtab);
+  pInput.memArea()->release(symtab_region);
+  pInput.memArea()->release(strtab_region);
+  return result;
 }
 
 bool ELFObjectReader::readRelocations(Input& pInput)
@@ -212,13 +224,17 @@ bool ELFObjectReader::readRelocations(Input& pInput)
     if ((*section)->type() == llvm::ELF::SHT_RELA &&
         (*section)->kind() == LDFileFormat::Relocation) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      if (!m_pELFReader->readRela(pInput, m_Linker, **section, *region))
+      bool result = m_pELFReader->readRela(pInput, m_Linker, **section, *region);
+      mem->release(region);
+      if (!result)
         return false;
     }
     else if ((*section)->type() == llvm::ELF::SHT_REL &&
              (*section)->kind() == LDFileFormat::Relocation) {
       MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      if (!m_pELFReader->readRel(pInput, m_Linker, **section, *region))
+      bool result = m_pELFReader->readRel(pInput, m_Linker, **section, *region);
+      mem->release(region);
+      if (!result)
         return false;
     }
   }

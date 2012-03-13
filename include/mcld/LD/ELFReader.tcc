@@ -135,8 +135,9 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     sh_offset = bswap32(shdr->sh_offset);
     sh_size   = bswap32(shdr->sh_size);
   }
-  const char* sect_name = reinterpret_cast<const char*>(
-                       pInput.memArea()->request(sh_offset, sh_size)->start());
+
+  MemoryRegion* sect_name_region = pInput.memArea()->request(sh_offset, sh_size);
+  const char* sect_name = reinterpret_cast<const char*>(sect_name_region->start());
 
   LinkInfoList link_info_list;
 
@@ -198,6 +199,9 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
       continue;
     }
   }
+
+  pInput.memArea()->release(shdr_region);
+  pInput.memArea()->release(sect_name_region);
 
   return true;
 }
@@ -398,6 +402,10 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
 
   // get ld_vis
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
+
+  // release regions
+  pInput.memArea()->release(symbol_region);
+  pInput.memArea()->release(strtab_region);
 
   return pLDInfo.getStrSymPool().createSymbol(ld_name,
                                               pInput.type() == Input::DynObj,
