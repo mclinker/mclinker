@@ -90,7 +90,12 @@ private:
 
   public:
     Space()
-    : m_pParent(NULL), type(UNALLOCATED), file_offset(0), size(0), data(0)
+    : m_pParent(NULL),
+      type(UNALLOCATED),
+      file_offset(0),
+      size(0),
+      data(0),
+      region_num(0)
     { }
 
     Space(MemoryArea* pParent, size_t pOffset, size_t pLength)
@@ -98,7 +103,8 @@ private:
       type(UNALLOCATED),
       file_offset(pOffset),
       size(pLength),
-      data(0)
+      data(0),
+      region_num(0)
     { }
 
     ~Space()
@@ -115,6 +121,7 @@ private:
     size_t file_offset;
     size_t size;
     sys::fs::detail::Address data;
+    size_t region_num;
   };
 
   friend class Space;
