@@ -1,3 +1,33 @@
+2012-03-14 Luba Tang <lubatang@gmail.com>
+	* Migrate on LLVM@r152063
+	* Migrate on clang@r152062
+
+	* LD/LDSection, LD/ELFFileFormat, LD/ELFDynObjFileFormat,
+	  LD/ELFExecFileFormat:
+	Support setting alignment constraint in section header.
+	* LD/Layout:
+	Update sections' alignment constraints during section merging. 
+
+	* Support/MemoryArea, Support/MemoryRegion:
+	Enhance memory utilities. 
+
+	* Target/ARMLDBackend:
+	1. work around ARM.exidx and ARM.extab.
+	2. add relocation supports - R_ARM_TARGET1, R_ARM_TARGET2, R_ARM_ABS32, 
+	R_ARM_BASE_PREL, and R_ARM_GOT_PREL
+
+	* Target/MipsLDBackend:
+	1. Android bitmap, native Plasma and Quake1 is examined successfully.
+
+	* Target/GNULDBackend, LD/ELFSegmentFactory:
+	Move segment-related implemenation out of GNULDBackend.
+
+	* Support/ScopedWriter:
+	Obsolete, removed.
+
+	* MC/SymbolCategory:
+	add random accessing functions
+
 2012-03-01 Luba Tang <lubatang@gmail.com>
 	* add test/ARM/Relocation:
 	* add test/ARM/GOTPLT:
