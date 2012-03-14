@@ -265,15 +265,15 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
 
   if(header->name[0] != '/')
   {
-    /// This is regular file with short name
+    /// This is a regular file with short name
     const char* nameEnd = strchr(header->name, '/');
-    if(nameEnd == NULL
-       || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
+    size_t nameLen = ((nameEnd == NULL) ? 0 : (nameEnd - header->name));
+    if((nameLen <= 0) || (nameLen >= sizeof(header->name)))
     {
       assert(0 && "header name format error\n");
       return 0;
     }
-    p_Name->assign(header->name, nameEnd - header->name);
+    p_Name->assign(header->name, nameLen);
 
     if(!p_NestedOff)
       p_NestedOff = 0;
