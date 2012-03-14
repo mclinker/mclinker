@@ -403,17 +403,19 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   // get ld_vis
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
 
-  // release regions
-  pInput.memArea()->release(symbol_region);
-  pInput.memArea()->release(strtab_region);
-
-  return pLDInfo.getStrSymPool().createSymbol(ld_name,
+  ResolveInfo* result =
+         pLDInfo.getStrSymPool().createSymbol(ld_name,
                                               pInput.type() == Input::DynObj,
                                               ld_type,
                                               ld_desc,
                                               ld_binding,
                                               st_size,
                                               ld_vis);
+  // release regions
+  pInput.memArea()->release(symbol_region);
+  pInput.memArea()->release(strtab_region);
+
+  return result;
 }
 
 /// readRela - read ELF rela and create Relocation
