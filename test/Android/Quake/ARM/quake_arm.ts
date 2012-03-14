@@ -9,10 +9,10 @@
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libquake_portable.so \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14  -Bsymbolic \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
-; RUN: %p/../../../libs/ARM/Android/android-14/crtend_so.o \
 ; RUN: libquake_portable.o \
 ; RUN: -o libquake_portable.so \
-; RUN: -llog -lEGL -lGLESv1_CM -lOpenSLES -lc -lm
+; RUN: -llog -lEGL -lGLESv1_CM -lOpenSLES -lc -lm \
+; RUN: %p/../../../libs/ARM/Android/android-14/crtend_so.o
 
 ; RUN: diff -s libquake_portable.so %p/libquake_portable.golden.so
 
