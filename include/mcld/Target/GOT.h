@@ -27,7 +27,7 @@ class ResolveInfo;
 class GOTEntry : public MCTargetFragment
 {
 public:
-  explicit GOTEntry(uint64_t pContent, uint64_t pEntrySize,
+  explicit GOTEntry(uint64_t pContent, size_t pEntrySize,
                     llvm::MCSectionData* pParent);
 
   virtual ~GOTEntry();
@@ -35,7 +35,7 @@ public:
   uint64_t& getContent()
   { return f_Content; }
 
-  const uint64_t& getContent() const
+  uint64_t getContent() const
   { return f_Content; }
 
   void setContent(uint64_t pValue)
@@ -64,13 +64,13 @@ class GOT
 protected:
   GOT(LDSection& pSection,
       llvm::MCSectionData& pSectionData,
-      const unsigned int pEntrySize);
+      size_t pEntrySize);
 
 public:
   virtual ~GOT();
 
   /// entrySize - the number of bytes per entry
-  uint64_t getEntrySize() const;
+  size_t getEntrySize() const;
 
   const LDSection& getSection() const
   { return m_Section; }
@@ -97,7 +97,7 @@ public:
 protected:
   LDSection& m_Section;
   llvm::MCSectionData& m_SectionData;
-  uint64_t f_EntrySize;
+  size_t f_EntrySize;
 };
 
 } // namespace of mcld

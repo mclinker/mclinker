@@ -13,11 +13,11 @@
 #include "MipsGOT.h"
 
 namespace {
-  const uint64_t MipsGOTEntrySize = 4;
+  const size_t MipsGOTEntrySize = 4;
   const size_t MipsGOT0Num = 1;
 }
 
-namespace mcld {
+using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // MipsGOT
@@ -76,7 +76,7 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 {
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-  const uint64_t entry_size = getEntrySize();
+  size_t entry_size = getEntrySize();
 
   uint64_t result = 0;
   for (iterator it = begin(), ie = end();
@@ -146,4 +146,3 @@ size_t MipsGOT::getLocalNum() const
   return m_pLocalNum;
 }
 
-}

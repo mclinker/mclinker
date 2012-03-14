@@ -14,7 +14,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOTEntry
-GOTEntry::GOTEntry(uint64_t pContent, uint64_t pEntrySize,
+GOTEntry::GOTEntry(uint64_t pContent, size_t pEntrySize,
                    llvm::MCSectionData* pParent)
   : MCTargetFragment(llvm::MCFragment::FT_Target, pParent),
     f_Content(pContent), m_EntrySize(pEntrySize) {
@@ -28,7 +28,7 @@ GOTEntry::~GOTEntry()
 // GOT
 GOT::GOT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
-         const unsigned int pEntrySize)
+         size_t pEntrySize)
   : m_Section(pSection),
     m_SectionData(pSectionData),
     f_EntrySize(pEntrySize) {
@@ -38,7 +38,7 @@ GOT::~GOT()
 {
 }
 
-uint64_t GOT::getEntrySize() const
+size_t GOT::getEntrySize() const
 {
   return f_EntrySize;
 }

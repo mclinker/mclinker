@@ -12,10 +12,10 @@
 #include <new>
 
 namespace {
-  const uint64_t X86GOTEntrySize = 4;
+  const size_t X86GOTEntrySize = 4;
 }
 
-namespace mcld {
+using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // X86GOT
@@ -127,4 +127,3 @@ X86GOT::iterator X86GOT::getLastGOT0()
 const X86GOT::iterator X86GOT::getLastGOT0() const
 { return m_LastGOT0; }
 
-} //end mcld namespace

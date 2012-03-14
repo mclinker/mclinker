@@ -29,13 +29,13 @@ public:
   PLTEntry(size_t pSize, llvm::MCSectionData* pParent);
   virtual ~PLTEntry();
 
-  unsigned int getEntrySize() const
+  size_t getEntrySize() const
   { return m_EntrySize; }
 
   void setContent(unsigned char* pContent)
   { m_pContent = pContent; }
 
-  unsigned char* getContent() const
+  const unsigned char* getContent() const
   { return m_pContent; }
 
   //Used by llvm::cast<>.

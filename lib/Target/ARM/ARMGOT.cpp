@@ -13,7 +13,7 @@
 #include <new>
 
 namespace {
-  const uint64_t ARMGOTEntrySize = 4;
+  const size_t ARMGOTEntrySize = 4;
 } // end of anonymous namespace
 
 using namespace mcld;
