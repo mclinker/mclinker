@@ -48,12 +48,12 @@ public:
   { return true; }
 
   // Override pure virtual function
-  uint64_t getSize() const
+  size_t getSize() const
   { return m_EntrySize; }
 
 protected:
   uint64_t f_Content;
-  uint64_t m_EntrySize;
+  size_t m_EntrySize;
 };
 
 /** \class GOT

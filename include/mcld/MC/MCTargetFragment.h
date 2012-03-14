@@ -32,7 +32,7 @@ protected:
 public:
   virtual ~MCTargetFragment() {}
 
-  virtual uint64_t getSize() const = 0;
+  virtual size_t getSize() const = 0;
 
 public:
   static bool classof(const MCFragment *F)
