@@ -106,7 +106,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile))
   {
-    assert(0=="GNUArchiveReader:can't map a file to MemoryBuffer\n");
+    assert(0 && "GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return NULL;
   }
 
@@ -139,7 +139,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   }
   else
   {
-    assert(0=="fatal error : need symbol table\n");
+    assert(0 && "fatal error : need symbol table\n");
     return NULL;
   }
 
@@ -165,8 +165,9 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     /// Construct a corresponding mcld::Input, and insert it into
     /// the original InputTree, resultTree.
     off_t nestedOff = 0;
-    size_t memberOffset = parseMemberHeader(mapFile, symbolTable[i].fileOffset,
-                                            &archiveMemberName, &nestedOff, extendedName);
+
+    parseMemberHeader(mapFile, symbolTable[i].fileOffset, &archiveMemberName,
+                      &nestedOff, extendedName);
 
     if(haveSeen.find(archiveMemberName)==haveSeen.end())
       haveSeen.insert(archiveMemberName);
@@ -249,7 +250,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   /// check magic number of member header
   if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic))
   {
-    assert(0=="archive member header magic number false");
+    assert(0 && "archive member header magic number false");
     return 0;
   }
 
@@ -258,7 +259,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   size_t memberSize = stringToType<size_t>(sizeString);
   if(memberSize == 0)
   {
-    assert(0=="member Size Error");
+    assert(0 && "member Size Error");
     return 0;
   }
 
@@ -269,7 +270,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(nameEnd == NULL
        || nameEnd - header->name >= static_cast<size_t>(sizeof(header->name)))
     {
-      assert(0=="header name format error\n");
+      assert(0 && "header name format error\n");
       return 0;
     }
     p_Name->assign(header->name, nameEnd - header->name);
@@ -301,7 +302,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
        || extendedNameOff < 0
        || static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size())
     {
-      assert(0=="extended name");
+      assert(0 && "extended name");
       return 0;
     }
 
@@ -310,7 +311,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(nameEnd[-1] != '/'
        || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size())
     {
-      assert(0=="p_ExtendedName substring is not end with / \n");
+      assert(0 && "p_ExtendedName substring is not end with / \n");
       return 0;
     }
     p_Name->assign(name, nameEnd-name-1);
@@ -338,7 +339,6 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
   ++p_Word;
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
-  size_t nameSize = reinterpret_cast<const char *>(startPtr) + size - p_Name;
 
   pSymbolTable.resize(symbolNum);
   for(unsigned int i=0 ; i<symbolNum ; ++i)
