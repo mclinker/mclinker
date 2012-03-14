@@ -205,10 +205,10 @@ public:
   void clear(IOState pState = GoodBit);
 
 private:
-  // readFromBackend - read data from the file behind this MemorySpace and store
+  // readToBuffer - read data from the file behind this MemorySpace and store
   // those bytes in pBuf. Return the number of byte read or -1 on error.
-  ssize_t readFromBackend(sys::fs::detail::Address pBuf,
-                          size_t pSize, size_t pOffset);
+  ssize_t readToBuffer(sys::fs::detail::Address pBuf,
+                       size_t pSize, size_t pOffset);
 
 private:
   // find - first fit search

@@ -179,9 +179,9 @@ void MemoryArea::clear(MemoryArea::IOState pState)
 // | r_start      +r_len |
 // space.data      +space.size
 //
-// space.file_offset is the offset of the mapped file segment from the start of the file.
-// if the MemorySpace's type is ALLOCATED_ARRAY, the distances of (space.data, r_start)
-// and (r_len, space.size) are zero.
+// space.file_offset is the offset of the mapped file segment from the start of
+// the file. if the MemorySpace's type is ALLOCATED_ARRAY, the distances of
+// (space.data, r_start) and (r_len, space.size) are zero.
 //
 MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
 {
@@ -349,8 +349,8 @@ MemoryArea::Space::Type MemoryArea::policy(off_t pOffset, size_t pLength)
     return Space::MMAPED;
 }
 
-ssize_t MemoryArea::readFromBackend(sys::fs::detail::Address pBuf,
-                                    size_t pSize, size_t pOffset) {
+ssize_t MemoryArea::readToBuffer(sys::fs::detail::Address pBuf,
+                                 size_t pSize, size_t pOffset) {
   assert(((m_AccessFlags & AccessMask) != WriteOnly) &&
          "Write-only file cannot be read!");
 
@@ -381,7 +381,7 @@ bool MemoryArea::read(Space& pSpace) {
     return false;
 
   if (pSpace.type == Space::ALLOCATED_ARRAY) {
-    readFromBackend(pSpace.data, pSpace.size, pSpace.file_offset);
+    readToBuffer(pSpace.data, pSpace.size, pSpace.file_offset);
     return isGood();
   }
   else {
