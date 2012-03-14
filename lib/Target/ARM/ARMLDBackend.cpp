@@ -453,6 +453,17 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_ARM_BASE_PREL: {
+      // FIXME: Currently we only support R_ARM_BASE_PREL against
+      // symbol _GLOBAL_OFFSET_TABLE_
+      if(rsym != m_pGOTSymbol->resolveInfo()) {
+        llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
+                                 llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
+                                 llvm::Twine(rsym->name()) +
+                                 llvm::Twine(".'"));
+      }
+      return;
+    }
     case llvm::ELF::R_ARM_COPY:
     case llvm::ELF::R_ARM_GLOB_DAT:
     case llvm::ELF::R_ARM_JUMP_SLOT:
@@ -539,11 +550,19 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_ARM_BASE_PREL:
+      // FIXME: Currently we only support R_ARM_BASE_PREL against
+      // symbol _GLOBAL_OFFSET_TABLE_
+      if(rsym != m_pGOTSymbol->resolveInfo()) {
+        llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
+                                 llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
+                                 llvm::Twine(rsym->name()) +
+                                 llvm::Twine(".'"));
+      }
     case llvm::ELF::R_ARM_REL32:
     case llvm::ELF::R_ARM_LDR_PC_G0:
     case llvm::ELF::R_ARM_SBREL32:
     case llvm::ELF::R_ARM_THM_PC8:
-    case llvm::ELF::R_ARM_BASE_PREL:
     case llvm::ELF::R_ARM_MOVW_PREL_NC:
     case llvm::ELF::R_ARM_MOVT_PREL:
     case llvm::ELF::R_ARM_THM_MOVW_PREL_NC:
