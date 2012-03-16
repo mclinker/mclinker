@@ -1,5 +1,6 @@
 ; .so
-; RUN: %MCLinker -march=arm -filetype=dso %p/ABS32.o -o %t.so
+; RUN: %MCLinker -mtriple=arm-none-linux-gnueabi -march=arm \
+; RUN: -filetype=dso %p/ABS32.o -o %t.so
 ; RUN: readelf -r %t.so | FileCheck %s -check-prefix=REL
 ; REL: R_ARM_RELATIVE
 ; REL: R_ARM_RELATIVE

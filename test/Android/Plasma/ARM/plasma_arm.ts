@@ -6,7 +6,8 @@
 ; RUN: -dB libplasma_portable.bc -o libplasma_portable.o
 
 ; Build the shared library.
-; RUN: %MCLinker -filetype=dso -march=arm -soname=libplasma_portable.so \
+; RUN: %MCLinker -filetype=dso -mtriple="armv7-none-linux-gnueabi" \
+; RUN: -march=arm -soname=libplasma_portable.so \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14  -Bsymbolic \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
 ; RUN: libplasma_portable.o \

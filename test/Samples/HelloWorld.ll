@@ -1,6 +1,7 @@
 ;;; ARM
 ; .o
-; RUN: %MCLinker -march=arm -filetype=obj -relocation-model=pic -dB %s -o %t.o
+; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
 ; RUN: llvm-nm %t.o | FileCheck %s -check-prefix=ARM_O_NM
 ; ARM_O_NM: {{[0-9a-fA-F]+}} T main
 ; ARM_O_NM:          U puts
@@ -11,7 +12,8 @@
 ; ARM_O_OBJDUMP: .symtab
 ; ARM_O_OBJDUMP: .text
 ; .so
-; RUN: %MCLinker -march=arm -filetype=dso %t.o -o %t.so
+; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
+; RUN: -filetype=dso %t.o -o %t.so
 ; RUN: llvm-nm %t.so | FileCheck %s -check-prefix=ARM_SO_NM
 ; ARM_SO_NM: {{[0-9a-fA-F]+}} T main
 ; ARM_SO_NM:          U puts

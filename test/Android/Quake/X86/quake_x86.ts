@@ -2,10 +2,12 @@
 
 ; Build the object file.
 ; RUN: %MCLinker -filetype=obj -relocation-model=pic -march=x86 \
+; RUN: -mtriple="x86-none-linux-gnueabi" \
 ; RUN: -dB libquake_portable.bc -o libquake_portable.o
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=x86 -soname=libquake_portable.so \
+; RUN: -mtriple="x86-none-linux-gnueabi" \
 ; RUN: -L=%p/../../../libs/X86/Android/android-14  -Bsymbolic \
 ; RUN: libquake_portable.o \
 ; RUN: -o libquake_portable.so \
