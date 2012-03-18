@@ -21,16 +21,16 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
-	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
+	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
 	${INCDIR}/Support/RealPath.h \
 	${LIBDIR}/Support/RealPath.cpp \
 	${INCDIR}/Support/Directory.h \
 	${LIBDIR}/Support/Directory.cpp \
-	${INCDIR}/Support/FileSytem.h \
+	${INCDIR}/Support/FileSystem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
 	${INCDIR}/Support/LEB128.h \
 	${LIBDIR}/Support/LEB128.cpp \
@@ -48,6 +48,9 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/PositionDependentOption.h \
 	${INCDIR}/Support/DerivedPositionDependentOptions.h \
+	${INCDIR}/Support/TargetRegistry.h \
+	${LIBDIR}/Support/TargetRegistry.cpp \
+	${INCDIR}/Support/TargetSelect.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
@@ -58,10 +61,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
-	${INCDIR}/Target/TargetRegistry.h \
-	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Target/Target.cpp \
-	${INCDIR}/Target/TargetSelect.h \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
