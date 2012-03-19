@@ -186,7 +186,7 @@ void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
   f_pDataRelRo      = &pLinker.getOrCreateOutputSectHdr(".data.rel.ro",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
-                                              llvm::ELF::SHF_ALLOC,
+                                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pDtors          = &pLinker.getOrCreateOutputSectHdr(".dtors",
                                               LDFileFormat::Regular,
