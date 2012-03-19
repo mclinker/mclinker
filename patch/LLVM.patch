@@ -21,7 +21,7 @@ Index: include/llvm/MC/MCAssembler.h
  
    MCFragment(const MCFragment&);     // DO NOT IMPLEMENT
    void operator=(const MCFragment&); // DO NOT IMPLEMENT
-@@ -53,10 +58,13 @@
+@@ -53,7 +58,10 @@
      FT_Org,
      FT_Dwarf,
      FT_DwarfFrame,
@@ -32,45 +32,24 @@ Index: include/llvm/MC/MCAssembler.h
 +    FT_Target
    };
  
--private:
-+protected:
-   FragmentType Kind;
- 
-   /// Parent - The data for the section this fragment is in.
-@@ -453,7 +461,7 @@
-   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
-   typedef FragmentListType::reverse_iterator reverse_iterator;
- 
--private:
-+protected:
-   FragmentListType Fragments;
-   const MCSection *Section;
- 
-@@ -481,6 +489,7 @@
-   // Only for use as sentinel.
-   MCSectionData();
-   MCSectionData(const MCSection &Section, MCAssembler *A = 0);
-+  virtual ~MCSectionData() {}
- 
-   const MCSection &getSection() const { return *Section; }
- 
-@@ -679,7 +688,7 @@
+ private:
+@@ -679,7 +687,7 @@
  
    MCCodeEmitter &Emitter;
  
 -  MCObjectWriter &Writer;
-+  MCObjectWriter *m_pWriter;
++  MCObjectWriter *Writer;
  
    raw_ostream &OS;
  
-@@ -807,8 +816,10 @@
+@@ -807,8 +815,10 @@
  
    MCCodeEmitter &getEmitter() const { return Emitter; }
  
 -  MCObjectWriter &getWriter() const { return Writer; }
-+  MCObjectWriter &getWriter() const { return *m_pWriter; }
++  MCObjectWriter &getWriter() const { return *Writer; }
  
-+  void setWriter(MCObjectWriter &pObjectWriter);
++  void setWriter(MCObjectWriter &ObjectWriter);
 +
    /// Finish - Do final processing and write the object to the output stream.
    /// \arg Writer is used for custom object writer (as the MCJIT does),
@@ -107,23 +86,6 @@ Index: include/llvm/Support/ELF.h
    // Fixme: All this is duplicated in MCSectionELF. Why??
    // Exception Index table
    SHT_ARM_EXIDX           = 0x70000001U,
-Index: include/llvm/Support/CommandLine.h
-===================================================================
---- include/llvm/Support/CommandLine.h	(revision 152063)
-+++ include/llvm/Support/CommandLine.h	(working copy)
-@@ -337,7 +337,11 @@
- 
-   bool hasValue() const { return false; }
- 
--  const DataType &getValue() const { llvm_unreachable("no default value"); }
-+  const DataType &getValue() const {
-+    assert(false && "no default value");
-+    DataType *p = 0;
-+    return *p;
-+  }
- 
-   // Some options may take their value from a different data type.
-   template<class DT>
 Index: lib/MC/MCAssembler.cpp
 ===================================================================
 --- lib/MC/MCAssembler.cpp	(revision 152063)
@@ -143,7 +105,7 @@ Index: lib/MC/MCAssembler.cpp
                           MCCodeEmitter &Emitter_, MCObjectWriter &Writer_,
                           raw_ostream &OS_)
 -  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(Writer_),
-+  : Context(Context_), Backend(Backend_), Emitter(Emitter_), m_pWriter(&Writer_),
++  : Context(Context_), Backend(Backend_), Emitter(Emitter_), Writer(&Writer_),
      OS(OS_), RelaxAll(false), NoExecStack(false), SubsectionsViaSymbols(false)
  {
  }
@@ -151,9 +113,9 @@ Index: lib/MC/MCAssembler.cpp
  MCAssembler::~MCAssembler() {
  }
  
-+void MCAssembler::setWriter(MCObjectWriter &pObjectWriter) {
-+  delete m_pWriter;
-+  m_pWriter = &pObjectWriter;
++void MCAssembler::setWriter(MCObjectWriter &ObjectWriter) {
++  delete Writer;
++  Writer = &ObjectWriter;
 +}
 +
  bool MCAssembler::isSymbolLinkerVisible(const MCSymbol &Symbol) const {
