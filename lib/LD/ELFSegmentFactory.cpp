@@ -32,9 +32,3 @@ ELFSegment* ELFSegmentFactory::produce(uint32_t pType)
   return segment;
 }
 
-/// destroy - destruct the ELF segment
-void ELFSegmentFactory::destroy(ELFSegment*& pSegment)
-{
-  deallocate(pSegment);
-}
-

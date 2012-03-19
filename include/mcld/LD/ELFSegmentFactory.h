@@ -32,9 +32,6 @@ public:
   /// this function will create an ELF segment
   /// @param pType - p_type in ELF program header
   ELFSegment* produce(uint32_t pType);
-
-  /// destroy - destruct the ELF segment
-  void destroy(ELFSegment*& pSegment);
 };
 
 } // namespace of mcld
