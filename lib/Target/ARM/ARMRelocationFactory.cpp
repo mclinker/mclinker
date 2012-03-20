@@ -337,7 +337,7 @@ helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
   // upper 16 bits
   val = (*(reinterpret_cast<uint16_t*>(&pTarget)) << 16) |
         *(reinterpret_cast<uint16_t*>(&pTarget) + 1);
-  return pTarget;
+  return val;
 }
 
 static ARMRelocationFactory::DWord
