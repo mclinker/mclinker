@@ -545,7 +545,9 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     }
 
     case llvm::ELF::R_ARM_BASE_PREL:
-      // FIXME: Currently we only support R_ARM_BASE_PREL against
+    case llvm::ELF::R_ARM_THM_MOVW_BREL_NC:
+    case llvm::ELF::R_ARM_THM_MOVW_BREL:
+      // FIXME: Currently we only support these relocations against
       // symbol _GLOBAL_OFFSET_TABLE_
       if(rsym != m_pGOTSymbol->resolveInfo()) {
         llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
@@ -594,9 +596,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVW_BREL_NC:
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL:
-    case llvm::ELF::R_ARM_THM_MOVW_BREL_NC:
-    case llvm::ELF::R_ARM_THM_MOVT_BREL:
-    case llvm::ELF::R_ARM_THM_MOVW_BREL: {
+    case llvm::ELF::R_ARM_THM_MOVT_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
       if(isSymbolNeedsDynRel(*rsym, pOutput, false)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);

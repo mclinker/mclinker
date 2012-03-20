@@ -78,7 +78,6 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
                              llvm::Twine("'."));
     return;
   }
-
   if (BadReloc == result) {
     llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
                              llvm::Twine(apply_functions[type].name) +
@@ -308,13 +307,17 @@ helper_insert_val_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
 static ARMRelocationFactory::DWord
 helper_extract_thumb_movw_movt_addend(ARMRelocationFactory::DWord pTarget)
 {
-  // TODO: By the rsloader experience: If we use 32bit, we need to consider
-  // endianness problem. We'd better have a thumb instruction type.
+  // Consider the endianness problem, get the target data value from lower
+  // and upper 16 bits
+  ARMRelocationFactory::DWord val =
+    (*(reinterpret_cast<uint16_t*>(&pTarget)) << 16) |
+    *(reinterpret_cast<uint16_t*>(&pTarget) + 1);
+
   // imm16: [19-16][26][14-12][7-0]
-  return helper_sign_extend((((pTarget >> 4) & 0xf000U) |
-                             ((pTarget >> 15) & 0x0800U) |
-                             ((pTarget >> 4) & 0x0700U) |
-                             (pTarget & 0x00ffU)),
+  return helper_sign_extend((((val >> 4) & 0xf000U) |
+                             ((val >> 15) & 0x0800U) |
+                             ((val >> 4) & 0x0700U) |
+                             (val & 0x00ffU)),
                             16);
 }
 
@@ -322,14 +325,18 @@ static ARMRelocationFactory::DWord
 helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
                                        ARMRelocationFactory::DWord pImm)
 {
-  // TODO: By the rsloader experience: If we use 32bit, we need to consider
-  // endianness problem. We'd better have a thumb instruction type.
+  ARMRelocationFactory::DWord val;
   // imm16: [19-16][26][14-12][7-0]
   pTarget &= 0xfbf08f00U;
   pTarget |= (pImm & 0xf000U) << 4;
   pTarget |= (pImm & 0x0800U) << 15;
   pTarget |= (pImm & 0x0700U) << 4;
   pTarget |= (pImm & 0x00ffU);
+
+  // Consider the endianness problem, write back data from lower and
+  // upper 16 bits
+  val = (*(reinterpret_cast<uint16_t*>(&pTarget)) << 16) |
+        *(reinterpret_cast<uint16_t*>(&pTarget) + 1);
   return pTarget;
 }
 
@@ -735,14 +742,9 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
     T = 0; // PLT is not thumb
   }
   X = (S + A) | T;
-  // check 16-bit overflow
-  if (helper_check_signed_overflow(X, 16)) {
-    return ARMRelocationFactory::Overflow;
-  } else {
-    pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                             X);
-    return ARMRelocationFactory::OK;
-  }
+  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
+                                                           X);
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_THM_MOVW_PREL_NC: ((S + A) | T) - P
@@ -760,13 +762,30 @@ ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
   X = ((S + A) | T) - P;
 
   // check 16-bit overflow
-  if (helper_check_signed_overflow(X, 16)) {
-    return ARMRelocationFactory::Overflow;
-  } else {
-    pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                             X);
-    return ARMRelocationFactory::OK;
-  }
+  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
+                                                           X);
+  return ARMRelocationFactory::OK;
+}
+
+// R_ARM_THM_MOVW_BREL_NC: ((S + A) | T) - B(S)
+// R_ARM_THM_MOVW_BREL: ((S + A) | T) - B(S)
+ARMRelocationFactory::Result thm_movw_brel(Relocation& pReloc,
+                                              const MCLDInfo& pLDInfo,
+                                              ARMRelocationFactory& pParent)
+{
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  ARMRelocationFactory::DWord A =
+      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+  ARMRelocationFactory::DWord X;
+
+  X = ((S + A) | T) - P;
+
+  // check 16-bit overflow
+  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
+                                                           X);
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_THM_MOVT_ABS: S + A
