@@ -56,17 +56,6 @@ class SymbolCategory;
  */
 class GNULDBackend : public TargetLDBackend
 {
-  // These dynamic section tags are GNU extension.
-  enum {
-    DT_RELACOUNT  = 0x6ffffff9,
-    DT_RELCOUNT   = 0x6ffffffa,
-    DT_FLAGS_1    = 0x6ffffffb,
-    DT_VERDEF     = 0x6ffffffc,
-    DT_VERDEFNUM  = 0x6ffffffd,
-    DT_VERNEED    = 0x6ffffffe,
-    DT_VERNEEDNUM = 0x6fffffff
-  };
-
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind
