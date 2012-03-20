@@ -8,9 +8,10 @@
 //===--------------------------------------------------------------------===//
 
 #include <llvm/ADT/Twine.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/Host.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
 
@@ -106,7 +107,7 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
   // Set thumb bit if
   // - symbol has type of STT_FUNC, is defined and with bit 0 of its value set
   RelocationFactory::DWord thumbBit =
-       ((pReloc.symInfo()->desc() != ResolveInfo::Undefined) &&
+       ((!pReloc.symInfo()->isUndef()) &&
         (pReloc.symInfo()->type() == ResolveInfo::Function) &&
         ((pReloc.symValue() & 0x1) != 0))?
         1:0;
@@ -518,7 +519,8 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   // TODO: Some issue have not been considered, e.g. thumb, overflow?
 
   // If target is undefined weak symbol, we only need to jump to the
-  // next instruction unless it has PLT entry.
+  // next instruction unless it has PLT entry. Rewrite instruction
+  // to NOP.
   if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
       !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
     // change target to NOP : mov r0, r0
@@ -557,24 +559,17 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
                                       ARMRelocationFactory& pParent)
 {
   // If target is undefined weak symbol, we only need to jump to the
-  // next instruction unless it has PLT entry.
+  // next instruction unless it has PLT entry. Rewrite instruction
+  // to NOP.
   if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
       !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
     pReloc.target() = (0xe000U << 16) | 0xbf00U;
     return ARMRelocationFactory::OK;
   }
 
-  // TODO: By the rsloader experience: If we use 32bit, we need to consider
-  // endianness problem. Here is an ugly solution. We'd better have a thumb
-  // instruction type.
-  //uint16_t upper16 = *(
-  //    reinterpret_cast<uint16_t*>(&pReloc.target())
-  //  ),
-  //         lower16 = *(
-  //    reinterpret_cast<uint16_t*>(&pReloc.target()) + 1
-  //  );
-  ARMRelocationFactory::DWord upper16 = ((pReloc.target() & 0xffff0000U) >> 16),
-                              lower16 = (pReloc.target() & 0xffffU);
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper16 = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower16 = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
 
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper16,
@@ -582,44 +577,52 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
   ARMRelocationFactory::Address S;
 
-  S = pReloc.symValue();
   // if symbol has plt
   if( pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
-
-  // TODO: If the target is not thumb, we should rewrite instruction to BLX.
-
-  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
-  X >>= 1;
-
-  // FIXME: Check bit size is 24(thumb2) or 22?
-  if (helper_check_signed_overflow(X, 24)) {
-    assert(!"Offset is too far. We need stub or PLT for it.");
-    return ARMRelocationFactory::Overflow;
+  else {
+    S = pReloc.symValue();
   }
 
-  // For a BLX instruction, make sure that the relocation is rounded up
-  // to a word boundary. This follows the semantics of the instruction
-  // which specifies that bit 1 of the target address will come from bit
-  // 1 of the base address.
-  if ((X & 0x5000U) == 0x4000U) {
-    X = (X + 2) & ~0x3U;
+  S = S + A;
+
+  // FIXME: check if we can use BLX instruction (check from .ARM.attribute
+  // CPU ARCH TAG, which should be ARMv5 or above)
+
+  // If the jump target is not thumb, switch mode is needed, rewrite
+  // instruction to BLX
+  if( T == 0) {
+    // for BLX, select bit 1 from relocation base address to jump target
+    // address
+    S = helper_bit_select(S, P, 0x2);
+    // rewrite instruction to BLX
+    lower16 &= ~0x1000U;
+  }
+  else {
+    // otherwise, the instruction should be BL
+    lower16 |= 0x1000U;
+  }
+
+  ARMRelocationFactory::DWord X = (S | T) - P;
+
+  // TODO: check if we need stub when building non-shared object,
+  // overflow or switch-mode.
+
+  // FIXME: Check bit size is 24(thumb2) or 22?
+  if (helper_check_signed_overflow(X, 25)) {
+    assert(!"Offset is too far. We need stub or PLT for it.");
+    return ARMRelocationFactory::Overflow;
   }
 
   upper16 = helper_thumb32_branch_upper(upper16, X);
   lower16 = helper_thumb32_branch_lower(lower16, X);
 
-  // TODO: By the rsloader experience: If we use 32bit, we need to consider
-  // endianness problem. Here is an ugly solution. We'd better have a thumb
-  // instruction type.
-  //*(reinterpret_cast<uint16_t*>(&preloc.target())) = upper16;
-  //*(reinterpret_cast<uint16_t*>(&preloc.target()) + 1) = lower16;
-  pReloc.target() = (upper16 << 16);
-  pReloc.target() |= lower16;
+ *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper16;
+ *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower16;
 
-  return ARMRelocationFactory::OK;
+ return ARMRelocationFactory::OK;
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
