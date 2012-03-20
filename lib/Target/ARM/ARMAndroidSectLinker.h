@@ -21,9 +21,6 @@ class MCLDInfo;
 
 /** \class ARMAndroidSectLinker
  *  \brief ARMAndroidSectLinker sets up the environment for linking.
- *
- *  \see
- *  \author Anders Cheng <Anders.Cheng@mediatek.com>
  */
 class ARMAndroidSectLinker : public AndroidSectLinker
 {

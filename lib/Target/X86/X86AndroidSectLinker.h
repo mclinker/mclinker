@@ -19,9 +19,6 @@ namespace mcld
 
 /** \class X86AndroidSectLinker
  *  \brief X86AndroidSectLinker sets up the environment for linking.
- *
- *  \see
- *  \author Anders Cheng <Anders.Cheng@mediatek.com>
  */
 class X86AndroidSectLinker : public AndroidSectLinker
 {
