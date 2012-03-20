@@ -554,6 +554,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 }
 
 // R_ARM_THM_CALL: ((S + A) | T) - P
+// R_ARM_THM_JUMP24: (((S + A) | T) - P)
 ARMRelocationFactory::Result thm_call(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
@@ -578,7 +579,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address S;
 
   // if symbol has plt
-  if( pReloc.symInfo()->reserved() & 0x8u) {
+  if (pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
@@ -593,7 +594,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
 
   // If the jump target is not thumb, switch mode is needed, rewrite
   // instruction to BLX
-  if( T == 0) {
+  if (T == 0) {
     // for BLX, select bit 1 from relocation base address to jump target
     // address
     S = helper_bit_select(S, P, 0x2);

@@ -66,7 +66,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &call,              27, "R_ARM_PLT32"             },  \
   { &call,              28, "R_ARM_CALL"              },  \
   { &call,              29, "R_ARM_JUMP24"            },  \
-  { &unsupport,         30, "R_ARM_THM_JUMP24"        },  \
+  { &thm_call,          30, "R_ARM_THM_JUMP24"        },  \
   { &unsupport,         31, "R_ARM_BASE_ABS"          },  \
   { &unsupport,         32, "R_ARM_ALU_PCREL_7_0"     },  \
   { &unsupport,         33, "R_ARM_ALU_PCREL_15_8"    },  \
