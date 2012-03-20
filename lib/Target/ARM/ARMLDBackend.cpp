@@ -395,12 +395,6 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_ABS:
     case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
-      // Update value keep in relocation place if we meet a section symbol
-      if(rsym->type() == ResolveInfo::Section) {
-        pReloc.target() = pLinker.getLayout().getOutputOffset(
-                            *pInputSym.fragRef()) + pReloc.target();
-      }
-
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
