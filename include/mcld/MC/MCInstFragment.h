@@ -23,9 +23,6 @@ namespace mcld
 
 /** \class MCInstFragment
  *  \brief MCInstFragment for mcld
- *
- *  \see
- *  \author Diana Chen <diana.chen@mediatek.com>
  */
 class MCInstFragment : public  llvm::MCFragment
 {
@@ -35,10 +32,10 @@ private:
 
   ///  m_pFragment - llvm MCInstFragment for this MCInstFragment
   llvm::MCInstFragment* m_pFragment;
-  
+
   /// m_Relocation - The list of relocations in this fragment
   RelocationsType m_Relocations;
-  
+
 public:
   typedef RelocationsType::const_iterator const_relocation_iterator;
   typedef RelocationsType::iterator relocation_iterator;
@@ -51,7 +48,7 @@ public:
     setLayoutOrder( pFragment.getLayoutOrder());
   }
   ~MCInstFragment(){}
-   
+
   // ------ observers ------//
   llvm::SmallVectorImpl<char> &getCode() { return m_pFragment->getCode(); }
   const llvm::SmallVectorImpl<char> &getCode() const { return m_pFragment->getCode(); }
@@ -60,13 +57,13 @@ public:
 
   llvm::MCInst &getInst() { return m_pFragment->getInst(); }
   const llvm::MCInst &getInst() const { return m_pFragment->getInst(); }
-  
+
   // ----- modifiers ------//
   void setInst(llvm::MCInst pValue) { m_pFragment->setInst(pValue); }
 
   // relocation access
   void addRelocation(Relocation &pReloc){  m_Relocations.push_back(&pReloc); }
-  
+
   RelocationsType &getRelocations() { return m_Relocations; }
   const RelocationsType &getRelcoations() const { return m_Relocations; }
 
@@ -83,9 +80,9 @@ public:
     return pF->getKind() == llvm::MCFragment::FT_Inst;
   }
   static bool classof(const MCInstFragment *) { return true; }
-  
+
   // overwrite parent method
-  FragmentType getKind() const { return m_pFragment->getKind(); } 
+  FragmentType getKind() const { return m_pFragment->getKind(); }
 
 };
 

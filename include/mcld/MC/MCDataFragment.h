@@ -21,9 +21,6 @@ namespace mcld
 
 /** \class MCDataFragment
  *  \brief MCDataFragment for mcld
- *
- *  \see
- *  \author Diana Chen <diana.chen@mediatek.com>
  */
 class MCDataFragment : public  llvm::MCFragment
 {
@@ -33,7 +30,7 @@ private:
 
   ///  m_pFragment - llvm MCDataFragment for this MCDataFragment
   llvm::MCDataFragment* m_pFragment;
- 
+
   /// m_Relocation - The list of relocations in this fragment
   RelocationsType m_Relocations;
 
@@ -49,14 +46,14 @@ public:
     setLayoutOrder( pFragment.getLayoutOrder());
   }
   ~MCDataFragment(){}
-   
+
   // ------ observers ------//
   llvm::SmallString<32> &getContents() { return m_pFragment->getContents();  }
   const llvm::SmallString<32> &getContents() const { return m_pFragment->getContents();  }
 
   // relocation access
   void addRelocation(Relocation &pReloc){  m_Relocations.push_back(&pReloc); }
-  
+
   RelocationsType &getRelocations() { return m_Relocations; }
   const RelocationsType &getRelcoations() const { return m_Relocations; }
 
@@ -73,10 +70,10 @@ public:
     return pF->getKind() == llvm::MCFragment::FT_Data;
   }
   static bool classof(const MCDataFragment *) { return true; }
-  
+
   // overwrite parent method
-  FragmentType getKind() const { return m_pFragment->getKind(); } 
-  
+  FragmentType getKind() const { return m_pFragment->getKind(); }
+
 };
 
 } // namespace of mcld
