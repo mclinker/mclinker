@@ -42,8 +42,8 @@ friend class RegionFactory;
 friend class MemoryArea;
 
 public:
-typedef NonConstTraits<mcld::sys::fs::detail::Address>::value_type Address;
-typedef ConstTraits<mcld::sys::fs::detail::Address>::value_type    ConstAddress;
+typedef NonConstTraits<uint8_t>::pointer Address;
+typedef ConstTraits<uint8_t>::pointer ConstAddress;
 typedef NonConstTraits<mcld::sys::fs::detail::Offset>::value_type  Offset;
 typedef ConstTraits<mcld::sys::fs::detail::Offset>::value_type     ConstOffset;
 

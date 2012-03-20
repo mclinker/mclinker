@@ -254,8 +254,8 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 {
   // get number of symbols
   size_t entsize = pRegion.size()/sizeof(llvm::ELF::Elf32_Sym);
-  llvm::ELF::Elf32_Sym* symtab =
-                      reinterpret_cast<llvm::ELF::Elf32_Sym*>(pRegion.start());
+  const llvm::ELF::Elf32_Sym* symtab =
+                 reinterpret_cast<const llvm::ELF::Elf32_Sym*>(pRegion.start());
 
   uint32_t st_name  = 0x0;
   uint32_t st_value = 0x0;
@@ -426,8 +426,8 @@ bool ELFReader<32, true>::readRela(Input& pInput,
 {
   // get the number of rela
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf32_Rela);
-  llvm::ELF::Elf32_Rela* relaTab =
-                     reinterpret_cast<llvm::ELF::Elf32_Rela*>(pRegion.start());
+  const llvm::ELF::Elf32_Rela* relaTab =
+                reinterpret_cast<const llvm::ELF::Elf32_Rela*>(pRegion.start());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     uint32_t r_offset = 0x0;
@@ -483,8 +483,8 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 {
   // get the number of rel
   size_t entsize = pRegion.size() / sizeof(llvm::ELF::Elf32_Rel);
-  llvm::ELF::Elf32_Rel* relTab =
-                      reinterpret_cast<llvm::ELF::Elf32_Rel*>(pRegion.start());
+  const llvm::ELF::Elf32_Rel* relTab =
+                 reinterpret_cast<const llvm::ELF::Elf32_Rel*>(pRegion.start());
 
   for (size_t idx=0; idx < entsize; ++idx) {
     uint32_t r_offset = 0x0;
