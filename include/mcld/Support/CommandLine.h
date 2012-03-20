@@ -13,8 +13,9 @@
 #endif
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
-#include "mcld/Support/FileSystem.h"
-#include "mcld/MC/MCLDDirectory.h"
+#include <mcld/Support/FileSystem.h>
+#include <mcld/MC/MCLDDirectory.h>
+#include <mcld/MC/ZOption.h>
 
 //--------------------------------------------------
 // parser<mcld::sys::fs::Path>
@@ -51,6 +52,23 @@ public:
   virtual const char *getValueName() const { return "directory"; }
   void printOptionDiff(const Option &O,
                        const mcld::MCLDDirectory &V,
+                       OptVal Default,
+                       size_t GlobalWidth) const;
+  virtual void anchor();
+};
+
+//--------------------------------------------------
+// parser<mcld::ZOption>
+//
+template<>
+class parser<mcld::ZOption> : public llvm::cl::basic_parser<mcld::ZOption>
+{
+public:
+  bool parse(Option &O, StringRef ArgName, StringRef Arg, mcld::ZOption &Val);
+
+  virtual const char *getValueName() const { return "z-option"; }
+  void printOptionDiff(const Option &O,
+                       const mcld::ZOption &V,
                        OptVal Default,
                        size_t GlobalWidth) const;
   virtual void anchor();

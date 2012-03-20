@@ -332,6 +332,13 @@ ArgSOName("soname",
           cl::desc("Set internal name of shared library"),
           cl::value_desc("name"));
 
+static cl::list<mcld::ZOption, bool, llvm::cl::parser<mcld::ZOption> >
+ArgZOptionList("z",
+               cl::ZeroOrMore,
+               cl::desc("The -z options for GNU ld compatibility."),
+               cl::value_desc("keyword"),
+               cl::Prefix);
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -575,6 +582,13 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setVerbose(ArgVerbose);
   pOption.info().options().setEntry(ArgEntry);
   pOption.info().options().setBsymbolic(ArgBsymbolic);
+
+  // add -z options
+  cl::list<mcld::ZOption>::iterator zOpt;
+  cl::list<mcld::ZOption>::iterator zOptEnd = ArgZOptionList.end();
+  for (zOpt = ArgZOptionList.begin(); zOpt != zOptEnd; ++zOpt) {
+    pOption.info().options().addZOption(*zOpt);
+  }
 
   // -----  Set up Inputs  ----- //
   // add all start-group

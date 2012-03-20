@@ -158,6 +158,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/MC/MCTargetFragment.h \
 	${INCDIR}/MC/MCFragmentRef.h \
 	${LIBDIR}/MC/MCFragmentRef.cpp \
+	${INCDIR}/MC/ZOption.h \
+	${LIBDIR}/MC/ZOption.cpp \
 	${INCDIR}/LD/LDContext.h \
 	${LIBDIR}/LD/LDContext.cpp \
 	${INCDIR}/LD/LDSection.h \
