@@ -817,6 +817,7 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
 }
 
 // R_ARM_THM_MOVT_PREL: S + A - P
+// R_ARM_THM_MOVT_BREL: S + A - B(S)
 ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
                                            const MCLDInfo& pLDInfo,
                                            ARMRelocationFactory& pParent)
@@ -829,15 +830,9 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
 
   X = S + A - P;
   X >>= 16;
-
-  // check 16-bit overflow
-  if (helper_check_signed_overflow(X, 16)) {
-    return ARMRelocationFactory::Overflow;
-  } else {
-    pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
+  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
                                                              X);
-    return ARMRelocationFactory::OK;
-  }
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_PREL31: (S + A) | T

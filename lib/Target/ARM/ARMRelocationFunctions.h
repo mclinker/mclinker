@@ -125,7 +125,7 @@ DECL_ARM_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         85, "R_ARM_MOVT_BREL"         },  \
   { &unsupport,         86, "R_ARM_MOVW_BREL"         },  \
   { &thm_movw_brel,     87, "R_ARM_THM_MOVW_BREL_NC"  },  \
-  { &unsupport,         88, "R_ARM_THM_MOVT_BREL"     },  \
+  { &thm_movt_prel,     88, "R_ARM_THM_MOVT_BREL"     },  \
   { &thm_movw_brel,     89, "R_ARM_THM_MOVW_BREL"     },  \
   { &unsupport,         90, "R_ARM_TLS_GOTDESC"       },  \
   { &unsupport,         91, "R_ARM_TLS_CALL"          },  \
