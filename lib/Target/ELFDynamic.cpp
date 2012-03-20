@@ -146,6 +146,28 @@ void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
     reserveOne(llvm::ELF::DT_RELASZ); // DT_RELASZ
     reserveOne(llvm::ELF::DT_RELAENT); // DT_RELAENT
   }
+
+  if (pLDInfo.options().hasOrigin() ||
+      pLDInfo.options().Bsymbolic() ||
+      pLDInfo.options().hasNow()) {
+    // TODO: add checks for DF_TEXTREL and DF_STATIC_TLS
+    reserveOne(llvm::ELF::DT_FLAGS); // DT_FLAGS
+  }
+
+  if (pLDInfo.options().hasNow()          ||
+      pLDInfo.options().hasLoadFltr()     ||
+      pLDInfo.options().hasOrigin()       ||
+      pLDInfo.options().hasInterPose()    ||
+      pLDInfo.options().hasNoDefaultLib() ||
+      pLDInfo.options().hasNoDump()       ||
+      pLDInfo.options().Bgroup()          ||
+      ((pLDInfo.output().type() == Output::DynObj) &&
+       (pLDInfo.options().hasNoDelete()  ||
+        pLDInfo.options().hasInitFirst() ||
+        pLDInfo.options().hasNoDLOpen()))) {
+    reserveOne(llvm::ELF::DT_FLAGS_1); // DT_FLAGS_1
+  }
+
   reserveOne(llvm::ELF::DT_NULL); // for DT_NULL
 }
 
@@ -216,6 +238,44 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
     applyOne(llvm::ELF::DT_RELASZ, pFormat.getRelaDyn().size()); // DT_RELASZ
     applyOne(llvm::ELF::DT_RELAENT, m_pEntryFactory->relaSize()); // DT_RELAENT
   }
+
+  uint64_t dt_flags = 0x0;
+  if (pInfo.options().hasOrigin())
+    dt_flags |= llvm::ELF::DF_ORIGIN;
+  if (pInfo.options().Bsymbolic())
+    dt_flags |= llvm::ELF::DF_SYMBOLIC;
+  if (pInfo.options().hasNow())
+    dt_flags |= llvm::ELF::DF_BIND_NOW;
+  // TODO: add checks for DF_TEXTREL and DF_STATIC_TLS
+  if (0x0 != dt_flags) {
+    applyOne(llvm::ELF::DT_FLAGS, dt_flags); // DT_FLAGS
+  }
+
+  uint64_t dt_flags_1 = 0x0;
+  if (pInfo.options().hasNow())
+    dt_flags_1 |= llvm::ELF::DF_1_NOW;
+  if (pInfo.options().hasLoadFltr())
+    dt_flags_1 |= llvm::ELF::DF_1_LOADFLTR;
+  if (pInfo.options().hasOrigin())
+    dt_flags_1 |= llvm::ELF::DF_1_ORIGIN;
+  if (pInfo.options().hasInterPose())
+    dt_flags_1 |= llvm::ELF::DF_1_INTERPOSE;
+  if (pInfo.options().hasNoDefaultLib())
+    dt_flags_1 |= llvm::ELF::DF_1_NODEFLIB;
+  if (pInfo.options().hasNoDump())
+    dt_flags_1 |= llvm::ELF::DF_1_NODUMP;
+  if (pInfo.options().Bgroup())
+    dt_flags_1 |= llvm::ELF::DF_1_GROUP;
+  if (pInfo.output().type() == Output::DynObj) {
+    if (pInfo.options().hasNoDelete())
+      dt_flags_1 |= llvm::ELF::DF_1_NODELETE;
+    if (pInfo.options().hasInitFirst())
+      dt_flags_1 |= llvm::ELF::DF_1_INITFIRST;
+    if (pInfo.options().hasNoDLOpen())
+      dt_flags_1 |= llvm::ELF::DF_1_NOOPEN;
+  }
+  if (0x0 != dt_flags_1)
+    applyOne(llvm::ELF::DT_FLAGS_1, dt_flags_1); // DT_FLAGS_1
 
   applyOne(llvm::ELF::DT_NULL, 0x0); // for DT_NULL
 }
