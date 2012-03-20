@@ -327,6 +327,11 @@ ArgBsymbolic("Bsymbolic",
              cl::desc("Bind references within the shared library."),
              cl::init(false));
 
+static cl::opt<bool>
+ArgBgroup("Bgroup",
+          cl::desc("Info the dynamic linker to perform lookups only inside the group."),
+          cl::init(false));
+
 static cl::opt<std::string>
 ArgSOName("soname",
           cl::desc("Set internal name of shared library"),
@@ -582,6 +587,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setVerbose(ArgVerbose);
   pOption.info().options().setEntry(ArgEntry);
   pOption.info().options().setBsymbolic(ArgBsymbolic);
+  pOption.info().options().setBgroup(ArgBgroup);
 
   // add -z options
   cl::list<mcld::ZOption>::iterator zOpt;

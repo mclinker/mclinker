@@ -18,6 +18,7 @@ GeneralOptions::GeneralOptions()
     m_bTrace(false),
     m_bVerbose(false),
     m_Bsymbolic(false),
+    m_Bgroup(false),
     m_bCombReloc(true),
     m_bDefs(false),
     m_ExecStack(Unknown),

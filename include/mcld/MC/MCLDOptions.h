@@ -76,6 +76,12 @@ public:
   bool Bsymbolic() const
   { return m_Bsymbolic; }
 
+  void setBgroup(bool pBgroup = false)
+  { m_Bgroup = pBgroup; }
+
+  bool Bgroup() const
+  { return m_Bgroup; }
+
   bool hasEntry() const
   { return !m_Entry.empty(); }
 
@@ -157,6 +163,7 @@ private:
   bool m_bTrace;
   bool m_bVerbose;
   bool m_Bsymbolic;
+  bool m_Bgroup;
   std::string m_Entry;
   /// the -z options
   bool m_bCombReloc;       // combreloc, nocombreloc
