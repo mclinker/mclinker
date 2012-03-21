@@ -1,0 +1,99 @@
+=pod
+
+=head1 NAME
+
+llvm-mcld - LLVM linker for mobile computing
+
+=head1 SYNOPSIS
+
+llvm-mcld [B<options>] I<objfile> ...
+
+=head1 DESCRIPTION
+
+B<llvm-mcld> is a link editor as GNU linker ld or Google gold linker.
+
+B<llvm-mcld> combines several object files and libraries, ties up their symbol
+references, relocates their data, and produces an output file (executable, 
+dylib or another object file).
+
+B<llvm-mcld> is desinged for supporting multiple formats on multiple target
+platforms.  This allows B<llvm-mcld> to read, combine, and produce object files
+in many different formats for different platforms
+
+Furthermore, B<llvm-mcld> leavages B<LLVM> and has the same ability as B<llc>.
+It can read not only object files ('.o') and libraries ('.so'), but also
+I<LLVM bitcode> ('bc'). It can produces not only shared objects ('.so'), but
+also assembly file ('.s') and relocatable objects ('.o').
+
+So far, B<llvm-mcld> supports B<Android> on multiple kinds of processors -
+combines B<ELF> objects for B<i386>, B<ARM> and B<Mips> platforms, and produces
+shared objects for JNI (Jave Native Interface) application. Executable files
+and incremental linking are not supported in this version.
+
+=head1 OPTIONS
+
+A frequent use of B<llvm-mcld> is to link standard Unix object files on a
+standard, supported Unix system. On such a system, to link a file "hello.o":
+ 
+	llvm-mcld -filetype=dso -o <output> /lib/crt0.o ./hello.o -lc
+
+This tells B<llvm-mcld> to produce an output file called I<output> as the
+result of linking the file F</lib/crt0.o>, F<./hello.o> and the library
+F<libc.so>, which comes from the standard searching directories. (See the
+detail of the B<-l> option below.)
+
+The other frequent use of B<llvm-mcld> is to generate standard Unix object
+file from LLVM bitcode, such as B<llc>:
+
+	llvm-mcld -filetype=obj -o <output> -dB ./hello.bc
+
+B<-dB> option specify the input LLVM bitcode. B<llvm-mcld> compiles
+F<./hello.bc>, and produce a relocatable object called I<output> as the result
+of compilation.
+
+Other B<llvm-mcld> options are as follows:
+
+=head2 Options that control the kind of output
+
+=over
+
+=item B<-filetype>=I<filetype>
+
+Control the file type of outputs. I<filetype> can be one of the list:
+
+=over 2
+
+=item I<dso>
+
+Emit a shared object ('.so', as known as I<dynamic shared library>).
+
+=item I<exe>
+
+Emit a executable file ('.exe').
+
+=item I<asm>
+
+Emit an assembly file ('.s').
+
+=item I<obj>
+
+Emit a relocatable object file ('.o). If B<-r> option is not on the command
+line, B<llvm-mcld> does not link incrementally. Instead, B<llvm-mcld> behaves
+like B<llc>, compiles LLVM bitcode and produce correponding relocatable object.
+
+=back
+
+=item B<-o> I<output>
+
+=item B<--output=>I<output>
+
+Use I<output> as the name of the result produced by B<llvm-mcld>. If this
+option is not specified, the name B<a.out> is used by default.
+
+=back
+
+=head1 SEE ALSO
+
+I<llc>(1), I<ld>(1), I<ar>(1) and the Info entries for I<binutils> and I<ld>.
+
+=cut
