@@ -574,7 +574,7 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
                                    const Layout& pLayout) const
 {
   // Update value keep in addend if we meet a section symbol
-  if(pReloc.symInfo()->type() == ResolveInfo::Section) {
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
     pReloc.setAddend(pLayout.getOutputOffset(
                      *pInputSym.fragRef()) + pReloc.addend());
   }
@@ -794,13 +794,13 @@ bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
 bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
                                            const Output& pOutput) const
 {
-  if(pSym.isUndef() && Output::Exec == pOutput.type())
+  if (pSym.isUndef() && Output::Exec == pOutput.type())
     return false;
-  if(pSym.isAbsolute())
+  if (pSym.isAbsolute())
     return false;
-  if(Output::DynObj == pOutput.type())
+  if (Output::DynObj == pOutput.type())
     return true;
-  if(pSym.isDyn() || pSym.isUndef())
+  if (pSym.isDyn() || pSym.isUndef())
     return true;
 
   return false;
@@ -814,7 +814,7 @@ void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  if( m_pGOTSymbol != NULL ) {
+  if ( m_pGOTSymbol != NULL ) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,

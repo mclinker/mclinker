@@ -104,7 +104,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 
 {
   // if symbol is dynamic or undefine or preemptible
-  if(pSym.isDyn() ||
+  if (pSym.isDyn() ||
      pSym.isUndef() ||
      pFactory.getTarget().isSymbolPreemptible(pSym, pLDInfo, pLDInfo.output()))
     return false;
@@ -133,7 +133,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       Relocation& rel_entry =
         *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      if(helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
+      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
         // Initialize got entry to target symbol address
         got_entry.setContent(pReloc.symValue());
         rel_entry.setType(llvm::ELF::R_386_RELATIVE);
@@ -235,7 +235,7 @@ void helper_DynRel(Relocation& pReloc,
   rel_entry.setType(pType);
   rel_entry.targetRef() = pReloc.targetRef();
 
-  if(pType == llvm::ELF::R_386_RELATIVE)
+  if (pType == llvm::ELF::R_386_RELATIVE)
     rel_entry.setSymInfo(0);
   else
     rel_entry.setSymInfo(rsym);
@@ -263,18 +263,18 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  if(rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
+  if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
     helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
   }
-  else if(!rsym->isLocal()) {
-    if(rsym->reserved() & X86GNULDBackend::ReservePLT) {
+  else if (!rsym->isLocal()) {
+    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       pReloc.target() = S + A;
     }
-    if(rsym->reserved() & X86GNULDBackend::ReserveRel) {
-      if(helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
+    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
@@ -331,7 +331,7 @@ X86RelocationFactory::Result got32(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
-  if(!(pReloc.symInfo()->reserved()
+  if (!(pReloc.symInfo()->reserved()
        & (X86GNULDBackend::ReserveGOT |X86GNULDBackend::GOTRel))) {
     return X86RelocationFactory::BadReloc;
   }
@@ -350,7 +350,7 @@ X86RelocationFactory::Result plt32(Relocation& pReloc,
 {
   // PLT_S depends on if there is a PLT entry.
   X86RelocationFactory::Address PLT_S;
-  if((pReloc.symInfo()->reserved() & X86GNULDBackend::ReservePLT))
+  if ((pReloc.symInfo()->reserved() & X86GNULDBackend::ReservePLT))
     PLT_S = helper_PLT(pReloc, pParent);
   else
     PLT_S = pReloc.symValue();

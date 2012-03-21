@@ -70,7 +70,7 @@ void X86GNULDBackend::doPreLayout(const Output& pOutput,
                                   MCLinker& pLinker)
 {
   // when building shared object, the .got section is needed
-  if(pOutput.type() == Output::DynObj && (NULL == m_pGOT))
+  if (pOutput.type() == Output::DynObj && (NULL == m_pGOT))
       createX86GOT(pLinker, pOutput);
 }
 
@@ -79,7 +79,7 @@ void X86GNULDBackend::doPostLayout(const Output& pOutput,
                                    MCLinker& pLinker)
 {
   // emit program headers
-  if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
+  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 }
 
@@ -110,7 +110,7 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  if( m_pGOTSymbol != NULL ) {
+  if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
@@ -198,13 +198,13 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
                                           const Output& pOutput,
                                           bool isAbsReloc) const
 {
-  if(pSym.isUndef() && (pOutput.type()==Output::Exec))
+  if (pSym.isUndef() && (pOutput.type()==Output::Exec))
     return false;
-  if(pSym.isAbsolute())
+  if (pSym.isAbsolute())
     return false;
-  if(pOutput.type()==Output::DynObj && isAbsReloc)
+  if (pOutput.type()==Output::DynObj && isAbsReloc)
     return true;
-  if(pSym.isDyn() || pSym.isUndef())
+  if (pSym.isDyn() || pSym.isUndef())
     return true;
 
   return false;
@@ -214,13 +214,13 @@ bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
                                          const MCLDInfo& pLDInfo,
                                          const Output& pOutput) const
 {
-  if(pSym.other() != ResolveInfo::Default)
+  if (pSym.other() != ResolveInfo::Default)
     return false;
 
-  if(pOutput.type() != Output::DynObj)
+  if (pOutput.type() != Output::DynObj)
     return false;
 
-  if(pLDInfo.options().Bsymbolic())
+  if (pLDInfo.options().Bsymbolic())
     return false;
 
   return true;
@@ -231,7 +231,7 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
                                    const Layout& pLayout) const
 {
   // Update value keep in addend if we meet a section symbol
-  if(pReloc.symInfo()->type() == ResolveInfo::Section) {
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
     pReloc.setAddend(pLayout.getOutputOffset(
                      *pInputSym.fragRef()) + pReloc.addend());
   }
@@ -254,9 +254,9 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if(Output::DynObj == pOutput.type()) {
+      if (Output::DynObj == pOutput.type()) {
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -267,7 +267,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOTOFF:
     case llvm::ELF::R_386_GOTPC:
       // A GOT section is needed
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
 
@@ -295,14 +295,14 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
-        if(!(rsym->reserved() & ReservePLT)){
+        if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
-          if(NULL == m_pGOT)
+          if (NULL == m_pGOT)
              createX86GOT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
-          if(NULL == m_pPLT)
+          if (NULL == m_pPLT)
             createX86PLTandRelPLT(pLinker, pOutput);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
@@ -315,10 +315,10 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if(isSymbolNeedsDynRel(*rsym, pOutput, true)) {
+      if (isSymbolNeedsDynRel(*rsym, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -329,7 +329,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOTOFF:
     case llvm::ELF::R_386_GOTPC: {
       // A GOT section is needed
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       return;
     }
@@ -338,21 +338,21 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // A PLT entry is needed when building shared library
 
       // return if we already create plt for this symbol
-      if(rsym->reserved() & ReservePLT)
+      if (rsym->reserved() & ReservePLT)
         return;
 
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
-      if(rsym->isDefine() && !rsym->isDyn() &&
+      if (rsym->isDefine() && !rsym->isDyn() &&
          !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
         return;
       }
 
       // Create .got section if it dosen't exist
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
          createX86GOT(pLinker, pOutput);
       // create .plt and .rel.plt if not exist
-      if(NULL == m_pPLT)
+      if (NULL == m_pPLT)
          createX86PLTandRelPLT(pLinker, pOutput);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
@@ -367,17 +367,17 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOT32:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if(rsym->reserved() & (ReserveGOT | GOTRel))
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createX86GOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
-      if(Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
+      if (Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -420,14 +420,14 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && NULL != m_pGOTSymbol) {
-    if(rsym == m_pGOTSymbol->resolveInfo()) {
+  if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
+    if (rsym == m_pGOTSymbol->resolveInfo()) {
       createX86GOT(pLinker, pOutput);
     }
   }
 
   // rsym is local
-  if(rsym->isLocal())
+  if (rsym->isLocal())
     scanLocalReloc(pReloc, pInputSym,  pLinker, pLDInfo, pOutput);
 
   // rsym is external

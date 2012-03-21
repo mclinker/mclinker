@@ -44,15 +44,15 @@ ARMGNULDBackend::~ARMGNULDBackend()
 {
   if (m_pRelocFactory)
     delete m_pRelocFactory;
-  if(m_pGOT)
+  if (m_pGOT)
     delete m_pGOT;
-  if(m_pPLT)
+  if (m_pPLT)
     delete m_pPLT;
-  if(m_pRelDyn)
+  if (m_pRelDyn)
     delete m_pRelDyn;
-  if(m_pRelPLT)
+  if (m_pRelPLT)
     delete m_pRelPLT;
-  if(m_pDynamic)
+  if (m_pDynamic)
     delete m_pDynamic;
 }
 
@@ -122,7 +122,7 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
                                   MCLinker& pLinker)
 {
   // when building shared object, the .got section is must.
-  if(pOutput.type() == Output::DynObj && (NULL == m_pGOT)) {
+  if (pOutput.type() == Output::DynObj && (NULL == m_pGOT)) {
       createARMGOT(pLinker, pOutput);
   }
 }
@@ -132,7 +132,7 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
                                    MCLinker& pLinker)
 {
   // emit program headers
-  if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
+  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
     emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 
   ELFFileFormat *file_format = getOutputFormat(pOutput);
@@ -191,7 +191,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
-  if( m_pGOTSymbol != NULL ) {
+  if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
@@ -279,13 +279,13 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
                                           const Output& pOutput,
                                           bool isAbsReloc) const
 {
-  if(pSym.isUndef() && (Output::Exec == pOutput.type()))
+  if (pSym.isUndef() && (Output::Exec == pOutput.type()))
     return false;
-  if(pSym.isAbsolute())
+  if (pSym.isAbsolute())
     return false;
-  if(Output::DynObj == pOutput.type() && isAbsReloc)
+  if (Output::DynObj == pOutput.type() && isAbsReloc)
     return true;
-  if(pSym.isDyn() || pSym.isUndef())
+  if (pSym.isDyn() || pSym.isUndef())
     return true;
 
   return false;
@@ -295,13 +295,13 @@ bool ARMGNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
                                           const MCLDInfo& pLDInfo,
                                           const Output& pOutput) const
 {
-  if(pSym.other() != ResolveInfo::Default)
+  if (pSym.other() != ResolveInfo::Default)
     return false;
 
-  if(Output::DynObj != pOutput.type())
+  if (Output::DynObj != pOutput.type())
     return false;
 
-  if(pLDInfo.options().Bsymbolic())
+  if (pLDInfo.options().Bsymbolic())
     return false;
 
   return true;
@@ -347,7 +347,7 @@ void ARMGNULDBackend::updateAddend(Relocation& pReloc,
                                    const Layout& pLayout) const
 {
   // Update value keep in addend if we meet a section symbol
-  if(pReloc.symInfo()->type() == ResolveInfo::Section) {
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
     pReloc.setAddend(pLayout.getOutputOffset(
                      *pInputSym.fragRef()) + pReloc.addend());
   }
@@ -375,9 +375,9 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pLDInfo, pOutput)) {
+      if (isPIC(pLDInfo, pOutput)) {
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -398,10 +398,10 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pLDInfo, pOutput)) {
+      if (isPIC(pLDInfo, pOutput)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -412,7 +412,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOTOFF32:
     case llvm::ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
@@ -425,17 +425,17 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOT_PREL: {
       // A GOT entry is needed for these relocation type.
       // return if we already create GOT for this symbol
-      if(rsym->reserved() & 0x6u)
+      if (rsym->reserved() & 0x6u)
         return;
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if(isPIC(pLDInfo, pOutput)) {
+      if (isPIC(pLDInfo, pOutput)) {
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -450,7 +450,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_BASE_PREL: {
       // FIXME: Currently we only support R_ARM_BASE_PREL against
       // symbol _GLOBAL_OFFSET_TABLE_
-      if(rsym != m_pGOTSymbol->resolveInfo()) {
+      if (rsym != m_pGOTSymbol->resolveInfo()) {
         llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
                                  llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
                                  llvm::Twine(rsym->name()) +
@@ -503,14 +503,14 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if(isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
-        if(!(rsym->reserved() & 0x8u)){
+        if (!(rsym->reserved() & 0x8u)){
           // Create .got section if it doesn't exist
-          if(NULL == m_pGOT)
+          if (NULL == m_pGOT)
             createARMGOT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
-          if(NULL == m_pPLT)
+          if (NULL == m_pPLT)
             createARMPLTandRelPLT(pLinker, pOutput);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
@@ -523,11 +523,11 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if(isSymbolNeedsDynRel(*rsym, pOutput, true)) {
+      if (isSymbolNeedsDynRel(*rsym, pOutput, true)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -539,7 +539,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOTOFF32:
     case llvm::ELF::R_ARM_GOTOFF12: {
       // A GOT section is needed
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       return;
     }
@@ -550,7 +550,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVT_BREL:
       // FIXME: Currently we only support these relocations against
       // symbol _GLOBAL_OFFSET_TABLE_
-      if(rsym != m_pGOTSymbol->resolveInfo()) {
+      if (rsym != m_pGOTSymbol->resolveInfo()) {
         llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
                                  llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
                                  llvm::Twine(rsym->name()) +
@@ -598,10 +598,10 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
-      if(isSymbolNeedsDynRel(*rsym, pOutput, false)) {
+      if (isSymbolNeedsDynRel(*rsym, pOutput, false)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
@@ -625,22 +625,22 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // A PLT entry is needed when building shared library
 
       // return if we already create plt for this symbol
-      if(rsym->reserved() & 0x8u)
+      if (rsym->reserved() & 0x8u)
         return;
 
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
-      if(rsym->isDefine() && !rsym->isDyn() &&
+      if (rsym->isDefine() && !rsym->isDyn() &&
          !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
         return;
       }
 
       // Create .got section if it doesn't exist
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
 
       // create .plt and .rel.plt if not exist
-      if(NULL == m_pPLT)
+      if (NULL == m_pPLT)
          createARMPLTandRelPLT(pLinker, pOutput);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
@@ -662,17 +662,17 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOT_PREL: {
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if(rsym->reserved() & 0x6u)
+      if (rsym->reserved() & 0x6u)
         return;
-      if(NULL == m_pGOT)
+      if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
-      if(Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
+      if (Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
-        if(NULL == m_pRelDyn)
+        if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
@@ -718,14 +718,14 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
   // is needed
-  if(NULL == m_pGOT && NULL != m_pGOTSymbol) {
-    if(rsym == m_pGOTSymbol->resolveInfo()) {
+  if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
+    if (rsym == m_pGOTSymbol->resolveInfo()) {
       createARMGOT(pLinker, pOutput);
     }
   }
 
   // rsym is local
-  if(rsym->isLocal())
+  if (rsym->isLocal())
     scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
 
   // rsym is external
