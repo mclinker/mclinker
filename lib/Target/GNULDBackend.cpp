@@ -635,7 +635,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 
 /// getSectionOrder
 unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
-                                           const LDSection& pSectHdr) const
+                                           const LDSection& pSectHdr,
+                                           const MCLDInfo& pInfo) const
 {
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
@@ -673,13 +674,18 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
       } else if (!is_write) {
         return SHO_RO;
       } else {
-        if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
-            pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
-            pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
-            &pSectHdr == &file_format->getCtors() ||
-            &pSectHdr == &file_format->getDtors())
-          return SHO_RELRO;
-
+        if (pInfo.options().hasRelro()) {
+          if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
+              pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
+              pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
+              &pSectHdr == &file_format->getCtors() ||
+              &pSectHdr == &file_format->getDtors() ||
+              &pSectHdr == &file_format->getJCR() ||
+              0 == pSectHdr.name().compare(".data.rel.ro"))
+            return SHO_RELRO;
+          if (0 == pSectHdr.name().compare(".data.rel.ro.local"))
+            return SHO_RELRO_LOCAL;
+        }
         return SHO_DATA;
       }
 
@@ -699,7 +705,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
 
     // get the order from target for target specific sections
     case LDFileFormat::Target:
-      return getTargetSectionOrder(pOutput, pSectHdr);
+      return getTargetSectionOrder(pOutput, pSectHdr, pInfo);
 
     // handle .interp
     case LDFileFormat::Note:
@@ -788,10 +794,9 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 }
 
 /// emitProgramHdrs - emit ELF program headers
-void GNULDBackend::emitProgramHdrs(Output& pOutput)
+void GNULDBackend::emitProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 {
-  assert(NULL != pOutput.context());
-  createProgramHdrs(*pOutput.context());
+  createProgramHdrs(pOutput, pInfo);
 
   if (32 == bitclass())
     writeELF32ProgramHdrs(pOutput);
@@ -800,25 +805,55 @@ void GNULDBackend::emitProgramHdrs(Output& pOutput)
 }
 
 /// createProgramHdrs - base on output sections to create the program headers
-void GNULDBackend::createProgramHdrs(LDContext& pContext)
+void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 {
+  assert(pOutput.hasContext());
   // make PT_PHDR
   m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
-  LDSection* interp = pContext.getSection(".interp");
+  LDSection* interp = pOutput.context()->getSection(".interp");
   if (NULL != interp) {
     ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
     interp_seg->addSection(interp);
-    interp_seg->setAlign(bitclass() / 8);
+    interp_seg->setAlign(interp->align());
+  }
+
+  if (pInfo.options().hasRelro()) {
+    // if -z relro is given, we need to adjust sections' offset again, and let
+    // PT_GNU_RELRO end on a common page boundary
+    LDContext::SectionTable& sect_table = pOutput.context()->getSectionTable();
+    size_t idx = 0;
+    while (idx < pOutput.context()->numOfSections()) {
+      // find the first non-relro section, and align its offset to a page
+      // boundary
+      if (getSectionOrder(pOutput, *sect_table[idx], pInfo) > SHO_RELRO_LAST) {
+        uint64_t offset = sect_table[idx]->offset();
+        alignAddress(offset, pagesize());
+        sect_table[idx]->setOffset(offset);
+        ++idx;
+        break;
+      }
+      ++idx;
+    }
+    while (idx < pOutput.context()->numOfSections()) {
+      // adjust the remaining sections' offset
+      uint64_t offset = sect_table[idx - 1]->offset();
+      if (LDFileFormat::BSS != sect_table[idx - 1]->kind())
+        offset += sect_table[idx - 1]->size();
+      alignAddress(offset, sect_table[idx]->align());
+      sect_table[idx]->setOffset(offset);
+      ++idx;
+    }
   }
 
   uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
   uint64_t padding = 0;
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
-  LDContext::sect_iterator sect, sect_end = pContext.sectEnd();
-  for (sect = pContext.sectBegin(); sect != sect_end; ++sect) {
+  LDContext::sect_iterator sect, sect_end = pOutput.context()->sectEnd();
+  for (sect = pOutput.context()->sectBegin(); sect != sect_end; ++sect) {
+
     if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
         LDFileFormat::Null != (*sect)->kind())
       continue;
@@ -838,8 +873,9 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
     }
 
     assert(NULL != load_seg);
-    load_seg->addSection(*sect);
-    load_seg->updateFlag(cur_seg_flag);
+    load_seg->addSection((*sect));
+    if (cur_seg_flag != prev_seg_flag)
+      load_seg->updateFlag(cur_seg_flag);
 
     // FIXME: set section's vma
     // need to handle start vma for user-defined one or for executable.
@@ -849,12 +885,26 @@ void GNULDBackend::createProgramHdrs(LDContext& pContext)
   }
 
   // make PT_DYNAMIC
-  LDSection* dynamic = pContext.getSection(".dynamic");
+  LDSection* dynamic = pOutput.context()->getSection(".dynamic");
   if (NULL != dynamic) {
     ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC);
     dyn_seg->setFlag(llvm::ELF::PF_R | llvm::ELF::PF_W);
     dyn_seg->addSection(dynamic);
-    dyn_seg->setAlign(bitclass() / 8);
+    dyn_seg->setAlign(dynamic->align());
+  }
+
+  if (pInfo.options().hasRelro()) {
+    // make PT_GNU_RELRO
+    ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
+    for (LDContext::sect_iterator sect = pOutput.context()->sectBegin();
+         sect != pOutput.context()->sectEnd(); ++sect) {
+      unsigned int order = getSectionOrder(pOutput, **sect, pInfo);
+      if (SHO_RELRO_LOCAL == order ||
+          SHO_RELRO == order ||
+          SHO_RELRO_LAST == order) {
+        relro_seg->addSection(*sect);
+      }
+    }
   }
 
   // update segment info

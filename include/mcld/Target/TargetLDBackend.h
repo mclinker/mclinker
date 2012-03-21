@@ -113,7 +113,8 @@ public:
 
   /// computeSectionOrder - compute the layout order of the given section
   virtual unsigned int getSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr) const = 0;
+                                       const LDSection& pSectHdr,
+                                       const MCLDInfo& pInfo) const = 0;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,

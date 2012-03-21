@@ -516,7 +516,8 @@ uint64_t Layout::getOutputOffset(const MCFragmentRef& pFragRef) const
 }
 
 void Layout::sortSectionOrder(const Output& pOutput,
-                              const TargetLDBackend& pBackend)
+                              const TargetLDBackend& pBackend,
+                              const MCLDInfo& pInfo)
 {
   typedef std::pair<LDSection*, unsigned int> SectOrder;
   typedef std::vector<SectOrder > SectListTy;
@@ -525,7 +526,7 @@ void Layout::sortSectionOrder(const Output& pOutput,
   for (size_t index = 0; index < m_SectionOrder.size(); ++index)
     sect_list.push_back(std::make_pair(
                     m_SectionOrder[index],
-                    pBackend.getSectionOrder(pOutput, *m_SectionOrder[index])));
+                    pBackend.getSectionOrder(pOutput, *m_SectionOrder[index], pInfo)));
 
   // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
@@ -545,7 +546,9 @@ void Layout::sortSectionOrder(const Output& pOutput,
   }
 }
 
-bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
+bool Layout::layout(Output& pOutput,
+                    const TargetLDBackend& pBackend,
+                    const MCLDInfo& pInfo)
 {
   // determine what sections in output context will go into final output, and
   // push the needed sections into m_SectionOrder for later processing
@@ -630,7 +633,7 @@ bool Layout::layout(Output& pOutput, const TargetLDBackend& pBackend)
   }
 
   // perform sorting on m_SectionOrder to get a ordering for final layout
-  sortSectionOrder(pOutput, pBackend);
+  sortSectionOrder(pOutput, pBackend, pInfo);
 
   // Backend defines the section start offset for section 1.
   uint64_t offset = pBackend.sectionStartOffset();

@@ -182,7 +182,8 @@ public:
   ///
   /// @see getTargetSectionOrder
   virtual unsigned int getSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr) const;
+                                       const LDSection& pSectHdr,
+                                       const MCLDInfo& pInfo) const;
 
   /// getTargetSectionOrder - compute the layout order of target section
   /// If the target favors certain order for the given gSectHdr, please
@@ -191,13 +192,16 @@ public:
   /// By default, this function returns the maximun order, and pSectHdr
   /// will be the last section to be laid out.
   virtual unsigned int
-  getTargetSectionOrder(const Output& pOutput, const LDSection& pSectHdr) const
+  getTargetSectionOrder(const Output& pOutput,
+                        const LDSection& pSectHdr,
+                        const MCLDInfo& pInfo) const
   { return (unsigned int)-1; }
 
   /// emitProgramHdrs - emit ELF program headers
   /// if the target favors other ways to emit program header, please override
   /// this function
-  virtual void emitProgramHdrs(Output& pOutput);
+  virtual void emitProgramHdrs(Output& pOutput,
+                               const MCLDInfo& pInfo);
 
   /// numOfSegments - return the number of segments
   /// if the target favors other ways to emit program header, please override
@@ -215,7 +219,8 @@ public:
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers
-  void createProgramHdrs(LDContext& pContext);
+  void createProgramHdrs(Output& pOutput,
+                         const MCLDInfo& pInfo);
 
   /// writeELF32ProgramHdrs - write out the ELF32 program headers
   void writeELF32ProgramHdrs(Output& pOutput);

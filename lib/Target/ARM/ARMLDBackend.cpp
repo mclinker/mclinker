@@ -133,7 +133,7 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
 {
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
-    emitProgramHdrs(pLinker.getLDInfo().output());
+    emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 
   ELFFileFormat *file_format = getOutputFormat(pOutput);
 
@@ -960,12 +960,16 @@ const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
 
 unsigned int
 ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr) const
+                                       const LDSection& pSectHdr,
+                                       const MCLDInfo& pInfo) const
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  if (&pSectHdr == &file_format->getGOT())
+  if (&pSectHdr == &file_format->getGOT()) {
+    if (pInfo.options().hasNow())
+      return SHO_RELRO_LAST;
     return SHO_DATA;
+  }
 
   if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;

@@ -174,7 +174,8 @@ public:
 
   /// getTargetSectionOrder - compute the layout order of X86 target sections
   unsigned int getTargetSectionOrder(const Output& pOutput,
-                                     const LDSection& pSectHdr) const;
+                                     const LDSection& pSectHdr,
+                                     const MCLDInfo& pInfo) const;
 
   /// finalizeSymbol - finalize the symbol value
   /// If the symbol's reserved field is not zero, MCLinker will call back this

@@ -18,6 +18,7 @@
 #include <mcld/MC/MCFragmentRef.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <map>
 
 namespace mcld
@@ -112,7 +113,7 @@ public:
   const LDSection* getOutputLDSection(const llvm::MCFragment& pFrag) const;
 
   // -----  modifiers  ----- //
-  bool layout(Output& pOutput, const TargetLDBackend& pBackend);
+  bool layout(Output& pOutput, const TargetLDBackend& pBackend, const MCLDInfo& pInfo);
 
   /// addInputRange
   void addInputRange(const llvm::MCSectionData& pSD,
@@ -252,7 +253,8 @@ private:
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering
   void sortSectionOrder(const Output& pOutput,
-                        const TargetLDBackend& pBackend);
+                        const TargetLDBackend& pBackend,
+                        const MCLDInfo& pInfo);
 
 private:
   /// a vector to describe the order of sections

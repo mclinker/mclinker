@@ -80,7 +80,7 @@ void X86GNULDBackend::doPostLayout(const Output& pOutput,
 {
   // emit program headers
   if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
-    emitProgramHdrs(pLinker.getLDInfo().output());
+    emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -555,17 +555,22 @@ const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 
 unsigned int
 X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr) const
+                                       const LDSection& pSectHdr,
+                                       const MCLDInfo& pInfo) const
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  // FIXME: if command line option, "-z now", is given, we can let the order of
-  // .got and .got.plt be the same as RELRO sections
-  if (&pSectHdr == &file_format->getGOT())
+  if (&pSectHdr == &file_format->getGOT()) {
+    if (pInfo.options().hasNow())
+      return SHO_RELRO;
     return SHO_RELRO_LAST;
+  }
 
-  if (&pSectHdr == &file_format->getGOTPLT())
+  if (&pSectHdr == &file_format->getGOTPLT()) {
+    if (pInfo.options().hasNow())
+      return SHO_RELRO;
     return SHO_NON_RELRO_FIRST;
+  }
 
   if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;

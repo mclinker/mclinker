@@ -193,7 +193,7 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
 {
   // emit program headers
   if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
-    emitProgramHdrs(pLinker.getLDInfo().output());
+    emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -445,7 +445,8 @@ const OutputRelocSection& MipsGNULDBackend::getRelDyn() const
 
 unsigned int
 MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
-                                        const LDSection& pSectHdr) const
+                                        const LDSection& pSectHdr,
+                                        const MCLDInfo& pInfo) const
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
