@@ -101,6 +101,11 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
+bool X86GNULDBackend::isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const
+{
+  return (pOutput.type() == Output::DynObj);
+}
+
 void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
@@ -195,6 +200,7 @@ bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
 }
 
 bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                                          const MCLDInfo& pLDInfo,
                                           const Output& pOutput,
                                           bool isAbsReloc) const
 {
@@ -202,9 +208,14 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
     return false;
   if (pSym.isAbsolute())
     return false;
-  if (pOutput.type()==Output::DynObj && isAbsReloc)
+  if (isPIC(pLDInfo, pOutput) && isAbsReloc)
     return true;
-  if (pSym.isDyn() || pSym.isUndef())
+  if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
+    return false;
+  if (!isPIC(pLDInfo, pOutput) && (pSym.reserved() & ReservePLT))
+    return false;
+  if (pSym.isDyn() || pSym.isUndef() ||
+      isSymbolPreemptible(pSym, pLDInfo, pOutput))
     return true;
 
   return false;
@@ -254,7 +265,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (Output::DynObj == pOutput.type()) {
+      if (isPIC(pLDInfo, pOutput)) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
@@ -315,7 +326,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (isSymbolNeedsDynRel(*rsym, pOutput, true)) {
+      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)

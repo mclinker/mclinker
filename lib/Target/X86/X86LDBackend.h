@@ -191,6 +191,8 @@ public:
                            const MCLDInfo& pLDInfo,
                            const Output& pOutput) const;
 
+  bool isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const;
+
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
@@ -209,6 +211,7 @@ private:
                         const Output& pOutput) const;
 
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                           const MCLDInfo& pLDInfo,
                            const Output& pOutput,
                            bool isAbsReloc) const;
 

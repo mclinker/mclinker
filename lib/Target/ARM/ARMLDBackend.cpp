@@ -276,6 +276,7 @@ bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
 }
 
 bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                                          const MCLDInfo& pLDInfo,
                                           const Output& pOutput,
                                           bool isAbsReloc) const
 {
@@ -283,9 +284,14 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
     return false;
   if (pSym.isAbsolute())
     return false;
-  if (Output::DynObj == pOutput.type() && isAbsReloc)
+  if (isPIC(pLDInfo, pOutput) && isAbsReloc)
     return true;
-  if (pSym.isDyn() || pSym.isUndef())
+  if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
+    return false;
+  if (!isPIC(pLDInfo, pOutput) && (pSym.reserved() & ReservePLT))
+    return false;
+  if (pSym.isDyn() || pSym.isUndef() ||
+      isSymbolPreemptible(pSym, pLDInfo, pOutput))
     return true;
 
   return false;
@@ -523,7 +529,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (isSymbolNeedsDynRel(*rsym, pOutput, true)) {
+      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, true)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
@@ -598,7 +604,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
-      if (isSymbolNeedsDynRel(*rsym, pOutput, false)) {
+      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, false)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)

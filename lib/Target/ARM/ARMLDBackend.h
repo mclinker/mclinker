@@ -227,6 +227,7 @@ private:
                         const Output& pOutput) const;
 
   bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
+                           const MCLDInfo& pLDInfo,
                            const Output& pOutput,
                            bool isAbsReloc) const;
 
