@@ -19,7 +19,8 @@ ELFSegment::ELFSegment(uint32_t pType,
                        uint64_t pPaddr,
                        uint64_t pFilesz,
                        uint64_t pMemsz,
-                       uint64_t pAlign)
+                       uint64_t pAlign,
+                       uint64_t pMaxSectAlign)
   : m_Type(pType),
     m_Flag(pFlag),
     m_Offset(pOffset),
@@ -27,7 +28,8 @@ ELFSegment::ELFSegment(uint32_t pType,
     m_Paddr(pPaddr),
     m_Filesz(pFilesz),
     m_Memsz(pMemsz),
-    m_Align(pAlign) {
+    m_Align(pAlign),
+    m_MaxSectionAlign(pMaxSectAlign) {
 }
 
 ELFSegment::~ELFSegment()

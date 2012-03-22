@@ -816,7 +816,6 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   if (NULL != interp) {
     ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
     interp_seg->addSection(interp);
-    interp_seg->setAlign(interp->align());
   }
 
   if (pInfo.options().hasRelro()) {
@@ -890,7 +889,6 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC);
     dyn_seg->setFlag(llvm::ELF::PF_R | llvm::ELF::PF_W);
     dyn_seg->addSection(dynamic);
-    dyn_seg->setAlign(dynamic->align());
   }
 
   if (pInfo.options().hasRelro()) {
