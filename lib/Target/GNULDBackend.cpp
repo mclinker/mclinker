@@ -17,6 +17,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/MC/MCLinker.h>
 #include <string>
 #include <cstring>
 #include <cassert>
@@ -793,17 +794,6 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
    return entry.getEntry()->value();
 }
 
-/// emitProgramHdrs - emit ELF program headers
-void GNULDBackend::emitProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
-{
-  createProgramHdrs(pOutput, pInfo);
-
-  if (32 == bitclass())
-    writeELF32ProgramHdrs(pOutput);
-  else
-    writeELF64ProgramHdrs(pOutput);
-}
-
 /// createProgramHdrs - base on output sections to create the program headers
 void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 {
@@ -1018,7 +1008,19 @@ void GNULDBackend::postLayout(const Output& pOutput,
                               const MCLDInfo& pInfo,
                               MCLinker& pLinker)
 {
-  // post layout target first
+  // 1. emit program headers
+  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
+    // 1.1 create program headers
+    createProgramHdrs(pLinker.getLDInfo().output(), pInfo);
+
+    // 1.2 write out program headers
+    if (32 == bitclass())
+      writeELF32ProgramHdrs(pLinker.getLDInfo().output());
+    else
+      writeELF64ProgramHdrs(pLinker.getLDInfo().output());
+  }
+
+  // 2. target specific post layout
   doPostLayout(pOutput, pInfo, pLinker);
 }
 

@@ -191,9 +191,6 @@ void MipsGNULDBackend::doPostLayout(const Output& pOutput,
                                     const MCLDInfo& pInfo,
                                     MCLinker& pLinker)
 {
-  // emit program headers
-  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec)
-    emitProgramHdrs(pLinker.getLDInfo().output(), pInfo);
 }
 
 /// dynamic - the dynamic section of the target machine.

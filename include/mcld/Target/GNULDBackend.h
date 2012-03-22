@@ -197,12 +197,6 @@ public:
                         const MCLDInfo& pInfo) const
   { return (unsigned int)-1; }
 
-  /// emitProgramHdrs - emit ELF program headers
-  /// if the target favors other ways to emit program header, please override
-  /// this function
-  virtual void emitProgramHdrs(Output& pOutput,
-                               const MCLDInfo& pInfo);
-
   /// numOfSegments - return the number of segments
   /// if the target favors other ways to emit program header, please override
   /// this function
