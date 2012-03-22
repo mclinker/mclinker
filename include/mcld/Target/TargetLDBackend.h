@@ -105,8 +105,11 @@ public:
   /// bit class. the bit length of the target machine, 32 or 64 **/
   virtual unsigned int bitclass() const = 0;
 
-  /// the page size of the target machine
-  virtual unsigned int pagesize() const = 0;
+  /// the common page size of the target machine
+  virtual uint64_t commonPageSize(const MCLDInfo& pInfo) const = 0;
+
+  /// the abi page size of the target machine
+  virtual uint64_t abiPageSize(const MCLDInfo& pInfo) const = 0;
 
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;

@@ -828,7 +828,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       // boundary
       if (getSectionOrder(pOutput, *sect_table[idx], pInfo) > SHO_RELRO_LAST) {
         uint64_t offset = sect_table[idx]->offset();
-        alignAddress(offset, pagesize());
+        alignAddress(offset, commonPageSize(pInfo));
         sect_table[idx]->setOffset(offset);
         ++idx;
         break;
@@ -863,12 +863,12 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
       load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
-      load_seg->setAlign(pagesize());
+      load_seg->setAlign(commonPageSize(pInfo));
 
       // check if this segment needs padding
       padding = 0;
-      if (((*sect)->offset() & (load_seg->align() - 1)) != 0)
-        padding = load_seg->align();
+      if (((*sect)->offset() & (abiPageSize(pInfo) - 1)) != 0)
+        padding = abiPageSize(pInfo);
     }
 
     assert(NULL != load_seg);
@@ -1066,4 +1066,24 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
       return true;
 
   return false;
+}
+
+/// commonPageSize - the common page size of the target machine.
+/// @ref gold linker: target.h:135
+uint64_t GNULDBackend::commonPageSize(const MCLDInfo& pInfo) const
+{
+  if (pInfo.options().commPageSize() > 0)
+    return std::min(pInfo.options().commPageSize(), abiPageSize(pInfo));
+  else
+    return std::min(static_cast<uint64_t>(0x1000), abiPageSize(pInfo));
+}
+
+/// abiPageSize - the abi page size of the target machine.
+/// @ref gold linker: target.h:125
+uint64_t GNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
+{
+  if (pInfo.options().maxPageSize() > 0)
+    return pInfo.options().maxPageSize();
+  else
+    return static_cast<uint64_t>(0x1000);
 }

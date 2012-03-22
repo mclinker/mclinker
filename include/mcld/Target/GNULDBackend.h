@@ -209,10 +209,14 @@ public:
   virtual unsigned int numOfSegments() const
   { return m_ELFSegmentTable.size(); }
 
-  /// pagesize - the page size of the target machine, we set it to 4K here.
-  /// If target favors tht different size of page, please override this function
-  virtual unsigned int pagesize() const
-  { return 0x1000; }
+  /// commonPageSize - the common page size of the target machine, and we set it
+  /// to 4K here. If target favors the different size, please override this
+  /// function
+  virtual uint64_t commonPageSize(const MCLDInfo& pInfo) const;
+
+  /// abiPageSize - the abi page size of the target machine, and we set it to 4K
+  /// here. If target favors the different size, please override this function
+  virtual uint64_t abiPageSize(const MCLDInfo& pInfo) const;
 
   /// getSymbolIdx - get the symbol index of ouput symbol table
   size_t getSymbolIdx(LDSymbol* pSymbol) const;
