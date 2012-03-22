@@ -53,34 +53,32 @@ public:
   const_sect_iterator sectEnd() const
   { return m_SectionList.end(); }
 
-  const LDSection* getFirstSection()
+  LDSection* getFirstSection()
   {
-    if (0 == m_SectionList.size())
+    if (0 == numOfSections())
       return NULL;
     return m_SectionList[0];
   }
 
-  const LDSection* getLastSection()
+  LDSection* getLastSection()
   {
-    size_t size = m_SectionList.size();
-    if (0 == size)
+    if (0 == numOfSections())
       return NULL;
-    return m_SectionList[size - 1];
+    return m_SectionList[numOfSections() - 1];
   }
 
   const LDSection* getFirstSection() const
   {
-    if (0 == m_SectionList.size())
+    if (0 == numOfSections())
       return NULL;
     return m_SectionList[0];
   }
 
   const LDSection* getLastSection() const
   {
-    size_t size = m_SectionList.size();
-    if (0 == size)
+    if (0 == numOfSections())
       return NULL;
-    return m_SectionList[size - 1];
+    return m_SectionList[numOfSections() - 1];
   }
 
   ///  -----  observers  -----  ///
