@@ -25,10 +25,10 @@ ELFSegmentFactory::~ELFSegmentFactory()
 /// produce - produce an empty ELF segment information.
 /// this function will create an ELF segment
 /// @param pType - p_type in ELF program header
-ELFSegment* ELFSegmentFactory::produce(uint32_t pType)
+ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag)
 {
   ELFSegment* segment = allocate();
-  new (segment) ELFSegment(pType);
+  new (segment) ELFSegment(pType, pFlag);
   return segment;
 }
 

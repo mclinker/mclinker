@@ -31,7 +31,7 @@ public:
   /// produce - produce an empty ELF segment information.
   /// this function will create an ELF segment
   /// @param pType - p_type in ELF program header
-  ELFSegment* produce(uint32_t pType);
+  ELFSegment* produce(uint32_t pType, uint32_t pFlag = llvm::ELF::PF_R);
 };
 
 } // namespace of mcld

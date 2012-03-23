@@ -876,8 +876,9 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   // make PT_DYNAMIC
   LDSection* dynamic = pOutput.context()->getSection(".dynamic");
   if (NULL != dynamic) {
-    ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC);
-    dyn_seg->setFlag(llvm::ELF::PF_R | llvm::ELF::PF_W);
+    ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC,
+                                                    llvm::ELF::PF_R |
+                                                    llvm::ELF::PF_W);
     dyn_seg->addSection(dynamic);
   }
 
