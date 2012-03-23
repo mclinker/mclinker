@@ -36,7 +36,6 @@ using namespace llvm;
 enum CodeGenFileType {
   CGFT_ASMFile,
   CGFT_OBJFile,
-  CGFT_ARCFile,
   CGFT_DSOFile,
   CGFT_EXEFile,
   CGFT_NULLFile

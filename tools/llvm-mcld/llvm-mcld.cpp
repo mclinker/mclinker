@@ -129,8 +129,6 @@ FileType("filetype", cl::init(mcld::CGFT_EXEFile),
                   "Emit an assembly ('.s') file"),
        clEnumValN(mcld::CGFT_OBJFile, "obj",
                   "Emit a relocatable object ('.o') file"),
-       clEnumValN(mcld::CGFT_ARCFile, "arc",
-                  "Emit an archive ('.a') file"),
        clEnumValN(mcld::CGFT_DSOFile, "dso",
                   "Emit an dynamic shared object ('.so') file"),
        clEnumValN(mcld::CGFT_EXEFile, "exe",
@@ -512,9 +510,6 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
         else
          pOutputFilename += ".so";
         break;
-      case mcld::CGFT_ARCFile:
-         pOutputFilename += ".a";
-        break;
       case mcld::CGFT_EXEFile:
       case mcld::CGFT_NULLFile:
         // do nothing
@@ -531,7 +526,6 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
   default: assert(0 && "Unknown file type");
   case mcld::CGFT_ASMFile:
     break;
-  case mcld::CGFT_ARCFile:
   case mcld::CGFT_OBJFile:
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:

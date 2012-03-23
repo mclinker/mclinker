@@ -231,10 +231,6 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     pPM.add(createGCInfoDeleter()); // not in addPassesToMC
     break;
   }
-  case CGFT_ARCFile: {
-    assert(0 && "Output to archive file has not been supported yet!");
-    break;
-  }
   case CGFT_EXEFile: {
     if (pLinkerOpt == NULL)
       return true;
