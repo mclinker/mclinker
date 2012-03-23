@@ -995,6 +995,60 @@ void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
   }
 }
 
+/// createGNUStackInfo - create an output GNU stack section or segment if needed
+/// @ref gold linker: layout.cc:2608
+void GNULDBackend::createGNUStackInfo(const Output& pOutput,
+                                      const MCLDInfo& pInfo,
+                                      MCLinker& pLinker)
+{
+  uint32_t flag = 0x0;
+  if (pInfo.options().hasStackSet()) {
+    // 1. check the command line option (-z execstack or -z noexecstack)
+    if (pInfo.options().hasExecStack())
+      flag = llvm::ELF::SHF_EXECINSTR;
+  } else {
+    // 2. check the stack info from the input objects
+    size_t object_count = 0, stack_note_count = 0;
+    mcld::InputTree::const_bfs_iterator input, inEnd = pInfo.inputs().bfs_end();
+    for (input=pInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+      if ((*input)->type() == Input::Object) {
+        ++object_count;
+        const LDSection* sect = (*input)->context()->getSection(
+                                                             ".note.GNU-stack");
+        if (NULL != sect) {
+          ++stack_note_count;
+          // 2.1 found a stack note that is set as executable
+          if (0 != (llvm::ELF::SHF_EXECINSTR & sect->flag())) {
+            flag = llvm::ELF::SHF_EXECINSTR;
+            break;
+          }
+        }
+      }
+    }
+
+    // 2.2 there are no stack note sections in all input objects
+    if (0 == stack_note_count)
+      return;
+
+    // 2.3 a special case. Use the target default to decide if the stack should
+    //     be executable
+    if (llvm::ELF::SHF_EXECINSTR != flag && object_count != stack_note_count)
+      if (isDefaultExecStack())
+        flag = llvm::ELF::SHF_EXECINSTR;
+  }
+
+  if (pOutput.type() != Output::Object)
+    m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_STACK,
+                              llvm::ELF::PF_R |
+                              llvm::ELF::PF_W |
+                              getSegmentFlag(flag));
+  else
+    pLinker.getOrCreateOutputSectHdr(".note.GNU-stack",
+                                     LDFileFormat::Note,
+                                     llvm::ELF::SHT_PROGBITS,
+                                     flag);
+}
+
 /// preLayout - Backend can do any needed modification before layout
 void GNULDBackend::preLayout(const Output& pOutput,
                              const MCLDInfo& pLDInfo,
@@ -1010,11 +1064,16 @@ void GNULDBackend::postLayout(const Output& pOutput,
                               MCLinker& pLinker)
 {
   // 1. emit program headers
-  if (pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
+  if (pOutput.type() != Output::Object) {
     // 1.1 create program headers
     createProgramHdrs(pLinker.getLDInfo().output(), pInfo);
+  }
 
-    // 1.2 write out program headers
+    // 1.2 create special GNU Stack note section or segment
+  createGNUStackInfo(pOutput, pInfo, pLinker);
+
+  if (pOutput.type() != Output::Object) {
+    // 1.3 write out program headers
     if (32 == bitclass())
       writeELF32ProgramHdrs(pLinker.getLDInfo().output());
     else

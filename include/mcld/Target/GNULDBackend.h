@@ -215,6 +215,11 @@ public:
   /// getSymbolIdx - get the symbol index of ouput symbol table
   size_t getSymbolIdx(LDSymbol* pSymbol) const;
 
+  /// isDefaultExecStack - target should specify whether the stack is default
+  /// executable. If target favors another choice, please override this function
+  virtual bool isDefaultExecStack() const
+  { return true; }
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Output& pOutput,
@@ -237,6 +242,11 @@ private:
       flag |= llvm::ELF::PF_X;
     return flag;
   }
+
+  /// createGNUStackInfo - create an output GNU stack section or segment if needed
+  void createGNUStackInfo(const Output& pOutput,
+                          const MCLDInfo& pInfo,
+                          MCLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(const Output& pOutput,
