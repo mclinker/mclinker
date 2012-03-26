@@ -501,6 +501,12 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
       addralign = (*com_sym)->value();
   }
 
+  // If symbol_list is emptyCommons, *com_sym will be 0.
+  // We need to set com_sym to localBegin() to avoid seg fault at
+  // (*com_sym)->type().
+  if (symbol_list.emptyCommons())
+    com_sym = symbol_list.localBegin();
+
   // FIXME: If the order of common symbols is defined, then sort common symbols
   // com_sym = symbol_list.commonBegin();
   // std::sort(com_sym, com_end, some kind of order);
