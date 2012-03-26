@@ -309,6 +309,103 @@ bool ARMGNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
   return true;
 }
 
+bool ARMGNULDBackend::needCopyReloc(const Layout& pLayout,
+                                    const Relocation& pReloc,
+                                    const ResolveInfo& pSym,
+                                    const MCLDInfo& pLDInfo,
+                                    const Output& pOutput) const
+{
+  // only the reference from dynamic executable to non-function symbol in
+  // the dynamic objects may need copy relocation
+  if (isPIC(pLDInfo, pOutput) ||
+      !pSym.isDyn() ||
+      pSym.type() == ResolveInfo::Function ||
+      pSym.size() == 0)
+    return false;
+
+  // check if the option -z nocopyreloc is given
+  if (pLDInfo.options().hasNoCopyReloc())
+    return false;
+
+  // TODO: Is this check necessary?
+  // if relocation target place is readonly, a copy relocation is needed
+  if ((pLayout.getOutputLDSection(*pReloc.targetRef().frag())->flag() &
+      llvm::ELF::SHF_WRITE) == 0)
+    return true;
+
+  return false;
+}
+
+void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
+{
+  bool exist;
+  Relocation& rel_entry = *m_pRelDyn->getEntry(pSym, false, exist);
+  rel_entry.setType(llvm::ELF::R_ARM_COPY);
+  assert(pSym.outSymbol()->hasFragRef());
+  rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
+  rel_entry.setSymInfo(&pSym);
+}
+
+LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
+                                                    const ResolveInfo& pSym)
+{
+  // For a symbol needing copy relocation, define a copy symbol in the BSS
+  // section and all other reference to this symbol should refer to this
+  // copy.
+
+  // get or create corresponding BSS LDSection
+  LDSection* bss_sect_hdr = NULL;
+  if (ResolveInfo::ThreadLocal == pSym.type()) {
+    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(
+                                   ".tbss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+  }
+  else {
+    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(".bss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+  }
+
+  // get or create corresponding BSS MCSectionData
+  assert(NULL != bss_sect_hdr);
+  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(
+                                     *bss_sect_hdr);
+
+  // Determine the alignment by the symbol value
+  // FIXME: here we use the largest alignment
+  uint32_t addralign = bitclass() / 8;
+
+  // allocate space in BSS for the copy symbol
+  uint64_t offset = bss_sect_hdr->size();
+  llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, pSym.size());
+  uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                     bss_section,
+                                                     addralign);
+  bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
+
+  // change symbol binding to Global if it's a weak symbol
+  ResolveInfo::Binding binding = (ResolveInfo::Binding)pSym.binding();
+  if (binding == ResolveInfo::Weak)
+    binding = ResolveInfo::Global;
+
+  // Define the copy symbol in the bss section and resolve it
+  LDSymbol* cpy_sym = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+                      pSym.name(),
+                      false,
+                      (ResolveInfo::Type)pSym.type(),
+                      ResolveInfo::Define,
+                      binding,
+                      pSym.size(),  // size
+                      0x0,          // value
+                      pLinker.getLayout().getFragmentRef(*frag, 0x0),
+                      (ResolveInfo::Visibility)pSym.other());
+
+  return *cpy_sym;
+}
+
 /// checkValidReloc - When we attempt to generate a dynamic relocation for
 /// ouput file, check if the relocation is supported by dynamic linker.
 void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
@@ -378,7 +475,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
       if (isPIC(pLDInfo, pOutput)) {
-        // create .rel.dyn section if not exist
+        //create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
@@ -526,14 +623,21 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, true)) {
-        checkValidReloc(pReloc, pLDInfo, pOutput);
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | 0x1u);
+        if (needCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+                          pOutput)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          checkValidReloc(pReloc, pLDInfo, pOutput);
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | 0x1u);
+        }
       }
       return;
     }
@@ -601,13 +705,21 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
       if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, false)) {
-        checkValidReloc(pReloc, pLDInfo, pOutput);
+        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | 0x1u);
+        if (needCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+                          pOutput)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          checkValidReloc(pReloc, pLDInfo, pOutput);
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | 0x1u);
+        }
       }
       return;
     }

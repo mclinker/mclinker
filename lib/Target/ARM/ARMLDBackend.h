@@ -231,10 +231,20 @@ private:
                            const Output& pOutput,
                            bool isAbsReloc) const;
 
+  bool needCopyReloc(const Layout& pLayout,
+                     const Relocation& pReloc,
+                     const ResolveInfo& pSym,
+                     const MCLDInfo& pLDInfo,
+                     const Output& pOutput) const;
+
+  void addCopyReloc(ResolveInfo& pSym);
 
   void checkValidReloc(Relocation& pReloc,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput) const;
+
+  LDSymbol& defineSymbolforCopyReloc(MCLinker& pLinker,
+                                     const ResolveInfo& pSym);
 
   /// updateAddend - update addend value of the relocation if the
   /// the target symbol is a section symbol. Addend is the offset
