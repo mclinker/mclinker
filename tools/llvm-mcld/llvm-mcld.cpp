@@ -112,22 +112,6 @@ CMModel("code-model",
                               "Large code model"),
                    clEnumValEnd));
 
-cl::opt<mcld::CodeGenFileType>
-FileType("filetype", cl::init(mcld::CGFT_EXEFile),
-  cl::desc("Choose a file type (not all types are supported by all targets):"),
-  cl::values(
-       clEnumValN(mcld::CGFT_ASMFile, "asm",
-                  "Emit an assembly ('.s') file"),
-       clEnumValN(mcld::CGFT_OBJFile, "obj",
-                  "Emit a relocatable object ('.o') file"),
-       clEnumValN(mcld::CGFT_DSOFile, "dso",
-                  "Emit an dynamic shared object ('.so') file"),
-       clEnumValN(mcld::CGFT_EXEFile, "exe",
-                  "Emit a executable ('.exe') file"),
-       clEnumValN(mcld::CGFT_NULLFile, "null",
-                  "Emit nothing, for performance testing"),
-       clEnumValEnd));
-
 cl::opt<bool> NoVerify("disable-verify", cl::Hidden,
                        cl::desc("Do not verify input module"));
 
@@ -347,6 +331,22 @@ ArgZOptionList("z",
                cl::desc("The -z options for GNU ld compatibility."),
                cl::value_desc("keyword"),
                cl::Prefix);
+
+cl::opt<mcld::CodeGenFileType>
+ArgFileType("filetype", cl::init(mcld::CGFT_EXEFile),
+  cl::desc("Choose a file type (not all types are supported by all targets):"),
+  cl::values(
+       clEnumValN(mcld::CGFT_ASMFile, "asm",
+                  "Emit an assembly ('.s') file"),
+       clEnumValN(mcld::CGFT_OBJFile, "obj",
+                  "Emit a relocatable object ('.o') file"),
+       clEnumValN(mcld::CGFT_DSOFile, "dso",
+                  "Emit an dynamic shared object ('.so') file"),
+       clEnumValN(mcld::CGFT_EXEFile, "exe",
+                  "Emit a executable ('.exe') file"),
+       clEnumValN(mcld::CGFT_NULLFile, "null",
+                  "Emit nothing, for performance testing"),
+       clEnumValEnd));
 
 //===----------------------------------------------------------------------===//
 // Inputs
@@ -742,8 +742,8 @@ int main( int argc, char* argv[] )
   std::auto_ptr<Module> M;
 
   if (ArgBitcodeFilename.empty() &&
-      (mcld::CGFT_DSOFile != FileType &&
-       mcld::CGFT_EXEFile != FileType)) {
+      (mcld::CGFT_DSOFile != ArgFileType &&
+       mcld::CGFT_EXEFile != ArgFileType)) {
     // .so and .exe can be produced without bitcode.
     // If the file is not given, forcefully read from stdin
     // FIXME: the message is displayed only if some verbose option is set.
@@ -885,7 +885,7 @@ int main( int argc, char* argv[] )
   OwningPtr<tool_output_file>
   Out(GetOutputStream(TheTarget->get()->getName(),
                       TheTriple.getOS(),
-                      FileType,
+                      ArgFileType,
                       ArgBitcodeFilename,
                       ArgOutputFilename));
   if (!Out)
@@ -919,7 +919,7 @@ int main( int argc, char* argv[] )
     if( TheTargetMachine.addPassesToEmitFile(PM,
                                              FOS,
                                              ArgOutputFilename.native(),
-                                             FileType,
+                                             ArgFileType,
                                              OLvl,
                                              LinkerOpt,
                                              NoVerify)) {
