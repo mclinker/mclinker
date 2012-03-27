@@ -84,7 +84,6 @@ void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
   ++m_Idx;
 }
 
-
 /// reserveEntries - reserve entries
 void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
                                 const ELFFileFormat& pFormat)
