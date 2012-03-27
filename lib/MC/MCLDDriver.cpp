@@ -15,6 +15,7 @@
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/DynObjWriter.h>
+#include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -92,6 +93,12 @@ void MCLDDriver::normalize() {
 
 bool MCLDDriver::linkable() const
 {
+  // check we have input and output files
+  if (m_LDInfo.inputs().empty()) {
+    llvm::report_fatal_error("no inputs");
+    return false;
+  }
+
   // check all attributes are legal
   mcld::AttributeFactory::const_iterator attr, attrEnd = m_LDInfo.attrFactory().end();
   for (attr=m_LDInfo.attrFactory().begin(); attr!=attrEnd; ++attr) {
@@ -101,7 +108,6 @@ bool MCLDDriver::linkable() const
       return false;
     }
   }
-
 
   bool hasDynObj = false;
   // can not mix -static with shared objects
@@ -137,7 +143,8 @@ bool MCLDDriver::initMCLinker()
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||
-      !m_LDBackend.initDynObjWriter(*m_pLinker))
+      !m_LDBackend.initDynObjWriter(*m_pLinker) ||
+      !m_LDBackend.initExecWriter(*m_pLinker))
     return false;
 
   /// initialize section mapping for standard format, target-dependent section,
@@ -342,10 +349,9 @@ bool MCLDDriver::emitOutput()
     case Output::DynObj:
       m_LDBackend.getDynObjWriter()->writeDynObj(m_LDInfo.output());
       return true;
-    /** TODO: open the executable file writer **/
-    // case Output::Exec:
-      // m_LDBackend.getExecWriter()->writeObject(m_LDInfo.output());
-      // return true;
+    case Output::Exec:
+      m_LDBackend.getExecWriter()->writeExecutable(m_LDInfo.output());
+      return true;
   }
   return false;
 }

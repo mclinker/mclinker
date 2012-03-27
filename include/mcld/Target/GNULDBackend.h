@@ -19,6 +19,7 @@
 #include <mcld/LD/ELFDynObjWriter.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
+#include <mcld/LD/ELFExecWriter.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
 #include <mcld/LD/ELFSegment.h>
@@ -98,6 +99,7 @@ public:
   bool initDynObjReader(MCLinker& pLinker);
   bool initObjectWriter(MCLinker& pLinker);
   bool initDynObjWriter(MCLinker& pLinker);
+  bool initExecWriter(MCLinker& pLinker);
 
   bool initExecSections(MCLinker& pMCLinker);
   bool initDynObjSections(MCLinker& pMCLinker);
@@ -118,6 +120,9 @@ public:
 
   ELFDynObjWriter *getDynObjWriter();
   ELFDynObjWriter *getDynObjWriter() const;
+
+  ELFExecWriter *getExecWriter();
+  ELFExecWriter *getExecWriter() const;
 
   ELFDynObjFileFormat* getDynObjFileFormat();
   ELFDynObjFileFormat* getDynObjFileFormat() const;
@@ -291,6 +296,7 @@ protected:
   ELFDynObjReader* m_pDynObjReader;
   ELFObjectWriter* m_pObjectWriter;
   ELFDynObjWriter* m_pDynObjWriter;
+  ELFExecWriter*   m_pExecWriter;
 
   // -----  file formats  ----- //
   ELFDynObjFileFormat* m_pDynObjFileFormat;

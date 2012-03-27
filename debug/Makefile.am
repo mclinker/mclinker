@@ -200,6 +200,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ObjectWriter.cpp \
 	${INCDIR}/LD/DynObjWriter.h \
 	${LIBDIR}/LD/DynObjWriter.cpp \
+	${INCDIR}/LD/ExecWriter.h \
+	${LIBDIR}/LD/ExecWriter.cpp \
 	${INCDIR}/LD/ELFReader.h \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${INCDIR}/LD/ELFWriter.h \
@@ -216,6 +218,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
 	${INCDIR}/LD/ELFDynObjWriter.h \
 	${LIBDIR}/LD/ELFDynObjWriter.cpp \
+	${INCDIR}/LD/ELFExecWriter.h \
+	${LIBDIR}/LD/ELFExecWriter.cpp \
 	${INCDIR}/LD/LDFileFormat.h \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${INCDIR}/LD/ELFFileFormat.h \

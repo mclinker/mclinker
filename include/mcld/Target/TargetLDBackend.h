@@ -23,6 +23,7 @@ class ObjectReader;
 class DynObjReader;
 class ObjectWriter;
 class DynObjWriter;
+class ExecWriter;
 class LDContext;
 class SectionMap;
 class Output;
@@ -76,6 +77,7 @@ public:
   virtual bool initDynObjReader(MCLinker&) = 0;
   virtual bool initObjectWriter(MCLinker&) = 0;
   virtual bool initDynObjWriter(MCLinker&) = 0;
+  virtual bool initExecWriter(MCLinker&) = 0;
 
   virtual bool initExecSections(MCLinker&) = 0;
   virtual bool initDynObjSections(MCLinker&) = 0;
@@ -85,6 +87,7 @@ public:
   virtual DynObjReader *getDynObjReader() = 0;
   virtual ObjectWriter *getObjectWriter() = 0;
   virtual DynObjWriter *getDynObjWriter() = 0;
+  virtual ExecWriter *getExecWriter() = 0;
 
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;

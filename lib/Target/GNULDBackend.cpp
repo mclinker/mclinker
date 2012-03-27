@@ -32,6 +32,7 @@ GNULDBackend::GNULDBackend()
     m_pDynObjReader(0),
     m_pObjectWriter(0),
     m_pDynObjWriter(0),
+    m_pExecWriter(0),
     m_pDynObjFileFormat(0),
     m_pExecFileFormat(0),
     m_ELFSegmentTable(9)// magic number
@@ -51,6 +52,8 @@ GNULDBackend::~GNULDBackend()
     delete m_pObjectWriter;
   if (m_pDynObjWriter)
     delete m_pDynObjWriter;
+  if (m_pExecWriter)
+    delete m_pExecWriter;
   if (m_pDynObjFileFormat)
     delete m_pDynObjFileFormat;
   if (m_pExecFileFormat)
@@ -97,8 +100,15 @@ bool GNULDBackend::initObjectWriter(MCLinker&)
 
 bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
 {
-  if (0 == m_pDynObjWriter)
+  if (NULL == m_pDynObjWriter)
     m_pDynObjWriter = new ELFDynObjWriter(*this, pLinker);
+  return true;
+}
+
+bool GNULDBackend::initExecWriter(MCLinker& pLinker)
+{
+  if (NULL == m_pExecWriter)
+    m_pExecWriter = new ELFExecWriter(*this, pLinker);
   return true;
 }
 
@@ -185,6 +195,18 @@ ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
 {
   assert(0 != m_pDynObjWriter);
   return m_pDynObjWriter;
+}
+
+ELFExecWriter *GNULDBackend::getExecWriter()
+{
+  assert(NULL != m_pExecWriter);
+  return m_pExecWriter;
+}
+
+ELFExecWriter *GNULDBackend::getExecWriter() const
+{
+  assert(NULL != m_pExecWriter);
+  return m_pExecWriter;
 }
 
 ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
@@ -588,7 +610,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 
   // emit soname
   // initialize value of ELF .dynamic section
-  dynamic().applySoname(strtabsize);
+  if (Output::DynObj == pOutput.type())
+    dynamic().applySoname(strtabsize);
   dynamic().applyEntries(pLDInfo, *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
