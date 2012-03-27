@@ -348,6 +348,16 @@ ArgFileType("filetype", cl::init(mcld::CGFT_EXEFile),
                   "Emit nothing, for performance testing"),
        clEnumValEnd));
 
+static cl::opt<bool>
+ArgShared("shared",
+          cl::desc("Create a shared library."),
+          cl::init(false));
+
+static cl::alias
+ArgSharedAlias("Bshareable",
+               cl::desc("alias for -shared"),
+               cl::aliasopt(ArgShared));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -740,6 +750,10 @@ int main( int argc, char* argv[] )
 
   // Load the module to be compiled...
   std::auto_ptr<Module> M;
+
+  if (true == ArgShared) {
+    ArgFileType = mcld::CGFT_DSOFile;
+  }
 
   if (ArgBitcodeFilename.empty() &&
       (mcld::CGFT_DSOFile != ArgFileType &&
