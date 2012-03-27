@@ -11,6 +11,7 @@
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/CommandLine.h>
 #include <mcld/Support/DerivedPositionDependentOptions.h>
+#include <mcld/Support/Path.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
@@ -53,16 +54,6 @@ int unit_test( int argc, char* argv[] )
 // within the corresponding llc passes, and target-specific options
 // and back-end code generation options are specified with the target machine.
 //
-static cl::opt<std::string>
-InputFilename("dB",
-              cl::desc("set default bitcode"),
-              cl::value_desc("bitcode"));
-
-static cl::opt<std::string>
-OutputFilename("o",
-               cl::desc("Output filename"),
-               cl::value_desc("filename"));
-
 // Determine optimization level.
 static cl::opt<char>
 OptLevel("O",
@@ -274,6 +265,21 @@ SegmentedStacks("segmented-stacks",
 //===----------------------------------------------------------------------===//
 // General Options
 static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
+ArgBitcodeFilename("dB",
+              cl::desc("set default bitcode"),
+              cl::value_desc("bitcode"));
+
+static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
+ArgOutputFilename("o",
+               cl::desc("Output filename"),
+               cl::value_desc("filename"));
+
+static cl::alias
+AliasOutputFilename("output",
+                    cl::desc("alias for -o"),
+                    cl::aliasopt(ArgOutputFilename));
+
+static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgSysRoot("sysroot",
            cl::desc("Use directory as the location of the sysroot, overriding the configure-time default."),
            cl::value_desc("directory"),
@@ -455,73 +461,82 @@ ArgBStaticListAlias3("non_shared",
 //===----------------------------------------------------------------------===//
 /// non-member functions
 
-// GetFileNameRoot - Helper function to get the basename of a filename.
-static inline void
-GetFileNameRoot(const std::string &pInputFilename, std::string& pFileNameRoot)
-{
-  std::string outputFilename;
-  /* *** */
-  const std::string& IFN = pInputFilename;
-  int Len = IFN.length();
-  if ((Len > 2) &&
-      IFN[Len-3] == '.' &&
-      ((IFN[Len-2] == 'b' && IFN[Len-1] == 'c') ||
-       (IFN[Len-2] == 'l' && IFN[Len-1] == 'l')))
-    pFileNameRoot = std::string(IFN.begin(), IFN.end()-3); // s/.bc/.s/
-  else
-    pFileNameRoot = std::string(IFN);
-}
-
+/// GetOutputStream - get the output stream.
 static tool_output_file *GetOutputStream(const char* pTargetName,
-                          Triple::OSType pOSType,
-                          mcld::CodeGenFileType pFileType,
-                          const std::string& pInputFilename,
-                          std::string& pOutputFilename)
+                                         Triple::OSType pOSType,
+                                         mcld::CodeGenFileType pFileType,
+                                         const mcld::sys::fs::Path& pInputFilename,
+                                         mcld::sys::fs::Path& pOutputFilename)
 {
-  // If we don't yet have an output filename, make one.
   if (pOutputFilename.empty()) {
-    if (pInputFilename == "-")
-      pOutputFilename = "-";
+    if (0 == pInputFilename.native().compare("-")) 
+      pOutputFilename.assign("-");
     else {
-      GetFileNameRoot(pInputFilename, pOutputFilename);
+      switch(pFileType) {
+      case mcld::CGFT_ASMFile: {
+        if (0 == pInputFilename.native().compare("-"))
+          pOutputFilename.assign("_out");
+        else
+          pOutputFilename.assign(pInputFilename.stem().native());
 
-      switch (pFileType) {
-      case mcld::CGFT_ASMFile:
-        if (pTargetName[0] == 'c') {
-          if (pTargetName[1] == 0)
-            pOutputFilename += ".cbe.c";
-          else if (pTargetName[1] == 'p' && pTargetName[2] == 'p')
-            pOutputFilename += ".cpp";
+        if (0 == strcmp(pTargetName, "c"))
+          pOutputFilename.native() += ".cbe.c";
+        else if (0 == strcmp(pTargetName, "cpp"))
+          pOutputFilename.native() += ".cpp";
+        else
+          pOutputFilename.native() += ".s";
+      }
+      break;
+
+      case mcld::CGFT_OBJFile: {
+        if (0 == pInputFilename.native().compare("-"))
+          pOutputFilename.assign("_out");
+        else
+          pOutputFilename.assign(pInputFilename.stem().native());
+
+        if (pOSType == Triple::Win32)
+          pOutputFilename.native() += ".obj";
+        else
+          pOutputFilename.native() += ".o";
+      }
+      break;
+
+      case mcld::CGFT_DSOFile: {
+        if (Triple::Win32 == pOSType) {
+          if (0 == pInputFilename.native().compare("-"))
+            pOutputFilename.assign("_out");
           else
-            pOutputFilename += ".s";
+            pOutputFilename.assign(pInputFilename.stem().native());
+          pOutputFilename.native() += ".dll";
         }
         else
-          pOutputFilename += ".s";
-        break;
-      case mcld::CGFT_OBJFile:
-        if (pOSType == Triple::Win32)
-          pOutputFilename += ".obj";
+          pOutputFilename.assign("a.out");
+      }
+      break;
+
+      case mcld::CGFT_EXEFile: {
+        if (Triple::Win32 == pOSType) {
+          if (0 == pInputFilename.native().compare("-"))
+            pOutputFilename.assign("_out");
+          else
+            pOutputFilename.assign(pInputFilename.stem().native());
+          pOutputFilename.native() += ".exe";
+        }
         else
-          pOutputFilename += ".o";
-        break;
-      case mcld::CGFT_DSOFile:
-        if (pOSType == Triple::Win32)
-         pOutputFilename += ".dll";
-        else
-         pOutputFilename += ".so";
-        break;
-      case mcld::CGFT_EXEFile:
+          pOutputFilename.assign("a.out");
+      }
+      break;
+
       case mcld::CGFT_NULLFile:
-        // do nothing
         break;
       default:
-        assert(0 && "Unknown file type");
-      }
-    }
-  }
+        llvm::report_fatal_error("Unknown output file type.\n");
+      } // end of switch
+    } // end of ! pInputFilename == "-"
+  } // end of if empty pOutputFilename
 
   // Decide if we need "binary" output.
-  bool Binary = false;
+  unsigned int fd_flags = 0x0;
   switch (pFileType) {
   default: assert(0 && "Unknown file type");
   case mcld::CGFT_ASMFile:
@@ -530,23 +545,23 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:
   case mcld::CGFT_NULLFile:
-    Binary = true;
+    fd_flags |= raw_fd_ostream::F_Binary;
     break;
   }
 
   // Open the file.
-  std::string error;
-  unsigned OpenFlags = 0;
-  if (Binary) OpenFlags |= raw_fd_ostream::F_Binary;
-  tool_output_file *FDOut = new tool_output_file(pOutputFilename.c_str(), error,
-                                                 OpenFlags);
-  if (!error.empty()) {
-    errs() << error << '\n';
-    delete FDOut;
-    return 0;
+  std::string err_mesg;
+  tool_output_file *result_output =
+                            new tool_output_file(pOutputFilename.c_str(),
+                                                 err_mesg,
+                                                 fd_flags);
+  if (!err_mesg.empty()) {
+    errs() << err_mesg << '\n';
+    delete result_output;
+    return NULL;
   }
 
-  return FDOut;
+  return result_output;
 }
 
 static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
@@ -706,7 +721,6 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
 
 int main( int argc, char* argv[] )
 {
-
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
   // Initialize targets first, so that --version shows registered targets.
@@ -727,25 +741,33 @@ int main( int argc, char* argv[] )
   // Load the module to be compiled...
   std::auto_ptr<Module> M;
 
-  if (InputFilename.empty() && (FileType != mcld::CGFT_DSOFile)) {
-    // Read from stdin
-    InputFilename = "-";
+  if (ArgBitcodeFilename.empty() &&
+      (mcld::CGFT_DSOFile != FileType &&
+       mcld::CGFT_EXEFile != FileType)) {
+    // .so and .exe can be produced without bitcode.
+    // If the file is not given, forcefully read from stdin
+    // FIXME: the message is displayed only if some verbose option is set.
+    errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"
+           << "** Specify input bitcode/llvm asm file by\n\n"
+           << "          llvm-mcld -dB [the bitcode/llvm asm]\n\n";
+
+    ArgBitcodeFilename.assign("-");
   }
 
-  if (!InputFilename.empty()) {
+  if (!ArgBitcodeFilename.empty()) {
     SMDiagnostic Err;
-    M.reset(ParseIRFile(InputFilename, Err, Context));
+    M.reset(ParseIRFile(ArgBitcodeFilename.native(), Err, Context));
 
     if (M.get() == 0) {
       Err.print(argv[0], errs());
       errs() << "** Failed to to the given bitcode/llvm asm file '"
-             << InputFilename << "'. **\n";
+             << ArgBitcodeFilename.native() << "'. **\n";
       return 1;
     }
-  } else {
-    // If here, output must be dynamic shared object (mcld::CGFT_DSOFile).
-
-    // Create an empty Module
+  }
+  else {
+    // If here, output must be dynamic shared object (mcld::CGFT_DSOFile) and
+    // executable file (mcld::CGFT_EXEFile).
     M.reset(new Module("Empty Module", Context));
   }
   Module &mod = *M.get();
@@ -864,9 +886,10 @@ int main( int argc, char* argv[] )
   Out(GetOutputStream(TheTarget->get()->getName(),
                       TheTriple.getOS(),
                       FileType,
-                      InputFilename,
-                      OutputFilename));
-  if (!Out) return 1;
+                      ArgBitcodeFilename,
+                      ArgOutputFilename));
+  if (!Out)
+    return 1;
 
   // Build up all of the passes that we want to do to the module.
   PassManager PM;
@@ -895,7 +918,7 @@ int main( int argc, char* argv[] )
     // Ask the target to add backend passes as necessary.
     if( TheTargetMachine.addPassesToEmitFile(PM,
                                              FOS,
-                                             OutputFilename,
+                                             ArgOutputFilename.native(),
                                              FileType,
                                              OLvl,
                                              LinkerOpt,
