@@ -20,7 +20,7 @@ B<llvm-mcld> is desinged for supporting multiple formats on multiple target
 platforms.  This allows B<llvm-mcld> to read, combine, and produce object files
 in many different formats for different platforms
 
-Furthermore, B<llvm-mcld> leavages B<LLVM> and has the same ability as B<llc>.
+Furthermore, B<llvm-mcld> leverages B<LLVM> and has the same ability as B<llc>.
 It can read not only object files ('.o') and libraries ('.so'), but also
 I<LLVM bitcode> ('bc'). It can produces not only shared objects ('.so'), but
 also assembly file ('.s') and relocatable objects ('.o').
