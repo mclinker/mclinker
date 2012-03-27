@@ -7,6 +7,7 @@
 
 ; Build the shared library.
 ; RUN: %MCLinker -filetype=dso -march=arm -soname=libquake2_portable.so \
+; RUN: -mtriple="armv7-none-linux-gnueabi" \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14  -Bsymbolic \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
 ; RUN: libquake2_portable.o \
