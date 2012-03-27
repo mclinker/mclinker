@@ -596,7 +596,7 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::Debug:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
-          llvm::errs() << "WARNING: DWRAF debugging has not been fully supported yet.\n"
+          llvm::errs() << "WARNING: DWARF debugging has not been fully supported yet.\n"
                        << "section `" << sect->name() << "'.\n";
         }
         break;
