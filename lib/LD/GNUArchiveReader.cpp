@@ -35,16 +35,6 @@ const char archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>',
 const char thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
 const char archiveFinalMagic[2] = { '`', '\n' };
 
-struct GNUArchiveReader::ArchiveMemberHeader
-{
-  char name[16];
-  char date[12];
-  char uid[6];
-  char gid[6];
-  char mode[8];
-  char size[10];
-  char finalMagic[2];
-};
 
 struct GNUArchiveReader::SymbolTableEntry
 {
@@ -131,8 +121,8 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if(archiveMemberName.empty())
   {
     readSymbolTable(*area, symbolTable,
-                    off+sizeof(GNUArchiveReader::ArchiveMemberHeader), symbolTableSize);
-    off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + symbolTableSize;
+                    off+sizeof(ArchiveMemberHeader), symbolTableSize);
+    off = off + sizeof(ArchiveMemberHeader) + symbolTableSize;
   }
   else
   {
@@ -148,7 +138,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   /// read long Name table if exist
   if(archiveMemberName == "/")
   {
-    off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
+    off += sizeof(ArchiveMemberHeader);
     MemoryRegion *extended_name_region = area->request(off, extendedSize);
     pFile = reinterpret_cast<char *>(extended_name_region->getBuffer());
     extendedName.assign(pFile, extendedSize);

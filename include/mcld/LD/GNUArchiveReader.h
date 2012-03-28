@@ -36,7 +36,6 @@ class InputTree;
 class GNUArchiveReader : public ArchiveReader
 {
 private:
-  struct ArchiveMemberHeader;
   struct SymbolTableEntry;
 
 public:
