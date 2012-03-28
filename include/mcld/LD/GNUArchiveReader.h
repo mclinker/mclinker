@@ -38,6 +38,17 @@ class GNUArchiveReader : public ArchiveReader
 private:
   struct SymbolTableEntry;
 
+  enum Constant
+  {
+    /// The length of the magic string at the start of an archive.
+    archiveMagicSize = 8
+  };
+  /// The magic string at the start of an archive.
+  static const char archiveMagic[archiveMagicSize];
+  static const char thinArchiveMagic[archiveMagicSize];
+  /// The Magic string expected at the end of an archive member header.
+  static const char archiveFinalMagic[2];
+
 public:
   explicit GNUArchiveReader(MCLDInfo &pLDInfo)
   : m_pLDInfo(pLDInfo)

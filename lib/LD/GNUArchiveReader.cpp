@@ -28,12 +28,11 @@ using namespace mcld;
 
 typedef uint32_t elfWord;
 
-/// Archive Header, Magic number
 
-const unsigned archiveMagicSize = 8;
-const char archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
-const char thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
-const char archiveFinalMagic[2] = { '`', '\n' };
+/// Archive Header, Magic number
+const char GNUArchiveReader::archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
+const char GNUArchiveReader::thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
+const char GNUArchiveReader::archiveFinalMagic[2] = { '`', '\n' };
 
 
 struct GNUArchiveReader::SymbolTableEntry
