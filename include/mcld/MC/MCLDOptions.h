@@ -76,6 +76,12 @@ public:
   bool Bsymbolic() const
   { return m_Bsymbolic; }
 
+  void setPIE(bool pPIE = true)
+  { m_bPIE = pPIE; }
+
+  bool isPIE() const
+  { return m_bPIE; }
+
   void setBgroup(bool pBgroup = false)
   { m_Bgroup = pBgroup; }
 
@@ -164,6 +170,7 @@ private:
   bool m_bVerbose;
   bool m_Bsymbolic;
   bool m_Bgroup;
+  bool m_bPIE;
   std::string m_Entry;
   /// the -z options
   bool m_bCombReloc;       // combreloc, nocombreloc

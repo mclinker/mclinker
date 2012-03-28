@@ -358,6 +358,11 @@ ArgSharedAlias("Bshareable",
                cl::desc("alias for -shared"),
                cl::aliasopt(ArgShared));
 
+static cl::opt<bool>
+ArgPIE("pie",
+       cl::desc("Emit a position-independent executable file"),
+       cl::init(false));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -479,7 +484,7 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
                                          mcld::sys::fs::Path& pOutputFilename)
 {
   if (pOutputFilename.empty()) {
-    if (0 == pInputFilename.native().compare("-")) 
+    if (0 == pInputFilename.native().compare("-"))
       pOutputFilename.assign("-");
     else {
       switch(pFileType) {
@@ -602,6 +607,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
     }
   }
 
+  pOption.info().options().setPIE(ArgPIE);
   pOption.info().options().setTrace(ArgTrace);
   pOption.info().options().setVerbose(ArgVerbose);
   pOption.info().options().setEntry(ArgEntry);
