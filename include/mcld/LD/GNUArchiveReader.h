@@ -43,13 +43,13 @@ private:
     /// The length of the magic strign at the end of an archive member header.
     HeaderFinalMagicSize = 2,
     /// The length of the magic string at the start of an archive.
-    archiveMagicSize = 8
+    ArchiveMagicSize = 8
   };
   /// The magic string at the start of an archive.
-  static const char archiveMagic[archiveMagicSize];
-  static const char thinArchiveMagic[archiveMagicSize];
+  static const char ArchiveMagic[ArchiveMagicSize];
+  static const char ThinArchiveMagic[ArchiveMagicSize];
   /// The Magic string expected at the end of an archive member header.
-  static const char archiveFinalMagic[HeaderFinalMagicSize];
+  static const char HeaderFinalMagic[HeaderFinalMagicSize];
 
 public:
   explicit GNUArchiveReader(MCLDInfo &pLDInfo)

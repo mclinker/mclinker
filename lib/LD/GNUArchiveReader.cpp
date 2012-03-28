@@ -30,9 +30,9 @@ typedef uint32_t elfWord;
 
 
 /// Archive Header, Magic number
-const char GNUArchiveReader::archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
-const char GNUArchiveReader::thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
-const char GNUArchiveReader::archiveFinalMagic[HeaderFinalMagicSize] = { '`', '\n' };
+const char GNUArchiveReader::ArchiveMagic[ArchiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
+const char GNUArchiveReader::ThinArchiveMagic[ArchiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
+const char GNUArchiveReader::HeaderFinalMagic[HeaderFinalMagicSize] = { '`', '\n' };
 
 
 struct GNUArchiveReader::SymbolTableEntry
@@ -62,15 +62,15 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   if (!area)
     llvm::report_fatal_error("can't map file to MemoryArea");
 
-  MemoryRegion *region = area->request(0, archiveMagicSize);
+  MemoryRegion *region = area->request(0, ArchiveMagicSize);
   if (!region)
     llvm::report_fatal_error("can't request MemoryRegion for archive magic");
 
   const char *p_buffer = reinterpret_cast<char *> (region->getBuffer());
 
   /// check archive format.
-  if (memcmp(p_buffer, archiveMagic, archiveMagicSize) != 0
-      && memcmp(p_buffer, thinArchiveMagic, archiveMagicSize) != 0)
+  if (memcmp(p_buffer, ArchiveMagic, ArchiveMagicSize) != 0
+      && memcmp(p_buffer, ThinArchiveMagic, ArchiveMagicSize) != 0)
     return false;
   return true;
 }
@@ -96,7 +96,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if (!area)
     llvm::report_fatal_error("can't map file to MemoryArea");
 
-  MemoryRegion *region = area->request(off, archiveMagicSize);
+  MemoryRegion *region = area->request(off, ArchiveMagicSize);
   if (!region)
     llvm::report_fatal_error("can't request MemoryRegion for archive magic");
 
@@ -104,8 +104,8 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   /// check archive format.
   bool isThinArchive;
-  isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
-  if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
+  isThinArchive = memcmp(pFile, ThinArchiveMagic, ArchiveMagicSize) == 0;
+  if(!isThinArchive && memcmp(pFile, ArchiveMagic, ArchiveMagicSize) != 0)
     return NULL;
 
   InputTree *resultTree = new InputTree(m_pLDInfo.inputFactory());
@@ -113,7 +113,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   std::string archiveMemberName;
   std::string extendedName;
 
-  off += archiveMagicSize ;
+  off += ArchiveMagicSize ;
   size_t symbolTableSize = readMemberHeader(*area, off, &archiveMemberName,
                                             NULL, extendedName);
   /// read archive symbol table
@@ -241,7 +241,7 @@ size_t GNUArchiveReader::readMemberHeader(MemoryArea &pArea,
   const ArchiveMemberHeader *header = reinterpret_cast<const ArchiveMemberHeader *>(pFile);
 
   /// check magic number of member header
-  if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic))
+  if(memcmp(header->finalMagic, HeaderFinalMagic, sizeof HeaderFinalMagic))
   {
     llvm::report_fatal_error("archive member header magic number false");
     return 0;
