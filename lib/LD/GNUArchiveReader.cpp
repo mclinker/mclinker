@@ -21,7 +21,6 @@
 #include <vector>
 #include <cstdlib>
 
-using namespace std;
 using namespace mcld;
 
 typedef uint32_t elfWord;
@@ -152,7 +151,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
   /// traverse all the archive members
   InputTree::iterator node = resultTree->root();
-  set<string> haveSeen;
+  std::set<std::string> haveSeen;
   for(unsigned i=0 ; i<symbolTable.size() ; ++i)
   {
     /// We shall get each member at this archive.
