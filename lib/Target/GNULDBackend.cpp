@@ -71,10 +71,7 @@ size_t GNULDBackend::sectionStartOffset() const
 bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
 {
   if (0 == m_pArchiveReader)
-  {
-    LDReader::Endian isLittleEndian = LDReader::LittleEndian;
-    m_pArchiveReader = new GNUArchiveReader(pInfo, isLittleEndian);
-  }
+    m_pArchiveReader = new GNUArchiveReader(pInfo); 
   return true;
 }
 

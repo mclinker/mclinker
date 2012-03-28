@@ -41,9 +41,8 @@ private:
   struct SymbolTableEntry;
 
 public:
-  explicit GNUArchiveReader(MCLDInfo &pLDInfo, LDReader::Endian endian)
-  : m_pLDInfo(pLDInfo),
-    m_endian(endian)
+  explicit GNUArchiveReader(MCLDInfo &pLDInfo)
+  : m_pLDInfo(pLDInfo)
   { }
 
   ~GNUArchiveReader()
@@ -77,7 +76,6 @@ private:
 
 private:
   MCLDInfo &m_pLDInfo;
-  LDReader::Endian m_endian;
 };
 
 } // namespace of mcld

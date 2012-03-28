@@ -13,6 +13,7 @@
 
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/system_error.h>
+#include <llvm/Support/Host.h>
 
 #include <sstream>
 #include <string>
@@ -88,7 +89,7 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
 
 LDReader::Endian GNUArchiveReader::endian(Input& pFile) const
 {
-  return m_endian;
+  return LDReader::BigEndian;
 }
 
 InputTree *GNUArchiveReader::readArchive(Input &pInput)
@@ -334,7 +335,7 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
   /// Portable Issue on Sparc platform
   /// Intel, ARM and Mips are littel-endian , Sparc is little-endian after verion 9
   /// symbolNum in symbol table is always big-endian
-  if(m_endian == LDReader::LittleEndian)
+  if(llvm::sys::isLittleEndianHost())
     endian_swap(symbolNum);
   ++p_Word;
 
@@ -345,7 +346,8 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
   {
     /// assign member offset
     unsigned int memberOffset = *p_Word;
-    endian_swap(memberOffset);
+    if(llvm::sys::isLittleEndianHost())
+      endian_swap(memberOffset);
     pSymbolTable[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
     /// assign member name
