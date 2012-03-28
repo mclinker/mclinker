@@ -1,7 +1,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -relocation-model=pic -dB %s --output %t.o
+; RUN: -filetype=obj -relocation-model=pic -dB %s --output=%t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -shared %t.o --output ./long_output_out_name.so
+; RUN: -shared %t.o --output=./long_output_out_name.so
 ; RUN: test -f ./long_output_out_name.so
 ; RUN: readelf -a ./long_output_out_name.so | grep Type | grep DYN | grep "Shared object file"
 
