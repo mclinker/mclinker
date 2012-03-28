@@ -1169,3 +1169,22 @@ uint64_t GNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
   else
     return static_cast<uint64_t>(0x1000);
 }
+
+/// isOutputPIC - return whether the output is position-independent
+bool GNULDBackend::isOutputPIC(const Output& pOutput,
+                               const MCLDInfo& pInfo) const
+{
+  if (Output::DynObj == pOutput.type() || pInfo.options().isPIE())
+    return true;
+  return false;
+}
+
+/// isStaticLink - return whether we're doing static link
+bool GNULDBackend::isStaticLink(const Output& pOutput,
+                                const MCLDInfo& pInfo) const
+{
+  InputTree::const_iterator last = pInfo.inputs().end();
+  if (!isOutputPIC(pOutput, pInfo) && (*last)->attribute()->isStatic())
+    return true;
+  return false;
+}

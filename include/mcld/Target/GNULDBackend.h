@@ -290,6 +290,13 @@ private:
   virtual const ELFDynamic& dynamic() const = 0;
 
 protected:
+  /// isOutputPIC - return whether the output is position-independent
+  bool isOutputPIC(const Output& pOutput, const MCLDInfo& pInfo) const;
+
+  /// isStaticLink - return whether we're doing static link
+  bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
+
+protected:
   // ----- readers and writers ----- //
   GNUArchiveReader* m_pArchiveReader;
   ELFObjectReader* m_pObjectReader;
