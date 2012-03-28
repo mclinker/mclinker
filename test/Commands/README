@@ -1,0 +1,10 @@
+
+==============
+  Test Cases
+==============
+1) opt_shared_w_output.ll
+  -shared, -o out_name.so
+2) opt_shared_wo_output.ll
+  -shared, should generate a.out
+3) opt_wo_output.ll
+  no any options, should generate executable a.out
