@@ -8,3 +8,9 @@
   -shared, should generate a.out
 3) opt_wo_output.ll
   no any options, should generate executable a.out
+4) opt_Bshareable_w_output.ll
+  -Bshareable, -o out_name.so
+5) opt_Bshareable_wo_output.ll
+  -Bshareable, should generate a.out
+6) opt_shared_w_z_defs.ll
+  generate shared object with -z defs.
