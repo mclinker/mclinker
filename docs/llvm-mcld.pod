@@ -90,6 +90,12 @@ like B<llc>, compiles LLVM bitcode and produce correponding relocatable object.
 Use I<output> as the name of the result produced by B<llvm-mcld>. If this
 option is not specified, the name B<a.out> is used by default.
 
+=item B<-shared>
+
+=item B<--Bshareable>
+
+Create a shared library. This is currently only supported on ELF.
+
 =back
 
 =head1 SEE ALSO
