@@ -283,4 +283,4 @@ else
 SOURCE = ${NORMAL_SOURCE}
 endif
 
-llvm_mcld_SOURCES = ${SOURCE}
+dist_llvm_mcld_SOURCES = ${SOURCE}
