@@ -101,7 +101,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
   if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile))
   {
-    assert(0 && "GNUArchiveReader:can't map a file to MemoryBuffer\n");
+    llvm::report_fatal_error("GNUArchiveReader:can't map a file to MemoryBuffer\n");
     return NULL;
   }
 
@@ -134,7 +134,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   }
   else
   {
-    assert(0 && "fatal error : need symbol table\n");
+    llvm::report_fatal_error("fatal error : need symbol table\n");
     return NULL;
   }
 
@@ -245,7 +245,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   /// check magic number of member header
   if(memcmp(header->finalMagic, archiveFinalMagic, sizeof archiveFinalMagic))
   {
-    assert(0 && "archive member header magic number false");
+    llvm::report_fatal_error("archive member header magic number false");
     return 0;
   }
 
@@ -254,7 +254,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
   size_t memberSize = stringToType<size_t>(sizeString);
   if(memberSize == 0)
   {
-    assert(0 && "member Size Error");
+    llvm::report_fatal_error("member Size Error");
     return 0;
   }
 
@@ -265,7 +265,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     size_t nameLen = ((nameEnd == NULL) ? 0 : (nameEnd - header->name));
     if((nameLen <= 0) || (nameLen >= sizeof(header->name)))
     {
-      assert(0 && "header name format error\n");
+      llvm::report_fatal_error("header name format error\n");
       return 0;
     }
     p_Name->assign(header->name, nameLen);
@@ -297,7 +297,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
        || extendedNameOff < 0
        || static_cast<size_t>(extendedNameOff) >= p_ExtendedName.size())
     {
-      assert(0 && "extended name");
+      llvm::report_fatal_error("extended name");
       return 0;
     }
 
@@ -306,7 +306,7 @@ size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &
     if(nameEnd[-1] != '/'
        || static_cast<size_t>(nameEnd-name) > p_ExtendedName.size())
     {
-      assert(0 && "p_ExtendedName substring is not end with / \n");
+      llvm::report_fatal_error("p_ExtendedName substring is not end with / \n");
       return 0;
     }
     p_Name->assign(name, nameEnd-name-1);
