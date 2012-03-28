@@ -62,8 +62,8 @@ private:
   /// second, read extended file name which is used in thin archive
   InputTree *setupNewArchive(Input &pInput, size_t off);
 
-  /// parse the archive header, and return the member size
-  size_t parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+  /// read the archive header, and return the member size
+  size_t readMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                    off_t off,
                    std::string *p_Name,
                    off_t *nestedOff,

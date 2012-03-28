@@ -121,7 +121,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   }
 
   off += archiveMagicSize ;
-  size_t symbolTableSize = parseMemberHeader(mapFile, off, &archiveMemberName,
+  size_t symbolTableSize = readMemberHeader(mapFile, off, &archiveMemberName,
                                             NULL, extendedName);
   /// read archive symbol table
   if(archiveMemberName.empty())
@@ -139,7 +139,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if((off&1) != 0)
     ++off;
 
-  size_t extendedSize = parseMemberHeader(mapFile, off, &archiveMemberName,
+  size_t extendedSize = readMemberHeader(mapFile, off, &archiveMemberName,
                                           NULL, extendedName);
   /// read long Name table if exist
   if(archiveMemberName == "/")
@@ -159,7 +159,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     /// the original InputTree, resultTree.
     off_t nestedOff = 0;
 
-    parseMemberHeader(mapFile, symbolTable[i].fileOffset, &archiveMemberName,
+    readMemberHeader(mapFile, symbolTable[i].fileOffset, &archiveMemberName,
                       &nestedOff, extendedName);
 
     if(haveSeen.find(archiveMemberName)==haveSeen.end())
@@ -230,7 +230,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 /// "filename.o/        " - regular file with short name
 /// "/5566              " - name at offset 5566 at long name table
 
-size_t GNUArchiveReader::parseMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+size_t GNUArchiveReader::readMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
                                            off_t off,
                                            std::string *p_Name,
                                            off_t *p_NestedOff,
