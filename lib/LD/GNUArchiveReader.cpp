@@ -24,7 +24,6 @@
 using namespace std;
 using namespace mcld;
 
-typedef size_t sectionSizeTy;
 typedef uint32_t elfWord;
 
 /// Archive Header, Magic number, etc..
