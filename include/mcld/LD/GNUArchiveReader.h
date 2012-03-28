@@ -40,6 +40,8 @@ private:
 
   enum Constant
   {
+    /// The length of the magic strign at the end of an archive member header.
+    HeaderFinalMagicSize = 2,
     /// The length of the magic string at the start of an archive.
     archiveMagicSize = 8
   };
@@ -47,7 +49,7 @@ private:
   static const char archiveMagic[archiveMagicSize];
   static const char thinArchiveMagic[archiveMagicSize];
   /// The Magic string expected at the end of an archive member header.
-  static const char archiveFinalMagic[2];
+  static const char archiveFinalMagic[HeaderFinalMagicSize];
 
 public:
   explicit GNUArchiveReader(MCLDInfo &pLDInfo)

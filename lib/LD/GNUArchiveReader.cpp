@@ -32,7 +32,7 @@ typedef uint32_t elfWord;
 /// Archive Header, Magic number
 const char GNUArchiveReader::archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
 const char GNUArchiveReader::thinArchiveMagic[archiveMagicSize] = { '!', '<', 't', 'h', 'i', 'n', '>', '\n' };
-const char GNUArchiveReader::archiveFinalMagic[2] = { '`', '\n' };
+const char GNUArchiveReader::archiveFinalMagic[HeaderFinalMagicSize] = { '`', '\n' };
 
 
 struct GNUArchiveReader::SymbolTableEntry
