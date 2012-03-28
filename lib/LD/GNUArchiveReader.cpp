@@ -10,11 +10,14 @@
 #include "mcld/MC/MCLDInput.h"
 #include "mcld/MC/MCLDInputTree.h"
 #include "mcld/LD/GNUArchiveReader.h"
+#include "mcld/Support/FileSystem.h"
+#include "mcld/Support/MemoryArea.h"
+#include "mcld/Support/MemoryRegion.h"
+#include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/ADT/SizeTraits.h"
 
-#include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/system_error.h>
 #include <llvm/Support/Host.h>
-#include <mcld/ADT/SizeTraits.h>
 
 #include <sstream>
 #include <string>
@@ -66,15 +69,19 @@ Type stringToType(const std::string &str)
 /// Public API
 bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
-  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
-  llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile);
-  const char* pFile = mapFile->getBufferStart();
+  MemoryArea *area = m_pLDInfo.memAreaFactory().produce(pInput.path(), O_RDONLY);
+  if (!area)
+    llvm::report_fatal_error("can't map file to MemoryArea");
+
+  MemoryRegion *region = area->request(0, archiveMagicSize);
+  if (!region)
+    llvm::report_fatal_error("can't request MemoryRegion for archive magic");
+
+  const char *p_buffer = reinterpret_cast<char *> (region->getBuffer());
 
   /// check archive format.
-  if(mapFile->getBufferSize() <= archiveMagicSize)
-    return false;
-  bool isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
-  if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
+  if (memcmp(p_buffer, archiveMagic, archiveMagicSize) != 0
+      && memcmp(p_buffer, thinArchiveMagic, archiveMagicSize) != 0)
     return false;
   return true;
 }
@@ -96,37 +103,34 @@ InputTree *GNUArchiveReader::readArchive(Input &pInput)
 InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             size_t off)
 {
-  llvm::OwningPtr<llvm::MemoryBuffer> mapFile;
-  if(llvm::MemoryBuffer::getFile(pInput.path().c_str(), mapFile))
-  {
-    llvm::report_fatal_error("GNUArchiveReader:can't map a file to MemoryBuffer\n");
+  MemoryArea *area = m_pLDInfo.memAreaFactory().produce(pInput.path(), O_RDONLY);
+  if (!area)
+    llvm::report_fatal_error("can't map file to MemoryArea");
+
+  MemoryRegion *region = area->request(off, archiveMagicSize);
+  if (!region)
+    llvm::report_fatal_error("can't request MemoryRegion for archive magic");
+
+  const char *pFile = reinterpret_cast<char *> (region->getBuffer());
+
+  /// check archive format.
+  bool isThinArchive;
+  isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
+  if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
     return NULL;
-  }
 
   InputTree *resultTree = new InputTree(m_pLDInfo.inputFactory());
   std::vector<SymbolTableEntry> symbolTable;
   std::string archiveMemberName;
   std::string extendedName;
-  bool isThinArchive;
-  const char *pFile = mapFile->getBufferStart();
-
-  /// check archive format.
-  if(mapFile->getBufferSize() <= archiveMagicSize)
-    return NULL;
-  else
-  {
-    isThinArchive = memcmp(pFile, thinArchiveMagic, archiveMagicSize) == 0;
-    if(!isThinArchive && memcmp(pFile, archiveMagic, archiveMagicSize) != 0)
-      return NULL;
-  }
 
   off += archiveMagicSize ;
-  size_t symbolTableSize = readMemberHeader(mapFile, off, &archiveMemberName,
+  size_t symbolTableSize = readMemberHeader(*area, off, &archiveMemberName,
                                             NULL, extendedName);
   /// read archive symbol table
   if(archiveMemberName.empty())
   {
-    readSymbolTable(mapFile, symbolTable,
+    readSymbolTable(*area, symbolTable,
                     off+sizeof(GNUArchiveReader::ArchiveMemberHeader), symbolTableSize);
     off = off + sizeof(GNUArchiveReader::ArchiveMemberHeader) + symbolTableSize;
   }
@@ -139,14 +143,16 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if((off&1) != 0)
     ++off;
 
-  size_t extendedSize = readMemberHeader(mapFile, off, &archiveMemberName,
+  size_t extendedSize = readMemberHeader(*area, off, &archiveMemberName,
                                           NULL, extendedName);
   /// read long Name table if exist
   if(archiveMemberName == "/")
   {
     off += sizeof(GNUArchiveReader::ArchiveMemberHeader);
-    pFile += off;
-    extendedName.assign(pFile,extendedSize);
+    MemoryRegion *extended_name_region = area->request(off, extendedSize);
+    pFile = reinterpret_cast<char *>(extended_name_region->getBuffer());
+    extendedName.assign(pFile, extendedSize);
+
   }
 
   /// traverse all the archive members
@@ -159,7 +165,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     /// the original InputTree, resultTree.
     off_t nestedOff = 0;
 
-    readMemberHeader(mapFile, symbolTable[i].fileOffset, &archiveMemberName,
+    readMemberHeader(*area, symbolTable[i].fileOffset, &archiveMemberName,
                       &nestedOff, extendedName);
 
     if(haveSeen.find(archiveMemberName)==haveSeen.end())
@@ -230,14 +236,14 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 /// "filename.o/        " - regular file with short name
 /// "/5566              " - name at offset 5566 at long name table
 
-size_t GNUArchiveReader::readMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+size_t GNUArchiveReader::readMemberHeader(MemoryArea &pArea,
                                            off_t off,
                                            std::string *p_Name,
                                            off_t *p_NestedOff,
                                            std::string &p_ExtendedName)
 {
-  const char *pFile = mapFile->getBufferStart();
-  pFile += off;
+  MemoryRegion *region = pArea.request(off, sizeof(ArchiveMemberHeader));
+  const char *pFile = reinterpret_cast<char *>(region->getBuffer());
   const ArchiveMemberHeader *header = reinterpret_cast<const ArchiveMemberHeader *>(pFile);
 
   /// check magic number of member header
@@ -315,13 +321,14 @@ size_t GNUArchiveReader::readMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &m
   return memberSize;
 }
 
-void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+void GNUArchiveReader::readSymbolTable(MemoryArea &pArea,
                                        std::vector<SymbolTableEntry> &pSymbolTable,
                                        off_t start,
                                        size_t size)
 {
-  const char *startPtr = mapFile->getBufferStart() + start;
-  const elfWord *p_Word = reinterpret_cast<const elfWord *>(startPtr);
+  MemoryRegion *region = pArea.request(start, size);
+  const char *pFile = reinterpret_cast<char *>(region->getBuffer());
+  const elfWord *p_Word = reinterpret_cast<const elfWord *>(pFile);
   unsigned int symbolNum = *p_Word;
 
   /// Portable Issue on Sparc platform

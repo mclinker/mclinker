@@ -13,8 +13,6 @@
 #endif
 
 #include "mcld/LD/ArchiveReader.h"
-#include "mcld/Support/Path.h"
-#include <llvm/ADT/OwningPtr.h>
 
 #include <vector>
 #include <string>
@@ -27,6 +25,7 @@ class MemoryBuffer;
 
 namespace mcld
 {
+class MemoryArea;
 class MCLDInfo;
 class Input;
 class InputTree;
@@ -63,13 +62,13 @@ private:
   InputTree *setupNewArchive(Input &pInput, size_t off);
 
   /// read the archive header, and return the member size
-  size_t readMemberHeader(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+  size_t readMemberHeader(MemoryArea &pArea,
                    off_t off,
                    std::string *p_Name,
                    off_t *nestedOff,
                    std::string &p_ExtendedName);
 
-  void readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapFile,
+  void readSymbolTable(MemoryArea &pArea,
                       std::vector<SymbolTableEntry> &pSymbolTable,
                       off_t start,
                       size_t size);
