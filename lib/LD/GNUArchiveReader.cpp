@@ -28,7 +28,7 @@ using namespace mcld;
 
 typedef uint32_t elfWord;
 
-/// Archive Header, Magic number, etc..
+/// Archive Header, Magic number
 
 const unsigned archiveMagicSize = 8;
 const char archiveMagic[archiveMagicSize] = { '!', '<', 'a', 'r', 'c', 'h', '>', '\n' };
@@ -190,8 +190,13 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
 
       continue;
     }
-
-    /// create the real path
+    
+    /// TODO:(Duo)
+    /// adjust the relative pathname
+    /// For example
+    /// thin archive pathname : "/usr/lib/thin.a"
+    ///           Member name : "member.a"
+    /// pathname after adjust : "/usr/lib/member.a"
     sys::fs::RealPath realPath(archiveMemberName);
     if(nestedOff > 0)
     {
