@@ -134,7 +134,12 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     }
   }
 
-  if (rsym->isLocal())
+  // We manually let isDyn() be the same as isDynamicSymbol().
+  // We will need this flag to know if it is in local or global GOT.
+  if (rsym->isDyn() != isDynamicSymbol(pInputSym, pOutput))
+    rsym->setSource(isDynamicSymbol(pInputSym, pOutput));
+
+  if (rsym->isLocal() || !rsym->isDyn())
     scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
   else
     scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
@@ -231,12 +236,10 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
                            llvm::Twine("'.\n"));
   return 0;
 }
-/// isGOTSymbol - return true if the symbol is the GOT entry.
-bool MipsGNULDBackend::isGOTSymbol(const LDSymbol& pSymbol) const
+/// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
+bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
 {
-  return std::find(m_LocalGOTSyms.begin(),
-                   m_LocalGOTSyms.end(), &pSymbol) != m_LocalGOTSyms.end() ||
-         std::find(m_GlobalGOTSyms.begin(),
+  return std::find(m_GlobalGOTSyms.begin(),
                    m_GlobalGOTSyms.end(), &pSymbol) != m_GlobalGOTSyms.end();
 }
 
@@ -323,7 +326,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     if (!isDynamicSymbol(**symbol, pOutput))
       continue;
 
-    if (isGOTSymbol(**symbol))
+    if (isGlobalGOTSymbol(**symbol))
       continue;
 
     emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
@@ -338,6 +341,14 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
        symbol_end = m_GlobalGOTSyms.end();
        symbol != symbol_end; ++symbol) {
+
+    // Make sure this golbal GOT entry is a dynamic symbol.
+    // If not, something is wrong earlier when putting this symbol into
+    //  global GOT.
+    if (!isDynamicSymbol(**symbol, pOutput))
+      llvm::report_fatal_error(llvm::Twine((*symbol)->name()) +
+                               llvm::Twine(" is not a dynamic symbol. ") +
+                               llvm::Twine("Don't put it in global GOT."));
 
     emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
                       strtabsize, symtabIdx);

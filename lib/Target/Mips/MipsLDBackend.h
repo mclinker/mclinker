@@ -183,8 +183,8 @@ private:
   std::vector<LDSymbol*> m_GlobalGOTSyms;
 
 private:
-  /// isGOTSymbol - return true if the symbol is the GOT entry.
-  bool isGOTSymbol(const LDSymbol& pSymbol) const;
+  /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
+  bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
   /// emitDynamicSymbol - emit dynamic symbol.
   void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
                          Output& pOutput, 

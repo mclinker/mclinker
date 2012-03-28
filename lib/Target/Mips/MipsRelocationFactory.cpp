@@ -203,7 +203,7 @@ void helper_DynRel(Relocation& pReloc,
 
   rel_entry.setType(llvm::ELF::R_MIPS_REL32);
   rel_entry.targetRef() = pReloc.targetRef();
-  rel_entry.setSymInfo(rsym->isLocal() ? NULL : rsym);
+  rel_entry.setSymInfo((rsym->isLocal() || !rsym->isDyn()) ? NULL : rsym);
 }
 
 //=========================================//
