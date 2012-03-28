@@ -14,6 +14,7 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/system_error.h>
 #include <llvm/Support/Host.h>
+#include <mcld/ADT/SizeTraits.h>
 
 #include <sstream>
 #include <string>
@@ -50,13 +51,6 @@ struct GNUArchiveReader::SymbolTableEntry
   std::string name;
 };
 
-inline void endian_swap(unsigned int& x)
-{
-  x = (x>>24) |
-      ((x<<8) & 0x00FF0000) |
-      ((x>>8) & 0x0000FF00) |
-      (x<<24);
-}
 
 
 /// convert string to size_t
@@ -336,7 +330,7 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
   /// Intel, ARM and Mips are littel-endian , Sparc is little-endian after verion 9
   /// symbolNum in symbol table is always big-endian
   if(llvm::sys::isLittleEndianHost())
-    endian_swap(symbolNum);
+    symbolNum = bswap32(symbolNum);
   ++p_Word;
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
@@ -347,7 +341,7 @@ void GNUArchiveReader::readSymbolTable(llvm::OwningPtr<llvm::MemoryBuffer> &mapF
     /// assign member offset
     unsigned int memberOffset = *p_Word;
     if(llvm::sys::isLittleEndianHost())
-      endian_swap(memberOffset);
+      memberOffset = bswap32(memberOffset);
     pSymbolTable[i].fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
     /// assign member name
