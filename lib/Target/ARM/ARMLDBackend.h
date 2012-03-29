@@ -207,8 +207,6 @@ public:
                            const MCLDInfo& pLDInfo,
                            const Output& pOutput) const;
 
-  bool isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const;
-
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,

@@ -98,11 +98,6 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-bool X86GNULDBackend::isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const
-{
-  return (pOutput.type() == Output::DynObj);
-}
-
 void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
@@ -205,11 +200,11 @@ bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
     return false;
   if (pSym.isAbsolute())
     return false;
-  if (isPIC(pLDInfo, pOutput) && isAbsReloc)
+  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
     return true;
   if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
     return false;
-  if (!isPIC(pLDInfo, pOutput) && (pSym.reserved() & ReservePLT))
+  if (!isOutputPIC(pOutput, pLDInfo) && (pSym.reserved() & ReservePLT))
     return false;
   if (pSym.isDyn() || pSym.isUndef() ||
       isSymbolPreemptible(pSym, pLDInfo, pOutput))
@@ -262,7 +257,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isPIC(pLDInfo, pOutput)) {
+      if (isOutputPIC(pOutput, pLDInfo)) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);

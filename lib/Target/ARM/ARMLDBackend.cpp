@@ -173,11 +173,6 @@ const ARMELFDynamic& ARMGNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-bool ARMGNULDBackend::isPIC(const MCLDInfo& pLDInfo, const Output& pOutput) const
-{
-  return (pOutput.type() == Output::DynObj);
-}
-
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create MCSectionData
@@ -280,11 +275,11 @@ bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
     return false;
   if (pSym.isAbsolute())
     return false;
-  if (isPIC(pLDInfo, pOutput) && isAbsReloc)
+  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
     return true;
   if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
     return false;
-  if (!isPIC(pLDInfo, pOutput) && (pSym.reserved() & ReservePLT))
+  if (!isOutputPIC(pOutput, pLDInfo) && (pSym.reserved() & ReservePLT))
     return false;
   if (pSym.isDyn() || pSym.isUndef() ||
       isSymbolPreemptible(pSym, pLDInfo, pOutput))
@@ -317,7 +312,7 @@ bool ARMGNULDBackend::needCopyReloc(const Layout& pLayout,
 {
   // only the reference from dynamic executable to non-function symbol in
   // the dynamic objects may need copy relocation
-  if (isPIC(pLDInfo, pOutput) ||
+  if (isOutputPIC(pOutput, pLDInfo) ||
       !pSym.isDyn() ||
       pSym.type() == ResolveInfo::Function ||
       pSym.size() == 0)
@@ -413,7 +408,7 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
                                       const Output& pOutput) const
 {
   // If not building a PIC object, no relocation type is invalid
-  if (!isPIC(pLDInfo, pOutput))
+  if (!isOutputPIC(pOutput, pLDInfo))
     return;
 
   switch(pReloc.type()) {
@@ -474,7 +469,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isPIC(pLDInfo, pOutput)) {
+      if (isOutputPIC(pOutput, pLDInfo)) {
         //create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -497,7 +492,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object (shared library or PIC executable),
       // a dynamic relocation for this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isPIC(pLDInfo, pOutput)) {
+      if (isOutputPIC(pOutput, pLDInfo)) {
         checkValidReloc(pReloc, pLDInfo, pOutput);
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
@@ -532,7 +527,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if (isPIC(pLDInfo, pOutput)) {
+      if (isOutputPIC(pOutput, pLDInfo)) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
