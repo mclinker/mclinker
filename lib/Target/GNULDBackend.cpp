@@ -1188,3 +1188,87 @@ bool GNULDBackend::isStaticLink(const Output& pOutput,
     return true;
   return false;
 }
+
+/// isSymbolPreemtible - whether the symbol can be preemted by other
+/// link unit
+/// @ref Google gold linker, symtab.h:551
+bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
+                                       const MCLDInfo& pLDInfo,
+                                       const Output& pOutput) const
+{
+  if (pSym.other() != ResolveInfo::Default)
+    return false;
+
+  if (Output::DynObj != pOutput.type())
+    return false;
+
+  if (pLDInfo.options().Bsymbolic())
+    return false;
+
+  return true;
+}
+
+/// symbolNeedsPLT - return whether the symbol needs a PLT entry
+/// @ref Google gold linker, symtab.h:596
+bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
+                                  const MCLDInfo& pLDInfo,
+                                  const Output& pOutput) const
+{
+  return (Output::DynObj == pOutput.type() &&
+          ResolveInfo::Function == pSym.type() &&
+          (pSym.isDyn() || pSym.isUndef() ||
+            isSymbolPreemptible(pSym, pLDInfo, pOutput)));
+}
+
+/// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
+/// @ref Google gold linker, symtab.h:645
+bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
+                                     bool pSymHasPLT,
+                                     const MCLDInfo& pLDInfo,
+                                     const Output& pOutput,
+                                     bool isAbsReloc) const
+{
+  if (pSym.isUndef() && (Output::Exec == pOutput.type()))
+    return false;
+  if (pSym.isAbsolute())
+    return false;
+  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
+    return true;
+  if (pSymHasPLT && ResolveInfo::Function == pSym.type())
+    return false;
+  if (!isOutputPIC(pOutput, pLDInfo) && pSymHasPLT)
+    return false;
+  if (pSym.isDyn() || pSym.isUndef() ||
+      isSymbolPreemptible(pSym, pLDInfo, pOutput))
+    return true;
+
+  return false;
+}
+
+/// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
+bool GNULDBackend::symbolNeedsCopyReloc(const Layout& pLayout,
+                                        const Relocation& pReloc,
+                                        const ResolveInfo& pSym,
+                                        const MCLDInfo& pLDInfo,
+                                        const Output& pOutput) const
+{
+  // only the reference from dynamic executable to non-function symbol in
+  // the dynamic objects may need copy relocation
+  if (isOutputPIC(pOutput, pLDInfo) ||
+      !pSym.isDyn() ||
+      pSym.type() == ResolveInfo::Function ||
+      pSym.size() == 0)
+    return false;
+
+  // check if the option -z nocopyreloc is given
+  if (pLDInfo.options().hasNoCopyReloc())
+    return false;
+
+  // TODO: Is this check necessary?
+  // if relocation target place is readonly, a copy relocation is needed
+  if ((pLayout.getOutputLDSection(*pReloc.targetRef().frag())->flag() &
+      llvm::ELF::SHF_WRITE) == 0)
+    return true;
+
+  return false;
+}

@@ -180,55 +180,6 @@ ELFFileFormat* X86GNULDBackend::getOutputFormat(const Output& pOutput) const
   }
 }
 
-bool X86GNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
-                                       const MCLDInfo& pLDInfo,
-                                       const Output& pOutput) const
-{
-  return((Output::DynObj == pOutput.type())
-         &&(ResolveInfo::Function == pSym.type())
-         &&(pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemptible(pSym, pLDInfo, pOutput))
-        );
-}
-
-bool X86GNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                                          const MCLDInfo& pLDInfo,
-                                          const Output& pOutput,
-                                          bool isAbsReloc) const
-{
-  if (pSym.isUndef() && (pOutput.type()==Output::Exec))
-    return false;
-  if (pSym.isAbsolute())
-    return false;
-  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
-    return true;
-  if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
-    return false;
-  if (!isOutputPIC(pOutput, pLDInfo) && (pSym.reserved() & ReservePLT))
-    return false;
-  if (pSym.isDyn() || pSym.isUndef() ||
-      isSymbolPreemptible(pSym, pLDInfo, pOutput))
-    return true;
-
-  return false;
-}
-
-bool X86GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
-                                         const MCLDInfo& pLDInfo,
-                                         const Output& pOutput) const
-{
-  if (pSym.other() != ResolveInfo::Default)
-    return false;
-
-  if (pOutput.type() != Output::DynObj)
-    return false;
-
-  if (pLDInfo.options().Bsymbolic())
-    return false;
-
-  return true;
-}
-
 void X86GNULDBackend::updateAddend(Relocation& pReloc,
                                    const LDSymbol& pInputSym,
                                    const Layout& pLayout) const
@@ -298,7 +249,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
@@ -318,7 +269,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, true)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                            pLDInfo, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)

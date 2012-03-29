@@ -153,9 +153,6 @@ private:
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
-  bool isSymbolNeedsPLT(ResolveInfo& pSym, const Output& pOutput) const;
-  bool isSymbolNeedsDynRel(ResolveInfo& pSym, const Output& pOutput) const;
-
   void createGOT(MCLinker& pLinker, const Output& pOutput);
   void createRelDyn(MCLinker& pLinker, const Output& pOutput);
 
@@ -187,7 +184,7 @@ private:
   bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
   /// emitDynamicSymbol - emit dynamic symbol.
   void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                         Output& pOutput, 
+                         Output& pOutput,
                          LDSymbol& pSymbol,
                          const Layout& pLayout,
                          char* strtab,

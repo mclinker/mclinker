@@ -289,12 +289,41 @@ private:
   /// dynamic - the dynamic section of the target machine.
   virtual const ELFDynamic& dynamic() const = 0;
 
+public:
+  /// isSymbolPreemtible - whether the symbol can be preemted by other
+  /// link unit
+  /// @ref Google gold linker, symtab.h:551
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
+                           const MCLDInfo& pLDInfo,
+                           const Output& pOutput) const;
+
 protected:
   /// isOutputPIC - return whether the output is position-independent
   bool isOutputPIC(const Output& pOutput, const MCLDInfo& pInfo) const;
 
   /// isStaticLink - return whether we're doing static link
   bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
+
+  /// symbolNeedsPLT - return whether the symbol needs a PLT entry
+  /// @ref Google gold linker, symtab.h:596
+  bool symbolNeedsPLT(const ResolveInfo& pSym,
+                      const MCLDInfo& pLDInfo,
+                      const Output& pOutput) const;
+
+  /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
+  /// @ref Google gold linker, symtab.h:645
+  bool symbolNeedsDynRel(const ResolveInfo& pSym,
+                         bool pSymHasPLT,
+                         const MCLDInfo& pLDInfo,
+                         const Output& pOutput,
+                         bool isAbsReloc) const;
+
+  /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
+  bool symbolNeedsCopyReloc(const Layout& pLayout,
+                            const Relocation& pReloc,
+                            const ResolveInfo& pSym,
+                            const MCLDInfo& pLDInfo,
+                            const Output& pOutput) const;
 
 protected:
   // ----- readers and writers ----- //

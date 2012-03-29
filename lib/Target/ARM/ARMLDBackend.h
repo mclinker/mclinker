@@ -202,11 +202,6 @@ public:
                    MCLinker& pLinker,
                    LDSection& pInputSectHdr);
 
-public:
-  bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
-                           const Output& pOutput) const;
-
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
@@ -220,27 +215,17 @@ private:
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
 
-  bool isSymbolNeedsPLT(const ResolveInfo& pSym,
-                        const MCLDInfo& pLDInfo,
-                        const Output& pOutput) const;
-
-  bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
-                           const Output& pOutput,
-                           bool isAbsReloc) const;
-
-  bool needCopyReloc(const Layout& pLayout,
-                     const Relocation& pReloc,
-                     const ResolveInfo& pSym,
-                     const MCLDInfo& pLDInfo,
-                     const Output& pOutput) const;
-
-  void addCopyReloc(ResolveInfo& pSym);
-
   void checkValidReloc(Relocation& pReloc,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput) const;
 
+  /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
+  /// @param pSym - A resolved copy symbol that defined in BSS section
+  void addCopyReloc(ResolveInfo& pSym);
+
+  /// defineSymbolforCopyReloc - allocate a space in BSS section and
+  /// and force define the copy of pSym to BSS section
+  /// @return the output LDSymbol of the copy symbol
   LDSymbol& defineSymbolforCopyReloc(MCLinker& pLinker,
                                      const ResolveInfo& pSym);
 

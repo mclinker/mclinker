@@ -186,11 +186,6 @@ public:
   /// sections.
   bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
 
-public:
-  bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
-                           const Output& pOutput) const;
-
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
@@ -203,15 +198,6 @@ private:
                        MCLinker& pLinker,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
-
-  bool isSymbolNeedsPLT(const ResolveInfo& pSym,
-                        const MCLDInfo& pLDInfo,
-                        const Output& pOutput) const;
-
-  bool isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
-                           const Output& pOutput,
-                           bool isAbsReloc) const;
 
   void updateAddend(Relocation& pReloc,
                     const LDSymbol& pInputSym,

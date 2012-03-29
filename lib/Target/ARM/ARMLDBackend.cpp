@@ -256,81 +256,6 @@ ELFFileFormat* ARMGNULDBackend::getOutputFormat(const Output& pOutput) const
   }
 }
 
-bool ARMGNULDBackend::isSymbolNeedsPLT(const ResolveInfo& pSym,
-                                       const MCLDInfo& pLDInfo,
-                                       const Output& pOutput) const
-{
-  return (Output::DynObj == pOutput.type() &&
-          ResolveInfo::Function == pSym.type() &&
-          (pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemptible(pSym, pLDInfo, pOutput)));
-}
-
-bool ARMGNULDBackend::isSymbolNeedsDynRel(const ResolveInfo& pSym,
-                                          const MCLDInfo& pLDInfo,
-                                          const Output& pOutput,
-                                          bool isAbsReloc) const
-{
-  if (pSym.isUndef() && (Output::Exec == pOutput.type()))
-    return false;
-  if (pSym.isAbsolute())
-    return false;
-  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
-    return true;
-  if ((pSym.reserved() & ReservePLT) && ResolveInfo::Function == pSym.type())
-    return false;
-  if (!isOutputPIC(pOutput, pLDInfo) && (pSym.reserved() & ReservePLT))
-    return false;
-  if (pSym.isDyn() || pSym.isUndef() ||
-      isSymbolPreemptible(pSym, pLDInfo, pOutput))
-    return true;
-
-  return false;
-}
-
-bool ARMGNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
-                                          const MCLDInfo& pLDInfo,
-                                          const Output& pOutput) const
-{
-  if (pSym.other() != ResolveInfo::Default)
-    return false;
-
-  if (Output::DynObj != pOutput.type())
-    return false;
-
-  if (pLDInfo.options().Bsymbolic())
-    return false;
-
-  return true;
-}
-
-bool ARMGNULDBackend::needCopyReloc(const Layout& pLayout,
-                                    const Relocation& pReloc,
-                                    const ResolveInfo& pSym,
-                                    const MCLDInfo& pLDInfo,
-                                    const Output& pOutput) const
-{
-  // only the reference from dynamic executable to non-function symbol in
-  // the dynamic objects may need copy relocation
-  if (isOutputPIC(pOutput, pLDInfo) ||
-      !pSym.isDyn() ||
-      pSym.type() == ResolveInfo::Function ||
-      pSym.size() == 0)
-    return false;
-
-  // check if the option -z nocopyreloc is given
-  if (pLDInfo.options().hasNoCopyReloc())
-    return false;
-
-  // TODO: Is this check necessary?
-  // if relocation target place is readonly, a copy relocation is needed
-  if ((pLayout.getOutputLDSection(*pReloc.targetRef().frag())->flag() &
-      llvm::ELF::SHF_WRITE) == 0)
-    return true;
-
-  return false;
-}
-
 void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
 {
   bool exist;
@@ -597,7 +522,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (isSymbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & 0x8u)){
           // Create .got section if it doesn't exist
@@ -617,13 +542,14 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, true)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                            pLDInfo, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (needCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -699,13 +625,14 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
-      if (isSymbolNeedsDynRel(*rsym, pLDInfo, pOutput, false)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                            pLDInfo, pOutput, false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (needCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());

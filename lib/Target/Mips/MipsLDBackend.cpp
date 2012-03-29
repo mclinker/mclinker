@@ -714,7 +714,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (isSymbolNeedsDynRel(*rsym, pOutput)) {
+      if (symbolNeedsDynRel(*rsym, false, pLDInfo, pOutput, true)) {
         if (NULL == m_pRelDyn)
           createRelDyn(pLinker, pOutput);
 
@@ -795,29 +795,6 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                pReloc.symInfo()->name() +
                                llvm::Twine("'."));
   }
-}
-
-bool MipsGNULDBackend::isSymbolNeedsPLT(ResolveInfo& pSym,
-                                        const Output& pOutput) const
-{
-  return (Output::DynObj == pOutput.type() &&
-         ResolveInfo::Function == pSym.type() &&
-         (pSym.isDyn() || pSym.isUndef()));
-}
-
-bool MipsGNULDBackend::isSymbolNeedsDynRel(ResolveInfo& pSym,
-                                           const Output& pOutput) const
-{
-  if (pSym.isUndef() && Output::Exec == pOutput.type())
-    return false;
-  if (pSym.isAbsolute())
-    return false;
-  if (Output::DynObj == pOutput.type())
-    return true;
-  if (pSym.isDyn() || pSym.isUndef())
-    return true;
-
-  return false;
 }
 
 void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
