@@ -14,8 +14,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <iostream>
-
 using namespace mcld;
 using namespace mcld::sys::fs;
 
