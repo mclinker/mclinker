@@ -123,8 +123,7 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
   pExist = NULL != entry;
 
   if (!pExist) {
-    iterator& it = (pInfo.isLocal() || !pInfo.isDyn()) ?
-                   m_LocalGOTIterator : m_GlobalGOTIterator;
+    iterator& it = isLocal(&pInfo)  ? m_LocalGOTIterator : m_GlobalGOTIterator;
 
     ++it;
 

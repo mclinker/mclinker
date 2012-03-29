@@ -134,12 +134,8 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     }
   }
 
-  // We manually let isDyn() be the same as isDynamicSymbol().
-  // We will need this flag to know if it is in local or global GOT.
-  if (rsym->isDyn() != isDynamicSymbol(pInputSym, pOutput))
-    rsym->setSource(isDynamicSymbol(pInputSym, pOutput));
-
-  if (rsym->isLocal() || !rsym->isDyn())
+  // We test isLocal or if pInputSym is not a dynamic symbol
+  if (rsym->isLocal() || !isDynamicSymbol(pInputSym, pOutput))
     scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
   else
     scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
@@ -656,6 +652,8 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pGOT->reserveLocalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_LocalGOTSyms.push_back(rsym->outSymbol());
+        // Remeber this rsym is a local GOT entry
+        m_pGOT->setLocal(rsym);
       }
       break;
     case llvm::ELF::R_MIPS_GPREL32:
@@ -740,6 +738,8 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         m_pGOT->reserveGlobalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_GlobalGOTSyms.push_back(rsym->outSymbol());
+        // Remeber this rsym is a global GOT entry
+        m_pGOT->setGlobal(rsym);
       }
       break;
     case llvm::ELF::R_MIPS_LITERAL:

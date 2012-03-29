@@ -196,6 +196,7 @@ void helper_DynRel(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
   MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
 
   bool exist;
   Relocation& rel_entry =
@@ -203,7 +204,7 @@ void helper_DynRel(Relocation& pReloc,
 
   rel_entry.setType(llvm::ELF::R_MIPS_REL32);
   rel_entry.targetRef() = pReloc.targetRef();
-  rel_entry.setSymInfo((rsym->isLocal() || !rsym->isDyn()) ? NULL : rsym);
+  rel_entry.setSymInfo(got.isLocal(rsym) ? NULL : rsym);
 }
 
 //=========================================//
