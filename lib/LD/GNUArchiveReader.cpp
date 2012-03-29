@@ -71,7 +71,7 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   /// check archive format.
   if (memcmp(p_buffer, ArchiveMagic, ArchiveMagicSize) != 0
       && memcmp(p_buffer, ThinArchiveMagic, ArchiveMagicSize) != 0)
-    return false;
+    llvm::report_fatal_error("Fail : archive magic number is not matched");
   return true;
 }
 
@@ -106,7 +106,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   bool isThinArchive;
   isThinArchive = memcmp(pFile, ThinArchiveMagic, ArchiveMagicSize) == 0;
   if(!isThinArchive && memcmp(pFile, ArchiveMagic, ArchiveMagicSize) != 0)
-    return NULL;
+    llvm::report_fatal_error("Fail : archive magic number is not matched");
 
   InputTree *resultTree = new InputTree(m_pLDInfo.inputFactory());
   std::vector<SymbolTableEntry> symbolTable;
