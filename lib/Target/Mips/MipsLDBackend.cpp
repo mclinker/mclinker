@@ -615,6 +615,12 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
+
+        // Remeber this rsym is a local GOT entry (as if it needs an entry).
+        // Actually we don't allocate an GOT entry.
+        if (NULL == m_pGOT)
+          createGOT(pLinker, pOutput);
+        m_pGOT->setLocal(rsym);
       }
       break;
     case llvm::ELF::R_MIPS_REL32:
@@ -720,6 +726,12 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
+
+        // Remeber this rsym is a global GOT entry (as if it needs an entry).
+        // Actually we don't allocate an GOT entry.
+        if (NULL == m_pGOT)
+          createGOT(pLinker, pOutput);
+        m_pGOT->setGlobal(rsym);
       }
       break;
     case llvm::ELF::R_MIPS_GOT16:

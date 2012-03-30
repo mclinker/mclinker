@@ -204,7 +204,19 @@ void helper_DynRel(Relocation& pReloc,
 
   rel_entry.setType(llvm::ELF::R_MIPS_REL32);
   rel_entry.targetRef() = pReloc.targetRef();
-  rel_entry.setSymInfo(got.isLocal(rsym) ? NULL : rsym);
+
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
+
+  if (got.isLocal(rsym)) {
+    rel_entry.setSymInfo(NULL);
+    pReloc.target() = A + S;
+  }
+  else {
+    rel_entry.setSymInfo(rsym);
+    // Don't add symbol value that will be resolved by the dynamic linker
+    pReloc.target() = A;
+  }
 }
 
 //=========================================//
@@ -230,12 +242,14 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
 
   if (rsym->reserved() & MipsGNULDBackend::ReserveRel) {
     helper_DynRel(pReloc, pParent);
+
+    return MipsRelocationFactory::OK;
   }
 
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  pReloc.target() |= (S + A);
+  pReloc.target() = (S + A);
 
   return MipsRelocationFactory::OK;
 }
