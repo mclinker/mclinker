@@ -81,21 +81,6 @@ MAttrs("mattr",
   cl::desc("Target specific attributes (-mattr=help for details)"),
   cl::value_desc("a1,+a2,-a3,..."));
 
-static cl::opt<Reloc::Model>
-RelocModel("relocation-model",
-             cl::desc("Choose relocation model"),
-             cl::init(Reloc::Default),
-             cl::values(
-            clEnumValN(Reloc::Default, "default",
-                       "Target default relocation model"),
-            clEnumValN(Reloc::Static, "static",
-                       "Non-relocatable code"),
-            clEnumValN(Reloc::PIC_, "pic",
-                       "Fully relocatable, position independent code"),
-            clEnumValN(Reloc::DynamicNoPIC, "dynamic-no-pic",
-                       "Relocatable external references, non-relocatable code"),
-            clEnumValEnd));
-
 static cl::opt<llvm::CodeModel::Model>
 CMModel("code-model",
         cl::desc("Choose code model"),
@@ -362,6 +347,26 @@ static cl::opt<bool>
 ArgPIE("pie",
        cl::desc("Emit a position-independent executable file"),
        cl::init(false));
+
+static cl::opt<Reloc::Model>
+ArgRelocModel("relocation-model",
+             cl::desc("Choose relocation model"),
+             cl::init(Reloc::Default),
+             cl::values(
+               clEnumValN(Reloc::Default, "default",
+                       "Target default relocation model"),
+               clEnumValN(Reloc::Static, "static",
+                       "Non-relocatable code"),
+               clEnumValN(Reloc::PIC_, "pic",
+                       "Fully relocatable, position independent code"),
+               clEnumValN(Reloc::DynamicNoPIC, "dynamic-no-pic",
+                       "Relocatable external references, non-relocatable code"),
+               clEnumValEnd));
+
+static cl::opt<bool>
+ArgFPIC("fPIC",
+        cl::desc("Set relocation model to pic. The same as -relocation-model=pic."),
+        cl::init(false));
 
 //===----------------------------------------------------------------------===//
 // Inputs
@@ -866,6 +871,10 @@ int main( int argc, char* argv[] )
   case '3': OLvl = CodeGenOpt::Aggressive; break;
   }
 
+  // set -fPIC
+  if (ArgFPIC)
+    ArgRelocModel = Reloc::PIC_;
+
   TargetOptions Options;
   Options.LessPreciseFPMADOption = EnableFPMAD;
   Options.PrintMachineCode = PrintCode;
@@ -894,7 +903,7 @@ int main( int argc, char* argv[] )
   std::auto_ptr<mcld::LLVMTargetMachine> target_machine(
           TheTarget->createTargetMachine(TheTriple.getTriple(),
                                          MCPU, FeaturesStr, Options,
-                                         RelocModel, CMModel, OLvl));
+                                         ArgRelocModel, CMModel, OLvl));
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::LLVMTargetMachine &TheTargetMachine = *target_machine.get();
 
