@@ -98,6 +98,125 @@ Create a shared library. This is currently only supported on ELF.
 
 =back
 
+=head2 Options that control the searching of inputs
+
+=over
+
+=item B<--sysroot=>I<directory>
+
+Use directory as the location of the sysroot, overriding the configure-time
+default.
+
+=item B<-L> I<searchdir>
+
+=item B<--library-path=>I<searchdir>
+
+Add the path I<searchdir> to the list of paths that B<llvm-mcld> will search
+for archives, shared libraries and link scripts.  You may use this option many
+times.
+
+The directories are searched in the order in which they are specified on the
+command line.  Directories specified on the command line are searched before
+the default directories.  All -L options apply to all -l options, regardless of
+the order in which the options appear.  -L options do not affect how B<llvm-mcld>
+searches for a linker script unless -T option is specified.
+
+If searchdir begins with "B<=>", then the "B<=>" will be replaced by the sysroot
+prefix, a path specified by B<--sysroot>.
+
+=item B<-l>I<namespec>
+
+=item B<--library=>I<namespec>
+
+Add the archive or shared library whose file name is specified by namespec to
+the list of files to link. This option may be used many times. B<llvm-mcld>
+will search the library path for a file called I<libnamespec.a> by default.
+
+On systems which support shared libraries, B<llvm-mcld> may also search for
+files called I<libnamespec.so> before searching I<libnamespec.a>. The searching
+priority is dependent on system's configuration. For example, on ARM Android
+system, B<llvm-mcld> will search I<libnamespec.so> before searching
+I<libnamespec.a>.
+
+=back
+
+=head2 Machine Dependent Options
+
+=over
+
+=item B<-mtriple=>I<target triple>
+
+Specify the environment for which to generate output file.
+For example:
+
+	llvm-mcld -mtriple=arm-none-linux-gnueabi
+
+=item B<-march=>I<arch>
+
+Specify the architecture for which to generate output file. Currently supported
+architecture are:
+
+I<arm> I<x86>  I<mipsel>
+
+=item B<-mcpu=>I<cpuname>
+
+Specify a specific processor chip in the current architecture to generate code
+for. By default, this is refered from the target triple and auto-detected to
+the current architecture.
+
+Get the list of available CPUs, try:
+
+	llvm-mcld -marhc=XXX -mcpu=help
+
+=back
+
+=head2 Options that control LLVM
+
+If you use B<llvm-mcld> as B<llc>, here are some important options in B<llc>.
+
+=over
+
+=item B<relocation-model>=I<model>
+
+
+Choose the relocation model for output file.
+
+=over
+
+=item I<default>
+
+Use target default relocation model. This is default option.
+
+=item I<static>
+
+generate non-relocatable code.
+
+=item I<pic>
+
+Emit position independent code (PIC) suitable for use in a shared library. 
+
+=item I<dynamic-no-pic>
+
+Relocatable external references, non-relocatable code.
+
+=back
+
+=item B<-fPIC>
+
+This option is the same as I<-relocation-model=pic>. Use for convenience.
+
+=back
+
+=head2 Options for developers
+
+=over
+
+=item B<-unittest>
+
+Examine MCLinker by unit-test cases.
+
+=back
+
 =head1 SEE ALSO
 
 I<llc>(1), I<ld>(1), I<ar>(1) and the Info entries for I<binutils> and I<ld>.
