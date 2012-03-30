@@ -5,3 +5,9 @@ There is the test cases for symbol resolution issues.
 1) exec_w_undef.ll
   Generating executable file. The object file has undefined symbol and should
   fails.
+2) shared_w_z_muldefs.ll
+  Generating shared library with -z muldefs option. The result should be a should
+  library with two identical f() functions.
+3) shared_wo_z_muldefs.ll
+  Generating shared library without -z muldefs option. This case should report
+  a fatal error - multiple definitions.
