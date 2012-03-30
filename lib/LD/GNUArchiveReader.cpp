@@ -334,18 +334,21 @@ void GNUArchiveReader::readSymbolTable(MemoryArea &pArea,
 
   const char *p_Name = reinterpret_cast<const char *>(p_Word + symbolNum);
 
-  pSymbolTable.resize(symbolNum);
   for(unsigned int i=0 ; i<symbolNum ; ++i)
   {
-    /// assign member offset
+    SymbolTableEntry entry;
+    /// member offset
     unsigned int memberOffset = *p_Word;
     if(llvm::sys::isLittleEndianHost())
       memberOffset = bswap32(memberOffset);
-    pSymbolTable[i].fileOffset = static_cast<off_t>(memberOffset);
+    entry.fileOffset = static_cast<off_t>(memberOffset);
     ++p_Word;
-    /// assign member name
+    /// member name
     off_t nameEnd = strlen(p_Name) + 1;
-    pSymbolTable[i].name.assign(p_Name, nameEnd);
+    entry.name.assign(p_Name, nameEnd);
     p_Name += nameEnd;
+    /// the symbol is found in symbol pool
+    if (m_pLDInfo.getStrSymPool().findSymbol(entry.name))
+      pSymbolTable.push_back(entry);
   }
 }
