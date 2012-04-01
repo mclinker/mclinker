@@ -142,24 +142,27 @@ RelocationFactory::Address helper_GetGP(MipsRelocationFactory& pParent)
 
 static
 GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
-                             MipsRelocationFactory& pParent)
+                             MipsRelocationFactory& pParent,
+                             bool& pExist, int32_t value)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
 
-  bool exist;
-  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(*rsym, exist);
+  GOTEntry& got_entry = *got.getEntry(*rsym, pExist);
 
-  if (exist)
+  if (pExist)
     return got_entry;
 
   // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
-    got_entry.setContent(pReloc.symValue());
-  }
-  else {
-    llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
+  if (!(got.isLocal(rsym) && rsym->type() == ResolveInfo::Section)) {
+    if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
+      got_entry.setContent(pReloc.symValue());
+    }
+    else {
+      llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
+    }
   }
 
   return got_entry;
@@ -169,7 +172,8 @@ static
 RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
                                                MipsRelocationFactory& pParent)
 {
-  GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
+  bool exist;
+  GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
   return pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
 }
 
@@ -294,17 +298,21 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    MipsRelocationFactory& pParent)
 {
-  int32_t AHL = pParent.getAHL();
   int32_t res = 0;
 
   if (helper_isGpDisp(pReloc)) {
     int32_t P = pReloc.place(pParent.getLayout());
     int32_t GP = helper_GetGP(pParent);
+    int32_t AHL = pParent.getAHL();
     res = AHL + GP - P + 4;
   }
   else {
     int32_t S = pReloc.symValue();
-    res = AHL + S;
+    // The previous AHL may be for other hi/lo pairs.
+    // We need to calcuate the lo part now.  It is easy.
+    // Remember to add the section offset to ALO.
+    int32_t ALO = (pReloc.target() & 0xFFFF) + pReloc.addend();
+    res = ALO + S;
   }
 
   pReloc.target() &= 0xFFFF0000;
@@ -322,6 +330,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
                                     MipsRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
+  RelocationFactory::Address G = 0;
 
   if (rsym->isLocal()) {
     Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
@@ -332,13 +341,16 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
 
     pParent.setAHL(AHL);
 
-    GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
-
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
-    got_entry.setContent(res);
-  }
+    bool exist;
+    GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
-  RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
+    got_entry.setContent(res);
+    G = pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
+  }
+  else {
+    G = helper_GetGOTOffset(pReloc, pParent);
+  }
 
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= (G & 0xFFFF);
@@ -366,7 +378,8 @@ MipsRelocationFactory::Result gprel32(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       MipsRelocationFactory& pParent)
 {
-  int32_t A = pReloc.target();
+  // Remember to add the section offset to A.
+  int32_t A = pReloc.target() + pReloc.addend();
   int32_t S = pReloc.symValue();
   int32_t GP = helper_GetGP(pParent);
 

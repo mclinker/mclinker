@@ -26,6 +26,7 @@ class MipsGOT : public GOT
 {
 private:
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+  typedef llvm::DenseMap<const GOTEntry*, const ResolveInfo*> GotMapType;
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 
 public:
@@ -47,6 +48,7 @@ public:
   void reserveGlobalEntry();
 
   GOTEntry* getEntry(const ResolveInfo& pInfo, bool& pExist);
+  GOTEntry* getLocalGOT16Entry(const ResolveInfo& pInfo, bool& pExist, int32_t value);
 
   size_t getTotalNum() const;
   size_t getLocalNum() const;
@@ -68,8 +70,10 @@ public:
   }
 
 private:
-  SymbolIndexMapType m_GeneralGOTMap;
+  SymbolIndexMapType m_GeneralGOTMap; // Map ResolveInfo* to GOTEntry *.
   SymbolTypeMapType m_GOTTypeMap;
+  GotMapType m_GOTMap; // Map GOTEntry* to ResolveInfo*.
+
   iterator m_LocalGOTIterator;  // last local GOT entries
   iterator m_GlobalGOTIterator; // last global GOT entries
   size_t m_pLocalNum;

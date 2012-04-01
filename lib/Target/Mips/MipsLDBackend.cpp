@@ -134,8 +134,15 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     }
   }
 
+  // Skip relocation against _gp_disp
+  if (strcmp("_gp_disp", pInputSym.name()) == 0)
+    return;
+
   // We test isLocal or if pInputSym is not a dynamic symbol
-  if (rsym->isLocal() || !isDynamicSymbol(pInputSym, pOutput))
+  // We assume -Bsymbolic to bind all symbols internaly via !rsym->isDyn()
+  // Don't put undef symbols into local entries.
+  if ((rsym->isLocal() || !isDynamicSymbol(pInputSym, pOutput) ||
+      !rsym->isDyn()) && !rsym->isUndef())
     scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
   else
     scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
@@ -654,10 +661,17 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (NULL == m_pGOT)
         createGOT(pLinker, pOutput);
 
+      // For got16 section based relocations, we need to reserve got entries.
+      if (rsym->type() == ResolveInfo::Section) {
+        m_pGOT->reserveLocalEntry();
+        // Remeber this rsym is a local GOT entry
+        m_pGOT->setLocal(rsym);
+        return;
+      }
+
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
         m_pGOT->reserveLocalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
-        m_LocalGOTSyms.push_back(rsym->outSymbol());
         // Remeber this rsym is a local GOT entry
         m_pGOT->setLocal(rsym);
       }
