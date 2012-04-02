@@ -1,7 +1,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: %t.o -o ./exec_w_undef.exe 2>&1 | grep "undefined reference to" | grep "`ctor'"
+; RUN: %t.o -o ./exec_w_undef.exe 2>&1 | grep "undefined reference to" | grep "ctor"
 
 @ctor = external global i32
 
