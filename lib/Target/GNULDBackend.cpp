@@ -1146,13 +1146,6 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
         pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
       return true;
-
-  // If we are building executable object, and the visibility is external, we
-  // need to add it.
-  if (Output::Exec == pOutput.type())
-    if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
-        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
-      return true;
   return false;
 }
 
