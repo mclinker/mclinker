@@ -1214,6 +1214,9 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
                                   const MCLDInfo& pLDInfo,
                                   const Output& pOutput) const
 {
+  if (isStaticLink(pOutput, pLDInfo) || pLDInfo.options().isPIE())
+    return false;
+
   return (Output::DynObj == pOutput.type() &&
           ResolveInfo::Function == pSym.type() &&
           (pSym.isDyn() || pSym.isUndef() ||
