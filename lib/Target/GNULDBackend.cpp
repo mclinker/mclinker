@@ -1147,6 +1147,12 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
         pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
       return true;
 
+  // If we are building executable object, and the visibility is external, we
+  // need to add it.
+  if (Output::Exec == pOutput.type())
+    if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
+        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
+      return true;
   return false;
 }
 
@@ -1183,8 +1189,8 @@ bool GNULDBackend::isOutputPIC(const Output& pOutput,
 bool GNULDBackend::isStaticLink(const Output& pOutput,
                                 const MCLDInfo& pInfo) const
 {
-  InputTree::const_iterator last = pInfo.inputs().end();
-  if (!isOutputPIC(pOutput, pInfo) && (*last)->attribute()->isStatic())
+  InputTree::const_iterator it = pInfo.inputs().begin();
+  if (!isOutputPIC(pOutput, pInfo) && (*it)->attribute()->isStatic())
     return true;
   return false;
 }
