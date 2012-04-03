@@ -14,3 +14,9 @@
   -Bshareable, should generate a.out
 6) opt_shared_w_z_defs.ll
   generate shared object with -z defs.
+7) opt_shared_w_z_now.ll
+  generate shared object with -z now
+8) opt_shared_w_z_flags.ll
+  generate shared object with some -z options:
+  origin, nodefaultlib, nodelete, nodlopen, nodump,
+  loadfltr, interpose, initfirst
