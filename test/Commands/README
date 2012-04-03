@@ -20,3 +20,5 @@
   generate shared object with some -z options:
   origin, nodefaultlib, nodelete, nodlopen, nodump,
   loadfltr, interpose, initfirst
+9) opt_shared_w_z_relro.ll
+  generate shared object with -z relro.
