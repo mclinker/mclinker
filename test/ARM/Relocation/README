@@ -1,0 +1,16 @@
+
+==============
+  Test Cases
+==============
+1) ABS32.ts
+  generate shared object
+  check the relocation R_ARM_ABS32 is handled correctly
+2) ABS32-Bsymbolic.ts
+  generate shared object with -Bsymbolic
+  check the relocation R_ARM_ABS32 is handled correctly
+3) COPY.ll
+  generate executable object
+  check the R_ARM_COPY is emitted correctly
+4) COPY_w_z_nocopyreloc.ll
+  generate executable object with -z nocopyreloc
+  check that R_ARM_COPY won't be generated
