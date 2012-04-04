@@ -19,7 +19,6 @@
 
 #include <llvm/ADT/ilist.h>
 #include <llvm/MC/MCAssembler.h>
-#include <mcld/LD/NamePool.h>
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
@@ -65,8 +64,7 @@ public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
            LDContext& pContext,
-           SectionMap& pSectionMap,
-           const Resolver& pResolver = StaticResolver());
+           SectionMap& pSectionMap);
   ~MCLinker();
 
   // ----- about symbols  ----- //
@@ -264,7 +262,6 @@ private:
   LDSectionFactory m_LDSectHdrFactory;
   LDSectionDataFactory m_LDSectDataFactory;
   SectionMerger m_SectionMerger;
-  NamePool m_NamePool;
   Layout m_Layout;
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;

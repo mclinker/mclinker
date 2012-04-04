@@ -6,12 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Config/Config.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/Support/FileSystem.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
-#include <mcld/Config/Config.h>
+#include <mcld/LD/NamePool.h>
+#include <mcld/LD/StaticResolver.h>
+#include <mcld/Support/FileSystem.h>
 #include <string>
 
 using namespace mcld;
@@ -23,8 +25,7 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
                    size_t pInputNum)
   : m_Options(),
     m_pBitcode(NULL),
-    m_Triple(pTripleString),
-    m_pNamePool(NULL)
+    m_Triple(pTripleString)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);
@@ -32,6 +33,7 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
   m_pOutput = new mcld::Output();
+  m_pNamePool = new NamePool(StaticResolver(), 1024);
 }
 
 MCLDInfo::~MCLDInfo()

@@ -101,9 +101,6 @@ public:
 
   static const char* version();
 
-  void setNamePool(NamePool& pPool)
-  { m_pNamePool = &pPool; }
-
   NamePool& getNamePool() {
     assert(NULL != m_pNamePool);
     return *m_pNamePool;

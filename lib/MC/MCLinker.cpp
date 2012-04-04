@@ -31,8 +31,7 @@ using namespace mcld;
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
                    LDContext& pContext,
-                   SectionMap& pSectionMap,
-                   const Resolver& pResolver)
+                   SectionMap& pSectionMap)
 : m_Backend(pBackend),
   m_Info(pInfo),
   m_Output(pContext),
@@ -40,10 +39,8 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext),
-  m_NamePool(pResolver, 128)
+  m_SectionMerger(pSectionMap, pContext)
 {
-  m_Info.setNamePool(m_NamePool);
 }
 
 /// Destructor
