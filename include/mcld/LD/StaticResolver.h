@@ -18,7 +18,7 @@
 namespace mcld
 {
 
-class StrSymPool;
+class NamePool;
 
 /** \class StaticResolver
  */

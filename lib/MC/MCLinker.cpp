@@ -41,9 +41,9 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
   m_SectionMerger(pSectionMap, pContext),
-  m_StrSymPool(pResolver, 128)
+  m_NamePool(pResolver, 128)
 {
-  m_Info.setNamePool(m_StrSymPool);
+  m_Info.setNamePool(m_NamePool);
 }
 
 /// Destructor
@@ -70,7 +70,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
-    resolved_result.info     = m_StrSymPool.createSymbol(pName,
+    resolved_result.info     = m_Info.getNamePool().createSymbol(pName,
                                                          false,
                                                          pType,
                                                          pDesc,
@@ -85,8 +85,9 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   }
   else {
     // if the symbol is not local, insert and resolve it immediately
-    m_StrSymPool.insertSymbol(pName, false, pType, pDesc, pBinding, pSize,
-                              pVisibility, &old_info, resolved_result);
+    m_Info.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+                                        pSize, pVisibility,
+                                        &old_info, resolved_result);
   }
 
   // the return ResolveInfo should not NULL
@@ -188,7 +189,8 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   // insert symbol and resolve it immediately
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_StrSymPool.insertSymbol(pName, true, pType, pDesc, pBinding, pSize, pVisibility,
+  m_Info.getNamePool().insertSymbol(pName, true, pType, pDesc,
+                            pBinding, pSize, pVisibility,
                             NULL, resolved_result);
 
   // the return ResolveInfo should not NULL
@@ -238,14 +240,15 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            MCFragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_StrSymPool.findInfo(pName);
+  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
   LDSymbol* output_sym = NULL;
   if (NULL == info) {
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
-                              NULL, result);
+    m_Info.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
+                                        pBinding, pSize, pVisibility,
+                                        NULL, result);
     assert(!result.existent);
 
     // create a output LDSymbol
@@ -307,7 +310,7 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            MCFragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_StrSymPool.findInfo(pName);
+  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
 
   if (NULL == info || !info->isUndef()) {
     // only undefined symbol can make a reference.
@@ -361,8 +364,9 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
-  m_StrSymPool.insertSymbol(pName, pIsDyn, pType, pDesc, pBinding, pSize, pVisibility,
-                            &old_info, result);
+  m_Info.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
+                                      pSize, pVisibility,
+                                      &old_info, result);
 
   LDSymbol* output_sym = result.info->outSymbol();
   bool has_output_sym = (NULL != output_sym);
@@ -403,7 +407,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
                                                     MCFragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_StrSymPool.findInfo(pName);
+  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
 
   if (NULL == info || !info->isUndef()) {
     // only undefined symbol can make a reference

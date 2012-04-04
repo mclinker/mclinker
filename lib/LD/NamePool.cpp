@@ -1,4 +1,4 @@
-//===- StrSymPool.cpp -----------------------------------------------------===//
+//===- NamePool.cpp -------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,27 +6,26 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include "mcld/LD/StrSymPool.h"
-#include "mcld/LD/Resolver.h"
 #include <llvm/Support/raw_ostream.h>
+#include <mcld/LD/NamePool.h>
+#include <mcld/LD/Resolver.h>
 
 using namespace mcld;
 
 //==========================
-// StrSymPool
-StrSymPool::StrSymPool(const Resolver& pResolver, StrSymPool::size_type pSize)
+// NamePool
+NamePool::NamePool(const Resolver& pResolver, NamePool::size_type pSize)
   : m_pResolver(pResolver.clone()), m_Table(pSize) {
 }
 
-StrSymPool::~StrSymPool()
+NamePool::~NamePool()
 {
   if (0 != m_pResolver)
     delete m_pResolver;
 }
 
 /// createSymbol - create a symbol
-ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
+ResolveInfo* NamePool::createSymbol(const llvm::StringRef& pName,
                                       bool pIsDyn,
                                       ResolveInfo::Type pType,
                                       ResolveInfo::Desc pDesc,
@@ -48,7 +47,7 @@ ResolveInfo* StrSymPool::createSymbol(const llvm::StringRef& pName,
 /// insertSymbol - insert a symbol and resolve it immediately
 /// @return the pointer of resolved ResolveInfo
 /// @return is the symbol existent?
-void StrSymPool::insertSymbol(const llvm::StringRef& pName,
+void NamePool::insertSymbol(const llvm::StringRef& pName,
                               bool pIsDyn,
                               ResolveInfo::Type pType,
                               ResolveInfo::Desc pDesc,
@@ -128,39 +127,39 @@ void StrSymPool::insertSymbol(const llvm::StringRef& pName,
   return;
 }
 
-llvm::StringRef StrSymPool::insertString(const llvm::StringRef& pString)
+llvm::StringRef NamePool::insertString(const llvm::StringRef& pString)
 {
   bool exist = false;
   ResolveInfo* resolve_info = m_Table.insert(pString, exist);
   return llvm::StringRef(resolve_info->name(), resolve_info->nameSize());
 }
 
-void StrSymPool::reserve(StrSymPool::size_type pSize)
+void NamePool::reserve(NamePool::size_type pSize)
 {
   m_Table.rehash(pSize);
 }
 
-StrSymPool::size_type StrSymPool::capacity() const
+NamePool::size_type NamePool::capacity() const
 {
   return (m_Table.numOfBuckets() - m_Table.numOfEntries());
 }
 
 /// findInfo - find the resolved ResolveInfo
-ResolveInfo* StrSymPool::findInfo(const llvm::StringRef& pName)
+ResolveInfo* NamePool::findInfo(const llvm::StringRef& pName)
 {
   Table::iterator iter = m_Table.find(pName);
   return iter.getEntry();
 }
 
 /// findInfo - find the resolved ResolveInfo
-const ResolveInfo* StrSymPool::findInfo(const llvm::StringRef& pName) const
+const ResolveInfo* NamePool::findInfo(const llvm::StringRef& pName) const
 {
   Table::const_iterator iter = m_Table.find(pName);
   return iter.getEntry();
 }
 
 /// findSymbol - find the resolved output LDSymbol
-LDSymbol* StrSymPool::findSymbol(const llvm::StringRef& pName)
+LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName)
 {
   ResolveInfo* info = findInfo(pName);
   if (NULL == info)
@@ -169,7 +168,7 @@ LDSymbol* StrSymPool::findSymbol(const llvm::StringRef& pName)
 }
 
 /// findSymbol - find the resolved output LDSymbol
-const LDSymbol* StrSymPool::findSymbol(const llvm::StringRef& pName) const
+const LDSymbol* NamePool::findSymbol(const llvm::StringRef& pName) const
 {
   const ResolveInfo* info = findInfo(pName);
   if (NULL == info)

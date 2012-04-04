@@ -1,4 +1,4 @@
-//===- StrSymPoolTest.h ---------------------------------------------------===//
+//===- NamePoolTest.h ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -13,26 +13,26 @@
 
 namespace mcld
 {
-class StrSymPool;
+class NamePool;
 
 } // namespace for mcld
 
 namespace mcldtest
 {
 
-/** \class StrSymPoolTest
+/** \class NamePoolTest
  *  \brief 
  *
- *  \see StrSymPool 
+ *  \see NamePool 
  */
-class StrSymPoolTest : public ::testing::Test
+class NamePoolTest : public ::testing::Test
 {
 public:
 	// Constructor can do set-up work for all test here.
-	StrSymPoolTest();
+	NamePoolTest();
 
 	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~StrSymPoolTest();
+	virtual ~NamePoolTest();
 
 	// SetUp() will be called immediately before each test.
 	virtual void SetUp();
@@ -41,7 +41,7 @@ public:
 	virtual void TearDown();
 
 protected:
-	mcld::StrSymPool* m_pTestee;
+	mcld::NamePool* m_pTestee;
 };
 
 } // namespace of mcldtest

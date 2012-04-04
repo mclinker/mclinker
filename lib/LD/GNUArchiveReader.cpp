@@ -348,7 +348,7 @@ void GNUArchiveReader::readSymbolTable(MemoryArea &pArea,
     entry.name.assign(p_Name, nameEnd);
     p_Name += nameEnd;
     /// the symbol is found in symbol pool
-    if (m_pLDInfo.getStrSymPool().findSymbol(entry.name))
+    if (m_pLDInfo.getNamePool().findSymbol(entry.name))
       pSymbolTable.push_back(entry);
   }
 }

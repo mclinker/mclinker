@@ -1,4 +1,4 @@
-//===- StrSymPool.h -------------------------------------------------------===//
+//===- NamePool.h ---------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_STRING_SYMBOL_POOL_H
-#define MCLD_STRING_SYMBOL_POOL_H
+#ifndef MCLD_NAME_POOL_H
+#define MCLD_NAME_POOL_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -33,20 +33,20 @@ class Resolver;
 class StringTable;
 class SymbolTableIF;
 
-/** \class StrSymPool
+/** \class NamePool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.
  *
- *  - MCLinker is responsed for creating StrSymPool.
+ *  - MCLinker is responsed for creating NamePool.
  */
-class StrSymPool : private Uncopyable
+class NamePool : private Uncopyable
 {
 public:
   typedef HashTable<ResolveInfo, StringHash<ELF>, ResolveInfoFactory> Table;
   typedef size_t size_type;
 
 public:
-  StrSymPool(const Resolver& pResolver, size_type pSize = 3);
-  ~StrSymPool();
+  NamePool(const Resolver& pResolver, size_type pSize = 3);
+  ~NamePool();
 
   // -----  modifiers  ----- //
   /// createSymbol - create a symbol but do not insert into the pool.

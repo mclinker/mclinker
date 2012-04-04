@@ -18,7 +18,7 @@ namespace mcld
 {
 
 class StringTable;
-class StrSymPool;
+class NamePool;
 
 /** \class SymbolTableFactory
  *  \brief SymbolTableFactory manages SymbolTableIFs.
@@ -38,7 +38,7 @@ public:
   //  symbol tables.
   //  @param pStorage the real storage of created symbols
   explicit SymbolTableFactory(size_t pNumOfSymbolTables,
-                              StrSymPool& pStrSymPool);
+                              NamePool& pNamePool);
   /// ~SymbolTableFactory - destructor
   //  destructor destroys all created symbol tables.
   ~SymbolTableFactory();
@@ -61,7 +61,7 @@ public:
                                    StringTable &pDynamicStringTable,
                                    size_t pReserve=256);
 private:
-  StrSymPool &m_StrSymPool;
+  NamePool &m_NamePool;
   GCFactory<InputSymbolTable, 0> m_InputFactory;
   GCFactory<OutputSymbolTable, 0> m_OutputFactory;
 

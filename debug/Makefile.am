@@ -185,8 +185,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/StaticResolver.h \
 	${LIBDIR}/LD/StaticResolver.cpp \
-	${INCDIR}/LD/StrSymPool.h \
-	${LIBDIR}/LD/StrSymPool.cpp \
+	${INCDIR}/LD/NamePool.h \
+	${LIBDIR}/LD/NamePool.cpp \
 	${INCDIR}/LD/LDReader.h \
 	${LIBDIR}/LD/LDReader.cpp \
 	${INCDIR}/LD/LDWriter.h \
@@ -277,6 +277,8 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/SymbolCategoryTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
+#	${UNITTEST}/NamePoolTest.h \
+#	${UNITTEST}/NamePoolTest.cpp \
 #        ${UNITTEST}/TargetRegistryTest.h \
 #        ${UNITTEST}/TargetRegistryTest.cpp
 else

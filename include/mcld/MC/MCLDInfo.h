@@ -21,7 +21,7 @@
 #include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
-#include <mcld/LD/StrSymPool.h>
+#include <mcld/LD/NamePool.h>
 
 #include <string>
 #include <cassert>
@@ -101,17 +101,17 @@ public:
 
   static const char* version();
 
-  void setNamePool(StrSymPool& pPool)
-  { m_pStrSymPool = &pPool; }
+  void setNamePool(NamePool& pPool)
+  { m_pNamePool = &pPool; }
 
-  StrSymPool& getStrSymPool() {
-    assert(NULL != m_pStrSymPool);
-    return *m_pStrSymPool;
+  NamePool& getNamePool() {
+    assert(NULL != m_pNamePool);
+    return *m_pNamePool;
   }
 
-  const StrSymPool& getStrSymPool() const {
-    assert(NULL != m_pStrSymPool);
-    return *m_pStrSymPool;
+  const NamePool& getNamePool() const {
+    assert(NULL != m_pNamePool);
+    return *m_pNamePool;
   }
 
 private:
@@ -129,7 +129,7 @@ private:
   MemoryAreaFactory *m_pMemAreaFactory;
 
   // -----  string and symbols  ----- //
-  StrSymPool* m_pStrSymPool;
+  NamePool* m_pNamePool;
 };
 
 } // namespace of mcld

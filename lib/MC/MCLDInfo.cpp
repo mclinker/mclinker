@@ -22,9 +22,9 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
                    size_t pAttrNum,
                    size_t pInputNum)
   : m_Options(),
-    m_pBitcode(0),
+    m_pBitcode(NULL),
     m_Triple(pTripleString),
-    m_pStrSymPool(0)
+    m_pNamePool(NULL)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);

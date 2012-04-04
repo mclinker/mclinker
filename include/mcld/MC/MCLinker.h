@@ -19,7 +19,7 @@
 
 #include <llvm/ADT/ilist.h>
 #include <llvm/MC/MCAssembler.h>
-#include <mcld/LD/StrSymPool.h>
+#include <mcld/LD/NamePool.h>
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
@@ -264,7 +264,7 @@ private:
   LDSectionFactory m_LDSectHdrFactory;
   LDSectionDataFactory m_LDSectDataFactory;
   SectionMerger m_SectionMerger;
-  StrSymPool m_StrSymPool;
+  NamePool m_NamePool;
   Layout m_Layout;
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;

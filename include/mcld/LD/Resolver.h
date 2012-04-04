@@ -18,7 +18,7 @@ namespace mcld
 {
 
 class ResolveInfo;
-class StrSymPool;
+class NamePool;
 
 /** \class Resolver
  *  \brief Resolver binds a symbol reference from one file to a symbol
@@ -68,7 +68,7 @@ public:
   /// resolveAgain - Can override by derived classes.
   /// @return the pointer to resolved ResolveInfo
   /// @return is the symbol existent?
-  virtual void resolveAgain(StrSymPool& pStrSymPool,
+  virtual void resolveAgain(NamePool& pNamePool,
                               unsigned int pAction,
                               ResolveInfo& __restrict__ pOld,
                               const ResolveInfo& __restrict__ pNew,

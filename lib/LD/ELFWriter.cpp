@@ -146,7 +146,7 @@ uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
                        && (pOutput.type() != Output::Object)
                        && (pOutput.type() != Output::DynObj));
 
-  const LDSymbol* entry_symbol = pLDInfo.getStrSymPool().findSymbol(entry_name);
+  const LDSymbol* entry_symbol = pLDInfo.getNamePool().findSymbol(entry_name);
 
   // found the symbol
   if (NULL != entry_symbol) {

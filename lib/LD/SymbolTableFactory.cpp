@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/SymbolTableFactory.h"
+#include <mcld/LD/SymbolTableFactory.h>
 
 using namespace mcld;
 
@@ -14,8 +14,8 @@ using namespace mcld;
 // SymbolTableFactory
 
 SymbolTableFactory::SymbolTableFactory(size_t pNumOfSymbolTables,
-                                       StrSymPool& pStrSymPool)
-  : m_StrSymPool(pStrSymPool),
+                                       NamePool& pNamePool)
+  : m_NamePool(pNamePool),
     m_InputFactory(pNumOfSymbolTables),
     m_OutputFactory(pNumOfSymbolTables)
 {
@@ -31,7 +31,7 @@ createInputTable(StringTable &pEntireStringTable,
                  size_t pReserve)
 {
   InputSymbolTable *inputSymTab = m_InputFactory.allocate();
-  new (inputSymTab) InputSymbolTable(m_StrSymPool,
+  new (inputSymTab) InputSymbolTable(m_NamePool,
                                      pReserve,
                                      pEntireStringTable,
                                      pDynamicStringTable);
@@ -44,7 +44,7 @@ createOutputTable(StringTable &pEntireStringTable,
                   size_t pReserve)
 {
   OutputSymbolTable *outputSymTab = m_OutputFactory.allocate();
-  new (outputSymTab) OutputSymbolTable(m_StrSymPool,
+  new (outputSymTab) OutputSymbolTable(m_NamePool,
                                        pReserve,
                                        pEntireStringTable,
                                        pDynamicStringTable);

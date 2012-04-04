@@ -404,7 +404,7 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
 
   ResolveInfo* result =
-         pLDInfo.getStrSymPool().createSymbol(ld_name,
+         pLDInfo.getNamePool().createSymbol(ld_name,
                                               pInput.type() == Input::DynObj,
                                               ld_type,
                                               ld_desc,
