@@ -57,8 +57,10 @@ END {
       break;
     }
   }
-  if (i == SEGMENT_NUM)
-    exit -1;
+  if (i == SEGMENT_NUM) {
+    print "PT_GNU_RELRO segment not found.";
+    exit 1;
+  }
 
 # -----  2. check if there is one PT_LOAD that covers the PT_GNU_RELRO  -----
   for (i = 0; i < SEGMENT_NUM; i++) {
@@ -71,8 +73,10 @@ END {
       }
     }
   }
-  if (i == SEGMENT_NUM)
-    exit -2;
+  if (i == SEGMENT_NUM) {
+    print "There is no noe PT_LOAD that covers the PT_GNU_RELRO.";
+    exit 1;
+  }
 
 # -----  3. check if the PT_GNU_RELRO ends on a common page boundary  -----
   LAST_RELRO_SECTION = mapping[RELRO_SEG_IDX, 1];
@@ -82,8 +86,10 @@ END {
       break;
     }
   }
-  if (FIRST_NON_RELRO_SECTION_ADDR % LOAD_ALIGN != 0)
-    exit -3;
+  if (FIRST_NON_RELRO_SECTION_ADDR % LOAD_ALIGN != 0) {
+    print "PT_GNU_RELRO does not end on a page boundary.";
+    exit 1;
+  }
 }
 
 # -----  function that converts a hex string to a dec number  -----
@@ -100,8 +106,10 @@ function hexstr_to_decnum(str)
       k--;
     else if ((k = index("abcdef", c)) > 0)
       k += 9;
-    else
-      exit -4;
+    else {
+      print "The input string is not a legal hex number.";
+      exit 1;
+    }
     num = num * 16 + k;
   }
   return num;
