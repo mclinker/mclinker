@@ -207,6 +207,111 @@ This option is the same as I<-relocation-model=pic>. Use for convenience.
 
 =back
 
+=head2 Options for GNU ld compatibility
+
+=over
+
+=item B<-z> keyword
+
+The recognized keywords are:
+
+=over
+
+=item I<combreloc>
+
+Sort dynamic relocations to optimize dynamic linker. Relocations those refer to
+the same symbol are put together in dynamic relocation section.
+
+=item I<defs>
+
+Report undefined symbols in object files.
+
+=item I<execstack>
+
+Mark output as requiring executable stack.
+
+=item I<initfirst>
+
+Mark DSO to be initialized first at runtime. Set Dynamic section DT_FLAGS:
+DF_1_INITFIRST.
+
+=item I<interpose>
+
+Mark object to interpose all DSOs but executable. Set Dynamic section DT_FLAGS:
+DF_1_INTERPOSE.
+
+=item I<lazy>
+
+Mark object lazy runtime binding (default).
+
+=item I<loadfltr>
+
+Mark object requiring immediate process. Set Dynamic section DT_FLAGS:
+DF_1_LOADFLTR.
+
+=item I<muldefs>
+
+Allow multiple definitions when symbol resolution.
+
+=item I<nocombreloc>
+
+Do not preform relocs combining.
+
+=item I<nocopyreloc>
+
+Do not create copy relocs.
+
+=item I<nodefaultlib>
+
+Mark object not to use default search paths. Set Dynamic section DT_FLAGS:
+DF_1_NODEFLIB.
+
+=item I<nodelete>
+
+Mark DSO non-deletable at runtime. Set Dynamic section DT_FLAGS: DF_1_NODELETE.
+
+=item I<nodlopen>
+
+Mark DSO not available to dlopen. Set Dynamic section DT_FLAGS: DF_1_NOOPEN.
+
+=item I<nodump>
+
+Mark DSO not available to dldump. Set Dynamic section DT_FLAGS: DF_1_NODUMP.
+
+=item I<noexecstack>
+
+Mark output as not requiring executable stack.
+
+=item I<norelro>
+
+Do not create an ELF "PT_GNU_RELRO" segment in the output object.
+
+=item I<now>
+
+Mark object non-lazy runtime binding. Set DT_BIND_NOW and DT_FLAGS: DF_1_NOW in
+dynamic section; treat .got.plt as a relro section.
+
+=item I<origin>
+
+Mark DSO to indicate that needs immediate $ORIGIN processing at runtime. Set
+Dynamic section DT_FLAGS: DF_ORIGIN and DF_1_ORIGIN.
+
+=item I<relro>
+
+Create an ELF "PT_GNU_RELRO" segment in the output object.
+
+=item I<max-page-size=SIZE>
+
+set the maximum page size to SIZE.
+
+=item I<common-page-size=SIZE>
+
+set the common page size to SIZE.
+
+=back
+
+=back
+
 =head2 Options for developers
 
 =over
