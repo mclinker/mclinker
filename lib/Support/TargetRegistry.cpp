@@ -11,8 +11,6 @@
 
 mcld::TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
 
-/* ** */
-
 void mcld::TargetRegistry::RegisterTarget(mcld::Target &T)
 {
   s_TargetList.push_back(&T);
@@ -34,7 +32,7 @@ const mcld::Target* mcld::TargetRegistry::lookupTarget(const llvm::Target &pTarg
 const mcld::Target *mcld::TargetRegistry::lookupTarget(const std::string &pTriple,
                                                        std::string &pError) 
 {
-  const llvm::Target* target = llvm::TargetRegistry::lookupTarget( pTriple, pError );
+  const llvm::Target* target = llvm::TargetRegistry::lookupTarget(pTriple, pError);
   if (!target)
     return 0;
   return lookupTarget( *target );
