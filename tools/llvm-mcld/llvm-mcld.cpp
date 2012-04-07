@@ -13,6 +13,7 @@
 #include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/RealPath.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>
@@ -744,6 +745,7 @@ int main( int argc, char* argv[] )
 {
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
+
   // Initialize targets first, so that --version shows registered targets.
   InitializeAllTargets();
   InitializeAllAsmPrinters();
@@ -751,6 +753,8 @@ int main( int argc, char* argv[] )
   InitializeAllTargetMCs();
   mcld::InitializeAllTargets();
   mcld::InitializeAllLinkers();
+  mcld::InitializeDiagnostics();
+
   cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
@@ -769,12 +773,12 @@ int main( int argc, char* argv[] )
   if (ArgBitcodeFilename.empty() &&
       (mcld::CGFT_DSOFile != ArgFileType &&
        mcld::CGFT_EXEFile != ArgFileType)) {
-    // .so and .exe can be produced without bitcode.
     // If the file is not given, forcefully read from stdin
-    // FIXME: the message is displayed only if some verbose option is set.
-    errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"
-           << "** Specify input bitcode/llvm asm file by\n\n"
-           << "          llvm-mcld -dB [the bitcode/llvm asm]\n\n";
+    if (ArgVerbose) {
+      errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"
+             << "** Specify input bitcode/llvm asm file by\n\n"
+             << "          llvm-mcld -dB [the bitcode/llvm asm]\n\n";
+    }
 
     ArgBitcodeFilename.assign("-");
   }
@@ -910,6 +914,16 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
+  // Set up MsgHandler
+  OwningPtr<mcld::LDDiagnostic> diagnostic(TheTarget->createDiagnostic(
+                                                       *TheTarget->get(),
+                                                       TheTriple.getTriple()));
+  if (!diagnostic) {
+    diagnostic.reset(new mcld::DumbDiagnostic());
+  }
+
+  mcld::InitializeMsgHandler(*diagnostic, llvm::errs());
+
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file>
   Out(GetOutputStream(TheTarget->get()->getName(),
@@ -917,8 +931,10 @@ int main( int argc, char* argv[] )
                       ArgFileType,
                       ArgBitcodeFilename,
                       ArgOutputFilename));
-  if (!Out)
+  if (!Out) {
+    // FIXME: show some error message pls.
     return 1;
+  }
 
   // Build up all of the passes that we want to do to the module.
   PassManager PM;
