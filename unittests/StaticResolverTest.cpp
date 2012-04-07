@@ -58,7 +58,6 @@ TEST_F( StaticResolverTest, MDEF ) {
   unsigned int result = m_pResolver->resolve(*old_sym, *new_sym, override);
   ASSERT_EQ( Resolver::Abort, result);
   ASSERT_FALSE( override );
-  ASSERT_STREQ( "multiple definitions of `abc'.", m_pResolver->mesg().c_str() );
 }
 
 TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
@@ -263,8 +262,6 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
   ASSERT_TRUE( override );
   ASSERT_EQ(999, old_sym->size());
   
-  ASSERT_STREQ("definition of 'abc' is overriding common.", m_pResolver->mesg().c_str() );
-
 }
 
 TEST_F( StaticResolverTest, SetUpDesc)
