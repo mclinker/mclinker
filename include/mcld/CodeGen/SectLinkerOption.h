@@ -12,8 +12,8 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/Support/PositionDependentOption.h"
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/Support/PositionDependentOption.h>
 
 #include <string>
 
