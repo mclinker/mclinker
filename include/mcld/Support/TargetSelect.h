@@ -32,6 +32,11 @@ extern "C" {
   // Declare all of the available target-specific linker
 #define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##LDBackend();
 #include "mcld/Config/Linkers.def"
+
+  // Declare all of the available target-specific diagnostic
+#define LLVM_LINKER(TargetName) void LLVMInitialize##TargetName##Diagnostic();
+#include "mcld/Config/Linkers.def"
+
 } // extern "C"
 
 namespace mcld
@@ -68,6 +73,14 @@ namespace mcld
 #include "mcld/Config/Linkers.def"
 
 #define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##LDBackend();
+#include "mcld/Config/Linkers.def"
+  }
+
+  /// InitializeMsgHandler - The main program should call this function if it
+  /// wants to print linker-specific messages. To make them available via the
+  /// TargetRegistry.
+  inline void InitializeDiagnostics() {
+#define LLVM_LINKER(TargetName)  LLVMInitialize##TargetName##Diagnostic();
 #include "mcld/Config/Linkers.def"
   }
 

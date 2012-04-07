@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef TARGET_REGISTRY_H
-#define TARGET_REGISTRY_H
+#ifndef MCLD_TARGET_REGISTRY_H
+#define MCLD_TARGET_REGISTRY_H
 #include <llvm/Support/TargetRegistry.h>
 #include <string>
 #include <list>
@@ -28,6 +28,7 @@ class TargetLDBackend;
 class AttributeFactory;
 class InputFactory;
 class ContextFactory;
+class LDDiagnostic;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -48,30 +49,28 @@ public:
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
 
-private:
-  TargetMachineCtorTy TargetMachineCtorFn;
-  SectLinkerCtorTy SectLinkerCtorFn;
-  TargetLDBackendCtorTy TargetLDBackendCtorFn;
+  typedef LDDiagnostic *(*DiagnosticCtorTy)(const llvm::Target&,
+                                            const std::string&);
 
 public:
   Target();
 
-  void setTarget(const llvm::Target& pTarget) {
-    m_pT = &pTarget;
-  }
+  void setTarget(const llvm::Target& pTarget)
+  { m_pT = &pTarget; }
 
   mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
                           const std::string &pCPU, const std::string &pFeatures,
                           const llvm::TargetOptions &Options,
                           llvm::Reloc::Model RM = llvm::Reloc::Default,
                           llvm::CodeModel::Model CM = llvm::CodeModel::Default,
-                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const {
+                          llvm::CodeGenOpt::Level OL = llvm::CodeGenOpt::Default) const
+  {
     if (TargetMachineCtorFn && m_pT) {
       llvm::TargetMachine *tm = m_pT->createTargetMachine(pTriple, pCPU, pFeatures, Options, RM, CM, OL);
       if (tm)
         return TargetMachineCtorFn(*this, *tm, pTriple);
     }
-    return 0;
+    return NULL;
   }
 
   /// createSectLinker - create target-specific SectLinker
@@ -81,7 +80,7 @@ public:
                                SectLinkerOption &pOption,
                                TargetLDBackend &pLDBackend) const {
     if (!SectLinkerCtorFn)
-      return 0;
+      return NULL;
     return SectLinkerCtorFn(pTriple,
                             pOption,
                             pLDBackend);
@@ -90,17 +89,33 @@ public:
   /// createLDBackend - create target-specific LDBackend
   ///
   /// @return created TargetLDBackend
-  TargetLDBackend *createLDBackend(const llvm::Target& T, const std::string& Triple) const {
+  TargetLDBackend* createLDBackend(const llvm::Target& T, const std::string& Triple) const
+  {
     if (!TargetLDBackendCtorFn)
-      return 0;
+      return NULL;
     return TargetLDBackendCtorFn(T, Triple);
   }
 
-  const llvm::Target* get() const {
-    return m_pT;
+  /// createDiagnostic - create target-specific LDDiagnostic
+  LDDiagnostic* createDiagnostic(const llvm::Target& pTarget,
+                                 const std::string& pTriple) const
+  {
+    if (!DiagnosticCtorFn)
+      return NULL;
+    return DiagnosticCtorFn(pTarget, pTriple);
   }
 
+  const llvm::Target* get() const
+  { return m_pT; }
+
 private:
+  // -----  function pointers  ----- //
+  TargetMachineCtorTy TargetMachineCtorFn;
+  SectLinkerCtorTy SectLinkerCtorFn;
+  TargetLDBackendCtorTy TargetLDBackendCtorFn;
+  DiagnosticCtorTy DiagnosticCtorFn;
+
+  // -----  adapted llvm::Target  ----- //
   const llvm::Target* m_pT;
 };
 
@@ -139,7 +154,8 @@ public:
   ///
   /// @param T - The target being registered.
   /// @param Fn - A function to construct a TargetMachine for the target.
-  static void RegisterTargetMachine(mcld::Target &T, mcld::Target::TargetMachineCtorTy Fn) {
+  static void RegisterTargetMachine(mcld::Target &T, mcld::Target::TargetMachineCtorTy Fn)
+  {
     // Ignore duplicate registration.
     if (!T.TargetMachineCtorFn)
       T.TargetMachineCtorFn = Fn;
@@ -150,7 +166,8 @@ public:
   ///
   /// @param T - the target being registered
   /// @param Fn - A function to create SectLinker for the target
-  static void RegisterSectLinker(mcld::Target &T, mcld::Target::SectLinkerCtorTy Fn) {
+  static void RegisterSectLinker(mcld::Target &T, mcld::Target::SectLinkerCtorTy Fn)
+  {
     if (!T.SectLinkerCtorFn)
       T.SectLinkerCtorFn = Fn;
   }
@@ -160,9 +177,21 @@ public:
   ///
   /// @param T - The target being registered
   /// @param Fn - A function to create TargetLDBackend for the target
-  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn) {
+  static void RegisterTargetLDBackend(mcld::Target &T, mcld::Target::TargetLDBackendCtorTy Fn)
+  {
     if (!T.TargetLDBackendCtorFn)
       T.TargetLDBackendCtorFn = Fn;
+  }
+
+  /// RegisterTargetDiagnostic - Register a LDDiagnostic implementation for
+  /// the given target.
+  ///
+  /// @param T - The target being registered
+  /// @param Fn - A function to create LDDiagnostic for the target
+  static void RegisterDiagnostic(mcld::Target &T, mcld::Target::DiagnosticCtorTy Fn)
+  {
+    if (!T.DiagnosticCtorFn)
+      T.DiagnosticCtorFn = Fn;
   }
 
   /// lookupTarget - Lookup a target based on a llvm::Target.

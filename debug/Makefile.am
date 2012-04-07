@@ -51,6 +51,11 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${INCDIR}/Support/TargetSelect.h \
+	${INCDIR}/Support/LinkerErrors.h \
+	${INCDIR}/Support/MsgHandler.h \
+	${LIBDIR}/Support/MsgHandler.cpp \
+	${INCDIR}/Support/MsgHandling.h \
+	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
@@ -89,6 +94,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMDiagnostic.h \
+	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
@@ -105,6 +112,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsDiagnostic.h \
+	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
@@ -125,6 +134,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.h \
 	${LIBDIR}/Target/X86/X86AndroidSectLinker.cpp \
+	${LIBDIR}/Target/X86/X86Diagnostic.h \
+	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
@@ -237,7 +248,11 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ELFSegment.h \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${INCDIR}/LD/ELFSegmentFactory.h \
-	${LIBDIR}/LD/ELFSegmentFactory.cpp
+	${LIBDIR}/LD/ELFSegmentFactory.cpp \
+	${INCDIR}/LD/LDDiagnostic.h \
+	${LIBDIR}/LD/LDDiagnostic.cpp \
+	${INCDIR}/LD/DumbDiagnostic.h \
+	${LIBDIR}/LD/DumbDiagnostic.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 #	${INCDIR}/Support/ScopedRegion.h \

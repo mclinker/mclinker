@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/TargetRegistry.h"
+#include <mcld/Support/TargetRegistry.h>
 
 
 mcld::TargetRegistry::TargetListTy mcld::TargetRegistry::s_TargetList;
