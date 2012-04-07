@@ -63,7 +63,7 @@ public:
   /// @param pNew the symbol which is used to replace pOld
   virtual unsigned int resolve(ResolveInfo & __restrict__ pOld,
                                const ResolveInfo & __restrict__ pNew,
-                               bool &pOverride) = 0;
+                               bool &pOverride) const = 0;
 
   /// resolveAgain - Can override by derived classes.
   /// @return the pointer to resolved ResolveInfo
@@ -72,26 +72,12 @@ public:
                               unsigned int pAction,
                               ResolveInfo& __restrict__ pOld,
                               const ResolveInfo& __restrict__ pNew,
-                              Result& pResult) {
+                              Result& pResult) const {
     pResult.info = NULL;
     pResult.existent = false;
     pResult.overriden = false;
   }
 
-  const std::string& mesg() const
-  { return m_Mesg; }
-
-  void clearMesg();
-
-  Resolver* clone() const {
-    return doClone();
-  }
-
-protected:
-  std::string m_Mesg;
-
-private:
-  virtual Resolver* doClone() const = 0;
 };
 
 } // namespace of mcld

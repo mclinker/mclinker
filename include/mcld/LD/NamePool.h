@@ -100,7 +100,7 @@ public:
   size_type capacity() const;
 
 private:
-  Resolver* m_pResolver;
+  const Resolver* m_pResolver;
   Table m_Table;
 
 };

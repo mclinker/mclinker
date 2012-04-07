@@ -15,13 +15,11 @@ using namespace mcld;
 //==========================
 // NamePool
 NamePool::NamePool(const Resolver& pResolver, NamePool::size_type pSize)
-  : m_pResolver(pResolver.clone()), m_Table(pSize) {
+  : m_pResolver(&pResolver), m_Table(pSize) {
 }
 
 NamePool::~NamePool()
 {
-  if (0 != m_pResolver)
-    delete m_pResolver;
 }
 
 /// createSymbol - create a symbol
@@ -105,18 +103,16 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
       break;
     }
     case Resolver::Warning: {
-      llvm::errs() << "WARNING: " << m_pResolver->mesg() << "\n";
-      m_pResolver->clearMesg();
       pResult.info      = old_symbol;
       pResult.existent  = true;
       pResult.overriden = override;
       break;
     }
     case Resolver::Abort: {
-      llvm::report_fatal_error(m_pResolver->mesg());
       pResult.info      = old_symbol;
       pResult.existent  = true;
       pResult.overriden = override;
+      exit(0);
       break;
     }
     default: {

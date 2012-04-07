@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/LDSymbol.h>
-#include <cassert>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -23,13 +23,9 @@ StaticResolver::~StaticResolver()
 {
 }
 
-StaticResolver::StaticResolver(const StaticResolver& pCopy)
-  : Resolver(pCopy) {
-}
-
 unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
                                      const ResolveInfo& __restrict__ pNew,
-                                     bool &pOverride)
+                                     bool &pOverride) const
 {
 
   /* The state table itself.
@@ -82,8 +78,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
 
     switch(action) {
       case FAIL: {       /* abort.  */
-        m_Mesg = std::string("internal error [StaticResolver.cpp:loc 86].\n") +
-                 std::string("Please report to `mclinker@googlegroups.com'.\n");
+        fatal() << "internal error [StaticResolver.cpp:loc 86].\n"
+                << "Please report to `mclinker@googlegroups.com'.\n";
         result = Resolver::Abort;
         break;
       }
@@ -110,9 +106,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         uint32_t binding = old->binding();
         old->override(pNew);
         old->setBinding(binding);
-        m_Mesg = std::string("symbol `") +
-                 old->name() +
-                 std::string("' uses the type, dynamic, size and type in the dynamic symbol.");
+        warning() << *old
+                  << " uses the type, dynamic, size and type in the dynamic symbol.\n";
         pOverride = true;
         result = Resolver::Warning;
         break;
@@ -130,9 +125,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       case CREF: {       /* Possibly warn about common reference to defined symbol.  */
         // A common symbol does not override a definition.
-        m_Mesg = std::string("common '") +
-                 pNew.name() +
-                 std::string("' overriden by previous definition.");
+        warning() << pNew
+                  << " overridden by previous definition.\n";
         pOverride = false;
         result = Resolver::Warning;
         break;
@@ -142,9 +136,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         // definition overrides.
         //
 	// NOTE: m_Mesg uses 'name' instead of `name' for being compatible to GNU ld.
-        m_Mesg = std::string("definition of '") +
-                 old->name() +
-                 std::string("' is overriding common.");
+        warning() << "definition of " << *old
+                  << " is overriding common.\b";
         old->override(pNew);
         pOverride = true;
         result = Resolver::Warning;
@@ -168,17 +161,14 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         break;
       }
       case CIND: {       /* mark indirect symbol from existing common symbol.  */
-         m_Mesg = std::string("indirect symbol `") +
-                  pNew.name()+
-                  std::string("' point to a common symbol.\n");
+         warning() << pNew
+                   << " points to a common symbol.\n";
          result = Resolver::Warning;
       }
       /* Fall through */
       case IND: {        /* override by indirect symbol.  */
         if (0 == pNew.link()) {
-          m_Mesg = std::string("indirect symbol `") +
-                   pNew.name() +
-                   std::string("' point to a inexistent symbol.");
+          fatal() << pNew << " points to a inexisted symbol.\n";
           result = Resolver::Abort;
           break;
         }
@@ -203,17 +193,13 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       /* Fall through */
       case MDEF: {       /* multiple definition error.  */
-        m_Mesg = std::string("multiple definitions of `") +
-                 pNew.name() +
-                 std::string("'.");
+        fatal() << "multiple definitions of " << pNew << ".\n";
         result = Resolver::Abort;
         break;
       }
       case REFC: {       /* Mark indirect symbol referenced and then CYCLE.  */
         if (0 == old->link()) {
-          m_Mesg = std::string("indirect symbol `") +
-                   old->name() +
-                   std::string("' point to a inexistent symbol.");
+          fatal() << (*old) << " points to an inexisted symbol.\n";
           result = Resolver::Abort;
           break;
         }

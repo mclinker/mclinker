@@ -115,11 +115,7 @@ public:
   /// @param pNew the symbol which is used to replace pOld
   virtual unsigned int resolve(ResolveInfo & __restrict__ pOld,
                                const ResolveInfo & __restrict__ pNew,
-                               bool &pOverride);
-
-  StaticResolver* doClone() const {
-    return new StaticResolver(*this);
-  }
+                               bool &pOverride) const;
 
 private:
   inline unsigned int getOrdinate(const ResolveInfo& pInfo) const {

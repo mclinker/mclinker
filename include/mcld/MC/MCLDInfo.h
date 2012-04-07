@@ -28,6 +28,7 @@
 
 namespace mcld
 {
+class Resolver;
 
 /** \class MCLDInfo
  *  \brief MCLDInfo is composed of argumments of MCLinker.
@@ -126,6 +127,7 @@ private:
   MemoryAreaFactory *m_pMemAreaFactory;
 
   // -----  string and symbols  ----- //
+  Resolver* m_pResolver;
   NamePool* m_pNamePool;
 };
 

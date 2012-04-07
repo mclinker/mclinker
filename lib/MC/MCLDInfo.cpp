@@ -33,7 +33,8 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
   m_pOutput = new mcld::Output();
-  m_pNamePool = new NamePool(StaticResolver(), 1024);
+  m_pResolver = new StaticResolver();
+  m_pNamePool = new NamePool(*m_pResolver, 1024);
 }
 
 MCLDInfo::~MCLDInfo()
@@ -44,6 +45,8 @@ MCLDInfo::~MCLDInfo()
   delete m_pMemAreaFactory;
   delete m_pInputFactory;
   delete m_pInputTree;
+  delete m_pResolver;
+  delete m_pNamePool;
 }
 
 void MCLDInfo::setBitcode(const Input& pInput)
