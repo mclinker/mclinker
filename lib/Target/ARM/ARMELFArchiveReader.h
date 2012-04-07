@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ARMELFARCHIVEREADER_H
-#define ARMELFARCHIVEREADER_H
+#ifndef MCLD_ARM_ELF_ARCHIVE_READER_H
+#define MCLD_ARM_ELF_ARCHIVE_READER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
