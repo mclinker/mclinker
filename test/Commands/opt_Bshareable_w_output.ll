@@ -3,7 +3,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -Bshareable %t.o -o ./Bshareable_out_name.so
 ; RUN: test -f ./Bshareable_out_name.so
-; RUN: readelf -a ./out_name.so | grep Type | grep DYN | grep "Shared object file"
+; RUN: readelf -a ./Bshareable_out_name.so | grep Type | grep DYN | grep "Shared object file"
 
 define float @_Z1af(float %pInput) nounwind uwtable ssp {
 entry:
