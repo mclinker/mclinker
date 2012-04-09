@@ -116,57 +116,9 @@ void MipsGOT::reserveGlobalEntry()
   reserveEntry(1);
 }
 
-GOTEntry* MipsGOT::getLocalGOT16Entry(const ResolveInfo& pInfo, bool& pExist,
-                            int32_t value)
-{
-  if (!(isLocal(&pInfo) && pInfo.type() == ResolveInfo::Section)) {
-    // Error! Don't call this function
-    assert(0);
-    return NULL;
-  }
-#if 0
-  pExist = false;
-
-  iterator& it = begin();
-  it++; // skip the first reserved entry
-
-  // We need to scan through all local GOT entries
-  while ((it - 1) !=  m_LocalGOTIterator) {
-    GOTEntry* entry = &(llvm::cast<GOTEntry>((*it)));
-    if (entry == NULL)
-      break;
-
-    if (m_GOTMap[entry] == &pInfo && (int32_t)entry->getContent() == value) {
-      pExist = true;
-      return entry
-    }
-
-    if (it == m_LocalGOTIterator)
-      break;
-
-    it++;
-  }
-
-  it = m_LocalGOTIterator;
-  ++it;
-  assert(it != m_SectionData.getFragmentList().end() &&
-         "The number of GOT Entries and ResolveInfo doesn't match");
-  GOTEntry* entry = llvm::cast<GOTEntry>(&(*it));
-
-  // Store pInfo into m_GOTMap
-  m_GOTMap[entry] = &pInfo;
-
-  return entry;
-#endif
-  return NULL;
-}
-
 GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
   if (isLocal(&pInfo) && pInfo.type() == ResolveInfo::Section) {
-    // Error! Don't call this function
-    //assert(0);
-    //return NULL;
     pExist = false;
     iterator& it = m_LocalGOTIterator;
     ++it;
