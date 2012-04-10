@@ -66,8 +66,21 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
 {
-  // Nothing to do because we do not support
-  // any MIPS specific sections now.
+  // Set up .dynamic
+  ELFFileFormat* file_format = NULL;
+  switch(pLinker.getLDInfo().output().type()) {
+    case Output::DynObj:
+      file_format = getDynObjFileFormat();
+      break;
+    case Output::Exec:
+      file_format = getExecFileFormat();
+      break;
+    case Output::Object:
+    default:
+      // TODO: not support yet
+      return;
+  }
+  file_format->getDynamic().setFlag(llvm::ELF::SHF_ALLOC);
 }
 
 void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
