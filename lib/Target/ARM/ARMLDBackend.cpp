@@ -1048,5 +1048,6 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
 extern "C" void LLVMInitializeARMLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget, createARMLDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(TheThumbTarget, createARMLDBackend);
 }
 

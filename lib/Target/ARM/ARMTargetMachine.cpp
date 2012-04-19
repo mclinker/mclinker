@@ -15,6 +15,7 @@
 extern "C" void LLVMInitializeARMLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
   mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> X(mcld::TheARMTarget);
+  mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> Y(mcld::TheThumbTarget);
 }
 
 mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,

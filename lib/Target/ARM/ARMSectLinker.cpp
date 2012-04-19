@@ -43,5 +43,6 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
 extern "C" void LLVMInitializeARMSectLinker() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterSectLinker(TheARMTarget, createARMSectLinker);
+  mcld::TargetRegistry::RegisterSectLinker(TheThumbTarget, createARMSectLinker);
 }
 

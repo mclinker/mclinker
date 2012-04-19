@@ -34,5 +34,6 @@ LDDiagnostic* createARMDiagnostic(const llvm::Target& pTarget,
 extern "C" void LLVMInitializeARMDiagnostic() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterDiagnostic(TheARMTarget, createARMDiagnostic);
+  mcld::TargetRegistry::RegisterDiagnostic(TheThumbTarget, createARMDiagnostic);
 }
 

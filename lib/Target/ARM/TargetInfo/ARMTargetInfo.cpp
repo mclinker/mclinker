@@ -12,10 +12,12 @@
 namespace mcld {
 
 mcld::Target TheARMTarget;
+mcld::Target TheThumbTarget;
 
 extern "C" void LLVMInitializeARMLDTargetInfo() {
   // register into mcld::TargetRegistry
   mcld::RegisterTarget X(TheARMTarget, "arm" );
+  mcld::RegisterTarget Y(TheThumbTarget, "thumb" );
 }
 
 } // namespace of mcld
