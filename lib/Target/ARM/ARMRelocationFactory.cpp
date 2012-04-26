@@ -523,7 +523,9 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
                                   const MCLDInfo& pLDInfo,
                                   ARMRelocationFactory& pParent)
 {
-  // TODO: Some issue have not been considered, e.g. thumb, overflow?
+  // TODO: Some issue have not been considered:
+  // 1. Add stub when switching mode or jump target too far
+  // 2. We assume the blx is available
 
   // If target is undefined weak symbol, we only need to jump to the
   // next instruction unless it has PLT entry. Rewrite instruction
@@ -535,7 +537,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     return ARMRelocationFactory::OK;
   }
 
-  ARMRelocationFactory::Address S; // S dependent on exist PLT or not.
+  ARMRelocationFactory::Address S; // S depends on PLT exists or not.
   ARMRelocationFactory::DWord   T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord   A =
     helper_sign_extend((pReloc.target() & 0x00FFFFFFu) << 2, 26)
@@ -543,16 +545,23 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
 
   S = pReloc.symValue();
-  if ( pReloc.symInfo()->reserved() & 0x8u) {
+  if (pReloc.symInfo()->reserved() & 0x8u) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
 
-  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
-
-  if (X & 0x03u) {  // Lowest two bit is not zero.
-    llvm::report_fatal_error("Target is thumb, need stub!");
+  // If the jump target is thumb instruction, switch mode is needed, rewrite
+  // the instruction to BLX
+  if (T != 0) {
+    // cannot rewrite R_ARM_JUMP24 instruction to blx
+    assert((pReloc.type() != llvm::ELF::R_ARM_JUMP24)&&
+      "Invalid instruction to rewrite to blx for switching mode.");
+    pReloc.target() = (pReloc.target() & 0xffffff) |
+                      0xfa000000 |
+                      (((S + A - P) & 2) << 23);
   }
+
+  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
   // Check X is 24bit sign int. If not, we should use stub or PLT before apply.
   assert(!helper_check_signed_overflow(X, 26) && "Jump or Call target too far!");
   //                    Make sure the Imm is 0.          Result Mask.
