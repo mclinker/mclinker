@@ -51,10 +51,6 @@ public:
   };
 
 public:
-  Resolver();
-
-  Resolver(const Resolver& pCopy);
-
   virtual ~Resolver();
 
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?

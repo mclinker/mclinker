@@ -103,10 +103,6 @@ private:
   };
 
 public:
-  StaticResolver();
-
-  StaticResolver(const StaticResolver& pCopy);
-
   virtual ~StaticResolver();
 
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
