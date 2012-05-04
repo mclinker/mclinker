@@ -71,7 +71,7 @@ size_t GNULDBackend::sectionStartOffset() const
 bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
 {
   if (0 == m_pArchiveReader)
-    m_pArchiveReader = new GNUArchiveReader(pInfo); 
+    m_pArchiveReader = new GNUArchiveReader(pInfo);
   return true;
 }
 
@@ -1142,7 +1142,7 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
 
   // If we are building shared object, and the visibility is external, we
   // need to add it.
-  if (Output::DynObj == pOutput.type())
+  if (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type())
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
         pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
       return true;
