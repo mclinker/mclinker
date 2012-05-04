@@ -96,6 +96,17 @@ inline uint64_t bswap64(uint64_t pData)
            ((pData & 0x00000000000000FFULL) << 56));
 }
 
+template <size_t SizeOfStr, typename FieldType>
+class StringSizerHelper
+{
+private:
+  char FIELD_TOO_SMALL[SizeOfStr <= FieldType(~0U) ? 1 : -1];
+public:
+  enum { Size = SizeOfStr };
+};
+
+#define STR_SIZE(str, fieldTy) StringSizerHelper<sizeof(str)-1, fieldTy>::Size
+
 } // namespace of mcld
 
 #endif
