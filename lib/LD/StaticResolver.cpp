@@ -15,6 +15,10 @@ using namespace mcld;
 
 //==========================
 // StaticResolver
+StaticResolver::~StaticResolver()
+{
+}
+
 unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
                                      const ResolveInfo& __restrict__ pNew,
                                      bool &pOverride) const
