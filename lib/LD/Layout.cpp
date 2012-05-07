@@ -565,6 +565,7 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
       case LDFileFormat::BSS:
+      case LDFileFormat::Debug:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
               !sect->getSectionData()->getFragmentList().empty()) {
@@ -591,13 +592,6 @@ bool Layout::layout(Output& pOutput,
         if (MCLDFile::Object == pOutput.type()) {
           //TODO: support incremental linking
           ;
-        }
-        break;
-      case LDFileFormat::Debug:
-        if (0 != sect->size()) {
-          m_SectionOrder.push_back(sect);
-          llvm::errs() << "WARNING: DWARF debugging has not been fully supported yet.\n"
-                       << "section `" << sect->name() << "'.\n";
         }
         break;
       case LDFileFormat::Exception:

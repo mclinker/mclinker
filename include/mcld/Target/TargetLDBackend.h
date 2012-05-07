@@ -69,7 +69,8 @@ public:
                               const LDSymbol& pInputSym,
                               MCLinker& pLinker,
                               const MCLDInfo& pLDInfo,
-                              const Output& pOutput) = 0;
+                              const Output& pOutput,
+                              const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLinker&, MCLDInfo&) = 0;

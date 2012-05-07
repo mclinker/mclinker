@@ -104,7 +104,8 @@ public:
                       const LDSymbol& pInputSym,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      const Output& pOutput);
+                      const Output& pOutput,
+                      const LDSection& pSection);
 
   uint32_t machine() const
   { return llvm::ELF::EM_ARM; }

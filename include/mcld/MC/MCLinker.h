@@ -153,6 +153,7 @@ public:
                             const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
                             MCFragmentRef& pFragmentRef,
+                            const LDSection& pSection,
                             Relocation::Address pAddend = 0);
 
   /// applyRelocations - apply all relocation enties.

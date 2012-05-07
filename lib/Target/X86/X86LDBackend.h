@@ -162,7 +162,8 @@ public:
                       const LDSymbol& pInputSym,
                       MCLinker& pLinker,
                       const MCLDInfo& pLDInfo,
-                      const Output& pOutput);
+                      const Output& pOutput,
+                      const LDSection& pSection);
 
   OutputRelocSection& getRelDyn();
 

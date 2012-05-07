@@ -133,11 +133,20 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       MCLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
-                                      const Output& pOutput)
+                                      const Output& pOutput,
+                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
+
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC)) {
+    if (rsym->isLocal()) {
+      updateAddend(pReloc, pInputSym, pLinker.getLayout());
+    }
+    return;
+  }
 
   // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies
   // that a .got section is needed.

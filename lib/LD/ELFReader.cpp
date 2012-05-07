@@ -28,7 +28,11 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
 {
   // name rules
   llvm::StringRef name(pName);
-  if (llvm::StringRef::npos != name.find(".debug"))
+  if (name.startswith(".debug") ||
+      name.startswith(".zdebug") ||
+      name.startswith(".gnu.linkonce.wi.") ||
+      name.startswith(".line") ||
+      name.startswith(".stab"))
     return LDFileFormat::Debug;
   if (name.startswith(".comment"))
     return LDFileFormat::MetaData;

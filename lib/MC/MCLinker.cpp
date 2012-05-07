@@ -510,6 +510,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     const LDSymbol& pSym,
                                     ResolveInfo& pResolveInfo,
                                     MCFragmentRef& pFragmentRef,
+                                    const LDSection& pSection,
                                     Relocation::Address pAddend)
 {
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
@@ -521,7 +522,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   m_RelocationList.push_back(relocation);
 
   m_Backend.scanRelocation(*relocation, pSym, *this, m_Info,
-                           m_Info.output());
+                           m_Info.output(), pSection);
 
   return relocation;
 }
