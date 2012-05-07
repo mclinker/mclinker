@@ -1,0 +1,7 @@
+DIAG(fail_sym_resolution, DiagnosticEngine::Unreachable, "Fails to resolve symbols [%0:%1]\nPlease reports to `%2'", "Fails to resolve symbols [%0:%1]\nPlease reports to `%2'")
+DIAG(mark_dynamic_defined, DiagnosticEngine::Ignore, "refer to dynamic symbol %0", "call a external function %0")
+DIAG(comm_refer_to_define, DiagnosticEngine::Ignore, "common symbol %0 is overridden by previous definition", "common symbol %0 is overridden by previous definition")
+DIAG(redefine_common, DiagnosticEngine::Ignore, "common symbol %0 is overridden by definition", "common symbol %0 is overriden by definition")
+DIAG(indirect_refer_to_common, DiagnosticEngine::Ignore, "indirect symbol %0 points to a common symbol", "indirect symbol %0 points to a common symbol")
+DIAG(indirect_refer_to_inexist, DiagnosticEngine::Fatal, "indirect symbol %0 points to a undefined symbol", "variable %0 is undefined")
+DIAG(multiple_definitions, DiagnosticEngine::Error, "multiple definition of symbol `%0'", "you define variable %0 twice")
