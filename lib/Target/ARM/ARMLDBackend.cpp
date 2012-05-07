@@ -400,7 +400,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
-        rsym->setReserved(rsym->reserved() | 0x1u);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
         }
       return;
     }
@@ -424,7 +424,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
-        rsym->setReserved(rsym->reserved() | 0x1u);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       return;
     }
@@ -444,7 +444,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOT_PREL: {
       // A GOT entry is needed for these relocation type.
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & 0x6u)
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
       if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
@@ -524,7 +524,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // dynamic relocation entry
       if (symbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
         // create plt for this symbol if it does not have one
-        if (!(rsym->reserved() & 0x8u)){
+        if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it doesn't exist
           if (NULL == m_pGOT)
             createARMGOT(pLinker, pOutput);
@@ -538,7 +538,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           m_pPLT->reserveEntry();
           m_pRelPLT->reserveEntry(*m_pRelocFactory);
           // set PLT bit
-          rsym->setReserved(rsym->reserved() | 0x8u);
+          rsym->setReserved(rsym->reserved() | ReservePLT);
         }
       }
 
@@ -557,7 +557,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           checkValidReloc(pReloc, pLDInfo, pOutput);
           // set Rel bit
-          rsym->setReserved(rsym->reserved() | 0x1u);
+          rsym->setReserved(rsym->reserved() | ReserveRel);
         }
       }
       return;
@@ -640,7 +640,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           checkValidReloc(pReloc, pLDInfo, pOutput);
           // set Rel bit
-          rsym->setReserved(rsym->reserved() | 0x1u);
+          rsym->setReserved(rsym->reserved() | ReserveRel);
         }
       }
       return;
@@ -661,7 +661,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // A PLT entry is needed when building shared library
 
       // return if we already create plt for this symbol
-      if (rsym->reserved() & 0x8u)
+      if (rsym->reserved() & ReservePLT)
         return;
 
       // if symbol is defined in the ouput file and it's not
@@ -685,7 +685,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       m_pPLT->reserveEntry();
       m_pRelPLT->reserveEntry(*m_pRelocFactory);
       // set PLT bit
-      rsym->setReserved(rsym->reserved() | 0x8u);
+      rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
     }
 
@@ -698,7 +698,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_GOT_PREL: {
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
-      if (rsym->reserved() & 0x6u)
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
       if (NULL == m_pGOT)
         createARMGOT(pLinker, pOutput);
@@ -712,11 +712,11 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
-        rsym->setReserved(rsym->reserved() | 0x4u);
+        rsym->setReserved(rsym->reserved() | GOTRel);
         return;
       }
       // set GOT bit
-      rsym->setReserved(rsym->reserved() | 0x2u);
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
     }
 

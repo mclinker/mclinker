@@ -416,13 +416,13 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   ARMRelocationFactory::DWord S = pReloc.symValue();
 
-  if (rsym->isLocal() && (rsym->reserved() & 0x1u)) {
+  if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
     helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
     pReloc.target() = (S + A) | T ;
     return ARMRelocationFactory::OK;
   }
   else if (!rsym->isLocal()) {
-    if (rsym->reserved() & 0x8u) {
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0 ; // PLT is not thumb
       pReloc.target() = (S + A) | T;
@@ -430,7 +430,7 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
     // If we generate a dynamic relocation (except R_ARM_RELATIVE)
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
-    if (rsym->reserved() & 0x1u) {
+    if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
       if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
       }
@@ -489,7 +489,8 @@ ARMRelocationFactory::Result got_brel(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
-  if (!(pReloc.symInfo()->reserved() & 0x6u)) {
+  if (!(pReloc.symInfo()->reserved() &
+      (ARMGNULDBackend::ReserveGOT | ARMGNULDBackend::GOTRel))) {
     return ARMRelocationFactory::BadReloc;
   }
   ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pLDInfo, pParent);
@@ -505,7 +506,8 @@ ARMRelocationFactory::Result got_prel(Relocation& pReloc,
                                       const MCLDInfo& pLDInfo,
                                       ARMRelocationFactory& pParent)
 {
-  if (!(pReloc.symInfo()->reserved() & 0x6u)) {
+  if (!(pReloc.symInfo()->reserved() &
+      (ARMGNULDBackend::ReserveGOT | ARMGNULDBackend::GOTRel))) {
     return ARMRelocationFactory::BadReloc;
   }
   ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pLDInfo, pParent);
@@ -545,7 +547,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   ARMRelocationFactory::Address P = pReloc.place(pParent.getLayout());
 
   S = pReloc.symValue();
-  if (pReloc.symInfo()->reserved() & 0x8u) {
+  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
@@ -595,7 +597,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::Address S;
 
   // if symbol has plt
-  if (pReloc.symInfo()->reserved() & 0x8u) {
+  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
@@ -655,7 +657,7 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
   ARMRelocationFactory::DWord X;
 
   // use plt
-  if (rsym->reserved() & 0x8u) {
+  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0 ; // PLT is not thumb
   }
@@ -704,7 +706,7 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
   ARMRelocationFactory::DWord X;
 
   // use plt
-  if (rsym->reserved() & 0x8u) {
+  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
   }
 
@@ -746,7 +748,7 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
   ARMRelocationFactory::DWord X;
 
   // use plt
-  if (rsym->reserved() & 0x8u) {
+  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0; // PLT is not thumb
   }
@@ -809,7 +811,7 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
   ARMRelocationFactory::DWord X;
 
   // use plt
-  if (rsym->reserved() & 0x8u) {
+  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
   }
   X = S + A;
@@ -857,7 +859,7 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
 
   S = pReloc.symValue();
   // if symbol has plt
-  if ( pReloc.symInfo()->reserved() & 0x8u) {
+  if ( pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
