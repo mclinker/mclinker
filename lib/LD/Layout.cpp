@@ -132,16 +132,6 @@ void Layout::addInputRange(const llvm::MCSectionData& pSD,
   }
   else {
     range_list = m_SDRangeMap[&pSD];
-#ifdef MCLD_DEBUG
-    RangeList::iterator rangeIter, rangeEnd = range_list->end();
-    for (rangeIter = range_list->begin(); rangeIter != rangeEnd; ++rangeIter) {
-      if (&pInputHdr == rangeIter->header) {
-        llvm::report_fatal_error(llvm::Twine("Trying to map the same LDSection: ") +
-                                 pInputHdr.name() +
-                                 llvm::Twine(" into the different ranges.\n"));
-      }
-    }
-#endif
   }
 
   // make a range and push it into the range list
