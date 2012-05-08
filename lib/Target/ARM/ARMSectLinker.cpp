@@ -9,7 +9,6 @@
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include "ARM.h"
-#include "ARMAndroidSectLinker.h"
 #include "ARMELFSectLinker.h"
 
 
@@ -32,8 +31,7 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
   }
 
   // For now, use Android SectLinker directly
-  return new ARMAndroidSectLinker(pOption,
-                                  pLDBackend);
+  return new ARMELFSectLinker(pOption, pLDBackend);
 }
 
 } // namespace of mcld

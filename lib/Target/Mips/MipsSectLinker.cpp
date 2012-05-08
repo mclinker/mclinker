@@ -10,7 +10,7 @@
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include "Mips.h"
-#include "MipsAndroidSectLinker.h"
+#include "MipsELFSectLinker.h"
 
 using namespace mcld;
 
@@ -31,9 +31,7 @@ SectLinker* createMipsSectLinker(const std::string &pTriple,
     assert(0 && "COFF linker has not supported yet");
   }
 
-  // For now, use Android SectLinker directly
-  return new MipsAndroidSectLinker(pOption,
-                                   pLDBackend);
+  return new MipsELFSectLinker(pOption, pLDBackend);
 }
 
 } // namespace of mcld

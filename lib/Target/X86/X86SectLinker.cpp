@@ -10,7 +10,6 @@
 #include <mcld/Support/TargetRegistry.h>
 
 #include "X86.h"
-#include "X86AndroidSectLinker.h"
 #include "X86ELFSectLinker.h"
 
 using namespace mcld;
@@ -31,9 +30,10 @@ SectLinker* createX86SectLinker(const std::string &pTriple,
     assert(0 && "COFF linker has not supported yet");
   }
 
-  // For now, use Android SectLinker directly
-  return new X86AndroidSectLinker(pOption,
-                                  pLDBackend);
+  if (theTriple.isArch32Bit())
+    return new X86ELFSectLinker(pOption, pLDBackend);
+
+  assert(0 && "X86_64 has not supported yet");
 }
 
 } // namespace of mcld

@@ -11,9 +11,8 @@
 //This class primarily handles common functionality used by all linkers.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef SECTION_LINKER_H
-#define SECTION_LINKER_H
+#ifndef MCLD_SECTION_LINKER_H
+#define MCLD_SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

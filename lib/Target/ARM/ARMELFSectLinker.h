@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef ARM_ELFSECTLINKER_H
-#define ARM_ELFSECTLINKER_H
+#ifndef ARM_ELF_SECTION_LINKER_H
+#define ARM_ELF_SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif

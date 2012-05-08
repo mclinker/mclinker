@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "MipsELFSectLinker.h"
 
 #include <mcld/CodeGen/SectLinkerOption.h>
@@ -31,3 +30,4 @@ MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
 MipsELFSectLinker::~MipsELFSectLinker()
 {
 }
+
