@@ -225,6 +225,10 @@ public:
   virtual bool isDefaultExecStack() const
   { return true; }
 
+  /// allocateCommonSymbols - allocate common symbols in the corresponding
+  /// sections.
+  /// Different concrete target backend may overlap this function.
+  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Output& pOutput,

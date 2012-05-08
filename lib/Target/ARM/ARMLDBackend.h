@@ -194,10 +194,6 @@ public:
   /// function to ask the final value of the symbol
   bool finalizeSymbol(LDSymbol& pSymbol) const;
 
-  /// allocateCommonSymbols - allocate common symbols in the corresponding
-  /// sections.
-  bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
-
   /// readSection - read target dependent sections
   bool readSection(Input& pInput,
                    MCLinker& pLinker,

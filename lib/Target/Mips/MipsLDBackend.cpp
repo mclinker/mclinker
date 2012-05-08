@@ -508,102 +508,116 @@ bool MipsGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
 bool
 MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) const
 {
-  // SymbolCategory contains all symbols that must emit to the output files.
-  // We are not like Google gold linker, we don't remember symbols before symbol
-  // resolution. All symbols in SymbolCategory are already resolved. Therefore, we
-  // don't need to care about some symbols may be changed its category due to symbol
-  // resolution.
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
     return true;
 
-  // addralign := max value of all common symbols
-  uint64_t addralign = 0x0;
-
-  // Due to the visibility, some common symbols may be forcefully local.
-  SymbolCategory::iterator com_sym, com_end = symbol_list.localEnd();
-  for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
-    if (ResolveInfo::Common == (*com_sym)->desc()) {
-      if ((*com_sym)->value() > addralign)
-        addralign = (*com_sym)->value();
-    }
-  }
-
-  // global common symbols.
-  com_end = symbol_list.commonEnd();
-  for (com_sym = symbol_list.commonBegin(); com_sym != com_end; ++com_sym) {
-    if ((*com_sym)->value() > addralign)
-      addralign = (*com_sym)->value();
-  }
-
-  // If symbol_list is emptyCommons, *com_sym will be 0.
-  // We need to set com_sym to localBegin() to avoid seg fault at
-  // (*com_sym)->type().
-  if (symbol_list.emptyCommons())
-    com_sym = symbol_list.localBegin();
+  SymbolCategory::iterator com_sym, com_end;
 
   // FIXME: If the order of common symbols is defined, then sort common symbols
-  // com_sym = symbol_list.commonBegin();
   // std::sort(com_sym, com_end, some kind of order);
 
   // get or create corresponding BSS LDSection
-  LDSection* bss_sect_hdr = NULL;
-  if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(
+  LDSection* bss_sect = &pLinker.getOrCreateOutputSectHdr(".bss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+
+  LDSection* tbss_sect = &pLinker.getOrCreateOutputSectHdr(
                                    ".tbss",
                                    LDFileFormat::BSS,
                                    llvm::ELF::SHT_NOBITS,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
-  else {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(".bss",
+
+  LDSection* sbss_sect = &pLinker.getOrCreateOutputSectHdr(
+                                   ".sbss",
                                    LDFileFormat::BSS,
                                    llvm::ELF::SHT_NOBITS,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
+
+  LDSection* lbss_sect = &pLinker.getOrCreateOutputSectHdr(
+                                   ".lbss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+
+  assert(NULL != bss_sect &&
+         NULL != tbss_sect &&
+         NULL != sbss_sect &&
+         NULL != lbss_sect);
 
   // get or create corresponding BSS MCSectionData
-  assert(NULL != bss_sect_hdr);
-  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(*bss_sect_hdr);
+  llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
+  llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
+  llvm::MCSectionData& sbss_sect_data = pLinker.getOrCreateSectData(*sbss_sect);
+  llvm::MCSectionData& lbss_sect_data = pLinker.getOrCreateSectData(*lbss_sect);
 
-  // allocate all common symbols
-  uint64_t offset = bss_sect_hdr->size();
+  // remember original BSS size
+  uint64_t bss_offset  = bss_sect->size();
+  uint64_t tbss_offset = tbss_sect->size();
+  uint64_t sbss_offset = sbss_sect->size();
+  uint64_t lbss_offset = lbss_sect->size();
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
+  
   for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
     if (ResolveInfo::Common == (*com_sym)->desc()) {
-      alignAddress(offset, (*com_sym)->value());
       // We have to reset the description of the symbol here. When doing
       // incremental linking, the output relocatable object may have common
       // symbols. Therefore, we can not treat common symbols as normal symbols
       // when emitting the regular name pools. We must change the symbols'
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size(), &bss_section);
+      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
       (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-      offset += (*com_sym)->size();
+
+      if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+        // allocate TLS common symbol in tbss section
+        tbss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                          tbss_sect_data,
+                                                          (*com_sym)->value());
+      }
+      // FIXME: how to identify small and large common symbols?
+      else {
+        bss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                         bss_sect_data,
+                                                         (*com_sym)->value());
+      }
     }
   }
 
   // allocate all global common symbols
   com_end = symbol_list.commonEnd();
   for (com_sym = symbol_list.commonBegin(); com_sym != com_end; ++com_sym) {
-    alignAddress(offset, (*com_sym)->value());
-
     // We have to reset the description of the symbol here. When doing
     // incremental linking, the output relocatable object may have common
     // symbols. Therefore, we can not treat common symbols as normal symbols
     // when emitting the regular name pools. We must change the symbols'
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size(), &bss_section);
+    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
     (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-    offset += (*com_sym)->size();
+
+    if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+      // allocate TLS common symbol in tbss section
+      tbss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                        tbss_sect_data,
+                                                        (*com_sym)->value());
+    }
+    // FIXME: how to identify small and large common symbols?
+    else {
+      bss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                       bss_sect_data,
+                                                       (*com_sym)->value());
+    }
   }
 
-  bss_sect_hdr->setSize(offset);
+  bss_sect->setSize(bss_offset);
+  tbss_sect->setSize(tbss_offset);
+  sbss_sect->setSize(sbss_offset);
+  lbss_sect->setSize(lbss_offset);
   symbol_list.changeCommonsToGlobal();
   return true;
 }
