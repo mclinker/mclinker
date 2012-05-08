@@ -263,8 +263,14 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  if (0 != (llvm::ELF::SHF_ALLOC & pParent.getLayout().getOutputLDSection(
-                                       *(pReloc.targetRef().frag()))->flag())) {
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // Check if we need plt or dynamic relocation only as the target section is
+    // in PT_LOAD
     if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
       helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       pReloc.target() = S + A;
