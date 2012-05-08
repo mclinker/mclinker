@@ -839,54 +839,36 @@ ARMGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
     return true;
 
-  // addralign := max value of all common symbols
-  uint64_t addralign = 0x0;
-
-  // Due to the visibility, some common symbols may be forcefully local.
-  SymbolCategory::iterator com_sym, com_end = symbol_list.localEnd();
-  for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
-    if (ResolveInfo::Common == (*com_sym)->desc()) {
-      if ((*com_sym)->value() > addralign)
-        addralign = (*com_sym)->value();
-    }
-  }
-
-  // global common symbols.
-  com_end = symbol_list.commonEnd();
-  for (com_sym = symbol_list.commonBegin(); com_sym != com_end; ++com_sym) {
-    if ((*com_sym)->value() > addralign)
-      addralign = (*com_sym)->value();
-  }
+  SymbolCategory::iterator com_sym, com_end;
 
   // FIXME: If the order of common symbols is defined, then sort common symbols
-  // com_sym = symbol_list.commonBegin();
   // std::sort(com_sym, com_end, some kind of order);
 
   // get or create corresponding BSS LDSection
-  LDSection* bss_sect_hdr = NULL;
-  if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(
+  LDSection* bss_sect = &pLinker.getOrCreateOutputSectHdr(".bss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+
+  LDSection* tbss_sect = &pLinker.getOrCreateOutputSectHdr(
                                    ".tbss",
                                    LDFileFormat::BSS,
                                    llvm::ELF::SHT_NOBITS,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
-  else {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(".bss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
+
+  assert(NULL != bss_sect && NULL !=tbss_sect);
 
   // get or create corresponding BSS MCSectionData
-  assert(NULL != bss_sect_hdr);
-  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(*bss_sect_hdr);
+  llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
+  llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
 
-  // allocate all common symbols
-  uint64_t offset = bss_sect_hdr->size();
+  // remember original BSS size
+  uint64_t bss_offset  = bss_sect->size();
+  uint64_t tbss_offset = tbss_sect->size();
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
+  
   for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
     if (ResolveInfo::Common == (*com_sym)->desc()) {
       // We have to reset the description of the symbol here. When doing
@@ -897,10 +879,18 @@ ARMGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
       llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
       (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-      uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                         bss_section,
+
+      if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+        // allocate TLS common symbol in tbss section
+        tbss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                          tbss_sect_data,
+                                                          (*com_sym)->value());
+      }
+      else {
+        bss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                         bss_sect_data,
                                                          (*com_sym)->value());
-      offset += size;
+      }
     }
   }
 
@@ -915,13 +905,22 @@ ARMGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker)
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
     llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
     (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
-    uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                       bss_section,
+
+    if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+      // allocate TLS common symbol in tbss section
+      tbss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                        tbss_sect_data,
+                                                        (*com_sym)->value());
+    }
+    else {
+      bss_offset += pLinker.getLayout().appendFragment(*frag,
+                                                       bss_sect_data,
                                                        (*com_sym)->value());
-    offset += size;
+    }
   }
 
-  bss_sect_hdr->setSize(offset);
+  bss_sect->setSize(bss_offset);
+  tbss_sect->setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
   return true;
 }
