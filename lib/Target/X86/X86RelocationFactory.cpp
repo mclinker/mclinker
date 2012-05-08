@@ -263,23 +263,26 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
-    helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
-    pReloc.target() = S + A;
-    return X86RelocationFactory::OK;
-  }
-  else if (!rsym->isLocal()) {
-    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
+  if (0 != (llvm::ELF::SHF_ALLOC & pParent.getLayout().getOutputLDSection(
+                                       *(pReloc.targetRef().frag()))->flag())) {
+    if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
+      helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       pReloc.target() = S + A;
+      return X86RelocationFactory::OK;
     }
-    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
-      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
-        helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+    else if (!rsym->isLocal()) {
+      if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+        S = helper_PLT(pReloc, pParent);
+        pReloc.target() = S + A;
       }
-      else {
-        helper_DynRel(pReloc, pReloc.type(), pParent);
-        return X86RelocationFactory::OK;
+      if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
+          helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+        }
+        else {
+          helper_DynRel(pReloc, pReloc.type(), pParent);
+          return X86RelocationFactory::OK;
+        }
       }
     }
   }

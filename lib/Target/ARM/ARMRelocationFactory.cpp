@@ -416,27 +416,30 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   ARMRelocationFactory::DWord S = pReloc.symValue();
 
-  if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
-    helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
-    pReloc.target() = (S + A) | T ;
-    return ARMRelocationFactory::OK;
-  }
-  else if (!rsym->isLocal()) {
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-      S = helper_PLT(pReloc, pParent);
-      T = 0 ; // PLT is not thumb
-      pReloc.target() = (S + A) | T;
+  if (0 != (llvm::ELF::SHF_ALLOC & pParent.getLayout().getOutputLDSection(
+                                       *(pReloc.targetRef().frag()))->flag())) {
+    if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
+      helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
+      pReloc.target() = (S + A) | T ;
+      return ARMRelocationFactory::OK;
     }
-    // If we generate a dynamic relocation (except R_ARM_RELATIVE)
-    // for a place, we should not perform static relocation on it
-    // in order to keep the addend store in the place correct.
-    if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
-      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
-        helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
+    else if (!rsym->isLocal()) {
+      if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+        S = helper_PLT(pReloc, pParent);
+        T = 0 ; // PLT is not thumb
+        pReloc.target() = (S + A) | T;
       }
-      else {
-        helper_DynRel(pReloc, pReloc.type(), pParent);
-        return ARMRelocationFactory::OK;
+      // If we generate a dynamic relocation (except R_ARM_RELATIVE)
+      // for a place, we should not perform static relocation on it
+      // in order to keep the addend store in the place correct.
+      if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
+        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
+          helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
+        }
+        else {
+          helper_DynRel(pReloc, pReloc.type(), pParent);
+          return ARMRelocationFactory::OK;
+        }
       }
     }
   }
