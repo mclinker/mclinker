@@ -6,7 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDDiagnostic.h>
+#include <mcld/LD/DiagnosticEngine.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/DiagnosticPrinter.h>
+#include <mcld/LD/MsgHandler.h>
 #include <mcld/Support/MsgHandling.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/raw_ostream.h>
@@ -14,18 +17,22 @@
 using namespace mcld;
 
 //==========================
-// MsgHandlerInitializer
-class MsgHandlerInitializer : public llvm::ManagedStaticBase
+// DiagnosticInitializer
+class DiagnosticInitializer : public llvm::ManagedStaticBase
 {
 public:
-  MsgHandler* initialize(LDDiagnostic& pDiagnostic,
-                  llvm::raw_ostream& pOStream)
+  DiagnosticEngine* initialize(const MCLDInfo& pLDInfo,
+                               DiagnosticLineInfo* pLineInfo,
+                               DiagnosticPrinter* pPrinter)
   {
-    RegisterManagedStatic(NULL, llvm::object_deleter<MsgHandler>::call);
+    RegisterManagedStatic(NULL, llvm::object_deleter<DiagnosticEngine>::call);
     if (llvm::llvm_is_multithreaded()) {
       llvm::llvm_acquire_global_lock();
-
-      void* tmp = new MsgHandler(pDiagnostic, pOStream);
+      void* tmp = NULL;
+      if (NULL != pPrinter)
+        tmp = new DiagnosticEngine(pLDInfo, pLineInfo, pPrinter, false);
+      else
+        tmp = new DiagnosticEngine(pLDInfo, pLineInfo, NULL, false);
 
       TsanHappensBefore(this);
       llvm::sys::MemoryFence();
@@ -35,70 +42,33 @@ public:
       llvm::llvm_release_global_lock();
     }
     else {
-      Ptr = new MsgHandler(pDiagnostic, pOStream);
+      if (NULL != pPrinter)
+        Ptr = new DiagnosticEngine(pLDInfo, pLineInfo, pPrinter, false);
+      else
+        Ptr = new DiagnosticEngine(pLDInfo, pLineInfo, NULL, false);
     }
-    return static_cast<MsgHandler*>(Ptr);
+    return static_cast<DiagnosticEngine*>(Ptr);
   }
 };
 
-static MsgHandlerInitializer g_MsgHandlerInitializer;
-static MsgHandler* g_pMsgHandler = NULL;
+static DiagnosticInitializer g_DiagInitializer;
+static DiagnosticEngine* g_pDiagnosticEngine = NULL;
 
-void mcld::InitializeMsgHandler(LDDiagnostic& pDiagnostic,
-                          llvm::raw_ostream& pOStream)
+void mcld::InitializeDiagnosticEngine(const mcld::MCLDInfo& pLDInfo,
+                                DiagnosticLineInfo* pLineInfo,
+                                DiagnosticPrinter* pPrinter)
 {
-  if (NULL == g_pMsgHandler) {
-    g_pMsgHandler = g_MsgHandlerInitializer.initialize(pDiagnostic,
-                                                       pOStream);
+  if (NULL == g_pDiagnosticEngine) {
+    g_pDiagnosticEngine = g_DiagInitializer.initialize(pLDInfo,
+                                                       pLineInfo,
+                                                       pPrinter);
   }
 }
 
-MsgHandler& mcld::getGlobalMsgHandler()
+DiagnosticEngine& mcld::getDiagnosticEngine()
 {
-  return *g_pMsgHandler;
-}
-
-//==========================
-// MsgHandling
-MsgHandler& mcld::fatal()
-{
-  getGlobalMsgHandler() << MsgHandler::Fatal;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::error()
-{
-  getGlobalMsgHandler() << MsgHandler::Error;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::warning()
-{
-  getGlobalMsgHandler() << MsgHandler::Warning;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::critical()
-{
-  getGlobalMsgHandler() << MsgHandler::Critical;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::info()
-{
-  getGlobalMsgHandler() << MsgHandler::Info;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::debug()
-{
-  getGlobalMsgHandler() << MsgHandler::Debug;
-  return getGlobalMsgHandler();
-}
-
-MsgHandler& mcld::unreachable()
-{
-  getGlobalMsgHandler() << MsgHandler::Unreachable;
-  return getGlobalMsgHandler();
+  assert(NULL != g_pDiagnosticEngine &&
+         "mcld::InitializeDiagnostics() is not called");
+  return *g_pDiagnosticEngine;
 }
 

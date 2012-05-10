@@ -11,27 +11,61 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Support/MsgHandler.h>
-#include <mcld/LD/LDDiagnostic.h>
-#include <mcld/LD/DumbDiagnostic.h>
+#include <mcld/LD/MsgHandler.h>
 
 namespace mcld
 {
 
-void InitializeMsgHandler(LDDiagnostic& pDiagnostic,
-                          llvm::raw_ostream& pOStream);
+class MCLDInfo;
+class DiagnosticPrinter;
+class DiagnosticLineInfo;
 
-MsgHandler& getGlobalMsgHandler();
+void InitializeDiagnosticEngine(const MCLDInfo& pLDInfo,
+                                DiagnosticLineInfo* pLineInfo,
+                                DiagnosticPrinter* pPrinter);
 
-MsgHandler& fatal();
-MsgHandler& error();
-MsgHandler& warning();
-MsgHandler& critical();
-MsgHandler& info();
-MsgHandler& debug();
-MsgHandler& unreachable();
+DiagnosticEngine& getDiagnosticEngine();
+
+MsgHandler fatal(unsigned int pID);
+MsgHandler error(unsigned int pID);
+MsgHandler warning(unsigned int pID);
+MsgHandler debug(unsigned int pID);
+MsgHandler note(unsigned int pID);
+MsgHandler ignore(unsigned int pID);
 
 } // namespace of mcld
+
+//===----------------------------------------------------------------------===//
+//  Inline functions
+inline mcld::MsgHandler mcld::fatal(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Fatal);
+}
+
+inline mcld::MsgHandler mcld::error(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Error);
+}
+
+inline mcld::MsgHandler mcld::warning(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Warning);
+}
+
+inline mcld::MsgHandler mcld::debug(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Debug);
+}
+
+inline mcld::MsgHandler mcld::note(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Note);
+}
+
+inline mcld::MsgHandler mcld::ignore(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Ignore);
+}
 
 #endif
 
