@@ -12,16 +12,30 @@
 #include <gtest.h>
 #endif
 #include <mcld/LD/DiagnosticPrinter.h>
+#include <llvm/Support/raw_ostream.h>
 
 namespace mcld
 {
+
+class MCLDInfo;
 
 /** \class TextDiagnosticPrinter
  *  \brief The plain, text-based DiagnosticPrinter.
  */
 class TextDiagnosticPrinter : public DiagnosticPrinter
 {
+public:
+  TextDiagnosticPrinter(llvm::raw_ostream& pOStream, const MCLDInfo& pLDInfo);
+  virtual ~TextDiagnosticPrinter();
 
+  /// HandleDiagnostic - Handle this diagnostic, reporting it to the user or
+  /// capturing it to a log as needed.
+  virtual void handleDiagnostic(DiagnosticEngine::Severity pSeverity,
+                                const Diagnostic& pInfo);
+
+private:
+  llvm::raw_ostream& m_OStream;
+  const MCLDInfo& m_LDInfo;
 };
 
 } // namespace of mcld
