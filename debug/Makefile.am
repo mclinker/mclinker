@@ -51,9 +51,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${INCDIR}/Support/TargetSelect.h \
-	${INCDIR}/Support/LinkerErrors.h \
-	${INCDIR}/Support/MsgHandler.h \
-	${LIBDIR}/Support/MsgHandler.cpp \
 	${INCDIR}/Support/MsgHandling.h \
 	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
@@ -92,7 +89,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMDiagnostic.h \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
@@ -108,7 +104,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
-	${LIBDIR}/Target/Mips/MipsDiagnostic.h \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
@@ -128,7 +123,6 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
-	${LIBDIR}/Target/X86/X86Diagnostic.h \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
@@ -243,10 +237,20 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${INCDIR}/LD/ELFSegmentFactory.h \
 	${LIBDIR}/LD/ELFSegmentFactory.cpp \
-	${INCDIR}/LD/LDDiagnostic.h \
-	${LIBDIR}/LD/LDDiagnostic.cpp \
-	${INCDIR}/LD/DumbDiagnostic.h \
-	${LIBDIR}/LD/DumbDiagnostic.cpp
+	${INCDIR}/LD/MsgHandler.h \
+	${LIBDIR}/LD/MsgHandler.cpp \
+	${INCDIR}/LD/Diagnostic.h \
+	${LIBDIR}/LD/Diagnostic.cpp \
+	${INCDIR}/LD/DiagnosticInfos.h \
+	${LIBDIR}/LD/DiagnosticInfos.cpp \
+	${INCDIR}/LD/DiagnosticLineInfo.h \
+	${LIBDIR}/LD/DiagnosticLineInfo.cpp \
+	${INCDIR}/LD/DiagnosticEngine.h \
+	${LIBDIR}/LD/DiagnosticEngine.cpp \
+	${INCDIR}/LD/DiagnosticPrinter.h \
+	${LIBDIR}/LD/DiagnosticPrinter.cpp \
+        ${INCDIR}/LD/TextDiagnosticPrinter.h \
+        ${LIBDIR}/LD/TextDiagnosticPrinter.cpp
 #	${LIBDIR}/CodeGen/LDPrinter.cpp \
 #	${INCDIR}/CodeGen/LDPrinter.h
 #	${INCDIR}/Support/ScopedRegion.h \

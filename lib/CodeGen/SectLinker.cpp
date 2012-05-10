@@ -104,12 +104,6 @@ bool SectLinker::doFinalization(Module &pM)
   // 4. - normalize the input tree
   m_pLDDriver->normalize();
 
-  if (info.options().verbose()) {
-    outs() << "MCLinker (LLVM Sub-project) - ";
-    outs() << MCLDInfo::version();
-    outs() << "\n";
-  }
-
   if (info.options().trace()) {
     static int counter = 0;
     outs() << "** name\ttype\tpath\tsize (" << info.inputs().size() << ")\n";

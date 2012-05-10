@@ -14,6 +14,10 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/Filesystem.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/TextDiagnosticPrinter.h>
+#include <mcld/MC/MCLDInfo.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>
@@ -49,7 +53,6 @@ int unit_test( int argc, char* argv[] )
 }
 
 #endif
-
 
 // General options for llc.  Other pass-specific options are specified
 // within the corresponding llc passes, and target-specific options
@@ -276,14 +279,25 @@ ArgTraceAlias("trace",
               cl::desc("alias for -t"),
               cl::aliasopt(ArgTrace));
 
-static cl::opt<bool>
-ArgVerbose("V",
-          cl::desc("Display the version number for ld and list the linker emulations supported."));
+static cl::opt<int>
+ArgVerbose("verbose",
+           cl::init(-1),
+           cl::desc("Display the version number for ld and list the linker emulations supported."));
 
-static cl::alias
-ArgVerboseAlias("verbose",
-                cl::desc("alias for -V"),
-                cl::aliasopt(ArgVerbose));
+static cl::opt<bool>
+ArgVersion("V",
+           cl::init(false),
+           cl::desc("Display the version number for MCLinker."));
+
+static cl::opt<int>
+ArgMaxErrorNum("error-limit",
+               cl::init(-1),
+               cl::desc("limits the maximum number of erros."));
+
+static cl::opt<int>
+ArgMaxWarnNum("warning-limit",
+               cl::init(-1),
+               cl::desc("limits the maximum number of warnings."));
 
 static cl::opt<std::string>
 ArgEntry("e",
@@ -373,6 +387,28 @@ static cl::opt<std::string>
 ArgDyld("dynamic-linker",
         cl::desc("Set the name of the dynamic linker."),
         cl::value_desc("Program"));
+
+namespace color {
+enum Color {
+  Never,
+  Always,
+  Auto
+};
+} // namespace of color
+
+static cl::opt<color::Color>
+ArgColor("color",
+  cl::value_desc("WHEN"),
+  cl::desc("Surround the result strings with the marker"),
+  cl::init(color::Auto),
+  cl::values(
+    clEnumValN(color::Never, "never",
+      "do not surround result strings"),
+    clEnumValN(color::Always, "always",
+      "always surround result strings, even the output is a plain file"),
+    clEnumValN(color::Auto, "auto",
+      "surround result strings only if the output is a tty"),
+    clEnumValEnd));
 
 //===----------------------------------------------------------------------===//
 // Inputs
@@ -590,6 +626,12 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
   return result_output;
 }
 
+static bool ShouldColorize()
+{
+   const char* term = getenv("TERM");
+   return term && (0 != strcmp(term, "dumb"));
+}
+
 static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   // -----  Set up General Options  ----- //
   // set up soname
@@ -621,10 +663,27 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setPIE(ArgPIE);
   pOption.info().options().setTrace(ArgTrace);
   pOption.info().options().setVerbose(ArgVerbose);
+  pOption.info().options().setMaxErrorNum(ArgMaxErrorNum);
+  pOption.info().options().setMaxWarnNum(ArgMaxWarnNum);
   pOption.info().options().setEntry(ArgEntry);
   pOption.info().options().setBsymbolic(ArgBsymbolic);
   pOption.info().options().setBgroup(ArgBgroup);
   pOption.info().options().setDyld(ArgDyld);
+
+  // set up colorize
+  switch (ArgColor) {
+    case color::Never:
+      pOption.info().options().setColor(false);
+    break;
+    case color::Always:
+      pOption.info().options().setColor(true);
+    break;
+    case color::Auto:
+      bool color_option =
+                   mcld::sys::tty::isatty(STDOUT_FILENO) && ShouldColorize();
+      pOption.info().options().setColor(color_option);
+    break;
+  }
 
   // add -z options
   cl::list<mcld::ZOption>::iterator zOpt;
@@ -759,9 +818,9 @@ int main( int argc, char* argv[] )
   InitializeAllTargetMCs();
   mcld::InitializeAllTargets();
   mcld::InitializeAllLinkers();
-  mcld::InitializeDiagnostics();
+  mcld::InitializeAllDiagnostics();
 
-  cl::ParseCommandLineOptions(argc, argv, "llvm MCLinker\n");
+  cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
   if (UnitTest) {
@@ -776,11 +835,17 @@ int main( int argc, char* argv[] )
     ArgFileType = mcld::CGFT_DSOFile;
   }
 
+  if (ArgVersion) {
+    outs() << "MCLinker - ";
+    outs() << mcld::MCLDInfo::version();
+    outs() << "\n";
+  }
+
   if (ArgBitcodeFilename.empty() &&
       (mcld::CGFT_DSOFile != ArgFileType &&
        mcld::CGFT_EXEFile != ArgFileType)) {
     // If the file is not given, forcefully read from stdin
-    if (ArgVerbose) {
+    if (ArgVerbose >= 0) {
       errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"
              << "** Specify input bitcode/llvm asm file by\n\n"
              << "          llvm-mcld -dB [the bitcode/llvm asm]\n\n";
@@ -853,9 +918,11 @@ int main( int argc, char* argv[] )
     std::string Err;
     TheTarget = mcld::TargetRegistry::lookupTarget(TheTriple.getTriple(), Err);
     if (TheTarget == 0) {
-      errs() << argv[0] << ": error auto-selecting target for module '"
-             << Err << "'.  Please use the -march option to explicitly "
-             << "pick a target.\n";
+      errs() << "error: auto-selecting target `" << TheTriple.getTriple()
+             << "'\n"
+             << "Please use the -march option to explicitly select a target.\n"
+             << "Example:\n"
+             << "  $ " << argv[0] << " -march=\"arm-none-linux-gnueabi\"\n";
       return 1;
     }
   }
@@ -921,14 +988,17 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setMCUseCFI(false);
 
   // Set up MsgHandler
-  OwningPtr<mcld::LDDiagnostic> diagnostic(TheTarget->createDiagnostic(
-                                                       *TheTarget->get(),
+  OwningPtr<mcld::DiagnosticLineInfo>
+    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget->get(),
                                                        TheTriple.getTriple()));
-  if (!diagnostic) {
-    diagnostic.reset(new mcld::DumbDiagnostic());
-  }
+  OwningPtr<mcld::DiagnosticPrinter>
+    diag_printer(new mcld::TextDiagnosticPrinter(llvm::errs(),
+                                                TheTargetMachine.getLDInfo()));
 
-  mcld::InitializeMsgHandler(*diagnostic, llvm::errs());
+  mcld::InitializeDiagnosticEngine(TheTargetMachine.getLDInfo(),
+                                   diag_line_info.take(),
+                                   diag_printer.get());
+ 
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file>
@@ -991,6 +1061,12 @@ int main( int argc, char* argv[] )
   // clean up
   delete LinkerOpt;
 
+  if (0 != diag_printer->getNumErrors()) {
+    diag_printer->finish();
+    exit(1);
+  }
+  
+  diag_printer->finish();
   return 0;
 }
 
