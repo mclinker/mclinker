@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/DWARFLineInfo.h>
 #include "X86.h"
-#include "X86Diagnostic.h"
 
 using namespace mcld;
 
@@ -21,18 +21,18 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // createX86Diagnostic - the help function to create corresponding X86Diagnostic
 //
-LDDiagnostic* createX86Diagnostic(const llvm::Target& pTarget,
-                                  const std::string &pTriple)
+DiagnosticLineInfo* createX86DiagLineInfo(const llvm::Target& pTarget,
+                                          const std::string &pTriple)
 {
-  return new X86Diagnostic();
+  return new DWARFLineInfo();
 }
 
 } // namespace of mcld
 
 //==========================
 // InitializeX86Diagnostic
-extern "C" void LLVMInitializeX86Diagnostic() {
+extern "C" void LLVMInitializeX86DiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnostic(TheX86Target, createX86Diagnostic);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheX86Target, createX86DiagLineInfo);
 }
 

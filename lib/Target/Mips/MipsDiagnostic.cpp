@@ -8,31 +8,28 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/DWARFLineInfo.h>
 #include "Mips.h"
-#include "MipsDiagnostic.h"
 
 using namespace mcld;
-
-//===----------------------------------------------------------------------===//
-// MipsDiagnostic
 
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // createMipsDiagnostic - the help function to create corresponding
 // MipsDiagnostic
-LDDiagnostic* createMipsDiagnostic(const llvm::Target& pTarget,
-                                  const std::string &pTriple)
+DiagnosticLineInfo* createMipsDiagLineInfo(const llvm::Target& pTarget,
+                                           const std::string &pTriple)
 {
-  return new MipsDiagnostic();
+  return new DWARFLineInfo();
 }
 
 } // namespace of mcld
 
 //==========================
 // InitializeMipsDiagnostic
-extern "C" void LLVMInitializeMipsDiagnostic() {
+extern "C" void LLVMInitializeMipsDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnostic(TheMipselTarget, createMipsDiagnostic);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheMipselTarget, createMipsDiagLineInfo);
 }
 

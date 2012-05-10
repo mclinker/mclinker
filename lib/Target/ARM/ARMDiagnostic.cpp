@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/DWARFLineInfo.h>
 #include "ARM.h"
-#include "ARMDiagnostic.h"
 
 using namespace mcld;
 
@@ -21,19 +21,19 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // createARMDiagnostic - the help function to create corresponding ARMDiagnostic
 //
-LDDiagnostic* createARMDiagnostic(const llvm::Target& pTarget,
-                                  const std::string &pTriple)
+DiagnosticLineInfo* createARMDiagLineInfo(const llvm::Target& pTarget,
+                                          const std::string &pTriple)
 {
-  return new ARMDiagnostic();
+  return new DWARFLineInfo();
 }
 
 } // namespace of mcld
 
 //==========================
 // InitializeARMDiagnostic
-extern "C" void LLVMInitializeARMDiagnostic() {
+extern "C" void LLVMInitializeARMDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnostic(TheARMTarget, createARMDiagnostic);
-  mcld::TargetRegistry::RegisterDiagnostic(TheThumbTarget, createARMDiagnostic);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheARMTarget, createARMDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheThumbTarget, createARMDiagLineInfo);
 }
 

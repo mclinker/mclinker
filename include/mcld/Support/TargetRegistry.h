@@ -28,7 +28,7 @@ class TargetLDBackend;
 class AttributeFactory;
 class InputFactory;
 class ContextFactory;
-class LDDiagnostic;
+class DiagnosticLineInfo;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
@@ -49,8 +49,8 @@ public:
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
 
-  typedef LDDiagnostic *(*DiagnosticCtorTy)(const llvm::Target&,
-                                            const std::string&);
+  typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const llvm::Target&,
+                                                          const std::string&);
 
 public:
   Target();
@@ -96,13 +96,13 @@ public:
     return TargetLDBackendCtorFn(T, Triple);
   }
 
-  /// createDiagnostic - create target-specific LDDiagnostic
-  LDDiagnostic* createDiagnostic(const llvm::Target& pTarget,
-                                 const std::string& pTriple) const
+  /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
+  DiagnosticLineInfo* createDiagnosticLineInfo(const llvm::Target& pTarget,
+                                               const std::string& pTriple) const
   {
-    if (!DiagnosticCtorFn)
+    if (!DiagnosticLineInfoCtorFn)
       return NULL;
-    return DiagnosticCtorFn(pTarget, pTriple);
+    return DiagnosticLineInfoCtorFn(pTarget, pTriple);
   }
 
   const llvm::Target* get() const
@@ -113,7 +113,7 @@ private:
   TargetMachineCtorTy TargetMachineCtorFn;
   SectLinkerCtorTy SectLinkerCtorFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
-  DiagnosticCtorTy DiagnosticCtorFn;
+  DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
 
   // -----  adapted llvm::Target  ----- //
   const llvm::Target* m_pT;
@@ -183,15 +183,17 @@ public:
       T.TargetLDBackendCtorFn = Fn;
   }
 
-  /// RegisterTargetDiagnostic - Register a LDDiagnostic implementation for
-  /// the given target.
+  /// RegisterTargetDiagnosticLineInfo - Register a DiagnosticLineInfo
+  /// implementation for the given target.
   ///
   /// @param T - The target being registered
-  /// @param Fn - A function to create LDDiagnostic for the target
-  static void RegisterDiagnostic(mcld::Target &T, mcld::Target::DiagnosticCtorTy Fn)
+  /// @param Fn - A function to create DiagnosticLineInfo for the target
+  static void
+  RegisterDiagnosticLineInfo(mcld::Target &T,
+                             mcld::Target::DiagnosticLineInfoCtorTy Fn)
   {
-    if (!T.DiagnosticCtorFn)
-      T.DiagnosticCtorFn = Fn;
+    if (!T.DiagnosticLineInfoCtorFn)
+      T.DiagnosticLineInfoCtorFn = Fn;
   }
 
   /// lookupTarget - Lookup a target based on a llvm::Target.
