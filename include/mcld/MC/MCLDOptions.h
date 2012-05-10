@@ -64,12 +64,6 @@ public:
   bool trace() const
   { return m_bTrace; }
 
-  void setVerbose(bool pVerbose = true)
-  { m_bVerbose = pVerbose; }
-
-  bool verbose() const
-  { return m_bVerbose; }
-
   void setBsymbolic(bool pBsymbolic = false)
   { m_Bsymbolic = pBsymbolic; }
 
@@ -106,14 +100,44 @@ public:
   bool hasDyld() const
   { return !m_Dyld.empty(); }
 
+  void setAllowShlibUndefined(bool pEnabled = true)
+  { m_bAllowShlibUndefined = pEnabled; }
+
+  bool isAllowShlibUndefined() const
+  { return m_bAllowShlibUndefined; }
+
+  void setVerbose(int8_t pVerbose = -1)
+  { m_Verbose = pVerbose; }
+
+  int8_t verbose() const
+  { return m_Verbose; }
+
+  void setMaxErrorNum(int16_t pNum)
+  { m_MaxErrorNum = pNum; }
+
+  int16_t maxErrorNum() const
+  { return m_MaxErrorNum; }
+
+  void setMaxWarnNum(int16_t pNum)
+  { m_MaxWarnNum = pNum; }
+
+  int16_t maxWarnNum() const
+  { return m_MaxWarnNum; }
+
+  void setColor(bool pEnabled = true)
+  { m_bColor = pEnabled; }
+
+  bool color() const
+  { return m_bColor; }
+
   ///  -----  the -z options  -----  ///
   void addZOption(const mcld::ZOption& pOption);
 
   bool hasCombReloc() const
   { return m_bCombReloc; }
 
-  bool hasDefs() const
-  { return m_bDefs; }
+  bool isNoUndefined() const
+  { return m_bNoUndefined; }
 
   bool hasStackSet() const
   { return (Unknown != m_ExecStack); }
@@ -175,31 +199,34 @@ private:
   std::string m_DefaultLDScript;
   sys::fs::RealPath m_Sysroot;
   SearchDirs m_SearchDirs;
-  bool m_bTrace;
-  bool m_bVerbose;
-  bool m_Bsymbolic;
-  bool m_Bgroup;
-  bool m_bPIE;
   std::string m_Entry;
   std::string m_Dyld;
-  /// the -z options
-  bool m_bCombReloc;       // combreloc, nocombreloc
-  bool m_bDefs;            // defs
-  status m_ExecStack;      // execstack, noexecstack
-  bool m_bInitFirst;       // initfirst
-  bool m_bInterPose;       // interpose
-  bool m_bLoadFltr;        // loadfltr
-  bool m_bMulDefs;         // muldefs
-  bool m_bNoCopyReloc;     // nocopyreloc
-  bool m_bNoDefaultLib;    // nodefaultlib
-  bool m_bNoDelete;        // nodelete
-  bool m_bNoDLOpen;        // nodlopen
-  bool m_bNoDump;          // nodump
-  bool m_bRelro;           // relro, norelro
-  bool m_bNow;             // lazy, now
-  bool m_bOrigin;          // origin
-  uint64_t m_CommPageSize; // common-page-size=value
-  uint64_t m_MaxPageSize;  // max-page-size=value
+  int8_t m_Verbose;            // --verbose[=0,1,2]
+  uint16_t m_MaxErrorNum;      // --error-limit=N
+  uint16_t m_MaxWarnNum;       // --warning-limit=N
+  status m_ExecStack;          // execstack, noexecstack
+  uint64_t m_CommPageSize;     // common-page-size=value
+  uint64_t m_MaxPageSize;      // max-page-size=value
+  bool m_bCombReloc     : 1;   // combreloc, nocombreloc
+  bool m_bNoUndefined   : 1;   // defs, --no-undefined
+  bool m_bInitFirst     : 1;   // initfirst
+  bool m_bInterPose     : 1;   // interpose
+  bool m_bLoadFltr      : 1;   // loadfltr
+  bool m_bMulDefs       : 1;   // muldefs
+  bool m_bNoCopyReloc   : 1;   // nocopyreloc
+  bool m_bNoDefaultLib  : 1;   // nodefaultlib
+  bool m_bNoDelete      : 1;   // nodelete
+  bool m_bNoDLOpen      : 1;   // nodlopen
+  bool m_bNoDump        : 1;   // nodump
+  bool m_bRelro         : 1;   // relro, norelro
+  bool m_bNow           : 1;   // lazy, now
+  bool m_bOrigin        : 1;   // origin
+  bool m_bTrace         : 1;   // --trace
+  bool m_Bsymbolic      : 1;   // --Bsymbolic
+  bool m_Bgroup         : 1;
+  bool m_bPIE           : 1;
+  bool m_bColor         : 1;   // --color[=true,false,auto]
+  bool m_bAllowShlibUndefined : 1; // --[no-]allow-shlib-undefined and
 };
 
 } // namespace of mcld

@@ -16,12 +16,13 @@ using namespace mcld;
 GeneralOptions::GeneralOptions()
   : m_pDefaultBitcode(NULL),
     m_bTrace(false),
-    m_bVerbose(false),
+    m_Verbose(-1),
+    m_bColor(true),
     m_Bsymbolic(false),
     m_Bgroup(false),
     m_bPIE(false),
     m_bCombReloc(true),
-    m_bDefs(false),
+    m_bNoUndefined(false),
     m_ExecStack(Unknown),
     m_bInitFirst(false),
     m_bInterPose(false),
@@ -73,7 +74,7 @@ void GeneralOptions::addZOption(const ZOption& pOption)
       m_bCombReloc = false;
       break;
     case ZOption::Defs:
-      m_bDefs = true;
+      m_bNoUndefined = true;
       break;
     case ZOption::ExecStack:
       m_ExecStack = YES;
