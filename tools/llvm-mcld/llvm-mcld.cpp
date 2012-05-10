@@ -369,6 +369,11 @@ ArgFPIC("fPIC",
         cl::desc("Set relocation model to pic. The same as -relocation-model=pic."),
         cl::init(false));
 
+static cl::opt<std::string>
+ArgDyld("dynamic-linker",
+        cl::desc("Set the name of the dynamic linker."),
+        cl::value_desc("Program"));
+
 //===----------------------------------------------------------------------===//
 // Inputs
 static cl::list<mcld::sys::fs::Path>
@@ -619,6 +624,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setEntry(ArgEntry);
   pOption.info().options().setBsymbolic(ArgBsymbolic);
   pOption.info().options().setBgroup(ArgBgroup);
+  pOption.info().options().setDyld(ArgDyld);
 
   // add -z options
   cl::list<mcld::ZOption>::iterator zOpt;

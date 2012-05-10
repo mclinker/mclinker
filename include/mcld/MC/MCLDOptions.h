@@ -97,6 +97,15 @@ public:
   const std::string& entry() const
   { return m_Entry; }
 
+  void setDyld(const std::string& pDyld)
+  { m_Dyld = pDyld; }
+
+  const std::string& dyld() const
+  { return m_Dyld; }
+
+  bool hasDyld() const
+  { return !m_Dyld.empty(); }
+
   ///  -----  the -z options  -----  ///
   void addZOption(const mcld::ZOption& pOption);
 
@@ -172,6 +181,7 @@ private:
   bool m_Bgroup;
   bool m_bPIE;
   std::string m_Entry;
+  std::string m_Dyld;
   /// the -z options
   bool m_bCombReloc;       // combreloc, nocombreloc
   bool m_bDefs;            // defs
