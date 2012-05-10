@@ -106,12 +106,12 @@ public:
   virtual ~StaticResolver();
 
   /// shouldOverride - Can resolver override the symbol pOld by the symbol pNew?
-  /// @return the action should be taken.
+  /// @return successfully resolved, return true; otherwise, return false.
   /// @param pOld the symbol which may be overridden.
   /// @param pNew the symbol which is used to replace pOld
-  virtual unsigned int resolve(ResolveInfo & __restrict__ pOld,
-                               const ResolveInfo & __restrict__ pNew,
-                               bool &pOverride) const;
+  virtual bool resolve(ResolveInfo & __restrict__ pOld,
+                       const ResolveInfo & __restrict__ pNew,
+                       bool &pOverride) const;
 
 private:
   inline unsigned int getOrdinate(const ResolveInfo& pInfo) const {

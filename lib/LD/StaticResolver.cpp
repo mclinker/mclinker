@@ -12,16 +12,15 @@
 
 using namespace mcld;
 
-
 //==========================
 // StaticResolver
 StaticResolver::~StaticResolver()
 {
 }
 
-unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
-                                     const ResolveInfo& __restrict__ pNew,
-                                     bool &pOverride) const
+bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
+                             const ResolveInfo& __restrict__ pNew,
+                             bool &pOverride) const
 {
 
   /* The state table itself.
@@ -63,26 +62,23 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   unsigned int col = getOrdinate(pOld);
 
   bool cycle = false;
-  unsigned int result = Resolver::Success;
   pOverride = false;
   ResolveInfo* old = &pOld;
   LinkAction action;
   do {
-    result = Resolver::Success;
     cycle = false;
     action = link_action[row][col];
 
     switch(action) {
       case FAIL: {       /* abort.  */
-        fatal() << "internal error [StaticResolver.cpp:loc 86].\n"
-                << "Please report to `mclinker@googlegroups.com'.\n";
-        result = Resolver::Abort;
-        break;
+        fatal(diag::fail_sym_resolution)
+                << __FILE__ << __LINE__
+                << "mclinker@googlegroups.com";
+        return false;
       }
       case NOACT: {      /* no action.  */
         pOverride = false;
         old->overrideVisibility(pNew);
-        result = Resolver::Success;
         break;
       }
       case UND:          /* override by symbol undefined symbol.  */
@@ -94,7 +90,6 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       case COM: {        /* override by symbol common defined.  */
         pOverride = true;
         old->override(pNew);
-        result = Resolver::Success;
         break;
       }
       case MDEFD:        /* mark symbol dynamic defined.  */
@@ -102,10 +97,8 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         uint32_t binding = old->binding();
         old->override(pNew);
         old->setBinding(binding);
-        warning() << *old
-                  << " uses the type, dynamic, size and type in the dynamic symbol.\n";
+        ignore(diag::mark_dynamic_defined) << old->name();
         pOverride = true;
-        result = Resolver::Warning;
         break;
       }
       case DUND:
@@ -116,15 +109,12 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         }
         old->overrideVisibility(pNew);
         pOverride = false;
-        result = Resolver::Success;
         break;
       }
       case CREF: {       /* Possibly warn about common reference to defined symbol.  */
         // A common symbol does not override a definition.
-        warning() << pNew
-                  << " overridden by previous definition.\n";
+        ignore(diag::comm_refer_to_define) << old->name();
         pOverride = false;
-        result = Resolver::Warning;
         break;
       }
       case CDEF: {       /* redefine existing common symbol.  */
@@ -132,11 +122,9 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         // definition overrides.
         //
 	// NOTE: m_Mesg uses 'name' instead of `name' for being compatible to GNU ld.
-        warning() << "definition of " << *old
-                  << " is overriding common.\b";
+        ignore(diag::redefine_common) << old->name();
         old->override(pNew);
         pOverride = true;
-        result = Resolver::Warning;
         break;
       }
       case BIG: {        /* override by symbol common using largest size.  */
@@ -145,7 +133,6 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         old->overrideAttributes(pNew);
         old->overrideVisibility(pNew);
         pOverride = true;
-        result = Resolver::Success;
         break;
       }
       case MBIG: {       /* mark common symbol by larger size. */
@@ -153,19 +140,15 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
           old->setSize(pNew.size());
         old->overrideVisibility(pNew);
         pOverride = false;
-        result = Resolver::Success;
         break;
       }
       case CIND: {       /* mark indirect symbol from existing common symbol.  */
-         warning() << pNew
-                   << " points to a common symbol.\n";
-         result = Resolver::Warning;
+         ignore(diag::indirect_refer_to_common) << old->name();
       }
       /* Fall through */
       case IND: {        /* override by indirect symbol.  */
-        if (0 == pNew.link()) {
-          fatal() << pNew << " points to a inexisted symbol.\n";
-          result = Resolver::Abort;
+        if (NULL == pNew.link()) {
+          fatal(diag::indirect_refer_to_inexist) << pNew.name();
           break;
         }
 
@@ -189,14 +172,12 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       /* Fall through */
       case MDEF: {       /* multiple definition error.  */
-        fatal() << "multiple definitions of " << pNew << ".\n";
-        result = Resolver::Abort;
+        error(diag::multiple_definitions) << pNew.name();
         break;
       }
       case REFC: {       /* Mark indirect symbol referenced and then CYCLE.  */
-        if (0 == old->link()) {
-          fatal() << (*old) << " points to an inexisted symbol.\n";
-          result = Resolver::Abort;
+        if (NULL == old->link()) {
+          fatal(diag::indirect_refer_to_inexist) << old->name();
           break;
         }
 
@@ -205,8 +186,12 @@ unsigned int StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
         cycle = true;
         break;
       }
+      default: {
+        error(diag::undefined_situation) << action << old->name() << pNew.name();
+        return false;
+      }
     } // end of the big switch (action)
   } while(cycle);
-  return result;
+  return true;
 }
 

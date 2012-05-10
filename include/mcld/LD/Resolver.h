@@ -57,9 +57,9 @@ public:
   /// @return the action should be taken.
   /// @param pOld the symbol which may be overridden.
   /// @param pNew the symbol which is used to replace pOld
-  virtual unsigned int resolve(ResolveInfo & __restrict__ pOld,
-                               const ResolveInfo & __restrict__ pNew,
-                               bool &pOverride) const = 0;
+  virtual bool resolve(ResolveInfo & __restrict__ pOld,
+                       const ResolveInfo & __restrict__ pNew,
+                       bool &pOverride) const = 0;
 
   /// resolveAgain - Can override by derived classes.
   /// @return the pointer to resolved ResolveInfo
