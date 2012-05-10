@@ -17,7 +17,7 @@ mcld::Target::Target()
   : TargetMachineCtorFn(NULL),
     SectLinkerCtorFn(NULL),
     TargetLDBackendCtorFn(NULL),
-    DiagnosticCtorFn(NULL),
+    DiagnosticLineInfoCtorFn(NULL),
     m_pT(NULL)
 {
 }
