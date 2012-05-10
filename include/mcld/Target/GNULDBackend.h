@@ -152,6 +152,12 @@ public:
   virtual const char* entry() const
   { return "_start"; }
 
+  /// dyld - the name of the default dynamic linker
+  /// target may override this function if needed.
+  /// @ref gnu ld, bfd/elf32-i386.c:521
+  virtual const char* dyld() const
+  { return "/usr/lib/libc.so.1"; }
+
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash

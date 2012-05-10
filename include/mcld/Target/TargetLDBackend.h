@@ -147,6 +147,8 @@ public:
                            LDSection& pInputSectHdr)
   { return true; }
 
+  /// dyld - the name of the default dynamic linker
+  virtual const char* dyld() const = 0;
 };
 
 } // End mcld namespace
