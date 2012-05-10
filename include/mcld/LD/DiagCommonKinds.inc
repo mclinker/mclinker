@@ -1,1 +1,2 @@
-DIAG(err_cannot_open_file, DiagnosticEngine::Fatal, "can not open file `%0': %1", "")
+DIAG(err_cannot_open_file, DiagnosticEngine::Fatal, "can not open file `%0': %1", "can not open file `%0' : %1")
+

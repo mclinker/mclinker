@@ -5,3 +5,4 @@ DIAG(redefine_common, DiagnosticEngine::Ignore, "common symbol %0 is overridden 
 DIAG(indirect_refer_to_common, DiagnosticEngine::Ignore, "indirect symbol %0 points to a common symbol", "indirect symbol %0 points to a common symbol")
 DIAG(indirect_refer_to_inexist, DiagnosticEngine::Fatal, "indirect symbol %0 points to a undefined symbol", "variable %0 is undefined")
 DIAG(multiple_definitions, DiagnosticEngine::Error, "multiple definition of symbol `%0'", "you define variable %0 twice")
+DIAG(undefined_situation, DiagnosticEngine::Unreachable, "reach undefined situation, action: %0, old(%1) -> new(%2)", "reach undefined situation, action: %0, old(%1) -> new(%2)")
