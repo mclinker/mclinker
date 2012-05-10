@@ -11,16 +11,46 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/LD/DiagnosticEngine.h>
+#include <mcld/LD/Diagnostic.h>
 
 namespace mcld
 {
 
 /** \class DiagnosticPrinter
- *  \brief DiagnosticPrinter provides the interface to customize diagnostic messages and output.
+ *  \brief DiagnosticPrinter provides the interface to customize diagnostic
+ *  messages and output.
  */
 class DiagnosticPrinter
 {
+public:
+  DiagnosticPrinter();
 
+  virtual ~DiagnosticPrinter();
+
+  virtual void beginInput(const Input& pInput, const MCLDInfo& pLDInfo) {}
+
+  virtual void endInput() {}
+
+  virtual void finish() {}
+
+  virtual void clear()
+  { m_NumErrors = m_NumWarnings = 0; }
+
+  /// HandleDiagnostic - Handle this diagnostic, reporting it to the user or
+  /// capturing it to a log as needed.
+  virtual void handleDiagnostic(DiagnosticEngine::Severity pSeverity,
+                                const Diagnostic& pInfo);
+
+  unsigned int getNumErrors() const
+  { return m_NumErrors; }
+
+  unsigned int getNumWarnings() const
+  { return m_NumWarnings; }
+
+protected:
+  unsigned int m_NumErrors;
+  unsigned int m_NumWarnings;
 };
 
 } // namespace of mcld

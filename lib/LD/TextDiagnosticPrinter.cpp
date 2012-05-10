@@ -50,21 +50,29 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     case DiagnosticEngine::Unreachable: {
       m_OStream.changeColor(UnreachableColor, true);
       m_OStream << "Unreachable: ";
+      m_OStream.resetColor();
+      m_OStream << out_string << "\n";
       break;
     }
     case DiagnosticEngine::Fatal: {
       m_OStream.changeColor(FatalColor, true);
       m_OStream << "Fatal: ";
+      m_OStream.resetColor();
+      m_OStream << out_string << "\n";
       break;
     }
     case DiagnosticEngine::Error: {
       m_OStream.changeColor(ErrorColor, true);
       m_OStream << "Error: ";
+      m_OStream.resetColor();
+      m_OStream << out_string << "\n";
       break;
     }
     case DiagnosticEngine::Warning: {
       m_OStream.changeColor(WarningColor, true);
       m_OStream << "Warning: ";
+      m_OStream.resetColor();
+      m_OStream << out_string << "\n";
       break;
     }
     case DiagnosticEngine::Debug: {
@@ -72,6 +80,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       if (0 == m_LDInfo.options().verbose()) {
         m_OStream.changeColor(DebugColor, true);
         m_OStream << "Debug: ";
+        m_OStream.resetColor();
+        m_OStream << out_string << "\n";
       }
       break;
     }
@@ -80,6 +90,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       if (1 == m_LDInfo.options().verbose()) {
         m_OStream.changeColor(NoteColor, true);
         m_OStream << "Note: ";
+        m_OStream.resetColor();
+        m_OStream << out_string << "\n";
       }
       break;
     }
@@ -88,16 +100,14 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       if (2 == m_LDInfo.options().verbose()) {
         m_OStream.changeColor(IgnoreColor, true);
         m_OStream << "Ignore: ";
+        m_OStream.resetColor();
+        m_OStream << out_string << "\n";
       }
       break;
     }
     default:
       break;
   }
-
-  // print out the real message
-  m_OStream.resetColor();
-  m_OStream << out_string;
 
   switch (pSeverity) {
     case DiagnosticEngine::Unreachable: {
@@ -144,6 +154,5 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     default:
       break;
   }
-  m_OStream << "\n";
 }
 
