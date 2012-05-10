@@ -85,6 +85,9 @@ public:
   void format(const char* pBegin, const char* pEnd, std::string& pOutStr) const;
 
 private:
+  const char* findMatch(char pVal, const char* pBegin, const char* pEnd ) const;
+
+private:
   DiagnosticEngine& m_Engine;
 };
 
