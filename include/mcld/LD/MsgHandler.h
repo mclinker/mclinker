@@ -14,11 +14,10 @@
 #include <string>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
-#include <mcld/LD/DiagnosticInfo.h>
+#include <mcld/LD/DiagnosticEngine.h>
 
 namespace mcld
 {
-class DiagnosticEngine;
 
 /** \class MsgHandler
  *  \brief MsgHandler controls the timing to output message.
@@ -26,22 +25,71 @@ class DiagnosticEngine;
 class MsgHandler
 {
 public:
-  
-  MsgHandler(DiagnosticEngine& pDiagnostic);
+  MsgHandler(DiagnosticEngine& pEngine);
   ~MsgHandler();
 
-  // -----  Data Output Interfaces  ----- //
-  void flush();
+  bool emit();
 
-  MsgHandler &operator<<(llvm::StringRef pStr);
-  MsgHandler &operator<<(const char* pStr);
-  MsgHandler &operator<<(int pValue);
-  MsgHandler &operator<<(unsigned int pValue);
-  MsgHandler &operator<<(bool pValue);
+  void addString(llvm::StringRef pStr) const;
+
+  void addTaggedVal(intptr_t pValue, DiagnosticEngine::ArgumentKind pKind) const;
+
+private:
+  void flushCounts()
+  { m_Engine.state().numArgs = m_NumArgs; }
 
 private:
   DiagnosticEngine& m_Engine;
+  mutable unsigned int m_NumArgs;
 };
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, llvm::StringRef pStr)
+{
+  pHandler.addString(pStr);
+  return pHandler;
+}
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, const char* pStr)
+{
+  pHandler.addTaggedVal(reinterpret_cast<intptr_t>(pStr),
+                        DiagnosticEngine::ak_c_string);
+  return pHandler;
+}
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, int pValue)
+{
+  pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_sint);
+  return pHandler;
+}
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, unsigned int pValue)
+{
+  pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_uint);
+  return pHandler;
+}
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, bool pValue)
+{
+  pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_bool);
+  return pHandler;
+}
+
+//===----------------------------------------------------------------------===//
+// Inline member functions
+inline MsgHandler
+DiagnosticEngine::report(uint16_t pID, DiagnosticEngine::Severity pSeverity)
+{
+  m_State.ID = pID;
+  m_State.severity = pSeverity;
+
+  MsgHandler result(*this);
+  return result;
+}
 
 } // namespace of mcld
 

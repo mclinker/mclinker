@@ -12,41 +12,33 @@
 using namespace mcld;
 
 MsgHandler::MsgHandler(DiagnosticEngine& pEngine)
- : m_Engine(pEngine) {
+ : m_Engine(pEngine), m_NumArgs(0) {
 }
 
 MsgHandler::~MsgHandler()
 {
-  flush();
+  emit();
 }
 
-void MsgHandler::flush()
+bool MsgHandler::emit()
 {
+  flushCounts();
+  return m_Engine.emit();
 }
 
-// -----  operator<<  ----- //
-MsgHandler& MsgHandler::operator<<(llvm::StringRef pStr)
+void MsgHandler::addString(llvm::StringRef pStr) const
 {
-  return *this;
+  assert(m_NumArgs < DiagnosticEngine::MaxArguments &&
+         "Too many arguments to diagnostic!");
+  m_Engine.state().ArgumentKinds[m_NumArgs] = DiagnosticEngine::ak_std_string;
+  m_Engine.state().ArgumentStrs[m_NumArgs++] = pStr.data();
 }
 
-MsgHandler& MsgHandler::operator<<(const char* pStr)
+void MsgHandler::addTaggedVal(intptr_t pValue, DiagnosticEngine::ArgumentKind pKind) const
 {
-  return *this;
-}
-
-MsgHandler& MsgHandler::operator<<(int pValue)
-{
-  return *this;
-}
-
-MsgHandler& MsgHandler::operator<<(unsigned int pValue)
-{
-  return *this;
-}
-
-MsgHandler& MsgHandler::operator<<(bool pValue)
-{
-  return *this;
+  assert(m_NumArgs < DiagnosticEngine::MaxArguments &&
+         "Too many arguments to diagnostic!");
+  m_Engine.state().ArgumentKinds[m_NumArgs] = pKind;
+  m_Engine.state().ArgumentVals[m_NumArgs++] = pValue;
 }
 
