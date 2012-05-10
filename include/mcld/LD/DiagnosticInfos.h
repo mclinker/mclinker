@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld {
 
@@ -37,6 +38,8 @@ public:
   DiagnosticInfos(const MCLDInfo& pLDInfo);
 
   ~DiagnosticInfos();
+
+  llvm::StringRef getDescription(unsigned int pID, bool pLoC) const;
 
   bool process(DiagnosticEngine& pEngine) const;
 

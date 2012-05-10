@@ -63,7 +63,7 @@ static const unsigned int DiagLoCInfoSize =
   sizeof(DiagLoCInfo)/sizeof(DiagLoCInfo[0])-1;
 
 
-static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC)
+static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
 {
   const DiagStaticInfo* static_info = (pInLoC)?DiagLoCInfo:DiagCommonInfo;
   unsigned int info_size = (pInLoC)?DiagLoCInfoSize:DiagCommonInfoSize;
@@ -87,6 +87,11 @@ DiagnosticInfos::~DiagnosticInfos()
 {
 }
 
+llvm::StringRef DiagnosticInfos::getDescription(unsigned int pID, bool pInLoC) const
+{
+  return getDiagInfo(pID, pInLoC)->getDescription();
+}
+
 bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
 {
   Diagnostic info(pEngine);
@@ -94,7 +99,7 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
   unsigned int ID = info.getID();
 
   // we are not implement LineInfo, so keep pIsLoC false.
-  const DiagStaticInfo* static_info = getDiagInfo(ID, false);
+  const DiagStaticInfo* static_info = getDiagInfo(ID);
 
   DiagnosticEngine::Severity severity = static_info->Severity;
 
