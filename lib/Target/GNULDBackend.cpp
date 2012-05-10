@@ -654,6 +654,40 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   }
 }
 
+/// sizeInterp - compute the size of the .interp section
+void GNULDBackend::sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo)
+{
+  assert(pOutput.type() == Output::Exec);
+
+  const char* dyld_name;
+  if (pLDInfo.options().hasDyld())
+    dyld_name = pLDInfo.options().dyld().c_str();
+  else
+    dyld_name = dyld();
+
+  LDSection& interp = getExecFileFormat()->getInterp();
+  interp.setSize(std::strlen(dyld_name) + 1);
+}
+
+/// emitInterp - emit the .interp
+void GNULDBackend::emitInterp(Output& pOutput, const MCLDInfo& pLDInfo)
+{
+  assert(pOutput.type() == Output::Exec &&
+         getExecFileFormat()->hasInterp() &&
+         pOutput.hasMemArea());
+
+  const LDSection& interp = getExecFileFormat()->getInterp();
+  MemoryRegion *region = pOutput.memArea()->request(
+                                              interp.offset(), interp.size());
+  const char* dyld_name;
+  if (pLDInfo.options().hasDyld())
+    dyld_name = pLDInfo.options().dyld().c_str();
+  else
+    dyld_name = dyld();
+
+  std::memcpy(region->start(), dyld_name, interp.size());
+}
+
 /// getSectionOrder
 unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
                                            const LDSection& pSectHdr,

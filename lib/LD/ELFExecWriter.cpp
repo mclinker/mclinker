@@ -36,6 +36,9 @@ ELFExecWriter::~ELFExecWriter()
 
 llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput)
 {
+  // write out the interpreter section: .interp
+  target().emitInterp(pOutput, m_Linker.getLDInfo());
+
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pOutput,
                             m_Linker.getOutputSymbols(),

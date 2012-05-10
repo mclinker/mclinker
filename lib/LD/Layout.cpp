@@ -551,7 +551,6 @@ bool Layout::layout(Output& pOutput,
     switch (sect->kind()) {
       // ignore if there is no SectionData for certain section kinds
       case LDFileFormat::Regular:
-      case LDFileFormat::Note:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
       case LDFileFormat::BSS:
@@ -575,6 +574,7 @@ bool Layout::layout(Output& pOutput,
       // ignore if section size is 0
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
+      case LDFileFormat::Note:
         if (0 != sect->size())
           m_SectionOrder.push_back(sect);
         break;

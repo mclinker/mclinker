@@ -149,6 +149,10 @@ public:
 
   /// dyld - the name of the default dynamic linker
   virtual const char* dyld() const = 0;
+
+  /// sizeInterp - compute the size of program interpreter's name
+  /// In ELF executables, this is the length of dynamic linker's path name
+  virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
 };
 
 } // End mcld namespace

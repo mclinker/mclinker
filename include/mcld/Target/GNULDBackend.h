@@ -183,6 +183,13 @@ public:
                                 const Layout& pLayout,
                                 const MCLDInfo& pLDInfo);
 
+  /// sizeInterp - compute the size of program interpreter's name
+  /// In ELF executables, this is the length of dynamic linker's path name
+  virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo);
+
+  /// emitInterp - emit the .interp
+  virtual void emitInterp(Output& pOutput, const MCLDInfo& pLDInfo);
+
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
   /// If the pSectHdr.type() is LDFileFormat::Target, then getSectionOrder()

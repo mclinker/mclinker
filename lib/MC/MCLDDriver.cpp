@@ -291,6 +291,11 @@ bool MCLDDriver::prelayout()
 
   m_LDBackend.allocateCommonSymbols(m_LDInfo, *m_pLinker);
 
+  /// check program interpreter - computer the name size of the runtime dyld
+  /// FIXME: check if we are doing static linking!
+  if (m_LDInfo.output().type() == Output::Exec)
+    m_LDBackend.sizeInterp(m_LDInfo.output(), m_LDInfo);
+
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
   /// and .hash sections.
