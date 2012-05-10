@@ -11,12 +11,15 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/LD/MsgHandler.h>
+#include <string>
+#include <llvm/Support/DataTypes.h>
+#include <mcld/LD/DiagnosticInfos.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class Input;
 class MCLDInfo;
+class MsgHandler;
 class DiagnosticPrinter;
 class DiagnosticLineInfo;
 
@@ -34,7 +37,7 @@ class DiagnosticLineInfo;
 class DiagnosticEngine
 {
 public:
-  enum Level {
+  enum Severity {
     Unreachable,
     Fatal,
     Error,
@@ -45,6 +48,14 @@ public:
     None
   };
 
+  enum ArgumentKind {
+    ak_std_string,  // std::string
+    ak_c_string,    // const char *
+    ak_sint,        // int
+    ak_uint,        // unsigned int
+    ak_bool         // bool
+  };
+
 public:
   DiagnosticEngine(const MCLDInfo& pLDInfo,
                    DiagnosticLineInfo* pLineInfo = NULL,
@@ -53,6 +64,7 @@ public:
 
   ~DiagnosticEngine();
 
+  // -----  printer functions  ----- //
   void setPrinter(DiagnosticPrinter& pPrinter, bool pShouldOwnPrinter = true);
 
   DiagnosticPrinter* getPrinter()
@@ -69,23 +81,68 @@ public:
   bool ownPrinter() const
   { return m_OwnPrinter; }
 
-  // report - Issue the message to the printer.
-  MsgHandler report(unsigned int pID, Level pLevel);
+  // -----  emission  ----- //
+  // emit - process the message to printer
+  bool emit();
+
+  // report - issue the message to the printer
+  MsgHandler report(uint16_t pID, Severity pSeverity);
+
+private:
+  friend class MsgHandler;
+  friend class Diagnostic;
+
+  enum {
+    /// MaxArguments - The maximum number of arguments we can hold. We currently
+    /// only support up to 10 arguments (%0-%9).
+    MaxArguments = 10,
+  };
+
+  struct State
+  {
+  public:
+    State() : numArgs(0), ID(-1), severity(None), file(NULL) { }
+    ~State() { }
+
+    void reset() {
+      numArgs = 0;
+      ID = -1;
+      severity = None;
+      file = NULL;
+    }
+
+  public:
+    std::string ArgumentStrs[MaxArguments];
+    intptr_t ArgumentVals[MaxArguments];
+    uint8_t ArgumentKinds[MaxArguments];
+    int8_t numArgs;
+    uint16_t ID;
+    Severity severity;
+    Input* file;
+  };
+
+private:
+  State& state()
+  { return m_State; }
+
+  const State& state() const
+  { return m_State; }
+
+  DiagnosticInfos& infoMap()
+  { return m_InfoMap; }
+
+  const DiagnosticInfos& infoMap() const
+  { return m_InfoMap; }
 
 private:
   const MCLDInfo& m_LDInfo;
   DiagnosticLineInfo* m_pLineInfo;
   DiagnosticPrinter* m_pPrinter;
+  DiagnosticInfos m_InfoMap;
   bool m_OwnPrinter;
-};
 
-//===----------------------------------------------------------------------===//
-// Inline member functions
-inline MsgHandler DiagnosticEngine::report(unsigned int pID, Level pLevel)
-{
-  MsgHandler result(*this);
-  return result;
-}
+  State m_State;
+};
 
 } // namespace of mcld
 
