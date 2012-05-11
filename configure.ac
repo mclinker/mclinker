@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[18peaks],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[flames],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
