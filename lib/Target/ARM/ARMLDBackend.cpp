@@ -17,6 +17,7 @@
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCRegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 
 #include <cstring>
@@ -250,8 +251,7 @@ ELFFileFormat* ARMGNULDBackend::getOutputFormat(const Output& pOutput) const
     // FIXME: We do not support building .o now
     case Output::Object:
     default:
-      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
-                               llvm::Twine(pOutput.type()));
+      fatal(diag::unrecognized_output_file) << pOutput.type();
       return NULL;
   }
 }
@@ -350,13 +350,8 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
       break;
 
     default:
-      llvm::report_fatal_error(llvm::Twine("Attempt to generate unsupported") +
-                               llvm::Twine(" relocation type ") +
-                               llvm::Twine((int)pReloc.type()) +
-                               llvm::Twine(" for symbol '") +
-                               llvm::Twine(pReloc.symInfo()->name()) +
-                               llvm::Twine("', recompile with -fPIC")
-                              );
+      error(diag::non_pic_relocation) << (int)pReloc.type()
+                                      << pReloc.symInfo()->name();
       break;
   }
 }
@@ -469,12 +464,9 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_BASE_PREL: {
       // FIXME: Currently we only support R_ARM_BASE_PREL against
       // symbol _GLOBAL_OFFSET_TABLE_
-      if (rsym != m_pGOTSymbol->resolveInfo()) {
-        llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
-                                 llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
-                                 llvm::Twine(rsym->name()) +
-                                 llvm::Twine(".'"));
-      }
+      if (rsym != m_pGOTSymbol->resolveInfo())
+        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+                                     << "mclinker@googlegroups.com";
       return;
     }
     case llvm::ELF::R_ARM_COPY:
@@ -483,9 +475,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
-      llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
-                               llvm::Twine((int)pReloc.type()) +
-                               llvm::Twine(" in object file"));
+      fatal(diag::dynamic_relocation) << (int)pReloc.type();
       break;
     }
     default: {
@@ -578,10 +568,8 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // FIXME: Currently we only support these relocations against
       // symbol _GLOBAL_OFFSET_TABLE_
       if (rsym != m_pGOTSymbol->resolveInfo()) {
-        llvm::report_fatal_error(llvm::Twine("Do not support relocation '") +
-                                 llvm::Twine("R_ARM_BASE_PREL' against symbol '") +
-                                 llvm::Twine(rsym->name()) +
-                                 llvm::Twine(".'"));
+        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+                                     << "mclinker@googlegroups.com";
       }
     case llvm::ELF::R_ARM_REL32:
     case llvm::ELF::R_ARM_LDR_PC_G0:
@@ -726,9 +714,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_RELATIVE: {
       // These are relocation type for dynamic linker, shold not
       // appear in object file.
-      llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
-                               llvm::Twine((int)pReloc.type()) +
-                               llvm::Twine(" in object file"));
+      fatal(diag::dynamic_relocation) << (int)pReloc.type();
       break;
     }
     default: {
@@ -813,10 +799,9 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
     uint64_t result = m_pGOT->emit(pRegion);
     return result;
   }
-
-  llvm::report_fatal_error(llvm::Twine("Unable to emit section `") +
-                           pSection.name() +
-                           llvm::Twine("'.\n"));
+  fatal(diag::unrecognized_output_sectoin)
+          << pSection.name()
+          << "mclinker@googlegroups.com";
   return 0x0;
 }
 

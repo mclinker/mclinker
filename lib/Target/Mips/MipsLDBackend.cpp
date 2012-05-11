@@ -14,6 +14,7 @@
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Target/OutputRelocSection.h>
 
@@ -256,9 +257,9 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
     return result;
   }
 
-  llvm::report_fatal_error(llvm::Twine("Unable to emit section `") +
-                           pSection.name() +
-                           llvm::Twine("'.\n"));
+  fatal(diag::unrecognized_output_sectoin)
+          << pSection.name()
+          << "mclinker@googlegroups.com";
   return 0;
 }
 /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
@@ -371,9 +372,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     // If not, something is wrong earlier when putting this symbol into
     //  global GOT.
     if (!isDynamicSymbol(**symbol, pOutput))
-      llvm::report_fatal_error(llvm::Twine((*symbol)->name()) +
-                               llvm::Twine(" is not a dynamic symbol. ") +
-                               llvm::Twine("Don't put it in global GOT."));
+      fatal(diag::mips_got_symbol) << (*symbol)->name();
 
     emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
                       strtabsize, symtabIdx);
@@ -562,7 +561,7 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
-  
+
   for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
     if (ResolveInfo::Common == (*com_sym)->desc()) {
       // We have to reset the description of the symbol here. When doing
@@ -738,11 +737,8 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
       break;
     default:
-      llvm::report_fatal_error(llvm::Twine("Unknown relocation ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine("for the local symbol `") +
-                               pReloc.symInfo()->name() +
-                               llvm::Twine("'."));
+      fatal(diag::unknown_relocation) << (int)pReloc.type()
+                                      << pReloc.symInfo()->name();
   }
 }
 
@@ -807,12 +803,8 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       break;
     case llvm::ELF::R_MIPS_LITERAL:
     case llvm::ELF::R_MIPS_GPREL32:
-      llvm::report_fatal_error(llvm::Twine("Relocation ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine(" is not defined for the "
-                                           "global symbol `") +
-                               pReloc.symInfo()->name() +
-                               llvm::Twine("'."));
+      fatal(diag::invalid_global_relocation) << (int)pReloc.type()
+                                             << pReloc.symInfo()->name();
       break;
     case llvm::ELF::R_MIPS_GPREL16:
       break;
@@ -844,19 +836,11 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_COPY:
     case llvm::ELF::R_MIPS_GLOB_DAT:
     case llvm::ELF::R_MIPS_JUMP_SLOT:
-      llvm::report_fatal_error(llvm::Twine("Relocation ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine("for the global symbol `") +
-                               pReloc.symInfo()->name() +
-                               llvm::Twine("' should only be seen "
-                                           "by the dynamic linker"));
+      fatal(diag::dynamic_relocation) << (int)pReloc.type();
       break;
     default:
-      llvm::report_fatal_error(llvm::Twine("Unknown relocation ") +
-                               llvm::Twine(pReloc.type()) +
-                               llvm::Twine("for the global symbol `") +
-                               pReloc.symInfo()->name() +
-                               llvm::Twine("'."));
+      fatal(diag::unknown_relocation) << (int)pReloc.type()
+                                      << pReloc.symInfo()->name();
   }
 }
 
@@ -916,8 +900,7 @@ ELFFileFormat* MipsGNULDBackend::getOutputFormat(const Output& pOutput) const
     case Output::Object:
       return NULL;
     default:
-      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
-                               llvm::Twine(pOutput.type()));
+      fatal(diag::unrecognized_output_file) << pOutput.type();
       return NULL;
   }
 }

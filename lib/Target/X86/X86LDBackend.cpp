@@ -13,13 +13,14 @@
 #include "X86RelocationFactory.h"
 
 #include <llvm/ADT/Triple.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCRegionFragment.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/TargetRegistry.h>
 
 #include <cstring>
 
@@ -174,8 +175,7 @@ ELFFileFormat* X86GNULDBackend::getOutputFormat(const Output& pOutput) const
     // FIXME: We do not support building .o now
     case Output::Object:
     default:
-      llvm::report_fatal_error(llvm::Twine("Unsupported output file format: ") +
-                               llvm::Twine(pOutput.type()));
+      fatal(diag::unrecognized_output_file) << pOutput.type();
       return NULL;
   }
 }
@@ -229,9 +229,8 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
 
     default:
-      llvm::report_fatal_error(llvm::Twine("unexpected reloc ") +
-                               llvm::Twine((int) pReloc.type()) +
-                               llvm::Twine(" in object file"));
+      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+                                          << "mclinker@googlegroups.com";
       break;
   } // end switch
 }
@@ -350,9 +349,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 	return;
 
     default: {
-      llvm::report_fatal_error(llvm::Twine("Unexpected reloc ") +
-                               llvm::Twine((int) pReloc.type()) +
-                               llvm::Twine(" in object file"));
+      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+                                          << "mclinker@googlegroups.com";
       break;
     }
   } // end switch
@@ -458,10 +456,11 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
     }
   }
 
-  else
-    llvm::report_fatal_error("unsupported section name "
-                             + pSection.name() + " !");
-
+  else {
+    fatal(diag::unrecognized_output_sectoin)
+            << pSection.name()
+            << "mclinker@googlegroups.com";
+  }
   return RegionSize;
 }
 uint32_t X86GNULDBackend::machine() const
