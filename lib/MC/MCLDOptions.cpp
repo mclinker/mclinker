@@ -17,6 +17,8 @@ GeneralOptions::GeneralOptions()
   : m_pDefaultBitcode(NULL),
     m_bTrace(false),
     m_Verbose(-1),
+    m_MaxErrorNum(-1),
+    m_MaxWarnNum(-1),
     m_bColor(true),
     m_Bsymbolic(false),
     m_Bgroup(false),
