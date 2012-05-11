@@ -14,6 +14,7 @@
 #include <llvm/Support/Host.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/Support/MsgHandling.h>
 
 #include "ARMRelocationFactory.h"
 #include "ARMRelocationFunctions.h"
@@ -39,10 +40,7 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
-    llvm::report_fatal_error(llvm::Twine("Unknown relocation type. "
-                                         "To symbol `") +
-                             pRelocation.symInfo()->name() +
-                             llvm::Twine("'."));
+    fatal(diag::unknown_relocation) << type << pRelocation.symInfo()->name();
     return;
   }
 
@@ -71,28 +69,18 @@ void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
     return;
   }
   if (Overflow == result) {
-    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
-                             llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' causes overflow. on symbol: `") +
-                             llvm::Twine(pRelocation.symInfo()->name()) +
-                             llvm::Twine("'."));
+    error(diag::result_overflow) << apply_functions[type].name
+                                 << pRelocation.symInfo()->name();
     return;
   }
   if (BadReloc == result) {
-    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
-                             llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' encounters unexpected opcode. "
-                                         "on symbol: `") +
-                             llvm::Twine(pRelocation.symInfo()->name()) +
-                             llvm::Twine("'."));
+    error(diag::result_badreloc) << apply_functions[type].name
+                                 << pRelocation.symInfo()->name();
     return;
   }
   if (Unsupport == result) {
-    llvm::report_fatal_error(llvm::Twine("Encounter unsupported relocation `") +
-                             llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' on symbol: `") +
-                             llvm::Twine(pRelocation.symInfo()->name()) +
-                             llvm::Twine("'."));
+    fatal(diag::unsupported_relocation) << type
+                                        << "mclinker@googlegroups.com";
     return;
   }
 }
@@ -887,7 +875,6 @@ ARMRelocationFactory::Result tls(Relocation& pReloc,
                                  const MCLDInfo& pLDInfo,
                                  ARMRelocationFactory& pParent)
 {
-  llvm::report_fatal_error("We don't support TLS relocation yet.");
   return ARMRelocationFactory::Unsupport;
 }
 
