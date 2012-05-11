@@ -134,6 +134,8 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
       }
       break;
     }
+    default:
+      break;
   } // end of switch
 
   // finally, report it.
