@@ -158,6 +158,15 @@ public:
   virtual const char* dyld() const
   { return "/usr/lib/libc.so.1"; }
 
+  /// defaultTextSegmentAddr - target should specify its own default start address
+  /// of the text segment. esp. for exec.
+  virtual uint64_t defaultTextSegmentAddr() const
+  { return 0x0; }
+
+  /// segmentStartAddr - this function returns the start address of the segment
+  uint64_t segmentStartAddr(const Output& pOutput,
+                            const MCLDInfo& pInfo) const;
+
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash

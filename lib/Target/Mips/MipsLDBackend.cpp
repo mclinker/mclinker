@@ -208,6 +208,11 @@ unsigned int MipsGNULDBackend::bitclass() const
   return 32;
 }
 
+uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
+{
+  return 0x80000;
+}
+
 void MipsGNULDBackend::doPreLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
                                    MCLinker& pLinker)

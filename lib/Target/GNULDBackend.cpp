@@ -68,6 +68,16 @@ size_t GNULDBackend::sectionStartOffset() const
   return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
 }
 
+uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
+                                        const MCLDInfo& pInfo) const
+{
+  // TODO: handle the user option: -TText=
+  if (isOutputPIC(pOutput, pInfo))
+    return 0x0;
+  else
+    return defaultTextSegmentAddr();
+}
+
 bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
 {
   if (0 == m_pArchiveReader)
@@ -1020,7 +1030,9 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 
     // FIXME: set section's vma
     // need to handle start vma for user-defined one or for executable.
-    (*sect)->setAddr((*sect)->offset() + padding);
+    (*sect)->setAddr(segmentStartAddr(pOutput, pInfo) +
+                     (*sect)->offset() +
+                     padding);
 
     prev_seg_flag = cur_seg_flag;
   }

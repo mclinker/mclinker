@@ -76,6 +76,8 @@ public:
 
   unsigned int bitclass() const;
 
+  uint64_t defaultTextSegmentAddr() const;
+
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,

@@ -142,6 +142,9 @@ public:
   uint64_t flags() const
   { return 0x0; }
 
+  uint64_t defaultTextSegmentAddr() const
+  { return 0x08048000; }
+
   /// initTargetSectionMap - initialize target dependent section mapping
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
