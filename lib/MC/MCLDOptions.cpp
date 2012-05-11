@@ -37,7 +37,8 @@ GeneralOptions::GeneralOptions()
     m_bNow(false),
     m_bOrigin(false),
     m_CommPageSize(0x0),
-    m_MaxPageSize(0x0)
+    m_MaxPageSize(0x0),
+    m_bAllowShlibUndefined(true)
 {
 }
 
