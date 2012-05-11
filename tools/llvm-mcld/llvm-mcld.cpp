@@ -14,7 +14,7 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/Filesystem.h>
+#include <mcld/Support/FileSystem.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/MCLDInfo.h>
