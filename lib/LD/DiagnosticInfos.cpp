@@ -121,14 +121,10 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
             severity = DiagnosticEngine::Ignore;
         break;
         case Output::DynObj:
-          if (m_LDInfo.options().isNoUndefined()) {
-            if (m_LDInfo.options().isAllowShlibUndefined())
-              severity = DiagnosticEngine::Ignore;
-            else
-              severity = DiagnosticEngine::Error;
-          }
+          if (m_LDInfo.options().isNoUndefined() || !m_LDInfo.options().isAllowShlibUndefined())
+            severity = DiagnosticEngine::Error;
           else
-              severity = DiagnosticEngine::Ignore;
+            severity = DiagnosticEngine::Ignore;
         break;
         case Output::Exec:
           severity = DiagnosticEngine::Error;
