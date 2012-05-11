@@ -415,7 +415,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
 
   // emit soname
   // initialize value of ELF .dynamic section
-  dynamic().applySoname(strtabsize);
+  if (Output::DynObj == pOutput.type())
+    dynamic().applySoname(strtabsize);
   dynamic().applyEntries(pLDInfo, *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
