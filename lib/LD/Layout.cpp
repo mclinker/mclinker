@@ -17,6 +17,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Support/MsgHandling.h>
 #include <cassert>
 
 using namespace mcld;
@@ -586,8 +587,7 @@ bool Layout::layout(Output& pOutput,
         break;
       case LDFileFormat::Exception:
         if (0 != sect->size()) {
-          llvm::errs() << "WARNING: Exception handling has not been fully supported yet.\n"
-                       << "section `" << sect->name() << "'.\n";
+          warning(diag::unsupported_exception) << sect->name();
           if (NULL != sect->getSectionData() &&
               !sect->getSectionData()->getFragmentList().empty()) {
             // make sure that all fragments are valid
@@ -602,16 +602,11 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::Version:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
-          llvm::errs() << "WARNING: Symbolic versioning has not been fully supported yet.\n"
-                       << "section `" << sect->name() << "'.\n";
+          warning(diag::unsupported_symbolic_versioning) << sect->name();
         }
         break;
       default:
-        llvm::report_fatal_error(llvm::Twine("Unsupported section kind of `") +
-                                 sect->name() +
-                                 llvm::Twine("': ") +
-                                 llvm::Twine(sect->kind()) +
-                                 llvm::Twine(".\n"));
+        error(diag::unsupported_section) << sect->name() << sect->kind();
         break;
     }
   }
