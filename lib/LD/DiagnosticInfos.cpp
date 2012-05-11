@@ -43,6 +43,7 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 #include "mcld/LD/DiagCommonKinds.inc"
 #include "mcld/LD/DiagSymbolResolutions.inc"
 #include "mcld/LD/DiagRelocations.inc"
+#include "mcld/LD/DiagLayouts.inc"
 #undef DIAG
   { 0, DiagnosticEngine::None, 0, 0}
 };
@@ -55,6 +56,7 @@ static const DiagStaticInfo DiagLoCInfo[] = {
   { diag::ENUM, CLASS, STR_SIZE(LOCDESC, uint16_t), LOCDESC },
 #include "mcld/LD/DiagSymbolResolutions.inc"
 #include "mcld/LD/DiagRelocations.inc"
+#include "mcld/LD/DiagLayouts.inc"
 #undef DIAG
   { 0, DiagnosticEngine::None, 0, 0}
 };

@@ -21,6 +21,7 @@ namespace diag {
 #include "mcld/LD/DiagCommonKinds.inc"
 #include "mcld/LD/DiagSymbolResolutions.inc"
 #include "mcld/LD/DiagRelocations.inc"
+#include "mcld/LD/DiagLayouts.inc"
 #undef DIAG
     NUM_OF_BUILDIN_DIAGNOSTIC_INFO
   };
