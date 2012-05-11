@@ -11,6 +11,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/ADT/Twine.h>
 #include <ctype.h>
+#include <algorithm>
 
 using namespace mcld;
 
