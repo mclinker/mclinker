@@ -1,3 +1,62 @@
+2012-05-11 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	In this version: flames, we add the following new features in MCLinker:
+	1. -z options support (except for -z combreloc)
+	2. Thumb/Thumb2 mode support.
+	3. DWARF debugging support.
+	4. Introduce an expressive Diagnostic system to print out linking error message.
+	5. Executable files generation (examined on ARM/MIPS Android).
+
+	* patch/LLVM.Patch:
+	Complement llvm/Support/ELF.h for ELF segments and .dynamic sections.
+
+	* Target/ARMLDBackend, Target/ARM/Relocation:
+	Add thumb/thumb2 mode support.
+
+	* MC/MCLDOptions, MC/ZOption, Support/CommandLine, llvm-mcld.cpp:
+	1. Add -z options, -Bgroup, --dynamic-linker= and -shared
+	2. Add --verbose[=0,1,2], --error-limit[=N], --warning-limit[=N],
+	   --color[=never, always, auto] and --no-undefined
+
+	* Target/ELFDynamic:
+	Set DT_FLAGS and DT_FLAGS_1 based on the given -z option.
+
+	* LD/Layout, Target/GNULDBackend, Target/TargetLDBackend,
+	  Target/ARMLDBackend, Target/X86LDBackend, Target/MipsLDBackend,
+	  MC/MCLinker:
+	Support -z relro for PT_GNU_RELRO segment.
+
+	* docs/llvm-mcld.pod:
+	Add perldoc for man page.
+
+	* Target/GNULDBackend:
+	Support -z execstack/noexecstack for PT_GNU_STACK segment.
+
+	* Target/ARMLDBackend:
+	Support -z copyreloc in ARMLDBackend.
+
+	* LD/ELFExecWriter, LD/ExecWriter, LD/ELFExecFileFormat, LD/Layout,
+	Target/GNULDBackend, Target/TargetLDBackend, MC/MCLDDriver, llvm-mcld.cpp:
+	Support executable generation.
+	1. "Hello World" is examined successfully on ARM/MIPS Android.
+	2. Some SPECCPU examples are also examined on ARM Android.
+
+	* Target/MipsLDBackend:
+	Android Quake2 JNI example is examined successfully.
+
+	* LD/ELFReader, MC/MCLinker, Target/TargetLDBackend, LD/ELFDynObjWriter,
+	  LD/ELFExecWriter, LD/Layout, Target/ARMLDBackend, Target/X86LDBackend,
+	  Target/MipsLDBackend:
+	Support DWARF debug sections linking.
+	1. GDB can debug the MCLinker output object. e.g., ndk-gdb in Android.
+
+	* LD/DiagnosticInfos, LD/Diagnostic, LD/MsgHandler, LD/DiagnosticPrinter,
+	  LD/TextDiagnosticPrinter, LD/DiagnosticEngine, Support/MsgHandling:
+	Introduce an expressive Diagnostic system.
+
+	* LD/Resolver, LD/StaticResolver, LD/NamePool:
+	Changed to use new Diagnostic System.
+
 2012-03-14 Luba Tang <lubatang@gmail.com>
 	* Migrate on LLVM@r152063
 	* Migrate on clang@r152062
