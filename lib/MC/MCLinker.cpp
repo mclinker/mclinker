@@ -21,6 +21,7 @@
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
@@ -524,6 +525,9 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   m_Backend.scanRelocation(*relocation, pSym, *this, m_Info,
                            m_Info.output(), pSection);
 
+  if (pResolveInfo.isUndef()) {
+    fatal(diag::undefined_reference) << pResolveInfo.name();
+  }
   return relocation;
 }
 
