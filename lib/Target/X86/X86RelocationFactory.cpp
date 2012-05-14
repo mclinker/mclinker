@@ -13,6 +13,7 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/Support/MsgHandling.h>
 
 #include "X86RelocationFactory.h"
 #include "X86RelocationFunctions.h"
@@ -56,11 +57,8 @@ void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
   };
 
   if (type >= sizeof (apply_functions) / sizeof (apply_functions[0]) ) {
-    llvm::report_fatal_error(llvm::Twine("Unknown relocation type ") +
-			     llvm::Twine((int) type) +
-			     llvm::Twine(" to symbol `") +
-                             pRelocation.symInfo()->name() +
-                             llvm::Twine("'."));
+    fatal(diag::unknown_relocation) << (int)type <<
+                                       pRelocation.symInfo()->name();
     return;
   }
 
@@ -68,22 +66,18 @@ void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
   Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
 
   // check result
+  if (OK == result) {
+    return;
+  }
   if (Overflow == result) {
-    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
-                             llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' causes overflow. on symbol: `") +
-                             llvm::Twine(pRelocation.symInfo()->name()) +
-                             llvm::Twine("'."));
+    error(diag::result_overflow) << apply_functions[type].name
+                                 << pRelocation.symInfo()->name();
     return;
   }
 
   if (BadReloc == result) {
-    llvm::report_fatal_error(llvm::Twine("Applying relocation `") +
-                             llvm::Twine(apply_functions[type].name) +
-                             llvm::Twine("' encounters unexpected opcode. "
-                                         "on symbol: `") +
-                             llvm::Twine(pRelocation.symInfo()->name()) +
-                             llvm::Twine("'."));
+    error(diag::result_badreloc) << apply_functions[type].name
+                                 << pRelocation.symInfo()->name();
     return;
   }
 }
