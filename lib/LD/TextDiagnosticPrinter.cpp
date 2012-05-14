@@ -28,7 +28,7 @@ static const enum llvm::raw_ostream::Colors SavedColor = llvm::raw_ostream::SAVE
 // TextDiagnosticPrinter
 TextDiagnosticPrinter::TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
                                              const MCLDInfo& pLDInfo)
-  : m_OStream(pOStream), m_LDInfo(pLDInfo) {
+  : m_OStream(pOStream), m_LDInfo(pLDInfo), m_pInput(NULL) {
 }
 
 TextDiagnosticPrinter::~TextDiagnosticPrinter()
@@ -156,3 +156,12 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
   }
 }
 
+void TextDiagnosticPrinter::beginInput(const Input& pInput, const MCLDInfo& pLDInfo)
+{
+  m_pInput = &pInput;
+}
+
+void TextDiagnosticPrinter::endInput()
+{
+  m_pInput = NULL;
+}
