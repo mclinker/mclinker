@@ -24,6 +24,7 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
                    size_t pAttrNum,
                    size_t pInputNum)
   : m_Options(),
+    m_Scripts(),
     m_pBitcode(NULL),
     m_Triple(pTripleString)
 {

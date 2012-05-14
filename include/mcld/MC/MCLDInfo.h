@@ -32,7 +32,8 @@ class Resolver;
 
 /** \class MCLDInfo
  *  \brief MCLDInfo is composed of argumments of MCLinker.
- *   options()        - the general options.
+ *   options()        - the general options
+ *   scripts()        - the script options
  *   inputs()         - the tree of inputs
  *   bitcode()        - the bitcode being linked
  *   output()         - the output file
@@ -55,6 +56,12 @@ public:
 
   const GeneralOptions& options() const
   { return m_Options; }
+
+  ScriptOptions& scripts()
+  { return m_Scripts; }
+
+  const ScriptOptions& scripts() const
+  { return m_Scripts; }
 
   void setBitcode(const Input& pInput);
   Input& bitcode();
@@ -115,6 +122,7 @@ public:
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
+  ScriptOptions m_Scripts;
   InputTree *m_pInputTree;
   Input* m_pBitcode;
   Output* m_pOutput;

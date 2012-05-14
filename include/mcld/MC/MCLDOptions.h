@@ -11,9 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <string>
+#include <llvm/ADT/StringRef.h>
+#include <mcld/ADT/StringEntry.h>
+#include <mcld/ADT/HashTable.h>
 #include <mcld/Support/RealPath.h>
-#include <mcld/MC/SearchDirs.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/MC/SearchDirs.h>
 #include <mcld/MC/ZOption.h>
 
 namespace mcld
@@ -23,8 +27,25 @@ class Input;
 /** \class ScriptOptions
  *
  */
-class ScriptOption
+class ScriptOptions
 {
+public:
+  typedef HashTable<StringEntry<llvm::StringRef>,
+                    StringHash<ELF>,
+                    StringEntryFactory<llvm::StringRef> > SymbolWrapMap;
+
+public:
+  ScriptOptions();
+  ~ScriptOptions();
+
+  SymbolWrapMap& wrapMap()
+  { return m_SymbolWraps; }
+
+  const SymbolWrapMap& wrapMap() const
+  { return m_SymbolWraps; }
+
+private:
+  SymbolWrapMap m_SymbolWraps;
 };
 
 /** \class GeneralOptions

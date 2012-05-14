@@ -11,8 +11,18 @@
 
 using namespace mcld;
 
-//==========================
-// MCLDOptions
+//===----------------------------------------------------------------------===//
+// ScriptOptions
+ScriptOptions::ScriptOptions()
+{
+}
+
+ScriptOptions::~ScriptOptions()
+{
+}
+
+//===----------------------------------------------------------------------===//
+// GeneralOptions
 GeneralOptions::GeneralOptions()
   : m_pDefaultBitcode(NULL),
     m_bTrace(false),
