@@ -52,8 +52,11 @@ public:
   void setValue(const DataType& pVal)
   { m_Value = pVal; }
 
-  bool compare(const StringEntry& pX, const StringEntry& pY) const
-  { return (0 == pX.key().compare(pY.key())); }
+  bool compare(const llvm::StringRef& pX)
+  { return (0 == key().compare(pX)); }
+
+  bool compare(const llvm::StringRef& pX) const
+  { return (0 == key().compare(pX)); }
 
 private:
   StringEntry();
