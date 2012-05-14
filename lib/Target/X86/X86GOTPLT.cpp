@@ -7,8 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86GOTPLT.h"
-#include "mcld/LD/LDFileFormat.h"
 #include <llvm/Support/ErrorHandling.h>
+#include <mcld/LD/LDFileFormat.h>
+#include <mcld/Support/MsgHandling.h>
 #include <new>
 
 namespace {
@@ -30,7 +31,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
                                         &m_SectionData);
 
     if (!Entry)
-      llvm::report_fatal_error("Allocating GOT0 entries failed!");
+      fatal(diag::fail_allocate_memory) << "GOT0";
 
     m_Section.setSize(m_Section.size() + X86GOTPLTEntrySize);
   }
@@ -40,8 +41,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator ie = m_SectionData.end();
 
   for (size_t i = 1; i < X86GOT0Num; ++i) {
-    if (it == ie)
-      llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
+    assert((it != ie) && "Generation of GOT0 entries is incomplete!");
 
     ++it;
   }
@@ -86,7 +86,7 @@ void X86GOTPLT::reserveGOTPLTEntry()
     got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
 
     if (!got_entry)
-      llvm::report_fatal_error("Allocating new memory for GOT failed!");
+      fatal(diag::fail_allocate_memory) << "GOT";
 
     m_Section.setSize(m_Section.size() + getEntrySize());
 }

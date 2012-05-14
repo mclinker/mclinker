@@ -12,6 +12,7 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/Support/MsgHandling.h>
 #include <new>
 
 namespace {
@@ -92,7 +93,7 @@ void X86PLT::reserveEntry(size_t pNum)
     plt1_entry = new (std::nothrow) X86PLT1(&m_SectionData, m_PLT1Size);
 
     if (!plt1_entry)
-      llvm::report_fatal_error("Allocating new memory for X86PLT1 failed!");
+      fatal(diag::fail_allocate_memory) << "X86PLT1";
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
@@ -100,7 +101,7 @@ void X86PLT::reserveEntry(size_t pNum)
                                            &(m_GOT.m_SectionData));
 
     if (!got_entry)
-      llvm::report_fatal_error("Allocating new memory for GOT failed!");
+      fatal(diag::fail_allocate_memory) << "GOT";
 
     m_GOT.m_Section.setSize(m_GOT.m_Section.size() + m_GOT.f_EntrySize);
 
@@ -185,7 +186,7 @@ void X86PLT::applyPLT0() {
   data = static_cast<unsigned char*>(malloc(plt0->getEntrySize()));
 
   if (!data)
-    llvm::report_fatal_error("Allocating new memory for plt0 failed!");
+    fatal(diag::fail_allocate_memory) << "plt0";
 
   memcpy(data, m_PLT0, plt0->getEntrySize());
 
@@ -233,7 +234,7 @@ void X86PLT::applyPLT1() {
     data = static_cast<unsigned char*>(malloc(plt1->getEntrySize()));
 
     if (!data)
-      llvm::report_fatal_error("Allocating new memory for plt1 failed!");
+      fatal(diag::fail_allocate_memory) << "plt1";
 
     memcpy(data, m_PLT1, plt1->getEntrySize());
 
@@ -265,8 +266,7 @@ void X86PLT::applyPLT1() {
     uint64_t PLTEntryAddress = plt_base + m_PLT0Size;
     for (unsigned int i = 0; i < GOTPLTNum; ++i) {
       if (gotplt_it == list_ie)
-        llvm::report_fatal_error(
-          "The number of got.plt entries is inconsistent!");
+        fatal(diag::reserve_entry_number_mismatch) << ".got.plt";
 
       llvm::cast<GOTEntry>(*gotplt_it).setContent(PLTEntryAddress + 6);
       PLTEntryAddress += m_PLT1Size;

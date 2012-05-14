@@ -11,6 +11,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <new>
 
 namespace {
@@ -65,7 +66,7 @@ void ARMPLT::reserveEntry(size_t pNum)
     plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
 
     if (!plt1_entry)
-      llvm::report_fatal_error("Allocating new memory for ARMPLT1 failed!");
+      fatal(diag::fail_allocate_memory) << "ARMPLT1";
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
@@ -167,7 +168,7 @@ void ARMPLT::applyPLT0() {
   data = static_cast<uint32_t*>(malloc(plt0->getEntrySize()));
 
   if (!data)
-    llvm::report_fatal_error("Allocating new memory for plt0 failed!");
+    fatal(diag::fail_allocate_memory) << "plt0";
 
   memcpy(data, arm_plt0, plt0->getEntrySize());
   data[4] = offset;
@@ -204,7 +205,7 @@ void ARMPLT::applyPLT1() {
     Out = static_cast<uint32_t*>(malloc(plt1->getEntrySize()));
 
     if (!Out)
-      llvm::report_fatal_error("Allocating new memory for plt1 failed!");
+      fatal(diag::fail_allocate_memory) << "plt1";
 
     // Offset is the distance between the last PLT entry and the associated
     // GOT entry.

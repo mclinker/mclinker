@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARMGOT.h"
+#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MemoryRegion.h>
-#include <llvm/Support/ErrorHandling.h>
+#include <mcld/Support/MsgHandling.h>
 #include <new>
 
 namespace {
@@ -33,7 +34,7 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
                                         &m_SectionData);
 
     if (!Entry)
-      llvm::report_fatal_error("Allocating GOT0 entries failed!");
+      fatal(diag::fail_allocate_memory) << "GOT0";
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
@@ -43,9 +44,7 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator ie = m_SectionData.end();
 
   for (int i = 1; i < ARMGOT0Num; ++i) {
-    if (it == ie)
-      llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
-
+    assert((it != ie) && "Generation of GOT0 entries is incomplete!");
     ++it;
   }
 
@@ -69,7 +68,7 @@ void ARMGOT::reserveEntry(size_t pNum)
                                         &m_SectionData);
 
     if (!Entry)
-      llvm::report_fatal_error("Allocating new memory for GOTEntry failed");
+      fatal(diag::fail_allocate_memory) << "GOTEntry";
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
@@ -82,7 +81,7 @@ void ARMGOT::reserveGOTPLTEntry()
     got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
 
     if (!got_entry)
-      llvm::report_fatal_error("Allocating new memory for GOT failed!");
+      fatal(diag::fail_allocate_memory) << "GOTEntry";
 
     m_Section.setSize(m_Section.size() + getEntrySize());
 

@@ -141,7 +141,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       rel_entry.targetRef().assign(got_entry);
     }
     else {
-      llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
+      fatal(diag::reserve_entry_number_mismatch) << "GOT";
     }
   }
   return got_entry;
@@ -189,7 +189,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
       rel_entry.setSymInfo(rsym);
     }
     else {
-      llvm::report_fatal_error("No PLT entry reserved for PLT type relocation!");
+      fatal(diag::reserve_entry_number_mismatch) << "PLT";
     }
   }
   return plt_entry;

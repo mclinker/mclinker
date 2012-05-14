@@ -10,6 +10,7 @@
 #include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include "MipsGOT.h"
 
 namespace {
@@ -31,7 +32,7 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
       new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
 
     if (NULL == entry)
-      llvm::report_fatal_error("Allocating GOT0 entries failed!");
+      fatal(diag::fail_allocate_memory) << "GOT0";
 
     m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
   }
@@ -41,8 +42,7 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator ie = m_SectionData.end();
 
   for (size_t i = 1; i < MipsGOT0Num; ++i) {
-    if (it == ie)
-      llvm::report_fatal_error("Generation of GOT0 entries is incomplete!");
+    assert((it != ie) && "Generation of GOT0 entries is incomplete!");
 
     ++it;
   }
@@ -95,7 +95,7 @@ void MipsGOT::reserveEntry(size_t pNum)
       new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
 
     if (NULL == entry)
-      llvm::report_fatal_error("Allocating new GOTEntry failed");
+      fatal(diag::fail_allocate_memory) << "GOTEntry";
 
     m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
   }

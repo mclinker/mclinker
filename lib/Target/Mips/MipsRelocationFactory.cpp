@@ -156,7 +156,7 @@ GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
       got_entry.setContent(pReloc.symValue());
     }
     else {
-      llvm::report_fatal_error("No GOT entry reserved for GOT type relocation!");
+      fatal(diag::reserve_entry_number_mismatch) << "GOT";
     }
   }
 
