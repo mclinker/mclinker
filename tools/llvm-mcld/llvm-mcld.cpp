@@ -518,7 +518,11 @@ ArgBStaticListAlias3("non_shared",
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
-
+static cl::list<std::string>
+ArgWrapList("wrap",
+            cl::ZeroOrMore,
+            cl::desc("Use a wrap function fo symbol."),
+            cl::value_desc("symbol"));
 
 //===----------------------------------------------------------------------===//
 /// non-member functions
