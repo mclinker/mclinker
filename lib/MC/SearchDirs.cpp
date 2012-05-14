@@ -64,9 +64,9 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
               return entry.path();
             }
           }
-
           ++entry;
         }
+        break;
       }
 
       case Input::Archive : {
@@ -78,13 +78,16 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
             return entry.path();
           }
           ++entry;
-       }
-     }
-     default: {
-       llvm::report_fatal_error(llvm::Twine("SearchDir can not recoginize namespec: `") +
-                                pNamespec +
-                                llvm::Twine("'."));
-     }
+        }
+        break;
+      }
+
+      default: {
+        llvm::report_fatal_error(llvm::Twine("SearchDir can not recoginize namespec: `") +
+                                 pNamespec +
+                                 llvm::Twine("'."));
+        break;
+      }
     }
   }
   return 0;
