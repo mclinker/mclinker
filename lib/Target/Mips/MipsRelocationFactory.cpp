@@ -9,7 +9,6 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/Target/OutputRelocSection.h>
 #include <mcld/Support/MsgHandling.h>

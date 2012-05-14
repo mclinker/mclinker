@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86GOTPLT.h"
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
 #include <new>

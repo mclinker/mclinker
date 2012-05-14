@@ -9,7 +9,6 @@
 #include "X86GOT.h"
 #include "X86PLT.h"
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/Support/MsgHandling.h>

@@ -9,7 +9,6 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
-#include <llvm/Support/ErrorHandling.h>
 
 #include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCLDInfo.h>

@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>

@@ -9,7 +9,6 @@
 #include "ARMGOT.h"
 #include "ARMPLT.h"
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <new>

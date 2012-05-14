@@ -10,7 +10,6 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/Host.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Layout.h>
