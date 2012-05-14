@@ -5,7 +5,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -fPIC -dB %s -o %t.2.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: %t.1.o %t.2.o --wrap f
+; RUN: %t.1.o %t.2.o --wrap=f -o %t.3.o
 target triple = "arm-none-linux-gnueabi"
 
 define i8* @__wrap_f(i32 %c) uwtable ssp {
