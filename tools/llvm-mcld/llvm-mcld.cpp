@@ -675,6 +675,28 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setBgroup(ArgBgroup);
   pOption.info().options().setDyld(ArgDyld);
 
+  // set up wrap map, for --wrap
+  cl::list<std::string>::iterator wname;
+  cl::list<std::string>::iterator wnameEnd = ArgWrapList.end();
+  for (wname = ArgWrapList.begin(); wname != wnameEnd; ++wname) {
+    // add wname -> __wrap_wname
+    bool exist = false;
+    mcld::StringEntry<llvm::StringRef>* entry = NULL;
+    entry = pOption.info().scripts().wrapMap().insert(*wname, exist);
+    entry->setValue(std::string("__wrap_") + *wname);
+
+    if (exist)
+      mcld::warning(mcld::diag::rewrap) << *wname
+                                        << (std::string("__wrap_") + *wname);
+    // add __real_wname -> wname
+    entry = pOption.info().scripts().wrapMap().insert(
+                                       std::string("__real_") + *wname, exist);
+    entry->setValue(*wname);
+    if (exist)
+      mcld::warning(mcld::diag::rewrap) << *wname 
+                                        << (std::string("__real_") + *wname);
+  } // end of for
+
   // set up colorize
   switch (ArgColor) {
     case color::Never:
