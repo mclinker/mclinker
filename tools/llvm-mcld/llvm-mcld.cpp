@@ -32,6 +32,7 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/IRReader.h>
 #include <llvm/Support/ManagedStatic.h>
+#include <llvm/Support/Signals.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ToolOutputFile.h>
@@ -1002,7 +1003,7 @@ int main( int argc, char* argv[] )
   mcld::InitializeDiagnosticEngine(TheTargetMachine.getLDInfo(),
                                    diag_line_info.take(),
                                    diag_printer.get());
- 
+
 
   // Figure out where we are going to send the output...
   OwningPtr<tool_output_file>
@@ -1066,10 +1067,14 @@ int main( int argc, char* argv[] )
   delete LinkerOpt;
 
   if (0 != diag_printer->getNumErrors()) {
+    // If we reached here, we are failing ungracefully. Run the interrupt handlers
+    // to make sure any special cleanups get done, in particular that we remove
+    // files registered with RemoveFileOnSignal.
+    llvm::sys::RunInterruptHandlers();
     diag_printer->finish();
     exit(1);
   }
-  
+
   diag_printer->finish();
   return 0;
 }
