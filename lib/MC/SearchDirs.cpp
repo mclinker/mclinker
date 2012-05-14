@@ -66,9 +66,8 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           }
           ++entry;
         }
-        break;
       }
-
+      // Fall through. If we can not find the .so, then try to find .a instead.
       case Input::Archive : {
         entry = (*mcld_dir)->begin();
         enEnd = (*mcld_dir)->end();
