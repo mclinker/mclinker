@@ -8,12 +8,12 @@
 ; RUN: %t.1.o %t.2.o --wrap f
 target triple = "arm-none-linux-gnueabi"
 
-define i8* @_Z8__wrap_fj(i32 %c) uwtable ssp {
+define i8* @__wrap_f(i32 %c) uwtable ssp {
   %1 = alloca i32, align 4
   store i32 %c, i32* %1, align 4
   %2 = load i32* %1, align 4
-  %3 = call i8* @_Z8__real_fj(i32 %2)
+  %3 = call i8* @__real_f(i32 %2)
   ret i8* %3
 }
 
-declare i8* @_Z8__real_fj(i32)
+declare i8* @__real_f(i32)
