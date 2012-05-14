@@ -927,7 +927,7 @@ int main( int argc, char* argv[] )
              << "'\n"
              << "Please use the -march option to explicitly select a target.\n"
              << "Example:\n"
-             << "  $ " << argv[0] << " -march=\"arm-none-linux-gnueabi\"\n";
+             << "  $ " << argv[0] << " -march=arm\n";
       return 1;
     }
   }
