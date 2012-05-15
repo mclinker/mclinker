@@ -1357,13 +1357,18 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
                                   const MCLDInfo& pLDInfo,
                                   const Output& pOutput) const
 {
+  if (pSym.isUndef() && pOutput.type() != Output::DynObj)
+    return false;
+
+  if (pSym.type() != ResolveInfo::Function)
+    return false;
+
   if (isStaticLink(pOutput, pLDInfo) || pLDInfo.options().isPIE())
     return false;
 
-  return (Output::DynObj == pOutput.type() &&
-          ResolveInfo::Function == pSym.type() &&
-          (pSym.isDyn() || pSym.isUndef() ||
-            isSymbolPreemptible(pSym, pLDInfo, pOutput)));
+  return (pSym.isDyn() ||
+          pSym.isUndef() ||
+          isSymbolPreemptible(pSym, pLDInfo, pOutput));
 }
 
 /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
