@@ -84,6 +84,8 @@ private:
   const uint8_t *m_PLT1;
   unsigned int m_PLT0Size;
   unsigned int m_PLT1Size;
+
+  const Output& m_Output;
 };
 
 } // namespace of mcld

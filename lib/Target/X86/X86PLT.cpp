@@ -57,7 +57,10 @@ X86PLT::X86PLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
                X86GOT &pGOTPLT,
 	       const Output& pOutput)
-  : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator()
+  : PLT(pSection, pSectionData),
+    m_GOT(pGOTPLT),
+    m_PLTEntryIterator(),
+    m_Output(pOutput)
 {
   assert (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type());
   if (Output::DynObj == pOutput.type()) {
@@ -240,7 +243,12 @@ void X86PLT::applyPLT1() {
     uint32_t* offset;
 
     offset = reinterpret_cast<uint32_t*>(data + 2);
-    *offset = GOTEntryOffset;
+    if (m_Output.type() == Output::DynObj) {
+      *offset = GOTEntryOffset;
+    } else {
+      // Exec
+      *offset = got_base + GOTEntryOffset;
+    }
     GOTEntryOffset += GOTEntrySize;
 
     offset = reinterpret_cast<uint32_t*>(data + 7);
