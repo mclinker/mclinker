@@ -18,10 +18,20 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
                               MCFragmentRef* pFragmentRef,
                               ResolveInfo::Visibility pVisibility)
 {
-  // These if/else should be optimized by compiler.
-  // This function is defined for clarity.
+  llvm::StringRef symbol_name = pName;
+  // --wrap and symbol script
+  if (!getLDInfo().scripts().wrapMap().empty() &&
+      ResolveInfo::Undefined == pDesc) {
+    ScriptOptions::SymbolWrapMap::iterator wrapSym
+                                 = getLDInfo().scripts().wrapMap().find(pName);
+    if (wrapSym != getLDInfo().scripts().wrapMap().end()) {
+      llvm::errs() << "turn " << pName << " into " << wrapSym.getEntry()->value() << "\n";
+      symbol_name = wrapSym.getEntry()->value();
+    }
+  }
+
   if (FROM == Input::DynObj)
-    return addSymbolFromDynObj(pName,
+    return addSymbolFromDynObj(symbol_name,
                                pType,
                                pDesc,
                                pBinding,
@@ -31,7 +41,7 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
                                pVisibility);
 
   if (FROM == Input::Object)
-    return addSymbolFromObject(pName,
+    return addSymbolFromObject(symbol_name,
                                pType,
                                pDesc,
                                pBinding,

@@ -691,19 +691,24 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   cl::list<std::string>::iterator wname;
   cl::list<std::string>::iterator wnameEnd = ArgWrapList.end();
   for (wname = ArgWrapList.begin(); wname != wnameEnd; ++wname) {
-    // add wname -> __wrap_wname
     bool exist = false;
-    mcld::StringEntry<llvm::StringRef>* entry = NULL;
-    entry = pOption.info().scripts().wrapMap().insert(*wname, exist);
-    entry->setValue(std::string("__wrap_") + *wname);
+
+    // add wname -> __wrap_wname
+    mcld::StringEntry<llvm::StringRef>* to_wrap =
+                      pOption.info().scripts().wrapMap().insert(*wname, exist);
+
+    std::string to_wrap_str = "__wrap_" + *wname;
+    to_wrap->setValue(to_wrap_str);
 
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname
                                         << (std::string("__wrap_") + *wname);
+
     // add __real_wname -> wname
-    entry = pOption.info().scripts().wrapMap().insert(
+    mcld::StringEntry<llvm::StringRef>* from_real =
+                       pOption.info().scripts().wrapMap().insert(
                                        std::string("__real_") + *wname, exist);
-    entry->setValue(*wname);
+    from_real->setValue(*wname);
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname
                                         << (std::string("__real_") + *wname);
