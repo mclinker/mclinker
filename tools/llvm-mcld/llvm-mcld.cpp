@@ -15,6 +15,7 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/raw_ostream.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/MCLDInfo.h>
@@ -1032,12 +1033,15 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
+  // Set up mcld::outs() and mcld::errs()
+  InitializeOStreams(TheTargetMachine.getLDInfo());
+
   // Set up MsgHandler
   OwningPtr<mcld::DiagnosticLineInfo>
     diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget->get(),
                                                        TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
-    diag_printer(new mcld::TextDiagnosticPrinter(llvm::errs(),
+    diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(),
                                                 TheTargetMachine.getLDInfo()));
 
   mcld::InitializeDiagnosticEngine(TheTargetMachine.getLDInfo(),
