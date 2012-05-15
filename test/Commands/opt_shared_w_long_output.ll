@@ -5,6 +5,7 @@
 ; RUN: test -f %t.so
 ; RUN: readelf -a %t.so | grep Type | grep DYN | grep "Shared object file"
 
+target triple = "arm-none-linux-gnueabi"
 define float @_Z1af(float %pInput) nounwind uwtable ssp {
 entry:
   %pInput.addr = alloca float, align 4
