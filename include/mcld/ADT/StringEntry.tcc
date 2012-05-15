@@ -52,10 +52,11 @@ StringEntryFactory<DataType>::produce(const typename StringEntryFactory<DataType
   if (NULL == result)
     return NULL;
 
-  size_t len = result->m_KeyLen = pKey.size();
+  size_t len = pKey.size();
   new (result) StringEntry<DataType>();
   std::memcpy(result->m_Key, pKey.data(), len);
   result->m_Key[len] = '\0';
+  result->m_KeyLen = len;
   return result;
 }
 
