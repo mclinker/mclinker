@@ -151,6 +151,12 @@ public:
   bool color() const
   { return m_bColor; }
 
+  void setNoUndefined(bool pEnable = false)
+  { m_bNoUndefined = pEnable; }
+
+  void setMulDefs(bool pEnable = false)
+  { m_bMulDefs = pEnable; }
+
   ///  -----  the -z options  -----  ///
   void addZOption(const mcld::ZOption& pOption);
 

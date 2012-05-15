@@ -326,6 +326,16 @@ ArgSOName("soname",
           cl::desc("Set internal name of shared library"),
           cl::value_desc("name"));
 
+static cl::opt<bool>
+ArgNoUndefined("no-undefined",
+               cl::desc("Do not allow unresolved references"),
+               cl::init(false));
+
+static cl::opt<bool>
+ArgAllowMulDefs("allow-multiple-definition",
+                cl::desc("Allow multiple definition"),
+                cl::init(false));
+
 static cl::list<mcld::ZOption, bool, llvm::cl::parser<mcld::ZOption> >
 ArgZOptionList("z",
                cl::ZeroOrMore,
@@ -674,6 +684,8 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setBsymbolic(ArgBsymbolic);
   pOption.info().options().setBgroup(ArgBgroup);
   pOption.info().options().setDyld(ArgDyld);
+  pOption.info().options().setNoUndefined(ArgNoUndefined);
+  pOption.info().options().setMulDefs(ArgAllowMulDefs);
 
   // set up wrap map, for --wrap
   cl::list<std::string>::iterator wname;
@@ -693,7 +705,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
                                        std::string("__real_") + *wname, exist);
     entry->setValue(*wname);
     if (exist)
-      mcld::warning(mcld::diag::rewrap) << *wname 
+      mcld::warning(mcld::diag::rewrap) << *wname
                                         << (std::string("__real_") + *wname);
   } // end of for
 
