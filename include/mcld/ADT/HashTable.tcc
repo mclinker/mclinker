@@ -183,7 +183,7 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin()
 {
   if (BaseTy::empty())
-    return iterator(this, 0);
+    return end();
   unsigned int index = 0;
   while (bucket_type::getTombstone() == BaseTy::m_Buckets[index].Entry ||
          bucket_type::getEmptyBucket() == BaseTy::m_Buckets[index].Entry) {
@@ -208,7 +208,7 @@ typename HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::const_iterator
 HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::begin() const
 {
   if (BaseTy::empty())
-    return const_iterator(this, 0);
+    return end();
   unsigned int index = 0;
   while (bucket_type::getTombstone() == BaseTy::m_Buckets[index].Entry ||
          bucket_type::getEmptyBucket() == BaseTy::m_Buckets[index].Entry) {
