@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 #include <cstdlib>
 #include <cassert>
 
