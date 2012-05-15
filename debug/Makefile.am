@@ -52,6 +52,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${INCDIR}/Support/TargetSelect.h \
+	${INCDIR}/Support/raw_ostream.h \
+	${LIBDIR}/Support/raw_ostream.cpp \
 	${INCDIR}/Support/MsgHandling.h \
 	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
