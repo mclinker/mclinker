@@ -296,10 +296,43 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
                                    const MCLDInfo& pLDInfo,
                                    X86RelocationFactory& pParent)
 {
-  // perform static relocation
+  ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  pReloc.target() = pReloc.symValue() + A
-      - pReloc.place(pParent.getLayout());
+  RelocationFactory::DWord S = pReloc.symValue();
+  RelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // Check if we need plt or dynamic relocation only as the target section is
+    // in PT_LOAD
+    if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
+      helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+      pReloc.target() = S + A - P;
+      return X86RelocationFactory::OK;
+    }
+    else if (!rsym->isLocal()) {
+      if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+        S = helper_PLT(pReloc, pParent);
+        pReloc.target() = S + A - P;
+      }
+      if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
+          helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+        }
+        else {
+          helper_DynRel(pReloc, pReloc.type(), pParent);
+          return X86RelocationFactory::OK;
+        }
+      }
+    }
+  }
+
+  // perform static relocation
+  pReloc.target() = S + A - P;
   return X86RelocationFactory::OK;
 }
 

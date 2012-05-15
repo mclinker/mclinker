@@ -343,10 +343,38 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
 
     case llvm::ELF::R_386_PC32:
-      // We allow R_386_PC32 only if it isn't preemptible.  Otherwise
-      // we will generate writable text section in output.
-      if (!isSymbolPreemptible(*rsym, pLDInfo, pOutput))
-	return;
+      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput) &&
+          pOutput.type() != Output::DynObj) {
+        // create plt for this symbol if it does not have one
+        if (!(rsym->reserved() & ReservePLT)){
+          // Create .got section if it dosen't exist
+          if (NULL == m_pGOT)
+            createX86GOT(pLinker, pOutput);
+          // create .plt and .rel.plt if not exist
+          if (NULL == m_pPLT)
+            createX86PLTandRelPLT(pLinker, pOutput);
+          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // and the corresponding GOT and dynamic relocation entry
+          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+          // when calling X86PLT->reserveEntry())
+          m_pPLT->reserveEntry();
+          m_pRelPLT->reserveEntry(*m_pRelocFactory);
+          // set PLT bit
+          rsym->setReserved(rsym->reserved() | ReservePLT);
+        }
+      }
+
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
+                            pLDInfo, pOutput, true)) {
+        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
+        // create .rel.dyn section if not exist
+        if (NULL == m_pRelDyn)
+          createX86RelDyn(pLinker, pOutput);
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+      }
+      return;
 
     default: {
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
