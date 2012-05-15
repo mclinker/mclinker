@@ -24,12 +24,6 @@
 
 namespace mcld {
 namespace sys {
-namespace tty {
-
-int isatty(int pFD);
-
-} // namespace of tty
-
 namespace fs {
 
 enum FileType

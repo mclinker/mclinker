@@ -36,6 +36,7 @@
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/ToolOutputFile.h>
+#include <llvm/Support/Process.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
 
@@ -723,8 +724,8 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
       pOption.info().options().setColor(true);
     break;
     case color::Auto:
-      bool color_option =
-                   mcld::sys::tty::isatty(STDOUT_FILENO) && ShouldColorize();
+      bool color_option = ShouldColorize() &&
+                 llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
       pOption.info().options().setColor(color_option);
     break;
   }
