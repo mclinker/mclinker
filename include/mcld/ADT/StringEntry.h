@@ -14,6 +14,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <cstdlib>
+#include <cstring>
 #include <cassert>
 
 namespace mcld
@@ -71,6 +72,60 @@ private:
   char m_Key[0];
 
   friend class StringEntryFactory<DataType>;
+};
+
+
+template<>
+class StringEntry<llvm::StringRef>
+{
+public:
+  typedef llvm::StringRef key_type;
+  typedef llvm::StringRef value_type;
+
+public:
+  key_type key()
+  { return key_type(m_Key, m_KeyLen); }
+
+  const key_type key() const
+  { return key_type(m_Key, m_KeyLen); }
+
+  value_type& value()
+  { return m_Value; }
+
+  const value_type& value() const
+  { return m_Value; }
+
+  size_t getKeyLength() const
+  { return m_KeyLen; }
+
+  size_t getValueLength() const
+  { return m_Value.size(); }
+
+  void setValue(const std::string& pVal)
+  { setValue(pVal.c_str()); }
+
+  void setValue(const char* pVal);
+
+  void setValue(llvm::StringRef& pVal);
+
+  bool compare(const llvm::StringRef& pX)
+  { return (0 == key().compare(pX)); }
+
+  bool compare(const llvm::StringRef& pX) const
+  { return (0 == key().compare(pX)); }
+
+private:
+  StringEntry();
+  StringEntry(const key_type& pKey);
+  StringEntry(const StringEntry& pCopy);
+  ~StringEntry();
+
+private:
+  llvm::StringRef m_Value;
+  uint16_t m_KeyLen;
+  char m_Key[0];
+
+  friend class StringEntryFactory<llvm::StringRef>;
 };
 
 template<typename DataType>

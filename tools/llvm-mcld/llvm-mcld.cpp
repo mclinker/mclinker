@@ -537,6 +537,12 @@ ArgWrapList("wrap",
             cl::desc("Use a wrap function fo symbol."),
             cl::value_desc("symbol"));
 
+static cl::list<std::string>
+ArgPortList("portable",
+            cl::ZeroOrMore,
+            cl::desc("Use a portable function fo symbol."),
+            cl::value_desc("symbol"));
+
 //===----------------------------------------------------------------------===//
 /// non-member functions
 
@@ -689,7 +695,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setNoUndefined(ArgNoUndefined);
   pOption.info().options().setMulDefs(ArgAllowMulDefs);
 
-  // set up wrap map, for --wrap
+  // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
   cl::list<std::string>::iterator wnameEnd = ArgWrapList.end();
   for (wname = ArgWrapList.begin(); wname != wnameEnd; ++wname) {
@@ -697,23 +703,47 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
 
     // add wname -> __wrap_wname
     mcld::StringEntry<llvm::StringRef>* to_wrap =
-                      pOption.info().scripts().wrapMap().insert(*wname, exist);
+                    pOption.info().scripts().renameMap().insert(*wname, exist);
 
     std::string to_wrap_str = "__wrap_" + *wname;
     to_wrap->setValue(to_wrap_str);
 
     if (exist)
-      mcld::warning(mcld::diag::rewrap) << *wname
-                                        << (std::string("__wrap_") + *wname);
+      mcld::warning(mcld::diag::rewrap) << *wname << to_wrap_str;
 
     // add __real_wname -> wname
+    std::string from_real_str = "__real_" + *wname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-                       pOption.info().scripts().wrapMap().insert(
-                                       std::string("__real_") + *wname, exist);
+             pOption.info().scripts().renameMap().insert(from_real_str, exist);
     from_real->setValue(*wname);
     if (exist)
-      mcld::warning(mcld::diag::rewrap) << *wname
-                                        << (std::string("__real_") + *wname);
+      mcld::warning(mcld::diag::rewrap) << *wname << from_real_str;
+  } // end of for
+
+  // set up rename map, for --portable
+  cl::list<std::string>::iterator pname;
+  cl::list<std::string>::iterator pnameEnd = ArgPortList.end();
+  for (pname = ArgPortList.begin(); pname != pnameEnd; ++pname) {
+    bool exist = false;
+
+    // add pname -> pname_portable
+    mcld::StringEntry<llvm::StringRef>* to_port =
+                  pOption.info().scripts().renameMap().insert(*pname, exist);
+
+    std::string to_port_str = *pname + "_portable";
+    to_port->setValue(to_port_str);
+
+    if (exist)
+      mcld::warning(mcld::diag::rewrap) << *pname << to_port_str;
+
+    // add __real_pname -> pname
+    std::string from_real_str = "__real_" + *pname;
+    mcld::StringEntry<llvm::StringRef>* from_real =
+             pOption.info().scripts().renameMap().insert(from_real_str, exist);
+
+    from_real->setValue(*pname);
+    if (exist)
+      mcld::warning(mcld::diag::rewrap) << *pname << from_real_str;
   } // end of for
 
   // set up colorize

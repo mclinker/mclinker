@@ -32,20 +32,20 @@ class ScriptOptions
 public:
   typedef HashTable<StringEntry<llvm::StringRef>,
                     StringHash<ELF>,
-                    StringEntryFactory<llvm::StringRef> > SymbolWrapMap;
+                    StringEntryFactory<llvm::StringRef> > SymbolRenameMap;
 
 public:
   ScriptOptions();
   ~ScriptOptions();
 
-  SymbolWrapMap& wrapMap()
-  { return m_SymbolWraps; }
+  SymbolRenameMap& renameMap()
+  { return m_SymbolRenames; }
 
-  const SymbolWrapMap& wrapMap() const
-  { return m_SymbolWraps; }
+  const SymbolRenameMap& renameMap() const
+  { return m_SymbolRenames; }
 
 private:
-  SymbolWrapMap m_SymbolWraps;
+  SymbolRenameMap m_SymbolRenames;
 };
 
 /** \class GeneralOptions

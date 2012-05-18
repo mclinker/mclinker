@@ -19,15 +19,13 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
                               ResolveInfo::Visibility pVisibility)
 {
   llvm::StringRef symbol_name = pName;
-  // --wrap and symbol script
-  if (!getLDInfo().scripts().wrapMap().empty() &&
+  // renamed symbols
+  if (!getLDInfo().scripts().renameMap().empty() &&
       ResolveInfo::Undefined == pDesc) {
-    ScriptOptions::SymbolWrapMap::iterator wrapSym
-                                 = getLDInfo().scripts().wrapMap().find(pName);
-    if (wrapSym != getLDInfo().scripts().wrapMap().end()) {
-      llvm::errs() << "turn " << pName << " into " << wrapSym.getEntry()->value() << "\n";
-      symbol_name = wrapSym.getEntry()->value();
-    }
+    ScriptOptions::SymbolRenameMap::iterator renameSym
+                                = getLDInfo().scripts().renameMap().find(pName);
+    if (renameSym != getLDInfo().scripts().renameMap().end())
+      symbol_name = renameSym.getEntry()->value();
   }
 
   if (FROM == Input::DynObj)
