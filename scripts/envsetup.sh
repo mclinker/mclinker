@@ -31,8 +31,9 @@ function gettop()
 function wc_pndk()
 {
 	local H=`find ${MCLINKERTOP} | grep '\.h'`
+	local T=`find ${MCLINKERTOP} | grep '\.tcc'`
 	local C=`find ${MCLINKERTOP} | grep '\.cpp'`
-	wc ${C} ${H}
+	wc ${C} ${H} ${T}
 }
 
 #############################
