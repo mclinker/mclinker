@@ -309,12 +309,7 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
     // Check if we need plt or dynamic relocation only as the target section is
     // in PT_LOAD
-    if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
-      helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
-      pReloc.target() = S + A - P;
-      return X86RelocationFactory::OK;
-    }
-    else if (!rsym->isLocal()) {
+    if (!rsym->isLocal()) {
       if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
         S = helper_PLT(pReloc, pParent);
         pReloc.target() = S + A - P;
