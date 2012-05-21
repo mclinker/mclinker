@@ -3,3 +3,5 @@ DIAG(unrecognized_output_file, DiagnosticEngine::Unreachable, "unsupported outpu
 DIAG(unrecognized_output_sectoin, DiagnosticEngine::Unreachable, "Unable to emit section `%0'\nPlease report to `%1'", "Unable to emit section `%0'\nPlease report to `%1'")
 DIAG(duplicated_wrap, DiagnosticEngine::Warning, "wrapped symbol `%0' had been claimed", "wrapped symbol `%0' had been claimed")
 DIAG(rewrap, DiagnosticEngine::Warning, "There are duplicated --wrap `%0' on the command line\nsymbol `%1' had been claimed", "There are duplicated --wrap `%0' on the command line]\nsymbol `%1' had been claimed.")
+DIAG(err_cannot_read_section, DiagnosticEngine::Fatal, "can not read section `%0'.", "can not read section `%0'.")
+DIAG(err_cannot_read_target_section, DiagnosticEngine::Fatal, "can not read target-dependent section `%0'.", "can not read target-dependent section `%0'.")

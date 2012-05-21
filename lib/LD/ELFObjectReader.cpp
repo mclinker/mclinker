@@ -8,13 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/ELF.h>
 #include <llvm/ADT/Twine.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCRegionFragment.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/Support/MsgHandling.h>
 
 #include <string>
 #include <cassert>
@@ -141,19 +141,13 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Debug:
       case LDFileFormat::MetaData: {
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
-          llvm::report_fatal_error(
-                                llvm::Twine("can not read regular section `") +
-                                (*section)->name() +
-                                llvm::Twine("'.\n"));
+          fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
       /** target dependent sections **/
       case LDFileFormat::Target: {
         if (!m_pELFReader->readTargetSection(pInput, m_Linker, **section))
-          llvm::report_fatal_error(
-                        llvm::Twine("can not read target dependentsection `") +
-                        (*section)->name() +
-                        llvm::Twine("'.\n"));
+          fatal(diag::err_cannot_read_target_section) << (*section)->name();
         break;
       }
       /** BSS sections **/
