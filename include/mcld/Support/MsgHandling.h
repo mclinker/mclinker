@@ -26,6 +26,7 @@ void InitializeDiagnosticEngine(const MCLDInfo& pLDInfo,
 
 DiagnosticEngine& getDiagnosticEngine();
 
+MsgHandler unreachable(unsigned int pID);
 MsgHandler fatal(unsigned int pID);
 MsgHandler error(unsigned int pID);
 MsgHandler warning(unsigned int pID);
@@ -37,6 +38,11 @@ MsgHandler ignore(unsigned int pID);
 
 //===----------------------------------------------------------------------===//
 //  Inline functions
+inline mcld::MsgHandler mcld::unreachable(unsigned int pID)
+{
+  return getDiagnosticEngine().report(pID, DiagnosticEngine::Unreachable);
+}
+
 inline mcld::MsgHandler mcld::fatal(unsigned int pID)
 {
   return getDiagnosticEngine().report(pID, DiagnosticEngine::Fatal);
