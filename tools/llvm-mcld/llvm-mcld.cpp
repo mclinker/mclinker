@@ -907,10 +907,12 @@ int main( int argc, char* argv[] )
   // Load the module to be compiled...
   std::auto_ptr<Module> M;
 
+  // -shared
   if (true == ArgShared) {
     ArgFileType = mcld::CGFT_DSOFile;
   }
 
+  // -V
   if (ArgVersion) {
     outs() << "MCLinker - ";
     outs() << mcld::MCLDInfo::version();
