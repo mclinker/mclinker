@@ -5,3 +5,5 @@ DIAG(duplicated_wrap, DiagnosticEngine::Warning, "wrapped symbol `%0' had been c
 DIAG(rewrap, DiagnosticEngine::Warning, "There are duplicated --wrap `%0' on the command line\nsymbol `%1' had been claimed", "There are duplicated --wrap `%0' on the command line]\nsymbol `%1' had been claimed.")
 DIAG(err_cannot_read_section, DiagnosticEngine::Fatal, "can not read section `%0'.", "can not read section `%0'.")
 DIAG(err_cannot_read_target_section, DiagnosticEngine::Fatal, "can not read target-dependent section `%0'.", "can not read target-dependent section `%0'.")
+DIAG(err_unsupported_section, DiagnosticEngine::Fatal, "unsupported section `%0' (type %1)", "unsupported section `%0' (type %1)")
+DIAG(unreachable_invalid_section_idx, DiagnosticEngine::Unreachable, "section[%0] is invalid in file %1", "section[%0] is invalid in file %1")

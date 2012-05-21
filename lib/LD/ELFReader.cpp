@@ -7,15 +7,16 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <llvm/Support/ELF.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Target/GNULDBackend.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <cstring>
 
 using namespace mcld;
@@ -78,8 +79,7 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
         (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
         (pType >= llvm::ELF::SHT_LOUSER && pType <= llvm::ELF::SHT_HIUSER))
       return LDFileFormat::Target;
-    llvm::report_fatal_error(llvm::Twine("unsupported ELF section type: ") +
-                             llvm::Twine(pType) + llvm::Twine(".\n"));
+    fatal(diag::err_unsupported_section) << pName << pType;
   }
   return LDFileFormat::MetaData;
 }
@@ -145,13 +145,9 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
 
-  if (NULL == sect_hdr) {
-    llvm::report_fatal_error(llvm::Twine("section[") +
-                             llvm::Twine(pShndx) +
-                             llvm::Twine("] is invalid in file `") +
-                             pInput.path().native() +
-                             llvm::Twine("'.\n"));
-  }
+  if (NULL == sect_hdr)
+    unreachable(diag::unreachable_invalid_section_idx) << pShndx
+                                                       << pInput.path().native();
   
   MCFragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
   return result;
