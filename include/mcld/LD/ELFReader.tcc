@@ -292,9 +292,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
         st_shndx = llvm::ELF::SHN_UNDEF;
     }
 
-    // get ld_name
-    llvm::StringRef ld_name(pStrTab + st_name);
-
     // get ld_type
     ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
 
@@ -315,6 +312,19 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 
     // get ld_vis
     ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
+
+    // get ld_name
+    llvm::StringRef ld_name;
+    if (ResolveInfo::Section == ld_type) {
+      // Section symbol's st_name is the section index.
+      LDSection* section = pInput.context()->getSection(st_shndx);
+      assert(NULL != section && "get a invalid section");
+      ld_name = llvm::StringRef(section->name());
+    }
+    else {
+      ld_name = llvm::StringRef(pStrTab + st_name);
+    }
+
 
     // push into MCLinker
     LDSymbol* input_sym = NULL;
