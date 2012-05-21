@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDSection.h>
 #include <mcld/Target/OutputRelocSection.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -64,18 +65,18 @@ Relocation* OutputRelocSection::getEntry(const ResolveInfo& pSymbol,
 
   if(isForGOT) {
     // get or create entry in m_SymRelMap
-    Relocation *&Entry = m_SymRelMap[&pSymbol];
-    pExist = 1;
+    Relocation *&entry = m_SymRelMap[&pSymbol];
+    pExist = true;
 
-    if(!Entry) {
-      pExist = 0;
-      Entry = llvm::cast<Relocation>(&(*m_ValidEntryIterator));
+    if(NULL == entry) {
+      pExist = false;
+      entry = llvm::cast<Relocation>(&(*m_ValidEntryIterator));
       ++m_ValidEntryIterator;
     }
-    result = Entry;
+    result = entry;
   }
   else {
-    pExist = 0;
+    pExist = false;
     result = llvm::cast<Relocation>(&(*m_ValidEntryIterator));
     ++m_ValidEntryIterator;
   }

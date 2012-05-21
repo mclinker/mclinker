@@ -1,4 +1,4 @@
-//===- OutputRelocSection.h --------------------------------------------------===//
+//===- OutputRelocSection.h -----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef OUTPUTRELOCSECTION_H
-#define OUTPUTRELOCSECTION_H
+#ifndef MCLD_OUTPUT_RELOCATION_SECTION_H
+#define MCLD_OUTPUT_RELOCATION_SECTION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -28,15 +28,10 @@ class Relocation;
 class OutputRelocSection
 {
 public:
-  typedef llvm::DenseMap<const ResolveInfo*, Relocation*> SymRelMapType;
-  typedef SymRelMapType::iterator SymRelMapIterator;
-
-  typedef llvm::MCSectionData::iterator MCFragmentIterator;
-
-public:
   OutputRelocSection(LDSection& pSection,
                    llvm::MCSectionData& pSectionData,
                    unsigned int pEntrySize);
+
   ~OutputRelocSection();
 
   void reserveEntry(RelocationFactory& pRelFactory, size_t pNum=1);
@@ -44,6 +39,13 @@ public:
   Relocation* getEntry(const ResolveInfo& pSymbol,
                        bool isForGOT,
                        bool& pExist);
+
+private:
+  typedef llvm::DenseMap<const ResolveInfo*, Relocation*> SymRelMapType;
+
+  typedef SymRelMapType::iterator SymRelMapIterator;
+
+  typedef llvm::MCSectionData::iterator MCFragmentIterator;
 
 private:
   /// m_pSection - LDSection of this Section
@@ -56,7 +58,7 @@ private:
   unsigned int m_EntryBytes;
 
   /// m_isVisit - First time visit the function getEntry() or not
-  bool m_isVisit ;
+  bool m_isVisit;
 
   /// m_ValidEntryIterator - point to the first valid entry
   MCFragmentIterator m_ValidEntryIterator;
