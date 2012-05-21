@@ -447,13 +447,8 @@ bool ELFReader<32, true>::readRela(Input& pInput,
     uint8_t  r_type = static_cast<unsigned char>(r_info);
     uint32_t r_sym  = (r_info >> 8);
     LDSymbol* symbol = pInput.context()->getSymbol(r_sym);
-    if (NULL == symbol) {
-      llvm::report_fatal_error(llvm::Twine("invalid symbol index :") +
-                               llvm::Twine(r_sym) +
-                               llvm::Twine(" in file `") +
-                               pInput.path().native() +
-                               llvm::Twine("'.\n"));
-    }
+    if (NULL == symbol)
+      fatal(diag::err_cannot_read_symbol) << r_sym << pInput.path();
 
     ResolveInfo* resolve_info = symbol->resolveInfo();
 
@@ -461,13 +456,10 @@ bool ELFReader<32, true>::readRela(Input& pInput,
          pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {
-      llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
-                               llvm::Twine(pSection.getLink()->index()) +
-                               llvm::Twine(" of the relocation section `") +
-                               pSection.name() +
-                               llvm::Twine("' in file `") +
-                               pInput.path().native() +
-                               llvm::Twine(".\n"));
+      fatal(diag::err_cannot_read_relocated_section)
+                                << pSection.name()
+                                << pSection.getLink()->index()
+                                << pInput.path();
     }
 
     pLinker.addRelocation(r_type, *symbol,  *resolve_info, *frag_ref, pSection, r_addend);
@@ -503,11 +495,7 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 
     LDSymbol* symbol = pInput.context()->getSymbol(r_sym);
     if (NULL == symbol) {
-      llvm::report_fatal_error(llvm::Twine("invalid symbol index :") +
-                               llvm::Twine(r_sym) +
-                               llvm::Twine(" in file `") +
-                               pInput.path().native() +
-                               llvm::Twine("'.\n"));
+      fatal(diag::err_cannot_read_symbol) << r_sym << pInput.path();
     }
 
     ResolveInfo* resolve_info = symbol->resolveInfo();
@@ -516,13 +504,10 @@ bool ELFReader<32, true>::readRel(Input& pInput,
          pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {
-      llvm::report_fatal_error(llvm::Twine("invalid sh_info: ") +
-                               llvm::Twine(pSection.getLink()->index()) +
-                               llvm::Twine(" of the relocation section `") +
-                               pSection.name() +
-                               llvm::Twine("' in file `") +
-                               pInput.path().native() +
-                               llvm::Twine(".\n"));
+      fatal(diag::err_cannot_read_relocated_section)
+                                << pSection.name()
+                                << pSection.getLink()->index()
+                                << pInput.path();
     }
 
     pLinker.addRelocation(r_type, *symbol, *resolve_info, *frag_ref, pSection);
