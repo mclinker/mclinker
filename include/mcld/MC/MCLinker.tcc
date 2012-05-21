@@ -19,9 +19,10 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
                               ResolveInfo::Visibility pVisibility)
 {
   llvm::StringRef symbol_name = pName;
-  // renamed symbols
   if (!getLDInfo().scripts().renameMap().empty() &&
       ResolveInfo::Undefined == pDesc) {
+    // If the renameMap is not empty, some symbols should be renamed.
+    // --wrap and --portable defines the symbol rename map.
     ScriptOptions::SymbolRenameMap::iterator renameSym
                                 = getLDInfo().scripts().renameMap().find(pName);
     if (renameSym != getLDInfo().scripts().renameMap().end())
