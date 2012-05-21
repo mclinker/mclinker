@@ -132,13 +132,13 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       /** normal sections **/
-      // FIXME: support Debug, Exception and Version Kinds
-      case LDFileFormat::Debug:
+      // FIXME: support Exception and Version Kinds
       case LDFileFormat::Exception:
       case LDFileFormat::Version:
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
+      case LDFileFormat::Debug:
       case LDFileFormat::MetaData: {
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
           llvm::report_fatal_error(
