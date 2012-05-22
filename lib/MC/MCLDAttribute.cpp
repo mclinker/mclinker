@@ -6,40 +6,40 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDAttribute.h"
-#include "mcld/MC/AttributeFactory.h"
+#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/AttributeFactory.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
 //==========================
 // AttrConstraint
-bool AttrConstraint::isLegal(const Attribute& pAttr, std::string &pErrMesg) const
+bool AttrConstraint::isLegal(const Attribute& pAttr) const
 {
   if (!isWholeArchive() && pAttr.isWholeArchive()) {
-    pErrMesg = std::string("Target does not support --whole-archive");
+    error(diag::err_unsupported_whole_archive);
     return false;
   }
   if (!isAsNeeded() && pAttr.isAsNeeded()) {
-    pErrMesg = std::string("Target does not support --as-needed");
+    error(diag::err_unsupported_as_needed);
     return false;
   }
   if (!isAddNeeded() && pAttr.isAddNeeded()) {
-    pErrMesg = std::string("Target does not support --add-needed");
+    error(diag::err_unsupported_add_needed);
     return false;
   }
   if (isStaticSystem() && pAttr.isDynamic()) {
-    pErrMesg = std::string("Target does not support --Bdynamic");
+    error(diag::err_unsupported_Bdynamic);
     return false;
   }
-  // FIXME: may be it's legal, but ignored by GNU ld.
   if (isStaticSystem() && pAttr.isAsNeeded()) {
-    pErrMesg = std::string("Can't enable --as-needed on a target which does not support dynamic linking");
-    return false;
+    warning(diag::err_enable_as_needed_on_static_system);
+    return true;
   }
   // FIXME: may be it's legal, but ignored by GNU ld.
   if (pAttr.isAsNeeded() && pAttr.isStatic()) {
-    pErrMesg = std::string("Can't mix --static with --as-needed");
-    return false;
+    warning(diag::err_mix_static_as_needed);
+    return true;
   }
   return true;
 }

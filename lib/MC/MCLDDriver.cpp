@@ -19,7 +19,7 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <llvm/Support/ErrorHandling.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace llvm;
 using namespace mcld;
@@ -54,7 +54,7 @@ void MCLDDriver::normalize() {
       (*input)->setMemArea(input_memory);
     }
     else {
-      llvm::report_fatal_error("can not open file: " + (*input)->path().native());
+      error(diag::err_cannot_open_input) << (*input)->name() << (*input)->path();
       return;
     }
 
@@ -74,18 +74,18 @@ void MCLDDriver::normalize() {
     // is an archive
     else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
       (*input)->setType(Input::Archive);
-      mcld::InputTree* archive_member = m_LDBackend.getArchiveReader()->readArchive(**input);
-      if(!archive_member)  {
-        llvm::report_fatal_error("wrong format archive" + (*input)->path().string());
+      mcld::InputTree* archive_member =
+                          m_LDBackend.getArchiveReader()->readArchive(**input);
+      if(NULL == archive_member)  {
+        error(diag::err_empty_input) << (*input)->name() << (*input)->path();
         return;
       }
 
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
     }
     else {
-      llvm::report_fatal_error(llvm::Twine("can not recognize file format: ") +
-                               (*input)->path().native() +
-                               llvm::Twine("\nobject format or target machine is wrong\n"));
+      error(diag::err_unrecognized_input_file)
+                                       << (*input)->name() << (*input)->path();
     }
   }
 }
@@ -95,16 +95,14 @@ bool MCLDDriver::linkable() const
 {
   // check we have input and output files
   if (m_LDInfo.inputs().empty()) {
-    llvm::report_fatal_error("no inputs");
+    error(diag::err_no_inputs);
     return false;
   }
 
   // check all attributes are legal
   mcld::AttributeFactory::const_iterator attr, attrEnd = m_LDInfo.attrFactory().end();
   for (attr=m_LDInfo.attrFactory().begin(); attr!=attrEnd; ++attr) {
-    std::string error_code;
-    if (!m_LDInfo.attrFactory().constraint().isLegal((**attr), error_code)) {
-      report_fatal_error(error_code);
+    if (!m_LDInfo.attrFactory().constraint().isLegal((**attr))) {
       return false;
     }
   }
@@ -116,7 +114,8 @@ bool MCLDDriver::linkable() const
     if ((*input)->type() == mcld::Input::DynObj ) {
       hasDynObj = true;
       if((*input)->attribute()->isStatic()) {
-        report_fatal_error("Can't link shared object with -static option");
+        error(diag::err_mixed_shared_static_objects)
+                                        << (*input)->name() << (*input)->path();
         return false;
       }
     }
