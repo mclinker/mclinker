@@ -76,8 +76,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Debug: {
-      // show debug message only if --verbose[=0]
-      if (0 == m_LDInfo.options().verbose()) {
+      // show debug message only if verbose >= 0
+      if (0 <= m_LDInfo.options().verbose()) {
         m_OStream.changeColor(DebugColor, true);
         m_OStream << "Debug: ";
         m_OStream.resetColor();
@@ -86,8 +86,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Note: {
-      // show ignored message only if --verbose=1
-      if (1 == m_LDInfo.options().verbose()) {
+      // show ignored message only if verbose >= 1
+      if (1 <= m_LDInfo.options().verbose()) {
         m_OStream.changeColor(NoteColor, true);
         m_OStream << "Note: ";
         m_OStream.resetColor();
@@ -96,8 +96,8 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Ignore: {
-      // show ignored message only if --verbose=2
-      if (2 == m_LDInfo.options().verbose()) {
+      // show ignored message only if verbose >= 2
+      if (2 <= m_LDInfo.options().verbose()) {
         m_OStream.changeColor(IgnoreColor, true);
         m_OStream << "Ignore: ";
         m_OStream.resetColor();
