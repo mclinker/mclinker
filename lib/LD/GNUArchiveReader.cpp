@@ -14,6 +14,7 @@
 #include "mcld/Support/MemoryArea.h"
 #include "mcld/Support/MemoryRegion.h"
 #include "mcld/Support/MemoryAreaFactory.h"
+#include <mcld/Support/MsgHandling.h>
 #include "mcld/ADT/SizeTraits.h"
 
 #include <llvm/Support/system_error.h>
@@ -70,8 +71,9 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
 
   /// check archive format.
   if (memcmp(p_buffer, ArchiveMagic, ArchiveMagicSize) != 0
-      && memcmp(p_buffer, ThinArchiveMagic, ArchiveMagicSize) != 0)
-    llvm::report_fatal_error("Fail : archive magic number is not matched");
+      && memcmp(p_buffer, ThinArchiveMagic, ArchiveMagicSize) != 0) {
+    error(diag::archive_magic_mismatch) << pInput.path();
+  }
   return true;
 }
 
