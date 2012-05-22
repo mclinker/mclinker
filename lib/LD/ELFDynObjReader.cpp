@@ -80,9 +80,20 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".dynsym");
+  if (NULL == symtab_shdr) {
+    note(diag::note_has_no_symtab) << pInput.name()
+                                   << pInput.path()
+                                   << ".dynsym";
+    return true;
+  }
+
   LDSection* strtab_shdr = symtab_shdr->getLink();
-  if (NULL == symtab_shdr || NULL == strtab_shdr)
+  if (NULL == strtab_shdr) {
+    fatal(diag::fatal_cannot_read_strtab) << pInput.name()
+                                          << pInput.path()
+                                          << ".dynsym";
     return false;
+  }
 
   MemoryRegion* symtab_region = pInput.memArea()->request(symtab_shdr->offset(),
                                                           symtab_shdr->size());
