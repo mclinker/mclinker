@@ -19,6 +19,7 @@ namespace diag {
   enum ID {
 #define DIAG(ENUM, CLASS, ADDRMSG, LINEMSG) ENUM,
 #include "mcld/LD/DiagCommonKinds.inc"
+#include "mcld/LD/DiagReaders.inc"
 #include "mcld/LD/DiagSymbolResolutions.inc"
 #include "mcld/LD/DiagRelocations.inc"
 #include "mcld/LD/DiagLayouts.inc"
