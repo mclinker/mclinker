@@ -59,7 +59,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::Regular:
       case LDFileFormat::Relocation:
       case LDFileFormat::Target:
-      case LDFileFormat::Debug: {
+      case LDFileFormat::Debug:
+	  case LDFileFormat::Exception: {
         region = pOutput.memArea()->request(sect->offset(), sect->size());
         if (NULL == region) {
           llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section[") +
@@ -75,7 +76,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::BSS:
       case LDFileFormat::Note:
       case LDFileFormat::MetaData:
-      case LDFileFormat::Exception:
       case LDFileFormat::Version:
         // ignore these sections
         continue;
@@ -92,7 +92,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     // write out sections with data
     switch(sect->kind()) {
       case LDFileFormat::Regular:
-      case LDFileFormat::Debug: {
+      case LDFileFormat::Debug:
+      case LDFileFormat::Exception: {
         emitSectionData(m_Linker.getLayout(), *sect, *region);
         break;
       }
