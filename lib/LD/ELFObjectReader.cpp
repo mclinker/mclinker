@@ -132,14 +132,19 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       /** normal sections **/
-      // FIXME: support Exception and Version Kinds
-      case LDFileFormat::Exception:
+      // FIXME: support Version Kinds
       case LDFileFormat::Version:
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
       case LDFileFormat::Debug:
       case LDFileFormat::MetaData: {
+        if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
+          fatal(diag::err_cannot_read_section) << (*section)->name();
+        break;
+      }
+      case LDFileFormat::Exception: {
+        //if (!m_pELFReader->readExceptionSection(pInput, m_Linker, **section))
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
@@ -186,8 +191,11 @@ bool ELFObjectReader::readSymbols(Input& pInput)
   assert(pInput.hasMemArea());
 
   LDSection* symtab_shdr = pInput.context()->getSection(".symtab");
+  if (NULL == symtab_shdr)
+    return false;
+
   LDSection* strtab_shdr = symtab_shdr->getLink();
-  if (NULL == symtab_shdr || NULL == strtab_shdr)
+  if (NULL == strtab_shdr)
     return false;
 
   MemoryRegion* symtab_region = pInput.memArea()->request(symtab_shdr->offset(),
