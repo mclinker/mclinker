@@ -514,6 +514,11 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     const LDSection& pSection,
                                     Relocation::Address pAddend)
 {
+  // if the symbol is in the discarded input section, then we also need to
+  // discard this relocation.
+  if (pSym.fragRef() == NULL && pResolveInfo.type() == ResolveInfo::Section)
+    return NULL;
+
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
                                                                 pFragmentRef,
                                                                 pAddend);
