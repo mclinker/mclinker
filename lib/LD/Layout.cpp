@@ -8,16 +8,15 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/ADT/Twine.h>
-#include <llvm/Support/ErrorHandling.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <cassert>
 
 using namespace mcld;
