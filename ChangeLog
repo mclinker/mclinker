@@ -1,3 +1,43 @@
+2012-05-23 Diana Chen <mysekki@gmail.com>
+	* Executive Summary:
+	1. Support static link of Itanium exception handling (examined on X86
+	Android).
+	2. Enhance GNU ld compatibility.
+	3. Support special option --portable.
+	4. Successfully examine executable files emission for X86 machine.
+
+	* LD/ELFDynObjWriter, ELFExecWriter, MC/MCLinker:
+	Support static link of Itanium exception handling.
+
+	* MC/MCLDOptions, MC/MCLDInfo, MC/MCLinker.tcc, llvm-mcld.cpp:
+	1. Support command line option --wrap
+	2. Support command line option --portable
+	3. Support command line options --allow-multiple-definition and
+	--no-undefined
+
+	* Target/X86LDBackend, Target/X86RelocationFactory, Target/X86PLT:
+	Executable files generagtion for X86
+	1. Enhance the relocation function for R_386_PC32.
+	2. Add function to apply PLT for emitting executable files.
+
+	* test/Symbols, test/Commands, test/Exceptions:
+	1. Add regression tests for new supported command line options.
+	2. Add regression tests for exception handling support.
+
+	* LD/TextDiagnosticPrinter, Support/FileSystem, Support/MsgHandling,
+	mcld/LD/MsgHandler, llvm-mcld.cpp, Support/raw_ostream:
+	Implement the expressive Diagnostic System.
+	1. Implement beginInput/endInput of TextDiagnosticPrinter
+	2. Add new expressive diagnostic output: unreachable
+	3. Use llvm approach instead of mcld::isatty()
+	4. Add mcld::raw_fd_ostream for better color-control.
+
+	* LD/Layout, Target/ARMRelocationFactory, Target/X86RelocationFactory,
+	Target/MipsRelocationFactory, Target/ARMGOT, Target/X86GOT, Target/MipsGOT,
+	Target/ARMPLT, Target/X86PLT, Target/X86GOTPLT, LD/ELFObjectReader
+	LD/ELFReader, LD/GNUArchiveReader, MC/MCLDAttribute, MC/MCLDDriver:
+	Use the expressive Diagnostic System to report the error message.
+
 2012-05-11 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	In this version: flames, we add the following new features in MCLinker:
@@ -65,14 +105,14 @@
 	  LD/ELFExecFileFormat:
 	Support setting alignment constraint in section header.
 	* LD/Layout:
-	Update sections' alignment constraints during section merging. 
+	Update sections' alignment constraints during section merging.
 
 	* Support/MemoryArea, Support/MemoryRegion:
-	Enhance memory utilities. 
+	Enhance memory utilities.
 
 	* Target/ARMLDBackend:
 	1. work around ARM.exidx and ARM.extab.
-	2. add relocation supports - R_ARM_TARGET1, R_ARM_TARGET2, R_ARM_ABS32, 
+	2. add relocation supports - R_ARM_TARGET1, R_ARM_TARGET2, R_ARM_ABS32,
 	R_ARM_BASE_PREL, and R_ARM_GOT_PREL
 
 	* Target/MipsLDBackend:
@@ -116,7 +156,7 @@
 	* MC/MCLinker, LD/ELFObjectReader, LD/ELFObjectWriter:
 	Support symbol visibility.
 
-	* LD/LDSection: Separate LinkInfo into Link and Info. 
+	* LD/LDSection: Separate LinkInfo into Link and Info.
 
 	* LD/Relocation:
 	In order to enhance memory footprints:

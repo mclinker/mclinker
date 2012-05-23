@@ -24,10 +24,10 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 
 ####################
 #  Versioning, see VERSION
-MAJOR=0
-MINOR=2
-MICRO=13
-AGE=1
+MAJOR=1
+MINOR=3
+MICRO=14
+AGE=2
 BUILD=flames
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
