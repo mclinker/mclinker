@@ -19,3 +19,6 @@ DIAG(err_unsupported_add_needed, DiagnosticEngine::Error, "Target doest not supp
 DIAG(err_unsupported_Bdynamic, DiagnosticEngine::Error, "Target does not support --Bdynamic", "Target does not support --Bdynamic")
 DIAG(err_enable_as_needed_on_static_system, DiagnosticEngine::Warning, "can not enable --as-needed on the target which does not support shared objects", "can not enable --as-needed on the target which does not support shared objects")
 DIAG(err_mix_static_as_needed, DiagnosticEngine::Warning, "cannot mix --static with --as-needed", "cannot mix --static with --as-needed")
+DIAG(err_cannot_change_file_size, DiagnosticEngine::Error, "cannot truncate file `%0' to size %1", "cannot truncate ffile `%0' to size %1")
+DIAG(err_cannot_mmap_file, DiagnosticEngine::Error, "cannot open memory mapped file %0.\n%1", "cannot open memoory mpped file %0.\n%1")
+DIAG(err_cannot_read_file, DiagnosticEngine::Error, "cannot read file %0.\n%1", "cannot read file %0.\n%1")

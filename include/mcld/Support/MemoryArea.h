@@ -58,10 +58,10 @@ friend class mcldtest::MemoryAreaTest;
 public:
   enum IOState
   {
-    GoodBit    = 0,
-    BadBit     = 1L << 0,
-    EOFBit     = 1L << 1,
-    FailBit    = 1L << 2,
+    GoodBit    = 0,       // no error
+    BadBit     = 1L << 0, // fail on the Space
+    EOFBit     = 1L << 1, // reached End-Of-File
+    FailBit    = 1L << 2, // internal logic fail
     IOStateEnd = 1L << 16
   };
 
@@ -249,6 +249,8 @@ private:
   int m_FileDescriptor;
   size_t m_FileSize;
   int m_AccessFlags;
+
+  // 
   int m_State;
 
   SpaceList m_SpaceList;

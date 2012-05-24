@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ErrorHandling.h>
 #include <llvm/ADT/Twine.h>
 
 #include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MsgHandling.h>
 
 #include <cerrno>
 #include <fcntl.h>
@@ -45,13 +45,8 @@ void MemoryArea::truncate(size_t pLength)
   if (!isWritable())
     return;
 
-  if (-1 == ::ftruncate(m_FileDescriptor, static_cast<off_t>(pLength))) {
-    llvm::report_fatal_error(llvm::Twine("Cannot truncate `") +
-                             m_FilePath.native() +
-                             llvm::Twine("' to size: ") +
-                             llvm::Twine(pLength) +
-                             llvm::Twine(".\n"));
-  }
+  if (-1 == ::ftruncate(m_FileDescriptor, static_cast<off_t>(pLength)))
+    error(diag::err_cannot_change_file_size) << m_FilePath << pLength;
 }
 
 void MemoryArea::map(const sys::fs::Path& pPath, int pFlags)
@@ -232,11 +227,8 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
                                        space->file_offset);
 
         if (space->data == MAP_FAILED) {
-          llvm::report_fatal_error(llvm::Twine("cannot open memory map file :") +
-                                   m_FilePath.native() +
-                                   llvm::Twine(" (") +
-                                   sys::fs::detail::strerror(errno) +
-                                   llvm::Twine(").\n"));
+          error(diag::err_cannot_mmap_file)
+                  << m_FilePath << sys::fs::detail::strerror(errno);
         }
 
         r_start = space->data + (pOffset - space->file_offset);
@@ -250,22 +242,12 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
         if ((m_AccessFlags & AccessMask) != WriteOnly) {
           // Read data from the backend file.
           if (!read(*space)) {
-            llvm::report_fatal_error(llvm::Twine("Failed to read data from ") +
-                                     m_FilePath.native() +
-                                     llvm::Twine(" (") +
-                                     sys::fs::detail::strerror(errno) +
-                                     llvm::Twine(") at offset ") +
-                                     llvm::Twine(pOffset) +
-                                     llvm::Twine(" lenght ") +
-                                     llvm::Twine(pLength) + llvm::Twine(".\n"));
+            error(diag::err_cannot_read_file) << m_FilePath << strerror(errno);
           }
         }
         break;
-      } // case
-      default: {
-        llvm::report_fatal_error("unhandled space type\n");
       }
-    } // switch
+    } // end of switch
   }
   else { // found
     off_t distance = pOffset - space->file_offset;
