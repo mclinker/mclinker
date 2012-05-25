@@ -530,7 +530,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   m_Backend.scanRelocation(*relocation, pSym, *this, m_Info,
                            m_Info.output(), pSection);
 
-  if (pResolveInfo.isUndef()) {
+  if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak()) {
     fatal(diag::undefined_reference) << pResolveInfo.name();
   }
   return relocation;
