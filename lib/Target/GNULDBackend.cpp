@@ -898,7 +898,7 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
-  
+
   for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
     if (ResolveInfo::Common == (*com_sym)->desc()) {
       // We have to reset the description of the symbol here. When doing
@@ -1357,7 +1357,7 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
                                   const MCLDInfo& pLDInfo,
                                   const Output& pOutput) const
 {
-  if (pSym.isUndef() && pOutput.type() != Output::DynObj)
+  if (pSym.isUndef() && !pSym.isDyn() && pOutput.type() != Output::DynObj)
     return false;
 
   if (pSym.type() != ResolveInfo::Function)
@@ -1379,7 +1379,9 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
                                      const Output& pOutput,
                                      bool isAbsReloc) const
 {
-  if (pSym.isUndef() && (Output::Exec == pOutput.type()))
+  // an undefined symbol from the executables should be statically
+  // resolved to 0 and no need a dynamic relocation
+  if (pSym.isUndef() && !pSym.isDyn() && (Output::Exec == pOutput.type()))
     return false;
   if (pSym.isAbsolute())
     return false;

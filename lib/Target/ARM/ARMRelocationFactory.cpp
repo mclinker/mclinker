@@ -94,7 +94,7 @@ static RelocationFactory::DWord getThumbBit(const Relocation& pReloc)
   // Set thumb bit if
   // - symbol has type of STT_FUNC, is defined and with bit 0 of its value set
   RelocationFactory::DWord thumbBit =
-       ((!pReloc.symInfo()->isUndef()) &&
+       ((!pReloc.symInfo()->isUndef() || pReloc.symInfo()->isDyn()) &&
         (pReloc.symInfo()->type() == ResolveInfo::Function) &&
         ((pReloc.symValue() & 0x1) != 0))?
         1:0;
@@ -133,10 +133,10 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() ||
-     pSym.isUndef() ||
-     pFactory.getTarget().isSymbolPreemptible(pSym,
-                                              pLDInfo,
-                                              pLDInfo.output()))
+      pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym,
+                                               pLDInfo,
+                                               pLDInfo.output()))
     return false;
   return true;
 }
@@ -529,7 +529,9 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   // If target is undefined weak symbol, we only need to jump to the
   // next instruction unless it has PLT entry. Rewrite instruction
   // to NOP.
-  if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
+  if (pReloc.symInfo()->isWeak() &&
+      pReloc.symInfo()->isUndef() &&
+      !pReloc.symInfo()->isDyn() &&
       !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
     // change target to NOP : mov r0, r0
     pReloc.target() = (pReloc.target() & 0xf0000000U) | 0x01a00000;
@@ -577,7 +579,9 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   // If target is undefined weak symbol, we only need to jump to the
   // next instruction unless it has PLT entry. Rewrite instruction
   // to NOP.
-  if (pReloc.symInfo()->isWeak() && pReloc.symInfo()->isUndef() &&
+  if (pReloc.symInfo()->isWeak() &&
+      pReloc.symInfo()->isUndef() &&
+      !pReloc.symInfo()->isDyn() &&
       !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
     pReloc.target() = (0xe000U << 16) | 0xbf00U;
     return ARMRelocationFactory::OK;
