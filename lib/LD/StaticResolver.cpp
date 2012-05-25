@@ -32,8 +32,8 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
   static const enum LinkAction link_action[LAST_ORD][LAST_ORD] =
   {
     /* new\old  U       w_U     d_U    wd_U   D      w_D    d_D    wd_D   C      w_C,   Cs,    Is   */
-    /* U    */ {NOACT,  UND,    UND,   UND,   NOACT, NOACT, DUND,  DUNDW, NOACT, NOACT, NOACT, REFC },
-    /* w_U  */ {NOACT,  NOACT,  NOACT, WEAK,  NOACT, NOACT, DUND,  DUNDW, NOACT, NOACT, NOACT, REFC },
+    /* U    */ {NOACT,  UND,    UND,   UND,   NOACT, NOACT, DUND,  DUND, NOACT, NOACT, NOACT, REFC },
+    /* w_U  */ {NOACT,  NOACT,  NOACT, WEAK,  NOACT, NOACT, DUNDW, DUNDW, NOACT, NOACT, NOACT, REFC },
     /* d_U  */ {NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
     /* wd_U */ {NOACT,  NOACT,  NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, NOACT, REFC },
     /* D    */ {DEF,    DEF,    DEF,   DEF,   MDEF,  DEF,   DEF,   DEF,   CDEF,  CDEF,  CDEF,  MDEF },
@@ -103,11 +103,9 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       case DUND:
       case DUNDW: {
-        if (old->binding() == ResolveInfo::Weak &&
-            pNew.binding() != ResolveInfo::Weak) {
-          old->setBinding(pNew.binding());
-        }
+        old->override(pNew);
         old->overrideVisibility(pNew);
+        old->setDynamic();
         pOverride = false;
         break;
       }
