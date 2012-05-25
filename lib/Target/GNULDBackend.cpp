@@ -1379,7 +1379,7 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
                                      const Output& pOutput,
                                      bool isAbsReloc) const
 {
-  // an undefined symbol from the executables should be statically
+  // an undefined reference in the executables should be statically
   // resolved to 0 and no need a dynamic relocation
   if (pSym.isUndef() && !pSym.isDyn() && (Output::Exec == pOutput.type()))
     return false;
