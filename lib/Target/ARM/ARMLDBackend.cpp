@@ -85,12 +85,12 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
  // them from input
   m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
-                                                      LDFileFormat::Exception,
+                                                      LDFileFormat::Target,
                                                       llvm::ELF::SHT_ARM_EXIDX,
                                                       llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
                                                       bitclass() / 8);
   m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
-                                                      LDFileFormat::Exception,
+                                                      LDFileFormat::Target,
                                                       llvm::ELF::SHT_PROGBITS,
                                                       llvm::ELF::SHF_ALLOC,
                                                       0x1);
@@ -904,6 +904,11 @@ ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 
   if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;
+
+  if (&pSectHdr == m_pEXIDX || &pSectHdr == m_pEXTAB) {
+    // put ARM.exidx and ARM.extab in the same order of .eh_frame
+    return SHO_EXCEPTION;
+  }
 
   return SHO_UNDEFINED;
 }
