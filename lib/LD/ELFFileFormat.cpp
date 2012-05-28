@@ -194,17 +194,12 @@ void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   f_pEhFrame        = &pLinker.getOrCreateOutputSectHdr(".eh_frame",
-                                              LDFileFormat::Exception,
-                                              llvm::ELF::SHT_PROGBITS,
-                                              llvm::ELF::SHF_ALLOC,
-                                              0x1);
-  f_pEhFrameHdr     = &pLinker.getOrCreateOutputSectHdr(".eh_frame_hdr",
-                                              LDFileFormat::Exception,
+                                              LDFileFormat::EhFrame,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
   f_pGCCExceptTable = &pLinker.getOrCreateOutputSectHdr(".gcc_except_table",
-                                              LDFileFormat::Exception,
+                                              LDFileFormat::GCCExceptTable,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
