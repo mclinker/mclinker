@@ -50,7 +50,8 @@ GeneralOptions::GeneralOptions()
     m_bOrigin(false),
     m_CommPageSize(0x0),
     m_MaxPageSize(0x0),
-    m_bAllowShlibUndefined(true)
+    m_bAllowShlibUndefined(true),
+    m_bCreateEhFrameHdr(false)
 {
 }
 

@@ -338,6 +338,11 @@ ArgAllowMulDefs("allow-multiple-definition",
                 cl::desc("Allow multiple definition"),
                 cl::init(false));
 
+static cl::opt<bool>
+ArgEhFrameHdr("eh-frame-hdr",
+              cl::desc("Request creation of \".eh_frame_hdr\" section and ELF \"PT_GNU_EH_FRAME\" segment header."),
+              cl::init(false));
+
 static cl::list<mcld::ZOption, bool, llvm::cl::parser<mcld::ZOption> >
 ArgZOptionList("z",
                cl::ZeroOrMore,
@@ -694,6 +699,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   pOption.info().options().setDyld(ArgDyld);
   pOption.info().options().setNoUndefined(ArgNoUndefined);
   pOption.info().options().setMulDefs(ArgAllowMulDefs);
+  pOption.info().options().setEhFrameHdr(ArgEhFrameHdr);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

@@ -157,6 +157,9 @@ public:
   void setMulDefs(bool pEnable = false)
   { m_bMulDefs = pEnable; }
 
+  void setEhFrameHdr(bool pEnable = true)
+  { m_bCreateEhFrameHdr = pEnable; }
+
   ///  -----  the -z options  -----  ///
   void addZOption(const mcld::ZOption& pOption);
 
@@ -214,6 +217,9 @@ public:
   uint64_t maxPageSize() const
   { return m_MaxPageSize; }
 
+  bool hasEhFrameHdr() const
+  { return m_bCreateEhFrameHdr; }
+
 private:
   enum status {
     YES,
@@ -254,6 +260,7 @@ private:
   bool m_bPIE           : 1;
   bool m_bColor         : 1;   // --color[=true,false,auto]
   bool m_bAllowShlibUndefined : 1; // --[no-]allow-shlib-undefined and
+  bool m_bCreateEhFrameHdr : 1;    // --eh-frame-hdr
 };
 
 } // namespace of mcld
