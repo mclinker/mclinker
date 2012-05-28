@@ -71,7 +71,7 @@ protected:
     SHO_TEXT,                // .text
     SHO_FINI,                // .fini
     SHO_RO,                  // .rodata
-    SHO_EHFRAME,             // .eh_frame_hdr, .eh_frame
+    SHO_EXCEPTION,           // .eh_frame_hdr, .eh_frame, .gcc_except_table
     SHO_TLS_DATA,            // .tdata
     SHO_TLS_BSS,             // .tbss
     SHO_RELRO_LOCAL,         // .data.rel.ro.local

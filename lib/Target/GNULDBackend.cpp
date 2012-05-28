@@ -776,8 +776,10 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
     case LDFileFormat::Note:
       return SHO_INTERP;
 
-    case LDFileFormat::Exception:
-      return SHO_EHFRAME;
+    case LDFileFormat::EhFrame:
+    case LDFileFormat::EhFrameHdr:
+    case LDFileFormat::GCCExceptTable:
+      return SHO_EXCEPTION;
 
     case LDFileFormat::MetaData:
     case LDFileFormat::Debug:
