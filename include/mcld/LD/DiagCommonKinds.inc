@@ -22,3 +22,4 @@ DIAG(err_mix_static_as_needed, DiagnosticEngine::Warning, "cannot mix --static w
 DIAG(err_cannot_change_file_size, DiagnosticEngine::Error, "cannot truncate file `%0' to size %1", "cannot truncate ffile `%0' to size %1")
 DIAG(err_cannot_mmap_file, DiagnosticEngine::Error, "cannot open memory mapped file %0.\n%1", "cannot open memoory mpped file %0.\n%1")
 DIAG(err_cannot_read_file, DiagnosticEngine::Error, "cannot read file %0.\n%1", "cannot read file %0.\n%1")
+DIAG(warn_illegal_input_section, DiagnosticEngine::Warning, "section `%0' should not appear in input file `%1': %2", "section `%0' should not appear in input file `%1': %2")

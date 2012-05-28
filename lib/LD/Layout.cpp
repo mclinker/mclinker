@@ -555,6 +555,9 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::MetaData:
       case LDFileFormat::BSS:
       case LDFileFormat::Debug:
+      case LDFileFormat::EhFrame:
+      case LDFileFormat::EhFrameHdr:
+      case LDFileFormat::GCCExceptTable:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
               !sect->getSectionData()->getFragmentList().empty()) {
@@ -584,20 +587,6 @@ bool Layout::layout(Output& pOutput,
           ;
         }
         break;
-      case LDFileFormat::Exception:
-        if (0 != sect->size()) {
-          warning(diag::unsupported_exception) << sect->name();
-          if (NULL != sect->getSectionData() &&
-              !sect->getSectionData()->getFragmentList().empty()) {
-            // make sure that all fragments are valid
-            llvm::MCFragment& frag =
-              sect->getSectionData()->getFragmentList().back();
-            setFragmentLayoutOrder(&frag);
-            setFragmentLayoutOffset(&frag);
-          }
-          m_SectionOrder.push_back(sect);
-        }
-        break;
       case LDFileFormat::Version:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
@@ -605,7 +594,9 @@ bool Layout::layout(Output& pOutput,
         }
         break;
       default:
-        error(diag::unsupported_section) << sect->name() << sect->kind();
+        if (0 != sect->size()) {
+          error(diag::unsupported_section) << sect->name() << sect->kind();
+        }
         break;
     }
   }

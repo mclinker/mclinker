@@ -143,7 +143,8 @@ bool ELFObjectReader::readSections(Input& pInput)
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
-      case LDFileFormat::Exception: {
+      case LDFileFormat::EhFrame:
+      case LDFileFormat::GCCExceptTable: {
         //if (!m_pELFReader->readExceptionSection(pInput, m_Linker, **section))
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
           fatal(diag::err_cannot_read_section) << (*section)->name();
@@ -178,7 +179,14 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Null:
       case LDFileFormat::NamePool:
         continue;
-
+      // warning
+      case LDFileFormat::EhFrameHdr:
+      default: {
+        warning(diag::warn_illegal_input_section) << (*section)->name()
+                                                  << pInput.name()
+                                                  << pInput.path();
+        break;
+      }
     }
   } // end of for all sections
 

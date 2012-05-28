@@ -39,10 +39,12 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
     return LDFileFormat::MetaData;
   if (name.startswith(".interp") || name.startswith(".dynamic"))
     return LDFileFormat::Note;
-  if (name.startswith(".eh_frame") ||
-      name.startswith(".eh_frame_hdr") ||
-      name.startswith(".gcc_except_table"))
-    return LDFileFormat::Exception;
+  if (name.startswith(".eh_frame"))
+    return LDFileFormat::EhFrame;
+  if (name.startswith(".eh_frame_hdr"))
+    return LDFileFormat::EhFrameHdr;
+  if (name.startswith(".gcc_except_table"))
+    return LDFileFormat::GCCExceptTable;
 
   // type rules
   switch(pType) {
