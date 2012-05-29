@@ -1,7 +1,7 @@
-; RUN: cp %p/true_f.s ./true_f.ll
+; RUN: cp %p/true_f.s %t.ll
 
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
-; RUN: -filetype=obj -fPIC -dB ./true_f.ll -o %t.1.o
+; RUN: -filetype=obj -fPIC -dB %t.ll -o %t.1.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -fPIC -dB %s -o %t.2.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
