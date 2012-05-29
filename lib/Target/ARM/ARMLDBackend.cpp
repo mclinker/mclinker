@@ -42,17 +42,17 @@ ARMGNULDBackend::ARMGNULDBackend()
 
 ARMGNULDBackend::~ARMGNULDBackend()
 {
-  if (m_pRelocFactory)
+  if (NULL != m_pRelocFactory)
     delete m_pRelocFactory;
-  if (m_pGOT)
+  if (NULL != m_pGOT)
     delete m_pGOT;
-  if (m_pPLT)
+  if (NULL != m_pPLT)
     delete m_pPLT;
-  if (m_pRelDyn)
+  if (NULL != m_pRelDyn)
     delete m_pRelDyn;
-  if (m_pRelPLT)
+  if (NULL != m_pRelPLT)
     delete m_pRelPLT;
-  if (m_pDynamic)
+  if (NULL != m_pDynamic)
     delete m_pDynamic;
 }
 
