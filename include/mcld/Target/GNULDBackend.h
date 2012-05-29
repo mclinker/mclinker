@@ -88,6 +88,9 @@ protected:
     SHO_UNDEFINED = ~(0U)    // default order
   };
 
+  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
+  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
+
 protected:
   GNULDBackend();
 
@@ -251,6 +254,58 @@ public:
   /// sections.
   /// Different concrete target backend may overlap this function.
   virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
+
+  /// isSymbolPreemtible - whether the symbol can be preemted by other
+  /// link unit
+  /// @ref Google gold linker, symtab.h:551
+  bool isSymbolPreemptible(const ResolveInfo& pSym,
+                           const MCLDInfo& pLDInfo,
+                           const Output& pOutput) const;
+
+protected:
+  uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
+
+  uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
+
+  uint64_t getSymbolValue(const LDSymbol& pSymbol) const;
+
+  uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
+
+  /// getHashBucketCount - calculate hash bucket count.
+  /// @ref Google gold linker, dynobj.cc:791
+  static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
+
+  /// isDynamicSymbol
+  /// @ref Google gold linker: symtab.cc:311
+  static bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput);
+
+  /// isOutputPIC - return whether the output is position-independent
+  bool isOutputPIC(const Output& pOutput, const MCLDInfo& pInfo) const;
+
+  /// isStaticLink - return whether we're doing static link
+  bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
+
+  /// symbolNeedsPLT - return whether the symbol needs a PLT entry
+  /// @ref Google gold linker, symtab.h:596
+  bool symbolNeedsPLT(const ResolveInfo& pSym,
+                      const MCLDInfo& pLDInfo,
+                      const Output& pOutput) const;
+
+  /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
+  /// @ref Google gold linker, symtab.h:645
+  bool symbolNeedsDynRel(const ResolveInfo& pSym,
+                         bool pSymHasPLT,
+                         const MCLDInfo& pLDInfo,
+                         const Output& pOutput,
+                         bool isAbsReloc) const;
+
+  /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
+  bool symbolNeedsCopyReloc(const Layout& pLayout,
+                            const Relocation& pReloc,
+                            const ResolveInfo& pSym,
+                            const MCLDInfo& pLDInfo,
+                            const Output& pOutput) const;
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Output& pOutput,
@@ -289,16 +344,6 @@ private:
                  const MCLDInfo& pInfo,
                  MCLinker& pLinker);
 
-protected:
-  uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
-
-  uint64_t getSymbolInfo(const LDSymbol& pSymbol) const;
-
-  uint64_t getSymbolValue(const LDSymbol& pSymbol) const;
-
-  uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
-
-private:
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(const Output& pOutput,
                          const MCLDInfo& pInfo,
@@ -314,42 +359,6 @@ private:
 
   /// dynamic - the dynamic section of the target machine.
   virtual const ELFDynamic& dynamic() const = 0;
-
-public:
-  /// isSymbolPreemtible - whether the symbol can be preemted by other
-  /// link unit
-  /// @ref Google gold linker, symtab.h:551
-  bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
-                           const Output& pOutput) const;
-
-protected:
-  /// isOutputPIC - return whether the output is position-independent
-  bool isOutputPIC(const Output& pOutput, const MCLDInfo& pInfo) const;
-
-  /// isStaticLink - return whether we're doing static link
-  bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
-
-  /// symbolNeedsPLT - return whether the symbol needs a PLT entry
-  /// @ref Google gold linker, symtab.h:596
-  bool symbolNeedsPLT(const ResolveInfo& pSym,
-                      const MCLDInfo& pLDInfo,
-                      const Output& pOutput) const;
-
-  /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
-  /// @ref Google gold linker, symtab.h:645
-  bool symbolNeedsDynRel(const ResolveInfo& pSym,
-                         bool pSymHasPLT,
-                         const MCLDInfo& pLDInfo,
-                         const Output& pOutput,
-                         bool isAbsReloc) const;
-
-  /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-  bool symbolNeedsCopyReloc(const Layout& pLayout,
-                            const Relocation& pReloc,
-                            const ResolveInfo& pSym,
-                            const MCLDInfo& pLDInfo,
-                            const Output& pOutput) const;
 
 protected:
   // ----- readers and writers ----- //
@@ -368,19 +377,6 @@ protected:
   ELFSegmentFactory m_ELFSegmentTable;
 
   // -----  ELF special sections  ----- //
-
-protected:
-  /// getHashBucketCount - calculate hash bucket count.
-  /// @ref Google gold linker, dynobj.cc:791
-  static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
-
-  /// isDynamicSymbol
-  /// @ref Google gold linker: symtab.cc:311
-  static bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput);
-
-protected:
-  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
-  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
 
   /// m_pSymIndexMap - Map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;
