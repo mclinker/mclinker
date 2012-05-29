@@ -17,6 +17,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLinker.h>
 #include <string>
 #include <cstring>
@@ -150,7 +151,7 @@ GNUArchiveReader *GNULDBackend::getArchiveReader()
   return m_pArchiveReader;
 }
 
-GNUArchiveReader *GNULDBackend::getArchiveReader() const
+const GNUArchiveReader *GNULDBackend::getArchiveReader() const
 {
   assert(0 != m_pArchiveReader);
   return m_pArchiveReader;
@@ -162,7 +163,7 @@ ELFObjectReader *GNULDBackend::getObjectReader()
   return m_pObjectReader;
 }
 
-ELFObjectReader *GNULDBackend::getObjectReader() const
+const ELFObjectReader *GNULDBackend::getObjectReader() const
 {
   assert(0 != m_pObjectReader);
   return m_pObjectReader;
@@ -174,7 +175,7 @@ ELFDynObjReader *GNULDBackend::getDynObjReader()
   return m_pDynObjReader;
 }
 
-ELFDynObjReader *GNULDBackend::getDynObjReader() const
+const ELFDynObjReader *GNULDBackend::getDynObjReader() const
 {
   assert(0 != m_pDynObjReader);
   return m_pDynObjReader;
@@ -186,7 +187,7 @@ ELFObjectWriter *GNULDBackend::getObjectWriter()
   return NULL;
 }
 
-ELFObjectWriter *GNULDBackend::getObjectWriter() const
+const ELFObjectWriter *GNULDBackend::getObjectWriter() const
 {
   // TODO
   return NULL;
@@ -198,7 +199,7 @@ ELFDynObjWriter *GNULDBackend::getDynObjWriter()
   return m_pDynObjWriter;
 }
 
-ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
+const ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
 {
   assert(0 != m_pDynObjWriter);
   return m_pDynObjWriter;
@@ -210,10 +211,40 @@ ELFExecWriter *GNULDBackend::getExecWriter()
   return m_pExecWriter;
 }
 
-ELFExecWriter *GNULDBackend::getExecWriter() const
+const ELFExecWriter *GNULDBackend::getExecWriter() const
 {
   assert(NULL != m_pExecWriter);
   return m_pExecWriter;
+}
+
+ELFFileFormat* GNULDBackend::getOutputFormat(const Output& pOutput)
+{
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      return getDynObjFileFormat();
+    case Output::Exec:
+      return getExecFileFormat();
+    // FIXME: We do not support building .o now
+    case Output::Object:
+    default:
+      fatal(diag::unrecognized_output_file) << pOutput.type();
+      return NULL;
+  }
+}
+
+const ELFFileFormat* GNULDBackend::getOutputFormat(const Output& pOutput) const
+{
+  switch (pOutput.type()) {
+    case Output::DynObj:
+      return getDynObjFileFormat();
+    case Output::Exec:
+      return getExecFileFormat();
+    // FIXME: We do not support building .o now
+    case Output::Object:
+    default:
+      fatal(diag::unrecognized_output_file) << pOutput.type();
+      return NULL;
+  }
 }
 
 ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
@@ -222,7 +253,7 @@ ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
   return m_pDynObjFileFormat;
 }
 
-ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat() const
+const ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat() const
 {
   assert(0 != m_pDynObjFileFormat);
   return m_pDynObjFileFormat;
@@ -234,7 +265,7 @@ ELFExecFileFormat* GNULDBackend::getExecFileFormat()
   return m_pExecFileFormat;
 }
 
-ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
+const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 {
   assert(0 != m_pExecFileFormat);
   return m_pExecFileFormat;
@@ -713,7 +744,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
 
   bool is_write = (pSectHdr.flag() & llvm::ELF::SHF_WRITE) != 0;
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
-  ELFFileFormat* file_format = NULL;
+  const ELFFileFormat* file_format = NULL;
   switch (pOutput.type()) {
     case Output::DynObj:
       file_format = getDynObjFileFormat();

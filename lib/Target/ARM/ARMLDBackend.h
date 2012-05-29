@@ -246,8 +246,6 @@ private:
 
   void createARMRelDyn(MCLinker& pLinker, const Output& pOutput);
 
-  ELFFileFormat* getOutputFormat(const Output& pOutput) const;
-
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

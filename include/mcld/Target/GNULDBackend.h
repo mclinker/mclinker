@@ -97,6 +97,7 @@ protected:
 public:
   virtual ~GNULDBackend();
 
+  // -----  readers/writers  ----- //
   bool initArchiveReader(MCLinker& pLinker, MCLDInfo& pInfo);
   bool initObjectReader(MCLinker& pLinker);
   bool initDynObjReader(MCLinker& pLinker);
@@ -104,34 +105,49 @@ public:
   bool initDynObjWriter(MCLinker& pLinker);
   bool initExecWriter(MCLinker& pLinker);
 
-  bool initExecSections(MCLinker& pMCLinker);
-  bool initDynObjSections(MCLinker& pMCLinker);
-
-  bool initStandardSymbols(MCLinker& pLinker);
-
   GNUArchiveReader *getArchiveReader();
-  GNUArchiveReader *getArchiveReader() const;
+  const GNUArchiveReader *getArchiveReader() const;
 
   ELFObjectReader *getObjectReader();
-  ELFObjectReader *getObjectReader() const;
+  const ELFObjectReader *getObjectReader() const;
 
   ELFDynObjReader *getDynObjReader();
-  ELFDynObjReader *getDynObjReader() const;
+  const ELFDynObjReader *getDynObjReader() const;
 
   ELFObjectWriter *getObjectWriter();
-  ELFObjectWriter *getObjectWriter() const;
+  const ELFObjectWriter *getObjectWriter() const;
 
   ELFDynObjWriter *getDynObjWriter();
-  ELFDynObjWriter *getDynObjWriter() const;
+  const ELFDynObjWriter *getDynObjWriter() const;
 
   ELFExecWriter *getExecWriter();
-  ELFExecWriter *getExecWriter() const;
+  const ELFExecWriter *getExecWriter() const;
+
+  // -----  output sections  ----- //
+  /// initExecSections - initialize sections of the output executable file.
+  bool initExecSections(MCLinker& pMCLinker);
+
+  /// initDynObjSections - initialize sections of the output shared object.
+  bool initDynObjSections(MCLinker& pMCLinker);
+
+  /// getOutputFormat - get the sections of the output file.
+  ELFFileFormat* getOutputFormat(const Output& pOutput);
+  const ELFFileFormat* getOutputFormat(const Output& pOutput) const;
 
   ELFDynObjFileFormat* getDynObjFileFormat();
-  ELFDynObjFileFormat* getDynObjFileFormat() const;
+  const ELFDynObjFileFormat* getDynObjFileFormat() const;
 
   ELFExecFileFormat* getExecFileFormat();
-  ELFExecFileFormat* getExecFileFormat() const;
+  const ELFExecFileFormat* getExecFileFormat() const;
+
+  /// initStandardSymbols - initialize standard symbols.
+  /// Some section symbols is undefined in input object, and linkers must set
+  /// up its value. Take __init_array_begin for example. This symbol is an
+  /// undefined symbol in input objects. MCLinker must finalize its value
+  /// to the begin of the .init_array section, then relocation enties to
+  /// __init_array_begin can be applied without emission of "undefined
+  /// reference to `__init_array_begin'".
+  bool initStandardSymbols(MCLinker& pLinker);
 
   size_t sectionStartOffset() const;
 

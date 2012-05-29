@@ -159,8 +159,6 @@ private:
   void createGOT(MCLinker& pLinker, const Output& pOutput);
   void createRelDyn(MCLinker& pLinker, const Output& pOutput);
 
-  ELFFileFormat* getOutputFormat(const Output& pOutput) const;
-
   /// updateAddend - update addend value of the relocation if the
   /// the target symbol is a section symbol. Addend is the offset
   /// in the section. This value should be updated after section

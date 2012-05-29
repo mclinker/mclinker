@@ -254,7 +254,7 @@ uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSection == &(file_format->getGOT())) {
     assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
@@ -486,7 +486,7 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                         const LDSection& pSectHdr,
                                         const MCLDInfo& pInfo) const
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT())
     return SHO_DATA;
@@ -893,21 +893,6 @@ void MipsGNULDBackend::createRelDyn(MCLinker& pLinker, const Output& pOutput)
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
-}
-
-ELFFileFormat* MipsGNULDBackend::getOutputFormat(const Output& pOutput) const
-{
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      return getDynObjFileFormat();
-    case Output::Exec:
-      return getExecFileFormat();
-    case Output::Object:
-      return NULL;
-    default:
-      fatal(diag::unrecognized_output_file) << pOutput.type();
-      return NULL;
-  }
 }
 
 //===----------------------------------------------------------------------===//

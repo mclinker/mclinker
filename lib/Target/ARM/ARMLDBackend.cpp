@@ -131,7 +131,7 @@ void ARMGNULDBackend::doPostLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
                                    MCLinker& pLinker)
 {
-  ELFFileFormat *file_format = getOutputFormat(pOutput);
+  const ELFFileFormat *file_format = getOutputFormat(pOutput);
 
   // apply PLT
   if (file_format->hasPLT()) {
@@ -238,21 +238,6 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
-}
-
-ELFFileFormat* ARMGNULDBackend::getOutputFormat(const Output& pOutput) const
-{
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      return getDynObjFileFormat();
-    case Output::Exec:
-      return getExecFileFormat();
-    // FIXME: We do not support building .o now
-    case Output::Object:
-    default:
-      fatal(diag::unrecognized_output_file) << pOutput.type();
-      return NULL;
-  }
 }
 
 void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
@@ -771,7 +756,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSection == m_pAttributes) {
     // FIXME: Currently Emitting .ARM.attributes directly from the input file.
@@ -894,7 +879,7 @@ ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
                                        const MCLDInfo& pInfo) const
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT()) {
     if (pInfo.options().hasNow())

@@ -165,21 +165,6 @@ void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
                                      8);
 }
 
-ELFFileFormat* X86GNULDBackend::getOutputFormat(const Output& pOutput) const
-{
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      return getDynObjFileFormat();
-    case Output::Exec:
-      return getExecFileFormat();
-    // FIXME: We do not support building .o now
-    case Output::Object:
-    default:
-      fatal(diag::unrecognized_output_file) << pOutput.type();
-      return NULL;
-  }
-}
-
 void X86GNULDBackend::updateAddend(Relocation& pReloc,
                                    const LDSymbol& pInputSym,
                                    const Layout& pLayout) const
@@ -433,7 +418,7 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  ELFFileFormat* FileFormat = getOutputFormat(pOutput);
+  const ELFFileFormat* FileFormat = getOutputFormat(pOutput);
   assert(FileFormat &&
          "ELFFileFormat is NULL in X86GNULDBackend::emitSectionData!");
 
@@ -549,7 +534,7 @@ X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
                                        const MCLDInfo& pInfo) const
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT()) {
     if (pInfo.options().hasNow())
