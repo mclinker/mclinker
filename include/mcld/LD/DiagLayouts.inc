@@ -1,3 +1,3 @@
 DIAG(warn_unsupported_exception, DiagnosticEngine::Warning, "Exception handling has not been fully supported yet.\nsection `%0'.", "Exception handling has not been fully supported yet.\nsection `%0'.")
 DIAG(warn_unsupported_symbolic_versioning, DiagnosticEngine::Warning, "Symbolic versioning has not been fully supported yet.\nsection `%0'.", "Symbolic versioning has not been fully supported yet.\nsection `%0'")
-DIAG(err_section_not_laid_out, DiagnosticEngine::Unreachable, "section %0 has not been laid out", "section %0 has not been laid out")
+DIAG(err_section_not_laid_out, DiagnosticEngine::Unreachable, "section %0 has not been laid out. Developers may use an output LDSection in Layout::getFragmentRef", "section %0 has not been laid out. Developers may use an output LDSection in Layout::getFragmentRef")
