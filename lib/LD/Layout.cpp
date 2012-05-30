@@ -415,9 +415,7 @@ Layout::getFragmentRef(const LDSection& pInputSection, uint64_t pOffset)
 
   // range not found
   if (range == rangeEnd) {
-    llvm::report_fatal_error(llvm::Twine("section ") +
-                             pInputSection.name() +
-                             llvm::Twine(" never be in the range list.\n"));
+    fatal(diag::err_section_not_laid_out) << pInputSection.name();
   }
 
   return getFragmentRef(*range, pOffset);
@@ -590,12 +588,12 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::Version:
         if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
-          warning(diag::unsupported_symbolic_versioning) << sect->name();
+          warning(diag::warn_unsupported_symbolic_versioning) << sect->name();
         }
         break;
       default:
         if (0 != sect->size()) {
-          error(diag::unsupported_section) << sect->name() << sect->kind();
+          error(diag::err_unsupported_section) << sect->name() << sect->kind();
         }
         break;
     }
