@@ -164,7 +164,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   MCFragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
     preinit_array = pLinker.getLayout().getFragmentRef(
-                                         file_format->getPreInitArray(), 0x0);
+                   *(file_format->getPreInitArray().getSectionData()->begin()),
+                   0x0);
   }
   f_pPreInitArrayStart =
      pLinker.defineSymbol<MCLinker::AsRefered,
@@ -193,7 +194,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   MCFragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
     init_array = pLinker.getLayout().getFragmentRef(
-                                         file_format->getInitArray(), 0x0);
+                      *(file_format->getInitArray().getSectionData()->begin()),
+                      0x0);
   }
 
   f_pInitArrayStart =
@@ -223,7 +225,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   MCFragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
     fini_array = pLinker.getLayout().getFragmentRef(
-                                         file_format->getFiniArray(), 0x0);
+                     *(file_format->getFiniArray().getSectionData()->begin()),
+                     0x0);
   }
 
   f_pFiniArrayStart =
@@ -253,7 +256,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   MCFragmentRef* stack = NULL;
   if (file_format->hasStack()) {
     stack = pLinker.getLayout().getFragmentRef(
-                                         file_format->getStack(), 0x0);
+                          *(file_format->getStack().getSectionData()->begin()),
+                          0x0);
   }
   f_pStack =
      pLinker.defineSymbol<MCLinker::AsRefered,
