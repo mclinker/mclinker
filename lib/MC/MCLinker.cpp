@@ -605,12 +605,6 @@ bool MCLinker::finalizeSymbols()
   SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
   for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
 
-    if (0x0 != (*symbol)->resolveInfo()->reserved()) {
-      // if the symbol is target reserved, target backend is responsible
-      // for finalizing the value.
-      continue;
-    }
-
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
       // absolute symbols or symbols with function type should have
