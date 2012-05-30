@@ -55,7 +55,7 @@ public:
     Section       = 3,
     File          = 4,
     CommonBlock   = 5,
-    ThreadLocal    = 6,
+    ThreadLocal   = 6,
     LoProc        = 13,
     HiProc        = 15
   };
