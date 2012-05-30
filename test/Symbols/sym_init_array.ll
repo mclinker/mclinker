@@ -1,4 +1,4 @@
-; RUN: %MCLinker -z relro -march=x86 \
+; RUN: %MCLinker -z relro -march=x86 -mtriple=x86-linux-gnu \
 ; RUN: %p/../libs/X86/Linux/crt1.o %p/../libs/X86/Linux/crti.o \
 ; RUN: %p/main_empty.o %p/../libs/X86/Linux/libc_nonshared/elf-init.oS \
 ; RUN: %p/../libs/X86/Linux/crtn.o \
