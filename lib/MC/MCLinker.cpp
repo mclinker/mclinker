@@ -608,15 +608,12 @@ bool MCLinker::finalizeSymbols()
     if (0x0 != (*symbol)->resolveInfo()->reserved()) {
       // if the symbol is target reserved, target backend is responsible
       // for finalizing the value.
-      // if target backend does not know this symbol, it will return false
-      // and we have to take over the symbol.
-      if (m_Backend.finalizeSymbol(**symbol))
-        continue;
+      continue;
     }
 
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols and symbols with function type should have
+      // absolute symbols or symbols with function type should have
       // zero value
       (*symbol)->setValue(0x0);
       continue;
@@ -634,7 +631,8 @@ bool MCLinker::finalizeSymbols()
     }
   }
 
-  return true;
+  // finialize target-dependent symbols
+  return m_Backend.finalizeSymbols(*this, m_Info.output());
 }
 
 bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const

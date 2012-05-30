@@ -28,38 +28,53 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // GNULDBackend
 GNULDBackend::GNULDBackend()
-  : m_pArchiveReader(0),
-    m_pObjectReader(0),
-    m_pDynObjReader(0),
-    m_pObjectWriter(0),
-    m_pDynObjWriter(0),
-    m_pExecWriter(0),
-    m_pDynObjFileFormat(0),
-    m_pExecFileFormat(0),
-    m_ELFSegmentTable(9)// magic number
-{
+  : m_pArchiveReader(NULL),
+    m_pObjectReader(NULL),
+    m_pDynObjReader(NULL),
+    m_pObjectWriter(NULL),
+    m_pDynObjWriter(NULL),
+    m_pExecWriter(NULL),
+    m_pDynObjFileFormat(NULL),
+    m_pExecFileFormat(NULL),
+    m_ELFSegmentTable(9), // magic number
+    f_pPreInitArrayStart(NULL),
+    f_pPreInitArrayEnd(NULL),
+    f_pInitArrayStart(NULL),
+    f_pInitArrayEnd(NULL),
+    f_pFiniArrayStart(NULL),
+    f_pFiniArrayEnd(NULL),
+    f_pStack(NULL),
+    f_pExecutableStart(NULL),
+    f_pEText(NULL),
+    f_p_EText(NULL),
+    f_p__EText(NULL),
+    f_pEData(NULL),
+    f_p_EData(NULL),
+    f_pBSSStart(NULL),
+    f_pEnd(NULL),
+    f_p_End(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
 {
-  if (m_pArchiveReader)
+  if (NULL != m_pArchiveReader)
     delete m_pArchiveReader;
-  if (m_pObjectReader)
+  if (NULL != m_pObjectReader)
     delete m_pObjectReader;
-  if (m_pDynObjReader)
+  if (NULL != m_pDynObjReader)
     delete m_pDynObjReader;
-  if (m_pObjectWriter)
+  if (NULL != m_pObjectWriter)
     delete m_pObjectWriter;
-  if (m_pDynObjWriter)
+  if (NULL != m_pDynObjWriter)
     delete m_pDynObjWriter;
-  if (m_pExecWriter)
+  if (NULL != m_pExecWriter)
     delete m_pExecWriter;
-  if (m_pDynObjFileFormat)
+  if (NULL != m_pDynObjFileFormat)
     delete m_pDynObjFileFormat;
-  if (m_pExecFileFormat)
+  if (NULL != m_pExecFileFormat)
     delete m_pExecFileFormat;
-  if(m_pSymIndexMap)
+  if(NULL != m_pSymIndexMap)
     delete m_pSymIndexMap;
 }
 
@@ -140,8 +155,391 @@ bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
   return true;
 }
 
-bool GNULDBackend::initStandardSymbols(MCLinker& pLinker)
+bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 {
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  // -----  section symbols  ----- //
+  // .preinit_array
+  MCFragmentRef* preinit_array = NULL;
+  if (file_format->hasPreInitArray()) {
+    preinit_array = pLinker.getLayout().getFragmentRef(
+                                         file_format->getPreInitArray(), 0x0);
+  }
+  f_pPreInitArrayStart =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__preinit_array_start",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             preinit_array, // FragRef
+                                             ResolveInfo::Hidden);
+  f_pPreInitArrayEnd =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__preinit_array_end",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Hidden);
+
+  // .init_array
+  MCFragmentRef* init_array = NULL;
+  if (file_format->hasInitArray()) {
+    init_array = pLinker.getLayout().getFragmentRef(
+                                         file_format->getInitArray(), 0x0);
+  }
+
+  f_pInitArrayStart =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__init_array_start",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             init_array, // FragRef
+                                             ResolveInfo::Hidden);
+  f_pInitArrayEnd =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__init_array_end",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             init_array, // FragRef
+                                             ResolveInfo::Hidden);
+
+  // .fini_array
+  MCFragmentRef* fini_array = NULL;
+  if (file_format->hasFiniArray()) {
+    fini_array = pLinker.getLayout().getFragmentRef(
+                                         file_format->getFiniArray(), 0x0);
+  }
+
+  f_pFiniArrayStart =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__fini_array_start",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             fini_array, // FragRef
+                                             ResolveInfo::Hidden);
+  f_pFiniArrayEnd =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__fini_array_end",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             fini_array, // FragRef
+                                             ResolveInfo::Hidden);
+
+  // .stack
+  MCFragmentRef* stack = NULL;
+  if (file_format->hasStack()) {
+    stack = pLinker.getLayout().getFragmentRef(
+                                         file_format->getStack(), 0x0);
+  }
+  f_pStack =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__stack",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Global,
+                                             0x0, // size
+                                             0x0, // value
+                                             stack, // FragRef
+                                             ResolveInfo::Hidden);
+
+  // -----  segment symbols  ----- //
+  f_pExecutableStart =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__executable_start",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+  f_pEText =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("etext",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+  f_p_EText =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("_etext",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+  f_p__EText =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("__etext",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+  f_pEData =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("edata",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+
+  f_pEnd =
+     pLinker.defineSymbol<MCLinker::AsRefered,
+                          MCLinker::Resolve>("end",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+
+  // _edata is defined forcefully.
+  // @ref Google gold linker: defstd.cc: 186
+  f_p_EData =
+     pLinker.defineSymbol<MCLinker::Force,
+                          MCLinker::Resolve>("_edata",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+
+  // __bss_start is defined forcefully.
+  // @ref Google gold linker: defstd.cc: 214
+  f_pBSSStart =
+     pLinker.defineSymbol<MCLinker::Force,
+                          MCLinker::Resolve>("__bss_start",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+
+  // _end is defined forcefully.
+  // @ref Google gold linker: defstd.cc: 228
+  f_p_End =
+     pLinker.defineSymbol<MCLinker::Force,
+                          MCLinker::Resolve>("_end",
+                                             false, // isDyn
+                                             ResolveInfo::NoType,
+                                             ResolveInfo::Define,
+                                             ResolveInfo::Absolute,
+                                             0x0, // size
+                                             0x0, // value
+                                             NULL, // FragRef
+                                             ResolveInfo::Default);
+
+  return true;
+}
+
+bool
+GNULDBackend::finalizeStandardSymbols(MCLinker& pLinker, const Output& pOutput)
+{
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  // -----  section symbols  ----- //
+  if (NULL != f_pPreInitArrayStart) {
+    if (!f_pPreInitArrayStart->hasFragRef()) {
+      f_pPreInitArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pPreInitArrayStart->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pPreInitArrayEnd) {
+    if (f_pPreInitArrayEnd->hasFragRef()) {
+      f_pPreInitArrayEnd->setValue(f_pPreInitArrayEnd->value() +
+                                   file_format->getPreInitArray().size());
+    }
+    else {
+      f_pPreInitArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pPreInitArrayEnd->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pInitArrayStart) {
+    if (!f_pInitArrayStart->hasFragRef()) {
+      f_pInitArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pInitArrayStart->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pInitArrayEnd) {
+    if (f_pInitArrayEnd->hasFragRef()) {
+      f_pInitArrayEnd->setValue(f_pInitArrayEnd->value() +
+                                file_format->getInitArray().size());
+    }
+    else {
+      f_pInitArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pInitArrayEnd->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pFiniArrayStart) {
+    if (!f_pFiniArrayStart->hasFragRef()) {
+      f_pFiniArrayStart->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pFiniArrayStart->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pFiniArrayEnd) {
+    if (f_pFiniArrayEnd->hasFragRef()) {
+      f_pFiniArrayEnd->setValue(f_pFiniArrayEnd->value() +
+                                file_format->getFiniArray().size());
+    }
+    else {
+      f_pFiniArrayEnd->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pFiniArrayEnd->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pStack) {
+    if (!f_pStack->hasFragRef()) {
+      f_pStack->resolveInfo()->setBinding(ResolveInfo::Absolute);
+      f_pStack->setValue(0x0);
+    }
+  }
+
+  // -----  segment symbols  ----- //
+  if (NULL != f_pExecutableStart) {
+    ELFSegment* exec_start = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
+    if (NULL != exec_start) {
+      if (ResolveInfo::ThreadLocal != f_pExecutableStart->type()) {
+        f_pExecutableStart->setValue(f_pExecutableStart->value() +
+                                     exec_start->vaddr());
+      }
+    }
+    else
+      f_pExecutableStart->setValue(0x0);
+  }
+
+  if (NULL != f_pEText || NULL != f_p_EText || NULL !=f_p__EText) {
+    ELFSegment* etext = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+                                               llvm::ELF::PF_X,
+                                               llvm::ELF::PF_W);
+    if (NULL != etext) {
+      if (NULL != f_pEText && ResolveInfo::ThreadLocal != f_pEText->type()) {
+        f_pEText->setValue(f_pEText->value() +
+                           etext->vaddr() +
+                           etext->memsz());
+      }
+      if (NULL != f_p_EText && ResolveInfo::ThreadLocal != f_p_EText->type()) {
+        f_p_EText->setValue(f_p_EText->value() +
+                            etext->vaddr() +
+                            etext->memsz());
+      }
+      if (NULL != f_p__EText && ResolveInfo::ThreadLocal != f_p__EText->type()) {
+        f_p__EText->setValue(f_p__EText->value() +
+                            etext->vaddr() +
+                            etext->memsz());
+      }
+    }
+    else {
+      if (NULL != f_pEText)
+        f_pEText->setValue(0x0);
+      if (NULL != f_p_EText)
+        f_p_EText->setValue(0x0);
+      if (NULL != f_p__EText)
+        f_p__EText->setValue(0x0);
+    }
+  }
+
+  if (NULL != f_pEData || NULL != f_p_EData || NULL != f_pBSSStart ||
+      NULL != f_pEnd || NULL != f_p_End) {
+    ELFSegment* edata = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+                                               llvm::ELF::PF_W,
+                                               0x0);
+    if (NULL != edata) {
+      if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
+        f_pEData->setValue(f_pEData->value() +
+                            edata->vaddr() +
+                            edata->filesz());
+      }
+      if (NULL != f_p_EData && ResolveInfo::ThreadLocal != f_p_EData->type()) {
+        f_p_EData->setValue(f_p_EData->value() +
+                            edata->vaddr() +
+                            edata->filesz());
+      }
+      if (NULL != f_pBSSStart && ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
+        f_pBSSStart->setValue(f_pBSSStart->value() +
+                              edata->vaddr() +
+                              edata->filesz());
+      }
+
+      if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
+        f_pEnd->setValue(f_pEnd->value() +
+                         edata->vaddr() +
+                         edata->memsz());
+      }
+      if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
+        f_p_End->setValue(f_p_End->value() +
+                          edata->vaddr() +
+                          edata->memsz());
+      }
+    }
+    else {
+      if (NULL != f_pEData)
+        f_pEData->setValue(0x0);
+      if (NULL != f_p_EData)
+        f_p_EData->setValue(0x0);
+      if (NULL != f_pBSSStart)
+        f_pBSSStart->setValue(0x0);
+
+      if (NULL != f_pEnd)
+        f_pEnd->setValue(0x0);
+      if (NULL != f_p_End)
+        f_p_End->setValue(0x0);
+    }
+  }
+
   return true;
 }
 
@@ -880,7 +1278,7 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     }
   }
 
-  assert(pSymbol.hasFragRef());
+  assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
 

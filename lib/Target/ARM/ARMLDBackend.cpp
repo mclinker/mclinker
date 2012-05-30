@@ -101,7 +101,7 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                       0x1);
 }
 
-void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker)
+void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -790,11 +790,9 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 }
 
 /// finalizeSymbol - finalize the symbol value
-/// If the symbol's reserved field is not zero, MCLinker will call back this
-/// function to ask the final value of the symbol
-bool ARMGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
+bool ARMGNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
-  return false;
+  return true;
 }
 
 bool ARMGNULDBackend::readSection(Input& pInput,

@@ -568,7 +568,7 @@ void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
 {
 }
 
-void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker)
+void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -585,11 +585,9 @@ void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker)
 }
 
 /// finalizeSymbol - finalize the symbol value
-/// If the symbol's reserved field is not zero, MCLinker will call back this
-/// function to ask the final value of the symbol
-bool X86GNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
+bool X86GNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
-  return false;
+  return true;
 }
 
 namespace mcld {

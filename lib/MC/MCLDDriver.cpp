@@ -250,7 +250,7 @@ bool MCLDDriver::mergeSymbolTables()
 ///   standard symbols, return false
 bool MCLDDriver::addStandardSymbols()
 {
-  return m_LDBackend.initStandardSymbols(*m_pLinker);
+  return m_LDBackend.initStandardSymbols(*m_pLinker, m_LDInfo.output());
 }
 
 /// addTargetSymbols - some targets, such as MIPS and ARM, need some
@@ -259,7 +259,7 @@ bool MCLDDriver::addStandardSymbols()
 ///   target symbols, return false
 bool MCLDDriver::addTargetSymbols()
 {
-  m_LDBackend.initTargetSymbols(*m_pLinker);
+  m_LDBackend.initTargetSymbols(*m_pLinker, m_LDInfo.output());
   return true;
 }
 

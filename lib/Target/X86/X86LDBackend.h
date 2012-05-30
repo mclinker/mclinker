@@ -153,7 +153,7 @@ public:
 
   void initTargetSections(MCLinker& pLinker);
 
-  void initTargetSymbols(MCLinker& pLinker);
+  void initTargetSymbols(MCLinker& pLinker, const Output& pOutput);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
@@ -181,10 +181,8 @@ public:
                                      const LDSection& pSectHdr,
                                      const MCLDInfo& pInfo) const;
 
-  /// finalizeSymbol - finalize the symbol value
-  /// If the symbol's reserved field is not zero, MCLinker will call back this
-  /// function to ask the final value of the symbol
-  bool finalizeSymbol(LDSymbol& pSymbol) const;
+  /// finalizeTargetSymbols - finalize the symbol value
+  bool finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput);
 
 private:
   void scanLocalReloc(Relocation& pReloc,

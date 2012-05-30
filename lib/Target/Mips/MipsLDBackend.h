@@ -43,7 +43,7 @@ public:
   void initTargetSections(MCLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(MCLinker& pLinker);
+  void initTargetSymbols(MCLinker& pLinker, const Output& pOutput);
 
   /// initRelocFactory - create and initialize RelocationFactory.
   bool initRelocFactory(const MCLinker& pLinker);
@@ -135,9 +135,7 @@ public:
                                      const MCLDInfo& pInfo) const;
 
   /// finalizeSymbol - finalize the symbol value
-  /// If the symbol's reserved field is not zero, MCLinker will call back this
-  /// function to ask the final value of the symbol
-  bool finalizeSymbol(LDSymbol& pSymbol) const;
+  bool finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput);
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.

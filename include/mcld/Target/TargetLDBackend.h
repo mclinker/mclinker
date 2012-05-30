@@ -51,9 +51,9 @@ public:
   virtual bool initTargetSectionMap(SectionMap& pSectionMap) { return true;}
   virtual void initTargetSegments(MCLinker& pLinker) { }
   virtual void initTargetSections(MCLinker& pLinker) { }
-  virtual void initTargetSymbols(MCLinker& pLinker) { }
+  virtual void initTargetSymbols(MCLinker& pLinker, const Output& pOutput) { }
   virtual void initTargetRelocation(MCLinker& pLinker) { }
-  virtual bool initStandardSymbols(MCLinker& pLinker) = 0;
+  virtual bool initStandardSymbols(MCLinker& pLinker, const Output& pOutput) = 0;
   virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;
@@ -135,7 +135,7 @@ public:
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  virtual bool finalizeSymbol(LDSymbol& pSymbol) const = 0;
+  virtual bool finalizeSymbols(MCLinker& pLinker, const Output& pOutput) = 0;
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.

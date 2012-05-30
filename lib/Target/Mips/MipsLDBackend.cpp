@@ -84,7 +84,7 @@ void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
   file_format->getDynamic().setFlag(llvm::ELF::SHF_ALLOC);
 }
 
-void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker)
+void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -495,15 +495,10 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 }
 
 /// finalizeSymbol - finalize the symbol value
-/// If the symbol's reserved field is not zero, MCLinker will call back this
-/// function to ask the final value of the symbol
-bool MipsGNULDBackend::finalizeSymbol(LDSymbol& pSymbol) const
+bool MipsGNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
 {
-  if (&pSymbol == m_pGpDispSymbol) {
-    m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
-    return true;
-  }
-  return false;
+  m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
+  return true;
 }
 
 /// allocateCommonSymbols - allocate common symbols in the corresponding

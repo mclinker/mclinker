@@ -58,40 +58,6 @@ class SymbolCategory;
 class GNULDBackend : public TargetLDBackend
 {
 protected:
-  // Based on Kind in LDFileFormat to define basic section orders for ELF, and
-  // refer gold linker to add more enumerations to handle Regular and BSS kind
-  enum SectionOrder {
-    SHO_INTERP = 1,          // .interp
-    SHO_RO_NOTE,             // .note.ABI-tag, .note.gnu.build-id
-    SHO_NAMEPOOL,            // *.hash, .dynsym, .dynstr
-    SHO_RELOCATION,          // .rel.*, .rela.*
-    SHO_REL_PLT,             // .rel.plt should come after other .rel.*
-    SHO_INIT,                // .init
-    SHO_PLT,                 // .plt
-    SHO_TEXT,                // .text
-    SHO_FINI,                // .fini
-    SHO_RO,                  // .rodata
-    SHO_EXCEPTION,           // .eh_frame_hdr, .eh_frame, .gcc_except_table
-    SHO_TLS_DATA,            // .tdata
-    SHO_TLS_BSS,             // .tbss
-    SHO_RELRO_LOCAL,         // .data.rel.ro.local
-    SHO_RELRO,               // .data.rel.ro,
-    SHO_RELRO_LAST,          // for x86 to adjust .got if needed
-    SHO_NON_RELRO_FIRST,     // for x86 to adjust .got.plt if needed
-    SHO_DATA,                // .data
-    SHO_LARGE_DATA,          // .ldata
-    SHO_RW_NOTE,             //
-    SHO_SMALL_DATA,          // .sdata
-    SHO_SMALL_BSS,           // .sbss
-    SHO_BSS,                 // .bss
-    SHO_LARGE_BSS,           // .lbss
-    SHO_UNDEFINED = ~(0U)    // default order
-  };
-
-  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
-  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
-
-protected:
   GNULDBackend();
 
 public:
@@ -140,6 +106,7 @@ public:
   ELFExecFileFormat* getExecFileFormat();
   const ELFExecFileFormat* getExecFileFormat() const;
 
+  // -----  target symbols ----- //
   /// initStandardSymbols - initialize standard symbols.
   /// Some section symbols is undefined in input object, and linkers must set
   /// up its value. Take __init_array_begin for example. This symbol is an
@@ -147,7 +114,24 @@ public:
   /// to the begin of the .init_array section, then relocation enties to
   /// __init_array_begin can be applied without emission of "undefined
   /// reference to `__init_array_begin'".
-  bool initStandardSymbols(MCLinker& pLinker);
+  bool initStandardSymbols(MCLinker& pLinker, const Output& pOutput);
+
+  /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
+  /// then it will ask backend to finalize the symbol value.
+  /// @return ture - if backend set the symbol value sucessfully
+  /// @return false - if backend do not recognize the symbol
+  bool finalizeSymbols(MCLinker& pLinker, const Output& pOutput) {
+    return (finalizeStandardSymbols(pLinker, pOutput) &&
+            finalizeTargetSymbols(pLinker, pOutput));
+  }
+
+  /// finalizeStandardSymbols - set the value of standard symbols
+  virtual bool finalizeStandardSymbols(MCLinker& pLinker,
+                                       const Output& pOutput);
+
+  /// finalizeTargetSymbols - set the value of target symbols
+  virtual bool finalizeTargetSymbols(MCLinker& pLinker,
+                                     const Output& pOutput) = 0;
 
   size_t sectionStartOffset() const;
 
@@ -377,6 +361,40 @@ private:
   virtual const ELFDynamic& dynamic() const = 0;
 
 protected:
+  // Based on Kind in LDFileFormat to define basic section orders for ELF, and
+  // refer gold linker to add more enumerations to handle Regular and BSS kind
+  enum SectionOrder {
+    SHO_INTERP = 1,          // .interp
+    SHO_RO_NOTE,             // .note.ABI-tag, .note.gnu.build-id
+    SHO_NAMEPOOL,            // *.hash, .dynsym, .dynstr
+    SHO_RELOCATION,          // .rel.*, .rela.*
+    SHO_REL_PLT,             // .rel.plt should come after other .rel.*
+    SHO_INIT,                // .init
+    SHO_PLT,                 // .plt
+    SHO_TEXT,                // .text
+    SHO_FINI,                // .fini
+    SHO_RO,                  // .rodata
+    SHO_EXCEPTION,           // .eh_frame_hdr, .eh_frame, .gcc_except_table
+    SHO_TLS_DATA,            // .tdata
+    SHO_TLS_BSS,             // .tbss
+    SHO_RELRO_LOCAL,         // .data.rel.ro.local
+    SHO_RELRO,               // .data.rel.ro,
+    SHO_RELRO_LAST,          // for x86 to adjust .got if needed
+    SHO_NON_RELRO_FIRST,     // for x86 to adjust .got.plt if needed
+    SHO_DATA,                // .data
+    SHO_LARGE_DATA,          // .ldata
+    SHO_RW_NOTE,             //
+    SHO_SMALL_DATA,          // .sdata
+    SHO_SMALL_BSS,           // .sbss
+    SHO_BSS,                 // .bss
+    SHO_LARGE_BSS,           // .lbss
+    SHO_UNDEFINED = ~(0U)    // default order
+  };
+
+  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
+  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
+
+protected:
   // ----- readers and writers ----- //
   GNUArchiveReader* m_pArchiveReader;
   ELFObjectReader* m_pObjectReader;
@@ -389,13 +407,32 @@ protected:
   ELFDynObjFileFormat* m_pDynObjFileFormat;
   ELFExecFileFormat* m_pExecFileFormat;
 
-  // -----  ELF segment factory  ----- //
+  // ELF segment factory
   ELFSegmentFactory m_ELFSegmentTable;
 
-  // -----  ELF special sections  ----- //
-
-  /// m_pSymIndexMap - Map the LDSymbol to its index in the output symbol table
+  // map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;
+
+  // -----  standard symbols  ----- //
+  // section symbols
+  LDSymbol* f_pPreInitArrayStart;
+  LDSymbol* f_pPreInitArrayEnd;
+  LDSymbol* f_pInitArrayStart;
+  LDSymbol* f_pInitArrayEnd;
+  LDSymbol* f_pFiniArrayStart;
+  LDSymbol* f_pFiniArrayEnd;
+  LDSymbol* f_pStack;
+
+  // segment symbols
+  LDSymbol* f_pExecutableStart;
+  LDSymbol* f_pEText;
+  LDSymbol* f_p_EText;
+  LDSymbol* f_p__EText;
+  LDSymbol* f_pEData;
+  LDSymbol* f_p_EData;
+  LDSymbol* f_pBSSStart;
+  LDSymbol* f_pEnd;
+  LDSymbol* f_p_End;
 };
 
 } // namespace of mcld
