@@ -57,7 +57,8 @@ ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
     f_pJCR(NULL),
     f_pNoteABITag(NULL),
     f_pStab(NULL),
-    f_pStabStr(NULL) {
+    f_pStabStr(NULL),
+    f_pStack(NULL) {
 
 }
 

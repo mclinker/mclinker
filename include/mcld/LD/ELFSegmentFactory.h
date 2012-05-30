@@ -32,6 +32,12 @@ public:
   /// this function will create an ELF segment
   /// @param pType - p_type in ELF program header
   ELFSegment* produce(uint32_t pType, uint32_t pFlag = llvm::ELF::PF_R);
+
+  ELFSegment*
+  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear);
+
+  const ELFSegment*
+  find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear) const;
 };
 
 } // namespace of mcld

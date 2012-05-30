@@ -32,3 +32,33 @@ ELFSegment* ELFSegmentFactory::produce(uint32_t pType, uint32_t pFlag)
   return segment;
 }
 
+ELFSegment*
+ELFSegmentFactory::find(uint32_t pType, uint32_t pFlagSet, uint32_t pFlagClear)
+{
+  iterator segment, segEnd = end();
+  for (segment = begin(); segment != segEnd; ++segment) {
+    if ((*segment).type() == pType &&
+        ((*segment).flag() & pFlagSet) == pFlagSet &&
+        ((*segment).flag() & pFlagClear) == 0x0) {
+      return &(*segment);
+    }
+  }
+  return NULL;
+}
+
+const ELFSegment*
+ELFSegmentFactory::find(uint32_t pType,
+                        uint32_t pFlagSet,
+                        uint32_t pFlagClear) const
+{
+  const_iterator segment, segEnd = end();
+  for (segment = begin(); segment != segEnd; ++segment) {
+    if ((*segment).type() == pType &&
+        ((*segment).flag() & pFlagSet) == pFlagSet &&
+        ((*segment).flag() & pFlagClear) == 0x0) {
+      return &(*segment);
+    }
+  }
+  return NULL;
+}
+
