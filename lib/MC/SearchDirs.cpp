@@ -6,16 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/ADT/Twine.h>
-
-#include "mcld/MC/SearchDirs.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/MC/MCLDDirectory.h"
+#include <mcld/MC/SearchDirs.h>
+#include <mcld/MC/MCLDDirectory.h>
+#include <mcld/Support/FileSystem.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // Non-member functions
 static void SpecToFilename(const std::string& pSpec, std::string& pFile)
 {
@@ -23,7 +20,7 @@ static void SpecToFilename(const std::string& pSpec, std::string& pFile)
   pFile += pSpec;
 }
 
-//==========================
+//===----------------------------------------------------------------------===//
 // SearchDirs
 SearchDirs::SearchDirs()
 {
@@ -47,6 +44,8 @@ void SearchDirs::add(const MCLDDirectory& pDirectory)
 
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
+  assert(Input::DynObj == pType || Input::Archive == pType);
+
   std::string file;
   SpecToFilename(pNamespec, file);
   // for all MCLDDirectorys
@@ -67,7 +66,6 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           ++entry;
         }
       }
-      // Fall through. If we can not find the .so, then try to find .a instead.
       case Input::Archive : {
         entry = (*mcld_dir)->begin();
         enEnd = (*mcld_dir)->end();
@@ -78,17 +76,9 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           }
           ++entry;
         }
-        break;
       }
-
-      default: {
-        llvm::report_fatal_error(llvm::Twine("SearchDir can not recoginize namespec: `") +
-                                 pNamespec +
-                                 llvm::Twine("'."));
-        break;
-      }
-    }
-  }
-  return 0;
+    } // end of switch
+  } // end of while
+  return NULL;
 }
 

@@ -12,17 +12,17 @@
 //===----------------------------------------------------------------------===//
 
 #include <mcld/ADT/BinTree.h>
-#include <mcld/CodeGen/SectLinker.h>
-#include <mcld/CodeGen/SectLinkerOption.h>
 #include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/MCLDDriver.h>
-#include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <stack>
@@ -73,11 +73,10 @@ bool SectLinker::doInitialization(Module &pM)
                                     mode));
 
   //   make sure output is openend successfully.
-  if (!info.output().hasMemArea())
-    report_fatal_error("output is not given on the command line\n");
-
-  if (!info.output().memArea()->isGood())
-    report_fatal_error("can not open output file :"+info.output().path().native());
+  if (!info.output().hasMemArea() || !info.output().memArea()->isGood()) {
+    fatal(diag::err_cannot_open_output_file) << info.output().name()
+                                             << info.output().path();
+  }
 
   // let the target override the target-specific parameters
   addTargetOptions(pM, *m_pOption);
@@ -106,27 +105,29 @@ bool SectLinker::doFinalization(Module &pM)
 
   if (info.options().trace()) {
     static int counter = 0;
-    outs() << "** name\ttype\tpath\tsize (" << info.inputs().size() << ")\n";
+    mcld::outs() << "** name\ttype\tpath\tsize (" << info.inputs().size() << ")\n";
     InputTree::const_dfs_iterator input, inEnd = info.inputs().dfs_end();
     for (input=info.inputs().dfs_begin(); input!=inEnd; ++input) {
-      outs() << counter++ << " *  " << (*input)->name();
+      mcld::outs() << counter++ << " *  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
-        outs() << "\tarchive\t(";
+        mcld::outs() << "\tarchive\t(";
         break;
       case Input::Object:
-        outs() << "\tobject\t(";
+        mcld::outs() << "\tobject\t(";
         break;
       case Input::DynObj:
-        outs() << "\tshared\t(";
+        mcld::outs() << "\tshared\t(";
         break;
       case Input::Script:
-        outs() << "\tscript\t(";
+        mcld::outs() << "\tscript\t(";
         break;
       default:
-        report_fatal_error("** Trace a unsupported file. It must be an internal bug!");
+        unreachable(diag::err_cannot_trace_file) << (*input)->type()
+                                                 << (*input)->name()
+                                                 << (*input)->path();
       }
-      outs() << (*input)->path().c_str() << ")\n";
+      mcld::outs() << (*input)->path() << ")\n";
     }
   }
 
@@ -186,14 +187,18 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
 void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
-    return;
+    fatal(diag::err_no_inputs);
 
   MCLDInfo &info = m_pOption->info();
   PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
       ((*cur_char)->type() != PositionDependentOption::INPUT_FILE &&
-       (*cur_char)->type() != PositionDependentOption::NAMESPEC))
-    return;
+       (*cur_char)->type() != PositionDependentOption::NAMESPEC) &&
+       (*cur_char)->type() != PositionDependentOption::BITCODE) {
+    // if we only have one positional options, and the option is
+    // not an input file, then emit error message.
+    fatal(diag::err_no_inputs);
+  }
 
   InputTree::Connector *prev_ward = &InputTree::Downward;
 
@@ -229,22 +234,28 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
       break;
     }
     case PositionDependentOption::NAMESPEC: {
-      sys::fs::Path* path = 0;
+      sys::fs::Path* path = NULL;
       const NamespecOption *namespec_option =
           static_cast<const NamespecOption*>(*cur_char);
-      if (info.attrFactory().last().isStatic()) {
-        path = info.options().directories().find(namespec_option->namespec(),
-                                                 Input::Archive);
+
+      if (info.attrFactory().constraint().isSharedSystem()) {
+        if (info.attrFactory().last().isStatic()) {
+          path = info.options().directories().find(namespec_option->namespec(),
+                                                   Input::Archive);
+        }
+        else {
+          path = info.options().directories().find(namespec_option->namespec(),
+                                                   Input::DynObj);
+        }
       }
       else {
         path = info.options().directories().find(namespec_option->namespec(),
-                                                 Input::DynObj);
+                                                 Input::Archive);
       }
 
-      if (0 == path) {
-        llvm::report_fatal_error(std::string("Can't find namespec: ")+
-                                 namespec_option->namespec());
-      }
+      if (NULL == path)
+        fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
+
       info.inputs().insert(cur_node,
                            *prev_ward,
                            namespec_option->namespec(),
@@ -289,10 +300,11 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
       info.attrFactory().last().setDynamic();
       break;
     default:
-      report_fatal_error("can not find the type of input file");
+      fatal(diag::err_cannot_identify_option) << (*cur_char)->position()
+                                              << (uint32_t)(*cur_char)->type();
     }
     ++cur_char;
-  }
+  } // end of while
 
   if (!returnStack.empty()) {
     report_fatal_error("no matched --start-group and --end-group");
