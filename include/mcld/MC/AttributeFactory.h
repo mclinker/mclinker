@@ -11,8 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/MC/MCLDAttribute.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/MC/MCLDAttribute.h>
 
 namespace mcld
 {
