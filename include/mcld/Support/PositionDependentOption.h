@@ -40,20 +40,26 @@ namespace mcld
     };
 
   protected:
-    PositionDependentOption(unsigned pPosition, Type pType)
+    PositionDependentOption(unsigned int pPosition, Type pType)
       : m_Type(pType),
         m_Position(pPosition) {}
 
   public:
-    inline const Type& type() const
+    Type type()
     { return m_Type; }
 
-    inline unsigned position() const
+    Type type() const
+    { return m_Type; }
+
+    unsigned int position()
+    { return m_Position; }
+
+    unsigned int position() const
     { return m_Position; }
 
   private:
     Type m_Type;
-    unsigned m_Position;
+    unsigned int m_Position;
   };
 
   typedef std::vector<PositionDependentOption*> PositionDependentOptions;
