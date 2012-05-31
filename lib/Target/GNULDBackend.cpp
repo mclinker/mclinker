@@ -1537,63 +1537,6 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   }
 }
 
-/// writeELF32ProgramHdrs - write out the ELF32 program headers
-void GNULDBackend::writeELF32ProgramHdrs(Output& pOutput)
-{
-  assert(pOutput.hasMemArea());
-
-  uint64_t start_offset, phdr_size;
-
-  start_offset = sizeof(llvm::ELF::Elf32_Ehdr);
-  phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
-  // Program header must start directly after ELF header
-  MemoryRegion *region = pOutput.memArea()->request(start_offset,
-                                                    numOfSegments()*phdr_size);
-
-  llvm::ELF::Elf32_Phdr* phdr = (llvm::ELF::Elf32_Phdr*)region->start();
-
-  size_t index = 0;
-  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
-  for (seg = m_ELFSegmentTable.begin(); seg != segEnd; ++seg, ++index) {
-    phdr[index].p_type   = (*seg).type();
-    phdr[index].p_flags  = (*seg).flag();
-    phdr[index].p_offset = (*seg).offset();
-    phdr[index].p_vaddr  = (*seg).vaddr();
-    phdr[index].p_paddr  = (*seg).paddr();
-    phdr[index].p_filesz = (*seg).filesz();
-    phdr[index].p_memsz  = (*seg).memsz();
-    phdr[index].p_align  = (*seg).align();
-  }
-}
-
-/// writeELF64ProgramHdrs - write out the ELF64 program headers
-void GNULDBackend::writeELF64ProgramHdrs(Output& pOutput)
-{
-  assert(pOutput.hasMemArea());
-
-  uint64_t start_offset, phdr_size;
-
-  start_offset = sizeof(llvm::ELF::Elf64_Ehdr);
-  phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
-  // Program header must start directly after ELF header
-  MemoryRegion *region = pOutput.memArea()->request(start_offset,
-                                                    numOfSegments() *phdr_size);
-  llvm::ELF::Elf64_Phdr* phdr = (llvm::ELF::Elf64_Phdr*)region->start();
-
-  size_t index = 0;
-  ELFSegmentFactory::iterator seg, segEnd = m_ELFSegmentTable.end();
-  for (seg = m_ELFSegmentTable.begin(); seg != segEnd; ++seg, ++index) {
-    phdr[index].p_type   = (*seg).type();
-    phdr[index].p_flags  = (*seg).flag();
-    phdr[index].p_offset = (*seg).offset();
-    phdr[index].p_vaddr  = (*seg).vaddr();
-    phdr[index].p_paddr  = (*seg).paddr();
-    phdr[index].p_filesz = (*seg).filesz();
-    phdr[index].p_memsz  = (*seg).memsz();
-    phdr[index].p_align  = (*seg).align();
-  }
-}
-
 /// createGNUStackInfo - create an output GNU stack section or segment if needed
 /// @ref gold linker: layout.cc:2608
 void GNULDBackend::createGNUStackInfo(const Output& pOutput,
@@ -1670,14 +1613,6 @@ void GNULDBackend::postLayout(const Output& pOutput,
 
     // 1.2 create special GNU Stack note section or segment
   createGNUStackInfo(pOutput, pInfo, pLinker);
-
-  if (pOutput.type() != Output::Object) {
-    // 1.3 write out program headers
-    if (32 == bitclass())
-      writeELF32ProgramHdrs(pLinker.getLDInfo().output());
-    else
-      writeELF64ProgramHdrs(pLinker.getLDInfo().output());
-  }
 
   // 2. target specific post layout
   doPostLayout(pOutput, pInfo, pLinker);

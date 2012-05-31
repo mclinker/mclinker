@@ -127,6 +127,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
                      target(),
                      pOutput);
 
+    emitELF32ProgramHeader(pOutput, target());
+
     emitELF32SectionHeader(pOutput, m_Linker);
   }
   else if (64 == target().bitclass()) {
@@ -138,6 +140,8 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
                      m_Linker.getLayout(),
                      target(),
                      pOutput);
+
+    emitELF64ProgramHeader(pOutput, target());
 
     emitELF64SectionHeader(pOutput, m_Linker);
   }

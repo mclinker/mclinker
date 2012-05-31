@@ -233,6 +233,14 @@ public:
   virtual unsigned int numOfSegments() const
   { return m_ELFSegmentTable.size(); }
 
+  /// elfSegmentTable - return the reference of the elf segment table
+  ELFSegmentFactory& elfSegmentTable()
+  { return m_ELFSegmentTable; }
+
+  /// elfSegmentTable - return the reference of the elf segment table
+  const ELFSegmentFactory& elfSegmentTable() const
+  { return m_ELFSegmentTable; }
+
   /// commonPageSize - the common page size of the target machine, and we set it
   /// to 4K here. If target favors the different size, please override this
   /// function
@@ -310,12 +318,6 @@ private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Output& pOutput,
                          const MCLDInfo& pInfo);
-
-  /// writeELF32ProgramHdrs - write out the ELF32 program headers
-  void writeELF32ProgramHdrs(Output& pOutput);
-
-  /// writeELF64ProgramHdrs - write out the ELF64 program headers
-  void writeELF64ProgramHdrs(Output& pOutput);
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag

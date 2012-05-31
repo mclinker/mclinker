@@ -71,6 +71,12 @@ protected:
 
   void emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const;
 
+  void emitELF32ProgramHeader(Output& pOutput,
+                              const GNULDBackend& pBackend) const;
+
+  void emitELF64ProgramHeader(Output& pOutput,
+                              const GNULDBackend& pBackend) const;
+
   // emitShStrTab - emit .shstrtab
   void emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const;
 

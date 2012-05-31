@@ -18,6 +18,8 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <cstdlib>
 #include <cstring>
@@ -241,6 +243,70 @@ ELFWriter::emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const
 
     // adjust strshidx
     shstridx += ld_sect->name().size() + 1;
+  }
+}
+
+
+/// emitELF32ProgramHeader - emit Elf32_Phdr
+void ELFWriter::emitELF32ProgramHeader(Output& pOutput,
+                                       const GNULDBackend& pBackend) const
+{
+  assert(pOutput.hasMemArea());
+
+  uint64_t start_offset, phdr_size;
+
+  start_offset = sizeof(Elf32_Ehdr);
+  phdr_size = sizeof(Elf32_Phdr);
+  // Program header must start directly after ELF header
+  MemoryRegion *region = pOutput.memArea()->request(start_offset,
+                                          pBackend.numOfSegments() * phdr_size);
+
+  Elf32_Phdr* phdr = (Elf32_Phdr*)region->start();
+
+  // Iterate the elf segment table in GNULDBackend
+  size_t index = 0;
+  ELFSegmentFactory::const_iterator seg = pBackend.elfSegmentTable().begin(),
+                                 segEnd = pBackend.elfSegmentTable().end();
+  for (; seg != segEnd; ++seg, ++index) {
+    phdr[index].p_type   = (*seg).type();
+    phdr[index].p_flags  = (*seg).flag();
+    phdr[index].p_offset = (*seg).offset();
+    phdr[index].p_vaddr  = (*seg).vaddr();
+    phdr[index].p_paddr  = (*seg).paddr();
+    phdr[index].p_filesz = (*seg).filesz();
+    phdr[index].p_memsz  = (*seg).memsz();
+    phdr[index].p_align  = (*seg).align();
+  }
+}
+
+/// emitELF64ProgramHeader - emit ElfR64Phdr
+void ELFWriter::emitELF64ProgramHeader(Output& pOutput,
+                                       const GNULDBackend& pBackend) const
+{
+  assert(pOutput.hasMemArea());
+
+  uint64_t start_offset, phdr_size;
+
+  start_offset = sizeof(Elf64_Ehdr);
+  phdr_size = sizeof(Elf64_Phdr);
+  // Program header must start directly after ELF header
+  MemoryRegion *region = pOutput.memArea()->request(start_offset,
+                                          pBackend.numOfSegments() * phdr_size);
+  Elf64_Phdr* phdr = (Elf64_Phdr*)region->start();
+
+  // Iterate the elf segment table in GNULDBackend
+  size_t index = 0;
+  ELFSegmentFactory::const_iterator seg = pBackend.elfSegmentTable().begin(),
+                                 segEnd = pBackend.elfSegmentTable().end();
+  for (; seg != segEnd; ++seg, ++index) {
+    phdr[index].p_type   = (*seg).type();
+    phdr[index].p_flags  = (*seg).flag();
+    phdr[index].p_offset = (*seg).offset();
+    phdr[index].p_vaddr  = (*seg).vaddr();
+    phdr[index].p_paddr  = (*seg).paddr();
+    phdr[index].p_filesz = (*seg).filesz();
+    phdr[index].p_memsz  = (*seg).memsz();
+    phdr[index].p_align  = (*seg).align();
   }
 }
 
