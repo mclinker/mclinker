@@ -102,6 +102,10 @@ public:
                        MCLinker& pLinker,
                        LDSection& pSection,
                        const MemoryRegion& pRegion) const = 0;
+
+  bool readEhFrame(Input& pInput,
+                   MCLinker& pLinker,
+                   LDSection& pSection) const;
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {

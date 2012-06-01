@@ -41,6 +41,7 @@ class LDSection;
 class LDSectionFactory;
 class SectionMap;
 class Output;
+class EhFrame;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -142,7 +143,10 @@ public:
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
 
-  // -----  relocations ----- //
+  // -----  eh_frame sections  ----- //
+
+
+  // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in MCLinker (only for object file)
   /// @param pType - the type of the relocation
   /// @param pResolveInfo - the symbol should be the symbol in the input file. MCLinker
@@ -266,7 +270,7 @@ private:
   Layout m_Layout;
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;
-
+  EhFrame* m_pEhFrame;
 };
 
 #include "MCLinker.tcc"

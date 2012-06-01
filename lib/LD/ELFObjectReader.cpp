@@ -143,7 +143,11 @@ bool ELFObjectReader::readSections(Input& pInput)
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
-      case LDFileFormat::EhFrame:
+      case LDFileFormat::EhFrame: {
+        if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section))
+          fatal(diag::err_cannot_read_section) <<(*section)->name();
+        break;
+      }
       case LDFileFormat::GCCExceptTable: {
         //if (!m_pELFReader->readExceptionSection(pInput, m_Linker, **section))
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))

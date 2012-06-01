@@ -325,6 +325,14 @@ bool MCLDDriver::postlayout()
   return true;
 }
 
+/// finalizeSymbolValue - finalize the resolved symbol value.
+///   Before relocate(), after layout(), MCLinker should correct value of all
+///   symbol.
+bool MCLDDriver::finalizeSymbolValue()
+{
+  return m_pLinker->finalizeSymbols();
+}
+
 /// relocate - applying relocation entries and create relocation
 /// section in the output files
 /// Create relocation section, asking TargetLDBackend to
@@ -335,12 +343,8 @@ bool MCLDDriver::relocate()
   return m_pLinker->applyRelocations();
 }
 
-/// finalizeSymbolValue - finalize the resolved symbol value.
-///   Before relocate(), after layout(), MCLinker should correct value of all
-///   symbol.
-bool MCLDDriver::finalizeSymbolValue()
+bool MCLDDriver::postRelocate()
 {
-  return m_pLinker->finalizeSymbols();
 }
 
 /// emitOutput - emit the output file.

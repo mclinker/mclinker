@@ -241,6 +241,14 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${INCDIR}/LD/ELFSegmentFactory.h \
 	${LIBDIR}/LD/ELFSegmentFactory.cpp \
+	${INCDIR}/LD/EhFrame.h \
+	${LIBDIR}/LD/EhFrame.cpp \
+	${INCDIR}/LD/EhFrameHdr.h \
+	${LIBDIR}/LD/EhFrameHdr.cpp \
+	${INCDIR}/LD/CIE.h \
+	${LIBDIR}/LD/CIE.cpp \
+	${INCDIR}/LD/FDE.h \
+	${LIBDIR}/LD/FDE.cpp \
 	${INCDIR}/LD/MsgHandler.h \
 	${LIBDIR}/LD/MsgHandler.cpp \
 	${INCDIR}/LD/Diagnostic.h \
