@@ -168,10 +168,10 @@ bool SectLinker::doFinalization(Module &pM)
   m_pLDDriver->finalizeSymbolValue();
 
   // 12. - apply relocations
-  m_pLDDriver->relocate();
+  m_pLDDriver->relocation();
 
   // 13. - post relocation passes
-  m_pLDDriver->postRelocate();
+  m_pLDDriver->postRelocation();
 
   // 14. - write out output
   m_pLDDriver->emitOutput();

@@ -338,13 +338,28 @@ bool MCLDDriver::finalizeSymbolValue()
 /// Create relocation section, asking TargetLDBackend to
 /// read the relocation information into RelocationEntry
 /// and push_back into the relocation section
-bool MCLDDriver::relocate()
+bool MCLDDriver::relocation()
 {
   return m_pLinker->applyRelocations();
 }
 
-bool MCLDDriver::postRelocate()
+/// prelayout - help backend to do some modification before layout
+bool MCLDDriver::postRelocation()
 {
+  // handle .eh_frame_hdr section.
+  // So far, most object formats and target backend uses IA-64 exception
+  // handling. And IA-64 exception handling can co-exist with other
+  // exception handling standards. For these two reasons, we let MCLinker (not
+  // target backend) to handle .eh_frame.
+  if (m_pLinker->hasEhFrameHdr()) {
+    // we create .eh_frame_hdr section at the first time we meet .eh_frame
+    // section. The size of .eh_frame_hdr section is accumulated when
+    // MCLinker reads .eh_frame sections. Since we have the size of
+    // .eh_frame_hdr, we can fill the content of the binary search table
+    // in .eh_frame_hdr.
+    return m_pLinker->finalizeEhFrameHdr();
+  }
+  return true;
 }
 
 /// emitOutput - emit the output file.

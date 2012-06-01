@@ -95,12 +95,12 @@ public:
   /// Create relocation section, asking TargetLDBackend to
   /// read the relocation information into RelocationEntry
   /// and push_back into the relocation section
-  bool relocate();
+  bool relocation();
 
   /// postRelocate - help backend to do some modification after applying
   /// relocation.
   /// Complement .eh_frame_hdr section
-  bool postRelocate();
+  bool postRelocation();
 
   /// finalizeSymbolValue - finalize the symbol value
   bool finalizeSymbolValue();

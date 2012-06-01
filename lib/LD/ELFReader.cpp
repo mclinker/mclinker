@@ -197,23 +197,7 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
                                                          pInputSectHdr.type(),
                                                          pInputSectHdr.flag());
 
-  MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
-                                                   pInputSectHdr.size());
-
-  llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
-
-  llvm::MCFragment* frag = NULL;
-  if (NULL == region) {
-    // If the input section's size is zero, we got a NULL region.
-    // use a virtual fill fragment
-    frag = new llvm::MCFillFragment(0x0, 0, 0);
-  }
-  else
-    frag = new MCRegionFragment(*region);
-
-  uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     sect_data,
-                                                     pInputSectHdr.align());
+  size_t size = pLinker.addEhFrame(pInputSectHdr, *pInput.memArea());
 
   out_sect.setSize(out_sect.size() + size);
   return true;

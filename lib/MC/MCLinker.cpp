@@ -20,6 +20,8 @@
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/EhFrameHdr.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -40,13 +42,19 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext)
+  m_SectionMerger(pSectionMap, pContext),
+  m_pEhFrame(NULL),
+  m_pEhFrameHdr(NULL)
 {
 }
 
 /// Destructor
 MCLinker::~MCLinker()
 {
+  if (NULL != m_pEhFrame)
+    delete m_pEhFrame;
+  if (NULL != m_pEhFrameHdr)
+    delete m_pEhFrameHdr;
 }
 
 /// addSymbolFromObject - add a symbol from object file and resolve it
@@ -643,5 +651,23 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
       (pInfo.isDefine() || pInfo.isCommon()))
     return true;
   return false;
+}
+
+/// addEhFrame - add an exception handling section
+/// @param pSection - the input section
+/// @param pArea - the memory area which pSection is within.
+uint64_t MCLinker::addEhFrame(const LDSection& pSection, MemoryArea& pArea)
+{
+  return 0x0;
+}
+
+/// finalizeEhFrameHdr - fill .eh_frame_hdr section, add PT_GNU_EH_FRAME
+/// segment
+bool MCLinker::finalizeEhFrameHdr()
+{
+  if (!hasEhFrameHdr())
+    return true;
+
+  return true;
 }
 

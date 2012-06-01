@@ -42,6 +42,7 @@ class LDSectionFactory;
 class SectionMap;
 class Output;
 class EhFrame;
+class EhFrameHdr;
 
 /** \class MCLinker
  *  \brief MCLinker provides a pass to link object files.
@@ -144,8 +145,15 @@ public:
   llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
 
   // -----  eh_frame sections  ----- //
+  /// addEhFrame - add an exception handling section
+  /// @param pSection - the input section
+  /// @param pArea - the memory area which pSection is within.
+  uint64_t addEhFrame(const LDSection& pSection, MemoryArea& pArea);
 
+  bool hasEhFrameHdr() const
+  { return (NULL != m_pEhFrameHdr); }
 
+  bool finalizeEhFrameHdr();
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in MCLinker (only for object file)
   /// @param pType - the type of the relocation
@@ -271,6 +279,7 @@ private:
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;
   EhFrame* m_pEhFrame;
+  EhFrameHdr* m_pEhFrameHdr;
 };
 
 #include "MCLinker.tcc"

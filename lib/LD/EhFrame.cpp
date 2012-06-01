@@ -12,4 +12,11 @@ using namespace mcld;
 
 //==========================
 // EhFrame
+EhFrame::EhFrame()
+{
+}
+
+EhFrame::~EhFrame()
+{
+}
 
