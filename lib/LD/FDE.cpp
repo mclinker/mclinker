@@ -14,26 +14,21 @@ using namespace mcld;
 //==========================
 // FDE
 
-FDE::FDE(MCRegionFragment& pFrag, const CIE& pCIE)
+FDE::FDE(const MCRegionFragment& pFrag, const CIE& pCIE)
   : m_Fragment(pFrag), m_CIE(pCIE) {
 }
 FDE::~FDE()
 {
 }
 
-uint32_t FDE::length() const
+uint64_t FDE::length() const
 {
   return 0;
 }
 
-uint64_t FDE::extendedLength() const
+const CIE& FDE::getCIE() const
 {
-  return 0;
-}
-
-uint32_t FDE::ciePointer() const
-{
-  return 0;
+  return m_CIE;
 }
 
 uint64_t FDE::PCBegin() const

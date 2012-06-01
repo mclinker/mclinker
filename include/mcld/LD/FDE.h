@@ -24,22 +24,20 @@ namespace mcld
  *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
 
+class CIE;
+
 class FDE
 {
 public:
-  FDE(MCRegionFragment& pFrag, const CIE& pCIE);
+  FDE(const MCRegionFragment& pFrag, const CIE& pCIE);
   ~FDE();
 
   /// ----- observers ------ ///
-  /// length - value of Length feild
-  uint32_t length() const;
+  /// length - length of the FDE structure
+  uint64_t length() const;
 
-  /// extendedLength - value of Extended Length field value
-  uint64_t extendedLength() const;
-
-  /// ciePointer - value of CIE Pointer, this presents the offset between the
-  /// start of this FDE to the start of the corresponding CIE
-  uint32_t ciePointer() const;
+  /// getCIE - the CIE corresponding to this FDE
+  const CIE& getCIE() const;
 
   /// PCBegin - PC Begin
   uint64_t PCBegin() const;
@@ -48,7 +46,7 @@ public:
   uint64_t PCRange() const;
 
 private:
-  MCRegionFragment& m_Fragment;
+  const MCRegionFragment& m_Fragment;
   const CIE& m_CIE;
 };
 

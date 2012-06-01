@@ -25,15 +25,12 @@ namespace mcld
 class CIE
 {
 public:
-  CIE(MCRegionFragment& pFrag);
+  explicit CIE(const MCRegionFragment& pFrag);
   ~CIE();
 
   // ----- observers ----- //
-  /// length - value of Length feild
-  uint32_t length() const;
-
-  /// extendedLength - value of Extended Length field value
-  uint64_t extendedLength() const;
+  /// length - length of the CIE structure
+  uint64_t length() const;
 
   /// id - CIE ID, this shall be 0
   uint32_t id() const;
@@ -70,7 +67,7 @@ public:
   const char* getPerName() const;
 
 private:
-  MCRegionFragment& m_Fragment;
+  const MCRegionFragment& m_Fragment;
 };
 
 } // namespace of mcld

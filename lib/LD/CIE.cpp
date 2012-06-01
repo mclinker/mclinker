@@ -14,7 +14,7 @@ using namespace mcld;
 //==========================
 // CIE
 
-CIE::CIE(MCRegionFragment& pFrag)
+CIE::CIE(const MCRegionFragment& pFrag)
   : m_Fragment(pFrag) {
 }
 
@@ -22,12 +22,7 @@ CIE::~CIE()
 {
 }
 
-uint32_t CIE::length() const
-{
-  return 0;
-}
-
-uint64_t CIE::extendedLength() const
+uint64_t CIE::length() const
 {
   return 0;
 }
@@ -44,7 +39,7 @@ uint8_t CIE::version() const
 
 const char* CIE::augString() const
 {
-  return 0;
+  return NULL;
 }
 
 uint32_t CIE::codeAlignFactor() const
@@ -79,5 +74,5 @@ uint32_t CIE::getPerOffset() const
 
 const char* CIE::getPerName() const
 {
-  return 0;
+  return NULL;
 }
