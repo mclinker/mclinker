@@ -469,7 +469,7 @@ Layout::getFragmentRef(const llvm::MCFragment& pFrag, uint64_t pBigOffset)
                              llvm::Twine(" never be in the range list.\n"));
   }
 
-  return getFragmentRef(*range, target_offset);
+  return getFragmentRef(*range, pBigOffset);
 }
 
 uint64_t Layout::getOutputOffset(const llvm::MCFragment& pFrag)
