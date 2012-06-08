@@ -14,65 +14,10 @@ using namespace mcld;
 //==========================
 // CIE
 
-CIE::CIE(const MCRegionFragment& pFrag)
-  : m_Fragment(pFrag) {
+CIE::CIE(const MCRegionFragment& pFrag, uint8_t pFDEEncode)
+  : m_Fragment(pFrag), m_FDEEncoding(pFDEEncode) {
 }
 
 CIE::~CIE()
 {
-}
-
-uint64_t CIE::length() const
-{
-  return 0;
-}
-
-uint32_t CIE::id() const
-{
-  return 0;
-}
-
-uint8_t CIE::version() const
-{
-  return 0;
-}
-
-const char* CIE::augString() const
-{
-  return NULL;
-}
-
-uint32_t CIE::codeAlignFactor() const
-{
-  return 0;
-}
-
-uint32_t CIE::dataAlignFactor() const
-{
-  return 0;
-}
-
-uint8_t CIE::returnAddressReg() const
-{
-  return 0;
-}
-
-uint32_t CIE::augLength() const
-{
-  return 0;
-}
-
-uint8_t CIE::getFDEEncode() const
-{
-  return 0;
-}
-
-uint32_t CIE::getPerOffset() const
-{
-  return 0;
-}
-
-const char* CIE::getPerName() const
-{
-  return NULL;
 }

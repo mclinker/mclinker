@@ -29,25 +29,30 @@ class CIE;
 class FDE
 {
 public:
-  FDE(const MCRegionFragment& pFrag, const CIE& pCIE);
+  typedef uint32_t Offset;
+
+public:
+  FDE(const MCRegionFragment& pFrag, const CIE& pCIE, Offset pPCBeginOffset);
   ~FDE();
 
   /// ----- observers ------ ///
-  /// length - length of the FDE structure
-  uint64_t length() const;
-
   /// getCIE - the CIE corresponding to this FDE
   const CIE& getCIE() const;
 
   /// PCBegin - PC Begin
   uint64_t PCBegin() const;
 
-  /// PCRange - PC Range
-  uint64_t PCRange() const;
+  /// getPCBeginOffset - the offset to the FDE of the PC Begin field
+  Offset getPCBeginOffset() const
+  { return m_PCBeginOffset; }
+
+  size_t size() const
+  { return m_Fragment.getRegion().size(); }
 
 private:
   const MCRegionFragment& m_Fragment;
   const CIE& m_CIE;
+  Offset m_PCBeginOffset;
 };
 
 } // namespace of mcld

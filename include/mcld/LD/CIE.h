@@ -25,49 +25,24 @@ namespace mcld
 class CIE
 {
 public:
-  explicit CIE(const MCRegionFragment& pFrag);
+  explicit CIE(const MCRegionFragment& pFrag, uint8_t pFDEEncode);
   ~CIE();
 
   // ----- observers ----- //
-  /// length - length of the CIE structure
-  uint64_t length() const;
-
-  /// id - CIE ID, this shall be 0
-  uint32_t id() const;
-
-  /// version - Version field, this shall be 1
-  uint8_t version() const;
-
-  /// augString - Augmentation String
-  const char* augString() const;
-
-  /// codeAlignFactor - Code Alignment Factor
-  uint32_t codeAlignFactor() const;
-
-  /// dataAlignFactor - Data Alignment Factor
-  uint32_t dataAlignFactor() const;
-
-  /// returnAddressReg - Return Address Register
-  uint8_t returnAddressReg() const;
-
-  /// augLength - Augmentaion Length, 0 if non
-  uint32_t augLength() const;
-
   /// getFDEEncoding - get the FDE encoding from Augmentation Data if 'R'
   /// is present in Augmentaion String
-  uint8_t getFDEEncode() const;
+  uint8_t getFDEEncode() const
+  { return m_FDEEncoding; }
 
-  /// getPerOffset - get the offset to the personality routine address if
-  /// 'P' is present in Augmentaion String
-  uint32_t getPerOffset() const;
+  const MCRegionFragment& getRegionFrag() const
+  { return m_Fragment; }
 
-  /// getPerName - get the name of the personality routine
-  /// FIXME: this can only extract from the symbol name of relocation which
-  /// apply to this CIE, should this function be here?
-  const char* getPerName() const;
+  size_t size() const
+  { return m_Fragment.getRegion().size(); }
 
 private:
   const MCRegionFragment& m_Fragment;
+  uint8_t m_FDEEncoding;
 };
 
 } // namespace of mcld
