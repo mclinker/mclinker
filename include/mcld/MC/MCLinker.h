@@ -148,7 +148,7 @@ public:
   /// addEhFrame - add an exception handling section
   /// @param pSection - the input section
   /// @param pArea - the memory area which pSection is within.
-  uint64_t addEhFrame(const LDSection& pSection, MemoryArea& pArea);
+  uint64_t addEhFrame(LDSection& pSection, MemoryArea& pArea);
 
   bool hasEhFrameHdr() const
   { return (NULL != m_pEhFrameHdr); }
