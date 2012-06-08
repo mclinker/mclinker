@@ -1463,11 +1463,10 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     if (cur_seg_flag != prev_seg_flag)
       load_seg->updateFlag(cur_seg_flag);
 
-    // FIXME: set section's vma
-    // need to handle start vma for user-defined one or for executable.
-    (*sect)->setAddr(segmentStartAddr(pOutput, pInfo) +
-                     (*sect)->offset() +
-                     padding);
+    if (LDFileFormat::Null != (*sect)->kind())
+      (*sect)->setAddr(segmentStartAddr(pOutput, pInfo) +
+                       (*sect)->offset() +
+                       padding);
 
     prev_seg_flag = cur_seg_flag;
   }
@@ -1496,7 +1495,6 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   }
 
   // update segment info
-  uint64_t file_size = 0;
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
@@ -1513,7 +1511,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(offset);
+      segment.setVaddr(segmentStartAddr(pOutput, pInfo) + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1523,12 +1521,16 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 
     assert(NULL != segment.getFirstSection());
     segment.setOffset(segment.getFirstSection()->offset());
-    segment.setVaddr(segment.getFirstSection()->addr());
+    if (llvm::ELF::PT_LOAD == segment.type() &&
+        LDFileFormat::Null == segment.getFirstSection()->kind())
+      segment.setVaddr(segmentStartAddr(pOutput, pInfo));
+    else
+      segment.setVaddr(segment.getFirstSection()->addr());
     segment.setPaddr(segment.vaddr());
 
     const LDSection* last_sect = segment.getLastSection();
     assert(NULL != last_sect);
-    file_size = last_sect->offset() - segment.offset();
+    uint64_t file_size = last_sect->offset() - segment.offset();
     if (LDFileFormat::BSS != last_sect->kind())
       file_size += last_sect->size();
     segment.setFilesz(file_size);
