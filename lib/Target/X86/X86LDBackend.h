@@ -197,6 +197,16 @@ private:
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
 
+  /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
+  /// @param pSym - A resolved copy symbol that defined in BSS section
+  void addCopyReloc(ResolveInfo& pSym);
+
+  /// defineSymbolforCopyReloc - allocate a space in BSS section and
+  /// and force define the copy of pSym to BSS section
+  /// @return the output LDSymbol of the copy symbol
+  LDSymbol& defineSymbolforCopyReloc(MCLinker& pLinker,
+                                     const ResolveInfo& pSym);
+
   void updateAddend(Relocation& pReloc,
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;

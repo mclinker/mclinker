@@ -165,6 +165,76 @@ void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
                                      8);
 }
 
+void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
+{
+  bool exist;
+  Relocation& rel_entry = *m_pRelDyn->getEntry(pSym, false, exist);
+  rel_entry.setType(llvm::ELF::R_386_COPY);
+  assert(pSym.outSymbol()->hasFragRef());
+  rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
+  rel_entry.setSymInfo(&pSym);
+}
+
+LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
+                                                    const ResolveInfo& pSym)
+{
+  // For a symbol needing copy relocation, define a copy symbol in the BSS
+  // section and all other reference to this symbol should refer to this
+  // copy.
+
+  // get or create corresponding BSS LDSection
+  LDSection* bss_sect_hdr = NULL;
+  if (ResolveInfo::ThreadLocal == pSym.type()) {
+    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(
+                                   ".tbss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+  }
+  else {
+    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(".bss",
+                                   LDFileFormat::BSS,
+                                   llvm::ELF::SHT_NOBITS,
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+  }
+
+  // get or create corresponding BSS MCSectionData
+  assert(NULL != bss_sect_hdr);
+  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(
+                                     *bss_sect_hdr);
+
+  // Determine the alignment by the symbol value
+  // FIXME: here we use the largest alignment
+  uint32_t addralign = bitclass() / 8;
+
+  // allocate space in BSS for the copy symbol
+  uint64_t offset = bss_sect_hdr->size();
+  llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, pSym.size());
+  uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                     bss_section,
+                                                     addralign);
+  bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
+
+  // change symbol binding to Global if it's a weak symbol
+  ResolveInfo::Binding binding = (ResolveInfo::Binding)pSym.binding();
+  if (binding == ResolveInfo::Weak)
+    binding = ResolveInfo::Global;
+
+  // Define the copy symbol in the bss section and resolve it
+  LDSymbol* cpy_sym = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+                      pSym.name(),
+                      false,
+                      (ResolveInfo::Type)pSym.type(),
+                      ResolveInfo::Define,
+                      binding,
+                      pSym.size(),  // size
+                      0x0,          // value
+                      pLinker.getLayout().getFragmentRef(*frag, 0x0),
+                      (ResolveInfo::Visibility)pSym.other());
+
+  return *cpy_sym;
+}
+
 void X86GNULDBackend::updateAddend(Relocation& pReloc,
                                    const LDSymbol& pInputSym,
                                    const Layout& pLayout) const
@@ -260,8 +330,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | ReserveRel);
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+                          pOutput)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+        }
       }
       return;
 
@@ -356,8 +433,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | ReserveRel);
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+                          pOutput)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+        }
       }
       return;
 
