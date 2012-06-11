@@ -261,27 +261,34 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
-    // Check if we need plt or dynamic relocation only as the target section is
-    // in PT_LOAD
-    if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
-      helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    pReloc.target() = S + A;
+    return X86RelocationFactory::OK;
+  }
+
+  // A local symbol may need REL Type dynamic relocation
+  if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
+    helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+    pReloc.target() = S + A;
+    return X86RelocationFactory::OK;
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
       pReloc.target() = S + A;
-      return X86RelocationFactory::OK;
     }
-    else if (!rsym->isLocal()) {
-      if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-        S = helper_PLT(pReloc, pParent);
-        pReloc.target() = S + A;
+    // If we generate a dynamic relocation (except R_386_RELATIVE)
+    // for a place, we should not perform static relocation on it
+    // in order to keep the addend store in the place correct.
+    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
+        helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
-      if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
-        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
-          helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
-        }
-        else {
-          helper_DynRel(pReloc, pReloc.type(), pParent);
-          return X86RelocationFactory::OK;
-        }
+      else {
+        helper_DynRel(pReloc, pReloc.type(), pParent);
+        return X86RelocationFactory::OK;
       }
     }
   }
@@ -306,22 +313,24 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
-    // Check if we need plt or dynamic relocation only as the target section is
-    // in PT_LOAD
-    if (!rsym->isLocal()) {
-      if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-        S = helper_PLT(pReloc, pParent);
-        pReloc.target() = S + A - P;
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    pReloc.target() = S + A - P;
+    return X86RelocationFactory::OK;
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+       S = helper_PLT(pReloc, pParent);
+       pReloc.target() = S + A - P;
+    }
+    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
+        helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
-      if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
-        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
-          helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
-        }
-        else {
-          helper_DynRel(pReloc, pReloc.type(), pParent);
+      else {
+        helper_DynRel(pReloc, pReloc.type(), pParent);
           return X86RelocationFactory::OK;
-        }
       }
     }
   }

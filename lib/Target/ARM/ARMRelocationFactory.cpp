@@ -407,36 +407,42 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
+
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
-    // Check if we need plt or dynamic relocation only as the target section is
-    // in PT_LOAD
-    if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
-      helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
-      pReloc.target() = (S + A) | T ;
-      return ARMRelocationFactory::OK;
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    pReloc.target() = (S + A) | T;
+    return ARMRelocationFactory::OK;
+  }
+
+  // A local symbol may need REL Type dynamic relocation
+  if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
+    helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
+    pReloc.target() = (S + A) | T ;
+    return ARMRelocationFactory::OK;
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+      T = 0 ; // PLT is not thumb
+      pReloc.target() = (S + A) | T;
     }
-    else if (!rsym->isLocal()) {
-      if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-        S = helper_PLT(pReloc, pParent);
-        T = 0 ; // PLT is not thumb
-        pReloc.target() = (S + A) | T;
+    // If we generate a dynamic relocation (except R_ARM_RELATIVE)
+    // for a place, we should not perform static relocation on it
+    // in order to keep the addend store in the place correct.
+    if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
+      if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
+        helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
       }
-      // If we generate a dynamic relocation (except R_ARM_RELATIVE)
-      // for a place, we should not perform static relocation on it
-      // in order to keep the addend store in the place correct.
-      if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
-        if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
-          helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
-        }
-        else {
-          helper_DynRel(pReloc, pReloc.type(), pParent);
-          return ARMRelocationFactory::OK;
-        }
+      else {
+        helper_DynRel(pReloc, pReloc.type(), pParent);
+        return ARMRelocationFactory::OK;
       }
     }
   }
+
 
   // perform static relocation
   pReloc.target() = (S + A) | T;
@@ -657,11 +663,19 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  // use plt
-  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    S = helper_PLT(pReloc, pParent);
-    T = 0 ; // PLT is not thumb
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // use plt
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+      T = 0 ; // PLT is not thumb
+    }
   }
+
   X = (S + A) | T ;
   // perform static relocation
   pReloc.target() = (S + A) | T;
@@ -706,9 +720,16 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
     helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  // use plt
-  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    S = helper_PLT(pReloc, pParent);
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // use plt
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+    }
   }
 
   X = S + A;
@@ -748,10 +769,17 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  // use plt
-  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    S = helper_PLT(pReloc, pParent);
-    T = 0; // PLT is not thumb
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // use plt
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+      T = 0; // PLT is not thumb
+    }
   }
   X = (S + A) | T;
   pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
@@ -811,10 +839,18 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  // use plt
-  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    S = helper_PLT(pReloc, pParent);
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    // use plt
+    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+    }
   }
+
   X = S + A;
   X >>= 16;
 
