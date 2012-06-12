@@ -33,10 +33,6 @@ MemoryArea::MemoryArea(RegionFactory& pRegionFactory)
 
 MemoryArea::~MemoryArea()
 {
-  // truncate the file to real size
-  if (isWritable())
-    truncate(m_FileSize);
-
   unmap();
 }
 
