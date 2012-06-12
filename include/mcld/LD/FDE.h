@@ -24,8 +24,6 @@ namespace mcld
  *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
 
-class CIE;
-
 class FDE
 {
 public:
