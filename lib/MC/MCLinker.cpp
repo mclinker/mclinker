@@ -658,33 +658,36 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 /// @param pArea - the memory area which pSection is within.
 uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 {
-  // no need to parse eh_frame if --eh-frame-hdr not given
-  if (!m_Info.options().hasEhFrameHdr()) {
+  uint64_t size = 0;
 
-    MemoryRegion* region = pArea.request(pSection.offset(),
-                                         pSection.size());
-
-    llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
-
-    llvm::MCFragment* frag = NULL;
-    if (NULL == region) {
-       // If the input section's size is zero, we got a NULL region.
-       // use a virtual fill fragment
-       frag = new llvm::MCFillFragment(0x0, 0, 0);
-    }
-    else
-       frag = new MCRegionFragment(*region);
-
-    uint64_t size = m_Layout.appendFragment(*frag,
-                                            sect_data,
-                                            pSection.align());
-    return size;
+  // parse the eh_frame if the option --eh-frame-hdr is given
+  if (m_Info.options().hasEhFrameHdr()) {
+    if (m_pEhFrame == NULL)
+      m_pEhFrame = new EhFrame();
+    size = m_pEhFrame->readEhFrame(this, m_Backend, pSection, pArea);
+    // zero size indicate that this is an empty section or we can't recognize
+    // this eh_frame, handle it as a regular section.
+    if (0 != size)
+      return size;
   }
 
-  // create and parse .eh_frame section
-  if (m_pEhFrame == NULL)
-    m_pEhFrame = new EhFrame();
-  return 0x0;
+  // handle eh_frame as a regular section
+  MemoryRegion* region = pArea.request(pSection.offset(),
+                                       pSection.size());
+
+  llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
+
+  llvm::MCFragment* frag = NULL;
+  if (NULL == region) {
+    // If the input section's size is zero, we got a NULL region.
+    // use a virtual fill fragment
+    frag = new llvm::MCFillFragment(0x0, 0, 0);
+  }
+  else
+    frag = new MCRegionFragment(*region);
+
+  size = m_Layout.appendFragment(*frag, sect_data, pSection.align());
+  return size;
 }
 
 /// finalizeEhFrameHdr - fill .eh_frame_hdr section, add PT_GNU_EH_FRAME
