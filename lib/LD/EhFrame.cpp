@@ -141,6 +141,7 @@ bool EhFrame::addCIE(const MCRegionFragment& pFrag,
   ConstAddress aug_str = p;
   ConstAddress aug_str_end = static_cast<ConstAddress>(
                                memchr(p, '\0', cie_end - p));
+
   // skip the Augumentation String field
   p = aug_str_end + 1;
 
@@ -169,11 +170,14 @@ bool EhFrame::addCIE(const MCRegionFragment& pFrag,
   }
 
   // parse the Augmentation String to get the FDE encodeing if 'z' existed
+  std::string aug_str_data;
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
   if (*aug_str == 'z') {
 
-    // skip the Augumentation Data Length
+    aug_str_data += *aug_str;
     ++aug_str;
+
+    // skip the Augumentation Data Length
     if (!skipLEB128(&p, cie_end)) {
       debug(diag::debug_eh_unsupport) <<
         "unrecognized Augmentation Data Length";
@@ -263,15 +267,21 @@ bool EhFrame::addCIE(const MCRegionFragment& pFrag,
             case llvm::dwarf::DW_EH_PE_absptr:
               break;
             default:
-              debug(diag::debug_eh_unsupport) << "FDE encoding: " << fde_encoding;
+              debug(diag::debug_eh_unsupport) << "FDE encoding: "
+                                              << (fde_encoding & 7);
               return false;
           }
           ++p;
           break;
       } // end switch
+      aug_str_data += *aug_str;
       ++aug_str;
     } // end while
   }
+
+  note(diag::note_eh_cie) << region.size()
+                          << aug_str_data
+                          << (fde_encoding & 7);
 
   // create and push back the CIE entry
   CIE* entry = m_CIEFactory.allocate();
@@ -298,6 +308,7 @@ bool EhFrame::addFDE(const MCRegionFragment& pFrag,
   }
   FDE::Offset pc_offset = static_cast<FDE::Offset>(p - fde_start);
 
+  note(diag::note_eh_fde) << region.size() << pc_offset;
   // create and push back the FDE entry
   FDE* entry = m_FDEFactory.allocate();
   new (entry) FDE(pFrag, **(m_CIEs.end() - 1), pc_offset);

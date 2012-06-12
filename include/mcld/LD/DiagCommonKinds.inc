@@ -30,3 +30,4 @@ DIAG(err_cannot_trace_file, DiagnosticEngine::Unreachable, "cannot identify the 
 DIAG(debug_eh_unsupport, DiagnosticEngine::Debug, "unsupported eh_frame: %0%1", "unsupported eh_frame: %0%1")
 DIAG(note_ehframe, DiagnosticEngine::Note, "eh_frame: %0", "eh_frame: %0")
 DIAG(note_eh_cie, DiagnosticEngine::Note, "CIE length: %0, aug_string: %1, fde_encodeing: %2", "CIE length: %0, aug_string: %1, fde_encodeing: %2")
+DIAG(note_eh_fde, DiagnosticEngine::Note, "FDE length: %0, offset of PC Begin: %1", "FDE length: %0, offset of PC Begin: %1")
