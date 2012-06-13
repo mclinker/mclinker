@@ -90,7 +90,7 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
     // the section offset of this entry
     uint32_t ent_offset = static_cast<uint32_t>(p - eh_start - 4);
 
-    // create the RefionFragment of this entry
+    // create the RegionFragment of this entry
     MemoryRegion* ent_region = pArea.request(pSection.offset() + ent_offset,
                                              len + 4);
     llvm:: MCFragment* frag = new MCRegionFragment(*ent_region);
@@ -100,7 +100,8 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
 
     // create and add a CIE or FDE entry
     if (eh_end - p < 4) {
-      debug(diag::debug_eh_unsupport) << "CIE:ID field / FDE: CIE Pointer field";
+      debug(diag::debug_eh_unsupport) <<
+        "CIE:ID field / FDE: CIE Pointer field";
       return 0;
     }
     uint32_t id = readVal(p, pBackend.isLittleEndian());
@@ -322,7 +323,7 @@ uint32_t EhFrame::readVal(ConstAddress pAddr, bool pIsTargetLittleEndian)
   uint32_t val = *p;
 
   // byte swapping if the host and target have different endian
-  if(llvm::sys::isLittleEndianHost() != pIsTargetLittleEndian)
+  if (llvm::sys::isLittleEndianHost() != pIsTargetLittleEndian)
     val = bswap32(val);
   return val;
 }
@@ -330,7 +331,7 @@ uint32_t EhFrame::readVal(ConstAddress pAddr, bool pIsTargetLittleEndian)
 bool EhFrame::skipLEB128(ConstAddress* pp, ConstAddress pend)
 {
   for (ConstAddress p = *pp; p < pend; ++p) {
-    if(0 == (*p & 0x80)) {
+    if (0 == (*p & 0x80)) {
       *pp = p + 1;
       return true;
     }
