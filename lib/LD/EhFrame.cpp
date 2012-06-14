@@ -49,11 +49,13 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
   // as an ordinary input.
   if (0 == len) {
     note(diag::note_ehframe) << "a terminator";
+    pArea.release(region);
     return 0;
   }
 
   if (0xffffffff == len) {
     debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
+    pArea.release(region);
     return 0;
   }
 
@@ -68,6 +70,7 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
 
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) << "CIE or FDE size smaller than 4";
+      pArea.release(region);
       return 0;
     }
     // read the Length field
@@ -78,12 +81,14 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
     if (0 == len) {
       if (p < eh_end) {
         debug(diag::debug_eh_unsupport) << "Non-end entry with zero length";
+        pArea.release(region);
         return 0;
       }
       break;
     }
     if (0xffffffff == len) {
       debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
+      pArea.release(region);
       return 0;
     }
 
@@ -102,16 +107,21 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) <<
         "CIE:ID field / FDE: CIE Pointer field";
+      pArea.release(region);
       return 0;
     }
     uint32_t id = readVal(p, pBackend.isLittleEndian());
     if (0 == id) {
-      if (!addCIE(llvm::cast<MCRegionFragment>(*frag), pBackend))
+      if (!addCIE(llvm::cast<MCRegionFragment>(*frag), pBackend)) {
+        pArea.release(region);
         return 0;
+      }
     }
     else {
-      if (!addFDE(llvm::cast<MCRegionFragment>(*frag), pBackend))
+      if (!addFDE(llvm::cast<MCRegionFragment>(*frag), pBackend)) {
+        pArea.release(region);
         return 0;
+      }
     }
     p += len;
   }
