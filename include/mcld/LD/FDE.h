@@ -35,17 +35,18 @@ public:
 
   /// ----- observers ------ ///
   /// getCIE - the CIE corresponding to this FDE
-  const CIE& getCIE() const;
+  const CIE& getCIE() const
+  { return m_CIE; }
 
-  /// PCBegin - PC Begin
-  uint64_t PCBegin() const;
+  const MCRegionFragment& getRegionFrag() const
+  { return m_Fragment; }
+
+  size_t size() const
+  { return m_Fragment.getRegion().size(); }
 
   /// getPCBeginOffset - the offset to the FDE of the PC Begin field
   Offset getPCBeginOffset() const
   { return m_PCBeginOffset; }
-
-  size_t size() const
-  { return m_Fragment.getRegion().size(); }
 
 private:
   const MCRegionFragment& m_Fragment;

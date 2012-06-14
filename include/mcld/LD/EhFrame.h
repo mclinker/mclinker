@@ -33,10 +33,12 @@ class EhFrame
 {
 public:
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
-  typedef std::vector<CIE*>::iterator cie_iterator;
-  typedef std::vector<CIE*>::const_iterator cie_const_iterator;
-  typedef std::vector<FDE*>::iterator fde_iterator;
-  typedef std::vector<FDE*>::const_iterator fde_const_iterator;
+  typedef std::vector<CIE*> CIEVectorType;
+  typedef std::vector<FDE*> FDEVectorType;
+  typedef CIEVectorType::iterator cie_iterator;
+  typedef CIEVectorType::const_iterator const_cie_iterator;
+  typedef FDEVectorType::iterator fde_iterator;
+  typedef FDEVectorType::const_iterator const_fde_iterator;
 
 public:
   EhFrame();
@@ -52,6 +54,49 @@ public:
                        const TargetLDBackend& pBackend,
                        LDSection& pSection,
                        MemoryArea& pArea);
+
+  // ----- observers ----- //
+  CIEVectorType& getCIEs()
+  { return m_CIEs; }
+
+  const CIEVectorType& getCIEs() const
+  { return m_CIEs; }
+
+  FDEVectorType& getFDEs()
+  { return m_FDEs; }
+
+  const FDEVectorType& getFDEs() const
+  { return m_FDEs; }
+
+  cie_iterator cie_begin()
+  { return m_CIEs.begin(); }
+
+  const_cie_iterator cie_begin() const
+  { return m_CIEs.begin(); }
+
+  cie_iterator cie_end()
+  { return m_CIEs.end(); }
+
+  const_cie_iterator cie_end() const
+  { return m_CIEs.end(); }
+
+  fde_iterator fde_begin()
+  { return m_FDEs.begin(); }
+
+  const_fde_iterator fde_begin() const
+  { return m_FDEs.begin(); }
+
+  fde_iterator fde_end()
+  { return m_FDEs.end(); }
+
+  const_fde_iterator fde_end() const
+  { return m_FDEs.end(); }
+
+  size_t getFDECount()
+  { return m_FDEs.size(); }
+
+  size_t getFDECount() const
+  { return m_FDEs.size(); }
 
 private:
   /// addCIE - parse and create a CIE entry
@@ -78,8 +123,8 @@ private:
 private:
   CIEFactory m_CIEFactory;
   FDEFactory m_FDEFactory;
-  std::vector<CIE*> m_CIEs;
-  std::vector<FDE*> m_FDEs;
+  CIEVectorType m_CIEs;
+  FDEVectorType m_FDEs;
 };
 
 } // namespace of mcld

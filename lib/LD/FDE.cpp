@@ -17,17 +17,8 @@ using namespace mcld;
 FDE::FDE(const MCRegionFragment& pFrag, const CIE& pCIE, Offset pPCBeginOffset)
   : m_Fragment(pFrag), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
 }
+
 FDE::~FDE()
 {
-}
-
-const CIE& FDE::getCIE() const
-{
-  return m_CIE;
-}
-
-uint64_t FDE::PCBegin() const
-{
-  return 0;
 }
 
