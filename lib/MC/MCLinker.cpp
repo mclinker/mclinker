@@ -660,13 +660,14 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 {
   uint64_t size = 0;
 
+  // get the SectionData of this eh_frame
+  llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
+
   // parse the eh_frame if the option --eh-frame-hdr is given
   if (m_Info.options().hasEhFrameHdr()) {
     if (m_pEhFrame == NULL)
       m_pEhFrame = new EhFrame();
 
-    // get the SectionData of this eh_frame
-    llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
 
     size = m_pEhFrame->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
                                    pArea);
@@ -679,8 +680,6 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
   // handle eh_frame as a regular section
   MemoryRegion* region = pArea.request(pSection.offset(),
                                        pSection.size());
-
-  llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
 
   llvm::MCFragment* frag = NULL;
   if (NULL == region) {
