@@ -664,7 +664,12 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
   if (m_Info.options().hasEhFrameHdr()) {
     if (m_pEhFrame == NULL)
       m_pEhFrame = new EhFrame();
-    size = m_pEhFrame->readEhFrame(this, m_Backend, pSection, pArea);
+
+    // get the SectionData of this eh_frame
+    llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
+
+    size = m_pEhFrame->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
+                                   pArea);
     // zero size indicate that this is an empty section or we can't recognize
     // this eh_frame, handle it as a regular section.
     if (0 != size)

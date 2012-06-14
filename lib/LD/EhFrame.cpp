@@ -18,15 +18,16 @@ using namespace mcld;
 //==========================
 // EhFrame
 EhFrame::EhFrame()
- : m_CIEFactory(32), m_FDEFactory(32) {
+ : m_CIEFactory(8), m_FDEFactory(32) {
 }
 
 EhFrame::~EhFrame()
 {
 }
 
-uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
+uint64_t EhFrame::readEhFrame(Layout& pLayout,
                               const TargetLDBackend& pBackend,
+                              llvm::MCSectionData& pSD,
                               LDSection& pSection,
                               MemoryArea& pArea)
 {
@@ -62,9 +63,6 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
   // the size of this eh_frame section
   size_t section_size = 0;
 
-  // get the SectionData of this eh_frame
-  llvm::MCSectionData& sect_data = pLinker->getOrCreateSectData(pSection);
-
   // parse the eh_frame
   while (p < eh_end) {
 
@@ -99,9 +97,7 @@ uint64_t EhFrame::readEhFrame(MCLinker* pLinker,
     MemoryRegion* ent_region = pArea.request(pSection.offset() + ent_offset,
                                              len + 4);
     llvm:: MCFragment* frag = new MCRegionFragment(*ent_region);
-    section_size += pLinker->getLayout().appendFragment(*frag,
-                                                        sect_data,
-                                                        pSection.align());
+    section_size += pLayout.appendFragment(*frag, pSD, pSection.align());
 
     // create and add a CIE or FDE entry
     if (eh_end - p < 4) {

@@ -46,28 +46,18 @@ public:
 
   /// readEhFrame - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
+
   /// @param pSection - the input section
   /// @param pArea - the memory area which pSection is within.
   /// @ return - size of this eh_frame section, 0 if we do not recognize
   /// this eh_frame or this is an empty section
-  uint64_t readEhFrame(MCLinker* pLinker,
+  uint64_t readEhFrame(Layout& pLayout,
                        const TargetLDBackend& pBackend,
+                       llvm::MCSectionData& pSD,
                        LDSection& pSection,
                        MemoryArea& pArea);
 
   // ----- observers ----- //
-  CIEVectorType& getCIEs()
-  { return m_CIEs; }
-
-  const CIEVectorType& getCIEs() const
-  { return m_CIEs; }
-
-  FDEVectorType& getFDEs()
-  { return m_FDEs; }
-
-  const FDEVectorType& getFDEs() const
-  { return m_FDEs; }
-
   cie_iterator cie_begin()
   { return m_CIEs.begin(); }
 
