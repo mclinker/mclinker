@@ -56,6 +56,7 @@ public:
     File          = 4,
     CommonBlock   = 5,
     ThreadLocal   = 6,
+    IndirectFunc  = 10,
     LoProc        = 13,
     HiProc        = 15
   };

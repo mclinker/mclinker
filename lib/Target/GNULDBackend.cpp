@@ -1251,7 +1251,12 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
       pSymbol.visibility() == llvm::ELF::STV_HIDDEN)
     bind = llvm::ELF::STB_LOCAL;
 
-  return (pSymbol.resolveInfo()->type() | (bind << 4));
+  uint32_t type = pSymbol.resolveInfo()->type();
+  // if the IndirectFunc symbol (i.e., STT_GNU_IFUNC) is from dynobj, change
+  // its type to Function
+  if (type == ResolveInfo::IndirectFunc && pSymbol.isDyn())
+    type = ResolveInfo::Function;
+  return (type | (bind << 4));
 }
 
 /// getSymbolValue - this function is called after layout()
@@ -1731,6 +1736,10 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
 {
   if (pSym.isUndef() && !pSym.isDyn() && pOutput.type() != Output::DynObj)
     return false;
+
+  // An IndirectFunc symbol (i.e., STT_GNU_IFUNC) always needs a plt entry
+  if (pSym.type() == ResolveInfo::IndirectFunc)
+    return true;
 
   if (pSym.type() != ResolveInfo::Function)
     return false;
