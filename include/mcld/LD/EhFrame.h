@@ -33,12 +33,12 @@ class EhFrame
 {
 public:
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
-  typedef std::vector<CIE*> CIEVectorType;
-  typedef std::vector<FDE*> FDEVectorType;
-  typedef CIEVectorType::iterator cie_iterator;
-  typedef CIEVectorType::const_iterator const_cie_iterator;
-  typedef FDEVectorType::iterator fde_iterator;
-  typedef FDEVectorType::const_iterator const_fde_iterator;
+  typedef std::vector<CIE*> CIEListType;
+  typedef std::vector<FDE*> FDEListType;
+  typedef CIEListType::iterator cie_iterator;
+  typedef CIEListType::const_iterator const_cie_iterator;
+  typedef FDEListType::iterator fde_iterator;
+  typedef FDEListType::const_iterator const_fde_iterator;
 
 public:
   EhFrame();
@@ -46,8 +46,8 @@ public:
 
   /// readEhFrame - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
-
-  /// @param pSection - the input section
+  /// @param pSD - the MCSectionData of this input eh_frame
+  /// @param pSection - the input eh_frame
   /// @param pArea - the memory area which pSection is within.
   /// @ return - size of this eh_frame section, 0 if we do not recognize
   /// this eh_frame or this is an empty section
@@ -113,8 +113,8 @@ private:
 private:
   CIEFactory m_CIEFactory;
   FDEFactory m_FDEFactory;
-  CIEVectorType m_CIEs;
-  FDEVectorType m_FDEs;
+  CIEListType m_CIEs;
+  FDEListType m_FDEs;
 };
 
 } // namespace of mcld
