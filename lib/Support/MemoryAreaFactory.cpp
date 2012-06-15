@@ -6,12 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/MemoryAreaFactory.h"
-#include "mcld/Support/RegionFactory.h"
+#include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/Support/RegionFactory.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // MemoryAreaFactory
 MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
   : UniqueGCFactoryBase<sys::fs::Path, MemoryArea, 0>(pNum) {
