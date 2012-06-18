@@ -17,7 +17,11 @@ namespace mcld
 {
 
 /** \class FileHandle
- *  \brief FileHandle 
+ *  \brief FileHandle class provides an interface for reading from and writing
+ *  to files.
+ *
+ *  Operators of FileHandle should neither throw exceptions nor call expressive
+ *  diagnostic output.
  */
 class FileHandle
 {
@@ -25,7 +29,7 @@ public:
   enum IOState
   {
     GoodBit    = 0,       // no error
-    BadBit     = 1L << 0, // fail on the Space
+    BadBit     = 1L << 0, // error due to the inappropriate operation
     EOFBit     = 1L << 1, // reached End-Of-File
     FailBit    = 1L << 2, // internal logic fail
     IOStateEnd = 1L << 16
@@ -44,9 +48,6 @@ public:
 
   enum Permission
   {
-    ReadUser    = 0x4000,
-    WriteUser   = 0x2000,
-    ExeUser     = 0x1000,
     ReadOwner   = 0x0400,
     WriteOwner  = 0x0200,
     ExeOwner    = 0x0100,
@@ -69,18 +70,26 @@ public:
             enum OpenMode pMode,
             enum Permission pPerm);
 
-  bool delegate(int& pFD, enum OpenMode pMode);
+  bool delegate(int pFD, enum OpenMode pMode);
 
-  void close();
+  bool close();
 
   void setState(IOState pState);
 
-  void clear(IOState pState = GoodBit);
+  void cleanState(IOState pState = GoodBit);
 
   // -----  observers  ----- //
-  const sys::fs::Path& path() const;
+  const sys::fs::Path& path() const
+  { return m_Path; }
 
-  size_t size() const;
+  size_t size() const
+  { return m_Size; }
+
+  int handler() const
+  { return m_Handler; }
+
+  uint16_t rdstate() const
+  { return m_State; }
 
   bool isOpened() const;
 
@@ -96,14 +105,12 @@ public:
 
   bool isReadWrite() const;
 
-  int rdstate() const;
-  
 private:
   sys::fs::Path m_Path;
-  int m_FD;
+  int m_Handler;
   unsigned int m_Size;
-  uint16_t m_AccessFlags;
   uint16_t m_State;
+  OpenMode m_OpenMode;
 };
 
 } // namespace of mcld
