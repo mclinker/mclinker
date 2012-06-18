@@ -36,6 +36,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/FileSystem.cpp \
 	${INCDIR}/Support/LEB128.h \
 	${LIBDIR}/Support/LEB128.cpp \
+	${INCDIR}/Support/FileHandle.h \
+	${LIBDIR}/Support/FileHandle.cpp \
 	${INCDIR}/Support/MemoryArea.h \
 	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
@@ -299,7 +301,9 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/LEB128Test.h \
 	${UNITTEST}/LEB128Test.cpp \
 	${UNITTEST}/SymbolCategoryTest.h \
-	${UNITTEST}/SymbolCategoryTest.cpp
+	${UNITTEST}/SymbolCategoryTest.cpp \
+	${UNITTEST}/FileHandleTest.h \
+	${UNITTEST}/FileHandleTest.cpp
 #	${UNITTEST}/SymbolTableTest.h \
 #	${UNITTEST}/SymbolTableTest.cpp \
 #	${UNITTEST}/NamePoolTest.h \

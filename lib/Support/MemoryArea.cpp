@@ -224,7 +224,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
 
         if (space->data == MAP_FAILED) {
           error(diag::err_cannot_mmap_file)
-                  << m_FilePath << sys::fs::detail::strerror(errno);
+                  << m_FilePath << sys::strerror(errno);
         }
 
         r_start = space->data + (pOffset - space->file_offset);
@@ -238,7 +238,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
         if ((m_AccessFlags & AccessMask) != WriteOnly) {
           // Read data from the backend file.
           if (!read(*space)) {
-            error(diag::err_cannot_read_file) << m_FilePath << strerror(errno);
+            error(diag::err_cannot_read_file) << m_FilePath << sys::strerror(errno);
           }
         }
         break;

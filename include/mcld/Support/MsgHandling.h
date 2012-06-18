@@ -34,6 +34,16 @@ MsgHandler debug(unsigned int pID);
 MsgHandler note(unsigned int pID);
 MsgHandler ignore(unsigned int pID);
 
+//===----------------------------------------------------------------------===//
+// Non member functions
+namespace sys {
+
+/** \fn strerror
+ *  \brief system error message
+ */
+char *strerror(int pErrnum);
+
+} // namespace of sys
 } // namespace of mcld
 
 //===----------------------------------------------------------------------===//
