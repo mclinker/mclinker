@@ -704,20 +704,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     strtab += str_size;
   }
 
-  ELFFileFormat* file_format = NULL;
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // TODO: not support yet
-      return;
-  }
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   switch(pOutput.type()) {
     // compute size of .dynstr and .hash
@@ -798,23 +785,14 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;
 
-  ELFFileFormat* file_format = NULL;
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // add first symbol into m_pSymIndexMap
-      entry = m_pSymIndexMap->insert(NULL, sym_exist);
-      entry->setValue(0);
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  if (pOutput.type() == Output::Object) {
+    // add first symbol into m_pSymIndexMap
+    entry = m_pSymIndexMap->insert(NULL, sym_exist);
+    entry->setValue(0);
 
-      // TODO: not support yet
-      return;
+    // TODO: not support yet
+    return;
   }
 
   LDSection& symtab_sect = file_format->getSymTab();
@@ -909,24 +887,10 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     const MCLDInfo& pLDInfo)
 {
   assert(pOutput.hasMemArea());
-  ELFFileFormat* file_format = NULL;
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;
-
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // TODO: not support yet
-      return;
-  }
 
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
@@ -1146,19 +1110,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
 
   bool is_write = (pSectHdr.flag() & llvm::ELF::SHF_WRITE) != 0;
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
-  const ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      assert(0 && "Not support yet.\n");
-      break;
-  }
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
