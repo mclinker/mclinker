@@ -24,13 +24,13 @@ namespace mcld
  *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
 
-class FDE
+class FDE : public MCRegionFragment
 {
 public:
   typedef uint32_t Offset;
 
 public:
-  FDE(const MCRegionFragment& pFrag, const CIE& pCIE, Offset pPCBeginOffset);
+  FDE(MemoryRegion& pRegion, const CIE& pCIE, Offset pPCBeginOffset);
   ~FDE();
 
   /// ----- observers ------ ///
@@ -38,18 +38,11 @@ public:
   const CIE& getCIE() const
   { return m_CIE; }
 
-  const MCRegionFragment& getRegionFrag() const
-  { return m_Fragment; }
-
-  size_t size() const
-  { return m_Fragment.getRegion().size(); }
-
   /// getPCBeginOffset - the offset to the FDE of the PC Begin field
   Offset getPCBeginOffset() const
   { return m_PCBeginOffset; }
 
 private:
-  const MCRegionFragment& m_Fragment;
   const CIE& m_CIE;
   Offset m_PCBeginOffset;
 };

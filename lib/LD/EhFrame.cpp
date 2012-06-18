@@ -18,7 +18,7 @@ using namespace mcld;
 //==========================
 // EhFrame
 EhFrame::EhFrame()
- : m_CIEFactory(8), m_FDEFactory(32) {
+ : m_fCanRecognizeAll(true) {
 }
 
 EhFrame::~EhFrame()
@@ -57,19 +57,19 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
   if (0xffffffff == len) {
     debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
     pArea.release(region);
+    m_fCanRecognizeAll = false;
     return 0;
   }
 
-  // the size of this eh_frame section
-  size_t section_size = 0;
+  // record the order of the CIE and FDE fragments
+  FragListType frag_list;
 
-  // parse the eh_frame
   while (p < eh_end) {
 
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) << "CIE or FDE size smaller than 4";
-      pArea.release(region);
-      return 0;
+      m_fCanRecognizeAll = false;
+      break;
     }
     // read the Length field
     len = readVal(p, pBackend.isLittleEndian());
@@ -79,59 +79,73 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     if (0 == len) {
       if (p < eh_end) {
         debug(diag::debug_eh_unsupport) << "Non-end entry with zero length";
-        pArea.release(region);
-        return 0;
+        m_fCanRecognizeAll = false;
       }
       break;
     }
     if (0xffffffff == len) {
       debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
-      pArea.release(region);
-      return 0;
+      m_fCanRecognizeAll = false;
+      break;
     }
 
-    // the section offset of this entry
-    uint32_t ent_offset = static_cast<uint32_t>(p - eh_start - 4);
-
-    // create the RegionFragment of this entry
-    MemoryRegion* ent_region = pArea.request(pSection.offset() + ent_offset,
-                                             len + 4);
-    llvm:: MCFragment* frag = new MCRegionFragment(*ent_region);
-    section_size += pLayout.appendFragment(*frag, pSD, pSection.align());
-
-    // create and add a CIE or FDE entry
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) <<
         "CIE:ID field / FDE: CIE Pointer field";
-      pArea.release(region);
-      return 0;
+      m_fCanRecognizeAll = false;
+      break;
     }
+
+    // compute the section offset of this entry
+    uint32_t ent_offset = static_cast<uint32_t>(p - eh_start - 4);
+
+    // get the MemoryRegion for this entry
+    MemoryRegion* ent_region = pArea.request(pSection.offset() + ent_offset,
+                                             len + 4);
+
+    // create and add a CIE or FDE entry
     uint32_t id = readVal(p, pBackend.isLittleEndian());
+    // CIE
     if (0 == id) {
-      if (!addCIE(llvm::cast<MCRegionFragment>(*frag), pBackend)) {
-        pArea.release(region);
-        return 0;
+      if (!addCIE(*ent_region, pBackend, frag_list)) {
+        m_fCanRecognizeAll = false;
+        break;
       }
     }
+
+    // FDE
     else {
-      if (!addFDE(llvm::cast<MCRegionFragment>(*frag), pBackend)) {
-        pArea.release(region);
-        return 0;
+      if (!addFDE(*ent_region, pBackend, frag_list)) {
+        m_fCanRecognizeAll = false;
+        break;
       }
     }
     p += len;
   }
 
+  if (!m_fCanRecognizeAll) {
+    pArea.release(region);
+    deleteFragments(frag_list);
+    return 0;
+  }
+
+  // append all CIE and FDE fragments to Layout after we successfully read
+  // this eh_frame
+  size_t section_size = 0;
+  for (FragListType::iterator it = frag_list.begin();
+         it != frag_list.end(); ++it)
+    section_size += pLayout.appendFragment(**it, pSD, pSection.align());
+
   pArea.release(region);
   return section_size;
 }
 
-bool EhFrame::addCIE(const MCRegionFragment& pFrag,
-                     const TargetLDBackend& pBackend)
+bool EhFrame::addCIE(MemoryRegion& pRegion,
+                     const TargetLDBackend& pBackend,
+                     FragListType& pFragList)
 {
-  const MemoryRegion& region = pFrag.getRegion();
-  ConstAddress cie_start = region.start();
-  ConstAddress cie_end = region.end();
+  ConstAddress cie_start = pRegion.start();
+  ConstAddress cie_end = pRegion.end();
   ConstAddress p = cie_start;
 
   // skip the Length (4 byte) and CIE ID (4 byte) fields
@@ -286,23 +300,23 @@ bool EhFrame::addCIE(const MCRegionFragment& pFrag,
     } // end while
   }
 
-  note(diag::note_eh_cie) << region.size()
+  note(diag::note_eh_cie) << pRegion.size()
                           << aug_str_data
                           << (fde_encoding & 7);
 
   // create and push back the CIE entry
-  CIE* entry = m_CIEFactory.allocate();
-  new (entry) CIE(pFrag, fde_encoding);
+  CIE* entry = new CIE(pRegion, fde_encoding);
   m_CIEs.push_back(entry);
+  pFragList.push_back(static_cast<llvm::MCFragment*>(entry));
   return true;
 }
 
-bool EhFrame::addFDE(const MCRegionFragment& pFrag,
-                     const TargetLDBackend& pBackend)
+bool EhFrame::addFDE(MemoryRegion& pRegion,
+                     const TargetLDBackend& pBackend,
+                     FragListType& pFragList)
 {
-  const MemoryRegion& region = pFrag.getRegion();
-  ConstAddress fde_start = region.start();
-  ConstAddress fde_end = region.end();
+  ConstAddress fde_start = pRegion.start();
+  ConstAddress fde_end = pRegion.end();
   ConstAddress p = fde_start;
 
   // skip the Length (4 byte) and CIE Pointer (4 byte) fields
@@ -315,11 +329,11 @@ bool EhFrame::addFDE(const MCRegionFragment& pFrag,
   }
   FDE::Offset pc_offset = static_cast<FDE::Offset>(p - fde_start);
 
-  note(diag::note_eh_fde) << region.size() << pc_offset;
+  note(diag::note_eh_fde) << pRegion.size() << pc_offset;
   // create and push back the FDE entry
-  FDE* entry = m_FDEFactory.allocate();
-  new (entry) FDE(pFrag, **(m_CIEs.end() - 1), pc_offset);
+  FDE* entry = new FDE(pRegion, **(m_CIEs.end() -1), pc_offset);
   m_FDEs.push_back(entry);
+  pFragList.push_back(static_cast<llvm::MCFragment*>(entry));
   return true;
 }
 
@@ -343,5 +357,12 @@ bool EhFrame::skipLEB128(ConstAddress* pp, ConstAddress pend)
     }
   }
   return false;
+}
+
+void EhFrame::deleteFragments(FragListType& pList)
+{
+  for (FragListType::iterator it = pList.begin(); it != pList.end(); ++it)
+    delete *it;
+  pList.clear();
 }
 

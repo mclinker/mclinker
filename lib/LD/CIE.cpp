@@ -14,8 +14,8 @@ using namespace mcld;
 //==========================
 // CIE
 
-CIE::CIE(const MCRegionFragment& pFrag, uint8_t pFDEEncode)
-  : m_Fragment(pFrag), m_FDEEncoding(pFDEEncode) {
+CIE::CIE(MemoryRegion& pRegion, uint8_t pFDEEncode)
+  : MCRegionFragment(pRegion), m_FDEEncoding(pFDEEncode) {
 }
 
 CIE::~CIE()

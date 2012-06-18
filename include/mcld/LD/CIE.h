@@ -22,10 +22,10 @@ namespace mcld
  *  \brief Common Information Entry.
  *  The CIE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
-class CIE
+class CIE : public MCRegionFragment
 {
 public:
-  explicit CIE(const MCRegionFragment& pFrag, uint8_t pFDEEncode);
+  explicit CIE(MemoryRegion& pRegion, uint8_t pFDEEncode);
   ~CIE();
 
   // ----- observers ----- //
@@ -34,14 +34,7 @@ public:
   uint8_t getFDEEncode() const
   { return m_FDEEncoding; }
 
-  const MCRegionFragment& getRegionFrag() const
-  { return m_Fragment; }
-
-  size_t size() const
-  { return m_Fragment.getRegion().size(); }
-
 private:
-  const MCRegionFragment& m_Fragment;
   uint8_t m_FDEEncoding;
 };
 

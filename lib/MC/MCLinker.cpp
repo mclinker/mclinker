@@ -668,13 +668,14 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
     if (m_pEhFrame == NULL)
       m_pEhFrame = new EhFrame();
 
-
-    size = m_pEhFrame->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
-                                   pArea);
-    // zero size indicate that this is an empty section or we can't recognize
-    // this eh_frame, handle it as a regular section.
-    if (0 != size)
-      return size;
+    if (m_pEhFrame->canRecognizeAllEhFrame()) {
+      size = m_pEhFrame->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
+                                       pArea);
+      // zero size indicate that this is an empty section or we can't recognize
+      // this eh_frame, handle it as a regular section.
+      if (0 != size)
+        return size;
+    }
   }
 
   // handle eh_frame as a regular section

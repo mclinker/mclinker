@@ -82,20 +82,38 @@ public:
   const_fde_iterator fde_end() const
   { return m_FDEs.end(); }
 
+  /// getFDECount - the number of FDE entries
   size_t getFDECount()
   { return m_FDEs.size(); }
 
   size_t getFDECount() const
   { return m_FDEs.size(); }
 
+  /// canRecognizeAllEhFrame - return if we are able to parse all input
+  /// eh_frame sections
+  /// @return false - if there is any input .eh_frame section that
+  /// we are not able to recognize
+  bool canRecognizeAllEhFrame()
+  { return m_fCanRecognizeAll; }
+
+  bool canRecognizeAllEhFrame() const
+  { return m_fCanRecognizeAll; }
+
+private:
+  typedef std::vector<llvm::MCFragment*> FragListType;
+
 private:
   /// addCIE - parse and create a CIE entry
   /// @return false - cannot recognize this CIE
-  bool addCIE(const MCRegionFragment& pFrag, const TargetLDBackend& pBackend);
+  bool addCIE(MemoryRegion& pFrag,
+              const TargetLDBackend& pBackend,
+              FragListType& pFragList);
 
   /// addFDE - parse and create an FDE entry
   /// @return false - cannot recognize this FDE
-  bool addFDE(const MCRegionFragment& pFrag, const TargetLDBackend& pBackend);
+  bool addFDE(MemoryRegion& pFrag,
+              const TargetLDBackend& pBackend,
+              FragListType& pFragList);
 
   /// readVal - read a 32 bit data from pAddr, swap it if needed
   uint32_t readVal(ConstAddress pAddr, bool pIsTargetLittleEndian);
@@ -106,15 +124,14 @@ private:
   /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
   bool skipLEB128(ConstAddress* pp, ConstAddress pend);
 
-private:
-  typedef GCFactory<CIE, 0> CIEFactory;
-  typedef GCFactory<FDE, 0> FDEFactory;
+  /// deleteFragments - delete MCFragments in pList
+  void deleteFragments(FragListType& pList);
 
 private:
-  CIEFactory m_CIEFactory;
-  FDEFactory m_FDEFactory;
   CIEListType m_CIEs;
   FDEListType m_FDEs;
+
+  bool m_fCanRecognizeAll;
 };
 
 } // namespace of mcld
