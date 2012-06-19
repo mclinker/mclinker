@@ -44,6 +44,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/MemoryRegion.cpp \
 	${INCDIR}/Support/RegionFactory.h \
 	${LIBDIR}/Support/RegionFactory.cpp \
+	${INCDIR}/Support/HandleToArea.h \
+	${LIBDIR}/Support/HandleToArea.cpp \
 	${INCDIR}/Support/MemoryAreaFactory.h \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/Support/CommandLine.h \
