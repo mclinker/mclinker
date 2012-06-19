@@ -25,6 +25,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringEntry.h \
 	${LIBDIR}/ADT/StringEntry.cpp \
+	${INCDIR}/Support/Flags.h \
 	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
