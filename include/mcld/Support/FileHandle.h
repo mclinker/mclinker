@@ -44,6 +44,7 @@ public:
     Append    = 0x04,
     Create    = 0x08,
     Truncate  = 0x10,
+    Unknown   = 0xFF
   };
 
   enum Permission
@@ -56,7 +57,7 @@ public:
     ExeGroup    = 0x0010,
     ReadOther   = 0x0004,
     WriteOther  = 0x0002,
-    ExeOther    = 0x0001,
+    ExeOther    = 0x0001
   };
 
 public:
@@ -70,7 +71,7 @@ public:
             enum OpenMode pMode,
             enum Permission pPerm);
 
-  bool delegate(int pFD, enum OpenMode pMode);
+  bool delegate(int pFD, enum OpenMode pMode = Unknown);
 
   bool close();
 

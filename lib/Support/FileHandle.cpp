@@ -32,6 +32,9 @@ FileHandle::~FileHandle()
 inline static int oflag(enum FileHandle::OpenMode pMode)
 {
   int result = 0x0;
+  if (FileHandle::Unknown == pMode)
+    return result;
+
   if (FileHandle::ReadWrite == (pMode & FileHandle::ReadWrite))
     result |= O_RDWR;
   else if (pMode & FileHandle::ReadOnly)
@@ -65,10 +68,11 @@ inline static bool get_size(int pHandler, unsigned int &pSize)
 bool FileHandle::open(const sys::fs::Path& pPath,
                       enum FileHandle::OpenMode pMode)
 {
-  if (isOpened()) {
+  if (isOpened() || Unknown == pMode) {
     setState(BadBit);
     return false;
   }
+
   m_OpenMode = pMode;
   m_Handler = ::open(pPath.native().c_str(), oflag(pMode));
   if (-1 == m_Handler) {
@@ -89,7 +93,7 @@ bool FileHandle::open(const sys::fs::Path& pPath,
                       enum FileHandle::OpenMode pMode,
                       enum FileHandle::Permission pPerm)
 {
-  if (isOpened()) {
+  if (isOpened() || Unknown == pMode) {
     setState(BadBit);
     return false;
   }
@@ -152,7 +156,6 @@ void FileHandle::setState(FileHandle::IOState pState)
   m_State |= pState;
 }
 
-
 void FileHandle::cleanState(FileHandle::IOState pState)
 {
   m_State = pState;
@@ -166,17 +169,19 @@ bool FileHandle::isOpened() const
   return false;
 }
 
+// Assume Unknown OpenMode is readable
 bool FileHandle::isReadable() const
 {
   return (m_OpenMode & ReadOnly);
 }
 
+// Assume Unknown OpenMode is writable
 bool FileHandle::isWritable() const
 {
   return (m_OpenMode & WriteOnly);
 }
 
-
+// Assume Unknown OpenMode is both readable and writable
 bool FileHandle::isReadWrite() const
 {
   return (FileHandle::ReadWrite == (m_OpenMode & FileHandle::ReadWrite));
