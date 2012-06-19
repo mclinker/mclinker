@@ -52,7 +52,8 @@ GNULDBackend::GNULDBackend()
     f_p_EData(NULL),
     f_pBSSStart(NULL),
     f_pEnd(NULL),
-    f_p_End(NULL) {
+    f_p_End(NULL),
+    m_pEhFrameHdr(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 
@@ -74,8 +75,10 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (NULL != m_pExecFileFormat)
     delete m_pExecFileFormat;
-  if(NULL != m_pSymIndexMap)
+  if (NULL != m_pSymIndexMap)
     delete m_pSymIndexMap;
+  if (NULL != m_pEhFrameHdr)
+    delete m_pEhFrameHdr;
 }
 
 size_t GNULDBackend::sectionStartOffset() const

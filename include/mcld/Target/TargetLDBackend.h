@@ -11,6 +11,7 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/LD/EhFrame.h>
 
 namespace mcld {
 
@@ -153,6 +154,14 @@ public:
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
+
+public:
+  EhFrame& getEhFrame();
+
+private:
+  /// m_pEhFrame - section .eh_frame
+  EhFrame* m_pEhFrame;
+
 };
 
 } // End mcld namespace

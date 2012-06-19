@@ -97,11 +97,6 @@ public:
   /// and push_back into the relocation section
   bool relocation();
 
-  /// postRelocate - help backend to do some modification after applying
-  /// relocation.
-  /// Complement .eh_frame_hdr section
-  bool postRelocation();
-
   /// finalizeSymbolValue - finalize the symbol value
   bool finalizeSymbolValue();
 

@@ -42,19 +42,13 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext),
-  m_pEhFrame(NULL),
-  m_pEhFrameHdr(NULL)
+  m_SectionMerger(pSectionMap, pContext)
 {
 }
 
 /// Destructor
 MCLinker::~MCLinker()
 {
-  if (NULL != m_pEhFrame)
-    delete m_pEhFrame;
-  if (NULL != m_pEhFrameHdr)
-    delete m_pEhFrameHdr;
 }
 
 /// addSymbolFromObject - add a symbol from object file and resolve it
@@ -665,11 +659,9 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 
   // parse the eh_frame if the option --eh-frame-hdr is given
   if (m_Info.options().hasEhFrameHdr()) {
-    if (m_pEhFrame == NULL)
-      m_pEhFrame = new EhFrame();
-
-    if (m_pEhFrame->canRecognizeAllEhFrame()) {
-      size = m_pEhFrame->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
+    EhFrame& ehframe = m_Backend.getEhFrame();
+    if (ehframe.canRecognizeAllEhFrame()) {
+      size = ehframe.readEhFrame(m_Layout, m_Backend, sect_data, pSection,
                                        pArea);
       // zero size indicate that this is an empty section or we can't recognize
       // this eh_frame, handle it as a regular section.
@@ -693,15 +685,5 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 
   size = m_Layout.appendFragment(*frag, sect_data, pSection.align());
   return size;
-}
-
-/// finalizeEhFrameHdr - fill .eh_frame_hdr section, add PT_GNU_EH_FRAME
-/// segment
-bool MCLinker::finalizeEhFrameHdr()
-{
-  if (!hasEhFrameHdr())
-    return true;
-
-  return true;
 }
 
