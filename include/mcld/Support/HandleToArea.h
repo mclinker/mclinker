@@ -12,11 +12,11 @@
 #include <gtest.h>
 #endif
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/ADT/HashBase.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/ADT/StringHash.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
-#include <map>
+#include <vector>
 
 namespace mcld
 {
@@ -28,6 +28,9 @@ class MemoryArea;
  *  Special double-key associative container. Keys are Path and file handler,
  *  associative value is MemoryArea.
  *
+ *  For high performance, HandleToArea is not designed to contain unique
+ *  <key, value> pair. The key and value may be duplicated.
+ *
  *  Like FileHandle, HandleToArea should neither throw exception nor call
  *  expressive diagnostic.
  */
@@ -35,29 +38,35 @@ class HandleToArea : private Uncopyable
 {
 public:
   struct Result {
+  public:
+    Result(FileHandle* pHandle, MemoryArea* pArea)
+      : handle(pHandle), area(pArea) { }
+
+  public:
     FileHandle* handle;
     MemoryArea* area;
   };
 
   struct ConstResult {
+  public:
+    ConstResult(const FileHandle* pHandle, const MemoryArea* pArea)
+      : handle(pHandle), area(pArea) { }
+
+  public:
     const FileHandle* handle;
     const MemoryArea* area;
   };
 
 public:
-  HandleToArea();
+  bool push_back(FileHandle* pHandle, MemoryArea* pArea);
 
-  ~HandleToArea();
+  Result findFirst(int pHandler);
 
-  bool insert(FileHandle* pHandle, MemoryArea* pArea);
+  ConstResult findFirst(int pHandler) const;
 
-  Result find(int pHandler);
+  Result findFirst(const sys::fs::Path& pPath);
 
-  ConstResult find(int pHandler) const;
-
-  Result find(const sys::fs::Path& pPath);
-
-  ConstResult find(const sys::fs::Path& pPath) const;
+  ConstResult findFirst(const sys::fs::Path& pPath) const;
 
   // -----  capacity  ----- //
   bool empty() const
@@ -66,24 +75,23 @@ public:
   size_t size() const
   { return m_AreaMap.size(); }
 
+  HandleToArea() : m_AreaMap() { }
+
+  ~HandleToArea() { }
+
 private:
-  typedef HashBucket<FileHandle> Bucket;
-
-  struct Compare {
-    bool operator() (const Bucket& X, const Bucket& Y) const {
-      if (X.FullHashValue < Y.FullHashValue)
-        return true;
-
-      if (X.Entry->handler() < Y.Entry->handler())
-        return true;
-
-      return (::strcmp(X.Entry->path().native().c_str(),
-               Y.Entry->path().native().c_str()) < 0);
-    }
+  struct Bucket {
+    unsigned int hash_value;
+    FileHandle* handle;
+    MemoryArea* area;
   };
 
-  // sorted binary search tree.
-  typedef std::map<Bucket, MemoryArea*, Compare> HandleToAreaMap;
+  // the best data structure is a binary search tree.
+  // However, by the shrinking time-to-market constraint, I used
+  // vector and sequential search here.
+  typedef std::vector<Bucket> HandleToAreaMap;
+
+  typedef StringHash<BKDR> HashFunction;
 
 private:
   HandleToAreaMap m_AreaMap;
