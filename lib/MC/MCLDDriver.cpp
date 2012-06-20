@@ -364,5 +364,9 @@ bool MCLDDriver::emitOutput()
 bool MCLDDriver::postProcessing()
 {
   m_pLinker->syncRelocationResult();
+
+  m_LDBackend.postProcessing(m_LDInfo.output(),
+                             m_LDInfo,
+                             *m_pLinker);
   return true;
 }

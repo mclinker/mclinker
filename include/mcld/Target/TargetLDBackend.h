@@ -104,6 +104,11 @@ public:
                           const MCLDInfo& pInfo,
                           MCLinker& pLinker) = 0;
 
+  /// postProcessing - Backend can do any needed modification in the final stage
+  virtual void postProcessing(const Output& pOutput,
+                              const MCLDInfo& pInfo,
+                              MCLinker& pLinker) = 0;
+
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
 

@@ -361,6 +361,11 @@ private:
                           const MCLDInfo& pInfo,
                           MCLinker& pLinker) = 0;
 
+  /// postProcessing - Backend can do any needed modification in the final stage
+  void postProcessing(const Output& pOutput,
+                      const MCLDInfo& pInfo,
+                      MCLinker& pLinker);
+
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;
 

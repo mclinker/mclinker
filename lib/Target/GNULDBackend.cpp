@@ -1567,6 +1567,15 @@ void GNULDBackend::preLayout(const Output& pOutput,
 {
   // prelayout target first
   doPreLayout(pOutput, pLDInfo, pLinker);
+
+  if (pLDInfo.options().hasEhFrameHdr()) {
+    // init EhFrameHdr and size the output section
+    ELFFileFormat* format = getOutputFormat(pOutput);
+    m_pEhFrameHdr = new EhFrameHdr(getEhFrame(),
+                                   format->getEhFrame(),
+                                   format->getEhFrameHdr());
+    m_pEhFrameHdr->sizeOutput();
+  }
 }
 
 /// postLayout -Backend can do any needed modification after layout
@@ -1590,6 +1599,18 @@ void GNULDBackend::postLayout(const Output& pOutput,
 
   // 2. target specific post layout
   doPostLayout(pOutput, pInfo, pLinker);
+}
+
+void GNULDBackend::postProcessing(const Output& pOutput,
+                                  const MCLDInfo& pInfo,
+                                  MCLinker& pLinker)
+{
+  if (pInfo.options().hasEhFrameHdr()) {
+    // emit eh_frame_hdr
+    if (bitclass() == 32)
+      m_pEhFrameHdr->emitOutput<32>(pLinker.getLDInfo().output(),
+                                    pLinker);
+  }
 }
 
 /// getHashBucketCount - calculate hash bucket count.

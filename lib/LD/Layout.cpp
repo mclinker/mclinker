@@ -554,7 +554,6 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::BSS:
       case LDFileFormat::Debug:
       case LDFileFormat::EhFrame:
-      case LDFileFormat::EhFrameHdr:
       case LDFileFormat::GCCExceptTable:
         if (0 != sect->size()) {
           if (NULL != sect->getSectionData() &&
@@ -576,6 +575,7 @@ bool Layout::layout(Output& pOutput,
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
       case LDFileFormat::Note:
+      case LDFileFormat::EhFrameHdr:
         if (0 != sect->size())
           m_SectionOrder.push_back(sect);
         break;
