@@ -1453,6 +1453,12 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       }
     }
   }
+
+  // make PT_GNU_EH_FRAME
+  if (file_format->hasEhFrameHdr()) {
+    ELFSegment* eh_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_EH_FRAME);
+    eh_seg->addSection(&file_format->getEhFrameHdr());
+  }
 }
 
 /// setupProgramHdrs - set up the attributes of segments
