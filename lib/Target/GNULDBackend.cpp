@@ -1355,14 +1355,15 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
 void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 {
   assert(pOutput.hasContext());
+  ELFFileFormat *file_format = getOutputFormat(pOutput);
+
   // make PT_PHDR
   m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
-  LDSection* interp = pOutput.context()->getSection(".interp");
-  if (NULL != interp) {
+  if (file_format->hasInterp()) {
     ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
-    interp_seg->addSection(interp);
+    interp_seg->addSection(&file_format->getInterp());
   }
 
   if (pInfo.options().hasRelro()) {
@@ -1432,12 +1433,11 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   }
 
   // make PT_DYNAMIC
-  LDSection* dynamic = pOutput.context()->getSection(".dynamic");
-  if (NULL != dynamic) {
+  if (file_format->hasDynamic()) {
     ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC,
                                                     llvm::ELF::PF_R |
                                                     llvm::ELF::PF_W);
-    dyn_seg->addSection(dynamic);
+    dyn_seg->addSection(&file_format->getDynamic());
   }
 
   if (pInfo.options().hasRelro()) {
@@ -1453,7 +1453,11 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       }
     }
   }
+}
 
+/// setupProgramHdrs - set up the attributes of segments
+void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo)
+{
   // update segment info
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
@@ -1479,7 +1483,10 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       continue;
     }
 
-    assert(NULL != segment.getFirstSection());
+    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
+    if (segment.numOfSections() == 0)
+      continue;
+
     segment.setOffset(segment.getFirstSection()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.getFirstSection()->kind())
@@ -1573,8 +1580,13 @@ void GNULDBackend::postLayout(const Output& pOutput,
     createProgramHdrs(pLinker.getLDInfo().output(), pInfo);
   }
 
-    // 1.2 create special GNU Stack note section or segment
+  // 1.2 create special GNU Stack note section or segment
   createGNUStackInfo(pOutput, pInfo, pLinker);
+
+  if (pOutput.type() != Output::Object) {
+    // 1.3 set up the attributes of program headers
+    setupProgramHdrs(pOutput, pInfo);
+  }
 
   // 2. target specific post layout
   doPostLayout(pOutput, pInfo, pLinker);

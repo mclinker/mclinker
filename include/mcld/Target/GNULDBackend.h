@@ -320,6 +320,10 @@ private:
   void createProgramHdrs(Output& pOutput,
                          const MCLDInfo& pInfo);
 
+  /// setupProgramHdrs - set up the attributes of segments
+  ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
+  void setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo);
+
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
   inline uint32_t getSegmentFlag(const uint32_t pSectionFlag)
