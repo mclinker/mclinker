@@ -1577,7 +1577,8 @@ void GNULDBackend::preLayout(const Output& pOutput,
   if (pLDInfo.options().hasEhFrameHdr()) {
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat(pOutput);
-    m_pEhFrameHdr = new EhFrameHdr(getEhFrame(),
+    assert(NULL != getEhFrame());
+    m_pEhFrameHdr = new EhFrameHdr(*getEhFrame(),
                                    format->getEhFrame(),
                                    format->getEhFrameHdr());
     m_pEhFrameHdr->sizeOutput();

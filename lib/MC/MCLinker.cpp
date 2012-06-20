@@ -659,9 +659,10 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 
   // parse the eh_frame if the option --eh-frame-hdr is given
   if (m_Info.options().hasEhFrameHdr()) {
-    EhFrame& ehframe = m_Backend.getEhFrame();
-    if (ehframe.canRecognizeAllEhFrame()) {
-      size = ehframe.readEhFrame(m_Layout, m_Backend, sect_data, pSection,
+    EhFrame* ehframe = m_Backend.getEhFrame();
+    assert(NULL != ehframe);
+    if (ehframe->canRecognizeAllEhFrame()) {
+      size = ehframe->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
                                        pArea);
       // zero size indicate that this is an empty section or we can't recognize
       // this eh_frame, handle it as a regular section.

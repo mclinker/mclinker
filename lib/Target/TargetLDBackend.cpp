@@ -23,10 +23,15 @@ TargetLDBackend::~TargetLDBackend()
     delete m_pEhFrame;
 }
 
-EhFrame& TargetLDBackend::getEhFrame()
+EhFrame* TargetLDBackend::getEhFrame()
 {
   if (NULL == m_pEhFrame)
     m_pEhFrame = new EhFrame();
-  return *m_pEhFrame;
+  return m_pEhFrame;
 }
 
+const EhFrame* TargetLDBackend::getEhFrame() const
+{
+  assert(NULL == m_pEhFrame);
+  return m_pEhFrame;
+}

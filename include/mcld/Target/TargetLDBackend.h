@@ -161,7 +161,9 @@ public:
   virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
 
 public:
-  EhFrame& getEhFrame();
+  EhFrame* getEhFrame();
+
+  const EhFrame* getEhFrame() const;
 
 private:
   /// m_pEhFrame - section .eh_frame
