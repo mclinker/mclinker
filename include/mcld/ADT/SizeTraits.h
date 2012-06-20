@@ -18,11 +18,12 @@ namespace mcld
 {
 
 template<size_t SIZE>
-struct SizeTraits;
+class SizeTraits;
 
 template<>
 class SizeTraits<32>
 {
+public:
   typedef uint32_t Address;
   typedef uint32_t Offset;
   typedef uint32_t Word;
@@ -32,6 +33,7 @@ class SizeTraits<32>
 template<>
 class SizeTraits<64>
 {
+public:
   typedef uint64_t Address;
   typedef uint64_t Offset;
   typedef uint64_t Word;
