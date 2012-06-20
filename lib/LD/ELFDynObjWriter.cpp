@@ -61,8 +61,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::Target:
       case LDFileFormat::Debug:
       case LDFileFormat::GCCExceptTable:
-      case LDFileFormat::EhFrame:
-      case LDFileFormat::EhFrameHdr: {
+      case LDFileFormat::EhFrame: {
         region = pOutput.memArea()->request(sect->offset(), sect->size());
         if (NULL == region) {
           llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section[") +
@@ -79,6 +78,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       case LDFileFormat::Note:
       case LDFileFormat::MetaData:
       case LDFileFormat::Version:
+      case LDFileFormat::EhFrameHdr:
         // ignore these sections
         continue;
       default: {
@@ -100,10 +100,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
         // FIXME: if optimization of exception handling sections is enabled,
         // then we should emit these sections by the other way.
         emitSectionData(m_Linker.getLayout(), *sect, *region);
-        break;
-      }
-      case LDFileFormat::EhFrameHdr: {
-        // FIXME: emit eh_frame_hdr section.
         break;
       }
       case LDFileFormat::Relocation:
