@@ -219,7 +219,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
         space->file_offset = page_offset(pOffset);
 
         // The space's size may be larger than filesize.
-        space->size = page_boundary(pLength + pOffset + 1 - space->file_offset);
+        space->size = page_boundary(pLength + pOffset - space->file_offset);
         space->data = (Address) ::mmap(NULL,
                                        space->size,
                                        mm_prot, mm_flag,
