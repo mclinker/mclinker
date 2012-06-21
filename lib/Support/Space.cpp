@@ -140,3 +140,28 @@ void Space::releaseSpace((Space*)& pSpace, FileHandle& pHandler)
   pSpace = NULL;
 }
 
+void Space::syncSpace((Space*)& pSpace, FileHandle& pHandler)
+{
+  if (NULL == pSpace || !pHandle.isWritable())
+    return;
+
+  switch(pSpace.type()) {
+    case Space::ALLOCATED_ARRAY: {
+      if (!pHandler.write(pSpace->memory(),
+                          pSpace->start(),
+                          pSpace->size())) {
+        error(diag::err_cannot_write_file) << pHandle.path()
+                                           << pSpace->start()
+                                           << pSpace->size();
+      }
+      return;
+    }
+    case Space::MMAPED:
+    default: {
+      // system will eventually write bakc the memory after
+      // calling ::munmap
+      return;
+    }
+  } // end of switch
+}
+

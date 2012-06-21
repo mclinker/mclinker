@@ -80,6 +80,8 @@ public:
   
   static void releaseSpace((Space*)& pSpace, FileHandle& pHandler);
 
+  static void syncSpace((Space*)& pSpace, FileHandle& pHandler);
+
 private:
   void* m_Data;
   uint32_t m_StartOffset;
