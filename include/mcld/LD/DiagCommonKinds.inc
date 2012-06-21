@@ -28,6 +28,7 @@ DIAG(err_cannot_close_file, DiagnosticEngine::Error, "cannot close file %0.\nErr
 DIAG(err_cannot_get_file_status, DiagnosticEngine::Error, "cannot get file status.\nError Code: %0", "cannot get file status.\nError Code: %0")
 DIAG(err_cannot_read_file, DiagnosticEngine::Error, "cannot read file %0 from offset %1 to length %2.", "cannot read file %0 from offset %1 to length %2.")
 DIAG(err_cannot_mmap_file, DiagnosticEngine::Error, "cannot open memory mapped file %0 from offset %1 to length %2.", "cannot open memoory mpped file %0 from offset %1 to length %2.")
+DIAG(err_cannot_write_file, DiagnosticEngine::Error, "cannot write file %0 from offset %1 to length %2.", "cannot write file %0 from offset %1 to length %2.")
 DIAG(warn_illegal_input_section, DiagnosticEngine::Warning, "section `%0' should not appear in input file `%1': %2", "section `%0' should not appear in input file `%1': %2")
 DIAG(err_cannot_trace_file, DiagnosticEngine::Unreachable, "cannot identify the type (%0) of input file `%1'.\n  %2", "cannot identify the type (%0) of input file `%1'.\n  %2")
 DIAG(err_out_of_range_region, DiagnosticEngine::Unreachable, "requested memory region is out of range.", "requested memory region is out of range.")
