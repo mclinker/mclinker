@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/Path.h>
+#include <mcld/ADT/Flags.h>
 
 namespace mcld
 {
@@ -35,7 +36,7 @@ public:
     IOStateEnd = 1L << 16
   };
 
-  enum OpenMode
+  enum OpenModeEnum
   {
     NotOpen   = 0x00,
     ReadOnly  = 0x01,
@@ -47,7 +48,9 @@ public:
     Unknown   = 0xFF
   };
 
-  enum Permission
+  typedef Flags<OpenModeEnum> OpenMode;
+
+  enum PermissionEnum
   {
     ReadOwner   = 0x0400,
     WriteOwner  = 0x0200,
@@ -60,24 +63,36 @@ public:
     ExeOther    = 0x0001
   };
 
+  typedef Flags<PermissionEnum> Permission;
+
 public:
   FileHandle();
 
   ~FileHandle();
 
-  bool open(const sys::fs::Path& pPath, enum OpenMode pMode);
+  bool open(const sys::fs::Path& pPath,
+            OpenMode pMode);
 
   bool open(const sys::fs::Path& pPath,
-            enum OpenMode pMode,
-            enum Permission pPerm);
+            OpenMode pMode,
+            Permission pPerm);
 
-  bool delegate(int pFD, enum OpenMode pMode = Unknown);
+  bool delegate(int pFD, OpenMode pMode = Unknown);
 
   bool close();
 
   void setState(IOState pState);
 
   void cleanState(IOState pState = GoodBit);
+
+  // truncate - truncate the file up to the pSize.
+  bool truncate(size_t pSize);
+
+  bool read(void* pMemBuffer, size_t pStartOffset, size_t pLength);
+
+  bool mmap(void* pMemBuffer, size_t pStartOffset, size_t pLength);
+
+  bool munmap(void* pMemBuffer, size_t pLength);
 
   // -----  observers  ----- //
   const sys::fs::Path& path() const
@@ -110,8 +125,8 @@ private:
   sys::fs::Path m_Path;
   int m_Handler;
   unsigned int m_Size;
-  uint16_t m_State;
   OpenMode m_OpenMode;
+  uint16_t m_State;
 };
 
 } // namespace of mcld

@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/FileHandle.h>
-#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/FileSystem.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/mman.h>
 
 using namespace mcld;
 
@@ -29,7 +30,7 @@ FileHandle::~FileHandle()
     close();
 }
 
-inline static int oflag(enum FileHandle::OpenMode pMode)
+inline static int oflag(FileHandle::OpenMode pMode)
 {
   int result = 0x0;
   if (FileHandle::Unknown == pMode)
@@ -66,7 +67,7 @@ inline static bool get_size(int pHandler, unsigned int &pSize)
 }
 
 bool FileHandle::open(const sys::fs::Path& pPath,
-                      enum FileHandle::OpenMode pMode)
+                      FileHandle::OpenMode pMode)
 {
   if (isOpened() || Unknown == pMode) {
     setState(BadBit);
@@ -90,8 +91,8 @@ bool FileHandle::open(const sys::fs::Path& pPath,
 }
 
 bool FileHandle::open(const sys::fs::Path& pPath,
-                      enum FileHandle::OpenMode pMode,
-                      enum FileHandle::Permission pPerm)
+                      FileHandle::OpenMode pMode,
+                      FileHandle::Permission pPerm)
 {
   if (isOpened() || Unknown == pMode) {
     setState(BadBit);
@@ -114,7 +115,7 @@ bool FileHandle::open(const sys::fs::Path& pPath,
   return true;
 }
 
-bool FileHandle::delegate(int pFD, enum FileHandle::OpenMode pMode)
+bool FileHandle::delegate(int pFD, FileHandle::OpenMode pMode)
 {
   if (isOpened()) {
     setState(BadBit);
@@ -148,6 +149,102 @@ bool FileHandle::close()
   m_Size = 0;
   m_OpenMode = NotOpen;
   cleanState();
+  return true;
+}
+
+bool FileHandle::truncate(size_t pSize)
+{
+  if (!isOpened() || !isWritable()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (-1 == ::ftruncate(m_Handle, pSize)) {
+    setState(FailBit);
+    return false;
+  }
+
+  m_Size = pSize;
+  return true;
+}
+
+bool FileHandle::read(void* pMemBuffer, size_t pStartOffset, size_t pLength)
+{
+  if (!isOpened() || !isReadable()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (0 == pLength)
+    return true;
+
+  ssize_t read_bytes = sys::fs::detail::pread(m_Handle,
+                                              pMemBuffer,
+                                              pLength,
+                                              pStartOffset);
+
+  if (-1 == read_bytes) {
+    setState(FailBit);
+    return false;
+  }
+
+  return true;
+}
+
+bool FileHandle::mmap(void* pMemBuffer, size_t pStartOffset, size_t pLength)
+{
+  if (!isOpened()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (0 == pLength)
+    return true;
+
+  int prot, flag;
+  if (isReadable() && !isWritable()) {
+    // read-only
+    prot = PROT_READ;
+    flag = MAP_FILE | MAP_PRIVATE;
+  }
+  else if (!isReadable() && isWritable()) {
+    // write-only
+    prot = PROT_WRITE;
+    flag = MAP_FILE | MAP_SHARED;
+  }
+  else if (isReadWrite()) {
+    // read and write
+    prot = PORT_READ | PROT_WRITE;
+    flag = MAP_FILE | MAP_SHARED;
+  }
+  else {
+    // can not read/write
+    setState(BadBit);
+    return false;
+  }
+
+  pMemBuffer = ::mmap(NULL, pLength, prot, flag, m_Handle, pStartOffset);
+
+  if (MAP_FAILED == pMemBuffer) {
+    setState(FailBit);
+    return false;
+  }
+
+  return true;
+}
+
+bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
+{
+  if (isOpened()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (-1 == ::munmap(pMemBuffer, pLength)) {
+    setState(FailBit);
+    return false;
+  }
+
   return true;
 }
 
@@ -189,7 +286,7 @@ bool FileHandle::isReadWrite() const
 
 bool FileHandle::isGood() const
 {
-  return (m_State == GoodBit);
+  return !(m_State & (BadBit | FailBit));
 }
 
 bool FileHandle::isBad() const
@@ -199,6 +296,6 @@ bool FileHandle::isBad() const
 
 bool FileHandle::isFailed() const
 {
-  return (m_State & BadBit || m_State & FailBit);
+  return (m_State & (BadBit | FailBit));
 }
 
