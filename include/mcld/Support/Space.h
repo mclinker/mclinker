@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
 
 namespace mcld
@@ -19,6 +20,7 @@ namespace mcld
 /** \class Space
  *  \brief Space contains a chunk of memory space that does not overlap with
  *  the other Space.
+ *
  */
 class Space : public llvm::ilist_node<Space>
 {
@@ -31,11 +33,21 @@ public:
     UNALLOCATED
   };
 
+// llvm::iplist functions
 public:
-  explicit Space(Type pType, void* pMemBuffer, size_t pSize);
+  // llvm::iplist needs default constructor to make a sentinel.
+  // Normal users should use @ref Space::createSpace function.
+  Space();
 
+  // llvm::iplist needs public destructor to delete the sentinel.
+  // Normal users should use @ref Space::releaseSpace function.
   ~Space();
 
+  // This constructor is opened for the clients who want to control the
+  // details. In MCLinker, this constructor is used no where.
+  Space(Type pType, void* pMemBuffer, size_t pSize);
+  
+public:
   void setStart(size_t pOffset)
   { m_StartOffset = pOffset; }
 
@@ -51,6 +63,9 @@ public:
   size_t size() const
   { return m_Size; }
 
+  Type type() const
+  { return m_Type; }
+
   void addRegion(MemoryRegion& pRegion)
   { ++m_RegionCount; }
 
@@ -60,10 +75,12 @@ public:
   size_t numOfRegions() const
   { return m_RegionCount; }
 
-  Type type() const
-  { return m_Type; }
+  static Space* createSpace(FileHandle& pHandler,
+                            size_t pOffset, size_t pSize);
+  
+  static void releaseSpace((Space*)& pSpace, FileHandle& pHandler);
 
-public:
+private:
   void* m_Data;
   uint32_t m_StartOffset;
   uint32_t m_Size;
