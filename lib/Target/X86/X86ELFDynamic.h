@@ -25,12 +25,6 @@ public:
 private:
   void reserveTargetEntries(const ELFFileFormat& pFormat);
   void applyTargetEntries(const ELFFileFormat& pFormat);
-
-private:
-  // True if we have .got.plt section, which will avoid GOT0 entries
-  // when PLT isn't used.  To support .got.plt section, we must combine
-  // .got section and .got.plt section into a single GOT.
-  bool m_HasGOTPLT;
 };
 
 } // namespace of mcld

@@ -72,7 +72,7 @@ void X86GNULDBackend::doPreLayout(const Output& pOutput,
 {
   // when building shared object, the .got section is needed
   if (pOutput.type() == Output::DynObj && (NULL == m_pGOT))
-      createX86GOT(pLinker, pOutput);
+      createX86GOTPLT(pLinker, pOutput);
 }
 
 void X86GNULDBackend::doPostLayout(const Output& pOutput,
@@ -106,8 +106,17 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 
   LDSection& got = file_format->getGOT();
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
+}
 
-  // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
+void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
+{
+  // get .got.plt LDSection and create MCSectionData
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+
+  LDSection& gotplt = file_format->getGOTPLT();
+  m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
+
+  // define symbol _GLOBAL_OFFSET_TABLE_ when .got.plt create
   if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
@@ -117,7 +126,8 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     pLinker.getLayout().getFragmentRef(*(m_pGOTPLT->begin()),
+                                                         0x0),
                      ResolveInfo::Hidden);
   }
   else {
@@ -129,7 +139,8 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     pLinker.getLayout().getFragmentRef(*(m_pGOTPLT->begin()),
+                                                          0x0),
                      ResolveInfo::Hidden);
   }
 }
@@ -141,8 +152,9 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
 
   LDSection& plt = file_format->getPLT();
   LDSection& relplt = file_format->getRelPlt();
+  assert(m_pGOTPLT != NULL);
   // create MCSectionData and X86PLT
-  m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT, pOutput);
+  m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOTPLT, pOutput);
 
   // set info of .rel.plt to .plt
   relplt.setLink(&plt);
@@ -307,8 +319,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
-          if (NULL == m_pGOT)
-             createX86GOT(pLinker, pOutput);
+          if (NULL == m_pGOTPLT)
+            createX86GOTPLT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
           if (NULL == m_pPLT)
             createX86PLTandRelPLT(pLinker, pOutput);
@@ -365,8 +377,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       // Create .got section if it dosen't exist
-      if (NULL == m_pGOT)
-         createX86GOT(pLinker, pOutput);
+      if (NULL == m_pGOTPLT)
+         createX86GOTPLT(pLinker, pOutput);
       // create .plt and .rel.plt if not exist
       if (NULL == m_pPLT)
          createX86PLTandRelPLT(pLinker, pOutput);
@@ -410,8 +422,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
-          if (NULL == m_pGOT)
-            createX86GOT(pLinker, pOutput);
+          if (NULL == m_pGOTPLT)
+            createX86GOTPLT(pLinker, pOutput);
           // create .plt and .rel.plt if not exist
           if (NULL == m_pPLT)
             createX86PLTandRelPLT(pLinker, pOutput);
@@ -477,11 +489,11 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   // FIXME: Below judgements concern only .so is generated as output
   // FIXME: Below judgements concren nothing about TLS related relocation
 
-  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got section
-  // is needed
-  if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
+  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got.plt
+  // section is needed
+  if (NULL == m_pGOTPLT && NULL != m_pGOTSymbol) {
     if (rsym == m_pGOTSymbol->resolveInfo()) {
-      createX86GOT(pLinker, pOutput);
+      createX86GOTPLT(pLinker, pOutput);
     }
   }
 
@@ -538,8 +550,6 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
   else if (&pSection == &(FileFormat->getGOT())) {
     assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
 
-    m_pGOT->applyGOT0(FileFormat->getDynamic().addr());
-
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
     GOTEntry* got = 0;
@@ -547,6 +557,23 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
 
     for (X86GOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
+      got = &(llvm::cast<GOTEntry>((*it)));
+      *buffer = static_cast<uint32_t>(got->getContent());
+      RegionSize += EntrySize;
+    }
+  }
+
+  else if (&pSection == &(FileFormat->getGOTPLT())) {
+    assert(m_pGOTPLT && "emitSectionData failed, m_pGOTPLT is NULL!");
+    m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+
+    uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+    GOTEntry* got = 0;
+    EntrySize = m_pGOTPLT->getEntrySize();
+
+    for (X86GOTPLT::iterator it = m_pGOTPLT->begin(),
+         ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<GOTEntry>((*it)));
       *buffer = static_cast<uint32_t>(got->getContent());
       RegionSize += EntrySize;

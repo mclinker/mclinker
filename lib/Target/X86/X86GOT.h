@@ -23,18 +23,8 @@ class LDSection;
  *  \brief X86 Global Offset Table.
  */
 
-const unsigned int X86GOT0Num = 3;
-
 class X86GOT : public GOT
 {
-  friend void mcld::X86PLT::reserveEntry(size_t pNum);
-
-  friend mcld::PLTEntry* mcld::X86PLT::getPLTEntry(
-         const mcld::ResolveInfo& pSymbol,bool& pExist);
-
-  friend mcld::GOTEntry* mcld::X86PLT::getGOTPLTEntry(
-         const mcld::ResolveInfo& pSymbol,bool& pExist);
-
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
@@ -51,8 +41,6 @@ public:
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-  void applyGOT0(uint64_t pAddress);
-
   iterator begin();
 
   const_iterator begin() const;
@@ -61,28 +49,14 @@ public:
 
   const_iterator end() const;
 
-  unsigned int getGOTPLTNum() const;
-
-  iterator getLastGOT0();
-
-  const iterator getLastGOT0() const;
-
 private:
+  /// m_GOTIterator - point to the first valid entry in GOT list
+  iterator m_GOTIterator;
 
-  unsigned int m_GeneralGOTNum;
-  unsigned int m_GOTPLTNum;
+  /// m_fIsVisit - first time visit the function getEntry() or not
+  bool m_fIsVisit;
 
-  // Used by getGeneralGOTEntry()
-  iterator m_GeneralGOTIterator;
-
-  // Used by getGOTPLTEntry()
-  iterator m_GOTPLTIterator;
-
-  // The last GOT0 entry
-  iterator m_LastGOT0;
-
-  SymbolIndexMapType m_GOTPLTMap;
-  SymbolIndexMapType m_GeneralGOTMap;
+  SymbolIndexMapType m_GOTMap;
 };
 
 } // namespace of mcld

@@ -11,6 +11,7 @@
 
 #include "X86ELFDynamic.h"
 #include "X86GOT.h"
+#include "X86GOTPLT.h"
 #include "X86PLT.h"
 #include <mcld/LD/LDSection.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -212,12 +213,14 @@ private:
                     const Layout& pLayout) const;
 
   void createX86GOT(MCLinker& pLinker, const Output& pOutput);
+  void createX86GOTPLT(MCLinker& pLinker, const Output& pOutput);
   void createX86PLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
   void createX86RelDyn(MCLinker& pLinker, const Output& pOutput);
 
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;
+  X86GOTPLT* m_pGOTPLT;
   X86PLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelDyn;

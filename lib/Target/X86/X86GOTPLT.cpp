@@ -25,7 +25,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   GOTEntry* Entry = 0;
 
   // Create GOT0 entries.
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < X86GOTPLT0Num; i++) {
     Entry = new (std::nothrow) GOTEntry(0, X86GOTPLTEntrySize,
                                         &m_SectionData);
 
@@ -39,7 +39,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   iterator it = m_SectionData.begin();
   iterator ie = m_SectionData.end();
 
-  for (size_t i = 1; i < X86GOT0Num; ++i) {
+  for (size_t i = 1; i < X86GOTPLT0Num; ++i) {
     assert((it != ie) && "Generation of GOT0 entries is incomplete!");
 
     ++it;
@@ -78,25 +78,32 @@ void X86GOTPLT::applyGOT0(const uint64_t pAddress)
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
-void X86GOTPLT::reserveGOTPLTEntry()
+void X86GOTPLT::reserveEntry(size_t pNum)
 {
-    GOTEntry* got_entry = 0;
-
-    got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
-
+  GOTEntry* got_entry = NULL;
+  for (int i = 0; i < pNum; ++i) {
+    got_entry = new GOTEntry(0, getEntrySize(),&(getSectionData()));
     if (!got_entry)
       fatal(diag::fail_allocate_memory) << "GOT";
 
     m_Section.setSize(m_Section.size() + getEntrySize());
+  }
 }
 
-void X86GOTPLT::applyAllGOTPLT(const uint64_t pPLTBase)
+void X86GOTPLT::applyAllGOTPLT(const uint64_t pPLTBase,
+                               unsigned int pPLT0Size,
+                               unsigned int pPLT1Size)
 {
-  iterator gotplt_it = begin();
-  iterator gotplt_ie = end();
-
-  for (; gotplt_it != gotplt_ie; ++gotplt_it)
-    llvm::cast<GOTEntry>(*gotplt_it).setContent(pPLTBase);
+  iterator it = begin();
+  // skip GOT0
+  for (size_t i = 0; i < X86GOTPLT0Num; ++i)
+    ++it;
+  // address of corresponding plt entry
+  uint64_t plt_addr = pPLTBase + pPLT0Size;
+  for (; it != end() ; ++it) {
+    llvm::cast<GOTEntry>(*it).setContent(plt_addr + 6);
+    plt_addr += pPLT1Size;
+  }
 }
 
 GOTEntry*& X86GOTPLT::lookupGOTPLTMap(const ResolveInfo& pSymbol)
@@ -104,9 +111,22 @@ GOTEntry*& X86GOTPLT::lookupGOTPLTMap(const ResolveInfo& pSymbol)
   return m_GOTPLTMap[&pSymbol];
 }
 
-X86GOTPLT::iterator X86GOTPLT::getNextGOTPLTEntry()
+GOTEntry* X86GOTPLT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  return ++m_GOTPLTIterator;
+  GOTEntry *&Entry = m_GOTPLTMap[&pInfo];
+  pExist = 1;
+
+  if (!Entry) {
+    pExist = 0;
+
+    ++m_GOTPLTIterator;
+    assert(m_GOTPLTIterator != m_SectionData.getFragmentList().end()
+           && "The number of GOT Entries and ResolveInfo doesn't match!");
+
+    Entry = llvm::cast<GOTEntry>(&(*m_GOTPLTIterator));
+  }
+
+  return Entry;
 }
 
 } //end mcld namespace

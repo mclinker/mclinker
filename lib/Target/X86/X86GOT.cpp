@@ -21,35 +21,8 @@ using namespace mcld;
 // X86GOT
 X86GOT::X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
              : GOT(pSection, pSectionData, X86GOTEntrySize),
-               m_GeneralGOTNum(0), m_GOTPLTNum(0), m_GeneralGOTIterator(),
-               m_GOTPLTIterator(), m_LastGOT0()
+               m_GOTIterator(), m_fIsVisit(false)
 {
-  GOTEntry* Entry = 0;
-
-  // Create GOT0 entries.
-  for (unsigned int i = 0; i < X86GOT0Num; i++) {
-    Entry = new (std::nothrow) GOTEntry(0, X86GOTEntrySize,
-                                        &m_SectionData);
-
-    if (!Entry)
-      fatal(diag::fail_allocate_memory) << "GOT0";
-
-    m_Section.setSize(m_Section.size() + X86GOTEntrySize);
-  }
-
-  // Skip GOT0 entries.
-  iterator it = m_SectionData.begin();
-  iterator ie = m_SectionData.end();
-
-  for (unsigned int i = 1; i < X86GOT0Num; ++i) {
-    assert((it != ie) && "Generation of GOT0 entries is incomplete!");
-
-    ++it;
-  }
-
-  m_LastGOT0 = it;
-  m_GeneralGOTIterator = it;
-  m_GOTPLTIterator = it;
 }
 
 X86GOT::~X86GOT()
@@ -68,33 +41,32 @@ void X86GOT::reserveEntry(size_t pNum)
       fatal(diag::fail_allocate_memory) << "GOTEntry";
 
     m_Section.setSize(m_Section.size() + X86GOTEntrySize);
-    ++m_GeneralGOTNum;
   }
 }
 
 
 GOTEntry* X86GOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry *&Entry = m_GeneralGOTMap[&pInfo];
+  // first time visit this function, set m_GOTIterator
+  if(!m_fIsVisit) {
+    assert( !m_SectionData.getFragmentList().empty() &&
+             "DynRelSection contains no entries.");
+    m_GOTIterator = m_SectionData.getFragmentList().begin();
+    m_fIsVisit = true;
+  }
+
+
+  GOTEntry *&Entry = m_GOTMap[&pInfo];
   pExist = 1;
 
   if (!Entry) {
     pExist = 0;
-
-    ++m_GeneralGOTIterator;
-    assert(m_GeneralGOTIterator != m_SectionData.getFragmentList().end()
-           && "The number of GOT Entries and ResolveInfo doesn't match!");
-
-    Entry = llvm::cast<GOTEntry>(&(*m_GeneralGOTIterator));
+    assert(m_GOTIterator != m_SectionData.getFragmentList().end()
+             && "The number of GOT Entries and ResolveInfo doesn't match!");
+    Entry = llvm::cast<GOTEntry>(&(*m_GOTIterator));
+    ++m_GOTIterator;
   }
-
   return Entry;
-}
-
-void X86GOT::applyGOT0(uint64_t pAddress)
-{
-  llvm::cast<GOTEntry>
-    (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
 X86GOT::iterator X86GOT::begin()
@@ -116,13 +88,4 @@ X86GOT::const_iterator X86GOT::end() const
 {
   return m_SectionData.getFragmentList().end();
 }
-
-unsigned int X86GOT::getGOTPLTNum() const
-{ return m_GOTPLTNum; }
-
-X86GOT::iterator X86GOT::getLastGOT0()
-{ return m_LastGOT0; }
-
-const X86GOT::iterator X86GOT::getLastGOT0() const
-{ return m_LastGOT0; }
 
