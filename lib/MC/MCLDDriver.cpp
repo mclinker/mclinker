@@ -49,8 +49,8 @@ void MCLDDriver::normalize() {
 
 
     MemoryArea *input_memory =
-        m_LDInfo.memAreaFactory().produce((*input)->path(), O_RDONLY);
-    if ((input_memory != NULL) && input_memory->isGood()) {
+        m_LDInfo.memAreaFactory().produce((*input)->path(), FileHandle::ReadOnly);
+    if (input_memory->handler()->isGood()) {
       (*input)->setMemArea(input_memory);
     }
     else {

@@ -6,8 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/ContextFactory.h"
-#include "mcld/Support/MemoryAreaFactory.h"
+#include <mcld/MC/ContextFactory.h>
+#include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/TargetSelect.h>
+#include <mcld/Support/Path.h>
 #include "UniqueGCFactoryBaseTest.h"
 
 using namespace mcld;
@@ -17,6 +20,12 @@ using namespace mcldtest;
 // Constructor can do set-up work for all test here.
 UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
 {
+  InitializeAllDiagnostics();
+
+  m_pLDInfo = new MCLDInfo("arm-none-linux-gnueabi", 10, 10);
+  m_pLineInfo = new DiagnosticLineInfo();
+  m_pPrinter = new mcld::DiagnosticPrinter(); //llvm::errs(), *m_pLDInfo);
+  mcld::InitializeDiagnosticEngine(*m_pLDInfo, m_pLineInfo, m_pPrinter);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
@@ -67,12 +76,18 @@ TEST_F( UniqueGCFactoryBaseTest, unique_produce2 ) {
 
 TEST_F( UniqueGCFactoryBaseTest, iterator )
 {
+        sys::fs::Path path1(TOPDIR), path2(TOPDIR);
+	path1.append("unittests/test1.txt");
+	path2.append("unittests/test2.txt");
+
 	MemoryAreaFactory* memFactory = new MemoryAreaFactory(10);
-	MemoryArea* area1 = memFactory->produce("/home/luba", O_RDONLY);
-	MemoryArea* area2 = memFactory->produce("/home/jush", O_RDONLY);
+	MemoryArea* area1 = memFactory->produce(path1, FileHandle::ReadOnly);
+	MemoryArea* area2 = memFactory->produce(path2, FileHandle::ReadOnly);
 	ASSERT_NE( area1, area2);
-	MemoryArea* area3 = memFactory->produce("/home/jush/../luba", O_RDONLY);
-	ASSERT_EQ( area1, area3);
+
+	MemoryArea* area3 = memFactory->produce(path1, FileHandle::ReadOnly);
+	
+	ASSERT_EQ(area1, area3);
 	ASSERT_FALSE( memFactory->empty());
 	ASSERT_EQ( 2, memFactory->size());
 	MemoryAreaFactory::iterator aIter = memFactory->begin();

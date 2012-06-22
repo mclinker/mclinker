@@ -35,12 +35,16 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Support/Directory.cpp \
 	${INCDIR}/Support/FileSystem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/Support/SystemUtils.h \
+	${LIBDIR}/Support/SystemUtils.cpp \
 	${INCDIR}/Support/LEB128.h \
 	${LIBDIR}/Support/LEB128.cpp \
 	${INCDIR}/Support/FileHandle.h \
 	${LIBDIR}/Support/FileHandle.cpp \
 	${INCDIR}/Support/MemoryArea.h \
 	${LIBDIR}/Support/MemoryArea.cpp \
+	${INCDIR}/Support/Space.h \
+	${LIBDIR}/Support/Space.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
 	${LIBDIR}/Support/MemoryRegion.cpp \
 	${INCDIR}/Support/RegionFactory.h \

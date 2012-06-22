@@ -10,7 +10,6 @@
 // This file implements the MCLinker class
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDInfo.h>
@@ -558,9 +557,8 @@ bool MCLinker::applyRelocations()
 void MCLinker::syncRelocationResult()
 {
 
-  m_Info.output().memArea()->clean();
   MemoryRegion* region = m_Info.output().memArea()->request(0,
-                              m_Info.output().memArea()->size());
+                              m_Info.output().memArea()->handler()->size());
 
   uint8_t* data = region->getBuffer();
 
@@ -599,7 +597,7 @@ void MCLinker::syncRelocationResult()
     }
   } // end of for
 
-  m_Info.output().memArea()->sync();
+  m_Info.output().memArea()->clear();
 }
 
 

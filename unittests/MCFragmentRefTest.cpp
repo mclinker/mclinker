@@ -6,10 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "mcld/MC/MCFragmentRef.h"
 #include "mcld/MC/MCRegionFragment.h"
 #include "mcld/Support/MemoryAreaFactory.h"
+#include "mcld/Support/FileHandle.h"
 #include "mcld/Support/Path.h"
 #include "MCFragmentRefTest.h"
 
@@ -45,7 +45,7 @@ TEST_F( MCFragmentRefTest, ) {
   Path path(TOPDIR);
   path.append("unittests/test3.txt");
   MemoryAreaFactory* areaFactory = new MemoryAreaFactory(1);
-  MemoryArea* area = areaFactory->produce(path, MemoryArea::ReadWrite);
+  MemoryArea* area = areaFactory->produce(path, FileHandle::ReadWrite);
 
   MemoryRegion* region = area->request(0, 4096);
   MCRegionFragment *frag = new MCRegionFragment(*region);

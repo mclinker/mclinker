@@ -11,13 +11,11 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-
-#include "mcld/Support/UniqueGCFactory.h"
-#include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/Path.h"
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
+#include <mcld/Support/GCFactory.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/Path.h>
+#include <mcld/Support/FileHandle.h>
+#include <mcld/Support/HandleToArea.h>
 
 namespace mcld
 {
@@ -40,21 +38,32 @@ class RegionFactory;
  *  MemoryRegion is requested.
  *
  *  @see MemoryRegion
- *  @see UniqueGCFactoryBase
  */
-class MemoryAreaFactory : public UniqueGCFactoryBase<sys::fs::Path, MemoryArea, 0>
+class MemoryAreaFactory : public GCFactory<MemoryArea, 0>
 {
 public:
   explicit MemoryAreaFactory(size_t pNum);
-  ~MemoryAreaFactory();
 
-  // produce - create a MemoryArea and open its file
-  // If the file fails to be opened, the returned MemoryArea::isMapped() 
-  // should be false
-  MemoryArea* produce(const sys::fs::Path& pPath, int pFlags);
-  MemoryArea* produce(const sys::fs::Path& pPath, int pFlags, mode_t pMode);
+  virtual ~MemoryAreaFactory();
+
+  // produce - create a MemoryArea and open its file.
+  MemoryArea* produce(const sys::fs::Path& pPath,
+                      FileHandle::OpenMode pMode);
+
+  // produce - create a MemoryArea and open its file.
+  MemoryArea* produce(const sys::fs::Path& pPath,
+                      FileHandle::OpenMode pMode,
+                      FileHandle::Permission pPerm);
+
+  void destruct(MemoryArea* pArea);
+
+protected:
+  // Create a MemoryArea with an universal space.
+  // The created MemoryArea is not moderated by m_HandleToArea.
+  MemoryArea* create(void* pMemBuffer, size_t pSize);
 
 private:
+  HandleToArea m_HandleToArea;
   RegionFactory* m_pRegionFactory;
 };
 

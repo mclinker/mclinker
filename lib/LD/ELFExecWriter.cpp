@@ -151,6 +151,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput)
   else
     return make_error_code(errc::not_supported);
 
+  pOutput.memArea()->clear();
   return llvm::make_error_code(llvm::errc::success);
 }
 

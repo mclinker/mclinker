@@ -9,7 +9,10 @@
 #ifndef UNIQUE_GCFACTORYBASE_TEST_H
 #define UNIQUE_GCFACTORYBASE_TEST_H
 
-#include "mcld/Support/UniqueGCFactory.h"
+#include <mcld/Support/UniqueGCFactory.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LD/DiagnosticPrinter.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
 #include <gtest.h>
 
 namespace mcldtest
@@ -34,6 +37,11 @@ public:
 
 	// TearDown() will be called immediately after each test.
 	virtual void TearDown();
+
+private:
+	mcld::MCLDInfo* m_pLDInfo;
+	mcld::DiagnosticLineInfo* m_pLineInfo;
+	mcld::DiagnosticPrinter* m_pPrinter;
 };
 
 } // namespace of mcldtest

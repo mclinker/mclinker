@@ -10,7 +10,7 @@
 // This file implements the SectLinker class.
 //
 //===----------------------------------------------------------------------===//
-
+#include <mcld/Support/FileHandle.h>
 #include <mcld/ADT/BinTree.h>
 #include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/MCLDDriver.h>
@@ -66,17 +66,22 @@ bool SectLinker::doInitialization(Module &pM)
   // setup the output
   info.output().setContext(info.contextFactory().produce(info.output().path()));
 
-  int mode = (Output::Object == info.output().type())? 0544 : 0755;
-  info.output().setMemArea(
-      info.memAreaFactory().produce(info.output().path(),
-                                    O_RDWR | O_CREAT | O_TRUNC,
-                                    mode));
+  FileHandle::Permission perm;
+  if (Output::Object == info.output().type())
+    perm = 0544;
+  else
+    perm = 0755;
 
-  //   make sure output is openend successfully.
-  if (!info.output().hasMemArea() || !info.output().memArea()->isGood()) {
+  MemoryArea* out_area = info.memAreaFactory().produce(info.output().path(),
+                                                       FileHandle::ReadWrite,
+                                                       perm);
+  // make sure output is openend successfully.
+  if (!out_area->handler()->isGood()) {
     fatal(diag::err_cannot_open_output_file) << info.output().name()
                                              << info.output().path();
   }
+
+  info.output().setMemArea(out_area);
 
   // let the target override the target-specific parameters
   addTargetOptions(pM, *m_pOption);

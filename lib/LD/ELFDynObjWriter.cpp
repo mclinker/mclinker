@@ -115,6 +115,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
       default:
         continue;
     }
+
   } // end of for loop
 
   if (32 == target().bitclass()) {
@@ -147,7 +148,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
   }
   else
     return make_error_code(errc::not_supported);
-
+  pOutput.memArea()->clear();
   return llvm::make_error_code(llvm::errc::success);
 }
 
