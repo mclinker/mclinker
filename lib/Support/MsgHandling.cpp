@@ -72,11 +72,3 @@ DiagnosticEngine& mcld::getDiagnosticEngine()
   return *g_pDiagnosticEngine;
 }
 
-//===----------------------------------------------------------------------===//
-// Non-member functions
-#if defined(LLVM_ON_UNIX)
-#include "Unix/System.inc"
-#endif
-#if defined(LLVM_ON_WIN32) 
-#include "Windows/System.inc"
-#endif 
