@@ -28,6 +28,8 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <cxxabi.h>
+
 using namespace mcld;
 
 /// Constructor
@@ -533,7 +535,17 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                            m_Info.output(), pSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak()) {
-    fatal(diag::undefined_reference) << pResolveInfo.name();
+    int status;
+    char* demangledName =  abi::__cxa_demangle(pResolveInfo.name(),
+                                               NULL,
+                                               NULL,
+                                               &status);
+    if (NULL != demangledName) {
+      fatal(diag::undefined_reference) << demangledName;
+    }
+    else {
+      fatal(diag::undefined_reference) << pResolveInfo.name();
+    }
   }
   return relocation;
 }
