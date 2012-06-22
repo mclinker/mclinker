@@ -16,9 +16,14 @@ using namespace llvm::dwarf;
 template<size_t size>
 void EhFrameHdr::emitOutput(Output& pOutput, MCLinker& pLinker)
 {
-  MemoryRegion* region = pOutput.memArea()->request(m_EhFrameHdrSect.offset(),
-                                                    m_EhFrameHdrSect.size());
-  uint8_t* data = (uint8_t*)region->start();
+  MemoryRegion* ehframe_region =
+    pOutput.memArea()->request(m_EhFrameSect.offset(), m_EhFrameSect.size());
+
+  MemoryRegion* ehframehdr_region =
+    pOutput.memArea()->request(m_EhFrameHdrSect.offset(),
+                               m_EhFrameHdrSect.size());
+
+  uint8_t* data = (uint8_t*)ehframehdr_region->start();
   // version
   data[0] = 1;
   // eh_frame_ptr_enc
@@ -50,7 +55,7 @@ void EhFrameHdr::emitOutput(Output& pOutput, MCLinker& pLinker)
       typename SizeTraits<size>::Address fde_pc;
       typename SizeTraits<size>::Address fde_addr;
       offset = pLinker.getLayout().getOutputOffset(**fde);
-      fde_pc = getFDEPC<size>(*fde, offset, pOutput);
+      fde_pc = getFDEPC<size>(**fde, offset, *ehframe_region);
       fde_addr = m_EhFrameSect.addr() + offset;
       search_table.push_back(std::make_pair(fde_pc, fde_addr));
     }
@@ -71,18 +76,20 @@ void EhFrameHdr::emitOutput(Output& pOutput, MCLinker& pLinker)
     // table_enc
     data[3] = DW_EH_PE_omit;
   }
+
+  pOutput.memArea()->release(ehframe_region);
+  pOutput.memArea()->release(ehframehdr_region);
 }
 
 /// getFDEPC - return the address of FDE's pc
 /// @ref binutils gold: ehframe.cc:222
 template<size_t size>
 typename SizeTraits<size>::Address
-EhFrameHdr::getFDEPC(const FDE* pFDE,
+EhFrameHdr::getFDEPC(const FDE& pFDE,
                      typename SizeTraits<size>::Offset pOffset,
-                     Output& pOutput)
+                     const MemoryRegion& pEhFrameRegion)
 {
-  assert(pFDE != NULL);
-  uint8_t fde_encoding = pFDE->getCIE().getFDEEncode();
+  uint8_t fde_encoding = pFDE.getCIE().getFDEEncode();
   unsigned int eh_value = fde_encoding & 0x7;
 
   // check the size to read in
@@ -109,12 +116,11 @@ EhFrameHdr::getFDEPC(const FDE* pFDE,
       break;
   }
 
-  MemoryRegion* region = pOutput.memArea()->request((m_EhFrameSect.offset() +
-                                                     pOffset +
-                                                     pFDE->getPCBeginOffset()),
-                                                    pc_size);
   typename SizeTraits<size>::Address pc = 0x0;
-  std::memcpy(&pc, region->start(), pc_size);
+  const uint8_t* offset = (const uint8_t*) pEhFrameRegion.start() +
+                          pOffset +
+                          pFDE.getPCBeginOffset();
+  std::memcpy(&pc, offset, pc_size);
 
   // adjust the signed value
   bool is_signed = (fde_encoding & llvm::dwarf::DW_EH_PE_signed) != 0x0;
@@ -142,7 +148,7 @@ EhFrameHdr::getFDEPC(const FDE* pFDE,
     case DW_EH_PE_pcrel:
       pc += m_EhFrameSect.addr() +
             pOffset +
-            pFDE->getPCBeginOffset();
+            pFDE.getPCBeginOffset();
       break;
     case DW_EH_PE_datarel:
       // TODO

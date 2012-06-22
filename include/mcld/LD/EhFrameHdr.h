@@ -57,9 +57,9 @@ private:
   /// @param pOffset - the output offset of FDE
   template<size_t size>
   typename SizeTraits<size>::Address
-  getFDEPC(const FDE* pFDE,
+  getFDEPC(const FDE& pFDE,
            typename SizeTraits<size>::Offset pOffset,
-           Output& pOutput);
+           const MemoryRegion& pEhFrameRegion);
 
   template<size_t size>
   class BSTEntry
