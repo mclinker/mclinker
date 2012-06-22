@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 
 namespace mcld{
@@ -23,19 +24,29 @@ std::string relocatable_extension = ".o";
 std::string assembly_extension = ".s";
 std::string bitcode_extension = ".bc";
 
-size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset)
+int open(const Path& pPath, int pOFlag)
 {
-  return ::pread(pFD, (void*) pBuf, pCount, pOffset);
+  return ::open(pPath.native().c_str(), pOFlag);
 }
 
-size_t pwrite(int pFD, const Address pBuf, size_t pCount, off_t pOffset)
+int open(const Path& pPath, int pOFlag, int pPerm)
 {
-  return ::pwrite(pFD, (const void*) pBuf, pCount, pOffset);
+  return ::open(pPath.native().c_str(), pOFlag, pPerm);
 }
 
-char *strerror(int errnum)
+ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)
 {
-  return ::strerror(errnum);
+  return ::pread(pFD, pBuf, pCount, pOffset);
+}
+
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
+{
+  return ::pwrite(pFD, pBuf, pCount, pOffset);
+}
+
+int ftruncate(int pFD, size_t pLength)
+{
+  return ::ftruncate(pFD, pLength);
 }
 
 } // namespace of detail
