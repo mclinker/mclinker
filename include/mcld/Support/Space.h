@@ -13,9 +13,13 @@
 #endif
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
+#include <mcld/ADT/TypeTraits.h>
 
 namespace mcld
 {
+
+class FileHandle;
+class MemoryRegion;
 
 /** \class Space
  *  \brief Space contains a chunk of memory space that does not overlap with
@@ -32,6 +36,9 @@ public:
     EXTERNAL,
     UNALLOCATED
   };
+
+  typedef NonConstTraits<uint8_t>::pointer Address;
+  typedef ConstTraits<uint8_t>::pointer ConstAddress;
 
 // llvm::iplist functions
 public:
@@ -51,10 +58,10 @@ public:
   void setStart(size_t pOffset)
   { m_StartOffset = pOffset; }
 
-  void* memory()
+  Address memory()
   { return m_Data; }
 
-  const void* memory() const
+  ConstAddress memory() const
   { return m_Data; }
 
   size_t start() const
@@ -78,12 +85,12 @@ public:
   static Space* createSpace(FileHandle& pHandler,
                             size_t pOffset, size_t pSize);
   
-  static void releaseSpace((Space*)& pSpace, FileHandle& pHandler);
+  static void releaseSpace(Space* pSpace, FileHandle& pHandler);
 
-  static void syncSpace((Space*)& pSpace, FileHandle& pHandler);
+  static void syncSpace(Space* pSpace, FileHandle& pHandler);
 
 private:
-  void* m_Data;
+  Address m_Data;
   uint32_t m_StartOffset;
   uint32_t m_Size;
   uint16_t m_RegionCount;

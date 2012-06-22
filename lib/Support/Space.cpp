@@ -52,7 +52,7 @@ Space::Space()
 }
 
 Space::Space(Space::Type pType, void* pMemBuffer, size_t pSize)
-  : m_Data(pMemBuffer), m_StartOffset(0), m_Size(pSize),
+  : m_Data(static_cast<Address>(pMemBuffer)), m_StartOffset(0), m_Size(pSize),
     m_RegionCount(0), m_Type(pType)
 {
 }
@@ -62,6 +62,8 @@ Space::~Space()
   // do nothing. m_Data is deleted by @ref releaseSpace
 }
 
+#include <iostream>
+using namespace std;
 Space* Space::createSpace(FileHandle& pHandler,
                           size_t pStart, size_t pSize)
 {
@@ -75,12 +77,18 @@ Space* Space::createSpace(FileHandle& pHandler,
       total_offset = pStart + pSize;
       start = pStart;
       if (total_offset > pHandler.size()) {
-        if (pHandler.writable()) {
+        if (pHandler.isWritable()) {
           size = pSize;
           pHandler.truncate(total_offset);
         }
-        else
+        else if (pHandler.size() > start)
           size = pHandler.size() - start;
+        else {
+          // create a space out of a read-only file.
+          fatal(diag::err_cannot_read_small_file) << pHandler.path()
+                                                  << pHandler.size()
+                                                  << start << size;
+        }
       }
       else
         size = pSize;
@@ -88,7 +96,7 @@ Space* Space::createSpace(FileHandle& pHandler,
       // malloc
       memory = (void*)malloc(size);
       if (!pHandler.read(memory, start, size))
-        error(diag::err_cannot_read_file) << pHandle.path() << start << size;
+        error(diag::err_cannot_read_file) << pHandler.path() << start << size;
 
       break;
     }
@@ -97,19 +105,25 @@ Space* Space::createSpace(FileHandle& pHandler,
       total_offset = page_boundary(pStart + pSize);
       start = page_offset(pStart);
       if (total_offset > pHandler.size()) {
-        if (pHandler.writable()) {
+        if (pHandler.isWritable()) {
           size = page_boundary((pStart - start) + pSize);
-          pHandle.truncate(total_offset);
+          pHandler.truncate(total_offset);
         }
-        else
+        else if (size > pHandler.size())
           size = pHandler.size() - start;
+        else {
+          // create a space out of a read-only file.
+          fatal(diag::err_cannot_read_small_file) << pHandler.path()
+                                                  << pHandler.size()
+                                                  << start << size;
+        }
       }
       else
         size = page_boundary((pStart - start) + pSize);
 
       // mmap
       if (!pHandler.mmap(memory, start, size))
-        error(diag::err_cannot_mmap_file) << pHandle.path() << start << size;
+        error(diag::err_cannot_mmap_file) << pHandler.path() << start << size;
 
       break;
     }
@@ -120,37 +134,35 @@ Space* Space::createSpace(FileHandle& pHandler,
   return result;
 }
 
-void Space::releaseSpace((Space*)& pSpace, FileHandle& pHandler)
+void Space::releaseSpace(Space* pSpace, FileHandle& pHandler)
 {
   if (NULL == pSpace)
     return;
 
   switch(pSpace->type()) {
     case ALLOCATED_ARRAY:
-      free(pSpace->data);
+      free(pSpace->memory());
       break;
     case MMAPED:
-      pHandler.munmap(pSpace->data, pSpace->size);
+      if (!pHandler.munmap(pSpace->memory(), pSpace->size()))
+        error(diag::err_cannot_munmap_file) << pHandler.path();
       break;
     default: // external and unallocated memory buffers
       break;
   } // end of switch
-
-  delete pSpace;
-  pSpace = NULL;
 }
 
-void Space::syncSpace((Space*)& pSpace, FileHandle& pHandler)
+void Space::syncSpace(Space* pSpace, FileHandle& pHandler)
 {
-  if (NULL == pSpace || !pHandle.isWritable())
+  if (NULL == pSpace || !pHandler.isWritable())
     return;
 
-  switch(pSpace.type()) {
+  switch(pSpace->type()) {
     case Space::ALLOCATED_ARRAY: {
       if (!pHandler.write(pSpace->memory(),
                           pSpace->start(),
                           pSpace->size())) {
-        error(diag::err_cannot_write_file) << pHandle.path()
+        error(diag::err_cannot_write_file) << pHandler.path()
                                            << pSpace->start()
                                            << pSpace->size();
       }
