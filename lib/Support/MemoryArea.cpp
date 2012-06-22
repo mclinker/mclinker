@@ -16,8 +16,17 @@ using namespace mcld;
 
 //===--------------------------------------------------------------------===//
 // MemoryArea
-MemoryArea::MemoryArea(RegionFactory& pRegionFactory, FileHandle* pFileHandle)
-  : m_RegionFactory(pRegionFactory), m_pFileHandle(pFileHandle) {
+
+// MemoryArea - special constructor
+// This constructor is used for *SPECIAL* situation. I'm sorry I can not
+// reveal what is the special situation.
+MemoryArea::MemoryArea(RegionFactory& pRegionFactory, Space& pUniverse)
+  : m_RegionFactory(pRegionFactory), m_pFileHandle(NULL) {
+  m_SpaceList.push_back(&pUniverse);
+}
+
+MemoryArea::MemoryArea(RegionFactory& pRegionFactory, FileHandle& pFileHandle)
+  : m_RegionFactory(pRegionFactory), m_pFileHandle(&pFileHandle) {
 }
 
 MemoryArea::~MemoryArea()
@@ -45,14 +54,16 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
 {
   Space* space = find(pOffset, pLength);
   if (NULL == space) {
+
     // not found
     if (NULL == m_pFileHandle) {
-      // if m_pFileHandle is NULL, clients delegate us a big Space and we never
-      // remove it. In that way, space can not be NULL.
+      // if m_pFileHandle is NULL, clients delegate us an universal Space and
+      // we never remove it. In that way, space can not be NULL.
       unreachable(diag::err_out_of_range_region);
     }
 
     space = Space::createSpace(*m_pFileHandle, pOffset, pLength);
+    m_SpaceList.push_back(space);
   }
 
   // adjust r_start
@@ -60,27 +71,54 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
   void* r_start = space->memory() + distance;
 
   // now, we have a legal space to hold the new MemoryRegion
-  return m_RegionFactory.produce(space, r_start, pLength);
+  return m_RegionFactory.produce(*space, r_start, pLength);
 }
 
 // release - release a MemoryRegion
 void MemoryArea::release(MemoryRegion* pRegion)
 {
+  if (NULL == pRegion)
+    return;
+
   Space *space = pRegion->parent();
   m_RegionFactory.destruct(pRegion);
 
   if (0 == space->numOfRegions()) {
 
     if (NULL != m_pFileHandle) {
-      // if m_pFileHandle is NULL, clients delegate us a big Space and we never
-      // remove it. Otherwise, we have to synchronize and release Space.
+      // if m_pFileHandle is NULL, clients delegate us an universal Space and
+      // we never remove it. Otherwise, we have to synchronize and release
+      // Space.
       if (m_pFileHandle->isWritable()) {
         // synchronize writable space before we release it.
         Space::syncSpace(space, *m_pFileHandle);
       }
       Space::releaseSpace(space, *m_pFileHandle);
     }
+    m_SpaceList.erase(space);
   }
+}
+
+// clear - release all MemoryRegions
+void MemoryArea::clear()
+{
+  if (NULL == m_pFileHandle)
+    return;
+
+  if (m_pFileHandle->isWritable()) {
+    SpaceList::iterator space, sEnd = m_SpaceList.end();
+    for (space = m_SpaceList.begin(); space != sEnd; ++space) {
+      Space::syncSpace(space, *m_pFileHandle);
+      Space::releaseSpace(space, *m_pFileHandle);
+    }
+  }
+  else {
+    SpaceList::iterator space, sEnd = m_SpaceList.end();
+    for (space = m_SpaceList.begin(); space != sEnd; ++space)
+      Space::releaseSpace(space, *m_pFileHandle);
+  }
+
+  m_SpaceList.clear();
 }
 
 //===--------------------------------------------------------------------===//

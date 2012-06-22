@@ -15,7 +15,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/FileHandle.h>
+#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/Space.h>
 #include <fcntl.h>
 #include <string>
@@ -56,7 +56,7 @@ class MemoryArea : private Uncopyable
 public:
   // constructor
   MemoryArea(RegionFactory& pRegionFactory,
-             FileHandle* pFileHandle = NULL);
+             FileHandle& pFileHandle);
 
   // destructor
   ~MemoryArea();
@@ -71,9 +71,17 @@ public:
   // release a MemoryRegion does not cause
   void release(MemoryRegion* pRegion);
 
+  // clear - release all memory regions.
+  void clear();
+
+  FileHandle* handler()
+  { return m_pFileHandle; }
+
+  const FileHandle* handler() const
+  { return m_pFileHandle; }
+
 private:
-  friend class MemoryRegion;
-  friend class RegionFactory;
+  friend class MemoryAreaFactory;
 
 #if defined(ENABLE_UNITTEST)
   friend class mcldtest::MemoryAreaTest;
@@ -82,6 +90,11 @@ private:
   typedef llvm::iplist<Space> SpaceList;
 
 private:
+  // -----  special methods ----- //
+  // @param pRegionFactory  The factory of regions.
+  // @param pUniverse       A initial univeral space.
+  MemoryArea(RegionFactory& pRegionFactory, Space& pUniverse);
+
   // -----  space list methods  ----- //
   Space* find(size_t pOffset, size_t pLength);
 
