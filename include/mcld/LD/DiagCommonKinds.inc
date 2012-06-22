@@ -27,7 +27,7 @@ DIAG(err_cannot_mmap_file, DiagnosticEngine::Error, "cannot open memory mapped f
 DIAG(err_cannot_read_file, DiagnosticEngine::Error, "cannot read file %0.\n%1", "cannot read file %0.\n%1")
 DIAG(warn_illegal_input_section, DiagnosticEngine::Warning, "section `%0' should not appear in input file `%1': %2", "section `%0' should not appear in input file `%1': %2")
 DIAG(err_cannot_trace_file, DiagnosticEngine::Unreachable, "cannot identify the type (%0) of input file `%1'.\n  %2", "cannot identify the type (%0) of input file `%1'.\n  %2")
-DIAG(debug_eh_unsupport, DiagnosticEngine::Debug, "unsupported eh_frame: %0%1", "unsupported eh_frame: %0%1")
+DIAG(debug_eh_unsupport, DiagnosticEngine::Debug, "unsupported eh_frame: %0", "unsupported eh_frame: %0")
 DIAG(note_ehframe, DiagnosticEngine::Note, "eh_frame: %0", "eh_frame: %0")
 DIAG(note_eh_cie, DiagnosticEngine::Note, "CIE length: %0, aug_string: %1, fde_encodeing: %2", "CIE length: %0, aug_string: %1, fde_encodeing: %2")
 DIAG(note_eh_fde, DiagnosticEngine::Note, "FDE length: %0, offset of PC Begin: %1", "FDE length: %0, offset of PC Begin: %1")

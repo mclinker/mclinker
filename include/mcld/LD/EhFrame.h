@@ -124,8 +124,8 @@ private:
   /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
   bool skipLEB128(ConstAddress* pp, ConstAddress pend);
 
-  /// deleteFragments - delete MCFragments in pList
-  void deleteFragments(FragListType& pList);
+  /// deleteFragments - release the MemoryRegion and delete MCFragments in pList
+  void deleteFragments(FragListType& pList, MemoryArea& pArea);
 
 private:
   CIEListType m_CIEs;

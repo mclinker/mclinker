@@ -109,6 +109,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     if (0 == id) {
       if (!addCIE(*ent_region, pBackend, frag_list)) {
         m_fCanRecognizeAll = false;
+        pArea.release(ent_region);
         break;
       }
     }
@@ -117,6 +118,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     else {
       if (!addFDE(*ent_region, pBackend, frag_list)) {
         m_fCanRecognizeAll = false;
+        pArea.release(ent_region);
         break;
       }
     }
@@ -125,7 +127,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
 
   if (!m_fCanRecognizeAll) {
     pArea.release(region);
-    deleteFragments(frag_list);
+    deleteFragments(frag_list, pArea);
     return 0;
   }
 
@@ -153,7 +155,7 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
 
   // the version should be 1
   if (1 != *p) {
-    debug(diag::debug_eh_unsupport) << "CIE version" << (int)*p;
+    debug(diag::debug_eh_unsupport) << "CIE version";
     return false;
   }
   ++p;
@@ -208,7 +210,7 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
     while (aug_str != aug_str_end) {
       switch (*aug_str) {
         default:
-          debug(diag::debug_eh_unsupport) << "augmentation string" << *aug_str;
+          debug(diag::debug_eh_unsupport) << "augmentation string";
           return false;
 
         // LDSA encoding (1 byte)
@@ -288,8 +290,7 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
             case llvm::dwarf::DW_EH_PE_absptr:
               break;
             default:
-              debug(diag::debug_eh_unsupport) << "FDE encoding: "
-                                              << (fde_encoding & 7);
+              debug(diag::debug_eh_unsupport) << "FDE encoding";
               return false;
           }
           ++p;
@@ -359,10 +360,14 @@ bool EhFrame::skipLEB128(ConstAddress* pp, ConstAddress pend)
   return false;
 }
 
-void EhFrame::deleteFragments(FragListType& pList)
+void EhFrame::deleteFragments(FragListType& pList, MemoryArea& pArea)
 {
-  for (FragListType::iterator it = pList.begin(); it != pList.end(); ++it)
+  MCRegionFragment* frag = NULL;
+  for (FragListType::iterator it = pList.begin(); it != pList.end(); ++it) {
+    frag = static_cast<MCRegionFragment*>(*it);
+    pArea.release(&(frag->getRegion()));
     delete *it;
+  }
   pList.clear();
 }
 
