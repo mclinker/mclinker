@@ -11,7 +11,6 @@
 #include <llvm/ADT/StringRef.h>
 
 #include <locale>
-#include <iostream>
 #include <string.h>
 
 using namespace mcld;
