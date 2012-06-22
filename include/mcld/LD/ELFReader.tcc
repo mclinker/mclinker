@@ -190,7 +190,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   LinkInfoList::iterator info, infoEnd = link_info_list.end();
   for (info = link_info_list.begin(); info != infoEnd; ++info) {
     if (LDFileFormat::NamePool == info->section->kind() ||
-        LDFileFormat::Group == info->section->kind()) {
+        LDFileFormat::Group == info->section->kind() ||
+        LDFileFormat::Note == info->section->kind()) {
       info->section->setLink(pInput.context()->getSection(info->sh_link));
       continue;
     }
@@ -522,6 +523,70 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 
     pLinker.addRelocation(r_type, *symbol, *resolve_info, *frag_ref, pSection);
   }
+  return true;
+}
+
+/// readDynamic - read ELF .dynamic in input dynobj
+bool ELFReader<32, true>::readDynamic(Input& pInput) const
+{
+  assert(pInput.type() == Input::DynObj);
+  const LDSection* dynamic_sect = pInput.context()->getSection(".dynamic");
+  if (NULL == dynamic_sect) {
+    fatal(diag::err_cannot_read_section) << ".dynamic";
+  }
+  const LDSection* dynstr_sect = dynamic_sect->getLink();
+  if (NULL == dynstr_sect) {
+    fatal(diag::err_cannot_read_section) << ".dynstr";
+  }
+
+  MemoryRegion* dynamic_region =
+    pInput.memArea()->request(dynamic_sect->offset(), dynamic_sect->size());
+
+  MemoryRegion* dynstr_region =
+    pInput.memArea()->request(dynstr_sect->offset(), dynstr_sect->size());
+
+  assert(NULL != dynamic_region && NULL != dynstr_region);
+
+  const llvm::ELF::Elf32_Dyn* dynamic =
+    (llvm::ELF::Elf32_Dyn*) dynamic_region->start();
+  const char* dynstr = (const char*) dynstr_region->start();
+  bool hasSOName = false;
+  size_t numOfEntries = dynamic_sect->size() / sizeof(llvm::ELF::Elf32_Dyn);
+
+  for (size_t idx = 0; idx < numOfEntries; ++idx) {
+
+    llvm::ELF::Elf32_Sword d_tag = 0x0;
+    llvm::ELF::Elf32_Word d_val = 0x0;
+
+    if (llvm::sys::isLittleEndianHost()) {
+      d_tag = dynamic[idx].d_tag;
+      d_val = dynamic[idx].d_un.d_val;
+    } else {
+      d_tag = bswap32(dynamic[idx].d_tag);
+      d_val = bswap32(dynamic[idx].d_un.d_val);
+    }
+
+    switch (d_tag) {
+      case llvm::ELF::DT_SONAME:
+        assert(d_val < dynstr_sect->size());
+        pInput.setSOName(dynstr + d_val);
+        hasSOName = true;
+        break;
+      case llvm::ELF::DT_NEEDED:
+        // TODO:
+        break;
+      case llvm::ELF::DT_NULL:
+      default:
+        break;
+    }
+  }
+
+  // if there is no SONAME in .dynamic, then set it from input path
+  if (!hasSOName)
+    pInput.setSOName(pInput.path().native());
+
+  pInput.memArea()->release(dynamic_region);
+  pInput.memArea()->release(dynstr_region);
   return true;
 }
 

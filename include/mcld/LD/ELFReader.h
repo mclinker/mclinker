@@ -106,6 +106,10 @@ public:
   bool readEhFrame(Input& pInput,
                    MCLinker& pLinker,
                    LDSection& pSection) const;
+
+  /// readDynamic - read ELF .dynamic in input dynobj
+  virtual bool readDynamic(Input& pInput) const = 0;
+
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {
@@ -219,6 +223,9 @@ public:
                       MCLinker& pLinker,
                       LDSection& pSection,
                       const MemoryRegion& pRegion) const;
+
+  /// readDynamic - read ELF .dynamic in input dynobj
+  inline bool readDynamic(Input& pInput) const;
 };
 
 #include "ELFReader.tcc"
