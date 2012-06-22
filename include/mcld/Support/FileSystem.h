@@ -24,6 +24,7 @@
 
 namespace mcld {
 namespace sys {
+
 namespace fs {
 
 enum FileType
@@ -89,8 +90,6 @@ inline static bool is_directory(FileStatus f) {
 namespace detail
 {
 
-typedef unsigned char* Address;
-typedef off_t Offset;
 extern std::string static_library_extension;
 extern std::string shared_library_extension;
 extern std::string executable_extension;
@@ -106,8 +105,12 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
 void get_pwd(std::string& pPWD);
-size_t pread(int pFD, Address pBuf, size_t pCount, off_t pOffset);
-size_t pwrite(int pFD, const Address pBuf, size_t pCount, off_t pOffset);
+
+int open(const Path& pPath, int pOFlag);
+int open(const Path& pPath, int pOFlag, int pPermission);
+ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset);
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset);
+int ftruncate(int pFD, size_t pLength);
 
 } // namespace of detail
 } // namespace of fs
