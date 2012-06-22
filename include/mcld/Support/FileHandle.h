@@ -13,6 +13,7 @@
 #endif
 #include <mcld/Support/Path.h>
 #include <mcld/ADT/Flags.h>
+#include <errno.h>
 
 namespace mcld
 {
@@ -90,7 +91,9 @@ public:
 
   bool read(void* pMemBuffer, size_t pStartOffset, size_t pLength);
 
-  bool mmap(void* pMemBuffer, size_t pStartOffset, size_t pLength);
+  bool write(const void* pMemBuffer, size_t pStartOffset, size_t pLength);
+
+  bool mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength);
 
   bool munmap(void* pMemBuffer, size_t pLength);
 
@@ -120,6 +123,9 @@ public:
   bool isWritable() const;
 
   bool isReadWrite() const;
+
+  int error() const
+  { return errno; }
 
 private:
   sys::fs::Path m_Path;
