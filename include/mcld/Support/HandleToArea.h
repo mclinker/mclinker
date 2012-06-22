@@ -36,6 +36,24 @@ class MemoryArea;
  */
 class HandleToArea : private Uncopyable
 {
+private:
+  struct Bucket {
+    unsigned int hash_value;
+    FileHandle* handle;
+    MemoryArea* area;
+  };
+
+  // the best data structure is a binary search tree.
+  // However, by the shrinking time-to-market constraint, I used
+  // vector and sequential search here.
+  typedef std::vector<Bucket> HandleToAreaMap;
+
+  typedef StringHash<BKDR> HashFunction;
+
+public:
+  typedef HandleToAreaMap::iterator iterator;
+  typedef HandleToAreaMap::const_iterator const_iterator;
+
 public:
   struct Result {
   public:
@@ -60,13 +78,25 @@ public:
 public:
   bool push_back(FileHandle* pHandle, MemoryArea* pArea);
 
-  Result findFirst(int pHandler);
+  bool erase(MemoryArea* pArea);
 
-  ConstResult findFirst(int pHandler) const;
+  bool erase(const sys::fs::Path& pPath);
 
   Result findFirst(const sys::fs::Path& pPath);
 
   ConstResult findFirst(const sys::fs::Path& pPath) const;
+
+  iterator begin()
+  { return m_AreaMap.begin(); }
+
+  iterator end()
+  { return m_AreaMap.end(); }
+
+  const_iterator begin() const
+  { return m_AreaMap.begin(); }
+
+  const_iterator end() const
+  { return m_AreaMap.end(); }
 
   // -----  capacity  ----- //
   bool empty() const
@@ -78,20 +108,6 @@ public:
   HandleToArea() : m_AreaMap() { }
 
   ~HandleToArea() { }
-
-private:
-  struct Bucket {
-    unsigned int hash_value;
-    FileHandle* handle;
-    MemoryArea* area;
-  };
-
-  // the best data structure is a binary search tree.
-  // However, by the shrinking time-to-market constraint, I used
-  // vector and sequential search here.
-  typedef std::vector<Bucket> HandleToAreaMap;
-
-  typedef StringHash<BKDR> HashFunction;
 
 private:
   HandleToAreaMap m_AreaMap;

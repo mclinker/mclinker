@@ -27,32 +27,33 @@ bool HandleToArea::push_back(FileHandle* pHandle, MemoryArea* pArea)
   bucket.handle = pHandle;
   bucket.area = pArea;
   m_AreaMap.push_back(bucket);
-
   return true;
 }
 
-HandleToArea::Result HandleToArea::findFirst(int pHandler)
+bool HandleToArea::erase(MemoryArea* pArea)
 {
-  HandleToAreaMap::iterator bucket, bEnd = m_AreaMap.end();
+  if (NULL == pArea || NULL == pArea->handler())
+    return false;
 
-  for (bucket = m_AreaMap.begin(); bucket != bEnd; ++bucket) {
-    if (bucket->handle->handler() == pHandler)
-      return Result(bucket->handle, bucket->area);
-  }
-
-  return Result(NULL, NULL);
+  return erase(pArea->handler()->path());
 }
 
-HandleToArea::ConstResult HandleToArea::findFirst(int pHandler) const
+bool HandleToArea::erase(const sys::fs::Path& pPath)
 {
-  HandleToAreaMap::const_iterator bucket, bEnd = m_AreaMap.end();
+  unsigned int hash_value = HashFunction()(
+                                  llvm::StringRef(pPath.native().c_str(),
+                                                  pPath.native().size()));
 
+  HandleToAreaMap::iterator bucket, bEnd = m_AreaMap.end();
   for (bucket = m_AreaMap.begin(); bucket != bEnd; ++bucket) {
-    if (bucket->handle->handler() == pHandler)
-      return ConstResult(bucket->handle, bucket->area);
+    if (bucket->hash_value == hash_value && bucket->handle->path() == pPath) {
+      // found
+      m_AreaMap.erase(bucket);
+      return true;
+    }
   }
 
-  return ConstResult(NULL, NULL);
+  return false;
 }
 
 HandleToArea::Result HandleToArea::findFirst(const sys::fs::Path& pPath)
