@@ -12,23 +12,13 @@ using namespace mcld;
 
 //==========================
 // MemoryRegion
-MemoryRegion::MemoryRegion(MemoryArea::Space *pParentSpace,
-                           const MemoryRegion::Address pVMAStart,
+MemoryRegion::MemoryRegion(Space& pParent,
+                           MemoryRegion::Address pVMAStart,
                            size_t pSize)
-  : m_pParentSpace(pParentSpace), m_VMAStart(pVMAStart), m_Length(pSize) {
-  m_pParentSpace->region_num++;
+  : m_Parent(pParent), m_VMAStart(pVMAStart), m_Length(pSize) {
 }
 
 MemoryRegion::~MemoryRegion()
 {
-  drift();
-}
-
-void MemoryRegion::drift()
-{
-  if (NULL == m_pParentSpace)
-    return;
-  m_pParentSpace->region_num--;
-  m_pParentSpace = NULL;
 }
 

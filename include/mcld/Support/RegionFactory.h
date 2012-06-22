@@ -11,10 +11,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/Support/GCFactory.h"
-#include "mcld/Support/MemoryRegion.h"
-#include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/FileSystem.h"
+#include <mcld/Support/GCFactory.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/FileSystem.h>
 
 namespace mcld
 {
@@ -35,9 +35,7 @@ public:
   ~RegionFactory();
 
   // ----- production ----- //
-  MemoryRegion* produce(MemoryArea::Space* pSpace,
-                        const sys::fs::detail::Address pVMAStart,
-                        size_t pSize);
+  MemoryRegion* produce(Space& pSpace, void* pVMAStart, size_t pSize);
 
   void destruct(MemoryRegion* pRegion);
 };

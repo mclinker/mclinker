@@ -6,8 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/RegionFactory.h"
-#include "mcld/Support/MemoryArea.h"
+#include <mcld/Support/RegionFactory.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/Space.h>
 
 using namespace mcld;
 
@@ -21,18 +22,19 @@ RegionFactory::~RegionFactory()
 {
 }
 
-MemoryRegion* RegionFactory::produce(MemoryArea::Space* pSpace,
-                                     const sys::fs::detail::Address pVMAStart,
-                                     size_t pSize)
+MemoryRegion* RegionFactory::produce(Space& pSpace, void* pVMAStart, size_t pSize)
 {
   MemoryRegion* result = Alloc::allocate();
-  new (result) MemoryRegion(pSpace, pVMAStart, pSize);
+  new (result) MemoryRegion(pSpace,
+                            static_cast<const MemoryRegion::Address>(pVMAStart),
+                            pSize);
+  pSpace.addRegion(*result);
   return result;
 }
 
 void RegionFactory::destruct(MemoryRegion* pRegion)
 {
-  pRegion->drift();
+  pRegion->parent()->removeRegion(*pRegion);
   destroy(pRegion);
   deallocate(pRegion);
 }

@@ -13,12 +13,9 @@
 #endif
 
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/ADT/TypeTraits.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MemoryArea.h>
-#include <llvm/ADT/ilist.h>
-#include <llvm/ADT/StringRef.h>
+#include <mcld/Support/Space.h>
 
 namespace mcld
 {
@@ -42,24 +39,17 @@ friend class RegionFactory;
 friend class MemoryArea;
 
 public:
-typedef NonConstTraits<uint8_t>::pointer Address;
-typedef ConstTraits<uint8_t>::pointer ConstAddress;
-typedef NonConstTraits<mcld::sys::fs::detail::Offset>::value_type  Offset;
-typedef ConstTraits<mcld::sys::fs::detail::Offset>::value_type     ConstOffset;
+  typedef Space::Address Address;
+  typedef Space::ConstAddress ConstAddress;
 
 private:
-  MemoryRegion(MemoryArea::Space* pParentSpace,
-               const Address pVMAStart,
-               size_t pSize);
+  MemoryRegion(Space& pParent, const Address pVMAStart, size_t pSize);
 
-  // drift - leave parent space
-  void drift();
+  Space* parent()
+  { return &m_Parent; }
 
-  MemoryArea::Space* parent()
-  { return m_pParentSpace; }
-
-  const MemoryArea::Space* parent() const
-  { return m_pParentSpace; }
+  const Space* parent() const
+  { return &m_Parent; }
 
 public:
   ~MemoryRegion();
@@ -79,14 +69,14 @@ public:
   size_t size() const
   { return m_Length; }
 
-  Address getBuffer(Offset pOffset = 0)
+  Address getBuffer(size_t pOffset = 0)
   { return m_VMAStart+pOffset; }
 
-  ConstAddress getBuffer(Offset pOffset = 0) const
+  ConstAddress getBuffer(size_t pOffset = 0) const
   { return m_VMAStart+pOffset; }
  
 private:
-  MemoryArea::Space* m_pParentSpace;
+  Space& m_Parent;
   Address m_VMAStart;
   size_t m_Length;
 };
