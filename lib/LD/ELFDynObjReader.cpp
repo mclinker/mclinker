@@ -69,9 +69,13 @@ bool ELFDynObjReader::readDSO(Input& pInput)
   MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
   uint8_t* ELF_hdr = region->start();
 
-  bool result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
+  bool shdr_result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
   pInput.memArea()->release(region);
-  return result;
+
+  // read .dynamic to get the correct SONAME
+  bool dyn_result = m_pELFReader->readDynamic(pInput);
+
+  return (shdr_result && dyn_result);
 }
 
 /// readSymbols

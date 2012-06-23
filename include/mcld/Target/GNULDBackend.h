@@ -15,19 +15,20 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
+#include <mcld/LD/EhFrameHdr.h>
+#include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
+#include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/LD/ELFExecWriter.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
-#include <mcld/LD/ELFExecWriter.h>
-#include <mcld/LD/ELFDynObjFileFormat.h>
-#include <mcld/LD/ELFExecFileFormat.h>
 #include <mcld/LD/ELFSegment.h>
+#include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/LD/ELFSegmentFactory.h>
 
 namespace mcld
 {
@@ -319,6 +320,10 @@ private:
   void createProgramHdrs(Output& pOutput,
                          const MCLDInfo& pInfo);
 
+  /// setupProgramHdrs - set up the attributes of segments
+  ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
+  void setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo);
+
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
   inline uint32_t getSegmentFlag(const uint32_t pSectionFlag)
@@ -355,6 +360,11 @@ private:
   virtual void doPostLayout(const Output& pOutput,
                           const MCLDInfo& pInfo,
                           MCLinker& pLinker) = 0;
+
+  /// postProcessing - Backend can do any needed modification in the final stage
+  void postProcessing(const Output& pOutput,
+                      const MCLDInfo& pInfo,
+                      MCLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;
@@ -414,6 +424,9 @@ protected:
 
   // map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;
+
+  // section .eh_frame_hdr
+  EhFrameHdr* m_pEhFrameHdr;
 
   // -----  standard symbols  ----- //
   // section symbols

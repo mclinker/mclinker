@@ -14,20 +14,11 @@ using namespace mcld;
 //==========================
 // FDE
 
-FDE::FDE(const MCRegionFragment& pFrag, const CIE& pCIE, Offset pPCBeginOffset)
-  : m_Fragment(pFrag), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
+FDE::FDE(MemoryRegion& pRegion, const CIE& pCIE, Offset pPCBeginOffset)
+  : MCRegionFragment(pRegion), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
 }
+
 FDE::~FDE()
 {
-}
-
-const CIE& FDE::getCIE() const
-{
-  return m_CIE;
-}
-
-uint64_t FDE::PCBegin() const
-{
-  return 0;
 }
 

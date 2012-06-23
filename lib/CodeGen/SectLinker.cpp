@@ -175,13 +175,10 @@ bool SectLinker::doFinalization(Module &pM)
   // 12. - apply relocations
   m_pLDDriver->relocation();
 
-  // 13. - post relocation passes
-  m_pLDDriver->postRelocation();
-
-  // 14. - write out output
+  // 13. - write out output
   m_pLDDriver->emitOutput();
 
-  // 15. - post processing
+  // 14. - post processing
   m_pLDDriver->postProcessing();
   return false;
 }

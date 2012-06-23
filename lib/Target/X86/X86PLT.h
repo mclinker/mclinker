@@ -13,7 +13,7 @@
 
 namespace mcld {
 
-class X86GOT;
+class X86GOTPLT;
 class GOTEntry;
 class Output;
 
@@ -41,8 +41,8 @@ public:
 public:
   X86PLT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
-         X86GOT& pGOTPLT,
-	 const Output& pOutput);
+         X86GOTPLT& pGOTPLT,
+	       const Output& pOutput);
   ~X86PLT();
 
 // Override virtual function.
@@ -72,7 +72,7 @@ public:
   void applyPLT1();
 
 private:
-  X86GOT& m_GOT;
+  X86GOTPLT& m_GOTPLT;
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.

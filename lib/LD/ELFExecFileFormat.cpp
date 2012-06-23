@@ -82,5 +82,5 @@ void ELFExecFileFormat::initObjectType(MCLinker& pLinker)
                                               LDFileFormat::EhFrameHdr,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
-                                              0x1);
+                                              0x4);
 }

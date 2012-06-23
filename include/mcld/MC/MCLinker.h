@@ -150,10 +150,6 @@ public:
   /// @param pArea - the memory area which pSection is within.
   uint64_t addEhFrame(LDSection& pSection, MemoryArea& pArea);
 
-  bool hasEhFrameHdr() const
-  { return (NULL != m_pEhFrameHdr); }
-
-  bool finalizeEhFrameHdr();
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in MCLinker (only for object file)
   /// @param pType - the type of the relocation
@@ -278,8 +274,6 @@ private:
   Layout m_Layout;
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;
-  EhFrame* m_pEhFrame;
-  EhFrameHdr* m_pEhFrameHdr;
 };
 
 #include "MCLinker.tcc"

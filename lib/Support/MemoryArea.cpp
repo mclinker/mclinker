@@ -55,12 +55,27 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
   Space* space = find(pOffset, pLength);
   if (NULL == space) {
 
+<<<<<<< HEAD
     // not found
     if (NULL == m_pFileHandle) {
       // if m_pFileHandle is NULL, clients delegate us an universal Space and
       // we never remove it. In that way, space can not be NULL.
       unreachable(diag::err_out_of_range_region);
     }
+=======
+        // The space's size may be larger than filesize.
+        space->size = page_boundary(pLength + pOffset - space->file_offset);
+        space->data = (Address) ::mmap(NULL,
+                                       space->size,
+                                       mm_prot, mm_flag,
+                                       m_FileDescriptor,
+                                       space->file_offset);
+
+        if (space->data == MAP_FAILED) {
+          error(diag::err_cannot_mmap_file)
+                  << m_FilePath << sys::fs::detail::strerror(errno);
+        }
+>>>>>>> 17f791a310b059781ec335180aeeb0f3430e7c26
 
     space = Space::createSpace(*m_pFileHandle, pOffset, pLength);
     m_SpaceList.push_back(space);

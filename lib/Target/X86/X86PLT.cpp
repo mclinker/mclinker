@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "X86GOT.h"
+#include "X86GOTPLT.h"
 #include "X86PLT.h"
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/ELF.h>
@@ -55,10 +55,10 @@ X86PLT1::X86PLT1(llvm::MCSectionData* pParent, unsigned int pSize)
 
 X86PLT::X86PLT(LDSection& pSection,
                llvm::MCSectionData& pSectionData,
-               X86GOT &pGOTPLT,
-	       const Output& pOutput)
+               X86GOTPLT &pGOTPLT,
+	             const Output& pOutput)
   : PLT(pSection, pSectionData),
-    m_GOT(pGOTPLT),
+    m_GOTPLT(pGOTPLT),
     m_PLTEntryIterator(),
     m_Output(pOutput)
 {
@@ -99,16 +99,8 @@ void X86PLT::reserveEntry(size_t pNum)
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
-    got_entry= new (std::nothrow) GOTEntry(0, m_GOT.getEntrySize(),
-                                           &(m_GOT.m_SectionData));
-
-    if (!got_entry)
-      fatal(diag::fail_allocate_memory) << "GOT";
-
-    m_GOT.m_Section.setSize(m_GOT.m_Section.size() + m_GOT.f_EntrySize);
-
-    ++(m_GOT.m_GOTPLTNum);
-    ++(m_GOT.m_GeneralGOTIterator);
+    // reserve corresponding entry in .got.plt
+    m_GOTPLT.reserveEntry(pNum);
   }
 }
 
@@ -119,47 +111,20 @@ PLTEntry* X86PLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
    pExist = 1;
 
    if (!PLTEntry) {
-     GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
-     assert(!GOTPLTEntry && "PLT entry and got.plt entry doesn't match!");
-
      pExist = 0;
 
      // This will skip PLT0.
      ++m_PLTEntryIterator;
      assert(m_PLTEntryIterator != m_SectionData.end() &&
             "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOT.m_GOTPLTIterator);
-
      PLTEntry = llvm::cast<X86PLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
    }
-
    return PLTEntry;
 }
 
 GOTEntry* X86PLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-   GOTEntry *&GOTPLTEntry = m_GOT.m_GOTPLTMap[&pSymbol];
-
-   pExist = 1;
-
-   if (!GOTPLTEntry) {
-     X86PLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
-     assert(!PLTEntry && "PLT entry and got.plt entry doesn't match!");
-
-     pExist = 0;
-
-     // This will skip PLT0.
-     ++m_PLTEntryIterator;
-     assert(m_PLTEntryIterator != m_SectionData.end() &&
-            "The number of PLT Entries and ResolveInfo doesn't match");
-     ++(m_GOT.m_GOTPLTIterator);
-
-     PLTEntry = llvm::cast<X86PLT1>(&(*m_PLTEntryIterator));
-     GOTPLTEntry = llvm::cast<GOTEntry>(&(*(m_GOT.m_GOTPLTIterator)));
-   }
-
-   return GOTPLTEntry;
+   return m_GOTPLT.getEntry(pSymbol, pExist);
 }
 
 X86PLT0* X86PLT::getPLT0() const {
@@ -193,7 +158,7 @@ void X86PLT::applyPLT0() {
   memcpy(data, m_PLT0, plt0->getEntrySize());
 
   if (m_PLT0 == x86_exec_plt0) {
-    uint64_t got_base = m_GOT.getSection().addr();
+    uint64_t got_base = m_GOTPLT.getSection().addr();
     assert(got_base && ".got base address is NULL!");
     uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
     *offset = got_base + 4;
@@ -210,17 +175,17 @@ void X86PLT::applyPLT1() {
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
-  uint64_t got_base = m_GOT.getSection().addr();
+  uint64_t got_base = m_GOTPLT.getSection().addr();
   assert(got_base && ".got base address is NULL!");
 
   X86PLT::iterator it = m_SectionData.begin();
   X86PLT::iterator ie = m_SectionData.end();
   assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
 
-  uint64_t GOTEntrySize = m_GOT.getEntrySize();
+  uint64_t GOTEntrySize = m_GOTPLT.getEntrySize();
 
   // Skip GOT0
-  uint64_t GOTEntryOffset = GOTEntrySize * X86GOT0Num;
+  uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;
 
   //skip PLT0
   uint64_t PLTEntryOffset = m_PLT0Size;
@@ -263,23 +228,8 @@ void X86PLT::applyPLT1() {
     ++it;
   }
 
-  unsigned int GOTPLTNum = m_GOT.getGOTPLTNum();
-
-  if (GOTPLTNum != 0) {
-    X86GOT::iterator gotplt_it = m_GOT.getLastGOT0();
-    X86GOT::iterator list_ie = m_GOT.getSectionData().getFragmentList().end();
-
-    ++gotplt_it;
-    uint64_t PLTEntryAddress = plt_base + m_PLT0Size;
-    for (unsigned int i = 0; i < GOTPLTNum; ++i) {
-      if (gotplt_it == list_ie)
-        fatal(diag::reserve_entry_number_mismatch) << ".got.plt";
-
-      llvm::cast<GOTEntry>(*gotplt_it).setContent(PLTEntryAddress + 6);
-      PLTEntryAddress += m_PLT1Size;
-      ++gotplt_it;
-    }
-  }
+  // apply .got.plt
+  m_GOTPLT.applyAllGOTPLT(plt_base, m_PLT0Size, m_PLT1Size);
 }
 
 } // end namespace mcld

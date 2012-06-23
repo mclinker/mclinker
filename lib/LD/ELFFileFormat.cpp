@@ -198,12 +198,12 @@ void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
                                               LDFileFormat::EhFrame,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
-                                              0x1);
+                                              0x4);
   f_pGCCExceptTable = &pLinker.getOrCreateOutputSectHdr(".gcc_except_table",
                                               LDFileFormat::GCCExceptTable,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
-                                              0x1);
+                                              0x4);
   f_pGNUVersion     = &pLinker.getOrCreateOutputSectHdr(".gnu.version",
                                               LDFileFormat::Version,
                                               llvm::ELF::SHT_GNU_versym,

@@ -90,7 +90,14 @@ operator<<(const MsgHandler& pHandler, unsigned int pValue)
 }
 
 inline const MsgHandler &
-operator<<(const MsgHandler& pHandler, size_t pValue)
+operator<<(const MsgHandler& pHandler, long pValue)
+{
+  pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_sint);
+  return pHandler;
+}
+
+inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, unsigned long pValue)
 {
   pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_uint);
   return pHandler;

@@ -27,6 +27,8 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <cxxabi.h>
+
 using namespace mcld;
 
 /// Constructor
@@ -41,19 +43,13 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext),
-  m_pEhFrame(NULL),
-  m_pEhFrameHdr(NULL)
+  m_SectionMerger(pSectionMap, pContext)
 {
 }
 
 /// Destructor
 MCLinker::~MCLinker()
 {
-  if (NULL != m_pEhFrame)
-    delete m_pEhFrame;
-  if (NULL != m_pEhFrameHdr)
-    delete m_pEhFrameHdr;
 }
 
 /// addSymbolFromObject - add a symbol from object file and resolve it
@@ -538,7 +534,17 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
                            m_Info.output(), pSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak()) {
-    fatal(diag::undefined_reference) << pResolveInfo.name();
+    int status;
+    char* demangledName =  abi::__cxa_demangle(pResolveInfo.name(),
+                                               NULL,
+                                               NULL,
+                                               &status);
+    if (NULL != demangledName) {
+      fatal(diag::undefined_reference) << demangledName;
+    }
+    else {
+      fatal(diag::undefined_reference) << pResolveInfo.name();
+    }
   }
   return relocation;
 }
@@ -656,42 +662,39 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 /// @param pArea - the memory area which pSection is within.
 uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
 {
-  // no need to parse eh_frame if --eh-frame-hdr not given
-  if (!m_Info.options().hasEhFrameHdr()) {
+  uint64_t size = 0;
 
-    MemoryRegion* region = pArea.request(pSection.offset(),
-                                         pSection.size());
+  // get the SectionData of this eh_frame
+  llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
 
-    llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
-
-    llvm::MCFragment* frag = NULL;
-    if (NULL == region) {
-       // If the input section's size is zero, we got a NULL region.
-       // use a virtual fill fragment
-       frag = new llvm::MCFillFragment(0x0, 0, 0);
+  // parse the eh_frame if the option --eh-frame-hdr is given
+  if (m_Info.options().hasEhFrameHdr()) {
+    EhFrame* ehframe = m_Backend.getEhFrame();
+    assert(NULL != ehframe);
+    if (ehframe->canRecognizeAllEhFrame()) {
+      size = ehframe->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
+                                       pArea);
+      // zero size indicate that this is an empty section or we can't recognize
+      // this eh_frame, handle it as a regular section.
+      if (0 != size)
+        return size;
     }
-    else
-       frag = new MCRegionFragment(*region);
-
-    uint64_t size = m_Layout.appendFragment(*frag,
-                                            sect_data,
-                                            pSection.align());
-    return size;
   }
 
-  // create and parse .eh_frame section
-  if (m_pEhFrame == NULL)
-    m_pEhFrame = new EhFrame();
-  return 0x0;
-}
+  // handle eh_frame as a regular section
+  MemoryRegion* region = pArea.request(pSection.offset(),
+                                       pSection.size());
 
-/// finalizeEhFrameHdr - fill .eh_frame_hdr section, add PT_GNU_EH_FRAME
-/// segment
-bool MCLinker::finalizeEhFrameHdr()
-{
-  if (!hasEhFrameHdr())
-    return true;
+  llvm::MCFragment* frag = NULL;
+  if (NULL == region) {
+    // If the input section's size is zero, we got a NULL region.
+    // use a virtual fill fragment
+    frag = new llvm::MCFillFragment(0x0, 0, 0);
+  }
+  else
+    frag = new MCRegionFragment(*region);
 
-  return true;
+  size = m_Layout.appendFragment(*frag, sect_data, pSection.align());
+  return size;
 }
 

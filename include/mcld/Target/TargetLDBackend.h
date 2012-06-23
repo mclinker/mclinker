@@ -11,6 +11,7 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/MC/MCLDOutput.h>
+#include <mcld/LD/EhFrame.h>
 
 namespace mcld {
 
@@ -103,6 +104,11 @@ public:
                           const MCLDInfo& pInfo,
                           MCLinker& pLinker) = 0;
 
+  /// postProcessing - Backend can do any needed modification in the final stage
+  virtual void postProcessing(const Output& pOutput,
+                              const MCLDInfo& pInfo,
+                              MCLinker& pLinker) = 0;
+
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
 
@@ -153,6 +159,16 @@ public:
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
+
+public:
+  EhFrame* getEhFrame();
+
+  const EhFrame* getEhFrame() const;
+
+private:
+  /// m_pEhFrame - section .eh_frame
+  EhFrame* m_pEhFrame;
+
 };
 
 } // End mcld namespace

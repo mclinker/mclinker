@@ -13,7 +13,7 @@
 using namespace mcld;
 
 X86ELFDynamic::X86ELFDynamic(const GNULDBackend& pParent)
-  : ELFDynamic(pParent), m_HasGOTPLT(false)
+  : ELFDynamic(pParent)
 {
 }
 
@@ -24,18 +24,14 @@ X86ELFDynamic::~X86ELFDynamic()
 void X86ELFDynamic::reserveTargetEntries(const ELFFileFormat& pFormat)
 {
   // reservePLTGOT
-  if (m_HasGOTPLT ? pFormat.hasGOTPLT() : pFormat.hasGOT())
+  if (pFormat.hasGOTPLT())
     reserveOne(llvm::ELF::DT_PLTGOT);
 }
 
 void X86ELFDynamic::applyTargetEntries(const ELFFileFormat& pFormat)
 {
   // applyPLTGOT
-  if (m_HasGOTPLT) {
-      if (pFormat.hasGOTPLT())
-	applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
-  }
-  else if (pFormat.hasGOT())
-    applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOT().addr());
+  if (pFormat.hasGOTPLT())
+	  applyOne(llvm::ELF::DT_PLTGOT, pFormat.getGOTPLT().addr());
 }
 

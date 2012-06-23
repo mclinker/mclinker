@@ -52,7 +52,8 @@ GNULDBackend::GNULDBackend()
     f_p_EData(NULL),
     f_pBSSStart(NULL),
     f_pEnd(NULL),
-    f_p_End(NULL) {
+    f_p_End(NULL),
+    m_pEhFrameHdr(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 
@@ -74,8 +75,10 @@ GNULDBackend::~GNULDBackend()
     delete m_pDynObjFileFormat;
   if (NULL != m_pExecFileFormat)
     delete m_pExecFileFormat;
-  if(NULL != m_pSymIndexMap)
+  if (NULL != m_pSymIndexMap)
     delete m_pSymIndexMap;
+  if (NULL != m_pEhFrameHdr)
+    delete m_pEhFrameHdr;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
@@ -704,20 +707,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     strtab += str_size;
   }
 
-  ELFFileFormat* file_format = NULL;
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // TODO: not support yet
-      return;
-  }
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   switch(pOutput.type()) {
     // compute size of .dynstr and .hash
@@ -798,23 +788,14 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;
 
-  ELFFileFormat* file_format = NULL;
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // add first symbol into m_pSymIndexMap
-      entry = m_pSymIndexMap->insert(NULL, sym_exist);
-      entry->setValue(0);
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  if (pOutput.type() == Output::Object) {
+    // add first symbol into m_pSymIndexMap
+    entry = m_pSymIndexMap->insert(NULL, sym_exist);
+    entry->setValue(0);
 
-      // TODO: not support yet
-      return;
+    // TODO: not support yet
+    return;
   }
 
   LDSection& symtab_sect = file_format->getSymTab();
@@ -909,24 +890,10 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     const MCLDInfo& pLDInfo)
 {
   assert(pOutput.hasMemArea());
-  ELFFileFormat* file_format = NULL;
+  ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;
-
-  switch(pOutput.type()) {
-    // compute size of .dynstr and .hash
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      // TODO: not support yet
-      return;
-  }
 
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
@@ -1146,19 +1113,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
 
   bool is_write = (pSectHdr.flag() & llvm::ELF::SHF_WRITE) != 0;
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
-  const ELFFileFormat* file_format = NULL;
-  switch (pOutput.type()) {
-    case Output::DynObj:
-      file_format = getDynObjFileFormat();
-      break;
-    case Output::Exec:
-      file_format = getExecFileFormat();
-      break;
-    case Output::Object:
-    default:
-      assert(0 && "Not support yet.\n");
-      break;
-  }
+  const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
@@ -1251,7 +1206,12 @@ uint64_t GNULDBackend::getSymbolInfo(const LDSymbol& pSymbol) const
       pSymbol.visibility() == llvm::ELF::STV_HIDDEN)
     bind = llvm::ELF::STB_LOCAL;
 
-  return (pSymbol.resolveInfo()->type() | (bind << 4));
+  uint32_t type = pSymbol.resolveInfo()->type();
+  // if the IndirectFunc symbol (i.e., STT_GNU_IFUNC) is from dynobj, change
+  // its type to Function
+  if (type == ResolveInfo::IndirectFunc && pSymbol.isDyn())
+    type = ResolveInfo::Function;
+  return (type | (bind << 4));
 }
 
 /// getSymbolValue - this function is called after layout()
@@ -1395,14 +1355,15 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
 void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 {
   assert(pOutput.hasContext());
+  ELFFileFormat *file_format = getOutputFormat(pOutput);
+
   // make PT_PHDR
   m_ELFSegmentTable.produce(llvm::ELF::PT_PHDR);
 
   // make PT_INTERP
-  LDSection* interp = pOutput.context()->getSection(".interp");
-  if (NULL != interp) {
+  if (file_format->hasInterp()) {
     ELFSegment* interp_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_INTERP);
-    interp_seg->addSection(interp);
+    interp_seg->addSection(&file_format->getInterp());
   }
 
   if (pInfo.options().hasRelro()) {
@@ -1472,12 +1433,11 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   }
 
   // make PT_DYNAMIC
-  LDSection* dynamic = pOutput.context()->getSection(".dynamic");
-  if (NULL != dynamic) {
+  if (file_format->hasDynamic()) {
     ELFSegment* dyn_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_DYNAMIC,
                                                     llvm::ELF::PF_R |
                                                     llvm::ELF::PF_W);
-    dyn_seg->addSection(dynamic);
+    dyn_seg->addSection(&file_format->getDynamic());
   }
 
   if (pInfo.options().hasRelro()) {
@@ -1494,6 +1454,16 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     }
   }
 
+  // make PT_GNU_EH_FRAME
+  if (file_format->hasEhFrameHdr()) {
+    ELFSegment* eh_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_EH_FRAME);
+    eh_seg->addSection(&file_format->getEhFrameHdr());
+  }
+}
+
+/// setupProgramHdrs - set up the attributes of segments
+void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo)
+{
   // update segment info
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
@@ -1519,7 +1489,10 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       continue;
     }
 
-    assert(NULL != segment.getFirstSection());
+    // bypass if there is no section in this segment (e.g., PT_GNU_STACK)
+    if (segment.numOfSections() == 0)
+      continue;
+
     segment.setOffset(segment.getFirstSection()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.getFirstSection()->kind())
@@ -1600,6 +1573,16 @@ void GNULDBackend::preLayout(const Output& pOutput,
 {
   // prelayout target first
   doPreLayout(pOutput, pLDInfo, pLinker);
+
+  if (pLDInfo.options().hasEhFrameHdr()) {
+    // init EhFrameHdr and size the output section
+    ELFFileFormat* format = getOutputFormat(pOutput);
+    assert(NULL != getEhFrame());
+    m_pEhFrameHdr = new EhFrameHdr(*getEhFrame(),
+                                   format->getEhFrame(),
+                                   format->getEhFrameHdr());
+    m_pEhFrameHdr->sizeOutput();
+  }
 }
 
 /// postLayout -Backend can do any needed modification after layout
@@ -1613,11 +1596,28 @@ void GNULDBackend::postLayout(const Output& pOutput,
     createProgramHdrs(pLinker.getLDInfo().output(), pInfo);
   }
 
-    // 1.2 create special GNU Stack note section or segment
+  // 1.2 create special GNU Stack note section or segment
   createGNUStackInfo(pOutput, pInfo, pLinker);
+
+  if (pOutput.type() != Output::Object) {
+    // 1.3 set up the attributes of program headers
+    setupProgramHdrs(pOutput, pInfo);
+  }
 
   // 2. target specific post layout
   doPostLayout(pOutput, pInfo, pLinker);
+}
+
+void GNULDBackend::postProcessing(const Output& pOutput,
+                                  const MCLDInfo& pInfo,
+                                  MCLinker& pLinker)
+{
+  if (pInfo.options().hasEhFrameHdr()) {
+    // emit eh_frame_hdr
+    if (bitclass() == 32)
+      m_pEhFrameHdr->emitOutput<32>(pLinker.getLDInfo().output(),
+                                    pLinker);
+  }
 }
 
 /// getHashBucketCount - calculate hash bucket count.
@@ -1731,6 +1731,10 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
 {
   if (pSym.isUndef() && !pSym.isDyn() && pOutput.type() != Output::DynObj)
     return false;
+
+  // An IndirectFunc symbol (i.e., STT_GNU_IFUNC) always needs a plt entry
+  if (pSym.type() == ResolveInfo::IndirectFunc)
+    return true;
 
   if (pSym.type() != ResolveInfo::Function)
     return false;

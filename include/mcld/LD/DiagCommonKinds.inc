@@ -34,3 +34,7 @@ DIAG(err_cannot_write_file, DiagnosticEngine::Error, "cannot write file %0 from 
 DIAG(warn_illegal_input_section, DiagnosticEngine::Warning, "section `%0' should not appear in input file `%1': %2", "section `%0' should not appear in input file `%1': %2")
 DIAG(err_cannot_trace_file, DiagnosticEngine::Unreachable, "cannot identify the type (%0) of input file `%1'.\n  %2", "cannot identify the type (%0) of input file `%1'.\n  %2")
 DIAG(err_out_of_range_region, DiagnosticEngine::Unreachable, "requested memory region is out of range.", "requested memory region is out of range.")
+DIAG(debug_eh_unsupport, DiagnosticEngine::Debug, "unsupported eh_frame: %0", "unsupported eh_frame: %0")
+DIAG(note_ehframe, DiagnosticEngine::Note, "eh_frame: %0", "eh_frame: %0")
+DIAG(note_eh_cie, DiagnosticEngine::Note, "CIE length: %0, aug_string: %1, fde_encodeing: %2", "CIE length: %0, aug_string: %1, fde_encodeing: %2")
+DIAG(note_eh_fde, DiagnosticEngine::Note, "FDE length: %0, offset of PC Begin: %1", "FDE length: %0, offset of PC Begin: %1")
