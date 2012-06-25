@@ -6,6 +6,10 @@
 ; RUN: -filetype=obj -fPIC -dB %s -o %t.2.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: %t.1.o %t.2.o --portable=f -o %t.3.o
+
+; RUN: rm %t.1.o %t.2.o %t.3.o
+; RUN: rm %t.ll
+
 target triple = "arm-none-linux-gnueabi"
 
 define i8* @f_portable(i32 %c) uwtable ssp {
