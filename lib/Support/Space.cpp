@@ -109,7 +109,7 @@ Space* Space::createSpace(FileHandle& pHandler,
           size = page_boundary((pStart - start) + pSize);
           pHandler.truncate(total_offset);
         }
-        else if (size > pHandler.size())
+        else if (pHandler.size() > start)
           size = pHandler.size() - start;
         else {
           // create a space out of a read-only file.
