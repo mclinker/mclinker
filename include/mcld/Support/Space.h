@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/Support/DataTypes.h>
 #include <llvm/ADT/ilist.h>
 #include <llvm/ADT/ilist_node.h>
 #include <mcld/ADT/TypeTraits.h>
