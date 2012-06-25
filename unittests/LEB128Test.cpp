@@ -456,7 +456,7 @@ TEST_F( LEB128Test, EncodeSLEB_Tests_Found_in_Android_dalvik_dx) {
 }
 
 TEST_F( LEB128Test, Random_Regression_Test) {
-  leb128::ByteType buffer[5];
+  leb128::ByteType buffer[9];
 
   for (int i = 0; i < 20; i++) {
     long int value = random();
