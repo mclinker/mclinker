@@ -1,4 +1,4 @@
-//===- TargetLinkerConfigs.cpp ----------------------------------------------------===//
+//===- TargetLinkerConfigs.cpp --------------------------------------------===//
 //
 //                     The MCLinker Project
 //
