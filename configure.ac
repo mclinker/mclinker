@@ -26,9 +26,9 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 #  Versioning, see VERSION
 MAJOR=1
 MINOR=3
-MICRO=14
-AGE=2
-BUILD=flames
+MICRO=15
+AGE=0
+BUILD=LionHead
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
@@ -80,6 +80,7 @@ AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 # Configure LLVM
 CHECK_LLVM([3.0])
 ENUM_LLVM_TARGETS
+CHECK_ALONE_TARGET
 
 ####################
 # OUTPUT
@@ -93,6 +94,7 @@ AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
 AC_CONFIG_FILES([include/mcld/Config/Config.h])
+AC_CONFIG_FILES([tools/mcld/include/alone/Config/Config.h])
 AC_CONFIG_FILES([test/Makefile])
 
 AC_OUTPUT

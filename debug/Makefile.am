@@ -1,13 +1,13 @@
 BUILDTOP=..
 TOPLEVEL=${srcdir}/..
-TOOLDIR=${TOPLEVEL}/tools/llvm-mcld
+TOOLDIR=${TOPLEVEL}/tools
 LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
-bin_PROGRAMS = llvm-mcld
+bin_PROGRAMS = llvm-mcld mcld
 
 if ENABLE_UNITTEST
 llvm_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
@@ -17,8 +17,15 @@ llvm_mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/utils/g
 llvm_mcld_LDADD = ${LLVM_LDFLAGS}
 endif
 
-NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
-	${INCDIR}/ADT/Uncopyable.h \
+if ENABLE_UNITTEST
+mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
+mcld_LDADD = -L$(BUILDTOP)/utils/gtest/lib/ ${LLVM_LDFLAGS} -lgtest
+else
+mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
+mcld_LDADD = ${LLVM_LDFLAGS}
+endif
+
+NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
 	${INCDIR}/ADT/TreeAllocator.h \
@@ -321,4 +328,18 @@ else
 SOURCE = ${NORMAL_SOURCE}
 endif
 
-dist_llvm_mcld_SOURCES = ${SOURCE}
+dist_llvm_mcld_SOURCES = ${SOURCE} \
+	${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+
+
+dist_mcld_SOURCES = ${SOURCE} \
+	${TOOLDIR}/mcld/main.cpp \
+	${TOOLDIR}/mcld/include/alone/Linker.h \
+	${TOOLDIR}/mcld/lib/Core/Linker.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
+	${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
+	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
+	${TOOLDIR}/mcld/lib/Support/Initialization.cpp
+

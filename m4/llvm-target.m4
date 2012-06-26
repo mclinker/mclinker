@@ -1,4 +1,71 @@
 dnl
+dnl @synopsis CHECK_ALONE_TARGET
+dnl
+dnl @summary enumlate stand alone targets. set up variables:
+dnl   CHECK_TARGET
+dnl
+dnl Luba Tang <lubatang@gmail.com>
+
+AC_DEFUN([CHECK_ALONE_TARGET],
+[dnl
+	PROVIDE_ALONE_TARGET="";
+	DEFAULT_ALONE_TARGET="";
+
+	AC_ARG_ENABLE([alone-target],
+		[AS_HELP_STRING([--enable-alone-target],
+				[Build specific target. Valid target is one of:
+	     host, x86, x86_64, sparc, powerpc, alpha, arm, mips, spu,
+	     xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=host)])],
+		[],
+		[enableval=host])
+
+	case "$enableval" in
+	  host)
+		case "$host" in
+		  x86-*-*)
+			PROVIDE_ALONE_TARGET="X86"
+			DEFAULT_ALONE_TARGET="X86"
+			;;
+		  x86_64-*-*)
+			PROVIDE_ALONE_TARGET="X86"
+			DEFAULT_ALONE_TARGET="X86_64"
+			;;
+		  arm-*-*)
+			PROVIDE_ALONE_TARGET="ARM"
+			DEFAULT_ALONE_TARGET="ARM"
+			;;
+		  mips-*-*)
+			PROVIDE_ALONE_TARGET="MIPS"
+			DEFAULT_ALONE_TARGET="MIPS"
+			;;
+	  	  *) AC_MSG_ERROR([Unrecognized host `$host']) ;;
+		esac
+		;;
+
+	  x86)
+		PROVIDE_ALONE_TARGET="X86"
+		DEFAULT_ALONE_TARGET="X86"
+		;;
+	  x86_64)
+		PROVIDE_ALONE_TARGET="X86"
+		DEFAULT_ALONE_TARGET="X86_64"
+		;;
+	  arm)
+		PROVIDE_ALONE_TARGET="ARM"
+		DEFAULT_ALONE_TARGET="ARM"
+		;;
+	  mips)
+		PROVIDE_ALONE_TARGET="MIPS"
+		DEFAULT_ALONE_TARGET="MIPS"
+		;;
+	  *) AC_MSG_ERROR([Unrecognized target $enableval]) ;;
+	esac
+
+	AC_SUBST(PROVIDE_ALONE_TARGET,$PROVIDE_ALONE_TARGET)
+	AC_SUBST(DEFAULT_ALONE_TARGET,$DEFAULT_ALONE_TARGET)
+])
+
+dnl
 dnl @synopsis ENUM_LLVM_TARGETS
 dnl
 dnl @summary enumlate LLVM Targets, set up variables:
