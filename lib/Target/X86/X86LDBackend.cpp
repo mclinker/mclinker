@@ -604,6 +604,18 @@ const X86GOT& X86GNULDBackend::getGOT() const
   return *m_pGOT;
 }
 
+X86GOTPLT& X86GNULDBackend::getGOTPLT()
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+const X86GOTPLT& X86GNULDBackend::getGOTPLT() const
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
 X86PLT& X86GNULDBackend::getPLT()
 {
   assert(NULL != m_pPLT && "PLT section not exist");

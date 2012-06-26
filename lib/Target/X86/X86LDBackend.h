@@ -83,6 +83,10 @@ public:
 
   const X86GOT& getGOT() const;
 
+  X86GOTPLT& getGOTPLT();
+
+  const X86GOTPLT& getGOTPLT() const;
+
   X86PLT& getPLT();
 
   const X86PLT& getPLT() const;

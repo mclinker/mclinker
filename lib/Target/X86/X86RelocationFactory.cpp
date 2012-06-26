@@ -150,7 +150,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 static
 X86RelocationFactory::Address helper_GOT_ORG(X86RelocationFactory& pParent)
 {
-  return pParent.getTarget().getGOT().getSection().addr();
+  return pParent.getTarget().getGOTPLT().getSection().addr();
 }
 
 
