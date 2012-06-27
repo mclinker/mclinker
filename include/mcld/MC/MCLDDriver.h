@@ -19,12 +19,14 @@
 #endif
 
 #include <mcld/LD/SectionMap.h>
+
 namespace mcld
 {
 
 class MCLinker;
 class MCLDInfo;
 class TargetLDBackend;
+class MemoryAreaFactory;
 
 //===----------------------------------------------------------------------===//
 /// MCLDDriver - MCLDDriver prepares parameters for MCLinker.
@@ -111,6 +113,7 @@ private:
   TargetLDBackend &m_LDBackend;
   MCLinker* m_pLinker;
   SectionMap m_SectionMap;
+  MemoryAreaFactory* m_pMemoryAreaFactory;
 };
 
 } // end namespace mcld

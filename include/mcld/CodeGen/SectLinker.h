@@ -62,12 +62,6 @@ namespace mcld
   public:
     virtual ~SectLinker();
 
-    /// addTargetOptions - target SectLinker can hook this function to add
-    /// target-specific inputs
-    virtual void addTargetOptions(llvm::Module &pM,
-                                  SectLinkerOption &pOption)
-    { }
-
     /// doInitialization - Read all parameters and set up the AsmPrinter.
     /// If your pass overrides this, it must make sure to explicitly call
     /// this implementation.

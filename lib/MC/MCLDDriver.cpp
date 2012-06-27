@@ -18,6 +18,7 @@
 #include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
 
@@ -27,17 +28,40 @@ using namespace mcld;
 MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
   : m_LDInfo(pLDInfo),
     m_LDBackend(pLDBackend),
-    m_pLinker(0) {
+    m_pLinker(NULL) {
+  m_pMemoryAreaFactory = new MemoryAreaFactory(32);
 }
 
 MCLDDriver::~MCLDDriver()
 {
-  if (0 != m_pLinker)
+  if (NULL != m_pLinker)
     delete m_pLinker;
+
+  delete m_pMemoryAreaFactory;
 }
 
-void MCLDDriver::normalize() {
+void MCLDDriver::normalize()
+{
+  // -----  set up output  ----- //
+  FileHandle::Permission perm;
+  if (Output::Object == m_LDInfo.output().type())
+    perm = 0544;
+  else
+    perm = 0755;
 
+  MemoryArea* out_area = m_pMemoryAreaFactory->produce(m_LDInfo.output().path(),
+                                                       FileHandle::ReadWrite,
+                                                       perm);
+  // make sure output is openend successfully.
+  if (!out_area->handler()->isGood()) {
+    fatal(diag::err_cannot_open_output_file) << m_LDInfo.output().name()
+                                             << m_LDInfo.output().path();
+  }
+
+  m_LDInfo.output().setMemArea(out_area);
+  m_LDInfo.output().setContext(m_LDInfo.contextFactory().produce(m_LDInfo.output().path()));
+
+  // -----  set up inputs  ----- //
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode
@@ -49,7 +73,7 @@ void MCLDDriver::normalize() {
 
 
     MemoryArea *input_memory =
-        m_LDInfo.memAreaFactory().produce((*input)->path(), FileHandle::ReadOnly);
+        m_pMemoryAreaFactory->produce((*input)->path(), FileHandle::ReadOnly);
     if (input_memory->handler()->isGood()) {
       (*input)->setMemArea(input_memory);
     }

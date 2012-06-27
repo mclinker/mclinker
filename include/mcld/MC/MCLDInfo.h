@@ -15,7 +15,6 @@
 #include <llvm/ADT/Triple.h>
 
 #include <mcld/Support/FileSystem.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDOptions.h>
 #include <mcld/MC/MCLDInputTree.h>
@@ -98,12 +97,6 @@ public:
   const ContextFactory& contextFactory() const
   { return *m_pCntxtFactory; }
 
-  MemoryAreaFactory& memAreaFactory()
-  { return *m_pMemAreaFactory; }
-
-  const MemoryAreaFactory& memAreaFactory() const
-  { return *m_pMemAreaFactory; }
-
   const llvm::Triple& triple() const
   { return m_Triple; }
 
@@ -132,7 +125,6 @@ private:
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
-  MemoryAreaFactory *m_pMemAreaFactory;
 
   // -----  string and symbols  ----- //
   Resolver* m_pResolver;

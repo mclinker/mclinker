@@ -30,7 +30,6 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);
-  m_pMemAreaFactory = new MemoryAreaFactory(pInputNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
   m_pOutput = new mcld::Output();
@@ -43,7 +42,6 @@ MCLDInfo::~MCLDInfo()
   delete m_pOutput;
   delete m_pAttrFactory;
   delete m_pCntxtFactory;
-  delete m_pMemAreaFactory;
   delete m_pInputFactory;
   delete m_pInputTree;
   delete m_pResolver;
