@@ -10,7 +10,7 @@
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: %t.1.o %t.2.o %t.3.o -o %t.4.o --wrap f
 
-; RUN: rm %t.1.o %t.2.o %t.3.o -o %t.4.o
+; RUN: rm %t.1.o %t.2.o %t.3.o %t.4.o
 ; RUN: rm %t.wrap_f.ll
 ; RUN: rm %t.true_f.ll
 

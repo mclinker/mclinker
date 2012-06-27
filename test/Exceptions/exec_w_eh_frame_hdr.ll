@@ -1,4 +1,4 @@
-; RUN: %MCLinker --eh-frame-hdr -z relro \
+; RUN: %MCLinker --eh-frame-hdr -z relro -mtriple=x86-linux-gnu \
 ; RUN: -dynamic-linker %p/../libs/X86/Linux/ld-linux.so.2 \
 ; RUN: -march=x86 %p/../libs/X86/Linux/crt1.o \
 ; RUN: %p/../libs/X86/Linux/crti.o %p/../libs/X86/Linux/crtbegin.o \
