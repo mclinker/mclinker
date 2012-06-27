@@ -160,7 +160,9 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
   GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pLDInfo,  pParent);
-  return helper_GOT_ORG(pParent) + pParent.getLayout().getOutputOffset(got_entry);
+  X86RelocationFactory::Address got_addr =
+    pParent.getTarget().getGOT().getSection().addr();
+  return got_addr + pParent.getLayout().getOutputOffset(got_entry);
 }
 
 
