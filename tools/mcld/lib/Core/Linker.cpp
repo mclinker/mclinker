@@ -25,5 +25,6 @@ Linker::~Linker()
 
 Linker& Linker::setConfig(const LinkerConfig& pConfig)
 {
+  return *this;
 }
 
