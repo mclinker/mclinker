@@ -59,11 +59,9 @@ Type stringToType(const std::string &str)
 /// Public API
 bool GNUArchiveReader::isMyFormat(Input &pInput) const
 {
-  MemoryArea *area = m_pLDInfo.memAreaFactory().produce(pInput.path(), O_RDONLY);
-  if (!area)
-    llvm::report_fatal_error("can't map file to MemoryArea");
+  assert(pInput.hasMemArea());
 
-  MemoryRegion *region = area->request(0, ArchiveMagicSize);
+  MemoryRegion *region = pInput.memArea()->request(0, ArchiveMagicSize);
   if (!region)
     llvm::report_fatal_error("can't request MemoryRegion for archive magic");
 
@@ -94,11 +92,9 @@ InputTree *GNUArchiveReader::readArchive(Input &pInput)
 InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
                                             size_t off)
 {
-  MemoryArea *area = m_pLDInfo.memAreaFactory().produce(pInput.path(), O_RDONLY);
-  if (!area)
-    llvm::report_fatal_error("can't map file to MemoryArea");
+  assert(pInput.hasMemArea());
+  MemoryRegion *region = pInput.memArea()->request(off, ArchiveMagicSize);
 
-  MemoryRegion *region = area->request(off, ArchiveMagicSize);
   if (!region)
     llvm::report_fatal_error("can't request MemoryRegion for archive magic");
 
@@ -116,12 +112,12 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   std::string extendedName;
 
   off += ArchiveMagicSize ;
-  size_t symbolTableSize = readMemberHeader(*area, off, &archiveMemberName,
+  size_t symbolTableSize = readMemberHeader(*pInput.memArea(), off, &archiveMemberName,
                                             NULL, extendedName);
   /// read archive symbol table
   if(archiveMemberName.empty())
   {
-    readSymbolTable(*area, symbolTable,
+    readSymbolTable(*pInput.memArea(), symbolTable,
                     off+sizeof(ArchiveMemberHeader), symbolTableSize);
     off = off + sizeof(ArchiveMemberHeader) + symbolTableSize;
   }
@@ -134,13 +130,13 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
   if((off&1) != 0)
     ++off;
 
-  size_t extendedSize = readMemberHeader(*area, off, &archiveMemberName,
+  size_t extendedSize = readMemberHeader(*pInput.memArea(), off, &archiveMemberName,
                                           NULL, extendedName);
   /// read long Name table if exist
   if(archiveMemberName == "/")
   {
     off += sizeof(ArchiveMemberHeader);
-    MemoryRegion *extended_name_region = area->request(off, extendedSize);
+    MemoryRegion *extended_name_region = pInput.memArea()->request(off, extendedSize);
     pFile = reinterpret_cast<char *>(extended_name_region->getBuffer());
     extendedName.assign(pFile, extendedSize);
 
@@ -156,7 +152,7 @@ InputTree *GNUArchiveReader::setupNewArchive(Input &pInput,
     /// the original InputTree, resultTree.
     off_t nestedOff = 0;
 
-    readMemberHeader(*area, symbolTable[i].fileOffset, &archiveMemberName,
+    readMemberHeader(*pInput.memArea(), symbolTable[i].fileOffset, &archiveMemberName,
                       &nestedOff, extendedName);
 
     if(haveSeen.find(archiveMemberName)==haveSeen.end())
