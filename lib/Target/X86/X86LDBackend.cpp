@@ -417,6 +417,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
 
     case llvm::ELF::R_386_PC32:
+
       if (symbolNeedsPLT(*rsym, pLDInfo, pOutput) &&
           pOutput.type() != Output::DynObj) {
         // create plt for this symbol if it does not have one
@@ -439,7 +440,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pLDInfo, pOutput, true)) {
+                            pLDInfo, pOutput, false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
@@ -456,7 +457,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
       return;
-
     default: {
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";

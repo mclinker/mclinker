@@ -294,6 +294,7 @@ protected:
   /// isStaticLink - return whether we're doing static link
   bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
 
+public:
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
   bool symbolNeedsPLT(const ResolveInfo& pSym,

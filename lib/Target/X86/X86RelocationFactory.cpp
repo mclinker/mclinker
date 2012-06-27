@@ -326,7 +326,9 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
        S = helper_PLT(pReloc, pParent);
        pReloc.target() = S + A - P;
     }
-    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+    if (pParent.getTarget().symbolNeedsDynRel(
+          *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), pLDInfo,
+                  pLDInfo.output(), false)) {
       if (helper_use_relative_reloc(*rsym, pLDInfo, pParent) ) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
@@ -337,7 +339,7 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
     }
   }
 
-  // perform static relocation
+   // perform static relocation
   pReloc.target() = S + A - P;
   return X86RelocationFactory::OK;
 }
