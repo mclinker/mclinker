@@ -37,6 +37,13 @@ public:
   MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
+  /// initOutput - initialize output file
+  bool initOutput();
+
+  /// initMCLinker - initialize MCLinker
+  ///  Connect all components in MCLinker
+  bool initMCLinker();
+
   /// normalize - normalize the input files
   void normalize();
 
@@ -45,10 +52,6 @@ public:
   ///  - check the Attributes are not violate the constaint
   ///  - check every Input has a correct Attribute
   bool linkable() const;
-
-  /// initMCLinker - initialize MCLinker
-  ///  Connect all components in MCLinker
-  bool initMCLinker();
 
   /// readSections - read all input section headers
   bool readSections();

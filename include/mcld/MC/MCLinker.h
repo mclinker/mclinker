@@ -65,8 +65,8 @@ public:
 public:
   MCLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
-           LDContext& pContext,
            SectionMap& pSectionMap);
+
   ~MCLinker();
 
   // ----- about symbols  ----- //
@@ -189,10 +189,10 @@ public:
 
   // -----  capacity  ----- //
   MCLDInfo& getLDInfo()
-  { return m_Info; }
+  { return m_LDInfo; }
 
   const MCLDInfo& getLDInfo() const
-  { return m_Info; }
+  { return m_LDInfo; }
 
 private:
   LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
@@ -264,8 +264,7 @@ private:
 
 private:
   TargetLDBackend& m_Backend;
-  MCLDInfo& m_Info;
-  LDContext& m_Output;
+  MCLDInfo& m_LDInfo;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;

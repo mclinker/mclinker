@@ -32,16 +32,14 @@ using namespace mcld;
 /// Constructor
 MCLinker::MCLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
-                   LDContext& pContext,
                    SectionMap& pSectionMap)
 : m_Backend(pBackend),
-  m_Info(pInfo),
-  m_Output(pContext),
+  m_LDInfo(pInfo),
   m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, pContext)
+  m_SectionMerger(pSectionMap, *pInfo.output().context())
 {
 }
 
@@ -69,7 +67,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
-    resolved_result.info     = m_Info.getNamePool().createSymbol(pName,
+    resolved_result.info     = m_LDInfo.getNamePool().createSymbol(pName,
                                                          false,
                                                          pType,
                                                          pDesc,
@@ -84,7 +82,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
   }
   else {
     // if the symbol is not local, insert and resolve it immediately
-    m_Info.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+    m_LDInfo.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
                                         pSize, pVisibility,
                                         &old_info, resolved_result);
   }
@@ -188,7 +186,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   // insert symbol and resolve it immediately
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_Info.getNamePool().insertSymbol(pName, true, pType, pDesc,
+  m_LDInfo.getNamePool().insertSymbol(pName, true, pType, pDesc,
                             pBinding, pSize, pVisibility,
                             NULL, resolved_result);
 
@@ -239,13 +237,13 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            MCFragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
   LDSymbol* output_sym = NULL;
   if (NULL == info) {
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_Info.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
+    m_LDInfo.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
                                         pBinding, pSize, pVisibility,
                                         NULL, result);
     assert(!result.existent);
@@ -309,7 +307,7 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            MCFragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
 
   if (NULL == info || !info->isUndef()) {
     // only undefined symbol can make a reference.
@@ -363,7 +361,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
-  m_Info.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
+  m_LDInfo.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
                                       pSize, pVisibility,
                                       &old_info, result);
 
@@ -406,7 +404,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
                                                     MCFragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Info.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
 
   if (NULL == info || !info->isUndef()) {
     // only undefined symbol can make a reference
@@ -430,19 +428,21 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
                                    uint32_t pType,
                                    uint32_t pFlag)
 {
+  assert(m_LDInfo.output().hasContext());
+
   // for user such as reader, standard/target fromat
   LDSection* result =
     m_LDSectHdrFactory.produce(pName, pKind, pType, pFlag);
 
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_Output.getSection(sect_name);
+  LDSection* output_sect = m_LDInfo.output().context()->getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
-    m_Output.getSectionTable().push_back(output_sect);
+    m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
   return *result;
@@ -456,16 +456,18 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pFlag,
                                               uint32_t pAlign)
 {
+  assert(m_LDInfo.output().hasContext());
+
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_Output.getSection(sect_name);
+  LDSection* output_sect = m_LDInfo.output().context()->getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
-    m_Output.getSectionTable().push_back(output_sect);
+    m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
     m_SectionMerger.addMapping(pName, output_sect);
   }
   return *output_sect;
@@ -528,8 +530,8 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
 
   m_RelocationList.push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, pSym, *this, m_Info,
-                           m_Info.output(), pSection);
+  m_Backend.scanRelocation(*relocation, pSym, *this, m_LDInfo,
+                           m_LDInfo.output(), pSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak())
     fatal(diag::undefined_reference) << pResolveInfo.name();
@@ -542,7 +544,7 @@ bool MCLinker::applyRelocations()
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_Info);
+    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_LDInfo);
   }
   return true;
 }
@@ -550,8 +552,8 @@ bool MCLinker::applyRelocations()
 void MCLinker::syncRelocationResult()
 {
 
-  MemoryRegion* region = m_Info.output().memArea()->request(0,
-                              m_Info.output().memArea()->handler()->size());
+  MemoryRegion* region = m_LDInfo.output().memArea()->request(0,
+                              m_LDInfo.output().memArea()->handler()->size());
 
   uint8_t* data = region->getBuffer();
 
@@ -590,13 +592,13 @@ void MCLinker::syncRelocationResult()
     }
   } // end of for
 
-  m_Info.output().memArea()->clear();
+  m_LDInfo.output().memArea()->clear();
 }
 
 
 bool MCLinker::layout()
 {
-  return m_Layout.layout(m_Info.output(), m_Backend, m_Info);
+  return m_Layout.layout(m_LDInfo.output(), m_Backend, m_LDInfo);
 }
 
 bool MCLinker::finalizeSymbols()
@@ -625,7 +627,7 @@ bool MCLinker::finalizeSymbols()
   }
 
   // finialize target-dependent symbols
-  return m_Backend.finalizeSymbols(*this, m_Info.output());
+  return m_Backend.finalizeSymbols(*this, m_LDInfo.output());
 }
 
 bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
@@ -635,7 +637,7 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
   // 2. The symbol is with Hidden or Internal visibility.
   // 3. The symbol should be global or weak. Otherwise, local symbol is local.
   // 4. The symbol is defined or common
-  if (m_Info.output().type() != Output::Object &&
+  if (m_LDInfo.output().type() != Output::Object &&
       (pInfo.visibility() == ResolveInfo::Hidden ||
          pInfo.visibility() == ResolveInfo::Internal) &&
       (pInfo.isGlobal() || pInfo.isWeak()) &&
@@ -655,7 +657,7 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
   llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
 
   // parse the eh_frame if the option --eh-frame-hdr is given
-  if (m_Info.options().hasEhFrameHdr()) {
+  if (m_LDInfo.options().hasEhFrameHdr()) {
     EhFrame* ehframe = m_Backend.getEhFrame();
     assert(NULL != ehframe);
     if (ehframe->canRecognizeAllEhFrame()) {

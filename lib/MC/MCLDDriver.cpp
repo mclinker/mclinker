@@ -30,6 +30,7 @@ MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
     m_LDBackend(pLDBackend),
     m_pLinker(NULL) {
   m_pMemoryAreaFactory = new MemoryAreaFactory(32);
+
 }
 
 MCLDDriver::~MCLDDriver()
@@ -42,25 +43,6 @@ MCLDDriver::~MCLDDriver()
 
 void MCLDDriver::normalize()
 {
-  // -----  set up output  ----- //
-  FileHandle::Permission perm;
-  if (Output::Object == m_LDInfo.output().type())
-    perm = 0544;
-  else
-    perm = 0755;
-
-  MemoryArea* out_area = m_pMemoryAreaFactory->produce(m_LDInfo.output().path(),
-                                                       FileHandle::ReadWrite,
-                                                       perm);
-  // make sure output is openend successfully.
-  if (!out_area->handler()->isGood()) {
-    fatal(diag::err_cannot_open_output_file) << m_LDInfo.output().name()
-                                             << m_LDInfo.output().path();
-  }
-
-  m_LDInfo.output().setMemArea(out_area);
-  m_LDInfo.output().setContext(m_LDInfo.contextFactory().produce(m_LDInfo.output().path()));
-
   // -----  set up inputs  ----- //
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
@@ -113,7 +95,6 @@ void MCLDDriver::normalize()
   }
 }
 
-
 bool MCLDDriver::linkable() const
 {
   // check we have input and output files
@@ -148,6 +129,30 @@ bool MCLDDriver::linkable() const
   return true;
 }
 
+bool MCLDDriver::initOutput()
+{
+  /// initialize output file
+  FileHandle::Permission perm;
+  if (Output::Object == m_LDInfo.output().type())
+    perm = 0544;
+  else
+    perm = 0755;
+
+  MemoryArea* out_area = m_pMemoryAreaFactory->produce(m_LDInfo.output().path(),
+                                                       FileHandle::ReadWrite,
+                                                       perm);
+
+  if (!out_area->handler()->isGood()) {
+    // make sure output is openend successfully.
+    fatal(diag::err_cannot_open_output_file) << m_LDInfo.output().name()
+                                             << m_LDInfo.output().path();
+  }
+
+  m_LDInfo.output().setMemArea(out_area);
+  m_LDInfo.output().setContext(m_LDInfo.contextFactory().produce(m_LDInfo.output().path()));
+  return true;
+}
+
 /// initMCLinker - initialize MCLinker
 ///  Connect all components with MCLinker
 bool MCLDDriver::initMCLinker()
@@ -155,7 +160,6 @@ bool MCLDDriver::initMCLinker()
   if (0 == m_pLinker)
     m_pLinker = new MCLinker(m_LDBackend,
                              m_LDInfo,
-                             *m_LDInfo.output().context(),
                              m_SectionMap);
 
   // initialize the readers and writers
@@ -174,6 +178,7 @@ bool MCLDDriver::initMCLinker()
   if (!m_SectionMap.initStdSectionMap() ||
       !m_LDBackend.initTargetSectionMap(m_SectionMap))
     return false;
+
 
   // initialize standard segments and sections
   switch (m_LDInfo.output().type()) {

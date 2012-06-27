@@ -78,6 +78,10 @@ bool SectLinker::doFinalization(Module &pM)
 {
   const MCLDInfo &info = m_pOption->info();
 
+  // 2. - initialize the output;
+  if (!m_pLDDriver->initOutput())
+    return true;
+
   // 3. - initialize output's standard segments and sections
   if (!m_pLDDriver->initMCLinker())
     return true;
