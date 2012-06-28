@@ -9,13 +9,27 @@
 #ifndef ALONE_LINKER_H
 #define ALONE_LINKER_H
 
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/MC/MCLDDriver.h>
+
 namespace alone {
 
 class LinkerConfig;
 
 class Linker {
+public:
+  enum ErrorCode {
+    kSuccess,
+
+    kMaxErrorCode,
+  };
+
+  static const char *GetErrorString(enum ErrorCode pErrCode);
+
 private:
-  LinkerConfig *mLinkerConfig;
+  LinkerConfig *mConfig;
+  mcld::TargetLDBackend *mBackend;
+  mcld::MCLDDriver *mDriver;
 
 public:
   Linker();
@@ -24,14 +38,7 @@ public:
 
   ~Linker();
 
-  Linker& setConfig(const LinkerConfig& pConfig);
-
-  LinkerConfig* config()
-  { return mLinkerConfig; }
-
-  const LinkerConfig* config() const
-  { return mLinkerConfig; }
-
+  enum ErrorCode config(const LinkerConfig& pConfig);
 };
 
 } // end namespace alone

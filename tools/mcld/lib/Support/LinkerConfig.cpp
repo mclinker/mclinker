@@ -12,6 +12,10 @@
 using namespace alone;
 
 LinkerConfig::LinkerConfig(const std::string& pTriple)
+  : mTriple(pTriple), mTarget(NULL) {
+}
+
+bool LinkerConfig::initializeTarget()
 {
 }
 

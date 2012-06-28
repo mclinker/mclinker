@@ -11,20 +11,50 @@
 
 using namespace alone;
 
-Linker::Linker()
+const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode)
 {
+  static const char* ErrorString[] = {
+    /* kSuccess */
+    "Successfully compiled.",
+    /* kMaxErrorCode */
+    "(Unknown error code)"
+  };
+
+  if (pErrCode > kMaxErrorCode) {
+    pErrCode = kMaxErrorCode;
+  }
+
+  return ErrorString[ static_cast<size_t>(pErrCode) ];
+}
+
+//===----------------------------------------------------------------------===//
+// Linker
+//===----------------------------------------------------------------------===//
+Linker::Linker()
+  : mConfig(NULL), mBackend(NULL), mDriver(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-{
+  : mConfig(NULL), mBackend(NULL), mDriver(NULL) {
+
+  const std::string &triple = pConfig.getTriple();
+
+  enum ErrorCode err = config(pConfig);
+  if (kSuccess != err) {
+    ALOGE("%s (%s)", GetErrorString(err), triple.c_str());
+    return;
+  }
+
+  return;
 }
 
 Linker::~Linker()
 {
 }
 
-Linker& Linker::setConfig(const LinkerConfig& pConfig)
+enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
 {
-  return *this;
+  /** **/
+  return kSuccess;
 }
 
