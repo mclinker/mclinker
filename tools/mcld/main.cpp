@@ -186,6 +186,12 @@ std::string DetermineOutputFilename(const std::string pOutputPath)
   return output_path.c_str();
 }
 
+static inline
+bool LinkFiles(Linker& pLinker, const std::string &pOutputPath)
+{
+  return true;
+}
+
 int main(int argc, char* argv[])
 {
   llvm::cl::SetVersionPrinter(MCLDVersionPrinter);
@@ -202,6 +208,9 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  if (!LinkFiles(linker, OutputFilename)) {
+    return EXIT_FAILURE;
+  }
   return EXIT_SUCCESS;
 }
 
