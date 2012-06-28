@@ -62,7 +62,7 @@ namespace mcld
 #define LLVM_TARGET(TargetName) LLVMInitialize##TargetName##LDTarget();
 #include "mcld/Config/Targets.def"
 
-#define LLVM_LINKER(TargetName) LLVMInitialize##TargetName##LDBackend();
+#define LLVM_TARGET(TargetName) LLVMInitialize##TargetName##LDBackend();
 #include "mcld/Config/Targets.def"
   }
 
