@@ -1,5 +1,6 @@
 
-MCLINKER=$(abs_top_builddir)/debug/llvm-mcld
+MCLD=$(abs_top_builddir)/debug/llvm-mcld
+ALONELD=$(abs_top_builddir)/debug/mcld
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
 
@@ -15,12 +16,13 @@ check-local-lit: lit.site.cfg
 
 lit.site.cfg: FORCE
 	@echo "Making MCLinker 'lit.site.cfg' file..."
-	@echo s=@MCLINKER@=$(MCLINKER)=g > lit.tmp
+	@echo s=@MCLD@=$(MCLD)=g > lit.tmp
+	@echo s=@ALONELD@=$(ALONELD)=g >> lit.tmp
 	@echo s=@MCLINKER_SOURCE_ROOT@=$(abs_top_srcdir)=g >> lit.tmp
 	@echo s=@MCLINKER_OBJECT_ROOT@=$(abs_top_builddir)=g >> lit.tmp
 	@echo s=@LLVM_CONFIG@=$(LLVM_CONFIG_BIN)=g >> lit.tmp
 	@sed -f lit.tmp $(abs_srcdir)/lit.site.cfg.in > $@
-	@-rm -f lit.tmp
+	@rm -f lib.tmp
 
 clean: FORCE
 	rm -f lit.site.cfg
