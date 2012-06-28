@@ -9,7 +9,7 @@
 #include "BinTreeTest.h"
 
 #include "mcld/ADT/TypeTraits.h"
-#include "mcld/MC/MCLDInputTree.h"
+#include "mcld/MC/InputTree.h"
 #include <string>
 
 using namespace mcld;

@@ -6,16 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDInfo.h"
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/LD/GNUArchiveReader.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/MemoryArea.h"
-#include "mcld/Support/MemoryRegion.h"
-#include "mcld/Support/MemoryAreaFactory.h"
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/InputTree.h>
+#include <mcld/LD/GNUArchiveReader.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/MsgHandling.h>
-#include "mcld/ADT/SizeTraits.h"
+#include <mcld/ADT/SizeTraits.h>
 
 #include <llvm/Support/system_error.h>
 #include <llvm/Support/Host.h>

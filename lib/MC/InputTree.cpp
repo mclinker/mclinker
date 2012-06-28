@@ -1,4 +1,4 @@
-//===- MCLDInputTree.cpp --------------------------------------------------===//
+//===- InputTree.cpp ------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/MC/InputFactory.h"
+#include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 
 using namespace mcld;
 
@@ -24,15 +24,15 @@ InputTree::~InputTree()
 {
 }
 
-InputTree& InputTree::merge(InputTree::iterator pPosition, 
-                            const InputTree::Connector& pConnector,
+InputTree& InputTree::merge(InputTree::iterator pRoot, 
+                            const InputTree::Mover& pMover,
                             InputTree& pTree)
 {
   if (this == &pTree)
     return *this;
 
   if (!pTree.empty()) {
-    pConnector.connect(pPosition, iterator(pTree.m_Root.node.right));
+    pMover.connect(pRoot, iterator(pTree.m_Root.node.right));
     BinaryTreeBase<Input>::m_Root.summon(
         pTree.BinaryTreeBase<Input>::m_Root);
     BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
@@ -41,33 +41,33 @@ InputTree& InputTree::merge(InputTree::iterator pPosition,
   return *this;
 }
 
-InputTree& InputTree::insert(InputTree::iterator pPosition,
-                             const InputTree::Connector& pConnector,
+InputTree& InputTree::insert(InputTree::iterator pRoot,
+                             const InputTree::Mover& pMover,
                              const std::string& pNamespec,
                              const sys::fs::Path& pPath,
                              unsigned int pType)
 {
   BinaryTree<Input>::node_type* node = createNode();
   node->data = m_FileFactory.produce(pNamespec, pPath, pType);
-  pConnector.connect(pPosition, iterator(node));
+  pMover.connect(pRoot, iterator(node));
   return *this;
 }
 
-InputTree& InputTree::enterGroup(InputTree::iterator pPosition,
-                                 const InputTree::Connector& pConnector)
+InputTree& InputTree::enterGroup(InputTree::iterator pRoot,
+                                 const InputTree::Mover& pMover)
 {
   NodeBase* node = createNode();
-  pConnector.connect(pPosition, iterator(node));
+  pMover.connect(pRoot, iterator(node));
   return *this;
 }
 
-InputTree& InputTree::insert(InputTree::iterator pPosition,
-                             const InputTree::Connector& pConnector,
+InputTree& InputTree::insert(InputTree::iterator pRoot,
+                             const InputTree::Mover& pMover,
                              const mcld::Input& pInput)
 {
   BinaryTree<Input>::node_type* node = createNode();
   node->data = const_cast<mcld::Input*>(&pInput);
-  pConnector.connect(pPosition, iterator(node));
+  pMover.connect(pRoot, iterator(node));
   return *this;
 }
 

@@ -11,12 +11,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/FileHandle.h>
-#include <mcld/ADT/BinTree.h>
-#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/InputTree.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/CodeGen/SectLinker.h>
@@ -44,11 +45,16 @@ SectLinker::SectLinker(SectLinkerOption &pOption,
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
-    m_pLDDriver(NULL) { }
+    m_pLDDriver(NULL),
+    m_pMemAreaFactory(NULL)
+{
+  m_pMemAreaFactory = new MemoryAreaFactory(32);
+}
 
 SectLinker::~SectLinker()
 {
   delete m_pLDDriver;
+
   // FIXME: current implementation can not change the order of delete.
   //
   // Instance of TargetLDBackend was created outside and is not managed by
@@ -57,6 +63,8 @@ SectLinker::~SectLinker()
   // objects it used during the processing, we destroy the object of
   // TargetLDBackend here.
   delete m_pLDBackend;
+
+  delete m_pMemAreaFactory;
 }
 
 bool SectLinker::doInitialization(Module &pM)
@@ -67,7 +75,7 @@ bool SectLinker::doInitialization(Module &pM)
   PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
   std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
   initializeInputTree(PosDepOpts);
-
+  initializeInputOutput(info);
   // Now, all input arguments are prepared well, send it into MCLDDriver
   m_pLDDriver = new MCLDDriver(info, *m_pLDBackend);
 
@@ -77,10 +85,6 @@ bool SectLinker::doInitialization(Module &pM)
 bool SectLinker::doFinalization(Module &pM)
 {
   const MCLDInfo &info = m_pOption->info();
-
-  // 2. - initialize the output;
-  if (!m_pLDDriver->initOutput())
-    return true;
 
   // 3. - initialize output's standard segments and sections
   if (!m_pLDDriver->initMCLinker())
@@ -170,71 +174,159 @@ bool SectLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
+void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
+{
+  // -----  initialize output file  ----- //
+  FileHandle::Permission perm;
+  if (Output::Object == pLDInfo.output().type())
+    perm = 0544;
+  else
+    perm = 0755;
+
+  MemoryArea* out_area = memAreaFactory()->produce(pLDInfo.output().path(),
+                                                 FileHandle::ReadWrite,
+                                                 perm);
+
+  if (!out_area->handler()->isGood()) {
+    // make sure output is openend successfully.
+    fatal(diag::err_cannot_open_output_file) << pLDInfo.output().name()
+                                             << pLDInfo.output().path();
+  }
+
+  pLDInfo.output().setMemArea(out_area);
+  pLDInfo.output().setContext(pLDInfo.contextFactory().produce(
+                                pLDInfo.output().path()));
+
+  // -----  initialize input files  ----- //
+  InputTree::dfs_iterator input, inEnd = pLDInfo.inputs().dfs_end();
+  for (input = pLDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+    // already got type - for example, bitcode
+    if ((*input)->type() == Input::Script ||
+        (*input)->type() == Input::Object ||
+        (*input)->type() == Input::DynObj  ||
+        (*input)->type() == Input::Archive)
+      continue;
+
+    MemoryArea *input_memory =
+        memAreaFactory()->produce((*input)->path(), FileHandle::ReadOnly);
+
+    if (input_memory->handler()->isGood()) {
+      (*input)->setMemArea(input_memory);
+    }
+    else {
+      error(diag::err_cannot_open_input) << (*input)->name() << (*input)->path();
+      return;
+    }
+
+    LDContext *input_context =
+        pLDInfo.contextFactory().produce((*input)->path());
+
+    (*input)->setMemArea(input_memory);
+    (*input)->setContext(input_context);
+  }
+}
+
 void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
     fatal(diag::err_no_inputs);
 
   MCLDInfo &info = m_pOption->info();
-  PositionDependentOptions::const_iterator cur_char = pPosDepOptions.begin();
+  PositionDependentOptions::const_iterator option = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
-      ((*cur_char)->type() != PositionDependentOption::INPUT_FILE &&
-       (*cur_char)->type() != PositionDependentOption::NAMESPEC) &&
-       (*cur_char)->type() != PositionDependentOption::BITCODE) {
+      ((*option)->type() != PositionDependentOption::INPUT_FILE &&
+       (*option)->type() != PositionDependentOption::NAMESPEC) &&
+       (*option)->type() != PositionDependentOption::BITCODE) {
     // if we only have one positional options, and the option is
     // not an input file, then emit error message.
     fatal(diag::err_no_inputs);
   }
 
-  InputTree::Connector *prev_ward = &InputTree::Downward;
+  // -----  Input tree insertion algorithm  ----- //
+  //   The type of the previsou node indicates the direction of the current
+  //   insertion.
+  //
+  //     root   : the parent node who being inserted.
+  //     mover  : the direcion of current movement.
+  //
+  //   for each positional options:
+  //     insert the options in current root.
+  //     calculate the next movement
 
+  // Initialization
+  InputTree::Mover *move = &InputTree::Downward;
+  InputTree::iterator root = info.inputs().root();
+  PositionDependentOptions::const_iterator optionEnd = pPosDepOptions.end();
   std::stack<InputTree::iterator> returnStack;
-  InputTree::iterator cur_node = info.inputs().root();
 
-  PositionDependentOptions::const_iterator charEnd = pPosDepOptions.end();
-  while (cur_char != charEnd ) {
-    switch ((*cur_char)->type()) {
-    case PositionDependentOption::BITCODE: {
-      // threat bitcode as a script in this version.
-      const BitcodeOption *bitcode_option =
-          static_cast<const BitcodeOption*>(*cur_char);
-      info.inputs().insert(cur_node,
-                           *prev_ward,
-                           bitcode_option->path()->native(),
-                           *(bitcode_option->path()),
-                           Input::Script);
-      info.setBitcode(**cur_node);
-      prev_ward->move(cur_node);
-      prev_ward = &InputTree::Afterward;
-      break;
-    }
-    case PositionDependentOption::INPUT_FILE: {
-      const InputFileOption *input_file_option =
-          static_cast<const InputFileOption*>(*cur_char);
-      info.inputs().insert(cur_node,
-                           *prev_ward,
-                           input_file_option->path()->native(),
-                           *(input_file_option->path()));
-      prev_ward->move(cur_node);
-      prev_ward = &InputTree::Afterward;
-      break;
-    }
+  while (option != optionEnd ) {
+
+    switch ((*option)->type()) {
+      /** bitcode **/
+      case PositionDependentOption::BITCODE: {
+
+        const BitcodeOption *bitcode_option =
+            static_cast<const BitcodeOption*>(*option);
+
+        // threat bitcode as a script in this version.
+        info.inputs().insert(root, *move,
+                             bitcode_option->path()->native(),
+                             *(bitcode_option->path()),
+                             Input::Script);
+
+        info.setBitcode(**root);
+
+        // move root on the new created node.
+        move->move(root);
+
+        // the next file is appended after bitcode file.
+        move = &InputTree::Afterward;
+        break;
+      }
+
+      /** input object file **/
+      case PositionDependentOption::INPUT_FILE: {
+        const InputFileOption *input_file_option =
+            static_cast<const InputFileOption*>(*option);
+
+        info.inputs().insert(root, *move,
+                             input_file_option->path()->native(),
+                             *(input_file_option->path()));
+
+        // move root on the new created node.
+        move->move(root);
+
+        // the next file is appended after object file.
+        move = &InputTree::Afterward;
+        break;
+      }
+
+    /** -lnamespec **/
     case PositionDependentOption::NAMESPEC: {
       sys::fs::Path* path = NULL;
       const NamespecOption *namespec_option =
-          static_cast<const NamespecOption*>(*cur_char);
+          static_cast<const NamespecOption*>(*option);
 
+      // find out the real path of the namespec.
       if (info.attrFactory().constraint().isSharedSystem()) {
+        // In the system with shared object support, we can find both archive
+        // and shared object.
+
         if (info.attrFactory().last().isStatic()) {
+          // with --static, we must search an archive.
           path = info.options().directories().find(namespec_option->namespec(),
                                                    Input::Archive);
         }
         else {
+          // otherwise, with --Bdynamic, we can find either an archive or a
+          // shared object.
           path = info.options().directories().find(namespec_option->namespec(),
                                                    Input::DynObj);
         }
       }
       else {
+        // In the system without shared object support, we only look for an
+        // archive.
         path = info.options().directories().find(namespec_option->namespec(),
                                                  Input::Archive);
       }
@@ -242,24 +334,30 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
       if (NULL == path)
         fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
 
-      info.inputs().insert(cur_node,
-                           *prev_ward,
+      info.inputs().insert(root, *move,
                            namespec_option->namespec(),
                            *path);
-      prev_ward->move(cur_node);
-      prev_ward = &InputTree::Afterward;
+
+      // iterate root on the new created node.
+      move->move(root);
+
+      // the file after a namespec must be appended afterward.
+      move = &InputTree::Afterward;
       break;
     }
+
+    /** start group **/
     case PositionDependentOption::START_GROUP:
-      info.inputs().enterGroup(cur_node, *prev_ward);
-      prev_ward->move(cur_node);
-      returnStack.push(cur_node);
-      prev_ward = &InputTree::Downward;
+      info.inputs().enterGroup(root, *move);
+      move->move(root);
+      returnStack.push(root);
+      move = &InputTree::Downward;
       break;
+    /** end group **/
     case PositionDependentOption::END_GROUP:
-      cur_node = returnStack.top();
+      root = returnStack.top();
       returnStack.pop();
-      prev_ward = &InputTree::Afterward;
+      move = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
       info.attrFactory().last().setWholeArchive();
@@ -286,10 +384,10 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
       info.attrFactory().last().setDynamic();
       break;
     default:
-      fatal(diag::err_cannot_identify_option) << (*cur_char)->position()
-                                              << (uint32_t)(*cur_char)->type();
-    }
-    ++cur_char;
+      fatal(diag::err_cannot_identify_option) << (*option)->position()
+                                              << (uint32_t)(*option)->type();
+    } // end of switch
+    ++option;
   } // end of while
 
   if (!returnStack.empty()) {

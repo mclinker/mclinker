@@ -17,7 +17,7 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDOptions.h>
-#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
 #include <mcld/LD/NamePool.h>

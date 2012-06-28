@@ -175,8 +175,8 @@ NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/MCLDAttribute.cpp \
 	${INCDIR}/MC/AttributeFactory.h \
 	${LIBDIR}/MC/AttributeFactory.cpp \
-	${INCDIR}/MC/MCLDInputTree.h \
-	${LIBDIR}/MC/MCLDInputTree.cpp \
+	${INCDIR}/MC/InputTree.h \
+	${LIBDIR}/MC/InputTree.cpp \
 	${INCDIR}/MC/MCRegionFragment.h \
 	${LIBDIR}/MC/MCRegionFragment.cpp \
 	${INCDIR}/MC/MCTargetFragment.h \

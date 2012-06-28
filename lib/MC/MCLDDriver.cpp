@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/MC/InputTree.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCLDInputTree.h>
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/ArchiveReader.h>
@@ -29,7 +29,6 @@ MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
   : m_LDInfo(pLDInfo),
     m_LDBackend(pLDBackend),
     m_pLinker(NULL) {
-  m_pMemoryAreaFactory = new MemoryAreaFactory(32);
 
 }
 
@@ -38,7 +37,6 @@ MCLDDriver::~MCLDDriver()
   if (NULL != m_pLinker)
     delete m_pLinker;
 
-  delete m_pMemoryAreaFactory;
 }
 
 void MCLDDriver::normalize()
@@ -54,26 +52,14 @@ void MCLDDriver::normalize()
       continue;
 
 
-    MemoryArea *input_memory =
-        m_pMemoryAreaFactory->produce((*input)->path(), FileHandle::ReadOnly);
-    if (input_memory->handler()->isGood()) {
-      (*input)->setMemArea(input_memory);
-    }
-    else {
-      error(diag::err_cannot_open_input) << (*input)->name() << (*input)->path();
-      return;
-    }
-
     // is a relocatable object file
     if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
-      (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
       m_LDBackend.getObjectReader()->readObject(**input);
     }
     // is a shared object file
     else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
-      (*input)->setContext(m_LDInfo.contextFactory().produce((*input)->path()));
       m_LDBackend.getDynObjReader()->readDSO(**input);
     }
     // is an archive
@@ -92,7 +78,7 @@ void MCLDDriver::normalize()
       fatal(diag::err_unrecognized_input_file)
                                        << (*input)->name() << (*input)->path();
     }
-  }
+  } // end of for
 }
 
 bool MCLDDriver::linkable() const
@@ -126,30 +112,6 @@ bool MCLDDriver::linkable() const
   }
 
   // can not mix -r with shared objects
-  return true;
-}
-
-bool MCLDDriver::initOutput()
-{
-  /// initialize output file
-  FileHandle::Permission perm;
-  if (Output::Object == m_LDInfo.output().type())
-    perm = 0544;
-  else
-    perm = 0755;
-
-  MemoryArea* out_area = m_pMemoryAreaFactory->produce(m_LDInfo.output().path(),
-                                                       FileHandle::ReadWrite,
-                                                       perm);
-
-  if (!out_area->handler()->isGood()) {
-    // make sure output is openend successfully.
-    fatal(diag::err_cannot_open_output_file) << m_LDInfo.output().name()
-                                             << m_LDInfo.output().path();
-  }
-
-  m_LDInfo.output().setMemArea(out_area);
-  m_LDInfo.output().setContext(m_LDInfo.contextFactory().produce(m_LDInfo.output().path()));
   return true;
 }
 

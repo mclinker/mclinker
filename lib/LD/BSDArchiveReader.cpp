@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/MCLDInputTree.h"
-#include "mcld/LD/BSDArchiveReader.h"
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/InputTree.h>
+#include <mcld/LD/BSDArchiveReader.h>
 
 using namespace mcld;
 

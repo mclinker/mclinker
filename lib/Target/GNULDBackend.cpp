@@ -11,7 +11,7 @@
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
-#include <mcld/MC/MCLDInputTree.h>
+#include <mcld/MC/InputTree.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>

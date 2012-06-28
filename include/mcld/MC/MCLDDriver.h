@@ -37,9 +37,6 @@ public:
   MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
   ~MCLDDriver();
 
-  /// initOutput - initialize output file
-  bool initOutput();
-
   /// initMCLinker - initialize MCLinker
   ///  Connect all components in MCLinker
   bool initMCLinker();
@@ -116,7 +113,6 @@ private:
   TargetLDBackend &m_LDBackend;
   MCLinker* m_pLinker;
   SectionMap m_SectionMap;
-  MemoryAreaFactory* m_pMemoryAreaFactory;
 };
 
 } // end namespace mcld

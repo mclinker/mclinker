@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDInputTree.h"
+#include "mcld/MC/InputTree.h"
 #include "mcld/MC/MCLDInfo.h"
 #include <InputTreeTest.h>
 
