@@ -660,15 +660,15 @@ static bool ShouldColorize()
    return term && (0 != strcmp(term, "dumb"));
 }
 
-static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
+static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
   // -----  Set up General Options  ----- //
   // set up soname
-  pOption.info().output().setSOName(ArgSOName);
+  pLDInfo.output().setSOName(ArgSOName);
 
   // set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      pOption.info().options().setSysroot(ArgSysRoot);
+      pLDInfo.options().setSysroot(ArgSysRoot);
   }
 
   // add all search directories
@@ -676,9 +676,9 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot())
-      sd->setSysroot(pOption.info().options().sysroot());
+      sd->setSysroot(pLDInfo.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path())) {
-      pOption.info().options().directories().add(*sd);
+      pLDInfo.options().directories().add(*sd);
     }
     else {
       // FIXME: need a warning function
@@ -688,18 +688,18 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
     }
   }
 
-  pOption.info().options().setPIE(ArgPIE);
-  pOption.info().options().setTrace(ArgTrace);
-  pOption.info().options().setVerbose(ArgVerbose);
-  pOption.info().options().setMaxErrorNum(ArgMaxErrorNum);
-  pOption.info().options().setMaxWarnNum(ArgMaxWarnNum);
-  pOption.info().options().setEntry(ArgEntry);
-  pOption.info().options().setBsymbolic(ArgBsymbolic);
-  pOption.info().options().setBgroup(ArgBgroup);
-  pOption.info().options().setDyld(ArgDyld);
-  pOption.info().options().setNoUndefined(ArgNoUndefined);
-  pOption.info().options().setMulDefs(ArgAllowMulDefs);
-  pOption.info().options().setEhFrameHdr(ArgEhFrameHdr);
+  pLDInfo.options().setPIE(ArgPIE);
+  pLDInfo.options().setTrace(ArgTrace);
+  pLDInfo.options().setVerbose(ArgVerbose);
+  pLDInfo.options().setMaxErrorNum(ArgMaxErrorNum);
+  pLDInfo.options().setMaxWarnNum(ArgMaxWarnNum);
+  pLDInfo.options().setEntry(ArgEntry);
+  pLDInfo.options().setBsymbolic(ArgBsymbolic);
+  pLDInfo.options().setBgroup(ArgBgroup);
+  pLDInfo.options().setDyld(ArgDyld);
+  pLDInfo.options().setNoUndefined(ArgNoUndefined);
+  pLDInfo.options().setMulDefs(ArgAllowMulDefs);
+  pLDInfo.options().setEhFrameHdr(ArgEhFrameHdr);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
@@ -709,7 +709,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
 
     // add wname -> __wrap_wname
     mcld::StringEntry<llvm::StringRef>* to_wrap =
-                    pOption.info().scripts().renameMap().insert(*wname, exist);
+                    pLDInfo.scripts().renameMap().insert(*wname, exist);
 
     std::string to_wrap_str = "__wrap_" + *wname;
     to_wrap->setValue(to_wrap_str);
@@ -720,7 +720,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
     // add __real_wname -> wname
     std::string from_real_str = "__real_" + *wname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pOption.info().scripts().renameMap().insert(from_real_str, exist);
+             pLDInfo.scripts().renameMap().insert(from_real_str, exist);
     from_real->setValue(*wname);
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname << from_real_str;
@@ -734,7 +734,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
 
     // add pname -> pname_portable
     mcld::StringEntry<llvm::StringRef>* to_port =
-                  pOption.info().scripts().renameMap().insert(*pname, exist);
+                  pLDInfo.scripts().renameMap().insert(*pname, exist);
 
     std::string to_port_str = *pname + "_portable";
     to_port->setValue(to_port_str);
@@ -745,7 +745,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
     // add __real_pname -> pname
     std::string from_real_str = "__real_" + *pname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pOption.info().scripts().renameMap().insert(from_real_str, exist);
+             pLDInfo.scripts().renameMap().insert(from_real_str, exist);
 
     from_real->setValue(*pname);
     if (exist)
@@ -755,15 +755,15 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   // set up colorize
   switch (ArgColor) {
     case color::Never:
-      pOption.info().options().setColor(false);
+      pLDInfo.options().setColor(false);
     break;
     case color::Always:
-      pOption.info().options().setColor(true);
+      pLDInfo.options().setColor(true);
     break;
     case color::Auto:
       bool color_option = ShouldColorize() &&
                  llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
-      pOption.info().options().setColor(color_option);
+      pLDInfo.options().setColor(color_option);
     break;
   }
 
@@ -771,9 +771,15 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   cl::list<mcld::ZOption>::iterator zOpt;
   cl::list<mcld::ZOption>::iterator zOptEnd = ArgZOptionList.end();
   for (zOpt = ArgZOptionList.begin(); zOpt != zOptEnd; ++zOpt) {
-    pOption.info().options().addZOption(*zOpt);
+    pLDInfo.options().addZOption(*zOpt);
   }
 
+  // -----  Set up Script Options  ----- //
+
+  return true;
+}
+
+static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
   // -----  Set up Inputs  ----- //
   // add all start-group
   cl::list<bool>::iterator sg;
@@ -883,9 +889,7 @@ static bool ProcessLinkerInputsFromCommand(mcld::SectLinkerOption &pOption) {
     ++attr;
   }
 
-  // -----  Set up Scripting Options  ----- //
-
-  return false;
+  return true;
 }
 
 int main( int argc, char* argv[] )
@@ -1115,7 +1119,12 @@ int main( int argc, char* argv[] )
   mcld::SectLinkerOption *LinkerOpt =
       new mcld::SectLinkerOption(TheTargetMachine.getLDInfo());
 
-  if (ProcessLinkerInputsFromCommand(*LinkerOpt)) {
+  if (!ProcessLinkerOptionsFromCommand(TheTargetMachine.getLDInfo())) {
+    errs() << argv[0] << ": failed to process linker options from command line!\n";
+    return 1;
+  }
+
+  if (!ProcessLinkerInputsFromCommand(*LinkerOpt)) {
     errs() << argv[0] << ": failed to process inputs from command line!\n";
     return 1;
   }
