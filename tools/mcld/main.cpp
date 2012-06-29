@@ -57,6 +57,13 @@ OptOutputFilename("o",
                   llvm::cl::desc("Output filename"),
                   llvm::cl::value_desc("filename"));
 
+static llvm::cl::opt<std::string>
+OptSysRoot("sysroot",
+           llvm::cl::desc("Use directory as the location of the sysroot, overriding "
+                    "the configure-time default."),
+           llvm::cl::value_desc("directory"),
+           llvm::cl::ValueRequired);
+
 static llvm::cl::list<std::string>
 OptSearchDirList("L",
                  llvm::cl::ZeroOrMore,
@@ -106,12 +113,6 @@ OptWrapList("wrap",
             llvm::cl::desc("Use a wrap function fo symbol."),
             llvm::cl::value_desc("symbol"));
 
-static llvm::cl::list<std::string>
-OptPortList("portable",
-            llvm::cl::ZeroOrMore,
-            llvm::cl::desc("Use a portable function fo symbol."),
-            llvm::cl::value_desc("symbol"));
-
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
@@ -128,7 +129,7 @@ void MCLDVersionPrinter() {
 }
 
 static inline
-bool ConfigLinker(Linker &pLinker)
+bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
 {
   LinkerConfig* config = NULL;
 
@@ -141,6 +142,31 @@ bool ConfigLinker(Linker &pLinker)
     llvm::errs() << "Out of memory when create the linker configuration!\n";
     return false;
   }
+
+  // Setup the configuration accroding to the value of command line options.
+  // 1. set up soname
+  if (!OptSOName.empty())
+    config->setSOName(OptSOName);
+  else
+    config->setSOName(pOutputFilename);
+
+  // 2. if given, set up sysroot
+  if (!OptSysRoot.empty())
+    config->setSysRoot(OptSysRoot);
+
+  // 3. if given, set up dynamic linker path.
+  if (!OptDyld.empty())
+    config->setDyld(OptDyld);
+
+  // 4. if given, set up wrapped symbols
+  llvm::cl::list<std::string>::iterator wrap, wEnd = OptWrapList.end();
+  for (wrap = OptWrapList.begin(); wrap != wEnd; ++wrap)
+    config->addWrap(*wrap);
+
+  // 5. if given, set up search directories
+  llvm::cl::list<std::string>::iterator sdir, sdirEnd = OptSearchDirList.end();
+  for (sdir = OptSearchDirList.begin(); sdir != sdirEnd; ++sdir)
+    config->addSearchDir(*sdir);
 
   Linker::ErrorCode result = pLinker.config(*config);
 
@@ -187,6 +213,12 @@ std::string DetermineOutputFilename(const std::string pOutputPath)
 }
 
 static inline
+bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
+{
+  return true;
+}
+
+static inline
 bool LinkFiles(Linker& pLinker, const std::string &pOutputPath)
 {
   return true;
@@ -198,14 +230,17 @@ int main(int argc, char* argv[])
   llvm::cl::ParseCommandLineOptions(argc, argv);
   init::Initialize();
 
-  Linker linker;
-  if (!ConfigLinker(linker)) {
-    return EXIT_FAILURE;
-  }
-
   std::string OutputFilename = DetermineOutputFilename(OptOutputFilename);
   if (OutputFilename.empty()) {
     return EXIT_FAILURE;
+  }
+
+  Linker linker;
+  if (!ConfigLinker(linker, OutputFilename)) {
+    return EXIT_FAILURE;
+  }
+
+  if (!PrepareInputOutput(linker, OutputFilename)) {
   }
 
   if (!LinkFiles(linker, OutputFilename)) {

@@ -1,5 +1,6 @@
 DIAG(err_cannot_open_input, DiagnosticEngine::Error, "can not open input file `%0': %1", "can not open input file `%0' : %1")
 DIAG(err_cannot_open_output_file, DiagnosticEngine::Fatal, "cannot open output file `%0': %1", "cannot open output file `%0': %1")
+DIAG(warn_cannot_open_search_dir, DiagnosticEngine::Warning, "can not open search directory `-L%0'", "can not open search directory `-L%0'")
 DIAG(err_no_inputs, DiagnosticEngine::Error, "no inputs", "no inputs")
 DIAG(err_empty_input, DiagnosticEngine::Error, "Empty input file `%0' : %1", "Empty input file `%0' : %1")
 DIAG(err_unrecognized_input_file, DiagnosticEngine::Fatal, "cannot recognize the format of file `%0' : %1 \nobject format or given target machine is wrong.", "cannot recognize the format of file `%0' : %1 \nobject format or given target machine is wrong.")

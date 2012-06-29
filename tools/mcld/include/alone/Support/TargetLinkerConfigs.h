@@ -41,12 +41,18 @@ public:
 //===----------------------------------------------------------------------===//
 #if defined(PROVIDE_X86_CODEGEN)
 class X86FamilyLinkerConfigBase : public LinkerConfig {
+public:
+  X86FamilyLinkerConfigBase(const std::string& pTriple);
 };
 
 class X86_32LinkerConfig : public X86FamilyLinkerConfigBase {
+public:
+  X86_32LinkerConfig();
 };
 
 class X86_64LinkerConfig : public X86FamilyLinkerConfigBase {
+public:
+  X86_64LinkerConfig();
 };
 #endif // defined(PROVIDE_X86_CODEGEN)
 
