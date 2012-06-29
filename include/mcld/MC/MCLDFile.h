@@ -50,7 +50,8 @@ public:
     DynObj,
     CoreFile,
     Script,
-    Archive
+    Archive,
+    External
   };
 
 public:

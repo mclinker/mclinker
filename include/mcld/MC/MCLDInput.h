@@ -41,7 +41,7 @@ public:
     DynObj = MCLDFile::DynObj,
     Archive = MCLDFile::Archive,
     Script = MCLDFile::Script,
-    External
+    External = MCLDFile::External
   };
 
 private:
