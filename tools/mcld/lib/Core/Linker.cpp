@@ -54,7 +54,42 @@ Linker::~Linker()
 
 enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
 {
-  /** **/
+  /** create mDriver, mBackend **/
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::setOutput(int pFileHandler)
+{
+  return kSuccess;
+}
+
+enum Linker::ErrorCode Linker::link()
+{
   return kSuccess;
 }
 

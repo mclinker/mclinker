@@ -9,6 +9,7 @@
 #ifndef ALONE_LINKER_H
 #define ALONE_LINKER_H
 
+#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLDDriver.h>
 
@@ -30,6 +31,7 @@ private:
   LinkerConfig *mConfig;
   mcld::TargetLDBackend *mBackend;
   mcld::MCLDDriver *mDriver;
+  mcld::MemoryAreaFactory *mMemAreaFactory;
 
 public:
   Linker();
@@ -39,6 +41,20 @@ public:
   ~Linker();
 
   enum ErrorCode config(const LinkerConfig& pConfig);
+
+  enum ErrorCode addNameSpec(const std::string &pNameSpec);
+
+  enum ErrorCode addObject(const std::string &pObjectPath);
+
+  enum ErrorCode addObject(void* pMemory, size_t pSize);
+
+  enum ErrorCode addCode(void* pMemory, size_t pSize);
+
+  enum ErrorCode setOutput(const std::string &pPath);
+
+  enum ErrorCode setOutput(int pFileHandler);
+
+  enum ErrorCode link();
 };
 
 } // end namespace alone

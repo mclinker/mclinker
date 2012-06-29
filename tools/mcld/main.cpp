@@ -128,6 +128,37 @@ void MCLDVersionPrinter() {
   return;
 }
 
+#define DEFAULT_OUTPUT_PATH "a.out"
+static inline
+std::string DetermineOutputFilename(const std::string pOutputPath)
+{
+  if (!pOutputPath.empty()) {
+    return pOutputPath;
+  }
+
+  // User does't specify the value to -o
+  if (OptInputObjectFiles.size() > 1) {
+    llvm::errs() << "Use " DEFAULT_OUTPUT_PATH " for output file!\n";
+    return DEFAULT_OUTPUT_PATH;
+  }
+
+  // There's only one input file
+  const std::string &input_path = OptInputObjectFiles[0];
+  llvm::SmallString<200> output_path(input_path);
+
+  llvm::error_code err = llvm::sys::fs::make_absolute(output_path);
+  if (llvm::errc::success != err) {
+    llvm::errs() << "Failed to determine the absolute path of `" << input_path
+                 << "'! (detail: " << err.message() << ")\n";
+    return "";
+  }
+
+  llvm::sys::path::remove_filename(output_path);
+  llvm::sys::path::append(output_path, "a.out");
+
+  return output_path.c_str();
+}
+
 static inline
 bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
 {
@@ -181,46 +212,76 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
   return true;
 }
 
-#define DEFAULT_OUTPUT_PATH "a.out"
-static inline
-std::string DetermineOutputFilename(const std::string pOutputPath)
-{
-  if (!pOutputPath.empty()) {
-    return pOutputPath;
-  }
-
-  // User does't specify the value to -o
-  if (OptInputObjectFiles.size() > 1) {
-    llvm::errs() << "Use " DEFAULT_OUTPUT_PATH " for output file!\n";
-    return DEFAULT_OUTPUT_PATH;
-  }
-
-  // There's only one input file
-  const std::string &input_path = OptInputObjectFiles[0];
-  llvm::SmallString<200> output_path(input_path);
-
-  llvm::error_code err = llvm::sys::fs::make_absolute(output_path);
-  if (llvm::errc::success != err) {
-    llvm::errs() << "Failed to determine the absolute path of `" << input_path
-                 << "'! (detail: " << err.message() << ")\n";
-    return "";
-  }
-
-  llvm::sys::path::remove_filename(output_path);
-  llvm::sys::path::append(output_path, "a.out");
-
-  return output_path.c_str();
-}
-
 static inline
 bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
 {
+  // -----  set output  ----- //
+  Linker::ErrorCode result = pLinker.setOutput(pOutputPath);
+
+  if (Linker::kSuccess != result) {
+    llvm::errs() << "Failed to open the output file! (detail: "
+                 << pOutputPath << ": "
+                 << Linker::GetErrorString(result) << "\n";
+    return false;
+  }
+
+  // -----  set inputs  ----- //
+  llvm::cl::list<std::string>::iterator fileIt = OptInputObjectFiles.begin();
+  llvm::cl::list<std::string>::iterator libIt  = OptNameSpecList.begin();
+
+  llvm::cl::list<std::string>::iterator fileBegin = OptInputObjectFiles.begin();
+  llvm::cl::list<std::string>::iterator libBegin = OptNameSpecList.begin();
+  llvm::cl::list<std::string>::iterator fileEnd = OptInputObjectFiles.end();
+  llvm::cl::list<std::string>::iterator libEnd = OptNameSpecList.end();
+
+  unsigned libPos = 0, filePos = 0;
+  while (true) {
+    if (libIt != libEnd)
+      libPos = OptNameSpecList.getPosition(libIt - libBegin);
+    else
+      libPos = 0;
+
+    if (fileIt != fileEnd)
+      filePos = OptInputObjectFiles.getPosition(fileIt - fileBegin);
+    else
+      filePos = 0;
+
+    if ( filePos != 0 && (libPos == 0 || filePos < libPos) ) {
+      result = pLinker.addObject(*fileIt);
+      if (Linker::kSuccess != result) {
+        llvm::errs() << "Failed to open the input file! (detail: "
+                     << *fileIt << ": "
+                     << Linker::GetErrorString(result) << "\n";
+        return false;
+      }
+      ++fileIt;
+    }
+    else if ( libPos != 0 && (filePos == 0 || libPos < filePos) ) {
+      result = pLinker.addNameSpec(*libIt);
+      if (Linker::kSuccess != result) {
+        llvm::errs() << "Failed to open the namespec! (detail: "
+                     << *libIt << ": "
+                     << Linker::GetErrorString(result) << "\n";
+        return false;
+      }
+      ++libIt;
+    }
+
+    else
+      break; // we're done with the list
+  }
+
   return true;
 }
 
 static inline
-bool LinkFiles(Linker& pLinker, const std::string &pOutputPath)
-{
+bool LinkFiles(Linker& pLinker) {
+  Linker::ErrorCode result = pLinker.link();
+  if (Linker::kSuccess != result) {
+    llvm::errs() << "Failed to linking! (detail: "
+                 << Linker::GetErrorString(result) << "\n";
+    return false;
+  }
   return true;
 }
 
@@ -241,9 +302,10 @@ int main(int argc, char* argv[])
   }
 
   if (!PrepareInputOutput(linker, OutputFilename)) {
+    return EXIT_FAILURE;
   }
 
-  if (!LinkFiles(linker, OutputFilename)) {
+  if (!LinkFiles(linker)) {
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
