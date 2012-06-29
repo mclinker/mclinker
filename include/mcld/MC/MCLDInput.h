@@ -40,7 +40,8 @@ public:
     Object = MCLDFile::Object,
     DynObj = MCLDFile::DynObj,
     Archive = MCLDFile::Archive,
-    Script = MCLDFile::Script
+    Script = MCLDFile::Script,
+    External
   };
 
 private:

@@ -111,12 +111,6 @@ public:
                          MCFragmentRef* pFragmentRef,
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
-  /// mergeSymbolTable - merge the symbol table and resolve symbols.
-  ///   Since in current design, MCLinker resolves symbols when reading symbol
-  ///   tables, this function do nothing.
-  bool mergeSymbolTable(Input& pInput)
-  { return true; }
-
   bool finalizeSymbols();
 
   // -----  sections  ----- //

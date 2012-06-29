@@ -112,6 +112,9 @@ bool SectLinker::doFinalization(Module &pM)
       case Input::Script:
         mcld::outs() << "\tscript\t(";
         break;
+      case Input::External:
+        mcld::outs() << "\textern\t(";
+        break;
       default:
         unreachable(diag::err_cannot_trace_file) << (*input)->type()
                                                  << (*input)->name()
@@ -132,8 +135,7 @@ bool SectLinker::doFinalization(Module &pM)
     return true;
 
   // 7. - read all symbol tables of input files and resolve them
-  if (!m_pLDDriver->readSymbolTables() ||
-      !m_pLDDriver->mergeSymbolTables())
+  if (!m_pLDDriver->readSymbolTables())
     return true;
 
   // 7.a - add standard symbols and target-dependent symbols
@@ -268,11 +270,11 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
         const BitcodeOption *bitcode_option =
             static_cast<const BitcodeOption*>(*option);
 
-        // threat bitcode as a script in this version.
+        // threat bitcode as an external IR in this version.
         info.inputs().insert(root, *move,
                              bitcode_option->path()->native(),
                              *(bitcode_option->path()),
-                             Input::Script);
+                             Input::External);
 
         info.setBitcode(**root);
 

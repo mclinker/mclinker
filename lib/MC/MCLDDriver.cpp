@@ -44,11 +44,13 @@ void MCLDDriver::normalize()
   // -----  set up inputs  ----- //
   InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
   for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-    // already got type - for example, bitcode
+    // already got type - for example, bitcode or external OIR (object
+    // intermediate representation)
     if ((*input)->type() == Input::Script ||
         (*input)->type() == Input::Object ||
         (*input)->type() == Input::DynObj  ||
-        (*input)->type() == Input::Archive)
+        (*input)->type() == Input::Archive ||
+        (*input)->type() == Input::External)
       continue;
 
 
@@ -218,18 +220,6 @@ bool MCLDDriver::readSymbolTables()
         return false;
       break;
     }
-  }
-  return true;
-}
-
-/// mergeSymbolTables - merge the symbol tables of input files into the
-/// output's symbol table.
-bool MCLDDriver::mergeSymbolTables()
-{
-  mcld::InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-    if (!m_pLinker->mergeSymbolTable(**input))
-      return false;
   }
   return true;
 }
