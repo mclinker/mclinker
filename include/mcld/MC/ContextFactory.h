@@ -38,6 +38,7 @@ public:
   explicit ContextFactory(size_t pNum);
   ~ContextFactory();
 
+  LDContext* produce();
   LDContext* produce(const sys::fs::Path& pPath);
 };
 

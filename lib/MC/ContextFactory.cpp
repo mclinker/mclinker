@@ -33,3 +33,10 @@ LDContext* ContextFactory::produce(const sys::fs::Path& pPath)
   return result;
 }
 
+LDContext* ContextFactory::produce()
+{
+  LDContext* result = allocate();
+  new (result) LDContext();
+  return result;
+}
+
