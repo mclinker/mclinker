@@ -373,7 +373,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
     return true;
   pPM.add(printer);
 #endif
-  TargetLDBackend* ldBackend = getTarget().createLDBackend(*getTarget().get(), m_Triple);
+  TargetLDBackend* ldBackend = getTarget().createLDBackend(m_Triple);
   if (0 == ldBackend)
     return true;
 

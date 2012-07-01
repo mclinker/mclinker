@@ -89,11 +89,11 @@ public:
   /// createLDBackend - create target-specific LDBackend
   ///
   /// @return created TargetLDBackend
-  TargetLDBackend* createLDBackend(const llvm::Target& T, const std::string& Triple) const
+  TargetLDBackend* createLDBackend(const std::string& Triple) const
   {
     if (!TargetLDBackendCtorFn)
       return NULL;
-    return TargetLDBackendCtorFn(T, Triple);
+    return TargetLDBackendCtorFn(*get(), Triple);
   }
 
   /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
