@@ -16,7 +16,7 @@
 
 using namespace alone;
 
-LinkerConfig::LinkerConfig(const std::string& pTriple)
+LinkerConfig::LinkerConfig(const std::string &pTriple)
   : mTriple(pTriple), mTarget(NULL), mLDInfo(NULL) {
 
   initializeTarget();

@@ -18,6 +18,6 @@ void Initialize();
 
 } // end namespace init
 
-} // end namespace bcc
+} // end namespace alone
 
 #endif // ALONE_SUPPORT_INITIALIZATION_H

@@ -12,26 +12,39 @@
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/MC/MCLDDriver.h>
+#include <mcld/MC/InputTree.h>
 
 namespace alone {
 
+class MemoryFactory;
 class LinkerConfig;
 
 class Linker {
 public:
   enum ErrorCode {
     kSuccess,
-
+    kDoubleConfig,
+    kCreateBackend,
+    kDelegateLDInfo,
+    kOpenNameSpec,
+    kOpenObjectFile,
+    kNotConfig,
+    kNotSetUpOutput,
+    kOpenOutput,
+    kReadSections,
+    kReadSymbols,
+    kAddAdditionalSymbols,
     kMaxErrorCode,
   };
 
   static const char *GetErrorString(enum ErrorCode pErrCode);
 
 private:
-  LinkerConfig *mConfig;
   mcld::TargetLDBackend *mBackend;
   mcld::MCLDDriver *mDriver;
-  mcld::MemoryAreaFactory *mMemAreaFactory;
+  mcld::MCLDInfo *mLDInfo;
+  mcld::InputTree::iterator mRoot;
+  MemoryFactory *mMemAreaFactory;
 
 public:
   Linker();
@@ -55,6 +68,12 @@ public:
   enum ErrorCode setOutput(int pFileHandler);
 
   enum ErrorCode link();
+
+private:
+  enum ErrorCode extractFiles(const LinkerConfig& pConfig);
+
+  enum ErrorCode openFile(const mcld::sys::fs::Path& pPath,
+                          enum ErrorCode pCode);
 };
 
 } // end namespace alone

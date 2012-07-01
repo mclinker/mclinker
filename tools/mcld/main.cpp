@@ -216,6 +216,8 @@ static inline
 bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
 {
   // -----  set output  ----- //
+  // FIXME: In MCLinker, we have to set up output before setting up inputs.
+  // This constraint is wired, and we should break this constraint.
   Linker::ErrorCode result = pLinker.setOutput(pOutputPath);
 
   if (Linker::kSuccess != result) {
