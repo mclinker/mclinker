@@ -137,14 +137,21 @@ bool MCLDDriver::initMCLinker()
       !m_LDBackend.initExecWriter(*m_pLinker))
     return false;
 
+  // initialize RelocationFactory
+  m_LDBackend.initRelocFactory(*m_pLinker);
+  return true;
+}
+
+/// initStdSections - initialize standard sections
+bool MCLDDriver::initStdSections()
+{
   /// initialize section mapping for standard format, target-dependent section,
   /// (and user-defined mapping)
   if (!m_SectionMap.initStdSectionMap() ||
       !m_LDBackend.initTargetSectionMap(m_SectionMap))
     return false;
 
-
-  // initialize standard segments and sections
+  // initialize standard sections
   switch (m_LDInfo.output().type()) {
     case Output::DynObj: {
       // intialize standard and target-dependent sections
@@ -172,11 +179,8 @@ bool MCLDDriver::initMCLinker()
     }
   } // end of switch
 
-  // initialize target-dependent segments and sections
+  // initialize target-dependent sections
   m_LDBackend.initTargetSections(*m_pLinker);
-
-  // initialize RelocationFactory
-  m_LDBackend.initRelocFactory(*m_pLinker);
 
   return true;
 }

@@ -86,8 +86,12 @@ bool SectLinker::doFinalization(Module &pM)
 {
   const MCLDInfo &info = m_pOption->info();
 
-  // 3. - initialize output's standard segments and sections
+  // 2. - initialize MCLinker
   if (!m_pLDDriver->initMCLinker())
+    return true;
+
+  // 3. - initialize output's standard sections
+  if (!m_pLDDriver->initStdSections())
     return true;
 
   // 4. - normalize the input tree
@@ -197,7 +201,7 @@ void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
 
   pLDInfo.output().setMemArea(out_area);
   pLDInfo.output().setContext(pLDInfo.contextFactory().produce(
-                                pLDInfo.output().path()));
+                              pLDInfo.output().path()));
 
   // -----  initialize input files  ----- //
   InputTree::dfs_iterator input, inEnd = pLDInfo.inputs().dfs_end();
@@ -223,7 +227,6 @@ void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
     LDContext *input_context =
         pLDInfo.contextFactory().produce((*input)->path());
 
-    (*input)->setMemArea(input_memory);
     (*input)->setContext(input_context);
   }
 }

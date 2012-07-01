@@ -41,6 +41,9 @@ public:
   ///  Connect all components in MCLinker
   bool initMCLinker();
 
+  /// initStdSections - initialize standard sections of the output file.
+  bool initStdSections();
+
   /// normalize - normalize the input files
   void normalize();
 
@@ -107,6 +110,18 @@ public:
 
   /// postProcessing - do modificatiion after all processes
   bool postProcessing();
+
+  /// getLinker - get internal MCLinker object
+  MCLinker* getLinker()
+  { return m_pLinker; }
+
+  /// getLinker - get internal MCLinker object
+  const MCLinker* getLinker() const
+  { return m_pLinker; }
+
+  /// hasInitLinker - has Linker been initialized?
+  bool hasInitLinker() const
+  { return (NULL != m_pLinker); }
 
 private:
   MCLDInfo& m_LDInfo;
