@@ -102,3 +102,15 @@ MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
   return result;
 }
 
+MemoryArea*
+MemoryAreaFactory::create(int pFD, FileHandle::OpenMode pMode)
+{
+  FileHandle* handler = new FileHandle();
+  handler->delegate(pFD, pMode);
+  
+  MemoryArea* result = allocate();
+  new (result) MemoryArea(*m_pRegionFactory, *handler);
+
+  return result;
+}
+

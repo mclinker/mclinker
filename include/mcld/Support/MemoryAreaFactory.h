@@ -62,6 +62,9 @@ protected:
   // The created MemoryArea is not moderated by m_HandleToArea.
   MemoryArea* create(void* pMemBuffer, size_t pSize);
 
+  // Create a MemoryArea by the given file handler
+  MemoryArea* create(int pFD, FileHandle::OpenMode pMode);
+
 private:
   HandleToArea m_HandleToArea;
   RegionFactory* m_pRegionFactory;
