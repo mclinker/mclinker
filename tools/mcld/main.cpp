@@ -201,8 +201,6 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
 
   Linker::ErrorCode result = pLinker.config(*config);
 
-  delete config;
-
   if (Linker::kSuccess != result) {
     llvm::errs() << "Failed to configure the linker! (detail: "
                 << Linker::GetErrorString(result) << ")\n";
@@ -223,7 +221,7 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
   if (Linker::kSuccess != result) {
     llvm::errs() << "Failed to open the output file! (detail: "
                  << pOutputPath << ": "
-                 << Linker::GetErrorString(result) << "\n";
+                 << Linker::GetErrorString(result) << ")\n";
     return false;
   }
 
@@ -253,7 +251,7 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
       if (Linker::kSuccess != result) {
         llvm::errs() << "Failed to open the input file! (detail: "
                      << *fileIt << ": "
-                     << Linker::GetErrorString(result) << "\n";
+                     << Linker::GetErrorString(result) << ")\n";
         return false;
       }
       ++fileIt;
@@ -263,7 +261,7 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
       if (Linker::kSuccess != result) {
         llvm::errs() << "Failed to open the namespec! (detail: "
                      << *libIt << ": "
-                     << Linker::GetErrorString(result) << "\n";
+                     << Linker::GetErrorString(result) << ")\n";
         return false;
       }
       ++libIt;

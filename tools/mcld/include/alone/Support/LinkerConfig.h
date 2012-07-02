@@ -33,6 +33,7 @@ private:
   mcld::MCLDInfo *mLDInfo;
   bool initializeLDInfo();
 
+  bool initializeDiagnostic();
 public:
   //===----------------------------------------------------------------------===//
   // Getters

@@ -11,8 +11,12 @@
 
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDDirectory.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/DiagnosticPrinter.h>
+#include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/raw_ostream.h>
 
 using namespace alone;
 
@@ -21,6 +25,7 @@ LinkerConfig::LinkerConfig(const std::string &pTriple)
 
   initializeTarget();
   initializeLDInfo();
+  initializeDiagnostic();
 }
 
 LinkerConfig::~LinkerConfig()
@@ -51,6 +56,22 @@ bool LinkerConfig::initializeLDInfo()
   }
 
   mLDInfo = new mcld::MCLDInfo(getTriple(), 1, 32);
+  return true;
+}
+
+bool LinkerConfig::initializeDiagnostic()
+{
+  // Set up MsgHandler
+  mcld::DiagnosticLineInfo *diag_line_info =
+                   mTarget->createDiagnosticLineInfo(*mTarget->get(), mTriple);
+
+  mcld::DiagnosticPrinter* diag_printer =
+                       new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDInfo);
+
+  mcld::InitializeDiagnosticEngine(*mLDInfo,
+                                   diag_line_info,
+                                   diag_printer);
+
   return true;
 }
 
