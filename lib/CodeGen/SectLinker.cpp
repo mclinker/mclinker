@@ -200,8 +200,7 @@ void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
   }
 
   pLDInfo.output().setMemArea(out_area);
-  pLDInfo.output().setContext(pLDInfo.contextFactory().produce(
-                              pLDInfo.output().path()));
+  pLDInfo.output().setContext(pLDInfo.contextFactory().produce());
 
   // -----  initialize input files  ----- //
   InputTree::dfs_iterator input, inEnd = pLDInfo.inputs().dfs_end();
