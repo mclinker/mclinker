@@ -238,14 +238,24 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord S = pReloc.symValue();
+
+  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+                                                  *(pReloc.targetRef().frag()));
+  assert(NULL != target_sect);
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+    pReloc.target() = S + A;
+    return MipsRelocationFactory::OK;
+  }
+
   if (rsym->reserved() & MipsGNULDBackend::ReserveRel) {
     helper_DynRel(pReloc, pParent);
 
     return MipsRelocationFactory::OK;
   }
-
-  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  RelocationFactory::DWord S = pReloc.symValue();
 
   pReloc.target() = (S + A);
 
