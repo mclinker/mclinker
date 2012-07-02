@@ -108,6 +108,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
     return kDoubleConfig;
 
   extractFiles(pConfig);
+
   mBackend = pConfig.getTarget()->createLDBackend(pConfig.getTriple());
   if (NULL == mBackend)
     return kCreateBackend;
@@ -121,21 +122,27 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
   return kSuccess;
 }
 
-enum Linker::ErrorCode
-Linker::openFile(const mcld::sys::fs::Path& pPath, enum Linker::ErrorCode pCode)
+void Linker::advanceRoot()
 {
-  ++mRoot;
+  if (mRoot.isRoot())
+    --mRoot;
+  else
+    ++mRoot;
+}
 
+enum Linker::ErrorCode
+Linker::openFile(const mcld::sys::fs::Path& pPath, enum Linker::ErrorCode pCode, mcld::Input& pInput)
+{
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pPath,
                                                     mcld::FileHandle::ReadOnly);
 
   if (input_memory->handler()->isGood())
-    (*mRoot)->setMemArea(input_memory);
+    pInput.setMemArea(input_memory);
   else
     return pCode;
 
   mcld::LDContext *input_context = mLDInfo->contextFactory().produce(pPath);
-  (*mRoot)->setContext(input_context);
+  pInput.setContext(input_context);
   return kSuccess;
 }
 
@@ -167,9 +174,12 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec)
                                                         mcld::Input::Unknown);
   mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
 
-  return openFile(*path, kOpenNameSpec);
+  advanceRoot();
+
+  return openFile(*path, kOpenNameSpec, *input);
 }
 
+/// addObject - Add a object file by the filename.
 enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath)
 {
   mcld::Input* input = mLDInfo->inputFactory().produce(pObjectPath,
@@ -177,7 +187,10 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath)
                                                        mcld::Input::Unknown);
 
   mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
-  return openFile(pObjectPath, kOpenObjectFile);
+
+  advanceRoot();
+
+  return openFile(pObjectPath, kOpenObjectFile, *input);
 }
 
 /// addObject - Add a piece of memory. The memory is of ELF format.
@@ -190,13 +203,13 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize)
 
   mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
 
-  ++mRoot;
+  advanceRoot();
 
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
-  (*mRoot)->setMemArea(input_memory);
+  input->setMemArea(input_memory);
 
   mcld::LDContext *input_context = mLDInfo->contextFactory().produce();
-  (*mRoot)->setContext(input_context);
+  input->setContext(input_context);
 
   return kSuccess;
 }
@@ -209,13 +222,13 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize)
 
   mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
 
-  ++mRoot;
+  advanceRoot();
 
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
-  (*mRoot)->setMemArea(input_memory);
+  input->setMemArea(input_memory);
 
   mcld::LDContext *input_context = mLDInfo->contextFactory().produce();
-  (*mRoot)->setContext(input_context);
+  input->setContext(input_context);
 
   // FIXME: So far, MCLinker must set up output before add input files.
   // set up LDContext
@@ -262,15 +275,18 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
     return kDoubleConfig;
 
   // -----  initialize output file  ----- //
+
   mcld::FileHandle::Permission perm = 0755;
 
-  mcld::MemoryArea* out_area = mMemAreaFactory->produce(pPath,
-                                                  mcld::FileHandle::ReadWrite,
-                                                  perm);
+  mcld::MemoryArea* out_area = mMemAreaFactory->produce(
+                        pPath,
+                        mcld::FileHandle::ReadWrite | mcld::FileHandle::Create,
+                        perm);
 
   if (!out_area->handler()->isGood())
     return kOpenOutput;
 
+  mLDInfo->output().setType(mcld::Output::DynObj);
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce(pPath));
 
@@ -279,6 +295,7 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
   // map before input files using it.
   if (!mDriver->hasInitLinker())
     return kNotConfig;
+
   mDriver->initStdSections();
 
   return kSuccess;
@@ -292,6 +309,7 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler)
   // -----  initialize output file  ----- //
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(pFileHandler);
 
+  mLDInfo->output().setType(mcld::Output::DynObj);
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce());
 

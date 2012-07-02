@@ -73,7 +73,10 @@ private:
   enum ErrorCode extractFiles(const LinkerConfig& pConfig);
 
   enum ErrorCode openFile(const mcld::sys::fs::Path& pPath,
-                          enum ErrorCode pCode);
+                          enum ErrorCode pCode,
+                          mcld::Input& pInput);
+
+  void advanceRoot();
 };
 
 } // end namespace alone
