@@ -18,7 +18,7 @@ using namespace mcld;
 SectionMerger::SectionMerger(SectionMap& pSectionMap, LDContext& pContext)
 : m_SectionNameMap(pSectionMap),
   m_Output(pContext),
-  m_LDSectionMap(pSectionMap.size())
+  m_LDSectionMap()
 {
 }
 
