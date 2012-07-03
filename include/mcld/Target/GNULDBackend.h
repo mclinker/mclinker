@@ -182,6 +182,7 @@ public:
   virtual uint64_t emitSectionData(const Output& pOutput,
                                    const LDSection& pSection,
                                    const MCLDInfo& pInfo,
+                                   const Layout& pLayout,
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab

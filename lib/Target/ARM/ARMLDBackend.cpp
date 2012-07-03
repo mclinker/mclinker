@@ -752,25 +752,54 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
                                           const LDSection& pSection,
                                           const MCLDInfo& pInfo,
+                                          const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
   const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  if (&pSection == m_pAttributes) {
-    // FIXME: Currently Emitting .ARM.attributes directly from the input file.
+  if (&pSection == m_pAttributes ||
+      &pSection == m_pEXIDX ||
+      &pSection == m_pEXTAB) {
+    // FIXME: Currently Emitting .ARM.attributes, .ARM.exidx, and .ARM.extab
+    // directly from the input file.
     const llvm::MCSectionData* sect_data = pSection.getSectionData();
-    assert(sect_data &&
-           "Emit .ARM.attribute failed, MCSectionData doesn't exist!");
-
-    uint8_t* start =
-              llvm::cast<MCRegionFragment>(
-                     sect_data->getFragmentList().front()).getRegion().start();
-
-    memcpy(pRegion.start(), start, pRegion.size());
+    llvm::MCSectionData::const_iterator frag_iter, frag_end = sect_data->end();
+    uint8_t* out_offset = pRegion.start();
+    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+      size_t size = computeFragmentSize(pLayout, *frag_iter);
+      switch(frag_iter->getKind()) {
+        case llvm::MCFragment::FT_Region: {
+          const MCRegionFragment& region_frag =
+            llvm::cast<MCRegionFragment>(*frag_iter);
+          const uint8_t* start = region_frag.getRegion().start();
+          memcpy(out_offset, start, size);
+          break;
+        }
+        case llvm::MCFragment::FT_Align: {
+          llvm::MCAlignFragment& align_frag =
+            llvm::cast<llvm::MCAlignFragment>(*frag_iter);
+          uint64_t count = size / align_frag.getValueSize();
+          switch (align_frag.getValueSize()) {
+            case 1u:
+              std::memset(out_offset, align_frag.getValue(), count);
+              break;
+            default:
+              llvm::report_fatal_error(
+                "unsupported value size for align fragment emission yet.\n");
+              break;
+          } // end switch
+          break;
+        }
+        default:
+          llvm::report_fatal_error("unsupported fragment type.\n");
+          break;
+      } // end switch
+      out_offset += size;
+    } // end for
     return pRegion.size();
-  }
+  } // end if
 
   if (&pSection == &(file_format->getPLT())) {
     assert(NULL != m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
@@ -818,9 +847,20 @@ bool ARMGNULDBackend::readSection(Input& pInput,
 
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 
-  new MCRegionFragment(*region, &sect_data);
+  llvm::MCFragment* frag = NULL;
+  if (NULL == region) {
+    // If the input section's size is zero, we got a NULL region.
+    // use a virtual fill fragment
+    frag = new llvm::MCFillFragment(0x0, 0, 0);
+  }
+  else
+    frag = new MCRegionFragment(*region);
 
-  out_sect.setSize(out_sect.size() + pInputSectHdr.size());
+  uint64_t size = pLinker.getLayout().appendFragment(*frag,
+                                                     sect_data,
+                                                     pInputSectHdr.align());
+
+  out_sect.setSize(out_sect.size() + size);
   return true;
 }
 

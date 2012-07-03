@@ -164,11 +164,13 @@ public:
   /// @param pOutput - the output file
   /// @param pSection - the given LDSection
   /// @param pInfo - all options in the command line.
+  /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const Output& pOutput,
                            const LDSection& pSection,
                            const MCLDInfo& pInfo,
+                           const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
   ARMGOT& getGOT();

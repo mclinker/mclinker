@@ -250,6 +250,7 @@ const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
                                            const LDSection& pSection,
                                            const MCLDInfo& pInfo,
+                                           const Layout& pLayout,
                                            MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
