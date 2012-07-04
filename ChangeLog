@@ -1,3 +1,39 @@
+2012-07-04 Luba Tang <lubatang@gmail.com>
+	* Executive Summary:
+	1. Support itanium exception handling
+	2. New MemoryArea sub-system. Speed up linking.
+	3. Add experimental facade (standard alone linker) to eliminate
+	the dependency to LLVM
+
+	* MC/MCLinker, LD/Layout, LD/EhFrame, LD/LDFileFormat:
+	1. Support command line option --eh-frame-hdr
+	2. Arrange the order of eh_frame and eh_frame_hdr section. Add
+	SHO_EXCEPTION in Layout.
+	3. Add LDFileFormat::Exception section kind.
+	4. Add PT_GNU_EH_FRAME segment.
+	5. Separate .gotplt from .got in x86.
+
+	* Target/ARMLDBackend, Target/X86LDBackend, Target/MipsLDBackend,
+	Target/TargetLDBackend, Target/GNULDBackend, LD/ELFFileFormat:
+	1. Factor getOutputFormat() from concrete backend to abstract one.
+	2. Support copy relocation.
+	3. Support GNU indirect function. (STT_GNU_IFUNC)
+	4. Support .stack section.
+
+	* test/Exception, test/lib/X86/Linux, test/Symbols:
+	1. Add regression tests for exception handling.
+	2. Add regression tests for .init_array section.
+
+	* Support/MemoryArea, Support/FileHandle, Support/Space, ADT/Flags,
+	Support/SystemUtils, Support/FileSystem:
+	1. Enhance performance. Eliminate the need of msync.
+	2. Separate utility functions from FileSystem.h. Move them to
+	SystemUtils.h
+
+	* alone/Linker, alone/Core/LinkerConfig, alone/Core/TargetLinkerConfig,
+	alone/Initialize:
+	1. Add stand alone linker facade. Eliminate the dependency to LLVM.
+
 2012-05-23 Diana Chen <mysekki@gmail.com>
 	* Executive Summary:
 	1. Support static link of Itanium exception handling (examined on X86
