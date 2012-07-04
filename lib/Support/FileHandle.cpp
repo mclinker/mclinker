@@ -10,6 +10,7 @@
 #include <mcld/Support/FileSystem.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <sys/mman.h>
 
 using namespace mcld;
