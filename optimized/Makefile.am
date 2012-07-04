@@ -1,40 +1,42 @@
 BUILDTOP=..
 TOPLEVEL=${srcdir}/..
-TOOLDIR=${TOPLEVEL}/tools/llvm-mcld
+TOOLDIR=${TOPLEVEL}/tools
 LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
-UNITTEST=${TOPLEVEL}/unittests
 
-ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
-
-bin_PROGRAMS = llvm-mcld
-
-llvm_mcld_CPPFLAGS = -O2 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
-llvm_mcld_LDADD = ${LLVM_LDFLAGS}
-
-NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
-	${INCDIR}/ADT/Uncopyable.h \
+SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
-	${INCDIR}/ADT/Allocators.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
+	${INCDIR}/ADT/StringEntry.h \
+	${LIBDIR}/ADT/StringEntry.cpp \
+	${INCDIR}/ADT/Flags.h \
+	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
 	${INCDIR}/Support/RealPath.h \
 	${LIBDIR}/Support/RealPath.cpp \
 	${INCDIR}/Support/Directory.h \
 	${LIBDIR}/Support/Directory.cpp \
-	${INCDIR}/Support/FileSytem.h \
+	${INCDIR}/Support/FileSystem.h \
 	${LIBDIR}/Support/FileSystem.cpp \
+	${INCDIR}/Support/SystemUtils.h \
+	${LIBDIR}/Support/SystemUtils.cpp \
 	${INCDIR}/Support/LEB128.h \
 	${LIBDIR}/Support/LEB128.cpp \
+	${INCDIR}/Support/FileHandle.h \
+	${LIBDIR}/Support/FileHandle.cpp \
 	${INCDIR}/Support/MemoryArea.h \
 	${LIBDIR}/Support/MemoryArea.cpp \
+	${INCDIR}/Support/Space.h \
+	${LIBDIR}/Support/Space.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
 	${LIBDIR}/Support/MemoryRegion.cpp \
 	${INCDIR}/Support/RegionFactory.h \
 	${LIBDIR}/Support/RegionFactory.cpp \
+	${INCDIR}/Support/HandleToArea.h \
+	${LIBDIR}/Support/HandleToArea.cpp \
 	${INCDIR}/Support/MemoryAreaFactory.h \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/Support/CommandLine.h \
@@ -43,6 +45,13 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/PositionDependentOption.h \
 	${INCDIR}/Support/DerivedPositionDependentOptions.h \
+	${INCDIR}/Support/TargetRegistry.h \
+	${LIBDIR}/Support/TargetRegistry.cpp \
+	${INCDIR}/Support/TargetSelect.h \
+	${INCDIR}/Support/raw_ostream.h \
+	${LIBDIR}/Support/raw_ostream.cpp \
+	${INCDIR}/Support/MsgHandling.h \
+	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
@@ -53,16 +62,13 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
-	${INCDIR}/Target/TargetRegistry.h \
-	${LIBDIR}/Support/TargetRegistry.cpp \
 	${LIBDIR}/Target/Target.cpp \
-	${INCDIR}/Target/TargetSelect.h \
 	${INCDIR}/Target/TargetLDBackend.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
-	${INCDIR}/Target/AndroidSectLinker.h \
-	${LIBDIR}/Target/AndroidSectLinker.cpp \
+	${INCDIR}/Target/ELFSectLinker.h \
+	${LIBDIR}/Target/ELFSectLinker.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${INCDIR}/Target/OutputRelocSection.h \
@@ -82,8 +88,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.h \
-	${LIBDIR}/Target/ARM/ARMAndroidSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
@@ -98,8 +103,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/Mips/MipsSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.h \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
-	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.h \
-	${LIBDIR}/Target/Mips/MipsAndroidSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
@@ -118,8 +122,7 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
-	${LIBDIR}/Target/X86/X86AndroidSectLinker.h \
-	${LIBDIR}/Target/X86/X86AndroidSectLinker.cpp \
+	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/MC/MCLDDriver.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
@@ -151,8 +154,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/MC/MCLDAttribute.cpp \
 	${INCDIR}/MC/AttributeFactory.h \
 	${LIBDIR}/MC/AttributeFactory.cpp \
-	${INCDIR}/MC/MCLDInputTree.h \
-	${LIBDIR}/MC/MCLDInputTree.cpp \
+	${INCDIR}/MC/InputTree.h \
+	${LIBDIR}/MC/InputTree.cpp \
 	${INCDIR}/MC/MCRegionFragment.h \
 	${LIBDIR}/MC/MCRegionFragment.cpp \
 	${INCDIR}/MC/MCTargetFragment.h \
@@ -195,6 +198,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ObjectWriter.cpp \
 	${INCDIR}/LD/DynObjWriter.h \
 	${LIBDIR}/LD/DynObjWriter.cpp \
+	${INCDIR}/LD/ExecWriter.h \
+	${LIBDIR}/LD/ExecWriter.cpp \
 	${INCDIR}/LD/ELFReader.h \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${INCDIR}/LD/ELFWriter.h \
@@ -211,6 +216,8 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
 	${INCDIR}/LD/ELFDynObjWriter.h \
 	${LIBDIR}/LD/ELFDynObjWriter.cpp \
+	${INCDIR}/LD/ELFExecWriter.h \
+	${LIBDIR}/LD/ELFExecWriter.cpp \
 	${INCDIR}/LD/LDFileFormat.h \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${INCDIR}/LD/ELFFileFormat.h \
@@ -228,8 +235,59 @@ NORMAL_SOURCE = ${TOOLDIR}/llvm-mcld.cpp \
 	${INCDIR}/LD/ELFSegment.h \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${INCDIR}/LD/ELFSegmentFactory.h \
-	${LIBDIR}/LD/ELFSegmentFactory.cpp
+	${LIBDIR}/LD/ELFSegmentFactory.cpp \
+	${INCDIR}/LD/EhFrame.h \
+	${LIBDIR}/LD/EhFrame.cpp \
+	${INCDIR}/LD/EhFrameHdr.h \
+	${LIBDIR}/LD/EhFrameHdr.cpp \
+	${INCDIR}/LD/CIE.h \
+	${LIBDIR}/LD/CIE.cpp \
+	${INCDIR}/LD/FDE.h \
+	${LIBDIR}/LD/FDE.cpp \
+	${INCDIR}/LD/MsgHandler.h \
+	${LIBDIR}/LD/MsgHandler.cpp \
+	${INCDIR}/LD/Diagnostic.h \
+	${LIBDIR}/LD/Diagnostic.cpp \
+	${INCDIR}/LD/DiagnosticInfos.h \
+	${LIBDIR}/LD/DiagnosticInfos.cpp \
+	${INCDIR}/LD/DiagnosticLineInfo.h \
+	${LIBDIR}/LD/DiagnosticLineInfo.cpp \
+	${INCDIR}/LD/DiagnosticEngine.h \
+	${LIBDIR}/LD/DiagnosticEngine.cpp \
+	${INCDIR}/LD/DiagnosticPrinter.h \
+	${LIBDIR}/LD/DiagnosticPrinter.cpp \
+        ${INCDIR}/LD/TextDiagnosticPrinter.h \
+        ${LIBDIR}/LD/TextDiagnosticPrinter.cpp
 
-SOURCE = ${NORMAL_SOURCE}
+ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
-llvm_mcld_SOURCES = ${SOURCE}
+noinst_LTLIBRARIES = ../lib/libmcld.la
+
+___lib_libmcld_la_SOURCES = ${SOURCE}
+
+bin_PROGRAMS = llvm-mcld mcld
+
+AM_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+
+llvm_mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+
+llvm_mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld
+
+mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+
+mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld
+
+dist_llvm_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+
+dist_mcld_SOURCES = ${TOOLDIR}/mcld/main.cpp \
+	${TOOLDIR}/mcld/include/alone/Linker.h \
+	${TOOLDIR}/mcld/lib/Core/Linker.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
+	${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
+	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
+	${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/MemoryFactory.h \
+	${TOOLDIR}/mcld/lib/Support/MemoryFactory.cpp
+

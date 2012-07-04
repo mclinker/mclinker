@@ -1,6 +1,6 @@
 
-MCLD=$(abs_top_builddir)/debug/llvm-mcld
-ALONELD=$(abs_top_builddir)/debug/mcld
+MCLD=$(abs_top_builddir)/debug/llvm-mcld.debug
+ALONELD=$(abs_top_builddir)/debug/mcld.debug
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
 

@@ -5,26 +5,6 @@ LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
-ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
-
-bin_PROGRAMS = llvm-mcld mcld
-
-if ENABLE_UNITTEST
-llvm_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
-llvm_mcld_LDADD = -L$(BUILDTOP)/utils/gtest/lib/ ${LLVM_LDFLAGS} -lgtest
-else
-llvm_mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
-llvm_mcld_LDADD = ${LLVM_LDFLAGS}
-endif
-
-if ENABLE_UNITTEST
-mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
-mcld_LDADD = -L$(BUILDTOP)/utils/gtest/lib/ ${LLVM_LDFLAGS} -lgtest
-else
-mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
-mcld_LDADD = ${LLVM_LDFLAGS}
-endif
-
 NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
@@ -32,7 +12,7 @@ NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringEntry.h \
 	${LIBDIR}/ADT/StringEntry.cpp \
-	${INCDIR}/Support/Flags.h \
+	${INCDIR}/ADT/Flags.h \
 	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
@@ -279,10 +259,6 @@ NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/DiagnosticPrinter.cpp \
         ${INCDIR}/LD/TextDiagnosticPrinter.h \
         ${LIBDIR}/LD/TextDiagnosticPrinter.cpp
-#	${LIBDIR}/CodeGen/LDPrinter.cpp \
-#	${INCDIR}/CodeGen/LDPrinter.h
-#	${INCDIR}/Support/ScopedRegion.h \
-#	${LIBDIR}/Support/ScopedRegion.cpp
 
 if ENABLE_UNITTEST
 SOURCE = ${NORMAL_SOURCE} \
@@ -318,22 +294,43 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/SymbolCategoryTest.cpp \
 	${UNITTEST}/FileHandleTest.h \
 	${UNITTEST}/FileHandleTest.cpp
-#	${UNITTEST}/SymbolTableTest.h \
-#	${UNITTEST}/SymbolTableTest.cpp \
-#	${UNITTEST}/NamePoolTest.h \
-#	${UNITTEST}/NamePoolTest.cpp \
-#        ${UNITTEST}/TargetRegistryTest.h \
-#        ${UNITTEST}/TargetRegistryTest.cpp
 else
 SOURCE = ${NORMAL_SOURCE}
 endif
 
-dist_llvm_mcld_SOURCES = ${SOURCE} \
-	${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
+noinst_LTLIBRARIES = ../lib/libmcld.debug.la
 
-dist_mcld_SOURCES = ${SOURCE} \
-	${TOOLDIR}/mcld/main.cpp \
+___lib_libmcld_debug_la_SOURCES = ${SOURCE}
+
+bin_PROGRAMS = llvm-mcld.debug mcld.debug
+
+if ENABLE_UNITTEST
+AM_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
+
+llvm_mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
+
+llvm_mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+
+mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+
+mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+else
+AM_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+
+llvm_mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+
+llvm_mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+
+mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+
+mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+endif
+
+dist_llvm_mcld_debug_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+
+dist_mcld_debug_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/include/alone/Linker.h \
 	${TOOLDIR}/mcld/lib/Core/Linker.cpp \
 	${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
