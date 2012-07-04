@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <DWARFLineInfo.h>
+#include <mcld/LD/DWARFLineInfo.h>
 
 using namespace mcld;
 
