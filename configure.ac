@@ -13,7 +13,7 @@ m4_include(m4/acx_pthread.m4)
 #  Autoconf/Automake Initialization
 
 dnl AC_INIT(PKG_NAME, BUILD_VERSION, BUG_REPORTER)
-AC_INIT([MCLinker],[flames],[mclinker@googlegroups.com])
+AC_INIT([MCLinker],[LionHead],[mclinker@googlegroups.com])
 AC_PREREQ(2.59)
 
 AC_CONFIG_SRCDIR([./COPYING])
@@ -27,7 +27,7 @@ AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 MAJOR=1
 MINOR=3
 MICRO=15
-AGE=1
+AGE=2
 BUILD=LionHead
 
 DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
