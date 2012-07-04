@@ -6,15 +6,26 @@ INCDIR=${TOPLEVEL}/include/mcld
 
 SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
+	${INCDIR}/ADT/SizeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
 	${INCDIR}/ADT/TreeAllocator.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringEntry.h \
+	${INCDIR}/ADT/StringEntry.tcc \
 	${LIBDIR}/ADT/StringEntry.cpp \
+	${INCDIR}/ADT/HashEntry.h \
+	${INCDIR}/ADT/HashEntry.tcc \
+	${INCDIR}/ADT/HashIterator.h \
+	${INCDIR}/ADT/HashBase.h \
+	${INCDIR}/ADT/HashBase.tcc \
+	${INCDIR}/ADT/HashTable.h \
+	${INCDIR}/ADT/HashTable.tcc \
+	${INCDIR}/ADT/StringHash.h \
 	${INCDIR}/ADT/Flags.h \
 	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
+	${INCDIR}/Support/PathCache.h \
 	${INCDIR}/Support/RealPath.h \
 	${LIBDIR}/Support/RealPath.cpp \
 	${INCDIR}/Support/Directory.h \
@@ -43,6 +54,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
+	${INCDIR}/Support/GCFactoryListTraits.h \
 	${INCDIR}/Support/PositionDependentOption.h \
 	${INCDIR}/Support/DerivedPositionDependentOptions.h \
 	${INCDIR}/Support/TargetRegistry.h \
@@ -52,6 +64,12 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/raw_ostream.cpp \
 	${INCDIR}/Support/MsgHandling.h \
 	${LIBDIR}/Support/MsgHandling.cpp \
+	${LIBDIR}/Support/Unix/FileSystem.inc \
+	${LIBDIR}/Support/Unix/PathV3.inc \
+	${LIBDIR}/Support/Unix/System.inc \
+	${LIBDIR}/Support/Windows/FileSystem.inc \
+	${LIBDIR}/Support/Windows/PathV3.inc \
+	${LIBDIR}/Support/Windows/System.inc \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/SectLinker.h \
 	${LIBDIR}/CodeGen/SectLinker.cpp \
@@ -70,9 +88,11 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Target/ELFSectLinker.h \
 	${LIBDIR}/Target/ELFSectLinker.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
+	${INCDIR}/Target/ELFDynamic.tcc \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
+	${LIBDIR}/Target/ARM/ARM.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
@@ -83,6 +103,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMPLT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
+	${LIBDIR}/Target/ARM/ARMRelocationFunctions.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
 	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
@@ -90,6 +111,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${LIBDIR}/Target/Mips/Mips.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
@@ -98,6 +120,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsGOT.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
+	${LIBDIR}/Target/Mips/MipsRelocationFunctions.h \
 	${LIBDIR}/Target/Mips/MipsRelocationFactory.h \
 	${LIBDIR}/Target/Mips/MipsRelocationFactory.cpp \
 	${LIBDIR}/Target/Mips/MipsSectLinker.cpp \
@@ -105,6 +128,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
+	${LIBDIR}/Target/X86/X86.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
@@ -117,6 +141,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86PLT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
+	${LIBDIR}/Target/X86/X86RelocationFunctions.h \
 	${LIBDIR}/Target/X86/X86RelocationFactory.h \
 	${LIBDIR}/Target/X86/X86RelocationFactory.cpp \
 	${LIBDIR}/Target/X86/X86SectLinker.cpp \
@@ -129,6 +154,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/MC/MCLinker.h \
+	${INCDIR}/MC/MCLinker.tcc \
 	${LIBDIR}/MC/MCLinker.cpp \
 	${INCDIR}/MC/MCBitcodeInterceptor.h \
 	${LIBDIR}/MC/MCBitcodeInterceptor.cpp \
@@ -163,6 +189,12 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/MCFragmentRef.cpp \
 	${INCDIR}/MC/ZOption.h \
 	${LIBDIR}/MC/ZOption.cpp \
+	${INCDIR}/LD/DiagCommonKinds.inc \
+	${INCDIR}/LD/DiagReaders.inc \
+	${INCDIR}/LD/DiagSymbolResolutions.inc \
+	${INCDIR}/LD/DiagRelocations.inc \
+	${INCDIR}/LD/DiagLayouts.inc \
+	${INCDIR}/LD/DiagGOTPLT.inc \
 	${INCDIR}/LD/LDContext.h \
 	${LIBDIR}/LD/LDContext.cpp \
 	${INCDIR}/LD/LDSection.h \
@@ -201,6 +233,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ExecWriter.h \
 	${LIBDIR}/LD/ExecWriter.cpp \
 	${INCDIR}/LD/ELFReader.h \
+	${INCDIR}/LD/ELFReader.tcc \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${INCDIR}/LD/ELFWriter.h \
 	${LIBDIR}/LD/ELFWriter.cpp \
@@ -239,6 +272,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/EhFrame.h \
 	${LIBDIR}/LD/EhFrame.cpp \
 	${INCDIR}/LD/EhFrameHdr.h \
+	${INCDIR}/LD/EhFrameHdr.tcc \
 	${LIBDIR}/LD/EhFrameHdr.cpp \
 	${INCDIR}/LD/CIE.h \
 	${LIBDIR}/LD/CIE.cpp \
@@ -252,6 +286,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/DiagnosticInfos.cpp \
 	${INCDIR}/LD/DiagnosticLineInfo.h \
 	${LIBDIR}/LD/DiagnosticLineInfo.cpp \
+	${INCDIR}/LD/DWARFLineInfo.h \
+	${LIBDIR}/LD/DWARFLineInfo.cpp \
 	${INCDIR}/LD/DiagnosticEngine.h \
 	${LIBDIR}/LD/DiagnosticEngine.cpp \
 	${INCDIR}/LD/DiagnosticPrinter.h \
