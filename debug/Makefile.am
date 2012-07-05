@@ -341,21 +341,21 @@ AM_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSIO
 
 llvm_mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
 
-llvm_mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+llvm_mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.debug.la
 
 mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+mcld_debug_LDADD = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.debug.la
 else
 AM_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
 llvm_mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+llvm_mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.debug.la
 
 mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld.debug
+mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.debug.la
 endif
 
 dist_llvm_mcld_debug_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp

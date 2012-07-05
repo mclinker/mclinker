@@ -307,11 +307,11 @@ AM_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILD
 
 llvm_mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld
+llvm_mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
 
 mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib -lmcld
+mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
 
 dist_llvm_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
