@@ -3,9 +3,9 @@ ACLOCAL_AMFLAGS=-I m4
 AUTOMAKE_OPTIONS = foreign
 
 if ENABLE_UNITTEST
-SUBDIRS = utils optimized debug test
+SUBDIRS = utils debug test
 else
-SUBDIRS = optimized debug
+SUBDIRS = optimized test
 endif
 
 EXTRA_DIST = ./docs/MCLinker.dia
