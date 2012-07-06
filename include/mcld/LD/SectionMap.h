@@ -31,7 +31,6 @@ public:
   struct Mapping {
     std::string inputSubStr;
     std::string outputStr;
-    uint64_t offset;
   };
 
   typedef std::vector<struct Mapping> SectionMappingTy;
@@ -49,8 +48,7 @@ public:
 
   // add a mapping from input substr to output name and offset.
   bool push_back(const std::string& pInput,
-                 const std::string& pOutput,
-                 const uint64_t pOffset = 0);
+                 const std::string& pOutput);
 
   // find - return the iterator to the mapping
   iterator find(const std::string& pInput);

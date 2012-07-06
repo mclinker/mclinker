@@ -43,8 +43,7 @@ const std::string& SectionMap::getOutputSectName(const std::string& pInput)
 }
 
 bool SectionMap::push_back(const std::string& pInput,
-                           const std::string& pOutput,
-                           const uint64_t pOffset)
+                           const std::string& pOutput)
 {
   // Now only check if the mapping exists in the map already
   // TODO: handle the cases such as overriding the exist mapping and drawing
@@ -57,7 +56,6 @@ bool SectionMap::push_back(const std::string& pInput,
   struct Mapping mapping = {
     pInput,
     pOutput,
-    pOffset,
   };
   m_SectMap.push_back(mapping);
   return true;
