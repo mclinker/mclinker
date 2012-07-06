@@ -39,13 +39,15 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
   m_LDSectDataFactory(10),
-  m_SectionMerger(pSectionMap, *pInfo.output().context())
+  m_pSectionMerger(NULL)
 {
 }
 
 /// Destructor
 MCLinker::~MCLinker()
 {
+  if (NULL != m_pSectionMerger)
+    delete m_pSectionMerger;
 }
 
 /// addSymbolFromObject - add a symbol from object file and resolve it
@@ -443,7 +445,7 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
-    m_SectionMerger.addMapping(pName, output_sect);
+    m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *result;
 }
@@ -468,7 +470,7 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
-    m_SectionMerger.addMapping(pName, output_sect);
+    m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *output_sect;
 }
@@ -486,7 +488,7 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 
   // try to get one from output LDSection
   LDSection* output_sect =
-    m_SectionMerger.getOutputSectHdr(pSection.name());
+    m_pSectionMerger->getOutputSectHdr(pSection.name());
 
   assert(NULL != output_sect);
 
@@ -598,6 +600,12 @@ void MCLinker::syncRelocationResult()
   m_LDInfo.output().memArea()->clear();
 }
 
+void MCLinker::initSectionMap()
+{
+  assert(m_LDInfo.output().hasContext());
+  if (NULL == m_pSectionMerger)
+    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_LDInfo.output().context());
+}
 
 bool MCLinker::layout()
 {

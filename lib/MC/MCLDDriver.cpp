@@ -150,6 +150,13 @@ bool MCLDDriver::initStdSections()
       !m_LDBackend.initTargetSectionMap(m_SectionMap))
     return false;
 
+  /// A technical debt. We need to initialize section map here because
+  /// we do not separate output file and temporary data structure. So far,
+  /// MCLinker directly use output file's LDContext as the temporary data
+  /// structure. We will create a new data structure mcld::Module to collect
+  /// all temporary data structures togather.
+  m_pLinker->initSectionMap();
+
   // initialize standard sections
   switch (m_LDInfo.output().type()) {
     case Output::DynObj: {

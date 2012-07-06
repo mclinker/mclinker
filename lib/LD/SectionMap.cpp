@@ -12,9 +12,8 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // SectionMap
-
 SectionMap::SectionMap()
 {
 }
@@ -38,7 +37,6 @@ const std::string& SectionMap::getOutputSectName(const std::string& pInput)
   // if still no matching, just let a output seciton has the same input name
   if (it == end())
     return pInput;
-  
   return (*it).outputStr;
 }
 

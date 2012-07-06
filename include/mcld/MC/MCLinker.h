@@ -166,6 +166,8 @@ public:
   void syncRelocationResult();
 
   // -----  layout  ----- //
+  void initSectionMap();
+
   Layout& getLayout()
   { return m_Layout; }
 
@@ -263,7 +265,7 @@ private:
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;
   LDSectionDataFactory m_LDSectDataFactory;
-  SectionMerger m_SectionMerger;
+  SectionMerger* m_pSectionMerger;
   Layout m_Layout;
   RelocationListType m_RelocationList;
   SymbolCategory m_OutputSymbols;
