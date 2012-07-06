@@ -62,8 +62,6 @@ Space::~Space()
   // do nothing. m_Data is deleted by @ref releaseSpace
 }
 
-#include <iostream>
-using namespace std;
 Space* Space::createSpace(FileHandle& pHandler,
                           size_t pStart, size_t pSize)
 {
