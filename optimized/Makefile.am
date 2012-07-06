@@ -297,21 +297,27 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
+AM_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+
 noinst_LTLIBRARIES = ../lib/libmcld.la
 
 ___lib_libmcld_la_SOURCES = ${SOURCE}
 
+___lib_libmcld_la_DEPENDENCIES = ${SOURCE}
+
 bin_PROGRAMS = llvm-mcld mcld
 
-AM_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+llvm_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+llvm_mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
 
-llvm_mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
+EXTRA_llvm_mcld_DEPENDENCIES = ../lib/libmcld.la
 
-mcld_CPPFLAGS = -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
+mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
+
+EXTRA_mcld_DEPENDENCIES = ../lib/libmcld.la
 
 dist_llvm_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
