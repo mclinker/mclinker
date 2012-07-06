@@ -13,6 +13,8 @@
 
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/DiagnosticPrinter.h>
 
 namespace alone {
 
@@ -33,6 +35,8 @@ private:
   mcld::MCLDInfo *mLDInfo;
   bool initializeLDInfo();
 
+  mcld::DiagnosticLineInfo *mDiagLineInfo;
+  mcld::DiagnosticPrinter *mDiagPrinter;
   bool initializeDiagnostic();
 public:
   //===----------------------------------------------------------------------===//
