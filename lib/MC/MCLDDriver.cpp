@@ -53,7 +53,6 @@ void MCLDDriver::normalize()
         (*input)->type() == Input::External)
       continue;
 
-
     // is a relocatable object file
     if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
