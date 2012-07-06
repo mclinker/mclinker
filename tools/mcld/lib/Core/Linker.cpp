@@ -84,10 +84,10 @@ Linker::Linker(const LinkerConfig& pConfig)
 
 Linker::~Linker()
 {
-  if (NULL != mBackend)
-    delete mBackend;
   if (NULL != mDriver)
     delete mDriver;
+  if (NULL != mBackend)
+    delete mBackend;
   if (NULL != mMemAreaFactory)
     delete mMemAreaFactory;
 }
@@ -280,12 +280,13 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
 
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(
                         pPath,
-                        mcld::FileHandle::ReadWrite | mcld::FileHandle::Create,
+                        mcld::FileHandle::ReadWrite | mcld::FileHandle::Truncate,
                         perm);
 
   if (!out_area->handler()->isGood())
     return kOpenOutput;
 
+  // FIXME: decide output type by command line option.
   mLDInfo->output().setType(mcld::Output::DynObj);
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce(pPath));
