@@ -1,5 +1,10 @@
                 TODO list for MCLinker
                 ----------------------
+2012-07-05 Luba Tang
+
+* Define mcld::Module and mcld::IRBuilder
+* New project - MCLoader - to open the power of OS kernel to virtual machines.
+
 2011-12-11 luba.tang
 
 * Define SectionMap and SegmentMap for section merge.
