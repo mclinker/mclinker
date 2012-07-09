@@ -67,5 +67,5 @@ const Input& MCLDInfo::bitcode() const
 
 const char* MCLDInfo::version()
 {
-  return mcld::internal::version;
+  return MCLD_VERSION;
 }
