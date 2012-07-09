@@ -122,19 +122,17 @@ AC_DEFUN([CHECK_LLVM],
 				llvm_cv_platform_type="Unknown" ;;
 			esac])
 
-	dnl Set the "LLVM_ON_*" variables based on llvm_cv_llvm_cv_platform_type
+	dnl Set the "MCLD_ON_*" variables based on llvm_cv_llvm_cv_platform_type
 	dnl This is used by lib/Support to determine the basic kind of implementation
 	dnl to use.
 	case $llvm_cv_platform_type in
 	Unix)
-		AC_DEFINE([LLVM_ON_UNIX],[1],[Define if this is Unixish platform])
-		AC_SUBST(LLVM_ON_UNIX,[1])
-		AC_SUBST(LLVM_ON_WIN32,[0])
+		AC_DEFINE([MCLD_ON_UNIX],[1],[Define if this is Unixish platform])
+		AC_SUBST(MCLD_ON_PLATFORM,[MCLD_ON_UNIX])
 	;;
 	Win32)
-		AC_DEFINE([LLVM_ON_WIN32],[1],[Define if this is Win32ish platform])
-		AC_SUBST(LLVM_ON_UNIX,[0])
-		AC_SUBST(LLVM_ON_WIN32,[1])
+		AC_DEFINE([MCLD_ON_WIN32],[1],[Define if this is Win32ish platform])
+		AC_SUBST(MCLD_ON_PLATFORM,[MCLD_ON_WIN32])
 	;;
 	esac
 ])

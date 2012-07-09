@@ -18,6 +18,7 @@
 #endif
 
 #include "mcld/Support/PathCache.h"
+#include <mcld/Config/Config.h>
 #include <string>
 #include <iosfwd>
 #include <locale>

@@ -19,11 +19,11 @@ using namespace mcld::sys::fs;
 // non-member functions
 
 // Include the truly platform-specific parts. 
-#if defined(LLVM_ON_UNIX) 
+#if defined(MCLD_ON_UNIX)
 #include "Unix/FileSystem.inc"
 #include "Unix/PathV3.inc" 
 #endif 
-#if defined(LLVM_ON_WIN32) 
+#if defined(MCLD_ON_WIN32)
 #include "Windows/FileSystem.inc"
 #include "Windows/PathV3.inc" 
 #endif 

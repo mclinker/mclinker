@@ -116,7 +116,7 @@ bool Path::canonicalize()
 Path::StringType::size_type Path::m_append_separator_if_needed()
 {
   if (!m_PathName.empty() &&
-#ifdef LLVM_ON_WIN32
+#if defined(MCLD_ON_WIN32)
       *(m_PathName.end()-1) != colon &&
 #endif
       !is_separator(*(m_PathName.end()-1))) {
@@ -168,7 +168,7 @@ bool mcld::sys::fs::operator!=(const Path& pLHS,const Path& pRHS)
 bool mcld::sys::fs::is_separator(char value)
 {
   return (value == separator
-#ifdef LLVM_ON_WIN32
+#if defined(MCLD_ON_WIN32)
           || value == preferred_separator
 #endif
           );
