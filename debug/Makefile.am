@@ -5,7 +5,7 @@ LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 UNITTEST=${TOPLEVEL}/unittests
 
-NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
+SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
@@ -291,7 +291,7 @@ NORMAL_SOURCE = ${INCDIR}/ADT/Uncopyable.h \
         ${LIBDIR}/LD/TextDiagnosticPrinter.cpp
 
 if ENABLE_UNITTEST
-SOURCE = ${NORMAL_SOURCE} \
+UNITTEST_SOURCE = \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \
@@ -325,7 +325,7 @@ SOURCE = ${NORMAL_SOURCE} \
 	${UNITTEST}/FileHandleTest.h \
 	${UNITTEST}/FileHandleTest.cpp
 else
-SOURCE = ${NORMAL_SOURCE}
+UNITTEST_SOURCE =
 endif
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
@@ -358,7 +358,8 @@ mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/includ
 mcld_debug_LDADD = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.debug.la
 endif
 
-dist_llvm_mcld_debug_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+dist_llvm_mcld_debug_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
+    ${UNITTEST_SOURCE}
 
 dist_mcld_debug_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/include/alone/Linker.h \
