@@ -15,6 +15,7 @@
 #include "mcld/Support/Allocators.h"
 
 #include <assert.h>
+#include <cstddef>
 #include <iterator>
 
 namespace mcld
@@ -177,13 +178,13 @@ public:
   { return const_iterator(Alloc::m_pRoot, 0); }
 
   iterator end() {
-    return (0 == Alloc::m_pCurrent)? 
+    return (0 == Alloc::m_pCurrent)?
              begin():
              iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
   }
 
   const_iterator end() const {
-    return (0 == Alloc::m_pCurrent)? 
+    return (0 == Alloc::m_pCurrent)?
              begin():
              const_iterator(Alloc::m_pCurrent, Alloc::m_pCurrent->bound);
   }

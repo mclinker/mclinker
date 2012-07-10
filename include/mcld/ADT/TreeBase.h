@@ -10,6 +10,8 @@
 #define MCLD_TREE_BASE_H
 #include "mcld/ADT/TypeTraits.h"
 
+#include <cstddef>
+
 namespace mcld
 {
 
@@ -84,7 +86,7 @@ public:
 namespace proxy
 {
   template<>
-  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X) 
+  inline void move<TreeIteratorBase::Leftward>(NodeBase *&X)
   { X = X->left; }
 
   template<>

@@ -12,6 +12,8 @@
 #include <gtest.h>
 #endif
 
+#include <cstddef>
+
 namespace mcld {
 
 /** \class ChainIteratorBase
@@ -151,7 +153,7 @@ private:
   unsigned int m_HashValue;
   unsigned int m_EndIndex;
 };
- 
+
 /** \class EntryIteratorBase
  *  \brief EntryIteratorBase walks over hash table by the natural layout of the
  *  buckets
@@ -223,7 +225,7 @@ public:
         reset();
         return;
       }
-    } while(bucket_type::getEmptyBucket() == m_pHashTable->m_Buckets[m_Index].Entry || 
+    } while(bucket_type::getEmptyBucket() == m_pHashTable->m_Buckets[m_Index].Entry ||
             bucket_type::getTombstone() == m_pHashTable->m_Buckets[m_Index].Entry);
   }
 

@@ -15,6 +15,7 @@
 #include "mcld/ADT/Uncopyable.h"
 #include "mcld/ADT/TreeAllocator.h"
 
+#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <queue>
@@ -79,7 +80,7 @@ public:
   virtual ~BFSIterator()
   { }
 
-  void advance() { 
+  void advance() {
     if (m_Queue.empty()) { // reach the end
       m_pNode = m_pNode->right; // should be root
       return;
@@ -104,7 +105,7 @@ public:
   typedef Traits                         traits;
   typedef typename traits::pointer       pointer;
   typedef typename traits::reference     reference;
-  
+
   typedef PolicyIteratorBase<value_type, Traits, IteratorType>          Self;
   typedef Node<value_type>                                              node_type;
   typedef typename traits::nonconst_traits                              nonconst_traits;
@@ -128,7 +129,7 @@ public:
   virtual ~PolicyIteratorBase() {}
 
   // -----  operators  ----- //
-  pointer operator*() const 
+  pointer operator*() const
   { return static_cast<node_type*>(IteratorType::m_pNode)->data; }
 
   reference operator->() const
@@ -137,7 +138,7 @@ public:
   bool isRoot() const
   { return (IteratorType::m_pNode->right == IteratorType::m_pNode); }
 
-  bool hasData() const 
+  bool hasData() const
   { return (!isRoot() && (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
 
 };
@@ -217,7 +218,7 @@ public:
   ~TreeIterator() {}
 
   // -----  operators  ----- //
-  pointer operator*() const 
+  pointer operator*() const
   { return static_cast<node_type*>(m_pNode)->data; }
 
   reference operator->() const
@@ -226,7 +227,7 @@ public:
   bool isRoot() const
   { return (m_pNode->right == m_pNode); }
 
-  bool hasData() const 
+  bool hasData() const
   { return (!isRoot() && (0 != static_cast<node_type*>(m_pNode)->data)); }
 
   Self& operator++() {
@@ -259,9 +260,9 @@ public:
  *  \brief BinaryTreeBase gives root node and memory management.
  *
  *  The memory management of nodes in is hidden by BinaryTreeBase.
- *  BinaryTreeBase also provides the basic functions for merging a tree and 
+ *  BinaryTreeBase also provides the basic functions for merging a tree and
  *  inserton of a node.
- * 
+ *
  *  @see BinaryTree
  */
 template<class DataType>
@@ -278,7 +279,7 @@ protected:
   //    |     /     \       |
   //    |  Left     Right   |
   //    +---/         \-----+
-  //     
+  //
   class TreeImpl : public NodeFactory<DataType>
   {
     typedef typename NodeFactory<DataType>::iterator       iterator;
