@@ -68,7 +68,7 @@ Space* Space::createSpace(FileHandle& pHandler,
   Type type;
   void* memory;
   Space* result = NULL;
-  size_t start, size, total_offset;
+  size_t start, size = 0, total_offset;
   switch(type = policy(pStart, pSize)) {
     case ALLOCATED_ARRAY: {
       // adjust total_offset, start and size

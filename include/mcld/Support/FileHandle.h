@@ -131,8 +131,8 @@ private:
   sys::fs::Path m_Path;
   int m_Handler;
   unsigned int m_Size;
-  OpenMode m_OpenMode;
   uint16_t m_State;
+  OpenMode m_OpenMode;
 };
 
 } // namespace of mcld

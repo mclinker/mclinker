@@ -283,7 +283,6 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
   uint32_t addralign = bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
-  uint64_t offset = bss_sect_hdr->size();
   llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, pSym.size());
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      bss_section,

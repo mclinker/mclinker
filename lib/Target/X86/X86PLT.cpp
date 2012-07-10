@@ -89,7 +89,6 @@ X86PLT::~X86PLT()
 void X86PLT::reserveEntry(size_t pNum)
 {
   X86PLT1* plt1_entry = 0;
-  GOTEntry* got_entry = 0;
 
   for (size_t i = 0; i < pNum; ++i) {
     plt1_entry = new (std::nothrow) X86PLT1(&m_SectionData, m_PLT1Size);

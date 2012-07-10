@@ -25,7 +25,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
   GOTEntry* Entry = 0;
 
   // Create GOT0 entries.
-  for (int i = 0; i < X86GOTPLT0Num; i++) {
+  for (size_t i = 0; i < X86GOTPLT0Num; i++) {
     Entry = new (std::nothrow) GOTEntry(0, X86GOTPLTEntrySize,
                                         &m_SectionData);
 
@@ -81,7 +81,7 @@ void X86GOTPLT::applyGOT0(const uint64_t pAddress)
 void X86GOTPLT::reserveEntry(size_t pNum)
 {
   GOTEntry* got_entry = NULL;
-  for (int i = 0; i < pNum; ++i) {
+  for (size_t i = 0; i < pNum; ++i) {
     got_entry = new GOTEntry(0, getEntrySize(),&(getSectionData()));
     if (!got_entry)
       fatal(diag::fail_allocate_memory) << "GOT";

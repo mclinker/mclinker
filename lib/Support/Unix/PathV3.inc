@@ -282,7 +282,7 @@ void close_dir(Directory& pDir)
 {
   if (pDir.m_Handler)
     closedir(reinterpret_cast<DIR *>(pDir.m_Handler));
-  pDir.m_Handler = NULL;
+  pDir.m_Handler = 0;
 }
 
 void get_pwd(std::string& pPWD)

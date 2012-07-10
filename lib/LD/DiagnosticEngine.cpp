@@ -22,8 +22,8 @@ DiagnosticEngine::DiagnosticEngine(const MCLDInfo& pLDInfo,
   : m_LDInfo(pLDInfo),
     m_pLineInfo(pLineInfo),
     m_pPrinter(pPrinter),
-    m_OwnPrinter(pShouldOwnPrinter),
-    m_InfoMap(pLDInfo) {
+    m_InfoMap(pLDInfo),
+    m_OwnPrinter(pShouldOwnPrinter) {
   if (NULL == m_pPrinter) {
     m_pPrinter = new DiagnosticPrinter(); // Dumb printer
     m_OwnPrinter = true;

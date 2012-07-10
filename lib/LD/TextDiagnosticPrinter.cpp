@@ -12,7 +12,7 @@
 #include <string>
 
 using namespace mcld;
- 
+
 static const enum llvm::raw_ostream::Colors UnreachableColor = llvm::raw_ostream::RED;
 static const enum llvm::raw_ostream::Colors FatalColor       = llvm::raw_ostream::YELLOW;
 static const enum llvm::raw_ostream::Colors ErrorColor       = llvm::raw_ostream::RED;
@@ -127,26 +127,26 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Error: {
-      if (m_LDInfo.options().maxErrorNum() != -1 &&
-          getNumErrors() > m_LDInfo.options().maxErrorNum()) {
+      int16_t error_limit = m_LDInfo.options().maxErrorNum();
+      if ((error_limit != -1) &&
+          (getNumErrors() > static_cast<unsigned>(error_limit))) {
         m_OStream << "\n\n";
         m_OStream.changeColor(llvm::raw_ostream::YELLOW);
-        m_OStream << "too many error messages (>"
-                  << m_LDInfo.options().maxErrorNum() << ")...\n";
-	m_OStream.resetColor();
+        m_OStream << "too many error messages (>" << error_limit << ")...\n";
+        m_OStream.resetColor();
         llvm::sys::RunInterruptHandlers();
         exit(1);
       }
       break;
     }
     case DiagnosticEngine::Warning: {
-      if (m_LDInfo.options().maxWarnNum() != -1 &&
-          getNumWarnings() > m_LDInfo.options().maxWarnNum()) {
+      int16_t warning_limit = m_LDInfo.options().maxWarnNum();
+      if ((warning_limit != -1) &&
+          (getNumWarnings() > static_cast<unsigned>(warning_limit))) {
         m_OStream << "\n\n";
         m_OStream.changeColor(llvm::raw_ostream::YELLOW);
-        m_OStream << "too many warning messages (>"
-                  << m_LDInfo.options().maxWarnNum() << ")...\n";
-	m_OStream.resetColor();
+        m_OStream << "too many warning messages (>" << warning_limit << ")...\n";
+        m_OStream.resetColor();
         llvm::sys::RunInterruptHandlers();
         exit(1);
       }

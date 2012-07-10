@@ -98,12 +98,10 @@ bool MCLDDriver::linkable() const
     }
   }
 
-  bool hasDynObj = false;
   // can not mix -static with shared objects
   mcld::InputTree::const_bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
   for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == mcld::Input::DynObj ) {
-      hasDynObj = true;
+    if ((*input)->type() == mcld::Input::DynObj) {
       if((*input)->attribute()->isStatic()) {
         error(diag::err_mixed_shared_static_objects)
                                         << (*input)->name() << (*input)->path();

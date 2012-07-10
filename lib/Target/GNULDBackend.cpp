@@ -37,6 +37,7 @@ GNULDBackend::GNULDBackend()
     m_pDynObjFileFormat(NULL),
     m_pExecFileFormat(NULL),
     m_ELFSegmentTable(9), // magic number
+    m_pEhFrameHdr(NULL),
     f_pPreInitArrayStart(NULL),
     f_pPreInitArrayEnd(NULL),
     f_pInitArrayStart(NULL),
@@ -52,8 +53,7 @@ GNULDBackend::GNULDBackend()
     f_p_EData(NULL),
     f_pBSSStart(NULL),
     f_pEnd(NULL),
-    f_p_End(NULL),
-    m_pEhFrameHdr(NULL) {
+    f_p_End(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 

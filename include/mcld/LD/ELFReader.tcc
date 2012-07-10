@@ -416,12 +416,12 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
 
   ResolveInfo* result =
          pLDInfo.getNamePool().createSymbol(ld_name,
-                                              pInput.type() == Input::DynObj,
-                                              ld_type,
-                                              ld_desc,
-                                              ld_binding,
-                                              st_size,
-                                              ld_vis);
+                                            (pInput.type() == Input::DynObj),
+                                            ld_type,
+                                            ld_desc,
+                                            ld_binding,
+                                            st_size,
+                                            ld_vis);
   // release regions
   pInput.memArea()->release(symbol_region);
   pInput.memArea()->release(strtab_region);
