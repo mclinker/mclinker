@@ -531,34 +531,32 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
                                    llvm::ELF::SHT_NOBITS,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
 
+  // FIXME: .sbss amd .lbss currently unused.
+  /*
   LDSection* sbss_sect = &pLinker.getOrCreateOutputSectHdr(
                                    ".sbss",
                                    LDFileFormat::BSS,
                                    llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC |
+                                   llvm::ELF::SHF_MIPS_GPREL);
 
   LDSection* lbss_sect = &pLinker.getOrCreateOutputSectHdr(
                                    ".lbss",
                                    LDFileFormat::BSS,
                                    llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
+                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC |
+                                   llvm::ELF::SHF_MIPS_LOCAL);
+  */
 
-  assert(NULL != bss_sect &&
-         NULL != tbss_sect &&
-         NULL != sbss_sect &&
-         NULL != lbss_sect);
+  assert(NULL != bss_sect && NULL != tbss_sect);
 
   // get or create corresponding BSS MCSectionData
   llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
   llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
-  llvm::MCSectionData& sbss_sect_data = pLinker.getOrCreateSectData(*sbss_sect);
-  llvm::MCSectionData& lbss_sect_data = pLinker.getOrCreateSectData(*lbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect->size();
   uint64_t tbss_offset = tbss_sect->size();
-  uint64_t sbss_offset = sbss_sect->size();
-  uint64_t lbss_offset = lbss_sect->size();
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
@@ -617,8 +615,6 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
 
   bss_sect->setSize(bss_offset);
   tbss_sect->setSize(tbss_offset);
-  sbss_sect->setSize(sbss_offset);
-  lbss_sect->setSize(lbss_offset);
   symbol_list.changeCommonsToGlobal();
   return true;
 }
