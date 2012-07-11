@@ -125,6 +125,8 @@ Space* Space::createSpace(FileHandle& pHandler,
 
       break;
     }
+    default:
+      break;
   } // end of switch
 
   result = new Space(type, memory, size);

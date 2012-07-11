@@ -66,6 +66,7 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           ++entry;
         }
       }
+      /** Fall through **/
       case Input::Archive : {
         entry = (*mcld_dir)->begin();
         enEnd = (*mcld_dir)->end();
@@ -77,6 +78,8 @@ mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input:
           ++entry;
         }
       }
+      default:
+        break;
     } // end of switch
   } // end of while
   return NULL;
