@@ -46,7 +46,3 @@ fi
 
 alias mk="make -C ${MCLINKERTOP}"
 
-SERVER=`grep mtksgt01 /etc/hosts`
-if [ ! -z "${SERVER}" ]; then
-	export PATH="/mtkoss/git/1.7.6-rhel-5.5/x86_64/bin:$PATH";
-fi
