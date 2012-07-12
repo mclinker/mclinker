@@ -83,6 +83,11 @@ OptShared("shared",
           llvm::cl::desc("Create a shared library."),
           llvm::cl::init(false));
 
+static llvm::cl::opt<bool>
+OptBsymbolic("Bsymbolic",
+             llvm::cl::desc("Bind references within the shared library."),
+             llvm::cl::init(false));
+
 static llvm::cl::opt<std::string>
 OptDyld("dynamic-linker",
         llvm::cl::desc("Set the name of the dynamic linker."),
@@ -198,6 +203,12 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
   llvm::cl::list<std::string>::iterator sdir, sdirEnd = OptSearchDirList.end();
   for (sdir = OptSearchDirList.begin(); sdir != sdirEnd; ++sdir)
     config->addSearchDir(*sdir);
+
+  // 6. set up --shared
+  config->setShared(OptShared);
+
+  // 7. set up --Bsymbolic
+  config->setBsymbolic(OptBsymbolic);
 
   Linker::ErrorCode result = pLinker.config(*config);
 

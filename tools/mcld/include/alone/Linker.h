@@ -42,9 +42,11 @@ public:
 private:
   mcld::TargetLDBackend *mBackend;
   mcld::MCLDDriver *mDriver;
+  MemoryFactory *mMemAreaFactory;
   mcld::MCLDInfo *mLDInfo;
   mcld::InputTree::iterator mRoot;
-  MemoryFactory *mMemAreaFactory;
+  bool mShared;
+  std::string mSOName;
 
 public:
   Linker();

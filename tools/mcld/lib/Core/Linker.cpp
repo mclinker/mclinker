@@ -65,11 +65,13 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode)
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL) {
+  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+    mShared(false) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL) {
+  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+    mShared(false) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -99,6 +101,9 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig)
     return kDelegateLDInfo;
 
   mRoot = mLDInfo->inputs().root();
+  mShared = pConfig.isShared();
+  mSOName = pConfig.getSOName();
+
   return kSuccess;
 }
 
@@ -275,19 +280,24 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
     return kDoubleConfig;
 
   // -----  initialize output file  ----- //
-
   mcld::FileHandle::Permission perm = 0755;
 
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(
                         pPath,
-                        mcld::FileHandle::ReadWrite | mcld::FileHandle::Truncate,
+                          mcld::FileHandle::ReadWrite |
+                          mcld::FileHandle::Truncate |
+                          mcld::FileHandle::Create,
                         perm);
 
   if (!out_area->handler()->isGood())
     return kOpenOutput;
 
-  // FIXME: decide output type by command line option.
-  mLDInfo->output().setType(mcld::Output::DynObj);
+  if (mShared)
+    mLDInfo->output().setType(mcld::Output::DynObj);
+  else
+    mLDInfo->output().setType(mcld::Output::Exec);
+
+  mLDInfo->output().setSOName(mSOName);
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce(pPath));
 

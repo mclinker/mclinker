@@ -21,7 +21,8 @@
 using namespace alone;
 
 LinkerConfig::LinkerConfig(const std::string &pTriple)
-  : mTriple(pTriple), mTarget(NULL), mLDInfo(NULL), mDiagLineInfo(NULL),
+  : mTriple(pTriple), mShared(false), mSOName(),
+    mTarget(NULL), mLDInfo(NULL), mDiagLineInfo(NULL),
     mDiagPrinter(NULL) {
 
   initializeTarget();
@@ -81,6 +82,26 @@ bool LinkerConfig::initializeDiagnostic()
   mcld::InitializeDiagnosticEngine(*mLDInfo, mDiagLineInfo, mDiagPrinter);
 
   return true;
+}
+
+void LinkerConfig::setShared(bool pEnable)
+{
+  mShared = pEnable;
+}
+
+void LinkerConfig::setBsymbolic(bool pEnable)
+{
+  mLDInfo->options().setBsymbolic(pEnable);
+}
+
+void LinkerConfig::setSOName(const std::string& pSOName)
+{
+  mSOName = pSOName;
+}
+
+void LinkerConfig::setDyld(const std::string& pDyld)
+{
+  mLDInfo->options().setDyld(pDyld);
 }
 
 void LinkerConfig::setSysRoot(const std::string &pSysRoot)
