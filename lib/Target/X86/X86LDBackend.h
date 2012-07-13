@@ -226,8 +226,8 @@ private:
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;
-  X86GOTPLT* m_pGOTPLT;
   X86PLT* m_pPLT;
+  X86GOTPLT* m_pGOTPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt

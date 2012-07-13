@@ -30,6 +30,7 @@ X86GNULDBackend::X86GNULDBackend()
   : m_pRelocFactory(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
+    m_pGOTPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
     m_pDynamic(NULL) {
@@ -43,6 +44,8 @@ X86GNULDBackend::~X86GNULDBackend()
     delete m_pGOT;
   if (NULL != m_pPLT)
     delete m_pPLT;
+  if (NULL != m_pGOTPLT)
+    delete m_pGOTPLT;
   if (NULL !=m_pRelDyn)
     delete m_pRelDyn;
   if (NULL != m_pRelPLT)
@@ -71,8 +74,9 @@ void X86GNULDBackend::doPreLayout(const Output& pOutput,
                                   MCLinker& pLinker)
 {
   // when building shared object, the .got section is needed
-  if (pOutput.type() == Output::DynObj && (NULL == m_pGOT))
-      createX86GOTPLT(pLinker, pOutput);
+  if (Output::DynObj == pOutput.type() && (NULL == m_pGOTPLT)) {
+    createX86GOTPLT(pLinker, pOutput);
+  }
 }
 
 void X86GNULDBackend::doPostLayout(const Output& pOutput,
