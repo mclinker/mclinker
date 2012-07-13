@@ -365,6 +365,8 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     // Set R_ARM_TARGET1 to R_ARM_ABS32
     // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET1 should be set by option --target1-rel
+    // or --target1-rel
     case llvm::ELF::R_ARM_TARGET1:
        pReloc.setType(llvm::ELF::R_ARM_ABS32);
     case llvm::ELF::R_ARM_ABS32:
@@ -392,17 +394,10 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_ABS:
     case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
-      // If building PIC object (shared library or PIC executable),
-      // a dynamic relocation for this location is needed.
-      // Reserve an entry in .rel.dyn
+      // PIC code should not contain these kinds of relocation
       if (isOutputPIC(pOutput, pLDInfo)) {
-        checkValidReloc(pReloc, pLDInfo, pOutput);
-        // create .rel.dyn section if not exist
-        if (NULL == m_pRelDyn)
-          createARMRelDyn(pLinker, pOutput);
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        // set Rel bit
-        rsym->setReserved(rsym->reserved() | ReserveRel);
+        error(diag::non_pic_relocation) << (int)pReloc.type()
+                                        << pReloc.symInfo()->name();
       }
       return;
     }
@@ -416,6 +411,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
     // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET2 should be set by option --target2
     case llvm::ELF::R_ARM_TARGET2:
       pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
     case llvm::ELF::R_ARM_GOT_BREL:
@@ -480,6 +476,8 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     // Set R_ARM_TARGET1 to R_ARM_ABS32
     // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET1 should be set by option --target1-rel
+    // or --target1-rel
     case llvm::ELF::R_ARM_TARGET1:
       pReloc.setType(llvm::ELF::R_ARM_ABS32);
     case llvm::ELF::R_ARM_ABS32:
@@ -662,6 +660,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
     // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET2 should be set by option --target2
     case llvm::ELF::R_ARM_TARGET2:
       pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
     case llvm::ELF::R_ARM_GOT_BREL:
