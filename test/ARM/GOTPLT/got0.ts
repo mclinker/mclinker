@@ -2,12 +2,13 @@
 ; RUN: clang++ -emit-llvm -c -ccc-host-triple arm-none-linux-gnueabi \
 ; RUN: %p/gotplt.cpp -o Output/gotplt.bc
 
-; RUN: %MCLinker -filetype=obj -mtriple arm-none-linux-gnueabi \
-; RUN: -march=arm -relocation-model=pic \
+; RUN: %MCLinker -filetype=obj \
+; RUN: -march=arm -mtriple arm-none-linux-gnueabi \
+; RUN: -relocation-model=pic \
 ; RUN: -dB Output/gotplt.bc -o Output/gotplt.o
 
-; RUN: %MCLinker -filetype=dso -mtriple arm-none-linux-gnueabi \
-; RUN: -march=arm -soname=libgotplt.so \
+; RUN: %MCLinker --shared -soname=libgotplt.so \
+; RUN: -march=arm -mtriple arm-none-linux-gnueabi \
 ; RUN: Output/gotplt.o -o Output/libgotplt.so
 
 ; Read data from the shared library for comparison.
