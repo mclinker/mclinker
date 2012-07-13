@@ -70,7 +70,7 @@ bool GNUArchiveReader::isMyFormat(Input &pInput) const
   /// check archive format.
   if (memcmp(p_buffer, ArchiveMagic, ArchiveMagicSize) != 0
       && memcmp(p_buffer, ThinArchiveMagic, ArchiveMagicSize) != 0) {
-    error(diag::archive_magic_mismatch) << pInput.path();
+    return false;
   }
   return true;
 }

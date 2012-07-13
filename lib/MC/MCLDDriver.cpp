@@ -76,8 +76,8 @@ void MCLDDriver::normalize()
       m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
     }
     else {
-      fatal(diag::err_unrecognized_input_file)
-                                       << (*input)->name() << (*input)->path();
+      fatal(diag::err_unrecognized_input_file) << (*input)->path()
+                                               << m_LDInfo.triple().str();
     }
   } // end of for
 }
