@@ -42,7 +42,7 @@ public:
   X86PLT(LDSection& pSection,
          llvm::MCSectionData& pSectionData,
          X86GOTPLT& pGOTPLT,
-	       const Output& pOutput);
+         const Output& pOutput);
   ~X86PLT();
 
 // Override virtual function.

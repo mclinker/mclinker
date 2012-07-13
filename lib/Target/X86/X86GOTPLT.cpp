@@ -72,7 +72,7 @@ X86GOTPLT::const_iterator X86GOTPLT::end() const
   return m_SectionData.end();
 }
 
-void X86GOTPLT::applyGOT0(const uint64_t pAddress)
+void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<GOTEntry>
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
@@ -90,7 +90,7 @@ void X86GOTPLT::reserveEntry(size_t pNum)
   }
 }
 
-void X86GOTPLT::applyAllGOTPLT(const uint64_t pPLTBase,
+void X86GOTPLT::applyAllGOTPLT(uint64_t pPLTBase,
                                unsigned int pPLT0Size,
                                unsigned int pPLT1Size)
 {

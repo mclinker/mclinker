@@ -47,7 +47,7 @@ public:
 
 // For GOT0
 public:
-  void applyGOT0(const uint64_t pAddress);
+  void applyGOT0(uint64_t pAddress);
 
 // For GOTPLT
 public:
@@ -55,7 +55,7 @@ public:
 
   GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-  void applyAllGOTPLT(const uint64_t pPLTBase,
+  void applyAllGOTPLT(uint64_t pPLTBase,
                       unsigned int pPLT0Size,
                       unsigned int pPLT1Size);
 
