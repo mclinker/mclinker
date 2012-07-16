@@ -330,6 +330,5 @@ dist_mcld_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
 	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
 	${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
-	${TOOLDIR}/mcld/include/alone/Support/MemoryFactory.h \
-	${TOOLDIR}/mcld/lib/Support/MemoryFactory.cpp
+	${TOOLDIR}/mcld/include/alone/Support/MemoryFactory.h
 

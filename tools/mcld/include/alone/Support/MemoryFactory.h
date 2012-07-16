@@ -19,10 +19,9 @@ class MemoryArea;
 
 namespace alone {
 
-class MemoryFactory : public mcld::MemoryAreaFactory
-{
+class MemoryFactory : public mcld::MemoryAreaFactory {
 public:
-  MemoryFactory();
+  MemoryFactory() : mcld::MemoryAreaFactory(32) { }
 
   ~MemoryFactory() { }
 
