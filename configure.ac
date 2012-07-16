@@ -81,7 +81,6 @@ AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 CHECK_LLVM([3.0])
 ENUM_LLVM_TARGETS
 CHECK_ALONE_TARGET
-DEFMACRO_ANDROID
 
 ####################
 # OUTPUT

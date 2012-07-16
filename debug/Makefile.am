@@ -370,5 +370,6 @@ dist_mcld_debug_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
 	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
 	${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/Log.h \
 	${TOOLDIR}/mcld/include/alone/Support/MemoryFactory.h
 
