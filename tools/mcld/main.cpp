@@ -28,9 +28,9 @@ using namespace alone;
 // Compiler Options
 //===----------------------------------------------------------------------===//
 #ifdef TARGET_BUILD
-const std::string OptTargetTripe(DEFAULT_TARGET_TRIPLE_STRING);
+static const std::string OptTargetTripe(DEFAULT_TARGET_TRIPLE_STRING);
 #else
-llvm::cl::opt<std::string>
+static llvm::cl::opt<std::string>
 OptTargetTriple("mtriple",
                llvm::cl::desc("Specify the target triple (default: "
                               DEFAULT_TARGET_TRIPLE_STRING ")"),
@@ -118,11 +118,17 @@ OptWrapList("wrap",
             llvm::cl::desc("Use a wrap function fo symbol."),
             llvm::cl::value_desc("symbol"));
 
+static llvm::cl::list<std::string>
+OptPortableList("portable",
+                llvm::cl::ZeroOrMore,
+                llvm::cl::desc("Use a portable function to symbol."),
+                llvm::cl::value_desc("symbol"));
+
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
 // Override "mcld -version"
-void MCLDVersionPrinter() {
+static void MCLDVersionPrinter() {
   llvm::raw_ostream &os = llvm::outs();
   os << "mcld (The MCLinker Project, http://mclinker.googlecode.com/):\n"
      << "  Default target: " << DEFAULT_TARGET_TRIPLE_STRING << "\n";
@@ -199,15 +205,20 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
   for (wrap = OptWrapList.begin(); wrap != wEnd; ++wrap)
     config->addWrap(*wrap);
 
-  // 5. if given, set up search directories
+  // 5. if given, set up portable symbols
+  llvm::cl::list<std::string>::iterator portable, pEnd = OptPortableList.end();
+  for (portable = OptPortableList.begin(); portable != pEnd; ++portable)
+    config->addPortable(*portable);
+
+  // 6. if given, set up search directories
   llvm::cl::list<std::string>::iterator sdir, sdirEnd = OptSearchDirList.end();
   for (sdir = OptSearchDirList.begin(); sdir != sdirEnd; ++sdir)
     config->addSearchDir(*sdir);
 
-  // 6. set up --shared
+  // 7. set up --shared
   config->setShared(OptShared);
 
-  // 7. set up --Bsymbolic
+  // 8. set up --Bsymbolic
   config->setBsymbolic(OptBsymbolic);
 
   Linker::ErrorCode result = pLinker.config(*config);
@@ -237,49 +248,47 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
   }
 
   // -----  set inputs  ----- //
-  llvm::cl::list<std::string>::iterator fileIt = OptInputObjectFiles.begin();
-  llvm::cl::list<std::string>::iterator libIt  = OptNameSpecList.begin();
+  llvm::cl::list<std::string>::iterator file_it = OptInputObjectFiles.begin();
+  llvm::cl::list<std::string>::iterator lib_it  = OptNameSpecList.begin();
 
-  llvm::cl::list<std::string>::iterator fileBegin = OptInputObjectFiles.begin();
-  llvm::cl::list<std::string>::iterator libBegin = OptNameSpecList.begin();
-  llvm::cl::list<std::string>::iterator fileEnd = OptInputObjectFiles.end();
-  llvm::cl::list<std::string>::iterator libEnd = OptNameSpecList.end();
+  llvm::cl::list<std::string>::iterator file_begin = OptInputObjectFiles.begin();
+  llvm::cl::list<std::string>::iterator lib_begin = OptNameSpecList.begin();
+  llvm::cl::list<std::string>::iterator file_end = OptInputObjectFiles.end();
+  llvm::cl::list<std::string>::iterator lib_end = OptNameSpecList.end();
 
-  unsigned libPos = 0, filePos = 0;
+  unsigned lib_pos = 0, file_pos = 0;
   while (true) {
-    if (libIt != libEnd)
-      libPos = OptNameSpecList.getPosition(libIt - libBegin);
+    if (lib_it != lib_end)
+      lib_pos = OptNameSpecList.getPosition(lib_it - lib_begin);
     else
-      libPos = 0;
+      lib_pos = 0;
 
-    if (fileIt != fileEnd)
-      filePos = OptInputObjectFiles.getPosition(fileIt - fileBegin);
+    if (file_it != file_end)
+      file_pos = OptInputObjectFiles.getPosition(file_it - file_begin);
     else
-      filePos = 0;
+      file_pos = 0;
 
-    if ( filePos != 0 && (libPos == 0 || filePos < libPos) ) {
-      result = pLinker.addObject(*fileIt);
+    if ((file_pos != 0) && ((lib_pos == 0) || (file_pos < lib_pos))) {
+      result = pLinker.addObject(*file_it);
       if (Linker::kSuccess != result) {
         llvm::errs() << "Failed to open the input file! (detail: "
-                     << *fileIt << ": "
+                     << *file_it << ": "
                      << Linker::GetErrorString(result) << ")\n";
         return false;
       }
-      ++fileIt;
-    }
-    else if ( libPos != 0 && (filePos == 0 || libPos < filePos) ) {
-      result = pLinker.addNameSpec(*libIt);
+      ++file_it;
+    } else if ((lib_pos != 0) && ((file_pos == 0) || (lib_pos < file_pos))) {
+      result = pLinker.addNameSpec(*lib_it);
       if (Linker::kSuccess != result) {
         llvm::errs() << "Failed to open the namespec! (detail: "
-                     << *libIt << ": "
+                     << *lib_it << ": "
                      << Linker::GetErrorString(result) << ")\n";
         return false;
       }
-      ++libIt;
-    }
-
-    else
+      ++lib_it;
+    } else {
       break; // we're done with the list
+    }
   }
 
   return true;

@@ -77,6 +77,8 @@ public:
 
   void addWrap(const std::string &pWrapSymbol);
 
+  void addPortable(const std::string &pPortableSymbol);
+
   void addSearchDir(const std::string &pDir);
 
 public:

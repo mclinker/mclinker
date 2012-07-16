@@ -133,6 +133,30 @@ void LinkerConfig::addWrap(const std::string &pWrapSymbol)
     mcld::warning(mcld::diag::rewrap) << pWrapSymbol << from_real_str;
 }
 
+void LinkerConfig::addPortable(const std::string &pPortableSymbol)
+{
+  bool exist = false;
+
+  // add pname -> pname_portable
+  mcld::StringEntry<llvm::StringRef>* to_port =
+                mLDInfo->scripts().renameMap().insert(pPortableSymbol, exist);
+
+  std::string to_port_str = pPortableSymbol + "_portable";
+  to_port->setValue(to_port_str);
+
+  if (exist)
+    mcld::warning(mcld::diag::rewrap) << pPortableSymbol << to_port_str;
+
+  // add __real_pname -> pname
+  std::string from_real_str = "__real_" + pPortableSymbol;
+  mcld::StringEntry<llvm::StringRef>* from_real =
+           mLDInfo->scripts().renameMap().insert(from_real_str, exist);
+
+  from_real->setValue(pPortableSymbol);
+  if (exist)
+    mcld::warning(mcld::diag::rewrap) << pPortableSymbol << from_real_str;
+}
+
 void LinkerConfig::addSearchDir(const std::string &pDirPath)
 {
   // SearchDirs will remove the created MCLDDirectory.
