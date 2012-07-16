@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #ifndef ALONE_LINKER_H
 #define ALONE_LINKER_H
 

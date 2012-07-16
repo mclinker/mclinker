@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #ifndef ALONE_SUPPORT_TARGET_LINKER_CONFIGS_H
 #define ALONE_SUPPORT_TARGET_LINKER_CONFIGS_H
 

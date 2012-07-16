@@ -24,8 +24,7 @@ static const char* gDefaultSysroot = "/";
 // ARM
 //===----------------------------------------------------------------------===//
 #if defined(PROVIDE_ARM_CODEGEN)
-ARMLinkerConfig::ARMLinkerConfig()
-  : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
+ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attributes
   getLDInfo()->attrFactory().constraint().enableWholeArchive();
@@ -37,11 +36,13 @@ ARMLinkerConfig::ARMLinkerConfig()
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty())
+  if (getLDInfo()->options().sysroot().empty()) {
     getLDInfo()->options().setSysroot(gDefaultSysroot);
+  }
 
-  if (!getLDInfo()->options().hasDyld())
+  if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
+  }
 
   // set up default search path
   addSearchDir("=/lib");
@@ -68,11 +69,13 @@ MipsLinkerConfig::MipsLinkerConfig()
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty())
+  if (getLDInfo()->options().sysroot().empty()) {
     getLDInfo()->options().setSysroot(gDefaultSysroot);
+  }
 
-  if (!getLDInfo()->options().hasDyld())
+  if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
+  }
 
   // set up default search path
   addSearchDir("=/lib");
@@ -98,11 +101,13 @@ X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty())
+  if (getLDInfo()->options().sysroot().empty()) {
     getLDInfo()->options().setSysroot(gDefaultSysroot);
+  }
 
-  if (!getLDInfo()->options().hasDyld())
+  if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
+  }
 
   // set up default search path
   addSearchDir("=/lib");

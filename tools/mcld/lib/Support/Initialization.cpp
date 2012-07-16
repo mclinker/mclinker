@@ -7,22 +7,22 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-
-#include "alone/Config/Config.h"
 #include "alone/Support/Initialization.h"
+
+#include <cstdlib>
+
+#include <llvm/Support/ErrorHandling.h>
+#include <llvm/Support/TargetSelect.h>
 
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
 
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/ErrorHandling.h>
+#include "alone/Config/Config.h"
+#include "alone/Support/Log.h"
 
 namespace {
 
-void llvm_error_handler(void *pUserData, const std::string& pMessage) {
+void llvm_error_handler(void *pUserData, const std::string &pMessage) {
   ALOGE("%s", pMessage.c_str());
   ::exit(1);
 }
@@ -31,6 +31,7 @@ void llvm_error_handler(void *pUserData, const std::string& pMessage) {
 
 void alone::init::Initialize() {
   static bool is_initialized = false;
+
   if (is_initialized) {
     return;
   }
@@ -72,8 +73,11 @@ void alone::init::Initialize() {
   LLVMInitializeX86DiagnosticLineInfo();
 #endif
 
+#if USE_DISASSEMBLER
+  InitializeDisassembler();
+#endif
+
   is_initialized = true;
 
   return;
 }
-

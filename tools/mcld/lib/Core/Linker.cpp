@@ -6,9 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include "alone/Linker.h"
 #include "alone/Support/LinkerConfig.h"
 #include "alone/Support/MemoryFactory.h"
+#include "alone/Support/Log.h"
 
 #include <llvm/Support/ELF.h>
 
@@ -23,8 +25,7 @@
 
 using namespace alone;
 
-const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode)
-{
+const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
   static const char* ErrorString[] = {
     /* kSuccess */
     "Successfully compiled.",
@@ -84,21 +85,17 @@ Linker::Linker(const LinkerConfig& pConfig)
   return;
 }
 
-Linker::~Linker()
-{
-  if (NULL != mDriver)
-    delete mDriver;
-  if (NULL != mBackend)
-    delete mBackend;
-  if (NULL != mMemAreaFactory)
-    delete mMemAreaFactory;
+Linker::~Linker() {
+  delete mDriver;
+  delete mBackend;
+  delete mMemAreaFactory;
 }
 
-enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig)
-{
+enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
   mLDInfo = const_cast<mcld::MCLDInfo*>(pConfig.getLDInfo());
-  if (NULL == mLDInfo)
+  if (mLDInfo == NULL) {
     return kDelegateLDInfo;
+  }
 
   mRoot = mLDInfo->inputs().root();
   mShared = pConfig.isShared();
@@ -107,16 +104,17 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig)
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
-{
-  if (NULL != mLDInfo)
+enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
+  if (mLDInfo != NULL) {
     return kDoubleConfig;
+  }
 
   extractFiles(pConfig);
 
   mBackend = pConfig.getTarget()->createLDBackend(pConfig.getTriple());
-  if (NULL == mBackend)
+  if (mBackend == NULL) {
     return kCreateBackend;
+  }
 
   mDriver = new mcld::MCLDDriver(*mLDInfo, *mBackend);
 
@@ -127,32 +125,33 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig)
   return kSuccess;
 }
 
-void Linker::advanceRoot()
-{
-  if (mRoot.isRoot())
+void Linker::advanceRoot() {
+  if (mRoot.isRoot()) {
     --mRoot;
-  else
+  } else {
     ++mRoot;
+  }
+  return;
 }
 
-enum Linker::ErrorCode
-Linker::openFile(const mcld::sys::fs::Path& pPath, enum Linker::ErrorCode pCode, mcld::Input& pInput)
-{
+enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
+                                        enum Linker::ErrorCode pCode,
+                                        mcld::Input& pInput) {
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pPath,
                                                     mcld::FileHandle::ReadOnly);
 
-  if (input_memory->handler()->isGood())
+  if (input_memory->handler()->isGood()) {
     pInput.setMemArea(input_memory);
-  else
+  } else {
     return pCode;
+  }
 
   mcld::LDContext *input_context = mLDInfo->contextFactory().produce(pPath);
   pInput.setContext(input_context);
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec)
-{
+enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
   if (mLDInfo->attrFactory().constraint().isSharedSystem()) {
@@ -161,18 +160,21 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec)
 
     if (mLDInfo->attrFactory().last().isStatic()) {
       // with --static, we must search an archive.
-      path = mLDInfo->options().directories().find(pNameSpec, mcld::Input::Archive);
+      path = mLDInfo->options().directories().find(pNameSpec,
+                                                   mcld::Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
-      path = mLDInfo->options().directories().find(pNameSpec, mcld::Input::DynObj);
+      path = mLDInfo->options().directories().find(pNameSpec,
+                                                   mcld::Input::DynObj);
     }
   }
   else {
     // In the system without shared object support, we only look for an
     // archive.
-    path = mLDInfo->options().directories().find(pNameSpec, mcld::Input::Archive);
+    path = mLDInfo->options().directories().find(pNameSpec,
+                                                 mcld::Input::Archive);
   }
 
   mcld::Input* input = mLDInfo->inputFactory().produce(pNameSpec, *path,
@@ -185,8 +187,7 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec)
 }
 
 /// addObject - Add a object file by the filename.
-enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath)
-{
+enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
   mcld::Input* input = mLDInfo->inputFactory().produce(pObjectPath,
                                                        pObjectPath,
                                                        mcld::Input::Unknown);
@@ -199,8 +200,7 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath)
 }
 
 /// addObject - Add a piece of memory. The memory is of ELF format.
-enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize)
-{
+enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
 
   mcld::Input* input = mLDInfo->inputFactory().produce("memory object",
                                                        "NAN",
@@ -219,11 +219,10 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize)
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize)
-{
+enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   mcld::Input* input = mLDInfo->inputFactory().produce("code object",
-                                                        "NAN",
-                                                        mcld::Input::External);
+                                                       "NAN",
+                                                       mcld::Input::External);
 
   mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
 
@@ -237,17 +236,20 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize)
 
   // FIXME: So far, MCLinker must set up output before add input files.
   // set up LDContext
-  if (mDriver->hasInitLinker())
+  if (mDriver->hasInitLinker()) {
     return kNotConfig;
+  }
 
-  if (!mLDInfo->output().hasContext())
+  if (!mLDInfo->output().hasContext()) {
     return kNotSetUpOutput;
+  }
 
   // create NULL section
-  mcld::LDSection& null = mDriver->getLinker()->createSectHdr("",
-                             mcld::LDFileFormat::Null,
-                             llvm::ELF::SHT_NULL,
-                             0);
+  mcld::LDSection& null =
+      mDriver->getLinker()->createSectHdr("",
+                                          mcld::LDFileFormat::Null,
+                                          llvm::ELF::SHT_NULL,
+                                          0);
 
   null.setSize(0);
   null.setOffset(0);
@@ -274,28 +276,31 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize)
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
-{
-  if (mLDInfo->output().hasContext())
+enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
+  if (mLDInfo->output().hasContext()) {
     return kDoubleConfig;
+  }
 
   // -----  initialize output file  ----- //
+
   mcld::FileHandle::Permission perm = 0755;
 
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(
-                        pPath,
-                          mcld::FileHandle::ReadWrite |
-                          mcld::FileHandle::Truncate |
-                          mcld::FileHandle::Create,
-                        perm);
+                      pPath,
+                      mcld::FileHandle::ReadWrite |
+                        mcld::FileHandle::Truncate |
+                        mcld::FileHandle::Create,
+                      perm);
 
-  if (!out_area->handler()->isGood())
+  if (!out_area->handler()->isGood()) {
     return kOpenOutput;
+  }
 
-  if (mShared)
+  if (mShared) {
     mLDInfo->output().setType(mcld::Output::DynObj);
-  else
+  } else {
     mLDInfo->output().setType(mcld::Output::Exec);
+  }
 
   mLDInfo->output().setSOName(mSOName);
   mLDInfo->output().setMemArea(out_area);
@@ -304,18 +309,19 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath)
   // FIXME: We must initialize MCLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
-  if (!mDriver->hasInitLinker())
+  if (!mDriver->hasInitLinker()) {
     return kNotConfig;
+  }
 
   mDriver->initStdSections();
 
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::setOutput(int pFileHandler)
-{
-  if (mLDInfo->output().hasContext())
+enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
+  if (mLDInfo->output().hasContext()) {
     return kDoubleConfig;
+  }
 
   // -----  initialize output file  ----- //
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(pFileHandler);
@@ -327,27 +333,29 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler)
   // FIXME: We must initialize MCLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
-  if (!mDriver->hasInitLinker())
+  if (!mDriver->hasInitLinker()) {
     return kNotConfig;
+  }
+
   mDriver->initStdSections();
 
   return kSuccess;
 }
 
-enum Linker::ErrorCode Linker::link()
-{
+enum Linker::ErrorCode Linker::link() {
   mDriver->normalize();
 
-  if (!mDriver->readSections() ||
-      !mDriver->mergeSections())
+  if (!mDriver->readSections() || !mDriver->mergeSections()) {
     return kReadSections;
+  }
 
-  if (!mDriver->readSymbolTables())
+  if (!mDriver->readSymbolTables()) {
     return kReadSymbols;
+  }
 
-  if (!mDriver->addStandardSymbols() ||
-      !mDriver->addTargetSymbols())
+  if (!mDriver->addStandardSymbols() || !mDriver->addTargetSymbols()) {
     return kAddAdditionalSymbols;
+  }
 
   mDriver->readRelocations();
   mDriver->prelayout();

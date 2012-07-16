@@ -8,10 +8,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "alone/Support/LinkerConfig.h"
+#include "alone/Support/Log.h"
 
 #include <llvm/Support/Signals.h>
 
 #include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDFile.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/Path.h>
@@ -21,24 +23,21 @@
 using namespace alone;
 
 LinkerConfig::LinkerConfig(const std::string &pTriple)
-  : mTriple(pTriple), mShared(false), mSOName(),
-    mTarget(NULL), mLDInfo(NULL), mDiagLineInfo(NULL),
-    mDiagPrinter(NULL) {
+  : mTriple(pTriple), mShared(false), mSOName(), mTarget(NULL), mLDInfo(NULL),
+    mDiagLineInfo(NULL), mDiagPrinter(NULL) {
 
   initializeTarget();
   initializeLDInfo();
   initializeDiagnostic();
 }
 
-LinkerConfig::~LinkerConfig()
-{
-  if (NULL != mLDInfo)
-    delete mLDInfo;
+LinkerConfig::~LinkerConfig() {
+  delete mLDInfo;
 
-  if (0 != mDiagPrinter->getNumErrors()) {
-    // If we reached here, we are failing ungracefully. Run the interrupt handlers
-    // to make sure any special cleanups get done, in particular that we remove
-    // files registered with RemoveFileOnSignal.
+  if (mDiagPrinter->getNumErrors() != 0) {
+    // If here, the program failed ungracefully. Run the interrupt handlers to
+    // ensure any other cleanups (e.g., files that registered by
+    // RemoveFileOnSignal(...)) getting done before exit.
     llvm::sys::RunInterruptHandlers();
   }
   mDiagPrinter->finish();
@@ -47,8 +46,7 @@ LinkerConfig::~LinkerConfig()
   delete mDiagPrinter;
 }
 
-bool LinkerConfig::initializeTarget()
-{
+bool LinkerConfig::initializeTarget() {
   std::string error;
   mTarget = mcld::TargetRegistry::lookupTarget(mTriple, error);
   if (NULL != mTarget) {
@@ -60,8 +58,7 @@ bool LinkerConfig::initializeTarget()
   }
 }
 
-bool LinkerConfig::initializeLDInfo()
-{
+bool LinkerConfig::initializeLDInfo() {
   if (NULL != mLDInfo) {
     ALOGE("Cannot initialize mcld::MCLDInfo for given triple '%s!\n",
           mTriple.c_str());
@@ -72,9 +69,8 @@ bool LinkerConfig::initializeLDInfo()
   return true;
 }
 
-bool LinkerConfig::initializeDiagnostic()
-{
-  // Set up MsgHandler
+bool LinkerConfig::initializeDiagnostic() {
+  // Set up MsgHandler.
   mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget->get(), mTriple);
 
   mDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDInfo);
@@ -84,90 +80,99 @@ bool LinkerConfig::initializeDiagnostic()
   return true;
 }
 
-void LinkerConfig::setShared(bool pEnable)
-{
+void LinkerConfig::setShared(bool pEnable) {
   mShared = pEnable;
+  return;
 }
 
-void LinkerConfig::setBsymbolic(bool pEnable)
-{
+void LinkerConfig::setBsymbolic(bool pEnable) {
   mLDInfo->options().setBsymbolic(pEnable);
+  return;
 }
 
-void LinkerConfig::setSOName(const std::string& pSOName)
-{
-  mSOName = pSOName;
+void LinkerConfig::setSOName(const std::string &pSOName) {
+  mLDInfo->output().setSOName(pSOName);
+  return;
 }
 
-void LinkerConfig::setDyld(const std::string& pDyld)
-{
+void LinkerConfig::setDyld(const std::string &pDyld) {
   mLDInfo->options().setDyld(pDyld);
+  return;
 }
 
-void LinkerConfig::setSysRoot(const std::string &pSysRoot)
-{
+void LinkerConfig::setSysRoot(const std::string &pSysRoot) {
   mLDInfo->options().setSysroot(mcld::sys::fs::Path(pSysRoot));
+  return;
 }
 
-void LinkerConfig::addWrap(const std::string &pWrapSymbol)
-{
+void LinkerConfig::addWrap(const std::string &pWrapSymbol) {
   bool exist = false;
 
-  // add wname -> __wrap_wname
+  // Add wname -> __wrap_wname.
   mcld::StringEntry<llvm::StringRef>* to_wrap =
                mLDInfo->scripts().renameMap().insert(pWrapSymbol, exist);
 
   std::string to_wrap_str = "__wrap_" + pWrapSymbol;
   to_wrap->setValue(to_wrap_str);
 
-  if (exist)
+  if (exist) {
     mcld::warning(mcld::diag::rewrap) << pWrapSymbol << to_wrap_str;
+  }
 
-  // add __real_wname -> wname
+  // Add __real_wname -> wname.
   std::string from_real_str = "__real_" + pWrapSymbol;
   mcld::StringEntry<llvm::StringRef>* from_real =
              mLDInfo->scripts().renameMap().insert(from_real_str, exist);
   from_real->setValue(pWrapSymbol);
 
-  if (exist)
+  if (exist) {
     mcld::warning(mcld::diag::rewrap) << pWrapSymbol << from_real_str;
+  }
+
+  return;
 }
 
-void LinkerConfig::addPortable(const std::string &pPortableSymbol)
-{
+void LinkerConfig::addPortable(const std::string &pPortableSymbol) {
   bool exist = false;
 
-  // add pname -> pname_portable
+  // Add pname -> pname_portable.
   mcld::StringEntry<llvm::StringRef>* to_port =
                 mLDInfo->scripts().renameMap().insert(pPortableSymbol, exist);
 
   std::string to_port_str = pPortableSymbol + "_portable";
   to_port->setValue(to_port_str);
 
-  if (exist)
+  if (exist) {
     mcld::warning(mcld::diag::rewrap) << pPortableSymbol << to_port_str;
+}
 
-  // add __real_pname -> pname
+  // Add __real_pname -> pname.
   std::string from_real_str = "__real_" + pPortableSymbol;
   mcld::StringEntry<llvm::StringRef>* from_real =
            mLDInfo->scripts().renameMap().insert(from_real_str, exist);
 
   from_real->setValue(pPortableSymbol);
-  if (exist)
+
+  if (exist) {
     mcld::warning(mcld::diag::rewrap) << pPortableSymbol << from_real_str;
+  }
+
+  return;
 }
 
-void LinkerConfig::addSearchDir(const std::string &pDirPath)
-{
+void LinkerConfig::addSearchDir(const std::string &pDirPath) {
   // SearchDirs will remove the created MCLDDirectory.
   mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
 
-  if (sd->isInSysroot())
+  if (sd->isInSysroot()) {
     sd->setSysroot(mLDInfo->options().sysroot());
+  }
+
   if (exists(sd->path()) && is_directory(sd->path())) {
     mLDInfo->options().directories().add(*sd);
-  }
-  else
+  } else {
     mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
-}
+  }
 
+  return;
+}

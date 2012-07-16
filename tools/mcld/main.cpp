@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include <stdlib.h>
 #include <string>
 
@@ -15,6 +16,8 @@
 #include <llvm/Support/Path.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/system_error.h>
+
+#include <mcld/Config/Config.h>
 
 #include <alone/Config/Config.h>
 #include <alone/Support/LinkerConfig.h>
@@ -32,14 +35,14 @@ static const std::string OptTargetTripe(DEFAULT_TARGET_TRIPLE_STRING);
 #else
 static llvm::cl::opt<std::string>
 OptTargetTriple("mtriple",
-               llvm::cl::desc("Specify the target triple (default: "
-                              DEFAULT_TARGET_TRIPLE_STRING ")"),
-               llvm::cl::init(DEFAULT_TARGET_TRIPLE_STRING),
-               llvm::cl::value_desc("triple"));
+                llvm::cl::desc("Specify the target triple (default: "
+                                DEFAULT_TARGET_TRIPLE_STRING ")"),
+                llvm::cl::init(DEFAULT_TARGET_TRIPLE_STRING),
+                llvm::cl::value_desc("triple"));
 
-llvm::cl::alias OptTargetTripleC("C", llvm::cl::NotHidden,
-                                llvm::cl::desc("Alias for -mtriple"),
-                                llvm::cl::aliasopt(OptTargetTriple));
+static llvm::cl::alias OptTargetTripleC("C", llvm::cl::NotHidden,
+                                        llvm::cl::desc("Alias for -mtriple"),
+                                        llvm::cl::aliasopt(OptTargetTriple));
 #endif
 
 //===----------------------------------------------------------------------===//
@@ -58,17 +61,18 @@ OptOutputFilename("o",
                   llvm::cl::value_desc("filename"));
 
 static llvm::cl::opt<std::string>
-OptSysRoot("sysroot",
-           llvm::cl::desc("Use directory as the location of the sysroot, overriding "
-                    "the configure-time default."),
+OptSysRoot("sysroot", llvm::cl::desc("Use directory as the location of the "
+                                     "sysroot, overriding the configure-time "
+                                     "default."),
            llvm::cl::value_desc("directory"),
            llvm::cl::ValueRequired);
 
 static llvm::cl::list<std::string>
 OptSearchDirList("L",
                  llvm::cl::ZeroOrMore,
-                 llvm::cl::desc("Add path searchdir to the list of paths that ld will "
-                          "search for archive libraries and ld control scripts."),
+                 llvm::cl::desc("Add path searchdir to the list of paths that "
+                                "mcld will search for archive libraries and "
+                                "mcld control scripts."),
                  llvm::cl::value_desc("searchdir"),
                  llvm::cl::Prefix);
 
@@ -86,7 +90,7 @@ OptShared("shared",
 static llvm::cl::opt<bool>
 OptBsymbolic("Bsymbolic",
              llvm::cl::desc("Bind references within the shared library."),
-             llvm::cl::init(false));
+             llvm::cl::init(true));
 
 static llvm::cl::opt<std::string>
 OptDyld("dynamic-linker",
@@ -99,7 +103,7 @@ OptDyld("dynamic-linker",
 static llvm::cl::list<std::string>
 OptInputObjectFiles(llvm::cl::Positional,
                     llvm::cl::desc("[input object files]"),
-                    llvm::cl::ZeroOrMore);
+                    llvm::cl::OneOrMore);
 
 static llvm::cl::list<std::string>
 OptNameSpecList("l",
@@ -131,18 +135,19 @@ OptPortableList("portable",
 static void MCLDVersionPrinter() {
   llvm::raw_ostream &os = llvm::outs();
   os << "mcld (The MCLinker Project, http://mclinker.googlecode.com/):\n"
+     << "  version: "MCLD_VERSION"\n"
      << "  Default target: " << DEFAULT_TARGET_TRIPLE_STRING << "\n";
 
   os << "\n";
 
   os << "LLVM (http://llvm.org/):\n";
+
   return;
 }
 
 #define DEFAULT_OUTPUT_PATH "a.out"
 static inline
-std::string DetermineOutputFilename(const std::string pOutputPath)
-{
+std::string DetermineOutputFilename(const std::string &pOutputPath) {
   if (!pOutputPath.empty()) {
     return pOutputPath;
   }
@@ -171,8 +176,7 @@ std::string DetermineOutputFilename(const std::string pOutputPath)
 }
 
 static inline
-bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
-{
+bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename) {
   LinkerConfig* config = NULL;
 
 #ifdef TARGET_BUILD
@@ -185,47 +189,53 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
     return false;
   }
 
-  // Setup the configuration accroding to the value of command line options.
-  // 1. set up soname
-  if (!OptSOName.empty())
+  // Setup the configuration accroding to the command line options.
+
+  // 1. Set up soname.
+  if (!OptSOName.empty()) {
     config->setSOName(OptSOName);
-  else
+  } else {
     config->setSOName(pOutputFilename);
+  }
 
-  // 2. if given, set up sysroot
-  if (!OptSysRoot.empty())
+  // 2. If given, set up sysroot.
+  if (!OptSysRoot.empty()) {
     config->setSysRoot(OptSysRoot);
+  }
 
-  // 3. if given, set up dynamic linker path.
-  if (!OptDyld.empty())
+  // 3. If given, set up dynamic linker path.
+  if (!OptDyld.empty()) {
     config->setDyld(OptDyld);
+  }
 
-  // 4. if given, set up wrapped symbols
-  llvm::cl::list<std::string>::iterator wrap, wEnd = OptWrapList.end();
-  for (wrap = OptWrapList.begin(); wrap != wEnd; ++wrap)
+  // 4. If given, set up wrapped symbols.
+  llvm::cl::list<std::string>::iterator wrap, wrap_end = OptWrapList.end();
+  for (wrap = OptWrapList.begin(); wrap != wrap_end; ++wrap) {
     config->addWrap(*wrap);
+  }
 
-  // 5. if given, set up portable symbols
-  llvm::cl::list<std::string>::iterator portable, pEnd = OptPortableList.end();
-  for (portable = OptPortableList.begin(); portable != pEnd; ++portable)
+  // 5. If given, set up portable symbols.
+  llvm::cl::list<std::string>::iterator portable, portable_end = OptPortableList.end();
+  for (portable = OptPortableList.begin(); portable != portable_end; ++portable) {
     config->addPortable(*portable);
+  }
 
-  // 6. if given, set up search directories
-  llvm::cl::list<std::string>::iterator sdir, sdirEnd = OptSearchDirList.end();
-  for (sdir = OptSearchDirList.begin(); sdir != sdirEnd; ++sdir)
+  // 6. if given, set up search directories.
+  llvm::cl::list<std::string>::iterator sdir, sdir_end = OptSearchDirList.end();
+  for (sdir = OptSearchDirList.begin(); sdir != sdir_end; ++sdir) {
     config->addSearchDir(*sdir);
+  }
 
-  // 7. set up --shared
+  // 7. Set up output's type.
   config->setShared(OptShared);
 
-  // 8. set up --Bsymbolic
+  // 8. Set up -Bsymbolic.
   config->setBsymbolic(OptBsymbolic);
 
   Linker::ErrorCode result = pLinker.config(*config);
-
   if (Linker::kSuccess != result) {
     llvm::errs() << "Failed to configure the linker! (detail: "
-                << Linker::GetErrorString(result) << ")\n";
+                 << Linker::GetErrorString(result) << ")\n";
     return false;
   }
 
@@ -233,11 +243,11 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename)
 }
 
 static inline
-bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
-{
-  // -----  set output  ----- //
-  // FIXME: In MCLinker, we have to set up output before setting up inputs.
-  // This constraint is wired, and we should break this constraint.
+bool PrepareInputOutput(Linker &pLinker, const std::string &pOutputPath) {
+  // -----  Set output  ----- //
+
+  // FIXME: Current MCLinker requires one to set up output before inputs. The
+  // constraint will be relaxed in the furture.
   Linker::ErrorCode result = pLinker.setOutput(pOutputPath);
 
   if (Linker::kSuccess != result) {
@@ -247,7 +257,7 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
     return false;
   }
 
-  // -----  set inputs  ----- //
+  // -----  Set inputs  ----- //
   llvm::cl::list<std::string>::iterator file_it = OptInputObjectFiles.begin();
   llvm::cl::list<std::string>::iterator lib_it  = OptNameSpecList.begin();
 
@@ -258,31 +268,31 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
 
   unsigned lib_pos = 0, file_pos = 0;
   while (true) {
-    if (lib_it != lib_end)
+    if (lib_it != lib_end) {
       lib_pos = OptNameSpecList.getPosition(lib_it - lib_begin);
-    else
+    } else {
       lib_pos = 0;
+    }
 
-    if (file_it != file_end)
+    if (file_it != file_end) {
       file_pos = OptInputObjectFiles.getPosition(file_it - file_begin);
-    else
+    } else {
       file_pos = 0;
+    }
 
     if ((file_pos != 0) && ((lib_pos == 0) || (file_pos < lib_pos))) {
       result = pLinker.addObject(*file_it);
       if (Linker::kSuccess != result) {
-        llvm::errs() << "Failed to open the input file! (detail: "
-                     << *file_it << ": "
-                     << Linker::GetErrorString(result) << ")\n";
+        llvm::errs() << "Failed to open the input file! (detail: " << *file_it
+                     << ": " << Linker::GetErrorString(result) << ")\n";
         return false;
       }
       ++file_it;
     } else if ((lib_pos != 0) && ((file_pos == 0) || (lib_pos < file_pos))) {
       result = pLinker.addNameSpec(*lib_it);
       if (Linker::kSuccess != result) {
-        llvm::errs() << "Failed to open the namespec! (detail: "
-                     << *lib_it << ": "
-                     << Linker::GetErrorString(result) << ")\n";
+        llvm::errs() << "Failed to open the namespec! (detail: " << *lib_it
+                     << ": " << Linker::GetErrorString(result) << ")\n";
         return false;
       }
       ++lib_it;
@@ -294,8 +304,7 @@ bool PrepareInputOutput(Linker& pLinker, const std::string &pOutputPath)
   return true;
 }
 
-static inline
-bool LinkFiles(Linker& pLinker) {
+static inline bool LinkFiles(Linker &pLinker) {
   Linker::ErrorCode result = pLinker.link();
   if (Linker::kSuccess != result) {
     llvm::errs() << "Failed to linking! (detail: "
@@ -305,8 +314,7 @@ bool LinkFiles(Linker& pLinker) {
   return true;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char** argv) {
   llvm::cl::SetVersionPrinter(MCLDVersionPrinter);
   llvm::cl::ParseCommandLineOptions(argc, argv);
   init::Initialize();
@@ -328,6 +336,7 @@ int main(int argc, char* argv[])
   if (!LinkFiles(linker)) {
     return EXIT_FAILURE;
   }
+
   return EXIT_SUCCESS;
 }
 
