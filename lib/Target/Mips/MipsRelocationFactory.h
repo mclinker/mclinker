@@ -25,20 +25,9 @@ namespace mcld
 class MipsRelocationFactory : public RelocationFactory
 {
 public:
-  /** \enum Reloc
-   *  \brief Reloc is the result of applying functions.
-   */
-  enum Result
-  {
-    OK,
-    Overflow,
-    BadReloc
-  };
-
-public:
   MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
 
-  void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
+  Result applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }
@@ -53,6 +42,8 @@ public:
   // Set last calculated AHL.
   void setAHL(int32_t pAHL)
   { m_AHL = pAHL; }
+
+  const char* getName(Relocation::Type pType) const;
 
 private:
   MipsGNULDBackend& m_Target;

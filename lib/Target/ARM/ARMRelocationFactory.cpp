@@ -20,10 +20,33 @@
 
 using namespace mcld;
 
+//===--------------------------------------------------------------------===//
+// Relocation Functions and Tables
+//===--------------------------------------------------------------------===//
 DECL_ARM_APPLY_RELOC_FUNCS
+
+/// the prototype of applying function
+typedef RelocationFactory::Result (*ApplyFunctionType)(
+                                               Relocation& pReloc,
+                                               const MCLDInfo& pLDInfo,
+                                               ARMRelocationFactory& pParent);
+
+// the table entry of applying functions
+struct ApplyFunctionTriple
+{
+  ApplyFunctionType func;
+  unsigned int type;
+  const char* name;
+};
+
+// declare the table of applying functions
+static const ApplyFunctionTriple ApplyFunctions[] = {
+  DECL_ARM_APPLY_RELOC_FUNC_PTRS
+};
 
 //===--------------------------------------------------------------------===//
 // ARMRelocationFactory
+//===--------------------------------------------------------------------===//
 ARMRelocationFactory::ARMRelocationFactory(size_t pNum,
                                            ARMGNULDBackend& pParent)
   : RelocationFactory(pNum),
@@ -34,58 +57,24 @@ ARMRelocationFactory::~ARMRelocationFactory()
 {
 }
 
-void ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
-                                           const MCLDInfo& pLDInfo)
+RelocationFactory::Result
+ARMRelocationFactory::applyRelocation(Relocation& pRelocation,
+                                      const MCLDInfo& pLDInfo)
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
     fatal(diag::unknown_relocation) << (int)type
                                     << pRelocation.symInfo()->name();
-    return;
+    return RelocationFactory::Unknown;
   }
 
-  /// the prototype of applying function
-  typedef Result (*ApplyFunctionType)(Relocation& pReloc,
-                                      const MCLDInfo& pLDInfo,
-                                      ARMRelocationFactory& pParent);
-
-  // the table entry of applying functions
-  struct ApplyFunctionTriple {
-    ApplyFunctionType func;
-    unsigned int type;
-    const char* name;
-  };
-
-  // declare the table of applying functions
-  static ApplyFunctionTriple apply_functions[] = {
-    DECL_ARM_APPLY_RELOC_FUNC_PTRS
-  };
-
-  // apply the relocation
-  Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
-
-  // check result
-  if (OK == result) {
-    return;
-  }
-  if (Overflow == result) {
-    error(diag::result_overflow) << apply_functions[type].name
-                                 << pRelocation.symInfo()->name();
-    return;
-  }
-  if (BadReloc == result) {
-    error(diag::result_badreloc) << apply_functions[type].name
-                                 << pRelocation.symInfo()->name();
-    return;
-  }
-  if (Unsupport == result) {
-    fatal(diag::unsupported_relocation) << type
-                                        << "mclinker@googlegroups.com";
-    return;
-  }
+  return ApplyFunctions[type].func(pRelocation, pLDInfo, *this);
 }
 
-
+const char* ARMRelocationFactory::getName(RelocationFactory::Type pType) const
+{
+  return ApplyFunctions[pType].name;
+}
 
 //===--------------------------------------------------------------------===//
 // non-member functions

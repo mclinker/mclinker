@@ -7,10 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <llvm/MC/MCAssembler.h>
-//#include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -51,7 +51,30 @@ Relocation::Address Relocation::symValue() const
 void Relocation::apply(RelocationFactory& pRelocFactory,
                        const MCLDInfo& pLDInfo)
 {
-  pRelocFactory.applyRelocation(*this, pLDInfo);
+  RelocationFactory::Result result =
+                                 pRelocFactory.applyRelocation(*this, pLDInfo);
+
+  switch (result) {
+    case RelocationFactory::OK: {
+      // do nothing
+      return;
+    }
+    case RelocationFactory::Overflow: {
+      error(diag::result_overflow) << pRelocFactory.getName(type())
+                                   << symInfo()->name();
+      return;
+    }
+    case RelocationFactory::BadReloc: {
+      error(diag::result_badreloc) << pRelocFactory.getName(type())
+                                   << symInfo()->name();
+      return;
+    }
+    case RelocationFactory::Unsupport: {
+      fatal(diag::unsupported_relocation) << type()
+                                          << "mclinker@googlegroups.com";
+      return;
+    }
+  } // end of switch
 }
 
 void Relocation::setType(Type pType)

@@ -37,14 +37,22 @@ public:
   typedef Relocation::Address Address;
   typedef Relocation::DWord DWord;
 
+  enum Result {
+    OK,
+    BadReloc,
+    Overflow,
+    Unsupport,
+    Unknown
+  };
+
 public:
   explicit RelocationFactory(size_t pNum);
 
   virtual ~RelocationFactory();
 
   /// apply - general apply function
-  virtual void applyRelocation(Relocation& pRelocation,
-                               const MCLDInfo& pLDInfo) = 0;
+  virtual Result applyRelocation(Relocation& pRelocation,
+                                 const MCLDInfo& pLDInfo) = 0;
 
   // ----- production ----- //
   /// produce - produce a relocation entry
@@ -69,6 +77,8 @@ public:
   virtual TargetLDBackend& getTarget() = 0;
 
   virtual const TargetLDBackend& getTarget() const = 0;
+
+  virtual const char* getName(Type pType) const = 0;
 
 private:
   const Layout* m_pLayout;

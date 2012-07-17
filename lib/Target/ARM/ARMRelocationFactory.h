@@ -26,28 +26,18 @@ namespace mcld
 class ARMRelocationFactory : public RelocationFactory
 {
 public:
-  /** \enum Reloc
-   *  \brief Reloc is the result of applying functions.
-   */
-  enum Result
-  {
-    OK,
-    Overflow,
-    BadReloc,
-    Unsupport
-  };
-
-public:
   ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
   ~ARMRelocationFactory();
 
-  void applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
+  Result applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
 
   ARMGNULDBackend& getTarget()
   { return m_Target; }
 
   const ARMGNULDBackend& getTarget() const
   { return m_Target; }
+
+  const char* getName(Relocation::Type pType) const;
 
 private:
   ARMGNULDBackend& m_Target;

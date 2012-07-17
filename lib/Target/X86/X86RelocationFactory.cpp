@@ -19,10 +19,33 @@
 
 using namespace mcld;
 
+//===--------------------------------------------------------------------===//
+// Relocation Functions and Tables
+//===--------------------------------------------------------------------===//
 DECL_X86_APPLY_RELOC_FUNCS
+
+/// the prototype of applying function
+typedef RelocationFactory::Result
+                          (*ApplyFunctionType)(Relocation& pReloc,
+                                               const MCLDInfo& pLDInfo,
+                                               X86RelocationFactory& pParent);
+
+// the table entry of applying functions
+struct ApplyFunctionTriple
+{
+  ApplyFunctionType func;
+  unsigned int type;
+  const char* name;
+};
+
+// declare the table of applying functions
+static const ApplyFunctionTriple ApplyFunctions[] = {
+  DECL_X86_APPLY_RELOC_FUNC_PTRS
+};
 
 //===--------------------------------------------------------------------===//
 // X86RelocationFactory
+//===--------------------------------------------------------------------===//
 X86RelocationFactory::X86RelocationFactory(size_t pNum,
                                            X86GNULDBackend& pParent)
   : RelocationFactory(pNum),
@@ -33,61 +56,30 @@ X86RelocationFactory::~X86RelocationFactory()
 {
 }
 
-void X86RelocationFactory::applyRelocation(Relocation& pRelocation,
+RelocationFactory::Result
+X86RelocationFactory::applyRelocation(Relocation& pRelocation,
                                            const MCLDInfo& pLDInfo)
 {
   Relocation::Type type = pRelocation.type();
 
-  /// the prototype of applying function
-  typedef Result (*ApplyFunctionType)(Relocation& pReloc,
-				      const MCLDInfo& pLDInfo,
-                                      X86RelocationFactory& pParent);
-
-  // the table entry of applying functions
-  struct ApplyFunctionTriple {
-    ApplyFunctionType func;
-    unsigned int type;
-    const char* name;
-  };
-
-  // declare the table of applying functions
-  static ApplyFunctionTriple apply_functions[] = {
-    DECL_X86_APPLY_RELOC_FUNC_PTRS
-  };
-
-  if (type >= sizeof (apply_functions) / sizeof (apply_functions[0]) ) {
+  if (type >= sizeof (ApplyFunctions) / sizeof (ApplyFunctions[0]) ) {
     fatal(diag::unknown_relocation) << (int)type <<
                                        pRelocation.symInfo()->name();
-    return;
+    return Unknown;
   }
 
   // apply the relocation
-  Result result = apply_functions[type].func(pRelocation, pLDInfo, *this);
-
-  // check result
-  if (OK == result) {
-    return;
-  }
-  if (Overflow == result) {
-    error(diag::result_overflow) << apply_functions[type].name
-                                 << pRelocation.symInfo()->name();
-    return;
-  }
-
-  if (BadReloc == result) {
-    error(diag::result_badreloc) << apply_functions[type].name
-                                 << pRelocation.symInfo()->name();
-    return;
-  }
+  return ApplyFunctions[type].func(pRelocation, pLDInfo, *this);
 }
 
+const char* X86RelocationFactory::getName(Relocation::Type pType) const
+{
+  return ApplyFunctions[pType].name;
+}
 
-
-// non-member functions
-
-//=========================================//
-// Relocation helper function              //
-//=========================================//
+//===--------------------------------------------------------------------===//
+// Relocation helper function
+//===--------------------------------------------------------------------===//
 
 // Check if symbol can use relocation R_386_RELATIVE
 static bool
