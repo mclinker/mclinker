@@ -309,15 +309,15 @@ bin_PROGRAMS = llvm-mcld mcld
 
 llvm_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
+llvm_mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
 
-EXTRA_llvm_mcld_DEPENDENCIES = ../lib/libmcld.la
+llvm_mcld_LDADD = ../lib/libmcld.la
 
 mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib ../lib/libmcld.la
+mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
 
-EXTRA_mcld_DEPENDENCIES = ../lib/libmcld.la
+mcld_LDADD = ../lib/libmcld.la
 
 dist_llvm_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
