@@ -24,3 +24,5 @@
   generate shared object with -z relro.
 10) opt_shared_w_execstack.ll
   generate shared object with -z execstack/noexecstack.
+11) opt_nooption.ll
+  empty options.
