@@ -570,7 +570,8 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
 
   ARMRelocationFactory::DWord X = ((S + A) | T) - P;
   // Check X is 24bit sign int. If not, we should use stub or PLT before apply.
-  assert(!helper_check_signed_overflow(X, 26) && "Jump or Call target too far!");
+  if (helper_check_signed_overflow(X, 26))
+    return ARMRelocationFactory::Overflow;
   //                    Make sure the Imm is 0.          Result Mask.
   pReloc.target() = (pReloc.target() & 0xFF000000u) | ((X & 0x03FFFFFEu) >> 2);
   return ARMRelocationFactory::OK;
@@ -638,7 +639,6 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
 
   // FIXME: Check bit size is 24(thumb2) or 22?
   if (helper_check_signed_overflow(X, 25)) {
-    assert(!"Offset is too far. We need stub or PLT for it.");
     return ARMRelocationFactory::Overflow;
   }
 
