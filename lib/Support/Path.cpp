@@ -12,6 +12,8 @@
 
 #include <locale>
 #include <string.h>
+#include <istream>
+#include <ostream>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
