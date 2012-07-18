@@ -360,6 +360,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 }
 
 /// readSymbol - read a symbol from the given Input and index in symtab
+/// This is used to get the signature of a group section.
 ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
                                              LDSection& pSymTab,
                                              MCLDInfo& pLDInfo,

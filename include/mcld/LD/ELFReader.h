@@ -86,6 +86,7 @@ public:
                            const char* StrTab) const = 0;
 
   /// readSymbol - read a symbol from the given Input and index in symtab
+  /// This is used to get the signature of a group section.
   virtual ResolveInfo* readSymbol(Input& pInput,
                                   LDSection& pSymTab,
                                   MCLDInfo& pLDInfo,
@@ -207,6 +208,7 @@ public:
                           const char* StrTab) const;
 
   /// readSymbol - read a symbol from the given Input and index in symtab
+  /// This is used to get the signature of a group section.
   inline ResolveInfo* readSymbol(Input& pInput,
                                  LDSection& pSymTab,
                                  MCLDInfo& pLDInfo,
