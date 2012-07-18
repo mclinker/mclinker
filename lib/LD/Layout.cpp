@@ -534,6 +534,10 @@ void Layout::sortSectionOrder(const Output& pOutput,
   }
 }
 
+/// layout - layout the sections
+///   1. finalize fragment offset
+///   2. compute section order
+///   3. finalize section offset
 bool Layout::layout(Output& pOutput,
                     const TargetLDBackend& pBackend,
                     const MCLDInfo& pInfo)
@@ -544,6 +548,7 @@ bool Layout::layout(Output& pOutput,
   LDContext& output_context = *pOutput.context();
   LDContext::sect_iterator it, itEnd = output_context.sectEnd();
   for (it = output_context.sectBegin(); it != itEnd; ++it) {
+    // calculate 1. all fragment offset, and 2. the section order
     LDSection* sect = *it;
 
     switch (sect->kind()) {
@@ -604,15 +609,17 @@ bool Layout::layout(Output& pOutput,
 
   // Backend defines the section start offset for section 1.
   uint64_t offset = pBackend.sectionStartOffset();
-  // compute the section offset and handle alignment also. And ignore section 0
-  // (NULL in ELF/COFF), and MachO starts from section 1.
+
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
-    // we should not preserve file space for the BSS section.
-    if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind())
+    // compute the section offset and handle alignment also. And ignore section 0
+    // (NULL in ELF/COFF), and MachO starts from section 1.
+
+    if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind()) {
+      // we should not preserve file space for the BSS section.
       offset += m_SectionOrder[index - 1]->size();
+    }
 
     alignAddress(offset, m_SectionOrder[index]->align());
-
     m_SectionOrder[index]->setOffset(offset);
   }
 

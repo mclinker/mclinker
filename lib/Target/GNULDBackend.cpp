@@ -1366,33 +1366,38 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     interp_seg->addSection(&file_format->getInterp());
   }
 
+  // FIXME: Should we consider -z relro here?
   if (pInfo.options().hasRelro()) {
     // if -z relro is given, we need to adjust sections' offset again, and let
     // PT_GNU_RELRO end on a common page boundary
     LDContext::SectionTable& sect_table = pOutput.context()->getSectionTable();
-    size_t idx = 0;
-    while (idx < pOutput.context()->numOfSections()) {
-      // find the first non-relro section, and align its offset to a page
-      // boundary
+
+    size_t idx;
+    for (idx = 0; idx < pOutput.context()->numOfSections(); ++idx) {
+      // find the first non-relro section
       if (getSectionOrder(pOutput, *sect_table[idx], pInfo) > SHO_RELRO_LAST) {
-        uint64_t offset = sect_table[idx]->offset();
-        alignAddress(offset, commonPageSize(pInfo));
-        sect_table[idx]->setOffset(offset);
-        ++idx;
         break;
       }
-      ++idx;
     }
-    while (idx < pOutput.context()->numOfSections()) {
-      // adjust the remaining sections' offset
-      uint64_t offset = sect_table[idx - 1]->offset();
-      if (LDFileFormat::BSS != sect_table[idx - 1]->kind())
-        offset += sect_table[idx - 1]->size();
+
+    // align the first non-relro section to page boundary
+    uint64_t offset = sect_table[idx]->offset();
+    alignAddress(offset, commonPageSize(pInfo));
+    sect_table[idx]->setOffset(offset);
+
+    // set up remaining section's offset
+    for (++idx; idx < pOutput.context()->numOfSections(); ++idx) {
+      uint64_t offset;
+      size_t prev_idx = idx - 1;
+      if (LDFileFormat::BSS == sect_table[prev_idx]->kind())
+        offset = sect_table[prev_idx]->offset();
+      else
+        offset = sect_table[prev_idx]->offset() + sect_table[prev_idx]->size();
+
       alignAddress(offset, sect_table[idx]->align());
       sect_table[idx]->setOffset(offset);
-      ++idx;
     }
-  }
+  } // relro
 
   uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
   uint64_t padding = 0;
@@ -1585,7 +1590,7 @@ void GNULDBackend::preLayout(const Output& pOutput,
   }
 }
 
-/// postLayout -Backend can do any needed modification after layout
+/// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(const Output& pOutput,
                               const MCLDInfo& pInfo,
                               MCLinker& pLinker)
