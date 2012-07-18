@@ -50,6 +50,9 @@ MCLinker::~MCLinker()
     delete m_pSectionMerger;
 }
 
+//===----------------------------------------------------------------------===//
+// Symbol Operations
+//===----------------------------------------------------------------------===//
 /// addSymbolFromObject - add a symbol from object file and resolve it
 /// immediately
 LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
@@ -424,6 +427,54 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
                                           pVisibility);
 }
 
+bool MCLinker::finalizeSymbols()
+{
+  SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
+  for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
+
+    if ((*symbol)->resolveInfo()->isAbsolute() ||
+        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
+      // absolute symbols or symbols with function type should have
+      // zero value
+      (*symbol)->setValue(0x0);
+      continue;
+    }
+
+    if ((*symbol)->hasFragRef()) {
+      // set the virtual address of the symbol. If the output file is
+      // relocatable object file, the section's virtual address becomes zero.
+      // And the symbol's value become section relative offset.
+      uint64_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
+      assert(NULL != (*symbol)->fragRef()->frag());
+      uint64_t addr  = getLayout().getOutputLDSection(*(*symbol)->fragRef()->frag())->addr();
+      (*symbol)->setValue(value + addr);
+      continue;
+    }
+  }
+
+  // finialize target-dependent symbols
+  return m_Backend.finalizeSymbols(*this, m_LDInfo.output());
+}
+
+bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
+{
+  // forced local symbol matches all rules:
+  // 1. We are not doing incremental linking.
+  // 2. The symbol is with Hidden or Internal visibility.
+  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
+  // 4. The symbol is defined or common
+  if (m_LDInfo.output().type() != Output::Object &&
+      (pInfo.visibility() == ResolveInfo::Hidden ||
+         pInfo.visibility() == ResolveInfo::Internal) &&
+      (pInfo.isGlobal() || pInfo.isWeak()) &&
+      (pInfo.isDefine() || pInfo.isCommon()))
+    return true;
+  return false;
+}
+
+//===----------------------------------------------------------------------===//
+// Section Operations
+//===----------------------------------------------------------------------===//
 /// createSectHdr - create the input section header
 LDSection& MCLinker::createSectHdr(const std::string& pName,
                                    LDFileFormat::Kind pKind,
@@ -509,6 +560,21 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
   return *sect_data;
 }
 
+void MCLinker::initSectionMap()
+{
+  assert(m_LDInfo.output().hasContext());
+  if (NULL == m_pSectionMerger)
+    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_LDInfo.output().context());
+}
+
+bool MCLinker::layout()
+{
+  return m_Layout.layout(m_LDInfo.output(), m_Backend, m_LDInfo);
+}
+
+//===----------------------------------------------------------------------===//
+// Relocation Operations
+//===----------------------------------------------------------------------===//
 /// addRelocation - add a relocation entry in MCLinker (only for object file)
 ///
 /// All symbols should be read and resolved before calling this function.
@@ -600,63 +666,9 @@ void MCLinker::syncRelocationResult()
   m_LDInfo.output().memArea()->clear();
 }
 
-void MCLinker::initSectionMap()
-{
-  assert(m_LDInfo.output().hasContext());
-  if (NULL == m_pSectionMerger)
-    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_LDInfo.output().context());
-}
-
-bool MCLinker::layout()
-{
-  return m_Layout.layout(m_LDInfo.output(), m_Backend, m_LDInfo);
-}
-
-bool MCLinker::finalizeSymbols()
-{
-  SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
-  for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
-
-    if ((*symbol)->resolveInfo()->isAbsolute() ||
-        (*symbol)->resolveInfo()->type() == ResolveInfo::File) {
-      // absolute symbols or symbols with function type should have
-      // zero value
-      (*symbol)->setValue(0x0);
-      continue;
-    }
-
-    if ((*symbol)->hasFragRef()) {
-      // set the virtual address of the symbol. If the output file is
-      // relocatable object file, the section's virtual address becomes zero.
-      // And the symbol's value become section relative offset.
-      uint64_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
-      assert(NULL != (*symbol)->fragRef()->frag());
-      uint64_t addr  = getLayout().getOutputLDSection(*(*symbol)->fragRef()->frag())->addr();
-      (*symbol)->setValue(value + addr);
-      continue;
-    }
-  }
-
-  // finialize target-dependent symbols
-  return m_Backend.finalizeSymbols(*this, m_LDInfo.output());
-}
-
-bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
-{
-  // forced local symbol matches all rules:
-  // 1. We are not doing incremental linking.
-  // 2. The symbol is with Hidden or Internal visibility.
-  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
-  // 4. The symbol is defined or common
-  if (m_LDInfo.output().type() != Output::Object &&
-      (pInfo.visibility() == ResolveInfo::Hidden ||
-         pInfo.visibility() == ResolveInfo::Internal) &&
-      (pInfo.isGlobal() || pInfo.isWeak()) &&
-      (pInfo.isDefine() || pInfo.isCommon()))
-    return true;
-  return false;
-}
-
+//===----------------------------------------------------------------------===//
+// Exception Handling Operations
+//===----------------------------------------------------------------------===//
 /// addEhFrame - add an exception handling section
 /// @param pSection - the input section
 /// @param pArea - the memory area which pSection is within.
