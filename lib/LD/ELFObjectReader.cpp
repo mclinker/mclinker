@@ -49,7 +49,8 @@ bool ELFObjectReader::isMyFormat(Input &pInput) const
   // Don't warning about the frequently requests.
   // MemoryArea has a list of cache to handle this.
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
+                                                     hdr_size);
 
   uint8_t* ELF_hdr = region->start();
   bool result = true;
@@ -71,7 +72,8 @@ bool ELFObjectReader::readObject(Input& pInput)
   assert(pInput.hasMemArea());
 
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
+                                                     hdr_size);
   uint8_t* ELF_hdr = region->start();
   bool result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
   pInput.memArea()->release(region);
@@ -111,11 +113,10 @@ bool ELFObjectReader::readSections(Input& pInput)
         if (exist) {
           // if this is not the first time we see this group signature, then
           // ignore all the members in this group (set NULL)
-          MemoryRegion* region =
-              pInput.memArea()->request((*section)->offset(),
-                                        (*section)->size());
+          MemoryRegion* region = pInput.memArea()->request(
+               pInput.fileOffset() + (*section)->offset(), (*section)->size());
           llvm::ELF::Elf32_Word* value =
-                      reinterpret_cast<llvm::ELF::Elf32_Word*>(region->start());
+                     reinterpret_cast<llvm::ELF::Elf32_Word*>(region->start());
 
           size_t size = region->size() / sizeof(llvm::ELF::Elf32_Word);
           if (llvm::ELF::GRP_COMDAT == *value) {
@@ -225,10 +226,10 @@ bool ELFObjectReader::readSymbols(Input& pInput)
     return false;
   }
 
-  MemoryRegion* symtab_region = pInput.memArea()->request(symtab_shdr->offset(),
-                                                          symtab_shdr->size());
-  MemoryRegion* strtab_region = pInput.memArea()->request(strtab_shdr->offset(),
-                                                          strtab_shdr->size());
+  MemoryRegion* symtab_region = pInput.memArea()->request(
+             pInput.fileOffset() + symtab_shdr->offset(), symtab_shdr->size());
+  MemoryRegion* strtab_region = pInput.memArea()->request(
+             pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
   char* strtab = reinterpret_cast<char*>(strtab_region->start());
   bool result = m_pELFReader->readSymbols(pInput,
                                           m_Linker,
@@ -252,15 +253,18 @@ bool ELFObjectReader::readRelocations(Input& pInput)
 
     if ((*section)->type() == llvm::ELF::SHT_RELA &&
         (*section)->kind() == LDFileFormat::Relocation) {
-      MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
-      bool result = m_pELFReader->readRela(pInput, m_Linker, **section, *region);
+      MemoryRegion* region = mem->request(
+               pInput.fileOffset() + (*section)->offset(), (*section)->size());
+      bool result = m_pELFReader->readRela(pInput, m_Linker, **section,
+                                           *region);
       mem->release(region);
       if (!result)
         return false;
     }
     else if ((*section)->type() == llvm::ELF::SHT_REL &&
              (*section)->kind() == LDFileFormat::Relocation) {
-      MemoryRegion* region = mem->request((*section)->offset(), (*section)->size());
+      MemoryRegion* region = mem->request(
+               pInput.fileOffset() + (*section)->offset(), (*section)->size());
       bool result = m_pELFReader->readRel(pInput, m_Linker, **section, *region);
       mem->release(region);
       if (!result)

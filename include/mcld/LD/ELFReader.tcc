@@ -112,7 +112,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   if (0x0 == shoff)
     return true;
 
-  MemoryRegion* shdr_region = pInput.memArea()->request(shoff, shnum*shentsize);
+  MemoryRegion* shdr_region = pInput.memArea()->request(
+                                pInput.fileOffset() + shoff, shnum*shentsize);
   llvm::ELF::Elf32_Shdr* shdrTab =
                 reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
 
@@ -136,7 +137,8 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     sh_size   = bswap32(shdr->sh_size);
   }
 
-  MemoryRegion* sect_name_region = pInput.memArea()->request(sh_offset, sh_size);
+  MemoryRegion* sect_name_region = pInput.memArea()->request(
+                                     pInput.fileOffset() + sh_offset, sh_size);
   const char* sect_name = reinterpret_cast<const char*>(sect_name_region->start());
 
   LinkInfoList link_info_list;
@@ -217,8 +219,8 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
                                                          pInputSectHdr.type(),
                                                          pInputSectHdr.flag());
 
-  MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
-                                                   pInputSectHdr.size());
+  MemoryRegion* region = pInput.memArea()->request(
+           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 

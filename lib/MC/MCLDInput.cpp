@@ -16,7 +16,8 @@ using namespace mcld;
 Input::Input(llvm::StringRef pName, const AttributeProxy& pProxy)
  : MCLDFile(pName),
    m_pAttr(const_cast<Attribute*>(pProxy.attr())),
-   m_bNeeded(false) {
+   m_bNeeded(false),
+   m_fileOffset(0) {
 }
 
 Input::Input(llvm::StringRef pName,

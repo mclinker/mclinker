@@ -660,7 +660,9 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 /// addEhFrame - add an exception handling section
 /// @param pSection - the input section
 /// @param pArea - the memory area which pSection is within.
-uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
+uint64_t MCLinker::addEhFrame(const Input& pInput,
+                              LDSection& pSection,
+                              MemoryArea& pArea)
 {
   uint64_t size = 0;
 
@@ -672,8 +674,8 @@ uint64_t MCLinker::addEhFrame(LDSection& pSection, MemoryArea& pArea)
     EhFrame* ehframe = m_Backend.getEhFrame();
     assert(NULL != ehframe);
     if (ehframe->canRecognizeAllEhFrame()) {
-      size = ehframe->readEhFrame(m_Layout, m_Backend, sect_data, pSection,
-                                       pArea);
+      size = ehframe->readEhFrame(m_Layout, m_Backend, sect_data, pInput,
+                                    pSection, pArea);
       // zero size indicate that this is an empty section or we can't recognize
       // this eh_frame, handle it as a regular section.
       if (0 != size)

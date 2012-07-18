@@ -28,11 +28,12 @@ EhFrame::~EhFrame()
 uint64_t EhFrame::readEhFrame(Layout& pLayout,
                               const TargetLDBackend& pBackend,
                               llvm::MCSectionData& pSD,
+                              const Input& pInput,
                               LDSection& pSection,
                               MemoryArea& pArea)
 {
-  MemoryRegion* region = pArea.request(pSection.offset(),
-                                       pSection.size());
+  MemoryRegion* region = pArea.request(
+                     pInput.fileOffset() + pSection.offset(), pSection.size());
   // an empty .eh_frame
   if (NULL == region) {
     note(diag::note_ehframe) << "an empty eh_frame";

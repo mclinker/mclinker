@@ -141,7 +141,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
                                uint16_t pShndx,
                                uint32_t pOffset) const
 {
-  
+
   if (pShndx == llvm::ELF::SHN_UNDEF || pShndx >= llvm::ELF::SHN_LORESERVE)
     return NULL;
 
@@ -150,7 +150,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
   if (NULL == sect_hdr)
     unreachable(diag::unreachable_invalid_section_idx) << pShndx
                                                        << pInput.path().native();
-  
+
   MCFragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
   return result;
 }
@@ -197,7 +197,7 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
                                                          pInputSectHdr.type(),
                                                          pInputSectHdr.flag());
 
-  size_t size = pLinker.addEhFrame(pInputSectHdr, *pInput.memArea());
+  size_t size = pLinker.addEhFrame(pInput, pInputSectHdr, *pInput.memArea());
 
   out_sect.setSize(out_sect.size() + size);
   return true;

@@ -840,8 +840,8 @@ bool ARMGNULDBackend::readSection(Input& pInput,
       (0 != out_sect.size()))
     return true;
 
-  MemoryRegion* region = pInput.memArea()->request(pInputSectHdr.offset(),
-                                                   pInputSectHdr.size());
+  MemoryRegion* region = pInput.memArea()->request(
+          pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
   llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 

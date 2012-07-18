@@ -44,7 +44,8 @@ bool ELFDynObjReader::isMyFormat(Input &pInput) const
   // Don't warning about the frequently requests.
   // MemoryArea has a list of cache to handle this.
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
+                                                   hdr_size);
 
   uint8_t* ELF_hdr = region->start();
   bool result = true;
@@ -66,7 +67,8 @@ bool ELFDynObjReader::readDSO(Input& pInput)
   assert(pInput.hasMemArea());
 
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
-  MemoryRegion* region = pInput.memArea()->request(0, hdr_size);
+  MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
+                                                   hdr_size);
   uint8_t* ELF_hdr = region->start();
 
   bool shdr_result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
@@ -99,13 +101,14 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
     return false;
   }
 
-  MemoryRegion* symtab_region = pInput.memArea()->request(symtab_shdr->offset(),
-                                                          symtab_shdr->size());
+  MemoryRegion* symtab_region = pInput.memArea()->request(
+              pInput.fileOffset() + symtab_shdr->offset(), symtab_shdr->size());
 
-  MemoryRegion* strtab_region = pInput.memArea()->request(strtab_shdr->offset(),
-                                                          strtab_shdr->size());
+  MemoryRegion* strtab_region = pInput.memArea()->request(
+              pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
   char* strtab = reinterpret_cast<char*>(strtab_region->start());
-  bool result = m_pELFReader->readSymbols(pInput, m_Linker, *symtab_region, strtab);
+  bool result = m_pELFReader->readSymbols(pInput, m_Linker, *symtab_region,
+                                            strtab);
   pInput.memArea()->release(symtab_region);
   pInput.memArea()->release(strtab_region);
 

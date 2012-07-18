@@ -28,6 +28,7 @@ namespace mcld
  */
 
 class TargetLDBackend;
+class Input;
 
 class EhFrame
 {
@@ -54,6 +55,7 @@ public:
   uint64_t readEhFrame(Layout& pLayout,
                        const TargetLDBackend& pBackend,
                        llvm::MCSectionData& pSD,
+                       const Input& pInput,
                        LDSection& pSection,
                        MemoryArea& pArea);
 
