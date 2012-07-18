@@ -16,6 +16,7 @@ using namespace mcld;
 
 //===--------------------------------------------------------------------===//
 // MemoryArea
+//===--------------------------------------------------------------------===//
 
 // MemoryArea - special constructor
 // This constructor is used for *SPECIAL* situation. I'm sorry I can not
@@ -54,12 +55,11 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
 {
   Space* space = find(pOffset, pLength);
   if (NULL == space) {
-
     // not found
     if (NULL == m_pFileHandle) {
       // if m_pFileHandle is NULL, clients delegate us an universal Space and
       // we never remove it. In that way, space can not be NULL.
-      unreachable(diag::err_out_of_range_region);
+      unreachable(diag::err_out_of_range_region) << pOffset << pLength;
     }
 
     space = Space::createSpace(*m_pFileHandle, pOffset, pLength);
@@ -94,8 +94,8 @@ void MemoryArea::release(MemoryRegion* pRegion)
         Space::syncSpace(space, *m_pFileHandle);
       }
       Space::releaseSpace(space, *m_pFileHandle);
+      m_SpaceList.erase(space);
     }
-    m_SpaceList.erase(space);
   }
 }
 
