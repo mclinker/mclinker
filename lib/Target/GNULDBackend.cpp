@@ -99,21 +99,21 @@ uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
 
 bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
 {
-  if (0 == m_pArchiveReader)
+  if (NULL == m_pArchiveReader)
     m_pArchiveReader = new GNUArchiveReader(pInfo);
   return true;
 }
 
 bool GNULDBackend::initObjectReader(MCLinker& pLinker)
 {
-  if (0 == m_pObjectReader)
+  if (NULL == m_pObjectReader)
     m_pObjectReader = new ELFObjectReader(*this, pLinker);
   return true;
 }
 
 bool GNULDBackend::initDynObjReader(MCLinker& pLinker)
 {
-  if (0 == m_pDynObjReader)
+  if (NULL == m_pDynObjReader)
     m_pDynObjReader = new ELFDynObjReader(*this, pLinker);
   return true;
 }
@@ -140,7 +140,7 @@ bool GNULDBackend::initExecWriter(MCLinker& pLinker)
 
 bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
 {
-  if (0 == m_pExecFileFormat)
+  if (NULL == m_pExecFileFormat)
     m_pExecFileFormat = new ELFExecFileFormat(*this);
 
   // initialize standard sections
@@ -150,7 +150,7 @@ bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
 
 bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
 {
-  if (0 == m_pDynObjFileFormat)
+  if (NULL == m_pDynObjFileFormat)
     m_pDynObjFileFormat = new ELFDynObjFileFormat(*this);
 
   // initialize standard sections
@@ -552,37 +552,37 @@ GNULDBackend::finalizeStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 
 GNUArchiveReader *GNULDBackend::getArchiveReader()
 {
-  assert(0 != m_pArchiveReader);
+  assert(NULL != m_pArchiveReader);
   return m_pArchiveReader;
 }
 
 const GNUArchiveReader *GNULDBackend::getArchiveReader() const
 {
-  assert(0 != m_pArchiveReader);
+  assert(NULL != m_pArchiveReader);
   return m_pArchiveReader;
 }
 
 ELFObjectReader *GNULDBackend::getObjectReader()
 {
-  assert(0 != m_pObjectReader);
+  assert(NULL != m_pObjectReader);
   return m_pObjectReader;
 }
 
 const ELFObjectReader *GNULDBackend::getObjectReader() const
 {
-  assert(0 != m_pObjectReader);
+  assert(NULL != m_pObjectReader);
   return m_pObjectReader;
 }
 
 ELFDynObjReader *GNULDBackend::getDynObjReader()
 {
-  assert(0 != m_pDynObjReader);
+  assert(NULL != m_pDynObjReader);
   return m_pDynObjReader;
 }
 
 const ELFDynObjReader *GNULDBackend::getDynObjReader() const
 {
-  assert(0 != m_pDynObjReader);
+  assert(NULL != m_pDynObjReader);
   return m_pDynObjReader;
 }
 
@@ -600,13 +600,13 @@ const ELFObjectWriter *GNULDBackend::getObjectWriter() const
 
 ELFDynObjWriter *GNULDBackend::getDynObjWriter()
 {
-  assert(0 != m_pDynObjWriter);
+  assert(NULL != m_pDynObjWriter);
   return m_pDynObjWriter;
 }
 
 const ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
 {
-  assert(0 != m_pDynObjWriter);
+  assert(NULL != m_pDynObjWriter);
   return m_pDynObjWriter;
 }
 
@@ -654,25 +654,25 @@ const ELFFileFormat* GNULDBackend::getOutputFormat(const Output& pOutput) const
 
 ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
 {
-  assert(0 != m_pDynObjFileFormat);
+  assert(NULL != m_pDynObjFileFormat);
   return m_pDynObjFileFormat;
 }
 
 const ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat() const
 {
-  assert(0 != m_pDynObjFileFormat);
+  assert(NULL != m_pDynObjFileFormat);
   return m_pDynObjFileFormat;
 }
 
 ELFExecFileFormat* GNULDBackend::getExecFileFormat()
 {
-  assert(0 != m_pExecFileFormat);
+  assert(NULL != m_pExecFileFormat);
   return m_pExecFileFormat;
 }
 
 const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 {
-  assert(0 != m_pExecFileFormat);
+  assert(NULL != m_pExecFileFormat);
   return m_pExecFileFormat;
 }
 
