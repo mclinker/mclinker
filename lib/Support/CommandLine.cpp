@@ -16,9 +16,9 @@ using namespace llvm::cl;
 
 using namespace mcld;
 
-//--------------------------------------------------
+//===----------------------------------------------------------------------===//
 // parser<mcld::sys::fs::Path>
-//
+//===----------------------------------------------------------------------===//
 bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option &O,
                        llvm::StringRef ArgName,
                        llvm::StringRef Arg,
@@ -52,9 +52,9 @@ void parser<mcld::sys::fs::Path>::anchor()
   // do nothing
 }
 
-//--------------------------------------------------
+//===----------------------------------------------------------------------===//
 // parser<mcld::MCLDDirectory>
-//
+//===----------------------------------------------------------------------===//
 bool parser<mcld::MCLDDirectory>::parse(llvm::cl::Option &O,
                                 llvm::StringRef ArgName,
                                 llvm::StringRef Arg,
@@ -86,9 +86,9 @@ void parser<mcld::MCLDDirectory>::anchor()
   // do nothing
 }
 
-//--------------------------------------------------
+//===----------------------------------------------------------------------===//
 // parser<mcld::ZOption>
-//
+//===----------------------------------------------------------------------===//
 bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,
                                   llvm::StringRef ArgName,
                                   llvm::StringRef Arg,
