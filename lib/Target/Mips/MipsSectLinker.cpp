@@ -26,9 +26,11 @@ SectLinker* createMipsSectLinker(const std::string &pTriple,
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
+    return NULL;
   }
   if (theTriple.isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
+    return NULL;
   }
 
   return new MipsELFSectLinker(pOption, pLDBackend);
