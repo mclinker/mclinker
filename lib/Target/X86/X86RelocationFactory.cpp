@@ -249,6 +249,9 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
+  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
+                       *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                       pLDInfo, pLDInfo.output(), true);
 
   const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
@@ -261,7 +264,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   }
 
   // A local symbol may need REL Type dynamic relocation
-  if (rsym->isLocal() && (rsym->reserved() & X86GNULDBackend::ReserveRel)) {
+  if (rsym->isLocal() && has_dyn_rel) {
     helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
@@ -276,7 +279,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
     // If we generate a dynamic relocation (except R_386_RELATIVE)
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
-    if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+    if (has_dyn_rel) {
       if (helper_use_relative_reloc(*rsym, pLDInfo, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }

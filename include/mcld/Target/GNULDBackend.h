@@ -272,6 +272,14 @@ public:
                            const MCLDInfo& pLDInfo,
                            const Output& pOutput) const;
 
+  /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
+  /// @ref Google gold linker, symtab.h:645
+  bool symbolNeedsDynRel(const ResolveInfo& pSym,
+                         bool pSymHasPLT,
+                         const MCLDInfo& pLDInfo,
+                         const Output& pOutput,
+                         bool isAbsReloc) const;
+
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -295,20 +303,11 @@ protected:
   /// isStaticLink - return whether we're doing static link
   bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
 
-public:
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
   bool symbolNeedsPLT(const ResolveInfo& pSym,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput) const;
-
-  /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
-  /// @ref Google gold linker, symtab.h:645
-  bool symbolNeedsDynRel(const ResolveInfo& pSym,
-                         bool pSymHasPLT,
-                         const MCLDInfo& pLDInfo,
-                         const Output& pOutput,
-                         bool isAbsReloc) const;
 
   /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
   bool symbolNeedsCopyReloc(const Layout& pLayout,
