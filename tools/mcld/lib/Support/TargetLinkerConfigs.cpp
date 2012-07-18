@@ -43,12 +43,6 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
   }
-
-  // set up default search path
-  addSearchDir("=/lib");
-  addSearchDir("=/usr/lib");
-
-  return;
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
 
@@ -76,12 +70,6 @@ MipsLinkerConfig::MipsLinkerConfig()
   if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
   }
-
-  // set up default search path
-  addSearchDir("=/lib");
-  addSearchDir("=/usr/lib");
-
-  return;
 }
 #endif // defined(PROVIDE_MIPS_CODEGEN)
 
@@ -108,12 +96,6 @@ X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   if (!getLDInfo()->options().hasDyld()) {
     getLDInfo()->options().setDyld(gDefaultDyld);
   }
-
-  // set up default search path
-  addSearchDir("=/lib");
-  addSearchDir("=/usr/lib");
-
-  return;
 }
 
 X86_32LinkerConfig::X86_32LinkerConfig()

@@ -226,6 +226,10 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename) {
     config->addSearchDir(*sdir);
   }
 
+  // set up default search directories
+  config->addSearchDir("=/lib");
+  config->addSearchDir("=/usr/lib");
+
   // 7. Set up output's type.
   config->setShared(OptShared);
 
