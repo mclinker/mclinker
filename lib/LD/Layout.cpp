@@ -23,6 +23,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // Range
+//===----------------------------------------------------------------------===//
 Layout::Range::Range()
   : header(NULL),
     prevRear(NULL) {
@@ -39,6 +40,7 @@ Layout::Range::~Range()
 
 //===----------------------------------------------------------------------===//
 // Layout
+//===----------------------------------------------------------------------===//
 Layout::Layout()
   : m_FragRefFactory(32) /** magic number **/ {
 }
@@ -51,19 +53,21 @@ void Layout::setFragmentLayoutOrder(llvm::MCFragment* pFrag)
 {
   if (NULL == pFrag)
     return;
-  // compute the most-recent fragment whose order was set.
-  llvm::MCFragment* first = pFrag;
 
+  /// find the most-recent fragment whose order was set.
+  llvm::MCFragment* first = pFrag;
   while (!hasLayoutOrder(*first)) {
     if (NULL == first->getPrevNode())
       break;
     first = first->getPrevNode();
   }
 
-  // set all layout order
+  /// set all layout order
+
+  // find the first fragment who has no order.
+  // find the last order of the fragment
   unsigned int layout_order = 0;
   llvm::MCFragment* frag_not_set = NULL;
-
   if (NULL == first->getPrevNode()) {
     layout_order = 0;
     frag_not_set = first;
@@ -73,7 +77,7 @@ void Layout::setFragmentLayoutOrder(llvm::MCFragment* pFrag)
     frag_not_set = first->getNextNode();
   }
 
-  // set up all layout order
+  // for all fragments that has no order, set up its order
   while(NULL != frag_not_set) {
     frag_not_set->setLayoutOrder(layout_order);
     ++layout_order;
@@ -88,7 +92,8 @@ void Layout::setFragmentLayoutOffset(llvm::MCFragment* pFrag)
 {
   if (NULL == pFrag)
     return;
-  // compute the most-recent fragment whose offset was set.
+
+  // find the most-recent fragment whose offset was set.
   llvm::MCFragment* first = pFrag;
 
   while (!hasLayoutOffset(*first)) {
@@ -120,6 +125,7 @@ void Layout::setFragmentLayoutOffset(llvm::MCFragment* pFrag)
 /// addInputRange
 ///   1. add a new range <pInputHdr, previous rear fragment>
 ///   2. compute the layout order of all previous ranges.
+///   2. compute the layout offset of all previous ranges.
 void Layout::addInputRange(const llvm::MCSectionData& pSD,
                            const LDSection& pInputHdr)
 {
