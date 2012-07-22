@@ -11,20 +11,13 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
 class ${class_name};
-
 } // namespace for mcld
 
 namespace mcldtest
 {
 
-/** \class ${class_name}Test
- *  \brief ${brief}
- *
- *  \see ${class_name} 
- */
 class ${class_name}Test : public ::testing::Test
 {
 public:
@@ -39,9 +32,6 @@ public:
 
   // TearDown() will be called immediately after each test.
   virtual void TearDown();
-
-protected:
-  mcld::${class_name}* m_pTestee;
 };
 
 } // namespace of mcldtest

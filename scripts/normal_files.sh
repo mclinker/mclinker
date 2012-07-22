@@ -125,11 +125,14 @@ function replace_class
 {
 	local TARGET_FILE=$1
 	local CLASS_NAME=$2
+	local DEPLOYMENT=$3
 	local UPCLASS_NAME=`echo ${CLASS_NAME} | tr [:lower:] [:upper:]`
 
 	sed -e "s/\${class_name}/${CLASS_NAME}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
 	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 	sed -e "s/\${CLASS_NAME}/${UPCLASS_NAME}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
+	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
+	sed -e "s/\${deployment}/${DEPLOYMENT}/g" ${TARGET_FILE} > ${TARGET_FILE}.tmp
 	mv ${TARGET_FILE}.tmp ${TARGET_FILE}
 }
 
