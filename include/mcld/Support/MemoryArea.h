@@ -53,6 +53,10 @@ class RegionFactory;
  */
 class MemoryArea : private Uncopyable
 {
+  friend class MemoryAreaFactory;
+public:
+  typedef llvm::iplist<Space> SpaceList;
+
 public:
   // constructor
   MemoryArea(RegionFactory& pRegionFactory,
@@ -79,15 +83,6 @@ public:
 
   const FileHandle* handler() const
   { return m_pFileHandle; }
-
-private:
-  friend class MemoryAreaFactory;
-
-#if defined(ENABLE_UNITTEST)
-  friend class mcldtest::MemoryAreaTest;
-#endif
-
-  typedef llvm::iplist<Space> SpaceList;
 
 private:
   // -----  special methods ----- //
