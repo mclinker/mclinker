@@ -113,7 +113,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     return true;
 
   MemoryRegion* shdr_region = pInput.memArea()->request(
-                                pInput.fileOffset() + shoff, shnum*shentsize);
+                                 pInput.fileOffset() + shoff, shnum*shentsize);
   llvm::ELF::Elf32_Shdr* shdrTab =
                 reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
 
@@ -138,8 +138,9 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   }
 
   MemoryRegion* sect_name_region = pInput.memArea()->request(
-                                     pInput.fileOffset() + sh_offset, sh_size);
-  const char* sect_name = reinterpret_cast<const char*>(sect_name_region->start());
+                                      pInput.fileOffset() + sh_offset, sh_size);
+  const char* sect_name =
+                       reinterpret_cast<const char*>(sect_name_region->start());
 
   LinkInfoList link_info_list;
 
@@ -372,7 +373,8 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   LDSection* strtab = symtab->getLink();
   assert(NULL != symtab && NULL != strtab);
 
-  uint32_t offset = symtab->offset() + sizeof(llvm::ELF::Elf32_Sym) * pSymIdx;
+  uint32_t offset = pInput.fileOffset() + symtab->offset() +
+                      sizeof(llvm::ELF::Elf32_Sym) * pSymIdx;
   MemoryRegion* symbol_region =
                 pInput.memArea()->request(offset, sizeof(llvm::ELF::Elf32_Sym));
   llvm::ELF::Elf32_Sym* entry =
@@ -399,11 +401,12 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
     st_shndx = bswap16(entry->st_shndx);
   }
 
-  MemoryRegion* strtab_region =
-                    pInput.memArea()->request(strtab->offset(), strtab->size());
+  MemoryRegion* strtab_region = pInput.memArea()->request(
+                       pInput.fileOffset() + strtab->offset(), strtab->size());
 
   // get ld_name
-  llvm::StringRef ld_name(reinterpret_cast<char*>(strtab_region->start() + st_name));
+  llvm::StringRef ld_name(
+                    reinterpret_cast<char*>(strtab_region->start() + st_name));
 
   // get ld_type
   ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
@@ -412,7 +415,8 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
 
   // get ld_binding
-  ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx, st_other);
+  ResolveInfo::Binding ld_binding =
+                             getSymBinding((st_info >> 4), st_shndx, st_other);
 
   // get ld_vis
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
@@ -542,11 +546,11 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
     fatal(diag::err_cannot_read_section) << ".dynstr";
   }
 
-  MemoryRegion* dynamic_region =
-    pInput.memArea()->request(dynamic_sect->offset(), dynamic_sect->size());
+  MemoryRegion* dynamic_region = pInput.memArea()->request(
+           pInput.fileOffset() + dynamic_sect->offset(), dynamic_sect->size());
 
-  MemoryRegion* dynstr_region =
-    pInput.memArea()->request(dynstr_sect->offset(), dynstr_sect->size());
+  MemoryRegion* dynstr_region = pInput.memArea()->request(
+             pInput.fileOffset() + dynstr_sect->offset(), dynstr_sect->size());
 
   assert(NULL != dynamic_region && NULL != dynstr_region);
 
