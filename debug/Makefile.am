@@ -292,6 +292,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 
 if ENABLE_UNITTEST
 UNITTEST_SOURCE = \
+	${UNITTEST}/Linker/TestLinker.h \
+	${UNITTEST}/Linker/TestLinker.cpp \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \

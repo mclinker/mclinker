@@ -1,0 +1,214 @@
+//===- TestLinker.cpp -----------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include "TestLinker.h"
+
+#include <iostream>
+
+#include <llvm/Support/TargetSelect.h>
+
+#include <mcld/LD/TextDiagnosticPrinter.h>
+#include <mcld/MC/InputTree.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Support/RegionFactory.h>
+#include <mcld/Support/TargetSelect.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/SystemUtils.h>
+
+using namespace mcld;
+using namespace mcld::test;
+
+//===----------------------------------------------------------------------===//
+// TestLinker
+//===----------------------------------------------------------------------===//
+TestLinker::TestLinker()
+  : m_pTarget(NULL), m_pDriver(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
+    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pRegionFactory(NULL) {
+}
+
+TestLinker::~TestLinker()
+{
+  delete m_pDriver;
+  delete m_pInfo;
+  delete m_pDiagLineInfo;
+  delete m_pDiagPrinter;
+  delete m_pBackend;
+  delete m_pRegionFactory;
+}
+
+bool TestLinker::initialize(const std::string &pTriple)
+{
+  bool is_initialized = false;
+
+  if (is_initialized)
+    return false;
+
+  // initilaize all llvm::Target and mcld::Target
+  llvm::InitializeAllTargets();
+  llvm::InitializeAllAsmPrinters();
+  llvm::InitializeAllAsmParsers();
+  llvm::InitializeAllTargetMCs();
+  mcld::InitializeAllTargets();
+  mcld::InitializeAllDiagnostics();
+
+  // create mcld::MCLDInfo
+  m_pInfo = new MCLDInfo(pTriple, 1, 32);
+  m_Root = m_pInfo->inputs().root();
+
+  // create mcld::RegionFactory
+  m_pRegionFactory = new mcld::RegionFactory(32);
+
+  // specify mcld::Target
+  std::string error;
+  m_pTarget = mcld::TargetRegistry::lookupTarget(pTriple, error);
+  if (NULL == m_pTarget) {
+    std::cerr << "Cannot initialize mcld::Target for given triple `"
+         << pTriple << ".\n(Detail:" << error << ")" << std::endl;
+    return false;
+  }
+
+  // create mcld::DiagnosticEngine
+  m_pDiagLineInfo = m_pTarget->createDiagnosticLineInfo(*m_pTarget, pTriple);
+  if (NULL == m_pDiagLineInfo) {
+    std::cerr << "Cannot initialize mcld::DiagnosticLineInfo" << std::endl;
+    return false;
+  }
+
+  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pInfo);
+
+  mcld::InitializeDiagnosticEngine(*m_pInfo, m_pDiagLineInfo, m_pDiagPrinter);
+
+  // create mcld::TargetLDBackend
+  m_pBackend = m_pTarget->createLDBackend(pTriple);
+  if (NULL == m_pBackend) {
+    std::cerr << "Cannot initialize mcld::TargetLDBackend for given triple `"
+              << pTriple << ".\n";
+    return false;
+  }
+
+  m_pDriver = new mcld::MCLDDriver(*m_pInfo, *m_pBackend);
+
+  m_pDriver->initMCLinker();
+
+  is_initialized = true;
+  return true;
+}
+
+void TestLinker::addObject(const std::string &pPath)
+{
+  mcld::Input* input = m_pInfo->inputFactory().produce(pPath, pPath,
+                                                       mcld::Input::Unknown);
+
+  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+
+  advanceRoot();
+
+  mcld::FileHandle* handler = new mcld::FileHandle();
+  if (!handler->open(pPath, mcld::FileHandle::ReadOnly)) {
+    mcld::error(mcld::diag::err_cannot_open_file)
+                                      << pPath
+                                      << mcld::sys::strerror(handler->error());
+  }
+
+  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  input->setMemArea(input_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
+  input->setContext(context);
+}
+
+void TestLinker::addObject(void* pMemBuffer, size_t pSize)
+{
+  mcld::Input* input = m_pInfo->inputFactory().produce("memory object", "NAN",
+                                                       mcld::Input::Unknown);
+
+  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+
+  advanceRoot();
+
+  mcld::Space* space = new mcld::Space(mcld::Space::EXTERNAL, pMemBuffer, pSize);
+  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *space);
+  input->setMemArea(input_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  input->setContext(context);
+}
+
+void TestLinker::addObject(int pFileHandler)
+{
+  mcld::Input* input = m_pInfo->inputFactory().produce("handler object", "NAN",
+                                                       mcld::Input::Unknown);
+
+  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+
+  advanceRoot();
+
+  mcld::FileHandle* handler = new mcld::FileHandle();
+  handler->delegate(pFileHandler);
+
+  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  input->setMemArea(input_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  input->setContext(context);
+}
+
+bool TestLinker::setOutput(const std::string &pPath)
+{
+  if (m_pInfo->output().hasContext())
+    return false;
+
+  mcld::FileHandle* handler = new mcld::FileHandle();
+  bool open_res = handler->open(pPath, mcld::FileHandle::ReadWrite |
+                                       mcld::FileHandle::Truncate |
+                                       mcld::FileHandle::Create,
+                                mcld::FileHandle::Permission(0755));
+  if (!open_res) {
+    mcld::error(mcld::diag::err_cannot_open_file)
+                                      << pPath
+                                      << mcld::sys::strerror(handler->error());
+  }
+
+  mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  m_pInfo->output().setMemArea(output_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
+  m_pInfo->output().setContext(context);
+
+  // FIXME: remove the initStdSections().
+  m_pDriver->initStdSections();
+  return true;
+}
+
+bool TestLinker::setOutput(int pFileHandler)
+{
+  if (m_pInfo->output().hasContext())
+    return false;
+
+  mcld::FileHandle* handler = new mcld::FileHandle();
+  handler->delegate(pFileHandler);
+
+  mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  m_pInfo->output().setMemArea(output_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  m_pInfo->output().setContext(context);
+
+  // FIXME: remove the initStdSections().
+  m_pDriver->initStdSections();
+  return true;
+}
+
+void TestLinker::advanceRoot()
+{
+    if (m_Root.isRoot())
+      --m_Root;
+    else
+      ++m_Root;
+}
