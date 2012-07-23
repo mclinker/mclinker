@@ -1080,7 +1080,7 @@ int main( int argc, char* argv[] )
 
   // Set up MsgHandler
   OwningPtr<mcld::DiagnosticLineInfo>
-    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget->get(),
+    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
                                                        TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
     diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(),

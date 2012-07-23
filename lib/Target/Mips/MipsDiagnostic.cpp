@@ -18,7 +18,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // createMipsDiagnostic - the help function to create corresponding
 // MipsDiagnostic
-DiagnosticLineInfo* createMipsDiagLineInfo(const llvm::Target& pTarget,
+DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
                                            const std::string &pTriple)
 {
   return new DWARFLineInfo();
