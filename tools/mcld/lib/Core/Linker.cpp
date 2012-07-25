@@ -95,6 +95,7 @@ Linker::~Linker() {
   delete mDriver;
   delete mBackend;
   delete mMemAreaFactory;
+  delete mRoot;
 }
 
 enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
@@ -103,7 +104,7 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
     return kDelegateLDInfo;
   }
 
-  mRoot = &mLDInfo->inputs().root();
+  mRoot = new mcld::InputTree::iterator(mLDInfo->inputs().root());
   mShared = pConfig.isShared();
   mSOName = pConfig.getSOName();
 
