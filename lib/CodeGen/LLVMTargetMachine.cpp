@@ -265,16 +265,19 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                 llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
+  const MCInstrInfo &MII = *getTM().getInstrInfo();
+  const MCRegisterInfo &MRI = *getTM().getRegisterInfo();
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
 
   MCInstPrinter *InstPrinter =
     getTarget().get()->createMCInstPrinter(MAI.getAssemblerDialect(), MAI,
+                                           MII,
                                            Context->getRegisterInfo(), STI);
 
   MCCodeEmitter* MCE = 0;
   MCAsmBackend *MAB = 0;
   if (ArgShowMCEncoding) {
-    MCE = getTarget().get()->createMCCodeEmitter(*(getTM().getInstrInfo()), STI, *Context);
+    MCE = getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
     MAB = getTarget().get()->createMCAsmBackend(m_Triple);
   }
 
@@ -307,8 +310,11 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                  llvm::MCContext *&Context)
 {
   // MCCodeEmitter
+  const MCInstrInfo &MII = *getTM().getInstrInfo();
+  const MCRegisterInfo &MRI = *getTM().getRegisterInfo();
   const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(), STI, *Context);
+  MCCodeEmitter* MCE =
+    getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
 
   // MCAsmBackend
   MCAsmBackend* MAB = getTarget().get()->createMCAsmBackend(m_Triple);
