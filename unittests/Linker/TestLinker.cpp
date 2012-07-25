@@ -77,15 +77,14 @@ bool TestLinker::initialize(const std::string &pTriple)
   std::string error;
   m_pTarget = mcld::TargetRegistry::lookupTarget(pTriple, error);
   if (NULL == m_pTarget) {
-    std::cerr << "Cannot initialize mcld::Target for given triple `"
-         << pTriple << ".\n(Detail:" << error << ")" << std::endl;
+    fatal(diag::fatal_cannot_init_target) << pTriple << error;
     return false;
   }
 
   // create mcld::DiagnosticEngine
   m_pDiagLineInfo = m_pTarget->createDiagnosticLineInfo(*m_pTarget, pTriple);
   if (NULL == m_pDiagLineInfo) {
-    std::cerr << "Cannot initialize mcld::DiagnosticLineInfo" << std::endl;
+    fatal(diag::fatal_cannot_init_lineinfo) << pTriple;
     return false;
   }
 
@@ -96,8 +95,7 @@ bool TestLinker::initialize(const std::string &pTriple)
   // create mcld::TargetLDBackend
   m_pBackend = m_pTarget->createLDBackend(pTriple);
   if (NULL == m_pBackend) {
-    std::cerr << "Cannot initialize mcld::TargetLDBackend for given triple `"
-              << pTriple << ".\n";
+    fatal(diag::fatal_cannot_init_backend) << pTriple;
     return false;
   }
 
