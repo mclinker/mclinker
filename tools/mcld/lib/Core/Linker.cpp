@@ -14,6 +14,8 @@
 
 #include <llvm/Support/ELF.h>
 
+#include <mcld/MC/MCLDDriver.h>
+#include <mcld/MC/InputTree.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/LD/LDSection.h>
@@ -22,6 +24,8 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/FileHandle.h>
+#include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/Support/TargetRegistry.h>
 
 using namespace alone;
 
@@ -69,12 +73,12 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 //===----------------------------------------------------------------------===//
 Linker::Linker()
   : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
-    mShared(false) {
+    mRoot(NULL), mShared(false) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
   : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
-    mShared(false) {
+    mRoot(NULL), mShared(false) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -99,7 +103,7 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
     return kDelegateLDInfo;
   }
 
-  mRoot = mLDInfo->inputs().root();
+  mRoot = &mLDInfo->inputs().root();
   mShared = pConfig.isShared();
   mSOName = pConfig.getSOName();
 
@@ -128,10 +132,10 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 }
 
 void Linker::advanceRoot() {
-  if (mRoot.isRoot()) {
-    --mRoot;
+  if (mRoot->isRoot()) {
+    mRoot->move<mcld::TreeIteratorBase::Leftward>();
   } else {
-    ++mRoot;
+    mRoot->move<mcld::TreeIteratorBase::Rightward>();
   }
   return;
 }
@@ -184,7 +188,7 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
 
   mcld::Input* input = mLDInfo->inputFactory().produce(pNameSpec, *path,
                                                        mcld::Input::Unknown);
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
+  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -197,7 +201,7 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
                                                        pObjectPath,
                                                        mcld::Input::Unknown);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
+  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -211,7 +215,7 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
                                                        "NAN",
                                                        mcld::Input::Unknown);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
+  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -229,7 +233,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
                                                        "NAN",
                                                        mcld::Input::External);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(mRoot, *input);
+  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
