@@ -21,6 +21,7 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/SystemUtils.h>
 
+using namespace std;
 using namespace mcld;
 using namespace mcld::test;
 
@@ -34,6 +35,14 @@ TestLinker::TestLinker()
 
 TestLinker::~TestLinker()
 {
+  std::list<mcld::FileHandle*>::iterator file, fEnd = m_FileHandleList.end();
+  for (file = m_FileHandleList.begin(); file != fEnd; ++file)
+    delete (*file);
+
+  std::list<mcld::MemoryArea*>::iterator mem, mEnd = m_MemAreaList.end() ;
+  for (mem = m_MemAreaList.begin(); mem != mEnd; ++mem)
+    delete (*mem);
+
   delete m_pDriver;
   delete m_pInfo;
   delete m_pDiagLineInfo;
@@ -110,6 +119,7 @@ void TestLinker::addObject(const std::string &pPath)
   advanceRoot();
 
   mcld::FileHandle* handler = new mcld::FileHandle();
+  m_FileHandleList.push_back(handler);
   if (!handler->open(pPath, mcld::FileHandle::ReadOnly)) {
     mcld::error(mcld::diag::err_cannot_open_file)
                                       << pPath
@@ -118,6 +128,7 @@ void TestLinker::addObject(const std::string &pPath)
 
   mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
   input->setMemArea(input_memory);
+  m_MemAreaList.push_back(input_memory);
 
   mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
   input->setContext(context);
@@ -135,6 +146,7 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
   mcld::Space* space = new mcld::Space(mcld::Space::EXTERNAL, pMemBuffer, pSize);
   mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *space);
   input->setMemArea(input_memory);
+  m_MemAreaList.push_back(input_memory);
 
   mcld::LDContext* context = m_pInfo->contextFactory().produce();
   input->setContext(context);
@@ -150,12 +162,69 @@ void TestLinker::addObject(int pFileHandler)
   advanceRoot();
 
   mcld::FileHandle* handler = new mcld::FileHandle();
+  m_FileHandleList.push_back(handler);
   handler->delegate(pFileHandler);
 
   mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
   input->setMemArea(input_memory);
+  m_MemAreaList.push_back(input_memory);
 
   mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  input->setContext(context);
+}
+
+void TestLinker::addNameSpec(const std::string &pNameSpec)
+{
+  mcld::sys::fs::Path* path = NULL;
+  // find out the real path of the namespec.
+  if (m_pInfo->attrFactory().constraint().isSharedSystem()) {
+    // In the system with shared object support, we can find both archive
+    // and shared object.
+
+    if (m_pInfo->attrFactory().last().isStatic()) {
+      // with --static, we must search an archive.
+      path = m_pInfo->options().directories().find(pNameSpec,
+                                                   mcld::Input::Archive);
+    }
+    else {
+      // otherwise, with --Bdynamic, we can find either an archive or a
+      // shared object.
+      path = m_pInfo->options().directories().find(pNameSpec,
+                                                   mcld::Input::DynObj);
+    }
+  }
+  else {
+    // In the system without shared object support, we only look for an
+    // archive.
+    path = m_pInfo->options().directories().find(pNameSpec,
+                                                 mcld::Input::Archive);
+  }
+
+  if (NULL == path) {
+    mcld::fatal(diag::err_cannot_find_namespec) << pNameSpec;
+    return;
+  }
+
+  mcld::Input* input = m_pInfo->inputFactory().produce(pNameSpec, *path,
+                                                       mcld::Input::Unknown);
+
+  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+
+  advanceRoot();
+
+  mcld::FileHandle* handler = new mcld::FileHandle();
+  m_FileHandleList.push_back(handler);
+  if (!handler->open(*path, mcld::FileHandle::ReadOnly)) {
+    mcld::error(mcld::diag::err_cannot_open_file)
+                                      << *path
+                                      << mcld::sys::strerror(handler->error());
+  }
+
+  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  input->setMemArea(input_memory);
+  m_MemAreaList.push_back(input_memory);
+
+  mcld::LDContext* context = m_pInfo->contextFactory().produce(*path);
   input->setContext(context);
 }
 
@@ -165,6 +234,7 @@ bool TestLinker::setOutput(const std::string &pPath)
     return false;
 
   mcld::FileHandle* handler = new mcld::FileHandle();
+  m_FileHandleList.push_back(handler);
   bool open_res = handler->open(pPath, mcld::FileHandle::ReadWrite |
                                        mcld::FileHandle::Truncate |
                                        mcld::FileHandle::Create,
@@ -177,6 +247,7 @@ bool TestLinker::setOutput(const std::string &pPath)
 
   mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
   m_pInfo->output().setMemArea(output_memory);
+  m_MemAreaList.push_back(output_memory);
 
   mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
   m_pInfo->output().setContext(context);
@@ -193,9 +264,11 @@ bool TestLinker::setOutput(int pFileHandler)
 
   mcld::FileHandle* handler = new mcld::FileHandle();
   handler->delegate(pFileHandler);
+  m_FileHandleList.push_back(handler);
 
   mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
   m_pInfo->output().setMemArea(output_memory);
+  m_MemAreaList.push_back(output_memory);
 
   mcld::LDContext* context = m_pInfo->contextFactory().produce();
   m_pInfo->output().setContext(context);

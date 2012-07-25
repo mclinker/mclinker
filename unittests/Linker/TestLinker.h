@@ -6,18 +6,20 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TESTLINKER_TEST_H
-#define MCLD_TESTLINKER_TEST_H
+#ifndef MCLD_TEST_LINKER_H
+#define MCLD_TEST_LINKER_H
 
 #include <gtest.h>
 
 #include <string>
+#include <list>
 
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld {
 
@@ -49,9 +51,14 @@ public:
 
   void addObject(const std::string &pPath);
 
+  void addObject(const mcld::sys::fs::Path &pPath)
+  { addObject(pPath.native()); }
+
   void addObject(void* pMemBuffer, size_t pSize);
 
   void addObject(int pFileHandler);
+
+  void addNameSpec(const std::string &pNameSpec);
 
   bool setOutput(const std::string &pPath);
 
@@ -93,6 +100,9 @@ private:
   mcld::TargetLDBackend* m_pBackend;
   mcld::InputTree::iterator m_Root;
   mcld::RegionFactory* m_pRegionFactory;
+
+  std::list<mcld::FileHandle*> m_FileHandleList;
+  std::list<mcld::MemoryArea*> m_MemAreaList;
 
 };
 

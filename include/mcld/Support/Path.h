@@ -105,6 +105,7 @@ protected:
 
 bool operator==(const Path& pLHS,const Path& pRHS);
 bool operator!=(const Path& pLHS,const Path& pRHS);
+Path operator+(const Path& pLHS, const Path& pRHS);
 
 //--------------------------------------------------------------------------//
 //                              non-member functions                        //

@@ -157,6 +157,7 @@ Path Path::extension() const
 
 //===--------------------------------------------------------------------===//
 // non-member functions
+//===--------------------------------------------------------------------===//
 bool mcld::sys::fs::operator==(const Path& pLHS,const Path& pRHS)
 {
   return (pLHS.generic_string()==pRHS.generic_string());
@@ -165,6 +166,13 @@ bool mcld::sys::fs::operator==(const Path& pLHS,const Path& pRHS)
 bool mcld::sys::fs::operator!=(const Path& pLHS,const Path& pRHS)
 {
   return !(pLHS==pRHS);
+}
+
+Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS)
+{
+  mcld::sys::fs::Path result = pLHS;
+  result.append(pRHS);
+  return result;
 }
 
 bool mcld::sys::fs::is_separator(char value)

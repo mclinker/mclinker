@@ -325,7 +325,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/SymbolCategoryTest.h \
 	${UNITTEST}/SymbolCategoryTest.cpp \
 	${UNITTEST}/FileHandleTest.h \
-	${UNITTEST}/FileHandleTest.cpp
+	${UNITTEST}/FileHandleTest.cpp \
+	${UNITTEST}/TestLinkerTest.h \
+	${UNITTEST}/TestLinkerTest.cpp
 else
 UNITTEST_SOURCE =
 endif
