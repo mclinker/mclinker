@@ -127,10 +127,18 @@ DisableFPElimNonLeaf("disable-non-leaf-fp-elim",
   cl::desc("Disable frame pointer elimination optimization for non-leaf funcs"),
   cl::init(false));
 
-static cl::opt<bool>
-DisableExcessPrecision("disable-excess-fp-precision",
-  cl::desc("Disable optimizations that may increase FP precision"),
-  cl::init(false));
+static cl::opt<llvm::FPOpFusion::FPOpFusionMode>
+FuseFPOps("fuse-fp-ops",
+  cl::desc("Enable aggresive formation of fused FP ops"),
+  cl::init(FPOpFusion::Standard),
+  cl::values(
+    clEnumValN(FPOpFusion::Fast, "fast",
+               "Fuse FP ops whenever profitable"),
+    clEnumValN(FPOpFusion::Standard, "standard",
+               "Only fuse 'blessed' FP ops."),
+    clEnumValN(FPOpFusion::Strict, "strict",
+               "Only fuse FP ops when the result won't be effected."),
+    clEnumValEnd));
 
 static cl::opt<bool>
 EnableUnsafeFPMath("enable-unsafe-fp-math",
@@ -1044,7 +1052,7 @@ int main( int argc, char* argv[] )
   Options.PrintMachineCode = PrintCode;
   Options.NoFramePointerElim = DisableFPElim;
   Options.NoFramePointerElimNonLeaf = DisableFPElimNonLeaf;
-  Options.NoExcessFPPrecision = DisableExcessPrecision;
+  Options.AllowFPOpFusion = FuseFPOps;
   Options.UnsafeFPMath = EnableUnsafeFPMath;
   Options.NoInfsFPMath = EnableNoInfsFPMath;
   Options.NoNaNsFPMath = EnableNoNaNsFPMath;
