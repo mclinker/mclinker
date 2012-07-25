@@ -27,19 +27,21 @@ using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 
+//===----------------------------------------------------------------------===//
+// StaticResolverTest
+//===----------------------------------------------------------------------===//
 // Constructor can do set-up work for all test here.
 StaticResolverTest::StaticResolverTest()
-{
+  : m_pResolver(NULL), m_pFactory(NULL), m_pLDInfo(NULL), m_pLineInfo(NULL) {
   // create testee. modify it if need
   m_pResolver = new StaticResolver();
   m_pFactory = new ResolveInfoFactory();
+
   mcld::InitializeAllDiagnostics();
 
   m_pLDInfo = new MCLDInfo("arm-none-linux-gnueabi", 10, 10);
   m_pLineInfo = new DiagnosticLineInfo();
-  m_pPrinter = new mcld::DiagnosticPrinter(); //llvm::errs(), *m_pLDInfo);
-  mcld::InitializeDiagnosticEngine(*m_pLDInfo, m_pLineInfo, m_pPrinter);
-
+  mcld::InitializeDiagnosticEngine(*m_pLDInfo, m_pLineInfo, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.

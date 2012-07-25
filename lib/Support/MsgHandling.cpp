@@ -17,58 +17,29 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// DiagnosticInitializer
-class DiagnosticInitializer : public llvm::ManagedStaticBase
+// static variables
+//===----------------------------------------------------------------------===//
+static llvm::ManagedStatic<DiagnosticEngine> g_pEngine;
+
+void
+mcld::InitializeDiagnosticEngine(const mcld::MCLDInfo& pLDInfo,
+                                 DiagnosticLineInfo* pLineInfo,
+                                 DiagnosticPrinter* pPrinter)
 {
-public:
-  DiagnosticEngine* initialize(const MCLDInfo& pLDInfo,
-                               DiagnosticLineInfo* pLineInfo,
-                               DiagnosticPrinter* pPrinter)
-  {
-    RegisterManagedStatic(NULL, llvm::object_deleter<DiagnosticEngine>::call);
-    if (llvm::llvm_is_multithreaded()) {
-      llvm::llvm_acquire_global_lock();
-      void* tmp = NULL;
-      if (NULL != pPrinter)
-        tmp = new DiagnosticEngine(pLDInfo, pLineInfo, pPrinter, false);
-      else
-        tmp = new DiagnosticEngine(pLDInfo, pLineInfo, NULL, false);
+  g_pEngine->reset(pLDInfo);
+  if (NULL != pLineInfo)
+    g_pEngine->setLineInfo(*pLineInfo);
 
-      TsanHappensBefore(this);
-      llvm::sys::MemoryFence();
-      TsanIgnoreWritesBegin();
-      Ptr = tmp;
-      TsanIgnoreWritesEnd();
-      llvm::llvm_release_global_lock();
-    }
-    else {
-      if (NULL != pPrinter)
-        Ptr = new DiagnosticEngine(pLDInfo, pLineInfo, pPrinter, false);
-      else
-        Ptr = new DiagnosticEngine(pLDInfo, pLineInfo, NULL, false);
-    }
-    return static_cast<DiagnosticEngine*>(Ptr);
-  }
-};
-
-static DiagnosticInitializer g_DiagInitializer;
-static DiagnosticEngine* g_pDiagnosticEngine = NULL;
-
-void mcld::InitializeDiagnosticEngine(const mcld::MCLDInfo& pLDInfo,
-                                DiagnosticLineInfo* pLineInfo,
-                                DiagnosticPrinter* pPrinter)
-{
-  if (NULL == g_pDiagnosticEngine) {
-    g_pDiagnosticEngine = g_DiagInitializer.initialize(pLDInfo,
-                                                       pLineInfo,
-                                                       pPrinter);
+  if (NULL != pPrinter)
+    g_pEngine->setPrinter(*pPrinter, false);
+  else {
+    DiagnosticPrinter* printer = new DiagnosticPrinter();
+    g_pEngine->setPrinter(*printer, true);
   }
 }
 
 DiagnosticEngine& mcld::getDiagnosticEngine()
 {
-  assert(NULL != g_pDiagnosticEngine &&
-         "mcld::InitializeDiagnostics() is not called");
-  return *g_pDiagnosticEngine;
+  return *g_pEngine;
 }
 
