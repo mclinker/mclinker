@@ -30,6 +30,8 @@ UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
 // Destructor can do clean-up work that doesn't throw exceptions here.
 UniqueGCFactoryBaseTest::~UniqueGCFactoryBaseTest()
 {
+  delete m_pLDInfo;
+  delete m_pLineInfo;
 }
 
 // SetUp() will be called immediately before each test.

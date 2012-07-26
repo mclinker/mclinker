@@ -50,6 +50,7 @@ StaticResolverTest::~StaticResolverTest()
   delete m_pResolver;
   delete m_pFactory;
   delete m_pLDInfo;
+  delete m_pLineInfo;
 }
 
 // SetUp() will be called immediately before each test.

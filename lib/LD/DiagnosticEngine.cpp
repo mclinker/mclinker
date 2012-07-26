@@ -25,9 +25,6 @@ DiagnosticEngine::~DiagnosticEngine()
 {
   if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
-
-  if (NULL != m_pLineInfo)
-    delete m_pLineInfo;
 }
 
 void DiagnosticEngine::reset(const MCLDInfo& pLDInfo)
