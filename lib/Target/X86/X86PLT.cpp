@@ -129,9 +129,9 @@ GOTEntry* X86PLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 X86PLT0* X86PLT::getPLT0() const {
 
   iterator first = m_SectionData.getFragmentList().begin();
-  iterator end = m_SectionData.getFragmentList().end();
 
-  assert(first!=end && "FragmentList is empty, getPLT0 failed!");
+  assert(first != m_SectionData.getFragmentList().end() &&
+         "FragmentList is empty, getPLT0 failed!");
 
   X86PLT0* plt0 = &(llvm::cast<X86PLT0>(*first));
 
@@ -142,9 +142,9 @@ X86PLT0* X86PLT::getPLT0() const {
 void X86PLT::applyPLT0() {
 
   iterator first = m_SectionData.getFragmentList().begin();
-  iterator end = m_SectionData.getFragmentList().end();
 
-  assert(first!=end && "FragmentList is empty, applyPLT0 failed!");
+  assert(first != m_SectionData.getFragmentList().end() &&
+         "FragmentList is empty, applyPLT0 failed!");
 
   X86PLT0* plt0 = &(llvm::cast<X86PLT0>(*first));
 
@@ -179,7 +179,7 @@ void X86PLT::applyPLT1() {
 
   X86PLT::iterator it = m_SectionData.begin();
   X86PLT::iterator ie = m_SectionData.end();
-  assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
+  assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint64_t GOTEntrySize = m_GOTPLT.getEntrySize();
 

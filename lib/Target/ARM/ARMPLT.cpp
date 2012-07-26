@@ -91,8 +91,7 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
             "The number of PLT Entries and ResolveInfo doesn't match");
 
      ARMGOT::iterator got_it = m_GOT.getNextGOTPLTEntry();
-     ARMGOT::iterator got_ie = m_GOT.getGOTPLTEnd();
-     assert(got_it != got_ie && "The number of GOTPLT and PLT doesn't match");
+     assert(got_it != m_GOT.getGOTPLTEnd() && "The number of GOTPLT and PLT doesn't match");
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
      GOTPLTEntry = llvm::cast<GOTEntry>(&(*got_it));
@@ -119,8 +118,8 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
             "The number of PLT Entries and ResolveInfo doesn't match");
 
      ARMGOT::iterator got_it = m_GOT.getNextGOTPLTEntry();
-     ARMGOT::iterator got_ie = m_GOT.getGOTPLTEnd();
-     assert(got_it != got_ie && "The number of GOTPLT and PLT doesn't match");
+     assert(got_it != m_GOT.getGOTPLTEnd() &&
+            "The number of GOTPLT and PLT doesn't match");
 
      PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
      GOTPLTEntry = llvm::cast<GOTEntry>(&(*got_it));
@@ -132,9 +131,9 @@ GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 ARMPLT0* ARMPLT::getPLT0() const {
 
   iterator first = m_SectionData.getFragmentList().begin();
-  iterator end = m_SectionData.getFragmentList().end();
 
-  assert(first!=end && "FragmentList is empty, getPLT0 failed!");
+  assert(first != m_SectionData.getFragmentList().end() &&
+         "FragmentList is empty, getPLT0 failed!");
 
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
@@ -157,9 +156,9 @@ void ARMPLT::applyPLT0() {
     offset = (plt_base + 16) - got_base;
 
   iterator first = m_SectionData.getFragmentList().begin();
-  iterator end = m_SectionData.getFragmentList().end();
 
-  assert(first!=end && "FragmentList is empty, applyPLT0 failed!");
+  assert(first != m_SectionData.getFragmentList().end() &&
+         "FragmentList is empty, applyPLT0 failed!");
 
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
@@ -185,7 +184,7 @@ void ARMPLT::applyPLT1() {
 
   ARMPLT::iterator it = m_SectionData.begin();
   ARMPLT::iterator ie = m_SectionData.end();
-  assert(it!=ie && "FragmentList is empty, applyPLT1 failed!");
+  assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
   uint32_t GOTEntrySize = m_GOT.getEntrySize();
   uint32_t GOTEntryAddress =
