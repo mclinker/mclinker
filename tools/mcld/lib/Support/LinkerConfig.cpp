@@ -91,7 +91,7 @@ void LinkerConfig::setBsymbolic(bool pEnable) {
 }
 
 void LinkerConfig::setSOName(const std::string &pSOName) {
-  mLDInfo->output().setSOName(pSOName);
+  mSOName = pSOName;
   return;
 }
 
