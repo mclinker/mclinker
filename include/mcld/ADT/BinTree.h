@@ -135,11 +135,8 @@ public:
   reference operator->() const
   { return *static_cast<node_type*>(IteratorType::m_pNode)->data; }
 
-  bool isRoot() const
-  { return (IteratorType::m_pNode->right == IteratorType::m_pNode); }
-
   bool hasData() const
-  { return (!isRoot() && (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
+  { return (!IteratorType::isRoot() && (0 != static_cast<node_type*>(IteratorType::m_pNode)->data)); }
 
 };
 

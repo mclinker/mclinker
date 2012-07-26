@@ -35,6 +35,7 @@ ARMGNULDBackend::ARMGNULDBackend()
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
     m_pDynamic(NULL),
+    m_pGOTSymbol(NULL),
     m_pEXIDX(NULL),
     m_pEXTAB(NULL),
     m_pAttributes(NULL) {

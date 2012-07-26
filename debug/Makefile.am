@@ -292,6 +292,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 
 if ENABLE_UNITTEST
 UNITTEST_SOURCE = \
+	${UNITTEST}/Linker/TestLinker.h \
+	${UNITTEST}/Linker/TestLinker.cpp \
 	${UNITTEST}/PathTest.h \
 	${UNITTEST}/PathTest.cpp \
 	${UNITTEST}/BinTreeTest.h \
@@ -323,7 +325,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/SymbolCategoryTest.h \
 	${UNITTEST}/SymbolCategoryTest.cpp \
 	${UNITTEST}/FileHandleTest.h \
-	${UNITTEST}/FileHandleTest.cpp
+	${UNITTEST}/FileHandleTest.cpp \
+	${UNITTEST}/TestLinkerTest.h \
+	${UNITTEST}/TestLinkerTest.cpp
 else
 UNITTEST_SOURCE =
 endif

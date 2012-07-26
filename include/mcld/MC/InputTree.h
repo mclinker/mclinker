@@ -99,19 +99,19 @@ public:
    */
   struct Mover {
     virtual ~Mover() {}
-    virtual void connect(iterator& pFrom, const const_iterator& pTo) const = 0;
-    virtual void move(iterator& pNode) const = 0;
+    virtual void connect(TreeIteratorBase& pFrom, const TreeIteratorBase& pTo) const = 0;
+    virtual void move(TreeIteratorBase& pNode) const = 0;
   };
 
   /** \class Succeeder
    *  \brief class Succeeder moves the iterator afterward.
    */
   struct Succeeder : public Mover {
-    virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+    virtual void connect(TreeIteratorBase& pFrom, const TreeIteratorBase& pTo) const {
       proxy::hook<Positional>(pFrom.m_pNode, pTo.m_pNode);
     }
 
-    virtual void move(iterator& pNode) const {
+    virtual void move(TreeIteratorBase& pNode) const {
       pNode.move<Positional>();
     }
   };
@@ -120,11 +120,11 @@ public:
    *  \brief class Includer moves the iterator downward.
    */
   struct Includer : public Mover {
-    virtual void connect(iterator& pFrom, const const_iterator& pTo) const {
+    virtual void connect(TreeIteratorBase& pFrom, const TreeIteratorBase& pTo) const {
       proxy::hook<Inclusive>(pFrom.m_pNode, pTo.m_pNode);
     }
 
-    virtual void move(iterator& pNode) const {
+    virtual void move(TreeIteratorBase& pNode) const {
       pNode.move<Inclusive>();
     }
   };
@@ -146,33 +146,33 @@ public:
   //  @param pRoot  position the parent node
   //  @param pMover the direction of the connecting edge of the parent node.
   template<size_t DIRECT>
-  InputTree& insert(iterator pRoot,
+  InputTree& insert(TreeIteratorBase pRoot,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
                     unsigned int pType = Input::Unknown);
 
   template<size_t DIRECT>
-  InputTree& enterGroup(iterator pRoot);
+  InputTree& enterGroup(TreeIteratorBase pRoot);
 
   template<size_t DIRECT>
-  InputTree& insert(iterator pRoot,
+  InputTree& insert(TreeIteratorBase pRoot,
                     const Input& pInput);
 
-  InputTree& merge(iterator pRoot, 
+  InputTree& merge(TreeIteratorBase pRoot, 
                    const Mover& pMover,
                    InputTree& pTree);
 
-  InputTree& insert(iterator pRoot,
+  InputTree& insert(TreeIteratorBase pRoot,
                     const Mover& pMover,
                     const std::string& pNamespec,
                     const sys::fs::Path& pPath,
                     unsigned int pType = Input::Unknown);
 
-  InputTree& insert(iterator pRoot,
+  InputTree& insert(TreeIteratorBase pRoot,
                     const Mover& pMover,
                     const Input& pInput);
 
-  InputTree& enterGroup(iterator pRoot,
+  InputTree& enterGroup(TreeIteratorBase pRoot,
                         const Mover& pMover);
 
   // -----  observers  ----- //
@@ -200,7 +200,7 @@ bool isGroup(const InputTree::const_bfs_iterator& pos);
 // template member functions
 template<size_t DIRECT>
 mcld::InputTree&
-mcld::InputTree::insert(mcld::InputTree::iterator pRoot,
+mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
                         const std::string& pNamespec,
                         const mcld::sys::fs::Path& pPath,
                         unsigned int pType)
@@ -218,7 +218,7 @@ mcld::InputTree::insert(mcld::InputTree::iterator pRoot,
 
 template<size_t DIRECT>
 mcld::InputTree&
-mcld::InputTree::enterGroup(mcld::InputTree::iterator pRoot)
+mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
 {
   BinTreeTy::node_type* node = createNode(); 
   if (pRoot.isRoot())
@@ -231,7 +231,7 @@ mcld::InputTree::enterGroup(mcld::InputTree::iterator pRoot)
 }
 
 template<size_t DIRECT>
-mcld::InputTree& mcld::InputTree::insert(mcld::InputTree::iterator pRoot,
+mcld::InputTree& mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
 	                                 const mcld::Input& pInput)
 {
   BinTreeTy::node_type* node = createNode();

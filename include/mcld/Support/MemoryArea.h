@@ -53,10 +53,21 @@ class RegionFactory;
  */
 class MemoryArea : private Uncopyable
 {
+  friend class MemoryAreaFactory;
 public:
-  // constructor
-  MemoryArea(RegionFactory& pRegionFactory,
-             FileHandle& pFileHandle);
+  typedef llvm::iplist<Space> SpaceList;
+
+public:
+  // constructor by file handler.
+  // If the given file handler is read-only, client can not request a region
+  // that out of the file size.
+  // @param pFileHandle - file handler
+  MemoryArea(RegionFactory& pRegionFactory, FileHandle& pFileHandle);
+
+  // constructor by set universal space.
+  // Client can not request a region that out of the universal space.
+  // @param pUniverse - file handler
+  MemoryArea(RegionFactory& pRegionFactory, Space& pUniverse);
 
   // destructor
   ~MemoryArea();
@@ -79,21 +90,6 @@ public:
 
   const FileHandle* handler() const
   { return m_pFileHandle; }
-
-private:
-  friend class MemoryAreaFactory;
-
-#if defined(ENABLE_UNITTEST)
-  friend class mcldtest::MemoryAreaTest;
-#endif
-
-  typedef llvm::iplist<Space> SpaceList;
-
-private:
-  // -----  special methods ----- //
-  // @param pRegionFactory  The factory of regions.
-  // @param pUniverse       A initial univeral space.
-  MemoryArea(RegionFactory& pRegionFactory, Space& pUniverse);
 
   // -----  space list methods  ----- //
   Space* find(size_t pOffset, size_t pLength);

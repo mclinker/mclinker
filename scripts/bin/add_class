@@ -24,6 +24,7 @@ EMAIL=
 CLASS_NAME=
 BRIEF=
 FILE_TYPE=
+DEPLOYMENT=
 
 # 0. watch configuration
 if [ -d "${MCLINKER_CONFIG_DIR}" ]; then
@@ -131,20 +132,20 @@ read CLASS_NAME
 ask_brief ${CLASS_NAME}
 read BRIEF
 
-# 5. copy the templates
+# 5. copy the templates of header
 TARGET_FILE=$(copy_template_header ${CLASS_NAME} ${DEPLOYMENT})
 
-# 6. replace the keywords
+# 6. replace the keywords of header
 replace_author  ${TARGET_FILE} ${AUTHOR}
 repalce_email ${TARGET_FILE} ${EMAIL} 
-replace_class ${TARGET_FILE} ${CLASS_NAME} 
+replace_class ${TARGET_FILE} ${CLASS_NAME} ${DEPLOYMENT}
 replace_brief ${TARGET_FILE} ${BRIEF}
 
-# 5. copy the templates
+# 5. copy the templates of implementation
 TARGET_FILE=$(copy_template_impl ${CLASS_NAME} ${DEPLOYMENT})
 
-# 6. replace the keywords
+# 6. replace the keywords of implementation
 replace_author  ${TARGET_FILE} ${AUTHOR}
 repalce_email ${TARGET_FILE} ${EMAIL} 
-replace_class ${TARGET_FILE} ${CLASS_NAME} 
+replace_class ${TARGET_FILE} ${CLASS_NAME}  ${DEPLOYMENT}
 replace_brief ${TARGET_FILE} ${BRIEF}

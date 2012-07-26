@@ -24,7 +24,7 @@ InputTree::~InputTree()
 {
 }
 
-InputTree& InputTree::merge(InputTree::iterator pRoot, 
+InputTree& InputTree::merge(TreeIteratorBase pRoot, 
                             const InputTree::Mover& pMover,
                             InputTree& pTree)
 {
@@ -41,7 +41,7 @@ InputTree& InputTree::merge(InputTree::iterator pRoot,
   return *this;
 }
 
-InputTree& InputTree::insert(InputTree::iterator pRoot,
+InputTree& InputTree::insert(TreeIteratorBase pRoot,
                              const InputTree::Mover& pMover,
                              const std::string& pNamespec,
                              const sys::fs::Path& pPath,
@@ -53,7 +53,7 @@ InputTree& InputTree::insert(InputTree::iterator pRoot,
   return *this;
 }
 
-InputTree& InputTree::enterGroup(InputTree::iterator pRoot,
+InputTree& InputTree::enterGroup(TreeIteratorBase pRoot,
                                  const InputTree::Mover& pMover)
 {
   NodeBase* node = createNode();
@@ -61,7 +61,7 @@ InputTree& InputTree::enterGroup(InputTree::iterator pRoot,
   return *this;
 }
 
-InputTree& InputTree::insert(InputTree::iterator pRoot,
+InputTree& InputTree::insert(TreeIteratorBase pRoot,
                              const InputTree::Mover& pMover,
                              const mcld::Input& pInput)
 {

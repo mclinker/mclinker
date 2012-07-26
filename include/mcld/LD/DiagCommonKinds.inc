@@ -39,3 +39,6 @@ DIAG(debug_eh_unsupport, DiagnosticEngine::Debug, "unsupported eh_frame: %0", "u
 DIAG(note_ehframe, DiagnosticEngine::Note, "eh_frame: %0", "eh_frame: %0")
 DIAG(note_eh_cie, DiagnosticEngine::Note, "CIE length: %0, aug_string: %1, fde_encodeing: %2", "CIE length: %0, aug_string: %1, fde_encodeing: %2")
 DIAG(note_eh_fde, DiagnosticEngine::Note, "FDE length: %0, offset of PC Begin: %1", "FDE length: %0, offset of PC Begin: %1")
+DIAG(fatal_cannot_init_target, DiagnosticEngine::Fatal, "Cannot initialize mcld::Target for given triple '%0'.\n(Detail: %1)", "Cannot initialize mcld::Target for given triple '%0'.\n(Detail: %1)")
+DIAG(fatal_cannot_init_lineinfo, DiagnosticEngine::Fatal, "Cannot initialize mcld::DiagnosticLineInfo for given triple '%0'", "Cannot initialize mcld::DiagnosticLineInfo for given triple '%0'")
+DIAG(fatal_cannot_init_backend, DiagnosticEngine::Fatal, "Cannot initialize mcld::TargetLDBackend for given triple '%0'.", "Cannot initialize mcld::TargetLDBackend for given triple '%0'.")

@@ -653,10 +653,10 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
   ARMRelocationFactory::DWord X;
 
   const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
+                                                 *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
-  // If the flag of target section is not ALLOC, we will not scan this relocation
-  // but perform static relocation. (e.g., applying .debug section)
+  // If the flag of target section is not ALLOC, we will not scan this
+  // relocation but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
@@ -665,15 +665,11 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
     }
   }
 
-  X = (S + A) | T ;
   // perform static relocation
-  pReloc.target() = (S + A) | T;
-  if (helper_check_signed_overflow(X, 16)) {
-    return ARMRelocationFactory::Overflow;
-  } else {
-    pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
-    return ARMRelocationFactory::OK;
-  }
+  X = (S + A) | T;
+  pReloc.target() = helper_insert_val_movw_movt_inst(
+                                         pReloc.target() + pReloc.addend(), X);
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_MOVW_PREL_NC: ((S + A) | T) - P

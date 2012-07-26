@@ -21,7 +21,7 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // createARMDiagnostic - the help function to create corresponding ARMDiagnostic
 //
-DiagnosticLineInfo* createARMDiagLineInfo(const llvm::Target& pTarget,
+DiagnosticLineInfo* createARMDiagLineInfo(const mcld::Target& pTarget,
                                           const std::string &pTriple)
 {
   return new DWARFLineInfo();

@@ -71,7 +71,7 @@ bool LinkerConfig::initializeLDInfo() {
 
 bool LinkerConfig::initializeDiagnostic() {
   // Set up MsgHandler.
-  mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget->get(), mTriple);
+  mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget, mTriple);
 
   mDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDInfo);
 
@@ -91,7 +91,7 @@ void LinkerConfig::setBsymbolic(bool pEnable) {
 }
 
 void LinkerConfig::setSOName(const std::string &pSOName) {
-  mLDInfo->output().setSOName(pSOName);
+  mSOName = pSOName;
   return;
 }
 

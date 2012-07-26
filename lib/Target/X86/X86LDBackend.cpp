@@ -33,7 +33,8 @@ X86GNULDBackend::X86GNULDBackend()
     m_pGOTPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
-    m_pDynamic(NULL) {
+    m_pDynamic(NULL),
+    m_pGOTSymbol(NULL) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()

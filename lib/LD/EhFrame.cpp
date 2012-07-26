@@ -101,8 +101,8 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     uint32_t ent_offset = static_cast<uint32_t>(p - eh_start - 4);
 
     // get the MemoryRegion for this entry
-    MemoryRegion* ent_region = pArea.request(pSection.offset() + ent_offset,
-                                             len + 4);
+    MemoryRegion* ent_region = pArea.request(
+                pInput.fileOffset() + pSection.offset() + ent_offset, len + 4);
 
     // create and add a CIE or FDE entry
     uint32_t id = readVal(p, pBackend.isLittleEndian());

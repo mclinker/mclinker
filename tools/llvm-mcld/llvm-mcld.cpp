@@ -113,11 +113,6 @@ EnableFPMAD("enable-fp-mad",
   cl::init(false));
 
 static cl::opt<bool>
-PrintCode("print-machineinstrs",
-  cl::desc("Print generated machine code"),
-  cl::init(false));
-
-static cl::opt<bool>
 DisableFPElim("disable-fp-elim",
   cl::desc("Disable frame pointer elimination optimization"),
   cl::init(false));
@@ -127,10 +122,18 @@ DisableFPElimNonLeaf("disable-non-leaf-fp-elim",
   cl::desc("Disable frame pointer elimination optimization for non-leaf funcs"),
   cl::init(false));
 
-static cl::opt<bool>
-DisableExcessPrecision("disable-excess-fp-precision",
-  cl::desc("Disable optimizations that may increase FP precision"),
-  cl::init(false));
+static cl::opt<llvm::FPOpFusion::FPOpFusionMode>
+FuseFPOps("fuse-fp-ops",
+  cl::desc("Enable aggresive formation of fused FP ops"),
+  cl::init(FPOpFusion::Standard),
+  cl::values(
+    clEnumValN(FPOpFusion::Fast, "fast",
+               "Fuse FP ops whenever profitable"),
+    clEnumValN(FPOpFusion::Standard, "standard",
+               "Only fuse 'blessed' FP ops."),
+    clEnumValN(FPOpFusion::Strict, "strict",
+               "Only fuse FP ops when the result won't be effected."),
+    clEnumValEnd));
 
 static cl::opt<bool>
 EnableUnsafeFPMath("enable-unsafe-fp-math",
@@ -213,11 +216,6 @@ static cl::opt<bool>
 EnableRealignStack("realign-stack",
   cl::desc("Realign stack if needed"),
   cl::init(true));
-
-static cl::opt<bool>
-DisableSwitchTables(cl::Hidden, "disable-jump-tables",
-  cl::desc("Do not generate jump tables."),
-  cl::init(false));
 
 static cl::opt<std::string>
 TrapFuncName("trap-func", cl::Hidden,
@@ -896,6 +894,13 @@ int main( int argc, char* argv[] )
 {
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
+  cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
+
+#ifdef ENABLE_UNITTEST
+  if (UnitTest) {
+    return unit_test( argc, argv );
+  }
+#endif
 
   // Initialize targets first, so that --version shows registered targets.
   InitializeAllTargets();
@@ -905,14 +910,6 @@ int main( int argc, char* argv[] )
   mcld::InitializeAllTargets();
   mcld::InitializeAllLinkers();
   mcld::InitializeAllDiagnostics();
-
-  cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
-
-#ifdef ENABLE_UNITTEST
-  if (UnitTest) {
-    return unit_test( argc, argv );
-  }
-#endif
 
   // Load the module to be compiled...
   std::auto_ptr<Module> M;
@@ -1042,10 +1039,9 @@ int main( int argc, char* argv[] )
 
   TargetOptions Options;
   Options.LessPreciseFPMADOption = EnableFPMAD;
-  Options.PrintMachineCode = PrintCode;
   Options.NoFramePointerElim = DisableFPElim;
   Options.NoFramePointerElimNonLeaf = DisableFPElimNonLeaf;
-  Options.NoExcessFPPrecision = DisableExcessPrecision;
+  Options.AllowFPOpFusion = FuseFPOps;
   Options.UnsafeFPMath = EnableUnsafeFPMath;
   Options.NoInfsFPMath = EnableNoInfsFPMath;
   Options.NoNaNsFPMath = EnableNoNaNsFPMath;
@@ -1061,7 +1057,6 @@ int main( int argc, char* argv[] )
   Options.GuaranteedTailCallOpt = EnableGuaranteedTailCallOpt;
   Options.StackAlignmentOverride = OverrideStackAlignment;
   Options.RealignStack = EnableRealignStack;
-  Options.DisableJumpTables = DisableSwitchTables;
   Options.TrapFuncName = TrapFuncName;
   Options.EnableSegmentedStacks = SegmentedStacks;
 
@@ -1080,7 +1075,7 @@ int main( int argc, char* argv[] )
 
   // Set up MsgHandler
   OwningPtr<mcld::DiagnosticLineInfo>
-    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget->get(),
+    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
                                                        TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
     diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(),

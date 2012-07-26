@@ -57,14 +57,14 @@ public:
   };
 
 public:
-  DiagnosticEngine(const MCLDInfo& pLDInfo,
-                   DiagnosticLineInfo* pLineInfo = NULL,
-                   DiagnosticPrinter* pPrinter = NULL,
-                   bool pShouldOwnPrinter = true);
+  DiagnosticEngine();
 
   ~DiagnosticEngine();
 
-  // -----  printer functions  ----- //
+  void reset(const MCLDInfo& pLDInfo);
+
+  void setLineInfo(DiagnosticLineInfo& pLineInfo);
+
   void setPrinter(DiagnosticPrinter& pPrinter, bool pShouldOwnPrinter = true);
 
   DiagnosticPrinter* getPrinter()
@@ -128,17 +128,21 @@ private:
   const State& state() const
   { return m_State; }
 
-  DiagnosticInfos& infoMap()
-  { return m_InfoMap; }
+  DiagnosticInfos& infoMap() {
+    assert(NULL != m_pInfoMap && "DiagnosticEngine was not initialized!");
+    return *m_pInfoMap;
+  }
 
-  const DiagnosticInfos& infoMap() const
-  { return m_InfoMap; }
+  const DiagnosticInfos& infoMap() const {
+    assert(NULL != m_pInfoMap && "DiagnosticEngine was not initialized!");
+    return *m_pInfoMap;
+  }
 
 private:
-  const MCLDInfo& m_LDInfo;
+  const MCLDInfo* m_pLDInfo;
   DiagnosticLineInfo* m_pLineInfo;
   DiagnosticPrinter* m_pPrinter;
-  DiagnosticInfos m_InfoMap;
+  DiagnosticInfos* m_pInfoMap;
   bool m_OwnPrinter;
 
   State m_State;

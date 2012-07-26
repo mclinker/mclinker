@@ -696,7 +696,7 @@ uint64_t MCLinker::addEhFrame(const Input& pInput,
   }
 
   // handle eh_frame as a regular section
-  MemoryRegion* region = pArea.request(pSection.offset(),
+  MemoryRegion* region = pArea.request(pInput.fileOffset() + pSection.offset(),
                                        pSection.size());
 
   llvm::MCFragment* frag = NULL;

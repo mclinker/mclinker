@@ -13,36 +13,36 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // DiagnosticEngine
-DiagnosticEngine::DiagnosticEngine(const MCLDInfo& pLDInfo,
-                                   DiagnosticLineInfo* pLineInfo,
-                                   DiagnosticPrinter* pPrinter,
-                                   bool pShouldOwnPrinter)
-  : m_LDInfo(pLDInfo),
-    m_pLineInfo(pLineInfo),
-    m_pPrinter(pPrinter),
-    m_InfoMap(pLDInfo),
-    m_OwnPrinter(pShouldOwnPrinter) {
-  if (NULL == m_pPrinter) {
-    m_pPrinter = new DiagnosticPrinter(); // Dumb printer
-    m_OwnPrinter = true;
-  }
+//===----------------------------------------------------------------------===//
+DiagnosticEngine::DiagnosticEngine()
+  : m_pLDInfo(NULL), m_pLineInfo(NULL), m_pPrinter(NULL),
+    m_pInfoMap(NULL), m_OwnPrinter(false) {
 }
 
 DiagnosticEngine::~DiagnosticEngine()
 {
   if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
+}
 
-  if (NULL != m_pLineInfo)
-    delete m_pLineInfo;
+void DiagnosticEngine::reset(const MCLDInfo& pLDInfo)
+{
+  m_pLDInfo = &pLDInfo;
+  m_pInfoMap = new DiagnosticInfos(*m_pLDInfo);
+  m_State.reset();
+}
+
+void DiagnosticEngine::setLineInfo(DiagnosticLineInfo& pLineInfo)
+{
+  m_pLineInfo = &pLineInfo;
 }
 
 void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
                                   bool pShouldOwnPrinter)
 {
-  if (m_OwnPrinter && m_pPrinter != NULL)
+  if (m_OwnPrinter && NULL != m_pPrinter)
     delete m_pPrinter;
   m_pPrinter = &pPrinter;
   m_OwnPrinter = pShouldOwnPrinter;
@@ -51,7 +51,7 @@ void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
 // emit - process current diagnostic.
 bool DiagnosticEngine::emit()
 {
-  bool emitted = m_InfoMap.process(*this);
+  bool emitted = m_pInfoMap->process(*this);
   m_State.reset();
   return emitted;
 }

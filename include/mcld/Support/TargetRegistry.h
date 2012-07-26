@@ -49,7 +49,7 @@ public:
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
 
-  typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const llvm::Target&,
+  typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const mcld::Target&,
                                                           const std::string&);
 
 public:
@@ -97,7 +97,7 @@ public:
   }
 
   /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo
-  DiagnosticLineInfo* createDiagnosticLineInfo(const llvm::Target& pTarget,
+  DiagnosticLineInfo* createDiagnosticLineInfo(const mcld::Target& pTarget,
                                                const std::string& pTriple) const
   {
     if (!DiagnosticLineInfoCtorFn)

@@ -38,10 +38,10 @@ MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
 
   // Skip GOT0 entries.
   iterator it = m_SectionData.begin();
-  iterator ie = m_SectionData.end();
 
   for (size_t i = 1; i < MipsGOT0Num; ++i) {
-    assert((it != ie) && "Generation of GOT0 entries is incomplete!");
+    assert((it != m_SectionData.end()) &&
+           "Generation of GOT0 entries is incomplete!");
 
     ++it;
   }
