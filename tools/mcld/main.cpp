@@ -30,7 +30,7 @@ using namespace alone;
 //===----------------------------------------------------------------------===//
 // Compiler Options
 //===----------------------------------------------------------------------===//
-#ifdef TARGET_BUILD
+#if defined(TARGET_BUILD)
 static const std::string OptTargetTripe(DEFAULT_TARGET_TRIPLE_STRING);
 #else
 static llvm::cl::opt<std::string>
