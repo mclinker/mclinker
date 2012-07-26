@@ -13,11 +13,14 @@
 #include "X86RelocationFactory.h"
 
 #include <llvm/ADT/Triple.h>
+#include <llvm/Support/Casting.h>
+
 #include <mcld/LD/SectionMap.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/RegionFragment.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCRegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -106,7 +109,7 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
 
 void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 {
-  // get .got LDSection and create MCSectionData
+  // get .got LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& got = file_format->getGOT();
@@ -115,7 +118,7 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
 
 void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
 {
-  // get .got.plt LDSection and create MCSectionData
+  // get .got.plt LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& gotplt = file_format->getGOTPLT();
@@ -158,12 +161,12 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
   LDSection& plt = file_format->getPLT();
   LDSection& relplt = file_format->getRelPlt();
   assert(m_pGOTPLT != NULL);
-  // create MCSectionData and X86PLT
+  // create SectionData and X86PLT
   m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOTPLT, pOutput);
 
   // set info of .rel.plt to .plt
   relplt.setLink(&plt);
-  // create MCSectionData and X86RelDynSection
+  // create SectionData and X86RelDynSection
   m_pRelPLT = new OutputRelocSection(relplt,
                                      pLinker.getOrCreateSectData(relplt),
                                      8);
@@ -172,11 +175,11 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
 void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
                                       const Output& pOutput)
 {
-  // get .rel.dyn LDSection and create MCSectionData
+  // get .rel.dyn LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& reldyn = file_format->getRelDyn();
-  // create MCSectionData and X86RelDynSection
+  // create SectionData and X86RelDynSection
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
@@ -215,9 +218,9 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
   }
 
-  // get or create corresponding BSS MCSectionData
+  // get or create corresponding BSS SectionData
   assert(NULL != bss_sect_hdr);
-  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(
+  SectionData& bss_section = pLinker.getOrCreateSectData(
                                      *bss_sect_hdr);
 
   // Determine the alignment by the symbol value
@@ -225,7 +228,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
   uint32_t addralign = bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
-  llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, pSym.size());
+  Fragment* frag = new FillFragment(0x0, 1, pSym.size());
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      bss_section,
                                                      addralign);

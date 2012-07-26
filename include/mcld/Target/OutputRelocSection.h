@@ -12,8 +12,8 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/MC/MCAssembler.h>
 #include <llvm/ADT/DenseMap.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/LD/RelocationFactory.h>
 
 namespace mcld
@@ -29,8 +29,8 @@ class OutputRelocSection
 {
 public:
   OutputRelocSection(LDSection& pSection,
-                   llvm::MCSectionData& pSectionData,
-                   unsigned int pEntrySize);
+                     SectionData& pSectionData,
+                     unsigned int pEntrySize);
 
   ~OutputRelocSection();
 
@@ -45,14 +45,14 @@ private:
 
   typedef SymRelMapType::iterator SymRelMapIterator;
 
-  typedef llvm::MCSectionData::iterator MCFragmentIterator;
+  typedef SectionData::iterator FragmentIterator;
 
 private:
   /// m_pSection - LDSection of this Section
   LDSection* m_pSection;
 
-  /// m_SectionData - MCSectionData which contains the dynamic relocations
-  llvm::MCSectionData* m_pSectionData;
+  /// m_SectionData - SectionData which contains the dynamic relocations
+  SectionData* m_pSectionData;
 
   /// m_EntryBytes - size of a relocation entry
   unsigned int m_EntryBytes;
@@ -61,7 +61,7 @@ private:
   bool m_isVisit;
 
   /// m_ValidEntryIterator - point to the first valid entry
-  MCFragmentIterator m_ValidEntryIterator;
+  FragmentIterator m_ValidEntryIterator;
 
   /// m_SymRelMap - map the resolved symbol to the Relocation entry
   SymRelMapType m_SymRelMap;

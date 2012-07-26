@@ -6,14 +6,19 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
+#include <cstdlib>
+#include <cstring>
+
 #include <llvm/Support/ELF.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/MC/MCAssembler.h>
+#include <llvm/Support/Casting.h>
+
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/AlignFragment.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
@@ -21,8 +26,7 @@
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <cstdlib>
-#include <cstring>
+#include <mcld/Support/MemoryRegion.h>
 
 using namespace llvm::ELF;
 using namespace mcld;
@@ -397,21 +401,21 @@ ELFWriter::emitSectionData(const Layout& pLayout,
                            const LDSection& pSection,
                            MemoryRegion& pRegion) const
 {
-  const llvm::MCSectionData* data = pSection.getSectionData();
-  llvm::MCSectionData::const_iterator fragIter, fragEnd = data->end();
+  const SectionData* data = pSection.getSectionData();
+  SectionData::const_iterator fragIter, fragEnd = data->end();
   size_t cur_offset = 0;
   for (fragIter = data->begin(); fragIter != fragEnd; ++fragIter) {
     size_t size = computeFragmentSize(pLayout, *fragIter);
     switch(fragIter->getKind()) {
-      case llvm::MCFragment::FT_Region: {
-        const MCRegionFragment& region_frag = llvm::cast<MCRegionFragment>(*fragIter);
+      case Fragment::Region: {
+        const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
         const uint8_t* from = region_frag.getRegion().start();
         memcpy(pRegion.getBuffer(cur_offset), from, size);
         break;
       }
-      case llvm::MCFragment::FT_Align: {
+      case Fragment::Alignment: {
         // TODO: emit values with different sizes (> 1 byte), and emit nops
-        llvm::MCAlignFragment& align_frag = llvm::cast<llvm::MCAlignFragment>(*fragIter);
+        AlignFragment& align_frag = llvm::cast<AlignFragment>(*fragIter);
         uint64_t count = size / align_frag.getValueSize();
         switch (align_frag.getValueSize()) {
           case 1u:
@@ -425,8 +429,8 @@ ELFWriter::emitSectionData(const Layout& pLayout,
         }
         break;
       }
-      case llvm::MCFragment::FT_Fill: {
-        llvm::MCFillFragment& fill_frag = llvm::cast<llvm::MCFillFragment>(*fragIter);
+      case Fragment::Fillment: {
+        FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
         if (0 == size ||
             0 == fill_frag.getValueSize() ||
             0 == fill_frag.getSize()) {
@@ -442,19 +446,10 @@ ELFWriter::emitSectionData(const Layout& pLayout,
         }
         break;
       }
-      case llvm::MCFragment::FT_Data:
-      case llvm::MCFragment::FT_Inst:
-      case llvm::MCFragment::FT_Org:
-      case llvm::MCFragment::FT_Dwarf:
-      case llvm::MCFragment::FT_DwarfFrame:
-      case llvm::MCFragment::FT_LEB: {
-        llvm::report_fatal_error("unsupported fragment yet.\n");
-        break;
-      }
-      case llvm::MCFragment::FT_Reloc:
+      case Fragment::Relocation:
         llvm::report_fatal_error("relocation fragment should not be in a regular section.\n");
         break;
-      case llvm::MCFragment::FT_Target:
+      case Fragment::Target:
         llvm::report_fatal_error("Target fragment should not be in a regular section.\n");
         break;
       default:
@@ -471,13 +466,13 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
                                const LDSection& pSection,
                                MemoryRegion& pRegion) const
 {
-  const llvm::MCSectionData* SectionData = pSection.getSectionData();
-  assert(SectionData && "SectionData is NULL in emitRelocation!");
+  const SectionData* sect_data = pSection.getSectionData();
+  assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
   if (pSection.type() == SHT_REL)
-    emitRel(pLayout, pOutput, *SectionData, pRegion);
+    emitRel(pLayout, pOutput, *sect_data, pRegion);
   else if (pSection.type() == SHT_RELA)
-    emitRela(pLayout, pOutput, *SectionData, pRegion);
+    emitRela(pLayout, pOutput, *sect_data, pRegion);
   else
     llvm::report_fatal_error("unsupported relocation section type!");
 }
@@ -486,31 +481,29 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
 /// emitRel
 void ELFWriter::emitRel(const Layout& pLayout,
                         const Output& pOutput,
-                        const llvm::MCSectionData& pSectionData,
+                        const SectionData& pSectionData,
                         MemoryRegion& pRegion) const
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>(pRegion.start());
 
   Relocation* relocation = 0;
-  MCFragmentRef* FragmentRef = 0;
+  FragmentRef* frag_ref = 0;
 
-  for (llvm::MCSectionData::const_iterator it = pSectionData.begin(),
+  for (SectionData::const_iterator it = pSectionData.begin(),
        ie = pSectionData.end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
-    FragmentRef = &(relocation->targetRef());
+    frag_ref = &(relocation->targetRef());
 
     if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
       rel->r_offset = static_cast<Elf32_Addr>(
-                      llvm::cast<LDSection>(
-                      FragmentRef->frag()->getParent()->getSection()).addr() +
-                      pLayout.getOutputOffset(*FragmentRef));
+                      frag_ref->frag()->getParent()->getSection().addr() +
+                      pLayout.getOutputOffset(*frag_ref));
     }
     else {
       rel->r_offset = static_cast<Elf32_Addr>(
-                      llvm::cast<LDSection>(
-                      FragmentRef->frag()->getParent()->getSection()).offset() +
-                      pLayout.getOutputOffset(*FragmentRef));
+                      frag_ref->frag()->getParent()->getSection().offset() +
+                      pLayout.getOutputOffset(*frag_ref));
     }
 
     Elf32_Word Index;
@@ -527,31 +520,29 @@ void ELFWriter::emitRel(const Layout& pLayout,
 /// emitRela
 void ELFWriter::emitRela(const Layout& pLayout,
                          const Output& pOutput,
-                         const llvm::MCSectionData& pSectionData,
+                         const SectionData& pSectionData,
                          MemoryRegion& pRegion) const
 {
   Elf32_Rela* rel = reinterpret_cast<Elf32_Rela*>(pRegion.start());
 
   Relocation* relocation = 0;
-  MCFragmentRef* FragmentRef = 0;
+  FragmentRef* frag_ref = 0;
 
-  for (llvm::MCSectionData::const_iterator it = pSectionData.begin(),
+  for (SectionData::const_iterator it = pSectionData.begin(),
        ie = pSectionData.end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
-    FragmentRef = &(relocation->targetRef());
+    frag_ref = &(relocation->targetRef());
 
     if(pOutput.type() == Output::DynObj || pOutput.type() == Output::Exec) {
       rel->r_offset = static_cast<Elf32_Addr>(
-                      llvm::cast<LDSection>(
-                      FragmentRef->frag()->getParent()->getSection()).addr() +
-                      pLayout.getOutputOffset(*FragmentRef));
+                      frag_ref->frag()->getParent()->getSection().addr() +
+                      pLayout.getOutputOffset(*frag_ref));
     }
     else {
       rel->r_offset = static_cast<Elf32_Addr>(
-                      llvm::cast<LDSection>(
-                      FragmentRef->frag()->getParent()->getSection()).offset() +
-                      pLayout.getOutputOffset(*FragmentRef));
+                      frag_ref->frag()->getParent()->getSection().offset() +
+                      pLayout.getOutputOffset(*frag_ref));
     }
 
     Elf32_Word Index;

@@ -11,10 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
+#include <string>
+
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
-#include <string>
 
 namespace mcld
 {
@@ -31,7 +33,7 @@ public:
   ~LDSectionFactory();
 
   /// produce - produce an empty section information.
-  /// This function will create an empty MCSectionData and its LDSection.
+  /// This function will create an empty SectionData and its LDSection.
   /// @param pName - The name of the section.
   /// @param pKind - The kind of the section. Used to create default section map
   /// @param pType - sh_type in ELF.

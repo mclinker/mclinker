@@ -157,7 +157,7 @@ bool SectLinker::doFinalization(Module &pM)
   // 10. - linear layout
   m_pLDDriver->layout();
 
-  // 10.b - post-layout (create segment)
+  // 10.b - post-layout (create segment, instruction relaxing)
   m_pLDDriver->postlayout();
 
   // 11. - finalize symbol value

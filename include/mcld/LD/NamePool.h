@@ -12,19 +12,16 @@
 #include <gtest.h>
 #endif
 
+#include <utility>
+
 #include <llvm/ADT/StringRef.h>
+
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfoFactory.h>
-#include <utility>
-
-namespace llvm
-{
-  class MCSectionData;
-}
 
 namespace mcld
 {
@@ -32,6 +29,7 @@ namespace mcld
 class Resolver;
 class StringTable;
 class SymbolTableIF;
+class SectionData;
 
 /** \class NamePool
  *  \brief Store symbol and search symbol by name. Can help symbol resolution.

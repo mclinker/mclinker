@@ -6,20 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ELF.h>
-#include <llvm/ADT/Twine.h>
-#include <mcld/LD/ELFObjectReader.h>
-#include <mcld/LD/ELFReader.h>
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCRegionFragment.h>
-#include <mcld/Target/GNULDBackend.h>
-#include <mcld/Support/MsgHandling.h>
 
 #include <string>
 #include <cassert>
 
-using namespace llvm;
+#include <llvm/Support/ELF.h>
+#include <llvm/ADT/Twine.h>
+
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/LD/RegionFragment.h>
+#include <mcld/LD/ELFReader.h>
+#include <mcld/LD/ELFObjectReader.h>
+#include <mcld/Target/GNULDBackend.h>
+#include <mcld/Support/MsgHandling.h>
+
 using namespace mcld;
 
 //==========================
@@ -176,10 +177,9 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                llvm::ELF::SHT_NOBITS,
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 
-        llvm::MCSectionData& sect_data = m_Linker.getOrCreateSectData(**section);
-                                         /*  value, valsize, size*/
-        llvm::MCFillFragment* frag =
-                    new llvm::MCFillFragment(0x0,   1,       (*section)->size());
+        SectionData& sect_data = m_Linker.getOrCreateSectData(**section);
+                                            /*  value, valsize, size*/
+        FillFragment* frag = new FillFragment(0x0,   1,       (*section)->size());
 
         uint64_t size = m_Linker.getLayout().appendFragment(*frag,
                                                             sect_data,

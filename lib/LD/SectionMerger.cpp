@@ -60,7 +60,7 @@ LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
   return section;
 }
 
-llvm::MCSectionData* SectionMerger::getOutputSectData(const std::string& pName)
+SectionData* SectionMerger::getOutputSectData(const std::string& pName)
 {
   return getOutputSectHdr(pName)->getSectionData();
 }

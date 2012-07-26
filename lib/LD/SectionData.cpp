@@ -1,4 +1,4 @@
-//===- FDE.cpp ------------------------------------------------------------===//
+//===- SectionData.cpp ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,19 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <mcld/LD/FDE.h>
-#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/LD/LDSection.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// FDE
+// SectionData
 //===----------------------------------------------------------------------===//
-FDE::FDE(MemoryRegion& pRegion, const CIE& pCIE, Offset pPCBeginOffset)
-  : RegionFragment(pRegion), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
+SectionData::SectionData()
+  : m_pSection(NULL), m_Alignment(1) {
 }
 
-FDE::~FDE()
-{
+SectionData::SectionData(const LDSection &pSection)
+  : m_pSection(&pSection), m_Alignment(1) {
 }

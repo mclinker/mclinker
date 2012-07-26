@@ -1,4 +1,4 @@
-//===- FDE.cpp ------------------------------------------------------------===//
+//===- RegionFragment.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,18 +7,18 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/LD/FDE.h>
-#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/RegionFragment.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// FDE
+// RegionFragment
 //===----------------------------------------------------------------------===//
-FDE::FDE(MemoryRegion& pRegion, const CIE& pCIE, Offset pPCBeginOffset)
-  : RegionFragment(pRegion), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
+RegionFragment::RegionFragment(MemoryRegion& pRegion, SectionData* pSD)
+  : Fragment(Fragment::Region, pSD), m_Region(pRegion) {
 }
 
-FDE::~FDE()
+RegionFragment::~RegionFragment()
 {
 }
+

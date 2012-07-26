@@ -14,7 +14,7 @@
 
 #include <vector>
 #include <string>
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/SectionMap.h>
@@ -47,7 +47,7 @@ public:
   LDSection* getOutputSectHdr(const std::string& pName);
 
   /// getOutputSectData - return a associated output section data
-  llvm::MCSectionData* getOutputSectData(const std::string& pName);
+  SectionData* getOutputSectData(const std::string& pName);
 
   /// addMapping - add a mapping as creating one new output LDSection
   /// @param pName - a input section name

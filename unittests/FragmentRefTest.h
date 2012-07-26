@@ -1,4 +1,4 @@
-//===- MCFragmentRefTest.h ------------------------------------------------===//
+//===- FragmentRefTest.h --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -14,26 +14,26 @@
 
 namespace mcld
 {
-class MCFragmentRef;
+class FragmentRef;
 
 } // namespace for mcld
 
 namespace mcldtest
 {
 
-/** \class MCFragmentRefTest
+/** \class FragmentRefTest
  *  \brief Reference Test
  *
- *  \see MCFragmentRef 
+ *  \see FragmentRef 
  */
-class MCFragmentRefTest : public ::testing::Test
+class FragmentRefTest : public ::testing::Test
 {
 public:
   // Constructor can do set-up work for all test here.
-  MCFragmentRefTest();
+  FragmentRefTest();
 
   // Destructor can do clean-up work that doesn't throw exceptions here.
-  virtual ~MCFragmentRefTest();
+  virtual ~FragmentRefTest();
 
   // SetUp() will be called immediately before each test.
   virtual void SetUp();

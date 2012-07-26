@@ -13,7 +13,7 @@
 #endif
 
 #include <llvm/Support/DataTypes.h>
-#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/RegionFragment.h>
 
 namespace mcld
 {
@@ -22,7 +22,7 @@ namespace mcld
  *  \brief Common Information Entry.
  *  The CIE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
-class CIE : public MCRegionFragment
+class CIE : public RegionFragment
 {
 public:
   explicit CIE(MemoryRegion& pRegion, uint8_t pFDEEncode);

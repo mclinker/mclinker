@@ -6,12 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include <mcld/LD/EhFrame.h>
-#include <mcld/MC/MCLinker.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/TargetLDBackend.h>
+
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/Host.h>
+
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
@@ -27,7 +30,7 @@ EhFrame::~EhFrame()
 
 uint64_t EhFrame::readEhFrame(Layout& pLayout,
                               const TargetLDBackend& pBackend,
-                              llvm::MCSectionData& pSD,
+                              SectionData& pSD,
                               const Input& pInput,
                               LDSection& pSection,
                               MemoryArea& pArea)
@@ -309,7 +312,7 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
   // create and push back the CIE entry
   CIE* entry = new CIE(pRegion, fde_encoding);
   m_CIEs.push_back(entry);
-  pFragList.push_back(static_cast<llvm::MCFragment*>(entry));
+  pFragList.push_back(static_cast<Fragment*>(entry));
   return true;
 }
 
@@ -335,7 +338,7 @@ bool EhFrame::addFDE(MemoryRegion& pRegion,
   // create and push back the FDE entry
   FDE* entry = new FDE(pRegion, **(m_CIEs.end() -1), pc_offset);
   m_FDEs.push_back(entry);
-  pFragList.push_back(static_cast<llvm::MCFragment*>(entry));
+  pFragList.push_back(static_cast<Fragment*>(entry));
   return true;
 }
 
@@ -363,9 +366,9 @@ bool EhFrame::skipLEB128(ConstAddress* pp, ConstAddress pend)
 
 void EhFrame::deleteFragments(FragListType& pList, MemoryArea& pArea)
 {
-  MCRegionFragment* frag = NULL;
+  RegionFragment* frag = NULL;
   for (FragListType::iterator it = pList.begin(); it != pList.end(); ++it) {
-    frag = static_cast<MCRegionFragment*>(*it);
+    frag = static_cast<RegionFragment*>(*it);
     pArea.release(&(frag->getRegion()));
     delete *it;
   }

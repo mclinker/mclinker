@@ -6,7 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/LDSymbol.h"
+
+#include <mcld/LD/LDSymbol.h>
+
 #include <cstring>
 
 using namespace mcld;
@@ -33,7 +35,7 @@ LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
   return (*this);
 }
 
-void LDSymbol::setFragmentRef(MCFragmentRef* pFragmentRef)
+void LDSymbol::setFragmentRef(FragmentRef* pFragmentRef)
 {
   m_pFragRef = pFragmentRef;
 }

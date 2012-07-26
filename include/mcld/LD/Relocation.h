@@ -6,14 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef LD_RELOCATION_H
-#define LD_RELOCATION_H
+#ifndef MCLD_LD_RELOCATION_H
+#define MCLD_LD_RELOCATION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
-#include <mcld/MC/MCFragmentRef.h>
+
+#include <mcld/LD/Fragment.h>
+#include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 
@@ -24,7 +26,7 @@ class Layout;
 class RelocationFactory;
 class MCLDInfo;
 
-class Relocation : public llvm::MCFragment
+class Relocation : public Fragment
 {
 friend class RelocationFactory;
 
@@ -35,7 +37,7 @@ public:
 
 private:
   Relocation(Type pType,
-             MCFragmentRef* pTargetRef,
+             FragmentRef* pTargetRef,
              Address pAddend,
              DWord pTargetData);
 
@@ -71,11 +73,11 @@ public:
   const DWord& target() const;
 
   /// targetRef - the reference of the target data
-  MCFragmentRef& targetRef()
+  FragmentRef& targetRef()
   { return m_TargetAddress; }
 
   /// targetRef - the reference of the target data
-  const MCFragmentRef& targetRef() const
+  const FragmentRef& targetRef() const
   { return m_TargetAddress; }
 
   void apply(RelocationFactory& pRelocFactory, const MCLDInfo& pLDInfo);
@@ -87,9 +89,9 @@ public:
 
   void setSymInfo(ResolveInfo* pSym);
 
-  // Relocation is a kind of MCFragment with type of FT_Reloc
-  static bool classof(const MCFragment *F)
-  { return F->getKind() == MCFragment::FT_Reloc;}
+  // Relocation is a kind of Fragment with type of FT_Reloc
+  static bool classof(const Fragment *F)
+  { return F->getKind() == Fragment::Relocation; }
   static bool classof(const Relocation *) { return true; }
 
 private:
@@ -102,8 +104,8 @@ private:
   /// m_pSymInfo - resolved symbol info of relocation target symbol
   ResolveInfo* m_pSymInfo;
 
-  /// m_TargetAddress - MCFragmentRef of the place being relocated
-  MCFragmentRef m_TargetAddress;
+  /// m_TargetAddress - FragmentRef of the place being relocated
+  FragmentRef m_TargetAddress;
 
   /// m_Addend - the addend
   Address m_Addend;

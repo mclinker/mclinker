@@ -6,27 +6,29 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef PROCEDURE_LINKAGE_TABLE_H
-#define PROCEDURE_LINKAGE_TABLE_H
+#ifndef MCLD_PROCEDURE_LINKAGE_TABLE_H
+#define MCLD_PROCEDURE_LINKAGE_TABLE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/LDSection.h>
-#include <mcld/MC/MCTargetFragment.h>
 #include <llvm/ADT/ilist.h>
+
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/TargetFragment.h>
 
 namespace mcld
 {
 
+class SectionData;
 class ResolveInfo;
 
 /** \class PLTEntry
  */
-class PLTEntry : public MCTargetFragment
+class PLTEntry : public TargetFragment
 {
 public:
-  PLTEntry(size_t pSize, llvm::MCSectionData* pParent);
+  PLTEntry(size_t pSize, SectionData* pParent);
   virtual ~PLTEntry();
 
   size_t getEntrySize() const
@@ -39,7 +41,7 @@ public:
   { return m_pContent; }
 
   //Used by llvm::cast<>.
-  static bool classof(const MCFragment *O)
+  static bool classof(const Fragment *O)
   { return true; }
 
   size_t getSize() const
@@ -56,13 +58,13 @@ protected:
 class PLT
 {
 public:
-  PLT(LDSection& pSection, llvm::MCSectionData& pSectionData);
+  PLT(LDSection& pSection, SectionData& pSectionData);
   virtual ~PLT();
 
   const LDSection& getSection() const
   { return m_Section; }
 
-  const llvm::MCSectionData& getSectionData() const
+  const SectionData& getSectionData() const
   { return m_SectionData; }
 
 public:
@@ -77,7 +79,7 @@ public:
 
 protected:
   LDSection& m_Section;
-  llvm::MCSectionData& m_SectionData;
+  SectionData& m_SectionData;
 };
 
 } // namespace of mcld

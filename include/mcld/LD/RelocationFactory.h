@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef LD_RELOCATION_FACTORY_H
-#define LD_RELOCATION_FACTORY_H
+#ifndef MCLD_LD_RELOCATION_FACTORY_H
+#define MCLD_LD_RELOCATION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -19,7 +19,7 @@ namespace mcld
 
 class LDSymbol;
 class ResolveInfo;
-class MCFragmentRef;
+class FragmentRef;
 class Layout;
 class GOT;
 class TargetLDBackend;
@@ -60,7 +60,7 @@ public:
   /// @param pFragRef - the place to apply the relocation
   /// @param pAddend - the addend of the relocation entry
   Relocation* produce(Type pType,
-                      MCFragmentRef& pFragRef,
+                      FragmentRef& pFragRef,
                       Address pAddend = 0);
 
   /// produceEmptyEntry - produce an empty relocation which

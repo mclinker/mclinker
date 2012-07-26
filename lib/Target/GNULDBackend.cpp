@@ -6,27 +6,33 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ELF.h>
-#include <mcld/ADT/SizeTraits.h>
+
 #include <mcld/Target/GNULDBackend.h>
+
+#include <string>
+#include <cstring>
+#include <cassert>
+
+#include <llvm/Support/ELF.h>
+
+#include <mcld/ADT/SizeTraits.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/Layout.h>
+#include <mcld/LD/FillFragment.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/Layout.h>
+#include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/MCLinker.h>
-#include <string>
-#include <cstring>
-#include <cassert>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GNULDBackend
+//===----------------------------------------------------------------------===//
 GNULDBackend::GNULDBackend()
   : m_pArchiveReader(NULL),
     m_pObjectReader(NULL),
@@ -164,7 +170,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 
   // -----  section symbols  ----- //
   // .preinit_array
-  MCFragmentRef* preinit_array = NULL;
+  FragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
     preinit_array = pLinker.getLayout().getFragmentRef(
                    *(file_format->getPreInitArray().getSectionData()->begin()),
@@ -194,7 +200,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .init_array
-  MCFragmentRef* init_array = NULL;
+  FragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
     init_array = pLinker.getLayout().getFragmentRef(
                       *(file_format->getInitArray().getSectionData()->begin()),
@@ -225,7 +231,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .fini_array
-  MCFragmentRef* fini_array = NULL;
+  FragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
     fini_array = pLinker.getLayout().getFragmentRef(
                      *(file_format->getFiniArray().getSectionData()->begin()),
@@ -256,7 +262,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .stack
-  MCFragmentRef* stack = NULL;
+  FragmentRef* stack = NULL;
   if (file_format->hasStack()) {
     stack = pLinker.getLayout().getFragmentRef(
                           *(file_format->getStack().getSectionData()->begin()),
@@ -1283,9 +1289,9 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
 
   assert(NULL != bss_sect && NULL !=tbss_sect);
 
-  // get or create corresponding BSS MCSectionData
-  llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
-  llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
+  // get or create corresponding BSS SectionData
+  SectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect->size();
@@ -1302,8 +1308,8 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
       // when emitting the regular name pools. We must change the symbols'
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+      Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+      (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
@@ -1328,8 +1334,8 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
     // when emitting the regular name pools. We must change the symbols'
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+    Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+    (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section

@@ -182,11 +182,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/AttributeFactory.cpp \
 	${INCDIR}/MC/InputTree.h \
 	${LIBDIR}/MC/InputTree.cpp \
-	${INCDIR}/MC/MCRegionFragment.h \
-	${LIBDIR}/MC/MCRegionFragment.cpp \
-	${INCDIR}/MC/MCTargetFragment.h \
-	${INCDIR}/MC/MCFragmentRef.h \
-	${LIBDIR}/MC/MCFragmentRef.cpp \
 	${INCDIR}/MC/ZOption.h \
 	${LIBDIR}/MC/ZOption.cpp \
 	${INCDIR}/LD/DiagCommonKinds.inc \
@@ -199,6 +194,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/LDContext.cpp \
 	${INCDIR}/LD/LDSection.h \
 	${LIBDIR}/LD/LDSection.cpp \
+	${INCDIR}/LD/SectionData.h \
+	${LIBDIR}/LD/SectionData.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/ResolveInfoFactory.h \
@@ -209,6 +206,17 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/Layout.h \
 	${LIBDIR}/LD/Layout.cpp\
+	${INCDIR}/LD/Fragment.h \
+	${LIBDIR}/LD/Fragment.cpp \
+	${INCDIR}/LD/FillFragment.h \
+	${LIBDIR}/LD/FillFragment.cpp \
+	${INCDIR}/LD/AlignFragment.h \
+	${LIBDIR}/LD/AlignFragment.cpp \
+	${INCDIR}/LD/RegionFragment.h \
+	${LIBDIR}/LD/RegionFragment.cpp \
+	${INCDIR}/LD/TargetFragment.h \
+	${INCDIR}/LD/FragmentRef.h \
+	${LIBDIR}/LD/FragmentRef.cpp \
 	${INCDIR}/LD/Relocation.h \
 	${LIBDIR}/LD/Relocation.cpp \
 	${INCDIR}/LD/RelocationFactory.h \

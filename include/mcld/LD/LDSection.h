@@ -13,29 +13,20 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/MC/MCSection.h>
-#include <llvm/MC/MCAssembler.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <string>
 
-namespace llvm {
-
-class MCAsmInfo;
-class raw_ostream;
-
-} // namespace of llvm
-
 namespace mcld {
+
+class SectionData;
+
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
- *  abstraction for various file formats.
- *
- *  LDSection contains both the format-dependent data and LLVM specific data.
- *
+ *  abstraction of a section header entry for various file formats.
  */
-class LDSection : public llvm::MCSection
+class LDSection
 {
 public:
   LDSection(const std::string& pName,
@@ -85,7 +76,7 @@ public:
   /// virtual image.
   ///   Before layouting, output's LDSection::offset() should return zero.
   ///   ELF uses sh_addralign to set alignment constraints. In LLVM, alignment
-  ///   constraint is set in MCSectionData::setAlignment. addr() contains the
+  ///   constraint is set in SectionData::setAlignment. addr() contains the
   ///   original ELF::sh_addr. Modulo sh_addr by sh_addralign is not necessary.
   ///   MachO uses the same scenario.
   ///
@@ -137,30 +128,13 @@ public:
   void setType(uint32_t type)
   { m_Type = type; }
 
-  static bool classof(const MCSection *S)
-  { return S->getVariant() == SV_LDContext; }
-
-  static bool classof(const LDSection *)
-  { return true; }
-
-  // -----  methods for adapt to llvm::MCSection  ----- //
-  void PrintSwitchToSection(const llvm::MCAsmInfo &MAI,
-                            llvm::raw_ostream &OS) const
-  { }
-
-  bool UseCodeAlign() const
-  { return true; }
-
-  bool isVirtualSection() const
-  { return false; }
-
-  llvm::MCSectionData* getSectionData()
+  SectionData* getSectionData()
   { return m_pSectionData; }
 
-  const llvm::MCSectionData* getSectionData() const
+  const SectionData* getSectionData() const
   { return m_pSectionData; }
 
-  void setSectionData(llvm::MCSectionData* pSD)
+  void setSectionData(SectionData* pSD)
   { m_pSectionData = pSD; }
 
   bool hasSectionData() const
@@ -191,8 +165,7 @@ private:
   size_t m_Info;
   LDSection* m_pLink;
 
-  // pointer to MCSectionData.
-  llvm::MCSectionData* m_pSectionData;
+  SectionData* m_pSectionData;
 
   // the index of the file
   size_t m_Index;

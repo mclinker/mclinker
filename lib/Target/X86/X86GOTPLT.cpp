@@ -6,10 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include "X86GOTPLT.h"
+
+#include <new>
+
+#include <llvm/Support/Casting.h>
+
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
-#include <new>
 
 namespace {
   const uint64_t X86GOTPLTEntrySize = 4;
@@ -19,7 +24,8 @@ namespace mcld {
 
 //===----------------------------------------------------------------------===//
 // X86GOTPLT
-X86GOTPLT::X86GOTPLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+//===----------------------------------------------------------------------===//
+X86GOTPLT::X86GOTPLT(LDSection& pSection, SectionData& pSectionData)
   : GOT(pSection, pSectionData, X86GOTPLTEntrySize), m_GOTPLTIterator()
 {
   GOTEntry* Entry = 0;

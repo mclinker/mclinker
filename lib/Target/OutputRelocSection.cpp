@@ -6,18 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LDSection.h>
+
 #include <mcld/Target/OutputRelocSection.h>
+
+#include <llvm/Support/Casting.h>
+
+#include <mcld/LD/LDSection.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // OutputRelocSection
-
-
+//===----------------------------------------------------------------------===//
 OutputRelocSection::OutputRelocSection(LDSection& pSection,
-                                       llvm::MCSectionData& pSectionData,
+                                       SectionData& pSectionData,
                                        unsigned int pEntrySize)
   : m_pSection(&pSection),
     m_pSectionData(&pSectionData),

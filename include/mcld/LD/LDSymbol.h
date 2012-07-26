@@ -12,11 +12,11 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/LD/ResolveInfo.h"
-#include "mcld/MC/MCFragmentRef.h"
-#include <llvm/MC/MCAssembler.h>
-#include <assert.h>
+#include <cassert>
+
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/FragmentRef.h>
 
 namespace mcld
 {
@@ -31,7 +31,7 @@ public:
   // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
   typedef ResolveInfo::SizeType SizeType;
   typedef uint64_t ValueType;
-  typedef MCFragmentRef::Offset Offset;
+  typedef FragmentRef::Offset Offset;
 
 public:
   LDSymbol();
@@ -86,7 +86,7 @@ public:
   ValueType value() const
   { return m_Value; }
 
-  const MCFragmentRef* fragRef() const
+  const FragmentRef* fragRef() const
   { return m_pFragRef; }
 
   SizeType size() const
@@ -110,14 +110,14 @@ public:
   void setValue(ValueType pValue)
   { m_Value = pValue; }
  
-  void setFragmentRef(MCFragmentRef* pFragmentRef);
+  void setFragmentRef(FragmentRef* pFragmentRef);
 
   void setResolveInfo(const ResolveInfo& pInfo);
 
 private:
   // -----  Symbol's fields  ----- //
   ResolveInfo* m_pResolveInfo;
-  MCFragmentRef* m_pFragRef;
+  FragmentRef* m_pFragRef;
   ValueType m_Value;
 
 };

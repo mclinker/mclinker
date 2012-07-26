@@ -12,7 +12,10 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/DenseMap.h>
+
 #include <mcld/Target/GOT.h>
+#include <mcld/LD/SectionData.h>
 
 namespace mcld
 {
@@ -29,11 +32,11 @@ private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
 public:
-  MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
+  MipsGOT(LDSection& pSection, SectionData& pSectionData);
 
   iterator begin();
   iterator end();

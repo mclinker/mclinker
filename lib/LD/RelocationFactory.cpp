@@ -6,17 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <llvm/Support/Host.h>
+
 #include <cstring>
 #include <cassert>
 
+#include <llvm/Support/Host.h>
+
+#include <mcld/Target/GOT.h>
+#include <mcld/Target/TargetLDBackend.h>
+
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // RelocationFactory
+//===----------------------------------------------------------------------===//
 RelocationFactory::RelocationFactory(size_t pNum)
   : GCFactory<Relocation, 0>(pNum),
     m_pLayout(NULL) {
@@ -27,7 +32,7 @@ RelocationFactory::~RelocationFactory()
 }
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
-                                       MCFragmentRef& pFragRef,
+                                       FragmentRef& pFragRef,
                                        Address pAddend)
 {
   // target_data is the place where the relocation applys to.

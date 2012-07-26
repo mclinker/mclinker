@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDSection.h>
-#include <llvm/MC/SectionKind.h>
 
 using namespace mcld;
 
@@ -18,8 +17,7 @@ LDSection::LDSection(const std::string& pName,
                      uint64_t pSize,
                      uint64_t pOffset,
                      uint64_t pAddr)
-  : llvm::MCSection(llvm::MCSection::SV_LDContext, llvm::SectionKind::getMetadata()),
-    m_Name(pName),
+  : m_Name(pName),
     m_Kind(pKind),
     m_Type(pType),
     m_Flag(pFlag),

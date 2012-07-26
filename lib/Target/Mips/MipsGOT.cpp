@@ -7,10 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "MipsGOT.h"
+
+#include <llvm/Support/Casting.h>
+
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include "MipsGOT.h"
 
 namespace {
   const size_t MipsGOTEntrySize = 4;
@@ -21,7 +24,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // MipsGOT
-MipsGOT::MipsGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
   : GOT(pSection, pSectionData, MipsGOTEntrySize),
     m_pLocalNum(0)
 {

@@ -1,4 +1,4 @@
-//===- MCLinker.cpp -----------------------------------------------------===//
+//===- MCLinker.cpp -------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -11,6 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/MCLinker.h>
+
+#include <llvm/Support/Host.h>
+#include <llvm/Support/raw_ostream.h>
+
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/Resolver.h>
@@ -19,13 +23,13 @@
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <llvm/Support/Host.h>
-#include <llvm/Support/raw_ostream.h>
 
 using namespace mcld;
 
@@ -61,7 +65,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
                                         ResolveInfo::Binding pBinding,
                                         ResolveInfo::SizeType pSize,
                                         LDSymbol::ValueType pValue,
-                                        MCFragmentRef* pFragmentRef,
+                                        FragmentRef* pFragmentRef,
                                         ResolveInfo::Visibility pVisibility)
 {
 
@@ -168,7 +172,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
                                         ResolveInfo::Binding pBinding,
                                         ResolveInfo::SizeType pSize,
                                         LDSymbol::ValueType pValue,
-                                        MCFragmentRef* pFragmentRef,
+                                        FragmentRef* pFragmentRef,
                                         ResolveInfo::Visibility pVisibility)
 {
   // We merge sections when reading them. So we do not need symbols with
@@ -239,7 +243,7 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            ResolveInfo::Binding pBinding,
                                            ResolveInfo::SizeType pSize,
                                            LDSymbol::ValueType pValue,
-                                           MCFragmentRef* pFragmentRef,
+                                           FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
@@ -309,7 +313,7 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            ResolveInfo::Binding pBinding,
                                            ResolveInfo::SizeType pSize,
                                            LDSymbol::ValueType pValue,
-                                           MCFragmentRef* pFragmentRef,
+                                           FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
@@ -360,7 +364,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
                                                      ResolveInfo::Binding pBinding,
                                                      ResolveInfo::SizeType pSize,
                                                      LDSymbol::ValueType pValue,
-                                                     MCFragmentRef* pFragmentRef,
+                                                     FragmentRef* pFragmentRef,
                                                      ResolveInfo::Visibility pVisibility)
 {
   // Result is <info, existent, override>
@@ -406,7 +410,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
                                                     ResolveInfo::Binding pBinding,
                                                     ResolveInfo::SizeType pSize,
                                                     LDSymbol::ValueType pValue,
-                                                    MCFragmentRef* pFragmentRef,
+                                                    FragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
@@ -526,12 +530,12 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
-/// getOrCreateSectData - get or create MCSectionData
+/// getOrCreateSectData - get or create SectionData
 /// pSection is input LDSection
-llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
+SectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.
-  llvm::MCSectionData* sect_data = pSection.getSectionData();
+  SectionData* sect_data = pSection.getSectionData();
   if (NULL != sect_data) {
     m_Layout.addInputRange(*sect_data, pSection);
     return *sect_data;
@@ -551,9 +555,9 @@ llvm::MCSectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
     return *sect_data;
   }
 
-  // if the output LDSection also has no MCSectionData, then create one.
+  // if the output LDSection also has no SectionData, then create one.
   sect_data = m_LDSectDataFactory.allocate();
-  new (sect_data) llvm::MCSectionData(*output_sect);
+  new (sect_data) SectionData(*output_sect);
   pSection.setSectionData(sect_data);
   output_sect->setSectionData(sect_data);
   m_Layout.addInputRange(*sect_data, pSection);
@@ -581,7 +585,7 @@ bool MCLinker::layout()
 Relocation* MCLinker::addRelocation(Relocation::Type pType,
                                     const LDSymbol& pSym,
                                     ResolveInfo& pResolveInfo,
-                                    MCFragmentRef& pFragmentRef,
+                                    FragmentRef& pFragmentRef,
                                     const LDSection& pSection,
                                     Relocation::Address pAddend)
 {
@@ -614,7 +618,7 @@ bool MCLinker::applyRelocations()
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
-    llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
+    Fragment* frag = (Fragment*)relocIter;
     static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_LDInfo);
   }
   return true;
@@ -631,7 +635,7 @@ void MCLinker::syncRelocationResult()
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
 
-    llvm::MCFragment* frag = (llvm::MCFragment*)relocIter;
+    Fragment* frag = (Fragment*)relocIter;
     Relocation* reloc = static_cast<Relocation*>(frag);
 
     // get output file offset
@@ -679,7 +683,7 @@ uint64_t MCLinker::addEhFrame(const Input& pInput,
   uint64_t size = 0;
 
   // get the SectionData of this eh_frame
-  llvm::MCSectionData& sect_data = getOrCreateSectData(pSection);
+  SectionData& sect_data = getOrCreateSectData(pSection);
 
   // parse the eh_frame if the option --eh-frame-hdr is given
   if (m_LDInfo.options().hasEhFrameHdr()) {
@@ -699,14 +703,14 @@ uint64_t MCLinker::addEhFrame(const Input& pInput,
   MemoryRegion* region = pArea.request(pInput.fileOffset() + pSection.offset(),
                                        pSection.size());
 
-  llvm::MCFragment* frag = NULL;
+  Fragment* frag = NULL;
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
-    frag = new llvm::MCFillFragment(0x0, 0, 0);
+    frag = new FillFragment(0x0, 0, 0);
   }
   else
-    frag = new MCRegionFragment(*region);
+    frag = new RegionFragment(*region);
 
   size = m_Layout.appendFragment(*frag, sect_data, pSection.align());
   return size;

@@ -11,6 +11,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
+
 #include <mcld/MC/MCLinker.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -135,7 +136,7 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 }
 
 /// getSymFragmentRef
-MCFragmentRef*
+FragmentRef*
 ELFReaderIF::getSymFragmentRef(Input& pInput,
                                MCLinker& pLinker,
                                uint16_t pShndx,
@@ -151,7 +152,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
     unreachable(diag::unreachable_invalid_section_idx) << pShndx
                                                        << pInput.path().native();
 
-  MCFragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
+  FragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
   return result;
 }
 
