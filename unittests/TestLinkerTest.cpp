@@ -46,9 +46,10 @@ void TestLinkerTest::SetUp()
   // set up target dependent options
   mcld::sys::fs::Path path = TOPDIR;
   path.append("test/libs/ARM/Android/android-14");
-  m_pLinker->config()->options().setSysroot(path);
+  m_pLinker->setSysRoot(path);
+  m_pLinker->addSearchDir("=/");
+
   m_pLinker->config()->options().setDyld("/usr/lib/ld.so.1");
-  m_pLinker->config()->options().directories().add("=/");
   m_pLinker->config()->options().setBsymbolic(true);
 }
 

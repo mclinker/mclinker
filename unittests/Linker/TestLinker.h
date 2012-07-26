@@ -49,6 +49,12 @@ public:
     return m_pInfo;
   }
 
+  // -----  search directories  ----- //
+  void addSearchDir(const std::string &pPath);
+
+  void setSysRoot(const mcld::sys::fs::Path &pPath);
+
+  // -----  input operators  ----- //
   void addObject(const std::string &pPath);
 
   void addObject(const mcld::sys::fs::Path &pPath)

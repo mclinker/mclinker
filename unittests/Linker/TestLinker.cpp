@@ -14,6 +14,7 @@
 
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/TargetSelect.h>
@@ -23,6 +24,7 @@
 
 using namespace std;
 using namespace mcld;
+using namespace mcld::sys::fs;
 using namespace mcld::test;
 
 //===----------------------------------------------------------------------===//
@@ -105,6 +107,31 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   is_initialized = true;
   return true;
+}
+
+void TestLinker::addSearchDir(const std::string &pDirPath)
+{
+  assert(NULL != m_pInfo && "initialize() must be called before addSearchDir");
+  assert(!m_pInfo->options().sysroot().empty() &&
+         "must setSysRoot before addSearchDir");
+
+  mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
+
+  if (sd->isInSysroot()) {
+    sd->setSysroot(m_pInfo->options().sysroot());
+  }
+
+  if (exists(sd->path()) && is_directory(sd->path())) {
+    m_pInfo->options().directories().add(*sd);
+  } else {
+    mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
+  }
+}
+
+void TestLinker::setSysRoot(const mcld::sys::fs::Path &pPath)
+{
+  assert(NULL != m_pInfo && "initialize() must be called before setSysRoot");
+  m_pInfo->options().setSysroot(pPath);
 }
 
 void TestLinker::addObject(const std::string &pPath)
