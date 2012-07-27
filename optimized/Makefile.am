@@ -156,8 +156,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/MC/MCLinker.h \
 	${INCDIR}/MC/MCLinker.tcc \
 	${LIBDIR}/MC/MCLinker.cpp \
-	${INCDIR}/MC/MCBitcodeInterceptor.h \
-	${LIBDIR}/MC/MCBitcodeInterceptor.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \

@@ -7,14 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "mcld/CodeGen/SectLinker.h"
-#include "mcld/CodeGen/SectLinkerOption.h"
-#include "mcld/MC/MCBitcodeInterceptor.h"
-#include "mcld/MC/MCLDFile.h"
-#include "mcld/Support/RealPath.h"
-#include "mcld/Support/TargetRegistry.h"
-#include "mcld/Target/TargetMachine.h"
-#include "mcld/Target/TargetLDBackend.h"
+#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/SectLinkerOption.h>
+#include <mcld/MC/MCLDFile.h>
+#include <mcld/Support/RealPath.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/Target/TargetMachine.h>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/ADT/OwningPtr.h>
 #include <llvm/Analysis/Passes.h>
@@ -55,6 +54,7 @@ using namespace llvm;
 
 //===----------------------------------------------------------------------===//
 /// Arguments
+//===----------------------------------------------------------------------===//
 // Enable or disable FastISel. Both options are needed, because
 // FastISel is enabled by default with -fast, and we wish to be
 // able to enable or disable fast-isel independently from -O0.
@@ -91,6 +91,7 @@ static bool getVerboseAsm() {
 
 //===---------------------------------------------------------------------===//
 /// LLVMTargetMachine
+//===----------------------------------------------------------------------===//
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
                                            const std::string& pTriple )
@@ -347,50 +348,10 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
-// FIXME: when MCLinker can directly turn bitcode into shared object, turn on this
-// block of code.
-#if 0
-  // Initialize MCAsmStreamer first, than chain its output into SectLinker.
-  // MCCodeEmitter
-  const MCSubtargetInfo &STI = getTM().getSubtarget<MCSubtargetInfo>();
-  MCCodeEmitter* MCE = getTarget().get()->createMCCodeEmitter(*getTM().getInstrInfo(),
-                                                              STI,
-                                                              *Context);
-  // MCAsmBackend
-  MCAsmBackend *MAB = getTarget().get()->createMCAsmBackend(m_Triple);
-  if (MCE == 0 || MAB == 0)
-    return true;
-
-  // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
-  MCStreamer* AsmStreamer =
-    getTarget().get()->createMCObjectStreamer(m_Triple,
-                                              *Context,
-                                              *MAB,
-                                              llvm::nulls(),
-                                              MCE,
-                                              getTM().hasMCRelaxAll(),
-                                              getTM().hasMCNoExecStack());
-  if (0 == AsmStreamer)
-    return true;
-
-  AsmStreamer->InitSections();
-  AsmPrinter* printer = getTarget().get()->createAsmPrinter(getTM(), *AsmStreamer);
-  if (0 == printer)
-    return true;
-  pPM.add(printer);
-#endif
   TargetLDBackend* ldBackend = getTarget().createLDBackend(m_Triple);
   if (0 == ldBackend)
     return true;
 
-// FIXME: when MCLinker can directly turn bitcode into shared object, turn on this
-// block of code.
-#if 0
-  MCBitcodeInterceptor* objReader = new MCBitcodeInterceptor(
-                                 static_cast<MCObjectStreamer&>(*AsmStreamer),
-                                 *ldBackend,
-                                 getLDInfo());
-#endif
   // set up output's SOName
   if (pOutputLinkType == MCLDFile::DynObj &&
       pLinkerOpt->info().output().name().empty()) {
