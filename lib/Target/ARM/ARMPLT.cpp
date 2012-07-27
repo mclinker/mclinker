@@ -65,7 +65,7 @@ void ARMPLT::reserveEntry(size_t pNum)
     plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
 
     if (!plt1_entry)
-      fatal(diag::fail_allocate_memory) << "ARMPLT1";
+      fatal(diag::fail_allocate_memory_plt);
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
@@ -166,7 +166,7 @@ void ARMPLT::applyPLT0() {
   data = static_cast<uint32_t*>(malloc(plt0->getEntrySize()));
 
   if (!data)
-    fatal(diag::fail_allocate_memory) << "plt0";
+    fatal(diag::fail_allocate_memory_plt);
 
   memcpy(data, arm_plt0, plt0->getEntrySize());
   data[4] = offset;
@@ -203,7 +203,7 @@ void ARMPLT::applyPLT1() {
     Out = static_cast<uint32_t*>(malloc(plt1->getEntrySize()));
 
     if (!Out)
-      fatal(diag::fail_allocate_memory) << "plt1";
+      fatal(diag::fail_allocate_memory_plt);
 
     // Offset is the distance between the last PLT entry and the associated
     // GOT entry.

@@ -36,7 +36,6 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
                      pInput.fileOffset() + pSection.offset(), pSection.size());
   // an empty .eh_frame
   if (NULL == region) {
-    note(diag::note_ehframe) << "an empty eh_frame";
     return 0;
   }
 
@@ -50,13 +49,12 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
   // This CIE is a terminator if the Length field is 0, return 0 to handled it
   // as an ordinary input.
   if (0 == len) {
-    note(diag::note_ehframe) << "a terminator";
     pArea.release(region);
     return 0;
   }
 
   if (0xffffffff == len) {
-    debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
+    debug(diag::debug_eh_unsupport) << pInput.name();
     pArea.release(region);
     m_fCanRecognizeAll = false;
     return 0;
@@ -68,7 +66,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
   while (p < eh_end) {
 
     if (eh_end - p < 4) {
-      debug(diag::debug_eh_unsupport) << "CIE or FDE size smaller than 4";
+      debug(diag::debug_eh_unsupport) << pInput.name();
       m_fCanRecognizeAll = false;
       break;
     }
@@ -79,20 +77,19 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     // the zero length entry should be the end of the section
     if (0 == len) {
       if (p < eh_end) {
-        debug(diag::debug_eh_unsupport) << "Non-end entry with zero length";
+        debug(diag::debug_eh_unsupport) << pInput.name();
         m_fCanRecognizeAll = false;
       }
       break;
     }
     if (0xffffffff == len) {
-      debug(diag::debug_eh_unsupport) << "64-bit eh_frame";
+      debug(diag::debug_eh_unsupport) << pInput.name();
       m_fCanRecognizeAll = false;
       break;
     }
 
     if (eh_end - p < 4) {
-      debug(diag::debug_eh_unsupport) <<
-        "CIE:ID field / FDE: CIE Pointer field";
+      debug(diag::debug_eh_unsupport) << pInput.name();
       m_fCanRecognizeAll = false;
       break;
     }
@@ -127,6 +124,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
   }
 
   if (!m_fCanRecognizeAll) {
+    debug(diag::debug_eh_unsupport) << pInput.name();
     pArea.release(region);
     deleteFragments(frag_list, pArea);
     return 0;
@@ -156,7 +154,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
 
   // the version should be 1
   if (1 != *p) {
-    debug(diag::debug_eh_unsupport) << "CIE version";
     return false;
   }
   ++p;
@@ -171,17 +168,14 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
 
   // skip the Code Alignment Factor
   if (!skipLEB128(&p, cie_end)) {
-    debug(diag::debug_eh_unsupport) << "unrecognized Code Alignment Factor";
     return false;
   }
   // skip the Data Alignment Factor
   if (!skipLEB128(&p, cie_end)) {
-    debug(diag::debug_eh_unsupport) << "unrecognized Data Alignment Factor";
     return false;
   }
   // skip the Return Address Register
   if (cie_end - p < 1) {
-    debug(diag::debug_eh_unsupport) << "unrecognized Return Address Register";
     return false;
   }
   ++p;
@@ -189,7 +183,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
   // the Augmentation String start with 'eh' is a CIE from gcc before 3.0,
   // in LSB Core Spec 3.0RC1. We do not support it.
   if (aug_str[0] == 'e' && aug_str[1] == 'h') {
-    debug(diag::debug_eh_unsupport) << "augmentation string `eh`";
     return false;
   }
 
@@ -203,21 +196,17 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
 
     // skip the Augumentation Data Length
     if (!skipLEB128(&p, cie_end)) {
-      debug(diag::debug_eh_unsupport) <<
-        "unrecognized Augmentation Data Length";
       return false;
     }
 
     while (aug_str != aug_str_end) {
       switch (*aug_str) {
         default:
-          debug(diag::debug_eh_unsupport) << "augmentation string";
           return false;
 
         // LDSA encoding (1 byte)
         case 'L':
           if (cie_end - p < 1) {
-            debug(diag::debug_eh_unsupport) << "augmentation string `L`";
             return false;
           }
           ++p;
@@ -229,7 +218,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
         case 'P': {
           // the first argument
           if (cie_end - p < 1) {
-            debug(diag::debug_eh_unsupport) << "augmentation string `P`";
             return false;
           }
           uint8_t per_encode = *p;
@@ -237,12 +225,10 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
           // get the length of the second argument
           uint32_t per_length = 0;
           if (0x60 == (per_encode & 0x60)) {
-            debug(diag::debug_eh_unsupport) << "augmentation string `P`";
             return false;
           }
           switch (per_encode & 7) {
             default:
-              debug(diag::debug_eh_unsupport) << "augmentation string `P`";
               return false;
             case llvm::dwarf::DW_EH_PE_udata2:
               per_length = 2;
@@ -263,14 +249,12 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
             per_align += per_length - 1;
             per_align &= ~(per_length -1);
             if (static_cast<uint32_t>(cie_end - p) < per_align) {
-              debug(diag::debug_eh_unsupport) << "augmentation string `P`";
               return false;
             }
             p += per_align;
           }
           // skip the second argument
           if (static_cast<uint32_t>(cie_end - p) < per_length) {
-            debug(diag::debug_eh_unsupport) << "augmentation string `P`";
             return false;
           }
           p += per_length;
@@ -280,7 +264,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
         // FDE encoding (1 byte)
         case 'R':
           if (cie_end - p < 1) {
-            debug(diag::debug_eh_unsupport) << "augmentation string `R`";
             return false;
           }
           fde_encoding = *p;
@@ -291,7 +274,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
             case llvm::dwarf::DW_EH_PE_absptr:
               break;
             default:
-              debug(diag::debug_eh_unsupport) << "FDE encoding";
               return false;
           }
           ++p;
@@ -326,7 +308,6 @@ bool EhFrame::addFDE(MemoryRegion& pRegion,
 
   // get the entry offset of the PC Begin
   if (fde_end - p < 1) {
-    debug(diag::debug_eh_unsupport) << "FDE PC Begin";
     return false;
   }
   FDE::Offset pc_offset = static_cast<FDE::Offset>(p - fde_start);

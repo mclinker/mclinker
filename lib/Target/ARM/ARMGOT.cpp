@@ -33,7 +33,7 @@ ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
                                         &m_SectionData);
 
     if (!Entry)
-      fatal(diag::fail_allocate_memory) << "GOT0";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
@@ -66,7 +66,7 @@ void ARMGOT::reserveEntry(size_t pNum)
                                         &m_SectionData);
 
     if (!Entry)
-      fatal(diag::fail_allocate_memory) << "GOTEntry";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + ARMGOTEntrySize);
   }
@@ -79,7 +79,7 @@ void ARMGOT::reserveGOTPLTEntry()
     got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
 
     if (!got_entry)
-      fatal(diag::fail_allocate_memory) << "GOTEntry";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + getEntrySize());
 

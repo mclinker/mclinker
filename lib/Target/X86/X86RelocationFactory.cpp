@@ -132,7 +132,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       rel_entry.targetRef().assign(got_entry);
     }
     else {
-      fatal(diag::reserve_entry_number_mismatch) << "GOT";
+      fatal(diag::reserve_entry_number_mismatch_got);
     }
   }
   return got_entry;
@@ -182,7 +182,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
       rel_entry.setSymInfo(rsym);
     }
     else {
-      fatal(diag::reserve_entry_number_mismatch) << "PLT";
+      fatal(diag::reserve_entry_number_mismatch_plt);
     }
   }
   return plt_entry;

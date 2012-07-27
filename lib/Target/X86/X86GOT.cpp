@@ -38,7 +38,7 @@ void X86GOT::reserveEntry(size_t pNum)
                                         &m_SectionData);
 
     if (!Entry)
-      fatal(diag::fail_allocate_memory) << "GOTEntry";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + X86GOTEntrySize);
   }
