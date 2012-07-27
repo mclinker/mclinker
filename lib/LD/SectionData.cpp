@@ -14,10 +14,6 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionData
 //===----------------------------------------------------------------------===//
-SectionData::SectionData()
-  : m_pSection(NULL), m_Alignment(1) {
-}
-
 SectionData::SectionData(const LDSection &pSection)
   : m_pSection(&pSection), m_Alignment(1) {
 }

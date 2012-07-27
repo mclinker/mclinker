@@ -41,8 +41,6 @@ public:
   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
 
 public:
-  SectionData();
-
   explicit SectionData(const LDSection &pSection);
 
   const LDSection &getSection() const { return *m_pSection; }
