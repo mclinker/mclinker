@@ -196,9 +196,9 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
 
   MemoryRegion* header_region =
     pArchiveFile.memArea()->request((pArchiveFile.fileOffset() + pFileOffset),
-                                    sizeof(ArchiveMemberHeader));
-  const ArchiveMemberHeader* header =
-    reinterpret_cast<const ArchiveMemberHeader*>(header_region->getBuffer());
+                                    sizeof(Archive::MemberHeader));
+  const Archive::MemberHeader* header =
+    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
   assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
 
@@ -240,7 +240,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
                                       pArchiveFile.path(),
                                       Input::Unknown,
                                       (pFileOffset +
-                                       sizeof(ArchiveMemberHeader)));
+                                       sizeof(Archive::MemberHeader)));
     assert(member != NULL);
     member->setMemArea(pArchiveFile.memArea());
     LDContext *input_context = m_LDInfo.contextFactory().produce();
@@ -282,9 +282,9 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
   MemoryRegion* header_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              ARFILE_MAGIC_LEN),
-                                            sizeof(ArchiveMemberHeader));
-  const ArchiveMemberHeader* header =
-    reinterpret_cast<const ArchiveMemberHeader*>(header_region->getBuffer());
+                                            sizeof(Archive::MemberHeader));
+  const Archive::MemberHeader* header =
+    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
   assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
 
   int symtab_size = atoi(header->size);
@@ -293,7 +293,7 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
   MemoryRegion* symtab_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              ARFILE_MAGIC_LEN +
-                                             sizeof(ArchiveMemberHeader)),
+                                             sizeof(Archive::MemberHeader)),
                                             symtab_size);
   const uint32_t* data =
     reinterpret_cast<const uint32_t*>(symtab_region->getBuffer());
@@ -328,7 +328,7 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
 bool GNUArchiveReader::readStringTable(Archive& pArchive)
 {
   size_t offset =
-    ARFILE_MAGIC_LEN + sizeof(ArchiveMemberHeader) + pArchive.getSymTabSize();
+    ARFILE_MAGIC_LEN + sizeof(Archive::MemberHeader) + pArchive.getSymTabSize();
 
   if (0x0 != (offset & 1))
     ++offset;
@@ -338,9 +338,9 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
   MemoryRegion* header_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              offset),
-                                            sizeof(ArchiveMemberHeader));
-  const ArchiveMemberHeader* header =
-    reinterpret_cast<const ArchiveMemberHeader*>(header_region->getBuffer());
+                                            sizeof(Archive::MemberHeader));
+  const Archive::MemberHeader* header =
+    reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
   assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
 
@@ -349,7 +349,7 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
   MemoryRegion* strtab_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
                                              offset +
-                                             sizeof(ArchiveMemberHeader)),
+                                             sizeof(Archive::MemberHeader)),
                                             strtab_size);
   const char* strtab =
     reinterpret_cast<const char*>(strtab_region->getBuffer());

@@ -35,25 +35,23 @@ namespace mcld
 class InputTree;
 class Input;
 
-/** \class ArchiveMemberHeader
- *  \brief The header precedes each file member in the archive.
- */
-struct ArchiveMemberHeader
-{
-  char name[16];  ///< Name of the file member.
-  char date[12];  ///< File date, decimal seconds since Epoch
-  char uid[6];    ///< user id in ASCII decimal
-  char gid[6];    ///< group id in ASCII decimal
-  char mode[8];   ///< file mode in ASCII octal
-  char size[10];  ///< file size in ASCII decimal
-  char fmag[2];   ///< Always contains ARFILE_MAGIC_TERMINATOR
-};
-
 /** \class Archive
  *  \brief This class define the interfacee to Archive files
  */
 class Archive
 {
+public:
+  struct MemberHeader
+  {
+    char name[16];  ///< Name of the file member.
+    char date[12];  ///< File date, decimal seconds since Epoch
+    char uid[6];    ///< user id in ASCII decimal
+    char gid[6];    ///< group id in ASCII decimal
+    char mode[8];   ///< file mode in ASCII octal
+    char size[10];  ///< file size in ASCII decimal
+    char fmag[2];   ///< Always contains ARFILE_MAGIC_TERMINATOR
+  };
+
 public:
   Archive(Input& pInputFile, InputFactory& pInputFactory);
 
