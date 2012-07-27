@@ -87,7 +87,7 @@ bool SectLinker::doFinalization(Module &pM)
   const MCLDInfo &info = m_pOption->info();
 
   // 2. - initialize MCLinker
-  if (!m_pLDDriver->initMCLinker())
+  if (!m_pLDDriver->initMCLinker(*memAreaFactory()))
     return true;
 
   // 3. - initialize output's standard sections

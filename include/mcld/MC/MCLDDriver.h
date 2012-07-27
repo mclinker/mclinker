@@ -39,7 +39,7 @@ public:
 
   /// initMCLinker - initialize MCLinker
   ///  Connect all components in MCLinker
-  bool initMCLinker();
+  bool initMCLinker(MemoryAreaFactory& pMemAreaFactory);
 
   /// initStdSections - initialize standard sections of the output file.
   bool initStdSections();

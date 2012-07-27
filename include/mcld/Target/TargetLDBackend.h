@@ -33,6 +33,7 @@ class SymbolCategory;
 class Input;
 class LDFileFormat;
 class GOT;
+class MemoryAreaFactory;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -74,7 +75,9 @@ public:
                               const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
-  virtual bool initArchiveReader(MCLinker&, MCLDInfo&) = 0;
+  virtual bool initArchiveReader(MCLinker&,
+                                 MCLDInfo&,
+                                 MemoryAreaFactory&) = 0;
   virtual bool initObjectReader(MCLinker&) = 0;
   virtual bool initDynObjReader(MCLinker&) = 0;
   virtual bool initObjectWriter(MCLinker&) = 0;

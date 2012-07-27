@@ -11,13 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/LDReader.h"
+#include <mcld/LD/LDReader.h>
 
 namespace mcld
 {
 
-class Input;
-class InputTree;
+class Archive;
 
 /** \class ArchiveReader
  *  \brief ArchiveReader provides an common interface for all archive readers.
@@ -31,23 +30,11 @@ class InputTree;
 
 class ArchiveReader : public LDReader
 {
-protected:
-  struct ArchiveMemberHeader
-  {
-    char name[16];
-    char date[12];
-    char uid[6];
-    char gid[6];
-    char mode[8];
-    char size[10];
-    char finalMagic[2];
-  };
-
 public:
   ArchiveReader();
   virtual ~ArchiveReader();
 
-  virtual InputTree *readArchive(Input &input) = 0;
+  virtual bool readArchive(Archive& pArchive) = 0;
 };
 
 } // namespace of mcld

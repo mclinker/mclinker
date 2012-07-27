@@ -21,6 +21,7 @@
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/LD/Archive.h>
 
 using namespace llvm;
 using namespace mcld;
@@ -69,14 +70,11 @@ void MCLDDriver::normalize()
     // is an archive
     else if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      mcld::InputTree* archive_member =
-                          m_LDBackend.getArchiveReader()->readArchive(**input);
-      if(NULL == archive_member)  {
-        error(diag::err_empty_input) << (*input)->name() << (*input)->path();
-        return;
+      Archive archive(**input, m_LDInfo.inputFactory());
+      m_LDBackend.getArchiveReader()->readArchive(archive);
+      if(archive.numOfObjectMember() > 0) {
+        m_LDInfo.inputs().merge<InputTree::Inclusive>(input, archive.inputs());
       }
-
-      m_LDInfo.inputs().merge<InputTree::Inclusive>(input, *archive_member);
     }
     else {
       fatal(diag::err_unrecognized_input_file) << (*input)->path()
@@ -119,7 +117,7 @@ bool MCLDDriver::linkable() const
 
 /// initMCLinker - initialize MCLinker
 ///  Connect all components with MCLinker
-bool MCLDDriver::initMCLinker()
+bool MCLDDriver::initMCLinker(MemoryAreaFactory& pMemAreaFactory)
 {
   if (0 == m_pLinker)
     m_pLinker = new MCLinker(m_LDBackend,
@@ -129,7 +127,8 @@ bool MCLDDriver::initMCLinker()
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the MCLinker constructors.
-  if (!m_LDBackend.initArchiveReader(*m_pLinker, m_LDInfo) ||
+  if (!m_LDBackend.initObjectReader(*m_pLinker) ||
+      !m_LDBackend.initArchiveReader(*m_pLinker, m_LDInfo, pMemAreaFactory) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||

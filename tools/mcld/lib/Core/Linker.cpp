@@ -127,7 +127,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
-  mDriver->initMCLinker();
+  mDriver->initMCLinker(*mMemAreaFactory);
 
   return kSuccess;
 }

@@ -12,81 +12,74 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/LD/ArchiveReader.h"
-
-#include <vector>
-#include <string>
-
-namespace llvm
-{
-class MemoryBuffer;
-
-}
+#include <mcld/LD/ArchiveReader.h>
+#include <mcld/LD/Archive.h>
 
 namespace mcld
 {
-class MemoryArea;
+class MemoryAreaFactory;
 class MCLDInfo;
 class Input;
-class InputTree;
+class ELFObjectReader;
+class Archive;
 
 /** \class GNUArchiveReader
  *  \brief GNUArchiveReader reads GNU archive files.
  */
 class GNUArchiveReader : public ArchiveReader
 {
-private:
-  struct SymbolTableEntry;
-
-  enum Constant
-  {
-    /// The length of the magic strign at the end of an archive member header.
-    HeaderFinalMagicSize = 2,
-    /// The length of the magic string at the start of an archive.
-    ArchiveMagicSize = 8
-  };
-  /// The magic string at the start of an archive.
-  static const char ArchiveMagic[ArchiveMagicSize];
-  static const char ThinArchiveMagic[ArchiveMagicSize];
-  /// The Magic string expected at the end of an archive member header.
-  static const char HeaderFinalMagic[HeaderFinalMagicSize];
-
 public:
-  explicit GNUArchiveReader(MCLDInfo &pLDInfo)
-  : m_pLDInfo(pLDInfo)
-  { }
+  explicit GNUArchiveReader(MCLDInfo& pLDInfo,
+                            MemoryAreaFactory& pMemAreaFactory,
+                            ELFObjectReader& pELFObjectReader);
 
-  ~GNUArchiveReader()
-  { }
+  ~GNUArchiveReader();
 
-  /// Read an archive and extract each member in.
-  /// Construct the coresponding Input for each member.
-  InputTree *readArchive(Input &input);
+  /// readArchive - read an archive, include the needed members, and build up
+  /// the subtree
+  bool readArchive(Archive& pArchive);
 
-  bool isMyFormat(Input &input) const;
-
-  LDReader::Endian endian(Input& pFile) const;
+  /// isMyFormat
+  bool isMyFormat(Input& input) const;
 
 private:
-  /// set up the archive, including
-  /// first, read symbol table
-  /// second, read extended file name which is used in thin archive
-  InputTree *setupNewArchive(Input &pInput, size_t off);
+  /// isArchive
+  bool isArchive(const char* pStr) const;
 
-  /// read the archive header, and return the member size
-  size_t readMemberHeader(MemoryArea &pArea,
-                   off_t off,
-                   std::string *p_Name,
-                   off_t *nestedOff,
-                   std::string &p_ExtendedName);
+  /// isThinArchive
+  bool isThinArchive(const char* pStr) const;
 
-  void readSymbolTable(MemoryArea &pArea,
-                      std::vector<SymbolTableEntry> &pSymbolTable,
-                      off_t start,
-                      size_t size);
+  /// isThinArchive
+  bool isThinArchive(Input& input) const;
+
+  /// readMemberHeader - read the header of a member in a archive file and then
+  /// return the corresponding archive member (it may be an input object or
+  /// another archive)
+  /// @param pArchiveRoot  - the archive root that holds the strtab (extended
+  ///                        name table)
+  /// @param pArchiveFile  - the archive that contains the needed object
+  /// @param pFileOffset   - file offset of the member header in the archive
+  /// @param pNestedOffset - used when we find a nested archive
+  Input* readMemberHeader(Archive& pArchiveRoot,
+                          Input& pArchiveFile,
+                          uint32_t pFileOffset,
+                          uint32_t& pNestedOffset);
+
+  /// readSymbolTable - read the archive symbol map (armap)
+  bool readSymbolTable(Archive& pArchive);
+
+  /// readStringTable - read the strtab for long file name of the archive
+  bool readStringTable(Archive& pArchive);
+
+  /// shouldIncludeSymbol - given a sym name from armap and check if we should
+  /// include the corresponding archive member, and then return the decision
+  enum Archive::Status
+  shouldIncludeSymbol(const llvm::StringRef& pSymName) const;
 
 private:
-  MCLDInfo &m_pLDInfo;
+  MCLDInfo& m_LDInfo;
+  MemoryAreaFactory& m_MemAreaFactory;
+  ELFObjectReader& m_ELFObjectReader;
 };
 
 } // namespace of mcld

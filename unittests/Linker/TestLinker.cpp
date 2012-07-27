@@ -21,6 +21,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/SystemUtils.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 
 using namespace std;
 using namespace mcld;
@@ -32,7 +33,8 @@ using namespace mcld::test;
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pDriver(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
-    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pRegionFactory(NULL) {
+    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pRegionFactory(NULL),
+    m_pMemAreaFactory(NULL) {
 }
 
 TestLinker::~TestLinker()
@@ -51,6 +53,7 @@ TestLinker::~TestLinker()
   delete m_pDiagPrinter;
   delete m_pBackend;
   delete m_pRegionFactory;
+  delete m_pMemAreaFactory;
 }
 
 bool TestLinker::initialize(const std::string &pTriple)
@@ -103,7 +106,8 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   m_pDriver = new mcld::MCLDDriver(*m_pInfo, *m_pBackend);
 
-  m_pDriver->initMCLinker();
+  m_pMemAreaFactory = new MemoryAreaFactory(32);
+  m_pDriver->initMCLinker(*m_pMemAreaFactory);
 
   is_initialized = true;
   return true;

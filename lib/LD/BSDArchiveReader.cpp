@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/LD/BSDArchiveReader.h>
+#include <mcld/LD/Archive.h>
 
 using namespace mcld;
 
@@ -20,10 +20,10 @@ BSDArchiveReader::~BSDArchiveReader()
 {
 }
 
-InputTree *BSDArchiveReader::readArchive(Input &input)
+bool BSDArchiveReader::readArchive(Archive& pArchive)
 {
   // TODO
-  return NULL;
+  return true;
 }
 
 bool BSDArchiveReader::isMyFormat(Input& pInput) const

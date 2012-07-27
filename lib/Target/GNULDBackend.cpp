@@ -19,6 +19,7 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 #include <string>
 #include <cstring>
 #include <cassert>
@@ -97,10 +98,16 @@ uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
     return defaultTextSegmentAddr();
 }
 
-bool GNULDBackend::initArchiveReader(MCLinker&, MCLDInfo &pInfo)
+bool GNULDBackend::initArchiveReader(MCLinker& pLinker,
+                                     MCLDInfo& pInfo,
+                                     MemoryAreaFactory& pMemAreaFactory)
 {
-  if (NULL == m_pArchiveReader)
-    m_pArchiveReader = new GNUArchiveReader(pInfo);
+  if (NULL == m_pArchiveReader) {
+    assert(NULL != m_pObjectReader);
+    m_pArchiveReader = new GNUArchiveReader(pInfo,
+                                            pMemAreaFactory,
+                                            *m_pObjectReader);
+  }
   return true;
 }
 

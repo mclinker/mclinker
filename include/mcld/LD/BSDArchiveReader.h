@@ -11,13 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/ArchiveReader.h"
+#include <mcld/LD/ArchiveReader.h>
 
 namespace mcld
 {
 
 class Input;
-class InputTree;
+class Archive;
 
 /** \class BSDArchiveReader
  *  \brief BSDArchiveReader reads BSD-variant archive files.
@@ -29,7 +29,7 @@ public:
   BSDArchiveReader();
   ~BSDArchiveReader();
 
-  InputTree *readArchive(Input &input);
+  bool readArchive(Archive& pArchive);
   bool isMyFormat(Input& pInput) const;
 };
 
