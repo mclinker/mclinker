@@ -42,8 +42,8 @@ MCLDDriver::~MCLDDriver()
 void MCLDDriver::normalize()
 {
   // -----  set up inputs  ----- //
-  InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  for (input = m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+  InputTree::iterator input, inEnd = m_LDInfo.inputs().end();
+  for (input = m_LDInfo.inputs().begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
@@ -57,14 +57,17 @@ void MCLDDriver::normalize()
     if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       m_LDBackend.getObjectReader()->readObject(**input);
+      m_LDBackend.getObjectReader()->readSections(**input);
+      m_LDBackend.getObjectReader()->readSymbols(**input);
     }
     // is a shared object file
     else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
       m_LDBackend.getDynObjReader()->readDSO(**input);
+      m_LDBackend.getDynObjReader()->readSymbols(**input);
     }
     // is an archive
-    else if (m_LDBackend.getArchiveReader()->isMyFormat(*(*input))) {
+    else if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
       mcld::InputTree* archive_member =
                           m_LDBackend.getArchiveReader()->readArchive(**input);
@@ -194,13 +197,6 @@ bool MCLDDriver::readSections()
 {
   // Bitcode is read by the other path. This function reads sections in object
   // files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
-  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == Input::Object) {
-      if (!m_LDBackend.getObjectReader()->readSections(**input))
-        return false;
-    }
-  }
   return true;
 }
 
@@ -216,19 +212,6 @@ bool MCLDDriver::mergeSections()
 ///  for each input file, loads its symbol table from file.
 bool MCLDDriver::readSymbolTables()
 {
-  mcld::InputTree::dfs_iterator input, inEnd = m_LDInfo.inputs().dfs_end();
-  for (input=m_LDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
-    switch((*input)->type()) {
-    case Input::DynObj:
-      if (!m_LDBackend.getDynObjReader()->readSymbols(**input))
-        return false;
-      break;
-    case Input::Object:
-      if (!m_LDBackend.getObjectReader()->readSymbols(**input))
-        return false;
-      break;
-    }
-  }
   return true;
 }
 
