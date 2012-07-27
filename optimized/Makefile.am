@@ -293,7 +293,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/DiagnosticPrinter.h \
 	${LIBDIR}/LD/DiagnosticPrinter.cpp \
         ${INCDIR}/LD/TextDiagnosticPrinter.h \
-        ${LIBDIR}/LD/TextDiagnosticPrinter.cpp
+        ${LIBDIR}/LD/TextDiagnosticPrinter.cpp \
+    ${INCDIR}/LD/Archive.h \
+    ${LIBDIR}/LD/Archive.cpp
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
