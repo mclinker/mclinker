@@ -135,8 +135,7 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
                                     nested_offset);
           assert(member != NULL);
           // bypass if we get an archive that is already in the map
-          if (Input::Archive == member->type() &&
-              pArchive.hasArchiveMember(member->name())) {
+          if (Input::Archive == member->type()) {
               cur_archive = member;
               file_offset = nested_offset;
               continue;
@@ -154,13 +153,15 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
           parent->move->move(parent->lastPos);
           parent->move = &InputTree::Afterward;
 
-          if (Input::Object == member->type()) {
+          if (m_ELFObjectReader.isMyFormat(*member)) {
+            member->setType(Input::Object);
             pArchive.addObjectMember(pArchive.getObjFileOffset(idx),
                                      parent->lastPos);
             m_ELFObjectReader.readObject(*member);
             m_ELFObjectReader.readSections(*member);
             m_ELFObjectReader.readSymbols(*member);
-          } else if (Input::Archive == member->type()) {
+          } else if (isMyFormat(*member)) {
+            member->setType(Input::Archive);
             // when adding a new archive node, set the iterator to archive
             // itself, and set the direction to Downward
             pArchive.addArchiveMember(member->name(),
@@ -244,9 +245,14 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     member->setMemArea(pArchiveFile.memArea());
     LDContext *input_context = m_LDInfo.contextFactory().produce();
     member->setContext(input_context);
-    assert(m_ELFObjectReader.isMyFormat(*member));
-    member->setType(Input::Object);
   } else {
+    // try to find if this is a archive already in the map
+    Archive::ArchiveMemberType* ar_member =
+      pArchiveRoot.getArchiveMember(member_name);
+    if (NULL != ar_member) {
+      return ar_member->file;
+    }
+
     sys::fs::Path input_path(member_name);
     member =
       m_LDInfo.inputFactory().produce(member_name, input_path, Input::Unknown);
@@ -262,15 +268,6 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     }
     LDContext *input_context = m_LDInfo.contextFactory().produce(input_path);
     member->setContext(input_context);
-    if (pNestedOffset > 0) {
-      // this is an archive file in a thin archive
-      assert(isMyFormat(*member));
-      member->setType(Input::Archive);
-    } else {
-      // this is an object file in a thin archive
-      assert(m_ELFObjectReader.isMyFormat(*member));
-      member->setType(Input::Object);
-    }
   }
 
   pArchiveFile.memArea()->release(header_region);

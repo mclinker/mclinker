@@ -123,6 +123,7 @@ public:
 public:
   struct ArchiveMember
   {
+    Input* file;
     InputTree::iterator lastPos;
     InputTree::Mover* move;
   };
