@@ -43,7 +43,7 @@ class MemoryAreaFactory;
 *  - provide an interface for target-specific SectLinekr
 *  - set up environment for MCLDDriver
 *  - control AsmPrinter, make sure AsmPrinter has already prepared
-*    all MCSectionDatas for linking
+*    all SectionDatas for linking
 *
 *  SectLinker resolves the absolue paths of input arguments.
 *

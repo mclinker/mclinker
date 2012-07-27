@@ -12,28 +12,30 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/DenseMap.h>
+
 #include <mcld/Target/GOT.h>
+#include <mcld/LD/SectionData.h>
 
 namespace mcld
 {
 class LDSection;
 
+const unsigned int X86GOTPLT0Num = 3;
+
 /** \class X86GOTPLT
  *  \brief X86 .got.plt section.
  */
-
-const unsigned int X86GOTPLT0Num = 3;
-
 class X86GOTPLT : public GOT
 {
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
 public:
-  X86GOTPLT(LDSection &pSection, llvm::MCSectionData& pSectionData);
+  X86GOTPLT(LDSection &pSection, SectionData& pSectionData);
 
   ~X86GOTPLT();
 

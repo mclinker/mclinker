@@ -15,7 +15,7 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
                               ResolveInfo::Binding pBinding,
                               ResolveInfo::SizeType pSize,
                               LDSymbol::ValueType pValue,
-                              MCFragmentRef* pFragmentRef,
+                              FragmentRef* pFragmentRef,
                               ResolveInfo::Visibility pVisibility)
 {
   llvm::StringRef symbol_name = pName;
@@ -62,7 +62,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  ResolveInfo::Binding pBinding,
                                  ResolveInfo::SizeType pSize,
                                  LDSymbol::ValueType pValue,
-                                 MCFragmentRef* pFragmentRef,
+                                 FragmentRef* pFragmentRef,
                                  ResolveInfo::Visibility pVisibility)
 {
   // These if/return should be optimized by compiler.

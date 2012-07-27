@@ -6,29 +6,30 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_GOT_H
-#define MCLD_GOT_H
+#ifndef MCLD_GLOBAL_OFFSET_TABLE_H
+#define MCLD_GLOBAL_OFFSET_TABLE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <mcld/LD/LDSection.h>
-#include <mcld/MC/MCTargetFragment.h>
+#include <mcld/LD/TargetFragment.h>
 
 namespace mcld
 {
 
 class GOT;
 class ResolveInfo;
+class SectionData;
 
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
  */
-class GOTEntry : public MCTargetFragment
+class GOTEntry : public TargetFragment
 {
 public:
   explicit GOTEntry(uint64_t pContent, size_t pEntrySize,
-                    llvm::MCSectionData* pParent);
+                    SectionData* pParent);
 
   virtual ~GOTEntry();
 
@@ -41,8 +42,8 @@ public:
   void setContent(uint64_t pValue)
   { f_Content = pValue; }
 
-  static bool classof(const MCFragment *pFrag)
-  { return pFrag->getKind() == llvm::MCFragment::FT_Target; }
+  static bool classof(const Fragment *pFrag)
+  { return pFrag->getKind() == Fragment::Target; }
 
   static bool classof(const GOTEntry* pFrag)
   { return true; }
@@ -62,9 +63,7 @@ protected:
 class GOT
 {
 protected:
-  GOT(LDSection& pSection,
-      llvm::MCSectionData& pSectionData,
-      size_t pEntrySize);
+  GOT(LDSection& pSection, SectionData& pSectionData, size_t pEntrySize);
 
 public:
   virtual ~GOT();
@@ -75,10 +74,10 @@ public:
   const LDSection& getSection() const
   { return m_Section; }
 
-  llvm::MCSectionData& getSectionData()
+  SectionData& getSectionData()
   { return m_SectionData; }
 
-  const llvm::MCSectionData& getSectionData() const
+  const SectionData& getSectionData() const
   { return m_SectionData; }
 
 public:
@@ -96,7 +95,7 @@ public:
 
 protected:
   LDSection& m_Section;
-  llvm::MCSectionData& m_SectionData;
+  SectionData& m_SectionData;
   size_t f_EntrySize;
 };
 

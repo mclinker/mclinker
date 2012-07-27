@@ -223,16 +223,16 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
   MemoryRegion* region = pInput.memArea()->request(
            pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
-  llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 
-  llvm::MCFragment* frag = NULL;
+  Fragment* frag = NULL;
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
-    frag = new llvm::MCFillFragment(0x0, 0, 0);
+    frag = new FillFragment(0x0, 0, 0);
   }
   else
-    frag = new MCRegionFragment(*region);
+    frag = new RegionFragment(*region);
 
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      sect_data,
@@ -309,10 +309,10 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     uint64_t ld_value = getSymValue(st_value, st_shndx, pInput);
 
     // get the input fragment
-    MCFragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
-                                                   pLinker,
-                                                   st_shndx,
-                                                   ld_value);
+    FragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
+                                                 pLinker,
+                                                 st_shndx,
+                                                 ld_value);
 
     // get ld_vis
     ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
@@ -467,7 +467,7 @@ bool ELFReader<32, true>::readRela(Input& pInput,
 
     ResolveInfo* resolve_info = symbol->resolveInfo();
 
-    MCFragmentRef* frag_ref =
+    FragmentRef* frag_ref =
          pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {
@@ -515,7 +515,7 @@ bool ELFReader<32, true>::readRel(Input& pInput,
 
     ResolveInfo* resolve_info = symbol->resolveInfo();
 
-    MCFragmentRef* frag_ref =
+    FragmentRef* frag_ref =
          pLinker.getLayout().getFragmentRef(*pSection.getLink(), r_offset);
 
     if (NULL == frag_ref) {

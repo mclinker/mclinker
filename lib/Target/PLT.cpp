@@ -6,16 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include <mcld/Target/PLT.h>
 
 using namespace mcld;
 
 class GOT;
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // PLTEntry
-PLTEntry::PLTEntry(size_t pSize, llvm::MCSectionData* pParent)
-   : MCTargetFragment(llvm::MCFragment::FT_Target, pParent),
+//===----------------------------------------------------------------------===//
+PLTEntry::PLTEntry(size_t pSize, SectionData* pParent)
+   : TargetFragment(Fragment::Target, pParent),
      m_EntrySize(pSize), m_pContent(NULL)
 {
 }
@@ -28,9 +30,10 @@ PLTEntry::~PLTEntry()
   }
 }
 
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // PLT
-PLT::PLT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+//===----------------------------------------------------------------------===//
+PLT::PLT(LDSection& pSection, SectionData& pSectionData)
   :m_Section(pSection),
    m_SectionData(pSectionData)
 {

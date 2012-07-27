@@ -1,4 +1,4 @@
-//===- X86PLT.h -----------------------------------------------------===//
+//===- X86PLT.h -----------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,10 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_PLT_H
-#define X86_PLT_H
+#ifndef MCLD_TARGET_X86_PLT_H
+#define MCLD_TARGET_X86_PLT_H
+
+#include <llvm/ADT/DenseMap.h>
 
 #include <mcld/Target/PLT.h>
+#include <mcld/LD/SectionData.h>
 
 namespace mcld {
 
@@ -17,14 +20,16 @@ class X86GOTPLT;
 class GOTEntry;
 class Output;
 
-class X86PLT0 : public PLTEntry {
+class X86PLT0 : public PLTEntry
+{
 public:
-  X86PLT0(llvm::MCSectionData* pParent, unsigned int pSize);
+  X86PLT0(SectionData* pParent, unsigned int pSize);
 };
 
-class X86PLT1 : public PLTEntry {
+class X86PLT1 : public PLTEntry
+{
 public:
-  X86PLT1(llvm::MCSectionData* pParent, unsigned int pSize);
+  X86PLT1(SectionData* pParent, unsigned int pSize);
 };
 
 /** \class X86PLT
@@ -35,12 +40,12 @@ class X86PLT : public PLT
   typedef llvm::DenseMap<const ResolveInfo*, X86PLT1*> SymbolIndexType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
 public:
   X86PLT(LDSection& pSection,
-         llvm::MCSectionData& pSectionData,
+         SectionData& pSectionData,
          X86GOTPLT& pGOTPLT,
          const Output& pOutput);
   ~X86PLT();

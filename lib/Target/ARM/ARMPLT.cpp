@@ -8,10 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include "ARMGOT.h"
 #include "ARMPLT.h"
-#include <llvm/Support/raw_ostream.h>
+
+#include <new>
+
+#include <llvm/Support/Casting.h>
+
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include <new>
 
 namespace {
 
@@ -33,17 +36,17 @@ const uint32_t arm_plt1[] = {
 
 using namespace mcld;
 
-ARMPLT0::ARMPLT0(llvm::MCSectionData* pParent)
+ARMPLT0::ARMPLT0(SectionData* pParent)
   : PLTEntry(sizeof(arm_plt0), pParent) {}
 
-ARMPLT1::ARMPLT1(llvm::MCSectionData* pParent)
+ARMPLT1::ARMPLT1(SectionData* pParent)
   : PLTEntry(sizeof(arm_plt1), pParent) {}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
 
 ARMPLT::ARMPLT(LDSection& pSection,
-               llvm::MCSectionData& pSectionData,
+               SectionData& pSectionData,
                ARMGOT &pGOTPLT)
   : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0(&m_SectionData);

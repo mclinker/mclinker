@@ -6,28 +6,34 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Triple.h>
-#include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
-
-#include <mcld/LD/SectionMap.h>
-#include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLDOutput.h>
-#include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCRegionFragment.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/TargetRegistry.h>
-
-#include <cstring>
-
 #include "ARM.h"
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
 
+#include <cstring>
+
+#include <llvm/ADT/Triple.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Casting.h>
+
+#include <mcld/LD/SectionMap.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/AlignFragment.h>
+#include <mcld/LD/RegionFragment.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/MCLDOutput.h>
+#include <mcld/MC/MCLinker.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/TargetRegistry.h>
+
 using namespace mcld;
 
+//===----------------------------------------------------------------------===//
+// ARMGNULDBackend
+//===----------------------------------------------------------------------===//
 ARMGNULDBackend::ARMGNULDBackend()
   : m_pRelocFactory(NULL),
     m_pGOT(NULL),
@@ -176,7 +182,7 @@ const ARMELFDynamic& ARMGNULDBackend::dynamic() const
 
 void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 {
-  // get .got LDSection and create MCSectionData
+  // get .got LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& got = file_format->getGOT();
@@ -218,11 +224,11 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
   // get .plt and .rel.plt LDSection
   LDSection& plt = file_format->getPLT();
   LDSection& relplt = file_format->getRelPlt();
-  // create MCSectionData and ARMPLT
+  // create SectionData and ARMPLT
   m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
   // set info of .rel.plt to .plt
   relplt.setLink(&plt);
-  // create MCSectionData and ARMRelDynSection
+  // create SectionData and ARMRelDynSection
   m_pRelPLT = new OutputRelocSection(relplt,
                                      pLinker.getOrCreateSectData(relplt),
                                      8);
@@ -233,9 +239,9 @@ void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  // get .rel.dyn LDSection and create MCSectionData
+  // get .rel.dyn LDSection and create SectionData
   LDSection& reldyn = file_format->getRelDyn();
-  // create MCSectionData and ARMRelDynSection
+  // create SectionData and ARMRelDynSection
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
@@ -274,9 +280,9 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
                                    llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
   }
 
-  // get or create corresponding BSS MCSectionData
+  // get or create corresponding BSS SectionData
   assert(NULL != bss_sect_hdr);
-  llvm::MCSectionData& bss_section = pLinker.getOrCreateSectData(
+  SectionData& bss_section = pLinker.getOrCreateSectData(
                                      *bss_sect_hdr);
 
   // Determine the alignment by the symbol value
@@ -284,7 +290,7 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
   uint32_t addralign = bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
-  llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, pSym.size());
+  Fragment* frag = new FillFragment(0x0, 1, pSym.size());
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      bss_section,
                                                      addralign);
@@ -763,22 +769,21 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
       &pSection == m_pEXTAB) {
     // FIXME: Currently Emitting .ARM.attributes, .ARM.exidx, and .ARM.extab
     // directly from the input file.
-    const llvm::MCSectionData* sect_data = pSection.getSectionData();
-    llvm::MCSectionData::const_iterator frag_iter, frag_end = sect_data->end();
+    const SectionData* sect_data = pSection.getSectionData();
+    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
     uint8_t* out_offset = pRegion.start();
     for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
       size_t size = computeFragmentSize(pLayout, *frag_iter);
       switch(frag_iter->getKind()) {
-        case llvm::MCFragment::FT_Region: {
-          const MCRegionFragment& region_frag =
-            llvm::cast<MCRegionFragment>(*frag_iter);
+        case Fragment::Region: {
+          const RegionFragment& region_frag =
+            llvm::cast<RegionFragment>(*frag_iter);
           const uint8_t* start = region_frag.getRegion().start();
           memcpy(out_offset, start, size);
           break;
         }
-        case llvm::MCFragment::FT_Align: {
-          llvm::MCAlignFragment& align_frag =
-            llvm::cast<llvm::MCAlignFragment>(*frag_iter);
+        case Fragment::Alignment: {
+          AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
           uint64_t count = size / align_frag.getValueSize();
           switch (align_frag.getValueSize()) {
             case 1u:
@@ -844,16 +849,16 @@ bool ARMGNULDBackend::readSection(Input& pInput,
   MemoryRegion* region = pInput.memArea()->request(
           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
-  llvm::MCSectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
 
-  llvm::MCFragment* frag = NULL;
+  Fragment* frag = NULL;
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
-    frag = new llvm::MCFillFragment(0x0, 0, 0);
+    frag = new FillFragment(0x0, 0, 0);
   }
   else
-    frag = new MCRegionFragment(*region);
+    frag = new RegionFragment(*region);
 
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
                                                      sect_data,

@@ -1,4 +1,4 @@
-//===- MCFragmentRef.h ----------------------------------------------------===//
+//===- FragmentRef.h ------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,29 +6,30 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MCFRAGMENT_REFERENCE_H
-#define MCLD_MCFRAGMENT_REFERENCE_H
+#ifndef MCLD_LD_FRAGMENT_REFERENCE_H
+#define MCLD_LD_FRAGMENT_REFERENCE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/LD/Fragment.h>
 
 namespace mcld
 {
 
 class Layout;
 
-/// compunteFragmentSize - compute the specific MCFragment size
+/// compunteFragmentSize - compute the specific Fragment size
 uint64_t computeFragmentSize(const Layout& pLayout,
-                             const llvm::MCFragment& pFrag);
+                             const Fragment& pFrag);
 
-/** \class MCFragmentRef
- *  \brief MCFragmentRef is a reference of a MCFragment's contetnt.
+/** \class FragmentRef
+ *  \brief FragmentRef is a reference of a Fragment's contetnt.
  *
  */
-class MCFragmentRef
+class FragmentRef
 {
 public:
   typedef uint64_t Offset; // FIXME: use SizeTraits<T>::Offset
@@ -36,14 +37,14 @@ public:
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
 public:
-  MCFragmentRef();
-  MCFragmentRef(llvm::MCFragment& pFrag, Offset pOffset = 0);
-  ~MCFragmentRef();
+  FragmentRef();
+  FragmentRef(Fragment& pFrag, Offset pOffset = 0);
+  ~FragmentRef();
 
   // -----  modifiers  ----- //
-  MCFragmentRef& assign(const MCFragmentRef& pCopy);
+  FragmentRef& assign(const FragmentRef& pCopy);
 
-  MCFragmentRef& assign(llvm::MCFragment& pFrag, Offset pOffset = 0);
+  FragmentRef& assign(Fragment& pFrag, Offset pOffset = 0);
 
   /// memcpy - copy memory
   /// copy memory from the fragment to the pDesc.
@@ -54,10 +55,10 @@ public:
   void memcpy(void* pDest, size_t pNBytes, Offset pOffset = 0) const;
 
   // -----  observers  ----- //
-  llvm::MCFragment* frag()
+  Fragment* frag()
   { return m_pFragment; }
 
-  const llvm::MCFragment* frag() const
+  const Fragment* frag() const
   { return m_pFragment; }
 
   Offset offset() const
@@ -75,7 +76,7 @@ public:
   { return deref(); }
   
 private:
-  llvm::MCFragment* m_pFragment;
+  Fragment* m_pFragment;
   Offset m_Offset;
 };
 

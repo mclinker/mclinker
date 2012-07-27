@@ -6,19 +6,19 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/EhFrame.h>
+
 #include <mcld/LD/FDE.h>
+#include <mcld/LD/EhFrame.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // FDE
-
+//===----------------------------------------------------------------------===//
 FDE::FDE(MemoryRegion& pRegion, const CIE& pCIE, Offset pPCBeginOffset)
-  : MCRegionFragment(pRegion), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
+  : RegionFragment(pRegion), m_CIE(pCIE), m_PCBeginOffset(pPCBeginOffset) {
 }
 
 FDE::~FDE()
 {
 }
-

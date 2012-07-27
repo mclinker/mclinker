@@ -7,9 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include "Mips.h"
+#include "MipsELFDynamic.h"
+#include "MipsLDBackend.h"
+#include "MipsRelocationFactory.h"
+
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
+#include <mcld/LD/FillFragment.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLinker.h>
@@ -17,11 +23,6 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Target/OutputRelocSection.h>
-
-#include "Mips.h"
-#include "MipsELFDynamic.h"
-#include "MipsLDBackend.h"
-#include "MipsRelocationFactory.h"
 
 enum {
   // The original o32 abi.
@@ -550,9 +551,9 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
 
   assert(NULL != bss_sect && NULL != tbss_sect);
 
-  // get or create corresponding BSS MCSectionData
-  llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
-  llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
+  // get or create corresponding BSS SectionData
+  SectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect->size();
@@ -569,8 +570,8 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
       // when emitting the regular name pools. We must change the symbols'
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+      Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+      (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
@@ -596,8 +597,8 @@ MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker
     // when emitting the regular name pools. We must change the symbols'
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+    Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+    (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
@@ -879,9 +880,9 @@ void MipsGNULDBackend::createRelDyn(MCLinker& pLinker, const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
-  // get .rel.dyn LDSection and create MCSectionData
+  // get .rel.dyn LDSection and create SectionData
   LDSection& reldyn = file_format->getRelDyn();
-  // create MCSectionData and ARMRelDynSection
+  // create SectionData and ARMRelDynSection
   m_pRelDyn = new OutputRelocSection(reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);

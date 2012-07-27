@@ -11,11 +11,11 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // CIE
-
+//===----------------------------------------------------------------------===//
 CIE::CIE(MemoryRegion& pRegion, uint8_t pFDEEncode)
-  : MCRegionFragment(pRegion), m_FDEEncoding(pFDEEncode) {
+  : RegionFragment(pRegion), m_FDEEncoding(pFDEEncode) {
 }
 
 CIE::~CIE()

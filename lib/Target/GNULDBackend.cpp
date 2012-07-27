@@ -6,28 +6,34 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/Support/ELF.h>
-#include <mcld/ADT/SizeTraits.h>
+
 #include <mcld/Target/GNULDBackend.h>
+
+#include <string>
+#include <cstring>
+#include <cassert>
+
+#include <llvm/Support/ELF.h>
+
+#include <mcld/ADT/SizeTraits.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/Layout.h>
+#include <mcld/LD/FillFragment.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/Layout.h>
+#include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/MCLinker.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <string>
-#include <cstring>
-#include <cassert>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GNULDBackend
+//===----------------------------------------------------------------------===//
 GNULDBackend::GNULDBackend()
   : m_pArchiveReader(NULL),
     m_pObjectReader(NULL),
@@ -171,7 +177,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 
   // -----  section symbols  ----- //
   // .preinit_array
-  MCFragmentRef* preinit_array = NULL;
+  FragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
     preinit_array = pLinker.getLayout().getFragmentRef(
                    *(file_format->getPreInitArray().getSectionData()->begin()),
@@ -201,7 +207,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .init_array
-  MCFragmentRef* init_array = NULL;
+  FragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
     init_array = pLinker.getLayout().getFragmentRef(
                       *(file_format->getInitArray().getSectionData()->begin()),
@@ -232,7 +238,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .fini_array
-  MCFragmentRef* fini_array = NULL;
+  FragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
     fini_array = pLinker.getLayout().getFragmentRef(
                      *(file_format->getFiniArray().getSectionData()->begin()),
@@ -263,7 +269,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Hidden);
 
   // .stack
-  MCFragmentRef* stack = NULL;
+  FragmentRef* stack = NULL;
   if (file_format->hasStack()) {
     stack = pLinker.getLayout().getFragmentRef(
                           *(file_format->getStack().getSectionData()->begin()),
@@ -1290,9 +1296,9 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
 
   assert(NULL != bss_sect && NULL !=tbss_sect);
 
-  // get or create corresponding BSS MCSectionData
-  llvm::MCSectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
-  llvm::MCSectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
+  // get or create corresponding BSS SectionData
+  SectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect->size();
@@ -1309,8 +1315,8 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
       // when emitting the regular name pools. We must change the symbols'
       // description here.
       (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-      llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-      (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+      Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+      (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
@@ -1335,8 +1341,8 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) co
     // when emitting the regular name pools. We must change the symbols'
     // description here.
     (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
-    llvm::MCFragment* frag = new llvm::MCFillFragment(0x0, 1, (*com_sym)->size());
-    (*com_sym)->setFragmentRef(new MCFragmentRef(*frag, 0));
+    Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+    (*com_sym)->setFragmentRef(new FragmentRef(*frag, 0));
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
@@ -1373,33 +1379,38 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     interp_seg->addSection(&file_format->getInterp());
   }
 
+  // FIXME: Should we consider -z relro here?
   if (pInfo.options().hasRelro()) {
     // if -z relro is given, we need to adjust sections' offset again, and let
     // PT_GNU_RELRO end on a common page boundary
     LDContext::SectionTable& sect_table = pOutput.context()->getSectionTable();
-    size_t idx = 0;
-    while (idx < pOutput.context()->numOfSections()) {
-      // find the first non-relro section, and align its offset to a page
-      // boundary
+
+    size_t idx;
+    for (idx = 0; idx < pOutput.context()->numOfSections(); ++idx) {
+      // find the first non-relro section
       if (getSectionOrder(pOutput, *sect_table[idx], pInfo) > SHO_RELRO_LAST) {
-        uint64_t offset = sect_table[idx]->offset();
-        alignAddress(offset, commonPageSize(pInfo));
-        sect_table[idx]->setOffset(offset);
-        ++idx;
         break;
       }
-      ++idx;
     }
-    while (idx < pOutput.context()->numOfSections()) {
-      // adjust the remaining sections' offset
-      uint64_t offset = sect_table[idx - 1]->offset();
-      if (LDFileFormat::BSS != sect_table[idx - 1]->kind())
-        offset += sect_table[idx - 1]->size();
+
+    // align the first non-relro section to page boundary
+    uint64_t offset = sect_table[idx]->offset();
+    alignAddress(offset, commonPageSize(pInfo));
+    sect_table[idx]->setOffset(offset);
+
+    // set up remaining section's offset
+    for (++idx; idx < pOutput.context()->numOfSections(); ++idx) {
+      uint64_t offset;
+      size_t prev_idx = idx - 1;
+      if (LDFileFormat::BSS == sect_table[prev_idx]->kind())
+        offset = sect_table[prev_idx]->offset();
+      else
+        offset = sect_table[prev_idx]->offset() + sect_table[prev_idx]->size();
+
       alignAddress(offset, sect_table[idx]->align());
       sect_table[idx]->setOffset(offset);
-      ++idx;
     }
-  }
+  } // relro
 
   uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
   uint64_t padding = 0;
@@ -1592,7 +1603,7 @@ void GNULDBackend::preLayout(const Output& pOutput,
   }
 }
 
-/// postLayout -Backend can do any needed modification after layout
+/// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(const Output& pOutput,
                               const MCLDInfo& pInfo,
                               MCLinker& pLinker)

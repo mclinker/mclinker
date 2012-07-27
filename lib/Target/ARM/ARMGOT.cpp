@@ -7,10 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARMGOT.h"
+
+#include <new>
+
+#include <llvm/Support/Casting.h>
+
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
-#include <new>
 
 namespace {
   const size_t ARMGOTEntrySize = 4;
@@ -20,7 +24,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
-ARMGOT::ARMGOT(LDSection& pSection, llvm::MCSectionData& pSectionData)
+ARMGOT::ARMGOT(LDSection& pSection, SectionData& pSectionData)
              : GOT(pSection, pSectionData, ARMGOTEntrySize),
                m_NormalGOTIterator(), m_GOTPLTIterator(),
                m_GOTPLTBegin(), m_GOTPLTEnd()

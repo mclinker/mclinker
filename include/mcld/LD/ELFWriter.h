@@ -15,10 +15,6 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDOutput.h>
 
-namespace llvm {
-class MCSectionData;
-}
-
 namespace mcld
 {
 
@@ -27,6 +23,7 @@ class Layout;
 class GNULDBackend;
 class Relocation;
 class LDSection;
+class SectionData;
 
 /** \class ELFWriter
  *  \brief ELFWriter provides basic functions to write ELF sections, symbols,
@@ -93,12 +90,12 @@ protected:
 
   void emitRel(const Layout& pLayout,
                const Output& pOutput,
-               const llvm::MCSectionData& pSectionData,
+               const SectionData& pSectionData,
                MemoryRegion& pRegion) const;
 
   void emitRela(const Layout& pLayout,
                 const Output& pOutput,
-                const llvm::MCSectionData& pSectionData,
+                const SectionData& pSectionData,
                 MemoryRegion& pRegion) const;
 
 private:

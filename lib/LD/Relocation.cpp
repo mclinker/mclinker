@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
@@ -15,10 +15,10 @@
 using namespace mcld;
 
 Relocation::Relocation(Relocation::Type pType,
-                       MCFragmentRef* pTargetRef,
+                       FragmentRef* pTargetRef,
                        Relocation::Address pAddend,
                        Relocation::DWord pTargetData)
-  : MCFragment(llvm::MCFragment::FT_Reloc),
+  : Fragment(Fragment::Relocation),
     m_Type(pType),
     m_TargetData(pTargetData),
     m_pSymInfo(NULL),
@@ -42,8 +42,7 @@ Relocation::Address Relocation::symValue() const
 {
   if (m_pSymInfo->type() == ResolveInfo::Section &&
      m_pSymInfo->outSymbol()->hasFragRef()) {
-    return llvm::cast<LDSection>(
-      m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection()).addr();
+    return m_pSymInfo->outSymbol()->fragRef()->frag()->getParent()->getSection().addr();
   }
   return m_pSymInfo->outSymbol()->value();
 }

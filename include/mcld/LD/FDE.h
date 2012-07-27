@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAME_DESCRIPTION_ENTRY_H
-#define MCLD_FRAME_DESCRIPTION_ENTRY_H
+#ifndef MCLD_LD_FRAME_DESCRIPTION_ENTRY_H
+#define MCLD_LD_FRAME_DESCRIPTION_ENTRY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/LD/CIE.h>
-#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/RegionFragment.h>
 
 namespace mcld
 {
@@ -23,8 +23,7 @@ namespace mcld
  *  \brief Frame Description Entry
  *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
  */
-
-class FDE : public MCRegionFragment
+class FDE : public RegionFragment
 {
 public:
   typedef uint32_t Offset;

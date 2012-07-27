@@ -6,14 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_X86_GOT_H
-#define MCLD_X86_GOT_H
+#ifndef MCLD_TARGET_X86_GOT_H
+#define MCLD_TARGET_X86_GOT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include "X86PLT.h"
+
 #include <mcld/Target/GOT.h>
+#include <mcld/LD/SectionData.h>
 
 namespace mcld
 {
@@ -28,11 +30,11 @@ class X86GOT : public GOT
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
 public:
-  X86GOT(LDSection& pSection, llvm::MCSectionData& pSectionData);
+  X86GOT(LDSection& pSection, SectionData& pSectionData);
 
   ~X86GOT();
 

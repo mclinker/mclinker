@@ -16,20 +16,22 @@
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/LD/CIE.h>
 #include <mcld/LD/FDE.h>
-#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/RegionFragment.h>
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld
 {
+
+class Input;
+class Layout;
+class SectionData;
+class TargetLDBackend;
+
 /** \class EhFrame
  *  \brief EhFrame represents .eh_frame section
  *  EhFrame is responsible to parse the input eh_frame sections and create
  *  the corresponding CIE and FDE entries.
  */
-
-class TargetLDBackend;
-class Input;
-
 class EhFrame
 {
 public:
@@ -47,14 +49,14 @@ public:
 
   /// readEhFrame - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
-  /// @param pSD - the MCSectionData of this input eh_frame
+  /// @param pSD - the SectionData of this input eh_frame
   /// @param pSection - the input eh_frame
   /// @param pArea - the memory area which pSection is within.
   /// @ return - size of this eh_frame section, 0 if we do not recognize
   /// this eh_frame or this is an empty section
   uint64_t readEhFrame(Layout& pLayout,
                        const TargetLDBackend& pBackend,
-                       llvm::MCSectionData& pSD,
+                       SectionData& pSD,
                        const Input& pInput,
                        LDSection& pSection,
                        MemoryArea& pArea);
@@ -102,7 +104,7 @@ public:
   { return m_fCanRecognizeAll; }
 
 private:
-  typedef std::vector<llvm::MCFragment*> FragListType;
+  typedef std::vector<Fragment*> FragListType;
 
 private:
   /// addCIE - parse and create a CIE entry
@@ -126,7 +128,7 @@ private:
   /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
   bool skipLEB128(ConstAddress* pp, ConstAddress pend);
 
-  /// deleteFragments - release the MemoryRegion and delete MCFragments in pList
+  /// deleteFragments - release the MemoryRegion and delete Fragments in pList
   void deleteFragments(FragListType& pList, MemoryArea& pArea);
 
 private:

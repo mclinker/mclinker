@@ -9,6 +9,7 @@
 #ifndef MCLD_ARM_PLT_H
 #define MCLD_ARM_PLT_H
 
+#include <mcld/LD/SectionData.h>
 #include <mcld/Target/PLT.h>
 
 namespace mcld {
@@ -19,12 +20,12 @@ class MemoryRegion;
 
 class ARMPLT0 : public PLTEntry {
 public:
-  ARMPLT0(llvm::MCSectionData* pParent);
+  ARMPLT0(SectionData* pParent);
 };
 
 class ARMPLT1 : public PLTEntry {
 public:
-  ARMPLT1(llvm::MCSectionData* pParent);
+  ARMPLT1(SectionData* pParent);
 };
 
 /** \class ARMPLT
@@ -35,13 +36,11 @@ class ARMPLT : public PLT
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
 public:
-  ARMPLT(LDSection& pSection,
-         llvm::MCSectionData& pSectionData,
-         ARMGOT& pGOTPLT);
+  ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
 // Override virtual function.

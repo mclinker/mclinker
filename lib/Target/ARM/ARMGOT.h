@@ -12,7 +12,10 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/DenseMap.h>
+
 #include <mcld/Target/GOT.h>
+#include <mcld/LD/SectionData.h>
 
 namespace mcld
 {
@@ -27,15 +30,15 @@ class ARMGOT : public GOT
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
 
 public:
-  typedef llvm::MCSectionData::iterator iterator;
-  typedef llvm::MCSectionData::const_iterator const_iterator;
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
 
   enum {
     ARMGOT0Num = 3
   };
 
 public:
-  ARMGOT(LDSection &pSection, llvm::MCSectionData& pSectionData);
+  ARMGOT(LDSection &pSection, SectionData& pSectionData);
 
   ~ARMGOT();
 

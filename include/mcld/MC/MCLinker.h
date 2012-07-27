@@ -17,8 +17,11 @@
 #include <gtest.h>
 #endif
 
+#include <set>
+#include <string>
+
 #include <llvm/ADT/ilist.h>
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
@@ -30,8 +33,6 @@
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/GCFactoryListTraits.h>
-#include <set>
-#include <string>
 
 namespace mcld {
 
@@ -39,6 +40,7 @@ class TargetLDBackend;
 class MCLDInfo;
 class LDSection;
 class LDSectionFactory;
+class SectionData;
 class SectionMap;
 class Output;
 class EhFrame;
@@ -78,7 +80,7 @@ public:
                       ResolveInfo::Binding pBinding,
                       ResolveInfo::SizeType pSize,
                       LDSymbol::ValueType pValue,
-                      MCFragmentRef* pFragmentRef,
+                      FragmentRef* pFragmentRef,
                       ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// defineSymbol - add a symbol
@@ -108,7 +110,7 @@ public:
                          ResolveInfo::Binding pBinding,
                          ResolveInfo::SizeType pSize,
                          LDSymbol::ValueType pValue,
-                         MCFragmentRef* pFragmentRef,
+                         FragmentRef* pFragmentRef,
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   bool finalizeSymbols();
@@ -136,7 +138,7 @@ public:
                                       uint32_t pAlign = 0x0);
 
   /// getOrCreateSectData - for reader to map and perform section merging immediately
-  llvm::MCSectionData& getOrCreateSectData(LDSection& pSection);
+  SectionData& getOrCreateSectData(LDSection& pSection);
 
   // -----  eh_frame sections  ----- //
   /// addEhFrame - add an exception handling section
@@ -157,7 +159,7 @@ public:
   Relocation* addRelocation(Relocation::Type pType,
                             const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
-                            MCFragmentRef& pFragmentRef,
+                            FragmentRef& pFragmentRef,
                             const LDSection& pSection,
                             Relocation::Address pAddend = 0);
 
@@ -201,7 +203,7 @@ private:
                                    ResolveInfo::Binding pBinding,
                                    ResolveInfo::SizeType pSize,
                                    LDSymbol::ValueType pValue,
-                                   MCFragmentRef* pFragmentRef,
+                                   FragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
@@ -211,7 +213,7 @@ private:
                                              ResolveInfo::Binding pBinding,
                                              ResolveInfo::SizeType pSize,
                                              LDSymbol::ValueType pValue,
-                                             MCFragmentRef* pFragmentRef,
+                                             FragmentRef* pFragmentRef,
                                              ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
@@ -221,7 +223,7 @@ private:
                                   ResolveInfo::Binding pBinding,
                                   ResolveInfo::SizeType pSize,
                                   LDSymbol::ValueType pValue,
-                                  MCFragmentRef* pFragmentRef,
+                                  FragmentRef* pFragmentRef,
                                   ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
@@ -231,7 +233,7 @@ private:
                                             ResolveInfo::Binding pBinding,
                                             ResolveInfo::SizeType pSize,
                                             LDSymbol::ValueType pValue,
-                                            MCFragmentRef* pFragmentRef,
+                                            FragmentRef* pFragmentRef,
                                             ResolveInfo::Visibility pVisibility);
 
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
@@ -242,7 +244,7 @@ private:
                                 ResolveInfo::Binding pBinding,
                                 ResolveInfo::SizeType pSize,
                                 LDSymbol::ValueType pValue,
-                                MCFragmentRef* pFragmentRef,
+                                FragmentRef* pFragmentRef,
                                 ResolveInfo::Visibility pVisibility);
 
   LDSymbol* addSymbolFromObject(const llvm::StringRef& pName,
@@ -251,13 +253,13 @@ private:
                                 ResolveInfo::Binding pBinding,
                                 ResolveInfo::SizeType pSize,
                                 LDSymbol::ValueType pValue,
-                                MCFragmentRef* pFragmentRef,
+                                FragmentRef* pFragmentRef,
                                 ResolveInfo::Visibility pVisibility);
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
-  typedef GCFactory<llvm::MCSectionData, 0> LDSectionDataFactory;
-  typedef llvm::iplist<llvm::MCFragment,
-                       GCFactoryListTraits<llvm::MCFragment> > RelocationListType;
+  typedef GCFactory<SectionData, 0> LDSectionDataFactory;
+  typedef llvm::iplist<Fragment,
+                       GCFactoryListTraits<Fragment> > RelocationListType;
   typedef std::set<LDSymbol*> ForceLocalSymbolTable;
   typedef std::vector<LDSymbol*> OutputSymbolTable;
 

@@ -15,11 +15,14 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
-#include <llvm/MC/MCAssembler.h>
+
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLinker.h>
-#include <mcld/MC/MCRegionFragment.h>
+#include <mcld/LD/Fragment.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/AlignFragment.h>
+#include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -134,10 +137,10 @@ protected:
                        uint16_t pShndx,
                        const Input& pInput) const;
 
-  MCFragmentRef* getSymFragmentRef(Input& pInput,
-                                   MCLinker& pLinker,
-                                   uint16_t pShndx,
-                                   uint32_t pOffset) const;
+  FragmentRef* getSymFragmentRef(Input& pInput,
+                                 MCLinker& pLinker,
+                                 uint16_t pShndx,
+                                 uint32_t pOffset) const;
 
   ResolveInfo::Visibility getSymVisibility(uint8_t pVis) const;
 

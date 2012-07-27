@@ -6,7 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+
 #include <mcld/Target/GOT.h>
+
 #include <cstring>
 #include <cstdlib>
 
@@ -14,9 +16,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // GOTEntry
-GOTEntry::GOTEntry(uint64_t pContent, size_t pEntrySize,
-                   llvm::MCSectionData* pParent)
-  : MCTargetFragment(llvm::MCFragment::FT_Target, pParent),
+//===----------------------------------------------------------------------===//
+GOTEntry::GOTEntry(uint64_t pContent, size_t pEntrySize, SectionData* pParent)
+  : TargetFragment(Fragment::Target, pParent),
     f_Content(pContent), m_EntrySize(pEntrySize) {
 }
 
@@ -26,8 +28,9 @@ GOTEntry::~GOTEntry()
 
 //===----------------------------------------------------------------------===//
 // GOT
+//===----------------------------------------------------------------------===//
 GOT::GOT(LDSection& pSection,
-         llvm::MCSectionData& pSectionData,
+         SectionData& pSectionData,
          size_t pEntrySize)
   : m_Section(pSection),
     m_SectionData(pSectionData),
