@@ -100,7 +100,7 @@ void X86PLT::reserveEntry(size_t pNum)
     plt1_entry = new (std::nothrow) X86PLT1(&m_SectionData, m_PLT1Size);
 
     if (!plt1_entry)
-      fatal(diag::fail_allocate_memory) << "X86PLT1";
+      fatal(diag::fail_allocate_memory_plt);
 
     m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
@@ -158,7 +158,7 @@ void X86PLT::applyPLT0() {
   data = static_cast<unsigned char*>(malloc(plt0->getEntrySize()));
 
   if (!data)
-    fatal(diag::fail_allocate_memory) << "plt0";
+    fatal(diag::fail_allocate_memory_plt);
 
   memcpy(data, m_PLT0, plt0->getEntrySize());
 
@@ -206,7 +206,7 @@ void X86PLT::applyPLT1() {
     data = static_cast<unsigned char*>(malloc(plt1->getEntrySize()));
 
     if (!data)
-      fatal(diag::fail_allocate_memory) << "plt1";
+      fatal(diag::fail_allocate_memory_plt);
 
     memcpy(data, m_PLT1, plt1->getEntrySize());
 

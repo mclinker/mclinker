@@ -131,7 +131,7 @@ GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
       got_entry.setContent(pReloc.symValue());
     }
     else {
-      fatal(diag::reserve_entry_number_mismatch) << "GOT";
+      fatal(diag::reserve_entry_number_mismatch_got);
     }
   }
 

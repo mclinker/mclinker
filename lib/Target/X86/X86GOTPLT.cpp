@@ -36,7 +36,7 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, SectionData& pSectionData)
                                         &m_SectionData);
 
     if (!Entry)
-      fatal(diag::fail_allocate_memory) << "GOT0";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + X86GOTPLTEntrySize);
   }
@@ -90,7 +90,7 @@ void X86GOTPLT::reserveEntry(size_t pNum)
   for (size_t i = 0; i < pNum; ++i) {
     got_entry = new GOTEntry(0, getEntrySize(),&(getSectionData()));
     if (!got_entry)
-      fatal(diag::fail_allocate_memory) << "GOT";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + getEntrySize());
   }

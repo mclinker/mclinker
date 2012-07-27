@@ -34,7 +34,7 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
       new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
 
     if (NULL == entry)
-      fatal(diag::fail_allocate_memory) << "GOT0";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
   }
@@ -97,7 +97,7 @@ void MipsGOT::reserveEntry(size_t pNum)
       new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
 
     if (NULL == entry)
-      fatal(diag::fail_allocate_memory) << "GOTEntry";
+      fatal(diag::fail_allocate_memory_got);
 
     m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
   }
