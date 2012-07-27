@@ -333,7 +333,13 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/FileHandleTest.h \
 	${UNITTEST}/FileHandleTest.cpp \
 	${UNITTEST}/TestLinkerTest.h \
-	${UNITTEST}/TestLinkerTest.cpp
+	${UNITTEST}/TestLinkerTest.cpp\
+	${UNITTEST}/FragmentTest.h \
+	${UNITTEST}/FragmentTest.cpp\
+	${UNITTEST}/SectionDataTest.h \
+	${UNITTEST}/SectionDataTest.cpp
+
+
 else
 UNITTEST_SOURCE =
 endif
