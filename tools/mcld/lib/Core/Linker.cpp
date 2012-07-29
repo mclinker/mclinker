@@ -355,12 +355,8 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
 enum Linker::ErrorCode Linker::link() {
   mDriver->normalize();
 
-  if (!mDriver->readSections() || !mDriver->mergeSections()) {
+  if (!mDriver->mergeSections()) {
     return kReadSections;
-  }
-
-  if (!mDriver->readSymbolTables()) {
-    return kReadSymbols;
   }
 
   if (!mDriver->addStandardSymbols() || !mDriver->addTargetSymbols()) {

@@ -133,16 +133,11 @@ bool SectLinker::doFinalization(Module &pM)
     return true;
 
 
-  // 6. - read all sections
-  if (!m_pLDDriver->readSections() ||
-      !m_pLDDriver->mergeSections())
+  // 6. - merge all sections
+  if (!m_pLDDriver->mergeSections())
     return true;
 
-  // 7. - read all symbol tables of input files and resolve them
-  if (!m_pLDDriver->readSymbolTables())
-    return true;
-
-  // 7.a - add standard symbols and target-dependent symbols
+  // 7. - add standard symbols and target-dependent symbols
   // m_pLDDriver->addUndefSymbols();
   if (!m_pLDDriver->addStandardSymbols() ||
       !m_pLDDriver->addTargetSymbols())

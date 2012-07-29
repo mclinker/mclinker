@@ -53,19 +53,8 @@ public:
   ///  - check every Input has a correct Attribute
   bool linkable() const;
 
-  /// readSections - read all input section headers
-  bool readSections();
-
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
-
-  /// readSymbolTables - read symbol tables from the input files.
-  ///  for each input file, loads its symbol table from file.
-  bool readSymbolTables();
-
-  /// mergeSymbolTables - merge the symbol tables of input files into the
-  /// output's symbol table.
-  bool mergeSymbolTables();
 
   /// addStandardSymbols - shared object and executable files need some
   /// standard symbols
