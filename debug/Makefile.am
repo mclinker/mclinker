@@ -339,7 +339,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/FragmentTest.h \
 	${UNITTEST}/FragmentTest.cpp\
 	${UNITTEST}/SectionDataTest.h \
-	${UNITTEST}/SectionDataTest.cpp
+	${UNITTEST}/SectionDataTest.cpp \
+	${UNITTEST}/ReadStageTest.h \
+	${UNITTEST}/ReadStageTest.cpp
 
 else
 UNITTEST_SOURCE =
