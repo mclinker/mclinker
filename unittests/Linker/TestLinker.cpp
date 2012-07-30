@@ -286,6 +286,11 @@ bool TestLinker::setOutput(const std::string &pPath)
   return true;
 }
 
+bool TestLinker::setOutput(const sys::fs::Path &pPath)
+{
+  return setOutput(pPath.native());
+}
+
 bool TestLinker::setOutput(int pFileHandler)
 {
   if (m_pInfo->output().hasContext())

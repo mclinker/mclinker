@@ -70,6 +70,8 @@ public:
 
   bool setOutput(int pFileHandler);
 
+  bool setOutput(const sys::fs::Path &pPath);
+
   /// getDriver
   MCLDDriver* getDriver() {
     assert(NULL != m_pDriver);
