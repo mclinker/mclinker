@@ -73,7 +73,7 @@ private:
 
   /// shouldIncludeSymbol - given a sym name from armap and check if we should
   /// include the corresponding archive member, and then return the decision
-  enum Archive::Status
+  enum Archive::Symbol::Status
   shouldIncludeSymbol(const llvm::StringRef& pSymName) const;
 
 private:

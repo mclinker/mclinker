@@ -17,18 +17,9 @@
 #include <mcld/ADT/StringHash.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/MC/InputTree.h>
-#include <llvm/ADT/StringRef.h>
 
 #include <vector>
 #include <string>
-
-#define ARFILE_MAGIC "!<arch>\n"                   ///< magic string
-#define THINAR_MAGIC "!<thin>\n"                   ///< magic of thin archive
-#define ARFILE_MAGIC_LEN (sizeof(ARFILE_MAGIC)-1)  ///< length of magic string
-#define ARFILE_SVR4_SYMTAB_NAME "/               " ///< SVR4 symtab entry name
-#define ARFILE_STRTAB_NAME      "//              " ///< Name of string table
-#define ARFILE_PAD "\n"                            ///< inter-file align padding
-#define ARFILE_MEMBER_MAGIC "`\n"                  ///< fmag field magic #
 
 namespace mcld
 {
@@ -41,6 +32,14 @@ class Input;
 class Archive
 {
 public:
+  static const char   MAGIC[];             ///< magic string
+  static const char   THIN_MAGIC[];        ///< magic of thin archive
+  static const size_t MAGIC_LEN;           ///< length of magic string
+  static const char   SVR4_SYMTAB_NAME[];  ///< SVR4 symtab entry name
+  static const char   STRTAB_NAME[];       ///< Name of string table
+  static const char   PAD[];               ///< inter-file align padding
+  static const char   MEMBER_MAGIC[];      ///< fmag field magic #
+
   struct MemberHeader
   {
     char name[16];  ///< Name of the file member.
@@ -51,23 +50,6 @@ public:
     char size[10];  ///< file size in ASCII decimal
     char fmag[2];   ///< Always contains ARFILE_MAGIC_TERMINATOR
   };
-
-public:
-  Archive(Input& pInputFile, InputFactory& pInputFactory);
-
-  ~Archive();
-
-  /// getARFile - get the Input& of the archive file
-  Input& getARFile();
-
-  /// getARFile - get the Input& of the archive file
-  const Input& getARFile() const;
-
-  /// inputs - get the input tree built from this archive 
-  InputTree& inputs();
-
-  /// inputs - get the input tree built from this archive 
-  const InputTree& inputs() const;
 
 private:
   template<typename OFFSET_TYPE>
@@ -99,7 +81,67 @@ public:
                     MurmurHash3,
                     EntryFactory<ObjectMemberEntryType> > ObjectMemberMapType;
 
+  struct ArchiveMember
+  {
+    Input* file;
+    InputTree::iterator lastPos;
+    InputTree::Mover* move;
+  };
+
+private:
+  typedef HashEntry<const llvm::StringRef,
+                    ArchiveMember,
+                    StringCompare<llvm::StringRef> > ArchiveMemberEntryType;
+
 public:
+  typedef HashTable<ArchiveMemberEntryType,
+                    StringHash<ELF>,
+                    EntryFactory<ArchiveMemberEntryType> > ArchiveMemberMapType;
+
+  struct Symbol
+  {
+  public:
+    enum Status
+    {
+      Include,
+      Exclude,
+      Unknown
+    };
+
+    Symbol(const char* pName,
+           uint32_t pOffset,
+           enum Status pStatus)
+     : name(pName), fileOffset(pOffset), status(pStatus)
+    {}
+
+    ~Symbol()
+    {}
+
+  public:
+    std::string name;
+    uint32_t fileOffset;
+    enum Status status;
+  };
+
+  typedef std::vector<Symbol*> SymTabType;
+
+public:
+  Archive(Input& pInputFile, InputFactory& pInputFactory);
+
+  ~Archive();
+
+  /// getARFile - get the Input& of the archive file
+  Input& getARFile();
+
+  /// getARFile - get the Input& of the archive file
+  const Input& getARFile() const;
+
+  /// inputs - get the input tree built from this archive
+  InputTree& inputs();
+
+  /// inputs - get the input tree built from this archive
+  const InputTree& inputs() const;
+
   /// getObjectMemberMap - get the map that contains the included object files
   ObjectMemberMapType& getObjectMemberMap();
 
@@ -117,25 +159,6 @@ public:
   /// hasObjectMember - check if a object file is included or not
   /// @param pFileOffset - file offset in symtab represents a object file
   bool hasObjectMember(uint32_t pFileOffset) const;
-
-public:
-  struct ArchiveMember
-  {
-    Input* file;
-    InputTree::iterator lastPos;
-    InputTree::Mover* move;
-  };
-  typedef struct ArchiveMember ArchiveMemberType;
-
-private:
-  typedef HashEntry<const llvm::StringRef,
-                    ArchiveMember,
-                    StringCompare<llvm::StringRef> > ArchiveMemberEntryType;
-
-public:
-  typedef HashTable<ArchiveMemberEntryType,
-                    StringHash<ELF>,
-                    EntryFactory<ArchiveMemberEntryType> > ArchiveMemberMapType;
 
   /// getArchiveMemberMap - get the map that contains the included archive files
   ArchiveMemberMapType& getArchiveMemberMap();
@@ -157,38 +180,8 @@ public:
   bool hasArchiveMember(const llvm::StringRef& pName) const;
 
   /// getArchiveMember - get a archive member
-  ArchiveMemberType* getArchiveMember(const llvm::StringRef& pName);
+  ArchiveMember* getArchiveMember(const llvm::StringRef& pName);
 
-public:
-  enum Status 
-  {
-    Include,
-    Exclude,
-    Unknown
-  };
-
-  struct SymTabEntry
-  {
-  public:
-    SymTabEntry(const char* pName,
-                uint32_t pOffset,
-                enum Status pStatus)
-     : name(pName), fileOffset(pOffset), status(pStatus)
-    {}
-
-    ~SymTabEntry()
-    {}
-
-  public:
-    const std::string name;
-    uint32_t fileOffset;
-    enum Status status;
-  };
-  typedef struct SymTabEntry SymTabEntry;
-
-  typedef std::vector<SymTabEntry*> SymTabType;
-
-public:
   /// getSymbolTable - get the symtab
   SymTabType& getSymbolTable();
 
@@ -207,9 +200,10 @@ public:
   /// addSymbol - add a symtab entry to symtab
   /// @param pName - symbol name
   /// @param pFileOffset - file offset in symtab represents a object file
-  void addSymbol(const char* pName,
-                 uint32_t pFileOffset,
-                 enum Status pStatus = Archive::Unknown);
+  void
+  addSymbol(const char* pName,
+            uint32_t pFileOffset,
+            enum Symbol::Status pStatus = Archive::Symbol::Unknown);
 
   /// getSymbolName - get the symbol name with the given index
   const std::string& getSymbolName(size_t pSymIdx) const;
@@ -218,10 +212,10 @@ public:
   uint32_t getObjFileOffset(size_t pSymIdx) const;
 
   /// getSymbolStatus - get the status of a symbol
-  enum Status getSymbolStatus(size_t pSymIdx) const;
+  enum Symbol::Status getSymbolStatus(size_t pSymIdx) const;
 
   /// setSymbolStatus - set the status of a symbol
-  void setSymbolStatus(size_t pSymIdx, enum Status pStatus);
+  void setSymbolStatus(size_t pSymIdx, enum Symbol::Status pStatus);
 
   /// getStrTable - get the extended name table
   std::string& getStrTable();
@@ -230,14 +224,14 @@ public:
   const std::string& getStrTable() const;
 
 private:
-  typedef GCFactory<SymTabEntry, 0> SymTabEntryFactory;
+  typedef GCFactory<Symbol, 0> SymbolFactory;
 
 private:
   Input& m_ArchiveFile;
   InputTree *m_pInputTree;
   ObjectMemberMapType m_ObjectMemberMap;
   ArchiveMemberMapType m_ArchiveMemberMap;
-  SymTabEntryFactory m_SymTabEntryFactory;
+  SymbolFactory m_SymbolFactory;
   SymTabType m_SymTab;
   size_t m_SymTabSize;
   std::string m_StrTab;

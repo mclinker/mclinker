@@ -47,8 +47,8 @@ bool GNUArchiveReader::isMyFormat(Input& pInput) const
 {
   assert(pInput.hasMemArea());
   MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   ARFILE_MAGIC_LEN);
-  const char* str = reinterpret_cast<char*>(region->getBuffer());
+                                                   Archive::MAGIC_LEN);
+  const char* str = reinterpret_cast<const char*>(region->getBuffer());
 
   bool result = false;
   assert(NULL != str);
@@ -62,13 +62,13 @@ bool GNUArchiveReader::isMyFormat(Input& pInput) const
 /// isArchive
 bool GNUArchiveReader::isArchive(const char* pStr) const
 {
-  return (0 == memcmp(pStr, ARFILE_MAGIC, ARFILE_MAGIC_LEN));
+  return (0 == memcmp(pStr, Archive::MAGIC, Archive::MAGIC_LEN));
 }
 
 /// isThinArchive
 bool GNUArchiveReader::isThinArchive(const char* pStr) const
 {
-  return (0 == memcmp(pStr, THINAR_MAGIC, ARFILE_MAGIC_LEN));
+  return (0 == memcmp(pStr, Archive::THIN_MAGIC, Archive::MAGIC_LEN));
 }
 
 /// isThinArchive
@@ -76,8 +76,8 @@ bool GNUArchiveReader::isThinArchive(Input& pInput) const
 {
   assert(pInput.hasMemArea());
   MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
-                                                   ARFILE_MAGIC_LEN);
-  const char* str = reinterpret_cast<char*>(region->getBuffer());
+                                                   Archive::MAGIC_LEN);
+  const char* str = reinterpret_cast<const char*>(region->getBuffer());
 
   bool result = false;
   assert(NULL != str);
@@ -107,21 +107,22 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
     willSymResolved = false;
     for (size_t idx = 0; idx < pArchive.numOfSymbols(); ++idx) {
       // bypass if we already decided to include this symbol or not
-      if (Archive::Unknown != pArchive.getSymbolStatus(idx))
+      if (Archive::Symbol::Unknown != pArchive.getSymbolStatus(idx))
         continue;
 
       // bypass if another symbol with the same object file offset is included
       if (pArchive.hasObjectMember(pArchive.getObjFileOffset(idx))) {
-        pArchive.setSymbolStatus(idx, Archive::Include);
+        pArchive.setSymbolStatus(idx, Archive::Symbol::Include);
         continue;
       }
 
       // check if we should include this defined symbol
-      Archive::Status status = shouldIncludeSymbol(pArchive.getSymbolName(idx));
-      if (Archive::Unknown != status)
+      Archive::Symbol::Status status =
+        shouldIncludeSymbol(pArchive.getSymbolName(idx));
+      if (Archive::Symbol::Unknown != status)
         pArchive.setSymbolStatus(idx, status);
 
-      if (Archive::Include == status) {
+      if (Archive::Symbol::Include == status) {
         Input* cur_archive = &(pArchive.getARFile());
         Input* member = cur_archive;
         uint32_t file_offset = pArchive.getObjFileOffset(idx);
@@ -142,7 +143,7 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
           }
 
           // insert a node into the subtree of current archive.
-          Archive::ArchiveMemberType* parent =
+          Archive::ArchiveMember* parent =
             pArchive.getArchiveMember(cur_archive->name());
 
           assert(NULL != parent);
@@ -160,7 +161,8 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
             m_ELFObjectReader.readObject(*member);
             m_ELFObjectReader.readSections(*member);
             m_ELFObjectReader.readSymbols(*member);
-          } else if (isMyFormat(*member)) {
+          }
+          else if (isMyFormat(*member)) {
             member->setType(Input::Archive);
             // when adding a new archive node, set the iterator to archive
             // itself, and set the direction to Downward
@@ -200,7 +202,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
-  assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
 
   // int size = atoi(header->size);
 
@@ -211,7 +213,8 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     // this is an object file in an archive
     size_t pos = name_field.find_first_of('/');
     member_name.assign(name_field.substr(0, pos).str());
-  } else {
+  }
+  else {
     // this is an object/archive file in a thin archive
     size_t begin = 1;
     size_t end = name_field.find_first_of(" :");
@@ -245,9 +248,11 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     member->setMemArea(pArchiveFile.memArea());
     LDContext *input_context = m_LDInfo.contextFactory().produce();
     member->setContext(input_context);
-  } else {
-    // try to find if this is a archive already in the map
-    Archive::ArchiveMemberType* ar_member =
+  }
+  else {
+    // this is a member in a thin archive
+    // try to find if this is a archive already in the map first
+    Archive::ArchiveMember* ar_member =
       pArchiveRoot.getArchiveMember(member_name);
     if (NULL != ar_member) {
       return ar_member->file;
@@ -262,7 +267,8 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
       m_MemAreaFactory.produce(member->path(), FileHandle::ReadOnly);
     if (input_memory->handler()->isGood()) {
       member->setMemArea(input_memory);
-    } else {
+    }
+    else {
       error(diag::err_cannot_open_input) << member->name() << member->path();
       return NULL;
     }
@@ -281,18 +287,18 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
 
   MemoryRegion* header_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
-                                             ARFILE_MAGIC_LEN),
+                                             Archive::MAGIC_LEN),
                                             sizeof(Archive::MemberHeader));
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
-  assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
 
   int symtab_size = atoi(header->size);
   pArchive.setSymTabSize(symtab_size);
 
   MemoryRegion* symtab_region =
     pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
-                                             ARFILE_MAGIC_LEN +
+                                             Archive::MAGIC_LEN +
                                              sizeof(Archive::MemberHeader)),
                                             symtab_size);
   const uint32_t* data =
@@ -327,8 +333,9 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
 /// readStringTable - read the strtab for long file name of the archive
 bool GNUArchiveReader::readStringTable(Archive& pArchive)
 {
-  size_t offset =
-    ARFILE_MAGIC_LEN + sizeof(Archive::MemberHeader) + pArchive.getSymTabSize();
+  size_t offset = Archive::MAGIC_LEN +
+                  sizeof(Archive::MemberHeader) +
+                  pArchive.getSymTabSize();
 
   if (0x0 != (offset & 1))
     ++offset;
@@ -342,7 +349,7 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
-  assert(0 == memcmp(header->fmag, ARFILE_MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
 
   int strtab_size = atoi(header->size);
 
@@ -363,18 +370,18 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
 
 /// shouldIncludeStatus - given a sym name from armap and check if including
 /// the corresponding archive member, and then return the decision
-enum Archive::Status
+enum Archive::Symbol::Status
 GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
 {
   // TODO: handle symbol version issue and user defined symbols
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pSymName);
   if (NULL != info) {
     if (!info->isUndef())
-      return Archive::Exclude;
+      return Archive::Symbol::Exclude;
     if (info->isWeak())
-      return Archive::Unknown;
-    return Archive::Include;
+      return Archive::Symbol::Unknown;
+    return Archive::Symbol::Include;
   }
-  return Archive::Unknown;
+  return Archive::Symbol::Unknown;
 }
 

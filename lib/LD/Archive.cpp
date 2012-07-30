@@ -8,15 +8,24 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/Archive.h>
 #include <mcld/MC/InputFactory.h>
+#include <llvm/ADT/StringRef.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // Archive
+const char   Archive::MAGIC[]            = "!<arch>\n";
+const char   Archive::THIN_MAGIC[]       = "!<thin>\n";
+const size_t Archive::MAGIC_LEN          = sizeof(Archive::MAGIC) - 1;
+const char   Archive::SVR4_SYMTAB_NAME[] = "/               ";
+const char   Archive::STRTAB_NAME[]      = "//              ";
+const char   Archive::PAD[]              = "\n";
+const char   Archive::MEMBER_MAGIC[]     = "`\n";
+
 Archive::Archive(Input& pInputFile, InputFactory& pInputFactory)
  : m_ArchiveFile(pInputFile),
    m_pInputTree(NULL),
-   m_SymTabEntryFactory(32)
+   m_SymbolFactory(32)
 {
   m_pInputTree = new InputTree(pInputFactory);
 }
@@ -127,8 +136,7 @@ bool Archive::hasArchiveMember(const llvm::StringRef& pName) const
 }
 
 /// getArchiveMember - get a archive member
-Archive::ArchiveMemberType*
-Archive::getArchiveMember(const llvm::StringRef& pName)
+Archive::ArchiveMember* Archive::getArchiveMember(const llvm::StringRef& pName)
 {
   ArchiveMemberMapType::iterator it = m_ArchiveMemberMap.find(pName);
   if (it != m_ArchiveMemberMap.end())
@@ -171,10 +179,10 @@ size_t Archive::numOfSymbols() const
 /// @param pFileOffset - file offset in symtab represents a object file
 void Archive::addSymbol(const char* pName,
                         uint32_t pFileOffset,
-                        enum Archive::Status pStatus)
+                        enum Archive::Symbol::Status pStatus)
 {
-  SymTabEntry* entry = m_SymTabEntryFactory.allocate();
-  new (entry) SymTabEntry(pName, pFileOffset, pStatus);
+  Symbol* entry = m_SymbolFactory.allocate();
+  new (entry) Symbol(pName, pFileOffset, pStatus);
   m_SymTab.push_back(entry);
 }
 
@@ -193,7 +201,7 @@ uint32_t Archive::getObjFileOffset(size_t pSymIdx) const
 }
 
 /// getSymbolStatus - get the status of a symbol
-enum Archive::Status Archive::getSymbolStatus(size_t pSymIdx) const
+enum Archive::Symbol::Status Archive::getSymbolStatus(size_t pSymIdx) const
 {
   assert(pSymIdx < numOfSymbols());
   return m_SymTab[pSymIdx]->status;
@@ -201,7 +209,7 @@ enum Archive::Status Archive::getSymbolStatus(size_t pSymIdx) const
 
 /// setSymbolStatus - set the status of a symbol
 void Archive::setSymbolStatus(size_t pSymIdx,
-                              enum Archive::Status pStatus)
+                              enum Archive::Symbol::Status pStatus)
 {
   assert(pSymIdx < numOfSymbols());
   m_SymTab[pSymIdx]->status = pStatus;
