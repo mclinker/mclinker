@@ -11,8 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef MCLD_LDFILE_H
-#define MCLD_LDFILE_H
+#ifndef MCLD_LD_FILE_H
+#define MCLD_LD_FILE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
