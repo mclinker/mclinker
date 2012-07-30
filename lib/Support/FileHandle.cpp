@@ -219,9 +219,6 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
   return true;
 }
 
-#include <iostream>
-using namespace std;
-
 bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
 {
   if (!isOpened()) {
