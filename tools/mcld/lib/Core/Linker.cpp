@@ -123,11 +123,11 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
     return kCreateBackend;
   }
 
-  mDriver = new mcld::MCLDDriver(*mLDInfo, *mBackend);
-
   mMemAreaFactory = new MemoryFactory();
 
-  mDriver->initMCLinker(*mMemAreaFactory);
+  mDriver = new mcld::MCLDDriver(*mLDInfo, *mBackend, *mMemAreaFactory);
+
+  mDriver->initMCLinker();
 
   return kSuccess;
 }

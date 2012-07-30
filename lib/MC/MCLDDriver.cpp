@@ -26,10 +26,13 @@
 using namespace llvm;
 using namespace mcld;
 
-MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend)
+MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo,
+                       TargetLDBackend& pLDBackend,
+                       MemoryAreaFactory& pAreaFactory)
   : m_LDInfo(pLDInfo),
     m_LDBackend(pLDBackend),
-    m_pLinker(NULL) {
+    m_pLinker(NULL),
+    m_AreaFactory(pAreaFactory) {
 
 }
 
@@ -41,7 +44,7 @@ MCLDDriver::~MCLDDriver()
 
 /// initMCLinker - initialize MCLinker
 ///  Connect all components with MCLinker
-bool MCLDDriver::initMCLinker(MemoryAreaFactory& pMemAreaFactory)
+bool MCLDDriver::initMCLinker()
 {
   if (0 == m_pLinker)
     m_pLinker = new MCLinker(m_LDBackend,
@@ -52,7 +55,7 @@ bool MCLDDriver::initMCLinker(MemoryAreaFactory& pMemAreaFactory)
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the MCLinker constructors.
   if (!m_LDBackend.initObjectReader(*m_pLinker) ||
-      !m_LDBackend.initArchiveReader(*m_pLinker, m_LDInfo, pMemAreaFactory) ||
+      !m_LDBackend.initArchiveReader(*m_pLinker, m_LDInfo, m_AreaFactory) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||

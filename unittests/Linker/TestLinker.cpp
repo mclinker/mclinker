@@ -104,10 +104,10 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
-  m_pDriver = new mcld::MCLDDriver(*m_pInfo, *m_pBackend);
-
   m_pMemAreaFactory = new MemoryAreaFactory(32);
-  m_pDriver->initMCLinker(*m_pMemAreaFactory);
+
+  m_pDriver = new mcld::MCLDDriver(*m_pInfo, *m_pBackend, *m_pMemAreaFactory);
+  m_pDriver->initMCLinker();
 
   is_initialized = true;
   return true;

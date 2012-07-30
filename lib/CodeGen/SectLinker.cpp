@@ -77,7 +77,7 @@ bool SectLinker::doInitialization(Module &pM)
   initializeInputTree(PosDepOpts);
   initializeInputOutput(info);
   // Now, all input arguments are prepared well, send it into MCLDDriver
-  m_pLDDriver = new MCLDDriver(info, *m_pLDBackend);
+  m_pLDDriver = new MCLDDriver(info, *m_pLDBackend, *memAreaFactory());
 
   return false;
 }
@@ -87,7 +87,7 @@ bool SectLinker::doFinalization(Module &pM)
   const MCLDInfo &info = m_pOption->info();
 
   // 2. - initialize MCLinker
-  if (!m_pLDDriver->initMCLinker(*memAreaFactory()))
+  if (!m_pLDDriver->initMCLinker())
     return true;
 
   // 3. - initialize output's standard sections

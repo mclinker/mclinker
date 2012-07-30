@@ -28,18 +28,21 @@ class MCLDInfo;
 class TargetLDBackend;
 class MemoryAreaFactory;
 
-//===----------------------------------------------------------------------===//
-/// MCLDDriver - MCLDDriver prepares parameters for MCLinker.
-///
+/** \class MCLDDriver
+ *  \brief MCLDDriver prepares parameters for MCLinker.
+ */
 class MCLDDriver
 {
 public:
-  MCLDDriver(MCLDInfo& pLDInfo, TargetLDBackend& pLDBackend);
+  MCLDDriver(MCLDInfo& pLDInfo,
+             TargetLDBackend& pLDBackend,
+             MemoryAreaFactory& pAreaFactory);
+
   ~MCLDDriver();
 
   /// initMCLinker - initialize MCLinker
   ///  Connect all components in MCLinker
-  bool initMCLinker(MemoryAreaFactory& pMemAreaFactory);
+  bool initMCLinker();
 
   /// initStdSections - initialize standard sections of the output file.
   bool initStdSections();
@@ -117,6 +120,7 @@ private:
   TargetLDBackend &m_LDBackend;
   MCLinker* m_pLinker;
   SectionMap m_SectionMap;
+  MemoryAreaFactory &m_AreaFactory;
 };
 
 } // end namespace mcld
