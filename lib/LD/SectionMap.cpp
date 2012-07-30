@@ -47,7 +47,7 @@ bool SectionMap::push_back(const std::string& pInput,
   // TODO: handle the cases such as overriding the exist mapping and drawing
   //       exception from the given SECTIONS command
   iterator it;
-  for (it = begin(); it != end(); ++it) {
+  for (it = m_SectMap.begin(); it != m_SectMap.end(); ++it) {
     if (pInput == (*it).inputSubStr)
       return false;
   }
@@ -131,8 +131,8 @@ const int SectionMap::m_StdSectionMapSize =
 bool SectionMap::initStdSectionMap()
 {
   for (int i = 0; i < m_StdSectionMapSize; ++i) {
-    if (!push_back(m_StdSectionMap[i].from, m_StdSectionMap[i].to))
-      return false;
+    struct Mapping mapping = { m_StdSectionMap[i].from, m_StdSectionMap[i].to};
+    m_SectMap.push_back(mapping);
   }
   return true;
 }
