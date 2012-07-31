@@ -1,0 +1,32 @@
+These tests reference between archives.
+
+======================
+ Contents Description
+======================
+1) src - the source files of testing programs
+2) obj - the object files of source programs. Each are compiled by gcc -c -m32
+3) thin_archive - the thin archives used by exec_thin_ar_*.ll:
+     thin_archive_test1.a - contains archive_test1.o and archive_test2.o
+     thin_archive_test2.a - contains archive_test2.o and archive_test3.o
+     thin_archive_test3.a - contains archive_test3.o and archive_test4.o
+     thin_archive_test4.a - contains archive_test4.o and archive_test5.o
+     thin_archive_all.a   - contains archive_test5.o, archive_test4.o,
+                            archive_test3.o, archive_test2.o and archive_test1.o
+                            in order
+4) nested_ar - the thin archive used by exec_nested_ar.ll
+     thin_archive_test2.a - contains archive_test2.o and archive_test3.o
+     thin_archive_test3.a - contains archive_test3.o and thin_archive_test2.a
+     archive_test4.a      - contains archive_test4.o and archive_test5.o
+     thin_archive_test1.a - contains thin_archive_test3.a, archive_test4.a and
+                            archive_test1.o
+
+============
+ test cases
+============
+1) exec_thin_ar_1.ll:
+   link obj/archive_main.o, thin_ar/thin_archive_test1.a, thin_ar/thin_archive_test2.a,
+   thin_ar/thin_archive_test3.a and thin_ar/thin_archive_test4.a
+2) exec_thin_ar_2.ll:
+   link obj/archive_main.o and thin_ar/thin_archive_all.a
+3) exec_nested_ar.ll:
+   link obj/archive_main.o and nested_ar/thin_archive_test1.a
