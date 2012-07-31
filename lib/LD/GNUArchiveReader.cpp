@@ -261,7 +261,10 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     // get nested file path, the nested file's member name is the relative
     // path to the archive containing it.
     sys::fs::Path input_path(pArchiveFile.path().parent_path());
-    input_path.append(member_name);
+    if (!input_path.empty())
+      input_path.append(member_name);
+    else
+      input_path.assign(member_name);
     member =
       m_LDInfo.inputFactory().produce(member_name, input_path, Input::Unknown);
 
