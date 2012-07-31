@@ -4,7 +4,7 @@
 ; RUN: %p/../libs/X86/Linux/crti.o %p/../libs/X86/Linux/crtbegin.o \
 ; RUN: %p/exception_main.o %p/../libs/X86/Linux/crtend.o \
 ; RUN: %p/../libs/X86/Linux/crtn.o %p/../libs/X86/Linux/libc.so.6 \
-; RUN: %p/../libs/X86/Linux/libc_nonshared/elf-init.oS \
+; RUN: %p/../libs/X86/Linux/libc_nonshared.a \
 ; RUN: %p/../libs/X86/Linux/libgcc_s.so.1 \
 ; RUN: %p/../libs/X86/Linux/libm.so.6 \
 ; RUN: %p/../libs/X86/Linux/libstdc++.so.6 -o %t.out
