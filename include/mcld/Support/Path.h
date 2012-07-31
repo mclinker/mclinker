@@ -88,6 +88,7 @@ public:
   std::string string() const;
 
   // -----  decomposition  ----- //
+  Path parent_path() const;
   Path stem() const;
   Path extension() const;
 
