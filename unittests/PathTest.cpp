@@ -138,3 +138,20 @@ TEST_F( PathTest, should_become_generic_string ) {
   EXPECT_STREQ("/usr/lib/", m_pTestee->generic_string().c_str());
 }
 
+TEST_F( PathTest, parent_path ) {
+  m_pTestee->assign("aa/bb/cc/dd");
+  EXPECT_STREQ("aa/bb/cc", m_pTestee->parent_path().c_str());
+  delete m_pTestee;
+  m_pTestee = new Path("/aa/bb/");
+  EXPECT_STREQ("/aa/bb", m_pTestee->parent_path().c_str());
+  delete m_pTestee;
+  m_pTestee = new Path("/aa/bb");
+  EXPECT_STREQ("/aa", m_pTestee->parent_path().c_str());
+  delete m_pTestee;
+  m_pTestee = new Path("aa/");
+  EXPECT_STREQ("aa", m_pTestee->parent_path().c_str());
+  delete m_pTestee;
+  m_pTestee = new Path("aa");
+  EXPECT_TRUE(m_pTestee->parent_path().empty());
+}
+
