@@ -297,7 +297,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     }
 
     // get ld_type
-    ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
+    ResolveInfo::Type ld_type = getSymType(st_info, st_shndx);
 
     // get ld_desc
     ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);

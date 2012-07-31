@@ -127,6 +127,8 @@ protected:
 protected:
   LDFileFormat::Kind getLDSectionKind(uint32_t pType, const char* pName) const;
 
+  ResolveInfo::Type getSymType(uint8_t pInfo, uint16_t pShndx) const;
+
   ResolveInfo::Desc getSymDesc(uint16_t pShndx, const Input& pInput) const;
 
   ResolveInfo::Binding getSymBinding(uint8_t pBinding,

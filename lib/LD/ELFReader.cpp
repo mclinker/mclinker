@@ -87,6 +87,21 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
   return LDFileFormat::MetaData;
 }
 
+/// getSymType
+ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
+{
+  ResolveInfo::Type result = static_cast<ResolveInfo::Type>(pInfo & 0xF);
+  if (llvm::ELF::SHN_ABS == pShndx && ResolveInfo::Section == result) {
+    // In Mips, __gp_disp is a special section symbol. Its name comes from
+    // .strtab, not .shstrtab. However, it is unique. Only it is also a ABS
+    // symbol. So here is a tricky to identify __gp_disp and convert it to
+    // Object symbol.
+    return ResolveInfo::Object;
+  }
+
+  return result;
+}
+
 /// getSymDesc
 ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) const
 {
