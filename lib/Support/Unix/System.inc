@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <string>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -16,7 +16,7 @@ namespace sys{
 
 char *strerror(int errnum)
 {
-  return ::strerror(errnum);
+  return std::strerror(errnum);
 }
 
 } // namespace of sys
