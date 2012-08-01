@@ -318,8 +318,8 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
 {
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
 
-  if (NULL == info || !info->isUndef()) {
-    // only undefined symbol can make a reference.
+  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+    // only undefined symbol and dynamic symbol can make a reference.
     return NULL;
   }
 
@@ -415,8 +415,8 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
 {
   ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
 
-  if (NULL == info || !info->isUndef()) {
-    // only undefined symbol can make a reference
+  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+    // only undefined symbol and dynamic symbol can make a reference.
     return NULL;
   }
 
