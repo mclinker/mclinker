@@ -1,3 +1,42 @@
+2012-08-01 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Get rid of LLVM MC layer and reduce the dependency to LLVM.
+	2. Support GNU variant archive file format.
+
+	* llvm-mcld/llvm-mcld, CodeGen/LLVMTargetMachine:
+	Sync up LLVM api changes with LLVM upstream @160668.
+
+	* Support/Path:
+	Add parent_path() api.
+
+	* LD/EFLReader, LD/ELFObjectReader, LD/ELFDynObjReader, LD/EhFrame,
+	MC/MCLDInput, MC/MCLinker, Targer/ARMLDBackend:
+	Read Inputs from the specific file offset.
+
+	* LD/ArchiveReader, LD/BSDArchiveReader, LD/GNUArchiveReader,
+	LD/Archive, MC/MCLDDriver:
+	Support GNU variant archive file format.
+
+	* CodeGen/SectLinker, LD/AlignFragment, LD/CIE, LD/ELFReader,
+	LD/ELFWriter, LD/EhFrame, LD/FDE, LD/FillFragment, LD/Fragment,
+	LD/FragmentRef, LD/LDSection, LD/LDSectionFactory, LD/LDSymbol,
+	LD/Layout, LD/NamePool, LD/RegionFragment, LD/Relocation,
+	LD/RelocationFactory, LD/SectionData, LD/SectionMerger,
+	LD/TargetFragment, MC/MCLinker, Target/GOT, Target/PLT,
+	Target/OutputRelocSection:
+	Get rid of LLVM MC layer.
+
+	* alone/Support/LinkerConfig, alone/Core/Linker, tools/mcld/main:
+	Add --shared, --Bsymbolic, --portable support in alone linker.
+
+	* test/Archive, test/Android:
+	1. Add regression test for ArchiveReader.
+	2. Add regression test of Android examples for alone linker.
+	3. Add regression test for no option.
+
+	* unittests/Linker:
+	1. Add unittest to test different linking stages.
+
 2012-07-04 Luba Tang <lubatang@gmail.com>
 	* Executive Summary:
 	1. Support itanium exception handling
