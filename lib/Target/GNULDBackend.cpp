@@ -1429,7 +1429,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
       load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
-      load_seg->setAlign(commonPageSize(pInfo));
+      load_seg->setAlign(abiPageSize(pInfo));
 
       // check if this segment needs padding
       padding = 0;
