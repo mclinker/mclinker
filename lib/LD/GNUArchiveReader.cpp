@@ -218,7 +218,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     // this is an object/archive file in a thin archive
     size_t begin = 1;
     size_t end = name_field.find_first_of(" :");
-    uint32_t name_offset;
+    uint32_t name_offset = 0;
     // parse the name offset
     name_field.substr(begin, end - begin).getAsInteger(10, name_offset);
 
