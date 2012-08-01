@@ -103,7 +103,6 @@ bool StaticResolver::resolve(ResolveInfo& __restrict__ pOld,
       }
       case DUND:
       case DUNDW: {
-        old->override(pNew);
         old->overrideVisibility(pNew);
         old->setDynamic();
         pOverride = false;
