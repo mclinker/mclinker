@@ -15,6 +15,8 @@
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
+#include <cstddef>
+
 namespace mcld
 {
 
