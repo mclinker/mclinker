@@ -78,6 +78,9 @@ public:
 
   uint64_t defaultTextSegmentAddr() const;
 
+  /// abiPageSize - the abi page size of the target machine
+  uint64_t abiPageSize(const MCLDInfo& pInfo) const;
+
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,

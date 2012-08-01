@@ -199,6 +199,14 @@ uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
   return 0x80000;
 }
 
+uint64_t MipsGNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
+{
+  if (pInfo.options().maxPageSize() > 0)
+    return pInfo.options().maxPageSize();
+  else
+    return static_cast<uint64_t>(0x10000);
+}
+
 void MipsGNULDBackend::doPreLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
                                    MCLinker& pLinker)
