@@ -42,6 +42,9 @@ void alone::init::Initialize() {
 
 #if defined(PROVIDE_ARM_CODEGEN)
   LLVMInitializeARMAsmPrinter();
+# if USE_DISASSEMBLER
+  LLVMInitializeARMDisassembler();
+# endif
   LLVMInitializeARMTargetMC();
   LLVMInitializeARMTargetInfo();
   LLVMInitializeARMTarget();
@@ -53,6 +56,9 @@ void alone::init::Initialize() {
 
 #if defined(PROVIDE_MIPS_CODEGEN)
   LLVMInitializeMipsAsmPrinter();
+# if USE_DISASSEMBLER
+  LLVMInitializeMipsDisassembler();
+# endif
   LLVMInitializeMipsTargetMC();
   LLVMInitializeMipsTargetInfo();
   LLVMInitializeMipsTarget();
@@ -64,6 +70,9 @@ void alone::init::Initialize() {
 
 #if defined(PROVIDE_X86_CODEGEN)
   LLVMInitializeX86AsmPrinter();
+# if USE_DISASSEMBLER
+  LLVMInitializeX86Disassembler();
+# endif
   LLVMInitializeX86TargetMC();
   LLVMInitializeX86TargetInfo();
   LLVMInitializeX86Target();
@@ -71,10 +80,6 @@ void alone::init::Initialize() {
   LLVMInitializeX86LDTarget();
   LLVMInitializeX86LDBackend();
   LLVMInitializeX86DiagnosticLineInfo();
-#endif
-
-#if USE_DISASSEMBLER
-  InitializeDisassembler();
 #endif
 
   is_initialized = true;
