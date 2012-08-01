@@ -22,7 +22,7 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 	case "$enableval" in
 	  host)
 		case "$host" in
-		  x86-*-*)
+		  x86-*-* | i*86-*-*)
 			PROVIDE_ALONE_TARGET="X86"
 			DEFAULT_ALONE_TARGET="X86"
 			;;
