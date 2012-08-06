@@ -347,6 +347,8 @@ void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOpti
 
     /** start group **/
     case PositionDependentOption::START_GROUP:
+      if (!returnStack.empty())
+        fatal(diag::fatal_forbid_nest_group);
       info.inputs().enterGroup(root, *move);
       move->move(root);
       returnStack.push(root);

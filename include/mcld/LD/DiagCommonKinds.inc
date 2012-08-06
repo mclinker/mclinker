@@ -41,3 +41,4 @@ DIAG(note_eh_fde, DiagnosticEngine::Note, "FDE length: %0, offset of PC Begin: %
 DIAG(fatal_cannot_init_target, DiagnosticEngine::Fatal, "Cannot initialize mcld::Target for given triple '%0'.\n(Detail: %1)", "Cannot initialize mcld::Target for given triple '%0'.\n(Detail: %1)")
 DIAG(fatal_cannot_init_lineinfo, DiagnosticEngine::Fatal, "Cannot initialize mcld::DiagnosticLineInfo for given triple '%0'", "Cannot initialize mcld::DiagnosticLineInfo for given triple '%0'")
 DIAG(fatal_cannot_init_backend, DiagnosticEngine::Fatal, "Cannot initialize mcld::TargetLDBackend for given triple '%0'.", "Cannot initialize mcld::TargetLDBackend for given triple '%0'.")
+DIAG(fatal_forbid_nest_group, DiagnosticEngine::Fatal, "May not nest groups", "May not nest groups")
