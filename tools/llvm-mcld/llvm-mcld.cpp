@@ -921,9 +921,9 @@ int main( int argc, char* argv[] )
 
   // -V
   if (ArgVersion) {
-    outs() << "MCLinker - ";
-    outs() << mcld::MCLDInfo::version();
-    outs() << "\n";
+    mcld::outs() << "MCLinker - "
+                 << mcld::MCLDInfo::version()
+                 << "\n";
   }
 
   if (ArgBitcodeFilename.empty() &&
