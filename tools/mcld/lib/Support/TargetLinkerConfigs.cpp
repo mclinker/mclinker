@@ -32,7 +32,7 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   getLDInfo()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().setWholeArchive();
+  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
@@ -59,7 +59,7 @@ MipsLinkerConfig::MipsLinkerConfig()
   getLDInfo()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().setWholeArchive();
+  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
@@ -85,7 +85,7 @@ X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   getLDInfo()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().setWholeArchive();
+  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
   getLDInfo()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
