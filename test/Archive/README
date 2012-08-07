@@ -30,3 +30,13 @@ These tests reference between archives.
    link obj/archive_main.o and thin_ar/thin_archive_all.a
 3) exec_nested_ar.ll:
    link obj/archive_main.o and nested_ar/thin_archive_test1.a
+4) exec_whole_ar_1.ll:
+   link
+   "--whole-archive nested_ar/thin_archive_test2.a nested_ar/archive_test4.a --no-whole-archive"
+   and
+   "nested_ar/thin_archive_test1.a"
+5) exec_whole_ar_2.ll:
+   link
+   "--whole-archive thin_ar/thin_archive_test1.a --no-whole-archive",
+   "thin_ar/thin_archive_test2.a", and
+   "--whole-archive thin_ar/thin_archive_test4.a --no-whole-archive"
