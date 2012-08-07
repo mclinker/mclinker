@@ -406,3 +406,46 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
   return size;
 }
 
+/// includeAllMembers - include all object members. This is called if
+/// --whole-archive is the attribute for this archive file.
+bool GNUArchiveReader::includeAllMembers(Archive& pArchive)
+{
+  // read the symtab of the archive
+  readSymbolTable(pArchive);
+
+  // read the strtab of the archive
+  readStringTable(pArchive);
+
+  // add root archive to ArchiveMemberMap
+  pArchive.addArchiveMember(pArchive.getARFile().name(),
+                            pArchive.inputs().root(),
+                            &InputTree::Downward);
+
+  bool isThinAR = isThinArchive(pArchive.getARFile());
+  uint32_t begin_offset = pArchive.getARFile().fileOffset() +
+                          Archive::MAGIC_LEN +
+                          sizeof(Archive::MemberHeader) +
+                          pArchive.getSymTabSize();
+  if (pArchive.hasStrTable()) {
+    if (0x0 != (begin_offset & 1))
+      ++begin_offset;
+    begin_offset += sizeof(Archive::MemberHeader) +
+                    pArchive.getStrTable().size();
+  }
+  uint32_t end_offset = pArchive.getARFile().memArea()->handler()->size();
+  for (uint32_t offset = begin_offset;
+       offset < end_offset;
+       offset += sizeof(Archive::MemberHeader)) {
+
+    size_t size = includeMember(pArchive, offset);
+
+    if (!isThinAR) {
+      offset += size;
+    }
+
+    if (0x0 != (offset & 1))
+      ++offset;
+  }
+  return true;
+}
+

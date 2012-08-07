@@ -84,6 +84,10 @@ private:
   /// @param pFileOffset  - file offset of the member header in the archive
   size_t includeMember(Archive& pArchiveRoot, uint32_t pFileOffset);
 
+  /// includeAllMembers - include all object members. This is called if
+  /// --whole-archive is the attribute for this archive file.
+  bool includeAllMembers(Archive& pArchive);
+
 private:
   MCLDInfo& m_LDInfo;
   MemoryAreaFactory& m_MemAreaFactory;
