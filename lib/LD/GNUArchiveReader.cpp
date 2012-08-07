@@ -357,20 +357,20 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
 
   assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
 
-  int strtab_size = atoi(header->size);
-
-  MemoryRegion* strtab_region =
-    pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
-                                             offset +
-                                             sizeof(Archive::MemberHeader)),
-                                            strtab_size);
-  const char* strtab =
-    reinterpret_cast<const char*>(strtab_region->getBuffer());
-
-  pArchive.getStrTable().assign(strtab, strtab_size);
-
+  if (0 == memcmp(header->name, Archive::STRTAB_NAME, 16)) {
+    // read the extended name table
+    int strtab_size = atoi(header->size);
+    MemoryRegion* strtab_region =
+      pArchive.getARFile().memArea()->request(
+                                   (pArchive.getARFile().fileOffset() +
+                                    offset + sizeof(Archive::MemberHeader)),
+                                   strtab_size);
+    const char* strtab =
+      reinterpret_cast<const char*>(strtab_region->getBuffer());
+    pArchive.getStrTable().assign(strtab, strtab_size);
+    pArchive.getARFile().memArea()->release(strtab_region);
+  }
   pArchive.getARFile().memArea()->release(header_region);
-  pArchive.getARFile().memArea()->release(strtab_region);
   return true;
 }
 
