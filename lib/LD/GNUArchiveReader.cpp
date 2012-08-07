@@ -90,6 +90,9 @@ bool GNUArchiveReader::isThinArchive(Input& pInput) const
 
 bool GNUArchiveReader::readArchive(Archive& pArchive)
 {
+  if (pArchive.getARFile().attribute()->isWholeArchive())
+    return includeAllMembers(pArchive);
+
   // read the symtab of the archive
   readSymbolTable(pArchive);
 
@@ -257,37 +260,39 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
   int symtab_size = atoi(header->size);
   pArchive.setSymTabSize(symtab_size);
 
-  MemoryRegion* symtab_region =
-    pArchive.getARFile().memArea()->request((pArchive.getARFile().fileOffset() +
+  if (!pArchive.getARFile().attribute()->isWholeArchive()) {
+    MemoryRegion* symtab_region =
+      pArchive.getARFile().memArea()->request(
+                                            (pArchive.getARFile().fileOffset() +
                                              Archive::MAGIC_LEN +
                                              sizeof(Archive::MemberHeader)),
                                             symtab_size);
-  const uint32_t* data =
-    reinterpret_cast<const uint32_t*>(symtab_region->getBuffer());
+    const uint32_t* data =
+      reinterpret_cast<const uint32_t*>(symtab_region->getBuffer());
 
-  // read the number of symbols
-  uint32_t number = 0;
-  if (llvm::sys::isLittleEndianHost())
-    number = bswap32(*data);
-  else
-    number = *data;
-
-  // set up the pointers for file offset and name offset
-  ++data;
-  const char* name = reinterpret_cast<const char*>(data + number);
-
-  // add the archive symbols
-  for (uint32_t i = 0; i < number; ++i) {
+    // read the number of symbols
+    uint32_t number = 0;
     if (llvm::sys::isLittleEndianHost())
-      pArchive.addSymbol(name, bswap32(*data));
+      number = bswap32(*data);
     else
-      pArchive.addSymbol(name, *data);
-    name += strlen(name) + 1;
-    ++data;
-  }
+      number = *data;
 
+    // set up the pointers for file offset and name offset
+    ++data;
+    const char* name = reinterpret_cast<const char*>(data + number);
+
+    // add the archive symbols
+    for (uint32_t i = 0; i < number; ++i) {
+      if (llvm::sys::isLittleEndianHost())
+        pArchive.addSymbol(name, bswap32(*data));
+      else
+        pArchive.addSymbol(name, *data);
+      name += strlen(name) + 1;
+      ++data;
+    }
+    pArchive.getARFile().memArea()->release(symtab_region);
+  }
   pArchive.getARFile().memArea()->release(header_region);
-  pArchive.getARFile().memArea()->release(symtab_region);
   return true;
 }
 
