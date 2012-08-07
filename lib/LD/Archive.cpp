@@ -227,3 +227,9 @@ const std::string& Archive::getStrTable() const
   return m_StrTab;
 }
 
+/// hasStrTable()
+bool Archive::hasStrTable() const
+{
+  return (m_StrTab.size() > 0);
+}
+

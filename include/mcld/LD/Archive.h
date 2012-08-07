@@ -223,6 +223,9 @@ public:
   /// getStrTable - get the extended name table
   const std::string& getStrTable() const;
 
+  /// hasStrTable - return true if this archive has extended name table
+  bool hasStrTable() const;
+
 private:
   typedef GCFactory<Symbol, 0> SymbolFactory;
 

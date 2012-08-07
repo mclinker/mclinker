@@ -230,6 +230,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     }
 
     // get the member name from the extended name table
+    assert(pArchiveRoot.hasStrTable());
     begin = name_offset;
     end = pArchiveRoot.getStrTable().find_first_of('\n', begin);
     member_name.assign(pArchiveRoot.getStrTable().substr(begin, end - begin -1));
