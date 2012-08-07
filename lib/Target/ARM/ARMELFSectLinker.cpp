@@ -23,7 +23,7 @@ ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
   info.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  info.attrFactory().predefined().setWholeArchive();
+  info.attrFactory().predefined().unsetWholeArchive();
   info.attrFactory().predefined().setDynamic();
 
 }
