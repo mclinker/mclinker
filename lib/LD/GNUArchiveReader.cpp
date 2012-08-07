@@ -123,56 +123,8 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
         pArchive.setSymbolStatus(idx, status);
 
       if (Archive::Symbol::Include == status) {
-        Input* cur_archive = &(pArchive.getARFile());
-        Input* member = cur_archive;
-        uint32_t file_offset = pArchive.getObjFileOffset(idx);
-        while ((member != NULL) && (Input::Object != member->type())) {
-          uint32_t nested_offset = 0;
-          // use the file offset in current archive to find out the member we
-          // want to include
-          member = readMemberHeader(pArchive,
-                                    *cur_archive,
-                                    file_offset,
-                                    nested_offset);
-          assert(member != NULL);
-          // bypass if we get an archive that is already in the map
-          if (Input::Archive == member->type()) {
-              cur_archive = member;
-              file_offset = nested_offset;
-              continue;
-          }
-
-          // insert a node into the subtree of current archive.
-          Archive::ArchiveMember* parent =
-            pArchive.getArchiveMember(cur_archive->name());
-
-          assert(NULL != parent);
-          pArchive.inputs().insert(parent->lastPos, *(parent->move), *member);
-
-          // move the iterator to new created node, and also adjust the
-          // direction to Afterward for next insertion in this subtree
-          parent->move->move(parent->lastPos);
-          parent->move = &InputTree::Afterward;
-
-          if (m_ELFObjectReader.isMyFormat(*member)) {
-            member->setType(Input::Object);
-            pArchive.addObjectMember(pArchive.getObjFileOffset(idx),
-                                     parent->lastPos);
-            m_ELFObjectReader.readObject(*member);
-            m_ELFObjectReader.readSections(*member);
-            m_ELFObjectReader.readSymbols(*member);
-          }
-          else if (isMyFormat(*member)) {
-            member->setType(Input::Archive);
-            // when adding a new archive node, set the iterator to archive
-            // itself, and set the direction to Downward
-            pArchive.addArchiveMember(member->name(),
-                                      parent->lastPos,
-                                      &InputTree::Downward);
-            cur_archive = member;
-            file_offset = nested_offset;
-          }
-        } // end of while
+        // include the object member from the given offset
+        includeMember(pArchive, pArchive.getObjFileOffset(idx));
         willSymResolved = true;
       } // end of if
     } // end of for
@@ -189,10 +141,12 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
 /// @param pArchiveFile  - the archive that contains the needed object
 /// @param pFileOffset   - file offset of the member header in the archive
 /// @param pNestedOffset - used when we find a nested archive
+/// @param pMemberSize   - the file size of this member
 Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
                                           Input& pArchiveFile,
                                           uint32_t pFileOffset,
-                                          uint32_t& pNestedOffset)
+                                          uint32_t& pNestedOffset,
+                                          size_t& pMemberSize)
 {
   assert(pArchiveFile.hasMemArea());
 
@@ -204,7 +158,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
 
   assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
 
-  // int size = atoi(header->size);
+  pMemberSize = atoi(header->size);
 
   // parse the member name and nested offset if any
   std::string member_name;
@@ -390,5 +344,65 @@ GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
     return Archive::Symbol::Include;
   }
   return Archive::Symbol::Unknown;
+}
+
+/// includeMember - include the object member in the given file offset, and
+/// return the size of the object
+/// @param pArchiveRoot - the archive root
+/// @param pFileOffset  - file offset of the member header in the archive
+size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
+{
+  Input* cur_archive = &(pArchive.getARFile());
+  Input* member = NULL;
+  uint32_t file_offset = pFileOffset;
+  size_t size = 0;
+  do {
+    uint32_t nested_offset = 0;
+    // use the file offset in current archive to find out the member we
+    // want to include
+    member = readMemberHeader(pArchive,
+                              *cur_archive,
+                              file_offset,
+                              nested_offset,
+                              size);
+    assert(member != NULL);
+    // bypass if we get an archive that is already in the map
+    if (Input::Archive == member->type()) {
+        cur_archive = member;
+        file_offset = nested_offset;
+        continue;
+    }
+
+    // insert a node into the subtree of current archive.
+    Archive::ArchiveMember* parent =
+      pArchive.getArchiveMember(cur_archive->name());
+
+    assert(NULL != parent);
+    pArchive.inputs().insert(parent->lastPos, *(parent->move), *member);
+
+    // move the iterator to new created node, and also adjust the
+    // direction to Afterward for next insertion in this subtree
+    parent->move->move(parent->lastPos);
+    parent->move = &InputTree::Afterward;
+
+    if (m_ELFObjectReader.isMyFormat(*member)) {
+      member->setType(Input::Object);
+      pArchive.addObjectMember(pFileOffset, parent->lastPos);
+      m_ELFObjectReader.readObject(*member);
+      m_ELFObjectReader.readSections(*member);
+      m_ELFObjectReader.readSymbols(*member);
+    }
+    else if (isMyFormat(*member)) {
+      member->setType(Input::Archive);
+      // when adding a new archive node, set the iterator to archive
+      // itself, and set the direction to Downward
+      pArchive.addArchiveMember(member->name(),
+                                parent->lastPos,
+                                &InputTree::Downward);
+      cur_archive = member;
+      file_offset = nested_offset;
+    }
+  } while (Input::Object != member->type());
+  return size;
 }
 

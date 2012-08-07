@@ -60,10 +60,12 @@ private:
   /// @param pArchiveFile  - the archive that contains the needed object
   /// @param pFileOffset   - file offset of the member header in the archive
   /// @param pNestedOffset - used when we find a nested archive
+  /// @param pMemberSize   - the file size of this member
   Input* readMemberHeader(Archive& pArchiveRoot,
                           Input& pArchiveFile,
                           uint32_t pFileOffset,
-                          uint32_t& pNestedOffset);
+                          uint32_t& pNestedOffset,
+                          size_t& pMemberSize);
 
   /// readSymbolTable - read the archive symbol map (armap)
   bool readSymbolTable(Archive& pArchive);
@@ -75,6 +77,12 @@ private:
   /// include the corresponding archive member, and then return the decision
   enum Archive::Symbol::Status
   shouldIncludeSymbol(const llvm::StringRef& pSymName) const;
+
+  /// includeMember - include the object member in the given file offset, and
+  /// return the size of the object
+  /// @param pArchiveRoot - the archive root
+  /// @param pFileOffset  - file offset of the member header in the archive
+  size_t includeMember(Archive& pArchiveRoot, uint32_t pFileOffset);
 
 private:
   MCLDInfo& m_LDInfo;
