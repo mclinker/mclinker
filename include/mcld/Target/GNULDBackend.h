@@ -65,8 +65,7 @@ public:
   virtual ~GNULDBackend();
 
   // -----  readers/writers  ----- //
-  bool initArchiveReader(MCLinker& pLinker,
-                         MCLDInfo& pInfo,
+  bool initArchiveReader(MCLDInfo& pInfo,
                          MemoryAreaFactory& pMemAreaFactory);
   bool initObjectReader(MCLinker& pLinker);
   bool initDynObjReader(MCLinker& pLinker);

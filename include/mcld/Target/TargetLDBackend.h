@@ -75,8 +75,7 @@ public:
                               const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
-  virtual bool initArchiveReader(MCLinker&,
-                                 MCLDInfo&,
+  virtual bool initArchiveReader(MCLDInfo&,
                                  MemoryAreaFactory&) = 0;
   virtual bool initObjectReader(MCLinker&) = 0;
   virtual bool initDynObjReader(MCLinker&) = 0;

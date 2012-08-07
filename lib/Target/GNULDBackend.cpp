@@ -104,8 +104,7 @@ uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
     return defaultTextSegmentAddr();
 }
 
-bool GNULDBackend::initArchiveReader(MCLinker& pLinker,
-                                     MCLDInfo& pInfo,
+bool GNULDBackend::initArchiveReader(MCLDInfo& pInfo,
                                      MemoryAreaFactory& pMemAreaFactory)
 {
   if (NULL == m_pArchiveReader) {
