@@ -26,3 +26,5 @@
   generate shared object with -z execstack/noexecstack.
 11) opt_nooption.ll
   empty options.
+12) opt_shared_w_as_needed
+  generate shared object with --as-needed/--no-as-needed

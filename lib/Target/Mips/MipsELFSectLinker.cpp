@@ -19,11 +19,12 @@ MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
   MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes
   info.attrFactory().constraint().enableWholeArchive();
-  info.attrFactory().constraint().disableAsNeeded();
+  info.attrFactory().constraint().enableAsNeeded();
   info.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
   info.attrFactory().predefined().unsetWholeArchive();
+  info.attrFactory().predefined().unsetAsNeeded();
   info.attrFactory().predefined().setDynamic();
 }
 
