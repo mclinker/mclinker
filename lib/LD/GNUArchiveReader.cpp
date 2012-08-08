@@ -159,13 +159,13 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
-  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
   pMemberSize = atoi(header->size);
 
   // parse the member name and nested offset if any
   std::string member_name;
-  llvm::StringRef name_field(header->name, 16);
+  llvm::StringRef name_field(header->name, sizeof(header->name));
   if ('/' != header->name[0]) {
     // this is an object file in an archive
     size_t pos = name_field.find_first_of('/');
@@ -255,7 +255,7 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
                                             sizeof(Archive::MemberHeader));
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
-  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
   int symtab_size = atoi(header->size);
   pArchive.setSymTabSize(symtab_size);
@@ -315,9 +315,9 @@ bool GNUArchiveReader::readStringTable(Archive& pArchive)
   const Archive::MemberHeader* header =
     reinterpret_cast<const Archive::MemberHeader*>(header_region->getBuffer());
 
-  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, 2));
+  assert(0 == memcmp(header->fmag, Archive::MEMBER_MAGIC, sizeof(header->fmag)));
 
-  if (0 == memcmp(header->name, Archive::STRTAB_NAME, 16)) {
+  if (0 == memcmp(header->name, Archive::STRTAB_NAME, sizeof(header->name))) {
     // read the extended name table
     int strtab_size = atoi(header->size);
     MemoryRegion* strtab_region =
