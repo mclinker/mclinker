@@ -13,7 +13,9 @@
 #endif
 #include <vector>
 
+#include <llvm/Support/Host.h>
 #include <mcld/ADT/TypeTraits.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/CIE.h>
 #include <mcld/LD/FDE.h>
 #include <mcld/LD/RegionFragment.h>
@@ -44,20 +46,18 @@ public:
   typedef FDEListType::const_iterator const_fde_iterator;
 
 public:
-  EhFrame();
+  EhFrame(bool isTargetLittleEndian);
   ~EhFrame();
 
   /// readEhFrame - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
-  /// @param pSD - the SectionData of this input eh_frame
+  /// @param pInput - the Input contains this eh_frame
   /// @param pSection - the input eh_frame
-  /// @param pArea - the memory area which pSection is within.
-  /// @ return - size of this eh_frame section, 0 if we do not recognize
-  /// this eh_frame or this is an empty section
+  /// @return - size of this eh_frame section
   size_t read(Layout& pLayout,
-              const TargetLDBackend& pBackend,
               Input& pInput,
-              LDSection& pSection);
+              LDSection& pSection,
+              unsigned int pBitclass);
 
   // ----- observers ----- //
   cie_iterator cie_begin()
@@ -114,25 +114,21 @@ private:
 
 private:
   Result parse(Layout& pLayout,
-               const TargetLDBackend& pBackend,
                Input& pInput,
                LDSection& pSection,
+               unsigned int pBitclass,
                size_t& pSize);
 
   /// addCIE - parse and create a CIE entry
   /// @return false - cannot recognize this CIE
   bool addCIE(MemoryRegion& pFrag,
-              const TargetLDBackend& pBackend,
-              FragListType& pFragList);
+              FragListType& pFragList,
+              unsigned int pBitclass);
 
   /// addFDE - parse and create an FDE entry
   /// @return false - cannot recognize this FDE
   bool addFDE(MemoryRegion& pFrag,
-              const TargetLDBackend& pBackend,
               FragListType& pFragList);
-
-  /// readVal - read a 32 bit data from pAddr, swap it if needed
-  uint32_t readVal(ConstAddress pAddr, bool pIsTargetLittleEndian);
 
   /// skipLEB128 - skip the first LEB128 encoded value from *pp, update *pp
   /// to the next character.
@@ -143,11 +139,66 @@ private:
   /// deleteFragments - release the MemoryRegion and delete Fragments in pList
   void deleteFragments(FragListType& pList, MemoryArea& pArea);
 
+  /** \class ReadValIF
+   *  \brief ReadValIF provides interface for ReadVal
+   */
+  class ReadValIF
+  {
+  public:
+    virtual ~ReadValIF() {}
+    virtual uint32_t operator()(ConstAddress pAddr) = 0;
+  };
+
+  /** \class ReadVal
+   *  \brief ReadVal is a template scaffolding for partial specification
+   */
+  template<bool NEEDSWAP>
+  class ReadVal
+  { };
+
 private:
   CIEListType m_CIEs;
   FDEListType m_FDEs;
 
   bool m_fTreatAsRegularSection;
+
+  /// m_pReadVal - a functor of ReadVal
+  /// use (*m_pReadVal)(pAddr) to read a 32 bit data from pAddr
+  ReadValIF* m_pReadVal;
+};
+
+/** \class ReadVal<true>
+ *  \brief ReadVal<true> provides operator to read 32 bit value from the
+ *   given pointer and swap it
+ */
+template<>
+class EhFrame::ReadVal<true> : public ReadValIF
+{
+public:
+  ~ReadVal() {}
+  uint32_t operator()(ConstAddress pAddr) {
+    const uint32_t* p = reinterpret_cast<const uint32_t*>(pAddr);
+    uint32_t val = *p;
+    // need swap because the host and target have different endian
+    val = bswap32(val);
+    return val;
+  }
+};
+
+/** \class ReadVal<false>
+ *  \brief ReadVal<false> provides operator to read 32 bit value from the
+ *   given pointer
+ */
+template<>
+class EhFrame::ReadVal<false> : public ReadValIF
+{
+public:
+  ~ReadVal() {}
+  uint32_t operator()(ConstAddress pAddr) {
+    const uint32_t* p = reinterpret_cast<const uint32_t*>(pAddr);
+    uint32_t val = *p;
+    return val;
+  }
 };
 
 } // namespace of mcld

@@ -216,8 +216,8 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
     // read eh_frame if the option --eh-frame-hdr is given
     EhFrame* ehframe = m_Backend.getEhFrame();
     assert(NULL != ehframe);
-    size = ehframe->read(pLinker.getLayout(), m_Backend, pInput,
-                         pInputSectHdr);
+    size = ehframe->read(pLinker.getLayout(), pInput,
+                         pInputSectHdr, m_Backend.bitclass());
   }
   else {
     // handle eh_frame as a regular section

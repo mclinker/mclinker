@@ -7,11 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/LD/EhFrame.h>
-
-#include <llvm/Support/Dwarf.h>
 #include <llvm/Support/Host.h>
-
+#include <llvm/Support/Dwarf.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -21,24 +19,30 @@ using namespace mcld;
 
 //==========================
 // EhFrame
-EhFrame::EhFrame()
+EhFrame::EhFrame(bool isTargetLittleEndian)
  : m_fTreatAsRegularSection(false) {
+  if (llvm::sys::isLittleEndianHost() == isTargetLittleEndian)
+    m_pReadVal = new ReadVal<false>();
+  else
+    m_pReadVal = new ReadVal<true>();
 }
 
 EhFrame::~EhFrame()
 {
+  if (NULL != m_pReadVal)
+    delete m_pReadVal;
 }
 
 size_t EhFrame::read(Layout& pLayout,
-                     const TargetLDBackend& pBackend,
                      Input& pInput,
-                     LDSection& pSection)
+                     LDSection& pSection,
+                     unsigned int pBitclass)
 {
   size_t sect_size = 0;
   Result result = None;
 
   if (!treatAsRegularSection()) {
-    result = parse(pLayout, pBackend, pInput, pSection, sect_size);
+    result = parse(pLayout, pInput, pSection, pBitclass, sect_size);
     if (Fail == result) {
       // fail to parse one eh_frame, then we don't need to parse the rest of
       // eh_frame sections if there is any
@@ -67,9 +71,9 @@ size_t EhFrame::read(Layout& pLayout,
 }
 
 EhFrame::Result EhFrame::parse(Layout& pLayout,
-                               const TargetLDBackend& pBackend,
                                Input& pInput,
                                LDSection& pSection,
+                               unsigned int pBitclass,
                                size_t& pSize)
 {
   MemoryRegion* region = pInput.memArea()->request(
@@ -84,7 +88,7 @@ EhFrame::Result EhFrame::parse(Layout& pLayout,
   ConstAddress p = eh_start;
 
   // read the Length filed
-  uint32_t len = readVal(p, pBackend.isLittleEndian());
+  uint32_t len = (*m_pReadVal)(p);
 
   // This CIE is a terminator if the Length field is 0, return false to handled
   // it as an ordinary input.
@@ -111,7 +115,7 @@ EhFrame::Result EhFrame::parse(Layout& pLayout,
       break;
     }
     // read the Length field
-    len = readVal(p, pBackend.isLittleEndian());
+    len = (*m_pReadVal)(p);
     p += 4;
 
     // the zero length entry should be the end of the section
@@ -139,10 +143,10 @@ EhFrame::Result EhFrame::parse(Layout& pLayout,
                 pInput.fileOffset() + pSection.offset() + ent_offset, len + 4);
 
     // create and add a CIE or FDE entry
-    uint32_t id = readVal(p, pBackend.isLittleEndian());
+    uint32_t id = (*m_pReadVal)(p);
     // CIE
     if (0 == id) {
-      if (!addCIE(*ent_region, pBackend, frag_list)) {
+      if (!addCIE(*ent_region, frag_list, pBitclass)) {
         pInput.memArea()->release(ent_region);
         break;
       }
@@ -150,7 +154,7 @@ EhFrame::Result EhFrame::parse(Layout& pLayout,
 
     // FDE
     else {
-      if (!addFDE(*ent_region, pBackend, frag_list)) {
+      if (!addFDE(*ent_region, frag_list)) {
         pInput.memArea()->release(ent_region);
         break;
       }
@@ -178,8 +182,8 @@ EhFrame::Result EhFrame::parse(Layout& pLayout,
 }
 
 bool EhFrame::addCIE(MemoryRegion& pRegion,
-                     const TargetLDBackend& pBackend,
-                     FragListType& pFragList)
+                     FragListType& pFragList,
+                     unsigned int pBitclass)
 {
   ConstAddress cie_start = pRegion.start();
   ConstAddress cie_end = pRegion.end();
@@ -276,7 +280,7 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
               per_length = 8;
               break;
             case llvm::dwarf::DW_EH_PE_absptr:
-              per_length = pBackend.bitclass() / 8;
+              per_length = pBitclass / 8;
               break;
           }
           // skip the alignment
@@ -332,7 +336,6 @@ bool EhFrame::addCIE(MemoryRegion& pRegion,
 }
 
 bool EhFrame::addFDE(MemoryRegion& pRegion,
-                     const TargetLDBackend& pBackend,
                      FragListType& pFragList)
 {
   ConstAddress fde_start = pRegion.start();
@@ -354,17 +357,6 @@ bool EhFrame::addFDE(MemoryRegion& pRegion,
   m_FDEs.push_back(entry);
   pFragList.push_back(static_cast<Fragment*>(entry));
   return true;
-}
-
-uint32_t EhFrame::readVal(ConstAddress pAddr, bool pIsTargetLittleEndian)
-{
-  const uint32_t* p = reinterpret_cast<const uint32_t*>(pAddr);
-  uint32_t val = *p;
-
-  // byte swapping if the host and target have different endian
-  if (llvm::sys::isLittleEndianHost() != pIsTargetLittleEndian)
-    val = bswap32(val);
-  return val;
 }
 
 bool EhFrame::skipLEB128(ConstAddress* pp, ConstAddress pend)

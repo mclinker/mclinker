@@ -26,7 +26,7 @@ TargetLDBackend::~TargetLDBackend()
 EhFrame* TargetLDBackend::getEhFrame()
 {
   if (NULL == m_pEhFrame)
-    m_pEhFrame = new EhFrame();
+    m_pEhFrame = new EhFrame(isLittleEndian());
   return m_pEhFrame;
 }
 
