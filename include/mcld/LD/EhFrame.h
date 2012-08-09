@@ -13,7 +13,6 @@
 #endif
 #include <vector>
 
-#include <llvm/Support/Host.h>
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/CIE.h>
