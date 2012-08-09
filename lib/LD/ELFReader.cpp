@@ -208,13 +208,37 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
                               MCLinker& pLinker,
                               LDSection& pInputSectHdr) const
 {
+  // create SectionData of this eh_frame
+  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+
+  size_t size = 0;
+  if (pLinker.getLDInfo().options().hasEhFrameHdr()) {
+    // read eh_frame if the option --eh-frame-hdr is given
+    EhFrame* ehframe = m_Backend.getEhFrame();
+    assert(NULL != ehframe);
+    size = ehframe->read(pLinker.getLayout(), m_Backend, pInput,
+                         pInputSectHdr);
+  }
+  else {
+    // handle eh_frame as a regular section
+    MemoryRegion* region = pInput.memArea()->request(
+           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
+    Fragment* frag = NULL;
+    if (NULL == region) {
+      // If the input section's size is zero, we got a NULL region.
+      // use a virtual fill fragment
+      frag = new FillFragment(0x0, 0, 0);
+    }
+    else
+      frag = new RegionFragment(*region);
+    size = pLinker.getLayout().appendFragment(*frag, sect_data, pInputSectHdr.align());
+  }
+
+  // create output section for eh_frame
   LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
                                                          pInputSectHdr.kind(),
                                                          pInputSectHdr.type(),
                                                          pInputSectHdr.flag());
-
-  size_t size = pLinker.addEhFrame(pInput, pInputSectHdr, *pInput.memArea());
-
   out_sect.setSize(out_sect.size() + size);
   return true;
 }

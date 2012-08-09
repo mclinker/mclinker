@@ -140,15 +140,6 @@ public:
   /// getOrCreateSectData - for reader to map and perform section merging immediately
   SectionData& getOrCreateSectData(LDSection& pSection);
 
-  // -----  eh_frame sections  ----- //
-  /// addEhFrame - add an exception handling section
-  /// @param pInput - the Input contains this section
-  /// @param pSection - the input section
-  /// @param pArea - the memory area which pSection is within.
-  uint64_t addEhFrame(const Input& pInput,
-                      LDSection& pSection,
-                      MemoryArea& pArea);
-
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in MCLinker (only for object file)
   /// @param pType - the type of the relocation

@@ -54,12 +54,10 @@ public:
   /// @param pArea - the memory area which pSection is within.
   /// @ return - size of this eh_frame section, 0 if we do not recognize
   /// this eh_frame or this is an empty section
-  uint64_t readEhFrame(Layout& pLayout,
-                       const TargetLDBackend& pBackend,
-                       SectionData& pSD,
-                       const Input& pInput,
-                       LDSection& pSection,
-                       MemoryArea& pArea);
+  size_t read(Layout& pLayout,
+              const TargetLDBackend& pBackend,
+              Input& pInput,
+              LDSection& pSection);
 
   // ----- observers ----- //
   cie_iterator cie_begin()
@@ -93,20 +91,34 @@ public:
   size_t getFDECount() const
   { return m_FDEs.size(); }
 
-  /// canRecognizeAllEhFrame - return if we are able to parse all input
-  /// eh_frame sections
-  /// @return false - if there is any input .eh_frame section that
-  /// we are not able to recognize
-  bool canRecognizeAllEhFrame()
-  { return m_fCanRecognizeAll; }
+  /// shouldTreatAsRegularSection - if we should treat eh_frame as regular
+  /// sections
+  /// @return true - there is any input .eh_frame section that we are not
+  /// able to recognize and should treat the eh_frame sections as regular
+  /// sections
+  bool treatAsRegularSection()
+  { return m_fTreatAsRegularSection; }
 
-  bool canRecognizeAllEhFrame() const
-  { return m_fCanRecognizeAll; }
+  bool treatAsRegularSection() const
+  { return m_fTreatAsRegularSection; }
 
 private:
   typedef std::vector<Fragment*> FragListType;
 
+  enum Result {
+    None,
+    Success,
+    Fail,
+    Terminator
+  };
+
 private:
+  Result parse(Layout& pLayout,
+               const TargetLDBackend& pBackend,
+               Input& pInput,
+               LDSection& pSection,
+               size_t& pSize);
+
   /// addCIE - parse and create a CIE entry
   /// @return false - cannot recognize this CIE
   bool addCIE(MemoryRegion& pFrag,
@@ -135,7 +147,7 @@ private:
   CIEListType m_CIEs;
   FDEListType m_FDEs;
 
-  bool m_fCanRecognizeAll;
+  bool m_fTreatAsRegularSection;
 };
 
 } // namespace of mcld

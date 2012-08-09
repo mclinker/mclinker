@@ -40,7 +40,7 @@ EhFrameHdr::~EhFrameHdr()
 void EhFrameHdr::sizeOutput()
 {
   size_t size = 12;
-  if (m_EhFrameData.canRecognizeAllEhFrame()) {
+  if (!m_EhFrameData.treatAsRegularSection()) {
     size_t fde_count = m_EhFrameData.getFDECount();
     size += 8 * fde_count;
   }

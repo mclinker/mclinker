@@ -12,6 +12,7 @@
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/Host.h>
 
+#include <mcld/LD/FillFragment.h>
 #include <mcld/MC/MCLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
@@ -21,25 +22,61 @@ using namespace mcld;
 //==========================
 // EhFrame
 EhFrame::EhFrame()
- : m_fCanRecognizeAll(true) {
+ : m_fTreatAsRegularSection(false) {
 }
 
 EhFrame::~EhFrame()
 {
 }
 
-uint64_t EhFrame::readEhFrame(Layout& pLayout,
-                              const TargetLDBackend& pBackend,
-                              SectionData& pSD,
-                              const Input& pInput,
-                              LDSection& pSection,
-                              MemoryArea& pArea)
+size_t EhFrame::read(Layout& pLayout,
+                     const TargetLDBackend& pBackend,
+                     Input& pInput,
+                     LDSection& pSection)
 {
-  MemoryRegion* region = pArea.request(
+  size_t sect_size = 0;
+  Result result = None;
+
+  if (!treatAsRegularSection()) {
+    result = parse(pLayout, pBackend, pInput, pSection, sect_size);
+    if (Fail == result) {
+      // fail to parse one eh_frame, then we don't need to parse the rest of
+      // eh_frame sections if there is any
+      m_fTreatAsRegularSection = true;
+    }
+  }
+
+  if (Success != result) {
+    // handle this eh_frame as a regular section
+    MemoryRegion* region = pInput.memArea()->request(
+                     pInput.fileOffset() + pSection.offset(), pSection.size());
+    Fragment* frag = NULL;
+    if (NULL == region) {
+      // If the input section's size is zero, we got a NULL region.
+      // use a virtual fill fragment
+      frag = new FillFragment(0x0, 0, 0);
+    }
+    else
+      frag = new RegionFragment(*region);
+    SectionData* sect_data = pSection.getSectionData();
+    assert(NULL != sect_data);
+    sect_size = pLayout.appendFragment(*frag, *sect_data, pSection.align());
+  }
+
+  return sect_size;
+}
+
+EhFrame::Result EhFrame::parse(Layout& pLayout,
+                               const TargetLDBackend& pBackend,
+                               Input& pInput,
+                               LDSection& pSection,
+                               size_t& pSize)
+{
+  MemoryRegion* region = pInput.memArea()->request(
                      pInput.fileOffset() + pSection.offset(), pSection.size());
   // an empty .eh_frame
   if (NULL == region) {
-    return 0;
+    return Terminator;
   }
 
   ConstAddress eh_start = region->start();
@@ -49,20 +86,20 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
   // read the Length filed
   uint32_t len = readVal(p, pBackend.isLittleEndian());
 
-  // This CIE is a terminator if the Length field is 0, return 0 to handled it
-  // as an ordinary input.
+  // This CIE is a terminator if the Length field is 0, return false to handled
+  // it as an ordinary input.
   if (0 == len) {
-    pArea.release(region);
-    return 0;
+    pInput.memArea()->release(region);
+    return Terminator;
   }
 
   if (0xffffffff == len) {
     debug(diag::debug_eh_unsupport) << pInput.name();
-    pArea.release(region);
-    m_fCanRecognizeAll = false;
-    return 0;
+    pInput.memArea()->release(region);
+    return Fail;
   }
 
+  Result res = Success;
   // record the order of the CIE and FDE fragments
   FragListType frag_list;
 
@@ -70,7 +107,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
 
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) << pInput.name();
-      m_fCanRecognizeAll = false;
+      res = Fail;
       break;
     }
     // read the Length field
@@ -81,19 +118,16 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     if (0 == len) {
       if (p < eh_end) {
         debug(diag::debug_eh_unsupport) << pInput.name();
-        m_fCanRecognizeAll = false;
       }
       break;
     }
     if (0xffffffff == len) {
       debug(diag::debug_eh_unsupport) << pInput.name();
-      m_fCanRecognizeAll = false;
       break;
     }
 
     if (eh_end - p < 4) {
       debug(diag::debug_eh_unsupport) << pInput.name();
-      m_fCanRecognizeAll = false;
       break;
     }
 
@@ -101,7 +135,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     uint32_t ent_offset = static_cast<uint32_t>(p - eh_start - 4);
 
     // get the MemoryRegion for this entry
-    MemoryRegion* ent_region = pArea.request(
+    MemoryRegion* ent_region = pInput.memArea()->request(
                 pInput.fileOffset() + pSection.offset() + ent_offset, len + 4);
 
     // create and add a CIE or FDE entry
@@ -109,8 +143,7 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     // CIE
     if (0 == id) {
       if (!addCIE(*ent_region, pBackend, frag_list)) {
-        m_fCanRecognizeAll = false;
-        pArea.release(ent_region);
+        pInput.memArea()->release(ent_region);
         break;
       }
     }
@@ -118,30 +151,30 @@ uint64_t EhFrame::readEhFrame(Layout& pLayout,
     // FDE
     else {
       if (!addFDE(*ent_region, pBackend, frag_list)) {
-        m_fCanRecognizeAll = false;
-        pArea.release(ent_region);
+        pInput.memArea()->release(ent_region);
         break;
       }
     }
     p += len;
   }
 
-  if (!m_fCanRecognizeAll) {
+  if (Fail == res) {
     debug(diag::debug_eh_unsupport) << pInput.name();
-    pArea.release(region);
-    deleteFragments(frag_list, pArea);
-    return 0;
+    pInput.memArea()->release(region);
+    deleteFragments(frag_list, *pInput.memArea());
+    return Fail;
   }
 
   // append all CIE and FDE fragments to Layout after we successfully read
   // this eh_frame
-  size_t section_size = 0;
+  SectionData* sect_data = pSection.getSectionData();
+  assert(NULL != sect_data);
   for (FragListType::iterator it = frag_list.begin();
          it != frag_list.end(); ++it)
-    section_size += pLayout.appendFragment(**it, pSD, pSection.align());
+    pSize += pLayout.appendFragment(**it, *sect_data, pSection.align());
 
-  pArea.release(region);
-  return section_size;
+  pInput.memArea()->release(region);
+  return Success;
 }
 
 bool EhFrame::addCIE(MemoryRegion& pRegion,

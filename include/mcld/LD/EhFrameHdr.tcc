@@ -38,7 +38,7 @@ void EhFrameHdr::emitOutput(Output& pOutput, MCLinker& pLinker)
   *fde_count = m_EhFrameData.getFDECount();
 
   if (m_EhFrameData.getFDECount() != 0 &&
-      m_EhFrameData.canRecognizeAllEhFrame()) {
+      !m_EhFrameData.treatAsRegularSection()) {
     // fde_count_enc
     data[2] = DW_EH_PE_udata4;
     // table_enc
