@@ -16,7 +16,6 @@
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
@@ -33,8 +32,7 @@ using namespace mcld::test;
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pDriver(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
-    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pRegionFactory(NULL),
-    m_pMemAreaFactory(NULL) {
+    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pMemAreaFactory(NULL) {
 }
 
 TestLinker::~TestLinker()
@@ -52,7 +50,6 @@ TestLinker::~TestLinker()
   delete m_pDiagLineInfo;
   delete m_pDiagPrinter;
   delete m_pBackend;
-  delete m_pRegionFactory;
   delete m_pMemAreaFactory;
 }
 
@@ -74,9 +71,6 @@ bool TestLinker::initialize(const std::string &pTriple)
   // create mcld::MCLDInfo
   m_pInfo = new MCLDInfo(pTriple, 1, 32);
   m_Root = m_pInfo->inputs().root();
-
-  // create mcld::RegionFactory
-  m_pRegionFactory = new mcld::RegionFactory(32);
 
   // specify mcld::Target
   std::string error;
@@ -155,7 +149,7 @@ void TestLinker::addObject(const std::string &pPath)
                                       << mcld::sys::strerror(handler->error());
   }
 
-  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  mcld::MemoryArea* input_memory = new MemoryArea(*handler);
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
@@ -173,7 +167,7 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
   advanceRoot();
 
   mcld::Space* space = new mcld::Space(mcld::Space::EXTERNAL, pMemBuffer, pSize);
-  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *space);
+  mcld::MemoryArea* input_memory = new MemoryArea(*space);
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
@@ -194,7 +188,7 @@ void TestLinker::addObject(int pFileHandler)
   m_FileHandleList.push_back(handler);
   handler->delegate(pFileHandler);
 
-  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  mcld::MemoryArea* input_memory = new MemoryArea(*handler);
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
@@ -249,7 +243,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
                                       << mcld::sys::strerror(handler->error());
   }
 
-  mcld::MemoryArea* input_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  mcld::MemoryArea* input_memory = new MemoryArea(*handler);
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
@@ -274,7 +268,7 @@ bool TestLinker::setOutput(const std::string &pPath)
                                       << mcld::sys::strerror(handler->error());
   }
 
-  mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  mcld::MemoryArea* output_memory = new MemoryArea(*handler);
   m_pInfo->output().setMemArea(output_memory);
   m_MemAreaList.push_back(output_memory);
 
@@ -300,7 +294,7 @@ bool TestLinker::setOutput(int pFileHandler)
   handler->delegate(pFileHandler);
   m_FileHandleList.push_back(handler);
 
-  mcld::MemoryArea* output_memory = new MemoryArea(*m_pRegionFactory, *handler);
+  mcld::MemoryArea* output_memory = new MemoryArea(*handler);
   m_pInfo->output().setMemArea(output_memory);
   m_MemAreaList.push_back(output_memory);
 

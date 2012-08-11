@@ -6,11 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_REGION_FACTORY_H
-#define MCLD_REGION_FACTORY_H
+#ifndef MCLD_SUPPORT_REGION_FACTORY_H
+#define MCLD_SUPPORT_REGION_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Config/Config.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
@@ -25,13 +26,13 @@ class MemoryArea;
  *  \brief RegionFactory produces and destroys MemoryRegions
  *
  */
-class RegionFactory : public GCFactory<MemoryRegion, 0>
+class RegionFactory : public GCFactory<MemoryRegion, MCLD_REGION_CHUNK_SIZE>
 {
 public:
-  typedef GCFactory<MemoryRegion, 0> Alloc;
+  typedef GCFactory<MemoryRegion, MCLD_REGION_CHUNK_SIZE> Alloc;
 
 public:
-  RegionFactory(size_t pNum);
+  RegionFactory();
   ~RegionFactory();
 
   // ----- production ----- //

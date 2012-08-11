@@ -11,6 +11,7 @@
 
 #define @MCLD_ON_PLATFORM@ 1
 #define MCLD_VERSION "@MCLD_VERSION@"
+#define MCLD_REGION_CHUNK_SIZE 32
 
 #endif
 

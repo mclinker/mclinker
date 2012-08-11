@@ -12,10 +12,11 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // RegionFactory
-RegionFactory::RegionFactory(size_t pNum)
-  : GCFactory<MemoryRegion, 0>(pNum) {
+//===----------------------------------------------------------------------===//
+RegionFactory::RegionFactory()
+{
 }
 
 RegionFactory::~RegionFactory()

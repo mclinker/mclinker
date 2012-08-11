@@ -10,12 +10,17 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // MemoryRegion
+//===----------------------------------------------------------------------===//
+MemoryRegion::MemoryRegion()
+  : m_pParent(NULL), m_VMAStart(0), m_Length(0) {
+}
+
 MemoryRegion::MemoryRegion(Space& pParent,
                            MemoryRegion::Address pVMAStart,
                            size_t pSize)
-  : m_Parent(pParent), m_VMAStart(pVMAStart), m_Length(pSize) {
+  : m_pParent(&pParent), m_VMAStart(pVMAStart), m_Length(pSize) {
 }
 
 MemoryRegion::~MemoryRegion()

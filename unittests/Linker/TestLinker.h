@@ -107,7 +107,6 @@ private:
   mcld::DiagnosticPrinter* m_pDiagPrinter;
   mcld::TargetLDBackend* m_pBackend;
   mcld::InputTree::iterator m_Root;
-  mcld::RegionFactory* m_pRegionFactory;
   mcld::MemoryAreaFactory* m_pMemAreaFactory;
 
   std::list<mcld::FileHandle*> m_FileHandleList;
