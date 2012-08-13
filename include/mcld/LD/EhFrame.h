@@ -45,10 +45,10 @@ public:
   typedef FDEListType::const_iterator const_fde_iterator;
 
 public:
-  EhFrame(bool isTargetLittleEndian);
+  EhFrame(bool isLittleEndianTarget);
   ~EhFrame();
 
-  /// readEhFrame - read an .eh_frame section and create the corresponding
+  /// read - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
   /// @param pInput - the Input contains this eh_frame
   /// @param pSection - the input eh_frame
@@ -87,10 +87,11 @@ public:
   size_t getFDECount()
   { return m_FDEs.size(); }
 
+  /// getFDECount - the number of FDE entries
   size_t getFDECount() const
   { return m_FDEs.size(); }
 
-  /// shouldTreatAsRegularSection - if we should treat eh_frame as regular
+  /// treatAsRegularSection - if we should treat eh_frame as regular
   /// sections
   /// @return true - there is any input .eh_frame section that we are not
   /// able to recognize and should treat the eh_frame sections as regular
@@ -104,42 +105,57 @@ public:
 private:
   typedef std::vector<Fragment*> FragListType;
 
-  enum Result {
-    None,
-    Success,
-    Fail,
-    Terminator
+  /// State - the return state of an Action. It is used to determine the next
+  /// action function. Each State corresponds to an action function except
+  /// 'Stop' state
+  enum State {
+    Start         = 0,
+    CheckFirstCIE = 1,
+    ParseEntry    = 2,
+    AddCIE        = 3,
+    AddFDE        = 4,
+    Fail          = 5,
+    Success       = 6,
+    ReadRegular   = 7,
+    Stop
   };
 
-private:
-  Result parse(Layout& pLayout,
-               Input& pInput,
-               LDSection& pSection,
-               unsigned int pBitclass,
-               size_t& pSize);
+  /// Package - collect all needed data used by every actions so that they can
+  /// share this data
+  struct Package {
+    Package(Layout& pLayout,
+            Input& pInput,
+            LDSection& pSection,
+            unsigned int pBitclass)
+      : layout(pLayout),
+        input(pInput),
+        section(pSection),
+        bitclass(pBitclass),
+        sectCur(0x0),
+        sectStart(0x0),
+        sectEnd(0x0),
+        sectionRegion(NULL),
+        entryRegion(NULL),
+        sectSize(0x0) {
+    }
 
-  /// addCIE - parse and create a CIE entry
-  /// @return false - cannot recognize this CIE
-  bool addCIE(MemoryRegion& pFrag,
-              FragListType& pFragList,
-              unsigned int pBitclass);
-
-  /// addFDE - parse and create an FDE entry
-  /// @return false - cannot recognize this FDE
-  bool addFDE(MemoryRegion& pFrag,
-              FragListType& pFragList);
-
-  /// skipLEB128 - skip the first LEB128 encoded value from *pp, update *pp
-  /// to the next character.
-  /// @return - false if we ran off the end of the string.
-  /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
-  bool skipLEB128(ConstAddress* pp, ConstAddress pend);
-
-  /// deleteFragments - release the MemoryRegion and delete Fragments in pList
-  void deleteFragments(FragListType& pList, MemoryArea& pArea);
+    Layout& layout;
+    Input& input;
+    LDSection& section;
+    unsigned int bitclass;
+    ConstAddress sectCur;
+    ConstAddress sectStart;
+    ConstAddress sectEnd;
+    FragListType fragList;
+    MemoryRegion* sectionRegion;
+    MemoryRegion* entryRegion;
+    size_t sectSize;
+  };
+  typedef struct Package PackageType;
 
   /** \class ReadValIF
-   *  \brief ReadValIF provides interface for ReadVal
+   *  \brief ReadValIF provides interface for ReadVal, which is used to read
+   *   32 bit value from given context, see @ref m_pReadVal
    */
   class ReadValIF
   {
@@ -154,6 +170,23 @@ private:
   template<bool NEEDSWAP>
   class ReadVal
   { };
+
+private:
+  // ----- action functions ----- //
+  State start(PackageType& pPkg);
+  State checkFirstCIE(PackageType& pPkg);
+  State parseEntry(PackageType& pPkg);
+  State addCIE(PackageType& pPkg);
+  State addFDE(PackageType& pPkg);
+  State fail(PackageType& pPkg);
+  State success(PackageType& pPkg);
+  State readRegular(PackageType& pPkg);
+
+  /// skipLEB128 - skip the first LEB128 encoded value from *pp, update *pp
+  /// to the next character.
+  /// @return - false if we ran off the end of the string.
+  /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
+  bool skipLEB128(ConstAddress* pp, ConstAddress pend);
 
 private:
   CIEListType m_CIEs;
