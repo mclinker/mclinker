@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/Config/Config.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MemoryArea.h>
@@ -35,6 +36,7 @@ namespace mcld
  */
 class MemoryRegion : private Uncopyable
 {
+friend class Chunk<MemoryRegion, MCLD_REGION_CHUNK_SIZE>;
 friend class RegionFactory;
 friend class MemoryArea;
 
@@ -43,13 +45,15 @@ public:
   typedef Space::ConstAddress ConstAddress;
 
 private:
+  MemoryRegion();
+
   MemoryRegion(Space& pParent, const Address pVMAStart, size_t pSize);
 
   Space* parent()
-  { return &m_Parent; }
+  { return m_pParent; }
 
   const Space* parent() const
-  { return &m_Parent; }
+  { return m_pParent; }
 
 public:
   ~MemoryRegion();
@@ -76,7 +80,7 @@ public:
   { return m_VMAStart+pOffset; }
  
 private:
-  Space& m_Parent;
+  Space* m_pParent;
   Address m_VMAStart;
   size_t m_Length;
 };

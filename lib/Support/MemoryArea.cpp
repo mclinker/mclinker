@@ -12,22 +12,25 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
 
+#include <llvm/Support/ManagedStatic.h>
+
 using namespace mcld;
+
+static llvm::ManagedStatic<RegionFactory> g_RegionFactory;
 
 //===--------------------------------------------------------------------===//
 // MemoryArea
 //===--------------------------------------------------------------------===//
-
 // MemoryArea - special constructor
 // This constructor is used for *SPECIAL* situation. I'm sorry I can not
 // reveal what is the special situation.
-MemoryArea::MemoryArea(RegionFactory& pRegionFactory, Space& pUniverse)
-  : m_RegionFactory(pRegionFactory), m_pFileHandle(NULL) {
+MemoryArea::MemoryArea(Space& pUniverse)
+  : m_pFileHandle(NULL) {
   m_SpaceList.push_back(&pUniverse);
 }
 
-MemoryArea::MemoryArea(RegionFactory& pRegionFactory, FileHandle& pFileHandle)
-  : m_RegionFactory(pRegionFactory), m_pFileHandle(&pFileHandle) {
+MemoryArea::MemoryArea(FileHandle& pFileHandle)
+  : m_pFileHandle(&pFileHandle) {
 }
 
 MemoryArea::~MemoryArea()
@@ -71,7 +74,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
   void* r_start = space->memory() + distance;
 
   // now, we have a legal space to hold the new MemoryRegion
-  return m_RegionFactory.produce(*space, r_start, pLength);
+  return g_RegionFactory->produce(*space, r_start, pLength);
 }
 
 // release - release a MemoryRegion
@@ -81,7 +84,7 @@ void MemoryArea::release(MemoryRegion* pRegion)
     return;
 
   Space *space = pRegion->parent();
-  m_RegionFactory.destruct(pRegion);
+  g_RegionFactory->destruct(pRegion);
 
   if (0 == space->numOfRegions()) {
 

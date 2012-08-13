@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/Space.h>
 
@@ -18,10 +17,6 @@ using namespace mcld;
 // MemoryAreaFactory
 MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
   : GCFactory<MemoryArea, 0>(pNum) {
-  // For each loaded file, MCLinker must load ELF header, section header,
-  // symbol table, and string table. So, we set the size of chunk quadruple
-  // larger than the number of input files.
-  m_pRegionFactory = new RegionFactory(pNum*4);
 }
 
 MemoryAreaFactory::~MemoryAreaFactory()
@@ -33,8 +28,6 @@ MemoryAreaFactory::~MemoryAreaFactory()
     }
     delete rec->handle;
   }
-
-  delete m_pRegionFactory;
 }
 
 MemoryArea*
@@ -51,7 +44,7 @@ MemoryAreaFactory::produce(const sys::fs::Path& pPath,
     }
 
     MemoryArea* result = allocate();
-    new (result) MemoryArea(*m_pRegionFactory, *handler);
+    new (result) MemoryArea(*handler);
 
     m_HandleToArea.push_back(handler, result);
     return result;
@@ -75,7 +68,7 @@ MemoryAreaFactory::produce(const sys::fs::Path& pPath,
     }
 
     MemoryArea* result = allocate();
-    new (result) MemoryArea(*m_pRegionFactory, *handler);
+    new (result) MemoryArea(*handler);
 
     m_HandleToArea.push_back(handler, result);
     return result;
@@ -98,7 +91,7 @@ MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
 {
   Space* space = new Space(Space::EXTERNAL, pMemBuffer, pSize);
   MemoryArea* result = allocate();
-  new (result) MemoryArea(*m_pRegionFactory, *space);
+  new (result) MemoryArea(*space);
   return result;
 }
 
@@ -109,7 +102,7 @@ MemoryAreaFactory::create(int pFD, FileHandle::OpenMode pMode)
   handler->delegate(pFD, pMode);
   
   MemoryArea* result = allocate();
-  new (result) MemoryArea(*m_pRegionFactory, *handler);
+  new (result) MemoryArea(*handler);
 
   return result;
 }

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MEMORY_AREA_FACTORY_H
-#define MCLD_MEMORY_AREA_FACTORY_H
+#ifndef MCLD_SUPPORT_MEMORY_AREA_FACTORY_H
+#define MCLD_SUPPORT_MEMORY_AREA_FACTORY_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -20,7 +20,6 @@
 namespace mcld
 {
 
-class RegionFactory;
 /** \class MemoryAreaFactory
  *  \brief MemoryAreaFactory avoids creating duplicated MemoryAreas of the
  *   same file.
@@ -67,7 +66,6 @@ protected:
 
 private:
   HandleToArea m_HandleToArea;
-  RegionFactory* m_pRegionFactory;
 };
 
 } // namespace of mcld
