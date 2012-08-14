@@ -53,7 +53,8 @@ public:
 
   Self& operator++() {
     IteratorType::advance();
-    if (isGroup())
+    // skip the Group node
+    while(isGroup() && !Base::isRoot())
       IteratorType::advance();
     return *this;
   }
@@ -61,7 +62,8 @@ public:
   Self operator++(int) {
     Self tmp(*this);
     IteratorType::advance();
-    if (isGroup())
+    // skip the Group node
+    while(isGroup() && !Base::isRoot())
       IteratorType::advance();
     return tmp;
   }
@@ -158,7 +160,7 @@ public:
   InputTree& insert(TreeIteratorBase pRoot,
                     const Input& pInput);
 
-  InputTree& merge(TreeIteratorBase pRoot, 
+  InputTree& merge(TreeIteratorBase pRoot,
                    const Mover& pMover,
                    InputTree& pTree);
 
@@ -206,7 +208,7 @@ mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
                         unsigned int pType)
 {
   BinTreeTy::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pType); 
+  node->data = m_FileFactory.produce(pNamespec, pPath, pType);
   if (pRoot.isRoot())
     proxy::hook<TreeIteratorBase::Leftward>(pRoot.m_pNode,
         const_cast<const node_type*>(node));
@@ -220,7 +222,7 @@ template<size_t DIRECT>
 mcld::InputTree&
 mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
 {
-  BinTreeTy::node_type* node = createNode(); 
+  BinTreeTy::node_type* node = createNode();
   if (pRoot.isRoot())
     proxy::hook<TreeIteratorBase::Leftward>(pRoot.m_pNode,
         const_cast<const node_type*>(node));
