@@ -399,8 +399,7 @@ EhFrame::State EhFrame::success(PackageType& pPkg)
 EhFrame::State EhFrame::readRegular(PackageType& pPkg)
 {
   // handle this eh_frame as a regular section
-  MemoryRegion* region = pPkg.input.memArea()->request(
-          pPkg.input.fileOffset() + pPkg.section.offset(), pPkg.section.size());
+  MemoryRegion* region = pPkg.sectionRegion;
   Fragment* frag = NULL;
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
