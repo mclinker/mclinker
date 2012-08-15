@@ -24,7 +24,7 @@ InputTree::~InputTree()
 {
 }
 
-InputTree& InputTree::merge(TreeIteratorBase pRoot, 
+InputTree& InputTree::merge(TreeIteratorBase pRoot,
                             const InputTree::Mover& pMover,
                             InputTree& pTree)
 {
@@ -77,31 +77,31 @@ InputTree& InputTree::insert(TreeIteratorBase pRoot,
 // non-member functions
 bool mcld::isGroup(const InputTree::iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 
 bool mcld::isGroup(const InputTree::const_iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 
 bool mcld::isGroup(const InputTree::dfs_iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 
 bool mcld::isGroup(const InputTree::const_dfs_iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 
 bool mcld::isGroup(const InputTree::bfs_iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 
 bool mcld::isGroup(const InputTree::const_bfs_iterator& pos)
 {
-  return !pos.hasData();
+  return !pos.hasData() && !pos.isRoot();
 }
 

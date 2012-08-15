@@ -49,12 +49,12 @@ public:
   virtual ~PolicyIterator() {}
 
   bool isGroup() const
-  { return !Base::hasData(); }
+  { return !Base::hasData() && !Base::isRoot(); }
 
   Self& operator++() {
     IteratorType::advance();
     // skip the Group node
-    while(isGroup() && !Base::isRoot())
+    while (isGroup())
       IteratorType::advance();
     return *this;
   }
@@ -63,7 +63,7 @@ public:
     Self tmp(*this);
     IteratorType::advance();
     // skip the Group node
-    while(isGroup() && !Base::isRoot())
+    while (isGroup())
       IteratorType::advance();
     return tmp;
   }
