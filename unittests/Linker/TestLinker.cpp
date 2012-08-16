@@ -31,7 +31,7 @@ using namespace mcld::test;
 // TestLinker
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
-  : m_pTarget(NULL), m_pObjLinker(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
+  : m_pTarget(NULL), m_pObjLinker(NULL), m_pConfig(NULL), m_pDiagLineInfo(NULL),
     m_pDiagPrinter(NULL), m_pBackend(NULL), m_pMemAreaFactory(NULL) {
 }
 
@@ -46,7 +46,7 @@ TestLinker::~TestLinker()
     delete (*mem);
 
   delete m_pObjLinker;
-  delete m_pInfo;
+  delete m_pConfig;
   delete m_pDiagLineInfo;
   delete m_pDiagPrinter;
   delete m_pBackend;
@@ -68,9 +68,9 @@ bool TestLinker::initialize(const std::string &pTriple)
   mcld::InitializeAllTargets();
   mcld::InitializeAllDiagnostics();
 
-  // create mcld::MCLDInfo
-  m_pInfo = new MCLDInfo(pTriple, 1, 32);
-  m_Root = m_pInfo->inputs().root();
+  // create mcld::LinkerConfig
+  m_pConfig = new LinkerConfig(pTriple, 1, 32);
+  m_Root = m_pConfig->inputs().root();
 
   // specify mcld::Target
   std::string error;
@@ -87,9 +87,9 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
-  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pInfo);
+  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
 
-  mcld::InitializeDiagnosticEngine(*m_pInfo, m_pDiagLineInfo, m_pDiagPrinter);
+  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pDiagLineInfo, m_pDiagPrinter);
 
   // create mcld::TargetLDBackend
   m_pBackend = m_pTarget->createLDBackend(pTriple);
@@ -100,7 +100,7 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   m_pMemAreaFactory = new MemoryAreaFactory(32);
 
-  m_pObjLinker = new mcld::ObjectLinker(*m_pInfo, *m_pBackend, *m_pMemAreaFactory);
+  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, *m_pMemAreaFactory);
   m_pObjLinker->initFragmentLinker();
 
   is_initialized = true;
@@ -109,18 +109,18 @@ bool TestLinker::initialize(const std::string &pTriple)
 
 void TestLinker::addSearchDir(const std::string &pDirPath)
 {
-  assert(NULL != m_pInfo && "initialize() must be called before addSearchDir");
-  assert(!m_pInfo->options().sysroot().empty() &&
+  assert(NULL != m_pConfig && "initialize() must be called before addSearchDir");
+  assert(!m_pConfig->options().sysroot().empty() &&
          "must setSysRoot before addSearchDir");
 
   mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
 
   if (sd->isInSysroot()) {
-    sd->setSysroot(m_pInfo->options().sysroot());
+    sd->setSysroot(m_pConfig->options().sysroot());
   }
 
   if (exists(sd->path()) && is_directory(sd->path())) {
-    m_pInfo->options().directories().add(*sd);
+    m_pConfig->options().directories().add(*sd);
   } else {
     mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
   }
@@ -128,16 +128,16 @@ void TestLinker::addSearchDir(const std::string &pDirPath)
 
 void TestLinker::setSysRoot(const mcld::sys::fs::Path &pPath)
 {
-  assert(NULL != m_pInfo && "initialize() must be called before setSysRoot");
-  m_pInfo->options().setSysroot(pPath);
+  assert(NULL != m_pConfig && "initialize() must be called before setSysRoot");
+  m_pConfig->options().setSysroot(pPath);
 }
 
 void TestLinker::addObject(const std::string &pPath)
 {
-  mcld::Input* input = m_pInfo->inputFactory().produce(pPath, pPath,
+  mcld::Input* input = m_pConfig->inputFactory().produce(pPath, pPath,
                                                        mcld::Input::Unknown);
 
-  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -153,16 +153,16 @@ void TestLinker::addObject(const std::string &pPath)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
+  mcld::LDContext* context = m_pConfig->contextFactory().produce(pPath);
   input->setContext(context);
 }
 
 void TestLinker::addObject(void* pMemBuffer, size_t pSize)
 {
-  mcld::Input* input = m_pInfo->inputFactory().produce("memory object", "NAN",
+  mcld::Input* input = m_pConfig->inputFactory().produce("memory object", "NAN",
                                                        mcld::Input::Unknown);
 
-  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -171,16 +171,16 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  mcld::LDContext* context = m_pConfig->contextFactory().produce();
   input->setContext(context);
 }
 
 void TestLinker::addObject(int pFileHandler)
 {
-  mcld::Input* input = m_pInfo->inputFactory().produce("handler object", "NAN",
+  mcld::Input* input = m_pConfig->inputFactory().produce("handler object", "NAN",
                                                        mcld::Input::Unknown);
 
-  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -192,7 +192,7 @@ void TestLinker::addObject(int pFileHandler)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce();
+  mcld::LDContext* context = m_pConfig->contextFactory().produce();
   input->setContext(context);
 }
 
@@ -200,26 +200,26 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
 {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
-  if (m_pInfo->attrFactory().constraint().isSharedSystem()) {
+  if (m_pConfig->attrFactory().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (m_pInfo->attrFactory().last().isStatic()) {
+    if (m_pConfig->attrFactory().last().isStatic()) {
       // with --static, we must search an archive.
-      path = m_pInfo->options().directories().find(pNameSpec,
+      path = m_pConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
-      path = m_pInfo->options().directories().find(pNameSpec,
+      path = m_pConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::DynObj);
     }
   }
   else {
     // In the system without shared object support, we only look for an
     // archive.
-    path = m_pInfo->options().directories().find(pNameSpec,
+    path = m_pConfig->options().directories().find(pNameSpec,
                                                  mcld::Input::Archive);
   }
 
@@ -228,10 +228,10 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
     return;
   }
 
-  mcld::Input* input = m_pInfo->inputFactory().produce(pNameSpec, *path,
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = m_pConfig->inputFactory().produce(pNameSpec, *path,
+                                                         mcld::Input::Unknown);
 
-  m_pInfo->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -247,13 +247,13 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce(*path);
+  mcld::LDContext* context = m_pConfig->contextFactory().produce(*path);
   input->setContext(context);
 }
 
 bool TestLinker::setOutput(const std::string &pPath)
 {
-  if (m_pInfo->output().hasContext())
+  if (m_pConfig->output().hasContext())
     return false;
 
   mcld::FileHandle* handler = new mcld::FileHandle();
@@ -269,11 +269,11 @@ bool TestLinker::setOutput(const std::string &pPath)
   }
 
   mcld::MemoryArea* output_memory = new MemoryArea(*handler);
-  m_pInfo->output().setMemArea(output_memory);
+  m_pConfig->output().setMemArea(output_memory);
   m_MemAreaList.push_back(output_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce(pPath);
-  m_pInfo->output().setContext(context);
+  mcld::LDContext* context = m_pConfig->contextFactory().produce(pPath);
+  m_pConfig->output().setContext(context);
 
   // FIXME: remove the initStdSections().
   m_pObjLinker->initStdSections();
@@ -287,7 +287,7 @@ bool TestLinker::setOutput(const sys::fs::Path &pPath)
 
 bool TestLinker::setOutput(int pFileHandler)
 {
-  if (m_pInfo->output().hasContext())
+  if (m_pConfig->output().hasContext())
     return false;
 
   mcld::FileHandle* handler = new mcld::FileHandle();
@@ -295,11 +295,11 @@ bool TestLinker::setOutput(int pFileHandler)
   m_FileHandleList.push_back(handler);
 
   mcld::MemoryArea* output_memory = new MemoryArea(*handler);
-  m_pInfo->output().setMemArea(output_memory);
+  m_pConfig->output().setMemArea(output_memory);
   m_MemAreaList.push_back(output_memory);
 
-  mcld::LDContext* context = m_pInfo->contextFactory().produce();
-  m_pInfo->output().setContext(context);
+  mcld::LDContext* context = m_pConfig->contextFactory().produce();
+  m_pConfig->output().setContext(context);
 
   // FIXME: remove the initStdSections().
   m_pObjLinker->initStdSections();

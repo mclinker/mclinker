@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "StaticResolverTest.h"
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/ResolveInfo.h>
@@ -15,15 +16,12 @@
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/LinkerConfig.h>
-#include "StaticResolverTest.h"
 
-#include <iostream>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 
-using namespace std;
 using namespace mcld;
 using namespace mcldtest;
 
@@ -32,16 +30,16 @@ using namespace mcldtest;
 //===----------------------------------------------------------------------===//
 // Constructor can do set-up work for all test here.
 StaticResolverTest::StaticResolverTest()
-  : m_pResolver(NULL), m_pFactory(NULL), m_pLDInfo(NULL), m_pLineInfo(NULL) {
+  : m_pResolver(NULL), m_pFactory(NULL), m_pConfig(NULL), m_pLineInfo(NULL) {
   // create testee. modify it if need
   m_pResolver = new StaticResolver();
   m_pFactory = new ResolveInfoFactory();
 
   mcld::InitializeAllDiagnostics();
 
-  m_pLDInfo = new MCLDInfo("arm-none-linux-gnueabi", 10, 10);
+  m_pConfig = new LinkerConfig("arm-none-linux-gnueabi", 10, 10);
   m_pLineInfo = new DiagnosticLineInfo();
-  mcld::InitializeDiagnosticEngine(*m_pLDInfo, m_pLineInfo, NULL);
+  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pLineInfo, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
@@ -49,7 +47,7 @@ StaticResolverTest::~StaticResolverTest()
 {
   delete m_pResolver;
   delete m_pFactory;
-  delete m_pLDInfo;
+  delete m_pConfig;
   delete m_pLineInfo;
 }
 

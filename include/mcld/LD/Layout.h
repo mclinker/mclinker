@@ -116,7 +116,7 @@ public:
 
   // -----  modifiers  ----- //
   bool layout(Output& pOutput,
-              const TargetLDBackend& pBackend, const MCLDInfo& pInfo);
+              const TargetLDBackend& pBackend, const LinkerConfig& pConfig);
 
   /// addInputRange
   void addInputRange(const SectionData& pSD, const LDSection& pInputHdr);
@@ -254,7 +254,7 @@ private:
   /// ordering
   void sortSectionOrder(const Output& pOutput,
                         const TargetLDBackend& pBackend,
-                        const MCLDInfo& pInfo);
+                        const LinkerConfig& pConfig);
 
 private:
   /// a vector to describe the order of sections

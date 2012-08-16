@@ -26,10 +26,10 @@
 using namespace llvm;
 using namespace mcld;
 
-ObjectLinker::ObjectLinker(MCLDInfo& pLDInfo,
+ObjectLinker::ObjectLinker(LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend,
                            MemoryAreaFactory& pAreaFactory)
-  : m_LDInfo(pLDInfo),
+  : m_Config(pConfig),
     m_LDBackend(pLDBackend),
     m_pLinker(NULL),
     m_AreaFactory(pAreaFactory) {
@@ -48,14 +48,14 @@ bool ObjectLinker::initFragmentLinker()
 {
   if (0 == m_pLinker)
     m_pLinker = new FragmentLinker(m_LDBackend,
-                             m_LDInfo,
+                             m_Config,
                              m_SectionMap);
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
   if (!m_LDBackend.initObjectReader(*m_pLinker) ||
-      !m_LDBackend.initArchiveReader(m_LDInfo, m_AreaFactory) ||
+      !m_LDBackend.initArchiveReader(m_Config, m_AreaFactory) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||
@@ -85,7 +85,7 @@ bool ObjectLinker::initStdSections()
   m_pLinker->initSectionMap();
 
   // initialize standard sections
-  switch (m_LDInfo.output().type()) {
+  switch (m_Config.output().type()) {
     case Output::DynObj: {
       // intialize standard and target-dependent sections
       if (!m_LDBackend.initDynObjSections(*m_pLinker))
@@ -100,13 +100,13 @@ bool ObjectLinker::initStdSections()
     }
     case Output::Object: {
       llvm::report_fatal_error(llvm::Twine("output type is not implemented yet. file: `") +
-                               m_LDInfo.output().name() +
+                               m_Config.output().name() +
                                llvm::Twine("'."));
       return false;
     }
     default: {
       llvm::report_fatal_error(llvm::Twine("unknown output type of file `") +
-                               m_LDInfo.output().name() +
+                               m_Config.output().name() +
                                llvm::Twine("'."));
        return false;
     }
@@ -121,8 +121,8 @@ bool ObjectLinker::initStdSections()
 void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //
-  InputTree::iterator input, inEnd = m_LDInfo.inputs().end();
-  for (input = m_LDInfo.inputs().begin(); input!=inEnd; ++input) {
+  InputTree::iterator input, inEnd = m_Config.inputs().end();
+  for (input = m_Config.inputs().begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
@@ -148,15 +148,15 @@ void ObjectLinker::normalize()
     // is an archive
     else if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, m_LDInfo.inputFactory());
+      Archive archive(**input, m_Config.inputFactory());
       m_LDBackend.getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
-        m_LDInfo.inputs().merge<InputTree::Inclusive>(input, archive.inputs());
+        m_Config.inputs().merge<InputTree::Inclusive>(input, archive.inputs());
       }
     }
     else {
       fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                               << m_LDInfo.triple().str();
+                                               << m_Config.triple().str();
     }
   } // end of for
 }
@@ -164,22 +164,22 @@ void ObjectLinker::normalize()
 bool ObjectLinker::linkable() const
 {
   // check we have input and output files
-  if (m_LDInfo.inputs().empty()) {
+  if (m_Config.inputs().empty()) {
     error(diag::err_no_inputs);
     return false;
   }
 
   // check all attributes are legal
-  mcld::AttributeFactory::const_iterator attr, attrEnd = m_LDInfo.attrFactory().end();
-  for (attr=m_LDInfo.attrFactory().begin(); attr!=attrEnd; ++attr) {
-    if (!m_LDInfo.attrFactory().constraint().isLegal((**attr))) {
+  mcld::AttributeFactory::const_iterator attr, attrEnd = m_Config.attrFactory().end();
+  for (attr=m_Config.attrFactory().begin(); attr!=attrEnd; ++attr) {
+    if (!m_Config.attrFactory().constraint().isLegal((**attr))) {
       return false;
     }
   }
 
   // can not mix -static with shared objects
-  mcld::InputTree::const_bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
-  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+  mcld::InputTree::const_bfs_iterator input, inEnd = m_Config.inputs().bfs_end();
+  for (input=m_Config.inputs().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == mcld::Input::DynObj) {
       if((*input)->attribute()->isStatic()) {
         error(diag::err_mixed_shared_static_objects)
@@ -207,7 +207,7 @@ bool ObjectLinker::mergeSections()
 ///   standard symbols, return false
 bool ObjectLinker::addStandardSymbols()
 {
-  return m_LDBackend.initStandardSymbols(*m_pLinker, m_LDInfo.output());
+  return m_LDBackend.initStandardSymbols(*m_pLinker, m_Config.output());
 }
 
 /// addTargetSymbols - some targets, such as MIPS and ARM, need some
@@ -216,7 +216,7 @@ bool ObjectLinker::addStandardSymbols()
 ///   target symbols, return false
 bool ObjectLinker::addTargetSymbols()
 {
-  m_LDBackend.initTargetSymbols(*m_pLinker, m_LDInfo.output());
+  m_LDBackend.initTargetSymbols(*m_pLinker, m_Config.output());
   return true;
 }
 
@@ -227,8 +227,8 @@ bool ObjectLinker::readRelocations()
 {
   // Bitcode is read by the other path. This function reads relocation sections
   // in object files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_LDInfo.inputs().bfs_end();
-  for (input=m_LDInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+  mcld::InputTree::bfs_iterator input, inEnd = m_Config.inputs().bfs_end();
+  for (input=m_Config.inputs().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == Input::Object) {
       if (!m_LDBackend.getObjectReader()->readRelocations(**input))
         return false;
@@ -241,16 +241,16 @@ bool ObjectLinker::readRelocations()
 /// prelayout - help backend to do some modification before layout
 bool ObjectLinker::prelayout()
 {
-  m_LDBackend.preLayout(m_LDInfo.output(),
-                        m_LDInfo,
+  m_LDBackend.preLayout(m_Config.output(),
+                        m_Config,
                         *m_pLinker);
 
-  m_LDBackend.allocateCommonSymbols(m_LDInfo, *m_pLinker);
+  m_LDBackend.allocateCommonSymbols(m_Config, *m_pLinker);
 
   /// check program interpreter - computer the name size of the runtime dyld
   /// FIXME: check if we are doing static linking!
-  if (m_LDInfo.output().type() == Output::Exec)
-    m_LDBackend.sizeInterp(m_LDInfo.output(), m_LDInfo);
+  if (m_Config.output().type() == Output::Exec)
+    m_LDBackend.sizeInterp(m_Config.output(), m_Config);
 
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
@@ -258,7 +258,7 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_LDInfo.output(), m_pLinker->getOutputSymbols(), m_LDInfo);
+  m_LDBackend.sizeNamePools(m_Config.output(), m_pLinker->getOutputSymbols(), m_Config);
 
   return true;
 }
@@ -276,8 +276,8 @@ bool ObjectLinker::layout()
 /// prelayout - help backend to do some modification after layout
 bool ObjectLinker::postlayout()
 {
-  m_LDBackend.postLayout(m_LDInfo.output(),
-                         m_LDInfo,
+  m_LDBackend.postLayout(m_Config.output(),
+                         m_Config,
                          *m_pLinker);
   return true;
 }
@@ -303,15 +303,15 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput()
 {
-  switch(m_LDInfo.output().type()) {
+  switch(m_Config.output().type()) {
     case Output::Object:
-      m_LDBackend.getObjectWriter()->writeObject(m_LDInfo.output());
+      m_LDBackend.getObjectWriter()->writeObject(m_Config.output());
       return true;
     case Output::DynObj:
-      m_LDBackend.getDynObjWriter()->writeDynObj(m_LDInfo.output());
+      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output());
       return true;
     case Output::Exec:
-      m_LDBackend.getExecWriter()->writeExecutable(m_LDInfo.output());
+      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output());
       return true;
   }
   return false;
@@ -322,8 +322,8 @@ bool ObjectLinker::postProcessing()
 {
   m_pLinker->syncRelocationResult();
 
-  m_LDBackend.postProcessing(m_LDInfo.output(),
-                             m_LDInfo,
+  m_LDBackend.postProcessing(m_Config.output(),
+                             m_Config,
                              *m_pLinker);
   return true;
 }

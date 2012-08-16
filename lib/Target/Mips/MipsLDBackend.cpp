@@ -119,7 +119,7 @@ RelocationFactory* MipsGNULDBackend::getRelocFactory()
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       const Output& pOutput,
                                       const LDSection& pSection)
 {
@@ -152,9 +152,9 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(pInputSym, pOutput) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
+    scanLocalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
   else
-    scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
+    scanGlobalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
 }
 
 uint32_t MipsGNULDBackend::machine() const
@@ -199,16 +199,16 @@ uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
   return 0x80000;
 }
 
-uint64_t MipsGNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
+uint64_t MipsGNULDBackend::abiPageSize(const LinkerConfig& pConfig) const
 {
-  if (pInfo.options().maxPageSize() > 0)
-    return pInfo.options().maxPageSize();
+  if (pConfig.options().maxPageSize() > 0)
+    return pConfig.options().maxPageSize();
   else
     return static_cast<uint64_t>(0x10000);
 }
 
 void MipsGNULDBackend::doPreLayout(const Output& pOutput,
-                                   const MCLDInfo& pInfo,
+                                   const LinkerConfig& pConfig,
                                    FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is must.
@@ -218,7 +218,7 @@ void MipsGNULDBackend::doPreLayout(const Output& pOutput,
 }
 
 void MipsGNULDBackend::doPostLayout(const Output& pOutput,
-                                    const MCLDInfo& pInfo,
+                                    const LinkerConfig& pConfig,
                                     FragmentLinker& pLinker)
 {
 }
@@ -243,7 +243,7 @@ const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 
 uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
                                            const LDSection& pSection,
-                                           const MCLDInfo& pInfo,
+                                           const LinkerConfig& pConfig,
                                            const Layout& pLayout,
                                            MemoryRegion& pRegion) const
 {
@@ -303,7 +303,7 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                                         SymbolCategory& pSymbols,
                                         const Layout& pLayout,
-                                        const MCLDInfo& pLDInfo)
+                                        const LinkerConfig& pConfig)
 {
   assert(pOutput.hasMemArea());
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -389,8 +389,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   //   2. force count in --no-as-needed
   //   3. judge --as-needed
   ELFDynamic::iterator dt_need = dynamic().needBegin();
-  InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
-  for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+  InputTree::const_bfs_iterator input, inputEnd = pConfig.inputs().bfs_end();
+  for (input = pConfig.inputs().bfs_begin(); input != inputEnd; ++input) {
     if (Input::DynObj == (*input)->type()) {
       // --add-needed
       if ((*input)->attribute()->isAddNeeded()) {
@@ -416,7 +416,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   // initialize value of ELF .dynamic section
   if (Output::DynObj == pOutput.type())
     dynamic().applySoname(strtabsize);
-  dynamic().applyEntries(pLDInfo, *file_format);
+  dynamic().applyEntries(pConfig, *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
   strcpy((strtab + strtabsize), pOutput.name().c_str());
@@ -479,7 +479,7 @@ const OutputRelocSection& MipsGNULDBackend::getRelDyn() const
 unsigned int
 MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                         const LDSection& pSectHdr,
-                                        const MCLDInfo& pInfo) const
+                                        const LinkerConfig& pConfig) const
 {
   const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
@@ -502,7 +502,7 @@ bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Outp
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
 bool
-MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, FragmentLinker& pLinker) const
+MipsGNULDBackend::allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const
 {
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
@@ -628,7 +628,7 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -737,7 +737,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                        const LDSymbol& pInputSym,
                                        FragmentLinker& pLinker,
-                                       const MCLDInfo& pLDInfo,
+                                       const LinkerConfig& pConfig,
                                        const Output& pOutput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -759,7 +759,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (symbolNeedsDynRel(*rsym, false, pLDInfo, pOutput, true)) {
+      if (symbolNeedsDynRel(*rsym, false, pConfig, pOutput, true)) {
         if (NULL == m_pRelDyn)
           createRelDyn(pLinker, pOutput);
 

@@ -28,7 +28,7 @@ class MachineFunction;
 
 namespace mcld
 {
-class MCLDInfo;
+class LinkerConfig;
 class MCLDFile;
 class ObjectLinker;
 class TargetLDBackend;
@@ -80,7 +80,7 @@ public:
 protected:
   void initializeInputTree(const PositionDependentOptions &pOptions) const;
 
-  void initializeInputOutput(MCLDInfo& pLDInfo);
+  void initializeInputOutput(LinkerConfig& pLDInfo);
 
   MemoryAreaFactory* memAreaFactory()
   { return m_pMemAreaFactory; }

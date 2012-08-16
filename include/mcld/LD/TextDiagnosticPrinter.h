@@ -17,7 +17,7 @@
 namespace mcld
 {
 
-class MCLDInfo;
+class LinkerConfig;
 
 /** \class TextDiagnosticPrinter
  *  \brief The plain, text-based DiagnosticPrinter.
@@ -25,7 +25,7 @@ class MCLDInfo;
 class TextDiagnosticPrinter : public DiagnosticPrinter
 {
 public:
-  TextDiagnosticPrinter(llvm::raw_ostream& pOStream, const MCLDInfo& pLDInfo);
+  TextDiagnosticPrinter(llvm::raw_ostream& pOStream, const LinkerConfig& pConfig);
 
   virtual ~TextDiagnosticPrinter();
 
@@ -34,13 +34,13 @@ public:
   virtual void handleDiagnostic(DiagnosticEngine::Severity pSeverity,
                                 const Diagnostic& pInfo);
 
-  virtual void beginInput(const Input& pInput, const MCLDInfo& pLDInfo);
+  virtual void beginInput(const Input& pInput, const LinkerConfig& pConfig);
 
   virtual void endInput();
 
 private:
   llvm::raw_ostream& m_OStream;
-  const MCLDInfo& m_LDInfo;
+  const LinkerConfig& m_Config;
   const Input* m_pInput;
 };
 

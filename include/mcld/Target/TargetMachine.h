@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_TARGET_MACHINE_H
-#define MCLD_TARGET_MACHINE_H
+#ifndef MCLD_TARGET_TARGET_MACHINE_H
+#define MCLD_TARGET_TARGET_MACHINE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <llvm/Target/TargetMachine.h>
 #include <string>
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/MC/MCLDFile.h>
 
 namespace llvm
 {
@@ -29,7 +29,7 @@ namespace mcld
 {
 
 class Target;
-class MCLDInfo;
+class LinkerConfig;
 class SectLinkerOption;
 using namespace llvm;
 
@@ -46,9 +46,9 @@ enum CodeGenFileType {
  *  \brief mcld::LLVMTargetMachine is a object adapter of
  *  llvm::LLVMTargetMachine.
  *
- *  mcld::LLVMTargetMachine is also in charge of MCLDInfo.
+ *  mcld::LLVMTargetMachine is also in charge of LinkerConfig.
  *
- *  @see MCLDInfo
+ *  @see LinkerConfig
  */
 class LLVMTargetMachine
 {
@@ -67,9 +67,9 @@ public:
   const llvm::TargetMachine& getTM() const { return m_TM; }
   llvm::TargetMachine& getTM() { return m_TM; }
 
-  /// getLDInfo - return the mcld::MCLDInfo
-  virtual mcld::MCLDInfo& getLDInfo() = 0;
-  virtual const mcld::MCLDInfo& getLDInfo() const = 0;
+  /// getLDInfo - return the mcld::LinkerConfig
+  virtual mcld::LinkerConfig& getConfig() = 0;
+  virtual const mcld::LinkerConfig& getConfig() const = 0;
 
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.

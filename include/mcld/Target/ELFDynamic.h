@@ -22,7 +22,7 @@ namespace mcld
 
 class GNULDBackend;
 class ELFFileFormat;
-class MCLDInfo;
+class LinkerConfig;
 class MemoryRegion;
 
 namespace elf_dynamic {
@@ -116,14 +116,14 @@ public:
   size_t numOfBytes() const;
 
   /// reserveEntries - reserve entries
-  void reserveEntries(const MCLDInfo& pInfo,
+  void reserveEntries(const LinkerConfig& pConfig,
                       const ELFFileFormat& pFormat);
 
   /// reserveNeedEntry - reserve on DT_NEED entry.
   void reserveNeedEntry();
   
   /// applyEntries - apply entries
-  void applyEntries(const MCLDInfo& pInfo,
+  void applyEntries(const LinkerConfig& pConfig,
                     const ELFFileFormat& pFormat);
 
   void applySoname(uint64_t pStrTabIdx);

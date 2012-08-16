@@ -26,22 +26,22 @@ namespace mcldtest
 class UniqueGCFactoryBaseTest : public ::testing::Test
 {
 public:
-	// Constructor can do set-up work for all test here.
-	UniqueGCFactoryBaseTest();
+  // Constructor can do set-up work for all test here.
+  UniqueGCFactoryBaseTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~UniqueGCFactoryBaseTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~UniqueGCFactoryBaseTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 
 private:
-	mcld::MCLDInfo* m_pLDInfo;
-	mcld::DiagnosticLineInfo* m_pLineInfo;
-	mcld::DiagnosticPrinter* m_pPrinter;
+  mcld::LinkerConfig* m_pConfig;
+  mcld::DiagnosticLineInfo* m_pLineInfo;
+  mcld::DiagnosticPrinter* m_pPrinter;
 };
 
 } // namespace of mcldtest

@@ -24,7 +24,7 @@ namespace mcld
 {
 class Layout;
 class RelocationFactory;
-class MCLDInfo;
+class LinkerConfig;
 
 class Relocation : public Fragment
 {
@@ -80,7 +80,7 @@ public:
   const FragmentRef& targetRef() const
   { return m_TargetAddress; }
 
-  void apply(RelocationFactory& pRelocFactory, const MCLDInfo& pLDInfo);
+  void apply(RelocationFactory& pRelocFactory, const LinkerConfig& pConfig);
 
   /// ----- modifiers ----- ///
   void setType(Type pType);

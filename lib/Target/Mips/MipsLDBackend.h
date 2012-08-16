@@ -57,7 +57,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput,
                       const LDSection& pSection);
 
@@ -79,16 +79,16 @@ public:
   uint64_t defaultTextSegmentAddr() const;
 
   /// abiPageSize - the abi page size of the target machine
-  uint64_t abiPageSize(const MCLDInfo& pInfo) const;
+  uint64_t abiPageSize(const LinkerConfig& pInfo) const;
 
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
-                   const MCLDInfo& pInfo,
+                   const LinkerConfig& pInfo,
                    FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(const Output& pOutput,
-                    const MCLDInfo& pInfo,
+                    const LinkerConfig& pInfo,
                     FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
@@ -118,7 +118,7 @@ public:
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const Output& pOutput,
                            const LDSection& pSection,
-                           const MCLDInfo& pInfo,
+                           const LinkerConfig& pInfo,
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
@@ -126,7 +126,7 @@ public:
   virtual void emitDynNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const MCLDInfo& pLDInfo);
+                                const LinkerConfig& pConfig);
 
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
@@ -137,26 +137,26 @@ public:
   /// getTargetSectionOrder - compute the layout order of ARM target sections
   unsigned int getTargetSectionOrder(const Output& pOutput,
                                      const LDSection& pSectHdr,
-                                     const MCLDInfo& pInfo) const;
+                                     const LinkerConfig& pInfo) const;
 
   /// finalizeSymbol - finalize the symbol value
   bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const;
+  bool allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput);
 
   void createGOT(FragmentLinker& pLinker, const Output& pOutput);

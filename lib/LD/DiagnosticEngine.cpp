@@ -17,7 +17,7 @@ using namespace mcld;
 // DiagnosticEngine
 //===----------------------------------------------------------------------===//
 DiagnosticEngine::DiagnosticEngine()
-  : m_pLDInfo(NULL), m_pLineInfo(NULL), m_pPrinter(NULL),
+  : m_pConfig(NULL), m_pLineInfo(NULL), m_pPrinter(NULL),
     m_pInfoMap(NULL), m_OwnPrinter(false) {
 }
 
@@ -27,10 +27,10 @@ DiagnosticEngine::~DiagnosticEngine()
     delete m_pPrinter;
 }
 
-void DiagnosticEngine::reset(const MCLDInfo& pLDInfo)
+void DiagnosticEngine::reset(const LinkerConfig& pConfig)
 {
-  m_pLDInfo = &pLDInfo;
-  m_pInfoMap = new DiagnosticInfos(*m_pLDInfo);
+  m_pConfig = &pConfig;
+  m_pInfoMap = new DiagnosticInfos(*m_pConfig);
   m_State.reset();
 }
 

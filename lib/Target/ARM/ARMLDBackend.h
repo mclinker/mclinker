@@ -18,7 +18,7 @@
 
 namespace mcld {
 
-class MCLDInfo;
+class LinkerConfig;
 class FragmentLinker;
 class Output;
 class SectionMap;
@@ -103,7 +103,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput,
                       const LDSection& pSection);
 
@@ -133,12 +133,12 @@ public:
 
   /// doPreLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
-                   const MCLDInfo& pInfo,
+                   const LinkerConfig& pConfig,
                    FragmentLinker& pLinker);
 
   /// doPostLayout -Backend can do any needed modification after layout
   void doPostLayout(const Output& pOutput,
-                    const MCLDInfo& pInfo,
+                    const LinkerConfig& pConfig,
                     FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
@@ -163,13 +163,13 @@ public:
   ///
   /// @param pOutput - the output file
   /// @param pSection - the given LDSection
-  /// @param pInfo - all options in the command line.
+  /// @param pConfig - all options in the command line.
   /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const Output& pOutput,
                            const LDSection& pSection,
-                           const MCLDInfo& pInfo,
+                           const LinkerConfig& pConfig,
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
@@ -192,7 +192,7 @@ public:
   /// getTargetSectionOrder - compute the layout order of ARM target sections
   unsigned int getTargetSectionOrder(const Output& pOutput,
                                      const LDSection& pSectHdr,
-                                     const MCLDInfo& pInfo) const;
+                                     const LinkerConfig& pConfig) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
   bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
@@ -206,17 +206,17 @@ private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
                        FragmentLinker& pLinker,
-                       const MCLDInfo& pLDInfo,
+                       const LinkerConfig& pConfig,
                        const Output& pOutput);
 
   void checkValidReloc(Relocation& pReloc,
-                       const MCLDInfo& pLDInfo,
+                       const LinkerConfig& pConfig,
                        const Output& pOutput) const;
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym

@@ -18,7 +18,7 @@
 namespace mcld {
 
 class Input;
-class MCLDInfo;
+class LinkerConfig;
 class MsgHandler;
 class DiagnosticPrinter;
 class DiagnosticLineInfo;
@@ -61,7 +61,7 @@ public:
 
   ~DiagnosticEngine();
 
-  void reset(const MCLDInfo& pLDInfo);
+  void reset(const LinkerConfig& pConfig);
 
   void setLineInfo(DiagnosticLineInfo& pLineInfo);
 
@@ -139,7 +139,7 @@ private:
   }
 
 private:
-  const MCLDInfo* m_pLDInfo;
+  const LinkerConfig* m_pConfig;
   DiagnosticLineInfo* m_pLineInfo;
   DiagnosticPrinter* m_pPrinter;
   DiagnosticInfos* m_pInfoMap;

@@ -28,7 +28,7 @@ class ExecWriter;
 class LDContext;
 class SectionMap;
 class Output;
-class MCLDInfo;
+class LinkerConfig;
 class SymbolCategory;
 class Input;
 class LDFileFormat;
@@ -70,12 +70,12 @@ public:
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,
-                              const MCLDInfo& pLDInfo,
+                              const LinkerConfig& pConfig,
                               const Output& pOutput,
                               const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
-  virtual bool initArchiveReader(MCLDInfo&,
+  virtual bool initArchiveReader(LinkerConfig&,
                                  MemoryAreaFactory&) = 0;
   virtual bool initObjectReader(FragmentLinker&) = 0;
   virtual bool initDynObjReader(FragmentLinker&) = 0;
@@ -98,17 +98,17 @@ public:
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(const Output& pOutput,
-                         const MCLDInfo& pInfo,
+                         const LinkerConfig& pConfig,
                          FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void postLayout(const Output& pOutput,
-                          const MCLDInfo& pInfo,
+                          const LinkerConfig& pConfig,
                           FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   virtual void postProcessing(const Output& pOutput,
-                              const MCLDInfo& pInfo,
+                              const LinkerConfig& pConfig,
                               FragmentLinker& pLinker) = 0;
 
   /// Is the target machine little endian? **/
@@ -118,10 +118,10 @@ public:
   virtual unsigned int bitclass() const = 0;
 
   /// the common page size of the target machine
-  virtual uint64_t commonPageSize(const MCLDInfo& pInfo) const = 0;
+  virtual uint64_t commonPageSize(const LinkerConfig& pConfig) const = 0;
 
   /// the abi page size of the target machine
-  virtual uint64_t abiPageSize(const MCLDInfo& pInfo) const = 0;
+  virtual uint64_t abiPageSize(const LinkerConfig& pConfig) const = 0;
 
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;
@@ -129,7 +129,7 @@ public:
   /// computeSectionOrder - compute the layout order of the given section
   virtual unsigned int getSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
-                                       const MCLDInfo& pInfo) const = 0;
+                                       const LinkerConfig& pConfig) const = 0;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
@@ -137,7 +137,7 @@ public:
   virtual void
   sizeNamePools(const Output& pOutput,
                 const SymbolCategory& pSymbols,
-                const MCLDInfo& pLDInfo) = 0;
+                const LinkerConfig& pConfig) = 0;
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
@@ -147,7 +147,7 @@ public:
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const = 0;
+  virtual bool allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,
@@ -160,7 +160,7 @@ public:
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
-  virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo) = 0;
+  virtual void sizeInterp(const Output& pOutput, const LinkerConfig& pConfig) = 0;
 
 public:
   EhFrame* getEhFrame();

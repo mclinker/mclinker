@@ -16,11 +16,11 @@
 namespace mcld
 {
 
-class MCLDInfo;
+class LinkerConfig;
 class DiagnosticPrinter;
 class DiagnosticLineInfo;
 
-void InitializeDiagnosticEngine(const MCLDInfo& pLDInfo,
+void InitializeDiagnosticEngine(const LinkerConfig& pConfig,
                                 DiagnosticLineInfo* pLineInfo,
                                 DiagnosticPrinter* pPrinter);
 

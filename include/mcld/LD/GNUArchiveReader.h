@@ -18,7 +18,7 @@
 namespace mcld
 {
 class MemoryAreaFactory;
-class MCLDInfo;
+class LinkerConfig;
 class Input;
 class ELFObjectReader;
 class Archive;
@@ -29,7 +29,7 @@ class Archive;
 class GNUArchiveReader : public ArchiveReader
 {
 public:
-  explicit GNUArchiveReader(MCLDInfo& pLDInfo,
+  explicit GNUArchiveReader(LinkerConfig& pConfig,
                             MemoryAreaFactory& pMemAreaFactory,
                             ELFObjectReader& pELFObjectReader);
 
@@ -89,7 +89,7 @@ private:
   bool includeAllMembers(Archive& pArchive);
 
 private:
-  MCLDInfo& m_LDInfo;
+  LinkerConfig& m_Config;
   MemoryAreaFactory& m_MemAreaFactory;
   ELFObjectReader& m_ELFObjectReader;
 };

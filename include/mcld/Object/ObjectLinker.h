@@ -24,7 +24,7 @@ namespace mcld
 {
 
 class FragmentLinker;
-class MCLDInfo;
+class LinkerConfig;
 class TargetLDBackend;
 class MemoryAreaFactory;
 
@@ -34,7 +34,7 @@ class MemoryAreaFactory;
 class ObjectLinker
 {
 public:
-  ObjectLinker(MCLDInfo& pLDInfo,
+  ObjectLinker(LinkerConfig& pConfig,
              TargetLDBackend& pLDBackend,
              MemoryAreaFactory& pAreaFactory);
 
@@ -50,7 +50,7 @@ public:
   /// normalize - normalize the input files
   void normalize();
 
-  /// linkable - check the linkability of current MCLDInfo
+  /// linkable - check the linkability of current LinkerConfig
   ///  Check list:
   ///  - check the Attributes are not violate the constaint
   ///  - check every Input has a correct Attribute
@@ -116,7 +116,7 @@ public:
   { return (NULL != m_pLinker); }
 
 private:
-  MCLDInfo& m_LDInfo;
+  LinkerConfig& m_Config;
   TargetLDBackend &m_LDBackend;
   FragmentLinker* m_pLinker;
   SectionMap m_SectionMap;

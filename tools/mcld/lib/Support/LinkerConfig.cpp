@@ -23,7 +23,7 @@
 using namespace alone;
 
 LinkerConfig::LinkerConfig(const std::string &pTriple)
-  : mTriple(pTriple), mShared(false), mSOName(), mTarget(NULL), mLDInfo(NULL),
+  : mTriple(pTriple), mShared(false), mSOName(), mTarget(NULL), mLDConfig(NULL),
     mDiagLineInfo(NULL), mDiagPrinter(NULL) {
 
   initializeTarget();
@@ -32,7 +32,7 @@ LinkerConfig::LinkerConfig(const std::string &pTriple)
 }
 
 LinkerConfig::~LinkerConfig() {
-  delete mLDInfo;
+  delete mLDConfig;
 
   if (mDiagPrinter->getNumErrors() != 0) {
     // If here, the program failed ungracefully. Run the interrupt handlers to
@@ -59,13 +59,13 @@ bool LinkerConfig::initializeTarget() {
 }
 
 bool LinkerConfig::initializeLDInfo() {
-  if (NULL != mLDInfo) {
+  if (NULL != mLDConfig) {
     ALOGE("Cannot initialize mcld::MCLDInfo for given triple '%s!\n",
           mTriple.c_str());
     return false;
   }
 
-  mLDInfo = new mcld::MCLDInfo(getTriple(), 1, 32);
+  mLDConfig = new mcld::LinkerConfig(getTriple(), 1, 32);
   return true;
 }
 
@@ -73,9 +73,9 @@ bool LinkerConfig::initializeDiagnostic() {
   // Set up MsgHandler.
   mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget, mTriple);
 
-  mDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDInfo);
+  mDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDConfig);
 
-  mcld::InitializeDiagnosticEngine(*mLDInfo, mDiagLineInfo, mDiagPrinter);
+  mcld::InitializeDiagnosticEngine(*mLDConfig, mDiagLineInfo, mDiagPrinter);
 
   return true;
 }
@@ -86,7 +86,7 @@ void LinkerConfig::setShared(bool pEnable) {
 }
 
 void LinkerConfig::setBsymbolic(bool pEnable) {
-  mLDInfo->options().setBsymbolic(pEnable);
+  mLDConfig->options().setBsymbolic(pEnable);
   return;
 }
 
@@ -96,12 +96,12 @@ void LinkerConfig::setSOName(const std::string &pSOName) {
 }
 
 void LinkerConfig::setDyld(const std::string &pDyld) {
-  mLDInfo->options().setDyld(pDyld);
+  mLDConfig->options().setDyld(pDyld);
   return;
 }
 
 void LinkerConfig::setSysRoot(const std::string &pSysRoot) {
-  mLDInfo->options().setSysroot(mcld::sys::fs::Path(pSysRoot));
+  mLDConfig->options().setSysroot(mcld::sys::fs::Path(pSysRoot));
   return;
 }
 
@@ -110,7 +110,7 @@ void LinkerConfig::addWrap(const std::string &pWrapSymbol) {
 
   // Add wname -> __wrap_wname.
   mcld::StringEntry<llvm::StringRef>* to_wrap =
-               mLDInfo->scripts().renameMap().insert(pWrapSymbol, exist);
+               mLDConfig->scripts().renameMap().insert(pWrapSymbol, exist);
 
   std::string to_wrap_str = "__wrap_" + pWrapSymbol;
   to_wrap->setValue(to_wrap_str);
@@ -122,7 +122,7 @@ void LinkerConfig::addWrap(const std::string &pWrapSymbol) {
   // Add __real_wname -> wname.
   std::string from_real_str = "__real_" + pWrapSymbol;
   mcld::StringEntry<llvm::StringRef>* from_real =
-             mLDInfo->scripts().renameMap().insert(from_real_str, exist);
+             mLDConfig->scripts().renameMap().insert(from_real_str, exist);
   from_real->setValue(pWrapSymbol);
 
   if (exist) {
@@ -137,7 +137,7 @@ void LinkerConfig::addPortable(const std::string &pPortableSymbol) {
 
   // Add pname -> pname_portable.
   mcld::StringEntry<llvm::StringRef>* to_port =
-                mLDInfo->scripts().renameMap().insert(pPortableSymbol, exist);
+                mLDConfig->scripts().renameMap().insert(pPortableSymbol, exist);
 
   std::string to_port_str = pPortableSymbol + "_portable";
   to_port->setValue(to_port_str);
@@ -149,7 +149,7 @@ void LinkerConfig::addPortable(const std::string &pPortableSymbol) {
   // Add __real_pname -> pname.
   std::string from_real_str = "__real_" + pPortableSymbol;
   mcld::StringEntry<llvm::StringRef>* from_real =
-           mLDInfo->scripts().renameMap().insert(from_real_str, exist);
+           mLDConfig->scripts().renameMap().insert(from_real_str, exist);
 
   from_real->setValue(pPortableSymbol);
 
@@ -165,11 +165,11 @@ void LinkerConfig::addSearchDir(const std::string &pDirPath) {
   mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
 
   if (sd->isInSysroot()) {
-    sd->setSysroot(mLDInfo->options().sysroot());
+    sd->setSysroot(mLDConfig->options().sysroot());
   }
 
   if (exists(sd->path()) && is_directory(sd->path())) {
-    mLDInfo->options().directories().add(*sd);
+    mLDConfig->options().directories().add(*sd);
   } else {
     mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
   }

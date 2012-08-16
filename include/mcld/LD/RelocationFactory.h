@@ -23,7 +23,7 @@ class FragmentRef;
 class Layout;
 class GOT;
 class TargetLDBackend;
-class MCLDInfo;
+class LinkerConfig;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -52,7 +52,7 @@ public:
 
   /// apply - general apply function
   virtual Result applyRelocation(Relocation& pRelocation,
-                                 const MCLDInfo& pLDInfo) = 0;
+                                 const LinkerConfig& pConfig) = 0;
 
   // ----- production ----- //
   /// produce - produce a relocation entry

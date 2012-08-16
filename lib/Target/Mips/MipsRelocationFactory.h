@@ -27,7 +27,7 @@ class MipsRelocationFactory : public RelocationFactory
 public:
   MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
 
-  Result applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
+  Result applyRelocation(Relocation& pRelocation, const LinkerConfig& pConfig);
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }

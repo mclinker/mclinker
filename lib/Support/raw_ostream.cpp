@@ -15,24 +15,24 @@ using namespace mcld;
 mcld::raw_fd_ostream::raw_fd_ostream(const char *pFilename,
                                std::string &pErrorInfo,
                                unsigned int pFlags,
-                               const MCLDInfo* pLDInfo)
-  : llvm::raw_fd_ostream(pFilename, pErrorInfo, pFlags), m_pLDInfo(pLDInfo) {
+                               const LinkerConfig* pConfig)
+  : llvm::raw_fd_ostream(pFilename, pErrorInfo, pFlags), m_pConfig(pConfig) {
 }
 
 mcld::raw_fd_ostream::raw_fd_ostream(int pFD,
                                bool pShouldClose,
                                bool pUnbuffered,
-                               const MCLDInfo* pLDInfo)
-  : llvm::raw_fd_ostream(pFD, pShouldClose, pUnbuffered), m_pLDInfo(pLDInfo) {
+                               const LinkerConfig* pConfig)
+  : llvm::raw_fd_ostream(pFD, pShouldClose, pUnbuffered), m_pConfig(pConfig) {
 }
 
 mcld::raw_fd_ostream::~raw_fd_ostream()
 {
 }
 
-void mcld::raw_fd_ostream::setLDInfo(const MCLDInfo& pLDInfo)
+void mcld::raw_fd_ostream::setLDInfo(const LinkerConfig& pConfig)
 {
-  m_pLDInfo = &pLDInfo;
+  m_pConfig = &pConfig;
 }
 
 llvm::raw_ostream &
@@ -64,10 +64,10 @@ llvm::raw_ostream& mcld::raw_fd_ostream::reverseColor()
 
 bool mcld::raw_fd_ostream::is_displayed() const
 {
-  if (NULL == m_pLDInfo)
+  if (NULL == m_pConfig)
     return llvm::raw_fd_ostream::is_displayed();
 
-  return m_pLDInfo->options().color();
+  return m_pConfig->options().color();
 }
 
 //===----------------------------------------------------------------------===//
@@ -87,9 +87,9 @@ mcld::raw_fd_ostream& mcld::errs() {
   return S;
 }
 
-void mcld::InitializeOStreams(const MCLDInfo& pLDInfo)
+void mcld::InitializeOStreams(const LinkerConfig& pConfig)
 {
-  outs().setLDInfo(pLDInfo);
-  errs().setLDInfo(pLDInfo);
+  outs().setLDInfo(pConfig);
+  errs().setLDInfo(pConfig);
 }
 

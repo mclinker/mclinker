@@ -27,21 +27,21 @@ static const char* gDefaultSysroot = "/";
 ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attributes
-  getLDInfo()->attrFactory().constraint().enableWholeArchive();
-  getLDInfo()->attrFactory().constraint().disableAsNeeded();
-  getLDInfo()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->attrFactory().constraint().enableWholeArchive();
+  getLDConfig()->attrFactory().constraint().disableAsNeeded();
+  getLDConfig()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
-  getLDInfo()->attrFactory().predefined().setDynamic();
+  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
+  getLDConfig()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty()) {
-    getLDInfo()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->options().sysroot().empty()) {
+    getLDConfig()->options().setSysroot(gDefaultSysroot);
   }
 
-  if (!getLDInfo()->options().hasDyld()) {
-    getLDInfo()->options().setDyld(gDefaultDyld);
+  if (!getLDConfig()->options().hasDyld()) {
+    getLDConfig()->options().setDyld(gDefaultDyld);
   }
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
@@ -54,21 +54,21 @@ MipsLinkerConfig::MipsLinkerConfig()
   : LinkerConfig(DEFAULT_MIPS_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attibutes
-  getLDInfo()->attrFactory().constraint().enableWholeArchive();
-  getLDInfo()->attrFactory().constraint().disableAsNeeded();
-  getLDInfo()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->attrFactory().constraint().enableWholeArchive();
+  getLDConfig()->attrFactory().constraint().disableAsNeeded();
+  getLDConfig()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
-  getLDInfo()->attrFactory().predefined().setDynamic();
+  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
+  getLDConfig()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty()) {
-    getLDInfo()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->options().sysroot().empty()) {
+    getLDConfig()->options().setSysroot(gDefaultSysroot);
   }
 
-  if (!getLDInfo()->options().hasDyld()) {
-    getLDInfo()->options().setDyld(gDefaultDyld);
+  if (!getLDConfig()->options().hasDyld()) {
+    getLDConfig()->options().setDyld(gDefaultDyld);
   }
 }
 #endif // defined(PROVIDE_MIPS_CODEGEN)
@@ -80,21 +80,21 @@ MipsLinkerConfig::MipsLinkerConfig()
 X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   : LinkerConfig(pTriple) {
   // set up target-dependent constraints of attibutes
-  getLDInfo()->attrFactory().constraint().enableWholeArchive();
-  getLDInfo()->attrFactory().constraint().disableAsNeeded();
-  getLDInfo()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->attrFactory().constraint().enableWholeArchive();
+  getLDConfig()->attrFactory().constraint().disableAsNeeded();
+  getLDConfig()->attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDInfo()->attrFactory().predefined().unsetWholeArchive();
-  getLDInfo()->attrFactory().predefined().setDynamic();
+  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
+  getLDConfig()->attrFactory().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDInfo()->options().sysroot().empty()) {
-    getLDInfo()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->options().sysroot().empty()) {
+    getLDConfig()->options().setSysroot(gDefaultSysroot);
   }
 
-  if (!getLDInfo()->options().hasDyld()) {
-    getLDInfo()->options().setDyld(gDefaultDyld);
+  if (!getLDConfig()->options().hasDyld()) {
+    getLDConfig()->options().setDyld(gDefaultDyld);
   }
 }
 

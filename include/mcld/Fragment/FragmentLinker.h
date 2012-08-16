@@ -37,7 +37,7 @@
 namespace mcld {
 
 class TargetLDBackend;
-class MCLDInfo;
+class LinkerConfig;
 class LDSection;
 class LDSectionFactory;
 class SectionData;
@@ -66,7 +66,7 @@ public:
 
 public:
   FragmentLinker(TargetLDBackend& pBackend,
-           MCLDInfo& pLDInfo,
+           LinkerConfig& pLDInfo,
            SectionMap& pSectionMap);
 
   ~FragmentLinker();
@@ -180,11 +180,11 @@ public:
   { return m_OutputSymbols; }
 
   // -----  capacity  ----- //
-  MCLDInfo& getLDInfo()
-  { return m_LDInfo; }
+  LinkerConfig& getLDInfo()
+  { return m_Config; }
 
-  const MCLDInfo& getLDInfo() const
-  { return m_LDInfo; }
+  const LinkerConfig& getLDInfo() const
+  { return m_Config; }
 
 private:
   LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
@@ -256,7 +256,7 @@ private:
 
 private:
   TargetLDBackend& m_Backend;
-  MCLDInfo& m_LDInfo;
+  LinkerConfig& m_Config;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;

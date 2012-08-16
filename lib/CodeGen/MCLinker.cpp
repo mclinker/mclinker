@@ -70,22 +70,22 @@ MCLinker::~MCLinker()
 
 bool MCLinker::doInitialization(Module &pM)
 {
-  MCLDInfo &info = m_pOption->info();
+  LinkerConfig &config = m_pOption->config();
 
   // ----- convert position dependent options into tree of input files  ----- //
   PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
   std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
   initializeInputTree(PosDepOpts);
-  initializeInputOutput(info);
+  initializeInputOutput(config);
   // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pObjLinker = new ObjectLinker(info, *m_pLDBackend, *memAreaFactory());
+  m_pObjLinker = new ObjectLinker(config, *m_pLDBackend, *memAreaFactory());
 
   return false;
 }
 
 bool MCLinker::doFinalization(Module &pM)
 {
-  const MCLDInfo &info = m_pOption->info();
+  const LinkerConfig &config = m_pOption->config();
 
   // 2. - initialize FragmentLinker
   if (!m_pObjLinker->initFragmentLinker())
@@ -98,11 +98,11 @@ bool MCLinker::doFinalization(Module &pM)
   // 4. - normalize the input tree
   m_pObjLinker->normalize();
 
-  if (info.options().trace()) {
+  if (config.options().trace()) {
     static int counter = 0;
-    mcld::outs() << "** name\ttype\tpath\tsize (" << info.inputs().size() << ")\n";
-    InputTree::const_dfs_iterator input, inEnd = info.inputs().dfs_end();
-    for (input=info.inputs().dfs_begin(); input!=inEnd; ++input) {
+    mcld::outs() << "** name\ttype\tpath\tsize (" << config.inputs().size() << ")\n";
+    InputTree::const_dfs_iterator input, inEnd = config.inputs().dfs_end();
+    for (input=config.inputs().dfs_begin(); input!=inEnd; ++input) {
       mcld::outs() << counter++ << " *  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
@@ -176,31 +176,31 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
-void MCLinker::initializeInputOutput(MCLDInfo &pLDInfo)
+void MCLinker::initializeInputOutput(LinkerConfig &pConfig)
 {
   // -----  initialize output file  ----- //
   FileHandle::Permission perm;
-  if (Output::Object == pLDInfo.output().type())
+  if (Output::Object == pConfig.output().type())
     perm = 0544;
   else
     perm = 0755;
 
-  MemoryArea* out_area = memAreaFactory()->produce(pLDInfo.output().path(),
+  MemoryArea* out_area = memAreaFactory()->produce(pConfig.output().path(),
                                                  FileHandle::ReadWrite,
                                                  perm);
 
   if (!out_area->handler()->isGood()) {
     // make sure output is openend successfully.
-    fatal(diag::err_cannot_open_output_file) << pLDInfo.output().name()
-                                             << pLDInfo.output().path();
+    fatal(diag::err_cannot_open_output_file) << pConfig.output().name()
+                                             << pConfig.output().path();
   }
 
-  pLDInfo.output().setMemArea(out_area);
-  pLDInfo.output().setContext(pLDInfo.contextFactory().produce());
+  pConfig.output().setMemArea(out_area);
+  pConfig.output().setContext(pConfig.contextFactory().produce());
 
   // -----  initialize input files  ----- //
-  InputTree::dfs_iterator input, inEnd = pLDInfo.inputs().dfs_end();
-  for (input = pLDInfo.inputs().dfs_begin(); input!=inEnd; ++input) {
+  InputTree::dfs_iterator input, inEnd = pConfig.inputs().dfs_end();
+  for (input = pConfig.inputs().dfs_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode
     if ((*input)->type() == Input::Script ||
         (*input)->type() == Input::Object ||
@@ -220,7 +220,7 @@ void MCLinker::initializeInputOutput(MCLDInfo &pLDInfo)
     }
 
     LDContext *input_context =
-        pLDInfo.contextFactory().produce((*input)->path());
+        pConfig.contextFactory().produce((*input)->path());
 
     (*input)->setContext(input_context);
   }
@@ -231,7 +231,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
   if (pPosDepOptions.empty())
     fatal(diag::err_no_inputs);
 
-  MCLDInfo &info = m_pOption->info();
+  LinkerConfig &config= m_pOption->config();
   PositionDependentOptions::const_iterator option = pPosDepOptions.begin();
   if (1 == pPosDepOptions.size() &&
       ((*option)->type() != PositionDependentOption::INPUT_FILE &&
@@ -255,7 +255,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
 
   // Initialization
   InputTree::Mover *move = &InputTree::Downward;
-  InputTree::iterator root = info.inputs().root();
+  InputTree::iterator root = config.inputs().root();
   PositionDependentOptions::const_iterator optionEnd = pPosDepOptions.end();
   std::stack<InputTree::iterator> returnStack;
 
@@ -269,12 +269,12 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
             static_cast<const BitcodeOption*>(*option);
 
         // threat bitcode as an external IR in this version.
-        info.inputs().insert(root, *move,
+        config.inputs().insert(root, *move,
                              bitcode_option->path()->native(),
                              *(bitcode_option->path()),
                              Input::External);
 
-        info.setBitcode(**root);
+        config.setBitcode(**root);
 
         // move root on the new created node.
         move->move(root);
@@ -289,7 +289,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
         const InputFileOption *input_file_option =
             static_cast<const InputFileOption*>(*option);
 
-        info.inputs().insert(root, *move,
+        config.inputs().insert(root, *move,
                              input_file_option->path()->native(),
                              *(input_file_option->path()));
 
@@ -308,33 +308,33 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
           static_cast<const NamespecOption*>(*option);
 
       // find out the real path of the namespec.
-      if (info.attrFactory().constraint().isSharedSystem()) {
+      if (config.attrFactory().constraint().isSharedSystem()) {
         // In the system with shared object support, we can find both archive
         // and shared object.
 
-        if (info.attrFactory().last().isStatic()) {
+        if (config.attrFactory().last().isStatic()) {
           // with --static, we must search an archive.
-          path = info.options().directories().find(namespec_option->namespec(),
+          path = config.options().directories().find(namespec_option->namespec(),
                                                    Input::Archive);
         }
         else {
           // otherwise, with --Bdynamic, we can find either an archive or a
           // shared object.
-          path = info.options().directories().find(namespec_option->namespec(),
+          path = config.options().directories().find(namespec_option->namespec(),
                                                    Input::DynObj);
         }
       }
       else {
         // In the system without shared object support, we only look for an
         // archive.
-        path = info.options().directories().find(namespec_option->namespec(),
+        path = config.options().directories().find(namespec_option->namespec(),
                                                  Input::Archive);
       }
 
       if (NULL == path)
         fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
 
-      info.inputs().insert(root, *move,
+      config.inputs().insert(root, *move,
                            namespec_option->namespec(),
                            *path);
 
@@ -350,7 +350,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
     case PositionDependentOption::START_GROUP:
       if (!returnStack.empty())
         fatal(diag::fatal_forbid_nest_group);
-      info.inputs().enterGroup(root, *move);
+      config.inputs().enterGroup(root, *move);
       move->move(root);
       returnStack.push(root);
       move = &InputTree::Downward;
@@ -362,28 +362,28 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       move = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      info.attrFactory().last().setWholeArchive();
+      config.attrFactory().last().setWholeArchive();
       break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      info.attrFactory().last().unsetWholeArchive();
+      config.attrFactory().last().unsetWholeArchive();
       break;
     case PositionDependentOption::AS_NEEDED:
-      info.attrFactory().last().setAsNeeded();
+      config.attrFactory().last().setAsNeeded();
       break;
     case PositionDependentOption::NO_AS_NEEDED:
-      info.attrFactory().last().unsetAsNeeded();
+      config.attrFactory().last().unsetAsNeeded();
       break;
     case PositionDependentOption::ADD_NEEDED:
-      info.attrFactory().last().setAddNeeded();
+      config.attrFactory().last().setAddNeeded();
       break;
     case PositionDependentOption::NO_ADD_NEEDED:
-      info.attrFactory().last().unsetAddNeeded();
+      config.attrFactory().last().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
-      info.attrFactory().last().setStatic();
+      config.attrFactory().last().setStatic();
       break;
     case PositionDependentOption::BDYNAMIC:
-      info.attrFactory().last().setDynamic();
+      config.attrFactory().last().setDynamic();
       break;
     default:
       fatal(diag::err_cannot_identify_option) << (*option)->position()

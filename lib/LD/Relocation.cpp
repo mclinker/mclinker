@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
@@ -48,10 +47,10 @@ Relocation::Address Relocation::symValue() const
 }
 
 void Relocation::apply(RelocationFactory& pRelocFactory,
-                       const MCLDInfo& pLDInfo)
+                       const LinkerConfig& pConfig)
 {
   RelocationFactory::Result result =
-                                 pRelocFactory.applyRelocation(*this, pLDInfo);
+                                 pRelocFactory.applyRelocation(*this, pConfig);
 
   switch (result) {
     case RelocationFactory::OK: {

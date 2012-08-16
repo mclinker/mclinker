@@ -6,13 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/Relocation.h"
-#include "mcld/LD/Layout.h"
-#include "mcld/Target/TargetLDBackend.h"
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/Relocation.h>
+#include <mcld/LD/Layout.h>
 
 using namespace mcld;
 
-/* ** */
 TargetLDBackend::TargetLDBackend()
   : m_pEhFrame(NULL) {
 }

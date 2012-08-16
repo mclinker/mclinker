@@ -17,7 +17,7 @@ namespace mcld {
 class TargetLDBackend;
 class ObjectLinker;
 class MemoryFactory;
-class MCLDInfo;
+class LinkerConfig;
 class TreeIteratorBase;
 class Input;
 
@@ -59,7 +59,7 @@ private:
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
   MemoryFactory *mMemAreaFactory;
-  mcld::MCLDInfo *mLDInfo;
+  mcld::LinkerConfig *mLDConfig;
   mcld::TreeIteratorBase *mRoot;
   bool mShared;
   std::string mSOName;

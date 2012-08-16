@@ -18,7 +18,7 @@
 namespace mcld
 {
 
-class MCLDInfo;
+class LinkerConfig;
 class Layout;
 class GNULDBackend;
 class Relocation;
@@ -48,17 +48,17 @@ public:
   const GNULDBackend& target() const
   { return f_Backend; }
 
-  virtual void writeELF32Header(const MCLDInfo& pInfo,
+  virtual void writeELF32Header(const LinkerConfig& pConfig,
                                 const Layout& pLayout,
                                 const GNULDBackend& pBackend,
                                 Output& pOutput) const;
 
-  virtual void writeELF64Header(const MCLDInfo& pInfo,
+  virtual void writeELF64Header(const LinkerConfig& pConfig,
                                 const Layout& pLayout,
                                 const GNULDBackend& pBackend,
                                 Output& pOutput) const;
 
-  virtual uint64_t getEntryPoint(const MCLDInfo& pInfo,
+  virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
                                  const Layout& pLayout,
                                  const GNULDBackend& pBackend,
                                  const Output& pOutput) const;

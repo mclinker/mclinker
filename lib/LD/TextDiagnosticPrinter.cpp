@@ -27,8 +27,8 @@ static const enum llvm::raw_ostream::Colors SavedColor = llvm::raw_ostream::SAVE
 //===----------------------------------------------------------------------===//
 // TextDiagnosticPrinter
 TextDiagnosticPrinter::TextDiagnosticPrinter(llvm::raw_ostream& pOStream,
-                                             const MCLDInfo& pLDInfo)
-  : m_OStream(pOStream), m_LDInfo(pLDInfo), m_pInput(NULL) {
+                                             const LinkerConfig& pConfig)
+  : m_OStream(pOStream), m_Config(pConfig), m_pInput(NULL) {
 }
 
 TextDiagnosticPrinter::~TextDiagnosticPrinter()
@@ -77,7 +77,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Debug: {
       // show debug message only if verbose >= 0
-      if (0 <= m_LDInfo.options().verbose()) {
+      if (0 <= m_Config.options().verbose()) {
         m_OStream.changeColor(DebugColor, true);
         m_OStream << "Debug: ";
         m_OStream.resetColor();
@@ -87,7 +87,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Note: {
       // show ignored message only if verbose >= 1
-      if (1 <= m_LDInfo.options().verbose()) {
+      if (1 <= m_Config.options().verbose()) {
         m_OStream.changeColor(NoteColor, true);
         m_OStream << "Note: ";
         m_OStream.resetColor();
@@ -97,7 +97,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
     }
     case DiagnosticEngine::Ignore: {
       // show ignored message only if verbose >= 2
-      if (2 <= m_LDInfo.options().verbose()) {
+      if (2 <= m_Config.options().verbose()) {
         m_OStream.changeColor(IgnoreColor, true);
         m_OStream << "Ignore: ";
         m_OStream.resetColor();
@@ -127,7 +127,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Error: {
-      int16_t error_limit = m_LDInfo.options().maxErrorNum();
+      int16_t error_limit = m_Config.options().maxErrorNum();
       if ((error_limit != -1) &&
           (getNumErrors() > static_cast<unsigned>(error_limit))) {
         m_OStream << "\n\n";
@@ -140,7 +140,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
       break;
     }
     case DiagnosticEngine::Warning: {
-      int16_t warning_limit = m_LDInfo.options().maxWarnNum();
+      int16_t warning_limit = m_Config.options().maxWarnNum();
       if ((warning_limit != -1) &&
           (getNumWarnings() > static_cast<unsigned>(warning_limit))) {
         m_OStream << "\n\n";
@@ -156,7 +156,7 @@ TextDiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
   }
 }
 
-void TextDiagnosticPrinter::beginInput(const Input& pInput, const MCLDInfo& pLDInfo)
+void TextDiagnosticPrinter::beginInput(const Input& pInput, const LinkerConfig& pConfig)
 {
   m_pInput = &pInput;
 }

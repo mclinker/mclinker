@@ -35,7 +35,7 @@ private:
   const mcld::Target *mTarget;
   bool initializeTarget();
 
-  mcld::MCLDInfo *mLDInfo;
+  mcld::LinkerConfig *mLDConfig;
   bool initializeLDInfo();
 
   mcld::DiagnosticLineInfo *mDiagLineInfo;
@@ -52,11 +52,11 @@ public:
   inline const mcld::Target *getTarget() const
   { return mTarget; }
 
-  inline mcld::MCLDInfo* getLDInfo()
-  { return mLDInfo; }
+  inline mcld::LinkerConfig* getLDConfig()
+  { return mLDConfig; }
 
-  inline const mcld::MCLDInfo* getLDInfo() const
-  { return mLDInfo; }
+  inline const mcld::LinkerConfig* getLDConfig() const
+  { return mLDConfig; }
 
   inline bool isShared() const
   { return mShared; }

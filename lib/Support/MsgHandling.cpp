@@ -22,11 +22,11 @@ using namespace mcld;
 static llvm::ManagedStatic<DiagnosticEngine> g_pEngine;
 
 void
-mcld::InitializeDiagnosticEngine(const mcld::MCLDInfo& pLDInfo,
+mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
                                  DiagnosticLineInfo* pLineInfo,
                                  DiagnosticPrinter* pPrinter)
 {
-  g_pEngine->reset(pLDInfo);
+  g_pEngine->reset(pConfig);
   if (NULL != pLineInfo)
     g_pEngine->setLineInfo(*pLineInfo);
 

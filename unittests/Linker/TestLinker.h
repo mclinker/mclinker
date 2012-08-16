@@ -23,12 +23,11 @@
 
 namespace mcld {
 
-class MCLDInfo;
+class LinkerConfig;
 class TargetLDBackend;
 class RegionFactory;
 
-namespace test
-{
+namespace test {
 
 class TestLinker
 {
@@ -39,14 +38,14 @@ public:
 
   bool initialize(const std::string &pTriple);
 
-  MCLDInfo* config() {
-    assert(NULL != m_pInfo);
-    return m_pInfo;
+  LinkerConfig* config() {
+    assert(NULL != m_pConfig);
+    return m_pConfig;
   }
 
-  const MCLDInfo* config() const {
-    assert(NULL != m_pInfo);
-    return m_pInfo;
+  const LinkerConfig* config() const {
+    assert(NULL != m_pConfig);
+    return m_pConfig;
   }
 
   // -----  search directories  ----- //
@@ -102,7 +101,7 @@ private:
 private:
   const mcld::Target* m_pTarget;
   mcld::ObjectLinker *m_pObjLinker;
-  mcld::MCLDInfo* m_pInfo;
+  mcld::LinkerConfig* m_pConfig;
   mcld::DiagnosticLineInfo* m_pDiagLineInfo;
   mcld::DiagnosticPrinter* m_pDiagPrinter;
   mcld::TargetLDBackend* m_pBackend;
@@ -116,5 +115,6 @@ private:
 
 } // namespace of test
 } // namespace of mcld
+
 #endif
 

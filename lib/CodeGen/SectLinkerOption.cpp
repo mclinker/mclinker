@@ -14,8 +14,9 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // SectLinkerOption
-SectLinkerOption::SectLinkerOption(MCLDInfo &pLDInfo)
-  : m_pLDInfo(&pLDInfo) { }
+//===----------------------------------------------------------------------===//
+SectLinkerOption::SectLinkerOption(LinkerConfig &pConfig)
+  : m_pConfig(&pConfig) { }
 
 SectLinkerOption::~SectLinkerOption() {
   for (PositionDependentOptions::iterator pdoption = m_PosDepOptions.begin(),

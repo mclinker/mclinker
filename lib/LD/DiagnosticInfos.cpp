@@ -85,8 +85,8 @@ static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
 
 //===----------------------------------------------------------------------===//
 //  DiagnosticInfos
-DiagnosticInfos::DiagnosticInfos(const MCLDInfo& pLDInfo)
-  : m_LDInfo(pLDInfo) {
+DiagnosticInfos::DiagnosticInfos(const LinkerConfig& pConfig)
+  : m_Config(pConfig) {
 }
 
 DiagnosticInfos::~DiagnosticInfos()
@@ -111,7 +111,7 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
 
   switch (ID) {
     case diag::multiple_definitions: {
-      if (m_LDInfo.options().hasMulDefs()) {
+      if (m_Config.options().hasMulDefs()) {
         severity = DiagnosticEngine::Ignore;
       }
       break;
@@ -119,15 +119,15 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
     case diag::undefined_reference: {
       // we have not implement --unresolved-symbols=method yet. So far, MCLinker
       // provides the easier --allow-shlib-undefined and --no-undefined (i.e. -z defs)
-      switch(m_LDInfo.output().type()) {
+      switch(m_Config.output().type()) {
         case Output::Object:
-          if (m_LDInfo.options().isNoUndefined())
+          if (m_Config.options().isNoUndefined())
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;
         break;
         case Output::DynObj:
-          if (m_LDInfo.options().isNoUndefined() || !m_LDInfo.options().isAllowShlibUndefined())
+          if (m_Config.options().isNoUndefined() || !m_Config.options().isAllowShlibUndefined())
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;

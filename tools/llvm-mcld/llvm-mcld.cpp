@@ -658,15 +658,15 @@ static bool ShouldColorize()
    return term && (0 != strcmp(term, "dumb"));
 }
 
-static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
+static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // -----  Set up General Options  ----- //
   // set up soname
-  pLDInfo.output().setSOName(ArgSOName);
+  pConfig.output().setSOName(ArgSOName);
 
   // set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      pLDInfo.options().setSysroot(ArgSysRoot);
+      pConfig.options().setSysroot(ArgSysRoot);
   }
 
   // add all search directories
@@ -674,9 +674,9 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
   cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
     if (sd->isInSysroot())
-      sd->setSysroot(pLDInfo.options().sysroot());
+      sd->setSysroot(pConfig.options().sysroot());
     if (exists(sd->path()) && is_directory(sd->path())) {
-      pLDInfo.options().directories().add(*sd);
+      pConfig.options().directories().add(*sd);
     }
     else {
       // FIXME: need a warning function
@@ -686,18 +686,18 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
     }
   }
 
-  pLDInfo.options().setPIE(ArgPIE);
-  pLDInfo.options().setTrace(ArgTrace);
-  pLDInfo.options().setVerbose(ArgVerbose);
-  pLDInfo.options().setMaxErrorNum(ArgMaxErrorNum);
-  pLDInfo.options().setMaxWarnNum(ArgMaxWarnNum);
-  pLDInfo.options().setEntry(ArgEntry);
-  pLDInfo.options().setBsymbolic(ArgBsymbolic);
-  pLDInfo.options().setBgroup(ArgBgroup);
-  pLDInfo.options().setDyld(ArgDyld);
-  pLDInfo.options().setNoUndefined(ArgNoUndefined);
-  pLDInfo.options().setMulDefs(ArgAllowMulDefs);
-  pLDInfo.options().setEhFrameHdr(ArgEhFrameHdr);
+  pConfig.options().setPIE(ArgPIE);
+  pConfig.options().setTrace(ArgTrace);
+  pConfig.options().setVerbose(ArgVerbose);
+  pConfig.options().setMaxErrorNum(ArgMaxErrorNum);
+  pConfig.options().setMaxWarnNum(ArgMaxWarnNum);
+  pConfig.options().setEntry(ArgEntry);
+  pConfig.options().setBsymbolic(ArgBsymbolic);
+  pConfig.options().setBgroup(ArgBgroup);
+  pConfig.options().setDyld(ArgDyld);
+  pConfig.options().setNoUndefined(ArgNoUndefined);
+  pConfig.options().setMulDefs(ArgAllowMulDefs);
+  pConfig.options().setEhFrameHdr(ArgEhFrameHdr);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
@@ -707,7 +707,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
 
     // add wname -> __wrap_wname
     mcld::StringEntry<llvm::StringRef>* to_wrap =
-                    pLDInfo.scripts().renameMap().insert(*wname, exist);
+                    pConfig.scripts().renameMap().insert(*wname, exist);
 
     std::string to_wrap_str = "__wrap_" + *wname;
     to_wrap->setValue(to_wrap_str);
@@ -718,7 +718,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
     // add __real_wname -> wname
     std::string from_real_str = "__real_" + *wname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pLDInfo.scripts().renameMap().insert(from_real_str, exist);
+             pConfig.scripts().renameMap().insert(from_real_str, exist);
     from_real->setValue(*wname);
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname << from_real_str;
@@ -732,7 +732,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
 
     // add pname -> pname_portable
     mcld::StringEntry<llvm::StringRef>* to_port =
-                  pLDInfo.scripts().renameMap().insert(*pname, exist);
+                  pConfig.scripts().renameMap().insert(*pname, exist);
 
     std::string to_port_str = *pname + "_portable";
     to_port->setValue(to_port_str);
@@ -743,7 +743,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
     // add __real_pname -> pname
     std::string from_real_str = "__real_" + *pname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pLDInfo.scripts().renameMap().insert(from_real_str, exist);
+             pConfig.scripts().renameMap().insert(from_real_str, exist);
 
     from_real->setValue(*pname);
     if (exist)
@@ -753,15 +753,15 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
   // set up colorize
   switch (ArgColor) {
     case color::Never:
-      pLDInfo.options().setColor(false);
+      pConfig.options().setColor(false);
     break;
     case color::Always:
-      pLDInfo.options().setColor(true);
+      pConfig.options().setColor(true);
     break;
     case color::Auto:
       bool color_option = ShouldColorize() &&
                  llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
-      pLDInfo.options().setColor(color_option);
+      pConfig.options().setColor(color_option);
     break;
   }
 
@@ -769,7 +769,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::MCLDInfo& pLDInfo) {
   cl::list<mcld::ZOption>::iterator zOpt;
   cl::list<mcld::ZOption>::iterator zOptEnd = ArgZOptionList.end();
   for (zOpt = ArgZOptionList.begin(); zOpt != zOptEnd; ++zOpt) {
-    pLDInfo.options().addZOption(*zOpt);
+    pConfig.options().addZOption(*zOpt);
   }
 
   // -----  Set up Script Options  ----- //
@@ -922,7 +922,7 @@ int main( int argc, char* argv[] )
   // -V
   if (ArgVersion) {
     mcld::outs() << "MCLinker - "
-                 << mcld::MCLDInfo::version()
+                 << mcld::LinkerConfig::version()
                  << "\n";
   }
 
@@ -1071,7 +1071,7 @@ int main( int argc, char* argv[] )
   TheTargetMachine.getTM().setMCUseCFI(false);
 
   // Set up mcld::outs() and mcld::errs()
-  InitializeOStreams(TheTargetMachine.getLDInfo());
+  InitializeOStreams(TheTargetMachine.getConfig());
 
   // Set up MsgHandler
   OwningPtr<mcld::DiagnosticLineInfo>
@@ -1079,9 +1079,9 @@ int main( int argc, char* argv[] )
                                                        TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
     diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(),
-                                                TheTargetMachine.getLDInfo()));
+                                                TheTargetMachine.getConfig()));
 
-  mcld::InitializeDiagnosticEngine(TheTargetMachine.getLDInfo(),
+  mcld::InitializeDiagnosticEngine(TheTargetMachine.getConfig(),
                                    diag_line_info.take(),
                                    diag_printer.get());
 
@@ -1112,9 +1112,9 @@ int main( int argc, char* argv[] )
 
   // Process the linker input from the command line
   mcld::SectLinkerOption *LinkerOpt =
-      new mcld::SectLinkerOption(TheTargetMachine.getLDInfo());
+      new mcld::SectLinkerOption(TheTargetMachine.getConfig());
 
-  if (!ProcessLinkerOptionsFromCommand(TheTargetMachine.getLDInfo())) {
+  if (!ProcessLinkerOptionsFromCommand(TheTargetMachine.getConfig())) {
     errs() << argv[0] << ": failed to process linker options from command line!\n";
     return 1;
   }

@@ -17,7 +17,7 @@ namespace mcld
 class ARMBaseTargetMachine : public LLVMTargetMachine
 {
 protected:
-  MCLDInfo *m_pLDInfo;
+  LinkerConfig *m_pConfig;
 
 public:
   ARMBaseTargetMachine(llvm::TargetMachine &pTM,
@@ -26,11 +26,11 @@ public:
 
   virtual ~ARMBaseTargetMachine();
 
-  mcld::MCLDInfo& getLDInfo()
-  { return *m_pLDInfo; }
+  mcld::LinkerConfig& getConfig()
+  { return *m_pConfig; }
 
-  const mcld::MCLDInfo& getLDInfo() const
-  { return *m_pLDInfo; }
+  const mcld::LinkerConfig& getConfig() const
+  { return *m_pConfig; }
 
 };
 

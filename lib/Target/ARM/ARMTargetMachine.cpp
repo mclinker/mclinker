@@ -24,11 +24,11 @@ mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
   : mcld::LLVMTargetMachine(pPM, pTarget, pTriple) {
   // arg1 - the number of total attributes
   // arg2 - the most possible number of input files
-  m_pLDInfo = new MCLDInfo(pTriple, 32, 64);
+  m_pConfig = new LinkerConfig(pTriple, 32, 64);
 }
 
 mcld::ARMBaseTargetMachine::~ARMBaseTargetMachine()
 {
-  delete m_pLDInfo;
+  delete m_pConfig;
 }
 

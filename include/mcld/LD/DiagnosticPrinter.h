@@ -28,7 +28,7 @@ public:
 
   virtual ~DiagnosticPrinter();
 
-  virtual void beginInput(const Input& pInput, const MCLDInfo& pLDInfo) {}
+  virtual void beginInput(const Input& pInput, const LinkerConfig& pConfig) {}
 
   virtual void endInput() {}
 

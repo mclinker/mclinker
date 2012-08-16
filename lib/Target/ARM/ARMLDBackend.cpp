@@ -125,7 +125,7 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& p
 }
 
 void ARMGNULDBackend::doPreLayout(const Output& pOutput,
-                                  const MCLDInfo& pInfo,
+                                  const LinkerConfig& pConfig,
                                   FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is must.
@@ -135,7 +135,7 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
 }
 
 void ARMGNULDBackend::doPostLayout(const Output& pOutput,
-                                   const MCLDInfo& pInfo,
+                                   const LinkerConfig& pConfig,
                                    FragmentLinker& pLinker)
 {
   const ELFFileFormat *file_format = getOutputFormat(pOutput);
@@ -319,11 +319,11 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 /// checkValidReloc - When we attempt to generate a dynamic relocation for
 /// ouput file, check if the relocation is supported by dynamic linker.
 void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       const Output& pOutput) const
 {
   // If not building a PIC object, no relocation type is invalid
-  if (!isOutputPIC(pOutput, pLDInfo))
+  if (!isOutputPIC(pOutput, pConfig))
     return;
 
   switch(pReloc.type()) {
@@ -360,7 +360,7 @@ void ARMGNULDBackend::updateAddend(Relocation& pReloc,
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      const Output& pOutput)
 {
   // rsym - The relocation target symbol
@@ -381,7 +381,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC(pOutput, pLDInfo)) {
+      if (isOutputPIC(pOutput, pConfig)) {
         //create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -402,7 +402,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // PIC code should not contain these kinds of relocation
-      if (isOutputPIC(pOutput, pLDInfo)) {
+      if (isOutputPIC(pOutput, pConfig)) {
         error(diag::non_pic_relocation) << (int)pReloc.type()
                                         << pReloc.symInfo()->name();
       }
@@ -433,7 +433,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC(pOutput, pLDInfo)) {
+      if (isOutputPIC(pOutput, pConfig)) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
@@ -473,7 +473,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       const Output& pOutput)
 {
   // rsym - The relocation target symbol
@@ -500,7 +500,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (symbolNeedsPLT(*rsym, pConfig, pOutput)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it doesn't exist
@@ -521,19 +521,19 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pLDInfo, pOutput, true)) {
+                            pConfig, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc, pLDInfo, pOutput);
+          checkValidReloc(pReloc, pConfig, pOutput);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
         }
@@ -602,19 +602,19 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
       if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pLDInfo, pOutput, false)) {
+                            pConfig, pOutput, false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc, pLDInfo, pOutput);
+          checkValidReloc(pReloc, pConfig, pOutput);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
         }
@@ -643,7 +643,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
+         !isSymbolPreemptible(*rsym, pConfig, pOutput)) {
         return;
       }
 
@@ -715,7 +715,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      const Output& pOutput,
                                      const LDSection& pSection)
 {
@@ -746,17 +746,17 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
+    scanLocalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
 
   // rsym is external
   else
-    scanGlobalReloc(pReloc, pInputSym, pLinker, pLDInfo, pOutput);
+    scanGlobalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
 
 }
 
 uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
                                           const LDSection& pSection,
-                                          const MCLDInfo& pInfo,
+                                          const LinkerConfig& pConfig,
                                           const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
@@ -919,12 +919,12 @@ const OutputRelocSection& ARMGNULDBackend::getRelPLT() const
 unsigned int
 ARMGNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
-                                       const MCLDInfo& pInfo) const
+                                       const LinkerConfig& pConfig) const
 {
   const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT()) {
-    if (pInfo.options().hasNow())
+    if (pConfig.options().hasNow())
       return SHO_RELRO_LAST;
     return SHO_DATA;
   }

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Config/Config.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/Config/Config.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
@@ -19,11 +19,11 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// MCLDInfo
+// LinkerConfig
 //===----------------------------------------------------------------------===//
-MCLDInfo::MCLDInfo(const std::string& pTripleString,
-                   size_t pAttrNum,
-                   size_t pInputNum)
+LinkerConfig::LinkerConfig(const std::string& pTripleString,
+                           size_t pAttrNum,
+                           size_t pInputNum)
   : m_Options(),
     m_Scripts(),
     m_pBitcode(NULL),
@@ -38,7 +38,7 @@ MCLDInfo::MCLDInfo(const std::string& pTripleString,
   m_pNamePool = new NamePool(*m_pResolver, 1024);
 }
 
-MCLDInfo::~MCLDInfo()
+LinkerConfig::~LinkerConfig()
 {
   delete m_pOutput;
   delete m_pAttrFactory;
@@ -49,24 +49,24 @@ MCLDInfo::~MCLDInfo()
   delete m_pNamePool;
 }
 
-void MCLDInfo::setBitcode(const Input& pInput)
+void LinkerConfig::setBitcode(const Input& pInput)
 {
   m_pBitcode = const_cast<Input*>(&pInput);
 }
 
-Input& MCLDInfo::bitcode()
+Input& LinkerConfig::bitcode()
 {
   assert((0 != m_pBitcode) && "default bitcode is not set");
   return *m_pBitcode;
 }
 
-const Input& MCLDInfo::bitcode() const
+const Input& LinkerConfig::bitcode() const
 {
   assert((0 != m_pBitcode) && "default bitcode is not set");
   return *m_pBitcode;
 }
 
-const char* MCLDInfo::version()
+const char* LinkerConfig::version()
 {
   return MCLD_VERSION;
 }

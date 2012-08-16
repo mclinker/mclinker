@@ -34,17 +34,17 @@ public:
   raw_fd_ostream(const char *pFilename,
                  std::string &pErrorInfo,
                  unsigned int pFlags = 0,
-                 const MCLDInfo* pLDInfo = NULL);
+                 const LinkerConfig* pConfig = NULL);
 
   /// raw_fd_ostream ctor - FD is the file descriptor that this writes to.  If
   /// ShouldClose is true, this closes the file when the stream is destroyed.
   raw_fd_ostream(int pFD, bool pShouldClose,
                  bool pUnbuffered=false,
-                 const MCLDInfo* pLDInfo = NULL);
+                 const LinkerConfig* pConfig = NULL);
 
   virtual ~raw_fd_ostream();
 
-  void setLDInfo(const MCLDInfo& pLDInfo);
+  void setLDInfo(const LinkerConfig& pConfig);
 
 
   llvm::raw_ostream &changeColor(enum llvm::raw_ostream::Colors pColors,
@@ -59,13 +59,13 @@ public:
   bool is_displayed() const;
 
 private:
-  const MCLDInfo* m_pLDInfo;
+  const LinkerConfig* m_pConfig;
 
 };
 
 /// InitializeOStreams - This initialize mcld::outs() and mcld::errs().
 /// Call it before you use mcld::outs() and mcld::errs().
-void InitializeOStreams(const MCLDInfo& pLDInfo);
+void InitializeOStreams(const LinkerConfig& pConfig);
 
 /// outs() - This returns a reference to a raw_ostream for standard output.
 /// Use it like: outs() << "foo" << "bar";

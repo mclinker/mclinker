@@ -72,12 +72,12 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDConfig(NULL),
     mRoot(NULL), mShared(false) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDConfig(NULL),
     mRoot(NULL), mShared(false) {
 
   const std::string &triple = pConfig.getTriple();
@@ -99,12 +99,12 @@ Linker::~Linker() {
 }
 
 enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
-  mLDInfo = const_cast<mcld::MCLDInfo*>(pConfig.getLDInfo());
-  if (mLDInfo == NULL) {
+  mLDConfig = const_cast<mcld::LinkerConfig*>(pConfig.getLDConfig());
+  if (mLDConfig == NULL) {
     return kDelegateLDInfo;
   }
 
-  mRoot = new mcld::InputTree::iterator(mLDInfo->inputs().root());
+  mRoot = new mcld::InputTree::iterator(mLDConfig->inputs().root());
   mShared = pConfig.isShared();
   mSOName = pConfig.getSOName();
 
@@ -112,7 +112,7 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
 }
 
 enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
-  if (mLDInfo != NULL) {
+  if (mLDConfig != NULL) {
     return kDoubleConfig;
   }
 
@@ -125,7 +125,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
-  mObjLinker = new mcld::ObjectLinker(*mLDInfo, *mBackend, *mMemAreaFactory);
+  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mMemAreaFactory);
 
   mObjLinker->initFragmentLinker();
 
@@ -153,7 +153,7 @@ enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
     return pCode;
   }
 
-  mcld::LDContext *input_context = mLDInfo->contextFactory().produce(pPath);
+  mcld::LDContext *input_context = mLDConfig->contextFactory().produce(pPath);
   pInput.setContext(input_context);
   return kSuccess;
 }
@@ -161,35 +161,35 @@ enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
 enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
-  if (mLDInfo->attrFactory().constraint().isSharedSystem()) {
+  if (mLDConfig->attrFactory().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (mLDInfo->attrFactory().last().isStatic()) {
+    if (mLDConfig->attrFactory().last().isStatic()) {
       // with --static, we must search an archive.
-      path = mLDInfo->options().directories().find(pNameSpec,
+      path = mLDConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
-      path = mLDInfo->options().directories().find(pNameSpec,
+      path = mLDConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::DynObj);
     }
   }
   else {
     // In the system without shared object support, we only look for an
     // archive.
-    path = mLDInfo->options().directories().find(pNameSpec,
+    path = mLDConfig->options().directories().find(pNameSpec,
                                                  mcld::Input::Archive);
   }
 
   if (NULL == path)
     return kFindNameSpec;
 
-  mcld::Input* input = mLDInfo->inputFactory().produce(pNameSpec, *path,
+  mcld::Input* input = mLDConfig->inputFactory().produce(pNameSpec, *path,
                                                        mcld::Input::Unknown);
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -198,11 +198,11 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
 
 /// addObject - Add a object file by the filename.
 enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
-  mcld::Input* input = mLDInfo->inputFactory().produce(pObjectPath,
+  mcld::Input* input = mLDConfig->inputFactory().produce(pObjectPath,
                                                        pObjectPath,
                                                        mcld::Input::Unknown);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -212,36 +212,36 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
 /// addObject - Add a piece of memory. The memory is of ELF format.
 enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
 
-  mcld::Input* input = mLDInfo->inputFactory().produce("memory object",
+  mcld::Input* input = mLDConfig->inputFactory().produce("memory object",
                                                        "NAN",
                                                        mcld::Input::Unknown);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
   input->setMemArea(input_memory);
 
-  mcld::LDContext *input_context = mLDInfo->contextFactory().produce();
+  mcld::LDContext *input_context = mLDConfig->contextFactory().produce();
   input->setContext(input_context);
 
   return kSuccess;
 }
 
 enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
-  mcld::Input* input = mLDInfo->inputFactory().produce("code object",
+  mcld::Input* input = mLDConfig->inputFactory().produce("code object",
                                                        "NAN",
                                                        mcld::Input::External);
 
-  mLDInfo->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
   input->setMemArea(input_memory);
 
-  mcld::LDContext *input_context = mLDInfo->contextFactory().produce();
+  mcld::LDContext *input_context = mLDConfig->contextFactory().produce();
   input->setContext(input_context);
 
   // FIXME: So far, FragmentLinker must set up output before add input files.
@@ -250,7 +250,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
     return kNotConfig;
   }
 
-  if (!mLDInfo->output().hasContext()) {
+  if (!mLDConfig->output().hasContext()) {
     return kNotSetUpOutput;
   }
 
@@ -287,7 +287,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
-  if (mLDInfo->output().hasContext()) {
+  if (mLDConfig->output().hasContext()) {
     return kDoubleConfig;
   }
 
@@ -307,14 +307,14 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
   }
 
   if (mShared) {
-    mLDInfo->output().setType(mcld::Output::DynObj);
+    mLDConfig->output().setType(mcld::Output::DynObj);
   } else {
-    mLDInfo->output().setType(mcld::Output::Exec);
+    mLDConfig->output().setType(mcld::Output::Exec);
   }
 
-  mLDInfo->output().setSOName(mSOName);
-  mLDInfo->output().setMemArea(out_area);
-  mLDInfo->output().setContext(mLDInfo->contextFactory().produce(pPath));
+  mLDConfig->output().setSOName(mSOName);
+  mLDConfig->output().setMemArea(out_area);
+  mLDConfig->output().setContext(mLDConfig->contextFactory().produce(pPath));
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
@@ -329,16 +329,16 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
-  if (mLDInfo->output().hasContext()) {
+  if (mLDConfig->output().hasContext()) {
     return kDoubleConfig;
   }
 
   // -----  initialize output file  ----- //
   mcld::MemoryArea* out_area = mMemAreaFactory->produce(pFileHandler);
 
-  mLDInfo->output().setType(mcld::Output::DynObj);
-  mLDInfo->output().setMemArea(out_area);
-  mLDInfo->output().setContext(mLDInfo->contextFactory().produce());
+  mLDConfig->output().setType(mcld::Output::DynObj);
+  mLDConfig->output().setMemArea(out_area);
+  mLDConfig->output().setContext(mLDConfig->contextFactory().produce());
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section

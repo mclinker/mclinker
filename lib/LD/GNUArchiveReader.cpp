@@ -29,10 +29,10 @@
 
 using namespace mcld;
 
-GNUArchiveReader::GNUArchiveReader(MCLDInfo& pLDInfo,
+GNUArchiveReader::GNUArchiveReader(LinkerConfig& pConfig,
                                    MemoryAreaFactory& pMemAreaFactory,
                                    ELFObjectReader& pELFObjectReader)
- : m_LDInfo(pLDInfo),
+ : m_Config(pConfig),
    m_MemAreaFactory(pMemAreaFactory),
    m_ELFObjectReader(pELFObjectReader)
 {
@@ -197,14 +197,14 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
   if (!isThinArchive(pArchiveFile)) {
     // this is an object file in an archive
     member =
-      m_LDInfo.inputFactory().produce(member_name,
+      m_Config.inputFactory().produce(member_name,
                                       pArchiveFile.path(),
                                       Input::Unknown,
                                       (pFileOffset +
                                        sizeof(Archive::MemberHeader)));
     assert(member != NULL);
     member->setMemArea(pArchiveFile.memArea());
-    LDContext *input_context = m_LDInfo.contextFactory().produce();
+    LDContext *input_context = m_Config.contextFactory().produce();
     member->setContext(input_context);
   }
   else {
@@ -224,7 +224,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
     else
       input_path.assign(member_name);
     member =
-      m_LDInfo.inputFactory().produce(member_name, input_path, Input::Unknown);
+      m_Config.inputFactory().produce(member_name, input_path, Input::Unknown);
 
     assert(member != NULL);
     MemoryArea* input_memory =
@@ -236,7 +236,7 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
       error(diag::err_cannot_open_input) << member->name() << member->path();
       return NULL;
     }
-    LDContext *input_context = m_LDInfo.contextFactory().produce(input_path);
+    LDContext *input_context = m_Config.contextFactory().produce(input_path);
     member->setContext(input_context);
   }
 
@@ -340,7 +340,7 @@ enum Archive::Symbol::Status
 GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
 {
   // TODO: handle symbol version issue and user defined symbols
-  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pSymName);
+  ResolveInfo* info = m_Config.getNamePool().findInfo(pSymName);
   if (NULL != info) {
     if (!info->isUndef())
       return Archive::Symbol::Exclude;

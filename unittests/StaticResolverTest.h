@@ -16,6 +16,8 @@ namespace mcld
 {
 class StaticResolver;
 class ResolveInfoFactory;
+class DiagnosticLineInfo;
+class DiagnosticPrinter;
 
 } // namespace for mcld
 
@@ -45,7 +47,7 @@ public:
 protected:
   mcld::StaticResolver* m_pResolver;
   mcld::ResolveInfoFactory* m_pFactory;
-  mcld::MCLDInfo* m_pLDInfo;
+  mcld::LinkerConfig* m_pConfig;
   mcld::DiagnosticLineInfo* m_pLineInfo;
   mcld::DiagnosticPrinter* m_pPrinter;
 };

@@ -29,7 +29,7 @@ namespace diag {
   };
 } // namespace of diag
 
-class MCLDInfo;
+class LinkerConfig;
 class DiagnosticEngine;
 
 /** \class DiagnosticInfos
@@ -38,7 +38,7 @@ class DiagnosticEngine;
 class DiagnosticInfos
 {
 public:
-  DiagnosticInfos(const MCLDInfo& pLDInfo);
+  DiagnosticInfos(const LinkerConfig& pConfig);
 
   ~DiagnosticInfos();
 
@@ -47,7 +47,7 @@ public:
   bool process(DiagnosticEngine& pEngine) const;
 
 private:
-  const MCLDInfo& m_LDInfo;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

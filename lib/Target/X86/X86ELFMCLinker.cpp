@@ -15,16 +15,16 @@ using namespace mcld;
 X86ELFMCLinker::X86ELFMCLinker(SectLinkerOption &pOption,
                                TargetLDBackend &pLDBackend)
   : MCLinker(pOption, pLDBackend) {
-  MCLDInfo &info = pOption.info();
+  LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attibutes
-  info.attrFactory().constraint().enableWholeArchive();
-  info.attrFactory().constraint().enableAsNeeded();
-  info.attrFactory().constraint().setSharedSystem();
+  config.attrFactory().constraint().enableWholeArchive();
+  config.attrFactory().constraint().enableAsNeeded();
+  config.attrFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  info.attrFactory().predefined().unsetWholeArchive();
-  info.attrFactory().predefined().unsetAsNeeded();
-  info.attrFactory().predefined().setDynamic();
+  config.attrFactory().predefined().unsetWholeArchive();
+  config.attrFactory().predefined().unsetAsNeeded();
+  config.attrFactory().predefined().setDynamic();
 
 }
 

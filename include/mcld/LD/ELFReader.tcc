@@ -366,7 +366,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 /// This is used to get the signature of a group section.
 ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
                                              LDSection& pSymTab,
-                                             MCLDInfo& pLDInfo,
+                                             LinkerConfig& pConfig,
                                              uint32_t pSymIdx) const
 {
   LDSection* symtab = &pSymTab;
@@ -419,7 +419,7 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
   ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
 
   ResolveInfo* result =
-         pLDInfo.getNamePool().createSymbol(ld_name,
+         pConfig.getNamePool().createSymbol(ld_name,
                                             (pInput.type() == Input::DynObj),
                                             ld_type,
                                             ld_desc,

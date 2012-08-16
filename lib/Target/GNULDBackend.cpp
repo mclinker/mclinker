@@ -95,21 +95,21 @@ size_t GNULDBackend::sectionStartOffset() const
 }
 
 uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
-                                        const MCLDInfo& pInfo) const
+                                        const LinkerConfig& pConfig) const
 {
   // TODO: handle the user option: -TText=
-  if (isOutputPIC(pOutput, pInfo))
+  if (isOutputPIC(pOutput, pConfig))
     return 0x0;
   else
     return defaultTextSegmentAddr();
 }
 
-bool GNULDBackend::initArchiveReader(MCLDInfo& pInfo,
+bool GNULDBackend::initArchiveReader(LinkerConfig& pConfig,
                                      MemoryAreaFactory& pMemAreaFactory)
 {
   if (NULL == m_pArchiveReader) {
     assert(NULL != m_pObjectReader);
-    m_pArchiveReader = new GNUArchiveReader(pInfo,
+    m_pArchiveReader = new GNUArchiveReader(pConfig,
                                             pMemAreaFactory,
                                             *m_pObjectReader);
   }
@@ -694,7 +694,7 @@ const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 void
 GNULDBackend::sizeNamePools(const Output& pOutput,
                             const SymbolCategory& pSymbols,
-                            const MCLDInfo& pLDInfo)
+                            const LinkerConfig& pConfig)
 {
   // size of string tables starts from 1 to hold the null character in their
   // first byte
@@ -730,8 +730,8 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
       //   1. ignore --no-add-needed
       //   2. force count in --no-as-needed
       //   3. judge --as-needed
-      InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
-      for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+      InputTree::const_bfs_iterator input, inputEnd = pConfig.inputs().bfs_end();
+      for (input = pConfig.inputs().bfs_begin(); input != inputEnd; ++input) {
         if (Input::DynObj == (*input)->type()) {
           // --add-needed
           if ((*input)->attribute()->isAddNeeded()) {
@@ -780,7 +780,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries until we get the size of the sections mentioned above
-    dynamic().reserveEntries(pLDInfo, *file_format);
+    dynamic().reserveEntries(pConfig, *file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
 }
@@ -792,7 +792,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 void GNULDBackend::emitRegNamePools(Output& pOutput,
                                     SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    const MCLDInfo& pLDInfo)
+                                    const LinkerConfig& pConfig)
 {
 
   assert(pOutput.hasMemArea());
@@ -899,7 +899,7 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
 void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    const MCLDInfo& pLDInfo)
+                                    const LinkerConfig& pConfig)
 {
   assert(pOutput.hasMemArea());
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -1004,8 +1004,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   //   2. force count in --no-as-needed
   //   3. judge --as-needed
   ELFDynamic::iterator dt_need = dynamic().needBegin();
-  InputTree::const_bfs_iterator input, inputEnd = pLDInfo.inputs().bfs_end();
-  for (input = pLDInfo.inputs().bfs_begin(); input != inputEnd; ++input) {
+  InputTree::const_bfs_iterator input, inputEnd = pConfig.inputs().bfs_end();
+  for (input = pConfig.inputs().bfs_begin(); input != inputEnd; ++input) {
     if (Input::DynObj == (*input)->type()) {
       // --add-needed
       if ((*input)->attribute()->isAddNeeded()) {
@@ -1031,7 +1031,7 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   // initialize value of ELF .dynamic section
   if (Output::DynObj == pOutput.type())
     dynamic().applySoname(strtabsize);
-  dynamic().applyEntries(pLDInfo, *file_format);
+  dynamic().applyEntries(pConfig, *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
   strcpy((strtab + strtabsize), pOutput.name().c_str());
@@ -1077,13 +1077,13 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 }
 
 /// sizeInterp - compute the size of the .interp section
-void GNULDBackend::sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo)
+void GNULDBackend::sizeInterp(const Output& pOutput, const LinkerConfig& pConfig)
 {
   assert(pOutput.type() == Output::Exec);
 
   const char* dyld_name;
-  if (pLDInfo.options().hasDyld())
-    dyld_name = pLDInfo.options().dyld().c_str();
+  if (pConfig.options().hasDyld())
+    dyld_name = pConfig.options().dyld().c_str();
   else
     dyld_name = dyld();
 
@@ -1092,7 +1092,7 @@ void GNULDBackend::sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo)
 }
 
 /// emitInterp - emit the .interp
-void GNULDBackend::emitInterp(Output& pOutput, const MCLDInfo& pLDInfo)
+void GNULDBackend::emitInterp(Output& pOutput, const LinkerConfig& pConfig)
 {
   assert(pOutput.type() == Output::Exec &&
          getExecFileFormat()->hasInterp() &&
@@ -1102,8 +1102,8 @@ void GNULDBackend::emitInterp(Output& pOutput, const MCLDInfo& pLDInfo)
   MemoryRegion *region = pOutput.memArea()->request(
                                               interp.offset(), interp.size());
   const char* dyld_name;
-  if (pLDInfo.options().hasDyld())
-    dyld_name = pLDInfo.options().dyld().c_str();
+  if (pConfig.options().hasDyld())
+    dyld_name = pConfig.options().dyld().c_str();
   else
     dyld_name = dyld();
 
@@ -1113,7 +1113,7 @@ void GNULDBackend::emitInterp(Output& pOutput, const MCLDInfo& pLDInfo)
 /// getSectionOrder
 unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
                                            const LDSection& pSectHdr,
-                                           const MCLDInfo& pInfo) const
+                                           const LinkerConfig& pConfig) const
 {
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
@@ -1139,7 +1139,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
       } else if (!is_write) {
         return SHO_RO;
       } else {
-        if (pInfo.options().hasRelro()) {
+        if (pConfig.options().hasRelro()) {
           if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
               pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
               pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
@@ -1170,7 +1170,7 @@ unsigned int GNULDBackend::getSectionOrder(const Output& pOutput,
 
     // get the order from target for target specific sections
     case LDFileFormat::Target:
-      return getTargetSectionOrder(pOutput, pSectHdr, pInfo);
+      return getTargetSectionOrder(pOutput, pSectHdr, pConfig);
 
     // handle .interp
     case LDFileFormat::Note:
@@ -1269,7 +1269,7 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 /// sections.
 /// @refer Google gold linker: common.cc: 214
 bool
-GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, FragmentLinker& pLinker) const
+GNULDBackend::allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const
 {
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
@@ -1364,7 +1364,7 @@ GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, FragmentLinker& pLink
 
 
 /// createProgramHdrs - base on output sections to create the program headers
-void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
+void GNULDBackend::createProgramHdrs(Output& pOutput, const LinkerConfig& pConfig)
 {
   assert(pOutput.hasContext());
   ELFFileFormat *file_format = getOutputFormat(pOutput);
@@ -1379,7 +1379,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
   }
 
   // FIXME: Should we consider -z relro here?
-  if (pInfo.options().hasRelro()) {
+  if (pConfig.options().hasRelro()) {
     // if -z relro is given, we need to adjust sections' offset again, and let
     // PT_GNU_RELRO end on a common page boundary
     LDContext::SectionTable& sect_table = pOutput.context()->getSectionTable();
@@ -1387,14 +1387,14 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     size_t idx;
     for (idx = 0; idx < pOutput.context()->numOfSections(); ++idx) {
       // find the first non-relro section
-      if (getSectionOrder(pOutput, *sect_table[idx], pInfo) > SHO_RELRO_LAST) {
+      if (getSectionOrder(pOutput, *sect_table[idx], pConfig) > SHO_RELRO_LAST) {
         break;
       }
     }
 
     // align the first non-relro section to page boundary
     uint64_t offset = sect_table[idx]->offset();
-    alignAddress(offset, commonPageSize(pInfo));
+    alignAddress(offset, commonPageSize(pConfig));
     sect_table[idx]->setOffset(offset);
 
     // set up remaining section's offset
@@ -1428,12 +1428,12 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
          LDFileFormat::Null == (*sect)->kind()) {
       // create new PT_LOAD segment
       load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
-      load_seg->setAlign(abiPageSize(pInfo));
+      load_seg->setAlign(abiPageSize(pConfig));
 
       // check if this segment needs padding
       padding = 0;
-      if (((*sect)->offset() & (abiPageSize(pInfo) - 1)) != 0)
-        padding = abiPageSize(pInfo);
+      if (((*sect)->offset() & (abiPageSize(pConfig) - 1)) != 0)
+        padding = abiPageSize(pConfig);
     }
 
     assert(NULL != load_seg);
@@ -1442,7 +1442,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
       load_seg->updateFlag(cur_seg_flag);
 
     if (LDFileFormat::Null != (*sect)->kind())
-      (*sect)->setAddr(segmentStartAddr(pOutput, pInfo) +
+      (*sect)->setAddr(segmentStartAddr(pOutput, pConfig) +
                        (*sect)->offset() +
                        padding);
 
@@ -1457,12 +1457,12 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
     dyn_seg->addSection(&file_format->getDynamic());
   }
 
-  if (pInfo.options().hasRelro()) {
+  if (pConfig.options().hasRelro()) {
     // make PT_GNU_RELRO
     ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
     for (LDContext::sect_iterator sect = pOutput.context()->sectBegin();
          sect != pOutput.context()->sectEnd(); ++sect) {
-      unsigned int order = getSectionOrder(pOutput, **sect, pInfo);
+      unsigned int order = getSectionOrder(pOutput, **sect, pConfig);
       if (SHO_RELRO_LOCAL == order ||
           SHO_RELRO == order ||
           SHO_RELRO_LAST == order) {
@@ -1479,7 +1479,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput, const MCLDInfo& pInfo)
 }
 
 /// setupProgramHdrs - set up the attributes of segments
-void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo)
+void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const LinkerConfig& pConfig)
 {
   // update segment info
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
@@ -1498,7 +1498,7 @@ void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInf
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(segmentStartAddr(pOutput, pInfo) + offset);
+      segment.setVaddr(segmentStartAddr(pOutput, pConfig) + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1513,7 +1513,7 @@ void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInf
     segment.setOffset(segment.getFirstSection()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.getFirstSection()->kind())
-      segment.setVaddr(segmentStartAddr(pOutput, pInfo));
+      segment.setVaddr(segmentStartAddr(pOutput, pConfig));
     else
       segment.setVaddr(segment.getFirstSection()->addr());
     segment.setPaddr(segment.vaddr());
@@ -1532,19 +1532,19 @@ void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInf
 /// createGNUStackInfo - create an output GNU stack section or segment if needed
 /// @ref gold linker: layout.cc:2608
 void GNULDBackend::createGNUStackInfo(const Output& pOutput,
-                                      const MCLDInfo& pInfo,
+                                      const LinkerConfig& pConfig,
                                       FragmentLinker& pLinker)
 {
   uint32_t flag = 0x0;
-  if (pInfo.options().hasStackSet()) {
+  if (pConfig.options().hasStackSet()) {
     // 1. check the command line option (-z execstack or -z noexecstack)
-    if (pInfo.options().hasExecStack())
+    if (pConfig.options().hasExecStack())
       flag = llvm::ELF::SHF_EXECINSTR;
   } else {
     // 2. check the stack info from the input objects
     size_t object_count = 0, stack_note_count = 0;
-    mcld::InputTree::const_bfs_iterator input, inEnd = pInfo.inputs().bfs_end();
-    for (input=pInfo.inputs().bfs_begin(); input!=inEnd; ++input) {
+    mcld::InputTree::const_bfs_iterator input, inEnd = pConfig.inputs().bfs_end();
+    for (input=pConfig.inputs().bfs_begin(); input!=inEnd; ++input) {
       if ((*input)->type() == Input::Object) {
         ++object_count;
         const LDSection* sect = (*input)->context()->getSection(
@@ -1585,13 +1585,13 @@ void GNULDBackend::createGNUStackInfo(const Output& pOutput,
 
 /// preLayout - Backend can do any needed modification before layout
 void GNULDBackend::preLayout(const Output& pOutput,
-                             const MCLDInfo& pLDInfo,
+                             const LinkerConfig& pConfig,
                              FragmentLinker& pLinker)
 {
   // prelayout target first
-  doPreLayout(pOutput, pLDInfo, pLinker);
+  doPreLayout(pOutput, pConfig, pLinker);
 
-  if (pLDInfo.options().hasEhFrameHdr()) {
+  if (pConfig.options().hasEhFrameHdr()) {
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat(pOutput);
     assert(NULL != getEhFrame());
@@ -1604,32 +1604,32 @@ void GNULDBackend::preLayout(const Output& pOutput,
 
 /// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(const Output& pOutput,
-                              const MCLDInfo& pInfo,
+                              const LinkerConfig& pConfig,
                               FragmentLinker& pLinker)
 {
   // 1. emit program headers
   if (pOutput.type() != Output::Object) {
     // 1.1 create program headers
-    createProgramHdrs(pLinker.getLDInfo().output(), pInfo);
+    createProgramHdrs(pLinker.getLDInfo().output(), pConfig);
   }
 
   // 1.2 create special GNU Stack note section or segment
-  createGNUStackInfo(pOutput, pInfo, pLinker);
+  createGNUStackInfo(pOutput, pConfig, pLinker);
 
   if (pOutput.type() != Output::Object) {
     // 1.3 set up the attributes of program headers
-    setupProgramHdrs(pOutput, pInfo);
+    setupProgramHdrs(pOutput, pConfig);
   }
 
   // 2. target specific post layout
-  doPostLayout(pOutput, pInfo, pLinker);
+  doPostLayout(pOutput, pConfig, pLinker);
 }
 
 void GNULDBackend::postProcessing(const Output& pOutput,
-                                  const MCLDInfo& pInfo,
+                                  const LinkerConfig& pConfig,
                                   FragmentLinker& pLinker)
 {
-  if (pInfo.options().hasEhFrameHdr()) {
+  if (pConfig.options().hasEhFrameHdr()) {
     // emit eh_frame_hdr
     if (bitclass() == 32)
       m_pEhFrameHdr->emitOutput<32>(pLinker.getLDInfo().output(),
@@ -1684,39 +1684,39 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol,
 
 /// commonPageSize - the common page size of the target machine.
 /// @ref gold linker: target.h:135
-uint64_t GNULDBackend::commonPageSize(const MCLDInfo& pInfo) const
+uint64_t GNULDBackend::commonPageSize(const LinkerConfig& pConfig) const
 {
-  if (pInfo.options().commPageSize() > 0)
-    return std::min(pInfo.options().commPageSize(), abiPageSize(pInfo));
+  if (pConfig.options().commPageSize() > 0)
+    return std::min(pConfig.options().commPageSize(), abiPageSize(pConfig));
   else
-    return std::min(static_cast<uint64_t>(0x1000), abiPageSize(pInfo));
+    return std::min(static_cast<uint64_t>(0x1000), abiPageSize(pConfig));
 }
 
 /// abiPageSize - the abi page size of the target machine.
 /// @ref gold linker: target.h:125
-uint64_t GNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
+uint64_t GNULDBackend::abiPageSize(const LinkerConfig& pConfig) const
 {
-  if (pInfo.options().maxPageSize() > 0)
-    return pInfo.options().maxPageSize();
+  if (pConfig.options().maxPageSize() > 0)
+    return pConfig.options().maxPageSize();
   else
     return static_cast<uint64_t>(0x1000);
 }
 
 /// isOutputPIC - return whether the output is position-independent
 bool GNULDBackend::isOutputPIC(const Output& pOutput,
-                               const MCLDInfo& pInfo) const
+                               const LinkerConfig& pConfig) const
 {
-  if (Output::DynObj == pOutput.type() || pInfo.options().isPIE())
+  if (Output::DynObj == pOutput.type() || pConfig.options().isPIE())
     return true;
   return false;
 }
 
 /// isStaticLink - return whether we're doing static link
 bool GNULDBackend::isStaticLink(const Output& pOutput,
-                                const MCLDInfo& pInfo) const
+                                const LinkerConfig& pConfig) const
 {
-  InputTree::const_iterator it = pInfo.inputs().begin();
-  if (!isOutputPIC(pOutput, pInfo) && (*it)->attribute()->isStatic())
+  InputTree::const_iterator it = pConfig.inputs().begin();
+  if (!isOutputPIC(pOutput, pConfig) && (*it)->attribute()->isStatic())
     return true;
   return false;
 }
@@ -1725,7 +1725,7 @@ bool GNULDBackend::isStaticLink(const Output& pOutput,
 /// link unit
 /// @ref Google gold linker, symtab.h:551
 bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
-                                       const MCLDInfo& pLDInfo,
+                                       const LinkerConfig& pConfig,
                                        const Output& pOutput) const
 {
   if (pSym.other() != ResolveInfo::Default)
@@ -1734,7 +1734,7 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
   if (Output::DynObj != pOutput.type())
     return false;
 
-  if (pLDInfo.options().Bsymbolic())
+  if (pConfig.options().Bsymbolic())
     return false;
 
   return true;
@@ -1743,7 +1743,7 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym,
 /// symbolNeedsPLT - return whether the symbol needs a PLT entry
 /// @ref Google gold linker, symtab.h:596
 bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
-                                  const MCLDInfo& pLDInfo,
+                                  const LinkerConfig& pConfig,
                                   const Output& pOutput) const
 {
   if (pSym.isUndef() && !pSym.isDyn() && pOutput.type() != Output::DynObj)
@@ -1756,19 +1756,19 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym,
   if (pSym.type() != ResolveInfo::Function)
     return false;
 
-  if (isStaticLink(pOutput, pLDInfo) || pLDInfo.options().isPIE())
+  if (isStaticLink(pOutput, pConfig) || pConfig.options().isPIE())
     return false;
 
   return (pSym.isDyn() ||
           pSym.isUndef() ||
-          isSymbolPreemptible(pSym, pLDInfo, pOutput));
+          isSymbolPreemptible(pSym, pConfig, pOutput));
 }
 
 /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
 /// @ref Google gold linker, symtab.h:645
 bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
                                      bool pSymHasPLT,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      const Output& pOutput,
                                      bool isAbsReloc) const
 {
@@ -1778,14 +1778,14 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
     return false;
   if (pSym.isAbsolute())
     return false;
-  if (isOutputPIC(pOutput, pLDInfo) && isAbsReloc)
+  if (isOutputPIC(pOutput, pConfig) && isAbsReloc)
     return true;
   if (pSymHasPLT && ResolveInfo::Function == pSym.type())
     return false;
-  if (!isOutputPIC(pOutput, pLDInfo) && pSymHasPLT)
+  if (!isOutputPIC(pOutput, pConfig) && pSymHasPLT)
     return false;
   if (pSym.isDyn() || pSym.isUndef() ||
-      isSymbolPreemptible(pSym, pLDInfo, pOutput))
+      isSymbolPreemptible(pSym, pConfig, pOutput))
     return true;
 
   return false;
@@ -1795,19 +1795,19 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
 bool GNULDBackend::symbolNeedsCopyReloc(const Layout& pLayout,
                                         const Relocation& pReloc,
                                         const ResolveInfo& pSym,
-                                        const MCLDInfo& pLDInfo,
+                                        const LinkerConfig& pConfig,
                                         const Output& pOutput) const
 {
   // only the reference from dynamic executable to non-function symbol in
   // the dynamic objects may need copy relocation
-  if (isOutputPIC(pOutput, pLDInfo) ||
+  if (isOutputPIC(pOutput, pConfig) ||
       !pSym.isDyn() ||
       pSym.type() == ResolveInfo::Function ||
       pSym.size() == 0)
     return false;
 
   // check if the option -z nocopyreloc is given
-  if (pLDInfo.options().hasNoCopyReloc())
+  if (pConfig.options().hasNoCopyReloc())
     return false;
 
   // TODO: Is this check necessary?

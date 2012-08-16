@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LDINFO_H
-#define MCLD_LDINFO_H
+#ifndef MCLD_LINKER_CONFIG_H
+#define MCLD_LINKER_CONFIG_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -29,8 +29,8 @@ namespace mcld
 {
 class Resolver;
 
-/** \class MCLDInfo
- *  \brief MCLDInfo is composed of argumments of MCLinker.
+/** \class LinkerConfig
+ *  \brief LinkerConfig is composed of argumments of MCLinker.
  *   options()        - the general options
  *   scripts()        - the script options
  *   inputs()         - the tree of inputs
@@ -41,14 +41,14 @@ class Resolver;
  *   contextFactory() - the list of all contexts.
  *   memAreaFactory() - the list of all MemoryAreas.
  */
-class MCLDInfo
+class LinkerConfig
 {
 public:
-  explicit MCLDInfo(const std::string &pTripleString,
-                    size_t pAttrNum,
-                    size_t InputSize);
+  explicit LinkerConfig(const std::string &pTripleString,
+                        size_t pAttrNum,
+                        size_t InputSize);
 
-  virtual ~MCLDInfo();
+  virtual ~LinkerConfig();
 
   GeneralOptions& options()
   { return m_Options; }

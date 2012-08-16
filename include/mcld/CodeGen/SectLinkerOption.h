@@ -28,7 +28,7 @@ namespace mcld
   {
   public:
     // Constructor.
-    SectLinkerOption(MCLDInfo &pLDInfo);
+    SectLinkerOption(LinkerConfig &pLDInfo);
 
     // -----  Position-dependent Options  ----- //
     inline void appendOption(PositionDependentOption *pOption)
@@ -42,13 +42,13 @@ namespace mcld
     inline PositionDependentOptions &pos_dep_options()
     { return m_PosDepOptions; }
 
-    inline const MCLDInfo &info() const { return *m_pLDInfo; }
-    inline MCLDInfo &info() { return *m_pLDInfo; }
+    inline const LinkerConfig &config() const { return *m_pConfig; }
+    inline LinkerConfig &config() { return *m_pConfig; }
 
     ~SectLinkerOption();
 
   private:
-    MCLDInfo *m_pLDInfo;
+    LinkerConfig *m_pConfig;
     PositionDependentOptions m_PosDepOptions;
   };
 

@@ -85,7 +85,7 @@ void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
 }
 
 /// reserveEntries - reserve entries
-void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
+void ELFDynamic::reserveEntries(const LinkerConfig& pLDInfo,
                                 const ELFFileFormat& pFormat)
 {
   if (pLDInfo.output().type() == Output::DynObj) {
@@ -171,11 +171,11 @@ void ELFDynamic::reserveEntries(const MCLDInfo& pLDInfo,
 }
 
 /// applyEntries - apply entries
-void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
+void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
                               const ELFFileFormat& pFormat)
 {
-  if (pInfo.output().type() == Output::DynObj &&
-      pInfo.options().Bsymbolic()) {
+  if (pConfig.output().type() == Output::DynObj &&
+      pConfig.options().Bsymbolic()) {
       applyOne(llvm::ELF::DT_SYMBOLIC, 0x0); // DT_SYMBOLIC
   }
 
@@ -239,11 +239,11 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
   }
 
   uint64_t dt_flags = 0x0;
-  if (pInfo.options().hasOrigin())
+  if (pConfig.options().hasOrigin())
     dt_flags |= llvm::ELF::DF_ORIGIN;
-  if (pInfo.options().Bsymbolic())
+  if (pConfig.options().Bsymbolic())
     dt_flags |= llvm::ELF::DF_SYMBOLIC;
-  if (pInfo.options().hasNow())
+  if (pConfig.options().hasNow())
     dt_flags |= llvm::ELF::DF_BIND_NOW;
   // TODO: add checks for DF_TEXTREL and DF_STATIC_TLS
   if (0x0 != dt_flags) {
@@ -251,26 +251,26 @@ void ELFDynamic::applyEntries(const MCLDInfo& pInfo,
   }
 
   uint64_t dt_flags_1 = 0x0;
-  if (pInfo.options().hasNow())
+  if (pConfig.options().hasNow())
     dt_flags_1 |= llvm::ELF::DF_1_NOW;
-  if (pInfo.options().hasLoadFltr())
+  if (pConfig.options().hasLoadFltr())
     dt_flags_1 |= llvm::ELF::DF_1_LOADFLTR;
-  if (pInfo.options().hasOrigin())
+  if (pConfig.options().hasOrigin())
     dt_flags_1 |= llvm::ELF::DF_1_ORIGIN;
-  if (pInfo.options().hasInterPose())
+  if (pConfig.options().hasInterPose())
     dt_flags_1 |= llvm::ELF::DF_1_INTERPOSE;
-  if (pInfo.options().hasNoDefaultLib())
+  if (pConfig.options().hasNoDefaultLib())
     dt_flags_1 |= llvm::ELF::DF_1_NODEFLIB;
-  if (pInfo.options().hasNoDump())
+  if (pConfig.options().hasNoDump())
     dt_flags_1 |= llvm::ELF::DF_1_NODUMP;
-  if (pInfo.options().Bgroup())
+  if (pConfig.options().Bgroup())
     dt_flags_1 |= llvm::ELF::DF_1_GROUP;
-  if (pInfo.output().type() == Output::DynObj) {
-    if (pInfo.options().hasNoDelete())
+  if (pConfig.output().type() == Output::DynObj) {
+    if (pConfig.options().hasNoDelete())
       dt_flags_1 |= llvm::ELF::DF_1_NODELETE;
-    if (pInfo.options().hasInitFirst())
+    if (pConfig.options().hasInitFirst())
       dt_flags_1 |= llvm::ELF::DF_1_INITFIRST;
-    if (pInfo.options().hasNoDLOpen())
+    if (pConfig.options().hasNoDLOpen())
       dt_flags_1 |= llvm::ELF::DF_1_NOOPEN;
   }
   if (0x0 != dt_flags_1)

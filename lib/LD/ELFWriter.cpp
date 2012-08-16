@@ -32,7 +32,7 @@ using namespace llvm::ELF;
 using namespace mcld;
 
 /// writeELF32Header - write ELF header
-void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
+void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
                                  const Layout& pLayout,
                                  const GNULDBackend& pBackend,
                                  Output& pOutput) const
@@ -70,7 +70,7 @@ void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
     }
     header->e_machine   = pBackend.machine();
     header->e_version   = header->e_ident[EI_VERSION];
-    header->e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
+    header->e_entry     = getEntryPoint(pConfig, pLayout, pBackend, pOutput);
     header->e_phoff     = sizeof(Elf32_Ehdr);
     header->e_shoff     = getELF32LastStartOffset(pOutput);
     header->e_flags     = pBackend.flags();
@@ -83,7 +83,7 @@ void ELFWriter::writeELF32Header(const MCLDInfo& pLDInfo,
 }
 
 /// writeELF64Header - write ELF header
-void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
+void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
                                  const Layout& pLayout,
                                  const GNULDBackend& pBackend,
                                  Output& pOutput) const
@@ -121,7 +121,7 @@ void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
     }
     header->e_machine   = pBackend.machine();
     header->e_version   = header->e_ident[EI_VERSION];
-    header->e_entry     = getEntryPoint(pLDInfo, pLayout, pBackend, pOutput);
+    header->e_entry     = getEntryPoint(pConfig, pLayout, pBackend, pOutput);
     header->e_phoff     = sizeof(Elf64_Ehdr);
     header->e_shoff     = getELF64LastStartOffset(pOutput);
     header->e_flags     = pBackend.flags();
@@ -134,25 +134,25 @@ void ELFWriter::writeELF64Header(const MCLDInfo& pLDInfo,
 }
 
 /// getEntryPoint
-uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
+uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
                                   const Layout& pLayout,
                                   const GNULDBackend& pBackend,
                                   const Output& pOutput) const
 {
 
   llvm::StringRef entry_name;
-  if (pLDInfo.options().hasEntry())
-    entry_name = pLDInfo.options().entry();
+  if (pConfig.options().hasEntry())
+    entry_name = pConfig.options().entry();
   else
     entry_name = pBackend.entry();
   
   uint64_t result = 0x0;
 
-  bool issue_warning = (pLDInfo.options().hasEntry()
+  bool issue_warning = (pConfig.options().hasEntry()
                        && (pOutput.type() != Output::Object)
                        && (pOutput.type() != Output::DynObj));
 
-  const LDSymbol* entry_symbol = pLDInfo.getNamePool().findSymbol(entry_name);
+  const LDSymbol* entry_symbol = pConfig.getNamePool().findSymbol(entry_name);
 
   // found the symbol
   if (NULL != entry_symbol) {

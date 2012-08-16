@@ -22,15 +22,15 @@ UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
 {
   InitializeAllDiagnostics();
 
-  m_pLDInfo = new MCLDInfo("arm-none-linux-gnueabi", 10, 10);
+  m_pConfig = new LinkerConfig("arm-none-linux-gnueabi", 10, 10);
   m_pLineInfo = new DiagnosticLineInfo();
-  mcld::InitializeDiagnosticEngine(*m_pLDInfo, m_pLineInfo, NULL);
+  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pLineInfo, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
 UniqueGCFactoryBaseTest::~UniqueGCFactoryBaseTest()
 {
-  delete m_pLDInfo;
+  delete m_pConfig;
   delete m_pLineInfo;
 }
 

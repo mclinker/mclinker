@@ -74,7 +74,7 @@ bool X86GNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 }
 
 void X86GNULDBackend::doPreLayout(const Output& pOutput,
-                                  const MCLDInfo& pInfo,
+                                  const LinkerConfig& pConfig,
                                   FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is needed
@@ -84,7 +84,7 @@ void X86GNULDBackend::doPreLayout(const Output& pOutput,
 }
 
 void X86GNULDBackend::doPostLayout(const Output& pOutput,
-                                   const MCLDInfo& pInfo,
+                                   const LinkerConfig& pConfig,
                                    FragmentLinker& pLinker)
 {
 }
@@ -268,7 +268,7 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      const Output& pOutput)
 {
   // rsym - The relocation target symbol
@@ -282,7 +282,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC(pOutput, pLDInfo)) {
+      if (isOutputPIC(pOutput, pConfig)) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
@@ -312,7 +312,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       const Output& pOutput)
 {
   // rsym - The relocation target symbol
@@ -322,7 +322,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput)) {
+      if (symbolNeedsPLT(*rsym, pConfig, pOutput)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
@@ -343,13 +343,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pLDInfo, pOutput, true)) {
+                            pConfig, pOutput, true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -379,7 +379,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemptible(*rsym, pLDInfo, pOutput)) {
+         !isSymbolPreemptible(*rsym, pConfig, pOutput)) {
         return;
       }
 
@@ -425,7 +425,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_PC32:
 
-      if (symbolNeedsPLT(*rsym, pLDInfo, pOutput) &&
+      if (symbolNeedsPLT(*rsym, pConfig, pOutput) &&
           pOutput.type() != Output::DynObj) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
@@ -447,13 +447,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
 
       if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pLDInfo, pOutput, false)) {
+                            pConfig, pOutput, false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker, pOutput);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pLDInfo,
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
                           pOutput)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -475,7 +475,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      const Output& pOutput,
                                      const LDSection& pSection)
 {
@@ -506,17 +506,17 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pInputSym,  pLinker, pLDInfo, pOutput);
+    scanLocalReloc(pReloc, pInputSym,  pLinker, pConfig, pOutput);
 
   // rsym is external
   else
-    scanGlobalReloc(pReloc, pInputSym ,pLinker, pLDInfo, pOutput);
+    scanGlobalReloc(pReloc, pInputSym ,pLinker, pConfig, pOutput);
 
 }
 
 uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
                                           const LDSection& pSection,
-                                          const MCLDInfo& pInfo,
+                                          const LinkerConfig& pConfig,
                                           const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
@@ -663,18 +663,18 @@ const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 unsigned int
 X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
-                                       const MCLDInfo& pInfo) const
+                                       const LinkerConfig& pConfig) const
 {
   const ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   if (&pSectHdr == &file_format->getGOT()) {
-    if (pInfo.options().hasNow())
+    if (pConfig.options().hasNow())
       return SHO_RELRO;
     return SHO_RELRO_LAST;
   }
 
   if (&pSectHdr == &file_format->getGOTPLT()) {
-    if (pInfo.options().hasNow())
+    if (pConfig.options().hasNow())
       return SHO_RELRO;
     return SHO_NON_RELRO_FIRST;
   }

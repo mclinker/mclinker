@@ -48,7 +48,7 @@ struct PtrHash
   }
 };
 
-class MCLDInfo;
+class LinkerConfig;
 class Layout;
 class SymbolCategory;
 
@@ -65,7 +65,7 @@ public:
   virtual ~GNULDBackend();
 
   // -----  readers/writers  ----- //
-  bool initArchiveReader(MCLDInfo& pInfo,
+  bool initArchiveReader(LinkerConfig& pConfig,
                          MemoryAreaFactory& pMemAreaFactory);
   bool initObjectReader(FragmentLinker& pLinker);
   bool initDynObjReader(FragmentLinker& pLinker);
@@ -170,19 +170,19 @@ public:
 
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr(const Output& pOutput,
-                            const MCLDInfo& pInfo) const;
+                            const LinkerConfig& pConfig) const;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void sizeNamePools(const Output& pOutput,
                              const SymbolCategory& pSymbols,
-                             const MCLDInfo& pLDInfo);
+                             const LinkerConfig& pConfig);
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const Output& pOutput,
                                    const LDSection& pSection,
-                                   const MCLDInfo& pInfo,
+                                   const LinkerConfig& pConfig,
                                    const Layout& pLayout,
                                    MemoryRegion& pRegion) const = 0;
 
@@ -190,20 +190,20 @@ public:
   virtual void emitRegNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const MCLDInfo& pLDInfo);
+                                const LinkerConfig& pConfig);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const MCLDInfo& pLDInfo);
+                                const LinkerConfig& pConfig);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
-  virtual void sizeInterp(const Output& pOutput, const MCLDInfo& pLDInfo);
+  virtual void sizeInterp(const Output& pOutput, const LinkerConfig& pConfig);
 
   /// emitInterp - emit the .interp
-  virtual void emitInterp(Output& pOutput, const MCLDInfo& pLDInfo);
+  virtual void emitInterp(Output& pOutput, const LinkerConfig& pConfig);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
@@ -216,7 +216,7 @@ public:
   /// @see getTargetSectionOrder
   virtual unsigned int getSectionOrder(const Output& pOutput,
                                        const LDSection& pSectHdr,
-                                       const MCLDInfo& pInfo) const;
+                                       const LinkerConfig& pConfig) const;
 
   /// getTargetSectionOrder - compute the layout order of target section
   /// If the target favors certain order for the given gSectHdr, please
@@ -227,7 +227,7 @@ public:
   virtual unsigned int
   getTargetSectionOrder(const Output& pOutput,
                         const LDSection& pSectHdr,
-                        const MCLDInfo& pInfo) const
+                        const LinkerConfig& pConfig) const
   { return (unsigned int)-1; }
 
   /// numOfSegments - return the number of segments
@@ -247,11 +247,11 @@ public:
   /// commonPageSize - the common page size of the target machine, and we set it
   /// to 4K here. If target favors the different size, please override this
   /// function
-  virtual uint64_t commonPageSize(const MCLDInfo& pInfo) const;
+  virtual uint64_t commonPageSize(const LinkerConfig& pConfig) const;
 
   /// abiPageSize - the abi page size of the target machine, and we set it to 4K
   /// here. If target favors the different size, please override this function
-  virtual uint64_t abiPageSize(const MCLDInfo& pInfo) const;
+  virtual uint64_t abiPageSize(const LinkerConfig& pConfig) const;
 
   /// getSymbolIdx - get the symbol index of ouput symbol table
   size_t getSymbolIdx(LDSymbol* pSymbol) const;
@@ -264,20 +264,20 @@ public:
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
   /// Different concrete target backend may overlap this function.
-  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const;
+  virtual bool allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const;
 
   /// isSymbolPreemtible - whether the symbol can be preemted by other
   /// link unit
   /// @ref Google gold linker, symtab.h:551
   bool isSymbolPreemptible(const ResolveInfo& pSym,
-                           const MCLDInfo& pLDInfo,
+                           const LinkerConfig& pConfig,
                            const Output& pOutput) const;
 
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
   /// @ref Google gold linker, symtab.h:645
   bool symbolNeedsDynRel(const ResolveInfo& pSym,
                          bool pSymHasPLT,
-                         const MCLDInfo& pLDInfo,
+                         const LinkerConfig& pConfig,
                          const Output& pOutput,
                          bool isAbsReloc) const;
 
@@ -299,32 +299,32 @@ protected:
   static bool isDynamicSymbol(const LDSymbol& pSymbol, const Output& pOutput);
 
   /// isOutputPIC - return whether the output is position-independent
-  bool isOutputPIC(const Output& pOutput, const MCLDInfo& pInfo) const;
+  bool isOutputPIC(const Output& pOutput, const LinkerConfig& pConfig) const;
 
   /// isStaticLink - return whether we're doing static link
-  bool isStaticLink(const Output& pOutput, const MCLDInfo& pInfo) const;
+  bool isStaticLink(const Output& pOutput, const LinkerConfig& pConfig) const;
 
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
   bool symbolNeedsPLT(const ResolveInfo& pSym,
-                      const MCLDInfo& pLDInfo,
+                      const LinkerConfig& pConfig,
                       const Output& pOutput) const;
 
   /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
   bool symbolNeedsCopyReloc(const Layout& pLayout,
                             const Relocation& pReloc,
                             const ResolveInfo& pSym,
-                            const MCLDInfo& pLDInfo,
+                            const LinkerConfig& pConfig,
                             const Output& pOutput) const;
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Output& pOutput,
-                         const MCLDInfo& pInfo);
+                         const LinkerConfig& pConfig);
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
-  void setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInfo);
+  void setupProgramHdrs(const Output& pOutput, const LinkerConfig& pConfig);
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
@@ -340,32 +340,32 @@ private:
 
   /// createGNUStackInfo - create an output GNU stack section or segment if needed
   void createGNUStackInfo(const Output& pOutput,
-                          const MCLDInfo& pInfo,
+                          const LinkerConfig& pConfig,
                           FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(const Output& pOutput,
-                 const MCLDInfo& pInfo,
+                 const LinkerConfig& pConfig,
                  FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void postLayout(const Output& pOutput,
-                 const MCLDInfo& pInfo,
+                 const LinkerConfig& pConfig,
                  FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(const Output& pOutput,
-                         const MCLDInfo& pInfo,
+                         const LinkerConfig& pConfig,
                          FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void doPostLayout(const Output& pOutput,
-                          const MCLDInfo& pInfo,
+                          const LinkerConfig& pConfig,
                           FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   void postProcessing(const Output& pOutput,
-                      const MCLDInfo& pInfo,
+                      const LinkerConfig& pConfig,
                       FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.

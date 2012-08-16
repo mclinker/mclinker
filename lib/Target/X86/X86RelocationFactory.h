@@ -29,7 +29,7 @@ public:
   X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
   ~X86RelocationFactory();
 
-  Result applyRelocation(Relocation& pRelocation, const MCLDInfo& pLDInfo);
+  Result applyRelocation(Relocation& pRelocation, const LinkerConfig& pConfig);
 
   X86GNULDBackend& getTarget()
   { return m_Target; }

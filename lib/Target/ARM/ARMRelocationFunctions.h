@@ -9,7 +9,7 @@
 
 #define DECL_ARM_APPLY_RELOC_FUNC(Name) \
 static ARMRelocationFactory::Result Name    (Relocation& pEntry, \
-                                             const MCLDInfo& pLDInfo, \
+                                             const LinkerConfig& pConfig, \
                                              ARMRelocationFactory& pParent);
 
 #define DECL_ARM_APPLY_RELOC_FUNCS \

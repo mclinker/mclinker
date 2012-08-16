@@ -25,7 +25,7 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
 typedef RelocationFactory::Result (*ApplyFunctionType)(Relocation&,
-                                                       const MCLDInfo& pLDInfo,
+                                                       const LinkerConfig& pConfig,
                                                        MipsRelocationFactory&);
 
 // the table entry of applying functions
@@ -54,7 +54,7 @@ MipsRelocationFactory::MipsRelocationFactory(size_t pNum,
 
 RelocationFactory::Result
 MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
-                                       const MCLDInfo& pLDInfo)
+                                       const LinkerConfig& pConfig)
 
 {
   Relocation::Type type = pRelocation.type();
@@ -66,7 +66,7 @@ MipsRelocationFactory::applyRelocation(Relocation& pRelocation,
   }
 
   // apply the relocation
-  return ApplyFunctions[type].func(pRelocation, pLDInfo, *this);
+  return ApplyFunctions[type].func(pRelocation, pConfig, *this);
 }
 
 const char* MipsRelocationFactory::getName(Relocation::Type pType) const
@@ -200,7 +200,7 @@ void helper_DynRel(Relocation& pReloc,
 // R_MIPS_NONE and those unsupported/deprecated relocation type
 static
 MipsRelocationFactory::Result none(Relocation& pReloc,
-                                   const MCLDInfo& pLDInfo,
+                                   const LinkerConfig& pConfig,
                                    MipsRelocationFactory& pParent)
 {
   return MipsRelocationFactory::OK;
@@ -209,7 +209,7 @@ MipsRelocationFactory::Result none(Relocation& pReloc,
 // R_MIPS_32: S + A
 static
 MipsRelocationFactory::Result abs32(Relocation& pReloc,
-                                    const MCLDInfo& pLDInfo,
+                                    const LinkerConfig& pConfig,
                                     MipsRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -243,7 +243,7 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
 //   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16
 static
 MipsRelocationFactory::Result hi16(Relocation& pReloc,
-                                   const MCLDInfo& pLDInfo,
+                                   const LinkerConfig& pConfig,
                                    MipsRelocationFactory& pParent)
 {
   Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
@@ -275,7 +275,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
 //   _gp_disp      : AHL + GP - P + 4
 static
 MipsRelocationFactory::Result lo16(Relocation& pReloc,
-                                   const MCLDInfo& pLDInfo,
+                                   const LinkerConfig& pConfig,
                                    MipsRelocationFactory& pParent)
 {
   int32_t res = 0;
@@ -306,7 +306,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
 //   external: G
 static
 MipsRelocationFactory::Result got16(Relocation& pReloc,
-                                    const MCLDInfo& pLDInfo,
+                                    const LinkerConfig& pConfig,
                                     MipsRelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -341,7 +341,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
 // R_MIPS_CALL16: G
 static
 MipsRelocationFactory::Result call16(Relocation& pReloc,
-                                     const MCLDInfo& pLDInfo,
+                                     const LinkerConfig& pConfig,
                                      MipsRelocationFactory& pParent)
 {
   RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
@@ -355,7 +355,7 @@ MipsRelocationFactory::Result call16(Relocation& pReloc,
 // R_MIPS_GPREL32: A + S + GP0 - GP
 static
 MipsRelocationFactory::Result gprel32(Relocation& pReloc,
-                                      const MCLDInfo& pLDInfo,
+                                      const LinkerConfig& pConfig,
                                       MipsRelocationFactory& pParent)
 {
   // Remember to add the section offset to A.

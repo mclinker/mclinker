@@ -33,10 +33,10 @@ using namespace mcld;
 
 /// Constructor
 FragmentLinker::FragmentLinker(TargetLDBackend& pBackend,
-                   MCLDInfo& pInfo,
-                   SectionMap& pSectionMap)
+                               LinkerConfig& pConfig,
+                               SectionMap& pSectionMap)
 : m_Backend(pBackend),
-  m_LDInfo(pInfo),
+  m_Config(pConfig),
   m_SectionMap(pSectionMap),
   m_LDSymbolFactory(128),
   m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
@@ -74,7 +74,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
-    resolved_result.info     = m_LDInfo.getNamePool().createSymbol(pName,
+    resolved_result.info     = m_Config.getNamePool().createSymbol(pName,
                                                          false,
                                                          pType,
                                                          pDesc,
@@ -89,7 +89,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   }
   else {
     // if the symbol is not local, insert and resolve it immediately
-    m_LDInfo.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+    m_Config.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
                                         pSize, pVisibility,
                                         &old_info, resolved_result);
   }
@@ -193,7 +193,7 @@ LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   // insert symbol and resolve it immediately
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_LDInfo.getNamePool().insertSymbol(pName, true, pType, pDesc,
+  m_Config.getNamePool().insertSymbol(pName, true, pType, pDesc,
                             pBinding, pSize, pVisibility,
                             NULL, resolved_result);
 
@@ -244,13 +244,13 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
   LDSymbol* output_sym = NULL;
   if (NULL == info) {
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_LDInfo.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
+    m_Config.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
                                         pBinding, pSize, pVisibility,
                                         NULL, result);
     assert(!result.existent);
@@ -314,7 +314,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
 
   if (NULL == info || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.
@@ -368,7 +368,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
-  m_LDInfo.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
+  m_Config.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
                                       pSize, pVisibility,
                                       &old_info, result);
 
@@ -411,7 +411,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
                                                     FragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_LDInfo.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
 
   if (NULL == info || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.
@@ -455,7 +455,7 @@ bool FragmentLinker::finalizeSymbols()
   }
 
   // finialize target-dependent symbols
-  return m_Backend.finalizeSymbols(*this, m_LDInfo.output());
+  return m_Backend.finalizeSymbols(*this, m_Config.output());
 }
 
 bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
@@ -465,7 +465,7 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
   // 2. The symbol is with Hidden or Internal visibility.
   // 3. The symbol should be global or weak. Otherwise, local symbol is local.
   // 4. The symbol is defined or common
-  if (m_LDInfo.output().type() != Output::Object &&
+  if (m_Config.output().type() != Output::Object &&
       (pInfo.visibility() == ResolveInfo::Hidden ||
          pInfo.visibility() == ResolveInfo::Internal) &&
       (pInfo.isGlobal() || pInfo.isWeak()) &&
@@ -483,7 +483,7 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
                                    uint32_t pType,
                                    uint32_t pFlag)
 {
-  assert(m_LDInfo.output().hasContext());
+  assert(m_Config.output().hasContext());
 
   // for user such as reader, standard/target fromat
   LDSection* result =
@@ -491,13 +491,13 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
 
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_LDInfo.output().context()->getSection(sect_name);
+  LDSection* output_sect = m_Config.output().context()->getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
-    m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
+    m_Config.output().context()->getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *result;
@@ -511,18 +511,18 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pFlag,
                                               uint32_t pAlign)
 {
-  assert(m_LDInfo.output().hasContext());
+  assert(m_Config.output().hasContext());
 
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_LDInfo.output().context()->getSection(sect_name);
+  LDSection* output_sect = m_Config.output().context()->getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
-    m_LDInfo.output().context()->getSectionTable().push_back(output_sect);
+    m_Config.output().context()->getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *output_sect;
@@ -564,14 +564,14 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 
 void FragmentLinker::initSectionMap()
 {
-  assert(m_LDInfo.output().hasContext());
+  assert(m_Config.output().hasContext());
   if (NULL == m_pSectionMerger)
-    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_LDInfo.output().context());
+    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_Config.output().context());
 }
 
 bool FragmentLinker::layout()
 {
-  return m_Layout.layout(m_LDInfo.output(), m_Backend, m_LDInfo);
+  return m_Layout.layout(m_Config.output(), m_Backend, m_Config);
 }
 
 //===----------------------------------------------------------------------===//
@@ -603,8 +603,8 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   m_RelocationList.push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, pSym, *this, m_LDInfo,
-                           m_LDInfo.output(), pSection);
+  m_Backend.scanRelocation(*relocation, pSym, *this, m_Config,
+                           m_Config.output(), pSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak())
     fatal(diag::undefined_reference) << pResolveInfo.name();
@@ -617,7 +617,7 @@ bool FragmentLinker::applyRelocations()
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     Fragment* frag = (Fragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_LDInfo);
+    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_Config);
   }
   return true;
 }
@@ -625,8 +625,8 @@ bool FragmentLinker::applyRelocations()
 void FragmentLinker::syncRelocationResult()
 {
 
-  MemoryRegion* region = m_LDInfo.output().memArea()->request(0,
-                              m_LDInfo.output().memArea()->handler()->size());
+  MemoryRegion* region = m_Config.output().memArea()->request(0,
+                              m_Config.output().memArea()->handler()->size());
 
   uint8_t* data = region->getBuffer();
 
@@ -665,6 +665,6 @@ void FragmentLinker::syncRelocationResult()
     }
   } // end of for
 
-  m_LDInfo.output().memArea()->clear();
+  m_Config.output().memArea()->clear();
 }
 
