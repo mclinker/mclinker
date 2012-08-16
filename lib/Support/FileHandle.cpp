@@ -68,31 +68,6 @@ inline static bool get_size(int pHandler, unsigned int &pSize)
 }
 
 bool FileHandle::open(const sys::fs::Path& pPath,
-                      FileHandle::OpenMode pMode)
-{
-  if (isOpened() || Unknown == pMode) {
-    setState(BadBit);
-    return false;
-  }
-
-  m_OpenMode = pMode;
-  m_Handler = ::open(pPath.native().c_str(), oflag(pMode));
-  m_Path = pPath;
-  if (-1 == m_Handler) {
-    m_OpenMode = NotOpen;
-    setState(FailBit);
-    return false;
-  }
-
-  if (!get_size(m_Handler, m_Size)) {
-    setState(FailBit);
-    return false;
-  }
-
-  return true;
-}
-
-bool FileHandle::open(const sys::fs::Path& pPath,
                       FileHandle::OpenMode pMode,
                       FileHandle::Permission pPerm)
 {
@@ -102,7 +77,11 @@ bool FileHandle::open(const sys::fs::Path& pPath,
   }
 
   m_OpenMode = pMode;
-  m_Handler = sys::fs::detail::open(pPath, oflag(pMode), (int)pPerm);
+  if (System == pPerm)
+    m_Handler = sys::fs::detail::open(pPath, oflag(pMode));
+  else
+    m_Handler = sys::fs::detail::open(pPath, oflag(pMode), (int)pPerm);
+
   m_Path = pPath;
   if (-1 == m_Handler) {
     m_OpenMode = NotOpen;

@@ -61,7 +61,8 @@ public:
     ExeGroup    = 0x0010,
     ReadOther   = 0x0004,
     WriteOther  = 0x0002,
-    ExeOther    = 0x0001
+    ExeOther    = 0x0001,
+    System      = 0xFFFF
   };
 
   typedef Flags<PermissionEnum> Permission;
@@ -72,11 +73,8 @@ public:
   ~FileHandle();
 
   bool open(const sys::fs::Path& pPath,
-            OpenMode pMode);
-
-  bool open(const sys::fs::Path& pPath,
             OpenMode pMode,
-            Permission pPerm);
+            Permission pPerm = System);
 
   bool delegate(int pFD, OpenMode pMode = Unknown);
 
