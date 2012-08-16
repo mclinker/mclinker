@@ -30,7 +30,7 @@ namespace mcld
 {
 class MCLDInfo;
 class MCLDFile;
-class MCLDDriver;
+class ObjectLinker;
 class TargetLDBackend;
 class AttributeFactory;
 class SectLinkerOption;
@@ -91,7 +91,7 @@ private:
 
 protected:
   TargetLDBackend *m_pLDBackend;
-  MCLDDriver* m_pObjLinker;
+  ObjectLinker* m_pObjLinker;
   MemoryAreaFactory *m_pMemAreaFactory;
 
 private:

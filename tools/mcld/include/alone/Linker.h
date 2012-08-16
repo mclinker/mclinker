@@ -15,7 +15,7 @@
 namespace mcld {
 
 class TargetLDBackend;
-class MCLDDriver;
+class ObjectLinker;
 class MemoryFactory;
 class MCLDInfo;
 class TreeIteratorBase;
@@ -57,7 +57,7 @@ public:
 
 private:
   mcld::TargetLDBackend *mBackend;
-  mcld::MCLDDriver *mDriver;
+  mcld::ObjectLinker *mObjLinker;
   MemoryFactory *mMemAreaFactory;
   mcld::MCLDInfo *mLDInfo;
   mcld::TreeIteratorBase *mRoot;

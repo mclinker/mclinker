@@ -72,12 +72,12 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
     mRoot(NULL), mShared(false) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mBackend(NULL), mDriver(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
+  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDInfo(NULL),
     mRoot(NULL), mShared(false) {
 
   const std::string &triple = pConfig.getTriple();
@@ -92,7 +92,7 @@ Linker::Linker(const LinkerConfig& pConfig)
 }
 
 Linker::~Linker() {
-  delete mDriver;
+  delete mObjLinker;
   delete mBackend;
   delete mMemAreaFactory;
   delete mRoot;
@@ -125,9 +125,9 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
-  mDriver = new mcld::MCLDDriver(*mLDInfo, *mBackend, *mMemAreaFactory);
+  mObjLinker = new mcld::ObjectLinker(*mLDInfo, *mBackend, *mMemAreaFactory);
 
-  mDriver->initFragmentLinker();
+  mObjLinker->initFragmentLinker();
 
   return kSuccess;
 }
@@ -246,7 +246,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 
   // FIXME: So far, FragmentLinker must set up output before add input files.
   // set up LDContext
-  if (mDriver->hasInitLinker()) {
+  if (mObjLinker->hasInitLinker()) {
     return kNotConfig;
   }
 
@@ -256,7 +256,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 
   // create NULL section
   mcld::LDSection& null =
-      mDriver->getLinker()->createSectHdr("",
+      mObjLinker->getLinker()->createSectHdr("",
                                           mcld::LDFileFormat::Null,
                                           llvm::ELF::SHT_NULL,
                                           0);
@@ -270,7 +270,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   input_context->getSectionTable().push_back(&null);
 
   // create .text section
-  mcld::LDSection& text = mDriver->getLinker()->createSectHdr(".text",
+  mcld::LDSection& text = mObjLinker->getLinker()->createSectHdr(".text",
                               mcld::LDFileFormat::Regular,
                               llvm::ELF::SHT_PROGBITS,
                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR);
@@ -319,11 +319,11 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
-  if (!mDriver->hasInitLinker()) {
+  if (!mObjLinker->hasInitLinker()) {
     return kNotConfig;
   }
 
-  mDriver->initStdSections();
+  mObjLinker->initStdSections();
 
   return kSuccess;
 }
@@ -343,34 +343,34 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
-  if (!mDriver->hasInitLinker()) {
+  if (!mObjLinker->hasInitLinker()) {
     return kNotConfig;
   }
 
-  mDriver->initStdSections();
+  mObjLinker->initStdSections();
 
   return kSuccess;
 }
 
 enum Linker::ErrorCode Linker::link() {
-  mDriver->normalize();
+  mObjLinker->normalize();
 
-  if (!mDriver->mergeSections()) {
+  if (!mObjLinker->mergeSections()) {
     return kReadSections;
   }
 
-  if (!mDriver->addStandardSymbols() || !mDriver->addTargetSymbols()) {
+  if (!mObjLinker->addStandardSymbols() || !mObjLinker->addTargetSymbols()) {
     return kAddAdditionalSymbols;
   }
 
-  mDriver->readRelocations();
-  mDriver->prelayout();
-  mDriver->layout();
-  mDriver->postlayout();
-  mDriver->finalizeSymbolValue();
-  mDriver->relocation();
-  mDriver->emitOutput();
-  mDriver->postProcessing();
+  mObjLinker->readRelocations();
+  mObjLinker->prelayout();
+  mObjLinker->layout();
+  mObjLinker->postlayout();
+  mObjLinker->finalizeSymbolValue();
+  mObjLinker->relocation();
+  mObjLinker->emitOutput();
+  mObjLinker->postProcessing();
 
   return kSuccess;
 }

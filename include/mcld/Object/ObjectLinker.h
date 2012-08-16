@@ -1,4 +1,4 @@
-//===- MCLDDriver.h --------------------------------------------------------===//
+//===- ObjectLinker.h -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// MCLDDriver plays the same role as GNU collect2 to prepare all implicit
+// ObjectLinker plays the same role as GNU collect2 to prepare all implicit
 // parameters for FragmentLinker.
 //
 //===----------------------------------------------------------------------===//
@@ -28,17 +28,17 @@ class MCLDInfo;
 class TargetLDBackend;
 class MemoryAreaFactory;
 
-/** \class MCLDDriver
- *  \brief MCLDDriver prepares parameters for FragmentLinker.
+/** \class ObjectLinker
+ *  \brief ObjectLinker prepares parameters for FragmentLinker.
  */
-class MCLDDriver
+class ObjectLinker
 {
 public:
-  MCLDDriver(MCLDInfo& pLDInfo,
+  ObjectLinker(MCLDInfo& pLDInfo,
              TargetLDBackend& pLDBackend,
              MemoryAreaFactory& pAreaFactory);
 
-  ~MCLDDriver();
+  ~ObjectLinker();
 
   /// initFragmentLinker - initialize FragmentLinker
   ///  Connect all components in FragmentLinker

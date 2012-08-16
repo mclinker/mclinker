@@ -26,9 +26,9 @@
 using namespace llvm;
 using namespace mcld;
 
-MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo,
-                       TargetLDBackend& pLDBackend,
-                       MemoryAreaFactory& pAreaFactory)
+ObjectLinker::ObjectLinker(MCLDInfo& pLDInfo,
+                           TargetLDBackend& pLDBackend,
+                           MemoryAreaFactory& pAreaFactory)
   : m_LDInfo(pLDInfo),
     m_LDBackend(pLDBackend),
     m_pLinker(NULL),
@@ -36,7 +36,7 @@ MCLDDriver::MCLDDriver(MCLDInfo& pLDInfo,
 
 }
 
-MCLDDriver::~MCLDDriver()
+ObjectLinker::~ObjectLinker()
 {
   if (NULL != m_pLinker)
     delete m_pLinker;
@@ -44,7 +44,7 @@ MCLDDriver::~MCLDDriver()
 
 /// initFragmentLinker - initialize FragmentLinker
 ///  Connect all components with FragmentLinker
-bool MCLDDriver::initFragmentLinker()
+bool ObjectLinker::initFragmentLinker()
 {
   if (0 == m_pLinker)
     m_pLinker = new FragmentLinker(m_LDBackend,
@@ -69,7 +69,7 @@ bool MCLDDriver::initFragmentLinker()
 }
 
 /// initStdSections - initialize standard sections
-bool MCLDDriver::initStdSections()
+bool ObjectLinker::initStdSections()
 {
   /// initialize section mapping for standard format, target-dependent section,
   /// (and user-defined mapping)
@@ -118,7 +118,7 @@ bool MCLDDriver::initStdSections()
   return true;
 }
 
-void MCLDDriver::normalize()
+void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //
   InputTree::iterator input, inEnd = m_LDInfo.inputs().end();
@@ -161,7 +161,7 @@ void MCLDDriver::normalize()
   } // end of for
 }
 
-bool MCLDDriver::linkable() const
+bool ObjectLinker::linkable() const
 {
   // check we have input and output files
   if (m_LDInfo.inputs().empty()) {
@@ -194,7 +194,7 @@ bool MCLDDriver::linkable() const
 }
 
 /// mergeSections - put allinput sections into output sections
-bool MCLDDriver::mergeSections()
+bool ObjectLinker::mergeSections()
 {
   // TODO: when FragmentLinker can read other object files, we have to merge
   // sections
@@ -205,7 +205,7 @@ bool MCLDDriver::mergeSections()
 /// standard symbols
 ///   @return if there are some input symbols with the same name to the
 ///   standard symbols, return false
-bool MCLDDriver::addStandardSymbols()
+bool ObjectLinker::addStandardSymbols()
 {
   return m_LDBackend.initStandardSymbols(*m_pLinker, m_LDInfo.output());
 }
@@ -214,7 +214,7 @@ bool MCLDDriver::addStandardSymbols()
 /// target-dependent symbols
 ///   @return if there are some input symbols with the same name to the
 ///   target symbols, return false
-bool MCLDDriver::addTargetSymbols()
+bool ObjectLinker::addTargetSymbols()
 {
   m_LDBackend.initTargetSymbols(*m_pLinker, m_LDInfo.output());
   return true;
@@ -223,7 +223,7 @@ bool MCLDDriver::addTargetSymbols()
 /// readRelocations - read all relocation entries
 ///
 /// All symbols should be read and resolved before this function.
-bool MCLDDriver::readRelocations()
+bool ObjectLinker::readRelocations()
 {
   // Bitcode is read by the other path. This function reads relocation sections
   // in object files.
@@ -239,7 +239,7 @@ bool MCLDDriver::readRelocations()
 }
 
 /// prelayout - help backend to do some modification before layout
-bool MCLDDriver::prelayout()
+bool ObjectLinker::prelayout()
 {
   m_LDBackend.preLayout(m_LDInfo.output(),
                         m_LDInfo,
@@ -268,13 +268,13 @@ bool MCLDDriver::prelayout()
 ///   Because we do not support instruction relaxing in this early version,
 ///   if there is a branch can not jump to its target, we return false
 ///   directly
-bool MCLDDriver::layout()
+bool ObjectLinker::layout()
 {
   return m_pLinker->layout();
 }
 
 /// prelayout - help backend to do some modification after layout
-bool MCLDDriver::postlayout()
+bool ObjectLinker::postlayout()
 {
   m_LDBackend.postLayout(m_LDInfo.output(),
                          m_LDInfo,
@@ -285,7 +285,7 @@ bool MCLDDriver::postlayout()
 /// finalizeSymbolValue - finalize the resolved symbol value.
 ///   Before relocate(), after layout(), FragmentLinker should correct value of all
 ///   symbol.
-bool MCLDDriver::finalizeSymbolValue()
+bool ObjectLinker::finalizeSymbolValue()
 {
   return m_pLinker->finalizeSymbols();
 }
@@ -295,13 +295,13 @@ bool MCLDDriver::finalizeSymbolValue()
 /// Create relocation section, asking TargetLDBackend to
 /// read the relocation information into RelocationEntry
 /// and push_back into the relocation section
-bool MCLDDriver::relocation()
+bool ObjectLinker::relocation()
 {
   return m_pLinker->applyRelocations();
 }
 
 /// emitOutput - emit the output file.
-bool MCLDDriver::emitOutput()
+bool ObjectLinker::emitOutput()
 {
   switch(m_LDInfo.output().type()) {
     case Output::Object:
@@ -318,7 +318,7 @@ bool MCLDDriver::emitOutput()
 }
 
 /// postProcessing - do modification after all processes
-bool MCLDDriver::postProcessing()
+bool ObjectLinker::postProcessing()
 {
   m_pLinker->syncRelocationResult();
 

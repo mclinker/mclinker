@@ -31,7 +31,7 @@ using namespace mcld::test;
 // TestLinker
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
-  : m_pTarget(NULL), m_pDriver(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
+  : m_pTarget(NULL), m_pObjLinker(NULL), m_pInfo(NULL), m_pDiagLineInfo(NULL),
     m_pDiagPrinter(NULL), m_pBackend(NULL), m_pMemAreaFactory(NULL) {
 }
 
@@ -45,7 +45,7 @@ TestLinker::~TestLinker()
   for (mem = m_MemAreaList.begin(); mem != mEnd; ++mem)
     delete (*mem);
 
-  delete m_pDriver;
+  delete m_pObjLinker;
   delete m_pInfo;
   delete m_pDiagLineInfo;
   delete m_pDiagPrinter;
@@ -100,8 +100,8 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   m_pMemAreaFactory = new MemoryAreaFactory(32);
 
-  m_pDriver = new mcld::MCLDDriver(*m_pInfo, *m_pBackend, *m_pMemAreaFactory);
-  m_pDriver->initFragmentLinker();
+  m_pObjLinker = new mcld::ObjectLinker(*m_pInfo, *m_pBackend, *m_pMemAreaFactory);
+  m_pObjLinker->initFragmentLinker();
 
   is_initialized = true;
   return true;
@@ -276,7 +276,7 @@ bool TestLinker::setOutput(const std::string &pPath)
   m_pInfo->output().setContext(context);
 
   // FIXME: remove the initStdSections().
-  m_pDriver->initStdSections();
+  m_pObjLinker->initStdSections();
   return true;
 }
 
@@ -302,7 +302,7 @@ bool TestLinker::setOutput(int pFileHandler)
   m_pInfo->output().setContext(context);
 
   // FIXME: remove the initStdSections().
-  m_pDriver->initStdSections();
+  m_pObjLinker->initStdSections();
   return true;
 }
 

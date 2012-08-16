@@ -129,7 +129,7 @@ TEST_F(ReadStageTest, quake) {
   m_pLinker->addObject(top_level + "test/libs/ARM/Android/android-14/crtend_so.o");
 
   // dump status
-  m_pLinker->getDriver()->normalize();
+  m_pLinker->getObjLinker()->normalize();
 
   FileHandle file;
   file.open(top_level + "unittests/read_stage.xml",
@@ -142,6 +142,6 @@ TEST_F(ReadStageTest, quake) {
 
   dumpOutput(m_pLinker->config()->output(), file, 1);
   // dump status
-  ASSERT_TRUE(m_pLinker->getDriver()->mergeSections());
+  ASSERT_TRUE(m_pLinker->getObjLinker()->mergeSections());
 }
 

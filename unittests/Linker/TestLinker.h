@@ -72,28 +72,28 @@ public:
 
   bool setOutput(const sys::fs::Path &pPath);
 
-  /// getDriver
-  MCLDDriver* getDriver() {
-    assert(NULL != m_pDriver);
-    return m_pDriver;
+  /// getObjLinker
+  ObjectLinker* getObjLinker() {
+    assert(NULL != m_pObjLinker);
+    return m_pObjLinker;
   }
 
-  /// getDriver
-  const MCLDDriver* getDriver() const {
-    assert(NULL != m_pDriver);
-    return m_pDriver;
+  /// getObjLinker
+  const ObjectLinker* getObjLinker() const {
+    assert(NULL != m_pObjLinker);
+    return m_pObjLinker;
   }
 
   /// getLinker
   FragmentLinker* getLinker() {
-    assert(NULL != m_pDriver);
-    return m_pDriver->getLinker();
+    assert(NULL != m_pObjLinker);
+    return m_pObjLinker->getLinker();
   }
 
   /// getLinker
   const FragmentLinker* getLinker() const {
-    assert(NULL != m_pDriver);
-    return m_pDriver->getLinker();
+    assert(NULL != m_pObjLinker);
+    return m_pObjLinker->getLinker();
   }
 
 private:
@@ -101,7 +101,7 @@ private:
 
 private:
   const mcld::Target* m_pTarget;
-  mcld::MCLDDriver *m_pDriver;
+  mcld::ObjectLinker *m_pObjLinker;
   mcld::MCLDInfo* m_pInfo;
   mcld::DiagnosticLineInfo* m_pDiagLineInfo;
   mcld::DiagnosticPrinter* m_pDiagPrinter;

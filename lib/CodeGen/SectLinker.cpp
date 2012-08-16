@@ -77,7 +77,7 @@ bool SectLinker::doInitialization(Module &pM)
   initializeInputTree(PosDepOpts);
   initializeInputOutput(info);
   // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pObjLinker = new MCLDDriver(info, *m_pLDBackend, *memAreaFactory());
+  m_pObjLinker = new ObjectLinker(info, *m_pLDBackend, *memAreaFactory());
 
   return false;
 }
