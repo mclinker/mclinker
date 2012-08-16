@@ -12,10 +12,9 @@
 
 using namespace mcld;
 
-MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
-                                     TargetLDBackend &pLDBackend)
-  : SectLinker(pOption,
-               pLDBackend) {
+MipsELFMCLinker::MipsELFMCLinker(SectLinkerOption &pOption,
+                                 TargetLDBackend &pLDBackend)
+  : MCLinker(pOption, pLDBackend) {
   MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes
   info.attrFactory().constraint().enableWholeArchive();
@@ -28,7 +27,7 @@ MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
   info.attrFactory().predefined().setDynamic();
 }
 
-MipsELFSectLinker::~MipsELFSectLinker()
+MipsELFMCLinker::~MipsELFMCLinker()
 {
 }
 

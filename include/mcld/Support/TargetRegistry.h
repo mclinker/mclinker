@@ -22,7 +22,7 @@ class AsmPrinter;
 namespace mcld {
 class LLVMTargetMachine;
 class TargetRegistry;
-class SectLinker;
+class MCLinker;
 class SectLinkerOption;
 class TargetLDBackend;
 class AttributeFactory;
@@ -42,9 +42,9 @@ public:
                                                           llvm::TargetMachine &,
                                                           const std::string&);
 
-  typedef SectLinker *(*SectLinkerCtorTy)(const std::string& pTriple,
-                                          SectLinkerOption &,
-                                          TargetLDBackend&);
+  typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
+                                      SectLinkerOption &,
+                                      TargetLDBackend&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
@@ -73,17 +73,15 @@ public:
     return NULL;
   }
 
-  /// createSectLinker - create target-specific SectLinker
+  /// createMCLinker - create target-specific MCLinker
   ///
-  /// @return created SectLinker
-  SectLinker *createSectLinker(const std::string &pTriple,
-                               SectLinkerOption &pOption,
-                               TargetLDBackend &pLDBackend) const {
-    if (!SectLinkerCtorFn)
+  /// @return created MCLinker
+  MCLinker *createMCLinker(const std::string &pTriple,
+                           SectLinkerOption &pOption,
+                           TargetLDBackend &pLDBackend) const {
+    if (!MCLinkerCtorFn)
       return NULL;
-    return SectLinkerCtorFn(pTriple,
-                            pOption,
-                            pLDBackend);
+    return MCLinkerCtorFn(pTriple, pOption, pLDBackend);
   }
 
   /// createLDBackend - create target-specific LDBackend
@@ -111,7 +109,7 @@ public:
 private:
   // -----  function pointers  ----- //
   TargetMachineCtorTy TargetMachineCtorFn;
-  SectLinkerCtorTy SectLinkerCtorFn;
+  MCLinkerCtorTy MCLinkerCtorFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
   DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
 
@@ -161,15 +159,15 @@ public:
       T.TargetMachineCtorFn = Fn;
   }
 
-  /// RegisterSectLinker - Register a SectLinker implementation for the given
+  /// RegisterMCLinker - Register a MCLinker implementation for the given
   /// target.
   ///
   /// @param T - the target being registered
-  /// @param Fn - A function to create SectLinker for the target
-  static void RegisterSectLinker(mcld::Target &T, mcld::Target::SectLinkerCtorTy Fn)
+  /// @param Fn - A function to create MCLinker for the target
+  static void RegisterMCLinker(mcld::Target &T, mcld::Target::MCLinkerCtorTy Fn)
   {
-    if (!T.SectLinkerCtorFn)
-      T.SectLinkerCtorFn = Fn;
+    if (!T.MCLinkerCtorFn)
+      T.MCLinkerCtorFn = Fn;
   }
 
   /// RegisterTargetLDBackend - Register a TargetLDBackend implementation for

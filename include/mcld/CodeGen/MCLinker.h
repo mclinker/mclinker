@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-//SectLinker is a base class inherited by target specific linker.
-//This class primarily handles common functionality used by all linkers.
+// MCLinker is a base class inherited by target specific linker.
+// This class primarily handles common functionality used by all linkers.
 //
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SECTION_LINKER_H
@@ -36,33 +36,32 @@ class AttributeFactory;
 class SectLinkerOption;
 class MemoryAreaFactory;
 
-/** \class SectLinker
-*  \brief SectLinker provides a linking pass for standard compilation flow
+/** \class MCLinker
+*  \brief MCLinker provides a linking pass for standard compilation flow
 *
-*  SectLinker is responded for
+*  MCLinker is responded for
 *  - provide an interface for target-specific SectLinekr
 *  - set up environment for ObjectLinker
 *  - control AsmPrinter, make sure AsmPrinter has already prepared
 *    all SectionDatas for linking
 *
-*  SectLinker resolves the absolue paths of input arguments.
+*  MCLinker resolves the absolue paths of input arguments.
 *
 *  @see MachineFunctionPass ObjectLinker
 */
-class SectLinker : public llvm::MachineFunctionPass
+class MCLinker : public llvm::MachineFunctionPass
 {
 protected:
-  // Constructor. Although SectLinker has only two arguments,
-  // TargetSectLinker should handle
+  // Constructor. Although MCLinker has only two arguments,
+  // TargetMCLinker should handle
   // - enabled attributes
   // - the default attribute
   // - the default link script
   // - the standard symbols
-  SectLinker(SectLinkerOption &pOption,
-             TargetLDBackend &pLDBackend);
+  MCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend);
 
 public:
-  virtual ~SectLinker();
+  virtual ~MCLinker();
 
   /// doInitialization - Read all parameters and set up the AsmPrinter.
   /// If your pass overrides this, it must make sure to explicitly call

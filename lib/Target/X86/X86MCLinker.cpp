@@ -15,12 +15,14 @@
 using namespace mcld;
 
 namespace mcld {
+
 //===----------------------------------------------------------------------===//
 /// createX86MCLinker - the help funtion to create corresponding X86MCLinker
+//===----------------------------------------------------------------------===//
 ///
-SectLinker* createX86SectLinker(const std::string &pTriple,
-                                SectLinkerOption &pOption,
-                                mcld::TargetLDBackend &pLDBackend)
+MCLinker* createX86MCLinker(const std::string &pTriple,
+                            SectLinkerOption &pOption,
+                            mcld::TargetLDBackend &pLDBackend)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -33,7 +35,7 @@ SectLinker* createX86SectLinker(const std::string &pTriple,
   }
 
   if (theTriple.isArch32Bit())
-    return new X86ELFSectLinker(pOption, pLDBackend);
+    return new X86ELFMCLinker(pOption, pLDBackend);
 
   assert(0 && "X86_64 has not supported yet");
   return NULL;
@@ -41,10 +43,11 @@ SectLinker* createX86SectLinker(const std::string &pTriple,
 
 } // namespace of mcld
 
-//==========================
-// X86SectLinker
-extern "C" void LLVMInitializeX86SectLinker() {
+//===----------------------------------------------------------------------===//
+// X86MCLinker
+//===----------------------------------------------------------------------===//
+extern "C" void LLVMInitializeX86MCLinker() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterSectLinker(TheX86Target, createX86SectLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheX86Target, createX86MCLinker);
 }
 

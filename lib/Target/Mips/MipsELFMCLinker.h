@@ -13,19 +13,17 @@
 #endif
 #include <mcld/CodeGen/MCLinker.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MipsELFMCLinker
  *  \brief MipsELFMCLinker sets up the environment for linking.
  */
-class MipsELFSectLinker : public SectLinker
+class MipsELFMCLinker : public MCLinker
 {
 public:
-  MipsELFSectLinker(SectLinkerOption &pOption,
-                    mcld::TargetLDBackend &pLDBackend);
+  MipsELFMCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend);
 
-  ~MipsELFSectLinker();
+  ~MipsELFMCLinker();
 };
 
 } // namespace of mcld

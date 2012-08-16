@@ -12,10 +12,9 @@
 
 using namespace mcld;
 
-X86ELFSectLinker::X86ELFSectLinker(SectLinkerOption &pOption,
-                                   TargetLDBackend &pLDBackend)
-  : SectLinker(pOption,
-               pLDBackend) {
+X86ELFMCLinker::X86ELFMCLinker(SectLinkerOption &pOption,
+                               TargetLDBackend &pLDBackend)
+  : MCLinker(pOption, pLDBackend) {
   MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attibutes
   info.attrFactory().constraint().enableWholeArchive();
@@ -29,7 +28,7 @@ X86ELFSectLinker::X86ELFSectLinker(SectLinkerOption &pOption,
 
 }
 
-X86ELFSectLinker::~X86ELFSectLinker()
+X86ELFMCLinker::~X86ELFMCLinker()
 {
 }
 

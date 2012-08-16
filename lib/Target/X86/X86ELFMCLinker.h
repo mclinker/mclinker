@@ -13,21 +13,19 @@
 #endif
 #include <mcld/CodeGen/MCLinker.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class X86ELFMCLinker
  *  \brief X86ELFMCLinker sets up the environment for linking.
  *
  *  \see
  */
-class X86ELFSectLinker : public SectLinker
+class X86ELFMCLinker : public MCLinker
 {
 public:
-  X86ELFSectLinker(SectLinkerOption &pOption,
-                   mcld::TargetLDBackend &pLDBackend);
+  X86ELFMCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend);
 
-  ~X86ELFSectLinker();
+  ~X86ELFMCLinker();
 };
 
 } // namespace of mcld

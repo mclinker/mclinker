@@ -12,15 +12,14 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// ELFSectLinker
+// ELFMCLinker
 //===----------------------------------------------------------------------===//
-ELFSectLinker::ELFSectLinker(SectLinkerOption &pOption,
-                             TargetLDBackend &pLDBackend)
-  : SectLinker(pOption, pLDBackend) {
+ELFMCLinker::ELFMCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend)
+  : MCLinker(pOption, pLDBackend) {
 }
 
-ELFSectLinker::~ELFSectLinker()
+ELFMCLinker::~ELFMCLinker()
 {
-  // SectLinker will delete m_pLDBackend and m_pLDDriver;
+  // MCLinker will delete m_pLDBackend and m_pLDDriver;
 }
 

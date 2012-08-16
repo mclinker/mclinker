@@ -34,14 +34,15 @@ using namespace llvm;
 
 //===----------------------------------------------------------------------===//
 // Forward declarations
-char SectLinker::m_ID = 0;
+//===----------------------------------------------------------------------===//
+char MCLinker::m_ID = 0;
 static bool CompareOption(const PositionDependentOption* X,
                           const PositionDependentOption* Y);
 
 //===----------------------------------------------------------------------===//
-// SectLinker
-SectLinker::SectLinker(SectLinkerOption &pOption,
-                       TargetLDBackend& pLDBackend)
+// MCLinker
+//===----------------------------------------------------------------------===//
+MCLinker::MCLinker(SectLinkerOption &pOption, TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
@@ -51,14 +52,14 @@ SectLinker::SectLinker(SectLinkerOption &pOption,
   m_pMemAreaFactory = new MemoryAreaFactory(32);
 }
 
-SectLinker::~SectLinker()
+MCLinker::~MCLinker()
 {
   delete m_pObjLinker;
 
   // FIXME: current implementation can not change the order of delete.
   //
   // Instance of TargetLDBackend was created outside and is not managed by
-  // SectLinker. It should not be destroyed here and by SectLinker. However, in
+  // MCLinker. It should not be destroyed here and by MCLinker. However, in
   // order to follow the LLVM convention - that is, the pass manages all the
   // objects it used during the processing, we destroy the object of
   // TargetLDBackend here.
@@ -67,7 +68,7 @@ SectLinker::~SectLinker()
   delete m_pMemAreaFactory;
 }
 
-bool SectLinker::doInitialization(Module &pM)
+bool MCLinker::doInitialization(Module &pM)
 {
   MCLDInfo &info = m_pOption->info();
 
@@ -82,7 +83,7 @@ bool SectLinker::doInitialization(Module &pM)
   return false;
 }
 
-bool SectLinker::doFinalization(Module &pM)
+bool MCLinker::doFinalization(Module &pM)
 {
   const MCLDInfo &info = m_pOption->info();
 
@@ -169,13 +170,13 @@ bool SectLinker::doFinalization(Module &pM)
   return false;
 }
 
-bool SectLinker::runOnMachineFunction(MachineFunction& pF)
+bool MCLinker::runOnMachineFunction(MachineFunction& pF)
 {
   // basically, linkers do nothing during function is generated.
   return false;
 }
 
-void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
+void MCLinker::initializeInputOutput(MCLDInfo &pLDInfo)
 {
   // -----  initialize output file  ----- //
   FileHandle::Permission perm;
@@ -225,7 +226,7 @@ void SectLinker::initializeInputOutput(MCLDInfo &pLDInfo)
   }
 }
 
-void SectLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
+void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
 {
   if (pPosDepOptions.empty())
     fatal(diag::err_no_inputs);

@@ -363,9 +363,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   pLinkerOpt->info().output().setPath(sys::fs::RealPath(pOutputFilename));
   pLinkerOpt->info().output().setType(pOutputLinkType);
 
-  MachineFunctionPass* funcPass = getTarget().createSectLinker(m_Triple,
-                                                               *pLinkerOpt,
-                                                               *ldBackend);
+  MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
+                                                             *pLinkerOpt,
+                                                             *ldBackend);
   if (0 == funcPass)
     return true;
 

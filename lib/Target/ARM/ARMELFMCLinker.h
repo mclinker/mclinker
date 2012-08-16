@@ -21,13 +21,12 @@ namespace mcld
  *
  *  \see
  */
-class ARMELFSectLinker : public SectLinker
+class ARMELFMCLinker : public MCLinker
 {
 public:
-  ARMELFSectLinker(SectLinkerOption &pOption,
-                   mcld::TargetLDBackend &pLDBackend);
+  ARMELFMCLinker(SectLinkerOption &pOption, mcld::TargetLDBackend &pLDBackend);
 
-  ~ARMELFSectLinker();
+  ~ARMELFMCLinker();
 };
 
 } // namespace of mcld

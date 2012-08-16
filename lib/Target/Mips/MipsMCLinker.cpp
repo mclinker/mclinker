@@ -17,11 +17,12 @@ using namespace mcld;
 namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createMipsMCLinker - the help funtion to create
+//===----------------------------------------------------------------------===//
 /// corresponding MipsMCLinker
 ///
-SectLinker* createMipsSectLinker(const std::string &pTriple,
-                                 SectLinkerOption &pOption,
-                                 mcld::TargetLDBackend &pLDBackend)
+MCLinker* createMipsMCLinker(const std::string &pTriple,
+                             SectLinkerOption &pOption,
+                             mcld::TargetLDBackend &pLDBackend)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -33,15 +34,15 @@ SectLinker* createMipsSectLinker(const std::string &pTriple,
     return NULL;
   }
 
-  return new MipsELFSectLinker(pOption, pLDBackend);
+  return new MipsELFMCLinker(pOption, pLDBackend);
 }
 
 } // namespace of mcld
 
-//==========================
-// MipsSectLinker
-extern "C" void LLVMInitializeMipsSectLinker() {
+//===----------------------------------------------------------------------===//
+// MipsMCLinker
+//===----------------------------------------------------------------------===//
+extern "C" void LLVMInitializeMipsMCLinker() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterSectLinker(TheMipselTarget,
-                                           createMipsSectLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheMipselTarget, createMipsMCLinker);
 }

@@ -15,7 +15,7 @@ using namespace llvm;
 
 mcld::Target::Target()
   : TargetMachineCtorFn(NULL),
-    SectLinkerCtorFn(NULL),
+    MCLinkerCtorFn(NULL),
     TargetLDBackendCtorFn(NULL),
     DiagnosticLineInfoCtorFn(NULL),
     m_pT(NULL)

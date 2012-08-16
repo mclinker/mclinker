@@ -21,13 +21,12 @@
 namespace mcld
 {
 
-class ELFSectLinker : public SectLinker
+class ELFMCLinker : public MCLinker
 {
 public:
-  ELFSectLinker(SectLinkerOption &pOption,
-                mcld::TargetLDBackend &pLDBackend);
+  ELFMCLinker(SectLinkerOption &pOption, mcld::TargetLDBackend &pLDBackend);
 
-  virtual ~ELFSectLinker();
+  virtual ~ELFMCLinker();
 };
 
 } // namespace of mcld

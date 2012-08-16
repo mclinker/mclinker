@@ -16,11 +16,11 @@ using namespace mcld;
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
-// createARMSectLinker - the help function to create corresponding ARMSectLinker
-//
-SectLinker* createARMSectLinker(const std::string &pTriple,
-                                SectLinkerOption &pOption,
-                                mcld::TargetLDBackend &pLDBackend)
+// createARMMCLinker - the help function to create corresponding ARMMCLinker
+//===----------------------------------------------------------------------===//
+MCLinker* createARMMCLinker(const std::string &pTriple,
+                            SectLinkerOption &pOption,
+                            mcld::TargetLDBackend &pLDBackend)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -32,17 +32,18 @@ SectLinker* createARMSectLinker(const std::string &pTriple,
     return NULL;
   }
 
-  // For now, use Android SectLinker directly
-  return new ARMELFSectLinker(pOption, pLDBackend);
+  // For now, use Android MCLinker directly
+  return new ARMELFMCLinker(pOption, pLDBackend);
 }
 
 } // namespace of mcld
 
-//==========================
-// ARMSectLinker
-extern "C" void LLVMInitializeARMSectLinker() {
+//===----------------------------------------------------------------------===//
+// ARMMCLinker
+//===----------------------------------------------------------------------===//
+extern "C" void LLVMInitializeARMMCLinker() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterSectLinker(TheARMTarget, createARMSectLinker);
-  mcld::TargetRegistry::RegisterSectLinker(TheThumbTarget, createARMSectLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheARMTarget, createARMMCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheThumbTarget, createARMMCLinker);
 }
 

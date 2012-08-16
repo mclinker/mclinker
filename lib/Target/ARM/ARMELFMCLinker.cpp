@@ -12,9 +12,9 @@
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
-                                   TargetLDBackend &pLDBackend)
-  : SectLinker(pOption,
+ARMELFMCLinker::ARMELFMCLinker(SectLinkerOption &pOption,
+                               TargetLDBackend &pLDBackend)
+  : MCLinker(pOption,
                pLDBackend) {
   MCLDInfo &info = pOption.info();
   // set up target-dependent constraints of attributes
@@ -29,7 +29,7 @@ ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
 
 }
 
-ARMELFSectLinker::~ARMELFSectLinker()
+ARMELFMCLinker::~ARMELFMCLinker()
 {
 }
 
