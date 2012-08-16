@@ -182,6 +182,14 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/InputTree.cpp \
 	${INCDIR}/MC/ZOption.h \
 	${LIBDIR}/MC/ZOption.cpp \
+	${INCDIR}/MC/InputAction.h \
+	${LIBDIR}/MC/InputAction.cpp \
+	${INCDIR}/MC/CommandAction.h \
+	${LIBDIR}/MC/CommandAction.cpp \
+	${INCDIR}/MC/FileAction.h \
+	${LIBDIR}/MC/FileAction.cpp \
+	${INCDIR}/MC/InputBuilder.h \
+	${LIBDIR}/MC/InputBuilder.cpp \
 	${INCDIR}/LD/DiagCommonKinds.inc \
 	${INCDIR}/LD/DiagReaders.inc \
 	${INCDIR}/LD/DiagSymbolResolutions.inc \
