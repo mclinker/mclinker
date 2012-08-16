@@ -1,4 +1,4 @@
-//===- SectLinker.cpp -----------------------------------------------------===//
+//===- MCLinker.cpp -------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements the SectLinker class.
+// This file implements the MCLinker class.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/CodeGen/MCLinker.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Object/ObjectLinker.h>
@@ -20,7 +21,6 @@
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/CodeGen/SectLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>

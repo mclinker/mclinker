@@ -1,4 +1,4 @@
-//===- ARMELFSectLinker.cpp -----------------------------------------------===//
+//===- X86ELFMCLinker.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "ARMELFSectLinker.h"
+#include "X86ELFMCLinker.h"
 
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
+X86ELFSectLinker::X86ELFSectLinker(SectLinkerOption &pOption,
                                    TargetLDBackend &pLDBackend)
   : SectLinker(pOption,
                pLDBackend) {
   MCLDInfo &info = pOption.info();
-  // set up target-dependent constraints of attributes
+  // set up target-dependent constraints of attibutes
   info.attrFactory().constraint().enableWholeArchive();
   info.attrFactory().constraint().enableAsNeeded();
   info.attrFactory().constraint().setSharedSystem();
@@ -29,7 +29,7 @@ ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
 
 }
 
-ARMELFSectLinker::~ARMELFSectLinker()
+X86ELFSectLinker::~X86ELFSectLinker()
 {
 }
 

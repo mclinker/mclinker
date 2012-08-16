@@ -1,4 +1,4 @@
-//===- ELFSectLinker.h ----------------------------------------------------===//
+//===- ELFMCLinker.h ------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// ELFSectLinker is a customized linker pass for ELF platform.
+// ELFMCLinker is a customized linker pass for ELF platform.
 // This pass set up default parameters for ELF.
 //
 //===----------------------------------------------------------------------===//
@@ -16,7 +16,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/MCLinker.h>
 
 namespace mcld
 {

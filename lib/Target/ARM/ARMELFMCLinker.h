@@ -1,4 +1,4 @@
-//===- X86ELFSectLinker.h -------------------------------------------------===//
+//===- ARMELFMCLinker.h ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,28 +6,28 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef X86_ELFSECTLINKER_H
-#define X86_ELFSECTLINKER_H
+#ifndef ARM_ELF_SECTION_LINKER_H
+#define ARM_ELF_SECTION_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/MCLinker.h>
 
 namespace mcld
 {
 
-/** \class X86ELFSectLinker
- *  \brief X86ELFSectLinker sets up the environment for linking.
+/** \class ARMELFMCLinker
+ *  \brief ARMELFMCLinker sets up the environment for linking.
  *
  *  \see
  */
-class X86ELFSectLinker : public SectLinker
+class ARMELFSectLinker : public SectLinker
 {
 public:
-  X86ELFSectLinker(SectLinkerOption &pOption,
+  ARMELFSectLinker(SectLinkerOption &pOption,
                    mcld::TargetLDBackend &pLDBackend);
 
-  ~X86ELFSectLinker();
+  ~ARMELFSectLinker();
 };
 
 } // namespace of mcld

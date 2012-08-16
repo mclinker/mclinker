@@ -1,4 +1,4 @@
-//===- MipsELFSectLinker.h ------------------------------------------------===//
+//===- MipsELFMCLinker.h --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -11,13 +11,13 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/MCLinker.h>
 
 namespace mcld
 {
 
-/** \class MipsELFSectLinker
- *  \brief MipsELFSectLinker sets up the environment for linking.
+/** \class MipsELFMCLinker
+ *  \brief MipsELFMCLinker sets up the environment for linking.
  */
 class MipsELFSectLinker : public SectLinker
 {

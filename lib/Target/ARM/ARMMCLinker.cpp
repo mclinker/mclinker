@@ -1,4 +1,4 @@
-//===- ARMSectLinker.cpp --------------------------------------------------===//
+//===- ARMMCLinker.cpp ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -9,7 +9,7 @@
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include "ARM.h"
-#include "ARMELFSectLinker.h"
+#include "ARMELFMCLinker.h"
 
 
 using namespace mcld;

@@ -1,4 +1,4 @@
-//===- ELFSectLinker.cpp ------------------------------------------------===//
+//===- ELFMCLinker.cpp ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,13 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Target/ELFSectLinker.h>
+#include <mcld/Target/ELFMCLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ELFSectLinker
+//===----------------------------------------------------------------------===//
 ELFSectLinker::ELFSectLinker(SectLinkerOption &pOption,
                              TargetLDBackend &pLDBackend)
   : SectLinker(pOption, pLDBackend) {

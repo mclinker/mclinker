@@ -1,4 +1,4 @@
-//===- X86ELFSectLinker.cpp -----------------------------------------------===//
+//===- MipsELFMCLinker.cpp ------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,14 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "X86ELFSectLinker.h"
+#include "MipsELFMCLinker.h"
 
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-X86ELFSectLinker::X86ELFSectLinker(SectLinkerOption &pOption,
-                                   TargetLDBackend &pLDBackend)
+MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
+                                     TargetLDBackend &pLDBackend)
   : SectLinker(pOption,
                pLDBackend) {
   MCLDInfo &info = pOption.info();
@@ -26,10 +26,9 @@ X86ELFSectLinker::X86ELFSectLinker(SectLinkerOption &pOption,
   info.attrFactory().predefined().unsetWholeArchive();
   info.attrFactory().predefined().unsetAsNeeded();
   info.attrFactory().predefined().setDynamic();
-
 }
 
-X86ELFSectLinker::~X86ELFSectLinker()
+MipsELFSectLinker::~MipsELFSectLinker()
 {
 }
 

@@ -1,4 +1,4 @@
-//===- MipsSectLinker.cpp -------------------------------------------------===//
+//===- MipsMCLinker.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -10,14 +10,14 @@
 #include <llvm/ADT/Triple.h>
 #include <mcld/Support/TargetRegistry.h>
 #include "Mips.h"
-#include "MipsELFSectLinker.h"
+#include "MipsELFMCLinker.h"
 
 using namespace mcld;
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
-/// createMipsSectLinker - the help funtion to create
-/// corresponding MipsSectLinker
+/// createMipsMCLinker - the help funtion to create
+/// corresponding MipsMCLinker
 ///
 SectLinker* createMipsSectLinker(const std::string &pTriple,
                                  SectLinkerOption &pOption,

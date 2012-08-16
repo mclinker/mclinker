@@ -1,4 +1,4 @@
-//===- MipsELFSectLinker.cpp ----------------------------------------------===//
+//===- ARMELFMCLinker.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "MipsELFSectLinker.h"
+#include "ARMELFMCLinker.h"
 
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
-MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
-                                     TargetLDBackend &pLDBackend)
+ARMELFSectLinker::ARMELFSectLinker(SectLinkerOption &pOption,
+                                   TargetLDBackend &pLDBackend)
   : SectLinker(pOption,
                pLDBackend) {
   MCLDInfo &info = pOption.info();
-  // set up target-dependent constraints of attibutes
+  // set up target-dependent constraints of attributes
   info.attrFactory().constraint().enableWholeArchive();
   info.attrFactory().constraint().enableAsNeeded();
   info.attrFactory().constraint().setSharedSystem();
@@ -26,9 +26,10 @@ MipsELFSectLinker::MipsELFSectLinker(SectLinkerOption &pOption,
   info.attrFactory().predefined().unsetWholeArchive();
   info.attrFactory().predefined().unsetAsNeeded();
   info.attrFactory().predefined().setDynamic();
+
 }
 
-MipsELFSectLinker::~MipsELFSectLinker()
+ARMELFSectLinker::~ARMELFSectLinker()
 {
 }
 

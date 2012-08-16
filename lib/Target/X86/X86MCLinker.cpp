@@ -1,4 +1,4 @@
-//===- X86SectLinker.cpp --------------------------------------------------===//
+//===- X86MCLinker.cpp ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -10,13 +10,13 @@
 #include <mcld/Support/TargetRegistry.h>
 
 #include "X86.h"
-#include "X86ELFSectLinker.h"
+#include "X86ELFMCLinker.h"
 
 using namespace mcld;
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
-/// createX86SectLinker - the help funtion to create corresponding X86SectLinker
+/// createX86MCLinker - the help funtion to create corresponding X86MCLinker
 ///
 SectLinker* createX86SectLinker(const std::string &pTriple,
                                 SectLinkerOption &pOption,

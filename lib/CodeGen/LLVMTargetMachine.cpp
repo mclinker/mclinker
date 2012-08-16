@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Target/TargetMachine.h>
 
-#include <mcld/CodeGen/SectLinker.h>
+#include <mcld/CodeGen/MCLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 #include <mcld/MC/MCLDFile.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/Target/TargetMachine.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/ADT/OwningPtr.h>

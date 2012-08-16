@@ -71,8 +71,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/Windows/PathV3.inc \
 	${LIBDIR}/Support/Windows/System.inc \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
-	${INCDIR}/CodeGen/SectLinker.h \
-	${LIBDIR}/CodeGen/SectLinker.cpp \
+	${INCDIR}/CodeGen/MCLinker.h \
+	${LIBDIR}/CodeGen/MCLinker.cpp \
 	${INCDIR}/CodeGen/SectLinkerOption.h \
 	${LIBDIR}/CodeGen/SectLinkerOption.cpp \
 	${INCDIR}/Target/PLT.h\
@@ -85,8 +85,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/TargetLDBackend.cpp \
 	${INCDIR}/Target/GNULDBackend.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
-	${INCDIR}/Target/ELFSectLinker.h \
-	${LIBDIR}/Target/ELFSectLinker.cpp \
+	${INCDIR}/Target/ELFMCLinker.h \
+	${LIBDIR}/Target/ELFMCLinker.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${INCDIR}/Target/ELFDynamic.tcc \
 	${LIBDIR}/Target/ELFDynamic.cpp \
@@ -106,9 +106,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFunctions.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
 	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
-	${LIBDIR}/Target/ARM/ARMSectLinker.cpp \
-	${LIBDIR}/Target/ARM/ARMELFSectLinker.h \
-	${LIBDIR}/Target/ARM/ARMELFSectLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMELFMCLinker.h \
+	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/Mips/Mips.h \
@@ -123,9 +123,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsRelocationFunctions.h \
 	${LIBDIR}/Target/Mips/MipsRelocationFactory.h \
 	${LIBDIR}/Target/Mips/MipsRelocationFactory.cpp \
-	${LIBDIR}/Target/Mips/MipsSectLinker.cpp \
-	${LIBDIR}/Target/Mips/MipsELFSectLinker.h \
-	${LIBDIR}/Target/Mips/MipsELFSectLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsELFMCLinker.h \
+	${LIBDIR}/Target/Mips/MipsELFMCLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86.h \
@@ -144,9 +144,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86RelocationFunctions.h \
 	${LIBDIR}/Target/X86/X86RelocationFactory.h \
 	${LIBDIR}/Target/X86/X86RelocationFactory.cpp \
-	${LIBDIR}/Target/X86/X86SectLinker.cpp \
-	${LIBDIR}/Target/X86/X86ELFSectLinker.h \
-	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
+	${LIBDIR}/Target/X86/X86MCLinker.cpp \
+	${LIBDIR}/Target/X86/X86ELFMCLinker.h \
+	${LIBDIR}/Target/X86/X86ELFMCLinker.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
