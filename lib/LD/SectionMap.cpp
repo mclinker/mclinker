@@ -14,12 +14,17 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // SectionMap
+//===----------------------------------------------------------------------===//
 SectionMap::SectionMap()
 {
 }
 
 SectionMap::~SectionMap()
 {
+  iterator it, itEnd = end();
+  for (it = begin(); it != itEnd; ++it) {
+    delete (*it);
+  }
 }
 
 const std::string& SectionMap::getOutputSectName(const std::string& pInput)
@@ -27,17 +32,17 @@ const std::string& SectionMap::getOutputSectName(const std::string& pInput)
   iterator it;
   for (it = begin(); it != end(); ++it) {
     if (0 == strncmp(pInput.c_str(),
-                     (*it).inputSubStr.c_str(),
-                     (*it).inputSubStr.length()))
+                     (*it)->inputSubStr.c_str(),
+                     (*it)->inputSubStr.length()))
       break;
     // wildcard to a user-defined output section.
-    else if (0 == strcmp("*", (*it).inputSubStr.c_str()))
+    else if (0 == strcmp("*", (*it)->inputSubStr.c_str()))
       break;
   }
   // if still no matching, just let a output seciton has the same input name
   if (it == end())
     return pInput;
-  return (*it).outputStr;
+  return (*it)->outputStr;
 }
 
 bool SectionMap::push_back(const std::string& pInput,
@@ -48,14 +53,11 @@ bool SectionMap::push_back(const std::string& pInput,
   //       exception from the given SECTIONS command
   iterator it;
   for (it = m_SectMap.begin(); it != m_SectMap.end(); ++it) {
-    if (pInput == (*it).inputSubStr)
+    if (pInput == (*it)->inputSubStr)
       return false;
   }
-  struct Mapping mapping = {
-    pInput,
-    pOutput,
-  };
-  m_SectMap.push_back(mapping);
+
+  m_SectMap.push_back(new Mapping(pInput, pOutput));
   return true;
 }
 
@@ -63,26 +65,20 @@ SectionMap::iterator SectionMap::find(const std::string& pInput)
 {
   iterator it;
   for (it = begin(); it != end(); ++it) {
-    if(pInput == (*it).inputSubStr)
+    if(pInput == (*it)->inputSubStr)
       break;
   }
   return it;
 }
 
-SectionMap::Mapping* SectionMap::at(const std::string& pInput)
-{
-  iterator it;
-  for (it = begin(); it != end(); ++it) {
-    if(pInput == (*it).inputSubStr)
-      break;
-  }
-  if (end() == it)
-    return NULL;
-  return &(*it);
-}
-
 // Common mappings of ELF and other formants. Now only ELF specific mappings are added
-const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
+struct SectionNameMapping
+{
+  const char* from;
+  const char* to;
+};
+
+static const SectionNameMapping StdSectionMap[] =
 {
   {".text", ".text"},
   {".rodata", ".rodata"},
@@ -125,14 +121,12 @@ const SectionMap::SectionNameMapping SectionMap::m_StdSectionMap[] =
   {".gnu.linkonce.lb", ".lbss"},
 };
 
-const int SectionMap::m_StdSectionMapSize =
-  (sizeof(SectionMap::m_StdSectionMap) / sizeof(SectionMap::m_StdSectionMap[0]));
+const int StdSectionMapSize = (sizeof(StdSectionMap)/sizeof(StdSectionMap[0]));
 
 bool SectionMap::initStdSectionMap()
 {
-  for (int i = 0; i < m_StdSectionMapSize; ++i) {
-    struct Mapping mapping = { m_StdSectionMap[i].from, m_StdSectionMap[i].to};
-    m_SectMap.push_back(mapping);
+  for (int i = 0; i < StdSectionMapSize; ++i) {
+    m_SectMap.push_back(new Mapping(StdSectionMap[i].from, StdSectionMap[i].to));
   }
   return true;
 }

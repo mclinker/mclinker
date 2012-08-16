@@ -25,15 +25,22 @@ namespace mcld
  */
 class SectionMap
 {
-public:
+private:
   // a mapping in SectionMap is the triple of
   // {input substr, output section's name, output section's offset}
-  struct Mapping {
+  struct Mapping
+  {
+  public:
+    Mapping(const std::string& pIn, const std::string& pOut)
+      : inputSubStr(pIn), outputStr(pOut) { }
+
+  public:
     std::string inputSubStr;
     std::string outputStr;
   };
 
-  typedef std::vector<struct Mapping> SectionMappingTy;
+public:
+  typedef std::vector<Mapping*> SectionMappingTy;
 
   typedef SectionMappingTy::iterator iterator;
   typedef SectionMappingTy::const_iterator const_iterator;
@@ -52,9 +59,6 @@ public:
 
   // find - return the iterator to the mapping
   iterator find(const std::string& pInput);
-
-  // at - return the pointer to the mapping
-  Mapping* at(const std::string& pInput);
 
   // -----  observers  ----- //
   bool empty() const
@@ -84,16 +88,6 @@ public:
   bool initStdSectionMap();
 
 private:
-  struct SectionNameMapping {
-    const char* from;
-    const char* to;
-  };
-
-  // used to store common mappings of ELF and other formants
-  static const SectionNameMapping m_StdSectionMap[];
-
-  static const int m_StdSectionMapSize;
-
   SectionMappingTy m_SectMap;
 };
 

@@ -17,10 +17,10 @@
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/LD/SectionMap.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class SectionMap;
 class FragmentLinker;
 
 /** \class SectionMerger
@@ -29,12 +29,14 @@ class FragmentLinker;
  */
 class SectionMerger
 {
-public:
-  struct Mapping {
+private:
+  struct NameSectPair {
     std::string inputSubStr;
     LDSection* outputSection;
   };
-  typedef std::vector<Mapping> LDSectionMapTy;
+
+public:
+  typedef std::vector<NameSectPair> LDSectionMapTy;
 
   typedef LDSectionMapTy::iterator iterator;
   typedef LDSectionMapTy::const_iterator const_iterator;

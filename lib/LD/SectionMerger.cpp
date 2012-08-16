@@ -9,12 +9,13 @@
 #include <cassert>
 #include <cstring>
 #include <mcld/LD/SectionMerger.h>
+#include <mcld/LD/SectionMap.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // SectionMerger
-
+//===----------------------------------------------------------------------===//
 SectionMerger::SectionMerger(SectionMap& pSectionMap, LDContext& pContext)
 : m_SectionNameMap(pSectionMap),
   m_Output(pContext),
@@ -83,10 +84,9 @@ void SectionMerger::initOutputSectMap()
   // associated output LDSection*
   SectionMap::iterator it;
   for (it = m_SectionNameMap.begin(); it != m_SectionNameMap.end(); ++it) {
-    struct Mapping mapping = {
-      (*it).inputSubStr,
-      NULL,
-    };
+    NameSectPair mapping;
+    mapping.inputSubStr = (*it)->inputSubStr;
+    mapping.outputSection =  NULL;
     m_LDSectionMap.push_back(mapping);
   }
   assert(m_SectionNameMap.size() == m_LDSectionMap.size());
