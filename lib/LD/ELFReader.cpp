@@ -12,7 +12,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
@@ -24,6 +24,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ELFReaderIF
+//===----------------------------------------------------------------------===//
 /// getLDSectionKind
 LDFileFormat::Kind
 ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const

@@ -18,7 +18,7 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>

@@ -14,7 +14,7 @@
 #include <llvm/ADT/Twine.h>
 
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/ELFObjectReader.h>
@@ -23,8 +23,9 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ELFObjectReader
+//===----------------------------------------------------------------------===//
 /// constructor
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker)
   : ObjectReader(),

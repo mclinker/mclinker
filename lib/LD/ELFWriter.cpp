@@ -15,7 +15,7 @@
 
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/RegionFragment.h>

@@ -12,7 +12,7 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/MCLDInfo.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <llvm/Support/ELF.h>
 #include <vector>
 
@@ -20,8 +20,9 @@ using namespace llvm;
 using namespace mcld;
 
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ELFExecWriter
+//===----------------------------------------------------------------------===//
 ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend, MCLinker& pLinker)
   : ExecWriter(pBackend),
     ELFWriter(pBackend),

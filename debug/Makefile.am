@@ -148,9 +148,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/MCLDDriver.cpp \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
-	${INCDIR}/MC/MCLinker.h \
-	${INCDIR}/MC/MCLinker.tcc \
-	${LIBDIR}/MC/MCLinker.cpp \
+	${INCDIR}/Fragment/FragmentLinker.h \
+	${INCDIR}/Fragment/FragmentLinker.tcc \
+	${LIBDIR}/Fragment/FragmentLinker.cpp \
 	${INCDIR}/MC/MCLDFile.h \
 	${LIBDIR}/MC/MCLDFile.cpp \
 	${INCDIR}/MC/MCLDInput.h \

@@ -16,7 +16,7 @@
 
 #include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/InputTree.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>

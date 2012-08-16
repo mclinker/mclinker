@@ -17,7 +17,7 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/MC/MCLDOutput.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/CIE.h>

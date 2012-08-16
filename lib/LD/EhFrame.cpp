@@ -11,7 +11,7 @@
 #include <llvm/Support/Dwarf.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/FillFragment.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
 

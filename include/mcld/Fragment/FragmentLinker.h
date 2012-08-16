@@ -1,4 +1,4 @@
-//===- MCLinker.h -------------------------------------------------------===//
+//===- FragmentLinker.h ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -11,8 +11,8 @@
 // These APIs do the things which a linker should do.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_MCLINKER_H
-#define MCLD_MCLINKER_H
+#ifndef MCLD_FRAGMENT_FRAGMENT_LINKER_H
+#define MCLD_FRAGMENT_FRAGMENT_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -267,7 +267,7 @@ private:
   SymbolCategory m_OutputSymbols;
 };
 
-#include "MCLinker.tcc"
+#include "FragmentLinker.tcc"
 
 } // namespace of mcld
 

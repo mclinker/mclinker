@@ -13,7 +13,7 @@
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryRegion.h>
 
@@ -21,8 +21,9 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ELFDynObjReader
+//===----------------------------------------------------------------------===//
 ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend, MCLinker& pLinker)
   : DynObjReader(),
     m_pELFReader(0),

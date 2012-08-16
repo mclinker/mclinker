@@ -10,7 +10,7 @@
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Target/GNULDBackend.h>
 
 using namespace mcld;

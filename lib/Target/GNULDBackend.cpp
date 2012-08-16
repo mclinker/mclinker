@@ -23,7 +23,7 @@
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>

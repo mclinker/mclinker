@@ -10,7 +10,7 @@
 // This file implements the MCLinker class
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>

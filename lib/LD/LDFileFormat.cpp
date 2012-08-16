@@ -7,12 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/MC/MCLinker.h>
+#include <mcld/Fragment/FragmentLinker.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // LDFileInfo
+//===----------------------------------------------------------------------===//
 LDFileFormat::LDFileFormat()
   : f_pTextSection(NULL),
     f_pDataSection(NULL),
