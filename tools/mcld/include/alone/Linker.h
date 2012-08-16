@@ -14,6 +14,7 @@
 
 namespace mcld {
 
+class Module;
 class TargetLDBackend;
 class ObjectLinker;
 class MemoryFactory;
@@ -56,6 +57,7 @@ public:
   static const char *GetErrorString(enum ErrorCode pErrCode);
 
 private:
+  mcld::Module *mModule;
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
   MemoryFactory *mMemAreaFactory;

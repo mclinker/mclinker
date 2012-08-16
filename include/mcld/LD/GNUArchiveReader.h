@@ -15,12 +15,13 @@
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/Archive.h>
 
-namespace mcld
-{
-class MemoryAreaFactory;
+namespace mcld {
+
+class Module;
 class LinkerConfig;
 class Input;
 class ELFObjectReader;
+class MemoryAreaFactory;
 class Archive;
 
 /** \class GNUArchiveReader
@@ -30,6 +31,7 @@ class GNUArchiveReader : public ArchiveReader
 {
 public:
   explicit GNUArchiveReader(LinkerConfig& pConfig,
+                            Module& pModule,
                             MemoryAreaFactory& pMemAreaFactory,
                             ELFObjectReader& pELFObjectReader);
 
@@ -90,6 +92,7 @@ private:
 
 private:
   LinkerConfig& m_Config;
+  Module& m_Module;
   MemoryAreaFactory& m_MemAreaFactory;
   ELFObjectReader& m_ELFObjectReader;
 };

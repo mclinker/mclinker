@@ -14,6 +14,7 @@
 #include <string>
 #include <list>
 
+#include <mcld/Module.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/DiagnosticPrinter.h>
@@ -102,6 +103,7 @@ private:
   const mcld::Target* m_pTarget;
   mcld::ObjectLinker *m_pObjLinker;
   mcld::LinkerConfig* m_pConfig;
+  mcld::Module m_Module;
   mcld::DiagnosticLineInfo* m_pDiagLineInfo;
   mcld::DiagnosticPrinter* m_pDiagPrinter;
   mcld::TargetLDBackend* m_pBackend;

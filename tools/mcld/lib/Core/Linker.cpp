@@ -14,6 +14,7 @@
 
 #include <llvm/Support/ELF.h>
 
+#include <mcld/Module.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
@@ -72,13 +73,13 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDConfig(NULL),
-    mRoot(NULL), mShared(false) {
+  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
+    mLDConfig(NULL), mRoot(NULL), mShared(false) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL), mLDConfig(NULL),
-    mRoot(NULL), mShared(false) {
+  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
+    mLDConfig(NULL), mRoot(NULL), mShared(false) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -92,8 +93,9 @@ Linker::Linker(const LinkerConfig& pConfig)
 }
 
 Linker::~Linker() {
-  delete mObjLinker;
+  delete mModule;
   delete mBackend;
+  delete mObjLinker;
   delete mMemAreaFactory;
   delete mRoot;
 }
@@ -125,7 +127,9 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
-  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mMemAreaFactory);
+  mModule = new mcld::Module();
+
+  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mModule, *mMemAreaFactory);
 
   mObjLinker->initFragmentLinker();
 

@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/TargetMachine.h>
 
+#include <mcld/Module.h>
 #include <mcld/CodeGen/MCLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 #include <mcld/MC/MCLDFile.h>
@@ -94,7 +95,7 @@ static bool getVerboseAsm() {
 //===----------------------------------------------------------------------===//
 mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
-                                           const std::string& pTriple )
+                                           const std::string& pTriple)
   : m_TM(pTM), m_pTarget(&pTarget), m_Triple(pTriple) {
 }
 
@@ -137,8 +138,8 @@ static void addPassesToHandleExceptions(llvm::TargetMachine *TM,
 
 
 static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
-                                     PassManagerBase &PM,
-                                     bool DisableVerify)
+                                                PassManagerBase &PM,
+                                                bool DisableVerify)
 {
   // Targets may override createPassConfig to provide a target-specific sublass.
   TargetPassConfig *PassConfig = TM->createPassConfig(PM);
@@ -188,6 +189,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              const std::string& pOutputFilename,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
+                                             mcld::Module& pModule,
                                              SectLinkerOption *pLinkerOpt,
                                              bool pDisableVerify)
 {
@@ -239,6 +241,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
                         pOutputFilename,
+                        pModule,
                         MCLDFile::Exec,
                         Context))
       return true;
@@ -251,6 +254,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
                         pOutputFilename,
+                        pModule,
                         MCLDFile::DynObj,
                         Context))
       return true;
@@ -345,6 +349,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               SectLinkerOption *pLinkerOpt,
                                               const std::string &pOutputFilename,
+                                              mcld::Module& pModule,
                                               MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
@@ -365,7 +370,8 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
                                                              *pLinkerOpt,
-                                                             *ldBackend);
+                                                             *ldBackend,
+                                                             pModule);
   if (0 == funcPass)
     return true;
 

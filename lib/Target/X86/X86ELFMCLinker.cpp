@@ -7,14 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86ELFMCLinker.h"
-
+#include <mcld/Module.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
 X86ELFMCLinker::X86ELFMCLinker(SectLinkerOption &pOption,
-                               TargetLDBackend &pLDBackend)
-  : MCLinker(pOption, pLDBackend) {
+                               TargetLDBackend &pLDBackend,
+                               Module& pModule)
+  : MCLinker(pOption, pLDBackend, pModule) {
   LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attibutes
   config.attrFactory().constraint().enableWholeArchive();

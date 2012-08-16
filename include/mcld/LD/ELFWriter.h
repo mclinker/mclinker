@@ -15,9 +15,9 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/MC/MCLDOutput.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class LinkerConfig;
 class Layout;
 class GNULDBackend;
@@ -49,18 +49,21 @@ public:
   { return f_Backend; }
 
   virtual void writeELF32Header(const LinkerConfig& pConfig,
-                                const Layout& pLayout,
                                 const GNULDBackend& pBackend,
+                                const Module& pModule,
+                                const Layout& pLayout,
                                 Output& pOutput) const;
 
   virtual void writeELF64Header(const LinkerConfig& pConfig,
-                                const Layout& pLayout,
                                 const GNULDBackend& pBackend,
+                                const Module& pModule,
+                                const Layout& pLayout,
                                 Output& pOutput) const;
 
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
-                                 const Layout& pLayout,
                                  const GNULDBackend& pBackend,
+                                 const Module& pModule,
+                                 const Layout& pLayout,
                                  const Output& pOutput) const;
 
 protected:

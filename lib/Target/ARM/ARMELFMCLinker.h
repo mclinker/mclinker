@@ -13,18 +13,19 @@
 #endif
 #include <mcld/CodeGen/MCLinker.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class Module;
 
 /** \class ARMELFMCLinker
  *  \brief ARMELFMCLinker sets up the environment for linking.
- *
- *  \see
  */
 class ARMELFMCLinker : public MCLinker
 {
 public:
-  ARMELFMCLinker(SectLinkerOption &pOption, mcld::TargetLDBackend &pLDBackend);
+  ARMELFMCLinker(SectLinkerOption &pOption,
+                 mcld::TargetLDBackend &pLDBackend,
+                 mcld::Module& pModule);
 
   ~ARMELFMCLinker();
 };

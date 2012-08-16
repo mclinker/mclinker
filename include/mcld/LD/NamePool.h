@@ -19,14 +19,12 @@
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Resolver.h>
+#include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/ResolveInfoFactory.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class Resolver;
 class StringTable;
 class SymbolTableIF;
 class SectionData;
@@ -43,7 +41,8 @@ public:
   typedef size_t size_type;
 
 public:
-  NamePool(const Resolver& pResolver, size_type pSize = 3);
+  explicit NamePool(size_type pSize = 3);
+
   ~NamePool();
 
   // -----  modifiers  ----- //
@@ -98,7 +97,7 @@ public:
   size_type capacity() const;
 
 private:
-  const Resolver* m_pResolver;
+  Resolver* m_pResolver;
   Table m_Table;
 
 };

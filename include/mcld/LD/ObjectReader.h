@@ -18,9 +18,9 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/ResolveInfoFactory.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class Input;
 
 /** \class ObjectReader
@@ -45,7 +45,7 @@ public:
 
   virtual bool readSymbols(Input& pFile) = 0;
 
-  virtual bool readSections(Input& pFile) = 0;
+  virtual bool readSections(Input& pFile, Module& pModule) = 0;
 
   /// readRelocations - read relocation sections
   ///

@@ -28,6 +28,7 @@ class formatted_raw_ostream;
 namespace mcld
 {
 
+class Module;
 class Target;
 class LinkerConfig;
 class SectLinkerOption;
@@ -78,6 +79,7 @@ public:
                            const std::string &pOutputFilename,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
+                           mcld::Module& pModule,
                            SectLinkerOption *pLinkerOpt = NULL,
                            bool DisableVerify = true);
 
@@ -111,6 +113,7 @@ private:
   bool addLinkerPasses(PassManagerBase &,
                        SectLinkerOption *pLinkerOpt,
                        const std::string& pOutputFilename,
+                       Module& pModule,
                        MCLDFile::Type pOutputLinkType,
                        llvm::MCContext *&OutCtx);
 

@@ -22,9 +22,9 @@
 #include <utility>
 
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class GNULDBackend;
 class FragmentLinker;
 
@@ -40,7 +40,7 @@ public:
   ELFDynObjWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
   ~ELFDynObjWriter();
 
-  llvm::error_code writeDynObj(Output& pOutput);
+  llvm::error_code writeDynObj(Output& pOutput, Module& pModule);
 
 private:
   GNULDBackend& m_Backend;

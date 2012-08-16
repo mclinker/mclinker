@@ -11,6 +11,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/CodeGen/MCLinker.h>
+
+#include <mcld/Module.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Object/ObjectLinker.h>
@@ -42,10 +44,13 @@ static bool CompareOption(const PositionDependentOption* X,
 //===----------------------------------------------------------------------===//
 // MCLinker
 //===----------------------------------------------------------------------===//
-MCLinker::MCLinker(SectLinkerOption &pOption, TargetLDBackend& pLDBackend)
+MCLinker::MCLinker(SectLinkerOption &pOption,
+                   TargetLDBackend& pLDBackend,
+                   mcld::Module& pModule)
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
+    m_Module(pModule),
     m_pObjLinker(NULL),
     m_pMemAreaFactory(NULL)
 {
@@ -68,7 +73,7 @@ MCLinker::~MCLinker()
   delete m_pMemAreaFactory;
 }
 
-bool MCLinker::doInitialization(Module &pM)
+bool MCLinker::doInitialization(llvm::Module &pM)
 {
   LinkerConfig &config = m_pOption->config();
 
@@ -78,12 +83,15 @@ bool MCLinker::doInitialization(Module &pM)
   initializeInputTree(PosDepOpts);
   initializeInputOutput(config);
   // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pObjLinker = new ObjectLinker(config, *m_pLDBackend, *memAreaFactory());
+  m_pObjLinker = new ObjectLinker(config,
+                                  *m_pLDBackend,
+                                  m_Module,
+                                  *memAreaFactory());
 
   return false;
 }
 
-bool MCLinker::doFinalization(Module &pM)
+bool MCLinker::doFinalization(llvm::Module &pM)
 {
   const LinkerConfig &config = m_pOption->config();
 

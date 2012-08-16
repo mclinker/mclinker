@@ -13,8 +13,9 @@
 using namespace mcld;
 
 MipsELFMCLinker::MipsELFMCLinker(SectLinkerOption &pOption,
-                                 TargetLDBackend &pLDBackend)
-  : MCLinker(pOption, pLDBackend) {
+                                 TargetLDBackend &pLDBackend,
+                                 mcld::Module& pModule)
+  : MCLinker(pOption, pLDBackend, pModule) {
   LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attibutes
   config.attrFactory().constraint().enableWholeArchive();

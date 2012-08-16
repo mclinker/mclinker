@@ -20,14 +20,16 @@
 #include <mcld/Support/PositionDependentOption.h>
 #include <vector>
 
-namespace llvm
-{
+namespace llvm {
+
 class Module;
 class MachineFunction;
+
 } // namespace of llvm
 
-namespace mcld
-{
+namespace mcld {
+
+class Module;
 class LinkerConfig;
 class MCLDFile;
 class ObjectLinker;
@@ -58,7 +60,9 @@ protected:
   // - the default attribute
   // - the default link script
   // - the standard symbols
-  MCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend);
+  MCLinker(SectLinkerOption &pOption,
+           TargetLDBackend &pLDBackend,
+           mcld::Module& pModule);
 
 public:
   virtual ~MCLinker();
@@ -90,6 +94,7 @@ private:
 
 protected:
   TargetLDBackend *m_pLDBackend;
+  mcld::Module& m_Module;
   ObjectLinker* m_pObjLinker;
   MemoryAreaFactory *m_pMemAreaFactory;
 

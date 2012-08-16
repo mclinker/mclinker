@@ -100,7 +100,7 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   m_pMemAreaFactory = new MemoryAreaFactory(32);
 
-  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, *m_pMemAreaFactory);
+  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, m_Module, *m_pMemAreaFactory);
   m_pObjLinker->initFragmentLinker();
 
   is_initialized = true;

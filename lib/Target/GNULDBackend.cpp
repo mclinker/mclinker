@@ -105,11 +105,13 @@ uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
 }
 
 bool GNULDBackend::initArchiveReader(LinkerConfig& pConfig,
+                                     Module& pModule,
                                      MemoryAreaFactory& pMemAreaFactory)
 {
   if (NULL == m_pArchiveReader) {
     assert(NULL != m_pObjectReader);
     m_pArchiveReader = new GNUArchiveReader(pConfig,
+                                            pModule,
                                             pMemAreaFactory,
                                             *m_pObjectReader);
   }

@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/ObjectLinker.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/DynObjReader.h>
@@ -28,9 +29,11 @@ using namespace mcld;
 
 ObjectLinker::ObjectLinker(LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend,
+                           Module& pModule,
                            MemoryAreaFactory& pAreaFactory)
   : m_Config(pConfig),
     m_LDBackend(pLDBackend),
+    m_Module(pModule),
     m_pLinker(NULL),
     m_AreaFactory(pAreaFactory) {
 
@@ -38,8 +41,7 @@ ObjectLinker::ObjectLinker(LinkerConfig& pConfig,
 
 ObjectLinker::~ObjectLinker()
 {
-  if (NULL != m_pLinker)
-    delete m_pLinker;
+  delete m_pLinker;
 }
 
 /// initFragmentLinker - initialize FragmentLinker
@@ -47,15 +49,16 @@ ObjectLinker::~ObjectLinker()
 bool ObjectLinker::initFragmentLinker()
 {
   if (0 == m_pLinker)
-    m_pLinker = new FragmentLinker(m_LDBackend,
-                             m_Config,
-                             m_SectionMap);
+    m_pLinker = new FragmentLinker(m_Config,
+                                   m_LDBackend,
+                                   m_Module,
+                                   m_SectionMap);
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
   if (!m_LDBackend.initObjectReader(*m_pLinker) ||
-      !m_LDBackend.initArchiveReader(m_Config, m_AreaFactory) ||
+      !m_LDBackend.initArchiveReader(m_Config, m_Module, m_AreaFactory) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initDynObjReader(*m_pLinker) ||
       !m_LDBackend.initObjectWriter(*m_pLinker) ||
@@ -136,7 +139,7 @@ void ObjectLinker::normalize()
     if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       m_LDBackend.getObjectReader()->readObject(**input);
-      m_LDBackend.getObjectReader()->readSections(**input);
+      m_LDBackend.getObjectReader()->readSections(**input, m_Module);
       m_LDBackend.getObjectReader()->readSymbols(**input);
     }
     // is a shared object file
@@ -308,10 +311,10 @@ bool ObjectLinker::emitOutput()
       m_LDBackend.getObjectWriter()->writeObject(m_Config.output());
       return true;
     case Output::DynObj:
-      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output());
+      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output(), m_Module);
       return true;
     case Output::Exec:
-      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output());
+      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output(), m_Module);
       return true;
   }
   return false;

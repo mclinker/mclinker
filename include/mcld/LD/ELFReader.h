@@ -16,6 +16,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
+#include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
@@ -29,8 +30,9 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class Module;
 
 /** \class ELFReaderIF
  *  \brief ELFReaderIF provides common interface for all kind of ELF readers.
@@ -88,9 +90,10 @@ public:
                            const MemoryRegion& pRegion,
                            const char* StrTab) const = 0;
 
-  /// readSymbol - read a symbol from the given Input and index in symtab
+  /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
-  virtual ResolveInfo* readSymbol(Input& pInput,
+  virtual ResolveInfo* readSignature(Input& pInput,
+                                  Module& pModule,
                                   LDSection& pSymTab,
                                   LinkerConfig& pConfig,
                                   uint32_t pSymIdx) const = 0;
@@ -212,9 +215,10 @@ public:
                           const MemoryRegion& pRegion,
                           const char* StrTab) const;
 
-  /// readSymbol - read a symbol from the given Input and index in symtab
+  /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
-  inline ResolveInfo* readSymbol(Input& pInput,
+  inline ResolveInfo* readSignature(Input& pInput,
+                                 Module& pModule,
                                  LDSection& pSymTab,
                                  LinkerConfig& pConfig,
                                  uint32_t pSymIdx) const;

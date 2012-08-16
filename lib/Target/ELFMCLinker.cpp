@@ -14,8 +14,10 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFMCLinker
 //===----------------------------------------------------------------------===//
-ELFMCLinker::ELFMCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend)
-  : MCLinker(pOption, pLDBackend) {
+ELFMCLinker::ELFMCLinker(SectLinkerOption &pOption,
+                         TargetLDBackend &pLDBackend,
+                         mcld::Module& pModule)
+  : MCLinker(pOption, pLDBackend, pModule) {
 }
 
 ELFMCLinker::~ELFMCLinker()

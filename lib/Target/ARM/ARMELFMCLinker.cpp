@@ -8,14 +8,15 @@
 //===----------------------------------------------------------------------===//
 #include "ARMELFMCLinker.h"
 
+#include <mcld/Module.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
 ARMELFMCLinker::ARMELFMCLinker(SectLinkerOption &pOption,
-                               TargetLDBackend &pLDBackend)
-  : MCLinker(pOption,
-               pLDBackend) {
+                               TargetLDBackend &pLDBackend,
+                               mcld::Module &pModule)
+  : MCLinker(pOption, pLDBackend, pModule) {
   LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attributes
   config.attrFactory().constraint().enableWholeArchive();

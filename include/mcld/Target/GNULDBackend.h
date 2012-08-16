@@ -48,6 +48,7 @@ struct PtrHash
   }
 };
 
+class Module;
 class LinkerConfig;
 class Layout;
 class SymbolCategory;
@@ -66,6 +67,7 @@ public:
 
   // -----  readers/writers  ----- //
   bool initArchiveReader(LinkerConfig& pConfig,
+                         Module& pModule,
                          MemoryAreaFactory& pMemAreaFactory);
   bool initObjectReader(FragmentLinker& pLinker);
   bool initDynObjReader(FragmentLinker& pLinker);

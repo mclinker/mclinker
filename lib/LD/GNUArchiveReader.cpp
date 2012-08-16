@@ -6,10 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/GNUArchiveReader.h>
+
 #include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
-#include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/Support/FileSystem.h>
@@ -30,9 +32,11 @@
 using namespace mcld;
 
 GNUArchiveReader::GNUArchiveReader(LinkerConfig& pConfig,
+                                   Module& pModule,
                                    MemoryAreaFactory& pMemAreaFactory,
                                    ELFObjectReader& pELFObjectReader)
  : m_Config(pConfig),
+   m_Module(pModule),
    m_MemAreaFactory(pMemAreaFactory),
    m_ELFObjectReader(pELFObjectReader)
 {
@@ -340,7 +344,7 @@ enum Archive::Symbol::Status
 GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
 {
   // TODO: handle symbol version issue and user defined symbols
-  ResolveInfo* info = m_Config.getNamePool().findInfo(pSymName);
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pSymName);
   if (NULL != info) {
     if (!info->isUndef())
       return Archive::Symbol::Exclude;
@@ -394,7 +398,7 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
       member->setType(Input::Object);
       pArchive.addObjectMember(pFileOffset, parent->lastPos);
       m_ELFObjectReader.readObject(*member);
-      m_ELFObjectReader.readSections(*member);
+      m_ELFObjectReader.readSections(*member, m_Module);
       m_ELFObjectReader.readSymbols(*member);
     }
     else if (isMyFormat(*member)) {

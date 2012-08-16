@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Module.h>
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -912,7 +913,10 @@ int main( int argc, char* argv[] )
   mcld::InitializeAllDiagnostics();
 
   // Load the module to be compiled...
-  std::auto_ptr<Module> M;
+  std::auto_ptr<llvm::Module> M;
+
+  // Load the module to be linked...
+  mcld::Module LDIRModule;
 
   // -shared
   if (true == ArgShared) {
@@ -1133,6 +1137,7 @@ int main( int argc, char* argv[] )
                                              ArgOutputFilename.native(),
                                              ArgFileType,
                                              OLvl,
+                                             LDIRModule,
                                              LinkerOpt,
                                              NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"

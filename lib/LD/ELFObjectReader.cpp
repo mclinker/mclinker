@@ -83,7 +83,7 @@ bool ELFObjectReader::readObject(Input& pInput)
 }
 
 /// readSections - read all regular sections.
-bool ELFObjectReader::readSections(Input& pInput)
+bool ELFObjectReader::readSections(Input& pInput, Module& pModule)
 {
   // handle sections
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
@@ -97,10 +97,11 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Group: {
         assert(NULL != (*section)->getLink());
         ResolveInfo* signature =
-              m_pELFReader->readSymbol(pInput,
-                                       *(*section)->getLink(),
-                                       m_Linker.getLDInfo(),
-                                       (*section)->getInfo());
+              m_pELFReader->readSignature(pInput,
+                                          pModule,
+                                          *(*section)->getLink(),
+                                          m_Linker.getLDInfo(),
+                                          (*section)->getInfo());
 
         bool exist = false;
         if (0 == std::strlen(signature->name()) &&

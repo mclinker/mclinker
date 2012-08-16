@@ -6,11 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <llvm/ADT/Triple.h>
-#include <mcld/Support/TargetRegistry.h>
-#include "Mips.h"
 #include "MipsELFMCLinker.h"
+
+#include "Mips.h"
+#include <llvm/ADT/Triple.h>
+#include <mcld/Module.h>
+#include <mcld/Support/TargetRegistry.h>
 
 using namespace mcld;
 
@@ -22,7 +23,8 @@ namespace mcld {
 ///
 MCLinker* createMipsMCLinker(const std::string &pTriple,
                              SectLinkerOption &pOption,
-                             mcld::TargetLDBackend &pLDBackend)
+                             mcld::TargetLDBackend &pLDBackend,
+                             mcld::Module& pModule)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -34,7 +36,7 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
     return NULL;
   }
 
-  return new MipsELFMCLinker(pOption, pLDBackend);
+  return new MipsELFMCLinker(pOption, pLDBackend, pModule);
 }
 
 } // namespace of mcld

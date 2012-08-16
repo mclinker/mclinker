@@ -13,8 +13,9 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
 
-#include <mcld/ADT/SizeTraits.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/FillFragment.h>
@@ -33,8 +34,9 @@ using namespace mcld;
 
 /// writeELF32Header - write ELF header
 void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
-                                 const Layout& pLayout,
                                  const GNULDBackend& pBackend,
+                                 const Module& pModule,
+                                 const Layout& pLayout,
                                  Output& pOutput) const
 {
     assert(pOutput.hasMemArea());
@@ -70,7 +72,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
     }
     header->e_machine   = pBackend.machine();
     header->e_version   = header->e_ident[EI_VERSION];
-    header->e_entry     = getEntryPoint(pConfig, pLayout, pBackend, pOutput);
+    header->e_entry     = getEntryPoint(pConfig, pBackend, pModule, pLayout, pOutput);
     header->e_phoff     = sizeof(Elf32_Ehdr);
     header->e_shoff     = getELF32LastStartOffset(pOutput);
     header->e_flags     = pBackend.flags();
@@ -84,8 +86,9 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
 
 /// writeELF64Header - write ELF header
 void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
-                                 const Layout& pLayout,
                                  const GNULDBackend& pBackend,
+                                 const Module& pModule,
+                                 const Layout& pLayout,
                                  Output& pOutput) const
 {
     assert(pOutput.hasMemArea());
@@ -121,7 +124,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
     }
     header->e_machine   = pBackend.machine();
     header->e_version   = header->e_ident[EI_VERSION];
-    header->e_entry     = getEntryPoint(pConfig, pLayout, pBackend, pOutput);
+    header->e_entry     = getEntryPoint(pConfig, pBackend, pModule, pLayout, pOutput);
     header->e_phoff     = sizeof(Elf64_Ehdr);
     header->e_shoff     = getELF64LastStartOffset(pOutput);
     header->e_flags     = pBackend.flags();
@@ -135,8 +138,9 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
 
 /// getEntryPoint
 uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
-                                  const Layout& pLayout,
                                   const GNULDBackend& pBackend,
+                                  const Module& pModule,
+                                  const Layout& pLayout,
                                   const Output& pOutput) const
 {
 
@@ -152,7 +156,7 @@ uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
                        && (pOutput.type() != Output::Object)
                        && (pOutput.type() != Output::DynObj));
 
-  const LDSymbol* entry_symbol = pConfig.getNamePool().findSymbol(entry_name);
+  const LDSymbol* entry_symbol = pModule.getNamePool().findSymbol(entry_name);
 
   // found the symbol
   if (NULL != entry_symbol) {

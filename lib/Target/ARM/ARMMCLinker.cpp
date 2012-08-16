@@ -6,10 +6,12 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Triple.h>
-#include <mcld/Support/TargetRegistry.h>
-#include "ARM.h"
 #include "ARMELFMCLinker.h"
+
+#include "ARM.h"
+#include <llvm/ADT/Triple.h>
+#include <mcld/Module.h>
+#include <mcld/Support/TargetRegistry.h>
 
 
 using namespace mcld;
@@ -20,7 +22,8 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 MCLinker* createARMMCLinker(const std::string &pTriple,
                             SectLinkerOption &pOption,
-                            mcld::TargetLDBackend &pLDBackend)
+                            mcld::TargetLDBackend &pLDBackend,
+                            mcld::Module& pModule)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -33,7 +36,7 @@ MCLinker* createARMMCLinker(const std::string &pTriple,
   }
 
   // For now, use Android MCLinker directly
-  return new ARMELFMCLinker(pOption, pLDBackend);
+  return new ARMELFMCLinker(pOption, pLDBackend, pModule);
 }
 
 } // namespace of mcld

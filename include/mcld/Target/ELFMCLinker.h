@@ -18,13 +18,16 @@
 #endif
 #include <mcld/CodeGen/MCLinker.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class Module;
 
 class ELFMCLinker : public MCLinker
 {
 public:
-  ELFMCLinker(SectLinkerOption &pOption, mcld::TargetLDBackend &pLDBackend);
+  ELFMCLinker(SectLinkerOption &pOption,
+              mcld::TargetLDBackend &pLDBackend,
+              mcld::Module& pModule);
 
   virtual ~ELFMCLinker();
 };

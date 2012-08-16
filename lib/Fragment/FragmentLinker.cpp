@@ -15,8 +15,9 @@
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
 
-#include <mcld/MC/MCLDInput.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
+#include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
@@ -32,24 +33,26 @@
 using namespace mcld;
 
 /// Constructor
-FragmentLinker::FragmentLinker(TargetLDBackend& pBackend,
-                               LinkerConfig& pConfig,
+FragmentLinker::FragmentLinker(LinkerConfig& pConfig,
+                               TargetLDBackend& pBackend,
+                               Module& pModule,
                                SectionMap& pSectionMap)
-: m_Backend(pBackend),
-  m_Config(pConfig),
-  m_SectionMap(pSectionMap),
-  m_LDSymbolFactory(128),
-  m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
-  m_LDSectDataFactory(10),
-  m_pSectionMerger(NULL)
+
+  : m_Config(pConfig),
+    m_Backend(pBackend),
+    m_Module(pModule),
+    m_SectionMap(pSectionMap),
+    m_LDSymbolFactory(128),
+    m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
+    m_LDSectDataFactory(10),
+    m_pSectionMerger(NULL)
 {
 }
 
 /// Destructor
 FragmentLinker::~FragmentLinker()
 {
-  if (NULL != m_pSectionMerger)
-    delete m_pSectionMerger;
+  delete m_pSectionMerger;
 }
 
 //===----------------------------------------------------------------------===//
@@ -74,13 +77,13 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   if (pBinding == ResolveInfo::Local) {
     // if the symbol is a local symbol, create a LDSymbol for input, but do not
     // resolve them.
-    resolved_result.info     = m_Config.getNamePool().createSymbol(pName,
-                                                         false,
-                                                         pType,
-                                                         pDesc,
-                                                         pBinding,
-                                                         pSize,
-                                                         pVisibility);
+    resolved_result.info     = m_Module.getNamePool().createSymbol(pName,
+                                                                   false,
+                                                                   pType,
+                                                                   pDesc,
+                                                                   pBinding,
+                                                                   pSize,
+                                                                   pVisibility);
 
     // No matter if there is a symbol with the same name, insert the symbol
     // into output symbol table. So, we let the existent false.
@@ -89,7 +92,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   }
   else {
     // if the symbol is not local, insert and resolve it immediately
-    m_Config.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
                                         pSize, pVisibility,
                                         &old_info, resolved_result);
   }
@@ -193,9 +196,9 @@ LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   // insert symbol and resolve it immediately
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
-  m_Config.getNamePool().insertSymbol(pName, true, pType, pDesc,
-                            pBinding, pSize, pVisibility,
-                            NULL, resolved_result);
+  m_Module.getNamePool().insertSymbol(pName, true, pType, pDesc,
+                                      pBinding, pSize, pVisibility,
+                                      NULL, resolved_result);
 
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
@@ -244,13 +247,13 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
   LDSymbol* output_sym = NULL;
   if (NULL == info) {
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_Config.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
+    m_Module.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
                                         pBinding, pSize, pVisibility,
                                         NULL, result);
     assert(!result.existent);
@@ -314,7 +317,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
 
   if (NULL == info || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.
@@ -368,7 +371,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
-  m_Config.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
+  m_Module.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
                                       pSize, pVisibility,
                                       &old_info, result);
 
@@ -411,7 +414,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
                                                     FragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* info = m_Config.getNamePool().findInfo(pName);
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
 
   if (NULL == info || !(info->isUndef() || info->isDyn())) {
     // only undefined symbol and dynamic symbol can make a reference.

@@ -7,11 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFExecWriter.h>
+
+#include <mcld/LinkerConfig.h>
+#include <mcld/Module.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <llvm/Support/ELF.h>
 #include <vector>
@@ -35,7 +37,7 @@ ELFExecWriter::~ELFExecWriter()
 {
 }
 
-llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput)
+llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput, Module& pModule)
 {
   // write out the interpreter section: .interp
   target().emitInterp(pOutput, m_Linker.getLDInfo());
@@ -127,8 +129,9 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput)
     emitELF32ShStrTab(pOutput, m_Linker);
 
     writeELF32Header(m_Linker.getLDInfo(),
-                     m_Linker.getLayout(),
                      target(),
+                     pModule,
+                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF32ProgramHeader(pOutput, target());
@@ -141,8 +144,9 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput)
     emitELF64ShStrTab(pOutput, m_Linker);
 
     writeELF64Header(m_Linker.getLDInfo(),
-                     m_Linker.getLayout(),
                      target(),
+                     pModule,
+                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF64ProgramHeader(pOutput, target());

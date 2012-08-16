@@ -35,7 +35,7 @@ ELFDynObjWriter::~ELFDynObjWriter()
 {
 }
 
-llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
+llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput, Module& pModule)
 {
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pOutput,
@@ -125,8 +125,9 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     emitELF32ShStrTab(pOutput, m_Linker);
 
     writeELF32Header(m_Linker.getLDInfo(),
-                     m_Linker.getLayout(),
                      target(),
+                     pModule,
+                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF32ProgramHeader(pOutput, target());
@@ -139,8 +140,9 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput)
     emitELF64ShStrTab(pOutput, m_Linker);
 
     writeELF64Header(m_Linker.getLDInfo(),
-                     m_Linker.getLayout(),
                      target(),
+                     pModule,
+                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF64ProgramHeader(pOutput, target());

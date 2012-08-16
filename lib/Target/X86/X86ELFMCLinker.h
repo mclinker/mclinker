@@ -15,6 +15,8 @@
 
 namespace mcld {
 
+class Module;
+
 /** \class X86ELFMCLinker
  *  \brief X86ELFMCLinker sets up the environment for linking.
  *
@@ -23,7 +25,9 @@ namespace mcld {
 class X86ELFMCLinker : public MCLinker
 {
 public:
-  X86ELFMCLinker(SectLinkerOption &pOption, TargetLDBackend &pLDBackend);
+  X86ELFMCLinker(SectLinkerOption &pOption,
+                 TargetLDBackend &pLDBackend,
+                 mcld::Module& pModule);
 
   ~X86ELFMCLinker();
 };

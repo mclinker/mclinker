@@ -8,28 +8,30 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/raw_ostream.h>
 #include <mcld/LD/NamePool.h>
-#include <mcld/LD/Resolver.h>
+#include <mcld/LD/StaticResolver.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // NamePool
-NamePool::NamePool(const Resolver& pResolver, NamePool::size_type pSize)
-  : m_pResolver(&pResolver), m_Table(pSize) {
+//===----------------------------------------------------------------------===//
+NamePool::NamePool(NamePool::size_type pSize)
+  : m_pResolver(new StaticResolver()), m_Table(pSize) {
 }
 
 NamePool::~NamePool()
 {
+  delete m_pResolver;
 }
 
 /// createSymbol - create a symbol
 ResolveInfo* NamePool::createSymbol(const llvm::StringRef& pName,
-                                      bool pIsDyn,
-                                      ResolveInfo::Type pType,
-                                      ResolveInfo::Desc pDesc,
-                                      ResolveInfo::Binding pBinding,
-                                      ResolveInfo::SizeType pSize,
-                                      ResolveInfo::Visibility pVisibility)
+                                    bool pIsDyn,
+                                    ResolveInfo::Type pType,
+                                    ResolveInfo::Desc pDesc,
+                                    ResolveInfo::Binding pBinding,
+                                    ResolveInfo::SizeType pSize,
+                                    ResolveInfo::Visibility pVisibility)
 {
   ResolveInfo* result = m_Table.getEntryFactory().produce(pName);
   result->setIsSymbol(true);

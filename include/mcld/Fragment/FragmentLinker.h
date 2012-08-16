@@ -36,6 +36,7 @@
 
 namespace mcld {
 
+class Module;
 class TargetLDBackend;
 class LinkerConfig;
 class LDSection;
@@ -65,9 +66,10 @@ public:
   };
 
 public:
-  FragmentLinker(TargetLDBackend& pBackend,
-           LinkerConfig& pLDInfo,
-           SectionMap& pSectionMap);
+  FragmentLinker(LinkerConfig& pConfig,
+                 TargetLDBackend& pBackend,
+                 Module& pModule,
+                 SectionMap& pSectionMap);
 
   ~FragmentLinker();
 
@@ -255,8 +257,9 @@ private:
   typedef std::vector<LDSymbol*> OutputSymbolTable;
 
 private:
-  TargetLDBackend& m_Backend;
   LinkerConfig& m_Config;
+  TargetLDBackend& m_Backend;
+  Module& m_Module;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   LDSectionFactory m_LDSectHdrFactory;

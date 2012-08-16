@@ -11,8 +11,6 @@
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
-#include <mcld/LD/NamePool.h>
-#include <mcld/LD/StaticResolver.h>
 #include <mcld/Support/FileSystem.h>
 #include <string>
 
@@ -34,8 +32,6 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
   m_pOutput = new mcld::Output();
-  m_pResolver = new StaticResolver();
-  m_pNamePool = new NamePool(*m_pResolver, 1024);
 }
 
 LinkerConfig::~LinkerConfig()
@@ -45,8 +41,6 @@ LinkerConfig::~LinkerConfig()
   delete m_pCntxtFactory;
   delete m_pInputFactory;
   delete m_pInputTree;
-  delete m_pResolver;
-  delete m_pNamePool;
 }
 
 void LinkerConfig::setBitcode(const sys::fs::Path& pPath, unsigned int pPosition)

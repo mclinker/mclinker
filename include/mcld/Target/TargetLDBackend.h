@@ -15,6 +15,7 @@
 
 namespace mcld {
 
+class Module;
 class FragmentLinker;
 class Relocation;
 class RelocationFactory;
@@ -76,6 +77,7 @@ public:
 
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(LinkerConfig&,
+                                 Module&,
                                  MemoryAreaFactory&) = 0;
   virtual bool initObjectReader(FragmentLinker&) = 0;
   virtual bool initDynObjReader(FragmentLinker&) = 0;

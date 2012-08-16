@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Triple.h>
-#include <mcld/Support/TargetRegistry.h>
-
 #include "X86.h"
 #include "X86ELFMCLinker.h"
+#include <mcld/Module.h>
+#include <mcld/Support/TargetRegistry.h>
+#include <llvm/ADT/Triple.h>
 
 using namespace mcld;
 
@@ -19,10 +19,10 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 /// createX86MCLinker - the help funtion to create corresponding X86MCLinker
 //===----------------------------------------------------------------------===//
-///
 MCLinker* createX86MCLinker(const std::string &pTriple,
                             SectLinkerOption &pOption,
-                            mcld::TargetLDBackend &pLDBackend)
+                            mcld::TargetLDBackend &pLDBackend,
+                            mcld::Module& pModule)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -35,7 +35,7 @@ MCLinker* createX86MCLinker(const std::string &pTriple,
   }
 
   if (theTriple.isArch32Bit())
-    return new X86ELFMCLinker(pOption, pLDBackend);
+    return new X86ELFMCLinker(pOption, pLDBackend, pModule);
 
   assert(0 && "X86_64 has not supported yet");
   return NULL;

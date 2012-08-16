@@ -20,9 +20,9 @@
 
 #include <mcld/LD/SectionMap.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class FragmentLinker;
 class LinkerConfig;
 class TargetLDBackend;
@@ -35,8 +35,9 @@ class ObjectLinker
 {
 public:
   ObjectLinker(LinkerConfig& pConfig,
-             TargetLDBackend& pLDBackend,
-             MemoryAreaFactory& pAreaFactory);
+               TargetLDBackend& pLDBackend,
+               Module& pModule,
+               MemoryAreaFactory& pAreaFactory);
 
   ~ObjectLinker();
 
@@ -118,6 +119,7 @@ public:
 private:
   LinkerConfig& m_Config;
   TargetLDBackend &m_LDBackend;
+  Module& m_Module;
   FragmentLinker* m_pLinker;
   SectionMap m_SectionMap;
   MemoryAreaFactory &m_AreaFactory;

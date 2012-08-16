@@ -22,14 +22,11 @@
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
-#include <mcld/LD/NamePool.h>
 
 #include <string>
 #include <cassert>
 
-namespace mcld
-{
-class Resolver;
+namespace mcld {
 
 /** \class LinkerConfig
  *  \brief LinkerConfig is composed of argumments of MCLinker.
@@ -99,16 +96,6 @@ public:
 
   static const char* version();
 
-  NamePool& getNamePool() {
-    assert(NULL != m_pNamePool);
-    return *m_pNamePool;
-  }
-
-  const NamePool& getNamePool() const {
-    assert(NULL != m_pNamePool);
-    return *m_pNamePool;
-  }
-
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
@@ -122,10 +109,6 @@ private:
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
   ContextFactory *m_pCntxtFactory;
-
-  // -----  string and symbols  ----- //
-  Resolver* m_pResolver;
-  NamePool* m_pNamePool;
 };
 
 } // namespace of mcld

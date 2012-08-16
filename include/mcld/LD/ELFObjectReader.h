@@ -15,9 +15,9 @@
 #include <mcld/LD/ObjectReader.h>
 #include <llvm/Support/system_error.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class Input;
 class FragmentLinker;
 class GNULDBackend;
@@ -39,7 +39,7 @@ public:
   // -----  readers  ----- //
   bool readObject(Input& pFile);
 
-  virtual bool readSections(Input& pFile);
+  virtual bool readSections(Input& pFile, Module& pModule);
 
   virtual bool readSymbols(Input& pFile);
 

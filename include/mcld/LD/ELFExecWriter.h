@@ -22,9 +22,9 @@
 #include <utility>
 
 
-namespace mcld
-{
+namespace mcld {
 
+class Module;
 class GNULDBackend;
 class FragmentLinker;
 
@@ -40,7 +40,7 @@ public:
   ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
   ~ELFExecWriter();
 
-  llvm::error_code writeExecutable(Output& pOutput);
+  llvm::error_code writeExecutable(Output& pOutput, Module& pModule);
 
 private:
   GNULDBackend& m_Backend;
