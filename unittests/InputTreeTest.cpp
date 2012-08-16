@@ -6,29 +6,36 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/InputTree.h"
-#include "mcld/MC/MCLDInfo.h"
-#include <InputTreeTest.h>
+#include "InputTreeTest.h"
+
+#include <vector>
+#include <iostream>
+
+#include <mcld/MC/InputTree.h>
+#include <mcld/MC/MCLDInfo.h>
+#include <mcld/MC/InputBuilder.h>
+#include <mcld/MC/FileAction.h>
+#include <mcld/MC/CommandAction.h>
 
 using namespace mcld;
-using namespace mcldtest;
+using namespace mcld::test;
 
 
 // Constructor can do set-up work for all test here.
 InputTreeTest::InputTreeTest()
 {
-	// create testee. modify it if need
-	m_pAttr = new mcld::AttributeFactory(2);
-        m_pAlloc = new mcld::InputFactory(10, *m_pAttr);
-	m_pTestee = new InputTree(*m_pAlloc);
+  // create testee. modify it if need
+  m_pAttr   = new mcld::AttributeFactory(2);
+  m_pAlloc  = new mcld::InputFactory(10, *m_pAttr);
+  m_pTestee = new InputTree(*m_pAlloc);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
 InputTreeTest::~InputTreeTest()
 {
-	delete m_pTestee;
-	delete m_pAlloc;
-	delete m_pAttr;
+  delete m_pTestee;
+  delete m_pAlloc;
+  delete m_pAttr;
 }
 
 // SetUp() will be called immediately before each test.
@@ -41,14 +48,29 @@ void InputTreeTest::TearDown()
 {
 }
 
-//==========================================================================//
+//===----------------------------------------------------------------------===//
 // Testcases
 //
 TEST_F( InputTreeTest, Basic_operation ) {
-  InputTree::iterator node = m_pTestee->root();
-  m_pTestee->insert<InputTree::Inclusive>(node, "FileSpec", "path1");
 
+  std::vector<InputAction*> actions;
+
+  size_t position = 0;
+  actions.push_back(new StartGroupAction(position++));
+  actions.push_back(new InputFileAction(position++, "path1"));
+  actions.push_back(new EndGroupAction(position++));
+
+  InputBuilder builder(*m_pTestee, *m_pAttr);
+  std::vector<InputAction*>::iterator action;
+  for (action = actions.begin(); action != actions.end(); ++action) {
+    (*action)->activate(builder);
+    delete *action;
+  }
+  
+  InputTree::iterator node = m_pTestee->root();
   InputTree::const_iterator const_node = node;
+  --node;
+  --const_node;
 
   ASSERT_TRUE(isGroup(node));
   ASSERT_TRUE(isGroup(const_node));
@@ -68,7 +90,7 @@ TEST_F( InputTreeTest, Basic_operation ) {
   ASSERT_TRUE(m_pTestee->hasInput());
   ASSERT_FALSE(m_pTestee->numOfInputs()==0);
 
-  ASSERT_TRUE(m_pTestee->size()==2);
+  ASSERT_TRUE(m_pTestee->size()==3);
 }
 
 TEST_F( InputTreeTest, forLoop_TEST ) {

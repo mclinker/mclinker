@@ -11,16 +11,13 @@
 
 #include <gtest.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class InputTree;
 class InputFactory;
 class AttributeFactory;
 
-} // namespace for mcld
-
-namespace mcldtest
-{
+namespace test {
 
 /** \class InputTreeTest
  *  \brief 
@@ -30,25 +27,26 @@ namespace mcldtest
 class InputTreeTest : public ::testing::Test
 {
 public:
-	// Constructor can do set-up work for all test here.
-	InputTreeTest();
+  // Constructor can do set-up work for all test here.
+  InputTreeTest();
 
-	// Destructor can do clean-up work that doesn't throw exceptions here.
-	virtual ~InputTreeTest();
+  // Destructor can do clean-up work that doesn't throw exceptions here.
+  virtual ~InputTreeTest();
 
-	// SetUp() will be called immediately before each test.
-	virtual void SetUp();
+  // SetUp() will be called immediately before each test.
+  virtual void SetUp();
 
-	// TearDown() will be called immediately after each test.
-	virtual void TearDown();
+  // TearDown() will be called immediately after each test.
+  virtual void TearDown();
 
 protected:
-	mcld::AttributeFactory *m_pAttr;
-	mcld::InputFactory *m_pAlloc;
-	mcld::InputTree* m_pTestee;
+  mcld::AttributeFactory *m_pAttr;
+  mcld::InputFactory *m_pAlloc;
+  mcld::InputTree* m_pTestee;
 };
 
-} // namespace of mcldtest
+} // namespace of test
+} // namespace of mcld
 
 #endif
 
