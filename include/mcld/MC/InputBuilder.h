@@ -79,7 +79,7 @@ private:
 //===----------------------------------------------------------------------===//
 // Template implement
 //===----------------------------------------------------------------------===//
-template<> InputTree&
+template<> inline InputTree&
 InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)
@@ -91,7 +91,7 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
   return m_InputTree;
 }
 
-template<> InputTree&
+template<> inline InputTree&
 InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)

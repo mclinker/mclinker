@@ -28,9 +28,9 @@ class InputAction
 protected:
   explicit InputAction(unsigned int pPosition);
 
+public:
   virtual ~InputAction();
 
-public:
   virtual bool activate(InputBuilder&) const = 0;
 
   unsigned int position() const { return m_Position; }
