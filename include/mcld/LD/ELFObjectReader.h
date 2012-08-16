@@ -19,7 +19,7 @@ namespace mcld
 {
 
 class Input;
-class MCLinker;
+class FragmentLinker;
 class GNULDBackend;
 class ELFReaderIF;
 
@@ -29,7 +29,7 @@ class ELFReaderIF;
 class ELFObjectReader : public ObjectReader
 {
 public:
-  ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker);
+  ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker);
 
   ~ELFObjectReader();
 
@@ -50,7 +50,7 @@ public:
 
 private:
   ELFReaderIF* m_pELFReader;
-  MCLinker& m_Linker;
+  FragmentLinker& m_Linker;
 };
 
 } // namespace of mcld

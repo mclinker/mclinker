@@ -85,13 +85,13 @@ public:
   }
 
   /// getLinker
-  MCLinker* getLinker() {
+  FragmentLinker* getLinker() {
     assert(NULL != m_pDriver);
     return m_pDriver->getLinker();
   }
 
   /// getLinker
-  const MCLinker* getLinker() const {
+  const FragmentLinker* getLinker() const {
     assert(NULL != m_pDriver);
     return m_pDriver->getLinker();
   }

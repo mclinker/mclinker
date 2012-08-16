@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 //
 // MCLDDriver plays the same role as GNU collect2 to prepare all implicit
-// parameters for MCLinker.
+// parameters for FragmentLinker.
 //
 //===----------------------------------------------------------------------===//
 
@@ -23,13 +23,13 @@
 namespace mcld
 {
 
-class MCLinker;
+class FragmentLinker;
 class MCLDInfo;
 class TargetLDBackend;
 class MemoryAreaFactory;
 
 /** \class MCLDDriver
- *  \brief MCLDDriver prepares parameters for MCLinker.
+ *  \brief MCLDDriver prepares parameters for FragmentLinker.
  */
 class MCLDDriver
 {
@@ -40,9 +40,9 @@ public:
 
   ~MCLDDriver();
 
-  /// initMCLinker - initialize MCLinker
-  ///  Connect all components in MCLinker
-  bool initMCLinker();
+  /// initFragmentLinker - initialize FragmentLinker
+  ///  Connect all components in FragmentLinker
+  bool initFragmentLinker();
 
   /// initStdSections - initialize standard sections of the output file.
   bool initStdSections();
@@ -103,12 +103,12 @@ public:
   /// postProcessing - do modificatiion after all processes
   bool postProcessing();
 
-  /// getLinker - get internal MCLinker object
-  MCLinker* getLinker()
+  /// getLinker - get internal FragmentLinker object
+  FragmentLinker* getLinker()
   { return m_pLinker; }
 
-  /// getLinker - get internal MCLinker object
-  const MCLinker* getLinker() const
+  /// getLinker - get internal FragmentLinker object
+  const FragmentLinker* getLinker() const
   { return m_pLinker; }
 
   /// hasInitLinker - has Linker been initialized?
@@ -118,7 +118,7 @@ public:
 private:
   MCLDInfo& m_LDInfo;
   TargetLDBackend &m_LDBackend;
-  MCLinker* m_pLinker;
+  FragmentLinker* m_pLinker;
   SectionMap m_SectionMap;
   MemoryAreaFactory &m_AreaFactory;
 };

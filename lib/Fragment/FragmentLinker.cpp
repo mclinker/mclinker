@@ -1,4 +1,4 @@
-//===- MCLinker.cpp -------------------------------------------------------===//
+//===- FragmentLinker.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements the MCLinker class
+// This file implements the FragmentLinker class
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/FragmentLinker.h>
@@ -32,7 +32,7 @@
 using namespace mcld;
 
 /// Constructor
-MCLinker::MCLinker(TargetLDBackend& pBackend,
+FragmentLinker::FragmentLinker(TargetLDBackend& pBackend,
                    MCLDInfo& pInfo,
                    SectionMap& pSectionMap)
 : m_Backend(pBackend),
@@ -46,7 +46,7 @@ MCLinker::MCLinker(TargetLDBackend& pBackend,
 }
 
 /// Destructor
-MCLinker::~MCLinker()
+FragmentLinker::~FragmentLinker()
 {
   if (NULL != m_pSectionMerger)
     delete m_pSectionMerger;
@@ -57,7 +57,7 @@ MCLinker::~MCLinker()
 //===----------------------------------------------------------------------===//
 /// addSymbolFromObject - add a symbol from object file and resolve it
 /// immediately
-LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
                                         ResolveInfo::Type pType,
                                         ResolveInfo::Desc pDesc,
                                         ResolveInfo::Binding pBinding,
@@ -164,7 +164,7 @@ LDSymbol* MCLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
 /// addSymbolFromDynObj - add a symbol from object file and resolve it
 /// immediately
-LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
                                         ResolveInfo::Type pType,
                                         ResolveInfo::Desc pDesc,
                                         ResolveInfo::Binding pBinding,
@@ -234,7 +234,7 @@ LDSymbol* MCLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
 }
 
 /// defineSymbolForcefully - define an output symbol and override it immediately
-LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            bool pIsDyn,
                                            ResolveInfo::Type pType,
                                            ResolveInfo::Desc pDesc,
@@ -304,7 +304,7 @@ LDSymbol* MCLinker::defineSymbolForcefully(const llvm::StringRef& pName,
 }
 
 /// defineSymbolAsRefered - define an output symbol and override it immediately
-LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            bool pIsDyn,
                                            ResolveInfo::Type pType,
                                            ResolveInfo::Desc pDesc,
@@ -355,7 +355,7 @@ LDSymbol* MCLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
 
 /// defineAndResolveSymbolForcefully - define an output symbol and resolve it
 /// immediately
-LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
                                                      bool pIsDyn,
                                                      ResolveInfo::Type pType,
                                                      ResolveInfo::Desc pDesc,
@@ -401,7 +401,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pNam
 
 /// defineAndResolveSymbolAsRefered - define an output symbol and resolve it
 /// immediately.
-LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
+LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
                                                     bool pIsDyn,
                                                     ResolveInfo::Type pType,
                                                     ResolveInfo::Desc pDesc,
@@ -429,7 +429,7 @@ LDSymbol* MCLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName
                                           pVisibility);
 }
 
-bool MCLinker::finalizeSymbols()
+bool FragmentLinker::finalizeSymbols()
 {
   SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
   for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
@@ -458,7 +458,7 @@ bool MCLinker::finalizeSymbols()
   return m_Backend.finalizeSymbols(*this, m_LDInfo.output());
 }
 
-bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
+bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 {
   // forced local symbol matches all rules:
   // 1. We are not doing incremental linking.
@@ -478,7 +478,7 @@ bool MCLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 // Section Operations
 //===----------------------------------------------------------------------===//
 /// createSectHdr - create the input section header
-LDSection& MCLinker::createSectHdr(const std::string& pName,
+LDSection& FragmentLinker::createSectHdr(const std::string& pName,
                                    LDFileFormat::Kind pKind,
                                    uint32_t pType,
                                    uint32_t pFlag)
@@ -505,7 +505,7 @@ LDSection& MCLinker::createSectHdr(const std::string& pName,
 
 /// getOrCreateOutputSectHdr - for reader and standard/target format to get
 /// or create the output's section header
-LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
+LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               LDFileFormat::Kind pKind,
                                               uint32_t pType,
                                               uint32_t pFlag,
@@ -530,7 +530,7 @@ LDSection& MCLinker::getOrCreateOutputSectHdr(const std::string& pName,
 
 /// getOrCreateSectData - get or create SectionData
 /// pSection is input LDSection
-SectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
+SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.
   SectionData* sect_data = pSection.getSectionData();
@@ -562,14 +562,14 @@ SectionData& MCLinker::getOrCreateSectData(LDSection& pSection)
   return *sect_data;
 }
 
-void MCLinker::initSectionMap()
+void FragmentLinker::initSectionMap()
 {
   assert(m_LDInfo.output().hasContext());
   if (NULL == m_pSectionMerger)
     m_pSectionMerger = new SectionMerger(m_SectionMap, *m_LDInfo.output().context());
 }
 
-bool MCLinker::layout()
+bool FragmentLinker::layout()
 {
   return m_Layout.layout(m_LDInfo.output(), m_Backend, m_LDInfo);
 }
@@ -577,10 +577,10 @@ bool MCLinker::layout()
 //===----------------------------------------------------------------------===//
 // Relocation Operations
 //===----------------------------------------------------------------------===//
-/// addRelocation - add a relocation entry in MCLinker (only for object file)
+/// addRelocation - add a relocation entry in FragmentLinker (only for object file)
 ///
 /// All symbols should be read and resolved before calling this function.
-Relocation* MCLinker::addRelocation(Relocation::Type pType,
+Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                     const LDSymbol& pSym,
                                     ResolveInfo& pResolveInfo,
                                     FragmentRef& pFragmentRef,
@@ -611,7 +611,7 @@ Relocation* MCLinker::addRelocation(Relocation::Type pType,
   return relocation;
 }
 
-bool MCLinker::applyRelocations()
+bool FragmentLinker::applyRelocations()
 {
   RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
 
@@ -622,7 +622,7 @@ bool MCLinker::applyRelocations()
   return true;
 }
 
-void MCLinker::syncRelocationResult()
+void FragmentLinker::syncRelocationResult()
 {
 
   MemoryRegion* region = m_LDInfo.output().memArea()->request(0,

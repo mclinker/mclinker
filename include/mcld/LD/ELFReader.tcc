@@ -84,7 +84,7 @@ MCLDFile::Type ELFReader<32, true>::fileType(void* pELFHeader) const
 
 /// readSectionHeaders - read ELF section header table and create LDSections
 bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
-                                             MCLinker& pLinker,
+                                             FragmentLinker& pLinker,
                                              void* pELFHeader) const
 {
   llvm::ELF::Elf32_Ehdr* ehdr =
@@ -212,7 +212,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
 
 /// readRegularSection - read a regular section and create fragments.
 bool ELFReader<32, true>::readRegularSection(Input& pInput,
-                                             MCLinker& pLinker,
+                                             FragmentLinker& pLinker,
                                              LDSection& pInputSectHdr) const
 {
   LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
@@ -244,7 +244,7 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
 
 /// readRegularSection - read a target section and create fragments.
 bool ELFReader<32, true>::readTargetSection(Input& pInput,
-                                            MCLinker& pLinker,
+                                            FragmentLinker& pLinker,
                                             LDSection& pInputSectHdr)
 {
   return target().readSection(pInput, pLinker, pInputSectHdr);
@@ -252,7 +252,7 @@ bool ELFReader<32, true>::readTargetSection(Input& pInput,
 
 /// readSymbols - read ELF symbols and create LDSymbol
 bool ELFReader<32, true>::readSymbols(Input& pInput,
-                                      MCLinker& pLinker,
+                                      FragmentLinker& pLinker,
                                       const MemoryRegion& pRegion,
                                       const char* pStrTab) const
 {
@@ -330,7 +330,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
     }
 
 
-    // push into MCLinker
+    // push into FragmentLinker
     LDSymbol* input_sym = NULL;
 
     if (pInput.type() == Input::Object) {
@@ -435,7 +435,7 @@ ResolveInfo* ELFReader<32, true>::readSymbol(Input& pInput,
 
 /// readRela - read ELF rela and create Relocation
 bool ELFReader<32, true>::readRela(Input& pInput,
-                                   MCLinker& pLinker,
+                                   FragmentLinker& pLinker,
                                    LDSection& pSection,
                                    const MemoryRegion& pRegion) const
 {
@@ -484,7 +484,7 @@ bool ELFReader<32, true>::readRela(Input& pInput,
 
 /// readRel - read ELF rel and create Relocation
 bool ELFReader<32, true>::readRel(Input& pInput,
-                                  MCLinker& pLinker,
+                                  FragmentLinker& pLinker,
                                   LDSection& pSection,
                                   const MemoryRegion& pRegion) const
 {

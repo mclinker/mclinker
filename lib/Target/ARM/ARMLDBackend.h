@@ -19,7 +19,7 @@
 namespace mcld {
 
 class MCLDInfo;
-class MCLinker;
+class FragmentLinker;
 class Output;
 class SectionMap;
 
@@ -83,13 +83,13 @@ public:
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
   /// initTargetSections - initialize target dependent sections in output.
-  void initTargetSections(MCLinker& pLinker);
+  void initTargetSections(FragmentLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// initRelocFactory - create and initialize RelocationFactory
-  bool initRelocFactory(const MCLinker& pLinker);
+  bool initRelocFactory(const FragmentLinker& pLinker);
 
   /// getRelocFactory
   RelocationFactory* getRelocFactory();
@@ -102,7 +102,7 @@ public:
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput,
                       const LDSection& pSection);
@@ -134,12 +134,12 @@ public:
   /// doPreLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,
-                   MCLinker& pLinker);
+                   FragmentLinker& pLinker);
 
   /// doPostLayout -Backend can do any needed modification after layout
   void doPostLayout(const Output& pOutput,
                     const MCLDInfo& pInfo,
-                    MCLinker& pLinker);
+                    FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
@@ -195,23 +195,23 @@ public:
                                      const MCLDInfo& pInfo) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
-  bool finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// readSection - read target dependent sections
   bool readSection(Input& pInput,
-                   MCLinker& pLinker,
+                   FragmentLinker& pLinker,
                    LDSection& pInputSectHdr);
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
-                       MCLinker& pLinker,
+                       FragmentLinker& pLinker,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
 
@@ -226,7 +226,7 @@ private:
   /// defineSymbolforCopyReloc - allocate a space in BSS section and
   /// and force define the copy of pSym to BSS section
   /// @return the output LDSymbol of the copy symbol
-  LDSymbol& defineSymbolforCopyReloc(MCLinker& pLinker,
+  LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
 
   /// updateAddend - update addend value of the relocation if the
@@ -237,14 +237,14 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createARMGOT(MCLinker& pLinker, const Output& pOutput);
+  void createARMGOT(FragmentLinker& pLinker, const Output& pOutput);
 
   /// createARMPLTandRelPLT - create PLT and RELPLT sections.
   /// Because in ELF sh_info in .rel.plt is the shndx of .plt, these two
   /// sections should be create together.
-  void createARMPLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
+  void createARMPLTandRelPLT(FragmentLinker& pLinker, const Output& pOutput);
 
-  void createARMRelDyn(MCLinker& pLinker, const Output& pOutput);
+  void createARMRelDyn(FragmentLinker& pLinker, const Output& pOutput);
 
 private:
   RelocationFactory* m_pRelocFactory;

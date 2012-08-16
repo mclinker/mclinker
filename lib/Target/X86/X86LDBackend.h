@@ -96,12 +96,12 @@ public:
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,
-                   MCLinker& pLinker);
+                   FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(const Output& pOutput,
                     const MCLDInfo& pInfo,
-                    MCLinker& pLinker);
+                    FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
@@ -156,11 +156,11 @@ public:
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
   // initRelocFactory - create and initialize RelocationFactory
-  bool initRelocFactory(const MCLinker& pLinker);
+  bool initRelocFactory(const FragmentLinker& pLinker);
 
-  void initTargetSections(MCLinker& pLinker);
+  void initTargetSections(FragmentLinker& pLinker);
 
-  void initTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
@@ -170,7 +170,7 @@ public:
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput,
                       const LDSection& pSection);
@@ -189,18 +189,18 @@ public:
                                      const MCLDInfo& pInfo) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
-  bool finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
-                       MCLinker& pLinker,
+                       FragmentLinker& pLinker,
                        const MCLDInfo& pLDInfo,
                        const Output& pOutput);
 
@@ -211,17 +211,17 @@ private:
   /// defineSymbolforCopyReloc - allocate a space in BSS section and
   /// and force define the copy of pSym to BSS section
   /// @return the output LDSymbol of the copy symbol
-  LDSymbol& defineSymbolforCopyReloc(MCLinker& pLinker,
+  LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
 
   void updateAddend(Relocation& pReloc,
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createX86GOT(MCLinker& pLinker, const Output& pOutput);
-  void createX86GOTPLT(MCLinker& pLinker, const Output& pOutput);
-  void createX86PLTandRelPLT(MCLinker& pLinker, const Output& pOutput);
-  void createX86RelDyn(MCLinker& pLinker, const Output& pOutput);
+  void createX86GOT(FragmentLinker& pLinker, const Output& pOutput);
+  void createX86GOTPLT(FragmentLinker& pLinker, const Output& pOutput);
+  void createX86PLTandRelPLT(FragmentLinker& pLinker, const Output& pOutput);
+  void createX86RelDyn(FragmentLinker& pLinker, const Output& pOutput);
 
 private:
   RelocationFactory* m_pRelocFactory;

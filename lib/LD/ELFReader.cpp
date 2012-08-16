@@ -154,7 +154,7 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 /// getSymFragmentRef
 FragmentRef*
 ELFReaderIF::getSymFragmentRef(Input& pInput,
-                               MCLinker& pLinker,
+                               FragmentLinker& pLinker,
                                uint16_t pShndx,
                                uint32_t pOffset) const
 {
@@ -206,7 +206,7 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
 }
 
 bool ELFReaderIF::readEhFrame(Input& pInput,
-                              MCLinker& pLinker,
+                              FragmentLinker& pLinker,
                               LDSection& pInputSectHdr) const
 {
   // create SectionData of this eh_frame

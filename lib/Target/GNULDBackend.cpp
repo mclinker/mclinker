@@ -116,61 +116,61 @@ bool GNULDBackend::initArchiveReader(MCLDInfo& pInfo,
   return true;
 }
 
-bool GNULDBackend::initObjectReader(MCLinker& pLinker)
+bool GNULDBackend::initObjectReader(FragmentLinker& pLinker)
 {
   if (NULL == m_pObjectReader)
     m_pObjectReader = new ELFObjectReader(*this, pLinker);
   return true;
 }
 
-bool GNULDBackend::initDynObjReader(MCLinker& pLinker)
+bool GNULDBackend::initDynObjReader(FragmentLinker& pLinker)
 {
   if (NULL == m_pDynObjReader)
     m_pDynObjReader = new ELFDynObjReader(*this, pLinker);
   return true;
 }
 
-bool GNULDBackend::initObjectWriter(MCLinker&)
+bool GNULDBackend::initObjectWriter(FragmentLinker&)
 {
   // TODO
   return true;
 }
 
-bool GNULDBackend::initDynObjWriter(MCLinker& pLinker)
+bool GNULDBackend::initDynObjWriter(FragmentLinker& pLinker)
 {
   if (NULL == m_pDynObjWriter)
     m_pDynObjWriter = new ELFDynObjWriter(*this, pLinker);
   return true;
 }
 
-bool GNULDBackend::initExecWriter(MCLinker& pLinker)
+bool GNULDBackend::initExecWriter(FragmentLinker& pLinker)
 {
   if (NULL == m_pExecWriter)
     m_pExecWriter = new ELFExecWriter(*this, pLinker);
   return true;
 }
 
-bool GNULDBackend::initExecSections(MCLinker& pMCLinker)
+bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
 {
   if (NULL == m_pExecFileFormat)
     m_pExecFileFormat = new ELFExecFileFormat(*this);
 
   // initialize standard sections
-  m_pExecFileFormat->initStdSections(pMCLinker);
+  m_pExecFileFormat->initStdSections(pLinker);
   return true;
 }
 
-bool GNULDBackend::initDynObjSections(MCLinker& pMCLinker)
+bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
 {
   if (NULL == m_pDynObjFileFormat)
     m_pDynObjFileFormat = new ELFDynObjFileFormat(*this);
 
   // initialize standard sections
-  m_pDynObjFileFormat->initStdSections(pMCLinker);
+  m_pDynObjFileFormat->initStdSections(pLinker);
   return true;
 }
 
-bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
+bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
@@ -183,8 +183,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                    0x0);
   }
   f_pPreInitArrayStart =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__preinit_array_start",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__preinit_array_start",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -194,8 +194,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              preinit_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pPreInitArrayEnd =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__preinit_array_end",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__preinit_array_end",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -214,8 +214,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   }
 
   f_pInitArrayStart =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__init_array_start",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__init_array_start",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -225,8 +225,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              init_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pInitArrayEnd =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__init_array_end",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__init_array_end",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -245,8 +245,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   }
 
   f_pFiniArrayStart =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__fini_array_start",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__fini_array_start",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -256,8 +256,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              fini_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pFiniArrayEnd =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__fini_array_end",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__fini_array_end",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -275,8 +275,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                           0x0);
   }
   f_pStack =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__stack",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__stack",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -288,8 +288,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 
   // -----  segment symbols  ----- //
   f_pExecutableStart =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__executable_start",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__executable_start",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -299,8 +299,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              NULL, // FragRef
                                              ResolveInfo::Default);
   f_pEText =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("etext",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("etext",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -310,8 +310,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              NULL, // FragRef
                                              ResolveInfo::Default);
   f_p_EText =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("_etext",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("_etext",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -321,8 +321,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              NULL, // FragRef
                                              ResolveInfo::Default);
   f_p__EText =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("__etext",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("__etext",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -332,8 +332,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              NULL, // FragRef
                                              ResolveInfo::Default);
   f_pEData =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("edata",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("edata",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -344,8 +344,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
                                              ResolveInfo::Default);
 
   f_pEnd =
-     pLinker.defineSymbol<MCLinker::AsRefered,
-                          MCLinker::Resolve>("end",
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("end",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -358,8 +358,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   // _edata is defined forcefully.
   // @ref Google gold linker: defstd.cc: 186
   f_p_EData =
-     pLinker.defineSymbol<MCLinker::Force,
-                          MCLinker::Resolve>("_edata",
+     pLinker.defineSymbol<FragmentLinker::Force,
+                          FragmentLinker::Resolve>("_edata",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -372,8 +372,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   // __bss_start is defined forcefully.
   // @ref Google gold linker: defstd.cc: 214
   f_pBSSStart =
-     pLinker.defineSymbol<MCLinker::Force,
-                          MCLinker::Resolve>("__bss_start",
+     pLinker.defineSymbol<FragmentLinker::Force,
+                          FragmentLinker::Resolve>("__bss_start",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -386,8 +386,8 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
   // _end is defined forcefully.
   // @ref Google gold linker: defstd.cc: 228
   f_p_End =
-     pLinker.defineSymbol<MCLinker::Force,
-                          MCLinker::Resolve>("_end",
+     pLinker.defineSymbol<FragmentLinker::Force,
+                          FragmentLinker::Resolve>("_end",
                                              false, // isDyn
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
@@ -401,7 +401,7 @@ bool GNULDBackend::initStandardSymbols(MCLinker& pLinker, const Output& pOutput)
 }
 
 bool
-GNULDBackend::finalizeStandardSymbols(MCLinker& pLinker, const Output& pOutput)
+GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
@@ -1269,7 +1269,7 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 /// sections.
 /// @refer Google gold linker: common.cc: 214
 bool
-GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) const
+GNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, FragmentLinker& pLinker) const
 {
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
@@ -1533,7 +1533,7 @@ void GNULDBackend:: setupProgramHdrs(const Output& pOutput, const MCLDInfo& pInf
 /// @ref gold linker: layout.cc:2608
 void GNULDBackend::createGNUStackInfo(const Output& pOutput,
                                       const MCLDInfo& pInfo,
-                                      MCLinker& pLinker)
+                                      FragmentLinker& pLinker)
 {
   uint32_t flag = 0x0;
   if (pInfo.options().hasStackSet()) {
@@ -1586,7 +1586,7 @@ void GNULDBackend::createGNUStackInfo(const Output& pOutput,
 /// preLayout - Backend can do any needed modification before layout
 void GNULDBackend::preLayout(const Output& pOutput,
                              const MCLDInfo& pLDInfo,
-                             MCLinker& pLinker)
+                             FragmentLinker& pLinker)
 {
   // prelayout target first
   doPreLayout(pOutput, pLDInfo, pLinker);
@@ -1605,7 +1605,7 @@ void GNULDBackend::preLayout(const Output& pOutput,
 /// postLayout - Backend can do any needed modification after layout
 void GNULDBackend::postLayout(const Output& pOutput,
                               const MCLDInfo& pInfo,
-                              MCLinker& pLinker)
+                              FragmentLinker& pLinker)
 {
   // 1. emit program headers
   if (pOutput.type() != Output::Object) {
@@ -1627,7 +1627,7 @@ void GNULDBackend::postLayout(const Output& pOutput,
 
 void GNULDBackend::postProcessing(const Output& pOutput,
                                   const MCLDInfo& pInfo,
-                                  MCLinker& pLinker)
+                                  FragmentLinker& pLinker)
 {
   if (pInfo.options().hasEhFrameHdr()) {
     // emit eh_frame_hdr

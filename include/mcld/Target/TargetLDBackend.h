@@ -15,7 +15,7 @@
 
 namespace mcld {
 
-class MCLinker;
+class FragmentLinker;
 class Relocation;
 class RelocationFactory;
 class Layout;
@@ -51,12 +51,12 @@ public:
 
   // -----  target dependent  ----- //
   virtual bool initTargetSectionMap(SectionMap& pSectionMap) { return true;}
-  virtual void initTargetSegments(MCLinker& pLinker) { }
-  virtual void initTargetSections(MCLinker& pLinker) { }
-  virtual void initTargetSymbols(MCLinker& pLinker, const Output& pOutput) { }
-  virtual void initTargetRelocation(MCLinker& pLinker) { }
-  virtual bool initStandardSymbols(MCLinker& pLinker, const Output& pOutput) = 0;
-  virtual bool initRelocFactory(const MCLinker& pLinker) = 0;
+  virtual void initTargetSegments(FragmentLinker& pLinker) { }
+  virtual void initTargetSections(FragmentLinker& pLinker) { }
+  virtual void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput) { }
+  virtual void initTargetRelocation(FragmentLinker& pLinker) { }
+  virtual bool initStandardSymbols(FragmentLinker& pLinker, const Output& pOutput) = 0;
+  virtual bool initRelocFactory(const FragmentLinker& pLinker) = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;
 
@@ -69,7 +69,7 @@ public:
   /// @param pOutput - the ouput file
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
-                              MCLinker& pLinker,
+                              FragmentLinker& pLinker,
                               const MCLDInfo& pLDInfo,
                               const Output& pOutput,
                               const LDSection& pSection) = 0;
@@ -77,14 +77,14 @@ public:
   // -----  format dependent  ----- //
   virtual bool initArchiveReader(MCLDInfo&,
                                  MemoryAreaFactory&) = 0;
-  virtual bool initObjectReader(MCLinker&) = 0;
-  virtual bool initDynObjReader(MCLinker&) = 0;
-  virtual bool initObjectWriter(MCLinker&) = 0;
-  virtual bool initDynObjWriter(MCLinker&) = 0;
-  virtual bool initExecWriter(MCLinker&) = 0;
+  virtual bool initObjectReader(FragmentLinker&) = 0;
+  virtual bool initDynObjReader(FragmentLinker&) = 0;
+  virtual bool initObjectWriter(FragmentLinker&) = 0;
+  virtual bool initDynObjWriter(FragmentLinker&) = 0;
+  virtual bool initExecWriter(FragmentLinker&) = 0;
 
-  virtual bool initExecSections(MCLinker&) = 0;
-  virtual bool initDynObjSections(MCLinker&) = 0;
+  virtual bool initExecSections(FragmentLinker&) = 0;
+  virtual bool initDynObjSections(FragmentLinker&) = 0;
 
   virtual ArchiveReader *getArchiveReader() = 0;
   virtual ObjectReader *getObjectReader() = 0;
@@ -99,17 +99,17 @@ public:
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(const Output& pOutput,
                          const MCLDInfo& pInfo,
-                         MCLinker& pLinker) = 0;
+                         FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void postLayout(const Output& pOutput,
                           const MCLDInfo& pInfo,
-                          MCLinker& pLinker) = 0;
+                          FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   virtual void postProcessing(const Output& pOutput,
                               const MCLDInfo& pInfo,
-                              MCLinker& pLinker) = 0;
+                              FragmentLinker& pLinker) = 0;
 
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;
@@ -143,15 +143,15 @@ public:
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  virtual bool finalizeSymbols(MCLinker& pLinker, const Output& pOutput) = 0;
+  virtual bool finalizeSymbols(FragmentLinker& pLinker, const Output& pOutput) = 0;
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const = 0;
+  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,
-                           MCLinker& pLinker,
+                           FragmentLinker& pLinker,
                            LDSection& pInputSectHdr)
   { return true; }
 

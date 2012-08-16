@@ -14,7 +14,7 @@ using namespace llvm::dwarf;
 
 /// emitOutput - write out eh_frame_hdr
 template<size_t size>
-void EhFrameHdr::emitOutput(Output& pOutput, MCLinker& pLinker)
+void EhFrameHdr::emitOutput(Output& pOutput, FragmentLinker& pLinker)
 {
   MemoryRegion* ehframe_region =
     pOutput.memArea()->request(m_EhFrameSect.offset(), m_EhFrameSect.size());

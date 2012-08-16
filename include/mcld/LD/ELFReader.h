@@ -69,22 +69,22 @@ public:
 
   /// readSectionHeaders - read ELF section header table and create LDSections
   virtual bool readSectionHeaders(Input& pInput,
-                                  MCLinker& pLinker,
+                                  FragmentLinker& pLinker,
                                   void* pELFHeader) const = 0;
 
   /// readRegularSection - read a regular section and create fragments.
   virtual bool readRegularSection(Input& pInput,
-                                  MCLinker& pLinker,
+                                  FragmentLinker& pLinker,
                                   LDSection& pSectHdr) const = 0;
 
   /// readRegularSection - read a target section and create fragments.
   virtual bool readTargetSection(Input& pInput,
-                                 MCLinker& pLinker,
+                                 FragmentLinker& pLinker,
                                  LDSection& pSectHdr) = 0;
 
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
-                           MCLinker& pLinker,
+                           FragmentLinker& pLinker,
                            const MemoryRegion& pRegion,
                            const char* StrTab) const = 0;
 
@@ -97,18 +97,18 @@ public:
 
   /// readRela - read ELF rela and create Relocation
   virtual bool readRela(Input& pInput,
-                        MCLinker& pLinker,
+                        FragmentLinker& pLinker,
                         LDSection& pSection,
                         const MemoryRegion& pRegion) const = 0;
 
   /// readRel - read ELF rel and create Relocation
   virtual bool readRel(Input& pInput,
-                       MCLinker& pLinker,
+                       FragmentLinker& pLinker,
                        LDSection& pSection,
                        const MemoryRegion& pRegion) const = 0;
 
   bool readEhFrame(Input& pInput,
-                   MCLinker& pLinker,
+                   FragmentLinker& pLinker,
                    LDSection& pSection) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
@@ -140,7 +140,7 @@ protected:
                        const Input& pInput) const;
 
   FragmentRef* getSymFragmentRef(Input& pInput,
-                                 MCLinker& pLinker,
+                                 FragmentLinker& pLinker,
                                  uint16_t pShndx,
                                  uint32_t pOffset) const;
 
@@ -193,22 +193,22 @@ public:
 
   /// readSectionHeaders - read ELF section header table and create LDSections
   inline bool readSectionHeaders(Input& pInput,
-                          MCLinker& pLinker,
-                          void* pELFHeader) const;
+                                 FragmentLinker& pLinker,
+                                 void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
   inline bool readRegularSection(Input& pInput,
-                                 MCLinker& pLinker,
+                                 FragmentLinker& pLinker,
                                  LDSection& pInputSectHdr) const;
 
   /// readRegularSection - read a target section and create fragments.
   inline bool readTargetSection(Input& pInput,
-                                MCLinker& pLinker,
+                                FragmentLinker& pLinker,
                                 LDSection& pInputSectHdr);
 
   /// readSymbols - read ELF symbols and create LDSymbol
   inline bool readSymbols(Input& pInput,
-                          MCLinker& pLinker,
+                          FragmentLinker& pLinker,
                           const MemoryRegion& pRegion,
                           const char* StrTab) const;
 
@@ -221,13 +221,13 @@ public:
 
   /// readRela - read ELF rela and create Relocation
   inline bool readRela(Input& pInput,
-                       MCLinker& pLinker,
+                       FragmentLinker& pLinker,
                        LDSection& pSection,
                        const MemoryRegion& pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
   inline bool readRel(Input& pInput,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       LDSection& pSection,
                       const MemoryRegion& pRegion) const;
 

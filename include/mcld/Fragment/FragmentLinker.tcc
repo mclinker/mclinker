@@ -1,4 +1,4 @@
-//===- MCLinker.tcc -------------------------------------------------------===//
+//===- FragmentLinker.tcc --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -9,14 +9,14 @@
 
 /// addSymbol - add a symbol and resolve it immediately
 template<Input::Type FROM>
-LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
-                              ResolveInfo::Type pType,
-                              ResolveInfo::Desc pDesc,
-                              ResolveInfo::Binding pBinding,
-                              ResolveInfo::SizeType pSize,
-                              LDSymbol::ValueType pValue,
-                              FragmentRef* pFragmentRef,
-                              ResolveInfo::Visibility pVisibility)
+LDSymbol* FragmentLinker::addSymbol(const llvm::StringRef& pName,
+                                    ResolveInfo::Type pType,
+                                    ResolveInfo::Desc pDesc,
+                                    ResolveInfo::Binding pBinding,
+                                    ResolveInfo::SizeType pSize,
+                                    LDSymbol::ValueType pValue,
+                                    FragmentRef* pFragmentRef,
+                                    ResolveInfo::Visibility pVisibility)
 {
   llvm::StringRef symbol_name = pName;
   if (!getLDInfo().scripts().renameMap().empty() &&
@@ -54,20 +54,21 @@ LDSymbol* MCLinker::addSymbol(const llvm::StringRef& pName,
 }
 
 // defineSymbol - define a new symbol
-template<MCLinker::DefinePolicy POLICY, MCLinker::ResolvePolicy RESOLVE>
-LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
-                                 bool pIsDyn,
-                                 ResolveInfo::Type pType,
-                                 ResolveInfo::Desc pDesc,
-                                 ResolveInfo::Binding pBinding,
-                                 ResolveInfo::SizeType pSize,
-                                 LDSymbol::ValueType pValue,
-                                 FragmentRef* pFragmentRef,
-                                 ResolveInfo::Visibility pVisibility)
+template<FragmentLinker::DefinePolicy POLICY,
+         FragmentLinker::ResolvePolicy RESOLVE>
+LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
+                                       bool pIsDyn,
+                                       ResolveInfo::Type pType,
+                                       ResolveInfo::Desc pDesc,
+                                       ResolveInfo::Binding pBinding,
+                                       ResolveInfo::SizeType pSize,
+                                       LDSymbol::ValueType pValue,
+                                       FragmentRef* pFragmentRef,
+                                       ResolveInfo::Visibility pVisibility)
 {
   // These if/return should be optimized by compiler.
   // This function is defined for clarity.
-  if (MCLinker::Force == POLICY && MCLinker::Unresolve == RESOLVE)
+  if (FragmentLinker::Force == POLICY && FragmentLinker::Unresolve == RESOLVE)
     return defineSymbolForcefully(pName,
                                   pIsDyn,
                                   pType,
@@ -78,7 +79,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                   pFragmentRef,
                                   pVisibility);
 
-  if (MCLinker::AsRefered == POLICY && MCLinker::Unresolve == RESOLVE)
+  if (FragmentLinker::AsRefered == POLICY && FragmentLinker::Unresolve == RESOLVE)
     return defineSymbolAsRefered(pName,
                                  pIsDyn,
                                  pType,
@@ -89,7 +90,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                  pFragmentRef,
                                  pVisibility);
 
-  if (MCLinker::Force == POLICY && MCLinker::Resolve == RESOLVE)
+  if (FragmentLinker::Force == POLICY && FragmentLinker::Resolve == RESOLVE)
     return defineAndResolveSymbolForcefully(pName,
                                             pIsDyn,
                                             pType,
@@ -100,7 +101,7 @@ LDSymbol* MCLinker::defineSymbol(const llvm::StringRef& pName,
                                             pFragmentRef,
                                             pVisibility);
 
-  if (MCLinker::AsRefered == POLICY && MCLinker::Resolve == RESOLVE)
+  if (FragmentLinker::AsRefered == POLICY && FragmentLinker::Resolve == RESOLVE)
     return defineAndResolveSymbolAsRefered(pName,
                                            pIsDyn,
                                            pType,

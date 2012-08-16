@@ -30,7 +30,7 @@ class LDSymbol;
  *  - Type - what the symbol points to
  *  - Size  - the size of the symbol point to
  *  - Value - the pointer to another LDSymbol
- *  In order to save the memory and speed up the performance, MCLinker uses
+ *  In order to save the memory and speed up the performance, FragmentLinker uses
  *  a bit field to store all attributes.
  *
  *  The maximum string length is (2^16 - 1)
@@ -38,7 +38,7 @@ class LDSymbol;
 class ResolveInfo
 {
 friend class ResolveInfoFactory;
-friend class MCLinker;
+friend class FragmentLinker;
 public:
   typedef uint64_t SizeType;
 

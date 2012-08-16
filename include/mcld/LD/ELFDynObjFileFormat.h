@@ -17,7 +17,7 @@ namespace mcld
 {
 
 class GNULDBackend;
-class MCLinker;
+class FragmentLinker;
 
 /** \class ELFDynObjFileFormat
  *  \brief ELFDynObjFileFormat describes the format for ELF dynamic objects.
@@ -28,7 +28,7 @@ public:
   ELFDynObjFileFormat(GNULDBackend& pBackend) : ELFFileFormat(pBackend)
   {}
 
-  void initObjectType(MCLinker& pLinker);
+  void initObjectType(FragmentLinker& pLinker);
 
 };
 

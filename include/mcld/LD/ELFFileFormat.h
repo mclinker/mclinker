@@ -18,7 +18,7 @@ namespace mcld
 {
 
 class GNULDBackend;
-class MCLinker;
+class FragmentLinker;
 
 /** \class ELFFileFormat
  *  \brief ELFFileFormat describes the common file formats in ELF.
@@ -37,9 +37,9 @@ public:
 
   virtual ~ELFFileFormat();
 
-  virtual void initObjectFormat(MCLinker& pLinker);
+  virtual void initObjectFormat(FragmentLinker& pLinker);
 
-  virtual void initObjectType(MCLinker& pLinker) = 0;
+  virtual void initObjectType(FragmentLinker& pLinker) = 0;
 
   // -----  capacity  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.

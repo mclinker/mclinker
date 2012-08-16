@@ -24,7 +24,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFDynObjReader
 //===----------------------------------------------------------------------===//
-ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend, MCLinker& pLinker)
+ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : DynObjReader(),
     m_pELFReader(0),
     m_Linker(pLinker) {

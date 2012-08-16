@@ -21,7 +21,7 @@
 
 namespace mcld
 {
-class MCLinker;
+class FragmentLinker;
 
 /** \class SectionMerger
  *  \brief maintain the mappings of substr of input section name to associated

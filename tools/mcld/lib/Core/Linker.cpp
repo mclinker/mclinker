@@ -127,7 +127,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mDriver = new mcld::MCLDDriver(*mLDInfo, *mBackend, *mMemAreaFactory);
 
-  mDriver->initMCLinker();
+  mDriver->initFragmentLinker();
 
   return kSuccess;
 }
@@ -244,7 +244,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   mcld::LDContext *input_context = mLDInfo->contextFactory().produce();
   input->setContext(input_context);
 
-  // FIXME: So far, MCLinker must set up output before add input files.
+  // FIXME: So far, FragmentLinker must set up output before add input files.
   // set up LDContext
   if (mDriver->hasInitLinker()) {
     return kNotConfig;
@@ -316,7 +316,7 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce(pPath));
 
-  // FIXME: We must initialize MCLinker before setOutput, and initialize
+  // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
   if (!mDriver->hasInitLinker()) {
@@ -340,7 +340,7 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
   mLDInfo->output().setMemArea(out_area);
   mLDInfo->output().setContext(mLDInfo->contextFactory().produce());
 
-  // FIXME: We must initialize MCLinker before setOutput, and initialize
+  // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
   // map before input files using it.
   if (!mDriver->hasInitLinker()) {

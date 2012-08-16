@@ -66,7 +66,7 @@ ELFFileFormat::~ELFFileFormat()
 {
 }
 
-void ELFFileFormat::initObjectFormat(MCLinker& pLinker)
+void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
 {
   f_pTextSection     = &pLinker.getOrCreateOutputSectHdr(".text",
                                               LDFileFormat::Regular,

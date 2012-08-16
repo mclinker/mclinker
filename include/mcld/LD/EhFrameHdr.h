@@ -30,7 +30,7 @@ class EhFrame;
 class LDSection;
 class Output;
 class FDE;
-class MCLinker;
+class FragmentLinker;
 
 /** \class EhFrameHdr
  *  \brief EhFrameHdr represents .eh_frame_hdr section.
@@ -49,7 +49,7 @@ public:
 
   /// emitOutput - write out eh_frame_hdr
   template<size_t size>
-  void emitOutput(Output& pOutput, MCLinker& pLinker);
+  void emitOutput(Output& pOutput, FragmentLinker& pLinker);
 
 private:
   /// getFDEPC - return the address of FDE's pc

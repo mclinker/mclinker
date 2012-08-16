@@ -64,7 +64,7 @@ RelocationFactory* X86GNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
-bool X86GNULDBackend::initRelocFactory(const MCLinker& pLinker)
+bool X86GNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
     m_pRelocFactory = new X86RelocationFactory(1024, *this);
@@ -75,7 +75,7 @@ bool X86GNULDBackend::initRelocFactory(const MCLinker& pLinker)
 
 void X86GNULDBackend::doPreLayout(const Output& pOutput,
                                   const MCLDInfo& pInfo,
-                                  MCLinker& pLinker)
+                                  FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is needed
   if (Output::DynObj == pOutput.type() && (NULL == m_pGOTPLT)) {
@@ -85,7 +85,7 @@ void X86GNULDBackend::doPreLayout(const Output& pOutput,
 
 void X86GNULDBackend::doPostLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
-                                   MCLinker& pLinker)
+                                   FragmentLinker& pLinker)
 {
 }
 
@@ -107,7 +107,7 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::createX86GOT(FragmentLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -116,7 +116,7 @@ void X86GNULDBackend::createX86GOT(MCLinker& pLinker, const Output& pOutput)
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 }
 
-void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker, const Output& pOutput)
 {
   // get .got.plt LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -126,7 +126,7 @@ void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got.plt create
   if (m_pGOTSymbol != NULL) {
-    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+    pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -139,7 +139,7 @@ void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
                      ResolveInfo::Hidden);
   }
   else {
-    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+    m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -153,7 +153,7 @@ void X86GNULDBackend::createX86GOTPLT(MCLinker& pLinker, const Output& pOutput)
   }
 }
 
-void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
+void X86GNULDBackend::createX86PLTandRelPLT(FragmentLinker& pLinker,
                                             const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -172,7 +172,7 @@ void X86GNULDBackend::createX86PLTandRelPLT(MCLinker& pLinker,
                                      8);
 }
 
-void X86GNULDBackend::createX86RelDyn(MCLinker& pLinker,
+void X86GNULDBackend::createX86RelDyn(FragmentLinker& pLinker,
                                       const Output& pOutput)
 {
   // get .rel.dyn LDSection and create SectionData
@@ -195,7 +195,7 @@ void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
   rel_entry.setSymInfo(&pSym);
 }
 
-LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
+LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                                     const ResolveInfo& pSym)
 {
   // For a symbol needing copy relocation, define a copy symbol in the BSS
@@ -240,7 +240,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+  LDSymbol* cpy_sym = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                       pSym.name(),
                       false,
                       (ResolveInfo::Type)pSym.type(),
@@ -267,7 +267,7 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     MCLinker& pLinker,
+                                     FragmentLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
 {
@@ -311,7 +311,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      MCLinker& pLinker,
+                                      FragmentLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
 {
@@ -474,7 +474,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     MCLinker& pLinker,
+                                     FragmentLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput,
                                      const LDSection& pSection)
@@ -695,15 +695,15 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void X86GNULDBackend::initTargetSections(MCLinker& pLinker)
+void X86GNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
 }
 
-void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
                    false,
                    ResolveInfo::Object,
@@ -716,7 +716,7 @@ void X86GNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool X86GNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   return true;
 }

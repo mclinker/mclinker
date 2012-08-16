@@ -66,15 +66,15 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void MipsGNULDBackend::initTargetSections(MCLinker& pLinker)
+void MipsGNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
 }
 
-void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
                    false,
                    ResolveInfo::Object,
@@ -85,7 +85,7 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutpu
                    NULL, // FragRef
                    ResolveInfo::Hidden);
 
-  m_pGpDispSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+  m_pGpDispSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_gp_disp",
                    false,
                    ResolveInfo::Section,
@@ -101,7 +101,7 @@ void MipsGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutpu
   }
 }
 
-bool MipsGNULDBackend::initRelocFactory(const MCLinker& pLinker)
+bool MipsGNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
     m_pRelocFactory = new MipsRelocationFactory(1024, *this);
@@ -118,7 +118,7 @@ RelocationFactory* MipsGNULDBackend::getRelocFactory()
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      MCLinker& pLinker,
+                                      FragmentLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput,
                                       const LDSection& pSection)
@@ -209,7 +209,7 @@ uint64_t MipsGNULDBackend::abiPageSize(const MCLDInfo& pInfo) const
 
 void MipsGNULDBackend::doPreLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
-                                   MCLinker& pLinker)
+                                   FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is must.
   if (pOutput.type() == Output::DynObj && NULL == m_pGOT) {
@@ -219,7 +219,7 @@ void MipsGNULDBackend::doPreLayout(const Output& pOutput,
 
 void MipsGNULDBackend::doPostLayout(const Output& pOutput,
                                     const MCLDInfo& pInfo,
-                                    MCLinker& pLinker)
+                                    FragmentLinker& pLinker)
 {
 }
 
@@ -490,7 +490,7 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool MipsGNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   if (NULL != m_pGpDispSymbol)
     m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
@@ -502,7 +502,7 @@ bool MipsGNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pO
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
 bool
-MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, MCLinker& pLinker) const
+MipsGNULDBackend::allocateCommonSymbols(const MCLDInfo& pInfo, FragmentLinker& pLinker) const
 {
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
@@ -627,7 +627,7 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      MCLinker& pLinker,
+                                      FragmentLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
 {
@@ -736,7 +736,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                        const LDSymbol& pInputSym,
-                                       MCLinker& pLinker,
+                                       FragmentLinker& pLinker,
                                        const MCLDInfo& pLDInfo,
                                        const Output& pOutput)
 {
@@ -836,7 +836,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   }
 }
 
-void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::createGOT(FragmentLinker& pLinker, const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
@@ -845,7 +845,7 @@ void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   if ( m_pGOTSymbol != NULL ) {
-    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+    pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -857,7 +857,7 @@ void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
                      ResolveInfo::Hidden);
   }
   else {
-    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+    m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -870,7 +870,7 @@ void MipsGNULDBackend::createGOT(MCLinker& pLinker, const Output& pOutput)
   }
 }
 
-void MipsGNULDBackend::createRelDyn(MCLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::createRelDyn(FragmentLinker& pLinker, const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 

@@ -14,7 +14,7 @@
 
 namespace mcld {
 
-class MCLinker;
+class FragmentLinker;
 class OutputRelocSection;
 class SectionMap;
 
@@ -40,13 +40,13 @@ public:
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
   /// initTargetSections - initialize target dependent sections in output
-  void initTargetSections(MCLinker& pLinker);
+  void initTargetSections(FragmentLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// initRelocFactory - create and initialize RelocationFactory.
-  bool initRelocFactory(const MCLinker& pLinker);
+  bool initRelocFactory(const FragmentLinker& pLinker);
 
   /// getRelocFactory - return relocation factory.
   RelocationFactory* getRelocFactory();
@@ -56,7 +56,7 @@ public:
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput,
                       const LDSection& pSection);
@@ -84,12 +84,12 @@ public:
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(const Output& pOutput,
                    const MCLDInfo& pInfo,
-                   MCLinker& pLinker);
+                   FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(const Output& pOutput,
                     const MCLDInfo& pInfo,
-                    MCLinker& pLinker);
+                    FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
@@ -140,27 +140,27 @@ public:
                                      const MCLDInfo& pInfo) const;
 
   /// finalizeSymbol - finalize the symbol value
-  bool finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
+  bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
   void scanGlobalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      MCLinker& pLinker,
+                      FragmentLinker& pLinker,
                       const MCLDInfo& pLDInfo,
                       const Output& pOutput);
 
-  void createGOT(MCLinker& pLinker, const Output& pOutput);
-  void createRelDyn(MCLinker& pLinker, const Output& pOutput);
+  void createGOT(FragmentLinker& pLinker, const Output& pOutput);
+  void createRelDyn(FragmentLinker& pLinker, const Output& pOutput);
 
   /// updateAddend - update addend value of the relocation if the
   /// the target symbol is a section symbol. Addend is the offset

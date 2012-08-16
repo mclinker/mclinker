@@ -26,14 +26,14 @@
 
 namespace mcld
 {
-class MCLinker;
+class FragmentLinker;
 class Output;
 class TargetLDBackend;
 
 /** \class Layout
  *  \brief Layout maintains the mapping between sections and fragments.
  *
- *  MCLinker is a fragment-based linker. But readers and target backends
+ *  FragmentLinker is a fragment-based linker. But readers and target backends
  *  still need section information. Layout is used to maintain the mapping
  *  between sections and fragments. Layout helps readers and target backends
  *  get the input or output section information from a fragment.

@@ -23,7 +23,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFDynObjWriter
 //===----------------------------------------------------------------------===//
-ELFDynObjWriter::ELFDynObjWriter(GNULDBackend& pBackend, MCLinker& pLinker)
+ELFDynObjWriter::ELFDynObjWriter(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : DynObjWriter(pBackend),
     ELFWriter(pBackend),
     m_Backend(pBackend),

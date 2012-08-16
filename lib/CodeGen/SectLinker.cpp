@@ -86,8 +86,8 @@ bool SectLinker::doFinalization(Module &pM)
 {
   const MCLDInfo &info = m_pOption->info();
 
-  // 2. - initialize MCLinker
-  if (!m_pLDDriver->initMCLinker())
+  // 2. - initialize FragmentLinker
+  if (!m_pLDDriver->initFragmentLinker())
     return true;
 
   // 3. - initialize output's standard sections

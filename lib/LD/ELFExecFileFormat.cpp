@@ -15,7 +15,7 @@
 
 using namespace mcld;
 
-void ELFExecFileFormat::initObjectType(MCLinker& pLinker)
+void ELFExecFileFormat::initObjectType(FragmentLinker& pLinker)
 {
   // FIXME: make sure ELF executable files has these sections.
   f_pDynSymTab    = &pLinker.getOrCreateOutputSectHdr(".dynsym",

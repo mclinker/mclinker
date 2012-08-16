@@ -27,7 +27,7 @@ using namespace mcld;
 // ELFObjectReader
 //===----------------------------------------------------------------------===//
 /// constructor
-ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, MCLinker& pLinker)
+ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : ObjectReader(),
     m_pELFReader(0),
     m_Linker(pLinker)
@@ -206,7 +206,7 @@ bool ELFObjectReader::readSections(Input& pInput)
   return true;
 }
 
-/// readSymbols - read symbols into MCLinker from the input relocatable object.
+/// readSymbols - read symbols into FragmentLinker from the input relocatable object.
 bool ELFObjectReader::readSymbols(Input& pInput)
 {
   assert(pInput.hasMemArea());

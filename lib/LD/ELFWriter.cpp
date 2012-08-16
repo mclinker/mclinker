@@ -183,7 +183,7 @@ uint64_t ELFWriter::getEntryPoint(const MCLDInfo& pLDInfo,
 
 /// emitELF32SectionHeader - emit Elf32_Shdr
 void
-ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
+ELFWriter::emitELF32SectionHeader(Output& pOutput, FragmentLinker& pLinker) const
 {
   // emit section header
   unsigned int sectNum = pOutput.context()->numOfSections();
@@ -216,7 +216,7 @@ ELFWriter::emitELF32SectionHeader(Output& pOutput, MCLinker& pLinker) const
 
 /// emitELF64SectionHeader - emit Elf64_Shdr
 void
-ELFWriter::emitELF64SectionHeader(Output& pOutput, MCLinker& pLinker) const
+ELFWriter::emitELF64SectionHeader(Output& pOutput, FragmentLinker& pLinker) const
 {
   // emit section header
   unsigned int sectNum = pOutput.context()->numOfSections();
@@ -315,7 +315,7 @@ void ELFWriter::emitELF64ProgramHeader(Output& pOutput,
 }
 
 /// emitELF32ShStrTab - emit section string table
-void ELFWriter::emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const
+void ELFWriter::emitELF32ShStrTab(Output& pOutput, FragmentLinker& pLinker) const
 {
   uint64_t shstroffset = getELF32LastStartOffset(pOutput);
 
@@ -355,7 +355,7 @@ void ELFWriter::emitELF32ShStrTab(Output& pOutput, MCLinker& pLinker) const
 
 
 /// emitELF64ShStrTab - emit section string table
-void ELFWriter::emitELF64ShStrTab(Output& pOutput, MCLinker& pLinker) const
+void ELFWriter::emitELF64ShStrTab(Output& pOutput, FragmentLinker& pLinker) const
 {
   uint64_t shstroffset = getELF64LastStartOffset(pOutput);
 

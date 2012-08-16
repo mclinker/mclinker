@@ -46,10 +46,10 @@ class Output;
 class EhFrame;
 class EhFrameHdr;
 
-/** \class MCLinker
- *  \brief MCLinker provides a pass to link object files.
+/** \class FragmentLinker
+ *  \brief FragmentLinker provides a pass to link object files.
  */
-class MCLinker
+class FragmentLinker
 {
 public:
   enum DefinePolicy
@@ -65,11 +65,11 @@ public:
   };
 
 public:
-  MCLinker(TargetLDBackend& pBackend,
+  FragmentLinker(TargetLDBackend& pBackend,
            MCLDInfo& pLDInfo,
            SectionMap& pSectionMap);
 
-  ~MCLinker();
+  ~FragmentLinker();
 
   // ----- about symbols  ----- //
   /// addDynSymbol - add a symbol and resolve it immediately
@@ -141,9 +141,9 @@ public:
   SectionData& getOrCreateSectData(LDSection& pSection);
 
   // -----  relocations  ----- //
-  /// addRelocation - add a relocation entry in MCLinker (only for object file)
+  /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation
-  /// @param pResolveInfo - the symbol should be the symbol in the input file. MCLinker
+  /// @param pResolveInfo - the symbol should be the symbol in the input file. FragmentLinker
   ///                  computes the real applied address by the output symbol.
   /// @param pFragmentRef - the fragment reference of the applied address.
   /// @param pAddend - the addend value for applying relocation

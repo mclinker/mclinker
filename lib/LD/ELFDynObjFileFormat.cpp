@@ -15,7 +15,7 @@
 
 using namespace mcld;
 
-void ELFDynObjFileFormat::initObjectType(MCLinker& pLinker)
+void ELFDynObjFileFormat::initObjectType(FragmentLinker& pLinker)
 {
   f_pDynSymTab    = &pLinker.getOrCreateOutputSectHdr(".dynsym",
                                            LDFileFormat::NamePool,

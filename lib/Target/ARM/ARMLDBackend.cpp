@@ -63,7 +63,7 @@ ARMGNULDBackend::~ARMGNULDBackend()
     delete m_pDynamic;
 }
 
-bool ARMGNULDBackend::initRelocFactory(const MCLinker& pLinker)
+bool ARMGNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
     m_pRelocFactory = new ARMRelocationFactory(1024, *this);
@@ -87,7 +87,7 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
+void ARMGNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
  // them from input
@@ -108,11 +108,11 @@ void ARMGNULDBackend::initTargetSections(MCLinker& pLinker)
                                                       0x1);
 }
 
-void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<MCLinker::AsRefered, MCLinker::Resolve>(
+  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
                    false,
                    ResolveInfo::Object,
@@ -126,7 +126,7 @@ void ARMGNULDBackend::initTargetSymbols(MCLinker& pLinker, const Output& pOutput
 
 void ARMGNULDBackend::doPreLayout(const Output& pOutput,
                                   const MCLDInfo& pInfo,
-                                  MCLinker& pLinker)
+                                  FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is must.
   if (pOutput.type() == Output::DynObj && (NULL == m_pGOT)) {
@@ -136,7 +136,7 @@ void ARMGNULDBackend::doPreLayout(const Output& pOutput,
 
 void ARMGNULDBackend::doPostLayout(const Output& pOutput,
                                    const MCLDInfo& pInfo,
-                                   MCLinker& pLinker)
+                                   FragmentLinker& pLinker)
 {
   const ELFFileFormat *file_format = getOutputFormat(pOutput);
 
@@ -180,7 +180,7 @@ const ARMELFDynamic& ARMGNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
+void ARMGNULDBackend::createARMGOT(FragmentLinker& pLinker, const Output& pOutput)
 {
   // get .got LDSection and create SectionData
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -190,7 +190,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   if (m_pGOTSymbol != NULL) {
-    pLinker.defineSymbol<MCLinker::Force, MCLinker::Unresolve>(
+    pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -202,7 +202,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
                      ResolveInfo::Hidden);
   }
   else {
-    m_pGOTSymbol = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+    m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      false,
                      ResolveInfo::Object,
@@ -216,7 +216,7 @@ void ARMGNULDBackend::createARMGOT(MCLinker& pLinker, const Output& pOutput)
 
 }
 
-void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
+void ARMGNULDBackend::createARMPLTandRelPLT(FragmentLinker& pLinker,
                                             const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -234,7 +234,7 @@ void ARMGNULDBackend::createARMPLTandRelPLT(MCLinker& pLinker,
                                      8);
 }
 
-void ARMGNULDBackend::createARMRelDyn(MCLinker& pLinker,
+void ARMGNULDBackend::createARMRelDyn(FragmentLinker& pLinker,
                                       const Output& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat(pOutput);
@@ -257,7 +257,7 @@ void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
   rel_entry.setSymInfo(&pSym);
 }
 
-LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
+LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                                     const ResolveInfo& pSym)
 {
   // For a symbol needing copy relocation, define a copy symbol in the BSS
@@ -302,7 +302,7 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(MCLinker& pLinker,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pLinker.defineSymbol<MCLinker::Force, MCLinker::Resolve>(
+  LDSymbol* cpy_sym = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                       pSym.name(),
                       false,
                       (ResolveInfo::Type)pSym.type(),
@@ -359,7 +359,7 @@ void ARMGNULDBackend::updateAddend(Relocation& pReloc,
 
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     MCLinker& pLinker,
+                                     FragmentLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput)
 {
@@ -472,7 +472,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      MCLinker& pLinker,
+                                      FragmentLinker& pLinker,
                                       const MCLDInfo& pLDInfo,
                                       const Output& pOutput)
 {
@@ -714,7 +714,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     MCLinker& pLinker,
+                                     FragmentLinker& pLinker,
                                      const MCLDInfo& pLDInfo,
                                      const Output& pOutput,
                                      const LDSection& pSection)
@@ -823,13 +823,13 @@ uint64_t ARMGNULDBackend::emitSectionData(const Output& pOutput,
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool ARMGNULDBackend::finalizeTargetSymbols(MCLinker& pLinker, const Output& pOutput)
+bool ARMGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
 {
   return true;
 }
 
 bool ARMGNULDBackend::readSection(Input& pInput,
-                                  MCLinker& pLinker,
+                                  FragmentLinker& pLinker,
                                   LDSection& pInputSectHdr)
 {
   LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
@@ -838,7 +838,7 @@ bool ARMGNULDBackend::readSection(Input& pInput,
                                                          pInputSectHdr.flag());
   // FIXME: (Luba)
   // Handle ARM attributes in the right way.
-  // In current milestone, MCLinker goes through the shortcut.
+  // In current milestone, FragmentLinker goes through the shortcut.
   // It reads input's ARM attributes and copies the first ARM attributes
   // into the output file. The correct way is merge these sections, not
   // just copy.

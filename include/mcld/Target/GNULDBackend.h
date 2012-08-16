@@ -67,11 +67,11 @@ public:
   // -----  readers/writers  ----- //
   bool initArchiveReader(MCLDInfo& pInfo,
                          MemoryAreaFactory& pMemAreaFactory);
-  bool initObjectReader(MCLinker& pLinker);
-  bool initDynObjReader(MCLinker& pLinker);
-  bool initObjectWriter(MCLinker& pLinker);
-  bool initDynObjWriter(MCLinker& pLinker);
-  bool initExecWriter(MCLinker& pLinker);
+  bool initObjectReader(FragmentLinker& pLinker);
+  bool initDynObjReader(FragmentLinker& pLinker);
+  bool initObjectWriter(FragmentLinker& pLinker);
+  bool initDynObjWriter(FragmentLinker& pLinker);
+  bool initExecWriter(FragmentLinker& pLinker);
 
   GNUArchiveReader *getArchiveReader();
   const GNUArchiveReader *getArchiveReader() const;
@@ -93,10 +93,10 @@ public:
 
   // -----  output sections  ----- //
   /// initExecSections - initialize sections of the output executable file.
-  bool initExecSections(MCLinker& pMCLinker);
+  bool initExecSections(FragmentLinker& pLinker);
 
   /// initDynObjSections - initialize sections of the output shared object.
-  bool initDynObjSections(MCLinker& pMCLinker);
+  bool initDynObjSections(FragmentLinker& pLinker);
 
   /// getOutputFormat - get the sections of the output file.
   ELFFileFormat* getOutputFormat(const Output& pOutput);
@@ -112,27 +112,27 @@ public:
   /// initStandardSymbols - initialize standard symbols.
   /// Some section symbols is undefined in input object, and linkers must set
   /// up its value. Take __init_array_begin for example. This symbol is an
-  /// undefined symbol in input objects. MCLinker must finalize its value
+  /// undefined symbol in input objects. FragmentLinker must finalize its value
   /// to the begin of the .init_array section, then relocation enties to
   /// __init_array_begin can be applied without emission of "undefined
   /// reference to `__init_array_begin'".
-  bool initStandardSymbols(MCLinker& pLinker, const Output& pOutput);
+  bool initStandardSymbols(FragmentLinker& pLinker, const Output& pOutput);
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  bool finalizeSymbols(MCLinker& pLinker, const Output& pOutput) {
+  bool finalizeSymbols(FragmentLinker& pLinker, const Output& pOutput) {
     return (finalizeStandardSymbols(pLinker, pOutput) &&
             finalizeTargetSymbols(pLinker, pOutput));
   }
 
   /// finalizeStandardSymbols - set the value of standard symbols
-  virtual bool finalizeStandardSymbols(MCLinker& pLinker,
+  virtual bool finalizeStandardSymbols(FragmentLinker& pLinker,
                                        const Output& pOutput);
 
   /// finalizeTargetSymbols - set the value of target symbols
-  virtual bool finalizeTargetSymbols(MCLinker& pLinker,
+  virtual bool finalizeTargetSymbols(FragmentLinker& pLinker,
                                      const Output& pOutput) = 0;
 
   size_t sectionStartOffset() const;
@@ -264,7 +264,7 @@ public:
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
   /// Different concrete target backend may overlap this function.
-  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, MCLinker& pLinker) const;
+  virtual bool allocateCommonSymbols(const MCLDInfo& pLDInfo, FragmentLinker& pLinker) const;
 
   /// isSymbolPreemtible - whether the symbol can be preemted by other
   /// link unit
@@ -341,32 +341,32 @@ private:
   /// createGNUStackInfo - create an output GNU stack section or segment if needed
   void createGNUStackInfo(const Output& pOutput,
                           const MCLDInfo& pInfo,
-                          MCLinker& pLinker);
+                          FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(const Output& pOutput,
                  const MCLDInfo& pInfo,
-                 MCLinker& pLinker);
+                 FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void postLayout(const Output& pOutput,
                  const MCLDInfo& pInfo,
-                 MCLinker& pLinker);
+                 FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(const Output& pOutput,
                          const MCLDInfo& pInfo,
-                         MCLinker& pLinker) = 0;
+                         FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void doPostLayout(const Output& pOutput,
                           const MCLDInfo& pInfo,
-                          MCLinker& pLinker) = 0;
+                          FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   void postProcessing(const Output& pOutput,
                       const MCLDInfo& pInfo,
-                      MCLinker& pLinker);
+                      FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;

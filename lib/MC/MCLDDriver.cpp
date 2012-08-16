@@ -42,18 +42,18 @@ MCLDDriver::~MCLDDriver()
     delete m_pLinker;
 }
 
-/// initMCLinker - initialize MCLinker
-///  Connect all components with MCLinker
-bool MCLDDriver::initMCLinker()
+/// initFragmentLinker - initialize FragmentLinker
+///  Connect all components with FragmentLinker
+bool MCLDDriver::initFragmentLinker()
 {
   if (0 == m_pLinker)
-    m_pLinker = new MCLinker(m_LDBackend,
+    m_pLinker = new FragmentLinker(m_LDBackend,
                              m_LDInfo,
                              m_SectionMap);
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
-  // writers outside the MCLinker constructors.
+  // writers outside the FragmentLinker constructors.
   if (!m_LDBackend.initObjectReader(*m_pLinker) ||
       !m_LDBackend.initArchiveReader(m_LDInfo, m_AreaFactory) ||
       !m_LDBackend.initObjectReader(*m_pLinker) ||
@@ -79,7 +79,7 @@ bool MCLDDriver::initStdSections()
 
   /// A technical debt. We need to initialize section map here because
   /// we do not separate output file and temporary data structure. So far,
-  /// MCLinker directly use output file's LDContext as the temporary data
+  /// FragmentLinker directly use output file's LDContext as the temporary data
   /// structure. We will create a new data structure mcld::Module to collect
   /// all temporary data structures togather.
   m_pLinker->initSectionMap();
@@ -196,7 +196,7 @@ bool MCLDDriver::linkable() const
 /// mergeSections - put allinput sections into output sections
 bool MCLDDriver::mergeSections()
 {
-  // TODO: when MCLinker can read other object files, we have to merge
+  // TODO: when FragmentLinker can read other object files, we have to merge
   // sections
   return true;
 }
@@ -256,7 +256,7 @@ bool MCLDDriver::prelayout()
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
   /// and .hash sections.
   ///
-  /// dump all symbols and strings from MCLinker and build the format-dependent
+  /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
   m_LDBackend.sizeNamePools(m_LDInfo.output(), m_pLinker->getOutputSymbols(), m_LDInfo);
 
@@ -283,7 +283,7 @@ bool MCLDDriver::postlayout()
 }
 
 /// finalizeSymbolValue - finalize the resolved symbol value.
-///   Before relocate(), after layout(), MCLinker should correct value of all
+///   Before relocate(), after layout(), FragmentLinker should correct value of all
 ///   symbol.
 bool MCLDDriver::finalizeSymbolValue()
 {

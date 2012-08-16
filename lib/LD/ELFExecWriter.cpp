@@ -23,7 +23,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFExecWriter
 //===----------------------------------------------------------------------===//
-ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend, MCLinker& pLinker)
+ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : ExecWriter(pBackend),
     ELFWriter(pBackend),
     m_Backend(pBackend),
