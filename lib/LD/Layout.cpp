@@ -21,7 +21,7 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 

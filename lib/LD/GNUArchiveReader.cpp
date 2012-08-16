@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/LD/GNUArchiveReader.h>

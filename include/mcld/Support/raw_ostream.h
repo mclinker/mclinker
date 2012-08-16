@@ -13,7 +13,7 @@
 #endif
 #include <string>
 #include <llvm/Support/raw_ostream.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 
 namespace mcld
 {

@@ -11,7 +11,7 @@
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <llvm/Support/ELF.h>
 #include <vector>

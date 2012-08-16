@@ -11,7 +11,7 @@
 #include <mcld/Target/ELFDynamic.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/LD/ELFFileFormat.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;

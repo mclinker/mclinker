@@ -22,7 +22,7 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/RegionFragment.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>

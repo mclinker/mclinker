@@ -19,7 +19,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/FillFragment.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/SymbolCategory.h>

@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/DiagnosticPrinter.h>

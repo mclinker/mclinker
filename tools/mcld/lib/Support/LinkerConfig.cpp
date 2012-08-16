@@ -12,7 +12,7 @@
 
 #include <llvm/Support/Signals.h>
 
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDFile.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>

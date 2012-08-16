@@ -14,7 +14,7 @@
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include "StaticResolverTest.h"
 
 #include <iostream>

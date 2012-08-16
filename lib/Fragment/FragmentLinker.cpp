@@ -16,7 +16,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>

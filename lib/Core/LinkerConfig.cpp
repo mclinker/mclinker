@@ -1,4 +1,4 @@
-//===- MCLDInfo.cpp -------------------------------------------------------===//
+//===- LinkerConfig.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Config/Config.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
@@ -18,8 +18,9 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // MCLDInfo
+//===----------------------------------------------------------------------===//
 MCLDInfo::MCLDInfo(const std::string& pTripleString,
                    size_t pAttrNum,
                    size_t pInputNum)

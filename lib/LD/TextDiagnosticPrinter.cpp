@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <llvm/Support/Signals.h>
 #include <string>
 

@@ -10,7 +10,7 @@
 #define UNIQUE_GCFACTORYBASE_TEST_H
 
 #include <mcld/Support/UniqueGCFactory.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <gtest.h>

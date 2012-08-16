@@ -10,7 +10,7 @@
 #include <llvm/Support/DataTypes.h>
 
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/Diagnostic.h>
 #include <mcld/LD/DiagnosticInfos.h>
 #include <mcld/LD/DiagnosticPrinter.h>

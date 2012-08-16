@@ -9,7 +9,7 @@
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/DynObjReader.h>

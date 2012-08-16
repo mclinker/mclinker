@@ -14,7 +14,7 @@
 #include <llvm/Support/Casting.h>
 
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/FillFragment.h>

@@ -16,7 +16,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/Fragment.h>

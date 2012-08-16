@@ -9,7 +9,7 @@
 #include <mcld/LD/DiagnosticEngine.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 

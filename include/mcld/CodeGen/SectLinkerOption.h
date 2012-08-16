@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/PositionDependentOption.h>
 
 #include <string>

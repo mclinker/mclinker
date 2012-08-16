@@ -18,7 +18,7 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>

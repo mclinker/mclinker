@@ -7,10 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARMTargetMachine.h"
-
-#include "mcld/Support/TargetRegistry.h"
-#include "mcld/MC/MCLDInfo.h"
 #include "ARM.h"
+
+#include <mcld/Support/TargetRegistry.h>
+#include <mcld/LinkerConfig.h>
 
 extern "C" void LLVMInitializeARMLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target

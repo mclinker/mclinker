@@ -21,7 +21,7 @@
 #include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/MC/MCLDInfo.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Support/GCFactory.h>
 
 namespace mcld

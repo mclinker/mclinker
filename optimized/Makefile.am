@@ -166,8 +166,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/InputFactory.cpp \
 	${INCDIR}/MC/MCLDOptions.h \
 	${LIBDIR}/MC/MCLDOptions.cpp \
-	${INCDIR}/MC/MCLDInfo.h \
-	${LIBDIR}/MC/MCLDInfo.cpp \
+	${INCDIR}/LinkerConfig.h \
+	${LIBDIR}/Core/LinkerConfig.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
