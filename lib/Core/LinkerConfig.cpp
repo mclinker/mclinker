@@ -26,7 +26,7 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
                            size_t pInputNum)
   : m_Options(),
     m_Scripts(),
-    m_pBitcode(NULL),
+    m_Bitcode(),
     m_Triple(pTripleString)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
@@ -49,21 +49,10 @@ LinkerConfig::~LinkerConfig()
   delete m_pNamePool;
 }
 
-void LinkerConfig::setBitcode(const Input& pInput)
+void LinkerConfig::setBitcode(const sys::fs::Path& pPath, unsigned int pPosition)
 {
-  m_pBitcode = const_cast<Input*>(&pInput);
-}
-
-Input& LinkerConfig::bitcode()
-{
-  assert((0 != m_pBitcode) && "default bitcode is not set");
-  return *m_pBitcode;
-}
-
-const Input& LinkerConfig::bitcode() const
-{
-  assert((0 != m_pBitcode) && "default bitcode is not set");
-  return *m_pBitcode;
+  m_Bitcode.setPath(pPath);
+  m_Bitcode.setPosition(pPosition);
 }
 
 const char* LinkerConfig::version()

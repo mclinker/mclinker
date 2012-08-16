@@ -265,8 +265,8 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       /** bitcode **/
       case PositionDependentOption::BITCODE: {
 
-        const BitcodeOption *bitcode_option =
-            static_cast<const BitcodeOption*>(*option);
+        const BitCodeOption *bitcode_option =
+            static_cast<const BitCodeOption*>(*option);
 
         // threat bitcode as an external IR in this version.
         config.inputs().insert(root, *move,
@@ -274,7 +274,8 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
                              *(bitcode_option->path()),
                              Input::External);
 
-        config.setBitcode(**root);
+        config.bitcode().setPath(*bitcode_option->path());
+        config.bitcode().setPosition(bitcode_option->position());
 
         // move root on the new created node.
         move->move(root);

@@ -16,6 +16,7 @@
 
 #include <mcld/GeneralOptions.h>
 #include <mcld/ScriptOptions.h>
+#include <mcld/BitcodeOption.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
@@ -51,21 +52,16 @@ public:
 
   virtual ~LinkerConfig();
 
-  GeneralOptions& options()
-  { return m_Options; }
+  const GeneralOptions& options() const { return m_Options; }
+  GeneralOptions&       options()       { return m_Options; }
 
-  const GeneralOptions& options() const
-  { return m_Options; }
+  const ScriptOptions&  scripts() const { return m_Scripts; }
+  ScriptOptions&        scripts()       { return m_Scripts; }
 
-  ScriptOptions& scripts()
-  { return m_Scripts; }
+  const BitcodeOption&  bitcode() const { return m_Bitcode; }
+  BitcodeOption&        bitcode()       { return m_Bitcode; }
 
-  const ScriptOptions& scripts() const
-  { return m_Scripts; }
-
-  void setBitcode(const Input& pInput);
-  Input& bitcode();
-  const Input& bitcode() const;
+  void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
 
   Output& output()
   { return *m_pOutput; }
@@ -117,8 +113,8 @@ private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
   ScriptOptions m_Scripts;
+  BitcodeOption m_Bitcode;
   InputTree *m_pInputTree;
-  Input* m_pBitcode;
   Output* m_pOutput;
   llvm::Triple m_Triple;
 

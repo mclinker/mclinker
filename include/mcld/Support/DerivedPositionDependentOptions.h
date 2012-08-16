@@ -49,9 +49,9 @@ namespace mcld
     inline const std::string &namespec() const { return m_pNamespec; }
   };
 
-  class BitcodeOption : public FileOption {
+  class BitCodeOption : public FileOption {
   public:
-    BitcodeOption(unsigned pPosition, const sys::fs::Path &pPath)
+    BitCodeOption(unsigned pPosition, const sys::fs::Path &pPath)
       : FileOption(pPosition, PositionDependentOption::BITCODE, pPath) { }
   };
 
