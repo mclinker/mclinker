@@ -1,4 +1,4 @@
-//===- MCLDOptions.cpp ----------------------------------------------------===//
+//===- GeneralOptions.cpp -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,13 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/MCLDOptions.h>
+#include <mcld/GeneralOptions.h>
 #include <mcld/MC/MCLDInput.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ScriptOptions
+//===----------------------------------------------------------------------===//
 ScriptOptions::ScriptOptions()
 {
 }
@@ -23,6 +24,7 @@ ScriptOptions::~ScriptOptions()
 
 //===----------------------------------------------------------------------===//
 // GeneralOptions
+//===----------------------------------------------------------------------===//
 GeneralOptions::GeneralOptions()
   : m_pDefaultBitcode(NULL),
     m_Verbose(-1),
