@@ -12,7 +12,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/FileHandle.h>
 #include <mcld/MC/InputTree.h>
-#include <mcld/MC/MCLDDriver.h>
+#include <mcld/Object/ObjectLinker.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileHandle.h>
@@ -45,7 +45,7 @@ SectLinker::SectLinker(SectLinkerOption &pOption,
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
-    m_pLDDriver(NULL),
+    m_pObjLinker(NULL),
     m_pMemAreaFactory(NULL)
 {
   m_pMemAreaFactory = new MemoryAreaFactory(32);
@@ -53,7 +53,7 @@ SectLinker::SectLinker(SectLinkerOption &pOption,
 
 SectLinker::~SectLinker()
 {
-  delete m_pLDDriver;
+  delete m_pObjLinker;
 
   // FIXME: current implementation can not change the order of delete.
   //
@@ -76,8 +76,8 @@ bool SectLinker::doInitialization(Module &pM)
   std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
   initializeInputTree(PosDepOpts);
   initializeInputOutput(info);
-  // Now, all input arguments are prepared well, send it into MCLDDriver
-  m_pLDDriver = new MCLDDriver(info, *m_pLDBackend, *memAreaFactory());
+  // Now, all input arguments are prepared well, send it into ObjectLinker
+  m_pObjLinker = new MCLDDriver(info, *m_pLDBackend, *memAreaFactory());
 
   return false;
 }
@@ -87,15 +87,15 @@ bool SectLinker::doFinalization(Module &pM)
   const MCLDInfo &info = m_pOption->info();
 
   // 2. - initialize FragmentLinker
-  if (!m_pLDDriver->initFragmentLinker())
+  if (!m_pObjLinker->initFragmentLinker())
     return true;
 
   // 3. - initialize output's standard sections
-  if (!m_pLDDriver->initStdSections())
+  if (!m_pObjLinker->initStdSections())
     return true;
 
   // 4. - normalize the input tree
-  m_pLDDriver->normalize();
+  m_pObjLinker->normalize();
 
   if (info.options().trace()) {
     static int counter = 0;
@@ -129,43 +129,43 @@ bool SectLinker::doFinalization(Module &pM)
   }
 
   // 5. - check if we can do static linking and if we use split-stack.
-  if (!m_pLDDriver->linkable())
+  if (!m_pObjLinker->linkable())
     return true;
 
 
   // 6. - merge all sections
-  if (!m_pLDDriver->mergeSections())
+  if (!m_pObjLinker->mergeSections())
     return true;
 
   // 7. - add standard symbols and target-dependent symbols
-  // m_pLDDriver->addUndefSymbols();
-  if (!m_pLDDriver->addStandardSymbols() ||
-      !m_pLDDriver->addTargetSymbols())
+  // m_pObjLinker->addUndefSymbols();
+  if (!m_pObjLinker->addStandardSymbols() ||
+      !m_pObjLinker->addTargetSymbols())
     return true;
 
   // 8. - read all relocation entries from input files
-  m_pLDDriver->readRelocations();
+  m_pObjLinker->readRelocations();
 
   // 9. - pre-layout
-  m_pLDDriver->prelayout();
+  m_pObjLinker->prelayout();
 
   // 10. - linear layout
-  m_pLDDriver->layout();
+  m_pObjLinker->layout();
 
   // 10.b - post-layout (create segment, instruction relaxing)
-  m_pLDDriver->postlayout();
+  m_pObjLinker->postlayout();
 
   // 11. - finalize symbol value
-  m_pLDDriver->finalizeSymbolValue();
+  m_pObjLinker->finalizeSymbolValue();
 
   // 12. - apply relocations
-  m_pLDDriver->relocation();
+  m_pObjLinker->relocation();
 
   // 13. - write out output
-  m_pLDDriver->emitOutput();
+  m_pObjLinker->emitOutput();
 
   // 14. - post processing
-  m_pLDDriver->postProcessing();
+  m_pObjLinker->postProcessing();
   return false;
 }
 

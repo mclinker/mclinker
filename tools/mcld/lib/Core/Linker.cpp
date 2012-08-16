@@ -14,7 +14,7 @@
 
 #include <llvm/Support/ELF.h>
 
-#include <mcld/MC/MCLDDriver.h>
+#include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/MC/InputTree.h>

@@ -149,8 +149,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86ELFSectLinker.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
-	${INCDIR}/MC/MCLDDriver.h \
-	${LIBDIR}/MC/MCLDDriver.cpp \
+	${INCDIR}/Object/ObjectLinker.h \
+	${LIBDIR}/Object/ObjectLinker.cpp \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \

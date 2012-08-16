@@ -1,4 +1,4 @@
-//===- MCLDDriver.cpp -----------------------------------------------------===//
+//===- ObjectLinker.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/MC/MCLDDriver.h>
 #include <mcld/MC/MCLDInfo.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>

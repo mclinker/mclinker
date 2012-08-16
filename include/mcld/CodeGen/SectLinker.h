@@ -41,13 +41,13 @@ class MemoryAreaFactory;
 *
 *  SectLinker is responded for
 *  - provide an interface for target-specific SectLinekr
-*  - set up environment for MCLDDriver
+*  - set up environment for ObjectLinker
 *  - control AsmPrinter, make sure AsmPrinter has already prepared
 *    all SectionDatas for linking
 *
 *  SectLinker resolves the absolue paths of input arguments.
 *
-*  @see MachineFunctionPass MCLDDriver
+*  @see MachineFunctionPass ObjectLinker
 */
 class SectLinker : public llvm::MachineFunctionPass
 {
@@ -91,7 +91,7 @@ private:
 
 protected:
   TargetLDBackend *m_pLDBackend;
-  MCLDDriver *m_pLDDriver;
+  MCLDDriver* m_pObjLinker;
   MemoryAreaFactory *m_pMemAreaFactory;
 
 private:

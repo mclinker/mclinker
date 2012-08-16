@@ -14,7 +14,7 @@
 #include <string>
 #include <list>
 
-#include <mcld/MC/MCLDDriver.h>
+#include <mcld/Object/ObjectLinker.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
