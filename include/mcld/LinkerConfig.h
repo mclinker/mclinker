@@ -15,6 +15,7 @@
 #include <llvm/ADT/Triple.h>
 
 #include <mcld/GeneralOptions.h>
+#include <mcld/ScriptOptions.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>

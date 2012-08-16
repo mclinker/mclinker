@@ -1,4 +1,4 @@
-//===- MCLDOptions.h ------------------------------------------------------===//
+//===- GeneralOptions.h ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,47 +6,20 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_OPTIONS_H
-#define MCLD_OPTIONS_H
+#ifndef MCLD_GENERAL_OPTIONS_H
+#define MCLD_GENERAL_OPTIONS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <string>
-#include <llvm/ADT/StringRef.h>
-#include <mcld/ADT/StringEntry.h>
-#include <mcld/ADT/HashTable.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/SearchDirs.h>
 #include <mcld/MC/ZOption.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class Input;
-
-/** \class ScriptOptions
- *
- */
-class ScriptOptions
-{
-public:
-  typedef HashTable<StringEntry<llvm::StringRef>,
-                    StringHash<ELF>,
-                    StringEntryFactory<llvm::StringRef> > SymbolRenameMap;
-
-public:
-  ScriptOptions();
-  ~ScriptOptions();
-
-  SymbolRenameMap& renameMap()
-  { return m_SymbolRenames; }
-
-  const SymbolRenameMap& renameMap() const
-  { return m_SymbolRenames; }
-
-private:
-  SymbolRenameMap m_SymbolRenames;
-};
 
 /** \class GeneralOptions
  *  \brief GeneralOptions collects the options that not be one of the
