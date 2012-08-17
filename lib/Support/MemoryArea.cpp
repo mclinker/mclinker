@@ -6,8 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/Space.h>
+#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>

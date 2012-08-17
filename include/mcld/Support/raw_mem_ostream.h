@@ -14,10 +14,10 @@
 #include <string>
 
 #include <llvm/Support/raw_ostream.h>
-#include <mcld/Support/MemoryArea.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class MemoryArea;
 
 class raw_mem_ostream : public llvm::raw_ostream
 {

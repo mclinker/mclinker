@@ -27,6 +27,7 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/RegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 

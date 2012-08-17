@@ -14,6 +14,7 @@
 #include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/Support/FileHandle.h>
 
 #include <sstream>
 #include <iostream>

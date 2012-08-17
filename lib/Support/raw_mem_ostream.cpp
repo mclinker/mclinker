@@ -9,6 +9,7 @@
 #include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/FileHandle.h>
 
 using namespace mcld;
 

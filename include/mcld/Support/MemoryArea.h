@@ -12,15 +12,8 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/ilist.h>
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/Support/Path.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/FileHandle.h>
-#include <mcld/Support/Space.h>
-#include <fcntl.h>
-#include <string>
-#include <list>
-
 
 #if defined(ENABLE_UNITTEST)
 namespace mcldtest
@@ -29,9 +22,10 @@ namespace mcldtest
 } // namespace of mcldtest
 #endif
 
-namespace mcld
-{
+namespace mcld {
 
+class Space;
+class FileHandle;
 class MemoryRegion;
 
 /** \class MemoryArea
