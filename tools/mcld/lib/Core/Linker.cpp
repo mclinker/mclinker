@@ -94,8 +94,12 @@ Linker::Linker(const LinkerConfig& pConfig)
 
 Linker::~Linker() {
   delete mModule;
-  delete mBackend;
   delete mObjLinker;
+  // FIXME: current implementation can not change the order of deleting
+  // ObjectLinker and TargetLDBackend. Because the deletion of relocation list
+  // in FragmentLinker (FragmentLinker is deleted by ObjectLinker) depends on
+  // RelocationFactory in TargetLDBackend
+  delete mBackend;
   delete mMemAreaFactory;
   delete mRoot;
 }

@@ -61,8 +61,11 @@ MCLinker::~MCLinker()
 {
   delete m_pObjLinker;
 
-  // FIXME: current implementation can not change the order of delete.
-  //
+  // FIXME: current implementation can not change the order of deleting
+  // ObjectLinker and TargetLDBackend. Because the deletion of relocation list
+  // in FragmentLinker (FragmentLinker is deleted by ObjectLinker) depends on
+  // RelocationFactory in TargetLDBackend
+
   // Instance of TargetLDBackend was created outside and is not managed by
   // MCLinker. It should not be destroyed here and by MCLinker. However, in
   // order to follow the LLVM convention - that is, the pass manages all the
