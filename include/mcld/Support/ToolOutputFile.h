@@ -13,9 +13,14 @@
 #endif
 
 #include <string>
-#include <mcld/Support/raw_mem_ostream.h>
+#include <mcld/Support/FileHandle.h>
 
 namespace mcld {
+
+class Path;
+class FileHandle;
+class MemoryArea;
+class raw_mem_ostream;
 
 /** \class ToolOutputFile
  *  \brief ToolOutputFile contains a raw_mem_ostream and adds extra new
@@ -27,13 +32,17 @@ namespace mcld {
 class ToolOutputFile
 {
 public:
-  ToolOutputFile(MemoryArea& pOutputFile);
+  ToolOutputFile(const sys::fs::Path& pPath,
+                 FileHandle::OpenMode pMode,
+                 FileHandle::Permission pPermission);
+
+  ~ToolOutputFile();
 
   /// os - Return the contained raw_mem_ostream.
-  raw_mem_ostream &os() { return m_OStream; }
+  raw_mem_ostream &os();
 
   /// memory - Return the contained MemoryArea.
-  MemoryArea& memory() { return m_OStream.getMemoryArea(); }
+  MemoryArea& memory();
 
   /// keep - Indicate that the tool's job wrt this output file has been
   /// successful and the file should not be deleted.
@@ -55,8 +64,11 @@ private:
   }; 
 
 private:
-  raw_mem_ostream m_OStream;
-  CleanupInstaller* m_pInstaller;
+  FileHandle m_FileHandle;
+  CleanupInstaller m_Installer;
+  MemoryArea* m_pMemoryArea;
+  raw_mem_ostream* m_pOStream;
+
 };
 
 } // namespace of mcld
