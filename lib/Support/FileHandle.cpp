@@ -39,18 +39,18 @@ inline static int oflag(FileHandle::OpenMode pMode)
 
   if (FileHandle::ReadWrite == (pMode & FileHandle::ReadWrite))
     result |= O_RDWR;
-  else if (pMode & FileHandle::ReadOnly)
+  else if (FileHandle::ReadOnly == (pMode & FileHandle::ReadOnly))
     result |= O_RDONLY;
-  else if (pMode & FileHandle::WriteOnly)
+  else if (FileHandle::WriteOnly == (pMode & FileHandle::WriteOnly))
     result |= O_WRONLY;
 
-  if (pMode & FileHandle::Append)
+  if (FileHandle::Append == (pMode & FileHandle::Append))
     result |= O_APPEND;
 
-  if (pMode & FileHandle::Create)
+  if (FileHandle::Create == (pMode & FileHandle::Create))
     result |= O_CREAT;
 
-  if (pMode & FileHandle::Truncate)
+  if (FileHandle::Truncate == (pMode & FileHandle::Truncate))
     result |= O_TRUNC;
 
   return result;

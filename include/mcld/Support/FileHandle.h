@@ -13,6 +13,8 @@
 #endif
 #include <mcld/Support/Path.h>
 #include <mcld/ADT/Flags.h>
+
+#include <sys/stat.h>
 #include <errno.h>
 
 namespace mcld
@@ -53,16 +55,16 @@ public:
 
   enum PermissionEnum
   {
-    ReadOwner   = 0x0400,
-    WriteOwner  = 0x0200,
-    ExeOwner    = 0x0100,
-    ReadGroup   = 0x0040,
-    WriteGroup  = 0x0020,
-    ExeGroup    = 0x0010,
-    ReadOther   = 0x0004,
-    WriteOther  = 0x0002,
-    ExeOther    = 0x0001,
-    System      = 0xFFFF
+    ReadOwner   = S_IRUSR,
+    WriteOwner  = S_IWUSR,
+    ExeOwner    = S_IXUSR,
+    ReadGroup   = S_IRGRP,
+    WriteGroup  = S_IWGRP,
+    ExeGroup    = S_IXGRP,
+    ReadOther   = S_IROTH,
+    WriteOther  = S_IWOTH,
+    ExeOther    = S_IXOTH,
+    System      = 0xFFFFFFFF
   };
 
   typedef Flags<PermissionEnum> Permission;
