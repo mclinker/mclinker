@@ -18,7 +18,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 raw_mem_ostream::raw_mem_ostream(MemoryArea &pMemoryArea)
   : m_MemoryArea(pMemoryArea), m_Position(0) {
-  if (NULL != m_MemoryArea.handler() &&
+  if (NULL == m_MemoryArea.handler() ||
       !(m_MemoryArea.handler()->isGood() &&
         m_MemoryArea.handler()->isWritable())) {
     fatal(diag::fatal_unwritable_output) << m_MemoryArea.handler()->path();
