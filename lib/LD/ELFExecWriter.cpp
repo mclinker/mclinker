@@ -15,6 +15,8 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/Support/MemoryArea.h>
+
 #include <llvm/Support/ELF.h>
 #include <vector>
 
@@ -37,22 +39,26 @@ ELFExecWriter::~ELFExecWriter()
 {
 }
 
-llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput, Module& pModule)
+llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput,
+                                                Module& pModule,
+                                                MemoryArea& pOut)
 {
   // write out the interpreter section: .interp
-  target().emitInterp(pOutput, m_Linker.getLDInfo());
+  target().emitInterp(pOutput, m_Linker.getLDInfo(), pOut);
 
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pOutput,
                             m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
-                            m_Linker.getLDInfo());
+                            m_Linker.getLDInfo(),
+                            pOut);
 
   // Write out name pool sections: .symtab, .strtab
   target().emitRegNamePools(pOutput,
                             m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
-                            m_Linker.getLDInfo());
+                            m_Linker.getLDInfo(),
+                            pOut);
 
   // Write out regular ELF sections
   unsigned int secIdx = 0;
@@ -68,7 +74,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput, Module& pModule
       case LDFileFormat::Debug:
       case LDFileFormat::GCCExceptTable:
       case LDFileFormat::EhFrame: {
-        region = pOutput.memArea()->request(sect->offset(), sect->size());
+        region = pOut.request(sect->offset(), sect->size());
         if (NULL == region) {
           llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section[") +
                                    llvm::Twine(secIdx) +
@@ -126,37 +132,39 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput, Module& pModule
   if (32 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF32ShStrTab(pOutput, m_Linker);
+    emitELF32ShStrTab(pOutput, m_Linker, pOut);
 
     writeELF32Header(m_Linker.getLDInfo(),
                      target(),
                      pModule,
                      m_Linker.getLayout(),
-                     pOutput);
+                     pOutput,
+                     pOut);
 
-    emitELF32ProgramHeader(pOutput, target());
+    emitELF32ProgramHeader(pOutput, target(), pOut);
 
-    emitELF32SectionHeader(pOutput, m_Linker);
+    emitELF32SectionHeader(pOutput, m_Linker, pOut);
   }
   else if (64 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF64ShStrTab(pOutput, m_Linker);
+    emitELF64ShStrTab(pOutput, m_Linker, pOut);
 
     writeELF64Header(m_Linker.getLDInfo(),
                      target(),
                      pModule,
                      m_Linker.getLayout(),
-                     pOutput);
+                     pOutput,
+                     pOut);
 
-    emitELF64ProgramHeader(pOutput, target());
+    emitELF64ProgramHeader(pOutput, target(), pOut);
 
-    emitELF64SectionHeader(pOutput, m_Linker);
+    emitELF64SectionHeader(pOutput, m_Linker, pOut);
   }
   else
     return make_error_code(errc::not_supported);
 
-  pOutput.memArea()->clear();
+  pOut.clear();
   return llvm::make_error_code(llvm::errc::success);
 }
 

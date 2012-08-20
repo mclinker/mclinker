@@ -13,8 +13,12 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/raw_mem_ostream.h>
 
+#include <mcld/Support/SystemUtils.h>
+#include <mcld/Support/MsgHandling.h>
+
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/Path.h>
+#include <llvm/Support/FormattedStream.h>
 
 using namespace mcld;
 
@@ -48,10 +52,15 @@ ToolOutputFile::ToolOutputFile(const sys::fs::Path& pPath,
                                FileHandle::Permission pPermission)
   : m_Installer(pPath.native()),
     m_pMemoryArea(NULL),
-    m_pOStream(NULL) {
+    m_pOStream(NULL),
+    m_pFOStream(NULL) {
 
   if (!m_FileHandle.open(pPath, pMode, pPermission)) {
+    // If open fails, no clean-up is needed.
     m_Installer.Keep = true;
+    fatal(diag::err_cannot_open_output_file)
+                                   << pPath
+                                   << sys::strerror(m_FileHandle.error());
     return;
   }
 
@@ -61,8 +70,9 @@ ToolOutputFile::ToolOutputFile(const sys::fs::Path& pPath,
 
 ToolOutputFile::~ToolOutputFile()
 {
-  delete m_pMemoryArea;
+  delete m_pFOStream;
   delete m_pOStream;
+  delete m_pMemoryArea;
 }
 
 void ToolOutputFile::keep()
@@ -70,11 +80,23 @@ void ToolOutputFile::keep()
   m_Installer.Keep = true;
 }
 
-/// os - Return the contained raw_mem_ostream.
-raw_mem_ostream& ToolOutputFile::os()
+/// mem_os - Return the contained raw_mem_ostream.
+raw_mem_ostream& ToolOutputFile::mem_os()
 {
   assert(NULL != m_pOStream);
   return *m_pOStream;
+}
+
+/// formatted_os - Return the containeed formatted_raw_ostream.
+/// Since formatted_os is rarely used, we lazily initialize it.
+llvm::formatted_raw_ostream& ToolOutputFile::formatted_os()
+{
+  if (NULL == m_pFOStream) {
+    assert(NULL != m_pOStream);
+    m_pFOStream = new llvm::formatted_raw_ostream(*m_pOStream);
+  }
+
+  return *m_pFOStream;
 }
 
 /// memory - Return the contained MemoryArea.

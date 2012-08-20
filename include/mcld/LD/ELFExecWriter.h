@@ -25,6 +25,7 @@
 namespace mcld {
 
 class Module;
+class MemoryArea;
 class GNULDBackend;
 class FragmentLinker;
 
@@ -40,7 +41,9 @@ public:
   ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
   ~ELFExecWriter();
 
-  llvm::error_code writeExecutable(Output& pOutput, Module& pModule);
+  llvm::error_code writeExecutable(Output& pOutput,
+                                   Module& pModule,
+                                   MemoryArea& pOut);
 
 private:
   GNULDBackend& m_Backend;

@@ -303,9 +303,9 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                                         SymbolCategory& pSymbols,
                                         const Layout& pLayout,
-                                        const LinkerConfig& pConfig)
+                                        const LinkerConfig& pConfig,
+                                        MemoryArea& pOut)
 {
-  assert(pOutput.hasMemArea());
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   LDSection& symtab_sect = file_format->getDynSymTab();
@@ -313,14 +313,11 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& hash_sect   = file_format->getHashTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
-  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
-                                                           symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
-                                                           strtab_sect.size());
-  MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
-                                                         hash_sect.size());
-  MemoryRegion* dyn_region = pOutput.memArea()->request(dyn_sect.offset(),
-                                                        dyn_sect.size());
+  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(), symtab_sect.size());
+  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(), strtab_sect.size());
+  MemoryRegion* hash_region = pOut.request(hash_sect.offset(), hash_sect.size());
+  MemoryRegion* dyn_region = pOut.request(dyn_sect.offset(), dyn_sect.size());
+
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();

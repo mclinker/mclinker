@@ -10,27 +10,23 @@
 // MCLDFile represents a file, the content of the file is stored in LDContext.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_LD_FILE_H
 #define MCLD_LD_FILE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/LD/LDContext.h"
-#include "mcld/Support/Path.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/GCFactory.h"
-#include "mcld/Support/MemoryArea.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/LD/LDContext.h>
+#include <mcld/Support/Path.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/GCFactory.h>
 #include <llvm/ADT/StringRef.h>
 #include <string>
 #include <sys/stat.h>
 
 
-namespace mcld
-{
-class MemoryArea;
+namespace mcld {
 
 /** \class MCLDFile
  *  \brief MCLDFile represents the file being linked or produced.
@@ -73,11 +69,6 @@ public:
   void setPath(const sys::fs::Path& pPath)
   { m_Path = pPath; }
 
-  void setMemArea(MemoryArea* pMemArea)
-  {
-    m_pMemArea = pMemArea;
-  }
-
   /// setSOName - set the name of the shared object.
   /// In ELF, this will be written in DT_SONAME
   void setSOName(const std::string& pName);
@@ -101,21 +92,11 @@ public:
   const LDContext* context() const
   { return m_pContext; }
 
-  bool hasMemArea() const
-  { return (0 != m_pMemArea); }
-
-  MemoryArea* memArea()
-  { return m_pMemArea; }
-
-  const MemoryArea* memArea() const
-  { return m_pMemArea; }
-
 protected:
   unsigned int m_Type;
   LDContext *m_pContext;
   sys::fs::Path m_Path;
   std::string m_Name;
-  MemoryArea* m_pMemArea;
 };
 
 /** \class MCLDFileFactory

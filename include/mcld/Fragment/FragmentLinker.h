@@ -46,6 +46,7 @@ class SectionMap;
 class Output;
 class EhFrame;
 class EhFrameHdr;
+class MemoryArea;
 
 /** \class FragmentLinker
  *  \brief FragmentLinker provides a pass to link object files.
@@ -161,7 +162,7 @@ public:
 
   /// syncRelocationResult - After applying relocation, write back relocation target
   /// data to output file.
-  void syncRelocationResult();
+  void syncRelocationResult(MemoryArea& pOutput);
 
   // -----  layout  ----- //
   void initSectionMap();

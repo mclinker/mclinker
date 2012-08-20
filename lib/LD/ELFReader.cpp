@@ -14,6 +14,7 @@
 
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/ELFReader.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>

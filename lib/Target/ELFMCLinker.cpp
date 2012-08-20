@@ -16,8 +16,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ELFMCLinker::ELFMCLinker(SectLinkerOption &pOption,
                          TargetLDBackend &pLDBackend,
-                         mcld::Module& pModule)
-  : MCLinker(pOption, pLDBackend, pModule) {
+                         mcld::Module& pModule,
+                         MemoryArea& pOutput)
+  : MCLinker(pOption, pLDBackend, pModule, pOutput) {
 }
 
 ELFMCLinker::~ELFMCLinker()

@@ -49,7 +49,7 @@ public:
 
   /// emitOutput - write out eh_frame_hdr
   template<size_t size>
-  void emitOutput(Output& pOutput, FragmentLinker& pLinker);
+  void emitOutput(FragmentLinker& pLinker, MemoryArea& pOutput);
 
 private:
   /// getFDEPC - return the address of FDE's pc

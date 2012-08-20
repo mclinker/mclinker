@@ -14,14 +14,13 @@ using namespace llvm::dwarf;
 
 /// emitOutput - write out eh_frame_hdr
 template<size_t size>
-void EhFrameHdr::emitOutput(Output& pOutput, FragmentLinker& pLinker)
+void EhFrameHdr::emitOutput(FragmentLinker& pLinker, MemoryArea& pOutput)
 {
   MemoryRegion* ehframe_region =
-    pOutput.memArea()->request(m_EhFrameSect.offset(), m_EhFrameSect.size());
+    pOutput.request(m_EhFrameSect.offset(), m_EhFrameSect.size());
 
   MemoryRegion* ehframehdr_region =
-    pOutput.memArea()->request(m_EhFrameHdrSect.offset(),
-                               m_EhFrameHdrSect.size());
+    pOutput.request(m_EhFrameHdrSect.offset(), m_EhFrameHdrSect.size());
 
   uint8_t* data = (uint8_t*)ehframehdr_region->start();
   // version
@@ -77,8 +76,8 @@ void EhFrameHdr::emitOutput(Output& pOutput, FragmentLinker& pLinker)
     data[3] = DW_EH_PE_omit;
   }
 
-  pOutput.memArea()->release(ehframe_region);
-  pOutput.memArea()->release(ehframehdr_region);
+  pOutput.release(ehframe_region);
+  pOutput.release(ehframehdr_region);
 }
 
 /// getFDEPC - return the address of FDE's pc

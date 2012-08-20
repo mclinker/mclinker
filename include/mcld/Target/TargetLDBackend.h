@@ -10,8 +10,6 @@
 #define LLVM_TARGET_TARGETLDBACKEND_H
 
 #include <llvm/Support/DataTypes.h>
-#include <mcld/MC/MCLDOutput.h>
-#include <mcld/LD/EhFrame.h>
 
 namespace mcld {
 
@@ -27,14 +25,18 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class LDContext;
+class LDFileFormat;
+class LDSymbol;
+class LDSection;
 class SectionMap;
 class Output;
 class LinkerConfig;
 class SymbolCategory;
 class Input;
-class LDFileFormat;
 class GOT;
+class MemoryArea;
 class MemoryAreaFactory;
+class EhFrame;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -109,9 +111,9 @@ public:
                           FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  virtual void postProcessing(const Output& pOutput,
-                              const LinkerConfig& pConfig,
-                              FragmentLinker& pLinker) = 0;
+  virtual void postProcessing(const LinkerConfig& pConfig,
+                              FragmentLinker& pLinker,
+                              MemoryArea& pOutput) = 0;
 
   /// Is the target machine little endian? **/
   virtual bool isLittleEndian() const = 0;

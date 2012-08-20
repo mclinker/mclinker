@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MIPS_LDBACKEND_H
 #define MIPS_LDBACKEND_H
-#include "mcld/Target/GNULDBackend.h"
+#include <mcld/Target/GNULDBackend.h>
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
 
@@ -17,6 +17,7 @@ namespace mcld {
 class FragmentLinker;
 class OutputRelocSection;
 class SectionMap;
+class MemoryArea;
 
 //===----------------------------------------------------------------------===//
 /// MipsGNULDBackend - linker backend of Mips target of GNU ELF format
@@ -126,7 +127,8 @@ public:
   virtual void emitDynNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const LinkerConfig& pConfig);
+                                const LinkerConfig& pConfig,
+                                MemoryArea& pOut);
 
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;

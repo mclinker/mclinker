@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/Layout.h>
 

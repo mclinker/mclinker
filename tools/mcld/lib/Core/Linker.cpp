@@ -74,12 +74,12 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 //===----------------------------------------------------------------------===//
 Linker::Linker()
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mShared(false) {
+    mLDConfig(NULL), mRoot(NULL), mShared(false), mOutput(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mShared(false) {
+    mLDConfig(NULL), mRoot(NULL), mShared(false), mOutput(NULL) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -303,14 +303,14 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
 
   mcld::FileHandle::Permission perm = 0755;
 
-  mcld::MemoryArea* out_area = mMemAreaFactory->produce(
+  mOutput = mMemAreaFactory->produce(
                       pPath,
                       mcld::FileHandle::ReadWrite |
                         mcld::FileHandle::Truncate |
                         mcld::FileHandle::Create,
                       perm);
 
-  if (!out_area->handler()->isGood()) {
+  if (!mOutput->handler()->isGood()) {
     return kOpenOutput;
   }
 
@@ -321,7 +321,6 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
   }
 
   mLDConfig->output().setSOName(mSOName);
-  mLDConfig->output().setMemArea(out_area);
   mLDConfig->output().setContext(mLDConfig->contextFactory().produce(pPath));
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
@@ -342,10 +341,9 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
   }
 
   // -----  initialize output file  ----- //
-  mcld::MemoryArea* out_area = mMemAreaFactory->produce(pFileHandler);
+  mOutput = mMemAreaFactory->produce(pFileHandler);
 
   mLDConfig->output().setType(mcld::Output::DynObj);
-  mLDConfig->output().setMemArea(out_area);
   mLDConfig->output().setContext(mLDConfig->contextFactory().produce());
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
@@ -361,6 +359,9 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
 }
 
 enum Linker::ErrorCode Linker::link() {
+  if (NULL == mOutput)
+    return kNotSetUpOutput;
+
   mObjLinker->normalize();
 
   if (!mObjLinker->mergeSections()) {
@@ -377,8 +378,8 @@ enum Linker::ErrorCode Linker::link() {
   mObjLinker->postlayout();
   mObjLinker->finalizeSymbolValue();
   mObjLinker->relocation();
-  mObjLinker->emitOutput();
-  mObjLinker->postProcessing();
+  mObjLinker->emitOutput(*mOutput);
+  mObjLinker->postProcessing(*mOutput);
 
   return kSuccess;
 }

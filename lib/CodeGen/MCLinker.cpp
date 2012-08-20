@@ -20,6 +20,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -46,11 +47,13 @@ static bool CompareOption(const PositionDependentOption* X,
 //===----------------------------------------------------------------------===//
 MCLinker::MCLinker(SectLinkerOption &pOption,
                    TargetLDBackend& pLDBackend,
-                   mcld::Module& pModule)
+                   mcld::Module& pModule,
+                   MemoryArea& pOutput)
   : MachineFunctionPass(m_ID),
     m_pOption(&pOption),
     m_pLDBackend(&pLDBackend),
     m_Module(pModule),
+    m_Output(pOutput),
     m_pObjLinker(NULL),
     m_pMemAreaFactory(NULL)
 {
@@ -174,10 +177,10 @@ bool MCLinker::doFinalization(llvm::Module &pM)
   m_pObjLinker->relocation();
 
   // 13. - write out output
-  m_pObjLinker->emitOutput();
+  m_pObjLinker->emitOutput(m_Output);
 
   // 14. - post processing
-  m_pObjLinker->postProcessing();
+  m_pObjLinker->postProcessing(m_Output);
   return false;
 }
 
@@ -190,23 +193,6 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
 void MCLinker::initializeInputOutput(LinkerConfig &pConfig)
 {
   // -----  initialize output file  ----- //
-  FileHandle::Permission perm;
-  if (Output::Object == pConfig.output().type())
-    perm = 0544;
-  else
-    perm = 0755;
-
-  MemoryArea* out_area = memAreaFactory()->produce(pConfig.output().path(),
-                                                 FileHandle::ReadWrite,
-                                                 perm);
-
-  if (!out_area->handler()->isGood()) {
-    // make sure output is openend successfully.
-    fatal(diag::err_cannot_open_output_file) << pConfig.output().name()
-                                             << pConfig.output().path();
-  }
-
-  pConfig.output().setMemArea(out_area);
   pConfig.output().setContext(pConfig.contextFactory().produce());
 
   // -----  initialize input files  ----- //

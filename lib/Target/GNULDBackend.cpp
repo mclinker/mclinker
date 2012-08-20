@@ -19,6 +19,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/FillFragment.h>
+#include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
@@ -794,10 +795,9 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 void GNULDBackend::emitRegNamePools(Output& pOutput,
                                     SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    const LinkerConfig& pConfig)
+                                    const LinkerConfig& pConfig,
+                                    MemoryArea& pOut)
 {
-
-  assert(pOutput.hasMemArea());
 
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;
@@ -815,9 +815,9 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   LDSection& symtab_sect = file_format->getSymTab();
   LDSection& strtab_sect = file_format->getStrTab();
 
-  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
+  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(),
                                                            symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
+  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(),
                                                            strtab_sect.size());
 
   // set up symtab_region
@@ -901,9 +901,9 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
 void GNULDBackend::emitDynNamePools(Output& pOutput,
                                     SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    const LinkerConfig& pConfig)
+                                    const LinkerConfig& pConfig,
+                                    MemoryArea& pOut)
 {
-  assert(pOutput.hasMemArea());
   ELFFileFormat* file_format = getOutputFormat(pOutput);
 
   bool sym_exist = false;
@@ -914,13 +914,13 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& hash_sect   = file_format->getHashTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
-  MemoryRegion* symtab_region = pOutput.memArea()->request(symtab_sect.offset(),
+  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(),
                                                            symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.memArea()->request(strtab_sect.offset(),
+  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(),
                                                            strtab_sect.size());
-  MemoryRegion* hash_region = pOutput.memArea()->request(hash_sect.offset(),
+  MemoryRegion* hash_region = pOut.request(hash_sect.offset(),
                                                          hash_sect.size());
-  MemoryRegion* dyn_region = pOutput.memArea()->request(dyn_sect.offset(),
+  MemoryRegion* dyn_region = pOut.request(dyn_sect.offset(),
                                                         dyn_sect.size());
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
@@ -1094,15 +1094,13 @@ void GNULDBackend::sizeInterp(const Output& pOutput, const LinkerConfig& pConfig
 }
 
 /// emitInterp - emit the .interp
-void GNULDBackend::emitInterp(Output& pOutput, const LinkerConfig& pConfig)
+void GNULDBackend::emitInterp(Output& pOutput, const LinkerConfig& pConfig, MemoryArea& pOut)
 {
   assert(pOutput.type() == Output::Exec &&
-         getExecFileFormat()->hasInterp() &&
-         pOutput.hasMemArea());
+         getExecFileFormat()->hasInterp());
 
   const LDSection& interp = getExecFileFormat()->getInterp();
-  MemoryRegion *region = pOutput.memArea()->request(
-                                              interp.offset(), interp.size());
+  MemoryRegion *region = pOut.request(interp.offset(), interp.size());
   const char* dyld_name;
   if (pConfig.options().hasDyld())
     dyld_name = pConfig.options().dyld().c_str();
@@ -1627,15 +1625,14 @@ void GNULDBackend::postLayout(const Output& pOutput,
   doPostLayout(pOutput, pConfig, pLinker);
 }
 
-void GNULDBackend::postProcessing(const Output& pOutput,
-                                  const LinkerConfig& pConfig,
-                                  FragmentLinker& pLinker)
+void GNULDBackend::postProcessing(const LinkerConfig& pConfig,
+                                  FragmentLinker& pLinker,
+                                  MemoryArea& pOutput)
 {
   if (pConfig.options().hasEhFrameHdr()) {
     // emit eh_frame_hdr
     if (bitclass() == 32)
-      m_pEhFrameHdr->emitOutput<32>(pLinker.getLDInfo().output(),
-                                    pLinker);
+      m_pEhFrameHdr->emitOutput<32>(pLinker, pOutput);
   }
 }
 

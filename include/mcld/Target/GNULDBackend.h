@@ -15,7 +15,6 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
-#include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
@@ -52,6 +51,7 @@ class Module;
 class LinkerConfig;
 class Layout;
 class SymbolCategory;
+class EhFrameHdr;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -192,20 +192,22 @@ public:
   virtual void emitRegNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const LinkerConfig& pConfig);
+                                const LinkerConfig& pConfig,
+                                MemoryArea& pOut);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const LinkerConfig& pConfig);
+                                const LinkerConfig& pConfig,
+                                MemoryArea& pOut);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp(const Output& pOutput, const LinkerConfig& pConfig);
 
   /// emitInterp - emit the .interp
-  virtual void emitInterp(Output& pOutput, const LinkerConfig& pConfig);
+  virtual void emitInterp(Output& pOutput, const LinkerConfig& pConfig, MemoryArea& pOut);
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
@@ -366,9 +368,9 @@ private:
                           FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  void postProcessing(const Output& pOutput,
-                      const LinkerConfig& pConfig,
-                      FragmentLinker& pLinker);
+  void postProcessing(const LinkerConfig& pConfig,
+                      FragmentLinker& pLinker,
+                      MemoryArea& pOutput);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;

@@ -12,8 +12,11 @@
 #include <mcld/CodeGen/MCLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 #include <mcld/MC/MCLDFile.h>
+#include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Support/ToolOutputFile.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/ADT/OwningPtr.h>
@@ -38,7 +41,6 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/FormattedStream.h>
-#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetInstrInfo.h>
 #include <llvm/Target/TargetLowering.h>
@@ -185,8 +187,7 @@ static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
 }
 
 bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
-                                             formatted_raw_ostream &Out,
-                                             const std::string& pOutputFilename,
+                                             mcld::ToolOutputFile& pOutput,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
                                              mcld::Module& pModule,
@@ -212,8 +213,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
       Context->setAllowTemporaryLabels(false);
 
     if (addCompilerPasses(pPM,
-                          Out,
-                          pOutputFilename,
+                          pOutput.formatted_os(),
                           Context))
       return true;
 
@@ -226,8 +226,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (getTM().hasMCSaveTempLabels())
       Context->setAllowTemporaryLabels(false);
     if (addAssemblerPasses(pPM,
-                           Out,
-                           pOutputFilename,
+                           pOutput.mem_os(),
                            Context))
       return true;
 
@@ -240,8 +239,8 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
-                        pOutputFilename,
                         pModule,
+                        pOutput.memory(),
                         MCLDFile::Exec,
                         Context))
       return true;
@@ -253,8 +252,8 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
-                        pOutputFilename,
                         pModule,
+                        pOutput.memory(),
                         MCLDFile::DynObj,
                         Context))
       return true;
@@ -265,8 +264,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
-                                                formatted_raw_ostream &Out,
-                                                const std::string& pOutputFilename,
+                                                llvm::formatted_raw_ostream &pOutput,
                                                 llvm::MCContext *&Context)
 {
   const MCAsmInfo &MAI = *getTM().getMCAsmInfo();
@@ -289,7 +287,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 
   // now, we have MCCodeEmitter and MCAsmBackend, we can create AsmStreamer.
   OwningPtr<MCStreamer> AsmStreamer(
-    getTarget().get()->createAsmStreamer(*Context, Out,
+    getTarget().get()->createAsmStreamer(*Context, pOutput,
                                          getVerboseAsm(),
                                          getTM().hasMCUseLoc(),
                                          getTM().hasMCUseCFI(),
@@ -310,8 +308,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
-                                                 formatted_raw_ostream &Out,
-                                                 const std::string& pOutputFilename,
+                                                 llvm::raw_ostream &pOutput,
                                                  llvm::MCContext *&Context)
 {
   // MCCodeEmitter
@@ -331,7 +328,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                               m_Triple,
                                                               *Context,
                                                               *MAB,
-                                                              Out,
+                                                              pOutput,
                                                               MCE,
                                                               getTM().hasMCRelaxAll(),
                                                               getTM().hasMCNoExecStack()));
@@ -348,13 +345,16 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               SectLinkerOption *pLinkerOpt,
-                                              const std::string &pOutputFilename,
                                               mcld::Module& pModule,
+                                              mcld::MemoryArea& pOutput,
                                               MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
   TargetLDBackend* ldBackend = getTarget().createLDBackend(m_Triple);
-  if (0 == ldBackend)
+  if (NULL == ldBackend)
+    return true;
+
+  if (NULL == pOutput.handler())
     return true;
 
   // set up output's SOName
@@ -362,17 +362,18 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
       pLinkerOpt->config().output().name().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name.
-    pLinkerOpt->config().output().setSOName(pOutputFilename);
+    pLinkerOpt->config().output().setSOName(pOutput.handler()->path().native());
   }
 
-  pLinkerOpt->config().output().setPath(sys::fs::RealPath(pOutputFilename));
+  pLinkerOpt->config().output().setPath(sys::fs::RealPath(pOutput.handler()->path()));
   pLinkerOpt->config().output().setType(pOutputLinkType);
 
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
                                                              *pLinkerOpt,
                                                              *ldBackend,
-                                                             pModule);
-  if (0 == funcPass)
+                                                             pModule,
+                                                             pOutput);
+  if (NULL == funcPass)
     return true;
 
   pPM.add(funcPass);

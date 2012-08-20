@@ -24,6 +24,7 @@
 
 namespace mcld {
 
+class FileHandle;
 class LinkerConfig;
 class TargetLDBackend;
 class RegionFactory;
@@ -72,6 +73,10 @@ public:
 
   bool setOutput(const sys::fs::Path &pPath);
 
+  const MemoryArea* getOutput() const { return m_pOutput; }
+
+  MemoryArea*       getOutput()       { return m_pOutput; }
+
   /// getObjLinker
   ObjectLinker* getObjLinker() {
     assert(NULL != m_pObjLinker);
@@ -113,6 +118,7 @@ private:
   std::list<mcld::FileHandle*> m_FileHandleList;
   std::list<mcld::MemoryArea*> m_MemAreaList;
 
+  mcld::MemoryArea* m_pOutput;
 };
 
 } // namespace of test

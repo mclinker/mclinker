@@ -26,6 +26,7 @@ class Module;
 class FragmentLinker;
 class LinkerConfig;
 class TargetLDBackend;
+class MemoryArea;
 class MemoryAreaFactory;
 
 /** \class ObjectLinker
@@ -99,10 +100,10 @@ public:
   bool finalizeSymbolValue();
 
   /// emitOutput - emit the output file.
-  bool emitOutput();
+  bool emitOutput(MemoryArea& pOutput);
 
   /// postProcessing - do modificatiion after all processes
-  bool postProcessing();
+  bool postProcessing(MemoryArea& pOutput);
 
   /// getLinker - get internal FragmentLinker object
   FragmentLinker* getLinker()

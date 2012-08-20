@@ -19,6 +19,7 @@
 #include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
@@ -304,29 +305,32 @@ bool ObjectLinker::relocation()
 }
 
 /// emitOutput - emit the output file.
-bool ObjectLinker::emitOutput()
+bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
   switch(m_Config.output().type()) {
     case Output::Object:
       m_LDBackend.getObjectWriter()->writeObject(m_Config.output());
       return true;
     case Output::DynObj:
-      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output(), m_Module);
+      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output(),
+                                                 m_Module,
+                                                 pOutput);
       return true;
     case Output::Exec:
-      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output(), m_Module);
+      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output(),
+                                                   m_Module,
+                                                   pOutput);
       return true;
   }
   return false;
 }
 
 /// postProcessing - do modification after all processes
-bool ObjectLinker::postProcessing()
+bool ObjectLinker::postProcessing(MemoryArea& pOutput)
 {
-  m_pLinker->syncRelocationResult();
+  m_pLinker->syncRelocationResult(pOutput);
 
-  m_LDBackend.postProcessing(m_Config.output(),
-                             m_Config,
-                             *m_pLinker);
+  m_LDBackend.postProcessing(m_Config, *m_pLinker, pOutput);
   return true;
 }
+

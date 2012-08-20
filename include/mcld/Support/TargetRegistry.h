@@ -22,6 +22,7 @@ class AsmPrinter;
 namespace mcld {
 
 class Module;
+class MemoryArea;
 class LLVMTargetMachine;
 class TargetRegistry;
 class MCLinker;
@@ -47,7 +48,8 @@ public:
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
                                       SectLinkerOption &,
                                       TargetLDBackend&,
-                                      Module&);
+                                      Module&,
+                                      MemoryArea& pOutput);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const std::string&);
@@ -82,10 +84,11 @@ public:
   MCLinker *createMCLinker(const std::string &pTriple,
                            SectLinkerOption &pOption,
                            TargetLDBackend &pLDBackend,
-                           Module& pModule) const {
+                           Module& pModule,
+                           MemoryArea& pOutput) const {
     if (!MCLinkerCtorFn)
       return NULL;
-    return MCLinkerCtorFn(pTriple, pOption, pLDBackend, pModule);
+    return MCLinkerCtorFn(pTriple, pOption, pLDBackend, pModule, pOutput);
   }
 
   /// createLDBackend - create target-specific LDBackend

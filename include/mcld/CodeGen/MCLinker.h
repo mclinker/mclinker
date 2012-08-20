@@ -30,6 +30,7 @@ class MachineFunction;
 namespace mcld {
 
 class Module;
+class MemoryArea;
 class LinkerConfig;
 class MCLDFile;
 class ObjectLinker;
@@ -62,7 +63,8 @@ protected:
   // - the standard symbols
   MCLinker(SectLinkerOption &pOption,
            TargetLDBackend &pLDBackend,
-           mcld::Module& pModule);
+           mcld::Module& pModule,
+           MemoryArea& pOutput);
 
 public:
   virtual ~MCLinker();
@@ -95,6 +97,7 @@ private:
 protected:
   TargetLDBackend *m_pLDBackend;
   mcld::Module& m_Module;
+  MemoryArea& m_Output;
   ObjectLinker* m_pObjLinker;
   MemoryAreaFactory *m_pMemAreaFactory;
 

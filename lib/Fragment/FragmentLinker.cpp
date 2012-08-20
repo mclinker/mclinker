@@ -626,11 +626,10 @@ bool FragmentLinker::applyRelocations()
   return true;
 }
 
-void FragmentLinker::syncRelocationResult()
+void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 {
 
-  MemoryRegion* region = m_Config.output().memArea()->request(0,
-                              m_Config.output().memArea()->handler()->size());
+  MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
 
   uint8_t* data = region->getBuffer();
 
@@ -669,6 +668,6 @@ void FragmentLinker::syncRelocationResult()
     }
   } // end of for
 
-  m_Config.output().memArea()->clear();
+  pOutput.clear();
 }
 

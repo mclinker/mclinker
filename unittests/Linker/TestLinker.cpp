@@ -8,21 +8,19 @@
 //===----------------------------------------------------------------------===//
 #include "TestLinker.h"
 
-#include <iostream>
-
 #include <llvm/Support/TargetSelect.h>
 
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Support/Space.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 
-using namespace std;
 using namespace mcld;
 using namespace mcld::sys::fs;
 using namespace mcld::test;
@@ -32,7 +30,8 @@ using namespace mcld::test;
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pObjLinker(NULL), m_pConfig(NULL), m_pDiagLineInfo(NULL),
-    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pMemAreaFactory(NULL) {
+    m_pDiagPrinter(NULL), m_pBackend(NULL),
+    m_pMemAreaFactory(NULL), m_pOutput(NULL) {
 }
 
 TestLinker::~TestLinker()
@@ -51,6 +50,7 @@ TestLinker::~TestLinker()
   delete m_pDiagPrinter;
   delete m_pBackend;
   delete m_pMemAreaFactory;
+  delete m_pOutput;
 }
 
 bool TestLinker::initialize(const std::string &pTriple)
@@ -268,9 +268,7 @@ bool TestLinker::setOutput(const std::string &pPath)
                                       << mcld::sys::strerror(handler->error());
   }
 
-  mcld::MemoryArea* output_memory = new MemoryArea(*handler);
-  m_pConfig->output().setMemArea(output_memory);
-  m_MemAreaList.push_back(output_memory);
+  m_pOutput = new MemoryArea(*handler);
 
   mcld::LDContext* context = m_pConfig->contextFactory().produce(pPath);
   m_pConfig->output().setContext(context);
@@ -294,9 +292,7 @@ bool TestLinker::setOutput(int pFileHandler)
   handler->delegate(pFileHandler);
   m_FileHandleList.push_back(handler);
 
-  mcld::MemoryArea* output_memory = new MemoryArea(*handler);
-  m_pConfig->output().setMemArea(output_memory);
-  m_MemAreaList.push_back(output_memory);
+  m_pOutput = new MemoryArea(*handler);
 
   mcld::LDContext* context = m_pConfig->contextFactory().produce();
   m_pConfig->output().setContext(context);

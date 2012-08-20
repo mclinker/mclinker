@@ -21,6 +21,7 @@ class MemoryFactory;
 class LinkerConfig;
 class TreeIteratorBase;
 class Input;
+class MemoryArea;
 
 namespace sys { namespace fs {
 
@@ -65,6 +66,7 @@ private:
   mcld::TreeIteratorBase *mRoot;
   bool mShared;
   std::string mSOName;
+  mcld::MemoryArea* mOutput;
 
 public:
   Linker();

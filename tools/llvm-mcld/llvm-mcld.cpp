@@ -15,8 +15,10 @@
 #include <mcld/Support/Path.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/FileHandle.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/ToolOutputFile.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/LinkerConfig.h>
@@ -37,7 +39,6 @@
 #include <llvm/Support/Signals.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/ToolOutputFile.h>
 #include <llvm/Support/Process.h>
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
@@ -239,6 +240,7 @@ SegmentedStacks("segmented-stacks",
 //   4. and general options. (the rest of options)
 //===----------------------------------------------------------------------===//
 // General Options
+//===----------------------------------------------------------------------===//
 static cl::opt<mcld::sys::fs::Path, false, llvm::cl::parser<mcld::sys::fs::Path> >
 ArgBitcodeFilename("dB",
               cl::desc("set default bitcode"),
@@ -429,6 +431,7 @@ ArgColor("color",
 
 //===----------------------------------------------------------------------===//
 // Inputs
+//===----------------------------------------------------------------------===//
 static cl::list<mcld::sys::fs::Path>
 ArgInputObjectFiles(cl::Positional,
                     cl::desc("[input object files]"),
@@ -468,6 +471,7 @@ ArgEndGroupListAlias(")",
 
 //===----------------------------------------------------------------------===//
 // Attributes of Inputs
+//===----------------------------------------------------------------------===//
 static cl::list<bool>
 ArgWholeArchiveList("whole-archive",
                     cl::ValueDisallowed,
@@ -535,6 +539,7 @@ ArgBStaticListAlias3("non_shared",
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
+//===----------------------------------------------------------------------===//
 static cl::list<std::string>
 ArgWrapList("wrap",
             cl::ZeroOrMore,
@@ -548,14 +553,14 @@ ArgPortList("portable",
             cl::value_desc("symbol"));
 
 //===----------------------------------------------------------------------===//
-/// non-member functions
-
+// non-member functions
+//===----------------------------------------------------------------------===//
 /// GetOutputStream - get the output stream.
-static tool_output_file *GetOutputStream(const char* pTargetName,
-                                         Triple::OSType pOSType,
-                                         mcld::CodeGenFileType pFileType,
-                                         const mcld::sys::fs::Path& pInputFilename,
-                                         mcld::sys::fs::Path& pOutputFilename)
+static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
+                                             Triple::OSType pOSType,
+                                             mcld::CodeGenFileType pFileType,
+                                             const mcld::sys::fs::Path& pInputFilename,
+                                             mcld::sys::fs::Path& pOutputFilename)
 {
   if (pOutputFilename.empty()) {
     if (0 == pInputFilename.native().compare("-"))
@@ -624,31 +629,27 @@ static tool_output_file *GetOutputStream(const char* pTargetName,
     } // end of ! pInputFilename == "-"
   } // end of if empty pOutputFilename
 
-  // Decide if we need "binary" output.
-  unsigned int fd_flags = 0x0;
+  mcld::FileHandle::Permission permission;
   switch (pFileType) {
   default: assert(0 && "Unknown file type");
   case mcld::CGFT_ASMFile:
-    break;
   case mcld::CGFT_OBJFile:
+    permission = 0644;
+    break;
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:
   case mcld::CGFT_NULLFile:
-    fd_flags |= raw_fd_ostream::F_Binary;
+    permission = 0755;
     break;
   }
 
   // Open the file.
-  std::string err_mesg;
-  tool_output_file *result_output =
-                            new tool_output_file(pOutputFilename.c_str(),
-                                                 err_mesg,
-                                                 fd_flags);
-  if (!err_mesg.empty()) {
-    errs() << err_mesg << '\n';
-    delete result_output;
-    return NULL;
-  }
+  mcld::ToolOutputFile* result_output =
+                      new mcld::ToolOutputFile(pOutputFilename,
+                                                 mcld::FileHandle::ReadWrite |
+                                                 mcld::FileHandle::Create |
+                                                 mcld::FileHandle::Truncate,
+                                               permission);
 
   return result_output;
 }
@@ -1091,7 +1092,7 @@ int main( int argc, char* argv[] )
 
 
   // Figure out where we are going to send the output...
-  OwningPtr<tool_output_file>
+  OwningPtr<mcld::ToolOutputFile>
   Out(GetOutputStream(TheTarget->get()->getName(),
                       TheTriple.getOS(),
                       ArgFileType,
@@ -1129,12 +1130,9 @@ int main( int argc, char* argv[] )
   }
 
   {
-    formatted_raw_ostream FOS(Out->os());
-
     // Ask the target to add backend passes as necessary.
     if( TheTargetMachine.addPassesToEmitFile(PM,
-                                             FOS,
-                                             ArgOutputFilename.native(),
+                                             *Out,
                                              ArgFileType,
                                              OLvl,
                                              LDIRModule,

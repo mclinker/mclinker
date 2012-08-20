@@ -21,7 +21,6 @@ class Target;
 class TargetData;
 class TargetMachine;
 class PassManagerBase;
-class formatted_raw_ostream;
 
 } // namespace of llvm
 
@@ -30,8 +29,11 @@ namespace mcld
 
 class Module;
 class Target;
+class MemoryArea;
 class LinkerConfig;
 class SectLinkerOption;
+class ToolOutputFile;
+
 using namespace llvm;
 
 enum CodeGenFileType {
@@ -75,8 +77,7 @@ public:
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.
   bool addPassesToEmitFile(PassManagerBase &,
-                           formatted_raw_ostream &Out,
-                           const std::string &pOutputFilename,
+                           mcld::ToolOutputFile& pOutput,
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
                            mcld::Module& pModule,
@@ -100,20 +101,18 @@ private:
                               bool DisableVerify,
                               llvm::MCContext *&OutCtx);
 
-  bool addCompilerPasses(PassManagerBase &,
-                         formatted_raw_ostream &Out,
-                         const std::string& pOutputFilename,
+  bool addCompilerPasses(PassManagerBase &pPM,
+                         llvm::formatted_raw_ostream &pOutput,
                          llvm::MCContext *&OutCtx);
 
-  bool addAssemblerPasses(PassManagerBase &,
-                          formatted_raw_ostream &Out,
-                          const std::string& pOutputFilename,
+  bool addAssemblerPasses(PassManagerBase &pPM,
+                          llvm::raw_ostream &pOutput,
                           llvm::MCContext *&OutCtx);
 
-  bool addLinkerPasses(PassManagerBase &,
+  bool addLinkerPasses(PassManagerBase &pPM,
                        SectLinkerOption *pLinkerOpt,
-                       const std::string& pOutputFilename,
                        Module& pModule,
+                       mcld::MemoryArea& pOutput,
                        MCLDFile::Type pOutputLinkType,
                        llvm::MCContext *&OutCtx);
 

@@ -10,18 +10,17 @@
 //  Input class inherits MCLDFile, which is used to represent a input file
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_INPUT_H
 #define MCLD_INPUT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/MC/MCLDFile.h"
+#include <mcld/MC/MCLDFile.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class MemoryArea;
 class AttributeProxy;
 class Attribute;
 class InputFactory;
@@ -75,10 +74,22 @@ public:
   void setFileOffset(off_t pFileOffset)
   { m_fileOffset = pFileOffset; }
 
+  // -----  memory area  ----- //
+
+  void setMemArea(MemoryArea* pMemArea)
+  { m_pMemArea = pMemArea; }
+
+  bool hasMemArea() const
+  { return (NULL != m_pMemArea); }
+
+  const MemoryArea* memArea() const { return m_pMemArea; }
+  MemoryArea*       memArea()       { return m_pMemArea; }
+
 private:
   Attribute *m_pAttr;
   bool m_bNeeded;
   off_t m_fileOffset;
+  MemoryArea* m_pMemArea;
 };
 
 } // namespace of mcld

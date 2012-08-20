@@ -13,17 +13,20 @@
 #endif
 
 #include <llvm/Support/ELF.h>
-#include <mcld/MC/MCLDOutput.h>
 
 namespace mcld {
 
 class Module;
+class FragmentLinker;
 class LinkerConfig;
 class Layout;
 class GNULDBackend;
 class Relocation;
 class LDSection;
 class SectionData;
+class Output;
+class MemoryRegion;
+class MemoryArea;
 
 /** \class ELFWriter
  *  \brief ELFWriter provides basic functions to write ELF sections, symbols,
@@ -52,13 +55,15 @@ public:
                                 const GNULDBackend& pBackend,
                                 const Module& pModule,
                                 const Layout& pLayout,
-                                Output& pOutput) const;
+                                Output& pOutput,
+                                MemoryArea& pOut) const;
 
   virtual void writeELF64Header(const LinkerConfig& pConfig,
                                 const GNULDBackend& pBackend,
                                 const Module& pModule,
                                 const Layout& pLayout,
-                                Output& pOutput) const;
+                                Output& pOutput,
+                                MemoryArea& pOut) const;
 
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
                                  const GNULDBackend& pBackend,
@@ -67,20 +72,30 @@ public:
                                  const Output& pOutput) const;
 
 protected:
-  void emitELF32SectionHeader(Output& pOutput, FragmentLinker& pLinker) const;
+  void emitELF32SectionHeader(Output& pOutput,
+                              FragmentLinker& pLinker,
+                              MemoryArea& pOut) const;
 
-  void emitELF64SectionHeader(Output& pOutput, FragmentLinker& pLinker) const;
+  void emitELF64SectionHeader(Output& pOutput,
+                              FragmentLinker& pLinker,
+                              MemoryArea& pOut) const;
 
   void emitELF32ProgramHeader(Output& pOutput,
-                              const GNULDBackend& pBackend) const;
+                              const GNULDBackend& pBackend,
+                              MemoryArea& pOut) const;
 
   void emitELF64ProgramHeader(Output& pOutput,
-                              const GNULDBackend& pBackend) const;
+                              const GNULDBackend& pBackend,
+                              MemoryArea& pOut) const;
 
   // emitShStrTab - emit .shstrtab
-  void emitELF32ShStrTab(Output& pOutput, FragmentLinker& pLinker) const;
+  void emitELF32ShStrTab(Output& pOutput,
+                         FragmentLinker& pLinker,
+                         MemoryArea& pOut) const;
 
-  void emitELF64ShStrTab(Output& pOutput, FragmentLinker& pLinker) const;
+  void emitELF64ShStrTab(Output& pOutput,
+                         FragmentLinker& pLinker,
+                         MemoryArea& pOut) const;
 
   void emitSectionData(const Layout& pLayout,
                        const LDSection& pSection,

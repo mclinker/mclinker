@@ -15,6 +15,10 @@
 #include <string>
 #include <mcld/Support/FileHandle.h>
 
+namespace llvm {
+class formatted_raw_ostream;
+} // end of namespace llvm
+
 namespace mcld {
 
 class Path;
@@ -38,8 +42,11 @@ public:
 
   ~ToolOutputFile();
 
-  /// os - Return the contained raw_mem_ostream.
-  raw_mem_ostream &os();
+  /// mem_os - Return the contained raw_mem_ostream.
+  raw_mem_ostream &mem_os();
+
+  /// os - Return the contained formatted_raw_ostream
+  llvm::formatted_raw_ostream& formatted_os();
 
   /// memory - Return the contained MemoryArea.
   MemoryArea& memory();
@@ -68,6 +75,7 @@ private:
   CleanupInstaller m_Installer;
   MemoryArea* m_pMemoryArea;
   raw_mem_ostream* m_pOStream;
+  llvm::formatted_raw_ostream* m_pFOStream;
 
 };
 

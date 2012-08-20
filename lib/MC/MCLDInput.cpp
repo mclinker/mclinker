@@ -17,7 +17,8 @@ Input::Input(llvm::StringRef pName, const AttributeProxy& pProxy)
  : MCLDFile(pName),
    m_pAttr(const_cast<Attribute*>(pProxy.attr())),
    m_bNeeded(false),
-   m_fileOffset(0) {
+   m_fileOffset(0),
+   m_pMemArea(NULL) {
 }
 
 Input::Input(llvm::StringRef pName,
@@ -28,11 +29,14 @@ Input::Input(llvm::StringRef pName,
   : MCLDFile(pName, pPath, pType),
     m_pAttr(const_cast<Attribute*>(pProxy.attr())),
     m_bNeeded(false),
-    m_fileOffset(pFileOffset) {
+    m_fileOffset(pFileOffset),
+    m_pMemArea(NULL) {
 }
 
 Input::~Input()
 {
-  // do nothing. Attribute is deleted by AttributeFactory
+  // do nothing.
+  // Attribute is deleted by AttributeFactory
+  // MemoryArea is deleted by MemoryAreaFactory
 }
 
