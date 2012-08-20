@@ -72,6 +72,9 @@ public:
 
   ~FileHandle();
 
+  /// open - open the file.
+  /// @return if we meet any trouble during opening the file, return false.
+  ///         use rdstate() to see what happens.
   bool open(const sys::fs::Path& pPath,
             OpenMode pMode,
             Permission pPerm = System);
