@@ -28,6 +28,12 @@ class LinkerConfig;
 class TargetLDBackend;
 class MemoryArea;
 class MemoryAreaFactory;
+class ObjectReader;
+class DynObjReader;
+class ArchiveReader;
+class ObjectWriter;
+class DynObjWriter;
+class ExecWriter;
 
 /** \class ObjectLinker
  *  \brief ObjectLinker prepares parameters for FragmentLinker.
@@ -117,6 +123,25 @@ public:
   bool hasInitLinker() const
   { return (NULL != m_pLinker); }
 
+  // -----  readers and writers  ----- //
+  const ObjectReader*  getObjectReader () const { return m_pObjectReader;  }
+  ObjectReader*        getObjectReader ()       { return m_pObjectReader;  }
+
+  const DynObjReader*  getDynObjReader () const { return m_pDynObjReader;  }
+  DynObjReader*        getDynObjReader ()       { return m_pDynObjReader;  }
+
+  const ArchiveReader* getArchiveReader() const { return m_pArchiveReader; }
+  ArchiveReader*       getArchiveReader()       { return m_pArchiveReader; }
+
+  const ObjectWriter*  getObjectWriter () const { return m_pObjectWriter;  }
+  ObjectWriter*        getObjectWriter ()       { return m_pObjectWriter;  }
+
+  const DynObjWriter*  getDynObjWriter () const { return m_pDynObjWriter;  }
+  DynObjWriter*        getDynObjWriter ()       { return m_pDynObjWriter;  }
+
+  const ExecWriter*    getExecWriter   () const { return m_pExecWriter;    }
+  ExecWriter*          getExecWriter   ()       { return m_pExecWriter;    }
+
 private:
   LinkerConfig& m_Config;
   TargetLDBackend &m_LDBackend;
@@ -124,6 +149,14 @@ private:
   FragmentLinker* m_pLinker;
   SectionMap m_SectionMap;
   MemoryAreaFactory &m_AreaFactory;
+
+  // -----  readers and writers  ----- //
+  ObjectReader* m_pObjectReader;
+  DynObjReader* m_pDynObjReader;
+  ArchiveReader* m_pArchiveReader;
+  ObjectWriter* m_pObjectWriter;
+  DynObjWriter* m_pDynObjWriter;
+  ExecWriter* m_pExecWriter;
 };
 
 } // end namespace mcld

@@ -6,14 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/Target/GNULDBackend.h>
 
 #include <string>
 #include <cstring>
 #include <cassert>
-
-#include <llvm/Support/ELF.h>
 
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
@@ -36,12 +33,7 @@ using namespace mcld;
 // GNULDBackend
 //===----------------------------------------------------------------------===//
 GNULDBackend::GNULDBackend()
-  : m_pArchiveReader(NULL),
-    m_pObjectReader(NULL),
-    m_pDynObjReader(NULL),
-    m_pObjectWriter(NULL),
-    m_pDynObjWriter(NULL),
-    m_pExecWriter(NULL),
+  : m_pObjectReader(NULL),
     m_pDynObjFileFormat(NULL),
     m_pExecFileFormat(NULL),
     m_ELFSegmentTable(9), // magic number
@@ -67,26 +59,10 @@ GNULDBackend::GNULDBackend()
 
 GNULDBackend::~GNULDBackend()
 {
-  if (NULL != m_pArchiveReader)
-    delete m_pArchiveReader;
-  if (NULL != m_pObjectReader)
-    delete m_pObjectReader;
-  if (NULL != m_pDynObjReader)
-    delete m_pDynObjReader;
-  if (NULL != m_pObjectWriter)
-    delete m_pObjectWriter;
-  if (NULL != m_pDynObjWriter)
-    delete m_pDynObjWriter;
-  if (NULL != m_pExecWriter)
-    delete m_pExecWriter;
-  if (NULL != m_pDynObjFileFormat)
-    delete m_pDynObjFileFormat;
-  if (NULL != m_pExecFileFormat)
-    delete m_pExecFileFormat;
-  if (NULL != m_pSymIndexMap)
-    delete m_pSymIndexMap;
-  if (NULL != m_pEhFrameHdr)
-    delete m_pEhFrameHdr;
+  delete m_pDynObjFileFormat;
+  delete m_pExecFileFormat;
+  delete m_pSymIndexMap;
+  delete m_pEhFrameHdr;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
@@ -105,52 +81,43 @@ uint64_t GNULDBackend::segmentStartAddr(const Output& pOutput,
     return defaultTextSegmentAddr();
 }
 
-bool GNULDBackend::initArchiveReader(LinkerConfig& pConfig,
-                                     Module& pModule,
-                                     MemoryAreaFactory& pMemAreaFactory)
+GNUArchiveReader*
+GNULDBackend::createArchiveReader(LinkerConfig& pConfig,
+                                  Module& pModule,
+                                  MemoryAreaFactory& pMemAreaFactory)
 {
-  if (NULL == m_pArchiveReader) {
-    assert(NULL != m_pObjectReader);
-    m_pArchiveReader = new GNUArchiveReader(pConfig,
-                                            pModule,
-                                            pMemAreaFactory,
-                                            *m_pObjectReader);
-  }
-  return true;
+  assert(NULL != m_pObjectReader);
+  return new GNUArchiveReader(pConfig,
+                              pModule,
+                              pMemAreaFactory,
+                              *m_pObjectReader);
 }
 
-bool GNULDBackend::initObjectReader(FragmentLinker& pLinker)
+ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker)
 {
-  if (NULL == m_pObjectReader)
-    m_pObjectReader = new ELFObjectReader(*this, pLinker);
-  return true;
+  m_pObjectReader = new ELFObjectReader(*this, pLinker);
+  return m_pObjectReader;
 }
 
-bool GNULDBackend::initDynObjReader(FragmentLinker& pLinker)
+ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker)
 {
-  if (NULL == m_pDynObjReader)
-    m_pDynObjReader = new ELFDynObjReader(*this, pLinker);
-  return true;
+  return new ELFDynObjReader(*this, pLinker);
 }
 
-bool GNULDBackend::initObjectWriter(FragmentLinker&)
+ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker&)
 {
   // TODO
-  return true;
+  return NULL;
 }
 
-bool GNULDBackend::initDynObjWriter(FragmentLinker& pLinker)
+ELFDynObjWriter* GNULDBackend::createDynObjWriter(FragmentLinker& pLinker)
 {
-  if (NULL == m_pDynObjWriter)
-    m_pDynObjWriter = new ELFDynObjWriter(*this, pLinker);
-  return true;
+  return new ELFDynObjWriter(*this, pLinker);
 }
 
-bool GNULDBackend::initExecWriter(FragmentLinker& pLinker)
+ELFExecWriter* GNULDBackend::createExecWriter(FragmentLinker& pLinker)
 {
-  if (NULL == m_pExecWriter)
-    m_pExecWriter = new ELFExecWriter(*this, pLinker);
-  return true;
+  return new ELFExecWriter(*this, pLinker);
 }
 
 bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
@@ -563,78 +530,6 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker, const Output& pOu
   }
 
   return true;
-}
-
-GNUArchiveReader *GNULDBackend::getArchiveReader()
-{
-  assert(NULL != m_pArchiveReader);
-  return m_pArchiveReader;
-}
-
-const GNUArchiveReader *GNULDBackend::getArchiveReader() const
-{
-  assert(NULL != m_pArchiveReader);
-  return m_pArchiveReader;
-}
-
-ELFObjectReader *GNULDBackend::getObjectReader()
-{
-  assert(NULL != m_pObjectReader);
-  return m_pObjectReader;
-}
-
-const ELFObjectReader *GNULDBackend::getObjectReader() const
-{
-  assert(NULL != m_pObjectReader);
-  return m_pObjectReader;
-}
-
-ELFDynObjReader *GNULDBackend::getDynObjReader()
-{
-  assert(NULL != m_pDynObjReader);
-  return m_pDynObjReader;
-}
-
-const ELFDynObjReader *GNULDBackend::getDynObjReader() const
-{
-  assert(NULL != m_pDynObjReader);
-  return m_pDynObjReader;
-}
-
-ELFObjectWriter *GNULDBackend::getObjectWriter()
-{
-  // TODO
-  return NULL;
-}
-
-const ELFObjectWriter *GNULDBackend::getObjectWriter() const
-{
-  // TODO
-  return NULL;
-}
-
-ELFDynObjWriter *GNULDBackend::getDynObjWriter()
-{
-  assert(NULL != m_pDynObjWriter);
-  return m_pDynObjWriter;
-}
-
-const ELFDynObjWriter *GNULDBackend::getDynObjWriter() const
-{
-  assert(NULL != m_pDynObjWriter);
-  return m_pDynObjWriter;
-}
-
-ELFExecWriter *GNULDBackend::getExecWriter()
-{
-  assert(NULL != m_pExecWriter);
-  return m_pExecWriter;
-}
-
-const ELFExecWriter *GNULDBackend::getExecWriter() const
-{
-  assert(NULL != m_pExecWriter);
-  return m_pExecWriter;
 }
 
 ELFFileFormat* GNULDBackend::getOutputFormat(const Output& pOutput)

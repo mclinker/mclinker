@@ -21,8 +21,9 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Target/TargetLDBackend.h>
 #include <mcld/LD/Archive.h>
 
 using namespace llvm;
@@ -58,14 +59,12 @@ bool ObjectLinker::initFragmentLinker()
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
-  if (!m_LDBackend.initObjectReader(*m_pLinker) ||
-      !m_LDBackend.initArchiveReader(m_Config, m_Module, m_AreaFactory) ||
-      !m_LDBackend.initObjectReader(*m_pLinker) ||
-      !m_LDBackend.initDynObjReader(*m_pLinker) ||
-      !m_LDBackend.initObjectWriter(*m_pLinker) ||
-      !m_LDBackend.initDynObjWriter(*m_pLinker) ||
-      !m_LDBackend.initExecWriter(*m_pLinker))
-    return false;
+  m_pObjectReader  = m_LDBackend.createObjectReader(*m_pLinker);
+  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Config, m_Module, m_AreaFactory);
+  m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pLinker);
+  m_pObjectWriter  = m_LDBackend.createObjectWriter(*m_pLinker);
+  m_pDynObjWriter  = m_LDBackend.createDynObjWriter(*m_pLinker);
+  m_pExecWriter    = m_LDBackend.createExecWriter(*m_pLinker);
 
   // initialize RelocationFactory
   m_LDBackend.initRelocFactory(*m_pLinker);
@@ -137,23 +136,23 @@ void ObjectLinker::normalize()
       continue;
 
     // is a relocatable object file
-    if (m_LDBackend.getObjectReader()->isMyFormat(**input)) {
+    if (getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
-      m_LDBackend.getObjectReader()->readObject(**input);
-      m_LDBackend.getObjectReader()->readSections(**input, m_Module);
-      m_LDBackend.getObjectReader()->readSymbols(**input);
+      getObjectReader()->readObject(**input);
+      getObjectReader()->readSections(**input, m_Module);
+      getObjectReader()->readSymbols(**input);
     }
     // is a shared object file
-    else if (m_LDBackend.getDynObjReader()->isMyFormat(**input)) {
+    else if (getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
-      m_LDBackend.getDynObjReader()->readDSO(**input);
-      m_LDBackend.getDynObjReader()->readSymbols(**input);
+      getDynObjReader()->readDSO(**input);
+      getDynObjReader()->readSymbols(**input);
     }
     // is an archive
-    else if (m_LDBackend.getArchiveReader()->isMyFormat(**input)) {
+    else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
       Archive archive(**input, m_Config.inputFactory());
-      m_LDBackend.getArchiveReader()->readArchive(archive);
+      getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_Config.inputs().merge<InputTree::Inclusive>(input, archive.inputs());
       }
@@ -234,7 +233,7 @@ bool ObjectLinker::readRelocations()
   mcld::InputTree::bfs_iterator input, inEnd = m_Config.inputs().bfs_end();
   for (input=m_Config.inputs().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == Input::Object) {
-      if (!m_LDBackend.getObjectReader()->readRelocations(**input))
+      if (!getObjectReader()->readRelocations(**input))
         return false;
     }
     // ignore the other kinds of files.
@@ -309,17 +308,17 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
   switch(m_Config.output().type()) {
     case Output::Object:
-      m_LDBackend.getObjectWriter()->writeObject(m_Config.output());
+      getObjectWriter()->writeObject(m_Config.output());
       return true;
     case Output::DynObj:
-      m_LDBackend.getDynObjWriter()->writeDynObj(m_Config.output(),
-                                                 m_Module,
-                                                 pOutput);
+      getDynObjWriter()->writeDynObj(m_Config.output(),
+                                     m_Module,
+                                     pOutput);
       return true;
     case Output::Exec:
-      m_LDBackend.getExecWriter()->writeExecutable(m_Config.output(),
-                                                   m_Module,
-                                                   pOutput);
+      getExecWriter()->writeExecutable(m_Config.output(),
+                                       m_Module,
+                                       pOutput);
       return true;
   }
   return false;

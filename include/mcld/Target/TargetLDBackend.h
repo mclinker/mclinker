@@ -78,24 +78,17 @@ public:
                               const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
-  virtual bool initArchiveReader(LinkerConfig&,
-                                 Module&,
-                                 MemoryAreaFactory&) = 0;
-  virtual bool initObjectReader(FragmentLinker&) = 0;
-  virtual bool initDynObjReader(FragmentLinker&) = 0;
-  virtual bool initObjectWriter(FragmentLinker&) = 0;
-  virtual bool initDynObjWriter(FragmentLinker&) = 0;
-  virtual bool initExecWriter(FragmentLinker&) = 0;
+  virtual ArchiveReader* createArchiveReader(LinkerConfig&,
+                                             Module&,
+                                             MemoryAreaFactory&) = 0;
+  virtual ObjectReader*  createObjectReader(FragmentLinker&) = 0;
+  virtual DynObjReader*  createDynObjReader(FragmentLinker&) = 0;
+  virtual ObjectWriter*  createObjectWriter(FragmentLinker&) = 0;
+  virtual DynObjWriter*  createDynObjWriter(FragmentLinker&) = 0;
+  virtual ExecWriter*    createExecWriter(FragmentLinker&) = 0;
 
   virtual bool initExecSections(FragmentLinker&) = 0;
   virtual bool initDynObjSections(FragmentLinker&) = 0;
-
-  virtual ArchiveReader *getArchiveReader() = 0;
-  virtual ObjectReader *getObjectReader() = 0;
-  virtual DynObjReader *getDynObjReader() = 0;
-  virtual ObjectWriter *getObjectWriter() = 0;
-  virtual DynObjWriter *getDynObjWriter() = 0;
-  virtual ExecWriter *getExecWriter() = 0;
 
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;

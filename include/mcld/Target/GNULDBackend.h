@@ -11,26 +11,26 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/ELF.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
+#include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/LD/GNUArchiveReader.h>
+#include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFDynObjReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
-#include <mcld/LD/ELFExecFileFormat.h>
 #include <mcld/LD/ELFExecWriter.h>
-#include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFObjectWriter.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
-#include <mcld/LD/GNUArchiveReader.h>
-#include <mcld/Support/GCFactory.h>
 #include <mcld/Target/ELFDynamic.h>
-#include <mcld/Target/TargetLDBackend.h>
 
-namespace mcld
-{
+#include <mcld/Support/GCFactory.h>
+
+namespace mcld {
 
 struct SymCompare
 {
@@ -66,32 +66,14 @@ public:
   virtual ~GNULDBackend();
 
   // -----  readers/writers  ----- //
-  bool initArchiveReader(LinkerConfig& pConfig,
-                         Module& pModule,
-                         MemoryAreaFactory& pMemAreaFactory);
-  bool initObjectReader(FragmentLinker& pLinker);
-  bool initDynObjReader(FragmentLinker& pLinker);
-  bool initObjectWriter(FragmentLinker& pLinker);
-  bool initDynObjWriter(FragmentLinker& pLinker);
-  bool initExecWriter(FragmentLinker& pLinker);
-
-  GNUArchiveReader *getArchiveReader();
-  const GNUArchiveReader *getArchiveReader() const;
-
-  ELFObjectReader *getObjectReader();
-  const ELFObjectReader *getObjectReader() const;
-
-  ELFDynObjReader *getDynObjReader();
-  const ELFDynObjReader *getDynObjReader() const;
-
-  ELFObjectWriter *getObjectWriter();
-  const ELFObjectWriter *getObjectWriter() const;
-
-  ELFDynObjWriter *getDynObjWriter();
-  const ELFDynObjWriter *getDynObjWriter() const;
-
-  ELFExecWriter *getExecWriter();
-  const ELFExecWriter *getExecWriter() const;
+  GNUArchiveReader* createArchiveReader(LinkerConfig& pConfig,
+                                        Module& pModule,
+                                        MemoryAreaFactory& pMemAreaFactory);
+  ELFObjectReader* createObjectReader(FragmentLinker& pLinker);
+  ELFDynObjReader* createDynObjReader(FragmentLinker& pLinker);
+  ELFObjectWriter* createObjectWriter(FragmentLinker& pLinker);
+  ELFDynObjWriter* createDynObjWriter(FragmentLinker& pLinker);
+  ELFExecWriter*   createExecWriter(FragmentLinker& pLinker);
 
   // -----  output sections  ----- //
   /// initExecSections - initialize sections of the output executable file.
@@ -413,13 +395,7 @@ protected:
   typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
 
 protected:
-  // ----- readers and writers ----- //
-  GNUArchiveReader* m_pArchiveReader;
   ELFObjectReader* m_pObjectReader;
-  ELFDynObjReader* m_pDynObjReader;
-  ELFObjectWriter* m_pObjectWriter;
-  ELFDynObjWriter* m_pDynObjWriter;
-  ELFExecWriter*   m_pExecWriter;
 
   // -----  file formats  ----- //
   ELFDynObjFileFormat* m_pDynObjFileFormat;
