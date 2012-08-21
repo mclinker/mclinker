@@ -81,7 +81,6 @@ public:
   AttributeFactory& attrFactory()
   { return *m_pAttrFactory; }
 
-
   const AttributeFactory& attrFactory() const
   { return *m_pAttrFactory; }
 
