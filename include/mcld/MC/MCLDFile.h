@@ -17,16 +17,13 @@
 #endif
 
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/LD/LDContext.h>
 #include <mcld/Support/Path.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/GCFactory.h>
 #include <llvm/ADT/StringRef.h>
 #include <string>
-#include <sys/stat.h>
-
 
 namespace mcld {
+
+class LDContext;
 
 /** \class MCLDFile
  *  \brief MCLDFile represents the file being linked or produced.
@@ -99,57 +96,7 @@ protected:
   std::string m_Name;
 };
 
-/** \class MCLDFileFactory
- *  \brief MCLDFileFactory controls the production and destruction of
- *  MCLDFiles.
- *
- *  All MCLDFiles created by MCLDFileFactory are guaranteed to be destructed
- *  while MCLDFileFactory is destructed.
- *
- *  MCLDFileFactory also provides the MCLCContextFactory to MCLDFile.
- *  MCLDFile is responsed for the life of LDContext, therefore, the best
- *  idea is let MCLDFile control the life of LDContext. Since SectLinker
- *  has the need to count the number of LDContext, we give a central factory
- *  for LDContext.
- *
- *  \see llvm::sys::Path
- */
-template<size_t NUM>
-class MCLDFileFactory : public GCFactory<MCLDFile, NUM>
-{
-public:
-  typedef GCFactory<MCLDFile, NUM> Alloc;
-
-public:
-  // -----  production  ----- //
-  MCLDFile* produce(llvm::StringRef pName,
-                    const sys::fs::Path& pPath,
-                    unsigned int pType = MCLDFile::Unknown);
-
-  MCLDFile* produce();
-};
-
 } // namespace of mcld
-
-//===----------------------------------------------------------------------===//
-// MCLDFileFactory
-template<size_t NUM>
-mcld::MCLDFile* mcld::MCLDFileFactory<NUM>::produce(llvm::StringRef pName,
-                                   const mcld::sys::fs::Path& pPath,
-                                   unsigned int pType)
-{
-    mcld::MCLDFile* result = Alloc::allocate();
-    new (result) mcld::MCLDFile(pName, pPath, pType);
-    return result;
-}
-
-template<size_t NUM>
-mcld::MCLDFile* mcld::MCLDFileFactory<NUM>::produce()
-{
-    mcld::MCLDFile* result = Alloc::allocate();
-    new (result) mcld::MCLDFile();
-    return result;
-}
 
 #endif
 

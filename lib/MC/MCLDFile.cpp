@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/MCLDFile.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/Support/FileSystem.h>
 #include <cstring>
 #include <cstdlib>
 
