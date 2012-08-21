@@ -55,9 +55,8 @@ MCLinker::MCLinker(SectLinkerOption &pOption,
     m_Module(pModule),
     m_Output(pOutput),
     m_pObjLinker(NULL),
-    m_pMemAreaFactory(NULL)
+    m_MemAreaFactory(32)
 {
-  m_pMemAreaFactory = new MemoryAreaFactory(32);
 }
 
 MCLinker::~MCLinker()
@@ -75,8 +74,6 @@ MCLinker::~MCLinker()
   // objects it used during the processing, we destroy the object of
   // TargetLDBackend here.
   delete m_pLDBackend;
-
-  delete m_pMemAreaFactory;
 }
 
 bool MCLinker::doInitialization(llvm::Module &pM)
