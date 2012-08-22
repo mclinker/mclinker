@@ -43,14 +43,12 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput,
   target().emitDynNamePools(pOutput,
                             m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
-                            m_Linker.getLDInfo(),
                             pOut);
 
   // Write out name pool sections: .symtab, .strtab
   target().emitRegNamePools(pOutput,
                             m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
-                            m_Linker.getLDInfo(),
                             pOut);
 
   // Write out regular ELF sections
@@ -108,12 +106,10 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput,
         break;
       }
       case LDFileFormat::Relocation:
-        emitRelocation(m_Linker.getLayout(), pOutput, *sect, *region);
+        emitRelocation(m_Linker.getLayout(), m_Linker.getLDInfo(), *sect, *region);
         break;
       case LDFileFormat::Target:
-        target().emitSectionData(pOutput,
-                                 *sect,
-                                 m_Linker.getLDInfo(),
+        target().emitSectionData(*sect,
                                  m_Linker.getLayout(),
                                  *region);
         break;
@@ -135,9 +131,9 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput,
                      pOutput,
                      pOut);
 
-    emitELF32ProgramHeader(pOutput, target(), pOut);
+    emitELF32ProgramHeader(target(), pOut);
 
-    emitELF32SectionHeader(pOutput, m_Linker, pOut);
+    emitELF32SectionHeader(pOutput, m_Linker.getLDInfo(), m_Linker, pOut);
   }
   else if (64 == target().bitclass()) {
     // Write out ELF header
@@ -151,9 +147,9 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput,
                      pOutput,
                      pOut);
 
-    emitELF64ProgramHeader(pOutput, target(), pOut);
+    emitELF64ProgramHeader(target(), pOut);
 
-    emitELF64SectionHeader(pOutput, m_Linker, pOut);
+    emitELF64SectionHeader(pOutput, m_Linker.getLDInfo(), m_Linker, pOut);
   }
   else
     return make_error_code(errc::not_supported);

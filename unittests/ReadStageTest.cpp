@@ -116,7 +116,7 @@ TEST_F(ReadStageTest, quake) {
   mcld::sys::fs::Path top_level = TOPDIR;
 
   // set up output
-  m_pLinker->config()->output().setType(mcld::Output::DynObj);
+  m_pLinker->config()->setCodeGenType(mcld::LinkerConfig::DynObj);
   m_pLinker->setOutput(top_level + "unittests/plasma.so");
 
 

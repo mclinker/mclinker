@@ -64,7 +64,6 @@ private:
   MemoryFactory *mMemAreaFactory;
   mcld::LinkerConfig *mLDConfig;
   mcld::TreeIteratorBase *mRoot;
-  bool mShared;
   std::string mSOName;
   mcld::MemoryArea* mOutput;
 

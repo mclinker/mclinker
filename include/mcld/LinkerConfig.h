@@ -43,6 +43,15 @@ namespace mcld {
 class LinkerConfig
 {
 public:
+  enum CodeGenType {
+    Unknown,
+    Object,
+    DynObj,
+    Exec,
+    External
+  };
+
+public:
   explicit LinkerConfig(const std::string &pTripleString,
                         size_t pAttrNum,
                         size_t InputSize);
@@ -60,17 +69,15 @@ public:
 
   void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
 
-  Output& output()
-  { return *m_pOutput; }
+  const Output& output() const { return *m_pOutput; }
+  Output&       output()       { return *m_pOutput; }
 
-  const Output& output() const
-  { return *m_pOutput; }
+  const InputTree& inputs() const { return *m_pInputTree; }
+  InputTree&       inputs()       { return *m_pInputTree; }
 
-  InputTree& inputs()
-  { return *m_pInputTree; }
+  CodeGenType codeGenType() const { return m_CodeGenType; }
 
-  const InputTree& inputs() const
-  { return *m_pInputTree; }
+  void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
   InputFactory& inputFactory()
   { return *m_pInputFactory; }
@@ -103,6 +110,7 @@ private:
   InputTree *m_pInputTree;
   Output* m_pOutput;
   llvm::Triple m_Triple;
+  CodeGenType m_CodeGenType;
 
   // -----  factories  ----- //
   InputFactory *m_pInputFactory;

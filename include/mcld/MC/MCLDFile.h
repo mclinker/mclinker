@@ -36,30 +36,13 @@ class LDContext;
 class MCLDFile : private Uncopyable
 {
 public:
-  enum Type {
-    Unknown,
-    Object,
-    Exec,
-    DynObj,
-    CoreFile,
-    Script,
-    Archive,
-    External
-  };
-
-public:
   MCLDFile();
   MCLDFile(llvm::StringRef pName);
-  MCLDFile(llvm::StringRef pName,
-           const sys::fs::Path& pPath,
-           unsigned int pType = Unknown);
+  MCLDFile(llvm::StringRef pName, const sys::fs::Path& pPath);
 
   virtual ~MCLDFile();
 
   // -----  modifiers  ----- //
-  void setType(unsigned int pType)
-  { m_Type = pType; }
-
   void setContext(LDContext* pContext)
   { m_pContext = pContext; }
 
@@ -71,9 +54,6 @@ public:
   void setSOName(const std::string& pName);
 
   // -----  observers  ----- //
-  unsigned int type() const
-  { return m_Type; }
-
   const std::string& name() const
   { return m_Name; }
 
@@ -90,7 +70,6 @@ public:
   { return m_pContext; }
 
 protected:
-  unsigned int m_Type;
   LDContext *m_pContext;
   sys::fs::Path m_Path;
   std::string m_Name;

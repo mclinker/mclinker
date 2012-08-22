@@ -27,7 +27,6 @@ DECL_X86_APPLY_RELOC_FUNCS
 /// the prototype of applying function
 typedef RelocationFactory::Result
                           (*ApplyFunctionType)(Relocation& pReloc,
-                                               const LinkerConfig& pConfig,
                                                X86RelocationFactory& pParent);
 
 // the table entry of applying functions
@@ -57,8 +56,7 @@ X86RelocationFactory::~X86RelocationFactory()
 }
 
 RelocationFactory::Result
-X86RelocationFactory::applyRelocation(Relocation& pRelocation,
-                                           const LinkerConfig& pConfig)
+X86RelocationFactory::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
 
@@ -69,7 +67,7 @@ X86RelocationFactory::applyRelocation(Relocation& pRelocation,
   }
 
   // apply the relocation
-  return ApplyFunctions[type].func(pRelocation, pConfig, *this);
+  return ApplyFunctions[type].func(pRelocation, *this);
 }
 
 const char* X86RelocationFactory::getName(Relocation::Type pType) const
@@ -84,21 +82,19 @@ const char* X86RelocationFactory::getName(Relocation::Type pType) const
 // Check if symbol can use relocation R_386_RELATIVE
 static bool
 helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const LinkerConfig& pConfig,
                           const X86RelocationFactory& pFactory)
 
 {
   // if symbol is dynamic or undefine or preemptible
   if (pSym.isDyn() ||
-     pSym.isUndef() ||
-     pFactory.getTarget().isSymbolPreemptible(pSym, pConfig, pConfig.output()))
+      pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym))
     return false;
   return true;
 }
 
 static
 GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-                                  const LinkerConfig& pConfig,
                                   X86RelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
@@ -118,7 +114,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       Relocation& rel_entry =
         *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      if (helper_use_relative_reloc(*rsym, pConfig, pParent)) {
+      if (helper_use_relative_reloc(*rsym, pParent)) {
         // Initialize got entry to target symbol address
         got_entry.setContent(pReloc.symValue());
         rel_entry.setType(llvm::ELF::R_386_RELATIVE);
@@ -148,10 +144,9 @@ X86RelocationFactory::Address helper_GOT_ORG(X86RelocationFactory& pParent)
 
 static
 X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
-                                         const LinkerConfig& pConfig,
                                          X86RelocationFactory& pParent)
 {
-  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pConfig,  pParent);
+  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86RelocationFactory::Address got_addr =
     pParent.getTarget().getGOT().getSection().addr();
   return got_addr + pParent.getLayout().getOutputOffset(got_entry);
@@ -235,7 +230,6 @@ void helper_DynRel(Relocation& pReloc,
 
 // R_386_NONE
 X86RelocationFactory::Result none(Relocation& pReloc,
-                                  const LinkerConfig& pConfig,
                                   X86RelocationFactory& pParent)
 {
   return X86RelocationFactory::OK;
@@ -243,15 +237,13 @@ X86RelocationFactory::Result none(Relocation& pReloc,
 
 // R_386_32: S + A
 X86RelocationFactory::Result abs32(Relocation& pReloc,
-                                   const LinkerConfig& pConfig,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                       *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT),
-                       pConfig, pConfig.output(), true);
+                       *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), true);
 
   const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
@@ -280,7 +272,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
     if (has_dyn_rel) {
-      if (helper_use_relative_reloc(*rsym, pConfig, pParent)) {
+      if (helper_use_relative_reloc(*rsym, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
@@ -297,7 +289,6 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
 
 // R_386_PC32: S + A - P
 X86RelocationFactory::Result rel32(Relocation& pReloc,
-                                   const LinkerConfig& pConfig,
                                    X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -322,9 +313,8 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
        pReloc.target() = S + A - P;
     }
     if (pParent.getTarget().symbolNeedsDynRel(
-          *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), pConfig,
-                  pConfig.output(), false)) {
-      if (helper_use_relative_reloc(*rsym, pConfig, pParent) ) {
+          *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), false)) {
+      if (helper_use_relative_reloc(*rsym, pParent) ) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
@@ -341,7 +331,6 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
 
 // R_386_GOTOFF: S + A - GOT_ORG
 X86RelocationFactory::Result gotoff32(Relocation& pReloc,
-                                      const LinkerConfig& pConfig,
                                       X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
@@ -354,7 +343,6 @@ X86RelocationFactory::Result gotoff32(Relocation& pReloc,
 
 // R_386_GOTPC: GOT_ORG + A - P
 X86RelocationFactory::Result gotpc32(Relocation& pReloc,
-                                     const LinkerConfig& pConfig,
                                      X86RelocationFactory& pParent)
 {
   RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
@@ -366,14 +354,13 @@ X86RelocationFactory::Result gotpc32(Relocation& pReloc,
 
 // R_386_GOT32: GOT(S) + A - GOT_ORG
 X86RelocationFactory::Result got32(Relocation& pReloc,
-                                   const LinkerConfig& pConfig,
                                    X86RelocationFactory& pParent)
 {
   if (!(pReloc.symInfo()->reserved()
        & (X86GNULDBackend::ReserveGOT |X86GNULDBackend::GOTRel))) {
     return X86RelocationFactory::BadReloc;
   }
-  X86RelocationFactory::Address GOT_S   = helper_GOT(pReloc, pConfig, pParent);
+  X86RelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
   RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
@@ -383,7 +370,6 @@ X86RelocationFactory::Result got32(Relocation& pReloc,
 
 // R_386_PLT32: PLT(S) + A - P
 X86RelocationFactory::Result plt32(Relocation& pReloc,
-                                   const LinkerConfig& pConfig,
                                    X86RelocationFactory& pParent)
 {
   // PLT_S depends on if there is a PLT entry.

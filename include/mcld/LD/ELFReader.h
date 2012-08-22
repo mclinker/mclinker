@@ -59,7 +59,7 @@ public:
   virtual bool isMyMachine(void* pELFHeader) const = 0;
 
   /// fileType - the file type of this file
-  virtual MCLDFile::Type fileType(void* pELFHeader) const = 0;
+  virtual Input::Type fileType(void* pELFHeader) const = 0;
 
   /// target - the target backend
   GNULDBackend& target()
@@ -192,7 +192,7 @@ public:
   inline bool isMyMachine(void* pELFHeader) const;
 
   /// fileType - the file type of this file
-  inline MCLDFile::Type fileType(void* pELFHeader) const;
+  inline Input::Type fileType(void* pELFHeader) const;
 
   /// readSectionHeaders - read ELF section header table and create LDSections
   inline bool readSectionHeaders(Input& pInput,

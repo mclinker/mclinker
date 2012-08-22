@@ -14,6 +14,7 @@
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class FragmentLinker;
 class Relocation;
 class RelocationFactory;
@@ -30,7 +31,6 @@ class LDSymbol;
 class LDSection;
 class SectionMap;
 class Output;
-class LinkerConfig;
 class SymbolCategory;
 class Input;
 class GOT;
@@ -47,7 +47,7 @@ class TargetLDBackend
   void operator=(const TargetLDBackend &);  // DO NOT IMPLEMENT
 
 protected:
-  TargetLDBackend();
+  TargetLDBackend(const LinkerConfig& pConfig);
 
 public:
   virtual ~TargetLDBackend();
@@ -56,9 +56,9 @@ public:
   virtual bool initTargetSectionMap(SectionMap& pSectionMap) { return true;}
   virtual void initTargetSegments(FragmentLinker& pLinker) { }
   virtual void initTargetSections(FragmentLinker& pLinker) { }
-  virtual void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput) { }
+  virtual void initTargetSymbols(FragmentLinker& pLinker) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
-  virtual bool initStandardSymbols(FragmentLinker& pLinker, const Output& pOutput) = 0;
+  virtual bool initStandardSymbols(FragmentLinker& pLinker) = 0;
   virtual bool initRelocFactory(const FragmentLinker& pLinker) = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;
@@ -73,13 +73,10 @@ public:
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,
-                              const LinkerConfig& pConfig,
-                              const Output& pOutput,
                               const LDSection& pSection) = 0;
 
   // -----  format dependent  ----- //
-  virtual ArchiveReader* createArchiveReader(LinkerConfig&,
-                                             Module&,
+  virtual ArchiveReader* createArchiveReader(Module&,
                                              MemoryAreaFactory&) = 0;
   virtual ObjectReader*  createObjectReader(FragmentLinker&) = 0;
   virtual DynObjReader*  createDynObjReader(FragmentLinker&) = 0;
@@ -94,18 +91,14 @@ public:
   virtual LDFileFormat* getExecFileFormat() = 0;
 
   /// preLayout - Backend can do any needed modification before layout
-  virtual void preLayout(const Output& pOutput,
-                         const LinkerConfig& pConfig,
-                         FragmentLinker& pLinker) = 0;
+  virtual void preLayout(FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
-  virtual void postLayout(const Output& pOutput,
-                          const LinkerConfig& pConfig,
+  virtual void postLayout(Output& pOutput,
                           FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  virtual void postProcessing(const LinkerConfig& pConfig,
-                              FragmentLinker& pLinker,
+  virtual void postProcessing(FragmentLinker& pLinker,
                               MemoryArea& pOutput) = 0;
 
   /// Is the target machine little endian? **/
@@ -115,36 +108,33 @@ public:
   virtual unsigned int bitclass() const = 0;
 
   /// the common page size of the target machine
-  virtual uint64_t commonPageSize(const LinkerConfig& pConfig) const = 0;
+  virtual uint64_t commonPageSize() const = 0;
 
   /// the abi page size of the target machine
-  virtual uint64_t abiPageSize(const LinkerConfig& pConfig) const = 0;
+  virtual uint64_t abiPageSize() const = 0;
 
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;
 
   /// computeSectionOrder - compute the layout order of the given section
-  virtual unsigned int getSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr,
-                                       const LinkerConfig& pConfig) const = 0;
+  virtual unsigned int getSectionOrder(const LDSection& pSectHdr) const = 0;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void
   sizeNamePools(const Output& pOutput,
-                const SymbolCategory& pSymbols,
-                const LinkerConfig& pConfig) = 0;
+                const SymbolCategory& pSymbols) = 0;
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  virtual bool finalizeSymbols(FragmentLinker& pLinker, const Output& pOutput) = 0;
+  virtual bool finalizeSymbols(FragmentLinker& pLinker) = 0;
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const = 0;
+  virtual bool allocateCommonSymbols(FragmentLinker& pLinker) const = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,
@@ -157,17 +147,21 @@ public:
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
-  virtual void sizeInterp(const Output& pOutput, const LinkerConfig& pConfig) = 0;
+  virtual void sizeInterp() = 0;
 
 public:
   EhFrame* getEhFrame();
 
   const EhFrame* getEhFrame() const;
 
+protected:
+  const LinkerConfig& config() const { return m_Config; }
+
 private:
   /// m_pEhFrame - section .eh_frame
   EhFrame* m_pEhFrame;
 
+  const LinkerConfig& m_Config;
 };
 
 } // End mcld namespace

@@ -19,6 +19,8 @@
 
 namespace mcld {
 
+class LinkerConfig;
+
 //===----------------------------------------------------------------------===//
 /// X86GNULDBackend - linker backend of X86 target of GNU ELF format
 ///
@@ -68,7 +70,8 @@ public:
     PLTandRel    = 9
   };
 
-  X86GNULDBackend();
+public:
+  X86GNULDBackend(const LinkerConfig& pConfig);
 
   ~X86GNULDBackend();
 
@@ -94,13 +97,10 @@ public:
   unsigned int bitclass() const;
 
   /// preLayout - Backend can do any needed modification before layout
-  void doPreLayout(const Output& pOutput,
-                   const LinkerConfig& pInfo,
-                   FragmentLinker& pLinker);
+  void doPreLayout(FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
-  void doPostLayout(const Output& pOutput,
-                    const LinkerConfig& pInfo,
+  void doPostLayout(Output& pOutput,
                     FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
@@ -122,15 +122,11 @@ public:
   ///  - backend can maintain its own map<LDSection, table> to get the table
   /// from given LDSection.
   ///
-  /// @param pOutput - the output file
   /// @param pSection - the given LDSection
-  /// @param pInfo - all options in the command line.
   /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
-  uint64_t emitSectionData(const Output& pOutput,
-                           const LDSection& pSection,
-                           const LinkerConfig& pInfo,
+  uint64_t emitSectionData(const LDSection& pSection,
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
@@ -160,7 +156,7 @@ public:
 
   void initTargetSections(FragmentLinker& pLinker);
 
-  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.
@@ -171,8 +167,6 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput,
                       const LDSection& pSection);
 
   OutputRelocSection& getRelDyn();
@@ -184,25 +178,19 @@ public:
   const OutputRelocSection& getRelPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of X86 target sections
-  unsigned int getTargetSectionOrder(const Output& pOutput,
-                                     const LDSection& pSectHdr,
-                                     const LinkerConfig& pInfo) const;
+  unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
-  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker);
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput);
+                      FragmentLinker& pLinker);
 
   void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
-                       FragmentLinker& pLinker,
-                       const LinkerConfig& pConfig,
-                       const Output& pOutput);
+                       FragmentLinker& pLinker);
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -218,10 +206,10 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createX86GOT(FragmentLinker& pLinker, const Output& pOutput);
-  void createX86GOTPLT(FragmentLinker& pLinker, const Output& pOutput);
-  void createX86PLTandRelPLT(FragmentLinker& pLinker, const Output& pOutput);
-  void createX86RelDyn(FragmentLinker& pLinker, const Output& pOutput);
+  void createX86GOT(FragmentLinker& pLinker);
+  void createX86GOTPLT(FragmentLinker& pLinker);
+  void createX86PLTandRelPLT(FragmentLinker& pLinker);
+  void createX86RelDyn(FragmentLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

@@ -25,7 +25,8 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
   : m_Options(),
     m_Scripts(),
     m_Bitcode(),
-    m_Triple(pTripleString)
+    m_Triple(pTripleString),
+    m_CodeGenType(Unknown)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);

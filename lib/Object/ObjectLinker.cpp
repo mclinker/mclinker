@@ -60,7 +60,7 @@ bool ObjectLinker::initFragmentLinker()
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
   m_pObjectReader  = m_LDBackend.createObjectReader(*m_pLinker);
-  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Config, m_Module, m_AreaFactory);
+  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module, m_AreaFactory);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pLinker);
   m_pObjectWriter  = m_LDBackend.createObjectWriter(*m_pLinker);
   m_pDynObjWriter  = m_LDBackend.createDynObjWriter(*m_pLinker);
@@ -88,20 +88,20 @@ bool ObjectLinker::initStdSections()
   m_pLinker->initSectionMap();
 
   // initialize standard sections
-  switch (m_Config.output().type()) {
-    case Output::DynObj: {
+  switch (m_Config.codeGenType()) {
+    case LinkerConfig::DynObj: {
       // intialize standard and target-dependent sections
       if (!m_LDBackend.initDynObjSections(*m_pLinker))
         return false;
       break;
     }
-    case Output::Exec: {
+    case LinkerConfig::Exec: {
       // intialize standard and target-dependent sections
       if (!m_LDBackend.initExecSections(*m_pLinker))
         return false;
       break;
     }
-    case Output::Object: {
+    case LinkerConfig::Object: {
       llvm::report_fatal_error(llvm::Twine("output type is not implemented yet. file: `") +
                                m_Config.output().name() +
                                llvm::Twine("'."));
@@ -210,7 +210,7 @@ bool ObjectLinker::mergeSections()
 ///   standard symbols, return false
 bool ObjectLinker::addStandardSymbols()
 {
-  return m_LDBackend.initStandardSymbols(*m_pLinker, m_Config.output());
+  return m_LDBackend.initStandardSymbols(*m_pLinker);
 }
 
 /// addTargetSymbols - some targets, such as MIPS and ARM, need some
@@ -219,7 +219,7 @@ bool ObjectLinker::addStandardSymbols()
 ///   target symbols, return false
 bool ObjectLinker::addTargetSymbols()
 {
-  m_LDBackend.initTargetSymbols(*m_pLinker, m_Config.output());
+  m_LDBackend.initTargetSymbols(*m_pLinker);
   return true;
 }
 
@@ -244,16 +244,14 @@ bool ObjectLinker::readRelocations()
 /// prelayout - help backend to do some modification before layout
 bool ObjectLinker::prelayout()
 {
-  m_LDBackend.preLayout(m_Config.output(),
-                        m_Config,
-                        *m_pLinker);
+  m_LDBackend.preLayout(*m_pLinker);
 
-  m_LDBackend.allocateCommonSymbols(m_Config, *m_pLinker);
+  m_LDBackend.allocateCommonSymbols(*m_pLinker);
 
   /// check program interpreter - computer the name size of the runtime dyld
   /// FIXME: check if we are doing static linking!
-  if (m_Config.output().type() == Output::Exec)
-    m_LDBackend.sizeInterp(m_Config.output(), m_Config);
+  if (m_Config.codeGenType() == LinkerConfig::Exec)
+    m_LDBackend.sizeInterp();
 
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
@@ -261,7 +259,8 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_Config.output(), m_pLinker->getOutputSymbols(), m_Config);
+  m_LDBackend.sizeNamePools(m_Config.output(),
+                            m_pLinker->getOutputSymbols());
 
   return true;
 }
@@ -280,7 +279,6 @@ bool ObjectLinker::layout()
 bool ObjectLinker::postlayout()
 {
   m_LDBackend.postLayout(m_Config.output(),
-                         m_Config,
                          *m_pLinker);
   return true;
 }
@@ -306,16 +304,16 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
-  switch(m_Config.output().type()) {
-    case Output::Object:
+  switch(m_Config.codeGenType()) {
+    case LinkerConfig::Object:
       getObjectWriter()->writeObject(m_Config.output());
       return true;
-    case Output::DynObj:
+    case LinkerConfig::DynObj:
       getDynObjWriter()->writeDynObj(m_Config.output(),
                                      m_Module,
                                      pOutput);
       return true;
-    case Output::Exec:
+    case LinkerConfig::Exec:
       getExecWriter()->writeExecutable(m_Config.output(),
                                        m_Module,
                                        pOutput);
@@ -329,7 +327,7 @@ bool ObjectLinker::postProcessing(MemoryArea& pOutput)
 {
   m_pLinker->syncRelocationResult(pOutput);
 
-  m_LDBackend.postProcessing(m_Config, *m_pLinker, pOutput);
+  m_LDBackend.postProcessing(*m_pLinker, pOutput);
   return true;
 }
 

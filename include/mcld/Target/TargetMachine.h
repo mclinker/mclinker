@@ -113,7 +113,6 @@ private:
                        SectLinkerOption *pLinkerOpt,
                        Module& pModule,
                        mcld::MemoryArea& pOutput,
-                       MCLDFile::Type pOutputLinkType,
                        llvm::MCContext *&OutCtx);
 
 private:

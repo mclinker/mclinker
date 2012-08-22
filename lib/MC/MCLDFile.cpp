@@ -17,17 +17,16 @@ using namespace mcld;
 // MCLDFile
 //===----------------------------------------------------------------------===//
 MCLDFile::MCLDFile()
-  : m_Type(Unknown), m_pContext(0), m_Path(), m_Name() {
+  : m_pContext(NULL), m_Path(), m_Name() {
 }
 
 MCLDFile::MCLDFile(llvm::StringRef pName)
-  : m_Type(Unknown), m_pContext(0), m_Path(), m_Name(pName.data()) {
+  : m_pContext(NULL), m_Path(), m_Name(pName.data()) {
 }
 
 MCLDFile::MCLDFile(llvm::StringRef pName,
-                   const sys::fs::Path& pPath,
-                   unsigned int pType)
-  : m_Type(pType), m_pContext(0), m_Path(pPath), m_Name(pName.data()) {
+                   const sys::fs::Path& pPath)
+  : m_pContext(NULL), m_Path(pPath), m_Name(pName.data()) {
 }
 
 MCLDFile::~MCLDFile()

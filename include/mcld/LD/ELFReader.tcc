@@ -57,7 +57,7 @@ bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
 }
 
 /// fileType - return the file type
-MCLDFile::Type ELFReader<32, true>::fileType(void* pELFHeader) const
+Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
 {
   llvm::ELF::Elf32_Ehdr* hdr =
                           reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
@@ -69,16 +69,16 @@ MCLDFile::Type ELFReader<32, true>::fileType(void* pELFHeader) const
 
   switch(type) {
   case llvm::ELF::ET_REL:
-    return MCLDFile::Object;
+    return Input::Object;
   case llvm::ELF::ET_EXEC:
-    return MCLDFile::Exec;
+    return Input::Exec;
   case llvm::ELF::ET_DYN:
-    return MCLDFile::DynObj;
+    return Input::DynObj;
   case llvm::ELF::ET_CORE:
-    return MCLDFile::CoreFile;
+    return Input::CoreFile;
   case llvm::ELF::ET_NONE:
   default:
-    return MCLDFile::Unknown;
+    return Input::Unknown;
   }
 }
 

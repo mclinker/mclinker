@@ -237,11 +237,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (pLinkerOpt == NULL)
       return true;
 
+    pLinkerOpt->config().setCodeGenType(LinkerConfig::Exec);
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
                         pModule,
                         pOutput.memory(),
-                        MCLDFile::Exec,
                         Context))
       return true;
     break;
@@ -250,11 +250,11 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     if (pLinkerOpt == NULL)
       return true;
 
+    pLinkerOpt->config().setCodeGenType(LinkerConfig::DynObj);
     if (addLinkerPasses(pPM,
                         pLinkerOpt,
                         pModule,
                         pOutput.memory(),
-                        MCLDFile::DynObj,
                         Context))
       return true;
     break;
@@ -347,10 +347,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               SectLinkerOption *pLinkerOpt,
                                               mcld::Module& pModule,
                                               mcld::MemoryArea& pOutput,
-                                              MCLDFile::Type pOutputLinkType,
                                               llvm::MCContext *&Context)
 {
-  TargetLDBackend* ldBackend = getTarget().createLDBackend(m_Triple);
+  TargetLDBackend* ldBackend = getTarget().createLDBackend(pLinkerOpt->config());
   if (NULL == ldBackend)
     return true;
 
@@ -358,7 +357,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
     return true;
 
   // set up output's SOName
-  if (pOutputLinkType == MCLDFile::DynObj &&
+  if (LinkerConfig::DynObj == pLinkerOpt->config().codeGenType() &&
       pLinkerOpt->config().output().name().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name.
@@ -366,7 +365,6 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   }
 
   pLinkerOpt->config().output().setPath(sys::fs::RealPath(pOutput.handler()->path()));
-  pLinkerOpt->config().output().setType(pOutputLinkType);
 
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
                                                              *pLinkerOpt,

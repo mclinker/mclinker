@@ -46,11 +46,9 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply(RelocationFactory& pRelocFactory,
-                       const LinkerConfig& pConfig)
+void Relocation::apply(RelocationFactory& pRelocFactory)
 {
-  RelocationFactory::Result result =
-                                 pRelocFactory.applyRelocation(*this, pConfig);
+  RelocationFactory::Result result = pRelocFactory.applyRelocation(*this);
 
   switch (result) {
     case RelocationFactory::OK: {

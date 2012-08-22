@@ -14,8 +14,7 @@
 #include <mcld/Support/GCFactory.h>
 #include <mcld/LD/Relocation.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSymbol;
 class ResolveInfo;
@@ -51,8 +50,7 @@ public:
   virtual ~RelocationFactory();
 
   /// apply - general apply function
-  virtual Result applyRelocation(Relocation& pRelocation,
-                                 const LinkerConfig& pConfig) = 0;
+  virtual Result applyRelocation(Relocation& pRelocation) = 0;
 
   // ----- production ----- //
   /// produce - produce a relocation entry

@@ -35,12 +35,14 @@ class Input : public MCLDFile
 friend class InputFactory;
 public:
   enum Type {
-    Unknown = MCLDFile::Unknown,
-    Object = MCLDFile::Object,
-    DynObj = MCLDFile::DynObj,
-    Archive = MCLDFile::Archive,
-    Script = MCLDFile::Script,
-    External = MCLDFile::External
+    Unknown,
+    Object,
+    Exec,
+    DynObj,
+    CoreFile,
+    Script,
+    Archive,
+    External
   };
 
 private:
@@ -55,6 +57,12 @@ private:
 
 public:
   ~Input();
+
+  void setType(unsigned int pType)
+  { m_Type = pType; }
+
+  unsigned int type() const
+  { return m_Type; }
 
   bool isRecognized() const
   { return (m_Type != Unknown); }
@@ -86,6 +94,7 @@ public:
   MemoryArea*       memArea()       { return m_pMemArea; }
 
 private:
+  unsigned int m_Type;
   Attribute *m_pAttr;
   bool m_bNeeded;
   off_t m_fileOffset;

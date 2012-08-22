@@ -14,6 +14,7 @@
 
 namespace mcld {
 
+class LinkerConfig;
 class FragmentLinker;
 class OutputRelocSection;
 class SectionMap;
@@ -33,7 +34,7 @@ public:
   };
 
 public:
-  MipsGNULDBackend();
+  MipsGNULDBackend(const LinkerConfig& pConfig);
   ~MipsGNULDBackend();
 
 public:
@@ -44,7 +45,7 @@ public:
   void initTargetSections(FragmentLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker);
 
   /// initRelocFactory - create and initialize RelocationFactory.
   bool initRelocFactory(const FragmentLinker& pLinker);
@@ -58,8 +59,6 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput,
                       const LDSection& pSection);
 
   uint32_t machine() const;
@@ -80,16 +79,13 @@ public:
   uint64_t defaultTextSegmentAddr() const;
 
   /// abiPageSize - the abi page size of the target machine
-  uint64_t abiPageSize(const LinkerConfig& pInfo) const;
+  uint64_t abiPageSize() const;
 
   /// preLayout - Backend can do any needed modification before layout
-  void doPreLayout(const Output& pOutput,
-                   const LinkerConfig& pInfo,
-                   FragmentLinker& pLinker);
+  void doPreLayout(FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
-  void doPostLayout(const Output& pOutput,
-                    const LinkerConfig& pInfo,
+  void doPostLayout(Output& pOutput,
                     FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
@@ -111,15 +107,11 @@ public:
   ///  - backend can maintain its own map<LDSection, table> to get the table
   /// from given LDSection.
   ///
-  /// @param pOutput - the output file
   /// @param pSection - the given LDSection
-  /// @param pInfo - all options in the command line.
   /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
-  uint64_t emitSectionData(const Output& pOutput,
-                           const LDSection& pSection,
-                           const LinkerConfig& pInfo,
+  uint64_t emitSectionData(const LDSection& pSection,
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
@@ -127,7 +119,6 @@ public:
   virtual void emitDynNamePools(Output& pOutput,
                                 SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                const LinkerConfig& pConfig,
                                 MemoryArea& pOut);
 
   MipsGOT& getGOT();
@@ -137,32 +128,26 @@ public:
   const OutputRelocSection& getRelDyn() const;
 
   /// getTargetSectionOrder - compute the layout order of ARM target sections
-  unsigned int getTargetSectionOrder(const Output& pOutput,
-                                     const LDSection& pSectHdr,
-                                     const LinkerConfig& pInfo) const;
+  unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeSymbol - finalize the symbol value
-  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker);
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  bool allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const;
+  bool allocateCommonSymbols(FragmentLinker& pLinker) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput);
+                      FragmentLinker& pLinker);
 
   void scanGlobalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput);
+                      FragmentLinker& pLinker);
 
-  void createGOT(FragmentLinker& pLinker, const Output& pOutput);
-  void createRelDyn(FragmentLinker& pLinker, const Output& pOutput);
+  void createGOT(FragmentLinker& pLinker);
+  void createRelDyn(FragmentLinker& pLinker);
 
   /// updateAddend - update addend value of the relocation if the
   /// the target symbol is a section symbol. Addend is the offset
@@ -187,9 +172,9 @@ private:
 private:
   /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
   bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
+
   /// emitDynamicSymbol - emit dynamic symbol.
   void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                         Output& pOutput,
                          LDSymbol& pSymbol,
                          const Layout& pLayout,
                          char* strtab,

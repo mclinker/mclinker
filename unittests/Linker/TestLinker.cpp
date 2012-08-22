@@ -92,7 +92,7 @@ bool TestLinker::initialize(const std::string &pTriple)
   mcld::InitializeDiagnosticEngine(*m_pConfig, m_pDiagLineInfo, m_pDiagPrinter);
 
   // create mcld::TargetLDBackend
-  m_pBackend = m_pTarget->createLDBackend(pTriple);
+  m_pBackend = m_pTarget->createLDBackend(*m_pConfig);
   if (NULL == m_pBackend) {
     fatal(diag::fatal_cannot_init_backend) << pTriple;
     return false;

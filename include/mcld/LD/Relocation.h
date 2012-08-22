@@ -80,7 +80,7 @@ public:
   const FragmentRef& targetRef() const
   { return m_TargetAddress; }
 
-  void apply(RelocationFactory& pRelocFactory, const LinkerConfig& pConfig);
+  void apply(RelocationFactory& pRelocFactory);
 
   /// ----- modifiers ----- ///
   void setType(Type pType);

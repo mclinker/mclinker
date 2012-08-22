@@ -62,7 +62,7 @@ bool ELFObjectReader::isMyFormat(Input &pInput) const
     result = false;
   else if (!m_pELFReader->isMyMachine(ELF_hdr))
     result = false;
-  else if (MCLDFile::Object != m_pELFReader->fileType(ELF_hdr))
+  else if (Input::Object != m_pELFReader->fileType(ELF_hdr))
     result = false;
   pInput.memArea()->release(region);
   return result;

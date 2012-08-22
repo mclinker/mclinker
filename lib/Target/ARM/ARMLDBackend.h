@@ -30,8 +30,9 @@ class SectionMap;
 class ARMGNULDBackend : public GNULDBackend
 {
 public:
-  ARMGNULDBackend();
+  ARMGNULDBackend(const LinkerConfig& pConfig);
   ~ARMGNULDBackend();
+
 public:
   typedef std::vector<llvm::ELF::Elf32_Dyn*> ELF32DynList;
 
@@ -86,7 +87,7 @@ public:
   void initTargetSections(FragmentLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  void initTargetSymbols(FragmentLinker& pLinker);
 
   /// initRelocFactory - create and initialize RelocationFactory
   bool initRelocFactory(const FragmentLinker& pLinker);
@@ -103,8 +104,6 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput,
                       const LDSection& pSection);
 
   uint32_t machine() const
@@ -132,14 +131,10 @@ public:
   { return 0x8000; }
 
   /// doPreLayout - Backend can do any needed modification before layout
-  void doPreLayout(const Output& pOutput,
-                   const LinkerConfig& pConfig,
-                   FragmentLinker& pLinker);
+  void doPreLayout(FragmentLinker& pLinker);
 
   /// doPostLayout -Backend can do any needed modification after layout
-  void doPostLayout(const Output& pOutput,
-                    const LinkerConfig& pConfig,
-                    FragmentLinker& pLinker);
+  void doPostLayout(Output& pOutput, FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
@@ -161,15 +156,12 @@ public:
   ///  - backend can maintain its own map<LDSection, table> to get the table
   /// from given LDSection.
   ///
-  /// @param pOutput - the output file
   /// @param pSection - the given LDSection
   /// @param pConfig - all options in the command line.
   /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
-  uint64_t emitSectionData(const Output& pOutput,
-                           const LDSection& pSection,
-                           const LinkerConfig& pConfig,
+  uint64_t emitSectionData(const LDSection& pSection,
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
@@ -190,12 +182,10 @@ public:
   const OutputRelocSection& getRelPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of ARM target sections
-  unsigned int getTargetSectionOrder(const Output& pOutput,
-                                     const LDSection& pSectHdr,
-                                     const LinkerConfig& pConfig) const;
+  unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
-  bool finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput);
+  bool finalizeTargetSymbols(FragmentLinker& pLinker);
 
   /// readSection - read target dependent sections
   bool readSection(Input& pInput,
@@ -205,19 +195,13 @@ public:
 private:
   void scanLocalReloc(Relocation& pReloc,
                       const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker,
-                      const LinkerConfig& pConfig,
-                      const Output& pOutput);
+                      FragmentLinker& pLinker);
 
   void scanGlobalReloc(Relocation& pReloc,
                        const LDSymbol& pInputSym,
-                       FragmentLinker& pLinker,
-                       const LinkerConfig& pConfig,
-                       const Output& pOutput);
+                       FragmentLinker& pLinker);
 
-  void checkValidReloc(Relocation& pReloc,
-                       const LinkerConfig& pConfig,
-                       const Output& pOutput) const;
+  void checkValidReloc(Relocation& pReloc) const;
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -237,14 +221,14 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createARMGOT(FragmentLinker& pLinker, const Output& pOutput);
+  void createARMGOT(FragmentLinker& pLinker);
 
   /// createARMPLTandRelPLT - create PLT and RELPLT sections.
   /// Because in ELF sh_info in .rel.plt is the shndx of .plt, these two
   /// sections should be create together.
-  void createARMPLTandRelPLT(FragmentLinker& pLinker, const Output& pOutput);
+  void createARMPLTandRelPLT(FragmentLinker& pLinker);
 
-  void createARMRelDyn(FragmentLinker& pLinker, const Output& pOutput);
+  void createARMRelDyn(FragmentLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

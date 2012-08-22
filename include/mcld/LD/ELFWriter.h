@@ -68,24 +68,23 @@ public:
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
                                  const GNULDBackend& pBackend,
                                  const Module& pModule,
-                                 const Layout& pLayout,
-                                 const Output& pOutput) const;
+                                 const Layout& pLayout) const;
 
 protected:
   void emitELF32SectionHeader(Output& pOutput,
+                              const LinkerConfig& pConfig,
                               FragmentLinker& pLinker,
                               MemoryArea& pOut) const;
 
   void emitELF64SectionHeader(Output& pOutput,
+                              const LinkerConfig& pConfig,
                               FragmentLinker& pLinker,
                               MemoryArea& pOut) const;
 
-  void emitELF32ProgramHeader(Output& pOutput,
-                              const GNULDBackend& pBackend,
+  void emitELF32ProgramHeader(const GNULDBackend& pBackend,
                               MemoryArea& pOut) const;
 
-  void emitELF64ProgramHeader(Output& pOutput,
-                              const GNULDBackend& pBackend,
+  void emitELF64ProgramHeader(const GNULDBackend& pBackend,
                               MemoryArea& pOut) const;
 
   // emitShStrTab - emit .shstrtab
@@ -102,17 +101,17 @@ protected:
                        MemoryRegion& pRegion) const;
 
   void emitRelocation(const Layout& pLayout,
-                      const Output& pOutput,
+                      const LinkerConfig& pConfig,
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
   void emitRel(const Layout& pLayout,
-               const Output& pOutput,
+               const LinkerConfig& pConfig,
                const SectionData& pSectionData,
                MemoryRegion& pRegion) const;
 
   void emitRela(const Layout& pLayout,
-                const Output& pOutput,
+                const LinkerConfig& pConfig,
                 const SectionData& pSectionData,
                 MemoryRegion& pRegion) const;
 
@@ -124,10 +123,12 @@ private:
   uint64_t getELF64SectEntrySize(const LDSection& pSection) const;
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_link
-  uint64_t getSectLink(const LDSection& pSection, const Output& pOutput) const;
+  uint64_t getSectLink(const LDSection& pSection,
+                       const Output& pOutput,
+                       const LinkerConfig& pConfig) const;
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_info
-  uint64_t getSectInfo(const LDSection& pSection, const Output& pOutput) const;
+  uint64_t getSectInfo(const LDSection& pSection) const;
 
   uint64_t getELF32LastStartOffset(const Output& pOutput) const;
 

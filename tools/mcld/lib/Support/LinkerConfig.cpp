@@ -23,7 +23,7 @@
 using namespace alone;
 
 LinkerConfig::LinkerConfig(const std::string &pTriple)
-  : mTriple(pTriple), mShared(false), mSOName(), mTarget(NULL), mLDConfig(NULL),
+  : mTriple(pTriple), mSOName(), mTarget(NULL), mLDConfig(NULL),
     mDiagLineInfo(NULL), mDiagPrinter(NULL) {
 
   initializeTarget();
@@ -66,6 +66,7 @@ bool LinkerConfig::initializeLDInfo() {
   }
 
   mLDConfig = new mcld::LinkerConfig(getTriple(), 1, 32);
+  mLDConfig->setCodeGenType(mcld::LinkerConfig::Exec);
   return true;
 }
 
@@ -80,8 +81,15 @@ bool LinkerConfig::initializeDiagnostic() {
   return true;
 }
 
+bool LinkerConfig::isShared() const {
+  return (mcld::LinkerConfig::DynObj == mLDConfig->codeGenType());
+}
+
 void LinkerConfig::setShared(bool pEnable) {
-  mShared = pEnable;
+  if (pEnable)
+    mLDConfig->setCodeGenType(mcld::LinkerConfig::DynObj);
+  else
+    mLDConfig->setCodeGenType(mcld::LinkerConfig::Exec);
   return;
 }
 

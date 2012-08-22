@@ -29,7 +29,7 @@ public:
   ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
   ~ARMRelocationFactory();
 
-  Result applyRelocation(Relocation& pRelocation, const LinkerConfig& pConfig);
+  Result applyRelocation(Relocation& pRelocation);
 
   ARMGNULDBackend& getTarget()
   { return m_Target; }

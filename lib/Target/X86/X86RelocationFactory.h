@@ -16,8 +16,7 @@
 #include <mcld/Target/GOT.h>
 #include "X86LDBackend.h"
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class X86RelocationFactory
  *  \brief X86RelocationFactory creates and destroys the X86 relocations.
@@ -29,7 +28,7 @@ public:
   X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
   ~X86RelocationFactory();
 
-  Result applyRelocation(Relocation& pRelocation, const LinkerConfig& pConfig);
+  Result applyRelocation(Relocation& pRelocation);
 
   X86GNULDBackend& getTarget()
   { return m_Target; }

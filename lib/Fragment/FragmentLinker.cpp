@@ -459,7 +459,7 @@ bool FragmentLinker::finalizeSymbols()
   }
 
   // finialize target-dependent symbols
-  return m_Backend.finalizeSymbols(*this, m_Config.output());
+  return m_Backend.finalizeSymbols(*this);
 }
 
 bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
@@ -469,7 +469,7 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
   // 2. The symbol is with Hidden or Internal visibility.
   // 3. The symbol should be global or weak. Otherwise, local symbol is local.
   // 4. The symbol is defined or common
-  if (m_Config.output().type() != Output::Object &&
+  if (LinkerConfig::Object != m_Config.codeGenType() &&
       (pInfo.visibility() == ResolveInfo::Hidden ||
          pInfo.visibility() == ResolveInfo::Internal) &&
       (pInfo.isGlobal() || pInfo.isWeak()) &&
@@ -607,8 +607,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   m_RelocationList.push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, pSym, *this, m_Config,
-                           m_Config.output(), pSection);
+  m_Backend.scanRelocation(*relocation, pSym, *this, pSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak())
     fatal(diag::undefined_reference) << pResolveInfo.name();
@@ -621,7 +620,7 @@ bool FragmentLinker::applyRelocations()
 
   for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
     Fragment* frag = (Fragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory(), m_Config);
+    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory());
   }
   return true;
 }

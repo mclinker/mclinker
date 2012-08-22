@@ -119,20 +119,20 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
     case diag::undefined_reference: {
       // we have not implement --unresolved-symbols=method yet. So far, MCLinker
       // provides the easier --allow-shlib-undefined and --no-undefined (i.e. -z defs)
-      switch(m_Config.output().type()) {
-        case Output::Object:
+      switch(m_Config.codeGenType()) {
+        case LinkerConfig::Object:
           if (m_Config.options().isNoUndefined())
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;
         break;
-        case Output::DynObj:
+        case LinkerConfig::DynObj:
           if (m_Config.options().isNoUndefined() || !m_Config.options().isAllowShlibUndefined())
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;
         break;
-        case Output::Exec:
+        case LinkerConfig::Exec:
           severity = DiagnosticEngine::Error;
         break;
       }

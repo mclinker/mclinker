@@ -523,7 +523,7 @@ void Layout::sortSectionOrder(const Output& pOutput,
   for (size_t index = 0; index < m_SectionOrder.size(); ++index)
     sect_list.push_back(std::make_pair(
                     m_SectionOrder[index],
-                    pBackend.getSectionOrder(pOutput, *m_SectionOrder[index], pConfig)));
+                    pBackend.getSectionOrder(*m_SectionOrder[index])));
 
   // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
@@ -593,7 +593,7 @@ bool Layout::layout(Output& pOutput,
           m_SectionOrder.push_back(sect);
         break;
       case LDFileFormat::Group:
-        if (MCLDFile::Object == pOutput.type()) {
+        if (LinkerConfig::Object == pConfig.codeGenType()) {
           //TODO: support incremental linking
           ;
         }

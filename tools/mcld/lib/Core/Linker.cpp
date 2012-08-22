@@ -74,12 +74,12 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 //===----------------------------------------------------------------------===//
 Linker::Linker()
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mShared(false), mOutput(NULL) {
+    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mShared(false), mOutput(NULL) {
+    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -111,7 +111,6 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
   }
 
   mRoot = new mcld::InputTree::iterator(mLDConfig->inputs().root());
-  mShared = pConfig.isShared();
   mSOName = pConfig.getSOName();
 
   return kSuccess;
@@ -124,7 +123,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   extractFiles(pConfig);
 
-  mBackend = pConfig.getTarget()->createLDBackend(pConfig.getTriple());
+  mBackend = pConfig.getTarget()->createLDBackend(*mLDConfig);
   if (mBackend == NULL) {
     return kCreateBackend;
   }
@@ -314,12 +313,6 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
     return kOpenOutput;
   }
 
-  if (mShared) {
-    mLDConfig->output().setType(mcld::Output::DynObj);
-  } else {
-    mLDConfig->output().setType(mcld::Output::Exec);
-  }
-
   mLDConfig->output().setSOName(mSOName);
   mLDConfig->output().setContext(mLDConfig->contextFactory().produce(pPath));
 
@@ -343,7 +336,6 @@ enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
   // -----  initialize output file  ----- //
   mOutput = mMemAreaFactory->produce(pFileHandler);
 
-  mLDConfig->output().setType(mcld::Output::DynObj);
   mLDConfig->output().setContext(mLDConfig->contextFactory().produce());
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize

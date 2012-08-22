@@ -29,8 +29,9 @@
 
 using namespace mcld;
 
-X86GNULDBackend::X86GNULDBackend()
-  : m_pRelocFactory(NULL),
+X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
+  : GNULDBackend(pConfig),
+    m_pRelocFactory(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
     m_pGOTPLT(NULL),
@@ -73,18 +74,15 @@ bool X86GNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
   return true;
 }
 
-void X86GNULDBackend::doPreLayout(const Output& pOutput,
-                                  const LinkerConfig& pConfig,
-                                  FragmentLinker& pLinker)
+void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is needed
-  if (Output::DynObj == pOutput.type() && (NULL == m_pGOTPLT)) {
-    createX86GOTPLT(pLinker, pOutput);
+  if (LinkerConfig::DynObj == config().codeGenType() && (NULL == m_pGOTPLT)) {
+    createX86GOTPLT(pLinker);
   }
 }
 
-void X86GNULDBackend::doPostLayout(const Output& pOutput,
-                                   const LinkerConfig& pConfig,
+void X86GNULDBackend::doPostLayout(Output& pOutput,
                                    FragmentLinker& pLinker)
 {
 }
@@ -107,19 +105,19 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void X86GNULDBackend::createX86GOT(FragmentLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::createX86GOT(FragmentLinker& pLinker)
 {
   // get .got LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& got = file_format->getGOT();
   m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 }
 
-void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker)
 {
   // get .got.plt LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& gotplt = file_format->getGOTPLT();
   m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
@@ -153,16 +151,18 @@ void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker, const Output& pOu
   }
 }
 
-void X86GNULDBackend::createX86PLTandRelPLT(FragmentLinker& pLinker,
-                                            const Output& pOutput)
+void X86GNULDBackend::createX86PLTandRelPLT(FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& plt = file_format->getPLT();
   LDSection& relplt = file_format->getRelPlt();
   assert(m_pGOTPLT != NULL);
   // create SectionData and X86PLT
-  m_pPLT = new X86PLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOTPLT, pOutput);
+  m_pPLT = new X86PLT(plt,
+                      pLinker.getOrCreateSectData(plt),
+                      *m_pGOTPLT,
+                      config());
 
   // set info of .rel.plt to .plt
   relplt.setLink(&plt);
@@ -172,11 +172,10 @@ void X86GNULDBackend::createX86PLTandRelPLT(FragmentLinker& pLinker,
                                      8);
 }
 
-void X86GNULDBackend::createX86RelDyn(FragmentLinker& pLinker,
-                                      const Output& pOutput)
+void X86GNULDBackend::createX86RelDyn(FragmentLinker& pLinker)
 {
   // get .rel.dyn LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& reldyn = file_format->getRelDyn();
   // create SectionData and X86RelDynSection
@@ -267,9 +266,7 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     FragmentLinker& pLinker,
-                                     const LinkerConfig& pConfig,
-                                     const Output& pOutput)
+                                     FragmentLinker& pLinker)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -282,10 +279,10 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC(pOutput, pConfig)) {
+      if (isOutputPIC()) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker, pOutput);
+          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -296,7 +293,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOTPC:
       // A GOT section is needed
       if (NULL == m_pGOT)
-        createX86GOT(pLinker, pOutput);
+        createX86GOT(pLinker);
       return;
 
     case llvm::ELF::R_386_PC32:
@@ -311,9 +308,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      FragmentLinker& pLinker,
-                                      const LinkerConfig& pConfig,
-                                      const Output& pOutput)
+                                      FragmentLinker& pLinker)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -322,15 +317,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(*rsym, pConfig, pOutput)) {
+      if (symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
           if (NULL == m_pGOTPLT)
-            createX86GOTPLT(pLinker, pOutput);
+            createX86GOTPLT(pLinker);
           // create .plt and .rel.plt if not exist
           if (NULL == m_pPLT)
-            createX86PLTandRelPLT(pLinker, pOutput);
+            createX86PLTandRelPLT(pLinker);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -342,15 +337,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pConfig, pOutput, true)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker, pOutput);
+          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
-                          pOutput)) {
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
@@ -365,7 +358,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_GOTPC: {
       // A GOT section is needed
       if (NULL == m_pGOT)
-        createX86GOT(pLinker, pOutput);
+        createX86GOT(pLinker);
       return;
     }
 
@@ -379,16 +372,16 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
-         !isSymbolPreemptible(*rsym, pConfig, pOutput)) {
+         !isSymbolPreemptible(*rsym)) {
         return;
       }
 
       // Create .got section if it dosen't exist
       if (NULL == m_pGOTPLT)
-         createX86GOTPLT(pLinker, pOutput);
+         createX86GOTPLT(pLinker);
       // create .plt and .rel.plt if not exist
       if (NULL == m_pPLT)
-         createX86PLTandRelPLT(pLinker, pOutput);
+         createX86PLTandRelPLT(pLinker);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -405,15 +398,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
       if (NULL == m_pGOT)
-        createX86GOT(pLinker, pOutput);
+        createX86GOT(pLinker);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
-      if (Output::DynObj == pOutput.type() || rsym->isUndef() || rsym->isDyn()) {
+      if (LinkerConfig::DynObj == config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker, pOutput);
+          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
@@ -425,16 +418,15 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_PC32:
 
-      if (symbolNeedsPLT(*rsym, pConfig, pOutput) &&
-          pOutput.type() != Output::DynObj) {
+      if (symbolNeedsPLT(*rsym) && LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
           if (NULL == m_pGOTPLT)
-            createX86GOTPLT(pLinker, pOutput);
+            createX86GOTPLT(pLinker);
           // create .plt and .rel.plt if not exist
           if (NULL == m_pPLT)
-            createX86PLTandRelPLT(pLinker, pOutput);
+            createX86PLTandRelPLT(pLinker);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -446,15 +438,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT),
-                            pConfig, pOutput, false)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker, pOutput);
+          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym, pConfig,
-                          pOutput)) {
+        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym )) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
@@ -475,8 +465,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
-                                     const LinkerConfig& pConfig,
-                                     const Output& pOutput,
                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol
@@ -500,29 +488,24 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   // section is needed
   if (NULL == m_pGOTPLT && NULL != m_pGOTSymbol) {
     if (rsym == m_pGOTSymbol->resolveInfo()) {
-      createX86GOTPLT(pLinker, pOutput);
+      createX86GOTPLT(pLinker);
     }
   }
 
-  // rsym is local
-  if (rsym->isLocal())
-    scanLocalReloc(pReloc, pInputSym,  pLinker, pConfig, pOutput);
-
-  // rsym is external
-  else
-    scanGlobalReloc(pReloc, pInputSym ,pLinker, pConfig, pOutput);
+  if (rsym->isLocal()) // rsym is local
+    scanLocalReloc(pReloc, pInputSym,  pLinker);
+  else // rsym is external
+    scanGlobalReloc(pReloc, pInputSym ,pLinker);
 
 }
 
-uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
-                                          const LDSection& pSection,
-                                          const LinkerConfig& pConfig,
+uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
                                           const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  const ELFFileFormat* FileFormat = getOutputFormat(pOutput);
+  const ELFFileFormat* FileFormat = getOutputFormat();
   assert(FileFormat &&
          "ELFFileFormat is NULL in X86GNULDBackend::emitSectionData!");
 
@@ -595,6 +578,7 @@ uint64_t X86GNULDBackend::emitSectionData(const Output& pOutput,
   }
   return RegionSize;
 }
+
 uint32_t X86GNULDBackend::machine() const
 {
   return llvm::ELF::EM_386;
@@ -661,20 +645,18 @@ const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 }
 
 unsigned int
-X86GNULDBackend::getTargetSectionOrder(const Output& pOutput,
-                                       const LDSection& pSectHdr,
-                                       const LinkerConfig& pConfig) const
+X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
-  const ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat();
 
   if (&pSectHdr == &file_format->getGOT()) {
-    if (pConfig.options().hasNow())
+    if (config().options().hasNow())
       return SHO_RELRO;
     return SHO_RELRO_LAST;
   }
 
   if (&pSectHdr == &file_format->getGOTPLT()) {
-    if (pConfig.options().hasNow())
+    if (config().options().hasNow())
       return SHO_RELRO;
     return SHO_NON_RELRO_FIRST;
   }
@@ -699,7 +681,7 @@ void X86GNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
 }
 
-void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
+void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -716,7 +698,7 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& p
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
+bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 {
   return true;
 }
@@ -727,10 +709,9 @@ namespace mcld {
 /// createX86LDBackend - the help funtion to create corresponding X86LDBackend
 ///
 TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
-                                    const std::string& pTriple)
+                                    const LinkerConfig& pConfig)
 {
-  Triple theTriple(pTriple);
-  if (theTriple.isOSDarwin()) {
+  if (pConfig.triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
     /**
     return new X86MachOLDBackend(createX86MachOArchiveReader,
@@ -738,7 +719,7 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86MachOObjectWriter);
     **/
   }
-  if (theTriple.isOSWindows()) {
+  if (pConfig.triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
     /**
     return new X86COFFLDBackend(createX86COFFArchiveReader,
@@ -746,13 +727,14 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86COFFObjectWriter);
     **/
   }
-  return new X86GNULDBackend();
+  return new X86GNULDBackend(pConfig);
 }
 
 } // namespace of mcld
 
-//=============================
+//===----------------------------------------------------------------------===//
 // Force static initialization.
+//===----------------------------------------------------------------------===//
 extern "C" void LLVMInitializeX86LDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheX86Target, createX86LDBackend);

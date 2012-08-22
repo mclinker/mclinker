@@ -9,11 +9,10 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <new>
-
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
 
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/Support/MsgHandling.h>
 
@@ -62,14 +61,16 @@ X86PLT1::X86PLT1(SectionData* pParent, unsigned int pSize)
 X86PLT::X86PLT(LDSection& pSection,
                SectionData& pSectionData,
                X86GOTPLT &pGOTPLT,
-               const Output& pOutput)
+               const LinkerConfig& pConfig)
   : PLT(pSection, pSectionData),
     m_GOTPLT(pGOTPLT),
     m_PLTEntryIterator(),
-    m_Output(pOutput)
+    m_Config(pConfig)
 {
-  assert (Output::DynObj == pOutput.type() || Output::Exec == pOutput.type());
-  if (Output::DynObj == pOutput.type()) {
+  assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
+         LinkerConfig::Exec == m_Config.codeGenType());
+
+  if (LinkerConfig::DynObj == m_Config.codeGenType()) {
       m_PLT0 = x86_dyn_plt0;
       m_PLT1 = x86_dyn_plt1;
       m_PLT0Size = sizeof (x86_dyn_plt0);
@@ -213,7 +214,7 @@ void X86PLT::applyPLT1() {
     uint32_t* offset;
 
     offset = reinterpret_cast<uint32_t*>(data + 2);
-    if (m_Output.type() == Output::DynObj) {
+    if (LinkerConfig::DynObj == m_Config.codeGenType()) {
       *offset = GOTEntryOffset;
     } else {
       // Exec

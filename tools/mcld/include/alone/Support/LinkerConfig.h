@@ -25,7 +25,6 @@ private:
   // Available Configurations
   //===--------------------------------------------------------------------===//
   const std::string mTriple;
-  bool mShared;
   std::string mSOName;
 
 private:
@@ -58,8 +57,7 @@ public:
   inline const mcld::LinkerConfig* getLDConfig() const
   { return mLDConfig; }
 
-  inline bool isShared() const
-  { return mShared; }
+  bool isShared() const;
 
   inline std::string getSOName() const
   { return mSOName; }

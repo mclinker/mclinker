@@ -116,7 +116,8 @@ public:
 
   // -----  modifiers  ----- //
   bool layout(Output& pOutput,
-              const TargetLDBackend& pBackend, const LinkerConfig& pConfig);
+              const TargetLDBackend& pBackend,
+              const LinkerConfig& pConfig);
 
   /// addInputRange
   void addInputRange(const SectionData& pSD, const LDSection& pInputHdr);

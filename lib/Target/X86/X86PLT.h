@@ -18,7 +18,7 @@ namespace mcld {
 
 class X86GOTPLT;
 class GOTEntry;
-class Output;
+class LinkerConfig;
 
 class X86PLT0 : public PLTEntry
 {
@@ -47,7 +47,7 @@ public:
   X86PLT(LDSection& pSection,
          SectionData& pSectionData,
          X86GOTPLT& pGOTPLT,
-         const Output& pOutput);
+         const LinkerConfig& pConfig);
   ~X86PLT();
 
 // Override virtual function.
@@ -90,7 +90,7 @@ private:
   unsigned int m_PLT0Size;
   unsigned int m_PLT1Size;
 
-  const Output& m_Output;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

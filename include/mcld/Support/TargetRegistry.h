@@ -22,6 +22,7 @@ class AsmPrinter;
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class MemoryArea;
 class LLVMTargetMachine;
 class TargetRegistry;
@@ -52,7 +53,7 @@ public:
                                       MemoryArea& pOutput);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
-                                                     const std::string&);
+                                                     const LinkerConfig&);
 
   typedef DiagnosticLineInfo *(*DiagnosticLineInfoCtorTy)(const mcld::Target&,
                                                           const std::string&);
@@ -94,11 +95,11 @@ public:
   /// createLDBackend - create target-specific LDBackend
   ///
   /// @return created TargetLDBackend
-  TargetLDBackend* createLDBackend(const std::string& Triple) const
+  TargetLDBackend* createLDBackend(const LinkerConfig& pConfig) const
   {
     if (!TargetLDBackendCtorFn)
       return NULL;
-    return TargetLDBackendCtorFn(*get(), Triple);
+    return TargetLDBackendCtorFn(*get(), pConfig);
   }
 
   /// createDiagnosticLineInfo - create target-specific DiagnosticLineInfo

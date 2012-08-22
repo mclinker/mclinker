@@ -37,8 +37,9 @@ enum {
 
 namespace mcld {
 
-MipsGNULDBackend::MipsGNULDBackend()
-  : m_pRelocFactory(NULL),
+MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
+  : GNULDBackend(pConfig),
+    m_pRelocFactory(NULL),
     m_pGOT(NULL),
     m_pRelDyn(NULL),
     m_pDynamic(NULL),
@@ -70,7 +71,7 @@ void MipsGNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
 }
 
-void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -119,8 +120,6 @@ RelocationFactory* MipsGNULDBackend::getRelocFactory()
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
-                                      const LinkerConfig& pConfig,
-                                      const Output& pOutput,
                                       const LDSection& pSection)
 {
   // rsym - The relocation target symbol
@@ -139,7 +138,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // that a .got section is needed.
   if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
     if (rsym == m_pGOTSymbol->resolveInfo()) {
-      createGOT(pLinker, pOutput);
+      createGOT(pLinker);
     }
   }
 
@@ -150,11 +149,11 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // We test isLocal or if pInputSym is not a dynamic symbol
   // We assume -Bsymbolic to bind all symbols internaly via !rsym->isDyn()
   // Don't put undef symbols into local entries.
-  if ((rsym->isLocal() || !isDynamicSymbol(pInputSym, pOutput) ||
+  if ((rsym->isLocal() || !isDynamicSymbol(pInputSym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
+    scanLocalReloc(pReloc, pInputSym, pLinker);
   else
-    scanGlobalReloc(pReloc, pInputSym, pLinker, pConfig, pOutput);
+    scanGlobalReloc(pReloc, pInputSym, pLinker);
 }
 
 uint32_t MipsGNULDBackend::machine() const
@@ -199,26 +198,23 @@ uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
   return 0x80000;
 }
 
-uint64_t MipsGNULDBackend::abiPageSize(const LinkerConfig& pConfig) const
+uint64_t MipsGNULDBackend::abiPageSize() const
 {
-  if (pConfig.options().maxPageSize() > 0)
-    return pConfig.options().maxPageSize();
+  if (config().options().maxPageSize() > 0)
+    return config().options().maxPageSize();
   else
     return static_cast<uint64_t>(0x10000);
 }
 
-void MipsGNULDBackend::doPreLayout(const Output& pOutput,
-                                   const LinkerConfig& pConfig,
-                                   FragmentLinker& pLinker)
+void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // when building shared object, the .got section is must.
-  if (pOutput.type() == Output::DynObj && NULL == m_pGOT) {
-      createGOT(pLinker, pOutput);
+  if (LinkerConfig::DynObj == config().codeGenType() && NULL == m_pGOT) {
+      createGOT(pLinker);
   }
 }
 
-void MipsGNULDBackend::doPostLayout(const Output& pOutput,
-                                    const LinkerConfig& pConfig,
+void MipsGNULDBackend::doPostLayout(Output& pOutput,
                                     FragmentLinker& pLinker)
 {
 }
@@ -241,15 +237,13 @@ const MipsELFDynamic& MipsGNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-uint64_t MipsGNULDBackend::emitSectionData(const Output& pOutput,
-                                           const LDSection& pSection,
-                                           const LinkerConfig& pConfig,
+uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
                                            const Layout& pLayout,
                                            MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  const ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat();
 
   if (&pSection == &(file_format->getGOT())) {
     assert(NULL != m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
@@ -271,7 +265,6 @@ bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
 
 /// emitDynamicSymbol - emit dynamic symbol.
 void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                                         Output& pOutput,
                                          LDSymbol& pSymbol,
                                          const Layout& pLayout,
                                          char* strtab,
@@ -303,10 +296,9 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
                                         SymbolCategory& pSymbols,
                                         const Layout& pLayout,
-                                        const LinkerConfig& pConfig,
                                         MemoryArea& pOut)
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
@@ -346,13 +338,13 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   // emit of .dynsym, and .dynstr except GOT entries
   for (SymbolCategory::iterator symbol = pSymbols.begin(),
        sym_end = pSymbols.end(); symbol != sym_end; ++symbol) {
-    if (!isDynamicSymbol(**symbol, pOutput))
+    if (!isDynamicSymbol(**symbol))
       continue;
 
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
+    emitDynamicSymbol(symtab32[symtabIdx], **symbol, pLayout, strtab,
                       strtabsize, symtabIdx);
 
     // sum up counters
@@ -368,10 +360,10 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
     // Make sure this golbal GOT entry is a dynamic symbol.
     // If not, something is wrong earlier when putting this symbol into
     //  global GOT.
-    if (!isDynamicSymbol(**symbol, pOutput))
+    if (!isDynamicSymbol(**symbol))
       fatal(diag::mips_got_symbol) << (*symbol)->name();
 
-    emitDynamicSymbol(symtab32[symtabIdx], pOutput, **symbol, pLayout, strtab,
+    emitDynamicSymbol(symtab32[symtabIdx], **symbol, pLayout, strtab,
                       strtabsize, symtabIdx);
 
     // sum up counters
@@ -386,8 +378,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   //   2. force count in --no-as-needed
   //   3. judge --as-needed
   ELFDynamic::iterator dt_need = dynamic().needBegin();
-  InputTree::const_bfs_iterator input, inputEnd = pConfig.inputs().bfs_end();
-  for (input = pConfig.inputs().bfs_begin(); input != inputEnd; ++input) {
+  InputTree::const_bfs_iterator input, inputEnd = config().inputs().bfs_end();
+  for (input = config().inputs().bfs_begin(); input != inputEnd; ++input) {
     if (Input::DynObj == (*input)->type()) {
       // --add-needed
       if ((*input)->attribute()->isAddNeeded()) {
@@ -411,9 +403,9 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
 
   // emit soname
   // initialize value of ELF .dynamic section
-  if (Output::DynObj == pOutput.type())
+  if (LinkerConfig::DynObj == config().codeGenType())
     dynamic().applySoname(strtabsize);
-  dynamic().applyEntries(pConfig, *file_format);
+  dynamic().applyEntries(config(), *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
   strcpy((strtab + strtabsize), pOutput.name().c_str());
@@ -474,11 +466,9 @@ const OutputRelocSection& MipsGNULDBackend::getRelDyn() const
 }
 
 unsigned int
-MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
-                                        const LDSection& pSectHdr,
-                                        const LinkerConfig& pConfig) const
+MipsGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
-  const ELFFileFormat* file_format = getOutputFormat(pOutput);
+  const ELFFileFormat* file_format = getOutputFormat();
 
   if (&pSectHdr == &file_format->getGOT())
     return SHO_DATA;
@@ -487,7 +477,7 @@ MipsGNULDBackend::getTargetSectionOrder(const Output& pOutput,
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Output& pOutput)
+bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 {
   if (NULL != m_pGpDispSymbol)
     m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
@@ -499,7 +489,7 @@ bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker, const Outp
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
 bool
-MipsGNULDBackend::allocateCommonSymbols(const LinkerConfig& pConfig, FragmentLinker& pLinker) const
+MipsGNULDBackend::allocateCommonSymbols(FragmentLinker& pLinker) const
 {
   SymbolCategory& symbol_list = pLinker.getOutputSymbols();
 
@@ -624,9 +614,7 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      FragmentLinker& pLinker,
-                                      const LinkerConfig& pConfig,
-                                      const Output& pOutput)
+                                      FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -637,13 +625,13 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_16:
       break;
     case llvm::ELF::R_MIPS_32:
-      if (Output::DynObj == pOutput.type()) {
+      if (LinkerConfig::DynObj == config().codeGenType()) {
         // TODO: (simon) The gold linker does not create an entry in .rel.dyn
         // section if the symbol section flags contains SHF_EXECINSTR.
         // 1. Find the reason of this condition.
         // 2. Check this condition here.
         if (NULL == m_pRelDyn)
-          createRelDyn(pLinker, pOutput);
+          createRelDyn(pLinker);
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -651,7 +639,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
         if (NULL == m_pGOT)
-          createGOT(pLinker, pOutput);
+          createGOT(pLinker);
         m_pGOT->setLocal(rsym);
       }
       break;
@@ -684,7 +672,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GOT16:
     case llvm::ELF::R_MIPS_CALL16:
       if (NULL == m_pGOT)
-        createGOT(pLinker, pOutput);
+        createGOT(pLinker);
 
       // For got16 section based relocations, we need to reserve got entries.
       if (rsym->type() == ResolveInfo::Section) {
@@ -733,9 +721,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                        const LDSymbol& pInputSym,
-                                       FragmentLinker& pLinker,
-                                       const LinkerConfig& pConfig,
-                                       const Output& pOutput)
+                                       FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -756,9 +742,9 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (symbolNeedsDynRel(*rsym, false, pConfig, pOutput, true)) {
+      if (symbolNeedsDynRel(*rsym, false, true)) {
         if (NULL == m_pRelDyn)
-          createRelDyn(pLinker, pOutput);
+          createRelDyn(pLinker);
 
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -766,7 +752,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
         if (NULL == m_pGOT)
-          createGOT(pLinker, pOutput);
+          createGOT(pLinker);
         m_pGOT->setGlobal(rsym);
       }
       break;
@@ -780,7 +766,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
       if (NULL == m_pGOT)
-        createGOT(pLinker, pOutput);
+        createGOT(pLinker);
 
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
         m_pGOT->reserveGlobalEntry();
@@ -833,9 +819,9 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   }
 }
 
-void MipsGNULDBackend::createGOT(FragmentLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::createGOT(FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   LDSection& got = file_format->getGOT();
   m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
@@ -867,9 +853,9 @@ void MipsGNULDBackend::createGOT(FragmentLinker& pLinker, const Output& pOutput)
   }
 }
 
-void MipsGNULDBackend::createRelDyn(FragmentLinker& pLinker, const Output& pOutput)
+void MipsGNULDBackend::createRelDyn(FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat(pOutput);
+  ELFFileFormat* file_format = getOutputFormat();
 
   // get .rel.dyn LDSection and create SectionData
   LDSection& reldyn = file_format->getRelDyn();
@@ -883,24 +869,25 @@ void MipsGNULDBackend::createRelDyn(FragmentLinker& pLinker, const Output& pOutp
 /// createMipsLDBackend - the help funtion to create corresponding MipsLDBackend
 ///
 static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
-                                            const std::string& pTriple)
+                                            const LinkerConfig& pConfig)
 {
-  llvm::Triple theTriple(pTriple);
-  if (theTriple.isOSDarwin()) {
+  if (pConfig.triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
   }
-  if (theTriple.isOSWindows()) {
+  if (pConfig.triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
   }
-  return new MipsGNULDBackend();
+  return new MipsGNULDBackend(pConfig);
 }
 
 } // namespace of mcld
 
-//=============================
+//===----------------------------------------------------------------------===//
 // Force static initialization.
+//===----------------------------------------------------------------------===//
 extern "C" void LLVMInitializeMipsLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMipselTarget,
                                                 mcld::createMipsLDBackend);
 }
+

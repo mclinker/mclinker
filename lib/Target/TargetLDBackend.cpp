@@ -10,11 +10,12 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
-TargetLDBackend::TargetLDBackend()
-  : m_pEhFrame(NULL) {
+TargetLDBackend::TargetLDBackend(const LinkerConfig& pConfig)
+  : m_pEhFrame(NULL), m_Config(pConfig) {
 }
 
 TargetLDBackend::~TargetLDBackend()

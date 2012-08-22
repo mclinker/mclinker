@@ -10,7 +10,6 @@
 //  Output class inherits MCLDFile, which is used to represent a output file.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_OUTPUT_H
 #define MCLD_OUTPUT_H
 #ifdef ENABLE_UNITTEST
@@ -21,8 +20,7 @@
 #include <mcld/Support/RealPath.h>
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MCLDOutput
  *  \brief MCLDOutput provides the information about the output.
@@ -32,16 +30,9 @@ namespace mcld
 class Output : public MCLDFile
 {
 public:
-  enum Type {
-    Object = MCLDFile::Object,
-    DynObj = MCLDFile::DynObj,
-    Exec   = MCLDFile::Exec
-  };
-
-public:
   Output();
-  explicit Output(const sys::fs::Path& pRealPath,
-                  Type pType);
+
+  explicit Output(const sys::fs::Path& pRealPath);
 
   ~Output();
 };
