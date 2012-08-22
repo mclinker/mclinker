@@ -37,14 +37,6 @@ namespace mcld {
 class Module
 {
 public:
-  enum Type {
-    Unknown  = MCLDFile::Unknown,
-    Object   = MCLDFile::Object,
-    DynObj   = MCLDFile::DynObj,
-    Exec     = MCLDFile::Exec,
-    External = MCLDFile::External
-  };
-
   typedef std::vector<Input*> ObjectList;
   typedef ObjectList::iterator obj_iterator;
   typedef ObjectList::const_iterator const_obj_iterator;
@@ -68,16 +60,15 @@ public:
 
 public:
   Module();
-  explicit Module(const std::string& pName, Type pType = Unknown);
+
+  Module(const std::string& pName);
 
   ~Module();
 
-  // -----  name and type  ----- //
+  // -----  name  ----- //
   const std::string& name() const { return m_Name; }
-  Type               type() const { return m_Type; }
 
   void setName(const std::string& pName) { m_Name = pName; }
-  void setType(Type pType)               { m_Type = pType; }
 
   // -----  link-in objects ----- //
   const ObjectList& getObjectList() const { return m_ObjectList; }
@@ -144,7 +135,6 @@ public:
   const_reloc_iterator reloc_end  () const { return m_RelocTable.end();   }
   
 private:
-  Type m_Type;
   std::string m_Name;
   ObjectList m_ObjectList;
   LibraryList m_LibraryList;
