@@ -303,37 +303,22 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
     return kOpenOutput;
   }
 
-  // FIXME: We must initialize FragmentLinker before setOutput, and initialize
-  // standard sections here. This is because we have to build the section
-  // map before input files using it.
-  if (!mObjLinker->hasInitLinker()) {
-    return kNotConfig;
-  }
-
-  mObjLinker->initStdSections();
-
   return kSuccess;
 }
 
 enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
-  // -----  initialize output file  ----- //
   mOutput = mMemAreaFactory->produce(pFileHandler);
-
-  // FIXME: We must initialize FragmentLinker before setOutput, and initialize
-  // standard sections here. This is because we have to build the section
-  // map before input files using it.
-  if (!mObjLinker->hasInitLinker()) {
-    return kNotConfig;
-  }
-
-  mObjLinker->initStdSections();
-
-  return kSuccess;
 }
 
 enum Linker::ErrorCode Linker::link() {
   if (NULL == mOutput)
     return kNotSetUpOutput;
+
+  if (!mObjLinker->hasInitLinker()) {
+    return kNotConfig;
+  }
+
+  mObjLinker->initStdSections();
 
   mObjLinker->normalize();
 
