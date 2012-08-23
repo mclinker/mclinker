@@ -155,3 +155,13 @@ TEST_F( PathTest, parent_path ) {
   EXPECT_TRUE(m_pTestee->parent_path().empty());
 }
 
+TEST_F(PathTest, filename) {
+  m_pTestee->assign("aa/bb/cc");
+  EXPECT_STREQ("cc", m_pTestee->filename().c_str());
+
+  m_pTestee->assign("aa/bb/");
+  EXPECT_STREQ("", m_pTestee->filename().c_str());
+
+  m_pTestee->assign("aa");
+  EXPECT_STREQ("aa", m_pTestee->filename().c_str());
+}

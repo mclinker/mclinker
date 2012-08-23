@@ -148,6 +148,16 @@ Path Path::parent_path() const
   return Path();
 }
 
+Path Path::filename() const
+{
+  size_t pos = m_PathName.find_last_of(separator);
+  if (pos != StringType::npos) {
+    ++pos;
+    return Path(m_PathName.substr(pos));
+  }
+  return Path(*this);
+}
+
 Path Path::stem() const
 {
   size_t begin_pos = m_PathName.find_last_of(separator)+1;

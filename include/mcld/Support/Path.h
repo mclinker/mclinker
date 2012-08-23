@@ -89,6 +89,7 @@ public:
 
   // -----  decomposition  ----- //
   Path parent_path() const;
+  Path filename() const;
   Path stem() const;
   Path extension() const;
 
