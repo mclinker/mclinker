@@ -215,7 +215,7 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
   }
 }
 
-void MipsGNULDBackend::doPostLayout(Output& pOutput,
+void MipsGNULDBackend::doPostLayout(Module& pModule,
                                     FragmentLinker& pLinker)
 {
 }

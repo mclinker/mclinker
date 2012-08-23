@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/MC/MCLDFile.h>
 #include <llvm/Support/ELF.h>
 #include <mcld/Target/GNULDBackend.h>
 

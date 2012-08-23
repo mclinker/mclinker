@@ -24,10 +24,10 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/GCFactory.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class Module;
 class FragmentLinker;
-class Output;
 class TargetLDBackend;
 
 /** \class Layout
@@ -115,7 +115,7 @@ public:
   const LDSection* getOutputLDSection(const Fragment& pFrag) const;
 
   // -----  modifiers  ----- //
-  bool layout(Output& pOutput,
+  bool layout(Module& pModule,
               const TargetLDBackend& pBackend,
               const LinkerConfig& pConfig);
 
@@ -253,8 +253,7 @@ private:
 
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering
-  void sortSectionOrder(const Output& pOutput,
-                        const TargetLDBackend& pBackend,
+  void sortSectionOrder(const TargetLDBackend& pBackend,
                         const LinkerConfig& pConfig);
 
 private:

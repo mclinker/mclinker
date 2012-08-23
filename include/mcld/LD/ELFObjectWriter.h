@@ -15,11 +15,11 @@
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ELFWriter.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class Input;
-class MCLinker;
+class Module;
+class MemoryArea;
+class FragmentLinker;
 class GNULDBackend;
 
 /** \class ELFObjectWriter
@@ -30,15 +30,15 @@ class GNULDBackend;
 class ELFObjectWriter : public ObjectWriter, protected ELFWriter
 {
 public:
-  ELFObjectWriter(GNULDBackend& pBackend, MCLinker& pLinker);
+  ELFObjectWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
 
   ~ELFObjectWriter();
 
-  llvm::error_code writeObject(Output& pOutput)
+  llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput)
   { return llvm::make_error_code(llvm::errc::not_supported); }
 
 private:
-  MCLinker& m_Linker;
+  FragmentLinker& m_Linker;
 };
 
 } // namespace of mcld

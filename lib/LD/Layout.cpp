@@ -13,6 +13,8 @@
 
 #include <llvm/ADT/Twine.h>
 
+#include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
@@ -21,7 +23,6 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 
@@ -512,8 +513,7 @@ uint64_t Layout::getOutputOffset(const FragmentRef& pFragRef) const
   return getOutputOffset(*(pFragRef.frag())) + pFragRef.offset();
 }
 
-void Layout::sortSectionOrder(const Output& pOutput,
-                              const TargetLDBackend& pBackend,
+void Layout::sortSectionOrder(const TargetLDBackend& pBackend,
                               const LinkerConfig& pConfig)
 {
   typedef std::pair<LDSection*, unsigned int> SectOrder;
@@ -547,16 +547,14 @@ void Layout::sortSectionOrder(const Output& pOutput,
 ///   1. finalize fragment offset
 ///   2. compute section order
 ///   3. finalize section offset
-bool Layout::layout(Output& pOutput,
+bool Layout::layout(Module& pModule,
                     const TargetLDBackend& pBackend,
                     const LinkerConfig& pConfig)
 {
   // determine what sections in output context will go into final output, and
   // push the needed sections into m_SectionOrder for later processing
-  assert(pOutput.hasContext());
-  LDContext& output_context = *pOutput.context();
-  LDContext::sect_iterator it, itEnd = output_context.sectEnd();
-  for (it = output_context.sectBegin(); it != itEnd; ++it) {
+  Module::iterator it, itEnd = pModule.end();
+  for (it = pModule.begin(); it != itEnd; ++it) {
     // calculate 1. all fragment offset, and 2. the section order
     LDSection* sect = *it;
 
@@ -613,7 +611,7 @@ bool Layout::layout(Output& pOutput,
   }
 
   // perform sorting on m_SectionOrder to get a ordering for final layout
-  sortSectionOrder(pOutput, pBackend, pConfig);
+  sortSectionOrder(pBackend, pConfig);
 
   // Backend defines the section start offset for section 1.
   uint64_t offset = pBackend.sectionStartOffset();
@@ -633,9 +631,9 @@ bool Layout::layout(Output& pOutput,
 
   // FIXME: Currently Writer bases on the section table in output context to
   // write out sections, so we have to update its content..
-  output_context.getSectionTable().clear();
+  pModule.getSectionTable().clear();
   for (size_t index = 0; index < m_SectionOrder.size(); ++index) {
-    output_context.getSectionTable().push_back(m_SectionOrder[index]);
+    pModule.getSectionTable().push_back(m_SectionOrder[index]);
     // after sorting, update the correct output section indices
     m_SectionOrder[index]->setIndex(index);
   }

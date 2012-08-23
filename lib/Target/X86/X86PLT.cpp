@@ -13,7 +13,6 @@
 #include <llvm/Support/Casting.h>
 
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/Support/MsgHandling.h>
 
 //===----------------------------------------------------------------------===//

@@ -189,9 +189,6 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
 
 void MCLinker::initializeInputOutput(LinkerConfig &pConfig)
 {
-  // -----  initialize output file  ----- //
-  pConfig.output().setContext(pConfig.contextFactory().produce());
-
   // -----  initialize input files  ----- //
   InputTree::dfs_iterator input, inEnd = pConfig.inputs().dfs_end();
   for (input = pConfig.inputs().dfs_begin(); input!=inEnd; ++input) {

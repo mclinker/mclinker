@@ -16,10 +16,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/Target/TargetLDBackend.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class LDWriter
  *  \brief LDWriter provides the basic interfaces for all writers.

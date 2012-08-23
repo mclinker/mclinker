@@ -13,10 +13,10 @@
 #endif
 #include <llvm/Support/system_error.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class Output;
+class Module;
+class MemoryArea;
 class GNULDBackend;
 
 /** \class ObjectWriter
@@ -30,7 +30,7 @@ protected:
 public:
   virtual ~ObjectWriter();
 
-  virtual llvm::error_code writeObject(Output& pOutput) = 0;
+  virtual llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput) = 0;
 };
 
 } // namespace of mcld

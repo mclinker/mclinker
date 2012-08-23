@@ -487,21 +487,19 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
                                    uint32_t pType,
                                    uint32_t pFlag)
 {
-  assert(m_Config.output().hasContext());
-
   // for user such as reader, standard/target fromat
   LDSection* result =
     m_LDSectHdrFactory.produce(pName, pKind, pType, pFlag);
 
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_Config.output().context()->getSection(sect_name);
+  LDSection* output_sect = m_Module.getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
-    m_Config.output().context()->getSectionTable().push_back(output_sect);
+    m_Module.getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *result;
@@ -515,18 +513,16 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pFlag,
                                               uint32_t pAlign)
 {
-  assert(m_Config.output().hasContext());
-
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
-  LDSection* output_sect = m_Config.output().context()->getSection(sect_name);
+  LDSection* output_sect = m_Module.getSection(sect_name);
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
     output_sect =
       m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
-    m_Config.output().context()->getSectionTable().push_back(output_sect);
+    m_Module.getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);
   }
   return *output_sect;
@@ -568,14 +564,13 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 
 void FragmentLinker::initSectionMap()
 {
-  assert(m_Config.output().hasContext());
   if (NULL == m_pSectionMerger)
-    m_pSectionMerger = new SectionMerger(m_SectionMap, *m_Config.output().context());
+    m_pSectionMerger = new SectionMerger(m_SectionMap, m_Module);
 }
 
 bool FragmentLinker::layout()
 {
-  return m_Layout.layout(m_Config.output(), m_Backend, m_Config);
+  return m_Layout.layout(m_Module, m_Backend, m_Config);
 }
 
 //===----------------------------------------------------------------------===//

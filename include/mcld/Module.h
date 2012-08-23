@@ -26,7 +26,6 @@
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/MC/SymbolCategory.h>
-#include <mcld/MC/MCLDFile.h>
 #include <mcld/MC/MCLDInput.h>
 
 namespace mcld {
@@ -96,12 +95,20 @@ public:
   const SectionTable& getSectionTable() const { return m_SectionTable; }
   SectionTable&       getSectionTable()       { return m_SectionTable; }
 
-  iterator       begin()       { return m_SectionTable.begin(); }
-  const_iterator begin() const { return m_SectionTable.begin(); }
-  iterator       end  ()       { return m_SectionTable.end();   }
-  const_iterator end  () const { return m_SectionTable.end();   }
-  size_t         size () const { return m_SectionTable.size();  }
-  bool           empty() const { return m_SectionTable.empty(); }
+  iterator         begin()       { return m_SectionTable.begin(); }
+  const_iterator   begin() const { return m_SectionTable.begin(); }
+  iterator         end  ()       { return m_SectionTable.end();   }
+  const_iterator   end  () const { return m_SectionTable.end();   }
+  LDSection*       front()       { return m_SectionTable.front(); }
+  const LDSection* front() const { return m_SectionTable.front(); }
+  LDSection*       back ()       { return m_SectionTable.back();  }
+  const LDSection* back () const { return m_SectionTable.back();  }
+  size_t           size () const { return m_SectionTable.size();  }
+  bool             empty() const { return m_SectionTable.empty(); }
+
+  // Following two functions will be obsolette when we have new section merger.
+  LDSection*       getSection(const std::string& pName);
+  const LDSection* getSection(const std::string& pName) const;
 
 /// @}
 /// @name Symbol Accessors

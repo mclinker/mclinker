@@ -30,7 +30,6 @@ class LDFileFormat;
 class LDSymbol;
 class LDSection;
 class SectionMap;
-class Output;
 class Input;
 class GOT;
 class MemoryArea;
@@ -68,7 +67,6 @@ public:
   /// for layout to adjust the ouput offset.
   /// @param pReloc - a read in relocation entry
   /// @param pInputSym - the input LDSymbol of relocation target symbol
-  /// @param pOutput - the ouput file
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,
@@ -93,8 +91,7 @@ public:
   virtual void preLayout(FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
-  virtual void postLayout(Output& pOutput,
-                          FragmentLinker& pLinker) = 0;
+  virtual void postLayout(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   virtual void postProcessing(FragmentLinker& pLinker,

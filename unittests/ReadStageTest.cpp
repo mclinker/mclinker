@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ReadStageTest.h"
+
+#include <mcld/Module.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
@@ -88,15 +90,15 @@ void ReadStageTest::dumpInput(const mcld::Input &pInput, mcld::FileHandle &pFile
   pFile.write(sstream.str().data(), org_size, sstream.str().size());
 }
 
-void ReadStageTest::dumpOutput(const mcld::Output &pOutput, mcld::FileHandle &pFile, size_t pIdent)
+void ReadStageTest::dumpOutput(const mcld::Module& pModule, mcld::FileHandle &pFile, size_t pIdent)
 {
   stringstream sstream;
   for (int i=0; i < pIdent; ++i)
     sstream << " ";
   sstream << "<output name=\"" << m_pLinker->module()->name() << "\">\n";
 
-  LDContext::const_sect_iterator sect, sectEnd = pOutput.context()->sectEnd();
-  for (sect = pOutput.context()->sectBegin(); sect != sectEnd; ++sect) {
+  Module::const_iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
     for (int i=0; i < (pIdent+1); ++i)
       sstream << " ";
     sstream << "<section name=\"" << (*sect)->name() << "\"/>\n";
@@ -141,7 +143,7 @@ TEST_F(ReadStageTest, quake) {
     dumpInput(**input, file, 1);
   }
 
-  dumpOutput(m_pLinker->config()->output(), file, 1);
+  dumpOutput(*m_pLinker->module(), file, 1);
   // dump status
   ASSERT_TRUE(m_pLinker->getObjLinker()->mergeSections());
 }

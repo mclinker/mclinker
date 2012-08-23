@@ -85,8 +85,7 @@ public:
   void doPreLayout(FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
-  void doPostLayout(Output& pOutput,
-                    FragmentLinker& pLinker);
+  void doPostLayout(Module& pModule, FragmentLinker& pLinker);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.

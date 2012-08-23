@@ -32,7 +32,7 @@ public:
 
   void dumpInput(const mcld::Input &pInput, mcld::FileHandle &pFile, size_t pIdent);
 
-  void dumpOutput(const mcld::Output &pOutput, mcld::FileHandle &pFile, size_t pIdent);
+  void dumpOutput(const mcld::Module &pModule, mcld::FileHandle &pFile, size_t pIdent);
 protected:
   TestLinker* m_pLinker;
 };

@@ -11,7 +11,6 @@
 #include <mcld/Module.h>
 #include <mcld/CodeGen/MCLinker.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
-#include <mcld/MC/MCLDFile.h>
 #include <mcld/Support/raw_mem_ostream.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/TargetRegistry.h>

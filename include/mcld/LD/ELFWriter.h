@@ -52,49 +52,42 @@ public:
   { return f_Backend; }
 
   virtual void writeELF32Header(const LinkerConfig& pConfig,
-                                const GNULDBackend& pBackend,
                                 const Module& pModule,
                                 const Layout& pLayout,
-                                Output& pOutput,
-                                MemoryArea& pOut) const;
+                                MemoryArea& pOutput) const;
 
   virtual void writeELF64Header(const LinkerConfig& pConfig,
-                                const GNULDBackend& pBackend,
                                 const Module& pModule,
                                 const Layout& pLayout,
-                                Output& pOutput,
-                                MemoryArea& pOut) const;
+                                MemoryArea& pOutput) const;
 
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
-                                 const GNULDBackend& pBackend,
                                  const Module& pModule,
                                  const Layout& pLayout) const;
 
 protected:
-  void emitELF32SectionHeader(Output& pOutput,
+  void emitELF32SectionHeader(const Module& pModule,
                               const LinkerConfig& pConfig,
                               FragmentLinker& pLinker,
-                              MemoryArea& pOut) const;
+                              MemoryArea& pOutput) const;
 
-  void emitELF64SectionHeader(Output& pOutput,
+  void emitELF64SectionHeader(const Module& pModule,
                               const LinkerConfig& pConfig,
                               FragmentLinker& pLinker,
-                              MemoryArea& pOut) const;
+                              MemoryArea& pOutput) const;
 
-  void emitELF32ProgramHeader(const GNULDBackend& pBackend,
-                              MemoryArea& pOut) const;
+  void emitELF32ProgramHeader(MemoryArea& pOutput) const;
 
-  void emitELF64ProgramHeader(const GNULDBackend& pBackend,
-                              MemoryArea& pOut) const;
+  void emitELF64ProgramHeader(MemoryArea& pOutput) const;
 
   // emitShStrTab - emit .shstrtab
-  void emitELF32ShStrTab(Output& pOutput,
+  void emitELF32ShStrTab(Module& pModule,
                          FragmentLinker& pLinker,
-                         MemoryArea& pOut) const;
+                         MemoryArea& pOutput);
 
-  void emitELF64ShStrTab(Output& pOutput,
+  void emitELF64ShStrTab(Module& pModule,
                          FragmentLinker& pLinker,
-                         MemoryArea& pOut) const;
+                         MemoryArea& pOutput);
 
   void emitSectionData(const Layout& pLayout,
                        const LDSection& pSection,
@@ -124,15 +117,14 @@ private:
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_link
   uint64_t getSectLink(const LDSection& pSection,
-                       const Output& pOutput,
                        const LinkerConfig& pConfig) const;
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_info
   uint64_t getSectInfo(const LDSection& pSection) const;
 
-  uint64_t getELF32LastStartOffset(const Output& pOutput) const;
+  uint64_t getELF32LastStartOffset(const Module& pModule) const;
 
-  uint64_t getELF64LastStartOffset(const Output& pOutput) const;
+  uint64_t getELF64LastStartOffset(const Module& pModule) const;
 
 protected:
   GNULDBackend& f_Backend;

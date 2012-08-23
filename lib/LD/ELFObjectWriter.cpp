@@ -6,18 +6,19 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/ELFObjectWriter.h"
+#include <mcld/LD/ELFObjectWriter.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ELFObjectWriter
-ELFObjectWriter::ELFObjectWriter(GNULDBackend& pBackend, MCLinker& pLinker)
+//===----------------------------------------------------------------------===//
+ELFObjectWriter::ELFObjectWriter(GNULDBackend& pBackend,
+                                 FragmentLinker& pLinker)
   : ObjectWriter(pBackend), ELFWriter(pBackend), m_Linker(pLinker) {
 }
 
 ELFObjectWriter::~ELFObjectWriter()
 {
 }
-
 

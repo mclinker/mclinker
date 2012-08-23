@@ -279,7 +279,7 @@ protected:
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers
-  void createProgramHdrs(Output& pOutput);
+  void createProgramHdrs(Module& pModule);
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
@@ -304,13 +304,13 @@ private:
   void preLayout(FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
-  void postLayout(Output& pOutput, FragmentLinker& pLinker);
+  void postLayout(Module& pModule, FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(FragmentLinker& pLinker) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
-  virtual void doPostLayout(Output& pOutput, FragmentLinker& pLinker) = 0;
+  virtual void doPostLayout(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   void postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput);

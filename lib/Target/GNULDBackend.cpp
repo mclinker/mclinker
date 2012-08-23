@@ -19,7 +19,6 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/EhFrameHdr.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
@@ -1255,9 +1254,8 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) co
 
 
 /// createProgramHdrs - base on output sections to create the program headers
-void GNULDBackend::createProgramHdrs(Output& pOutput)
+void GNULDBackend::createProgramHdrs(Module& pModule)
 {
-  assert(pOutput.hasContext());
   ELFFileFormat *file_format = getOutputFormat();
 
   // make PT_PHDR
@@ -1273,10 +1271,10 @@ void GNULDBackend::createProgramHdrs(Output& pOutput)
   if (config().options().hasRelro()) {
     // if -z relro is given, we need to adjust sections' offset again, and let
     // PT_GNU_RELRO end on a common page boundary
-    LDContext::SectionTable& sect_table = pOutput.context()->getSectionTable();
+    LDContext::SectionTable& sect_table = pModule.getSectionTable();
 
     size_t idx;
-    for (idx = 0; idx < pOutput.context()->numOfSections(); ++idx) {
+    for (idx = 0; idx < pModule.size(); ++idx) {
       // find the first non-relro section
       if (getSectionOrder(*sect_table[idx]) > SHO_RELRO_LAST) {
         break;
@@ -1289,7 +1287,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput)
     sect_table[idx]->setOffset(offset);
 
     // set up remaining section's offset
-    for (++idx; idx < pOutput.context()->numOfSections(); ++idx) {
+    for (++idx; idx < pModule.size(); ++idx) {
       uint64_t offset;
       size_t prev_idx = idx - 1;
       if (LDFileFormat::BSS == sect_table[prev_idx]->kind())
@@ -1306,8 +1304,8 @@ void GNULDBackend::createProgramHdrs(Output& pOutput)
   uint64_t padding = 0;
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
-  LDContext::sect_iterator sect, sect_end = pOutput.context()->sectEnd();
-  for (sect = pOutput.context()->sectBegin(); sect != sect_end; ++sect) {
+  Module::iterator sect, sect_end = pModule.end();
+  for (sect = pModule.begin(); sect != sect_end; ++sect) {
 
     if (0 == ((*sect)->flag() & llvm::ELF::SHF_ALLOC) &&
         LDFileFormat::Null != (*sect)->kind())
@@ -1351,8 +1349,7 @@ void GNULDBackend::createProgramHdrs(Output& pOutput)
   if (config().options().hasRelro()) {
     // make PT_GNU_RELRO
     ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
-    for (LDContext::sect_iterator sect = pOutput.context()->sectBegin();
-         sect != pOutput.context()->sectEnd(); ++sect) {
+    for (Module::iterator sect = pModule.begin(); sect != pModule.end(); ++sect) {
       unsigned int order = getSectionOrder(**sect);
       if (SHO_RELRO_LOCAL == order ||
           SHO_RELRO == order ||
@@ -1492,13 +1489,13 @@ void GNULDBackend::preLayout(FragmentLinker& pLinker)
 }
 
 /// postLayout - Backend can do any needed modification after layout
-void GNULDBackend::postLayout(Output& pOutput,
+void GNULDBackend::postLayout(Module& pModule,
                               FragmentLinker& pLinker)
 {
   // 1. emit program headers
   if (LinkerConfig::Object != config().codeGenType()) {
     // 1.1 create program headers
-    createProgramHdrs(pOutput);
+    createProgramHdrs(pModule);
   }
 
   // 1.2 create special GNU Stack note section or segment
@@ -1510,7 +1507,7 @@ void GNULDBackend::postLayout(Output& pOutput,
   }
 
   // 2. target specific post layout
-  doPostLayout(pOutput, pLinker);
+  doPostLayout(pModule, pLinker);
 }
 
 void GNULDBackend::postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput)

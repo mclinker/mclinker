@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <cassert>
 #include <cstring>
+#include <mcld/Module.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/SectionMap.h>
 
@@ -16,9 +17,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionMerger
 //===----------------------------------------------------------------------===//
-SectionMerger::SectionMerger(SectionMap& pSectionMap, LDContext& pContext)
+SectionMerger::SectionMerger(SectionMap& pSectionMap, Module& pModule)
 : m_SectionNameMap(pSectionMap),
-  m_Output(pContext),
+  m_Module(pModule),
   m_LDSectionMap()
 {
 }
@@ -55,7 +56,7 @@ LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
   if (it != end())
     section = (*it).outputSection;
   else
-    section = m_Output.getSection(pName);
+    section = m_Module.getSection(pName);
 
   assert(NULL != section);
   return section;

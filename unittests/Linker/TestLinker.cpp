@@ -253,9 +253,6 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
 
 bool TestLinker::setOutput(const std::string &pPath)
 {
-  if (m_pConfig->output().hasContext())
-    return false;
-
   mcld::FileHandle* handler = new mcld::FileHandle();
   m_FileHandleList.push_back(handler);
   bool open_res = handler->open(pPath, mcld::FileHandle::ReadWrite |
@@ -270,9 +267,6 @@ bool TestLinker::setOutput(const std::string &pPath)
 
   m_pOutput = new MemoryArea(*handler);
 
-  mcld::LDContext* context = m_pConfig->contextFactory().produce(pPath);
-  m_pConfig->output().setContext(context);
-
   // FIXME: remove the initStdSections().
   m_pObjLinker->initStdSections();
   return true;
@@ -285,17 +279,11 @@ bool TestLinker::setOutput(const sys::fs::Path &pPath)
 
 bool TestLinker::setOutput(int pFileHandler)
 {
-  if (m_pConfig->output().hasContext())
-    return false;
-
   mcld::FileHandle* handler = new mcld::FileHandle();
   handler->delegate(pFileHandler);
   m_FileHandleList.push_back(handler);
 
   m_pOutput = new MemoryArea(*handler);
-
-  mcld::LDContext* context = m_pConfig->contextFactory().produce();
-  m_pConfig->output().setContext(context);
 
   // FIXME: remove the initStdSections().
   m_pObjLinker->initStdSections();

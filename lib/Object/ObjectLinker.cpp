@@ -277,8 +277,7 @@ bool ObjectLinker::layout()
 /// prelayout - help backend to do some modification after layout
 bool ObjectLinker::postlayout()
 {
-  m_LDBackend.postLayout(m_Config.output(),
-                         *m_pLinker);
+  m_LDBackend.postLayout(m_Module, *m_pLinker);
   return true;
 }
 
@@ -305,17 +304,13 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
   switch(m_Config.codeGenType()) {
     case LinkerConfig::Object:
-      getObjectWriter()->writeObject(m_Config.output());
+      getObjectWriter()->writeObject(m_Module, pOutput);
       return true;
     case LinkerConfig::DynObj:
-      getDynObjWriter()->writeDynObj(m_Config.output(),
-                                     m_Module,
-                                     pOutput);
+      getDynObjWriter()->writeDynObj(m_Module, pOutput);
       return true;
     case LinkerConfig::Exec:
-      getExecWriter()->writeExecutable(m_Config.output(),
-                                       m_Module,
-                                       pOutput);
+      getExecWriter()->writeExecutable(m_Module, pOutput);
       return true;
   }
   return false;

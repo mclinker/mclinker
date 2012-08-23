@@ -13,7 +13,6 @@
 #include <llvm/Support/Signals.h>
 
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/MCLDFile.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/Path.h>

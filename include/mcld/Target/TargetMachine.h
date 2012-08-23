@@ -13,7 +13,6 @@
 #endif
 #include <llvm/Target/TargetMachine.h>
 #include <string>
-#include <mcld/MC/MCLDFile.h>
 
 namespace llvm
 {

@@ -23,7 +23,6 @@
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/RegionFragment.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
@@ -133,7 +132,7 @@ void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
   }
 }
 
-void ARMGNULDBackend::doPostLayout(Output& pOutput,
+void ARMGNULDBackend::doPostLayout(Module& pModule,
                                    FragmentLinker& pLinker)
 {
   const ELFFileFormat *file_format = getOutputFormat();

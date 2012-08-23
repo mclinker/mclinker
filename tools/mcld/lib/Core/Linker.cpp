@@ -256,10 +256,6 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
     return kNotConfig;
   }
 
-  if (!mLDConfig->output().hasContext()) {
-    return kNotSetUpOutput;
-  }
-
   // create NULL section
   mcld::LDSection& null =
       mObjLinker->getLinker()->createSectHdr("",
@@ -293,12 +289,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
-  if (mLDConfig->output().hasContext()) {
-    return kDoubleConfig;
-  }
-
   // -----  initialize output file  ----- //
-
   mcld::FileHandle::Permission perm = 0755;
 
   mOutput = mMemAreaFactory->produce(
@@ -311,8 +302,6 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
   if (!mOutput->handler()->isGood()) {
     return kOpenOutput;
   }
-
-  mLDConfig->output().setContext(mLDConfig->contextFactory().produce(pPath));
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section
@@ -327,14 +316,8 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
-  if (mLDConfig->output().hasContext()) {
-    return kDoubleConfig;
-  }
-
   // -----  initialize output file  ----- //
   mOutput = mMemAreaFactory->produce(pFileHandler);
-
-  mLDConfig->output().setContext(mLDConfig->contextFactory().produce());
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize
   // standard sections here. This is because we have to build the section

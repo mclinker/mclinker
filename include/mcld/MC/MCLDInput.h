@@ -16,7 +16,6 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/MC/MCLDFile.h>
 #include <mcld/Support/Path.h>
 
 namespace mcld {
@@ -25,13 +24,12 @@ class MemoryArea;
 class AttributeProxy;
 class Attribute;
 class InputFactory;
+class LDContext;
 
 /** \class Input
  *  \brief Input provides the information of a input file.
- *
- *  @see MCLDFile
  */
-class Input : public MCLDFile
+class Input
 {
 friend class InputFactory;
 public:
@@ -96,7 +94,6 @@ public:
   { m_fileOffset = pFileOffset; }
 
   // -----  memory area  ----- //
-
   void setMemArea(MemoryArea* pMemArea)
   { m_pMemArea = pMemArea; }
 
@@ -106,6 +103,16 @@ public:
   const MemoryArea* memArea() const { return m_pMemArea; }
   MemoryArea*       memArea()       { return m_pMemArea; }
 
+  // -----  context  ----- //
+  void setContext(LDContext* pContext)
+  { m_pContext = pContext; }
+
+  bool hasContext() const
+  { return (NULL != m_pContext); }
+
+  const LDContext* context() const { return m_pContext; }
+  LDContext*       context()       { return m_pContext; }
+
 private:
   unsigned int m_Type;
   std::string m_Name;
@@ -114,6 +121,7 @@ private:
   bool m_bNeeded;
   off_t m_fileOffset;
   MemoryArea* m_pMemArea;
+  LDContext* m_pContext;
 };
 
 } // namespace of mcld

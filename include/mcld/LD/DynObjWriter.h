@@ -11,7 +11,6 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/LD/LDWriter.h>
 #include <llvm/Support/system_error.h>
 
@@ -19,6 +18,7 @@ namespace mcld {
 
 class Module;
 class MemoryArea;
+class TargetLDBackend;
 
 /** \class DynObjWriter
  *  \brief DynObjWriter provides an common interface for different object
@@ -34,9 +34,8 @@ protected:
 public:
   virtual ~DynObjWriter() { }
 
-  virtual llvm::error_code writeDynObj(Output& pOutput,
-                                       Module& pModule,
-                                       MemoryArea& pOut) = 0;
+  virtual llvm::error_code writeDynObj(Module& pModule,
+                                       MemoryArea& pOutput) = 0;
 };
 
 } // namespace of mcld

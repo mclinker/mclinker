@@ -11,16 +11,8 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/ADT/DenseMap.h>
-#include <llvm/Support/ELF.h>
 #include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ELFWriter.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MemoryArea.h>
-#include <vector>
-#include <utility>
-
 
 namespace mcld {
 
@@ -41,12 +33,9 @@ public:
   ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
   ~ELFExecWriter();
 
-  llvm::error_code writeExecutable(Output& pOutput,
-                                   Module& pModule,
-                                   MemoryArea& pOut);
+  llvm::error_code writeExecutable(Module& pModule, MemoryArea& pOutput);
 
 private:
-  GNULDBackend& m_Backend;
   FragmentLinker& m_Linker;
 };
 

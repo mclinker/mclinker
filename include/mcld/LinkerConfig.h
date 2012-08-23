@@ -18,7 +18,6 @@
 #include <mcld/ScriptOptions.h>
 #include <mcld/BitcodeOption.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
@@ -69,9 +68,6 @@ public:
 
   void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
 
-  const Output& output() const { return *m_pOutput; }
-  Output&       output()       { return *m_pOutput; }
-
   const InputTree& inputs() const { return *m_pInputTree; }
   InputTree&       inputs()       { return *m_pInputTree; }
 
@@ -108,7 +104,6 @@ private:
   ScriptOptions m_Scripts;
   BitcodeOption m_Bitcode;
   InputTree *m_pInputTree;
-  Output* m_pOutput;
   llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
 

@@ -19,7 +19,6 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/RegionFragment.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
@@ -82,7 +81,7 @@ void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
   }
 }
 
-void X86GNULDBackend::doPostLayout(Output& pOutput,
+void X86GNULDBackend::doPostLayout(Module& pModule,
                                    FragmentLinker& pLinker)
 {
 }

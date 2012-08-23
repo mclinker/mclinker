@@ -16,10 +16,10 @@
 #include <string>
 
 #include <mcld/LD/LDSection.h>
-#include <mcld/LD/LDContext.h>
 
 namespace mcld {
 
+class Module;
 class SectionMap;
 class FragmentLinker;
 
@@ -42,7 +42,7 @@ public:
   typedef LDSectionMapTy::const_iterator const_iterator;
 
 public:
-  SectionMerger(SectionMap& pSectionMap, LDContext& pContext);
+  SectionMerger(SectionMap& pSectionMap, Module& pModule);
   ~SectionMerger();
 
   /// getOutputSectHdr - return a associated output section header
@@ -89,7 +89,7 @@ private:
 private:
   SectionMap& m_SectionNameMap;
 
-  LDContext& m_Output;
+  Module& m_Module;
 
   LDSectionMapTy m_LDSectionMap;
 };

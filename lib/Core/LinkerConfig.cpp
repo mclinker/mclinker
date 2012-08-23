@@ -32,12 +32,10 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
   m_pCntxtFactory = new ContextFactory(pInputNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree(*m_pInputFactory);
-  m_pOutput = new mcld::Output();
 }
 
 LinkerConfig::~LinkerConfig()
 {
-  delete m_pOutput;
   delete m_pAttrFactory;
   delete m_pCntxtFactory;
   delete m_pInputFactory;

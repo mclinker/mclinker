@@ -8,12 +8,10 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFExecWriter.h>
 
-#include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDOutput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 
@@ -30,7 +28,6 @@ using namespace mcld;
 ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : ExecWriter(pBackend),
     ELFWriter(pBackend),
-    m_Backend(pBackend),
     m_Linker(pLinker) {
 
 }
@@ -39,43 +36,38 @@ ELFExecWriter::~ELFExecWriter()
 {
 }
 
-llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput,
-                                                Module& pModule,
-                                                MemoryArea& pOut)
+llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
+                                                MemoryArea& pOutput)
 {
   // write out the interpreter section: .interp
-  target().emitInterp(pOut);
+  target().emitInterp(pOutput);
 
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pModule,
                             m_Linker.getLayout(),
-                            pOut);
+                            pOutput);
 
   // Write out name pool sections: .symtab, .strtab
   target().emitRegNamePools(pModule,
                             m_Linker.getLayout(),
-                            pOut);
+                            pOutput);
 
   // Write out regular ELF sections
-  unsigned int secIdx = 0;
-  unsigned int secEnd = pOutput.context()->numOfSections();
-  for (secIdx = 0; secIdx < secEnd; ++secIdx) {
-    LDSection* sect = pOutput.context()->getSection(secIdx);
+  Module::iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
     MemoryRegion* region = NULL;
     // request output region
-    switch(sect->kind()) {
+    switch((*sect)->kind()) {
       case LDFileFormat::Regular:
       case LDFileFormat::Relocation:
       case LDFileFormat::Target:
       case LDFileFormat::Debug:
       case LDFileFormat::GCCExceptTable:
       case LDFileFormat::EhFrame: {
-        region = pOut.request(sect->offset(), sect->size());
+        region = pOutput.request((*sect)->offset(), (*sect)->size());
         if (NULL == region) {
-          llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section[") +
-                                   llvm::Twine(secIdx) +
-                                   llvm::Twine("] - `") +
-                                   sect->name() +
+          llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section `") +
+                                   llvm::Twine((*sect)->name()) +
                                    llvm::Twine("'.\n"));
         }
         break;
@@ -91,30 +83,30 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput,
         continue;
       default: {
         llvm::errs() << "WARNING: unsupported section kind: "
-                     << sect->kind()
+                     << (*sect)->kind()
                      << " of section "
-                     << sect->name()
+                     << (*sect)->name()
                      << ".\n";
         continue;
       }
     }
 
     // write out sections with data
-    switch(sect->kind()) {
+    switch((*sect)->kind()) {
       case LDFileFormat::Regular:
       case LDFileFormat::Debug:
       case LDFileFormat::GCCExceptTable:
       case LDFileFormat::EhFrame: {
         // FIXME: if optimization of exception handling sections is enabled,
         // then we should emit these sections by the other way.
-        emitSectionData(m_Linker.getLayout(), *sect, *region);
+        emitSectionData(m_Linker.getLayout(), **sect, *region);
         break;
       }
       case LDFileFormat::Relocation:
-        emitRelocation(m_Linker.getLayout(), m_Linker.getLDInfo(), *sect, *region);
+        emitRelocation(m_Linker.getLayout(), m_Linker.getLDInfo(), **sect, *region);
         break;
       case LDFileFormat::Target:
-        target().emitSectionData(*sect,
+        target().emitSectionData(**sect,
                                  m_Linker.getLayout(),
                                  *region);
         break;
@@ -126,39 +118,35 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput,
   if (32 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF32ShStrTab(pOutput, m_Linker, pOut);
+    emitELF32ShStrTab(pModule, m_Linker, pOutput);
 
     writeELF32Header(m_Linker.getLDInfo(),
-                     target(),
                      pModule,
                      m_Linker.getLayout(),
-                     pOutput,
-                     pOut);
+                     pOutput);
 
-    emitELF32ProgramHeader(target(), pOut);
+    emitELF32ProgramHeader(pOutput);
 
-    emitELF32SectionHeader(pOutput, m_Linker.getLDInfo(), m_Linker, pOut);
+    emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
   }
   else if (64 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF64ShStrTab(pOutput, m_Linker, pOut);
+    emitELF64ShStrTab(pModule, m_Linker, pOutput);
 
     writeELF64Header(m_Linker.getLDInfo(),
-                     target(),
                      pModule,
                      m_Linker.getLayout(),
-                     pOutput,
-                     pOut);
+                     pOutput);
 
-    emitELF64ProgramHeader(target(), pOut);
+    emitELF64ProgramHeader(pOutput);
 
-    emitELF64SectionHeader(pOutput, m_Linker.getLDInfo(), m_Linker, pOut);
+    emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
   }
   else
     return make_error_code(errc::not_supported);
 
-  pOut.clear();
+  pOutput.clear();
   return llvm::make_error_code(llvm::errc::success);
 }
 

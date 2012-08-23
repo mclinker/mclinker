@@ -11,23 +11,15 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/ADT/DenseMap.h>
-#include <llvm/Support/ELF.h>
 #include <mcld/LD/DynObjWriter.h>
 #include <mcld/LD/ELFWriter.h>
-#include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/Support/MemoryArea.h>
-#include <vector>
-#include <utility>
-
 
 namespace mcld {
 
 class Module;
+class MemoryArea;
 class GNULDBackend;
 class FragmentLinker;
-class MemoryArea;
 
 /** \class ELFDynObjWriter
  *  \brief ELFDynObjWriter writes the dynamic sections.
@@ -41,12 +33,9 @@ public:
   ELFDynObjWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
   ~ELFDynObjWriter();
 
-  llvm::error_code writeDynObj(Output& pOutput,
-                               Module& pModule,
-                               MemoryArea& pOut);
+  llvm::error_code writeDynObj(Module& pModule, MemoryArea& pOutput);
 
 private:
-  GNULDBackend& m_Backend;
   FragmentLinker& m_Linker;
 };
 
