@@ -15,6 +15,8 @@
 #include <mcld/LD/DiagnosticInfos.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 
+#include <algorithm>
+
 using namespace mcld;
 
 namespace {
