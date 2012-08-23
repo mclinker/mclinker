@@ -117,7 +117,6 @@ public:
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(const Module& pModule,
-                                const SymbolCategory& pSymbols,
                                 const Layout& pLayout,
                                 MemoryArea& pOut);
 
@@ -135,7 +134,7 @@ public:
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  bool allocateCommonSymbols(FragmentLinker& pLinker) const;
+  bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,

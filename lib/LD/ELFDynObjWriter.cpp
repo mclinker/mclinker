@@ -41,12 +41,11 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Output& pOutput,
 {
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pModule,
-                            m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
                             pOut);
 
   // Write out name pool sections: .symtab, .strtab
-  target().emitRegNamePools(m_Linker.getOutputSymbols(),
+  target().emitRegNamePools(pModule,
                             m_Linker.getLayout(),
                             pOut);
 

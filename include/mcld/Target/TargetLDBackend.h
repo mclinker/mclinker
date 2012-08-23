@@ -31,7 +31,6 @@ class LDSymbol;
 class LDSection;
 class SectionMap;
 class Output;
-class SymbolCategory;
 class Input;
 class GOT;
 class MemoryArea;
@@ -123,8 +122,7 @@ public:
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void
-  sizeNamePools(const Module& pModule,
-                const SymbolCategory& pSymbols) = 0;
+  sizeNamePools(const Module& pModule) = 0;
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
@@ -134,7 +132,7 @@ public:
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(FragmentLinker& pLinker) const = 0;
+  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,

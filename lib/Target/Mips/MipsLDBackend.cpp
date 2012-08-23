@@ -295,7 +295,6 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
-                                        const SymbolCategory& pSymbols,
                                         const Layout& pLayout,
                                         MemoryArea& pOutput)
 {
@@ -341,8 +340,8 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr except GOT entries
-  for (SymbolCategory::const_iterator symbol = pSymbols.begin(),
-       sym_end = pSymbols.end(); symbol != sym_end; ++symbol) {
+  for (Module::const_sym_iterator symbol = pModule.sym_begin(),
+       sym_end = pModule.sym_end(); symbol != sym_end; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
@@ -494,9 +493,10 @@ bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
 bool
-MipsGNULDBackend::allocateCommonSymbols(FragmentLinker& pLinker) const
+MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
+                                        FragmentLinker& pLinker) const
 {
-  SymbolCategory& symbol_list = pLinker.getOutputSymbols();
+  SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
     return true;

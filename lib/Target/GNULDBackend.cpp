@@ -21,7 +21,6 @@
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/MC/MCLDOutput.h>
 #include <mcld/MC/InputTree.h>
-#include <mcld/MC/SymbolCategory.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -592,8 +591,7 @@ const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, and .hash
 void
-GNULDBackend::sizeNamePools(const Module& pModule,
-                            const SymbolCategory& pSymbols)
+GNULDBackend::sizeNamePools(const Module& pModule)
 {
   // size of string tables starts from 1 to hold the null character in their
   // first byte
@@ -606,9 +604,9 @@ GNULDBackend::sizeNamePools(const Module& pModule,
   size_t hash   = 0;
 
   // compute size of .symtab, .dynsym and .strtab
-  SymbolCategory::const_iterator symbol;
-  SymbolCategory::const_iterator symEnd = pSymbols.end();
-  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
+  Module::const_sym_iterator symbol;
+  Module::const_sym_iterator symEnd = pModule.sym_end();
+  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
     size_t str_size = (*symbol)->nameSize() + 1;
     if (isDynamicSymbol(**symbol)) {
       ++dynsym;
@@ -689,7 +687,7 @@ GNULDBackend::sizeNamePools(const Module& pModule,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void GNULDBackend::emitRegNamePools(const SymbolCategory& pSymbols,
+void GNULDBackend::emitRegNamePools(const Module& pModule,
                                     const Layout& pLayout,
                                     MemoryArea& pOutput)
 {
@@ -751,9 +749,9 @@ void GNULDBackend::emitRegNamePools(const SymbolCategory& pSymbols,
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
-  SymbolCategory::const_iterator symbol;
-  SymbolCategory::const_iterator symEnd = pSymbols.end();
-  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
+  Module::const_sym_iterator symbol;
+  Module::const_sym_iterator symEnd = pModule.sym_end();
+  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
 
      // maintain output's symbol and index map if building .o file
     if (LinkerConfig::Object == config().codeGenType()) {
@@ -794,7 +792,6 @@ void GNULDBackend::emitRegNamePools(const SymbolCategory& pSymbols,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitDynNamePools(const Module& pModule,
-                                    const SymbolCategory& pSymbols,
                                     const Layout& pLayout,
                                     MemoryArea& pOutput)
 {
@@ -857,9 +854,9 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr
-  SymbolCategory::const_iterator symbol;
-  SymbolCategory::const_iterator symEnd = pSymbols.end();
-  for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
+  Module::const_sym_iterator symbol;
+  Module::const_sym_iterator symEnd = pModule.sym_end();
+  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
@@ -1163,9 +1160,9 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 /// sections.
 /// @refer Google gold linker: common.cc: 214
 bool
-GNULDBackend::allocateCommonSymbols(FragmentLinker& pLinker) const
+GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const
 {
-  SymbolCategory& symbol_list = pLinker.getOutputSymbols();
+  SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
     return true;

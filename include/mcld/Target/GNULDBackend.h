@@ -50,7 +50,6 @@ struct PtrHash
 class Module;
 class LinkerConfig;
 class Layout;
-class SymbolCategory;
 class EhFrameHdr;
 
 /** \class GNULDBackend
@@ -155,8 +154,7 @@ public:
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
-  virtual void sizeNamePools(const Module& pModule,
-                             const SymbolCategory& pSymbols);
+  virtual void sizeNamePools(const Module& pModule);
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const LDSection& pSection,
@@ -164,13 +162,12 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(const SymbolCategory& pSymbols,
+  virtual void emitRegNamePools(const Module& pModule,
                                 const Layout& pLayout,
                                 MemoryArea& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(const Module& pModule,
-                                const SymbolCategory& pSymbols,
                                 const Layout& pLayout,
                                 MemoryArea& pOutput);
 
@@ -235,7 +232,7 @@ public:
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
   /// Different concrete target backend may overlap this function.
-  virtual bool allocateCommonSymbols(FragmentLinker& pLinker) const;
+  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const;
 
   /// isSymbolPreemtible - whether the symbol can be preemted by other
   /// link unit

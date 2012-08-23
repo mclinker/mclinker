@@ -146,10 +146,10 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
       // No matter the symbol is already in the output or not, add it if it
       // should be forcefully set local.
       if (shouldForceLocal(*resolved_result.info))
-        m_OutputSymbols.forceLocal(*output_sym);
+        m_Module.getSymbolTable().forceLocal(*output_sym);
       else {
         // the symbol should not be forcefully local.
-        m_OutputSymbols.add(*output_sym);
+        m_Module.getSymbolTable().add(*output_sym);
       }
     }
     else if (resolved_result.overriden) {
@@ -158,7 +158,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
         // If the old info and the new info are both forcefully local, then
         // we should keep the output_sym in forcefully local category. Else,
         // we should re-sort the output_sym
-        m_OutputSymbols.arrange(*output_sym, old_info);
+        m_Module.getSymbolTable().arrange(*output_sym, old_info);
       }
     }
   }
@@ -230,7 +230,7 @@ LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
     // If we are not doing incremental linking, then any symbol with hidden
     // or internal visibility is forcefully set as a local symbol.
     if (shouldForceLocal(*resolved_result.info)) {
-      m_OutputSymbols.forceLocal(*output_sym);
+      m_Module.getSymbolTable().forceLocal(*output_sym);
     }
   }
 
@@ -267,9 +267,9 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     result.info->setSymPtr(output_sym);
 
     if (shouldForceLocal(*result.info))
-      m_OutputSymbols.forceLocal(*output_sym);
+      m_Module.getSymbolTable().forceLocal(*output_sym);
     else
-      m_OutputSymbols.add(*output_sym);
+      m_Module.getSymbolTable().add(*output_sym);
   }
   else {
     // the symbol is already in the pool, override it
@@ -286,7 +286,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
 
     output_sym = info->outSymbol();
     if (NULL != output_sym)
-      m_OutputSymbols.arrange(*output_sym, old_info);
+      m_Module.getSymbolTable().arrange(*output_sym, old_info);
     else {
       // create a output LDSymbol
       output_sym = m_LDSymbolFactory.allocate();
@@ -295,7 +295,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
       output_sym->setResolveInfo(*info);
       info->setSymPtr(output_sym);
 
-      m_OutputSymbols.add(*output_sym);
+      m_Module.getSymbolTable().add(*output_sym);
     }
   }
 
@@ -341,7 +341,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   if (NULL != output_sym) {
     output_sym->setFragmentRef(pFragmentRef);
     output_sym->setValue(pValue);
-    m_OutputSymbols.arrange(*output_sym, old_info);
+    m_Module.getSymbolTable().arrange(*output_sym, old_info);
   }
   else {
     // create a output LDSymbol
@@ -351,7 +351,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
     output_sym->setResolveInfo(*info);
     info->setSymPtr(output_sym);
 
-    m_OutputSymbols.add(*output_sym);
+    m_Module.getSymbolTable().add(*output_sym);
   }
 
   return output_sym;
@@ -394,11 +394,11 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
   // After symbol resolution, the visibility is changed to the most restrict.
   // arrange the output position
   if (shouldForceLocal(*result.info))
-    m_OutputSymbols.forceLocal(*output_sym);
+    m_Module.getSymbolTable().forceLocal(*output_sym);
   else if (has_output_sym)
-    m_OutputSymbols.arrange(*output_sym, old_info);
+    m_Module.getSymbolTable().arrange(*output_sym, old_info);
   else
-    m_OutputSymbols.add(*output_sym);
+    m_Module.getSymbolTable().add(*output_sym);
 
   return output_sym;
 }
@@ -435,8 +435,8 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
 
 bool FragmentLinker::finalizeSymbols()
 {
-  SymbolCategory::iterator symbol, symEnd = m_OutputSymbols.end();
-  for (symbol = m_OutputSymbols.begin(); symbol != symEnd; ++symbol) {
+  Module::sym_iterator symbol, symEnd = m_Module.sym_end();
+  for (symbol = m_Module.sym_begin(); symbol != symEnd; ++symbol) {
 
     if ((*symbol)->resolveInfo()->isAbsolute() ||
         (*symbol)->resolveInfo()->type() == ResolveInfo::File) {

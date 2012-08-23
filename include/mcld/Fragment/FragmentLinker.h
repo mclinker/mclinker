@@ -30,7 +30,6 @@
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/SymbolCategory.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/GCFactoryListTraits.h>
 
@@ -175,13 +174,6 @@ public:
 
   bool layout();
 
-  // -----  output symbols  ----- //
-  SymbolCategory& getOutputSymbols()
-  { return m_OutputSymbols; }
-
-  const SymbolCategory& getOutputSymbols() const
-  { return m_OutputSymbols; }
-
   // -----  capacity  ----- //
   LinkerConfig& getLDInfo()
   { return m_Config; }
@@ -268,7 +260,6 @@ private:
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
   RelocationListType m_RelocationList;
-  SymbolCategory m_OutputSymbols;
 };
 
 #include "FragmentLinker.tcc"
