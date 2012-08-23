@@ -50,6 +50,13 @@ public:
     return m_pConfig;
   }
 
+  Module* module() {
+    return &m_Module;
+  }
+
+  const Module* module() const {
+    return &m_Module;
+  }
   // -----  search directories  ----- //
   void addSearchDir(const std::string &pPath);
 

@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cassert>
 
+#include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
@@ -591,7 +592,7 @@ const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, and .hash
 void
-GNULDBackend::sizeNamePools(const Output& pOutput,
+GNULDBackend::sizeNamePools(const Module& pModule,
                             const SymbolCategory& pSymbols)
 {
   // size of string tables starts from 1 to hold the null character in their
@@ -653,7 +654,7 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
              sizeof(llvm::ELF::Elf32_Word);
 
       // set size
-      dynstr += pOutput.name().size() + 1;
+      dynstr += pModule.name().size() + 1;
       if (32 == bitclass())
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
       else
@@ -688,10 +689,9 @@ GNULDBackend::sizeNamePools(const Output& pOutput,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void GNULDBackend::emitRegNamePools(Output& pOutput,
-                                    SymbolCategory& pSymbols,
+void GNULDBackend::emitRegNamePools(const SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    MemoryArea& pOut)
+                                    MemoryArea& pOutput)
 {
 
   bool sym_exist = false;
@@ -710,10 +710,10 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   LDSection& symtab_sect = file_format->getSymTab();
   LDSection& strtab_sect = file_format->getStrTab();
 
-  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(),
-                                                           symtab_sect.size());
-  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(),
-                                                           strtab_sect.size());
+  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
+                                                symtab_sect.size());
+  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
+                                                strtab_sect.size());
 
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
@@ -751,8 +751,8 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
-  SymbolCategory::iterator symbol;
-  SymbolCategory::iterator symEnd = pSymbols.end();
+  SymbolCategory::const_iterator symbol;
+  SymbolCategory::const_iterator symEnd = pSymbols.end();
   for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
 
      // maintain output's symbol and index map if building .o file
@@ -793,10 +793,10 @@ void GNULDBackend::emitRegNamePools(Output& pOutput,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void GNULDBackend::emitDynNamePools(Output& pOutput,
-                                    SymbolCategory& pSymbols,
+void GNULDBackend::emitDynNamePools(const Module& pModule,
+                                    const SymbolCategory& pSymbols,
                                     const Layout& pLayout,
-                                    MemoryArea& pOut)
+                                    MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -808,14 +808,14 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& hash_sect   = file_format->getHashTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
-  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(),
-                                                           symtab_sect.size());
-  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(),
-                                                           strtab_sect.size());
-  MemoryRegion* hash_region = pOut.request(hash_sect.offset(),
-                                                         hash_sect.size());
-  MemoryRegion* dyn_region = pOut.request(dyn_sect.offset(),
-                                                        dyn_sect.size());
+  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
+                                                symtab_sect.size());
+  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
+                                                strtab_sect.size());
+  MemoryRegion* hash_region   = pOutput.request(hash_sect.offset(),
+                                                hash_sect.size());
+  MemoryRegion* dyn_region    = pOutput.request(dyn_sect.offset(),
+                                                dyn_sect.size());
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
@@ -857,8 +857,8 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr
-  SymbolCategory::iterator symbol;
-  SymbolCategory::iterator symEnd = pSymbols.end();
+  SymbolCategory::const_iterator symbol;
+  SymbolCategory::const_iterator symEnd = pSymbols.end();
   for (symbol = pSymbols.begin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
@@ -925,13 +925,15 @@ void GNULDBackend::emitDynNamePools(Output& pOutput,
 
   // emit soname
   // initialize value of ELF .dynamic section
-  if (LinkerConfig::DynObj == config().codeGenType())
+  if (LinkerConfig::DynObj == config().codeGenType()) {
+    // set pointer to SONAME entry in dynamic string table.
     dynamic().applySoname(strtabsize);
+  }
   dynamic().applyEntries(config(), *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
-  strcpy((strtab + strtabsize), pOutput.name().c_str());
-  strtabsize += pOutput.name().size() + 1;
+  strcpy((strtab + strtabsize), pModule.name().c_str());
+  strtabsize += pModule.name().size() + 1;
 
   // emit hash table
   // FIXME: this verion only emit SVR4 hash section.

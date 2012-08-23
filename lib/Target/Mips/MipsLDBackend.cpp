@@ -15,9 +15,10 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
+#include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/SectionMap.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
@@ -293,10 +294,10 @@ void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
-                                        SymbolCategory& pSymbols,
+void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
+                                        const SymbolCategory& pSymbols,
                                         const Layout& pLayout,
-                                        MemoryArea& pOut)
+                                        MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -305,10 +306,14 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   LDSection& hash_sect   = file_format->getHashTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
-  MemoryRegion* symtab_region = pOut.request(symtab_sect.offset(), symtab_sect.size());
-  MemoryRegion* strtab_region = pOut.request(strtab_sect.offset(), strtab_sect.size());
-  MemoryRegion* hash_region = pOut.request(hash_sect.offset(), hash_sect.size());
-  MemoryRegion* dyn_region = pOut.request(dyn_sect.offset(), dyn_sect.size());
+  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
+                                                symtab_sect.size());
+  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
+                                                strtab_sect.size());
+  MemoryRegion* hash_region   = pOutput.request(hash_sect.offset(),
+                                                hash_sect.size());
+  MemoryRegion* dyn_region    = pOutput.request(dyn_sect.offset(),
+                                                dyn_sect.size());
 
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
@@ -336,7 +341,7 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr except GOT entries
-  for (SymbolCategory::iterator symbol = pSymbols.begin(),
+  for (SymbolCategory::const_iterator symbol = pSymbols.begin(),
        sym_end = pSymbols.end(); symbol != sym_end; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
@@ -408,8 +413,8 @@ void MipsGNULDBackend::emitDynNamePools(Output& pOutput,
   dynamic().applyEntries(config(), *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
-  strcpy((strtab + strtabsize), pOutput.name().c_str());
-  strtabsize += pOutput.name().size() + 1;
+  strcpy((strtab + strtabsize), pModule.name().c_str());
+  strtabsize += pModule.name().size() + 1;
 
   // emit hash table
   // FIXME: this verion only emit SVR4 hash section.

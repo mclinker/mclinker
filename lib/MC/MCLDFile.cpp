@@ -17,28 +17,14 @@ using namespace mcld;
 // MCLDFile
 //===----------------------------------------------------------------------===//
 MCLDFile::MCLDFile()
-  : m_pContext(NULL), m_Path(), m_Name() {
+  : m_pContext(NULL), m_Path() {
 }
 
-MCLDFile::MCLDFile(llvm::StringRef pName)
-  : m_pContext(NULL), m_Path(), m_Name(pName.data()) {
-}
-
-MCLDFile::MCLDFile(llvm::StringRef pName,
-                   const sys::fs::Path& pPath)
-  : m_pContext(NULL), m_Path(pPath), m_Name(pName.data()) {
+MCLDFile::MCLDFile(const sys::fs::Path& pPath)
+  : m_pContext(NULL), m_Path(pPath) {
 }
 
 MCLDFile::~MCLDFile()
 {
-}
-
-void MCLDFile::setSOName(const std::string& pName)
-{
-  size_t pos = pName.find_last_of(sys::fs::separator);
-  if (std::string::npos == pos)
-    m_Name = pName;
-  else
-    m_Name = pName.substr(pos + 1);
 }
 

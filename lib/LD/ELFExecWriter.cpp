@@ -47,14 +47,13 @@ llvm::error_code ELFExecWriter::writeExecutable(Output& pOutput,
   target().emitInterp(pOut);
 
   // Write out name pool sections: .dynsym, .dynstr, .hash
-  target().emitDynNamePools(pOutput,
+  target().emitDynNamePools(pModule,
                             m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
                             pOut);
 
   // Write out name pool sections: .symtab, .strtab
-  target().emitRegNamePools(pOutput,
-                            m_Linker.getOutputSymbols(),
+  target().emitRegNamePools(m_Linker.getOutputSymbols(),
                             m_Linker.getLayout(),
                             pOut);
 

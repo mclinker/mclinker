@@ -123,7 +123,7 @@ public:
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void
-  sizeNamePools(const Output& pOutput,
+  sizeNamePools(const Module& pModule,
                 const SymbolCategory& pSymbols) = 0;
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,

@@ -663,7 +663,7 @@ static bool ShouldColorize()
 static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // -----  Set up General Options  ----- //
   // set up soname
-  pConfig.output().setSOName(ArgSOName);
+  pConfig.options().setSOName(ArgSOName);
 
   // set up sysroot
   if (!ArgSysRoot.empty()) {

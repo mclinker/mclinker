@@ -103,13 +103,13 @@ bool ObjectLinker::initStdSections()
     }
     case LinkerConfig::Object: {
       llvm::report_fatal_error(llvm::Twine("output type is not implemented yet. file: `") +
-                               m_Config.output().name() +
+                               m_Module.name() +
                                llvm::Twine("'."));
       return false;
     }
     default: {
       llvm::report_fatal_error(llvm::Twine("unknown output type of file `") +
-                               m_Config.output().name() +
+                               m_Module.name() +
                                llvm::Twine("'."));
        return false;
     }
@@ -259,7 +259,7 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_Config.output(),
+  m_LDBackend.sizeNamePools(m_Module,
                             m_pLinker->getOutputSymbols());
 
   return true;

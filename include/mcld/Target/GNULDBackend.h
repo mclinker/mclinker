@@ -155,7 +155,7 @@ public:
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
-  virtual void sizeNamePools(const Output& pOutput,
+  virtual void sizeNamePools(const Module& pModule,
                              const SymbolCategory& pSymbols);
 
   /// emitSectionData - emit target-dependent section data
@@ -164,16 +164,15 @@ public:
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(Output& pOutput,
-                                SymbolCategory& pSymbols,
+  virtual void emitRegNamePools(const SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                MemoryArea& pOut);
+                                MemoryArea& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(Output& pOutput,
-                                SymbolCategory& pSymbols,
+  virtual void emitDynNamePools(const Module& pModule,
+                                const SymbolCategory& pSymbols,
                                 const Layout& pLayout,
-                                MemoryArea& pOut);
+                                MemoryArea& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name

@@ -37,8 +37,7 @@ class MCLDFile : private Uncopyable
 {
 public:
   MCLDFile();
-  MCLDFile(llvm::StringRef pName);
-  MCLDFile(llvm::StringRef pName, const sys::fs::Path& pPath);
+  explicit MCLDFile(const sys::fs::Path& pPath);
 
   virtual ~MCLDFile();
 
@@ -49,14 +48,7 @@ public:
   void setPath(const sys::fs::Path& pPath)
   { m_Path = pPath; }
 
-  /// setSOName - set the name of the shared object.
-  /// In ELF, this will be written in DT_SONAME
-  void setSOName(const std::string& pName);
-
   // -----  observers  ----- //
-  const std::string& name() const
-  { return m_Name; }
-
   const sys::fs::Path& path() const
   { return m_Path; }
 
@@ -72,7 +64,6 @@ public:
 protected:
   LDContext *m_pContext;
   sys::fs::Path m_Path;
-  std::string m_Name;
 };
 
 } // namespace of mcld

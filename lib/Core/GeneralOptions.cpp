@@ -69,6 +69,15 @@ void GeneralOptions::setSysroot(const mcld::sys::fs::Path &pSysroot)
   m_Sysroot.assign(pSysroot);
 }
 
+void GeneralOptions::setSOName(const std::string& pName)
+{
+  size_t pos = pName.find_last_of(sys::fs::separator);
+  if (std::string::npos == pos)
+    m_SOName = pName;
+  else
+    m_SOName = pName.substr(pos + 1);
+}
+
 void GeneralOptions::addZOption(const ZOption& pOption)
 {
   switch (pOption.kind()) {

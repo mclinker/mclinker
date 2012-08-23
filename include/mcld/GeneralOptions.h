@@ -94,6 +94,11 @@ public:
   bool hasDyld() const
   { return !m_Dyld.empty(); }
 
+  void setSOName(const std::string& pName);
+
+  const std::string& soname() const
+  { return m_SOName; }
+
   void setAllowShlibUndefined(bool pEnabled = true)
   { m_bAllowShlibUndefined = pEnabled; }
 
@@ -207,6 +212,7 @@ private:
   SearchDirs m_SearchDirs;
   std::string m_Entry;
   std::string m_Dyld;
+  std::string m_SOName;
   int8_t m_Verbose;            // --verbose[=0,1,2]
   uint16_t m_MaxErrorNum;      // --error-limit=N
   uint16_t m_MaxWarnNum;       // --warning-limit=N

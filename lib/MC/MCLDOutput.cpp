@@ -14,11 +14,11 @@ using namespace mcld;
 // MCLDOutput
 //===----------------------------------------------------------------------===//
 Output::Output()
-  : MCLDFile("") {
+  : MCLDFile() {
 }
 
 Output::Output(const sys::fs::Path& pRealPath)
-  : MCLDFile("", pRealPath) {
+  : MCLDFile(pRealPath) {
 }
                   
 Output::~Output()

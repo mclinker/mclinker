@@ -116,8 +116,8 @@ public:
                            MemoryRegion& pRegion) const;
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(Output& pOutput,
-                                SymbolCategory& pSymbols,
+  virtual void emitDynNamePools(const Module& pModule,
+                                const SymbolCategory& pSymbols,
                                 const Layout& pLayout,
                                 MemoryArea& pOut);
 

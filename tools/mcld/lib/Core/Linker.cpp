@@ -111,7 +111,6 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
   }
 
   mRoot = new mcld::InputTree::iterator(mLDConfig->inputs().root());
-  mSOName = pConfig.getSOName();
 
   return kSuccess;
 }
@@ -130,7 +129,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
-  mModule = new mcld::Module();
+  mModule = new mcld::Module(mLDConfig->options().soname());
 
   mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mModule, *mMemAreaFactory);
 
@@ -313,7 +312,6 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
     return kOpenOutput;
   }
 
-  mLDConfig->output().setSOName(mSOName);
   mLDConfig->output().setContext(mLDConfig->contextFactory().produce(pPath));
 
   // FIXME: We must initialize FragmentLinker before setOutput, and initialize

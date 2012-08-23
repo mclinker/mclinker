@@ -574,7 +574,7 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
     switch (d_tag) {
       case llvm::ELF::DT_SONAME:
         assert(d_val < dynstr_sect->size());
-        pInput.setSOName(dynstr + d_val);
+        pInput.setName(sys::fs::Path(dynstr + d_val).filename().native());
         hasSOName = true;
         break;
       case llvm::ELF::DT_NEEDED:
@@ -588,7 +588,7 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
 
   // if there is no SONAME in .dynamic, then set it from input path
   if (!hasSOName)
-    pInput.setSOName(pInput.path().native());
+    pInput.setName(pInput.path().filename().native());
 
   pInput.memArea()->release(dynamic_region);
   pInput.memArea()->release(dynstr_region);

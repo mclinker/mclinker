@@ -58,6 +58,12 @@ private:
 public:
   ~Input();
 
+  const std::string& name() const
+  { return m_Name; }
+
+  void setName(const std::string& pName)
+  { m_Name = pName; }
+
   void setType(unsigned int pType)
   { m_Type = pType; }
 
@@ -95,6 +101,7 @@ public:
 
 private:
   unsigned int m_Type;
+  std::string m_Name;
   Attribute *m_pAttr;
   bool m_bNeeded;
   off_t m_fileOffset;

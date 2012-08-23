@@ -93,7 +93,7 @@ void ReadStageTest::dumpOutput(const mcld::Output &pOutput, mcld::FileHandle &pF
   stringstream sstream;
   for (int i=0; i < pIdent; ++i)
     sstream << " ";
-  sstream << "<output name=\"" << pOutput.name() << "\">\n";
+  sstream << "<output name=\"" << m_pLinker->module()->name() << "\">\n";
 
   LDContext::const_sect_iterator sect, sectEnd = pOutput.context()->sectEnd();
   for (sect = pOutput.context()->sectBegin(); sect != sectEnd; ++sect) {
