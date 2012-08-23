@@ -17,10 +17,6 @@ Output::Output()
   : MCLDFile() {
 }
 
-Output::Output(const sys::fs::Path& pRealPath)
-  : MCLDFile(pRealPath) {
-}
-                  
 Output::~Output()
 {
 }

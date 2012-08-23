@@ -17,6 +17,7 @@
 #endif
 
 #include <mcld/MC/MCLDFile.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld {
 
@@ -64,6 +65,12 @@ public:
   void setName(const std::string& pName)
   { m_Name = pName; }
 
+  const sys::fs::Path& path() const
+  { return m_Path; }
+
+  void setPath(const sys::fs::Path& pPath)
+  { m_Path = pPath; }
+
   void setType(unsigned int pType)
   { m_Type = pType; }
 
@@ -102,6 +109,7 @@ public:
 private:
   unsigned int m_Type;
   std::string m_Name;
+  sys::fs::Path m_Path;
   Attribute *m_pAttr;
   bool m_bNeeded;
   off_t m_fileOffset;

@@ -17,8 +17,6 @@
 #endif
 
 #include <mcld/MC/MCLDFile.h>
-#include <mcld/Support/RealPath.h>
-#include <string>
 
 namespace mcld {
 
@@ -31,8 +29,6 @@ class Output : public MCLDFile
 {
 public:
   Output();
-
-  explicit Output(const sys::fs::Path& pRealPath);
 
   ~Output();
 };

@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -21,7 +22,6 @@
 #include <mcld/Support/ToolOutputFile.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>

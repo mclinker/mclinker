@@ -17,9 +17,6 @@
 #endif
 
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/Support/Path.h>
-#include <llvm/ADT/StringRef.h>
-#include <string>
 
 namespace mcld {
 
@@ -37,33 +34,20 @@ class MCLDFile : private Uncopyable
 {
 public:
   MCLDFile();
-  explicit MCLDFile(const sys::fs::Path& pPath);
 
   virtual ~MCLDFile();
 
-  // -----  modifiers  ----- //
   void setContext(LDContext* pContext)
   { m_pContext = pContext; }
 
-  void setPath(const sys::fs::Path& pPath)
-  { m_Path = pPath; }
-
-  // -----  observers  ----- //
-  const sys::fs::Path& path() const
-  { return m_Path; }
-
   bool hasContext() const
-  { return (0 != m_pContext); }
+  { return (NULL != m_pContext); }
 
-  LDContext* context()
-  { return m_pContext; }
-
-  const LDContext* context() const
-  { return m_pContext; }
+  const LDContext* context() const { return m_pContext; }
+  LDContext*       context()       { return m_pContext; }
 
 protected:
   LDContext *m_pContext;
-  sys::fs::Path m_Path;
 };
 
 } // namespace of mcld
