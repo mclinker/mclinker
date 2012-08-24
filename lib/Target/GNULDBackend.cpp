@@ -81,16 +81,10 @@ uint64_t GNULDBackend::segmentStartAddr() const
 }
 
 GNUArchiveReader*
-GNULDBackend::createArchiveReader(Module& pModule,
-                                  MemoryAreaFactory& pMemAreaFactory)
+GNULDBackend::createArchiveReader(Module& pModule)
 {
   assert(NULL != m_pObjectReader);
-  // FIXME: Move out AttributeFactory and InputFactory of LinkerConfig, then
-  // we can keep LinkerConfig constant.
-  return new GNUArchiveReader(const_cast<LinkerConfig&>(config()),
-                              pModule,
-                              pMemAreaFactory,
-                              *m_pObjectReader);
+  return new GNUArchiveReader(pModule, *m_pObjectReader);
 }
 
 ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker)

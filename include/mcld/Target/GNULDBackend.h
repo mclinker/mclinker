@@ -65,8 +65,7 @@ public:
   virtual ~GNULDBackend();
 
   // -----  readers/writers  ----- //
-  GNUArchiveReader* createArchiveReader(Module& pModule,
-                                        MemoryAreaFactory& pMemAreaFactory);
+  GNUArchiveReader* createArchiveReader(Module& pModule);
   ELFObjectReader* createObjectReader(FragmentLinker& pLinker);
   ELFDynObjReader* createDynObjReader(FragmentLinker& pLinker);
   ELFObjectWriter* createObjectWriter(FragmentLinker& pLinker);

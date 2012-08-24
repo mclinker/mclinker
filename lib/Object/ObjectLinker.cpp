@@ -60,7 +60,7 @@ bool ObjectLinker::initFragmentLinker()
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
   m_pObjectReader  = m_LDBackend.createObjectReader(*m_pLinker);
-  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module, m_AreaFactory);
+  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pLinker);
   m_pObjectWriter  = m_LDBackend.createObjectWriter(*m_pLinker);
   m_pDynObjWriter  = m_LDBackend.createDynObjWriter(*m_pLinker);
@@ -151,7 +151,11 @@ void ObjectLinker::normalize()
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, m_Config.inputFactory());
+      Archive archive(**input,
+                      m_Config.inputFactory(),
+                      m_Config.attrFactory(),
+                      m_Config.contextFactory(),
+                      m_AreaFactory);
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_Config.inputs().merge<InputTree::Inclusive>(input, archive.inputs());

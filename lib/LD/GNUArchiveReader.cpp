@@ -8,8 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/GNUArchiveReader.h>
 
-#include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
+#include <mcld/MC/MCLDAttribute.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/LD/ResolveInfo.h>
@@ -18,7 +18,6 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/Path.h>
 #include <mcld/ADT/SizeTraits.h>
@@ -31,13 +30,9 @@
 
 using namespace mcld;
 
-GNUArchiveReader::GNUArchiveReader(LinkerConfig& pConfig,
-                                   Module& pModule,
-                                   MemoryAreaFactory& pMemAreaFactory,
+GNUArchiveReader::GNUArchiveReader(Module& pModule,
                                    ELFObjectReader& pELFObjectReader)
- : m_Config(pConfig),
-   m_Module(pModule),
-   m_MemAreaFactory(pMemAreaFactory),
+ : m_Module(pModule),
    m_ELFObjectReader(pELFObjectReader)
 {
 }
@@ -198,18 +193,15 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
   }
 
   Input* member = NULL;
-  if (!isThinArchive(pArchiveFile)) {
+  bool isThinAR = isThinArchive(pArchiveFile);
+  if (!isThinAR) {
     // this is an object file in an archive
-    member =
-      m_Config.inputFactory().produce(member_name,
-                                      pArchiveFile.path(),
-                                      Input::Unknown,
-                                      (pFileOffset +
-                                       sizeof(Archive::MemberHeader)));
-    assert(member != NULL);
-    member->setMemArea(pArchiveFile.memArea());
-    LDContext *input_context = m_Config.contextFactory().produce();
-    member->setContext(input_context);
+    member = pArchiveRoot.getMemberFile(pArchiveFile,
+                                        isThinAR,
+                                        member_name,
+                                        pArchiveFile.path(),
+                                        (pFileOffset +
+                                         sizeof(Archive::MemberHeader)));
   }
   else {
     // this is a member in a thin archive
@@ -227,21 +219,11 @@ Input* GNUArchiveReader::readMemberHeader(Archive& pArchiveRoot,
       input_path.append(member_name);
     else
       input_path.assign(member_name);
-    member =
-      m_Config.inputFactory().produce(member_name, input_path, Input::Unknown);
 
-    assert(member != NULL);
-    MemoryArea* input_memory =
-      m_MemAreaFactory.produce(member->path(), FileHandle::ReadOnly);
-    if (input_memory->handler()->isGood()) {
-      member->setMemArea(input_memory);
-    }
-    else {
-      error(diag::err_cannot_open_input) << member->name() << member->path();
-      return NULL;
-    }
-    LDContext *input_context = m_Config.contextFactory().produce(input_path);
-    member->setContext(input_context);
+    member = pArchiveRoot.getMemberFile(pArchiveFile,
+                                        isThinAR,
+                                        member_name,
+                                        input_path);
   }
 
   pArchiveFile.memArea()->release(header_region);

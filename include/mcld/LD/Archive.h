@@ -25,6 +25,10 @@ namespace mcld
 {
 class InputTree;
 class Input;
+class InputFactory;
+class AttributeFactory;
+class ContextFactory;
+class MemoryAreaFactory;
 
 /** \class Archive
  *  \brief This class define the interfacee to Archive files
@@ -126,7 +130,11 @@ public:
   typedef std::vector<Symbol*> SymTabType;
 
 public:
-  Archive(Input& pInputFile, InputFactory& pInputFactory);
+  Archive(Input& pInputFile,
+          InputFactory& pInputFactory,
+          AttributeFactory& pAttrFactory,
+          ContextFactory& pCntxtFactory,
+          MemoryAreaFactory& pAreaFactory);
 
   ~Archive();
 
@@ -226,6 +234,18 @@ public:
   /// hasStrTable - return true if this archive has extended name table
   bool hasStrTable() const;
 
+  /// getMemberFile       - get the member file in an archive member
+  /// @param pArchiveFile - Input reference of the archive member
+  /// @param pIsThinAR    - denote the archive menber is a Thin Archive or not
+  /// @param pName        - the name of the member file we want to get
+  /// @param pPath        - the path of the member file
+  /// @param pFileOffset  - the file offset of the member file in a regular AR
+  Input* getMemberFile(Input& pArchiveFile,
+                       bool isThinAR,
+                       llvm::StringRef pName,
+                       const sys::fs::Path& pPath,
+                       off_t pFileOffset = 0);
+
 private:
   typedef GCFactory<Symbol, 0> SymbolFactory;
 
@@ -238,6 +258,11 @@ private:
   SymTabType m_SymTab;
   size_t m_SymTabSize;
   std::string m_StrTab;
+  // outside factories
+  InputFactory& m_InputFactory;
+  AttributeFactory& m_AttrFactory;
+  ContextFactory& m_CntxtFactory;
+  MemoryAreaFactory& m_AreaFactory;
 };
 
 } // namespace of mcld
