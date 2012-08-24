@@ -308,6 +308,12 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
 
 enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
   mOutput = mMemAreaFactory->produce(pFileHandler);
+
+  if (!mOutput->handler()->isGood()) {
+    return kOpenOutput;
+  }
+
+  return kSuccess;
 }
 
 enum Linker::ErrorCode Linker::link() {
