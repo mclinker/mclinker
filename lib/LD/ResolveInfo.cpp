@@ -11,8 +11,9 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // ResolveInfo
+//===----------------------------------------------------------------------===//
 ResolveInfo::ResolveInfo()
   : m_Size(0), m_BitField(0) {
   m_Ptr.sym_ptr = 0;
@@ -224,5 +225,33 @@ bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
   if (length != pKey.size())
     return false;
   return (0 == std::memcmp(m_Name, pKey.data(), length));
+}
+
+//===----------------------------------------------------------------------===//
+// ResolveInfo Factory Methods
+//===----------------------------------------------------------------------===//
+ResolveInfo* ResolveInfo::create(const ResolveInfo::key_type& pKey)
+{
+  ResolveInfo* result = static_cast<ResolveInfo*>(
+                          malloc(sizeof(ResolveInfo)+pKey.size()+1));
+  if (NULL == result)
+    return NULL;
+
+  new (result) ResolveInfo();
+  std::memcpy(result->m_Name, pKey.data(), pKey.size());
+  result->m_Name[pKey.size()] = '\0';
+  result->m_BitField &= ~ResolveInfo::RESOLVE_MASK;
+  result->m_BitField |= (pKey.size() << ResolveInfo::NAME_LENGTH_OFFSET);
+  return result;
+}
+
+void ResolveInfo::destroy(ResolveInfo*& pInfo)
+{
+  if (NULL != pInfo) {
+    pInfo->~ResolveInfo();
+    free(pInfo);
+  }
+
+  pInfo = NULL;
 }
 

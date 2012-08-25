@@ -14,8 +14,7 @@
 #include "mcld/LD/LDReader.h"
 #include <llvm/Support/system_error.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class TargetLDBackend;
 class Input;

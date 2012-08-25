@@ -11,10 +11,9 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/LD/ResolveInfo.h"
+#include <mcld/LD/ResolveInfo.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class ResolveInfoFactory
  *  \brief ResolveInfoFactory creates ResolveInfos.
@@ -26,8 +25,11 @@ public:
   typedef ResolveInfo::key_type key_type;
 
 public:
-  entry_type* produce(const key_type& pKey);
-  void destroy(entry_type* pEntry);
+  entry_type* produce(const key_type& pKey)
+  { return ResolveInfo::create(pKey); }
+
+  void destroy(entry_type*& pEntry)
+  { ResolveInfo::destroy(pEntry); }
 
 };
 

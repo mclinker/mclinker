@@ -94,6 +94,11 @@ public:
   typedef llvm::StringRef key_type;
 
 public:
+  // -----  factory method  ----- //
+  static ResolveInfo* create(const key_type& pKey);
+
+  static void destroy(ResolveInfo*& pInfo);
+
   // -----  modifiers  ----- //
   /// setRegular - set the source of the file is a regular object
   void setRegular();
