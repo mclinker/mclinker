@@ -37,7 +37,7 @@ public:
   bool isMyFormat(Input &pFile) const;
 
   // -----  readers  ----- //
-  bool readObject(Input& pFile);
+  bool readHeader(Input& pFile);
 
   virtual bool readSections(Input& pFile, Module& pModule);
 

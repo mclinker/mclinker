@@ -68,8 +68,8 @@ bool ELFObjectReader::isMyFormat(Input &pInput) const
   return result;
 }
 
-/// readObject - read section header and create LDSections.
-bool ELFObjectReader::readObject(Input& pInput)
+/// readHeader - read section header and create LDSections.
+bool ELFObjectReader::readHeader(Input& pInput)
 {
   assert(pInput.hasMemArea());
 

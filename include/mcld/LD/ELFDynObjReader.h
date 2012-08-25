@@ -36,7 +36,7 @@ public:
   bool isMyFormat(Input &pFile) const;
 
   // -----  readers  ----- //
-  bool readDSO(Input& pFile);
+  bool readHeader(Input& pFile);
 
   bool readSymbols(Input& pInput);
 

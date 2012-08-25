@@ -41,7 +41,7 @@ protected:
 public:
   virtual ~ObjectReader() { }
 
-  virtual bool readObject(Input& pFile) = 0;
+  virtual bool readHeader(Input& pFile) = 0;
 
   virtual bool readSymbols(Input& pFile) = 0;
 

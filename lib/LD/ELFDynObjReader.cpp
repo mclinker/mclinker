@@ -62,8 +62,8 @@ bool ELFDynObjReader::isMyFormat(Input &pInput) const
   return result;
 }
 
-/// readDSO
-bool ELFDynObjReader::readDSO(Input& pInput)
+/// readHeader
+bool ELFDynObjReader::readHeader(Input& pInput)
 {
   assert(pInput.hasMemArea());
 

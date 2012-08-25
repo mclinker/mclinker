@@ -138,14 +138,14 @@ void ObjectLinker::normalize()
     // is a relocatable object file
     if (getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
-      getObjectReader()->readObject(**input);
+      getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input, m_Module);
       getObjectReader()->readSymbols(**input);
     }
     // is a shared object file
     else if (getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
-      getDynObjReader()->readDSO(**input);
+      getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
     }
     // is an archive
