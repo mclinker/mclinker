@@ -6,22 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_HASH_TABLE_H
 #define MCLD_HASH_TABLE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/HashBase.h"
-#include "mcld/ADT/HashIterator.h"
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/ADT/TypeTraits.h"
-#include "mcld/Support/Allocators.h"
+#include <mcld/ADT/HashBase.h>
+#include <mcld/ADT/HashIterator.h>
+#include <mcld/ADT/HashEntryFactory.h>
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/TypeTraits.h>
+#include <mcld/Support/Allocators.h>
 #include <utility>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class HashTable
  *  \brief HashTable is a hash table which follows boost::unordered_map, but it
@@ -33,7 +32,7 @@ namespace mcld
  */
 template<typename HashEntryTy,
          typename HashFunctionTy,
-         typename EntryFactoryTy>
+         typename EntryFactoryTy = HashEntryFactory<HashEntryTy> >
 class HashTable : public HashTableImpl<HashEntryTy, HashFunctionTy>,
                   private Uncopyable
 {

@@ -15,6 +15,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/ADT/StringEntry.cpp \
 	${INCDIR}/ADT/HashEntry.h \
 	${INCDIR}/ADT/HashEntry.tcc \
+	${INCDIR}/ADT/HashEntryFactory.h \
 	${INCDIR}/ADT/HashIterator.h \
 	${INCDIR}/ADT/HashBase.h \
 	${INCDIR}/ADT/HashBase.tcc \
