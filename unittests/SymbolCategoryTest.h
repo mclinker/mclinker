@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_SYMBOLCATEGORY_TEST_H
 #define MCLD_SYMBOLCATEGORY_TEST_H
-#include <mcld/LD/ResolveInfoFactory.h>
 
 #include <gtest.h>
 
@@ -43,7 +42,6 @@ public:
 
 protected:
   mcld::SymbolCategory* m_pTestee;
-  mcld::ResolveInfoFactory m_InfoFactory;
 };
 
 } // namespace of mcldtest

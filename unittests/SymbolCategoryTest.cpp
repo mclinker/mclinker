@@ -20,14 +20,14 @@ using namespace mcldtest;
 // Constructor can do set-up work for all test here.
 SymbolCategoryTest::SymbolCategoryTest()
 {
-	// create testee. modify it if need
-	m_pTestee = new SymbolCategory();
+  // create testee. modify it if need
+  m_pTestee = new SymbolCategory();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
 SymbolCategoryTest::~SymbolCategoryTest()
 {
-	delete m_pTestee;
+  delete m_pTestee;
 }
 
 // SetUp() will be called immediately before each test.
@@ -45,11 +45,11 @@ void SymbolCategoryTest::TearDown()
 //
 
 TEST_F(SymbolCategoryTest, upward_test) {
-  ResolveInfo* a = m_InfoFactory.produce("a");
-  ResolveInfo* b = m_InfoFactory.produce("b");
-  ResolveInfo* c = m_InfoFactory.produce("c");
-  ResolveInfo* d = m_InfoFactory.produce("d");
-  ResolveInfo* e = m_InfoFactory.produce("e");
+  ResolveInfo* a = ResolveInfo::create("a");
+  ResolveInfo* b = ResolveInfo::create("b");
+  ResolveInfo* c = ResolveInfo::create("c");
+  ResolveInfo* d = ResolveInfo::create("d");
+  ResolveInfo* e = ResolveInfo::create("e");
   e->setBinding(ResolveInfo::Global);
   d->setBinding(ResolveInfo::Weak);
   c->setDesc(ResolveInfo::Common);

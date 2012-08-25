@@ -21,7 +21,6 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/ResolveInfoFactory.h>
 
 namespace mcld {
 
@@ -37,7 +36,7 @@ class SectionData;
 class NamePool : private Uncopyable
 {
 public:
-  typedef HashTable<ResolveInfo, StringHash<ELF>, ResolveInfoFactory> Table;
+  typedef HashTable<ResolveInfo, StringHash<ELF> > Table;
   typedef size_t size_type;
 
 public:

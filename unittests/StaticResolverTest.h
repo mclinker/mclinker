@@ -46,7 +46,6 @@ public:
 
 protected:
   mcld::StaticResolver* m_pResolver;
-  mcld::ResolveInfoFactory* m_pFactory;
   mcld::LinkerConfig* m_pConfig;
   mcld::DiagnosticLineInfo* m_pLineInfo;
   mcld::DiagnosticPrinter* m_pPrinter;

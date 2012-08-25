@@ -10,7 +10,6 @@
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/ResolveInfoFactory.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
@@ -30,10 +29,9 @@ using namespace mcldtest;
 //===----------------------------------------------------------------------===//
 // Constructor can do set-up work for all test here.
 StaticResolverTest::StaticResolverTest()
-  : m_pResolver(NULL), m_pFactory(NULL), m_pConfig(NULL), m_pLineInfo(NULL) {
+  : m_pResolver(NULL), m_pConfig(NULL), m_pLineInfo(NULL) {
   // create testee. modify it if need
   m_pResolver = new StaticResolver();
-  m_pFactory = new ResolveInfoFactory();
 
   mcld::InitializeAllDiagnostics();
 
@@ -46,7 +44,6 @@ StaticResolverTest::StaticResolverTest()
 StaticResolverTest::~StaticResolverTest()
 {
   delete m_pResolver;
-  delete m_pFactory;
   delete m_pConfig;
   delete m_pLineInfo;
 }
@@ -65,8 +62,8 @@ void StaticResolverTest::TearDown()
 // Testcases
 //
 TEST_F( StaticResolverTest, MDEF ) {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   new_sym->setDesc(ResolveInfo::Define);
   old_sym->setDesc(ResolveInfo::Define);
   ASSERT_EQ( mcld::ResolveInfo::Define, new_sym->desc());
@@ -80,8 +77,8 @@ TEST_F( StaticResolverTest, MDEF ) {
 }
 
 TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
@@ -107,8 +104,8 @@ TEST_F( StaticResolverTest, DynDefAfterDynUndef ) {
 }
 
 TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
@@ -134,8 +131,8 @@ TEST_F( StaticResolverTest, DynDefAfterDynDef ) {
 }
 
 TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Global);
@@ -162,8 +159,8 @@ TEST_F( StaticResolverTest, DynUndefAfterDynUndef ) {
 
 TEST_F( StaticResolverTest, OverrideWeakByGlobal )
 {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setBinding(ResolveInfo::Global);
   old_sym->setBinding(ResolveInfo::Weak);
@@ -183,8 +180,8 @@ TEST_F( StaticResolverTest, OverrideWeakByGlobal )
 }
 
 TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   old_sym->setBinding(ResolveInfo::Weak);
   new_sym->setBinding(ResolveInfo::Global);
@@ -213,8 +210,8 @@ TEST_F( StaticResolverTest, DynWeakAfterDynDef ) {
 
 TEST_F( StaticResolverTest, MarkByBiggerCommon )
 {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setDesc(ResolveInfo::Common);
   old_sym->setDesc(ResolveInfo::Common);
@@ -235,8 +232,8 @@ TEST_F( StaticResolverTest, MarkByBiggerCommon )
 
 TEST_F( StaticResolverTest, OverrideByBiggerCommon )
 {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   new_sym->setDesc(ResolveInfo::Common);
   old_sym->setDesc(ResolveInfo::Common);
@@ -260,8 +257,8 @@ TEST_F( StaticResolverTest, OverrideByBiggerCommon )
 
 TEST_F( StaticResolverTest, OverrideCommonByDefine)
 {
-  ResolveInfo* old_sym = m_pFactory->produce("abc");
-  ResolveInfo* new_sym = m_pFactory->produce("abc");
+  ResolveInfo* old_sym = ResolveInfo::create("abc");
+  ResolveInfo* new_sym = ResolveInfo::create("abc");
   
   old_sym->setDesc(ResolveInfo::Common);
   old_sym->setSize(0);
@@ -284,7 +281,7 @@ TEST_F( StaticResolverTest, OverrideCommonByDefine)
 
 TEST_F( StaticResolverTest, SetUpDesc)
 {
-  ResolveInfo* sym = m_pFactory->produce("abc");
+  ResolveInfo* sym = ResolveInfo::create("abc");
   
   sym->setIsSymbol(true);
 
@@ -384,7 +381,7 @@ TEST_F( StaticResolverTest, SetUpDesc)
 
 TEST_F( StaticResolverTest, SetUpBinding)
 {
-  ResolveInfo* sym = m_pFactory->produce("abc");
+  ResolveInfo* sym = ResolveInfo::create("abc");
   
   sym->setIsSymbol(true);
 

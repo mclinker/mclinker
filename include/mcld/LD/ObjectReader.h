@@ -16,7 +16,6 @@
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/ResolveInfoFactory.h>
 
 namespace mcld {
 
@@ -31,8 +30,7 @@ class ObjectReader : public LDReader
 {
 protected:
   typedef HashTable<ResolveInfo,
-                    StringHash<ELF>,
-                    ResolveInfoFactory> GroupSignatureMap;
+                    StringHash<ELF> > GroupSignatureMap;
 
 protected:
   ObjectReader()

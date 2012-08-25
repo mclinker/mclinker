@@ -206,7 +206,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/SectionData.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
-	${INCDIR}/LD/ResolveInfoFactory.h \
 	${INCDIR}/LD/Resolver.h \
 	${LIBDIR}/LD/Resolver.cpp \
 	${INCDIR}/LD/LDSymbol.h \
