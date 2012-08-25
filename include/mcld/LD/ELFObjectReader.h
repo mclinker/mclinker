@@ -39,7 +39,7 @@ public:
   // -----  readers  ----- //
   bool readHeader(Input& pFile);
 
-  virtual bool readSections(Input& pFile, Module& pModule);
+  virtual bool readSections(Input& pFile);
 
   virtual bool readSymbols(Input& pFile);
 

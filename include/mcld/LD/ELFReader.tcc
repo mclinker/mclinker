@@ -365,7 +365,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 /// readSignature - read a symbol from the given Input and index in symtab
 /// This is used to get the signature of a group section.
 ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
-                                                Module& pModule,
                                                 LDSection& pSymTab,
                                                 LinkerConfig& pConfig,
                                                 uint32_t pSymIdx) const
@@ -406,27 +405,13 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
   llvm::StringRef ld_name(
                     reinterpret_cast<char*>(strtab_region->start() + st_name));
 
-  // get ld_type
-  ResolveInfo::Type ld_type = static_cast<ResolveInfo::Type>(st_info & 0xF);
+  ResolveInfo* result = ResolveInfo::create(ld_name);
+  result->setSource(pInput.type() == Input::DynObj);
+  result->setType(static_cast<ResolveInfo::Type>(st_info & 0xF));
+  result->setDesc(getSymDesc(st_shndx, pInput));
+  result->setBinding(getSymBinding((st_info >> 4), st_shndx, st_other));
+  result->setVisibility(getSymVisibility(st_other));
 
-  // get ld_desc
-  ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
-
-  // get ld_binding
-  ResolveInfo::Binding ld_binding =
-                             getSymBinding((st_info >> 4), st_shndx, st_other);
-
-  // get ld_vis
-  ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
-
-  ResolveInfo* result =
-         pModule.getNamePool().createSymbol(ld_name,
-                                            (pInput.type() == Input::DynObj),
-                                            ld_type,
-                                            ld_desc,
-                                            ld_binding,
-                                            st_size,
-                                            ld_vis);
   // release regions
   pInput.memArea()->release(symbol_region);
   pInput.memArea()->release(strtab_region);

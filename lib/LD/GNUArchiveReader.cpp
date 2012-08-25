@@ -380,7 +380,7 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
       member->setType(Input::Object);
       pArchive.addObjectMember(pFileOffset, parent->lastPos);
       m_ELFObjectReader.readHeader(*member);
-      m_ELFObjectReader.readSections(*member, m_Module);
+      m_ELFObjectReader.readSections(*member);
       m_ELFObjectReader.readSymbols(*member);
     }
     else if (isMyFormat(*member)) {

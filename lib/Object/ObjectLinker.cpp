@@ -139,7 +139,7 @@ void ObjectLinker::normalize()
     if (getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       getObjectReader()->readHeader(**input);
-      getObjectReader()->readSections(**input, m_Module);
+      getObjectReader()->readSections(**input);
       getObjectReader()->readSymbols(**input);
     }
     // is a shared object file

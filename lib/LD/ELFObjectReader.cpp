@@ -83,7 +83,7 @@ bool ELFObjectReader::readHeader(Input& pInput)
 }
 
 /// readSections - read all regular sections.
-bool ELFObjectReader::readSections(Input& pInput, Module& pModule)
+bool ELFObjectReader::readSections(Input& pInput)
 {
   // handle sections
   LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
@@ -98,7 +98,6 @@ bool ELFObjectReader::readSections(Input& pInput, Module& pModule)
         assert(NULL != (*section)->getLink());
         ResolveInfo* signature =
               m_pELFReader->readSignature(pInput,
-                                          pModule,
                                           *(*section)->getLink(),
                                           m_Linker.getLDInfo(),
                                           (*section)->getInfo());
