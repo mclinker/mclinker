@@ -30,7 +30,7 @@
 
 using namespace mcld;
 
-GNUArchiveReader::GNUArchiveReader(Module& pModule,
+GNUArchiveReader::GNUArchiveReader(const Module& pModule,
                                    ELFObjectReader& pELFObjectReader)
  : m_Module(pModule),
    m_ELFObjectReader(pELFObjectReader)
@@ -326,7 +326,7 @@ enum Archive::Symbol::Status
 GNUArchiveReader::shouldIncludeSymbol(const llvm::StringRef& pSymName) const
 {
   // TODO: handle symbol version issue and user defined symbols
-  ResolveInfo* info = m_Module.getNamePool().findInfo(pSymName);
+  const ResolveInfo* info = m_Module.getNamePool().findInfo(pSymName);
   if (NULL != info) {
     if (!info->isUndef())
       return Archive::Symbol::Exclude;

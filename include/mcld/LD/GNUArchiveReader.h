@@ -29,8 +29,7 @@ class Archive;
 class GNUArchiveReader : public ArchiveReader
 {
 public:
-  explicit GNUArchiveReader(Module& pModule,
-                            ELFObjectReader& pELFObjectReader);
+  GNUArchiveReader(const Module& pModule, ELFObjectReader& pELFObjectReader);
 
   ~GNUArchiveReader();
 
@@ -88,7 +87,7 @@ private:
   bool includeAllMembers(Archive& pArchive);
 
 private:
-  Module& m_Module;
+  const Module& m_Module;
   ELFObjectReader& m_ELFObjectReader;
 };
 
