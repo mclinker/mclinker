@@ -620,24 +620,22 @@ GNULDBackend::sizeNamePools(const Module& pModule)
       //   1. ignore --no-add-needed
       //   2. force count in --no-as-needed
       //   3. judge --as-needed
-      InputTree::const_bfs_iterator input, inputEnd = config().inputs().bfs_end();
-      for (input = config().inputs().bfs_begin(); input != inputEnd; ++input) {
-        if (Input::DynObj == (*input)->type()) {
-          // --add-needed
-          if ((*input)->attribute()->isAddNeeded()) {
-            // --no-as-needed
-            if (!(*input)->attribute()->isAsNeeded()) {
-              dynstr += (*input)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
-            // --as-needed
-            else if ((*input)->isNeeded()) {
-              dynstr += (*input)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
+      Module::const_lib_iterator lib, libEnd = pModule.lib_end();
+      for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
+        // --add-needed
+        if ((*lib)->attribute()->isAddNeeded()) {
+          // --no-as-needed
+          if (!(*lib)->attribute()->isAsNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
+          }
+          // --as-needed
+          else if ((*lib)->isNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
           }
         }
-      } // for
+      }
 
       // compute .hash
       // Both Elf32_Word and Elf64_Word are 4 bytes
@@ -890,28 +888,26 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   //   2. force count in --no-as-needed
   //   3. judge --as-needed
   ELFDynamic::iterator dt_need = dynamic().needBegin();
-  InputTree::const_bfs_iterator input, inputEnd = config().inputs().bfs_end();
-  for (input = config().inputs().bfs_begin(); input != inputEnd; ++input) {
-    if (Input::DynObj == (*input)->type()) {
-      // --add-needed
-      if ((*input)->attribute()->isAddNeeded()) {
-        // --no-as-needed
-        if (!(*input)->attribute()->isAsNeeded()) {
-          strcpy((strtab + strtabsize), (*input)->name().c_str());
-          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
-          strtabsize += (*input)->name().size() + 1;
-          ++dt_need;
-        }
-        // --as-needed
-        else if ((*input)->isNeeded()) {
-          strcpy((strtab + strtabsize), (*input)->name().c_str());
-          (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
-          strtabsize += (*input)->name().size() + 1;
-          ++dt_need;
-        }
+  Module::const_lib_iterator lib, libEnd = pModule.lib_end();
+  for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
+    // --add-needed
+    if ((*lib)->attribute()->isAddNeeded()) {
+      // --no-as-needed
+      if (!(*lib)->attribute()->isAsNeeded()) {
+        strcpy((strtab + strtabsize), (*lib)->name().c_str());
+        (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+        strtabsize += (*lib)->name().size() + 1;
+        ++dt_need;
+      }
+      // --as-needed
+      else if ((*lib)->isNeeded()) {
+        strcpy((strtab + strtabsize), (*lib)->name().c_str());
+        (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+        strtabsize += (*lib)->name().size() + 1;
+        ++dt_need;
       }
     }
-  } // for
+  }
 
   // emit soname
   // initialize value of ELF .dynamic section

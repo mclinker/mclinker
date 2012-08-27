@@ -147,6 +147,7 @@ void ObjectLinker::normalize()
       (*input)->setType(Input::DynObj);
       getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
+      m_Module.getLibraryList().push_back(*input);
     }
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
