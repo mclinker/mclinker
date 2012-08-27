@@ -17,8 +17,7 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/FileSystem.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class MemoryArea;
 

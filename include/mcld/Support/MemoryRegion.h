@@ -18,8 +18,7 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Space.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MemoryRegion
  *  \brief MemoryRegion is a range of virtual memory which is mapped onto a

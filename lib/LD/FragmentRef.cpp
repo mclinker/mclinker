@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/FragmentRef.h>
 
 #include <cstring>
@@ -14,14 +13,22 @@
 
 #include <llvm/Support/MathExtras.h>
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/ManagedStatic.h>
 
+#include <mcld/LD/Layout.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/Support/GCFactory.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/TargetFragment.h>
-#include <mcld/LD/Layout.h>
 
 using namespace mcld;
+
+typedef GCFactory<FragmentRef, MCLD_SECTIONS_PER_INPUT> FragRefFactory;
+
+static llvm::ManagedStatic<FragRefFactory> g_FragRefFactory;
 
 //===----------------------------------------------------------------------===//
 // Helper Functions
@@ -47,7 +54,7 @@ uint64_t mcld::computeFragmentSize(const Layout& pLayout,
       return llvm::cast<RegionFragment>(pFrag).getRegion().size();
 
     case Fragment::Target:
-      return llvm::cast<TargetFragment>(pFrag).getSize();
+      return llvm::cast<TargetFragment>(pFrag).size();
 
     case Fragment::Relocation:
       assert(0 && "the size of FT_Reloc fragment is handled by backend");
@@ -71,10 +78,38 @@ FragmentRef::FragmentRef(Fragment& pFrag,
   : m_pFragment(&pFrag), m_Offset(pOffset) {
 }
 
-FragmentRef::~FragmentRef()
+/// create - create a fragment reference for a given fragment.
+///
+/// @param pFrag - the given fragment
+/// @param pOffset - the offset, can be larger than the fragment, but can not
+///                  be larger than the section size.
+/// @return if the offset is legal, return the fragment reference. Otherwise,
+/// return NULL.
+FragmentRef* FragmentRef::create(Fragment& pFrag, uint64_t pOffset)
 {
-  m_pFragment = NULL;
-  m_Offset = 0;
+  int64_t offset = pOffset;
+  Fragment* frag = &pFrag;
+
+  while (NULL != frag) {
+    offset -= frag->size();
+    if (offset <= 0)
+      break;
+    frag = frag->getNextNode();
+  }
+
+  FragmentRef* result = g_FragRefFactory->allocate();
+
+  if (NULL == frag)
+    new (result) FragmentRef();
+  else
+    new (result) FragmentRef(*frag, offset + frag->size());
+
+  return result;
+}
+
+FragmentRef* FragmentRef::create(LDSection& pSection, uint64_t pOffset)
+{
+  return create(pSection.getSectionData()->front(), pOffset);
 }
 
 FragmentRef& FragmentRef::assign(const FragmentRef& pCopy)
@@ -146,5 +181,13 @@ FragmentRef::ConstAddress FragmentRef::deref() const
       return NULL;
   }
   return base + m_Offset;
+}
+
+FragmentRef::Offset FragmentRef::getOutputOffset() const
+{
+  Offset result = 0;
+  if (NULL != m_pFragment)
+    result = m_pFragment->getOffset();
+  return (result + m_Offset);
 }
 

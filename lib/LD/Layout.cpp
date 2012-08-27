@@ -49,7 +49,7 @@ Layout::Range::~Range()
 // Layout
 //===----------------------------------------------------------------------===//
 Layout::Layout()
-  : m_FragRefFactory(32) /** magic number **/ {
+{
 }
 
 Layout::~Layout()
@@ -377,9 +377,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
     }
     else {
       // found
-      FragmentRef* result = m_FragRefFactory.allocate();
-      new (result) FragmentRef(*front, target_offset - front->getOffset());
-      return result;
+      return FragmentRef::create(*front, target_offset - front->getOffset());
     }
   }
 
@@ -390,9 +388,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
     if (!isValidOffset(*front, target_offset))
       return NULL;
 
-    FragmentRef* result = m_FragRefFactory.allocate();
-    new (result) FragmentRef(*front, target_offset - front->getOffset());
-    return result;
+    return FragmentRef::create(*front, target_offset - front->getOffset());
   }
   return NULL;
 }

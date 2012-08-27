@@ -6,19 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_FRAGMENT_REFERENCE_H
-#define MCLD_LD_FRAGMENT_REFERENCE_H
+#ifndef MCLD_FRAGMENT_FRAGMENT_REFERENCE_H
+#define MCLD_FRAGMENT_FRAGMENT_REFERENCE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
+#include <mcld/Config/Config.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/LD/Fragment.h>
+#include <mcld/Support/Allocators.h>
 
-namespace mcld
-{
+namespace mcld {
 
+class LDSection;
 class Layout;
 
 /// compunteFragmentSize - compute the specific Fragment size
@@ -37,9 +39,16 @@ public:
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
 public:
-  FragmentRef();
-  FragmentRef(Fragment& pFrag, Offset pOffset = 0);
-  ~FragmentRef();
+  /// create - create a fragment reference for a given fragment.
+  ///
+  /// @param pFrag - the given fragment
+  /// @param pOffset - the offset, can be larger than the fragment, but can not
+  ///                  be larger than the section size.
+  /// @return if the offset is legal, return the fragment reference. Otherwise,
+  /// return NULL.
+  static FragmentRef* create(Fragment& pFrag, uint64_t pOffset);
+
+  static FragmentRef* create(LDSection& pSection, uint64_t pOffset);
 
   // -----  modifiers  ----- //
   FragmentRef& assign(const FragmentRef& pCopy);
@@ -64,6 +73,8 @@ public:
   Offset offset() const
   { return m_Offset; }
 
+  Offset getOutputOffset() const;
+
   // -----  dereference  ----- //
   Address deref();
 
@@ -74,6 +85,15 @@ public:
 
   ConstAddress operator*() const
   { return deref(); }
+
+private:
+  friend FragmentRef& NullFragmentRef();
+  friend class Chunk<FragmentRef, MCLD_SECTIONS_PER_INPUT>;
+  friend class Relocation;
+
+  FragmentRef();
+
+  FragmentRef(Fragment& pFrag, Offset pOffset = 0);
   
 private:
   Fragment* m_pFragment;

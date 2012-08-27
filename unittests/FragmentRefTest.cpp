@@ -50,7 +50,7 @@ TEST_F( FragmentRefTest, ) {
 
   MemoryRegion* region = area->request(0, 4096);
   RegionFragment *frag = new RegionFragment(*region);
-  FragmentRef *ref = new FragmentRef(*frag);
+  FragmentRef *ref = FragmentRef::create(*frag, 0x0);
 
   ASSERT_EQ('H', region->getBuffer()[0]);
   ASSERT_EQ(4096, region->size());
@@ -63,7 +63,6 @@ TEST_F( FragmentRefTest, ) {
 
   ASSERT_TRUE(RegionFragment::classof(frag));
 
-  delete ref;
   delete frag;
   delete areaFactory;
 }

@@ -149,8 +149,6 @@ private:
 
   typedef std::map<const SectionData*, RangeList*> SDRangeMap;
 
-  typedef GCFactory<FragmentRef, 0> FragRefFactory;
-
 private:
   inline bool isFirstRange(const Range& pRange) const
   { return (NULL == pRange.prevRear); }
@@ -262,8 +260,6 @@ private:
 
   /// the map from SectionData* to its own RangeList.
   SDRangeMap m_SDRangeMap;
-
-  FragRefFactory m_FragRefFactory;
 };
 
 } // namespace of mcld
