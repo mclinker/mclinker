@@ -61,8 +61,6 @@ ARMRelocationFactory::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec
-    fatal(diag::unknown_relocation) << (int)type
-                                    << pRelocation.symInfo()->name();
     return RelocationFactory::Unknown;
   }
 

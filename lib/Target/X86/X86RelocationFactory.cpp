@@ -61,8 +61,6 @@ X86RelocationFactory::applyRelocation(Relocation& pRelocation)
   Relocation::Type type = pRelocation.type();
 
   if (type >= sizeof (ApplyFunctions) / sizeof (ApplyFunctions[0]) ) {
-    fatal(diag::unknown_relocation) << (int)type <<
-                                       pRelocation.symInfo()->name();
     return Unknown;
   }
 

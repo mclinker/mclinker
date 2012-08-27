@@ -70,6 +70,10 @@ void Relocation::apply(RelocationFactory& pRelocFactory)
                                           << "mclinker@googlegroups.com";
       return;
     }
+    case RelocationFactory::Unknown: {
+      fatal(diag::unknown_relocation) << type() << symInfo()->name();
+      return;
+    }
   } // end of switch
 }
 

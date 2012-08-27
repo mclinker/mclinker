@@ -1,7 +1,7 @@
 DIAG(undefined_reference, DiagnosticEngine::Fatal, "undefined reference to `%0'", "In %1:%2, variable %0 must be defined")
 DIAG(non_pic_relocation, DiagnosticEngine::Error, "attempt to generate unsupported relocation type `%0' for symbol `%1', recompile with -fPIC", "attempt to generate unsupported relocation type `%0' for symbol `%1, recompile with -fPIC")
 DIAG(base_relocation, DiagnosticEngine::Fatal, "relocation type `%0' is not supported for symbol `%1'\nPlease report to %2", "relocation type `%0' is not supported for symbol `%1'\nPlease report to %2")
-DIAG(dynamic_relocation, DiagnosticEngine::Fatal, "enexpected relocation type `%0' in object file", "unexpected relocation type `%0' in object file")
+DIAG(dynamic_relocation, DiagnosticEngine::Fatal, "unexpected relocation type `%0' in object file", "unexpected relocation type `%0' in object file")
 DIAG(unsupported_relocation, DiagnosticEngine::Unreachable, "encounter unsupported relocation type `%0'\nPlease report to %1", "encounter unsupported relocation type `%0'\nPlease report to %1")
 DIAG(unknown_relocation, DiagnosticEngine::Fatal, "encounter unknown relocation type `%0' for symbol `%1'", "encounter unknown relocation type `%0' for symbol `%1'")
 DIAG(invalid_global_relocation, DiagnosticEngine::Unreachable, "relocation type `%0' is invalid for global symbol `%1'", "relocation type `%0' is invalid for global symbol `%1'")
