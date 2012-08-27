@@ -45,6 +45,8 @@ public:
 
   SymbolCategory& changeCommonsToGlobal();
 
+  SymbolCategory& changeLocalToTLS(const ResolveInfo& pSymInfo);
+
   // -----  access  ----- //
   LDSymbol& at(size_t pPosition)
   { return *m_OutputSymbols.at(pPosition); }
@@ -70,7 +72,7 @@ public:
   bool empty() const;
 
   bool emptyLocals() const;
-  
+
   bool emptyCommons() const;
 
   bool emptyRegulars() const;
@@ -85,6 +87,11 @@ public:
   iterator localEnd();
   const_iterator localBegin() const;
   const_iterator localEnd() const;
+
+  iterator tlsBegin();
+  iterator tlsEnd();
+  const_iterator tlsBegin() const;
+  const_iterator tlsEnd() const;
 
   iterator commonBegin();
   iterator commonEnd();
@@ -103,6 +110,7 @@ private:
     enum Type {
       File,
       Local,
+      TLS,
       Common,
       Weak,
       Global
@@ -147,6 +155,7 @@ private:
 
   Category* m_pFile;
   Category* m_pLocal;
+  Category* m_pTLS;
   Category* m_pCommon;
   Category* m_pWeak;
   Category* m_pGlobal;

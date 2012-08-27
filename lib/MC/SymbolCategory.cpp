@@ -35,19 +35,22 @@ SymbolCategory::SymbolCategory()
 {
   m_pFile   = new Category(Category::File);
   m_pLocal  = new Category(Category::Local);
+  m_pTLS    = new Category(Category::TLS);
   m_pCommon = new Category(Category::Common);
   m_pWeak   = new Category(Category::Weak);
   m_pGlobal = new Category(Category::Global);
 
   m_pFile->next   = m_pLocal;
-  m_pLocal->next  = m_pCommon;
+  m_pLocal->next  = m_pTLS;
+  m_pTLS->next    = m_pCommon;
   m_pCommon->next = m_pWeak;
   m_pWeak->next   = m_pGlobal;
 
   m_pGlobal->prev = m_pWeak;
   m_pWeak->prev   = m_pCommon;
-  m_pCommon->prev = m_pLocal;
-  m_pLocal->prev   = m_pFile;
+  m_pCommon->prev = m_pTLS;
+  m_pTLS->prev    = m_pLocal;
+  m_pLocal->prev  = m_pFile;
 }
 
 SymbolCategory::~SymbolCategory()
@@ -92,6 +95,8 @@ SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
 {
   m_OutputSymbols.insert(localEnd(), &pSymbol);
   m_pLocal->end++;
+  m_pTLS->begin++;
+  m_pTLS->end++;
   m_pCommon->begin++;
   m_pCommon->end++;
   m_pWeak->begin++;
@@ -203,6 +208,31 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
   return *this;
 }
 
+SymbolCategory& SymbolCategory::changeLocalToTLS(const ResolveInfo& pSymInfo)
+{
+  const LDSymbol* sym = pSymInfo.outSymbol();
+  assert(NULL != sym);
+  assert(Category::Local == Category::categorize(pSymInfo));
+
+  // find the position of sym from local category
+  size_t pos = m_pLocal->begin;
+  while (pos != m_pLocal->end) {
+    if (m_OutputSymbols[pos] == sym)
+      break;
+    ++pos;
+  }
+
+  // if symbol is not in Local, then it should be in TLS already
+  if (m_pLocal->end == pos)
+    return *this;
+
+  // bubble sort downward to TLS
+  std::swap(m_OutputSymbols[pos], m_OutputSymbols[m_pLocal->end - 1]);
+  m_pLocal->end--;
+  m_pTLS->begin--;
+  return *this;
+}
+
 size_t SymbolCategory::numOfSymbols() const
 {
   return m_OutputSymbols.size();
@@ -210,7 +240,7 @@ size_t SymbolCategory::numOfSymbols() const
 
 size_t SymbolCategory::numOfLocals() const
 {
-  return (m_pFile->size() + m_pLocal->size());
+  return (m_pFile->size() + m_pLocal->size() + m_pTLS->size());
 }
 
 size_t SymbolCategory::numOfCommons() const
@@ -232,7 +262,7 @@ bool SymbolCategory::empty() const
 
 bool SymbolCategory::emptyLocals() const
 {
-  return (m_pFile->empty() && m_pLocal->empty());
+  return (m_pFile->empty() && m_pLocal->empty() && m_pTLS->empty());
 }
 
 bool SymbolCategory::emptyCommons() const
@@ -291,26 +321,50 @@ SymbolCategory::const_iterator SymbolCategory::localEnd() const
   return iter;
 }
 
-SymbolCategory::iterator SymbolCategory::commonBegin()
+SymbolCategory::iterator SymbolCategory::tlsBegin()
 {
   return localEnd();
 }
 
-SymbolCategory::iterator SymbolCategory::commonEnd()
+SymbolCategory::iterator SymbolCategory::tlsEnd()
 {
   iterator iter = localEnd();
+  iter += m_pTLS->size();
+  return iter;
+}
+
+SymbolCategory::const_iterator SymbolCategory::tlsBegin() const
+{
+  return localEnd();
+}
+
+SymbolCategory::const_iterator SymbolCategory::tlsEnd() const
+{
+  const_iterator iter = localEnd();
+  iter += m_pTLS->size();
+  return iter;
+}
+
+SymbolCategory::iterator SymbolCategory::commonBegin()
+{
+  return tlsEnd();
+}
+
+SymbolCategory::iterator SymbolCategory::commonEnd()
+{
+  iterator iter = tlsEnd();
   iter += m_pCommon->size();
   return iter;
 }
 
 SymbolCategory::const_iterator SymbolCategory::commonBegin() const
 {
-  return localEnd();
+  return tlsEnd();
 }
 
 SymbolCategory::const_iterator SymbolCategory::commonEnd() const
 {
-  const_iterator iter = localEnd();
+  const_iterator iter = tlsEnd();
   iter += m_pCommon->size();
   return iter;
 }
