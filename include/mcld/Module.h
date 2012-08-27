@@ -74,9 +74,9 @@ public:
   LibraryList&       getLibraryList()       { return m_LibraryList; }
 
   const_lib_iterator lib_begin() const { return m_LibraryList.begin(); }
-  lib_iterator       lib_begin()       { return m_LibraryList.begin();  }
-  const_lib_iterator lib_end  () const { return m_LibraryList.end();    }
-  lib_iterator       lib_end  ()       { return m_LibraryList.end();    }
+  lib_iterator       lib_begin()       { return m_LibraryList.begin(); }
+  const_lib_iterator lib_end  () const { return m_LibraryList.end();   }
+  lib_iterator       lib_end  ()       { return m_LibraryList.end();   }
 
 /// @}
 /// @name Section Accessors
