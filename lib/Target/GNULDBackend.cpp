@@ -1409,29 +1409,28 @@ void GNULDBackend::setupProgramHdrs()
 
 /// createGNUStackInfo - create an output GNU stack section or segment if needed
 /// @ref gold linker: layout.cc:2608
-void GNULDBackend::createGNUStackInfo(FragmentLinker& pLinker)
+void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker)
 {
   uint32_t flag = 0x0;
   if (config().options().hasStackSet()) {
     // 1. check the command line option (-z execstack or -z noexecstack)
     if (config().options().hasExecStack())
       flag = llvm::ELF::SHF_EXECINSTR;
-  } else {
+  }
+  else {
     // 2. check the stack info from the input objects
     size_t object_count = 0, stack_note_count = 0;
-    mcld::InputTree::const_bfs_iterator input, inEnd = config().inputs().bfs_end();
-    for (input=config().inputs().bfs_begin(); input!=inEnd; ++input) {
-      if ((*input)->type() == Input::Object) {
-        ++object_count;
-        const LDSection* sect = (*input)->context()->getSection(
-                                                             ".note.GNU-stack");
-        if (NULL != sect) {
-          ++stack_note_count;
-          // 2.1 found a stack note that is set as executable
-          if (0 != (llvm::ELF::SHF_EXECINSTR & sect->flag())) {
-            flag = llvm::ELF::SHF_EXECINSTR;
-            break;
-          }
+    Module::const_obj_iterator obj, objEnd = pModule.obj_end();
+    for (obj = pModule.obj_begin(); obj != objEnd; ++obj) {
+      ++object_count;
+      const LDSection* sect = (*obj)->context()->getSection(
+                                                           ".note.GNU-stack");
+      if (NULL != sect) {
+        ++stack_note_count;
+        // 2.1 found a stack note that is set as executable
+        if (0 != (llvm::ELF::SHF_EXECINSTR & sect->flag())) {
+          flag = llvm::ELF::SHF_EXECINSTR;
+          break;
         }
       }
     }
@@ -1489,7 +1488,7 @@ void GNULDBackend::postLayout(Module& pModule,
   }
 
   // 1.2 create special GNU Stack note section or segment
-  createGNUStackInfo(pLinker);
+  createGNUStackInfo(pModule, pLinker);
 
   if (LinkerConfig::Object != config().codeGenType()) {
     // 1.3 set up the attributes of program headers
@@ -1588,11 +1587,13 @@ bool GNULDBackend::isOutputPIC() const
 /// isStaticLink - return whether we're doing static link
 bool GNULDBackend::isStaticLink() const
 {
-  // do we have any shared object? If yes, return false.
+  if (isOutputPIC())
+    return false;
 
   InputTree::const_iterator it = config().inputs().begin();
-  if (!isOutputPIC() && (*it)->attribute()->isStatic())
+  if ((*it)->attribute()->isStatic())
     return true;
+
   return false;
 }
 

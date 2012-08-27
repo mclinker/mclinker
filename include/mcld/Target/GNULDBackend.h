@@ -297,7 +297,7 @@ private:
   }
 
   /// createGNUStackInfo - create an output GNU stack section or segment if needed
-  void createGNUStackInfo(FragmentLinker& pLinker);
+  void createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(FragmentLinker& pLinker);

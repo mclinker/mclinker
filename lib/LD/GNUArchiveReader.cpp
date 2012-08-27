@@ -30,7 +30,7 @@
 
 using namespace mcld;
 
-GNUArchiveReader::GNUArchiveReader(const Module& pModule,
+GNUArchiveReader::GNUArchiveReader(Module& pModule,
                                    ELFObjectReader& pELFObjectReader)
  : m_Module(pModule),
    m_ELFObjectReader(pELFObjectReader)
@@ -382,6 +382,7 @@ size_t GNUArchiveReader::includeMember(Archive& pArchive, uint32_t pFileOffset)
       m_ELFObjectReader.readHeader(*member);
       m_ELFObjectReader.readSections(*member);
       m_ELFObjectReader.readSymbols(*member);
+      m_Module.getObjectList().push_back(member);
     }
     else if (isMyFormat(*member)) {
       member->setType(Input::Archive);

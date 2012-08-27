@@ -141,6 +141,7 @@ void ObjectLinker::normalize()
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);
       getObjectReader()->readSymbols(**input);
+      m_Module.getObjectList().push_back(*input);
     }
     // is a shared object file
     else if (getDynObjReader()->isMyFormat(**input)) {
