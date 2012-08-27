@@ -92,7 +92,11 @@ public:
   // Relocation is a kind of Fragment with type of FT_Reloc
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Relocation; }
-  static bool classof(const Relocation *) { return true; }
+
+  static bool classof(const Relocation *)
+  { return true; }
+
+  size_t size() const;
 
 private:
   /// m_Type - the type of the relocation entries

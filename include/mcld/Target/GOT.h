@@ -49,7 +49,7 @@ public:
   { return true; }
 
   // Override pure virtual function
-  size_t getSize() const
+  size_t size() const
   { return m_EntrySize; }
 
 protected:

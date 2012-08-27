@@ -33,9 +33,6 @@ protected:
 public:
   virtual ~TargetFragment() {}
 
-  virtual size_t getSize() const = 0;
-
-public:
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Target; }
 

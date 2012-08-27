@@ -44,7 +44,7 @@ public:
   static bool classof(const Fragment *O)
   { return true; }
 
-  size_t getSize() const
+  size_t size() const
   { return m_EntrySize; }
 
 protected:

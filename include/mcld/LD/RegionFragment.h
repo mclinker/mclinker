@@ -41,6 +41,8 @@ public:
   static bool classof(const RegionFragment *)
   { return true; }
 
+  size_t size() const;
+
 private:
   MemoryRegion& m_Region;
 };

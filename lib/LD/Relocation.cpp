@@ -98,3 +98,9 @@ const Relocation::DWord& Relocation::target() const
   return m_TargetData;
 }
 
+size_t Relocation::size() const
+{
+  // TODO: the size of Relocation fragment is handled by backend
+  return 0;
+}
+

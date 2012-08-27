@@ -37,10 +37,11 @@ public:
 
   void setEmitNops(bool pValue) { m_bEmitNops = pValue; }
 
-  static bool classof(const Fragment *F) {
-    return F->getKind() == Fragment::Alignment;
-  }
+  static bool classof(const Fragment *F)
+  { return F->getKind() == Fragment::Alignment; }
   static bool classof(const AlignFragment *) { return true; }
+
+  size_t size() const;
 
 private:
   /// Alignment - The alignment to ensure, in bytes.

@@ -38,6 +38,8 @@ public:
 
   static bool classof(const FillFragment *) { return true; }
 
+  size_t size() const { return m_Size; }
+
 private:
   /// m_Value - Value used for filling bytes
   int64_t m_Value;

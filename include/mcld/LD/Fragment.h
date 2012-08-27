@@ -53,11 +53,15 @@ public:
 
   void setOffset(uint64_t pOffset) { m_Offset = pOffset; }
 
+  bool hasOffset() const;
+
   unsigned int getLayoutOrder() const { return m_LayoutOrder; }
 
   void setLayoutOrder(unsigned int pValue) { m_LayoutOrder = pValue; }
 
   static bool classof(const Fragment *O) { return true; }
+
+  virtual size_t size() const { return 0; }
 
 private:
   Fragment(const Fragment& );            // DO NOT IMPLEMENT

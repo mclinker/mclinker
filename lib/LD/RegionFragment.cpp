@@ -22,3 +22,8 @@ RegionFragment::~RegionFragment()
 {
 }
 
+size_t RegionFragment::size() const
+{
+  return m_Region.size();
+}
+
