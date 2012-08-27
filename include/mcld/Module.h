@@ -69,6 +69,15 @@ public:
 
   void setName(const std::string& pName) { m_Name = pName; }
 
+  // -----  link-in objects ----- //
+  const ObjectList& getObjectList() const { return m_ObjectList; }
+  ObjectList&       getObjectList()       { return m_ObjectList; }
+
+  const_obj_iterator obj_begin() const { return m_ObjectList.begin(); }
+  obj_iterator       obj_begin()       { return m_ObjectList.begin(); }
+  const_obj_iterator obj_end  () const { return m_ObjectList.end();   }
+  obj_iterator       obj_end  ()       { return m_ObjectList.end();   }
+
   // -----  link-in libraries  ----- //
   const LibraryList& getLibraryList() const { return m_LibraryList; }
   LibraryList&       getLibraryList()       { return m_LibraryList; }
