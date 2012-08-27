@@ -357,8 +357,6 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
 
-  updateAddend(pReloc, pInputSym, pLinker.getLayout());
-
   switch(pReloc.type()){
 
     // Set R_ARM_TARGET1 to R_ARM_ABS32
@@ -707,12 +705,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
   assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC)) {
-    if (rsym->isLocal()) {
-      updateAddend(pReloc, pInputSym, pLinker.getLayout());
-    }
+  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
     return;
-  }
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
