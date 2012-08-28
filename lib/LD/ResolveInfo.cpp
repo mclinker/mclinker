@@ -6,7 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/LD/ResolveInfo.h"
+#include <mcld/LD/ResolveInfo.h>
+#include <cstdlib>
 #include <cstring>
 
 using namespace mcld;

@@ -15,8 +15,7 @@
 #include <llvm/Support/DataTypes.h>
 #include <llvm/ADT/StringRef.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSymbol;
 
