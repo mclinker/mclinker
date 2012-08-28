@@ -53,6 +53,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/Support/raw_mem_ostream.h \
 	${LIBDIR}/Support/raw_mem_ostream.cpp \
+	${INCDIR}/Support/ToolOutputFile.h\
+	${LIBDIR}/Support/ToolOutputFile.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
