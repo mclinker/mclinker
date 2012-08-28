@@ -14,6 +14,7 @@
 
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/Casting.h>
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
@@ -580,11 +581,11 @@ bool FragmentLinker::layout()
 ///
 /// All symbols should be read and resolved before calling this function.
 Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
-                                    const LDSymbol& pSym,
-                                    ResolveInfo& pResolveInfo,
-                                    FragmentRef& pFragmentRef,
-                                    const LDSection& pSection,
-                                    Relocation::Address pAddend)
+                                          const LDSymbol& pSym,
+                                          ResolveInfo& pResolveInfo,
+                                          FragmentRef& pFragmentRef,
+                                          const LDSection& pSection,
+                                          Relocation::Address pAddend)
 {
   // FIXME: we should dicard sections and symbols first instead
   // if the symbol is in the discarded input section, then we also need to
@@ -600,7 +601,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   relocation->setSymInfo(&pResolveInfo);
 
-  m_RelocationList.push_back(relocation);
+  m_Module.getRelocationTable().push_back(relocation);
 
   m_Backend.scanRelocation(*relocation, pSym, *this, pSection);
 
@@ -611,11 +612,10 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
 bool FragmentLinker::applyRelocations()
 {
-  RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
-
-  for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
-    Fragment* frag = (Fragment*)relocIter;
-    static_cast<Relocation*>(frag)->apply(*m_Backend.getRelocFactory());
+  Module::reloc_iterator relocIter, relocEnd = m_Module.reloc_end();
+  for (relocIter = m_Module.reloc_begin(); relocIter != relocEnd; ++relocIter) {
+    Relocation* reloc = llvm::cast<Relocation>(relocIter);
+    reloc->apply(*m_Backend.getRelocFactory());
   }
   return true;
 }
@@ -627,11 +627,10 @@ void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 
   uint8_t* data = region->getBuffer();
 
-  RelocationListType::iterator relocIter, relocEnd = m_RelocationList.end();
-  for (relocIter = m_RelocationList.begin(); relocIter != relocEnd; ++relocIter) {
+  Module::reloc_iterator relocIter, relocEnd = m_Module.reloc_end();
+  for (relocIter = m_Module.reloc_begin(); relocIter != relocEnd; ++relocIter) {
 
-    Fragment* frag = (Fragment*)relocIter;
-    Relocation* reloc = static_cast<Relocation*>(frag);
+    Relocation* reloc = llvm::cast<Relocation>(relocIter);
 
     // get output file offset
     size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +

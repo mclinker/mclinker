@@ -244,10 +244,7 @@ private:
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
   typedef GCFactory<SectionData, 0> LDSectionDataFactory;
-  typedef llvm::iplist<Fragment,
-                       GCFactoryListTraits<Fragment> > RelocationListType;
   typedef std::set<LDSymbol*> ForceLocalSymbolTable;
-  typedef std::vector<LDSymbol*> OutputSymbolTable;
 
 private:
   LinkerConfig& m_Config;
@@ -259,7 +256,6 @@ private:
   LDSectionDataFactory m_LDSectDataFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
-  RelocationListType m_RelocationList;
 };
 
 #include "FragmentLinker.tcc"
