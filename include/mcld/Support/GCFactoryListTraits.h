@@ -25,9 +25,11 @@ namespace mcld
  *  the nodes in the list is produced by GCFactory.
  */
 template<typename DataType>
-class GCFactoryListTraits : public llvm::ilist_default_traits<DataType> {
+class GCFactoryListTraits : public llvm::ilist_default_traits<DataType>
+{
 private:
-  class SentinelNode : public llvm::ilist_node<DataType> {
+  class SentinelNode : public llvm::ilist_node<DataType>
+  {
   public:
     SentinelNode() : llvm::ilist_node<DataType>() { }
   };
