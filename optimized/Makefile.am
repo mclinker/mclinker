@@ -172,7 +172,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ScriptOptions.h \
 	${LIBDIR}/Core/ScriptOptions.cpp \
         ${INCDIR}/BitcodeOption.h \
-        ${INCDIR}/Core/BitcodeOption.cpp \
+        ${LIBDIR}/Core/BitcodeOption.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
