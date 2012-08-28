@@ -263,32 +263,6 @@ bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
                    m_GlobalGOTSyms.end(), &pSymbol) != m_GlobalGOTSyms.end();
 }
 
-/// emitDynamicSymbol - emit dynamic symbol.
-void MipsGNULDBackend::emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                                         LDSymbol& pSymbol,
-                                         const Layout& pLayout,
-                                         char* strtab,
-                                         size_t strtabsize,
-                                         size_t symtabIdx)
-{
-  // maintain output's symbol and index map
-  bool sym_exist = false;
-  HashTableType::entry_type* entry = 0;
-  entry = m_pSymIndexMap->insert(&pSymbol, sym_exist);
-  entry->setValue(symtabIdx);
-
-  // FIXME: check the endian between host and target
-  // write out symbol
-  sym32.st_name  = strtabsize;
-  sym32.st_value = pSymbol.value();
-  sym32.st_size  = getSymbolSize(pSymbol);
-  sym32.st_info  = getSymbolInfo(pSymbol);
-  sym32.st_other = pSymbol.visibility();
-  sym32.st_shndx = getSymbolShndx(pSymbol, pLayout);
-  // write out string
-  strcpy((strtab + strtabsize), pSymbol.name());
-}
-
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
 ///
 /// the size of these tables should be computed before layout
@@ -339,17 +313,61 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   size_t strtabsize = 1;
 
   // emit of .dynsym, and .dynstr except GOT entries
-  for (Module::const_sym_iterator symbol = pModule.sym_begin(),
-       sym_end = pModule.sym_end(); symbol != sym_end; ++symbol) {
+  Module::const_sym_iterator symbol;
+  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  // emit symbol in File and Local category if it's dynamic symbol
+  Module::const_sym_iterator symEnd = symbols.localEnd();
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    emitDynamicSymbol(symtab32[symtabIdx], **symbol, pLayout, strtab,
-                      strtabsize, symtabIdx);
+    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                   symtabIdx);
 
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit symbols in TLS category, all symbols in TLS category shold be emitited
+  // directly, except GOT entries
+  symEnd = symbols.tlsEnd();
+  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+    if (isGlobalGOTSymbol(**symbol))
+      continue;
+
+    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                   symtabIdx);
+
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit the reset of the symbols if the symbol is dynamic symbol
+  symEnd = pModule.sym_end();
+  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
+    if (!isDynamicSymbol(**symbol))
+      continue;
+
+    if (isGlobalGOTSymbol(**symbol))
+      continue;
+
+    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                   symtabIdx);
+
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
@@ -366,8 +384,11 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (!isDynamicSymbol(**symbol))
       fatal(diag::mips_got_symbol) << (*symbol)->name();
 
-    emitDynamicSymbol(symtab32[symtabIdx], **symbol, pLayout, strtab,
-                      strtabsize, symtabIdx);
+    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                   symtabIdx);
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
 
     // sum up counters
     ++symtabIdx;

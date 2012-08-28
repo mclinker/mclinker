@@ -171,13 +171,6 @@ private:
   /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
   bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
 
-  /// emitDynamicSymbol - emit dynamic symbol.
-  void emitDynamicSymbol(llvm::ELF::Elf32_Sym& sym32,
-                         LDSymbol& pSymbol,
-                         const Layout& pLayout,
-                         char* strtab,
-                         size_t strtabsize,
-                         size_t symtabIdx);
 };
 
 } // namespace of mcld

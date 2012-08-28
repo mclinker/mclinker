@@ -276,6 +276,22 @@ protected:
                             const Relocation& pReloc,
                             const ResolveInfo& pSym) const;
 
+  /// emitSymbol32 - emit an ELF32 symbol
+  void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
+                    LDSymbol& pSymbol,
+                    const Layout& pLayout,
+                    char* pStrtab,
+                    size_t pStrtabsize,
+                    size_t pSymtabIdx);
+
+  /// emitSymbol64 - emit an ELF64 symbol
+  void emitSymbol64(llvm::ELF::Elf64_Sym& pSym64,
+                    LDSymbol& pSymbol,
+                    const Layout& pLayout,
+                    char* pStrtab,
+                    size_t pStrtabsize,
+                    size_t pSymtabIdx);
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Module& pModule);

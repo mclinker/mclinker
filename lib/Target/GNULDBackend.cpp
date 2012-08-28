@@ -596,11 +596,34 @@ GNULDBackend::sizeNamePools(const Module& pModule)
   size_t dynstr = 1;
   size_t hash   = 0;
 
-  // compute size of .symtab, .dynsym and .strtab
+  // compute the size of .symtab, .dynsym and .strtab
   Module::const_sym_iterator symbol;
-  Module::const_sym_iterator symEnd = pModule.sym_end();
-  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
-    size_t str_size = (*symbol)->nameSize() + 1;
+  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  size_t str_size = 0;
+  // compute the size of symbols in Local and File category
+  Module::const_sym_iterator symEnd = symbols.localEnd();
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
+    if (isDynamicSymbol(**symbol)) {
+      ++dynsym;
+      dynstr += str_size;
+    }
+    ++symtab;
+    strtab += str_size;
+  }
+  // compute the size of symbols in TLS category
+  symEnd = symbols.tlsEnd();
+  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
+    ++dynsym;
+    dynstr += str_size;
+    ++symtab;
+    strtab += str_size;
+  }
+  // compute the size of the reset of symbols
+  symEnd = pModule.sym_end();
+  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
     if (isDynamicSymbol(**symbol)) {
       ++dynsym;
       dynstr += str_size;
@@ -674,6 +697,46 @@ GNULDBackend::sizeNamePools(const Module& pModule)
   }
 }
 
+/// emitSymbol32 - emit an ELF32 symbol
+void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
+                                LDSymbol& pSymbol,
+                                const Layout& pLayout,
+                                char* pStrtab,
+                                size_t pStrtabsize,
+                                size_t pSymtabIdx)
+{
+   // FIXME: check the endian between host and target
+   // write out symbol
+   pSym.st_name  = pStrtabsize;
+   pSym.st_value = pSymbol.value();
+   pSym.st_size  = getSymbolSize(pSymbol);
+   pSym.st_info  = getSymbolInfo(pSymbol);
+   pSym.st_other = pSymbol.visibility();
+   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+   // write out string
+   strcpy((pStrtab + pStrtabsize), pSymbol.name());
+}
+
+/// emitSymbol64 - emit an ELF64 symbol
+void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
+                                LDSymbol& pSymbol,
+                                const Layout& pLayout,
+                                char* pStrtab,
+                                size_t pStrtabsize,
+                                size_t pSymtabIdx)
+{
+   // FIXME: check the endian between host and target
+   // write out symbol
+   pSym.st_name  = pStrtabsize;
+   pSym.st_value = pSymbol.value();
+   pSym.st_size  = getSymbolSize(pSymbol);
+   pSym.st_info  = getSymbolInfo(pSymbol);
+   pSym.st_other = pSymbol.visibility();
+   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+   // write out string
+   strcpy((pStrtab + pStrtabsize), pSymbol.name());
+}
+
 /// emitRegNamePools - emit regular name pools - .symtab, .strtab
 ///
 /// the size of these tables should be computed before layout
@@ -743,35 +806,19 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   Module::const_sym_iterator symbol;
   Module::const_sym_iterator symEnd = pModule.sym_end();
   for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
-
-     // maintain output's symbol and index map if building .o file
+    // maintain output's symbol and index map if building .o file
     if (LinkerConfig::Object == config().codeGenType()) {
       entry = m_pSymIndexMap->insert(NULL, sym_exist);
       entry->setValue(symtabIdx);
     }
 
-    // FIXME: check the endian between host and target
-    // write out symbol
-    if (32 == bitclass()) {
-      symtab32[symtabIdx].st_name  = strtabsize;
-      symtab32[symtabIdx].st_value = getSymbolValue(**symbol);
-      symtab32[symtabIdx].st_size  = getSymbolSize(**symbol);
-      symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
-      symtab32[symtabIdx].st_other = (*symbol)->visibility();
-      symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
-    }
-    else { // must 64
-      symtab64[symtabIdx].st_name  = strtabsize;
-      symtab64[symtabIdx].st_value = getSymbolValue(**symbol);
-      symtab64[symtabIdx].st_size  = getSymbolSize(**symbol);
-      symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
-      symtab64[symtabIdx].st_other = (*symbol)->visibility();
-      symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
-    }
-    // write out string
-    strcpy((strtab + strtabsize), (*symbol)->name());
+    if (32 == bitclass())
+      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
+    else
+      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
 
-    // write out
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
@@ -846,36 +893,62 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 
   // emit of .dynsym, and .dynstr
   Module::const_sym_iterator symbol;
-  Module::const_sym_iterator symEnd = pModule.sym_end();
-  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
+  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  // emit symbol in File and Local category if it's dynamic symbol
+  Module::const_sym_iterator symEnd = symbols.localEnd();
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
+
+    if (32 == bitclass())
+      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
+    else
+      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
 
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
     entry->setValue(symtabIdx);
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
 
-    // FIXME: check the endian between host and target
-    // write out symbol
-    if (32 == bitclass()) {
-      symtab32[symtabIdx].st_name  = strtabsize;
-      symtab32[symtabIdx].st_value = (*symbol)->value();
-      symtab32[symtabIdx].st_size  = getSymbolSize(**symbol);
-      symtab32[symtabIdx].st_info  = getSymbolInfo(**symbol);
-      symtab32[symtabIdx].st_other = (*symbol)->visibility();
-      symtab32[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
-    }
-    else { // must 64
-      symtab64[symtabIdx].st_name  = strtabsize;
-      symtab64[symtabIdx].st_value = (*symbol)->value();
-      symtab64[symtabIdx].st_size  = getSymbolSize(**symbol);
-      symtab64[symtabIdx].st_info  = getSymbolInfo(**symbol);
-      symtab64[symtabIdx].st_other = (*symbol)->visibility();
-      symtab64[symtabIdx].st_shndx = getSymbolShndx(**symbol, pLayout);
-    }
-    // write out string
-    strcpy((strtab + strtabsize), (*symbol)->name());
+  // emit symbols in TLS category, all symbols in TLS category shold be emitited
+  symEnd = symbols.tlsEnd();
+  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+    if (32 == bitclass())
+      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
+    else
+      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
 
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
+    // sum up counters
+    ++symtabIdx;
+    strtabsize += (*symbol)->nameSize() + 1;
+  }
+
+  // emit the reset of the symbols if the symbol is dynamic symbol
+  symEnd = pModule.sym_end();
+  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
+    if (!isDynamicSymbol(**symbol))
+      continue;
+
+    if (32 == bitclass())
+      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
+    else
+      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+                     symtabIdx);
+
+    // maintain output's symbol and index map
+    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+    entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
     strtabsize += (*symbol)->nameSize() + 1;
