@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef SEARCHDIRS_H
-#define SEARCHDIRS_H
+#ifndef MCLD_MC_SEARCHDIRS_H
+#define MCLD_MC_SEARCHDIRS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <vector>
 #include <llvm/ADT/StringRef.h>
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/MC/MCLDInput.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/MC/MCLDInput.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class MCLDFile;
 class MCLDDirectory;
