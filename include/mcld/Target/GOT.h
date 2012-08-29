@@ -12,7 +12,10 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/DenseMap.h>
+
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/LD/TargetFragment.h>
 
 namespace mcld
@@ -21,6 +24,7 @@ namespace mcld
 class GOT;
 class ResolveInfo;
 class SectionData;
+
 
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
@@ -66,6 +70,10 @@ protected:
   GOT(LDSection& pSection, SectionData& pSectionData, size_t pEntrySize);
 
 public:
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
+
+public:
   virtual ~GOT();
 
   /// entrySize - the number of bytes per entry
@@ -80,23 +88,46 @@ public:
   const SectionData& getSectionData() const
   { return m_SectionData; }
 
+  // ----- observers -----//
+  iterator begin();
+  const_iterator begin() const;
+
+  iterator end();
+  const_iterator end() const;
+
 public:
   /// reserveEntry - reseve number of pNum of empty entries
   /// Before layout, we scan all relocations to determine if GOT entries are
   /// needed. If an entry is needed, the empty entry is reserved for layout
   /// to adjust the fragment offset. After that, we fill up the entries when
   /// applying relocations.
-  virtual void reserveEntry(size_t pNum = 1) = 0;
+  virtual void reserveEntry(size_t pNum = 1);
 
-  /// getEntry - get an empty entry or an exitsted filled entry with pSymbol.
+  /// getOrConsumeEntry - get entry for pSymbol, if not exist, consume an entry
+  /// and push it into m_SymIdxMap
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
-  virtual GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
+  virtual GOTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist);
+
+  /// consumeEntry - consume and return an empty entry
+  virtual GOTEntry* consumeEntry();
+
+protected:
+  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolEntryMapType;
 
 protected:
   LDSection& m_Section;
   SectionData& m_SectionData;
   size_t f_EntrySize;
+
+  /// m_GOTIterator - point to the last filled entry in GOT list
+  iterator m_GOTIterator;
+
+  /// m_fIsVisit - first time visit the function getEntry() or not
+  bool m_fIsVisit;
+
+  /// m_SymEntryMap - map symbol to the corresponding entry
+  SymbolEntryMapType m_SymEntryMap;
 };
 
 } // namespace of mcld

@@ -129,7 +129,7 @@ PLTEntry* X86PLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 
 GOTEntry* X86PLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
-   return m_GOTPLT.getEntry(pSymbol, pExist);
+   return m_GOTPLT.getOrConsumeEntry(pSymbol, pExist);
 }
 
 X86PLT0* X86PLT::getPLT0() const {

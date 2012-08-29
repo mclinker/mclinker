@@ -100,7 +100,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  GOTEntry& got_entry = *ld_backend.getGOT().getEntry(*rsym, exist);
+  GOTEntry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
   if (!exist) {
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {

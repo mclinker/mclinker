@@ -116,7 +116,7 @@ GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
 
-  GOTEntry& got_entry = *got.getEntry(*rsym, pExist);
+  GOTEntry& got_entry = *got.getOrConsumeEntry(*rsym, pExist);
 
   if (pExist)
     return got_entry;

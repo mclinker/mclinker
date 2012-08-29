@@ -12,14 +12,12 @@
 #include <gtest.h>
 #endif
 
-#include "X86PLT.h"
-
 #include <mcld/Target/GOT.h>
-#include <mcld/LD/SectionData.h>
 
 namespace mcld
 {
 class LDSection;
+class SectionData;
 
 /** \class X86GOT
  *  \brief X86 Global Offset Table.
@@ -27,38 +25,10 @@ class LDSection;
 
 class X86GOT : public GOT
 {
-  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
-
-public:
-  typedef SectionData::iterator iterator;
-  typedef SectionData::const_iterator const_iterator;
-
 public:
   X86GOT(LDSection& pSection, SectionData& pSectionData);
 
   ~X86GOT();
-
-  //Reserve general GOT entries.
-  void reserveEntry(size_t pNum = 1);
-
-  GOTEntry* getEntry(const ResolveInfo& pSymbol, bool& pExist);
-
-  iterator begin();
-
-  const_iterator begin() const;
-
-  iterator end();
-
-  const_iterator end() const;
-
-private:
-  /// m_GOTIterator - point to the first valid entry in GOT list
-  iterator m_GOTIterator;
-
-  /// m_fIsVisit - first time visit the function getEntry() or not
-  bool m_fIsVisit;
-
-  SymbolIndexMapType m_GOTMap;
 };
 
 } // namespace of mcld

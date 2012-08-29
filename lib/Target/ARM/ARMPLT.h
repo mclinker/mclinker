@@ -43,17 +43,13 @@ public:
   ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
-// Override virtual function.
 public:
-
-  // reserveEntry is ARMGOT friend function.
   void reserveEntry(size_t pNum = 1) ;
 
   PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
   GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-public:
   iterator begin() { return m_SectionData.begin(); }
 
   const_iterator begin() const { return m_SectionData.begin(); }

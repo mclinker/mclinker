@@ -29,15 +29,7 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
     m_pLocalNum(0)
 {
   // Create GOT0 entries.
-  for (size_t i = 0; i < MipsGOT0Num; ++i) {
-    GOTEntry* entry =
-      new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
-
-    if (NULL == entry)
-      fatal(diag::fail_allocate_memory_got);
-
-    m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
-  }
+  reserveEntry(MipsGOT0Num);
 
   // Skip GOT0 entries.
   iterator it = m_SectionData.begin();
@@ -52,26 +44,6 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
   m_LocalGOTIterator = it;
   m_GlobalGOTIterator = it;
   m_pLocalNum = MipsGOT0Num;
-}
-
-MipsGOT::iterator MipsGOT::begin()
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-MipsGOT::iterator MipsGOT::end()
-{
-  return m_SectionData.getFragmentList().end();
-}
-
-MipsGOT::const_iterator MipsGOT::begin() const
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-MipsGOT::const_iterator MipsGOT::end() const
-{
-  return m_SectionData.getFragmentList().end();
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
@@ -90,19 +62,6 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   return result;
 }
 
-void MipsGOT::reserveEntry(size_t pNum)
-{
-  for (size_t i = 0; i < pNum; ++i) {
-    GOTEntry* entry =
-      new (std::nothrow) GOTEntry(0, MipsGOTEntrySize, &m_SectionData);
-
-    if (NULL == entry)
-      fatal(diag::fail_allocate_memory_got);
-
-    m_Section.setSize(m_Section.size() + MipsGOTEntrySize);
-  }
-}
-
 void MipsGOT::reserveLocalEntry()
 {
   reserveEntry(1);
@@ -118,7 +77,7 @@ void MipsGOT::reserveGlobalEntry()
   reserveEntry(1);
 }
 
-GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
+GOTEntry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
 {
   if (isLocal(&pInfo) && pInfo.type() == ResolveInfo::Section) {
     pExist = false;
@@ -130,7 +89,7 @@ GOTEntry* MipsGOT::getEntry(const ResolveInfo& pInfo, bool& pExist)
     return entry;
   }
 
-  GOTEntry*& entry = m_GeneralGOTMap[&pInfo];
+  GOTEntry*& entry = m_SymEntryMap[&pInfo];
 
   pExist = NULL != entry;
 
