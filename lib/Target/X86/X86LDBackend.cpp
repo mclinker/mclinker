@@ -42,8 +42,7 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
 
 X86GNULDBackend::~X86GNULDBackend()
 {
-  // NOTE: we let iplist<Relocation> destroys relocations.
-  // delete m_pRelocFactory;
+  delete m_pRelocFactory;
   if (NULL != m_pGOT)
     delete m_pGOT;
   if (NULL != m_pPLT)

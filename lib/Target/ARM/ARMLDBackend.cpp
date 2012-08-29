@@ -50,7 +50,7 @@ ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
 ARMGNULDBackend::~ARMGNULDBackend()
 {
   // NOTE: we let iplist<Relocation> delete the relocations.
-  // delete m_pRelocFactory;
+  delete m_pRelocFactory;
   if (NULL != m_pGOT)
     delete m_pGOT;
   if (NULL != m_pPLT)

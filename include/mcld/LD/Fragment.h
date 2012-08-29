@@ -12,20 +12,21 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/ADT/IListNode.h>
+
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
 #include <cstddef>
 
-namespace mcld
-{
+namespace mcld {
 
 class SectionData;
 
 /** \class Fragment
  *  \brief Fragment is the minimun linking unit of MCLinker.
  */
-class Fragment : public llvm::ilist_node<Fragment>
+class Fragment : public IListNode<Fragment>
 {
 public:
   enum Type {
