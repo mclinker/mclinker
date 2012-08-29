@@ -24,7 +24,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/HashTable.tcc \
 	${INCDIR}/ADT/StringHash.h \
 	${INCDIR}/ADT/Flags.h \
-	${INCDIR}/ADT/IListNode.h \
 	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
 	${LIBDIR}/Support/Path.cpp \
