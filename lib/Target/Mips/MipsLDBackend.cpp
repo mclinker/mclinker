@@ -127,8 +127,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
-  assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC)) {
+  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC)) {
     if (rsym->isLocal()) {
       updateAddend(pReloc, pInputSym, pLinker.getLayout());
     }

@@ -468,9 +468,8 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
-  assert(NULL != pSection.getLink());
   updateAddend(pReloc, pInputSym, pLinker.getLayout());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation

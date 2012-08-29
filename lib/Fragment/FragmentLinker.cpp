@@ -584,7 +584,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                           const LDSymbol& pSym,
                                           ResolveInfo& pResolveInfo,
                                           FragmentRef& pFragmentRef,
-                                          const LDSection& pSection,
+                                          const LDSection& pTargetSection,
                                           Relocation::Address pAddend)
 {
   // FIXME: we should dicard sections and symbols first instead
@@ -603,7 +603,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   m_Module.getRelocationTable().push_back(relocation);
 
-  m_Backend.scanRelocation(*relocation, pSym, *this, pSection);
+  m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
 
   if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak())
     fatal(diag::undefined_reference) << pResolveInfo.name();

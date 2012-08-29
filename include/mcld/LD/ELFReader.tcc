@@ -463,7 +463,8 @@ bool ELFReader<32, true>::readRela(Input& pInput,
                                 << pInput.path();
     }
 
-    pLinker.addRelocation(r_type, *symbol,  *resolve_info, *frag_ref, pSection, r_addend);
+    pLinker.addRelocation(r_type, *symbol,  *resolve_info, *frag_ref,
+                            *pSection.getLink(), r_addend);
   }
   return true;
 }
@@ -511,7 +512,8 @@ bool ELFReader<32, true>::readRel(Input& pInput,
                                 << pInput.path();
     }
 
-    pLinker.addRelocation(r_type, *symbol, *resolve_info, *frag_ref, pSection);
+    pLinker.addRelocation(r_type, *symbol, *resolve_info, *frag_ref,
+                            *pSection.getLink());
   }
   return true;
 }

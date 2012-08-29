@@ -67,6 +67,7 @@ public:
   /// for layout to adjust the ouput offset.
   /// @param pReloc - a read in relocation entry
   /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,

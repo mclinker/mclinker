@@ -148,12 +148,13 @@ public:
   /// @param pResolveInfo - the symbol should be the symbol in the input file. FragmentLinker
   ///                  computes the real applied address by the output symbol.
   /// @param pFragmentRef - the fragment reference of the applied address.
+  /// @param pTargetSection - the section of the relocation applying target
   /// @param pAddend - the addend value for applying relocation
   Relocation* addRelocation(Relocation::Type pType,
                             const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
                             FragmentRef& pFragmentRef,
-                            const LDSection& pSection,
+                            const LDSection& pTargetSection,
                             Relocation::Address pAddend = 0);
 
   /// applyRelocations - apply all relocation enties.
