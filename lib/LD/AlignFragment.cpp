@@ -28,14 +28,8 @@ AlignFragment::AlignFragment(unsigned int pAlignment,
 
 size_t AlignFragment::size() const
 {
-  if (NULL == getPrevNode())
-    return 0;
-
-  if (!getPrevNode()->hasOffset())
-    return 0;
-
-  uint64_t size = llvm::OffsetToAlignment(getPrevNode()->getOffset(),
-                                          m_Alignment);
+  assert(hasOffset() && "AlignFragment::size() should not be called before layout.");
+  uint64_t size = llvm::OffsetToAlignment(getOffset(), m_Alignment);
   if (size > m_MaxBytesToEmit)
     return 0;
 

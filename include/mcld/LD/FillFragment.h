@@ -31,8 +31,6 @@ public:
 
   unsigned getValueSize() const { return m_ValueSize; }
 
-  uint64_t getSize() const { return m_Size; }
-
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Fillment; }
 

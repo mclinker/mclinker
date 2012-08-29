@@ -11,7 +11,6 @@
 #include <cstring>
 #include <cassert>
 
-#include <llvm/Support/MathExtras.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
 
@@ -29,42 +28,6 @@ using namespace mcld;
 typedef GCFactory<FragmentRef, MCLD_SECTIONS_PER_INPUT> FragRefFactory;
 
 static llvm::ManagedStatic<FragRefFactory> g_FragRefFactory;
-
-//===----------------------------------------------------------------------===//
-// Helper Functions
-//===----------------------------------------------------------------------===//
-/// compunteFragmentSize - compute the specific Fragment size
-uint64_t mcld::computeFragmentSize(const Layout& pLayout,
-                                   const Fragment& pFrag)
-{
-  switch (pFrag.getKind()) {
-    case Fragment::Fillment:
-      return static_cast<const FillFragment&>(pFrag).getSize();
-
-    case Fragment::Alignment: {
-      uint64_t offset = pLayout.getOutputOffset(pFrag);
-      const AlignFragment& align_frag = llvm::cast<AlignFragment>(pFrag);
-      uint64_t size = llvm::OffsetToAlignment(offset, align_frag.getAlignment());
-      if (size > align_frag.getMaxBytesToEmit())
-        return 0;
-      return size;
-    }
-
-    case Fragment::Region:
-      return llvm::cast<RegionFragment>(pFrag).getRegion().size();
-
-    case Fragment::Target:
-      return llvm::cast<TargetFragment>(pFrag).size();
-
-    case Fragment::Relocation:
-      assert(0 && "the size of FT_Reloc fragment is handled by backend");
-      return 0;
-
-    default:
-      assert(0 && "invalid fragment kind");
-      return 0;
-  }
-}
 
 //===----------------------------------------------------------------------===//
 // FragmentRef

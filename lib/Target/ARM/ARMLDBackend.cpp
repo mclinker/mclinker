@@ -748,7 +748,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
     SectionData::const_iterator frag_iter, frag_end = sect_data->end();
     uint8_t* out_offset = pRegion.start();
     for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
-      size_t size = computeFragmentSize(pLayout, *frag_iter);
+      size_t size = frag_iter->size();
       switch(frag_iter->getKind()) {
         case Fragment::Region: {
           const RegionFragment& region_frag =

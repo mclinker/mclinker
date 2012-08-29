@@ -118,13 +118,13 @@ void Layout::setFragmentLayoutOffset(Fragment* pFrag)
   }
   else {
     offset = first->getOffset();
-    offset += computeFragmentSize(*this, *first);
+    offset += first->size();
     frag_not_set = first->getNextNode();
   }
 
   while(NULL != frag_not_set) {
     frag_not_set->setOffset(offset);
-    offset += computeFragmentSize(*this, *frag_not_set);
+    offset += frag_not_set->size();
     frag_not_set = frag_not_set->getNextNode();
   }
 }
@@ -201,9 +201,9 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
   setFragmentLayoutOffset(&pFrag);
 
   if (NULL != align_frag)
-    return pFrag.getOffset() - align_frag->getOffset() + computeFragmentSize(*this, pFrag);
+    return pFrag.getOffset() - align_frag->getOffset() + pFrag.size();
   else
-    return computeFragmentSize(*this, pFrag);
+    return pFrag.size();
 }
 
 /// getInputLDSection - give a Fragment, return the corresponding input
@@ -360,7 +360,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
       if (NULL == front->getNextNode()) {
         // If the alignment fragment is the last fragment, increase
         // the target_offset by the alignment fragment's size.
-        align_size = computeFragmentSize(*this, *front);
+        align_size = front->size();
       }
       else {
         // If the alignment fragment is not the last fragment, the alignment
@@ -638,7 +638,7 @@ bool Layout::layout(Module& pModule,
 
 bool Layout::isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const
 {
-  uint64_t size = computeFragmentSize(*this, pFrag);
+  uint64_t size = pFrag.size();
   if (0x0 == size)
     return (pTargetOffset == pFrag.getOffset());
 

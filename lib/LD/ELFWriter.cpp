@@ -406,7 +406,7 @@ ELFWriter::emitSectionData(const Layout& pLayout,
   SectionData::const_iterator fragIter, fragEnd = data->end();
   size_t cur_offset = 0;
   for (fragIter = data->begin(); fragIter != fragEnd; ++fragIter) {
-    size_t size = computeFragmentSize(pLayout, *fragIter);
+    size_t size = fragIter->size();
     switch(fragIter->getKind()) {
       case Fragment::Region: {
         const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
@@ -434,12 +434,12 @@ ELFWriter::emitSectionData(const Layout& pLayout,
         FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
         if (0 == size ||
             0 == fill_frag.getValueSize() ||
-            0 == fill_frag.getSize()) {
+            0 == fill_frag.size()) {
           // ignore virtual fillment
           break;
         }
 
-        uint64_t num_tiles = fill_frag.getSize() / fill_frag.getValueSize();
+        uint64_t num_tiles = fill_frag.size() / fill_frag.getValueSize();
         for (uint64_t i = 0; i != num_tiles; ++i) {
           std::memset(pRegion.getBuffer(cur_offset),
                       fill_frag.getValue(),

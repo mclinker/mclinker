@@ -23,10 +23,6 @@ namespace mcld {
 class LDSection;
 class Layout;
 
-/// compunteFragmentSize - compute the specific Fragment size
-uint64_t computeFragmentSize(const Layout& pLayout,
-                             const Fragment& pFrag);
-
 /** \class FragmentRef
  *  \brief FragmentRef is a reference of a Fragment's contetnt.
  *
