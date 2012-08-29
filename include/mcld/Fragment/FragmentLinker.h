@@ -245,7 +245,6 @@ private:
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
   typedef GCFactory<SectionData, 0> LDSectionDataFactory;
-  typedef std::set<LDSymbol*> ForceLocalSymbolTable;
 
 private:
   LinkerConfig& m_Config;
