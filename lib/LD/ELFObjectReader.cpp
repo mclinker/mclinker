@@ -121,8 +121,9 @@ bool ELFObjectReader::readSections(Input& pInput)
 
           size_t size = region->size() / sizeof(llvm::ELF::Elf32_Word);
           if (llvm::ELF::GRP_COMDAT == *value) {
-            for (size_t index = 1; index < size; ++index)
-              pInput.context()->getSectionTable()[value[index]] = NULL;
+            for (size_t index = 1; index < size; ++index) {
+              pInput.context()->getSection(value[index])->setKind(LDFileFormat::Ignore);
+            }
           }
           pInput.memArea()->release(region);
         }
@@ -132,11 +133,12 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Relocation: {
         assert(NULL != (*section)->getLink());
         size_t link_index = (*section)->getLink()->index();
-        if (NULL == pInput.context()->getSectionTable()[link_index]) {
+        LDSection* link_sect = pInput.context()->getSection(link_index);
+        if (NULL == link_sect || LDFileFormat::Ignore == link_sect->kind()) {
           // Relocation sections of group members should also be part of the
           // group. Thus, if the associated member sections are ignored, the
           // related relocations should be also ignored.
-          *section = NULL;
+          (*section)->setKind(LDFileFormat::Ignore);
         }
         break;
       }
@@ -190,6 +192,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       // ignore
       case LDFileFormat::Null:
       case LDFileFormat::NamePool:
+      case LDFileFormat::Ignore:
         continue;
       // warning
       case LDFileFormat::EhFrameHdr:

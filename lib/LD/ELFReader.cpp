@@ -114,7 +114,8 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) 
     // an ELF symbol defined in a section which we are not including
     // must be treated as an Undefined.
     // @ref Google gold linker: symtab.cc: 1086
-    if (NULL == pInput.context()->getSection(pShndx))
+    if (NULL == pInput.context()->getSection(pShndx) ||
+        LDFileFormat::Ignore == pInput.context()->getSection(pShndx)->kind())
       return ResolveInfo::Undefined;
     return ResolveInfo::Define;
   }
@@ -168,6 +169,9 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
   if (NULL == sect_hdr)
     unreachable(diag::unreachable_invalid_section_idx) << pShndx
                                                        << pInput.path().native();
+
+  if (LDFileFormat::Ignore == sect_hdr->kind())
+    return NULL;
 
   FragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
   return result;
