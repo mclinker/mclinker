@@ -9,10 +9,7 @@
 #ifndef MCLD_TARGET_X86_PLT_H
 #define MCLD_TARGET_X86_PLT_H
 
-#include <llvm/ADT/DenseMap.h>
-
 #include <mcld/Target/PLT.h>
-#include <mcld/LD/SectionData.h>
 
 namespace mcld {
 
@@ -37,12 +34,6 @@ public:
  */
 class X86PLT : public PLT
 {
-  typedef llvm::DenseMap<const ResolveInfo*, X86PLT1*> SymbolIndexType;
-
-public:
-  typedef SectionData::iterator iterator;
-  typedef SectionData::const_iterator const_iterator;
-
 public:
   X86PLT(LDSection& pSection,
          SectionData& pSectionData,
@@ -50,31 +41,20 @@ public:
          const LinkerConfig& pConfig);
   ~X86PLT();
 
-// Override virtual function.
-public:
-
-  // reserveEntry is X86GOT friend function.
   void reserveEntry(size_t pNum = 1) ;
 
-  PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
-  GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
-
-public:
-
-  iterator begin() { return m_SectionData.begin(); }
-
-  const_iterator begin() const { return m_SectionData.begin(); }
-
-  iterator end() { return m_SectionData.end(); }
-
-  const_iterator end() const { return m_SectionData.end(); }
+  GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
   X86PLT0* getPLT0() const;
 
   void applyPLT0();
 
   void applyPLT1();
+
+private:
+  typedef llvm::DenseMap<const ResolveInfo*, X86PLT1*> SymbolIndexType;
 
 private:
   X86GOTPLT& m_GOTPLT;

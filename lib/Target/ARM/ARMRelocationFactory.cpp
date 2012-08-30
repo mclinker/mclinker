@@ -190,12 +190,12 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  PLTEntry& plt_entry = *ld_backend.getPLT().getPLTEntry(*rsym, exist);
+  PLTEntry& plt_entry = *ld_backend.getPLT().getOrConsumeEntry(*rsym, exist);
   if (!exist) {
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       GOTEntry& gotplt_entry =
-        *ld_backend.getPLT().getGOTPLTEntry(*rsym, exist);
+        *ld_backend.getPLT().getOrConsumeGOTPLTEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry(*rsym);
       rel_entry.setType(llvm::ELF::R_ARM_JUMP_SLOT);

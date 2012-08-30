@@ -76,7 +76,7 @@ void ARMPLT::reserveEntry(size_t pNum)
   }
 }
 
-PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
+PLTEntry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
    ARMPLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
 
@@ -96,10 +96,10 @@ PLTEntry* ARMPLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
    return PLTEntry;
 }
 
-GOTEntry* ARMPLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
+GOTEntry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
+                                          bool& pExist)
 {
-   GOTEntry* entry = m_GOT.getOrConsumeGOTPLTEntry(pSymbol, pExist);
-   return entry;
+   return m_GOT.getOrConsumeGOTPLTEntry(pSymbol, pExist);
 }
 
 ARMPLT0* ARMPLT::getPLT0() const {

@@ -9,7 +9,6 @@
 #ifndef MCLD_ARM_PLT_H
 #define MCLD_ARM_PLT_H
 
-#include <mcld/LD/SectionData.h>
 #include <mcld/Target/PLT.h>
 
 namespace mcld {
@@ -33,30 +32,15 @@ public:
  */
 class ARMPLT : public PLT
 {
-  typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
-
-public:
-  typedef SectionData::iterator iterator;
-  typedef SectionData::const_iterator const_iterator;
-
 public:
   ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
-public:
   void reserveEntry(size_t pNum = 1) ;
 
-  PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
-  GOTEntry* getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
-
-  iterator begin() { return m_SectionData.begin(); }
-
-  const_iterator begin() const { return m_SectionData.begin(); }
-
-  iterator end() { return m_SectionData.end(); }
-
-  const_iterator end() const { return m_SectionData.end(); }
+  GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
   ARMPLT0* getPLT0() const;
 
@@ -67,10 +51,12 @@ public:
   uint64_t emit(MemoryRegion& pRegion);
 
 private:
+  typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
+
+private:
   ARMGOT& m_GOT;
 
-  // Used by getEntry() for mapping a ResolveInfo
-  // instance to a PLT1 Entry.
+  // Used by getEntry() for mapping a ResolveInfo instance to a PLT1 Entry.
   iterator m_PLTEntryIterator;
 
   SymbolIndexType m_PLTEntryMap;

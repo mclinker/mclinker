@@ -15,6 +15,7 @@
 #include <llvm/ADT/ilist.h>
 
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/LD/TargetFragment.h>
 
 namespace mcld
@@ -58,24 +59,42 @@ protected:
 class PLT
 {
 public:
+  typedef SectionData::iterator iterator;
+  typedef SectionData::const_iterator const_iterator;
+
+public:
   PLT(LDSection& pSection, SectionData& pSectionData);
   virtual ~PLT();
 
-  const LDSection& getSection() const
-  { return m_Section; }
-
-  const SectionData& getSectionData() const
-  { return m_SectionData; }
-
-public:
   /// reserveEntry - reseve the number of pNum of empty entries
   /// The empty entris are reserved for layout to adjust the fragment offset.
   virtual void reserveEntry(size_t pNum = 1) = 0;
 
   /// getPLTEntry - get an empty entry or an exitsted filled entry with pSymbol.
   /// @param pSymbol - the target symbol
-  /// @param pExist - ture if the a filled entry with pSymbol existed, otherwise false.
-  virtual PLTEntry* getPLTEntry(const ResolveInfo& pSymbol, bool& pExist) = 0;
+  /// @param pExist - ture if the a filled entry with pSymbol existed,
+  /// otherwise false.
+  virtual PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol,
+                                      bool& pExist) = 0;
+
+  // ----- observers ----- //
+  const LDSection& getSection() const
+  { return m_Section; }
+
+  const SectionData& getSectionData() const
+  { return m_SectionData; }
+
+  iterator begin()
+  { return m_SectionData.begin(); }
+
+  const_iterator begin() const
+  { return m_SectionData.begin(); }
+
+  iterator end()
+  { return m_SectionData.end(); }
+
+  const_iterator end() const
+  { return m_SectionData.end(); }
 
 protected:
   LDSection& m_Section;

@@ -109,7 +109,7 @@ void X86PLT::reserveEntry(size_t pNum)
   }
 }
 
-PLTEntry* X86PLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
+PLTEntry* X86PLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
    X86PLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
 
@@ -127,7 +127,8 @@ PLTEntry* X86PLT::getPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
    return PLTEntry;
 }
 
-GOTEntry* X86PLT::getGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist)
+GOTEntry* X86PLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
+                                          bool& pExist)
 {
    return m_GOTPLT.getOrConsumeEntry(pSymbol, pExist);
 }
