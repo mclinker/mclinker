@@ -94,7 +94,6 @@ public:
   /// This is used to get the signature of a group section.
   virtual ResolveInfo* readSignature(Input& pInput,
                                      LDSection& pSymTab,
-                                     LinkerConfig& pConfig,
                                      uint32_t pSymIdx) const = 0;
 
   /// readRela - read ELF rela and create Relocation
@@ -218,7 +217,6 @@ public:
   /// This is used to get the signature of a group section.
   inline ResolveInfo* readSignature(Input& pInput,
                                     LDSection& pSymTab,
-                                    LinkerConfig& pConfig,
                                     uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation

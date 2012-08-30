@@ -99,7 +99,6 @@ bool ELFObjectReader::readSections(Input& pInput)
         ResolveInfo* signature =
               m_pELFReader->readSignature(pInput,
                                           *(*section)->getLink(),
-                                          m_Linker.getLDInfo(),
                                           (*section)->getInfo());
 
         bool exist = false;
