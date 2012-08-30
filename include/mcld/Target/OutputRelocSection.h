@@ -12,15 +12,14 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/RelocationFactory.h>
 
 namespace mcld
 {
 
-class ResolveInfo;
 class Relocation;
+class ResolveInfo;
+class RelocationFactory;
 
 /** \class OutputRelocSection
  *  \brief Dynamic relocation section for ARM .rel.dyn and .rel.plt
@@ -36,15 +35,9 @@ public:
 
   void reserveEntry(RelocationFactory& pRelFactory, size_t pNum=1);
 
-  Relocation* getEntry(const ResolveInfo& pSymbol,
-                       bool isForGOT,
-                       bool& pExist);
+  Relocation* consumeEntry(const ResolveInfo& pSymbol);
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, Relocation*> SymRelMapType;
-
-  typedef SymRelMapType::iterator SymRelMapIterator;
-
   typedef SectionData::iterator FragmentIterator;
 
 private:
@@ -62,9 +55,6 @@ private:
 
   /// m_ValidEntryIterator - point to the first valid entry
   FragmentIterator m_ValidEntryIterator;
-
-  /// m_SymRelMap - map the resolved symbol to the Relocation entry
-  SymRelMapType m_SymRelMap;
 };
 
 } // namespace of mcld

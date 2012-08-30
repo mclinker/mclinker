@@ -156,7 +156,8 @@ int32_t helper_CalcAHL(const Relocation& pHiReloc, const Relocation& pLoReloc)
 
   int32_t AHI = pHiReloc.target();
   int32_t ALO = pLoReloc.target();
-  int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF) + pLoReloc.addend();
+  int32_t AHL = ((AHI & 0xFFFF) << 16) + (int16_t)(ALO & 0xFFFF) +
+                 pLoReloc.addend();
   return AHL;
 }
 
@@ -168,9 +169,7 @@ void helper_DynRel(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
 
-  bool exist;
-  Relocation& rel_entry =
-    *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry(*rsym);
 
   rel_entry.setType(llvm::ELF::R_MIPS_REL32);
   rel_entry.targetRef() = pReloc.targetRef();

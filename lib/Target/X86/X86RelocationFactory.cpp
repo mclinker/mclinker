@@ -109,8 +109,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
     }
     else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
       // Initialize corresponding dynamic relocation.
-      Relocation& rel_entry =
-        *ld_backend.getRelDyn().getEntry(*rsym, true, exist);
+      Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry(*rsym);
       assert(!exist && "GOT entry not exist, but DynRel entry exist!");
       if (helper_use_relative_reloc(*rsym, pParent)) {
         // Initialize got entry to target symbol address
@@ -167,8 +166,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
       GOTEntry& gotplt_entry =
         *ld_backend.getPLT().getGOTPLTEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
-      Relocation& rel_entry =
-        *ld_backend.getRelPLT().getEntry(*rsym, true, exist);
+      Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry(*rsym);
       assert(!exist && "PLT entry not exist, but DynRel entry exist!");
       rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
       rel_entry.targetRef().assign(gotplt_entry);
@@ -210,8 +208,7 @@ void helper_DynRel(Relocation& pReloc,
   X86GNULDBackend& ld_backend = pParent.getTarget();
   bool exist;
 
-  Relocation& rel_entry =
-    *ld_backend.getRelDyn().getEntry(*rsym, false, exist);
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry(*rsym);
   rel_entry.setType(pType);
   rel_entry.targetRef() = pReloc.targetRef();
 

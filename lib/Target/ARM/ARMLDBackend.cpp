@@ -244,8 +244,7 @@ void ARMGNULDBackend::createARMRelDyn(FragmentLinker& pLinker)
 
 void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
 {
-  bool exist;
-  Relocation& rel_entry = *m_pRelDyn->getEntry(pSym, false, exist);
+  Relocation& rel_entry = *m_pRelDyn->consumeEntry(pSym);
   rel_entry.setType(llvm::ELF::R_ARM_COPY);
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
