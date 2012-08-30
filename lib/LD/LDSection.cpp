@@ -10,6 +10,24 @@
 
 using namespace mcld;
 
+//===----------------------------------------------------------------------===//
+// LDSection
+//===----------------------------------------------------------------------===//
+LDSection::LDSection()
+  : m_Name(),
+    m_Kind(LDFileFormat::Ignore),
+    m_Type(0x0),
+    m_Flag(0x0),
+    m_Size(0),
+    m_Offset(0),
+    m_Addr(0x0),
+    m_Align(0),
+    m_Info(0),
+    m_pLink(NULL),
+    m_pSectionData(NULL),
+    m_Index(0) {
+}
+
 LDSection::LDSection(const std::string& pName,
                      LDFileFormat::Kind pKind,
                      uint32_t pType,
@@ -29,5 +47,9 @@ LDSection::LDSection(const std::string& pName,
     m_pLink(NULL),
     m_pSectionData(NULL),
     m_Index(0) {
+}
+
+LDSection::~LDSection()
+{
 }
 

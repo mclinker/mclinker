@@ -29,6 +29,8 @@ class SectionData;
 class LDSection
 {
 public:
+  LDSection();
+
   LDSection(const std::string& pName,
             LDFileFormat::Kind pKind,
             uint32_t pType,
@@ -36,6 +38,8 @@ public:
             uint64_t pSize = 0,
             uint64_t pOffset = 0,
             uint64_t pAddr = 0);
+
+  ~LDSection();
 
   /// name - the name of this section.
   const std::string& name() const
