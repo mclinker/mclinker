@@ -1222,7 +1222,7 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 /// sections.
 /// @refer Google gold linker: common.cc: 214
 bool
-GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const
+GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
 {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
@@ -1234,27 +1234,18 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) co
   // FIXME: If the order of common symbols is defined, then sort common symbols
   // std::sort(com_sym, com_end, some kind of order);
 
-  // get or create corresponding BSS LDSection
-  LDSection* bss_sect = &pLinker.getOrCreateOutputSectHdr(".bss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-
-  LDSection* tbss_sect = &pLinker.getOrCreateOutputSectHdr(
-                                   ".tbss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-
-  assert(NULL != bss_sect && NULL !=tbss_sect);
+  // get corresponding BSS LDSection
+  ELFFileFormat* file_format = getOutputFormat();
+  LDSection& bss_sect = file_format->getBSS();
+  LDSection& tbss_sect = file_format->getTBSS();
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_sect_data = pLinker.getOrCreateSectData(*bss_sect);
-  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(*tbss_sect);
+  SectionData& bss_sect_data = pLinker.getOrCreateSectData(bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(tbss_sect);
 
   // remember original BSS size
-  uint64_t bss_offset  = bss_sect->size();
-  uint64_t tbss_offset = tbss_sect->size();
+  uint64_t bss_offset  = bss_sect.size();
+  uint64_t tbss_offset = tbss_sect.size();
 
   // allocate all local common symbols
   com_end = symbol_list.localEnd();
@@ -1309,8 +1300,8 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) co
     }
   }
 
-  bss_sect->setSize(bss_offset);
-  tbss_sect->setSize(tbss_offset);
+  bss_sect.setSize(bss_offset);
+  tbss_sect.setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
   return true;
 }

@@ -129,7 +129,7 @@ public:
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) const = 0;
+  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,

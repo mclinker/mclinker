@@ -260,24 +260,14 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
-  if (ResolveInfo::ThreadLocal == pSym.type()) {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(
-                                   ".tbss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
-  else {
-    bss_sect_hdr = &pLinker.getOrCreateOutputSectHdr(".bss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC);
-  }
+  ELFFileFormat* file_format = getOutputFormat();
+  if (ResolveInfo::ThreadLocal == pSym.type())
+    bss_sect_hdr = &file_format->getTBSS();
+  else
+    bss_sect_hdr = &file_format->getBSS();
 
   // get or create corresponding BSS SectionData
-  assert(NULL != bss_sect_hdr);
-  SectionData& bss_section = pLinker.getOrCreateSectData(
-                                     *bss_sect_hdr);
+  SectionData& bss_section = pLinker.getOrCreateSectData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
