@@ -17,8 +17,6 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/CIE.h>
 #include <mcld/LD/FDE.h>
-#include <mcld/LD/RegionFragment.h>
-#include <mcld/Support/GCFactory.h>
 
 namespace mcld
 {
