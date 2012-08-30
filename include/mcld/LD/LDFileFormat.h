@@ -42,6 +42,7 @@ public:
     Note,
     MetaData,
     Group,
+    Ignore,
   };
 
 protected:

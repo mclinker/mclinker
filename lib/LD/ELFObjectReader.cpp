@@ -102,7 +102,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                                           (*section)->getInfo());
 
         bool exist = false;
-        if (0 == std::strlen(signature->name()) &&
+        if (0 == signature->nameSize() &&
             ResolveInfo::Section == signature->type()) {
           // if the signature is a section symbol in input object, we use the
           // section name as group signature.
