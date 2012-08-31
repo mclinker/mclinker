@@ -250,7 +250,7 @@ bool ObjectLinker::readRelocations()
 /// prelayout - help backend to do some modification before layout
 bool ObjectLinker::prelayout()
 {
-  m_LDBackend.preLayout(*m_pLinker);
+  m_LDBackend.preLayout(m_Module, *m_pLinker);
 
   m_LDBackend.allocateCommonSymbols(m_Module, *m_pLinker);
 

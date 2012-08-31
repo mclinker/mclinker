@@ -45,6 +45,8 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     f_pFiniArrayStart(NULL),
     f_pFiniArrayEnd(NULL),
     f_pStack(NULL),
+    f_pTDATA(NULL),
+    f_pTBSS(NULL),
     f_pExecutableStart(NULL),
     f_pEText(NULL),
     f_p_EText(NULL),
@@ -429,6 +431,22 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
       f_pStack->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pStack->setValue(0x0);
     }
+  }
+
+  if (NULL != f_pTDATA) {
+    LDSection& tdata_sect = file_format->getTData();
+    assert(tdata_sect.hasSectionData());
+    f_pTDATA->setFragmentRef(pLinker.getLayout().getFragmentRef(
+                                 *(tdata_sect.getSectionData()->begin()), 0x0));
+    f_pTDATA->setValue(tdata_sect.addr());
+  }
+
+  if (NULL != f_pTBSS) {
+    LDSection& tbss_sect = file_format->getTBSS();
+    assert(tbss_sect.hasSectionData());
+    f_pTBSS->setFragmentRef(pLinker.getLayout().getFragmentRef(
+                                 *(tbss_sect.getSectionData()->begin()), 0x0));
+    f_pTBSS->setValue(tbss_sect.addr());
   }
 
   // -----  segment symbols  ----- //
@@ -1525,7 +1543,8 @@ void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLi
 }
 
 /// preLayout - Backend can do any needed modification before layout
-void GNULDBackend::preLayout(FragmentLinker& pLinker)
+void GNULDBackend::preLayout(Module& pModule,
+                             FragmentLinker& pLinker)
 {
   // prelayout target first
   doPreLayout(pLinker);
@@ -1539,6 +1558,13 @@ void GNULDBackend::preLayout(FragmentLinker& pLinker)
                                    format->getEhFrameHdr());
     m_pEhFrameHdr->sizeOutput();
   }
+
+  // change .tbss and .tdata section symbol from Local to TLS category
+  if (NULL != f_pTDATA)
+    pModule.getSymbolTable().changeLocalToTLS(*f_pTDATA->resolveInfo());
+
+  if (NULL != f_pTBSS)
+    pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS->resolveInfo());
 }
 
 /// postLayout - Backend can do any needed modification after layout
@@ -1754,5 +1780,63 @@ bool GNULDBackend::symbolNeedsCopyReloc(const Layout& pLayout,
     return true;
 
   return false;
+}
+
+bool GNULDBackend::defineTDATASymbol(FragmentLinker& pLinker)
+{
+  // Define section symbol for .tdata
+  f_pTDATA =
+         pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
+           ".tdata",
+           false,
+           ResolveInfo::Section,
+           ResolveInfo::Define,
+           ResolveInfo::Local,
+           0x0,  // size
+           0x0,  // value
+           NULL, // fragRef
+           ResolveInfo::Default);
+  return true;
+}
+
+bool GNULDBackend::defineTBSSSymbol(FragmentLinker& pLinker)
+{
+  // Define section symbol for .tbss
+  f_pTBSS =
+         pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
+           ".tbss",
+           false,
+           ResolveInfo::Section,
+           ResolveInfo::Define,
+           ResolveInfo::Local,
+           0x0,  // size
+           0x0,  // value
+           NULL, // fragRef
+           ResolveInfo::Default);
+  return true;
+}
+
+LDSymbol& GNULDBackend::getTDATASymbol()
+{
+  assert(NULL != f_pTDATA);
+  return *f_pTDATA;
+}
+
+const LDSymbol& GNULDBackend::getTDATASymbol() const
+{
+  assert(NULL != f_pTDATA);
+  return *f_pTDATA;
+}
+
+LDSymbol& GNULDBackend::getTBSSSymbol()
+{
+  assert(NULL != f_pTBSS);
+  return *f_pTBSS;
+}
+
+const LDSymbol& GNULDBackend::getTBSSSymbol() const
+{
+  assert(NULL != f_pTBSS);
+  return *f_pTBSS;
 }
 

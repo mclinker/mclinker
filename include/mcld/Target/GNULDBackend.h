@@ -244,6 +244,14 @@ public:
                          bool pSymHasPLT,
                          bool isAbsReloc) const;
 
+  // getTDATASymbol - get section symbol of .tdata
+  LDSymbol& getTDATASymbol();
+  const LDSymbol& getTDATASymbol() const;
+
+  /// getTBSSSymbol - get section symbol of .tbss
+  LDSymbol& getTBSSSymbol();
+  const LDSymbol& getTBSSSymbol() const;
+
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -292,6 +300,12 @@ protected:
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
 
+  /// defineTDATASymbol - define section symbol for .tdata
+  bool defineTDATASymbol(FragmentLinker& pLinker);
+
+  /// defineTBSSSymbol - define section symbol for .tbss
+  bool defineTBSSSymbol(FragmentLinker& pLinker);
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Module& pModule);
@@ -316,7 +330,7 @@ private:
   void createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
-  void preLayout(FragmentLinker& pLinker);
+  void preLayout(Module& pModule, FragmentLinker& pLinker);
 
   /// postLayout -Backend can do any needed modification after layout
   void postLayout(Module& pModule, FragmentLinker& pLinker);
@@ -395,6 +409,10 @@ protected:
   LDSymbol* f_pFiniArrayStart;
   LDSymbol* f_pFiniArrayEnd;
   LDSymbol* f_pStack;
+
+  // section symbols for .tdata and .tbss
+  LDSymbol* f_pTDATA;
+  LDSymbol* f_pTBSS;
 
   // segment symbols
   LDSymbol* f_pExecutableStart;
