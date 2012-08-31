@@ -15,6 +15,8 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
+#include <mcld/Support/Allocators.h>
+#include <mcld/Config/Config.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <string>
 
@@ -28,7 +30,9 @@ class SectionData;
  */
 class LDSection
 {
-public:
+private:
+  friend class Chunk<LDSection, MCLD_SECTIONS_PER_INPUT>;
+
   LDSection();
 
   LDSection(const std::string& pName,
@@ -39,11 +43,21 @@ public:
             uint64_t pOffset = 0,
             uint64_t pAddr = 0);
 
+public:
   ~LDSection();
 
+  static LDSection* Create(const std::string& pName,
+                           LDFileFormat::Kind pKind,
+                           uint32_t pType,
+                           uint32_t pFlag,
+                           uint64_t pSize = 0,
+                           uint64_t pOffset = 0,
+                           uint64_t pAddr = 0);
+
+  static void Destroy(LDSection*& pSection);
+
   /// name - the name of this section.
-  const std::string& name() const
-  { return m_Name; }
+  llvm::StringRef name() const;
 
   /// kind - the kind of this section, such as Text, BSS, GOT, and so on.
   /// from LDFileFormat::Kind
@@ -156,7 +170,9 @@ public:
   { m_Index = pIndex; }
 
 private:
-  std::string m_Name;
+  char* m_pName;
+  size_t m_NameSize;
+
   LDFileFormat::Kind m_Kind;
   uint32_t m_Type;
   uint32_t m_Flag;

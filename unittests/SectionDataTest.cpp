@@ -41,21 +41,22 @@ void SectionDataTest::TearDown()
 //===----------------------------------------------------------------------===//
  
 TEST_F( SectionDataTest, constructor_and_trivial_func ) {
-  LDSection test("test", LDFileFormat::Null, 0, 0);
+  LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
   
-  SectionData* s = new SectionData(test);
+  SectionData* s = new SectionData(*test);
   EXPECT_TRUE(s->getSection().name() == "test" && \
               s->getSection().kind() == LDFileFormat::Null);
   
   s->setAlignment(5566);
   EXPECT_TRUE(5566 == s->getAlignment());
 
+  LDSection::Destroy(test);
   delete s;
 }
 
 TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
-  LDSection test("test", LDFileFormat::Null, 0, 0);
-  SectionData* s = new SectionData(test);
+  LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
+  SectionData* s = new SectionData(*test);
   EXPECT_TRUE(s->empty());
 
   Fragment* f1 = new Fragment(Fragment::Alignment, s);
@@ -83,4 +84,5 @@ TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
   EXPECT_TRUE(iter == s->end());
 
   delete s;
+  LDSection::Destroy(test);
 }

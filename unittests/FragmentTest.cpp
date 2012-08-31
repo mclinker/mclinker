@@ -40,8 +40,8 @@ void FragmentTest::TearDown()
 // Testcases
  
 TEST_F( FragmentTest, Fragment_constructor ) {
-  LDSection test("test", LDFileFormat::Null, 0, 0);
-  SectionData* s = new SectionData(test);
+  LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
+  SectionData* s = new SectionData(*test);
   Fragment* f1 = new Fragment(Fragment::Alignment, s);
   EXPECT_TRUE(1 == s->size());
   Fragment* f2 = new Fragment(Fragment::Alignment, s);
@@ -51,12 +51,13 @@ TEST_F( FragmentTest, Fragment_constructor ) {
   Fragment* f6 = new Fragment(Fragment::Target, s);
   EXPECT_TRUE(6 == s->size());
 
+  LDSection::Destroy(test);
   delete s;
 }
 
 TEST_F( FragmentTest, Fragment_trivial_function ) {
-  LDSection test("test", LDFileFormat::Null, 0, 0);
-  SectionData* s = new SectionData(test);
+  LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
+  SectionData* s = new SectionData(*test);
   Fragment* f = new Fragment(Fragment::Alignment, s);
   
   EXPECT_TRUE(Fragment::Alignment == f->getKind());
@@ -73,6 +74,7 @@ TEST_F( FragmentTest, Fragment_trivial_function ) {
   //always return true
   EXPECT_TRUE(f->classof(new Fragment(Fragment::Region, s)) );
   
+  LDSection::Destroy(test);
   delete s;
 }
 

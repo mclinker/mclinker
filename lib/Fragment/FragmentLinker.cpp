@@ -22,7 +22,6 @@
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/FillFragment.h>
@@ -45,7 +44,6 @@ FragmentLinker::FragmentLinker(LinkerConfig& pConfig,
     m_Module(pModule),
     m_SectionMap(pSectionMap),
     m_LDSymbolFactory(128),
-    m_LDSectHdrFactory(10), // the average number of sections. (assuming 10.)
     m_LDSectDataFactory(10),
     m_pSectionMerger(NULL)
 {
@@ -489,8 +487,7 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
                                    uint32_t pFlag)
 {
   // for user such as reader, standard/target fromat
-  LDSection* result =
-    m_LDSectHdrFactory.produce(pName, pKind, pType, pFlag);
+  LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
 
   // check if we need to create a output section for output LDContext
   std::string sect_name = m_SectionMap.getOutputSectName(pName);
@@ -498,8 +495,7 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
-    output_sect =
-      m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    output_sect = LDSection::Create(sect_name, pKind, pType, pFlag);
     m_Module.getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);
   }
@@ -520,8 +516,7 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
 
   if (NULL == output_sect) {
   // create a output section and push it into output LDContext
-    output_sect =
-      m_LDSectHdrFactory.produce(sect_name, pKind, pType, pFlag);
+    output_sect = LDSection::Create(sect_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_Module.getSectionTable().push_back(output_sect);
     m_pSectionMerger->addMapping(pName, output_sect);

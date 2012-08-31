@@ -23,7 +23,6 @@
 #include <llvm/ADT/ilist.h>
 
 #include <mcld/LD/StaticResolver.h>
-#include <mcld/LD/LDSectionFactory.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/Relocation.h>
@@ -252,7 +251,6 @@ private:
   Module& m_Module;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
-  LDSectionFactory m_LDSectHdrFactory;
   LDSectionDataFactory m_LDSectDataFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;

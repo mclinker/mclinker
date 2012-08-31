@@ -278,8 +278,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
 	${INCDIR}/LD/ELFExecFileFormat.h \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
-	${INCDIR}/LD/LDSectionFactory.h \
-	${LIBDIR}/LD/LDSectionFactory.cpp \
 	${INCDIR}/LD/SectionMap.h \
 	${LIBDIR}/LD/SectionMap.cpp \
 	${INCDIR}/LD/SectionMerger.h \

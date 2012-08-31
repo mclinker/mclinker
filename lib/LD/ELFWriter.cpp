@@ -340,7 +340,7 @@ void ELFWriter::emitELF32ShStrTab(Module& pModule,
   unsigned char* data = region->start();
   shstrsize = 0;
   for (section = pModule.begin(); section != sectEnd; ++section) {
-    strcpy((char*)(data + shstrsize), (*section)->name().c_str());
+    strcpy((char*)(data + shstrsize), (*section)->name().data());
     shstrsize += (*section)->name().size() + 1;
   }
 
@@ -386,7 +386,7 @@ void ELFWriter::emitELF64ShStrTab(Module& pModule,
   unsigned char* data = region->start();
   shstrsize = 0;
   for (section = pModule.begin(); section != sectEnd; ++section) {
-    strcpy((char*)(data + shstrsize), (*section)->name().c_str());
+    strcpy((char*)(data + shstrsize), (*section)->name().data());
     shstrsize += (*section)->name().size() + 1;
   }
 
