@@ -44,7 +44,6 @@ FragmentLinker::FragmentLinker(LinkerConfig& pConfig,
     m_Module(pModule),
     m_SectionMap(pSectionMap),
     m_LDSymbolFactory(128),
-    m_LDSectDataFactory(10),
     m_pSectionMerger(NULL)
 {
 }
@@ -550,8 +549,7 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
   }
 
   // if the output LDSection also has no SectionData, then create one.
-  sect_data = m_LDSectDataFactory.allocate();
-  new (sect_data) SectionData(*output_sect);
+  sect_data = SectionData::Create(*output_sect);
   pSection.setSectionData(sect_data);
   output_sect->setSectionData(sect_data);
   m_Layout.addInputRange(*sect_data, pSection);

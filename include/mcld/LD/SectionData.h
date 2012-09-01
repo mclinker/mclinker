@@ -16,6 +16,8 @@
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
+#include <mcld/Config/Config.h>
+#include <mcld/Support/Allocators.h>
 #include <mcld/LD/Fragment.h>
 
 namespace mcld
@@ -29,6 +31,11 @@ class LDSection;
 class SectionData
 {
 private:
+  friend class Chunk<SectionData, MCLD_SECTIONS_PER_INPUT>;
+
+  SectionData();
+  explicit SectionData(const LDSection &pSection);
+
   SectionData(const SectionData &);            // DO NOT IMPLEMENT
   SectionData& operator=(const SectionData &); // DO NOT IMPLEMENT
 
@@ -45,7 +52,9 @@ public:
   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
 
 public:
-  explicit SectionData(const LDSection &pSection);
+  static SectionData* Create(const LDSection& pSection);
+
+  static void Destroy(SectionData*& pSection);
 
   const LDSection &getSection() const { return *m_pSection; }
 

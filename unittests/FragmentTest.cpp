@@ -41,7 +41,7 @@ void FragmentTest::TearDown()
  
 TEST_F( FragmentTest, Fragment_constructor ) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
-  SectionData* s = new SectionData(*test);
+  SectionData* s = SectionData::Create(*test);
   Fragment* f1 = new Fragment(Fragment::Alignment, s);
   EXPECT_TRUE(1 == s->size());
   Fragment* f2 = new Fragment(Fragment::Alignment, s);
@@ -52,12 +52,12 @@ TEST_F( FragmentTest, Fragment_constructor ) {
   EXPECT_TRUE(6 == s->size());
 
   LDSection::Destroy(test);
-  delete s;
+//  SectionData::Destroy(s);
 }
 
 TEST_F( FragmentTest, Fragment_trivial_function ) {
   LDSection* test = LDSection::Create("test", LDFileFormat::Null, 0, 0);
-  SectionData* s = new SectionData(*test);
+  SectionData* s = SectionData::Create(*test);
   Fragment* f = new Fragment(Fragment::Alignment, s);
   
   EXPECT_TRUE(Fragment::Alignment == f->getKind());
@@ -75,7 +75,7 @@ TEST_F( FragmentTest, Fragment_trivial_function ) {
   EXPECT_TRUE(f->classof(new Fragment(Fragment::Region, s)) );
   
   LDSection::Destroy(test);
-  delete s;
+//  SectionData::Destroy(s);
 }
 
 

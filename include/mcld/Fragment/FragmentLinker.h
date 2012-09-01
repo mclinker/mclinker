@@ -243,7 +243,6 @@ private:
                                 ResolveInfo::Visibility pVisibility);
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
-  typedef GCFactory<SectionData, 0> LDSectionDataFactory;
 
 private:
   LinkerConfig& m_Config;
@@ -251,7 +250,6 @@ private:
   Module& m_Module;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
-  LDSectionDataFactory m_LDSectDataFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
 };
