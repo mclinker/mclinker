@@ -6,15 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef LLVM_ALLOCATORS_H
-#define LLVM_ALLOCATORS_H
+#ifndef MCLD_SUPPORT_ALLOCATORS_H
+#define MCLD_SUPPORT_ALLOCATORS_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/ADT/TypeTraits.h"
-#include "mcld/LD/LDContext.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/TypeTraits.h>
+
 #include <cstddef>
 #include <cstdlib>
 

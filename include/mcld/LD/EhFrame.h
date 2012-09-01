@@ -23,6 +23,7 @@ namespace mcld
 
 class Input;
 class Layout;
+class LDSection;
 class SectionData;
 class TargetLDBackend;
 
