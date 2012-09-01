@@ -17,8 +17,7 @@
 #include <cstddef>
 #include <cstdlib>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class Chunk
  *  \brief Chunk is the basic unit of the storage of the LinearAllocator
@@ -36,6 +35,15 @@ public:
   { }
 
   static size_t size() { return ChunkSize; }
+
+  static void construct(value_type* pPtr)
+  { new (pPtr) value_type(); }
+
+  static void construct(value_type* pPtr, const value_type& pValue)
+  { new (pPtr) value_type(pValue); }
+
+  static void destroy(value_type* pPtr)
+  { }
 
 public:
   Chunk* next;
@@ -63,8 +71,18 @@ public:
       free(data);
   }
 
-  static size_t size()              { return m_Size; }
+  static size_t size() { return m_Size; }
+
   static void setSize(size_t pSize) { m_Size = pSize; }
+
+  static void construct(value_type* pPtr)
+  { new (pPtr) value_type(); }
+
+  static void construct(value_type* pPtr, const value_type& pValue)
+  { new (pPtr) value_type(pValue); }
+
+  static void destroy(value_type* pPtr)
+  { pPtr->~value_type(); }
 
 public:
   Chunk* next;
@@ -116,7 +134,7 @@ public:
   //  @param pPtr the address where the object to be constructed
   //  @param pValue the value to be constructed
   void construct(pointer pPtr, const_reference pValue)
-  { new (pPtr) value_type(pValue); }
+  { chunk_type::construct(pPtr, pValue); }
 
   /// default construct - constructing an object on the location pointed by
   //  pPtr, and using its default constructor to initialized its value to
@@ -124,12 +142,12 @@ public:
   //
   //  @param pPtr the address where the object to be constructed
   void construct(pointer pPtr)
-  { new (pPtr) value_type(); }
+  { chunk_type::construct(pPtr); }
 
   /// standard destroy - destroy data on arbitrary address
   //  @para pPtr the address where the data to be destruected.
   void destroy(pointer pPtr)
-  { pPtr->~value_type(); }
+  { chunk_type::destroy(pPtr); }
 
   /// allocate - allocate N data in order.
   //  - Disallow to allocate a chunk whose size is bigger than a chunk.
@@ -146,8 +164,8 @@ public:
     size_type rest_num_elem = chunk_type::size() - m_pCurrent->bound;
     pointer result = 0;
     if (N > rest_num_elem)
-      createChunk();
-    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+      getNewChunk();
+    result = m_pCurrent->data + m_pCurrent->bound;
     m_pCurrent->bound += N;
     return result;
   }
@@ -159,8 +177,8 @@ public:
 
     pointer result = 0;
     if (chunk_type::size() == m_pCurrent->bound)
-      createChunk();
-    result = const_cast<pointer>(&(m_pCurrent->data[m_pCurrent->bound]));
+      getNewChunk();
+    result = m_pCurrent->data + m_pCurrent->bound;
     ++m_pCurrent->bound;
     return result;
   }
@@ -216,13 +234,10 @@ public:
   void clear() {
     chunk_type *cur = m_pRoot, *prev;
     while (0 != cur) {
-      unsigned int idx=0;
       prev = cur;
       cur = cur->next;
-      while (idx != prev->bound) {
-        destroy(&prev->data[idx]);
-        ++idx;
-      }
+      for (unsigned int idx = 0; idx != prev->bound; ++idx)
+        destroy(prev->data + idx);
       delete prev;
     }
     reset();
@@ -243,7 +258,7 @@ protected:
     m_AllocatedNum += chunk_type::size();
   }
 
-  inline chunk_type *createChunk() {
+  inline chunk_type *getNewChunk() {
     chunk_type *result = new chunk_type();
     m_pCurrent->next = result;
     m_pCurrent = result;
