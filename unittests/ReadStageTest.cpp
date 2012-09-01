@@ -79,7 +79,7 @@ void ReadStageTest::dumpInput(const mcld::Input &pInput, mcld::FileHandle &pFile
   for (sect = pInput.context()->sectBegin(); sect != sectEnd; ++sect) {
     for (int i=0; i < (pIdent+1); ++i)
       sstream << " ";
-    sstream << "<section name=\"" << (*sect)->name().str() << "\"/>\n";
+    sstream << "<section name=\"" << (*sect)->name() << "\"/>\n";
   }
   for (int i=0; i < pIdent; ++i)
     sstream << " ";
@@ -101,7 +101,7 @@ void ReadStageTest::dumpOutput(const mcld::Module& pModule, mcld::FileHandle &pF
   for (sect = pModule.begin(); sect != sectEnd; ++sect) {
     for (int i=0; i < (pIdent+1); ++i)
       sstream << " ";
-    sstream << "<section name=\"" << (*sect)->name().str() << "\"/>\n";
+    sstream << "<section name=\"" << (*sect)->name() << "\"/>\n";
   }
   for (int i=0; i < pIdent; ++i)
     sstream << " ";

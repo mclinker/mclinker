@@ -57,7 +57,8 @@ public:
   static void Destroy(LDSection*& pSection);
 
   /// name - the name of this section.
-  llvm::StringRef name() const;
+  const std::string& name() const
+  { return m_Name; }
 
   /// kind - the kind of this section, such as Text, BSS, GOT, and so on.
   /// from LDFileFormat::Kind
@@ -170,8 +171,7 @@ public:
   { m_Index = pIndex; }
 
 private:
-  char* m_pName;
-  size_t m_NameSize;
+  std::string m_Name;
 
   LDFileFormat::Kind m_Kind;
   uint32_t m_Type;
