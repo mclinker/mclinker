@@ -114,6 +114,9 @@ public:
   /// finalizeTargetSymbols - set the value of target symbols
   virtual bool finalizeTargetSymbols(FragmentLinker& pLinker) = 0;
 
+  /// finalizeTLSSymbol - set the value of a TLS symbol
+  virtual bool finalizeTLSSymbol(FragmentLinker& pLinker, LDSymbol& pSymbol);
+
   size_t sectionStartOffset() const;
 
   /// The return value of machine() it the same as e_machine in the ELF header*/

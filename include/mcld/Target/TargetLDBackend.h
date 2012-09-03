@@ -127,9 +127,15 @@ public:
   /// @return false - if backend do not recognize the symbol
   virtual bool finalizeSymbols(FragmentLinker& pLinker) = 0;
 
+  /// finalizeTLSSymbol - Linker asks backend to set the symbol value when it
+  /// meets a TLS symbol
+  virtual bool finalizeTLSSymbol(FragmentLinker& pLinker,
+                                 LDSymbol& pSymbol) = 0;
+
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker) = 0;
+  virtual bool allocateCommonSymbols(Module& pModule,
+                                     FragmentLinker& pLinker) = 0;
 
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput,

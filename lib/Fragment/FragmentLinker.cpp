@@ -444,6 +444,11 @@ bool FragmentLinker::finalizeSymbols()
       continue;
     }
 
+    if ((*symbol)->resolveInfo()->type() == ResolveInfo::ThreadLocal) {
+      m_Backend.finalizeTLSSymbol(*this, **symbol);
+      continue;
+    }
+
     if ((*symbol)->hasFragRef()) {
       // set the virtual address of the symbol. If the output file is
       // relocatable object file, the section's virtual address becomes zero.

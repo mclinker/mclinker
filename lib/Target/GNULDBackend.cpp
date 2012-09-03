@@ -544,6 +544,19 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
   return true;
 }
 
+bool GNULDBackend::finalizeTLSSymbol(FragmentLinker& pLinker,
+                                     LDSymbol& pSymbol)
+{
+  // the value of a TLS symbol is the offset to the TLS segment
+  ELFSegment* tls_seg = m_ELFSegmentTable.find(llvm::ELF::PT_TLS,
+                                               llvm::ELF::PF_R, 0x0);
+  uint64_t value = pLinker.getLayout().getOutputOffset(*pSymbol.fragRef());
+  uint64_t addr  =
+    pLinker.getLayout().getOutputLDSection(*pSymbol.fragRef()->frag())->addr();
+  pSymbol.setValue(value + addr - tls_seg->vaddr());
+  return true;
+}
+
 ELFFileFormat* GNULDBackend::getOutputFormat()
 {
   switch (config().codeGenType()) {
