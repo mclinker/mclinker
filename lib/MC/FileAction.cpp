@@ -17,9 +17,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ContextAction
 //===----------------------------------------------------------------------===//
-ContextAction::ContextAction(ContextFactory& pFactory,
-                             unsigned int pPosition)
-  : InputAction(pPosition), m_Factory(pFactory) {
+ContextAction::ContextAction(unsigned int pPosition)
+  : InputAction(pPosition) {
 }
 
 bool ContextAction::activate(InputBuilder& pBuilder) const
@@ -36,20 +35,16 @@ bool ContextAction::activate(InputBuilder& pBuilder) const
       input->type() == Input::Archive)
     return false;
 
-  LDContext *context = m_Factory.produce(input->path());
-  input->setContext(context);
-  return true;
+  return pBuilder.setContext(*input);
 }
 
 //===----------------------------------------------------------------------===//
 // MemoryAreaAction 
 //===----------------------------------------------------------------------===//
-MemoryAreaAction::MemoryAreaAction(MemoryAreaFactory& pFactory,
-                                   FileHandle::OpenMode pMode,
+MemoryAreaAction::MemoryAreaAction(FileHandle::OpenMode pMode,
                                    FileHandle::Permission pPerm,
                                    unsigned int pPosition)
-  : InputAction(pPosition),
-    m_Factory(pFactory), m_Mode(pMode), m_Permission(pPerm) {
+  : InputAction(pPosition), m_Mode(pMode), m_Permission(pPerm) {
 }
 
 bool MemoryAreaAction::activate(InputBuilder& pBuilder) const
@@ -66,12 +61,6 @@ bool MemoryAreaAction::activate(InputBuilder& pBuilder) const
       input->type() == Input::Archive)
     return false;
 
-  MemoryArea *memory = m_Factory.produce(input->path(), m_Mode, m_Permission);
-
-  if (!memory->handler()->isGood())
-    return false;
-
-  input->setMemArea(memory);
-  return true;
+  return pBuilder.setMemory(*input, m_Mode, m_Permission);
 }
 

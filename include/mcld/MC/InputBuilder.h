@@ -18,22 +18,36 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
+#include <mcld/Support/FileHandle.h>
 
 namespace mcld {
 
+class MemoryAreaFactory;
+class ContextFactory;
+
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.
+ *
+ *  InputBuilder build input tree and inputs.
  */
 class InputBuilder
 {
 public:
-  InputBuilder(InputTree& pTree,
-               AttributeFactory& pAttributes);
+  InputBuilder(InputFactory& pInputFactory,
+               AttributeFactory& pAttributes,
+               MemoryAreaFactory& pMemFactory,
+               ContextFactory& pContextFactory);
 
   template<InputTree::Direction DIRECTION>
   InputTree& createNode(const std::string& pName,
                         const sys::fs::Path& pPath,
                         unsigned int pType = Input::Unknown);
+
+  bool setContext(Input& pInput);
+
+  bool setMemory(Input& pInput,
+                 FileHandle::OpenMode pMode,
+                 FileHandle::Permission pPerm);
 
   InputTree& enterGroup();
 
@@ -42,34 +56,31 @@ public:
   bool isInGroup() const;
 
   // -----  accessors  ----- //
-  InputTree& getTree()
-  { return m_InputTree; }
+  const InputTree& getCurrentTree() const;
+  InputTree&       getCurrentTree();
 
-  const InputTree& getTree() const
-  { return m_InputTree; }
+  /// createTree - create a new input tree and reset current node to the root
+  /// of the new input tree.
+  InputTree* createTree();
 
-  InputTree::iterator& getCurrentNode()
-  { return m_Root; }
+  void setCurrentTree(InputTree& pInputTree);
 
-  const InputTree::iterator& getCurrentNode() const
-  { return m_Root; }
+  const InputTree::iterator& getCurrentNode() const { return m_Root; }
+  InputTree::iterator&       getCurrentNode()       { return m_Root; }
 
-  AttrConstraint& getConstraint()
-  { return m_Attributes.constraint(); }
+  const AttrConstraint& getConstraint() const { return m_Attributes.constraint(); }
+  AttrConstraint&       getConstraint()       { return m_Attributes.constraint(); }
 
-  const AttrConstraint& getConstraint() const
-  { return m_Attributes.constraint(); }
-
-  AttributeProxy& getAttributes()
-  { return m_Attributes.last(); }
-
-  const AttributeProxy& getAttributes() const
-  { return m_Attributes.last(); }
+  const AttributeProxy& getAttributes() const { return m_Attributes.last(); }
+  AttributeProxy&       getAttributes()       { return m_Attributes.last(); }
 
 private:
-  InputTree& m_InputTree;
+  InputFactory& m_InputFactory;
   AttributeFactory& m_Attributes;
+  MemoryAreaFactory& m_MemFactory;
+  ContextFactory& m_ContextFactory;
 
+  InputTree* m_pCurrentTree;
   InputTree::Mover* m_pMove;
   InputTree::iterator m_Root;
   std::stack<InputTree::iterator> m_ReturnStack;
@@ -84,11 +95,13 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)
 {
-  m_InputTree.insert(m_Root, *m_pMove, pName, pPath, pType);
+  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+
+  m_pCurrentTree->insert(m_Root, *m_pMove, pName, pPath, pType);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Downward;
 
-  return m_InputTree;
+  return *m_pCurrentTree;
 }
 
 template<> inline InputTree&
@@ -96,11 +109,13 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
                                                const sys::fs::Path& pPath,
                                                unsigned int pType)
 {
-  m_InputTree.insert(m_Root, *m_pMove, pName, pPath, pType);
+  assert(NULL != m_pCurrentTree && NULL != m_pMove);
+
+  m_pCurrentTree->insert(m_Root, *m_pMove, pName, pPath, pType);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Afterward;
 
-  return m_InputTree;
+  return *m_pCurrentTree;
 }
 
 } // end of namespace mcld

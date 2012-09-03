@@ -23,11 +23,14 @@ using namespace mcld::test;
 
 // Constructor can do set-up work for all test here.
 InputTreeTest::InputTreeTest()
-{
+  : m_MemFactory(10), m_ContextFactory(4) {
+
   // create testee. modify it if need
   m_pAttr   = new mcld::AttributeFactory(2);
   m_pAlloc  = new mcld::InputFactory(10, *m_pAttr);
-  m_pTestee = new InputTree(*m_pAlloc);
+  m_pBuilder = new mcld::InputBuilder(*m_pAlloc, *m_pAttr,
+                                      m_MemFactory, m_ContextFactory);
+  m_pTestee = m_pBuilder->createTree();
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
@@ -36,6 +39,7 @@ InputTreeTest::~InputTreeTest()
   delete m_pTestee;
   delete m_pAlloc;
   delete m_pAttr;
+  delete m_pBuilder;
 }
 
 // SetUp() will be called immediately before each test.
@@ -60,10 +64,9 @@ TEST_F( InputTreeTest, Basic_operation ) {
   actions.push_back(new InputFileAction(position++, "path1"));
   actions.push_back(new EndGroupAction(position++));
 
-  InputBuilder builder(*m_pTestee, *m_pAttr);
   std::vector<InputAction*>::iterator action;
   for (action = actions.begin(); action != actions.end(); ++action) {
-    (*action)->activate(builder);
+    (*action)->activate(*m_pBuilder);
     delete *action;
   }
   

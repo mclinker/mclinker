@@ -6,15 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef INPUTTREE_TEST_H
-#define INPUTTREE_TEST_H
+#ifndef UNITTESTS_INPUTTREE_TEST_H
+#define UNITTESTS_INPUTTREE_TEST_H
 
 #include <gtest.h>
+#include <mcld/MC/ContextFactory.h>
+#include <mcld/Support/MemoryAreaFactory.h>
 
 namespace mcld {
 
 class InputTree;
 class InputFactory;
+class InputBuilder;
 class AttributeFactory;
 
 namespace test {
@@ -42,6 +45,10 @@ public:
 protected:
   mcld::AttributeFactory *m_pAttr;
   mcld::InputFactory *m_pAlloc;
+  mcld::InputBuilder* m_pBuilder;
+  mcld::MemoryAreaFactory m_MemFactory;
+  mcld::ContextFactory m_ContextFactory;
+
   mcld::InputTree* m_pTestee;
 };
 
