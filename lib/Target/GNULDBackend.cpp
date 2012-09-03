@@ -1436,6 +1436,15 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     ELFSegment* eh_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_EH_FRAME);
     eh_seg->addSection(&file_format->getEhFrameHdr());
   }
+
+  // make PT_TLS
+  if (file_format->hasTData() || file_format->hasTBSS()) {
+    ELFSegment* tls_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_TLS);
+    if (file_format->hasTData())
+      tls_seg->addSection(&file_format->getTData());
+    if (file_format->hasTBSS())
+      tls_seg->addSection(&file_format->getTBSS());
+  }
 }
 
 /// setupProgramHdrs - set up the attributes of segments
