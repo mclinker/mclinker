@@ -6,23 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_INPUT_TREE_H
-#define MCLD_INPUT_TREE_H
+#ifndef MCLD_MC_INPUT_TREE_H
+#define MCLD_MC_INPUT_TREE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/BinTree.h"
-#include "mcld/ADT/TypeTraits.h"
-#include "mcld/MC/MCLDInput.h"
-#include "mcld/MC/InputFactory.h"
-#include "mcld/Support/FileSystem.h"
+#include <mcld/ADT/BinTree.h>
+#include <mcld/ADT/TypeTraits.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/InputFactory.h>
+#include <mcld/Support/FileSystem.h>
 
 #include <string>
 
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class template<typename Traits, typename Iterator> PolicyIterator<mcld::Input>
  *  \brief PolicyIterator<mcld::Input> is a partially specific PolicyIterator
