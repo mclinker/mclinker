@@ -21,11 +21,12 @@
 #include <vector>
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
+
 class InputTree;
 class Input;
 class InputFactory;
+class InputBuilder;
 class AttributeFactory;
 class ContextFactory;
 class MemoryAreaFactory;
@@ -130,11 +131,7 @@ public:
   typedef std::vector<Symbol*> SymTabType;
 
 public:
-  Archive(Input& pInputFile,
-          InputFactory& pInputFactory,
-          AttributeFactory& pAttrFactory,
-          ContextFactory& pCntxtFactory,
-          MemoryAreaFactory& pAreaFactory);
+  Archive(Input& pInputFile, InputBuilder& pBuilder);
 
   ~Archive();
 
@@ -242,7 +239,7 @@ public:
   /// @param pFileOffset  - the file offset of the member file in a regular AR
   Input* getMemberFile(Input& pArchiveFile,
                        bool isThinAR,
-                       llvm::StringRef pName,
+                       const std::string& pName,
                        const sys::fs::Path& pPath,
                        off_t pFileOffset = 0);
 
@@ -258,11 +255,7 @@ private:
   SymTabType m_SymTab;
   size_t m_SymTabSize;
   std::string m_StrTab;
-  // outside factories
-  InputFactory& m_InputFactory;
-  AttributeFactory& m_AttrFactory;
-  ContextFactory& m_CntxtFactory;
-  MemoryAreaFactory& m_AreaFactory;
+  InputBuilder& m_Builder;
 };
 
 } // namespace of mcld

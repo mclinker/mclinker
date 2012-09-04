@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/Archive.h>
-#include <mcld/MC/InputFactory.h>
+#include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/MC/ContextFactory.h>
@@ -27,19 +27,13 @@ const char   Archive::STRTAB_NAME[]      = "//              ";
 const char   Archive::PAD[]              = "\n";
 const char   Archive::MEMBER_MAGIC[]     = "`\n";
 
-Archive::Archive(Input& pInputFile,
-                 InputFactory& pInputFactory,
-                 AttributeFactory& pAttrFactory,
-                 ContextFactory& pCntxtFactory,
-                 MemoryAreaFactory& pAreaFactory)
+Archive::Archive(Input& pInputFile, InputBuilder& pBuilder)
  : m_ArchiveFile(pInputFile),
    m_pInputTree(NULL),
    m_SymbolFactory(32),
-   m_InputFactory(pInputFactory),
-   m_AttrFactory(pAttrFactory),
-   m_CntxtFactory(pCntxtFactory),
-   m_AreaFactory(pAreaFactory)
+   m_Builder(pBuilder)
 {
+  // FIXME: move creation of input tree out of Archive.
   m_pInputTree = new InputTree();
 }
 
@@ -255,32 +249,25 @@ bool Archive::hasStrTable() const
 /// FIXME: maybe we should not construct input file here
 Input* Archive::getMemberFile(Input& pArchiveFile,
                               bool isThinAR,
-                              llvm::StringRef pName,
+                              const std::string& pName,
                               const sys::fs::Path& pPath,
                               off_t pFileOffset)
 {
   Input* member = NULL;
   if (!isThinAR) {
-    member = m_InputFactory.produce(pName, pPath, Input::Unknown, pFileOffset);
+    member = m_Builder.createInput(pName, pPath, Input::Unknown, pFileOffset);
     assert(member != NULL);
     member->setMemArea(pArchiveFile.memArea());
-    LDContext *input_context = m_CntxtFactory.produce();
-    member->setContext(input_context);
+    m_Builder.setContext(*member);
   }
   else {
-    member = m_InputFactory.produce(pName, pPath, Input::Unknown);
+    member = m_Builder.createInput(pName, pPath, Input::Unknown);
     assert(member != NULL);
-    MemoryArea* input_memory =
-      m_AreaFactory.produce(member->path(), FileHandle::ReadOnly);
-    if (input_memory->handler()->isGood()) {
-      member->setMemArea(input_memory);
-    }
-    else {
+    if (!m_Builder.setMemory(*member, FileHandle::ReadOnly)) {
       error(diag::err_cannot_open_input) << member->name() << member->path();
       return NULL;
     }
-    LDContext *input_context = m_CntxtFactory.produce(pPath);
-    member->setContext(input_context);
+    m_Builder.setContext(*member);
   }
   return member;
 }
