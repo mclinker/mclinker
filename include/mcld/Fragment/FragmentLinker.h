@@ -181,7 +181,14 @@ public:
   const LinkerConfig& getLDInfo() const
   { return m_Config; }
 
-private:
+  // ----- output attribute ----- //
+  /// isOutputPIC - return whether the output is position-independent
+  bool isOutputPIC() const;
+
+  /// isStaticLink - return whether we're doing static link
+  bool isStaticLink() const;
+
+ private:
   LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
                                    bool pIsDyn,
                                    ResolveInfo::Type pType,

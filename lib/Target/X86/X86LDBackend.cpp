@@ -267,7 +267,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC()) {
+      if (pLinker.isOutputPIC()) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker);
@@ -305,7 +305,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_32:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(*rsym)) {
+      if (symbolNeedsPLT(pLinker, *rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
@@ -325,13 +325,14 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
+      if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
+                                                                       true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
@@ -391,7 +392,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
-      if (LinkerConfig::DynObj == config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
+      if (LinkerConfig::DynObj ==
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker);
@@ -406,7 +408,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_PC32:
 
-      if (symbolNeedsPLT(*rsym) && LinkerConfig::DynObj != config().codeGenType()) {
+      if (symbolNeedsPLT(pLinker, *rsym) &&
+                               LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it dosen't exist
@@ -426,13 +429,14 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
+      if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
+                                                                      false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym )) {
+        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }

@@ -73,10 +73,10 @@ size_t GNULDBackend::sectionStartOffset() const
   return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
 }
 
-uint64_t GNULDBackend::segmentStartAddr() const
+uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
 {
   // TODO: handle the user option: -TText=
-  if (isOutputPIC())
+  if (pLinker.isOutputPIC())
     return 0x0;
   else
     return defaultTextSegmentAddr();
@@ -1339,7 +1339,8 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
 
 
 /// createProgramHdrs - base on output sections to create the program headers
-void GNULDBackend::createProgramHdrs(Module& pModule)
+void GNULDBackend::createProgramHdrs(Module& pModule,
+                                     const FragmentLinker& pLinker)
 {
   ELFFileFormat *file_format = getOutputFormat();
 
@@ -1416,7 +1417,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       load_seg->updateFlag(cur_seg_flag);
 
     if (LDFileFormat::Null != (*sect)->kind())
-      (*sect)->setAddr(segmentStartAddr() +
+      (*sect)->setAddr(segmentStartAddr(pLinker) +
                        (*sect)->offset() +
                        padding);
 
@@ -1461,7 +1462,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 }
 
 /// setupProgramHdrs - set up the attributes of segments
-void GNULDBackend::setupProgramHdrs()
+void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
 {
   // update segment info
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
@@ -1480,7 +1481,7 @@ void GNULDBackend::setupProgramHdrs()
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(segmentStartAddr() + offset);
+      segment.setVaddr(segmentStartAddr(pLinker) + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1495,7 +1496,7 @@ void GNULDBackend::setupProgramHdrs()
     segment.setOffset(segment.getFirstSection()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.getFirstSection()->kind())
-      segment.setVaddr(segmentStartAddr());
+      segment.setVaddr(segmentStartAddr(pLinker));
     else
       segment.setVaddr(segment.getFirstSection()->addr());
     segment.setPaddr(segment.vaddr());
@@ -1596,7 +1597,7 @@ void GNULDBackend::postLayout(Module& pModule,
   // 1. emit program headers
   if (LinkerConfig::Object != config().codeGenType()) {
     // 1.1 create program headers
-    createProgramHdrs(pModule);
+    createProgramHdrs(pModule, pLinker);
   }
 
   // 1.2 create special GNU Stack note section or segment
@@ -1604,7 +1605,7 @@ void GNULDBackend::postLayout(Module& pModule,
 
   if (LinkerConfig::Object != config().codeGenType()) {
     // 1.3 set up the attributes of program headers
-    setupProgramHdrs();
+    setupProgramHdrs(pLinker);
   }
 
   // 2. target specific post layout
@@ -1687,28 +1688,6 @@ uint64_t GNULDBackend::abiPageSize() const
     return static_cast<uint64_t>(0x1000);
 }
 
-/// isOutputPIC - return whether the output is position-independent
-bool GNULDBackend::isOutputPIC() const
-{
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      config().options().isPIE())
-    return true;
-  return false;
-}
-
-/// isStaticLink - return whether we're doing static link
-bool GNULDBackend::isStaticLink() const
-{
-  if (isOutputPIC())
-    return false;
-
-  InputTree::const_iterator it = config().inputs().begin();
-  if ((*it)->attribute()->isStatic())
-    return true;
-
-  return false;
-}
-
 /// isSymbolPreemtible - whether the symbol can be preemted by other
 /// link unit
 /// @ref Google gold linker, symtab.h:551
@@ -1728,7 +1707,8 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
 
 /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
 /// @ref Google gold linker, symtab.h:645
-bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
+bool GNULDBackend::symbolNeedsDynRel(const FragmentLinker& pLinker,
+                                     const ResolveInfo& pSym,
                                      bool pSymHasPLT,
                                      bool isAbsReloc) const
 {
@@ -1741,11 +1721,11 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
 
   if (pSym.isAbsolute())
     return false;
-  if (isOutputPIC() && isAbsReloc)
+  if (pLinker.isOutputPIC() && isAbsReloc)
     return true;
   if (pSymHasPLT && ResolveInfo::Function == pSym.type())
     return false;
-  if (!isOutputPIC() && pSymHasPLT)
+  if (!pLinker.isOutputPIC() && pSymHasPLT)
     return false;
   if (pSym.isDyn() || pSym.isUndef() ||
       isSymbolPreemptible(pSym))
@@ -1756,7 +1736,8 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
 
 /// symbolNeedsPLT - return whether the symbol needs a PLT entry
 /// @ref Google gold linker, symtab.h:596
-bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
+bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
+                                  const ResolveInfo& pSym) const
 {
   if (pSym.isUndef() &&
       !pSym.isDyn() &&
@@ -1770,7 +1751,7 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
   if (pSym.type() != ResolveInfo::Function)
     return false;
 
-  if (isStaticLink() || config().options().isPIE())
+  if (pLinker.isStaticLink() || config().options().isPIE())
     return false;
 
   return (pSym.isDyn() ||
@@ -1779,13 +1760,13 @@ bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
 }
 
 /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-bool GNULDBackend::symbolNeedsCopyReloc(const Layout& pLayout,
+bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
                                         const Relocation& pReloc,
                                         const ResolveInfo& pSym) const
 {
   // only the reference from dynamic executable to non-function symbol in
   // the dynamic objects may need copy relocation
-  if (isOutputPIC() ||
+  if (pLinker.isOutputPIC() ||
       !pSym.isDyn() ||
       pSym.type() == ResolveInfo::Function ||
       pSym.size() == 0)
@@ -1797,7 +1778,7 @@ bool GNULDBackend::symbolNeedsCopyReloc(const Layout& pLayout,
 
   // TODO: Is this check necessary?
   // if relocation target place is readonly, a copy relocation is needed
-  if ((pLayout.getOutputLDSection(*pReloc.targetRef().frag())->flag() &
+  if ((pLinker.getLayout().getOutputLDSection(*pReloc.targetRef().frag())->flag() &
       llvm::ELF::SHF_WRITE) == 0)
     return true;
 

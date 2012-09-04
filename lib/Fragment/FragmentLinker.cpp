@@ -662,3 +662,25 @@ void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
   pOutput.clear();
 }
 
+/// isOutputPIC - return whether the output is position-independent
+bool FragmentLinker::isOutputPIC() const
+{
+  if (LinkerConfig::DynObj == m_Config.codeGenType() ||
+      m_Config.options().isPIE())
+    return true;
+  return false;
+}
+
+/// isStaticLink - return whether we're doing static link
+bool FragmentLinker::isStaticLink() const
+{
+  if (isOutputPIC())
+    return false;
+
+  InputTree::const_iterator it = m_Config.inputs().begin();
+  if ((*it)->attribute()->isStatic())
+    return true;
+
+  return false;
+}
+

@@ -199,7 +199,8 @@ private:
                        const LDSymbol& pInputSym,
                        FragmentLinker& pLinker);
 
-  void checkValidReloc(Relocation& pReloc) const;
+  void checkValidReloc(Relocation& pReloc,
+                       const FragmentLinker& pLinker) const;
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section

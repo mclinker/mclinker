@@ -758,7 +758,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (symbolNeedsDynRel(*rsym, false, true)) {
+      if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
         if (NULL == m_pRelDyn)
           createRelDyn(pLinker);
 

@@ -241,7 +241,10 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                 *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), true);
+                              pParent.getFragmentLinker(),
+                              *rsym,
+                              (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                              true);
 
   const LDSection* target_sect =
                     pParent.getFragmentLinker().getLayout().getOutputLDSection(
@@ -314,7 +317,10 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
        pReloc.target() = S + A - P;
     }
     if (pParent.getTarget().symbolNeedsDynRel(
-          *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), false)) {
+                              pParent.getFragmentLinker(),
+                              *rsym,
+                              (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                              false)) {
       if (helper_use_relative_reloc(*rsym, pParent) ) {
         helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
       }

@@ -302,10 +302,11 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
 /// checkValidReloc - When we attempt to generate a dynamic relocation for
 /// ouput file, check if the relocation is supported by dynamic linker.
-void ARMGNULDBackend::checkValidReloc(Relocation& pReloc) const
+void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
+                                      const FragmentLinker& pLinker) const
 {
-  // If not building a PIC object, no relocation type is invalid
-  if (!isOutputPIC())
+  // If not PIC object, no relocation type is invalid
+  if (!pLinker.isOutputPIC())
     return;
 
   switch(pReloc.type()) {
@@ -359,7 +360,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC()) {
+      if (pLinker.isOutputPIC()) {
         //create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker);
@@ -380,7 +381,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // PIC code should not contain these kinds of relocation
-      if (isOutputPIC()) {
+      if (pLinker.isOutputPIC()) {
         error(diag::non_pic_relocation) << (int)pReloc.type()
                                         << pReloc.symInfo()->name();
       }
@@ -411,7 +412,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if (isOutputPIC()) {
+      if (pLinker.isOutputPIC()) {
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker);
@@ -476,7 +477,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(*rsym)) {
+      if (symbolNeedsPLT(pLinker, *rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Create .got section if it doesn't exist
@@ -496,18 +497,19 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
+      if (symbolNeedsDynRel(
+                      pLinker, *rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc);
+          checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
         }
@@ -575,18 +577,19 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
-      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
+      if (symbolNeedsDynRel(
+                     pLinker, *rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         // create .rel.dyn section if not exist
         if (NULL == m_pRelDyn)
           createARMRelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
-        if (symbolNeedsCopyReloc(pLinker.getLayout(), pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc);
+          checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
         }

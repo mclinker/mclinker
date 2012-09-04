@@ -151,7 +151,7 @@ public:
   { return 0x0; }
 
   /// segmentStartAddr - this function returns the start address of the segment
-  uint64_t segmentStartAddr() const;
+  uint64_t segmentStartAddr(const FragmentLinker& pLinker) const;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
@@ -243,7 +243,8 @@ public:
 
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
   /// @ref Google gold linker, symtab.h:645
-  bool symbolNeedsDynRel(const ResolveInfo& pSym,
+  bool symbolNeedsDynRel(const FragmentLinker& pLinker,
+                         const ResolveInfo& pSym,
                          bool pSymHasPLT,
                          bool isAbsReloc) const;
 
@@ -272,18 +273,13 @@ protected:
   /// @ref Google gold linker: symtab.cc:311
   bool isDynamicSymbol(const LDSymbol& pSymbol);
 
-  /// isOutputPIC - return whether the output is position-independent
-  bool isOutputPIC() const;
-
-  /// isStaticLink - return whether we're doing static link
-  bool isStaticLink() const;
-
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
-  bool symbolNeedsPLT(const ResolveInfo& pSym) const;
+  bool symbolNeedsPLT(const FragmentLinker& pLinker,
+                      const ResolveInfo& pSym) const;
 
   /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-  bool symbolNeedsCopyReloc(const Layout& pLayout,
+  bool symbolNeedsCopyReloc(const FragmentLinker& pLinker,
                             const Relocation& pReloc,
                             const ResolveInfo& pSym) const;
 
@@ -311,11 +307,11 @@ protected:
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers
-  void createProgramHdrs(Module& pModule);
+  void createProgramHdrs(Module& pModule, const FragmentLinker& pLinker);
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
-  void setupProgramHdrs();
+  void setupProgramHdrs(const FragmentLinker& pLinker);
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
