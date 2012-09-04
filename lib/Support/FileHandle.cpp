@@ -9,9 +9,30 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/FileSystem.h>
 #include <errno.h>
-#include <fcntl.h>
+
+#if defined(HAVE_UNISTD_H)
+# include <unistd.h>
+#endif
+#if defined(HAVE_FCNTL_H)
+# include <fcntl.h>
+#endif
+
 #include <sys/stat.h>
 #include <sys/mman.h>
+
+#if defined(_MSC_VER)
+#include <io.h>
+#include <fcntl.h>
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+#endif
 
 using namespace mcld;
 

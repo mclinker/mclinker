@@ -53,8 +53,7 @@ public:
 
   llvm::raw_ostream &resetColor();
 
-  // FIXME: migrate to newer LLVM
-  // llvm::raw_ostream &reverseColor();
+  llvm::raw_ostream &reverseColor();
 
   bool is_displayed() const;
 

@@ -77,6 +77,14 @@ AC_ARG_ENABLE(unittest,
 AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 
 ####################
+# Check for header files
+AC_CHECK_HEADERS([dlfcn.h fcntl.h])
+AC_CHECK_HEADERS([malloc.h setjmp.h signal.h stdint.h termios.h unistd.h])
+AC_CHECK_HEADERS([utime.h windows.h])
+AC_CHECK_HEADERS([sys/mman.h sys/param.h sys/resource.h sys/time.h sys/uio.h])
+AC_CHECK_HEADERS([sys/types.h sys/ioctl.h malloc/malloc.h mach/mach.h])
+
+####################
 # Configure LLVM
 CHECK_LLVM([3.0])
 ENUM_LLVM_TARGETS

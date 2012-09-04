@@ -8,14 +8,32 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/raw_ostream.h>
 
+#if defined(HAVE_UNISTD_H)
+# include <unistd.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+#endif
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // raw_ostream
+//===----------------------------------------------------------------------===//
 mcld::raw_fd_ostream::raw_fd_ostream(const char *pFilename,
-                               std::string &pErrorInfo,
-                               unsigned int pFlags,
-                               const LinkerConfig* pConfig)
+                                     std::string &pErrorInfo,
+                                     unsigned int pFlags,
+                                     const LinkerConfig* pConfig)
   : llvm::raw_fd_ostream(pFilename, pErrorInfo, pFlags), m_pConfig(pConfig) {
 }
 
@@ -52,15 +70,12 @@ llvm::raw_ostream& mcld::raw_fd_ostream::resetColor()
   return llvm::raw_fd_ostream::resetColor();
 }
 
-// FIXME: migrate to newer LLVM
-/**
 llvm::raw_ostream& mcld::raw_fd_ostream::reverseColor()
 {
   if (!is_displayed())
     return *this;
   return llvm::raw_ostream::reverseColor();
 }
-**/
 
 bool mcld::raw_fd_ostream::is_displayed() const
 {

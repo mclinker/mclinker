@@ -43,6 +43,24 @@
 #include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
 
+#if defined(HAVE_UNISTD_H)
+# include <unistd.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+#endif
+
+
 using namespace llvm;
 
 #ifdef ENABLE_UNITTEST
