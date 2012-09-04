@@ -10,7 +10,6 @@
 #include <mcld/Config/Config.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
-#include <mcld/MC/ContextFactory.h>
 #include <mcld/Support/FileSystem.h>
 #include <string>
 
@@ -29,7 +28,6 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
     m_CodeGenType(Unknown)
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
-  m_pCntxtFactory = new ContextFactory(pInputNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
   m_pInputTree = new InputTree();
 }
@@ -37,7 +35,6 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
 LinkerConfig::~LinkerConfig()
 {
   delete m_pAttrFactory;
-  delete m_pCntxtFactory;
   delete m_pInputFactory;
   delete m_pInputTree;
 }

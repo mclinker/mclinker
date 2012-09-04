@@ -12,6 +12,7 @@
 
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -21,6 +22,7 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/MC/ContextFactory.h>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
@@ -32,7 +34,7 @@ using namespace mcld::test;
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pObjLinker(NULL), m_pConfig(NULL), m_pDiagLineInfo(NULL),
     m_pDiagPrinter(NULL), m_pBackend(NULL),
-    m_pMemAreaFactory(NULL), m_pOutput(NULL) {
+    m_pMemAreaFactory(NULL), m_pBuilder(NULL), m_pOutput(NULL) {
 }
 
 TestLinker::~TestLinker()
@@ -51,6 +53,7 @@ TestLinker::~TestLinker()
   delete m_pDiagPrinter;
   delete m_pBackend;
   delete m_pMemAreaFactory;
+  delete m_pBuilder;
   delete m_pOutput;
 }
 
@@ -100,8 +103,14 @@ bool TestLinker::initialize(const std::string &pTriple)
   }
 
   m_pMemAreaFactory = new MemoryAreaFactory(32);
+  m_pContextFactory = new ContextFactory(32);
 
-  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, m_Module, *m_pMemAreaFactory);
+  m_pBuilder = new mcld::InputBuilder(m_pConfig->inputFactory(),
+                                      m_pConfig->attrFactory(),
+                                      *m_pMemAreaFactory,
+                                      *m_pContextFactory);
+
+  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, m_Module, *m_pBuilder);
   m_pObjLinker->initFragmentLinker();
 
   is_initialized = true;
@@ -154,8 +163,7 @@ void TestLinker::addObject(const std::string &pPath)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pConfig->contextFactory().produce(pPath);
-  input->setContext(context);
+  m_pBuilder->setContext(*input);
 }
 
 void TestLinker::addObject(void* pMemBuffer, size_t pSize)
@@ -172,7 +180,7 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pConfig->contextFactory().produce();
+  mcld::LDContext* context = m_pContextFactory->produce();
   input->setContext(context);
 }
 
@@ -193,7 +201,7 @@ void TestLinker::addObject(int pFileHandler)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pConfig->contextFactory().produce();
+  mcld::LDContext* context = m_pContextFactory->produce();
   input->setContext(context);
 }
 
@@ -248,8 +256,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);
 
-  mcld::LDContext* context = m_pConfig->contextFactory().produce(*path);
-  input->setContext(context);
+  m_pBuilder->setContext(*input);
 }
 
 bool TestLinker::setOutput(const std::string &pPath)

@@ -28,6 +28,9 @@ class FileHandle;
 class LinkerConfig;
 class TargetLDBackend;
 class RegionFactory;
+class MemoryAreaFactory;
+class ContextFactory;
+class InputBuilder;
 
 namespace test {
 
@@ -121,6 +124,9 @@ private:
   mcld::TargetLDBackend* m_pBackend;
   mcld::InputTree::iterator m_Root;
   mcld::MemoryAreaFactory* m_pMemAreaFactory;
+  mcld::ContextFactory* m_pContextFactory;
+
+  mcld::InputBuilder* m_pBuilder;
 
   std::list<mcld::FileHandle*> m_FileHandleList;
   std::list<mcld::MemoryArea*> m_MemAreaList;

@@ -33,12 +33,12 @@ using namespace mcld;
 ObjectLinker::ObjectLinker(LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend,
                            Module& pModule,
-                           MemoryAreaFactory& pAreaFactory)
+                           InputBuilder& pBuilder)
   : m_Config(pConfig),
     m_LDBackend(pLDBackend),
     m_Module(pModule),
     m_pLinker(NULL),
-    m_AreaFactory(pAreaFactory) {
+    m_Builder(pBuilder) {
 
 }
 
@@ -51,7 +51,7 @@ ObjectLinker::~ObjectLinker()
 ///  Connect all components with FragmentLinker
 bool ObjectLinker::initFragmentLinker()
 {
-  if (0 == m_pLinker)
+  if (NULL == m_pLinker)
     m_pLinker = new FragmentLinker(m_Config,
                                    m_LDBackend,
                                    m_Module,
@@ -125,12 +125,6 @@ bool ObjectLinker::initStdSections()
 void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //
-  // TODO: move builder to MCLinker
-  InputBuilder builder(m_Config.inputFactory(),
-                       m_Config.attrFactory(),
-                       m_AreaFactory,
-                       m_Config.contextFactory());
-
   InputTree::iterator input, inEnd = m_Config.inputs().end();
   for (input = m_Config.inputs().begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode or external OIR (object
@@ -160,7 +154,7 @@ void ObjectLinker::normalize()
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, builder);
+      Archive archive(**input, m_Builder);
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_Config.inputs().merge<InputTree::Inclusive>(input, archive.inputs());

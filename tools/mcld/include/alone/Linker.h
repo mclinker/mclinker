@@ -18,9 +18,11 @@ class Module;
 class TargetLDBackend;
 class ObjectLinker;
 class MemoryFactory;
+class ContextFactory;
 class LinkerConfig;
 class TreeIteratorBase;
 class Input;
+class InputBuilder;
 class MemoryArea;
 
 namespace sys { namespace fs {
@@ -62,6 +64,8 @@ private:
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
   MemoryFactory *mMemAreaFactory;
+  mcld::ContextFactory *mContextFactory;
+  mcld::InputBuilder *mBuilder;
   mcld::LinkerConfig *mLDConfig;
   mcld::TreeIteratorBase *mRoot;
   std::string mSOName;

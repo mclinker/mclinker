@@ -20,6 +20,8 @@
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputFactory.h>
+#include <mcld/MC/ContextFactory.h>
+#include <mcld/MC/InputBuilder.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/TargetLDBackend.h>
@@ -75,12 +77,14 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 //===----------------------------------------------------------------------===//
 Linker::Linker()
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
+    mContextFactory(NULL), mBuilder(NULL), mLDConfig(NULL), mRoot(NULL),
+    mOutput(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
   : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
+    mContextFactory(NULL), mBuilder(NULL), mLDConfig(NULL), mRoot(NULL),
+    mOutput(NULL) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -102,6 +106,8 @@ Linker::~Linker() {
   // RelocationFactory in TargetLDBackend
   delete mBackend;
   delete mMemAreaFactory;
+  delete mContextFactory;
+  delete mBuilder;
   delete mRoot;
 }
 
@@ -130,9 +136,17 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mMemAreaFactory = new MemoryFactory();
 
+  mContextFactory = new mcld::ContextFactory(32);
+    /* 32 is a magic number, the estimated number of input files **/
+
   mModule = new mcld::Module(mLDConfig->options().soname());
 
-  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mModule, *mMemAreaFactory);
+  mBuilder = new mcld::InputBuilder(mLDConfig->inputFactory(),
+                                    mLDConfig->attrFactory(),
+                                    *mMemAreaFactory,
+                                    *mContextFactory);
+
+  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mModule, *mBuilder);
 
   mObjLinker->initFragmentLinker();
 
@@ -160,8 +174,7 @@ enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
     return pCode;
   }
 
-  mcld::LDContext *input_context = mLDConfig->contextFactory().produce(pPath);
-  pInput.setContext(input_context);
+  mBuilder->setContext(pInput);
   return kSuccess;
 }
 
@@ -230,7 +243,7 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
   input->setMemArea(input_memory);
 
-  mcld::LDContext *input_context = mLDConfig->contextFactory().produce();
+  mcld::LDContext *input_context = mContextFactory->produce();
   input->setContext(input_context);
 
   return kSuccess;
@@ -248,7 +261,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   mcld::MemoryArea *input_memory = mMemAreaFactory->produce(pMemory, pSize);
   input->setMemArea(input_memory);
 
-  mcld::LDContext *input_context = mLDConfig->contextFactory().produce();
+  mcld::LDContext *input_context = mContextFactory->produce();
   input->setContext(input_context);
 
   // FIXME: So far, FragmentLinker must set up output before add input files.

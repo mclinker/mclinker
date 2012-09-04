@@ -12,9 +12,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/CodeGen/MCLinker.h>
 
+#include <mcld/Config/Config.h>
 #include <mcld/Module.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/Support/FileSystem.h>
@@ -56,8 +58,9 @@ MCLinker::MCLinker(SectLinkerOption &pOption,
     m_Module(pModule),
     m_Output(pOutput),
     m_pObjLinker(NULL),
-    m_MemAreaFactory(32)
-{
+    m_MemAreaFactory(MCLD_NUM_OF_INPUTS),
+    m_ContextFactory(MCLD_NUM_OF_INPUTS),
+    m_pBuilder(NULL) {
 }
 
 MCLinker::~MCLinker()
@@ -75,22 +78,30 @@ MCLinker::~MCLinker()
   // objects it used during the processing, we destroy the object of
   // TargetLDBackend here.
   delete m_pLDBackend;
+
+  delete m_pBuilder;
 }
 
 bool MCLinker::doInitialization(llvm::Module &pM)
 {
   LinkerConfig &config = m_pOption->config();
 
+  m_pBuilder = new InputBuilder(config.inputFactory(),
+                                config.attrFactory(),
+                                m_MemAreaFactory,
+                                m_ContextFactory);
+
   // ----- convert position dependent options into tree of input files  ----- //
   PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
   std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
   initializeInputTree(PosDepOpts);
   initializeInputOutput(config);
+
   // Now, all input arguments are prepared well, send it into ObjectLinker
   m_pObjLinker = new ObjectLinker(config,
                                   *m_pLDBackend,
                                   m_Module,
-                                  *memAreaFactory());
+                                  *m_pBuilder);
 
   return false;
 }
@@ -200,21 +211,12 @@ void MCLinker::initializeInputOutput(LinkerConfig &pConfig)
         (*input)->type() == Input::Archive)
       continue;
 
-    MemoryArea *input_memory =
-        memAreaFactory()->produce((*input)->path(), FileHandle::ReadOnly);
-
-    if (input_memory->handler()->isGood()) {
-      (*input)->setMemArea(input_memory);
-    }
-    else {
+    if (!m_pBuilder->setMemory(**input, FileHandle::ReadOnly)) {
       error(diag::err_cannot_open_input) << (*input)->name() << (*input)->path();
       return;
     }
 
-    LDContext *input_context =
-        pConfig.contextFactory().produce((*input)->path());
-
-    (*input)->setContext(input_context);
+    m_pBuilder->setContext(**input);
   }
 }
 

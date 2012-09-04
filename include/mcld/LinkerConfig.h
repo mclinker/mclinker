@@ -20,7 +20,6 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
-#include <mcld/MC/ContextFactory.h>
 
 #include <string>
 #include <cassert>
@@ -36,7 +35,6 @@ namespace mcld {
  *   output()         - the output file
  *   inputFactory()   - the list of all inputs
  *   attrFactory()    - the list of all attributes
- *   contextFactory() - the list of all contexts.
  *   memAreaFactory() - the list of all MemoryAreas.
  */
 class LinkerConfig
@@ -87,12 +85,6 @@ public:
   const AttributeFactory& attrFactory() const
   { return *m_pAttrFactory; }
 
-  ContextFactory& contextFactory()
-  { return *m_pCntxtFactory; }
-
-  const ContextFactory& contextFactory() const
-  { return *m_pCntxtFactory; }
-
   const llvm::Triple& triple() const
   { return m_Triple; }
 
@@ -103,14 +95,15 @@ private:
   GeneralOptions m_Options;
   ScriptOptions m_Scripts;
   BitcodeOption m_Bitcode;
-  InputTree *m_pInputTree;
   llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
+
+  // -----  input tree  ----- //
+  InputTree *m_pInputTree;
 
   // -----  factories  ----- //
   InputFactory *m_pInputFactory;
   AttributeFactory *m_pAttrFactory;
-  ContextFactory *m_pCntxtFactory;
 };
 
 } // namespace of mcld

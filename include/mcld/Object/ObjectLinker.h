@@ -11,9 +11,8 @@
 // parameters for FragmentLinker.
 //
 //===----------------------------------------------------------------------===//
-
-#ifndef MCLD_LDDRIVER_H
-#define MCLD_LDDRIVER_H
+#ifndef MCLD_OBJECT_OBJECT_LINKER_H
+#define MCLD_OBJECT_OBJECT_LINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -23,8 +22,9 @@
 namespace mcld {
 
 class Module;
-class FragmentLinker;
 class LinkerConfig;
+class InputBuilder;
+class FragmentLinker;
 class TargetLDBackend;
 class MemoryArea;
 class MemoryAreaFactory;
@@ -44,7 +44,7 @@ public:
   ObjectLinker(LinkerConfig& pConfig,
                TargetLDBackend& pLDBackend,
                Module& pModule,
-               MemoryAreaFactory& pAreaFactory);
+               InputBuilder& pBuilder);
 
   ~ObjectLinker();
 
@@ -148,7 +148,8 @@ private:
   Module& m_Module;
   FragmentLinker* m_pLinker;
   SectionMap m_SectionMap;
-  MemoryAreaFactory &m_AreaFactory;
+
+  InputBuilder& m_Builder;
 
   // -----  readers and writers  ----- //
   ObjectReader* m_pObjectReader;

@@ -19,6 +19,7 @@
 #include <llvm/CodeGen/MachineFunctionPass.h>
 #include <mcld/Support/PositionDependentOption.h>
 #include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/MC/ContextFactory.h>
 #include <vector>
 
 namespace llvm {
@@ -32,6 +33,7 @@ namespace mcld {
 
 class Module;
 class MemoryArea;
+class InputBuilder;
 class LinkerConfig;
 class MCLDFile;
 class ObjectLinker;
@@ -88,9 +90,6 @@ protected:
 
   void initializeInputOutput(LinkerConfig& pLDInfo);
 
-  MemoryAreaFactory* memAreaFactory()
-  { return &m_MemAreaFactory; }
-
 private:
   SectLinkerOption *m_pOption;
 
@@ -99,7 +98,11 @@ protected:
   mcld::Module& m_Module;
   MemoryArea& m_Output;
   ObjectLinker* m_pObjLinker;
+
   MemoryAreaFactory m_MemAreaFactory;
+  ContextFactory m_ContextFactory;
+
+  InputBuilder* m_pBuilder;
 
 private:
   static char m_ID;
