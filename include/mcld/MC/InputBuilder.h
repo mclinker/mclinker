@@ -44,11 +44,16 @@ public:
                         const sys::fs::Path& pPath,
                         unsigned int pType = Input::Unknown);
 
+  Input* createInput(const std::string& pName,
+                     const sys::fs::Path& pPath,
+                     unsigned int pType = Input::Unknown,
+                     off_t pFileOffset = 0);
+
   bool setContext(Input& pInput);
 
   bool setMemory(Input& pInput,
                  FileHandle::OpenMode pMode,
-                 FileHandle::Permission pPerm);
+		 FileHandle::Permission pPerm = FileHandle::System);
 
   InputTree& enterGroup();
 
@@ -98,7 +103,7 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
 {
   assert(NULL != m_pCurrentTree && NULL != m_pMove);
 
-  Input* input = m_InputFactory.produce(pName, pPath, pType);
+  Input* input = createInput(pName, pPath, pType);
   m_pCurrentTree->insert(m_Root, *m_pMove, *input);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Downward;
@@ -113,7 +118,7 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
 {
   assert(NULL != m_pCurrentTree && NULL != m_pMove);
 
-  Input* input = m_InputFactory.produce(pName, pPath, pType);
+  Input* input = createInput(pName, pPath, pType);
   m_pCurrentTree->insert(m_Root, *m_pMove, *input);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Afterward;

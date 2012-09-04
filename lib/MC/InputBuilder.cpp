@@ -30,6 +30,14 @@ InputTree* InputBuilder::createTree()
   return m_pCurrentTree;
 }
 
+Input* InputBuilder::createInput(const std::string& pName,
+                                 const sys::fs::Path& pPath,
+                                 unsigned int pType,
+                                 off_t pFileOffset)
+{
+  return m_InputFactory.produce(pName, pPath, pType, pFileOffset);
+}
+
 InputTree& InputBuilder::enterGroup()
 {
   assert(NULL != m_pCurrentTree && NULL != m_pMove);
