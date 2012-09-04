@@ -9,9 +9,10 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/Layout.h>
-#include <mcld/Target/OutputRelocSection.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 #include "MipsRelocationFactory.h"
 #include "MipsRelocationFunctions.h"
@@ -140,7 +141,8 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
 {
   bool exist;
   GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
-  return pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
+  return pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -
+                                                                        0x7FF0;
 }
 
 static
@@ -210,8 +212,9 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
+  const LDSection* target_sect =
+                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
+                                                 *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
@@ -247,7 +250,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
   pParent.setAHL(AHL);
 
   if (helper_isGpDisp(pReloc)) {
-    int32_t P = pReloc.place(pParent.getLayout());
+    int32_t P = pReloc.place(pParent.getFragmentLinker().getLayout());
     int32_t GP = helper_GetGP(pParent);
     res = ((AHL + GP - P) - (int16_t)(AHL + GP - P)) >> 16;
   }
@@ -272,7 +275,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
   int32_t res = 0;
 
   if (helper_isGpDisp(pReloc)) {
-    int32_t P = pReloc.place(pParent.getLayout());
+    int32_t P = pReloc.place(pParent.getFragmentLinker().getLayout());
     int32_t GP = helper_GetGP(pParent);
     int32_t AHL = pParent.getAHL();
     res = AHL + GP - P + 4;
@@ -316,7 +319,8 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
     GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
     got_entry.setContent(res);
-    G = pParent.getLayout().getOutputOffset(got_entry) - 0x7FF0;
+    G = pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -
+                                                                        0x7FF0;
   }
   else {
     G = helper_GetGOTOffset(pReloc, pParent);

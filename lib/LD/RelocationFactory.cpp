@@ -24,7 +24,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 RelocationFactory::RelocationFactory(size_t pNum)
   : GCFactory<Relocation, 0>(pNum),
-    m_pLayout(NULL) {
+    m_pLinker(NULL) {
 }
 
 RelocationFactory::~RelocationFactory()
@@ -83,14 +83,24 @@ void RelocationFactory::destroy(Relocation* pRelocation)
    /** GCFactory will recycle the relocation **/
 }
 
-void RelocationFactory::setLayout(const Layout& pLayout)
+void RelocationFactory::setFragmentLinker(const FragmentLinker& pLinker)
 {
-  m_pLayout = &pLayout;
+  m_pLinker = &pLinker;
 }
 
-const Layout& RelocationFactory::getLayout() const
+const FragmentLinker& RelocationFactory::getFragmentLinker() const
 {
-  assert(0 != m_pLayout);
-  return *m_pLayout;
+  assert(NULL != m_pLinker);
+  return *m_pLinker;
+}
+
+bool RelocationFactory::hasFragmentLinker()
+{
+  return (NULL != m_pLinker);
+}
+
+bool RelocationFactory::hasFragmentLinker() const
+{
+  return (NULL != m_pLinker);
 }
 

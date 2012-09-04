@@ -19,6 +19,7 @@ namespace mcld {
 class LDSymbol;
 class ResolveInfo;
 class FragmentRef;
+class FragmentLinker;
 class Layout;
 class GOT;
 class TargetLDBackend;
@@ -67,10 +68,14 @@ public:
 
   void destroy(Relocation* pRelocation);
 
-  void setLayout(const Layout& pLayout);
+  void setFragmentLinker(const FragmentLinker& pLinker);
 
   // ------ observers -----//
-  const Layout& getLayout() const;
+  const FragmentLinker& getFragmentLinker() const;
+
+  bool hasFragmentLinker();
+
+  bool hasFragmentLinker() const;
 
   virtual TargetLDBackend& getTarget() = 0;
 
@@ -79,7 +84,7 @@ public:
   virtual const char* getName(Type pType) const = 0;
 
 private:
-  const Layout* m_pLayout;
+  const FragmentLinker* m_pLinker;
 
 };
 

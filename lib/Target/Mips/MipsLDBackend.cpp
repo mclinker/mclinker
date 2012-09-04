@@ -107,7 +107,7 @@ bool MipsGNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocFactory) {
     m_pRelocFactory = new MipsRelocationFactory(1024, *this);
-    m_pRelocFactory->setLayout(pLinker.getLayout());
+    m_pRelocFactory->setFragmentLinker(pLinker);
   }
   return true;
 }

@@ -10,6 +10,7 @@
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
+#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/Support/MsgHandling.h>
@@ -146,7 +147,8 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
   GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86RelocationFactory::Address got_addr =
     pParent.getTarget().getGOT().getSection().addr();
-  return got_addr + pParent.getLayout().getOutputOffset(got_entry);
+  return got_addr +
+            pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
 }
 
 
@@ -193,7 +195,8 @@ X86RelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
   PLTEntry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) + pParent.getLayout().getOutputOffset(plt_entry);
+  return helper_PLT_ORG(pParent) +
+            pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
 }
 
 // Get an relocation entry in .rel.dyn and set its type to pType,
@@ -238,9 +241,10 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                       *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), true);
+                 *rsym, (rsym->reserved() & X86GNULDBackend::ReservePLT), true);
 
-  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+  const LDSection* target_sect =
+                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
@@ -289,9 +293,11 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
-  RelocationFactory::DWord P = pReloc.place(pParent.getLayout());
+  RelocationFactory::DWord P =
+                         pReloc.place(pParent.getFragmentLinker().getLayout());
 
-  const LDSection* target_sect = pParent.getLayout().getOutputLDSection(
+  const LDSection* target_sect =
+                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
@@ -328,7 +334,7 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
 X86RelocationFactory::Result gotoff32(Relocation& pReloc,
                                       X86RelocationFactory& pParent)
 {
-  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord      A = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   X86RelocationFactory::Address S = pReloc.symValue();
 
@@ -340,10 +346,11 @@ X86RelocationFactory::Result gotoff32(Relocation& pReloc,
 X86RelocationFactory::Result gotpc32(Relocation& pReloc,
                                      X86RelocationFactory& pParent)
 {
-  RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord      A       = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
-  pReloc.target() = GOT_ORG + A - pReloc.place(pParent.getLayout());
+  pReloc.target() = GOT_ORG + A -
+                         pReloc.place(pParent.getFragmentLinker().getLayout());
   return X86RelocationFactory::OK;
 }
 
@@ -356,7 +363,7 @@ X86RelocationFactory::Result got32(Relocation& pReloc,
     return X86RelocationFactory::BadReloc;
   }
   X86RelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
-  RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
+  RelocationFactory::DWord      A       = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + A - GOT_ORG;
@@ -373,8 +380,9 @@ X86RelocationFactory::Result plt32(Relocation& pReloc,
     PLT_S = helper_PLT(pReloc, pParent);
   else
     PLT_S = pReloc.symValue();
-  RelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
-  X86RelocationFactory::Address P = pReloc.place(pParent.getLayout());
+  RelocationFactory::DWord      A = pReloc.target() + pReloc.addend();
+  X86RelocationFactory::Address P =
+                         pReloc.place(pParent.getFragmentLinker().getLayout());
   pReloc.target() = PLT_S + A - P;
   return X86RelocationFactory::OK;
 }
