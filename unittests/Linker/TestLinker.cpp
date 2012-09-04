@@ -12,6 +12,7 @@
 
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/MC/MCLDDirectory.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Support/Space.h>

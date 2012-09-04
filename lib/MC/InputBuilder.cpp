@@ -24,7 +24,7 @@ InputBuilder::InputBuilder(InputFactory& pInputFactory,
 
 InputTree* InputBuilder::createTree()
 {
-  m_pCurrentTree = new InputTree(m_InputFactory);
+  m_pCurrentTree = new InputTree();
   m_Root = m_pCurrentTree->root();
   m_pMove = &InputTree::Downward;
   return m_pCurrentTree;

@@ -19,6 +19,7 @@
 #include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/TargetLDBackend.h>

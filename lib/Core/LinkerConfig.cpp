@@ -31,7 +31,7 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pCntxtFactory = new ContextFactory(pInputNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
-  m_pInputTree = new InputTree(*m_pInputFactory);
+  m_pInputTree = new InputTree();
 }
 
 LinkerConfig::~LinkerConfig()

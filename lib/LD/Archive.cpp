@@ -40,7 +40,7 @@ Archive::Archive(Input& pInputFile,
    m_CntxtFactory(pCntxtFactory),
    m_AreaFactory(pAreaFactory)
 {
-  m_pInputTree = new InputTree(pInputFactory);
+  m_pInputTree = new InputTree();
 }
 
 Archive::~Archive()

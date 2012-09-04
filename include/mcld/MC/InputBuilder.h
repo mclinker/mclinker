@@ -17,6 +17,7 @@
 
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeFactory.h>
 #include <mcld/Support/FileHandle.h>
 
@@ -97,7 +98,8 @@ InputBuilder::createNode<InputTree::Inclusive>(const std::string& pName,
 {
   assert(NULL != m_pCurrentTree && NULL != m_pMove);
 
-  m_pCurrentTree->insert(m_Root, *m_pMove, pName, pPath, pType);
+  Input* input = m_InputFactory.produce(pName, pPath, pType);
+  m_pCurrentTree->insert(m_Root, *m_pMove, *input);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Downward;
 
@@ -111,7 +113,8 @@ InputBuilder::createNode<InputTree::Positional>(const std::string& pName,
 {
   assert(NULL != m_pCurrentTree && NULL != m_pMove);
 
-  m_pCurrentTree->insert(m_Root, *m_pMove, pName, pPath, pType);
+  Input* input = m_InputFactory.produce(pName, pPath, pType);
+  m_pCurrentTree->insert(m_Root, *m_pMove, *input);
   m_pMove->move(m_Root);
   m_pMove = &InputTree::Afterward;
 

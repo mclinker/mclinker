@@ -15,8 +15,7 @@
 #include <mcld/ADT/BinTree.h>
 #include <mcld/ADT/TypeTraits.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 
 #include <string>
 
@@ -138,26 +137,13 @@ public:
 
   using BinTreeTy::merge;
 
-  InputTree(InputFactory& pInputFactory);
-  ~InputTree();
-
   // -----  modify  ----- //
-  /// insert - create a leaf node and merge it in the tree.
-  //  This version of join determines the direction at run time.
-  //  @param pRoot  position the parent node
-  //  @param pMover the direction of the connecting edge of the parent node.
-  template<size_t DIRECT>
-  InputTree& insert(TreeIteratorBase pRoot,
-                    const std::string& pNamespec,
-                    const sys::fs::Path& pPath,
-                    unsigned int pType = Input::Unknown);
-
   template<size_t DIRECT>
   InputTree& enterGroup(TreeIteratorBase pRoot);
 
   template<size_t DIRECT>
   InputTree& insert(TreeIteratorBase pRoot,
-                    const Input& pInput);
+                    Input& pInput);
 
   InputTree& merge(TreeIteratorBase pRoot,
                    const Mover& pMover,
@@ -165,26 +151,10 @@ public:
 
   InputTree& insert(TreeIteratorBase pRoot,
                     const Mover& pMover,
-                    const std::string& pNamespec,
-                    const sys::fs::Path& pPath,
-                    unsigned int pType = Input::Unknown);
-
-  InputTree& insert(TreeIteratorBase pRoot,
-                    const Mover& pMover,
-                    const Input& pInput);
+                    Input& pInput);
 
   InputTree& enterGroup(TreeIteratorBase pRoot,
                         const Mover& pMover);
-
-  // -----  observers  ----- //
-  unsigned int numOfInputs() const
-  { return m_FileFactory.size(); }
-
-  bool hasInput() const
-  { return !m_FileFactory.empty(); }
-
-private:
-  InputFactory& m_FileFactory;
 
 };
 
@@ -199,24 +169,7 @@ bool isGroup(const InputTree::const_bfs_iterator& pos);
 
 //===----------------------------------------------------------------------===//
 // template member functions
-template<size_t DIRECT>
-mcld::InputTree&
-mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
-                        const std::string& pNamespec,
-                        const mcld::sys::fs::Path& pPath,
-                        unsigned int pType)
-{
-  BinTreeTy::node_type* node = createNode();
-  node->data = m_FileFactory.produce(pNamespec, pPath, pType);
-  if (pRoot.isRoot())
-    proxy::hook<TreeIteratorBase::Leftward>(pRoot.m_pNode,
-        const_cast<const node_type*>(node));
-  else
-    proxy::hook<DIRECT>(pRoot.m_pNode,
-        const_cast<const node_type*>(node));
-  return *this;
-}
-
+//===----------------------------------------------------------------------===//
 template<size_t DIRECT>
 mcld::InputTree&
 mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
@@ -233,10 +186,10 @@ mcld::InputTree::enterGroup(mcld::TreeIteratorBase pRoot)
 
 template<size_t DIRECT>
 mcld::InputTree& mcld::InputTree::insert(mcld::TreeIteratorBase pRoot,
-	                                 const mcld::Input& pInput)
+	                                 mcld::Input& pInput)
 {
   BinTreeTy::node_type* node = createNode();
-  node->data = const_cast<mcld::Input*>(&pInput);
+  node->data = &pInput;
   if (pRoot.isRoot())
     proxy::hook<TreeIteratorBase::Leftward>(pRoot.m_pNode,
                                          const_cast<const node_type*>(node));

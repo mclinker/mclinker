@@ -15,6 +15,7 @@
 #include <mcld/Module.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MsgHandling.h>
@@ -260,10 +261,12 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
             static_cast<const BitCodeOption*>(*option);
 
         // threat bitcode as an external IR in this version.
-        config.inputs().insert(root, *move,
-                             bitcode_option->path()->native(),
-                             *(bitcode_option->path()),
-                             Input::External);
+        Input* input = config.inputFactory().produce(
+                                              bitcode_option->path()->native(),
+                                              *(bitcode_option->path()),
+                                              Input::External);
+
+        config.inputs().insert(root, *move, *input);
 
         config.bitcode().setPath(*bitcode_option->path());
         config.bitcode().setPosition(bitcode_option->position());
@@ -281,9 +284,11 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
         const InputFileOption *input_file_option =
             static_cast<const InputFileOption*>(*option);
 
-        config.inputs().insert(root, *move,
-                             input_file_option->path()->native(),
-                             *(input_file_option->path()));
+        Input* input = config.inputFactory().produce(
+                                           input_file_option->path()->native(),
+                                           *(input_file_option->path()));
+
+        config.inputs().insert(root, *move, *input);
 
         // move root on the new created node.
         move->move(root);
@@ -326,9 +331,9 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       if (NULL == path)
         fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
 
-      config.inputs().insert(root, *move,
-                           namespec_option->namespec(),
-                           *path);
+      Input* input = config.inputFactory().produce(namespec_option->namespec(),
+                                                   *path);
+      config.inputs().insert(root, *move, *input);
 
       // iterate root on the new created node.
       move->move(root);
