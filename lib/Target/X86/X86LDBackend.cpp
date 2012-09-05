@@ -185,7 +185,7 @@ void X86GNULDBackend::createX86RelDyn(FragmentLinker& pLinker)
 
 void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
 {
-  Relocation& rel_entry = *m_pRelDyn->consumeEntry(pSym);
+  Relocation& rel_entry = *m_pRelDyn->consumeEntry();
   rel_entry.setType(llvm::ELF::R_386_COPY);
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());

@@ -45,7 +45,7 @@ void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
   }
 }
 
-Relocation* OutputRelocSection::consumeEntry(const ResolveInfo& pSymbol)
+Relocation* OutputRelocSection::consumeEntry()
 {
   // first time visit this function, set m_ValidEntryIterator to
   // Fragments.begin()

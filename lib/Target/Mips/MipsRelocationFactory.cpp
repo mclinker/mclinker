@@ -171,7 +171,7 @@ void helper_DynRel(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
 
-  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry(*rsym);
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
 
   rel_entry.setType(llvm::ELF::R_MIPS_REL32);
   rel_entry.targetRef() = pReloc.targetRef();

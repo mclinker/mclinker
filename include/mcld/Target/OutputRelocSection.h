@@ -18,7 +18,6 @@ namespace mcld
 {
 
 class Relocation;
-class ResolveInfo;
 class RelocationFactory;
 
 /** \class OutputRelocSection
@@ -35,7 +34,7 @@ public:
 
   void reserveEntry(RelocationFactory& pRelFactory, size_t pNum=1);
 
-  Relocation* consumeEntry(const ResolveInfo& pSymbol);
+  Relocation* consumeEntry();
 
 private:
   typedef SectionData::iterator FragmentIterator;
