@@ -17,8 +17,7 @@
 #include <mcld/GeneralOptions.h>
 #include <mcld/ScriptOptions.h>
 #include <mcld/BitcodeOption.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/MC/AttributeFactory.h>
+#include <mcld/Support/Path.h>
 
 #include <string>
 #include <cassert>
@@ -32,7 +31,6 @@ namespace mcld {
  *   bitcode()        - the bitcode being linked
  *   output()         - the output file
  *   inputFactory()   - the list of all inputs
- *   attrFactory()    - the list of all attributes
  *   memAreaFactory() - the list of all MemoryAreas.
  */
 class LinkerConfig

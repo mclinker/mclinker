@@ -9,7 +9,7 @@
 #include <mcld/LD/GNUArchiveReader.h>
 
 #include <mcld/Module.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/LD/ResolveInfo.h>

@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputFactory.h>
-#include <mcld/MC/AttributeFactory.h>
+#include <mcld/MC/AttributeSet.h>
 
 using namespace mcld;
 

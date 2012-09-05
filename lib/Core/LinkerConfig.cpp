@@ -9,7 +9,6 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Config/Config.h>
 #include <mcld/MC/InputFactory.h>
-#include <mcld/MC/AttributeFactory.h>
 #include <mcld/Support/FileSystem.h>
 #include <string>
 

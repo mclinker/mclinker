@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/LD/LDContext.h>
 
 using namespace mcld;

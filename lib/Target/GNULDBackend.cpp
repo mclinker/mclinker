@@ -20,6 +20,7 @@
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>

@@ -176,10 +176,10 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/SearchDirs.cpp \
 	${INCDIR}/MC/MCLDDirectory.h \
 	${LIBDIR}/MC/MCLDDirectory.cpp \
-	${INCDIR}/MC/MCLDAttribute.h \
-	${LIBDIR}/MC/MCLDAttribute.cpp \
-	${INCDIR}/MC/AttributeFactory.h \
-	${LIBDIR}/MC/AttributeFactory.cpp \
+	${INCDIR}/MC/Attribute.h \
+	${LIBDIR}/MC/Attribute.cpp \
+	${INCDIR}/MC/AttributeSet.h \
+	${LIBDIR}/MC/AttributeSet.cpp \
 	${INCDIR}/MC/InputTree.h \
 	${LIBDIR}/MC/InputTree.cpp \
 	${INCDIR}/MC/ZOption.h \

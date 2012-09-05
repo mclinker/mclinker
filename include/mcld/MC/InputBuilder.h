@@ -18,7 +18,6 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputFactory.h>
-#include <mcld/MC/AttributeFactory.h>
 #include <mcld/Support/FileHandle.h>
 
 namespace mcld {

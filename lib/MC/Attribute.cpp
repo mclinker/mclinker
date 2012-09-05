@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/MCLDAttribute.h>
-#include <mcld/MC/AttributeFactory.h>
+#include <mcld/MC/Attribute.h>
+#include <mcld/MC/AttributeSet.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;

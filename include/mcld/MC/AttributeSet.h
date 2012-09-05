@@ -1,4 +1,4 @@
-//===- AttributeFactory.h -------------------------------------------------===//
+//===- AttributeSet.h -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,13 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_ATTRIBUTE_FACTORY_H
-#define MCLD_ATTRIBUTE_FACTORY_H
+#ifndef MCLD_ATTRIBUTE_SET_H
+#define MCLD_ATTRIBUTE_SET_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/Attribute.h>
 
 namespace mcld {
 

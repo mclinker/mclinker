@@ -13,8 +13,8 @@
 #endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/AttributeFactory.h>
-#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/AttributeSet.h>
+#include <mcld/MC/Attribute.h>
 
 namespace mcld {
 
