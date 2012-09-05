@@ -686,13 +686,8 @@ bool FragmentLinker::checkIsOutputPIC() const
 
 bool FragmentLinker::checkIsStaticLink() const
 {
-  if (isOutputPIC())
-    return false;
-
-  InputTree::const_iterator it = m_Config.inputs().begin();
-  if ((*it)->attribute()->isStatic())
+  if (m_Module.getLibraryList().empty())
     return true;
-
   return false;
 }
 

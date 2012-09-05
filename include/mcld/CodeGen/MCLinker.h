@@ -88,7 +88,7 @@ public:
 protected:
   void initializeInputTree(const PositionDependentOptions &pOptions) const;
 
-  void initializeInputOutput(LinkerConfig& pLDInfo);
+  void initializeInputOutput();
 
 private:
   SectLinkerOption *m_pOption;

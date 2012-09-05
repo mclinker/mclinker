@@ -1751,7 +1751,10 @@ bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
   if (pSym.type() != ResolveInfo::Function)
     return false;
 
-  if (pLinker.isStaticLink() || config().options().isPIE())
+  if (pLinker.isStaticLink() && !pLinker.isOutputPIC())
+    return false;
+
+  if (config().options().isPIE())
     return false;
 
   return (pSym.isDyn() ||

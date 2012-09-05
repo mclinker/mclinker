@@ -29,14 +29,12 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString,
 {
   m_pAttrFactory = new AttributeFactory(pAttrNum);
   m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
-  m_pInputTree = new InputTree();
 }
 
 LinkerConfig::~LinkerConfig()
 {
   delete m_pAttrFactory;
   delete m_pInputFactory;
-  delete m_pInputTree;
 }
 
 void LinkerConfig::setBitcode(const sys::fs::Path& pPath, unsigned int pPosition)

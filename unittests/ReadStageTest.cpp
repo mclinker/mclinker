@@ -138,8 +138,8 @@ TEST_F(ReadStageTest, quake) {
   file.open(top_level + "unittests/read_stage.xml",
      FileHandle::ReadWrite | FileHandle::Create | FileHandle::Truncate, 0644);
 
-  InputTree::iterator input, inEnd = m_pLinker->config()->inputs().end();
-  for (input = m_pLinker->config()->inputs().begin(); input != inEnd; ++input) {
+  Module::input_iterator input, inEnd = m_pLinker->module()->input_end();
+  for (input = m_pLinker->module()->input_begin(); input != inEnd; ++input) {
     dumpInput(**input, file, 1);
   }
 

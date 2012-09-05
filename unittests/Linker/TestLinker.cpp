@@ -74,7 +74,7 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   // create mcld::LinkerConfig
   m_pConfig = new LinkerConfig(pTriple, 1, 32);
-  m_Root = m_pConfig->inputs().root();
+  m_Root = m_Module.getInputTree().root();
 
   // specify mcld::Target
   std::string error;
@@ -147,7 +147,7 @@ void TestLinker::addObject(const std::string &pPath)
   mcld::Input* input = m_pConfig->inputFactory().produce(pPath, pPath,
                                                        mcld::Input::Unknown);
 
-  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -171,7 +171,7 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
   mcld::Input* input = m_pConfig->inputFactory().produce("memory object", "NAN",
                                                        mcld::Input::Unknown);
 
-  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -189,7 +189,7 @@ void TestLinker::addObject(int pFileHandler)
   mcld::Input* input = m_pConfig->inputFactory().produce("handler object", "NAN",
                                                        mcld::Input::Unknown);
 
-  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 
@@ -240,7 +240,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
   mcld::Input* input = m_pConfig->inputFactory().produce(pNameSpec, *path,
                                                          mcld::Input::Unknown);
 
-  m_pConfig->inputs().insert<mcld::InputTree::Positional>(m_Root, *input);
+  m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
   advanceRoot();
 

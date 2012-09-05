@@ -116,9 +116,6 @@ enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
   if (mLDConfig == NULL) {
     return kDelegateLDInfo;
   }
-
-  mRoot = new mcld::InputTree::iterator(mLDConfig->inputs().root());
-
   return kSuccess;
 }
 
@@ -140,6 +137,8 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
     /* 32 is a magic number, the estimated number of input files **/
 
   mModule = new mcld::Module(mLDConfig->options().soname());
+
+  mRoot = new mcld::InputTree::iterator(mModule->getInputTree().root());
 
   mBuilder = new mcld::InputBuilder(mLDConfig->inputFactory(),
                                     mLDConfig->attrFactory(),
@@ -209,7 +208,7 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
 
   mcld::Input* input = mLDConfig->inputFactory().produce(pNameSpec, *path,
                                                        mcld::Input::Unknown);
-  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -222,7 +221,7 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
                                                        pObjectPath,
                                                        mcld::Input::Unknown);
 
-  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -236,7 +235,7 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
                                                        "NAN",
                                                        mcld::Input::Unknown);
 
-  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 
@@ -254,7 +253,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
                                                        "NAN",
                                                        mcld::Input::External);
 
-  mLDConfig->inputs().insert<mcld::InputTree::Positional>(*mRoot, *input);
+  mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
 

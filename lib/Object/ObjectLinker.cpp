@@ -125,8 +125,8 @@ bool ObjectLinker::initStdSections()
 void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //
-  InputTree::iterator input, inEnd = m_Config.inputs().end();
-  for (input = m_Config.inputs().begin(); input!=inEnd; ++input) {
+  Module::input_iterator input, inEnd = m_Module.input_end();
+  for (input = m_Module.input_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
@@ -157,7 +157,7 @@ void ObjectLinker::normalize()
       Archive archive(**input, m_Builder);
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
-        m_Config.inputs().merge<InputTree::Inclusive>(input, archive.inputs());
+        m_Module.getInputTree().merge<InputTree::Inclusive>(input, archive.inputs());
       }
     }
     else {
@@ -170,7 +170,7 @@ void ObjectLinker::normalize()
 bool ObjectLinker::linkable() const
 {
   // check we have input and output files
-  if (m_Config.inputs().empty()) {
+  if (m_Module.getInputTree().empty()) {
     error(diag::err_no_inputs);
     return false;
   }
@@ -184,14 +184,12 @@ bool ObjectLinker::linkable() const
   }
 
   // can not mix -static with shared objects
-  mcld::InputTree::const_bfs_iterator input, inEnd = m_Config.inputs().bfs_end();
-  for (input=m_Config.inputs().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == mcld::Input::DynObj) {
-      if((*input)->attribute()->isStatic()) {
-        error(diag::err_mixed_shared_static_objects)
-                                        << (*input)->name() << (*input)->path();
-        return false;
-      }
+  Module::const_lib_iterator lib, libEnd = m_Module.lib_end();
+  for (lib = m_Module.lib_begin(); lib != libEnd; ++lib) {
+    if((*lib)->attribute()->isStatic()) {
+      error(diag::err_mixed_shared_static_objects)
+                                      << (*lib)->name() << (*lib)->path();
+      return false;
     }
   }
 
@@ -233,8 +231,8 @@ bool ObjectLinker::readRelocations()
 {
   // Bitcode is read by the other path. This function reads relocation sections
   // in object files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_Config.inputs().bfs_end();
-  for (input=m_Config.inputs().bfs_begin(); input!=inEnd; ++input) {
+  mcld::InputTree::bfs_iterator input, inEnd = m_Module.getInputTree().bfs_end();
+  for (input=m_Module.getInputTree().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == Input::Object) {
       if (!getObjectReader()->readRelocations(**input))
         return false;

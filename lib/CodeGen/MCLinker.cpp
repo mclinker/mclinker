@@ -95,7 +95,7 @@ bool MCLinker::doInitialization(llvm::Module &pM)
   PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
   std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
   initializeInputTree(PosDepOpts);
-  initializeInputOutput(config);
+  initializeInputOutput();
 
   // Now, all input arguments are prepared well, send it into ObjectLinker
   m_pObjLinker = new ObjectLinker(config,
@@ -123,9 +123,9 @@ bool MCLinker::doFinalization(llvm::Module &pM)
 
   if (config.options().trace()) {
     static int counter = 0;
-    mcld::outs() << "** name\ttype\tpath\tsize (" << config.inputs().size() << ")\n";
-    InputTree::const_dfs_iterator input, inEnd = config.inputs().dfs_end();
-    for (input=config.inputs().dfs_begin(); input!=inEnd; ++input) {
+    mcld::outs() << "** name\ttype\tpath\tsize (" << m_Module.getInputTree().size() << ")\n";
+    InputTree::const_dfs_iterator input, inEnd = m_Module.getInputTree().dfs_end();
+    for (input=m_Module.getInputTree().dfs_begin(); input!=inEnd; ++input) {
       mcld::outs() << counter++ << " *  " << (*input)->name();
       switch((*input)->type()) {
       case Input::Archive:
@@ -199,11 +199,11 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
-void MCLinker::initializeInputOutput(LinkerConfig &pConfig)
+void MCLinker::initializeInputOutput()
 {
   // -----  initialize input files  ----- //
-  InputTree::dfs_iterator input, inEnd = pConfig.inputs().dfs_end();
-  for (input = pConfig.inputs().dfs_begin(); input!=inEnd; ++input) {
+  InputTree::dfs_iterator input, inEnd = m_Module.getInputTree().dfs_end();
+  for (input = m_Module.getInputTree().dfs_begin(); input!=inEnd; ++input) {
     // already got type - for example, bitcode
     if ((*input)->type() == Input::Script ||
         (*input)->type() == Input::Object ||
@@ -249,7 +249,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
 
   // Initialization
   InputTree::Mover *move = &InputTree::Downward;
-  InputTree::iterator root = config.inputs().root();
+  InputTree::iterator root = m_Module.getInputTree().root();
   PositionDependentOptions::const_iterator optionEnd = pPosDepOptions.end();
   std::stack<InputTree::iterator> returnStack;
 
@@ -268,7 +268,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
                                               *(bitcode_option->path()),
                                               Input::External);
 
-        config.inputs().insert(root, *move, *input);
+        m_Module.getInputTree().insert(root, *move, *input);
 
         config.bitcode().setPath(*bitcode_option->path());
         config.bitcode().setPosition(bitcode_option->position());
@@ -290,7 +290,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
                                            input_file_option->path()->native(),
                                            *(input_file_option->path()));
 
-        config.inputs().insert(root, *move, *input);
+        m_Module.getInputTree().insert(root, *move, *input);
 
         // move root on the new created node.
         move->move(root);
@@ -335,7 +335,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
 
       Input* input = config.inputFactory().produce(namespec_option->namespec(),
                                                    *path);
-      config.inputs().insert(root, *move, *input);
+      m_Module.getInputTree().insert(root, *move, *input);
 
       // iterate root on the new created node.
       move->move(root);
@@ -349,7 +349,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
     case PositionDependentOption::START_GROUP:
       if (!returnStack.empty())
         fatal(diag::fatal_forbid_nest_group);
-      config.inputs().enterGroup(root, *move);
+      m_Module.getInputTree().enterGroup(root, *move);
       move->move(root);
       returnStack.push(root);
       move = &InputTree::Downward;

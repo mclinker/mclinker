@@ -27,6 +27,7 @@
 #include <mcld/LD/NamePool.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/InputTree.h>
 
 namespace mcld {
 
@@ -43,6 +44,9 @@ public:
   typedef std::vector<Input*> LibraryList;
   typedef LibraryList::iterator lib_iterator;
   typedef LibraryList::const_iterator const_lib_iterator;
+
+  typedef InputTree::iterator input_iterator;
+  typedef InputTree::const_iterator const_input_iterator;
 
   typedef std::vector<LDSection*> SectionTable;
   typedef SectionTable::iterator iterator;
@@ -86,6 +90,15 @@ public:
   lib_iterator       lib_begin()       { return m_LibraryList.begin(); }
   const_lib_iterator lib_end  () const { return m_LibraryList.end();   }
   lib_iterator       lib_end  ()       { return m_LibraryList.end();   }
+
+  // -----  link-in inputs  ----- //
+  const InputTree& getInputTree() const { return m_MainTree; }
+  InputTree&       getInputTree()       { return m_MainTree; }
+
+  const_input_iterator input_begin() const { return m_MainTree.begin(); }
+  input_iterator       input_begin()       { return m_MainTree.begin(); }
+  const_input_iterator input_end  () const { return m_MainTree.end();   }
+  input_iterator       input_end  ()       { return m_MainTree.end();   }
 
 /// @}
 /// @name Section Accessors
@@ -145,6 +158,7 @@ private:
   std::string m_Name;
   ObjectList m_ObjectList;
   LibraryList m_LibraryList;
+  InputTree m_MainTree;
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;

@@ -18,7 +18,6 @@
 #include <mcld/ScriptOptions.h>
 #include <mcld/BitcodeOption.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/MC/AttributeFactory.h>
 
 #include <string>
@@ -30,7 +29,6 @@ namespace mcld {
  *  \brief LinkerConfig is composed of argumments of MCLinker.
  *   options()        - the general options
  *   scripts()        - the script options
- *   inputs()         - the tree of inputs
  *   bitcode()        - the bitcode being linked
  *   output()         - the output file
  *   inputFactory()   - the list of all inputs
@@ -66,9 +64,6 @@ public:
 
   void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
 
-  const InputTree& inputs() const { return *m_pInputTree; }
-  InputTree&       inputs()       { return *m_pInputTree; }
-
   CodeGenType codeGenType() const { return m_CodeGenType; }
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
@@ -97,9 +92,6 @@ private:
   BitcodeOption m_Bitcode;
   llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
-
-  // -----  input tree  ----- //
-  InputTree *m_pInputTree;
 
   // -----  factories  ----- //
   InputFactory *m_pInputFactory;
