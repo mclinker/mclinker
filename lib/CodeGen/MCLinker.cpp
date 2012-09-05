@@ -310,7 +310,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
         // In the system with shared object support, we can find both archive
         // and shared object.
 
-        if (config.inputFactory().last().isStatic()) {
+        if (config.inputFactory().attr().isStatic()) {
           // with --static, we must search an archive.
           path = config.options().directories().find(namespec_option->namespec(),
                                                    Input::Archive);
@@ -360,28 +360,28 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       move = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      config.inputFactory().last().setWholeArchive();
+      config.inputFactory().attr().setWholeArchive();
       break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      config.inputFactory().last().unsetWholeArchive();
+      config.inputFactory().attr().unsetWholeArchive();
       break;
     case PositionDependentOption::AS_NEEDED:
-      config.inputFactory().last().setAsNeeded();
+      config.inputFactory().attr().setAsNeeded();
       break;
     case PositionDependentOption::NO_AS_NEEDED:
-      config.inputFactory().last().unsetAsNeeded();
+      config.inputFactory().attr().unsetAsNeeded();
       break;
     case PositionDependentOption::ADD_NEEDED:
-      config.inputFactory().last().setAddNeeded();
+      config.inputFactory().attr().setAddNeeded();
       break;
     case PositionDependentOption::NO_ADD_NEEDED:
-      config.inputFactory().last().unsetAddNeeded();
+      config.inputFactory().attr().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
-      config.inputFactory().last().setStatic();
+      config.inputFactory().attr().setStatic();
       break;
     case PositionDependentOption::BDYNAMIC:
-      config.inputFactory().last().setDynamic();
+      config.inputFactory().attr().setDynamic();
       break;
     default:
       fatal(diag::err_cannot_identify_option) << (*option)->position()

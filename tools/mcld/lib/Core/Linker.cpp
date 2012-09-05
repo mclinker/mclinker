@@ -183,7 +183,7 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (mLDConfig->inputFactory().last().isStatic()) {
+    if (mLDConfig->inputFactory().attr().isStatic()) {
       // with --static, we must search an archive.
       path = mLDConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::Archive);

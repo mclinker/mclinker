@@ -53,9 +53,9 @@ public:
   const AttrConstraint& constraint() const { return m_Constraint; }
   AttrConstraint&       constraint()       { return m_Constraint; }
 
-  // last - the last touched attribute.
-  const AttributeProxy& last() const { return *m_pLast; }
-  AttributeProxy&       last()       { return *m_pLast; }
+  // attr - the last touched attribute.
+  const AttributeProxy& attr() const { return *m_pLast; }
+  AttributeProxy&       attr()       { return *m_pLast; }
 
   bool checkAttributes() const;
 

@@ -212,7 +212,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (m_pConfig->inputFactory().last().isStatic()) {
+    if (m_pConfig->inputFactory().attr().isStatic()) {
       // with --static, we must search an archive.
       path = m_pConfig->options().directories().find(pNameSpec,
                                                      mcld::Input::Archive);

@@ -75,8 +75,8 @@ public:
   const AttrConstraint& getConstraint() const { return m_InputFactory.constraint(); }
   AttrConstraint&       getConstraint()       { return m_InputFactory.constraint(); }
 
-  const AttributeProxy& getAttributes() const { return m_InputFactory.last(); }
-  AttributeProxy&       getAttributes()       { return m_InputFactory.last(); }
+  const AttributeProxy& getAttributes() const { return m_InputFactory.attr(); }
+  AttributeProxy&       getAttributes()       { return m_InputFactory.attr(); }
 
 private:
   InputFactory& m_InputFactory;
