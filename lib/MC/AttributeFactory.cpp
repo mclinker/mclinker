@@ -16,15 +16,20 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 AttributeFactory::AttributeFactory()
   : m_AttrSet() {
-  m_AttrSet.push_back(new mcld::Attribute());
-  m_pLast = new AttributeProxy(*this, *m_AttrSet.front());
+  m_pPredefined = new Attribute();
+  m_pLast = new AttributeProxy(*this, *m_pPredefined);
+
+  m_AttrSet.push_back(m_pPredefined);
 }
 
 AttributeFactory::AttributeFactory(size_t pNum)
   : m_AttrSet() {
   m_AttrSet.reserve(pNum);
-  m_AttrSet.push_back(new mcld::Attribute());
-  m_pLast = new AttributeProxy(*this, *m_AttrSet.front());
+
+  m_pPredefined = new Attribute();
+  m_pLast = new AttributeProxy(*this, *m_pPredefined);
+
+  m_AttrSet.push_back(m_pPredefined);
 }
 
 AttributeFactory::~AttributeFactory()
@@ -44,30 +49,10 @@ void AttributeFactory::reserve(size_t pNum)
   m_AttrSet.reserve(pNum);
 }
 
-Attribute &AttributeFactory::predefined()
-{
-  return *m_AttrSet.front();
-}
-
-const Attribute &AttributeFactory::predefined() const
-{
-  return *m_AttrSet.front();
-}
-
 AttributeProxy* AttributeFactory::produce()
 {
-  m_pLast->assign(m_AttrSet.front());
+  m_pLast->assign(m_pPredefined);
   return m_pLast->clone();
-}
-
-AttributeProxy& AttributeFactory::last()
-{
-  return *m_pLast;
-}
-
-const AttributeProxy& AttributeFactory::last() const
-{
-  return *m_pLast;
 }
 
 Attribute* AttributeFactory::exists(const Attribute& pAttr) const

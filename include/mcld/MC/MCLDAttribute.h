@@ -73,6 +73,7 @@ public:
   // represent GNU ld -call_shared option
   bool isDynamic() const
   { return !m_Static; }
+
 public:
   bool m_WholeArchive : 1;
   bool m_AsNeeded : 1;

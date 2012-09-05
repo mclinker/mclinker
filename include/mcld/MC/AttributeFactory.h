@@ -14,8 +14,7 @@
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/MC/MCLDAttribute.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class AttributeFactory
  *  \brief AttributeFactory contructs the AttributeProxys.
@@ -44,24 +43,20 @@ public:
   void reserve(size_t pNum);
 
   // predefined - return the predefined attribute
-  Attribute& predefined();
-
-  const Attribute& predefined() const;
+  const Attribute& predefined() const { return *m_pPredefined; }
+  Attribute&       predefined()       { return *m_pPredefined; }
   
   // constraint - return the constraint of attributes
-  AttrConstraint& constraint()
-  { return m_Constraint; }
+  const AttrConstraint& constraint() const { return m_Constraint; }
+  AttrConstraint&       constraint()       { return m_Constraint; }
 
-  const AttrConstraint& constraint() const
-  { return m_Constraint; }
+  // last - the last touched attribute.
+  const AttributeProxy& last() const { return *m_pLast; }
+  AttributeProxy&       last()       { return *m_pLast; }
 
   // produce - produce a attribute, but do not record it yet.
   // the produced attribute is identical to the pre-defined attribute.
   AttributeProxy* produce();
-
-  // last - the last touched attribute.
-  AttributeProxy& last();
-  const AttributeProxy& last() const;
 
   // -----  observers  ----- //
   size_t size() const
@@ -71,17 +66,10 @@ public:
   { return m_AttrSet.empty(); }
 
   // -----  iterators  ----- //
-  iterator begin()
-  { return m_AttrSet.begin(); }
-
-  iterator end()
-  { return m_AttrSet.end(); }
-
-  const_iterator begin() const
-  { return m_AttrSet.begin(); }
-
-  const_iterator end() const
-  { return m_AttrSet.end(); }
+  const_iterator begin() const { return m_AttrSet.begin(); }
+  iterator       begin()       { return m_AttrSet.begin(); }
+  const_iterator end  () const { return m_AttrSet.end(); }
+  iterator       end  ()       { return m_AttrSet.end(); }
 
   // exists- return the recorded attribute whose content is identical to the
   // input attribute.
@@ -92,6 +80,7 @@ public:
 
 private:
   AttrSet m_AttrSet;
+  Attribute* m_pPredefined;
   AttrConstraint m_Constraint;
   AttributeProxy *m_pLast;
 };
