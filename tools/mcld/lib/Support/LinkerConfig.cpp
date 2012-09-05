@@ -64,7 +64,7 @@ bool LinkerConfig::initializeLDInfo() {
     return false;
   }
 
-  mLDConfig = new mcld::LinkerConfig(getTriple(), 1, 32);
+  mLDConfig = new mcld::LinkerConfig(getTriple(), 32);
   mLDConfig->setCodeGenType(mcld::LinkerConfig::Exec);
   return true;
 }

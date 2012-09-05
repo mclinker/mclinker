@@ -10,6 +10,8 @@
 #include "alone/Config/Config.h"
 #include "alone/Support/TargetLinkerConfigs.h"
 
+#include <mcld/MC/InputFactory.h>
+
 using namespace alone;
 
 #ifdef TARGET_BUILD
@@ -27,13 +29,13 @@ static const char* gDefaultSysroot = "/";
 ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attributes
-  getLDConfig()->attrFactory().constraint().enableWholeArchive();
-  getLDConfig()->attrFactory().constraint().disableAsNeeded();
-  getLDConfig()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->inputFactory().constraint().enableWholeArchive();
+  getLDConfig()->inputFactory().constraint().disableAsNeeded();
+  getLDConfig()->inputFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
-  getLDConfig()->attrFactory().predefined().setDynamic();
+  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
+  getLDConfig()->inputFactory().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {
@@ -54,13 +56,13 @@ MipsLinkerConfig::MipsLinkerConfig()
   : LinkerConfig(DEFAULT_MIPS_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attibutes
-  getLDConfig()->attrFactory().constraint().enableWholeArchive();
-  getLDConfig()->attrFactory().constraint().disableAsNeeded();
-  getLDConfig()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->inputFactory().constraint().enableWholeArchive();
+  getLDConfig()->inputFactory().constraint().disableAsNeeded();
+  getLDConfig()->inputFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
-  getLDConfig()->attrFactory().predefined().setDynamic();
+  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
+  getLDConfig()->inputFactory().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {
@@ -80,13 +82,13 @@ MipsLinkerConfig::MipsLinkerConfig()
 X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   : LinkerConfig(pTriple) {
   // set up target-dependent constraints of attibutes
-  getLDConfig()->attrFactory().constraint().enableWholeArchive();
-  getLDConfig()->attrFactory().constraint().disableAsNeeded();
-  getLDConfig()->attrFactory().constraint().setSharedSystem();
+  getLDConfig()->inputFactory().constraint().enableWholeArchive();
+  getLDConfig()->inputFactory().constraint().disableAsNeeded();
+  getLDConfig()->inputFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->attrFactory().predefined().unsetWholeArchive();
-  getLDConfig()->attrFactory().predefined().setDynamic();
+  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
+  getLDConfig()->inputFactory().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {

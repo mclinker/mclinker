@@ -47,11 +47,9 @@ public:
   };
 
 public:
-  explicit LinkerConfig(const std::string &pTripleString,
-                        size_t pAttrNum,
-                        size_t InputSize);
+  LinkerConfig(const std::string &pTripleString, size_t InputSize);
 
-  virtual ~LinkerConfig();
+  ~LinkerConfig();
 
   const GeneralOptions& options() const { return m_Options; }
   GeneralOptions&       options()       { return m_Options; }
@@ -68,17 +66,8 @@ public:
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
-  InputFactory& inputFactory()
-  { return *m_pInputFactory; }
-
-  const InputFactory& inputFactory() const
-  { return *m_pInputFactory; }
-
-  AttributeFactory& attrFactory()
-  { return *m_pAttrFactory; }
-
-  const AttributeFactory& attrFactory() const
-  { return *m_pAttrFactory; }
+  const InputFactory& inputFactory() const { return *m_pInputFactory; }
+  InputFactory&       inputFactory()       { return *m_pInputFactory; }
 
   const llvm::Triple& triple() const
   { return m_Triple; }
@@ -95,7 +84,6 @@ private:
 
   // -----  factories  ----- //
   InputFactory *m_pInputFactory;
-  AttributeFactory *m_pAttrFactory;
 };
 
 } // namespace of mcld

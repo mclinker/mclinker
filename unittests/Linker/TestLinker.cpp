@@ -73,7 +73,7 @@ bool TestLinker::initialize(const std::string &pTriple)
   mcld::InitializeAllDiagnostics();
 
   // create mcld::LinkerConfig
-  m_pConfig = new LinkerConfig(pTriple, 1, 32);
+  m_pConfig = new LinkerConfig(pTriple, 32);
   m_Root = m_Module.getInputTree().root();
 
   // specify mcld::Target
@@ -106,7 +106,6 @@ bool TestLinker::initialize(const std::string &pTriple)
   m_pContextFactory = new ContextFactory(32);
 
   m_pBuilder = new mcld::InputBuilder(m_pConfig->inputFactory(),
-                                      m_pConfig->attrFactory(),
                                       *m_pMemAreaFactory,
                                       *m_pContextFactory);
 
@@ -209,14 +208,14 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
 {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
-  if (m_pConfig->attrFactory().constraint().isSharedSystem()) {
+  if (m_pConfig->inputFactory().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (m_pConfig->attrFactory().last().isStatic()) {
+    if (m_pConfig->inputFactory().last().isStatic()) {
       // with --static, we must search an archive.
       path = m_pConfig->options().directories().find(pNameSpec,
-                                                   mcld::Input::Archive);
+                                                     mcld::Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a

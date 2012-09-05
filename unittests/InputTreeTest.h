@@ -18,7 +18,6 @@ namespace mcld {
 class InputTree;
 class InputFactory;
 class InputBuilder;
-class AttributeFactory;
 
 namespace test {
 
@@ -43,7 +42,6 @@ public:
   virtual void TearDown();
 
 protected:
-  mcld::AttributeFactory *m_pAttr;
   mcld::InputFactory *m_pAlloc;
   mcld::InputBuilder* m_pBuilder;
   mcld::MemoryAreaFactory m_MemFactory;

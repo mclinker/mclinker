@@ -141,7 +141,6 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
   mRoot = new mcld::InputTree::iterator(mModule->getInputTree().root());
 
   mBuilder = new mcld::InputBuilder(mLDConfig->inputFactory(),
-                                    mLDConfig->attrFactory(),
                                     *mMemAreaFactory,
                                     *mContextFactory);
 
@@ -180,11 +179,11 @@ enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
 enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
-  if (mLDConfig->attrFactory().constraint().isSharedSystem()) {
+  if (mLDConfig->inputFactory().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (mLDConfig->attrFactory().last().isStatic()) {
+    if (mLDConfig->inputFactory().last().isStatic()) {
       // with --static, we must search an archive.
       path = mLDConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::Archive);

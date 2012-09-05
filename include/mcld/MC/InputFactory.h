@@ -11,13 +11,12 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include "mcld/Support/GCFactory.h"
-#include "mcld/MC/MCLDInput.h"
+#include <mcld/Support/GCFactory.h>
+#include <mcld/MC/MCLDInput.h>
+#include <mcld/MC/AttributeFactory.h>
+#include <mcld/MC/MCLDAttribute.h>
 
-namespace mcld
-{
-
-class AttributeFactory;
+namespace mcld {
 
 /** \class InputFactory
  *  \brief InputFactory controls the production and destruction of
@@ -37,7 +36,7 @@ public:
   typedef GCFactory<Input, 0> Alloc;
 
 public:
-  InputFactory(size_t pNum, AttributeFactory& pAttrFactory);
+  explicit InputFactory(size_t pNum);
   ~InputFactory();
 
   // -----  production  ----- //
@@ -46,8 +45,26 @@ public:
                  unsigned int pType = Input::Unknown,
                  off_t pFileOffset = 0);
 
+  // predefined - return the predefined attribute
+  const Attribute& predefined() const { return m_Predefined; }
+  Attribute&       predefined()       { return m_Predefined; }
+
+  // constraint - return the constraint of attributes
+  const AttrConstraint& constraint() const { return m_Constraint; }
+  AttrConstraint&       constraint()       { return m_Constraint; }
+
+  // last - the last touched attribute.
+  const AttributeProxy& last() const { return *m_pLast; }
+  AttributeProxy&       last()       { return *m_pLast; }
+
+  bool checkAttributes() const;
+
 private:
-  AttributeFactory &m_AttrFactory;
+  Attribute m_Predefined;
+  AttrConstraint m_Constraint;
+  AttributeProxy* m_pLast;
+
+  AttributeFactory* m_pAttrFactory;
 };
 
 } // namespace of mcld

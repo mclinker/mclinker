@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "MipsELFMCLinker.h"
-
+#include <mcld/MC/InputFactory.h>
 #include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
@@ -19,14 +19,14 @@ MipsELFMCLinker::MipsELFMCLinker(SectLinkerOption &pOption,
   : MCLinker(pOption, pLDBackend, pModule, pOutput) {
   LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attibutes
-  config.attrFactory().constraint().enableWholeArchive();
-  config.attrFactory().constraint().enableAsNeeded();
-  config.attrFactory().constraint().setSharedSystem();
+  config.inputFactory().constraint().enableWholeArchive();
+  config.inputFactory().constraint().enableAsNeeded();
+  config.inputFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  config.attrFactory().predefined().unsetWholeArchive();
-  config.attrFactory().predefined().unsetAsNeeded();
-  config.attrFactory().predefined().setDynamic();
+  config.inputFactory().predefined().unsetWholeArchive();
+  config.inputFactory().predefined().unsetAsNeeded();
+  config.inputFactory().predefined().setDynamic();
 }
 
 MipsELFMCLinker::~MipsELFMCLinker()

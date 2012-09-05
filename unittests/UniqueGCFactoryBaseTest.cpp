@@ -22,7 +22,7 @@ UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
 {
   InitializeAllDiagnostics();
 
-  m_pConfig = new LinkerConfig("arm-none-linux-gnueabi", 10, 10);
+  m_pConfig = new LinkerConfig("arm-none-linux-gnueabi", 10);
   m_pLineInfo = new DiagnosticLineInfo();
   mcld::InitializeDiagnosticEngine(*m_pConfig, m_pLineInfo, NULL);
 }

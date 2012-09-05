@@ -32,38 +32,9 @@ public:
   typedef AttrSet::const_iterator const_iterator;
 
 public:
-  AttributeFactory();
-
-  explicit AttributeFactory(size_t pNum);
+  AttributeFactory(size_t pNum, Attribute& pPredefined);
 
   ~AttributeFactory();
-
-  // reserve - reserve the memory space for attributes
-  // @param pNum the number of reserved attributes
-  void reserve(size_t pNum);
-
-  // predefined - return the predefined attribute
-  const Attribute& predefined() const { return *m_pPredefined; }
-  Attribute&       predefined()       { return *m_pPredefined; }
-  
-  // constraint - return the constraint of attributes
-  const AttrConstraint& constraint() const { return m_Constraint; }
-  AttrConstraint&       constraint()       { return m_Constraint; }
-
-  // last - the last touched attribute.
-  const AttributeProxy& last() const { return *m_pLast; }
-  AttributeProxy&       last()       { return *m_pLast; }
-
-  // produce - produce a attribute, but do not record it yet.
-  // the produced attribute is identical to the pre-defined attribute.
-  AttributeProxy* produce();
-
-  // -----  observers  ----- //
-  size_t size() const
-  { return m_AttrSet.size(); }
-
-  bool empty() const
-  { return m_AttrSet.empty(); }
 
   // -----  iterators  ----- //
   const_iterator begin() const { return m_AttrSet.begin(); }
@@ -80,9 +51,7 @@ public:
 
 private:
   AttrSet m_AttrSet;
-  Attribute* m_pPredefined;
-  AttrConstraint m_Constraint;
-  AttributeProxy *m_pLast;
+  Attribute& m_Predefined;
 };
 
 } // namespace of mcld

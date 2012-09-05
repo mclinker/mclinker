@@ -182,13 +182,13 @@ public:
  */
 class AttributeProxy
 {
-private:
-  friend class AttributeFactory;
+public:
+  AttributeProxy(AttributeFactory& pParent,
+                 Attribute& pBase,
+                 AttrConstraint& pConstraint);
 
-  explicit AttributeProxy(AttributeFactory& pParent, Attribute& pBase);
   ~AttributeProxy();
 
-public:
   // ----- observers  ----- //
   bool isWholeArchive() const;
 
@@ -219,11 +219,9 @@ public:
   AttributeProxy& assign(Attribute* pBase);
 
 private:
-  AttributeProxy* clone() const;
-
-private:
   AttributeFactory &m_AttrPool;
   Attribute *m_pBase;
+  AttrConstraint& m_Constraint;
 };
 
 

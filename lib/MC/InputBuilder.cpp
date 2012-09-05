@@ -14,12 +14,11 @@
 using namespace mcld;
 
 InputBuilder::InputBuilder(InputFactory& pInputFactory,
-                           AttributeFactory& pAttributes,
                            MemoryAreaFactory& pMemFactory,
                            ContextFactory& pContextFactory)
-  : m_InputFactory(pInputFactory), m_Attributes(pAttributes),
-    m_MemFactory(pMemFactory), m_ContextFactory(pContextFactory),
-    m_pCurrentTree(NULL), m_pMove(NULL), m_Root() {
+  : m_InputFactory(pInputFactory), m_MemFactory(pMemFactory),
+    m_ContextFactory(pContextFactory), m_pCurrentTree(NULL), m_pMove(NULL),
+    m_Root() {
 }
 
 InputTree* InputBuilder::createTree()

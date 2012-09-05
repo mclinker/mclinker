@@ -48,8 +48,10 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
 //===----------------------------------------------------------------------===//
 // AttributeProxy
 //===----------------------------------------------------------------------===//
-AttributeProxy::AttributeProxy(AttributeFactory& pParent, Attribute& pBase)
-  : m_AttrPool(pParent), m_pBase(&pBase) {
+AttributeProxy::AttributeProxy(AttributeFactory& pParent,
+                               Attribute& pBase,
+                               AttrConstraint& pConstraint)
+  : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
 }
 
 AttributeProxy::~AttributeProxy()
@@ -58,7 +60,7 @@ AttributeProxy::~AttributeProxy()
 
 bool AttributeProxy::isWholeArchive() const
 {
-  if (m_AttrPool.constraint().isWholeArchive())
+  if (m_Constraint.isWholeArchive())
     return m_pBase->isWholeArchive();
   else
     return false;
@@ -66,7 +68,7 @@ bool AttributeProxy::isWholeArchive() const
 
 bool AttributeProxy::isAsNeeded() const
 {
-  if (m_AttrPool.constraint().isAsNeeded())
+  if (m_Constraint.isAsNeeded())
     return m_pBase->isAsNeeded();
   else
     return false;
@@ -74,7 +76,7 @@ bool AttributeProxy::isAsNeeded() const
 
 bool AttributeProxy::isAddNeeded() const
 {
-  if (m_AttrPool.constraint().isAddNeeded())
+  if (m_Constraint.isAddNeeded())
     return m_pBase->isAddNeeded();
   else
     return false;
@@ -82,7 +84,7 @@ bool AttributeProxy::isAddNeeded() const
 
 bool AttributeProxy::isStatic() const
 {
-  if (m_AttrPool.constraint().isSharedSystem())
+  if (m_Constraint.isSharedSystem())
     return m_pBase->isStatic();
   else
     return true;
@@ -90,7 +92,7 @@ bool AttributeProxy::isStatic() const
 
 bool AttributeProxy::isDynamic() const
 {
-  if (m_AttrPool.constraint().isSharedSystem())
+  if (m_Constraint.isSharedSystem())
     return m_pBase->isDynamic();
   else
     return false;
@@ -101,7 +103,7 @@ static inline void ReplaceOrRecord(AttributeFactory& pParent,
                                    Attribute *&pCopy)
 {
   Attribute *result = pParent.exists(*pCopy);
-  if (0 == result) { // can not find
+  if (NULL == result) { // can not find
     pParent.record(*pCopy);
     pBase = pCopy;
   }
@@ -109,7 +111,6 @@ static inline void ReplaceOrRecord(AttributeFactory& pParent,
     delete pCopy;
     pBase = result;
   }
-  pParent.last().assign(pBase);
 }
 
 void AttributeProxy::setWholeArchive()
@@ -166,11 +167,6 @@ void AttributeProxy::setDynamic()
   Attribute *copy = new Attribute(*m_pBase);
   copy->setDynamic();
   ReplaceOrRecord(m_AttrPool, m_pBase, copy);
-}
-
-AttributeProxy* AttributeProxy::clone() const
-{
-  return new AttributeProxy(m_AttrPool, *m_pBase);
 }
 
 AttributeProxy& AttributeProxy::assign(Attribute* pBase)

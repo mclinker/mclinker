@@ -18,22 +18,18 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // LinkerConfig
 //===----------------------------------------------------------------------===//
-LinkerConfig::LinkerConfig(const std::string& pTripleString,
-                           size_t pAttrNum,
-                           size_t pInputNum)
+LinkerConfig::LinkerConfig(const std::string& pTripleString, size_t pInputNum)
   : m_Options(),
     m_Scripts(),
     m_Bitcode(),
     m_Triple(pTripleString),
     m_CodeGenType(Unknown)
 {
-  m_pAttrFactory = new AttributeFactory(pAttrNum);
-  m_pInputFactory = new InputFactory(pInputNum, *m_pAttrFactory);
+  m_pInputFactory = new InputFactory(pInputNum);
 }
 
 LinkerConfig::~LinkerConfig()
 {
-  delete m_pAttrFactory;
   delete m_pInputFactory;
 }
 

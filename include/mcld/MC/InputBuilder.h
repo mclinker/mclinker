@@ -35,7 +35,6 @@ class InputBuilder
 {
 public:
   InputBuilder(InputFactory& pInputFactory,
-               AttributeFactory& pAttributes,
                MemoryAreaFactory& pMemFactory,
                ContextFactory& pContextFactory);
 
@@ -74,15 +73,14 @@ public:
   const InputTree::iterator& getCurrentNode() const { return m_Root; }
   InputTree::iterator&       getCurrentNode()       { return m_Root; }
 
-  const AttrConstraint& getConstraint() const { return m_Attributes.constraint(); }
-  AttrConstraint&       getConstraint()       { return m_Attributes.constraint(); }
+  const AttrConstraint& getConstraint() const { return m_InputFactory.constraint(); }
+  AttrConstraint&       getConstraint()       { return m_InputFactory.constraint(); }
 
-  const AttributeProxy& getAttributes() const { return m_Attributes.last(); }
-  AttributeProxy&       getAttributes()       { return m_Attributes.last(); }
+  const AttributeProxy& getAttributes() const { return m_InputFactory.last(); }
+  AttributeProxy&       getAttributes()       { return m_InputFactory.last(); }
 
 private:
   InputFactory& m_InputFactory;
-  AttributeFactory& m_Attributes;
   MemoryAreaFactory& m_MemFactory;
   ContextFactory& m_ContextFactory;
 

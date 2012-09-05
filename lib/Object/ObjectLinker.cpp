@@ -176,12 +176,8 @@ bool ObjectLinker::linkable() const
   }
 
   // check all attributes are legal
-  mcld::AttributeFactory::const_iterator attr, attrEnd = m_Config.attrFactory().end();
-  for (attr=m_Config.attrFactory().begin(); attr!=attrEnd; ++attr) {
-    if (!m_Config.attrFactory().constraint().isLegal((**attr))) {
-      return false;
-    }
-  }
+  if (!m_Config.inputFactory().checkAttributes())
+    return false;
 
   // can not mix -static with shared objects
   Module::const_lib_iterator lib, libEnd = m_Module.lib_end();

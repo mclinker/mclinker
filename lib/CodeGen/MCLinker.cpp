@@ -87,7 +87,6 @@ bool MCLinker::doInitialization(llvm::Module &pM)
   LinkerConfig &config = m_pOption->config();
 
   m_pBuilder = new InputBuilder(config.inputFactory(),
-                                config.attrFactory(),
                                 m_MemAreaFactory,
                                 m_ContextFactory);
 
@@ -307,11 +306,11 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
           static_cast<const NamespecOption*>(*option);
 
       // find out the real path of the namespec.
-      if (config.attrFactory().constraint().isSharedSystem()) {
+      if (config.inputFactory().constraint().isSharedSystem()) {
         // In the system with shared object support, we can find both archive
         // and shared object.
 
-        if (config.attrFactory().last().isStatic()) {
+        if (config.inputFactory().last().isStatic()) {
           // with --static, we must search an archive.
           path = config.options().directories().find(namespec_option->namespec(),
                                                    Input::Archive);
@@ -361,28 +360,28 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       move = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      config.attrFactory().last().setWholeArchive();
+      config.inputFactory().last().setWholeArchive();
       break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      config.attrFactory().last().unsetWholeArchive();
+      config.inputFactory().last().unsetWholeArchive();
       break;
     case PositionDependentOption::AS_NEEDED:
-      config.attrFactory().last().setAsNeeded();
+      config.inputFactory().last().setAsNeeded();
       break;
     case PositionDependentOption::NO_AS_NEEDED:
-      config.attrFactory().last().unsetAsNeeded();
+      config.inputFactory().last().unsetAsNeeded();
       break;
     case PositionDependentOption::ADD_NEEDED:
-      config.attrFactory().last().setAddNeeded();
+      config.inputFactory().last().setAddNeeded();
       break;
     case PositionDependentOption::NO_ADD_NEEDED:
-      config.attrFactory().last().unsetAddNeeded();
+      config.inputFactory().last().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
-      config.attrFactory().last().setStatic();
+      config.inputFactory().last().setStatic();
       break;
     case PositionDependentOption::BDYNAMIC:
-      config.attrFactory().last().setDynamic();
+      config.inputFactory().last().setDynamic();
       break;
     default:
       fatal(diag::err_cannot_identify_option) << (*option)->position()

@@ -26,10 +26,9 @@ InputTreeTest::InputTreeTest()
   : m_MemFactory(10), m_ContextFactory(4) {
 
   // create testee. modify it if need
-  m_pAttr   = new mcld::AttributeFactory(2);
-  m_pAlloc  = new mcld::InputFactory(10, *m_pAttr);
-  m_pBuilder = new mcld::InputBuilder(*m_pAlloc, *m_pAttr,
-                                      m_MemFactory, m_ContextFactory);
+  m_pAlloc  = new mcld::InputFactory(10);
+  m_pBuilder = new mcld::InputBuilder(*m_pAlloc, m_MemFactory,
+                                      m_ContextFactory);
   m_pTestee = m_pBuilder->createTree();
 }
 
@@ -38,7 +37,6 @@ InputTreeTest::~InputTreeTest()
 {
   delete m_pTestee;
   delete m_pAlloc;
-  delete m_pAttr;
   delete m_pBuilder;
 }
 

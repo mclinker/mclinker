@@ -16,6 +16,7 @@
 #include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/Support/FileHandle.h>
 
 #include <sstream>
@@ -44,13 +45,13 @@ void ReadStageTest::SetUp()
   m_pLinker->initialize("arm-none-linux-gnueabi");
 
   // set up target-dependent constraints of attributes
-  m_pLinker->config()->attrFactory().constraint().enableWholeArchive();
-  m_pLinker->config()->attrFactory().constraint().disableAsNeeded();
-  m_pLinker->config()->attrFactory().constraint().setSharedSystem();
+  m_pLinker->config()->inputFactory().constraint().enableWholeArchive();
+  m_pLinker->config()->inputFactory().constraint().disableAsNeeded();
+  m_pLinker->config()->inputFactory().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  m_pLinker->config()->attrFactory().predefined().setWholeArchive();
-  m_pLinker->config()->attrFactory().predefined().setDynamic();
+  m_pLinker->config()->inputFactory().predefined().setWholeArchive();
+  m_pLinker->config()->inputFactory().predefined().setDynamic();
 
   // set up target dependent options
   mcld::sys::fs::Path path = TOPDIR;
