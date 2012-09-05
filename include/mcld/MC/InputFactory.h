@@ -13,10 +13,11 @@
 #endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/AttributeSet.h>
 #include <mcld/MC/Attribute.h>
 
 namespace mcld {
+
+class AttributeSet;
 
 /** \class InputFactory
  *  \brief InputFactory controls the production and destruction of
@@ -24,9 +25,6 @@ namespace mcld {
  *
  *  All MCLDFiles created by MCLDFileFactory are guaranteed to be destructed
  *  while MCLDFileFactory is destructed.
- *
- *  FIXME: the number of the Inputs should be passed in by Target or any
- *  target specific class.
  *
  *  \see llvm::sys::Path
  */
@@ -64,7 +62,7 @@ private:
   AttrConstraint m_Constraint;
   AttributeProxy* m_pLast;
 
-  AttributeFactory* m_pAttrFactory;
+  AttributeSet* m_pAttrSet;
 };
 
 } // namespace of mcld

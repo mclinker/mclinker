@@ -12,17 +12,18 @@
 #include <gtest.h>
 #endif
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/MC/Attribute.h>
 
 namespace mcld {
 
-/** \class AttributeFactory
- *  \brief AttributeFactory contructs the AttributeProxys.
+class Attribute;
+
+/** \class AttributeSet
+ *  \brief AttributeSet is a set of Attribute.
  *
- *  Since the number of AttributeProxys is usually small, sequential search
- *  on a small vector is enough.
+ *  Clients delegates Attributes to AttributeSet. AttributeSet deletes delegated
+ *  Attributes during destruction.
  */
-class AttributeFactory : private Uncopyable
+class AttributeSet : private Uncopyable
 {
 private:
   typedef std::vector<Attribute*> AttrSet;
@@ -32,9 +33,9 @@ public:
   typedef AttrSet::const_iterator const_iterator;
 
 public:
-  AttributeFactory(size_t pNum, Attribute& pPredefined);
+  AttributeSet(size_t pNum, Attribute& pPredefined);
 
-  ~AttributeFactory();
+  ~AttributeSet();
 
   // -----  iterators  ----- //
   const_iterator begin() const { return m_AttrSet.begin(); }

@@ -17,13 +17,13 @@ using namespace mcld;
 InputFactory::InputFactory(size_t pNum)
   : GCFactory<Input,0>(pNum) {
 
-  m_pAttrFactory = new AttributeFactory(16, m_Predefined);
-  m_pLast = new AttributeProxy(*m_pAttrFactory, m_Predefined, m_Constraint);
+  m_pAttrSet = new AttributeSet(16, m_Predefined);
+  m_pLast = new AttributeProxy(*m_pAttrSet, m_Predefined, m_Constraint);
 }
 
 InputFactory::~InputFactory()
 {
-  delete m_pAttrFactory;
+  delete m_pAttrSet;
   delete m_pLast;
 }
 
@@ -32,15 +32,15 @@ Input* InputFactory::produce(llvm::StringRef pName,
                              unsigned int pType,
                              off_t pFileOffset)
 {
-  mcld::Input* result = Alloc::allocate();
-  new (result) mcld::Input(pName, pPath, *m_pLast, pType, pFileOffset);
+  Input* result = Alloc::allocate();
+  new (result) Input(pName, pPath, *m_pLast, pType, pFileOffset);
   return result;
 }
 
 bool InputFactory::checkAttributes() const
 {
-  mcld::AttributeFactory::const_iterator attr, attrEnd = m_pAttrFactory->end();
-  for (attr=m_pAttrFactory->begin(); attr!=attrEnd; ++attr) {
+  AttributeSet::const_iterator attr, attrEnd = m_pAttrSet->end();
+  for (attr=m_pAttrSet->begin(); attr!=attrEnd; ++attr) {
     if (!m_Constraint.isLegal(**attr)) {
       return false;
     }

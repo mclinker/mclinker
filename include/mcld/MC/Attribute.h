@@ -11,12 +11,10 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <vector>
-#include <string>
 
-namespace mcld
-{
-class AttributeFactory;
+namespace mcld {
+
+class AttributeSet;
 
 /** \class AttributeBase
  *  \brief AttributeBase provides the real storage for attributes of options.
@@ -176,14 +174,14 @@ public:
  *  AttributeProxy hides the reality of sharing. An input file can change
  *  its attribute without explicit searching of existing attributes
  *  as it has a private ownership of the attribute. AttributeProxy does
- *  the searching in the AttributeFactory and changes the pointer of
+ *  the searching in the AttributeSet and changes the pointer of
  *  the attribute of the input file. If the searching fails, AttributeProxy
- *  requests a new attribute from the AttributeFactory.
+ *  requests a new attribute from the AttributeSet.
  */
 class AttributeProxy
 {
 public:
-  AttributeProxy(AttributeFactory& pParent,
+  AttributeProxy(AttributeSet& pParent,
                  Attribute& pBase,
                  AttrConstraint& pConstraint);
 
@@ -219,7 +217,7 @@ public:
   AttributeProxy& assign(Attribute* pBase);
 
 private:
-  AttributeFactory &m_AttrPool;
+  AttributeSet &m_AttrPool;
   Attribute *m_pBase;
   AttrConstraint& m_Constraint;
 };

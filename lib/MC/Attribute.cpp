@@ -48,7 +48,7 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
 //===----------------------------------------------------------------------===//
 // AttributeProxy
 //===----------------------------------------------------------------------===//
-AttributeProxy::AttributeProxy(AttributeFactory& pParent,
+AttributeProxy::AttributeProxy(AttributeSet& pParent,
                                Attribute& pBase,
                                AttrConstraint& pConstraint)
   : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
@@ -98,7 +98,7 @@ bool AttributeProxy::isDynamic() const
     return false;
 }
 
-static inline void ReplaceOrRecord(AttributeFactory& pParent,
+static inline void ReplaceOrRecord(AttributeSet& pParent,
                                    Attribute *&pBase,
                                    Attribute *&pCopy)
 {
