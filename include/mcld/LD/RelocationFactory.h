@@ -73,8 +73,6 @@ public:
   // ------ observers -----//
   const FragmentLinker& getFragmentLinker() const;
 
-  bool hasFragmentLinker();
-
   bool hasFragmentLinker() const;
 
   virtual TargetLDBackend& getTarget() = 0;

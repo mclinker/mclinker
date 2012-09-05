@@ -665,14 +665,26 @@ void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 /// isOutputPIC - return whether the output is position-independent
 bool FragmentLinker::isOutputPIC() const
 {
+  static bool result = checkIsOutputPIC();
+  return result;
+}
+
+/// isStaticLink - return whether we're doing static link
+bool FragmentLinker::isStaticLink() const
+{
+  static bool result = checkIsStaticLink();
+  return result;
+}
+
+bool FragmentLinker::checkIsOutputPIC() const
+{
   if (LinkerConfig::DynObj == m_Config.codeGenType() ||
       m_Config.options().isPIE())
     return true;
   return false;
 }
 
-/// isStaticLink - return whether we're doing static link
-bool FragmentLinker::isStaticLink() const
+bool FragmentLinker::checkIsStaticLink() const
 {
   if (isOutputPIC())
     return false;

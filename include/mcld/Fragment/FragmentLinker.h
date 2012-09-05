@@ -248,6 +248,15 @@ public:
                                 LDSymbol::ValueType pValue,
                                 FragmentRef* pFragmentRef,
                                 ResolveInfo::Visibility pVisibility);
+
+  /// checkIsOutputPIC - return whether the output is position-independent,
+  /// called by isOutputPIC()
+  bool checkIsOutputPIC() const;
+
+  /// checkIsStaticLink - return whether we're doing static link, called by
+  /// isStaticLink()
+  bool checkIsStaticLink() const;
+
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
 

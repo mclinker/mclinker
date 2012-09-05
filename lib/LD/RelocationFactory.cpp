@@ -94,11 +94,6 @@ const FragmentLinker& RelocationFactory::getFragmentLinker() const
   return *m_pLinker;
 }
 
-bool RelocationFactory::hasFragmentLinker()
-{
-  return (NULL != m_pLinker);
-}
-
 bool RelocationFactory::hasFragmentLinker() const
 {
   return (NULL != m_pLinker);
