@@ -6,13 +6,14 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDAttribute.h"
-#include "mcld/MC/AttributeFactory.h"
+#include <mcld/MC/MCLDAttribute.h>
+#include <mcld/MC/AttributeFactory.h>
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // AttributeFactory
+//===----------------------------------------------------------------------===//
 AttributeFactory::AttributeFactory()
   : m_AttrSet() {
   m_AttrSet.push_back(new mcld::Attribute());
@@ -55,7 +56,7 @@ const Attribute &AttributeFactory::predefined() const
 
 AttributeProxy* AttributeFactory::produce()
 {
-  m_pLast->change(m_AttrSet.front());
+  m_pLast->assign(m_AttrSet.front());
   return m_pLast->clone();
 }
 
@@ -75,7 +76,6 @@ Attribute* AttributeFactory::exists(const Attribute& pAttr) const
   const_iterator aEnd = m_AttrSet.end();
   while(cur != aEnd) {
     if (*(*cur) == pAttr) {
-      m_pLast->change(*cur);
       return *cur;
     }
     ++cur;
@@ -86,6 +86,5 @@ Attribute* AttributeFactory::exists(const Attribute& pAttr) const
 void AttributeFactory::record(mcld::Attribute &pAttr)
 {
   m_AttrSet.push_back(&pAttr);
-  m_pLast->change(m_AttrSet.back());
 }
 

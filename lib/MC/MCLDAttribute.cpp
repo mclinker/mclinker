@@ -12,8 +12,9 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // AttrConstraint
+//===----------------------------------------------------------------------===//
 bool AttrConstraint::isLegal(const Attribute& pAttr) const
 {
   if (!isWholeArchive() && pAttr.isWholeArchive()) {
@@ -44,8 +45,9 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
   return true;
 }
 
-//==========================
+//===----------------------------------------------------------------------===//
 // AttributeProxy
+//===----------------------------------------------------------------------===//
 AttributeProxy::AttributeProxy(AttributeFactory& pParent, Attribute& pBase)
   : m_AttrPool(pParent), m_pBase(&pBase) {
 }
@@ -107,6 +109,7 @@ static inline void ReplaceOrRecord(AttributeFactory& pParent,
     delete pCopy;
     pBase = result;
   }
+  pParent.last().assign(pBase);
 }
 
 void AttributeProxy::setWholeArchive()
@@ -168,5 +171,11 @@ void AttributeProxy::setDynamic()
 AttributeProxy* AttributeProxy::clone() const
 {
   return new AttributeProxy(m_AttrPool, *m_pBase);
+}
+
+AttributeProxy& AttributeProxy::assign(Attribute* pBase)
+{
+  m_pBase = pBase;
+  return *this;
 }
 

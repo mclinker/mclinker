@@ -215,11 +215,10 @@ public:
   void setStatic();
   void setDynamic();
 
+  AttributeProxy& assign(Attribute* pBase);
+
 private:
   AttributeProxy* clone() const;
-
-  void change(Attribute* pBase)
-  { m_pBase = pBase; }
 
 private:
   AttributeFactory &m_AttrPool;

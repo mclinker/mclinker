@@ -34,7 +34,9 @@ public:
 
 public:
   AttributeFactory();
+
   explicit AttributeFactory(size_t pNum);
+
   ~AttributeFactory();
 
   // reserve - reserve the memory space for attributes
@@ -43,6 +45,7 @@ public:
 
   // predefined - return the predefined attribute
   Attribute& predefined();
+
   const Attribute& predefined() const;
   
   // constraint - return the constraint of attributes
@@ -59,13 +62,6 @@ public:
   // last - the last touched attribute.
   AttributeProxy& last();
   const AttributeProxy& last() const;
-
-  // exists- return the recorded attribute whose content is identical to the
-  // input attribute.
-  Attribute *exists(const Attribute& pAttr) const;
-
-  // record - record the attribute no mater if it has been recorded.
-  void record(Attribute& pAttr);
 
   // -----  observers  ----- //
   size_t size() const
@@ -86,6 +82,13 @@ public:
 
   const_iterator end() const
   { return m_AttrSet.end(); }
+
+  // exists- return the recorded attribute whose content is identical to the
+  // input attribute.
+  Attribute *exists(const Attribute& pAttr) const;
+
+  // record - record the attribute no mater if it has been recorded.
+  void record(Attribute& pAttr);
 
 private:
   AttrSet m_AttrSet;
