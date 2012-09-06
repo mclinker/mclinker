@@ -7,16 +7,19 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputBuilder.h>
+
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/ContextFactory.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 
 using namespace mcld;
 
-InputBuilder::InputBuilder(InputFactory& pInputFactory,
+InputBuilder::InputBuilder(const LinkerConfig& pConfig,
+                           InputFactory& pInputFactory,
                            MemoryAreaFactory& pMemFactory,
                            ContextFactory& pContextFactory)
-  : m_InputFactory(pInputFactory), m_MemFactory(pMemFactory),
+  : m_Config(pConfig), m_InputFactory(pInputFactory), m_MemFactory(pMemFactory),
     m_ContextFactory(pContextFactory), m_pCurrentTree(NULL), m_pMove(NULL),
     m_Root() {
 }
@@ -102,5 +105,10 @@ bool InputBuilder::setMemory(Input& pInput,
 
   pInput.setMemArea(memory);
   return true;
+}
+
+const AttrConstraint& InputBuilder::getConstraint() const
+{
+  return m_Config.attribute().constraint();
 }
 

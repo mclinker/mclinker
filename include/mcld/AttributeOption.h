@@ -1,4 +1,4 @@
-//===- AttributeOptions.h -------------------------------------------------===//
+//===- AttributeOption.h --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -15,11 +15,11 @@
 
 namespace mcld {
 
-class AttributeOptions
+class AttributeOption
 {
 public:
-  AttributeOptions();
-  ~AttributeOptions();
+  AttributeOption();
+  ~AttributeOption();
 
   const Attribute& predefined() const { return m_Predefined; }
   Attribute&       predefined()       { return m_Predefined; }

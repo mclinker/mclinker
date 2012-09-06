@@ -17,6 +17,7 @@
 #include <mcld/GeneralOptions.h>
 #include <mcld/ScriptOptions.h>
 #include <mcld/BitcodeOption.h>
+#include <mcld/AttributeOption.h>
 #include <mcld/Support/Path.h>
 
 #include <string>
@@ -29,9 +30,7 @@ namespace mcld {
  *   options()        - the general options
  *   scripts()        - the script options
  *   bitcode()        - the bitcode being linked
- *   output()         - the output file
- *   inputFactory()   - the list of all inputs
- *   memAreaFactory() - the list of all MemoryAreas.
+ *   attribute()      - the attribute options
  */
 class LinkerConfig
 {
@@ -60,6 +59,9 @@ public:
 
   void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
 
+  const AttributeOption& attribute() const { return m_Attribute; }
+  AttributeOption&       attribute()       { return m_Attribute; }
+
   CodeGenType codeGenType() const { return m_CodeGenType; }
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
@@ -77,6 +79,8 @@ private:
   GeneralOptions m_Options;
   ScriptOptions m_Scripts;
   BitcodeOption m_Bitcode;
+  AttributeOption m_Attribute;
+
   llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
 

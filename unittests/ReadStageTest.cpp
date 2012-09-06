@@ -45,13 +45,13 @@ void ReadStageTest::SetUp()
   m_pLinker->initialize("arm-none-linux-gnueabi");
 
   // set up target-dependent constraints of attributes
-  m_pLinker->config()->inputFactory().constraint().enableWholeArchive();
-  m_pLinker->config()->inputFactory().constraint().disableAsNeeded();
-  m_pLinker->config()->inputFactory().constraint().setSharedSystem();
+  m_pLinker->config()->attribute().constraint().enableWholeArchive();
+  m_pLinker->config()->attribute().constraint().disableAsNeeded();
+  m_pLinker->config()->attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  m_pLinker->config()->inputFactory().predefined().setWholeArchive();
-  m_pLinker->config()->inputFactory().predefined().setDynamic();
+  m_pLinker->config()->attribute().predefined().setWholeArchive();
+  m_pLinker->config()->attribute().predefined().setDynamic();
 
   // set up target dependent options
   mcld::sys::fs::Path path = TOPDIR;

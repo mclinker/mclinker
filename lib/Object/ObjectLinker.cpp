@@ -175,10 +175,6 @@ bool ObjectLinker::linkable() const
     return false;
   }
 
-  // check all attributes are legal
-  if (!m_Config.inputFactory().checkAttributes())
-    return false;
-
   // can not mix -static with shared objects
   Module::const_lib_iterator lib, libEnd = m_Module.lib_end();
   for (lib = m_Module.lib_begin(); lib != libEnd; ++lib) {

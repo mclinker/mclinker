@@ -13,11 +13,12 @@
 #endif
 #include <mcld/Support/GCFactory.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/Attribute.h>
 
 namespace mcld {
 
+class AttributeProxy;
 class AttributeSet;
+class AttributeOption;
 
 /** \class InputFactory
  *  \brief InputFactory controls the production and destruction of
@@ -34,34 +35,22 @@ public:
   typedef GCFactory<Input, 0> Alloc;
 
 public:
-  explicit InputFactory(size_t pNum);
+  InputFactory(size_t pNum, const AttributeOption& pAttribute);
   ~InputFactory();
 
-  // -----  production  ----- //
+  // -----  input  ----- //
   Input* produce(llvm::StringRef pName,
                  const sys::fs::Path& pPath,
                  unsigned int pType = Input::Unknown,
                  off_t pFileOffset = 0);
 
-  // predefined - return the predefined attribute
-  const Attribute& predefined() const { return m_Predefined; }
-  Attribute&       predefined()       { return m_Predefined; }
-
-  // constraint - return the constraint of attributes
-  const AttrConstraint& constraint() const { return m_Constraint; }
-  AttrConstraint&       constraint()       { return m_Constraint; }
-
-  // attr - the last touched attribute.
+  // -----  attributes  ----- //
+  /// attr - the last touched attribute.
   const AttributeProxy& attr() const { return *m_pLast; }
   AttributeProxy&       attr()       { return *m_pLast; }
 
-  bool checkAttributes() const;
-
 private:
-  Attribute m_Predefined;
-  AttrConstraint m_Constraint;
   AttributeProxy* m_pLast;
-
   AttributeSet* m_pAttrSet;
 };
 

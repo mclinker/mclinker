@@ -8,17 +8,20 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/AttributeSet.h>
+#include <mcld/AttributeOption.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // InputFactory
 //===----------------------------------------------------------------------===//
-InputFactory::InputFactory(size_t pNum)
+InputFactory::InputFactory(size_t pNum, const AttributeOption& pAttribute)
   : GCFactory<Input,0>(pNum) {
 
-  m_pAttrSet = new AttributeSet(16, m_Predefined);
-  m_pLast = new AttributeProxy(*m_pAttrSet, m_Predefined, m_Constraint);
+  m_pAttrSet = new AttributeSet(16, pAttribute.predefined());
+  m_pLast = new AttributeProxy(*m_pAttrSet,
+                               pAttribute.predefined(),
+                               pAttribute.constraint());
 }
 
 InputFactory::~InputFactory()
@@ -35,16 +38,5 @@ Input* InputFactory::produce(llvm::StringRef pName,
   Input* result = Alloc::allocate();
   new (result) Input(pName, pPath, *m_pLast, pType, pFileOffset);
   return result;
-}
-
-bool InputFactory::checkAttributes() const
-{
-  AttributeSet::const_iterator attr, attrEnd = m_pAttrSet->end();
-  for (attr=m_pAttrSet->begin(); attr!=attrEnd; ++attr) {
-    if (!m_Constraint.isLegal(**attr)) {
-      return false;
-    }
-  }
-  return true;
 }
 

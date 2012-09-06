@@ -29,13 +29,13 @@ static const char* gDefaultSysroot = "/";
 ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attributes
-  getLDConfig()->inputFactory().constraint().enableWholeArchive();
-  getLDConfig()->inputFactory().constraint().disableAsNeeded();
-  getLDConfig()->inputFactory().constraint().setSharedSystem();
+  getLDConfig()->attribute().constraint().enableWholeArchive();
+  getLDConfig()->attribute().constraint().disableAsNeeded();
+  getLDConfig()->attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
-  getLDConfig()->inputFactory().predefined().setDynamic();
+  getLDConfig()->attribute().predefined().unsetWholeArchive();
+  getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {
@@ -56,13 +56,13 @@ MipsLinkerConfig::MipsLinkerConfig()
   : LinkerConfig(DEFAULT_MIPS_TRIPLE_STRING) {
 
   // set up target-dependent constraints of attibutes
-  getLDConfig()->inputFactory().constraint().enableWholeArchive();
-  getLDConfig()->inputFactory().constraint().disableAsNeeded();
-  getLDConfig()->inputFactory().constraint().setSharedSystem();
+  getLDConfig()->attribute().constraint().enableWholeArchive();
+  getLDConfig()->attribute().constraint().disableAsNeeded();
+  getLDConfig()->attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
-  getLDConfig()->inputFactory().predefined().setDynamic();
+  getLDConfig()->attribute().predefined().unsetWholeArchive();
+  getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {
@@ -82,13 +82,13 @@ MipsLinkerConfig::MipsLinkerConfig()
 X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   : LinkerConfig(pTriple) {
   // set up target-dependent constraints of attibutes
-  getLDConfig()->inputFactory().constraint().enableWholeArchive();
-  getLDConfig()->inputFactory().constraint().disableAsNeeded();
-  getLDConfig()->inputFactory().constraint().setSharedSystem();
+  getLDConfig()->attribute().constraint().enableWholeArchive();
+  getLDConfig()->attribute().constraint().disableAsNeeded();
+  getLDConfig()->attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  getLDConfig()->inputFactory().predefined().unsetWholeArchive();
-  getLDConfig()->inputFactory().predefined().setDynamic();
+  getLDConfig()->attribute().predefined().unsetWholeArchive();
+  getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
   if (getLDConfig()->options().sysroot().empty()) {

@@ -22,6 +22,8 @@
 
 namespace mcld {
 
+class LinkerConfig;
+class AttrConstraint;
 class MemoryAreaFactory;
 class ContextFactory;
 
@@ -33,7 +35,8 @@ class ContextFactory;
 class InputBuilder
 {
 public:
-  InputBuilder(InputFactory& pInputFactory,
+  InputBuilder(const LinkerConfig& pConfig,
+               InputFactory& pInputFactory,
                MemoryAreaFactory& pMemFactory,
                ContextFactory& pContextFactory);
 
@@ -72,13 +75,14 @@ public:
   const InputTree::iterator& getCurrentNode() const { return m_Root; }
   InputTree::iterator&       getCurrentNode()       { return m_Root; }
 
-  const AttrConstraint& getConstraint() const { return m_InputFactory.constraint(); }
-  AttrConstraint&       getConstraint()       { return m_InputFactory.constraint(); }
+  const AttrConstraint& getConstraint() const;
 
   const AttributeProxy& getAttributes() const { return m_InputFactory.attr(); }
   AttributeProxy&       getAttributes()       { return m_InputFactory.attr(); }
 
 private:
+  const LinkerConfig& m_Config;
+
   InputFactory& m_InputFactory;
   MemoryAreaFactory& m_MemFactory;
   ContextFactory& m_ContextFactory;

@@ -21,14 +21,14 @@ ARMELFMCLinker::ARMELFMCLinker(SectLinkerOption &pOption,
   : MCLinker(pOption, pLDBackend, pModule, pOutput) {
   LinkerConfig &config = pOption.config();
   // set up target-dependent constraints of attributes
-  config.inputFactory().constraint().enableWholeArchive();
-  config.inputFactory().constraint().enableAsNeeded();
-  config.inputFactory().constraint().setSharedSystem();
+  config.attribute().constraint().enableWholeArchive();
+  config.attribute().constraint().enableAsNeeded();
+  config.attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  config.inputFactory().predefined().unsetWholeArchive();
-  config.inputFactory().predefined().unsetAsNeeded();
-  config.inputFactory().predefined().setDynamic();
+  config.attribute().predefined().unsetWholeArchive();
+  config.attribute().predefined().unsetAsNeeded();
+  config.attribute().predefined().setDynamic();
 
 }
 

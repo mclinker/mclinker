@@ -14,7 +14,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // AttributeSet
 //===----------------------------------------------------------------------===//
-AttributeSet::AttributeSet(size_t pNum, Attribute& pPredefined)
+AttributeSet::AttributeSet(size_t pNum, const Attribute& pPredefined)
   : m_AttrSet(), m_Predefined(pPredefined) {
   m_AttrSet.reserve(pNum);
 }
@@ -33,7 +33,7 @@ AttributeSet::~AttributeSet()
 Attribute* AttributeSet::exists(const Attribute& pAttr) const
 {
   if (m_Predefined == pAttr)
-    return &m_Predefined;
+    return const_cast<Attribute*>(&m_Predefined);
 
   const_iterator cur = m_AttrSet.begin();
   const_iterator aEnd = m_AttrSet.end();

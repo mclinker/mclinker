@@ -86,7 +86,8 @@ bool MCLinker::doInitialization(llvm::Module &pM)
 {
   LinkerConfig &config = m_pOption->config();
 
-  m_pBuilder = new InputBuilder(config.inputFactory(),
+  m_pBuilder = new InputBuilder(config,
+                                config.inputFactory(),
                                 m_MemAreaFactory,
                                 m_ContextFactory);
 
@@ -306,7 +307,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
           static_cast<const NamespecOption*>(*option);
 
       // find out the real path of the namespec.
-      if (config.inputFactory().constraint().isSharedSystem()) {
+      if (config.attribute().constraint().isSharedSystem()) {
         // In the system with shared object support, we can find both archive
         // and shared object.
 

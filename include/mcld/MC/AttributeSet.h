@@ -33,7 +33,7 @@ public:
   typedef AttrSet::const_iterator const_iterator;
 
 public:
-  AttributeSet(size_t pNum, Attribute& pPredefined);
+  AttributeSet(size_t pNum, const Attribute& pPredefined);
 
   ~AttributeSet();
 
@@ -52,7 +52,7 @@ public:
 
 private:
   AttrSet m_AttrSet;
-  Attribute& m_Predefined;
+  const Attribute& m_Predefined;
 };
 
 } // namespace of mcld

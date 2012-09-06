@@ -21,10 +21,11 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString, size_t pInputNum)
   : m_Options(),
     m_Scripts(),
     m_Bitcode(),
+    m_Attribute(),
     m_Triple(pTripleString),
     m_CodeGenType(Unknown)
 {
-  m_pInputFactory = new InputFactory(pInputNum);
+  m_pInputFactory = new InputFactory(pInputNum, m_Attribute);
 }
 
 LinkerConfig::~LinkerConfig()

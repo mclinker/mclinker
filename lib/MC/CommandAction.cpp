@@ -9,6 +9,7 @@
 #include <mcld/MC/CommandAction.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/SearchDirs.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;

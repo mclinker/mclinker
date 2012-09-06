@@ -1,4 +1,4 @@
-//===- AttributeOptions.cpp -----------------------------------------------===//
+//===- AttributeOption.cpp ------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/AttributeOptions.h>
+#include <mcld/AttributeOption.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// AttributeOptions
+// AttributeOption
 //===----------------------------------------------------------------------===//
-AttributeOptions::AttributeOptions()
+AttributeOption::AttributeOption()
 {
 }
 
-AttributeOptions::~AttributeOptions()
+AttributeOption::~AttributeOption()
 {
 }

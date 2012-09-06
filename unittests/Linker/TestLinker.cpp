@@ -105,7 +105,8 @@ bool TestLinker::initialize(const std::string &pTriple)
   m_pMemAreaFactory = new MemoryAreaFactory(32);
   m_pContextFactory = new ContextFactory(32);
 
-  m_pBuilder = new mcld::InputBuilder(m_pConfig->inputFactory(),
+  m_pBuilder = new mcld::InputBuilder(*m_pConfig,
+                                      m_pConfig->inputFactory(),
                                       *m_pMemAreaFactory,
                                       *m_pContextFactory);
 
@@ -208,7 +209,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
 {
   mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
-  if (m_pConfig->inputFactory().constraint().isSharedSystem()) {
+  if (m_pConfig->attribute().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
