@@ -50,7 +50,7 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
 //===----------------------------------------------------------------------===//
 AttributeProxy::AttributeProxy(AttributeSet& pParent,
                                Attribute& pBase,
-                               AttrConstraint& pConstraint)
+                               const AttrConstraint& pConstraint)
   : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
 }
 

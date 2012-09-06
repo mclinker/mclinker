@@ -183,7 +183,7 @@ class AttributeProxy
 public:
   AttributeProxy(AttributeSet& pParent,
                  Attribute& pBase,
-                 AttrConstraint& pConstraint);
+                 const AttrConstraint& pConstraint);
 
   ~AttributeProxy();
 
@@ -219,7 +219,7 @@ public:
 private:
   AttributeSet &m_AttrPool;
   Attribute *m_pBase;
-  AttrConstraint& m_Constraint;
+  const AttrConstraint& m_Constraint;
 };
 
 
