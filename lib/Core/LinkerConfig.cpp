@@ -8,16 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LinkerConfig.h>
 #include <mcld/Config/Config.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/Support/FileSystem.h>
-#include <string>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // LinkerConfig
 //===----------------------------------------------------------------------===//
-LinkerConfig::LinkerConfig(const std::string& pTripleString, size_t pInputNum)
+LinkerConfig::LinkerConfig(const std::string& pTripleString)
   : m_Options(),
     m_Scripts(),
     m_Bitcode(),
@@ -25,12 +22,10 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString, size_t pInputNum)
     m_Triple(pTripleString),
     m_CodeGenType(Unknown)
 {
-  m_pInputFactory = new InputFactory(pInputNum, m_Attribute);
 }
 
 LinkerConfig::~LinkerConfig()
 {
-  delete m_pInputFactory;
 }
 
 const char* LinkerConfig::version()

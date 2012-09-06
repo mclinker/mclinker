@@ -58,6 +58,7 @@ MCLinker::MCLinker(SectLinkerOption &pOption,
     m_Module(pModule),
     m_Output(pOutput),
     m_pObjLinker(NULL),
+    m_InputFactory(MCLD_NUM_OF_INPUTS, pOption.config().attribute()),
     m_MemAreaFactory(MCLD_NUM_OF_INPUTS),
     m_ContextFactory(MCLD_NUM_OF_INPUTS),
     m_pBuilder(NULL) {
@@ -87,7 +88,7 @@ bool MCLinker::doInitialization(llvm::Module &pM)
   LinkerConfig &config = m_pOption->config();
 
   m_pBuilder = new InputBuilder(config,
-                                config.inputFactory(),
+                                m_InputFactory,
                                 m_MemAreaFactory,
                                 m_ContextFactory);
 
@@ -220,7 +221,7 @@ void MCLinker::initializeInputOutput()
   }
 }
 
-void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions) const
+void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions)
 {
   if (pPosDepOptions.empty())
     fatal(diag::err_no_inputs);
@@ -263,8 +264,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
             static_cast<const BitCodeOption*>(*option);
 
         // threat bitcode as an external IR in this version.
-        Input* input = config.inputFactory().produce(
-                                              bitcode_option->path()->native(),
+        Input* input = m_InputFactory.produce(bitcode_option->path()->native(),
                                               *(bitcode_option->path()),
                                               Input::External);
 
@@ -286,7 +286,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
         const InputFileOption *input_file_option =
             static_cast<const InputFileOption*>(*option);
 
-        Input* input = config.inputFactory().produce(
+        Input* input = m_InputFactory.produce(
                                            input_file_option->path()->native(),
                                            *(input_file_option->path()));
 
@@ -311,7 +311,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
         // In the system with shared object support, we can find both archive
         // and shared object.
 
-        if (config.inputFactory().attr().isStatic()) {
+        if (m_InputFactory.attr().isStatic()) {
           // with --static, we must search an archive.
           path = config.options().directories().find(namespec_option->namespec(),
                                                    Input::Archive);
@@ -333,8 +333,7 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       if (NULL == path)
         fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
 
-      Input* input = config.inputFactory().produce(namespec_option->namespec(),
-                                                   *path);
+      Input* input = m_InputFactory.produce(namespec_option->namespec(), *path);
       m_Module.getInputTree().insert(root, *move, *input);
 
       // iterate root on the new created node.
@@ -361,28 +360,28 @@ void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOption
       move = &InputTree::Afterward;
       break;
     case PositionDependentOption::WHOLE_ARCHIVE:
-      config.inputFactory().attr().setWholeArchive();
+      m_InputFactory.attr().setWholeArchive();
       break;
     case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      config.inputFactory().attr().unsetWholeArchive();
+      m_InputFactory.attr().unsetWholeArchive();
       break;
     case PositionDependentOption::AS_NEEDED:
-      config.inputFactory().attr().setAsNeeded();
+      m_InputFactory.attr().setAsNeeded();
       break;
     case PositionDependentOption::NO_AS_NEEDED:
-      config.inputFactory().attr().unsetAsNeeded();
+      m_InputFactory.attr().unsetAsNeeded();
       break;
     case PositionDependentOption::ADD_NEEDED:
-      config.inputFactory().attr().setAddNeeded();
+      m_InputFactory.attr().setAddNeeded();
       break;
     case PositionDependentOption::NO_ADD_NEEDED:
-      config.inputFactory().attr().unsetAddNeeded();
+      m_InputFactory.attr().unsetAddNeeded();
       break;
     case PositionDependentOption::BSTATIC:
-      config.inputFactory().attr().setStatic();
+      m_InputFactory.attr().setStatic();
       break;
     case PositionDependentOption::BDYNAMIC:
-      config.inputFactory().attr().setDynamic();
+      m_InputFactory.attr().setDynamic();
       break;
     default:
       fatal(diag::err_cannot_identify_option) << (*option)->position()

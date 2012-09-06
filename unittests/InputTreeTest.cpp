@@ -26,7 +26,7 @@ InputTreeTest::InputTreeTest()
   : m_MemFactory(10), m_ContextFactory(4) {
 
   // create testee. modify it if need
-  m_pConfig = new mcld::LinkerConfig("arm-none-linux-gnueabi", 10);
+  m_pConfig = new mcld::LinkerConfig("arm-none-linux-gnueabi");
   m_pAlloc  = new mcld::InputFactory(10, m_pConfig->attribute());
   m_pBuilder = new mcld::InputBuilder(*m_pConfig,
                                       *m_pAlloc, m_MemFactory,

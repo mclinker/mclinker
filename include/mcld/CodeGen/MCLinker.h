@@ -19,6 +19,7 @@
 #include <llvm/CodeGen/MachineFunctionPass.h>
 #include <mcld/Support/PositionDependentOption.h>
 #include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/MC/ContextFactory.h>
 #include <vector>
 
@@ -86,7 +87,7 @@ public:
   virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
 protected:
-  void initializeInputTree(const PositionDependentOptions &pOptions) const;
+  void initializeInputTree(const PositionDependentOptions &pOptions);
 
   void initializeInputOutput();
 
@@ -99,6 +100,7 @@ protected:
   MemoryArea& m_Output;
   ObjectLinker* m_pObjLinker;
 
+  InputFactory m_InputFactory;
   MemoryAreaFactory m_MemAreaFactory;
   ContextFactory m_ContextFactory;
 

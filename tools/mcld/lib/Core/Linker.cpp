@@ -76,15 +76,15 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mContextFactory(NULL), mBuilder(NULL), mLDConfig(NULL), mRoot(NULL),
-    mOutput(NULL) {
+  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mInputFactory(NULL),
+    mMemAreaFactory(NULL), mContextFactory(NULL), mBuilder(NULL),
+    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mMemAreaFactory(NULL),
-    mContextFactory(NULL), mBuilder(NULL), mLDConfig(NULL), mRoot(NULL),
-    mOutput(NULL) {
+  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mInputFactory(NULL),
+    mMemAreaFactory(NULL), mContextFactory(NULL), mBuilder(NULL),
+    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -105,6 +105,7 @@ Linker::~Linker() {
   // in FragmentLinker (FragmentLinker is deleted by ObjectLinker) depends on
   // RelocationFactory in TargetLDBackend
   delete mBackend;
+  delete mInputFactory;
   delete mMemAreaFactory;
   delete mContextFactory;
   delete mBuilder;
@@ -131,6 +132,8 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
     return kCreateBackend;
   }
 
+  mInputFactory = new mcld::InputFactory(32, mLDConfig->attribute());
+
   mMemAreaFactory = new MemoryFactory();
 
   mContextFactory = new mcld::ContextFactory(32);
@@ -141,7 +144,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
   mRoot = new mcld::InputTree::iterator(mModule->getInputTree().root());
 
   mBuilder = new mcld::InputBuilder(*mLDConfig,
-                                    mLDConfig->inputFactory(),
+                                    *mInputFactory,
                                     *mMemAreaFactory,
                                     *mContextFactory);
 
@@ -184,7 +187,7 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (mLDConfig->inputFactory().attr().isStatic()) {
+    if (mInputFactory->attr().isStatic()) {
       // with --static, we must search an archive.
       path = mLDConfig->options().directories().find(pNameSpec,
                                                    mcld::Input::Archive);
@@ -206,8 +209,8 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
   if (NULL == path)
     return kFindNameSpec;
 
-  mcld::Input* input = mLDConfig->inputFactory().produce(pNameSpec, *path,
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = mInputFactory->produce(pNameSpec, *path,
+                                              mcld::Input::Unknown);
   mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
   advanceRoot();
@@ -217,9 +220,9 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
 
 /// addObject - Add a object file by the filename.
 enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
-  mcld::Input* input = mLDConfig->inputFactory().produce(pObjectPath,
-                                                       pObjectPath,
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = mInputFactory->produce(pObjectPath,
+                                              pObjectPath,
+                                              mcld::Input::Unknown);
 
   mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
@@ -231,9 +234,8 @@ enum Linker::ErrorCode Linker::addObject(const std::string &pObjectPath) {
 /// addObject - Add a piece of memory. The memory is of ELF format.
 enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
 
-  mcld::Input* input = mLDConfig->inputFactory().produce("memory object",
-                                                       "NAN",
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = mInputFactory->produce("memory object", "NAN",
+                                              mcld::Input::Unknown);
 
   mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 
@@ -249,9 +251,8 @@ enum Linker::ErrorCode Linker::addObject(void* pMemory, size_t pSize) {
 }
 
 enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
-  mcld::Input* input = mLDConfig->inputFactory().produce("code object",
-                                                       "NAN",
-                                                       mcld::Input::External);
+  mcld::Input* input = mInputFactory->produce("code object", "NAN",
+                                              mcld::Input::External);
 
   mModule->getInputTree().insert<mcld::InputTree::Positional>(*mRoot, *input);
 

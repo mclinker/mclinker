@@ -33,7 +33,7 @@ using namespace mcld::test;
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pObjLinker(NULL), m_pConfig(NULL), m_pDiagLineInfo(NULL),
-    m_pDiagPrinter(NULL), m_pBackend(NULL),
+    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pInputFactory(NULL),
     m_pMemAreaFactory(NULL), m_pBuilder(NULL), m_pOutput(NULL) {
 }
 
@@ -52,6 +52,7 @@ TestLinker::~TestLinker()
   delete m_pDiagLineInfo;
   delete m_pDiagPrinter;
   delete m_pBackend;
+  delete m_pInputFactory;
   delete m_pMemAreaFactory;
   delete m_pBuilder;
   delete m_pOutput;
@@ -73,7 +74,7 @@ bool TestLinker::initialize(const std::string &pTriple)
   mcld::InitializeAllDiagnostics();
 
   // create mcld::LinkerConfig
-  m_pConfig = new LinkerConfig(pTriple, 32);
+  m_pConfig = new LinkerConfig(pTriple);
   m_Root = m_Module.getInputTree().root();
 
   // specify mcld::Target
@@ -102,11 +103,12 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
+  m_pInputFactory = new InputFactory(32, m_pConfig->attribute());
   m_pMemAreaFactory = new MemoryAreaFactory(32);
   m_pContextFactory = new ContextFactory(32);
 
   m_pBuilder = new mcld::InputBuilder(*m_pConfig,
-                                      m_pConfig->inputFactory(),
+                                      *m_pInputFactory,
                                       *m_pMemAreaFactory,
                                       *m_pContextFactory);
 
@@ -144,8 +146,8 @@ void TestLinker::setSysRoot(const mcld::sys::fs::Path &pPath)
 
 void TestLinker::addObject(const std::string &pPath)
 {
-  mcld::Input* input = m_pConfig->inputFactory().produce(pPath, pPath,
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = m_pInputFactory->produce(pPath, pPath,
+                                                mcld::Input::Unknown);
 
   m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
@@ -168,8 +170,8 @@ void TestLinker::addObject(const std::string &pPath)
 
 void TestLinker::addObject(void* pMemBuffer, size_t pSize)
 {
-  mcld::Input* input = m_pConfig->inputFactory().produce("memory object", "NAN",
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = m_pInputFactory->produce("memory object", "NAN",
+                                                mcld::Input::Unknown);
 
   m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
@@ -186,8 +188,8 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
 
 void TestLinker::addObject(int pFileHandler)
 {
-  mcld::Input* input = m_pConfig->inputFactory().produce("handler object", "NAN",
-                                                       mcld::Input::Unknown);
+  mcld::Input* input = m_pInputFactory->produce("handler object", "NAN",
+                                                mcld::Input::Unknown);
 
   m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 
@@ -213,7 +215,7 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
     // In the system with shared object support, we can find both archive
     // and shared object.
 
-    if (m_pConfig->inputFactory().attr().isStatic()) {
+    if (m_pInputFactory->attr().isStatic()) {
       // with --static, we must search an archive.
       path = m_pConfig->options().directories().find(pNameSpec,
                                                      mcld::Input::Archive);
@@ -237,8 +239,8 @@ void TestLinker::addNameSpec(const std::string &pNameSpec)
     return;
   }
 
-  mcld::Input* input = m_pConfig->inputFactory().produce(pNameSpec, *path,
-                                                         mcld::Input::Unknown);
+  mcld::Input* input = m_pInputFactory->produce(pNameSpec, *path,
+                                                mcld::Input::Unknown);
 
   m_Module.getInputTree().insert<mcld::InputTree::Positional>(m_Root, *input);
 

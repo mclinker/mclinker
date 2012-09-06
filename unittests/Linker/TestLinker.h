@@ -28,6 +28,7 @@ class FileHandle;
 class LinkerConfig;
 class TargetLDBackend;
 class RegionFactory;
+class InputFactory;
 class MemoryAreaFactory;
 class ContextFactory;
 class InputBuilder;
@@ -53,13 +54,9 @@ public:
     return m_pConfig;
   }
 
-  Module* module() {
-    return &m_Module;
-  }
+  const Module* module() const { return &m_Module; }
+  Module*       module()       { return &m_Module; }
 
-  const Module* module() const {
-    return &m_Module;
-  }
   // -----  search directories  ----- //
   void addSearchDir(const std::string &pPath);
 
@@ -123,6 +120,7 @@ private:
   mcld::DiagnosticPrinter* m_pDiagPrinter;
   mcld::TargetLDBackend* m_pBackend;
   mcld::InputTree::iterator m_Root;
+  mcld::InputFactory* m_pInputFactory;
   mcld::MemoryAreaFactory* m_pMemAreaFactory;
   mcld::ContextFactory* m_pContextFactory;
 

@@ -21,7 +21,6 @@
 #include <mcld/Support/Path.h>
 
 #include <string>
-#include <cassert>
 
 namespace mcld {
 
@@ -44,7 +43,7 @@ public:
   };
 
 public:
-  LinkerConfig(const std::string &pTripleString, size_t InputSize);
+  explicit LinkerConfig(const std::string &pTripleString);
 
   ~LinkerConfig();
 
@@ -64,9 +63,6 @@ public:
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
-  const InputFactory& inputFactory() const { return *m_pInputFactory; }
-  InputFactory&       inputFactory()       { return *m_pInputFactory; }
-
   const llvm::Triple& triple() const
   { return m_Triple; }
 
@@ -81,9 +77,6 @@ private:
 
   llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
-
-  // -----  factories  ----- //
-  InputFactory *m_pInputFactory;
 };
 
 } // namespace of mcld

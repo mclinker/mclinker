@@ -23,8 +23,7 @@ mcld::MipsBaseTargetMachine::MipsBaseTargetMachine(llvm::TargetMachine& pPM,
                                                    const mcld::Target &pTarget,
                                                    const std::string& pTriple)
   : mcld::LLVMTargetMachine(pPM, pTarget, pTriple) {
-  // arg2 - the most possible number of input files
-  m_pConfig = new LinkerConfig(pTriple, 64);
+  m_pConfig = new LinkerConfig(pTriple);
 }
 
 mcld::MipsBaseTargetMachine::~MipsBaseTargetMachine()

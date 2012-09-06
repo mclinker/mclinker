@@ -22,6 +22,7 @@ class ContextFactory;
 class LinkerConfig;
 class TreeIteratorBase;
 class Input;
+class InputFactory;
 class InputBuilder;
 class MemoryArea;
 
@@ -63,6 +64,7 @@ private:
   mcld::Module *mModule;
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
+  mcld::InputFactory *mInputFactory;
   MemoryFactory *mMemAreaFactory;
   mcld::ContextFactory *mContextFactory;
   mcld::InputBuilder *mBuilder;
