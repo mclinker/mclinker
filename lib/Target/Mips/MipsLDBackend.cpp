@@ -69,7 +69,8 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void MipsGNULDBackend::initTargetSections(FragmentLinker& pLinker)
+void MipsGNULDBackend::initTargetSections(Module& pModule,
+                                          FragmentLinker& pLinker)
 {
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -79,7 +80,8 @@ void MipsGNULDBackend::initTargetSections(FragmentLinker& pLinker)
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(reldyn,
+  m_pRelDyn = new OutputRelocSection(pModule,
+                                     reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
 }

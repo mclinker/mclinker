@@ -17,6 +17,8 @@
 namespace mcld
 {
 
+class LDSymbol;
+class Module;
 class Relocation;
 class RelocationFactory;
 
@@ -26,7 +28,8 @@ class RelocationFactory;
 class OutputRelocSection
 {
 public:
-  OutputRelocSection(LDSection& pSection,
+  OutputRelocSection(Module& pModule,
+                     LDSection& pSection,
                      SectionData& pSectionData,
                      unsigned int pEntrySize);
 
@@ -37,6 +40,10 @@ public:
   Relocation* consumeEntry();
 
   void finalizeSectionSize();
+
+  /// addSymbolToDynSym - add local symbol to TLS category so that it'll be
+  /// emitted into .dynsym
+  bool addSymbolToDynSym(LDSymbol& pSymbol);
 
   // ----- observers ----- //
   bool empty()
@@ -60,6 +67,8 @@ private:
 
   /// m_ValidEntryIterator - point to the first valid entry
   FragmentIterator m_ValidEntryIterator;
+
+  Module& m_Module;
 };
 
 } // namespace of mcld

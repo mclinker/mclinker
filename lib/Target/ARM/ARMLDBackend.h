@@ -82,7 +82,7 @@ public:
   bool initTargetSectionMap(SectionMap& pSectionMap);
 
   /// initTargetSections - initialize target dependent sections in output.
-  void initTargetSections(FragmentLinker& pLinker);
+  void initTargetSections(Module& pModule, FragmentLinker& pLinker);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
   void initTargetSymbols(FragmentLinker& pLinker);

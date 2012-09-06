@@ -117,7 +117,7 @@ bool ObjectLinker::initStdSections()
   } // end of switch
 
   // initialize target-dependent sections
-  m_LDBackend.initTargetSections(*m_pLinker);
+  m_LDBackend.initTargetSections(m_Module, *m_pLinker);
 
   return true;
 }

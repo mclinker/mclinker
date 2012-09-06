@@ -87,7 +87,8 @@ bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void ARMGNULDBackend::initTargetSections(FragmentLinker& pLinker)
+void ARMGNULDBackend::initTargetSections(Module& pModule,
+                                         FragmentLinker& pLinker)
 {
  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
  // them from input
@@ -121,13 +122,15 @@ void ARMGNULDBackend::initTargetSections(FragmentLinker& pLinker)
   LDSection& relplt = file_format->getRelPlt();
   relplt.setLink(&plt);
   // create SectionData and ARMRelDynSection
-  m_pRelPLT = new OutputRelocSection(relplt,
+  m_pRelPLT = new OutputRelocSection(pModule,
+                                     relplt,
                                      pLinker.getOrCreateSectData(relplt),
                                      8);
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(reldyn,
+  m_pRelDyn = new OutputRelocSection(pModule,
+                                     reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
 }

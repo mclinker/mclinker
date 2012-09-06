@@ -592,7 +592,8 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
   return true;
 }
 
-void X86GNULDBackend::initTargetSections(FragmentLinker& pLinker)
+void X86GNULDBackend::initTargetSections(Module& pModule,
+                                         FragmentLinker& pLinker)
 {
   ELFFileFormat* file_format = getOutputFormat();
   // initialize .got
@@ -613,12 +614,14 @@ void X86GNULDBackend::initTargetSections(FragmentLinker& pLinker)
   // initialize .rel.plt
   LDSection& relplt = file_format->getRelPlt();
   relplt.setLink(&plt);
-  m_pRelPLT = new OutputRelocSection(relplt,
+  m_pRelPLT = new OutputRelocSection(pModule,
+                                     relplt,
                                      pLinker.getOrCreateSectData(relplt),
                                      8);
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(reldyn,
+  m_pRelDyn = new OutputRelocSection(pModule,
+                                     reldyn,
                                      pLinker.getOrCreateSectData(reldyn),
                                      8);
 }

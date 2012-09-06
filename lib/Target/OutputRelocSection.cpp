@@ -7,23 +7,25 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <mcld/Target/OutputRelocSection.h>
-
 #include <llvm/Support/Casting.h>
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // OutputRelocSection
 //===----------------------------------------------------------------------===//
-OutputRelocSection::OutputRelocSection(LDSection& pSection,
+OutputRelocSection::OutputRelocSection(Module& pModule,
+                                       LDSection& pSection,
                                        SectionData& pSectionData,
                                        unsigned int pEntrySize)
-  : m_pSection(&pSection),
+  : m_Module(pModule),
+    m_pSection(&pSection),
     m_pSectionData(&pSectionData),
     m_EntryBytes(pEntrySize),
     m_isVisit(false),
@@ -69,3 +71,8 @@ void OutputRelocSection::finalizeSectionSize()
   m_pSection->setSize(m_pSectionData->size() * m_EntryBytes);
 }
 
+bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)
+{
+  m_Module.getSymbolTable().changeLocalToTLS(pSymbol);
+  return true;
+}
