@@ -57,8 +57,6 @@ public:
   const BitcodeOption&  bitcode() const { return m_Bitcode; }
   BitcodeOption&        bitcode()       { return m_Bitcode; }
 
-  void setBitcode(const sys::fs::Path& pPath, unsigned int pPosition);
-
   const AttributeOption& attribute() const { return m_Attribute; }
   AttributeOption&       attribute()       { return m_Attribute; }
 

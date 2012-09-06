@@ -33,12 +33,6 @@ LinkerConfig::~LinkerConfig()
   delete m_pInputFactory;
 }
 
-void LinkerConfig::setBitcode(const sys::fs::Path& pPath, unsigned int pPosition)
-{
-  m_Bitcode.setPath(pPath);
-  m_Bitcode.setPosition(pPosition);
-}
-
 const char* LinkerConfig::version()
 {
   return MCLD_VERSION;
