@@ -76,15 +76,15 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
 // Linker
 //===----------------------------------------------------------------------===//
 Linker::Linker()
-  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mInputFactory(NULL),
-    mMemAreaFactory(NULL), mContextFactory(NULL), mBuilder(NULL),
-    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
+  : mLDConfig(NULL), mModule(NULL), mBackend(NULL), mObjLinker(NULL),
+    mInputFactory(NULL), mMemAreaFactory(NULL), mContextFactory(NULL),
+    mBuilder(NULL), mRoot(NULL), mOutput(NULL) {
 }
 
 Linker::Linker(const LinkerConfig& pConfig)
-  : mModule(NULL), mBackend(NULL), mObjLinker(NULL), mInputFactory(NULL),
-    mMemAreaFactory(NULL), mContextFactory(NULL), mBuilder(NULL),
-    mLDConfig(NULL), mRoot(NULL), mOutput(NULL) {
+  : mLDConfig(NULL), mModule(NULL), mBackend(NULL), mObjLinker(NULL),
+    mInputFactory(NULL), mMemAreaFactory(NULL), mContextFactory(NULL),
+    mBuilder(NULL), mRoot(NULL), mOutput(NULL) {
 
   const std::string &triple = pConfig.getTriple();
 
@@ -113,7 +113,7 @@ Linker::~Linker() {
 }
 
 enum Linker::ErrorCode Linker::extractFiles(const LinkerConfig& pConfig) {
-  mLDConfig = const_cast<mcld::LinkerConfig*>(pConfig.getLDConfig());
+  mLDConfig = pConfig.getLDConfig();
   if (mLDConfig == NULL) {
     return kDelegateLDInfo;
   }
@@ -181,7 +181,7 @@ enum Linker::ErrorCode Linker::openFile(const mcld::sys::fs::Path& pPath,
 }
 
 enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
-  mcld::sys::fs::Path* path = NULL;
+  const mcld::sys::fs::Path* path = NULL;
   // find out the real path of the namespec.
   if (mLDConfig->attribute().constraint().isSharedSystem()) {
     // In the system with shared object support, we can find both archive
@@ -190,13 +190,13 @@ enum Linker::ErrorCode Linker::addNameSpec(const std::string &pNameSpec) {
     if (mInputFactory->attr().isStatic()) {
       // with --static, we must search an archive.
       path = mLDConfig->options().directories().find(pNameSpec,
-                                                   mcld::Input::Archive);
+                                                     mcld::Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
       path = mLDConfig->options().directories().find(pNameSpec,
-                                                   mcld::Input::DynObj);
+                                                     mcld::Input::DynObj);
     }
   }
   else {

@@ -41,7 +41,7 @@ class ExecWriter;
 class ObjectLinker
 {
 public:
-  ObjectLinker(LinkerConfig& pConfig,
+  ObjectLinker(const LinkerConfig& pConfig,
                TargetLDBackend& pLDBackend,
                Module& pModule,
                InputBuilder& pBuilder);
@@ -143,7 +143,7 @@ public:
   ExecWriter*          getExecWriter   ()       { return m_pExecWriter;    }
 
 private:
-  LinkerConfig& m_Config;
+  const LinkerConfig& m_Config;
   TargetLDBackend &m_LDBackend;
   Module& m_Module;
   FragmentLinker* m_pLinker;

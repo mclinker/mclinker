@@ -61,6 +61,7 @@ public:
   static const char *GetErrorString(enum ErrorCode pErrCode);
 
 private:
+  const mcld::LinkerConfig *mLDConfig;
   mcld::Module *mModule;
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
@@ -68,7 +69,6 @@ private:
   MemoryFactory *mMemAreaFactory;
   mcld::ContextFactory *mContextFactory;
   mcld::InputBuilder *mBuilder;
-  mcld::LinkerConfig *mLDConfig;
   mcld::TreeIteratorBase *mRoot;
   std::string mSOName;
   mcld::MemoryArea* mOutput;

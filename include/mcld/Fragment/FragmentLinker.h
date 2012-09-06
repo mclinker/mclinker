@@ -65,7 +65,7 @@ public:
   };
 
 public:
-  FragmentLinker(LinkerConfig& pConfig,
+  FragmentLinker(const LinkerConfig& pConfig,
                  TargetLDBackend& pBackend,
                  Module& pModule,
                  SectionMap& pSectionMap);
@@ -175,11 +175,7 @@ public:
   bool layout();
 
   // -----  capacity  ----- //
-  LinkerConfig& getLDInfo()
-  { return m_Config; }
-
-  const LinkerConfig& getLDInfo() const
-  { return m_Config; }
+  const LinkerConfig& getLDInfo() const { return m_Config; }
 
   // ----- output attribute ----- //
   /// isOutputPIC - return whether the output is position-independent
@@ -261,7 +257,7 @@ private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
 
 private:
-  LinkerConfig& m_Config;
+  const LinkerConfig& m_Config;
   TargetLDBackend& m_Backend;
   Module& m_Module;
   SectionMap& m_SectionMap;

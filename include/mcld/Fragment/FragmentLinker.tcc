@@ -23,7 +23,7 @@ LDSymbol* FragmentLinker::addSymbol(const llvm::StringRef& pName,
       ResolveInfo::Undefined == pDesc) {
     // If the renameMap is not empty, some symbols should be renamed.
     // --wrap and --portable defines the symbol rename map.
-    ScriptOptions::SymbolRenameMap::iterator renameSym
+    ScriptOptions::SymbolRenameMap::const_iterator renameSym
                                 = getLDInfo().scripts().renameMap().find(pName);
     if (renameSym != getLDInfo().scripts().renameMap().end())
       symbol_name = renameSym.getEntry()->value();

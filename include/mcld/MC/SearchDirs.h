@@ -48,8 +48,10 @@ public:
   ~SearchDirs();
 
   // find - give a namespec, return a real path of the shared object.
-  //
   sys::fs::Path* find(const std::string& pNamespec, mcld::Input::Type pPreferType);
+
+  const sys::fs::Path*
+  find(const std::string& pNamespec, mcld::Input::Type pPreferType) const;
 
   // -----  iterators  ----- //
   iterator begin()

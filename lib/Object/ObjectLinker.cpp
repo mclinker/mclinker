@@ -30,7 +30,7 @@
 using namespace llvm;
 using namespace mcld;
 
-ObjectLinker::ObjectLinker(LinkerConfig& pConfig,
+ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend,
                            Module& pModule,
                            InputBuilder& pBuilder)
