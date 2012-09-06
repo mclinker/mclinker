@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/ADT/Uncopyable.h>
+#include <vector>
 
 namespace mcld {
 
