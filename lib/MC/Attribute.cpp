@@ -49,7 +49,7 @@ bool AttrConstraint::isLegal(const Attribute& pAttr) const
 // AttributeProxy
 //===----------------------------------------------------------------------===//
 AttributeProxy::AttributeProxy(AttributeSet& pParent,
-                               Attribute& pBase,
+                               const Attribute& pBase,
                                const AttrConstraint& pConstraint)
   : m_AttrPool(pParent), m_pBase(&pBase), m_Constraint(pConstraint) {
 }
@@ -99,7 +99,7 @@ bool AttributeProxy::isDynamic() const
 }
 
 static inline void ReplaceOrRecord(AttributeSet& pParent,
-                                   Attribute *&pBase,
+                                   const Attribute *&pBase,
                                    Attribute *&pCopy)
 {
   Attribute *result = pParent.exists(*pCopy);

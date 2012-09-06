@@ -182,7 +182,7 @@ class AttributeProxy
 {
 public:
   AttributeProxy(AttributeSet& pParent,
-                 Attribute& pBase,
+                 const Attribute& pBase,
                  const AttrConstraint& pConstraint);
 
   ~AttributeProxy();
@@ -197,9 +197,6 @@ public:
   bool isStatic() const;
 
   bool isDynamic() const;
-
-  Attribute* attr()
-  { return m_pBase; }
 
   const Attribute* attr() const
   { return m_pBase; }
@@ -218,7 +215,7 @@ public:
 
 private:
   AttributeSet &m_AttrPool;
-  Attribute *m_pBase;
+  const Attribute *m_pBase;
   const AttrConstraint& m_Constraint;
 };
 

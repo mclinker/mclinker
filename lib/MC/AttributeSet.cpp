@@ -14,8 +14,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // AttributeSet
 //===----------------------------------------------------------------------===//
-AttributeSet::AttributeSet(size_t pNum,
-                                   Attribute& pPredefined)
+AttributeSet::AttributeSet(size_t pNum, Attribute& pPredefined)
   : m_AttrSet(), m_Predefined(pPredefined) {
   m_AttrSet.reserve(pNum);
 }
