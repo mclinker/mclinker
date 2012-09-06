@@ -14,6 +14,7 @@
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDDirectory.h>
+#include <mcld/MC/ZOption.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/Path.h>
 #include <mcld/Support/MsgHandling.h>
@@ -110,6 +111,100 @@ void LinkerConfig::setDyld(const std::string &pDyld) {
 void LinkerConfig::setSysRoot(const std::string &pSysRoot) {
   mLDConfig->options().setSysroot(mcld::sys::fs::Path(pSysRoot));
   return;
+}
+
+void LinkerConfig::setZOption(unsigned int pOptions) {
+  mcld::ZOption option;
+  if (pOptions & kCombReloc) {
+    option.setKind(mcld::ZOption::CombReloc);
+    mLDConfig->options().addZOption(option);
+  }
+  else {
+    option.setKind(mcld::ZOption::NoCombReloc);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kDefs) {
+    option.setKind(mcld::ZOption::Defs);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kExecStack) {
+    option.setKind(mcld::ZOption::ExecStack);
+    mLDConfig->options().addZOption(option);
+  }
+  else {
+    option.setKind(mcld::ZOption::NoExecStack);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kInitFirst) {
+    option.setKind(mcld::ZOption::InitFirst);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kInterPose) {
+    option.setKind(mcld::ZOption::InterPose);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kLoadFltr) {
+    option.setKind(mcld::ZOption::LoadFltr);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kMulDefs) {
+    option.setKind(mcld::ZOption::MulDefs);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kNoCopyReloc) {
+    option.setKind(mcld::ZOption::NoCopyReloc);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kNoDefaultLib) {
+    option.setKind(mcld::ZOption::NoDefaultLib);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kNoDelete) {
+    option.setKind(mcld::ZOption::NoDelete);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kNoDLOpen) {
+    option.setKind(mcld::ZOption::NoDLOpen);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kNoDump) {
+    option.setKind(mcld::ZOption::NoDump);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kRelro) {
+    option.setKind(mcld::ZOption::Relro);
+    mLDConfig->options().addZOption(option);
+  }
+  else {
+    option.setKind(mcld::ZOption::NoRelro);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kLazy) {
+    option.setKind(mcld::ZOption::Lazy);
+    mLDConfig->options().addZOption(option);
+  }
+  else {
+    option.setKind(mcld::ZOption::Now);
+    mLDConfig->options().addZOption(option);
+  }
+
+  if (pOptions & kOrigin) {
+    option.setKind(mcld::ZOption::Origin);
+    mLDConfig->options().addZOption(option);
+  }
 }
 
 void LinkerConfig::addWrap(const std::string &pWrapSymbol) {

@@ -42,6 +42,26 @@ private:
   bool initializeDiagnostic();
 
 public:
+  enum ZOptionEnum {
+    kCombReloc     = 1 << 0,  ///< [on] -z combreloc, [off] -z nocombreloc
+    kDefs          = 1 << 1,  ///< -z defs
+    kExecStack     = 1 << 2,  ///< [on] -z execstack, [off] -z noexecstack
+    kInitFirst     = 1 << 3,  ///< -z initfirst
+    kInterPose     = 1 << 4,  ///< -z interpose
+    kLoadFltr      = 1 << 5,  ///< -z loadfltr
+    kMulDefs       = 1 << 6,  ///< -z muldefs
+    kNoCopyReloc   = 1 << 7,  ///< -z nocopyreloc
+    kNoDefaultLib  = 1 << 8,  ///< -z nodefaultlib
+    kNoDelete      = 1 << 9,  ///< -z nodelete
+    kNoDLOpen      = 1 << 10, ///< -z nodlopen
+    kNoDump        = 1 << 11, ///< -z nodump
+    kRelro         = 1 << 12, ///< [on] -z relro, [off] -z norelro
+    kLazy          = 1 << 13, ///< [on] -z lazy, [off] -z now
+    kOrigin        = 1 << 14, ///< -z origin
+    kZOptionMask   = 0xFFFF,
+  };
+
+public:
   //===--------------------------------------------------------------------===//
   // Getters
   //===--------------------------------------------------------------------===//
@@ -71,6 +91,8 @@ public:
   void setDyld(const std::string &pDyld);
 
   void setSysRoot(const std::string &pSysRoot);
+
+  void setZOption(unsigned int pOptions);
 
   void addWrap(const std::string &pWrapSymbol);
 
