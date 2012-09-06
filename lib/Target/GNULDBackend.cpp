@@ -1585,10 +1585,10 @@ void GNULDBackend::preLayout(Module& pModule,
 
   // change .tbss and .tdata section symbol from Local to TLS category
   if (NULL != f_pTDATA)
-    pModule.getSymbolTable().changeLocalToTLS(*f_pTDATA->resolveInfo());
+    pModule.getSymbolTable().changeLocalToTLS(*f_pTDATA);
 
   if (NULL != f_pTBSS)
-    pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS->resolveInfo());
+    pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
 }
 
 /// postLayout - Backend can do any needed modification after layout

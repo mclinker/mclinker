@@ -45,7 +45,7 @@ public:
 
   SymbolCategory& changeCommonsToGlobal();
 
-  SymbolCategory& changeLocalToTLS(const ResolveInfo& pSymInfo);
+  SymbolCategory& changeLocalToTLS(const LDSymbol& pSymbol);
 
   // -----  access  ----- //
   LDSymbol& at(size_t pPosition)

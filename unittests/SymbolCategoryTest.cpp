@@ -141,7 +141,7 @@ TEST_F(SymbolCategoryTest, change_local_to_tls) {
   ++sym;
   ASSERT_STREQ("e", (*sym)->name());
 
-  m_pTestee->changeLocalToTLS(*b);
+  m_pTestee->changeLocalToTLS(bb);
 
   sym = m_pTestee->begin();
   ASSERT_STREQ("c", (*sym)->name());

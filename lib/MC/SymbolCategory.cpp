@@ -208,21 +208,17 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
   return *this;
 }
 
-SymbolCategory& SymbolCategory::changeLocalToTLS(const ResolveInfo& pSymInfo)
+SymbolCategory& SymbolCategory::changeLocalToTLS(const LDSymbol& pSymbol)
 {
-  const LDSymbol* sym = pSymInfo.outSymbol();
-  assert(NULL != sym);
-  assert(Category::Local == Category::categorize(pSymInfo));
-
-  // find the position of sym from local category
+  // find the position of pSymbol from local category
   size_t pos = m_pLocal->begin;
   while (pos != m_pLocal->end) {
-    if (m_OutputSymbols[pos] == sym)
+    if (m_OutputSymbols[pos] == &pSymbol)
       break;
     ++pos;
   }
 
-  // if symbol is not in Local, then it should be in TLS already
+  // if symbol is not in Local, then do nothing
   if (m_pLocal->end == pos)
     return *this;
 
