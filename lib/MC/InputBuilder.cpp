@@ -24,6 +24,14 @@ InputBuilder::InputBuilder(const LinkerConfig& pConfig,
     m_Root() {
 }
 
+InputBuilder& InputBuilder::setInputTree(InputTree& pTree)
+{
+  m_pCurrentTree = &pTree;
+  m_Root = pTree.root();
+  m_pMove = &InputTree::Downward;
+  return *this;
+}
+
 InputTree* InputBuilder::createTree()
 {
   m_pCurrentTree = new InputTree();

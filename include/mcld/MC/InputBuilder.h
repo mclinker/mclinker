@@ -45,6 +45,8 @@ public:
                         const sys::fs::Path& pPath,
                         unsigned int pType = Input::Unknown);
 
+  InputBuilder& setInputTree(InputTree& pTree);
+
   Input* createInput(const std::string& pName,
                      const sys::fs::Path& pPath,
                      unsigned int pType = Input::Unknown,
