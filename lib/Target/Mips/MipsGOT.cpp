@@ -46,6 +46,11 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
   m_pLocalNum = MipsGOT0Num;
 }
 
+bool MipsGOT::hasGOT1() const
+{
+  return (m_SectionData.size() > MipsGOT0Num);
+}
+
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 {
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());

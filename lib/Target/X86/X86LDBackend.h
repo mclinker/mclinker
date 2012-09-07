@@ -205,10 +205,7 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createX86GOT(FragmentLinker& pLinker);
-  void createX86GOTPLT(FragmentLinker& pLinker);
-  void createX86PLTandRelPLT(FragmentLinker& pLinker);
-  void createX86RelDyn(FragmentLinker& pLinker);
+  void defineGOTSymbol(FragmentLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

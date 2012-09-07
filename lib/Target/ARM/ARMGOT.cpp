@@ -49,6 +49,11 @@ ARMGOT::~ARMGOT()
 {
 }
 
+bool ARMGOT::hasGOT1() const
+{
+  return (m_SectionData.size() > ARMGOT0Num);
+}
+
 void ARMGOT::reserveGOTPLTEntry()
 {
     GOTEntry* got_entry = 0;

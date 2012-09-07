@@ -32,7 +32,9 @@ public:
 
   ~X86GOTPLT();
 
-public:
+  // hasGOT1 - return if this section has any GOT1 entry
+  bool hasGOT1() const;
+
   void applyGOT0(uint64_t pAddress);
 
   void applyAllGOTPLT(uint64_t pPLTBase,

@@ -57,6 +57,9 @@ public:
     return m_GOTTypeMap[pInfo] == true;
   }
 
+  /// hasGOT1 - return if this got section has any GOT1 entry
+  bool hasGOT1() const;
+
 private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 

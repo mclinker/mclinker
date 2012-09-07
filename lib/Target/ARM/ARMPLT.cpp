@@ -50,14 +50,23 @@ ARMPLT::ARMPLT(LDSection& pSection,
                ARMGOT &pGOTPLT)
   : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator() {
   ARMPLT0* plt0_entry = new ARMPLT0(&m_SectionData);
-
-  m_Section.setSize(m_Section.size() + plt0_entry->getEntrySize());
-
   m_PLTEntryIterator = pSectionData.begin();
 }
 
 ARMPLT::~ARMPLT()
 {
+}
+
+bool ARMPLT::hasPLT1() const
+{
+  return (m_SectionData.size() > 1);
+}
+
+void ARMPLT::finalizeSectionSize()
+{
+  uint64_t size = (m_SectionData.size() - 1) * sizeof(arm_plt1) +
+                     sizeof(arm_plt0);
+  m_Section.setSize(size);
 }
 
 void ARMPLT::reserveEntry(size_t pNum)
@@ -69,8 +78,6 @@ void ARMPLT::reserveEntry(size_t pNum)
 
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
-
-    m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
     m_GOT.reserveGOTPLTEntry();
   }

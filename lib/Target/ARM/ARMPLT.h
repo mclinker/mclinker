@@ -36,6 +36,12 @@ public:
   ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
+  // finalizeSectionSize - set LDSection size
+  void finalizeSectionSize();
+
+  // hasPLT1 - return if this plt section has any plt1 entry
+  bool hasPLT1() const;
+
   void reserveEntry(size_t pNum = 1) ;
 
   PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;

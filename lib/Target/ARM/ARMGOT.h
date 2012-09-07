@@ -41,9 +41,12 @@ public:
 
   void applyAllGOTPLT(uint64_t pPLTBase);
 
+  // ----- obsererse ----- //
   iterator getGOTPLTBegin();
 
   const iterator getGOTPLTEnd();
+
+  bool hasGOT1() const;
 
 private:
   typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;

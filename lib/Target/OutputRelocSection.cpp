@@ -64,3 +64,8 @@ Relocation* OutputRelocSection::consumeEntry()
   return result;
 }
 
+void OutputRelocSection::finalizeSectionSize()
+{
+  m_pSection->setSize(m_pSectionData->size() * m_EntryBytes);
+}
+

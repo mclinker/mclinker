@@ -36,6 +36,12 @@ public:
 
   Relocation* consumeEntry();
 
+  void finalizeSectionSize();
+
+  // ----- observers ----- //
+  bool empty()
+  { return m_pSectionData->empty(); }
+
 private:
   typedef SectionData::iterator FragmentIterator;
 

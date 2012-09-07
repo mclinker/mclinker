@@ -220,14 +220,7 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
-  void createARMGOT(FragmentLinker& pLinker);
-
-  /// createARMPLTandRelPLT - create PLT and RELPLT sections.
-  /// Because in ELF sh_info in .rel.plt is the shndx of .plt, these two
-  /// sections should be create together.
-  void createARMPLTandRelPLT(FragmentLinker& pLinker);
-
-  void createARMRelDyn(FragmentLinker& pLinker);
+  void defineGOTSymbol(FragmentLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

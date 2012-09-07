@@ -40,6 +40,11 @@ X86GOTPLT::~X86GOTPLT()
 {
 }
 
+bool X86GOTPLT::hasGOT1() const
+{
+  return (m_SectionData.size() > X86GOTPLT0Num);
+}
+
 void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<GOTEntry>

@@ -144,8 +144,7 @@ private:
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker);
 
-  void createGOT(FragmentLinker& pLinker);
-  void createRelDyn(FragmentLinker& pLinker);
+  void defineGOTSymbol(FragmentLinker& pLinker);
 
   /// updateAddend - update addend value of the relocation if the
   /// the target symbol is a section symbol. Addend is the offset

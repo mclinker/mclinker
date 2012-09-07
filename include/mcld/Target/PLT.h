@@ -77,6 +77,9 @@ public:
   virtual PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol,
                                       bool& pExist) = 0;
 
+  // finalizeSectionSize - set LDSection size
+  virtual void finalizeSectionSize() = 0;
+
   // ----- observers ----- //
   const LDSection& getSection() const
   { return m_Section; }

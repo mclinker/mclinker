@@ -80,7 +80,6 @@ void GOT::reserveEntry(size_t pNum)
                                         &m_SectionData);
     if (!Entry)
       fatal(diag::fail_allocate_memory_got);
-    m_Section.setSize(m_Section.size() + f_EntrySize);
   }
 }
 
@@ -112,5 +111,10 @@ GOTEntry* GOT::consumeEntry()
   ++m_GOTIterator;
   GOTEntry& entry = llvm::cast<GOTEntry>(*m_GOTIterator);
   return &entry;
+}
+
+void GOT::finalizeSectionSize()
+{
+  m_Section.setSize(m_SectionData.size() * f_EntrySize);
 }
 

@@ -71,6 +71,17 @@ bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void MipsGNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
+  ELFFileFormat* file_format = getOutputFormat();
+
+  // initialize .got
+  LDSection& got = file_format->getGOT();
+  m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
+
+  // initialize .rel.dyn
+  LDSection& reldyn = file_format->getRelDyn();
+  m_pRelDyn = new OutputRelocSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
 }
 
 void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
@@ -133,14 +144,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
       updateAddend(pReloc, pInputSym, pLinker.getLayout());
     }
     return;
-  }
-
-  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies
-  // that a .got section is needed.
-  if (NULL == m_pGOT && NULL != m_pGOTSymbol) {
-    if (rsym == m_pGOTSymbol->resolveInfo()) {
-      createGOT(pLinker);
-    }
   }
 
   // Skip relocation against _gp_disp
@@ -209,10 +212,18 @@ uint64_t MipsGNULDBackend::abiPageSize() const
 
 void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
+  // set .got size
   // when building shared object, the .got section is must.
-  if (LinkerConfig::DynObj == config().codeGenType() && NULL == m_pGOT) {
-      createGOT(pLinker);
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOT->finalizeSectionSize();
+    defineGOTSymbol(pLinker);
   }
+
+  // set .rel.dyn size
+  if (!m_pRelDyn->empty())
+    m_pRelDyn->finalizeSectionSize();
 }
 
 void MipsGNULDBackend::doPostLayout(Module& pModule,
@@ -645,16 +656,11 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // section if the symbol section flags contains SHF_EXECINSTR.
         // 1. Find the reason of this condition.
         // 2. Check this condition here.
-        if (NULL == m_pRelDyn)
-          createRelDyn(pLinker);
-
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
 
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
-        if (NULL == m_pGOT)
-          createGOT(pLinker);
         m_pGOT->setLocal(rsym);
       }
       break;
@@ -686,9 +692,6 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       break;
     case llvm::ELF::R_MIPS_GOT16:
     case llvm::ELF::R_MIPS_CALL16:
-      if (NULL == m_pGOT)
-        createGOT(pLinker);
-
       // For got16 section based relocations, we need to reserve got entries.
       if (rsym->type() == ResolveInfo::Section) {
         m_pGOT->reserveLocalEntry();
@@ -758,16 +761,11 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
       if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
-        if (NULL == m_pRelDyn)
-          createRelDyn(pLinker);
-
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
-        if (NULL == m_pGOT)
-          createGOT(pLinker);
         m_pGOT->setGlobal(rsym);
       }
       break;
@@ -780,9 +778,6 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_LO16:
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
-      if (NULL == m_pGOT)
-        createGOT(pLinker);
-
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
         m_pGOT->reserveGlobalEntry();
         rsym->setReserved(rsym->reserved() | ReserveGot);
@@ -834,14 +829,9 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   }
 }
 
-void MipsGNULDBackend::createGOT(FragmentLinker& pLinker)
+void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat();
-
-  LDSection& got = file_format->getGOT();
-  m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
-
-  // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
+  // define symbol _GLOBAL_OFFSET_TABLE_
   if ( m_pGOTSymbol != NULL ) {
     pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
@@ -866,18 +856,6 @@ void MipsGNULDBackend::createGOT(FragmentLinker& pLinker)
                      pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
-}
-
-void MipsGNULDBackend::createRelDyn(FragmentLinker& pLinker)
-{
-  ELFFileFormat* file_format = getOutputFormat();
-
-  // get .rel.dyn LDSection and create SectionData
-  LDSection& reldyn = file_format->getRelDyn();
-  // create SectionData and ARMRelDynSection
-  m_pRelDyn = new OutputRelocSection(reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
-                                     8);
 }
 
 //===----------------------------------------------------------------------===//

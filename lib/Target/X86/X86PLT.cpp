@@ -83,13 +83,33 @@ X86PLT::X86PLT(LDSection& pSection,
   }
   X86PLT0* plt0_entry = new X86PLT0(&m_SectionData, m_PLT0Size);
 
-  m_Section.setSize(m_Section.size() + plt0_entry->getEntrySize());
-
   m_PLTEntryIterator = pSectionData.begin();
 }
 
 X86PLT::~X86PLT()
 {
+}
+
+void X86PLT::finalizeSectionSize()
+{
+  uint64_t size = 0;
+  // plt0 size
+  size = getPLT0()->getEntrySize();
+
+  // get first plt1 entry
+  X86PLT::iterator it = begin();
+  ++it;
+  if (end() != it) {
+    // plt1 size
+    X86PLT1* plt1 = &(llvm::cast<X86PLT1>(*it));
+    size += (m_SectionData.size() - 1) * plt1->getEntrySize();
+  }
+  m_Section.setSize(size);
+}
+
+bool X86PLT::hasPLT1() const
+{
+  return (m_SectionData.size() > 1);
 }
 
 void X86PLT::reserveEntry(size_t pNum)
@@ -101,8 +121,6 @@ void X86PLT::reserveEntry(size_t pNum)
 
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
-
-    m_Section.setSize(m_Section.size() + plt1_entry->getEntrySize());
 
     // reserve corresponding entry in .got.plt
     m_GOTPLT.reserveEntry(pNum);
@@ -147,13 +165,7 @@ X86PLT0* X86PLT::getPLT0() const {
 
 // FIXME: It only works on little endian machine.
 void X86PLT::applyPLT0() {
-
-  iterator first = m_SectionData.getFragmentList().begin();
-
-  assert(first != m_SectionData.getFragmentList().end() &&
-         "FragmentList is empty, applyPLT0 failed!");
-
-  X86PLT0* plt0 = &(llvm::cast<X86PLT0>(*first));
+  X86PLT0* plt0 = getPLT0();
 
   unsigned char* data = 0;
   data = static_cast<unsigned char*>(malloc(plt0->getEntrySize()));

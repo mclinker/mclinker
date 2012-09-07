@@ -75,10 +75,30 @@ bool X86GNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
 
 void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
-  // when building shared object, the .got section is needed
-  if (LinkerConfig::DynObj == config().codeGenType() && (NULL == m_pGOTPLT)) {
-    createX86GOTPLT(pLinker);
+  // set .got.plt size
+  // when building shared object, the .got section is must
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOTPLT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOTPLT->finalizeSectionSize();
+    defineGOTSymbol(pLinker);
   }
+
+  // set .got size
+  if (!m_pGOT->empty())
+    m_pGOT->finalizeSectionSize();
+
+  // set .plt size
+  if (m_pPLT->hasPLT1())
+    m_pPLT->finalizeSectionSize();
+
+  // set .rel.dyn size
+  if (!m_pRelDyn->empty())
+    m_pRelDyn->finalizeSectionSize();
+
+  // set .rel.plt size
+  if (!m_pRelPLT->empty())
+    m_pRelPLT->finalizeSectionSize();
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,
@@ -104,24 +124,9 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void X86GNULDBackend::createX86GOT(FragmentLinker& pLinker)
+void X86GNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
 {
-  // get .got LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat();
-
-  LDSection& got = file_format->getGOT();
-  m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
-}
-
-void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker)
-{
-  // get .got.plt LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat();
-
-  LDSection& gotplt = file_format->getGOTPLT();
-  m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
-
-  // define symbol _GLOBAL_OFFSET_TABLE_ when .got.plt create
+  // define symbol _GLOBAL_OFFSET_TABLE_
   if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
@@ -148,39 +153,6 @@ void X86GNULDBackend::createX86GOTPLT(FragmentLinker& pLinker)
                                                           0x0),
                      ResolveInfo::Hidden);
   }
-}
-
-void X86GNULDBackend::createX86PLTandRelPLT(FragmentLinker& pLinker)
-{
-  ELFFileFormat* file_format = getOutputFormat();
-
-  LDSection& plt = file_format->getPLT();
-  LDSection& relplt = file_format->getRelPlt();
-  assert(m_pGOTPLT != NULL);
-  // create SectionData and X86PLT
-  m_pPLT = new X86PLT(plt,
-                      pLinker.getOrCreateSectData(plt),
-                      *m_pGOTPLT,
-                      config());
-
-  // set info of .rel.plt to .plt
-  relplt.setLink(&plt);
-  // create SectionData and X86RelDynSection
-  m_pRelPLT = new OutputRelocSection(relplt,
-                                     pLinker.getOrCreateSectData(relplt),
-                                     8);
-}
-
-void X86GNULDBackend::createX86RelDyn(FragmentLinker& pLinker)
-{
-  // get .rel.dyn LDSection and create SectionData
-  ELFFileFormat* file_format = getOutputFormat();
-
-  LDSection& reldyn = file_format->getRelDyn();
-  // create SectionData and X86RelDynSection
-  m_pRelDyn = new OutputRelocSection(reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
-                                     8);
 }
 
 void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
@@ -268,9 +240,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
       if (pLinker.isOutputPIC()) {
-        // create .rel.dyn section if not exist
-        if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -279,9 +248,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_GOTOFF:
     case llvm::ELF::R_386_GOTPC:
-      // A GOT section is needed
-      if (NULL == m_pGOT)
-        createX86GOT(pLinker);
+      // FIXME: A GOT section is needed
       return;
 
     case llvm::ELF::R_386_PC32:
@@ -308,12 +275,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsPLT(pLinker, *rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
-          // Create .got section if it dosen't exist
-          if (NULL == m_pGOTPLT)
-            createX86GOTPLT(pLinker);
-          // create .plt and .rel.plt if not exist
-          if (NULL == m_pPLT)
-            createX86PLTandRelPLT(pLinker);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -328,9 +289,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
                                                                        true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        // create .rel.dyn section if not exist
-        if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
@@ -345,9 +303,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_GOTOFF:
     case llvm::ELF::R_386_GOTPC: {
-      // A GOT section is needed
-      if (NULL == m_pGOT)
-        createX86GOT(pLinker);
+      // FIXME: A GOT section is needed
       return;
     }
 
@@ -365,12 +321,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       }
 
-      // Create .got section if it dosen't exist
-      if (NULL == m_pGOTPLT)
-         createX86GOTPLT(pLinker);
-      // create .plt and .rel.plt if not exist
-      if (NULL == m_pPLT)
-         createX86PLTandRelPLT(pLinker);
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -386,17 +336,12 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      if (NULL == m_pGOT)
-        createX86GOT(pLinker);
       m_pGOT->reserveEntry();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
       if (LinkerConfig::DynObj ==
                    config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        // create .rel.dyn section if not exist
-        if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
@@ -412,12 +357,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
-          // Create .got section if it dosen't exist
-          if (NULL == m_pGOTPLT)
-            createX86GOTPLT(pLinker);
-          // create .plt and .rel.plt if not exist
-          if (NULL == m_pPLT)
-            createX86PLTandRelPLT(pLinker);
           // Symbol needs PLT entry, we need to reserve a PLT entry
           // and the corresponding GOT and dynamic relocation entry
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -432,9 +371,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
                                                                       false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        // create .rel.dyn section if not exist
-        if (NULL == m_pRelDyn)
-          createX86RelDyn(pLinker);
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
@@ -469,16 +405,7 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
   // entries should be created.
-  // FIXME: Below judgements concern only .so is generated as output
   // FIXME: Below judgements concren nothing about TLS related relocation
-
-  // A refernece to symbol _GLOBAL_OFFSET_TABLE_ implies that a .got.plt
-  // section is needed
-  if (NULL == m_pGOTPLT && NULL != m_pGOTSymbol) {
-    if (rsym == m_pGOTSymbol->resolveInfo()) {
-      createX86GOTPLT(pLinker);
-    }
-  }
 
   if (rsym->isLocal()) // rsym is local
     scanLocalReloc(pReloc, pInputSym,  pLinker);
@@ -667,6 +594,33 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 
 void X86GNULDBackend::initTargetSections(FragmentLinker& pLinker)
 {
+  ELFFileFormat* file_format = getOutputFormat();
+  // initialize .got
+  LDSection& got = file_format->getGOT();
+  m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
+
+  // initialize .got.plt
+  LDSection& gotplt = file_format->getGOTPLT();
+  m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
+
+  // initialize .plt
+  LDSection& plt = file_format->getPLT();
+  m_pPLT = new X86PLT(plt,
+                      pLinker.getOrCreateSectData(plt),
+                      *m_pGOTPLT,
+                      config());
+
+  // initialize .rel.plt
+  LDSection& relplt = file_format->getRelPlt();
+  relplt.setLink(&plt);
+  m_pRelPLT = new OutputRelocSection(relplt,
+                                     pLinker.getOrCreateSectData(relplt),
+                                     8);
+  // initialize .rel.dyn
+  LDSection& reldyn = file_format->getRelDyn();
+  m_pRelDyn = new OutputRelocSection(reldyn,
+                                     pLinker.getOrCreateSectData(reldyn),
+                                     8);
 }
 
 void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)

@@ -76,6 +76,7 @@ public:
 public:
   virtual ~GOT();
 
+  // ----- observers -----//
   /// entrySize - the number of bytes per entry
   size_t getEntrySize() const;
 
@@ -88,14 +89,18 @@ public:
   const SectionData& getSectionData() const
   { return m_SectionData; }
 
-  // ----- observers -----//
   iterator begin();
   const_iterator begin() const;
 
   iterator end();
   const_iterator end() const;
 
-public:
+  bool empty() const
+  { return m_SectionData.empty(); }
+
+  // finalizeSectionSize - set LDSection size
+  virtual void finalizeSectionSize();
+
   /// reserveEntry - reseve number of pNum of empty entries
   /// Before layout, we scan all relocations to determine if GOT entries are
   /// needed. If an entry is needed, the empty entry is reserved for layout
