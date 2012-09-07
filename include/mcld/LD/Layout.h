@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <vector>
 #include <map>
 
 #include <llvm/ADT/ilist.h>
