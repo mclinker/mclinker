@@ -25,7 +25,7 @@ class MemoryAreaFactory;
 class ContextAction : public InputAction
 {
 public:
-  explicit ContextAction(unsigned int pPosition = -1);
+  explicit ContextAction(unsigned int pPosition);
 
   bool activate(InputBuilder& pBuilder) const;
 };
@@ -36,9 +36,9 @@ public:
 class MemoryAreaAction : public InputAction
 {
 public:
-  MemoryAreaAction(FileHandle::OpenMode pMode,
-                   FileHandle::Permission pPerm = FileHandle::System,
-                   unsigned int pPosition = -1);
+  MemoryAreaAction(unsigned int pPosition,
+                   FileHandle::OpenMode pMode,
+                   FileHandle::Permission pPerm = FileHandle::System);
 
   bool activate(InputBuilder& pBuilder) const;
 
