@@ -19,7 +19,8 @@ using namespace mcld;
 
 InputBuilder::InputBuilder(const LinkerConfig& pConfig)
   : m_Config(pConfig),
-    m_pCurrentTree(NULL), m_pMove(NULL), m_Root() {
+    m_pCurrentTree(NULL), m_pMove(NULL), m_Root(),
+    m_bOwnFactory(true) {
 
     m_pInputFactory = new InputFactory(MCLD_NUM_OF_INPUTS, pConfig);
     m_pContextFactory = new ContextFactory(MCLD_NUM_OF_INPUTS);
@@ -27,22 +28,26 @@ InputBuilder::InputBuilder(const LinkerConfig& pConfig)
 }
 
 InputBuilder::InputBuilder(const LinkerConfig& pConfig,
-                          InputFactory& pInputFactory,
-                          ContextFactory& pContextFactory,
-                          MemoryAreaFactory& pMemoryFactory)
+                           InputFactory& pInputFactory,
+                           ContextFactory& pContextFactory,
+                           MemoryAreaFactory& pMemoryFactory,
+                           bool pDelegate)
   : m_Config(pConfig),
     m_pInputFactory(&pInputFactory),
     m_pContextFactory(&pContextFactory),
     m_pMemFactory(&pMemoryFactory),
-    m_pCurrentTree(NULL), m_pMove(NULL), m_Root() {
+    m_pCurrentTree(NULL), m_pMove(NULL), m_Root(),
+    m_bOwnFactory(pDelegate) {
 
 }
 
 InputBuilder::~InputBuilder()
 {
-  delete m_pInputFactory;
-  delete m_pContextFactory;
-  delete m_pMemFactory;
+  if (m_bOwnFactory) {
+    delete m_pInputFactory;
+    delete m_pContextFactory;
+    delete m_pMemFactory;
+  }
 }
 
 Input* InputBuilder::createInput(const std::string& pName,

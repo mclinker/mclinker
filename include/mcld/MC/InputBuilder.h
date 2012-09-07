@@ -40,7 +40,8 @@ public:
   InputBuilder(const LinkerConfig& pConfig,
                InputFactory& pInputFactory,
                ContextFactory& pContextFactory,
-               MemoryAreaFactory& pMemoryFactory);
+               MemoryAreaFactory& pMemoryFactory,
+               bool pDelegate = true);
 
   virtual ~InputBuilder();
 
@@ -93,6 +94,8 @@ private:
   InputTree::Mover* m_pMove;
   InputTree::iterator m_Root;
   std::stack<InputTree::iterator> m_ReturnStack;
+
+  bool m_bOwnFactory;
 
 };
 
