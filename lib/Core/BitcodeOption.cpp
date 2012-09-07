@@ -14,10 +14,14 @@ using namespace mcld;
 // BitcodeOption
 //===----------------------------------------------------------------------===//
 BitcodeOption::BitcodeOption()
-  : m_Position(0) {
+  : m_Position(-1) {
 }
 
 BitcodeOption::~BitcodeOption()
 {
 }
 
+bool BitcodeOption::hasDefined() const
+{
+  return (m_Position != -1);
+}

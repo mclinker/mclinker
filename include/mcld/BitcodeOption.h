@@ -34,8 +34,10 @@ public:
 
   const sys::fs::Path& getPath() const { return m_Path; }
 
+  bool hasDefined() const;
+
 private:
-  unsigned int m_Position;
+  int m_Position;
 
   sys::fs::Path m_Path;
 
