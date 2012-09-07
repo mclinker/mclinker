@@ -150,6 +150,12 @@ public:
   virtual uint64_t defaultTextSegmentAddr() const
   { return 0x0; }
 
+  bool hasTextRel() const
+  { return m_bHasTextRel; }
+
+  bool hasStaticTLS() const
+  { return m_bHasStaticTLS; }
+
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr(const FragmentLinker& pLinker) const;
 
@@ -305,6 +311,12 @@ protected:
   /// defineTBSSSymbol - define section symbol for .tbss
   bool defineTBSSSymbol(FragmentLinker& pLinker);
 
+  /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
+  void checkAndSetHasTextRel(const LDSection& pSection);
+
+  void setHasStaticTLS(bool pVal = true)
+  { m_bHasStaticTLS = pVal; }
+
 private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Module& pModule, const FragmentLinker& pLinker);
@@ -398,6 +410,13 @@ protected:
 
   // section .eh_frame_hdr
   EhFrameHdr* m_pEhFrameHdr;
+
+  // ----- dynamic flags ----- //
+  // DF_TEXTREL of DT_FLAGS
+  bool m_bHasTextRel;
+
+  // DF_STATIC_TLS of DT_FLAGS
+  bool m_bHasStaticTLS;
 
   // -----  standard symbols  ----- //
   // section symbols

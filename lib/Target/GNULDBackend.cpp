@@ -39,6 +39,8 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     m_pExecFileFormat(NULL),
     m_ELFSegmentTable(9), // magic number
     m_pEhFrameHdr(NULL),
+    m_bHasTextRel(false),
+    m_bHasStaticTLS(false),
     f_pPreInitArrayStart(NULL),
     f_pPreInitArrayEnd(NULL),
     f_pInitArrayStart(NULL),
@@ -1845,5 +1847,19 @@ const LDSymbol& GNULDBackend::getTBSSSymbol() const
 {
   assert(NULL != f_pTBSS);
   return *f_pTBSS;
+}
+
+void GNULDBackend::checkAndSetHasTextRel(const LDSection& pSection)
+{
+  if (m_bHasTextRel)
+    return;
+
+  // if the target section of the dynamic relocation is ALLOCATE but is not
+  // writable, than we should set DF_TEXTREL
+  const uint32_t flag = pSection.flag();
+  if (0 == (flag & llvm::ELF::SHF_WRITE) && (flag & llvm::ELF::SHF_ALLOC))
+    m_bHasTextRel = true;
+
+  return;
 }
 

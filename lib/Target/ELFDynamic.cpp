@@ -30,7 +30,7 @@ EntryIF::~EntryIF()
 //===----------------------------------------------------------------------===//
 // ELFDynamic
 ELFDynamic::ELFDynamic(const GNULDBackend& pParent)
-  : m_pEntryFactory(NULL), m_Idx(0) {
+  : m_pEntryFactory(NULL), m_Backend(pParent), m_Idx(0) {
   if (32 == pParent.bitclass() && pParent.isLittleEndian()) {
     m_pEntryFactory = new Entry<32, true>();
   }
@@ -148,8 +148,10 @@ void ELFDynamic::reserveEntries(const LinkerConfig& pConfig,
 
   if (pConfig.options().hasOrigin() ||
       pConfig.options().Bsymbolic() ||
-      pConfig.options().hasNow()) {
-    // TODO: add checks for DF_TEXTREL and DF_STATIC_TLS
+      pConfig.options().hasNow()    ||
+      m_Backend.hasTextRel()        ||
+      (m_Backend.hasStaticTLS() &&
+        (LinkerConfig::DynObj == pConfig.codeGenType()))) {
     reserveOne(llvm::ELF::DT_FLAGS); // DT_FLAGS
   }
 
@@ -245,7 +247,11 @@ void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
     dt_flags |= llvm::ELF::DF_SYMBOLIC;
   if (pConfig.options().hasNow())
     dt_flags |= llvm::ELF::DF_BIND_NOW;
-  // TODO: add checks for DF_TEXTREL and DF_STATIC_TLS
+  if (m_Backend.hasTextRel())
+    dt_flags |= llvm::ELF::DF_TEXTREL;
+  if (m_Backend.hasStaticTLS() &&
+      (LinkerConfig::DynObj == pConfig.codeGenType()))
+    dt_flags |= llvm::ELF::DF_STATIC_TLS;
   if (0x0 != dt_flags) {
     applyOne(llvm::ELF::DT_FLAGS, dt_flags); // DT_FLAGS
   }

@@ -37,7 +37,7 @@ protected:
   EntryIF();
 
 public:
-  virtual ~EntryIF(); 
+  virtual ~EntryIF();
 
   virtual EntryIF* clone() const = 0;
   virtual size_t size() const = 0;
@@ -87,7 +87,7 @@ public:
 
 private:
   Pair m_Pair;
-}; 
+};
 
 #include "ELFDynamic.tcc"
 
@@ -121,7 +121,7 @@ public:
 
   /// reserveNeedEntry - reserve on DT_NEED entry.
   void reserveNeedEntry();
-  
+
   /// applyEntries - apply entries
   void applyEntries(const LinkerConfig& pConfig,
                     const ELFFileFormat& pFormat);
@@ -161,6 +161,7 @@ private:
   EntryListType m_EntryList;
   EntryListType m_NeedList;
   elf_dynamic::EntryIF* m_pEntryFactory;
+  const GNULDBackend& m_Backend;
 
   // The entry reserved and the entry being applied are not must matched.
   // For better performance, we use a simple counter and apply entry one-by-one
