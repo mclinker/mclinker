@@ -17,6 +17,20 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Derived Positional Option
 //===----------------------------------------------------------------------===//
+// InputFileAction
+//===----------------------------------------------------------------------===//
+InputFileAction::InputFileAction(unsigned int pPosition,
+                                 const sys::fs::Path &pPath)
+  : InputAction(pPosition), m_Path(pPath) {
+}
+
+bool InputFileAction::activate(InputBuilder& pBuilder) const
+{
+  pBuilder.createNode<InputTree::Positional>(path().stem().native(), path());
+  return true;
+}
+
+//===----------------------------------------------------------------------===//
 // NamespecAction
 //===----------------------------------------------------------------------===//
 NamespecAction::NamespecAction(unsigned int pPosition,
@@ -97,20 +111,6 @@ EndGroupAction::EndGroupAction(unsigned int pPosition)
 bool EndGroupAction::activate(InputBuilder& pBuilder) const
 {
   pBuilder.exitGroup();
-  return true;
-}
-
-//===----------------------------------------------------------------------===//
-// InputFileAction
-//===----------------------------------------------------------------------===//
-InputFileAction::InputFileAction(unsigned int pPosition,
-                                 const sys::fs::Path &pPath)
-  : InputAction(pPosition), m_Path(pPath) {
-}
-
-bool InputFileAction::activate(InputBuilder& pBuilder) const
-{
-  pBuilder.createNode<InputTree::Positional>(path().stem().native(), path());
   return true;
 }
 
