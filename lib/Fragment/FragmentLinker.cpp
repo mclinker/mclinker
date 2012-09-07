@@ -35,13 +35,13 @@ using namespace mcld;
 
 /// Constructor
 FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
-                               TargetLDBackend& pBackend,
                                Module& pModule,
+                               TargetLDBackend& pBackend,
                                SectionMap& pSectionMap)
 
   : m_Config(pConfig),
-    m_Backend(pBackend),
     m_Module(pModule),
+    m_Backend(pBackend),
     m_SectionMap(pSectionMap),
     m_LDSymbolFactory(128),
     m_pSectionMerger(NULL)

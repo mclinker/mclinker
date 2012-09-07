@@ -47,9 +47,9 @@ public:
 
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
                                       LinkerConfig&,
-                                      TargetLDBackend&,
                                       Module&,
-                                      MemoryArea& pOutput);
+                                      MemoryArea& pOutput,
+                                      TargetLDBackend&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const LinkerConfig&);
@@ -83,12 +83,12 @@ public:
   /// @return created MCLinker
   MCLinker *createMCLinker(const std::string &pTriple,
                            LinkerConfig& pConfig,
-                           TargetLDBackend &pLDBackend,
                            Module& pModule,
-                           MemoryArea& pOutput) const {
+                           MemoryArea& pOutput,
+                           TargetLDBackend &pLDBackend) const {
     if (!MCLinkerCtorFn)
       return NULL;
-    return MCLinkerCtorFn(pTriple, pConfig, pLDBackend, pModule, pOutput);
+    return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput, pLDBackend);
   }
 
   /// createLDBackend - create target-specific LDBackend

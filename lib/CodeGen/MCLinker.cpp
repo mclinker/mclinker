@@ -12,22 +12,19 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/CodeGen/MCLinker.h>
 
-#include <mcld/Config/Config.h>
 #include <mcld/Module.h>
-#include <mcld/Support/FileHandle.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
-#include <mcld/MC/InputFactory.h>
 #include <mcld/MC/FileAction.h>
 #include <mcld/MC/CommandAction.h>
-#include <mcld/Support/CommandLine.h>
 #include <mcld/Object/ObjectLinker.h>
+#include <mcld/Support/CommandLine.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Module.h>
@@ -35,7 +32,6 @@
 
 #include <algorithm>
 #include <vector>
-#include <stack>
 #include <string>
 
 using namespace mcld;
@@ -192,18 +188,15 @@ ArgEndGroupListAlias(")",
 // MCLinker
 //===----------------------------------------------------------------------===//
 MCLinker::MCLinker(LinkerConfig& pConfig,
-                   TargetLDBackend& pLDBackend,
                    mcld::Module& pModule,
-                   MemoryArea& pOutput)
+                   MemoryArea& pOutput,
+                   TargetLDBackend& pLDBackend)
   : MachineFunctionPass(m_ID),
     m_Config(pConfig),
-    m_pLDBackend(&pLDBackend),
     m_Module(pModule),
     m_Output(pOutput),
+    m_pLDBackend(&pLDBackend),
     m_pObjLinker(NULL),
-    m_InputFactory(MCLD_NUM_OF_INPUTS, pConfig.attribute()),
-    m_MemAreaFactory(MCLD_NUM_OF_INPUTS),
-    m_ContextFactory(MCLD_NUM_OF_INPUTS),
     m_pBuilder(NULL) {
 }
 
@@ -228,18 +221,15 @@ MCLinker::~MCLinker()
 
 bool MCLinker::doInitialization(llvm::Module &pM)
 {
-  m_pBuilder = new InputBuilder(m_Config,
-                                m_InputFactory,
-                                m_MemAreaFactory,
-                                m_ContextFactory);
+  m_pBuilder = new InputBuilder(m_Config);
 
   initializeInputTree(*m_pBuilder);
 
   // Now, all input arguments are prepared well, send it into ObjectLinker
   m_pObjLinker = new ObjectLinker(m_Config,
-                                  *m_pLDBackend,
                                   m_Module,
-                                  *m_pBuilder);
+                                  *m_pBuilder,
+                                  *m_pLDBackend);
 
   return false;
 }
@@ -344,7 +334,7 @@ void MCLinker::initializeInputTree(InputBuilder& pBuilder)
     return;
   }
 
-  pBuilder.setInputTree(m_Module.getInputTree());
+  pBuilder.setCurrentTree(m_Module.getInputTree());
 
   size_t num_actions = ArgInputObjectFiles.size() +
                        ArgNameSpecList.size() +

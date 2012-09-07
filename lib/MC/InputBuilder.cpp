@@ -9,35 +9,40 @@
 #include <mcld/MC/InputBuilder.h>
 
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/ContextFactory.h>
+#include <mcld/Config/Config.h>
 #include <mcld/Support/Path.h>
+#include <mcld/MC/InputFactory.h>
+#include <mcld/MC/ContextFactory.h>
 #include <mcld/Support/MemoryAreaFactory.h>
 
 using namespace mcld;
 
+InputBuilder::InputBuilder(const LinkerConfig& pConfig)
+  : m_Config(pConfig),
+    m_pCurrentTree(NULL), m_pMove(NULL), m_Root() {
+
+    m_pInputFactory = new InputFactory(MCLD_NUM_OF_INPUTS, pConfig);
+    m_pContextFactory = new ContextFactory(MCLD_NUM_OF_INPUTS);
+    m_pMemFactory = new MemoryAreaFactory(MCLD_NUM_OF_INPUTS);
+}
+
 InputBuilder::InputBuilder(const LinkerConfig& pConfig,
-                           InputFactory& pInputFactory,
-                           MemoryAreaFactory& pMemFactory,
-                           ContextFactory& pContextFactory)
-  : m_Config(pConfig), m_InputFactory(pInputFactory), m_MemFactory(pMemFactory),
-    m_ContextFactory(pContextFactory), m_pCurrentTree(NULL), m_pMove(NULL),
-    m_Root() {
+                          InputFactory& pInputFactory,
+                          ContextFactory& pContextFactory,
+                          MemoryAreaFactory& pMemoryFactory)
+  : m_Config(pConfig),
+    m_pInputFactory(&pInputFactory),
+    m_pContextFactory(&pContextFactory),
+    m_pMemFactory(&pMemoryFactory),
+    m_pCurrentTree(NULL), m_pMove(NULL), m_Root() {
+
 }
 
-InputBuilder& InputBuilder::setInputTree(InputTree& pTree)
+InputBuilder::~InputBuilder()
 {
-  m_pCurrentTree = &pTree;
-  m_Root = pTree.root();
-  m_pMove = &InputTree::Downward;
-  return *this;
-}
-
-InputTree* InputBuilder::createTree()
-{
-  m_pCurrentTree = new InputTree();
-  m_Root = m_pCurrentTree->root();
-  m_pMove = &InputTree::Downward;
-  return m_pCurrentTree;
+  delete m_pInputFactory;
+  delete m_pContextFactory;
+  delete m_pMemFactory;
 }
 
 Input* InputBuilder::createInput(const std::string& pName,
@@ -45,7 +50,7 @@ Input* InputBuilder::createInput(const std::string& pName,
                                  unsigned int pType,
                                  off_t pFileOffset)
 {
-  return m_InputFactory.produce(pName, pPath, pType, pFileOffset);
+  return m_pInputFactory->produce(pName, pPath, pType, pFileOffset);
 }
 
 InputTree& InputBuilder::enterGroup()
@@ -97,7 +102,7 @@ void InputBuilder::setCurrentTree(InputTree& pInputTree)
 
 bool InputBuilder::setContext(Input& pInput)
 {
-  LDContext* context = m_ContextFactory.produce(pInput.path());
+  LDContext* context = m_pContextFactory->produce(pInput.path());
   pInput.setContext(context);
   return true;
 }
@@ -106,7 +111,7 @@ bool InputBuilder::setMemory(Input& pInput,
                              FileHandle::OpenMode pMode,
                              FileHandle::Permission pPerm)
 {
-  MemoryArea *memory = m_MemFactory.produce(pInput.path(), pMode, pPerm);
+  MemoryArea *memory = m_pMemFactory->produce(pInput.path(), pMode, pPerm);
 
   if (!memory->handler()->isGood())
     return false;
@@ -118,5 +123,15 @@ bool InputBuilder::setMemory(Input& pInput,
 const AttrConstraint& InputBuilder::getConstraint() const
 {
   return m_Config.attribute().constraint();
+}
+
+const AttributeProxy& InputBuilder::getAttributes() const
+{
+  return m_pInputFactory->attr();
+}
+
+AttributeProxy& InputBuilder::getAttributes()
+{
+  return m_pInputFactory->attr();
 }
 

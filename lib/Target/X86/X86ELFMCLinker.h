@@ -27,9 +27,9 @@ class X86ELFMCLinker : public MCLinker
 {
 public:
   X86ELFMCLinker(LinkerConfig& pConfig,
-                 TargetLDBackend &pLDBackend,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput);
+                 MemoryArea& pOutput,
+                 TargetLDBackend &pLDBackend);
 
   ~X86ELFMCLinker();
 };

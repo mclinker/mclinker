@@ -42,9 +42,9 @@ class ObjectLinker
 {
 public:
   ObjectLinker(const LinkerConfig& pConfig,
-               TargetLDBackend& pLDBackend,
                Module& pModule,
-               InputBuilder& pBuilder);
+               InputBuilder& pBuilder,
+               TargetLDBackend& pLDBackend);
 
   ~ObjectLinker();
 
@@ -112,12 +112,8 @@ public:
   bool postProcessing(MemoryArea& pOutput);
 
   /// getLinker - get internal FragmentLinker object
-  FragmentLinker* getLinker()
-  { return m_pLinker; }
-
-  /// getLinker - get internal FragmentLinker object
-  const FragmentLinker* getLinker() const
-  { return m_pLinker; }
+  const FragmentLinker* getLinker() const { return m_pLinker; }
+  FragmentLinker*       getLinker()       { return m_pLinker; }
 
   /// hasInitLinker - has Linker been initialized?
   bool hasInitLinker() const
@@ -144,12 +140,12 @@ public:
 
 private:
   const LinkerConfig& m_Config;
-  TargetLDBackend &m_LDBackend;
   Module& m_Module;
-  FragmentLinker* m_pLinker;
-  SectionMap m_SectionMap;
-
   InputBuilder& m_Builder;
+
+  FragmentLinker* m_pLinker;
+  TargetLDBackend &m_LDBackend;
+  SectionMap m_SectionMap;
 
   // -----  readers and writers  ----- //
   ObjectReader* m_pObjectReader;

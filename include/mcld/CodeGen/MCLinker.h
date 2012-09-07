@@ -11,16 +11,12 @@
 // This class primarily handles common functionality used by all linkers.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SECTION_LINKER_H
-#define MCLD_SECTION_LINKER_H
+#ifndef MCLD_CODEGEN_MCLINKER_H
+#define MCLD_CODEGEN_MCLINKER_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 #include <llvm/CodeGen/MachineFunctionPass.h>
-
-#include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/MC/InputFactory.h>
-#include <mcld/MC/ContextFactory.h>
 
 namespace llvm {
 
@@ -44,10 +40,7 @@ class TargetLDBackend;
 *  MCLinker is responded for
 *  - provide an interface for target-specific linker
 *  - set up environment for ObjectLinker
-*  - control AsmPrinter, make sure AsmPrinter has already prepared
-*    all SectionDatas for linking
-*
-*  MCLinker resolves the absolue paths of input arguments.
+*  - perform linking
 *
 *  @see MachineFunctionPass ObjectLinker
 */
@@ -61,25 +54,17 @@ protected:
   // - the default link script
   // - the standard symbols
   MCLinker(LinkerConfig& pConfig,
-           TargetLDBackend &pLDBackend,
            mcld::Module& pModule,
-           MemoryArea& pOutput);
+           MemoryArea& pOutput,
+           TargetLDBackend &pLDBackend);
 
 public:
   virtual ~MCLinker();
 
-  /// doInitialization - Read all parameters and set up the AsmPrinter.
-  /// If your pass overrides this, it must make sure to explicitly call
-  /// this implementation.
   virtual bool doInitialization(llvm::Module &pM);
 
-  /// doFinalization - Shut down the AsmPrinter, and do really linking.
-  /// If you override this in your pass, you must make sure to call it
-  /// explicitly.
   virtual bool doFinalization(llvm::Module &pM);
 
-  /// runOnMachineFunction
-  /// redirect to AsmPrinter
   virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
 protected:
@@ -87,15 +72,10 @@ protected:
 
 protected:
   LinkerConfig& m_Config;
-  TargetLDBackend *m_pLDBackend;
   mcld::Module& m_Module;
   MemoryArea& m_Output;
+  TargetLDBackend *m_pLDBackend;
   ObjectLinker* m_pObjLinker;
-
-  InputFactory m_InputFactory;
-  MemoryAreaFactory m_MemAreaFactory;
-  ContextFactory m_ContextFactory;
-
   InputBuilder* m_pBuilder;
 
 private:

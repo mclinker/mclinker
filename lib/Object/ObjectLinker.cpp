@@ -11,7 +11,7 @@
 #include <mcld/Module.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
-#include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/DynObjReader.h>
@@ -21,24 +21,22 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/Target/TargetLDBackend.h>
-#include <mcld/LD/Archive.h>
+#include <mcld/Fragment/FragmentLinker.h>
 
 using namespace llvm;
 using namespace mcld;
 
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
-                           TargetLDBackend& pLDBackend,
                            Module& pModule,
-                           InputBuilder& pBuilder)
+                           InputBuilder& pBuilder,
+                           TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
-    m_LDBackend(pLDBackend),
     m_Module(pModule),
+    m_Builder(pBuilder),
     m_pLinker(NULL),
-    m_Builder(pBuilder) {
+    m_LDBackend(pLDBackend) {
 
 }
 
@@ -53,8 +51,8 @@ bool ObjectLinker::initFragmentLinker()
 {
   if (NULL == m_pLinker)
     m_pLinker = new FragmentLinker(m_Config,
-                                   m_LDBackend,
                                    m_Module,
+                                   m_LDBackend,
                                    m_SectionMap);
 
   // initialize the readers and writers

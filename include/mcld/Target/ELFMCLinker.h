@@ -27,9 +27,9 @@ class ELFMCLinker : public MCLinker
 {
 public:
   ELFMCLinker(LinkerConfig& pConfig,
-              mcld::TargetLDBackend &pLDBackend,
               mcld::Module& pModule,
-              mcld::MemoryArea& pOutput);
+              MemoryArea& pOutput,
+              TargetLDBackend &pLDBackend);
 
   virtual ~ELFMCLinker();
 };

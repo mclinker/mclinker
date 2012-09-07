@@ -16,9 +16,9 @@
 
 namespace mcld {
 
+class LinkerConfig;
 class AttributeProxy;
 class AttributeSet;
-class AttributeOption;
 
 /** \class InputFactory
  *  \brief InputFactory controls the production and destruction of
@@ -35,7 +35,8 @@ public:
   typedef GCFactory<Input, 0> Alloc;
 
 public:
-  InputFactory(size_t pNum, const AttributeOption& pAttribute);
+  InputFactory(size_t pNum, const LinkerConfig& pConfig);
+
   ~InputFactory();
 
   // -----  input  ----- //

@@ -21,9 +21,9 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 MCLinker* createARMMCLinker(const std::string& pTriple,
                             LinkerConfig& pConfig,
-                            TargetLDBackend &pLDBackend,
                             mcld::Module& pModule,
-                            MemoryArea& pOutput)
+                            MemoryArea& pOutput,
+                            TargetLDBackend &pLDBackend)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -36,7 +36,7 @@ MCLinker* createARMMCLinker(const std::string& pTriple,
   }
 
   // For now, use Android MCLinker directly
-  return new ARMELFMCLinker(pConfig, pLDBackend, pModule, pOutput);
+  return new ARMELFMCLinker(pConfig, pModule, pOutput, pLDBackend);
 }
 
 } // namespace of mcld

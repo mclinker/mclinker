@@ -25,9 +25,9 @@ class ARMELFMCLinker : public MCLinker
 {
 public:
   ARMELFMCLinker(LinkerConfig& pConfig,
-                 TargetLDBackend& pLDBackend,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput);
+                 MemoryArea& pOutput,
+                 TargetLDBackend& pLDBackend);
 
   ~ARMELFMCLinker();
 };

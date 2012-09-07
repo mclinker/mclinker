@@ -14,10 +14,10 @@ using namespace mcld;
 // ELFMCLinker
 //===----------------------------------------------------------------------===//
 ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
-                         TargetLDBackend& pLDBackend,
                          mcld::Module& pModule,
-                         MemoryArea& pOutput)
-  : MCLinker(pConfig, pLDBackend, pModule, pOutput) {
+                         MemoryArea& pOutput,
+                         TargetLDBackend& pLDBackend)
+  : MCLinker(pConfig, pModule, pOutput, pLDBackend) {
 }
 
 ELFMCLinker::~ELFMCLinker()

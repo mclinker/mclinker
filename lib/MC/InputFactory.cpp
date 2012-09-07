@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/InputFactory.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/MC/AttributeSet.h>
 #include <mcld/AttributeOption.h>
 
@@ -15,13 +16,13 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // InputFactory
 //===----------------------------------------------------------------------===//
-InputFactory::InputFactory(size_t pNum, const AttributeOption& pAttribute)
+InputFactory::InputFactory(size_t pNum, const LinkerConfig& pConfig)
   : GCFactory<Input,0>(pNum) {
 
-  m_pAttrSet = new AttributeSet(16, pAttribute.predefined());
+  m_pAttrSet = new AttributeSet(16, pConfig.attribute().predefined());
   m_pLast = new AttributeProxy(*m_pAttrSet,
-                               pAttribute.predefined(),
-                               pAttribute.constraint());
+                               pConfig.attribute().predefined(),
+                               pConfig.attribute().constraint());
 }
 
 InputFactory::~InputFactory()

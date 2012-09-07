@@ -360,9 +360,9 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
 
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
                                                              pConfig,
-                                                             *ldBackend,
                                                              pModule,
-                                                             pOutput);
+                                                             pOutput,
+							     *ldBackend);
   if (NULL == funcPass)
     return true;
 

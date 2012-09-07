@@ -22,7 +22,6 @@
 
 #include <llvm/ADT/ilist.h>
 
-#include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/Relocation.h>
@@ -66,8 +65,8 @@ public:
 
 public:
   FragmentLinker(const LinkerConfig& pConfig,
-                 TargetLDBackend& pBackend,
                  Module& pModule,
+                 TargetLDBackend& pBackend,
                  SectionMap& pSectionMap);
 
   ~FragmentLinker();
@@ -258,8 +257,8 @@ private:
 
 private:
   const LinkerConfig& m_Config;
-  TargetLDBackend& m_Backend;
   Module& m_Module;
+  TargetLDBackend& m_Backend;
   SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   SectionMerger* m_pSectionMerger;

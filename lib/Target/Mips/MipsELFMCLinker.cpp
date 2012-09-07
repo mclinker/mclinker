@@ -12,10 +12,10 @@
 using namespace mcld;
 
 MipsELFMCLinker::MipsELFMCLinker(LinkerConfig& pConfig,
-                                 TargetLDBackend &pLDBackend,
                                  mcld::Module& pModule,
-                                 MemoryArea& pOutput)
-  : MCLinker(pConfig, pLDBackend, pModule, pOutput) {
+                                 MemoryArea& pOutput,
+                                 TargetLDBackend &pLDBackend)
+  : MCLinker(pConfig, pModule, pOutput, pLDBackend) {
   // set up target-dependent constraints of attibutes
   pConfig.attribute().constraint().enableWholeArchive();
   pConfig.attribute().constraint().enableAsNeeded();

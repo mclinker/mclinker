@@ -17,15 +17,15 @@
 
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
-#include <mcld/MC/InputFactory.h>
 #include <mcld/Support/FileHandle.h>
 
 namespace mcld {
 
 class LinkerConfig;
-class AttrConstraint;
-class MemoryAreaFactory;
+class InputFactory;
 class ContextFactory;
+class MemoryAreaFactory;
+class AttrConstraint;
 
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.
@@ -35,18 +35,31 @@ class ContextFactory;
 class InputBuilder
 {
 public:
+  explicit InputBuilder(const LinkerConfig& pConfig);
+
   InputBuilder(const LinkerConfig& pConfig,
                InputFactory& pInputFactory,
-               MemoryAreaFactory& pMemFactory,
-               ContextFactory& pContextFactory);
+               ContextFactory& pContextFactory,
+               MemoryAreaFactory& pMemoryFactory);
+
+  virtual ~InputBuilder();
+
+  // -----  input tree operations  ----- //
+  const InputTree& getCurrentTree() const;
+  InputTree&       getCurrentTree();
+
+  void setCurrentTree(InputTree& pInputTree);
+
+  // -----  root of input tree  ----- //
+  const InputTree::iterator& getCurrentNode() const { return m_Root; }
+  InputTree::iterator&       getCurrentNode()       { return m_Root; }
 
   template<InputTree::Direction DIRECTION>
   InputTree& createNode(const std::string& pName,
                         const sys::fs::Path& pPath,
                         unsigned int pType = Input::Unknown);
 
-  InputBuilder& setInputTree(InputTree& pTree);
-
+  // -----  input operations  ----- //
   Input* createInput(const std::string& pName,
                      const sys::fs::Path& pPath,
                      unsigned int pType = Input::Unknown,
@@ -64,30 +77,17 @@ public:
 
   bool isInGroup() const;
 
-  // -----  accessors  ----- //
-  const InputTree& getCurrentTree() const;
-  InputTree&       getCurrentTree();
-
-  /// createTree - create a new input tree and reset current node to the root
-  /// of the new input tree.
-  InputTree* createTree();
-
-  void setCurrentTree(InputTree& pInputTree);
-
-  const InputTree::iterator& getCurrentNode() const { return m_Root; }
-  InputTree::iterator&       getCurrentNode()       { return m_Root; }
-
   const AttrConstraint& getConstraint() const;
 
-  const AttributeProxy& getAttributes() const { return m_InputFactory.attr(); }
-  AttributeProxy&       getAttributes()       { return m_InputFactory.attr(); }
+  const AttributeProxy& getAttributes() const;
+  AttributeProxy&       getAttributes();
 
 private:
   const LinkerConfig& m_Config;
 
-  InputFactory& m_InputFactory;
-  MemoryAreaFactory& m_MemFactory;
-  ContextFactory& m_ContextFactory;
+  InputFactory* m_pInputFactory;
+  MemoryAreaFactory* m_pMemFactory;
+  ContextFactory* m_pContextFactory;
 
   InputTree* m_pCurrentTree;
   InputTree::Mover* m_pMove;

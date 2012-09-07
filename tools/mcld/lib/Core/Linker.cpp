@@ -105,9 +105,6 @@ Linker::~Linker() {
   // in FragmentLinker (FragmentLinker is deleted by ObjectLinker) depends on
   // RelocationFactory in TargetLDBackend
   delete mBackend;
-  delete mInputFactory;
-  delete mMemAreaFactory;
-  delete mContextFactory;
   delete mBuilder;
   delete mRoot;
 }
@@ -132,23 +129,23 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
     return kCreateBackend;
   }
 
-  mInputFactory = new mcld::InputFactory(32, mLDConfig->attribute());
-
-  mMemAreaFactory = new MemoryFactory();
+  mInputFactory = new mcld::InputFactory(32, *mLDConfig);
 
   mContextFactory = new mcld::ContextFactory(32);
     /* 32 is a magic number, the estimated number of input files **/
+
+  mMemAreaFactory = new MemoryFactory();
+
+  mBuilder = new mcld::InputBuilder(*mLDConfig,
+                                    *mInputFactory,
+                                    *mContextFactory,
+                                    *mMemAreaFactory);
 
   mModule = new mcld::Module(mLDConfig->options().soname());
 
   mRoot = new mcld::InputTree::iterator(mModule->getInputTree().root());
 
-  mBuilder = new mcld::InputBuilder(*mLDConfig,
-                                    *mInputFactory,
-                                    *mMemAreaFactory,
-                                    *mContextFactory);
-
-  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mBackend, *mModule, *mBuilder);
+  mObjLinker = new mcld::ObjectLinker(*mLDConfig, *mModule, *mBuilder, *mBackend);
 
   mObjLinker->initFragmentLinker();
 

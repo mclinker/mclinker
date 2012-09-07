@@ -23,9 +23,9 @@ namespace mcld {
 ///
 MCLinker* createMipsMCLinker(const std::string &pTriple,
                              LinkerConfig& pConfig,
-                             mcld::TargetLDBackend &pLDBackend,
                              mcld::Module& pModule,
-                             mcld::MemoryArea& pOutput)
+                             MemoryArea& pOutput,
+                             TargetLDBackend &pLDBackend)
 {
   llvm::Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -37,7 +37,7 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
     return NULL;
   }
 
-  return new MipsELFMCLinker(pConfig, pLDBackend, pModule, pOutput);
+  return new MipsELFMCLinker(pConfig, pModule, pOutput, pLDBackend);
 }
 
 } // namespace of mcld
