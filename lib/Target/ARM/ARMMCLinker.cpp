@@ -13,18 +13,17 @@
 #include <mcld/Module.h>
 #include <mcld/Support/TargetRegistry.h>
 
-
 using namespace mcld;
 
 namespace mcld {
 //===----------------------------------------------------------------------===//
 // createARMMCLinker - the help function to create corresponding ARMMCLinker
 //===----------------------------------------------------------------------===//
-MCLinker* createARMMCLinker(const std::string &pTriple,
-                            SectLinkerOption &pOption,
-                            mcld::TargetLDBackend &pLDBackend,
+MCLinker* createARMMCLinker(const std::string& pTriple,
+                            LinkerConfig& pConfig,
+                            TargetLDBackend &pLDBackend,
                             mcld::Module& pModule,
-                            mcld::MemoryArea& pOutput)
+                            MemoryArea& pOutput)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -37,7 +36,7 @@ MCLinker* createARMMCLinker(const std::string &pTriple,
   }
 
   // For now, use Android MCLinker directly
-  return new ARMELFMCLinker(pOption, pLDBackend, pModule, pOutput);
+  return new ARMELFMCLinker(pConfig, pLDBackend, pModule, pOutput);
 }
 
 } // namespace of mcld

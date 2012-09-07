@@ -17,11 +17,10 @@
 #include <gtest.h>
 #endif
 #include <llvm/CodeGen/MachineFunctionPass.h>
-#include <mcld/Support/PositionDependentOption.h>
+
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/ContextFactory.h>
-#include <vector>
 
 namespace llvm {
 
@@ -36,17 +35,14 @@ class Module;
 class MemoryArea;
 class InputBuilder;
 class LinkerConfig;
-class MCLDFile;
 class ObjectLinker;
 class TargetLDBackend;
-class AttributeFactory;
-class SectLinkerOption;
 
 /** \class MCLinker
 *  \brief MCLinker provides a linking pass for standard compilation flow
 *
 *  MCLinker is responded for
-*  - provide an interface for target-specific SectLinekr
+*  - provide an interface for target-specific linker
 *  - set up environment for ObjectLinker
 *  - control AsmPrinter, make sure AsmPrinter has already prepared
 *    all SectionDatas for linking
@@ -64,7 +60,7 @@ protected:
   // - the default attribute
   // - the default link script
   // - the standard symbols
-  MCLinker(SectLinkerOption &pOption,
+  MCLinker(LinkerConfig& pConfig,
            TargetLDBackend &pLDBackend,
            mcld::Module& pModule,
            MemoryArea& pOutput);
@@ -87,14 +83,10 @@ public:
   virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
 protected:
-  void initializeInputTree(const PositionDependentOptions &pOptions);
-
-  void initializeInputOutput();
-
-private:
-  SectLinkerOption *m_pOption;
+  void initializeInputTree(InputBuilder& pBuilder);
 
 protected:
+  LinkerConfig& m_Config;
   TargetLDBackend *m_pLDBackend;
   mcld::Module& m_Module;
   MemoryArea& m_Output;

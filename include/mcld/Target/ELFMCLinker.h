@@ -26,7 +26,7 @@ class Output;
 class ELFMCLinker : public MCLinker
 {
 public:
-  ELFMCLinker(SectLinkerOption &pOption,
+  ELFMCLinker(LinkerConfig& pConfig,
               mcld::TargetLDBackend &pLDBackend,
               mcld::Module& pModule,
               mcld::MemoryArea& pOutput);

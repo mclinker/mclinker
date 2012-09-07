@@ -26,7 +26,7 @@ class MemoryArea;
 class X86ELFMCLinker : public MCLinker
 {
 public:
-  X86ELFMCLinker(SectLinkerOption &pOption,
+  X86ELFMCLinker(LinkerConfig& pConfig,
                  TargetLDBackend &pLDBackend,
                  mcld::Module& pModule,
                  MemoryArea& pOutput);

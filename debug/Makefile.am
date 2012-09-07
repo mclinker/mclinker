@@ -61,8 +61,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/GCFactoryListTraits.h \
-	${INCDIR}/Support/PositionDependentOption.h \
-	${INCDIR}/Support/DerivedPositionDependentOptions.h \
 	${INCDIR}/Support/TargetRegistry.h \
 	${LIBDIR}/Support/TargetRegistry.cpp \
 	${INCDIR}/Support/TargetSelect.h \
@@ -79,8 +77,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
-	${INCDIR}/CodeGen/SectLinkerOption.h \
-	${LIBDIR}/CodeGen/SectLinkerOption.cpp \
 	${INCDIR}/Target/PLT.h\
 	${LIBDIR}/Target/PLT.cpp\
 	${INCDIR}/Target/GOT.h \

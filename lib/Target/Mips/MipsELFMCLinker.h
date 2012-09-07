@@ -24,7 +24,7 @@ class MemoryArea;
 class MipsELFMCLinker : public MCLinker
 {
 public:
-  MipsELFMCLinker(SectLinkerOption &pOption,
+  MipsELFMCLinker(LinkerConfig& pConfig,
                   TargetLDBackend &pLDBackend,
                   mcld::Module& pModule,
                   MemoryArea& pOutput);

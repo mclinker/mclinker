@@ -18,6 +18,9 @@
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/InputFactory.h>
+#include <mcld/MC/FileAction.h>
+#include <mcld/MC/CommandAction.h>
+#include <mcld/Support/CommandLine.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/MsgHandling.h>
@@ -25,40 +28,180 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/DerivedPositionDependentOptions.h>
 #include <mcld/Target/TargetLDBackend.h>
-#include <mcld/CodeGen/SectLinkerOption.h>
 
 #include <llvm/Module.h>
+#include <llvm/Support/CommandLine.h>
 
 #include <algorithm>
+#include <vector>
 #include <stack>
 #include <string>
 
 using namespace mcld;
 using namespace llvm;
 
-//===----------------------------------------------------------------------===//
-// Forward declarations
-//===----------------------------------------------------------------------===//
 char MCLinker::m_ID = 0;
-static bool CompareOption(const PositionDependentOption* X,
-                          const PositionDependentOption* Y);
+
+//===----------------------------------------------------------------------===//
+// Help Functions
+//===----------------------------------------------------------------------===//
+static inline bool CompareAction(const InputAction* X, const InputAction* Y)
+{
+  return (X->position() < Y->position());
+}
+
+//===----------------------------------------------------------------------===//
+// Positional Options
+// There are four kinds of positional options:
+//   1. Inputs, object files, such as /tmp/XXXX.o
+//   2. Namespecs, short names of libraries. A namespec may refer to an archive
+//      or a shared library. For example, -lm.
+//   3. Attributes of inputs. Attributes describe inputs appears after them.
+//      For example, --as-needed and --whole-archive.
+//   4. Groups. A Group is a set of archives. Linkers repeatedly read archives
+//      in groups until there is no new undefined symbols.
+//   5. Bitcode. Bitcode is a kind of object files. MCLinker compiles it to
+//      object file first, then link it as a object file. (Bitcode is recorded
+//      in BitcodeOption, not be read by LLVM Command Line library.)
+//===----------------------------------------------------------------------===//
+// Inputs
+//===----------------------------------------------------------------------===//
+static cl::list<mcld::sys::fs::Path>
+ArgInputObjectFiles(cl::Positional,
+                    cl::desc("[input object files]"),
+                    cl::ZeroOrMore);
+
+//===----------------------------------------------------------------------===//
+// Namespecs
+//===----------------------------------------------------------------------===//
+static cl::list<std::string>
+ArgNameSpecList("l",
+            cl::ZeroOrMore,
+            cl::desc("Add the archive or object file specified by namespec to "
+                     "the list of files to link."),
+            cl::value_desc("namespec"),
+            cl::Prefix);
+
+static cl::alias
+ArgNameSpecListAlias("library",
+                 cl::desc("alias for -l"),
+                 cl::aliasopt(ArgNameSpecList));
+
+//===----------------------------------------------------------------------===//
+// Attributes
+//===----------------------------------------------------------------------===//
+static cl::list<bool>
+ArgWholeArchiveList("whole-archive",
+               cl::ValueDisallowed,
+               cl::desc("For each archive mentioned on the command line after "
+                        "the --whole-archive option, include all object files "
+                        "in the archive."));
+
+static cl::list<bool>
+ArgNoWholeArchiveList("no-whole-archive",
+               cl::ValueDisallowed,
+               cl::desc("Turn off the effect of the --whole-archive option for "
+                        "subsequent archive files."));
+
+static cl::list<bool>
+ArgAsNeededList("as-needed",
+               cl::ValueDisallowed,
+               cl::desc("This option affects ELF DT_NEEDED tags for dynamic "
+                        "libraries mentioned on the command line after the "
+                        "--as-needed option."));
+
+static cl::list<bool>
+ArgNoAsNeededList("no-as-needed",
+               cl::ValueDisallowed,
+               cl::desc("Turn off the effect of the --as-needed option for "
+                        "subsequent dynamic libraries"));
+
+static cl::list<bool>
+ArgAddNeededList("add-needed",
+                cl::ValueDisallowed,
+                cl::desc("--add-needed causes DT_NEEDED tags are always "
+                         "emitted for those libraries from DT_NEEDED tags. "
+                         "This is the default behavior."));
+
+static cl::list<bool>
+ArgNoAddNeededList("no-add-needed",
+                cl::ValueDisallowed,
+                cl::desc("--no-add-needed causes DT_NEEDED tags will never be "
+                         "emitted for those libraries from DT_NEEDED tags"));
+
+static cl::list<bool>
+ArgBDynamicList("Bdynamic",
+                cl::ValueDisallowed,
+                cl::desc("Link against dynamic library"));
+
+static cl::alias
+ArgBDynamicListAlias1("dy",
+                cl::desc("alias for --Bdynamic"),
+                cl::aliasopt(ArgBDynamicList));
+
+static cl::alias
+ArgBDynamicListAlias2("call_shared",
+                cl::desc("alias for --Bdynamic"),
+                cl::aliasopt(ArgBDynamicList));
+
+static cl::list<bool>
+ArgBStaticList("Bstatic",
+                cl::ValueDisallowed,
+                cl::desc("Link against static library"));
+
+static cl::alias
+ArgBStaticListAlias1("dn",
+                cl::desc("alias for --Bstatic"),
+                cl::aliasopt(ArgBStaticList));
+
+static cl::alias
+ArgBStaticListAlias2("static",
+                cl::desc("alias for --Bstatic"),
+                cl::aliasopt(ArgBStaticList));
+
+static cl::alias
+ArgBStaticListAlias3("non_shared",
+                cl::desc("alias for --Bstatic"),
+                cl::aliasopt(ArgBStaticList));
+
+//===----------------------------------------------------------------------===//
+// Groups
+//===----------------------------------------------------------------------===//
+static cl::list<bool>
+ArgStartGroupList("start-group",
+                  cl::ValueDisallowed,
+                  cl::desc("start to record a group of archives"));
+
+static cl::alias
+ArgStartGroupListAlias("(",
+                       cl::desc("alias for --start-group"),
+                       cl::aliasopt(ArgStartGroupList));
+
+static cl::list<bool>
+ArgEndGroupList("end-group",
+                cl::ValueDisallowed,
+                cl::desc("stop recording a group of archives"));
+
+static cl::alias
+ArgEndGroupListAlias(")",
+                     cl::desc("alias for --end-group"),
+                     cl::aliasopt(ArgEndGroupList));
 
 //===----------------------------------------------------------------------===//
 // MCLinker
 //===----------------------------------------------------------------------===//
-MCLinker::MCLinker(SectLinkerOption &pOption,
+MCLinker::MCLinker(LinkerConfig& pConfig,
                    TargetLDBackend& pLDBackend,
                    mcld::Module& pModule,
                    MemoryArea& pOutput)
   : MachineFunctionPass(m_ID),
-    m_pOption(&pOption),
+    m_Config(pConfig),
     m_pLDBackend(&pLDBackend),
     m_Module(pModule),
     m_Output(pOutput),
     m_pObjLinker(NULL),
-    m_InputFactory(MCLD_NUM_OF_INPUTS, pOption.config().attribute()),
+    m_InputFactory(MCLD_NUM_OF_INPUTS, pConfig.attribute()),
     m_MemAreaFactory(MCLD_NUM_OF_INPUTS),
     m_ContextFactory(MCLD_NUM_OF_INPUTS),
     m_pBuilder(NULL) {
@@ -85,21 +228,15 @@ MCLinker::~MCLinker()
 
 bool MCLinker::doInitialization(llvm::Module &pM)
 {
-  LinkerConfig &config = m_pOption->config();
-
-  m_pBuilder = new InputBuilder(config,
+  m_pBuilder = new InputBuilder(m_Config,
                                 m_InputFactory,
                                 m_MemAreaFactory,
                                 m_ContextFactory);
 
-  // ----- convert position dependent options into tree of input files  ----- //
-  PositionDependentOptions &PosDepOpts = m_pOption->pos_dep_options();
-  std::stable_sort(PosDepOpts.begin(), PosDepOpts.end(), CompareOption);
-  initializeInputTree(PosDepOpts);
-  initializeInputOutput();
+  initializeInputTree(*m_pBuilder);
 
   // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pObjLinker = new ObjectLinker(config,
+  m_pObjLinker = new ObjectLinker(m_Config,
                                   *m_pLDBackend,
                                   m_Module,
                                   *m_pBuilder);
@@ -109,8 +246,6 @@ bool MCLinker::doInitialization(llvm::Module &pM)
 
 bool MCLinker::doFinalization(llvm::Module &pM)
 {
-  const LinkerConfig &config = m_pOption->config();
-
   // 2. - initialize FragmentLinker
   if (!m_pObjLinker->initFragmentLinker())
     return true;
@@ -122,7 +257,7 @@ bool MCLinker::doFinalization(llvm::Module &pM)
   // 4. - normalize the input tree
   m_pObjLinker->normalize();
 
-  if (config.options().trace()) {
+  if (m_Config.options().trace()) {
     static int counter = 0;
     mcld::outs() << "** name\ttype\tpath\tsize (" << m_Module.getInputTree().size() << ")\n";
     InputTree::const_dfs_iterator input, inEnd = m_Module.getInputTree().dfs_end();
@@ -200,206 +335,156 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
-void MCLinker::initializeInputOutput()
+void MCLinker::initializeInputTree(InputBuilder& pBuilder)
 {
-  // -----  initialize input files  ----- //
-  InputTree::dfs_iterator input, inEnd = m_Module.getInputTree().dfs_end();
-  for (input = m_Module.getInputTree().dfs_begin(); input!=inEnd; ++input) {
-    // already got type - for example, bitcode
-    if ((*input)->type() == Input::Script ||
-        (*input)->type() == Input::Object ||
-        (*input)->type() == Input::DynObj  ||
-        (*input)->type() == Input::Archive)
-      continue;
-
-    if (!m_pBuilder->setMemory(**input, FileHandle::ReadOnly)) {
-      error(diag::err_cannot_open_input) << (*input)->name() << (*input)->path();
-      return;
-    }
-
-    m_pBuilder->setContext(**input);
-  }
-}
-
-void MCLinker::initializeInputTree(const PositionDependentOptions &pPosDepOptions)
-{
-  if (pPosDepOptions.empty())
+  if (0 == ArgInputObjectFiles.size() &&
+      0 == ArgNameSpecList.size() &&
+      !m_Config.bitcode().hasDefined()) {
     fatal(diag::err_no_inputs);
-
-  LinkerConfig &config= m_pOption->config();
-  PositionDependentOptions::const_iterator option = pPosDepOptions.begin();
-  if (1 == pPosDepOptions.size() &&
-      ((*option)->type() != PositionDependentOption::INPUT_FILE &&
-       (*option)->type() != PositionDependentOption::NAMESPEC) &&
-       (*option)->type() != PositionDependentOption::BITCODE) {
-    // if we only have one positional options, and the option is
-    // not an input file, then emit error message.
-    fatal(diag::err_no_inputs);
+    return;
   }
 
-  // -----  Input tree insertion algorithm  ----- //
-  //   The type of the previsou node indicates the direction of the current
-  //   insertion.
-  //
-  //     root   : the parent node who being inserted.
-  //     mover  : the direcion of current movement.
-  //
-  //   for each positional options:
-  //     insert the options in current root.
-  //     calculate the next movement
+  pBuilder.setInputTree(m_Module.getInputTree());
 
-  // Initialization
-  InputTree::Mover *move = &InputTree::Downward;
-  InputTree::iterator root = m_Module.getInputTree().root();
-  PositionDependentOptions::const_iterator optionEnd = pPosDepOptions.end();
-  std::stack<InputTree::iterator> returnStack;
+  size_t num_actions = ArgInputObjectFiles.size() +
+                       ArgNameSpecList.size() +
+                       ArgWholeArchiveList.size() +
+                       ArgNoWholeArchiveList.size() +
+                       ArgAsNeededList.size() +
+                       ArgNoAsNeededList.size() +
+                       ArgAddNeededList.size() +
+                       ArgNoAddNeededList.size() +
+                       ArgBDynamicList.size() +
+                       ArgBStaticList.size() +
+                       ArgStartGroupList.size() +
+                       ArgEndGroupList.size() +
+                       1; // bitcode
+  std::vector<InputAction*> actions;
+  actions.reserve(num_actions);
 
-  while (option != optionEnd ) {
+  // -----  inputs  ----- //
+  cl::list<mcld::sys::fs::Path>::iterator input, inBegin, inEnd;
+  inBegin = ArgInputObjectFiles.begin();
+  inEnd = ArgInputObjectFiles.end();
+  for (input = inBegin; input != inEnd; ++input) {
+    unsigned int pos = ArgInputObjectFiles.getPosition(input - inBegin);
+    actions.push_back(new InputFileAction(pos, *input));
+    actions.push_back(new ContextAction(pos));
+    actions.push_back(new MemoryAreaAction(pos, FileHandle::ReadOnly));
+  }
 
-    switch ((*option)->type()) {
-      /** bitcode **/
-      case PositionDependentOption::BITCODE: {
+  // -----  namespecs  ----- //
+  cl::list<std::string>::iterator namespec, nsBegin, nsEnd;
+  nsBegin = ArgNameSpecList.begin();
+  nsEnd = ArgNameSpecList.end();
+  for (namespec = nsBegin; namespec != nsEnd; ++namespec) {
+    unsigned int pos = ArgNameSpecList.getPosition(namespec - nsBegin);
+    actions.push_back(new NamespecAction(pos, *namespec,
+                                         m_Config.options().directories()));
+    actions.push_back(new ContextAction(pos));
+    actions.push_back(new MemoryAreaAction(pos, FileHandle::ReadOnly));
+  }
 
-        const BitCodeOption *bitcode_option =
-            static_cast<const BitCodeOption*>(*option);
+  // -----  attributes  ----- //
+  /// --whole-archive
+  cl::list<bool>::iterator attr, attrBegin, attrEnd;
+  attrBegin = ArgWholeArchiveList.begin();
+  attrEnd   = ArgWholeArchiveList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgWholeArchiveList.getPosition(attr - attrBegin);
+    actions.push_back(new WholeArchiveAction(pos));
+  }
 
-        // threat bitcode as an external IR in this version.
-        Input* input = m_InputFactory.produce(bitcode_option->path()->native(),
-                                              *(bitcode_option->path()),
-                                              Input::External);
+  /// --no-whole-archive
+  attrBegin = ArgNoWholeArchiveList.begin();
+  attrEnd   = ArgNoWholeArchiveList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgNoWholeArchiveList.getPosition(attr - attrBegin);
+    actions.push_back(new NoWholeArchiveAction(pos));
+  }
 
-        m_Module.getInputTree().insert(root, *move, *input);
+  /// --as-needed
+  attrBegin = ArgAsNeededList.begin();
+  attrEnd   = ArgAsNeededList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgAsNeededList.getPosition(attr - attrBegin);
+    actions.push_back(new AsNeededAction(pos));
+  }
 
-        config.bitcode().setPath(*bitcode_option->path());
-        config.bitcode().setPosition(bitcode_option->position());
+  /// --no-as-needed
+  attrBegin = ArgNoAsNeededList.begin();
+  attrEnd   = ArgNoAsNeededList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgNoAsNeededList.getPosition(attr - attrBegin);
+    actions.push_back(new NoAsNeededAction(pos));
+  }
 
-        // move root on the new created node.
-        move->move(root);
+  /// --add--needed
+  attrBegin = ArgAddNeededList.begin();
+  attrEnd   = ArgAddNeededList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgAddNeededList.getPosition(attr - attrBegin);
+    actions.push_back(new AddNeededAction(pos));
+  }
 
-        // the next file is appended after bitcode file.
-        move = &InputTree::Afterward;
-        break;
-      }
+  /// --no-add--needed
+  attrBegin = ArgNoAddNeededList.begin();
+  attrEnd   = ArgNoAddNeededList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgNoAddNeededList.getPosition(attr - attrBegin);
+    actions.push_back(new NoAddNeededAction(pos));
+  }
 
-      /** input object file **/
-      case PositionDependentOption::INPUT_FILE: {
-        const InputFileOption *input_file_option =
-            static_cast<const InputFileOption*>(*option);
+  /// --Bdynamic
+  attrBegin = ArgBDynamicList.begin();
+  attrEnd   = ArgBDynamicList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgBDynamicList.getPosition(attr - attrBegin);
+    actions.push_back(new BDynamicAction(pos));
+  }
 
-        Input* input = m_InputFactory.produce(
-                                           input_file_option->path()->native(),
-                                           *(input_file_option->path()));
+  /// --Bstatic
+  attrBegin = ArgBStaticList.begin();
+  attrEnd   = ArgBStaticList.end();
+  for (attr = attrBegin; attr != attrEnd; ++attr) {
+    unsigned int pos = ArgBStaticList.getPosition(attr - attrBegin);
+    actions.push_back(new BStaticAction(pos));
+  }
 
-        m_Module.getInputTree().insert(root, *move, *input);
+  // -----  groups  ----- //
+  /// --start-group
+  cl::list<bool>::iterator group, gsBegin, gsEnd;
+  gsBegin = ArgStartGroupList.begin();
+  gsEnd   = ArgStartGroupList.end();
+  for (group = gsBegin; group != gsEnd; ++group) {
+    unsigned int pos = ArgStartGroupList.getPosition(group - gsBegin);
+    actions.push_back(new StartGroupAction(pos));
+  }
 
-        // move root on the new created node.
-        move->move(root);
+  /// --end-group
+  gsBegin = ArgEndGroupList.begin();
+  gsEnd   = ArgEndGroupList.end();
+  for (group = gsBegin; group != gsEnd; ++group) {
+    unsigned int pos = ArgEndGroupList.getPosition(group - gsBegin);
+    actions.push_back(new EndGroupAction(pos));
+  }
 
-        // the next file is appended after object file.
-        move = &InputTree::Afterward;
-        break;
-      }
+  // -----  bitcode  ----- //
+  if (m_Config.bitcode().hasDefined()) {
+    actions.push_back(new BitcodeAction(m_Config.bitcode().getPosition(),
+                                        m_Config.bitcode().getPath()));
+  }
 
-    /** -lnamespec **/
-    case PositionDependentOption::NAMESPEC: {
-      sys::fs::Path* path = NULL;
-      const NamespecOption *namespec_option =
-          static_cast<const NamespecOption*>(*option);
+  // stable sort
+  std::stable_sort(actions.begin(), actions.end(), CompareAction);
 
-      // find out the real path of the namespec.
-      if (config.attribute().constraint().isSharedSystem()) {
-        // In the system with shared object support, we can find both archive
-        // and shared object.
+  // build up input tree
+  std::vector<InputAction*>::iterator action, actionEnd = actions.end();
+  for (action = actions.begin(); action != actionEnd; ++action) {
+    (*action)->activate(pBuilder);
+  }
 
-        if (m_InputFactory.attr().isStatic()) {
-          // with --static, we must search an archive.
-          path = config.options().directories().find(namespec_option->namespec(),
-                                                   Input::Archive);
-        }
-        else {
-          // otherwise, with --Bdynamic, we can find either an archive or a
-          // shared object.
-          path = config.options().directories().find(namespec_option->namespec(),
-                                                   Input::DynObj);
-        }
-      }
-      else {
-        // In the system without shared object support, we only look for an
-        // archive.
-        path = config.options().directories().find(namespec_option->namespec(),
-                                                 Input::Archive);
-      }
-
-      if (NULL == path)
-        fatal(diag::err_cannot_find_namespec) << namespec_option->namespec();
-
-      Input* input = m_InputFactory.produce(namespec_option->namespec(), *path);
-      m_Module.getInputTree().insert(root, *move, *input);
-
-      // iterate root on the new created node.
-      move->move(root);
-
-      // the file after a namespec must be appended afterward.
-      move = &InputTree::Afterward;
-      break;
-    }
-
-    /** start group **/
-    case PositionDependentOption::START_GROUP:
-      if (!returnStack.empty())
-        fatal(diag::fatal_forbid_nest_group);
-      m_Module.getInputTree().enterGroup(root, *move);
-      move->move(root);
-      returnStack.push(root);
-      move = &InputTree::Downward;
-      break;
-    /** end group **/
-    case PositionDependentOption::END_GROUP:
-      root = returnStack.top();
-      returnStack.pop();
-      move = &InputTree::Afterward;
-      break;
-    case PositionDependentOption::WHOLE_ARCHIVE:
-      m_InputFactory.attr().setWholeArchive();
-      break;
-    case PositionDependentOption::NO_WHOLE_ARCHIVE:
-      m_InputFactory.attr().unsetWholeArchive();
-      break;
-    case PositionDependentOption::AS_NEEDED:
-      m_InputFactory.attr().setAsNeeded();
-      break;
-    case PositionDependentOption::NO_AS_NEEDED:
-      m_InputFactory.attr().unsetAsNeeded();
-      break;
-    case PositionDependentOption::ADD_NEEDED:
-      m_InputFactory.attr().setAddNeeded();
-      break;
-    case PositionDependentOption::NO_ADD_NEEDED:
-      m_InputFactory.attr().unsetAddNeeded();
-      break;
-    case PositionDependentOption::BSTATIC:
-      m_InputFactory.attr().setStatic();
-      break;
-    case PositionDependentOption::BDYNAMIC:
-      m_InputFactory.attr().setDynamic();
-      break;
-    default:
-      fatal(diag::err_cannot_identify_option) << (*option)->position()
-                                              << (uint32_t)(*option)->type();
-    } // end of switch
-    ++option;
-  } // end of while
-
-  if (!returnStack.empty()) {
+  if (pBuilder.isInGroup())
     report_fatal_error("no matched --start-group and --end-group");
-  }
-}
-
-//===----------------------------------------------------------------------===//
-// Non-member functions
-static bool CompareOption(const PositionDependentOption* X,
-                          const PositionDependentOption* Y)
-{
-  return (X->position() < Y->position());
 }
 

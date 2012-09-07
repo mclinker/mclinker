@@ -22,7 +22,7 @@ namespace mcld {
 /// corresponding MipsMCLinker
 ///
 MCLinker* createMipsMCLinker(const std::string &pTriple,
-                             SectLinkerOption &pOption,
+                             LinkerConfig& pConfig,
                              mcld::TargetLDBackend &pLDBackend,
                              mcld::Module& pModule,
                              mcld::MemoryArea& pOutput)
@@ -37,7 +37,7 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
     return NULL;
   }
 
-  return new MipsELFMCLinker(pOption, pLDBackend, pModule, pOutput);
+  return new MipsELFMCLinker(pConfig, pLDBackend, pModule, pOutput);
 }
 
 } // namespace of mcld

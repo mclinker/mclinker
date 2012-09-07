@@ -24,10 +24,10 @@ class MemoryArea;
 class ARMELFMCLinker : public MCLinker
 {
 public:
-  ARMELFMCLinker(SectLinkerOption &pOption,
-                 mcld::TargetLDBackend &pLDBackend,
+  ARMELFMCLinker(LinkerConfig& pConfig,
+                 TargetLDBackend& pLDBackend,
                  mcld::Module& pModule,
-                 mcld::MemoryArea& pOutput);
+                 MemoryArea& pOutput);
 
   ~ARMELFMCLinker();
 };

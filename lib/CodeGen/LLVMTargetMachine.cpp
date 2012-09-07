@@ -9,10 +9,9 @@
 #include <mcld/Target/TargetMachine.h>
 
 #include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/CodeGen/MCLinker.h>
-#include <mcld/CodeGen/SectLinkerOption.h>
 #include <mcld/Support/raw_mem_ostream.h>
-#include <mcld/Support/RealPath.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Support/ToolOutputFile.h>
 #include <mcld/Support/MemoryArea.h>
@@ -190,7 +189,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
                                              mcld::Module& pModule,
-                                             SectLinkerOption *pLinkerOpt,
+                                             LinkerConfig& pConfig,
                                              bool pDisableVerify)
 {
 
@@ -233,12 +232,9 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_EXEFile: {
-    if (pLinkerOpt == NULL)
-      return true;
-
-    pLinkerOpt->config().setCodeGenType(LinkerConfig::Exec);
+    pConfig.setCodeGenType(LinkerConfig::Exec);
     if (addLinkerPasses(pPM,
-                        pLinkerOpt,
+                        pConfig,
                         pModule,
                         pOutput.memory(),
                         Context))
@@ -246,12 +242,9 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
     break;
   }
   case CGFT_DSOFile: {
-    if (pLinkerOpt == NULL)
-      return true;
-
-    pLinkerOpt->config().setCodeGenType(LinkerConfig::DynObj);
+    pConfig.setCodeGenType(LinkerConfig::DynObj);
     if (addLinkerPasses(pPM,
-                        pLinkerOpt,
+                        pConfig,
                         pModule,
                         pOutput.memory(),
                         Context))
@@ -343,12 +336,12 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
 }
 
 bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
-                                              SectLinkerOption *pLinkerOpt,
+                                              LinkerConfig& pConfig,
                                               mcld::Module& pModule,
                                               mcld::MemoryArea& pOutput,
                                               llvm::MCContext *&Context)
 {
-  TargetLDBackend* ldBackend = getTarget().createLDBackend(pLinkerOpt->config());
+  TargetLDBackend* ldBackend = getTarget().createLDBackend(pConfig);
   if (NULL == ldBackend)
     return true;
 
@@ -356,17 +349,17 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
     return true;
 
   // set up output's SOName
-  if (pLinkerOpt->config().options().soname().empty()) {
+  if (pConfig.options().soname().empty()) {
     // if the output is a shared object, and the option -soname was not
     // enable, set soname as the output file name.
     pModule.setName(pOutput.handler()->path().native());
   }
   else {
-    pModule.setName(pLinkerOpt->config().options().soname());
+    pModule.setName(pConfig.options().soname());
   }
 
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
-                                                             *pLinkerOpt,
+                                                             pConfig,
                                                              *ldBackend,
                                                              pModule,
                                                              pOutput);

@@ -27,7 +27,6 @@ class MemoryArea;
 class LLVMTargetMachine;
 class TargetRegistry;
 class MCLinker;
-class SectLinkerOption;
 class TargetLDBackend;
 class AttributeFactory;
 class InputFactory;
@@ -47,7 +46,7 @@ public:
                                                           const std::string&);
 
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
-                                      SectLinkerOption &,
+                                      LinkerConfig&,
                                       TargetLDBackend&,
                                       Module&,
                                       MemoryArea& pOutput);
@@ -83,13 +82,13 @@ public:
   ///
   /// @return created MCLinker
   MCLinker *createMCLinker(const std::string &pTriple,
-                           SectLinkerOption &pOption,
+                           LinkerConfig& pConfig,
                            TargetLDBackend &pLDBackend,
                            Module& pModule,
                            MemoryArea& pOutput) const {
     if (!MCLinkerCtorFn)
       return NULL;
-    return MCLinkerCtorFn(pTriple, pOption, pLDBackend, pModule, pOutput);
+    return MCLinkerCtorFn(pTriple, pConfig, pLDBackend, pModule, pOutput);
   }
 
   /// createLDBackend - create target-specific LDBackend

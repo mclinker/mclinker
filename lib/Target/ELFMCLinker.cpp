@@ -7,18 +7,17 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/ELFMCLinker.h>
-#include <mcld/CodeGen/SectLinkerOption.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ELFMCLinker
 //===----------------------------------------------------------------------===//
-ELFMCLinker::ELFMCLinker(SectLinkerOption &pOption,
-                         TargetLDBackend &pLDBackend,
+ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
+                         TargetLDBackend& pLDBackend,
                          mcld::Module& pModule,
                          MemoryArea& pOutput)
-  : MCLinker(pOption, pLDBackend, pModule, pOutput) {
+  : MCLinker(pConfig, pLDBackend, pModule, pOutput) {
 }
 
 ELFMCLinker::~ELFMCLinker()

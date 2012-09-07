@@ -30,7 +30,6 @@ class Module;
 class Target;
 class MemoryArea;
 class LinkerConfig;
-class SectLinkerOption;
 class ToolOutputFile;
 
 using namespace llvm;
@@ -60,6 +59,7 @@ public:
   LLVMTargetMachine(llvm::TargetMachine &pTM,
                     const mcld::Target &pTarget,
                     const std::string &pTriple);
+
   virtual ~LLVMTargetMachine();
 
   /// getTarget - adapt llvm::TargetMachine::getTarget
@@ -70,8 +70,8 @@ public:
   llvm::TargetMachine& getTM() { return m_TM; }
 
   /// getLDInfo - return the mcld::LinkerConfig
-  virtual mcld::LinkerConfig& getConfig() = 0;
   virtual const mcld::LinkerConfig& getConfig() const = 0;
+  virtual mcld::LinkerConfig&       getConfig()       = 0;
 
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.
@@ -80,7 +80,7 @@ public:
                            mcld::CodeGenFileType,
                            CodeGenOpt::Level,
                            mcld::Module& pModule,
-                           SectLinkerOption *pLinkerOpt = NULL,
+                           mcld::LinkerConfig& pConfig,
                            bool DisableVerify = true);
 
   /// getTargetData
@@ -109,7 +109,7 @@ private:
                           llvm::MCContext *&OutCtx);
 
   bool addLinkerPasses(PassManagerBase &pPM,
-                       SectLinkerOption *pLinkerOpt,
+                       LinkerConfig& pConfig,
                        Module& pModule,
                        mcld::MemoryArea& pOutput,
                        llvm::MCContext *&OutCtx);

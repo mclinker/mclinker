@@ -7,26 +7,24 @@
 //
 //===----------------------------------------------------------------------===//
 #include "MipsELFMCLinker.h"
-#include <mcld/MC/InputFactory.h>
-#include <mcld/CodeGen/SectLinkerOption.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 
-MipsELFMCLinker::MipsELFMCLinker(SectLinkerOption &pOption,
+MipsELFMCLinker::MipsELFMCLinker(LinkerConfig& pConfig,
                                  TargetLDBackend &pLDBackend,
                                  mcld::Module& pModule,
                                  MemoryArea& pOutput)
-  : MCLinker(pOption, pLDBackend, pModule, pOutput) {
-  LinkerConfig &config = pOption.config();
+  : MCLinker(pConfig, pLDBackend, pModule, pOutput) {
   // set up target-dependent constraints of attibutes
-  config.attribute().constraint().enableWholeArchive();
-  config.attribute().constraint().enableAsNeeded();
-  config.attribute().constraint().setSharedSystem();
+  pConfig.attribute().constraint().enableWholeArchive();
+  pConfig.attribute().constraint().enableAsNeeded();
+  pConfig.attribute().constraint().setSharedSystem();
 
   // set up the predefined attributes
-  config.attribute().predefined().unsetWholeArchive();
-  config.attribute().predefined().unsetAsNeeded();
-  config.attribute().predefined().setDynamic();
+  pConfig.attribute().predefined().unsetWholeArchive();
+  pConfig.attribute().predefined().unsetAsNeeded();
+  pConfig.attribute().predefined().setDynamic();
 }
 
 MipsELFMCLinker::~MipsELFMCLinker()
