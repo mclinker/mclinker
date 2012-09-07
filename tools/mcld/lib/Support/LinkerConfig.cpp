@@ -264,17 +264,7 @@ void LinkerConfig::addPortable(const std::string &pPortableSymbol) {
 
 void LinkerConfig::addSearchDir(const std::string &pDirPath) {
   // SearchDirs will remove the created MCLDDirectory.
-  mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
-
-  if (sd->isInSysroot()) {
-    sd->setSysroot(mLDConfig->options().sysroot());
+  if (!mLDConfig->options().directories().insert(pDirPath)) {
+    mcld::warning(mcld::diag::warn_cannot_open_search_dir) << pDirPath;
   }
-
-  if (exists(sd->path()) && is_directory(sd->path())) {
-    mLDConfig->options().directories().add(*sd);
-  } else {
-    mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
-  }
-
-  return;
 }

@@ -31,6 +31,13 @@ SearchDirs::SearchDirs()
   m_DirList.reserve(8);
 }
 
+SearchDirs::SearchDirs(const sys::fs::Path& pSysRoot)
+  : m_SysRoot(pSysRoot) {
+  // a magic number 8, no why.
+  // please prove it or change it
+  m_DirList.reserve(8);
+}
+
 SearchDirs::~SearchDirs()
 {
   iterator dir, dirEnd = end();
@@ -39,9 +46,17 @@ SearchDirs::~SearchDirs()
   }
 }
 
-void SearchDirs::add(const MCLDDirectory& pDirectory)
+bool SearchDirs::insert(const std::string& pPath)
 {
-  m_DirList.push_back(new MCLDDirectory(pDirectory));
+  MCLDDirectory* dir = new MCLDDirectory(pPath);
+  if (dir->isInSysroot())
+    dir->setSysroot(m_SysRoot);
+
+  if (exists(dir->path()) && is_directory(dir->path())) {
+    m_DirList.push_back(dir);
+    return true;
+  }
+  return false;
 }
 
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)

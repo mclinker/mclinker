@@ -39,8 +39,7 @@ public:
   void setDefaultLDScript(const std::string& pFilename);
 
   /// sysroot
-  const sys::fs::Path& sysroot() const
-  { return m_Sysroot; }
+  const sys::fs::Path& sysroot() const;
 
   void setSysroot(const sys::fs::Path &pPath);
 
@@ -208,7 +207,6 @@ private:
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
-  sys::fs::RealPath m_Sysroot;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
   std::string m_Dyld;

@@ -283,7 +283,7 @@ ArgSysRoot("sysroot",
            cl::value_desc("directory"),
            cl::ValueRequired);
 
-static cl::list<mcld::MCLDDirectory, bool, llvm::cl::parser<mcld::MCLDDirectory> >
+static cl::list<std::string>
 ArgSearchDirList("L",
                  cl::ZeroOrMore,
                  cl::desc("Add path searchdir to the list of paths that ld will search for archive libraries and ld control scripts."),
@@ -585,18 +585,13 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   }
 
   // add all search directories
-  cl::list<mcld::MCLDDirectory>::iterator sd;
-  cl::list<mcld::MCLDDirectory>::iterator sdEnd = ArgSearchDirList.end();
+  cl::list<std::string>::iterator sd;
+  cl::list<std::string>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
-    if (sd->isInSysroot())
-      sd->setSysroot(pConfig.options().sysroot());
-    if (exists(sd->path()) && is_directory(sd->path())) {
-      pConfig.options().directories().add(*sd);
-    }
-    else {
+    if (!pConfig.options().directories().insert(*sd)) {
       // FIXME: need a warning function
       errs() << "WARNING: can not open search directory `-L"
-             << sd->name()
+             << *sd
              << "'.\n";
     }
   }
