@@ -13,10 +13,11 @@
 #endif
 
 #include <llvm/Support/DataTypes.h>
-#include <mcld/LD/CIE.h>
 #include <mcld/Fragment/RegionFragment.h>
 
 namespace mcld {
+
+class CIE;
 
 /** \class FDE
  *  \brief Frame Description Entry
