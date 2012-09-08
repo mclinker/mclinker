@@ -19,7 +19,6 @@
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/ADT/DenseMap.h>
 
-#include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LinkerConfig.h>
@@ -28,6 +27,7 @@
 namespace mcld {
 
 class Module;
+class FragmentRef;
 class FragmentLinker;
 class TargetLDBackend;
 

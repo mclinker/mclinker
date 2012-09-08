@@ -16,10 +16,10 @@
 
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/FragmentRef.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class FragmentRef;
 
 /** \class LDSymbol
  *  \brief LDSymbol provides a consistent abstraction for different formats
@@ -31,7 +31,6 @@ public:
   // FIXME: use SizeTrait<32> or SizeTrait<64> instead of big type
   typedef ResolveInfo::SizeType SizeType;
   typedef uint64_t ValueType;
-  typedef FragmentRef::Offset Offset;
 
 public:
   LDSymbol();

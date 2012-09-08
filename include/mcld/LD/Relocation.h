@@ -15,7 +15,7 @@
 #include <llvm/Support/DataTypes.h>
 
 #include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/FragmentRef.h>
+#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 

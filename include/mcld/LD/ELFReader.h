@@ -19,7 +19,6 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -29,6 +28,7 @@
 namespace mcld {
 
 class Module;
+class FragmentRef;
 class FragmentLinker;
 
 /** \class ELFReaderIF

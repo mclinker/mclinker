@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/FragmentRef.h>
+#include <mcld/Fragment/FragmentRef.h>
 
 #include <cstring>
 #include <cassert>
