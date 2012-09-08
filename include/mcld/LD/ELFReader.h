@@ -19,11 +19,7 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LD/Fragment.h>
-#include <mcld/LD/FillFragment.h>
-#include <mcld/LD/AlignFragment.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
@@ -33,6 +29,7 @@
 namespace mcld {
 
 class Module;
+class FragmentLinker;
 
 /** \class ELFReaderIF
  *  \brief ELFReaderIF provides common interface for all kind of ELF readers.
@@ -235,9 +232,9 @@ public:
   inline bool readDynamic(Input& pInput) const;
 };
 
-#include "ELFReader.tcc"
-
 } // namespace of mcld
+
+#include "ELFReader.tcc"
 
 #endif
 

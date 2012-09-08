@@ -312,6 +312,7 @@ bool ObjectLinker::postProcessing(MemoryArea& pOutput)
 {
   m_pLinker->syncRelocationResult(pOutput);
 
+  // emit .eh_frame_hdr
   m_LDBackend.postProcessing(*m_pLinker, pOutput);
   return true;
 }

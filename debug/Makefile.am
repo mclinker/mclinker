@@ -152,6 +152,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Fragment/FragmentLinker.h \
 	${INCDIR}/Fragment/FragmentLinker.tcc \
 	${LIBDIR}/Fragment/FragmentLinker.cpp \
+	${INCDIR}/Fragment/Fragment.h \
+	${LIBDIR}/Fragment/Fragment.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
@@ -214,8 +216,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/Relocation.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
-	${INCDIR}/LD/Fragment.h \
-	${LIBDIR}/LD/Fragment.cpp \
 	${INCDIR}/LD/AlignFragment.h \
 	${LIBDIR}/LD/AlignFragment.cpp \
 	${INCDIR}/LD/FillFragment.h \

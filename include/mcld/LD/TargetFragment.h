@@ -6,17 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_LD_TARGET_FRAGMENT_H
 #define MCLD_LD_TARGET_FRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class SectionData;
 

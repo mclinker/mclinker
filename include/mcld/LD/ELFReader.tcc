@@ -15,6 +15,11 @@
 // ELFReader<32, true>
 #include <cstring>
 #include <vector>
+#include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/LD/FillFragment.h>
+#include <mcld/LD/RegionFragment.h>
+
+namespace mcld {
 
 /// constructor
 ELFReader<32, true>::ELFReader(GNULDBackend& pBackend)
@@ -580,4 +585,6 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
   pInput.memArea()->release(dynstr_region);
   return true;
 }
+
+} // namespace of mcld
 

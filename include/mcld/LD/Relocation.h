@@ -14,7 +14,7 @@
 #include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/FragmentRef.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>

@@ -12,10 +12,9 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class SectionData;
 

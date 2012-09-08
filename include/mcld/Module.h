@@ -22,7 +22,7 @@
 #include <llvm/ADT/ilist.h>
 
 #include <mcld/Support/GCFactoryListTraits.h>
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/Relocation.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/MC/SymbolCategory.h>

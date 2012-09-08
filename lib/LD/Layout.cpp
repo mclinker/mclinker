@@ -19,7 +19,6 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/LD/Fragment.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/LD/AlignFragment.h>
 #include <mcld/Fragment/FragmentLinker.h>

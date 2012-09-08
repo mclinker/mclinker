@@ -18,10 +18,9 @@
 
 #include <mcld/Config/Config.h>
 #include <mcld/Support/Allocators.h>
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSection;
 

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/RegionFragment.h>
+#include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;
 

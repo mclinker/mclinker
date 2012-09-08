@@ -14,14 +14,13 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ManagedStatic.h>
 
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/LD/AlignFragment.h>
-#include <mcld/LD/FillFragment.h>
+#include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/RegionFragment.h>
-#include <mcld/LD/TargetFragment.h>
 
 using namespace mcld;
 

@@ -6,18 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_LD_REGION_FRAGMENT_H
 #define MCLD_LD_REGION_FRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/Fragment.h>
-#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Fragment/Fragment.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class MemoryRegion;
 
 /** \class RegionFragment
  *  \brief RegionFragment is a kind of Fragment containing mcld::MemoryRegion
@@ -29,11 +28,8 @@ public:
 
   ~RegionFragment();
 
-  MemoryRegion& getRegion()
-  { return m_Region; }
-
-  const MemoryRegion& getRegion() const
-  { return m_Region; }
+  const MemoryRegion& getRegion() const { return m_Region; }
+  MemoryRegion&       getRegion()       { return m_Region; }
 
   static bool classof(const Fragment *F)
   { return F->getKind() == Fragment::Region; }
