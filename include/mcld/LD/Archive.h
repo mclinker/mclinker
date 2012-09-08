@@ -23,7 +23,6 @@
 
 namespace mcld {
 
-class InputTree;
 class Input;
 class InputFactory;
 class InputBuilder;
