@@ -17,9 +17,9 @@
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/LD/FillFragment.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/MC/Attribute.h>
+#include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>

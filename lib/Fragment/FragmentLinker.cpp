@@ -24,7 +24,6 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/FillFragment.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
