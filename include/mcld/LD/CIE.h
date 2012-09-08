@@ -13,10 +13,9 @@
 #endif
 
 #include <llvm/Support/DataTypes.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class CIE
  *  \brief Common Information Entry.

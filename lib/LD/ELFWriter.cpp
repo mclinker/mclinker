@@ -19,7 +19,7 @@
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/LD/FillFragment.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>

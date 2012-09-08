@@ -14,10 +14,9 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/LD/CIE.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class FDE
  *  \brief Frame Description Entry

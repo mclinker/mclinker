@@ -20,7 +20,7 @@
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 
 using namespace mcld;
 

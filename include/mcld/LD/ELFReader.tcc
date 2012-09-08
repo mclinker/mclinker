@@ -17,7 +17,7 @@
 #include <vector>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/FillFragment.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 
 namespace mcld {
 

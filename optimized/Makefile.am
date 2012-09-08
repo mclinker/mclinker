@@ -163,6 +163,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Fragment/FragmentRef.cpp \
 	${INCDIR}/Fragment/AlignFragment.h \
 	${LIBDIR}/Fragment/AlignFragment.cpp \
+	${INCDIR}/Fragment/RegionFragment.h \
+	${LIBDIR}/Fragment/RegionFragment.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
@@ -223,8 +225,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/Layout.cpp\
 	${INCDIR}/LD/FillFragment.h \
 	${LIBDIR}/LD/FillFragment.cpp \
-	${INCDIR}/LD/RegionFragment.h \
-	${LIBDIR}/LD/RegionFragment.cpp \
 	${INCDIR}/LD/TargetFragment.h \
 	${INCDIR}/LD/Relocation.h \
 	${LIBDIR}/LD/Relocation.cpp \

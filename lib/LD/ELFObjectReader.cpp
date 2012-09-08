@@ -15,7 +15,6 @@
 
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LD/RegionFragment.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/Target/GNULDBackend.h>

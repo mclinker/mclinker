@@ -21,7 +21,7 @@
 #include <mcld/LD/SectionMap.h>
 #include <mcld/LD/FillFragment.h>
 #include <mcld/Fragment/AlignFragment.h>
-#include <mcld/LD/RegionFragment.h>
+#include <mcld/Fragment/RegionFragment.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
