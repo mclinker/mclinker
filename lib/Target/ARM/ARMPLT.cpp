@@ -13,6 +13,7 @@
 
 #include <llvm/Support/Casting.h>
 
+#include <mcld/LD/LDSection.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 

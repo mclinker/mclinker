@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <llvm/Support/Casting.h>
 
+#include <mcld/LD/LDSection.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Support/MsgHandling.h>
 

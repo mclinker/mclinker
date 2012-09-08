@@ -162,6 +162,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Fragment/RegionFragment.cpp \
 	${INCDIR}/Fragment/FillFragment.h \
 	${LIBDIR}/Fragment/FillFragment.cpp \
+	${INCDIR}/Fragment/TargetFragment.h \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
@@ -224,7 +225,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/Relocation.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
-	${INCDIR}/LD/TargetFragment.h \
 	${INCDIR}/LD/StaticResolver.h \
 	${LIBDIR}/LD/StaticResolver.cpp \
 	${INCDIR}/LD/NamePool.h \

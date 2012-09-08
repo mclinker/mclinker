@@ -14,17 +14,14 @@
 
 #include <llvm/ADT/DenseMap.h>
 
-#include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/TargetFragment.h>
+#include <mcld/Fragment/TargetFragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class GOT;
+class LDSection;
 class ResolveInfo;
-class SectionData;
-
 
 /** \class GOTEntry
  *  \brief The entry of Global Offset Table
@@ -83,17 +80,13 @@ public:
   const LDSection& getSection() const
   { return m_Section; }
 
-  SectionData& getSectionData()
-  { return m_SectionData; }
+  const SectionData& getSectionData() const { return m_SectionData; }
+  SectionData&       getSectionData()       { return m_SectionData; }
 
-  const SectionData& getSectionData() const
-  { return m_SectionData; }
-
-  iterator begin();
   const_iterator begin() const;
-
-  iterator end();
-  const_iterator end() const;
+  iterator       begin();
+  const_iterator end  () const;
+  iterator       end  ();
 
   bool empty() const
   { return m_SectionData.empty(); }

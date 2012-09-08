@@ -12,16 +12,12 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/ilist.h>
-
-#include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/TargetFragment.h>
+#include <mcld/Fragment/TargetFragment.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class SectionData;
+class LDSection;
 class ResolveInfo;
 
 /** \class PLTEntry
