@@ -24,12 +24,13 @@
 
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/LD/Relocation.h>
 #include <mcld/LD/SectionMerger.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/GCFactoryListTraits.h>
+#include <mcld/Fragment/Relocation.h>
 
 namespace mcld {
 

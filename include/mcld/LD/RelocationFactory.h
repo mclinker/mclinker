@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/Support/GCFactory.h>
-#include <mcld/LD/Relocation.h>
+#include <mcld/Fragment/Relocation.h>
 
 namespace mcld {
 

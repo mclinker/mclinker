@@ -6,9 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/Relocation.h>
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -90,16 +92,6 @@ void Relocation::setAddend(Address pAddend)
 void Relocation::setSymInfo(ResolveInfo* pSym)
 {
   m_pSymInfo = pSym;
-}
-
-Relocation::DWord& Relocation::target()
-{
-  return m_TargetData;
-}
-
-const Relocation::DWord& Relocation::target() const
-{
-  return m_TargetData;
 }
 
 size_t Relocation::size() const

@@ -23,13 +23,14 @@
 
 #include <mcld/Support/GCFactoryListTraits.h>
 #include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/Relocation.h>
 #include <mcld/LD/NamePool.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
 
 namespace mcld {
+
+class LDSection;
 
 /** \class Module
  *  \brief Module provides the intermediate representation for linking.

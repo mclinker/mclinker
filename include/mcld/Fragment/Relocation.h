@@ -6,23 +6,20 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_LD_RELOCATION_H
-#define MCLD_LD_RELOCATION_H
+#ifndef MCLD_FRAGMENT_RELOCATION_H
+#define MCLD_FRAGMENT_RELOCATION_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/ADT/ilist_node.h>
 #include <llvm/Support/DataTypes.h>
 
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/FragmentRef.h>
-#include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/LDSymbol.h>
 
+namespace mcld {
 
-namespace mcld
-{
 class Layout;
+class ResolveInfo;
 class RelocationFactory;
 class LinkerConfig;
 
@@ -59,26 +56,17 @@ public:
   Address place(const Layout& pLayout) const;
 
   /// symbol info - binding, type
-  const ResolveInfo* symInfo() const
-  { return m_pSymInfo; }
-
-  /// symbol info - binding, type
-  ResolveInfo* symInfo()
-  { return m_pSymInfo; }
+  const ResolveInfo* symInfo() const { return m_pSymInfo; }
+  ResolveInfo*       symInfo()       { return m_pSymInfo; }
 
   /// target - the target data to relocate
-  DWord& target();
-
-  /// target - the target data to relocate
-  const DWord& target() const;
+  const DWord& target() const { return m_TargetData; }
+  DWord&       target()       { return m_TargetData; }
 
   /// targetRef - the reference of the target data
-  FragmentRef& targetRef()
-  { return m_TargetAddress; }
+  const FragmentRef& targetRef() const { return m_TargetAddress; }
+  FragmentRef&       targetRef()       { return m_TargetAddress; }
 
-  /// targetRef - the reference of the target data
-  const FragmentRef& targetRef() const
-  { return m_TargetAddress; }
 
   void apply(RelocationFactory& pRelocFactory);
 
