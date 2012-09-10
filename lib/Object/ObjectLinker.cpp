@@ -313,6 +313,8 @@ bool ObjectLinker::postProcessing(MemoryArea& pOutput)
   m_pLinker->syncRelocationResult(pOutput);
 
   // emit .eh_frame_hdr
+  // eh_frame_hdr should be emitted after syncRelocation, because eh_frame_hdr
+  // needs FDE PC value, which will be corrected at syncRelocation
   m_LDBackend.postProcessing(*m_pLinker, pOutput);
   return true;
 }
