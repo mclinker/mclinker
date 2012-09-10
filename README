@@ -12,39 +12,34 @@ Compilation Instructions
   The simplest way to compile this package is:
 
 ----------------------
-Prepare LLVM and Clang
+Prepare LLVM
 ----------------------
-  0.a Download LLVM 3.1@r152063
-      `svn co -r 152063 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
+  0.a Download LLVM@r162314
+      `svn co -r 162314 http://llvm.org/svn/llvm-project/llvm/trunk llvm-src'
 
   0.b Type `cd llvm-src' to enter the directory containing LLVM source code
 
-  0.c Apply patches from MCLinker
-      `patch -p0 < ${MCLinker}/patch/LLVM.patch'
-
-  0.d Download Clang @r152062
-      `cd tools'
-      `svn co -r 152062 http://llvm.org/svn/llvm-project/cfe/trunk clang'
-
-  0.e Build and install LLVM
-      `cd ../../'
-      `mkdir llvm-build && cd ./llvm-build'
-      `../llvm/configure --prefix=${LLVM_INSTALL}'
-      `make all install'
+  0.c Build and install LLVM
+      cd ..
+      mkdir llvm-build && cd ./llvm-build
+      ../llvm/configure --prefix=${LLVM_INSTALL}
+      make all install
 
 --------------
 Build MCLinker
 --------------
+  1.  Download MCLinker tarball from the website
+      http://code.google.com/p/mclinker
 
-  1.  Type `cd ${MCLinker}' to the directory containing the source code.
-
-  2.  source ./scripts/envsetup.sh
+  2.  Type `cd ${MCLinker}' to the directory containing the source code.
 
   3.  If there are no `configure' shell script in the directory, type
       `./autogen.sh' to generate `configure' script.
 
   4.  Type `./configure` to configure the package for your system. See INSTALL
       for more details.
+      ./configure --prefix=${MCLINKER_INSTALL} \
+                  --with-llvm-config=${LLVM_INSTALL}/bin/llvm-config
 
   5.  Type `make` to compile the package
 
