@@ -125,6 +125,12 @@ void ObjectLinker::normalize()
   // -----  set up inputs  ----- //
   Module::input_iterator input, inEnd = m_Module.input_end();
   for (input = m_Module.input_begin(); input!=inEnd; ++input) {
+    if (NULL == *input) {
+      // --start-group and --end-group has no mcld::Input.
+      // FIXME: handle with group.
+      continue;
+    }
+
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
