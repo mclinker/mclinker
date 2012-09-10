@@ -1,3 +1,39 @@
+2012-09-10 Luba Tang <luba.tang@mediatek.com>
+	* Executive Summary:
+	1. Migrate on LLVM r162314
+	2. Large scale architecture refactoring.
+	3. No new features; No functional changes.
+	4. Remove two architecture weaknesses in alone::Linker.
+
+	* Separate MCLinker into three layers:
+	1. MCLinker - handle with input files. The adapter to LLVM.
+	2. ObjectLinker - handle with object file format.
+	3. FragmentLinker - handle with piece of code or data.
+
+	* Provide mcld::Module as the intermediate representation:
+	1. Remove mcld::Output. Move all fields of mcld::Output into mcld::Module.
+	2. Move NamePool from FragmentLinker to Module.
+	3. Move Relocation Table from FragmentLinker to Module.
+	4. Move SymbolCategory from FragmentLinker to Module.
+	5. Move InputTree from MCLinker to Module.
+
+	* Separate MCLDInfo into LinkerConfig and InputBuilder:
+	1. All fields in MCLDInfo that can be constant are moved into LinkerConfig.
+	2. MemoryAreaFactory, ContextFactory and InputFactory are moved into LinkerConfig.
+
+	* Action-based linkers:
+	1. MCLinker uses FileActions and CommandActions to build up the input tree.
+	2. Remove SectLinkerOption, PositionDependentOption and DerivedPositionDependentOption.
+	3. Remove ugly type castings.
+
+	* Add new file stream and file utilies:
+	1. raw_mem_ostream - an MemoryArea adapter to llvm::raw_ostream.
+	2. ToolOutputFile - an raw_mem_ostream adapter to llvm::tool_output_file.
+
+	* Hide less-frequently-used classes:
+	1. Hide RegionFactory. MemoryArea becomes a wrapper of RegionFactory.
+	2. Hide ContextFactory and MemoryAreaFactory. Move them into InputBuilder.
+
 2012-08-01 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Get rid of LLVM MC layer and reduce the dependency to LLVM.
