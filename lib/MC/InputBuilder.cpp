@@ -107,7 +107,21 @@ void InputBuilder::setCurrentTree(InputTree& pInputTree)
 
 bool InputBuilder::setContext(Input& pInput)
 {
-  LDContext* context = m_pContextFactory->produce(pInput.path());
+  // The object files in an archive have common path. Every object files in an
+  // archive needs a individual context. We identify the object files in an
+  // archive by its file offset. Their file offsets are not zero.
+  LDContext* context = NULL;
+  if (0 != pInput.fileOffset()) {
+    // pInput is an object in an archive file. Produce a new context in this
+    // case.
+    context = m_pContextFactory->produce();
+  }
+  else {
+    // Using pInput.path() to avoid from creating context for identical file
+    // twice.
+    context = m_pContextFactory->produce(pInput.path());
+  }
+
   pInput.setContext(context);
   return true;
 }
