@@ -12,8 +12,8 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/Fragment.h>
-#include <mcld/LD/FragmentRef.h>
+#include <mcld/Fragment/Fragment.h>
+#include <mcld/Fragment/FragmentRef.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/MC/InputFactory.h>

@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include <mcld/MC/InputTree.h>
+#include <mcld/MC/InputFactory.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/FileAction.h>
@@ -27,11 +28,14 @@ InputTreeTest::InputTreeTest()
 
   // create testee. modify it if need
   m_pConfig = new mcld::LinkerConfig("arm-none-linux-gnueabi");
-  m_pAlloc  = new mcld::InputFactory(10, m_pConfig->attribute());
+  m_pAlloc  = new mcld::InputFactory(10, *m_pConfig);
   m_pBuilder = new mcld::InputBuilder(*m_pConfig,
-                                      *m_pAlloc, m_MemFactory,
-                                      m_ContextFactory);
-  m_pTestee = m_pBuilder->createTree();
+                                      *m_pAlloc,
+                                      m_ContextFactory, 
+                                      m_MemFactory,
+                                      false);
+  m_pTestee = new mcld::InputTree();
+  m_pBuilder->setCurrentTree(*m_pTestee);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.

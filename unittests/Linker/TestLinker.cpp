@@ -33,8 +33,7 @@ using namespace mcld::test;
 //===----------------------------------------------------------------------===//
 TestLinker::TestLinker()
   : m_pTarget(NULL), m_pObjLinker(NULL), m_pConfig(NULL), m_pDiagLineInfo(NULL),
-    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pInputFactory(NULL),
-    m_pMemAreaFactory(NULL), m_pBuilder(NULL), m_pOutput(NULL) {
+    m_pDiagPrinter(NULL), m_pBackend(NULL), m_pBuilder(NULL), m_pOutput(NULL) {
 }
 
 TestLinker::~TestLinker()
@@ -52,8 +51,6 @@ TestLinker::~TestLinker()
   delete m_pDiagLineInfo;
   delete m_pDiagPrinter;
   delete m_pBackend;
-  delete m_pInputFactory;
-  delete m_pMemAreaFactory;
   delete m_pBuilder;
   delete m_pOutput;
 }
@@ -103,16 +100,16 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
-  m_pInputFactory = new InputFactory(32, m_pConfig->attribute());
-  m_pMemAreaFactory = new MemoryAreaFactory(32);
-  m_pContextFactory = new ContextFactory(32);
-
+  m_pInputFactory = new mcld::InputFactory(10, *m_pConfig);
+  m_pContextFactory = new mcld::ContextFactory(10);
+  m_pMemAreaFactory = new mcld::MemoryAreaFactory(10);
   m_pBuilder = new mcld::InputBuilder(*m_pConfig,
                                       *m_pInputFactory,
+                                      *m_pContextFactory,
                                       *m_pMemAreaFactory,
-                                      *m_pContextFactory);
+                                      true);
 
-  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, *m_pBackend, m_Module, *m_pBuilder);
+  m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, m_Module, *m_pBuilder, *m_pBackend);
   m_pObjLinker->initFragmentLinker();
 
   is_initialized = true;
@@ -125,16 +122,8 @@ void TestLinker::addSearchDir(const std::string &pDirPath)
   assert(!m_pConfig->options().sysroot().empty() &&
          "must setSysRoot before addSearchDir");
 
-  mcld::MCLDDirectory* sd = new mcld::MCLDDirectory(pDirPath);
-
-  if (sd->isInSysroot()) {
-    sd->setSysroot(m_pConfig->options().sysroot());
-  }
-
-  if (exists(sd->path()) && is_directory(sd->path())) {
-    m_pConfig->options().directories().add(*sd);
-  } else {
-    mcld::warning(mcld::diag::warn_cannot_open_search_dir) << sd->name();
+  if (!m_pConfig->options().directories().insert(pDirPath)) {
+    mcld::warning(mcld::diag::warn_cannot_open_search_dir) << pDirPath;
   }
 }
 

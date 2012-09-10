@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include "FragmentTest.h"
 
-#include <mcld/LD/Fragment.h>
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/LDSection.h>
 
