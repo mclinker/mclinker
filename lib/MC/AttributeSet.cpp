@@ -8,13 +8,14 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/Attribute.h>
 #include <mcld/MC/AttributeSet.h>
+#include <cstddef>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // AttributeSet
 //===----------------------------------------------------------------------===//
-AttributeSet::AttributeSet(size_t pNum, const Attribute& pPredefined)
+AttributeSet::AttributeSet(unsigned int pNum, const Attribute& pPredefined)
   : m_AttrSet(), m_Predefined(pPredefined) {
   m_AttrSet.reserve(pNum);
 }

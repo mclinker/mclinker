@@ -34,7 +34,7 @@ public:
   typedef AttrSet::const_iterator const_iterator;
 
 public:
-  AttributeSet(size_t pNum, const Attribute& pPredefined);
+  AttributeSet(unsigned int pNum, const Attribute& pPredefined);
 
   ~AttributeSet();
 
