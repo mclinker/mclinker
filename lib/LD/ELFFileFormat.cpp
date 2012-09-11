@@ -178,7 +178,7 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
                                               0x1);
 
   /// @ref 10.3.1.2, ISO/IEC 23360, Part 1:2010(E), p. 24.
-  f_pCtors          = &pLinker.getOrCreateOutputSectHdr(".ctor",
+  f_pCtors          = &pLinker.getOrCreateOutputSectHdr(".ctors",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
