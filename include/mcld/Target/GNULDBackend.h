@@ -29,6 +29,7 @@
 #include <mcld/Target/ELFDynamic.h>
 
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Module.h>
 
 namespace mcld {
 
@@ -339,6 +340,17 @@ private:
 
   /// createGNUStackInfo - create an output GNU stack section or segment if needed
   void createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker);
+
+  /// setOutputSectionOffset - helper function to set output sections' offset.
+  void setOutputSectionOffset(Module& pModule,
+                              Module::iterator pSectBegin,
+                              Module::iterator pSectEnd);
+
+  /// setOutputSectionOffset - helper function to set output sections' address.
+  void setOutputSectionAddress(FragmentLinker& pLinker,
+                               Module& pModule,
+                               Module::iterator pSectBegin,
+                               Module::iterator pSectEnd);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(Module& pModule, FragmentLinker& pLinker);

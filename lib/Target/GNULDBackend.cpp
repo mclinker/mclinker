@@ -1568,6 +1568,83 @@ void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLi
   }
 }
 
+/// setOutputSectionOffset - helper function to set output sections' offset.
+void GNULDBackend::setOutputSectionOffset(Module& pModule,
+                                          Module::iterator pSectBegin,
+                                          Module::iterator pSectEnd)
+{
+  if (pSectBegin == pModule.end())
+    return;
+
+  assert(pSectEnd == pModule.end() ||
+         (pSectEnd != pModule.end() &&
+          (*pSectBegin)->index() <= (*pSectEnd)->index()));
+
+  // set up the "cur" and "prev" iterator
+  Module::iterator cur = pSectBegin;
+  Module::iterator prev = pSectBegin;
+  if (cur != pModule.begin())
+    --prev;
+  else
+    ++cur;
+
+  for (; cur != pSectEnd; ++cur, ++prev) {
+    uint64_t offset = 0x0;
+    switch ((*prev)->kind()) {
+      case LDFileFormat::Null:
+        offset = sectionStartOffset();
+        break;
+      case LDFileFormat::BSS:
+        offset = (*prev)->offset();
+        break;
+      default:
+        offset = (*prev)->offset() + (*prev)->size();
+        break;
+    }
+
+    alignAddress(offset, (*cur)->align());
+    (*cur)->setOffset(offset);
+  }
+}
+
+/// setOutputSectionOffset - helper function to set output sections' address
+void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
+                                           Module& pModule,
+                                           Module::iterator pSectBegin,
+                                           Module::iterator pSectEnd)
+{
+  if (pSectBegin == pModule.end())
+    return;
+
+  assert(pSectEnd == pModule.end() ||
+         (pSectEnd != pModule.end() &&
+          (*pSectBegin)->index() <= (*pSectEnd)->index()));
+
+  for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
+       segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
+    if (llvm::ELF::PT_LOAD != (*seg).type())
+      continue;
+
+    ELFSegment::sect_iterator sect = (*seg).sectBegin();
+    uint64_t page_size = abiPageSize();
+    uint64_t padding = 0x0;
+    if (((*sect)->offset() & (page_size - 1)) != 0)
+      padding = page_size;
+
+    for (ELFSegment::sect_iterator sectEnd = (*seg).sectEnd();
+         sect != sectEnd; ++sect) {
+      if ((*sect)->index() < (*pSectBegin)->index())
+        continue;
+
+      if (sect == pSectEnd)
+        return;
+
+      if (LDFileFormat::Null != (*sect)->kind())
+        (*sect)->setAddr(segmentStartAddr(pLinker) + (*sect)->offset() + padding);
+    }
+  }
+}
+
 /// preLayout - Backend can do any needed modification before layout
 void GNULDBackend::preLayout(Module& pModule,
                              FragmentLinker& pLinker)
