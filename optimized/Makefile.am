@@ -76,6 +76,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
+	${INCDIR}/Target/SymbolEntryMap.h \
 	${INCDIR}/Target/PLT.h\
 	${LIBDIR}/Target/PLT.cpp\
 	${INCDIR}/Target/GOT.h \

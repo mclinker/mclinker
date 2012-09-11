@@ -49,7 +49,7 @@ public:
 
   void reserveEntry(size_t pNum = 1) ;
 
-  PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  PLTEntry* consume();
 
   X86PLT0* getPLT0() const;
 
@@ -58,16 +58,11 @@ public:
   void applyPLT1();
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, X86PLT1*> SymbolIndexType;
-
-private:
   X86GOTPLT& m_GOTPLT;
 
   // Used by getEntry() for mapping a ResolveInfo
   // instance to a PLT1 Entry.
   iterator m_PLTEntryIterator;
-
-  SymbolIndexType m_PLTEntryMap;
 
   const uint8_t *m_PLT0;
   const uint8_t *m_PLT1;

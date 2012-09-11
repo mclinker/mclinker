@@ -160,11 +160,13 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
-  bool exist;
-  PLTEntry& plt_entry = *ld_backend.getPLT().getOrConsumeEntry(*rsym, exist);
-  if (!exist) {
+  PLTEntry* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  if (NULL == plt_entry) {
+    plt_entry = ld_backend.getPLT().consume();
+    pParent.getSymPLTMap().record(*rsym, *plt_entry);
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+      bool exist;
       GOTEntry& gotplt_entry =
         *ld_backend.getGOTPLT().getOrConsumeEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
@@ -178,7 +180,8 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
       fatal(diag::reserve_entry_number_mismatch_plt);
     }
   }
-  return plt_entry;
+
+  return *plt_entry;
 }
 
 

@@ -128,22 +128,13 @@ void X86PLT::reserveEntry(size_t pNum)
   }
 }
 
-PLTEntry* X86PLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
+PLTEntry* X86PLT::consume()
 {
-   X86PLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
-
-   pExist = 1;
-
-   if (!PLTEntry) {
-     pExist = 0;
-
-     // This will skip PLT0.
-     ++m_PLTEntryIterator;
-     assert(m_PLTEntryIterator != m_SectionData.end() &&
-            "The number of PLT Entries and ResolveInfo doesn't match");
-     PLTEntry = llvm::cast<X86PLT1>(&(*m_PLTEntryIterator));
-   }
-   return PLTEntry;
+  // This will skip PLT0.
+  ++m_PLTEntryIterator;
+  assert(m_PLTEntryIterator != m_SectionData.end() &&
+         "The number of PLT Entries and ResolveInfo doesn't match");
+  return llvm::cast<X86PLT1>(&(*m_PLTEntryIterator));
 }
 
 X86PLT0* X86PLT::getPLT0() const {
