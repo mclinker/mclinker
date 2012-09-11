@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_FRAGMENT_H
-#define MCLD_FRAGMENT_H
+#ifndef MCLD_FRAGMENT_FRAGMENT_H
+#define MCLD_FRAGMENT_FRAGMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -17,9 +17,9 @@
 #include <llvm/Support/DataTypes.h>
 
 #include <cstddef>
+#include <cassert>
 
-namespace mcld
-{
+namespace mcld {
 
 class SectionData;
 
@@ -62,7 +62,10 @@ public:
 
   static bool classof(const Fragment *O) { return true; }
 
-  virtual size_t size() const { return 0; }
+  virtual size_t size() const {
+    assert(false && "Can not call abstract Fragment::size()!");
+    return 0;
+  }
 
 private:
   Fragment(const Fragment& );            // DO NOT IMPLEMENT
