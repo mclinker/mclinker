@@ -341,6 +341,9 @@ private:
   /// createGNUStackInfo - create an output GNU stack section or segment if needed
   void createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker);
 
+  /// setupRelro - setup the offset constraint of PT_RELRO
+  void setupRelro(Module& pModule);
+
   /// setOutputSectionOffset - helper function to set output sections' offset.
   void setOutputSectionOffset(Module& pModule,
                               Module::iterator pSectBegin,

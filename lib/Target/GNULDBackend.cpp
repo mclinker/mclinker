@@ -1568,6 +1568,29 @@ void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLi
   }
 }
 
+/// setupRelro - setup the offset constraint of PT_RELRO
+void GNULDBackend::setupRelro(Module& pModule)
+{
+  assert(config().options().hasRelro());
+  // if -z relro is given, we need to adjust sections' offset again, and let
+  // PT_GNU_RELRO end on a common page boundary
+
+  Module::iterator sect = pModule.begin();
+  for (Module::iterator sect_end = pModule.end(); sect != sect_end; ++sect) {
+    // find the first non-relro section
+    if (getSectionOrder(**sect) > SHO_RELRO_LAST)
+      break;
+  }
+
+  // align the first non-relro section to page boundary
+  uint64_t offset = (*sect)->offset();
+  alignAddress(offset, commonPageSize());
+  (*sect)->setOffset(offset);
+
+  // set up remaining section's offset
+  setOutputSectionOffset(pModule, ++sect, pModule.end());
+}
+
 /// setOutputSectionOffset - helper function to set output sections' offset.
 void GNULDBackend::setOutputSectionOffset(Module& pModule,
                                           Module::iterator pSectBegin,
