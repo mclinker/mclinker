@@ -1356,41 +1356,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
     interp_seg->addSection(&file_format->getInterp());
   }
 
-  // FIXME: Should we consider -z relro here?
-  if (config().options().hasRelro()) {
-    // if -z relro is given, we need to adjust sections' offset again, and let
-    // PT_GNU_RELRO end on a common page boundary
-    LDContext::SectionTable& sect_table = pModule.getSectionTable();
-
-    size_t idx;
-    for (idx = 0; idx < pModule.size(); ++idx) {
-      // find the first non-relro section
-      if (getSectionOrder(*sect_table[idx]) > SHO_RELRO_LAST) {
-        break;
-      }
-    }
-
-    // align the first non-relro section to page boundary
-    uint64_t offset = sect_table[idx]->offset();
-    alignAddress(offset, commonPageSize());
-    sect_table[idx]->setOffset(offset);
-
-    // set up remaining section's offset
-    for (++idx; idx < pModule.size(); ++idx) {
-      uint64_t offset;
-      size_t prev_idx = idx - 1;
-      if (LDFileFormat::BSS == sect_table[prev_idx]->kind())
-        offset = sect_table[prev_idx]->offset();
-      else
-        offset = sect_table[prev_idx]->offset() + sect_table[prev_idx]->size();
-
-      alignAddress(offset, sect_table[idx]->align());
-      sect_table[idx]->setOffset(offset);
-    }
-  } // relro
-
   uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
-  uint64_t padding = 0;
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
   Module::iterator sect, sect_end = pModule.end();
@@ -1407,22 +1373,12 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
       // create new PT_LOAD segment
       load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
       load_seg->setAlign(abiPageSize());
-
-      // check if this segment needs padding
-      padding = 0;
-      if (((*sect)->offset() & (abiPageSize() - 1)) != 0)
-        padding = abiPageSize();
     }
 
     assert(NULL != load_seg);
     load_seg->addSection((*sect));
     if (cur_seg_flag != prev_seg_flag)
       load_seg->updateFlag(cur_seg_flag);
-
-    if (LDFileFormat::Null != (*sect)->kind())
-      (*sect)->setAddr(segmentStartAddr(pLinker) +
-                       (*sect)->offset() +
-                       padding);
 
     prev_seg_flag = cur_seg_flag;
   }
@@ -1707,7 +1663,15 @@ void GNULDBackend::postLayout(Module& pModule,
   createGNUStackInfo(pModule, pLinker);
 
   if (LinkerConfig::Object != config().codeGenType()) {
-    // 1.3 set up the attributes of program headers
+    if (config().options().hasRelro()) {
+      // 1.3 set up the offset constraint of PT_RELRO
+      setupRelro(pModule);
+    }
+
+    // 1.4 set up the output sections' address
+    setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
+
+    // 1.5 set up the attributes of program headers
     setupProgramHdrs(pLinker);
   }
 
