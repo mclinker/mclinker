@@ -52,26 +52,6 @@ size_t GOT::getEntrySize() const
   return f_EntrySize;
 }
 
-GOT::iterator GOT::begin()
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-GOT::const_iterator GOT::begin() const
-{
-  return m_SectionData.getFragmentList().begin();
-}
-
-GOT::iterator GOT::end()
-{
-  return m_SectionData.getFragmentList().end();
-}
-
-GOT::const_iterator GOT::end() const
-{
-  return m_SectionData.getFragmentList().end();
-}
-
 void GOT::reserveEntry(size_t pNum)
 {
   GOTEntry* Entry = NULL;

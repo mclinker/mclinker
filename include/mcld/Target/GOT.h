@@ -34,20 +34,11 @@ public:
 
   virtual ~GOTEntry();
 
-  uint64_t& getContent()
-  { return f_Content; }
-
   uint64_t getContent() const
   { return f_Content; }
 
   void setContent(uint64_t pValue)
   { f_Content = pValue; }
-
-  static bool classof(const Fragment *pFrag)
-  { return pFrag->getKind() == Fragment::Target; }
-
-  static bool classof(const GOTEntry* pFrag)
-  { return true; }
 
   // Override pure virtual function
   size_t size() const
@@ -83,10 +74,10 @@ public:
   const SectionData& getSectionData() const { return m_SectionData; }
   SectionData&       getSectionData()       { return m_SectionData; }
 
-  const_iterator begin() const;
-  iterator       begin();
-  const_iterator end  () const;
-  iterator       end  ();
+  const_iterator begin() const { return m_SectionData.begin(); }
+  iterator       begin()       { return m_SectionData.begin(); }
+  const_iterator end  () const { return m_SectionData.end();   }
+  iterator       end  ()       { return m_SectionData.end();   }
 
   bool empty() const
   { return m_SectionData.empty(); }
