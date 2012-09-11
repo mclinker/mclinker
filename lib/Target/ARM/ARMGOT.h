@@ -23,6 +23,18 @@ class MemoryRegion;
 
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
+ *
+ *  ARM GOT integrates traditional .got.plt and .got sections into one.
+ *  Traditional .got.plt is placed in the front part of GOT (PLTGOT), and
+ *  traditional .got is placed in the rear part of GOT (GOT).
+ *
+ *  ARM .got
+ *            +--------------+
+ *            |    PLTGOT    |
+ *            +--------------+
+ *            |     GOT      |
+ *            +--------------+
+ *
  */
 class ARMGOT : public GOT
 {
