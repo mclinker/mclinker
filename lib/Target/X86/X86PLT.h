@@ -51,8 +51,6 @@ public:
 
   PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
-  GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
-
   X86PLT0* getPLT0() const;
 
   void applyPLT0();

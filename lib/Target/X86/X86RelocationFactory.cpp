@@ -166,7 +166,7 @@ PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
       GOTEntry& gotplt_entry =
-        *ld_backend.getPLT().getOrConsumeGOTPLTEntry(*rsym, exist);
+        *ld_backend.getGOTPLT().getOrConsumeEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
       assert(!exist && "PLT entry not exist, but DynRel entry exist!");

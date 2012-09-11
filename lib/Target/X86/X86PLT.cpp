@@ -146,12 +146,6 @@ PLTEntry* X86PLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
    return PLTEntry;
 }
 
-GOTEntry* X86PLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
-                                          bool& pExist)
-{
-   return m_GOTPLT.getOrConsumeEntry(pSymbol, pExist);
-}
-
 X86PLT0* X86PLT::getPLT0() const {
 
   iterator first = m_SectionData.getFragmentList().begin();
