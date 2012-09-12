@@ -122,10 +122,10 @@ void X86PLT::reserveEntry(size_t pNum)
 
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
-
-    // reserve corresponding entry in .got.plt
-    m_GOTPLT.reserveEntry(pNum);
   }
+
+  // reserve corresponding entry in .got.plt
+  m_GOTPLT.reserveEntry(pNum);
 }
 
 PLT::Entry* X86PLT::consume()
