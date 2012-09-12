@@ -14,15 +14,15 @@ using namespace mcld;
 class GOT;
 
 //===----------------------------------------------------------------------===//
-// PLTEntry
+// PLT::Entry
 //===----------------------------------------------------------------------===//
-PLTEntry::PLTEntry(size_t pSize, SectionData& pParent)
+PLT::Entry::Entry(size_t pSize, SectionData& pParent)
   : TargetFragment(Fragment::Target, &pParent),
     m_EntrySize(pSize), m_pContent(NULL)
 {
 }
 
-PLTEntry::~PLTEntry()
+PLT::Entry::~Entry()
 {
   if (m_pContent) {
     free(m_pContent);

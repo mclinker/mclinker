@@ -17,12 +17,12 @@ class ARMGOT;
 class GOTEntry;
 class MemoryRegion;
 
-class ARMPLT0 : public PLTEntry {
+class ARMPLT0 : public PLT::Entry {
 public:
   ARMPLT0(SectionData& pParent);
 };
 
-class ARMPLT1 : public PLTEntry {
+class ARMPLT1 : public PLT::Entry {
 public:
   ARMPLT1(SectionData& pParent);
 };
@@ -44,7 +44,7 @@ public:
 
   void reserveEntry(size_t pNum = 1) ;
 
-  PLTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  PLT::Entry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
   GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 

@@ -38,10 +38,10 @@ const uint32_t arm_plt1[] = {
 using namespace mcld;
 
 ARMPLT0::ARMPLT0(SectionData& pParent)
-  : PLTEntry(sizeof(arm_plt0), pParent) {}
+  : PLT::Entry(sizeof(arm_plt0), pParent) {}
 
 ARMPLT1::ARMPLT1(SectionData& pParent)
-  : PLTEntry(sizeof(arm_plt1), pParent) {}
+  : PLT::Entry(sizeof(arm_plt1), pParent) {}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
@@ -84,7 +84,7 @@ void ARMPLT::reserveEntry(size_t pNum)
   }
 }
 
-PLTEntry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
+PLT::Entry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
 {
    ARMPLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
 

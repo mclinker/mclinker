@@ -20,35 +20,6 @@ namespace mcld {
 class LDSection;
 class ResolveInfo;
 
-/** \class PLTEntry
- */
-class PLTEntry : public TargetFragment
-{
-public:
-  PLTEntry(size_t pSize, SectionData& pParent);
-  virtual ~PLTEntry();
-
-  size_t getEntrySize() const
-  { return m_EntrySize; }
-
-  void setContent(unsigned char* pContent)
-  { m_pContent = pContent; }
-
-  const unsigned char* getContent() const
-  { return m_pContent; }
-
-  //Used by llvm::cast<>.
-  static bool classof(const Fragment *O)
-  { return true; }
-
-  size_t size() const
-  { return m_EntrySize; }
-
-protected:
-  size_t m_EntrySize;
-  unsigned char* m_pContent;
-};
-
 /** \class PLT
  *  \brief Procedure linkage table
  */
@@ -57,6 +28,33 @@ class PLT
 public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
+
+  class Entry : public TargetFragment
+  {
+  public:
+    Entry(size_t pSize, SectionData& pParent);
+    virtual ~Entry();
+
+    size_t getEntrySize() const
+    { return m_EntrySize; }
+
+    void setContent(unsigned char* pContent)
+    { m_pContent = pContent; }
+
+    const unsigned char* getContent() const
+    { return m_pContent; }
+
+    //Used by llvm::cast<>.
+    static bool classof(const Fragment *O)
+    { return true; }
+
+    size_t size() const
+    { return m_EntrySize; }
+
+  protected:
+    size_t m_EntrySize;
+    unsigned char* m_pContent;
+  };
 
 public:
   PLT(LDSection& pSection, SectionData& pSectionData);

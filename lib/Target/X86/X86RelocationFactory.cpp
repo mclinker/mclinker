@@ -153,14 +153,14 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
 
 
 static
-PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
+PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
                                   X86RelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
-  PLTEntry* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  PLT::Entry* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
   if (NULL == plt_entry) {
     plt_entry = ld_backend.getPLT().consume();
     pParent.getSymPLTMap().record(*rsym, *plt_entry);
@@ -197,7 +197,7 @@ static
 X86RelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
-  PLTEntry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  PLT::Entry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) +
             pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
 }

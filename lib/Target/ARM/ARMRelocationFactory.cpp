@@ -183,15 +183,15 @@ ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
 
 
 static
-PLTEntry& helper_get_PLT_and_init(Relocation& pReloc,
-                                  ARMRelocationFactory& pParent)
+PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
+                                    ARMRelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  PLTEntry& plt_entry = *ld_backend.getPLT().getOrConsumeEntry(*rsym, exist);
+  PLT::Entry& plt_entry = *ld_backend.getPLT().getOrConsumeEntry(*rsym, exist);
   if (!exist) {
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
@@ -223,7 +223,7 @@ static
 ARMRelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
-  PLTEntry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  PLT::Entry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) +
             pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
 }

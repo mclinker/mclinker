@@ -50,10 +50,10 @@ const uint8_t x86_exec_plt1[] = {
 namespace mcld {
 
 X86PLT0::X86PLT0(SectionData& pParent, unsigned int pSize)
-  : PLTEntry(pSize, pParent) { }
+  : PLT::Entry(pSize, pParent) { }
 
 X86PLT1::X86PLT1(SectionData& pParent, unsigned int pSize)
-  : PLTEntry(pSize, pParent) { }
+  : PLT::Entry(pSize, pParent) { }
 
 //===----------------------------------------------------------------------===//
 // X86PLT
@@ -128,7 +128,7 @@ void X86PLT::reserveEntry(size_t pNum)
   }
 }
 
-PLTEntry* X86PLT::consume()
+PLT::Entry* X86PLT::consume()
 {
   // This will skip PLT0.
   ++m_PLTEntryIterator;

@@ -14,13 +14,13 @@
 
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Target/GOT.h>
+#include <mcld/Target/PLT.h>
 #include <mcld/Target/SymbolEntryMap.h>
 #include "X86LDBackend.h"
 
 namespace mcld {
 
 class ResolveInfo;
-class PLTEntry;
 
 /** \class X86RelocationFactory
  *  \brief X86RelocationFactory creates and destroys the X86 relocations.
@@ -29,7 +29,7 @@ class PLTEntry;
 class X86RelocationFactory : public RelocationFactory
 {
 public:
-  typedef SymbolEntryMap<PLTEntry> SymPLTMap;
+  typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
 
 public:
   X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);

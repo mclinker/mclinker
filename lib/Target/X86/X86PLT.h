@@ -17,13 +17,13 @@ class X86GOTPLT;
 class GOTEntry;
 class LinkerConfig;
 
-class X86PLT0 : public PLTEntry
+class X86PLT0 : public PLT::Entry
 {
 public:
   X86PLT0(SectionData& pParent, unsigned int pSize);
 };
 
-class X86PLT1 : public PLTEntry
+class X86PLT1 : public PLT::Entry
 {
 public:
   X86PLT1(SectionData& pParent, unsigned int pSize);
@@ -49,7 +49,7 @@ public:
 
   void reserveEntry(size_t pNum = 1) ;
 
-  PLTEntry* consume();
+  PLT::Entry* consume();
 
   X86PLT0* getPLT0() const;
 
