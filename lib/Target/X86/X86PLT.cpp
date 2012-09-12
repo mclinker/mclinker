@@ -122,9 +122,6 @@ void X86PLT::reserveEntry(size_t pNum)
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
   }
-
-  // reserve corresponding entry in .got.plt
-  m_GOTPLT.reserveEntry(pNum);
 }
 
 PLT::Entry* X86PLT::consume()
@@ -149,7 +146,8 @@ X86PLT0* X86PLT::getPLT0() const {
 }
 
 // FIXME: It only works on little endian machine.
-void X86PLT::applyPLT0() {
+void X86PLT::applyPLT0()
+{
   X86PLT0* plt0 = getPLT0();
 
   unsigned char* data = 0;
@@ -160,21 +158,20 @@ void X86PLT::applyPLT0() {
 
   memcpy(data, m_PLT0, plt0->getEntrySize());
 
+  uint64_t gotplt_base = m_GOTPLT.getSection().addr();
   if (m_PLT0 == x86_exec_plt0) {
-    uint64_t got_base = m_GOTPLT.getSection().addr();
-    assert(got_base && ".got base address is NULL!");
     uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
-    *offset = got_base + 4;
+    *offset = gotplt_base + 4;
     offset = reinterpret_cast<uint32_t*>(data + 8);
-    *offset = got_base + 8;
+    *offset = gotplt_base + 8;
   }
 
   plt0->setContent(data);
 }
 
 // FIXME: It only works on little endian machine.
-void X86PLT::applyPLT1() {
-
+void X86PLT::applyPLT1()
+{
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
@@ -230,9 +227,6 @@ void X86PLT::applyPLT1() {
     plt1->setContent(data);
     ++it;
   }
-
-  // apply .got.plt
-  m_GOTPLT.applyAllGOTPLT(plt_base, m_PLT0Size, m_PLT1Size);
 }
 
 } // end namespace mcld

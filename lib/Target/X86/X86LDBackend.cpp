@@ -280,6 +280,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
+          m_pGOTPLT->reserveEntry();
           m_pRelPLT->reserveEntry(*m_pRelocFactory);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -326,6 +327,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
       // when calling X86PLT->reserveEntry())
       m_pPLT->reserveEntry();
+      m_pGOTPLT->reserveEntry();
       m_pRelPLT->reserveEntry(*m_pRelocFactory);
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -362,6 +364,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
+          m_pGOTPLT->reserveEntry();
           m_pRelPLT->reserveEntry(*m_pRelocFactory);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -434,7 +437,6 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
 
     m_pPLT->applyPLT0();
     m_pPLT->applyPLT1();
-
     X86PLT::iterator it = m_pPLT->begin();
     unsigned int plt0_size = llvm::cast<X86PLT0>((*it)).getEntrySize();
 
@@ -472,6 +474,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   else if (&pSection == &(FileFormat->getGOTPLT())) {
     assert(m_pGOTPLT && "emitSectionData failed, m_pGOTPLT is NULL!");
     m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+    m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 

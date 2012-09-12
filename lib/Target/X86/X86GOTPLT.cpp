@@ -7,11 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include "X86GOTPLT.h"
+#include "X86PLT.h"
 
 #include <new>
 
 #include <llvm/Support/Casting.h>
 
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
 
@@ -51,19 +53,17 @@ void X86GOTPLT::applyGOT0(uint64_t pAddress)
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
-void X86GOTPLT::applyAllGOTPLT(uint64_t pPLTBase,
-                               unsigned int pPLT0Size,
-                               unsigned int pPLT1Size)
+void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
 {
   iterator it = begin();
   // skip GOT0
   for (size_t i = 0; i < X86GOTPLT0Num; ++i)
     ++it;
   // address of corresponding plt entry
-  uint64_t plt_addr = pPLTBase + pPLT0Size;
+  uint64_t plt_addr = pPLT.getSection().addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
     llvm::cast<GOTEntry>(*it).setContent(plt_addr + 6);
-    plt_addr += pPLT1Size;
+    plt_addr += pPLT.getPLT1Size();
   }
 }
 

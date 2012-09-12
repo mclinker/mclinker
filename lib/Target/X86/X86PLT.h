@@ -55,6 +55,9 @@ public:
 
   void applyPLT1();
 
+  unsigned int getPLT0Size() const { return m_PLT0Size; }
+  unsigned int getPLT1Size() const { return m_PLT1Size; }
+
 private:
   X86PLT0* getPLT0() const;
 

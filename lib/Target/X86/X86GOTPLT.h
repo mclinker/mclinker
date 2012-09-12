@@ -16,8 +16,9 @@
 
 #include <mcld/Target/GOT.h>
 
-namespace mcld
-{
+namespace mcld {
+
+class X86PLT;
 class LDSection;
 
 const unsigned int X86GOTPLT0Num = 3;
@@ -37,9 +38,7 @@ public:
 
   void applyGOT0(uint64_t pAddress);
 
-  void applyAllGOTPLT(uint64_t pPLTBase,
-                      unsigned int pPLT0Size,
-                      unsigned int pPLT1Size);
+  void applyAllGOTPLT(const X86PLT& pPLT);
 };
 
 } // namespace of mcld
