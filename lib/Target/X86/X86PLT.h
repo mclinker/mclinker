@@ -51,11 +51,12 @@ public:
 
   PLT::Entry* consume();
 
-  X86PLT0* getPLT0() const;
-
   void applyPLT0();
 
   void applyPLT1();
+
+private:
+  X86PLT0* getPLT0() const;
 
 private:
   X86GOTPLT& m_GOTPLT;
