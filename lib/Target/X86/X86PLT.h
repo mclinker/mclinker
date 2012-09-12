@@ -20,13 +20,13 @@ class LinkerConfig;
 class X86PLT0 : public PLTEntry
 {
 public:
-  X86PLT0(SectionData* pParent, unsigned int pSize);
+  X86PLT0(SectionData& pParent, unsigned int pSize);
 };
 
 class X86PLT1 : public PLTEntry
 {
 public:
-  X86PLT1(SectionData* pParent, unsigned int pSize);
+  X86PLT1(SectionData& pParent, unsigned int pSize);
 };
 
 /** \class X86PLT

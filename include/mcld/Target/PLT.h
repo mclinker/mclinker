@@ -25,7 +25,7 @@ class ResolveInfo;
 class PLTEntry : public TargetFragment
 {
 public:
-  PLTEntry(size_t pSize, SectionData* pParent);
+  PLTEntry(size_t pSize, SectionData& pParent);
   virtual ~PLTEntry();
 
   size_t getEntrySize() const

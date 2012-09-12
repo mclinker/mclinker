@@ -16,9 +16,9 @@ class GOT;
 //===----------------------------------------------------------------------===//
 // PLTEntry
 //===----------------------------------------------------------------------===//
-PLTEntry::PLTEntry(size_t pSize, SectionData* pParent)
-   : TargetFragment(Fragment::Target, pParent),
-     m_EntrySize(pSize), m_pContent(NULL)
+PLTEntry::PLTEntry(size_t pSize, SectionData& pParent)
+  : TargetFragment(Fragment::Target, &pParent),
+    m_EntrySize(pSize), m_pContent(NULL)
 {
 }
 

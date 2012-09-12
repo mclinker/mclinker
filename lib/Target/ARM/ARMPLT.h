@@ -19,12 +19,12 @@ class MemoryRegion;
 
 class ARMPLT0 : public PLTEntry {
 public:
-  ARMPLT0(SectionData* pParent);
+  ARMPLT0(SectionData& pParent);
 };
 
 class ARMPLT1 : public PLTEntry {
 public:
-  ARMPLT1(SectionData* pParent);
+  ARMPLT1(SectionData& pParent);
 };
 
 /** \class ARMPLT

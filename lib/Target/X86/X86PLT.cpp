@@ -49,10 +49,10 @@ const uint8_t x86_exec_plt1[] = {
 
 namespace mcld {
 
-X86PLT0::X86PLT0(SectionData* pParent, unsigned int pSize)
+X86PLT0::X86PLT0(SectionData& pParent, unsigned int pSize)
   : PLTEntry(pSize, pParent) { }
 
-X86PLT1::X86PLT1(SectionData* pParent, unsigned int pSize)
+X86PLT1::X86PLT1(SectionData& pParent, unsigned int pSize)
   : PLTEntry(pSize, pParent) { }
 
 //===----------------------------------------------------------------------===//
@@ -82,7 +82,7 @@ X86PLT::X86PLT(LDSection& pSection,
       m_PLT0Size = sizeof (x86_exec_plt0);
       m_PLT1Size = sizeof (x86_exec_plt1);
   }
-  X86PLT0* plt0_entry = new X86PLT0(&m_SectionData, m_PLT0Size);
+  X86PLT0* plt0_entry = new X86PLT0(m_SectionData, m_PLT0Size);
 
   m_PLTEntryIterator = pSectionData.begin();
 }
@@ -118,7 +118,7 @@ void X86PLT::reserveEntry(size_t pNum)
   X86PLT1* plt1_entry = 0;
 
   for (size_t i = 0; i < pNum; ++i) {
-    plt1_entry = new (std::nothrow) X86PLT1(&m_SectionData, m_PLT1Size);
+    plt1_entry = new (std::nothrow) X86PLT1(m_SectionData, m_PLT1Size);
 
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);

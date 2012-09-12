@@ -37,10 +37,10 @@ const uint32_t arm_plt1[] = {
 
 using namespace mcld;
 
-ARMPLT0::ARMPLT0(SectionData* pParent)
+ARMPLT0::ARMPLT0(SectionData& pParent)
   : PLTEntry(sizeof(arm_plt0), pParent) {}
 
-ARMPLT1::ARMPLT1(SectionData* pParent)
+ARMPLT1::ARMPLT1(SectionData& pParent)
   : PLTEntry(sizeof(arm_plt1), pParent) {}
 
 //===----------------------------------------------------------------------===//
@@ -50,7 +50,7 @@ ARMPLT::ARMPLT(LDSection& pSection,
                SectionData& pSectionData,
                ARMGOT &pGOTPLT)
   : PLT(pSection, pSectionData), m_GOT(pGOTPLT), m_PLTEntryIterator() {
-  ARMPLT0* plt0_entry = new ARMPLT0(&m_SectionData);
+  ARMPLT0* plt0_entry = new ARMPLT0(m_SectionData);
   m_PLTEntryIterator = pSectionData.begin();
 }
 
@@ -75,7 +75,7 @@ void ARMPLT::reserveEntry(size_t pNum)
   ARMPLT1* plt1_entry = 0;
 
   for (size_t i = 0; i < pNum; ++i) {
-    plt1_entry = new (std::nothrow) ARMPLT1(&m_SectionData);
+    plt1_entry = new (std::nothrow) ARMPLT1(m_SectionData);
 
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
