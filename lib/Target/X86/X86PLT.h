@@ -61,9 +61,8 @@ private:
 private:
   X86GOTPLT& m_GOTPLT;
 
-  // Used by getEntry() for mapping a ResolveInfo
-  // instance to a PLT1 Entry.
-  iterator m_PLTEntryIterator;
+  // the last consumed entry.
+  SectionData::iterator m_Last;
 
   const uint8_t *m_PLT0;
   const uint8_t *m_PLT1;

@@ -64,7 +64,6 @@ X86PLT::X86PLT(LDSection& pSection,
                const LinkerConfig& pConfig)
   : PLT(pSection, pSectionData),
     m_GOTPLT(pGOTPLT),
-    m_PLTEntryIterator(),
     m_Config(pConfig)
 {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
@@ -84,7 +83,7 @@ X86PLT::X86PLT(LDSection& pSection,
   }
   X86PLT0* plt0_entry = new X86PLT0(m_SectionData, m_PLT0Size);
 
-  m_PLTEntryIterator = pSectionData.begin();
+  m_Last = pSectionData.begin();
 }
 
 X86PLT::~X86PLT()
@@ -131,10 +130,10 @@ void X86PLT::reserveEntry(size_t pNum)
 PLT::Entry* X86PLT::consume()
 {
   // This will skip PLT0.
-  ++m_PLTEntryIterator;
-  assert(m_PLTEntryIterator != m_SectionData.end() &&
+  ++m_Last;
+  assert(m_Last != m_SectionData.end() &&
          "The number of PLT Entries and ResolveInfo doesn't match");
-  return llvm::cast<X86PLT1>(&(*m_PLTEntryIterator));
+  return llvm::cast<X86PLT1>(&(*m_Last));
 }
 
 X86PLT0* X86PLT::getPLT0() const {
