@@ -670,7 +670,11 @@ GNULDBackend::sizeNamePools(const Module& pModule)
 
   switch(config().codeGenType()) {
     // compute size of .dynstr and .hash
-    case LinkerConfig::DynObj:
+    case LinkerConfig::DynObj: {
+      // soname
+      dynstr += pModule.name().size() + 1;
+    }
+    /** fall through **/
     case LinkerConfig::Exec: {
       // add DT_NEED strings into .dynstr and .dynamic
       // Rules:
@@ -700,7 +704,6 @@ GNULDBackend::sizeNamePools(const Module& pModule)
              sizeof(llvm::ELF::Elf32_Word);
 
       // set size
-      dynstr += pModule.name().size() + 1;
       if (32 == bitclass())
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
       else
@@ -1016,7 +1019,6 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     }
   }
 
-  // emit soname
   // initialize value of ELF .dynamic section
   if (LinkerConfig::DynObj == config().codeGenType()) {
     // set pointer to SONAME entry in dynamic string table.
@@ -1025,9 +1027,11 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   dynamic().applyEntries(config(), *file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
-  strcpy((strtab + strtabsize), pModule.name().c_str());
-  strtabsize += pModule.name().size() + 1;
-
+  // emit soname
+  if (LinkerConfig::DynObj == config().codeGenType()) {
+    strcpy((strtab + strtabsize), pModule.name().c_str());
+    strtabsize += pModule.name().size() + 1;
+  }
   // emit hash table
   // FIXME: this verion only emit SVR4 hash section.
   //        Please add GNU new hash section
