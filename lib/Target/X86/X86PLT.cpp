@@ -186,6 +186,8 @@ void X86PLT::applyPLT1()
 
   // Skip GOT0
   uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;
+  if (LinkerConfig::Exec == m_Config.codeGenType())
+    GOTEntryOffset += got_base;
 
   //skip PLT0
   uint64_t PLTEntryOffset = m_PLT0Size;
@@ -208,12 +210,7 @@ void X86PLT::applyPLT1()
     uint32_t* offset;
 
     offset = reinterpret_cast<uint32_t*>(data + 2);
-    if (LinkerConfig::DynObj == m_Config.codeGenType()) {
-      *offset = GOTEntryOffset;
-    } else {
-      // Exec
-      *offset = got_base + GOTEntryOffset;
-    }
+    *offset = GOTEntryOffset;
     GOTEntryOffset += GOTEntrySize;
 
     offset = reinterpret_cast<uint32_t*>(data + 7);
