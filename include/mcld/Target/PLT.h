@@ -74,17 +74,10 @@ public:
   const SectionData& getSectionData() const
   { return m_SectionData; }
 
-  iterator begin()
-  { return m_SectionData.begin(); }
-
-  const_iterator begin() const
-  { return m_SectionData.begin(); }
-
-  iterator end()
-  { return m_SectionData.end(); }
-
-  const_iterator end() const
-  { return m_SectionData.end(); }
+  const_iterator begin() const { return m_SectionData.begin(); }
+  iterator       begin()       { return m_SectionData.begin(); }
+  const_iterator end  () const { return m_SectionData.end();   }
+  iterator       end  ()       { return m_SectionData.end();   }
 
 protected:
   LDSection& m_Section;
