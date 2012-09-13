@@ -215,7 +215,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
 static
 ARMRelocationFactory::Address helper_PLT_ORG(ARMRelocationFactory& pParent)
 {
-  return pParent.getTarget().getPLT().getSection().addr();
+  return pParent.getTarget().getPLT().addr();
 }
 
 

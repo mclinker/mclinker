@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/TargetFragment.h>
 
@@ -58,6 +59,7 @@ public:
 
 public:
   PLT(LDSection& pSection, SectionData& pSectionData);
+
   virtual ~PLT();
 
   /// reserveEntry - reseve the number of pNum of empty entries
@@ -67,12 +69,7 @@ public:
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize() = 0;
 
-  // ----- observers ----- //
-  const LDSection& getSection() const
-  { return m_Section; }
-
-  const SectionData& getSectionData() const
-  { return m_SectionData; }
+  uint64_t addr() const { return m_Section.addr(); }
 
   const_iterator begin() const { return m_SectionData.begin(); }
   iterator       begin()       { return m_SectionData.begin(); }

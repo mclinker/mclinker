@@ -133,7 +133,8 @@ PLT::Entry* X86PLT::consume()
   return llvm::cast<X86PLT1>(&(*m_Last));
 }
 
-X86PLT0* X86PLT::getPLT0() const {
+X86PLT0* X86PLT::getPLT0() const
+{
 
   iterator first = m_SectionData.getFragmentList().begin();
 

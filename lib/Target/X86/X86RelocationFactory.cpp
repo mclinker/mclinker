@@ -189,7 +189,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
 static
 X86RelocationFactory::Address helper_PLT_ORG(X86RelocationFactory& pParent)
 {
-  return pParent.getTarget().getPLT().getSection().addr();
+  return pParent.getTarget().getPLT().addr();
 }
 
 

@@ -60,7 +60,7 @@ void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   for (size_t i = 0; i < X86GOTPLT0Num; ++i)
     ++it;
   // address of corresponding plt entry
-  uint64_t plt_addr = pPLT.getSection().addr() + pPLT.getPLT0Size();
+  uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
     llvm::cast<GOTEntry>(*it).setContent(plt_addr + 6);
     plt_addr += pPLT.getPLT1Size();
