@@ -133,7 +133,7 @@ GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
 
   GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
-    got_entry = ld_backend.getGOT().consume();
+    got_entry = ld_backend.getGOT().consumeGOT();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
@@ -202,7 +202,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
   if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
     GOT::Entry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
-    gotplt_entry = ld_backend.getGOT().consumeGOTPLTEntry();
+    gotplt_entry = ld_backend.getGOT().consumeGOTPLT();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
 
     // Initialize corresponding dynamic relocation.

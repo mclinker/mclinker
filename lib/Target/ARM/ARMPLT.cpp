@@ -80,7 +80,7 @@ void ARMPLT::reserveEntry(size_t pNum)
     if (!plt1_entry)
       fatal(diag::fail_allocate_memory_plt);
 
-    m_GOT.reserveGOTPLTEntry();
+    m_GOT.reserveGOTPLT();
   }
 }
 
@@ -185,7 +185,7 @@ void ARMPLT::applyPLT1() {
     PLTEntryAddress += PLT1EntrySize;
   }
 
-  m_GOT.applyAllGOTPLT(plt_base);
+  m_GOT.applyGOTPLT(plt_base);
 }
 
 uint64_t ARMPLT::emit(MemoryRegion& pRegion)

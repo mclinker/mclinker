@@ -32,9 +32,9 @@ class MemoryRegion;
  *            +--------------+
  *            |    GOT0      |
  *            +--------------+
- *            |    PLTGOT    |
+ *            |    GOTPLT    |
  *            +--------------+
- *            |     GOT      |
+ *            |    GOT       |
  *            +--------------+
  *
  */
@@ -45,28 +45,37 @@ public:
 
   ~ARMGOT();
 
-  void reserveGOTPLTEntry();
+  void reserveGOTPLT();
 
-  GOT::Entry* consumeGOTPLTEntry();
+  void reserveGOT();
+
+  GOT::Entry* consumeGOT();
+
+  GOT::Entry* consumeGOTPLT();
 
   uint64_t emit(MemoryRegion& pRegion);
 
   void applyGOT0(uint64_t pAddress);
 
-  void applyAllGOTPLT(uint64_t pPLTBase);
+  void applyGOTPLT(uint64_t pPLTBase);
 
   bool hasGOT1() const;
 
 private:
-  iterator getGOTPLTBegin();
+  struct Part {
+  public:
+    Part() : front(NULL), rear(NULL), last_used(NULL) { }
 
-  const iterator getGOTPLTEnd();
+  public:
+    GOT::Entry* front;
+    GOT::Entry* rear;
+    GOT::Entry* last_used;
+  };
 
 private:
-  // For GOTPLT entries
-  iterator m_GOTPLTIterator;
-  iterator m_GOTPLTBegin;
-  iterator m_GOTPLTEnd;
+  Part m_GOTPLT;
+  Part m_GOT;
+
 };
 
 } // namespace of mcld
