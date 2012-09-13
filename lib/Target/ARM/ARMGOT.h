@@ -64,9 +64,6 @@ private:
   typedef llvm::DenseMap<const ResolveInfo*, GOT::Entry*> SymbolIndexMapType;
 
 private:
-  // For normal GOT entries
-  SymbolIndexMapType m_NormalGOTMap;
-
   // For GOTPLT entries
   iterator m_GOTPLTIterator;
   SymbolIndexMapType m_GOTPLTMap;
