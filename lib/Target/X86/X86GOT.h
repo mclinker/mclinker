@@ -14,8 +14,8 @@
 
 #include <mcld/Target/GOT.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class LDSection;
 class SectionData;
 

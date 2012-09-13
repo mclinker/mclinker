@@ -104,7 +104,7 @@ PLT::Entry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
    return PLTEntry;
 }
 
-GOTEntry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
+GOT::Entry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
                                           bool& pExist)
 {
    return m_GOT.getOrConsumeGOTPLTEntry(pSymbol, pExist);

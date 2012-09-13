@@ -108,7 +108,7 @@ RelocationFactory::Address helper_GetGP(MipsRelocationFactory& pParent)
 }
 
 static
-GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
+GOT::Entry& helper_GetGOTEntry(Relocation& pReloc,
                              MipsRelocationFactory& pParent,
                              bool& pExist, int32_t value)
 {
@@ -117,7 +117,7 @@ GOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
 
-  GOTEntry& got_entry = *got.getOrConsumeEntry(*rsym, pExist);
+  GOT::Entry& got_entry = *got.getOrConsumeEntry(*rsym, pExist);
 
   if (pExist)
     return got_entry;
@@ -140,7 +140,7 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
                                                MipsRelocationFactory& pParent)
 {
   bool exist;
-  GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
+  GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
   return pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -
                                                                         0x7FF0;
 }
@@ -316,7 +316,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
 
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
     bool exist;
-    GOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
+    GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
     got_entry.setContent(res);
     G = pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -

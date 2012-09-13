@@ -24,32 +24,6 @@ class GOT;
 class LDSection;
 class ResolveInfo;
 
-/** \class GOTEntry
- *  \brief The entry of Global Offset Table
- */
-class GOTEntry : public TargetFragment
-{
-public:
-  explicit GOTEntry(uint64_t pContent, size_t pEntrySize,
-                    SectionData* pParent);
-
-  virtual ~GOTEntry();
-
-  uint64_t getContent() const
-  { return f_Content; }
-
-  void setContent(uint64_t pValue)
-  { f_Content = pValue; }
-
-  // Override pure virtual function
-  size_t size() const
-  { return m_EntrySize; }
-
-protected:
-  uint64_t f_Content;
-  size_t m_EntrySize;
-};
-
 /** \class GOT
  *  \brief The Global Offset Table
  */
@@ -61,6 +35,28 @@ protected:
 public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
+
+  class Entry : public TargetFragment
+  {
+  public:
+    Entry(uint64_t pContent, size_t pEntrySize, SectionData* pParent);
+
+    virtual ~Entry();
+
+    uint64_t getContent() const
+    { return f_Content; }
+
+    void setContent(uint64_t pValue)
+    { f_Content = pValue; }
+
+    // Override pure virtual function
+    size_t size() const
+    { return m_EntrySize; }
+
+  protected:
+    uint64_t f_Content;
+    size_t m_EntrySize;
+  };
 
 public:
   virtual ~GOT();
@@ -82,24 +78,24 @@ public:
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize();
 
-  /// reserveEntry - reseve number of pNum of empty entries
+  /// reserve - reseve number of pNum of empty entries
   /// Before layout, we scan all relocations to determine if GOT entries are
   /// needed. If an entry is needed, the empty entry is reserved for layout
   /// to adjust the fragment offset. After that, we fill up the entries when
   /// applying relocations.
-  virtual void reserveEntry(size_t pNum = 1);
+  virtual void reserve(size_t pNum = 1);
 
   /// getOrConsumeEntry - get entry for pSymbol, if not exist, consume an entry
   /// and push it into m_SymIdxMap
   /// @param pSymbol - the target symbol
   /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
-  virtual GOTEntry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist);
+  virtual Entry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist);
 
-  /// consumeEntry - consume and return an empty entry
-  virtual GOTEntry* consumeEntry();
+  /// consume - consume and return an empty entry
+  virtual Entry* consume();
 
 protected:
-  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolEntryMapType;
+  typedef llvm::DenseMap<const ResolveInfo*, Entry*> SymbolEntryMapType;
 
 protected:
   LDSection& m_Section;

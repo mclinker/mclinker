@@ -124,15 +124,15 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 }
 
 static
-GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-                                  ARMRelocationFactory& pParent)
+GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
+                                    ARMRelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  GOTEntry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
+  GOT::Entry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
   if (!exist) {
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
@@ -176,7 +176,7 @@ static
 ARMRelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          ARMRelocationFactory& pParent)
 {
-  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  GOT::Entry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   return helper_GOT_ORG(pParent) +
             pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
 }
@@ -195,7 +195,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
   if (!exist) {
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-      GOTEntry& gotplt_entry =
+      GOT::Entry& gotplt_entry =
         *ld_backend.getPLT().getOrConsumeGOTPLTEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();

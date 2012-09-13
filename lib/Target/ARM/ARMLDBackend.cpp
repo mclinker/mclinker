@@ -409,7 +409,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      m_pGOT->reserveEntry();
+      m_pGOT->reserve();
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
@@ -630,7 +630,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      m_pGOT->reserveEntry();
+      m_pGOT->reserve();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn

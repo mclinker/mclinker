@@ -9,12 +9,12 @@
 #ifndef MCLD_ARM_PLT_H
 #define MCLD_ARM_PLT_H
 
+#include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
 
 namespace mcld {
 
 class ARMGOT;
-class GOTEntry;
 class MemoryRegion;
 
 class ARMPLT0 : public PLT::Entry {
@@ -46,7 +46,7 @@ public:
 
   PLT::Entry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
 
-  GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
+  GOT::Entry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
   ARMPLT0* getPLT0() const;
 

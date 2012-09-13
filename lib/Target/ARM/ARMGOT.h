@@ -16,8 +16,8 @@
 
 #include <mcld/Target/GOT.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class LDSection;
 class MemoryRegion;
 
@@ -45,7 +45,7 @@ public:
 
   void reserveGOTPLTEntry();
 
-  GOTEntry* getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo, bool& pExist);
+  GOT::Entry* getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo, bool& pExist);
 
   uint64_t emit(MemoryRegion& pRegion);
 
@@ -61,7 +61,7 @@ public:
   bool hasGOT1() const;
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, GOTEntry*> SymbolIndexMapType;
+  typedef llvm::DenseMap<const ResolveInfo*, GOT::Entry*> SymbolIndexMapType;
 
 private:
   // For normal GOT entries

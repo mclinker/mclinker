@@ -36,7 +36,7 @@ public:
 
   /// getOrConsumeEntry - override parant's function, we need to maintain the
   /// Global and Local iterator here
-  GOTEntry* getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist);
+  GOT::Entry* getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist);
 
   size_t getTotalNum() const;
   size_t getLocalNum() const;

@@ -93,7 +93,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 }
 
 static
-GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
                                   X86RelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
@@ -101,7 +101,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
   bool exist;
-  GOTEntry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
+  GOT::Entry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
   if (!exist) {
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {
@@ -144,7 +144,7 @@ static
 X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
-  GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  GOT::Entry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86RelocationFactory::Address got_addr =
     pParent.getTarget().getGOT().addr();
   return got_addr +
@@ -167,7 +167,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
     // If we first get this PLT entry, we should initialize it.
     if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
       bool exist;
-      GOTEntry& gotplt_entry =
+      GOT::Entry& gotplt_entry =
         *ld_backend.getGOTPLT().getOrConsumeEntry(*rsym, exist);
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();

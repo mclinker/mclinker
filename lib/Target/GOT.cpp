@@ -18,15 +18,15 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// GOTEntry
+// GOT::Entry
 //===----------------------------------------------------------------------===//
-GOTEntry::GOTEntry(uint64_t pContent, size_t pEntrySize, SectionData* pParent)
+GOT::Entry::Entry(uint64_t pContent, size_t pEntrySize, SectionData* pParent)
   : TargetFragment(Fragment::Target, pParent),
     f_Content(pContent),
     m_EntrySize(pEntrySize) {
 }
 
-GOTEntry::~GOTEntry()
+GOT::Entry::~Entry()
 {
 }
 
@@ -52,33 +52,30 @@ size_t GOT::getEntrySize() const
   return f_EntrySize;
 }
 
-void GOT::reserveEntry(size_t pNum)
+void GOT::reserve(size_t pNum)
 {
-  GOTEntry* Entry = NULL;
+  Entry* entry = NULL;
 
   for (size_t i = 0; i < pNum; i++) {
-    Entry = new (std::nothrow) GOTEntry(0, f_EntrySize,
-                                        &m_SectionData);
-    if (!Entry)
-      fatal(diag::fail_allocate_memory_got);
+    entry = new Entry(0, f_EntrySize, &m_SectionData);
   }
 }
 
-GOTEntry* GOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
+GOT::Entry* GOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
 {
-  GOTEntry *&Entry = m_SymEntryMap[&pInfo];
+  Entry *&entry = m_SymEntryMap[&pInfo];
   pExist = 1;
 
-  if (!Entry) {
+  if (NULL == entry) {
     pExist = 0;
     assert(m_GOTIterator != m_SectionData.getFragmentList().end()
              && "The number of GOT Entries and ResolveInfo doesn't match!");
-    Entry = consumeEntry();
+    entry = consume();
   }
-  return Entry;
+  return entry;
 }
 
-GOTEntry* GOT::consumeEntry()
+GOT::Entry* GOT::consume()
 {
   // first time get GOT entry, set m_GOTIterator
   if(!m_fIsVisit) {
@@ -86,11 +83,11 @@ GOTEntry* GOT::consumeEntry()
              "GOT Section contains no entries.");
     m_GOTIterator = m_SectionData.getFragmentList().begin();
     m_fIsVisit = true;
-    return &llvm::cast<GOTEntry>(*m_GOTIterator);
+    return &llvm::cast<Entry>(*m_GOTIterator);
   }
 
   ++m_GOTIterator;
-  GOTEntry& entry = llvm::cast<GOTEntry>(*m_GOTIterator);
+  Entry& entry = llvm::cast<Entry>(*m_GOTIterator);
   return &entry;
 }
 

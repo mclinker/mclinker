@@ -280,7 +280,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
-          m_pGOTPLT->reserveEntry();
+          m_pGOTPLT->reserve();
           m_pRelPLT->reserveEntry(*m_pRelocFactory);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -327,7 +327,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
       // when calling X86PLT->reserveEntry())
       m_pPLT->reserveEntry();
-      m_pGOTPLT->reserveEntry();
+      m_pGOTPLT->reserve();
       m_pRelPLT->reserveEntry(*m_pRelocFactory);
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -338,7 +338,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
-      m_pGOT->reserveEntry();
+      m_pGOT->reserve();
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
@@ -364,7 +364,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
-          m_pGOTPLT->reserveEntry();
+          m_pGOTPLT->reserve();
           m_pRelPLT->reserveEntry(*m_pRelocFactory);
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
@@ -460,12 +460,12 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-    GOTEntry* got = 0;
+    GOT::Entry* got = 0;
     EntrySize = m_pGOT->getEntrySize();
 
     for (X86GOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<GOTEntry>((*it)));
+      got = &(llvm::cast<GOT::Entry>((*it)));
       *buffer = static_cast<uint32_t>(got->getContent());
       RegionSize += EntrySize;
     }
@@ -478,12 +478,12 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-    GOTEntry* got = 0;
+    GOT::Entry* got = 0;
     EntrySize = m_pGOTPLT->getEntrySize();
 
     for (X86GOTPLT::iterator it = m_pGOTPLT->begin(),
          ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<GOTEntry>((*it)));
+      got = &(llvm::cast<GOT::Entry>((*it)));
       *buffer = static_cast<uint32_t>(got->getContent());
       RegionSize += EntrySize;
     }

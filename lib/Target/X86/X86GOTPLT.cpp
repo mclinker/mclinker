@@ -30,11 +30,11 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection, SectionData& pSectionData)
   : GOT(pSection, pSectionData, X86GOTPLTEntrySize)
 {
   // Create GOT0 entries
-  reserveEntry(X86GOTPLT0Num);
+  reserve(X86GOTPLT0Num);
 
   // Skip GOT0 entries
   for (size_t i = 0; i < X86GOTPLT0Num; ++i) {
-    consumeEntry();
+    consume();
   }
 }
 
@@ -49,7 +49,7 @@ bool X86GOTPLT::hasGOT1() const
 
 void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
-  llvm::cast<GOTEntry>
+  llvm::cast<Entry>
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
@@ -62,7 +62,7 @@ void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   // address of corresponding plt entry
   uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
-    llvm::cast<GOTEntry>(*it).setContent(plt_addr + 6);
+    llvm::cast<Entry>(*it).setContent(plt_addr + 6);
     plt_addr += pPLT.getPLT1Size();
   }
 }

@@ -29,7 +29,7 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
     m_pLocalNum(0)
 {
   // Create GOT0 entries.
-  reserveEntry(MipsGOT0Num);
+  reserve(MipsGOT0Num);
 
   // Skip GOT0 entries.
   iterator it = m_SectionData.begin();
@@ -60,7 +60,7 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   uint64_t result = 0;
   for (iterator it = begin(), ie = end();
        it != ie; ++it, ++buffer) {
-    GOTEntry* got = &(llvm::cast<GOTEntry>((*it)));
+    GOT::Entry* got = &(llvm::cast<GOT::Entry>((*it)));
     *buffer = static_cast<uint32_t>(got->getContent());
     result += entry_size;
   }
@@ -69,7 +69,7 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 
 void MipsGOT::reserveLocalEntry()
 {
-  reserveEntry(1);
+  reserve(1);
   ++m_pLocalNum;
 
   // Move global entries iterator forward.
@@ -79,10 +79,10 @@ void MipsGOT::reserveLocalEntry()
 
 void MipsGOT::reserveGlobalEntry()
 {
-  reserveEntry(1);
+  reserve(1);
 }
 
-GOTEntry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
+GOT::Entry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
 {
   if (isLocal(&pInfo) && pInfo.type() == ResolveInfo::Section) {
     pExist = false;
@@ -90,11 +90,11 @@ GOTEntry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
     ++it;
     assert(it != m_SectionData.getFragmentList().end() &&
            "The number of GOT Entries and ResolveInfo doesn't match");
-    GOTEntry* entry = llvm::cast<GOTEntry>(&(*it));
+    GOT::Entry* entry = llvm::cast<GOT::Entry>(&(*it));
     return entry;
   }
 
-  GOTEntry*& entry = m_SymEntryMap[&pInfo];
+  GOT::Entry*& entry = m_SymEntryMap[&pInfo];
 
   pExist = NULL != entry;
 
@@ -106,7 +106,7 @@ GOTEntry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
     assert(it != m_SectionData.getFragmentList().end() &&
            "The number of GOT Entries and ResolveInfo doesn't match");
 
-    entry = llvm::cast<GOTEntry>(&(*it));
+    entry = llvm::cast<GOT::Entry>(&(*it));
   }
 
   return entry;

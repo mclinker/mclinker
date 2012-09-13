@@ -30,11 +30,11 @@ ARMGOT::ARMGOT(LDSection& pSection, SectionData& pSectionData)
   : GOT(pSection, pSectionData, ARMGOTEntrySize)
 {
   // Create GOT0 entries.
-  reserveEntry(ARMGOT0Num);
+  reserve(ARMGOT0Num);
 
   // Skip GOT0 entries.
   for (int i = 0; i < ARMGOT0Num; ++i) {
-    consumeEntry();
+    consume();
   }
 
   // initialize GOTPLT iterator
@@ -54,9 +54,7 @@ bool ARMGOT::hasGOT1() const
 
 void ARMGOT::reserveGOTPLTEntry()
 {
-    GOTEntry* got_entry = 0;
-
-    got_entry= new GOTEntry(0, getEntrySize(), &m_SectionData);
+    Entry* got_entry= new Entry(0, getEntrySize(), &m_SectionData);
 
     if (!got_entry)
       fatal(diag::fail_allocate_memory_got);
@@ -68,10 +66,10 @@ void ARMGOT::reserveGOTPLTEntry()
     ++m_GOTIterator;
 }
 
-GOTEntry* ARMGOT::getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo,
+GOT::Entry* ARMGOT::getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo,
                                           bool& pExist)
 {
-  GOTEntry *&entry = m_GOTPLTMap[&pInfo];
+  Entry *&entry = m_GOTPLTMap[&pInfo];
   pExist = 1;
 
   if (!entry) {
@@ -79,14 +77,14 @@ GOTEntry* ARMGOT::getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo,
     assert(m_GOTIterator != m_SectionData.getFragmentList().end()
              && "The number of GOT Entries and ResolveInfo doesn't match!");
     ++m_GOTPLTIterator;
-    entry = llvm::cast<GOTEntry>(&(*m_GOTPLTIterator));
+    entry = llvm::cast<Entry>(&(*m_GOTPLTIterator));
   }
   return entry;
 }
 
 void ARMGOT::applyGOT0(uint64_t pAddress)
 {
-  llvm::cast<GOTEntry>
+  llvm::cast<Entry>
     (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
 }
 
@@ -96,7 +94,7 @@ void ARMGOT::applyAllGOTPLT(uint64_t pPLTBase)
   iterator end = getGOTPLTEnd();
 
   for (;begin != end ;++begin)
-    llvm::cast<GOTEntry>(*begin).setContent(pPLTBase);
+    llvm::cast<Entry>(*begin).setContent(pPLTBase);
 }
 
 ARMGOT::iterator ARMGOT::getGOTPLTBegin()
@@ -117,12 +115,12 @@ uint64_t ARMGOT::emit(MemoryRegion& pRegion)
 {
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-  GOTEntry* got = 0;
+  Entry* got = 0;
   unsigned int entry_size = getEntrySize();
   uint64_t result = 0x0;
   for (iterator it = begin(), ie = end();
        it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<GOTEntry>((*it)));
+      got = &(llvm::cast<Entry>((*it)));
       *buffer = static_cast<uint32_t>(got->getContent());
       result += entry_size;
   }
