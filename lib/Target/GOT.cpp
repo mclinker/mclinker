@@ -61,20 +61,6 @@ void GOT::reserve(size_t pNum)
   }
 }
 
-GOT::Entry* GOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
-{
-  Entry *&entry = m_SymEntryMap[&pInfo];
-  pExist = 1;
-
-  if (NULL == entry) {
-    pExist = 0;
-    assert(m_GOTIterator != m_SectionData.getFragmentList().end()
-             && "The number of GOT Entries and ResolveInfo doesn't match!");
-    entry = consume();
-  }
-  return entry;
-}
-
 GOT::Entry* GOT::consume()
 {
   // first time get GOT entry, set m_GOTIterator

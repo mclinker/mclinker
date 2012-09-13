@@ -30,6 +30,7 @@ class X86RelocationFactory : public RelocationFactory
 {
 public:
   typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
+  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
 
 public:
   X86RelocationFactory(size_t pNum, X86GNULDBackend& pParent);
@@ -48,9 +49,17 @@ public:
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
   SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
 
+  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
+  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+
+  const SymGOTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+
 private:
   X86GNULDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
+  SymGOTMap m_SymGOTMap;
+  SymGOTMap m_SymGOTPLTMap;
 };
 
 } // namespace of mcld

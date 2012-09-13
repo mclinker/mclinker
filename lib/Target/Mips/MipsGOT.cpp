@@ -24,6 +24,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // MipsGOT
+//===----------------------------------------------------------------------===//
 MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
   : GOT(pSection, pSectionData, MipsGOTEntrySize),
     m_pLocalNum(0)
@@ -82,34 +83,22 @@ void MipsGOT::reserveGlobalEntry()
   reserve(1);
 }
 
-GOT::Entry* MipsGOT::getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist)
+GOT::Entry* MipsGOT::consumeLocal()
 {
-  if (isLocal(&pInfo) && pInfo.type() == ResolveInfo::Section) {
-    pExist = false;
-    iterator& it = m_LocalGOTIterator;
-    ++it;
-    assert(it != m_SectionData.getFragmentList().end() &&
-           "The number of GOT Entries and ResolveInfo doesn't match");
-    GOT::Entry* entry = llvm::cast<GOT::Entry>(&(*it));
-    return entry;
-  }
+  iterator& it = m_LocalGOTIterator;
+  ++it;
+  assert(it != m_SectionData.getFragmentList().end() &&
+         "The number of GOT Entries and ResolveInfo doesn't match");
+  return llvm::cast<GOT::Entry>(&(*it));
+}
 
-  GOT::Entry*& entry = m_SymEntryMap[&pInfo];
-
-  pExist = NULL != entry;
-
-  if (!pExist) {
-    iterator& it = isLocal(&pInfo)  ? m_LocalGOTIterator : m_GlobalGOTIterator;
-
-    ++it;
-
-    assert(it != m_SectionData.getFragmentList().end() &&
-           "The number of GOT Entries and ResolveInfo doesn't match");
-
-    entry = llvm::cast<GOT::Entry>(&(*it));
-  }
-
-  return entry;
+GOT::Entry* MipsGOT::consumeGlobal()
+{
+  iterator& it = m_GlobalGOTIterator;
+  ++it;
+  assert(it != m_SectionData.getFragmentList().end() &&
+         "The number of GOT Entries and ResolveInfo doesn't match");
+  return llvm::cast<GOT::Entry>(&(*it));
 }
 
 size_t MipsGOT::getTotalNum() const

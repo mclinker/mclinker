@@ -100,36 +100,39 @@ GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
-  bool exist;
-  GOT::Entry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
-  if (!exist) {
-    // If we first get this GOT entry, we should initialize it.
-    if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {
-      // No corresponding dynamic relocation, initialize to the symbol value.
-      got_entry.setContent(pReloc.symValue());
-    }
-    else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
-      // Initialize corresponding dynamic relocation.
-      Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-      assert(!exist && "GOT entry not exist, but DynRel entry exist!");
-      if (helper_use_relative_reloc(*rsym, pParent)) {
-        // Initialize got entry to target symbol address
-        got_entry.setContent(pReloc.symValue());
-        rel_entry.setType(llvm::ELF::R_386_RELATIVE);
-        rel_entry.setSymInfo(0);
-      }
-      else {
-        got_entry.setContent(0);
-        rel_entry.setType(llvm::ELF::R_386_GLOB_DAT);
-        rel_entry.setSymInfo(rsym);
-      }
-      rel_entry.targetRef().assign(got_entry);
+  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  if (NULL != got_entry)
+    return *got_entry;
+
+  // not found
+  got_entry = ld_backend.getGOT().consume();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  // If we first get this GOT entry, we should initialize it.
+  if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setContent(pReloc.symValue());
+  }
+  else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
+    // Initialize corresponding dynamic relocation.
+    Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+      // Initialize got entry to target symbol address
+      got_entry->setContent(pReloc.symValue());
+      rel_entry.setType(llvm::ELF::R_386_RELATIVE);
+      rel_entry.setSymInfo(0);
     }
     else {
-      fatal(diag::reserve_entry_number_mismatch_got);
+      got_entry->setContent(0);
+      rel_entry.setType(llvm::ELF::R_386_GLOB_DAT);
+      rel_entry.setSymInfo(rsym);
     }
+    rel_entry.targetRef().assign(*got_entry);
   }
-  return got_entry;
+  else {
+    fatal(diag::reserve_entry_number_mismatch_got);
+  }
+  return *got_entry;
 }
 
 
@@ -161,30 +164,30 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
   PLT::Entry* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
-  if (NULL == plt_entry) {
-    plt_entry = ld_backend.getPLT().consume();
-    pParent.getSymPLTMap().record(*rsym, *plt_entry);
-    // If we first get this PLT entry, we should initialize it.
-    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-      bool exist;
-      GOT::Entry& gotplt_entry =
-        *ld_backend.getGOTPLT().getOrConsumeEntry(*rsym, exist);
-      // Initialize corresponding dynamic relocation.
-      Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
-      assert(!exist && "PLT entry not exist, but DynRel entry exist!");
-      rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
-      rel_entry.targetRef().assign(gotplt_entry);
-      rel_entry.setSymInfo(rsym);
-    }
-    else {
-      fatal(diag::reserve_entry_number_mismatch_plt);
-    }
+  if (NULL != plt_entry)
+    return *plt_entry;
+
+  // not found
+  plt_entry = ld_backend.getPLT().consume();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+  // If we first get this PLT entry, we should initialize it.
+  if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+    GOT::Entry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    gotplt_entry = ld_backend.getGOTPLT().consume();
+    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+
+    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
+    rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
+    rel_entry.targetRef().assign(*gotplt_entry);
+    rel_entry.setSymInfo(rsym);
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_plt);
   }
 
   return *plt_entry;
 }
-
-
 
 static
 X86RelocationFactory::Address helper_PLT_ORG(X86RelocationFactory& pParent)

@@ -131,13 +131,14 @@ GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
-  bool exist;
-  GOT::Entry& got_entry = *ld_backend.getGOT().getOrConsumeEntry(*rsym, exist);
-  if (!exist) {
+  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  if (NULL == got_entry) {
+    got_entry = ld_backend.getGOT().consume();
+    pParent.getSymGOTMap().record(*rsym, *got_entry);
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
       // No corresponding dynamic relocation, initialize to the symbol value.
-      got_entry.setContent(pReloc.symValue());
+      got_entry->setContent(pReloc.symValue());
     }
     else if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
 
@@ -146,23 +147,23 @@ GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
       if ( rsym->isLocal() ||
           helper_use_relative_reloc(*rsym, pParent)) {
         // Initialize got entry to target symbol address
-        got_entry.setContent(pReloc.symValue());
+        got_entry->setContent(pReloc.symValue());
         rel_entry.setType(llvm::ELF::R_ARM_RELATIVE);
         rel_entry.setSymInfo(0);
       }
       else {
         // Initialize got entry to 0 for corresponding dynamic relocation.
-        got_entry.setContent(0);
+        got_entry->setContent(0);
         rel_entry.setType(llvm::ELF::R_ARM_GLOB_DAT);
         rel_entry.setSymInfo(rsym);
       }
-      rel_entry.targetRef().assign(got_entry);
+      rel_entry.targetRef().assign(*got_entry);
     }
     else {
       fatal(diag::reserve_entry_number_mismatch_got);
     }
   }
-  return got_entry;
+  return *got_entry;
 }
 
 static

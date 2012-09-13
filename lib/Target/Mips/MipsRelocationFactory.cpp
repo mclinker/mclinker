@@ -117,22 +117,34 @@ GOT::Entry& helper_GetGOTEntry(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
 
-  GOT::Entry& got_entry = *got.getOrConsumeEntry(*rsym, pExist);
-
-  if (pExist)
-    return got_entry;
-
-  // If we first get this GOT entry, we should initialize it.
-  if (!(got.isLocal(rsym) && rsym->type() == ResolveInfo::Section)) {
-    if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
-      got_entry.setContent(pReloc.symValue());
-    }
-    else {
-      fatal(diag::reserve_entry_number_mismatch_got);
-    }
+  if (got.isLocal(rsym) && ResolveInfo::Section == rsym->type()) {
+    // Local section symbols consume local got entries.
+    return *got.consumeLocal();
   }
 
-  return got_entry;
+  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  if (NULL != got_entry) {
+    // found a mapping, then return the mapped entry immediately
+    return *got_entry;
+  }
+
+  // not found
+  if (got.isLocal(rsym))
+    got_entry = got.consumeLocal();
+  else
+    got_entry = got.consumeGlobal();
+
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  // If we first get this GOT entry, we should initialize it.
+  if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
+    got_entry->setContent(pReloc.symValue());
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_got);
+  }
+
+  return *got_entry;
 }
 
 static

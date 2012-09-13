@@ -14,16 +14,19 @@
 
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Support/GCFactory.h>
+#include <mcld/Target/SymbolEntryMap.h>
 #include "MipsLDBackend.h"
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MipsRelocationFactory
  *  \brief MipsRelocationFactory creates and destroys the Mips relocations.
  */
 class MipsRelocationFactory : public RelocationFactory
 {
+public:
+  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
+
 public:
   MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
 
@@ -45,9 +48,13 @@ public:
 
   const char* getName(Relocation::Type pType) const;
 
+  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
+  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+
 private:
   MipsGNULDBackend& m_Target;
   int32_t m_AHL;
+  SymGOTMap m_SymGOTMap;
 };
 
 } // namespace of mcld

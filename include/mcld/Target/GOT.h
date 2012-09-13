@@ -12,8 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/DenseMap.h>
-
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/TargetFragment.h>
@@ -85,17 +83,8 @@ public:
   /// applying relocations.
   virtual void reserve(size_t pNum = 1);
 
-  /// getOrConsumeEntry - get entry for pSymbol, if not exist, consume an entry
-  /// and push it into m_SymIdxMap
-  /// @param pSymbol - the target symbol
-  /// @param pExist - ture if a filled entry with pSymbol existed, otherwise false.
-  virtual Entry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist);
-
   /// consume - consume and return an empty entry
   virtual Entry* consume();
-
-protected:
-  typedef llvm::DenseMap<const ResolveInfo*, Entry*> SymbolEntryMapType;
 
 protected:
   LDSection& m_Section;
@@ -107,9 +96,6 @@ protected:
 
   /// m_fIsVisit - first time visit the function getEntry() or not
   bool m_fIsVisit;
-
-  /// m_SymEntryMap - map symbol to the corresponding entry
-  SymbolEntryMapType m_SymEntryMap;
 };
 
 } // namespace of mcld

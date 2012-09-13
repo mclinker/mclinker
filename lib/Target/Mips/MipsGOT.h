@@ -34,12 +34,11 @@ public:
   void reserveLocalEntry();
   void reserveGlobalEntry();
 
-  /// getOrConsumeEntry - override parant's function, we need to maintain the
-  /// Global and Local iterator here
-  GOT::Entry* getOrConsumeEntry(const ResolveInfo& pInfo, bool& pExist);
-
   size_t getTotalNum() const;
   size_t getLocalNum() const;
+
+  GOT::Entry* consumeLocal();
+  GOT::Entry* consumeGlobal();
 
   void setLocal(const ResolveInfo* pInfo) {
     m_GOTTypeMap[pInfo] = false;
