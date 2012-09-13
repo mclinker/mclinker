@@ -1142,10 +1142,15 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
           if (0 == pSectHdr.name().compare(".data.rel.ro.local"))
             return SHO_RELRO_LOCAL;
         }
+        if ((pSectHdr.flag() & llvm::ELF::SHF_TLS) != 0x0) {
+          return SHO_TLS_DATA;
+        }
         return SHO_DATA;
       }
 
     case LDFileFormat::BSS:
+      if ((pSectHdr.flag() & llvm::ELF::SHF_TLS) != 0x0)
+        return SHO_TLS_BSS;
       return SHO_BSS;
 
     case LDFileFormat::NamePool:
