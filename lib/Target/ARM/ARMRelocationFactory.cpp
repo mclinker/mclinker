@@ -200,13 +200,15 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
 
   // If we first get this PLT entry, we should initialize it.
   if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    bool exist;
-    GOT::Entry& gotplt_entry =
-      *ld_backend.getPLT().getOrConsumeGOTPLTEntry(*rsym, exist);
+    GOT::Entry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    gotplt_entry = ld_backend.getGOT().consumeGOTPLTEntry();
+    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+
     // Initialize corresponding dynamic relocation.
     Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
     rel_entry.setType(llvm::ELF::R_ARM_JUMP_SLOT);
-    rel_entry.targetRef().assign(gotplt_entry);
+    rel_entry.targetRef().assign(*gotplt_entry);
     rel_entry.setSymInfo(rsym);
   }
   else {

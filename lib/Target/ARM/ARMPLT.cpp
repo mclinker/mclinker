@@ -93,17 +93,6 @@ ARMPLT1* ARMPLT::consume()
   return llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
 }
 
-GOT::Entry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
-                                            bool& pExist)
-{
-  GOT::Entry* gotplt_entry = getSymGOTMap().lookUp(pSymbol);
-  if (NULL == gotplt_entry) {
-    gotplt_entry = m_GOT.consumeGOTPLTEntry();
-    getSymGOTMap().record(pSymbol, *gotplt_entry);
-  }
-  return gotplt_entry;
-}
-
 ARMPLT0* ARMPLT::getPLT0() const {
 
   iterator first = m_SectionData.getFragmentList().begin();

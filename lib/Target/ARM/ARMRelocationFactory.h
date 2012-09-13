@@ -49,10 +49,14 @@ public:
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
   SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
 
+  const SymGOTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+
 private:
   ARMGNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
   SymPLTMap m_SymPLTMap;
+  SymGOTMap m_SymGOTPLTMap;
 };
 
 } // namespace of mcld
