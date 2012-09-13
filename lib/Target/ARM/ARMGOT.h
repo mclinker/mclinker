@@ -30,6 +30,8 @@ class MemoryRegion;
  *
  *  ARM .got
  *            +--------------+
+ *            |    GOT0      |
+ *            +--------------+
  *            |    PLTGOT    |
  *            +--------------+
  *            |     GOT      |
@@ -53,7 +55,6 @@ public:
 
   void applyAllGOTPLT(uint64_t pPLTBase);
 
-  // ----- obsererse ----- //
   iterator getGOTPLTBegin();
 
   const iterator getGOTPLTEnd();
