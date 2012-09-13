@@ -55,11 +55,12 @@ public:
 
   void applyAllGOTPLT(uint64_t pPLTBase);
 
+  bool hasGOT1() const;
+
+private:
   iterator getGOTPLTBegin();
 
   const iterator getGOTPLTEnd();
-
-  bool hasGOT1() const;
 
 private:
   // For GOTPLT entries
