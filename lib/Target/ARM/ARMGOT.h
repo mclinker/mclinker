@@ -64,11 +64,10 @@ public:
 private:
   struct Part {
   public:
-    Part() : front(NULL), rear(NULL), last_used(NULL) { }
+    Part() : front(NULL), last_used(NULL) { }
 
   public:
     GOT::Entry* front;
-    GOT::Entry* rear;
     GOT::Entry* last_used;
   };
 

@@ -51,30 +51,22 @@ void ARMGOT::reserveGOTPLT()
 {
   Entry* entry = new Entry(0, getEntrySize(), &m_SectionData);
   if (NULL == m_GOTPLT.front) {
+    // GOTPLT is empty
     if (NULL == m_GOT.front) {
       // GOT part is also empty. Since entry is the last entry, we can assign
       // it to GOTPLT directly.
       m_GOTPLT.front = entry;
-      m_GOTPLT.rear = entry;
     }
     else {
-      // GOT part is not empty. Shift GOT backward by one entry.
+      // GOTn is not empty. Shift GOTn backward by one entry.
       m_GOTPLT.front = m_GOT.front;
-      m_GOTPLT.rear = m_GOT.front;
-
       m_GOT.front = llvm::cast<GOT::Entry>(m_GOT.front->getNextNode());
-      m_GOT.rear = llvm::cast<GOT::Entry>(m_GOT.rear->getNextNode());
     }
   }
   else {
-    if (NULL == m_GOT.front)
-      m_GOTPLT.rear = entry;
-    else {
-      m_GOTPLT.rear = m_GOT.front;
-
+    // GOTPLT is not empty
+    if (NULL != m_GOT.front)
       m_GOT.front = llvm::cast<GOT::Entry>(m_GOT.front->getNextNode());
-      m_GOT.rear = llvm::cast<GOT::Entry>(m_GOT.rear->getNextNode());
-    }
   }
 }
 
@@ -85,36 +77,32 @@ void ARMGOT::reserveGOT()
     // Entry must be the last entry. We can directly assign it to GOT part.
     m_GOT.front = entry;
   }
-  m_GOT.rear = entry;
 }
 
 GOT::Entry* ARMGOT::consumeGOTPLT()
 {
-  assert(NULL != m_GOTPLT.front && NULL != m_GOTPLT.rear &&
-         "Consuming empty GOTPLT section!");
-
-  assert(m_GOTPLT.last_used != m_GOTPLT.rear && "No entry to consumed!");
+  assert(NULL != m_GOTPLT.front && "Consuming empty GOTPLT section!");
 
   if (NULL == m_GOTPLT.last_used) {
     m_GOTPLT.last_used = m_GOTPLT.front;
   }
   else {
     m_GOTPLT.last_used = llvm::cast<GOT::Entry>(m_GOTPLT.last_used->getNextNode());
+    assert(m_GOTPLT.last_used != m_GOT.front && "No GOT/PLT entry to consume!");
   }
   return m_GOTPLT.last_used;
 }
 
 GOT::Entry* ARMGOT::consumeGOT()
 {
-  assert(NULL != m_GOT.front && NULL != m_GOT.rear && "Consuming empty GOT section!");
-
-  assert(m_GOT.last_used != m_GOT.rear && "No entry to consumed!");
+  assert(NULL != m_GOT.front && "Consuming empty GOT section!");
 
   if (NULL == m_GOT.last_used) {
     m_GOT.last_used = m_GOT.front;
   }
   else {
     m_GOT.last_used = llvm::cast<GOT::Entry>(m_GOT.last_used->getNextNode());
+    assert(m_GOT.last_used != NULL && "No GOTn entry to consume!");
   }
   return m_GOT.last_used;
 }
@@ -127,16 +115,20 @@ void ARMGOT::applyGOT0(uint64_t pAddress)
 
 void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
 {
-  if (NULL == m_GOTPLT.front || NULL == m_GOTPLT.rear)
+  if (NULL == m_GOTPLT.front)
     return;
 
-  Entry* entry = m_GOTPLT.front;
-  while (entry != m_GOTPLT.rear) {
-    entry->setContent(pPLTBase);
-    entry = llvm::cast<GOT::Entry>(entry->getNextNode());
-  }
+  SectionData::iterator entry(m_GOTPLT.front);
+  SectionData::iterator e_end;
+  if (NULL == m_GOT.front)
+    e_end = m_SectionData.end();
+  else
+    e_end = SectionData::iterator(m_GOT.front);
 
-  m_GOTPLT.rear->setContent(pPLTBase);
+  while (entry != e_end) {
+    llvm::cast<GOT::Entry>(entry)->setContent(pPLTBase);
+    ++entry;
+  }
 }
 
 uint64_t ARMGOT::emit(MemoryRegion& pRegion)
