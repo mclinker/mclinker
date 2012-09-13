@@ -84,24 +84,13 @@ void ARMPLT::reserveEntry(size_t pNum)
   }
 }
 
-PLT::Entry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
+ARMPLT1* ARMPLT::consume()
 {
-   ARMPLT1 *&PLTEntry = m_PLTEntryMap[&pSymbol];
+  ++m_PLTEntryIterator;
+  assert(m_PLTEntryIterator != m_SectionData.end() &&
+         "The number of PLT Entries and ResolveInfo doesn't match");
 
-   pExist = 1;
-
-   if (!PLTEntry) {
-     pExist = 0;
-
-     // This will skip PLT0.
-     ++m_PLTEntryIterator;
-     assert(m_PLTEntryIterator != m_SectionData.end() &&
-            "The number of PLT Entries and ResolveInfo doesn't match");
-
-     PLTEntry = llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
-   }
-
-   return PLTEntry;
+  return llvm::cast<ARMPLT1>(&(*m_PLTEntryIterator));
 }
 
 GOT::Entry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,

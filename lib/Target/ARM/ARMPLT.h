@@ -35,6 +35,7 @@ class ARMPLT : public PLT
 {
 public:
   typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
+
 public:
   ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
@@ -47,7 +48,7 @@ public:
 
   void reserveEntry(size_t pNum = 1) ;
 
-  PLT::Entry* getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist) ;
+  ARMPLT1* consume();
 
   GOT::Entry* getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol, bool& pExist);
 
@@ -63,15 +64,11 @@ public:
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
-
-private:
   ARMGOT& m_GOT;
 
   // Used by getEntry() for mapping a ResolveInfo instance to a PLT1 Entry.
   iterator m_PLTEntryIterator;
 
-  SymbolIndexType m_PLTEntryMap;
   SymGOTMap m_SymGOTMap;
 };
 

@@ -27,6 +27,7 @@ class ARMRelocationFactory : public RelocationFactory
 {
 public:
   typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
+  typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
 
 public:
   ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
@@ -45,9 +46,13 @@ public:
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
 
+  const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
+  SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
+
 private:
   ARMGNULDBackend& m_Target;
   SymGOTMap m_SymGOTMap;
+  SymPLTMap m_SymPLTMap;
 };
 
 } // namespace of mcld
