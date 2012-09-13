@@ -105,9 +105,14 @@ PLT::Entry* ARMPLT::getOrConsumeEntry(const ResolveInfo& pSymbol, bool& pExist)
 }
 
 GOT::Entry* ARMPLT::getOrConsumeGOTPLTEntry(const ResolveInfo& pSymbol,
-                                          bool& pExist)
+                                            bool& pExist)
 {
-   return m_GOT.getOrConsumeGOTPLTEntry(pSymbol, pExist);
+  GOT::Entry* gotplt_entry = getSymGOTMap().lookUp(pSymbol);
+  if (NULL == gotplt_entry) {
+    gotplt_entry = m_GOT.consumeGOTPLTEntry();
+    getSymGOTMap().record(pSymbol, *gotplt_entry);
+  }
+  return gotplt_entry;
 }
 
 ARMPLT0* ARMPLT::getPLT0() const {

@@ -11,6 +11,7 @@
 
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/PLT.h>
+#include <mcld/Target/SymbolEntryMap.h>
 
 namespace mcld {
 
@@ -32,6 +33,8 @@ public:
  */
 class ARMPLT : public PLT
 {
+public:
+  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
 public:
   ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
   ~ARMPLT();
@@ -56,6 +59,9 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
+  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
+  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+
 private:
   typedef llvm::DenseMap<const ResolveInfo*, ARMPLT1*> SymbolIndexType;
 
@@ -66,6 +72,7 @@ private:
   iterator m_PLTEntryIterator;
 
   SymbolIndexType m_PLTEntryMap;
+  SymGOTMap m_SymGOTMap;
 };
 
 } // namespace of mcld

@@ -45,7 +45,7 @@ public:
 
   void reserveGOTPLTEntry();
 
-  GOT::Entry* getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo, bool& pExist);
+  GOT::Entry* consumeGOTPLTEntry();
 
   uint64_t emit(MemoryRegion& pRegion);
 
@@ -61,13 +61,8 @@ public:
   bool hasGOT1() const;
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, GOT::Entry*> SymbolIndexMapType;
-
-private:
   // For GOTPLT entries
   iterator m_GOTPLTIterator;
-  SymbolIndexMapType m_GOTPLTMap;
-
   iterator m_GOTPLTBegin;
   iterator m_GOTPLTEnd;
 };

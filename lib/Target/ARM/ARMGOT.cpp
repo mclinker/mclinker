@@ -66,20 +66,12 @@ void ARMGOT::reserveGOTPLTEntry()
     ++m_GOTIterator;
 }
 
-GOT::Entry* ARMGOT::getOrConsumeGOTPLTEntry(const ResolveInfo& pInfo,
-                                          bool& pExist)
+GOT::Entry* ARMGOT::consumeGOTPLTEntry()
 {
-  Entry *&entry = m_GOTPLTMap[&pInfo];
-  pExist = 1;
-
-  if (!entry) {
-    pExist = 0;
-    assert(m_GOTIterator != m_SectionData.getFragmentList().end()
-             && "The number of GOT Entries and ResolveInfo doesn't match!");
-    ++m_GOTPLTIterator;
-    entry = llvm::cast<Entry>(&(*m_GOTPLTIterator));
-  }
-  return entry;
+  assert(m_GOTIterator != m_SectionData.getFragmentList().end() &&
+         "The number of GOT Entries and ResolveInfo doesn't match!");
+  ++m_GOTPLTIterator;
+  return llvm::cast<GOT::Entry>(&(*m_GOTPLTIterator));
 }
 
 void ARMGOT::applyGOT0(uint64_t pAddress)
