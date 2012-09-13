@@ -27,10 +27,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ARMGOT
 ARMGOT::ARMGOT(LDSection& pSection, SectionData& pSectionData)
-             : GOT(pSection, pSectionData, ARMGOTEntrySize),
-               m_GOTPLTIterator(),
-               m_GOTPLTBegin(),
-               m_GOTPLTEnd()
+  : GOT(pSection, pSectionData, ARMGOTEntrySize)
 {
   // Create GOT0 entries.
   reserveEntry(ARMGOT0Num);
@@ -59,7 +56,7 @@ void ARMGOT::reserveGOTPLTEntry()
 {
     GOTEntry* got_entry = 0;
 
-    got_entry= new GOTEntry(0, getEntrySize(),&(getSectionData()));
+    got_entry= new GOTEntry(0, getEntrySize(), &m_SectionData);
 
     if (!got_entry)
       fatal(diag::fail_allocate_memory_got);

@@ -136,7 +136,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 static
 X86RelocationFactory::Address helper_GOT_ORG(X86RelocationFactory& pParent)
 {
-  return pParent.getTarget().getGOTPLT().getSection().addr();
+  return pParent.getTarget().getGOTPLT().addr();
 }
 
 
@@ -146,7 +146,7 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
 {
   GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86RelocationFactory::Address got_addr =
-    pParent.getTarget().getGOT().getSection().addr();
+    pParent.getTarget().getGOT().addr();
   return got_addr +
             pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
 }

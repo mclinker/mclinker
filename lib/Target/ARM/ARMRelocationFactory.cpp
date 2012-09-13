@@ -168,7 +168,7 @@ GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 static
 ARMRelocationFactory::Address helper_GOT_ORG(ARMRelocationFactory& pParent)
 {
-  return pParent.getTarget().getGOT().getSection().addr();
+  return pParent.getTarget().getGOT().addr();
 }
 
 

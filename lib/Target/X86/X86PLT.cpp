@@ -159,12 +159,11 @@ void X86PLT::applyPLT0()
 
   memcpy(data, m_PLT0, plt0->getEntrySize());
 
-  uint64_t gotplt_base = m_GOTPLT.getSection().addr();
   if (m_PLT0 == x86_exec_plt0) {
     uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
-    *offset = gotplt_base + 4;
+    *offset = m_GOTPLT.addr() + 4;
     offset = reinterpret_cast<uint32_t*>(data + 8);
-    *offset = gotplt_base + 8;
+    *offset = m_GOTPLT.addr() + 8;
   }
 
   plt0->setContent(data);
@@ -176,9 +175,6 @@ void X86PLT::applyPLT1()
   uint64_t plt_base = m_Section.addr();
   assert(plt_base && ".plt base address is NULL!");
 
-  uint64_t got_base = m_GOTPLT.getSection().addr();
-  assert(got_base && ".got base address is NULL!");
-
   X86PLT::iterator it = m_SectionData.begin();
   X86PLT::iterator ie = m_SectionData.end();
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
@@ -188,7 +184,7 @@ void X86PLT::applyPLT1()
   // Skip GOT0
   uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;
   if (LinkerConfig::Exec == m_Config.codeGenType())
-    GOTEntryOffset += got_base;
+    GOTEntryOffset += m_GOTPLT.addr();
 
   //skip PLT0
   uint64_t PLTEntryOffset = m_PLT0Size;

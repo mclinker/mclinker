@@ -516,7 +516,7 @@ MipsGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 {
   if (NULL != m_pGpDispSymbol)
-    m_pGpDispSymbol->setValue(m_pGOT->getSection().addr() + 0x7FF0);
+    m_pGpDispSymbol->setValue(m_pGOT->addr() + 0x7FF0);
   return true;
 }
 

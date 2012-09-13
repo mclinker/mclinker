@@ -14,6 +14,7 @@
 
 #include <llvm/ADT/DenseMap.h>
 
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/TargetFragment.h>
 
@@ -68,11 +69,7 @@ public:
   /// entrySize - the number of bytes per entry
   size_t getEntrySize() const;
 
-  const LDSection& getSection() const
-  { return m_Section; }
-
-  const SectionData& getSectionData() const { return m_SectionData; }
-  SectionData&       getSectionData()       { return m_SectionData; }
+  uint64_t addr() const { return m_Section.addr(); }
 
   const_iterator begin() const { return m_SectionData.begin(); }
   iterator       begin()       { return m_SectionData.begin(); }

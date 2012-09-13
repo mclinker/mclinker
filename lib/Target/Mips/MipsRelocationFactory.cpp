@@ -104,7 +104,7 @@ bool helper_isGpDisp(const Relocation& pReloc)
 static
 RelocationFactory::Address helper_GetGP(MipsRelocationFactory& pParent)
 {
-  return pParent.getTarget().getGOT().getSection().addr() + 0x7FF0;
+  return pParent.getTarget().getGOT().addr() + 0x7FF0;
 }
 
 static
