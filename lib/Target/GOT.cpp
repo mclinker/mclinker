@@ -39,8 +39,7 @@ GOT::GOT(LDSection& pSection,
   : m_Section(pSection),
     m_SectionData(pSectionData),
     f_EntrySize(pEntrySize),
-    m_GOTIterator(),
-    m_fIsVisit(false) {
+    m_pLast(NULL) {
 }
 
 GOT::~GOT()
@@ -63,18 +62,14 @@ void GOT::reserve(size_t pNum)
 
 GOT::Entry* GOT::consume()
 {
-  // first time get GOT entry, set m_GOTIterator
-  if(!m_fIsVisit) {
-    assert( !m_SectionData.getFragmentList().empty() &&
-             "GOT Section contains no entries.");
-    m_GOTIterator = m_SectionData.getFragmentList().begin();
-    m_fIsVisit = true;
-    return &llvm::cast<Entry>(*m_GOTIterator);
+  if (NULL == m_pLast) {
+    assert(!empty() && "Consume empty GOT entry!");
+    m_pLast = llvm::cast<Entry>(&m_SectionData.front());
+    return m_pLast;
   }
 
-  ++m_GOTIterator;
-  Entry& entry = llvm::cast<Entry>(*m_GOTIterator);
-  return &entry;
+  m_pLast = llvm::cast<Entry>(m_pLast->getNextNode());
+  return m_pLast;
 }
 
 void GOT::finalizeSectionSize()

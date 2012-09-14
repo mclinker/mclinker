@@ -91,11 +91,7 @@ protected:
   SectionData& m_SectionData;
   size_t f_EntrySize;
 
-  /// m_GOTIterator - point to the last filled entry in GOT list
-  iterator m_GOTIterator;
-
-  /// m_fIsVisit - first time visit the function getEntry() or not
-  bool m_fIsVisit;
+  Entry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld
