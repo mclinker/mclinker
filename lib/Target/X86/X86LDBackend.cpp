@@ -287,6 +287,25 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_386_TLS_IE:
+      setHasStaticTLS();
+      // if buildint shared object, a RELATIVE dynamic relocation is needed
+      if (LinkerConfig::DynObj == config().codeGenType()) {
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        // set hasTextRelSection if needed
+        checkAndSetHasTextRel(pSection);
+      }
+      if (rsym->reserved() & GOTRel)
+        return;
+      // reserve got and dyn relocation entries for tp-relative offset
+      m_pGOT->reserve();
+      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      // set GOTRel bit
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      m_pRelDyn->addSymbolToDynSym(*rsym->outSymbol());
+      return;
+
     case llvm::ELF::R_386_TLS_LE:
     case llvm::ELF::R_386_TLS_LE_32:
       setHasStaticTLS();
@@ -451,6 +470,24 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
     }
+
+    case llvm::ELF::R_386_TLS_IE:
+      setHasStaticTLS();
+      // if buildint shared object, a RELATIVE dynamic relocation is needed
+      if (LinkerConfig::DynObj == config().codeGenType()) {
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        // set hasTextRelSection if needed
+        checkAndSetHasTextRel(pSection);
+      }
+      if (rsym->reserved() & GOTRel)
+        return;
+      // reserve got and dyn relocation entries for tp-relative offset
+      m_pGOT->reserve();
+      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      // set GOTRel bit
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      return;
 
     case llvm::ELF::R_386_TLS_LE:
     case llvm::ELF::R_386_TLS_LE_32:

@@ -467,6 +467,45 @@ X86RelocationFactory::Result tls_gd(Relocation& pReloc,
   return X86RelocationFactory::OK;
 }
 
+// R_X86_TLS_IE
+X86RelocationFactory::Result tls_ie(Relocation& pReloc,
+                                    X86RelocationFactory& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  if (!(rsym->reserved() & X86GNULDBackend::GOTRel)) {
+     return X86RelocationFactory::BadReloc;
+  }
+
+  if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
+    // when building shared object, set up a RELATIVE dynamic relocation
+    helper_DynRel(rsym, *pReloc.targetRef().frag(), pReloc.targetRef().offset(),
+                                            llvm::ELF::R_386_RELATIVE, pParent);
+  }
+
+  // set up the got and dynamic relocation entries if not exist
+  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  if (NULL == got_entry) {
+    // set got entry
+    X86GNULDBackend& ld_backend = pParent.getTarget();
+    got_entry = ld_backend.getGOT().consume();
+    pParent.getSymGOTMap().record(*rsym, *got_entry);
+    got_entry->setContent(0x0);
+    // set relocation entry
+    Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+    rel_entry.setType(llvm::ELF::R_386_TLS_TPOFF);
+    rel_entry.setSymInfo(rsym);
+    rel_entry.targetRef().assign(*got_entry);
+  }
+
+  // perform relocation to the absolute address of got_entry
+  X86RelocationFactory::Address GOT_S = pParent.getTarget().getGOT().addr() +
+             pParent.getFragmentLinker().getLayout().getOutputOffset(*got_entry);
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  pReloc.target() = GOT_S + A;
+
+  return X86RelocationFactory::OK;
+}
+
 // R_X86_TLS_LE
 X86RelocationFactory::Result tls_le(Relocation& pReloc,
                                     X86RelocationFactory& pParent)
@@ -483,9 +522,8 @@ X86RelocationFactory::Result tls_le(Relocation& pReloc,
 
   // perform static relocation
   // get TLS segment
-  ELFSegment* tls_seg =
-              pParent.getTarget().elfSegmentTable().find(llvm::ELF::PT_TLS,
-                                                         llvm::ELF::PF_R, 0x0);
+  ELFSegment* tls_seg = pParent.getTarget().elfSegmentTable().find(
+                                       llvm::ELF::PT_TLS, llvm::ELF::PF_R, 0x0);
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address S = pReloc.symValue();
   pReloc.target() = S + A - tls_seg->memsz();
