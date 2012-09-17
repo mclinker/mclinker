@@ -1552,6 +1552,17 @@ void GNULDBackend::setupRelro(Module& pModule)
   alignAddress(offset, commonPageSize());
   (*sect)->setOffset(offset);
 
+  // It seems that compiler think .got and .got.plt are continuous (w/o any
+  // padding between). If .got is the last section in PT_RELRO and it's not
+  // continuous to its next section (i.e. .got.plt), we need to add padding
+  // in front of .got instead.
+  // FIXME: Maybe we can handle this in a more general way.
+  LDSection& got = getOutputFormat()->getGOT();
+  if ((getSectionOrder(got) == SHO_RELRO_LAST) &&
+      (got.offset() + got.size() != offset)) {
+    got.setOffset(offset - got.size());
+  }
+
   // set up remaining section's offset
   setOutputSectionOffset(pModule, ++sect, pModule.end());
 }
