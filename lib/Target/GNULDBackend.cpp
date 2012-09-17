@@ -550,6 +550,10 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
 bool GNULDBackend::finalizeTLSSymbol(FragmentLinker& pLinker,
                                      LDSymbol& pSymbol)
 {
+  // ignore if symbol has no fragRef
+  if (!pSymbol.hasFragRef())
+    return true;
+
   // the value of a TLS symbol is the offset to the TLS segment
   ELFSegment* tls_seg = m_ELFSegmentTable.find(llvm::ELF::PT_TLS,
                                                llvm::ELF::PF_R, 0x0);
