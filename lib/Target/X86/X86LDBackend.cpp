@@ -201,7 +201,8 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+  LDSymbol* cpy_sym =
+           pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                       pSym.name(),
                       false,
                       (ResolveInfo::Type)pSym.type(),
@@ -228,7 +229,8 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
-                                     FragmentLinker& pLinker)
+                                     FragmentLinker& pLinker,
+                                     const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -243,6 +245,8 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
+        // set hasTextRelSection if needed
+        checkAndSetHasTextRel(pSection);
       }
       return;
 
@@ -253,7 +257,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_PC32:
       return;
-
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -263,7 +266,8 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       const LDSymbol& pInputSym,
-                                      FragmentLinker& pLinker)
+                                      FragmentLinker& pLinker,
+                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -298,6 +302,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
+          // set hasTextRelSection if needed
+          checkAndSetHasTextRel(pSection);
         }
       }
       return;
@@ -382,9 +388,12 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
+          // set hasTextRelSection if needed
+          checkAndSetHasTextRel(pSection);
         }
       }
       return;
+
     default: {
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -400,7 +409,8 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
+  assert(NULL != rsym &&
+         "ResolveInfo of relocation not set while scanRelocation");
 
   updateAddend(pReloc, pInputSym, pLinker.getLayout());
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
@@ -411,10 +421,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   // FIXME: Below judgements concren nothing about TLS related relocation
 
   if (rsym->isLocal()) // rsym is local
-    scanLocalReloc(pReloc, pInputSym,  pLinker);
+    scanLocalReloc(pReloc, pInputSym,  pLinker, pSection);
   else // rsym is external
-    scanGlobalReloc(pReloc, pInputSym ,pLinker);
-
+    scanGlobalReloc(pReloc, pInputSym, pLinker, pSection);
 }
 
 uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
