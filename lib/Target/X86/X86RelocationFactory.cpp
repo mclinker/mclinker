@@ -205,26 +205,25 @@ X86RelocationFactory::Address helper_PLT(Relocation& pReloc,
             pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
 }
 
-// Get an relocation entry in .rel.dyn and set its type to pType,
-// its FragmentRef to pReloc->targetFrag() and its ResolveInfo to pReloc->symInfo()
+// Get an relocation entry in .rel.dyn
 static
-void helper_DynRel(Relocation& pReloc,
-                   X86RelocationFactory::Type pType,
-                   X86RelocationFactory& pParent)
+Relocation& helper_DynRel(ResolveInfo* pSym,
+                          Fragment& pFrag,
+                          uint64_t pOffset,
+                          X86RelocationFactory::Type pType,
+                          X86RelocationFactory& pParent)
 {
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
   X86GNULDBackend& ld_backend = pParent.getTarget();
-  bool exist;
-
   Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
   rel_entry.setType(pType);
-  rel_entry.targetRef() = pReloc.targetRef();
+  rel_entry.targetRef().assign(pFrag, pOffset);
 
-  if (pType == llvm::ELF::R_386_RELATIVE)
+  if (pType == llvm::ELF::R_386_RELATIVE || NULL == pSym)
     rel_entry.setSymInfo(0);
   else
-    rel_entry.setSymInfo(rsym);
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
 }
 
 
@@ -265,7 +264,8 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
 
   // A local symbol may need REL Type dynamic relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+    helper_DynRel(rsym, *pReloc.targetRef().frag(), pReloc.targetRef().offset(),
+                                            llvm::ELF::R_386_RELATIVE, pParent);
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
   }
@@ -281,10 +281,12 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
     // in order to keep the addend store in the place correct.
     if (has_dyn_rel) {
       if (helper_use_relative_reloc(*rsym, pParent)) {
-        helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+        helper_DynRel(rsym, *pReloc.targetRef().frag(),
+              pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
-        helper_DynRel(pReloc, pReloc.type(), pParent);
+        helper_DynRel(rsym, *pReloc.targetRef().frag(),
+                          pReloc.targetRef().offset(), pReloc.type(), pParent);
         return X86RelocationFactory::OK;
       }
     }
@@ -328,10 +330,12 @@ X86RelocationFactory::Result rel32(Relocation& pReloc,
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               false)) {
       if (helper_use_relative_reloc(*rsym, pParent) ) {
-        helper_DynRel(pReloc, llvm::ELF::R_386_RELATIVE, pParent);
+        helper_DynRel(rsym, *pReloc.targetRef().frag(),
+              pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
-        helper_DynRel(pReloc, pReloc.type(), pParent);
+        helper_DynRel(rsym, *pReloc.targetRef().frag(),
+                          pReloc.targetRef().offset(), pReloc.type(), pParent);
           return X86RelocationFactory::OK;
       }
     }
@@ -398,3 +402,74 @@ X86RelocationFactory::Result plt32(Relocation& pReloc,
   pReloc.target() = PLT_S + A - P;
   return X86RelocationFactory::OK;
 }
+
+// R_386_TLS_GD:
+X86RelocationFactory::Result tls_gd(Relocation& pReloc,
+                                    X86RelocationFactory& pParent)
+{
+  // global-dynamic
+  ResolveInfo* rsym = pReloc.symInfo();
+  // must reserve two pairs of got and dynamic relocation
+  if (!(rsym->reserved() & X86GNULDBackend::GOTRel)) {
+     return X86RelocationFactory::BadReloc;
+  }
+
+  X86GNULDBackend& ld_backend = pParent.getTarget();
+  ELFFileFormat* file_format = pParent.getTarget().getOutputFormat();
+  // setup corresponding got and dynamic relocatio entries:
+  // get first got entry, if there is already a got entry for rsym, then apply
+  // this relocation to the got entry directly. If not, setup the corresponding
+  // got and dyn relocation entries
+  GOT::Entry* got_entry1 = pParent.getSymGOTMap().lookUp(*rsym);
+
+  if (NULL == got_entry1) {
+    // get and init two got entries if not exist
+    got_entry1 = ld_backend.getGOT().consume();
+    pParent.getSymGOTMap().record(*rsym, *got_entry1);
+    GOT::Entry* got_entry2 = ld_backend.getGOT().consume();
+    got_entry1->setContent(0x0);
+    got_entry2->setContent(0x0);
+    // setup dyn rel for get_entry1
+    Relocation& rel_entry1 = helper_DynRel(rsym, *got_entry1, 0x0,
+                                        llvm::ELF::R_386_TLS_DTPMOD32, pParent);
+    if (rsym->isLocal()) {
+      // for local symbol, set got_entry2 to symbol value
+      got_entry2->setContent(pReloc.symValue());
+
+      // for local tls symbol, add rel entry against the section symbol this
+      // symbol belong to (.tdata or .tbss)
+      const LDSection* sym_sect =
+         &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+      ResolveInfo* sect_sym = NULL;
+      if (&file_format->getTData() == sym_sect)
+        sect_sym = pParent.getTarget().getTDATASymbol().resolveInfo();
+      else
+        sect_sym = pParent.getTarget().getTBSSSymbol().resolveInfo();
+      rel_entry1.setSymInfo(sect_sym);
+    }
+    else {
+      // for non-local symbol, add a pair of rel entries against this symbol
+      // for those two got entries
+      Relocation& rel_entry2 = helper_DynRel(rsym, *got_entry2, 0x0,
+                                        llvm::ELF::R_386_TLS_DTPOFF32, pParent);
+    }
+  }
+
+  // perform relocation to the first got entry
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  // GOT_OFF - the offset between the got_entry1 and _GLOBAL_OFFSET_TABLE (the
+  // .got.plt section)
+  X86RelocationFactory::Address GOT_OFF =
+     file_format->getGOT().addr() +
+     pParent.getFragmentLinker().getLayout().getOutputOffset(*got_entry1) -
+     file_format->getGOTPLT().addr();
+  pReloc.target() = GOT_OFF + A;
+  return X86RelocationFactory::OK;
+}
+
+X86RelocationFactory::Result unsupport(Relocation& pReloc,
+                                       X86RelocationFactory& pParent)
+{
+  return X86RelocationFactory::Unsupport;
+}
+

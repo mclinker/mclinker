@@ -7,3 +7,4 @@ DIAG(unknown_relocation, DiagnosticEngine::Fatal, "encounter unknown relocation 
 DIAG(invalid_global_relocation, DiagnosticEngine::Unreachable, "relocation type `%0' is invalid for global symbol `%1'", "relocation type `%0' is invalid for global symbol `%1'")
 DIAG(result_overflow, DiagnosticEngine::Error, "applying relocation `%0' causes overflow on symbol `%1'","applying relocation `%0' causes overflow on symbol `%1'")
 DIAG(result_badreloc, DiagnosticEngine::Error, "applying relocation `%0' encounters unexpected opcode on symbol `%1'","applying relocation `%0' encounters unexpected opcode on symbol `%1'")
+DIAG(invalid_tls, DiagnosticEngine::Error, "TLS relocation against invalid symbol `%0' in section `%1'", "TLS relocation against invalid symbol `%0' in section `%1'")

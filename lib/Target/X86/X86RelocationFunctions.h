@@ -17,8 +17,10 @@ DECL_X86_APPLY_RELOC_FUNC(abs32)            \
 DECL_X86_APPLY_RELOC_FUNC(rel32)            \
 DECL_X86_APPLY_RELOC_FUNC(plt32)            \
 DECL_X86_APPLY_RELOC_FUNC(got32)            \
-DECL_X86_APPLY_RELOC_FUNC(gotoff32)	    \
-DECL_X86_APPLY_RELOC_FUNC(gotpc32)
+DECL_X86_APPLY_RELOC_FUNC(gotoff32)	        \
+DECL_X86_APPLY_RELOC_FUNC(gotpc32)          \
+DECL_X86_APPLY_RELOC_FUNC(tls_gd)           \
+DECL_X86_APPLY_RELOC_FUNC(unsupport)
 
 
 #define DECL_X86_APPLY_RELOC_FUNC_PTRS \
@@ -32,4 +34,37 @@ DECL_X86_APPLY_RELOC_FUNC(gotpc32)
   { &none,               7, "R_386_JMP_SLOT"          },  \
   { &none,               8, "R_386_RELATIVE"          },  \
   { &gotoff32,           9, "R_386_GOTOFF"            },  \
-  { &gotpc32,           10, "R_386_GOTPC"             }
+  { &gotpc32,           10, "R_386_GOTPC"             },  \
+  { &unsupport,         11, "R_386_32PLT"             },  \
+  { &unsupport,         12, ""                        },  \
+  { &unsupport,         13, ""                        },  \
+  { &unsupport,         14, "R_386_TLS_TPOFF"         },  \
+  { &unsupport,         15, "R_386_TLS_IE"            },  \
+  { &unsupport,         16, "R_386_TLS_GOTIE"         },  \
+  { &unsupport,         17, "R_386_TLS_LE"            },  \
+  { &tls_gd,            18, "R_386_TLS_GD"            },  \
+  { &unsupport,         19, "R_386_TLS_LDM"           },  \
+  { &unsupport,         20, "R_386_16"                },  \
+  { &unsupport,         21, "R_386_PC16"              },  \
+  { &unsupport,         22, "R_386_8"                 },  \
+  { &unsupport,         23, "R_386_PC8"               },  \
+  { &unsupport,         24, "R_386_TLS_GD_32"         },  \
+  { &unsupport,         25, "R_386_TLS_GD_PUSH"       },  \
+  { &unsupport,         26, "R_386_TLS_GD_CALL"       },  \
+  { &unsupport,         27, "R_386_TLS_GD_POP"        },  \
+  { &unsupport,         28, "R_386_TLS_LDM_32"        },  \
+  { &unsupport,         29, "R_386_TLS_LDM_PUSH"      },  \
+  { &unsupport,         30, "R_386_TLS_LDM_CALL"      },  \
+  { &unsupport,         31, "R_386_TLS_LDM_POP"       },  \
+  { &unsupport,         32, "R_386_TLS_LDO_32"        },  \
+  { &unsupport,         33, "R_386_TLS_IE_32"         },  \
+  { &unsupport,         34, "R_386_TLS_LE_32"         },  \
+  { &unsupport,         35, "R_386_TLS_DTPMOD32"      },  \
+  { &unsupport,         36, "R_386_TLS_DTPOFF32"      },  \
+  { &unsupport,         37, "R_386_TLS_TPOFF32"       },  \
+  { &unsupport,         38, ""                        },  \
+  { &unsupport,         39, "R_386_TLS_GOTDESC"       },  \
+  { &unsupport,         40, "R_386_TLS_DESC_CALL"     },  \
+  { &unsupport,         41, "R_386_TLS_DESC"          },  \
+  { &unsupport,         42, "R_386_IRELATIVE"         },  \
+  { &unsupport,         43,  "R_386_NUM"              }

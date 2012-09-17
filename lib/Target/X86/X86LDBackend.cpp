@@ -257,6 +257,36 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
     case llvm::ELF::R_386_PC32:
       return;
+
+    case llvm::ELF::R_386_TLS_GD: {
+      // FIXME: no linker optimization for TLS relocation
+      if (rsym->reserved() & GOTRel)
+        return;
+      m_pGOT->reserve(2);
+      // reserve an rel entry
+      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      // set GOTRel bit
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      // define the section symbol for .tdata or .tbss
+      // the target symbol of the created dynamic relocation should be the
+      // section symbol of the section which this symbol defined. so we
+      // need to define that section symbol here
+      ELFFileFormat* file_format = getOutputFormat();
+      const LDSection* sym_sect =
+               &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
+      if (&file_format->getTData() == sym_sect) {
+        if (NULL == f_pTDATA)
+          defineTDATASymbol(pLinker);
+      }
+      else if (&file_format->getTBSS() == sym_sect || rsym->isCommon()) {
+        if (NULL == f_pTBSS)
+          defineTBSSSymbol(pLinker);
+      }
+      else
+        error(diag::invalid_tls) << rsym->name() << sym_sect->name();
+      return;
+    }
+
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -394,6 +424,18 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       }
       return;
 
+    case llvm::ELF::R_386_TLS_GD: {
+      // FIXME: no linker optimization for TLS relocation
+      if (rsym->reserved() & GOTRel)
+        return;
+      // reserve two pairs of got entry and dynamic relocation
+      m_pGOT->reserve(2);
+      m_pRelDyn->reserveEntry(*m_pRelocFactory, 2);
+      // set GOTRel bit
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      return;
+    }
+
     default: {
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -416,10 +458,8 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
 
-  // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
+  // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
   // entries should be created.
-  // FIXME: Below judgements concren nothing about TLS related relocation
-
   if (rsym->isLocal()) // rsym is local
     scanLocalReloc(pReloc, pInputSym,  pLinker, pSection);
   else // rsym is external
