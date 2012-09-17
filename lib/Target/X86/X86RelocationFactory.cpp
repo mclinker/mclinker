@@ -467,6 +467,31 @@ X86RelocationFactory::Result tls_gd(Relocation& pReloc,
   return X86RelocationFactory::OK;
 }
 
+// R_X86_TLS_LE
+X86RelocationFactory::Result tls_le(Relocation& pReloc,
+                                    X86RelocationFactory& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  if (pReloc.symInfo()->reserved() & X86GNULDBackend::ReserveRel) {
+    Relocation& rel_entry = helper_DynRel(rsym,
+                                          *pReloc.targetRef().frag(),
+                                          pReloc.targetRef().offset(),
+                                          llvm::ELF::R_386_TLS_TPOFF,
+                                          pParent);
+    return X86RelocationFactory::OK;
+  }
+
+  // perform static relocation
+  // get TLS segment
+  ELFSegment* tls_seg =
+              pParent.getTarget().elfSegmentTable().find(llvm::ELF::PT_TLS,
+                                                         llvm::ELF::PF_R, 0x0);
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  X86RelocationFactory::Address S = pReloc.symValue();
+  pReloc.target() = S + A - tls_seg->memsz();
+  return X86RelocationFactory::OK;
+}
+
 X86RelocationFactory::Result unsupport(Relocation& pReloc,
                                        X86RelocationFactory& pParent)
 {

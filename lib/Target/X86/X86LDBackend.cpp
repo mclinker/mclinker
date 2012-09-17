@@ -287,6 +287,22 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_386_TLS_LE:
+    case llvm::ELF::R_386_TLS_LE_32:
+      setHasStaticTLS();
+      // if buildint shared object, a dynamic relocation is needed
+      if (LinkerConfig::DynObj == config().codeGenType()) {
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        // set hasTextRelSection if needed
+        checkAndSetHasTextRel(pSection);
+        // the target symbol of the dynamic relocation is rsym, so we need to
+        // emit it into .dynsym
+        assert(NULL != rsym->outSymbol());
+        m_pRelDyn->addSymbolToDynSym(*rsym->outSymbol());
+      }
+      return;
+
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -435,6 +451,18 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
     }
+
+    case llvm::ELF::R_386_TLS_LE:
+    case llvm::ELF::R_386_TLS_LE_32:
+      setHasStaticTLS();
+      // if buildint shared object, a dynamic relocation is needed
+      if (LinkerConfig::DynObj == config().codeGenType()) {
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        // set hasTextRelSection if needed
+        checkAndSetHasTextRel(pSection);
+      }
+      return;
 
     default: {
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
