@@ -78,7 +78,29 @@ const char* X86RelocationFactory::getName(Relocation::Type pType) const
 // Relocation helper function
 //===--------------------------------------------------------------------===//
 
-// Check if symbol can use relocation R_386_RELATIVE
+/// helper_DynRel - Get an relocation entry in .rel.dyn
+static
+Relocation& helper_DynRel(ResolveInfo* pSym,
+                          Fragment& pFrag,
+                          uint64_t pOffset,
+                          X86RelocationFactory::Type pType,
+                          X86RelocationFactory& pParent)
+{
+  X86GNULDBackend& ld_backend = pParent.getTarget();
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  rel_entry.setType(pType);
+  rel_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == llvm::ELF::R_386_RELATIVE || NULL == pSym)
+    rel_entry.setSymInfo(0);
+  else
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
+}
+
+
+/// helper_use_relative_reloc - Check if symbol can use relocation
+/// R_386_RELATIVE
 static bool
 helper_use_relative_reloc(const ResolveInfo& pSym,
                           const X86RelocationFactory& pFactory)
@@ -94,7 +116,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 
 static
 GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
-                                  X86RelocationFactory& pParent)
+                                    X86RelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -114,20 +136,15 @@ GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
     got_entry->setContent(pReloc.symValue());
   }
   else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
-    // Initialize corresponding dynamic relocation.
-    Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+    // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
-      // Initialize got entry to target symbol address
+      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE, pParent);
       got_entry->setContent(pReloc.symValue());
-      rel_entry.setType(llvm::ELF::R_386_RELATIVE);
-      rel_entry.setSymInfo(0);
     }
     else {
+      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT, pParent);
       got_entry->setContent(0);
-      rel_entry.setType(llvm::ELF::R_386_GLOB_DAT);
-      rel_entry.setSymInfo(rsym);
     }
-    rel_entry.targetRef().assign(*got_entry);
   }
   else {
     fatal(diag::reserve_entry_number_mismatch_got);
@@ -148,16 +165,15 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
   GOT::Entry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  X86RelocationFactory::Address got_addr =
-    pParent.getTarget().getGOT().addr();
+  X86RelocationFactory::Address got_addr = pParent.getTarget().getGOT().addr();
   return got_addr +
-            pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
+             pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
 }
 
 
 static
 PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
-                                  X86RelocationFactory& pParent)
+                                    X86RelocationFactory& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -176,7 +192,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOTPLT().consume();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
-
+    // init the corresponding rel entry in .rel.plt
     Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
     rel_entry.setType(llvm::ELF::R_386_JUMP_SLOT);
     rel_entry.targetRef().assign(*gotplt_entry);
@@ -188,6 +204,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc,
 
   return *plt_entry;
 }
+
 
 static
 X86RelocationFactory::Address helper_PLT_ORG(X86RelocationFactory& pParent)
@@ -202,28 +219,7 @@ X86RelocationFactory::Address helper_PLT(Relocation& pReloc,
 {
   PLT::Entry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) +
-            pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
-}
-
-// Get an relocation entry in .rel.dyn
-static
-Relocation& helper_DynRel(ResolveInfo* pSym,
-                          Fragment& pFrag,
-                          uint64_t pOffset,
-                          X86RelocationFactory::Type pType,
-                          X86RelocationFactory& pParent)
-{
-  X86GNULDBackend& ld_backend = pParent.getTarget();
-  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
-  rel_entry.setType(pType);
-  rel_entry.targetRef().assign(pFrag, pOffset);
-
-  if (pType == llvm::ELF::R_386_RELATIVE || NULL == pSym)
-    rel_entry.setSymInfo(0);
-  else
-    rel_entry.setSymInfo(pSym);
-
-  return rel_entry;
+             pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
 }
 
 
