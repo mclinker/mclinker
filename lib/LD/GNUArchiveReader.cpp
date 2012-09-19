@@ -92,6 +92,8 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
   if (pArchive.getARFile().attribute()->isWholeArchive())
     return includeAllMembers(pArchive);
 
+  // if this is the first time read this archive, setup symtab and strtab
+  if (pArchive.getSymbolTable().empty()) {
   // read the symtab of the archive
   readSymbolTable(pArchive);
 
@@ -102,6 +104,7 @@ bool GNUArchiveReader::readArchive(Archive& pArchive)
   pArchive.addArchiveMember(pArchive.getARFile().name(),
                             pArchive.inputs().root(),
                             &InputTree::Downward);
+  }
 
   // include the needed members in the archive and build up the input tree
   bool willSymResolved;
