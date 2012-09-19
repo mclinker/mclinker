@@ -6,12 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/MC/Attribute.h>
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/ObjectReader.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -33,7 +34,7 @@ GroupReader::~GroupReader()
 
 bool GroupReader::readGroup(Module::input_iterator pRoot,
                             InputBuilder& pBuilder,
-                            const std::string& pTriple)
+                            const LinkerConfig& pConfig)
 {
   // record the number of total objects included in this sub-tree
   size_t cur_obj_cnt = 0;
@@ -91,7 +92,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
     }
     else {
       fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                               << pTriple;
+                                               << pConfig.triple().str();
     }
     ++input;
   }

@@ -151,7 +151,7 @@ void ObjectLinker::normalize()
   for (input = m_Module.input_begin(); input!=inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, m_Builder, m_Config.triple().str());
+      getGroupReader()->readGroup(input, m_Builder, m_Config);
       continue;
     }
 

@@ -16,10 +16,11 @@
 
 namespace mcld
 {
-class ObjectReader;
-class DynObjReader;
-class ArchiveReader;
 class Archive;
+class ArchiveReader;
+class DynObjReader;
+class LinkerConfig;
+class ObjectReader;
 
 /** \class GroupReader
  *  \brief GroupReader handles the Group Node in InputTree
@@ -41,7 +42,7 @@ public:
   /// @param pRoot - the root Group node of the sub-tree
   bool readGroup(Module::input_iterator pRoot,
                  InputBuilder& pBuilder,
-                 const std::string& pTriple);
+                 const LinkerConfig& pConfig);
 
 private:
   /// ArchiveListEntry - record the Archive and the corresponding input iterator
