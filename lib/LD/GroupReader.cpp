@@ -1,0 +1,135 @@
+//===- GroupReader.cpp ----------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#include <mcld/MC/Attribute.h>
+#include <mcld/LD/Archive.h>
+#include <mcld/LD/ArchiveReader.h>
+#include <mcld/LD/DynObjReader.h>
+#include <mcld/LD/GroupReader.h>
+#include <mcld/LD/ObjectReader.h>
+#include <mcld/Support/MsgHandling.h>
+
+using namespace mcld;
+
+GroupReader::GroupReader(Module& pModule,
+                         ObjectReader& pObjectReader,
+                         DynObjReader& pDynObjReader,
+                         ArchiveReader& pArchiveReader)
+  : m_Module(pModule),
+    m_ObjectReader(pObjectReader),
+    m_DynObjReader(pDynObjReader),
+    m_ArchiveReader(pArchiveReader)
+{
+}
+
+GroupReader::~GroupReader()
+{
+}
+
+bool GroupReader::readGroup(Module::input_iterator pRoot,
+                            InputBuilder& pBuilder,
+                            const std::string& pTriple)
+{
+  // record the number of total objects included in this sub-tree
+  size_t cur_obj_cnt = 0;
+  size_t last_obj_cnt = 0;
+  size_t non_ar_obj_cnt = 0;
+
+  // record the archive files in this sub-tree
+  ArchiveListType ar_list;
+
+  Module::input_iterator input = pRoot;
+  Module::input_iterator input_end = m_Module.input_end();
+  // set input to the first node under pRoot in the sub-tree
+  --input;
+
+  // first time read the sub-tree
+  while (input != input_end) {
+    // already got type - for example, bitcode or external OIR (object
+    // intermediate representation)
+    if ((*input)->type() == Input::Script ||
+        (*input)->type() == Input::Object ||
+        (*input)->type() == Input::DynObj  ||
+        (*input)->type() == Input::Archive ||
+        (*input)->type() == Input::External) {
+      ++input;
+      continue;
+    }
+
+    // is an archive
+    if (m_ArchiveReader.isMyFormat(**input)) {
+      (*input)->setType(Input::Archive);
+      // record the Archive used by each archive node
+      Archive* ar = new Archive(**input, pBuilder);
+      ArchiveListEntryType* entry = new ArchiveListEntryType(*ar, input);
+      ar_list.push_back(entry);
+      // read archive
+      m_ArchiveReader.readArchive(*ar);
+      cur_obj_cnt += ar->numOfObjectMember();
+    }
+    // is a relocatable object file
+    else if (m_ObjectReader.isMyFormat(**input)) {
+      (*input)->setType(Input::Object);
+      m_ObjectReader.readHeader(**input);
+      m_ObjectReader.readSections(**input);
+      m_ObjectReader.readSymbols(**input);
+      m_Module.getObjectList().push_back(*input);
+      ++cur_obj_cnt;
+      ++non_ar_obj_cnt;
+    }
+    // is a shared object file
+    else if (m_DynObjReader.isMyFormat(**input)) {
+      (*input)->setType(Input::DynObj);
+      m_DynObjReader.readHeader(**input);
+      m_DynObjReader.readSymbols(**input);
+      m_Module.getLibraryList().push_back(*input);
+    }
+    else {
+      fatal(diag::err_unrecognized_input_file) << (*input)->path()
+                                               << pTriple;
+    }
+    ++input;
+  }
+
+  // after read in all the archives, traverse the archive list in a loop until
+  // there is no unresolved symbols added
+  ArchiveListType::iterator it = ar_list.begin();
+  ArchiveListType::iterator end = ar_list.end();
+  while (cur_obj_cnt != last_obj_cnt) {
+    last_obj_cnt = cur_obj_cnt;
+    cur_obj_cnt = non_ar_obj_cnt;
+    for (it = ar_list.begin(); it != end; ++it) {
+      Archive& ar = (*it)->archive;
+      // if --whole-archive is given to this archive, no need to read it again
+      if ( ar.getARFile().attribute()->isWholeArchive())
+        continue;
+      m_ArchiveReader.readArchive(ar);
+      cur_obj_cnt += ar.numOfObjectMember();
+    }
+  }
+
+  // after all needed member included, merge the archive sub-tree to main
+  // InputTree
+  for (it = ar_list.begin(); it != end; ++it) {
+    Archive& ar = (*it)->archive;
+    if (ar.numOfObjectMember() > 0) {
+      m_Module.getInputTree().merge<InputTree::Inclusive>((*it)->input,
+                                                          ar.inputs());
+    }
+  }
+
+  // cleanup ar_list
+  for (it = ar_list.begin(); it != end; ++it) {
+    delete &((*it)->archive);
+    delete (*it);
+  }
+  ar_list.clear();
+
+  return true;
+}
+

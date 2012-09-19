@@ -244,6 +244,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ObjectReader.h \
 	${INCDIR}/LD/DynObjReader.h \
 	${LIBDIR}/LD/DynObjReader.cpp \
+	${INCDIR}/LD/GroupReader.h \
+	${LIBDIR}/LD/GroupReader.cpp \
 	${INCDIR}/LD/ObjectWriter.h \
 	${LIBDIR}/LD/ObjectWriter.cpp \
 	${INCDIR}/LD/DynObjWriter.h \
