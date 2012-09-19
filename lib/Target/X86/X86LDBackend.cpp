@@ -228,7 +228,6 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
                                      const LDSection& pSection)
 {
@@ -330,7 +329,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
                                       const LDSection& pSection)
 {
@@ -526,9 +524,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
   // entries should be created.
   if (rsym->isLocal()) // rsym is local
-    scanLocalReloc(pReloc, pInputSym,  pLinker, pSection);
+    scanLocalReloc(pReloc, pLinker, pSection);
   else // rsym is external
-    scanGlobalReloc(pReloc, pInputSym, pLinker, pSection);
+    scanGlobalReloc(pReloc, pLinker, pSection);
 }
 
 uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,

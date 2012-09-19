@@ -349,7 +349,6 @@ void ARMGNULDBackend::updateAddend(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker)
 {
   // rsym - The relocation target symbol
@@ -449,7 +448,6 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker)
 {
   // rsym - The relocation target symbol
@@ -679,11 +677,11 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pInputSym, pLinker);
+    scanLocalReloc(pReloc, pLinker);
 
   // rsym is external
   else
-    scanGlobalReloc(pReloc, pInputSym, pLinker);
+    scanGlobalReloc(pReloc, pLinker);
 
 }
 

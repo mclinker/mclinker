@@ -136,13 +136,9 @@ public:
   bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker);
 
 private:
-  void scanLocalReloc(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker);
+  void scanLocalReloc(Relocation& pReloc, FragmentLinker& pLinker);
 
-  void scanGlobalReloc(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker);
+  void scanGlobalReloc(Relocation& pReloc, FragmentLinker& pLinker);
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 

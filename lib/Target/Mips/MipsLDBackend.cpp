@@ -141,15 +141,15 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
-  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC)) {
-    if (rsym->isLocal()) {
-      updateAddend(pReloc, pInputSym, pLinker.getLayout());
-    }
-    return;
+  // Skip relocation against _gp_disp
+  if (NULL != m_pGpDispSymbol) {
+    if (pReloc.symInfo() == m_pGpDispSymbol->resolveInfo())
+      return;
   }
 
-  // Skip relocation against _gp_disp
-  if (strcmp("_gp_disp", pInputSym.name()) == 0)
+  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+
+  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
 
   // We test isLocal or if pInputSym is not a dynamic symbol
@@ -157,9 +157,9 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(pInputSym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pInputSym, pLinker);
+    scanLocalReloc(pReloc, pLinker);
   else
-    scanGlobalReloc(pReloc, pInputSym, pLinker);
+    scanGlobalReloc(pReloc, pLinker);
 }
 
 uint32_t MipsGNULDBackend::machine() const
@@ -641,12 +641,9 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                      const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-
-  updateAddend(pReloc, pInputSym, pLinker.getLayout());
 
   switch (pReloc.type()){
     case llvm::ELF::R_MIPS_NONE:
@@ -740,7 +737,6 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                       const LDSymbol& pInputSym,
                                        FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();

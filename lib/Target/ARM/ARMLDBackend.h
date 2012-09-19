@@ -191,13 +191,9 @@ public:
                    LDSection& pInputSectHdr);
 
 private:
-  void scanLocalReloc(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
-                      FragmentLinker& pLinker);
+  void scanLocalReloc(Relocation& pReloc, FragmentLinker& pLinker);
 
-  void scanGlobalReloc(Relocation& pReloc,
-                       const LDSymbol& pInputSym,
-                       FragmentLinker& pLinker);
+  void scanGlobalReloc(Relocation& pReloc, FragmentLinker& pLinker);
 
   void checkValidReloc(Relocation& pReloc,
                        const FragmentLinker& pLinker) const;

@@ -184,12 +184,10 @@ public:
 
 private:
   void scanLocalReloc(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
                       const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
-                       const LDSymbol& pInputSym,
                        FragmentLinker& pLinker,
                        const LDSection& pSection);
 
