@@ -40,3 +40,11 @@ These tests reference between archives.
    "--whole-archive thin_ar/thin_archive_test1.a --no-whole-archive",
    "thin_ar/thin_archive_test2.a", and
    "--whole-archive thin_ar/thin_archive_test4.a --no-whole-archive"
+6) exec_group_1.ll:
+   link thin_ar/thin_archive_test4.a, thin_ar/thin_archive_test3.a, thin_ar/thin_archive_test2.a,
+   thin_ar/thin_archive_test1.a inside --start-group and --end-group
+7) exec_group_2.ll:
+   link "--whole-archive thin_ar/thin_archive_test4.a --no-whole-archive",
+   thin_ar/thin_archive_test3.a, thin_ar/thin_archive_test2.a, thin_ar/thin_archive_test1.a and
+   some object and share object files inside --start-group and --end-group
+
