@@ -15,6 +15,7 @@
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/DynObjReader.h>
+#include <mcld/LD/GroupReader.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/DynObjWriter.h>
 #include <mcld/LD/ExecWriter.h>
@@ -36,13 +37,34 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_Module(pModule),
     m_Builder(pBuilder),
     m_pLinker(NULL),
-    m_LDBackend(pLDBackend) {
-
+    m_LDBackend(pLDBackend),
+    m_pObjectReader(NULL),
+    m_pDynObjReader(NULL),
+    m_pArchiveReader(NULL),
+    m_pObjectWriter(NULL),
+    m_pDynObjWriter(NULL),
+    m_pExecWriter(NULL),
+    m_pGroupReader(NULL)
+{
 }
 
 ObjectLinker::~ObjectLinker()
 {
   delete m_pLinker;
+  if (NULL != m_pObjectReader)
+    delete m_pObjectReader;
+  if (NULL != m_pDynObjReader)
+    delete m_pDynObjReader;
+  if (NULL != m_pArchiveReader)
+    delete m_pArchiveReader;
+  if (NULL != m_pObjectWriter)
+    delete m_pObjectWriter;
+  if (NULL != m_pDynObjWriter)
+    delete m_pDynObjWriter;
+  if (NULL != m_pExecWriter)
+    delete m_pExecWriter;
+  if (NULL != m_pGroupReader)
+    delete m_pGroupReader;
 }
 
 /// initFragmentLinker - initialize FragmentLinker
@@ -64,6 +86,8 @@ bool ObjectLinker::initFragmentLinker()
   m_pObjectWriter  = m_LDBackend.createObjectWriter(*m_pLinker);
   m_pDynObjWriter  = m_LDBackend.createDynObjWriter(*m_pLinker);
   m_pExecWriter    = m_LDBackend.createExecWriter(*m_pLinker);
+  m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
+                                     *m_pDynObjReader, *m_pArchiveReader);
 
   // initialize RelocationFactory
   m_LDBackend.initRelocFactory(*m_pLinker);
@@ -125,9 +149,9 @@ void ObjectLinker::normalize()
   // -----  set up inputs  ----- //
   Module::input_iterator input, inEnd = m_Module.input_end();
   for (input = m_Module.input_begin(); input!=inEnd; ++input) {
-    if (NULL == *input) {
-      // --start-group and --end-group has no mcld::Input.
-      // FIXME: handle with group.
+    // is a group node
+    if (isGroup(input)) {
+      getGroupReader()->readGroup(input, m_Builder, m_Config.triple().str());
       continue;
     }
 
@@ -161,7 +185,8 @@ void ObjectLinker::normalize()
       Archive archive(**input, m_Builder);
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
-        m_Module.getInputTree().merge<InputTree::Inclusive>(input, archive.inputs());
+        m_Module.getInputTree().merge<InputTree::Inclusive>(input,
+                                                            archive.inputs());
       }
     }
     else {

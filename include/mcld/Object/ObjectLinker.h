@@ -31,6 +31,7 @@ class MemoryAreaFactory;
 class ObjectReader;
 class DynObjReader;
 class ArchiveReader;
+class GroupReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
@@ -129,6 +130,9 @@ public:
   const ArchiveReader* getArchiveReader() const { return m_pArchiveReader; }
   ArchiveReader*       getArchiveReader()       { return m_pArchiveReader; }
 
+  const GroupReader* getGroupReader() const { return m_pGroupReader; }
+  GroupReader*       getGroupReader()       { return m_pGroupReader; }
+
   const ObjectWriter*  getObjectWriter () const { return m_pObjectWriter;  }
   ObjectWriter*        getObjectWriter ()       { return m_pObjectWriter;  }
 
@@ -154,6 +158,7 @@ private:
   ObjectWriter* m_pObjectWriter;
   DynObjWriter* m_pDynObjWriter;
   ExecWriter* m_pExecWriter;
+  GroupReader* m_pGroupReader;
 };
 
 } // end namespace mcld
