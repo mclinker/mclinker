@@ -1,0 +1,34 @@
+These test cases test X86 TLS relocation handling
+
+======================
+ Contents Description
+======================
+1) src - the source files of testing programs
+2) obj - the object files of source programs. Files are compiled by following script:
+     tls_foo.o        :gcc -c -m32 tls_foo.c -o tls_foo.o
+     tls_foo_pic.o    :gcc -c -m32 tls_foo.c -o tls_foo_pic.o -fPIC
+     tls_foo_extern.o :gcc -c -m32 tls_foo_extern.c -o tls_foo_extern.o
+     tls_main.o       :gcc -c -m32 tls_main.c -o tls_main.o -fPIC
+     tls_variables.o  :gcc -c -m32 tls_variables.c -o tls_variables.o
+
+============
+ test cases
+============
+1) exec_tls_gd.ll
+   test R_386_TLS_GD when building executables
+   link tls_main.o and tls_foo_pic.o to produce the executable
+2) shared_tls_gd.ll
+   test R_386_TLS_GD when building shared objects
+   link tls_foo_pic.o to produce the shared object
+3) exec_tls_le.ll
+   test R_386_TLS_LE when building executables
+   link tls_main.o and tls_foo.o to produce the executable
+4) shared_tls_le.ll
+   test R_386_TLS_LE when building shared objects
+   link tls_foo.o to produce the shared object
+5) exec_tls_ie.ll
+   test R_386_TLS_IE when building executables
+   link tls_main.o, tls_foo_extern.o and tls_variables.o to produce the executable
+6) shared_tls_ie.ll
+   test R_386_TLS_IE when building shared objects
+   link tls_foo_extern.o to produce the shared object
