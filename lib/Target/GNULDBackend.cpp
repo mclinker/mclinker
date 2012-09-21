@@ -1078,7 +1078,10 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 /// sizeInterp - compute the size of the .interp section
 void GNULDBackend::sizeInterp()
 {
-  assert(LinkerConfig::Exec == config().codeGenType());
+  if (LinkerConfig::Exec != config().codeGenType() &&
+      !config().options().isPIE() &&
+      !config().options().hasDyld())
+    return;
 
   const char* dyld_name;
   if (config().options().hasDyld())
@@ -1086,17 +1089,19 @@ void GNULDBackend::sizeInterp()
   else
     dyld_name = dyld();
 
-  LDSection& interp = getExecFileFormat()->getInterp();
+  LDSection& interp = getOutputFormat()->getInterp();
   interp.setSize(std::strlen(dyld_name) + 1);
 }
 
 /// emitInterp - emit the .interp
 void GNULDBackend::emitInterp(MemoryArea& pOutput)
 {
-  assert(LinkerConfig::Exec == config().codeGenType() &&
-         getExecFileFormat()->hasInterp());
+  if (LinkerConfig::Exec != config().codeGenType() &&
+      !config().options().isPIE() &&
+      !config().options().hasDyld())
+    return;
 
-  const LDSection& interp = getExecFileFormat()->getInterp();
+  const LDSection& interp = getOutputFormat()->getInterp();
   MemoryRegion *region = pOutput.request(interp.offset(), interp.size());
   const char* dyld_name;
   if (config().options().hasDyld())

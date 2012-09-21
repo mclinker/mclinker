@@ -40,6 +40,8 @@ ELFDynObjWriter::~ELFDynObjWriter()
 llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
                                               MemoryArea& pOutput)
 {
+  target().emitInterp(pOutput);
+
   // Write out name pool sections: .dynsym, .dynstr, .hash
   target().emitDynNamePools(pModule,
                             m_Linker.getLayout(),

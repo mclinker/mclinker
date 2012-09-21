@@ -271,9 +271,7 @@ bool ObjectLinker::prelayout()
   m_LDBackend.allocateCommonSymbols(m_Module, *m_pLinker);
 
   /// check program interpreter - computer the name size of the runtime dyld
-  /// FIXME: check if we are doing static linking!
-  if (m_Config.codeGenType() == LinkerConfig::Exec)
-    m_LDBackend.sizeInterp();
+  m_LDBackend.sizeInterp();
 
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,

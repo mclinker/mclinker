@@ -712,8 +712,8 @@ int main(int argc, char* argv[])
   // Load the module to be linked...
   mcld::Module LDIRModule;
 
-  // -shared
-  if (true == ArgShared) {
+  // -shared or -pie
+  if (true == ArgShared || true == ArgPIE) {
     ArgFileType = mcld::CGFT_DSOFile;
   }
 
