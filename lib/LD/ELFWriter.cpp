@@ -20,6 +20,7 @@
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/Stub.h>
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
@@ -445,6 +446,12 @@ ELFWriter::emitSectionData(const Layout& pLayout,
                       fill_frag.getValue(),
                       fill_frag.getValueSize());
         }
+        break;
+      }
+      case Fragment::Stub: {
+        Stub& stub_frag = llvm::cast<Stub>(*fragIter);
+        memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
+        uint32_t* data = reinterpret_cast<uint32_t*>(pRegion.getBuffer(cur_offset));
         break;
       }
       case Fragment::Relocation:
