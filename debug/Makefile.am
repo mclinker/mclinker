@@ -166,6 +166,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Fragment/TargetFragment.h \
 	${INCDIR}/Fragment/Relocation.h \
 	${LIBDIR}/Fragment/Relocation.cpp \
+	${INCDIR}/Fragment/Stub.h \
+	${LIBDIR}/Fragment/Stub.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
@@ -178,8 +180,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/GeneralOptions.cpp \
 	${INCDIR}/ScriptOptions.h \
 	${LIBDIR}/Core/ScriptOptions.cpp \
-        ${INCDIR}/BitcodeOption.h \
-        ${LIBDIR}/Core/BitcodeOption.cpp \
+	${INCDIR}/BitcodeOption.h \
+	${LIBDIR}/Core/BitcodeOption.cpp \
 	${INCDIR}/AttributeOption.h \
 	${LIBDIR}/Core/AttributeOption.cpp \
 	${INCDIR}/MC/ContextFactory.h \
