@@ -52,6 +52,8 @@ class Module;
 class LinkerConfig;
 class Layout;
 class EhFrameHdr;
+class BranchIslandFactory;
+class StubFactory;
 
 /** \class GNULDBackend
  *  \brief GNULDBackend provides a common interface for all GNU Unix-OS
@@ -263,6 +265,23 @@ public:
   LDSymbol& getTBSSSymbol();
   const LDSymbol& getTBSSSymbol() const;
 
+  //  -----  relaxation  -----  //
+  /// initBRIslandFactory - initialize the branch island factory for relaxation
+  bool initBRIslandFactory();
+
+  /// initStubFactory - initialize the stub factory for relaxation
+  bool initStubFactory();
+
+  /// getBRIslandFactory
+  BranchIslandFactory* getBRIslandFactory() { return m_pBRIslandFactory; }
+
+  /// getStubFactory
+  StubFactory*         getStubFactory()     { return m_pStubFactory; }
+
+  /// maxBranchOffset - return the max (forward) branch offset of the backend.
+  /// Target can override this function if needed.
+  virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
+
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -432,6 +451,12 @@ protected:
 
   // ELF segment factory
   ELFSegmentFactory m_ELFSegmentTable;
+
+  // branch island factory
+  BranchIslandFactory* m_pBRIslandFactory;
+
+  // stub factory
+  StubFactory* m_pStubFactory;
 
   // map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;

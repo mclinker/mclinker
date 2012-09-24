@@ -35,6 +35,8 @@ class GOT;
 class MemoryArea;
 class MemoryAreaFactory;
 class EhFrame;
+class BranchIslandFactory;
+class StubFactory;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -149,6 +151,14 @@ public:
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp() = 0;
+
+  // -----  relaxation  ----- //
+  virtual bool initBRIslandFactory() = 0;
+  virtual bool initStubFactory() = 0;
+  virtual bool initTargetStubs() { return true; }
+
+  virtual BranchIslandFactory* getBRIslandFactory() = 0;
+  virtual StubFactory*         getStubFactory() = 0;
 
   /// relax - the relaxation pass
   virtual bool relax(Module& pModule, FragmentLinker& pLinker) = 0;

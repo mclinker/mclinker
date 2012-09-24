@@ -26,6 +26,8 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/MemoryAreaFactory.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/StubFactory.h>
 
 using namespace mcld;
 
@@ -38,6 +40,8 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     m_pDynObjFileFormat(NULL),
     m_pExecFileFormat(NULL),
     m_ELFSegmentTable(9), // magic number
+    m_pBRIslandFactory(NULL),
+    m_pStubFactory(NULL),
     m_pEhFrameHdr(NULL),
     m_bHasTextRel(false),
     m_bHasStaticTLS(false),
@@ -1957,6 +1961,24 @@ void GNULDBackend::checkAndSetHasTextRel(const LDSection& pSection)
     m_bHasTextRel = true;
 
   return;
+}
+
+/// initBRIslandFactory - initialize the branch island factory for relaxation
+bool GNULDBackend::initBRIslandFactory()
+{
+  if (NULL == m_pBRIslandFactory) {
+    m_pBRIslandFactory = new BranchIslandFactory(maxBranchOffset());
+  }
+  return true;
+}
+
+/// initStubFactory - initialize the stub factory for relaxation
+bool GNULDBackend::initStubFactory()
+{
+  if (NULL == m_pStubFactory) {
+    m_pStubFactory = new StubFactory();
+  }
+  return true;
 }
 
 bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
