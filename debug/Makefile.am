@@ -312,7 +312,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/Archive.h \
 	${LIBDIR}/LD/Archive.cpp \
 	${INCDIR}/LD/BranchIsland.h \
-	${LIBDIR}/LD/BranchIsland.cpp
+	${LIBDIR}/LD/BranchIsland.cpp \
+	${INCDIR}/LD/BranchIslandFactory.h \
+	${LIBDIR}/LD/BranchIslandFactory.cpp
 
 if ENABLE_UNITTEST
 UNITTEST_SOURCE = \
