@@ -538,7 +538,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   // If the jump target is thumb instruction, switch mode is needed, rewrite
   // the instruction to BLX
   if (T != 0) {
-    // R_ARM_JUMP24 cannot be rewrite to blx
+    // cannot rewrite to blx for R_ARM_JUMP24
     if (pReloc.type() == llvm::ELF::R_ARM_JUMP24)
       return ARMRelocationFactory::BadReloc;
 
@@ -600,8 +600,8 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   // If the jump target is not thumb, switch mode is needed, rewrite
   // instruction to BLX
   if (T == 0) {
-    // R_ARM_JUMP24 cannot be rewrite to blx
-    if (pReloc.type() == llvm::ELF::R_ARM_JUMP24)
+    // cannot rewrite to blx for R_ARM_THM_JUMP24
+    if (pReloc.type() == llvm::ELF::R_ARM_THM_JUMP24)
       return ARMRelocationFactory::BadReloc;
 
     // for BLX, select bit 1 from relocation base address to jump target
