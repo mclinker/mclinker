@@ -42,6 +42,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
   size_t non_ar_obj_cnt = 0;
 
   // record the archive files in this sub-tree
+  typedef std::vector<ArchiveListEntry*> ArchiveListType;
   ArchiveListType ar_list;
 
   Module::input_iterator input = pRoot;
@@ -67,7 +68,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       (*input)->setType(Input::Archive);
       // record the Archive used by each archive node
       Archive* ar = new Archive(**input, pBuilder);
-      ArchiveListEntryType* entry = new ArchiveListEntryType(*ar, input);
+      ArchiveListEntry* entry = new ArchiveListEntry(*ar, input);
       ar_list.push_back(entry);
       // read archive
       m_ArchiveReader.readArchive(*ar);

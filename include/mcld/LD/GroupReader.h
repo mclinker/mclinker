@@ -54,8 +54,6 @@ private:
     Archive& archive;
     Module::input_iterator input;
   };
-  typedef struct ArchiveListEntry ArchiveListEntryType;
-  typedef std::vector<ArchiveListEntryType*> ArchiveListType;
 
 private:
   Module& m_Module;
