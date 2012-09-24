@@ -1956,3 +1956,29 @@ void GNULDBackend::checkAndSetHasTextRel(const LDSection& pSection)
   return;
 }
 
+bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
+{
+  if (!mayRelax())
+    return true;
+
+  bool finished = true;
+  do {
+    if (doRelax(pLinker, finished)) {
+      // If the sections (e.g., .text) are relaxed, the layout is also changed
+      // We need to do the following:
+
+      // 1. set up the offset
+      setOutputSectionOffset(pModule, pModule.begin(), pModule.end());
+
+      // 2. set up the offset constraint of PT_RELRO
+      if (config().options().hasRelro())
+        setupRelro(pModule);
+
+      // 3. set up the output sections' address
+      setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
+    }
+  } while (!finished);
+
+  return true;
+}
+

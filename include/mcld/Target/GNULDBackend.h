@@ -376,6 +376,19 @@ private:
   /// dynamic - the dynamic section of the target machine.
   virtual const ELFDynamic& dynamic() const = 0;
 
+  /// relax - the relaxation pass
+  bool relax(Module& pModule, FragmentLinker& pLinker);
+
+  /// mayRelax - Backends should override this function if they need relaxation
+  virtual bool mayRelax() { return false; }
+
+  /// doRelax - Backend can orevride this function to add its relaxation
+  /// implementation. Return true if the output (e.g., .text) is "relaxed"
+  /// (i.e. layout is changed), and set pFinished to true if everything is fit,
+  /// otherwise set it to false.
+  virtual bool doRelax(FragmentLinker& pLinker, bool& pFinished)
+  { return false; }
+
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind

@@ -150,6 +150,12 @@ public:
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp() = 0;
 
+  /// relax - the relaxation pass
+  virtual bool relax(Module& pModule, FragmentLinker& pLinker) = 0;
+
+  /// mayRelax - return true if the backend needs to do relaxation
+  virtual bool mayRelax() = 0;
+
 public:
   EhFrame* getEhFrame();
 
