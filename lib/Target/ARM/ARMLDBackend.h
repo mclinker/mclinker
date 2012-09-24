@@ -228,6 +228,10 @@ private:
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 
+  /// maxBranchOffset
+  /// FIXME: if we can handle arm attributes, we may refine this!
+  uint64_t maxBranchOffset() { return THM_MAX_FWD_BRANCH_OFFSET; }
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;
