@@ -30,6 +30,7 @@ friend class RelocationFactory;
 public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
   typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
+  typedef int64_t SWord; // FIXME: use SizeTrait<T>::SWord instead
   typedef uint8_t Type;
 
 private:

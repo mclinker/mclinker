@@ -27,28 +27,30 @@ class ResolveInfo;
 class Stub: public Fragment
 {
 public:
+  typedef Relocation::DWord DWord;
+  typedef Relocation::SWord SWord;
+  typedef Relocation::Type  Type;
+
   class Fixup
   {
   public:
-    Fixup(Relocation::DWord pOffset,
-          Relocation::Address pAddend,
-          Relocation::Type pType)
+    Fixup(DWord pOffset, SWord pAddend, Type pType)
      : m_Offset(pOffset), m_Addend(pAddend), m_Type(pType)
     { }
 
     ~Fixup()
     { }
 
-    Relocation::DWord   offset() const { return m_Offset; }
+    DWord offset() const { return m_Offset; }
 
-    Relocation::Address addend() const { return m_Addend; }
+    SWord addend() const { return m_Addend; }
 
-    Relocation::Type    type() const   { return m_Type; }
+    Type  type() const   { return m_Type; }
 
   private:
-    Relocation::DWord   m_Offset;
-    Relocation::Address m_Addend;
-    Relocation::Type    m_Type;
+    DWord m_Offset;
+    SWord m_Addend;
+    Type  m_Type;
   };
 
 public:
@@ -112,9 +114,7 @@ public:
 
 protected:
   /// addFixup - add a fixup for this stub to build a relocation
-  void addFixup(Relocation::DWord pOffset,
-                Relocation::Address pAddend,
-                Relocation::Type pType);
+  void addFixup(DWord pOffset, SWord pAddend, Type pType);
 
 private:
   /// doClone - when adding a backend stub, we should implement this function
