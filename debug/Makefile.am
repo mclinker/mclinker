@@ -310,7 +310,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/TextDiagnosticPrinter.h \
 	${LIBDIR}/LD/TextDiagnosticPrinter.cpp \
 	${INCDIR}/LD/Archive.h \
-	${LIBDIR}/LD/Archive.cpp
+	${LIBDIR}/LD/Archive.cpp \
+	${INCDIR}/LD/BranchIsland.h \
+	${LIBDIR}/LD/BranchIsland.cpp
 
 if ENABLE_UNITTEST
 UNITTEST_SOURCE = \
