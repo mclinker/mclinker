@@ -28,9 +28,7 @@ void Stub::setSymInfo(ResolveInfo* pSymInfo)
   m_pSymInfo = pSymInfo;
 }
 
-void Stub::addFixup(Relocation::DWord pOffset,
-                    Relocation::Address pAddend,
-                    Relocation::Type pType)
+void Stub::addFixup(DWord pOffset, SWord pAddend, Type pType)
 {
   assert(pOffset < size());
   m_FixupList.push_back(new Fixup(pOffset, pAddend, pType));
