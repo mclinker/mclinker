@@ -1700,7 +1700,10 @@ void GNULDBackend::postLayout(Module& pModule,
     // 1.4 set up the output sections' address
     setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
 
-    // 1.5 set up the attributes of program headers
+    // 1.5 do relaxation
+    relax(pModule, pLinker);
+
+    // 1.6 set up the attributes of program headers
     setupProgramHdrs(pLinker);
   }
 
