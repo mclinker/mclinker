@@ -34,7 +34,8 @@ public:
     Fillment,
     Region,
     Relocation,
-    Target
+    Target,
+    Stub
   };
 
 public:
