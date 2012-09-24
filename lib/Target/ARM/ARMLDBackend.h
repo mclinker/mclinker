@@ -28,6 +28,16 @@ class SectionMap;
 class ARMGNULDBackend : public GNULDBackend
 {
 public:
+  // max branch offsets for ARM, THUMB, and THUMB2
+  // @ref gold/arm.cc:99
+  static const int32_t ARM_MAX_FWD_BRANCH_OFFSET = ((((1 << 23) - 1) << 2) + 8);
+  static const int32_t ARM_MAX_BWD_BRANCH_OFFSET = ((-((1 << 23) << 2)) + 8);
+  static const int32_t THM_MAX_FWD_BRANCH_OFFSET = ((1 << 22) -2 + 4);
+  static const int32_t THM_MAX_BWD_BRANCH_OFFSET = (-(1 << 22) + 4);
+  static const int32_t THM2_MAX_FWD_BRANCH_OFFSET = (((1 << 24) - 2) + 4);
+  static const int32_t THM2_MAX_BWD_BRANCH_OFFSET = (-(1 << 24) + 4);
+
+public:
   ARMGNULDBackend(const LinkerConfig& pConfig);
   ~ARMGNULDBackend();
 
