@@ -21,6 +21,7 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/Stub.h>
+#include <mcld/Fragment/NullFragment.h>
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
@@ -452,6 +453,10 @@ ELFWriter::emitSectionData(const Layout& pLayout,
         Stub& stub_frag = llvm::cast<Stub>(*fragIter);
         memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
         uint32_t* data = reinterpret_cast<uint32_t*>(pRegion.getBuffer(cur_offset));
+        break;
+      }
+      case Fragment::Null: {
+        assert(0x0 == size);
         break;
       }
       case Fragment::Relocation:

@@ -30,6 +30,7 @@
 #include <mcld/Fragment/Stub.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
+#include <mcld/Fragment/NullFragment.h>
 
 using namespace mcld;
 
@@ -726,6 +727,10 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
                 "unsupported value size for align fragment emission yet.\n");
               break;
           } // end switch
+          break;
+        }
+        case Fragment::Null: {
+          assert(0x0 == size);
           break;
         }
         default:
