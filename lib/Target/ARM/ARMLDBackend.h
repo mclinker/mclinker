@@ -232,6 +232,15 @@ private:
   /// FIXME: if we can handle arm attributes, we may refine this!
   uint64_t maxBranchOffset() { return THM_MAX_FWD_BRANCH_OFFSET; }
 
+  /// mayRelax - Backends should override this function if they need relaxation
+  bool mayRelax() { return true; }
+
+  /// doRelax - Backend can orevride this function to add its relaxation
+  /// implementation. Return true if the output (e.g., .text) is "relaxed"
+  /// (i.e. layout is changed), and set pFinished to true if everything is fit,
+  /// otherwise set it to false.
+  bool doRelax(FragmentLinker& pLinker, bool& pFinished);
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

@@ -27,6 +27,9 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Fragment/Stub.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/StubFactory.h>
 
 using namespace mcld;
 
@@ -865,6 +868,98 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   }
 
   return SHO_UNDEFINED;
+}
+
+/// doRelax
+bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
+{
+  assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
+
+  bool isRelaxed = false;
+  ELFFileFormat* file_format = getOutputFormat();
+  // check branch relocs and create the related stubs if needed
+  for (RelocationFactory::iterator it = getRelocFactory()->begin(),
+       ie = getRelocFactory()->end(); it != ie; ++it) {
+    switch ((*it).type()) {
+      case llvm::ELF::R_ARM_CALL:
+      case llvm::ELF::R_ARM_JUMP24:
+      case llvm::ELF::R_ARM_PLT32:
+      case llvm::ELF::R_ARM_THM_CALL:
+      case llvm::ELF::R_ARM_THM_XPC22:
+      case llvm::ELF::R_ARM_THM_JUMP24:
+      case llvm::ELF::R_ARM_THM_JUMP19:
+      case llvm::ELF::R_ARM_V4BX: {
+        // calculate the possible symbol value
+        uint64_t sym_value = 0x0;
+        LDSymbol* symbol = (*it).symInfo()->outSymbol();
+        if (symbol->hasFragRef()) {
+          uint64_t value =
+            pLinker.getLayout().getOutputOffset(*(symbol->fragRef()));
+          assert(NULL != symbol->fragRef()->frag());
+          uint64_t addr = file_format->getText().addr();
+          sym_value = addr + value;
+        }
+        if ((*it).symInfo()->isGlobal() &&
+            ((*it).symInfo()->reserved() & ReservePLT) != 0x0) {
+          // FIXME: we need to find out the address of the specific plt entry
+          assert(file_format->hasPLT());
+          sym_value = file_format->getPLT().addr();
+        }
+
+        Stub* stub = getStubFactory()->create(*it,       // relocation
+                                              sym_value, // symbol value
+                                              pLinker,
+                                              *getBRIslandFactory());
+        if (NULL != stub) {
+          assert(NULL != stub->symInfo());
+          // increase the size of .symtab and .strtab
+          LDSection& symtab = file_format->getSymTab();
+          LDSection& strtab = file_format->getStrTab();
+          if (32 == bitclass())
+            symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+          else
+            symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+          strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+
+          isRelaxed = true;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
+  // find the first fragment w/ invalid offset due to stub insertion
+  Fragment* invalid = NULL;
+  pFinished = true;
+  for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+       island_end = getBRIslandFactory()->end(); island != island_end; ++island) {
+    if ((*island).end() == file_format->getText().getSectionData()->end())
+      break;
+
+    Fragment* exit = (*island).end();
+    if (((*island).offset() + (*island).size()) > exit->getOffset()) {
+      invalid = exit;
+      pFinished = false;
+      break;
+    }
+  }
+
+  // reset the offset of invalid fragments
+  while (NULL != invalid) {
+    invalid->setOffset(invalid->getPrevNode()->getOffset() +
+                       invalid->getPrevNode()->size());
+    invalid = invalid->getNextNode();
+  }
+
+  // reset the size of .text
+  if (isRelaxed) {
+    file_format->getText().setSize(
+      file_format->getText().getSectionData()->back().getOffset() +
+      file_format->getText().getSectionData()->back().size());
+  }
+  return isRelaxed;
 }
 
 namespace mcld {
