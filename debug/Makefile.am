@@ -168,6 +168,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Fragment/Relocation.cpp \
 	${INCDIR}/Fragment/Stub.h \
 	${LIBDIR}/Fragment/Stub.cpp \
+	${INCDIR}/Fragment/NullFragment.h \
+	${LIBDIR}/Fragment/NullFragment.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \

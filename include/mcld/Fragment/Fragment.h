@@ -35,7 +35,8 @@ public:
     Region,
     Relocation,
     Target,
-    Stub
+    Stub,
+    Null
   };
 
 public:
