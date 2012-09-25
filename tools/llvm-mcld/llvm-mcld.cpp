@@ -450,6 +450,38 @@ ArgColor("color",
       "surround result strings only if the output is a tty"),
     clEnumValEnd));
 
+static cl::opt<bool>
+ArgGCSections("gc-sections",
+              cl::desc("Enable garbage collection of unused input sections."),
+              cl::init(false));
+
+namespace icf {
+enum Mode {
+  None,
+  All,
+  Safe
+};
+} // namespace of icf
+
+static cl::opt<icf::Mode>
+ArgICF("icf",
+       cl::desc("Identical Code Folding"),
+       cl::init(icf::None),
+       cl::values(
+         clEnumValN(icf::None, "none",
+           "do not perform cold folding"),
+         clEnumValN(icf::All, "all",
+           "always preform cold folding"),
+         clEnumValN(icf::Safe, "safe",
+           "Folds ctors, dtors and functions whose pointers are definitely not taken."),
+         clEnumValEnd));
+
+// FIXME: add this to target options?
+static cl::opt<bool>
+ArgFIXCA8("fix-cortex-a8",
+          cl::desc("Enable Cortex-A8 Thumb-2 branch erratum fix"),
+          cl::init(false));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -680,6 +712,28 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   cl::list<mcld::ZOption>::iterator zOptEnd = ArgZOptionList.end();
   for (zOpt = ArgZOptionList.begin(); zOpt != zOptEnd; ++zOpt) {
     pConfig.options().addZOption(*zOpt);
+  }
+
+  if (ArgGCSections) {
+    // FIXME: need a warning function
+    errs() << "WARNING: option --gc-sections is not implemented yet!\n";
+  }
+
+  // set up icf mode
+  switch (ArgICF) {
+    case icf::None:
+      break;
+    case icf::All:
+    case icf::Safe:
+    default:
+      // FIXME: need a warning function
+      errs() << "WARNING: option --icf is not implemented yet!\n";
+      break;
+  }
+
+  if (ArgFIXCA8) {
+    // FIXME: need a warning function
+    errs() << "WARNING: option --fix-cortex-a8 is not implemented yet!\n";
   }
 
   return true;
