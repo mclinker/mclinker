@@ -9,6 +9,7 @@
 #include <mcld/LD/BranchIsland.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Fragment/Stub.h>
+#include <mcld/Fragment/AlignFragment.h>
 
 #include <sstream>
 
@@ -115,6 +116,22 @@ bool BranchIsland::addStub(const Stub* pPrototype,
   if (!exist) {
     entry->setValue(&pStub);
     m_pRear = &pStub;
+    SectionData* sd = m_Entry.getParent();
+    // insert AlignFragment to meet the stub's alignment constraint
+    AlignFragment* align_frag = new AlignFragment(pStub.alignment(),
+                                                   0x0,
+                                                   1u,
+                                                   pStub.alignment() - 1);
+    align_frag->setParent(sd);
+    sd->getFragmentList().insert(end(), align_frag);
+    align_frag->setOffset(align_frag->getPrevNode()->getOffset() +
+                          align_frag->getPrevNode()->size());
+
+    // insert stub fragment
+    pStub.setParent(sd);
+    sd->getFragmentList().insert(end(), &pStub);
+    pStub.setOffset(pStub.getPrevNode()->getOffset() +
+                    pStub.getPrevNode()->size());
   }
   return !exist;
 }
