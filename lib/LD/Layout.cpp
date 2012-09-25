@@ -21,6 +21,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/Fragment/NullFragment.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 
@@ -194,9 +195,11 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
   if (pAlignConstraint > output_sect->align())
     output_sect->setAlign(pAlignConstraint);
 
+  NullFragment* null_frag = new NullFragment(&pSD);
+
   // compute the fragment order and offset
-  setFragmentLayoutOrder(&pFrag);
-  setFragmentLayoutOffset(&pFrag);
+  setFragmentLayoutOrder(null_frag);
+  setFragmentLayoutOffset(null_frag);
 
   if (NULL != align_frag)
     return pFrag.getOffset() - align_frag->getOffset() + pFrag.size();
