@@ -91,6 +91,15 @@ bool ObjectLinker::initFragmentLinker()
 
   // initialize RelocationFactory
   m_LDBackend.initRelocFactory(*m_pLinker);
+
+  // initialize BranchIslandFactory
+  m_LDBackend.initBRIslandFactory();
+
+  // initialize StubFactory
+  m_LDBackend.initStubFactory();
+
+  // initialize target stubs
+  m_LDBackend.initTargetStubs();
   return true;
 }
 
