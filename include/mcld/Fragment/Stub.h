@@ -61,7 +61,7 @@ public:
 public:
   Stub();
 
-  ~Stub();
+  virtual ~Stub();
 
   /// clone - clone function for stub factory to create the corresponding stub
   Stub* clone(bool pIsOutputPIC)
