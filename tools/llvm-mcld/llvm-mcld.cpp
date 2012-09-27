@@ -482,6 +482,16 @@ ArgFIXCA8("fix-cortex-a8",
           cl::desc("Enable Cortex-A8 Thumb-2 branch erratum fix"),
           cl::init(false));
 
+static cl::opt<bool>
+ArgDiscardLocals("X",
+                 cl::desc("Delete all temporary local symbols."),
+                 cl::init(false));
+
+static cl::alias
+ArgDiscardLocalsAlias("discard-locals",
+                      cl::desc("alias for -X"),
+                      cl::aliasopt(ArgDiscardLocals));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -734,6 +744,11 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   if (ArgFIXCA8) {
     // FIXME: need a warning function
     errs() << "WARNING: option --fix-cortex-a8 is not implemented yet!\n";
+  }
+
+  if (ArgDiscardLocals) {
+    // FIXME: need a warning function
+    errs() << "WARNING: option -X is not implemented yet!\n";
   }
 
   return true;
