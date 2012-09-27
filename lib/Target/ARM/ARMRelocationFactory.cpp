@@ -408,7 +408,6 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0 ; // PLT is not thumb
-      pReloc.target() = (S + A) | T;
     }
     // If we generate a dynamic relocation (except R_ARM_RELATIVE)
     // for a place, we should not perform static relocation on it

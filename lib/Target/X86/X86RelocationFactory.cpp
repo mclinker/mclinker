@@ -270,7 +270,6 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
   if (!rsym->isLocal()) {
     if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
-      pReloc.target() = S + A;
     }
     // If we generate a dynamic relocation (except R_386_RELATIVE)
     // for a place, we should not perform static relocation on it
