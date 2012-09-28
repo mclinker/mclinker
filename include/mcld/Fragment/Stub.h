@@ -17,6 +17,7 @@
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
 #include <vector>
+#include <string>
 
 namespace mcld
 {
