@@ -33,8 +33,6 @@ class ARMToARMStub : public Stub
 public:
   ARMToARMStub();
 
-  ARMToARMStub(bool pIsOutputPIC);
-
   ~ARMToARMStub();
 
   // isMyDuty
@@ -55,6 +53,9 @@ private:
   ARMToARMStub(const ARMToARMStub&);
 
   ARMToARMStub& operator=(const ARMToARMStub&);
+
+  /// for doClone
+  ARMToARMStub(bool pIsOutputPIC);
 
   /// doClone
   Stub* doClone(bool pIsOutputPIC);

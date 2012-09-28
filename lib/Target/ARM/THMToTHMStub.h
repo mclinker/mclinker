@@ -33,8 +33,6 @@ class THMToTHMStub : public Stub
 public:
   THMToTHMStub();
 
-  THMToTHMStub(bool pIsOutputPIC);
-
   ~THMToTHMStub();
 
   // isMyDuty
@@ -58,6 +56,9 @@ private:
   THMToTHMStub(const THMToTHMStub&);
 
   THMToTHMStub& operator=(const THMToTHMStub&);
+
+  /// for doClone
+  THMToTHMStub(bool pIsOutputPIC);
 
   /// doClone
   Stub* doClone(bool pIsOutputPIC);
