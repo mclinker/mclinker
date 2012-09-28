@@ -21,6 +21,7 @@
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/Stub.h>
 
 using namespace mcld;
 
@@ -102,6 +103,14 @@ void FragmentRef::memcpy(void* pDest, size_t pNBytes, Offset pOffset) const
         pNBytes = total_length - total_offset;
 
       std::memcpy(pDest, region_frag->getRegion().getBuffer(total_offset), pNBytes);
+      return;
+    }
+    case Fragment::Stub: {
+      Stub* stub_frag = static_cast<Stub*>(m_pFragment);
+      unsigned int total_length = stub_frag->size();
+      if (total_length < (total_offset+pNBytes))
+        pNBytes = total_length - total_offset;
+      std::memcpy(pDest, stub_frag->getContent() + total_offset, pNBytes);
       return;
     }
     case Fragment::Alignment:
