@@ -112,6 +112,14 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${LIBDIR}/Target/ARM/ARMToARMStub.h \
+	${LIBDIR}/Target/ARM/ARMToARMStub.cpp \
+	${LIBDIR}/Target/ARM/ARMToTHMStub.h \
+	${LIBDIR}/Target/ARM/ARMToTHMStub.cpp \
+	${LIBDIR}/Target/ARM/THMToTHMStub.h \
+	${LIBDIR}/Target/ARM/THMToTHMStub.cpp \
+	${LIBDIR}/Target/ARM/THMToARMStub.h \
+	${LIBDIR}/Target/ARM/THMToARMStub.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
