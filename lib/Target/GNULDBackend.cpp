@@ -87,8 +87,9 @@ size_t GNULDBackend::sectionStartOffset() const
 
 uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
 {
-  // TODO: handle the user option: -TText=
-  if (pLinker.isOutputPIC())
+  if (config().options().hasTextSegAddr())
+    return config().options().textSegAddr();
+  else if (pLinker.isOutputPIC())
     return 0x0;
   else
     return defaultTextSegmentAddr();
