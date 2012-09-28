@@ -42,7 +42,10 @@ GeneralOptions::GeneralOptions()
     m_bPIE(false),
     m_bColor(true),
     m_bAllowShlibUndefined(true),
-    m_bCreateEhFrameHdr(false)
+    m_bCreateEhFrameHdr(false),
+    m_BssSegAddr(-1U),
+    m_DataSegAddr(-1U),
+    m_TextSegAddr(-1U)
 {
 }
 

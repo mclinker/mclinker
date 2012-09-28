@@ -492,6 +492,21 @@ ArgDiscardLocalsAlias("discard-locals",
                       cl::desc("alias for -X"),
                       cl::aliasopt(ArgDiscardLocals));
 
+static cl::opt<unsigned long long>
+ArgBssSegAddr("Tbss",
+              cl::desc("Set the address of the bss segment"),
+              cl::init(-1U));
+
+static cl::opt<unsigned long long>
+ArgDataSegAddr("Tdata",
+               cl::desc("Set the address of the data segment"),
+               cl::init(-1U));
+
+static cl::opt<unsigned long long>
+ArgTextSegAddr("Ttext",
+               cl::desc("Set the address of the text segment"),
+               cl::init(-1U));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -650,6 +665,9 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setNoUndefined(ArgNoUndefined);
   pConfig.options().setMulDefs(ArgAllowMulDefs);
   pConfig.options().setEhFrameHdr(ArgEhFrameHdr);
+  pConfig.options().setBssSegAddr(ArgBssSegAddr);
+  pConfig.options().setDataSegAddr(ArgDataSegAddr);
+  pConfig.options().setTextSegAddr(ArgTextSegAddr);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

@@ -197,6 +197,36 @@ public:
   bool hasEhFrameHdr() const
   { return m_bCreateEhFrameHdr; }
 
+  // -Tbss
+  void setBssSegAddr(uint64_t pAddr)
+  { m_BssSegAddr = pAddr; }
+
+  uint64_t bssSegAddr() const
+  { return m_BssSegAddr; }
+
+  bool hasBssSegAddr() const
+  { return m_BssSegAddr != -1U; }
+
+  // -Tdata
+  void setDataSegAddr(uint64_t pAddr)
+  { m_DataSegAddr = pAddr; }
+
+  uint64_t dataSegAddr() const
+  { return m_DataSegAddr; }
+
+  bool hasDataSegAddr() const
+  { return m_DataSegAddr != -1U; }
+
+  // -Tbss
+  void setTextSegAddr(uint64_t pAddr)
+  { m_TextSegAddr = pAddr; }
+
+  uint64_t textSegAddr() const
+  { return m_TextSegAddr; }
+
+  bool hasTextSegAddr() const
+  { return m_TextSegAddr != -1U; }
+
 private:
   enum status {
     YES,
@@ -238,6 +268,9 @@ private:
   bool m_bColor         : 1;   // --color[=true,false,auto]
   bool m_bAllowShlibUndefined : 1; // --[no-]allow-shlib-undefined and
   bool m_bCreateEhFrameHdr : 1;    // --eh-frame-hdr
+  uint64_t m_BssSegAddr;  // -Tbss ADDRESS
+  uint64_t m_DataSegAddr; // -Tdata ADDRESS
+  uint64_t m_TextSegAddr; // -Ttext ADDRESS
 };
 
 } // namespace of mcld
