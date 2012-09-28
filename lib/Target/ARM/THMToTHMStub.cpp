@@ -45,22 +45,18 @@ THMToTHMStub::THMToTHMStub(bool pIsOutputPIC)
 {
   if (pIsOutputPIC) {
     m_Size = sizeof(PIC_TEMPLATE);
-    m_pData = new uint32_t[m_Size];
-    std::memcpy(m_pData, PIC_TEMPLATE, m_Size);
+    m_pData = PIC_TEMPLATE;
     addFixup(16u, 0x0, llvm::ELF::R_ARM_REL32);
   }
   else {
     m_Size = sizeof(TEMPLATE);
-    m_pData = new uint32_t[m_Size];
-    std::memcpy(m_pData, TEMPLATE, m_Size);
+    m_pData = TEMPLATE;
     addFixup(12u, 0x0, llvm::ELF::R_ARM_ABS32);
   }
 }
 
 THMToTHMStub::~THMToTHMStub()
 {
-  if (NULL != m_pData)
-    delete[] m_pData;
 }
 
 bool THMToTHMStub::isMyDuty(const class Relocation& pReloc,
@@ -90,11 +86,6 @@ bool THMToTHMStub::isMyDuty(const class Relocation& pReloc,
 const std::string& THMToTHMStub::name() const
 {
   return m_Name;
-}
-
-uint8_t* THMToTHMStub::getContent()
-{
-  return reinterpret_cast<uint8_t*>(m_pData);
 }
 
 const uint8_t* THMToTHMStub::getContent() const

@@ -45,8 +45,6 @@ public:
   // observers
   const std::string& name() const;
 
-  uint8_t* getContent();
-
   const uint8_t* getContent() const;
 
   size_t size() const;
@@ -68,7 +66,7 @@ private:
   std::string m_Name;
   static const uint32_t PIC_TEMPLATE[];
   static const uint32_t TEMPLATE[];
-  uint32_t* m_pData;
+  const uint32_t* m_pData;
   size_t m_Size;
 };
 
