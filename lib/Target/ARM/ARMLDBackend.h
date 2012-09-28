@@ -242,7 +242,7 @@ private:
   bool doRelax(FragmentLinker& pLinker, bool& pFinished);
 
   /// initTargetStubs
-  bool initTargetStubs();
+  bool initTargetStubs(FragmentLinker& pLinker);
 
 private:
   RelocationFactory* m_pRelocFactory;

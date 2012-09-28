@@ -31,7 +31,7 @@ class ResolveInfo;
 class ARMToARMStub : public Stub
 {
 public:
-  ARMToARMStub();
+  ARMToARMStub(bool pIsOutputPIC);
 
   ~ARMToARMStub();
 
@@ -55,10 +55,13 @@ private:
   ARMToARMStub& operator=(const ARMToARMStub&);
 
   /// for doClone
-  ARMToARMStub(bool pIsOutputPIC);
+  ARMToARMStub(const uint32_t* pData,
+               size_t pSize,
+               const_fixup_iterator pBegin,
+               const_fixup_iterator pEnd);
 
   /// doClone
-  Stub* doClone(bool pIsOutputPIC);
+  Stub* doClone();
 
 private:
   std::string m_Name;

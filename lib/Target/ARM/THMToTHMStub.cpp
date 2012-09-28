@@ -35,24 +35,30 @@ const uint32_t THMToTHMStub::TEMPLATE[] = {
   0x0         // dcd   R_ARM_ABS32(X)
 };
 
-THMToTHMStub::THMToTHMStub()
+THMToTHMStub::THMToTHMStub(bool pIsOutputPIC)
  : Stub(), m_Name("T2T_prototype"), m_pData(NULL), m_Size(0x0)
 {
-}
-
-THMToTHMStub::THMToTHMStub(bool pIsOutputPIC)
- : Stub(), m_Name("T2T_veneer"), m_pData(NULL), m_Size(0x0)
-{
   if (pIsOutputPIC) {
-    m_Size = sizeof(PIC_TEMPLATE);
     m_pData = PIC_TEMPLATE;
+    m_Size = sizeof(PIC_TEMPLATE);
     addFixup(16u, 0x0, llvm::ELF::R_ARM_REL32);
   }
   else {
-    m_Size = sizeof(TEMPLATE);
     m_pData = TEMPLATE;
+    m_Size = sizeof(TEMPLATE);
     addFixup(12u, 0x0, llvm::ELF::R_ARM_ABS32);
   }
+}
+
+/// for doClone
+THMToTHMStub::THMToTHMStub(const uint32_t* pData,
+                           size_t pSize,
+                           const_fixup_iterator pBegin,
+                           const_fixup_iterator pEnd)
+ : Stub(), m_Name("T2T_veneer"), m_pData(pData), m_Size(pSize)
+{
+  for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
+    addFixup(**it);
 }
 
 THMToTHMStub::~THMToTHMStub()
@@ -108,8 +114,8 @@ uint64_t THMToTHMStub::initSymValue() const
   return 0x1;
 }
 
-Stub* THMToTHMStub::doClone(bool pIsOutputPIC)
+Stub* THMToTHMStub::doClone()
 {
-  return new THMToTHMStub(pIsOutputPIC);
+  return new THMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 

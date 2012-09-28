@@ -99,7 +99,7 @@ bool ObjectLinker::initFragmentLinker()
   m_LDBackend.initStubFactory();
 
   // initialize target stubs
-  m_LDBackend.initTargetStubs();
+  m_LDBackend.initTargetStubs(*m_pLinker);
   return true;
 }
 

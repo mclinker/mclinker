@@ -33,24 +33,30 @@ const uint32_t ARMToTHMStub::TEMPLATE[] = {
   0x0         // dcd   R_ARM_ABS32(X)
 };
 
-ARMToTHMStub::ARMToTHMStub()
+ARMToTHMStub::ARMToTHMStub(bool pIsOutputPIC)
  : Stub(), m_Name("A2T_prototype"), m_pData(NULL), m_Size(0x0)
 {
-}
-
-ARMToTHMStub::ARMToTHMStub(bool pIsOutputPIC)
- : Stub(), m_Name("A2T_veneer"), m_pData(NULL), m_Size(0x0)
-{
   if (pIsOutputPIC) {
-    m_Size = sizeof(PIC_TEMPLATE);
     m_pData = PIC_TEMPLATE;
+    m_Size = sizeof(PIC_TEMPLATE);
     addFixup(12u, 0x0, llvm::ELF::R_ARM_REL32);
   }
   else {
-    m_Size = sizeof(TEMPLATE);
     m_pData = TEMPLATE;
+    m_Size = sizeof(TEMPLATE);
     addFixup(8u, 0x0, llvm::ELF::R_ARM_ABS32);
   }
+}
+
+/// for doClone
+ARMToTHMStub::ARMToTHMStub(const uint32_t* pData,
+                           size_t pSize,
+                           const_fixup_iterator pBegin,
+                           const_fixup_iterator pEnd)
+ : Stub(), m_Name("A2T_veneer"), m_pData(pData), m_Size(pSize)
+{
+  for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
+    addFixup(**it);
 }
 
 ARMToTHMStub::~ARMToTHMStub()
@@ -126,8 +132,8 @@ size_t ARMToTHMStub::alignment() const
   return 4u;
 }
 
-Stub* ARMToTHMStub::doClone(bool pIsOutputPIC)
+Stub* ARMToTHMStub::doClone()
 {
-  return new ARMToTHMStub(pIsOutputPIC);
+  return new ARMToTHMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 

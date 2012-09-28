@@ -33,24 +33,30 @@ const uint32_t THMToARMStub::TEMPLATE[] = {
   0x0         // dcd   R_ARM_ABS32(X)
 };
 
-THMToARMStub::THMToARMStub()
+THMToARMStub::THMToARMStub(bool pIsOutputPIC)
  : Stub(), m_Name("T2A_prototype"), m_pData(NULL), m_Size(0x0)
 {
-}
-
-THMToARMStub::THMToARMStub(bool pIsOutputPIC)
- : Stub(), m_Name("T2A_veneer"), m_pData(NULL), m_Size(0x0)
-{
   if (pIsOutputPIC) {
-    m_Size = sizeof(PIC_TEMPLATE);
     m_pData = PIC_TEMPLATE;
+    m_Size = sizeof(PIC_TEMPLATE);
     addFixup(12u, -4, llvm::ELF::R_ARM_REL32);
   }
   else {
-    m_Size = sizeof(TEMPLATE);
     m_pData = TEMPLATE;
+    m_Size = sizeof(TEMPLATE);
     addFixup(8u, 0x0, llvm::ELF::R_ARM_ABS32);
   }
+}
+
+/// for doClone
+THMToARMStub::THMToARMStub(const uint32_t* pData,
+                           size_t pSize,
+                           const_fixup_iterator pBegin,
+                           const_fixup_iterator pEnd)
+ : Stub(), m_Name("T2A_veneer"), m_pData(pData), m_Size(pSize)
+{
+  for (const_fixup_iterator it = pBegin, ie = pEnd; it != ie; ++it)
+    addFixup(**it);
 }
 
 THMToARMStub::~THMToARMStub()
@@ -129,8 +135,8 @@ uint64_t THMToARMStub::initSymValue() const
   return 0x1;
 }
 
-Stub* THMToARMStub::doClone(bool pIsOutputPIC)
+Stub* THMToARMStub::doClone()
 {
-  return new THMToARMStub(pIsOutputPIC);
+  return new THMToARMStub(m_pData, m_Size, fixup_begin(), fixup_end());
 }
 

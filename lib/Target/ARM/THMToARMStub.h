@@ -31,7 +31,7 @@ class ResolveInfo;
 class THMToARMStub : public Stub
 {
 public:
-  THMToARMStub();
+  THMToARMStub(bool pIsOutputPIC);
 
   ~THMToARMStub();
 
@@ -58,10 +58,13 @@ private:
   THMToARMStub& operator=(const THMToARMStub&);
 
   /// for doClone
-  THMToARMStub(bool pIsOutputPIC);
+  THMToARMStub(const uint32_t* pData,
+               size_t pSize,
+               const_fixup_iterator pBegin,
+               const_fixup_iterator pEnd);
 
   /// doClone
-  Stub* doClone(bool pIsOutputPIC);
+  Stub* doClone();
 
 private:
   std::string m_Name;

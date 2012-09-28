@@ -64,8 +64,7 @@ public:
   virtual ~Stub();
 
   /// clone - clone function for stub factory to create the corresponding stub
-  Stub* clone(bool pIsOutputPIC)
-  { return doClone(pIsOutputPIC); }
+  Stub* clone() { return doClone(); }
 
   /// isMyDuty - return true when the pReloc is problematic and the stub is able
   /// to fix it!
@@ -100,7 +99,7 @@ public:
 
   fixup_iterator       fixup_end()         { return m_FixupList.end();   }
 
-  const_fixup_iterator fixup_end() const   { return m_FixupList.end();   }
+  const_fixup_iterator fixup_end()   const { return m_FixupList.end();   }
 
   /// ----- modifiers ----- ///
   void setSymInfo(ResolveInfo* pSymInfo);
@@ -116,9 +115,12 @@ protected:
   /// addFixup - add a fixup for this stub to build a relocation
   void addFixup(DWord pOffset, SWord pAddend, Type pType);
 
+  /// addFixup - add a fixup from a existing fixup of the prototype
+  void addFixup(const Fixup& pFixup);
+
 private:
   /// doClone - when adding a backend stub, we should implement this function
-  virtual Stub* doClone(bool pIsOutputPIC) = 0;
+  virtual Stub* doClone() = 0;
 
 private:
   ResolveInfo* m_pSymInfo;

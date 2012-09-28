@@ -972,13 +972,13 @@ bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
 }
 
 /// initTargetStubs
-bool ARMGNULDBackend::initTargetStubs()
+bool ARMGNULDBackend::initTargetStubs(FragmentLinker& pLinker)
 {
   if (NULL != getStubFactory()) {
-    getStubFactory()->addPrototype(new ARMToARMStub());
-    getStubFactory()->addPrototype(new ARMToTHMStub());
-    getStubFactory()->addPrototype(new THMToTHMStub());
-    getStubFactory()->addPrototype(new THMToARMStub());
+    getStubFactory()->addPrototype(new ARMToARMStub(pLinker.isOutputPIC()));
+    getStubFactory()->addPrototype(new ARMToTHMStub(pLinker.isOutputPIC()));
+    getStubFactory()->addPrototype(new THMToTHMStub(pLinker.isOutputPIC()));
+    getStubFactory()->addPrototype(new THMToARMStub(pLinker.isOutputPIC()));
     return true;
   }
   return false;

@@ -34,3 +34,9 @@ void Stub::addFixup(DWord pOffset, SWord pAddend, Type pType)
   m_FixupList.push_back(new Fixup(pOffset, pAddend, pType));
 }
 
+void Stub::addFixup(const Fixup& pFixup)
+{
+  assert(pFixup.offset() < size());
+  m_FixupList.push_back(new Fixup(pFixup));
+}
+

@@ -62,7 +62,7 @@ Stub* StubFactory::create(Relocation& pReloc,
     }
     else {
       // create a stub from the prototype
-      stub = prototype->clone(pLinker.isOutputPIC());
+      stub = prototype->clone();
 
       // build a name for stub symbol
       std::string name("__");
