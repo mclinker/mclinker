@@ -113,6 +113,14 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
+	${LIBDIR}/Target/ARM/ARMToARMStub.h \
+	${LIBDIR}/Target/ARM/ARMToARMStub.cpp \
+	${LIBDIR}/Target/ARM/ARMToTHMStub.h \
+	${LIBDIR}/Target/ARM/ARMToTHMStub.cpp \
+	${LIBDIR}/Target/ARM/THMToTHMStub.h \
+	${LIBDIR}/Target/ARM/THMToTHMStub.cpp \
+	${LIBDIR}/Target/ARM/THMToARMStub.h \
+	${LIBDIR}/Target/ARM/THMToARMStub.cpp \
 	${LIBDIR}/Target/Mips/Mips.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
@@ -171,6 +179,10 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Fragment/TargetFragment.h \
 	${INCDIR}/Fragment/Relocation.h \
 	${LIBDIR}/Fragment/Relocation.cpp \
+	${INCDIR}/Fragment/Stub.h \
+	${LIBDIR}/Fragment/Stub.cpp \
+	${INCDIR}/Fragment/NullFragment.h \
+	${LIBDIR}/Fragment/NullFragment.cpp \
 	${INCDIR}/MC/MCLDInput.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
@@ -183,8 +195,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/GeneralOptions.cpp \
 	${INCDIR}/ScriptOptions.h \
 	${LIBDIR}/Core/ScriptOptions.cpp \
-        ${INCDIR}/BitcodeOption.h \
-        ${LIBDIR}/Core/BitcodeOption.cpp \
+	${INCDIR}/BitcodeOption.h \
+	${LIBDIR}/Core/BitcodeOption.cpp \
 	${INCDIR}/AttributeOption.h \
 	${LIBDIR}/Core/AttributeOption.cpp \
 	${INCDIR}/MC/ContextFactory.h \
@@ -313,7 +325,13 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/TextDiagnosticPrinter.h \
 	${LIBDIR}/LD/TextDiagnosticPrinter.cpp \
 	${INCDIR}/LD/Archive.h \
-	${LIBDIR}/LD/Archive.cpp
+	${LIBDIR}/LD/Archive.cpp \
+	${INCDIR}/LD/BranchIsland.h \
+	${LIBDIR}/LD/BranchIsland.cpp \
+	${INCDIR}/LD/BranchIslandFactory.h \
+	${LIBDIR}/LD/BranchIslandFactory.cpp \
+	${INCDIR}/LD/StubFactory.h \
+	${LIBDIR}/LD/StubFactory.cpp
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
