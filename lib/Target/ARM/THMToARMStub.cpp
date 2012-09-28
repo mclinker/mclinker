@@ -68,43 +68,27 @@ bool THMToARMStub::isMyDuty(const class Relocation& pReloc,
                             uint64_t pTargetSymValue) const
 {
   bool result = false;
-  switch (pReloc.type()) {
-    case llvm::ELF::R_ARM_THM_CALL: {
-      if ((pTargetSymValue & 0x1) != 0x0)
+  // Check if the branch target is ARM
+  if ((pTargetSymValue & 0x1) == 0x0) {
+    switch (pReloc.type()) {
+      case llvm::ELF::R_ARM_THM_CALL: {
+        // FIXME: Assuming blx is available (i.e., target is armv5 or above!)
+        // then, we do not need a stub unless the branch target is too far.
+        uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
+        int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
+        if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
+            (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
+          result = true;
         break;
-
-      if ((pReloc.symInfo()->outSymbol()->fragRef() != NULL)) { 
-        const Fragment* frag = pReloc.symInfo()->outSymbol()->fragRef()->frag();
-        if (classof(frag)) {
-          result = false;
-          break;
-        }
       }
-
-      uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
-      int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
-      if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
-          (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
+      case llvm::ELF::R_ARM_THM_JUMP24: {
+        // always need a stub to switch mode
         result = true;
-      break;
-    }
-    case llvm::ELF::R_ARM_THM_JUMP24: {
-      if ((pTargetSymValue & 0x1) != 0x0)
         break;
-
-      if ((pReloc.symInfo()->outSymbol()->fragRef() != NULL)) { 
-        const Fragment* frag = pReloc.symInfo()->outSymbol()->fragRef()->frag();
-        if (classof(frag)) {
-          result = false;
-          break;
-        }
       }
-
-      result = true;
-      break;
+      default:
+        break;
     }
-    default:
-      break;
   }
   return result;
 }

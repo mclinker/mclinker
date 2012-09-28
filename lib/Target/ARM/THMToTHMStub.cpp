@@ -70,21 +70,22 @@ bool THMToTHMStub::isMyDuty(const class Relocation& pReloc,
                             uint64_t pTargetSymValue) const
 {
   bool result = false;
-  switch (pReloc.type()) {
-    case llvm::ELF::R_ARM_THM_CALL:
-    case llvm::ELF::R_ARM_THM_JUMP24: {
-      if ((pTargetSymValue & 0x1) == 0x0)
+  // Check if the branch target is THUMB
+  if ((pTargetSymValue & 0x1) != 0x0) {
+    switch (pReloc.type()) {
+      case llvm::ELF::R_ARM_THM_CALL:
+      case llvm::ELF::R_ARM_THM_JUMP24: {
+        // Check if the branch target is too far
+        uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
+        int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
+        if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
+            (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
+          result =  true;
         break;
-
-      uint64_t dest = pTargetSymValue + pReloc.addend() + 4u;
-      int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
-      if ((branch_offset > ARMGNULDBackend::THM_MAX_FWD_BRANCH_OFFSET) ||
-          (branch_offset < ARMGNULDBackend::THM_MAX_BWD_BRANCH_OFFSET))
-        result =  true;
-      break;
+      }
+      default:
+        break;
     }
-    default:
-      break;
   }
   return result;
 }

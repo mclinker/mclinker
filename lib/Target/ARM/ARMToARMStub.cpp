@@ -66,25 +66,24 @@ bool ARMToARMStub::isMyDuty(const class Relocation& pReloc,
                             uint64_t pTargetSymValue) const
 {
   bool result = false;
-  switch (pReloc.type()) {
-    case llvm::ELF::R_ARM_CALL:
-    case llvm::ELF::R_ARM_JUMP24:
-    case llvm::ELF::R_ARM_PLT32: {
-      // check the T bit of the target
-      if ((pTargetSymValue & 0x1) != 0x0)
+  // Check if the branch target is ARM
+  if ((pTargetSymValue & 0x1) == 0x0) {
+    switch (pReloc.type()) {
+      case llvm::ELF::R_ARM_CALL:
+      case llvm::ELF::R_ARM_JUMP24:
+      case llvm::ELF::R_ARM_PLT32: {
+        // Check if the branch target is too far
+        uint64_t dest = pTargetSymValue + pReloc.addend() + 8u;
+        int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
+        if ((branch_offset > ARMGNULDBackend::ARM_MAX_FWD_BRANCH_OFFSET) ||
+            (branch_offset < ARMGNULDBackend::ARM_MAX_BWD_BRANCH_OFFSET)) {
+          result =  true;
+        }
         break;
-
-      // check if the branch target is too far
-      uint64_t dest = pTargetSymValue + pReloc.addend() + 8u;
-      int64_t branch_offset = static_cast<int64_t>(dest) - pSource;
-      if ((branch_offset > ARMGNULDBackend::ARM_MAX_FWD_BRANCH_OFFSET) ||
-          (branch_offset < ARMGNULDBackend::ARM_MAX_BWD_BRANCH_OFFSET)) {
-        result =  true;
       }
-      break;
+      default:
+        break;
     }
-    default:
-      break;
   }
   return result;
 }
