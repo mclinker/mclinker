@@ -241,6 +241,9 @@ private:
   /// otherwise set it to false.
   bool doRelax(FragmentLinker& pLinker, bool& pFinished);
 
+  /// initTargetStubs
+  bool initTargetStubs();
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

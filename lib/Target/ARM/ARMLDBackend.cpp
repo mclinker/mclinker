@@ -10,6 +10,10 @@
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocationFactory.h"
+#include "ARMToARMStub.h"
+#include "ARMToTHMStub.h"
+#include "THMToTHMStub.h"
+#include "THMToARMStub.h"
 
 #include <cstring>
 
@@ -965,6 +969,19 @@ bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
       file_format->getText().getSectionData()->back().size());
   }
   return isRelaxed;
+}
+
+/// initTargetStubs
+bool ARMGNULDBackend::initTargetStubs()
+{
+  if (NULL != getStubFactory()) {
+    getStubFactory()->addPrototype(new ARMToARMStub());
+    getStubFactory()->addPrototype(new ARMToTHMStub());
+    getStubFactory()->addPrototype(new THMToTHMStub());
+    getStubFactory()->addPrototype(new THMToARMStub());
+    return true;
+  }
+  return false;
 }
 
 namespace mcld {
