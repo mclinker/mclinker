@@ -434,10 +434,22 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
                                    ARMRelocationFactory& pParent)
 {
   // perform static relocation
-  ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  pReloc.target() = ((pReloc.symValue() + A) | T)
-      - pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::Address S = pReloc.symValue();
+  ARMRelocationFactory::DWord   T = getThumbBit(pReloc);
+  ARMRelocationFactory::DWord   A = pReloc.target() + pReloc.addend();
+
+  // An external symbol may need PLT (this reloc is from stub)
+  if (!pReloc.symInfo()->isLocal()) {
+    if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+      T = 0;  // PLT is not thumb.
+    }
+  }
+
+  // perform relocation
+  pReloc.target() = ((S + A) | T)
+       - pReloc.place(pParent.getFragmentLinker().getLayout());
+
   return ARMRelocationFactory::OK;
 }
 
