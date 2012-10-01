@@ -516,10 +516,6 @@ ARMRelocationFactory::Result got_prel(Relocation& pReloc,
 ARMRelocationFactory::Result call(Relocation& pReloc,
                                   ARMRelocationFactory& pParent)
 {
-  // TODO: Some issue have not been considered:
-  // 1. Add stub when switching mode or jump target too far
-  // 2. We assume the blx is available
-
   // If target is undefined weak symbol, we only need to jump to the
   // next instruction unless it has PLT entry. Rewrite instruction
   // to NOP.
@@ -546,8 +542,10 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
     T = 0;  // PLT is not thumb.
   }
 
-  // If the jump target is thumb instruction, switch mode is needed, rewrite
-  // the instruction to BLX
+  // At this moment (after relaxation), if the jump target is thumb instruction,
+  // switch mode is needed, rewrite the instruction to BLX
+  // FIXME: check if we can use BLX instruction (check from .ARM.attribute
+  // CPU ARCH TAG, which should be ARMv5 or above)
   if (T != 0) {
     // cannot rewrite to blx for R_ARM_JUMP24
     if (pReloc.type() == llvm::ELF::R_ARM_JUMP24)
@@ -605,11 +603,10 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
 
   S = S + A;
 
+  // At this moment (after relaxation), if the jump target is arm
+  // instruction, switch mode is needed, rewrite the instruction to BLX
   // FIXME: check if we can use BLX instruction (check from .ARM.attribute
   // CPU ARCH TAG, which should be ARMv5 or above)
-
-  // If the jump target is not thumb, switch mode is needed, rewrite
-  // instruction to BLX
   if (T == 0) {
     // cannot rewrite to blx for R_ARM_THM_JUMP24
     if (pReloc.type() == llvm::ELF::R_ARM_THM_JUMP24)
@@ -627,9 +624,6 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   }
 
   ARMRelocationFactory::DWord X = (S | T) - P;
-
-  // TODO: check if we need stub when building non-shared object,
-  // overflow or switch-mode.
 
   // FIXME: Check bit size is 24(thumb2) or 22?
   if (helper_check_signed_overflow(X, 25)) {
