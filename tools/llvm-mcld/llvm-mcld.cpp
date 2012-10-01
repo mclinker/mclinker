@@ -507,6 +507,26 @@ ArgTextSegAddr("Ttext",
                cl::desc("Set the address of the text segment"),
                cl::init(-1U));
 
+static cl::opt<bool>
+ArgNMagic("nmagic",
+          cl::desc("Do not page align data"),
+          cl::init(false));
+
+static cl::alias
+ArgNMagicAlias("n",
+               cl::desc("alias for --nmagic"),
+               cl::aliasopt(ArgNMagic));
+
+static cl::opt<bool>
+ArgOMagic("omagic",
+          cl::desc("Do not page align data, do not make text readonly"),
+          cl::init(false));
+
+static cl::alias
+ArgOMagicAlias("N",
+               cl::desc("alias for --omagic"),
+               cl::aliasopt(ArgOMagic));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -668,6 +688,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setBssSegAddr(ArgBssSegAddr);
   pConfig.options().setDataSegAddr(ArgDataSegAddr);
   pConfig.options().setTextSegAddr(ArgTextSegAddr);
+  pConfig.options().setNMagic(ArgNMagic);
+  pConfig.options().setOMagic(ArgOMagic);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

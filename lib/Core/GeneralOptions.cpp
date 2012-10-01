@@ -45,7 +45,9 @@ GeneralOptions::GeneralOptions()
     m_bCreateEhFrameHdr(false),
     m_BssSegAddr(-1U),
     m_DataSegAddr(-1U),
-    m_TextSegAddr(-1U)
+    m_TextSegAddr(-1U),
+    m_NMagic(false),
+    m_OMagic(false)
 {
 }
 

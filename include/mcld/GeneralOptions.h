@@ -227,6 +227,21 @@ public:
   bool hasTextSegAddr() const
   { return m_TextSegAddr != -1U; }
 
+  // -n, --nmagic
+  void setNMagic(bool pMagic = false)
+  { m_NMagic = pMagic; }
+
+  bool nnagic() const
+  { return m_NMagic; }
+
+  // -N, --omagic
+  void setOMagic(bool pMagic = false)
+  { m_OMagic = pMagic; }
+
+  bool omagic() const
+  { return m_OMagic; }
+
+
 private:
   enum status {
     YES,
@@ -271,6 +286,8 @@ private:
   uint64_t m_BssSegAddr;  // -Tbss ADDRESS
   uint64_t m_DataSegAddr; // -Tdata ADDRESS
   uint64_t m_TextSegAddr; // -Ttext ADDRESS
+  bool m_NMagic; // -n, --nmagic
+  bool m_OMagic; // -N, --omagic
 };
 
 } // namespace of mcld
