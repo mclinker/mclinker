@@ -217,7 +217,7 @@ public:
   bool hasDataSegAddr() const
   { return m_DataSegAddr != -1U; }
 
-  // -Tbss
+  // -Ttext
   void setTextSegAddr(uint64_t pAddr)
   { m_TextSegAddr = pAddr; }
 
