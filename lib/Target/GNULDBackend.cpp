@@ -1422,12 +1422,19 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
   if (config().options().hasRelro()) {
     // make PT_GNU_RELRO
     ELFSegment* relro_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_RELRO);
-    for (Module::iterator sect = pModule.begin(); sect != pModule.end(); ++sect) {
-      unsigned int order = getSectionOrder(**sect);
-      if (SHO_RELRO_LOCAL == order ||
-          SHO_RELRO == order ||
-          SHO_RELRO_LAST == order) {
-        relro_seg->addSection(*sect);
+    for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
+         segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
+      if (llvm::ELF::PT_LOAD != (*seg).type())
+        continue;
+
+      for (ELFSegment::sect_iterator sect = (*seg).sectBegin(),
+             sectEnd = (*seg).sectEnd(); sect != sectEnd; ++sect) {
+        unsigned int order = getSectionOrder(**sect);
+        if (SHO_RELRO_LOCAL == order ||
+            SHO_RELRO == order ||
+            SHO_RELRO_LAST == order) {
+          relro_seg->addSection(*sect);
+        }
       }
     }
   }
