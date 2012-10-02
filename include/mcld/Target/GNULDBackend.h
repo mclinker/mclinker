@@ -363,10 +363,12 @@ private:
   /// setupRelro - setup the offset constraint of PT_RELRO
   void setupRelro(Module& pModule);
 
-  /// setOutputSectionOffset - helper function to set output sections' offset.
+  /// setOutputSectionOffset - helper function to set a group of output sections'
+  /// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
   void setOutputSectionOffset(Module& pModule,
                               Module::iterator pSectBegin,
-                              Module::iterator pSectEnd);
+                              Module::iterator pSectEnd,
+                              uint64_t pStartOffset = -1U);
 
   /// setOutputSectionOffset - helper function to set output sections' address.
   void setOutputSectionAddress(FragmentLinker& pLinker,

@@ -1593,10 +1593,12 @@ void GNULDBackend::setupRelro(Module& pModule)
   setOutputSectionOffset(pModule, ++sect, pModule.end());
 }
 
-/// setOutputSectionOffset - helper function to set output sections' offset.
+/// setOutputSectionOffset - helper function to set a group of output sections'
+/// offset, and set pSectBegin to pStartOffset if pStartOffset is not -1U.
 void GNULDBackend::setOutputSectionOffset(Module& pModule,
                                           Module::iterator pSectBegin,
-                                          Module::iterator pSectEnd)
+                                          Module::iterator pSectEnd,
+                                          uint64_t pStartOffset)
 {
   if (pSectBegin == pModule.end())
     return;
@@ -1604,6 +1606,11 @@ void GNULDBackend::setOutputSectionOffset(Module& pModule,
   assert(pSectEnd == pModule.end() ||
          (pSectEnd != pModule.end() &&
           (*pSectBegin)->index() <= (*pSectEnd)->index()));
+
+  if (pStartOffset != -1U) {
+    (*pSectBegin)->setOffset(pStartOffset);
+    ++pSectBegin;
+  }
 
   // set up the "cur" and "prev" iterator
   Module::iterator cur = pSectBegin;
