@@ -1427,8 +1427,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
       if (llvm::ELF::PT_LOAD != (*seg).type())
         continue;
 
-      for (ELFSegment::sect_iterator sect = (*seg).sectBegin(),
-             sectEnd = (*seg).sectEnd(); sect != sectEnd; ++sect) {
+      for (ELFSegment::sect_iterator sect = (*seg).begin(),
+             sectEnd = (*seg).end(); sect != sectEnd; ++sect) {
         unsigned int order = getSectionOrder(**sect);
         if (SHO_RELRO_LOCAL == order ||
             SHO_RELRO == order ||
@@ -1487,15 +1487,15 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
     if (segment.numOfSections() == 0)
       continue;
 
-    segment.setOffset(segment.getFirstSection()->offset());
+    segment.setOffset(segment.front()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
-        LDFileFormat::Null == segment.getFirstSection()->kind())
+        LDFileFormat::Null == segment.front()->kind())
       segment.setVaddr(segmentStartAddr(pLinker));
     else
-      segment.setVaddr(segment.getFirstSection()->addr());
+      segment.setVaddr(segment.front()->addr());
     segment.setPaddr(segment.vaddr());
 
-    const LDSection* last_sect = segment.getLastSection();
+    const LDSection* last_sect = segment.back();
     assert(NULL != last_sect);
     uint64_t file_size = last_sect->offset() - segment.offset();
     if (LDFileFormat::BSS != last_sect->kind())
@@ -1657,13 +1657,13 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
     if (llvm::ELF::PT_LOAD != (*seg).type())
       continue;
 
-    ELFSegment::sect_iterator sect = (*seg).sectBegin();
+    ELFSegment::sect_iterator sect = (*seg).begin();
     uint64_t page_size = abiPageSize();
     uint64_t padding = 0x0;
     if (((*sect)->offset() & (page_size - 1)) != 0)
       padding = page_size;
 
-    for (ELFSegment::sect_iterator sectEnd = (*seg).sectEnd();
+    for (ELFSegment::sect_iterator sectEnd = (*seg).end();
          sect != sectEnd; ++sect) {
       if ((*sect)->index() < (*pSectBegin)->index())
         continue;

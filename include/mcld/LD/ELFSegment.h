@@ -41,45 +41,15 @@ public:
   ~ELFSegment();
 
   ///  -----  iterators  -----  ///
-  sect_iterator sectBegin()
-  { return m_SectionList.begin(); }
+  sect_iterator       begin()       { return m_SectionList.begin(); }
+  const_sect_iterator begin() const { return m_SectionList.begin(); }
+  sect_iterator       end()         { return m_SectionList.end(); }
+  const_sect_iterator end()   const { return m_SectionList.end(); }
 
-  sect_iterator sectEnd()
-  { return m_SectionList.end(); }
-
-  const_sect_iterator sectBegin() const
-  { return m_SectionList.begin(); }
-
-  const_sect_iterator sectEnd() const
-  { return m_SectionList.end(); }
-
-  LDSection* getFirstSection()
-  {
-    if (0 == numOfSections())
-      return NULL;
-    return m_SectionList[0];
-  }
-
-  LDSection* getLastSection()
-  {
-    if (0 == numOfSections())
-      return NULL;
-    return m_SectionList[numOfSections() - 1];
-  }
-
-  const LDSection* getFirstSection() const
-  {
-    if (0 == numOfSections())
-      return NULL;
-    return m_SectionList[0];
-  }
-
-  const LDSection* getLastSection() const
-  {
-    if (0 == numOfSections())
-      return NULL;
-    return m_SectionList[numOfSections() - 1];
-  }
+  LDSection*       front()       { return m_SectionList.front(); }
+  const LDSection* front() const { return m_SectionList.front(); }
+  LDSection*       back()        { return m_SectionList.back(); }
+  const LDSection* back()  const { return m_SectionList.back(); }
 
   ///  -----  observers  -----  ///
   uint32_t type() const
