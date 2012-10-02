@@ -79,6 +79,10 @@ public:
   size_t numOfSections() const
   { return m_SectionList.size(); }
 
+  bool isDataSegment() const;
+
+  bool isBssSegment() const;
+
   ///  -----  modifiers  -----  ///
   void setOffset(uint64_t pOffset)
   { m_Offset = pOffset; }

@@ -35,3 +35,33 @@ ELFSegment::ELFSegment(uint32_t pType,
 ELFSegment::~ELFSegment()
 {
 }
+
+bool ELFSegment::isDataSegment() const
+{
+  bool result = false;
+  if ((type() == llvm::ELF::PT_LOAD) && (flag() & llvm::ELF::PF_W) != 0x0) {
+    for (const_sect_iterator it = begin(), ie = end(); it != ie; ++it) {
+      if ((*it)->kind() != LDFileFormat::BSS) {
+        result = true;
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+bool ELFSegment::isBssSegment() const
+{
+  bool result = false;
+  if ((type() == llvm::ELF::PT_LOAD) && (flag() & llvm::ELF::PF_W) != 0x0) {
+    const_sect_iterator it = begin(), ie = end();
+    for (; it != ie; ++it) {
+      if ((*it)->kind() != LDFileFormat::BSS)
+        break;
+    }
+    if (it == ie)
+      result = true;
+  }
+  return result;
+}
+
