@@ -1384,7 +1384,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
     interp_seg->addSection(&file_format->getInterp());
   }
 
-  uint32_t cur_seg_flag, prev_seg_flag = getSegmentFlag(0);
+  uint32_t cur_flag, prev_flag = getSegmentFlag(0);
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
   Module::iterator sect, sect_end = pModule.end();
@@ -1394,21 +1394,36 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
         LDFileFormat::Null != (*sect)->kind())
       continue;
 
-    // FIXME: Now only separate writable and non-writable PT_LOAD
-    cur_seg_flag = getSegmentFlag((*sect)->flag());
-    if ((prev_seg_flag & llvm::ELF::PF_W) ^ (cur_seg_flag & llvm::ELF::PF_W) ||
-         LDFileFormat::Null == (*sect)->kind()) {
+    cur_flag = getSegmentFlag((*sect)->flag());
+    bool createPT_LOAD = false;
+    if (LDFileFormat::Null == (*sect)->kind()) {
+      // 1. create text segment
+      createPT_LOAD = true;
+    }
+    else if (!config().options().omagic() &&
+             (prev_flag & llvm::ELF::PF_W) ^ (cur_flag & llvm::ELF::PF_W)) {
+      // 2. create data segment if w/o omagic set
+      createPT_LOAD = true;
+    }
+    else if (config().options().hasBssSegAddr() &&
+             (*sect)->kind() == LDFileFormat::BSS &&
+             load_seg->isDataSegment()) {
+      // 3. create bss segment if w/ -Tbss and there is a data segment
+      createPT_LOAD = true;
+    }
+
+    if (createPT_LOAD) {
       // create new PT_LOAD segment
-      load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD);
+      load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD, cur_flag);
       load_seg->setAlign(abiPageSize());
     }
 
     assert(NULL != load_seg);
     load_seg->addSection((*sect));
-    if (cur_seg_flag != prev_seg_flag)
-      load_seg->updateFlag(cur_seg_flag);
+    if (cur_flag != prev_flag)
+      load_seg->updateFlag(cur_flag);
 
-    prev_seg_flag = cur_seg_flag;
+    prev_flag = cur_flag;
   }
 
   // make PT_DYNAMIC
@@ -1657,8 +1672,39 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
     if (llvm::ELF::PT_LOAD != (*seg).type())
       continue;
 
-    // for 1st PT_LOAD, the offset of its front (NULL section) is 0x0
-    uint64_t start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
+    uint64_t start_addr = 0x0;
+    if (config().options().hasDataSegAddr() && (*seg).isDataSegment()) {
+      // -Tdata
+      start_addr = config().options().dataSegAddr();
+      const uint64_t remainder = start_addr % abiPageSize();
+      if (remainder != (*seg).front()->offset() % abiPageSize()) {
+        uint64_t padding =
+          abiPageSize() + remainder - (*seg).front()->offset() % abiPageSize();
+        setOutputSectionOffset(pModule,
+                               pModule.begin() + (*seg).front()->index(),
+                               pModule.end(),
+                               (*seg).front()->offset() + padding);
+        if (config().options().hasRelro())
+          setupRelro(pModule);
+      }
+    }
+    else if (config().options().hasBssSegAddr() && (*seg).isBssSegment()) {
+      // -Tbss
+      start_addr = config().options().bssSegAddr();
+      const uint64_t remainder = start_addr % abiPageSize();
+      if (remainder != (*seg).front()->offset() % abiPageSize()) {
+        uint64_t padding =
+          abiPageSize() + remainder - (*seg).front()->offset() % abiPageSize();
+        setOutputSectionOffset(pModule,
+                               pModule.begin() + (*seg).front()->index(),
+                               pModule.end(),
+                               (*seg).front()->offset() + padding);
+      }
+    }
+    else {
+      // for 1st PT_LOAD, the offset of its front (NULL section) is 0x0
+      start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
+    }
 
     // padding
     if (((*seg).front()->offset() & (abiPageSize() - 1)) != 0)
