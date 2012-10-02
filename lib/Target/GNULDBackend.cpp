@@ -1657,22 +1657,29 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
     if (llvm::ELF::PT_LOAD != (*seg).type())
       continue;
 
-    ELFSegment::sect_iterator sect = (*seg).begin();
-    uint64_t page_size = abiPageSize();
-    uint64_t padding = 0x0;
-    if (((*sect)->offset() & (page_size - 1)) != 0)
-      padding = page_size;
+    // for 1st PT_LOAD, the offset of its front (NULL section) is 0x0
+    uint64_t start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
 
-    for (ELFSegment::sect_iterator sectEnd = (*seg).end();
-         sect != sectEnd; ++sect) {
+    // padding
+    if (((*seg).front()->offset() & (abiPageSize() - 1)) != 0)
+      start_addr += abiPageSize();
+
+    for (ELFSegment::sect_iterator sect = (*seg).begin(),
+           sectEnd = (*seg).end(); sect != sectEnd; ++sect) {
       if ((*sect)->index() < (*pSectBegin)->index())
+        continue;
+
+      if (LDFileFormat::Null == (*sect)->kind())
         continue;
 
       if (sect == pSectEnd)
         return;
 
-      if (LDFileFormat::Null != (*sect)->kind())
-        (*sect)->setAddr(segmentStartAddr(pLinker) + (*sect)->offset() + padding);
+      if (sect != (*seg).begin())
+        (*sect)->setAddr(start_addr + (*sect)->offset() -
+                         (*seg).front()->offset());
+      else
+        (*sect)->setAddr(start_addr);
     }
   }
 }
