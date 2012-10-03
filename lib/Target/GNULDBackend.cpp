@@ -1713,6 +1713,15 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       if (mapping != config().scripts().addressMap().end()) {
         // address mapping
         start_addr = mapping.getEntry()->value();
+        const uint64_t remainder = start_addr % abiPageSize();
+        if (remainder != (*seg).front()->offset() % abiPageSize()) {
+          uint64_t padding = abiPageSize() + remainder -
+                             (*seg).front()->offset() % abiPageSize();
+          setOutputSectionOffset(pModule,
+                                 pModule.begin() + (*seg).front()->index(),
+                                 pModule.end(),
+                                 (*seg).front()->offset() + padding);
+        }
       }
       else if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
