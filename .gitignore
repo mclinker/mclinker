@@ -1,4 +1,3 @@
-*.o
 *.swp
 Makefile.in
 VERSION
