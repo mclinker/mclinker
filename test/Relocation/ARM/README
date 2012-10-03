@@ -14,3 +14,11 @@
 4) COPY_w_z_nocopyreloc.ll
   generate executable object with -z nocopyreloc
   check that R_ARM_COPY won't be generated
+5) arm_farcall_arm_arm.ts
+  check the stub for fall call from arm source to arm target
+6) arm_farcall_arm_thumb.ts
+  check the stub for fall call from arm source to thumb target
+7) arm_farcall_thumb_thumb.ts
+  check the stub for fall call from thumb source to thumb target
+8) arm_farcall_thumb_arm.ts
+  check the stub for fall call from thumb source to arm target
