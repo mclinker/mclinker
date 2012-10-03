@@ -1668,7 +1668,8 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
           (*pSectBegin)->index() <= (*pSectEnd)->index()));
 
   for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
-       segEnd = elfSegmentTable().end(); seg != segEnd; ++seg) {
+         segEnd = elfSegmentTable().end(), prev = elfSegmentTable().end();
+       seg != segEnd; prev = seg, ++seg) {
     if (llvm::ELF::PT_LOAD != (*seg).type())
       continue;
 
@@ -1702,8 +1703,18 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       }
     }
     else {
-      // for 1st PT_LOAD, the offset of its front (NULL section) is 0x0
-      start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
+      if ((*seg).front()->kind() == LDFileFormat::Null) {
+        // 1st PT_LOAD
+        start_addr = segmentStartAddr(pLinker);
+      }
+      else if ((*prev).front()->kind() == LDFileFormat::Null) {
+        // prev segment is 1st PT_LOAD
+        start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
+      }
+      else {
+        // Others
+        start_addr = (*prev).front()->addr() + (*seg).front()->offset();
+      }
     }
 
     // padding
