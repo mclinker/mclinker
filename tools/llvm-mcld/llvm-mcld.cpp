@@ -527,6 +527,13 @@ ArgOMagicAlias("N",
                cl::desc("alias for --omagic"),
                cl::aliasopt(ArgOMagic));
 
+static cl::list<std::string>
+ArgAddressMapList("section-start",
+                  cl::ZeroOrMore,
+                  cl::desc("Locate a output section at the given absolute address"),
+                  cl::value_desc("Set address of section"),
+                  cl::Prefix);
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -789,6 +796,21 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   if (ArgDiscardLocals) {
     // FIXME: need a warning function
     errs() << "WARNING: option -X is not implemented yet!\n";
+  }
+
+  // add address mappings (i.e., --section-start SECTION=ADDRESS)
+  for (cl::list<std::string>::iterator
+         it = ArgAddressMapList.begin(), ie = ArgAddressMapList.end();
+       it != ie; ++it) {
+    // FIXME: Add a cl::parser
+    size_t pos = (*it).find_last_of('=');
+    llvm::StringRef script(*it);
+    uint64_t address = 0x0;
+    script.substr(pos + 1).getAsInteger(0, address);
+    bool exist = false;
+    mcld::StringEntry<uint64_t>* addr_mapping =
+      pConfig.scripts().addressMap().insert(script.substr(0, pos), exist);
+    addr_mapping->setValue(address);
   }
 
   return true;
