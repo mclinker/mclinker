@@ -905,7 +905,8 @@ bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
           uint64_t value =
             pLinker.getLayout().getOutputOffset(*(symbol->fragRef()));
           assert(NULL != symbol->fragRef()->frag());
-          uint64_t addr = file_format->getText().addr();
+          uint64_t addr =
+            symbol->fragRef()->frag()->getParent()->getSection().addr();
           sym_value = addr + value;
         }
         if ((*it).symInfo()->isGlobal() &&
