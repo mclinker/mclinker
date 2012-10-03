@@ -1411,6 +1411,11 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
+    else if (config().scripts().addressMap().find((*sect)->name()) !=
+             config().scripts().addressMap().end()) {
+      // 4. create PT_LOAD for section in address map
+      createPT_LOAD = true;
+    }
 
     if (createPT_LOAD) {
       // create new PT_LOAD segment
@@ -1703,7 +1708,13 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       }
     }
     else {
-      if ((*seg).front()->kind() == LDFileFormat::Null) {
+      ScriptOptions::AddressMap::const_iterator mapping =
+        config().scripts().addressMap().find((*seg).front()->name());
+      if (mapping != config().scripts().addressMap().end()) {
+        // address mapping
+        start_addr = mapping.getEntry()->value();
+      }
+      else if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
         start_addr = segmentStartAddr(pLinker);
       }
