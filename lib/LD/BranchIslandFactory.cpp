@@ -51,13 +51,20 @@ BranchIsland* BranchIslandFactory::produce(Fragment& pFragment)
   }
 
   // fall back one step if needed
-  if ((frag->getOffset() + frag->size()) > island_offset)
+  if (NULL != frag &&
+      (frag->getOffset() + frag->size()) > island_offset)
     frag = frag->getPrevNode();
 
   // check not to break the alignment constraint in the target section
   // (i.e., do not insert the island after a Alignment fragment)
-  while (Fragment::Alignment == frag->getKind())
+  while (NULL != frag &&
+         Fragment::Alignment == frag->getKind()) {
     frag = frag->getPrevNode();
+  }
+
+  // can not find an entry fragment to bridge the island
+  if (NULL == frag)
+    return NULL;
 
   BranchIsland *island = allocate();
   new (island) BranchIsland(*frag,           // entry fragment to the island

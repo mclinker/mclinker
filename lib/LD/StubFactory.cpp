@@ -55,6 +55,7 @@ Stub* StubFactory::create(Relocation& pReloc,
     }
 
     // find if there is such a stub in the island already
+    assert(NULL != island);
     Stub* stub = island->findStub(prototype, pReloc);
     if (NULL != stub) {
       // reset the branch target to the stub instead!
