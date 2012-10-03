@@ -29,6 +29,10 @@ public:
                     StringHash<ELF>,
                     StringEntryFactory<llvm::StringRef> > SymbolRenameMap;
 
+  typedef HashTable<StringEntry<uint64_t>,
+                    StringHash<ELF>,
+                    StringEntryFactory<uint64_t> > AddressMap;
+
 public:
   ScriptOptions();
 
@@ -40,8 +44,16 @@ public:
   const SymbolRenameMap& renameMap() const
   { return m_SymbolRenames; }
 
+  AddressMap& addressMap()
+  { return m_AddressMap; }
+
+  const AddressMap& addressMap() const
+  { return m_AddressMap; }
+
 private:
   SymbolRenameMap m_SymbolRenames;
+
+  AddressMap m_AddressMap;
 };
 
 } // namespace of mcld
