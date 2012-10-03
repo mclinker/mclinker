@@ -30,10 +30,10 @@ class BranchIslandFactory : public GCFactory<BranchIsland, 0>
 public:
   /// ctor
   /// @param pMaxBranchRange - the max branch range of the target backend
-  /// @param pMaxIslandSize - a predifned value (1KB here) to decide the max
+  /// @param pMaxIslandSize - a predifned value (64KB here) to decide the max
   ///                         size of the island
   BranchIslandFactory(uint64_t pMaxBranchRange,
-                      uint64_t pMaxIslandSize = 1048576U);
+                      uint64_t pMaxIslandSize = 65536U);
 
   ~BranchIslandFactory();
 
