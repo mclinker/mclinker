@@ -1,3 +1,40 @@
+2012-10-04 Chinyen Chou <petechou@gmail.com>
+	* Executive Summary:
+	1. Add TLS support and X86 implementation.
+	2. Enhance GNU ld compatibility.
+	3. Add instruction relaxation pass and ARM implementation.
+
+	* MC/SymbolCategory, Target/GNULDBackend, Target/ARMLDBackend,
+	Target/X86LDBackend, Target/MipsLDBackend, Target/TargetLDBackend,
+	Target/ELFDynamic:
+	1. Handle tdata and tbss sections and symbols.
+	2. Setup dynamic flags such as DF_TEXTREL and DF_STATIC_TLS.
+
+	* Target/X86/X86LDBackend, Target/X86/X86RelocationFactory:
+	1. Add X86 relocation support for R_386_TLS_GD, R_386_TLS_LE, and
+	R_386_TLS_IE.
+
+	* LD/GroupReader, Object/ObjectLinker, LD/GNUArchiveReader:
+	1. Support archives group. (i.e., --start-group ARCHIVES --end-group)
+
+	* Target/GNULDBackend, Target/GNULDBackend, Fragment/Fragment,
+	Fragment/Stub, Fragment/FragmentRef, LD/StubFactory, LD/BranchIsland,
+	LD/BranchIslandFactory,	LD/ELFWriter, Object/ObjectLinker:
+	1. Add relaxation interface.
+
+	* Target/ARMLDBackend, Target/ARMToARMStub, Target/ARMToTHMStub,
+	Target/THMToTHMStub, Target/THMToTHMStub, Target/ARMRelocationFactory:
+	1. Add ARM relaxation implementation and ARM stubs.
+
+	* Fragment/Fragment, Fragment/NullFragment, LD/Layout, LD/ELFWriter,
+	Target/ARMLDBackend:
+	1. Add NullFragment for some special symbols (e.g., dvmCompilerTemplateEnd)
+	that refer to an "end" fragment.
+
+	* mcld/GeneralOptions, mcld/ScriptOptions, tools/llvm-mcld, Target/GNULDBackend:
+	1. Support -Ttext, -Tdata, and -Tbss options.
+	2. Support --section-start SECTION=ADDRESS option.
+
 2012-09-10 Luba Tang <luba.tang@mediatek.com>
 	* Executive Summary:
 	1. Migrate on LLVM r162314
