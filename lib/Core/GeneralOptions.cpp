@@ -47,7 +47,8 @@ GeneralOptions::GeneralOptions()
     m_DataSegAddr(-1U),
     m_TextSegAddr(-1U),
     m_NMagic(false),
-    m_OMagic(false)
+    m_OMagic(false),
+    m_StripDebug(false)
 {
 }
 

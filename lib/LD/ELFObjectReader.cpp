@@ -147,9 +147,16 @@ bool ELFObjectReader::readSections(Input& pInput)
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
-      case LDFileFormat::Debug:
       case LDFileFormat::MetaData: {
         if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
+          fatal(diag::err_cannot_read_section) << (*section)->name();
+        break;
+      }
+      case LDFileFormat::Debug: {
+        if (m_Linker.getLDInfo().options().stripDebug()) {
+          (*section)->setKind(LDFileFormat::Ignore);
+        }
+        else if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }

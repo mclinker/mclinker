@@ -527,6 +527,16 @@ ArgOMagicAlias("N",
                cl::desc("alias for --omagic"),
                cl::aliasopt(ArgOMagic));
 
+static cl::opt<bool>
+ArgStripDebug("strip-debug",
+              cl::desc("Omit debugger symbol information from the output file."),
+              cl::init(false));
+
+static cl::alias
+ArgStripDebugAlias("S",
+                   cl::desc("alias for --strip-debug"),
+                   cl::aliasopt(ArgStripDebug));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -697,6 +707,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setTextSegAddr(ArgTextSegAddr);
   pConfig.options().setNMagic(ArgNMagic);
   pConfig.options().setOMagic(ArgOMagic);
+std::cout << (ArgStripDebug == true) << "\n";
+  pConfig.options().setStripDebug(ArgStripDebug);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

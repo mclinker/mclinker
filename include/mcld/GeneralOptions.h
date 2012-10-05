@@ -241,6 +241,12 @@ public:
   bool omagic() const
   { return m_OMagic; }
 
+  // -S, --strip-debug
+  void setStripDebug(bool pStripDebug = false)
+  { m_StripDebug = pStripDebug; }
+
+  bool stripDebug() const
+  { return m_StripDebug; }
 
 private:
   enum status {
@@ -288,6 +294,7 @@ private:
   uint64_t m_TextSegAddr; // -Ttext ADDRESS
   bool m_NMagic; // -n, --nmagic
   bool m_OMagic; // -N, --omagic
+  bool m_StripDebug; // -S, --strip-debug
 };
 
 } // namespace of mcld
