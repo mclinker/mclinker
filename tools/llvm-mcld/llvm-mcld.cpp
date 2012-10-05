@@ -527,13 +527,6 @@ ArgOMagicAlias("N",
                cl::desc("alias for --omagic"),
                cl::aliasopt(ArgOMagic));
 
-static cl::list<std::string>
-ArgAddressMapList("section-start",
-                  cl::ZeroOrMore,
-                  cl::desc("Locate a output section at the given absolute address"),
-                  cl::value_desc("Set address of section"),
-                  cl::Prefix);
-
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -548,6 +541,13 @@ ArgPortList("portable",
             cl::ZeroOrMore,
             cl::desc("Use a portable function fo symbol."),
             cl::value_desc("symbol"));
+
+static cl::list<std::string>
+ArgAddressMapList("section-start",
+                  cl::ZeroOrMore,
+                  cl::desc("Locate a output section at the given absolute address"),
+                  cl::value_desc("Set address of section"),
+                  cl::Prefix);
 
 //===----------------------------------------------------------------------===//
 // non-member functions
