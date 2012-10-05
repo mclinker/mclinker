@@ -28,3 +28,7 @@
   empty options.
 12) opt_shared_w_as_needed
   generate shared object with --as-needed/--no-as-needed
+13) opt_shared_w_Ttext_Tdata_Tbss.ll
+  generate shared object w/ -Ttext, -Tdata, and -Tbss
+14) opt_shared_w_section_start.ll
+  generate shared object w/ --section-start
