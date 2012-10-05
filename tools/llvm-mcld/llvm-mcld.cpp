@@ -537,6 +537,16 @@ ArgStripDebugAlias("S",
                    cl::desc("alias for --strip-debug"),
                    cl::aliasopt(ArgStripDebug));
 
+static cl::opt<bool>
+ArgExportDynamic("export-dynamic",
+                 cl::desc("Export all dynamic symbols"),
+                 cl::init(false));
+
+static cl::alias
+ArgExportDynamicAlias("E",
+                      cl::desc("alias for --export-dynamic"),
+                      cl::aliasopt(ArgExportDynamic));
+
 //===----------------------------------------------------------------------===//
 // Scripting Options
 //===----------------------------------------------------------------------===//
@@ -707,8 +717,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setTextSegAddr(ArgTextSegAddr);
   pConfig.options().setNMagic(ArgNMagic);
   pConfig.options().setOMagic(ArgOMagic);
-std::cout << (ArgStripDebug == true) << "\n";
   pConfig.options().setStripDebug(ArgStripDebug);
+  pConfig.options().setExportDynamic(ArgExportDynamic);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

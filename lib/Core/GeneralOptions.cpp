@@ -48,7 +48,8 @@ GeneralOptions::GeneralOptions()
     m_TextSegAddr(-1U),
     m_NMagic(false),
     m_OMagic(false),
-    m_StripDebug(false)
+    m_StripDebug(false),
+    m_ExportDynamic(false)
 {
 }
 

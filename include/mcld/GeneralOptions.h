@@ -248,6 +248,13 @@ public:
   bool stripDebug() const
   { return m_StripDebug; }
 
+  // -E, --export-dynamic
+  void setExportDynamic(bool pExportDynamic = false)
+  { m_ExportDynamic = pExportDynamic; }
+
+  bool exportDynamic() const
+  { return m_ExportDynamic; }
+
 private:
   enum status {
     YES,
@@ -295,6 +302,7 @@ private:
   bool m_NMagic; // -n, --nmagic
   bool m_OMagic; // -N, --omagic
   bool m_StripDebug; // -S, --strip-debug
+  bool m_ExportDynamic; //-E, --export-dynamic
 };
 
 } // namespace of mcld
