@@ -492,21 +492,6 @@ ArgDiscardLocalsAlias("discard-locals",
                       cl::desc("alias for -X"),
                       cl::aliasopt(ArgDiscardLocals));
 
-static cl::opt<unsigned long long>
-ArgBssSegAddr("Tbss",
-              cl::desc("Set the address of the bss segment"),
-              cl::init(-1U));
-
-static cl::opt<unsigned long long>
-ArgDataSegAddr("Tdata",
-               cl::desc("Set the address of the data segment"),
-               cl::init(-1U));
-
-static cl::opt<unsigned long long>
-ArgTextSegAddr("Ttext",
-               cl::desc("Set the address of the text segment"),
-               cl::init(-1U));
-
 static cl::opt<bool>
 ArgNMagic("nmagic",
           cl::desc("Do not page align data"),
@@ -568,6 +553,21 @@ ArgAddressMapList("section-start",
                   cl::desc("Locate a output section at the given absolute address"),
                   cl::value_desc("Set address of section"),
                   cl::Prefix);
+
+static cl::opt<unsigned long long>
+ArgBssSegAddr("Tbss",
+              cl::desc("Set the address of the bss segment"),
+              cl::init(-1U));
+
+static cl::opt<unsigned long long>
+ArgDataSegAddr("Tdata",
+               cl::desc("Set the address of the data segment"),
+               cl::init(-1U));
+
+static cl::opt<unsigned long long>
+ArgTextSegAddr("Ttext",
+               cl::desc("Set the address of the text segment"),
+               cl::init(-1U));
 
 //===----------------------------------------------------------------------===//
 // non-member functions
@@ -712,9 +712,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setNoUndefined(ArgNoUndefined);
   pConfig.options().setMulDefs(ArgAllowMulDefs);
   pConfig.options().setEhFrameHdr(ArgEhFrameHdr);
-  pConfig.options().setBssSegAddr(ArgBssSegAddr);
-  pConfig.options().setDataSegAddr(ArgDataSegAddr);
-  pConfig.options().setTextSegAddr(ArgTextSegAddr);
   pConfig.options().setNMagic(ArgNMagic);
   pConfig.options().setOMagic(ArgOMagic);
   pConfig.options().setStripDebug(ArgStripDebug);
@@ -820,7 +817,29 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     errs() << "WARNING: option -X is not implemented yet!\n";
   }
 
-  // add address mappings (i.e., --section-start SECTION=ADDRESS)
+  // add address mappings
+  // -Ttext
+  if (-1U != ArgTextSegAddr) {
+    bool exist = false;
+    mcld::StringEntry<uint64_t>* text_mapping =
+      pConfig.scripts().addressMap().insert(".text", exist);
+    text_mapping->setValue(ArgTextSegAddr);
+  }
+  // -Tdata
+  if (-1U != ArgDataSegAddr) {
+    bool exist = false;
+    mcld::StringEntry<uint64_t>* data_mapping =
+      pConfig.scripts().addressMap().insert(".data", exist);
+    data_mapping->setValue(ArgDataSegAddr);
+  }
+  // -Tbss
+  if (-1U != ArgBssSegAddr) {
+    bool exist = false;
+    mcld::StringEntry<uint64_t>* bss_mapping =
+      pConfig.scripts().addressMap().insert(".bss", exist);
+    bss_mapping->setValue(ArgBssSegAddr);
+  }
+  // --section-start SECTION=ADDRESS
   for (cl::list<std::string>::iterator
          it = ArgAddressMapList.begin(), ie = ArgAddressMapList.end();
        it != ie; ++it) {

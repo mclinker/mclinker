@@ -87,8 +87,10 @@ size_t GNULDBackend::sectionStartOffset() const
 
 uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
 {
-  if (config().options().hasTextSegAddr())
-    return config().options().textSegAddr();
+  ScriptOptions::AddressMap::const_iterator mapping =
+    config().scripts().addressMap().find(".text");
+  if (mapping != config().scripts().addressMap().end())
+    return mapping.getEntry()->value();
   else if (pLinker.isOutputPIC())
     return 0x0;
   else
@@ -1405,16 +1407,22 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
       // 2. create data segment if w/o omagic set
       createPT_LOAD = true;
     }
-    else if (config().options().hasBssSegAddr() &&
+    else if ((config().scripts().addressMap().end() !=
+              config().scripts().addressMap().find(".bss")) &&
              (*sect)->kind() == LDFileFormat::BSS &&
              load_seg->isDataSegment()) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
-    else if (config().scripts().addressMap().find((*sect)->name()) !=
-             config().scripts().addressMap().end()) {
-      // 4. create PT_LOAD for section in address map
-      createPT_LOAD = true;
+    else {
+      if ((*sect != &(file_format->getText())) &&
+          (*sect != &(file_format->getData())) &&
+          (*sect != &(file_format->getBSS())) &&
+          (config().scripts().addressMap().find((*sect)->name()) !=
+           config().scripts().addressMap().end()))
+        // 4. create PT_LOAD for sections in address map except for text, data,
+        // and bss
+        createPT_LOAD = true;
     }
 
     if (createPT_LOAD) {
@@ -1679,13 +1687,23 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       continue;
 
     uint64_t start_addr = 0x0;
-    if (config().options().hasDataSegAddr() && (*seg).isDataSegment()) {
-      // -Tdata
-      start_addr = config().options().dataSegAddr();
+    ScriptOptions::AddressMap::const_iterator mapping;
+    if ((*seg).front()->kind() == LDFileFormat::Null)
+      mapping = config().scripts().addressMap().find(".text");
+    else if ((*seg).isDataSegment())
+      mapping = config().scripts().addressMap().find(".data");
+    else if ((*seg).isBssSegment())
+      mapping = config().scripts().addressMap().find(".bss");
+    else
+      mapping = config().scripts().addressMap().find((*seg).front()->name());
+
+    if (mapping != config().scripts().addressMap().end()) {
+      // check address mapping
+      start_addr = mapping.getEntry()->value();
       const uint64_t remainder = start_addr % abiPageSize();
       if (remainder != (*seg).front()->offset() % abiPageSize()) {
-        uint64_t padding =
-          abiPageSize() + remainder - (*seg).front()->offset() % abiPageSize();
+        uint64_t padding = abiPageSize() + remainder -
+                           (*seg).front()->offset() % abiPageSize();
         setOutputSectionOffset(pModule,
                                pModule.begin() + (*seg).front()->index(),
                                pModule.end(),
@@ -1694,36 +1712,8 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
           setupRelro(pModule);
       }
     }
-    else if (config().options().hasBssSegAddr() && (*seg).isBssSegment()) {
-      // -Tbss
-      start_addr = config().options().bssSegAddr();
-      const uint64_t remainder = start_addr % abiPageSize();
-      if (remainder != (*seg).front()->offset() % abiPageSize()) {
-        uint64_t padding =
-          abiPageSize() + remainder - (*seg).front()->offset() % abiPageSize();
-        setOutputSectionOffset(pModule,
-                               pModule.begin() + (*seg).front()->index(),
-                               pModule.end(),
-                               (*seg).front()->offset() + padding);
-      }
-    }
     else {
-      ScriptOptions::AddressMap::const_iterator mapping =
-        config().scripts().addressMap().find((*seg).front()->name());
-      if (mapping != config().scripts().addressMap().end()) {
-        // address mapping
-        start_addr = mapping.getEntry()->value();
-        const uint64_t remainder = start_addr % abiPageSize();
-        if (remainder != (*seg).front()->offset() % abiPageSize()) {
-          uint64_t padding = abiPageSize() + remainder -
-                             (*seg).front()->offset() % abiPageSize();
-          setOutputSectionOffset(pModule,
-                                 pModule.begin() + (*seg).front()->index(),
-                                 pModule.end(),
-                                 (*seg).front()->offset() + padding);
-        }
-      }
-      else if ((*seg).front()->kind() == LDFileFormat::Null) {
+      if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
         start_addr = segmentStartAddr(pLinker);
       }
