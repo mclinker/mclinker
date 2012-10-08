@@ -87,14 +87,20 @@ size_t GNULDBackend::sectionStartOffset() const
 
 uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
 {
+  static uint64_t start_addr = -1U;
+  if (start_addr != -1U)
+    return start_addr;
+
   ScriptOptions::AddressMap::const_iterator mapping =
     config().scripts().addressMap().find(".text");
   if (mapping != config().scripts().addressMap().end())
-    return mapping.getEntry()->value();
+    start_addr = mapping.getEntry()->value();
   else if (pLinker.isOutputPIC())
-    return 0x0;
+    start_addr = 0x0;
   else
-    return defaultTextSegmentAddr();
+    start_addr = defaultTextSegmentAddr();
+
+  return start_addr;
 }
 
 GNUArchiveReader*
@@ -1407,10 +1413,10 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
       // 2. create data segment if w/o omagic set
       createPT_LOAD = true;
     }
-    else if ((config().scripts().addressMap().end() !=
-              config().scripts().addressMap().find(".bss")) &&
-             (*sect)->kind() == LDFileFormat::BSS &&
-             load_seg->isDataSegment()) {
+    else if ((*sect)->kind() == LDFileFormat::BSS &&
+             load_seg->isDataSegment() &&
+             config().scripts().addressMap().find(".bss") !=
+             (config().scripts().addressMap().end())) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
