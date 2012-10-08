@@ -52,17 +52,23 @@ Relocation* OutputRelocSection::consumeEntry()
   // first time visit this function, set m_ValidEntryIterator to
   // Fragments.begin()
   if(!m_isVisit) {
-    assert( !m_pSectionData->getFragmentList().empty() &&
+    assert(!m_pSectionData->getFragmentList().empty() &&
              "DynRelSection contains no entries.");
     m_ValidEntryIterator = m_pSectionData->getFragmentList().begin();
     m_isVisit = true;
   }
-
+  else {
+    // Add m_ValidEntryIterator here instead of at the end of this function.
+    // We may reserve an entry and then consume it immediately, e.g. for COPY
+    // relocation, so we need to avoid setting this iterator to
+    // SectionData->end() in any case, or when reserve and consume again,
+    // ++m_ValidEntryIterator will still be SectionData->end().
+    ++m_ValidEntryIterator;
+  }
   assert(m_ValidEntryIterator != m_pSectionData->end() &&
          "No empty relocation entry for the incoming symbol.");
 
   Relocation* result = &llvm::cast<Relocation>(*m_ValidEntryIterator);
-  ++m_ValidEntryIterator;
   return result;
 }
 
