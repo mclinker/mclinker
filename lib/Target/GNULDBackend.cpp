@@ -1725,11 +1725,11 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
         // Others
         start_addr = (*prev).front()->addr() + (*seg).front()->offset();
       }
-    }
 
-    // padding
-    if (((*seg).front()->offset() & (abiPageSize() - 1)) != 0)
-      start_addr += abiPageSize();
+      // padding
+      if (((*seg).front()->offset() & (abiPageSize() - 1)) != 0)
+        start_addr += abiPageSize();
+    }
 
     for (ELFSegment::sect_iterator sect = (*seg).begin(),
            sectEnd = (*seg).end(); sect != sectEnd; ++sect) {
