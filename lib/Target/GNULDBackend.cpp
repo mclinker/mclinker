@@ -1564,7 +1564,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
 
 /// createGNUStackInfo - create an output GNU stack section or segment if needed
 /// @ref gold linker: layout.cc:2608
-void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLinker)
+void GNULDBackend::createGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
 {
   uint32_t flag = 0x0;
   if (config().options().hasStackSet()) {
@@ -1611,7 +1611,11 @@ void GNULDBackend::createGNUStackInfo(const Module& pModule, FragmentLinker& pLi
     pLinker.getOrCreateOutputSectHdr(".note.GNU-stack",
                                      LDFileFormat::Note,
                                      llvm::ELF::SHT_PROGBITS,
-                                     flag);
+                                     flag,
+                                     0x1);
+    setOutputSectionOffset(pModule,
+                           pModule.begin() + pModule.size() - 1,
+                           pModule.end());
   }
 }
 
