@@ -661,6 +661,7 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
   default: assert(0 && "Unknown file type");
   case mcld::CGFT_ASMFile:
   case mcld::CGFT_OBJFile:
+  case mcld::CGFT_PARTIAL:
     permission = 0644;
     break;
   case mcld::CGFT_DSOFile:
@@ -898,6 +899,9 @@ int main(int argc, char* argv[])
   if (true == ArgShared || true == ArgPIE) {
     ArgFileType = mcld::CGFT_DSOFile;
   }
+  else if (true == ArgRelocatable) {
+    ArgFileType = mcld::CGFT_PARTIAL;
+  }
 
   // -V
   if (ArgVersion) {
@@ -908,7 +912,8 @@ int main(int argc, char* argv[])
 
   if (ArgBitcodeFilename.empty() &&
       (mcld::CGFT_DSOFile != ArgFileType &&
-       mcld::CGFT_EXEFile != ArgFileType)) {
+       mcld::CGFT_EXEFile != ArgFileType &&
+       mcld::CGFT_PARTIAL != ArgFileType)) {
     // If the file is not given, forcefully read from stdin
     if (ArgVerbose >= 0) {
       errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"

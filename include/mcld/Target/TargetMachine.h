@@ -39,6 +39,7 @@ enum CodeGenFileType {
   CGFT_OBJFile,
   CGFT_DSOFile,
   CGFT_EXEFile,
+  CGFT_PARTIAL,
   CGFT_NULLFile
 };
 
