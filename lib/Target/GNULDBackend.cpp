@@ -826,19 +826,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
                                     const Layout& pLayout,
                                     MemoryArea& pOutput)
 {
-
-  bool sym_exist = false;
-  HashTableType::entry_type* entry = 0;
-
   ELFFileFormat* file_format = getOutputFormat();
-  if (config().codeGenType() == LinkerConfig::Object) {
-    // add first symbol into m_pSymIndexMap
-    entry = m_pSymIndexMap->insert(NULL, sym_exist);
-    entry->setValue(0);
-
-    // TODO: not support yet
-    return;
-  }
 
   LDSection& symtab_sect = file_format->getSymTab();
   LDSection& strtab_sect = file_format->getStrTab();
@@ -889,7 +877,9 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
     // maintain output's symbol and index map if building .o file
     if (LinkerConfig::Object == config().codeGenType()) {
-      entry = m_pSymIndexMap->insert(NULL, sym_exist);
+      bool sym_exist = false;
+      HashTableType::entry_type* entry =
+        m_pSymIndexMap->insert(NULL, sym_exist);
       entry->setValue(symtabIdx);
     }
 
