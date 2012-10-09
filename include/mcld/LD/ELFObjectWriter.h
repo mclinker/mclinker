@@ -34,8 +34,7 @@ public:
 
   ~ELFObjectWriter();
 
-  llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput)
-  { return llvm::make_error_code(llvm::errc::not_supported); }
+  llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput);
 
 private:
   FragmentLinker& m_Linker;
