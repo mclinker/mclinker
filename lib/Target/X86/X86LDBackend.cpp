@@ -77,28 +77,30 @@ void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // set .got.plt size
   // when building shared object, the .got section is must
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      m_pGOTPLT->hasGOT1() ||
-      NULL != m_pGOTSymbol) {
-    m_pGOTPLT->finalizeSectionSize();
-    defineGOTSymbol(pLinker);
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (LinkerConfig::DynObj == config().codeGenType() ||
+        m_pGOTPLT->hasGOT1() ||
+        NULL != m_pGOTSymbol) {
+      m_pGOTPLT->finalizeSectionSize();
+      defineGOTSymbol(pLinker);
+    }
+
+    // set .got size
+    if (!m_pGOT->empty())
+      m_pGOT->finalizeSectionSize();
+
+    // set .plt size
+    if (m_pPLT->hasPLT1())
+      m_pPLT->finalizeSectionSize();
+
+    // set .rel.dyn size
+    if (!m_pRelDyn->empty())
+      m_pRelDyn->finalizeSectionSize();
+
+    // set .rel.plt size
+    if (!m_pRelPLT->empty())
+      m_pRelPLT->finalizeSectionSize();
   }
-
-  // set .got size
-  if (!m_pGOT->empty())
-    m_pGOT->finalizeSectionSize();
-
-  // set .plt size
-  if (m_pPLT->hasPLT1())
-    m_pPLT->finalizeSectionSize();
-
-  // set .rel.dyn size
-  if (!m_pRelDyn->empty())
-    m_pRelDyn->finalizeSectionSize();
-
-  // set .rel.plt size
-  if (!m_pRelPLT->empty())
-    m_pRelPLT->finalizeSectionSize();
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,
@@ -710,35 +712,37 @@ bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
 void X86GNULDBackend::initTargetSections(Module& pModule,
                                          FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat();
-  // initialize .got
-  LDSection& got = file_format->getGOT();
-  m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
+  if (LinkerConfig::Object != config().codeGenType()) {
+    ELFFileFormat* file_format = getOutputFormat();
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
 
-  // initialize .got.plt
-  LDSection& gotplt = file_format->getGOTPLT();
-  m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
+    // initialize .got.plt
+    LDSection& gotplt = file_format->getGOTPLT();
+    m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
 
-  // initialize .plt
-  LDSection& plt = file_format->getPLT();
-  m_pPLT = new X86PLT(plt,
-                      pLinker.getOrCreateSectData(plt),
-                      *m_pGOTPLT,
-                      config());
+    // initialize .plt
+    LDSection& plt = file_format->getPLT();
+    m_pPLT = new X86PLT(plt,
+                        pLinker.getOrCreateSectData(plt),
+                        *m_pGOTPLT,
+                        config());
 
-  // initialize .rel.plt
-  LDSection& relplt = file_format->getRelPlt();
-  relplt.setLink(&plt);
-  m_pRelPLT = new OutputRelocSection(pModule,
-                                     relplt,
-                                     pLinker.getOrCreateSectData(relplt),
-                                     8);
-  // initialize .rel.dyn
-  LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(pModule,
-                                     reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
-                                     8);
+    // initialize .rel.plt
+    LDSection& relplt = file_format->getRelPlt();
+    relplt.setLink(&plt);
+    m_pRelPLT = new OutputRelocSection(pModule,
+                                       relplt,
+                                       pLinker.getOrCreateSectData(relplt),
+                                       8);
+    // initialize .rel.dyn
+    LDSection& reldyn = file_format->getRelDyn();
+    m_pRelDyn = new OutputRelocSection(pModule,
+                                       reldyn,
+                                       pLinker.getOrCreateSectData(reldyn),
+                                       8);
+  }
 }
 
 void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
