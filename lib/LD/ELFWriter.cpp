@@ -72,7 +72,12 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
   header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
-  header->e_phoff     = sizeof(Elf32_Ehdr);
+
+  if (LinkerConfig::Object != pConfig.codeGenType())
+    header->e_phoff   = sizeof(Elf32_Ehdr);
+  else
+    header->e_phoff   = 0x0;
+
   header->e_shoff     = getELF32LastStartOffset(pModule);
   header->e_flags     = target().flags();
   header->e_ehsize    = sizeof(Elf32_Ehdr);
@@ -120,7 +125,12 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
   header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
-  header->e_phoff     = sizeof(Elf64_Ehdr);
+
+  if (LinkerConfig::Object != pConfig.codeGenType())
+    header->e_phoff   = sizeof(Elf64_Ehdr);
+  else
+    header->e_phoff   = 0x0;
+
   header->e_shoff     = getELF64LastStartOffset(pModule);
   header->e_flags     = target().flags();
   header->e_ehsize    = sizeof(Elf64_Ehdr);
