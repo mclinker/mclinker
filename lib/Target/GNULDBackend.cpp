@@ -122,10 +122,9 @@ ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker)
   return new ELFDynObjReader(*this, pLinker);
 }
 
-ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker&)
+ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker& pLinker)
 {
-  // TODO
-  return NULL;
+  return new ELFObjectWriter(*this, pLinker);
 }
 
 ELFDynObjWriter* GNULDBackend::createDynObjWriter(FragmentLinker& pLinker)
