@@ -85,9 +85,11 @@ public:
 
   virtual bool initExecSections(FragmentLinker&) = 0;
   virtual bool initDynObjSections(FragmentLinker&) = 0;
+  virtual bool initObjectSections(FragmentLinker&) = 0;
 
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;
+  virtual LDFileFormat* getObjectFileFormat() = 0;
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(Module& pModule, FragmentLinker& pLinker) = 0;

@@ -134,10 +134,9 @@ bool ObjectLinker::initStdSections()
       break;
     }
     case LinkerConfig::Object: {
-      llvm::report_fatal_error(llvm::Twine("output type is not implemented yet. file: `") +
-                               m_Module.name() +
-                               llvm::Twine("'."));
-      return false;
+      if (!m_LDBackend.initObjectSections(*m_pLinker))
+        return false;
+      break;
     }
     default: {
       llvm::report_fatal_error(llvm::Twine("unknown output type of file `") +

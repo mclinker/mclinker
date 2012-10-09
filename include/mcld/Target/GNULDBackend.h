@@ -18,6 +18,7 @@
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/LD/ELFDynObjFileFormat.h>
 #include <mcld/LD/ELFExecFileFormat.h>
+#include <mcld/LD/ELFObjectFileFormat.h>
 #include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFDynObjReader.h>
@@ -82,6 +83,9 @@ public:
   /// initDynObjSections - initialize sections of the output shared object.
   bool initDynObjSections(FragmentLinker& pLinker);
 
+  /// initObjectSections - initialize sections of the output relocatable.
+  bool initObjectSections(FragmentLinker& pLinker);
+
   /// getOutputFormat - get the sections of the output file.
   const ELFFileFormat* getOutputFormat() const;
   ELFFileFormat*       getOutputFormat();
@@ -91,6 +95,9 @@ public:
 
   ELFExecFileFormat* getExecFileFormat();
   const ELFExecFileFormat* getExecFileFormat() const;
+
+  ELFObjectFileFormat* getObjectFileFormat();
+  const ELFObjectFileFormat* getObjectFileFormat() const;
 
   // -----  target symbols ----- //
   /// initStandardSymbols - initialize standard symbols.
@@ -449,7 +456,8 @@ protected:
 
   // -----  file formats  ----- //
   ELFDynObjFileFormat* m_pDynObjFileFormat;
-  ELFExecFileFormat* m_pExecFileFormat;
+  ELFExecFileFormat*   m_pExecFileFormat;
+  ELFObjectFileFormat* m_pObjectFileFormat;
 
   // ELF segment factory
   ELFSegmentFactory m_ELFSegmentTable;

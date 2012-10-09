@@ -39,6 +39,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     m_pObjectReader(NULL),
     m_pDynObjFileFormat(NULL),
     m_pExecFileFormat(NULL),
+    m_pObjectFileFormat(NULL),
     m_ELFSegmentTable(9), // magic number
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
@@ -154,6 +155,16 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
 
   // initialize standard sections
   m_pDynObjFileFormat->initStdSections(pLinker);
+  return true;
+}
+
+bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
+{
+  if (NULL == m_pObjectFileFormat)
+    m_pObjectFileFormat = new ELFObjectFileFormat(*this);
+
+  // initialize standard sections
+  m_pObjectFileFormat->initStdSections(pLinker);
   return true;
 }
 
@@ -589,8 +600,8 @@ ELFFileFormat* GNULDBackend::getOutputFormat()
       return getDynObjFileFormat();
     case LinkerConfig::Exec:
       return getExecFileFormat();
-    // FIXME: We do not support building .o now
     case LinkerConfig::Object:
+      return getObjectFileFormat();
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
       return NULL;
@@ -604,8 +615,8 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
       return getDynObjFileFormat();
     case LinkerConfig::Exec:
       return getExecFileFormat();
-    // FIXME: We do not support building .o now
     case LinkerConfig::Object:
+      return getObjectFileFormat();
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
       return NULL;
@@ -634,6 +645,18 @@ const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
 {
   assert(NULL != m_pExecFileFormat);
   return m_pExecFileFormat;
+}
+
+ELFObjectFileFormat* GNULDBackend::getObjectFileFormat()
+{
+  assert(NULL != m_pObjectFileFormat);
+  return m_pObjectFileFormat;
+}
+
+const ELFObjectFileFormat* GNULDBackend::getObjectFileFormat() const
+{
+  assert(NULL != m_pObjectFileFormat);
+  return m_pObjectFileFormat;
 }
 
 /// sizeNamePools - compute the size of regular name pools
