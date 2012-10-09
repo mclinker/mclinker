@@ -110,8 +110,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
                      m_Linker.getLayout(),
                      pOutput);
 
-    emitELF32ProgramHeader(pOutput);
-
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
   }
   else if (64 == target().bitclass()) {
@@ -123,8 +121,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
                      pModule,
                      m_Linker.getLayout(),
                      pOutput);
-
-    emitELF64ProgramHeader(pOutput);
 
     emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
   }
