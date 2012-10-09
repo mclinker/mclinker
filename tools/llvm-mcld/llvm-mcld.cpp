@@ -403,6 +403,16 @@ ArgPIE("pie",
        cl::desc("Emit a position-independent executable file"),
        cl::init(false));
 
+static cl::opt<bool>
+ArgRelocatable("relocatable",
+               cl::desc("Generate relocatable output"),
+               cl::init(false));
+
+static cl::alias
+ArgRelocatableAlias("r",
+                    cl::desc("alias for --relocatable"),
+                    cl::aliasopt(ArgRelocatable));
+
 static cl::opt<Reloc::Model>
 ArgRelocModel("relocation-model",
              cl::desc("Choose relocation model"),
