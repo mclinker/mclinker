@@ -340,6 +340,8 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
     case LinkerConfig::Exec:
       getExecWriter()->writeExecutable(m_Module, pOutput);
       return true;
+    default:
+      fatal(diag::unrecognized_output_file) << m_Config.codeGenType();
   }
   return false;
 }
