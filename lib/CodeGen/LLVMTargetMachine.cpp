@@ -251,6 +251,16 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
       return true;
     break;
   }
+  case CGFT_PARTIAL: {
+    pConfig.setCodeGenType(LinkerConfig::Object);
+    if (addLinkerPasses(pPM,
+                        pConfig,
+                        pModule,
+                        pOutput.memory(),
+                        Context))
+      return true;
+    break;
+  }
   } // switch
   return false;
 }
@@ -362,7 +372,7 @@ bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                                              pConfig,
                                                              pModule,
                                                              pOutput,
-							     *ldBackend);
+                                                             *ldBackend);
   if (NULL == funcPass)
     return true;
 
