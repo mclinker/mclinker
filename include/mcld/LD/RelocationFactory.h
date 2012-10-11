@@ -36,6 +36,7 @@ public:
   typedef Relocation::Type Type;
   typedef Relocation::Address Address;
   typedef Relocation::DWord DWord;
+  typedef Relocation::SWord SWord;
 
   enum Result {
     OK,

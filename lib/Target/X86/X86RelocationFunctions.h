@@ -21,6 +21,7 @@ DECL_X86_APPLY_RELOC_FUNC(gotoff32)	        \
 DECL_X86_APPLY_RELOC_FUNC(gotpc32)          \
 DECL_X86_APPLY_RELOC_FUNC(tls_gd)           \
 DECL_X86_APPLY_RELOC_FUNC(tls_ie)           \
+DECL_X86_APPLY_RELOC_FUNC(tls_gotie)        \
 DECL_X86_APPLY_RELOC_FUNC(tls_le)           \
 DECL_X86_APPLY_RELOC_FUNC(unsupport)
 
@@ -42,7 +43,7 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         13, ""                        },  \
   { &unsupport,         14, "R_386_TLS_TPOFF"         },  \
   { &tls_ie,            15, "R_386_TLS_IE"            },  \
-  { &unsupport,         16, "R_386_TLS_GOTIE"         },  \
+  { &tls_gotie,         16, "R_386_TLS_GOTIE"         },  \
   { &tls_le,            17, "R_386_TLS_LE"            },  \
   { &tls_gd,            18, "R_386_TLS_GD"            },  \
   { &unsupport,         19, "R_386_TLS_LDM"           },  \
