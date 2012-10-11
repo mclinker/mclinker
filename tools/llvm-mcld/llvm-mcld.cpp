@@ -493,14 +493,24 @@ ArgFIXCA8("fix-cortex-a8",
           cl::init(false));
 
 static cl::opt<bool>
-ArgDiscardLocals("X",
+ArgDiscardLocals("discard-locals",
                  cl::desc("Delete all temporary local symbols."),
                  cl::init(false));
 
 static cl::alias
-ArgDiscardLocalsAlias("discard-locals",
-                      cl::desc("alias for -X"),
+ArgDiscardLocalsAlias("X",
+                      cl::desc("alias for --discard-locals"),
                       cl::aliasopt(ArgDiscardLocals));
+
+static cl::opt<bool>
+ArgDiscardAll("discard-all",
+              cl::desc("Delete all local symbols."),
+              cl::init(false));
+
+static cl::alias
+ArgDiscardAllAlias("x",
+                   cl::desc("alias for --discard-all"),
+                   cl::aliasopt(ArgDiscardAll));
 
 static cl::opt<bool>
 ArgNMagic("nmagic",
@@ -825,7 +835,12 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
 
   if (ArgDiscardLocals) {
     // FIXME: need a warning function
-    errs() << "WARNING: option -X is not implemented yet!\n";
+    errs() << "WARNING: option -X/--discard-locals is not implemented yet!\n";
+  }
+
+  if (ArgDiscardAll) {
+    // FIXME: need a warning function
+    errs() << "WARNING: option -x/--discard-all is not implemented yet!\n";
   }
 
   // add address mappings
