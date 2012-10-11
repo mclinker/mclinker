@@ -747,18 +747,21 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
 
 void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 {
-  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
-  // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   false,
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0,  // size
-                   0x0,  // value
-                   NULL, // FragRef
-                   ResolveInfo::Hidden);
+  if (LinkerConfig::Object != config().codeGenType()) {
+    // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+    // same name in input
+    m_pGOTSymbol =
+      pLinker.defineSymbol<FragmentLinker::AsRefered,
+                           FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
+                                                    false,
+                                                    ResolveInfo::Object,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Local,
+                                                    0x0,  // size
+                                                    0x0,  // value
+                                                    NULL, // FragRef
+                                                    ResolveInfo::Hidden);
+  }
 }
 
 /// finalizeSymbol - finalize the symbol value
