@@ -169,6 +169,9 @@ bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
 
 bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
 {
+  if (LinkerConfig::Object == config().codeGenType())
+    return true;
+
   ELFFileFormat* file_format = getOutputFormat();
 
   // -----  section symbols  ----- //
@@ -400,6 +403,9 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
 bool
 GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
 {
+  if (LinkerConfig::Object == config().codeGenType())
+    return true;
+
   ELFFileFormat* file_format = getOutputFormat();
 
   // -----  section symbols  ----- //
