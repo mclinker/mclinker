@@ -635,8 +635,8 @@ void MipsGNULDBackend::updateAddend(Relocation& pReloc,
 {
   // Update value keep in addend if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    pReloc.setAddend(pLayout.getOutputOffset(
-                     *pInputSym.fragRef()) + pReloc.addend());
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.setAddend(offset + pReloc.addend());
   }
 }
 

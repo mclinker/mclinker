@@ -166,8 +166,7 @@ X86RelocationFactory::Address helper_GOT(Relocation& pReloc,
 {
   GOT::Entry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86RelocationFactory::Address got_addr = pParent.getTarget().getGOT().addr();
-  return got_addr +
-             pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry);
+  return got_addr + got_entry.getOffset();
 }
 
 
@@ -218,8 +217,7 @@ X86RelocationFactory::Address helper_PLT(Relocation& pReloc,
                                          X86RelocationFactory& pParent)
 {
   PLT::Entry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
-  return helper_PLT_ORG(pParent) +
-             pParent.getFragmentLinker().getLayout().getOutputOffset(plt_entry);
+  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
 }
 
 
@@ -456,7 +454,7 @@ X86RelocationFactory::Result tls_gd(Relocation& pReloc,
   // .got.plt section)
   X86RelocationFactory::Address GOT_OFF =
      file_format->getGOT().addr() +
-     pParent.getFragmentLinker().getLayout().getOutputOffset(*got_entry1) -
+     got_entry1->getOffset() -
      file_format->getGOTPLT().addr();
   pReloc.target() = GOT_OFF + A;
   return X86RelocationFactory::OK;
@@ -493,8 +491,9 @@ X86RelocationFactory::Result tls_ie(Relocation& pReloc,
   }
 
   // perform relocation to the absolute address of got_entry
-  X86RelocationFactory::Address GOT_S = pParent.getTarget().getGOT().addr() +
-             pParent.getFragmentLinker().getLayout().getOutputOffset(*got_entry);
+  X86RelocationFactory::Address GOT_S =
+                 pParent.getTarget().getGOT().addr() + got_entry->getOffset();
+
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   pReloc.target() = GOT_S + A;
 
@@ -532,8 +531,7 @@ X86RelocationFactory::Result tls_gotie(Relocation& pReloc,
   }
 
   // All GOT offsets are relative to the end of the GOT.
-  X86RelocationFactory::SWord GOT_S =
-    pParent.getFragmentLinker().getLayout().getOutputOffset(*got_entry) -
+  X86RelocationFactory::SWord GOT_S = got_entry->getOffset() -
     (pParent.getTarget().getGOTPLT().addr() - pParent.getTarget().getGOT().addr());
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   pReloc.target() = GOT_S + A;

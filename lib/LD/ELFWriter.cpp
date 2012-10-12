@@ -522,12 +522,12 @@ void ELFWriter::emitRel(const Layout& pLayout,
        LinkerConfig::Exec == pConfig.codeGenType()) {
       rel->r_offset = static_cast<Elf32_Addr>(
                       frag_ref->frag()->getParent()->getSection().addr() +
-                      pLayout.getOutputOffset(*frag_ref));
+                      frag_ref->getOutputOffset());
     }
     else {
       rel->r_offset = static_cast<Elf32_Addr>(
                       frag_ref->frag()->getParent()->getSection().offset() +
-                      pLayout.getOutputOffset(*frag_ref));
+                      frag_ref->getOutputOffset());
     }
 
     Elf32_Word Index;
@@ -562,12 +562,12 @@ void ELFWriter::emitRela(const Layout& pLayout,
        LinkerConfig::Exec == pConfig.codeGenType()) {
       rel->r_offset = static_cast<Elf32_Addr>(
                       frag_ref->frag()->getParent()->getSection().addr() +
-                      pLayout.getOutputOffset(*frag_ref));
+                      frag_ref->getOutputOffset());
     }
     else {
       rel->r_offset = static_cast<Elf32_Addr>(
                       frag_ref->frag()->getParent()->getSection().offset() +
-                      pLayout.getOutputOffset(*frag_ref));
+                      frag_ref->getOutputOffset());
     }
 
     Elf32_Word Index;

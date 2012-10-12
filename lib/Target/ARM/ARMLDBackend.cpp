@@ -351,8 +351,13 @@ void ARMGNULDBackend::updateAddend(Relocation& pReloc,
 {
   // Update value keep in addend if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    pReloc.setAddend(pLayout.getOutputOffset(
-                     *pInputSym.fragRef()) + pReloc.addend());
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    // FIXME: original code is here. fragRef()->getOutputOffset() does not
+    //        calculate FragmentLayoutOffset and FragmentLayoutOrder. I'm not
+    //        sure if we need to calculate offset and layout order here. (Luba)
+    //
+    // uint64_t offset = pLayout.getOutputOffset(*pInputSym.fragRef());
+    pReloc.setAddend(offset + pReloc.addend());
   }
 }
 
@@ -902,8 +907,7 @@ bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
         uint64_t sym_value = 0x0;
         LDSymbol* symbol = (*it).symInfo()->outSymbol();
         if (symbol->hasFragRef()) {
-          uint64_t value =
-            pLinker.getLayout().getOutputOffset(*(symbol->fragRef()));
+          uint64_t value = symbol->fragRef()->getOutputOffset();
           assert(NULL != symbol->fragRef()->frag());
           uint64_t addr =
             symbol->fragRef()->frag()->getParent()->getSection().addr();

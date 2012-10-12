@@ -390,37 +390,6 @@ Layout::getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset)
   return getFragmentRef(*range, pBigOffset);
 }
 
-uint64_t Layout::getOutputOffset(const Fragment& pFrag)
-{
-  if (!pFrag.hasOffset()) {
-    // compute layout order, offset
-    setFragmentLayoutOrder(const_cast<Fragment*>(&pFrag));
-    setFragmentLayoutOffset(const_cast<Fragment*>(&pFrag));
-  }
-  return pFrag.getOffset();
-}
-
-uint64_t Layout::getOutputOffset(const Fragment& pFrag) const
-{
-  if (!pFrag.hasOffset()) {
-    llvm::report_fatal_error(llvm::Twine("INTERNAL BACKEND ERROR: ") +
-                             llvm::Twine("the function ") +
-                             llvm::Twine(__func__) +
-                             llvm::Twine(" can not be used before layout().\n"));
-  }
-  return pFrag.getOffset();
-}
-
-uint64_t Layout::getOutputOffset(const FragmentRef& pFragRef)
-{
-  return getOutputOffset(*(pFragRef.frag())) + pFragRef.offset();
-}
-
-uint64_t Layout::getOutputOffset(const FragmentRef& pFragRef) const
-{
-  return getOutputOffset(*(pFragRef.frag())) + pFragRef.offset();
-}
-
 void Layout::sortSectionOrder(const TargetLDBackend& pBackend,
                               const LinkerConfig& pConfig)
 {

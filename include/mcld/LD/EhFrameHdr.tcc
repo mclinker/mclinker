@@ -53,7 +53,7 @@ void EhFrameHdr::emitOutput(FragmentLinker& pLinker, MemoryArea& pOutput)
       typename SizeTraits<size>::Offset offset;
       typename SizeTraits<size>::Address fde_pc;
       typename SizeTraits<size>::Address fde_addr;
-      offset = pLinker.getLayout().getOutputOffset(**fde);
+      offset = (*fde)->getOffset();
       fde_pc = getFDEPC<size>(**fde, offset, *ehframe_region);
       fde_addr = m_EhFrameSect.addr() + offset;
       search_table.push_back(std::make_pair(fde_pc, fde_addr));

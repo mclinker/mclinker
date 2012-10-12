@@ -36,7 +36,7 @@ Relocation::~Relocation()
 Relocation::Address Relocation::place(const Layout& pLayout) const
 {
   Address sect_addr = pLayout.getOutputLDSection(*(m_TargetAddress.frag()))->addr();
-  return sect_addr + pLayout.getOutputOffset(m_TargetAddress);
+  return sect_addr + m_TargetAddress.getOutputOffset();
 }
 
 Relocation::Address Relocation::symValue() const

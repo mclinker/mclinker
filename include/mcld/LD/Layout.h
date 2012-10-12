@@ -71,26 +71,6 @@ public:
   /// @return if found, return the fragment. Otherwise, return NULL.
   FragmentRef* getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset);
 
-  /// getOutputOffset - Get the offset of the given fragment inside the
-  /// the output's SectionData.
-  uint64_t getOutputOffset(const Fragment& pFrag);
-
-  /// getOutputOffset - Get the offset of the given fragment inside the
-  /// the output's SectionData.
-  uint64_t getOutputOffset(const Fragment& pFrag) const;
-
-  /// getOutputOffset - Get the offset of the given fragment inside
-  /// the output's SectionData.
-  ///
-  /// @return return -1 if the fragment is not found in output's SectionData.
-
-  uint64_t getOutputOffset(const FragmentRef& pFragRef);
-  /// getOutputOffset - Get the offset of the given fragment inside
-  /// the output's SectionData.
-  ///
-  /// @return return -1 if the fragment is not found in output's SectionData.
-  uint64_t getOutputOffset(const FragmentRef& pFragRef) const;
-
   /// getOutputLDSection - give a Fragment, return the corresponding output
   /// LDSection*
   ///

@@ -153,8 +153,7 @@ RelocationFactory::Address helper_GetGOTOffset(Relocation& pReloc,
 {
   bool exist;
   GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
-  return pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -
-                                                                        0x7FF0;
+  return got_entry.getOffset() - 0x7FF0;
 }
 
 static
@@ -331,8 +330,7 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
     GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
     got_entry.setContent(res);
-    G = pParent.getFragmentLinker().getLayout().getOutputOffset(got_entry) -
-                                                                        0x7FF0;
+    G = got_entry.getOffset() - 0x7FF0;
   }
   else {
     G = helper_GetGOTOffset(pReloc, pParent);
