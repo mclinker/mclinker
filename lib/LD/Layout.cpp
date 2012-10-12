@@ -102,7 +102,7 @@ void Layout::setFragmentLayoutOffset(Fragment* pFrag)
   // find the most-recent fragment whose offset was set.
   Fragment* first = pFrag;
 
-  while (!hasLayoutOffset(*first)) {
+  while (!first->hasOffset()) {
     if (NULL == first->getPrevNode())
       break;
     first = first->getPrevNode();
@@ -253,7 +253,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
   Fragment* front = &pFront;
   Fragment* rear  = &pRear;
 
-  if (!hasLayoutOffset(*rear)) {
+  if (!rear->hasOffset()) {
     // compute layout order, offset
     setFragmentLayoutOrder(rear);
     setFragmentLayoutOffset(rear);
@@ -349,7 +349,7 @@ Layout::getFragmentRef(const LDSection& pInputSection, uint64_t pOffset)
 FragmentRef*
 Layout::getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset)
 {
-  if (!hasLayoutOffset(pFrag)) {
+  if (!pFrag.hasOffset()) {
     // compute layout order, offset
     setFragmentLayoutOrder(const_cast<Fragment*>(&pFrag));
     setFragmentLayoutOffset(const_cast<Fragment*>(&pFrag));
@@ -392,7 +392,7 @@ Layout::getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset)
 
 uint64_t Layout::getOutputOffset(const Fragment& pFrag)
 {
-  if (!hasLayoutOffset(pFrag)) {
+  if (!pFrag.hasOffset()) {
     // compute layout order, offset
     setFragmentLayoutOrder(const_cast<Fragment*>(&pFrag));
     setFragmentLayoutOffset(const_cast<Fragment*>(&pFrag));
@@ -402,7 +402,7 @@ uint64_t Layout::getOutputOffset(const Fragment& pFrag)
 
 uint64_t Layout::getOutputOffset(const Fragment& pFrag) const
 {
-  if (!hasLayoutOffset(pFrag)) {
+  if (!pFrag.hasOffset()) {
     llvm::report_fatal_error(llvm::Twine("INTERNAL BACKEND ERROR: ") +
                              llvm::Twine("the function ") +
                              llvm::Twine(__func__) +

@@ -229,9 +229,6 @@ private:
   bool hasLayoutOrder(const Fragment& pFragment) const
   { return (pFragment.getLayoutOrder() != ~(0U)); }
 
-  bool hasLayoutOffset(const Fragment& pFragment) const
-  { return pFragment.hasOffset(); }
-
   bool isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const;
 
   void setFragmentLayoutOrder(Fragment* pFragment);
