@@ -67,6 +67,7 @@ public:
   { return m_LDSectionMap.capacity(); }
 
   // -----  iterators  ----- //
+  const_iterator find(const std::string& pName) const;
   iterator find(const std::string& pName);
 
   const_iterator begin() const { return m_LDSectionMap.begin(); }

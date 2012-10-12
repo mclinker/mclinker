@@ -22,6 +22,7 @@ SectionMerger::SectionMerger(const SectionMap& pSectionMap, Module& pModule)
   m_Module(pModule),
   m_LDSectionMap()
 {
+  initOutputSectMap();
 }
 
 SectionMerger::~SectionMerger()
@@ -30,10 +31,22 @@ SectionMerger::~SectionMerger()
 
 SectionMerger::iterator SectionMerger::find(const std::string& pName)
 {
-  if (empty())
-    initOutputSectMap();
-
   iterator it;
+  for (it = begin(); it != end(); ++it) {
+    if (0 == strncmp(pName.c_str(),
+                     (*it).inputSubStr.c_str(),
+                     (*it).inputSubStr.length()))
+      break;
+    // wildcard to a user-defined output section.
+    else if(0 == strcmp("*", (*it).inputSubStr.c_str()))
+      break;
+  }
+  return it;
+}
+
+SectionMerger::const_iterator SectionMerger::find(const std::string& pName) const
+{
+  const_iterator it;
   for (it = begin(); it != end(); ++it) {
     if (0 == strncmp(pName.c_str(),
                      (*it).inputSubStr.c_str(),
