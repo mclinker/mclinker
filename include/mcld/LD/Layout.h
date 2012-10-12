@@ -230,7 +230,7 @@ private:
   { return (pFragment.getLayoutOrder() != ~(0U)); }
 
   bool hasLayoutOffset(const Fragment& pFragment) const
-  { return (pFragment.getOffset() != ~UINT64_C(0)); }
+  { return pFragment.hasOffset(); }
 
   bool isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const;
 
