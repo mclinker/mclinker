@@ -890,6 +890,13 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
     symtab64[0].st_shndx = 0;
   }
 
+  bool sym_exist = false;
+  HashTableType::entry_type* entry = NULL;
+  if (LinkerConfig::Object == config().codeGenType()) {
+    entry = m_pSymIndexMap->insert(NULL, sym_exist);
+    entry->setValue(0);
+  }
+
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
   // compute size of .symtab, .dynsym and .strtab
@@ -898,9 +905,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
     // maintain output's symbol and index map if building .o file
     if (LinkerConfig::Object == config().codeGenType()) {
-      bool sym_exist = false;
-      HashTableType::entry_type* entry =
-        m_pSymIndexMap->insert(NULL, sym_exist);
+      entry = m_pSymIndexMap->insert(*symbol, sym_exist);
       entry->setValue(symtabIdx);
     }
 
