@@ -451,7 +451,7 @@ bool FragmentLinker::finalizeSymbols()
       // set the virtual address of the symbol. If the output file is
       // relocatable object file, the section's virtual address becomes zero.
       // And the symbol's value become section relative offset.
-      uint64_t value = getLayout().getOutputOffset(*(*symbol)->fragRef());
+      uint64_t value = (*symbol)->fragRef()->getOutputOffset();
       assert(NULL != (*symbol)->fragRef()->frag());
       uint64_t addr  = getLayout().getOutputLDSection(*(*symbol)->fragRef()->frag())->addr();
       (*symbol)->setValue(value + addr);
@@ -630,7 +630,7 @@ void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 
     // get output file offset
     size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
-                        m_Layout.getOutputOffset(reloc->targetRef());
+                        reloc->targetRef().getOutputOffset();
 
     uint8_t* target_addr = data + out_offset;
     // byte swapping if target and host has different endian, and then write back
