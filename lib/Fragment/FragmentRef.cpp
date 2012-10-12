@@ -41,14 +41,14 @@ FragmentRef::FragmentRef(Fragment& pFrag,
   : m_pFragment(&pFrag), m_Offset(pOffset) {
 }
 
-/// create - create a fragment reference for a given fragment.
+/// Create - create a fragment reference for a given fragment.
 ///
 /// @param pFrag - the given fragment
 /// @param pOffset - the offset, can be larger than the fragment, but can not
 ///                  be larger than the section size.
 /// @return if the offset is legal, return the fragment reference. Otherwise,
 /// return NULL.
-FragmentRef* FragmentRef::create(Fragment& pFrag, uint64_t pOffset)
+FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
 {
   int64_t offset = pOffset;
   Fragment* frag = &pFrag;
@@ -70,9 +70,9 @@ FragmentRef* FragmentRef::create(Fragment& pFrag, uint64_t pOffset)
   return result;
 }
 
-FragmentRef* FragmentRef::create(LDSection& pSection, uint64_t pOffset)
+FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
 {
-  return create(pSection.getSectionData()->front(), pOffset);
+  return Create(pSection.getSectionData()->front(), pOffset);
 }
 
 FragmentRef& FragmentRef::assign(const FragmentRef& pCopy)

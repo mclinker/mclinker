@@ -51,7 +51,7 @@ TEST_F( FragmentRefTest, ) {
 
   MemoryRegion* region = area->request(0, 4096);
   RegionFragment *frag = new RegionFragment(*region);
-  FragmentRef *ref = FragmentRef::create(*frag, 0x0);
+  FragmentRef *ref = FragmentRef::Create(*frag, 0x0);
 
   ASSERT_EQ('H', region->getBuffer()[0]);
   ASSERT_EQ(4096, region->size());

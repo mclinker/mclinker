@@ -83,7 +83,7 @@ Stub* StubFactory::create(Relocation& pReloc,
                                ResolveInfo::Local,
                                stub->size(), // size
                                stub->initSymValue(), // value
-                               FragmentRef::create(*stub, stub->initSymValue()),
+                               FragmentRef::Create(*stub, stub->initSymValue()),
                                ResolveInfo::Default);
       stub->setSymInfo(symbol->resolveInfo());
 
@@ -93,7 +93,7 @@ Stub* StubFactory::create(Relocation& pReloc,
         pLinker.addRelocation((*it)->type(),
                               *(pReloc.symInfo()->outSymbol()),
                               *(pReloc.symInfo()),
-                              *(FragmentRef::create(*stub, (*it)->offset())),
+                              *(FragmentRef::Create(*stub, (*it)->offset())),
                               pReloc.targetRef().frag()->getParent()->getSection(),
                               (*it)->addend());
       }

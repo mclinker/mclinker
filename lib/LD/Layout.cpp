@@ -378,7 +378,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
     }
     else {
       // found
-      return FragmentRef::create(*front, target_offset - front->getOffset());
+      return FragmentRef::Create(*front, target_offset - front->getOffset());
     }
   }
 
@@ -389,7 +389,7 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
     if (!isValidOffset(*front, target_offset))
       return NULL;
 
-    return FragmentRef::create(*front, target_offset - front->getOffset());
+    return FragmentRef::Create(*front, target_offset - front->getOffset());
   }
   return NULL;
 }

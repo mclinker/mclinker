@@ -35,16 +35,16 @@ public:
   typedef ConstTraits<unsigned char>::pointer ConstAddress;
 
 public:
-  /// create - create a fragment reference for a given fragment.
+  /// Create - create a fragment reference for a given fragment.
   ///
   /// @param pFrag - the given fragment
   /// @param pOffset - the offset, can be larger than the fragment, but can not
   ///                  be larger than the section size.
   /// @return if the offset is legal, return the fragment reference. Otherwise,
   /// return NULL.
-  static FragmentRef* create(Fragment& pFrag, uint64_t pOffset);
+  static FragmentRef* Create(Fragment& pFrag, uint64_t pOffset);
 
-  static FragmentRef* create(LDSection& pSection, uint64_t pOffset);
+  static FragmentRef* Create(LDSection& pSection, uint64_t pOffset);
 
   // -----  modifiers  ----- //
   FragmentRef& assign(const FragmentRef& pCopy);
