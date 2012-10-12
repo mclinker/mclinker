@@ -11,7 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <mcld/CodeGen/MCLinker.h>
+#include <mcld/Target/ELFMCLinker.h>
 
 namespace mcld {
 
@@ -21,7 +21,7 @@ class MemoryArea;
 /** \class MipsELFMCLinker
  *  \brief MipsELFMCLinker sets up the environment for linking.
  */
-class MipsELFMCLinker : public MCLinker
+class MipsELFMCLinker : public ELFMCLinker
 {
 public:
   MipsELFMCLinker(LinkerConfig& pConfig,
