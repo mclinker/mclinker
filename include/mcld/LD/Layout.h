@@ -53,18 +53,6 @@ public:
   /// destructor
   ~Layout();
 
-  /// getInputLDSection - give a Fragment, return the corresponding input
-  /// LDSection*
-  ///
-  /// @return return NULL if the fragment is not found in input
-  LDSection* getInputLDSection(const Fragment& pFrag);
-
-  /// getInputLDSection - give a Fragment, return the corresponding input
-  /// LDSection*
-  ///
-  /// @return return NULL if the fragment is not found in input
-  const LDSection* getInputLDSection(const Fragment& pFrag) const;
-
   /// getFragmentRef - give a LDSection in input file and an offset, return
   /// the fragment reference.
   ///
