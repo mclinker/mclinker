@@ -316,6 +316,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       m_pRelDyn->reserveEntry(*m_pRelocFactory);
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
+      m_pRelDyn->addSymbolToDynSym(*rsym->outSymbol());
       return;
 
     case llvm::ELF::R_386_TLS_LE:
@@ -536,6 +537,8 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      FragmentLinker& pLinker,
                                      const LDSection& pSection)
 {
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym &&
