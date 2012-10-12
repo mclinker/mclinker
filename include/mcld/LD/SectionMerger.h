@@ -42,7 +42,7 @@ public:
   typedef LDSectionMapTy::const_iterator const_iterator;
 
 public:
-  SectionMerger(SectionMap& pSectionMap, Module& pModule);
+  SectionMerger(const SectionMap& pSectionMap, Module& pModule);
   ~SectionMerger();
 
   /// getOutputSectHdr - return a associated output section header
@@ -69,17 +69,10 @@ public:
   // -----  iterators  ----- //
   iterator find(const std::string& pName);
 
-  iterator begin()
-  { return m_LDSectionMap.begin(); }
-
-  iterator end()
-  { return m_LDSectionMap.end(); }
-
-  const_iterator begin() const
-  { return m_LDSectionMap.begin(); }
-
-  const_iterator end() const
-  { return m_LDSectionMap.end(); }
+  const_iterator begin() const { return m_LDSectionMap.begin(); }
+  iterator       begin()       { return m_LDSectionMap.begin(); }
+  const_iterator end  () const { return m_LDSectionMap.end(); }
+  iterator       end  ()       { return m_LDSectionMap.end(); }
 
 private:
   /// initOutputSectMap - initialize the map from input substr to associated
@@ -87,10 +80,8 @@ private:
   void initOutputSectMap();
 
 private:
-  SectionMap& m_SectionNameMap;
-
+  const SectionMap& m_SectionNameMap;
   Module& m_Module;
-
   LDSectionMapTy m_LDSectionMap;
 };
 

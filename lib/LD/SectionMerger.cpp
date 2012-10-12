@@ -17,7 +17,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionMerger
 //===----------------------------------------------------------------------===//
-SectionMerger::SectionMerger(SectionMap& pSectionMap, Module& pModule)
+SectionMerger::SectionMerger(const SectionMap& pSectionMap, Module& pModule)
 : m_SectionNameMap(pSectionMap),
   m_Module(pModule),
   m_LDSectionMap()
@@ -83,7 +83,7 @@ void SectionMerger::initOutputSectMap()
 {
   // Based on SectionMap to initialize the map from a input substr to its 
   // associated output LDSection*
-  SectionMap::iterator it;
+  SectionMap::const_iterator it;
   for (it = m_SectionNameMap.begin(); it != m_SectionNameMap.end(); ++it) {
     NameSectPair mapping;
     mapping.inputSubStr = (*it)->inputSubStr;
