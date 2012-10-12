@@ -32,6 +32,12 @@ Fragment::~Fragment()
 {
 }
 
+uint64_t Fragment::getOffset() const
+{
+  assert(hasOffset() && "Cannot getOffset() before setting it up.");
+  return m_Offset;
+}
+
 bool Fragment::hasOffset() const
 {
   return (m_Offset != ~uint64_t(0));

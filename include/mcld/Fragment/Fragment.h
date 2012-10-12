@@ -52,7 +52,7 @@ public:
 
   void setParent(SectionData *pValue) { m_pParent = pValue; }
 
-  uint64_t getOffset() const { return m_Offset; }
+  uint64_t getOffset() const;
 
   void setOffset(uint64_t pOffset) { m_Offset = pOffset; }
 
