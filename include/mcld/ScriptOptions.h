@@ -38,21 +38,14 @@ public:
 
   ~ScriptOptions();
 
-  SymbolRenameMap& renameMap()
-  { return m_SymbolRenames; }
+  const SymbolRenameMap& renameMap() const { return m_SymbolRenames; }
+  SymbolRenameMap&       renameMap()       { return m_SymbolRenames; }
 
-  const SymbolRenameMap& renameMap() const
-  { return m_SymbolRenames; }
-
-  AddressMap& addressMap()
-  { return m_AddressMap; }
-
-  const AddressMap& addressMap() const
-  { return m_AddressMap; }
+  const AddressMap& addressMap() const { return m_AddressMap; }
+  AddressMap&       addressMap()       { return m_AddressMap; }
 
 private:
   SymbolRenameMap m_SymbolRenames;
-
   AddressMap m_AddressMap;
 };
 
