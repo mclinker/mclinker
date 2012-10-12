@@ -509,12 +509,6 @@ X86RelocationFactory::Result tls_gotie(Relocation& pReloc,
      return X86RelocationFactory::BadReloc;
   }
 
-  if (rsym->reserved() & X86GNULDBackend::ReserveRel) {
-    // when building shared object, set up a RELATIVE dynamic relocation
-    helper_DynRel(rsym, *pReloc.targetRef().frag(), pReloc.targetRef().offset(),
-                                            llvm::ELF::R_386_RELATIVE, pParent);
-  }
-
   // set up the got and dynamic relocation entries if not exist
   GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
