@@ -7,6 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/ELFMCLinker.h>
+#include <mcld/LinkerConfig.h>
+#include <mcld/LD/SectionMap.h>
 
 using namespace mcld;
 
@@ -18,6 +20,8 @@ ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
                          MemoryArea& pOutput,
                          TargetLDBackend& pLDBackend)
   : MCLinker(pConfig, pModule, pOutput, pLDBackend) {
+
+  pConfig.scripts().sectionMap().initStdSectionMap();
 }
 
 ELFMCLinker::~ELFMCLinker()

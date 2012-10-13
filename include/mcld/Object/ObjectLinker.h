@@ -17,8 +17,6 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/SectionMap.h>
-
 namespace mcld {
 
 class Module;
@@ -149,7 +147,6 @@ private:
 
   FragmentLinker* m_pLinker;
   TargetLDBackend &m_LDBackend;
-  SectionMap m_SectionMap;
 
   // -----  readers and writers  ----- //
   ObjectReader* m_pObjectReader;

@@ -40,7 +40,6 @@ class LinkerConfig;
 class LDSection;
 class LDSectionFactory;
 class SectionData;
-class SectionMap;
 class Output;
 class EhFrame;
 class EhFrameHdr;
@@ -67,8 +66,7 @@ public:
 public:
   FragmentLinker(const LinkerConfig& pConfig,
                  Module& pModule,
-                 TargetLDBackend& pBackend,
-                 SectionMap& pSectionMap);
+                 TargetLDBackend& pBackend);
 
   ~FragmentLinker();
 
@@ -117,10 +115,6 @@ public:
   bool finalizeSymbols();
 
   // -----  sections  ----- //
-  /// getSectionMap - getSectionMap to change the behavior of SectionMerger
-  /// SectionMap& getSectionMap()
-  /// { return m_SectionMap; }
-
   /// createSectHdr - for reader and standard/target format to create a section
   /// header. This function will create a new LDSection and return it. If the
   /// output has no related LDSection, this function will also create one and
@@ -260,7 +254,6 @@ private:
   const LinkerConfig& m_Config;
   Module& m_Module;
   TargetLDBackend& m_Backend;
-  SectionMap& m_SectionMap;
   LDSymbolFactory m_LDSymbolFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;

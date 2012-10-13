@@ -51,7 +51,7 @@ public:
 
   // get the possible output section name based on the mapping table
   // return NULL if not found
-  const std::string& getOutputSectName(const std::string& pInput);
+  const std::string& getOutputSectName(const std::string& pInput) const;
 
   // add a mapping from input substr to output name and offset.
   bool push_back(const std::string& pInput,

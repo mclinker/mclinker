@@ -26,6 +26,8 @@ X86ELFMCLinker::X86ELFMCLinker(LinkerConfig& pConfig,
   pConfig.attribute().predefined().unsetAsNeeded();
   pConfig.attribute().predefined().setDynamic();
 
+  // set up the section map
+  // nothing to do.
 }
 
 X86ELFMCLinker::~X86ELFMCLinker()

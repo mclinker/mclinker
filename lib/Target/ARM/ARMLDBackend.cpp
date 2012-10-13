@@ -86,15 +86,6 @@ RelocationFactory* ARMGNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
-bool ARMGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
-{
-  if (!pSectionMap.push_back(".ARM.exidx", ".ARM.exidx") ||
-      !pSectionMap.push_back(".ARM.extab", ".ARM.extab") ||
-      !pSectionMap.push_back(".ARM.attributes", ".ARM.attributes"))
-    return false;
-  return true;
-}
-
 void ARMGNULDBackend::initTargetSections(Module& pModule,
                                          FragmentLinker& pLinker)
 {

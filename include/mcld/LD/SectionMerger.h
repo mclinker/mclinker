@@ -20,6 +20,7 @@
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class SectionMap;
 class FragmentLinker;
 
@@ -42,7 +43,7 @@ public:
   typedef LDSectionMapTy::const_iterator const_iterator;
 
 public:
-  SectionMerger(const SectionMap& pSectionMap, Module& pModule);
+  SectionMerger(const LinkerConfig& pConfig, Module& pModule);
   ~SectionMerger();
 
   /// getOutputSectHdr - return a associated output section header
@@ -68,7 +69,7 @@ public:
 
   // -----  iterators  ----- //
   const_iterator find(const std::string& pName) const;
-  iterator find(const std::string& pName);
+  iterator       find(const std::string& pName);
 
   const_iterator begin() const { return m_LDSectionMap.begin(); }
   iterator       begin()       { return m_LDSectionMap.begin(); }

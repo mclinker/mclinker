@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/SectionMap.h>
 
@@ -17,8 +18,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // SectionMerger
 //===----------------------------------------------------------------------===//
-SectionMerger::SectionMerger(const SectionMap& pSectionMap, Module& pModule)
-: m_SectionNameMap(pSectionMap),
+SectionMerger::SectionMerger(const LinkerConfig& pConfig, Module& pModule)
+: m_SectionNameMap(pConfig.scripts().sectionMap()),
   m_Module(pModule),
   m_LDSectionMap()
 {

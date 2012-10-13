@@ -29,7 +29,6 @@ class LDContext;
 class LDFileFormat;
 class LDSymbol;
 class LDSection;
-class SectionMap;
 class Input;
 class GOT;
 class MemoryArea;
@@ -53,7 +52,6 @@ public:
   virtual ~TargetLDBackend();
 
   // -----  target dependent  ----- //
-  virtual bool initTargetSectionMap(SectionMap& pSectionMap) { return true;}
   virtual void initTargetSegments(FragmentLinker& pLinker) { }
   virtual void initTargetSections(Module& pModule, FragmentLinker& pLinker) { }
   virtual void initTargetSymbols(FragmentLinker& pLinker) { }

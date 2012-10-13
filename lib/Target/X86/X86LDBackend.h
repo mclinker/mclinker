@@ -147,9 +147,6 @@ public:
   uint64_t defaultTextSegmentAddr() const
   { return 0x08048000; }
 
-  /// initTargetSectionMap - initialize target dependent section mapping
-  bool initTargetSectionMap(SectionMap& pSectionMap);
-
   // initRelocFactory - create and initialize RelocationFactory
   bool initRelocFactory(const FragmentLinker& pLinker);
 

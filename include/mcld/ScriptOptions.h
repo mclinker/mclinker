@@ -16,6 +16,7 @@
 #include <mcld/ADT/StringEntry.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/HashTable.h>
+#include <mcld/LD/SectionMap.h>
 
 namespace mcld {
 
@@ -44,9 +45,13 @@ public:
   const AddressMap& addressMap() const { return m_AddressMap; }
   AddressMap&       addressMap()       { return m_AddressMap; }
 
+  const SectionMap& sectionMap() const { return m_SectionMap; }
+  SectionMap&       sectionMap()       { return m_SectionMap; }
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
+  SectionMap m_SectionMap;
 };
 
 } // namespace of mcld

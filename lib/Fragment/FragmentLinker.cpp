@@ -22,7 +22,6 @@
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/SectionMap.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
@@ -34,13 +33,11 @@ using namespace mcld;
 /// Constructor
 FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
                                Module& pModule,
-                               TargetLDBackend& pBackend,
-                               SectionMap& pSectionMap)
+                               TargetLDBackend& pBackend)
 
   : m_Config(pConfig),
     m_Module(pModule),
     m_Backend(pBackend),
-    m_SectionMap(pSectionMap),
     m_LDSymbolFactory(128),
     m_pSectionMerger(NULL)
 {
@@ -492,7 +489,8 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
   LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
 
   // check if we need to create a output section for output LDContext
-  std::string sect_name = m_SectionMap.getOutputSectName(pName);
+  std::string sect_name =
+                      m_Config.scripts().sectionMap().getOutputSectName(pName);
   LDSection* output_sect = m_Module.getSection(sect_name);
 
   if (NULL == output_sect) {
@@ -513,7 +511,8 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pAlign)
 {
   // check if we need to create a output section for output LDContext
-  std::string sect_name = m_SectionMap.getOutputSectName(pName);
+  std::string sect_name =
+                      m_Config.scripts().sectionMap().getOutputSectName(pName);
   LDSection* output_sect = m_Module.getSection(sect_name);
 
   if (NULL == output_sect) {
@@ -562,7 +561,7 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 void FragmentLinker::initSectionMap()
 {
   if (NULL == m_pSectionMerger)
-    m_pSectionMerger = new SectionMerger(m_SectionMap, m_Module);
+    m_pSectionMerger = new SectionMerger(m_Config, m_Module);
 }
 
 bool FragmentLinker::layout()

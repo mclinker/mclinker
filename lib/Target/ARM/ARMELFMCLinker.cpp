@@ -9,6 +9,7 @@
 #include "ARMELFMCLinker.h"
 
 #include <mcld/LinkerConfig.h>
+#include <mcld/LD/SectionMap.h>
 
 using namespace mcld;
 
@@ -27,6 +28,10 @@ ARMELFMCLinker::ARMELFMCLinker(LinkerConfig& pConfig,
   pConfig.attribute().predefined().unsetAsNeeded();
   pConfig.attribute().predefined().setDynamic();
 
+  // set up section map
+  pConfig.scripts().sectionMap().push_back(".ARM.exidx", ".ARM.exidx");
+  pConfig.scripts().sectionMap().push_back(".ARM.extab", ".ARM.extab");
+  pConfig.scripts().sectionMap().push_back(".ARM.attributes", ".ARM.attributes");
 }
 
 ARMELFMCLinker::~ARMELFMCLinker()

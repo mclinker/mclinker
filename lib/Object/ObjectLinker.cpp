@@ -74,8 +74,7 @@ bool ObjectLinker::initFragmentLinker()
   if (NULL == m_pLinker)
     m_pLinker = new FragmentLinker(m_Config,
                                    m_Module,
-                                   m_LDBackend,
-                                   m_SectionMap);
+                                   m_LDBackend);
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
@@ -106,12 +105,6 @@ bool ObjectLinker::initFragmentLinker()
 /// initStdSections - initialize standard sections
 bool ObjectLinker::initStdSections()
 {
-  /// initialize section mapping for standard format, target-dependent section,
-  /// (and user-defined mapping)
-  if (!m_SectionMap.initStdSectionMap() ||
-      !m_LDBackend.initTargetSectionMap(m_SectionMap))
-    return false;
-
   /// A technical debt. We need to initialize section map here because
   /// we do not separate output file and temporary data structure. So far,
   /// FragmentLinker directly use output file's LDContext as the temporary data

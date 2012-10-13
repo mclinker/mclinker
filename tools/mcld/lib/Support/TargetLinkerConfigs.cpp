@@ -45,6 +45,11 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   if (!getLDConfig()->options().hasDyld()) {
     getLDConfig()->options().setDyld(gDefaultDyld);
   }
+
+  // set up section map
+  getLDConfig()->scripts().sectionMap().push_back(".ARM.exidx", ".ARM.exidx");
+  getLDConfig()->scripts().sectionMap().push_back(".ARM.extab", ".ARM.extab");
+  getLDConfig()->scripts().sectionMap().push_back(".ARM.attributes", ".ARM.attributes");
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
 
@@ -108,3 +113,27 @@ X86_64LinkerConfig::X86_64LinkerConfig()
   : X86FamilyLinkerConfigBase(DEFAULT_X86_64_TRIPLE_STRING) {
 }
 #endif // defined(PROVIDE_X86_CODEGEN)
+
+#if !defined(TARGET_BUILD)
+//===----------------------------------------------------------------------===//
+// General
+//===----------------------------------------------------------------------===//
+GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
+  : LinkerConfig(pTriple) {
+  // set up target-dependent constraints of attributes
+  getLDConfig()->attribute().constraint().enableWholeArchive();
+  getLDConfig()->attribute().constraint().disableAsNeeded();
+  getLDConfig()->attribute().constraint().setSharedSystem();
+
+  // set up the predefined attributes
+  getLDConfig()->attribute().predefined().unsetWholeArchive();
+  getLDConfig()->attribute().predefined().setDynamic();
+
+  // set up section map
+  if (llvm::Triple::arm == getLDConfig()->triple().getArch()) {
+    getLDConfig()->scripts().sectionMap().push_back(".ARM.exidx", ".ARM.exidx");
+    getLDConfig()->scripts().sectionMap().push_back(".ARM.extab", ".ARM.extab");
+    getLDConfig()->scripts().sectionMap().push_back(".ARM.attributes", ".ARM.attributes");
+  }
+}
+#endif // defined(TARGET_BUILD)

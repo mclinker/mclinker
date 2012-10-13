@@ -38,9 +38,6 @@ public:
   ~MipsGNULDBackend();
 
 public:
-  /// initTargetSectionMap - initialize target dependent section mapping.
-  bool initTargetSectionMap(SectionMap& pSectionMap);
-
   /// initTargetSections - initialize target dependent sections in output
   void initTargetSections(Module& pModule, FragmentLinker& pLinker);
 

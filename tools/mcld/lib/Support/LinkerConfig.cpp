@@ -67,6 +67,7 @@ bool LinkerConfig::initializeLDInfo() {
 
   mLDConfig = new mcld::LinkerConfig(getTriple());
   mLDConfig->setCodeGenType(mcld::LinkerConfig::Exec);
+  mLDConfig->scripts().sectionMap().initStdSectionMap();
   return true;
 }
 

@@ -62,13 +62,6 @@ MipsGNULDBackend::~MipsGNULDBackend()
     delete m_pDynamic;
 }
 
-bool MipsGNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
-{
-  // Nothing to do because we do not support
-  // any MIPS specific sections now.
-  return true;
-}
-
 void MipsGNULDBackend::initTargetSections(Module& pModule,
                                           FragmentLinker& pLinker)
 {

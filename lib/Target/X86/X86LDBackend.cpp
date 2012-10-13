@@ -729,11 +729,6 @@ unsigned int X86GNULDBackend::bitclass() const
   return 32;
 }
 
-bool X86GNULDBackend::initTargetSectionMap(SectionMap& pSectionMap)
-{
-  return true;
-}
-
 void X86GNULDBackend::initTargetSections(Module& pModule,
                                          FragmentLinker& pLinker)
 {

@@ -182,7 +182,7 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename) {
 #ifdef TARGET_BUILD
   config = new (std::nothrow) DefaultLinkerConfig();
 #else
-  config = new (std::nothrow) LinkerConfig(OptTargetTriple);
+  config = new (std::nothrow) GeneralLinkerConfig(OptTargetTriple);
 #endif
   if (config == NULL) {
     llvm::errs() << "Out of memory when create the linker configuration!\n";

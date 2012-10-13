@@ -27,9 +27,10 @@ SectionMap::~SectionMap()
   }
 }
 
-const std::string& SectionMap::getOutputSectName(const std::string& pInput)
+const std::string&
+SectionMap::getOutputSectName(const std::string& pInput) const
 {
-  iterator it;
+  const_iterator it;
   for (it = begin(); it != end(); ++it) {
     if (0 == strncmp(pInput.c_str(),
                      (*it)->inputSubStr.c_str(),

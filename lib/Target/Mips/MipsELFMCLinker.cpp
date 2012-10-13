@@ -25,6 +25,9 @@ MipsELFMCLinker::MipsELFMCLinker(LinkerConfig& pConfig,
   pConfig.attribute().predefined().unsetWholeArchive();
   pConfig.attribute().predefined().unsetAsNeeded();
   pConfig.attribute().predefined().setDynamic();
+
+  // set up the section map.
+  // Nothing to do because we do not support any MIPS specific sections now.
 }
 
 MipsELFMCLinker::~MipsELFMCLinker()
