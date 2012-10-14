@@ -6,11 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/Object/SectionMap.h>
+#include <mcld/ADT/StringHash.h>
 #include <cassert>
 #include <cstring>
-#include <mcld/Object/SectionMap.h>
 
 using namespace mcld;
+
+namespace {
+  static StringHash<ES> hash_func;
+} // end anonymous namespace
 
 SectionMap::NamePair SectionMap::NullName;
 
@@ -18,11 +23,12 @@ SectionMap::NamePair SectionMap::NullName;
 // SectionMap::NamePair
 //===----------------------------------------------------------------------===//
 SectionMap::NamePair::NamePair()
-{
+  : hash(-1) {
 }
 
 SectionMap::NamePair::NamePair(const std::string& pFrom, const std::string& pTo)
   : from(pFrom), to(pTo) {
+  hash = hash_func(pFrom);
 }
 
 bool SectionMap::NamePair::isNull() const
@@ -34,22 +40,16 @@ bool SectionMap::NamePair::isNull() const
 // SectionMap
 //===----------------------------------------------------------------------===//
 const std::string&
-SectionMap::getOutputSectName(const std::string& pInput) const
+SectionMap::getOutputSectName(const std::string& pFrom) const
 {
-  const_iterator it;
-  for (it = begin(); it != end(); ++it) {
-    if (0 == strncmp(pInput.c_str(),
-                     it->from.c_str(),
-                     it->from.length()))
-      break;
-    // wildcard to a user-defined output section.
-    else if (0 == strcmp("*", it->from.c_str()))
-      break;
+  unsigned int hash = hash_func(pFrom);
+  NamePairList::const_iterator name_hash, nEnd = m_NamePairList.end();
+  for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
+    if (matched(*name_hash, pFrom, hash)) {
+      return name_hash->to;
+    }
   }
-  // if still no matching, just let a output seciton has the same input name
-  if (it == end())
-    return pInput;
-  return it->to;
+  return pFrom;
 }
 
 bool SectionMap::push_back(const std::string& pInput,
@@ -137,3 +137,26 @@ bool SectionMap::initStdSectionMap()
   }
   return true;
 }
+
+bool SectionMap::matched(const NamePair& pNamePair,
+                         const std::string& pInput,
+                         unsigned int pHashValue) const
+{
+  if ('*' == pNamePair.from[0])
+    return true;
+
+  if (pNamePair.from.size() > pInput.size())
+    return false;
+
+  if (!StringHash<ES>::may_include(pNamePair.hash, pHashValue))
+    return false;
+
+  if (0 == strncmp(pInput.c_str(),
+                   pNamePair.from.c_str(),
+                   pNamePair.from.size())) {
+    return true;
+  }
+
+  return false;
+}
+

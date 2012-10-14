@@ -37,6 +37,7 @@ public:
     bool isNull() const;
 
   public:
+    unsigned int hash;
     std::string from;
     std::string to;
   };
@@ -72,6 +73,10 @@ public:
   // to SectionMap
   bool initStdSectionMap();
 
+private:
+  bool matched(const NamePair& pNamePair,
+               const std::string& pInput,
+               unsigned int pHash) const;
 private:
   NamePairList m_NamePairList;
 };
