@@ -9,7 +9,7 @@
 #include "ARMELFMCLinker.h"
 
 #include <mcld/LinkerConfig.h>
-#include <mcld/LD/SectionMap.h>
+#include <mcld/Object/SectionMap.h>
 
 using namespace mcld;
 

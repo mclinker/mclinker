@@ -161,6 +161,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
+	${INCDIR}/Object/SectionMap.h \
+	${LIBDIR}/Object/SectionMap.cpp \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \
@@ -291,8 +293,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
 	${INCDIR}/LD/ELFExecFileFormat.h \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
-	${INCDIR}/LD/SectionMap.h \
-	${LIBDIR}/LD/SectionMap.cpp \
 	${INCDIR}/LD/SectionMerger.h \
 	${LIBDIR}/LD/SectionMerger.cpp \
 	${INCDIR}/LD/ELFSegment.h \

@@ -15,7 +15,6 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
 
-#include <mcld/LD/SectionMap.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/LinkerConfig.h>

@@ -16,7 +16,7 @@
 #include <mcld/ADT/StringEntry.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/HashTable.h>
-#include <mcld/LD/SectionMap.h>
+#include <mcld/Object/SectionMap.h>
 
 namespace mcld {
 

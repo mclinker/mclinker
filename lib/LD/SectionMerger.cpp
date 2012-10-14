@@ -11,7 +11,7 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LD/SectionMerger.h>
-#include <mcld/LD/SectionMap.h>
+#include <mcld/Object/SectionMap.h>
 
 using namespace mcld;
 

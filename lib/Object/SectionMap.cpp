@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <cassert>
 #include <cstring>
-#include <mcld/LD/SectionMap.h>
+#include <mcld/Object/SectionMap.h>
 
 using namespace mcld;
 
