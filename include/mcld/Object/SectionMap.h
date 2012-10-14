@@ -51,15 +51,13 @@ public:
 
 public:
   // get the possible output section name based on the mapping table
-  // return NULL if not found
-  const std::string& getOutputSectName(const std::string& pInput) const;
+  // return NullPair if not found
+  const NamePair& find(const std::string& pFrom) const;
+  NamePair&       find(const std::string& pFrom);
 
   // add a mapping from input substr to output name and offset.
   bool push_back(const std::string& pFrom,
                  const std::string& pTo);
-
-  // find - return the iterator to the mapping
-  iterator find(const std::string& pInput);
 
   const_iterator begin() const { return m_NamePairList.begin(); }
   iterator       begin()       { return m_NamePairList.begin(); }

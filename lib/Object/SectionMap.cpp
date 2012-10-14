@@ -39,17 +39,28 @@ bool SectionMap::NamePair::isNull() const
 //===----------------------------------------------------------------------===//
 // SectionMap
 //===----------------------------------------------------------------------===//
-const std::string&
-SectionMap::getOutputSectName(const std::string& pFrom) const
+const SectionMap::NamePair& SectionMap::find(const std::string& pFrom) const
 {
   unsigned int hash = hash_func(pFrom);
   NamePairList::const_iterator name_hash, nEnd = m_NamePairList.end();
   for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
     if (matched(*name_hash, pFrom, hash)) {
-      return name_hash->to;
+      return *name_hash;
     }
   }
-  return pFrom;
+  return NullName;
+}
+
+SectionMap::NamePair& SectionMap::find(const std::string& pFrom)
+{
+  unsigned int hash = hash_func(pFrom);
+  NamePairList::iterator name_hash, nEnd = m_NamePairList.end();
+  for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
+    if (matched(*name_hash, pFrom, hash)) {
+      return *name_hash;
+    }
+  }
+  return NullName;
 }
 
 bool SectionMap::push_back(const std::string& pInput,
@@ -66,16 +77,6 @@ bool SectionMap::push_back(const std::string& pInput,
 
   m_NamePairList.push_back(NamePair(pInput, pOutput));
   return true;
-}
-
-SectionMap::iterator SectionMap::find(const std::string& pInput)
-{
-  iterator it;
-  for (it = begin(); it != end(); ++it) {
-    if(pInput == it->from)
-      break;
-  }
-  return it;
 }
 
 // Common mappings of ELF and other formants. Now only ELF specific mappings are added
