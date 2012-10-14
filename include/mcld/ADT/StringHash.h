@@ -13,6 +13,7 @@
 #include <gtest.h>
 #endif
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ErrorHandling.h>
 #include <functional>
 
@@ -31,16 +32,17 @@ enum StringHashType
   DEK,
   BP,
   FNV,
-  AP
+  AP,
+  ES,
 };
 
-/** \class template<size_t TYPE> StringHash
+/** \class template<uint32_t TYPE> StringHash
  *  \brief the template StringHash class, for specification
  */
-template<size_t TYPE>
-struct StringHash : public std::unary_function<const llvm::StringRef&, size_t>
+template<uint32_t TYPE>
+struct StringHash : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
     llvm::report_fatal_error("Undefined StringHash function.\n");
   }
@@ -50,13 +52,13 @@ struct StringHash : public std::unary_function<const llvm::StringRef&, size_t>
  *  \brief RS StringHash funciton
  */
 template<>
-struct StringHash<RS> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<RS> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
     const unsigned int b = 378551;
-    size_t a = 63689;
-    size_t hash_val = 0;
+    uint32_t a = 63689;
+    uint32_t hash_val = 0;
 
     for(unsigned int i = 0; i < pKey.size(); ++i) {
       hash_val = hash_val * a + pKey[i];
@@ -70,11 +72,11 @@ struct StringHash<RS> : public std::unary_function<const llvm::StringRef&, size_
  *  \brief JS hash funciton
  */
 template<>
-struct StringHash<JS> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<JS> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = 1315423911;
+    uint32_t hash_val = 1315423911;
 
     for(unsigned int i = 0; i < pKey.size(); ++i) {
        hash_val ^= ((hash_val << 5) + pKey[i] + (hash_val >> 2));
@@ -87,16 +89,16 @@ struct StringHash<JS> : public std::unary_function<const llvm::StringRef&, size_
  *  \brief P.J. Weinberger hash function
  */
 template<>
-struct StringHash<PJW> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<PJW> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
     const unsigned int BitsInUnsignedInt = (unsigned int)(sizeof(unsigned int) * 8);
     const unsigned int ThreeQuarters     = (unsigned int)((BitsInUnsignedInt  * 3) / 4);
     const unsigned int OneEighth         = (unsigned int)(BitsInUnsignedInt / 8);
     const unsigned int HighBits          = (unsigned int)(0xFFFFFFFF) << (BitsInUnsignedInt - OneEighth);
-    size_t hash_val = 0;
-    size_t test = 0;
+    uint32_t hash_val = 0;
+    uint32_t test = 0;
 
     for(unsigned int i = 0; i < pKey.size(); ++i) {
       hash_val = (hash_val << OneEighth) + pKey[i];
@@ -113,12 +115,12 @@ struct StringHash<PJW> : public std::unary_function<const llvm::StringRef&, size
  *  \brief ELF hash function.
  */
 template<>
-struct StringHash<ELF> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<ELF> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = 0;
-    size_t x = 0;
+    uint32_t hash_val = 0;
+    uint32_t x = 0;
 
     for (unsigned int i = 0; i < pKey.size(); ++i) {
       hash_val = (hash_val << 4) + pKey[i];
@@ -134,14 +136,14 @@ struct StringHash<ELF> : public std::unary_function<const llvm::StringRef&, size
  *  \brief BKDR hash function
  */
 template<>
-struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    const size_t seed = 131;
-    size_t hash_val = 0;
+    const uint32_t seed = 131;
+    uint32_t hash_val = 0;
       
-    for(size_t i = 0; i < pKey.size(); ++i)
+    for(uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = (hash_val * seed) + pKey[i];
     return hash_val;
   }
@@ -153,13 +155,13 @@ struct StringHash<BKDR> : public std::unary_function<const llvm::StringRef&, siz
  *  0.049s in 100000 test
  */
 template<>
-struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = 0;
+    uint32_t hash_val = 0;
 
-    for(size_t i = 0; i < pKey.size(); ++i)
+    for(uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = pKey[i] + (hash_val << 6) + (hash_val << 16) - hash_val;
     return hash_val;
   }
@@ -170,13 +172,13 @@ struct StringHash<SDBM> : public std::unary_function<const llvm::StringRef&, siz
  *  0.057s in 100000 test
  */
 template<>
-struct StringHash<DJB> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<DJB> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = 5381;
+    uint32_t hash_val = 5381;
 
-    for(size_t i = 0; i < pKey.size(); ++i)
+    for(uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = ((hash_val << 5) + hash_val) + pKey[i];
 
     return hash_val;
@@ -188,13 +190,13 @@ struct StringHash<DJB> : public std::unary_function<const llvm::StringRef&, size
  *  0.60s
  */
 template<>
-struct StringHash<DEK> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<DEK> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = pKey.size();
+    uint32_t hash_val = pKey.size();
 
-    for(size_t i = 0; i < pKey.size(); ++i)
+    for(uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = ((hash_val << 5) ^ (hash_val >> 27)) ^ pKey[i];
 
     return hash_val;
@@ -206,12 +208,12 @@ struct StringHash<DEK> : public std::unary_function<const llvm::StringRef&, size
  *  0.057s
  */
 template<>
-struct StringHash<BP> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<BP> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    size_t hash_val = 0;
-    for(size_t i = 0; i < pKey.size(); ++i)
+    uint32_t hash_val = 0;
+    for(uint32_t i = 0; i < pKey.size(); ++i)
       hash_val = hash_val << 7 ^ pKey[i];
 
     return hash_val;
@@ -223,13 +225,13 @@ struct StringHash<BP> : public std::unary_function<const llvm::StringRef&, size_
  *  0.058s
  */
 template<>
-struct StringHash<FNV> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<FNV> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
-    const size_t fnv_prime = 0x811C9DC5;
-    size_t hash_val = 0;
-    for(size_t i = 0; i < pKey.size(); ++i) {
+    const uint32_t fnv_prime = 0x811C9DC5;
+    uint32_t hash_val = 0;
+    for(uint32_t i = 0; i < pKey.size(); ++i) {
       hash_val *= fnv_prime;
       hash_val ^= pKey[i];
     }
@@ -243,13 +245,13 @@ struct StringHash<FNV> : public std::unary_function<const llvm::StringRef&, size
  *  0.060s
  */
 template<>
-struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, size_t>
+struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, uint32_t>
 {
-  size_t operator()(const llvm::StringRef& pKey) const
+  uint32_t operator()(const llvm::StringRef& pKey) const
   {
     unsigned int hash_val = 0xAAAAAAAA;
    
-    for(size_t i = 0; i < pKey.size(); ++i) {  
+    for(uint32_t i = 0; i < pKey.size(); ++i) {  
       hash_val ^= ((i & 1) == 0)?
                           ((hash_val <<  7) ^ pKey[i] * (hash_val >> 3)):
                           (~((hash_val << 11) + (pKey[i] ^ (hash_val >> 5))));
@@ -259,7 +261,83 @@ struct StringHash<AP> : public std::unary_function<const llvm::StringRef&, size_
   }
 };
 
-/** \class template<size_t TYPE> StringCompare
+/** \class StringHash<ES>
+ *  \brief This is a revision of Edward Sayers' string characteristic function.
+ *
+ *  31-28  27  26  25   -   0
+ *  +----+---+---+------------+
+ *  | .  | N | - | a/A  ~ z/Z |
+ *  +----+---+---+------------+
+ *
+ *  . (bit 31~28) - The number of '.' characters
+ *  N (bit 27)    - Are there any numbers in the string
+ *  - (bit 26)    - Does the string have '-' character
+ *  bit 25~0      - Bit 25 is set only if the string contains a 'a' or 'A', and
+ *                  Bit 24 is set only if ...                   'b' or 'B', ...
+ */
+template<>
+struct StringHash<ES> : public std::unary_function<const llvm::StringRef&, uint32_t>
+{
+  uint32_t operator()(const llvm::StringRef& pString) const
+  {
+    uint32_t result = 0x0;
+    unsigned int dot = 0;
+    std::string::size_type idx;
+    for (idx = 0; idx < pString.size(); ++idx) {
+      int cur_char = pString[idx];
+
+      if ('.' == cur_char) {
+        ++dot;
+        continue;
+      }
+
+      if (isdigit(cur_char)) {
+        result |= (1 << 27);
+        continue;
+      }
+
+      if ('_' == cur_char) {
+        result |= (1 << 26);
+        continue;
+      }
+
+      if (isupper(cur_char)) {
+        result |= (1 << (cur_char - 'A'));
+        continue;
+      }
+
+      if (islower(cur_char)) {
+        result |= (1 << (cur_char - 'a'));
+        continue;
+      }
+    }
+    result |= (dot << 28);
+    return result;
+  }
+
+
+  /** \func may_include
+   *  \brief is it possible that pRule is a sub-string of pInString
+   */
+  static bool may_include(uint32_t pRule, uint32_t pInString)
+  {
+    uint32_t in_c = pInString << 4;
+    uint32_t r_c  = pRule << 4;
+
+    uint32_t res = (in_c ^ r_c) & r_c;
+    if (0 != res)
+      return false;
+
+    uint32_t in_dot = pInString >> 28;
+    uint32_t r_dot  = pRule >> 28;
+    if (r_dot > in_dot)
+      return false;
+
+    return true;
+  }
+};
+
+/** \class template<uint32_t TYPE> StringCompare
  *  \brief the template StringCompare class, for specification
  */
 template<typename STRING_TYPE>
