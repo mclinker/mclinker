@@ -71,10 +71,6 @@ public:
   bool           empty() const { return m_NamePairList.empty(); }
   size_t         size () const { return m_NamePairList.size(); }
 
-  // initStdSectionMap - add common mappings of ELF and other formats
-  // to SectionMap
-  bool initStdSectionMap();
-
 private:
   bool matched(const NamePair& pNamePair,
                const std::string& pInput,
