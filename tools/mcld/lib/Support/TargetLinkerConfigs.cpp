@@ -47,9 +47,10 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   }
 
   // set up section map
-  getLDConfig()->scripts().sectionMap().push_back(".ARM.exidx", ".ARM.exidx");
-  getLDConfig()->scripts().sectionMap().push_back(".ARM.extab", ".ARM.extab");
-  getLDConfig()->scripts().sectionMap().push_back(".ARM.attributes", ".ARM.attributes");
+  bool exist = false;
+  getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
+  getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
+  getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
 
@@ -131,9 +132,10 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
 
   // set up section map
   if (llvm::Triple::arm == getLDConfig()->triple().getArch()) {
-    getLDConfig()->scripts().sectionMap().push_back(".ARM.exidx", ".ARM.exidx");
-    getLDConfig()->scripts().sectionMap().push_back(".ARM.extab", ".ARM.extab");
-    getLDConfig()->scripts().sectionMap().push_back(".ARM.attributes", ".ARM.attributes");
+    bool exist = false;
+    getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
+    getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
+    getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
   }
 }
 #endif // defined(TARGET_BUILD)

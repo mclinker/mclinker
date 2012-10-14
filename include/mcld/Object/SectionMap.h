@@ -55,9 +55,13 @@ public:
   const NamePair& find(const std::string& pFrom) const;
   NamePair&       find(const std::string& pFrom);
 
-  // add a mapping from input substr to output name and offset.
-  bool push_back(const std::string& pFrom,
-                 const std::string& pTo);
+  // add a mapping from input sub-string to output name.
+  // @param [in]  pFrom  the given input sub-string
+  // @param [in]  pTo    the mapped output string
+  // @param [out] pExist does pFrom exist?
+  NamePair& append(const std::string& pFrom,
+                   const std::string& pTo,
+                   bool& pExist);
 
   const_iterator begin() const { return m_NamePairList.begin(); }
   iterator       begin()       { return m_NamePairList.begin(); }

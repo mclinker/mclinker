@@ -63,20 +63,20 @@ SectionMap::NamePair& SectionMap::find(const std::string& pFrom)
   return NullName;
 }
 
-bool SectionMap::push_back(const std::string& pInput,
-                           const std::string& pOutput)
+SectionMap::NamePair& SectionMap::append(const std::string &pFrom,
+                                         const std::string &pTo,
+                                         bool &pExist)
 {
-  // Now only check if the mapping exists in the map already
-  // TODO: handle the cases such as overriding the exist mapping and drawing
-  //       exception from the given SECTIONS command
-  iterator it;
-  for (it = m_NamePairList.begin(); it != m_NamePairList.end(); ++it) {
-    if (pInput == it->from)
-      return false;
+  NamePair& result = find(pFrom);
+  if (!result.isNull()) {
+    pExist = true;
+    return result;
   }
 
-  m_NamePairList.push_back(NamePair(pInput, pOutput));
-  return true;
+  pExist = false;
+  NamePair entry(pFrom, pTo);
+  m_NamePairList.push_back(entry);
+  return m_NamePairList.back();
 }
 
 // Common mappings of ELF and other formants. Now only ELF specific mappings are added
