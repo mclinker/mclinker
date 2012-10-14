@@ -12,38 +12,44 @@
 
 using namespace mcld;
 
+SectionMap::NamePair SectionMap::NullName;
+
+//===----------------------------------------------------------------------===//
+// SectionMap::NamePair
+//===----------------------------------------------------------------------===//
+SectionMap::NamePair::NamePair()
+{
+}
+
+SectionMap::NamePair::NamePair(const std::string& pFrom, const std::string& pTo)
+  : from(pFrom), to(pTo) {
+}
+
+bool SectionMap::NamePair::isNull() const
+{
+  return (&NullName == this);
+}
+
 //===----------------------------------------------------------------------===//
 // SectionMap
 //===----------------------------------------------------------------------===//
-SectionMap::SectionMap()
-{
-}
-
-SectionMap::~SectionMap()
-{
-  iterator it, itEnd = end();
-  for (it = begin(); it != itEnd; ++it) {
-    delete (*it);
-  }
-}
-
 const std::string&
 SectionMap::getOutputSectName(const std::string& pInput) const
 {
   const_iterator it;
   for (it = begin(); it != end(); ++it) {
     if (0 == strncmp(pInput.c_str(),
-                     (*it)->inputSubStr.c_str(),
-                     (*it)->inputSubStr.length()))
+                     it->from.c_str(),
+                     it->from.length()))
       break;
     // wildcard to a user-defined output section.
-    else if (0 == strcmp("*", (*it)->inputSubStr.c_str()))
+    else if (0 == strcmp("*", it->from.c_str()))
       break;
   }
   // if still no matching, just let a output seciton has the same input name
   if (it == end())
     return pInput;
-  return (*it)->outputStr;
+  return it->to;
 }
 
 bool SectionMap::push_back(const std::string& pInput,
@@ -53,12 +59,12 @@ bool SectionMap::push_back(const std::string& pInput,
   // TODO: handle the cases such as overriding the exist mapping and drawing
   //       exception from the given SECTIONS command
   iterator it;
-  for (it = m_SectMap.begin(); it != m_SectMap.end(); ++it) {
-    if (pInput == (*it)->inputSubStr)
+  for (it = m_NamePairList.begin(); it != m_NamePairList.end(); ++it) {
+    if (pInput == it->from)
       return false;
   }
 
-  m_SectMap.push_back(new Mapping(pInput, pOutput));
+  m_NamePairList.push_back(NamePair(pInput, pOutput));
   return true;
 }
 
@@ -66,7 +72,7 @@ SectionMap::iterator SectionMap::find(const std::string& pInput)
 {
   iterator it;
   for (it = begin(); it != end(); ++it) {
-    if(pInput == (*it)->inputSubStr)
+    if(pInput == it->from)
       break;
   }
   return it;
@@ -127,7 +133,7 @@ const int StdSectionMapSize = (sizeof(StdSectionMap)/sizeof(StdSectionMap[0]));
 bool SectionMap::initStdSectionMap()
 {
   for (int i = 0; i < StdSectionMapSize; ++i) {
-    m_SectMap.push_back(new Mapping(StdSectionMap[i].from, StdSectionMap[i].to));
+    m_NamePairList.push_back(NamePair(StdSectionMap[i].from, StdSectionMap[i].to));
   }
   return true;
 }

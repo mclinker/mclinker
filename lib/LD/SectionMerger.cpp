@@ -100,7 +100,7 @@ void SectionMerger::initOutputSectMap()
   SectionMap::const_iterator it;
   for (it = m_SectionNameMap.begin(); it != m_SectionNameMap.end(); ++it) {
     NameSectPair mapping;
-    mapping.inputSubStr = (*it)->inputSubStr;
+    mapping.inputSubStr = it->from;
     mapping.outputSection =  NULL;
     m_LDSectionMap.push_back(mapping);
   }
