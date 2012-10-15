@@ -23,6 +23,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/SectionMerger.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
@@ -555,8 +556,10 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 
 void FragmentLinker::initSectionMap()
 {
-  if (NULL == m_pSectionMerger)
+  if (NULL == m_pSectionMerger) {
     m_pSectionMerger = new SectionMerger(m_Config, m_Module);
+    m_pSectionMerger->initOutputSectMap();
+  }
 }
 
 bool FragmentLinker::layout()

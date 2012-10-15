@@ -23,7 +23,6 @@ SectionMerger::SectionMerger(const LinkerConfig& pConfig, Module& pModule)
   m_Module(pModule),
   m_LDSectionMap()
 {
-  initOutputSectMap();
 }
 
 SectionMerger::~SectionMerger()

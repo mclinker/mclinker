@@ -24,7 +24,6 @@
 
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/LD/SectionMerger.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/MC/MCLDInput.h>
@@ -44,6 +43,7 @@ class Output;
 class EhFrame;
 class EhFrameHdr;
 class MemoryArea;
+class SectionMerger;
 
 /** \class FragmentLinker
  *  \brief FragmentLinker provides a pass to link object files.

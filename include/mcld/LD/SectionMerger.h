@@ -76,7 +76,6 @@ public:
   const_iterator end  () const { return m_LDSectionMap.end(); }
   iterator       end  ()       { return m_LDSectionMap.end(); }
 
-private:
   /// initOutputSectMap - initialize the map from input substr to associated
   /// output LDSection*
   void initOutputSectMap();
