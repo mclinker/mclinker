@@ -59,10 +59,10 @@ SectionMerger::const_iterator SectionMerger::find(const std::string& pName) cons
   return it;
 }
 
-LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
+LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
 {
   LDSection* section;
-  iterator it = find(pName);
+  const_iterator it = find(pName);
 
   // check if we can find a matched LDSection.
   // If not, we need to find it in output context. But this should be rare.
@@ -75,21 +75,13 @@ LDSection* SectionMerger::getOutputSectHdr(const std::string& pName)
   return section;
 }
 
-SectionData* SectionMerger::getOutputSectData(const std::string& pName)
-{
-  return getOutputSectHdr(pName)->getSectionData();
-}
-
-bool SectionMerger::addMapping(const std::string& pName, LDSection* pSection)
+void SectionMerger::append(const std::string& pName, LDSection& pSection)
 {
   iterator it = find(pName);
   if (it != end()) {
     assert(NULL == (*it).outputSection);
-    (*it).outputSection = pSection;
-    return true;
+    (*it).outputSection = &pSection;
   }
-  // the mapping rule is not in SectionMap, and this is handled in getOutputSectHdr.
-  return false;
 }
 
 void SectionMerger::initOutputSectMap()

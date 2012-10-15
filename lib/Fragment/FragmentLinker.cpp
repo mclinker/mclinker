@@ -496,7 +496,7 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
     // create a output section and push it into output LDContext
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     m_Module.getSectionTable().push_back(output_sect);
-    m_pSectionMerger->addMapping(pName, output_sect);
+    m_pSectionMerger->append(pName, *output_sect);
   }
   return *result;
 }
@@ -516,7 +516,7 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_Module.getSectionTable().push_back(output_sect);
-    m_pSectionMerger->addMapping(pName, output_sect);
+    m_pSectionMerger->append(pName, *output_sect);
   }
   return *output_sect;
 }
@@ -534,7 +534,7 @@ SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
 
   // try to get one from output LDSection
   LDSection* output_sect =
-    m_pSectionMerger->getOutputSectHdr(pSection.name());
+    m_pSectionMerger->getMatchedSection(pSection.name());
 
   assert(NULL != output_sect);
 

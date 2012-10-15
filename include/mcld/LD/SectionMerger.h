@@ -30,32 +30,19 @@ class FragmentLinker;
  */
 class SectionMerger
 {
-private:
-  struct NameSectPair {
-    std::string inputSubStr;
-    LDSection* outputSection;
-  };
-
-public:
-  typedef std::vector<NameSectPair> LDSectionMapTy;
-
-  typedef LDSectionMapTy::iterator iterator;
-  typedef LDSectionMapTy::const_iterator const_iterator;
-
 public:
   SectionMerger(const LinkerConfig& pConfig, Module& pModule);
   ~SectionMerger();
 
-  /// getOutputSectHdr - return a associated output section header
-  LDSection* getOutputSectHdr(const std::string& pName);
+  /// getMatchedSection - return the matched section by rules.
+  /// @return if we can not find the matched section, return NULL.
+  LDSection* getMatchedSection(const std::string& pName) const;
 
-  /// getOutputSectData - return a associated output section data
-  SectionData* getOutputSectData(const std::string& pName);
-
-  /// addMapping - add a mapping as creating one new output LDSection
-  /// @param pName - a input section name
-  /// @param pSection - the output LDSection*
-  bool addMapping(const std::string& pName, LDSection* pSection);
+  /// append - append a new mapping rule.
+  /// appendRule does not check if the appended rule is duplicated.
+  /// @param pName - the matched substring
+  /// @parap pSection - the output section
+  void append(const std::string& pName, LDSection& pSection);
 
   // -----  observers  ----- //
   bool empty() const
@@ -64,9 +51,22 @@ public:
   size_t size() const
   { return m_LDSectionMap.size(); }
 
-  size_t capacity () const
-  { return m_LDSectionMap.capacity(); }
+  /// initOutputSectMap - initialize the map from input substr to associated
+  /// output LDSection*
+  void initOutputSectMap();
 
+private:
+  struct NameSectPair {
+    std::string inputSubStr;
+    LDSection* outputSection;
+  };
+
+  typedef std::vector<NameSectPair> LDSectionMapTy;
+
+  typedef LDSectionMapTy::iterator iterator;
+  typedef LDSectionMapTy::const_iterator const_iterator;
+
+private:
   // -----  iterators  ----- //
   const_iterator find(const std::string& pName) const;
   iterator       find(const std::string& pName);
@@ -75,10 +75,6 @@ public:
   iterator       begin()       { return m_LDSectionMap.begin(); }
   const_iterator end  () const { return m_LDSectionMap.end(); }
   iterator       end  ()       { return m_LDSectionMap.end(); }
-
-  /// initOutputSectMap - initialize the map from input substr to associated
-  /// output LDSection*
-  void initOutputSectMap();
 
 private:
   const SectionMap& m_SectionNameMap;
