@@ -68,12 +68,10 @@ public:
 protected:
   void emitELF32SectionHeader(const Module& pModule,
                               const LinkerConfig& pConfig,
-                              FragmentLinker& pLinker,
                               MemoryArea& pOutput) const;
 
   void emitELF64SectionHeader(const Module& pModule,
                               const LinkerConfig& pConfig,
-                              FragmentLinker& pLinker,
                               MemoryArea& pOutput) const;
 
   void emitELF32ProgramHeader(MemoryArea& pOutput) const;
@@ -82,11 +80,9 @@ protected:
 
   // emitShStrTab - emit .shstrtab
   void emitELF32ShStrTab(Module& pModule,
-                         FragmentLinker& pLinker,
                          MemoryArea& pOutput);
 
   void emitELF64ShStrTab(Module& pModule,
-                         FragmentLinker& pLinker,
                          MemoryArea& pOutput);
 
   void emitSectionData(const Layout& pLayout,

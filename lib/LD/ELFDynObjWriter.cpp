@@ -119,7 +119,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
   if (32 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF32ShStrTab(pModule, m_Linker, pOutput);
+    emitELF32ShStrTab(pModule, pOutput);
 
     writeELF32Header(m_Linker.getLDInfo(),
                      pModule,
@@ -128,12 +128,12 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
 
     emitELF32ProgramHeader(pOutput);
 
-    emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
+    emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
   }
   else if (64 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF64ShStrTab(pModule, m_Linker, pOutput);
+    emitELF64ShStrTab(pModule, pOutput);
 
     writeELF64Header(m_Linker.getLDInfo(),
                      pModule,
@@ -142,7 +142,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
 
     emitELF64ProgramHeader(pOutput);
 
-    emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), m_Linker, pOutput);
+    emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
   }
   else
     return make_error_code(errc::not_supported);
