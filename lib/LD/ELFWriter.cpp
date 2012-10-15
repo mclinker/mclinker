@@ -152,7 +152,7 @@ uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
     entry_name = pConfig.options().entry();
   else
     entry_name = target().entry();
-  
+
   uint64_t result = 0x0;
 
   bool issue_warning = (pConfig.options().hasEntry() &&
@@ -513,11 +513,8 @@ void ELFWriter::emitRel(const Layout& pLayout,
                       frag_ref->getOutputOffset());
     }
     else {
-      rel->r_offset = static_cast<Elf32_Addr>(
-                      frag_ref->frag()->getParent()->getSection().offset() +
-                      frag_ref->getOutputOffset());
+      rel->r_offset = static_cast<Elf32_Addr>(frag_ref->getOutputOffset());
     }
-
     Elf32_Word Index;
     if( relocation->symInfo() == NULL )
       Index = 0;
@@ -553,9 +550,7 @@ void ELFWriter::emitRela(const Layout& pLayout,
                       frag_ref->getOutputOffset());
     }
     else {
-      rel->r_offset = static_cast<Elf32_Addr>(
-                      frag_ref->frag()->getParent()->getSection().offset() +
-                      frag_ref->getOutputOffset());
+      rel->r_offset = static_cast<Elf32_Addr>(frag_ref->getOutputOffset());
     }
 
     Elf32_Word Index;
