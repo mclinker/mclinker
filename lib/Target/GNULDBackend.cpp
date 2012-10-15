@@ -1927,6 +1927,13 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
   if (config().options().Bsymbolic())
     return false;
 
+  // A local defined symbol should be non-preemptible.
+  // This issue is found when linking libstdc++ on freebsd. A R_386_GOT32
+  // relocation refers to a local defined symbol, and we should generate a
+  // relative dynamic relocation when applying the relocation.
+  if (pSym.isDefine() && pSym.binding() == ResolveInfo::Local)
+    return false;
+
   return true;
 }
 
