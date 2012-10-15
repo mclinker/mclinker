@@ -7,6 +7,7 @@ These test cases test X86 TLS relocation handling
 2) obj - the object files of source programs. Files are compiled by following script:
      tls_foo.o              : gcc -c -m32 tls_foo.c -o tls_foo.o
      tls_foo_pic.o          : gcc -c -m32 tls_foo.c -o tls_foo_pic.o -fPIC
+     tls_foo_ldm.o          : gcc -c -m32 tls_foo.c --tls-model=local-dynamic -fPIC -o tls_foo_ldm.o
      tls_foo_extern.o       : gcc -c -m32 tls_foo_extern.c -o tls_foo_extern.o
      tls_foo_extern_gotie.o : gcc -c -m32 tls_foo_extern.c -o tls_foo_extern_gotie.o \
                               --tls-model=initial-exec -fPIC
@@ -40,3 +41,9 @@ These test cases test X86 TLS relocation handling
 8) shared_tls_gotie.ll
    test R_386_TLS_GOTIE when building shared objects
    link tls_foo_extern_gotie.o to produce the shared object
+7) exec_tls_ldm.ll
+   test R_386_TLS_LDM when building executables
+   link tls_main.o, tls_foo_ldm.o and tls_variables.o to produce the executable
+8) shared_tls_ldm.ll
+   test R_386_TLS_LDM when building shared objects
+   link tls_foo_ldm.o to produce the shared object
