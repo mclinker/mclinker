@@ -94,6 +94,8 @@ public:
 
   const X86PLT& getPLT() const;
 
+  GOT::Entry& getTLSModuleID();
+
   unsigned int bitclass() const;
 
   /// preLayout - Backend can do any needed modification before layout

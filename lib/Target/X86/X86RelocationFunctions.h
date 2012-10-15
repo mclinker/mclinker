@@ -23,6 +23,8 @@ DECL_X86_APPLY_RELOC_FUNC(tls_gd)           \
 DECL_X86_APPLY_RELOC_FUNC(tls_ie)           \
 DECL_X86_APPLY_RELOC_FUNC(tls_gotie)        \
 DECL_X86_APPLY_RELOC_FUNC(tls_le)           \
+DECL_X86_APPLY_RELOC_FUNC(tls_ldm)          \
+DECL_X86_APPLY_RELOC_FUNC(tls_ldo_32)       \
 DECL_X86_APPLY_RELOC_FUNC(unsupport)
 
 
@@ -46,7 +48,7 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
   { &tls_gotie,         16, "R_386_TLS_GOTIE"         },  \
   { &tls_le,            17, "R_386_TLS_LE"            },  \
   { &tls_gd,            18, "R_386_TLS_GD"            },  \
-  { &unsupport,         19, "R_386_TLS_LDM"           },  \
+  { &tls_ldm,           19, "R_386_TLS_LDM"           },  \
   { &unsupport,         20, "R_386_16"                },  \
   { &unsupport,         21, "R_386_PC16"              },  \
   { &unsupport,         22, "R_386_8"                 },  \
@@ -59,7 +61,7 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         29, "R_386_TLS_LDM_PUSH"      },  \
   { &unsupport,         30, "R_386_TLS_LDM_CALL"      },  \
   { &unsupport,         31, "R_386_TLS_LDM_POP"       },  \
-  { &unsupport,         32, "R_386_TLS_LDO_32"        },  \
+  { &tls_ldo_32,        32, "R_386_TLS_LDO_32"        },  \
   { &unsupport,         33, "R_386_TLS_IE_32"         },  \
   { &unsupport,         34, "R_386_TLS_LE_32"         },  \
   { &unsupport,         35, "R_386_TLS_DTPMOD32"      },  \

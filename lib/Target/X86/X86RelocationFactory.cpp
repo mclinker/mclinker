@@ -460,6 +460,34 @@ X86RelocationFactory::Result tls_gd(Relocation& pReloc,
   return X86RelocationFactory::OK;
 }
 
+// R_386_TLS_LDM
+X86RelocationFactory::Result tls_ldm(Relocation& pReloc,
+                                     X86RelocationFactory& pParent)
+{
+  // FIXME: no linker optimization for TLS relocation
+  const GOT::Entry& got_entry = pParent.getTarget().getTLSModuleID();
+
+  // All GOT offsets are relative to the end of the GOT.
+  X86RelocationFactory::SWord GOT_S = got_entry.getOffset() -
+                                      (pParent.getTarget().getGOTPLT().addr() -
+                                       pParent.getTarget().getGOT().addr());
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  pReloc.target() = GOT_S + A;
+
+  return X86RelocationFactory::OK;
+}
+
+// R_386_TLS_LDO_32
+X86RelocationFactory::Result tls_ldo_32(Relocation& pReloc,
+                                        X86RelocationFactory& pParent)
+{
+  // FIXME: no linker optimization for TLS relocation
+  RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
+  X86RelocationFactory::Address S = pReloc.symValue();
+  pReloc.target() = S + A;
+  return X86RelocationFactory::OK;
+}
+
 // R_X86_TLS_IE
 X86RelocationFactory::Result tls_ie(Relocation& pReloc,
                                     X86RelocationFactory& pParent)

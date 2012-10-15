@@ -308,6 +308,13 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_386_TLS_LDM:
+      getTLSModuleID();
+      return;
+
+    case llvm::ELF::R_386_TLS_LDO_32:
+      return;
+
     case llvm::ELF::R_386_TLS_IE:
       setHasStaticTLS();
       // if buildint shared object, a RELATIVE dynamic relocation is needed
@@ -502,6 +509,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
     }
+
+    case llvm::ELF::R_386_TLS_LDM:
+      getTLSModuleID();
+      return;
+
+    case llvm::ELF::R_386_TLS_LDO_32:
+      return;
 
     case llvm::ELF::R_386_TLS_IE:
       setHasStaticTLS();
@@ -707,6 +721,27 @@ const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 {
   assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
   return *m_pRelDyn;
+}
+
+// Create a GOT entry for the TLS module index
+GOT::Entry& X86GNULDBackend::getTLSModuleID()
+{
+  static GOT::Entry* got_entry = NULL;
+  if (NULL != got_entry)
+    return *got_entry;
+
+  // Allocate 2 got entries and 1 dynamic reloc for R_386_TLS_LDM
+  m_pGOT->reserve(2);
+  got_entry = m_pGOT->consume();
+  m_pGOT->consume()->setContent(0x0);
+
+  m_pRelDyn->reserveEntry(*m_pRelocFactory);
+  Relocation* rel_entry = m_pRelDyn->consumeEntry();
+  rel_entry->setType(llvm::ELF::R_386_TLS_DTPMOD32);
+  rel_entry->targetRef().assign(*got_entry, 0x0);
+  rel_entry->setSymInfo(NULL);
+
+  return *got_entry;
 }
 
 OutputRelocSection& X86GNULDBackend::getRelPLT()
