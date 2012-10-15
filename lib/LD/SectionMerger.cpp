@@ -12,17 +12,23 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/Object/SectionMap.h>
+#include <mcld/ADT/StringHash.h>
 
 #include <iostream>
 using namespace std;
 
 using namespace mcld;
 
+namespace {
+  static StringHash<ES> hash_func;
+} // end anonymous namespace
+
 //===----------------------------------------------------------------------===//
 // SectionMerger::Rule
 //===----------------------------------------------------------------------===//
 SectionMerger::Rule::Rule(const std::string& pSubStr, LDSection* pSection)
   : substr(pSubStr), target(pSection) {
+  hash = hash_func(pSubStr);
 }
 
 //===----------------------------------------------------------------------===//
@@ -39,32 +45,34 @@ SectionMerger::~SectionMerger()
 
 SectionMerger::iterator SectionMerger::find(const std::string& pName)
 {
-  iterator it;
-  for (it = m_RuleList.begin(); it != m_RuleList.end(); ++it) {
-    if (0 == strncmp(pName.c_str(),
-                     (*it).substr.c_str(),
-                     (*it).substr.length()))
-      break;
-    // wildcard to a user-defined output section.
-    else if(0 == strcmp("*", (*it).substr.c_str()))
-      break;
+  uint32_t hash = hash_func(pName);
+  RuleList::iterator rule, rEnd = m_RuleList.end();
+  for (rule = m_RuleList.begin(); rule != rEnd; ++rule) {
+    if (pName.size() < rule->substr.size())
+      continue;
+    if (!StringHash<ES>::may_include(rule->hash, hash))
+      continue;
+
+    if (0 == strncmp(pName.c_str(), rule->substr.c_str(), rule->substr.size()))
+      return rule;
   }
-  return it;
+  return rule;
 }
 
 SectionMerger::const_iterator SectionMerger::find(const std::string& pName) const
 {
-  const_iterator it;
-  for (it = m_RuleList.begin(); it != m_RuleList.end(); ++it) {
-    if (0 == strncmp(pName.c_str(),
-                     (*it).substr.c_str(),
-                     (*it).substr.length()))
-      break;
-    // wildcard to a user-defined output section.
-    else if(0 == strcmp("*", (*it).substr.c_str()))
-      break;
+  uint32_t hash = hash_func(pName);
+  RuleList::const_iterator rule, rEnd = m_RuleList.end();
+  for (rule = m_RuleList.begin(); rule != rEnd; ++rule) {
+    if (pName.size() < rule->substr.size())
+      continue;
+    if (!StringHash<ES>::may_include(rule->hash, hash))
+      continue;
+
+    if (0 == strncmp(pName.c_str(), rule->substr.c_str(), rule->substr.size()))
+      return rule;
   }
-  return it;
+  return rule;
 }
 
 LDSection* SectionMerger::getMatchedSection(const std::string& pName) const

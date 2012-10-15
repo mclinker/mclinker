@@ -57,6 +57,7 @@ private:
     Rule(const std::string& pSubStr, LDSection* pTarget);
 
   public:
+    uint32_t hash;
     std::string substr;
     LDSection* target;
   };
