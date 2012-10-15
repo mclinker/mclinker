@@ -158,6 +158,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
 	${INCDIR}/Object/SectionMap.h \
 	${LIBDIR}/Object/SectionMap.cpp \
+	${INCDIR}/Object/SectionRules.h \
+	${LIBDIR}/Object/SectionRules.cpp \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \
