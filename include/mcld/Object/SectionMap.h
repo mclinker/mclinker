@@ -55,6 +55,9 @@ public:
   const NamePair& find(const std::string& pFrom) const;
   NamePair&       find(const std::string& pFrom);
 
+  const NamePair& find(const std::string& pFrom, unsigned int pHash) const;
+  NamePair&       find(const std::string& pFrom, unsigned int pHash);
+
   // add a mapping from input sub-string to output name.
   // @param [in]  pFrom  the given input sub-string
   // @param [in]  pTo    the mapped output string
@@ -70,6 +73,8 @@ public:
 
   bool           empty() const { return m_NamePairList.empty(); }
   size_t         size () const { return m_NamePairList.size(); }
+
+  static unsigned int hash(const std::string& pString);
 
 private:
   bool matched(const NamePair& pNamePair,

@@ -13,9 +13,6 @@
 
 using namespace mcld;
 
-namespace {
-  static StringHash<ES> hash_func;
-} // end anonymous namespace
 
 SectionMap::NamePair SectionMap::NullName;
 
@@ -28,7 +25,7 @@ SectionMap::NamePair::NamePair()
 
 SectionMap::NamePair::NamePair(const std::string& pFrom, const std::string& pTo)
   : from(pFrom), to(pTo) {
-  hash = hash_func(pFrom);
+  hash = SectionMap::hash(pFrom);
 }
 
 bool SectionMap::NamePair::isNull() const
@@ -41,22 +38,34 @@ bool SectionMap::NamePair::isNull() const
 //===----------------------------------------------------------------------===//
 const SectionMap::NamePair& SectionMap::find(const std::string& pFrom) const
 {
-  unsigned int hash = hash_func(pFrom);
+  unsigned int hash = SectionMap::hash(pFrom);
+  return find(pFrom, hash);
+}
+
+SectionMap::NamePair& SectionMap::find(const std::string& pFrom)
+{
+  unsigned int hash = SectionMap::hash(pFrom);
+  return find(pFrom, hash);
+}
+
+const SectionMap::NamePair&
+SectionMap::find(const std::string& pFrom, unsigned int pHash) const
+{
   NamePairList::const_iterator name_hash, nEnd = m_NamePairList.end();
   for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
-    if (matched(*name_hash, pFrom, hash)) {
+    if (matched(*name_hash, pFrom, pHash)) {
       return *name_hash;
     }
   }
   return NullName;
 }
 
-SectionMap::NamePair& SectionMap::find(const std::string& pFrom)
+SectionMap::NamePair&
+SectionMap::find(const std::string& pFrom, unsigned int pHash)
 {
-  unsigned int hash = hash_func(pFrom);
   NamePairList::iterator name_hash, nEnd = m_NamePairList.end();
   for (name_hash = m_NamePairList.begin(); name_hash != nEnd; ++name_hash) {
-    if (matched(*name_hash, pFrom, hash)) {
+    if (matched(*name_hash, pFrom, pHash)) {
       return *name_hash;
     }
   }
@@ -99,5 +108,11 @@ bool SectionMap::matched(const NamePair& pNamePair,
   }
 
   return false;
+}
+
+unsigned int SectionMap::hash(const std::string& pString)
+{
+  static StringHash<ES> hash_func;
+  return hash_func(pString);
 }
 
