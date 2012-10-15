@@ -255,6 +255,27 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // FIXME: A GOT section is needed
       return;
 
+    case llvm::ELF::R_386_GOT32:
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
+        return;
+      // FIXME: check STT_GNU_IFUNC symbol
+      m_pGOT->reserve();
+      // If building shared object or the symbol is undefined, a dynamic
+      // relocation is needed to relocate this GOT entry. Reserve an
+      // entry in .rel.dyn
+      if (LinkerConfig::DynObj ==
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
+        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        // set GOTRel bit
+        rsym->setReserved(rsym->reserved() | GOTRel);
+        return;
+      }
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+
     case llvm::ELF::R_386_PC32:
       return;
 
