@@ -44,42 +44,37 @@ public:
   /// @parap pSection - the output section
   void append(const std::string& pName, LDSection& pSection);
 
-  // -----  observers  ----- //
-  bool empty() const
-  { return m_LDSectionMap.empty(); }
-
-  size_t size() const
-  { return m_LDSectionMap.size(); }
+  size_t size () const { return m_RuleList.size(); }
+  bool   empty() const { return m_RuleList.empty(); }
 
   /// initOutputSectMap - initialize the map from input substr to associated
   /// output LDSection*
   void initOutputSectMap();
 
 private:
-  struct NameSectPair {
-    std::string inputSubStr;
-    LDSection* outputSection;
+  struct Rule {
+  public:
+    Rule(const std::string& pSubStr, LDSection* pTarget);
+
+  public:
+    std::string substr;
+    LDSection* target;
   };
 
-  typedef std::vector<NameSectPair> LDSectionMapTy;
+  typedef std::vector<Rule> RuleList;
 
-  typedef LDSectionMapTy::iterator iterator;
-  typedef LDSectionMapTy::const_iterator const_iterator;
+  typedef RuleList::iterator iterator;
+  typedef RuleList::const_iterator const_iterator;
 
 private:
   // -----  iterators  ----- //
   const_iterator find(const std::string& pName) const;
   iterator       find(const std::string& pName);
 
-  const_iterator begin() const { return m_LDSectionMap.begin(); }
-  iterator       begin()       { return m_LDSectionMap.begin(); }
-  const_iterator end  () const { return m_LDSectionMap.end(); }
-  iterator       end  ()       { return m_LDSectionMap.end(); }
-
 private:
   const SectionMap& m_SectionNameMap;
   Module& m_Module;
-  LDSectionMapTy m_LDSectionMap;
+  RuleList m_RuleList;;
 };
 
 } // namespace of mcld

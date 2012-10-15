@@ -13,16 +13,24 @@
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/Object/SectionMap.h>
 
+#include <iostream>
+using namespace std;
+
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// SectionMerger::Rule
+//===----------------------------------------------------------------------===//
+SectionMerger::Rule::Rule(const std::string& pSubStr, LDSection* pSection)
+  : substr(pSubStr), target(pSection) {
+}
 
 //===----------------------------------------------------------------------===//
 // SectionMerger
 //===----------------------------------------------------------------------===//
 SectionMerger::SectionMerger(const LinkerConfig& pConfig, Module& pModule)
-: m_SectionNameMap(pConfig.scripts().sectionMap()),
-  m_Module(pModule),
-  m_LDSectionMap()
-{
+  : m_SectionNameMap(pConfig.scripts().sectionMap()),
+    m_Module(pModule) {
 }
 
 SectionMerger::~SectionMerger()
@@ -32,13 +40,13 @@ SectionMerger::~SectionMerger()
 SectionMerger::iterator SectionMerger::find(const std::string& pName)
 {
   iterator it;
-  for (it = begin(); it != end(); ++it) {
+  for (it = m_RuleList.begin(); it != m_RuleList.end(); ++it) {
     if (0 == strncmp(pName.c_str(),
-                     (*it).inputSubStr.c_str(),
-                     (*it).inputSubStr.length()))
+                     (*it).substr.c_str(),
+                     (*it).substr.length()))
       break;
     // wildcard to a user-defined output section.
-    else if(0 == strcmp("*", (*it).inputSubStr.c_str()))
+    else if(0 == strcmp("*", (*it).substr.c_str()))
       break;
   }
   return it;
@@ -47,13 +55,13 @@ SectionMerger::iterator SectionMerger::find(const std::string& pName)
 SectionMerger::const_iterator SectionMerger::find(const std::string& pName) const
 {
   const_iterator it;
-  for (it = begin(); it != end(); ++it) {
+  for (it = m_RuleList.begin(); it != m_RuleList.end(); ++it) {
     if (0 == strncmp(pName.c_str(),
-                     (*it).inputSubStr.c_str(),
-                     (*it).inputSubStr.length()))
+                     (*it).substr.c_str(),
+                     (*it).substr.length()))
       break;
     // wildcard to a user-defined output section.
-    else if(0 == strcmp("*", (*it).inputSubStr.c_str()))
+    else if(0 == strcmp("*", (*it).substr.c_str()))
       break;
   }
   return it;
@@ -66,8 +74,8 @@ LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
 
   // check if we can find a matched LDSection.
   // If not, we need to find it in output context. But this should be rare.
-  if (it != end())
-    section = (*it).outputSection;
+  if (it != m_RuleList.end())
+    section = (*it).target;
   else
     section = m_Module.getSection(pName);
 
@@ -78,9 +86,9 @@ LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
 void SectionMerger::append(const std::string& pName, LDSection& pSection)
 {
   iterator it = find(pName);
-  if (it != end()) {
-    assert(NULL == (*it).outputSection);
-    (*it).outputSection = &pSection;
+  if (it != m_RuleList.end()) {
+    assert(NULL == (*it).target);
+    (*it).target = &pSection;
   }
 }
 
@@ -90,10 +98,8 @@ void SectionMerger::initOutputSectMap()
   // associated output LDSection*
   SectionMap::const_iterator it;
   for (it = m_SectionNameMap.begin(); it != m_SectionNameMap.end(); ++it) {
-    NameSectPair mapping;
-    mapping.inputSubStr = it->from;
-    mapping.outputSection =  NULL;
-    m_LDSectionMap.push_back(mapping);
+    Rule rule(it->from, NULL);
+    m_RuleList.push_back(rule);
   }
-  assert(m_SectionNameMap.size() == m_LDSectionMap.size());
+  assert(m_SectionNameMap.size() == m_RuleList.size());
 }
