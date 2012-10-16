@@ -521,9 +521,44 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
-/// getOrCreateSectData - get or create SectionData
+/// getOrCreateInputSectData - get or create SectionData
 /// pSection is input LDSection
-SectionData& FragmentLinker::getOrCreateSectData(LDSection& pSection)
+SectionData&
+FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
+{
+  // if there is already a section data pointed by section, return it.
+  SectionData* sect_data = pSection.getSectionData();
+  if (NULL != sect_data) {
+    m_Layout.addInputRange(*sect_data, pSection);
+    return *sect_data;
+  }
+
+  // try to get one from output LDSection
+  LDSection* output_sect =
+    m_pSectionMerger->getMatchedSection(pSection.name());
+
+  assert(NULL != output_sect);
+
+  sect_data = output_sect->getSectionData();
+
+  if (NULL != sect_data) {
+    pSection.setSectionData(sect_data);
+    m_Layout.addInputRange(*sect_data, pSection);
+    return *sect_data;
+  }
+
+  // if the output LDSection also has no SectionData, then create one.
+  sect_data = SectionData::Create(*output_sect);
+  pSection.setSectionData(sect_data);
+  output_sect->setSectionData(sect_data);
+  m_Layout.addInputRange(*sect_data, pSection);
+  return *sect_data;
+}
+
+/// getOrCreateOutputSectData - get or create SectionData
+/// pSection is output LDSection
+SectionData&
+FragmentLinker::getOrCreateOutputSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.
   SectionData* sect_data = pSection.getSectionData();

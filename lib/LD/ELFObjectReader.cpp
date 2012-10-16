@@ -185,7 +185,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                llvm::ELF::SHT_NOBITS,
                                                llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
 
-        SectionData& sect_data = m_Linker.getOrCreateSectData(**section);
+        SectionData& sect_data = m_Linker.getOrCreateOutputSectData(**section);
                                             /*  value, valsize, size*/
         FillFragment* frag = new FillFragment(0x0,   1,       (*section)->size());
 

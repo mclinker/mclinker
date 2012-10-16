@@ -68,13 +68,13 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
 
   // initialize .got
   LDSection& got = file_format->getGOT();
-  m_pGOT = new MipsGOT(got, pLinker.getOrCreateSectData(got));
+  m_pGOT = new MipsGOT(got, pLinker.getOrCreateOutputSectData(got));
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
+                                     pLinker.getOrCreateOutputSectData(reldyn),
                                      8);
 }
 
@@ -513,7 +513,7 @@ bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 }
 
 /// allocateCommonSymbols - allocate common symbols in the corresponding
-/// sections.
+/// sections. This is called at pre-layout stage.
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
 bool
@@ -553,8 +553,8 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
   */
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_sect_data = pLinker.getOrCreateSectData(bss_sect);
-  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(tbss_sect);
+  SectionData& bss_sect_data = pLinker.getOrCreateOutputSectData(bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateOutputSectData(tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect.size();

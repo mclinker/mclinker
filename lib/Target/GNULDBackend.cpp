@@ -1307,7 +1307,7 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 }
 
 /// allocateCommonSymbols - allocate common symbols in the corresponding
-/// sections.
+/// sections. This is executed at pre-layout stage.
 /// @refer Google gold linker: common.cc: 214
 bool
 GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
@@ -1328,8 +1328,8 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
   LDSection& tbss_sect = file_format->getTBSS();
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_sect_data = pLinker.getOrCreateSectData(bss_sect);
-  SectionData& tbss_sect_data = pLinker.getOrCreateSectData(tbss_sect);
+  SectionData& bss_sect_data = pLinker.getOrCreateOutputSectData(bss_sect);
+  SectionData& tbss_sect_data = pLinker.getOrCreateOutputSectData(tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect.size();

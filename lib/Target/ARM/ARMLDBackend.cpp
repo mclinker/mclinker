@@ -110,11 +110,11 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
 
   // initialize .got
   LDSection& got = file_format->getGOT();
-  m_pGOT = new ARMGOT(got, pLinker.getOrCreateSectData(got));
+  m_pGOT = new ARMGOT(got, pLinker.getOrCreateOutputSectData(got));
 
   // initialize .plt
   LDSection& plt = file_format->getPLT();
-  m_pPLT = new ARMPLT(plt, pLinker.getOrCreateSectData(plt), *m_pGOT);
+  m_pPLT = new ARMPLT(plt, pLinker.getOrCreateOutputSectData(plt), *m_pGOT);
 
   // initialize .rel.plt
   LDSection& relplt = file_format->getRelPlt();
@@ -122,14 +122,14 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
   // create SectionData and ARMRelDynSection
   m_pRelPLT = new OutputRelocSection(pModule,
                                      relplt,
-                                     pLinker.getOrCreateSectData(relplt),
+                                     pLinker.getOrCreateOutputSectData(relplt),
                                      8);
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
-                                     pLinker.getOrCreateSectData(reldyn),
+                                     pLinker.getOrCreateOutputSectData(reldyn),
                                      8);
 }
 
@@ -257,13 +257,15 @@ void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
   rel_entry.setSymInfo(&pSym);
 }
 
-LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
-                                                    const ResolveInfo& pSym)
+/// defineSymbolForCopyReloc
+/// For a symbol needing copy relocation, define a copy symbol in the BSS
+/// section and all other reference to this symbol should refer to this
+/// copy.
+/// This is executed at scan relocation stage.
+LDSymbol&
+ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
+                                          const ResolveInfo& pSym)
 {
-  // For a symbol needing copy relocation, define a copy symbol in the BSS
-  // section and all other reference to this symbol should refer to this
-  // copy.
-
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
   ELFFileFormat* file_format = getOutputFormat();
@@ -273,7 +275,7 @@ LDSymbol& ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
     bss_sect_hdr = &file_format->getBSS();
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_section = pLinker.getOrCreateSectData(*bss_sect_hdr);
+  SectionData& bss_section = pLinker.getOrCreateOutputSectData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -785,7 +787,7 @@ bool ARMGNULDBackend::readSection(Input& pInput,
   MemoryRegion* region = pInput.memArea()->request(
           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
-  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
 
   Fragment* frag = NULL;
   if (NULL == region) {

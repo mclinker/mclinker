@@ -228,7 +228,7 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
   MemoryRegion* region = pInput.memArea()->request(
            pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
-  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
 
   Fragment* frag = NULL;
   if (NULL == region) {

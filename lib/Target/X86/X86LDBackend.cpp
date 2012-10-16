@@ -165,13 +165,14 @@ void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
   rel_entry.setSymInfo(&pSym);
 }
 
+/// defineSymbolforCopyReloc
+/// For a symbol needing copy relocation, define a copy symbol in the BSS
+/// section and all other reference to this symbol should refer to this
+/// copy.
+/// @note This is executed at `scan relocation' stage.
 LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                                     const ResolveInfo& pSym)
 {
-  // For a symbol needing copy relocation, define a copy symbol in the BSS
-  // section and all other reference to this symbol should refer to this
-  // copy.
-
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
   ELFFileFormat* file_format = getOutputFormat();
@@ -182,8 +183,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // get or create corresponding BSS SectionData
   assert(NULL != bss_sect_hdr);
-  SectionData& bss_section = pLinker.getOrCreateSectData(
-                                     *bss_sect_hdr);
+  SectionData& bss_section = pLinker.getOrCreateOutputSectData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -791,16 +791,16 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new X86GOT(got, pLinker.getOrCreateSectData(got));
+    m_pGOT = new X86GOT(got, pLinker.getOrCreateOutputSectData(got));
 
     // initialize .got.plt
     LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateSectData(gotplt));
+    m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateOutputSectData(gotplt));
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new X86PLT(plt,
-                        pLinker.getOrCreateSectData(plt),
+                        pLinker.getOrCreateOutputSectData(plt),
                         *m_pGOTPLT,
                         config());
 
@@ -809,13 +809,13 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     relplt.setLink(&plt);
     m_pRelPLT = new OutputRelocSection(pModule,
                                        relplt,
-                                       pLinker.getOrCreateSectData(relplt),
+                                       pLinker.getOrCreateOutputSectData(relplt),
                                        8);
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();
     m_pRelDyn = new OutputRelocSection(pModule,
                                        reldyn,
-                                       pLinker.getOrCreateSectData(reldyn),
+                                       pLinker.getOrCreateOutputSectData(reldyn),
                                        8);
   }
 }

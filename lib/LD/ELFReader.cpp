@@ -215,7 +215,7 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
                               LDSection& pInputSectHdr) const
 {
   // create SectionData of this eh_frame
-  SectionData& sect_data = pLinker.getOrCreateSectData(pInputSectHdr);
+  SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
 
   size_t size = 0;
   if (pLinker.getLDInfo().options().hasEhFrameHdr()) {
