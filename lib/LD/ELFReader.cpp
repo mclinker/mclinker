@@ -251,13 +251,13 @@ bool ELFReader<32, true>::readEhFrame(Input& pInput,
 {
   // create SectionData of this eh_frame
   SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
-  size_t size = 0;
 
+  size_t size = 0;
   // FIXME: m_Backend must be non-constant in this constant function.
   EhFrame* ehframe = m_Backend.getEhFrame();
-  assert(NULL != ehframe);
+  bool success = false;
   size = ehframe->read(pLinker.getLayout(), pInput,
-                       pInputSectHdr, target().bitclass());
+                       pInputSectHdr, target().bitclass(), success);
 
   // create output section for eh_frame
   LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
@@ -265,5 +265,6 @@ bool ELFReader<32, true>::readEhFrame(Input& pInput,
                                                          pInputSectHdr.type(),
                                                          pInputSectHdr.flag());
   out_sect.setSize(out_sect.size() + size);
-  return true;
+  return success;
 }
+

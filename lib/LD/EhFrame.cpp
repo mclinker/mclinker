@@ -17,10 +17,11 @@
 
 using namespace mcld;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // EhFrame
+//===----------------------------------------------------------------------===//
 EhFrame::EhFrame(bool isLittleEndianTarget)
- : m_fTreatAsRegularSection(false) {
+{
   if (llvm::sys::isLittleEndianHost() == isLittleEndianTarget)
     m_pReadVal = new ReadVal<false>();
   else
@@ -36,7 +37,8 @@ EhFrame::~EhFrame()
 size_t EhFrame::read(Layout& pLayout,
                      Input& pInput,
                      LDSection& pSection,
-                     unsigned int pBitclass)
+                     unsigned int pBitclass,
+                     bool& pSuccess)
 {
   // prototype of action function
   typedef State (EhFrame::*ActionFuncType)(PackageType&);
@@ -61,6 +63,11 @@ size_t EhFrame::read(Layout& pLayout,
   while (Stop != state && Dead != state) {
     state = (this->*ActionFuncs[state])(pkg);
   }
+  if (Stop == state)
+    pSuccess = true;
+  else if (Dead == state)
+    pSuccess = false;
+
   size_t section_size = pkg.sectSize;
   return section_size;
 }
@@ -74,11 +81,6 @@ EhFrame::State EhFrame::start(PackageType& pPkg)
 
   // an empty .eh_frame, handle as regular section
   if (NULL == region)
-    return ReadRegular;
-
-  // we fail to parse some eh_frame prior to this one, we should then treat all
-  // the other one as regular sections
-  if (treatAsRegularSection())
     return ReadRegular;
 
   // initialize the Package
@@ -356,7 +358,6 @@ EhFrame::State EhFrame::fail(PackageType& pPkg)
   // fail to recognize thie eh_frame, which means that we don't need to parse
   // the rest of the eh_frame in other inputs because we end up has no ability
   // to generate the binary search table in eh_frame_hdr
-  m_fTreatAsRegularSection = true;
   m_CIEs.clear();
   m_FDEs.clear();
 

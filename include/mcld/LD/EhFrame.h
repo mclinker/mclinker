@@ -55,7 +55,8 @@ public:
   size_t read(Layout& pLayout,
               Input& pInput,
               LDSection& pSection,
-              unsigned int pBitclass);
+              unsigned int pBitclass,
+              bool& pSuccess);
 
   // ----- observers ----- //
   const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
@@ -69,14 +70,6 @@ public:
 
   /// getFDECount - the number of FDE entries
   size_t getFDECount() const { return m_FDEs.size(); }
-
-  /// treatAsRegularSection - if we should treat eh_frame as regular
-  /// sections
-  /// @return true - there is any input .eh_frame section that we are not
-  /// able to recognize and should treat the eh_frame sections as regular
-  /// sections
-  bool treatAsRegularSection() const
-  { return m_fTreatAsRegularSection; }
 
 private:
   typedef std::vector<Fragment*> FragListType;
@@ -170,8 +163,6 @@ private:
 private:
   CIEListType m_CIEs;
   FDEListType m_FDEs;
-
-  bool m_fTreatAsRegularSection;
 
   /// m_pReadVal - a functor of ReadVal
   /// use (*m_pReadVal)(pAddr) to read a 32 bit data from pAddr
