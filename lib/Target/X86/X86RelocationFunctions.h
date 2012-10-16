@@ -13,7 +13,7 @@ static X86RelocationFactory::Result Name    (Relocation& pEntry, \
 
 #define DECL_X86_APPLY_RELOC_FUNCS \
 DECL_X86_APPLY_RELOC_FUNC(none)             \
-DECL_X86_APPLY_RELOC_FUNC(abs32)            \
+DECL_X86_APPLY_RELOC_FUNC(abs)              \
 DECL_X86_APPLY_RELOC_FUNC(rel32)            \
 DECL_X86_APPLY_RELOC_FUNC(plt32)            \
 DECL_X86_APPLY_RELOC_FUNC(got32)            \
@@ -30,7 +30,7 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_X86_APPLY_RELOC_FUNC_PTRS \
   { &none,               0, "R_386_NONE"              },  \
-  { &abs32,              1, "R_386_32"                },  \
+  { &abs,                1, "R_386_32"                },  \
   { &rel32,              2, "R_386_PC32"              },  \
   { &got32,              3, "R_386_GOT32"             },  \
   { &plt32,              4, "R_386_PLT32"             },  \
@@ -49,9 +49,9 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
   { &tls_le,            17, "R_386_TLS_LE"            },  \
   { &tls_gd,            18, "R_386_TLS_GD"            },  \
   { &tls_ldm,           19, "R_386_TLS_LDM"           },  \
-  { &unsupport,         20, "R_386_16"                },  \
+  { &abs,               20, "R_386_16"                },  \
   { &unsupport,         21, "R_386_PC16"              },  \
-  { &unsupport,         22, "R_386_8"                 },  \
+  { &abs,               22, "R_386_8"                 },  \
   { &unsupport,         23, "R_386_PC8"               },  \
   { &unsupport,         24, "R_386_TLS_GD_32"         },  \
   { &unsupport,         25, "R_386_TLS_GD_PUSH"       },  \

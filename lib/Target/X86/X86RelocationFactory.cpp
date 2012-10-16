@@ -233,8 +233,10 @@ X86RelocationFactory::Result none(Relocation& pReloc,
 }
 
 // R_386_32: S + A
-X86RelocationFactory::Result abs32(Relocation& pReloc,
-                                   X86RelocationFactory& pParent)
+// R_386_16
+// R_386_8
+X86RelocationFactory::Result abs(Relocation& pReloc,
+                                 X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
@@ -246,7 +248,7 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
                               true);
 
   const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
+                     pParent.getFragmentLinker().getLayout().getOutputLDSection(
                                                   *(pReloc.targetRef().frag()));
   assert(NULL != target_sect);
   // If the flag of target section is not ALLOC, we will not scan this relocation
@@ -258,8 +260,16 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
 
   // A local symbol may need REL Type dynamic relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    helper_DynRel(rsym, *pReloc.targetRef().frag(), pReloc.targetRef().offset(),
-                                            llvm::ELF::R_386_RELATIVE, pParent);
+    if (llvm::ELF::R_386_32 == pReloc.type()) {
+      helper_DynRel(rsym, *pReloc.targetRef().frag(),
+                    pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE,
+                    pParent);
+    }
+    else {
+      // FIXME: check Section symbol
+      helper_DynRel(rsym, *pReloc.targetRef().frag(),
+                    pReloc.targetRef().offset(), pReloc.type(), pParent);
+    }
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
   }
@@ -273,7 +283,8 @@ X86RelocationFactory::Result abs32(Relocation& pReloc,
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
     if (has_dyn_rel) {
-      if (helper_use_relative_reloc(*rsym, pParent)) {
+      if (llvm::ELF::R_386_32 == pReloc.type() &&
+          helper_use_relative_reloc(*rsym, pParent)) {
         helper_DynRel(rsym, *pReloc.targetRef().frag(),
               pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE, pParent);
       }
