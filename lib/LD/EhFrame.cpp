@@ -58,7 +58,7 @@ size_t EhFrame::read(Layout& pLayout,
   State state = Start;
 
   // parse the eh_frame
-  while (Stop != state) {
+  while (Stop != state && Dead != state) {
     state = (this->*ActionFuncs[state])(pkg);
   }
   size_t section_size = pkg.sectSize;
@@ -377,7 +377,26 @@ EhFrame::State EhFrame::fail(PackageType& pPkg)
   // output debug message
   debug(diag::debug_eh_unsupport) << pPkg.input.name();
 
-  return ReadRegular;
+  return ReadFailed;
+}
+
+EhFrame::State EhFrame::readFailed(PackageType& pPkg)
+{
+  // handle this eh_frame as a regular section
+  MemoryRegion* region = pPkg.sectionRegion;
+  Fragment* frag = NULL;
+  if (NULL == region) {
+    // If the input section's size is zero, we got a NULL region.
+    // use a virtual fill fragment
+    frag = new FillFragment(0x0, 0, 0);
+  }
+  else
+    frag = new RegionFragment(*region);
+  SectionData* sect_data = pPkg.section.getSectionData();
+  assert(NULL != sect_data);
+  pPkg.sectSize = pPkg.layout.appendFragment(
+                                      *frag, *sect_data, pPkg.section.align());
+  return Dead;
 }
 
 EhFrame::State EhFrame::success(PackageType& pPkg)

@@ -93,7 +93,9 @@ private:
     Fail          = 5,
     Success       = 6,
     ReadRegular   = 7,
-    Stop
+    ReadFailed    = 8,
+    Stop,
+    Dead
   };
 
   /// Package - collect all needed data used by every actions so that they can
@@ -157,6 +159,7 @@ private:
   State fail(PackageType& pPkg);
   State success(PackageType& pPkg);
   State readRegular(PackageType& pPkg);
+  State readFailed(PackageType& pPkg);
 
   /// skipLEB128 - skip the first LEB128 encoded value from *pp, update *pp
   /// to the next character.
