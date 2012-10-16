@@ -196,9 +196,9 @@ public:
                                  void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
-  inline bool readRegularSection(Input& pInput,
-                                 FragmentLinker& pLinker,
-                                 LDSection& pInputSectHdr) const;
+  bool readRegularSection(Input& pInput,
+                          FragmentLinker& pLinker,
+                          LDSection& pInputSectHdr) const;
 
   /// readRegularSection - read a target section and create fragments.
   inline bool readTargetSection(Input& pInput,

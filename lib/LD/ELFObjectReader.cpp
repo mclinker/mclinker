@@ -161,8 +161,16 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       case LDFileFormat::EhFrame: {
-        if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section)) {
-          fatal(diag::err_cannot_read_section) <<(*section)->name();
+        if (m_Linker.getLDInfo().options().hasEhFrameHdr()) {
+          // if --eh-frame-hdr option is given, parse .eh_frame.
+          if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section)) {
+            fatal(diag::err_cannot_read_section) <<(*section)->name();
+          }
+        }
+        else {
+          if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section)) {
+            fatal(diag::err_cannot_read_section) << (*section)->name();
+          }
         }
         break;
       }

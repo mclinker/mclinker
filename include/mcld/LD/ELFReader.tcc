@@ -215,38 +215,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
   return true;
 }
 
-/// readRegularSection - read a regular section and create fragments.
-bool ELFReader<32, true>::readRegularSection(Input& pInput,
-                                             FragmentLinker& pLinker,
-                                             LDSection& pInputSectHdr) const
-{
-  MemoryRegion* region = pInput.memArea()->request(
-           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
-
-  SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
-
-  Fragment* frag = NULL;
-  if (NULL == region) {
-    // If the input section's size is zero, we got a NULL region.
-    // use a virtual fill fragment
-    frag = new FillFragment(0x0, 0, 0);
-  }
-  else
-    frag = new RegionFragment(*region);
-
-  uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     sect_data,
-                                                     pInputSectHdr.align());
-
-  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
-                                                         pInputSectHdr.kind(),
-                                                         pInputSectHdr.type(),
-                                                         pInputSectHdr.flag());
-  out_sect.setSize(out_sect.size() + size);
-  return true;
-}
-
-/// readRegularSection - read a target section and create fragments.
+/// readTargetSection - read a target section and create fragments.
 bool ELFReader<32, true>::readTargetSection(Input& pInput,
                                             FragmentLinker& pLinker,
                                             LDSection& pInputSectHdr)
