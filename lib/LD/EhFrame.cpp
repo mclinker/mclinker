@@ -357,6 +357,8 @@ EhFrame::State EhFrame::fail(PackageType& pPkg)
   // the rest of the eh_frame in other inputs because we end up has no ability
   // to generate the binary search table in eh_frame_hdr
   m_fTreatAsRegularSection = true;
+  m_CIEs.clear();
+  m_FDEs.clear();
 
   // relese the requested MemoryRegion for entry
   pPkg.input.memArea()->release(pPkg.entryRegion);
