@@ -302,8 +302,10 @@ X86RelocationFactory::Result abs(Relocation& pReloc,
 }
 
 // R_386_PC32: S + A - P
-X86RelocationFactory::Result rel32(Relocation& pReloc,
-                                   X86RelocationFactory& pParent)
+// R_386_PC16
+// R_386_PC8
+X86RelocationFactory::Result rel(Relocation& pReloc,
+                                 X86RelocationFactory& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();

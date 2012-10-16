@@ -277,6 +277,8 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       return;
 
     case llvm::ELF::R_386_PC32:
+    case llvm::ELF::R_386_PC16:
+    case llvm::ELF::R_386_PC8:
       return;
 
     case llvm::ELF::R_386_TLS_GD: {
@@ -466,6 +468,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       return;
 
     case llvm::ELF::R_386_PC32:
+    case llvm::ELF::R_386_PC16:
+    case llvm::ELF::R_386_PC8:
 
       if (symbolNeedsPLT(pLinker, *rsym) &&
                                LinkerConfig::DynObj != config().codeGenType()) {
