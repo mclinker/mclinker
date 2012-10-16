@@ -210,9 +210,12 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   return 0x0;
 }
 
-bool ELFReaderIF::readEhFrame(Input& pInput,
-                              FragmentLinker& pLinker,
-                              LDSection& pInputSectHdr) const
+//===----------------------------------------------------------------------===//
+// ELFReader<32, true>
+//===----------------------------------------------------------------------===//
+bool ELFReader<32, true>::readEhFrame(Input& pInput,
+                                      FragmentLinker& pLinker,
+                                      LDSection& pInputSectHdr) const
 {
   // create SectionData of this eh_frame
   SectionData& sect_data = pLinker.getOrCreateInputSectData(pInputSectHdr);
@@ -220,10 +223,12 @@ bool ELFReaderIF::readEhFrame(Input& pInput,
   size_t size = 0;
   if (pLinker.getLDInfo().options().hasEhFrameHdr()) {
     // read eh_frame if the option --eh-frame-hdr is given
+
+    // FIXME: m_Backend must be non-constant in this constant function.
     EhFrame* ehframe = m_Backend.getEhFrame();
     assert(NULL != ehframe);
     size = ehframe->read(pLinker.getLayout(), pInput,
-                         pInputSectHdr, m_Backend.bitclass());
+                         pInputSectHdr, target().bitclass());
   }
   else {
     // handle eh_frame as a regular section
