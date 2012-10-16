@@ -13,7 +13,7 @@
 #endif
 
 #include <mcld/LD/ObjectReader.h>
-#include <llvm/Support/system_error.h>
+#include <mcld/ADT/Flags.h>
 
 namespace mcld {
 
@@ -28,6 +28,14 @@ class ELFReaderIF;
  */
 class ELFObjectReader : public ObjectReader
 {
+public:
+  enum ReadFlagType {
+    ParseEhFrame    = 0x1, ///< parse .eh_frame section if the bit is set.
+    NumOfReadFlags  = 1
+  };
+
+  typedef Flags<ReadFlagType> ReadFlag;
+
 public:
   ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker);
 
@@ -51,6 +59,7 @@ public:
 private:
   ELFReaderIF* m_pELFReader;
   FragmentLinker& m_Linker;
+  ReadFlag m_ReadFlag;
 };
 
 } // namespace of mcld

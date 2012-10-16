@@ -29,8 +29,8 @@ using namespace mcld;
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : ObjectReader(),
     m_pELFReader(0),
-    m_Linker(pLinker)
-{
+    m_Linker(pLinker),
+    m_ReadFlag(ParseEhFrame) {
   if (32 == pBackend.bitclass() && pBackend.isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
@@ -161,8 +161,9 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       case LDFileFormat::EhFrame: {
-        if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section))
+        if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section)) {
           fatal(diag::err_cannot_read_section) <<(*section)->name();
+        }
         break;
       }
       case LDFileFormat::GCCExceptTable: {
