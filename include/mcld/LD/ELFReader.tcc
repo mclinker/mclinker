@@ -220,11 +220,6 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
                                              FragmentLinker& pLinker,
                                              LDSection& pInputSectHdr) const
 {
-  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
-                                                         pInputSectHdr.kind(),
-                                                         pInputSectHdr.type(),
-                                                         pInputSectHdr.flag());
-
   MemoryRegion* region = pInput.memArea()->request(
            pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
 
@@ -243,6 +238,10 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
                                                      sect_data,
                                                      pInputSectHdr.align());
 
+  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
+                                                         pInputSectHdr.kind(),
+                                                         pInputSectHdr.type(),
+                                                         pInputSectHdr.flag());
   out_sect.setSize(out_sect.size() + size);
   return true;
 }

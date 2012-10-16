@@ -179,19 +179,19 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** BSS sections **/
       case LDFileFormat::BSS: {
-        LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
-                                               (*section)->name(),
-                                               LDFileFormat::BSS,
-                                               llvm::ELF::SHT_NOBITS,
-                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
-
-        SectionData& sect_data = m_Linker.getOrCreateOutputSectData(**section);
+        SectionData& sect_data = m_Linker.getOrCreateInputSectData(**section);
                                             /*  value, valsize, size*/
         FillFragment* frag = new FillFragment(0x0,   1,       (*section)->size());
 
         uint64_t size = m_Linker.getLayout().appendFragment(*frag,
                                                             sect_data,
                                                             (*section)->align());
+
+        LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
+                                               (*section)->name(),
+                                               LDFileFormat::BSS,
+                                               llvm::ELF::SHT_NOBITS,
+                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
         output_bss.setSize(output_bss.size() + size);
         break;
       }

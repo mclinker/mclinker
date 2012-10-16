@@ -14,9 +14,6 @@
 #include <mcld/Object/SectionMap.h>
 #include <mcld/ADT/StringHash.h>
 
-#include <iostream>
-using namespace std;
-
 using namespace mcld;
 
 namespace {
