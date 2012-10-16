@@ -58,46 +58,23 @@ public:
               unsigned int pBitclass);
 
   // ----- observers ----- //
-  cie_iterator cie_begin()
-  { return m_CIEs.begin(); }
-
-  const_cie_iterator cie_begin() const
-  { return m_CIEs.begin(); }
-
-  cie_iterator cie_end()
-  { return m_CIEs.end(); }
-
-  const_cie_iterator cie_end() const
-  { return m_CIEs.end(); }
-
-  fde_iterator fde_begin()
-  { return m_FDEs.begin(); }
-
-  const_fde_iterator fde_begin() const
-  { return m_FDEs.begin(); }
-
-  fde_iterator fde_end()
-  { return m_FDEs.end(); }
-
-  const_fde_iterator fde_end() const
-  { return m_FDEs.end(); }
+  const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
+  cie_iterator       cie_begin()       { return m_CIEs.begin(); }
+  const_cie_iterator cie_end  () const { return m_CIEs.end(); }
+  cie_iterator       cie_end  ()       { return m_CIEs.end(); }
+  const_fde_iterator fde_begin() const { return m_FDEs.begin(); }
+  fde_iterator       fde_begin()       { return m_FDEs.begin(); }
+  const_fde_iterator fde_end  () const { return m_FDEs.end(); }
+  fde_iterator       fde_end  ()       { return m_FDEs.end(); }
 
   /// getFDECount - the number of FDE entries
-  size_t getFDECount()
-  { return m_FDEs.size(); }
-
-  /// getFDECount - the number of FDE entries
-  size_t getFDECount() const
-  { return m_FDEs.size(); }
+  size_t getFDECount() const { return m_FDEs.size(); }
 
   /// treatAsRegularSection - if we should treat eh_frame as regular
   /// sections
   /// @return true - there is any input .eh_frame section that we are not
   /// able to recognize and should treat the eh_frame sections as regular
   /// sections
-  bool treatAsRegularSection()
-  { return m_fTreatAsRegularSection; }
-
   bool treatAsRegularSection() const
   { return m_fTreatAsRegularSection; }
 
