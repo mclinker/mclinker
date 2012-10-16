@@ -18,6 +18,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
 #include <mcld/Fragment/FillFragment.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/Attribute.h>
@@ -43,6 +44,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     m_ELFSegmentTable(9), // magic number
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
+    m_pEhFrame(NULL),
     m_pEhFrameHdr(NULL),
     m_bHasTextRel(false),
     m_bHasStaticTLS(false),
@@ -72,6 +74,7 @@ GNULDBackend::~GNULDBackend()
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
   delete m_pSymIndexMap;
+  delete m_pEhFrame;
   delete m_pEhFrameHdr;
 
   if (NULL != m_pBRIslandFactory)
@@ -2136,3 +2139,15 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
   return true;
 }
 
+EhFrame* GNULDBackend::getEhFrame()
+{
+  if (NULL == m_pEhFrame)
+    m_pEhFrame = new EhFrame(isLittleEndian());
+  return m_pEhFrame;
+}
+
+const EhFrame* GNULDBackend::getEhFrame() const
+{
+  assert(NULL == m_pEhFrame);
+  return m_pEhFrame;
+}

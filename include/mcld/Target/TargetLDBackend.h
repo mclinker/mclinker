@@ -33,7 +33,6 @@ class Input;
 class GOT;
 class MemoryArea;
 class MemoryAreaFactory;
-class EhFrame;
 class BranchIslandFactory;
 class StubFactory;
 
@@ -166,18 +165,10 @@ public:
   /// mayRelax - return true if the backend needs to do relaxation
   virtual bool mayRelax() = 0;
 
-public:
-  EhFrame* getEhFrame();
-
-  const EhFrame* getEhFrame() const;
-
 protected:
   const LinkerConfig& config() const { return m_Config; }
 
 private:
-  /// m_pEhFrame - section .eh_frame
-  EhFrame* m_pEhFrame;
-
   const LinkerConfig& m_Config;
 };
 

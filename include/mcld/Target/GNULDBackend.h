@@ -52,6 +52,7 @@ struct PtrHash
 class Module;
 class LinkerConfig;
 class Layout;
+class EhFrame;
 class EhFrameHdr;
 class BranchIslandFactory;
 class StubFactory;
@@ -289,6 +290,10 @@ public:
   /// Target can override this function if needed.
   virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
 
+  EhFrame* getEhFrame();
+
+  const EhFrame* getEhFrame() const;
+
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -470,6 +475,9 @@ protected:
 
   // map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;
+
+  /// m_pEhFrame - section .eh_frame
+  EhFrame* m_pEhFrame;
 
   // section .eh_frame_hdr
   EhFrameHdr* m_pEhFrameHdr;
