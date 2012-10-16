@@ -2153,13 +2153,13 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
 
 EhFrame* GNULDBackend::getEhFrame()
 {
-  //assert(NULL == m_pEhFrame);
+  assert(NULL != m_pEhFrame);
   return m_pEhFrame;
 }
 
 const EhFrame* GNULDBackend::getEhFrame() const
 {
-  assert(NULL == m_pEhFrame);
+  assert(NULL != m_pEhFrame);
   return m_pEhFrame;
 }
 
