@@ -147,6 +147,12 @@ bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
 
   // initialize standard sections
   m_pExecFileFormat->initStdSections(pLinker);
+
+  // initialize EhFrame
+  if (NULL == m_pEhFrame) {
+    m_pEhFrame = new EhFrame(isLittleEndian());
+    pLinker.getOrCreateOutputSectData(m_pExecFileFormat->getEhFrame());
+  }
   return true;
 }
 
@@ -157,6 +163,12 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
 
   // initialize standard sections
   m_pDynObjFileFormat->initStdSections(pLinker);
+
+  // initialize EhFrame
+  if (NULL == m_pEhFrame) {
+    m_pEhFrame = new EhFrame(isLittleEndian());
+    pLinker.getOrCreateOutputSectData(m_pDynObjFileFormat->getEhFrame());
+  }
   return true;
 }
 
@@ -2141,8 +2153,7 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
 
 EhFrame* GNULDBackend::getEhFrame()
 {
-  if (NULL == m_pEhFrame)
-    m_pEhFrame = new EhFrame(isLittleEndian());
+  //assert(NULL == m_pEhFrame);
   return m_pEhFrame;
 }
 
@@ -2151,3 +2162,4 @@ const EhFrame* GNULDBackend::getEhFrame() const
   assert(NULL == m_pEhFrame);
   return m_pEhFrame;
 }
+
