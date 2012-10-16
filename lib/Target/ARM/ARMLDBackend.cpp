@@ -230,7 +230,7 @@ void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
   else {
@@ -242,7 +242,7 @@ void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
 
@@ -302,7 +302,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                       binding,
                       pSym.size(),  // size
                       0x0,          // value
-                      pLinker.getLayout().getFragmentRef(*frag, 0x0),
+                      FragmentRef::Create(*frag, 0x0),
                       (ResolveInfo::Visibility)pSym.other());
 
   return *cpy_sym;

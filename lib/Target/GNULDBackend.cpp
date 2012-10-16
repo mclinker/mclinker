@@ -178,7 +178,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   // .preinit_array
   FragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
-    preinit_array = pLinker.getLayout().getFragmentRef(
+    preinit_array = FragmentRef::Create(
                    *(file_format->getPreInitArray().getSectionData()->begin()),
                    0x0);
   }
@@ -208,7 +208,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   // .init_array
   FragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
-    init_array = pLinker.getLayout().getFragmentRef(
+    init_array = FragmentRef::Create(
                       *(file_format->getInitArray().getSectionData()->begin()),
                       0x0);
   }
@@ -239,7 +239,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   // .fini_array
   FragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
-    fini_array = pLinker.getLayout().getFragmentRef(
+    fini_array = FragmentRef::Create(
                      *(file_format->getFiniArray().getSectionData()->begin()),
                      0x0);
   }
@@ -270,7 +270,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   // .stack
   FragmentRef* stack = NULL;
   if (file_format->hasStack()) {
-    stack = pLinker.getLayout().getFragmentRef(
+    stack = FragmentRef::Create(
                           *(file_format->getStack().getSectionData()->begin()),
                           0x0);
   }
@@ -473,7 +473,7 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
   if (NULL != f_pTDATA) {
     LDSection& tdata_sect = file_format->getTData();
     assert(tdata_sect.hasSectionData());
-    f_pTDATA->setFragmentRef(pLinker.getLayout().getFragmentRef(
+    f_pTDATA->setFragmentRef(FragmentRef::Create(
                                  *(tdata_sect.getSectionData()->begin()), 0x0));
     f_pTDATA->setValue(tdata_sect.addr());
   }
@@ -481,7 +481,7 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
   if (NULL != f_pTBSS) {
     LDSection& tbss_sect = file_format->getTBSS();
     assert(tbss_sect.hasSectionData());
-    f_pTBSS->setFragmentRef(pLinker.getLayout().getFragmentRef(
+    f_pTBSS->setFragmentRef(FragmentRef::Create(
                                  *(tbss_sect.getSectionData()->begin()), 0x0));
     f_pTBSS->setValue(tbss_sect.addr());
   }

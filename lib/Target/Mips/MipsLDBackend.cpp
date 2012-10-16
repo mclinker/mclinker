@@ -831,7 +831,7 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
   else {
@@ -843,7 +843,7 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     pLinker.getLayout().getFragmentRef(*(m_pGOT->begin()), 0x0),
+                     FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
 }
