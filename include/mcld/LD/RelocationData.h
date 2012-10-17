@@ -57,6 +57,8 @@ public:
 public:
   static RelocationData* Create(const LDSection& pSection);
 
+  static RelocationData* Create();
+
   static void Destroy(RelocationData*& pSection);
 
   const LDSection &getSection() const { return *m_pSection; }

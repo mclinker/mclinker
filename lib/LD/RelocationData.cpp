@@ -26,6 +26,11 @@ RelocationData* RelocationData::Create(const LDSection& pSection)
   return new RelocationData(pSection);
 }
 
+RelocationData* RelocationData::Create()
+{
+  return new RelocationData();
+}
+
 void RelocationData::Destroy(RelocationData*& pSection)
 {
   pSection->~RelocationData();
