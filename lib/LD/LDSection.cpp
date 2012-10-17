@@ -32,8 +32,8 @@ LDSection::LDSection()
     m_Align(0),
     m_Info(0),
     m_pLink(NULL),
-    m_pSectionData(NULL),
     m_Index(0) {
+  m_pData.sect_data = NULL;
 }
 
 LDSection::LDSection(const std::string& pName,
@@ -53,8 +53,8 @@ LDSection::LDSection(const std::string& pName,
     m_Align(0),
     m_Info(0),
     m_pLink(NULL),
-    m_pSectionData(NULL),
     m_Index(0) {
+  m_pData.sect_data = NULL;
 }
 
 LDSection::~LDSection()
@@ -81,3 +81,16 @@ void LDSection::Destroy(LDSection*& pSection)
   pSection = NULL;
 }
 
+bool LDSection::hasSectionData() const
+{
+  if (LDFileFormat::Relocation == kind())
+    return false;
+  return (NULL != m_pData.sect_data);
+}
+
+bool LDSection::hasRelocationData() const
+{
+  if (LDFileFormat::Relocation != kind())
+    return false;
+  return (NULL != m_pData.reloc_data);
+}

@@ -23,6 +23,7 @@
 namespace mcld {
 
 class SectionData;
+class RelocationData;
 
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
@@ -144,17 +145,29 @@ public:
   void setType(uint32_t type)
   { m_Type = type; }
 
+  // ----- SectionData ----- //
   SectionData* getSectionData()
-  { return m_pSectionData; }
+  { return m_pData.sect_data; }
 
   const SectionData* getSectionData() const
-  { return m_pSectionData; }
+  { return m_pData.sect_data; }
 
   void setSectionData(SectionData* pSD)
-  { m_pSectionData = pSD; }
+  { m_pData.sect_data = pSD; }
 
-  bool hasSectionData() const
-  { return (NULL != m_pSectionData); }
+  bool hasSectionData() const;
+
+  // ------ RelocationData ------ //
+  RelocationData* getRelocationData()
+  { return m_pData.reloc_data; }
+
+  const RelocationData* getRelocationData() const
+  { return m_pData.reloc_data; }
+
+  void setRelocationData(RelocationData* pSD)
+  { m_pData.reloc_data = pSD; }
+
+  bool hasRelocationData() const;
 
   /// setLink - set the sections should link with.
   /// if pLink is NULL, no Link section is set.
@@ -166,6 +179,12 @@ public:
 
   void setIndex(size_t pIndex)
   { m_Index = pIndex; }
+
+private:
+  union SecOrRelocData {
+    SectionData*    sect_data;
+    RelocationData* reloc_data;
+  };
 
 private:
   std::string m_Name;
@@ -182,9 +201,10 @@ private:
   size_t m_Info;
   const LDSection* m_pLink;
 
-  SectionData* m_pSectionData;
+  /// m_pData - the SectionData or RelocationData of this section
+  SecOrRelocData m_pData;
 
-  // the index of the file
+  /// m_Index - the index of the file
   size_t m_Index;
 
 }; // end of LDSection
