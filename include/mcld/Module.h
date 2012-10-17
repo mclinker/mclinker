@@ -31,6 +31,7 @@
 namespace mcld {
 
 class LDSection;
+class RelocationData;
 
 /** \class Module
  *  \brief Module provides the intermediate representation for linking.
@@ -60,7 +61,11 @@ public:
   typedef llvm::iplist<Fragment,
                        GCFactoryListTraits<Fragment> > RelocationTable;
   typedef RelocationTable::iterator reloc_iterator;
-  typedef RelocationTable::const_iterator const_reloc_iterator; 
+  typedef RelocationTable::const_iterator const_reloc_iterator;
+
+  typedef std::vector<RelocationData*> RelocationDataTable;
+  typedef RelocationDataTable::iterator reloc_data_iterator;
+  typedef RelocationDataTable::const_iterator const_reloc_data_iterator;
 
 public:
   Module();
@@ -154,7 +159,26 @@ public:
   const_reloc_iterator reloc_begin() const { return m_RelocTable.begin(); }
   reloc_iterator       reloc_end  ()       { return m_RelocTable.end();   }
   const_reloc_iterator reloc_end  () const { return m_RelocTable.end();   }
-  
+
+  // ----- relocation data ----- //
+  RelocationDataTable& getRelocationDataTable()
+  { return m_RelocDataTable; }
+
+  const RelocationDataTable& getRelocationDataTable() const
+  { return m_RelocDataTable; }
+
+  reloc_data_iterator reloc_data_begin()
+  { return m_RelocDataTable.begin(); }
+
+  const_reloc_data_iterator reloc_data_begin() const
+  { return m_RelocDataTable.begin(); }
+
+  reloc_data_iterator reloc_data_end ()
+  { return m_RelocDataTable.end(); }
+
+  const_reloc_data_iterator reloc_data_end () const
+  { return m_RelocDataTable.end(); }
+
 private:
   std::string m_Name;
   ObjectList m_ObjectList;
@@ -164,6 +188,7 @@ private:
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
   RelocationTable m_RelocTable;
+  RelocationDataTable m_RelocDataTable;
 };
 
 } // namespace of mcld
