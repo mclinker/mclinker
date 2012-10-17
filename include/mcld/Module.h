@@ -58,11 +58,6 @@ public:
   typedef SymbolTable::iterator sym_iterator;
   typedef SymbolTable::const_iterator const_sym_iterator;
 
-  typedef llvm::iplist<Fragment,
-                       GCFactoryListTraits<Fragment> > RelocationTable;
-  typedef RelocationTable::iterator reloc_iterator;
-  typedef RelocationTable::const_iterator const_reloc_iterator;
-
   typedef std::vector<RelocationData*> RelocationDataTable;
   typedef RelocationDataTable::iterator reloc_data_iterator;
   typedef RelocationDataTable::const_iterator const_reloc_data_iterator;
@@ -151,15 +146,6 @@ public:
 /// @name Relocation Accessors
 /// @{
 
-  // -----  relocations  ----- //
-  RelocationTable&       getRelocationTable()       { return m_RelocTable; }
-  const RelocationTable& getRelocationTable() const { return m_RelocTable; }
-
-  reloc_iterator       reloc_begin()       { return m_RelocTable.begin(); }
-  const_reloc_iterator reloc_begin() const { return m_RelocTable.begin(); }
-  reloc_iterator       reloc_end  ()       { return m_RelocTable.end();   }
-  const_reloc_iterator reloc_end  () const { return m_RelocTable.end();   }
-
   // ----- relocation data ----- //
   RelocationDataTable& getRelocationDataTable()
   { return m_RelocDataTable; }
@@ -187,7 +173,6 @@ private:
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
-  RelocationTable m_RelocTable;
   RelocationDataTable m_RelocDataTable;
 };
 
