@@ -594,6 +594,14 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
     scanLocalReloc(pReloc, pLinker, pSection);
   else // rsym is external
     scanGlobalReloc(pReloc, pLinker, pSection);
+
+  // check undefined reference if the symbol needs a dynamic relocation
+  if (((rsym->reserved() & ReserveRel) != 0x0 ||
+       (rsym->reserved() & GOTRel)     != 0x0 ||
+       (rsym->reserved() & ReservePLT) != 0x0)) {
+    if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
+      fatal(diag::undefined_reference) << rsym->name();
+  }
 }
 
 uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,

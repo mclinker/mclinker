@@ -633,8 +633,6 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
 
-  if (pResolveInfo.isUndef() && !pResolveInfo.isDyn() && !pResolveInfo.isWeak())
-    fatal(diag::undefined_reference) << pResolveInfo.name();
   return relocation;
 }
 

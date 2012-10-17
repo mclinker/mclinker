@@ -152,6 +152,12 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     scanLocalReloc(pReloc, pLinker);
   else
     scanGlobalReloc(pReloc, pLinker);
+
+  // check undefined reference if the symbol needs a dynamic relocation
+  if ((rsym->reserved() & ReserveRel) != 0x0) {
+    if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
+      fatal(diag::undefined_reference) << rsym->name();
+  }
 }
 
 uint32_t MipsGNULDBackend::machine() const
