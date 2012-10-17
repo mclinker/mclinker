@@ -90,7 +90,7 @@ public:
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
   virtual ResolveInfo* readSignature(Input& pInput,
-                                     LDSection& pSymTab,
+                                     const LDSection& pSymTab,
                                      uint32_t pSymIdx) const = 0;
 
   /// readRela - read ELF rela and create Relocation
@@ -214,7 +214,7 @@ public:
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
   inline ResolveInfo* readSignature(Input& pInput,
-                                    LDSection& pSymTab,
+                                    const LDSection& pSymTab,
                                     uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation

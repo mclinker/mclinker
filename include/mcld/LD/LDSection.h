@@ -117,9 +117,6 @@ public:
   /// In ELF, InfoLink section control the ElfNN_Shdr::sh_link and sh_info.
   ///
   /// @return if the section needs no other sections, return NULL
-  LDSection* getLink()
-  { return m_pLink; }
-
   const LDSection* getLink() const
   { return m_pLink; }
 
@@ -161,7 +158,7 @@ public:
 
   /// setLink - set the sections should link with.
   /// if pLink is NULL, no Link section is set.
-  void setLink(LDSection* pLink)
+  void setLink(const LDSection* pLink)
   { m_pLink = pLink; }
 
   void setInfo(size_t pInfo)
@@ -183,7 +180,7 @@ private:
   uint32_t m_Align;
 
   size_t m_Info;
-  LDSection* m_pLink;
+  const LDSection* m_pLink;
 
   SectionData* m_pSectionData;
 

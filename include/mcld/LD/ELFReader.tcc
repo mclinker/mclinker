@@ -339,11 +339,11 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 /// readSignature - read a symbol from the given Input and index in symtab
 /// This is used to get the signature of a group section.
 ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
-                                                LDSection& pSymTab,
+                                                const LDSection& pSymTab,
                                                 uint32_t pSymIdx) const
 {
-  LDSection* symtab = &pSymTab;
-  LDSection* strtab = symtab->getLink();
+  const LDSection* symtab = &pSymTab;
+  const LDSection* strtab = symtab->getLink();
   assert(NULL != symtab && NULL != strtab);
 
   uint32_t offset = pInput.fileOffset() + symtab->offset() +
