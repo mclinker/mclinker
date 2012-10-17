@@ -94,6 +94,7 @@ Stub* StubFactory::create(Relocation& pReloc,
                               *(pReloc.symInfo()->outSymbol()),
                               *(pReloc.symInfo()),
                               *(FragmentRef::Create(*stub, (*it)->offset())),
+                              NULL, // this relocation has no parant LDSection
                               pReloc.targetRef().frag()->getParent()->getSection(),
                               (*it)->addend());
       }

@@ -23,6 +23,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/RelocationData.h>
 #include <mcld/LD/SectionMerger.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
@@ -40,7 +41,8 @@ FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
     m_Module(pModule),
     m_Backend(pBackend),
     m_LDSymbolFactory(128),
-    m_pSectionMerger(NULL)
+    m_pSectionMerger(NULL),
+    m_fCreateOrphan(false)
 {
 }
 
@@ -589,6 +591,33 @@ FragmentLinker::getOrCreateOutputSectData(LDSection& pSection)
   return *sect_data;
 }
 
+
+RelocationData& FragmentLinker::getOrCreateInputRelocData(LDSection& pSection)
+{
+  // if there is already a relocation data pointed by section, return it
+  RelocationData* reloc_data = pSection.getRelocationData();
+  if (NULL != reloc_data) {
+    return *reloc_data;
+  }
+  // otherwise, create one and push it into Module's RelocDataTable
+  reloc_data = RelocationData::Create(pSection);
+  pSection.setRelocationData(reloc_data);
+  m_Module.getRelocationDataTable().push_back(reloc_data);
+  return *reloc_data;
+}
+
+RelocationData& FragmentLinker::getOrCreateOrphanRelocData()
+{
+  static RelocationData* reloc_data = RelocationData::Create();
+
+  // the first time we call this function, push the orphan relocation data into
+  // Module's RelocDataTable
+  if (!m_fCreateOrphan)
+    m_Module.getRelocationDataTable().push_back(reloc_data);
+
+  return *reloc_data;
+}
+
 void FragmentLinker::initSectionMap()
 {
   if (NULL == m_pSectionMerger) {
@@ -612,6 +641,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                           const LDSymbol& pSym,
                                           ResolveInfo& pResolveInfo,
                                           FragmentRef& pFragmentRef,
+                                          LDSection* pSection,
                                           const LDSection& pTargetSection,
                                           Relocation::Address pAddend)
 {
@@ -629,7 +659,13 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   relocation->setSymInfo(&pResolveInfo);
 
-  m_Module.getRelocationTable().push_back(relocation);
+  // push relocation into the input SectionData
+  RelocationData* reloc_data = NULL;
+  if (NULL != pSection)
+    reloc_data = &getOrCreateInputRelocData(*pSection);
+  else
+    reloc_data = &getOrCreateOrphanRelocData();
+  reloc_data->getFragmentList().push_back(relocation);
 
   m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
 
@@ -638,10 +674,16 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
 bool FragmentLinker::applyRelocations()
 {
-  Module::reloc_iterator relocIter, relocEnd = m_Module.reloc_end();
-  for (relocIter = m_Module.reloc_begin(); relocIter != relocEnd; ++relocIter) {
-    Relocation* reloc = llvm::cast<Relocation>(relocIter);
-    reloc->apply(*m_Backend.getRelocFactory());
+
+  Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
+  for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
+    RelocationData* reloc_data = *dataIter;
+    RelocationData::iterator relocIter, reloc_end = reloc_data->end();
+
+    for (relocIter = reloc_data->begin(); relocIter != reloc_end; ++relocIter) {
+      Relocation* reloc = llvm::cast<Relocation>(relocIter);
+      reloc->apply(*m_Backend.getRelocFactory());
+    }
   }
   return true;
 }
@@ -653,39 +695,44 @@ void FragmentLinker::syncRelocationResult(MemoryArea& pOutput)
 
   uint8_t* data = region->getBuffer();
 
-  Module::reloc_iterator relocIter, relocEnd = m_Module.reloc_end();
-  for (relocIter = m_Module.reloc_begin(); relocIter != relocEnd; ++relocIter) {
+  Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
+  for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
+    RelocationData* reloc_data = *dataIter;
+    RelocationData::iterator relocIter, relocEnd = reloc_data->end();
 
-    Relocation* reloc = llvm::cast<Relocation>(relocIter);
+    for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
 
-    // get output file offset
-    size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
-                        reloc->targetRef().getOutputOffset();
+      Relocation* reloc = llvm::cast<Relocation>(relocIter);
 
-    uint8_t* target_addr = data + out_offset;
-    // byte swapping if target and host has different endian, and then write back
-    if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
-       uint64_t tmp_data = 0;
+      // get output file offset
+      size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
+                          reloc->targetRef().getOutputOffset();
 
-       switch(m_Backend.bitclass()) {
-         case 32u:
-           tmp_data = bswap32(reloc->target());
-           std::memcpy(target_addr, &tmp_data, 4);
-           break;
+      uint8_t* target_addr = data + out_offset;
+      // byte swapping if target and host has different endian, and then write back
+      if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
+         uint64_t tmp_data = 0;
 
-         case 64u:
-           tmp_data = bswap64(reloc->target());
-           std::memcpy(target_addr, &tmp_data, 8);
-           break;
+         switch(m_Backend.bitclass()) {
+           case 32u:
+             tmp_data = bswap32(reloc->target());
+             std::memcpy(target_addr, &tmp_data, 4);
+             break;
 
-         default:
-           break;
+           case 64u:
+             tmp_data = bswap64(reloc->target());
+             std::memcpy(target_addr, &tmp_data, 8);
+             break;
+
+           default:
+             break;
+        }
+      }
+      else {
+        std::memcpy(target_addr, &reloc->target(), m_Backend.bitclass()/8);
       }
     }
-    else {
-      std::memcpy(target_addr, &reloc->target(), m_Backend.bitclass()/8);
-    }
-  } // end of for
+  }
 
   pOutput.clear();
 }

@@ -44,6 +44,7 @@ class EhFrame;
 class EhFrameHdr;
 class MemoryArea;
 class SectionMerger;
+class RelocationData;
 
 /** \class FragmentLinker
  *  \brief FragmentLinker provides a pass to link object files.
@@ -140,18 +141,29 @@ public:
   /// immediately
   SectionData& getOrCreateOutputSectData(LDSection& pSection);
 
+  /// getOrCreateInputRelocData - when addRelocation, create corresponding input
+  /// RelocationData
+  RelocationData& getOrCreateInputRelocData(LDSection& pSection);
+
+  /// getOrCreateOrphanRelocData - relaxation may create and add input
+  /// relocations which have no LDSection, we put this kind of relocations into
+  /// an OrphanRelocationData which has no LDSection
+  RelocationData& getOrCreateOrphanRelocData();
+
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation
   /// @param pResolveInfo - the symbol should be the symbol in the input file. FragmentLinker
   ///                  computes the real applied address by the output symbol.
   /// @param pFragmentRef - the fragment reference of the applied address.
+  /// @param pSection - the input section of the relocation
   /// @param pTargetSection - the section of the relocation applying target
   /// @param pAddend - the addend value for applying relocation
   Relocation* addRelocation(Relocation::Type pType,
                             const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
                             FragmentRef& pFragmentRef,
+                            LDSection* pSection,
                             const LDSection& pTargetSection,
                             Relocation::Address pAddend = 0);
 
@@ -262,6 +274,9 @@ private:
   LDSymbolFactory m_LDSymbolFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
+
+  /// m_fCreateOrpan - if we've created an orphan relocation data
+  bool m_fCreateOrphan;
 };
 
 #include "FragmentLinker.tcc"
