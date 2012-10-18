@@ -22,11 +22,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 OutputRelocSection::OutputRelocSection(Module& pModule,
                                        LDSection& pSection,
-                                       SectionData& pSectionData,
+                                       RelocationData& pRelocData,
                                        unsigned int pEntrySize)
   : m_Module(pModule),
     m_pSection(&pSection),
-    m_pSectionData(&pSectionData),
+    m_pRelocationData(&pRelocData),
     m_EntryBytes(pEntrySize),
     m_isVisit(false),
     m_ValidEntryIterator(){
@@ -40,7 +40,7 @@ void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
                                       size_t pNum)
 {
   for(size_t i=0; i<pNum; i++) {
-    m_pSectionData->getFragmentList().push_back(
+    m_pRelocationData->getFragmentList().push_back(
                                               pRelFactory.produceEmptyEntry());
     // update section size
     m_pSection->setSize(m_pSection->size() + m_EntryBytes);
@@ -52,20 +52,20 @@ Relocation* OutputRelocSection::consumeEntry()
   // first time visit this function, set m_ValidEntryIterator to
   // Fragments.begin()
   if(!m_isVisit) {
-    assert(!m_pSectionData->getFragmentList().empty() &&
+    assert(!m_pRelocationData->getFragmentList().empty() &&
              "DynRelSection contains no entries.");
-    m_ValidEntryIterator = m_pSectionData->getFragmentList().begin();
+    m_ValidEntryIterator = m_pRelocationData->getFragmentList().begin();
     m_isVisit = true;
   }
   else {
     // Add m_ValidEntryIterator here instead of at the end of this function.
     // We may reserve an entry and then consume it immediately, e.g. for COPY
     // relocation, so we need to avoid setting this iterator to
-    // SectionData->end() in any case, or when reserve and consume again,
-    // ++m_ValidEntryIterator will still be SectionData->end().
+    // RelocationData->end() in any case, or when reserve and consume again,
+    // ++m_ValidEntryIterator will still be RelocationData->end().
     ++m_ValidEntryIterator;
   }
-  assert(m_ValidEntryIterator != m_pSectionData->end() &&
+  assert(m_ValidEntryIterator != m_pRelocationData->end() &&
          "No empty relocation entry for the incoming symbol.");
 
   Relocation* result = &llvm::cast<Relocation>(*m_ValidEntryIterator);
@@ -74,7 +74,7 @@ Relocation* OutputRelocSection::consumeEntry()
 
 void OutputRelocSection::finalizeSectionSize()
 {
-  m_pSection->setSize(m_pSectionData->size() * m_EntryBytes);
+  m_pSection->setSize(m_pRelocationData->size() * m_EntryBytes);
 }
 
 bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)

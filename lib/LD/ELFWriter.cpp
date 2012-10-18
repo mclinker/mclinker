@@ -28,6 +28,7 @@
 #include <mcld/LD/Layout.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
+#include <mcld/LD/RelocationData.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -477,7 +478,7 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
                                const LDSection& pSection,
                                MemoryRegion& pRegion) const
 {
-  const SectionData* sect_data = pSection.getSectionData();
+  const RelocationData* sect_data = pSection.getRelocationData();
   assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
   if (pSection.type() == SHT_REL)
@@ -492,7 +493,7 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
 /// emitRel
 void ELFWriter::emitRel(const Layout& pLayout,
                         const LinkerConfig& pConfig,
-                        const SectionData& pSectionData,
+                        const RelocationData& pRelocData,
                         MemoryRegion& pRegion) const
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>(pRegion.start());
@@ -500,8 +501,8 @@ void ELFWriter::emitRel(const Layout& pLayout,
   Relocation* relocation = 0;
   FragmentRef* frag_ref = 0;
 
-  for (SectionData::const_iterator it = pSectionData.begin(),
-       ie = pSectionData.end(); it != ie; ++it, ++rel) {
+  for (RelocationData::const_iterator it = pRelocData.begin(),
+       ie = pRelocData.end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
     frag_ref = &(relocation->targetRef());
@@ -529,7 +530,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
 /// emitRela
 void ELFWriter::emitRela(const Layout& pLayout,
                          const LinkerConfig& pConfig,
-                         const SectionData& pSectionData,
+                         const RelocationData& pRelocData,
                          MemoryRegion& pRegion) const
 {
   Elf32_Rela* rel = reinterpret_cast<Elf32_Rela*>(pRegion.start());
@@ -537,8 +538,8 @@ void ELFWriter::emitRela(const Layout& pLayout,
   Relocation* relocation = 0;
   FragmentRef* frag_ref = 0;
 
-  for (SectionData::const_iterator it = pSectionData.begin(),
-       ie = pSectionData.end(); it != ie; ++it, ++rel) {
+  for (RelocationData::const_iterator it = pRelocData.begin(),
+       ie = pRelocData.end(); it != ie; ++it, ++rel) {
 
     relocation = &(llvm::cast<Relocation>(*it));
     frag_ref = &(relocation->targetRef());

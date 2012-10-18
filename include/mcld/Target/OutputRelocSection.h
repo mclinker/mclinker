@@ -12,7 +12,7 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/SectionData.h>
+#include <mcld/LD/RelocationData.h>
 
 namespace mcld
 {
@@ -30,7 +30,7 @@ class OutputRelocSection
 public:
   OutputRelocSection(Module& pModule,
                      LDSection& pSection,
-                     SectionData& pSectionData,
+                     RelocationData& pRelocData,
                      unsigned int pEntrySize);
 
   ~OutputRelocSection();
@@ -47,17 +47,18 @@ public:
 
   // ----- observers ----- //
   bool empty()
-  { return m_pSectionData->empty(); }
+  { return m_pRelocationData->empty(); }
 
 private:
-  typedef SectionData::iterator FragmentIterator;
+  typedef RelocationData::iterator FragmentIterator;
 
 private:
   /// m_pSection - LDSection of this Section
   LDSection* m_pSection;
 
-  /// m_SectionData - SectionData which contains the dynamic relocations
-  SectionData* m_pSectionData;
+  /// m_RelocationData - the output RelocationData which contains the dynamic
+  /// relocations
+  RelocationData* m_pRelocationData;
 
   /// m_EntryBytes - size of a relocation entry
   unsigned int m_EntryBytes;
