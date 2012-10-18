@@ -11,34 +11,35 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/Support/Dwarf.h>
-#include <llvm/Support/DataTypes.h>
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/MemoryRegion.h>
-#include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LD/EhFrame.h>
-#include <mcld/LD/LDSection.h>
-#include <mcld/LD/CIE.h>
-#include <mcld/LD/FDE.h>
-#include <mcld/LD/Layout.h>
+#include <cassert>
 
 namespace mcld {
 
 class EhFrame;
 class LDSection;
 class FDE;
-class FragmentLinker;
+class MemoryArea;
+class MemoryRegion;
 
 /** \class EhFrameHdr
  *  \brief EhFrameHdr represents .eh_frame_hdr section.
+ *
+ *  @ref lsb core generic 4.1
+ *  .eh_frame_hdr section format
+ *  uint8_t : version
+ *  uint8_t : eh_frame_ptr_enc
+ *  uint8_t : fde_count_enc
+ *  uint8_t : table_enc
+ *  uint32_t : eh_frame_ptr
+ *  uint32_t : fde_count
+ *  __________________________ when fde_count > 0
+ *  <uint32_t, uint32_t>+ : binary search table
  */
 class EhFrameHdr
 {
 public:
-  EhFrameHdr(const EhFrame& pEhFrameData,
-             const LDSection& pEhFrameSect,
-             LDSection& pEhFrameHdrSect);
+  EhFrameHdr(LDSection& pEhFrameHdr, const EhFrame& pEhFrame);
 
   ~EhFrameHdr();
 
@@ -47,49 +48,23 @@ public:
 
   /// emitOutput - write out eh_frame_hdr
   template<size_t size>
-  void emitOutput(FragmentLinker& pLinker, MemoryArea& pOutput);
+  void emitOutput(MemoryArea& pOutput)
+  { assert(false && "Call invalid EhFrameHdr::emitOutput"); }
 
 private:
-  /// getFDEPC - return the address of FDE's pc
-  /// @param pFDE - FDE
-  /// @param pOffset - the output offset of FDE
-  template<size_t size>
-  typename SizeTraits<size>::Address
-  getFDEPC(const FDE& pFDE,
-           typename SizeTraits<size>::Offset pOffset,
-           const MemoryRegion& pEhFrameRegion);
-
-  template<size_t size>
-  class BSTEntry
-  {
-  public:
-    typedef std::pair<typename SizeTraits<size>::Address,
-                      typename SizeTraits<size>::Address> EntryType;
-  };
-
-  template<size_t size>
-  struct BSTEntryCompare
-    : public std::binary_function<const typename BSTEntry<size>::EntryType&,
-                                  const typename BSTEntry<size>::EntryType&,
-                                  bool>
-  {
-    bool operator()(const typename BSTEntry<size>::EntryType& X,
-                    const typename BSTEntry<size>::EntryType& Y) const
-    { return X.first < Y.first; }
-  };
-
-private:
-  /// eh_frame data
-  const EhFrame& m_EhFrameData;
-
-  /// .eh_frame section
-  const LDSection& m_EhFrameSect;
+  /// eh_frame
+  const EhFrame& m_EhFrame;
 
   /// .eh_frame_hdr section
-  LDSection& m_EhFrameHdrSect;
+  LDSection& m_EhFrameHdr;
 };
 
-#include "EhFrameHdr.tcc"
+//===----------------------------------------------------------------------===//
+// Template Specification Functions
+//===----------------------------------------------------------------------===//
+/// emitOutput - write out eh_frame_hdr
+template<>
+void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput);
 
 } // namespace of mcld
 

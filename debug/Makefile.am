@@ -303,8 +303,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/EhFrame.h \
 	${LIBDIR}/LD/EhFrame.cpp \
 	${INCDIR}/LD/EhFrameHdr.h \
-	${INCDIR}/LD/EhFrameHdr.tcc \
 	${LIBDIR}/LD/EhFrameHdr.cpp \
+	${INCDIR}/LD/EhFrameReader.h \
+	${LIBDIR}/LD/EhFrameReader.cpp \
 	${INCDIR}/LD/CIE.h \
 	${LIBDIR}/LD/CIE.cpp \
 	${INCDIR}/LD/FDE.h \

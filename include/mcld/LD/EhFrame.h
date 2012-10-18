@@ -6,201 +6,123 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_EXCEPTION_HANDLING_FRAME_H
-#define MCLD_EXCEPTION_HANDLING_FRAME_H
+#ifndef MCLD_LD_EH_FRAME_H
+#define MCLD_LD_EH_FRAME_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+
 #include <vector>
+#include <mcld/Fragment/RegionFragment.h>
+#include <mcld/LD/LDSection.h>
 
-#include <mcld/ADT/TypeTraits.h>
-#include <mcld/ADT/SizeTraits.h>
-#include <mcld/LD/CIE.h>
-#include <mcld/LD/FDE.h>
+namespace mcld {
 
-namespace mcld
-{
-
-class Input;
 class Layout;
-class LDSection;
-class SectionData;
-class TargetLDBackend;
 
 /** \class EhFrame
  *  \brief EhFrame represents .eh_frame section
- *  EhFrame is responsible to parse the input eh_frame sections and create
- *  the corresponding CIE and FDE entries.
  */
 class EhFrame
 {
 public:
-  typedef ConstTraits<unsigned char>::pointer ConstAddress;
-  typedef std::vector<CIE*> CIEListType;
-  typedef std::vector<FDE*> FDEListType;
-  typedef CIEListType::iterator cie_iterator;
-  typedef CIEListType::const_iterator const_cie_iterator;
-  typedef FDEListType::iterator fde_iterator;
-  typedef FDEListType::const_iterator const_fde_iterator;
+  /** \class CIE
+   *  \brief Common Information Entry.
+   *  The CIE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
+   */
+  class CIE : public RegionFragment
+  {
+  public:
+    CIE(MemoryRegion& pRegion);
+
+    void setFDEEncode(uint8_t pEncode) { m_FDEEncode = pEncode; }
+    uint8_t getFDEEncode() const { return m_FDEEncode; }
+
+  private:
+    uint8_t m_FDEEncode;
+  };
+
+  /** \class FDE
+   *  \brief Frame Description Entry
+   *  The FDE structure refers to LSB Core Spec 4.1, chap.10.6. Exception Frames.
+   */
+  class FDE : public RegionFragment
+  {
+  public:
+    FDE(MemoryRegion& pRegion,
+        const CIE& pCIE,
+        uint32_t pFileOffset,
+        uint32_t pDataStart);
+
+    const CIE& getCIE() const { return m_CIE; }
+
+    uint32_t getPCBegin(const EhFrame& pOutputEhFrame);
+
+  private:
+    const CIE& m_CIE;
+    uint32_t m_FileOffset;
+    uint32_t m_DataStart;
+  };
+
+  typedef std::vector<CIE*> CIEList;
+  typedef CIEList::iterator cie_iterator;
+  typedef CIEList::const_iterator const_cie_iterator;
+
+  typedef std::vector<FDE*> FDEList;
+  typedef FDEList::iterator fde_iterator;
+  typedef FDEList::const_iterator const_fde_iterator;
 
 public:
-  EhFrame(bool isLittleEndianTarget);
+  EhFrame(LDSection& pSection, Layout& pLayout);
+
   ~EhFrame();
 
-  /// read - read an .eh_frame section and create the corresponding
-  /// CIEs and FDEs
-  /// @param pInput - the Input contains this eh_frame
-  /// @param pSection - the input eh_frame
-  /// @return - size of this eh_frame section
-  size_t read(Layout& pLayout,
-              Input& pInput,
-              LDSection& pSection,
-              unsigned int pBitclass,
-              bool& pSuccess);
+  const LDSection& getSection() const { return m_Section; }
+  LDSection&       getSection()       { return m_Section; }
 
-  // ----- observers ----- //
+  // -----  fragment  ----- //
+  /// addFragment - when we start treating CIEs and FDEs as regular fragments,
+  /// we call this function instead of addCIE() and addFDE().
+  /// @param pSection - input .eh_frame section.
+  void addFragment(RegionFragment& pFrag, LDSection& pSection);
+
+  // -----  CIE  ----- //
   const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
   cie_iterator       cie_begin()       { return m_CIEs.begin(); }
   const_cie_iterator cie_end  () const { return m_CIEs.end(); }
   cie_iterator       cie_end  ()       { return m_CIEs.end(); }
+
+  const CIE& cie_front() const { return *m_CIEs.front(); }
+  CIE&       cie_front()       { return *m_CIEs.front(); }
+  const CIE& cie_back () const { return *m_CIEs.back(); }
+  CIE&       cie_back ()       { return *m_CIEs.back(); }
+
+  void addCIE(CIE& pCIE);
+
+  /// numOfCIEs - return the number of CIE entries
+  size_t numOfCIEs() const { return m_CIEs.size(); }
+
+  // -----  FDE  ----- //
   const_fde_iterator fde_begin() const { return m_FDEs.begin(); }
   fde_iterator       fde_begin()       { return m_FDEs.begin(); }
   const_fde_iterator fde_end  () const { return m_FDEs.end(); }
   fde_iterator       fde_end  ()       { return m_FDEs.end(); }
 
-  /// getFDECount - the number of FDE entries
-  size_t getFDECount() const { return m_FDEs.size(); }
+  const FDE& fde_front() const { return *m_FDEs.front(); }
+  FDE&       fde_front()       { return *m_FDEs.front(); }
+  const FDE& fde_back () const { return *m_FDEs.back(); }
+  FDE&       fde_back ()       { return *m_FDEs.back(); }
+
+  void addFDE(FDE& pFDE);
+
+  /// numOfFDEs - the number of FDE entries
+  size_t numOfFDEs() const { return m_FDEs.size(); }
 
 private:
-  typedef std::vector<Fragment*> FragListType;
-
-  /// State - the return state of an Action. It is used to determine the next
-  /// action function. Each State corresponds to an action function except
-  /// 'Stop' state
-  enum State {
-    Start         = 0,
-    CheckFirstCIE = 1,
-    ParseEntry    = 2,
-    AddCIE        = 3,
-    AddFDE        = 4,
-    Fail          = 5,
-    Success       = 6,
-    ReadRegular   = 7,
-    ReadFailed    = 8,
-    Stop,
-    Dead
-  };
-
-  /// Package - collect all needed data used by every actions so that they can
-  /// share this data
-  struct Package {
-    Package(Layout& pLayout,
-            Input& pInput,
-            LDSection& pSection,
-            unsigned int pBitclass)
-      : layout(pLayout),
-        input(pInput),
-        section(pSection),
-        bitclass(pBitclass),
-        sectCur(0x0),
-        sectStart(0x0),
-        sectEnd(0x0),
-        sectionRegion(NULL),
-        entryRegion(NULL),
-        sectSize(0x0) {
-    }
-
-    Layout& layout;
-    Input& input;
-    LDSection& section;
-    unsigned int bitclass;
-    ConstAddress sectCur;
-    ConstAddress sectStart;
-    ConstAddress sectEnd;
-    FragListType fragList;
-    MemoryRegion* sectionRegion;
-    MemoryRegion* entryRegion;
-    size_t sectSize;
-  };
-  typedef struct Package PackageType;
-
-  /** \class ReadValIF
-   *  \brief ReadValIF provides interface for ReadVal, which is used to read
-   *   32 bit value from given context, see @ref m_pReadVal
-   */
-  class ReadValIF
-  {
-  public:
-    virtual ~ReadValIF() {}
-    virtual uint32_t operator()(ConstAddress pAddr) = 0;
-  };
-
-  /** \class ReadVal
-   *  \brief ReadVal is a template scaffolding for partial specification
-   */
-  template<bool NEEDSWAP>
-  class ReadVal
-  { };
-
-private:
-  // ----- action functions ----- //
-  State start(PackageType& pPkg);
-  State checkFirstCIE(PackageType& pPkg);
-  State parseEntry(PackageType& pPkg);
-  State addCIE(PackageType& pPkg);
-  State addFDE(PackageType& pPkg);
-  State fail(PackageType& pPkg);
-  State success(PackageType& pPkg);
-  State readRegular(PackageType& pPkg);
-  State readFailed(PackageType& pPkg);
-
-  /// skipLEB128 - skip the first LEB128 encoded value from *pp, update *pp
-  /// to the next character.
-  /// @return - false if we ran off the end of the string.
-  /// @ref - GNU gold 1.11, ehframe.h, Eh_frame::skip_leb128.
-  bool skipLEB128(ConstAddress* pp, ConstAddress pend);
-
-private:
-  CIEListType m_CIEs;
-  FDEListType m_FDEs;
-
-  /// m_pReadVal - a functor of ReadVal
-  /// use (*m_pReadVal)(pAddr) to read a 32 bit data from pAddr
-  ReadValIF* m_pReadVal;
-};
-
-/** \class ReadVal<true>
- *  \brief ReadVal<true> provides operator to read 32 bit value from the
- *   given pointer and swap it
- */
-template<>
-class EhFrame::ReadVal<true> : public ReadValIF
-{
-public:
-  ~ReadVal() {}
-  uint32_t operator()(ConstAddress pAddr) {
-    const uint32_t* p = reinterpret_cast<const uint32_t*>(pAddr);
-    uint32_t val = *p;
-    // need swap because the host and target have different endian
-    val = bswap32(val);
-    return val;
-  }
-};
-
-/** \class ReadVal<false>
- *  \brief ReadVal<false> provides operator to read 32 bit value from the
- *   given pointer
- */
-template<>
-class EhFrame::ReadVal<false> : public ReadValIF
-{
-public:
-  ~ReadVal() {}
-  uint32_t operator()(ConstAddress pAddr) {
-    const uint32_t* p = reinterpret_cast<const uint32_t*>(pAddr);
-    uint32_t val = *p;
-    return val;
-  }
+  LDSection& m_Section;
+  CIEList m_CIEs;
+  FDEList m_FDEs;
+  Layout& m_Layout;
 };
 
 } // namespace of mcld

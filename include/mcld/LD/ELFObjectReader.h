@@ -22,6 +22,7 @@ class Input;
 class FragmentLinker;
 class GNULDBackend;
 class ELFReaderIF;
+class EhFrameReader;
 
 /** \lclass ELFObjectReader
  *  \brief ELFObjectReader reads target-independent parts of ELF object file
@@ -58,8 +59,10 @@ public:
 
 private:
   ELFReaderIF* m_pELFReader;
+  EhFrameReader* m_pEhFrameReader;
   FragmentLinker& m_Linker;
   ReadFlag m_ReadFlag;
+  GNULDBackend& m_Backend;
 };
 
 } // namespace of mcld

@@ -8,6 +8,8 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
 
+#include <iostream>
+using namespace std;
 #include <string>
 #include <cstring>
 #include <cassert>
@@ -151,8 +153,9 @@ bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
 
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
-    m_pEhFrame = new EhFrame(isLittleEndian());
-    pLinker.getOrCreateOutputSectData(m_pExecFileFormat->getEhFrame());
+    LDSection& eh_frame = m_pExecFileFormat->getEhFrame();
+    pLinker.getOrCreateOutputSectData(eh_frame);
+    m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
   }
   return true;
 }
@@ -167,8 +170,9 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
 
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
-    m_pEhFrame = new EhFrame(isLittleEndian());
-    pLinker.getOrCreateOutputSectData(m_pDynObjFileFormat->getEhFrame());
+    LDSection& eh_frame = m_pDynObjFileFormat->getEhFrame();
+    pLinker.getOrCreateOutputSectData(eh_frame);
+    m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
   }
   return true;
 }
@@ -1316,6 +1320,9 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     }
   }
 
+  if (!pSymbol.hasFragRef()) {
+    cerr << "symbol " << pSymbol.name() << " has no fragment reference" << endl;
+  }
   assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
@@ -1811,9 +1818,8 @@ void GNULDBackend::preLayout(Module& pModule,
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat();
     assert(NULL != getEhFrame());
-    m_pEhFrameHdr = new EhFrameHdr(*getEhFrame(),
-                                   format->getEhFrame(),
-                                   format->getEhFrameHdr());
+    m_pEhFrameHdr = new EhFrameHdr(format->getEhFrameHdr(),
+                                   *getEhFrame());
     m_pEhFrameHdr->sizeOutput();
   }
 
@@ -1902,7 +1908,7 @@ void GNULDBackend::postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput)
   if (config().options().hasEhFrameHdr()) {
     // emit eh_frame_hdr
     if (bitclass() == 32)
-      m_pEhFrameHdr->emitOutput<32>(pLinker, pOutput);
+      m_pEhFrameHdr->emitOutput<32>(pOutput);
   }
 }
 

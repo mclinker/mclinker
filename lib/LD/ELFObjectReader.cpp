@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/ELFObjectReader.h>
 
 #include <string>
 #include <cassert>
@@ -16,7 +17,8 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/ELFReader.h>
-#include <mcld/LD/ELFObjectReader.h>
+#include <mcld/LD/EhFrameReader.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MsgHandling.h>
 
@@ -28,18 +30,23 @@ using namespace mcld;
 /// constructor
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
   : ObjectReader(),
-    m_pELFReader(0),
+    m_pELFReader(NULL),
+    m_pEhFrameReader(NULL),
     m_Linker(pLinker),
-    m_ReadFlag(ParseEhFrame) {
+    m_ReadFlag(ParseEhFrame),
+    m_Backend(pBackend) {
   if (32 == pBackend.bitclass() && pBackend.isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
+
+  m_pEhFrameReader = new EhFrameReader();
 }
 
 /// destructor
 ELFObjectReader::~ELFObjectReader()
 {
   delete m_pELFReader;
+  delete m_pEhFrameReader;
 }
 
 /// isMyFormat
@@ -163,8 +170,17 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::EhFrame: {
         if (m_Linker.getLDInfo().options().hasEhFrameHdr() &&
             (m_ReadFlag & ParseEhFrame)) {
+
+          // set up input's section data.
+          SectionData* sect_data = m_Backend.getEhFrame()->getSection().getSectionData();
+
+          (*section)->setSectionData(sect_data);
+          m_Linker.getLayout().addInputRange(*sect_data, **section);
+
           // if --eh-frame-hdr option is given, parse .eh_frame.
-          if (!m_pELFReader->readEhFrame(pInput, m_Linker, **section)) {
+          if (!m_pEhFrameReader->read<32, true>(pInput,
+                                                **section,
+                                                *m_Backend.getEhFrame())) {
             // if we failed to parse a .eh_frame, we should not parse the rest
             // .eh_frame.
             m_ReadFlag ^= ParseEhFrame;

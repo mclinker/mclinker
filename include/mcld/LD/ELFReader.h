@@ -105,11 +105,6 @@ public:
                        LDSection& pSection,
                        const MemoryRegion& pRegion) const = 0;
 
-  /// readEhFrame - read ELF .eh_frame section
-  virtual bool readEhFrame(Input& pInput,
-                           FragmentLinker& pLinker,
-                           LDSection& pSection) const = 0;
-
   /// readDynamic - read ELF .dynamic in input dynobj
   virtual bool readDynamic(Input& pInput) const = 0;
 
@@ -228,11 +223,6 @@ public:
                       FragmentLinker& pLinker,
                       LDSection& pSection,
                       const MemoryRegion& pRegion) const;
-
-  /// readEhFrame - read ELF .eh_frame section.
-  bool readEhFrame(Input& pInput,
-                   FragmentLinker& pLinker,
-                   LDSection& pSection) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
   inline bool readDynamic(Input& pInput) const;

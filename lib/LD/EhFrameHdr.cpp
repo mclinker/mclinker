@@ -8,17 +8,105 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameHdr.h>
 
-using namespace mcld;
+#include <llvm/Support/Dwarf.h>
+#include <llvm/Support/DataTypes.h>
 
-//==========================
-// EhFrameHdr
-EhFrameHdr::EhFrameHdr(const EhFrame& pEhFrameData,
-                       const LDSection& pEhFrameSect,
-                       LDSection& pEhFrameHdrSect)
-  : m_EhFrameData(pEhFrameData),
-    m_EhFrameSect(pEhFrameSect),
-    m_EhFrameHdrSect(pEhFrameHdrSect)
+#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/LD/EhFrame.h>
+
+using namespace mcld;
+using namespace llvm::dwarf;
+
+//===----------------------------------------------------------------------===//
+// Helper Function
+//===----------------------------------------------------------------------===//
+namespace bit32 {
+
+typedef std::pair<SizeTraits<32>::Address, SizeTraits<32>::Address> Entry;
+
+bool EntryCompare(const Entry& pX, const Entry& pY)
+{ return (pX.first < pY.first); }
+
+} // bit32 namespace
+
+//===----------------------------------------------------------------------===//
+// Template Specification Functions
+//===----------------------------------------------------------------------===//
+/// emitOutput<32> - write out eh_frame_hdr
+template<>
+void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
 {
+  MemoryRegion* ehframehdr_region =
+    pOutput.request(m_EhFrameHdr.offset(), m_EhFrameHdr.size());
+
+  uint8_t* data = (uint8_t*)ehframehdr_region->start();
+  // version
+  data[0] = 1;
+  // eh_frame_ptr_enc
+  data[1] = DW_EH_PE_pcrel | DW_EH_PE_sdata4;
+
+  // eh_frame_ptr
+  uint32_t* eh_frame_ptr = (uint32_t*)(data + 4);
+  *eh_frame_ptr = m_EhFrame.getSection().addr() - (m_EhFrameHdr.addr() + 4);
+
+  // fde_count
+  uint32_t* fde_count = (uint32_t*)(data + 8);
+  *fde_count = m_EhFrame.numOfFDEs();
+
+  if (m_EhFrame.numOfFDEs() != 0) {
+    // fde_count_enc
+    data[2] = DW_EH_PE_udata4;
+    // table_enc
+    data[3] = DW_EH_PE_datarel | DW_EH_PE_sdata4;
+
+  }
+  else {
+    // fde_count_enc
+    data[2] = DW_EH_PE_omit;
+    // table_enc
+    data[3] = DW_EH_PE_omit;
+  }
+
+  if (m_EhFrame.numOfFDEs() != 0) {
+
+    // prepare the binary search table
+    typedef std::vector<bit32::Entry> SearchTableType;
+    SearchTableType search_table;
+    MemoryRegion* ehframe_region =
+      pOutput.request(m_EhFrame.getSection().offset(), m_EhFrame.getSection().size());
+    EhFrame::const_fde_iterator fde, fde_end = m_EhFrame.fde_end();
+    for(fde = m_EhFrame.fde_begin(); fde != fde_end; ++fde) {
+      assert(*fde != NULL);
+      SizeTraits<32>::Offset offset;
+      SizeTraits<32>::Address fde_pc;
+      SizeTraits<32>::Address fde_addr;
+      offset = (*fde)->getOffset();
+      fde_pc = (*fde)->getPCBegin(m_EhFrame);
+      fde_addr = m_EhFrame.getSection().addr() + offset;
+      search_table.push_back(std::make_pair(fde_pc, fde_addr));
+    }
+    pOutput.release(ehframe_region);
+
+    std::sort(search_table.begin(), search_table.end(), bit32::EntryCompare);
+
+    // write out the binary search table
+    uint32_t* bst = (uint32_t*)(data + 12);
+    SearchTableType::const_iterator entry, entry_end = search_table.end();
+    size_t id = 0;
+    for (entry = search_table.begin(); entry != entry_end; ++entry) {
+      bst[id++] = (*entry).first - m_EhFrameHdr.addr();
+      bst[id++] = (*entry).second - m_EhFrameHdr.addr();
+    }
+  }
+  pOutput.release(ehframehdr_region);
+}
+
+//===----------------------------------------------------------------------===//
+// EhFrameHdr
+//===----------------------------------------------------------------------===//
+EhFrameHdr::EhFrameHdr(LDSection& pEhFrameHdr, const EhFrame& pEhFrame)
+  : m_EhFrameHdr(pEhFrameHdr), m_EhFrame(pEhFrame) {
 }
 
 EhFrameHdr::~EhFrameHdr()
@@ -35,13 +123,11 @@ EhFrameHdr::~EhFrameHdr()
 /// uint32_t : fde_count
 /// __________________________ when fde_count > 0
 /// <uint32_t, uint32_t>+ : binary search table
-
 /// sizeOutput - base on the fde count to size output
 void EhFrameHdr::sizeOutput()
 {
   size_t size = 12;
-  size_t fde_count = m_EhFrameData.getFDECount();
-  size += 8 * fde_count;
-  m_EhFrameHdrSect.setSize(size);
+  size += 8 * m_EhFrame.numOfFDEs();
+  m_EhFrameHdr.setSize(size);
 }
 
