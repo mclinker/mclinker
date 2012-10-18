@@ -49,6 +49,7 @@ LDSymbol* LDSymbol::Null()
     g_NullSymbol->setResolveInfo(*ResolveInfo::Null());
     NullFragment* null_frag = new NullFragment();
     g_NullSymbol->setFragmentRef(FragmentRef::Create(*null_frag, 0));
+    ResolveInfo::Null()->setSymPtr(g_NullSymbol);
   }
   return g_NullSymbol;
 }
