@@ -669,10 +669,9 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
   Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
                                                                 pFragmentRef,
                                                                 pAddend);
-
   relocation->setSymInfo(&pResolveInfo);
 
-  // push relocation into the input SectionData
+  // push relocation into the input RelocationData
   RelocationData* reloc_data = NULL;
   if (NULL != pSection)
     reloc_data = &getOrCreateInputRelocData(*pSection);
@@ -680,6 +679,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
     reloc_data = &getOrCreateOrphanRelocData();
   reloc_data->getFragmentList().push_back(relocation);
 
+  // scan relocation
   m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
 
   return relocation;
