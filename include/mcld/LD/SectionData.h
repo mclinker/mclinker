@@ -57,9 +57,6 @@ public:
 
   const LDSection &getSection() const { return *m_pSection; }
 
-  unsigned int getAlignment() const { return m_Alignment; }
-  void setAlignment(unsigned int pValue) { m_Alignment = pValue; }
-
   FragmentListType &getFragmentList() { return m_Fragments; }
   const FragmentListType &getFragmentList() const { return m_Fragments; }
 
@@ -84,7 +81,6 @@ public:
 private:
   FragmentListType m_Fragments;
   const LDSection* m_pSection;
-  unsigned int m_Alignment;
 
 };
 

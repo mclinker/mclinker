@@ -14,11 +14,11 @@ using namespace mcld;
 // RelocationData
 //===----------------------------------------------------------------------===//
 RelocationData::RelocationData()
-  : m_pSection(NULL), m_Alignment(0) {
+  : m_pSection(NULL) {
 }
 
 RelocationData::RelocationData(const LDSection &pSection)
-  : m_pSection(&pSection), m_Alignment(1) {
+  : m_pSection(&pSection) {
 }
 
 RelocationData* RelocationData::Create(const LDSection& pSection)
@@ -33,7 +33,7 @@ RelocationData* RelocationData::Create()
 
 void RelocationData::Destroy(RelocationData*& pSection)
 {
-  pSection->~RelocationData();
+  delete pSection;
   pSection = NULL;
 }
 

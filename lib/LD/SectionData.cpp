@@ -23,11 +23,11 @@ static llvm::ManagedStatic<SectDataFactory> g_SectDataFactory;
 // SectionData
 //===----------------------------------------------------------------------===//
 SectionData::SectionData()
-  : m_pSection(NULL), m_Alignment(0) {
+  : m_pSection(NULL) {
 }
 
 SectionData::SectionData(const LDSection &pSection)
-  : m_pSection(&pSection), m_Alignment(1) {
+  : m_pSection(&pSection) {
 }
 
 SectionData* SectionData::Create(const LDSection& pSection)

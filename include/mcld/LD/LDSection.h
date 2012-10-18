@@ -13,7 +13,6 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Support/Allocators.h>
 #include <mcld/Config/Config.h>

@@ -47,8 +47,6 @@ TEST_F( SectionDataTest, constructor_and_trivial_func ) {
   EXPECT_TRUE(s->getSection().name() == "test" && \
               s->getSection().kind() == LDFileFormat::Null);
   
-  s->setAlignment(5566);
-  EXPECT_TRUE(5566 == s->getAlignment());
 
   LDSection::Destroy(test);
 }
