@@ -113,6 +113,12 @@ public:
 
   void setResolveInfo(const ResolveInfo& pInfo);
 
+  bool isNull() const;
+
+  /// NullSymbol() - This returns a reference to a LDSymbol that represents Null
+  /// symbol.
+  static LDSymbol* Null();
+
 private:
   // -----  Symbol's fields  ----- //
   ResolveInfo* m_pResolveInfo;

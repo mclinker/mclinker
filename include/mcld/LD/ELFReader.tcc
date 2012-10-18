@@ -240,8 +240,9 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   uint8_t  st_info  = 0x0;
   uint8_t  st_other = 0x0;
   uint16_t st_shndx = 0x0;
+
   // skip the first NULL symbol
-  pInput.context()->addSymbol(NULL);
+  pInput.context()->addSymbol(LDSymbol::Null());
 
   for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;

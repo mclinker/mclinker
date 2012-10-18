@@ -12,6 +12,9 @@
 
 using namespace mcld;
 
+/// g_NullResolveInfo - a pointer to Null ResolveInfo.
+static ResolveInfo* g_NullResolveInfo = NULL;
+
 //===----------------------------------------------------------------------===//
 // ResolveInfo
 //===----------------------------------------------------------------------===//
@@ -128,6 +131,11 @@ void ResolveInfo::setIsSymbol(bool pIsSymbol)
     m_BitField |= symbol_flag;
   else
     m_BitField &= ~symbol_flag;
+}
+
+bool ResolveInfo::isNull() const
+{
+  return (this == Null());
 }
 
 bool ResolveInfo::isDyn() const
@@ -248,11 +256,26 @@ ResolveInfo* ResolveInfo::create(const ResolveInfo::key_type& pKey)
 
 void ResolveInfo::destroy(ResolveInfo*& pInfo)
 {
+  if (pInfo->isNull())
+    return;
+
   if (NULL != pInfo) {
     pInfo->~ResolveInfo();
     free(pInfo);
   }
 
   pInfo = NULL;
+}
+
+ResolveInfo* ResolveInfo::Null()
+{
+  if (NULL == g_NullResolveInfo) {
+    g_NullResolveInfo = static_cast<ResolveInfo*>(
+                          malloc(sizeof(ResolveInfo) + 1));
+    new (g_NullResolveInfo) ResolveInfo();
+    g_NullResolveInfo->m_Name[0] = '\0';
+    g_NullResolveInfo->m_BitField = 0x0;
+  }
+  return g_NullResolveInfo;
 }
 

@@ -97,6 +97,8 @@ public:
 
   static void destroy(ResolveInfo*& pInfo);
 
+  static ResolveInfo* Null();
+
   // -----  modifiers  ----- //
   /// setRegular - set the source of the file is a regular object
   void setRegular();
@@ -141,6 +143,8 @@ public:
 
 
   // -----  observers  ----- //
+  bool isNull() const;
+
   bool isSymbol() const;
 
   bool isString() const;
