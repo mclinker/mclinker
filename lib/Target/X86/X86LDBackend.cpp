@@ -604,6 +604,18 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   }
 }
 
+void X86GNULDBackend::partialScanRelocation(Relocation& pReloc,
+                                            const LDSymbol& pInputSym,
+                                            const LDSection& pSection)
+{
+  // Update relocation target data if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.target() += offset;
+  }
+}
+
+
 uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
                                           const Layout& pLayout,
                                           MemoryRegion& pRegion) const

@@ -72,6 +72,16 @@ public:
                               FragmentLinker& pLinker,
                               const LDSection& pSection) = 0;
 
+  /// partialScanRelocation - When doing partial linking, backend can do any
+  /// modification to relocation to fix the relocation offset after section
+  /// merge
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
+  virtual void partialScanRelocation(Relocation& pReloc,
+                                     const LDSymbol& pInputSym,
+                                     const LDSection& pSection) = 0;
+
   // -----  format dependent  ----- //
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
   virtual ObjectReader*  createObjectReader(FragmentLinker&) = 0;

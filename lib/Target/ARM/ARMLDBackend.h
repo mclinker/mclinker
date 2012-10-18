@@ -111,6 +111,12 @@ public:
                       FragmentLinker& pLinker,
                       const LDSection& pSection);
 
+  /// partialScanRelocation - When doing partial linking, fix the relocation
+  /// offset after section merge
+  void partialScanRelocation(Relocation& pReloc,
+                             const LDSymbol& pInputSym,
+                             const LDSection& pSection);
+
   uint32_t machine() const
   { return llvm::ELF::EM_ARM; }
 
