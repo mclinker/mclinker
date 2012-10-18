@@ -679,15 +679,19 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
     reloc_data = &getOrCreateOrphanRelocData();
   reloc_data->getFragmentList().push_back(relocation);
 
-  // scan relocation when we're producing dyn or exe object
+  // scan relocation
   if (LinkerConfig::Object != m_Config.codeGenType())
     m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
-
+  else
+    m_Backend.partialScanRelocation(*relocation, pSym, pTargetSection);
   return relocation;
 }
 
 bool FragmentLinker::applyRelocations()
 {
+  // when producing relocatables, no need to apply relocation
+  if (LinkerConfig::Object == m_Config.codeGenType())
+    return true;
 
   Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
   for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
