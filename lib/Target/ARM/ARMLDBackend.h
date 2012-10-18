@@ -241,6 +241,14 @@ private:
   /// initTargetStubs
   bool initTargetStubs(FragmentLinker& pLinker);
 
+  /// getRelEntrySize - the size in BYTE of rel type relocation
+  size_t getRelEntrySize()
+  { return 8; }
+
+  /// getRelEntrySize - the size in BYTE of rela type relocation
+  size_t getRelaEntrySize()
+  { assert(0 && "ARM backend with Rela type relocation\n"); return 12; }
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

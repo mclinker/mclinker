@@ -206,6 +206,14 @@ private:
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 
+  /// getRelEntrySize - the size in BYTE of rel type relocation
+  size_t getRelEntrySize()
+  { return 8; }
+
+  /// getRelEntrySize - the size in BYTE of rela type relocation
+  size_t getRelaEntrySize()
+  { return 12; }
+
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;

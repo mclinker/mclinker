@@ -422,6 +422,12 @@ private:
   virtual bool doRelax(FragmentLinker& pLinker, bool& pFinished)
   { return false; }
 
+  /// getRelEntrySize - the size in BYTE of rel type relocation
+  virtual size_t getRelEntrySize() = 0;
+
+  /// getRelEntrySize - the size in BYTE of rela type relocation
+  virtual size_t getRelaEntrySize() = 0;
+
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind

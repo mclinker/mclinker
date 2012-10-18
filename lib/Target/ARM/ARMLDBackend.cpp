@@ -123,14 +123,14 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
   m_pRelPLT = new OutputRelocSection(pModule,
                                      relplt,
                                      pLinker.getOrCreateOutputRelocData(relplt),
-                                     8);
+                                     getRelEntrySize());
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
                                      pLinker.getOrCreateOutputRelocData(reldyn),
-                                     8);
+                                     getRelEntrySize());
 }
 
 void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)

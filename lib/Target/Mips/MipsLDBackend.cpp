@@ -75,7 +75,7 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
                                      pLinker.getOrCreateOutputRelocData(reldyn),
-                                     8);
+                                     getRelEntrySize());
 }
 
 void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)

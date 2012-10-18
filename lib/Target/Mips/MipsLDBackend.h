@@ -147,6 +147,14 @@ private:
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
 
+  /// getRelEntrySize - the size in BYTE of rel type relocation
+  size_t getRelEntrySize()
+  { return 8; }
+
+  /// getRelEntrySize - the size in BYTE of rela type relocation
+  size_t getRelaEntrySize()
+  { return 12; }
+
 private:
   RelocationFactory* m_pRelocFactory;
 
