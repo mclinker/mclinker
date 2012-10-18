@@ -94,7 +94,7 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
     return true;
   }
 
-  const LDSection* strtab_shdr = symtab_shdr->getLink();
+  LDSection* strtab_shdr = symtab_shdr->getLink();
   if (NULL == strtab_shdr) {
     fatal(diag::fatal_cannot_read_strtab) << pInput.name()
                                           << pInput.path()
