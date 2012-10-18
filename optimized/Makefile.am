@@ -309,10 +309,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/EhFrameHdr.cpp \
 	${INCDIR}/LD/EhFrameReader.h \
 	${LIBDIR}/LD/EhFrameReader.cpp \
-	${INCDIR}/LD/CIE.h \
-	${LIBDIR}/LD/CIE.cpp \
-	${INCDIR}/LD/FDE.h \
-	${LIBDIR}/LD/FDE.cpp \
 	${INCDIR}/LD/MsgHandler.h \
 	${LIBDIR}/LD/MsgHandler.cpp \
 	${INCDIR}/LD/Diagnostic.h \
