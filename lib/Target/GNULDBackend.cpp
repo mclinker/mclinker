@@ -1838,8 +1838,20 @@ void GNULDBackend::preLayout(Module& pModule,
                                                            input_sect.kind(),
                                                            input_sect.type(),
                                                            input_sect.flag(),
-                                                           input_sect.align());
+                                                           bitclass() / 8);
       output_sect.setRelocationData(reloc_data);
+
+      // set output relocation section link
+      const LDSection* input_link = input_sect.getLink();
+      assert(NULL != input_link);
+      LDSection& output_link =
+                          pLinker.getOrCreateOutputSectHdr(input_link->name(),
+                                                           input_link->kind(),
+                                                           input_link->type(),
+                                                           input_link->flag(),
+                                                           input_link->align());
+      output_sect.setLink(&output_link);
+
       // size output
       if (llvm::ELF::SHT_REL == output_sect.type())
         output_sect.setSize(reloc_data->size() * getRelEntrySize());
