@@ -245,8 +245,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        // set hasTextRelSection if needed
-        checkAndSetHasTextRel(pSection);
       }
       return;
 
@@ -323,8 +321,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        // set hasTextRelSection if needed
-        checkAndSetHasTextRel(pSection);
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -355,8 +351,6 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        // set hasTextRelSection if needed
-        checkAndSetHasTextRel(pSection);
         // the target symbol of the dynamic relocation is rsym, so we need to
         // emit it into .dynsym
         assert(NULL != rsym->outSymbol());
@@ -410,8 +404,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
-          // set hasTextRelSection if needed
-          checkAndSetHasTextRel(pSection);
         }
       }
       return;
@@ -498,8 +490,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         else {
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
-          // set hasTextRelSection if needed
-          checkAndSetHasTextRel(pSection);
         }
       }
       return;
@@ -529,8 +519,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        // set hasTextRelSection if needed
-        checkAndSetHasTextRel(pSection);
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -559,8 +547,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        // set hasTextRelSection if needed
-        checkAndSetHasTextRel(pSection);
       }
       return;
 
@@ -595,12 +581,15 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   else // rsym is external
     scanGlobalReloc(pReloc, pLinker, pSection);
 
-  // check undefined reference if the symbol needs a dynamic relocation
   if (((rsym->reserved() & ReserveRel) != 0x0 ||
        (rsym->reserved() & GOTRel)     != 0x0 ||
        (rsym->reserved() & ReservePLT) != 0x0)) {
+    // check undefined reference if the symbol needs a dynamic relocation
     if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
       fatal(diag::undefined_reference) << rsym->name();
+
+    // set hasTextRelSection if needed
+    checkAndSetHasTextRel(pSection);
   }
 }
 

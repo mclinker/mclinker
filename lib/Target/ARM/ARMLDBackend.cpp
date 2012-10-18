@@ -688,12 +688,15 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   else
     scanGlobalReloc(pReloc, pLinker);
 
-  // check undefined reference if the symbol needs a dynamic relocation
   if (((rsym->reserved() & ReserveRel) != 0x0 ||
        (rsym->reserved() & GOTRel)     != 0x0 ||
        (rsym->reserved() & ReservePLT) != 0x0)) {
+    // check undefined reference if the symbol needs a dynamic relocation
     if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
       fatal(diag::undefined_reference) << rsym->name();
+
+    // set hasTextRelSection if needed
+    checkAndSetHasTextRel(pSection);
   }
 }
 
