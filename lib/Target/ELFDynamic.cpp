@@ -155,6 +155,9 @@ void ELFDynamic::reserveEntries(const LinkerConfig& pConfig,
     reserveOne(llvm::ELF::DT_FLAGS); // DT_FLAGS
   }
 
+  if (m_Backend.hasTextRel())
+    reserveOne(llvm::ELF::DT_TEXTREL); // DT_TEXTREL
+
   if (pConfig.options().hasNow()          ||
       pConfig.options().hasLoadFltr()     ||
       pConfig.options().hasOrigin()       ||
@@ -239,6 +242,9 @@ void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
     applyOne(llvm::ELF::DT_RELASZ, pFormat.getRelaDyn().size()); // DT_RELASZ
     applyOne(llvm::ELF::DT_RELAENT, m_pEntryFactory->relaSize()); // DT_RELAENT
   }
+
+  if (m_Backend.hasTextRel())
+    applyOne(llvm::ELF::DT_TEXTREL, 0x0); // DT_TEXTREL
 
   uint64_t dt_flags = 0x0;
   if (pConfig.options().hasOrigin())
