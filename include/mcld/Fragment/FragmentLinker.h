@@ -145,6 +145,10 @@ public:
   /// RelocationData
   RelocationData& getOrCreateInputRelocData(LDSection& pSection);
 
+  /// getOrCreateOutputRelocData - for target to create their output relocation
+  /// Data
+  RelocationData& getOrCreateOutputRelocData(LDSection& pSection);
+
   /// getOrCreateOrphanRelocData - relaxation may create and add input
   /// relocations which have no LDSection, we put this kind of relocations into
   /// an OrphanRelocationData which has no LDSection

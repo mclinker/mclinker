@@ -606,6 +606,19 @@ RelocationData& FragmentLinker::getOrCreateInputRelocData(LDSection& pSection)
   return *reloc_data;
 }
 
+RelocationData& FragmentLinker::getOrCreateOutputRelocData(LDSection& pSection)
+{
+  // if there is already a relocation data pointed by section, return it
+  RelocationData* reloc_data = pSection.getRelocationData();
+  if (NULL != reloc_data) {
+    return *reloc_data;
+  }
+  // otherwise, create one
+  reloc_data = RelocationData::Create(pSection);
+  pSection.setRelocationData(reloc_data);
+  return *reloc_data;
+}
+
 RelocationData& FragmentLinker::getOrCreateOrphanRelocData()
 {
   static RelocationData* reloc_data = RelocationData::Create();
