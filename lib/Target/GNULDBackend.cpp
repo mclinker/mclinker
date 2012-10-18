@@ -187,6 +187,8 @@ bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
   return true;
 }
 
+/// initStandardSymbols - define and initialize standard symbols.
+/// This function is called after section merging but before read relocations.
 bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
 {
   if (LinkerConfig::Object == config().codeGenType())
@@ -199,7 +201,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   FragmentRef* preinit_array = NULL;
   if (file_format->hasPreInitArray()) {
     preinit_array = FragmentRef::Create(
-                   *(file_format->getPreInitArray().getSectionData()->begin()),
+                   file_format->getPreInitArray().getSectionData()->front(),
                    0x0);
   }
   f_pPreInitArrayStart =
@@ -229,7 +231,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   FragmentRef* init_array = NULL;
   if (file_format->hasInitArray()) {
     init_array = FragmentRef::Create(
-                      *(file_format->getInitArray().getSectionData()->begin()),
+                      file_format->getInitArray().getSectionData()->front(),
                       0x0);
   }
 
@@ -260,7 +262,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   FragmentRef* fini_array = NULL;
   if (file_format->hasFiniArray()) {
     fini_array = FragmentRef::Create(
-                     *(file_format->getFiniArray().getSectionData()->begin()),
+                     file_format->getFiniArray().getSectionData()->front(),
                      0x0);
   }
 
@@ -291,7 +293,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
   FragmentRef* stack = NULL;
   if (file_format->hasStack()) {
     stack = FragmentRef::Create(
-                          *(file_format->getStack().getSectionData()->begin()),
+                          file_format->getStack().getSectionData()->front(),
                           0x0);
   }
   f_pStack =
