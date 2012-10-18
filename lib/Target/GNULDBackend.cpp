@@ -20,6 +20,7 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
+#include <mcld/LD/RelocationData.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FragmentLinker.h>
@@ -1822,6 +1823,33 @@ void GNULDBackend::preLayout(Module& pModule,
 
   if (NULL != f_pTBSS)
     pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
+
+  // when producing relocatables, we put input relocations to output directly
+  // and size the output relocation section
+  if (LinkerConfig::Object == config().codeGenType()) {
+    Module::reloc_data_iterator dataIter, dataEnd = pModule.reloc_data_end();
+    for (dataIter = pModule.reloc_data_begin(); dataIter != dataEnd;
+                                                                   ++dataIter) {
+      RelocationData* reloc_data = *dataIter;
+      const LDSection& input_sect = reloc_data->getSection();
+      // get the output relocation LDSection
+      LDSection& output_sect =
+                          pLinker.getOrCreateOutputSectHdr(input_sect.name(),
+                                                           input_sect.kind(),
+                                                           input_sect.type(),
+                                                           input_sect.flag(),
+                                                           input_sect.align());
+      output_sect.setRelocationData(reloc_data);
+      // size output
+      if (llvm::ELF::SHT_REL == output_sect.type())
+        output_sect.setSize(reloc_data->size() * getRelEntrySize());
+      else if (llvm::ELF::SHT_RELA == output_sect.type())
+        output_sect.setSize(reloc_data->size() * getRelaEntrySize());
+      else
+        fatal(diag::unknown_reloc_section_type) << output_sect.type()
+                                                << output_sect.name();
+    }
+  }
 }
 
 /// postLayout - Backend can do any needed modification after layout

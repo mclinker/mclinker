@@ -61,7 +61,8 @@ public:
 
   static void Destroy(RelocationData*& pSection);
 
-  const LDSection &getSection() const { return *m_pSection; }
+  const LDSection &getSection() const
+  { assert(NULL != m_pSection ); return *m_pSection; }
 
   unsigned int getAlignment() const { return m_Alignment; }
   void setAlignment(unsigned int pValue) { m_Alignment = pValue; }

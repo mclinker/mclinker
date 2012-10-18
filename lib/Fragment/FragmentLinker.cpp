@@ -679,8 +679,9 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
     reloc_data = &getOrCreateOrphanRelocData();
   reloc_data->getFragmentList().push_back(relocation);
 
-  // scan relocation
-  m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
+  // scan relocation when we're producing dyn or exe object
+  if (LinkerConfig::Object != m_Config.codeGenType())
+    m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
 
   return relocation;
 }
