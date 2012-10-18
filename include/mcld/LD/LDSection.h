@@ -147,25 +147,25 @@ public:
 
   // ----- SectionData ----- //
   SectionData* getSectionData()
-  { return m_pData.sect_data; }
+  { return m_Data.sect_data; }
 
   const SectionData* getSectionData() const
-  { return m_pData.sect_data; }
+  { return m_Data.sect_data; }
 
   void setSectionData(SectionData* pSD)
-  { m_pData.sect_data = pSD; }
+  { m_Data.sect_data = pSD; }
 
   bool hasSectionData() const;
 
   // ------ RelocationData ------ //
   RelocationData* getRelocationData()
-  { return m_pData.reloc_data; }
+  { return m_Data.reloc_data; }
 
   const RelocationData* getRelocationData() const
-  { return m_pData.reloc_data; }
+  { return m_Data.reloc_data; }
 
   void setRelocationData(RelocationData* pSD)
-  { m_pData.reloc_data = pSD; }
+  { m_Data.reloc_data = pSD; }
 
   bool hasRelocationData() const;
 
@@ -181,7 +181,7 @@ public:
   { m_Index = pIndex; }
 
 private:
-  union SecOrRelocData {
+  union SectOrRelocData {
     SectionData*    sect_data;
     RelocationData* reloc_data;
   };
@@ -201,8 +201,8 @@ private:
   size_t m_Info;
   const LDSection* m_pLink;
 
-  /// m_pData - the SectionData or RelocationData of this section
-  SecOrRelocData m_pData;
+  /// m_Data - the SectionData or RelocationData of this section
+  SectOrRelocData m_Data;
 
   /// m_Index - the index of the file
   size_t m_Index;
