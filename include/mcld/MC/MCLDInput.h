@@ -44,9 +44,16 @@ public:
     External
   };
 
-private:
-  explicit Input(llvm::StringRef pName,
-                 const AttributeProxy& pAttr);
+public:
+  explicit Input(llvm::StringRef pName);
+
+  Input(llvm::StringRef pName,
+        const AttributeProxy& pAttr);
+
+  Input(llvm::StringRef pName,
+        const sys::fs::Path& pPath,
+        unsigned int pType = Unknown,
+        off_t pFileOffset = 0);
 
   Input(llvm::StringRef pName,
         const sys::fs::Path& pPath,
@@ -54,7 +61,6 @@ private:
         unsigned int pType = Unknown,
         off_t pFileOffset = 0);
 
-public:
   ~Input();
 
   const std::string& name() const
@@ -77,6 +83,9 @@ public:
 
   bool isRecognized() const
   { return (m_Type != Unknown); }
+
+  bool hasAttribute() const
+  { return (NULL != m_pAttr); }
 
   const Attribute* attribute() const
   { return m_pAttr; }
