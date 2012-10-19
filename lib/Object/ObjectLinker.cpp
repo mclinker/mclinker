@@ -276,7 +276,7 @@ bool ObjectLinker::prelayout()
 
   /// measure NamePools - compute the size of name pool sections
   /// In ELF, will compute  the size of.symtab, .strtab, .dynsym, .dynstr,
-  /// and .hash sections.
+  /// .hash and .shstrtab sections.
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.

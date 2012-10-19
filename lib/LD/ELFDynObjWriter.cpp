@@ -116,11 +116,13 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
 
   } // end of for loop
 
+  emitELFShStrTab(target().getOutputFormat()->getShStrTab(),
+                  pModule,
+                  pOutput);
+
   if (32 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF32ShStrTab(pModule, pOutput);
-
     writeELF32Header(m_Linker.getLDInfo(),
                      pModule,
                      m_Linker.getLayout(),
@@ -133,8 +135,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
   else if (64 == target().bitclass()) {
     // Write out ELF header
     // Write out section header table
-    emitELF64ShStrTab(pModule, pOutput);
-
     writeELF64Header(m_Linker.getLDInfo(),
                      pModule,
                      m_Linker.getLayout(),

@@ -456,7 +456,8 @@ protected:
     SHO_SMALL_BSS,           // .sbss
     SHO_BSS,                 // .bss
     SHO_LARGE_BSS,           // .lbss
-    SHO_UNDEFINED = ~(0U)    // default order
+    SHO_UNDEFINED,           // default order
+    SHO_SHSTRTAB,            // .shstrtab
   };
 
   typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;

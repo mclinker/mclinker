@@ -314,84 +314,20 @@ void ELFWriter::emitELF64ProgramHeader(MemoryArea& pOutput) const
   }
 }
 
-/// emitELF32ShStrTab - emit section string table
-void ELFWriter::emitELF32ShStrTab(Module& pModule,
-                                  MemoryArea& pOutput)
+/// emitELFShStrTab - emit section string table
+void
+ELFWriter::emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
+                           MemoryArea& pOutput)
 {
-  uint64_t shstroffset = getELF32LastStartOffset(pModule);
-
-  // get shstrtab
-  LDSection* shstrtab = LDSection::Create(".shstrtab",
-                                          LDFileFormat::NamePool,
-                                          llvm::ELF::SHT_STRTAB,
-                                          0x0);
-  shstrtab->setIndex(pModule.size());
-  pModule.getSectionTable().push_back(shstrtab);
-
-  // compute size
-  unsigned int shstrsize = 0;
-  Module::const_iterator section, sectEnd = pModule.end();
-  for (section = pModule.begin(); section != sectEnd; ++section) {
-    shstrsize += (*section)->name().size() + 1;
-  }
-
-  shstrtab->setSize(shstrsize);
-  shstrtab->setOffset(shstroffset);
-
   // write out data
-  MemoryRegion* region = pOutput.request(shstrtab->offset(), shstrtab->size());
+  MemoryRegion* region = pOutput.request(pShStrTab.offset(), pShStrTab.size());
   unsigned char* data = region->start();
-  shstrsize = 0;
+  size_t shstrsize = 0;
+  Module::const_iterator section, sectEnd = pModule.end();
   for (section = pModule.begin(); section != sectEnd; ++section) {
     strcpy((char*)(data + shstrsize), (*section)->name().data());
     shstrsize += (*section)->name().size() + 1;
   }
-
-  shstrtab->setKind(LDFileFormat::NamePool);
-  shstrtab->setType(llvm::ELF::SHT_STRTAB);
-  shstrtab->setFlag(0x0);
-  shstrtab->setAddr(0x0);
-
-}
-
-
-/// emitELF64ShStrTab - emit section string table
-void ELFWriter::emitELF64ShStrTab(Module& pModule,
-                                  MemoryArea& pOutput)
-{
-  uint64_t shstroffset = getELF64LastStartOffset(pModule);
-
-  // get shstrtab
-  LDSection* shstrtab = LDSection::Create(".shstrtab",
-                                          LDFileFormat::NamePool,
-                                          llvm::ELF::SHT_STRTAB,
-                                          0x0);
-  shstrtab->setIndex(pModule.size());
-  pModule.getSectionTable().push_back(shstrtab);
-
-  // compute size
-  unsigned int shstrsize = 0;
-  Module::const_iterator section, sectEnd = pModule.end();
-  for (section = pModule.begin(); section != sectEnd; ++section) {
-    shstrsize += (*section)->name().size() + 1;
-  }
-
-  shstrtab->setSize(shstrsize);
-  shstrtab->setOffset(shstroffset);
-
-  // write out data
-  MemoryRegion* region = pOutput.request(shstrtab->offset(), shstrtab->size());
-  unsigned char* data = region->start();
-  shstrsize = 0;
-  for (section = pModule.begin(); section != sectEnd; ++section) {
-    strcpy((char*)(data + shstrsize), (*section)->name().data());
-    shstrsize += (*section)->name().size() + 1;
-  }
-
-  shstrtab->setKind(LDFileFormat::NamePool);
-  shstrtab->setType(llvm::ELF::SHT_STRTAB);
-  shstrtab->setFlag(0x0);
-  shstrtab->setAddr(0x0);
 }
 
 /// emitSectionData

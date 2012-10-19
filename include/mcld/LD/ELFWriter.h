@@ -80,11 +80,8 @@ protected:
   void emitELF64ProgramHeader(MemoryArea& pOutput) const;
 
   // emitShStrTab - emit .shstrtab
-  void emitELF32ShStrTab(Module& pModule,
-                         MemoryArea& pOutput);
-
-  void emitELF64ShStrTab(Module& pModule,
-                         MemoryArea& pOutput);
+  void emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
+                       MemoryArea& pOutput);
 
   void emitSectionData(const Layout& pLayout,
                        const LDSection& pSection,

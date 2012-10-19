@@ -397,10 +397,13 @@ void Layout::sortSectionOrder(const TargetLDBackend& pBackend,
   typedef std::vector<SectOrder > SectListTy;
   SectListTy sect_list;
   // get section order from backend
-  for (size_t index = 0; index < m_SectionOrder.size(); ++index)
-    sect_list.push_back(std::make_pair(
+  for (size_t index = 0; index < m_SectionOrder.size(); ++index) {
+    sect_list.push_back(
+            std::make_pair(
                     m_SectionOrder[index],
-                    pBackend.getSectionOrder(*m_SectionOrder[index])));
+                    pBackend.getSectionOrder(*m_SectionOrder[index])
+            ));
+  }
 
   // simple insertion sort should be fine for general cases such as so and exec
   for (unsigned int i = 1; i < sect_list.size(); ++i) {
@@ -464,8 +467,9 @@ bool Layout::layout(Module& pModule,
       case LDFileFormat::Relocation:
       case LDFileFormat::Note:
       case LDFileFormat::EhFrameHdr:
-        if (0 != sect->size())
+        if (0 != sect->size()) {
           m_SectionOrder.push_back(sect);
+        }
         break;
       case LDFileFormat::Group:
         if (LinkerConfig::Object == pConfig.codeGenType()) {

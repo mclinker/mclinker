@@ -8,8 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Target/GNULDBackend.h>
 
-#include <iostream>
-using namespace std;
 #include <string>
 #include <cstring>
 #include <cassert>
@@ -688,21 +686,24 @@ const ELFObjectFileFormat* GNULDBackend::getObjectFileFormat() const
 
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
-/// .dynsym, .dynstr, and .hash
+/// .dynsym, .dynstr, .hash and .shstrtab.
 void
 GNULDBackend::sizeNamePools(const Module& pModule)
 {
-  // size of string tables starts from 1 to hold the null character in their
-  // first byte
-  size_t symtab = 1;
-  size_t dynsym = 1;
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
+  size_t symtab = 1;
+  size_t dynsym = 1;
+
+  // size of string tables starts from 1 to hold the null character in their
+  // first byte
   size_t strtab = 1;
   size_t dynstr = 1;
+  size_t shstrtab = 1;
   size_t hash   = 0;
 
-  // compute the size of .symtab, .dynsym and .strtab
+  /// compute the size of .symtab, .dynsym and .strtab
+  /// @{
   Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   size_t str_size = 0;
@@ -794,8 +795,10 @@ GNULDBackend::sizeNamePools(const Module& pModule)
       break;
     }
   } // end of switch
+  /// @}
 
-  // reserve fixed entries in the .dynamic section.
+  /// reserve fixed entries in the .dynamic section.
+  /// @{
   if (LinkerConfig::DynObj == config().codeGenType() ||
       LinkerConfig::Exec == config().codeGenType()) {
     // Because some entries in .dynamic section need information of .dynsym,
@@ -804,6 +807,19 @@ GNULDBackend::sizeNamePools(const Module& pModule)
     dynamic().reserveEntries(config(), *file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
+  /// @}
+
+  /// compute the size of .shstrtab section.
+  /// @{
+  Module::const_iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
+    if (0 != (*sect)->size()) {
+      shstrtab += ((*sect)->name().size() + 1);
+    }
+  }
+  shstrtab += (strlen(".shstrtab") + 1);
+  file_format->getShStrTab().setSize(shstrtab);
+  /// @}
 }
 
 /// emitSymbol32 - emit an ELF32 symbol
@@ -1178,9 +1194,14 @@ void GNULDBackend::emitInterp(MemoryArea& pOutput)
 /// getSectionOrder
 unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 {
+  const ELFFileFormat* file_format = getOutputFormat();
+
   // NULL section should be the "1st" section
   if (LDFileFormat::Null == pSectHdr.kind())
     return 0;
+
+  if (&pSectHdr == &file_format->getShStrTab())
+    return SHO_SHSTRTAB;
 
   // if the section is not ALLOC, lay it out until the last possible moment
   if (0 == (pSectHdr.flag() & llvm::ELF::SHF_ALLOC))
@@ -1188,8 +1209,6 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 
   bool is_write = (pSectHdr.flag() & llvm::ELF::SHF_WRITE) != 0;
   bool is_exec = (pSectHdr.flag() & llvm::ELF::SHF_EXECINSTR) != 0;
-  const ELFFileFormat* file_format = getOutputFormat();
-
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
     case LDFileFormat::Regular:
@@ -1225,11 +1244,11 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
         return SHO_TLS_BSS;
       return SHO_BSS;
 
-    case LDFileFormat::NamePool:
+    case LDFileFormat::NamePool: {
       if (&pSectHdr == &file_format->getDynamic())
         return SHO_RELRO;
       return SHO_NAMEPOOL;
-
+    }
     case LDFileFormat::Relocation:
       if (&pSectHdr == &file_format->getRelPlt() ||
           &pSectHdr == &file_format->getRelaPlt())
@@ -1322,9 +1341,6 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     }
   }
 
-  if (!pSymbol.hasFragRef()) {
-    cerr << "symbol " << pSymbol.name() << " has no fragment reference" << endl;
-  }
   assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
