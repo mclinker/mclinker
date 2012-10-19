@@ -266,6 +266,8 @@ private:
 
   ARMELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
+  LDSymbol* m_pEXIDXStart;
+  LDSymbol* m_pEXIDXEnd;
 
   //     variable name           :  ELF
   LDSection* m_pEXIDX;           // .ARM.exidx

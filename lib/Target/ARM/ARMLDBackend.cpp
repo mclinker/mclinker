@@ -49,6 +49,8 @@ ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
     m_pRelPLT(NULL),
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL),
+    m_pEXIDXStart(NULL),
+    m_pEXIDXEnd(NULL),
     m_pEXIDX(NULL),
     m_pEXTAB(NULL),
     m_pAttributes(NULL) {
@@ -147,6 +149,38 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    0x0,  // value
                    NULL, // FragRef
                    ResolveInfo::Hidden);
+
+  FragmentRef* exidx_start = NULL;
+  FragmentRef* exidx_end = NULL;
+  ResolveInfo::Desc desc = ResolveInfo::Undefined;
+  if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
+    exidx_start = FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
+    exidx_end = FragmentRef::Create(m_pEXIDX->getSectionData()->back(), 0x0);
+    desc = ResolveInfo::Define;
+  }
+  m_pEXIDXStart =
+    pLinker.defineSymbol<FragmentLinker::Force,
+                         FragmentLinker::Resolve>("__exidx_start",
+                                                  false,
+                                                  ResolveInfo::NoType,
+                                                  desc, // ResolveInfo::Desc
+                                                  ResolveInfo::Absolute,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  exidx_start, // FragRef
+                                                  ResolveInfo::Default);
+
+  m_pEXIDXEnd =
+    pLinker.defineSymbol<FragmentLinker::Force,
+                         FragmentLinker::Resolve>("__exidx_end",
+                                                  false,
+                                                  ResolveInfo::NoType,
+                                                  desc, //ResolveInfo::Desc
+                                                  ResolveInfo::Absolute,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  exidx_end, // FragRef
+                                                  ResolveInfo::Default);
 }
 
 void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
@@ -784,6 +818,15 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 /// finalizeSymbol - finalize the symbol value
 bool ARMGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 {
+  if (NULL != m_pEXIDXStart) {
+    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size())
+      m_pEXIDXStart->setValue(m_pEXIDX->addr());
+  }
+
+  if (NULL != m_pEXIDXEnd) {
+    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size())
+      m_pEXIDXEnd->setValue(m_pEXIDX->addr() + m_pEXIDX->size());
+  }
   return true;
 }
 
