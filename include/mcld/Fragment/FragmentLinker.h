@@ -280,6 +280,8 @@ private:
   Layout m_Layout;
 
   /// m_fCreateOrpan - if we've created an orphan relocation data
+  // FIXME: we should put orphan RelocationData into StubFactory and remove
+  // this control here
   bool m_fCreateOrphan;
 };
 

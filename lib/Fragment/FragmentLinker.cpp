@@ -625,9 +625,10 @@ RelocationData& FragmentLinker::getOrCreateOrphanRelocData()
 
   // the first time we call this function, push the orphan relocation data into
   // Module's RelocDataTable
-  if (!m_fCreateOrphan)
+  if (!m_fCreateOrphan) {
     m_Module.getRelocationDataTable().push_back(reloc_data);
-
+    m_fCreateOrphan = true;
+  }
   return *reloc_data;
 }
 
