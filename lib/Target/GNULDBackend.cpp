@@ -1848,7 +1848,7 @@ void GNULDBackend::preLayout(Module& pModule,
   if (NULL != f_pTBSS)
     pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
 
-  // when producing relocatables, we put input relocations to output directly
+  // when producing relocatables, create the output RelocationData frome input
   // and size the output relocation section
   if (LinkerConfig::Object == config().codeGenType()) {
     Module::reloc_data_iterator dataIter, dataEnd = pModule.reloc_data_end();
@@ -1863,7 +1863,15 @@ void GNULDBackend::preLayout(Module& pModule,
                                                            input_sect.type(),
                                                            input_sect.flag(),
                                                            bitclass() / 8);
-      output_sect.setRelocationData(reloc_data);
+      // create output RelocationData and move relocations from input's
+      // RelocationData to output's
+      RelocationData& out_reloc_data =
+                                pLinker.getOrCreateOutputRelocData(output_sect);
+
+      RelocationData::FragmentListType& out_list =
+                                               out_reloc_data.getFragmentList();
+      out_list.splice(out_list.begin(), reloc_data->getFragmentList());
+      output_sect.setRelocationData(&out_reloc_data);
 
       // set output relocation section link
       const LDSection* input_link = input_sect.getLink();
@@ -1878,9 +1886,9 @@ void GNULDBackend::preLayout(Module& pModule,
 
       // size output
       if (llvm::ELF::SHT_REL == output_sect.type())
-        output_sect.setSize(reloc_data->size() * getRelEntrySize());
+        output_sect.setSize(out_reloc_data.size() * getRelEntrySize());
       else if (llvm::ELF::SHT_RELA == output_sect.type())
-        output_sect.setSize(reloc_data->size() * getRelaEntrySize());
+        output_sect.setSize(out_reloc_data.size() * getRelaEntrySize());
       else
         fatal(diag::unknown_reloc_section_type) << output_sect.type()
                                                 << output_sect.name();

@@ -268,6 +268,15 @@ public:
   /// isStaticLink()
   bool checkIsStaticLink() const;
 
+  /// normalSyncRelocationResult - sync relocation result when producing shared
+  /// objects or executables
+  void normalSyncRelocationResult(MemoryArea& pOutput);
+
+  /// partialSyncRelocationResult - sync relocation result when doing partial
+  /// link
+  void partialSyncRelocationResult(MemoryArea& pOutput);
+
+
 private:
   typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
 
