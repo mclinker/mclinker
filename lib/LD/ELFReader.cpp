@@ -61,24 +61,24 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
   case llvm::ELF::SHT_SYMTAB:
   case llvm::ELF::SHT_DYNSYM:
   case llvm::ELF::SHT_STRTAB:
+  case llvm::ELF::SHT_HASH:
+  case llvm::ELF::SHT_DYNAMIC:
     return LDFileFormat::NamePool;
   case llvm::ELF::SHT_RELA:
   case llvm::ELF::SHT_REL:
     return LDFileFormat::Relocation;
   case llvm::ELF::SHT_NOBITS:
     return LDFileFormat::BSS;
-  case llvm::ELF::SHT_DYNAMIC:
   case llvm::ELF::SHT_NOTE:
     return LDFileFormat::Note;
-  case llvm::ELF::SHT_HASH:
-  case llvm::ELF::SHT_SHLIB:
-    return LDFileFormat::MetaData;
   case llvm::ELF::SHT_GROUP:
     return LDFileFormat::Group;
   case llvm::ELF::SHT_GNU_versym:
   case llvm::ELF::SHT_GNU_verdef:
   case llvm::ELF::SHT_GNU_verneed:
     return LDFileFormat::Version;
+  case llvm::ELF::SHT_SHLIB:
+    return LDFileFormat::Target;
   default:
     if ((pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC) ||
         (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
