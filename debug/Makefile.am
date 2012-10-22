@@ -156,6 +156,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
+	${INCDIR}/Object/ObjectBuilder.h \
+	${LIBDIR}/Object/ObjectBuilder.cpp \
 	${INCDIR}/Object/SectionMap.h \
 	${LIBDIR}/Object/SectionMap.cpp \
 	${INCDIR}/Object/SectionRules.h \
