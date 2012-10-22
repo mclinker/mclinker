@@ -79,6 +79,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
       case LDFileFormat::MetaData:
       case LDFileFormat::Version:
       case LDFileFormat::EhFrameHdr:
+      case LDFileFormat::Stack:
         // ignore these sections
         continue;
       default: {

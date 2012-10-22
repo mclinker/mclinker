@@ -174,6 +174,9 @@ public:
   bool hasStack() const
   { return (NULL != f_pStack) && (0 != f_pStack->size()); }
 
+  bool hasStackNote() const
+  { return (NULL != f_pStackNote); }
+
   // -----  access functions  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
   LDSection& getNULLSection() {
@@ -607,6 +610,17 @@ public:
     assert(NULL != f_pStack);
     return *f_pStack;
   }
+
+  LDSection& getStackNote() {
+    assert(NULL != f_pStackNote);
+    return *f_pStackNote;
+  }
+
+  const LDSection& getStackNote() const {
+    assert(NULL != f_pStackNote);
+    return *f_pStackNote;
+  }
+
 protected:
   GNULDBackend& f_Backend;
 
@@ -661,6 +675,7 @@ protected:
 
   /// practical
   LDSection* f_pStack;             // .stack
+  LDSection* f_pStackNote;         // .note.GNU-stack
 };
 
 } // namespace of mcld

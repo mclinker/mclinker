@@ -227,6 +227,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Null:
       case LDFileFormat::NamePool:
       case LDFileFormat::Ignore:
+      case LDFileFormat::Stack:
         continue;
       // warning
       case LDFileFormat::EhFrameHdr:

@@ -57,7 +57,8 @@ ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
     f_pNoteABITag(NULL),
     f_pStab(NULL),
     f_pStabStr(NULL),
-    f_pStack(NULL) {
+    f_pStack(NULL),
+    f_pStackNote(NULL) {
 
 }
 
@@ -230,6 +231,11 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
   f_pStabStr        = &pLinker.getOrCreateOutputSectHdr(".stabstr",
                                               LDFileFormat::Debug,
                                               llvm::ELF::SHT_STRTAB,
+                                              0x0,
+                                              0x1);
+  f_pStackNote      = &pLinker.getOrCreateOutputSectHdr(".note.GNU-stack",
+                                              LDFileFormat::Stack,
+                                              llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
 }

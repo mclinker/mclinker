@@ -814,7 +814,8 @@ GNULDBackend::sizeNamePools(const Module& pModule)
   /// @{
   Module::const_iterator sect, sectEnd = pModule.end();
   for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-    if (0 != (*sect)->size()) {
+    // Stack sections will always be in output!
+    if (0 != (*sect)->size() || LDFileFormat::Stack == (*sect)->kind()) {
       shstrtab += ((*sect)->name().size() + 1);
     }
   }
@@ -1552,6 +1553,14 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
     if (file_format->hasTBSS())
       tls_seg->addSection(&file_format->getTBSS());
   }
+
+  // make PT_GNU_STACK
+  if (file_format->hasStackNote()) {
+    m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_STACK,
+                              llvm::ELF::PF_R |
+                              llvm::ELF::PF_W |
+                              getSegmentFlag(file_format->getStackNote().flag()));
+  }
 }
 
 /// setupProgramHdrs - set up the attributes of segments
@@ -1605,9 +1614,9 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
   }
 }
 
-/// createGNUStackInfo - create an output GNU stack section or segment if needed
+/// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
 /// @ref gold linker: layout.cc:2608
-void GNULDBackend::createGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
+void GNULDBackend::setupGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
 {
   uint32_t flag = 0x0;
   if (config().options().hasStackSet()) {
@@ -1617,12 +1626,14 @@ void GNULDBackend::createGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
   }
   else {
     // 2. check the stack info from the input objects
+    // FIXME: since we alway emit .note.GNU-stack in output now, we may be able
+    // to check this from the output .note.GNU-stack directly after section
+    // merging is done
     size_t object_count = 0, stack_note_count = 0;
     Module::const_obj_iterator obj, objEnd = pModule.obj_end();
     for (obj = pModule.obj_begin(); obj != objEnd; ++obj) {
       ++object_count;
-      const LDSection* sect = (*obj)->context()->getSection(
-                                                           ".note.GNU-stack");
+      const LDSection* sect = (*obj)->context()->getSection(".note.GNU-stack");
       if (NULL != sect) {
         ++stack_note_count;
         // 2.1 found a stack note that is set as executable
@@ -1644,21 +1655,8 @@ void GNULDBackend::createGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
         flag = llvm::ELF::SHF_EXECINSTR;
   }
 
-  if (LinkerConfig::Object != config().codeGenType()) {
-    m_ELFSegmentTable.produce(llvm::ELF::PT_GNU_STACK,
-                              llvm::ELF::PF_R |
-                              llvm::ELF::PF_W |
-                              getSegmentFlag(flag));
-  }
-  else {
-    pLinker.getOrCreateOutputSectHdr(".note.GNU-stack",
-                                     LDFileFormat::Note,
-                                     llvm::ELF::SHT_PROGBITS,
-                                     flag,
-                                     0x1);
-    setOutputSectionOffset(pModule,
-                           pModule.begin() + pModule.size() - 1,
-                           pModule.end());
+  if (getOutputFormat()->hasStackNote()) {
+    getOutputFormat()->getStackNote().setFlag(flag);
   }
 }
 
@@ -1895,6 +1893,10 @@ void GNULDBackend::preLayout(Module& pModule,
                                                 << output_sect.name();
     }
   }
+
+  // set up the section flag of .note.GNU-stack section
+  setupGNUStackInfo(pModule, pLinker);
+
 }
 
 /// postLayout - Backend can do any needed modification after layout
@@ -1907,22 +1909,19 @@ void GNULDBackend::postLayout(Module& pModule,
     createProgramHdrs(pModule, pLinker);
   }
 
-  // 1.2 create special GNU Stack note section or segment
-  createGNUStackInfo(pModule, pLinker);
-
   if (LinkerConfig::Object != config().codeGenType()) {
     if (config().options().hasRelro()) {
-      // 1.3 set up the offset constraint of PT_RELRO
+      // 1.2 set up the offset constraint of PT_RELRO
       setupRelro(pModule);
     }
 
-    // 1.4 set up the output sections' address
+    // 1.3 set up the output sections' address
     setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
 
-    // 1.5 do relaxation
+    // 1.4 do relaxation
     relax(pModule, pLinker);
 
-    // 1.6 set up the attributes of program headers
+    // 1.5 set up the attributes of program headers
     setupProgramHdrs(pLinker);
   }
 

@@ -369,8 +369,8 @@ private:
     return flag;
   }
 
-  /// createGNUStackInfo - create an output GNU stack section or segment if needed
-  void createGNUStackInfo(Module& pModule, FragmentLinker& pLinker);
+  /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
+  void setupGNUStackInfo(Module& pModule, FragmentLinker& pLinker);
 
   /// setupRelro - setup the offset constraint of PT_RELRO
   void setupRelro(Module& pModule);
