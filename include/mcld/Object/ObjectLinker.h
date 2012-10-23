@@ -42,7 +42,7 @@ class ObjectLinker
 public:
   ObjectLinker(const LinkerConfig& pConfig,
                Module& pModule,
-               InputBuilder& pBuilder,
+               InputBuilder& pInputBuilder,
                TargetLDBackend& pLDBackend);
 
   ~ObjectLinker();
@@ -143,7 +143,9 @@ public:
 private:
   const LinkerConfig& m_Config;
   Module& m_Module;
-  InputBuilder& m_Builder;
+
+  // we pass in InputBuilder for Archive and GroupReader.
+  InputBuilder& m_InputBuilder; 
 
   FragmentLinker* m_pLinker;
   TargetLDBackend &m_LDBackend;

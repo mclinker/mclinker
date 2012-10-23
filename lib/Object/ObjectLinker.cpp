@@ -31,11 +31,11 @@ using namespace mcld;
 
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            Module& pModule,
-                           InputBuilder& pBuilder,
+                           InputBuilder& pInputBuilder,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
     m_Module(pModule),
-    m_Builder(pBuilder),
+    m_InputBuilder(pInputBuilder),
     m_pLinker(NULL),
     m_LDBackend(pLDBackend),
     m_pObjectReader(NULL),
@@ -63,8 +63,7 @@ ObjectLinker::~ObjectLinker()
     delete m_pDynObjWriter;
   if (NULL != m_pExecWriter)
     delete m_pExecWriter;
-  if (NULL != m_pGroupReader)
-    delete m_pGroupReader;
+  delete m_pGroupReader;
 }
 
 /// initFragmentLinker - initialize FragmentLinker
@@ -152,7 +151,7 @@ void ObjectLinker::normalize()
   for (input = m_Module.input_begin(); input!=inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, m_Builder, m_Config);
+      getGroupReader()->readGroup(input, m_InputBuilder, m_Config);
       continue;
     }
 
@@ -183,7 +182,7 @@ void ObjectLinker::normalize()
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, m_Builder);
+      Archive archive(**input, m_InputBuilder);
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_Module.getInputTree().merge<InputTree::Inclusive>(input,
