@@ -46,6 +46,7 @@ public:
 
   // -----  modifiers  ----- //
   /// createSymbol - create a symbol but do not insert into the pool.
+  /// The created symbol did not go through the path of symbol resolution.
   ResolveInfo* createSymbol(const llvm::StringRef& pName,
                             bool pIsDyn,
                             ResolveInfo::Type pType,
@@ -71,12 +72,12 @@ public:
                     Resolver::Result& pResult);
 
   /// findSymbol - find the resolved output LDSymbol
-  LDSymbol* findSymbol(const llvm::StringRef& pName);
   const LDSymbol* findSymbol(const llvm::StringRef& pName) const;
+  LDSymbol*       findSymbol(const llvm::StringRef& pName);
 
   /// findInfo - find the resolved ResolveInfo
-  ResolveInfo* findInfo(const llvm::StringRef& pName);
   const ResolveInfo* findInfo(const llvm::StringRef& pName) const;
+  ResolveInfo*       findInfo(const llvm::StringRef& pName);
 
   /// insertString - insert a string
   /// if the string has existed, modify pString to the existing string

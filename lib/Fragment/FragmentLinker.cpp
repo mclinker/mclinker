@@ -67,6 +67,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
                                         ResolveInfo::Visibility pVisibility)
 {
 
+  // Step 1. calculate a Resolver::Result
   // resolved_result is a triple <resolved_info, existent, override>
   Resolver::Result resolved_result;
   ResolveInfo old_info; // used for arrange output symbols
@@ -97,6 +98,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
 
+  /// Step 2. create an input LDSymbol.
   // create a LDSymbol for the input file.
   LDSymbol* input_sym = m_LDSymbolFactory.allocate();
   new (input_sym) LDSymbol();
@@ -108,6 +110,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
+  // Step 3. Set up corresponding output LDSymbol
   LDSymbol* output_sym = resolved_result.info->outSymbol();
   bool has_output_sym = (NULL != output_sym);
   if (!resolved_result.existent || !has_output_sym) {
@@ -132,8 +135,10 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
     output_sym->setValue(pValue);
   }
 
+  // Step 4. Adjust the position of output LDSymbol.
   // After symbol resolution, visibility is changed to the most restrict one.
-  // we need to arrange its position in the output symbol .
+  // we need to arrange its position in the output symbol. We arrange the
+  // positions by sorting symbols in SymbolCategory.
   if (pType != ResolveInfo::Section) {
     if (!has_output_sym) {
       // We merge sections when reading them. So we do not need to output symbols
@@ -173,8 +178,7 @@ LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
                                         FragmentRef* pFragmentRef,
                                         ResolveInfo::Visibility pVisibility)
 {
-  // We merge sections when reading them. So we do not need symbols with
-  // section type
+  // We don't need sections of dynamic objects. So we ignore section symbols.
   if (pType == ResolveInfo::Section)
     return NULL;
 

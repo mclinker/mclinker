@@ -199,7 +199,7 @@ public:
   /// isStaticLink - return whether we're doing static link
   bool isStaticLink() const;
 
- private:
+private:
   LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
                                    bool pIsDyn,
                                    ResolveInfo::Type pType,
