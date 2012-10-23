@@ -27,7 +27,7 @@ lit.site.cfg: FORCE
 	@echo s=@MCLINKER_OBJECT_ROOT@=$(abs_top_builddir)=g >> lit.tmp
 	@echo s=@LLVM_CONFIG@=$(LLVM_CONFIG_BIN)=g >> lit.tmp
 	@sed -f lit.tmp $(abs_srcdir)/lit.site.cfg.in > $@
-	@rm -f lib.tmp
+	@rm -f lit.tmp
 
 clean: FORCE
 	rm -f lit.site.cfg
