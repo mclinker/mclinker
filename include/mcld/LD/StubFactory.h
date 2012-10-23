@@ -21,6 +21,7 @@ namespace mcld
 
 class Stub;
 class Relocation;
+class RelocationFactory;
 class BranchIslandFactory;
 class FragmentLinker;
 
@@ -42,6 +43,7 @@ public:
   Stub* create(Relocation& pReloc,
                uint64_t pTargetSymValue,
                FragmentLinker& pLinker,
+               RelocationFactory& pRelocFactory,
                BranchIslandFactory& pBRIslandFactory);
 
 private:

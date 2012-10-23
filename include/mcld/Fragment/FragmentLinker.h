@@ -270,6 +270,10 @@ private:
   /// link
   void partialSyncRelocationResult(MemoryArea& pOutput);
 
+  /// writeRelocationResult - helper function of syncRelocationResult, write
+  /// relocation target data to output
+  void writeRelocationResult(Relocation& pReloc, uint8_t* pOutput);
+
 private:
   const LinkerConfig& m_Config;
   Module& m_Module;

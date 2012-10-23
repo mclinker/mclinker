@@ -19,6 +19,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
 #include <mcld/MC/MCLDInput.h>
+#include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
@@ -723,6 +724,7 @@ bool FragmentLinker::applyRelocations()
   if (LinkerConfig::Object == m_Config.codeGenType())
     return true;
 
+  // apply relocations from inputs
   Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
   for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
     RelocationData* reloc_data = *dataIter;
@@ -732,6 +734,16 @@ bool FragmentLinker::applyRelocations()
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
       reloc->apply(*m_Backend.getRelocFactory());
     }
+  }
+
+  // apply relocations created by relaxation
+  BranchIslandFactory* br_factory = m_Backend.getBRIslandFactory();
+  BranchIslandFactory::iterator facIter, facEnd = br_factory->end();
+  for (facIter = br_factory->begin(); facIter != facEnd; ++facIter) {
+    BranchIsland& island = *facIter;
+    BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
+    for (iter = island.reloc_begin(); iter != iterEnd; ++iter)
+      (*iter)->apply(*m_Backend.getRelocFactory());
   }
   return true;
 }
@@ -752,42 +764,26 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
 
   uint8_t* data = region->getBuffer();
 
+  // sync relocations from inputs
   Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
   for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
     RelocationData* reloc_data = *dataIter;
     RelocationData::iterator relocIter, relocEnd = reloc_data->end();
-
     for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
-
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
+      writeRelocationResult(*reloc, data);
+    }
+  }
 
-      // get output file offset
-      size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
-                          reloc->targetRef().getOutputOffset();
-
-      uint8_t* target_addr = data + out_offset;
-      // byte swapping if target and host has different endian, and then write back
-      if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
-         uint64_t tmp_data = 0;
-
-         switch(m_Backend.bitclass()) {
-           case 32u:
-             tmp_data = bswap32(reloc->target());
-             std::memcpy(target_addr, &tmp_data, 4);
-             break;
-
-           case 64u:
-             tmp_data = bswap64(reloc->target());
-             std::memcpy(target_addr, &tmp_data, 8);
-             break;
-
-           default:
-             break;
-        }
-      }
-      else {
-        std::memcpy(target_addr, &reloc->target(), m_Backend.bitclass()/8);
-      }
+  // sync relocations created by relaxation
+  BranchIslandFactory* br_factory = m_Backend.getBRIslandFactory();
+  BranchIslandFactory::iterator facIter, facEnd = br_factory->end();
+  for (facIter = br_factory->begin(); facIter != facEnd; ++facIter) {
+    BranchIsland& island = *facIter;
+    BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
+    for (iter = island.reloc_begin(); iter != iterEnd; ++iter) {
+      Relocation* reloc = *iter;
+      writeRelocationResult(*reloc, data);
     }
   }
 
@@ -796,55 +792,56 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
 
 void FragmentLinker::partialSyncRelocationResult(MemoryArea& pOutput)
 {
-
   MemoryRegion* region = pOutput.request(0, pOutput.handler()->size());
 
   uint8_t* data = region->getBuffer();
 
-  // traver outputs LDSection to get RelocationData
+  // traverse outputs' LDSection to get RelocationData
   Module::iterator sectIter, sectEnd = m_Module.end();
   for (sectIter = m_Module.begin(); sectIter != sectEnd; ++sectIter) {
     if (LDFileFormat::Relocation != (*sectIter)->kind())
       continue;
+
     RelocationData* reloc_data = (*sectIter)->getRelocationData();
     RelocationData::iterator relocIter, relocEnd = reloc_data->end();
-
     for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
-
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
-
-      // get output file offset
-      size_t out_offset = m_Layout.getOutputLDSection(*reloc->targetRef().frag())->offset() +
-                          reloc->targetRef().getOutputOffset();
-
-      uint8_t* target_addr = data + out_offset;
-      // byte swapping if target and host has different endian, and then write back
-      if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
-         uint64_t tmp_data = 0;
-
-         switch(m_Backend.bitclass()) {
-           case 32u:
-             tmp_data = bswap32(reloc->target());
-             std::memcpy(target_addr, &tmp_data, 4);
-             break;
-
-           case 64u:
-             tmp_data = bswap64(reloc->target());
-             std::memcpy(target_addr, &tmp_data, 8);
-             break;
-
-           default:
-             break;
-        }
-      }
-      else {
-        std::memcpy(target_addr, &reloc->target(), m_Backend.bitclass()/8);
-      }
+      writeRelocationResult(*reloc, data);
     }
   }
 
-
   pOutput.clear();
+}
+
+void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
+{
+  // get output file offset
+  size_t out_offset =
+            m_Layout.getOutputLDSection(*pReloc.targetRef().frag())->offset() +
+            pReloc.targetRef().getOutputOffset();
+
+  uint8_t* target_addr = pOutput + out_offset;
+  // byte swapping if target and host has different endian, and then write back
+  if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
+     uint64_t tmp_data = 0;
+
+     switch(m_Backend.bitclass()) {
+       case 32u:
+         tmp_data = bswap32(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 4);
+         break;
+
+       case 64u:
+         tmp_data = bswap64(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 8);
+         break;
+
+       default:
+         break;
+    }
+  }
+  else
+    std::memcpy(target_addr, &pReloc.target(), m_Backend.bitclass()/8);
 }
 
 /// isOutputPIC - return whether the output is position-independent

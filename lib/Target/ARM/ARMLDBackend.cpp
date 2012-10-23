@@ -979,6 +979,7 @@ bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
         Stub* stub = getStubFactory()->create(*it,       // relocation
                                               sym_value, // symbol value
                                               pLinker,
+                                              *getRelocFactory(),
                                               *getBRIslandFactory());
         if (NULL != stub) {
           assert(NULL != stub->symInfo());
