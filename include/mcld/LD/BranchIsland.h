@@ -38,6 +38,10 @@ public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
 
+  typedef std::vector<Relocation*> RelocationListType;
+  typedef RelocationListType::iterator reloc_iterator;
+  typedef RelocationListType::const_iterator const_reloc_iterator;
+
 public:
   /*
    *               ----------
@@ -62,6 +66,19 @@ public:
 
   const_iterator end() const;
 
+  /// relocation iterators of the island
+  reloc_iterator reloc_begin()
+  { return m_Relocations.begin(); }
+
+  const_reloc_iterator reloc_begin() const
+  { return m_Relocations.begin(); }
+
+  reloc_iterator reloc_end()
+  { return m_Relocations.end(); }
+
+  const_reloc_iterator reloc_end() const
+  { return m_Relocations.end(); }
+
   /// observers
   uint64_t offset() const;
 
@@ -79,6 +96,9 @@ public:
 
   /// addStub - add a stub into the island
   bool addStub(const Stub* pPrototype, const Relocation& pReloc, Stub& pStub);
+
+  /// addRelocation - add a relocation into island
+  bool addRelocation(Relocation& pReloc);
 
 private:
   /** \class Key
@@ -141,6 +161,8 @@ private:
   size_t m_MaxSize;
   std::string m_Name;
   StubMapType m_StubMap;
+  /// m_Relocations - list of relocations created for stubs in this island
+  RelocationListType m_Relocations;
 };
 
 } // namespace of mcld

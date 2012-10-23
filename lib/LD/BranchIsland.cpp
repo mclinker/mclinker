@@ -141,3 +141,10 @@ bool BranchIsland::addStub(const Stub* pPrototype,
   return !exist;
 }
 
+/// addRelocation - add a relocation into island
+bool BranchIsland::addRelocation(Relocation& pReloc)
+{
+  m_Relocations.push_back(&pReloc);
+  return true;
+}
+
