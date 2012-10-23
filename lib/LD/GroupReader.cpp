@@ -45,10 +45,11 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
   typedef std::vector<ArchiveListEntry*> ArchiveListType;
   ArchiveListType ar_list;
 
-  Module::input_iterator input = pRoot;
+  Module::input_iterator input = --pRoot;
+
+  // Since the end of a sub-tree is the same node to the end of whole tree, we
+  // take the end of the whole input tree for conventience.
   Module::input_iterator input_end = m_Module.input_end();
-  // set input to the first node under pRoot in the sub-tree
-  --input;
 
   // first time read the sub-tree
   while (input != input_end) {
