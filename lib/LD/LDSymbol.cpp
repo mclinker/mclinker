@@ -6,16 +6,24 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/LDSymbol.h>
+
+#include <mcld/Config/Config.h>
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Fragment/NullFragment.h>
+#include <mcld/Support/GCFactory.h>
 
 #include <cstring>
+
+#include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
 
 static LDSymbol* g_NullSymbol = NULL;
+
+typedef GCFactory<LDSymbol, MCLD_SYMBOLS_PER_INPUT> LDSymbolFactory;
+
+static llvm::ManagedStatic<LDSymbolFactory> g_LDSymbolFactory;
 
 //===----------------------------------------------------------------------===//
 // LDSymbol
@@ -40,6 +48,21 @@ LDSymbol& LDSymbol::operator=(const LDSymbol& pCopy)
   m_pFragRef = pCopy.m_pFragRef;
   m_Value = pCopy.m_Value;
   return (*this);
+}
+
+LDSymbol* LDSymbol::Create(ResolveInfo& pResolveInfo)
+{
+  LDSymbol* result = g_LDSymbolFactory->allocate();
+  new (result) LDSymbol();
+  result->setResolveInfo(pResolveInfo);
+  return result;
+}
+
+void LDSymbol::Destroy(LDSymbol*& pSymbol)
+{
+  pSymbol->~LDSymbol();
+  g_LDSymbolFactory->deallocate(pSymbol);
+  pSymbol = NULL;
 }
 
 LDSymbol* LDSymbol::Null()

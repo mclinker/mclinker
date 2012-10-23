@@ -33,7 +33,7 @@ ResolveInfo* NamePool::createSymbol(const llvm::StringRef& pName,
                                     ResolveInfo::SizeType pSize,
                                     ResolveInfo::Visibility pVisibility)
 {
-  ResolveInfo* result = ResolveInfo::create(pName);
+  ResolveInfo* result = ResolveInfo::Create(pName);
   result->setIsSymbol(true);
   result->setSource(pIsDyn);
   result->setType(pType);

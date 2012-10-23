@@ -14,8 +14,10 @@
 
 #include <cassert>
 
+#include <mcld/Config/Config.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/Support/Allocators.h>
 
 namespace mcld {
 
@@ -33,12 +35,20 @@ public:
   typedef uint64_t ValueType;
 
 public:
-  LDSymbol();
-  LDSymbol(const LDSymbol& pCopy);
-  LDSymbol& operator=(const LDSymbol& pCopy);
   ~LDSymbol();
 
+  // -----  factory method ----- //
+  static LDSymbol* Create(ResolveInfo& pResolveInfo);
+
+  static void Destroy(LDSymbol*& pSymbol);
+
+  /// NullSymbol() - This returns a reference to a LDSymbol that represents Null
+  /// symbol.
+  static LDSymbol* Null();
+
   // -----  observers  ----- //
+  bool isNull() const;
+
   const char* name() const {
     assert(NULL != m_pResolveInfo);
     return m_pResolveInfo->name();
@@ -113,11 +123,12 @@ public:
 
   void setResolveInfo(const ResolveInfo& pInfo);
 
-  bool isNull() const;
+private:
+  friend class Chunk<LDSymbol, MCLD_SYMBOLS_PER_INPUT>;
 
-  /// NullSymbol() - This returns a reference to a LDSymbol that represents Null
-  /// symbol.
-  static LDSymbol* Null();
+  LDSymbol();
+  LDSymbol(const LDSymbol& pCopy);
+  LDSymbol& operator=(const LDSymbol& pCopy);
 
 private:
   // -----  Symbol's fields  ----- //

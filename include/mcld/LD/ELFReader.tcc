@@ -378,7 +378,7 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
   llvm::StringRef ld_name(
                     reinterpret_cast<char*>(strtab_region->start() + st_name));
 
-  ResolveInfo* result = ResolveInfo::create(ld_name);
+  ResolveInfo* result = ResolveInfo::Create(ld_name);
   result->setSource(pInput.type() == Input::DynObj);
   result->setType(static_cast<ResolveInfo::Type>(st_info & 0xF));
   result->setDesc(getSymDesc(st_shndx, pInput));

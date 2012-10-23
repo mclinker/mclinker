@@ -239,7 +239,7 @@ bool ResolveInfo::compare(const ResolveInfo::key_type& pKey)
 //===----------------------------------------------------------------------===//
 // ResolveInfo Factory Methods
 //===----------------------------------------------------------------------===//
-ResolveInfo* ResolveInfo::create(const ResolveInfo::key_type& pKey)
+ResolveInfo* ResolveInfo::Create(const ResolveInfo::key_type& pKey)
 {
   ResolveInfo* result = static_cast<ResolveInfo*>(
                           malloc(sizeof(ResolveInfo)+pKey.size()+1));
@@ -254,7 +254,7 @@ ResolveInfo* ResolveInfo::create(const ResolveInfo::key_type& pKey)
   return result;
 }
 
-void ResolveInfo::destroy(ResolveInfo*& pInfo)
+void ResolveInfo::Destroy(ResolveInfo*& pInfo)
 {
   if (pInfo->isNull())
     return;

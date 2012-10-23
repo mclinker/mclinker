@@ -93,9 +93,9 @@ public:
 
 public:
   // -----  factory method  ----- //
-  static ResolveInfo* create(const key_type& pKey);
+  static ResolveInfo* Create(const key_type& pKey);
 
-  static void destroy(ResolveInfo*& pInfo);
+  static void Destroy(ResolveInfo*& pInfo);
 
   static ResolveInfo* Null();
 

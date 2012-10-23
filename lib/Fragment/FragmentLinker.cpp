@@ -21,7 +21,6 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
-#include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/RelocationData.h>
 #include <mcld/LD/SectionMerger.h>
@@ -40,7 +39,6 @@ FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
   : m_Config(pConfig),
     m_Module(pModule),
     m_Backend(pBackend),
-    m_LDSymbolFactory(128),
     m_pSectionMerger(NULL),
     m_fCreateOrphan(false)
 {
@@ -100,13 +98,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
 
   /// Step 2. create an input LDSymbol.
   // create a LDSymbol for the input file.
-  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
-  new (input_sym) LDSymbol();
-
-  // set the relation between input LDSymbol and its ResolveInfo
-  input_sym->setResolveInfo(*resolved_result.info);
-
-  // set up input LDSymbol
+  LDSymbol* input_sym = LDSymbol::Create(*resolved_result.info);
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
@@ -118,11 +110,7 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
     assert(NULL == output_sym);
 
     // if it is a new symbol, create a LDSymbol for the output
-    output_sym = m_LDSymbolFactory.allocate();
-    new (output_sym) LDSymbol();
-
-    // set up the relation between output LDSymbol and its ResolveInfo
-    output_sym->setResolveInfo(*resolved_result.info);
+    output_sym = LDSymbol::Create(*resolved_result.info);
     resolved_result.info->setSymPtr(output_sym);
   }
 
@@ -205,13 +193,7 @@ LDSymbol* FragmentLinker::addSymbolFromDynObj(const llvm::StringRef& pName,
   assert(NULL != resolved_result.info);
 
   // create a LDSymbol for the input file.
-  LDSymbol* input_sym = m_LDSymbolFactory.allocate();
-  new (input_sym) LDSymbol();
-
-  // set up the relation between input LDSymbol and its ResolveInfo
-  input_sym->setResolveInfo(*resolved_result.info);
-
-  // set up input LDSymbol
+  LDSymbol* input_sym = LDSymbol::Create(*resolved_result.info);
   input_sym->setFragmentRef(pFragmentRef);
   input_sym->setValue(pValue);
 
@@ -260,10 +242,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     assert(!result.existent);
 
     // create a output LDSymbol
-    output_sym = m_LDSymbolFactory.allocate();
-    new (output_sym) LDSymbol();
-
-    output_sym->setResolveInfo(*result.info);
+    output_sym = LDSymbol::Create(*result.info);
     result.info->setSymPtr(output_sym);
 
     if (shouldForceLocal(*result.info))
@@ -289,10 +268,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
       m_Module.getSymbolTable().arrange(*output_sym, old_info);
     else {
       // create a output LDSymbol
-      output_sym = m_LDSymbolFactory.allocate();
-      new (output_sym) LDSymbol();
-
-      output_sym->setResolveInfo(*info);
+      output_sym = LDSymbol::Create(*info);
       info->setSymPtr(output_sym);
 
       m_Module.getSymbolTable().add(*output_sym);
@@ -345,10 +321,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   }
   else {
     // create a output LDSymbol
-    output_sym = m_LDSymbolFactory.allocate();
-    new (output_sym) LDSymbol();
-
-    output_sym->setResolveInfo(*info);
+    output_sym = LDSymbol::Create(*info);
     info->setSymPtr(output_sym);
 
     m_Module.getSymbolTable().add(*output_sym);
@@ -380,9 +353,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
   bool has_output_sym = (NULL != output_sym);
 
   if (!result.existent || !has_output_sym) {
-    output_sym = m_LDSymbolFactory.allocate();
-    new (output_sym) LDSymbol();
-    output_sym->setResolveInfo(*result.info);
+    output_sym = LDSymbol::Create(*result.info);
     result.info->setSymPtr(output_sym);
   }
 

@@ -25,7 +25,6 @@ class DynObjReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
-class LDContext;
 class LDFileFormat;
 class LDSymbol;
 class LDSection;

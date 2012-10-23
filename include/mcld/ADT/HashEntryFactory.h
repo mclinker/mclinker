@@ -24,10 +24,10 @@ public:
 
 public:
   entry_type* produce(const key_type& pKey)
-  { return HashEntryTy::create(pKey); }
+  { return HashEntryTy::Create(pKey); }
 
   void destroy(entry_type*& pEntry)
-  { HashEntryTy::destroy(pEntry); }
+  { HashEntryTy::Destroy(pEntry); }
 };
 
 } // namespace of mcld

@@ -45,11 +45,11 @@ void SymbolCategoryTest::TearDown()
 //
 
 TEST_F(SymbolCategoryTest, upward_test) {
-  ResolveInfo* a = ResolveInfo::create("a");
-  ResolveInfo* b = ResolveInfo::create("b");
-  ResolveInfo* c = ResolveInfo::create("c");
-  ResolveInfo* d = ResolveInfo::create("d");
-  ResolveInfo* e = ResolveInfo::create("e");
+  ResolveInfo* a = ResolveInfo::Create("a");
+  ResolveInfo* b = ResolveInfo::Create("b");
+  ResolveInfo* c = ResolveInfo::Create("c");
+  ResolveInfo* d = ResolveInfo::Create("d");
+  ResolveInfo* e = ResolveInfo::Create("e");
   e->setBinding(ResolveInfo::Global);
   d->setBinding(ResolveInfo::Weak);
   c->setDesc(ResolveInfo::Common);
@@ -57,23 +57,17 @@ TEST_F(SymbolCategoryTest, upward_test) {
   b->setBinding(ResolveInfo::Local);
   a->setType(ResolveInfo::File);
 
-  LDSymbol aa;
-  LDSymbol bb;
-  LDSymbol cc;
-  LDSymbol dd;
-  LDSymbol ee;
+  LDSymbol* aa = LDSymbol::Create(*a);
+  LDSymbol* bb = LDSymbol::Create(*b);
+  LDSymbol* cc = LDSymbol::Create(*c);
+  LDSymbol* dd = LDSymbol::Create(*d);
+  LDSymbol* ee = LDSymbol::Create(*e);
 
-  aa.setResolveInfo(*a);
-  bb.setResolveInfo(*b);
-  cc.setResolveInfo(*c);
-  dd.setResolveInfo(*d);
-  ee.setResolveInfo(*e);
-
-  m_pTestee->add(ee);
-  m_pTestee->add(dd);
-  m_pTestee->add(cc);
-  m_pTestee->add(bb);
-  m_pTestee->add(aa);
+  m_pTestee->add(*ee);
+  m_pTestee->add(*dd);
+  m_pTestee->add(*cc);
+  m_pTestee->add(*bb);
+  m_pTestee->add(*aa);
 
   SymbolCategory::iterator sym = m_pTestee->begin();
   ASSERT_STREQ("a", (*sym)->name());
@@ -93,11 +87,11 @@ TEST_F(SymbolCategoryTest, upward_test) {
 }
 
 TEST_F(SymbolCategoryTest, change_local_to_tls) {
-  ResolveInfo* a = ResolveInfo::create("a");
-  ResolveInfo* b = ResolveInfo::create("b");
-  ResolveInfo* c = ResolveInfo::create("c");
-  ResolveInfo* d = ResolveInfo::create("d");
-  ResolveInfo* e = ResolveInfo::create("e");
+  ResolveInfo* a = ResolveInfo::Create("a");
+  ResolveInfo* b = ResolveInfo::Create("b");
+  ResolveInfo* c = ResolveInfo::Create("c");
+  ResolveInfo* d = ResolveInfo::Create("d");
+  ResolveInfo* e = ResolveInfo::Create("e");
 
   a->setBinding(ResolveInfo::Local);
   b->setBinding(ResolveInfo::Local);
@@ -106,29 +100,23 @@ TEST_F(SymbolCategoryTest, change_local_to_tls) {
   d->setBinding(ResolveInfo::Global);
   e->setBinding(ResolveInfo::Global);
 
-  LDSymbol aa;
-  LDSymbol bb;
-  LDSymbol cc;
-  LDSymbol dd;
-  LDSymbol ee;
+  LDSymbol* aa = LDSymbol::Create(*a);
+  LDSymbol* bb = LDSymbol::Create(*b);
+  LDSymbol* cc = LDSymbol::Create(*c);
+  LDSymbol* dd = LDSymbol::Create(*d);
+  LDSymbol* ee = LDSymbol::Create(*e);
 
-  aa.setResolveInfo(*a);
-  bb.setResolveInfo(*b);
-  cc.setResolveInfo(*c);
-  dd.setResolveInfo(*d);
-  ee.setResolveInfo(*e);
+  a->setSymPtr(aa);
+  b->setSymPtr(bb);
+  c->setSymPtr(cc);
+  d->setSymPtr(dd);
+  e->setSymPtr(ee);
 
-  a->setSymPtr(&aa);
-  b->setSymPtr(&bb);
-  c->setSymPtr(&cc);
-  d->setSymPtr(&dd);
-  e->setSymPtr(&ee);
-
-  m_pTestee->add(ee);
-  m_pTestee->add(dd);
-  m_pTestee->add(cc);
-  m_pTestee->add(bb);
-  m_pTestee->add(aa);
+  m_pTestee->add(*ee);
+  m_pTestee->add(*dd);
+  m_pTestee->add(*cc);
+  m_pTestee->add(*bb);
+  m_pTestee->add(*aa);
 
   SymbolCategory::iterator sym = m_pTestee->begin();
   ASSERT_STREQ("c", (*sym)->name());
@@ -141,7 +129,7 @@ TEST_F(SymbolCategoryTest, change_local_to_tls) {
   ++sym;
   ASSERT_STREQ("e", (*sym)->name());
 
-  m_pTestee->changeLocalToTLS(bb);
+  m_pTestee->changeLocalToTLS(*bb);
 
   sym = m_pTestee->begin();
   ASSERT_STREQ("c", (*sym)->name());

@@ -17,19 +17,13 @@
 #include <gtest.h>
 #endif
 
-#include <set>
 #include <string>
 
-#include <llvm/ADT/ilist.h>
-
 #include <mcld/LD/LDFileFormat.h>
-#include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/Layout.h>
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/Support/GCFactory.h>
-#include <mcld/Support/GCFactoryListTraits.h>
 #include <mcld/Fragment/Relocation.h>
+#include <mcld/MC/MCLDInput.h>
 
 namespace mcld {
 
@@ -276,15 +270,10 @@ private:
   /// link
   void partialSyncRelocationResult(MemoryArea& pOutput);
 
-
-private:
-  typedef GCFactory<LDSymbol, 0> LDSymbolFactory;
-
 private:
   const LinkerConfig& m_Config;
   Module& m_Module;
   TargetLDBackend& m_Backend;
-  LDSymbolFactory m_LDSymbolFactory;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
 
