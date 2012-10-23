@@ -143,11 +143,6 @@ public:
   /// Data
   RelocationData& getOrCreateOutputRelocData(LDSection& pSection);
 
-  /// getOrCreateOrphanRelocData - relaxation may create and add input
-  /// relocations which have no LDSection, we put this kind of relocations into
-  /// an OrphanRelocationData which has no LDSection
-  RelocationData& getOrCreateOrphanRelocData();
-
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation
@@ -161,7 +156,7 @@ public:
                             const LDSymbol& pSym,
                             ResolveInfo& pResolveInfo,
                             FragmentRef& pFragmentRef,
-                            LDSection* pSection,
+                            LDSection& pSection,
                             const LDSection& pTargetSection,
                             Relocation::Address pAddend = 0);
 
@@ -280,11 +275,6 @@ private:
   TargetLDBackend& m_Backend;
   SectionMerger* m_pSectionMerger;
   Layout m_Layout;
-
-  /// m_fCreateOrpan - if we've created an orphan relocation data
-  // FIXME: we should put orphan RelocationData into StubFactory and remove
-  // this control here
-  bool m_fCreateOrphan;
 };
 
 #include "FragmentLinker.tcc"

@@ -40,8 +40,7 @@ FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
   : m_Config(pConfig),
     m_Module(pModule),
     m_Backend(pBackend),
-    m_pSectionMerger(NULL),
-    m_fCreateOrphan(false)
+    m_pSectionMerger(NULL)
 {
 }
 
@@ -649,19 +648,6 @@ RelocationData& FragmentLinker::getOrCreateOutputRelocData(LDSection& pSection)
   return *reloc_data;
 }
 
-RelocationData& FragmentLinker::getOrCreateOrphanRelocData()
-{
-  static RelocationData* reloc_data = RelocationData::Create();
-
-  // the first time we call this function, push the orphan relocation data into
-  // Module's RelocDataTable
-  if (!m_fCreateOrphan) {
-    m_Module.getRelocationDataTable().push_back(reloc_data);
-    m_fCreateOrphan = true;
-  }
-  return *reloc_data;
-}
-
 void FragmentLinker::initSectionMap()
 {
   if (NULL == m_pSectionMerger) {
@@ -685,7 +671,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                           const LDSymbol& pSym,
                                           ResolveInfo& pResolveInfo,
                                           FragmentRef& pFragmentRef,
-                                          LDSection* pSection,
+                                          LDSection& pSection,
                                           const LDSection& pTargetSection,
                                           Relocation::Address pAddend)
 {
@@ -704,10 +690,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   // push relocation into the input RelocationData
   RelocationData* reloc_data = NULL;
-  if (NULL != pSection)
-    reloc_data = &getOrCreateInputRelocData(*pSection);
-  else
-    reloc_data = &getOrCreateOrphanRelocData();
+  reloc_data = &getOrCreateInputRelocData(pSection);
   reloc_data->getFragmentList().push_back(relocation);
 
   // scan relocation
