@@ -1343,6 +1343,9 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     }
   }
 
+  if (pSymbol.resolveInfo()->isDefine() && !pSymbol.hasFragRef())
+    return llvm::ELF::SHN_ABS;
+
   assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
   return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
 }
