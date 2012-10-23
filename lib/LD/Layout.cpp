@@ -458,9 +458,9 @@ bool Layout::layout(Module& pModule,
           m_SectionOrder.push_back(sect);
         }
         break;
-      // take NULL and Stack directly
+      // take NULL and StackNote directly
       case LDFileFormat::Null:
-      case LDFileFormat::Stack:
+      case LDFileFormat::StackNote:
         m_SectionOrder.push_back(sect);
         break;
       // ignore if section size is 0

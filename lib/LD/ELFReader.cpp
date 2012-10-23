@@ -49,7 +49,7 @@ ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
   if (name.startswith(".gcc_except_table"))
     return LDFileFormat::GCCExceptTable;
   if (name.startswith(".note.GNU-stack"))
-    return LDFileFormat::Stack;
+    return LDFileFormat::StackNote;
 
   // type rules
   switch(pType) {

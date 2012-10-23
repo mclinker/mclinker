@@ -234,7 +234,7 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
                                               0x0,
                                               0x1);
   f_pStackNote      = &pLinker.getOrCreateOutputSectHdr(".note.GNU-stack",
-                                              LDFileFormat::Stack,
+                                              LDFileFormat::StackNote,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);

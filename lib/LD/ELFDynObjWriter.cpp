@@ -79,7 +79,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
       case LDFileFormat::MetaData:
       case LDFileFormat::Version:
       case LDFileFormat::EhFrameHdr:
-      case LDFileFormat::Stack:
+      case LDFileFormat::StackNote:
         // ignore these sections
         continue;
       default: {

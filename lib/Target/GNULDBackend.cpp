@@ -836,8 +836,8 @@ GNULDBackend::sizeNamePools(const Module& pModule)
   /// @{
   Module::const_iterator sect, sectEnd = pModule.end();
   for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-    // Stack sections will always be in output!
-    if (0 != (*sect)->size() || LDFileFormat::Stack == (*sect)->kind()) {
+    // StackNote sections will always be in output!
+    if (0 != (*sect)->size() || LDFileFormat::StackNote == (*sect)->kind()) {
       shstrtab += ((*sect)->name().size() + 1);
     }
   }

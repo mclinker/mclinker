@@ -64,7 +64,7 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       case LDFileFormat::MetaData:
       case LDFileFormat::Version:
       case LDFileFormat::EhFrameHdr:
-      case LDFileFormat::Stack:
+      case LDFileFormat::StackNote:
         // ignore these sections
         continue;
       default: {

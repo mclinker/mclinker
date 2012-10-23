@@ -42,7 +42,7 @@ public:
     Note,
     MetaData,
     Group,
-    Stack,
+    StackNote,
     Ignore,
   };
 
