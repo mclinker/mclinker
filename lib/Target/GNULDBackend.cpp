@@ -57,6 +57,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     f_pFiniArrayStart(NULL),
     f_pFiniArrayEnd(NULL),
     f_pStack(NULL),
+    f_pDynamic(NULL),
     f_pTDATA(NULL),
     f_pTBSS(NULL),
     f_pExecutableStart(NULL),
@@ -307,6 +308,21 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
                                              stack, // FragRef
                                              ResolveInfo::Hidden);
 
+  // _DYNAMIC
+  // TODO: add SectionData for .dynamic section, and then we can get the correct
+  // symbol section index for _DYNAMIC. Now it will be ABS.
+  f_pDynamic =
+     pLinker.defineSymbol<FragmentLinker::AsRefered,
+                          FragmentLinker::Resolve>("_DYNAMIC",
+                                                   false, // isDyn
+                                                   ResolveInfo::Object,
+                                                   ResolveInfo::Define,
+                                                   ResolveInfo::Local,
+                                                   0x0, // size
+                                                   0x0, // value
+                                                   NULL, // FragRef
+                                                   ResolveInfo::Hidden);
+
   // -----  segment symbols  ----- //
   f_pExecutableStart =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -489,6 +505,12 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
       f_pStack->resolveInfo()->setBinding(ResolveInfo::Absolute);
       f_pStack->setValue(0x0);
     }
+  }
+
+  if (NULL != f_pDynamic) {
+    f_pDynamic->resolveInfo()->setBinding(ResolveInfo::Local);
+    f_pDynamic->setValue(file_format->getDynamic().addr());
+    f_pDynamic->setSize(file_format->getDynamic().size());
   }
 
   if (NULL != f_pTDATA) {

@@ -505,6 +505,7 @@ protected:
   LDSymbol* f_pFiniArrayStart;
   LDSymbol* f_pFiniArrayEnd;
   LDSymbol* f_pStack;
+  LDSymbol* f_pDynamic;
 
   // section symbols for .tdata and .tbss
   LDSymbol* f_pTDATA;
