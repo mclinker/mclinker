@@ -164,11 +164,11 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   false,
                                                   ResolveInfo::NoType,
                                                   desc, // ResolveInfo::Desc
-                                                  ResolveInfo::Absolute,
+                                                  ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_start, // FragRef
-                                                  ResolveInfo::Default);
+                                                  ResolveInfo::Hidden);
 
   m_pEXIDXEnd =
     pLinker.defineSymbol<FragmentLinker::Force,
@@ -176,11 +176,11 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   false,
                                                   ResolveInfo::NoType,
                                                   desc, //ResolveInfo::Desc
-                                                  ResolveInfo::Absolute,
+                                                  ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_end, // FragRef
-                                                  ResolveInfo::Default);
+                                                  ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
