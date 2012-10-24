@@ -84,7 +84,6 @@ LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
   else
     section = m_Module.getSection(pName);
 
-  assert(NULL != section);
   return section;
 }
 

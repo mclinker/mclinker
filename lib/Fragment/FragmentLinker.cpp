@@ -466,14 +466,15 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
   // for user such as reader, standard/target fromat
   LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
 
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-  std::string output_name = (pair.isNull())?pName:pair.to;
-  LDSection* output_sect = m_Module.getSection(output_name);
+  // try to get one from output LDSection
+  LDSection* output_sect = m_pSectionMerger->getMatchedSection(pName);
   if (NULL == output_sect) {
-    // create a output section and push it into output LDContext
+    const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+    std::string output_name = (pair.isNull())?pName:pair.to;
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     m_Module.getSectionTable().push_back(output_sect);
   }
+
   return *result;
 }
 
@@ -485,10 +486,11 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pFlag,
                                               uint32_t pAlign)
 {
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-  std::string output_name = (pair.isNull())?pName:pair.to;
-  LDSection* output_sect = m_Module.getSection(output_name);
+  // try to get one from output LDSection
+  LDSection* output_sect = m_pSectionMerger->getMatchedSection(pName);
   if (NULL == output_sect) {
+    const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+    std::string output_name = (pair.isNull())?pName:pair.to;
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_Module.getSectionTable().push_back(output_sect);
@@ -521,6 +523,7 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
       break;
     } // end of switch
   }
+
   return *output_sect;
 }
 
