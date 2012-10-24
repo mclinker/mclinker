@@ -454,8 +454,6 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
   return false;
 }
 
-#include <iostream>
-using namespace std;
 //===----------------------------------------------------------------------===//
 // Section Operations
 //===----------------------------------------------------------------------===//

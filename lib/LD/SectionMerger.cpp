@@ -97,22 +97,6 @@ void SectionMerger::append(const std::string& pName, LDSection& pSection)
   }
 }
 
-#include <fstream>
-using namespace std;
-void SectionMerger::append2(const std::string& pName, LDSection& pSection)
-{
-  ofstream log_file("log.text", ios::app);
-  iterator it = find(pName);
-  if (it != m_RuleList.end()) {
-    assert(NULL == (*it).target);
-    (*it).target = &pSection;
-    log_file << "append " << pName << " to " << pSection.name() << endl;
-  }
-  else {
-    log_file << "ignore " << pName << " to " << pSection.name() << endl;
-  }
-}
-
 void SectionMerger::initOutputSectMap()
 {
   // Based on SectionMap to initialize the map from a input substr to its 
