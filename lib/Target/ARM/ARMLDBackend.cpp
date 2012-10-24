@@ -1041,6 +1041,14 @@ bool ARMGNULDBackend::initTargetStubs(FragmentLinker& pLinker)
   return false;
 }
 
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule,
+                                          const FragmentLinker& pLinker)
+{
+  // TODO
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

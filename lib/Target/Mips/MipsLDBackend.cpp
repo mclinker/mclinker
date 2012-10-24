@@ -1024,6 +1024,14 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   }
 }
 
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule,
+                                           const FragmentLinker& pLinker)
+{
+  // TODO
+}
+
 //===----------------------------------------------------------------------===//
 /// createMipsLDBackend - the help funtion to create corresponding MipsLDBackend
 ///

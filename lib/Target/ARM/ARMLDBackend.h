@@ -250,6 +250,11 @@ private:
   size_t getRelaEntrySize()
   { assert(0 && "ARM backend with Rela type relocation\n"); return 12; }
 
+  /// doCreateProgramHdrs - backend can implement this function to create the
+  /// target-dependent segments
+  virtual void doCreateProgramHdrs(Module& pModule,
+                                   const FragmentLinker& pLinker);
+
 private:
   RelocationFactory* m_pRelocFactory;
   ARMGOT* m_pGOT;

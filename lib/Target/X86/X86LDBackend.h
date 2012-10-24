@@ -217,6 +217,11 @@ private:
   size_t getRelaEntrySize()
   { return 12; }
 
+  /// doCreateProgramHdrs - backend can implement this function to create the
+  /// target-dependent segments
+  virtual void doCreateProgramHdrs(Module& pModule,
+                                   const FragmentLinker& pLinker);
+
 private:
   RelocationFactory* m_pRelocFactory;
   X86GOT* m_pGOT;

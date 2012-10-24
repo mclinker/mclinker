@@ -855,6 +855,14 @@ bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
   return true;
 }
 
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void X86GNULDBackend::doCreateProgramHdrs(Module& pModule,
+                                          const FragmentLinker& pLinker)
+{
+  // TODO
+}
+
 namespace mcld {
 
 //===----------------------------------------------------------------------===//

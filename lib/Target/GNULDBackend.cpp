@@ -1617,6 +1617,9 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
                               llvm::ELF::PF_W |
                               getSegmentFlag(file_format->getStackNote().flag()));
   }
+
+  // create target dependent segments
+  doCreateProgramHdrs(pModule, pLinker);
 }
 
 /// setupProgramHdrs - set up the attributes of segments
