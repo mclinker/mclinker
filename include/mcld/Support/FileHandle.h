@@ -17,8 +17,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class FileHandle
  *  \brief FileHandle class provides an interface for reading from and writing
