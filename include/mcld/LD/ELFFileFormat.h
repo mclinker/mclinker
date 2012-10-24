@@ -177,6 +177,9 @@ public:
   bool hasStackNote() const
   { return (NULL != f_pStackNote); }
 
+  bool hasDataRelRoLocal() const
+  { return (NULL != f_pDataRelRoLocal) && (0 != f_pDataRelRoLocal->size()); }
+
   // -----  access functions  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
   LDSection& getNULLSection() {
@@ -621,6 +624,16 @@ public:
     return *f_pStackNote;
   }
 
+  LDSection& getDataRelRoLocal() {
+    assert(NULL != f_pDataRelRoLocal);
+    return *f_pDataRelRoLocal;
+  }
+
+  const LDSection& getDataRelRoLocal() const {
+    assert(NULL != f_pDataRelRoLocal);
+    return *f_pDataRelRoLocal;
+  }
+
 protected:
   GNULDBackend& f_Backend;
 
@@ -676,6 +689,7 @@ protected:
   /// practical
   LDSection* f_pStack;             // .stack
   LDSection* f_pStackNote;         // .note.GNU-stack
+  LDSection* f_pDataRelRoLocal;    // .data.rel.ro.local
 };
 
 } // namespace of mcld

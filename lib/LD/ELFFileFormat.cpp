@@ -58,7 +58,8 @@ ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
     f_pStab(NULL),
     f_pStabStr(NULL),
     f_pStack(NULL),
-    f_pStackNote(NULL) {
+    f_pStackNote(NULL),
+    f_pDataRelRoLocal(NULL) {
 
 }
 
@@ -237,6 +238,13 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
                                               LDFileFormat::StackNote,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
+                                              0x1);
+
+  /// @ref GCC convention, see http://www.airs.com/blog/archives/189
+  f_pDataRelRoLocal = &pLinker.getOrCreateOutputSectHdr(".data.rel.ro.local",
+                                              LDFileFormat::Regular,
+                                              llvm::ELF::SHT_PROGBITS,
+                                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
 }
 

@@ -43,6 +43,7 @@ public:
   /// @param pName - the matched substring
   /// @parap pSection - the output section
   void append(const std::string& pName, LDSection& pSection);
+  void append2(const std::string& pName, LDSection& pSection);
 
   size_t size () const { return m_RuleList.size(); }
   bool   empty() const { return m_RuleList.empty(); }

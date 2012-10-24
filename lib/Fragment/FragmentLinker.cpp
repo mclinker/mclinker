@@ -454,6 +454,8 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
   return false;
 }
 
+#include <iostream>
+using namespace std;
 //===----------------------------------------------------------------------===//
 // Section Operations
 //===----------------------------------------------------------------------===//
@@ -473,34 +475,6 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
     // create a output section and push it into output LDContext
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     m_Module.getSectionTable().push_back(output_sect);
-    switch (pKind) {
-    case LDFileFormat::Regular:
-    case LDFileFormat::BSS:
-    case LDFileFormat::Debug:
-    case LDFileFormat::GCCExceptTable:
-    case LDFileFormat::Version:
-    case LDFileFormat::Target: {
-      m_pSectionMerger->append(pName, *output_sect);
-      break;
-    }
-    case LDFileFormat::Relocation: {
-      if (LinkerConfig::Object == m_Config.codeGenType()) {
-        m_pSectionMerger->append(pName, *output_sect);
-        break;
-      }
-    }
-    case LDFileFormat::Null:
-    case LDFileFormat::NamePool:
-    case LDFileFormat::EhFrame:
-    case LDFileFormat::EhFrameHdr:
-    case LDFileFormat::Note:
-    case LDFileFormat::Group:
-    case LDFileFormat::MetaData:
-    case LDFileFormat::Ignore:
-    default:
-      // do not append rule
-      break;
-    } // end of switch
   }
   return *result;
 }
