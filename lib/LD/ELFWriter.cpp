@@ -552,6 +552,9 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection,
     else
       return target().getOutputFormat()->getDynSymTab().index();
   }
+  // FIXME: currently we link ARM_EXIDX section to output text section here
+  if (llvm::ELF::SHT_ARM_EXIDX == pSection.type())
+    return target().getOutputFormat()->getText().index();
   return llvm::ELF::SHN_UNDEF;
 }
 
