@@ -2065,6 +2065,11 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
   if (pSym.other() != ResolveInfo::Default)
     return false;
 
+  // This is because the codeGenType of pie is DynObj. And gold linker check
+  // the "shared" option instead.
+  if (config().options().isPIE())
+    return false;
+
   if (LinkerConfig::DynObj != config().codeGenType())
     return false;
 
