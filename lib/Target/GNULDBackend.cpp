@@ -736,19 +736,23 @@ GNULDBackend::sizeNamePools(const Module& pModule)
     str_size = (*symbol)->nameSize() + 1;
     if (isDynamicSymbol(**symbol)) {
       ++dynsym;
-      dynstr += str_size;
+      if (ResolveInfo::Section != (*symbol)->type())
+        dynstr += str_size;
     }
     ++symtab;
-    strtab += str_size;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtab += str_size;
   }
   // compute the size of symbols in TLS category
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
     ++dynsym;
-    dynstr += str_size;
+    if (ResolveInfo::Section != (*symbol)->type())
+      dynstr += str_size;
     ++symtab;
-    strtab += str_size;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtab += str_size;
   }
   // compute the size of the reset of symbols
   symEnd = pModule.sym_end();
@@ -756,10 +760,12 @@ GNULDBackend::sizeNamePools(const Module& pModule)
     str_size = (*symbol)->nameSize() + 1;
     if (isDynamicSymbol(**symbol)) {
       ++dynsym;
-      dynstr += str_size;
+      if (ResolveInfo::Section != (*symbol)->type())
+        dynstr += str_size;
     }
     ++symtab;
-    strtab += str_size;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtab += str_size;
   }
 
   ELFFileFormat* file_format = getOutputFormat();
@@ -856,14 +862,18 @@ void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
 {
    // FIXME: check the endian between host and target
    // write out symbol
-   pSym.st_name  = pStrtabsize;
+   if (ResolveInfo::Section != pSymbol.type()) {
+     pSym.st_name  = pStrtabsize;
+     strcpy((pStrtab + pStrtabsize), pSymbol.name());
+   }
+   else {
+     pSym.st_name  = 0;
+   }
    pSym.st_value = pSymbol.value();
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
    pSym.st_other = pSymbol.visibility();
    pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
-   // write out string
-   strcpy((pStrtab + pStrtabsize), pSymbol.name());
 }
 
 /// emitSymbol64 - emit an ELF64 symbol
@@ -965,7 +975,8 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 }
 
@@ -1056,7 +1067,8 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit symbols in TLS category, all symbols in TLS category shold be emitited
@@ -1074,7 +1086,8 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit the reset of the symbols if the symbol is dynamic symbol
@@ -1095,7 +1108,8 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit DT_NEED
