@@ -165,6 +165,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
+                      Module& pModule,
                       const LDSection& pSection);
 
   OutputRelocSection& getRelDyn();
@@ -184,10 +185,12 @@ public:
 private:
   void scanLocalReloc(Relocation& pReloc,
                       FragmentLinker& pLinker,
+                      Module& pModule,
                       const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
                        FragmentLinker& pLinker,
+                       Module& pModule,
                        const LDSection& pSection);
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym

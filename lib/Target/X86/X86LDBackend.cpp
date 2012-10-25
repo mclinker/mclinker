@@ -228,6 +228,7 @@ void X86GNULDBackend::updateAddend(Relocation& pReloc,
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      FragmentLinker& pLinker,
+                                     Module& pModule,
                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol
@@ -297,11 +298,11 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
       if (&file_format->getTData() == sym_sect) {
         if (NULL == f_pTDATA)
-          defineTDATASymbol(pLinker);
+          f_pTDATA = pModule.getSectionSymbol(sym_sect);
       }
       else if (&file_format->getTBSS() == sym_sect || rsym->isCommon()) {
         if (NULL == f_pTBSS)
-          defineTBSSSymbol(pLinker);
+          f_pTBSS = pModule.getSectionSymbol(sym_sect);
       }
       else
         error(diag::invalid_tls) << rsym->name() << sym_sect->name();
@@ -367,6 +368,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       FragmentLinker& pLinker,
+                                      Module& pModule,
                                       const LDSection& pSection)
 {
   // rsym - The relocation target symbol
@@ -561,6 +563,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
+                                     Module& pModule,
                                      const LDSection& pSection)
 {
   if (LinkerConfig::Object == config().codeGenType())
@@ -577,9 +580,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
   // entries should be created.
   if (rsym->isLocal()) // rsym is local
-    scanLocalReloc(pReloc, pLinker, pSection);
+    scanLocalReloc(pReloc, pLinker, pModule, pSection);
   else // rsym is external
-    scanGlobalReloc(pReloc, pLinker, pSection);
+    scanGlobalReloc(pReloc, pLinker, pModule, pSection);
 
   if (((rsym->reserved() & ReserveRel) != 0x0 ||
        (rsym->reserved() & GOTRel)     != 0x0 ||

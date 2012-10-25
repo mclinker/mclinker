@@ -700,6 +700,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
                                      const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
+                                     Module& pModule,
                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol

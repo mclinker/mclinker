@@ -109,6 +109,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
+                      Module& pModule,
                       const LDSection& pSection);
 
   uint32_t machine() const

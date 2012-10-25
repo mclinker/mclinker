@@ -513,22 +513,6 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
     f_pDynamic->setSize(file_format->getDynamic().size());
   }
 
-  if (NULL != f_pTDATA) {
-    LDSection& tdata_sect = file_format->getTData();
-    assert(tdata_sect.hasSectionData());
-    f_pTDATA->setFragmentRef(FragmentRef::Create(
-                                 *(tdata_sect.getSectionData()->begin()), 0x0));
-    f_pTDATA->setValue(tdata_sect.addr());
-  }
-
-  if (NULL != f_pTBSS) {
-    LDSection& tbss_sect = file_format->getTBSS();
-    assert(tbss_sect.hasSectionData());
-    f_pTBSS->setFragmentRef(FragmentRef::Create(
-                                 *(tbss_sect.getSectionData()->begin()), 0x0));
-    f_pTBSS->setValue(tbss_sect.addr());
-  }
-
   // -----  segment symbols  ----- //
   if (NULL != f_pExecutableStart) {
     ELFSegment* exec_start = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD, 0x0, 0x0);
@@ -2173,40 +2157,6 @@ bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
     return true;
 
   return false;
-}
-
-bool GNULDBackend::defineTDATASymbol(FragmentLinker& pLinker)
-{
-  // Define section symbol for .tdata
-  f_pTDATA =
-         pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
-           ".tdata",
-           false,
-           ResolveInfo::Section,
-           ResolveInfo::Define,
-           ResolveInfo::Local,
-           0x0,  // size
-           0x0,  // value
-           NULL, // fragRef
-           ResolveInfo::Default);
-  return true;
-}
-
-bool GNULDBackend::defineTBSSSymbol(FragmentLinker& pLinker)
-{
-  // Define section symbol for .tbss
-  f_pTBSS =
-         pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
-           ".tbss",
-           false,
-           ResolveInfo::Section,
-           ResolveInfo::Define,
-           ResolveInfo::Local,
-           0x0,  // size
-           0x0,  // value
-           NULL, // fragRef
-           ResolveInfo::Default);
-  return true;
 }
 
 LDSymbol& GNULDBackend::getTDATASymbol()

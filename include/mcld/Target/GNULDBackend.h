@@ -330,12 +330,6 @@ protected:
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
 
-  /// defineTDATASymbol - define section symbol for .tdata
-  bool defineTDATASymbol(FragmentLinker& pLinker);
-
-  /// defineTBSSSymbol - define section symbol for .tbss
-  bool defineTBSSSymbol(FragmentLinker& pLinker);
-
   /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
   void checkAndSetHasTextRel(const LDSection& pSection);
 

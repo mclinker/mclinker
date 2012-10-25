@@ -69,6 +69,7 @@ public:
   virtual void scanRelocation(Relocation& pReloc,
                               const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,
+                              Module& pModule,
                               const LDSection& pSection) = 0;
 
   /// partialScanRelocation - When doing partial linking, backend can do any
