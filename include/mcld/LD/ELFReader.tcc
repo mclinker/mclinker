@@ -149,7 +149,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
 
   LinkInfoList link_info_list;
 
-  // create all LDSections
+  // create all LDSections, including first NULL section.
   for (size_t idx = 0; idx < shnum; ++idx) {
     if (llvm::sys::isLittleEndianHost()) {
       sh_name      = shdrTab[idx].sh_name;

@@ -14,8 +14,8 @@
 using namespace mcld;
 
 struct NameMap {
-  const char* from;
-  const char* to;
+  const char* from; ///< the prefix of the input string. (match FROM*)
+  const char* to;   ///< the output string.
 };
 
 static const NameMap map[] =
