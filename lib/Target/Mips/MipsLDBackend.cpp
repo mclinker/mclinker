@@ -278,6 +278,176 @@ bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
                    m_GlobalGOTSyms.end(), &pSymbol) != m_GlobalGOTSyms.end();
 }
 
+/// sizeNamePools - compute the size of regular name pools
+/// In ELF executable files, regular name pools are .symtab, .strtab,
+/// .dynsym, .dynstr, .hash and .shstrtab.
+void
+MipsGNULDBackend::sizeNamePools(const Module& pModule)
+{
+  // number of entries in symbol tables starts from 1 to hold the special entry
+  // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
+  size_t symtab = 1;
+  size_t dynsym = 1;
+
+  // size of string tables starts from 1 to hold the null character in their
+  // first byte
+  size_t strtab = 1;
+  size_t dynstr = 1;
+  size_t shstrtab = 1;
+  size_t hash   = 0;
+
+  /// compute the size of .symtab, .dynsym and .strtab
+  /// @{
+  Module::const_sym_iterator symbol;
+  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  size_t str_size = 0;
+  // compute the size of symbols in Local and File category
+  Module::const_sym_iterator symEnd = symbols.localEnd();
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
+    if (isDynamicSymbol(**symbol)) {
+      ++dynsym;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+        dynstr += str_size;
+    }
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
+  }
+  // compute the size of symbols in TLS category
+  symEnd = symbols.tlsEnd();
+  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
+    ++dynsym;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      dynstr += str_size;
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
+  }
+  // compute the size of the reset of symbols
+  symEnd = pModule.sym_end();
+  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
+    str_size = (*symbol)->nameSize() + 1;
+    if (isDynamicSymbol(**symbol)) {
+      ++dynsym;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+        dynstr += str_size;
+    }
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
+  }
+
+  ELFFileFormat* file_format = getOutputFormat();
+
+  switch(config().codeGenType()) {
+    // compute size of .dynstr and .hash
+    case LinkerConfig::DynObj: {
+      // soname
+      dynstr += pModule.name().size() + 1;
+    }
+    /** fall through **/
+    case LinkerConfig::Exec: {
+      // add DT_NEED strings into .dynstr and .dynamic
+      // Rules:
+      //   1. ignore --no-add-needed
+      //   2. force count in --no-as-needed
+      //   3. judge --as-needed
+      Module::const_lib_iterator lib, libEnd = pModule.lib_end();
+      for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
+        // --add-needed
+        if ((*lib)->attribute()->isAddNeeded()) {
+          // --no-as-needed
+          if (!(*lib)->attribute()->isAsNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
+          }
+          // --as-needed
+          else if ((*lib)->isNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
+          }
+        }
+      }
+
+      // compute .hash
+      // Both Elf32_Word and Elf64_Word are 4 bytes
+      hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
+             sizeof(llvm::ELF::Elf32_Word);
+
+      // set size
+      if (32 == bitclass())
+        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
+      else
+        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
+      file_format->getDynStrTab().setSize(dynstr);
+      file_format->getHashTab().setSize(hash);
+
+    }
+    /* fall through */
+    case LinkerConfig::Object: {
+      if (32 == bitclass())
+        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf32_Sym));
+      else
+        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));
+      file_format->getStrTab().setSize(strtab);
+      break;
+    }
+  } // end of switch
+  /// @}
+
+  /// reserve fixed entries in the .dynamic section.
+  /// @{
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      LinkerConfig::Exec == config().codeGenType()) {
+    // Because some entries in .dynamic section need information of .dynsym,
+    // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
+    // entries until we get the size of the sections mentioned above
+    dynamic().reserveEntries(config(), *file_format);
+    file_format->getDynamic().setSize(dynamic().numOfBytes());
+  }
+  /// @}
+
+  /// compute the size of .shstrtab section.
+  /// @{
+  Module::const_iterator sect, sectEnd = pModule.end();
+  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
+    // StackNote sections will always be in output!
+    if (0 != (*sect)->size() || LDFileFormat::StackNote == (*sect)->kind()) {
+      shstrtab += ((*sect)->name().size() + 1);
+    }
+  }
+  shstrtab += (strlen(".shstrtab") + 1);
+  file_format->getShStrTab().setSize(shstrtab);
+  /// @}
+}
+
+/// emitSymbol32 - emit an ELF32 symbol
+void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
+                                    LDSymbol& pSymbol,
+                                    const Layout& pLayout,
+                                    char* pStrtab,
+                                    size_t pStrtabsize,
+                                    size_t pSymtabIdx)
+{
+   // FIXME: check the endian between host and target
+   // write out symbol
+    if (ResolveInfo::Section != pSymbol.type() ||
+          &pSymbol == m_pGpDispSymbol) {
+     pSym.st_name  = pStrtabsize;
+     strcpy((pStrtab + pStrtabsize), pSymbol.name());
+   }
+   else {
+     pSym.st_name  = 0;
+   }
+   pSym.st_value = pSymbol.value();
+   pSym.st_size  = getSymbolSize(pSymbol);
+   pSym.st_info  = getSymbolInfo(pSymbol);
+   pSym.st_other = pSymbol.visibility();
+   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+}
+
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
 ///
 /// the size of these tables should be computed before layout
@@ -347,7 +517,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
       strtabsize += (*symbol)->nameSize() + 1;
   }
 
@@ -366,7 +536,8 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit the reset of the symbols if the symbol is dynamic symbol
@@ -386,7 +557,8 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit global GOT
@@ -408,7 +580,8 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
 
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit DT_NEED

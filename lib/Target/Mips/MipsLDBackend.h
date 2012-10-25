@@ -111,10 +111,13 @@ public:
                            const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
+  void sizeNamePools(const Module& pModule);
+
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(const Module& pModule,
-                                const Layout& pLayout,
-                                MemoryArea& pOut);
+  void emitDynNamePools(const Module& pModule,
+                        const Layout& pLayout,
+                        MemoryArea& pOut);
+
 
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
@@ -146,6 +149,14 @@ private:
   void updateAddend(Relocation& pReloc,
                     const LDSymbol& pInputSym,
                     const Layout& pLayout) const;
+
+  /// emitSymbol32 - emit an ELF32 symbol, override parent's function
+  void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
+                    LDSymbol& pSymbol,
+                    const Layout& pLayout,
+                    char* pStrtab,
+                    size_t pStrtabsize,
+                    size_t pSymtabIdx);
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
