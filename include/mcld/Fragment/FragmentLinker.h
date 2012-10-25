@@ -37,7 +37,7 @@ class Output;
 class EhFrame;
 class EhFrameHdr;
 class MemoryArea;
-class SectionMerger;
+class SectionRules;
 class RelocationData;
 
 /** \class FragmentLinker
@@ -273,7 +273,7 @@ private:
   const LinkerConfig& m_Config;
   Module& m_Module;
   TargetLDBackend& m_Backend;
-  SectionMerger* m_pSectionMerger;
+  SectionRules* m_pSectionRules;
   Layout m_Layout;
 };
 

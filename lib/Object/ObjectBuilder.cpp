@@ -10,7 +10,7 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Object/SectionMap.h>
-#include <mcld/Object/SectionRules.h>
+#include <mcld/LD/SectionRules.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Fragment/AlignFragment.h>

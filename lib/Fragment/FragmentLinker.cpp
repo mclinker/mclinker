@@ -24,7 +24,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/RelocationData.h>
-#include <mcld/LD/SectionMerger.h>
+#include <mcld/LD/SectionRules.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
@@ -40,14 +40,14 @@ FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
   : m_Config(pConfig),
     m_Module(pModule),
     m_Backend(pBackend),
-    m_pSectionMerger(NULL)
+    m_pSectionRules(NULL)
 {
 }
 
 /// Destructor
 FragmentLinker::~FragmentLinker()
 {
-  delete m_pSectionMerger;
+  delete m_pSectionRules;
 }
 
 //===----------------------------------------------------------------------===//
@@ -467,7 +467,7 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
   LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
 
   // try to get one from output LDSection
-  LDSection* output_sect = m_pSectionMerger->getMatchedSection(pName);
+  LDSection* output_sect = m_pSectionRules->getMatchedSection(pName);
   if (NULL == output_sect) {
     const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
     std::string output_name = (pair.isNull())?pName:pair.to;
@@ -487,7 +487,7 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pAlign)
 {
   // try to get one from output LDSection
-  LDSection* output_sect = m_pSectionMerger->getMatchedSection(pName);
+  LDSection* output_sect = m_pSectionRules->getMatchedSection(pName);
   if (NULL == output_sect) {
     const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
     std::string output_name = (pair.isNull())?pName:pair.to;
@@ -501,12 +501,12 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
     case LDFileFormat::GCCExceptTable:
     case LDFileFormat::Version:
     case LDFileFormat::Target: {
-      m_pSectionMerger->append(pName, *output_sect);
+      m_pSectionRules->append(pName, *output_sect);
       break;
     }
     case LDFileFormat::Relocation: {
       if (LinkerConfig::Object == m_Config.codeGenType()) {
-        m_pSectionMerger->append(pName, *output_sect);
+        m_pSectionRules->append(pName, *output_sect);
         break;
       }
     }
@@ -541,7 +541,7 @@ FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
 
   // try to get one from output LDSection
   LDSection* output_sect =
-    m_pSectionMerger->getMatchedSection(pSection.name());
+    m_pSectionRules->getMatchedSection(pSection.name());
 
   assert(NULL != output_sect);
 
@@ -575,7 +575,7 @@ FragmentLinker::getOrCreateOutputSectData(LDSection& pSection)
 
   // try to get one from output LDSection
   LDSection* output_sect =
-    m_pSectionMerger->getMatchedSection(pSection.name());
+    m_pSectionRules->getMatchedSection(pSection.name());
 
   assert(NULL != output_sect);
 
@@ -625,9 +625,9 @@ RelocationData& FragmentLinker::getOrCreateOutputRelocData(LDSection& pSection)
 
 void FragmentLinker::initSectionMap()
 {
-  if (NULL == m_pSectionMerger) {
-    m_pSectionMerger = new SectionMerger(m_Config, m_Module);
-    m_pSectionMerger->initOutputSectMap();
+  if (NULL == m_pSectionRules) {
+    m_pSectionRules = new SectionRules(m_Config, m_Module);
+    m_pSectionRules->initOutputSectMap();
   }
 }
 

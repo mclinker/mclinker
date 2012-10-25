@@ -1,4 +1,4 @@
-//===- SectionMerger.h ----------------------------------------------------===//
+//===- SectionRules.h -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -24,15 +24,15 @@ class LinkerConfig;
 class SectionMap;
 class FragmentLinker;
 
-/** \class SectionMerger
+/** \class SectionRules
  *  \brief maintain the mappings of substr of input section name to associated
  *         output section (data)
  */
-class SectionMerger
+class SectionRules
 {
 public:
-  SectionMerger(const LinkerConfig& pConfig, Module& pModule);
-  ~SectionMerger();
+  SectionRules(const LinkerConfig& pConfig, Module& pModule);
+  ~SectionRules();
 
   /// getMatchedSection - return the matched section by rules.
   /// @return if we can not find the matched section, return NULL.

@@ -160,8 +160,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Object/ObjectBuilder.cpp \
 	${INCDIR}/Object/SectionMap.h \
 	${LIBDIR}/Object/SectionMap.cpp \
-	${INCDIR}/Object/SectionRules.h \
-	${LIBDIR}/Object/SectionRules.cpp \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \
@@ -296,8 +294,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
 	${INCDIR}/LD/ELFObjectFileFormat.h \
 	${LIBDIR}/LD/ELFObjectFileFormat.cpp \
-	${INCDIR}/LD/SectionMerger.h \
-	${LIBDIR}/LD/SectionMerger.cpp \
+	${INCDIR}/LD/SectionRules.h \
+	${LIBDIR}/LD/SectionRules.cpp \
 	${INCDIR}/LD/ELFSegment.h \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${INCDIR}/LD/ELFSegmentFactory.h \

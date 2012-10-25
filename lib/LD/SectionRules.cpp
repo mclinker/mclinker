@@ -1,4 +1,4 @@
-//===- SectionMerger.cpp --------------------------------------------------===//
+//===- SectionRules.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,11 +6,13 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include <mcld/LD/SectionRules.h>
+
 #include <cassert>
 #include <cstring>
+
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/LD/SectionMerger.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/ADT/StringHash.h>
 
@@ -21,26 +23,26 @@ namespace {
 } // end anonymous namespace
 
 //===----------------------------------------------------------------------===//
-// SectionMerger::Rule
+// SectionRules::Rule
 //===----------------------------------------------------------------------===//
-SectionMerger::Rule::Rule(const std::string& pSubStr, LDSection* pSection)
+SectionRules::Rule::Rule(const std::string& pSubStr, LDSection* pSection)
   : substr(pSubStr), target(pSection) {
   hash = hash_func(pSubStr);
 }
 
 //===----------------------------------------------------------------------===//
-// SectionMerger
+// SectionRules
 //===----------------------------------------------------------------------===//
-SectionMerger::SectionMerger(const LinkerConfig& pConfig, Module& pModule)
+SectionRules::SectionRules(const LinkerConfig& pConfig, Module& pModule)
   : m_SectionNameMap(pConfig.scripts().sectionMap()),
     m_Module(pModule) {
 }
 
-SectionMerger::~SectionMerger()
+SectionRules::~SectionRules()
 {
 }
 
-SectionMerger::iterator SectionMerger::find(const std::string& pName)
+SectionRules::iterator SectionRules::find(const std::string& pName)
 {
   uint32_t hash = hash_func(pName);
   RuleList::iterator rule, rEnd = m_RuleList.end();
@@ -56,7 +58,7 @@ SectionMerger::iterator SectionMerger::find(const std::string& pName)
   return rule;
 }
 
-SectionMerger::const_iterator SectionMerger::find(const std::string& pName) const
+SectionRules::const_iterator SectionRules::find(const std::string& pName) const
 {
   uint32_t hash = hash_func(pName);
   RuleList::const_iterator rule, rEnd = m_RuleList.end();
@@ -72,7 +74,7 @@ SectionMerger::const_iterator SectionMerger::find(const std::string& pName) cons
   return rule;
 }
 
-LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
+LDSection* SectionRules::getMatchedSection(const std::string& pName) const
 {
   LDSection* section;
   const_iterator it = find(pName);
@@ -87,7 +89,7 @@ LDSection* SectionMerger::getMatchedSection(const std::string& pName) const
   return section;
 }
 
-void SectionMerger::append(const std::string& pName, LDSection& pSection)
+void SectionRules::append(const std::string& pName, LDSection& pSection)
 {
   iterator it = find(pName);
   if (it != m_RuleList.end()) {
@@ -96,7 +98,7 @@ void SectionMerger::append(const std::string& pName, LDSection& pSection)
   }
 }
 
-void SectionMerger::initOutputSectMap()
+void SectionRules::initOutputSectMap()
 {
   // Based on SectionMap to initialize the map from a input substr to its 
   // associated output LDSection*
