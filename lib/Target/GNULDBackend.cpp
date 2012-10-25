@@ -707,6 +707,30 @@ const ELFObjectFileFormat* GNULDBackend::getObjectFileFormat() const
   return m_pObjectFileFormat;
 }
 
+void GNULDBackend::partialScanRelocation(Relocation& pReloc,
+                                         const LDSymbol& pInputSym,
+                                         FragmentLinker& pLinker,
+                                         Module& pModule,
+                                         const LDSection& pSection)
+{
+  // if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    // 1. update the relocation target offset
+    assert(pInputSym.hasFragRef());
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.target() += offset;
+
+    // 2. get output section symbol
+    // get the output LDSection which the symbol defined in
+    assert(pInputSym.hasFragRef());
+    const LDSection& out_sect =
+                         pInputSym.fragRef()->frag()->getParent()->getSection();
+    ResolveInfo* sym_info = pModule.getSectionSymbol(&out_sect)->resolveInfo();
+    // set relocation target symbol to the output section symbol's resolveInfo
+    pReloc.setSymInfo(sym_info);
+  }
+}
+
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.

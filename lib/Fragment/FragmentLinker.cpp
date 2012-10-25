@@ -652,7 +652,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
   if (LinkerConfig::Object != m_Config.codeGenType())
     m_Backend.scanRelocation(*relocation, pSym, *this, pTargetSection);
   else
-    m_Backend.partialScanRelocation(*relocation, pSym, pTargetSection);
+    m_Backend.partialScanRelocation(*relocation, pSym, *this, m_Module, pTargetSection);
   return relocation;
 }
 

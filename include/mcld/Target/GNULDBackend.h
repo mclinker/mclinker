@@ -34,21 +34,6 @@
 
 namespace mcld {
 
-struct SymCompare
-{
-  bool operator()(const LDSymbol* X, const LDSymbol* Y) const
-  { return (X==Y); }
-};
-
-struct PtrHash
-{
-  size_t operator()(const LDSymbol* pKey) const
-  {
-    return (unsigned((uintptr_t)pKey) >> 4) ^
-           (unsigned((uintptr_t)pKey) >> 9);
-  }
-};
-
 class Module;
 class LinkerConfig;
 class Layout;
@@ -169,6 +154,14 @@ public:
 
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr(const FragmentLinker& pLinker) const;
+
+  /// partialScanRelocation - When doing partial linking, fix the relocation
+  /// offset after section merge
+  void partialScanRelocation(Relocation& pReloc,
+                             const LDSymbol& pInputSym,
+                             FragmentLinker& pLinker,
+                             Module& pModule,
+                             const LDSection& pSection);
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
@@ -460,8 +453,26 @@ protected:
     SHO_SHSTRTAB,            // .shstrtab
   };
 
-  typedef HashEntry<LDSymbol*, size_t, SymCompare> HashEntryType;
-  typedef HashTable<HashEntryType, PtrHash, EntryFactory<HashEntryType> > HashTableType;
+  struct SymCompare
+  {
+    bool operator()(const LDSymbol* X, const LDSymbol* Y) const
+    { return (X==Y); }
+  };
+
+  struct SymPtrHash
+  {
+    size_t operator()(const LDSymbol* pKey) const
+    {
+      return (unsigned((uintptr_t)pKey) >> 4) ^
+             (unsigned((uintptr_t)pKey) >> 9);
+    }
+  };
+
+  typedef HashEntry<LDSymbol*, size_t, SymCompare> SymHashEntryType;
+  typedef HashTable<SymHashEntryType,
+                    SymPtrHash,
+                    EntryFactory<SymHashEntryType> > HashTableType;
+
 
 protected:
   ELFObjectReader* m_pObjectReader;

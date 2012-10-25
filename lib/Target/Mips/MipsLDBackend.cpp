@@ -163,17 +163,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   }
 }
 
-void MipsGNULDBackend::partialScanRelocation(Relocation& pReloc,
-                                             const LDSymbol& pInputSym,
-                                             const LDSection& pSection)
-{
-  // Update relocation target data if we meet a section symbol
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
-    pReloc.target() += offset;
-  }
-}
-
 uint32_t MipsGNULDBackend::machine() const
 {
   return llvm::ELF::EM_MIPS;
@@ -358,7 +347,8 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     entry->setValue(symtabIdx);
     // sum up counters
     ++symtabIdx;
-    strtabsize += (*symbol)->nameSize() + 1;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
   }
 
   // emit symbols in TLS category, all symbols in TLS category shold be emitited
