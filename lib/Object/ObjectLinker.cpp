@@ -232,6 +232,19 @@ bool ObjectLinker::mergeSections()
 ///   standard symbols, return false
 bool ObjectLinker::addStandardSymbols()
 {
+  // create and add section symbols for each output section
+  Module::iterator iter, iterEnd = m_Module.end();
+  for (iter = m_Module.begin(); iter != iterEnd; ++iter) {
+    LDSection* section = *iter;
+    // we only create section symbol for
+    // 1. non-relocation sections, since there won't be any output relocation
+    // against relocation section symbol
+    // 2. non-Target sections,
+    if (LDFileFormat::Relocation != section->kind() &&
+        0x0 != section->size())
+      m_Module.addSectionSymbol(**iter);
+  }
+
   return m_LDBackend.initStandardSymbols(*m_pLinker);
 }
 

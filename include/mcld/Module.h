@@ -21,6 +21,8 @@
 
 #include <llvm/ADT/ilist.h>
 
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/HashEntry.h>
 #include <mcld/Support/GCFactoryListTraits.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/NamePool.h>
@@ -31,6 +33,7 @@
 namespace mcld {
 
 class LDSection;
+class LDSymbol;
 class RelocationData;
 
 /** \class Module
@@ -124,6 +127,13 @@ public:
   LDSection*       getSection(const std::string& pName);
   const LDSection* getSection(const std::string& pName) const;
 
+  LDSymbol*       getSectionSymbol(const LDSection* pSection);
+  const LDSymbol* getSectionSymbol(const LDSection* pSection) const;
+
+  /// addSectionSymbol - create and add an section symbol for the output
+  /// LDSection
+  bool addSectionSymbol(LDSection& pOutputSection);
+
 /// @}
 /// @name Symbol Accessors
 /// @{
@@ -166,6 +176,29 @@ public:
   { return m_RelocDataTable.end(); }
 
 private:
+  /// sectCompare - hash compare function for LDSection*
+  struct SectCompare
+  {
+    bool operator()(const LDSection* X, const LDSection* Y) const
+    { return (X==Y); }
+  };
+
+  /// SectPtrHash - hash function for LDSection*
+  struct SectPtrHash
+  {
+    size_t operator()(const LDSection* pKey) const
+    {
+      return (unsigned((uintptr_t)pKey) >> 4) ^
+             (unsigned((uintptr_t)pKey) >> 9);
+    }
+  };
+
+  typedef HashEntry<const LDSection*, LDSymbol*, SectCompare> SectHashEntryType;
+  typedef HashTable<SectHashEntryType,
+                    SectPtrHash,
+                    EntryFactory<SectHashEntryType> > SectHashTableType;
+
+private:
   std::string m_Name;
   ObjectList m_ObjectList;
   LibraryList m_LibraryList;
@@ -174,6 +207,7 @@ private:
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
   RelocationDataTable m_RelocDataTable;
+  SectHashTableType* m_pSectionSymbolMap;
 };
 
 } // namespace of mcld
