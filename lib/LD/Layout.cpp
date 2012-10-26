@@ -139,12 +139,21 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
     align_frag = new AlignFragment(pAlignConstraint, // alignment
                                    0x0, // the filled value
                                    1u,  // the size of filled value
-                                   pAlignConstraint - 1, // max bytes to emit
-                                   &pSD);
+                                   pAlignConstraint - 1 // max bytes to emit
+                                   );
+    if (pSD.empty())
+      align_frag->setOffset(0);
+    else
+      align_frag->setOffset(pSD.back().getOffset() + pSD.back().size());
   }
 
   // append the fragment to the SectionData
   pFrag.setParent(&pSD);
+  if (pSD.empty())
+    pFrag.setOffset(0);
+  else
+    pFrag.setOffset(pSD.back().getOffset() + pSD.back().size());
+
   pSD.getFragmentList().push_back(&pFrag);
 
   // update the alignment of associated output LDSection if needed
@@ -154,12 +163,10 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
     output_sect->setAlign(pAlignConstraint);
 
   NullFragment* null_frag = new NullFragment(&pSD);
-
-  // compute the fragment order and offset
-  setFragmentLayoutOffset(null_frag);
+  null_frag->setOffset(pFrag.getOffset() + pFrag.size());
 
   if (NULL != align_frag)
-    return pFrag.getOffset() - align_frag->getOffset() + pFrag.size();
+    return align_frag->size() + pFrag.size();
   else
     return pFrag.size();
 }
