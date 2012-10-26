@@ -28,10 +28,12 @@ Module::Module()
 
 Module::Module(const std::string& pName)
   : m_Name(pName), m_NamePool(1024) {
+  m_pSectionSymbolMap = new SectHashTableType(16);
 }
 
 Module::~Module()
 {
+  delete m_pSectionSymbolMap;
 }
 
 // Following two functions will be obsolette when we have new section merger.
@@ -95,6 +97,7 @@ bool Module::addSectionSymbol(LDSection& pOutputSection)
   bool exist = false;
   SectHashTableType::entry_type* entry =
                             m_pSectionSymbolMap->insert(&pOutputSection, exist);
+  assert(!exist);
   entry->setValue(sym);
   assert(!exist);
 
