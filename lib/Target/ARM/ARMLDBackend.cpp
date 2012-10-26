@@ -92,21 +92,21 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
 {
  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
  // them from input
-  m_pEXIDX        = &pLinker.getOrCreateOutputSectHdr(".ARM.exidx",
-                                                      LDFileFormat::Target,
-                                                      llvm::ELF::SHT_ARM_EXIDX,
-                                                      llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
-                                                      bitclass() / 8);
-  m_pEXTAB        = &pLinker.getOrCreateOutputSectHdr(".ARM.extab",
-                                                      LDFileFormat::Target,
-                                                      llvm::ELF::SHT_PROGBITS,
-                                                      llvm::ELF::SHF_ALLOC,
-                                                      0x1);
-  m_pAttributes   = &pLinker.getOrCreateOutputSectHdr(".ARM.attributes",
-                                                      LDFileFormat::Target,
-                                                      llvm::ELF::SHT_ARM_ATTRIBUTES,
-                                                      0x0,
-                                                      0x1);
+  m_pEXIDX        = &pLinker.CreateOutputSectHdr(".ARM.exidx",
+                                                 LDFileFormat::Target,
+                                                 llvm::ELF::SHT_ARM_EXIDX,
+                                                 llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
+                                                 bitclass() / 8);
+  m_pEXTAB        = &pLinker.CreateOutputSectHdr(".ARM.extab",
+                                                 LDFileFormat::Target,
+                                                 llvm::ELF::SHT_PROGBITS,
+                                                 llvm::ELF::SHF_ALLOC,
+                                                 0x1);
+  m_pAttributes   = &pLinker.CreateOutputSectHdr(".ARM.attributes",
+                                                 LDFileFormat::Target,
+                                                 llvm::ELF::SHT_ARM_ATTRIBUTES,
+                                                 0x0,
+                                                 0x1);
 
   ELFFileFormat* file_format = getOutputFormat();
 

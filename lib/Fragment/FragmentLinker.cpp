@@ -475,6 +475,23 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
   return *result;
 }
 
+/// CreateOutputSectHdr - for reader and standard/target format to create
+/// output's section header
+LDSection& FragmentLinker::CreateOutputSectHdr(const std::string& pName,
+                                              LDFileFormat::Kind pKind,
+                                              uint32_t pType,
+                                              uint32_t pFlag,
+                                              uint32_t pAlign)
+{
+  // try to get one from output LDSection
+  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+  std::string output_name = (pair.isNull())?pName:pair.to;
+  LDSection* output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
+  output_sect->setAlign(pAlign);
+  m_Module.getSectionTable().push_back(output_sect);
+  return *output_sect;
+}
+
 /// getOrCreateOutputSectHdr - for reader and standard/target format to get
 /// or create the output's section header
 LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,

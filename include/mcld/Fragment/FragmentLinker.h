@@ -118,6 +118,14 @@ public:
                            uint32_t pType,
                            uint32_t pFlag);
 
+  /// CreateOutputSectHdr - for reader and standard/target format to get
+  /// or create the output's section header
+  LDSection& CreateOutputSectHdr(const std::string& pName,
+                                 LDFileFormat::Kind pKind,
+                                 uint32_t pType,
+                                 uint32_t pFlag,
+                                 uint32_t pAlign = 0x0);
+
   /// getOrCreateOutputSectHdr - for reader and standard/target format to get
   /// or create the output's section header
   LDSection& getOrCreateOutputSectHdr(const std::string& pName,

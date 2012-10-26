@@ -17,67 +17,67 @@ using namespace mcld;
 
 void ELFDynObjFileFormat::initObjectType(FragmentLinker& pLinker)
 {
-  f_pDynSymTab    = &pLinker.getOrCreateOutputSectHdr(".dynsym",
+  f_pDynSymTab    = &pLinker.CreateOutputSectHdr(".dynsym",
                                            LDFileFormat::NamePool,
                                            llvm::ELF::SHT_DYNSYM,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pDynStrTab    = &pLinker.getOrCreateOutputSectHdr(".dynstr",
+  f_pDynStrTab    = &pLinker.CreateOutputSectHdr(".dynstr",
                                            LDFileFormat::NamePool,
                                            llvm::ELF::SHT_STRTAB,
                                            llvm::ELF::SHF_ALLOC,
                                            0x1);
-  f_pInterp       = &pLinker.getOrCreateOutputSectHdr(".interp",
+  f_pInterp       = &pLinker.CreateOutputSectHdr(".interp",
                                            LDFileFormat::Note,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC,
                                            0x1);
-  f_pHashTab      = &pLinker.getOrCreateOutputSectHdr(".hash",
+  f_pHashTab      = &pLinker.CreateOutputSectHdr(".hash",
                                            LDFileFormat::NamePool,
                                            llvm::ELF::SHT_HASH,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pDynamic      = &pLinker.getOrCreateOutputSectHdr(".dynamic",
+  f_pDynamic      = &pLinker.CreateOutputSectHdr(".dynamic",
                                            LDFileFormat::NamePool,
                                            llvm::ELF::SHT_DYNAMIC,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                            f_Backend.bitclass() / 8);
-  f_pRelaDyn      = &pLinker.getOrCreateOutputSectHdr(".rela.dyn",
+  f_pRelaDyn      = &pLinker.CreateOutputSectHdr(".rela.dyn",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_RELA,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pRelaPlt      = &pLinker.getOrCreateOutputSectHdr(".rela.plt",
+  f_pRelaPlt      = &pLinker.CreateOutputSectHdr(".rela.plt",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_RELA,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pRelDyn      = &pLinker.getOrCreateOutputSectHdr(".rel.dyn",
+  f_pRelDyn      = &pLinker.CreateOutputSectHdr(".rel.dyn",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_REL,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pRelPlt      = &pLinker.getOrCreateOutputSectHdr(".rel.plt",
+  f_pRelPlt      = &pLinker.CreateOutputSectHdr(".rel.plt",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_REL,
                                            llvm::ELF::SHF_ALLOC,
                                            f_Backend.bitclass() / 8);
-  f_pGOT          = &pLinker.getOrCreateOutputSectHdr(".got",
+  f_pGOT          = &pLinker.CreateOutputSectHdr(".got",
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                            f_Backend.bitclass() / 8);
-  f_pPLT          = &pLinker.getOrCreateOutputSectHdr(".plt",
+  f_pPLT          = &pLinker.CreateOutputSectHdr(".plt",
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                            f_Backend.bitclass() / 8);
-  f_pGOTPLT       = &pLinker.getOrCreateOutputSectHdr(".got.plt",
+  f_pGOTPLT       = &pLinker.CreateOutputSectHdr(".got.plt",
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                            f_Backend.bitclass() / 8);
-  f_pEhFrameHdr     = &pLinker.getOrCreateOutputSectHdr(".eh_frame_hdr",
+  f_pEhFrameHdr     = &pLinker.CreateOutputSectHdr(".eh_frame_hdr",
                                               LDFileFormat::EhFrameHdr,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
