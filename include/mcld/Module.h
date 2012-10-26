@@ -123,7 +123,6 @@ public:
   size_t           size () const { return m_SectionTable.size();  }
   bool             empty() const { return m_SectionTable.empty(); }
 
-  // Following two functions will be obsolette when we have new section merger.
   LDSection*       getSection(const std::string& pName);
   const LDSection* getSection(const std::string& pName) const;
 

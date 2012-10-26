@@ -207,7 +207,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** BSS sections **/
       case LDFileFormat::BSS: {
-        SectionData& sect_data = m_Linker.getOrCreateInputSectData(**section);
+        SectionData& sect_data = m_Linker.CreateInputSectData(**section);
                                             /*  value, valsize, size*/
         FillFragment* frag = new FillFragment(0x0,   1,       (*section)->size());
 

@@ -498,12 +498,8 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
 /// getOrCreateInputSectData - get or create SectionData
 /// pSection is input LDSection
 SectionData&
-FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
+FragmentLinker::CreateInputSectData(LDSection& pSection)
 {
-  // if there is already a section data pointed by section, return it.
-  if (pSection.hasSectionData())
-    return *pSection.getSectionData();
-
   // try to get one from output LDSection
   const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pSection.name());
   std::string output_name = (pair.isNull())?pSection.name():pair.to;

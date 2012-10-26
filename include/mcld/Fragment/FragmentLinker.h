@@ -128,7 +128,7 @@ public:
 
   /// getOrCreateInputSectData - for reader to map and perform section merging
   /// immediately
-  SectionData& getOrCreateInputSectData(LDSection& pSection);
+  SectionData& CreateInputSectData(LDSection& pSection);
 
   /// CreateOutputSectData - for reader to map and perform section merging
   /// immediately
