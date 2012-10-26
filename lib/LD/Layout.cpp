@@ -55,43 +55,6 @@ Layout::~Layout()
 {
 }
 
-/// setFragmentLayoutOffset - set the fragment's layout offset. This function
-/// also set up the layout offsets of all the fragments in the same range.
-/// If the offset of the fragment was set before, return immediately.
-void Layout::setFragmentLayoutOffset(Fragment* pFrag)
-{
-  if (NULL == pFrag)
-    return;
-
-  // find the most-recent fragment whose offset was set.
-  Fragment* first = pFrag;
-
-  while (!first->hasOffset()) {
-    if (NULL == first->getPrevNode())
-      break;
-    first = first->getPrevNode();
-  }
-
-  // set all layout order
-  uint64_t offset = 0;
-  Fragment* frag_not_set = NULL;
-  if (NULL == first->getPrevNode()) {
-    offset = 0;
-    frag_not_set = first;
-  }
-  else {
-    offset = first->getOffset();
-    offset += first->size();
-    frag_not_set = first->getNextNode();
-  }
-
-  while(NULL != frag_not_set) {
-    frag_not_set->setOffset(offset);
-    offset += frag_not_set->size();
-    frag_not_set = frag_not_set->getNextNode();
-  }
-}
-
 /// addInputRange
 ///   1. add a new range <pInputHdr, previous rear fragment>
 ///   2. compute the layout order of all previous ranges.
@@ -217,11 +180,6 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
   Fragment* front = &pFront;
   Fragment* rear  = &pRear;
 
-  if (!rear->hasOffset()) {
-    // compute layout order, offset
-    setFragmentLayoutOffset(rear);
-  }
-
   // compute the offset from overall start fragment.
   uint64_t target_offset = pFront.getOffset() + pOffset;
 
@@ -312,11 +270,6 @@ Layout::getFragmentRef(const LDSection& pInputSection, uint64_t pOffset)
 FragmentRef*
 Layout::getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset)
 {
-  if (!pFrag.hasOffset()) {
-    // compute layout order, offset
-    setFragmentLayoutOffset(const_cast<Fragment*>(&pFrag));
-  }
-
   // find out which SectionData covers the range of input section header
   const SectionData* sect_data = pFrag.getParent();
 

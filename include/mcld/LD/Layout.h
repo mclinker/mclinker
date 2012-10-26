@@ -99,8 +99,6 @@ public:
   uint64_t appendFragment(Fragment& pFrag, SectionData& pSD,
                           uint32_t pAlignConstraint = 1);
 
-  void setFragmentLayoutOffset(Fragment* pFragment);
-
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair
