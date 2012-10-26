@@ -594,7 +594,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
     // check undefined reference if the symbol needs a dynamic relocation
     if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
       fatal(diag::undefined_reference) << rsym->name();
+  }
 
+  if ((rsym->reserved() & ReserveRel) != 0x0) {
     // set hasTextRelSection if needed
     checkAndSetHasTextRel(pSection);
   }
