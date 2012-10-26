@@ -26,8 +26,6 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
 
-#include <mcld/LD/LDContext.h>
-
 using namespace llvm;
 using namespace mcld;
 
@@ -216,24 +214,8 @@ bool ObjectLinker::linkable() const
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
-  Module::obj_iterator obj, objEnd = m_Module.obj_end();
-  for (obj = m_Module.obj_begin(); obj != objEnd; ++obj) {
-    LDContext::sect_iterator section, sectEnd = (*obj)->context()->sectEnd();
-    for (section = (*obj)->context()->sectBegin(); section != sectEnd; ++section) {
-      switch ((*section)->kind()) {
-        case LDFileFormat::BSS: {
-          const SectionMap::NamePair& pair =
-                      m_Config.scripts().sectionMap().find((*section)->name());
-          std::string output_name = (pair.isNull())?(*section)->name():pair.to;
-          LDSection* output = m_Module.getSection(output_name);
-          output->setSize(output->size() + (*section)->size());
-          break;
-        }
-        default:
-          break;
-      } // end of switch
-    }
-  }
+  // TODO: when FragmentLinker can read other object files, we have to merge
+  // sections
   return true;
 }
 

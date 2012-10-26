@@ -134,7 +134,7 @@ public:
                                       uint32_t pFlag,
                                       uint32_t pAlign = 0x0);
 
-  /// CreateInputSectData - for reader to map and perform section merging
+  /// getOrCreateInputSectData - for reader to map and perform section merging
   /// immediately
   SectionData& CreateInputSectData(LDSection& pSection);
 
