@@ -571,6 +571,39 @@ RelocationData& FragmentLinker::CreateOutputRelocData(LDSection& pSection)
 
 bool FragmentLinker::layout()
 {
+  Module::iterator sect, sectEnd = m_Module.end();
+  for (sect = m_Module.begin(); sect != sectEnd; ++sect) {
+    switch ((*sect)->kind()) {
+      // ignore if there is no SectionData for certain section kinds
+      case LDFileFormat::Regular:
+      case LDFileFormat::Target:
+      case LDFileFormat::MetaData:
+      case LDFileFormat::BSS:
+      case LDFileFormat::Debug:
+      case LDFileFormat::EhFrame:
+      case LDFileFormat::GCCExceptTable:
+        if (0 != (*sect)->size()) {
+          if ((*sect)->hasSectionData() &&
+              !(*sect)->getSectionData()->getFragmentList().empty()) {
+            // make sure that all fragments are valid
+            Fragment& frag = (*sect)->getSectionData()->getFragmentList().back();
+            m_Layout.setFragmentLayoutOrder(&frag);
+            m_Layout.setFragmentLayoutOffset(&frag);
+          }
+        }
+        break;
+      case LDFileFormat::Null:
+      case LDFileFormat::StackNote:
+      case LDFileFormat::NamePool:
+      case LDFileFormat::Relocation:
+      case LDFileFormat::Note:
+      case LDFileFormat::EhFrameHdr:
+      case LDFileFormat::Group:
+      case LDFileFormat::Version:
+      default:
+        break;
+    }
+  }
   return m_Layout.layout(m_Module, m_Backend, m_Config);
 }
 
