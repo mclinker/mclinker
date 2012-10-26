@@ -112,11 +112,11 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
 
   // initialize .got
   LDSection& got = file_format->getGOT();
-  m_pGOT = new ARMGOT(got, pLinker.getOrCreateOutputSectData(got));
+  m_pGOT = new ARMGOT(got, pLinker.CreateOutputSectData(got));
 
   // initialize .plt
   LDSection& plt = file_format->getPLT();
-  m_pPLT = new ARMPLT(plt, pLinker.getOrCreateOutputSectData(plt), *m_pGOT);
+  m_pPLT = new ARMPLT(plt, pLinker.CreateOutputSectData(plt), *m_pGOT);
 
   // initialize .rel.plt
   LDSection& relplt = file_format->getRelPlt();
@@ -309,7 +309,11 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
     bss_sect_hdr = &file_format->getBSS();
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_section = pLinker.getOrCreateOutputSectData(*bss_sect_hdr);
+  SectionData* bss_data = NULL;
+  if (bss_sect_hdr->hasSectionData())
+    bss_data = bss_sect_hdr->getSectionData();
+  else
+    bss_data = &pLinker.CreateOutputSectData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -318,7 +322,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     bss_section,
+                                                     *bss_data,
                                                      addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 

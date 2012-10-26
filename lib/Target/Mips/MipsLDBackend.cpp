@@ -68,7 +68,7 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
 
   // initialize .got
   LDSection& got = file_format->getGOT();
-  m_pGOT = new MipsGOT(got, pLinker.getOrCreateOutputSectData(got));
+  m_pGOT = new MipsGOT(got, pLinker.CreateOutputSectData(got));
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
@@ -737,8 +737,17 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
   */
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_sect_data = pLinker.getOrCreateOutputSectData(bss_sect);
-  SectionData& tbss_sect_data = pLinker.getOrCreateOutputSectData(tbss_sect);
+  SectionData* bss_sect_data = NULL;
+  if (bss_sect.hasSectionData())
+    bss_sect_data = bss_sect.getSectionData();
+  else
+    bss_sect_data = &pLinker.CreateOutputSectData(bss_sect);
+
+  SectionData* tbss_sect_data = NULL;
+  if (tbss_sect.hasSectionData())
+    tbss_sect_data = tbss_sect.getSectionData();
+  else
+    tbss_sect_data = &pLinker.CreateOutputSectData(tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect.size();
@@ -761,13 +770,13 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
         tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                          tbss_sect_data,
+                                                          *tbss_sect_data,
                                                           (*com_sym)->value());
       }
       // FIXME: how to identify small and large common symbols?
       else {
         bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                         bss_sect_data,
+                                                         *bss_sect_data,
                                                          (*com_sym)->value());
       }
     }
@@ -788,13 +797,13 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
       tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                        tbss_sect_data,
+                                                        *tbss_sect_data,
                                                         (*com_sym)->value());
     }
     // FIXME: how to identify small and large common symbols?
     else {
       bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                       bss_sect_data,
+                                                       *bss_sect_data,
                                                        (*com_sym)->value());
     }
   }

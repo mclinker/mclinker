@@ -534,7 +534,8 @@ SectionData&
 FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
 {
   // if there is already a section data pointed by section, return it.
-  SectionData* sect_data = pSection.getSectionData();
+  if (pSection.hasSectionData())
+    return *pSection.getSectionData();
 
   // try to get one from output LDSection
   LDSection* output_sect =
@@ -542,7 +543,7 @@ FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
 
   assert(NULL != output_sect);
 
-  sect_data = output_sect->getSectionData();
+  SectionData* sect_data = output_sect->getSectionData();
 
   if (NULL != sect_data) {
     pSection.setSectionData(sect_data);
@@ -561,16 +562,10 @@ FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
 /// getOrCreateOutputSectData - get or create SectionData
 /// pSection is output LDSection
 SectionData&
-FragmentLinker::getOrCreateOutputSectData(LDSection& pSection)
+FragmentLinker::CreateOutputSectData(LDSection& pSection)
 {
-  SectionData* sect_data = NULL;
-  if (!pSection.hasSectionData()) {
-    sect_data = SectionData::Create(pSection);
-    pSection.setSectionData(sect_data);
-  }
-  else
-    sect_data = pSection.getSectionData();
-
+  SectionData* sect_data = SectionData::Create(pSection);
+  pSection.setSectionData(sect_data);
   m_Layout.addInputRange(*sect_data, pSection);
   return *sect_data;
 }

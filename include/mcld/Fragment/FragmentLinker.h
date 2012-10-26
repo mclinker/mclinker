@@ -131,9 +131,9 @@ public:
   /// immediately
   SectionData& getOrCreateInputSectData(LDSection& pSection);
 
-  /// getOrCreateOutputSectData - for reader to map and perform section merging
+  /// CreateOutputSectData - for reader to map and perform section merging
   /// immediately
-  SectionData& getOrCreateOutputSectData(LDSection& pSection);
+  SectionData& CreateOutputSectData(LDSection& pSection);
 
   /// getOrCreateInputRelocData - when addRelocation, create corresponding input
   /// RelocationData

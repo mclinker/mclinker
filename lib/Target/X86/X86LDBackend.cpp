@@ -181,7 +181,11 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // get or create corresponding BSS SectionData
   assert(NULL != bss_sect_hdr);
-  SectionData& bss_section = pLinker.getOrCreateOutputSectData(*bss_sect_hdr);
+  SectionData* bss_section = NULL;
+  if (bss_sect_hdr->hasSectionData())
+    bss_section = bss_sect_hdr->getSectionData();
+  else
+    bss_section = &pLinker.CreateOutputSectData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -190,7 +194,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
   uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     bss_section,
+                                                     *bss_section,
                                                      addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 
@@ -797,16 +801,16 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new X86GOT(got, pLinker.getOrCreateOutputSectData(got));
+    m_pGOT = new X86GOT(got, pLinker.CreateOutputSectData(got));
 
     // initialize .got.plt
     LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.getOrCreateOutputSectData(gotplt));
+    m_pGOTPLT = new X86GOTPLT(gotplt, pLinker.CreateOutputSectData(gotplt));
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new X86PLT(plt,
-                        pLinker.getOrCreateOutputSectData(plt),
+                        pLinker.CreateOutputSectData(plt),
                         *m_pGOTPLT,
                         config());
 

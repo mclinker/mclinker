@@ -154,7 +154,7 @@ bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
     LDSection& eh_frame = m_pExecFileFormat->getEhFrame();
-    pLinker.getOrCreateOutputSectData(eh_frame);
+    pLinker.CreateOutputSectData(eh_frame);
     m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
   }
   return true;
@@ -171,7 +171,7 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
     LDSection& eh_frame = m_pDynObjFileFormat->getEhFrame();
-    pLinker.getOrCreateOutputSectData(eh_frame);
+    pLinker.CreateOutputSectData(eh_frame);
     m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
   }
   return true;
@@ -1423,8 +1423,17 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
   LDSection& tbss_sect = file_format->getTBSS();
 
   // get or create corresponding BSS SectionData
-  SectionData& bss_sect_data = pLinker.getOrCreateOutputSectData(bss_sect);
-  SectionData& tbss_sect_data = pLinker.getOrCreateOutputSectData(tbss_sect);
+  SectionData* bss_sect_data = NULL;
+  if (bss_sect.hasSectionData())
+    bss_sect_data = bss_sect.getSectionData();
+  else
+    bss_sect_data = &pLinker.CreateOutputSectData(bss_sect);
+
+  SectionData* tbss_sect_data = NULL;
+  if (tbss_sect.hasSectionData())
+    tbss_sect_data = tbss_sect.getSectionData();
+  else
+    tbss_sect_data = &pLinker.CreateOutputSectData(tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect.size();
@@ -1447,12 +1456,12 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
         tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                          tbss_sect_data,
+                                                          *tbss_sect_data,
                                                           (*com_sym)->value());
       }
       else {
         bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                         bss_sect_data,
+                                                         *bss_sect_data,
                                                          (*com_sym)->value());
       }
     }
@@ -1473,12 +1482,12 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
       tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                        tbss_sect_data,
+                                                        *tbss_sect_data,
                                                         (*com_sym)->value());
     }
     else {
       bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                       bss_sect_data,
+                                                       *bss_sect_data,
                                                        (*com_sym)->value());
     }
   }
