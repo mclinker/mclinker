@@ -39,15 +39,12 @@ FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
 
   : m_Config(pConfig),
     m_Module(pModule),
-    m_Backend(pBackend),
-    m_pSectionRules(NULL)
-{
+    m_Backend(pBackend) {
 }
 
 /// Destructor
 FragmentLinker::~FragmentLinker()
 {
-  delete m_pSectionRules;
 }
 
 //===----------------------------------------------------------------------===//
@@ -467,10 +464,10 @@ LDSection& FragmentLinker::createSectHdr(const std::string& pName,
   LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
 
   // try to get one from output LDSection
-  LDSection* output_sect = m_pSectionRules->getMatchedSection(pName);
+  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+  std::string output_name = (pair.isNull())?pName:pair.to;
+  LDSection* output_sect = m_Module.getSection(output_name);
   if (NULL == output_sect) {
-    const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-    std::string output_name = (pair.isNull())?pName:pair.to;
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     m_Module.getSectionTable().push_back(output_sect);
   }
@@ -487,44 +484,14 @@ LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
                                               uint32_t pAlign)
 {
   // try to get one from output LDSection
-  LDSection* output_sect = m_pSectionRules->getMatchedSection(pName);
+  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+  std::string output_name = (pair.isNull())?pName:pair.to;
+  LDSection* output_sect = m_Module.getSection(output_name);
   if (NULL == output_sect) {
-    const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-    std::string output_name = (pair.isNull())?pName:pair.to;
     output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
     output_sect->setAlign(pAlign);
     m_Module.getSectionTable().push_back(output_sect);
-
-    switch (pKind) {
-    case LDFileFormat::Regular:
-    case LDFileFormat::BSS:
-    case LDFileFormat::Debug:
-    case LDFileFormat::GCCExceptTable:
-    case LDFileFormat::Version:
-    case LDFileFormat::Target: {
-      m_pSectionRules->append(pName, *output_sect);
-      break;
-    }
-    case LDFileFormat::Relocation: {
-      if (LinkerConfig::Object == m_Config.codeGenType()) {
-        m_pSectionRules->append(pName, *output_sect);
-        break;
-      }
-    }
-    case LDFileFormat::Null:
-    case LDFileFormat::NamePool:
-    case LDFileFormat::EhFrame:
-    case LDFileFormat::EhFrameHdr:
-    case LDFileFormat::Note:
-    case LDFileFormat::Group:
-    case LDFileFormat::MetaData:
-    case LDFileFormat::Ignore:
-    default:
-      // do not append rule
-      break;
-    } // end of switch
   }
-
   return *output_sect;
 }
 
@@ -538,8 +505,9 @@ FragmentLinker::getOrCreateInputSectData(LDSection& pSection)
     return *pSection.getSectionData();
 
   // try to get one from output LDSection
-  LDSection* output_sect =
-    m_pSectionRules->getMatchedSection(pSection.name());
+  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pSection.name());
+  std::string output_name = (pair.isNull())?pSection.name():pair.to;
+  LDSection* output_sect = m_Module.getSection(output_name);
 
   assert(NULL != output_sect);
 
@@ -596,14 +564,6 @@ RelocationData& FragmentLinker::getOrCreateOutputRelocData(LDSection& pSection)
   reloc_data = RelocationData::Create(pSection);
   pSection.setRelocationData(reloc_data);
   return *reloc_data;
-}
-
-void FragmentLinker::initSectionMap()
-{
-  if (NULL == m_pSectionRules) {
-    m_pSectionRules = new SectionRules(m_Config, m_Module);
-    m_pSectionRules->initOutputSectMap();
-  }
 }
 
 bool FragmentLinker::layout()

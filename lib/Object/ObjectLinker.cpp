@@ -104,13 +104,6 @@ bool ObjectLinker::initFragmentLinker()
 /// initStdSections - initialize standard sections
 bool ObjectLinker::initStdSections()
 {
-  /// A technical debt. We need to initialize section map here because
-  /// we do not separate output file and temporary data structure. So far,
-  /// FragmentLinker directly use output file's LDContext as the temporary data
-  /// structure. We will create a new data structure mcld::Module to collect
-  /// all temporary data structures togather.
-  m_pLinker->initSectionMap();
-
   // initialize standard sections
   switch (m_Config.codeGenType()) {
     case LinkerConfig::DynObj: {

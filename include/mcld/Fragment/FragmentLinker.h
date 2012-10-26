@@ -37,7 +37,6 @@ class Output;
 class EhFrame;
 class EhFrameHdr;
 class MemoryArea;
-class SectionRules;
 class RelocationData;
 
 /** \class FragmentLinker
@@ -168,8 +167,6 @@ public:
   void syncRelocationResult(MemoryArea& pOutput);
 
   // -----  layout  ----- //
-  void initSectionMap();
-
   Layout& getLayout()
   { return m_Layout; }
 
@@ -273,7 +270,6 @@ private:
   const LinkerConfig& m_Config;
   Module& m_Module;
   TargetLDBackend& m_Backend;
-  SectionRules* m_pSectionRules;
   Layout m_Layout;
 };
 
