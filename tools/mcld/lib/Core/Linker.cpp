@@ -269,7 +269,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 
   // create NULL section
   mcld::LDSection& null =
-      mObjLinker->getLinker()->createSectHdr("",
+      mObjLinker->getLinker()->CreateInputSectHdr("",
                                           mcld::LDFileFormat::Null,
                                           llvm::ELF::SHT_NULL,
                                           0);
@@ -283,7 +283,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   input_context->getSectionTable().push_back(&null);
 
   // create .text section
-  mcld::LDSection& text = mObjLinker->getLinker()->createSectHdr(".text",
+  mcld::LDSection& text = mObjLinker->getLinker()->CreateInputSectHdr(".text",
                               mcld::LDFileFormat::Regular,
                               llvm::ELF::SHT_PROGBITS,
                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR);

@@ -175,7 +175,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     LDFileFormat::Kind kind = getLDSectionKind(sh_type,
                                                sect_name+sh_name);
 
-    LDSection& section = pLinker.createSectHdr(sect_name+sh_name,
+    LDSection& section = pLinker.CreateInputSectHdr(sect_name+sh_name,
                                                kind,
                                                sh_type,
                                                sh_flags);

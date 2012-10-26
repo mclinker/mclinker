@@ -454,11 +454,11 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 //===----------------------------------------------------------------------===//
 // Section Operations
 //===----------------------------------------------------------------------===//
-/// createSectHdr - create the input section header
-LDSection& FragmentLinker::createSectHdr(const std::string& pName,
-                                   LDFileFormat::Kind pKind,
-                                   uint32_t pType,
-                                   uint32_t pFlag)
+/// CreateInputSectHdr - create the input section header
+LDSection& FragmentLinker::CreateInputSectHdr(const std::string& pName,
+                                              LDFileFormat::Kind pKind,
+                                              uint32_t pType,
+                                              uint32_t pFlag)
 {
   // for user such as reader, standard/target fromat
   LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
