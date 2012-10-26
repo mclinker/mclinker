@@ -552,15 +552,10 @@ FragmentLinker::CreateOutputSectData(LDSection& pSection)
 }
 
 
-RelocationData& FragmentLinker::getOrCreateInputRelocData(LDSection& pSection)
+RelocationData& FragmentLinker::CreateInputRelocData(LDSection& pSection)
 {
-  // if there is already a relocation data pointed by section, return it
-  RelocationData* reloc_data = pSection.getRelocationData();
-  if (NULL != reloc_data) {
-    return *reloc_data;
-  }
-  // otherwise, create one and push it into Module's RelocDataTable
-  reloc_data = RelocationData::Create(pSection);
+  // create a input RelocationData and push it into Module's RelocDataTable
+  RelocationData* reloc_data = RelocationData::Create(pSection);
   pSection.setRelocationData(reloc_data);
   m_Module.getRelocationDataTable().push_back(reloc_data);
   return *reloc_data;
@@ -607,8 +602,9 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
   relocation->setSymInfo(&pResolveInfo);
 
   // push relocation into the input RelocationData
-  RelocationData* reloc_data = NULL;
-  reloc_data = &getOrCreateInputRelocData(pSection);
+  RelocationData* reloc_data = pSection.getRelocationData();
+  if (NULL == reloc_data)
+    reloc_data = &CreateInputRelocData(pSection);
   reloc_data->getFragmentList().push_back(relocation);
 
   // scan relocation

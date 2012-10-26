@@ -142,12 +142,11 @@ public:
   /// immediately
   SectionData& CreateOutputSectData(LDSection& pSection);
 
-  /// getOrCreateInputRelocData - when addRelocation, create corresponding input
+  /// CreateInputRelocData - when addRelocation, create corresponding input
   /// RelocationData
-  RelocationData& getOrCreateInputRelocData(LDSection& pSection);
+  RelocationData& CreateInputRelocData(LDSection& pSection);
 
-  /// getOrCreateOutputRelocData - for target to create their output relocation
-  /// Data
+  /// CreateOutputRelocData - for target to create their output relocation Data
   RelocationData& CreateOutputRelocData(LDSection& pSection);
 
   // -----  relocations  ----- //
