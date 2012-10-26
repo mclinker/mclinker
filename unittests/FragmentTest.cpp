@@ -62,14 +62,9 @@ TEST_F( FragmentTest, Fragment_trivial_function ) {
   
   EXPECT_TRUE(Fragment::Alignment == f->getKind());
 
-  EXPECT_TRUE(~(0U) == f->getLayoutOrder());
-
   f->setOffset(5566);
   EXPECT_TRUE(5566 == f->getOffset());
 
-  f->setLayoutOrder(5566);
-  EXPECT_TRUE(5566 == f->getLayoutOrder());
-  
   //always return true
   EXPECT_TRUE(f->classof(new Fragment(Fragment::Region, s)) );
   

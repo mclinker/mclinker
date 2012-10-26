@@ -19,11 +19,11 @@ using namespace mcld;
 // Fragment
 //===----------------------------------------------------------------------===//
 Fragment::Fragment()
-  : m_Kind(Type(~0)), m_pParent(NULL), m_Offset(~uint64_t(0)), m_LayoutOrder(~(0U)) {
+  : m_Kind(Type(~0)), m_pParent(NULL), m_Offset(~uint64_t(0)) {
 }
 
 Fragment::Fragment(Type pKind, SectionData *pParent)
-  : m_Kind(pKind), m_pParent(pParent), m_Offset(~uint64_t(0)), m_LayoutOrder(~(0U)) {
+  : m_Kind(pKind), m_pParent(pParent), m_Offset(~uint64_t(0)) {
   if (NULL != m_pParent)
     m_pParent->getFragmentList().push_back(this);
 }

@@ -99,8 +99,6 @@ public:
   uint64_t appendFragment(Fragment& pFrag, SectionData& pSD,
                           uint32_t pAlignConstraint = 1);
 
-  void setFragmentLayoutOrder(Fragment* pFragment);
-
   void setFragmentLayoutOffset(Fragment* pFragment);
 
 private:
@@ -210,9 +208,6 @@ private:
 
   FragmentRef*
   getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset);
-
-  bool hasLayoutOrder(const Fragment& pFragment) const
-  { return (pFragment.getLayoutOrder() != ~(0U)); }
 
   bool isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const;
 

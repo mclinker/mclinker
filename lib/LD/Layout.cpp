@@ -55,42 +55,6 @@ Layout::~Layout()
 {
 }
 
-void Layout::setFragmentLayoutOrder(Fragment* pFrag)
-{
-  if (NULL == pFrag)
-    return;
-
-  /// find the most-recent fragment whose order was set.
-  Fragment* first = pFrag;
-  while (!hasLayoutOrder(*first)) {
-    if (NULL == first->getPrevNode())
-      break;
-    first = first->getPrevNode();
-  }
-
-  /// set all layout order
-
-  // find the first fragment who has no order.
-  // find the last order of the fragment
-  unsigned int layout_order = 0;
-  Fragment* frag_not_set = NULL;
-  if (NULL == first->getPrevNode()) {
-    layout_order = 0;
-    frag_not_set = first;
-  }
-  else {
-    layout_order = first->getLayoutOrder();
-    frag_not_set = first->getNextNode();
-  }
-
-  // for all fragments that has no order, set up its order
-  while(NULL != frag_not_set) {
-    frag_not_set->setLayoutOrder(layout_order);
-    ++layout_order;
-    frag_not_set = frag_not_set->getNextNode();
-  }
-}
-
 /// setFragmentLayoutOffset - set the fragment's layout offset. This function
 /// also set up the layout offsets of all the fragments in the same range.
 /// If the offset of the fragment was set before, return immediately.
@@ -163,7 +127,6 @@ void Layout::addInputRange(const SectionData& pSD,
 
   // compute the layout order of the previous range.
   if (!isFirstRange(*range)) {
-    setFragmentLayoutOrder(range->prevRear);
     setFragmentLayoutOffset(range->prevRear);
   }
 }
@@ -198,7 +161,6 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
   NullFragment* null_frag = new NullFragment(&pSD);
 
   // compute the fragment order and offset
-  setFragmentLayoutOrder(null_frag);
   setFragmentLayoutOffset(null_frag);
 
   if (NULL != align_frag)
@@ -255,7 +217,6 @@ Layout::getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset)
 
   if (!rear->hasOffset()) {
     // compute layout order, offset
-    setFragmentLayoutOrder(rear);
     setFragmentLayoutOffset(rear);
   }
 
@@ -351,7 +312,6 @@ Layout::getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset)
 {
   if (!pFrag.hasOffset()) {
     // compute layout order, offset
-    setFragmentLayoutOrder(const_cast<Fragment*>(&pFrag));
     setFragmentLayoutOffset(const_cast<Fragment*>(&pFrag));
   }
 

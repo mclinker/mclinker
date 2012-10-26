@@ -58,10 +58,6 @@ public:
 
   bool hasOffset() const;
 
-  unsigned int getLayoutOrder() const { return m_LayoutOrder; }
-
-  void setLayoutOrder(unsigned int pValue) { m_LayoutOrder = pValue; }
-
   static bool classof(const Fragment *O) { return true; }
 
   virtual size_t size() const {
@@ -78,7 +74,6 @@ private:
   SectionData* m_pParent;
 
   uint64_t m_Offset;
-  unsigned int m_LayoutOrder;
 
 };
 

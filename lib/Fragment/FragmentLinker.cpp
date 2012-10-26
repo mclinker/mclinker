@@ -587,7 +587,6 @@ bool FragmentLinker::layout()
               !(*sect)->getSectionData()->getFragmentList().empty()) {
             // make sure that all fragments are valid
             Fragment& frag = (*sect)->getSectionData()->getFragmentList().back();
-            m_Layout.setFragmentLayoutOrder(&frag);
             m_Layout.setFragmentLayoutOffset(&frag);
           }
         }
