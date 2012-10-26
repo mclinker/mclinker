@@ -747,7 +747,7 @@ bool FragmentLinker::checkIsOutputPIC() const
 
 bool FragmentLinker::checkIsStaticLink() const
 {
-  if (m_Module.getLibraryList().empty())
+  if (m_Module.getLibraryList().empty() && !isOutputPIC())
     return true;
   return false;
 }
