@@ -838,8 +838,7 @@ bool ARMGNULDBackend::readSection(Input& pInput,
   // It reads input's ARM attributes and copies the *FIRST ARM attributes
   // into the output file. The correct way is merge these sections, not
   // just copy.
-  if ((0 == out_sect.name().compare(".ARM.attributes")) &&
-      (0 != out_sect.size()))
+  if (m_pAttributes == &out_sect && 0 != out_sect.size())
     return true;
 
   MemoryRegion* region = pInput.memArea()->request(
