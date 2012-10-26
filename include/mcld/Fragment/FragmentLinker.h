@@ -148,7 +148,7 @@ public:
 
   /// getOrCreateOutputRelocData - for target to create their output relocation
   /// Data
-  RelocationData& getOrCreateOutputRelocData(LDSection& pSection);
+  RelocationData& CreateOutputRelocData(LDSection& pSection);
 
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)

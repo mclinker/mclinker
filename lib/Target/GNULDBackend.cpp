@@ -1902,7 +1902,7 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
   if (NULL != f_pTBSS)
     pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
 
-  // when producing relocatables, create the output RelocationData frome input
+  // when producing relocatables, create the output RelocationData from input
   // and size the output relocation section
   if (LinkerConfig::Object == config().codeGenType()) {
     Module::reloc_data_iterator dataIter, dataEnd = pModule.reloc_data_end();
@@ -1910,48 +1910,43 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
                                                                    ++dataIter) {
       RelocationData* reloc_data = *dataIter;
       const LDSection& input_sect = reloc_data->getSection();
-      // get the output relocation LDSection
-      LDSection& output_sect =
-                          pLinker.getOrCreateOutputSectHdr(input_sect.name(),
-                                                           input_sect.kind(),
-                                                           input_sect.type(),
-                                                           input_sect.flag(),
-                                                           bitclass() / 8);
-      // create output RelocationData and move relocations from input's
-      // RelocationData to output's
-      RelocationData& out_reloc_data =
-                                pLinker.getOrCreateOutputRelocData(output_sect);
 
-      RelocationData::FragmentListType& out_list =
-                                               out_reloc_data.getFragmentList();
-      out_list.splice(out_list.begin(), reloc_data->getFragmentList());
-      output_sect.setRelocationData(&out_reloc_data);
+      // get the output relocation LDSection
+      LDSection* output_sect = pModule.getSection(input_sect.name());
+      assert(NULL != output_sect);
 
       // set output relocation section link
       const LDSection* input_link = input_sect.getLink();
       assert(NULL != input_link);
-      LDSection& output_link =
-                          pLinker.getOrCreateOutputSectHdr(input_link->name(),
-                                                           input_link->kind(),
-                                                           input_link->type(),
-                                                           input_link->flag(),
-                                                           input_link->align());
-      output_sect.setLink(&output_link);
+      LDSection* output_link = pModule.getSection(input_link->name());
+      assert(NULL != output_link);
+      output_sect->setLink(output_link);
+
+      // get output relcoationData, create one if not exist
+      RelocationData* out_reloc_data = output_sect->getRelocationData();
+      if (NULL == out_reloc_data) {
+        out_reloc_data = &pLinker.CreateOutputRelocData(*output_sect);
+        output_sect->setRelocationData(out_reloc_data);
+      }
+
+      // move relocations from input's to output's RelcoationData
+      RelocationData::FragmentListType& out_list =
+                                             out_reloc_data->getFragmentList();
+      out_list.splice(out_list.begin(), reloc_data->getFragmentList());
 
       // size output
-      if (llvm::ELF::SHT_REL == output_sect.type())
-        output_sect.setSize(out_reloc_data.size() * getRelEntrySize());
-      else if (llvm::ELF::SHT_RELA == output_sect.type())
-        output_sect.setSize(out_reloc_data.size() * getRelaEntrySize());
+      if (llvm::ELF::SHT_REL == output_sect->type())
+        output_sect->setSize(out_reloc_data->size() * getRelEntrySize());
+      else if (llvm::ELF::SHT_RELA == output_sect->type())
+        output_sect->setSize(out_reloc_data->size() * getRelaEntrySize());
       else
-        fatal(diag::unknown_reloc_section_type) << output_sect.type()
-                                                << output_sect.name();
+        fatal(diag::unknown_reloc_section_type) << output_sect->type()
+                                                << output_sect->name();
     }
   }
 
   // set up the section flag of .note.GNU-stack section
   setupGNUStackInfo(pModule, pLinker);
-
 }
 
 /// postLayout - Backend can do any needed modification after layout

@@ -819,13 +819,13 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     relplt.setLink(&plt);
     m_pRelPLT = new OutputRelocSection(pModule,
                                        relplt,
-                                       pLinker.getOrCreateOutputRelocData(relplt),
+                                       pLinker.CreateOutputRelocData(relplt),
                                        getRelEntrySize());
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();
     m_pRelDyn = new OutputRelocSection(pModule,
                                        reldyn,
-                                       pLinker.getOrCreateOutputRelocData(reldyn),
+                                       pLinker.CreateOutputRelocData(reldyn),
                                        getRelEntrySize());
   }
 }
