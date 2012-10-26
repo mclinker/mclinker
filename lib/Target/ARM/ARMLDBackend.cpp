@@ -835,7 +835,7 @@ bool ARMGNULDBackend::readSection(Input& pInput,
   // FIXME: (Luba)
   // Handle ARM attributes in the right way.
   // In current milestone, FragmentLinker goes through the shortcut.
-  // It reads input's ARM attributes and copies the first ARM attributes
+  // It reads input's ARM attributes and copies the *FIRST ARM attributes
   // into the output file. The correct way is merge these sections, not
   // just copy.
   if ((0 == out_sect.name().compare(".ARM.attributes")) &&
