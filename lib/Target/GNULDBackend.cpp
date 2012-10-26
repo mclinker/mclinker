@@ -1203,11 +1203,6 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 /// sizeInterp - compute the size of the .interp section
 void GNULDBackend::sizeInterp()
 {
-  if (LinkerConfig::Exec != config().codeGenType() &&
-      !config().options().isPIE() &&
-      !config().options().hasDyld())
-    return;
-
   const char* dyld_name;
   if (config().options().hasDyld())
     dyld_name = config().options().dyld().c_str();
@@ -1221,20 +1216,17 @@ void GNULDBackend::sizeInterp()
 /// emitInterp - emit the .interp
 void GNULDBackend::emitInterp(MemoryArea& pOutput)
 {
-  if (LinkerConfig::Exec != config().codeGenType() &&
-      !config().options().isPIE() &&
-      !config().options().hasDyld())
-    return;
+  if (getOutputFormat()->hasInterp()) {
+    const LDSection& interp = getOutputFormat()->getInterp();
+    MemoryRegion *region = pOutput.request(interp.offset(), interp.size());
+    const char* dyld_name;
+    if (config().options().hasDyld())
+      dyld_name = config().options().dyld().c_str();
+    else
+      dyld_name = dyld();
 
-  const LDSection& interp = getOutputFormat()->getInterp();
-  MemoryRegion *region = pOutput.request(interp.offset(), interp.size());
-  const char* dyld_name;
-  if (config().options().hasDyld())
-    dyld_name = config().options().dyld().c_str();
-  else
-    dyld_name = dyld();
-
-  std::memcpy(region->start(), dyld_name, interp.size());
+    std::memcpy(region->start(), dyld_name, interp.size());
+  }
 }
 
 /// getSectionOrder
