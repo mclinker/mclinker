@@ -68,6 +68,13 @@ void ARMPLT::finalizeSectionSize()
   uint64_t size = (m_SectionData.size() - 1) * sizeof(arm_plt1) +
                      sizeof(arm_plt0);
   m_Section.setSize(size);
+
+  uint32_t offset = 0;
+  SectionData::iterator frag, fragEnd = m_SectionData.end();
+  for (frag = m_SectionData.begin(); frag != fragEnd; ++frag) {
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
 }
 
 void ARMPLT::reserveEntry(size_t pNum)

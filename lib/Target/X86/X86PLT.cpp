@@ -105,6 +105,13 @@ void X86PLT::finalizeSectionSize()
     size += (m_SectionData.size() - 1) * plt1->getEntrySize();
   }
   m_Section.setSize(size);
+
+  uint32_t offset = 0;
+  SectionData::iterator frag, fragEnd = m_SectionData.end();
+  for (frag = m_SectionData.begin(); frag != fragEnd; ++frag) {
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
 }
 
 bool X86PLT::hasPLT1() const

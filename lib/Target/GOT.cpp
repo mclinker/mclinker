@@ -75,5 +75,12 @@ GOT::Entry* GOT::consume()
 void GOT::finalizeSectionSize()
 {
   m_Section.setSize(m_SectionData.size() * f_EntrySize);
+
+  uint32_t offset = 0;
+  SectionData::iterator frag, fragEnd = m_SectionData.end();
+  for (frag = m_SectionData.begin(); frag != fragEnd; ++frag) {
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
 }
 
