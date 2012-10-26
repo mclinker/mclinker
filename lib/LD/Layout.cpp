@@ -124,11 +124,6 @@ void Layout::addInputRange(const SectionData& pSD,
     range->prevRear =
                   const_cast<Fragment*>(&pSD.getFragmentList().back());
   }
-
-  // compute the layout order of the previous range.
-  if (!isFirstRange(*range)) {
-    setFragmentLayoutOffset(range->prevRear);
-  }
 }
 
 /// appendFragment - append the given Fragment to the given SectionData,
