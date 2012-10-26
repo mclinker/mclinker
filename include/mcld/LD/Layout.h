@@ -98,6 +98,11 @@ public:
   /// size if any
   uint64_t appendFragment(Fragment& pFrag, SectionData& pSD,
                           uint32_t pAlignConstraint = 1);
+
+  void setFragmentLayoutOrder(Fragment* pFragment);
+
+  void setFragmentLayoutOffset(Fragment* pFragment);
+
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair
@@ -210,10 +215,6 @@ private:
   { return (pFragment.getLayoutOrder() != ~(0U)); }
 
   bool isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const;
-
-  void setFragmentLayoutOrder(Fragment* pFragment);
-
-  void setFragmentLayoutOffset(Fragment* pFragment);
 
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering

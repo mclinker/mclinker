@@ -439,7 +439,12 @@ bool Layout::layout(Module& pModule,
     LDSection* sect = *it;
 
     switch (sect->kind()) {
-      // ignore if there is no SectionData for certain section kinds
+      // take NULL and StackNote directly
+      case LDFileFormat::Null:
+      case LDFileFormat::StackNote:
+        m_SectionOrder.push_back(sect);
+        break;
+      // ignore if section size is 0
       case LDFileFormat::Regular:
       case LDFileFormat::Target:
       case LDFileFormat::MetaData:
@@ -447,23 +452,6 @@ bool Layout::layout(Module& pModule,
       case LDFileFormat::Debug:
       case LDFileFormat::EhFrame:
       case LDFileFormat::GCCExceptTable:
-        if (0 != sect->size()) {
-          if (NULL != sect->getSectionData() &&
-              !sect->getSectionData()->getFragmentList().empty()) {
-            // make sure that all fragments are valid
-            Fragment& frag = sect->getSectionData()->getFragmentList().back();
-            setFragmentLayoutOrder(&frag);
-            setFragmentLayoutOffset(&frag);
-          }
-          m_SectionOrder.push_back(sect);
-        }
-        break;
-      // take NULL and StackNote directly
-      case LDFileFormat::Null:
-      case LDFileFormat::StackNote:
-        m_SectionOrder.push_back(sect);
-        break;
-      // ignore if section size is 0
       case LDFileFormat::NamePool:
       case LDFileFormat::Relocation:
       case LDFileFormat::Note:
