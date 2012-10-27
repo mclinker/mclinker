@@ -828,18 +828,16 @@ bool ARMGNULDBackend::readSection(Input& pInput,
                                   FragmentLinker& pLinker,
                                   LDSection& pInputSectHdr)
 {
-  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
-                                                         pInputSectHdr.kind(),
-                                                         pInputSectHdr.type(),
-                                                         pInputSectHdr.flag());
   // FIXME: (Luba)
   // Handle ARM attributes in the right way.
   // In current milestone, FragmentLinker goes through the shortcut.
   // It reads input's ARM attributes and copies the *FIRST ARM attributes
   // into the output file. The correct way is merge these sections, not
   // just copy.
-  if (m_pAttributes == &out_sect && 0 != out_sect.size())
-    return true;
+  if (llvm::ELF::SHT_ARM_ATTRIBUTES == pInputSectHdr.type()) {
+    if (0 != m_pAttributes->size())
+      return true;
+  }
 
   MemoryRegion* region = pInput.memArea()->request(
           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
@@ -859,7 +857,11 @@ bool ARMGNULDBackend::readSection(Input& pInput,
                                                      sect_data,
                                                      pInputSectHdr.align());
 
-  out_sect.setSize(out_sect.size() + size);
+  if (llvm::ELF::SHT_ARM_ATTRIBUTES == pInputSectHdr.type())
+    m_pAttributes->setSize(size);
+  else
+    sect_data.getSection().setSize(sect_data.getSection().size() + size);
+
   return true;
 }
 

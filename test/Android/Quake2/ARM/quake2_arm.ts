@@ -11,7 +11,7 @@
 ; RUN: diff -s libquake2.so %p/libquake2.golden.so
 
 ; RUN: %AloneLinker --shared -soname=libquake2.so \
-; RUN: -march=arm -mtriple="armv7-none-linux-gnueabi" \
+; RUN: -mtriple="armv7-none-linux-gnueabi" \
 ; RUN: -L=%p/../../../libs/ARM/Android/android-14  -Bsymbolic \
 ; RUN: -o libquake2.mcld.so \
 ; RUN: %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \

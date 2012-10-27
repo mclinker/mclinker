@@ -26,11 +26,11 @@ SectionData::SectionData()
   : m_pSection(NULL) {
 }
 
-SectionData::SectionData(const LDSection &pSection)
+SectionData::SectionData(LDSection &pSection)
   : m_pSection(&pSection) {
 }
 
-SectionData* SectionData::Create(const LDSection& pSection)
+SectionData* SectionData::Create(LDSection& pSection)
 {
   SectionData* result = g_SectDataFactory->allocate();
   new (result) SectionData(pSection);

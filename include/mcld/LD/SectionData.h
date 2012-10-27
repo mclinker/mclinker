@@ -33,7 +33,7 @@ private:
   friend class Chunk<SectionData, MCLD_SECTIONS_PER_INPUT>;
 
   SectionData();
-  explicit SectionData(const LDSection &pSection);
+  explicit SectionData(LDSection &pSection);
 
   SectionData(const SectionData &);            // DO NOT IMPLEMENT
   SectionData& operator=(const SectionData &); // DO NOT IMPLEMENT
@@ -51,11 +51,12 @@ public:
   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
 
 public:
-  static SectionData* Create(const LDSection& pSection);
+  static SectionData* Create(LDSection& pSection);
 
   static void Destroy(SectionData*& pSection);
 
-  const LDSection &getSection() const { return *m_pSection; }
+  const LDSection& getSection() const { return *m_pSection; }
+  LDSection&       getSection()       { return *m_pSection; }
 
   FragmentListType &getFragmentList() { return m_Fragments; }
   const FragmentListType &getFragmentList() const { return m_Fragments; }
@@ -80,7 +81,7 @@ public:
 
 private:
   FragmentListType m_Fragments;
-  const LDSection* m_pSection;
+  LDSection* m_pSection;
 
 };
 

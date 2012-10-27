@@ -241,11 +241,9 @@ bool ELFReader<32, true>::readRegularSection(Input& pInput,
                                                      sect_data,
                                                      pInputSectHdr.align());
 
-  LDSection& out_sect = pLinker.getOrCreateOutputSectHdr(pInputSectHdr.name(),
-                                                         pInputSectHdr.kind(),
-                                                         pInputSectHdr.type(),
-                                                         pInputSectHdr.flag());
-  out_sect.setSize(out_sect.size() + size);
+  pInputSectHdr.getSectionData()->getSection().setSize(
+    pInputSectHdr.getSectionData()->getSection().size() + size);
+
   return true;
 }
 

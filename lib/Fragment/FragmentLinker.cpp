@@ -492,27 +492,7 @@ LDSection& FragmentLinker::CreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
-/// getOrCreateOutputSectHdr - for reader and standard/target format to get
-/// or create the output's section header
-LDSection& FragmentLinker::getOrCreateOutputSectHdr(const std::string& pName,
-                                              LDFileFormat::Kind pKind,
-                                              uint32_t pType,
-                                              uint32_t pFlag,
-                                              uint32_t pAlign)
-{
-  // try to get one from output LDSection
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-  std::string output_name = (pair.isNull())?pName:pair.to;
-  LDSection* output_sect = m_Module.getSection(output_name);
-  if (NULL == output_sect) {
-    output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
-    output_sect->setAlign(pAlign);
-    m_Module.getSectionTable().push_back(output_sect);
-  }
-  return *output_sect;
-}
-
-/// getOrCreateInputSectData - get or create SectionData
+/// CreateInputSectData - get or create SectionData
 /// pSection is input LDSection
 SectionData&
 FragmentLinker::CreateInputSectData(LDSection& pSection)
@@ -540,7 +520,7 @@ FragmentLinker::CreateInputSectData(LDSection& pSection)
   return *sect_data;
 }
 
-/// getOrCreateOutputSectData - get or create SectionData
+/// CreateOutputSectData - get or create SectionData
 /// pSection is output LDSection
 SectionData&
 FragmentLinker::CreateOutputSectData(LDSection& pSection)
