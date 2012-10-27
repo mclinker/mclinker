@@ -215,11 +215,7 @@ bool ELFObjectReader::readSections(Input& pInput)
                                                             sect_data,
                                                             (*section)->align());
 
-        LDSection& output_bss = m_Linker.getOrCreateOutputSectHdr(
-                                               (*section)->name(),
-                                               LDFileFormat::BSS,
-                                               llvm::ELF::SHT_NOBITS,
-                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE);
+        LDSection& output_bss = sect_data.getSection();
         output_bss.setSize(output_bss.size() + size);
         break;
       }

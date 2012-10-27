@@ -719,23 +719,6 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
   LDSection& bss_sect = file_format->getBSS();
   LDSection& tbss_sect = file_format->getTBSS();
 
-  // FIXME: .sbss amd .lbss currently unused.
-  /*
-  LDSection* sbss_sect = &pLinker.getOrCreateOutputSectHdr(
-                                   ".sbss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC |
-                                   llvm::ELF::SHF_MIPS_GPREL);
-
-  LDSection* lbss_sect = &pLinker.getOrCreateOutputSectHdr(
-                                   ".lbss",
-                                   LDFileFormat::BSS,
-                                   llvm::ELF::SHT_NOBITS,
-                                   llvm::ELF::SHF_WRITE | llvm::ELF::SHF_ALLOC |
-                                   llvm::ELF::SHF_MIPS_LOCAL);
-  */
-
   // get or create corresponding BSS SectionData
   SectionData* bss_sect_data = NULL;
   if (bss_sect.hasSectionData())
