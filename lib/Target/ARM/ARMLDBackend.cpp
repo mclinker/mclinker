@@ -648,9 +648,6 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       }
 
-      // FIXME: Do we need a function like final_value_is_known() in gold?
-      if (pLinker.isStaticLink())
-        return;
       // Symbol needs PLT entry, we need to reserve a PLT entry
       // and the corresponding GOT and dynamic relocation entry
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
@@ -678,10 +675,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
-      // FIXME: Do we need a function like final_value_is_known() in gold?
-      if (!pLinker.isStaticLink() &&
-          (LinkerConfig::DynObj == config().codeGenType() ||
-           rsym->isUndef() || rsym->isDyn())) {
+      if (LinkerConfig::DynObj == config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
         m_pRelDyn->reserveEntry(*m_pRelocFactory);
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
