@@ -88,7 +88,7 @@ bool LDSection::hasSectionData() const
   return (NULL != m_Data.sect_data);
 }
 
-bool LDSection::hasRelocationData() const
+bool LDSection::hasRelocData() const
 {
   if (LDFileFormat::Relocation != kind())
     return false;

@@ -11,7 +11,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/NamePool.h>
-#include <mcld/LD/RelocationData.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/StaticResolver.h>

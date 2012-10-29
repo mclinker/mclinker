@@ -22,7 +22,7 @@
 namespace mcld {
 
 class SectionData;
-class RelocationData;
+class RelocData;
 
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
@@ -159,17 +159,17 @@ public:
 
   bool hasSectionData() const;
 
-  // ------ RelocationData ------ //
-  RelocationData* getRelocationData()
+  // ------ RelocData ------ //
+  RelocData* getRelocData()
   { return m_Data.reloc_data; }
 
-  const RelocationData* getRelocationData() const
+  const RelocData* getRelocData() const
   { return m_Data.reloc_data; }
 
-  void setRelocationData(RelocationData* pSD)
+  void setRelocData(RelocData* pSD)
   { m_Data.reloc_data = pSD; }
 
-  bool hasRelocationData() const;
+  bool hasRelocData() const;
 
   /// setLink - set the sections should link with.
   /// if pLink is NULL, no Link section is set.
@@ -185,7 +185,7 @@ public:
 private:
   union SectOrRelocData {
     SectionData*    sect_data;
-    RelocationData* reloc_data;
+    RelocData* reloc_data;
   };
 
 private:
@@ -203,7 +203,7 @@ private:
   size_t m_Info;
   LDSection* m_pLink;
 
-  /// m_Data - the SectionData or RelocationData of this section
+  /// m_Data - the SectionData or RelocData of this section
   SectOrRelocData m_Data;
 
   /// m_Index - the index of the file

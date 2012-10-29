@@ -1,4 +1,4 @@
-//===- RelocationData.cpp -------------------------------------------------===//
+//===- RelocData.cpp ------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,32 +6,32 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/RelocationData.h>
+#include <mcld/LD/RelocData.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// RelocationData
+// RelocData
 //===----------------------------------------------------------------------===//
-RelocationData::RelocationData()
+RelocData::RelocData()
   : m_pSection(NULL) {
 }
 
-RelocationData::RelocationData(const LDSection &pSection)
+RelocData::RelocData(const LDSection &pSection)
   : m_pSection(&pSection) {
 }
 
-RelocationData* RelocationData::Create(const LDSection& pSection)
+RelocData* RelocData::Create(const LDSection& pSection)
 {
-  return new RelocationData(pSection);
+  return new RelocData(pSection);
 }
 
-RelocationData* RelocationData::Create()
+RelocData* RelocData::Create()
 {
-  return new RelocationData();
+  return new RelocData();
 }
 
-void RelocationData::Destroy(RelocationData*& pSection)
+void RelocData::Destroy(RelocData*& pSection)
 {
   delete pSection;
   pSection = NULL;

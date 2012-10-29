@@ -237,8 +237,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/LDSection.cpp \
 	${INCDIR}/LD/SectionData.h \
 	${LIBDIR}/LD/SectionData.cpp \
-	${INCDIR}/LD/RelocationData.h \
-	${LIBDIR}/LD/RelocationData.cpp \
+	${INCDIR}/LD/RelocData.h \
+	${LIBDIR}/LD/RelocData.cpp \
 	${INCDIR}/LD/ResolveInfo.h \
 	${LIBDIR}/LD/ResolveInfo.cpp \
 	${INCDIR}/LD/Resolver.h \

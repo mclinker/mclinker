@@ -34,7 +34,7 @@ namespace mcld {
 
 class LDSection;
 class LDSymbol;
-class RelocationData;
+class RelocData;
 
 /** \class Module
  *  \brief Module provides the intermediate representation for linking.
@@ -61,9 +61,9 @@ public:
   typedef SymbolTable::iterator sym_iterator;
   typedef SymbolTable::const_iterator const_sym_iterator;
 
-  typedef std::vector<RelocationData*> RelocationDataTable;
-  typedef RelocationDataTable::iterator reloc_data_iterator;
-  typedef RelocationDataTable::const_iterator const_reloc_data_iterator;
+  typedef std::vector<RelocData*> RelocTable;
+  typedef RelocTable::iterator reloc_iterator;
+  typedef RelocTable::const_iterator const_reloc_iterator;
 
 public:
   Module();
@@ -154,25 +154,13 @@ public:
 /// @}
 /// @name Relocation Accessors
 /// @{
+  const RelocTable& getRelocTable() const { return m_RelocTable; }
+  RelocTable&       getRelocTable()       { return m_RelocTable; }
 
-  // ----- relocation data ----- //
-  RelocationDataTable& getRelocationDataTable()
-  { return m_RelocDataTable; }
-
-  const RelocationDataTable& getRelocationDataTable() const
-  { return m_RelocDataTable; }
-
-  reloc_data_iterator reloc_data_begin()
-  { return m_RelocDataTable.begin(); }
-
-  const_reloc_data_iterator reloc_data_begin() const
-  { return m_RelocDataTable.begin(); }
-
-  reloc_data_iterator reloc_data_end ()
-  { return m_RelocDataTable.end(); }
-
-  const_reloc_data_iterator reloc_data_end () const
-  { return m_RelocDataTable.end(); }
+  const_reloc_iterator reloc_begin() const { return m_RelocTable.begin(); }
+  reloc_iterator       reloc_begin()       { return m_RelocTable.begin(); }
+  const_reloc_iterator reloc_end  () const { return m_RelocTable.end(); }
+  reloc_iterator       reloc_end  ()       { return m_RelocTable.end(); }
 
 private:
   /// sectCompare - hash compare function for LDSection*
@@ -205,7 +193,7 @@ private:
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
-  RelocationDataTable m_RelocDataTable;
+  RelocTable m_RelocTable;
   SectHashTableType* m_pSectionSymbolMap;
 };
 
