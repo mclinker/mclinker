@@ -94,3 +94,11 @@ bool LDSection::hasRelocationData() const
     return false;
   return (NULL != m_Data.reloc_data);
 }
+
+bool LDSection::hasEhFrame() const
+{
+  if (LDFileFormat::EhFrame != kind())
+    return false;
+  return (NULL != m_Data.eh_frame);
+}
+

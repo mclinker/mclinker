@@ -23,6 +23,7 @@ namespace mcld {
 
 class SectionData;
 class RelocationData;
+class EhFrame;
 
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
@@ -148,11 +149,8 @@ public:
   { m_Type = type; }
 
   // ----- SectionData ----- //
-  SectionData* getSectionData()
-  { return m_Data.sect_data; }
-
-  const SectionData* getSectionData() const
-  { return m_Data.sect_data; }
+  const SectionData* getSectionData() const { return m_Data.sect_data; }
+  SectionData*       getSectionData()       { return m_Data.sect_data; }
 
   void setSectionData(SectionData* pSD)
   { m_Data.sect_data = pSD; }
@@ -160,16 +158,21 @@ public:
   bool hasSectionData() const;
 
   // ------ RelocationData ------ //
-  RelocationData* getRelocationData()
-  { return m_Data.reloc_data; }
-
-  const RelocationData* getRelocationData() const
-  { return m_Data.reloc_data; }
+  const RelocationData* getRelocationData() const { return m_Data.reloc_data; }
+  RelocationData*       getRelocationData()       { return m_Data.reloc_data; }
 
   void setRelocationData(RelocationData* pSD)
   { m_Data.reloc_data = pSD; }
 
   bool hasRelocationData() const;
+
+  // ------ EhFrame ------ //
+  const EhFrame* getEhFrame() const { return m_Data.eh_frame; }
+  EhFrame*       getEhFrame()       { return m_Data.eh_frame; }
+
+  void setEhFrame(EhFrame* pSD) { m_Data.eh_frame = pSD; }
+
+  bool hasEhFrame() const;
 
   /// setLink - set the sections should link with.
   /// if pLink is NULL, no Link section is set.
@@ -183,9 +186,11 @@ public:
   { m_Index = pIndex; }
 
 private:
-  union SectOrRelocData {
+  union SectOrRelocData
+  {
     SectionData*    sect_data;
     RelocationData* reloc_data;
+    EhFrame*        eh_frame;
   };
 
 private:
