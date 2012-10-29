@@ -134,12 +134,8 @@ public:
   /// immediately
   SectionData& CreateOutputSectData(LDSection& pSection);
 
-  /// CreateInputRelocData - when addRelocation, create corresponding input
-  /// RelocData
-  RelocData& CreateInputRelocData(LDSection& pSection);
-
-  /// CreateOutputRelocData - for target to create their output relocation Data
-  RelocData& CreateOutputRelocData(LDSection& pSection);
+  /// CreateRelocData - when addRelocation, create corresponding RelocData
+  RelocData& CreateRelocData(LDSection& pSection);
 
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)

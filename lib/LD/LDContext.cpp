@@ -23,6 +23,14 @@ LDContext::~LDContext()
 {
 }
 
+LDContext& LDContext::appendSection(LDSection& pSection)
+{
+  if (LDFileFormat::Relocation == pSection.kind())
+    m_RelocSections.push_back(&pSection);
+  m_SectionTable.push_back(&pSection);
+  return *this;
+}
+
 LDSection* LDContext::getSection(unsigned int pIdx)
 {
   if (pIdx >= m_SectionTable.size())

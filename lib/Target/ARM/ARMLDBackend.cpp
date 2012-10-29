@@ -124,14 +124,14 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
   // create SectionData and ARMRelDynSection
   m_pRelPLT = new OutputRelocSection(pModule,
                                      relplt,
-                                     pLinker.CreateOutputRelocData(relplt),
+                                     pLinker.CreateRelocData(relplt),
                                      getRelEntrySize());
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
-                                     pLinker.CreateOutputRelocData(reldyn),
+                                     pLinker.CreateRelocData(reldyn),
                                      getRelEntrySize());
 }
 

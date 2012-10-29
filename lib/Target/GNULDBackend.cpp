@@ -1919,7 +1919,7 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
       // get output relcoationData, create one if not exist
       RelocData* out_reloc_data = output_sect->getRelocData();
       if (NULL == out_reloc_data) {
-        out_reloc_data = &pLinker.CreateOutputRelocData(*output_sect);
+        out_reloc_data = &pLinker.CreateRelocData(*output_sect);
         output_sect->setRelocData(out_reloc_data);
       }
 

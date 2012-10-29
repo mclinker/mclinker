@@ -191,7 +191,7 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
       link_info_list.push_back(link_info);
     }
 
-    pInput.context()->getSectionTable().push_back(&section);
+    pInput.context()->appendSection(section);
   } // end of for
 
   // set up InfoLink

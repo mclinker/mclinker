@@ -280,7 +280,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   null.setInfo(0);
   null.setAlign(0);
 
-  input_context->getSectionTable().push_back(&null);
+  input_context->appendSection(null);
 
   // create .text section
   mcld::LDSection& text = mObjLinker->getLinker()->CreateInputSectHdr(".text",
@@ -294,7 +294,7 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   text.setInfo(0);
   text.setAlign(1);
 
-  input_context->getSectionTable().push_back(&text);
+  input_context->appendSection(text);
 
   return kSuccess;
 }

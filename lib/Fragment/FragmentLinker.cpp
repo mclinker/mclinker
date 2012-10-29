@@ -520,8 +520,7 @@ FragmentLinker::CreateInputSectData(LDSection& pSection)
   return *sect_data;
 }
 
-/// CreateOutputSectData - get or create SectionData
-/// pSection is output LDSection
+/// CreateOutputSectData - create output SectionData
 SectionData&
 FragmentLinker::CreateOutputSectData(LDSection& pSection)
 {
@@ -531,17 +530,8 @@ FragmentLinker::CreateOutputSectData(LDSection& pSection)
   return *sect_data;
 }
 
-
-RelocData& FragmentLinker::CreateInputRelocData(LDSection& pSection)
-{
-  // create a input RelocData and push it into Module's RelocDataTable
-  RelocData* reloc_data = RelocData::Create(pSection);
-  pSection.setRelocData(reloc_data);
-  m_Module.getRelocTable().push_back(reloc_data);
-  return *reloc_data;
-}
-
-RelocData& FragmentLinker::CreateOutputRelocData(LDSection& pSection)
+/// CreateRelocData - create relocation data
+RelocData& FragmentLinker::CreateRelocData(LDSection& pSection)
 {
   assert(NULL == pSection.getRelocData());
   RelocData* reloc_data = RelocData::Create(pSection);
@@ -583,8 +573,10 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   // push relocation into the input RelocData
   RelocData* reloc_data = pSection.getRelocData();
-  if (NULL == reloc_data)
-    reloc_data = &CreateInputRelocData(pSection);
+  if (NULL == reloc_data) {
+    reloc_data = &CreateRelocData(pSection);
+    m_Module.getRelocTable().push_back(reloc_data);
+  }
   reloc_data->getFragmentList().push_back(relocation);
 
   // scan relocation
