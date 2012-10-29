@@ -21,7 +21,7 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
-#include <mcld/LD/RelocationData.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FragmentLinker.h>
@@ -1902,13 +1902,12 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
   if (NULL != f_pTBSS)
     pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
 
-  // when producing relocatables, create the output RelocationData from input
+  // when producing relocatables, create the output RelocData from input
   // and size the output relocation section
   if (LinkerConfig::Object == config().codeGenType()) {
-    Module::reloc_data_iterator dataIter, dataEnd = pModule.reloc_data_end();
-    for (dataIter = pModule.reloc_data_begin(); dataIter != dataEnd;
-                                                                   ++dataIter) {
-      RelocationData* reloc_data = *dataIter;
+    Module::reloc_iterator dataIter, dataEnd = pModule.reloc_end();
+    for (dataIter = pModule.reloc_begin(); dataIter != dataEnd; ++dataIter) {
+      RelocData* reloc_data = *dataIter;
       const LDSection& input_sect = reloc_data->getSection();
 
       // get the output relocation LDSection
@@ -1923,14 +1922,14 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
       output_sect->setLink(output_link);
 
       // get output relcoationData, create one if not exist
-      RelocationData* out_reloc_data = output_sect->getRelocationData();
+      RelocData* out_reloc_data = output_sect->getRelocData();
       if (NULL == out_reloc_data) {
         out_reloc_data = &pLinker.CreateOutputRelocData(*output_sect);
-        output_sect->setRelocationData(out_reloc_data);
+        output_sect->setRelocData(out_reloc_data);
       }
 
       // move relocations from input's to output's RelcoationData
-      RelocationData::FragmentListType& out_list =
+      RelocData::FragmentListType& out_list =
                                              out_reloc_data->getFragmentList();
       out_list.splice(out_list.begin(), reloc_data->getFragmentList());
 

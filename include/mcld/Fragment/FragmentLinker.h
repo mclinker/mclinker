@@ -37,7 +37,7 @@ class Output;
 class EhFrame;
 class EhFrameHdr;
 class MemoryArea;
-class RelocationData;
+class RelocData;
 
 /** \class FragmentLinker
  *  \brief FragmentLinker provides a pass to link object files.
@@ -135,11 +135,11 @@ public:
   SectionData& CreateOutputSectData(LDSection& pSection);
 
   /// CreateInputRelocData - when addRelocation, create corresponding input
-  /// RelocationData
-  RelocationData& CreateInputRelocData(LDSection& pSection);
+  /// RelocData
+  RelocData& CreateInputRelocData(LDSection& pSection);
 
   /// CreateOutputRelocData - for target to create their output relocation Data
-  RelocationData& CreateOutputRelocData(LDSection& pSection);
+  RelocData& CreateOutputRelocData(LDSection& pSection);
 
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)

@@ -23,7 +23,7 @@
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/RelocationData.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/LD/SectionRules.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
@@ -532,20 +532,20 @@ FragmentLinker::CreateOutputSectData(LDSection& pSection)
 }
 
 
-RelocationData& FragmentLinker::CreateInputRelocData(LDSection& pSection)
+RelocData& FragmentLinker::CreateInputRelocData(LDSection& pSection)
 {
-  // create a input RelocationData and push it into Module's RelocDataTable
-  RelocationData* reloc_data = RelocationData::Create(pSection);
-  pSection.setRelocationData(reloc_data);
-  m_Module.getRelocationDataTable().push_back(reloc_data);
+  // create a input RelocData and push it into Module's RelocDataTable
+  RelocData* reloc_data = RelocData::Create(pSection);
+  pSection.setRelocData(reloc_data);
+  m_Module.getRelocTable().push_back(reloc_data);
   return *reloc_data;
 }
 
-RelocationData& FragmentLinker::CreateOutputRelocData(LDSection& pSection)
+RelocData& FragmentLinker::CreateOutputRelocData(LDSection& pSection)
 {
-  assert(NULL == pSection.getRelocationData());
-  RelocationData* reloc_data = RelocationData::Create(pSection);
-  pSection.setRelocationData(reloc_data);
+  assert(NULL == pSection.getRelocData());
+  RelocData* reloc_data = RelocData::Create(pSection);
+  pSection.setRelocData(reloc_data);
   return *reloc_data;
 }
 
@@ -581,8 +581,8 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                                                 pAddend);
   relocation->setSymInfo(&pResolveInfo);
 
-  // push relocation into the input RelocationData
-  RelocationData* reloc_data = pSection.getRelocationData();
+  // push relocation into the input RelocData
+  RelocData* reloc_data = pSection.getRelocData();
   if (NULL == reloc_data)
     reloc_data = &CreateInputRelocData(pSection);
   reloc_data->getFragmentList().push_back(relocation);
@@ -604,10 +604,10 @@ bool FragmentLinker::applyRelocations()
     return true;
 
   // apply relocations from inputs
-  Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
-  for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
-    RelocationData* reloc_data = *dataIter;
-    RelocationData::iterator relocIter, reloc_end = reloc_data->end();
+  Module::reloc_iterator dataIter, dataEnd = m_Module.reloc_end();
+  for (dataIter = m_Module.reloc_begin(); dataIter != dataEnd; ++dataIter) {
+    RelocData* reloc_data = *dataIter;
+    RelocData::iterator relocIter, reloc_end = reloc_data->end();
 
     for (relocIter = reloc_data->begin(); relocIter != reloc_end; ++relocIter) {
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
@@ -644,10 +644,10 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
   uint8_t* data = region->getBuffer();
 
   // sync relocations from inputs
-  Module::reloc_data_iterator dataIter, dataEnd = m_Module.reloc_data_end();
-  for (dataIter = m_Module.reloc_data_begin(); dataIter != dataEnd; ++dataIter) {
-    RelocationData* reloc_data = *dataIter;
-    RelocationData::iterator relocIter, relocEnd = reloc_data->end();
+  Module::reloc_iterator dataIter, dataEnd = m_Module.reloc_end();
+  for (dataIter = m_Module.reloc_begin(); dataIter != dataEnd; ++dataIter) {
+    RelocData* reloc_data = *dataIter;
+    RelocData::iterator relocIter, relocEnd = reloc_data->end();
     for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
       writeRelocationResult(*reloc, data);
@@ -675,14 +675,14 @@ void FragmentLinker::partialSyncRelocationResult(MemoryArea& pOutput)
 
   uint8_t* data = region->getBuffer();
 
-  // traverse outputs' LDSection to get RelocationData
+  // traverse outputs' LDSection to get RelocData
   Module::iterator sectIter, sectEnd = m_Module.end();
   for (sectIter = m_Module.begin(); sectIter != sectEnd; ++sectIter) {
     if (LDFileFormat::Relocation != (*sectIter)->kind())
       continue;
 
-    RelocationData* reloc_data = (*sectIter)->getRelocationData();
-    RelocationData::iterator relocIter, relocEnd = reloc_data->end();
+    RelocData* reloc_data = (*sectIter)->getRelocData();
+    RelocData::iterator relocIter, relocEnd = reloc_data->end();
     for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
       writeRelocationResult(*reloc, data);

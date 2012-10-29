@@ -1,4 +1,4 @@
-//===- RelocationData.h ---------------------------------------------------===//
+//===- RelocData.h --------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_RELOCATIONDATA_H
-#define MCLD_RELOCATIONDATA_H
+#ifndef MCLD_RELOCATION_DATA_H
+#define MCLD_RELOCATION_DATA_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -22,24 +22,23 @@
 #include <mcld/Support/GCFactoryListTraits.h>
 
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSection;
 
-/** \class RelocationData
- *  \brief RelocationData is the special SectionData to store Relocation fragments.
+/** \class RelocData
+ *  \brief RelocData is the special SectionData to store Relocation fragments.
  *  Since Relocations are created by GCFactory, we use GCFactoryListTraits for the
  *  FragmentList here to avoid iplist to delete Relocations.
  */
-class RelocationData
+class RelocData
 {
 private:
-  RelocationData();
-  explicit RelocationData(const LDSection &pSection);
+  RelocData();
+  explicit RelocData(const LDSection &pSection);
 
-  RelocationData(const RelocationData &);            // DO NOT IMPLEMENT
-  RelocationData& operator=(const RelocationData &); // DO NOT IMPLEMENT
+  RelocData(const RelocData &);            // DO NOT IMPLEMENT
+  RelocData& operator=(const RelocData &); // DO NOT IMPLEMENT
 
 public:
   typedef llvm::iplist<Fragment,
@@ -55,11 +54,11 @@ public:
   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
 
 public:
-  static RelocationData* Create(const LDSection& pSection);
+  static RelocData* Create(const LDSection& pSection);
 
-  static RelocationData* Create();
+  static RelocData* Create();
 
-  static void Destroy(RelocationData*& pSection);
+  static void Destroy(RelocData*& pSection);
 
   const LDSection &getSection() const
   { assert(NULL != m_pSection ); return *m_pSection; }

@@ -22,7 +22,7 @@
 namespace mcld {
 
 class SectionData;
-class RelocationData;
+class RelocData;
 class EhFrame;
 
 /** \class LDSection
@@ -158,13 +158,13 @@ public:
   bool hasSectionData() const;
 
   // ------ RelocationData ------ //
-  const RelocationData* getRelocationData() const { return m_Data.reloc_data; }
-  RelocationData*       getRelocationData()       { return m_Data.reloc_data; }
+  const RelocData* getRelocData() const { return m_Data.reloc_data; }
+  RelocData*       getRelocData()       { return m_Data.reloc_data; }
 
-  void setRelocationData(RelocationData* pSD)
+  void setRelocData(RelocData* pSD)
   { m_Data.reloc_data = pSD; }
 
-  bool hasRelocationData() const;
+  bool hasRelocData() const;
 
   // ------ EhFrame ------ //
   const EhFrame* getEhFrame() const { return m_Data.eh_frame; }
@@ -188,9 +188,9 @@ public:
 private:
   union SectOrRelocData
   {
-    SectionData*    sect_data;
-    RelocationData* reloc_data;
-    EhFrame*        eh_frame;
+    SectionData* sect_data;
+    RelocData*   reloc_data;
+    EhFrame*     eh_frame;
   };
 
 private:
@@ -208,7 +208,7 @@ private:
   size_t m_Info;
   LDSection* m_pLink;
 
-  /// m_Data - the SectionData or RelocationData of this section
+  /// m_Data - the SectionData or RelocData of this section
   SectOrRelocData m_Data;
 
   /// m_Index - the index of the file

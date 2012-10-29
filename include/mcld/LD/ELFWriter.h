@@ -24,7 +24,7 @@ class GNULDBackend;
 class Relocation;
 class LDSection;
 class SectionData;
-class RelocationData;
+class RelocData;
 class Output;
 class MemoryRegion;
 class MemoryArea;
@@ -94,12 +94,12 @@ protected:
 
   void emitRel(const Layout& pLayout,
                const LinkerConfig& pConfig,
-               const RelocationData& pRelocData,
+               const RelocData& pRelocData,
                MemoryRegion& pRegion) const;
 
   void emitRela(const Layout& pLayout,
                 const LinkerConfig& pConfig,
-                const RelocationData& pRelocData,
+                const RelocData& pRelocData,
                 MemoryRegion& pRegion) const;
 
 private:
