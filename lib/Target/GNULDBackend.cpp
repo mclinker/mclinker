@@ -1238,8 +1238,8 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
   if (LDFileFormat::Null == pSectHdr.kind())
     return 0;
 
-  if (&pSectHdr == &file_format->getShStrTab())
-    return SHO_SHSTRTAB;
+  if (&pSectHdr == &file_format->getStrTab())
+    return SHO_STRTAB;
 
   // if the section is not ALLOC, lay it out until the last possible moment
   if (0 == (pSectHdr.flag() & llvm::ELF::SHF_ALLOC))
