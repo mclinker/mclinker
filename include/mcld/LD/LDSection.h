@@ -23,6 +23,7 @@ namespace mcld {
 
 class SectionData;
 class RelocData;
+class EhFrame;
 
 /** \class LDSection
  *  \brief LDSection represents a section header entry. It is a unified
@@ -148,28 +149,28 @@ public:
   { m_Type = type; }
 
   // ----- SectionData ----- //
-  SectionData* getSectionData()
-  { return m_Data.sect_data; }
+  const SectionData* getSectionData() const { return m_Data.sect_data; }
+  SectionData*       getSectionData()       { return m_Data.sect_data; }
 
-  const SectionData* getSectionData() const
-  { return m_Data.sect_data; }
-
-  void setSectionData(SectionData* pSD)
-  { m_Data.sect_data = pSD; }
+  void setSectionData(SectionData* pSD) { m_Data.sect_data = pSD; }
 
   bool hasSectionData() const;
 
-  // ------ RelocData ------ //
-  RelocData* getRelocData()
-  { return m_Data.reloc_data; }
+  // ------  RelocData  ------ //
+  const RelocData* getRelocData() const { return m_Data.reloc_data; }
+  RelocData*       getRelocData()       { return m_Data.reloc_data; }
 
-  const RelocData* getRelocData() const
-  { return m_Data.reloc_data; }
-
-  void setRelocData(RelocData* pSD)
-  { m_Data.reloc_data = pSD; }
+  void setRelocData(RelocData* pRD) { m_Data.reloc_data = pRD; }
 
   bool hasRelocData() const;
+
+  // ------  EhFrame  ------ //
+  const EhFrame* getEhFrame() const { return m_Data.eh_frame; }
+  EhFrame*       getEhFrame()       { return m_Data.eh_frame; }
+
+  void setEhFrame(EhFrame* pEhFrame) { m_Data.eh_frame = pEhFrame; }
+
+  bool hasEhFrame() const;
 
   /// setLink - set the sections should link with.
   /// if pLink is NULL, no Link section is set.
@@ -184,8 +185,9 @@ public:
 
 private:
   union SectOrRelocData {
-    SectionData*    sect_data;
-    RelocData* reloc_data;
+    SectionData* sect_data;
+    RelocData*   reloc_data;
+    EhFrame*     eh_frame;
   };
 
 private:
