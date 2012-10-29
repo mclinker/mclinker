@@ -34,7 +34,6 @@ namespace mcld {
 
 class LDSection;
 class LDSymbol;
-class RelocData;
 
 /** \class Module
  *  \brief Module provides the intermediate representation for linking.
@@ -60,10 +59,6 @@ public:
   typedef SymbolCategory SymbolTable;
   typedef SymbolTable::iterator sym_iterator;
   typedef SymbolTable::const_iterator const_sym_iterator;
-
-  typedef std::vector<RelocData*> RelocTable;
-  typedef RelocTable::iterator reloc_iterator;
-  typedef RelocTable::const_iterator const_reloc_iterator;
 
 public:
   Module();
@@ -151,17 +146,6 @@ public:
   const NamePool& getNamePool() const { return m_NamePool; }
   NamePool&       getNamePool()       { return m_NamePool; }
 
-/// @}
-/// @name Relocation Accessors
-/// @{
-  const RelocTable& getRelocTable() const { return m_RelocTable; }
-  RelocTable&       getRelocTable()       { return m_RelocTable; }
-
-  const_reloc_iterator reloc_begin() const { return m_RelocTable.begin(); }
-  reloc_iterator       reloc_begin()       { return m_RelocTable.begin(); }
-  const_reloc_iterator reloc_end  () const { return m_RelocTable.end(); }
-  reloc_iterator       reloc_end  ()       { return m_RelocTable.end(); }
-
 private:
   /// sectCompare - hash compare function for LDSection*
   struct SectCompare
@@ -193,7 +177,6 @@ private:
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
-  RelocTable m_RelocTable;
   SectHashTableType* m_pSectionSymbolMap;
 };
 
