@@ -149,7 +149,8 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
   f_pShStrTab        = &pLinker.CreateOutputSectHdr(".shstrtab",
                                               LDFileFormat::NamePool,
                                               llvm::ELF::SHT_STRTAB,
-                                              0x0);
+                                              0x0,
+                                              0x1);
   // In ELF Spec Book I, p1-16. If symbol table and string table are in 
   // loadable segments, set the attribute to SHF_ALLOC bit. But in the
   // real world, this bit always turn off.
