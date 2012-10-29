@@ -56,8 +56,7 @@ public:
 
     const CIE& getCIE() const { return m_CIE; }
 
-    uint32_t getPCBegin(const EhFrame& pOutputEhFrame);
-
+    uint32_t getDataStart() const { return m_DataStart; }
   private:
     const CIE& m_CIE;
     uint32_t m_FileOffset;

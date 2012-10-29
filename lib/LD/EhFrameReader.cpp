@@ -214,7 +214,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 
   // parse the Augmentation String to get the FDE encodeing if 'z' existed
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
-  if ('z' == augment[0] == 'z') {
+  if ('z' == augment[0]) {
 
     // skip the Augumentation Data Length
     if (!skip_LEB128(&handler, cie_end)) {

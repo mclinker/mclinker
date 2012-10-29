@@ -10,12 +10,9 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/Layout.h>
-#include <mcld/ADT/SizeTraits.h>
 #include <mcld/Support/MemoryRegion.h>
-#include <llvm/Support/Dwarf.h>
 
 using namespace mcld;
-using namespace llvm::dwarf;
 
 //===----------------------------------------------------------------------===//
 // EhFrame::CIE
@@ -35,62 +32,6 @@ EhFrame::FDE::FDE(MemoryRegion& pRegion,
     m_CIE(pCIE),
     m_FileOffset(pFileOffset),
     m_DataStart(pDataStart) {
-}
-
-/// getPCBegin - return the address of FDE's pc
-/// @ref binutils gold: ehframe.cc:222
-uint32_t EhFrame::FDE::getPCBegin(const EhFrame& pOutput)
-{
-  uint8_t fde_encoding = m_CIE.getFDEEncode();
-  unsigned int eh_value = fde_encoding & 0x7;
-
-  // check the size to read in
-  if (eh_value == llvm::dwarf::DW_EH_PE_absptr) {
-    eh_value = DW_EH_PE_udata4;
-  }
-
-  size_t pc_size = 0x0;
-  switch (eh_value) {
-    case DW_EH_PE_udata2:
-      pc_size = 2;
-      break;
-    case DW_EH_PE_udata4:
-      pc_size = 4;
-      break;
-    case DW_EH_PE_udata8:
-      pc_size = 8;
-      break;
-    default:
-      // TODO
-      break;
-  }
-
-  SizeTraits<32>::Address pc = 0x0;
-  const uint8_t* offset = (const uint8_t*) getRegion().start() + m_DataStart;
-  std::memcpy(&pc, offset, pc_size);
-
-  // adjust the signed value
-  bool is_signed = (fde_encoding & llvm::dwarf::DW_EH_PE_signed) != 0x0;
-  if (DW_EH_PE_udata2 == eh_value && is_signed)
-    pc = (pc ^ 0x8000) - 0x8000;
-
-  // handle eh application
-  switch (fde_encoding & 0x70)
-  {
-    case DW_EH_PE_absptr:
-      break;
-    case DW_EH_PE_pcrel:
-      pc += pOutput.getSection().addr() + m_FileOffset + m_DataStart;
-      break;
-    case DW_EH_PE_datarel:
-      // TODO
-      break;
-    default:
-      // TODO
-      break;
-  }
-
-  return pc;
 }
 
 //===----------------------------------------------------------------------===//
