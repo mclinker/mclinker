@@ -26,11 +26,9 @@ EhFrame::CIE::CIE(MemoryRegion& pRegion)
 //===----------------------------------------------------------------------===//
 EhFrame::FDE::FDE(MemoryRegion& pRegion,
                   const EhFrame::CIE& pCIE,
-                  uint32_t pFileOffset,
                   uint32_t pDataStart)
   : RegionFragment(pRegion),
     m_CIE(pCIE),
-    m_FileOffset(pFileOffset),
     m_DataStart(pDataStart) {
 }
 

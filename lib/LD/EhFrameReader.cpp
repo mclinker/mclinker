@@ -324,7 +324,6 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
   // create and push back the FDE entry
   EhFrame::FDE* fde = new EhFrame::FDE(pRegion,
                                        pEhFrame.cie_back(),
-                                       pToken.file_off,
                                        pToken.data_off);
   pEhFrame.addFDE(*fde);
   pEhFrame.addFragment(*fde, pSection);

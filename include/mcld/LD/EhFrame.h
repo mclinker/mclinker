@@ -51,7 +51,6 @@ public:
   public:
     FDE(MemoryRegion& pRegion,
         const CIE& pCIE,
-        uint32_t pFileOffset,
         uint32_t pDataStart);
 
     const CIE& getCIE() const { return m_CIE; }
@@ -59,7 +58,6 @@ public:
     uint32_t getDataStart() const { return m_DataStart; }
   private:
     const CIE& m_CIE;
-    uint32_t m_FileOffset;
     uint32_t m_DataStart;
   };
 
