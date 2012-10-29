@@ -108,6 +108,8 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
       align_frag->setOffset(0);
     else
       align_frag->setOffset(pSD.back().getOffset() + pSD.back().size());
+    align_frag->setParent(&pSD);
+    pSD.getFragmentList().push_back(align_frag);
   }
 
   // append the fragment to the SectionData
