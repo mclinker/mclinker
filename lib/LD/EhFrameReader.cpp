@@ -13,6 +13,7 @@
 
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -40,14 +41,6 @@ skip_LEB128(EhFrameReader::ConstAddress* pp, EhFrameReader::ConstAddress pend)
 //===----------------------------------------------------------------------===//
 // EhFrameReader
 //===----------------------------------------------------------------------===//
-EhFrameReader::EhFrameReader()
-{
-}
-
-EhFrameReader::~EhFrameReader()
-{
-}
-
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,
                           uint64_t pOffset,
@@ -94,7 +87,7 @@ EhFrameReader::scan<true>(ConstAddress pHandler,
 }
 
 template<>
-bool EhFrameReader::read<32, true>(Input& pInput, LDSection& pSection, EhFrame& pEhFrame)
+bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
 {
   // Alphabet:
   //   {CIE, FDE, CIEt}
@@ -127,9 +120,10 @@ bool EhFrameReader::read<32, true>(Input& pInput, LDSection& pSection, EhFrame& 
   };
 
   // get file offset and address
-  uint64_t file_off = pInput.fileOffset() + pSection.offset();
+  LDSection& section = pEhFrame.getSection();
+  uint64_t file_off = pInput.fileOffset() + section.offset();
   MemoryRegion* sect_reg =
-                       pInput.memArea()->request(file_off, pSection.size());
+                       pInput.memArea()->request(file_off, section.size());
   ConstAddress handler = (ConstAddress)sect_reg->start();
 
   State cur_state = Q0;
@@ -138,7 +132,7 @@ bool EhFrameReader::read<32, true>(Input& pInput, LDSection& pSection, EhFrame& 
     Token token = scan<true>(handler, file_off, *sect_reg);
     MemoryRegion* entry = pInput.memArea()->request(token.file_off, token.size);
 
-    if (!transition[cur_state][token.kind](pEhFrame, pSection, *entry, token)) {
+    if (!transition[cur_state][token.kind](pEhFrame, *entry, token)) {
       // fail to scan
       debug(diag::debug_cannot_scan_eh) << pInput.name();
       return false;
@@ -165,7 +159,6 @@ bool EhFrameReader::read<32, true>(Input& pInput, LDSection& pSection, EhFrame& 
 }
 
 bool EhFrameReader::addCIE(EhFrame& pEhFrame,
-                           LDSection& pSection,
                            MemoryRegion& pRegion,
                            const EhFrameReader::Token& pToken)
 {
@@ -309,12 +302,11 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
   cie->setFDEEncode(fde_encoding);
   pEhFrame.addCIE(*cie);
-  pEhFrame.addFragment(*cie, pSection);
+  pEhFrame.addFragment(*cie);
   return true;
 }
 
 bool EhFrameReader::addFDE(EhFrame& pEhFrame,
-                           LDSection& pSection,
                            MemoryRegion& pRegion,
                            const EhFrameReader::Token& pToken)
 {
@@ -326,22 +318,20 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
                                        pEhFrame.cie_back(),
                                        pToken.data_off);
   pEhFrame.addFDE(*fde);
-  pEhFrame.addFragment(*fde, pSection);
+  pEhFrame.addFragment(*fde);
   return true;
 }
 
 bool EhFrameReader::addTerm(EhFrame& pEhFrame,
-                            LDSection& pSection,
                             MemoryRegion& pRegion,
                             const EhFrameReader::Token& pToken)
 {
   RegionFragment* frag = new RegionFragment(pRegion);
-  pEhFrame.addFragment(*frag, pSection);
+  pEhFrame.addFragment(*frag);
   return true;
 }
 
 bool EhFrameReader::reject(EhFrame& pEhFrame,
-                           LDSection& pSection,
                            MemoryRegion& pRegion,
                            const EhFrameReader::Token& pToken)
 {

@@ -32,19 +32,14 @@ public:
   typedef       uint8_t* Address;
 
 public:
-  EhFrameReader();
-
-  ~EhFrameReader();
-
   /// read - read an .eh_frame section and create the corresponding
   /// CIEs and FDEs
   /// @param pInput [in] the Input contains this eh_frame
-  /// @param pSection [in] the input LDSection.
   /// @param pEhFrame [inout] the input eh_frame
   /// @return if we read all CIEs and FDEs successfully, return true. Otherwise,
   /// return false;
   template<size_t BITCLASS, bool SAME_ENDIAN>
-  bool read(Input& pInput, LDSection& pSection, EhFrame& pEhFrame);
+  bool read(Input& pInput, EhFrame& pEhFrame);
 
 private:
   enum TokenKind {
@@ -75,7 +70,6 @@ private:
   /// @param pSection - the input .eh_frame section
   /// @param pRegion - the memory region that needs to handle with.
   typedef bool (*Action)(EhFrame& pEhFrame,
-                         LDSection& pSection,
                          MemoryRegion& pRegion,
                          const Token& pToken);
 private:
@@ -84,31 +78,25 @@ private:
   scan(ConstAddress pHandler, uint64_t pOffset, const MemoryRegion& pData) const;
 
   static bool addCIE(EhFrame& pEhFrame,
-                     LDSection& pSection,
                      MemoryRegion& pRegion,
                      const Token& pToken);
 
   static bool addFDE(EhFrame& pEhFrame,
-                     LDSection& pSection,
                      MemoryRegion& pRegion,
                      const Token& pToken);
 
   static bool addTerm(EhFrame& pEhFrame,
-                      LDSection& pSection,
                       MemoryRegion& pRegion,
                       const Token& pToken);
 
   static bool reject(EhFrame& pEhFrame,
-                     LDSection& pSection,
                      MemoryRegion& pRegion,
                      const Token& pToken);
 
 };
 
 template<> bool
-EhFrameReader::read<32, true>(Input& pInput,
-                              LDSection& pSection,
-                              EhFrame& pEhFrame);
+EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame);
 
 template<> EhFrameReader::Token
 EhFrameReader::scan<true>(ConstAddress pHandler,

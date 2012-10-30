@@ -35,24 +35,27 @@ EhFrame::FDE::FDE(MemoryRegion& pRegion,
 //===----------------------------------------------------------------------===//
 // EhFrame
 //===----------------------------------------------------------------------===//
-EhFrame::EhFrame(LDSection& pSection, Layout& pLayout)
-  : m_Section(pSection), m_Layout(pLayout) {
+EhFrame::EhFrame(LDSection& pSection)
+  : m_Section(pSection),
+    m_pSectionData(NULL) {
+  m_pSectionData = SectionData::Create(pSection);
 }
 
 EhFrame::~EhFrame()
 {
-  // Do nothing. Since all CIEs, FDEs and regular fragments are stored in
-  // iplist, iplist will delete the fragments and we do not need to handle with
-  // it.
+  // Since all CIEs, FDEs and regular fragments are stored in iplist, iplist
+  // will delete the fragments and we do not need to handle with it.
+  SectionData::Destroy(m_pSectionData);
 }
 
-void EhFrame::addFragment(RegionFragment& pFrag, LDSection& pSection)
+void EhFrame::addFragment(RegionFragment& pFrag)
 {
-  size_t size =  m_Layout.appendFragment(pFrag,
-                                         *m_Section.getSectionData(),
-                                         pSection.align());
+  uint32_t offset = 0;
+  if (!m_pSectionData->empty())
+    offset = m_pSectionData->back().getOffset() + m_pSectionData->back().size();
 
-  m_Section.setSize(m_Section.size() + size);
+  m_pSectionData->getFragmentList().push_back(&pFrag);
+  pFrag.setOffset(offset);
 }
 
 void EhFrame::addCIE(EhFrame::CIE& pCIE)

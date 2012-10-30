@@ -8,12 +8,13 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/EhFrameHdr.h>
 
-#include <llvm/Support/Dwarf.h>
-#include <llvm/Support/DataTypes.h>
-
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDSection.h>
+
+#include <llvm/Support/Dwarf.h>
+#include <llvm/Support/DataTypes.h>
 
 using namespace mcld;
 using namespace llvm::dwarf;

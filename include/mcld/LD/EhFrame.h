@@ -14,11 +14,11 @@
 
 #include <vector>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LD/LDSection.h>
 
 namespace mcld {
 
-class Layout;
+class LDSection;
+class SectionData;
 
 /** \class EhFrame
  *  \brief EhFrame represents .eh_frame section
@@ -70,18 +70,20 @@ public:
   typedef FDEList::const_iterator const_fde_iterator;
 
 public:
-  EhFrame(LDSection& pSection, Layout& pLayout);
+  EhFrame(LDSection& pSection);
 
   ~EhFrame();
 
   const LDSection& getSection() const { return m_Section; }
   LDSection&       getSection()       { return m_Section; }
 
+  const SectionData& getSectionData() const { return *m_pSectionData; }
+  SectionData&       getSectionData()       { return *m_pSectionData; }
+
   // -----  fragment  ----- //
   /// addFragment - when we start treating CIEs and FDEs as regular fragments,
   /// we call this function instead of addCIE() and addFDE().
-  /// @param pSection - input .eh_frame section.
-  void addFragment(RegionFragment& pFrag, LDSection& pSection);
+  void addFragment(RegionFragment& pFrag);
 
   // -----  CIE  ----- //
   const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
@@ -117,9 +119,10 @@ public:
 
 private:
   LDSection& m_Section;
+  SectionData* m_pSectionData;
+
   CIEList m_CIEs;
   FDEList m_FDEs;
-  Layout& m_Layout;
 };
 
 } // namespace of mcld

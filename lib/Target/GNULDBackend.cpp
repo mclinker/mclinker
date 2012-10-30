@@ -154,8 +154,7 @@ bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
     LDSection& eh_frame = m_pExecFileFormat->getEhFrame();
-    pLinker.CreateOutputSectData(eh_frame);
-    m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
+    m_pEhFrame = new EhFrame(eh_frame);
   }
   return true;
 }
@@ -171,8 +170,7 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
     LDSection& eh_frame = m_pDynObjFileFormat->getEhFrame();
-    pLinker.CreateOutputSectData(eh_frame);
-    m_pEhFrame = new EhFrame(eh_frame, pLinker.getLayout());
+    m_pEhFrame = new EhFrame(eh_frame);
   }
   return true;
 }
