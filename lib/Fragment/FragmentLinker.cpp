@@ -471,34 +471,6 @@ LDSection& FragmentLinker::CreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
-/// CreateInputSectData - get or create SectionData
-/// pSection is input LDSection
-SectionData&
-FragmentLinker::CreateInputSectData(LDSection& pSection)
-{
-  // try to get one from output LDSection
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pSection.name());
-  std::string output_name = (pair.isNull())?pSection.name():pair.to;
-  LDSection* output_sect = m_Module.getSection(output_name);
-
-  assert(NULL != output_sect);
-
-  SectionData* sect_data = output_sect->getSectionData();
-
-  if (NULL != sect_data) {
-    pSection.setSectionData(sect_data);
-    m_Layout.addInputRange(*sect_data, pSection);
-    return *sect_data;
-  }
-
-  // if the output LDSection also has no SectionData, then create one.
-  sect_data = SectionData::Create(*output_sect);
-  pSection.setSectionData(sect_data);
-  output_sect->setSectionData(sect_data);
-  m_Layout.addInputRange(*sect_data, pSection);
-  return *sect_data;
-}
-
 /// CreateOutputSectData - create output SectionData
 SectionData&
 FragmentLinker::CreateOutputSectData(LDSection& pSection)
@@ -507,15 +479,6 @@ FragmentLinker::CreateOutputSectData(LDSection& pSection)
   pSection.setSectionData(sect_data);
   m_Layout.addInputRange(*sect_data, pSection);
   return *sect_data;
-}
-
-/// CreateRelocData - create relocation data
-RelocData& FragmentLinker::CreateRelocData(LDSection& pSection)
-{
-  assert(NULL == pSection.getRelocData());
-  RelocData* reloc_data = RelocData::Create(pSection);
-  pSection.setRelocData(reloc_data);
-  return *reloc_data;
 }
 
 bool FragmentLinker::layout()

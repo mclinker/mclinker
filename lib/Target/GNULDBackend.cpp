@@ -31,6 +31,7 @@
 #include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace mcld;
 
@@ -1986,11 +1987,10 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
         output_sect->setLink(output_link);
 
         // get output relcoationData, create one if not exist
+        if (!output_sect->hasRelocData())
+          ObjectBuilder::CreateRelocData(*output_sect);
+
         RelocData* out_reloc_data = output_sect->getRelocData();
-        if (NULL == out_reloc_data) {
-          out_reloc_data = &pLinker.CreateRelocData(*output_sect);
-          output_sect->setRelocData(out_reloc_data);
-        }
 
         // move relocations from input's to output's RelcoationData
         RelocData::FragmentListType& out_list =

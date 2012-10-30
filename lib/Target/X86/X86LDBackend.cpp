@@ -22,6 +22,7 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 #include <cstring>
 
@@ -821,13 +822,13 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     relplt.setLink(&plt);
     m_pRelPLT = new OutputRelocSection(pModule,
                                        relplt,
-                                       pLinker.CreateRelocData(relplt),
+                                       *ObjectBuilder::CreateRelocData(relplt),
                                        getRelEntrySize());
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();
     m_pRelDyn = new OutputRelocSection(pModule,
                                        reldyn,
-                                       pLinker.CreateRelocData(reldyn),
+                                       *ObjectBuilder::CreateRelocData(reldyn),
                                        getRelEntrySize());
   }
 }

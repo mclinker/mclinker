@@ -24,6 +24,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Target/OutputRelocSection.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 enum {
   // The original o32 abi.
@@ -74,7 +75,7 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
-                                     pLinker.CreateRelocData(reldyn),
+                                     *ObjectBuilder::CreateRelocData(reldyn),
                                      getRelEntrySize());
 }
 
