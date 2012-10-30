@@ -171,22 +171,19 @@ bool ELFObjectReader::readSections(Input& pInput)
         if (m_Linker.getLDInfo().options().hasEhFrameHdr() &&
             (m_ReadFlag & ParseEhFrame)) {
 
-          // set up input's section data.
-          SectionData* sect_data = m_Backend.getEhFrame()->getSection().getSectionData();
-
-          (*section)->setSectionData(sect_data);
-          m_Linker.getLayout().addInputRange(*sect_data, **section);
+          // set up input's eh_frame
+          EhFrame* eh_frame = new EhFrame(**section);
+          (*section)->setEhFrame(eh_frame);
 
           // if --eh-frame-hdr option is given, parse .eh_frame.
-          if (!m_pEhFrameReader->read<32, true>(pInput,
-                                                **section,
-                                                *m_Backend.getEhFrame())) {
+          if (!m_pEhFrameReader->read<32, true>(pInput, *eh_frame)) {
             // if we failed to parse a .eh_frame, we should not parse the rest
             // .eh_frame.
             m_ReadFlag ^= ParseEhFrame;
           }
         }
         else {
+          // set up input's section data
           if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section)) {
             fatal(diag::err_cannot_read_section) << (*section)->name();
           }
