@@ -62,7 +62,7 @@ public:
   /// @return The created section data. If the pSection already has section
   ///         data, or if the pSection's type should not have a section data
   ///         (.eh_frame or relocation data), then an assertion occurs.
-  SectionData* CreateSectionData(LDSection& pSection);
+  static SectionData* CreateSectionData(LDSection& pSection);
 
   /// CreateRelocData - To create a relocation data for given pSection.
   /// @param [in, out] pSection The given input or output LDSection.
@@ -70,15 +70,15 @@ public:
   /// @return The created relocation data. If the pSection already has
   ///         relocation data, or if the pSection's type is not
   ///         LDFileFormat::Relocation, then an assertion occurs.
-  RelocData* CreateRelocData(LDSection &pSection);
+  static RelocData* CreateRelocData(LDSection &pSection);
 
   /// CreateEhFrame - To create a eh_frame for given pSection
   /// @param [in, out] pSection The given input or output LDSection.
   ///         pSection.getEhFrame() is set to a valid eh_frame.
   /// @return The created eh_frame. If the pSection already has eh_frame data,
-  ///         or if the pSection's type is not LDFileFormat::EhFrame, then
-  ///         return NULL.
-  EhFrame* CreateEhFrame(LDSection& pSection);
+  ///         or if the pSection's type is not LDFileFormat::EhFrame, then an
+  ///         assertion occurs.
+  static EhFrame* CreateEhFrame(LDSection& pSection);
 
   /// MergeSection - merge the pInput section to the pOutput section.
   static bool MergeSection(LDSection& pOutput, LDSection& pInput);
@@ -87,18 +87,21 @@ public:
 /// @name Fragment Methods
 /// @{
   /// AppendFragment - To append pFrag to the given LDSection pSection.
+  /// To append pFrag and to set its offset in the given LDSection pSection.
   /// In order to keep the alignment of pFrag, This function may insert an
   /// AlignFragment before pFrag to keep align constraint.
   ///
-  /// @param [in] pFrag The appended fragment.
+  /// @param [in, out] pFrag The appended fragment. The offset of the appended
+  ///        pFrag is set to the offset in pSection.
   /// @param [in, out] pSection The LDSection being appended. If pSection does
   ///        corresponding section data, relocation data or eh_frame, then an
   ///        assertion occurs. pSection's alignment constraint is reset to
   ///        pAlignConstraint if pAlignConstraint is stricter.
   /// @param [in] pAlignConstraint The alignment constraint.
-  /// @return Total size of the inserted fragments.
-  uint64_t AppendFragment(Fragment& pFrag, LDSection& pSection,
-                          uint32_t pAlignConstraint = 1);
+  /// @return Total number of bytes of the inserted fragments. If the pSection
+  ///         is a relocation section, return 0.
+  static uint64_t AppendFragment(Fragment& pFrag, LDSection& pSection,
+                                 uint32_t pAlignConstraint = 1);
 
   /// AppendFragment - To append pFrag to the given SectionData pSD.
   /// In order to keep the alignment of pFrag, This function inserts an
@@ -106,31 +109,45 @@ public:
   ///
   /// @note This function does not update the alignment constraint of LDSection.
   ///
-  /// @param [in] pFrag The appended fragment.
+  /// @param [in, out] pFrag The appended fragment. The offset of the appended
+  ///        pFrag is set to the offset in pSD.
   /// @param [in, out] pSD The section data being appended.
   /// @param [in] pAlignConstraint The alignment constraint.
   /// @return Total size of the inserted fragments.
-  uint64_t AppendFragment(Fragment& pFrag, SectionData& pSD,
-                          uint32_t pAlignConstraint = 1);
+  static uint64_t AppendFragment(Fragment& pFrag, SectionData& pSD,
+                                 uint32_t pAlignConstraint = 1);
 
   /// AppendRelocation - To append an relocation to the given RelocData pRD.
   ///
   /// @param [in] pRelocation The appended relocation.
   /// @param [in, out] pRD The relocation data being appended.
   /// @return Total size of the inserted fragments.
-  uint64_t AppendRelocation(Relocation& pRelocation, RelocData& pRD);
+  static void AppendRelocation(Relocation& pRelocation, RelocData& pRD);
+
+  /// AppendEhFrame - To append a fragment to the given EhFrame pEhFram.
+  ///
+  /// @param [in, out] pFrag The appended fragment.
+  /// @param [in, out] pEhFrame The eh_frame being appended.
+  /// @param [in] pAlignConstraint The alignment constraint.
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame,
+                                uint32_t pAlignConstraint = 1);
 
   /// AppendEhFrame - To append a FDE to the given EhFrame pEhFram.
   ///
-  /// @param [in] pFDE The appended FDE entry.
+  /// @param [in, out] pFDE The appended FDE entry.
   /// @param [in, out] pEhFrame The eh_frame being appended.
-  uint64_t AppendEhFrame(EhFrame::FDE& pFDE, EhFrame& pRD);
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(EhFrame::FDE& pFDE, EhFrame& pEhFrame,
+                                uint32_t pAlignConstraint = 1);
 
   /// AppendEhFrame - To append a CIE to the given EhFrame pEhFram.
   ///
-  /// @param [in] pCIE The appended CIE entry.
+  /// @param [in, out] pCIE The appended CIE entry.
   /// @param [in, out] pEhFrame The eh_frame being appended.
-  uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pRD);
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame,
+                                uint32_t pAlignConstraint = 1);
 
 private:
   const LinkerConfig& m_Config;
