@@ -14,11 +14,10 @@
 #include <mcld/ADT/SizeTraits.h>
 #include <cassert>
 
+#include <mcld/LD/EhFrame.h>
 namespace mcld {
 
-class EhFrame;
 class LDSection;
-class FDE;
 class MemoryArea;
 class MemoryRegion;
 
@@ -50,6 +49,11 @@ public:
   template<size_t size>
   void emitOutput(MemoryArea& pOutput)
   { assert(false && "Call invalid EhFrameHdr::emitOutput"); }
+
+private:
+  /// computePCBegin - return the address of FDE's pc
+  /// @ref binutils gold: ehframe.cc:222
+  uint32_t computePCBegin(const EhFrame::FDE& pFDE, const MemoryRegion& pEhFrameRegion);
 
 private:
   /// eh_frame

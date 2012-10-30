@@ -594,7 +594,9 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
     // check undefined reference if the symbol needs a dynamic relocation
     if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
       fatal(diag::undefined_reference) << rsym->name();
+  }
 
+  if ((rsym->reserved() & ReserveRel) != 0x0) {
     // set hasTextRelSection if needed
     checkAndSetHasTextRel(pSection);
   }
@@ -819,13 +821,13 @@ void X86GNULDBackend::initTargetSections(Module& pModule,
     relplt.setLink(&plt);
     m_pRelPLT = new OutputRelocSection(pModule,
                                        relplt,
-                                       pLinker.CreateOutputRelocData(relplt),
+                                       pLinker.CreateRelocData(relplt),
                                        getRelEntrySize());
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();
     m_pRelDyn = new OutputRelocSection(pModule,
                                        reldyn,
-                                       pLinker.CreateOutputRelocData(reldyn),
+                                       pLinker.CreateRelocData(reldyn),
                                        getRelEntrySize());
   }
 }
@@ -853,6 +855,14 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 {
   return true;
+}
+
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void X86GNULDBackend::doCreateProgramHdrs(Module& pModule,
+                                          const FragmentLinker& pLinker)
+{
+  // TODO
 }
 
 namespace mcld {

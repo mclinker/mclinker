@@ -48,31 +48,19 @@ public:
   ~LDContext();
 
   // -----  sections  ----- //
-  SectionTable& getSectionTable()
-  { return m_SectionTable; }
+  LDContext& appendSection(LDSection& pSection);
 
-  const SectionTable& getSectionTable() const
-  { return m_SectionTable; }
+  const_sect_iterator sectBegin() const { return m_SectionTable.begin(); }
+  sect_iterator       sectBegin()       { return m_SectionTable.begin(); }
 
-  sect_iterator sectBegin()
-  { return m_SectionTable.begin(); }
-
-  sect_iterator sectEnd()
-  { return m_SectionTable.end(); }
-
-  const_sect_iterator sectBegin() const
-  { return m_SectionTable.begin(); }
-
-  const_sect_iterator sectEnd() const
-  { return m_SectionTable.end(); }
-
-  LDSection* getSection(unsigned int pIdx);
+  const_sect_iterator sectEnd() const { return m_SectionTable.end(); }
+  sect_iterator       sectEnd()       { return m_SectionTable.end(); }
 
   const LDSection* getSection(unsigned int pIdx) const;
-
-  LDSection* getSection(const std::string& pName);
+  LDSection*       getSection(unsigned int pIdx);
 
   const LDSection* getSection(const std::string& pName) const;
+  LDSection*       getSection(const std::string& pName);
 
   size_t getSectionIdx(const std::string& pName) const;
 
@@ -80,20 +68,26 @@ public:
   { return m_SectionTable.size(); }
 
   // -----  symbols  ----- //
-  LDSymbol* getSymbol(unsigned int pIdx);
-
   const LDSymbol* getSymbol(unsigned int pIdx) const;
-
-  LDSymbol* getSymbol(const llvm::StringRef& pName);
+  LDSymbol*       getSymbol(unsigned int pIdx);
 
   const LDSymbol* getSymbol(const llvm::StringRef& pName) const;
+  LDSymbol*       getSymbol(const llvm::StringRef& pName);
 
   void addSymbol(LDSymbol* pSym)
   { m_SymTab.push_back(pSym); }
 
+  // -----  relocations  ----- //
+  const_sect_iterator relocSectBegin() const { return m_RelocSections.begin(); }
+  sect_iterator       relocSectBegin()       { return m_RelocSections.begin(); }
+
+  const_sect_iterator relocSectEnd() const { return m_RelocSections.end(); }
+  sect_iterator       relocSectEnd()       { return m_RelocSections.end(); }
+
 private:
   SectionTable m_SectionTable;
   SymbolTable m_SymTab;
+  SectionTable m_RelocSections;
 
   // FIXME : maintain a map<section name, section index>
 };

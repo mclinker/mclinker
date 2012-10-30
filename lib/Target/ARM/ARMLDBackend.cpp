@@ -124,14 +124,14 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
   // create SectionData and ARMRelDynSection
   m_pRelPLT = new OutputRelocSection(pModule,
                                      relplt,
-                                     pLinker.CreateOutputRelocData(relplt),
+                                     pLinker.CreateRelocData(relplt),
                                      getRelEntrySize());
 
   // initialize .rel.dyn
   LDSection& reldyn = file_format->getRelDyn();
   m_pRelDyn = new OutputRelocSection(pModule,
                                      reldyn,
-                                     pLinker.CreateOutputRelocData(reldyn),
+                                     pLinker.CreateRelocData(reldyn),
                                      getRelEntrySize());
 }
 
@@ -164,11 +164,11 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   false,
                                                   ResolveInfo::NoType,
                                                   desc, // ResolveInfo::Desc
-                                                  ResolveInfo::Absolute,
+                                                  ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_start, // FragRef
-                                                  ResolveInfo::Default);
+                                                  ResolveInfo::Hidden);
 
   m_pEXIDXEnd =
     pLinker.defineSymbol<FragmentLinker::Force,
@@ -176,11 +176,11 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   false,
                                                   ResolveInfo::NoType,
                                                   desc, //ResolveInfo::Desc
-                                                  ResolveInfo::Absolute,
+                                                  ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_end, // FragRef
-                                                  ResolveInfo::Default);
+                                                  ResolveInfo::Hidden);
 }
 
 void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
@@ -733,7 +733,9 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
     // check undefined reference if the symbol needs a dynamic relocation
     if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
       fatal(diag::undefined_reference) << rsym->name();
+  }
 
+  if ((rsym->reserved() & ReserveRel) != 0x0) {
     // set hasTextRelSection if needed
     checkAndSetHasTextRel(pSection);
   }
@@ -1039,6 +1041,23 @@ bool ARMGNULDBackend::initTargetStubs(FragmentLinker& pLinker)
     return true;
   }
   return false;
+}
+
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule,
+                                          const FragmentLinker& pLinker)
+{
+   if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
+     // make PT_ARM_EXIDX
+     // FIXME: once we have a patch for llvm/Support/ELF.h, we can refine this
+     enum {
+      PT_ARM_EXIDX = 0x70000001
+     };
+     ELFSegment* exidx_seg = elfSegmentTable().produce(PT_ARM_EXIDX,
+                                                       llvm::ELF::PF_R);
+     exidx_seg->addSection(m_pEXIDX);
+   }
 }
 
 namespace mcld {

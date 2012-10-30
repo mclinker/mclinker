@@ -214,7 +214,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
 
   // parse the Augmentation String to get the FDE encodeing if 'z' existed
   uint8_t fde_encoding = llvm::dwarf::DW_EH_PE_absptr;
-  if ('z' == augment[0] == 'z') {
+  if ('z' == augment[0]) {
 
     // skip the Augumentation Data Length
     if (!skip_LEB128(&handler, cie_end)) {
@@ -324,7 +324,6 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
   // create and push back the FDE entry
   EhFrame::FDE* fde = new EhFrame::FDE(pRegion,
                                        pEhFrame.cie_back(),
-                                       pToken.file_off,
                                        pToken.data_off);
   pEhFrame.addFDE(*fde);
   pEhFrame.addFragment(*fde, pSection);

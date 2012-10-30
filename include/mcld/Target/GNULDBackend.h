@@ -340,6 +340,11 @@ private:
   /// createProgramHdrs - base on output sections to create the program headers
   void createProgramHdrs(Module& pModule, const FragmentLinker& pLinker);
 
+  /// doCreateProgramHdrs - backend can implement this function to create the
+  /// target-dependent segments
+  virtual void doCreateProgramHdrs(Module& pModule,
+                                   const FragmentLinker& pLinker) = 0;
+
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
   void setupProgramHdrs(const FragmentLinker& pLinker);
@@ -444,7 +449,7 @@ protected:
     SHO_BSS,                 // .bss
     SHO_LARGE_BSS,           // .lbss
     SHO_UNDEFINED,           // default order
-    SHO_SHSTRTAB,            // .shstrtab
+    SHO_STRTAB,              // .strtab
   };
 
   struct SymCompare

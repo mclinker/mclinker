@@ -148,29 +148,27 @@ public:
   void setType(uint32_t type)
   { m_Type = type; }
 
-  // ----- SectionData ----- //
+  // -----  SectionData  ----- //
   const SectionData* getSectionData() const { return m_Data.sect_data; }
   SectionData*       getSectionData()       { return m_Data.sect_data; }
 
-  void setSectionData(SectionData* pSD)
-  { m_Data.sect_data = pSD; }
+  void setSectionData(SectionData* pSD) { m_Data.sect_data = pSD; }
 
   bool hasSectionData() const;
 
-  // ------ RelocationData ------ //
+  // ------  RelocData  ------ //
   const RelocData* getRelocData() const { return m_Data.reloc_data; }
   RelocData*       getRelocData()       { return m_Data.reloc_data; }
 
-  void setRelocData(RelocData* pSD)
-  { m_Data.reloc_data = pSD; }
+  void setRelocData(RelocData* pRD) { m_Data.reloc_data = pRD; }
 
   bool hasRelocData() const;
 
-  // ------ EhFrame ------ //
+  // ------  EhFrame  ------ //
   const EhFrame* getEhFrame() const { return m_Data.eh_frame; }
   EhFrame*       getEhFrame()       { return m_Data.eh_frame; }
 
-  void setEhFrame(EhFrame* pSD) { m_Data.eh_frame = pSD; }
+  void setEhFrame(EhFrame* pEhFrame) { m_Data.eh_frame = pEhFrame; }
 
   bool hasEhFrame() const;
 

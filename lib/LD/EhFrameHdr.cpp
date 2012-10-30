@@ -40,6 +40,10 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
   MemoryRegion* ehframehdr_region =
     pOutput.request(m_EhFrameHdr.offset(), m_EhFrameHdr.size());
 
+  MemoryRegion* ehframe_region =
+    pOutput.request(m_EhFrame.getSection().offset(),
+                    m_EhFrame.getSection().size());
+
   uint8_t* data = (uint8_t*)ehframehdr_region->start();
   // version
   data[0] = 1;
@@ -82,7 +86,7 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
       SizeTraits<32>::Address fde_pc;
       SizeTraits<32>::Address fde_addr;
       offset = (*fde)->getOffset();
-      fde_pc = (*fde)->getPCBegin(m_EhFrame);
+      fde_pc = computePCBegin(**fde, *ehframe_region);
       fde_addr = m_EhFrame.getSection().addr() + offset;
       search_table.push_back(std::make_pair(fde_pc, fde_addr));
     }
@@ -100,6 +104,7 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
     }
   }
   pOutput.release(ehframehdr_region);
+  pOutput.release(ehframe_region);
 }
 
 //===----------------------------------------------------------------------===//
@@ -131,3 +136,60 @@ void EhFrameHdr::sizeOutput()
   m_EhFrameHdr.setSize(size);
 }
 
+/// computePCBegin - return the address of FDE's pc
+/// @ref binutils gold: ehframe.cc:222
+uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
+                                    const MemoryRegion& pEhFrameRegion)
+{
+  uint8_t fde_encoding = pFDE.getCIE().getFDEEncode();
+  unsigned int eh_value = fde_encoding & 0x7;
+
+  // check the size to read in
+  if (eh_value == llvm::dwarf::DW_EH_PE_absptr) {
+    eh_value = DW_EH_PE_udata4;
+  }
+
+  size_t pc_size = 0x0;
+  switch (eh_value) {
+    case DW_EH_PE_udata2:
+      pc_size = 2;
+      break;
+    case DW_EH_PE_udata4:
+      pc_size = 4;
+      break;
+    case DW_EH_PE_udata8:
+      pc_size = 8;
+      break;
+    default:
+      // TODO
+      break;
+  }
+
+  SizeTraits<32>::Address pc = 0x0;
+  const uint8_t* offset = (const uint8_t*) pEhFrameRegion.start() +
+                          pFDE.getOffset() +
+                          pFDE.getDataStart();
+  std::memcpy(&pc, offset, pc_size);
+
+  // adjust the signed value
+  bool is_signed = (fde_encoding & llvm::dwarf::DW_EH_PE_signed) != 0x0;
+  if (DW_EH_PE_udata2 == eh_value && is_signed)
+    pc = (pc ^ 0x8000) - 0x8000;
+
+  // handle eh application
+  switch (fde_encoding & 0x70)
+  {
+    case DW_EH_PE_absptr:
+      break;
+    case DW_EH_PE_pcrel:
+      pc += m_EhFrame.getSection().addr() + pFDE.getOffset() + pFDE.getDataStart();
+      break;
+    case DW_EH_PE_datarel:
+      // TODO
+      break;
+    default:
+      // TODO
+      break;
+  }
+  return pc;
+}

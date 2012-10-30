@@ -118,19 +118,17 @@ bool BranchIsland::addStub(const Stub* pPrototype,
     entry->setValue(&pStub);
     m_pRear = &pStub;
     SectionData* sd = m_Entry.getParent();
-    if (pStub.alignment() > sd->getSection().align()) {
-      // FIXME: Only 0 and positive integral powers of two are allowed in ELF.
-      // Maybe we should check other file formats.
-      // insert AlignFragment to meet the stub's alignment constraint
-      AlignFragment* align_frag = new AlignFragment(pStub.alignment(),
-                                                    0x0,
-                                                    1u,
-                                                    pStub.alignment() - 1);
-      align_frag->setParent(sd);
-      sd->getFragmentList().insert(end(), align_frag);
-      align_frag->setOffset(align_frag->getPrevNode()->getOffset() +
-                            align_frag->getPrevNode()->size());
-    }
+
+    // insert alignment fragment
+    // TODO: check if we can reduce this alignment fragment for some cases
+    AlignFragment* align_frag = new AlignFragment(pStub.alignment(),
+                                                  0x0,
+                                                  1u,
+                                                  pStub.alignment() - 1);
+    align_frag->setParent(sd);
+    sd->getFragmentList().insert(end(), align_frag);
+    align_frag->setOffset(align_frag->getPrevNode()->getOffset() +
+                          align_frag->getPrevNode()->size());
 
     // insert stub fragment
     pStub.setParent(sd);

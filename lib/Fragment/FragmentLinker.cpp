@@ -520,8 +520,7 @@ FragmentLinker::CreateInputSectData(LDSection& pSection)
   return *sect_data;
 }
 
-/// CreateOutputSectData - get or create SectionData
-/// pSection is output LDSection
+/// CreateOutputSectData - create output SectionData
 SectionData&
 FragmentLinker::CreateOutputSectData(LDSection& pSection)
 {
@@ -531,17 +530,8 @@ FragmentLinker::CreateOutputSectData(LDSection& pSection)
   return *sect_data;
 }
 
-
-RelocData& FragmentLinker::CreateInputRelocData(LDSection& pSection)
-{
-  // create a input RelocData and push it into Module's RelocDataTable
-  RelocData* reloc_data = RelocData::Create(pSection);
-  pSection.setRelocData(reloc_data);
-  m_Module.getRelocTable().push_back(reloc_data);
-  return *reloc_data;
-}
-
-RelocData& FragmentLinker::CreateOutputRelocData(LDSection& pSection)
+/// CreateRelocData - create relocation data
+RelocData& FragmentLinker::CreateRelocData(LDSection& pSection)
 {
   assert(NULL == pSection.getRelocData());
   RelocData* reloc_data = RelocData::Create(pSection);
@@ -583,8 +573,9 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   // push relocation into the input RelocData
   RelocData* reloc_data = pSection.getRelocData();
-  if (NULL == reloc_data)
-    reloc_data = &CreateInputRelocData(pSection);
+  if (NULL == reloc_data) {
+    reloc_data = &CreateRelocData(pSection);
+  }
   reloc_data->getFragmentList().push_back(relocation);
 
   // scan relocation
@@ -603,17 +594,19 @@ bool FragmentLinker::applyRelocations()
   if (LinkerConfig::Object == m_Config.codeGenType())
     return true;
 
-  // apply relocations from inputs
-  Module::reloc_iterator dataIter, dataEnd = m_Module.reloc_end();
-  for (dataIter = m_Module.reloc_begin(); dataIter != dataEnd; ++dataIter) {
-    RelocData* reloc_data = *dataIter;
-    RelocData::iterator relocIter, reloc_end = reloc_data->end();
-
-    for (relocIter = reloc_data->begin(); relocIter != reloc_end; ++relocIter) {
-      Relocation* reloc = llvm::cast<Relocation>(relocIter);
-      reloc->apply(*m_Backend.getRelocFactory());
-    }
-  }
+  // apply all relocations of all inputs
+  Module::obj_iterator input, inEnd = m_Module.obj_end();
+  for (input = m_Module.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      assert((*rs)->hasRelocData());
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+        relocation->apply(*m_Backend.getRelocFactory());
+      } // for all relocations
+    } // for all relocation section
+  } // for all inputs
 
   // apply relocations created by relaxation
   BranchIslandFactory* br_factory = m_Backend.getBRIslandFactory();
@@ -643,16 +636,19 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
 
   uint8_t* data = region->getBuffer();
 
-  // sync relocations from inputs
-  Module::reloc_iterator dataIter, dataEnd = m_Module.reloc_end();
-  for (dataIter = m_Module.reloc_begin(); dataIter != dataEnd; ++dataIter) {
-    RelocData* reloc_data = *dataIter;
-    RelocData::iterator relocIter, relocEnd = reloc_data->end();
-    for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
-      Relocation* reloc = llvm::cast<Relocation>(relocIter);
-      writeRelocationResult(*reloc, data);
-    }
-  }
+  // sync all relocations of all inputs
+  Module::obj_iterator input, inEnd = m_Module.obj_end();
+  for (input = m_Module.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      assert((*rs)->hasRelocData());
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+        writeRelocationResult(*relocation, data);
+      } // for all relocations
+    } // for all relocation section
+  } // for all inputs
 
   // sync relocations created by relaxation
   BranchIslandFactory* br_factory = m_Backend.getBRIslandFactory();
@@ -747,7 +743,7 @@ bool FragmentLinker::checkIsOutputPIC() const
 
 bool FragmentLinker::checkIsStaticLink() const
 {
-  if (m_Module.getLibraryList().empty())
+  if (m_Module.getLibraryList().empty() && !isOutputPIC())
     return true;
   return false;
 }
