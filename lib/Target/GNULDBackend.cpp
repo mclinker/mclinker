@@ -34,6 +34,20 @@
 
 using namespace mcld;
 
+//===--------------------------------------------------------------------===//
+// non-member functions
+//===----------------------------------------------------------------------===//
+
+/// isCIdentifier - return if the pName is a valid C identifier
+static bool isCIdentifier(const std::string& pName)
+{
+  std::string ident = "0123456789"
+                      "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
+                      "abcdefghijklmnopqrstuvwxyz"
+                      "_";
+  return (pName.find_first_not_of(ident) > pName.length());
+}
+
 //===----------------------------------------------------------------------===//
 // GNULDBackend
 //===----------------------------------------------------------------------===//
@@ -185,16 +199,6 @@ bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
   // initialize standard sections
   m_pObjectFileFormat->initStdSections(pLinker);
   return true;
-}
-
-/// isCIdentifier - return if the pName is a valid C identifier
-bool GNULDBackend::isCIdentifier(const std::string& pName)
-{
-  std::string ident = "0123456789"
-                      "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
-                      "abcdefghijklmnopqrstuvwxyz"
-                      "_";
-  return (pName.find_first_not_of(ident) > pName.length());
 }
 
 /// initStandardSymbols - define and initialize standard symbols.
