@@ -193,16 +193,16 @@ public:
                                     uint32_t pSymIdx) const;
 
   /// readRela - read ELF rela and create Relocation
-  inline bool readRela(Input& pInput,
-                       FragmentLinker& pLinker,
-                       LDSection& pSection,
-                       const MemoryRegion& pRegion) const;
+  bool readRela(Input& pInput,
+                FragmentLinker& pLinker,
+                LDSection& pSection,
+                const MemoryRegion& pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
-  inline bool readRel(Input& pInput,
-                      FragmentLinker& pLinker,
-                      LDSection& pSection,
-                      const MemoryRegion& pRegion) const;
+  bool readRel(Input& pInput,
+               FragmentLinker& pLinker,
+               LDSection& pSection,
+               const MemoryRegion& pRegion) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
   inline bool readDynamic(Input& pInput) const;

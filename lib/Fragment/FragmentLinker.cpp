@@ -530,40 +530,36 @@ bool FragmentLinker::layout()
 ///
 /// All symbols should be read and resolved before calling this function.
 Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
-                                          const LDSymbol& pSym,
-                                          ResolveInfo& pResolveInfo,
-                                          FragmentRef& pFragmentRef,
+                                          LDSymbol& pSym,
                                           LDSection& pSection,
-                                          const LDSection& pTargetSection,
+                                          uint32_t pOffset,
                                           Relocation::Address pAddend)
 {
   // FIXME: we should dicard sections and symbols first instead
   // if the symbol is in the discarded input section, then we also need to
   // discard this relocation.
+  ResolveInfo* resolve_info = pSym.resolveInfo();
   if (pSym.fragRef() == NULL &&
-      pResolveInfo.type() == ResolveInfo::Section &&
-      pResolveInfo.desc() == ResolveInfo::Undefined)
+      resolve_info->type() == ResolveInfo::Section &&
+      resolve_info->desc() == ResolveInfo::Undefined)
     return NULL;
 
-  Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
-                                                                pFragmentRef,
-                                                                pAddend);
-  relocation->setSymInfo(&pResolveInfo);
+  FragmentRef* frag_ref = FragmentRef::Create(*pSection.getLink(), pOffset);
 
-  // push relocation into the input RelocData
-  RelocData* reloc_data = pSection.getRelocData();
-  if (NULL == reloc_data) {
-    reloc_data = &CreateRelocData(pSection);
-  }
-  reloc_data->getFragmentList().push_back(relocation);
+  Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
+                                                                *frag_ref,
+                                                                pAddend);
+
+  relocation->setSymInfo(resolve_info);
+  pSection.getRelocData()->getFragmentList().push_back(relocation);
 
   // scan relocation
   if (LinkerConfig::Object != m_Config.codeGenType())
     m_Backend.scanRelocation(*relocation, pSym, *this, m_Module,
-                                                                pTargetSection);
+                             *pSection.getLink());
   else
     m_Backend.partialScanRelocation(*relocation, pSym, *this, m_Module,
-                                                                pTargetSection);
+                                    *pSection.getLink());
   return relocation;
 }
 

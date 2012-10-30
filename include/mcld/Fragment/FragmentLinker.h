@@ -131,18 +131,15 @@ public:
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation
-  /// @param pResolveInfo - the symbol should be the symbol in the input file. FragmentLinker
+  /// @param pSym  - the symbol should be the symbol in the input file. FragmentLinker
   ///                  computes the real applied address by the output symbol.
-  /// @param pFragmentRef - the fragment reference of the applied address.
-  /// @param pSection - the input section of the relocation
-  /// @param pTargetSection - the section of the relocation applying target
+  /// @param pSection - the input relocation section
+  /// @param pOffset - the offset of target section.
   /// @param pAddend - the addend value for applying relocation
   Relocation* addRelocation(Relocation::Type pType,
-                            const LDSymbol& pSym,
-                            ResolveInfo& pResolveInfo,
-                            FragmentRef& pFragmentRef,
+                            LDSymbol& pSym,
                             LDSection& pSection,
-                            const LDSection& pTargetSection,
+                            uint32_t pOffset,
                             Relocation::Address pAddend = 0);
 
   /// applyRelocations - apply all relocation enties.
