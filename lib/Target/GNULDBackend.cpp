@@ -209,10 +209,20 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   Module::iterator iter, iterEnd = pModule.end();
   for (iter = pModule.begin(); iter != iterEnd; ++iter) {
     LDSection* section = *iter;
-    if (LDFileFormat::Relocation == section->kind())
-      continue;
-    if (!section->hasSectionData())
-      continue;
+
+    switch (section->kind()) {
+      case LDFileFormat::Relocation:
+        continue;
+      case LDFileFormat::EhFrame:
+        if (!section->hasEhFrame())
+          continue;
+        break;
+      default:
+        if (!section->hasSectionData())
+          continue;
+        break;
+    } // end of switch
+
     if (isCIdentifier(section->name())) {
       llvm::StringRef start_name = llvm::StringRef("__start_" + section->name());
       FragmentRef* start_fragref = FragmentRef::Create(
