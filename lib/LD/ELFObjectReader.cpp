@@ -83,7 +83,7 @@ bool ELFObjectReader::readHeader(Input& pInput)
   MemoryRegion* region = pInput.memArea()->request(pInput.fileOffset(),
                                                      hdr_size);
   uint8_t* ELF_hdr = region->start();
-  bool result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
+  bool result = m_pELFReader->readSectionHeaders(pInput, ELF_hdr);
   pInput.memArea()->release(region);
   return result;
 }

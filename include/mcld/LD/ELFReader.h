@@ -67,9 +67,7 @@ public:
   { return m_Backend; }
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  virtual bool readSectionHeaders(Input& pInput,
-                                  FragmentLinker& pLinker,
-                                  void* pELFHeader) const = 0;
+  virtual bool readSectionHeaders(Input& pInput, void* pELFHeader) const = 0;
 
   /// readRegularSection - read a regular section and create fragments.
   virtual bool readRegularSection(Input& pInput,
@@ -186,9 +184,7 @@ public:
   inline Input::Type fileType(void* pELFHeader) const;
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  inline bool readSectionHeaders(Input& pInput,
-                                 FragmentLinker& pLinker,
-                                 void* pELFHeader) const;
+  inline bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
   bool readRegularSection(Input& pInput,

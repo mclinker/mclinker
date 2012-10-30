@@ -72,7 +72,7 @@ bool ELFDynObjReader::readHeader(Input& pInput)
                                                    hdr_size);
   uint8_t* ELF_hdr = region->start();
 
-  bool shdr_result = m_pELFReader->readSectionHeaders(pInput, m_Linker, ELF_hdr);
+  bool shdr_result = m_pELFReader->readSectionHeaders(pInput, ELF_hdr);
   pInput.memArea()->release(region);
 
   // read .dynamic to get the correct SONAME

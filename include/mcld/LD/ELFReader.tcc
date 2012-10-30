@@ -88,9 +88,8 @@ Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
 }
 
 /// readSectionHeaders - read ELF section header table and create LDSections
-bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
-                                             FragmentLinker& pLinker,
-                                             void* pELFHeader) const
+bool
+ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 {
   llvm::ELF::Elf32_Ehdr* ehdr =
                           reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
@@ -175,22 +174,22 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
     LDFileFormat::Kind kind = getLDSectionKind(sh_type,
                                                sect_name+sh_name);
 
-    LDSection& section = pLinker.CreateInputSectHdr(sect_name+sh_name,
-                                               kind,
-                                               sh_type,
-                                               sh_flags);
+    LDSection* section = LDSection::Create(sect_name+sh_name,
+                                           kind,
+                                           sh_type,
+                                           sh_flags);
 
-    section.setSize(sh_size);
-    section.setOffset(sh_offset);
-    section.setInfo(sh_info);
-    section.setAlign(sh_addralign);
+    section->setSize(sh_size);
+    section->setOffset(sh_offset);
+    section->setInfo(sh_info);
+    section->setAlign(sh_addralign);
 
     if (sh_link != 0x0 || sh_info != 0x0) {
-      LinkInfo link_info = { &section, sh_link, sh_info };
+      LinkInfo link_info = { section, sh_link, sh_info };
       link_info_list.push_back(link_info);
     }
 
-    pInput.context()->appendSection(section);
+    pInput.context()->appendSection(*section);
   } // end of for
 
   // set up InfoLink

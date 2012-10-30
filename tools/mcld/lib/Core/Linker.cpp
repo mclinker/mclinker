@@ -268,31 +268,30 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
   }
 
   // create NULL section
-  mcld::LDSection& null =
-      mObjLinker->getLinker()->CreateInputSectHdr("",
+  mcld::LDSection* null = mcld::LDSection::Create("",
                                           mcld::LDFileFormat::Null,
                                           llvm::ELF::SHT_NULL,
                                           0);
 
-  null.setSize(0);
-  null.setOffset(0);
-  null.setInfo(0);
-  null.setAlign(0);
+  null->setSize(0);
+  null->setOffset(0);
+  null->setInfo(0);
+  null->setAlign(0);
 
-  input_context->appendSection(null);
+  input_context->appendSection(*null);
 
   // create .text section
-  mcld::LDSection& text = mObjLinker->getLinker()->CreateInputSectHdr(".text",
+  mcld::LDSection* text = mcld::LDSection::Create(".text",
                               mcld::LDFileFormat::Regular,
                               llvm::ELF::SHT_PROGBITS,
                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR);
 
-  text.setSize(pSize);
-  text.setOffset(0x0);
-  text.setInfo(0);
-  text.setAlign(1);
+  text->setSize(pSize);
+  text->setOffset(0x0);
+  text->setInfo(0);
+  text->setAlign(1);
 
-  input_context->appendSection(text);
+  input_context->appendSection(*text);
 
   return kSuccess;
 }

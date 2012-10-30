@@ -454,27 +454,6 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 //===----------------------------------------------------------------------===//
 // Section Operations
 //===----------------------------------------------------------------------===//
-/// CreateInputSectHdr - create the input section header
-LDSection& FragmentLinker::CreateInputSectHdr(const std::string& pName,
-                                              LDFileFormat::Kind pKind,
-                                              uint32_t pType,
-                                              uint32_t pFlag)
-{
-  // for user such as reader, standard/target fromat
-  LDSection* result = LDSection::Create(pName, pKind, pType, pFlag);
-
-  // try to get one from output LDSection
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
-  std::string output_name = (pair.isNull())?pName:pair.to;
-  LDSection* output_sect = m_Module.getSection(output_name);
-  if (NULL == output_sect) {
-    output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
-    m_Module.getSectionTable().push_back(output_sect);
-  }
-
-  return *result;
-}
-
 /// CreateOutputSectHdr - for reader and standard/target format to create
 /// output's section header
 LDSection& FragmentLinker::CreateOutputSectHdr(const std::string& pName,
