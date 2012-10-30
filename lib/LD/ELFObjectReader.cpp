@@ -273,32 +273,35 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   assert(pInput.hasMemArea());
 
   MemoryArea* mem = pInput.memArea();
-  LDContext::sect_iterator section, sectEnd = pInput.context()->sectEnd();
-  for (section = pInput.context()->sectBegin(); section != sectEnd; ++section) {
-    // ignore the section if the LDSection* in input context is NULL
-    if (NULL == *section)
-        continue;
+  LDContext::sect_iterator rs, rsEnd = pInput.context()->relocSectEnd();
+  for (rs = pInput.context()->relocSectBegin(); rs != rsEnd; ++rs) {
+    uint32_t offset = pInput.fileOffset() + (*rs)->offset();
+    uint32_t size = (*rs)->size();
+    MemoryRegion* region = mem->request(offset, size);
+    switch ((*rs)->type()) {
+      case llvm::ELF::SHT_RELA: {
+        if (!m_pELFReader->readRela(pInput, m_Linker, **rs, *region)) {
+          mem->release(region);
+          return false;
+        }
+        break;
+      }
+      case llvm::ELF::SHT_REL: {
+        if (!m_pELFReader->readRel(pInput, m_Linker, **rs, *region)) {
+          mem->release(region);
+          return false;
+        }
+        break;
+      }
+      default: { ///< should not enter
+        mem->release(region);
+        return false;
+      }
+    } // end of switch
 
-    if ((*section)->type() == llvm::ELF::SHT_RELA &&
-        (*section)->kind() == LDFileFormat::Relocation) {
-      MemoryRegion* region = mem->request(
-               pInput.fileOffset() + (*section)->offset(), (*section)->size());
-      bool result = m_pELFReader->readRela(pInput, m_Linker, **section,
-                                           *region);
-      mem->release(region);
-      if (!result)
-        return false;
-    }
-    else if ((*section)->type() == llvm::ELF::SHT_REL &&
-             (*section)->kind() == LDFileFormat::Relocation) {
-      MemoryRegion* region = mem->request(
-               pInput.fileOffset() + (*section)->offset(), (*section)->size());
-      bool result = m_pELFReader->readRel(pInput, m_Linker, **section, *region);
-      mem->release(region);
-      if (!result)
-        return false;
-    }
-  }
+    mem->release(region);
+  } // end of for all relocation data
+
   return true;
 }
 
