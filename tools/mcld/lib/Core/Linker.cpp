@@ -276,7 +276,6 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 
   null.setSize(0);
   null.setOffset(0);
-  null.setIndex(0);
   null.setInfo(0);
   null.setAlign(0);
 
@@ -290,7 +289,6 @@ enum Linker::ErrorCode Linker::addCode(void* pMemory, size_t pSize) {
 
   text.setSize(pSize);
   text.setOffset(0x0);
-  text.setIndex(1);
   text.setInfo(0);
   text.setAlign(1);
 

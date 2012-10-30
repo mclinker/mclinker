@@ -182,7 +182,6 @@ bool ELFReader<32, true>::readSectionHeaders(Input& pInput,
 
     section.setSize(sh_size);
     section.setOffset(sh_offset);
-    section.setIndex(pInput.context()->numOfSections());
     section.setInfo(sh_info);
     section.setAlign(sh_addralign);
 

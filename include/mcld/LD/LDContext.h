@@ -43,10 +43,6 @@ public:
   typedef SymbolTable::const_iterator const_sym_iterator;
 
 public:
-  LDContext();
-
-  ~LDContext();
-
   // -----  sections  ----- //
   LDContext& appendSection(LDSection& pSection);
 

@@ -16,18 +16,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // LDContext
 //===----------------------------------------------------------------------===//
-LDContext::LDContext()
-{
-}
-
-LDContext::~LDContext()
-{
-}
-
 LDContext& LDContext::appendSection(LDSection& pSection)
 {
   if (LDFileFormat::Relocation == pSection.kind())
     m_RelocSections.push_back(&pSection);
+  pSection.setIndex(m_SectionTable.size());
   m_SectionTable.push_back(&pSection);
   return *this;
 }
