@@ -420,8 +420,6 @@ private:
   /// getRelEntrySize - the size in BYTE of rela type relocation
   virtual size_t getRelaEntrySize() = 0;
 
-  bool isCIdentifier(const std::string& pName);
-
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
   // refer gold linker to add more enumerations to handle Regular and BSS kind
