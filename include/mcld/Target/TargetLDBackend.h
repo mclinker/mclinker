@@ -28,6 +28,7 @@ class ExecWriter;
 class LDFileFormat;
 class LDSymbol;
 class LDSection;
+class SectionData;
 class Input;
 class GOT;
 class MemoryArea;
@@ -151,9 +152,7 @@ public:
                                      FragmentLinker& pLinker) = 0;
 
   /// readSection - read a target dependent section
-  virtual bool readSection(Input& pInput,
-                           FragmentLinker& pLinker,
-                           LDSection& pInputSectHdr)
+  virtual bool readSection(Input& pInput, SectionData& pSD)
   { return true; }
 
   /// dyld - the name of the default dynamic linker

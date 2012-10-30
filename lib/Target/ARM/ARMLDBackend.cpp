@@ -33,6 +33,7 @@
 #include <mcld/Fragment/Stub.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/StubFactory.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Fragment/NullFragment.h>
 
 using namespace mcld;
@@ -826,44 +827,23 @@ bool ARMGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
   return true;
 }
 
-bool ARMGNULDBackend::readSection(Input& pInput,
-                                  FragmentLinker& pLinker,
-                                  LDSection& pInputSectHdr)
+bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
-  // FIXME: (Luba)
-  // Handle ARM attributes in the right way.
-  // In current milestone, FragmentLinker goes through the shortcut.
-  // It reads input's ARM attributes and copies the *FIRST ARM attributes
-  // into the output file. The correct way is merge these sections, not
-  // just copy.
-  if (llvm::ELF::SHT_ARM_ATTRIBUTES == pInputSectHdr.type()) {
-    if (0 != m_pAttributes->size())
-      return true;
-  }
-
-  MemoryRegion* region = pInput.memArea()->request(
-          pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
-
-  SectionData& sect_data = pLinker.CreateInputSectData(pInputSectHdr);
-
   Fragment* frag = NULL;
+  uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
+  uint32_t size = pSD.getSection().size();
+
+  MemoryRegion* region = pInput.memArea()->request(offset, size);
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
     frag = new FillFragment(0x0, 0, 0);
   }
-  else
+  else {
     frag = new RegionFragment(*region);
+  }
 
-  uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     sect_data,
-                                                     pInputSectHdr.align());
-
-  if (llvm::ELF::SHT_ARM_ATTRIBUTES == pInputSectHdr.type())
-    m_pAttributes->setSize(size);
-  else
-    sect_data.getSection().setSize(sect_data.getSection().size() + size);
-
+  ObjectBuilder::AppendFragment(*frag, pSD);
   return true;
 }
 

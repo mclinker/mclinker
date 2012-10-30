@@ -194,9 +194,7 @@ public:
   bool finalizeTargetSymbols(FragmentLinker& pLinker);
 
   /// readSection - read target dependent sections
-  bool readSection(Input& pInput,
-                   FragmentLinker& pLinker,
-                   LDSection& pInputSectHdr);
+  bool readSection(Input& pInput, SectionData& pSD);
 
 private:
   void scanLocalReloc(Relocation& pReloc, FragmentLinker& pLinker);
