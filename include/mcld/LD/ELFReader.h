@@ -124,7 +124,6 @@ protected:
                        const Input& pInput) const;
 
   FragmentRef* getSymFragmentRef(Input& pInput,
-                                 FragmentLinker& pLinker,
                                  uint16_t pShndx,
                                  uint32_t pOffset) const;
 
@@ -182,7 +181,7 @@ public:
   bool readRegularSection(Input& pInput, SectionData& pSD) const;
 
   /// readSymbols - read ELF symbols and create LDSymbol
-  inline bool readSymbols(Input& pInput,
+  bool readSymbols(Input& pInput,
                           FragmentLinker& pLinker,
                           const MemoryRegion& pRegion,
                           const char* StrTab) const;

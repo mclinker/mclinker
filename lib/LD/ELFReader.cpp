@@ -160,7 +160,6 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
 /// getSymFragmentRef
 FragmentRef*
 ELFReaderIF::getSymFragmentRef(Input& pInput,
-                               FragmentLinker& pLinker,
                                uint16_t pShndx,
                                uint32_t pOffset) const
 {
@@ -180,8 +179,7 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
   if (LDFileFormat::Ignore == sect_hdr->kind())
     return NULL;
 
-  FragmentRef* result = pLinker.getLayout().getFragmentRef(*sect_hdr, pOffset);
-  return result;
+  return FragmentRef::Create(*sect_hdr, pOffset);
 }
 
 /// getSymVisibility
@@ -239,6 +237,118 @@ ELFReader<32, true>::readRegularSection(Input& pInput, SectionData& pSD) const
   }
 
   ObjectBuilder::AppendFragment(*frag, pSD);
+  return true;
+}
+
+/// readSymbols - read ELF symbols and create LDSymbol
+bool ELFReader<32, true>::readSymbols(Input& pInput,
+                                      FragmentLinker& pLinker,
+                                      const MemoryRegion& pRegion,
+                                      const char* pStrTab) const
+{
+  // get number of symbols
+  size_t entsize = pRegion.size()/sizeof(llvm::ELF::Elf32_Sym);
+  const llvm::ELF::Elf32_Sym* symtab =
+                 reinterpret_cast<const llvm::ELF::Elf32_Sym*>(pRegion.start());
+
+  uint32_t st_name  = 0x0;
+  uint32_t st_value = 0x0;
+  uint32_t st_size  = 0x0;
+  uint8_t  st_info  = 0x0;
+  uint8_t  st_other = 0x0;
+  uint16_t st_shndx = 0x0;
+
+  // skip the first NULL symbol
+  pInput.context()->addSymbol(LDSymbol::Null());
+
+  for (size_t idx = 1; idx < entsize; ++idx) {
+    st_info  = symtab[idx].st_info;
+    st_other = symtab[idx].st_other;
+
+    if (llvm::sys::isLittleEndianHost()) {
+      st_name  = symtab[idx].st_name;
+      st_value = symtab[idx].st_value;
+      st_size  = symtab[idx].st_size;
+      st_shndx = symtab[idx].st_shndx;
+    }
+    else {
+      st_name  = bswap32(symtab[idx].st_name);
+      st_value = bswap32(symtab[idx].st_value);
+      st_size  = bswap32(symtab[idx].st_size);
+      st_shndx = bswap16(symtab[idx].st_shndx);
+    }
+
+    // If the section should not be included, set the st_shndx SHN_UNDEF
+    // - A section in interrelated groups are not included.
+    if (pInput.type() == Input::Object &&
+        st_shndx < llvm::ELF::SHN_LORESERVE &&
+        st_shndx != llvm::ELF::SHN_UNDEF) {
+      if (NULL == pInput.context()->getSection(st_shndx))
+        st_shndx = llvm::ELF::SHN_UNDEF;
+    }
+
+    // get ld_type
+    ResolveInfo::Type ld_type = getSymType(st_info, st_shndx);
+
+    // get ld_desc
+    ResolveInfo::Desc ld_desc = getSymDesc(st_shndx, pInput);
+
+    // get ld_binding
+    ResolveInfo::Binding ld_binding = getSymBinding((st_info >> 4), st_shndx, st_other);
+
+    // get ld_value - ld_value must be section relative.
+    uint64_t ld_value = getSymValue(st_value, st_shndx, pInput);
+
+    // get the input fragment
+    FragmentRef* ld_frag_ref = getSymFragmentRef(pInput,
+                                                 st_shndx,
+                                                 ld_value);
+
+    // get ld_vis
+    ResolveInfo::Visibility ld_vis = getSymVisibility(st_other);
+
+    // get ld_name
+    llvm::StringRef ld_name;
+    if (ResolveInfo::Section == ld_type) {
+      // Section symbol's st_name is the section index.
+      LDSection* section = pInput.context()->getSection(st_shndx);
+      assert(NULL != section && "get a invalid section");
+      ld_name = llvm::StringRef(section->name());
+    }
+    else {
+      ld_name = llvm::StringRef(pStrTab + st_name);
+    }
+
+
+    // push into FragmentLinker
+    LDSymbol* input_sym = NULL;
+
+    if (pInput.type() == Input::Object) {
+      input_sym = pLinker.addSymbol<Input::Object>(ld_name,
+                                                   ld_type,
+                                                   ld_desc,
+                                                   ld_binding,
+                                                   st_size,
+                                                   ld_value,
+                                                   ld_frag_ref,
+                                                   ld_vis);
+      // push into the input file
+      pInput.context()->addSymbol(input_sym);
+      continue;
+    }
+    else if (pInput.type() == Input::DynObj) {
+      input_sym = pLinker.addSymbol<Input::DynObj>(ld_name,
+                                                   ld_type,
+                                                   ld_desc,
+                                                   ld_binding,
+                                                   st_size,
+                                                   ld_value,
+                                                   ld_frag_ref,
+                                                   ld_vis);
+      continue;
+    }
+
+  } // end of for loop
   return true;
 }
 
