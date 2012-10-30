@@ -599,6 +599,8 @@ bool FragmentLinker::applyRelocations()
   for (input = m_Module.obj_begin(); input != inEnd; ++input) {
     LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      if (LDFileFormat::Ignore == (*rs)->kind())
+        continue;
       assert((*rs)->hasRelocData());
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
@@ -641,6 +643,8 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
   for (input = m_Module.obj_begin(); input != inEnd; ++input) {
     LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      if (LDFileFormat::Ignore == (*rs)->kind())
+        continue;
       assert((*rs)->hasRelocData());
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
