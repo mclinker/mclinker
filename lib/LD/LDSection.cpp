@@ -83,7 +83,7 @@ void LDSection::Destroy(LDSection*& pSection)
 
 bool LDSection::hasSectionData() const
 {
-  assert(LDFileFormat::Relocation != kind());
+  assert(LDFileFormat::Relocation != kind() && LDFileFormat::EhFrame != kind());
   return (NULL != m_Data.sect_data);
 }
 
