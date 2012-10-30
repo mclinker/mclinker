@@ -6,20 +6,22 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <llvm/ADT/StringRef.h>
-#include <llvm/ADT/Twine.h>
-#include <llvm/Support/ELF.h>
-#include <llvm/Support/Host.h>
+#include <mcld/LD/ELFReader.h>
 
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LD/ELFReader.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Object/ObjectBuilder.h>
+
 #include <cstring>
+
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/Twine.h>
+#include <llvm/Support/ELF.h>
+#include <llvm/Support/Host.h>
 
 using namespace mcld;
 
@@ -219,31 +221,24 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
 // ELFReader<32, true>
 //===----------------------------------------------------------------------===//
 /// readRegularSection - read a regular section and create fragments.
-bool ELFReader<32, true>::readRegularSection(Input& pInput,
-                                             FragmentLinker& pLinker,
-                                             LDSection& pInputSectHdr) const
+bool
+ELFReader<32, true>::readRegularSection(Input& pInput, SectionData& pSD) const
 {
-  MemoryRegion* region = pInput.memArea()->request(
-           pInput.fileOffset() + pInputSectHdr.offset(), pInputSectHdr.size());
-
-  SectionData& sect_data = pLinker.CreateInputSectData(pInputSectHdr);
-
   Fragment* frag = NULL;
+  uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
+  uint32_t size = pSD.getSection().size();
+
+  MemoryRegion* region = pInput.memArea()->request(offset, size);
   if (NULL == region) {
     // If the input section's size is zero, we got a NULL region.
     // use a virtual fill fragment
     frag = new FillFragment(0x0, 0, 0);
   }
-  else
+  else {
     frag = new RegionFragment(*region);
+  }
 
-  uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     sect_data,
-                                                     pInputSectHdr.align());
-
-  pInputSectHdr.getSectionData()->getSection().setSize(
-    pInputSectHdr.getSectionData()->getSection().size() + size);
-
+  ObjectBuilder::AppendFragment(*frag, pSD);
   return true;
 }
 

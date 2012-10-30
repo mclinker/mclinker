@@ -30,6 +30,8 @@ namespace mcld {
 class Module;
 class FragmentRef;
 class FragmentLinker;
+class SectionData;
+class LDSection;
 
 /** \class ELFReaderIF
  *  \brief ELFReaderIF provides common interface for all kind of ELF readers.
@@ -70,11 +72,9 @@ public:
   virtual bool readSectionHeaders(Input& pInput, void* pELFHeader) const = 0;
 
   /// readRegularSection - read a regular section and create fragments.
-  virtual bool readRegularSection(Input& pInput,
-                                  FragmentLinker& pLinker,
-                                  LDSection& pSectHdr) const = 0;
+  virtual bool readRegularSection(Input& pInput, SectionData& pSD) const = 0;
 
-  /// readRegularSection - read a target section and create fragments.
+  /// readTargetSection - read a target section and create fragments.
   virtual bool readTargetSection(Input& pInput,
                                  FragmentLinker& pLinker,
                                  LDSection& pSectHdr) = 0;
@@ -187,11 +187,9 @@ public:
   inline bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
-  bool readRegularSection(Input& pInput,
-                          FragmentLinker& pLinker,
-                          LDSection& pInputSectHdr) const;
+  bool readRegularSection(Input& pInput, SectionData& pSD) const;
 
-  /// readRegularSection - read a target section and create fragments.
+  /// readTargetSection - read a target section and create fragments.
   inline bool readTargetSection(Input& pInput,
                                 FragmentLinker& pLinker,
                                 LDSection& pInputSectHdr);

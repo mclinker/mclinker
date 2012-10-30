@@ -21,6 +21,7 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace mcld;
 
@@ -149,13 +150,16 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       /** normal sections **/
-      // FIXME: support Version Kinds
+      // FIXME: support Version Kind
       case LDFileFormat::Version:
+      // FIXME: support GCCExceptTable Kind
+      case LDFileFormat::GCCExceptTable:
       /** Fall through **/
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
       case LDFileFormat::MetaData: {
-        if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
+        SectionData* sd = ObjectBuilder::CreateSectionData(**section);
+        if (!m_pELFReader->readRegularSection(pInput, *sd))
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
@@ -163,17 +167,19 @@ bool ELFObjectReader::readSections(Input& pInput)
         if (m_Linker.getLDInfo().options().stripDebug()) {
           (*section)->setKind(LDFileFormat::Ignore);
         }
-        else if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
-          fatal(diag::err_cannot_read_section) << (*section)->name();
+        else {
+          SectionData* sd = ObjectBuilder::CreateSectionData(**section);
+          if (!m_pELFReader->readRegularSection(pInput, *sd)) {
+            fatal(diag::err_cannot_read_section) << (*section)->name();
+          }
+        }
         break;
       }
       case LDFileFormat::EhFrame: {
+        EhFrame* eh_frame = ObjectBuilder::CreateEhFrame(**section);
+
         if (m_Linker.getLDInfo().options().hasEhFrameHdr() &&
             (m_ReadFlag & ParseEhFrame)) {
-
-          // set up input's eh_frame
-          EhFrame* eh_frame = new EhFrame(**section);
-          (*section)->setEhFrame(eh_frame);
 
           // if --eh-frame-hdr option is given, parse .eh_frame.
           if (!m_pEhFrameReader->read<32, true>(pInput, *eh_frame)) {
@@ -183,17 +189,11 @@ bool ELFObjectReader::readSections(Input& pInput)
           }
         }
         else {
-          // set up input's section data
-          if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section)) {
+          if (!m_pELFReader->readRegularSection(pInput,
+                                                eh_frame->getSectionData())) {
             fatal(diag::err_cannot_read_section) << (*section)->name();
           }
         }
-        break;
-      }
-      case LDFileFormat::GCCExceptTable: {
-        //if (!m_pELFReader->readExceptionSection(pInput, m_Linker, **section))
-        if (!m_pELFReader->readRegularSection(pInput, m_Linker, **section))
-          fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
       }
       /** target dependent sections **/
@@ -204,16 +204,11 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** BSS sections **/
       case LDFileFormat::BSS: {
-        SectionData& sect_data = m_Linker.CreateInputSectData(**section);
-                                            /*  value, valsize, size*/
-        FillFragment* frag = new FillFragment(0x0,   1,       (*section)->size());
+        SectionData* sect_data = ObjectBuilder::CreateSectionData(**section);
+                                          /*  value, valsize, size*/
+        FillFragment* frag = new FillFragment(0x0, 1, (*section)->size());
 
-        uint64_t size = m_Linker.getLayout().appendFragment(*frag,
-                                                            sect_data,
-                                                            (*section)->align());
-
-        LDSection& output_bss = sect_data.getSection();
-        output_bss.setSize(output_bss.size() + size);
+        ObjectBuilder::AppendFragment(*frag, *sect_data);
         break;
       }
       // ignore
