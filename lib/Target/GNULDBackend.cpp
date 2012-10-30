@@ -1881,7 +1881,7 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
   // prelayout target first
   doPreLayout(pLinker);
 
-  if (config().options().hasEhFrameHdr()) {
+  if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat();
     assert(NULL != getEhFrame());
@@ -1931,11 +1931,9 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
         // move relocations from input's to output's RelcoationData
         RelocData::FragmentListType& out_list =
                                              out_reloc_data->getFragmentList();
-
         RelocData::FragmentListType& in_list =
                                       (*rs)->getRelocData()->getFragmentList();
-
-        out_list.splice(out_list.begin(), in_list);
+        out_list.splice(out_list.end(), in_list);
 
         // size output
         if (llvm::ELF::SHT_REL == output_sect->type())
@@ -1986,7 +1984,7 @@ void GNULDBackend::postLayout(Module& pModule,
 
 void GNULDBackend::postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput)
 {
-  if (config().options().hasEhFrameHdr()) {
+  if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // emit eh_frame_hdr
     if (bitclass() == 32)
       m_pEhFrameHdr->emitOutput<32>(pOutput);
