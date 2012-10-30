@@ -64,18 +64,20 @@ MipsGNULDBackend::~MipsGNULDBackend()
 void MipsGNULDBackend::initTargetSections(Module& pModule,
                                           FragmentLinker& pLinker)
 {
-  ELFFileFormat* file_format = getOutputFormat();
+  if (LinkerConfig::Object != config().codeGenType()) {
+    ELFFileFormat* file_format = getOutputFormat();
 
-  // initialize .got
-  LDSection& got = file_format->getGOT();
-  m_pGOT = new MipsGOT(got, pLinker.CreateOutputSectData(got));
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new MipsGOT(got, pLinker.CreateOutputSectData(got));
 
-  // initialize .rel.dyn
-  LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(pModule,
-                                     reldyn,
-                                     pLinker.CreateRelocData(reldyn),
-                                     getRelEntrySize());
+    // initialize .rel.dyn
+    LDSection& reldyn = file_format->getRelDyn();
+    m_pRelDyn = new OutputRelocSection(pModule,
+                                       reldyn,
+                                       pLinker.CreateRelocData(reldyn),
+                                       getRelEntrySize());
+    }
 }
 
 void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
@@ -218,18 +220,19 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // set .got size
   // when building shared object, the .got section is must.
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      m_pGOT->hasGOT1() ||
-      NULL != m_pGOTSymbol) {
-    m_pGOT->finalizeSectionSize();
-    defineGOTSymbol(pLinker);
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (LinkerConfig::DynObj == config().codeGenType() ||
+        m_pGOT->hasGOT1() ||
+        NULL != m_pGOTSymbol) {
+      m_pGOT->finalizeSectionSize();
+      defineGOTSymbol(pLinker);
+    }
+
+    // set .rel.dyn size
+    if (!m_pRelDyn->empty())
+      m_pRelDyn->finalizeSectionSize();
   }
-
-  // set .rel.dyn size
-  if (!m_pRelDyn->empty())
-    m_pRelDyn->finalizeSectionSize();
 }
-
 void MipsGNULDBackend::doPostLayout(Module& pModule,
                                     FragmentLinker& pLinker)
 {

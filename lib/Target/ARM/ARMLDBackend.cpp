@@ -108,31 +108,33 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
                                                  0x0,
                                                  0x1);
 
-  ELFFileFormat* file_format = getOutputFormat();
+  if (LinkerConfig::Object != config().codeGenType()) {
+    ELFFileFormat* file_format = getOutputFormat();
 
-  // initialize .got
-  LDSection& got = file_format->getGOT();
-  m_pGOT = new ARMGOT(got, pLinker.CreateOutputSectData(got));
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new ARMGOT(got, pLinker.CreateOutputSectData(got));
 
-  // initialize .plt
-  LDSection& plt = file_format->getPLT();
-  m_pPLT = new ARMPLT(plt, pLinker.CreateOutputSectData(plt), *m_pGOT);
+    // initialize .plt
+    LDSection& plt = file_format->getPLT();
+    m_pPLT = new ARMPLT(plt, pLinker.CreateOutputSectData(plt), *m_pGOT);
 
-  // initialize .rel.plt
-  LDSection& relplt = file_format->getRelPlt();
-  relplt.setLink(&plt);
-  // create SectionData and ARMRelDynSection
-  m_pRelPLT = new OutputRelocSection(pModule,
-                                     relplt,
-                                     pLinker.CreateRelocData(relplt),
-                                     getRelEntrySize());
+    // initialize .rel.plt
+    LDSection& relplt = file_format->getRelPlt();
+    relplt.setLink(&plt);
+    // create SectionData and ARMRelDynSection
+    m_pRelPLT = new OutputRelocSection(pModule,
+                                       relplt,
+                                       pLinker.CreateRelocData(relplt),
+                                       getRelEntrySize());
 
-  // initialize .rel.dyn
-  LDSection& reldyn = file_format->getRelDyn();
-  m_pRelDyn = new OutputRelocSection(pModule,
-                                     reldyn,
-                                     pLinker.CreateRelocData(reldyn),
-                                     getRelEntrySize());
+    // initialize .rel.dyn
+    LDSection& reldyn = file_format->getRelDyn();
+    m_pRelDyn = new OutputRelocSection(pModule,
+                                       reldyn,
+                                       pLinker.CreateRelocData(reldyn),
+                                       getRelEntrySize());
+  }
 }
 
 void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
@@ -187,24 +189,26 @@ void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // set .got size
   // when building shared object, the .got section is must
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      m_pGOT->hasGOT1() ||
-      NULL != m_pGOTSymbol) {
-    m_pGOT->finalizeSectionSize();
-    defineGOTSymbol(pLinker);
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (LinkerConfig::DynObj == config().codeGenType() ||
+        m_pGOT->hasGOT1() ||
+        NULL != m_pGOTSymbol) {
+      m_pGOT->finalizeSectionSize();
+      defineGOTSymbol(pLinker);
+    }
+
+    // set .plt size
+    if (m_pPLT->hasPLT1())
+      m_pPLT->finalizeSectionSize();
+
+    // set .rel.dyn size
+    if (!m_pRelDyn->empty())
+      m_pRelDyn->finalizeSectionSize();
+
+    // set .rel.plt size
+    if (!m_pRelPLT->empty())
+      m_pRelPLT->finalizeSectionSize();
   }
-
-  // set .plt size
-  if (m_pPLT->hasPLT1())
-    m_pPLT->finalizeSectionSize();
-
-  // set .rel.dyn size
-  if (!m_pRelDyn->empty())
-    m_pRelDyn->finalizeSectionSize();
-
-  // set .rel.plt size
-  if (!m_pRelPLT->empty())
-    m_pRelPLT->finalizeSectionSize();
 }
 
 void ARMGNULDBackend::doPostLayout(Module& pModule,
