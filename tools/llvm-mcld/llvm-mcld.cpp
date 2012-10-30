@@ -632,6 +632,19 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
       }
       break;
 
+      case mcld::CGFT_PARTIAL: {
+        if (Triple::Win32 == pOSType) {
+          if (0 == pInputFilename.native().compare("-"))
+            pOutputFilename.assign("_out");
+          else
+            pOutputFilename.assign(pInputFilename.stem().native());
+          pOutputFilename.native() += ".obj";
+        }
+        else
+          pOutputFilename.assign("a.out");
+      }
+      break;
+
       case mcld::CGFT_DSOFile: {
         if (Triple::Win32 == pOSType) {
           if (0 == pInputFilename.native().compare("-"))
