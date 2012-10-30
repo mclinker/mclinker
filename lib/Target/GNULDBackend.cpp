@@ -1931,11 +1931,9 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
         // move relocations from input's to output's RelcoationData
         RelocData::FragmentListType& out_list =
                                              out_reloc_data->getFragmentList();
-
         RelocData::FragmentListType& in_list =
                                       (*rs)->getRelocData()->getFragmentList();
-
-        out_list.splice(out_list.begin(), in_list);
+        out_list.splice(out_list.end(), in_list);
 
         // size output
         if (llvm::ELF::SHT_REL == output_sect->type())
