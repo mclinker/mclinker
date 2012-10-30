@@ -61,23 +61,15 @@ public:
   virtual Input::Type fileType(void* pELFHeader) const = 0;
 
   /// target - the target backend
-  GNULDBackend& target()
-  { return m_Backend; }
+  const GNULDBackend& target() const { return m_Backend; }
+  GNULDBackend&       target()       { return m_Backend; }
 
-  /// target - the target backend
-  const GNULDBackend& target() const
-  { return m_Backend; }
 
   /// readSectionHeaders - read ELF section header table and create LDSections
   virtual bool readSectionHeaders(Input& pInput, void* pELFHeader) const = 0;
 
   /// readRegularSection - read a regular section and create fragments.
   virtual bool readRegularSection(Input& pInput, SectionData& pSD) const = 0;
-
-  /// readTargetSection - read a target section and create fragments.
-  virtual bool readTargetSection(Input& pInput,
-                                 FragmentLinker& pLinker,
-                                 LDSection& pSectHdr) = 0;
 
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
@@ -188,11 +180,6 @@ public:
 
   /// readRegularSection - read a regular section and create fragments.
   bool readRegularSection(Input& pInput, SectionData& pSD) const;
-
-  /// readTargetSection - read a target section and create fragments.
-  inline bool readTargetSection(Input& pInput,
-                                FragmentLinker& pLinker,
-                                LDSection& pInputSectHdr);
 
   /// readSymbols - read ELF symbols and create LDSymbol
   inline bool readSymbols(Input& pInput,

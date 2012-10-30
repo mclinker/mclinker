@@ -198,8 +198,9 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** target dependent sections **/
       case LDFileFormat::Target: {
-        if (!m_pELFReader->readTargetSection(pInput, m_Linker, **section))
+        if (!m_Backend.readSection(pInput, m_Linker, **section)) {
           fatal(diag::err_cannot_read_target_section) << (*section)->name();
+        }
         break;
       }
       /** BSS sections **/

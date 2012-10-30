@@ -213,14 +213,6 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   return true;
 }
 
-/// readTargetSection - read a target section and create fragments.
-bool ELFReader<32, true>::readTargetSection(Input& pInput,
-                                            FragmentLinker& pLinker,
-                                            LDSection& pInputSectHdr)
-{
-  return target().readSection(pInput, pLinker, pInputSectHdr);
-}
-
 /// readSymbols - read ELF symbols and create LDSymbol
 bool ELFReader<32, true>::readSymbols(Input& pInput,
                                       FragmentLinker& pLinker,
