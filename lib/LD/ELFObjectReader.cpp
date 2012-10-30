@@ -275,9 +275,13 @@ bool ELFObjectReader::readRelocations(Input& pInput)
   MemoryArea* mem = pInput.memArea();
   LDContext::sect_iterator rs, rsEnd = pInput.context()->relocSectEnd();
   for (rs = pInput.context()->relocSectBegin(); rs != rsEnd; ++rs) {
+    if (LDFileFormat::Ignore == (*rs)->kind())
+      continue;
+
     uint32_t offset = pInput.fileOffset() + (*rs)->offset();
     uint32_t size = (*rs)->size();
     MemoryRegion* region = mem->request(offset, size);
+    RelocData* rd = ObjectBuilder::CreateRelocData(**rs);
     switch ((*rs)->type()) {
       case llvm::ELF::SHT_RELA: {
         if (!m_pELFReader->readRela(pInput, m_Linker, **rs, *region)) {
