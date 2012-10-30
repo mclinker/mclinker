@@ -54,7 +54,7 @@ public:
   virtual void initTargetSections(Module& pModule, FragmentLinker& pLinker) { }
   virtual void initTargetSymbols(FragmentLinker& pLinker) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
-  virtual bool initStandardSymbols(FragmentLinker& pLinker) = 0;
+  virtual bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule) = 0;
   virtual bool initRelocFactory(const FragmentLinker& pLinker) = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;

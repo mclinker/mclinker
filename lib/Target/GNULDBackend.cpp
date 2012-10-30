@@ -187,12 +187,64 @@ bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
   return true;
 }
 
+/// isCIdentifier - return if the pName is a valid C identifier
+bool GNULDBackend::isCIdentifier(const std::string& pName)
+{
+  std::string ident = "0123456789"
+                      "ABCDEFGHIJKLMNOPWRSTUVWXYZ"
+                      "abcdefghijklmnopqrstuvwxyz"
+                      "_";
+  return (pName.find_first_not_of(ident) > pName.length());
+}
+
 /// initStandardSymbols - define and initialize standard symbols.
 /// This function is called after section merging but before read relocations.
-bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker)
+bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
+                                       Module& pModule)
 {
   if (LinkerConfig::Object == config().codeGenType())
     return true;
+
+  // GNU extension: define __start and __stop symbols for the sections whose
+  // name can be presented as C symbol
+  // ref: GNU gold, Layout::define_section_symbols
+  Module::iterator iter, iterEnd = pModule.end();
+  for (iter = pModule.begin(); iter != iterEnd; ++iter) {
+    LDSection* section = *iter;
+    if (LDFileFormat::Relocation == section->kind())
+      continue;
+    if (!section->hasSectionData())
+      continue;
+    if (isCIdentifier(section->name())) {
+      llvm::StringRef start_name = llvm::StringRef("__start_" + section->name());
+      FragmentRef* start_fragref = FragmentRef::Create(
+                                       section->getSectionData()->front(), 0x0);
+      pLinker.defineSymbol<FragmentLinker::AsRefered,
+                           FragmentLinker::Resolve>(start_name,
+                                                    false, // isDyn
+                                                    ResolveInfo::NoType,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Global,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    start_fragref, // FragRef
+                                                    ResolveInfo::Default);
+
+      llvm::StringRef stop_name = llvm::StringRef("__stop_" + section->name());
+      FragmentRef* stop_fragref = FragmentRef::Create(
+                           section->getSectionData()->front(), section->size());
+      pLinker.defineSymbol<FragmentLinker::AsRefered,
+                           FragmentLinker::Resolve>(stop_name,
+                                                    false, // isDyn
+                                                    ResolveInfo::NoType,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Global,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    stop_fragref, // FragRef
+                                                    ResolveInfo::Default);
+    }
+  }
 
   ELFFileFormat* file_format = getOutputFormat();
 
