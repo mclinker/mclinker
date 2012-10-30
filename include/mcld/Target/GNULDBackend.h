@@ -93,7 +93,7 @@ public:
   /// to the begin of the .init_array section, then relocation enties to
   /// __init_array_begin can be applied without emission of "undefined
   /// reference to `__init_array_begin'".
-  bool initStandardSymbols(FragmentLinker& pLinker);
+  bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule);
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
@@ -419,6 +419,8 @@ private:
 
   /// getRelEntrySize - the size in BYTE of rela type relocation
   virtual size_t getRelaEntrySize() = 0;
+
+  bool isCIdentifier(const std::string& pName);
 
 protected:
   // Based on Kind in LDFileFormat to define basic section orders for ELF, and
