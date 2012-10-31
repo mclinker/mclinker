@@ -86,18 +86,15 @@ protected:
   void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
 
-  void emitRelocation(const Layout& pLayout,
-                      const LinkerConfig& pConfig,
+  void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
-  void emitRel(const Layout& pLayout,
-               const LinkerConfig& pConfig,
+  void emitRel(const LinkerConfig& pConfig,
                const RelocData& pRelocData,
                MemoryRegion& pRegion) const;
 
-  void emitRela(const Layout& pLayout,
-                const LinkerConfig& pConfig,
+  void emitRela(const LinkerConfig& pConfig,
                 const RelocData& pRelocData,
                 MemoryRegion& pRegion) const;
 

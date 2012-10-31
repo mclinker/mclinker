@@ -89,7 +89,7 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
         break;
       }
       case LDFileFormat::Relocation:
-        emitRelocation(m_Linker.getLayout(), m_Linker.getLDInfo(), **sect, *region);
+        emitRelocation(m_Linker.getLDInfo(), **sect, *region);
         break;
       case LDFileFormat::Target:
         target().emitSectionData(**sect, *region);

@@ -405,8 +405,7 @@ ELFWriter::emitSectionData(const LDSection& pSection,
 }
 
 /// emitRelocation
-void ELFWriter::emitRelocation(const Layout& pLayout,
-                               const LinkerConfig& pConfig,
+void ELFWriter::emitRelocation(const LinkerConfig& pConfig,
                                const LDSection& pSection,
                                MemoryRegion& pRegion) const
 {
@@ -414,17 +413,16 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
   assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
   if (pSection.type() == SHT_REL)
-    emitRel(pLayout, pConfig, *sect_data, pRegion);
+    emitRel(pConfig, *sect_data, pRegion);
   else if (pSection.type() == SHT_RELA)
-    emitRela(pLayout, pConfig, *sect_data, pRegion);
+    emitRela(pConfig, *sect_data, pRegion);
   else
     llvm::report_fatal_error("unsupported relocation section type!");
 }
 
 
 /// emitRel
-void ELFWriter::emitRel(const Layout& pLayout,
-                        const LinkerConfig& pConfig,
+void ELFWriter::emitRel(const LinkerConfig& pConfig,
                         const RelocData& pRelocData,
                         MemoryRegion& pRegion) const
 {
@@ -460,8 +458,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
 }
 
 /// emitRela
-void ELFWriter::emitRela(const Layout& pLayout,
-                         const LinkerConfig& pConfig,
+void ELFWriter::emitRela(const LinkerConfig& pConfig,
                          const RelocData& pRelocData,
                          MemoryRegion& pRegion) const
 {
