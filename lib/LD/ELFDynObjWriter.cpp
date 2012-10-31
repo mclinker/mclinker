@@ -124,7 +124,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF32ProgramHeader(pOutput);
@@ -136,7 +135,6 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF64ProgramHeader(pOutput);

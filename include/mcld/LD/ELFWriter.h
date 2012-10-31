@@ -19,7 +19,6 @@ namespace mcld {
 class Module;
 class FragmentLinker;
 class LinkerConfig;
-class Layout;
 class GNULDBackend;
 class Relocation;
 class LDSection;
@@ -54,17 +53,14 @@ public:
 
   virtual void writeELF32Header(const LinkerConfig& pConfig,
                                 const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput) const;
 
   virtual void writeELF64Header(const LinkerConfig& pConfig,
                                 const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput) const;
 
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
-                                 const Module& pModule,
-                                 const Layout& pLayout) const;
+                                 const Module& pModule) const;
 
 protected:
   void emitELF32SectionHeader(const Module& pModule,

@@ -25,7 +25,6 @@
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/RelocData.h>
@@ -39,7 +38,6 @@ using namespace mcld;
 /// writeELF32Header - write ELF header
 void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
                                  const Module& pModule,
-                                 const Layout& pLayout,
                                  MemoryArea& pOutput) const
 {
   // ELF header must start from 0x0
@@ -72,7 +70,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
   }
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
-  header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
+  header->e_entry     = getEntryPoint(pConfig, pModule);
 
   if (LinkerConfig::Object != pConfig.codeGenType())
     header->e_phoff   = sizeof(Elf32_Ehdr);
@@ -92,7 +90,6 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
 /// writeELF64Header - write ELF header
 void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
                                  const Module& pModule,
-                                 const Layout& pLayout,
                                  MemoryArea& pOutput) const
 {
   // ELF header must start from 0x0
@@ -125,7 +122,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
   }
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
-  header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
+  header->e_entry     = getEntryPoint(pConfig, pModule);
 
   if (LinkerConfig::Object != pConfig.codeGenType())
     header->e_phoff   = sizeof(Elf64_Ehdr);
@@ -144,8 +141,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
 
 /// getEntryPoint
 uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
-                                  const Module& pModule,
-                                  const Layout& pLayout) const
+                                  const Module& pModule) const
 {
 
   llvm::StringRef entry_name;

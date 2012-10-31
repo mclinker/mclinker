@@ -108,7 +108,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
@@ -118,7 +117,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
