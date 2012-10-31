@@ -33,9 +33,7 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
                                               MemoryArea& pOutput)
 {
   // Write out name pool sections: .symtab, .strtab
-  target().emitRegNamePools(pModule,
-                            m_Linker.getLayout(),
-                            pOutput);
+  target().emitRegNamePools(pModule, pOutput);
 
   // Write out regular ELF sections
   Module::iterator sect, sectEnd = pModule.end();

@@ -917,7 +917,6 @@ GNULDBackend::sizeNamePools(const Module& pModule)
 /// emitSymbol32 - emit an ELF32 symbol
 void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
                                 LDSymbol& pSymbol,
-                                const Layout& pLayout,
                                 char* pStrtab,
                                 size_t pStrtabsize,
                                 size_t pSymtabIdx)
@@ -935,13 +934,12 @@ void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
    pSym.st_other = pSymbol.visibility();
-   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+   pSym.st_shndx = getSymbolShndx(pSymbol);
 }
 
 /// emitSymbol64 - emit an ELF64 symbol
 void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
                                 LDSymbol& pSymbol,
-                                const Layout& pLayout,
                                 char* pStrtab,
                                 size_t pStrtabsize,
                                 size_t pSymtabIdx)
@@ -953,7 +951,7 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
    pSym.st_other = pSymbol.visibility();
-   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+   pSym.st_shndx = getSymbolShndx(pSymbol);
    // write out string
    strcpy((pStrtab + pStrtabsize), pSymbol.name());
 }
@@ -963,7 +961,6 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitRegNamePools(const Module& pModule,
-                                    const Layout& pLayout,
                                     MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
@@ -1029,11 +1026,11 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
     }
 
     if (32 == bitclass())
-      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
     else
-      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
 
     // sum up counters
     ++symtabIdx;
@@ -1047,7 +1044,6 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void GNULDBackend::emitDynNamePools(const Module& pModule,
-                                    const Layout& pLayout,
                                     MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
@@ -1118,11 +1114,11 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
       continue;
 
     if (32 == bitclass())
-      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
     else
-      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
 
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
@@ -1137,11 +1133,11 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     if (32 == bitclass())
-      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
     else
-      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
 
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
@@ -1159,11 +1155,11 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
       continue;
 
     if (32 == bitclass())
-      emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
     else
-      emitSymbol64(symtab64[symtabIdx], **symbol, pLayout, strtab, strtabsize,
-                     symtabIdx);
+      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                   symtabIdx);
 
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
@@ -1416,7 +1412,7 @@ uint64_t GNULDBackend::getSymbolValue(const LDSymbol& pSymbol) const
 
 /// getSymbolShndx - this function is called after layout()
 uint64_t
-GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const
+GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
 {
   if (pSymbol.resolveInfo()->isAbsolute())
     return llvm::ELF::SHN_ABS;

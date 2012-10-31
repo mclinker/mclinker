@@ -174,12 +174,10 @@ public:
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
   virtual void emitRegNamePools(const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   virtual void emitDynNamePools(const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
@@ -293,7 +291,7 @@ protected:
 
   uint64_t getSymbolValue(const LDSymbol& pSymbol) const;
 
-  uint64_t getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) const;
+  uint64_t getSymbolShndx(const LDSymbol& pSymbol) const;
 
   /// getHashBucketCount - calculate hash bucket count.
   /// @ref Google gold linker, dynobj.cc:791
@@ -316,7 +314,6 @@ protected:
   /// emitSymbol32 - emit an ELF32 symbol
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,
-                    const Layout& pLayout,
                     char* pStrtab,
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
@@ -324,7 +321,6 @@ protected:
   /// emitSymbol64 - emit an ELF64 symbol
   void emitSymbol64(llvm::ELF::Elf64_Sym& pSym64,
                     LDSymbol& pSymbol,
-                    const Layout& pLayout,
                     char* pStrtab,
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
