@@ -12,6 +12,7 @@
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/LDContext.h>
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>
@@ -219,8 +220,23 @@ bool ObjectLinker::linkable() const
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
-  // TODO: when FragmentLinker can read other object files, we have to merge
-  // sections
+  ObjectBuilder builder(m_Config, m_Module);
+  Module::obj_iterator obj, objEnd = m_Module.obj_end();
+  for (obj = m_Module.obj_begin(); obj != objEnd; ++obj) {
+    LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
+    for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
+      switch ((*sect)->kind()) {
+        case LDFileFormat::Relocation:
+          continue;
+        default: {
+          if (!builder.MergeSection(**sect))
+            error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                  << (*obj)->name();
+          return false;
+        }
+      } // end of switch
+    } // for each section
+  } // for each obj
   return true;
 }
 

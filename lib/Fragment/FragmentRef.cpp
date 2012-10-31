@@ -17,6 +17,7 @@
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Fragment/RegionFragment.h>
@@ -71,25 +72,27 @@ FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
 
 FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
 {
-  bool has_data = false;
+  SectionData* data = NULL;
   switch (pSection.kind()) {
     case LDFileFormat::Relocation:
       // No fragment reference refers to a relocation section
       break;
     case LDFileFormat::EhFrame:
-      has_data = pSection.hasEhFrame();
+      if (pSection.hasEhFrame())
+        data = &pSection.getEhFrame()->getSectionData();
       break;
     default:
-      has_data = pSection.hasSectionData();
+      data = pSection.getSectionData();
       break;
   }
 
-  if (!has_data || pSection.getSectionData()->empty()) {
+  if (NULL == data || data->empty()) {
     FragmentRef* result = g_FragRefFactory->allocate();
     new (result) FragmentRef();
     return result;
   }
-  return Create(pSection.getSectionData()->front(), pOffset);
+
+  return Create(data->front(), pOffset);
 }
 
 FragmentRef& FragmentRef::assign(const FragmentRef& pCopy)

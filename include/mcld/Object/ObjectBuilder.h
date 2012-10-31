@@ -56,6 +56,18 @@ public:
                            uint32_t pFlag,
                            uint32_t pAlign = 0x0);
 
+  /// MergeSection - merge the pInput section to mcld::Module.
+  /// This function moves all fragments in pInputSection to the corresponding
+  /// output section of mcld::Module. 
+  ///
+  /// @see SectionMap
+  /// @param [in] pInputSection The merged input section.
+  /// @return If the corresponding output sections is not defined, return false.
+  bool MergeSection(LDSection& pInputSection);
+
+  /// MoveSectionData - move the fragment of pFrom to pTo section data.
+  static bool MoveSectionData(SectionData& pFrom, SectionData& pTo);
+
   /// CreateSectionData - To create a section data for given pSection.
   /// @param [in, out] pSection The given input or output LDSection.
   ///         pSection.getSectionData() is set to a valid section data.
@@ -79,9 +91,6 @@ public:
   ///         or if the pSection's type is not LDFileFormat::EhFrame, then an
   ///         assertion occurs.
   static EhFrame* CreateEhFrame(LDSection& pSection);
-
-  /// MergeSection - merge the pInput section to the pOutput section.
-  static bool MergeSection(LDSection& pOutput, LDSection& pInput);
 
 /// @}
 /// @name Fragment Methods

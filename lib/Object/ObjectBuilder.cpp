@@ -46,6 +46,89 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
   return output_sect;
 }
 
+/// MergeSection - merge the pInput section to the pOutput section
+bool ObjectBuilder::MergeSection(LDSection& pInputSection)
+{
+  const SectionMap::NamePair& pair =
+              m_Config.scripts().sectionMap().find(pInputSection.name());
+  std::string output_name = (pair.isNull())?pInputSection.name():pair.to;
+  LDSection* target = m_Module.getSection(output_name);
+  if (NULL == target)
+    return false;
+
+  switch (target->kind()) {
+    case LDFileFormat::Null:
+    case LDFileFormat::Relocation:
+      /** do nothing **/
+      return true;
+    case LDFileFormat::EhFrame: {
+      EhFrame* eh_frame = NULL;
+      if (target->hasEhFrame())
+        eh_frame = target->getEhFrame();
+      else
+        eh_frame = CreateEhFrame(*target);
+
+      SectionData* data = &eh_frame->getSectionData();
+
+      return MoveSectionData(pInputSection.getEhFrame()->getSectionData(), *data);
+    }
+    default: {
+      SectionData* data = NULL;
+      if (target->hasSectionData())
+        data = target->getSectionData();
+      else
+        data = CreateSectionData(*target);
+
+      return MoveSectionData(*pInputSection.getSectionData(), *data);
+    }
+  }
+  return true;
+}
+
+/// MoveSectionData - move the fragments of pTO section data to pTo
+bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
+{
+  assert(&pFrom != &pTo && "Cannot move section data to itself!");
+
+  uint32_t offset = pTo.getSection().size();
+  AlignFragment* align = NULL;
+  if (pFrom.getSection().align() > 1) {
+    // if the align constraint is larger than 1, append an alignment
+    align = new AlignFragment(pFrom.getSection().align(), // alignment
+                              0x0, // the filled value
+                              1u,  // the size of filled value
+                              pFrom.getSection().align() - 1 // max bytes to emit
+                              );
+    align->setOffset(offset);
+    align->setParent(&pTo);
+    pTo.getFragmentList().push_back(align);
+    offset += align->size();
+  }
+
+  // move fragments from pFrom to pTO
+  SectionData::FragmentListType& from_list = pFrom.getFragmentList();
+  SectionData::FragmentListType& to_list = pTo.getFragmentList();
+  SectionData::FragmentListType::iterator frag, fragEnd = from_list.end();
+  for (frag = from_list.begin(); frag != fragEnd; ++frag) {
+    frag->setParent(&pTo);
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
+  to_list.splice(to_list.end(), from_list);
+
+  // append the null fragment
+  NullFragment* null = new NullFragment(&pTo);
+  null->setOffset(offset);
+  pTo.getFragmentList().push_back(null);
+
+  // set up pTo's header
+  pTo.getSection().setSize(offset);
+  if (pFrom.getSection().align() > pTo.getSection().align())
+    pTo.getSection().setAlign(pFrom.getSection().align());
+
+  return true;
+}
+
 /// CreateSectionData - To create a section data for given pSection.
 SectionData* ObjectBuilder::CreateSectionData(LDSection& pSection)
 {
@@ -74,12 +157,6 @@ EhFrame* ObjectBuilder::CreateEhFrame(LDSection& pSection)
   EhFrame* eh_frame = new EhFrame(pSection);
   pSection.setEhFrame(eh_frame);
   return eh_frame;
-}
-
-/// MergeSection - merge the pInput section to the pOutput section
-bool ObjectBuilder::MergeSection(LDSection& pOutput, LDSection& pInput)
-{
-  return true;
 }
 
 /// AppendFragment - To append pFrag to the given LDSection pSection.
