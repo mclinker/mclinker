@@ -111,7 +111,7 @@ public:
   virtual bool finalizeTargetSymbols(FragmentLinker& pLinker) = 0;
 
   /// finalizeTLSSymbol - set the value of a TLS symbol
-  virtual bool finalizeTLSSymbol(FragmentLinker& pLinker, LDSymbol& pSymbol);
+  virtual bool finalizeTLSSymbol(LDSymbol& pSymbol);
 
   size_t sectionStartOffset() const;
 

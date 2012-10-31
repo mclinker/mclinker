@@ -18,7 +18,6 @@
 
 namespace mcld {
 
-class Layout;
 class ResolveInfo;
 class RelocationFactory;
 class LinkerConfig;
@@ -54,7 +53,7 @@ public:
   { return m_Addend; }
 
   /// place - P value - address of the place being relocated
-  Address place(const Layout& pLayout) const;
+  Address place() const;
 
   /// symbol info - binding, type
   const ResolveInfo* symInfo() const { return m_pSymInfo; }

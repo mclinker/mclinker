@@ -71,18 +71,6 @@ public:
   /// @return if found, return the fragment. Otherwise, return NULL.
   FragmentRef* getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset);
 
-  /// getOutputLDSection - give a Fragment, return the corresponding output
-  /// LDSection*
-  ///
-  /// @return return NULL if the fragment is not found in the output
-  LDSection* getOutputLDSection(const Fragment& pFrag);
-
-  /// getOutputLDSection - give a Fragment, return the corresponding output
-  /// LDSection*
-  ///
-  /// @return return NULL if the fragment is not found in the output
-  const LDSection* getOutputLDSection(const Fragment& pFrag) const;
-
   // -----  modifiers  ----- //
   bool layout(Module& pModule,
               const TargetLDBackend& pBackend,

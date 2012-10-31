@@ -142,8 +142,7 @@ public:
 
   /// finalizeTLSSymbol - Linker asks backend to set the symbol value when it
   /// meets a TLS symbol
-  virtual bool finalizeTLSSymbol(FragmentLinker& pLinker,
-                                 LDSymbol& pSymbol) = 0;
+  virtual bool finalizeTLSSymbol(LDSymbol& pSymbol) = 0;
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.

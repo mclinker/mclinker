@@ -223,13 +223,10 @@ MipsRelocationFactory::Result abs32(Relocation& pReloc,
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                 *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.target() = S + A;
     return MipsRelocationFactory::OK;
   }
@@ -261,7 +258,7 @@ MipsRelocationFactory::Result hi16(Relocation& pReloc,
   pParent.setAHL(AHL);
 
   if (helper_isGpDisp(pReloc)) {
-    int32_t P = pReloc.place(pParent.getFragmentLinker().getLayout());
+    int32_t P = pReloc.place();
     int32_t GP = helper_GetGP(pParent);
     res = ((AHL + GP - P) - (int16_t)(AHL + GP - P)) >> 16;
   }
@@ -286,7 +283,7 @@ MipsRelocationFactory::Result lo16(Relocation& pReloc,
   int32_t res = 0;
 
   if (helper_isGpDisp(pReloc)) {
-    int32_t P = pReloc.place(pParent.getFragmentLinker().getLayout());
+    int32_t P = pReloc.place();
     int32_t GP = helper_GetGP(pParent);
     int32_t AHL = pParent.getAHL();
     res = AHL + GP - P + 4;

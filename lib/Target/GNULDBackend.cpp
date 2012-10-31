@@ -664,8 +664,7 @@ GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
   return true;
 }
 
-bool GNULDBackend::finalizeTLSSymbol(FragmentLinker& pLinker,
-                                     LDSymbol& pSymbol)
+bool GNULDBackend::finalizeTLSSymbol(LDSymbol& pSymbol)
 {
   // ignore if symbol has no fragRef
   if (!pSymbol.hasFragRef())
@@ -675,8 +674,7 @@ bool GNULDBackend::finalizeTLSSymbol(FragmentLinker& pLinker,
   ELFSegment* tls_seg = m_ELFSegmentTable.find(llvm::ELF::PT_TLS,
                                                llvm::ELF::PF_R, 0x0);
   uint64_t value = pSymbol.fragRef()->getOutputOffset();
-  uint64_t addr  =
-    pLinker.getLayout().getOutputLDSection(*pSymbol.fragRef()->frag())->addr();
+  uint64_t addr  = pSymbol.fragRef()->frag()->getParent()->getSection().addr();
   pSymbol.setValue(value + addr - tls_seg->vaddr());
   return true;
 }
@@ -1439,7 +1437,7 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol, const Layout& pLayout) con
     return llvm::ELF::SHN_ABS;
 
   assert(pSymbol.hasFragRef() && "symbols must have fragment reference to get its index");
-  return pLayout.getOutputLDSection(*pSymbol.fragRef()->frag())->index();
+  return pSymbol.fragRef()->frag()->getParent()->getSection().index();
 }
 
 /// getSymbolIdx - called by emitRelocation to get the ouput symbol table index
@@ -2219,8 +2217,8 @@ bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
 
   // TODO: Is this check necessary?
   // if relocation target place is readonly, a copy relocation is needed
-  if ((pLinker.getLayout().getOutputLDSection(*pReloc.targetRef().frag())->flag() &
-      llvm::ELF::SHF_WRITE) == 0)
+  uint32_t flag = pReloc.targetRef().frag()->getParent()->getSection().flag();
+  if (0 == (flag & llvm::ELF::SHF_WRITE))
     return true;
 
   return false;

@@ -8,9 +8,10 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/LD/RelocationFactory.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
@@ -33,9 +34,9 @@ Relocation::~Relocation()
 {
 }
 
-Relocation::Address Relocation::place(const Layout& pLayout) const
+Relocation::Address Relocation::place() const
 {
-  Address sect_addr = pLayout.getOutputLDSection(*(m_TargetAddress.frag()))->addr();
+  Address sect_addr = m_TargetAddress.frag()->getParent()->getSection().addr();
   return sect_addr + m_TargetAddress.getOutputOffset();
 }
 

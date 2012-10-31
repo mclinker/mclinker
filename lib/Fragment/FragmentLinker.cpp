@@ -415,7 +415,7 @@ bool FragmentLinker::finalizeSymbols()
     }
 
     if ((*symbol)->resolveInfo()->type() == ResolveInfo::ThreadLocal) {
-      m_Backend.finalizeTLSSymbol(*this, **symbol);
+      m_Backend.finalizeTLSSymbol(**symbol);
       continue;
     }
 
@@ -425,7 +425,7 @@ bool FragmentLinker::finalizeSymbols()
       // And the symbol's value become section relative offset.
       uint64_t value = (*symbol)->fragRef()->getOutputOffset();
       assert(NULL != (*symbol)->fragRef()->frag());
-      uint64_t addr  = getLayout().getOutputLDSection(*(*symbol)->fragRef()->frag())->addr();
+      uint64_t addr = (*symbol)->fragRef()->frag()->getParent()->getSection().addr();
       (*symbol)->setValue(value + addr);
       continue;
     }
@@ -695,9 +695,8 @@ void FragmentLinker::partialSyncRelocationResult(MemoryArea& pOutput)
 void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 {
   // get output file offset
-  size_t out_offset =
-            m_Layout.getOutputLDSection(*pReloc.targetRef().frag())->offset() +
-            pReloc.targetRef().getOutputOffset();
+  size_t out_offset = pReloc.targetRef().frag()->getParent()->getSection().offset() +
+                      pReloc.targetRef().getOutputOffset();
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
