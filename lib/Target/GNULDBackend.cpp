@@ -773,17 +773,17 @@ void GNULDBackend::partialScanRelocation(Relocation& pReloc,
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
 void
-GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
+GNULDBackend::sizeNamePools(const Module& pModule)
 {
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
   size_t symtab = 1;
-  size_t dynsym = pIsStaticLink ? 0 : 1;
+  size_t dynsym = 1;
 
   // size of string tables starts from 1 to hold the null character in their
   // first byte
   size_t strtab = 1;
-  size_t dynstr = pIsStaticLink ? 0 : 1;
+  size_t dynstr = 1;
   size_t shstrtab = 1;
   size_t hash   = 0;
 
@@ -796,7 +796,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   Module::const_sym_iterator symEnd = symbols.localEnd();
   for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
+    if (isDynamicSymbol(**symbol)) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type())
         dynstr += str_size;
@@ -809,11 +809,9 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink) {
-      ++dynsym;
-      if (ResolveInfo::Section != (*symbol)->type())
-        dynstr += str_size;
-    }
+    ++dynsym;
+    if (ResolveInfo::Section != (*symbol)->type())
+      dynstr += str_size;
     ++symtab;
     if (ResolveInfo::Section != (*symbol)->type())
       strtab += str_size;
@@ -822,7 +820,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   symEnd = pModule.sym_end();
   for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
+    if (isDynamicSymbol(**symbol)) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type())
         dynstr += str_size;
@@ -838,8 +836,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     // compute size of .dynstr and .hash
     case LinkerConfig::DynObj: {
       // soname
-      if (!pIsStaticLink)
-        dynstr += pModule.name().size() + 1;
+      dynstr += pModule.name().size() + 1;
     }
     /** fall through **/
     case LinkerConfig::Exec: {
@@ -848,29 +845,27 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       //   1. ignore --no-add-needed
       //   2. force count in --no-as-needed
       //   3. judge --as-needed
-      if (!pIsStaticLink) {
-        Module::const_lib_iterator lib, libEnd = pModule.lib_end();
-        for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-          // --add-needed
-          if ((*lib)->attribute()->isAddNeeded()) {
-            // --no-as-needed
-            if (!(*lib)->attribute()->isAsNeeded()) {
-              dynstr += (*lib)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
-            // --as-needed
-            else if ((*lib)->isNeeded()) {
-              dynstr += (*lib)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
+      Module::const_lib_iterator lib, libEnd = pModule.lib_end();
+      for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
+        // --add-needed
+        if ((*lib)->attribute()->isAddNeeded()) {
+          // --no-as-needed
+          if (!(*lib)->attribute()->isAsNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
+          }
+          // --as-needed
+          else if ((*lib)->isNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
           }
         }
-
-        // compute .hash
-        // Both Elf32_Word and Elf64_Word are 4 bytes
-        hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
-               sizeof(llvm::ELF::Elf32_Word);
       }
+
+      // compute .hash
+      // Both Elf32_Word and Elf64_Word are 4 bytes
+      hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
+             sizeof(llvm::ELF::Elf32_Word);
 
       // set size
       if (32 == bitclass())
@@ -900,8 +895,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries until we get the size of the sections mentioned above
-    if (!pIsStaticLink)
-      dynamic().reserveEntries(config(), *file_format);
+    dynamic().reserveEntries(config(), *file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
   /// @}
@@ -1053,11 +1047,6 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
                                     MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
-  if (!file_format->hasDynSymTab() ||
-      !file_format->hasDynStrTab() ||
-      !file_format->hasHashTab()   ||
-      !file_format->hasDynamic())
-    return;
 
   bool sym_exist = false;
   HashTableType::entry_type* entry = 0;

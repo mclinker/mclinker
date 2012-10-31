@@ -110,7 +110,7 @@ public:
   uint64_t emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const;
 
-  void sizeNamePools(const Module& pModule, bool pIsStaticLink);
+  void sizeNamePools(const Module& pModule);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
   void emitDynNamePools(const Module& pModule, MemoryArea& pOut);
