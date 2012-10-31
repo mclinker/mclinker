@@ -9,7 +9,6 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/Support/MemoryRegion.h>
 
 using namespace mcld;

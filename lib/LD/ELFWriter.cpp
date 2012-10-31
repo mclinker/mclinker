@@ -25,6 +25,7 @@
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/RelocData.h>

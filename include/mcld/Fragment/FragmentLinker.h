@@ -19,9 +19,9 @@
 
 #include <string>
 
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/MC/MCLDInput.h>
 
@@ -226,7 +226,6 @@ private:
   const LinkerConfig& m_Config;
   Module& m_Module;
   TargetLDBackend& m_Backend;
-  Layout m_Layout;
 };
 
 #include "FragmentLinker.tcc"

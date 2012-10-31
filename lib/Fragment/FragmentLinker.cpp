@@ -20,6 +20,7 @@
 #include <mcld/Module.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/Layout.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
@@ -456,7 +457,8 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 //===----------------------------------------------------------------------===//
 bool FragmentLinker::layout()
 {
-  return m_Layout.layout(m_Module, m_Backend, m_Config);
+  Layout layout;
+  return layout.layout(m_Module, m_Backend, m_Config);
 }
 
 //===----------------------------------------------------------------------===//

@@ -15,7 +15,6 @@
 #include <llvm/Support/ManagedStatic.h>
 
 #include <mcld/Fragment/Fragment.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/GCFactory.h>

@@ -11,6 +11,7 @@
 #include <mcld/Module.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/Archive.h>
 #include <mcld/LD/ArchiveReader.h>
 #include <mcld/LD/ObjectReader.h>

@@ -6,89 +6,21 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/Layout.h>
-
-#include <cassert>
-
-#include <llvm/ADT/Twine.h>
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/ADT/SizeTraits.h>
-#include <mcld/LD/LDContext.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/Fragment/AlignFragment.h>
-#include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/Fragment/NullFragment.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// Range
-//===----------------------------------------------------------------------===//
-Layout::Range::Range()
-  : header(NULL),
-    prevRear(NULL) {
-}
-
-Layout::Range::Range(const LDSection& pHdr)
-  : header(const_cast<LDSection*>(&pHdr)),
-    prevRear(NULL) {
-}
-
-Layout::Range::~Range()
-{
-}
-
-//===----------------------------------------------------------------------===//
 // Layout
 //===----------------------------------------------------------------------===//
-Layout::Layout()
-{
-}
-
-Layout::~Layout()
-{
-}
-
-/// addInputRange
-///   1. add a new range <pInputHdr, previous rear fragment>
-///   2. compute the layout order of all previous ranges.
-///   2. compute the layout offset of all previous ranges.
-void Layout::addInputRange(const SectionData& pSD,
-                           const LDSection& pInputHdr)
-{
-  RangeList* range_list = NULL;
-
-  // get or create the range_list
-  if (pSD.getFragmentList().empty() || 0 == m_SDRangeMap.count(&pSD)) {
-    range_list = new RangeList();
-    m_SDRangeMap[&pSD] = range_list;
-  }
-  else {
-    range_list = m_SDRangeMap[&pSD];
-  }
-
-  // make a range and push it into the range list
-  Range* range = new Range(pInputHdr);
-  range_list->push_back(range);
-
-  // set up previous rear of the range.
-  // FIXME: in current design, we can not add a range before finishing adding
-  // fragments in the previous range. If the limitation keeps, we can set
-  // prevRear to the last fragment in the SectionData simply.
-  //
-  // if the pSD's fragment list is empty, the range.prevRear keeps NULL.
-  if (!pSD.getFragmentList().empty()) {
-    range->prevRear =
-                  const_cast<Fragment*>(&pSD.getFragmentList().back());
-  }
-}
-
 void Layout::sortSectionOrder(const TargetLDBackend& pBackend,
                               const LinkerConfig& pConfig)
 {

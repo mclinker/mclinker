@@ -6,9 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/Fragment/Fragment.h>
 
 using namespace mcld;
