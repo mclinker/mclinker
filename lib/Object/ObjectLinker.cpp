@@ -370,7 +370,7 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_Module);
+  m_LDBackend.sizeNamePools(m_Module, m_pLinker->isStaticLink());
 
   return true;
 }
