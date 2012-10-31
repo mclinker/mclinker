@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "Mips.h"
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
@@ -36,8 +35,23 @@ enum {
   E_MIPS_ABI_EABI64 = 0x00004000
 };
 
-namespace mcld {
+using namespace mcld;
 
+//===----------------------------------------------------------------------===//
+// Helper Functions
+//===----------------------------------------------------------------------===//
+static inline void update_addend(Relocation& pReloc, const LDSymbol& pInputSym)
+{
+  // Update value keep in addend if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.setAddend(offset + pReloc.addend());
+  }
+}
+
+//===----------------------------------------------------------------------===//
+// MipsGNULDBackend
+//===----------------------------------------------------------------------===//
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
   : GNULDBackend(pConfig),
     m_pRelocFactory(NULL),
@@ -142,7 +156,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
       return;
   }
 
-  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+  update_addend(pReloc, pInputSym);
 
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
@@ -800,17 +814,6 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
   return true;
 }
 
-void MipsGNULDBackend::updateAddend(Relocation& pReloc,
-                                   const LDSymbol& pInputSym,
-                                   const Layout& pLayout) const
-{
-  // Update value keep in addend if we meet a section symbol
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
-    pReloc.setAddend(offset + pReloc.addend());
-  }
-}
-
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                       FragmentLinker& pLinker)
 {
@@ -1050,14 +1053,12 @@ static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
   return new MipsGNULDBackend(pConfig);
 }
 
-} // namespace of mcld
-
 //===----------------------------------------------------------------------===//
 // Force static initialization.
 //===----------------------------------------------------------------------===//
 extern "C" void LLVMInitializeMipsLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMipselTarget,
-                                                mcld::createMipsLDBackend);
+                                                createMipsLDBackend);
 }
 

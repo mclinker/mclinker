@@ -203,10 +203,6 @@ private:
   LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
 
-  void updateAddend(Relocation& pReloc,
-                    const LDSymbol& pInputSym,
-                    const Layout& pLayout) const;
-
   void defineGOTSymbol(FragmentLinker& pLinker);
 
   /// getRelEntrySize - the size in BYTE of rel type relocation

@@ -143,14 +143,6 @@ private:
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 
-  /// updateAddend - update addend value of the relocation if the
-  /// the target symbol is a section symbol. Addend is the offset
-  /// in the section. This value should be updated after section
-  /// merged.
-  void updateAddend(Relocation& pReloc,
-                    const LDSymbol& pInputSym,
-                    const Layout& pLayout) const;
-
   /// emitSymbol32 - emit an ELF32 symbol, override parent's function
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,
