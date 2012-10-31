@@ -76,7 +76,6 @@ void MipsGNULDBackend::initTargetSections(Module& pModule,
     LDSection& reldyn = file_format->getRelDyn();
     m_pRelDyn = new OutputRelocSection(pModule,
                                        reldyn,
-                                       *ObjectBuilder::CreateRelocData(reldyn),
                                        getRelEntrySize());
   }
 }

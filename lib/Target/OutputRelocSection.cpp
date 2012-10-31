@@ -14,6 +14,7 @@
 #include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace mcld;
 
@@ -22,14 +23,15 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 OutputRelocSection::OutputRelocSection(Module& pModule,
                                        LDSection& pSection,
-                                       RelocData& pRelocData,
                                        unsigned int pEntrySize)
   : m_Module(pModule),
     m_pSection(&pSection),
-    m_pRelocData(&pRelocData),
+    m_pRelocData(NULL),
     m_EntryBytes(pEntrySize),
     m_isVisit(false),
     m_ValidEntryIterator(){
+  assert(!pSection.hasRelocData() && "Given section is not a relocation section");
+  m_pRelocData = ObjectBuilder::CreateRelocData(pSection);
 }
 
 OutputRelocSection::~OutputRelocSection()

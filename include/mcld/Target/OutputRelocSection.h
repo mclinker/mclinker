@@ -30,7 +30,6 @@ class OutputRelocSection
 public:
   OutputRelocSection(Module& pModule,
                      LDSection& pSection,
-                     RelocData& pRelocData,
                      unsigned int pEntrySize);
 
   ~OutputRelocSection();
