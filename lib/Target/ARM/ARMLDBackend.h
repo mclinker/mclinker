@@ -164,11 +164,9 @@ public:
   ///
   /// @param pSection - the given LDSection
   /// @param pConfig - all options in the command line.
-  /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const LDSection& pSection,
-                           const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
   ARMGOT& getGOT();
@@ -213,14 +211,6 @@ private:
   /// @return the output LDSymbol of the copy symbol
   LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
-
-  /// updateAddend - update addend value of the relocation if the
-  /// the target symbol is a section symbol. Addend is the offset
-  /// in the section. This value should be updated after section
-  /// merged.
-  void updateAddend(Relocation& pReloc,
-                    const LDSymbol& pInputSym,
-                    const Layout& pLayout) const;
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 

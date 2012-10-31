@@ -85,16 +85,14 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
       case LDFileFormat::EhFrame: {
         // FIXME: if optimization of exception handling sections is enabled,
         // then we should emit these sections by the other way.
-        emitSectionData(m_Linker.getLayout(), **sect, *region);
+        emitSectionData(**sect, *region);
         break;
       }
       case LDFileFormat::Relocation:
-        emitRelocation(m_Linker.getLayout(), m_Linker.getLDInfo(), **sect, *region);
+        emitRelocation(m_Linker.getLDInfo(), **sect, *region);
         break;
       case LDFileFormat::Target:
-        target().emitSectionData(**sect,
-                                 m_Linker.getLayout(),
-                                 *region);
+        target().emitSectionData(**sect, *region);
         break;
       default:
         continue;
@@ -110,7 +108,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
@@ -120,7 +117,6 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),
                      pModule,
-                     m_Linker.getLayout(),
                      pOutput);
 
     emitELF64SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);

@@ -25,7 +25,6 @@
 #include <mcld/LD/ELFWriter.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/RelocData.h>
@@ -39,7 +38,6 @@ using namespace mcld;
 /// writeELF32Header - write ELF header
 void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
                                  const Module& pModule,
-                                 const Layout& pLayout,
                                  MemoryArea& pOutput) const
 {
   // ELF header must start from 0x0
@@ -72,7 +70,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
   }
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
-  header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
+  header->e_entry     = getEntryPoint(pConfig, pModule);
 
   if (LinkerConfig::Object != pConfig.codeGenType())
     header->e_phoff   = sizeof(Elf32_Ehdr);
@@ -92,7 +90,6 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
 /// writeELF64Header - write ELF header
 void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
                                  const Module& pModule,
-                                 const Layout& pLayout,
                                  MemoryArea& pOutput) const
 {
   // ELF header must start from 0x0
@@ -125,7 +122,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
   }
   header->e_machine   = target().machine();
   header->e_version   = header->e_ident[EI_VERSION];
-  header->e_entry     = getEntryPoint(pConfig, pModule, pLayout);
+  header->e_entry     = getEntryPoint(pConfig, pModule);
 
   if (LinkerConfig::Object != pConfig.codeGenType())
     header->e_phoff   = sizeof(Elf64_Ehdr);
@@ -144,8 +141,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
 
 /// getEntryPoint
 uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
-                                  const Module& pModule,
-                                  const Layout& pLayout) const
+                                  const Module& pModule) const
 {
 
   llvm::StringRef entry_name;
@@ -332,8 +328,7 @@ ELFWriter::emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
 
 /// emitSectionData
 void
-ELFWriter::emitSectionData(const Layout& pLayout,
-                           const LDSection& pSection,
+ELFWriter::emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const
 {
   const SectionData* data = pSection.getSectionData();
@@ -406,8 +401,7 @@ ELFWriter::emitSectionData(const Layout& pLayout,
 }
 
 /// emitRelocation
-void ELFWriter::emitRelocation(const Layout& pLayout,
-                               const LinkerConfig& pConfig,
+void ELFWriter::emitRelocation(const LinkerConfig& pConfig,
                                const LDSection& pSection,
                                MemoryRegion& pRegion) const
 {
@@ -415,17 +409,16 @@ void ELFWriter::emitRelocation(const Layout& pLayout,
   assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
   if (pSection.type() == SHT_REL)
-    emitRel(pLayout, pConfig, *sect_data, pRegion);
+    emitRel(pConfig, *sect_data, pRegion);
   else if (pSection.type() == SHT_RELA)
-    emitRela(pLayout, pConfig, *sect_data, pRegion);
+    emitRela(pConfig, *sect_data, pRegion);
   else
     llvm::report_fatal_error("unsupported relocation section type!");
 }
 
 
 /// emitRel
-void ELFWriter::emitRel(const Layout& pLayout,
-                        const LinkerConfig& pConfig,
+void ELFWriter::emitRel(const LinkerConfig& pConfig,
                         const RelocData& pRelocData,
                         MemoryRegion& pRegion) const
 {
@@ -461,8 +454,7 @@ void ELFWriter::emitRel(const Layout& pLayout,
 }
 
 /// emitRela
-void ELFWriter::emitRela(const Layout& pLayout,
-                         const LinkerConfig& pConfig,
+void ELFWriter::emitRela(const LinkerConfig& pConfig,
                          const RelocData& pRelocData,
                          MemoryRegion& pRegion) const
 {

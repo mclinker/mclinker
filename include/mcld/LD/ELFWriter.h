@@ -19,7 +19,6 @@ namespace mcld {
 class Module;
 class FragmentLinker;
 class LinkerConfig;
-class Layout;
 class GNULDBackend;
 class Relocation;
 class LDSection;
@@ -54,17 +53,14 @@ public:
 
   virtual void writeELF32Header(const LinkerConfig& pConfig,
                                 const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput) const;
 
   virtual void writeELF64Header(const LinkerConfig& pConfig,
                                 const Module& pModule,
-                                const Layout& pLayout,
                                 MemoryArea& pOutput) const;
 
   virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
-                                 const Module& pModule,
-                                 const Layout& pLayout) const;
+                                 const Module& pModule) const;
 
 protected:
   void emitELF32SectionHeader(const Module& pModule,
@@ -83,22 +79,18 @@ protected:
   void emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
                        MemoryArea& pOutput);
 
-  void emitSectionData(const Layout& pLayout,
-                       const LDSection& pSection,
+  void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
 
-  void emitRelocation(const Layout& pLayout,
-                      const LinkerConfig& pConfig,
+  void emitRelocation(const LinkerConfig& pConfig,
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
-  void emitRel(const Layout& pLayout,
-               const LinkerConfig& pConfig,
+  void emitRel(const LinkerConfig& pConfig,
                const RelocData& pRelocData,
                MemoryRegion& pRegion) const;
 
-  void emitRela(const Layout& pLayout,
-                const LinkerConfig& pConfig,
+  void emitRela(const LinkerConfig& pConfig,
                 const RelocData& pRelocData,
                 MemoryRegion& pRegion) const;
 

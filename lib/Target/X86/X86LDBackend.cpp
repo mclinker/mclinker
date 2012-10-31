@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include "X86.h"
 #include "X86ELFDynamic.h"
 #include "X86LDBackend.h"
@@ -28,6 +27,21 @@
 
 using namespace mcld;
 
+//===----------------------------------------------------------------------===//
+// Helper Functions
+//===----------------------------------------------------------------------===//
+static inline void update_addend(Relocation& pReloc, const LDSymbol& pInputSym)
+{
+  // Update value keep in addend if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.setAddend(offset + pReloc.addend());
+  }
+}
+
+//===----------------------------------------------------------------------===//
+// X86GNULDBackend
+//===----------------------------------------------------------------------===//
 X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
   : GNULDBackend(pConfig),
     m_pRelocFactory(NULL),
@@ -218,17 +232,6 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                       (ResolveInfo::Visibility)pSym.other());
 
   return *cpy_sym;
-}
-
-void X86GNULDBackend::updateAddend(Relocation& pReloc,
-                                   const LDSymbol& pInputSym,
-                                   const Layout& pLayout) const
-{
-  // Update value keep in addend if we meet a section symbol
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
-    pReloc.setAddend(offset + pReloc.addend());
-  }
 }
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
@@ -578,7 +581,7 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   assert(NULL != rsym &&
          "ResolveInfo of relocation not set while scanRelocation");
 
-  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+  update_addend(pReloc, pInputSym);
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
 
@@ -604,7 +607,6 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
 }
 
 uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
-                                          const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");

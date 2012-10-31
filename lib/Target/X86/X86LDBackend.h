@@ -128,7 +128,6 @@ public:
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const LDSection& pSection,
-                           const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
   /// OSABI - the value of e_ident[EI_OSABI]
@@ -202,10 +201,6 @@ private:
   /// @return the output LDSymbol of the copy symbol
   LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
-
-  void updateAddend(Relocation& pReloc,
-                    const LDSymbol& pInputSym,
-                    const Layout& pLayout) const;
 
   void defineGOTSymbol(FragmentLinker& pLinker);
 

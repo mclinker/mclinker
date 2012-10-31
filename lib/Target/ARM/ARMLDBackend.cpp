@@ -39,6 +39,18 @@
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
+// Helper Functions
+//===----------------------------------------------------------------------===//
+static inline void update_addend(Relocation& pReloc, const LDSymbol& pInputSym)
+{
+  // Update value keep in addend if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    pReloc.setAddend(offset + pReloc.addend());
+  }
+}
+
+//===----------------------------------------------------------------------===//
 // ARMGNULDBackend
 //===----------------------------------------------------------------------===//
 ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
@@ -377,22 +389,6 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
   }
 }
 
-void ARMGNULDBackend::updateAddend(Relocation& pReloc,
-                                   const LDSymbol& pInputSym,
-                                   const Layout& pLayout) const
-{
-  // Update value keep in addend if we meet a section symbol
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
-    // FIXME: original code is here. fragRef()->getOutputOffset() does not
-    //        calculate FragmentLayoutOffset and FragmentLayoutOrder. I'm not
-    //        sure if we need to calculate offset and layout order here. (Luba)
-    //
-    // uint64_t offset = pLayout.getOutputOffset(*pInputSym.fragRef());
-    pReloc.setAddend(offset + pReloc.addend());
-  }
-}
-
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      FragmentLinker& pLinker)
 {
@@ -713,7 +709,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
-  updateAddend(pReloc, pInputSym, pLinker.getLayout());
+  update_addend(pReloc, pInputSym);
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
 
@@ -744,7 +740,6 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 }
 
 uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
-                                          const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
