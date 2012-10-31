@@ -25,9 +25,3 @@ LDFileFormat::~LDFileFormat()
 {
 }
 
-void LDFileFormat::initStdSections(FragmentLinker& pLinker)
-{
-  initObjectFormat(pLinker);
-  initObjectType(pLinker);
-}
-

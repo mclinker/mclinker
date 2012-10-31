@@ -14,11 +14,9 @@
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/LDSection.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class GNULDBackend;
-class FragmentLinker;
+class ObjectBuilder;
 
 /** \class ELFFileFormat
  *  \brief ELFFileFormat describes the common file formats in ELF.
@@ -32,14 +30,16 @@ class FragmentLinker;
  */
 class ELFFileFormat : public LDFileFormat
 {
+private:
+  /// initObjectFormat - initialize sections that are dependent on object
+  /// formats. (executable, shared objects or relocatable objects).
+  virtual void
+  initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass) = 0;
+
 public:
-  ELFFileFormat(GNULDBackend& pBackend);
+  ELFFileFormat();
 
-  virtual ~ELFFileFormat();
-
-  virtual void initObjectFormat(FragmentLinker& pLinker);
-
-  virtual void initObjectType(FragmentLinker& pLinker) = 0;
+  void initStdSections(ObjectBuilder& pBuilder, unsigned int pBitClass);
 
   // -----  capacity  ----- //
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
@@ -635,8 +635,6 @@ public:
   }
 
 protected:
-  GNULDBackend& f_Backend;
-
   //         variable name         :  ELF
   /// @ref Special Sections, Ch. 4.17, System V ABI, 4th edition.
   LDSection* f_pNULLSection;

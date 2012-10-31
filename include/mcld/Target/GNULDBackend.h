@@ -64,13 +64,13 @@ public:
 
   // -----  output sections  ----- //
   /// initExecSections - initialize sections of the output executable file.
-  bool initExecSections(FragmentLinker& pLinker);
+  bool initExecSections(ObjectBuilder& pBuilder);
 
   /// initDynObjSections - initialize sections of the output shared object.
-  bool initDynObjSections(FragmentLinker& pLinker);
+  bool initDynObjSections(ObjectBuilder& pBuilder);
 
   /// initObjectSections - initialize sections of the output relocatable.
-  bool initObjectSections(FragmentLinker& pLinker);
+  bool initObjectSections(ObjectBuilder& pBuilder);
 
   /// getOutputFormat - get the sections of the output file.
   const ELFFileFormat* getOutputFormat() const;

@@ -35,6 +35,7 @@ class MemoryArea;
 class MemoryAreaFactory;
 class BranchIslandFactory;
 class StubFactory;
+class ObjectBuilder;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
@@ -93,9 +94,9 @@ public:
   virtual DynObjWriter*  createDynObjWriter(FragmentLinker&) = 0;
   virtual ExecWriter*    createExecWriter(FragmentLinker&) = 0;
 
-  virtual bool initExecSections(FragmentLinker&) = 0;
-  virtual bool initDynObjSections(FragmentLinker&) = 0;
-  virtual bool initObjectSections(FragmentLinker&) = 0;
+  virtual bool initExecSections(ObjectBuilder& pBuilder) = 0;
+  virtual bool initDynObjSections(ObjectBuilder& pBuilder) = 0;
+  virtual bool initObjectSections(ObjectBuilder& pBuilder) = 0;
 
   virtual LDFileFormat* getDynObjFileFormat() = 0;
   virtual LDFileFormat* getExecFileFormat() = 0;

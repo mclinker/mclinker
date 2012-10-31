@@ -13,23 +13,18 @@
 #endif
 #include <mcld/LD/ELFFileFormat.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class GNULDBackend;
-class FragmentLinker;
+class ObjectBuilder;
 
 /** \class ELFDynObjFileFormat
  *  \brief ELFDynObjFileFormat describes the format for ELF dynamic objects.
  */
 class ELFDynObjFileFormat : public ELFFileFormat
 {
-public:
-  ELFDynObjFileFormat(GNULDBackend& pBackend) : ELFFileFormat(pBackend)
-  {}
-
-  void initObjectType(FragmentLinker& pLinker);
-
+  /// initObjectFormat - initialize sections that are dependent on shared
+  /// objects.
+  void initObjectFormat(ObjectBuilder& pBuilder, unsigned int pBitClass);
 };
 
 } // namespace of mcld

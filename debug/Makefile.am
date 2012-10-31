@@ -293,7 +293,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ELFExecFileFormat.h \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
 	${INCDIR}/LD/ELFObjectFileFormat.h \
-	${LIBDIR}/LD/ELFObjectFileFormat.cpp \
 	${INCDIR}/LD/SectionRules.h \
 	${LIBDIR}/LD/SectionRules.cpp \
 	${INCDIR}/LD/ELFSegment.h \

@@ -25,6 +25,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace llvm;
 using namespace mcld;
@@ -104,22 +105,24 @@ bool ObjectLinker::initFragmentLinker()
 /// initStdSections - initialize standard sections
 bool ObjectLinker::initStdSections()
 {
+  ObjectBuilder builder(m_Config, m_Module);
+
   // initialize standard sections
   switch (m_Config.codeGenType()) {
     case LinkerConfig::DynObj: {
       // intialize standard and target-dependent sections
-      if (!m_LDBackend.initDynObjSections(*m_pLinker))
+      if (!m_LDBackend.initDynObjSections(builder))
         return false;
       break;
     }
     case LinkerConfig::Exec: {
       // intialize standard and target-dependent sections
-      if (!m_LDBackend.initExecSections(*m_pLinker))
+      if (!m_LDBackend.initExecSections(builder))
         return false;
       break;
     }
     case LinkerConfig::Object: {
-      if (!m_LDBackend.initObjectSections(*m_pLinker))
+      if (!m_LDBackend.initObjectSections(builder))
         return false;
       break;
     }

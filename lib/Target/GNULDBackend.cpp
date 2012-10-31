@@ -158,13 +158,13 @@ ELFExecWriter* GNULDBackend::createExecWriter(FragmentLinker& pLinker)
   return new ELFExecWriter(*this, pLinker);
 }
 
-bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
+bool GNULDBackend::initExecSections(ObjectBuilder& pBuilder)
 {
   if (NULL == m_pExecFileFormat)
-    m_pExecFileFormat = new ELFExecFileFormat(*this);
+    m_pExecFileFormat = new ELFExecFileFormat();
 
   // initialize standard sections
-  m_pExecFileFormat->initStdSections(pLinker);
+  m_pExecFileFormat->initStdSections(pBuilder, bitclass());
 
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
@@ -174,13 +174,13 @@ bool GNULDBackend::initExecSections(FragmentLinker& pLinker)
   return true;
 }
 
-bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
+bool GNULDBackend::initDynObjSections(ObjectBuilder& pBuilder)
 {
   if (NULL == m_pDynObjFileFormat)
-    m_pDynObjFileFormat = new ELFDynObjFileFormat(*this);
+    m_pDynObjFileFormat = new ELFDynObjFileFormat();
 
   // initialize standard sections
-  m_pDynObjFileFormat->initStdSections(pLinker);
+  m_pDynObjFileFormat->initStdSections(pBuilder, bitclass());
 
   // initialize EhFrame
   if (NULL == m_pEhFrame) {
@@ -190,13 +190,13 @@ bool GNULDBackend::initDynObjSections(FragmentLinker& pLinker)
   return true;
 }
 
-bool GNULDBackend::initObjectSections(FragmentLinker& pLinker)
+bool GNULDBackend::initObjectSections(ObjectBuilder& pBuilder)
 {
   if (NULL == m_pObjectFileFormat)
-    m_pObjectFileFormat = new ELFObjectFileFormat(*this);
+    m_pObjectFileFormat = new ELFObjectFileFormat();
 
   // initialize standard sections
-  m_pObjectFileFormat->initStdSections(pLinker);
+  m_pObjectFileFormat->initStdSections(pBuilder, bitclass());
   return true;
 }
 

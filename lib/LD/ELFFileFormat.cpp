@@ -7,15 +7,15 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFFileFormat.h>
-#include <mcld/Fragment/FragmentLinker.h>
-#include <llvm/Support/ELF.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Target/GNULDBackend.h>
+
+#include <llvm/Support/ELF.h>
 
 using namespace mcld;
 
-ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
-  : f_Backend(pBackend),
-    f_pNULLSection(NULL),
+ELFFileFormat::ELFFileFormat()
+  : f_pNULLSection(NULL),
     f_pGOT(NULL),
     f_pPLT(NULL),
     f_pRelDyn(NULL),
@@ -63,90 +63,86 @@ ELFFileFormat::ELFFileFormat(GNULDBackend& pBackend)
 
 }
 
-ELFFileFormat::~ELFFileFormat()
+void ELFFileFormat::initStdSections(ObjectBuilder& pBuilder, unsigned int pBitClass)
 {
-}
-
-void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
-{
-  f_pTextSection     = &pLinker.CreateOutputSectHdr(".text",
+  f_pTextSection     = pBuilder.CreateSection(".text",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
-  f_pNULLSection     = &pLinker.CreateOutputSectHdr("",
+  f_pNULLSection     = pBuilder.CreateSection("",
                                               LDFileFormat::Null,
                                               llvm::ELF::SHT_NULL,
                                               0x0);
-  f_pReadOnlySection = &pLinker.CreateOutputSectHdr(".rodata",
+  f_pReadOnlySection = pBuilder.CreateSection(".rodata",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
 
-  f_pBSSSection      = &pLinker.CreateOutputSectHdr(".bss",
+  f_pBSSSection      = pBuilder.CreateSection(".bss",
                                               LDFileFormat::BSS,
                                               llvm::ELF::SHT_NOBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pComment         = &pLinker.CreateOutputSectHdr(".comment",
+  f_pComment         = pBuilder.CreateSection(".comment",
                                               LDFileFormat::MetaData,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
-  f_pDataSection     = &pLinker.CreateOutputSectHdr(".data",
+  f_pDataSection     = pBuilder.CreateSection(".data",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pData1           = &pLinker.CreateOutputSectHdr(".data1",
+  f_pData1           = pBuilder.CreateSection(".data1",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pDebug           = &pLinker.CreateOutputSectHdr(".debug",
+  f_pDebug           = pBuilder.CreateSection(".debug",
                                               LDFileFormat::Debug,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
-  f_pInit            = &pLinker.CreateOutputSectHdr(".init",
+  f_pInit            = pBuilder.CreateSection(".init",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
-  f_pInitArray       = &pLinker.CreateOutputSectHdr(".init_array",
+  f_pInitArray       = pBuilder.CreateSection(".init_array",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_INIT_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pFini            = &pLinker.CreateOutputSectHdr(".fini",
+  f_pFini            = pBuilder.CreateSection(".fini",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
                                               0x1);
-  f_pFiniArray       = &pLinker.CreateOutputSectHdr(".fini_array",
+  f_pFiniArray       = pBuilder.CreateSection(".fini_array",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_FINI_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pLine            = &pLinker.CreateOutputSectHdr(".line",
+  f_pLine            = pBuilder.CreateSection(".line",
                                               LDFileFormat::Debug,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
-  f_pPreInitArray    = &pLinker.CreateOutputSectHdr(".preinit_array",
+  f_pPreInitArray    = pBuilder.CreateSection(".preinit_array",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PREINIT_ARRAY,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
   // the definition of SHF_XXX attributes of rodata in Linux Standard Base
   // conflicts with System V standard. We follow System V standard.
-  f_pROData1         = &pLinker.CreateOutputSectHdr(".rodata1",
+  f_pROData1         = pBuilder.CreateSection(".rodata1",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
-  f_pShStrTab        = &pLinker.CreateOutputSectHdr(".shstrtab",
+  f_pShStrTab        = pBuilder.CreateSection(".shstrtab",
                                               LDFileFormat::NamePool,
                                               llvm::ELF::SHT_STRTAB,
                                               0x0,
@@ -154,24 +150,24 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
   // In ELF Spec Book I, p1-16. If symbol table and string table are in 
   // loadable segments, set the attribute to SHF_ALLOC bit. But in the
   // real world, this bit always turn off.
-  f_pSymTab       = &pLinker.CreateOutputSectHdr(".symtab",
+  f_pSymTab          = pBuilder.CreateSection(".symtab",
                                               LDFileFormat::NamePool,
                                               llvm::ELF::SHT_SYMTAB,
                                               0x0,
-                                              f_Backend.bitclass() / 8);
-  f_pStrTab       = &pLinker.CreateOutputSectHdr(".strtab",
+                                              pBitClass / 8);
+  f_pStrTab          = pBuilder.CreateSection(".strtab",
                                               LDFileFormat::NamePool,
                                               llvm::ELF::SHT_STRTAB,
                                               0x0,
                                               0x1);
-  f_pTBSS         = &pLinker.CreateOutputSectHdr(".tbss",
+  f_pTBSS            = pBuilder.CreateSection(".tbss",
                                               LDFileFormat::BSS,
                                               llvm::ELF::SHT_NOBITS,
                                               llvm::ELF::SHF_ALLOC |
                                               llvm::ELF::SHF_WRITE |
                                               llvm::ELF::SHF_TLS,
                                               0x1);
-  f_pTData        = &pLinker.CreateOutputSectHdr(".tdata",
+  f_pTData           = pBuilder.CreateSection(".tdata",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC |
@@ -180,72 +176,75 @@ void ELFFileFormat::initObjectFormat(FragmentLinker& pLinker)
                                               0x1);
 
   /// @ref 10.3.1.2, ISO/IEC 23360, Part 1:2010(E), p. 24.
-  f_pCtors          = &pLinker.CreateOutputSectHdr(".ctors",
+  f_pCtors           = pBuilder.CreateSection(".ctors",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pDataRelRo      = &pLinker.CreateOutputSectHdr(".data.rel.ro",
+  f_pDataRelRo       = pBuilder.CreateSection(".data.rel.ro",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pDtors          = &pLinker.CreateOutputSectHdr(".dtors",
+  f_pDtors           = pBuilder.CreateSection(".dtors",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pEhFrame        = &pLinker.CreateOutputSectHdr(".eh_frame",
+  f_pEhFrame         = pBuilder.CreateSection(".eh_frame",
                                               LDFileFormat::EhFrame,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x4);
-  f_pGCCExceptTable = &pLinker.CreateOutputSectHdr(".gcc_except_table",
+  f_pGCCExceptTable  = pBuilder.CreateSection(".gcc_except_table",
                                               LDFileFormat::GCCExceptTable,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC,
                                               0x4);
-  f_pGNUVersion     = &pLinker.CreateOutputSectHdr(".gnu.version",
+  f_pGNUVersion      = pBuilder.CreateSection(".gnu.version",
                                               LDFileFormat::Version,
                                               llvm::ELF::SHT_GNU_versym,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
-  f_pGNUVersionD    = &pLinker.CreateOutputSectHdr(".gnu.version_d",
+  f_pGNUVersionD     = pBuilder.CreateSection(".gnu.version_d",
                                               LDFileFormat::Version,
                                               llvm::ELF::SHT_GNU_verdef,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
-  f_pGNUVersionR    = &pLinker.CreateOutputSectHdr(".gnu.version_r",
+  f_pGNUVersionR     = pBuilder.CreateSection(".gnu.version_r",
                                               LDFileFormat::Version,
                                               llvm::ELF::SHT_GNU_verneed,
                                               llvm::ELF::SHF_ALLOC,
                                               0x1);
-  f_pJCR            = &pLinker.CreateOutputSectHdr(".jcr",
+  f_pJCR             = pBuilder.CreateSection(".jcr",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
-  f_pStab           = &pLinker.CreateOutputSectHdr(".stab",
+  f_pStab            = pBuilder.CreateSection(".stab",
                                               LDFileFormat::Debug,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
-  f_pStabStr        = &pLinker.CreateOutputSectHdr(".stabstr",
+  f_pStabStr         = pBuilder.CreateSection(".stabstr",
                                               LDFileFormat::Debug,
                                               llvm::ELF::SHT_STRTAB,
                                               0x0,
                                               0x1);
-  f_pStackNote      = &pLinker.CreateOutputSectHdr(".note.GNU-stack",
+  f_pStackNote       = pBuilder.CreateSection(".note.GNU-stack",
                                               LDFileFormat::StackNote,
                                               llvm::ELF::SHT_PROGBITS,
                                               0x0,
                                               0x1);
 
   /// @ref GCC convention, see http://www.airs.com/blog/archives/189
-  f_pDataRelRoLocal = &pLinker.CreateOutputSectHdr(".data.rel.ro.local",
+  f_pDataRelRoLocal  = pBuilder.CreateSection(".data.rel.ro.local",
                                               LDFileFormat::Regular,
                                               llvm::ELF::SHT_PROGBITS,
                                               llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                               0x1);
+  /// Initialize format dependent sections. (sections for executable and shared
+  /// objects)
+  initObjectFormat(pBuilder, pBitClass);
 }
 
