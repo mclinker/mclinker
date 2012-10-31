@@ -442,7 +442,6 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule)
 /// emitSymbol32 - emit an ELF32 symbol
 void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
                                     LDSymbol& pSymbol,
-                                    const Layout& pLayout,
                                     char* pStrtab,
                                     size_t pStrtabsize,
                                     size_t pSymtabIdx)
@@ -461,7 +460,7 @@ void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
    pSym.st_other = pSymbol.visibility();
-   pSym.st_shndx = getSymbolShndx(pSymbol, pLayout);
+   pSym.st_shndx = getSymbolShndx(pSymbol);
 }
 
 /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
@@ -469,7 +468,6 @@ void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
 void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
-                                        const Layout& pLayout,
                                         MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
@@ -525,7 +523,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
 
     // maintain output's symbol and index map
@@ -544,7 +542,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
 
     // maintain output's symbol and index map
@@ -565,7 +563,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
 
     // maintain output's symbol and index map
@@ -588,7 +586,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (!isDynamicSymbol(**symbol))
       fatal(diag::mips_got_symbol) << (*symbol)->name();
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, pLayout, strtab, strtabsize,
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);

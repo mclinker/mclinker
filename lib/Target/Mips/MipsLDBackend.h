@@ -105,7 +105,6 @@ public:
   /// from given LDSection.
   ///
   /// @param pSection - the given LDSection
-  /// @param pLayout - for comouting the size of fragment
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const LDSection& pSection,
@@ -114,9 +113,7 @@ public:
   void sizeNamePools(const Module& pModule);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  void emitDynNamePools(const Module& pModule,
-                        const Layout& pLayout,
-                        MemoryArea& pOut);
+  void emitDynNamePools(const Module& pModule, MemoryArea& pOut);
 
 
   MipsGOT& getGOT();
@@ -145,7 +142,6 @@ private:
   /// emitSymbol32 - emit an ELF32 symbol, override parent's function
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,
-                    const Layout& pLayout,
                     char* pStrtab,
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
