@@ -82,10 +82,9 @@ bool Module::addSectionSymbol(LDSection& pOutputSection)
   // create the output section symbol and set its fragRef to the first fragment
   // of the section
   LDSymbol* sym = LDSymbol::Create(*sym_info);
-  assert(pOutputSection.getSectionData()->begin() !=
-         pOutputSection.getSectionData()->end());
+  assert(!pOutputSection.getSectionData()->empty());
   FragmentRef* frag_ref =
-            FragmentRef::Create(*pOutputSection.getSectionData()->begin(), 0x0);
+            FragmentRef::Create(pOutputSection.getSectionData()->front(), 0x0);
   sym->setFragmentRef(frag_ref);
   sym_info->setSymPtr(sym);
 
@@ -98,8 +97,6 @@ bool Module::addSectionSymbol(LDSection& pOutputSection)
                             m_pSectionSymbolMap->insert(&pOutputSection, exist);
   assert(!exist);
   entry->setValue(sym);
-  assert(!exist);
-
   return true;
 }
 
