@@ -335,9 +335,9 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
-  uint64_t size = pLinker.getLayout().appendFragment(*frag,
-                                                     *bss_data,
-                                                     addralign);
+  uint64_t size = ObjectBuilder::AppendFragment(*frag,
+                                                *bss_data,
+                                                addralign);
   bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
 
   // change symbol binding to Global if it's a weak symbol

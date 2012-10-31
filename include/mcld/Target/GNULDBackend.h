@@ -241,7 +241,7 @@ public:
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
   /// Different concrete target backend may overlap this function.
-  virtual bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker);
+  virtual bool allocateCommonSymbols(Module& pModule);
 
   /// isSymbolPreemtible - whether the symbol can be preemted by other
   /// link unit

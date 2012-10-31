@@ -277,7 +277,7 @@ bool ObjectLinker::prelayout()
 {
   m_LDBackend.preLayout(m_Module, *m_pLinker);
 
-  m_LDBackend.allocateCommonSymbols(m_Module, *m_pLinker);
+  m_LDBackend.allocateCommonSymbols(m_Module);
 
   /// check program interpreter - computer the name size of the runtime dyld
   if (!m_pLinker->isStaticLink() &&

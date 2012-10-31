@@ -130,7 +130,7 @@ public:
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
-  bool allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker);
+  bool allocateCommonSymbols(Module& pModule);
 
 private:
   void scanLocalReloc(Relocation& pReloc, FragmentLinker& pLinker);

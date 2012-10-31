@@ -1456,7 +1456,7 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
 /// sections. This is executed at pre-layout stage.
 /// @refer Google gold linker: common.cc: 214
 bool
-GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
+GNULDBackend::allocateCommonSymbols(Module& pModule)
 {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
@@ -1506,14 +1506,14 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
-        tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                          *tbss_sect_data,
-                                                          (*com_sym)->value());
+        tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                     *tbss_sect_data,
+                                                     (*com_sym)->value());
       }
       else {
-        bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                         *bss_sect_data,
-                                                         (*com_sym)->value());
+        bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                    *bss_sect_data,
+                                                    (*com_sym)->value());
       }
     }
   }
@@ -1532,14 +1532,14 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
-      tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                        *tbss_sect_data,
-                                                        (*com_sym)->value());
+      tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                   *tbss_sect_data,
+                                                   (*com_sym)->value());
     }
     else {
-      bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                       *bss_sect_data,
-                                                       (*com_sym)->value());
+      bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                  *bss_sect_data,
+                                                  (*com_sym)->value());
     }
   }
 

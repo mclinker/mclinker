@@ -79,14 +79,6 @@ public:
   /// addInputRange
   void addInputRange(const SectionData& pSD, const LDSection& pInputHdr);
 
-  /// appendFragment - append the given Fragment to the given SectionData,
-  /// and insert a AlignFragment to preserve the required align constraint if
-  /// needed
-  /// @return return the inserted size, i.e., the size of pFrag and alignment
-  /// size if any
-  uint64_t appendFragment(Fragment& pFrag, SectionData& pSD,
-                          uint32_t pAlignConstraint = 1);
-
 private:
   /** \class Range
    *  \brief Range is a <input's LDSection, previous rear fragment> pair

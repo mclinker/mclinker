@@ -89,52 +89,6 @@ void Layout::addInputRange(const SectionData& pSD,
   }
 }
 
-/// appendFragment - append the given Fragment to the given SectionData,
-/// and insert a MCAlignFragment to preserve the required align constraint if
-/// needed
-uint64_t Layout::appendFragment(Fragment& pFrag,
-                                SectionData& pSD,
-                                uint32_t pAlignConstraint)
-{
-  // insert MCAlignFragment into SectionData first if needed
-  AlignFragment* align_frag = NULL;
-  if (pAlignConstraint > 1) {
-    align_frag = new AlignFragment(pAlignConstraint, // alignment
-                                   0x0, // the filled value
-                                   1u,  // the size of filled value
-                                   pAlignConstraint - 1 // max bytes to emit
-                                   );
-    if (pSD.empty())
-      align_frag->setOffset(0);
-    else
-      align_frag->setOffset(pSD.back().getOffset() + pSD.back().size());
-    align_frag->setParent(&pSD);
-    pSD.getFragmentList().push_back(align_frag);
-  }
-
-  // append the fragment to the SectionData
-  pFrag.setParent(&pSD);
-  if (pSD.empty())
-    pFrag.setOffset(0);
-  else
-    pFrag.setOffset(pSD.back().getOffset() + pSD.back().size());
-
-  pSD.getFragmentList().push_back(&pFrag);
-
-  // update the alignment of associated output LDSection if needed
-  LDSection& output_sect = pFrag.getParent()->getSection();
-  if (pAlignConstraint > output_sect.align())
-    output_sect.setAlign(pAlignConstraint);
-
-  NullFragment* null_frag = new NullFragment(&pSD);
-  null_frag->setOffset(pFrag.getOffset() + pFrag.size());
-
-  if (NULL != align_frag)
-    return align_frag->size() + pFrag.size();
-  else
-    return pFrag.size();
-}
-
 /// getFragmentRef - assume the ragne exist, find the fragment reference
 FragmentRef* Layout::getFragmentRef(Layout::Range& pRange, uint64_t pOffset)
 {

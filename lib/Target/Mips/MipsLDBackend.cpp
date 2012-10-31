@@ -713,9 +713,7 @@ bool MipsGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 /// sections. This is called at pre-layout stage.
 /// @refer Google gold linker: common.cc: 214
 /// FIXME: Mips needs to allocate small common symbol
-bool
-MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
-                                        FragmentLinker& pLinker)
+bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
@@ -765,15 +763,15 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
 
       if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
         // allocate TLS common symbol in tbss section
-        tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                          *tbss_sect_data,
-                                                          (*com_sym)->value());
+        tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                     *tbss_sect_data,
+                                                     (*com_sym)->value());
       }
       // FIXME: how to identify small and large common symbols?
       else {
-        bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                         *bss_sect_data,
-                                                         (*com_sym)->value());
+        bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                    *bss_sect_data,
+                                                    (*com_sym)->value());
       }
     }
   }
@@ -792,15 +790,15 @@ MipsGNULDBackend::allocateCommonSymbols(Module& pModule,
 
     if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
       // allocate TLS common symbol in tbss section
-      tbss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                        *tbss_sect_data,
-                                                        (*com_sym)->value());
+      tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                   *tbss_sect_data,
+                                                   (*com_sym)->value());
     }
     // FIXME: how to identify small and large common symbols?
     else {
-      bss_offset += pLinker.getLayout().appendFragment(*frag,
-                                                       *bss_sect_data,
-                                                       (*com_sym)->value());
+      bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                  *bss_sect_data,
+                                                  (*com_sym)->value());
     }
   }
 
