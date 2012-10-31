@@ -16,7 +16,6 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>

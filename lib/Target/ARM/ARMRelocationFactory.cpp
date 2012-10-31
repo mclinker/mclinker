@@ -12,7 +12,6 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MsgHandling.h>
 #include "ARMRelocationFactory.h"

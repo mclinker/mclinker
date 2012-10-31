@@ -12,7 +12,6 @@
 #include <llvm/Support/ELF.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/Support/MsgHandling.h>
 
 #include "X86RelocationFactory.h"

@@ -53,24 +53,6 @@ public:
   /// destructor
   ~Layout();
 
-  /// getFragmentRef - give a LDSection in input file and an offset, return
-  /// the fragment reference.
-  ///
-  /// @param pInputSection - the given input section
-  /// @param pOffset - the offset, cannot be larger than this input section.
-  /// @return if found, return the fragment. Otherwise, return NULL.
-  FragmentRef*
-  getFragmentRef(const LDSection& pInputSection, uint64_t pOffset);
-
-  /// getFragmentRef - give a fragment and a big offset, return the fragment
-  /// reference in the section data.
-  ///
-  /// @param pFrag - the given fragment
-  /// @param pBigOffset - the offset, can be larger than the fragment, but can
-  ///                     not larger than this input section.
-  /// @return if found, return the fragment. Otherwise, return NULL.
-  FragmentRef* getFragmentRef(const Fragment& pFrag, uint64_t pBigOffset);
-
   // -----  modifiers  ----- //
   bool layout(Module& pModule,
               const TargetLDBackend& pBackend,
@@ -181,13 +163,6 @@ private:
     }
     return pRange.getNextNode()->prevRear;
   }
-
-  FragmentRef* getFragmentRef(Range &pRange, uint64_t pOffset);
-
-  FragmentRef*
-  getFragmentRef(Fragment& pFront, Fragment& pRear, uint64_t pOffset);
-
-  bool isValidOffset(const Fragment& pFrag, uint64_t pTargetOffset) const;
 
   /// sortSectionOrder - perform sorting on m_SectionOrder to get final layout
   /// ordering
