@@ -62,8 +62,7 @@ MipsGNULDBackend::~MipsGNULDBackend()
     delete m_pDynamic;
 }
 
-void MipsGNULDBackend::initTargetSections(Module& pModule,
-                                          FragmentLinker& pLinker)
+void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();

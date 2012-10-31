@@ -108,15 +108,6 @@ public:
 
   bool finalizeSymbols();
 
-  // -----  sections  ----- //
-  /// CreateOutputSectHdr - for reader and standard/target format to get
-  /// or create the output's section header
-  LDSection& CreateOutputSectHdr(const std::string& pName,
-                                 LDFileFormat::Kind pKind,
-                                 uint32_t pType,
-                                 uint32_t pFlag,
-                                 uint32_t pAlign = 0x0);
-
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation

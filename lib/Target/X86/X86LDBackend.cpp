@@ -797,8 +797,7 @@ unsigned int X86GNULDBackend::bitclass() const
   return 32;
 }
 
-void X86GNULDBackend::initTargetSections(Module& pModule,
-                                         FragmentLinker& pLinker)
+void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();

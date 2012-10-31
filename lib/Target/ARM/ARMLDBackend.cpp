@@ -88,26 +88,25 @@ RelocationFactory* ARMGNULDBackend::getRelocFactory()
   return m_pRelocFactory;
 }
 
-void ARMGNULDBackend::initTargetSections(Module& pModule,
-                                         FragmentLinker& pLinker)
+void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
 {
  // FIXME: Currently we set exidx and extab to "Exception" and directly emit
  // them from input
-  m_pEXIDX        = &pLinker.CreateOutputSectHdr(".ARM.exidx",
-                                                 LDFileFormat::Target,
-                                                 llvm::ELF::SHT_ARM_EXIDX,
-                                                 llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
-                                                 bitclass() / 8);
-  m_pEXTAB        = &pLinker.CreateOutputSectHdr(".ARM.extab",
-                                                 LDFileFormat::Target,
-                                                 llvm::ELF::SHT_PROGBITS,
-                                                 llvm::ELF::SHF_ALLOC,
-                                                 0x1);
-  m_pAttributes   = &pLinker.CreateOutputSectHdr(".ARM.attributes",
-                                                 LDFileFormat::Target,
-                                                 llvm::ELF::SHT_ARM_ATTRIBUTES,
-                                                 0x0,
-                                                 0x1);
+  m_pEXIDX        = pBuilder.CreateSection(".ARM.exidx",
+                                           LDFileFormat::Target,
+                                           llvm::ELF::SHT_ARM_EXIDX,
+                                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
+                                           bitclass() / 8);
+  m_pEXTAB        = pBuilder.CreateSection(".ARM.extab",
+                                           LDFileFormat::Target,
+                                           llvm::ELF::SHT_PROGBITS,
+                                           llvm::ELF::SHF_ALLOC,
+                                           0x1);
+  m_pAttributes   = pBuilder.CreateSection(".ARM.attributes",
+                                           LDFileFormat::Target,
+                                           llvm::ELF::SHT_ARM_ATTRIBUTES,
+                                           0x0,
+                                           0x1);
 
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();

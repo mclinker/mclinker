@@ -152,7 +152,7 @@ public:
   // initRelocFactory - create and initialize RelocationFactory
   bool initRelocFactory(const FragmentLinker& pLinker);
 
-  void initTargetSections(Module& pModule, FragmentLinker& pLinker);
+  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
   void initTargetSymbols(FragmentLinker& pLinker);
 
