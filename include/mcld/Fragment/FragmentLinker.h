@@ -129,13 +129,6 @@ public:
   /// data to output file.
   void syncRelocationResult(MemoryArea& pOutput);
 
-  // -----  layout  ----- //
-  Layout& getLayout()
-  { return m_Layout; }
-
-  const Layout& getLayout() const
-  { return m_Layout; }
-
   bool layout();
 
   // -----  capacity  ----- //
