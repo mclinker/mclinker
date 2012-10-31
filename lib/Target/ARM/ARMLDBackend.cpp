@@ -742,7 +742,6 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 }
 
 uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
-                                          const Layout& pLayout,
                                           MemoryRegion& pRegion) const
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");

@@ -332,8 +332,7 @@ ELFWriter::emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
 
 /// emitSectionData
 void
-ELFWriter::emitSectionData(const Layout& pLayout,
-                           const LDSection& pSection,
+ELFWriter::emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const
 {
   const SectionData* data = pSection.getSectionData();

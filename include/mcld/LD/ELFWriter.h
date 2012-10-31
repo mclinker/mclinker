@@ -83,8 +83,7 @@ protected:
   void emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
                        MemoryArea& pOutput);
 
-  void emitSectionData(const Layout& pLayout,
-                       const LDSection& pSection,
+  void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
 
   void emitRelocation(const Layout& pLayout,

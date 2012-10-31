@@ -128,7 +128,6 @@ public:
   /// @param pRegion - the region to write out data
   /// @return the size of the table in the file.
   uint64_t emitSectionData(const LDSection& pSection,
-                           const Layout& pLayout,
                            MemoryRegion& pRegion) const;
 
   /// OSABI - the value of e_ident[EI_OSABI]

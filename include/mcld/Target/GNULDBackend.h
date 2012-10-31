@@ -170,7 +170,6 @@ public:
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const LDSection& pSection,
-                                   const Layout& pLayout,
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
