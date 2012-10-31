@@ -117,10 +117,6 @@ public:
                                  uint32_t pFlag,
                                  uint32_t pAlign = 0x0);
 
-  /// CreateOutputSectData - for reader to map and perform section merging
-  /// immediately
-  SectionData& CreateOutputSectData(LDSection& pSection);
-
   // -----  relocations  ----- //
   /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
   /// @param pType - the type of the relocation

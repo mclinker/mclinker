@@ -1484,13 +1484,13 @@ GNULDBackend::allocateCommonSymbols(Module& pModule, FragmentLinker& pLinker)
   if (bss_sect.hasSectionData())
     bss_sect_data = bss_sect.getSectionData();
   else
-    bss_sect_data = &pLinker.CreateOutputSectData(bss_sect);
+    bss_sect_data = ObjectBuilder::CreateSectionData(bss_sect);
 
   SectionData* tbss_sect_data = NULL;
   if (tbss_sect.hasSectionData())
     tbss_sect_data = tbss_sect.getSectionData();
   else
-    tbss_sect_data = &pLinker.CreateOutputSectData(tbss_sect);
+    tbss_sect_data = ObjectBuilder::CreateSectionData(tbss_sect);
 
   // remember original BSS size
   uint64_t bss_offset  = bss_sect.size();

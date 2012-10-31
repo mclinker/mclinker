@@ -114,11 +114,11 @@ void ARMGNULDBackend::initTargetSections(Module& pModule,
 
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new ARMGOT(got, pLinker.CreateOutputSectData(got));
+    m_pGOT = new ARMGOT(got, *ObjectBuilder::CreateSectionData(got));
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
-    m_pPLT = new ARMPLT(plt, pLinker.CreateOutputSectData(plt), *m_pGOT);
+    m_pPLT = new ARMPLT(plt, *ObjectBuilder::CreateSectionData(plt), *m_pGOT);
 
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
@@ -316,7 +316,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   if (bss_sect_hdr->hasSectionData())
     bss_data = bss_sect_hdr->getSectionData();
   else
-    bss_data = &pLinker.CreateOutputSectData(*bss_sect_hdr);
+    bss_data = ObjectBuilder::CreateSectionData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment

@@ -471,16 +471,6 @@ LDSection& FragmentLinker::CreateOutputSectHdr(const std::string& pName,
   return *output_sect;
 }
 
-/// CreateOutputSectData - create output SectionData
-SectionData&
-FragmentLinker::CreateOutputSectData(LDSection& pSection)
-{
-  SectionData* sect_data = SectionData::Create(pSection);
-  pSection.setSectionData(sect_data);
-  m_Layout.addInputRange(*sect_data, pSection);
-  return *sect_data;
-}
-
 bool FragmentLinker::layout()
 {
   return m_Layout.layout(m_Module, m_Backend, m_Config);
