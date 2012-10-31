@@ -170,12 +170,11 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   else
     scanGlobalReloc(pReloc, pLinker);
 
-  // check if we shoule issue undefined reference for the relocation target
-  // symbol
-  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
-    fatal(diag::undefined_reference) << rsym->name();
-
   if ((rsym->reserved() & ReserveRel) != 0x0) {
+    // check undefined reference if the symbol needs a dynamic relocation
+    if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
+      fatal(diag::undefined_reference) << rsym->name();
+
     // set hasTextRelSection if needed
     checkAndSetHasTextRel(pSection);
   }
