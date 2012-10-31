@@ -382,14 +382,11 @@ ARMRelocationFactory::Result abs32(Relocation& pReloc,
   ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   ARMRelocationFactory::DWord S = pReloc.symValue();
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                 *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
 
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.target() = (S + A) | T;
     return ARMRelocationFactory::OK;
   }
@@ -445,8 +442,7 @@ ARMRelocationFactory::Result rel32(Relocation& pReloc,
   }
 
   // perform relocation
-  pReloc.target() = ((S + A) | T)
-       - pReloc.place(pParent.getFragmentLinker().getLayout());
+  pReloc.target() = ((S + A) | T) - pReloc.place();
 
   return ARMRelocationFactory::OK;
 }
@@ -457,8 +453,7 @@ ARMRelocationFactory::Result base_prel(Relocation& pReloc,
 {
   // perform static relocation
   ARMRelocationFactory::DWord A = pReloc.target() + pReloc.addend();
-  pReloc.target() = pReloc.symValue() + A -
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  pReloc.target() = pReloc.symValue() + A - pReloc.place();
   return ARMRelocationFactory::OK;
 }
 
@@ -501,8 +496,8 @@ ARMRelocationFactory::Result got_prel(Relocation& pReloc,
   }
   ARMRelocationFactory::Address GOT_S   = helper_GOT(pReloc, pParent);
   ARMRelocationFactory::DWord   A       = pReloc.target() + pReloc.addend();
-  ARMRelocationFactory::Address P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::Address P = pReloc.place();
+
   // Apply relocation.
   pReloc.target() = GOT_S + A - P;
   return ARMRelocationFactory::OK;
@@ -531,8 +526,7 @@ ARMRelocationFactory::Result call(Relocation& pReloc,
   ARMRelocationFactory::DWord   A =
     helper_sign_extend((pReloc.target() & 0x00FFFFFFu) << 2, 26)
     + pReloc.addend();
-  ARMRelocationFactory::Address P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::Address P = pReloc.place();
 
   S = pReloc.symValue();
   if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
@@ -586,8 +580,7 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper16,
                                                                lower16);
-  ARMRelocationFactory::Address P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::Address P = pReloc.place();
   ARMRelocationFactory::Address S;
 
   // if symbol has plt
@@ -648,13 +641,11 @@ ARMRelocationFactory::Result movw_abs_nc(Relocation& pReloc,
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                 *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+
   // If the flag of target section is not ALLOC, we will not scan this
   // relocation but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
@@ -675,8 +666,7 @@ ARMRelocationFactory::Result movw_prel_nc(Relocation& pReloc,
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::DWord A =
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -701,13 +691,11 @@ ARMRelocationFactory::Result movt_abs(Relocation& pReloc,
     helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
@@ -726,8 +714,7 @@ ARMRelocationFactory::Result movt_prel(Relocation& pReloc,
                                        ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
-  ARMRelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::DWord A =
             helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -750,13 +737,10 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
@@ -775,8 +759,7 @@ ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -796,8 +779,7 @@ ARMRelocationFactory::Result thm_movw_brel(Relocation& pReloc,
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
@@ -820,13 +802,10 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
@@ -852,8 +831,7 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
                                            ARMRelocationFactory& pParent)
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
-  ARMRelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::DWord A =
       helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
   ARMRelocationFactory::DWord X;

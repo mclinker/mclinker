@@ -47,7 +47,7 @@ Stub* StubFactory::create(Relocation& pReloc,
 {
   // find if there is a prototype stub for the input relocation
   Stub* prototype = findPrototype(pReloc,
-                                  pReloc.place(pLinker.getLayout()),
+                                  pReloc.place(),
                                   pTargetSymValue);
   if (NULL != prototype) {
     // find the island for the input relocation

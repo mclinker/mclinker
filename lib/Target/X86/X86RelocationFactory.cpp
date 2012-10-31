@@ -247,13 +247,10 @@ X86RelocationFactory::Result abs(Relocation& pReloc,
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               true);
 
-  const LDSection* target_sect =
-                     pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.target() = S + A;
     return X86RelocationFactory::OK;
   }
@@ -310,16 +307,12 @@ X86RelocationFactory::Result rel(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   RelocationFactory::DWord A = pReloc.target() + pReloc.addend();
   RelocationFactory::DWord S = pReloc.symValue();
-  RelocationFactory::DWord P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  RelocationFactory::DWord P = pReloc.place();
 
-  const LDSection* target_sect =
-                    pParent.getFragmentLinker().getLayout().getOutputLDSection(
-                                                  *(pReloc.targetRef().frag()));
-  assert(NULL != target_sect);
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
-  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect->flag())) {
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     pReloc.target() = S + A - P;
     return X86RelocationFactory::OK;
   }
@@ -371,8 +364,7 @@ X86RelocationFactory::Result gotpc32(Relocation& pReloc,
   RelocationFactory::DWord      A       = pReloc.target() + pReloc.addend();
   X86RelocationFactory::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
-  pReloc.target() = GOT_ORG + A -
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  pReloc.target() = GOT_ORG + A - pReloc.place();
   return X86RelocationFactory::OK;
 }
 
@@ -403,8 +395,7 @@ X86RelocationFactory::Result plt32(Relocation& pReloc,
   else
     PLT_S = pReloc.symValue();
   RelocationFactory::DWord      A = pReloc.target() + pReloc.addend();
-  X86RelocationFactory::Address P =
-                         pReloc.place(pParent.getFragmentLinker().getLayout());
+  X86RelocationFactory::Address P = pReloc.place();
   pReloc.target() = PLT_S + A - P;
   return X86RelocationFactory::OK;
 }

@@ -122,10 +122,9 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
   pSD.getFragmentList().push_back(&pFrag);
 
   // update the alignment of associated output LDSection if needed
-  LDSection* output_sect = getOutputLDSection(pFrag);
-  assert(NULL != output_sect);
-  if (pAlignConstraint > output_sect->align())
-    output_sect->setAlign(pAlignConstraint);
+  LDSection& output_sect = pFrag.getParent()->getSection();
+  if (pAlignConstraint > output_sect.align())
+    output_sect.setAlign(pAlignConstraint);
 
   NullFragment* null_frag = new NullFragment(&pSD);
   null_frag->setOffset(pFrag.getOffset() + pFrag.size());
@@ -134,26 +133,6 @@ uint64_t Layout::appendFragment(Fragment& pFrag,
     return align_frag->size() + pFrag.size();
   else
     return pFrag.size();
-}
-
-/// getOutputLDSection
-LDSection* Layout::getOutputLDSection(const Fragment& pFrag)
-{
-  SectionData* sect_data = pFrag.getParent();
-  if (NULL == sect_data)
-    return NULL;
-
-  return const_cast<LDSection*>(&sect_data->getSection());
-}
-
-/// getOutputLDSection
-const LDSection* Layout::getOutputLDSection(const Fragment& pFrag) const
-{
-  const SectionData* sect_data = pFrag.getParent();
-  if (NULL == sect_data)
-    return NULL;
-
-  return &sect_data->getSection();
 }
 
 /// getFragmentRef - assume the ragne exist, find the fragment reference
