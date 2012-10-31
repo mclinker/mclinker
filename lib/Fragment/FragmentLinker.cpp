@@ -453,15 +453,6 @@ bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
 }
 
 //===----------------------------------------------------------------------===//
-// Section Operations
-//===----------------------------------------------------------------------===//
-bool FragmentLinker::layout()
-{
-  Layout layout;
-  return layout.layout(m_Module, m_Backend, m_Config);
-}
-
-//===----------------------------------------------------------------------===//
 // Relocation Operations
 //===----------------------------------------------------------------------===//
 /// addRelocation - add a relocation entry in FragmentLinker (only for object file)

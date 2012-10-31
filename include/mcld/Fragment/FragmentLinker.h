@@ -129,8 +129,6 @@ public:
   /// data to output file.
   void syncRelocationResult(MemoryArea& pOutput);
 
-  bool layout();
-
   // -----  capacity  ----- //
   const LinkerConfig& getLDInfo() const { return m_Config; }
 
