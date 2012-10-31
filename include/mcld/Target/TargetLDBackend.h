@@ -132,7 +132,7 @@ public:
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
   virtual void
-  sizeNamePools(const Module& pModule) = 0;
+  sizeNamePools(const Module& pModule, bool pIsStaticLink) = 0;
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.
