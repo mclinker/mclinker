@@ -430,6 +430,10 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (rsym->reserved() & ReservePLT)
         return;
 
+      // if the symbol's value can be decided at link time, then no need plt
+      if (symbolFinalValueIsKnown(pLinker, *rsym))
+        return;
+
       // if symbol is defined in the ouput file and it's not
       // preemptible, no need plt
       if (rsym->isDefine() && !rsym->isDyn() &&
@@ -591,13 +595,10 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   else // rsym is external
     scanGlobalReloc(pReloc, pLinker, pModule, pSection);
 
-  if (((rsym->reserved() & ReserveRel) != 0x0 ||
-       (rsym->reserved() & GOTRel)     != 0x0 ||
-       (rsym->reserved() & ReservePLT) != 0x0)) {
-    // check undefined reference if the symbol needs a dynamic relocation
-    if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
-      fatal(diag::undefined_reference) << rsym->name();
-  }
+  // check if we shoule issue undefined reference for the relocation target
+  // symbol
+  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
+    fatal(diag::undefined_reference) << rsym->name();
 
   if ((rsym->reserved() & ReserveRel) != 0x0) {
     // set hasTextRelSection if needed
