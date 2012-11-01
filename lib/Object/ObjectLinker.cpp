@@ -249,7 +249,9 @@ bool ObjectLinker::mergeSections()
       switch ((*sect)->kind()) {
         // Some *INPUT sections should not be merged.
         case LDFileFormat::Ignore:
+        case LDFileFormat::Null:
         case LDFileFormat::Relocation:
+        case LDFileFormat::NamePool:
           // skip
           continue;
         default: {
