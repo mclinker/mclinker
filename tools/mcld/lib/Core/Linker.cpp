@@ -336,15 +336,17 @@ enum Linker::ErrorCode Linker::link() {
 
   mObjLinker->normalize();
 
-  if (!mObjLinker->mergeSections()) {
+  if (!mObjLinker->readRelocations())
     return kReadSections;
-  }
+
+  if (!mObjLinker->mergeSections())
+    return kReadSections;
 
   if (!mObjLinker->addStandardSymbols() || !mObjLinker->addTargetSymbols()) {
     return kAddAdditionalSymbols;
   }
 
-  mObjLinker->readRelocations();
+  mObjLinker->scanRelocations();
   mObjLinker->prelayout();
   mObjLinker->layout();
   mObjLinker->postlayout();
