@@ -67,6 +67,7 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
     // Some *OUTPUT sections should not be merged.
     case LDFileFormat::Null:
     case LDFileFormat::Relocation:
+    case LDFileFormat::NamePool:
       /** do nothing **/
       return true;
     case LDFileFormat::EhFrame: {
@@ -125,7 +126,8 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
   to_list.splice(to_list.end(), from_list);
 
   // append the null fragment
-  NullFragment* null = new NullFragment(&pTo);
+  NullFragment* null = new NullFragment();
+  null->setParent(&pTo);
   null->setOffset(offset);
   pTo.getFragmentList().push_back(null);
 
