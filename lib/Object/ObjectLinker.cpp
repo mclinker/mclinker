@@ -250,10 +250,11 @@ bool ObjectLinker::mergeSections()
         case LDFileFormat::Relocation:
           continue;
         default: {
-          if (!builder.MergeSection(**sect))
+          if (!builder.MergeSection(**sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
-          return false;
+            return false;
+          }
         }
       } // end of switch
     } // for each section
