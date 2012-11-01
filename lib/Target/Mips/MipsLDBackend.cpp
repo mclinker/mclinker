@@ -128,7 +128,6 @@ RelocationFactory* MipsGNULDBackend::getRelocFactory()
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
-                                      const LDSymbol& pInputSym,
                                       FragmentLinker& pLinker,
                                       Module& pModule,
                                       const LDSection& pSection)
@@ -151,7 +150,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // We test isLocal or if pInputSym is not a dynamic symbol
   // We assume -Bsymbolic to bind all symbols internaly via !rsym->isDyn()
   // Don't put undef symbols into local entries.
-  if ((rsym->isLocal() || !isDynamicSymbol(pInputSym) ||
+  if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
       !rsym->isDyn()) && !rsym->isUndef())
     scanLocalReloc(pReloc, pLinker);
   else

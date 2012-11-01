@@ -69,7 +69,6 @@ public:
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
   virtual void scanRelocation(Relocation& pReloc,
-                              const LDSymbol& pInputSym,
                               FragmentLinker& pLinker,
                               Module& pModule,
                               const LDSection& pSection) = 0;
@@ -81,7 +80,6 @@ public:
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
   virtual void partialScanRelocation(Relocation& pReloc,
-                                     const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
                                      Module& pModule,
                                      const LDSection& pSection) = 0;

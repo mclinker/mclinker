@@ -158,7 +158,6 @@ public:
   /// partialScanRelocation - When doing partial linking, fix the relocation
   /// offset after section merge
   void partialScanRelocation(Relocation& pReloc,
-                             const LDSymbol& pInputSym,
                              FragmentLinker& pLinker,
                              Module& pModule,
                              const LDSection& pSection);
@@ -300,6 +299,10 @@ protected:
   /// isDynamicSymbol
   /// @ref Google gold linker: symtab.cc:311
   bool isDynamicSymbol(const LDSymbol& pSymbol);
+
+  /// isDynamicSymbol
+  /// @ref Google gold linker: symtab.cc:311
+  bool isDynamicSymbol(const ResolveInfo& pResolveInfo);
 
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596

@@ -488,13 +488,6 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
   relocation->setSymInfo(resolve_info);
   pSection.getRelocData()->getFragmentList().push_back(relocation);
 
-  // scan relocation
-  if (LinkerConfig::Object != m_Config.codeGenType())
-    m_Backend.scanRelocation(*relocation, pSym, *this, m_Module,
-                             *pSection.getLink());
-  else
-    m_Backend.partialScanRelocation(*relocation, pSym, *this, m_Module,
-                                    *pSection.getLink());
   return relocation;
 }
 

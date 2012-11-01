@@ -23,12 +23,15 @@
 #include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/Layout.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Object/ObjectBuilder.h>
+
+#include <llvm/Support/Casting.h>
 
 using namespace llvm;
 using namespace mcld;
@@ -217,6 +220,24 @@ bool ObjectLinker::linkable() const
   return true;
 }
 
+/// readRelocations - read all relocation entries
+///
+/// All symbols should be read and resolved before this function.
+bool ObjectLinker::readRelocations()
+{
+  // Bitcode is read by the other path. This function reads relocation sections
+  // in object files.
+  mcld::InputTree::bfs_iterator input, inEnd = m_Module.getInputTree().bfs_end();
+  for (input=m_Module.getInputTree().bfs_begin(); input!=inEnd; ++input) {
+    if ((*input)->type() == Input::Object) {
+      if (!getObjectReader()->readRelocations(**input))
+        return false;
+    }
+    // ignore the other kinds of files.
+  }
+  return true;
+}
+
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
@@ -272,21 +293,39 @@ bool ObjectLinker::addTargetSymbols()
   return true;
 }
 
-/// readRelocations - read all relocation entries
-///
-/// All symbols should be read and resolved before this function.
-bool ObjectLinker::readRelocations()
+bool ObjectLinker::scanRelocations()
 {
-  // Bitcode is read by the other path. This function reads relocation sections
-  // in object files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_Module.getInputTree().bfs_end();
-  for (input=m_Module.getInputTree().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == Input::Object) {
-      if (!getObjectReader()->readRelocations(**input))
-        return false;
-    }
-    // ignore the other kinds of files.
-  }
+  // apply all relocations of all inputs
+  Module::obj_iterator input, inEnd = m_Module.obj_end();
+  for (input = m_Module.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      // bypass the reloc section if
+      // 1. its section kind is changed to Ignore. (The target section is a
+      // discarded group section.)
+      // 2. it has no reloc data. (All symbols in the input relocs are in the
+      // discarded group sections)
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
+        // scan relocation
+        if (LinkerConfig::Object != m_Config.codeGenType()) {
+          m_LDBackend.scanRelocation(*relocation,
+                                     *m_pLinker,
+                                     m_Module,
+                                     *(*rs)->getLink());
+        }
+        else {
+          m_LDBackend.partialScanRelocation(*relocation,
+                                     *m_pLinker,
+                                     m_Module,
+                                     *(*rs)->getLink());
+        }
+      } // for all relocations
+    } // for all relocation section
+  } // for all inputs
   return true;
 }
 

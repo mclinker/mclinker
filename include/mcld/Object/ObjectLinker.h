@@ -63,6 +63,9 @@ public:
   ///  - check every Input has a correct Attribute
   bool linkable() const;
 
+  /// readRelocations - read all relocation entries
+  bool readRelocations();
+
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
 
@@ -78,8 +81,8 @@ public:
   ///   target symbols, return false
   bool addTargetSymbols();
 
-  /// readRelocations - read all relocation entries
-  bool readRelocations();
+  /// scanRelocations - scan all relocation entries by output symbols.
+  bool scanRelocations();
 
   /// prelayout - help backend to do some modification before layout
   bool prelayout();

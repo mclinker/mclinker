@@ -162,7 +162,6 @@ public:
   /// - PLT entry (for .plt section)
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
-                      const LDSymbol& pInputSym,
                       FragmentLinker& pLinker,
                       Module& pModule,
                       const LDSection& pSection);

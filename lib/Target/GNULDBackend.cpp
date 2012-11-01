@@ -754,23 +754,24 @@ const ELFObjectFileFormat* GNULDBackend::getObjectFileFormat() const
 }
 
 void GNULDBackend::partialScanRelocation(Relocation& pReloc,
-                                         const LDSymbol& pInputSym,
                                          FragmentLinker& pLinker,
                                          Module& pModule,
                                          const LDSection& pSection)
 {
   // if we meet a section symbol
   if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    LDSymbol* input_sym = pReloc.symInfo()->outSymbol();
+
     // 1. update the relocation target offset
-    assert(pInputSym.hasFragRef());
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
+    assert(input_sym->hasFragRef());
+    uint64_t offset = input_sym->fragRef()->getOutputOffset();
     pReloc.target() += offset;
 
     // 2. get output section symbol
     // get the output LDSection which the symbol defined in
-    assert(pInputSym.hasFragRef());
     const LDSection& out_sect =
-                         pInputSym.fragRef()->frag()->getParent()->getSection();
+                      input_sym->fragRef()->frag()->getParent()->getSection();
+
     ResolveInfo* sym_info = pModule.getSectionSymbol(&out_sect)->resolveInfo();
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
@@ -2089,6 +2090,27 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
       LinkerConfig::Exec == config().codeGenType()) {
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
         pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/// isDynamicSymbol
+/// @ref Google gold linker: symtab.cc:311
+bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo)
+{
+  // If a local symbol is in the LDContext's symbol table, it's a real local
+  // symbol. We should not add it
+  if (pResolveInfo.binding() == ResolveInfo::Local)
+    return false;
+
+  // If we are building shared object, and the visibility is external, we
+  // need to add it.
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      LinkerConfig::Exec == config().codeGenType()) {
+    if (pResolveInfo.visibility() == ResolveInfo::Default ||
+        pResolveInfo.visibility() == ResolveInfo::Protected) {
       return true;
     }
   }

@@ -295,13 +295,16 @@ bool MCLinker::doFinalization(llvm::Module &pM)
       !m_pObjLinker->addTargetSymbols())
     return true;
 
-  // 9. - pre-layout
+  // 9. - scan all relocation entries by output symbols.
+  m_pObjLinker->scanRelocations();
+
+  // 10.a - pre-layout
   m_pObjLinker->prelayout();
 
-  // 10. - linear layout
+  // 10.b - linear layout
   m_pObjLinker->layout();
 
-  // 10.b - post-layout (create segment, instruction relaxing)
+  // 10.c - post-layout (create segment, instruction relaxing)
   m_pObjLinker->postlayout();
 
   // 11. - finalize symbol value

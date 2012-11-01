@@ -557,7 +557,6 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
-                                     const LDSymbol& pInputSym,
                                      FragmentLinker& pLinker,
                                      Module& pModule,
                                      const LDSection& pSection)
