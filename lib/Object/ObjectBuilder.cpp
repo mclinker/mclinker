@@ -65,7 +65,6 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
 
   switch (target->kind()) {
     // Some *OUTPUT sections should not be merged.
-    case LDFileFormat::Null:
     case LDFileFormat::Relocation:
     case LDFileFormat::NamePool:
       /** do nothing **/

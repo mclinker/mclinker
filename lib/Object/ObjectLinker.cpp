@@ -252,6 +252,8 @@ bool ObjectLinker::mergeSections()
         case LDFileFormat::Null:
         case LDFileFormat::Relocation:
         case LDFileFormat::NamePool:
+        case LDFileFormat::Group:
+        case LDFileFormat::StackNote:
           // skip
           continue;
         default: {
