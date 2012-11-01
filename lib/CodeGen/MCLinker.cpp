@@ -282,19 +282,18 @@ bool MCLinker::doFinalization(llvm::Module &pM)
   if (!m_pObjLinker->linkable())
     return true;
 
+  // 6. - read all relocation entries from input files
+  m_pObjLinker->readRelocations();
 
-  // 6. - merge all sections
+  // 7. - merge all sections
   if (!m_pObjLinker->mergeSections())
     return true;
 
-  // 7. - add standard symbols and target-dependent symbols
+  // 8. - add standard symbols and target-dependent symbols
   // m_pObjLinker->addUndefSymbols();
   if (!m_pObjLinker->addStandardSymbols() ||
       !m_pObjLinker->addTargetSymbols())
     return true;
-
-  // 8. - read all relocation entries from input files
-  m_pObjLinker->readRelocations();
 
   // 9. - pre-layout
   m_pObjLinker->prelayout();
