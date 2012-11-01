@@ -13,6 +13,7 @@
 #include <mcld/LD/NamePool.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/SectionData.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/LD/StaticResolver.h>
 
 using namespace mcld;
@@ -82,9 +83,19 @@ bool Module::addSectionSymbol(LDSection& pOutputSection)
   // create the output section symbol and set its fragRef to the first fragment
   // of the section
   LDSymbol* sym = LDSymbol::Create(*sym_info);
-  assert(!pOutputSection.getSectionData()->empty());
-  FragmentRef* frag_ref =
-            FragmentRef::Create(pOutputSection.getSectionData()->front(), 0x0);
+  SectionData* sd = NULL;
+  switch (pOutputSection.kind()) {
+    case LDFileFormat::Relocation:
+      return false;
+    case LDFileFormat::EhFrame:
+      sd = &pOutputSection.getEhFrame()->getSectionData();
+      break;
+    default:
+      sd = pOutputSection.getSectionData();
+      break;
+  }
+  assert(!sd->empty());
+  FragmentRef* frag_ref = FragmentRef::Create(sd->front(), 0x0);
   sym->setFragmentRef(frag_ref);
   sym_info->setSymPtr(sym);
 
