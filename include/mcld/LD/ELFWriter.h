@@ -112,6 +112,8 @@ private:
 
   uint64_t getELF64LastStartOffset(const Module& pModule) const;
 
+  void emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const;
+
 protected:
   GNULDBackend& f_Backend;
 };

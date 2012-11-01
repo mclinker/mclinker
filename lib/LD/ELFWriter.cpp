@@ -29,6 +29,7 @@
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/LD/EhFrame.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
@@ -332,73 +333,18 @@ void
 ELFWriter::emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const
 {
-  const SectionData* data = pSection.getSectionData();
-  SectionData::const_iterator fragIter, fragEnd = data->end();
-  size_t cur_offset = 0;
-  for (fragIter = data->begin(); fragIter != fragEnd; ++fragIter) {
-    size_t size = fragIter->size();
-    switch(fragIter->getKind()) {
-      case Fragment::Region: {
-        const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
-        const uint8_t* from = region_frag.getRegion().start();
-        memcpy(pRegion.getBuffer(cur_offset), from, size);
-        break;
-      }
-      case Fragment::Alignment: {
-        // TODO: emit values with different sizes (> 1 byte), and emit nops
-        AlignFragment& align_frag = llvm::cast<AlignFragment>(*fragIter);
-        uint64_t count = size / align_frag.getValueSize();
-        switch (align_frag.getValueSize()) {
-          case 1u:
-            std::memset(pRegion.getBuffer(cur_offset),
-                        align_frag.getValue(),
-                        count);
-            break;
-          default:
-            llvm::report_fatal_error("unsupported value size for align fragment emission yet.\n");
-            break;
-        }
-        break;
-      }
-      case Fragment::Fillment: {
-        FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
-        if (0 == size ||
-            0 == fill_frag.getValueSize() ||
-            0 == fill_frag.size()) {
-          // ignore virtual fillment
-          break;
-        }
-
-        uint64_t num_tiles = fill_frag.size() / fill_frag.getValueSize();
-        for (uint64_t i = 0; i != num_tiles; ++i) {
-          std::memset(pRegion.getBuffer(cur_offset),
-                      fill_frag.getValue(),
-                      fill_frag.getValueSize());
-        }
-        break;
-      }
-      case Fragment::Stub: {
-        Stub& stub_frag = llvm::cast<Stub>(*fragIter);
-        memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
-        uint32_t* data = reinterpret_cast<uint32_t*>(pRegion.getBuffer(cur_offset));
-        break;
-      }
-      case Fragment::Null: {
-        assert(0x0 == size);
-        break;
-      }
-      case Fragment::Relocation:
-        llvm::report_fatal_error("relocation fragment should not be in a regular section.\n");
-        break;
-      case Fragment::Target:
-        llvm::report_fatal_error("Target fragment should not be in a regular section.\n");
-        break;
-      default:
-        llvm::report_fatal_error("invalid fragment should not be in a regular section.\n");
-        break;
-    }
-    cur_offset += size;
+  const SectionData* sd = NULL;
+  switch (pSection.kind()) {
+    case LDFileFormat::Relocation:
+      return;
+    case LDFileFormat::EhFrame:
+      sd = &pSection.getEhFrame()->getSectionData();
+      break;
+    default:
+      sd = pSection.getSectionData();
+      break;
   }
+  emitSectionData(*sd, pRegion);
 }
 
 /// emitRelocation
@@ -574,5 +520,76 @@ uint64_t ELFWriter::getELF64LastStartOffset(const Module& pModule) const
   const LDSection* lastSect = pModule.back();
   assert(lastSect != NULL);
   return Align<64>(lastSect->offset() + lastSect->size());
+}
+
+/// emitSectionData
+void
+ELFWriter::emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const
+{
+  SectionData::const_iterator fragIter, fragEnd = pSD.end();
+  size_t cur_offset = 0;
+  for (fragIter = pSD.begin(); fragIter != fragEnd; ++fragIter) {
+    size_t size = fragIter->size();
+    switch(fragIter->getKind()) {
+      case Fragment::Region: {
+        const RegionFragment& region_frag = llvm::cast<RegionFragment>(*fragIter);
+        const uint8_t* from = region_frag.getRegion().start();
+        memcpy(pRegion.getBuffer(cur_offset), from, size);
+        break;
+      }
+      case Fragment::Alignment: {
+        // TODO: emit values with different sizes (> 1 byte), and emit nops
+        AlignFragment& align_frag = llvm::cast<AlignFragment>(*fragIter);
+        uint64_t count = size / align_frag.getValueSize();
+        switch (align_frag.getValueSize()) {
+          case 1u:
+            std::memset(pRegion.getBuffer(cur_offset),
+                        align_frag.getValue(),
+                        count);
+            break;
+          default:
+            llvm::report_fatal_error("unsupported value size for align fragment emission yet.\n");
+            break;
+        }
+        break;
+      }
+      case Fragment::Fillment: {
+        FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
+        if (0 == size ||
+            0 == fill_frag.getValueSize() ||
+            0 == fill_frag.size()) {
+          // ignore virtual fillment
+          break;
+        }
+
+        uint64_t num_tiles = fill_frag.size() / fill_frag.getValueSize();
+        for (uint64_t i = 0; i != num_tiles; ++i) {
+          std::memset(pRegion.getBuffer(cur_offset),
+                      fill_frag.getValue(),
+                      fill_frag.getValueSize());
+        }
+        break;
+      }
+      case Fragment::Stub: {
+        Stub& stub_frag = llvm::cast<Stub>(*fragIter);
+        memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
+        break;
+      }
+      case Fragment::Null: {
+        assert(0x0 == size);
+        break;
+      }
+      case Fragment::Relocation:
+        llvm::report_fatal_error("relocation fragment should not be in a regular section.\n");
+        break;
+      case Fragment::Target:
+        llvm::report_fatal_error("Target fragment should not be in a regular section.\n");
+        break;
+      default:
+        llvm::report_fatal_error("invalid fragment should not be in a regular section.\n");
+        break;
+    }
+    cur_offset += size;
+  }
 }
 
