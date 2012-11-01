@@ -53,10 +53,18 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
               m_Config.scripts().sectionMap().find(pInputSection.name());
   std::string output_name = (pair.isNull())?pInputSection.name():pair.to;
   LDSection* target = m_Module.getSection(output_name);
-  if (NULL == target)
-    return false;
+
+  if (NULL == target) {
+    target = LDSection::Create(output_name,
+                               pInputSection.kind(),
+                               pInputSection.type(),
+                               pInputSection.flag());
+    target->setAlign(pInputSection.align());
+    m_Module.getSectionTable().push_back(target);
+  }
 
   switch (target->kind()) {
+    // Some *OUTPUT sections should not be merged.
     case LDFileFormat::Null:
     case LDFileFormat::Relocation:
       /** do nothing **/

@@ -247,7 +247,10 @@ bool ObjectLinker::mergeSections()
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       switch ((*sect)->kind()) {
+        // Some *INPUT sections should not be merged.
+        case LDFileFormat::Ignore:
         case LDFileFormat::Relocation:
+          // skip
           continue;
         default: {
           if (!builder.MergeSection(**sect)) {
