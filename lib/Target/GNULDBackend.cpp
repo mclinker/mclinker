@@ -1968,7 +1968,15 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
 
         // get the output relocation LDSection with identical name.
         LDSection* output_sect = pModule.getSection((*rs)->name());
-        assert(NULL != output_sect);
+        if (NULL == output_sect) {
+          output_sect = LDSection::Create((*rs)->name(),
+                                          (*rs)->kind(),
+                                          (*rs)->type(),
+                                          (*rs)->flag());
+
+          output_sect->setAlign((*rs)->align());
+          pModule.getSectionTable().push_back(*rs);
+        }
 
         // set output relocation section link
         const LDSection* input_link = (*rs)->getLink();
