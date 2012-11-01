@@ -148,6 +148,10 @@ public:
   /// sections.
   virtual bool allocateCommonSymbols(Module& pModule) = 0;
 
+  /// mergeSection - merge target dependent sections.
+  virtual bool mergeSection(Module& pModule, LDSection& pInputSection)
+  { return true; }
+
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput, SectionData& pSD)
   { return true; }

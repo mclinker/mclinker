@@ -810,6 +810,32 @@ bool ARMGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
   return true;
 }
 
+bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
+{
+  switch (pSection.type()) {
+    case llvm::ELF::SHT_ARM_ATTRIBUTES: {
+      // FIXME: (Luba)
+      // Handle ARM attributes in the right way.
+      // In current milestone, FragmentLinker goes through the shortcut.
+      // It reads input's ARM attributes and copies the first ARM attributes
+      // into the output file. The correct way is merge these sections, not
+      // just copy.
+      if (0 != m_pAttributes->size())
+        return true;
+
+      // First time we meet a ARM attributes section.
+      SectionData* sd = ObjectBuilder::CreateSectionData(*m_pAttributes);
+      ObjectBuilder::MoveSectionData(*pSection.getSectionData(), *sd);
+      return true;
+    }
+    default: {
+      ObjectBuilder builder(config(), pModule);
+      return builder.MergeSection(pSection);
+    }
+  } // end of switch
+  return true;
+}
+
 bool ARMGNULDBackend::readSection(Input& pInput, SectionData& pSD)
 {
   Fragment* frag = NULL;

@@ -256,12 +256,20 @@ bool ObjectLinker::mergeSections()
         case LDFileFormat::StackNote:
           // skip
           continue;
+        case LDFileFormat::Target:
+          if (!m_LDBackend.mergeSection(m_Module, **sect)) {
+            error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                  << (*obj)->name();
+            return false;
+          }
+          break;
         default: {
           if (!builder.MergeSection(**sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
           }
+          break;
         }
       } // end of switch
     } // for each section

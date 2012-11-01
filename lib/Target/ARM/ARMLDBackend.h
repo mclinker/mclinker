@@ -190,6 +190,9 @@ public:
   /// finalizeTargetSymbols - finalize the symbol value
   bool finalizeTargetSymbols(FragmentLinker& pLinker);
 
+  /// mergeSection - merge target dependent sections
+  bool mergeSection(Module& pModule, LDSection& pSection);
+
   /// readSection - read target dependent sections
   bool readSection(Input& pInput, SectionData& pSD);
 
