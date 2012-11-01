@@ -107,8 +107,14 @@ LDSymbol* FragmentLinker::addSymbolFromObject(const llvm::StringRef& pName,
     // it is a new symbol, the output_sym should be NULL.
     assert(NULL == output_sym);
 
-    // if it is a new symbol, create a LDSymbol for the output
-    output_sym = LDSymbol::Create(*resolved_result.info);
+    if (pType == ResolveInfo::Section) {
+      // if it is a section symbol, its output LDSymbol is the input LDSymbol.
+      output_sym = input_sym;
+    }
+    else {
+      // if it is a new symbol, create a LDSymbol for the output
+      output_sym = LDSymbol::Create(*resolved_result.info);
+    }
     resolved_result.info->setSymPtr(output_sym);
   }
 

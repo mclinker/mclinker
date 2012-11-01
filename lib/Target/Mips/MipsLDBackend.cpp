@@ -39,18 +39,6 @@ enum {
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// Helper Functions
-//===----------------------------------------------------------------------===//
-static inline void update_addend(Relocation& pReloc, const LDSymbol& pInputSym)
-{
-  // Update value keep in addend if we meet a section symbol
-  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
-    uint64_t offset = pInputSym.fragRef()->getOutputOffset();
-    pReloc.setAddend(offset + pReloc.addend());
-  }
-}
-
-//===----------------------------------------------------------------------===//
 // MipsGNULDBackend
 //===----------------------------------------------------------------------===//
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
@@ -155,7 +143,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
       return;
   }
 
-  update_addend(pReloc, pInputSym);
+  pReloc.updateAddend();
 
   if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
     return;
