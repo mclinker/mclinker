@@ -38,7 +38,7 @@ class MemoryRegion;
 class EhFrameHdr
 {
 public:
-  EhFrameHdr(LDSection& pEhFrameHdr, const EhFrame& pEhFrame);
+  EhFrameHdr(LDSection& pEhFrameHdr, const LDSection& pEhFrame);
 
   ~EhFrameHdr();
 
@@ -57,7 +57,7 @@ private:
 
 private:
   /// eh_frame
-  const EhFrame& m_EhFrame;
+  const LDSection& m_EhFrame;
 
   /// .eh_frame_hdr section
   LDSection& m_EhFrameHdr;

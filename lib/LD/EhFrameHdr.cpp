@@ -42,8 +42,8 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
     pOutput.request(m_EhFrameHdr.offset(), m_EhFrameHdr.size());
 
   MemoryRegion* ehframe_region =
-    pOutput.request(m_EhFrame.getSection().offset(),
-                    m_EhFrame.getSection().size());
+    pOutput.request(m_EhFrame.offset(),
+                    m_EhFrame.size());
 
   uint8_t* data = (uint8_t*)ehframehdr_region->start();
   // version
@@ -53,13 +53,16 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
 
   // eh_frame_ptr
   uint32_t* eh_frame_ptr = (uint32_t*)(data + 4);
-  *eh_frame_ptr = m_EhFrame.getSection().addr() - (m_EhFrameHdr.addr() + 4);
+  *eh_frame_ptr = m_EhFrame.addr() - (m_EhFrameHdr.addr() + 4);
 
   // fde_count
   uint32_t* fde_count = (uint32_t*)(data + 8);
-  *fde_count = m_EhFrame.numOfFDEs();
+  if (m_EhFrame.hasEhFrame())
+    *fde_count = 0;
+  else
+    *fde_count = m_EhFrame.getEhFrame()->numOfFDEs();
 
-  if (m_EhFrame.numOfFDEs() != 0) {
+  if (0 != *fde_count) {
     // fde_count_enc
     data[2] = DW_EH_PE_udata4;
     // table_enc
@@ -73,22 +76,22 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
     data[3] = DW_EH_PE_omit;
   }
 
-  if (m_EhFrame.numOfFDEs() != 0) {
+  if (0 != *fde_count) {
 
     // prepare the binary search table
     typedef std::vector<bit32::Entry> SearchTableType;
     SearchTableType search_table;
     MemoryRegion* ehframe_region =
-      pOutput.request(m_EhFrame.getSection().offset(), m_EhFrame.getSection().size());
-    EhFrame::const_fde_iterator fde, fde_end = m_EhFrame.fde_end();
-    for(fde = m_EhFrame.fde_begin(); fde != fde_end; ++fde) {
+      pOutput.request(m_EhFrame.offset(), m_EhFrame.size());
+    EhFrame::const_fde_iterator fde, fde_end = m_EhFrame.getEhFrame()->fde_end();
+    for(fde = m_EhFrame.getEhFrame()->fde_begin(); fde != fde_end; ++fde) {
       assert(*fde != NULL);
       SizeTraits<32>::Offset offset;
       SizeTraits<32>::Address fde_pc;
       SizeTraits<32>::Address fde_addr;
       offset = (*fde)->getOffset();
       fde_pc = computePCBegin(**fde, *ehframe_region);
-      fde_addr = m_EhFrame.getSection().addr() + offset;
+      fde_addr = m_EhFrame.addr() + offset;
       search_table.push_back(std::make_pair(fde_pc, fde_addr));
     }
     pOutput.release(ehframe_region);
@@ -111,7 +114,7 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
 //===----------------------------------------------------------------------===//
 // EhFrameHdr
 //===----------------------------------------------------------------------===//
-EhFrameHdr::EhFrameHdr(LDSection& pEhFrameHdr, const EhFrame& pEhFrame)
+EhFrameHdr::EhFrameHdr(LDSection& pEhFrameHdr, const LDSection& pEhFrame)
   : m_EhFrameHdr(pEhFrameHdr), m_EhFrame(pEhFrame) {
 }
 
@@ -133,7 +136,8 @@ EhFrameHdr::~EhFrameHdr()
 void EhFrameHdr::sizeOutput()
 {
   size_t size = 12;
-  size += 8 * m_EhFrame.numOfFDEs();
+  if (m_EhFrame.hasEhFrame())
+    size += 8 * m_EhFrame.getEhFrame()->numOfFDEs();
   m_EhFrameHdr.setSize(size);
 }
 
@@ -183,7 +187,7 @@ uint32_t EhFrameHdr::computePCBegin(const EhFrame::FDE& pFDE,
     case DW_EH_PE_absptr:
       break;
     case DW_EH_PE_pcrel:
-      pc += m_EhFrame.getSection().addr() + pFDE.getOffset() + pFDE.getDataStart();
+      pc += m_EhFrame.addr() + pFDE.getOffset() + pFDE.getDataStart();
       break;
     case DW_EH_PE_datarel:
       // TODO

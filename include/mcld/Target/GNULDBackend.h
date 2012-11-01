@@ -279,10 +279,6 @@ public:
   /// Target can override this function if needed.
   virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
 
-  EhFrame* getEhFrame();
-
-  const EhFrame* getEhFrame() const;
-
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 

@@ -44,7 +44,6 @@ EhFrame::~EhFrame()
 {
   // Since all CIEs, FDEs and regular fragments are stored in iplist, iplist
   // will delete the fragments and we do not need to handle with it.
-  SectionData::Destroy(m_pSectionData);
 }
 
 void EhFrame::addFragment(RegionFragment& pFrag)
@@ -62,8 +61,30 @@ void EhFrame::addCIE(EhFrame::CIE& pCIE)
   m_CIEs.push_back(&pCIE);
 }
 
+void EhFrame::addCIE(EhFrame::cie_iterator pFirst, EhFrame::cie_iterator pLast)
+{
+  // cie_iterator is random access iterator, so we can substract them to get
+  // the number of elements
+  size_t size = pLast - pFirst;
+  m_CIEs.reserve(size + m_CIEs.size());
+  for (cie_iterator cie = pFirst; cie != pLast; ++cie) {
+    m_CIEs.push_back(*cie);
+  }
+}
+
 void EhFrame::addFDE(EhFrame::FDE& pFDE)
 {
   m_FDEs.push_back(&pFDE);
+}
+
+void EhFrame::addFDE(EhFrame::fde_iterator pFirst, EhFrame::fde_iterator pLast)
+{
+  // fde_iterator is random access iterator, so we can substract them to get
+  // the number of elements
+  size_t size = pLast - pFirst;
+  m_FDEs.reserve(size + m_FDEs.size());
+  for (fde_iterator fde = pFirst; fde != pLast; ++fde) {
+    m_FDEs.push_back(*fde);
+  }
 }
 

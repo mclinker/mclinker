@@ -164,12 +164,6 @@ bool GNULDBackend::initExecSections(ObjectBuilder& pBuilder)
 
   // initialize standard sections
   m_pExecFileFormat->initStdSections(pBuilder, bitclass());
-
-  // initialize EhFrame
-  if (NULL == m_pEhFrame) {
-    LDSection& eh_frame = m_pExecFileFormat->getEhFrame();
-    m_pEhFrame = new EhFrame(eh_frame);
-  }
   return true;
 }
 
@@ -180,12 +174,6 @@ bool GNULDBackend::initDynObjSections(ObjectBuilder& pBuilder)
 
   // initialize standard sections
   m_pDynObjFileFormat->initStdSections(pBuilder, bitclass());
-
-  // initialize EhFrame
-  if (NULL == m_pEhFrame) {
-    LDSection& eh_frame = m_pDynObjFileFormat->getEhFrame();
-    m_pEhFrame = new EhFrame(eh_frame);
-  }
   return true;
 }
 
@@ -1943,9 +1931,8 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
   if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat();
-    assert(NULL != getEhFrame());
     m_pEhFrameHdr = new EhFrameHdr(format->getEhFrameHdr(),
-                                   *getEhFrame());
+                                   format->getEhFrame());
     m_pEhFrameHdr->sizeOutput();
   }
 
@@ -2337,17 +2324,5 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
   } while (!finished);
 
   return true;
-}
-
-EhFrame* GNULDBackend::getEhFrame()
-{
-  assert(NULL != m_pEhFrame);
-  return m_pEhFrame;
-}
-
-const EhFrame* GNULDBackend::getEhFrame() const
-{
-  assert(NULL != m_pEhFrame);
-  return m_pEhFrame;
 }
 

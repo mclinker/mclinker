@@ -62,10 +62,14 @@ public:
   };
 
   typedef std::vector<CIE*> CIEList;
+
+  // cie_iterator and const_cie_iterator must be a kind of random access iterator
   typedef CIEList::iterator cie_iterator;
   typedef CIEList::const_iterator const_cie_iterator;
 
   typedef std::vector<FDE*> FDEList;
+
+  // fde_iterator and const_fde_iterator must be a kind of random access iterator
   typedef FDEList::iterator fde_iterator;
   typedef FDEList::const_iterator const_fde_iterator;
 
@@ -98,6 +102,8 @@ public:
 
   void addCIE(CIE& pCIE);
 
+  void addCIE(cie_iterator pFirst, cie_iterator pLast);
+
   /// numOfCIEs - return the number of CIE entries
   size_t numOfCIEs() const { return m_CIEs.size(); }
 
@@ -113,6 +119,8 @@ public:
   FDE&       fde_back ()       { return *m_FDEs.back(); }
 
   void addFDE(FDE& pFDE);
+
+  void addFDE(fde_iterator pFirst, fde_iterator pLast);
 
   /// numOfFDEs - the number of FDE entries
   size_t numOfFDEs() const { return m_FDEs.size(); }
