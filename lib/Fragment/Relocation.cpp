@@ -101,3 +101,12 @@ size_t Relocation::size() const
   return 0;
 }
 
+void Relocation::updateAddend()
+{
+  // Update value keep in addend if we meet a section symbol
+  if (m_pSymInfo->type() == ResolveInfo::Section) {
+    uint32_t offset = m_pSymInfo->outSymbol()->fragRef()->getOutputOffset();
+    m_Addend += offset;
+  }
+}
+

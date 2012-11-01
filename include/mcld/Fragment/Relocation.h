@@ -70,6 +70,10 @@ public:
 
   void apply(RelocationFactory& pRelocFactory);
 
+  /// updateAddend - A relocation with a section symbol must update addend
+  /// before reading its value.
+  void updateAddend();
+
   /// ----- modifiers ----- ///
   void setType(Type pType);
 
