@@ -29,6 +29,8 @@ typedef GCFactory<FragmentRef, MCLD_SECTIONS_PER_INPUT> FragRefFactory;
 
 static llvm::ManagedStatic<FragRefFactory> g_FragRefFactory;
 
+FragmentRef FragmentRef::g_NullFragmentRef;
+
 //===----------------------------------------------------------------------===//
 // FragmentRef
 //===----------------------------------------------------------------------===//
@@ -60,12 +62,12 @@ FragmentRef* FragmentRef::Create(Fragment& pFrag, uint64_t pOffset)
     frag = frag->getNextNode();
   }
 
-  FragmentRef* result = g_FragRefFactory->allocate();
 
   if (NULL == frag)
-    new (result) FragmentRef();
-  else
-    new (result) FragmentRef(*frag, offset + frag->size());
+    return Null();
+
+  FragmentRef* result = g_FragRefFactory->allocate();
+  new (result) FragmentRef(*frag, offset + frag->size());
 
   return result;
 }
@@ -87,12 +89,15 @@ FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
   }
 
   if (NULL == data || data->empty()) {
-    FragmentRef* result = g_FragRefFactory->allocate();
-    new (result) FragmentRef();
-    return result;
+    return Null();
   }
 
   return Create(data->front(), pOffset);
+}
+
+FragmentRef* FragmentRef::Null()
+{
+  return &g_NullFragmentRef;
 }
 
 FragmentRef& FragmentRef::assign(const FragmentRef& pCopy)

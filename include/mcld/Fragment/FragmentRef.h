@@ -46,6 +46,8 @@ public:
 
   static FragmentRef* Create(LDSection& pSection, uint64_t pOffset);
 
+  static FragmentRef* Null();
+
   // -----  modifiers  ----- //
   FragmentRef& assign(const FragmentRef& pCopy);
 
@@ -60,6 +62,8 @@ public:
   void memcpy(void* pDest, size_t pNBytes, Offset pOffset = 0) const;
 
   // -----  observers  ----- //
+  bool isNull() const { return (this == Null()); }
+
   Fragment* frag()
   { return m_pFragment; }
 
@@ -94,6 +98,9 @@ private:
 private:
   Fragment* m_pFragment;
   Offset m_Offset;
+
+  static FragmentRef g_NullFragmentRef;
+
 };
 
 } // namespace of mcld

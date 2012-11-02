@@ -166,10 +166,10 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
 {
 
   if (Input::DynObj == pInput.type())
-    return NULL;
+    return FragmentRef::Null();
 
   if (pShndx == llvm::ELF::SHN_UNDEF || pShndx >= llvm::ELF::SHN_LORESERVE)
-    return NULL;
+    return FragmentRef::Null();
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
 
@@ -178,7 +178,10 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
                                                        << pInput.path().native();
 
   if (LDFileFormat::Ignore == sect_hdr->kind())
-    return NULL;
+    return FragmentRef::Null();
+
+  if (LDFileFormat::Group == sect_hdr->kind())
+    return FragmentRef::Null();
 
   return FragmentRef::Create(*sect_hdr, pOffset);
 }

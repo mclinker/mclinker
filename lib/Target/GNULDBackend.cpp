@@ -256,6 +256,9 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                    file_format->getPreInitArray().getSectionData()->front(),
                    0x0);
   }
+  else {
+    preinit_array = FragmentRef::Null();
+  }
   f_pPreInitArrayStart =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
                           FragmentLinker::Resolve>("__preinit_array_start",
@@ -276,7 +279,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Global,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Hidden);
 
   // .init_array
@@ -285,6 +288,9 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
     init_array = FragmentRef::Create(
                       file_format->getInitArray().getSectionData()->front(),
                       0x0);
+  }
+  else {
+    init_array = FragmentRef::Null();
   }
 
   f_pInitArrayStart =
@@ -317,6 +323,9 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                      file_format->getFiniArray().getSectionData()->front(),
                      0x0);
   }
+  else {
+    fini_array = FragmentRef::Null();
+  }
 
   f_pFiniArrayStart =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -348,6 +357,10 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                           file_format->getStack().getSectionData()->front(),
                           0x0);
   }
+  else {
+    stack = FragmentRef::Null();
+  }
+
   f_pStack =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
                           FragmentLinker::Resolve>("__stack",
@@ -372,7 +385,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                                    ResolveInfo::Local,
                                                    0x0, // size
                                                    0x0, // value
-                                                   NULL, // FragRef
+                                                   FragmentRef::Null(), // FragRef
                                                    ResolveInfo::Hidden);
 
   // -----  segment symbols  ----- //
@@ -385,7 +398,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEText =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -396,7 +409,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p_EText =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -407,7 +420,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p__EText =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -418,7 +431,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEData =
      pLinker.defineSymbol<FragmentLinker::AsRefered,
@@ -429,7 +442,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
   f_pEnd =
@@ -441,7 +454,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
   // _edata is defined forcefully.
@@ -455,7 +468,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
   // __bss_start is defined forcefully.
@@ -469,7 +482,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
   // _end is defined forcefully.
@@ -483,7 +496,7 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Absolute,
                                              0x0, // size
                                              0x0, // value
-                                             NULL, // FragRef
+                                             FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
   return true;
@@ -2332,7 +2345,7 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
 
   bool finished = true;
   do {
-    if (doRelax(pLinker, finished)) {
+    if (doRelax(pModule, pLinker, finished)) {
       // If the sections (e.g., .text) are relaxed, the layout is also changed
       // We need to do the following:
 

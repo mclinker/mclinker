@@ -107,8 +107,7 @@ public:
   const ResolveInfo* resolveInfo() const 
   { return m_pResolveInfo; }
 
-  bool hasFragRef() const
-  { return (NULL != m_pFragRef); }
+  bool hasFragRef() const;
 
   // -----  modifiers  ----- //
   void setSize(SizeType pSize) {

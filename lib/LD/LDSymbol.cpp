@@ -92,3 +92,8 @@ bool LDSymbol::isNull() const
   return (this == Null());
 }
 
+bool LDSymbol::hasFragRef() const
+{
+  return !m_pFragRef->isNull();
+}
+

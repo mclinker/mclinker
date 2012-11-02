@@ -834,7 +834,7 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                     ResolveInfo::Local,
                                                     0x0,  // size
                                                     0x0,  // value
-                                                    NULL, // FragRef
+                                                    FragmentRef::Null(), // FragRef
                                                     ResolveInfo::Hidden);
   }
 }

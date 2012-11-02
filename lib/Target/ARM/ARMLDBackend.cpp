@@ -147,7 +147,7 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    ResolveInfo::Local,
                    0x0,  // size
                    0x0,  // value
-                   NULL, // FragRef
+                   FragmentRef::Null(), // FragRef
                    ResolveInfo::Hidden);
 
   FragmentRef* exidx_start = NULL;
@@ -157,6 +157,10 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
     exidx_start = FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
     exidx_end = FragmentRef::Create(m_pEXIDX->getSectionData()->back(), 0x0);
     desc = ResolveInfo::Define;
+  }
+  else {
+    exidx_start = FragmentRef::Null();
+    exidx_end = FragmentRef::Null();
   }
   m_pEXIDXStart =
     pLinker.defineSymbol<FragmentLinker::Force,

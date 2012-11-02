@@ -93,7 +93,7 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    ResolveInfo::Local,
                    0x0,  // size
                    0x0,  // value
-                   NULL, // FragRef
+                   FragmentRef::Null(), // FragRef
                    ResolveInfo::Hidden);
 
   m_pGpDispSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
@@ -104,7 +104,7 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    ResolveInfo::Absolute,
                    0x0,  // size
                    0x0,  // value
-                   NULL, // FragRef
+                   FragmentRef::Null(), // FragRef
                    ResolveInfo::Default);
 
   if (NULL != m_pGpDispSymbol) {
