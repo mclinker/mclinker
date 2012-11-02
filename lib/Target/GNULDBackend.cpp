@@ -2217,6 +2217,32 @@ bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
           isSymbolPreemptible(pSym));
 }
 
+/// symbolHasFinalValue - return true if the symbol's value can be decided at
+/// link time
+/// @ref Google gold linker, Symbol::final_value_is_known
+bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
+                                           const ResolveInfo& pSym) const
+{
+  // if the output is pic code or if not executables, symbols' value may change
+  // at runtime
+  if (pLinker.isOutputPIC() || LinkerConfig::Exec != config().codeGenType())
+    return false;
+
+  // if the symbol is from dynamic object, then its value is unknown
+  if (pSym.isDyn())
+    return false;
+
+  // if the symbol is not in dynamic object and is not undefined, then its value
+  // is known
+  if (!pSym.isUndef())
+    return true;
+
+  // if the symbol is undefined and not in dynamic objects, for example, a weak
+  // undefined symbol, then whether the symbol's final value can be known
+  // depends on whrther we're doing static link
+  return pLinker.isStaticLink();
+}
+
 /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
 bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
                                         const Relocation& pReloc,

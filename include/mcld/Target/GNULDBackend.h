@@ -310,6 +310,11 @@ protected:
                             const Relocation& pReloc,
                             const ResolveInfo& pSym) const;
 
+  /// symbolHasFinalValue - return true if the symbol's value can be decided at
+  /// link time
+  bool symbolFinalValueIsKnown(const FragmentLinker& pLinker,
+                               const ResolveInfo& pSym) const;
+
   /// emitSymbol32 - emit an ELF32 symbol
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,
