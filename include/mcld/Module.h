@@ -26,9 +26,11 @@
 #include <mcld/Support/GCFactoryListTraits.h>
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/LD/NamePool.h>
+#include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputTree.h>
+
 
 namespace mcld {
 
@@ -124,10 +126,6 @@ public:
   LDSymbol*       getSectionSymbol(const LDSection* pSection);
   const LDSymbol* getSectionSymbol(const LDSection* pSection) const;
 
-  /// addSectionSymbol - create and add an section symbol for the output
-  /// LDSection
-  bool addSectionSymbol(LDSection& pOutputSection);
-
 /// @}
 /// @name Symbol Accessors
 /// @{
@@ -142,32 +140,15 @@ public:
   const_sym_iterator sym_end  () const { return m_SymbolTable.end();           }
   size_t             sym_size () const { return m_SymbolTable.numOfSymbols();  }
 
+  // ----- section symbols ----- //
+  const SectionSymbolSet& getSectionSymbolSet() const
+  { return m_SectSymbolSet; }
+  SectionSymbolSet&       getSectionSymbolSet()
+  { return m_SectSymbolSet; }
+
   // -----  names  ----- //
   const NamePool& getNamePool() const { return m_NamePool; }
   NamePool&       getNamePool()       { return m_NamePool; }
-
-private:
-  /// sectCompare - hash compare function for LDSection*
-  struct SectCompare
-  {
-    bool operator()(const LDSection* X, const LDSection* Y) const
-    { return (X==Y); }
-  };
-
-  /// SectPtrHash - hash function for LDSection*
-  struct SectPtrHash
-  {
-    size_t operator()(const LDSection* pKey) const
-    {
-      return (unsigned((uintptr_t)pKey) >> 4) ^
-             (unsigned((uintptr_t)pKey) >> 9);
-    }
-  };
-
-  typedef HashEntry<const LDSection*, LDSymbol*, SectCompare> SectHashEntryType;
-  typedef HashTable<SectHashEntryType,
-                    SectPtrHash,
-                    EntryFactory<SectHashEntryType> > SectHashTableType;
 
 private:
   std::string m_Name;
@@ -177,7 +158,7 @@ private:
   SectionTable m_SectionTable;
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
-  SectHashTableType* m_pSectionSymbolMap;
+  SectionSymbolSet m_SectSymbolSet;
 };
 
 } // namespace of mcld

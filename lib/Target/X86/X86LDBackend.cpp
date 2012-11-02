@@ -294,11 +294,11 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                &rsym->outSymbol()->fragRef()->frag()->getParent()->getSection();
       if (&file_format->getTData() == sym_sect) {
         if (NULL == f_pTDATA)
-          f_pTDATA = pModule.getSectionSymbol(sym_sect);
+          f_pTDATA = pModule.getSectionSymbolSet().get(*sym_sect);
       }
       else if (&file_format->getTBSS() == sym_sect || rsym->isCommon()) {
         if (NULL == f_pTBSS)
-          f_pTBSS = pModule.getSectionSymbol(sym_sect);
+          f_pTBSS = pModule.getSectionSymbolSet().get(*sym_sect);
       }
       else
         error(diag::invalid_tls) << rsym->name() << sym_sect->name();

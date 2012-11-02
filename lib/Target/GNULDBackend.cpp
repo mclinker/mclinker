@@ -759,8 +759,7 @@ void GNULDBackend::partialScanRelocation(Relocation& pReloc,
     // get the output LDSection which the symbol defined in
     const LDSection& out_sect =
                       input_sym->fragRef()->frag()->getParent()->getSection();
-
-    ResolveInfo* sym_info = pModule.getSectionSymbol(&out_sect)->resolveInfo();
+    ResolveInfo* sym_info = pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
     // set relocation target symbol to the output section symbol's resolveInfo
     pReloc.setSymInfo(sym_info);
   }
