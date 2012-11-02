@@ -963,7 +963,6 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
             LDSymbol* symbol = relocation->symInfo()->outSymbol();
             if (symbol->hasFragRef()) {
               uint64_t value = symbol->fragRef()->getOutputOffset();
-              assert(NULL != symbol->fragRef()->frag());
               uint64_t addr =
                 symbol->fragRef()->frag()->getParent()->getSection().addr();
               sym_value = addr + value;
