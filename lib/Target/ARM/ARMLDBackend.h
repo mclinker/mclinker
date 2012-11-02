@@ -227,7 +227,7 @@ private:
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
   /// otherwise set it to false.
-  bool doRelax(FragmentLinker& pLinker, bool& pFinished);
+  bool doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished);
 
   /// initTargetStubs
   bool initTargetStubs(FragmentLinker& pLinker);

@@ -410,7 +410,7 @@ private:
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
   /// otherwise set it to false.
-  virtual bool doRelax(FragmentLinker& pLinker, bool& pFinished)
+  virtual bool doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished)
   { return false; }
 
   /// getRelEntrySize - the size in BYTE of rel type relocation

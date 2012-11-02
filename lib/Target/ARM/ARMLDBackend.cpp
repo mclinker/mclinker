@@ -35,6 +35,7 @@
 #include <mcld/LD/StubFactory.h>
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Fragment/NullFragment.h>
+#include <mcld/LD/LDContext.h>
 
 using namespace mcld;
 
@@ -931,65 +932,76 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 }
 
 /// doRelax
-bool ARMGNULDBackend::doRelax(FragmentLinker& pLinker, bool& pFinished)
+bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished)
 {
   assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
 
   bool isRelaxed = false;
   ELFFileFormat* file_format = getOutputFormat();
   // check branch relocs and create the related stubs if needed
-  for (RelocationFactory::iterator it = getRelocFactory()->begin(),
-       ie = getRelocFactory()->end(); it != ie; ++it) {
-    switch ((*it).type()) {
-      case llvm::ELF::R_ARM_CALL:
-      case llvm::ELF::R_ARM_JUMP24:
-      case llvm::ELF::R_ARM_PLT32:
-      case llvm::ELF::R_ARM_THM_CALL:
-      case llvm::ELF::R_ARM_THM_XPC22:
-      case llvm::ELF::R_ARM_THM_JUMP24:
-      case llvm::ELF::R_ARM_THM_JUMP19:
-      case llvm::ELF::R_ARM_V4BX: {
-        // calculate the possible symbol value
-        uint64_t sym_value = 0x0;
-        LDSymbol* symbol = (*it).symInfo()->outSymbol();
-        if (symbol->hasFragRef()) {
-          uint64_t value = symbol->fragRef()->getOutputOffset();
-          assert(NULL != symbol->fragRef()->frag());
-          uint64_t addr =
-            symbol->fragRef()->frag()->getParent()->getSection().addr();
-          sym_value = addr + value;
-        }
-        if ((*it).symInfo()->isGlobal() &&
-            ((*it).symInfo()->reserved() & ReservePLT) != 0x0) {
-          // FIXME: we need to find out the address of the specific plt entry
-          assert(file_format->hasPLT());
-          sym_value = file_format->getPLT().addr();
-        }
+  Module::obj_iterator input, inEnd = pModule.obj_end();
+  for (input = pModule.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        Relocation* relocation = llvm::cast<Relocation>(reloc);
 
-        Stub* stub = getStubFactory()->create(*it,       // relocation
-                                              sym_value, // symbol value
-                                              pLinker,
-                                              *getRelocFactory(),
-                                              *getBRIslandFactory());
-        if (NULL != stub) {
-          assert(NULL != stub->symInfo());
-          // increase the size of .symtab and .strtab
-          LDSection& symtab = file_format->getSymTab();
-          LDSection& strtab = file_format->getStrTab();
-          if (32 == bitclass())
-            symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
-          else
-            symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
-          strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+        switch (relocation->type()) {
+          case llvm::ELF::R_ARM_CALL:
+          case llvm::ELF::R_ARM_JUMP24:
+          case llvm::ELF::R_ARM_PLT32:
+          case llvm::ELF::R_ARM_THM_CALL:
+          case llvm::ELF::R_ARM_THM_XPC22:
+          case llvm::ELF::R_ARM_THM_JUMP24:
+          case llvm::ELF::R_ARM_THM_JUMP19:
+          case llvm::ELF::R_ARM_V4BX: {
+            // calculate the possible symbol value
+            uint64_t sym_value = 0x0;
+            LDSymbol* symbol = relocation->symInfo()->outSymbol();
+            if (symbol->hasFragRef()) {
+              uint64_t value = symbol->fragRef()->getOutputOffset();
+              assert(NULL != symbol->fragRef()->frag());
+              uint64_t addr =
+                symbol->fragRef()->frag()->getParent()->getSection().addr();
+              sym_value = addr + value;
+            }
+            if (relocation->symInfo()->isGlobal() &&
+                (relocation->symInfo()->reserved() & ReservePLT) != 0x0) {
+              // FIXME: we need to find out the address of the specific plt entry
+              assert(file_format->hasPLT());
+              sym_value = file_format->getPLT().addr();
+            }
 
-          isRelaxed = true;
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  }
+            Stub* stub = getStubFactory()->create(*relocation, // relocation
+                                                  sym_value, // symbol value
+                                                  pLinker,
+                                                  *getRelocFactory(),
+                                                  *getBRIslandFactory());
+            if (NULL != stub) {
+              assert(NULL != stub->symInfo());
+              // increase the size of .symtab and .strtab
+              LDSection& symtab = file_format->getSymTab();
+              LDSection& strtab = file_format->getStrTab();
+              if (32 == bitclass())
+                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+              else
+                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+              strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+
+              isRelaxed = true;
+            }
+            break;
+          }
+          default:
+            break;
+        } // end of switch
+
+      } // for all relocations
+    } // for all relocation section
+  } // for all inputs
 
   // find the first fragment w/ invalid offset due to stub insertion
   Fragment* invalid = NULL;
