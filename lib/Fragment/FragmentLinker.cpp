@@ -474,7 +474,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
   // if the symbol is in the discarded input section, then we also need to
   // discard this relocation.
   ResolveInfo* resolve_info = pSym.resolveInfo();
-  if (pSym.fragRef() == NULL &&
+  if (!pSym.hasFragRef() &&
       resolve_info->type() == ResolveInfo::Section &&
       resolve_info->desc() == ResolveInfo::Undefined)
     return NULL;
