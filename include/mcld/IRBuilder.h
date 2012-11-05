@@ -163,7 +163,7 @@ public:
 /// @name Input Methods
 /// @{
 
-  /// CreateHeader - To create and append a section in the input file.
+  /// CreateSection - To create and append a section in the input file.
   ///
   /// @param pInput [in, out] The input file.
   /// @param pName  [in]      The name of the section.
@@ -175,13 +175,13 @@ public:
   /// @param pFlag  [in]      The format-dependent flag. In ELF, the value is
   ///                         SHF_* in normal.
   /// @param pAlign [in]      The alignment constraint of the section
-  /// @return The created section header.
-  LDSection* CreateHeader(Input& pInput,
-                          const std::string& pName,
-                          LDFileFormat::Kind pKind,
-                          uint32_t pType,
-                          uint32_t pFlag,
-                          uint32_t pAlign);
+  /// @return The created section header and section data.
+  LDSection* CreateSection(Input& pInput,
+                           const std::string& pName,
+                           LDFileFormat::Kind pKind,
+                           uint32_t pType,
+                           uint32_t pFlag,
+                           uint32_t pAlign);
 
   /// AppendFragment - To append a fragment in the section.
   /// To append pFrag and to increase the size of appended section.
