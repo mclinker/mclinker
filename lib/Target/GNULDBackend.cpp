@@ -108,20 +108,14 @@ size_t GNULDBackend::sectionStartOffset() const
 
 uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
 {
-  static uint64_t start_addr = -1U;
-  if (start_addr != -1U)
-    return start_addr;
-
   ScriptOptions::AddressMap::const_iterator mapping =
     config().scripts().addressMap().find(".text");
   if (mapping != config().scripts().addressMap().end())
-    start_addr = mapping.getEntry()->value();
+    return mapping.getEntry()->value();
   else if (pLinker.isOutputPIC())
-    start_addr = 0x0;
+    return 0x0;
   else
-    start_addr = defaultTextSegmentAddr();
-
-  return start_addr;
+    return defaultTextSegmentAddr();
 }
 
 GNUArchiveReader*
