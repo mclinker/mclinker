@@ -27,7 +27,8 @@ static llvm::ManagedStatic<RegionFactory> g_RegionFactory;
 // reveal what is the special situation.
 MemoryArea::MemoryArea(Space& pUniverse)
   : m_pFileHandle(NULL) {
-  m_SpaceList.push_back(&pUniverse);
+  m_SpaceMap.insert(std::make_pair(Key(pUniverse.start(), pUniverse.size()),
+                                   &pUniverse));
 }
 
 MemoryArea::MemoryArea(FileHandle& pFileHandle)
@@ -36,6 +37,11 @@ MemoryArea::MemoryArea(FileHandle& pFileHandle)
 
 MemoryArea::~MemoryArea()
 {
+  SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
+  for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
+    if (space->second != NULL)
+      delete space->second;
+  }
 }
 
 // The layout of MemorySpace in the virtual memory space
@@ -67,7 +73,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
     }
 
     space = Space::createSpace(*m_pFileHandle, pOffset, pLength);
-    m_SpaceList.push_back(space);
+    m_SpaceMap.insert(std::make_pair(Key(pOffset, pLength), space));
   }
 
   // adjust r_start
@@ -98,7 +104,7 @@ void MemoryArea::release(MemoryRegion* pRegion)
         Space::syncSpace(space, *m_pFileHandle);
       }
       Space::releaseSpace(space, *m_pFileHandle);
-      m_SpaceList.erase(space);
+      m_SpaceMap.erase(Key(space->start(), space->size()));
     }
   }
 }
@@ -110,46 +116,38 @@ void MemoryArea::clear()
     return;
 
   if (m_pFileHandle->isWritable()) {
-    SpaceList::iterator space, sEnd = m_SpaceList.end();
-    for (space = m_SpaceList.begin(); space != sEnd; ++space) {
-      Space::syncSpace(space, *m_pFileHandle);
-      Space::releaseSpace(space, *m_pFileHandle);
+    SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
+    for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
+      Space::syncSpace(space->second, *m_pFileHandle);
+      Space::releaseSpace(space->second, *m_pFileHandle);
     }
   }
   else {
-    SpaceList::iterator space, sEnd = m_SpaceList.end();
-    for (space = m_SpaceList.begin(); space != sEnd; ++space)
-      Space::releaseSpace(space, *m_pFileHandle);
+    SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
+    for (space = m_SpaceMap.begin(); space != sEnd; ++space)
+      Space::releaseSpace(space->second, *m_pFileHandle);
   }
 
-  m_SpaceList.clear();
+  m_SpaceMap.clear();
 }
 
 //===--------------------------------------------------------------------===//
 // SpaceList methods
 Space* MemoryArea::find(size_t pOffset, size_t pLength)
 {
-  SpaceList::iterator sIter, sEnd = m_SpaceList.end();
-  for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
-    if (sIter->start() <= pOffset &&
-       (pOffset+pLength) <= (sIter->start()+sIter->size()) ) {
-      // within
-      return sIter;
-    }
-  }
+  SpaceMapType::iterator it = m_SpaceMap.find(Key(pOffset, pLength));
+  if (it != m_SpaceMap.end())
+    return it->second;
+
   return NULL;
 }
 
 const Space* MemoryArea::find(size_t pOffset, size_t pLength) const
 {
-  SpaceList::const_iterator sIter, sEnd = m_SpaceList.end();
-  for (sIter = m_SpaceList.begin(); sIter!=sEnd; ++sIter) {
-    if (sIter->start() <= pOffset &&
-       (pOffset+pLength) <= (sIter->start()+sIter->size()) ) {
-      // within
-      return sIter;
-    }
-  }
+  SpaceMapType::const_iterator it = m_SpaceMap.find(Key(pOffset, pLength));
+  if (it != m_SpaceMap.end())
+    return it->second;
+
   return NULL;
 }
 
