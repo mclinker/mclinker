@@ -560,6 +560,15 @@ void FragmentLinker::normalSyncRelocationResult(MemoryArea& pOutput)
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
+
+        // bypass the relocation with NONE type. This is to avoid overwrite the
+        // target result by NONE type relocation if there is a place which has
+        // two relocations to apply to, and one of it is NONE type. The result
+        // we want is the value of the other relocation result. For example,
+        // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
+        // the same place
+        if (0x0 == relocation->type())
+          continue;
         writeRelocationResult(*relocation, data);
       } // for all relocations
     } // for all relocation section
@@ -596,6 +605,15 @@ void FragmentLinker::partialSyncRelocationResult(MemoryArea& pOutput)
     RelocData::iterator relocIter, relocEnd = reloc_data->end();
     for (relocIter = reloc_data->begin(); relocIter != relocEnd; ++relocIter) {
       Relocation* reloc = llvm::cast<Relocation>(relocIter);
+
+      // bypass the relocation with NONE type. This is to avoid overwrite the
+      // target result by NONE type relocation if there is a place which has
+      // two relocations to apply to, and one of it is NONE type. The result
+      // we want is the value of the other relocation result. For example,
+      // in .exidx, there are usually an R_ARM_NONE and R_ARM_PREL31 apply to
+      // the same place
+      if (0x0 == reloc->type())
+        continue;
       writeRelocationResult(*reloc, data);
     }
   }
