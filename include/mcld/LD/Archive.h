@@ -67,13 +67,12 @@ private:
   {
     size_t operator()(uint32_t pKey) const
     {
-      size_t h;
-      h ^= h >> 16;
-      h *= 0x85ebca6b;
-      h ^= h >> 13;
-      h *= 0xc2b2ae35;
-      h ^= h >> 16;
-      return h;
+      pKey ^= pKey >> 16;
+      pKey *= 0x85ebca6b;
+      pKey ^= pKey >> 13;
+      pKey *= 0xc2b2ae35;
+      pKey ^= pKey >> 16;
+      return pKey;
     }
   };
 
