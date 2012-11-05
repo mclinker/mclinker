@@ -1324,9 +1324,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
         return SHO_RO;
       } else {
         if (config().options().hasRelro()) {
-          if (pSectHdr.type() == llvm::ELF::SHT_PREINIT_ARRAY ||
-              pSectHdr.type() == llvm::ELF::SHT_INIT_ARRAY ||
-              pSectHdr.type() == llvm::ELF::SHT_FINI_ARRAY ||
+          if (&pSectHdr == &file_format->getPreInitArray() ||
+              &pSectHdr == &file_format->getInitArray() ||
+              &pSectHdr == &file_format->getFiniArray() ||
               &pSectHdr == &file_format->getCtors() ||
               &pSectHdr == &file_format->getDtors() ||
               &pSectHdr == &file_format->getJCR() ||
