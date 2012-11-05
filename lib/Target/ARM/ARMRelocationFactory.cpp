@@ -842,7 +842,7 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
   return ARMRelocationFactory::OK;
 }
 
-// R_ARM_PREL31: (S + A) | T
+// R_ARM_PREL31: ((S + A) | T) - P
 ARMRelocationFactory::Result prel31(Relocation& pReloc,
                                     ARMRelocationFactory& pParent)
 {
@@ -850,6 +850,7 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = helper_sign_extend(target, 31) +
                                   pReloc.addend();
+  ARMRelocationFactory::DWord P = pReloc.place();
   ARMRelocationFactory::Address S;
 
   S = pReloc.symValue();
@@ -859,7 +860,7 @@ ARMRelocationFactory::Result prel31(Relocation& pReloc,
     T = 0;  // PLT is not thumb.
   }
 
-  ARMRelocationFactory::DWord X = (S + A) | T ;
+  ARMRelocationFactory::DWord X = ((S + A) | T) - P;
   pReloc.target() = helper_bit_select(target, X, 0x7fffffffU);
   if (helper_check_signed_overflow(X, 31))
     return ARMRelocationFactory::Overflow;
