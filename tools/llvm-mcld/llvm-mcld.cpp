@@ -435,6 +435,7 @@ ArgFPIC("fPIC",
 
 static cl::opt<std::string>
 ArgDyld("dynamic-linker",
+        cl::ZeroOrMore,
         cl::desc("Set the name of the dynamic linker."),
         cl::value_desc("Program"));
 
@@ -460,9 +461,15 @@ ArgColor("color",
       "surround result strings only if the output is a tty"),
     clEnumValEnd));
 
+// FIXME: begin of unsupported options
 static cl::opt<bool>
 ArgGCSections("gc-sections",
               cl::desc("Enable garbage collection of unused input sections."),
+              cl::init(false));
+
+static cl::opt<bool>
+ArgNoGCSections("no-gc-sections",
+              cl::desc("disable garbage collection of unused input sections."),
               cl::init(false));
 
 namespace icf {
@@ -551,6 +558,43 @@ static cl::alias
 ArgExportDynamicAlias("E",
                       cl::desc("alias for --export-dynamic"),
                       cl::aliasopt(ArgExportDynamic));
+
+static cl::opt<std::string>
+ArgEmulation("m",
+             cl::desc("Set GNU linker emulation"),
+             cl::value_desc("emulation"));
+
+static cl::opt<std::string>
+ArgRuntimePath("rpath",
+               cl::desc("Add a directory to the runtime library search path"),
+               cl::value_desc("dir"));
+
+static cl::opt<std::string>
+ArgRuntimePathLink("rpath-link",
+                   cl::desc("Add a directory to the link time library search path"),
+                   cl::value_desc("dir"));
+
+static cl::list<std::string>
+ArgExcludeLIBS("exclude-libs",
+               cl::CommaSeparated,
+               cl::desc("Exclude libraries from automatic export"),
+               cl::value_desc("lib1,lib2,..."));
+
+static cl::opt<std::string>
+ArgBuildID("build-id",
+           cl::desc("Request creation of \".note.gnu.build-id\" ELF note section."),
+           cl::value_desc("style"));
+
+static cl::opt<std::string>
+ArgForceUndefined("u",
+                  cl::desc("Force symbol to be undefined in the output file"),
+                  cl::value_desc("symbol"));
+
+static cl::alias
+ArgForceUndefinedAlias("undefined",
+                       cl::desc("alias for -u"),
+                       cl::aliasopt(ArgForceUndefined));
+// FIXME: end of unsupported options
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
@@ -825,8 +869,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   }
 
   if (ArgGCSections) {
-    // FIXME: need a warning function
-    errs() << "WARNING: option --gc-sections is not implemented yet!\n";
+    mcld::warning(mcld::diag::warn_unsupported_option) << ArgGCSections.ArgStr;
   }
 
   // set up icf mode
@@ -836,24 +879,20 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     case icf::All:
     case icf::Safe:
     default:
-      // FIXME: need a warning function
-      errs() << "WARNING: option --icf is not implemented yet!\n";
+      mcld::warning(mcld::diag::warn_unsupported_option) << ArgICF.ArgStr;
       break;
   }
 
   if (ArgFIXCA8) {
-    // FIXME: need a warning function
-    errs() << "WARNING: option --fix-cortex-a8 is not implemented yet!\n";
+    mcld::warning(mcld::diag::warn_unsupported_option) << ArgFIXCA8.ArgStr;
   }
 
   if (ArgDiscardLocals) {
-    // FIXME: need a warning function
-    errs() << "WARNING: option -X/--discard-locals is not implemented yet!\n";
+    mcld::warning(mcld::diag::warn_unsupported_option) << ArgDiscardLocals.ArgStr;
   }
 
   if (ArgDiscardAll) {
-    // FIXME: need a warning function
-    errs() << "WARNING: option -x/--discard-all is not implemented yet!\n";
+    mcld::warning(mcld::diag::warn_unsupported_option) << ArgDiscardAll.ArgStr;
   }
 
   // add address mappings
