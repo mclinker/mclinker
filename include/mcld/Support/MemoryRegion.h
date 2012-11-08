@@ -48,6 +48,8 @@ private:
 
   MemoryRegion(Space& pParent, const Address pVMAStart, size_t pSize);
 
+  ~MemoryRegion();
+
   Space* parent()
   { return m_pParent; }
 
@@ -58,8 +60,6 @@ public:
   static MemoryRegion* Create(void* pStart, size_t pSize, Space& pSpace);
 
   static void Destroy(MemoryRegion*& pRegion);
-
-  ~MemoryRegion();
 
   Address start()
   { return m_VMAStart; }
