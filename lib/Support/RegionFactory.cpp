@@ -19,13 +19,11 @@ RegionFactory::produce(Space& pSpace, Address pVMAStart, size_t pSize)
 {
   MemoryRegion* result = Alloc::allocate();
   new (result) MemoryRegion(pSpace, pVMAStart, pSize);
-  pSpace.addRegion(*result);
   return result;
 }
 
 void RegionFactory::destruct(MemoryRegion* pRegion)
 {
-  pRegion->parent()->removeRegion(*pRegion);
   destroy(pRegion);
   deallocate(pRegion);
 }

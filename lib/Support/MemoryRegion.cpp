@@ -34,11 +34,16 @@ MemoryRegion::~MemoryRegion()
 
 MemoryRegion* MemoryRegion::Create(void* pStart, size_t pSize, Space& pSpace)
 {
-  return g_RegionFactory->produce(pSpace, static_cast<Address>(pStart), pSize);
+  MemoryRegion* result = g_RegionFactory->produce(pSpace,
+                                                  static_cast<Address>(pStart),
+                                                  pSize);
+  pSpace.addRegion(*result);
+  return result;
 }
 
 void MemoryRegion::Destroy(MemoryRegion*& pRegion)
 {
+  pRegion->parent()->removeRegion(*pRegion);
   g_RegionFactory->destruct(pRegion);
 }
 
