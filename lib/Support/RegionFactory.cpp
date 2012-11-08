@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/RegionFactory.h>
-#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Space.h>
 
 using namespace mcld;
@@ -15,20 +14,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // RegionFactory
 //===----------------------------------------------------------------------===//
-RegionFactory::RegionFactory()
-{
-}
-
-RegionFactory::~RegionFactory()
-{
-}
-
-MemoryRegion* RegionFactory::produce(Space& pSpace, void* pVMAStart, size_t pSize)
+MemoryRegion*
+RegionFactory::produce(Space& pSpace, Address pVMAStart, size_t pSize)
 {
   MemoryRegion* result = Alloc::allocate();
-  new (result) MemoryRegion(pSpace,
-                            static_cast<const MemoryRegion::Address>(pVMAStart),
-                            pSize);
+  new (result) MemoryRegion(pSpace, pVMAStart, pSize);
   pSpace.addRegion(*result);
   return result;
 }

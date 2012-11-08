@@ -8,16 +8,11 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/Space.h>
-#include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
 
-#include <llvm/Support/ManagedStatic.h>
-
 using namespace mcld;
-
-static llvm::ManagedStatic<RegionFactory> g_RegionFactory;
 
 //===--------------------------------------------------------------------===//
 // MemoryArea
@@ -81,7 +76,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
   void* r_start = space->memory() + distance;
 
   // now, we have a legal space to hold the new MemoryRegion
-  return g_RegionFactory->produce(*space, r_start, pLength);
+  return MemoryRegion::Create(r_start, pLength, *space);
 }
 
 // release - release a MemoryRegion
@@ -91,7 +86,7 @@ void MemoryArea::release(MemoryRegion* pRegion)
     return;
 
   Space *space = pRegion->parent();
-  g_RegionFactory->destruct(pRegion);
+  MemoryRegion::Destroy(pRegion);
 
   if (0 == space->numOfRegions()) {
 

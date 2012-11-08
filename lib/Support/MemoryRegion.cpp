@@ -7,8 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/RegionFactory.h>
+
+#include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
+
+static llvm::ManagedStatic<RegionFactory> g_RegionFactory;
 
 //===----------------------------------------------------------------------===//
 // MemoryRegion
@@ -25,5 +30,15 @@ MemoryRegion::MemoryRegion(Space& pParent,
 
 MemoryRegion::~MemoryRegion()
 {
+}
+
+MemoryRegion* MemoryRegion::Create(void* pStart, size_t pSize, Space& pSpace)
+{
+  return g_RegionFactory->produce(pSpace, static_cast<Address>(pStart), pSize);
+}
+
+void MemoryRegion::Destroy(MemoryRegion*& pRegion)
+{
+  g_RegionFactory->destruct(pRegion);
 }
 

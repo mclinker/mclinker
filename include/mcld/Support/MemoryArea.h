@@ -75,11 +75,8 @@ public:
   // clear - release all memory regions.
   void clear();
 
-  FileHandle* handler()
-  { return m_pFileHandle; }
-
-  const FileHandle* handler() const
-  { return m_pFileHandle; }
+  const FileHandle* handler() const { return m_pFileHandle; }
+  FileHandle*       handler()       { return m_pFileHandle; }
 
   // -----  space list methods  ----- //
   Space* find(size_t pOffset, size_t pLength);

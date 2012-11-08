@@ -14,8 +14,6 @@
 #include <mcld/Config/Config.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Support/MemoryRegion.h>
-#include <mcld/Support/MemoryArea.h>
-#include <mcld/Support/FileSystem.h>
 
 namespace mcld {
 
@@ -29,13 +27,11 @@ class RegionFactory : public GCFactory<MemoryRegion, MCLD_REGION_CHUNK_SIZE>
 {
 public:
   typedef GCFactory<MemoryRegion, MCLD_REGION_CHUNK_SIZE> Alloc;
+  typedef MemoryRegion::Address Address;
+  typedef MemoryRegion::ConstAddress ConstAddress;
 
 public:
-  RegionFactory();
-  ~RegionFactory();
-
-  // ----- production ----- //
-  MemoryRegion* produce(Space& pSpace, void* pVMAStart, size_t pSize);
+  MemoryRegion* produce(Space& pSpace, Address pVMAStart, size_t pSize);
 
   void destruct(MemoryRegion* pRegion);
 };

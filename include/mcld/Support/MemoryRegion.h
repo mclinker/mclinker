@@ -55,6 +55,10 @@ private:
   { return m_pParent; }
 
 public:
+  static MemoryRegion* Create(void* pStart, size_t pSize, Space& pSpace);
+
+  static void Destroy(MemoryRegion*& pRegion);
+
   ~MemoryRegion();
 
   Address start()
