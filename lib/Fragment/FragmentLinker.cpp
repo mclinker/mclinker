@@ -27,6 +27,7 @@
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/SectionRules.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>

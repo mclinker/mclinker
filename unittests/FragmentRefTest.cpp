@@ -17,7 +17,6 @@
 
 using namespace mcld;
 using namespace mcld::sys::fs;
-using namespace mcld::sys::fs::detail;
 using namespace mcldtest;
 
 // Constructor can do set-up work for all test here.

@@ -23,6 +23,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 
 namespace mcld {

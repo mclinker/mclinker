@@ -14,6 +14,7 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;

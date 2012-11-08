@@ -14,11 +14,12 @@
 
 #include <mcld/Config/Config.h>
 #include <mcld/ADT/Uncopyable.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/Support/MemoryArea.h>
+#include <mcld/Support/Allocators.h>
 #include <mcld/Support/Space.h>
 
 namespace mcld {
+
+class MemoryArea;
 
 /** \class MemoryRegion
  *  \brief MemoryRegion is a range of virtual memory which is mapped onto a
@@ -50,38 +51,28 @@ private:
 
   ~MemoryRegion();
 
-  Space* parent()
-  { return m_pParent; }
-
-  const Space* parent() const
-  { return m_pParent; }
-
 public:
   static MemoryRegion* Create(void* pStart, size_t pSize, Space& pSpace);
 
   static void Destroy(MemoryRegion*& pRegion);
 
-  Address start()
-  { return m_VMAStart; }
+  const Space* parent() const { return m_pParent; }
+  Space*       parent()       { return m_pParent; }
 
-  ConstAddress start() const
-  { return m_VMAStart; }
+  ConstAddress start() const { return m_VMAStart; }
+  Address      start()       { return m_VMAStart; }
 
-  Address end()
-  { return m_VMAStart+m_Length; }
+  ConstAddress end() const { return m_VMAStart+m_Length; }
+  Address      end()       { return m_VMAStart+m_Length; }
 
-  ConstAddress end() const
-  { return m_VMAStart+m_Length; }
-
-  size_t size() const
-  { return m_Length; }
-
-  Address getBuffer(size_t pOffset = 0)
-  { return m_VMAStart+pOffset; }
+  size_t size() const { return m_Length; }
 
   ConstAddress getBuffer(size_t pOffset = 0) const
   { return m_VMAStart+pOffset; }
  
+  Address getBuffer(size_t pOffset = 0)
+  { return m_VMAStart+pOffset; }
+
 private:
   Space* m_pParent;
   Address m_VMAStart;

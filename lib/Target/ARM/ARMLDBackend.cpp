@@ -28,6 +28,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Fragment/Stub.h>
