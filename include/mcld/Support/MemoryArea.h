@@ -17,8 +17,7 @@
 #include <map>
 
 #if defined(ENABLE_UNITTEST)
-namespace mcldtest
-{
+namespace mcldtest {
   class MemoryAreaTest;
 } // namespace of mcldtest
 #endif

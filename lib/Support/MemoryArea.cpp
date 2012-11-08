@@ -40,7 +40,7 @@ MemoryArea::~MemoryArea()
   SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
   for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
     if (space->second != NULL)
-      delete space->second;
+      Space::Destroy(space->second);
   }
 }
 
@@ -72,7 +72,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
       unreachable(diag::err_out_of_range_region) << pOffset << pLength;
     }
 
-    space = Space::createSpace(*m_pFileHandle, pOffset, pLength);
+    space = Space::Create(*m_pFileHandle, pOffset, pLength);
     m_SpaceMap.insert(std::make_pair(Key(pOffset, pLength), space));
   }
 
@@ -101,10 +101,10 @@ void MemoryArea::release(MemoryRegion* pRegion)
       // Space.
       if (m_pFileHandle->isWritable()) {
         // synchronize writable space before we release it.
-        Space::syncSpace(space, *m_pFileHandle);
+        Space::Sync(space, *m_pFileHandle);
       }
-      Space::releaseSpace(space, *m_pFileHandle);
       m_SpaceMap.erase(Key(space->start(), space->size()));
+      Space::Release(space, *m_pFileHandle);
     }
   }
 }
@@ -118,14 +118,14 @@ void MemoryArea::clear()
   if (m_pFileHandle->isWritable()) {
     SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
     for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
-      Space::syncSpace(space->second, *m_pFileHandle);
-      Space::releaseSpace(space->second, *m_pFileHandle);
+      Space::Sync(space->second, *m_pFileHandle);
+      Space::Release(space->second, *m_pFileHandle);
     }
   }
   else {
     SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
     for (space = m_SpaceMap.begin(); space != sEnd; ++space)
-      Space::releaseSpace(space->second, *m_pFileHandle);
+      Space::Release(space->second, *m_pFileHandle);
   }
 
   m_SpaceMap.clear();
@@ -133,6 +133,7 @@ void MemoryArea::clear()
 
 //===--------------------------------------------------------------------===//
 // SpaceList methods
+//===--------------------------------------------------------------------===//
 Space* MemoryArea::find(size_t pOffset, size_t pLength)
 {
   SpaceMapType::iterator it = m_SpaceMap.find(Key(pOffset, pLength));

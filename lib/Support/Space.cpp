@@ -20,11 +20,12 @@ static const off_t PageSize = getpagesize();
 
 //===----------------------------------------------------------------------===//
 // Non-member functions
+//===----------------------------------------------------------------------===//
 //
 // low address      A page             high address
 // |--------------------|------------------|
 // ^ page_offset        ^ pFileOffset      ^ page_boundary
-
+//
 // Given a file offset, return the page offset.
 // return the first page boundary \b before pFileOffset
 inline static off_t page_offset(off_t pFileOffset)
@@ -46,6 +47,7 @@ inline static Space::Type policy(off_t pOffset, size_t pLength)
 
 //===----------------------------------------------------------------------===//
 // Space
+//===----------------------------------------------------------------------===//
 Space::Space()
   : m_Data(NULL), m_StartOffset(0), m_Size(0),
     m_RegionCount(0), m_Type(UNALLOCATED) {
@@ -62,8 +64,13 @@ Space::~Space()
   // do nothing. m_Data is deleted by @ref releaseSpace
 }
 
-Space* Space::createSpace(FileHandle& pHandler,
-                          size_t pStart, size_t pSize)
+Space* Space::Create(void* pMemBuffer, size_t pSize)
+{
+  Space* result = new Space(EXTERNAL, pMemBuffer, pSize);
+  return result;
+}
+
+Space* Space::Create(FileHandle& pHandler, size_t pStart, size_t pSize)
 {
   Type type;
   void* memory;
@@ -134,7 +141,13 @@ Space* Space::createSpace(FileHandle& pHandler,
   return result;
 }
 
-void Space::releaseSpace(Space* pSpace, FileHandle& pHandler)
+void Space::Destroy(Space*& pSpace)
+{
+  delete pSpace;
+  pSpace = NULL;
+}
+
+void Space::Release(Space* pSpace, FileHandle& pHandler)
 {
   if (NULL == pSpace)
     return;
@@ -152,7 +165,7 @@ void Space::releaseSpace(Space* pSpace, FileHandle& pHandler)
   } // end of switch
 }
 
-void Space::syncSpace(Space* pSpace, FileHandle& pHandler)
+void Space::Sync(Space* pSpace, FileHandle& pHandler)
 {
   if (NULL == pSpace || !pHandler.isWritable())
     return;

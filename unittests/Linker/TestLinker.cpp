@@ -166,7 +166,7 @@ void TestLinker::addObject(void* pMemBuffer, size_t pSize)
 
   advanceRoot();
 
-  mcld::Space* space = new mcld::Space(mcld::Space::EXTERNAL, pMemBuffer, pSize);
+  mcld::Space* space = Space::Create(pMemBuffer, pSize);
   mcld::MemoryArea* input_memory = new MemoryArea(*space);
   input->setMemArea(input_memory);
   m_MemAreaList.push_back(input_memory);

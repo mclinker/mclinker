@@ -12,12 +12,9 @@
 #include <gtest.h>
 #endif
 #include <llvm/Support/DataTypes.h>
-#include <llvm/ADT/ilist.h>
-#include <llvm/ADT/ilist_node.h>
 #include <mcld/ADT/TypeTraits.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class FileHandle;
 class MemoryRegion;
@@ -27,7 +24,7 @@ class MemoryRegion;
  *  the other Space.
  *
  */
-class Space : public llvm::ilist_node<Space>
+class Space
 {
 public:
   enum Type
@@ -41,20 +38,13 @@ public:
   typedef NonConstTraits<uint8_t>::pointer Address;
   typedef ConstTraits<uint8_t>::pointer ConstAddress;
 
-// llvm::iplist functions
-public:
-  // llvm::iplist needs default constructor to make a sentinel.
-  // Normal users should use @ref Space::createSpace function.
+private:
   Space();
 
-  // llvm::iplist needs public destructor to delete the sentinel.
-  // Normal users should use @ref Space::releaseSpace function.
   ~Space();
 
-  // This constructor is opened for the clients who want to control the
-  // details. In MCLinker, this constructor is used no where.
   Space(Type pType, void* pMemBuffer, size_t pSize);
-  
+
 public:
   void setStart(size_t pOffset)
   { m_StartOffset = pOffset; }
@@ -83,12 +73,17 @@ public:
   size_t numOfRegions() const
   { return m_RegionCount; }
 
-  static Space* createSpace(FileHandle& pHandler,
-                            size_t pOffset, size_t pSize);
-  
-  static void releaseSpace(Space* pSpace, FileHandle& pHandler);
+  /// Create - Create a Space from external memory
+  static Space* Create(void* pMemBuffer, size_t pSize);
 
-  static void syncSpace(Space* pSpace, FileHandle& pHandler);
+  /// Create - Create a Space from FileHandler
+  static Space* Create(FileHandle& pHandler, size_t pOffset, size_t pSize);
+
+  static void Destroy(Space*& pSpace);
+  
+  static void Release(Space* pSpace, FileHandle& pHandler);
+
+  static void Sync(Space* pSpace, FileHandle& pHandler);
 
 private:
   Address m_Data;

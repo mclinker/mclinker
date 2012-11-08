@@ -15,6 +15,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // MemoryAreaFactory
+//===----------------------------------------------------------------------===//
 MemoryAreaFactory::MemoryAreaFactory(size_t pNum)
   : GCFactory<MemoryArea, 0>(pNum) {
 }
@@ -86,10 +87,9 @@ void MemoryAreaFactory::destruct(MemoryArea* pArea)
   deallocate(pArea);
 }
 
-MemoryArea*
-MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
+MemoryArea* MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
 {
-  Space* space = new Space(Space::EXTERNAL, pMemBuffer, pSize);
+  Space* space = Space::Create(pMemBuffer, pSize);
   MemoryArea* result = allocate();
   new (result) MemoryArea(*space);
   return result;
