@@ -34,9 +34,9 @@ MemoryRegion::~MemoryRegion()
 
 MemoryRegion* MemoryRegion::Create(void* pStart, size_t pSize, Space& pSpace)
 {
-  MemoryRegion* result = g_RegionFactory->produce(pSpace,
-                                                  static_cast<Address>(pStart),
-                                                  pSize);
+  MemoryRegion* result = g_RegionFactory->produce(static_cast<Address>(pStart),
+                                                  pSize,
+                                                  pSpace);
   pSpace.addRegion(*result);
   return result;
 }

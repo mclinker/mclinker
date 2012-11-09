@@ -31,7 +31,7 @@ public:
   typedef MemoryRegion::ConstAddress ConstAddress;
 
 public:
-  MemoryRegion* produce(Space& pSpace, Address pVMAStart, size_t pSize);
+  MemoryRegion* produce(Address pVMAStart, size_t pSize, Space& pSpace);
 
   void destruct(MemoryRegion* pRegion);
 };
