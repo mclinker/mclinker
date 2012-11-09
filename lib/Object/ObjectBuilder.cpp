@@ -18,6 +18,7 @@
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/NullFragment.h>
+#include <mcld/Fragment/FillFragment.h>
 
 #include <llvm/Support/Casting.h>
 
@@ -171,6 +172,22 @@ EhFrame* ObjectBuilder::CreateEhFrame(LDSection& pSection)
   EhFrame* eh_frame = new EhFrame(pSection);
   pSection.setEhFrame(eh_frame);
   return eh_frame;
+}
+
+/// CreateBSS - To create a bss section for given pSection
+SectionData* ObjectBuilder::CreateBSS(LDSection& pSection)
+{
+  assert(!pSection.hasSectionData() && "pSection already has section data.");
+  assert((pSection.kind() == LDFileFormat::BSS) && "pSection is not a BSS section.");
+
+  SectionData* sect_data = SectionData::Create(pSection);
+  pSection.setSectionData(sect_data);
+
+                                   /*  value, valsize, size*/
+  FillFragment* frag = new FillFragment(0x0, 1, pSection.size());
+
+  ObjectBuilder::AppendFragment(*frag, *sect_data);
+  return sect_data;
 }
 
 /// AppendFragment - To append pFrag to the given LDSection pSection.

@@ -69,7 +69,8 @@ public:
   static bool MoveSectionData(SectionData& pFrom, SectionData& pTo);
 
   /// CreateSectionData - To create a section data for given pSection.
-  /// @param [in, out] pSection The given input or output LDSection.
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
   ///         pSection.getSectionData() is set to a valid section data.
   /// @return The created section data. If the pSection already has section
   ///         data, or if the pSection's type should not have a section data
@@ -77,7 +78,8 @@ public:
   static SectionData* CreateSectionData(LDSection& pSection);
 
   /// CreateRelocData - To create a relocation data for given pSection.
-  /// @param [in, out] pSection The given input or output LDSection.
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
   ///         pSection.getRelocData() is set to a valid relocation data.
   /// @return The created relocation data. If the pSection already has
   ///         relocation data, or if the pSection's type is not
@@ -85,12 +87,23 @@ public:
   static RelocData* CreateRelocData(LDSection &pSection);
 
   /// CreateEhFrame - To create a eh_frame for given pSection
-  /// @param [in, out] pSection The given input or output LDSection.
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
   ///         pSection.getEhFrame() is set to a valid eh_frame.
   /// @return The created eh_frame. If the pSection already has eh_frame data,
   ///         or if the pSection's type is not LDFileFormat::EhFrame, then an
   ///         assertion occurs.
   static EhFrame* CreateEhFrame(LDSection& pSection);
+
+  /// CreateBSS - To create a bss section for given pSection
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
+  ///         pSection.getSectionData() is set to a valid section data and
+  ///         contains a fillment fragment whose size is pSection.size().
+  /// @return The create section data. It the pSection already has a section
+  ///         data, or if the pSection's type is not LDFileFormat::BSS, then
+  ///         an assertion occurs.
+  static SectionData* CreateBSS(LDSection& pSection);
 
 /// @}
 /// @name Fragment Methods
