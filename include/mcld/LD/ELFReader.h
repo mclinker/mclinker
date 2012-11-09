@@ -99,6 +99,9 @@ public:
   /// readDynamic - read ELF .dynamic in input dynobj
   virtual bool readDynamic(Input& pInput) const = 0;
 
+  /// GetSectionKind
+  static LDFileFormat::Kind GetSectionKind(uint32_t pType, const char* pName);
+
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {
@@ -110,8 +113,6 @@ protected:
   typedef std::vector<LinkInfo> LinkInfoList;
 
 protected:
-  LDFileFormat::Kind getLDSectionKind(uint32_t pType, const char* pName) const;
-
   ResolveInfo::Type getSymType(uint8_t pInfo, uint16_t pShndx) const;
 
   ResolveInfo::Desc getSymDesc(uint16_t pShndx, const Input& pInput) const;

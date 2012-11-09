@@ -29,9 +29,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFReaderIF
 //===----------------------------------------------------------------------===//
-/// getLDSectionKind
+/// GetSectionKind
 LDFileFormat::Kind
-ELFReaderIF::getLDSectionKind(uint32_t pType, const char* pName) const
+ELFReaderIF::GetSectionKind(uint32_t pType, const char* pName)
 {
   // name rules
   llvm::StringRef name(pName);

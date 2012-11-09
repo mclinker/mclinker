@@ -171,8 +171,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
       sh_addralign = bswap32(shdrTab[idx].sh_addralign);
     }
 
-    LDFileFormat::Kind kind = getLDSectionKind(sh_type,
-                                               sect_name+sh_name);
+    LDFileFormat::Kind kind = GetSectionKind(sh_type,
+                                             sect_name+sh_name);
 
     LDSection* section = LDSection::Create(sect_name+sh_name,
                                            kind,
