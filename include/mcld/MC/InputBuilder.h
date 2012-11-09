@@ -26,6 +26,7 @@ class InputFactory;
 class ContextFactory;
 class MemoryAreaFactory;
 class AttrConstraint;
+class raw_mem_ostream;
 
 /** \class InputBuilder
  *  \brief InputBuilder recieves InputActions and build the InputTree.
@@ -65,6 +66,17 @@ public:
                      const sys::fs::Path& pPath,
                      unsigned int pType = Input::Unknown,
                      off_t pFileOffset = 0);
+
+  Input* createInput(const std::string& pName,
+                     mcld::raw_mem_ostream& pMemOStream);
+
+  Input* createInput(const std::string& pName, MemoryArea& pMemArea);
+
+  Input* createInput(const std::string& pName, FileHandle& pFileHandle);
+
+  Input* createInput(const std::string& pName, int pFD);
+
+  Input* createInput(const std::string& pName, void* pRawMemory);
 
   bool setContext(Input& pInput);
 

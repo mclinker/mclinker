@@ -78,6 +78,7 @@ public:
 
   ~EhFrame();
 
+  /// merge - move all data from pOther to this object.
   EhFrame& merge(EhFrame& pOther);
 
   const LDSection& getSection() const { return m_Section; }
@@ -91,6 +92,12 @@ public:
   /// we call this function instead of addCIE() and addFDE().
   void addFragment(RegionFragment& pFrag);
 
+  /// addCIE - add a CIE entry in EhFrame
+  void addCIE(CIE& pCIE);
+
+  /// addFDE - add a FDE entry in EhFrame
+  void addFDE(FDE& pFDE);
+
   // -----  CIE  ----- //
   const_cie_iterator cie_begin() const { return m_CIEs.begin(); }
   cie_iterator       cie_begin()       { return m_CIEs.begin(); }
@@ -102,7 +109,6 @@ public:
   const CIE& cie_back () const { return *m_CIEs.back(); }
   CIE&       cie_back ()       { return *m_CIEs.back(); }
 
-  void addCIE(CIE& pCIE);
   size_t numOfCIEs() const { return m_CIEs.size(); }
 
   // -----  FDE  ----- //
@@ -116,7 +122,6 @@ public:
   const FDE& fde_back () const { return *m_FDEs.back(); }
   FDE&       fde_back ()       { return *m_FDEs.back(); }
 
-  void addFDE(FDE& pFDE);
   size_t numOfFDEs() const { return m_FDEs.size(); }
 
 private:
