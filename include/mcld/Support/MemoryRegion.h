@@ -47,17 +47,49 @@ public:
 private:
   MemoryRegion();
 
-  MemoryRegion(Space& pParent, const Address pVMAStart, size_t pSize);
+  MemoryRegion(const Address pVMAStart, size_t pSize);
 
   ~MemoryRegion();
 
+  void setParent(Space& pSpace) { m_pParent = &pSpace; }
+
 public:
+  /// Create - To wrap a piece of memory and to create a new region.
+  /// This function wraps a piece of memory and to create a new region. Region
+  /// is just a wraper, it is not responsible for deallocate the given memory.
+  ///
+  /// @param pStart [in] The start address of a piece of memory
+  /// @param pSize  [in] The size of the given memory
+  static MemoryRegion* Create(void* pStart, size_t pSize);
+
+  /// Create - To wrap a piece of memory and to create a new region.
+  /// This function wraps a piece of memory and to create a new region. Region
+  /// is just a wraper, it is not responsible for deallocate the given memory.
+  ///
+  /// If a wrapped memory comes from a Space, then we say the space is the
+  /// parent of the region. pSpace is a memory counting container. It remembers
+  /// the number of regions in it. A space which has no region will be removed
+  /// quickly.
+  ///
+  /// The wrapped memory will be deallocated by Space when the space has no
+  /// region used it.
+  ///
+  /// @param pStart [in] The start address of a piece of memory
+  /// @param pSize  [in] The size of the given memory
+  /// @param pSpace [in] The parent space.
   static MemoryRegion* Create(void* pStart, size_t pSize, Space& pSpace);
 
+  /// Destroy - To destroy the region
+  /// If the region has a parent space, it will be also remove from the space.
+  ///
+  /// @param pRegion [in, out] pRegion is set to NULL if the destruction is
+  /// success.
   static void Destroy(MemoryRegion*& pRegion);
 
   const Space* parent() const { return m_pParent; }
   Space*       parent()       { return m_pParent; }
+
+  bool hasParent() const { return (NULL != m_pParent); }
 
   ConstAddress start() const { return m_VMAStart; }
   Address      start()       { return m_VMAStart; }

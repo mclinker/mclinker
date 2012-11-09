@@ -15,10 +15,10 @@ using namespace mcld;
 // RegionFactory
 //===----------------------------------------------------------------------===//
 MemoryRegion*
-RegionFactory::produce(Address pVMAStart, size_t pSize, Space& pSpace)
+RegionFactory::produce(Address pVMAStart, size_t pSize)
 {
   MemoryRegion* result = Alloc::allocate();
-  new (result) MemoryRegion(pSpace, pVMAStart, pSize);
+  new (result) MemoryRegion(pVMAStart, pSize);
   return result;
 }
 
