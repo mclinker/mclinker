@@ -78,6 +78,8 @@ public:
 
   ~EhFrame();
 
+  EhFrame& merge(EhFrame& pOther);
+
   const LDSection& getSection() const { return m_Section; }
   LDSection&       getSection()       { return m_Section; }
 
@@ -101,10 +103,6 @@ public:
   CIE&       cie_back ()       { return *m_CIEs.back(); }
 
   void addCIE(CIE& pCIE);
-
-  void addCIE(cie_iterator pFirst, cie_iterator pLast);
-
-  /// numOfCIEs - return the number of CIE entries
   size_t numOfCIEs() const { return m_CIEs.size(); }
 
   // -----  FDE  ----- //
@@ -119,10 +117,6 @@ public:
   FDE&       fde_back ()       { return *m_FDEs.back(); }
 
   void addFDE(FDE& pFDE);
-
-  void addFDE(fde_iterator pFirst, fde_iterator pLast);
-
-  /// numOfFDEs - the number of FDE entries
   size_t numOfFDEs() const { return m_FDEs.size(); }
 
 private:

@@ -303,7 +303,6 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
   cie->setFDEEncode(fde_encoding);
   pEhFrame.addCIE(*cie);
-  pEhFrame.addFragment(*cie);
   return true;
 }
 
@@ -319,7 +318,6 @@ bool EhFrameReader::addFDE(EhFrame& pEhFrame,
                                        pEhFrame.cie_back(),
                                        pToken.data_off);
   pEhFrame.addFDE(*fde);
-  pEhFrame.addFragment(*fde);
   return true;
 }
 

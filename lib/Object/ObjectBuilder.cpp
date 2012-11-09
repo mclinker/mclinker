@@ -77,14 +77,8 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
       else
         eh_frame = CreateEhFrame(*target);
 
-      SectionData* data = &eh_frame->getSectionData();
-      bool result = MoveSectionData(pInputSection.getEhFrame()->getSectionData(),
-                                    *data);
-      eh_frame->addCIE(pInputSection.getEhFrame()->cie_begin(),
-                        pInputSection.getEhFrame()->cie_end());
-      eh_frame->addFDE(pInputSection.getEhFrame()->fde_begin(),
-                        pInputSection.getEhFrame()->fde_end());
-      return result;
+      eh_frame->merge(*pInputSection.getEhFrame());
+      return true;
     }
     default: {
       SectionData* data = NULL;

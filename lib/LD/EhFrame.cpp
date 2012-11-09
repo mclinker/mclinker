@@ -10,6 +10,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Object/ObjectBuilder.h>
 
 using namespace mcld;
 
@@ -59,32 +60,29 @@ void EhFrame::addFragment(RegionFragment& pFrag)
 void EhFrame::addCIE(EhFrame::CIE& pCIE)
 {
   m_CIEs.push_back(&pCIE);
-}
-
-void EhFrame::addCIE(EhFrame::cie_iterator pFirst, EhFrame::cie_iterator pLast)
-{
-  // cie_iterator is random access iterator, so we can substract them to get
-  // the number of elements
-  size_t size = pLast - pFirst;
-  m_CIEs.reserve(size + m_CIEs.size());
-  for (cie_iterator cie = pFirst; cie != pLast; ++cie) {
-    m_CIEs.push_back(*cie);
-  }
+  addFragment(pCIE);
 }
 
 void EhFrame::addFDE(EhFrame::FDE& pFDE)
 {
   m_FDEs.push_back(&pFDE);
+  addFragment(pFDE);
 }
 
-void EhFrame::addFDE(EhFrame::fde_iterator pFirst, EhFrame::fde_iterator pLast)
+EhFrame& EhFrame::merge(EhFrame& pOther)
 {
-  // fde_iterator is random access iterator, so we can substract them to get
-  // the number of elements
-  size_t size = pLast - pFirst;
-  m_FDEs.reserve(size + m_FDEs.size());
-  for (fde_iterator fde = pFirst; fde != pLast; ++fde) {
+  ObjectBuilder::MoveSectionData(pOther.getSectionData(), *m_pSectionData);
+
+  m_CIEs.reserve(pOther.numOfCIEs() + m_CIEs.size());
+  for (cie_iterator cie = pOther.cie_begin(); cie != pOther.cie_end(); ++cie)
+    m_CIEs.push_back(*cie);
+
+  m_FDEs.reserve(pOther.numOfFDEs() + m_FDEs.size());
+  for (fde_iterator fde = pOther.fde_begin(); fde != pOther.fde_end(); ++fde)
     m_FDEs.push_back(*fde);
-  }
+
+  pOther.m_CIEs.clear();
+  pOther.m_FDEs.clear();
+  return *this;
 }
 
