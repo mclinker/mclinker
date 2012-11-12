@@ -168,9 +168,6 @@ IRBuilder::CreateSection<IRBuilder::ELF>(Input& pInput,
   LDSection* header = LDSection::Create(pName, kind, pType, pFlag);
   header->setAlign(pAlign);
 
-  // Append section header in input
-  pInput.context()->appendSection(*header);
-
   // Create section data
   switch (kind) {
     case LDFileFormat::EhFrameHdr:
@@ -194,6 +191,10 @@ IRBuilder::CreateSection<IRBuilder::ELF>(Input& pInput,
       ObjectBuilder::CreateSectionData(*header);
       break;
   }
+
+  // Append section header in input
+  pInput.context()->appendSection(*header);
+  return header;
 }
 
 /// CreateRegion - To create a region fragment in the input file.

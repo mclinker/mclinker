@@ -16,6 +16,8 @@
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/DataTypes.h>
 
+#include <cstring>
+
 using namespace mcld;
 using namespace llvm::dwarf;
 
@@ -114,6 +116,7 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
 //===----------------------------------------------------------------------===//
 // EhFrameHdr
 //===----------------------------------------------------------------------===//
+
 EhFrameHdr::EhFrameHdr(LDSection& pEhFrameHdr, const LDSection& pEhFrame)
   : m_EhFrameHdr(pEhFrameHdr), m_EhFrame(pEhFrame) {
 }
