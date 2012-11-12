@@ -99,9 +99,6 @@ public:
   /// readDynamic - read ELF .dynamic in input dynobj
   virtual bool readDynamic(Input& pInput) const = 0;
 
-  /// GetSectionKind
-  static LDFileFormat::Kind GetSectionKind(uint32_t pType, const char* pName);
-
 protected:
   /// LinkInfo - some section needs sh_link and sh_info, remember them.
   struct LinkInfo {

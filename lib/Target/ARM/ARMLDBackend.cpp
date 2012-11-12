@@ -22,10 +22,11 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
 
+#include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
@@ -115,11 +116,11 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
 
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new ARMGOT(got, *ObjectBuilder::CreateSectionData(got));
+    m_pGOT = new ARMGOT(got, *IRBuilder::CreateSectionData(got));
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
-    m_pPLT = new ARMPLT(plt, *ObjectBuilder::CreateSectionData(plt), *m_pGOT);
+    m_pPLT = new ARMPLT(plt, *IRBuilder::CreateSectionData(plt), *m_pGOT);
 
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
@@ -321,7 +322,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   if (bss_sect_hdr->hasSectionData())
     bss_data = bss_sect_hdr->getSectionData();
   else
-    bss_data = ObjectBuilder::CreateSectionData(*bss_sect_hdr);
+    bss_data = IRBuilder::CreateSectionData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -841,7 +842,7 @@ bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
         return true;
 
       // First time we meet a ARM attributes section.
-      SectionData* sd = ObjectBuilder::CreateSectionData(*m_pAttributes);
+      SectionData* sd = IRBuilder::CreateSectionData(*m_pAttributes);
       ObjectBuilder::MoveSectionData(*pSection.getSectionData(), *sd);
       return true;
     }

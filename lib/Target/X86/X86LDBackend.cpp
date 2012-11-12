@@ -14,9 +14,10 @@
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
 
+#include <mcld/LinkerConfig.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/LinkerConfig.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
@@ -188,7 +189,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   if (bss_sect_hdr->hasSectionData())
     bss_section = bss_sect_hdr->getSectionData();
   else
-    bss_section = ObjectBuilder::CreateSectionData(*bss_sect_hdr);
+    bss_section = IRBuilder::CreateSectionData(*bss_sect_hdr);
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
@@ -793,16 +794,16 @@ void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new X86GOT(got, *ObjectBuilder::CreateSectionData(got));
+    m_pGOT = new X86GOT(got, *IRBuilder::CreateSectionData(got));
 
     // initialize .got.plt
     LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new X86GOTPLT(gotplt, *ObjectBuilder::CreateSectionData(gotplt));
+    m_pGOTPLT = new X86GOTPLT(gotplt, *IRBuilder::CreateSectionData(gotplt));
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new X86PLT(plt,
-                        *ObjectBuilder::CreateSectionData(plt),
+                        *IRBuilder::CreateSectionData(plt),
                         *m_pGOTPLT,
                         config());
 

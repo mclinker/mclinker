@@ -10,6 +10,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/Object/SectionMap.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
@@ -75,7 +76,7 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
       if (target->hasEhFrame())
         eh_frame = target->getEhFrame();
       else
-        eh_frame = CreateEhFrame(*target);
+        eh_frame = IRBuilder::CreateEhFrame(*target);
 
       eh_frame->merge(*pInputSection.getEhFrame());
       return true;
@@ -85,7 +86,7 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
       if (target->hasSectionData())
         data = target->getSectionData();
       else
-        data = CreateSectionData(*target);
+        data = IRBuilder::CreateSectionData(*target);
 
       return MoveSectionData(*pInputSection.getSectionData(), *data);
     }
@@ -136,52 +137,6 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
     pTo.getSection().setAlign(pFrom.getSection().align());
 
   return true;
-}
-
-/// CreateSectionData - To create a section data for given pSection.
-SectionData* ObjectBuilder::CreateSectionData(LDSection& pSection)
-{
-  assert(!pSection.hasSectionData() && "pSection already has section data.");
-
-  SectionData* sect_data = SectionData::Create(pSection);
-  pSection.setSectionData(sect_data);
-  return sect_data;
-}
-
-/// CreateRelocData - To create a relocation data for given pSection.
-RelocData* ObjectBuilder::CreateRelocData(LDSection &pSection)
-{
-  assert(!pSection.hasRelocData() && "pSection already has relocation data.");
-
-  RelocData* reloc_data = RelocData::Create(pSection);
-  pSection.setRelocData(reloc_data);
-  return reloc_data;
-}
-
-/// CreateEhFrame - To create a eh_frame for given pSection
-EhFrame* ObjectBuilder::CreateEhFrame(LDSection& pSection)
-{
-  assert(!pSection.hasEhFrame() && "pSection already has eh_frame.");
-
-  EhFrame* eh_frame = new EhFrame(pSection);
-  pSection.setEhFrame(eh_frame);
-  return eh_frame;
-}
-
-/// CreateBSS - To create a bss section for given pSection
-SectionData* ObjectBuilder::CreateBSS(LDSection& pSection)
-{
-  assert(!pSection.hasSectionData() && "pSection already has section data.");
-  assert((pSection.kind() == LDFileFormat::BSS) && "pSection is not a BSS section.");
-
-  SectionData* sect_data = SectionData::Create(pSection);
-  pSection.setSectionData(sect_data);
-
-                                   /*  value, valsize, size*/
-  FillFragment* frag = new FillFragment(0x0, 1, pSection.size());
-
-  ObjectBuilder::AppendFragment(*frag, *sect_data);
-  return sect_data;
 }
 
 /// AppendFragment - To append pFrag to the given LDSection pSection.

@@ -19,7 +19,9 @@
 
 #include <mcld/LD/LDSection.h>
 
+#include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Fragment/FillFragment.h>
 
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
@@ -227,8 +229,9 @@ public:
 /// @name Input Methods
 /// @{
 
-  /// CreateSection - To create and append a section in the input file.
+  /// CreateELFHeader - To create and append a section header in the input file
   ///
+  /// @param OF     [in]      The file format. @see ObjectFormat
   /// @param pInput [in, out] The input file.
   /// @param pName  [in]      The name of the section.
   /// @param pType  [in]      The meaning of the content in the section. The
@@ -237,14 +240,49 @@ public:
   /// @param pFlag  [in]      The format-dependent flag. In ELF, the value is
   ///                         SHF_* in normal.
   /// @param pAlign [in]      The alignment constraint of the section
-  /// @return The created section header and section data.
-  template<unsigned int OF>
-  LDSection* CreateSection(Input& pInput,
-                           const std::string& pName,
-                           uint32_t pType,
-                           uint32_t pFlag,
-                           uint32_t pAlign)
-  { assert("use template partial specific function"); return NULL; }
+  /// @return The created section header.
+  static LDSection* CreateELFHeader(Input& pInput,
+                                    const std::string& pName,
+                                    uint32_t pType,
+                                    uint32_t pFlag,
+                                    uint32_t pAlign);
+
+  /// CreateSectionData - To create a section data for given pSection.
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
+  ///         pSection.getSectionData() is set to a valid section data.
+  /// @return The created section data. If the pSection already has section
+  ///         data, or if the pSection's type should not have a section data
+  ///         (.eh_frame or relocation data), then an assertion occurs.
+  static SectionData* CreateSectionData(LDSection& pSection);
+
+  /// CreateRelocData - To create a relocation data for given pSection.
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
+  ///         pSection.getRelocData() is set to a valid relocation data.
+  /// @return The created relocation data. If the pSection already has
+  ///         relocation data, or if the pSection's type is not
+  ///         LDFileFormat::Relocation, then an assertion occurs.
+  static RelocData* CreateRelocData(LDSection &pSection);
+
+  /// CreateEhFrame - To create a eh_frame for given pSection
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
+  ///         pSection.getEhFrame() is set to a valid eh_frame.
+  /// @return The created eh_frame. If the pSection already has eh_frame data,
+  ///         or if the pSection's type is not LDFileFormat::EhFrame, then an
+  ///         assertion occurs.
+  static EhFrame* CreateEhFrame(LDSection& pSection);
+
+  /// CreateBSS - To create a bss section for given pSection
+  /// @param [in, out] pSection The given LDSection. It can be in either an
+  ///         input or the output.
+  ///         pSection.getSectionData() is set to a valid section data and
+  ///         contains a fillment fragment whose size is pSection.size().
+  /// @return The create section data. It the pSection already has a section
+  ///         data, or if the pSection's type is not LDFileFormat::BSS, then
+  ///         an assertion occurs.
+  static SectionData* CreateBSS(LDSection& pSection);
 
   /// CreateRegion - To create a region fragment in the input file.
   /// This function tells MCLinker to read a piece of data from the input
@@ -254,34 +292,20 @@ public:
   /// @param pInput  [in, out] The input file.
   /// @param pOffset [in]      The starting file offset of the data
   /// @param pLength [in]      The number of bytes of the data
-  RegionFragment* CreateRegion(Input& pInput, size_t pOffset, size_t pLength);
+  /// @return If pLength is zero or failing to request a region, return a
+  ///         FillFragment.
+  static Fragment* CreateRegion(Input& pInput, size_t pOffset, size_t pLength);
 
-  /// CreateRegion - To create a region fragment wrapping the given memory
+  /// CreateRegion - To create a region fragment wrapping the given memory.
   /// This function tells MCLinker to create a region fragment by the data
-  /// directly. Since the data is given, not in the input file, users should
-  /// deallocated the data manually.
+  /// directly. Since the data is given from outside, not read from the input
+  /// file, users should deallocated the data manually.
   ///
   /// @param pMemory [in] The start address of the given data
   /// @param pLength [in] The number of bytes of the data
-  RegionFragment* CreateRegion(void* pMemory, size_t pLength);
-
-  /// AppendFragment - To append a fragment in the section.
-  /// To append pFrag and to increase the size of appended section.
-  ///
-  /// Different kinds of sections need different kind of fragments. For BSS
-  /// sections, people should insert fillment fragments. For EH frame sections
-  /// people should insert CIEs and FDEs. For relocation sections, people
-  /// should insert Relocation fragments. For the other kind of sections,
-  /// any kind of fragments can be inserted, but the most frequently used
-  /// fragments are region fragments.
-  ///
-  /// @param [in, out] pFrag The appended fragment. The offset of the fragment
-  ///                        is also be adjusted.
-  /// @param [in, out] pSection The section being appended. The size of the
-  ///                           section is adjusted. The offset of the other
-  ///                           sections in the same input file are also be
-  ///                           adjusted.
-  bool AppendFragment(Fragment& pFrag, LDSection& pSection);
+  /// @return If pLength is zero or failing to request a region, return a
+  ///         FillFragment.
+  static Fragment* CreateRegion(void* pMemory, size_t pLength);
 
 private:
   Module& m_Module;
@@ -291,12 +315,6 @@ private:
   InputBuilder m_InputBuilder;
 };
 
-template<>
-LDSection* IRBuilder::CreateSection<IRBuilder::ELF>(Input& pInput,
-                                                    const std::string& pName,
-                                                    uint32_t pType,
-                                                    uint32_t pFlag,
-                                                    uint32_t pAlign);
 } // end of namespace mcld
 
 #endif

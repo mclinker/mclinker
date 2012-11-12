@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ELFReader.h>
 
+#include <mcld/IRBuilder.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
@@ -30,71 +31,6 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFReaderIF
 //===----------------------------------------------------------------------===//
-/// GetSectionKind
-LDFileFormat::Kind
-ELFReaderIF::GetSectionKind(uint32_t pType, const char* pName)
-{
-  // name rules
-  llvm::StringRef name(pName);
-  if (name.startswith(".debug") ||
-      name.startswith(".zdebug") ||
-      name.startswith(".gnu.linkonce.wi.") ||
-      name.startswith(".line") ||
-      name.startswith(".stab"))
-    return LDFileFormat::Debug;
-  if (name.startswith(".comment"))
-    return LDFileFormat::MetaData;
-  if (name.startswith(".interp") || name.startswith(".dynamic"))
-    return LDFileFormat::Note;
-  if (name.startswith(".eh_frame"))
-    return LDFileFormat::EhFrame;
-  if (name.startswith(".eh_frame_hdr"))
-    return LDFileFormat::EhFrameHdr;
-  if (name.startswith(".gcc_except_table"))
-    return LDFileFormat::GCCExceptTable;
-  if (name.startswith(".note.GNU-stack"))
-    return LDFileFormat::StackNote;
-
-  // type rules
-  switch(pType) {
-  case llvm::ELF::SHT_NULL:
-    return LDFileFormat::Null;
-  case llvm::ELF::SHT_INIT_ARRAY:
-  case llvm::ELF::SHT_FINI_ARRAY:
-  case llvm::ELF::SHT_PREINIT_ARRAY:
-  case llvm::ELF::SHT_PROGBITS:
-    return LDFileFormat::Regular;
-  case llvm::ELF::SHT_SYMTAB:
-  case llvm::ELF::SHT_DYNSYM:
-  case llvm::ELF::SHT_STRTAB:
-  case llvm::ELF::SHT_HASH:
-  case llvm::ELF::SHT_DYNAMIC:
-    return LDFileFormat::NamePool;
-  case llvm::ELF::SHT_RELA:
-  case llvm::ELF::SHT_REL:
-    return LDFileFormat::Relocation;
-  case llvm::ELF::SHT_NOBITS:
-    return LDFileFormat::BSS;
-  case llvm::ELF::SHT_NOTE:
-    return LDFileFormat::Note;
-  case llvm::ELF::SHT_GROUP:
-    return LDFileFormat::Group;
-  case llvm::ELF::SHT_GNU_versym:
-  case llvm::ELF::SHT_GNU_verdef:
-  case llvm::ELF::SHT_GNU_verneed:
-    return LDFileFormat::Version;
-  case llvm::ELF::SHT_SHLIB:
-    return LDFileFormat::Target;
-  default:
-    if ((pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC) ||
-        (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
-        (pType >= llvm::ELF::SHT_LOUSER && pType <= llvm::ELF::SHT_HIUSER))
-      return LDFileFormat::Target;
-    fatal(diag::err_unsupported_section) << pName << pType;
-  }
-  return LDFileFormat::MetaData;
-}
-
 /// getSymType
 ResolveInfo::Type ELFReaderIF::getSymType(uint8_t pInfo, uint16_t pShndx) const
 {
@@ -247,20 +183,10 @@ bool ELFReader<32, true>::isELF(void* pELFHeader) const
 bool
 ELFReader<32, true>::readRegularSection(Input& pInput, SectionData& pSD) const
 {
-  Fragment* frag = NULL;
   uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
   uint32_t size = pSD.getSection().size();
 
-  MemoryRegion* region = pInput.memArea()->request(offset, size);
-  if (NULL == region) {
-    // If the input section's size is zero, we got a NULL region.
-    // use a virtual fill fragment
-    frag = new FillFragment(0x0, 0, 0);
-  }
-  else {
-    frag = new RegionFragment(*region);
-  }
-
+  Fragment* frag = IRBuilder::CreateRegion(pInput, offset, size);
   ObjectBuilder::AppendFragment(*frag, pSD);
   return true;
 }
@@ -584,25 +510,19 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
       sh_addralign = bswap32(shdrTab[idx].sh_addralign);
     }
 
-    LDFileFormat::Kind kind = GetSectionKind(sh_type,
-                                             sect_name+sh_name);
-
-    LDSection* section = LDSection::Create(sect_name+sh_name,
-                                           kind,
-                                           sh_type,
-                                           sh_flags);
-
+    LDSection* section = IRBuilder::CreateELFHeader(pInput,
+                                                    sect_name+sh_name,
+                                                    sh_type,
+                                                    sh_flags,
+                                                    sh_addralign);
     section->setSize(sh_size);
     section->setOffset(sh_offset);
     section->setInfo(sh_info);
-    section->setAlign(sh_addralign);
 
     if (sh_link != 0x0 || sh_info != 0x0) {
       LinkInfo link_info = { section, sh_link, sh_info };
       link_info_list.push_back(link_info);
     }
-
-    pInput.context()->appendSection(*section);
   } // end of for
 
   // set up InfoLink

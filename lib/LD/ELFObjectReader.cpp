@@ -14,6 +14,7 @@
 #include <llvm/Support/ELF.h>
 #include <llvm/ADT/Twine.h>
 
+#include <mcld/IRBuilder.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/ELFReader.h>
@@ -158,7 +159,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::Regular:
       case LDFileFormat::Note:
       case LDFileFormat::MetaData: {
-        SectionData* sd = ObjectBuilder::CreateSectionData(**section);
+        SectionData* sd = IRBuilder::CreateSectionData(**section);
         if (!m_pELFReader->readRegularSection(pInput, *sd))
           fatal(diag::err_cannot_read_section) << (*section)->name();
         break;
@@ -168,7 +169,7 @@ bool ELFObjectReader::readSections(Input& pInput)
           (*section)->setKind(LDFileFormat::Ignore);
         }
         else {
-          SectionData* sd = ObjectBuilder::CreateSectionData(**section);
+          SectionData* sd = IRBuilder::CreateSectionData(**section);
           if (!m_pELFReader->readRegularSection(pInput, *sd)) {
             fatal(diag::err_cannot_read_section) << (*section)->name();
           }
@@ -176,7 +177,7 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       case LDFileFormat::EhFrame: {
-        EhFrame* eh_frame = ObjectBuilder::CreateEhFrame(**section);
+        EhFrame* eh_frame = IRBuilder::CreateEhFrame(**section);
 
         if (m_Linker.getLDInfo().options().hasEhFrameHdr() &&
             (m_ReadFlag & ParseEhFrame)) {
@@ -198,7 +199,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** target dependent sections **/
       case LDFileFormat::Target: {
-        SectionData* sd = ObjectBuilder::CreateSectionData(**section);
+        SectionData* sd = IRBuilder::CreateSectionData(**section);
         if (!m_Backend.readSection(pInput, *sd)) {
           fatal(diag::err_cannot_read_target_section) << (*section)->name();
         }
@@ -206,7 +207,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       }
       /** BSS sections **/
       case LDFileFormat::BSS: {
-        ObjectBuilder::CreateBSS(**section);
+        IRBuilder::CreateBSS(**section);
         break;
       }
       // ignore
@@ -277,7 +278,7 @@ bool ELFObjectReader::readRelocations(Input& pInput)
     uint32_t offset = pInput.fileOffset() + (*rs)->offset();
     uint32_t size = (*rs)->size();
     MemoryRegion* region = mem->request(offset, size);
-    RelocData* rd = ObjectBuilder::CreateRelocData(**rs);
+    RelocData* rd = IRBuilder::CreateRelocData(**rs);
     switch ((*rs)->type()) {
       case llvm::ELF::SHT_RELA: {
         if (!m_pELFReader->readRela(pInput, m_Linker, **rs, *region)) {

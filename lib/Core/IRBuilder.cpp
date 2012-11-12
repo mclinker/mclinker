@@ -9,9 +9,78 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/LD/SectionData.h>
+#include <mcld/LD/EhFrame.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// Helper Functions
+//===----------------------------------------------------------------------===//
+LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
+{
+  // name rules
+  llvm::StringRef name(pName);
+  if (name.startswith(".debug") ||
+      name.startswith(".zdebug") ||
+      name.startswith(".gnu.linkonce.wi.") ||
+      name.startswith(".line") ||
+      name.startswith(".stab"))
+    return LDFileFormat::Debug;
+  if (name.startswith(".comment"))
+    return LDFileFormat::MetaData;
+  if (name.startswith(".interp") || name.startswith(".dynamic"))
+    return LDFileFormat::Note;
+  if (name.startswith(".eh_frame"))
+    return LDFileFormat::EhFrame;
+  if (name.startswith(".eh_frame_hdr"))
+    return LDFileFormat::EhFrameHdr;
+  if (name.startswith(".gcc_except_table"))
+    return LDFileFormat::GCCExceptTable;
+  if (name.startswith(".note.GNU-stack"))
+    return LDFileFormat::StackNote;
+
+  // type rules
+  switch(pType) {
+  case llvm::ELF::SHT_NULL:
+    return LDFileFormat::Null;
+  case llvm::ELF::SHT_INIT_ARRAY:
+  case llvm::ELF::SHT_FINI_ARRAY:
+  case llvm::ELF::SHT_PREINIT_ARRAY:
+  case llvm::ELF::SHT_PROGBITS:
+    return LDFileFormat::Regular;
+  case llvm::ELF::SHT_SYMTAB:
+  case llvm::ELF::SHT_DYNSYM:
+  case llvm::ELF::SHT_STRTAB:
+  case llvm::ELF::SHT_HASH:
+  case llvm::ELF::SHT_DYNAMIC:
+    return LDFileFormat::NamePool;
+  case llvm::ELF::SHT_RELA:
+  case llvm::ELF::SHT_REL:
+    return LDFileFormat::Relocation;
+  case llvm::ELF::SHT_NOBITS:
+    return LDFileFormat::BSS;
+  case llvm::ELF::SHT_NOTE:
+    return LDFileFormat::Note;
+  case llvm::ELF::SHT_GROUP:
+    return LDFileFormat::Group;
+  case llvm::ELF::SHT_GNU_versym:
+  case llvm::ELF::SHT_GNU_verdef:
+  case llvm::ELF::SHT_GNU_verneed:
+    return LDFileFormat::Version;
+  case llvm::ELF::SHT_SHLIB:
+    return LDFileFormat::Target;
+  default:
+    if ((pType >= llvm::ELF::SHT_LOPROC && pType <= llvm::ELF::SHT_HIPROC) ||
+        (pType >= llvm::ELF::SHT_LOOS && pType <= llvm::ELF::SHT_HIOS) ||
+        (pType >= llvm::ELF::SHT_LOUSER && pType <= llvm::ELF::SHT_HIUSER))
+      return LDFileFormat::Target;
+    fatal(diag::err_unsupported_section) << pName << pType;
+  }
+  return LDFileFormat::MetaData;
+}
 
 //===----------------------------------------------------------------------===//
 // IRBuilder
@@ -156,73 +225,97 @@ void IRBuilder::AgainstStatic()
   m_InputBuilder.getAttributes().setStatic();
 }
 
-template<> LDSection*
-IRBuilder::CreateSection<IRBuilder::ELF>(Input& pInput,
-                                         const std::string& pName,
-                                         uint32_t pType,
-                                         uint32_t pFlag,
-                                         uint32_t pAlign)
+LDSection* IRBuilder::CreateELFHeader(Input& pInput,
+                                      const std::string& pName,
+                                      uint32_t pType,
+                                      uint32_t pFlag,
+                                      uint32_t pAlign)
 {
   // Create section header
-  LDFileFormat::Kind kind = ELFReaderIF::GetSectionKind(pType, pName.c_str());
+  LDFileFormat::Kind kind = GetELFSectionKind(pType, pName.c_str());
   LDSection* header = LDSection::Create(pName, kind, pType, pFlag);
   header->setAlign(pAlign);
-
-  // Create section data
-  switch (kind) {
-    case LDFileFormat::EhFrameHdr:
-    case LDFileFormat::NamePool:
-    case LDFileFormat::Null:
-      // ignore
-      break;
-    case LDFileFormat::Group:
-      // not support yet
-      break;
-    case LDFileFormat::Relocation:
-      ObjectBuilder::CreateRelocData(*header);
-      break;
-    case LDFileFormat::EhFrame:
-      ObjectBuilder::CreateEhFrame(*header);
-      break;
-    case LDFileFormat::BSS:
-      // We does not know the size of BSS until appending fragment.
-      /** fall through **/
-    default:
-      ObjectBuilder::CreateSectionData(*header);
-      break;
-  }
 
   // Append section header in input
   pInput.context()->appendSection(*header);
   return header;
 }
 
+/// CreateSectionData - To create a section data for given pSection.
+SectionData* IRBuilder::CreateSectionData(LDSection& pSection)
+{
+  assert(!pSection.hasSectionData() && "pSection already has section data.");
+
+  SectionData* sect_data = SectionData::Create(pSection);
+  pSection.setSectionData(sect_data);
+  return sect_data;
+}
+
+/// CreateRelocData - To create a relocation data for given pSection.
+RelocData* IRBuilder::CreateRelocData(LDSection &pSection)
+{
+  assert(!pSection.hasRelocData() && "pSection already has relocation data.");
+
+  RelocData* reloc_data = RelocData::Create(pSection);
+  pSection.setRelocData(reloc_data);
+  return reloc_data;
+}
+
+/// CreateEhFrame - To create a eh_frame for given pSection
+EhFrame* IRBuilder::CreateEhFrame(LDSection& pSection)
+{
+  assert(!pSection.hasEhFrame() && "pSection already has eh_frame.");
+
+  EhFrame* eh_frame = new EhFrame(pSection);
+  pSection.setEhFrame(eh_frame);
+  return eh_frame;
+}
+
+/// CreateBSS - To create a bss section for given pSection
+SectionData* IRBuilder::CreateBSS(LDSection& pSection)
+{
+  assert(!pSection.hasSectionData() && "pSection already has section data.");
+  assert((pSection.kind() == LDFileFormat::BSS) && "pSection is not a BSS section.");
+
+  SectionData* sect_data = SectionData::Create(pSection);
+  pSection.setSectionData(sect_data);
+
+                                   /*  value, valsize, size*/
+  FillFragment* frag = new FillFragment(0x0, 1, pSection.size());
+
+  ObjectBuilder::AppendFragment(*frag, *sect_data);
+  return sect_data;
+}
+
 /// CreateRegion - To create a region fragment in the input file.
-RegionFragment*
-IRBuilder::CreateRegion(Input& pInput, size_t pOffset, size_t pLength)
+Fragment* IRBuilder::CreateRegion(Input& pInput, size_t pOffset, size_t pLength)
 {
   if (!pInput.hasMemArea()) {
     fatal(diag::fatal_cannot_read_input) << pInput.path();
     return NULL;
   }
 
+  if (0 == pLength)
+    return new FillFragment(0x0, 0, 0);
+
   MemoryRegion* region = pInput.memArea()->request(pOffset, pLength);
-  RegionFragment* frag = new RegionFragment(*region);
-  return frag;
+
+  if (NULL == region)
+    return new FillFragment(0x0, 0, 0);
+
+  return new RegionFragment(*region);
 }
 
 /// CreateRegion - To create a region fragment wrapping the given memory
-RegionFragment*
-IRBuilder::CreateRegion(void* pMemory, size_t pLength)
+Fragment* IRBuilder::CreateRegion(void* pMemory, size_t pLength)
 {
-  MemoryRegion* region = MemoryRegion::Create(pMemory, pLength);
-  RegionFragment* frag = new RegionFragment(*region);
-  return frag;
-}
+  if (0 == pLength)
+    return new FillFragment(0x0, 0, 0);
 
-/// AppendFragment - To append an fragment in the section.
-bool IRBuilder::AppendFragment(Fragment& pFrag, LDSection& pSection)
-{
-  return ObjectBuilder::AppendFragment(pFrag, pSection);
+  MemoryRegion* region = MemoryRegion::Create(pMemory, pLength);
+  if (NULL == region)
+    return new FillFragment(0x0, 0, 0);
+
+  return new RegionFragment(*region);
 }
 
