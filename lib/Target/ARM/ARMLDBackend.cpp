@@ -750,6 +750,17 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
     for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
       size_t size = frag_iter->size();
       switch(frag_iter->getKind()) {
+        case Fragment::Fillment: {
+          const FillFragment& fill_frag =
+            llvm::cast<FillFragment>(*frag_iter);
+          if (0 == fill_frag.getValueSize()) {
+            // virtual fillment, ignore it.
+            break;
+          }
+
+          memset(out_offset, fill_frag.getValue(), fill_frag.size());
+          break;
+        }
         case Fragment::Region: {
           const RegionFragment& region_frag =
             llvm::cast<RegionFragment>(*frag_iter);
