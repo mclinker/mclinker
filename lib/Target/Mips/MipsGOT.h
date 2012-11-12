@@ -27,7 +27,7 @@ class MemoryRegion;
 class MipsGOT : public GOT
 {
 public:
-  MipsGOT(LDSection& pSection, SectionData& pSectionData);
+  MipsGOT(LDSection& pSection);
 
   uint64_t emit(MemoryRegion& pRegion);
 

@@ -25,18 +25,18 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // MipsGOT
 //===----------------------------------------------------------------------===//
-MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
-  : GOT(pSection, pSectionData, MipsGOTEntrySize),
+MipsGOT::MipsGOT(LDSection& pSection)
+  : GOT(pSection, MipsGOTEntrySize),
     m_pLocalNum(0)
 {
   // Create GOT0 entries.
   reserve(MipsGOT0Num);
 
   // Skip GOT0 entries.
-  iterator it = m_SectionData.begin();
+  iterator it = m_SectionData->begin();
 
   for (size_t i = 1; i < MipsGOT0Num; ++i) {
-    assert((it != m_SectionData.end()) &&
+    assert((it != m_SectionData->end()) &&
            "Generation of GOT0 entries is incomplete!");
 
     ++it;
@@ -49,7 +49,7 @@ MipsGOT::MipsGOT(LDSection& pSection, SectionData& pSectionData)
 
 bool MipsGOT::hasGOT1() const
 {
-  return (m_SectionData.size() > MipsGOT0Num);
+  return (m_SectionData->size() > MipsGOT0Num);
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
@@ -87,7 +87,7 @@ GOT::Entry* MipsGOT::consumeLocal()
 {
   iterator& it = m_LocalGOTIterator;
   ++it;
-  assert(it != m_SectionData.getFragmentList().end() &&
+  assert(it != m_SectionData->getFragmentList().end() &&
          "The number of GOT Entries and ResolveInfo doesn't match");
   return llvm::cast<GOT::Entry>(&(*it));
 }
@@ -96,14 +96,14 @@ GOT::Entry* MipsGOT::consumeGlobal()
 {
   iterator& it = m_GlobalGOTIterator;
   ++it;
-  assert(it != m_SectionData.getFragmentList().end() &&
+  assert(it != m_SectionData->getFragmentList().end() &&
          "The number of GOT Entries and ResolveInfo doesn't match");
   return llvm::cast<GOT::Entry>(&(*it));
 }
 
 size_t MipsGOT::getTotalNum() const
 {
-  return m_SectionData.getFragmentList().size();
+  return m_SectionData->getFragmentList().size();
 }
 
 size_t MipsGOT::getLocalNum() const

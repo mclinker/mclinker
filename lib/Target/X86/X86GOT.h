@@ -26,7 +26,7 @@ class SectionData;
 class X86GOT : public GOT
 {
 public:
-  X86GOT(LDSection& pSection, SectionData& pSectionData);
+  X86GOT(LDSection& pSection);
 
   ~X86GOT();
 };

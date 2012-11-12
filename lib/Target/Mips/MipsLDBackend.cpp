@@ -73,7 +73,7 @@ void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuild
 
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new MipsGOT(got, *IRBuilder::CreateSectionData(got));
+    m_pGOT = new MipsGOT(got);
 
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();

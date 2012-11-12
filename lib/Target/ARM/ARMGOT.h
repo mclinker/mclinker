@@ -41,7 +41,7 @@ class MemoryRegion;
 class ARMGOT : public GOT
 {
 public:
-  ARMGOT(LDSection &pSection, SectionData& pSectionData);
+  ARMGOT(LDSection &pSection);
 
   ~ARMGOT();
 

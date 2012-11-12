@@ -20,14 +20,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // X86GOT
 //===----------------------------------------------------------------------===//
-X86GOT::X86GOT(LDSection& pSection, SectionData& pSectionData)
-             : GOT(pSection, pSectionData, X86GOTEntrySize)
+X86GOT::X86GOT(LDSection& pSection)
+             : GOT(pSection, X86GOTEntrySize)
 {
 }
 
 X86GOT::~X86GOT()
 {
 }
-
-
 

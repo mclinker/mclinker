@@ -29,7 +29,7 @@ const unsigned int X86GOTPLT0Num = 3;
 class X86GOTPLT : public GOT
 {
 public:
-  X86GOTPLT(LDSection &pSection, SectionData& pSectionData);
+  X86GOTPLT(LDSection &pSection);
 
   ~X86GOTPLT();
 

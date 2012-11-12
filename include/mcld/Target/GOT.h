@@ -28,7 +28,7 @@ class ResolveInfo;
 class GOT
 {
 protected:
-  GOT(LDSection& pSection, SectionData& pSectionData, size_t pEntrySize);
+  GOT(LDSection& pSection, size_t pEntrySize);
 
 public:
   typedef SectionData::iterator iterator;
@@ -65,13 +65,13 @@ public:
 
   uint64_t addr() const { return m_Section.addr(); }
 
-  const_iterator begin() const { return m_SectionData.begin(); }
-  iterator       begin()       { return m_SectionData.begin(); }
-  const_iterator end  () const { return m_SectionData.end();   }
-  iterator       end  ()       { return m_SectionData.end();   }
+  const_iterator begin() const { return m_SectionData->begin(); }
+  iterator       begin()       { return m_SectionData->begin(); }
+  const_iterator end  () const { return m_SectionData->end();   }
+  iterator       end  ()       { return m_SectionData->end();   }
 
   bool empty() const
-  { return m_SectionData.empty(); }
+  { return m_SectionData->empty(); }
 
   // finalizeSectionSize - set LDSection size
   virtual void finalizeSectionSize();
@@ -88,7 +88,7 @@ public:
 
 protected:
   LDSection& m_Section;
-  SectionData& m_SectionData;
+  SectionData* m_SectionData;
   size_t f_EntrySize;
 
   Entry* m_pLast; ///< the last consumed entry

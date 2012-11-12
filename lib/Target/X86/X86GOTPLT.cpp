@@ -26,8 +26,8 @@ namespace mcld {
 //===----------------------------------------------------------------------===//
 // X86GOTPLT
 //===----------------------------------------------------------------------===//
-X86GOTPLT::X86GOTPLT(LDSection& pSection, SectionData& pSectionData)
-  : GOT(pSection, pSectionData, X86GOTPLTEntrySize)
+X86GOTPLT::X86GOTPLT(LDSection& pSection)
+  : GOT(pSection, X86GOTPLTEntrySize)
 {
   // Create GOT0 entries
   reserve(X86GOTPLT0Num);
@@ -44,13 +44,13 @@ X86GOTPLT::~X86GOTPLT()
 
 bool X86GOTPLT::hasGOT1() const
 {
-  return (m_SectionData.size() > X86GOTPLT0Num);
+  return (m_SectionData->size() > X86GOTPLT0Num);
 }
 
 void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<Entry>
-    (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
+    (*(m_SectionData->getFragmentList().begin())).setContent(pAddress);
 }
 
 void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)

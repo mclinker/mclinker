@@ -33,7 +33,7 @@ public:
 class ARMPLT : public PLT
 {
 public:
-  ARMPLT(LDSection& pSection, SectionData& pSectionData, ARMGOT& pGOTPLT);
+  ARMPLT(LDSection& pSection, ARMGOT& pGOTPLT);
   ~ARMPLT();
 
   // finalizeSectionSize - set LDSection size

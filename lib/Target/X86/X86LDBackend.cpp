@@ -794,16 +794,15 @@ void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new X86GOT(got, *IRBuilder::CreateSectionData(got));
+    m_pGOT = new X86GOT(got);
 
     // initialize .got.plt
     LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new X86GOTPLT(gotplt, *IRBuilder::CreateSectionData(gotplt));
+    m_pGOTPLT = new X86GOTPLT(gotplt);
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new X86PLT(plt,
-                        *IRBuilder::CreateSectionData(plt),
                         *m_pGOTPLT,
                         config());
 

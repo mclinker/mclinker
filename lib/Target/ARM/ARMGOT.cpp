@@ -26,8 +26,8 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ARMGOT
-ARMGOT::ARMGOT(LDSection& pSection, SectionData& pSectionData)
-  : GOT(pSection, pSectionData, ARMGOTEntrySize)
+ARMGOT::ARMGOT(LDSection& pSection)
+  : GOT(pSection, ARMGOTEntrySize)
 {
   // Create GOT0 entries.
   reserve(ARMGOT0Num);
@@ -44,12 +44,12 @@ ARMGOT::~ARMGOT()
 
 bool ARMGOT::hasGOT1() const
 {
-  return (m_SectionData.size() > ARMGOT0Num);
+  return (m_SectionData->size() > ARMGOT0Num);
 }
 
 void ARMGOT::reserveGOTPLT()
 {
-  Entry* entry = new Entry(0, getEntrySize(), &m_SectionData);
+  Entry* entry = new Entry(0, getEntrySize(), m_SectionData);
   if (NULL == m_GOTPLT.front) {
     // GOTPLT is empty
     if (NULL == m_GOT.front) {
@@ -72,7 +72,7 @@ void ARMGOT::reserveGOTPLT()
 
 void ARMGOT::reserveGOT()
 {
-  Entry* entry = new Entry(0, getEntrySize(), &m_SectionData);
+  Entry* entry = new Entry(0, getEntrySize(), m_SectionData);
   if (NULL == m_GOT.front) {
     // Entry must be the last entry. We can directly assign it to GOT part.
     m_GOT.front = entry;
@@ -110,7 +110,7 @@ GOT::Entry* ARMGOT::consumeGOT()
 void ARMGOT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<Entry>
-    (*(m_SectionData.getFragmentList().begin())).setContent(pAddress);
+    (*(m_SectionData->getFragmentList().begin())).setContent(pAddress);
 }
 
 void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
@@ -121,7 +121,7 @@ void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
   SectionData::iterator entry(m_GOTPLT.front);
   SectionData::iterator e_end;
   if (NULL == m_GOT.front)
-    e_end = m_SectionData.end();
+    e_end = m_SectionData->end();
   else
     e_end = SectionData::iterator(m_GOT.front);
 

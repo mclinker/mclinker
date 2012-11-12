@@ -58,7 +58,7 @@ public:
   };
 
 public:
-  PLT(LDSection& pSection, SectionData& pSectionData);
+  PLT(LDSection& pSection);
 
   virtual ~PLT();
 
@@ -71,14 +71,14 @@ public:
 
   uint64_t addr() const { return m_Section.addr(); }
 
-  const_iterator begin() const { return m_SectionData.begin(); }
-  iterator       begin()       { return m_SectionData.begin(); }
-  const_iterator end  () const { return m_SectionData.end();   }
-  iterator       end  ()       { return m_SectionData.end();   }
+  const_iterator begin() const { return m_SectionData->begin(); }
+  iterator       begin()       { return m_SectionData->begin(); }
+  const_iterator end  () const { return m_SectionData->end();   }
+  iterator       end  ()       { return m_SectionData->end();   }
 
 protected:
   LDSection& m_Section;
-  SectionData& m_SectionData;
+  SectionData* m_SectionData;
 };
 
 } // namespace of mcld

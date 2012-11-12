@@ -11,6 +11,7 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/IRBuilder.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -33,13 +34,11 @@ GOT::Entry::~Entry()
 //===----------------------------------------------------------------------===//
 // GOT
 //===----------------------------------------------------------------------===//
-GOT::GOT(LDSection& pSection,
-         SectionData& pSectionData,
-         size_t pEntrySize)
+GOT::GOT(LDSection& pSection, size_t pEntrySize)
   : m_Section(pSection),
-    m_SectionData(pSectionData),
     f_EntrySize(pEntrySize),
     m_pLast(NULL) {
+  m_SectionData = IRBuilder::CreateSectionData(pSection);
 }
 
 GOT::~GOT()
@@ -56,7 +55,7 @@ void GOT::reserve(size_t pNum)
   Entry* entry = NULL;
 
   for (size_t i = 0; i < pNum; i++) {
-    entry = new Entry(0, f_EntrySize, &m_SectionData);
+    entry = new Entry(0, f_EntrySize, m_SectionData);
   }
 }
 
@@ -64,7 +63,7 @@ GOT::Entry* GOT::consume()
 {
   if (NULL == m_pLast) {
     assert(!empty() && "Consume empty GOT entry!");
-    m_pLast = llvm::cast<Entry>(&m_SectionData.front());
+    m_pLast = llvm::cast<Entry>(&m_SectionData->front());
     return m_pLast;
   }
 
@@ -74,11 +73,11 @@ GOT::Entry* GOT::consume()
 
 void GOT::finalizeSectionSize()
 {
-  m_Section.setSize(m_SectionData.size() * f_EntrySize);
+  m_Section.setSize(m_SectionData->size() * f_EntrySize);
 
   uint32_t offset = 0;
-  SectionData::iterator frag, fragEnd = m_SectionData.end();
-  for (frag = m_SectionData.begin(); frag != fragEnd; ++frag) {
+  SectionData::iterator frag, fragEnd = m_SectionData->end();
+  for (frag = m_SectionData->begin(); frag != fragEnd; ++frag) {
     frag->setOffset(offset);
     offset += frag->size();
   }

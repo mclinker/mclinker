@@ -36,7 +36,6 @@ class X86PLT : public PLT
 {
 public:
   X86PLT(LDSection& pSection,
-         SectionData& pSectionData,
          X86GOTPLT& pGOTPLT,
          const LinkerConfig& pConfig);
   ~X86PLT();

@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <mcld/Target/PLT.h>
+#include <mcld/IRBuilder.h>
 
 using namespace mcld;
 
@@ -33,10 +34,10 @@ PLT::Entry::~Entry()
 //===----------------------------------------------------------------------===//
 // PLT
 //===----------------------------------------------------------------------===//
-PLT::PLT(LDSection& pSection, SectionData& pSectionData)
-  :m_Section(pSection),
-   m_SectionData(pSectionData)
+PLT::PLT(LDSection& pSection)
+  :m_Section(pSection)
 {
+  m_SectionData = IRBuilder::CreateSectionData(pSection);
 }
 
 PLT::~PLT()

@@ -116,11 +116,11 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
 
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new ARMGOT(got, *IRBuilder::CreateSectionData(got));
+    m_pGOT = new ARMGOT(got);
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
-    m_pPLT = new ARMPLT(plt, *IRBuilder::CreateSectionData(plt), *m_pGOT);
+    m_pPLT = new ARMPLT(plt, *m_pGOT);
 
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
