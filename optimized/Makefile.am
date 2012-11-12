@@ -273,7 +273,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ExecWriter.h \
 	${LIBDIR}/LD/ExecWriter.cpp \
 	${INCDIR}/LD/ELFReader.h \
-	${INCDIR}/LD/ELFReader.tcc \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${INCDIR}/LD/ELFWriter.h \
 	${LIBDIR}/LD/ELFWriter.cpp \

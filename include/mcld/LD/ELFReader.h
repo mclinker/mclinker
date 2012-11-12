@@ -156,28 +156,28 @@ public:
   typedef llvm::ELF::Elf32_Rela Rela;
 
 public:
-  inline ELFReader(GNULDBackend& pBackend);
+  ELFReader(GNULDBackend& pBackend);
 
-  inline ~ELFReader();
+  ~ELFReader();
 
   /// ELFHeaderSize - return the size of the ELFHeader
-  inline size_t getELFHeaderSize() const
+  size_t getELFHeaderSize() const
   { return sizeof(ELFHeader); }
 
   /// isELF - is this a ELF file
-  inline bool isELF(void* pELFHeader) const;
+  bool isELF(void* pELFHeader) const;
 
   /// isMyEndian - is this ELF file in the same endian to me?
-  inline bool isMyEndian(void* pELFHeader) const;
+  bool isMyEndian(void* pELFHeader) const;
 
   /// isMyMachine - is this ELF file generated for the same machine.
-  inline bool isMyMachine(void* pELFHeader) const;
+  bool isMyMachine(void* pELFHeader) const;
 
   /// fileType - the file type of this file
-  inline Input::Type fileType(void* pELFHeader) const;
+  Input::Type fileType(void* pELFHeader) const;
 
   /// readSectionHeaders - read ELF section header table and create LDSections
-  inline bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
+  bool readSectionHeaders(Input& pInput, void* pELFHeader) const;
 
   /// readRegularSection - read a regular section and create fragments.
   bool readRegularSection(Input& pInput, SectionData& pSD) const;
@@ -190,7 +190,7 @@ public:
 
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.
-  inline ResolveInfo* readSignature(Input& pInput,
+  ResolveInfo* readSignature(Input& pInput,
                                     LDSection& pSymTab,
                                     uint32_t pSymIdx) const;
 
@@ -207,12 +207,10 @@ public:
                const MemoryRegion& pRegion) const;
 
   /// readDynamic - read ELF .dynamic in input dynobj
-  inline bool readDynamic(Input& pInput) const;
+  bool readDynamic(Input& pInput) const;
 };
 
 } // namespace of mcld
-
-#include "ELFReader.tcc"
 
 #endif
 
