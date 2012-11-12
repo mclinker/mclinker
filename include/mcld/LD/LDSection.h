@@ -41,7 +41,6 @@ private:
             uint32_t pType,
             uint32_t pFlag,
             uint64_t pSize = 0,
-            uint64_t pOffset = 0,
             uint64_t pAddr = 0);
 
 public:
@@ -52,10 +51,11 @@ public:
                            uint32_t pType,
                            uint32_t pFlag,
                            uint64_t pSize = 0,
-                           uint64_t pOffset = 0,
                            uint64_t pAddr = 0);
 
   static void Destroy(LDSection*& pSection);
+
+  bool hasOffset() const;
 
   /// name - the name of this section.
   const std::string& name() const

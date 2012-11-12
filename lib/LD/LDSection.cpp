@@ -27,7 +27,7 @@ LDSection::LDSection()
     m_Type(0x0),
     m_Flag(0x0),
     m_Size(0),
-    m_Offset(0),
+    m_Offset(~uint64_t(0)),
     m_Addr(0x0),
     m_Align(0),
     m_Info(0),
@@ -41,14 +41,13 @@ LDSection::LDSection(const std::string& pName,
                      uint32_t pType,
                      uint32_t pFlag,
                      uint64_t pSize,
-                     uint64_t pOffset,
                      uint64_t pAddr)
   : m_Name(pName),
     m_Kind(pKind),
     m_Type(pType),
     m_Flag(pFlag),
     m_Size(pSize),
-    m_Offset(pOffset),
+    m_Offset(~uint64_t(0)),
     m_Addr(pAddr),
     m_Align(0),
     m_Info(0),
@@ -61,16 +60,20 @@ LDSection::~LDSection()
 {
 }
 
+bool LDSection::hasOffset() const
+{
+  return (m_Offset != ~uint64_t(0));
+}
+
 LDSection* LDSection::Create(const std::string& pName,
                              LDFileFormat::Kind pKind,
                              uint32_t pType,
                              uint32_t pFlag,
                              uint64_t pSize,
-                             uint64_t pOffset,
                              uint64_t pAddr)
 {
   LDSection* result = g_SectFactory->allocate();
-  new (result) LDSection(pName, pKind, pType, pFlag, pSize, pOffset, pAddr);
+  new (result) LDSection(pName, pKind, pType, pFlag, pSize, pAddr);
   return result;
 }
 

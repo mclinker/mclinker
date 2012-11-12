@@ -109,7 +109,7 @@ bool Layout::layout(Module& pModule,
         }
         break;
     }
-  }
+  } // end of for
 
   // perform sorting on m_SectionOrder to get a ordering for final layout
   sortSectionOrder(pBackend, pConfig);
@@ -117,9 +117,11 @@ bool Layout::layout(Module& pModule,
   // Backend defines the section start offset for section 1.
   uint64_t offset = pBackend.sectionStartOffset();
 
+  // compute the section offset and handle alignment also. And ignore section 0
+  // (NULL in ELF/COFF), and MachO starts from section 1.
+  // always set NULL section's offset to 0
+  m_SectionOrder[0]->setOffset(0);
   for (size_t index = 1; index < m_SectionOrder.size(); ++index) {
-    // compute the section offset and handle alignment also. And ignore section 0
-    // (NULL in ELF/COFF), and MachO starts from section 1.
 
     if (LDFileFormat::BSS != m_SectionOrder[index - 1]->kind()) {
       // we should not preserve file space for the BSS section.
