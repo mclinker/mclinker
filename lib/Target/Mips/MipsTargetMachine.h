@@ -8,13 +8,13 @@
 //===----------------------------------------------------------------------===//
 #ifndef MIPS_TARGET_MACHINE_H
 #define MIPS_TARGET_MACHINE_H
-#include "mcld/Target/TargetMachine.h"
+
 #include "Mips.h"
+#include <mcld/Target/TargetMachine.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class MipsBaseTargetMachine : public LLVMTargetMachine
+class MipsBaseTargetMachine : public MCLDTargetMachine
 {
 protected:
   LinkerConfig *m_pConfig;

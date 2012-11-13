@@ -1112,12 +1112,12 @@ int main(int argc, char* argv[])
   Options.TrapFuncName = TrapFuncName;
   Options.EnableSegmentedStacks = SegmentedStacks;
 
-  std::auto_ptr<mcld::LLVMTargetMachine> target_machine(
+  std::auto_ptr<mcld::MCLDTargetMachine> target_machine(
           TheTarget->createTargetMachine(TheTriple.getTriple(),
                                          MCPU, FeaturesStr, Options,
                                          ArgRelocModel, CMModel, OLvl));
   assert(target_machine.get() && "Could not allocate target machine!");
-  mcld::LLVMTargetMachine &TheTargetMachine = *target_machine.get();
+  mcld::MCLDTargetMachine &TheTargetMachine = *target_machine.get();
 
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);

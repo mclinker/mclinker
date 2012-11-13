@@ -24,7 +24,7 @@ namespace mcld {
 class Module;
 class LinkerConfig;
 class MemoryArea;
-class LLVMTargetMachine;
+class MCLDTargetMachine;
 class TargetRegistry;
 class MCLinker;
 class TargetLDBackend;
@@ -38,10 +38,10 @@ class DiagnosticLineInfo;
 //===----------------------------------------------------------------------===//
 class Target
 {
-  friend class mcld::LLVMTargetMachine;
+  friend class mcld::MCLDTargetMachine;
   friend class mcld::TargetRegistry;
 public:
-  typedef mcld::LLVMTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
+  typedef mcld::MCLDTargetMachine *(*TargetMachineCtorTy)(const mcld::Target &,
                                                           llvm::TargetMachine &,
                                                           const std::string&);
 
@@ -65,7 +65,7 @@ public:
   void setTarget(const llvm::Target& pTarget)
   { m_pT = &pTarget; }
 
-  mcld::LLVMTargetMachine *createTargetMachine(const std::string &pTriple,
+  mcld::MCLDTargetMachine *createTargetMachine(const std::string &pTriple,
                           const std::string &pCPU, const std::string &pFeatures,
                           const llvm::TargetOptions &Options,
                           llvm::Reloc::Model RM = llvm::Reloc::Default,
@@ -274,7 +274,7 @@ struct RegisterTargetMachine
   }
 
 private:
-  static mcld::LLVMTargetMachine *Allocator(const mcld::Target &T,
+  static mcld::MCLDTargetMachine *Allocator(const mcld::Target &T,
                                             llvm::TargetMachine& TM,
                                             const std::string &Triple) {
     return new TargetMachineImpl(TM, T, Triple);

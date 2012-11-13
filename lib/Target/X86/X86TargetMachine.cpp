@@ -21,7 +21,7 @@ extern "C" void MCLDInitializeX86LDTarget() {
 mcld::X86TargetMachine::X86TargetMachine(llvm::TargetMachine& pPM,
                                          const mcld::Target &pTarget,
                                          const std::string& pTriple)
-  : mcld::LLVMTargetMachine(pPM, pTarget, pTriple) {
+  : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
   m_pConfig = new LinkerConfig(pTriple);
 }
 

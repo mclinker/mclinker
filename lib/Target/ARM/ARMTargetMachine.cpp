@@ -21,7 +21,7 @@ extern "C" void MCLDInitializeARMLDTarget() {
 mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
                                                  const mcld::Target &pTarget,
                                                  const std::string& pTriple)
-  : mcld::LLVMTargetMachine(pPM, pTarget, pTriple) {
+  : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
   m_pConfig = new LinkerConfig(pTriple);
 }
 

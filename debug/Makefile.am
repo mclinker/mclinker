@@ -74,7 +74,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/Windows/FileSystem.inc \
 	${LIBDIR}/Support/Windows/PathV3.inc \
 	${LIBDIR}/Support/Windows/System.inc \
-	${LIBDIR}/CodeGen/LLVMTargetMachine.cpp \
+	${LIBDIR}/CodeGen/MCLDTargetMachine.cpp \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
         ${INCDIR}/Target/ELFEmulation.h \

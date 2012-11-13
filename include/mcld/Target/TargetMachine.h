@@ -14,8 +14,8 @@
 #include <llvm/Target/TargetMachine.h>
 #include <string>
 
-namespace llvm
-{
+namespace llvm {
+
 class Target;
 class TargetData;
 class TargetMachine;
@@ -23,8 +23,7 @@ class PassManagerBase;
 
 } // namespace of llvm
 
-namespace mcld
-{
+namespace mcld {
 
 class Module;
 class Target;
@@ -44,31 +43,31 @@ enum CodeGenFileType {
 };
 
 
-/** \class mcld::LLVMTargetMachine
- *  \brief mcld::LLVMTargetMachine is a object adapter of
+/** \class mcld::MCLDTargetMachine
+ *  \brief mcld::MCLDTargetMachine is a object adapter of
  *  llvm::LLVMTargetMachine.
  *
- *  mcld::LLVMTargetMachine is also in charge of LinkerConfig.
+ *  mcld::MCLDTargetMachine is also in charge of LinkerConfig.
  *
  *  @see LinkerConfig
  */
-class LLVMTargetMachine
+class MCLDTargetMachine
 {
 public:
   /// Adapter of llvm::TargetMachine
   ///
-  LLVMTargetMachine(llvm::TargetMachine &pTM,
+  MCLDTargetMachine(llvm::TargetMachine &pTM,
                     const mcld::Target &pTarget,
                     const std::string &pTriple);
 
-  virtual ~LLVMTargetMachine();
+  virtual ~MCLDTargetMachine();
 
   /// getTarget - adapt llvm::TargetMachine::getTarget
   const mcld::Target& getTarget() const;
 
   /// getTM - return adapted the llvm::TargetMachine.
   const llvm::TargetMachine& getTM() const { return m_TM; }
-  llvm::TargetMachine& getTM() { return m_TM; }
+  llvm::TargetMachine&       getTM()       { return m_TM; }
 
   /// getLDInfo - return the mcld::LinkerConfig
   virtual const mcld::LinkerConfig& getConfig() const = 0;

@@ -8,13 +8,12 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_X86_TARGET_MACHINE_H
 #define MCLD_X86_TARGET_MACHINE_H
-#include "mcld/Target/TargetMachine.h"
 #include "X86.h"
+#include <mcld/Target/TargetMachine.h>
 
-namespace mcld
-{
+namespace mcld {
 
-class X86TargetMachine : public LLVMTargetMachine
+class X86TargetMachine : public MCLDTargetMachine
 {
 protected:
   LinkerConfig *m_pConfig;

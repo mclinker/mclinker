@@ -1,4 +1,4 @@
-//===- LLVMTargetMachine.cpp ----------------------------------------------===//
+//===- MCLDTargetMachine.cpp ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -91,19 +91,19 @@ static bool getVerboseAsm() {
 
 
 //===---------------------------------------------------------------------===//
-/// LLVMTargetMachine
+/// MCLDTargetMachine
 //===----------------------------------------------------------------------===//
-mcld::LLVMTargetMachine::LLVMTargetMachine(llvm::TargetMachine &pTM,
+mcld::MCLDTargetMachine::MCLDTargetMachine(llvm::TargetMachine &pTM,
                                            const mcld::Target& pTarget,
                                            const std::string& pTriple)
   : m_TM(pTM), m_pTarget(&pTarget), m_Triple(pTriple) {
 }
 
-mcld::LLVMTargetMachine::~LLVMTargetMachine() {
+mcld::MCLDTargetMachine::~MCLDTargetMachine() {
   m_pTarget = 0;
 }
 
-const mcld::Target& mcld::LLVMTargetMachine::getTarget() const
+const mcld::Target& mcld::MCLDTargetMachine::getTarget() const
 {
   return *m_pTarget;
 }
@@ -184,7 +184,7 @@ static llvm::MCContext *addPassesToGenerateCode(llvm::LLVMTargetMachine *TM,
 
 }
 
-bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
+bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                                              mcld::ToolOutputFile& pOutput,
                                              mcld::CodeGenFileType pFileType,
                                              CodeGenOpt::Level pOptLvl,
@@ -265,7 +265,7 @@ bool mcld::LLVMTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
+bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
                                                 llvm::formatted_raw_ostream &pOutput,
                                                 llvm::MCContext *&Context)
 {
@@ -309,7 +309,7 @@ bool mcld::LLVMTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
+bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
                                                  llvm::raw_ostream &pOutput,
                                                  llvm::MCContext *&Context)
 {
@@ -345,7 +345,7 @@ bool mcld::LLVMTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
   return false;
 }
 
-bool mcld::LLVMTargetMachine::addLinkerPasses(PassManagerBase &pPM,
+bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               LinkerConfig& pConfig,
                                               mcld::Module& pModule,
                                               mcld::MemoryArea& pOutput,
