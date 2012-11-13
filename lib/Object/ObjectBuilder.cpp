@@ -139,40 +139,6 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
   return true;
 }
 
-/// AppendFragment - To append pFrag to the given LDSection pSection.
-/// In order to keep the alignment of pFrag, This function may insert an
-/// AlignFragment before pFrag to keep align constraint.
-uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
-                                       LDSection& pSection,
-                                       uint32_t pAlignConstraint)
-{
-  switch (pSection.kind()) {
-    case LDFileFormat::Relocation: {
-      Relocation* reloc = llvm::cast<Relocation>(&pFrag);
-      assert(pSection.hasRelocData() &&
-             "given LDSection does not have a relocation data.");
-      RelocData* reloc_data = pSection.getRelocData();
-      AppendRelocation(*reloc, *reloc_data);
-      return 0;
-    }
-    case LDFileFormat::EhFrame: {
-      assert(pSection.hasEhFrame() &&
-             "given LDSection does not have a eh_frame.");
-
-      EhFrame* eh_frame = pSection.getEhFrame();
-      return AppendEhFrame(pFrag, *eh_frame, pAlignConstraint);
-    }
-    default: {
-      assert(pSection.hasSectionData() &&
-             "given LDSection does not have a section data.");
-
-      SectionData* sect_data = pSection.getSectionData();
-      return AppendFragment(pFrag, *sect_data, pAlignConstraint);
-    }
-  }
-  return 0;
-}
-
 /// AppendFragment - To append pFrag to the given SectionData pSD.
 uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
                                        SectionData& pSD,
@@ -211,36 +177,5 @@ uint64_t ObjectBuilder::AppendFragment(Fragment& pFrag,
     return align->size() + pFrag.size();
   else
     return pFrag.size();
-}
-
-/// AppendRelocation - To append an relocation to the given RelocData pRD.
-void ObjectBuilder::AppendRelocation(Relocation& pRelocation, RelocData& pRD)
-{
-  pRD.getFragmentList().push_back(&pRelocation);
-}
-
-/// AppendEhFrame - To append a fragment to the given EhFrame pEhFram.
-uint64_t ObjectBuilder::AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame,
-                                      uint32_t pAlignConstraint)
-{
-  return AppendFragment(pFrag, pEhFrame.getSectionData(), pAlignConstraint);
-}
-
-/// AppendEhFrame - To append a FDE to the given EhFrame pEhFram.
-uint64_t
-ObjectBuilder::AppendEhFrame(EhFrame::FDE& pFDE, EhFrame& pEhFrame,
-                             uint32_t pAlignConstraint)
-{
-  pEhFrame.addFDE(pFDE);
-  return AppendEhFrame(pFDE, pEhFrame, pAlignConstraint);
-}
-
-/// AppendEhFrame - To append a CIE to the given EhFrame pEhFram.
-uint64_t
-ObjectBuilder::AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame,
-                             uint32_t pAlignConstraint)
-{
-  pEhFrame.addCIE(pCIE);
-  return AppendEhFrame(pCIE, pEhFrame, pAlignConstraint);
 }
 

@@ -319,3 +319,45 @@ Fragment* IRBuilder::CreateRegion(void* pMemory, size_t pLength)
   return new RegionFragment(*region);
 }
 
+/// AppendFragment - To append pFrag to the given SectionData pSD
+uint64_t IRBuilder::AppendFragment(Fragment& pFrag, SectionData& pSD)
+{
+  uint64_t size = ObjectBuilder::AppendFragment(pFrag,
+                                                pSD,
+                                                pSD.getSection().align());
+  pSD.getSection().setSize(pSD.getSection().size() + size);
+  return size;
+}
+
+/// AppendRelocation - To append an relocation to the given RelocData pRD.
+void IRBuilder::AppendRelocation(Relocation& pRelocation, RelocData& pRD)
+{
+  pRD.getFragmentList().push_back(&pRelocation);
+}
+
+/// AppendEhFrame - To append a fragment to EhFrame.
+uint64_t IRBuilder::AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame)
+{
+  uint64_t size = ObjectBuilder::AppendFragment(pFrag,
+                              pEhFrame.getSectionData(),
+                              pEhFrame.getSection().align());
+  pEhFrame.getSection().setSize(pEhFrame.getSection().size() + size);
+  return size;
+}
+
+/// AppendEhFrame - To append a FDE to the given EhFrame pEhFram.
+uint64_t IRBuilder::AppendEhFrame(EhFrame::FDE& pFDE, EhFrame& pEhFrame)
+{
+  pEhFrame.addFDE(pFDE);
+  pEhFrame.getSection().setSize(pEhFrame.getSection().size() + pFDE.size());
+  return pFDE.size();
+}
+
+/// AppendEhFrame - To append a CIE to the given EhFrame pEhFram.
+uint64_t IRBuilder::AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame)
+{
+  pEhFrame.addCIE(pCIE);
+  pEhFrame.getSection().setSize(pEhFrame.getSection().size() + pCIE.size());
+  return pCIE.size();
+}
+

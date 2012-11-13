@@ -18,8 +18,10 @@
 #include <mcld/MC/InputBuilder.h>
 
 #include <mcld/LD/LDSection.h>
+#include <mcld/LD/EhFrame.h>
 
 #include <mcld/Fragment/Fragment.h>
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 
@@ -306,6 +308,67 @@ public:
   /// @return If pLength is zero or failing to request a region, return a
   ///         FillFragment.
   static Fragment* CreateRegion(void* pMemory, size_t pLength);
+
+  /// AppendFragment - To append pFrag to the given SectionData pSD.
+  /// This function tells MCLinker to append a fragment to section data, and
+  /// update size of the section header.
+  ///
+  /// @note In order to keep the alignment of pFrag, This function inserts an
+  /// AlignFragment before pFrag if the section header's alignment is larger
+  /// than 1.
+  /// @note This function does not update offset of section headers.
+  ///
+  /// @param pFrag [in, out] The appended fragment. Its offset is set as the
+  ///                        section offset in pSD.
+  /// @param pSD   [in, out] The section data. Size of the header is also
+  ///                        updated.
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendFragment(Fragment& pFrag, SectionData& pSD);
+
+  /// AppendRelocation - To append a relocation to a relocation data.
+  /// This function tells MCLinker to add a general relocation to the
+  /// relocation data. This function does not update offset and size of section
+  /// headers.
+  ///
+  /// @param pReloc [in]      The appended relocation.
+  /// @param pRD    [in, out] The relocation data being appended.
+  static void AppendRelocation(Relocation& pRelocation, RelocData& pRD);
+
+  /// AppendEhFrame - To append a fragment to a EhFrame.
+  /// @note In order to keep the alignment of pFrag, This function inserts an
+  /// AlignFragment before pFrag if the section header's alignment is larger
+  /// than 1.
+  /// @note This function also update size of the section header, but does not
+  /// update header's offset.
+  ///
+  /// @param pFrag    [in, out] The appended fragment.
+  /// @param pEhFrame [in, out] The EhFrame.
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame);
+
+  /// AppendEhFrame - To append a FDE to the given EhFrame pEhFram.
+  /// @note In order to keep the alignment of pFrag, This function inserts an
+  /// AlignFragment before pFrag if the section header's alignment is larger
+  /// than 1.
+  /// @note This function also update size of the section header, but does not
+  /// update header's offset.
+  ///
+  /// @param [in, out] pFDE The appended FDE entry.
+  /// @param [in, out] pEhFrame The eh_frame being appended.
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(EhFrame::FDE& pFDE, EhFrame& pEhFrame);
+
+  /// AppendEhFrame - To append a CIE to the given EhFrame pEhFram.
+  /// @note In order to keep the alignment of pFrag, This function inserts an
+  /// AlignFragment before pFrag if the section header's alignment is larger
+  /// than 1.
+  /// @note This function also update size of the section header, but does not
+  /// update header's offset.
+  ///
+  /// @param [in, out] pCIE The appended CIE entry.
+  /// @param [in, out] pEhFrame The eh_frame being appended.
+  /// @return Total size of the inserted fragments.
+  static uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame);
 
 private:
   Module& m_Module;
