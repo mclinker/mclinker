@@ -11,7 +11,6 @@
 #include "X86.h"
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/LinkerConfig.h>
 
 extern "C" void MCLDInitializeX86LDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
@@ -22,11 +21,9 @@ mcld::X86TargetMachine::X86TargetMachine(llvm::TargetMachine& pPM,
                                          const mcld::Target &pTarget,
                                          const std::string& pTriple)
   : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
-  m_pConfig = new LinkerConfig(pTriple);
 }
 
 mcld::X86TargetMachine::~X86TargetMachine()
 {
-  delete m_pConfig;
 }
 

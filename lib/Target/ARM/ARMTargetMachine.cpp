@@ -10,7 +10,6 @@
 #include "ARM.h"
 
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/LinkerConfig.h>
 
 extern "C" void MCLDInitializeARMLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
@@ -22,11 +21,9 @@ mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
                                                  const mcld::Target &pTarget,
                                                  const std::string& pTriple)
   : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
-  m_pConfig = new LinkerConfig(pTriple);
 }
 
 mcld::ARMBaseTargetMachine::~ARMBaseTargetMachine()
 {
-  delete m_pConfig;
 }
 

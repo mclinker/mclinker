@@ -16,21 +16,12 @@ namespace mcld {
 
 class MipsBaseTargetMachine : public MCLDTargetMachine
 {
-protected:
-  LinkerConfig *m_pConfig;
-
 public:
   MipsBaseTargetMachine(llvm::TargetMachine &pTM,
                         const mcld::Target &pTarget,
                         const std::string &pTriple);
 
   virtual ~MipsBaseTargetMachine();
-
-  mcld::LinkerConfig& getConfig()
-  { return *m_pConfig; }
-
-  const mcld::LinkerConfig& getConfig() const
-  { return *m_pConfig; }
 };
 
 } // namespace of mcld

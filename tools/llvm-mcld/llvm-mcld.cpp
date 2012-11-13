@@ -1122,18 +1122,20 @@ int main(int argc, char* argv[])
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
+  // Set up mcld::LinkerConfig
+  mcld::LinkerConfig ld_config(TheTriple.getTriple());
+
   // Set up mcld::outs() and mcld::errs()
-  InitializeOStreams(TheTargetMachine.getConfig());
+  InitializeOStreams(ld_config);
 
   // Set up MsgHandler
   OwningPtr<mcld::DiagnosticLineInfo>
     diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
                                                        TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
-    diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(),
-                                                TheTargetMachine.getConfig()));
+    diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(), ld_config));
 
-  mcld::InitializeDiagnosticEngine(TheTargetMachine.getConfig(),
+  mcld::InitializeDiagnosticEngine(ld_config,
                                    diag_line_info.take(),
                                    diag_printer.get());
 
@@ -1163,7 +1165,7 @@ int main(int argc, char* argv[])
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
   // Process the linker input from the command line
-  if (!ProcessLinkerOptionsFromCommand(TheTargetMachine.getConfig())) {
+  if (!ProcessLinkerOptionsFromCommand(ld_config)) {
     errs() << argv[0] << ": failed to process linker options from command line!\n";
     return 1;
   }
@@ -1175,7 +1177,7 @@ int main(int argc, char* argv[])
                                              ArgFileType,
                                              OLvl,
                                              LDIRModule,
-                                             TheTargetMachine.getConfig(),
+                                             ld_config,
                                              NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";

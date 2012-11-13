@@ -11,7 +11,6 @@
 #include "Mips.h"
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetRegistry.h>
-#include <mcld/LinkerConfig.h>
 
 extern "C" void MCLDInitializeMipsLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
@@ -23,10 +22,8 @@ mcld::MipsBaseTargetMachine::MipsBaseTargetMachine(llvm::TargetMachine& pPM,
                                                    const mcld::Target &pTarget,
                                                    const std::string& pTriple)
   : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
-  m_pConfig = new LinkerConfig(pTriple);
 }
 
 mcld::MipsBaseTargetMachine::~MipsBaseTargetMachine()
 {
-  delete m_pConfig;
 }

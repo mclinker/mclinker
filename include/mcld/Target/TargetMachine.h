@@ -44,12 +44,7 @@ enum CodeGenFileType {
 
 
 /** \class mcld::MCLDTargetMachine
- *  \brief mcld::MCLDTargetMachine is a object adapter of
- *  llvm::LLVMTargetMachine.
- *
- *  mcld::MCLDTargetMachine is also in charge of LinkerConfig.
- *
- *  @see LinkerConfig
+ *  \brief mcld::MCLDTargetMachine is a object adapter of LLVMTargetMachine.
  */
 class MCLDTargetMachine
 {
@@ -68,10 +63,6 @@ public:
   /// getTM - return adapted the llvm::TargetMachine.
   const llvm::TargetMachine& getTM() const { return m_TM; }
   llvm::TargetMachine&       getTM()       { return m_TM; }
-
-  /// getLDInfo - return the mcld::LinkerConfig
-  virtual const mcld::LinkerConfig& getConfig() const = 0;
-  virtual mcld::LinkerConfig&       getConfig()       = 0;
 
   /// appPassesToEmitFile - The target function which we has to modify as
   /// upstreaming.

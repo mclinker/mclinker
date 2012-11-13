@@ -15,19 +15,12 @@ namespace mcld {
 
 class X86TargetMachine : public MCLDTargetMachine
 {
-protected:
-  LinkerConfig *m_pConfig;
-
 public:
   X86TargetMachine(llvm::TargetMachine &pTM,
                    const mcld::Target &pTarget,
                    const std::string &pTriple);
 
   virtual ~X86TargetMachine();
-
-  const mcld::LinkerConfig& getConfig() const { return *m_pConfig; }
-  mcld::LinkerConfig&       getConfig()       { return *m_pConfig; }
-
 };
 
 } // namespace of mcld
