@@ -240,7 +240,7 @@ public:
 ///
 /// Target TheFooTarget; // The global target instance.
 ///
-/// extern "C" void LLVMInitializeFooTargetInfo() {
+/// extern "C" void MCLDInitializeFooTargetInfo() {
 ///   RegisterTarget X(TheFooTarget, "foo", "Foo description");
 /// }
 struct RegisterTarget
@@ -262,7 +262,7 @@ struct RegisterTarget
 /// implementation, for use in the target machine initialization
 /// function. Usage:
 ///
-/// extern "C" void LLVMInitializeFooTarget() {
+/// extern "C" void MCLDInitializeFooTarget() {
 ///   extern mcld::Target TheFooTarget;
 ///   RegisterTargetMachine<mcld::FooTargetMachine> X(TheFooTarget);
 /// }

@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef LLVM_TARGET_TARGETLDBACKEND_H
-#define LLVM_TARGET_TARGETLDBACKEND_H
+#ifndef MCLD_TARGET_TARGETLDBACKEND_H
+#define MCLD_TARGET_TARGETLDBACKEND_H
 
 #include <llvm/Support/DataTypes.h>
 
@@ -39,7 +39,7 @@ class ObjectBuilder;
 
 //===----------------------------------------------------------------------===//
 /// TargetLDBackend - Generic interface to target specific assembler backends.
-///
+//===----------------------------------------------------------------------===//
 class TargetLDBackend
 {
   TargetLDBackend(const TargetLDBackend &);   // DO NOT IMPLEMENT
