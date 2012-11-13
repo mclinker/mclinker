@@ -63,9 +63,6 @@ namespace mcld
   inline void InitializeAllTargets() {
     mcld::InitializeAllTargetInfos();
 
-#define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDTarget();
-#include "mcld/Config/Targets.def"
-
 #define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDBackend();
 #include "mcld/Config/Targets.def"
   }
@@ -84,6 +81,9 @@ namespace mcld
   ///
   /// It is legal for a client to make multiple calls to this function.
   inline void InitializeAllLinkers() {
+#define MCLD_TARGET(TargetName) MCLDInitialize##TargetName##LDTarget();
+#include "mcld/Config/Targets.def"
+
 #define MCLD_LINKER(TargetName) MCLDInitialize##TargetName##MCLinker();
 #include "mcld/Config/Linkers.def"
   }

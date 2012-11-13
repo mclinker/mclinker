@@ -1106,8 +1106,9 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
 
 } // namespace of mcld
 
-//=============================
+//===----------------------------------------------------------------------===//
 // Force static initialization.
+//===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeARMLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget, createARMLDBackend);

@@ -11,12 +11,6 @@
 
 #include <mcld/Support/TargetRegistry.h>
 
-extern "C" void MCLDInitializeARMLDTarget() {
-  // Register createTargetMachine function pointer to mcld::Target
-  mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> X(mcld::TheARMTarget);
-  mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> Y(mcld::TheThumbTarget);
-}
-
 mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
                                                  const mcld::Target &pTarget,
                                                  const std::string& pTriple)
@@ -25,5 +19,14 @@ mcld::ARMBaseTargetMachine::ARMBaseTargetMachine(llvm::TargetMachine& pPM,
 
 mcld::ARMBaseTargetMachine::~ARMBaseTargetMachine()
 {
+}
+
+//===----------------------------------------------------------------------===//
+// Initialize MCLDTargetMachine
+//===----------------------------------------------------------------------===//
+extern "C" void MCLDInitializeARMLDTarget() {
+  // Register createTargetMachine function pointer to mcld::Target
+  mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> X(mcld::TheARMTarget);
+  mcld::RegisterTargetMachine<mcld::ARMBaseTargetMachine> Y(mcld::TheThumbTarget);
 }
 
