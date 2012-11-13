@@ -87,7 +87,7 @@ AC_CHECK_HEADERS([sys/types.h sys/ioctl.h malloc/malloc.h mach/mach.h])
 ####################
 # Configure LLVM
 CHECK_LLVM([3.0])
-ENUM_LLVM_TARGETS
+ENUM_MCLD_TARGETS
 CHECK_ALONE_TARGET
 
 ####################

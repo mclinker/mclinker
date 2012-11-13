@@ -28,7 +28,7 @@ DiagnosticLineInfo* createMipsDiagLineInfo(const mcld::Target& pTarget,
 
 //==========================
 // InitializeMipsDiagnostic
-extern "C" void LLVMInitializeMipsDiagnosticLineInfo() {
+extern "C" void MCLDInitializeMipsDiagnosticLineInfo() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheMipselTarget, createMipsDiagLineInfo);
 }

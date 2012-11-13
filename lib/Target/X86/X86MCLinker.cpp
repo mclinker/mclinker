@@ -47,7 +47,7 @@ MCLinker* createX86MCLinker(const std::string &pTriple,
 //===----------------------------------------------------------------------===//
 // X86MCLinker
 //===----------------------------------------------------------------------===//
-extern "C" void LLVMInitializeX86MCLinker() {
+extern "C" void MCLDInitializeX86MCLinker() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterMCLinker(TheX86Target, createX86MCLinker);
 }

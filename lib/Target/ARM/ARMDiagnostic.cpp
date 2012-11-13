@@ -31,7 +31,7 @@ DiagnosticLineInfo* createARMDiagLineInfo(const mcld::Target& pTarget,
 
 //==========================
 // InitializeARMDiagnostic
-extern "C" void LLVMInitializeARMDiagnosticLineInfo() {
+extern "C" void MCLDInitializeARMDiagnosticLineInfo() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheARMTarget, createARMDiagLineInfo);
   mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheThumbTarget, createARMDiagLineInfo);

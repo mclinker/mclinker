@@ -13,7 +13,7 @@ namespace mcld {
 
 mcld::Target TheMipselTarget;
 
-extern "C" void LLVMInitializeMipsLDTargetInfo() {
+extern "C" void MCLDInitializeMipsLDTargetInfo() {
   // register into mcld::TargetRegistry
   mcld::RegisterTarget X(TheMipselTarget, "mipsel");
 }

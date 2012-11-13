@@ -13,7 +13,7 @@
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LinkerConfig.h>
 
-extern "C" void LLVMInitializeMipsLDTarget() {
+extern "C" void MCLDInitializeMipsLDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
   mcld::RegisterTargetMachine<mcld::MipsBaseTargetMachine>
         X(mcld::TheMipselTarget);

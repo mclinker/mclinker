@@ -13,7 +13,7 @@
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LinkerConfig.h>
 
-extern "C" void LLVMInitializeX86LDTarget() {
+extern "C" void MCLDInitializeX86LDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
   mcld::RegisterTargetMachine<mcld::X86TargetMachine> X(mcld::TheX86Target);
 }

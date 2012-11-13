@@ -13,7 +13,7 @@ namespace mcld {
 
 mcld::Target TheX86Target;
 
-extern "C" void LLVMInitializeX86LDTargetInfo() {
+extern "C" void MCLDInitializeX86LDTargetInfo() {
   // register into mcld::TargetRegistry
   mcld::RegisterTarget X(TheX86Target, "x86");
 }

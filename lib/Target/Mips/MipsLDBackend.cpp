@@ -1050,7 +1050,7 @@ static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
 //===----------------------------------------------------------------------===//
 // Force static initialization.
 //===----------------------------------------------------------------------===//
-extern "C" void LLVMInitializeMipsLDBackend() {
+extern "C" void MCLDInitializeMipsLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(mcld::TheMipselTarget,
                                                 createMipsLDBackend);

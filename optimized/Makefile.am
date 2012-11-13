@@ -89,6 +89,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
 	${INCDIR}/Target/ELFMCLinker.h \
 	${LIBDIR}/Target/ELFMCLinker.cpp \
+	${INCDIR}/Target/ELFEmulation.h \
+	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${INCDIR}/Target/ELFDynamic.tcc \
 	${LIBDIR}/Target/ELFDynamic.cpp \
@@ -111,6 +113,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
+	${LIBDIR}/Target/ARM/ARMEmulation.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMToARMStub.h \
@@ -136,6 +139,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.h \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.cpp \
+	${LIBDIR}/Target/Mips/MipsEmulation.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86.h \
@@ -157,6 +161,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86MCLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.h \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.cpp \
+	${LIBDIR}/Target/X86/X86Emulation.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \

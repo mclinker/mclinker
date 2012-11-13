@@ -885,7 +885,7 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
 //===----------------------------------------------------------------------===//
 // Force static initialization.
 //===----------------------------------------------------------------------===//
-extern "C" void LLVMInitializeX86LDBackend() {
+extern "C" void MCLDInitializeX86LDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheX86Target, createX86LDBackend);
 }

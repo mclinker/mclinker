@@ -35,7 +35,6 @@ MCLinker* createARMMCLinker(const std::string& pTriple,
     return NULL;
   }
 
-  // For now, use Android MCLinker directly
   return new ARMELFMCLinker(pConfig, pModule, pOutput, pLDBackend);
 }
 
@@ -44,7 +43,7 @@ MCLinker* createARMMCLinker(const std::string& pTriple,
 //===----------------------------------------------------------------------===//
 // ARMMCLinker
 //===----------------------------------------------------------------------===//
-extern "C" void LLVMInitializeARMMCLinker() {
+extern "C" void MCLDInitializeARMMCLinker() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterMCLinker(TheARMTarget, createARMMCLinker);
   mcld::TargetRegistry::RegisterMCLinker(TheThumbTarget, createARMMCLinker);

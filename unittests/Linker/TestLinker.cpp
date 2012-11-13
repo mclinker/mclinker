@@ -57,7 +57,7 @@ TestLinker::~TestLinker()
 
 bool TestLinker::initialize(const std::string &pTriple)
 {
-  bool is_initialized = false;
+  static bool is_initialized = false;
 
   if (is_initialized)
     return false;

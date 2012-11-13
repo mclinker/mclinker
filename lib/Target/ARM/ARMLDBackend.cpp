@@ -1108,7 +1108,7 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
 
 //=============================
 // Force static initialization.
-extern "C" void LLVMInitializeARMLDBackend() {
+extern "C" void MCLDInitializeARMLDBackend() {
   // Register the linker backend
   mcld::TargetRegistry::RegisterTargetLDBackend(TheARMTarget, createARMLDBackend);
   mcld::TargetRegistry::RegisterTargetLDBackend(TheThumbTarget, createARMLDBackend);

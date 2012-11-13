@@ -48,10 +48,10 @@ void alone::init::Initialize() {
   LLVMInitializeARMTargetMC();
   LLVMInitializeARMTargetInfo();
   LLVMInitializeARMTarget();
-  LLVMInitializeARMLDTargetInfo();
-  LLVMInitializeARMLDTarget();
-  LLVMInitializeARMLDBackend();
-  LLVMInitializeARMDiagnosticLineInfo();
+  MCLDInitializeARMLDTargetInfo();
+  MCLDInitializeARMLDTarget();
+  MCLDInitializeARMLDBackend();
+  MCLDInitializeARMDiagnosticLineInfo();
 #endif
 
 #if defined(PROVIDE_MIPS_CODEGEN)
@@ -62,10 +62,10 @@ void alone::init::Initialize() {
   LLVMInitializeMipsTargetMC();
   LLVMInitializeMipsTargetInfo();
   LLVMInitializeMipsTarget();
-  LLVMInitializeMipsLDTargetInfo();
-  LLVMInitializeMipsLDTarget();
-  LLVMInitializeMipsLDBackend();
-  LLVMInitializeMipsDiagnosticLineInfo();
+  MCLDInitializeMipsLDTargetInfo();
+  MCLDInitializeMipsLDTarget();
+  MCLDInitializeMipsLDBackend();
+  MCLDInitializeMipsDiagnosticLineInfo();
 #endif
 
 #if defined(PROVIDE_X86_CODEGEN)
@@ -76,10 +76,10 @@ void alone::init::Initialize() {
   LLVMInitializeX86TargetMC();
   LLVMInitializeX86TargetInfo();
   LLVMInitializeX86Target();
-  LLVMInitializeX86LDTargetInfo();
-  LLVMInitializeX86LDTarget();
-  LLVMInitializeX86LDBackend();
-  LLVMInitializeX86DiagnosticLineInfo();
+  MCLDInitializeX86LDTargetInfo();
+  MCLDInitializeX86LDTarget();
+  MCLDInitializeX86LDBackend();
+  MCLDInitializeX86DiagnosticLineInfo();
 #endif
 
   is_initialized = true;

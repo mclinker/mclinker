@@ -35,7 +35,7 @@ class DiagnosticLineInfo;
 
 //===----------------------------------------------------------------------===//
 /// Target - mcld::Target is an object adapter of llvm::Target
-///
+//===----------------------------------------------------------------------===//
 class Target
 {
   friend class mcld::LLVMTargetMachine;
@@ -50,6 +50,8 @@ public:
                                       Module&,
                                       MemoryArea& pOutput,
                                       TargetLDBackend&);
+
+  typedef bool (*EmulationFnTy)(const std::string& pTriple, LinkerConfig&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const LinkerConfig&);
@@ -91,6 +93,14 @@ public:
     return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput, pLDBackend);
   }
 
+  /// emulate - given MCLinker default values for the other aspects of the
+  /// target system.
+  bool emulate(const std::string& pTriple, LinkerConfig& pConfig) const {
+    if (!EmulationFn)
+      return false;
+    return EmulationFn(pTriple, pConfig);
+  }
+
   /// createLDBackend - create target-specific LDBackend
   ///
   /// @return created TargetLDBackend
@@ -110,13 +120,13 @@ public:
     return DiagnosticLineInfoCtorFn(pTarget, pTriple);
   }
 
-  const llvm::Target* get() const
-  { return m_pT; }
+  const llvm::Target* get() const { return m_pT; }
 
 private:
   // -----  function pointers  ----- //
   TargetMachineCtorTy TargetMachineCtorFn;
   MCLinkerCtorTy MCLinkerCtorFn;
+  EmulationFnTy EmulationFn;
   TargetLDBackendCtorTy TargetLDBackendCtorFn;
   DiagnosticLineInfoCtorTy DiagnosticLineInfoCtorFn;
 
@@ -175,6 +185,17 @@ public:
   {
     if (!T.MCLinkerCtorFn)
       T.MCLinkerCtorFn = Fn;
+  }
+
+  /// RegisterEmulation - Register a emulation function for the target.
+  /// target.
+  ///
+  /// @param T - the target being registered
+  /// @param Fn - A emulation function
+  static void RegisterEmulation(mcld::Target &T, mcld::Target::EmulationFnTy Fn)
+  {
+    if (!T.EmulationFn)
+      T.EmulationFn = Fn;
   }
 
   /// RegisterTargetLDBackend - Register a TargetLDBackend implementation for

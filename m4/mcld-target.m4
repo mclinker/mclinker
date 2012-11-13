@@ -74,15 +74,15 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 ])
 
 dnl
-dnl @synopsis ENUM_LLVM_TARGETS
+dnl @synopsis ENUM_MCLD_TARGETS
 dnl
-dnl @summary enumlate LLVM Targets, set up variables:
-dnl   LLVM_ENUM_TARGETS
-dnl   LLVM_ENUM_LINKERS
+dnl @summary enumlate MCLD Targets, set up variables:
+dnl   MCLD_ENUM_TARGETS
+dnl   MCLD_ENUM_LINKERS
 dnl
 dnl Luba Tang <lubatang@mediatek.com>
 
-AC_DEFUN([ENUM_LLVM_TARGETS],
+AC_DEFUN([ENUM_MCLD_TARGETS],
 [dnl
 	dnl from ${LLVM}/autoconf/configure.ac
 	dnl Allow specific targets to be specified for building (or not)
@@ -123,18 +123,18 @@ AC_DEFUN([ENUM_LLVM_TARGETS],
 	esac
 	AC_SUBST(TARGETS_TO_BUILD,$TARGETS_TO_BUILD)
 
-	dnl Build the LLVM_TARGET and LLVM_... macros for Targets.def and the individual
+	dnl Build the MCLD_TARGET and MCLD_* macros for Targets.def and the individual
 	dnl target feature def files.
-	LLVM_ENUM_TARGETS=""
-	LLVM_ENUM_LINKERS=""
+	MCLD_ENUM_TARGETS=""
+	MCLD_ENUM_LINKERS=""
 	for target_to_build in $TARGETS_TO_BUILD; do
 	  if test -d ${srcdir}/lib/Target/${target_to_build} ; then
-	    LLVM_ENUM_TARGETS="LLVM_TARGET($target_to_build) $LLVM_ENUM_TARGETS"
+	    MCLD_ENUM_TARGETS="MCLD_TARGET($target_to_build) $MCLD_ENUM_TARGETS"
 	  fi
 	  if test -f ${srcdir}/lib/Target/${target_to_build}/*LDBackend.cpp ; then
-	    LLVM_ENUM_LINKERS="LLVM_LINKER($target_to_build) $LLVM_ENUM_LINKERS";
+	    MCLD_ENUM_LINKERS="MCLD_LINKER($target_to_build) $MCLD_ENUM_LINKERS";
 	  fi
 	done
-	AC_SUBST(LLVM_ENUM_TARGETS)
-	AC_SUBST(LLVM_ENUM_LINKERS)
+	AC_SUBST(MCLD_ENUM_TARGETS)
+	AC_SUBST(MCLD_ENUM_LINKERS)
 ])

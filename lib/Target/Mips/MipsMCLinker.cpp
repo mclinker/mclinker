@@ -45,7 +45,7 @@ MCLinker* createMipsMCLinker(const std::string &pTriple,
 //===----------------------------------------------------------------------===//
 // MipsMCLinker
 //===----------------------------------------------------------------------===//
-extern "C" void LLVMInitializeMipsMCLinker() {
+extern "C" void MCLDInitializeMipsMCLinker() {
   // Register the linker frontend
   mcld::TargetRegistry::RegisterMCLinker(TheMipselTarget, createMipsMCLinker);
 }
