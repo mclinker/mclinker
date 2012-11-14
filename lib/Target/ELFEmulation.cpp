@@ -59,7 +59,7 @@ static const NameMap map[] =
   {".gnu.linkonce.l", ".ldata"},
 };
 
-bool MCLDEmulateELF(LinkerConfig& pConfig)
+bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
 {
   const int map_size =  (sizeof(map) / sizeof(map[0]) );
   for (unsigned int i = 0; i < map_size; ++i) {
