@@ -21,6 +21,7 @@
 
 #include <llvm/ADT/ilist.h>
 
+#include <mcld/InputTree.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/Support/GCFactoryListTraits.h>
@@ -29,8 +30,6 @@
 #include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/InputTree.h>
-
 
 namespace mcld {
 

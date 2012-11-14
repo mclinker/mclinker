@@ -11,8 +11,8 @@
 #include <llvm/Support/TargetSelect.h>
 
 #include <mcld/Environment.h>
+#include <mcld/InputTree.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/MCLDDirectory.h>

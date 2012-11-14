@@ -16,10 +16,9 @@
 
 #include <mcld/Module.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/InputTree.h>
 #include <mcld/Object/ObjectLinker.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/MC/ContextFactory.h>
 #include <mcld/MC/InputBuilder.h>

@@ -15,6 +15,7 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/InputTree.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDContext.h>
@@ -22,7 +23,6 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LD/RelocData.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>

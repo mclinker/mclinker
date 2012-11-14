@@ -14,7 +14,7 @@
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
-#include <mcld/MC/InputTree.h>
+#include <mcld/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/FileAction.h>
 #include <mcld/MC/CommandAction.h>

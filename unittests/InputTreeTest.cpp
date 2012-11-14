@@ -11,7 +11,7 @@
 #include <vector>
 #include <iostream>
 
-#include <mcld/MC/InputTree.h>
+#include <mcld/InputTree.h>
 #include <mcld/MC/InputFactory.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/InputBuilder.h>

@@ -7,9 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Object/ObjectLinker.h>
+
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
-#include <mcld/MC/InputTree.h>
+#include <mcld/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>

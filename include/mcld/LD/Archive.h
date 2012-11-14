@@ -12,11 +12,11 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/InputTree.h>
 #include <mcld/ADT/HashEntry.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/MC/InputTree.h>
 
 #include <vector>
 #include <string>

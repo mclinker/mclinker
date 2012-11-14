@@ -15,8 +15,8 @@
 #include <string>
 #include <stack>
 
+#include <mcld/InputTree.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/InputTree.h>
 #include <mcld/Support/FileHandle.h>
 
 namespace mcld {

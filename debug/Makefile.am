@@ -207,6 +207,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/IRBuilder.cpp \
 	${INCDIR}/Environment.h \
 	${LIBDIR}/Core/Environment.cpp \
+	${INCDIR}/InputTree.h \
+	${LIBDIR}/Core/InputTree.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
@@ -217,8 +219,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/Attribute.cpp \
 	${INCDIR}/MC/AttributeSet.h \
 	${LIBDIR}/MC/AttributeSet.cpp \
-	${INCDIR}/MC/InputTree.h \
-	${LIBDIR}/MC/InputTree.cpp \
 	${INCDIR}/MC/ZOption.h \
 	${LIBDIR}/MC/ZOption.cpp \
 	${INCDIR}/MC/InputAction.h \
