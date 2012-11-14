@@ -123,6 +123,11 @@ void MemoryArea::clear()
       Space::Release(space->second, *m_pFileHandle);
   }
 
+  for (SpaceMapType::iterator space = m_SpaceMap.begin(),
+         sEnd = m_SpaceMap.end(); space != sEnd; ++space) {
+    if (space->second != NULL)
+      Space::Destroy(space->second);
+  }
   m_SpaceMap.clear();
 }
 
