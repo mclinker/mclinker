@@ -10,6 +10,7 @@
 
 #include <llvm/Support/TargetSelect.h>
 
+#include <mcld/Environment.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/MC/InputTree.h>
 #include <mcld/MC/InputBuilder.h>
@@ -57,18 +58,13 @@ TestLinker::~TestLinker()
 
 bool TestLinker::initialize(const std::string &pTriple)
 {
-  static bool is_initialized = false;
-
-  if (is_initialized)
-    return false;
-
   // initilaize all llvm::Target and mcld::Target
   llvm::InitializeAllTargets();
   llvm::InitializeAllAsmPrinters();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllTargetMCs();
-  mcld::InitializeAllTargets();
-  mcld::InitializeAllDiagnostics();
+
+  mcld::Initialize();
 
   // create mcld::LinkerConfig
   m_pConfig = new LinkerConfig(pTriple);
@@ -112,7 +108,6 @@ bool TestLinker::initialize(const std::string &pTriple)
   m_pObjLinker = new mcld::ObjectLinker(*m_pConfig, m_Module, *m_pBuilder, *m_pBackend);
   m_pObjLinker->initFragmentLinker();
 
-  is_initialized = true;
   return true;
 }
 

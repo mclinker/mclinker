@@ -205,6 +205,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/AttributeOption.cpp \
 	${INCDIR}/IRBuilder.h \
 	${LIBDIR}/Core/IRBuilder.cpp \
+	${INCDIR}/Environment.h \
+	${LIBDIR}/Core/Environment.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \

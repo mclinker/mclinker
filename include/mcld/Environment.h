@@ -6,17 +6,17 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_CODEGEN_ENVIRONMENT_H
-#define MCLD_CODEGEN_ENVIRONMENT_H
+#ifndef MCLD_ENVIRONMENT_H
+#define MCLD_ENVIRONMENT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 namespace mcld {
 
-void Initialization();
+void Initialize();
 
-void Finalization();
+void Finalize();
 
 } // namespace of mcld
 
