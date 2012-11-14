@@ -12,7 +12,6 @@
 #include <gtest.h>
 #endif
 
-#include <llvm/ADT/ilist.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <map>
 

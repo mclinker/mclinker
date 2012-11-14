@@ -16,6 +16,7 @@
 #include <llvm/Support/Dwarf.h>
 #include <llvm/Support/DataTypes.h>
 
+#include <algorithm>
 #include <cstring>
 
 using namespace mcld;
