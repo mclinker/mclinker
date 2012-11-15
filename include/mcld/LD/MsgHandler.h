@@ -17,8 +17,7 @@
 #include <mcld/Support/Path.h>
 #include <mcld/LD/DiagnosticEngine.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class MsgHandler
  *  \brief MsgHandler controls the timing to output message.
@@ -108,18 +107,6 @@ operator<<(const MsgHandler& pHandler, bool pValue)
 {
   pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_bool);
   return pHandler;
-}
-
-//===----------------------------------------------------------------------===//
-// Inline member functions
-inline MsgHandler
-DiagnosticEngine::report(uint16_t pID, DiagnosticEngine::Severity pSeverity)
-{
-  m_State.ID = pID;
-  m_State.severity = pSeverity;
-
-  MsgHandler result(*this);
-  return result;
 }
 
 } // namespace of mcld

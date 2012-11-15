@@ -9,6 +9,7 @@
 #include <mcld/LD/DiagnosticEngine.h>
 #include <mcld/LD/DiagnosticPrinter.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
+#include <mcld/LD/MsgHandler.h>
 #include <mcld/LinkerConfig.h>
 
 using namespace mcld;
@@ -54,5 +55,15 @@ bool DiagnosticEngine::emit()
   bool emitted = m_pInfoMap->process(*this);
   m_State.reset();
   return emitted;
+}
+
+MsgHandler
+DiagnosticEngine::report(uint16_t pID, DiagnosticEngine::Severity pSeverity)
+{
+  m_State.ID = pID;
+  m_State.severity = pSeverity;
+
+  MsgHandler result(*this);
+  return result;
 }
 
