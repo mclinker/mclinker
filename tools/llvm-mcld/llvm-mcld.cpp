@@ -1129,16 +1129,17 @@ int main(int argc, char* argv[])
   InitializeOStreams(ld_config);
 
   // Set up MsgHandler
-  OwningPtr<mcld::DiagnosticLineInfo>
-    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
-                                                       TheTriple.getTriple()));
   OwningPtr<mcld::DiagnosticPrinter>
     diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(), ld_config));
 
   mcld::InitializeDiagnosticEngine(ld_config,
-                                   diag_line_info.take(),
                                    diag_printer.get());
 
+  OwningPtr<mcld::DiagnosticLineInfo>
+    diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
+                                                       TheTriple.getTriple()));
+
+  mcld::getDiagnosticEngine().setLineInfo(*diag_line_info.take());
 
   // Figure out where we are going to send the output...
   OwningPtr<mcld::ToolOutputFile>

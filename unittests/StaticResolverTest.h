@@ -12,11 +12,10 @@
 #include <gtest.h>
 #include <mcld/LinkerConfig.h>
 
-namespace mcld
-{
+namespace mcld {
+
 class StaticResolver;
 class ResolveInfoFactory;
-class DiagnosticLineInfo;
 class DiagnosticPrinter;
 
 } // namespace for mcld
@@ -47,7 +46,6 @@ public:
 protected:
   mcld::StaticResolver* m_pResolver;
   mcld::LinkerConfig* m_pConfig;
-  mcld::DiagnosticLineInfo* m_pLineInfo;
   mcld::DiagnosticPrinter* m_pPrinter;
 };
 

@@ -23,13 +23,9 @@ static llvm::ManagedStatic<DiagnosticEngine> g_pEngine;
 
 void
 mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
-                                 DiagnosticLineInfo* pLineInfo,
                                  DiagnosticPrinter* pPrinter)
 {
   g_pEngine->reset(pConfig);
-  if (NULL != pLineInfo)
-    g_pEngine->setLineInfo(*pLineInfo);
-
   if (NULL != pPrinter)
     g_pEngine->setPrinter(*pPrinter, false);
   else {

@@ -11,14 +11,12 @@
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/LinkerConfig.h>
 
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 
 using namespace mcld;
@@ -29,15 +27,14 @@ using namespace mcldtest;
 //===----------------------------------------------------------------------===//
 // Constructor can do set-up work for all test here.
 StaticResolverTest::StaticResolverTest()
-  : m_pResolver(NULL), m_pConfig(NULL), m_pLineInfo(NULL) {
+  : m_pResolver(NULL), m_pConfig(NULL) {
   // create testee. modify it if need
   m_pResolver = new StaticResolver();
 
   mcld::InitializeAllDiagnostics();
 
   m_pConfig = new LinkerConfig("arm-none-linux-gnueabi");
-  m_pLineInfo = new DiagnosticLineInfo();
-  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pLineInfo, NULL);
+  mcld::InitializeDiagnosticEngine(*m_pConfig, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
@@ -45,7 +42,6 @@ StaticResolverTest::~StaticResolverTest()
 {
   delete m_pResolver;
   delete m_pConfig;
-  delete m_pLineInfo;
 }
 
 // SetUp() will be called immediately before each test.

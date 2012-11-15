@@ -21,7 +21,6 @@ class DiagnosticPrinter;
 class DiagnosticLineInfo;
 
 void InitializeDiagnosticEngine(const LinkerConfig& pConfig,
-                                DiagnosticLineInfo* pLineInfo,
                                 DiagnosticPrinter* pPrinter);
 
 DiagnosticEngine& getDiagnosticEngine();

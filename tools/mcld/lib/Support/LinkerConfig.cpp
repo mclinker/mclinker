@@ -128,12 +128,13 @@ bool LinkerConfig::initializeLDInfo() {
 
 bool LinkerConfig::initializeDiagnostic() {
   // Set up MsgHandler.
-  mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget, mTriple);
-
   mDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *mLDConfig);
 
-  mcld::InitializeDiagnosticEngine(*mLDConfig, mDiagLineInfo, mDiagPrinter);
+  mcld::InitializeDiagnosticEngine(*mLDConfig, mDiagPrinter);
 
+  mDiagLineInfo = mTarget->createDiagnosticLineInfo(*mTarget, mTriple);
+
+  mcld::getDiagnosticEngine().setLineInfo(*mDiagLineInfo);
   return true;
 }
 

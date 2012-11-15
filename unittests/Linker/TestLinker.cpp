@@ -70,6 +70,11 @@ bool TestLinker::initialize(const std::string &pTriple)
   m_pConfig = new LinkerConfig(pTriple);
   m_Root = m_Module.getInputTree().root();
 
+  // initialize DiagnosticEngine
+  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
+
+  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pDiagPrinter);
+
   // specify mcld::Target
   std::string error;
   m_pTarget = mcld::TargetRegistry::lookupTarget(pTriple, error);
@@ -78,16 +83,13 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
-  // create mcld::DiagnosticEngine
+  // create mcld::DiagnosticLineInfo
   m_pDiagLineInfo = m_pTarget->createDiagnosticLineInfo(*m_pTarget, pTriple);
   if (NULL == m_pDiagLineInfo) {
     fatal(diag::fatal_cannot_init_lineinfo) << pTriple;
     return false;
   }
-
-  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
-
-  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pDiagLineInfo, m_pDiagPrinter);
+  mcld::getDiagnosticEngine().setLineInfo(*m_pDiagLineInfo);
 
   // create mcld::TargetLDBackend
   m_pBackend = m_pTarget->createLDBackend(*m_pConfig);

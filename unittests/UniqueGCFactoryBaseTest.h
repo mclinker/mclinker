@@ -12,7 +12,6 @@
 #include <mcld/Support/UniqueGCFactory.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/DiagnosticLineInfo.h>
 #include <gtest.h>
 
 namespace mcldtest
@@ -40,7 +39,6 @@ public:
 
 private:
   mcld::LinkerConfig* m_pConfig;
-  mcld::DiagnosticLineInfo* m_pLineInfo;
   mcld::DiagnosticPrinter* m_pPrinter;
 };
 
