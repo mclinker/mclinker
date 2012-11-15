@@ -13,6 +13,7 @@
 #include <mcld/InputTree.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/Linker.h>
+#include <mcld/LinkerConfig.h>
 
 using namespace mcld;
 using namespace mcld::test;
@@ -43,6 +44,20 @@ void LinkerTest::TearDown()
 //===----------------------------------------------------------------------===//
 TEST_F( LinkerTest, set_up_n_clean_up) {
   Initialize();
+
+  Module module("test");
+
+  LinkerConfig config("arm-none-linux-gnueabi");
+  config.setCodeGenType(LinkerConfig::DynObj);
+
+  IRBuilder builder(module, config);
+
+  Linker linker;
+  linker.config(config, builder);
+
+  if (linker.link(module))
+    linker.emit("./test.so");
+
   Finalize();
 }
 
