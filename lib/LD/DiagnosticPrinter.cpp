@@ -28,7 +28,8 @@ void DiagnosticPrinter::handleDiagnostic(DiagnosticEngine::Severity pSeverity,
 {
   if (pSeverity == DiagnosticEngine::Warning)
     ++m_NumWarnings;
-  else if (pSeverity <= DiagnosticEngine::Error)
+
+  if (pSeverity <= DiagnosticEngine::Error)
     ++m_NumErrors;
 }
 

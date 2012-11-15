@@ -67,11 +67,9 @@ public:
 
   void setPrinter(DiagnosticPrinter& pPrinter, bool pShouldOwnPrinter = true);
 
-  DiagnosticPrinter* getPrinter()
-  { return m_pPrinter; }
+  const DiagnosticPrinter* getPrinter() const { return m_pPrinter; }
+  DiagnosticPrinter*       getPrinter()       { return m_pPrinter; }
 
-  const DiagnosticPrinter* getPrinter() const
-  { return m_pPrinter; }
 
   DiagnosticPrinter* takePrinter() {
     m_OwnPrinter = false;

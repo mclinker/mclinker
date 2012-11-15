@@ -13,8 +13,7 @@
 #endif
 #include <mcld/LD/MsgHandler.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class LinkerConfig;
 class DiagnosticPrinter;
@@ -37,6 +36,7 @@ MsgHandler ignore(unsigned int pID);
 
 //===----------------------------------------------------------------------===//
 //  Inline functions
+//===----------------------------------------------------------------------===//
 inline mcld::MsgHandler mcld::unreachable(unsigned int pID)
 {
   return getDiagnosticEngine().report(pID, DiagnosticEngine::Unreachable);

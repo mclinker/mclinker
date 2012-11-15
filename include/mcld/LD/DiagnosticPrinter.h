@@ -42,11 +42,8 @@ public:
   virtual void handleDiagnostic(DiagnosticEngine::Severity pSeverity,
                                 const Diagnostic& pInfo);
 
-  unsigned int getNumErrors() const
-  { return m_NumErrors; }
-
-  unsigned int getNumWarnings() const
-  { return m_NumWarnings; }
+  unsigned int getNumErrors() const { return m_NumErrors; }
+  unsigned int getNumWarnings() const { return m_NumWarnings; }
 
 protected:
   unsigned int m_NumErrors;

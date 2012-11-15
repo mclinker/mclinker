@@ -87,6 +87,7 @@ static const DiagStaticInfo* getDiagInfo(unsigned int pID, bool pInLoC = false)
 
 //===----------------------------------------------------------------------===//
 //  DiagnosticInfos
+//===----------------------------------------------------------------------===//
 DiagnosticInfos::DiagnosticInfos(const LinkerConfig& pConfig)
   : m_Config(pConfig) {
 }
