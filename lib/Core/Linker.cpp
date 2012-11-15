@@ -111,7 +111,7 @@ bool Linker::link(Module& pModule)
 
   // 5. - check if we can do static linking and if we use split-stack.
   if (!m_pObjLinker->linkable())
-    return false;
+    return check();
 
   // 6. - read all relocation entries from input files
   m_pObjLinker->readRelocations();
@@ -144,16 +144,8 @@ bool Linker::link(Module& pModule)
   // 12. - apply relocations
   m_pObjLinker->relocation();
 
-  if (0 != m_pPrinter->getNumErrors()) {
-    // If we reached here, we are failing ungracefully. Run the interrupt handlers
-    // to make sure any special cleanups get done, in particular that we remove
-    // files registered with RemoveFileOnSignal.
-    llvm::sys::RunInterruptHandlers();
-    m_pPrinter->finish();
-    exit(1);
+  if (!check())
     return false;
-  }
-
   return true;
 }
 
@@ -165,17 +157,11 @@ bool Linker::emit(MemoryArea& pOutput)
   // 14. - post processing
   m_pObjLinker->postProcessing(pOutput);
 
-  if (0 != m_pPrinter->getNumErrors()) {
-    // If we reached here, we are failing ungracefully. Run the interrupt handlers
-    // to make sure any special cleanups get done, in particular that we remove
-    // files registered with RemoveFileOnSignal.
-    llvm::sys::RunInterruptHandlers();
-    m_pPrinter->finish();
-    exit(1);
+  if (!check())
     return false;
-  }
 
   m_pPrinter->finish();
+
   return true;
 }
 
@@ -253,6 +239,19 @@ bool Linker::initBackend()
   m_pBackend = m_pTarget->createLDBackend(*m_pConfig);
   if (NULL == m_pBackend) {
     fatal(diag::fatal_cannot_init_backend) << m_pConfig->triple().str();
+    return false;
+  }
+  return true;
+}
+
+bool Linker::check()
+{
+  if (m_pPrinter->getNumErrors() > 0) {
+    // If we reached here, we are failing ungracefully. Run the interrupt handlers
+    // to make sure any special cleanups get done, in particular that we remove
+    // files registered with RemoveFileOnSignal.
+    llvm::sys::RunInterruptHandlers();
+    m_pPrinter->finish();
     return false;
   }
   return true;

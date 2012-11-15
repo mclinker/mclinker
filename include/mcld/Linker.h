@@ -51,6 +51,8 @@ public:
 
   bool reset();
 
+  bool check();
+
 private:
   bool initDiagnosticEngine();
 
