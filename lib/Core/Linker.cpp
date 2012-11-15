@@ -41,10 +41,9 @@ Linker::~Linker()
   delete m_pObjLinker;
 }
 
-bool Linker::config(const LinkerConfig& pConfig, IRBuilder& pBuilder)
+bool Linker::config(const LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
-  m_pIRBuilder = &pBuilder;
 
   if (!initDiagnosticEngine())
     return false;
@@ -58,10 +57,11 @@ bool Linker::config(const LinkerConfig& pConfig, IRBuilder& pBuilder)
   return true;
 }
 
-bool Linker::link(Module& pModule)
+bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 {
-  assert(NULL != m_pConfig && NULL != m_pIRBuilder);
+  assert(NULL != m_pConfig);
 
+  m_pIRBuilder = &pBuilder;
   m_pObjLinker = new ObjectLinker(*m_pConfig,
                                   pModule,
                                   m_pIRBuilder->getInputBuilder(),

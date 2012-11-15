@@ -127,14 +127,6 @@ public:
 
   /// ReadInput - To read an input file and append it to the input tree.
   ///
-  /// This function is a conventient way to call
-  /// @code{.cpp}
-  ///   Input* input = IRBuilder::CreateInput(pName, pPath, Input::Unknown);
-  /// @endcode
-  Input* ReadInput(const std::string& pName, const sys::fs::Path& pFilePath);
-
-  /// ReadInput - To read an input file and append it to the input tree.
-  ///
   /// This function tells MCLinker to read file descriptor pFD. Users open
   /// object file manually and pass the file descriptor to MCLinker. MCLinker 
   /// must have the permission to read the file.

@@ -105,13 +105,13 @@ void InputBuilder::setCurrentTree(InputTree& pInputTree)
   m_pMove = &InputTree::Downward;
 }
 
-bool InputBuilder::setContext(Input& pInput)
+bool InputBuilder::setContext(Input& pInput, bool pCheck)
 {
   // The object files in an archive have common path. Every object files in an
   // archive needs a individual context. We identify the object files in an
   // archive by its file offset. Their file offsets are not zero.
   LDContext* context = NULL;
-  if (0 != pInput.fileOffset()) {
+  if (0 != pInput.fileOffset() || !pCheck) {
     // pInput is an object in an archive file. Produce a new context in this
     // case.
     context = m_pContextFactory->produce();
@@ -135,6 +135,20 @@ bool InputBuilder::setMemory(Input& pInput,
   if (!memory->handler()->isGood())
     return false;
 
+  pInput.setMemArea(memory);
+  return true;
+}
+
+bool InputBuilder::setMemory(Input& pInput, void* pMemBuffer, size_t pSize)
+{
+  MemoryArea *memory = m_pMemFactory->produce(pMemBuffer, pSize);
+  pInput.setMemArea(memory);
+  return true;
+}
+
+bool InputBuilder::setMemory(Input& pInput, int pFD, FileHandle::OpenMode pMode)
+{
+  MemoryArea* memory = m_pMemFactory->produce(pFD, pMode);
   pInput.setMemArea(memory);
   return true;
 }

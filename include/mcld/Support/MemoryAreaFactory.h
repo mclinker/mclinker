@@ -54,15 +54,15 @@ public:
                       FileHandle::OpenMode pMode,
                       FileHandle::Permission pPerm);
 
-  void destruct(MemoryArea* pArea);
-
-protected:
   // Create a MemoryArea with an universal space.
   // The created MemoryArea is not moderated by m_HandleToArea.
-  MemoryArea* create(void* pMemBuffer, size_t pSize);
+  MemoryArea* produce(void* pMemBuffer, size_t pSize);
 
   // Create a MemoryArea by the given file handler
-  MemoryArea* create(int pFD, FileHandle::OpenMode pMode);
+  // The created MemoryArea is not moderated by m_HandleToArea.
+  MemoryArea* produce(int pFD, FileHandle::OpenMode pMode);
+
+  void destruct(MemoryArea* pArea);
 
 private:
   HandleToArea m_HandleToArea;

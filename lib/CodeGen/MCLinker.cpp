@@ -207,21 +207,22 @@ MCLinker::~MCLinker()
 
 bool MCLinker::doInitialization(llvm::Module &pM)
 {
+  // Now, all input arguments are prepared well, send it into ObjectLinker
+  m_pLinker = new Linker();
+
+  if (!m_pLinker->config(m_Config))
+    return false;
+
   m_pBuilder = new IRBuilder(m_Module, m_Config);
 
   initializeInputTree(*m_pBuilder);
-
-  // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pLinker = new Linker();
-  if (m_pLinker->config(m_Config, *m_pBuilder))
-    return false;
 
   return true;
 }
 
 bool MCLinker::doFinalization(llvm::Module &pM)
 {
-  if (!m_pLinker->link(m_Module))
+  if (!m_pLinker->link(m_Module, *m_pBuilder))
     return true;
 
   if (!m_pLinker->emit(m_Output))

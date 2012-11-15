@@ -17,7 +17,6 @@ namespace mcld {
 class Module;
 class TargetLDBackend;
 class ObjectLinker;
-class MemoryFactory;
 class ContextFactory;
 class LinkerConfig;
 class TreeIteratorBase;
@@ -25,6 +24,7 @@ class Input;
 class InputFactory;
 class InputBuilder;
 class MemoryArea;
+class MemoryAreaFactory;
 
 namespace sys { namespace fs {
 
@@ -36,7 +36,6 @@ class Path;
 
 namespace alone {
 
-class MemoryFactory;
 class LinkerConfig;
 
 class Linker {
@@ -66,7 +65,7 @@ private:
   mcld::TargetLDBackend *mBackend;
   mcld::ObjectLinker *mObjLinker;
   mcld::InputFactory *mInputFactory;
-  MemoryFactory *mMemAreaFactory;
+  mcld::MemoryAreaFactory *mMemAreaFactory;
   mcld::ContextFactory *mContextFactory;
   mcld::InputBuilder *mBuilder;
   mcld::TreeIteratorBase *mRoot;

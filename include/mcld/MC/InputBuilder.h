@@ -67,22 +67,15 @@ public:
                      unsigned int pType = Input::Unknown,
                      off_t pFileOffset = 0);
 
-  Input* createInput(const std::string& pName,
-                     mcld::raw_mem_ostream& pMemOStream);
-
-  Input* createInput(const std::string& pName, MemoryArea& pMemArea);
-
-  Input* createInput(const std::string& pName, FileHandle& pFileHandle);
-
-  Input* createInput(const std::string& pName, int pFD);
-
-  Input* createInput(const std::string& pName, void* pRawMemory);
-
-  bool setContext(Input& pInput);
+  bool setContext(Input& pInput, bool pCheck = true);
 
   bool setMemory(Input& pInput,
                  FileHandle::OpenMode pMode,
 		 FileHandle::Permission pPerm = FileHandle::System);
+
+  bool setMemory(Input& pInput, void* pMemBuffer, size_t pSize);
+
+  bool setMemory(Input& pInput, int pFD, FileHandle::OpenMode pMode);
 
   InputTree& enterGroup();
 

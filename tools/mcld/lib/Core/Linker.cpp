@@ -9,7 +9,6 @@
 
 #include "alone/Linker.h"
 #include "alone/Support/LinkerConfig.h"
-#include "alone/Support/MemoryFactory.h"
 #include "alone/Support/Log.h"
 
 #include <llvm/Support/ELF.h>
@@ -134,7 +133,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
   mContextFactory = new mcld::ContextFactory(32);
     /* 32 is a magic number, the estimated number of input files **/
 
-  mMemAreaFactory = new MemoryFactory();
+  mMemAreaFactory = new mcld::MemoryAreaFactory(32);
 
   mBuilder = new mcld::InputBuilder(*mLDConfig,
                                     *mInputFactory,
@@ -306,7 +305,7 @@ enum Linker::ErrorCode Linker::setOutput(const std::string &pPath) {
 }
 
 enum Linker::ErrorCode Linker::setOutput(int pFileHandler) {
-  mOutput = mMemAreaFactory->produce(pFileHandler);
+  mOutput = mMemAreaFactory->produce(pFileHandler, mcld::FileHandle::ReadWrite);
 
   if (!mOutput->handler()->isGood()) {
     return kOpenOutput;

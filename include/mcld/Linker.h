@@ -39,9 +39,9 @@ public:
 
   ~Linker();
 
-  bool config(const LinkerConfig& pConfig, IRBuilder& pBuilder);
+  bool config(const LinkerConfig& pConfig);
 
-  bool link(Module& pModule);
+  bool link(Module& pModule, IRBuilder& pBuilder);
 
   bool emit(MemoryArea& pOutput);
 

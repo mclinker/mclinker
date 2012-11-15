@@ -77,6 +77,8 @@ public:
   const FileHandle* handler() const { return m_pFileHandle; }
   FileHandle*       handler()       { return m_pFileHandle; }
 
+  bool hasHandler() const { return (NULL != m_pFileHandle); }
+
   // -----  space list methods  ----- //
   Space* find(size_t pOffset, size_t pLength);
 

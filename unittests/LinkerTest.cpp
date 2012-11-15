@@ -50,12 +50,14 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
   LinkerConfig config("arm-none-linux-gnueabi");
   config.setCodeGenType(LinkerConfig::DynObj);
 
-  IRBuilder builder(module, config);
-
   Linker linker;
-  linker.config(config, builder);
+  linker.config(config);
 
-  if (linker.link(module))
+  IRBuilder builder(module, config);
+  // create inputs here
+  //   builder.CreateInput("./test.o");
+
+  if (linker.link(module, builder))
     linker.emit("./test.so");
 
   Finalize();

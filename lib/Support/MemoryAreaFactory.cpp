@@ -78,16 +78,7 @@ MemoryAreaFactory::produce(const sys::fs::Path& pPath,
   return map_result.area;
 }
 
-void MemoryAreaFactory::destruct(MemoryArea* pArea)
-{
-  m_HandleToArea.erase(pArea);
-  pArea->clear();
-  pArea->handler()->close();
-  destroy(pArea);
-  deallocate(pArea);
-}
-
-MemoryArea* MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
+MemoryArea* MemoryAreaFactory::produce(void* pMemBuffer, size_t pSize)
 {
   Space* space = Space::Create(pMemBuffer, pSize);
   MemoryArea* result = allocate();
@@ -96,7 +87,7 @@ MemoryArea* MemoryAreaFactory::create(void* pMemBuffer, size_t pSize)
 }
 
 MemoryArea*
-MemoryAreaFactory::create(int pFD, FileHandle::OpenMode pMode)
+MemoryAreaFactory::produce(int pFD, FileHandle::OpenMode pMode)
 {
   FileHandle* handler = new FileHandle();
   handler->delegate(pFD, pMode);
@@ -105,5 +96,14 @@ MemoryAreaFactory::create(int pFD, FileHandle::OpenMode pMode)
   new (result) MemoryArea(*handler);
 
   return result;
+}
+
+void MemoryAreaFactory::destruct(MemoryArea* pArea)
+{
+  m_HandleToArea.erase(pArea);
+  pArea->clear();
+  pArea->handler()->close();
+  destroy(pArea);
+  deallocate(pArea);
 }
 

@@ -94,6 +94,7 @@ IRBuilder::~IRBuilder()
 {
 }
 
+/// CreateInput - Make a new input file and append it to the input tree.
 Input* IRBuilder::CreateInput(const sys::fs::Path& pPath, unsigned int pType)
 {
   m_InputBuilder.createNode<InputTree::Positional>(pPath.filename().native(),
@@ -110,6 +111,7 @@ Input* IRBuilder::CreateInput(const sys::fs::Path& pPath, unsigned int pType)
   return input;
 }
 
+/// CreateInput - Make a new input file and append it to the input tree.
 Input* IRBuilder::CreateInput(const std::string& pName,
                               const sys::fs::Path& pPath,
                               unsigned int pType)
@@ -126,6 +128,7 @@ Input* IRBuilder::CreateInput(const std::string& pName,
   return input;
 }
 
+/// ReadInput - To read an input file and append it to the input tree.
 Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 {
   const sys::fs::Path* path = NULL;
@@ -163,6 +166,73 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
   if (!input->hasMemArea())
     m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
 
+  return input;
+}
+
+/// ReadInput - To read an input file and append it to the input tree.
+Input* IRBuilder::ReadInput(raw_mem_ostream& pMemOStream)
+{
+  Input* input = NULL;
+  if (pMemOStream.getMemoryArea().hasHandler()) {
+    m_InputBuilder.createNode<InputTree::Positional>(
+                               "memory ostream",
+                               pMemOStream.getMemoryArea().handler()->path());
+
+    input = *m_InputBuilder.getCurrentNode();
+    m_InputBuilder.setContext(*input);
+    input->setMemArea(&pMemOStream.getMemoryArea());
+  }
+  else {
+    m_InputBuilder.createNode<InputTree::Positional>("memory ostream", "NAN");
+    input = *m_InputBuilder.getCurrentNode();
+    m_InputBuilder.setContext(*input, false);
+    input->setMemArea(&pMemOStream.getMemoryArea());
+  }
+
+
+  return input;
+}
+
+/// ReadInput - To read an input file and append it to the input tree.
+Input* IRBuilder::ReadInput(const std::string& pName, int pFD)
+{
+  FileHandle file;
+  file.delegate(pFD);
+
+  m_InputBuilder.createNode<InputTree::Positional>(pName, "NAN");
+  Input* input = *m_InputBuilder.getCurrentNode();
+  m_InputBuilder.setContext(*input, false);
+  m_InputBuilder.setMemory(*input, pFD, FileHandle::ReadOnly);
+
+  return input;
+}
+
+/// ReadInput - To read an input file and append it to the input tree.
+Input* IRBuilder::ReadInput(FileHandle& pFileHandle)
+{
+  m_InputBuilder.createNode<InputTree::Positional>("file handler",
+                                                   pFileHandle.path());
+
+  Input* input = *m_InputBuilder.getCurrentNode();
+  if (pFileHandle.path().empty()) {
+    m_InputBuilder.setContext(*input, false);
+    m_InputBuilder.setMemory(*input, pFileHandle.handler(), FileHandle::ReadOnly);
+  }
+  else {
+    m_InputBuilder.setContext(*input, true);
+    m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
+  }
+
+  return input;
+}
+
+/// ReadInput - To read an input file and append it to the input tree.
+Input* IRBuilder::ReadInput(const std::string& pName, void* pRawMemory, size_t pSize)
+{
+  m_InputBuilder.createNode<InputTree::Positional>(pName, "NAN");
+  Input* input = *m_InputBuilder.getCurrentNode();
+  m_InputBuilder.setContext(*input, false);
+  m_InputBuilder.setMemory(*input, pRawMemory, pSize);
   return input;
 }
 
