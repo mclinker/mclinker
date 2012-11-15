@@ -209,6 +209,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/Environment.cpp \
 	${INCDIR}/InputTree.h \
 	${LIBDIR}/Core/InputTree.cpp \
+	${INCDIR}/Linker.h \
+	${LIBDIR}/Core/Linker.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
@@ -385,7 +387,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/ReadStageTest.h \
 	${UNITTEST}/ReadStageTest.cpp \
 	${UNITTEST}/SystemUtilsTest.h \
-	${UNITTEST}/SystemUtilsTest.cpp
+	${UNITTEST}/SystemUtilsTest.cpp \
+	${UNITTEST}/LinkerTest.h \
+	${UNITTEST}/LinkerTest.cpp
 
 else
 UNITTEST_SOURCE =

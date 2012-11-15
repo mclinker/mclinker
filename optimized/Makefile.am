@@ -212,6 +212,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/IRBuilder.cpp \
 	${INCDIR}/InputTree.h \
 	${LIBDIR}/Core/InputTree.cpp \
+	${INCDIR}/Linker.h \
+	${LIBDIR}/Core/Linker.cpp \
 	${INCDIR}/MC/ContextFactory.h \
 	${LIBDIR}/MC/ContextFactory.cpp \
 	${INCDIR}/MC/SearchDirs.h \
