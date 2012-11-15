@@ -26,8 +26,7 @@ class MipsELFMCLinker : public ELFMCLinker
 public:
   MipsELFMCLinker(LinkerConfig& pConfig,
                   mcld::Module& pModule,
-                  MemoryArea& pOutput,
-                  TargetLDBackend &pLDBackend);
+                  MemoryArea& pOutput);
 
   ~MipsELFMCLinker();
 };

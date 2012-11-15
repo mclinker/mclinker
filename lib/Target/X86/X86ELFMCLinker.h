@@ -28,8 +28,7 @@ class X86ELFMCLinker : public ELFMCLinker
 public:
   X86ELFMCLinker(LinkerConfig& pConfig,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput,
-                 TargetLDBackend &pLDBackend);
+                 MemoryArea& pOutput);
 
   ~X86ELFMCLinker();
 };

@@ -351,10 +351,6 @@ bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
                                               mcld::MemoryArea& pOutput,
                                               llvm::MCContext *&Context)
 {
-  TargetLDBackend* ldBackend = getTarget().createLDBackend(pConfig);
-  if (NULL == ldBackend)
-    return true;
-
   if (NULL == pOutput.handler())
     return true;
 
@@ -371,8 +367,7 @@ bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   MachineFunctionPass* funcPass = getTarget().createMCLinker(m_Triple,
                                                              pConfig,
                                                              pModule,
-                                                             pOutput,
-                                                             *ldBackend);
+                                                             pOutput);
   if (NULL == funcPass)
     return true;
 

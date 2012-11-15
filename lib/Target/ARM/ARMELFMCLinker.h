@@ -26,8 +26,7 @@ class ARMELFMCLinker : public ELFMCLinker
 public:
   ARMELFMCLinker(LinkerConfig& pConfig,
                  mcld::Module& pModule,
-                 MemoryArea& pOutput,
-                 TargetLDBackend& pLDBackend);
+                 MemoryArea& pOutput);
 
   ~ARMELFMCLinker();
 };

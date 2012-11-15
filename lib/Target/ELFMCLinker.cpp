@@ -66,9 +66,8 @@ static const NameMap map[] =
 //===----------------------------------------------------------------------===//
 ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
                          mcld::Module& pModule,
-                         MemoryArea& pOutput,
-                         TargetLDBackend& pLDBackend)
-  : MCLinker(pConfig, pModule, pOutput, pLDBackend) {
+                         MemoryArea& pOutput)
+  : MCLinker(pConfig, pModule, pOutput) {
 
   const int map_size =  (sizeof(map) / sizeof(map[0]) );
   for (unsigned int i = 0; i < map_size; ++i) {

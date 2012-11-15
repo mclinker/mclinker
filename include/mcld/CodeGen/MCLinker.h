@@ -29,10 +29,9 @@ namespace mcld {
 
 class Module;
 class MemoryArea;
-class InputBuilder;
+class IRBuilder;
 class LinkerConfig;
-class ObjectLinker;
-class TargetLDBackend;
+class Linker;
 
 /** \class MCLinker
 *  \brief MCLinker provides a linking pass for standard compilation flow
@@ -55,8 +54,7 @@ protected:
   // - the standard symbols
   MCLinker(LinkerConfig& pConfig,
            mcld::Module& pModule,
-           MemoryArea& pOutput,
-           TargetLDBackend &pLDBackend);
+           MemoryArea& pOutput);
 
 public:
   virtual ~MCLinker();
@@ -68,15 +66,14 @@ public:
   virtual bool runOnMachineFunction(llvm::MachineFunction& pMFn);
 
 protected:
-  void initializeInputTree(InputBuilder& pBuilder);
+  void initializeInputTree(IRBuilder& pBuilder);
 
 protected:
   LinkerConfig& m_Config;
   mcld::Module& m_Module;
   MemoryArea& m_Output;
-  TargetLDBackend *m_pLDBackend;
-  ObjectLinker* m_pObjLinker;
-  InputBuilder* m_pBuilder;
+  IRBuilder* m_pBuilder;
+  Linker* m_pLinker;
 
 private:
   static char m_ID;

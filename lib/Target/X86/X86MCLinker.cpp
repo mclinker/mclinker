@@ -22,8 +22,7 @@ namespace mcld {
 MCLinker* createX86MCLinker(const std::string &pTriple,
                             LinkerConfig& pConfig,
                             mcld::Module& pModule,
-                            MemoryArea& pOutput,
-                            TargetLDBackend &pLDBackend)
+                            MemoryArea& pOutput)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -36,7 +35,7 @@ MCLinker* createX86MCLinker(const std::string &pTriple,
   }
 
   if (theTriple.isArch32Bit())
-    return new X86ELFMCLinker(pConfig, pModule, pOutput, pLDBackend);
+    return new X86ELFMCLinker(pConfig, pModule, pOutput);
 
   assert(0 && "X86_64 has not supported yet");
   return NULL;

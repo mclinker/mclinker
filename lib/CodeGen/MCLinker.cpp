@@ -15,6 +15,8 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/InputTree.h>
+#include <mcld/Linker.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/FileAction.h>
 #include <mcld/MC/CommandAction.h>
@@ -25,7 +27,6 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/MemoryArea.h>
-#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Module.h>
 #include <llvm/Support/CommandLine.h>
@@ -189,135 +190,43 @@ ArgEndGroupListAlias(")",
 //===----------------------------------------------------------------------===//
 MCLinker::MCLinker(LinkerConfig& pConfig,
                    mcld::Module& pModule,
-                   MemoryArea& pOutput,
-                   TargetLDBackend& pLDBackend)
+                   MemoryArea& pOutput)
   : MachineFunctionPass(m_ID),
     m_Config(pConfig),
     m_Module(pModule),
     m_Output(pOutput),
-    m_pLDBackend(&pLDBackend),
-    m_pObjLinker(NULL),
+    m_pLinker(NULL),
     m_pBuilder(NULL) {
 }
 
 MCLinker::~MCLinker()
 {
-  delete m_pObjLinker;
-
-  // FIXME: current implementation can not change the order of deleting
-  // ObjectLinker and TargetLDBackend. Because the deletion of relocation list
-  // in FragmentLinker (FragmentLinker is deleted by ObjectLinker) depends on
-  // RelocationFactory in TargetLDBackend
-
-  // Instance of TargetLDBackend was created outside and is not managed by
-  // MCLinker. It should not be destroyed here and by MCLinker. However, in
-  // order to follow the LLVM convention - that is, the pass manages all the
-  // objects it used during the processing, we destroy the object of
-  // TargetLDBackend here.
-  delete m_pLDBackend;
-
+  delete m_pLinker;
   delete m_pBuilder;
 }
 
 bool MCLinker::doInitialization(llvm::Module &pM)
 {
-  m_pBuilder = new InputBuilder(m_Config);
+  m_pBuilder = new IRBuilder(m_Module, m_Config);
 
   initializeInputTree(*m_pBuilder);
 
   // Now, all input arguments are prepared well, send it into ObjectLinker
-  m_pObjLinker = new ObjectLinker(m_Config,
-                                  m_Module,
-                                  *m_pBuilder,
-                                  *m_pLDBackend);
+  m_pLinker = new Linker();
+  if (m_pLinker->config(m_Config, *m_pBuilder))
+    return false;
 
-  return false;
+  return true;
 }
 
 bool MCLinker::doFinalization(llvm::Module &pM)
 {
-  // 2. - initialize FragmentLinker
-  if (!m_pObjLinker->initFragmentLinker())
+  if (!m_pLinker->link(m_Module))
     return true;
 
-  // 3. - initialize output's standard sections
-  if (!m_pObjLinker->initStdSections())
+  if (!m_pLinker->emit(m_Output))
     return true;
 
-  // 4. - normalize the input tree
-  m_pObjLinker->normalize();
-
-  if (m_Config.options().trace()) {
-    static int counter = 0;
-    mcld::outs() << "** name\ttype\tpath\tsize (" << m_Module.getInputTree().size() << ")\n";
-    InputTree::const_dfs_iterator input, inEnd = m_Module.getInputTree().dfs_end();
-    for (input=m_Module.getInputTree().dfs_begin(); input!=inEnd; ++input) {
-      mcld::outs() << counter++ << " *  " << (*input)->name();
-      switch((*input)->type()) {
-      case Input::Archive:
-        mcld::outs() << "\tarchive\t(";
-        break;
-      case Input::Object:
-        mcld::outs() << "\tobject\t(";
-        break;
-      case Input::DynObj:
-        mcld::outs() << "\tshared\t(";
-        break;
-      case Input::Script:
-        mcld::outs() << "\tscript\t(";
-        break;
-      case Input::External:
-        mcld::outs() << "\textern\t(";
-        break;
-      default:
-        unreachable(diag::err_cannot_trace_file) << (*input)->type()
-                                                 << (*input)->name()
-                                                 << (*input)->path();
-      }
-      mcld::outs() << (*input)->path() << ")\n";
-    }
-  }
-
-  // 5. - check if we can do static linking and if we use split-stack.
-  if (!m_pObjLinker->linkable())
-    return true;
-
-  // 6. - read all relocation entries from input files
-  m_pObjLinker->readRelocations();
-
-  // 7. - merge all sections
-  if (!m_pObjLinker->mergeSections())
-    return true;
-
-  // 8. - add standard symbols and target-dependent symbols
-  // m_pObjLinker->addUndefSymbols();
-  if (!m_pObjLinker->addStandardSymbols() ||
-      !m_pObjLinker->addTargetSymbols())
-    return true;
-
-  // 9. - scan all relocation entries by output symbols.
-  m_pObjLinker->scanRelocations();
-
-  // 10.a - pre-layout
-  m_pObjLinker->prelayout();
-
-  // 10.b - linear layout
-  m_pObjLinker->layout();
-
-  // 10.c - post-layout (create segment, instruction relaxing)
-  m_pObjLinker->postlayout();
-
-  // 11. - finalize symbol value
-  m_pObjLinker->finalizeSymbolValue();
-
-  // 12. - apply relocations
-  m_pObjLinker->relocation();
-
-  // 13. - write out output
-  m_pObjLinker->emitOutput(m_Output);
-
-  // 14. - post processing
-  m_pObjLinker->postProcessing(m_Output);
   return false;
 }
 
@@ -327,7 +236,7 @@ bool MCLinker::runOnMachineFunction(MachineFunction& pF)
   return false;
 }
 
-void MCLinker::initializeInputTree(InputBuilder& pBuilder)
+void MCLinker::initializeInputTree(IRBuilder& pBuilder)
 {
   if (0 == ArgInputObjectFiles.size() &&
       0 == ArgNameSpecList.size() &&
@@ -335,8 +244,6 @@ void MCLinker::initializeInputTree(InputBuilder& pBuilder)
     fatal(diag::err_no_inputs);
     return;
   }
-
-  pBuilder.setCurrentTree(m_Module.getInputTree());
 
   size_t num_actions = ArgInputObjectFiles.size() +
                        ArgNameSpecList.size() +
@@ -473,10 +380,10 @@ void MCLinker::initializeInputTree(InputBuilder& pBuilder)
   // build up input tree
   std::vector<InputAction*>::iterator action, actionEnd = actions.end();
   for (action = actions.begin(); action != actionEnd; ++action) {
-    (*action)->activate(pBuilder);
+    (*action)->activate(pBuilder.getInputBuilder());
   }
 
-  if (pBuilder.isInGroup())
+  if (pBuilder.getInputBuilder().isInGroup())
     report_fatal_error("no matched --start-group and --end-group");
 }
 

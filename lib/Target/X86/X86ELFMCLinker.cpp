@@ -13,9 +13,8 @@ using namespace mcld;
 
 X86ELFMCLinker::X86ELFMCLinker(LinkerConfig& pConfig,
                                mcld::Module& pModule,
-                               MemoryArea& pOutput,
-                               TargetLDBackend &pLDBackend)
-  : ELFMCLinker(pConfig, pModule, pOutput, pLDBackend) {
+                               MemoryArea& pOutput)
+  : ELFMCLinker(pConfig, pModule, pOutput) {
   // set up target-dependent constraints of attibutes
   pConfig.attribute().constraint().enableWholeArchive();
   pConfig.attribute().constraint().enableAsNeeded();

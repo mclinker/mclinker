@@ -53,9 +53,12 @@ public:
   };
 
 public:
-  IRBuilder(Module& pModule, InputTree& pInputs, const LinkerConfig& pConfig);
+  IRBuilder(Module& pModule, const LinkerConfig& pConfig);
 
   ~IRBuilder();
+
+  const InputBuilder& getInputBuilder() const { return m_InputBuilder; }
+  InputBuilder&       getInputBuilder()       { return m_InputBuilder; }
 
 /// @}
 /// @name Input Files On The Command Line
@@ -372,7 +375,6 @@ public:
 
 private:
   Module& m_Module;
-  InputTree& m_InputTree;
   const LinkerConfig& m_Config;
 
   InputBuilder m_InputBuilder;

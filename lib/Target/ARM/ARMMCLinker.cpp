@@ -22,8 +22,7 @@ namespace mcld {
 MCLinker* createARMMCLinker(const std::string& pTriple,
                             LinkerConfig& pConfig,
                             mcld::Module& pModule,
-                            MemoryArea& pOutput,
-                            TargetLDBackend &pLDBackend)
+                            MemoryArea& pOutput)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -35,7 +34,7 @@ MCLinker* createARMMCLinker(const std::string& pTriple,
     return NULL;
   }
 
-  return new ARMELFMCLinker(pConfig, pModule, pOutput, pLDBackend);
+  return new ARMELFMCLinker(pConfig, pModule, pOutput);
 }
 
 } // namespace of mcld

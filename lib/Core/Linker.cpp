@@ -9,6 +9,7 @@
 #include <mcld/Linker.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
+#include <mcld/IRBuilder.h>
 
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -19,26 +20,31 @@
 #include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputBuilder.h>
+#include <mcld/Target/TargetLDBackend.h>
 
+#include <llvm/Support/Signals.h>
+
+#include <cstdlib>
 #include <cassert>
 
 using namespace mcld;
 
 Linker::Linker()
-  : m_pConfig(NULL), m_pModule(NULL),
-    m_pTarget(NULL), m_pBackend(NULL), m_pPrinter(NULL),
-    m_pInputBuilder(NULL), m_pObjLinker(NULL) {
+  : m_pConfig(NULL), m_pModule(NULL), m_pIRBuilder(NULL),
+    m_pTarget(NULL), m_pBackend(NULL), m_pPrinter(NULL), m_pObjLinker(NULL) {
 }
 
-Linker::Linker(const LinkerConfig& pConfig)
-  : m_pConfig(&pConfig), m_pModule(NULL),
-    m_pTarget(NULL), m_pBackend(NULL), m_pPrinter(NULL),
-    m_pInputBuilder(NULL), m_pObjLinker(NULL) {
+Linker::~Linker()
+{
+  delete m_pBackend;
+  delete m_pPrinter;
+  delete m_pObjLinker;
 }
 
-bool Linker::config(const LinkerConfig& pConfig)
+bool Linker::config(const LinkerConfig& pConfig, IRBuilder& pBuilder)
 {
   m_pConfig = &pConfig;
+  m_pIRBuilder = &pBuilder;
 
   if (!initDiagnosticEngine())
     return false;
@@ -52,22 +58,22 @@ bool Linker::config(const LinkerConfig& pConfig)
   return true;
 }
 
-bool Linker::link(Module& pModule, InputTree& pInputTree)
+bool Linker::link(Module& pModule)
 {
-  m_pInputBuilder = new InputBuilder(*m_pConfig);
+  assert(NULL != m_pConfig && NULL != m_pIRBuilder);
 
   m_pObjLinker = new ObjectLinker(*m_pConfig,
                                   pModule,
-                                  *m_pInputBuilder,
+                                  m_pIRBuilder->getInputBuilder(),
                                   *m_pBackend);
 
   // 2. - initialize FragmentLinker
   if (!m_pObjLinker->initFragmentLinker())
-    return true;
+    return false;
 
   // 3. - initialize output's standard sections
   if (!m_pObjLinker->initStdSections())
-    return true;
+    return false;
 
   // 4. - normalize the input tree
   m_pObjLinker->normalize();
@@ -105,20 +111,20 @@ bool Linker::link(Module& pModule, InputTree& pInputTree)
 
   // 5. - check if we can do static linking and if we use split-stack.
   if (!m_pObjLinker->linkable())
-    return true;
+    return false;
 
   // 6. - read all relocation entries from input files
   m_pObjLinker->readRelocations();
 
   // 7. - merge all sections
   if (!m_pObjLinker->mergeSections())
-    return true;
+    return false;
 
   // 8. - add standard symbols and target-dependent symbols
   // m_pObjLinker->addUndefSymbols();
   if (!m_pObjLinker->addStandardSymbols() ||
       !m_pObjLinker->addTargetSymbols())
-    return true;
+    return false;
 
   // 9. - scan all relocation entries by output symbols.
   m_pObjLinker->scanRelocations();
@@ -138,6 +144,16 @@ bool Linker::link(Module& pModule, InputTree& pInputTree)
   // 12. - apply relocations
   m_pObjLinker->relocation();
 
+  if (0 != m_pPrinter->getNumErrors()) {
+    // If we reached here, we are failing ungracefully. Run the interrupt handlers
+    // to make sure any special cleanups get done, in particular that we remove
+    // files registered with RemoveFileOnSignal.
+    llvm::sys::RunInterruptHandlers();
+    m_pPrinter->finish();
+    exit(1);
+    return false;
+  }
+
   return true;
 }
 
@@ -149,6 +165,17 @@ bool Linker::emit(MemoryArea& pOutput)
   // 14. - post processing
   m_pObjLinker->postProcessing(pOutput);
 
+  if (0 != m_pPrinter->getNumErrors()) {
+    // If we reached here, we are failing ungracefully. Run the interrupt handlers
+    // to make sure any special cleanups get done, in particular that we remove
+    // files registered with RemoveFileOnSignal.
+    llvm::sys::RunInterruptHandlers();
+    m_pPrinter->finish();
+    exit(1);
+    return false;
+  }
+
+  m_pPrinter->finish();
   return true;
 }
 
@@ -187,14 +214,18 @@ bool Linker::emit(int pFileDescriptor)
 
 bool Linker::reset()
 {
-  delete m_pInputBuilder;
   delete m_pObjLinker;
+  m_pConfig = NULL;
+  m_pIRBuilder = NULL;
   return true;
 }
 
 bool Linker::initDiagnosticEngine()
 {
   assert(NULL != m_pConfig);
+
+  // Set up mcld::outs() and mcld::errs()
+  InitializeOStreams(*m_pConfig);
 
   m_pPrinter = new TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
 

@@ -85,12 +85,9 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
 //===----------------------------------------------------------------------===//
 // IRBuilder
 //===----------------------------------------------------------------------===//
-IRBuilder::IRBuilder(Module& pModule,
-                     InputTree& pInputs,
-                     const LinkerConfig& pConfig)
-  : m_Module(pModule), m_InputTree(pInputs), m_Config(pConfig),
-    m_InputBuilder(pConfig) {
-  m_InputBuilder.setCurrentTree(m_InputTree);
+IRBuilder::IRBuilder(Module& pModule, const LinkerConfig& pConfig)
+  : m_Module(pModule), m_Config(pConfig), m_InputBuilder(pConfig) {
+  m_InputBuilder.setCurrentTree(m_Module.getInputTree());
 }
 
 IRBuilder::~IRBuilder()

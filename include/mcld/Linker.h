@@ -17,14 +17,13 @@
 namespace mcld {
 
 class Module;
-class InputTree;
 class LinkerConfig;
 
 class Target;
 class TargetLDBackend;
 class DiagnosticPrinter;
 
-class InputBuilder;
+class IRBuilder;
 class ObjectLinker;
 
 class FileHandle;
@@ -38,13 +37,11 @@ class Linker
 public:
   Linker();
 
-  explicit Linker(const LinkerConfig& pConfig);
-
   ~Linker();
 
-  bool config(const LinkerConfig& pConfig);
+  bool config(const LinkerConfig& pConfig, IRBuilder& pBuilder);
 
-  bool link(Module& pModule, InputTree& pInputTree);
+  bool link(Module& pModule);
 
   bool emit(MemoryArea& pOutput);
 
@@ -64,12 +61,11 @@ private:
 private:
   const LinkerConfig* m_pConfig;
   Module* m_pModule;
+  IRBuilder* m_pIRBuilder;
 
   const Target* m_pTarget;
   TargetLDBackend* m_pBackend;
   DiagnosticPrinter* m_pPrinter;
-
-  InputBuilder* m_pInputBuilder;
   ObjectLinker* m_pObjLinker;
 };
 

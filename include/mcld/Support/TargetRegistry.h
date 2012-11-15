@@ -48,8 +48,7 @@ public:
   typedef MCLinker *(*MCLinkerCtorTy)(const std::string& pTriple,
                                       LinkerConfig&,
                                       Module&,
-                                      MemoryArea& pOutput,
-                                      TargetLDBackend&);
+                                      MemoryArea& pOutput);
 
   typedef bool (*EmulationFnTy)(const std::string& pTriple, LinkerConfig&);
 
@@ -86,11 +85,10 @@ public:
   MCLinker *createMCLinker(const std::string &pTriple,
                            LinkerConfig& pConfig,
                            Module& pModule,
-                           MemoryArea& pOutput,
-                           TargetLDBackend &pLDBackend) const {
+                           MemoryArea& pOutput) const {
     if (!MCLinkerCtorFn)
       return NULL;
-    return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput, pLDBackend);
+    return MCLinkerCtorFn(pTriple, pConfig, pModule, pOutput);
   }
 
   /// emulate - given MCLinker default values for the other aspects of the

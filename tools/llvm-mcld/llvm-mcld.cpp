@@ -1125,16 +1125,8 @@ int main(int argc, char* argv[])
   // Set up mcld::LinkerConfig
   mcld::LinkerConfig ld_config(TheTriple.getTriple());
 
-  // Set up mcld::outs() and mcld::errs()
-  InitializeOStreams(ld_config);
-
-  // Set up MsgHandler
-  OwningPtr<mcld::DiagnosticPrinter>
-    diag_printer(new mcld::TextDiagnosticPrinter(mcld::errs(), ld_config));
-
-  mcld::InitializeDiagnosticEngine(ld_config,
-                                   diag_printer.get());
-
+  // FIXME: Move the initialization of LineInfo to mcld::Linker when we
+  // finish LineInfo's implementation.
   OwningPtr<mcld::DiagnosticLineInfo>
     diag_line_info(TheTarget->createDiagnosticLineInfo(*TheTarget,
                                                        TheTriple.getTriple()));
@@ -1193,17 +1185,6 @@ int main(int argc, char* argv[])
 
   // Declare success.
   Out->keep();
-
-  if (0 != diag_printer->getNumErrors()) {
-    // If we reached here, we are failing ungracefully. Run the interrupt handlers
-    // to make sure any special cleanups get done, in particular that we remove
-    // files registered with RemoveFileOnSignal.
-    llvm::sys::RunInterruptHandlers();
-    diag_printer->finish();
-    exit(1);
-  }
-
-  diag_printer->finish();
   return 0;
 }
 
