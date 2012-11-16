@@ -126,13 +126,6 @@ public:
   Input* ReadInput(raw_mem_ostream& pMemOStream);
 
   /// ReadInput - To read an input file and append it to the input tree.
-  ///
-  /// This function tells MCLinker to read file descriptor pFD. Users open
-  /// object file manually and pass the file descriptor to MCLinker. MCLinker 
-  /// must have the permission to read the file.
-  Input* ReadInput(const std::string& pName, int pFD);
-
-  /// ReadInput - To read an input file and append it to the input tree.
   /// Another way to open file manually. Use MCLinker's mcld::FileHandle.
   Input* ReadInput(FileHandle& pFileHandle);
 

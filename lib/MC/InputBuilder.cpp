@@ -146,13 +146,6 @@ bool InputBuilder::setMemory(Input& pInput, void* pMemBuffer, size_t pSize)
   return true;
 }
 
-bool InputBuilder::setMemory(Input& pInput, int pFD, FileHandle::OpenMode pMode)
-{
-  MemoryArea* memory = m_pMemFactory->produce(pFD, pMode);
-  pInput.setMemArea(memory);
-  return true;
-}
-
 const AttrConstraint& InputBuilder::getConstraint() const
 {
   return m_Config.attribute().constraint();

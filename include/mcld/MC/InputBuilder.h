@@ -75,8 +75,6 @@ public:
 
   bool setMemory(Input& pInput, void* pMemBuffer, size_t pSize);
 
-  bool setMemory(Input& pInput, int pFD, FileHandle::OpenMode pMode);
-
   InputTree& enterGroup();
 
   InputTree& exitGroup();

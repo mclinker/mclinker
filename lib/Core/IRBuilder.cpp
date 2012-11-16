@@ -194,20 +194,6 @@ Input* IRBuilder::ReadInput(raw_mem_ostream& pMemOStream)
 }
 
 /// ReadInput - To read an input file and append it to the input tree.
-Input* IRBuilder::ReadInput(const std::string& pName, int pFD)
-{
-  FileHandle file;
-  file.delegate(pFD);
-
-  m_InputBuilder.createNode<InputTree::Positional>(pName, "NAN");
-  Input* input = *m_InputBuilder.getCurrentNode();
-  m_InputBuilder.setContext(*input, false);
-  m_InputBuilder.setMemory(*input, pFD, FileHandle::ReadOnly);
-
-  return input;
-}
-
-/// ReadInput - To read an input file and append it to the input tree.
 Input* IRBuilder::ReadInput(FileHandle& pFileHandle)
 {
   m_InputBuilder.createNode<InputTree::Positional>("file handler",
