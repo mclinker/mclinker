@@ -196,9 +196,17 @@ bool Linker::emit(int pFileDescriptor)
 
 bool Linker::reset()
 {
-  delete m_pObjLinker;
   m_pConfig = NULL;
+  m_pModule = NULL;
   m_pIRBuilder = NULL;
+  m_pTarget = NULL;
+
+  delete m_pBackend;
+  m_pBackend = NULL;
+
+  delete m_pObjLinker;
+  m_pObjLinker = NULL;
+
   return true;
 }
 
