@@ -43,11 +43,11 @@ void LinkerTest::TearDown()
 // Testcases
 //===----------------------------------------------------------------------===//
 TEST_F( LinkerTest, set_up_n_clean_up) {
-  Initialize();
-
-  Module module("test");
 
   LinkerConfig config("arm-none-linux-gnueabi");
+  Initialize(config);
+
+  Module module("test");
   config.setCodeGenType(LinkerConfig::DynObj);
 
   Linker linker;

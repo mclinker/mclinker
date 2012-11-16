@@ -21,7 +21,6 @@ class LinkerConfig;
 
 class Target;
 class TargetLDBackend;
-class DiagnosticPrinter;
 
 class IRBuilder;
 class ObjectLinker;
@@ -51,11 +50,7 @@ public:
 
   bool reset();
 
-  bool check();
-
 private:
-  bool initDiagnosticEngine();
-
   bool initTarget();
 
   bool initBackend();
@@ -67,7 +62,6 @@ private:
 
   const Target* m_pTarget;
   TargetLDBackend* m_pBackend;
-  DiagnosticPrinter* m_pPrinter;
   ObjectLinker* m_pObjLinker;
 };
 

@@ -17,36 +17,28 @@
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/raw_ostream.h>
 
-#include <mcld/LD/TextDiagnosticPrinter.h>
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Target/TargetLDBackend.h>
 
-#include <llvm/Support/Signals.h>
-
-#include <cstdlib>
 #include <cassert>
 
 using namespace mcld;
 
 Linker::Linker()
   : m_pConfig(NULL), m_pModule(NULL), m_pIRBuilder(NULL),
-    m_pTarget(NULL), m_pBackend(NULL), m_pPrinter(NULL), m_pObjLinker(NULL) {
+    m_pTarget(NULL), m_pBackend(NULL), m_pObjLinker(NULL) {
 }
 
 Linker::~Linker()
 {
   delete m_pBackend;
-  delete m_pPrinter;
   delete m_pObjLinker;
 }
 
 bool Linker::config(const LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
-
-  if (!initDiagnosticEngine())
-    return false;
 
   if (!initTarget())
     return false;
@@ -111,7 +103,7 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 
   // 5. - check if we can do static linking and if we use split-stack.
   if (!m_pObjLinker->linkable())
-    return check();
+    return Diagnose();
 
   // 6. - read all relocation entries from input files
   m_pObjLinker->readRelocations();
@@ -144,7 +136,7 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
   // 12. - apply relocations
   m_pObjLinker->relocation();
 
-  if (!check())
+  if (!Diagnose())
     return false;
   return true;
 }
@@ -157,10 +149,8 @@ bool Linker::emit(MemoryArea& pOutput)
   // 14. - post processing
   m_pObjLinker->postProcessing(pOutput);
 
-  if (!check())
+  if (!Diagnose())
     return false;
-
-  m_pPrinter->finish();
 
   return true;
 }
@@ -206,20 +196,6 @@ bool Linker::reset()
   return true;
 }
 
-bool Linker::initDiagnosticEngine()
-{
-  assert(NULL != m_pConfig);
-
-  // Set up mcld::outs() and mcld::errs()
-  InitializeOStreams(*m_pConfig);
-
-  m_pPrinter = new TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
-
-  InitializeDiagnosticEngine(*m_pConfig, m_pPrinter);
-
-  return true;
-}
-
 bool Linker::initTarget()
 {
   assert(NULL != m_pConfig);
@@ -239,19 +215,6 @@ bool Linker::initBackend()
   m_pBackend = m_pTarget->createLDBackend(*m_pConfig);
   if (NULL == m_pBackend) {
     fatal(diag::fatal_cannot_init_backend) << m_pConfig->triple().str();
-    return false;
-  }
-  return true;
-}
-
-bool Linker::check()
-{
-  if (m_pPrinter->getNumErrors() > 0) {
-    // If we reached here, we are failing ungracefully. Run the interrupt handlers
-    // to make sure any special cleanups get done, in particular that we remove
-    // files registered with RemoveFileOnSignal.
-    llvm::sys::RunInterruptHandlers();
-    m_pPrinter->finish();
     return false;
   }
   return true;

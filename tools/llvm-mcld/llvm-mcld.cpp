@@ -962,6 +962,9 @@ int main(int argc, char* argv[])
   // Load the module to be linked...
   mcld::Module LDIRModule;
 
+  mcld::LinkerConfig LDConfig;
+  mcld::InitializeDiagnosticEngine(LDConfig);
+
   // -shared or -pie
   if (true == ArgShared || true == ArgPIE) {
     ArgFileType = mcld::CGFT_DSOFile;
@@ -1123,7 +1126,7 @@ int main(int argc, char* argv[])
   TheTargetMachine.getTM().setMCUseCFI(false);
 
   // Set up mcld::LinkerConfig
-  mcld::LinkerConfig ld_config(TheTriple.getTriple());
+  LDConfig.setTriple(TheTriple);
 
   // FIXME: Move the initialization of LineInfo to mcld::Linker when we
   // finish LineInfo's implementation.
@@ -1158,7 +1161,7 @@ int main(int argc, char* argv[])
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
 
   // Process the linker input from the command line
-  if (!ProcessLinkerOptionsFromCommand(ld_config)) {
+  if (!ProcessLinkerOptionsFromCommand(LDConfig)) {
     errs() << argv[0] << ": failed to process linker options from command line!\n";
     return 1;
   }
@@ -1170,7 +1173,7 @@ int main(int argc, char* argv[])
                                              ArgFileType,
                                              OLvl,
                                              LDIRModule,
-                                             ld_config,
+                                             LDConfig,
                                              NoVerify)) {
       errs() << argv[0] << ": target does not support generation of this"
              << " file type!\n";

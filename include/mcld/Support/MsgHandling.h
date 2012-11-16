@@ -20,7 +20,11 @@ class DiagnosticPrinter;
 class DiagnosticLineInfo;
 
 void InitializeDiagnosticEngine(const LinkerConfig& pConfig,
-                                DiagnosticPrinter* pPrinter);
+                                DiagnosticPrinter* pPrinter = NULL);
+
+void FinalizeDiagnosticEngine();
+
+bool Diagnose();
 
 DiagnosticEngine& getDiagnosticEngine();
 

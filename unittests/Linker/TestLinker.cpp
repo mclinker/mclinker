@@ -64,16 +64,11 @@ bool TestLinker::initialize(const std::string &pTriple)
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllTargetMCs();
 
-  mcld::Initialize();
-
   // create mcld::LinkerConfig
   m_pConfig = new LinkerConfig(pTriple);
+  mcld::Initialize(*m_pConfig);
+
   m_Root = m_Module.getInputTree().root();
-
-  // initialize DiagnosticEngine
-  m_pDiagPrinter = new mcld::TextDiagnosticPrinter(mcld::errs(), *m_pConfig);
-
-  mcld::InitializeDiagnosticEngine(*m_pConfig, m_pDiagPrinter);
 
   // specify mcld::Target
   std::string error;
