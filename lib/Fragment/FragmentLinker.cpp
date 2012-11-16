@@ -655,15 +655,13 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 /// isOutputPIC - return whether the output is position-independent
 bool FragmentLinker::isOutputPIC() const
 {
-  static bool result = checkIsOutputPIC();
-  return result;
+  return checkIsOutputPIC();
 }
 
 /// isStaticLink - return whether we're doing static link
 bool FragmentLinker::isStaticLink() const
 {
-  static bool result = checkIsStaticLink();
-  return result;
+  return checkIsStaticLink();
 }
 
 bool FragmentLinker::checkIsOutputPIC() const
