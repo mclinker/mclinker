@@ -55,6 +55,8 @@ private:
 
   bool initBackend();
 
+  bool initDiagnostic();
+
 private:
   const LinkerConfig* m_pConfig;
   Module* m_pModule;

@@ -46,6 +46,9 @@ bool Linker::config(const LinkerConfig& pConfig)
   if (!initBackend())
     return false;
 
+  if (!initDiagnostic())
+    return false;
+
   return true;
 }
 
@@ -217,6 +220,14 @@ bool Linker::initBackend()
     fatal(diag::fatal_cannot_init_backend) << m_pConfig->triple().str();
     return false;
   }
+  return true;
+}
+
+bool Linker::initDiagnostic()
+{
+  mcld::outs().setColor(m_pConfig->options().color());
+  mcld::errs().setColor(m_pConfig->options().color());
+
   return true;
 }
 
