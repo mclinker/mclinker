@@ -12,6 +12,8 @@
 #include <mcld/LD/MsgHandler.h>
 #include <mcld/LinkerConfig.h>
 
+#include <cassert>
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -52,6 +54,7 @@ void DiagnosticEngine::setPrinter(DiagnosticPrinter& pPrinter,
 // emit - process current diagnostic.
 bool DiagnosticEngine::emit()
 {
+  assert(NULL != m_pInfoMap);
   bool emitted = m_pInfoMap->process(*this);
   m_State.reset();
   return emitted;
