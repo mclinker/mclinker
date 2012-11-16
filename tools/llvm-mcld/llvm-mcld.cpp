@@ -972,6 +972,7 @@ int main(int argc, char* argv[])
   InitializeAllTargetMCs();
   mcld::InitializeAllTargets();
   mcld::InitializeAllLinkers();
+  mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
 
   // Load the module to be compiled...
