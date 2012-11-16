@@ -1980,7 +1980,7 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
                                           (*rs)->flag());
 
           output_sect->setAlign((*rs)->align());
-          pModule.getSectionTable().push_back(*rs);
+          pModule.getSectionTable().push_back(output_sect);
         }
 
         // set output relocation section link
