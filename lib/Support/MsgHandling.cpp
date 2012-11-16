@@ -31,9 +31,6 @@ void
 mcld::InitializeDiagnosticEngine(const mcld::LinkerConfig& pConfig,
                                  DiagnosticPrinter* pPrinter)
 {
-  // setup errs() and outs()
-  InitializeOStreams(pConfig);
-
   g_pEngine->reset(pConfig);
   if (NULL != pPrinter)
     g_pEngine->setPrinter(*pPrinter, false);

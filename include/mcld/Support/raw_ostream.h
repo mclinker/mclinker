@@ -13,10 +13,8 @@
 #endif
 #include <string>
 #include <llvm/Support/raw_ostream.h>
-#include <mcld/LinkerConfig.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class raw_fd_ostream : public llvm::raw_fd_ostream
 {
@@ -33,18 +31,15 @@ public:
   /// output errors).
   raw_fd_ostream(const char *pFilename,
                  std::string &pErrorInfo,
-                 unsigned int pFlags = 0,
-                 const LinkerConfig* pConfig = NULL);
+                 unsigned int pFlags = 0);
 
   /// raw_fd_ostream ctor - FD is the file descriptor that this writes to.  If
   /// ShouldClose is true, this closes the file when the stream is destroyed.
-  raw_fd_ostream(int pFD, bool pShouldClose,
-                 bool pUnbuffered=false,
-                 const LinkerConfig* pConfig = NULL);
+  raw_fd_ostream(int pFD, bool pShouldClose, bool pUnbuffered=false);
 
   virtual ~raw_fd_ostream();
 
-  void setLDInfo(const LinkerConfig& pConfig);
+  void setColor(bool pEnable = true);
 
 
   llvm::raw_ostream &changeColor(enum llvm::raw_ostream::Colors pColors,
@@ -58,13 +53,10 @@ public:
   bool is_displayed() const;
 
 private:
-  const LinkerConfig* m_pConfig;
+  bool m_bConfigColor : 1;
+  bool m_bSetColor : 1;
 
 };
-
-/// InitializeOStreams - This initialize mcld::outs() and mcld::errs().
-/// Call it before you use mcld::outs() and mcld::errs().
-void InitializeOStreams(const LinkerConfig& pConfig);
 
 /// outs() - This returns a reference to a raw_ostream for standard output.
 /// Use it like: outs() << "foo" << "bar";
