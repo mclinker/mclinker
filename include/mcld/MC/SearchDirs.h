@@ -67,6 +67,8 @@ public:
   // -----  modifiers  ----- //
   bool insert(const std::string& pDirectory);
 
+  bool insert(const sys::fs::Path& pDirectory);
+
 private:
   DirList m_DirList;
   sys::fs::Path m_SysRoot;

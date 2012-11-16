@@ -59,6 +59,11 @@ bool SearchDirs::insert(const std::string& pPath)
   return false;
 }
 
+bool SearchDirs::insert(const sys::fs::Path& pPath)
+{
+  return insert(pPath.native());
+}
+
 mcld::sys::fs::Path* SearchDirs::find(const std::string& pNamespec, mcld::Input::Type pType)
 {
   assert(Input::DynObj == pType || Input::Archive == pType);
