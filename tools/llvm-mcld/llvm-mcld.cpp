@@ -757,8 +757,41 @@ static bool ShouldColorize()
 
 static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // -----  Set up General Options  ----- //
+  // set up colorize
+  switch (ArgColor) {
+    case color::Never:
+      pConfig.options().setColor(false);
+    break;
+    case color::Always:
+      pConfig.options().setColor(true);
+    break;
+    case color::Auto:
+      bool color_option = ShouldColorize() &&
+                 llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
+      pConfig.options().setColor(color_option);
+    break;
+  }
+
+  mcld::outs().setColor(pConfig.options().color());
+  mcld::errs().setColor(pConfig.options().color());
+
   // set up soname
   pConfig.options().setSOName(ArgSOName);
+
+  // -shared or -pie
+  if (true == ArgShared || true == ArgPIE) {
+    ArgFileType = mcld::CGFT_DSOFile;
+  }
+  else if (true == ArgRelocatable) {
+    ArgFileType = mcld::CGFT_PARTIAL;
+  }
+
+  // -V
+  if (ArgVersion) {
+    mcld::outs() << "MCLinker - "
+                 << mcld::LinkerConfig::version()
+                 << "\n";
+  }
 
   // set up sysroot
   if (!ArgSysRoot.empty()) {
@@ -845,21 +878,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *pname << from_real_str;
   } // end of for
-
-  // set up colorize
-  switch (ArgColor) {
-    case color::Never:
-      pConfig.options().setColor(false);
-    break;
-    case color::Always:
-      pConfig.options().setColor(true);
-    break;
-    case color::Auto:
-      bool color_option = ShouldColorize() &&
-                 llvm::sys::Process::FileDescriptorIsDisplayed(STDOUT_FILENO);
-      pConfig.options().setColor(color_option);
-    break;
-  }
 
   // add -z options
   cl::list<mcld::ZOption>::iterator zOpt;
@@ -965,19 +983,10 @@ int main(int argc, char* argv[])
   mcld::LinkerConfig LDConfig;
   mcld::InitializeDiagnosticEngine(LDConfig);
 
-  // -shared or -pie
-  if (true == ArgShared || true == ArgPIE) {
-    ArgFileType = mcld::CGFT_DSOFile;
-  }
-  else if (true == ArgRelocatable) {
-    ArgFileType = mcld::CGFT_PARTIAL;
-  }
-
-  // -V
-  if (ArgVersion) {
-    mcld::outs() << "MCLinker - "
-                 << mcld::LinkerConfig::version()
-                 << "\n";
+  // Process the linker input from the command line
+  if (!ProcessLinkerOptionsFromCommand(LDConfig)) {
+    errs() << argv[0] << ": failed to process linker options from command line!\n";
+    return 1;
   }
 
   if (ArgBitcodeFilename.empty() &&
@@ -1159,12 +1168,6 @@ int main(int argc, char* argv[])
 
   // Override default to generate verbose assembly.
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);
-
-  // Process the linker input from the command line
-  if (!ProcessLinkerOptionsFromCommand(LDConfig)) {
-    errs() << argv[0] << ": failed to process linker options from command line!\n";
-    return 1;
-  }
 
   {
     // Ask the target to add backend passes as necessary.
