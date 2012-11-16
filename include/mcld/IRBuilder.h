@@ -64,8 +64,7 @@ public:
 /// @name Input Files On The Command Line
 /// @{
 
-  /// CreateInput - Make a new input file and append it to the input tree.
-  ///
+  /// ReadInput - To read an input file and append it to the input tree.
   /// This function is like to add an input file in the command line.
   ///
   /// There are four types of the input files:
@@ -80,28 +79,15 @@ public:
   ///
   /// @see mcld::Input
   /// 
-  /// @param pPath [in] The path of the input file.
-  /// @param pType [in] The type of the input file. MCLinker will parse the
-  ///                   input file to create sections only if pType is
-  ///                   Input::Unknown.
-  /// @return the created mcld::Input. The name of the input is set to
-  /// the filename of the pPath.
-  Input* CreateInput(const sys::fs::Path& pPath,
-                     unsigned int pType = Input::Unknown);
-
-  /// CreateInput - Make a new input file and append it to the input tree.
-  ///
-  /// This function is like to add an input file in the command line.
-  ///
   /// @param pName [in] The name of the input file.
   /// @param pPath [in] The path of the input file.
   /// @param pType [in] The type of the input file. MCLinker will parse the
   ///                   input file to create sections only if pType is
   ///                   Input::Unknown.
   /// @return the created mcld::Input.
-  Input* CreateInput(const std::string& pName,
-                     const sys::fs::Path& pPath,
-                     unsigned int pType = Input::Unknown);
+  Input* ReadInput(const std::string& pName,
+                   const sys::fs::Path& pPath,
+                   Input::Type pType = Input::Unknown);
 
   /// ReadInput - To read an input file and append it to the input tree.
   ///

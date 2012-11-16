@@ -94,27 +94,10 @@ IRBuilder::~IRBuilder()
 {
 }
 
-/// CreateInput - Make a new input file and append it to the input tree.
-Input* IRBuilder::CreateInput(const sys::fs::Path& pPath, unsigned int pType)
-{
-  m_InputBuilder.createNode<InputTree::Positional>(pPath.filename().native(),
-                                                   pPath,
-                                                   pType);
-  Input* input = *m_InputBuilder.getCurrentNode();
-
-  if (!input->hasContext())
-    m_InputBuilder.setContext(*input);
-
-  if (!input->hasMemArea())
-    m_InputBuilder.setMemory(*input, FileHandle::ReadOnly, FileHandle::System);
-
-  return input;
-}
-
-/// CreateInput - Make a new input file and append it to the input tree.
-Input* IRBuilder::CreateInput(const std::string& pName,
-                              const sys::fs::Path& pPath,
-                              unsigned int pType)
+/// ReadInput - To read an input file and append it to the input tree.
+Input* IRBuilder::ReadInput(const std::string& pName,
+                            const sys::fs::Path& pPath,
+                            Input::Type pType)
 {
   m_InputBuilder.createNode<InputTree::Positional>(pName, pPath, pType);
   Input* input = *m_InputBuilder.getCurrentNode();
@@ -188,7 +171,6 @@ Input* IRBuilder::ReadInput(raw_mem_ostream& pMemOStream)
     m_InputBuilder.setContext(*input, false);
     input->setMemArea(&pMemOStream.getMemoryArea());
   }
-
 
   return input;
 }
