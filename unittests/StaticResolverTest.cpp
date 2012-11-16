@@ -10,14 +10,9 @@
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/LD/StaticResolver.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/DiagnosticPrinter.h>
-#include <mcld/LD/TextDiagnosticPrinter.h>
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/LinkerConfig.h>
 
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/LD/TextDiagnosticPrinter.h>
 
 using namespace mcld;
 using namespace mcldtest;
@@ -34,7 +29,6 @@ StaticResolverTest::StaticResolverTest()
   mcld::InitializeAllDiagnostics();
 
   m_pConfig = new LinkerConfig("arm-none-linux-gnueabi");
-  mcld::InitializeDiagnosticEngine(*m_pConfig, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.

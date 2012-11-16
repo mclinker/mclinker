@@ -67,7 +67,6 @@ bool TestLinker::initialize(const std::string &pTriple)
 
   // create mcld::LinkerConfig
   m_pConfig = new LinkerConfig(pTriple);
-  mcld::InitializeDiagnosticEngine(*m_pConfig);
 
   m_Root = m_Module.getInputTree().root();
 

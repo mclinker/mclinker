@@ -981,7 +981,6 @@ int main(int argc, char* argv[])
   mcld::Module LDIRModule;
 
   mcld::LinkerConfig LDConfig;
-  mcld::InitializeDiagnosticEngine(LDConfig);
 
   // Process the linker input from the command line
   if (!ProcessLinkerOptionsFromCommand(LDConfig)) {

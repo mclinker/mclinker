@@ -15,8 +15,6 @@
 #include <mcld/Linker.h>
 #include <mcld/LinkerConfig.h>
 
-#include <mcld/Support/MsgHandling.h>
-
 using namespace mcld;
 using namespace mcld::test;
 
@@ -48,7 +46,6 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
 
   Initialize();
   LinkerConfig config("arm-none-linux-gnueabi");
-  InitializeDiagnosticEngine(config);
 
   Module module("test");
   config.setCodeGenType(LinkerConfig::DynObj);
@@ -63,7 +60,6 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
   if (linker.link(module, builder))
     linker.emit("./test.so");
 
-  FinalizeDiagnosticEngine();
   Finalize();
 }
 

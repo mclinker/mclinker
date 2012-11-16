@@ -9,6 +9,8 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Config/Config.h>
 
+#include <mcld/Support/MsgHandling.h>
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -22,6 +24,8 @@ LinkerConfig::LinkerConfig()
     m_Triple(),
     m_CodeGenType(Unknown)
 {
+  // FIXME: is here the right place to hold this?
+  InitializeDiagnosticEngine(*this);
 }
 
 LinkerConfig::LinkerConfig(const std::string& pTripleString)
@@ -32,10 +36,14 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString)
     m_Triple(pTripleString),
     m_CodeGenType(Unknown)
 {
+  // FIXME: is here the right place to hold this?
+  InitializeDiagnosticEngine(*this);
 }
 
 LinkerConfig::~LinkerConfig()
 {
+  // FIXME: is here the right place to hold this?
+  FinalizeDiagnosticEngine();
 }
 
 void LinkerConfig::setTriple(const llvm::Triple& pTriple)

@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/MC/ContextFactory.h>
 #include <mcld/Support/MemoryAreaFactory.h>
-#include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/Path.h>
 #include "UniqueGCFactoryBaseTest.h"
@@ -23,7 +22,6 @@ UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
   InitializeAllDiagnostics();
 
   m_pConfig = new LinkerConfig("arm-none-linux-gnueabi");
-  mcld::InitializeDiagnosticEngine(*m_pConfig, NULL);
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
