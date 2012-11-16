@@ -1038,8 +1038,6 @@ int main(int argc, char* argv[])
     else
       TheTriple.setTriple(TripleStr);
   }
-  // Set up mcld::LinkerConfig
-  LDConfig.setTriple(TheTriple);
 
   // Allocate target machine.  First, check whether the user has explicitly
   // specified an architecture to compile for. If so we have to look it up by
@@ -1077,6 +1075,8 @@ int main(int argc, char* argv[])
       return 1;
     }
   }
+  // Set up mcld::LinkerConfig
+  LDConfig.setTriple(TheTriple);
 
   // Package up features to be passed to target/subtarget
   std::string FeaturesStr;
