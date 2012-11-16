@@ -28,10 +28,12 @@ ARMELFMCLinker::ARMELFMCLinker(LinkerConfig& pConfig,
   pConfig.attribute().predefined().setDynamic();
 
   // set up section map
-  bool exist = false;
-  pConfig.scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-  pConfig.scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-  pConfig.scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  if (pConfig.codeGenType() != LinkerConfig::Object) {
+    bool exist = false;
+    pConfig.scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
+    pConfig.scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
+    pConfig.scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  }
 }
 
 ARMELFMCLinker::~ARMELFMCLinker()

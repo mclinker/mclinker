@@ -116,12 +116,14 @@ bool LinkerConfig::initializeLDInfo() {
     {".gnu.linkonce.l", ".ldata"},
   };
 
-  const int map_size =  (sizeof(map) / sizeof(map[0]) );
-  for (unsigned int i = 0; i < map_size; ++i) {
-    bool exist = false;
-    mLDConfig->scripts().sectionMap().append(map[i].from,
-                                             map[i].to,
-                                             exist);
+  if (mLDConfig->codeGenType() != mcld::LinkerConfig::Object) {
+    const int map_size =  (sizeof(map) / sizeof(map[0]) );
+    for (unsigned int i = 0; i < map_size; ++i) {
+      bool exist = false;
+      mLDConfig->scripts().sectionMap().append(map[i].from,
+                                               map[i].to,
+                                               exist);
+    }
   }
   return true;
 }

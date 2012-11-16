@@ -47,10 +47,12 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   }
 
   // set up section map
-  bool exist = false;
-  getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-  getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-  getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  if (getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
+    bool exist = false;
+    getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
+    getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
+    getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+  }
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
 
@@ -131,7 +133,8 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
   getLDConfig()->attribute().predefined().setDynamic();
 
   // set up section map
-  if (llvm::Triple::arm == getLDConfig()->triple().getArch()) {
+  if (llvm::Triple::arm == getLDConfig()->triple().getArch() &&
+      getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
     bool exist = false;
     getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
     getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);

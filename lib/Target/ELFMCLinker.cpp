@@ -69,16 +69,18 @@ ELFMCLinker::ELFMCLinker(LinkerConfig& pConfig,
                          MemoryArea& pOutput)
   : MCLinker(pConfig, pModule, pOutput) {
 
-  const int map_size =  (sizeof(map) / sizeof(map[0]) );
-  for (unsigned int i = 0; i < map_size; ++i) {
-    bool exist = false;
-    SectionMap::NamePair& pair = pConfig.scripts().sectionMap().append(
-                                                              map[i].from,
-                                                              map[i].to,
-                                                              exist);
-    if (exist) {
-      warning(diag::warn_duplicate_std_sectmap) << pair.from
-                                                << pair.to;
+  if (pConfig.codeGenType() != LinkerConfig::Object) {
+    const int map_size =  (sizeof(map) / sizeof(map[0]) );
+    for (unsigned int i = 0; i < map_size; ++i) {
+      bool exist = false;
+      SectionMap::NamePair& pair = pConfig.scripts().sectionMap().append(
+                                                                map[i].from,
+                                                                map[i].to,
+                                                                exist);
+      if (exist) {
+        warning(diag::warn_duplicate_std_sectmap) << pair.from
+                                                  << pair.to;
+      }
     }
   }
 }
