@@ -9,9 +9,7 @@
 #include <mcld/Environment.h>
 #include <mcld/Support/TargetSelect.h>
 
-#include <mcld/Support/MsgHandling.h>
-
-void mcld::Initialize(const LinkerConfig& pConfig)
+void mcld::Initialize()
 {
   static bool is_initialized = false;
 
@@ -21,13 +19,11 @@ void mcld::Initialize(const LinkerConfig& pConfig)
   mcld::InitializeAllTargets();
   mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
-  mcld::InitializeDiagnosticEngine(pConfig);
 
   is_initialized = true;
 }
 
 void mcld::Finalize()
 {
-  mcld::FinalizeDiagnosticEngine();
 }
 

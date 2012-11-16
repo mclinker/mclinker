@@ -14,9 +14,7 @@
 
 namespace mcld {
 
-class LinkerConfig;
-
-void Initialize(const LinkerConfig& pConfig);
+void Initialize();
 
 void Finalize();
 

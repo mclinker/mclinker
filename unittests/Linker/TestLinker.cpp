@@ -63,10 +63,11 @@ bool TestLinker::initialize(const std::string &pTriple)
   llvm::InitializeAllAsmPrinters();
   llvm::InitializeAllAsmParsers();
   llvm::InitializeAllTargetMCs();
+  mcld::Initialize();
 
   // create mcld::LinkerConfig
   m_pConfig = new LinkerConfig(pTriple);
-  mcld::Initialize(*m_pConfig);
+  mcld::InitializeDiagnosticEngine(*m_pConfig);
 
   m_Root = m_Module.getInputTree().root();
 
