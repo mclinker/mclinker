@@ -77,19 +77,25 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
 TEST_F( LinkerTest, plasma) {
 
   Initialize();
+  Linker linker;
 
-  LinkerConfig config;
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config);
+
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libplasma.so");   ///< --soname=libplasma.so
-  config.options().setBsymbolic();           ///< -Bsymbolic
-  config.setTriple("armv7-none-linux-gnueabi"); ///< --mtriple="armv7-none-linux-gnueabi"
+  config.options().setBsymbolic();              ///< -Bsymbolic
 
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
   config.options().directories().insert(search_dir);
 
-  Module module("plasma");
+  Module module("libplasma.so");
   IRBuilder builder(module, config);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -112,9 +118,6 @@ TEST_F( LinkerTest, plasma) {
   Path crtend(search_dir);
   crtend.append("crtend_so.o");
   builder.ReadInput("crtend", crtend);
-
-  Linker linker;
-  linker.config(config);
 
   if (linker.link(module, builder)) {
     linker.emit("libplasma.so"); ///< -o libplasma.so
