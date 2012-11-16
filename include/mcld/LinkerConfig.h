@@ -43,6 +43,8 @@ public:
   };
 
 public:
+  LinkerConfig();
+
   explicit LinkerConfig(const std::string &pTripleString);
 
   ~LinkerConfig();
@@ -63,8 +65,11 @@ public:
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
-  const llvm::Triple& triple() const
-  { return m_Triple; }
+  const llvm::Triple& triple() const { return m_Triple; }
+
+  void setTriple(const std::string& pTriple);
+
+  void setTriple(const llvm::Triple& pTriple);
 
   static const char* version();
 
