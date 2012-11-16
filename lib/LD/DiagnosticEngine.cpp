@@ -28,11 +28,14 @@ DiagnosticEngine::~DiagnosticEngine()
 {
   if (m_OwnPrinter && m_pPrinter != NULL)
     delete m_pPrinter;
+
+  delete m_pInfoMap;
 }
 
 void DiagnosticEngine::reset(const LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
+  delete m_pInfoMap;
   m_pInfoMap = new DiagnosticInfos(*m_pConfig);
   m_State.reset();
 }
