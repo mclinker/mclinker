@@ -36,7 +36,7 @@ Linker::~Linker()
   delete m_pObjLinker;
 }
 
-bool Linker::config(const LinkerConfig& pConfig)
+bool Linker::config(LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
 
@@ -46,7 +46,10 @@ bool Linker::config(const LinkerConfig& pConfig)
   if (!initBackend())
     return false;
 
-  if (!initDiagnostic())
+  if (!initEmulator())
+    return false;
+
+  if (!initOStream())
     return false;
 
   return true;
@@ -223,8 +226,16 @@ bool Linker::initBackend()
   return true;
 }
 
-bool Linker::initDiagnostic()
+bool Linker::initEmulator()
 {
+  assert(NULL != m_pTarget);
+  return m_pTarget->emulate(m_pConfig->triple().str(), *m_pConfig);
+}
+
+bool Linker::initOStream()
+{
+  assert(NULL != m_pConfig);
+
   mcld::outs().setColor(m_pConfig->options().color());
   mcld::errs().setColor(m_pConfig->options().color());
 

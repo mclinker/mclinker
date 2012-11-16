@@ -38,7 +38,7 @@ public:
 
   ~Linker();
 
-  bool config(const LinkerConfig& pConfig);
+  bool config(LinkerConfig& pConfig);
 
   bool link(Module& pModule, IRBuilder& pBuilder);
 
@@ -55,10 +55,12 @@ private:
 
   bool initBackend();
 
-  bool initDiagnostic();
+  bool initEmulator();
+
+  bool initOStream();
 
 private:
-  const LinkerConfig* m_pConfig;
+  LinkerConfig* m_pConfig;
   Module* m_pModule;
   IRBuilder* m_pIRBuilder;
 
