@@ -138,7 +138,8 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
   mBuilder = new mcld::InputBuilder(*mLDConfig,
                                     *mInputFactory,
                                     *mContextFactory,
-                                    *mMemAreaFactory);
+                                    *mMemAreaFactory,
+                                    true); // delegated
 
   mModule = new mcld::Module(mLDConfig->options().soname());
 
