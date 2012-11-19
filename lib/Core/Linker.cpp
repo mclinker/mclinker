@@ -20,6 +20,7 @@
 #include <mcld/Object/ObjectLinker.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
 
 #include <cassert>
@@ -208,6 +209,7 @@ bool Linker::reset()
   delete m_pObjLinker;
   m_pObjLinker = NULL;
 
+  LDSection::Clear();
   LDSymbol::Clear();
   return true;
 }
