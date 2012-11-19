@@ -17,6 +17,8 @@
 
 #include <mcld/Support/Path.h>
 
+#include <llvm/Support/ELF.h>
+
 using namespace mcld;
 using namespace mcld::test;
 using namespace mcld::sys::fs;
@@ -126,3 +128,255 @@ TEST_F( LinkerTest, plasma) {
   Finalize();
 }
 
+// The outputs generated without -Bsymbolic usually have more relocation
+// entries than the outputs generated with -Bsymbolic. This testcase generates
+// output with -Bsymbolic first, then generate the same output without -Bsymbolic.
+// By this way, we can make sure symbols and relocations are cleaned between
+// two linkings.
+TEST_F( LinkerTest, plasma_twice) {
+
+  Initialize();
+  Linker linker;
+
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config1("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config1);
+
+  config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
+  config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
+  config1.options().setBsymbolic(false);              ///< -Bsymbolic
+
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  Path search_dir(TOPDIR);
+  search_dir.append("test/libs/ARM/Android/android-14");
+  config1.options().directories().insert(search_dir);
+
+  Module module1("libplasma.once.so");
+  IRBuilder builder1(module1, config1);
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
+  Path crtbegin(search_dir);
+  crtbegin.append("crtbegin_so.o");
+  builder1.ReadInput("crtbegin", crtbegin);
+
+  /// ${TOPDIR}/test/Android/Plasma/ARM/plasma.o
+  Path plasma(TOPDIR);
+  plasma.append("test/Android/Plasma/ARM/plasma.o");
+  builder1.ReadInput("plasma", plasma);
+
+  // -lm -llog -ljnigraphics -lc
+  builder1.ReadInput("m");
+  builder1.ReadInput("log");
+  builder1.ReadInput("jnigraphics");
+  builder1.ReadInput("c");
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtend_so.o
+  Path crtend(search_dir);
+  crtend.append("crtend_so.o");
+  builder1.ReadInput("crtend", crtend);
+
+  if (linker.link(module1, builder1)) {
+    linker.emit("libplasma.once.so"); ///< -o libplasma.so
+  }
+
+  Finalize();
+
+  linker.reset();
+
+  Initialize();
+
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config2("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config2);
+
+  config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
+  config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
+  config2.options().setBsymbolic();              ///< -Bsymbolic
+
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  config2.options().directories().insert(search_dir);
+
+  Module module2("libplasma.so");
+  IRBuilder builder2(module2, config2);
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
+  builder2.ReadInput("crtbegin", crtbegin);
+
+  /// ${TOPDIR}/test/Android/Plasma/ARM/plasma.o
+  builder2.ReadInput("plasma", plasma);
+
+  // -lm -llog -ljnigraphics -lc
+  builder2.ReadInput("m");
+  builder2.ReadInput("log");
+  builder2.ReadInput("jnigraphics");
+  builder2.ReadInput("c");
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtend_so.o
+  builder2.ReadInput("crtend", crtend);
+
+  if (linker.link(module2, builder2)) {
+    linker.emit("libplasma.twice.so"); ///< -o libplasma.exe
+  }
+
+  Finalize();
+}
+
+// This testcase put IRBuilder in the heap
+TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
+
+  Initialize();
+  Linker linker;
+
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config1("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config1);
+
+  config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
+  config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
+  config1.options().setBsymbolic(false);              ///< -Bsymbolic
+
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  Path search_dir(TOPDIR);
+  search_dir.append("test/libs/ARM/Android/android-14");
+  config1.options().directories().insert(search_dir);
+
+  Module module1("libplasma.once.so");
+  IRBuilder *builder1 = new IRBuilder(module1, config1);
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
+  Path crtbegin(search_dir);
+  crtbegin.append("crtbegin_so.o");
+  builder1->ReadInput("crtbegin", crtbegin);
+
+  /// ${TOPDIR}/test/Android/Plasma/ARM/plasma.o
+  Path plasma(TOPDIR);
+  plasma.append("test/Android/Plasma/ARM/plasma.o");
+  builder1->ReadInput("plasma", plasma);
+
+  // -lm -llog -ljnigraphics -lc
+  builder1->ReadInput("m");
+  builder1->ReadInput("log");
+  builder1->ReadInput("jnigraphics");
+  builder1->ReadInput("c");
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtend_so.o
+  Path crtend(search_dir);
+  crtend.append("crtend_so.o");
+  builder1->ReadInput("crtend", crtend);
+
+  if (linker.link(module1, *builder1)) {
+    linker.emit("libplasma.once.so"); ///< -o libplasma.so
+  }
+
+  // Can not delete builder until emit the output. Dynamic string table
+  // needs the file name of the input files, and the inputs' life is
+  // controlled by IRBuilder
+  delete builder1;
+
+  Finalize();
+
+  linker.reset();
+
+  Initialize();
+
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config2("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config2);
+
+  config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
+  config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
+  config2.options().setBsymbolic();              ///< -Bsymbolic
+
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  config2.options().directories().insert(search_dir);
+
+  Module module2("libplasma.so");
+  IRBuilder* builder2 = new IRBuilder(module2, config2);
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
+  builder2->ReadInput("crtbegin", crtbegin);
+
+  /// ${TOPDIR}/test/Android/Plasma/ARM/plasma.o
+  builder2->ReadInput("plasma", plasma);
+
+  // -lm -llog -ljnigraphics -lc
+  builder2->ReadInput("m");
+  builder2->ReadInput("log");
+  builder2->ReadInput("jnigraphics");
+  builder2->ReadInput("c");
+
+  /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtend_so.o
+  builder2->ReadInput("crtend", crtend);
+
+  if (linker.link(module2, *builder2)) {
+    linker.emit("libplasma.twice.so"); ///< -o libplasma.exe
+  }
+
+  delete builder2;
+  Finalize();
+}
+
+// %MCLinker --shared -soname=libgotplt.so -mtriple arm-none-linux-gnueabi \
+// gotplt.o -o libgotplt.so
+TEST_F( LinkerTest, plasma_object) {
+
+  Initialize();
+  Linker linker;
+
+  ///< --mtriple="armv7-none-linux-gnueabi"
+  LinkerConfig config("armv7-none-linux-gnueabi");
+
+  /// To configure linker before setting options. Linker::config sets up
+  /// default target-dependent configuration to LinkerConfig.
+  linker.config(config);
+
+  config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
+  config.options().setSOName("libgotplt.so");   ///< --soname=libgotplt.so
+
+  Module module;
+  IRBuilder builder(module, config);
+
+  Path gotplt_o(TOPDIR);
+  gotplt_o.append("test/PLT/gotplt.o");
+  Input* input = builder.CreateInput("gotplt.o", gotplt_o, Input::Object);
+
+  /// [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  LDSection* null = builder.CreateELFHeader(*input,
+                              "",
+                              LDFileFormat::Null,
+                              llvm::ELF::SHT_NULL,
+                              0x0);
+
+  /// [ 1] .text             PROGBITS        00000000 000034 000010 00  AX  0   0  4
+  LDSection* text = builder.CreateELFHeader(*input,
+                              ".text",
+                              llvm::ELF::SHT_PROGBITS,
+                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_EXECINSTR,
+                              4);
+
+  SectionData* text_data = builder.CreateSectionData(*text);
+  static uint8_t text_content[] = { 0x00, 0x48, 0x2d, 0xe9,
+                                    0xfe, 0xff, 0xff, 0xeb,
+                                    0x00, 0x48, 0xbd, 0xe8,
+                                    0x0e, 0xf0, 0xa0, 0xe1 };
+  Fragment* text_frag = builder.CreateRegion(text_content, 0x10);
+  builder.AppendFragment(*text_frag, *text_data);
+
+  if (linker.link(module, builder)) {
+    linker.emit("libgotplt.so"); ///< -o libgotplt.so
+  }
+
+  Finalize();
+}
