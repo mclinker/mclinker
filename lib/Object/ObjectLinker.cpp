@@ -271,7 +271,21 @@ bool ObjectLinker::mergeSections()
             return false;
           }
           break;
+        case LDFileFormat::EhFrame: {
+          if (!(*sect)->hasEhFrame())
+            continue; // skip
+
+          if (!builder.MergeSection(**sect)) {
+            error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                  << (*obj)->name();
+            return false;
+          }
+          break;
+        }
         default: {
+          if (!(*sect)->hasSectionData())
+            continue; // skip
+
           if (!builder.MergeSection(**sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();

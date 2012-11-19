@@ -374,6 +374,39 @@ TEST_F( LinkerTest, plasma_object) {
   Fragment* text_frag = builder.CreateRegion(text_content, 0x10);
   builder.AppendFragment(*text_frag, *text_data);
 
+  // [ 3] .data             PROGBITS        00000000 000044 000000 00  WA  0   0  4
+  LDSection* data = builder.CreateELFHeader(*input,
+                              ".data",
+                              llvm::ELF::SHT_PROGBITS,
+                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                              4);
+
+  // [ 4] .bss              NOBITS          00000000 000044 000000 00  WA  0   0  4
+  LDSection* bss = builder.CreateELFHeader(*input,
+                              ".bss",
+                              llvm::ELF::SHT_PROGBITS,
+                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                              4);
+  // [ 5] .ARM.attributes   ARM_ATTRIBUTES  00000000 000044 000020 00      0   0  1
+  LDSection* attr = builder.CreateELFHeader(*input,
+                              ".ARM.attributes",
+                              llvm::ELF::SHT_ARM_ATTRIBUTES,
+                              0x0,
+                              4);
+
+  SectionData* attr_data = builder.CreateSectionData(*attr);
+  static uint8_t attr_content[] = {
+                      0x41, 0x1f, 0x00, 0x00,
+                      0x00, 0x61, 0x65, 0x61,
+                      0x62, 0x69, 0x00, 0x01,
+                      0x15, 0x00, 0x00, 0x00,
+                      0x06, 0x02, 0x08, 0x01,
+                      0x09, 0x01, 0x14, 0x01,
+                      0x15, 0x01, 0x17, 0x03,
+                      0x18, 0x01, 0x19, 0x01 };
+  Fragment* attr_frag = builder.CreateRegion(attr_content, 0x20);
+  builder.AppendFragment(*attr_frag, *attr_data);
+
   if (linker.link(module, builder)) {
     linker.emit("libgotplt.so"); ///< -o libgotplt.so
   }
