@@ -94,12 +94,27 @@ IRBuilder::~IRBuilder()
 {
 }
 
-/// ReadInput - To read an input file and append it to the input tree.
-Input* IRBuilder::ReadInput(const std::string& pName,
-                            const sys::fs::Path& pPath,
-                            Input::Type pType)
+/// CreateInput - To create an input file and append it to the input tree.
+Input* IRBuilder::CreateInput(const std::string& pName,
+                              const sys::fs::Path& pPath, Input::Type pType)
 {
+  if (Input::Unknown == pType)
+    return ReadInput(pName, pPath);
+
   m_InputBuilder.createNode<InputTree::Positional>(pName, pPath, pType);
+  Input* input = *m_InputBuilder.getCurrentNode();
+
+  if (!input->hasContext())
+    m_InputBuilder.setContext(*input, false);
+
+  return input;
+}
+
+/// ReadInput - To read an input file and append it to the input tree.
+Input*
+IRBuilder::ReadInput(const std::string& pName, const sys::fs::Path& pPath)
+{
+  m_InputBuilder.createNode<InputTree::Positional>(pName, pPath, Input::Unknown);
   Input* input = *m_InputBuilder.getCurrentNode();
 
   if (!input->hasContext())

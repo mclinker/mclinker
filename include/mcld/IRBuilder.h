@@ -64,7 +64,7 @@ public:
 /// @name Input Files On The Command Line
 /// @{
 
-  /// ReadInput - To read an input file and append it to the input tree.
+  /// CreateInput - To create an input file and append it to the input tree.
   /// This function is like to add an input file in the command line.
   ///
   /// There are four types of the input files:
@@ -78,16 +78,32 @@ public:
   /// users need to manually create sections by IRBuilder.
   ///
   /// @see mcld::Input
-  /// 
+  ///
   /// @param pName [in] The name of the input file.
   /// @param pPath [in] The path of the input file.
   /// @param pType [in] The type of the input file. MCLinker will parse the
   ///                   input file to create sections only if pType is
   ///                   Input::Unknown.
   /// @return the created mcld::Input.
-  Input* ReadInput(const std::string& pName,
-                   const sys::fs::Path& pPath,
-                   Input::Type pType = Input::Unknown);
+  Input* CreateInput(const std::string& pName,
+                     const sys::fs::Path& pPath,
+                     Input::Type pType);
+
+  /// ReadInput - To read an input file and append it to the input tree.
+  /// This function is like to add an input file in the command line.
+  ///
+  /// This funciton is equal to call
+  ///   @ref IRBuilder::CreateInput(pName, pPath, Input::Unknown);
+  ///
+  /// MCLinker will automatically open and read the input file, and create
+  /// sections of the input.
+  ///
+  /// @see mcld::Input
+  ///
+  /// @param pName [in] The name of the input file.
+  /// @param pPath [in] The path of the input file.
+  /// @return the created mcld::Input.
+  Input* ReadInput(const std::string& pName, const sys::fs::Path& pPath);
 
   /// ReadInput - To read an input file and append it to the input tree.
   ///
