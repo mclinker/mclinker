@@ -229,7 +229,7 @@ bool ObjectLinker::readRelocations()
   // in object files.
   mcld::InputTree::bfs_iterator input, inEnd = m_Module.getInputTree().bfs_end();
   for (input=m_Module.getInputTree().bfs_begin(); input!=inEnd; ++input) {
-    if ((*input)->type() == Input::Object) {
+    if ((*input)->type() == Input::Object && (*input)->hasMemArea()) {
       if (!getObjectReader()->readRelocations(**input))
         return false;
     }
