@@ -57,7 +57,7 @@ public:
   bool trace() const
   { return m_bTrace; }
 
-  void setBsymbolic(bool pBsymbolic = false)
+  void setBsymbolic(bool pBsymbolic = true)
   { m_Bsymbolic = pBsymbolic; }
 
   bool Bsymbolic() const
@@ -69,7 +69,7 @@ public:
   bool isPIE() const
   { return m_bPIE; }
 
-  void setBgroup(bool pBgroup = false)
+  void setBgroup(bool pBgroup = true)
   { m_Bgroup = pBgroup; }
 
   bool Bgroup() const
@@ -128,10 +128,10 @@ public:
   bool color() const
   { return m_bColor; }
 
-  void setNoUndefined(bool pEnable = false)
+  void setNoUndefined(bool pEnable = true)
   { m_bNoUndefined = pEnable; }
 
-  void setMulDefs(bool pEnable = false)
+  void setMulDefs(bool pEnable = true)
   { m_bMulDefs = pEnable; }
 
   void setEhFrameHdr(bool pEnable = true)
@@ -198,28 +198,28 @@ public:
   { return m_bCreateEhFrameHdr; }
 
   // -n, --nmagic
-  void setNMagic(bool pMagic = false)
+  void setNMagic(bool pMagic = true)
   { m_NMagic = pMagic; }
 
   bool nnagic() const
   { return m_NMagic; }
 
   // -N, --omagic
-  void setOMagic(bool pMagic = false)
+  void setOMagic(bool pMagic = true)
   { m_OMagic = pMagic; }
 
   bool omagic() const
   { return m_OMagic; }
 
   // -S, --strip-debug
-  void setStripDebug(bool pStripDebug = false)
+  void setStripDebug(bool pStripDebug = true)
   { m_StripDebug = pStripDebug; }
 
   bool stripDebug() const
   { return m_StripDebug; }
 
   // -E, --export-dynamic
-  void setExportDynamic(bool pExportDynamic = false)
+  void setExportDynamic(bool pExportDynamic = true)
   { m_ExportDynamic = pExportDynamic; }
 
   bool exportDynamic() const
