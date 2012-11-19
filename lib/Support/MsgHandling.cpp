@@ -61,7 +61,5 @@ bool mcld::Diagnose()
 void mcld::FinalizeDiagnosticEngine()
 {
   g_pEngine->getPrinter()->finish();
-  DiagnosticPrinter* printer = g_pEngine->takePrinter();
-  delete printer;
 }
 
