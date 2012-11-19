@@ -22,6 +22,7 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/Fragment/FragmentRef.h>
 
 #include <cassert>
 
@@ -34,8 +35,7 @@ Linker::Linker()
 
 Linker::~Linker()
 {
-  delete m_pBackend;
-  delete m_pObjLinker;
+  reset();
 }
 
 bool Linker::config(LinkerConfig& pConfig)
@@ -211,6 +211,7 @@ bool Linker::reset()
 
   LDSection::Clear();
   LDSymbol::Clear();
+  FragmentRef::Clear();
   return true;
 }
 
