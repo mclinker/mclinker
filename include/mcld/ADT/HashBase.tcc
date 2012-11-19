@@ -80,7 +80,7 @@ template<typename HashEntryTy,
          typename HashFunctionTy>
 HashTableImpl<HashEntryTy, HashFunctionTy>::~HashTableImpl()
 {
-  free(m_Buckets);
+  clear();
 }
 
 /// empty - check if the hash table is empty
@@ -103,6 +103,19 @@ void HashTableImpl<HashEntryTy, HashFunctionTy>::init(unsigned int pInitSize)
 
   /** calloc also set bucket.Item = bucket_type::getEmptyStone() **/
   m_Buckets = (bucket_type*)calloc(m_NumOfBuckets, sizeof(bucket_type));
+}
+
+/// clear - clear the hash table.
+template<typename HashEntryTy,
+         typename HashFunctionTy>
+void HashTableImpl<HashEntryTy, HashFunctionTy>::clear()
+{
+  free(m_Buckets);
+
+  m_Buckets = 0;
+  m_NumOfBuckets = 0;
+  m_NumOfEntries = 0;
+  m_NumOfTombstones = 0;
 }
 
 /// lookUpBucketFor - look up the bucket whose key is pKey

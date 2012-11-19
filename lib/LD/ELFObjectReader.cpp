@@ -121,7 +121,7 @@ bool ELFObjectReader::readSections(Input& pInput)
 
         if (exist) {
           // if this is not the first time we see this group signature, then
-          // ignore all the members in this group (set NULL)
+          // ignore all the members in this group (set Ignore)
           MemoryRegion* region = pInput.memArea()->request(
                pInput.fileOffset() + (*section)->offset(), (*section)->size());
           llvm::ELF::Elf32_Word* value =
@@ -135,6 +135,7 @@ bool ELFObjectReader::readSections(Input& pInput)
           }
           pInput.memArea()->release(region);
         }
+        ResolveInfo::Destroy(signature);
         break;
       }
       /** relocation sections **/

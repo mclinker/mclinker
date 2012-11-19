@@ -36,7 +36,7 @@ protected:
   { }
 
 public:
-  virtual ~ObjectReader() { }
+  virtual ~ObjectReader() { f_GroupSignatureMap.clear(); }
 
   virtual bool readHeader(Input& pFile) = 0;
 

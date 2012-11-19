@@ -51,8 +51,8 @@ void HashTable<HashEntryTy, HashFunctionTy, EntryFactoryTy>::clear()
       BaseTy::m_Buckets[i].Entry = bucket_type::getEmptyBucket();
     }
   }
-  BaseTy::m_NumOfEntries = 0;
-  BaseTy::m_NumOfTombstones = 0;
+
+  BaseTy::clear();
 }
 
 /// insert - insert a new element to the container. If the element already

@@ -103,6 +103,8 @@ protected:
   /// initialize the hash table.
   void init(unsigned int pInitSize);
 
+  void clear();
+
   /// lookUpBucketFor - search the index of bucket whose key is p>ey
   //  @return the index of the found bucket
   unsigned int lookUpBucketFor(const key_type& pKey);
