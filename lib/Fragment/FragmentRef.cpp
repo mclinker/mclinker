@@ -95,6 +95,11 @@ FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
   return Create(data->front(), pOffset);
 }
 
+void FragmentRef::Clear()
+{
+  g_FragRefFactory->clear();
+}
+
 FragmentRef* FragmentRef::Null()
 {
   return &g_NullFragmentRef;

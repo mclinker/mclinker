@@ -46,6 +46,9 @@ public:
 
   static FragmentRef* Create(LDSection& pSection, uint64_t pOffset);
 
+  /// Clear - clear all generated FragmentRef in the system.
+  static void Clear();
+
   static FragmentRef* Null();
 
   // -----  modifiers  ----- //
