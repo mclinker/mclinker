@@ -84,6 +84,11 @@ void LDSection::Destroy(LDSection*& pSection)
   pSection = NULL;
 }
 
+void LDSection::Clear()
+{
+  g_SectFactory->clear();
+}
+
 bool LDSection::hasSectionData() const
 {
   assert(LDFileFormat::Relocation != kind() && LDFileFormat::EhFrame != kind());

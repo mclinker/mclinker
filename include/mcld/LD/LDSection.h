@@ -55,6 +55,8 @@ public:
 
   static void Destroy(LDSection*& pSection);
 
+  static void Clear();
+
   bool hasOffset() const;
 
   /// name - the name of this section.
