@@ -237,8 +237,7 @@ bool Linker::initBackend()
 bool Linker::initEmulator()
 {
   assert(NULL != m_pTarget && NULL != m_pConfig);
-  return true;
-  //return m_pTarget->emulate(m_pConfig->triple().str(), *m_pConfig);
+  return m_pTarget->emulate(m_pConfig->triple().str(), *m_pConfig);
 }
 
 bool Linker::initOStream()

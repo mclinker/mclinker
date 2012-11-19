@@ -15,18 +15,6 @@ X86ELFMCLinker::X86ELFMCLinker(LinkerConfig& pConfig,
                                mcld::Module& pModule,
                                MemoryArea& pOutput)
   : ELFMCLinker(pConfig, pModule, pOutput) {
-  // set up target-dependent constraints of attibutes
-  pConfig.attribute().constraint().enableWholeArchive();
-  pConfig.attribute().constraint().enableAsNeeded();
-  pConfig.attribute().constraint().setSharedSystem();
-
-  // set up the predefined attributes
-  pConfig.attribute().predefined().unsetWholeArchive();
-  pConfig.attribute().predefined().unsetAsNeeded();
-  pConfig.attribute().predefined().setDynamic();
-
-  // set up the section map
-  // nothing to do.
 }
 
 X86ELFMCLinker::~X86ELFMCLinker()
