@@ -22,8 +22,7 @@ namespace llvm {
 class StringRef;
 }
 
-namespace mcld
-{
+namespace mcld {
 
 class LDSymbol;
 class LDSection;
