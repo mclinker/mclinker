@@ -59,18 +59,12 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
 ObjectLinker::~ObjectLinker()
 {
   delete m_pLinker;
-  if (NULL != m_pObjectReader)
-    delete m_pObjectReader;
-  if (NULL != m_pDynObjReader)
-    delete m_pDynObjReader;
-  if (NULL != m_pArchiveReader)
-    delete m_pArchiveReader;
-  if (NULL != m_pObjectWriter)
-    delete m_pObjectWriter;
-  if (NULL != m_pDynObjWriter)
-    delete m_pDynObjWriter;
-  if (NULL != m_pExecWriter)
-    delete m_pExecWriter;
+  delete m_pObjectReader;
+  delete m_pDynObjReader;
+  delete m_pArchiveReader;
+  delete m_pObjectWriter;
+  delete m_pDynObjWriter;
+  delete m_pExecWriter;
   delete m_pGroupReader;
 }
 
