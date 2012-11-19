@@ -65,6 +65,11 @@ void LDSymbol::Destroy(LDSymbol*& pSymbol)
   pSymbol = NULL;
 }
 
+void LDSymbol::Clear()
+{
+  g_LDSymbolFactory->clear();
+}
+
 LDSymbol* LDSymbol::Null()
 {
   if (NULL == g_NullSymbol) {

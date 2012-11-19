@@ -42,6 +42,9 @@ public:
 
   static void Destroy(LDSymbol*& pSymbol);
 
+  /// Clear - This function tells MCLinker to clear all created LDSymbols.
+  static void Clear();
+
   /// NullSymbol() - This returns a reference to a LDSymbol that represents Null
   /// symbol.
   static LDSymbol* Null();
