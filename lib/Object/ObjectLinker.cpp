@@ -54,6 +54,10 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pExecWriter(NULL),
     m_pGroupReader(NULL)
 {
+  // set up soname
+  if (!m_Config.options().soname().empty()) {
+    m_Module.setName(m_Config.options().soname());
+  }
 }
 
 ObjectLinker::~ObjectLinker()
@@ -72,10 +76,11 @@ ObjectLinker::~ObjectLinker()
 ///  Connect all components with FragmentLinker
 bool ObjectLinker::initFragmentLinker()
 {
-  if (NULL == m_pLinker)
+  if (NULL == m_pLinker) {
     m_pLinker = new FragmentLinker(m_Config,
                                    m_Module,
                                    m_LDBackend);
+  }
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
