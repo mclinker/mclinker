@@ -160,11 +160,19 @@ void ObjectLinker::normalize()
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
-        (*input)->type() == Input::Object ||
-        (*input)->type() == Input::DynObj  ||
         (*input)->type() == Input::Archive ||
         (*input)->type() == Input::External)
       continue;
+
+    if (Input::Object == (*input)->type()) {
+      m_Module.getObjectList().push_back(*input);
+      continue;
+    }
+
+    if (Input::DynObj == (*input)->type()) {
+      m_Module.getLibraryList().push_back(*input);
+      continue;
+    }
 
     // is a relocatable object file
     if (getObjectReader()->isMyFormat(**input)) {
