@@ -56,14 +56,10 @@ MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
-  // NOTE: we let iplist<Relocation> destroy relocations
-  // delete m_pRelocFactory;
-  if (NULL != m_pGOT)
-    delete m_pGOT;
-  if (NULL != m_pRelDyn)
-    delete m_pRelDyn;
-  if (NULL != m_pDynamic)
-    delete m_pDynamic;
+  delete m_pRelocFactory;
+  delete m_pGOT;
+  delete m_pRelDyn;
+  delete m_pDynamic;
 }
 
 void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
