@@ -8,4 +8,4 @@ else
 SUBDIRS = optimized
 endif
 
-EXTRA_DIST = ./docs/MCLinker.dia ./test ./autogen.sh
+EXTRA_DIST = ./docs/MCLinker.dia ./autogen.sh
