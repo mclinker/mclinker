@@ -461,7 +461,9 @@ ArgColor("color",
       "surround result strings only if the output is a tty"),
     clEnumValEnd));
 
-// FIXME: begin of unsupported options
+/// @{
+/// @name FIXME: begin of unsupported options
+/// @}
 static cl::opt<bool>
 ArgGCSections("gc-sections",
               cl::desc("Enable garbage collection of unused input sections."),
@@ -594,7 +596,9 @@ static cl::alias
 ArgForceUndefinedAlias("undefined",
                        cl::desc("alias for -u"),
                        cl::aliasopt(ArgForceUndefined));
-// FIXME: end of unsupported options
+/// @{
+/// @name FIXME: end of unsupported options
+/// @}
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
