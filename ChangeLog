@@ -1,3 +1,55 @@
+2012-11-20 Luba Tang <lubatang@gmail.com>
+	* Executive Summary:
+	1. Improve linking speed about x30 via new algorithm and architecture.
+	2. Enhance GNU ld compatibility. MCLinker is able to link all libraries
+	   and programs of Android. (Few libraries have to revise their linking options)
+	3. Enhance GNU ld compatibility. MCLinker is able to link all libraries
+	   and programs of BSD base system 4.3. (Some options that needed by 4.4
+	   are unsupported yet).
+	4. Support ARM EH ABI.
+	5. Provide IRBuilder. Users can customize the content of input file and
+	   make their customized linker by IRBuilder.
+	6. Add basic elements for support partial linking in the future.
+
+	* Command Line Options:
+	1. Support --strip-debug/-S
+	2. Add --relocatable/-r option. MCLinker does not fully support -r yet.
+	3. Add some fake options to compatible with GNU ld.
+
+	* Target/TargetMachine, LD/ELFObjectFileFormat, LD/ELFObjectWriter,
+	Target/GNULDBackend, CodeGen/MCLDTargetMachine:
+	1. Add CGFT_PARTIAL code generation type.
+	2. Add ELFObjectFileFormat to initialize the output format of -r.
+	3. Add ELFObjectWriter to write the output of partial linking.
+	4. Add GNULDBackend::createObjectWriter().
+	5. rename CodeGen/LLVMTargetMachine as CodeGen/MCLDTargetMachine.
+	6. Support R_386_TLS_GOTIE relocation
+	7. Define __exidx_start and __exidx_end ARM standard symbols
+	8. Define __DYNAMIC symbol
+	9. For GNU ld compatibility, check if a symbol is a C identifier in GNULDBackend.
+
+	* New Architecture:
+	1.  Add FragmentRef::Create/Destroy. Use factory method instead of simple factory.
+	2.  Add LDSymbol::Create/Destroy and ResolveInfo::Create/Destroy
+	3.  Add LDSection::Create/Restroy
+	4.  Reduce the functionalities of Layout. Let layout to focus on section order.
+	5.  Calculate Fragments' offset when appending them into section data.
+	6.  Remove SectionMerger.
+	7.  Move SectionMap to LinkerConfig
+	8.  Rewrite EhFrame. Separate origin EhFrame into EhFrameReader and EhFrame data.
+	9.  Let ObjectReader controls EhFrame::treatAsRegularSection() flag.
+	10. Add Null objects for ResolveInfo, FragmentRef, and LDSymbol.
+	11. Add RelocData to store relocation entries.
+	12. LDSection can point to either a SectionData, a RelocData or a EhFrame.
+	13. Add ObjectLinker and ObjectBuilder. ObjectBuilder is used to build target and
+	    format independent data structure. ObjectLinker is used to link object with
+	    target and format dependent behaviors.
+	14. Remove section-related methods in FragmentLinker. Move them into builders.
+	15. Separate the `read relocation' stage into `read' and `scan' stages.
+	16. Add Environment.h. Provide Initialize() and Finalize() to simplify the
+	    initiliazation of MCLinker.
+	17. Add Linker.h. A modular linker. The core of MCLinker.
+
 2012-10-04 Chinyen Chou <petechou@gmail.com>
 	* Executive Summary:
 	1. Add TLS support and X86 implementation.
