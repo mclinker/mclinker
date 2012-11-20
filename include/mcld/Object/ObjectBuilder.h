@@ -13,7 +13,10 @@
 #endif
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/EhFrame.h>
+
 #include <llvm/Support/DataTypes.h>
+
+#include <string>
 
 namespace mcld {
 
