@@ -341,7 +341,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/BranchIslandFactory.h \
 	${LIBDIR}/LD/BranchIslandFactory.cpp \
 	${INCDIR}/LD/StubFactory.h \
-	${LIBDIR}/LD/StubFactory.cpp
+	${LIBDIR}/LD/StubFactory.cpp \
+	${INCDIR}/LD/SectionSymbolSet.h \
+	${LIBDIR}/LD/SectionSymbolSet.cpp
 
 ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
 
