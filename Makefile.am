@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign
 if ENABLE_UNITTEST
 SUBDIRS = utils debug test
 else
-SUBDIRS = optimized test
+SUBDIRS = optimized
 endif
 
 EXTRA_DIST = ./docs/MCLinker.dia ./test ./autogen.sh

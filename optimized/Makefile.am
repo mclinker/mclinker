@@ -53,7 +53,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/Support/raw_mem_ostream.h \
 	${LIBDIR}/Support/raw_mem_ostream.cpp \
-	${INCDIR}/Support/ToolOutputFile.h\
+	${INCDIR}/Support/ToolOutputFile.h \
 	${LIBDIR}/Support/ToolOutputFile.cpp \
 	${INCDIR}/Support/CommandLine.h \
 	${LIBDIR}/Support/CommandLine.cpp \
@@ -77,8 +77,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
 	${INCDIR}/Target/SymbolEntryMap.h \
-	${INCDIR}/Target/PLT.h\
-	${LIBDIR}/Target/PLT.cpp\
+	${INCDIR}/Target/PLT.h \
+	${LIBDIR}/Target/PLT.cpp \
 	${INCDIR}/Target/GOT.h \
 	${LIBDIR}/Target/GOT.cpp \
 	${INCDIR}/Target/TargetMachine.h \
@@ -255,7 +255,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
 	${INCDIR}/LD/Layout.h \
-	${LIBDIR}/LD/Layout.cpp\
+	${LIBDIR}/LD/Layout.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/StaticResolver.h \
