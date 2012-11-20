@@ -225,6 +225,13 @@ public:
   bool exportDynamic() const
   { return m_ExportDynamic; }
 
+  // --warn-shared-textrel
+  void setWarnSharedTextrel(bool pWarnSharedTextrel = true)
+  { m_WarnSharedTextrel = pWarnSharedTextrel; }
+
+  bool warnSharedTextrel() const
+  { return m_WarnSharedTextrel; }
+
 private:
   enum status {
     YES,
@@ -270,6 +277,7 @@ private:
   bool m_OMagic; // -N, --omagic
   bool m_StripDebug; // -S, --strip-debug
   bool m_ExportDynamic; //-E, --export-dynamic
+  bool m_WarnSharedTextrel; // --warn-shared-textrel
 };
 
 } // namespace of mcld

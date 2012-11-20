@@ -13,6 +13,7 @@
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;
 using namespace elf_dynamic;
@@ -243,8 +244,13 @@ void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
     applyOne(llvm::ELF::DT_RELAENT, m_pEntryFactory->relaSize()); // DT_RELAENT
   }
 
-  if (m_Backend.hasTextRel())
+  if (m_Backend.hasTextRel()) {
     applyOne(llvm::ELF::DT_TEXTREL, 0x0); // DT_TEXTREL
+
+    if (pConfig.options().warnSharedTextrel() &&
+        LinkerConfig::DynObj == pConfig.codeGenType())
+      mcld::warning(mcld::diag::warn_shared_textrel);
+  }
 
   uint64_t dt_flags = 0x0;
   if (pConfig.options().hasOrigin())

@@ -46,7 +46,8 @@ GeneralOptions::GeneralOptions()
     m_NMagic(false),
     m_OMagic(false),
     m_StripDebug(false),
-    m_ExportDynamic(false)
+    m_ExportDynamic(false),
+    m_WarnSharedTextrel(false)
 {
 }
 

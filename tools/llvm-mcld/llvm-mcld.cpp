@@ -596,9 +596,15 @@ static cl::alias
 ArgForceUndefinedAlias("undefined",
                        cl::desc("alias for -u"),
                        cl::aliasopt(ArgForceUndefined));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
+
+static cl::opt<bool>
+ArgWarnSharedTextrel("warn-shared-textrel",
+                     cl::desc("Warn if adding DT_TEXTREL in a shared object."),
+                     cl::init(false));
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
@@ -831,6 +837,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setOMagic(ArgOMagic);
   pConfig.options().setStripDebug(ArgStripDebug);
   pConfig.options().setExportDynamic(ArgExportDynamic);
+  pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
