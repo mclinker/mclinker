@@ -446,7 +446,7 @@ X86RelocationFactory::Result tls_gd(Relocation& pReloc,
     else {
       // for non-local symbol, add a pair of rel entries against this symbol
       // for those two got entries
-      Relocation& rel_entry2 = helper_DynRel(rsym, *got_entry2, 0x0,
+      helper_DynRel(rsym, *got_entry2, 0x0,
                                         llvm::ELF::R_386_TLS_DTPOFF32, pParent);
     }
   }
@@ -570,11 +570,11 @@ X86RelocationFactory::Result tls_le(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
   if (pReloc.symInfo()->reserved() & X86GNULDBackend::ReserveRel) {
-    Relocation& rel_entry = helper_DynRel(rsym,
-                                          *pReloc.targetRef().frag(),
-                                          pReloc.targetRef().offset(),
-                                          llvm::ELF::R_386_TLS_TPOFF,
-                                          pParent);
+    helper_DynRel(rsym,
+                  *pReloc.targetRef().frag(),
+                  pReloc.targetRef().offset(),
+                  llvm::ELF::R_386_TLS_TPOFF,
+                  pParent);
     return X86RelocationFactory::OK;
   }
 

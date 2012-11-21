@@ -80,7 +80,7 @@ X86PLT::X86PLT(LDSection& pSection,
       m_PLT0Size = sizeof (x86_exec_plt0);
       m_PLT1Size = sizeof (x86_exec_plt1);
   }
-  X86PLT0* plt0_entry = new X86PLT0(*m_SectionData, m_PLT0Size);
+  new X86PLT0(*m_SectionData, m_PLT0Size);
 
   m_Last = m_SectionData->begin();
 }
