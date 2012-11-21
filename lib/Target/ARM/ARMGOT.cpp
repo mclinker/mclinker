@@ -33,7 +33,7 @@ ARMGOT::ARMGOT(LDSection& pSection)
   reserve(ARMGOT0Num);
 
   // Skip GOT0 entries.
-  for (int i = 0; i < ARMGOT0Num; ++i) {
+  for (unsigned int i = 0; i < ARMGOT0Num; ++i) {
     consume();
   }
 }
