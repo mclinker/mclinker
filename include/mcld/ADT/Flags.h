@@ -28,10 +28,10 @@ public:
   Flags(Enum pFlag)
   : m_Data(pFlag) {}
 
-  Flags(int pFlag = 0x0)
+  Flags(unsigned int pFlag = 0x0)
   : m_Data(pFlag) {}
 
-  operator int () const
+  operator unsigned int () const
   { return m_Data; }
 
   bool operator! () const
@@ -45,11 +45,6 @@ public:
 
   Flags operator& (Enum pMask ) const
   { return Flags(m_Data & pMask); }
-
-  Flags& operator&= (int pMask ) {
-    m_Data &= pMask;
-    return *this;
-  }
 
   Flags& operator&= (unsigned int pMask ) {
     m_Data &= pMask;
@@ -97,7 +92,7 @@ public:
   { return Flags(~m_Data); }
 
 private:
-  int m_Data;
+  unsigned int m_Data;
 };
 
 } // namespace of mcld
