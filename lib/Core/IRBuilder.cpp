@@ -152,7 +152,7 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 
   if (NULL == path) {
     fatal(diag::err_cannot_find_namespec) << pNameSpec;
-    return false;
+    return NULL;
   }
 
   m_InputBuilder.createNode<InputTree::Positional>(pNameSpec, *path);
