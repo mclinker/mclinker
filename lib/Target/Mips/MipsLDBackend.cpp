@@ -401,6 +401,10 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       file_format->getStrTab().setSize(strtab);
       break;
     }
+    default: {
+      fatal(diag::fatal_illegal_codegen_type) << pModule.name();
+      break;
+    }
   } // end of switch
   /// @}
 
