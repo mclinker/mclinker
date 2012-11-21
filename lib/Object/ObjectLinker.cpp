@@ -308,7 +308,6 @@ bool ObjectLinker::addStandardSymbols()
   // create and add section symbols for each output section
   Module::iterator iter, iterEnd = m_Module.end();
   for (iter = m_Module.begin(); iter != iterEnd; ++iter) {
-    LDSection* section = *iter;
     m_Module.getSectionSymbolSet().add(**iter, m_Module.getNamePool());
   }
 
