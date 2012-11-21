@@ -72,17 +72,17 @@ void ReadStageTest::TearDown()
 void ReadStageTest::dumpInput(const mcld::Input &pInput, mcld::FileHandle &pFile, size_t pIdent)
 {
   stringstream sstream;
-  for (int i=0; i < pIdent; ++i)
+  for (size_t i=0; i < pIdent; ++i)
     sstream << " ";
   sstream << "<input name=\"" << pInput.name() << "\">\n";
 
   LDContext::const_sect_iterator sect, sectEnd = pInput.context()->sectEnd();
   for (sect = pInput.context()->sectBegin(); sect != sectEnd; ++sect) {
-    for (int i=0; i < (pIdent+1); ++i)
+    for (size_t i=0; i < (pIdent+1); ++i)
       sstream << " ";
     sstream << "<section name=\"" << (*sect)->name() << "\"/>\n";
   }
-  for (int i=0; i < pIdent; ++i)
+  for (size_t i=0; i < pIdent; ++i)
     sstream << " ";
   sstream << "</input>\n";
 
@@ -94,17 +94,17 @@ void ReadStageTest::dumpInput(const mcld::Input &pInput, mcld::FileHandle &pFile
 void ReadStageTest::dumpOutput(const mcld::Module& pModule, mcld::FileHandle &pFile, size_t pIdent)
 {
   stringstream sstream;
-  for (int i=0; i < pIdent; ++i)
+  for (size_t i=0; i < pIdent; ++i)
     sstream << " ";
   sstream << "<output name=\"" << m_pLinker->module()->name() << "\">\n";
 
   Module::const_iterator sect, sectEnd = pModule.end();
   for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-    for (int i=0; i < (pIdent+1); ++i)
+    for (size_t i=0; i < (pIdent+1); ++i)
       sstream << " ";
     sstream << "<section name=\"" << (*sect)->name() << "\"/>\n";
   }
-  for (int i=0; i < pIdent; ++i)
+  for (size_t i=0; i < pIdent; ++i)
     sstream << " ";
   sstream << "</output>\n";
 

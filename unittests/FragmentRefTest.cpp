@@ -53,12 +53,12 @@ TEST_F( FragmentRefTest, ) {
   FragmentRef *ref = FragmentRef::Create(*frag, 0x0);
 
   ASSERT_EQ('H', region->getBuffer()[0]);
-  ASSERT_EQ(4096, region->size());
+  ASSERT_TRUE(4096 == region->size());
   ASSERT_EQ('H', frag->getRegion().getBuffer()[0]);
-  ASSERT_EQ(4096, frag->getRegion().size());
+  ASSERT_TRUE(4096 == frag->getRegion().size());
   ASSERT_EQ(frag, ref->frag());
   ASSERT_EQ('H', static_cast<RegionFragment*>(ref->frag())->getRegion().getBuffer()[0]);
-  ASSERT_EQ(4096, static_cast<RegionFragment*>(ref->frag())->getRegion().size());
+  ASSERT_TRUE(4096 == static_cast<RegionFragment*>(ref->frag())->getRegion().size());
   ASSERT_EQ('H', ref->deref()[0]);
 
   ASSERT_TRUE(RegionFragment::classof(frag));

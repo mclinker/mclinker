@@ -97,9 +97,9 @@ TEST_F( HashTableTest, ptr_entry ) {
 TEST_F( HashTableTest, constructor ) {
   typedef HashEntry<int, int, IntCompare> HashEntryType;
   HashTable<HashEntryType, IntHash, EntryFactory<HashEntryType> > hashTable(16);
-  EXPECT_EQ(17, hashTable.numOfBuckets());
+  EXPECT_TRUE(17 == hashTable.numOfBuckets());
   EXPECT_TRUE(hashTable.empty());
-  EXPECT_EQ(0, hashTable.numOfEntries());
+  EXPECT_TRUE(0 == hashTable.numOfEntries());
 }
 
 TEST_F( HashTableTest, allocattion ) {
@@ -126,18 +126,18 @@ TEST_F( HashTableTest, alloc100 ) {
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<100; ++key) {
+  for (int key=0; key<100; ++key) {
     entry = hashTable->insert(key, exist);
     EXPECT_FALSE(hashTable->empty());
     EXPECT_FALSE(exist);
     EXPECT_FALSE(NULL == entry);
-    EXPECT_EQ(key, entry->key());
+    EXPECT_TRUE(key == entry->key());
     entry->setValue(key+10);
   }
 
   EXPECT_FALSE(hashTable->empty());
-  EXPECT_EQ(100, hashTable->numOfEntries());
-  EXPECT_EQ(197, hashTable->numOfBuckets());
+  EXPECT_TRUE(100 == hashTable->numOfEntries());
+  EXPECT_TRUE(197 == hashTable->numOfBuckets());
   delete hashTable;
 }
 
@@ -179,7 +179,6 @@ TEST_F( HashTableTest, clear) {
 
   hashTable->clear();
 
-  int count;
   HashTableTy::iterator iter;
   for (unsigned int key=0; key<100; ++key) {
     iter = hashTable->find(key);
@@ -210,7 +209,7 @@ TEST_F( HashTableTest, tombstone ) {
     iter = hashTable->find(key);
     EXPECT_TRUE(iter == hashTable->end());
   }
-  EXPECT_EQ(80, hashTable->numOfEntries());
+  EXPECT_TRUE(80 == hashTable->numOfEntries());
 
   for (unsigned int key=20; key<100; ++key) {
     iter = hashTable->find(key);
@@ -220,8 +219,8 @@ TEST_F( HashTableTest, tombstone ) {
   for (unsigned int key=0; key<20; ++key) {
     entry = hashTable->insert(key, exist);
   }
-  EXPECT_EQ(100, hashTable->numOfEntries());
-  EXPECT_EQ(197, hashTable->numOfBuckets());
+  EXPECT_TRUE(100 == hashTable->numOfEntries());
+  EXPECT_TRUE(197 == hashTable->numOfBuckets());
 
   delete hashTable;
 }
@@ -239,7 +238,7 @@ TEST_F( HashTableTest, rehash_test ) {
   }
 
   HashTableTy::iterator iter;
-  for (unsigned int key=0; key<400000; ++key) {
+  for (int key=0; key<400000; ++key) {
     iter = hashTable->find(key);
     EXPECT_EQ((key+10), iter.getEntry()->value());
   }
@@ -260,7 +259,7 @@ TEST_F( HashTableTest, bucket_iterator ) {
   }
 
   HashTableTy::iterator iter, iEnd = hashTable->end();
-  unsigned int counter = 0;
+  int counter = 0;
   for (iter = hashTable->begin(); iter != iEnd; ++iter) {
     EXPECT_EQ(iter.getEntry()->key()+10, iter.getEntry()->value());
     ++counter;
@@ -277,12 +276,12 @@ TEST_F( HashTableTest, chain_iterator_single ) {
 
   bool exist;
   HashTableTy::entry_type* entry = 0;
-  for (unsigned int key=0; key<16; ++key) {
+  for (int key=0; key<16; ++key) {
     entry = hashTable->insert(key*37, exist);
     entry->setValue(key+10);
   }
-  for (unsigned int key=0; key<16; ++key) {
-    unsigned int counter = 0;
+  for (int key=0; key<16; ++key) {
+    int counter = 0;
     HashTableTy::chain_iterator iter, iEnd = hashTable->end(key*37);
     for (iter = hashTable->begin(key*37); iter != iEnd; ++iter) {
       EXPECT_EQ(key+10, iter.getEntry()->value());
@@ -313,11 +312,11 @@ TEST_F( HashTableTest, chain_iterator_list ) {
     ASSERT_FALSE(exist);
     entry->setValue(key);
   }
-  ASSERT_EQ(16, hashTable->numOfEntries());
-  ASSERT_EQ(37, hashTable->numOfBuckets());
+  ASSERT_TRUE(16 == hashTable->numOfEntries());
+  ASSERT_TRUE(37 == hashTable->numOfBuckets());
 
   unsigned int key = 0;
-  unsigned int count = 0;
+  int count = 0;
   HashTableTy::chain_iterator iter, iEnd = hashTable->end(key);
   for (iter = hashTable->begin(key); iter != iEnd; ++iter) {
     count++;

@@ -83,7 +83,7 @@ TEST_F( InputTreeTest, Basic_operation ) {
   ASSERT_TRUE(isGroup(node));
   ASSERT_TRUE(isGroup(const_node));
   ASSERT_FALSE(m_pAlloc->empty());
-  ASSERT_EQ(1, m_pAlloc->size());
+  ASSERT_TRUE(1 == m_pAlloc->size());
 
   --node;
 

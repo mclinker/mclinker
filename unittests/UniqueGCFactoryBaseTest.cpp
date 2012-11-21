@@ -47,7 +47,7 @@ TEST_F( UniqueGCFactoryBaseTest, number_constructor ) {
 	ContextFactory *contextFactory = new ContextFactory(10); 
 	contextFactory->produce("/");
 	contextFactory->produce("ab/c");
-	ASSERT_EQ( 2, contextFactory->size());
+	ASSERT_TRUE( 2 == contextFactory->size());
 	delete contextFactory;
 }
 
@@ -55,7 +55,7 @@ TEST_F( UniqueGCFactoryBaseTest, unique_produce ) {
 	ContextFactory *contextFactory = new ContextFactory(10); 
 	LDContext* context1 = contextFactory->produce("/");
 	contextFactory->produce("ab/c");
-	ASSERT_EQ( 2, contextFactory->size());
+	ASSERT_TRUE( 2 == contextFactory->size());
 	LDContext* context2 = contextFactory->produce("/");
 	ASSERT_EQ( context1, context2 );
 	delete contextFactory;
@@ -65,7 +65,7 @@ TEST_F( UniqueGCFactoryBaseTest, unique_produce2 ) {
 	ContextFactory *contextFactory = new ContextFactory(10); 
 	LDContext* context1 = contextFactory->produce("abc/def");
 	contextFactory->produce("ab/c");
-	ASSERT_EQ( 2, contextFactory->size());
+	ASSERT_TRUE( 2 == contextFactory->size());
 	LDContext* context2 = contextFactory->produce("ttt/../abc/def");
 	ASSERT_EQ( context1, context2 );
 	delete contextFactory;
@@ -86,7 +86,7 @@ TEST_F( UniqueGCFactoryBaseTest, iterator )
 	
 	ASSERT_EQ(area1, area3);
 	ASSERT_FALSE( memFactory->empty());
-	ASSERT_EQ( 2, memFactory->size());
+	ASSERT_TRUE( 2 == memFactory->size());
 	MemoryAreaFactory::iterator aIter = memFactory->begin();
 	ASSERT_EQ( area1, &(*aIter));
 	++aIter;

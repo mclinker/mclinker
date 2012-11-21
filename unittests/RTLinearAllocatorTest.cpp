@@ -43,31 +43,31 @@ void RTLinearAllocatorTest::TearDown()
 TEST_F(RTLinearAllocatorTest, AllocateN) {
 	Data* pointer = m_pTestee->allocate(10);
 	ASSERT_FALSE(0 == pointer);
-	ASSERT_EQ(CHUNK_SIZE, m_pTestee->max_size());
+	ASSERT_TRUE(CHUNK_SIZE == m_pTestee->max_size());
 	ASSERT_FALSE(m_pTestee->empty());
 }
 
 TEST_F(RTLinearAllocatorTest, allocate ) {
 	Data* pointer = m_pTestee->allocate();
 	ASSERT_FALSE(0 == pointer);
-	ASSERT_EQ(CHUNK_SIZE, m_pTestee->max_size());
+	ASSERT_TRUE(CHUNK_SIZE == m_pTestee->max_size());
 	ASSERT_FALSE(m_pTestee->empty());
 }
 
 TEST_F(RTLinearAllocatorTest, allocateOver ) {
 	Data* pointer = m_pTestee->allocate(CHUNK_SIZE+1);
 	ASSERT_TRUE(0 == pointer);
-	ASSERT_EQ(0, m_pTestee->max_size());
+	ASSERT_TRUE(0 == m_pTestee->max_size());
 	ASSERT_TRUE(m_pTestee->empty());
 }
 
 TEST_F(RTLinearAllocatorTest, alloc_construct ) {
 	Data* pointer = m_pTestee->allocate();
 	m_pTestee->construct(pointer);
-	ASSERT_EQ(1, pointer->one);
-	ASSERT_EQ(2, pointer->two);
-	ASSERT_EQ(3, pointer->three);
-	ASSERT_EQ(4, pointer->four);
+	ASSERT_TRUE(1 == pointer->one);
+	ASSERT_TRUE(2 == pointer->two);
+	ASSERT_TRUE(3 == pointer->three);
+	ASSERT_TRUE(4 == pointer->four);
 }
 
 TEST_F(RTLinearAllocatorTest, alloc_constructCopy ) {
@@ -75,19 +75,19 @@ TEST_F(RTLinearAllocatorTest, alloc_constructCopy ) {
 	Data data(7, 7, 7, 7);
 	m_pTestee->construct(pointer, data);
 
-	ASSERT_EQ(7, pointer->one);
-	ASSERT_EQ(7, pointer->two);
-	ASSERT_EQ(7, pointer->three);
-	ASSERT_EQ(7, pointer->four);
+	ASSERT_TRUE(7 == pointer->one);
+	ASSERT_TRUE(7 == pointer->two);
+	ASSERT_TRUE(7 == pointer->three);
+	ASSERT_TRUE(7 == pointer->four);
 }
 
 TEST_F(RTLinearAllocatorTest, allocN_construct ) {
 	Data* pointer = m_pTestee->allocate(10);
 	m_pTestee->construct(pointer);
-	ASSERT_EQ(1, pointer->one);
-	ASSERT_EQ(2, pointer->two);
-	ASSERT_EQ(3, pointer->three);
-	ASSERT_EQ(4, pointer->four);
+	ASSERT_TRUE(1 == pointer->one);
+	ASSERT_TRUE(2 == pointer->two);
+	ASSERT_TRUE(3 == pointer->three);
+	ASSERT_TRUE(4 == pointer->four);
 }
 
 TEST_F(RTLinearAllocatorTest, allocN_constructCopy ) {
@@ -95,10 +95,10 @@ TEST_F(RTLinearAllocatorTest, allocN_constructCopy ) {
 	Data data(7, 7, 7, 7);
 	m_pTestee->construct(pointer, data);
 	
-	ASSERT_EQ(7, pointer->one);
-	ASSERT_EQ(7, pointer->two);
-	ASSERT_EQ(7, pointer->three);
-	ASSERT_EQ(7, pointer->four);
+	ASSERT_TRUE(7 == pointer->one);
+	ASSERT_TRUE(7 == pointer->two);
+	ASSERT_TRUE(7 == pointer->three);
+	ASSERT_TRUE(7 == pointer->four);
 }
 
 TEST_F(RTLinearAllocatorTest, multi_alloc_ctor_iterate ) {

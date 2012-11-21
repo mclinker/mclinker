@@ -80,10 +80,10 @@ TEST_F(SymbolCategoryTest, upward_test) {
   ++sym;
   ASSERT_STREQ("e", (*sym)->name());
 
-  ASSERT_EQ(2, m_pTestee->numOfLocals());
-  ASSERT_EQ(1, m_pTestee->numOfCommons());
-  ASSERT_EQ(2, m_pTestee->numOfRegulars());
-  ASSERT_EQ(5, m_pTestee->numOfSymbols());
+  ASSERT_TRUE(2 == m_pTestee->numOfLocals());
+  ASSERT_TRUE(1 == m_pTestee->numOfCommons());
+  ASSERT_TRUE(2 == m_pTestee->numOfRegulars());
+  ASSERT_TRUE(5 == m_pTestee->numOfSymbols());
 }
 
 TEST_F(SymbolCategoryTest, change_local_to_tls) {

@@ -56,12 +56,12 @@ TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
   SectionData* s = SectionData::Create(*test);
   EXPECT_TRUE(s->empty());
 
-  Fragment* f1 = new Fragment(Fragment::Alignment, s);
-  Fragment* f2 = new Fragment(Fragment::Alignment, s);
-  Fragment* f3 = new Fragment(Fragment::Region, s);
-  Fragment* f4 = new Fragment(Fragment::Fillment, s);
-  Fragment* f5 = new Fragment(Fragment::Relocation, s);
-  Fragment* f6 = new Fragment(Fragment::Target, s);
+  new Fragment(Fragment::Alignment, s);
+  new Fragment(Fragment::Alignment, s);
+  new Fragment(Fragment::Region, s);
+  new Fragment(Fragment::Fillment, s);
+  new Fragment(Fragment::Relocation, s);
+  new Fragment(Fragment::Target, s);
   EXPECT_TRUE(6 == s->size());
 
   //iterator

@@ -68,13 +68,13 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
   Finalize();
 }
 
-// %MCLinker --shared -soname=libplasma.so -Bsymbolic \
-// -mtriple="armv7-none-linux-gnueabi" \
-// -L=%p/../../../libs/ARM/Android/android-14 \
-// %p/../../../libs/ARM/Android/android-14/crtbegin_so.o \
-// %p/plasma.o \
-// -lm -llog -ljnigraphics -lc  \
-// %p/../../../libs/ARM/Android/android-14/crtend_so.o \
+// %MCLinker --shared -soname=libplasma.so -Bsymbolic
+// -mtriple="armv7-none-linux-gnueabi"
+// -L=%p/../../../libs/ARM/Android/android-14
+// %p/../../../libs/ARM/Android/android-14/crtbegin_so.o
+// %p/plasma.o
+// -lm -llog -ljnigraphics -lc
+// %p/../../../libs/ARM/Android/android-14/crtend_so.o
 // -o libplasma.so
 TEST_F( LinkerTest, plasma) {
 
@@ -328,7 +328,7 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   Finalize();
 }
 
-// %MCLinker --shared -soname=libgotplt.so -mtriple arm-none-linux-gnueabi \
+// %MCLinker --shared -soname=libgotplt.so -mtriple arm-none-linux-gnueabi
 // gotplt.o -o libgotplt.so
 TEST_F( LinkerTest, plasma_object) {
 
@@ -353,11 +353,11 @@ TEST_F( LinkerTest, plasma_object) {
   Input* input = builder.CreateInput("gotplt.o", gotplt_o, Input::Object);
 
   /// [ 0]                   NULL            00000000 000000 000000 00      0   0  0
-  LDSection* null = builder.CreateELFHeader(*input,
-                              "",
-                              LDFileFormat::Null,
-                              llvm::ELF::SHT_NULL,
-                              0x0);
+  builder.CreateELFHeader(*input,
+                          "",
+                          LDFileFormat::Null,
+                          llvm::ELF::SHT_NULL,
+                          0x0);
 
   /// [ 1] .text             PROGBITS        00000000 000034 000010 00  AX  0   0  4
   LDSection* text = builder.CreateELFHeader(*input,
@@ -375,18 +375,18 @@ TEST_F( LinkerTest, plasma_object) {
   builder.AppendFragment(*text_frag, *text_data);
 
   // [ 3] .data             PROGBITS        00000000 000044 000000 00  WA  0   0  4
-  LDSection* data = builder.CreateELFHeader(*input,
-                              ".data",
-                              llvm::ELF::SHT_PROGBITS,
-                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                              4);
+  builder.CreateELFHeader(*input,
+                          ".data",
+                          llvm::ELF::SHT_PROGBITS,
+                          llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                          4);
 
   // [ 4] .bss              NOBITS          00000000 000044 000000 00  WA  0   0  4
-  LDSection* bss = builder.CreateELFHeader(*input,
-                              ".bss",
-                              llvm::ELF::SHT_PROGBITS,
-                              llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
-                              4);
+  builder.CreateELFHeader(*input,
+                          ".bss",
+                          llvm::ELF::SHT_PROGBITS,
+                          llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                          4);
   // [ 5] .ARM.attributes   ARM_ATTRIBUTES  00000000 000044 000020 00      0   0  1
   LDSection* attr = builder.CreateELFHeader(*input,
                               ".ARM.attributes",

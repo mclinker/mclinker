@@ -58,7 +58,7 @@ void GCFactoryListTraitsTest::TearDown()
 //
 
 #define CHECK_NODE_VALUE(v_) do {  \
-  ASSERT_EQ(v_, it->getValue()); \
+  ASSERT_TRUE(v_ == it->getValue()); \
   it++; \
 } while (false)
 
@@ -77,26 +77,26 @@ void GCFactoryListTraitsTest::TearDown()
 } while (false)
 
 TEST_F( GCFactoryListTraitsTest, Basic) {
-  ASSERT_EQ(10, m_pNodeList.size());
+  ASSERT_TRUE(10 == m_pNodeList.size());
   CHECK_LIST_VALUE(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 }
 
 TEST_F( GCFactoryListTraitsTest, BasicAgain) {
-  ASSERT_EQ(10, m_pNodeList.size());
+  ASSERT_TRUE(10 == m_pNodeList.size());
   CHECK_LIST_VALUE(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 }
 
 TEST_F( GCFactoryListTraitsTest, Clear) {
   m_pNodeList.clear();
-  ASSERT_EQ(0, m_pNodeList.size());
+  ASSERT_TRUE(0 == m_pNodeList.size());
 }
 
 TEST_F( GCFactoryListTraitsTest, PushThenPop) {
   Node *NewNode = m_NodeFactory.produce(11);
   m_pNodeList.push_back(NewNode);
-  ASSERT_EQ(11, m_pNodeList.size());
+  ASSERT_TRUE(11 == m_pNodeList.size());
   m_pNodeList.pop_back();
-  ASSERT_EQ(10, m_pNodeList.size());
+  ASSERT_TRUE(10 == m_pNodeList.size());
 }
 
 TEST_F( GCFactoryListTraitsTest, CodeIterator) {
