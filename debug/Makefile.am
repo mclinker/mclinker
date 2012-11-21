@@ -395,7 +395,7 @@ else
 UNITTEST_SOURCE =
 endif
 
-ANDROID_CPPFLAGS=-Wformat -Werror=format-security -Werror=return-type -Werror=non-virtual-dtor -Werror=address -Werror=sequence-point
+ANDROID_CPPFLAGS=-Wall -fno-rtti -Werror
 
 noinst_LTLIBRARIES = ../lib/libmcld.debug.la
 
