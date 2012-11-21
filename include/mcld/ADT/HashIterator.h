@@ -30,7 +30,7 @@ public:
 
 public:
   ChainIteratorBase()
-  : m_pHashTable(0), m_HashValue(0), m_Index(0), m_EndIndex(0)
+  : m_pHashTable(0), m_Index(0), m_HashValue(0), m_EndIndex(0)
   { }
 
   ChainIteratorBase(HashTableImplTy* pTable, const key_type& pKey)
@@ -64,15 +64,15 @@ public:
   ChainIteratorBase(const ChainIteratorBase& pCopy)
   : m_pHashTable(pCopy.m_pHashTable),
     m_Index(pCopy.m_Index),
-    m_EndIndex(pCopy.m_EndIndex),
-    m_HashValue(pCopy.m_HashValue)
+    m_HashValue(pCopy.m_HashValue),
+    m_EndIndex(pCopy.m_EndIndex)
   { }
 
   ChainIteratorBase& assign(const ChainIteratorBase& pCopy) {
     m_pHashTable = pCopy.m_pHashTable;
     m_Index = pCopy.m_Index;
-    m_EndIndex = pCopy.m_EndIndex;
     m_HashValue = pCopy.m_HashValue;
+    m_EndIndex = pCopy.m_EndIndex;
     return *this;
   }
 
