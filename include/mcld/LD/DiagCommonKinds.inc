@@ -45,3 +45,4 @@ DIAG(fatal_forbid_nest_group, DiagnosticEngine::Fatal, "May not nest groups", "M
 DIAG(fatal_unwritable_output, DiagnosticEngine::Fatal, "unable to write output file %0", "unable to write output file %0")
 DIAG(warn_unsupported_option, DiagnosticEngine::Warning, "Option `%0' is not implemented yet!", "Option `%0' is not implemented yet!")
 DIAG(warn_shared_textrel, DiagnosticEngine::Warning, "Add DT_TEXTREL in a shared object!", "Add DT_TEXTREL in a shared object.")
+DIAG(fatal_illegal_codegen_type, DiagnosticEngine::Fatal, "illegal output format of output %0", "illegal output format of output %0")
