@@ -15,6 +15,7 @@
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ErrorHandling.h>
+#include <cctype>
 #include <functional>
 
 namespace mcld
