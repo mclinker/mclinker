@@ -52,6 +52,8 @@ private:
   typedef RelocData::iterator FragmentIterator;
 
 private:
+  Module& m_Module;
+
   /// m_pSection - LDSection of this Section
   LDSection* m_pSection;
 
@@ -67,8 +69,6 @@ private:
 
   /// m_ValidEntryIterator - point to the first valid entry
   FragmentIterator m_ValidEntryIterator;
-
-  Module& m_Module;
 };
 
 } // namespace of mcld

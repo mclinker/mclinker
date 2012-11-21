@@ -34,8 +34,8 @@ InputBuilder::InputBuilder(const LinkerConfig& pConfig,
                            bool pDelegate)
   : m_Config(pConfig),
     m_pInputFactory(&pInputFactory),
-    m_pContextFactory(&pContextFactory),
     m_pMemFactory(&pMemoryFactory),
+    m_pContextFactory(&pContextFactory),
     m_pCurrentTree(NULL), m_pMove(NULL), m_Root(),
     m_bOwnFactory(pDelegate) {
 

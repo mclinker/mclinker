@@ -195,8 +195,8 @@ MCLinker::MCLinker(LinkerConfig& pConfig,
     m_Config(pConfig),
     m_Module(pModule),
     m_Output(pOutput),
-    m_pLinker(NULL),
-    m_pBuilder(NULL) {
+    m_pBuilder(NULL),
+    m_pLinker(NULL) {
 }
 
 MCLinker::~MCLinker()

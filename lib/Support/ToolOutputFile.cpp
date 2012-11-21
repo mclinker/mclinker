@@ -26,7 +26,7 @@ using namespace mcld;
 // CleanupInstaller
 //===----------------------------------------------------------------------===//
 ToolOutputFile::CleanupInstaller::CleanupInstaller(const std::string& pName)
-  : m_Filename(pName), Keep(false) {
+  : Keep(false), m_Filename(pName) {
   // Arrange for the file to be deleted if the process is killed.
   if (m_Filename != "-")
     llvm::sys::RemoveFileOnSignal(llvm::sys::Path(m_Filename));

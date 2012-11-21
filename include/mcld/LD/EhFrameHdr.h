@@ -56,11 +56,11 @@ private:
   uint32_t computePCBegin(const EhFrame::FDE& pFDE, const MemoryRegion& pEhFrameRegion);
 
 private:
-  /// eh_frame
-  const LDSection& m_EhFrame;
-
   /// .eh_frame_hdr section
   LDSection& m_EhFrameHdr;
+
+  /// eh_frame
+  const LDSection& m_EhFrame;
 };
 
 //===----------------------------------------------------------------------===//
