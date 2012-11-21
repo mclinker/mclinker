@@ -49,7 +49,7 @@ ARMPLT1::ARMPLT1(SectionData& pParent)
 ARMPLT::ARMPLT(LDSection& pSection,
                ARMGOT &pGOTPLT)
   : PLT(pSection), m_GOT(pGOTPLT), m_PLTEntryIterator() {
-  ARMPLT0* plt0_entry = new ARMPLT0(*m_SectionData);
+  new ARMPLT0(*m_SectionData);
   m_PLTEntryIterator = m_SectionData->begin();
 }
 
