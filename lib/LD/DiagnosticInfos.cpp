@@ -128,16 +128,17 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;
-        break;
+          break;
         case LinkerConfig::DynObj:
           if (m_Config.options().isNoUndefined() || !m_Config.options().isAllowShlibUndefined())
             severity = DiagnosticEngine::Error;
           else
             severity = DiagnosticEngine::Ignore;
-        break;
+          break;
         case LinkerConfig::Exec:
+        default:
           severity = DiagnosticEngine::Error;
-        break;
+          break;
       }
       break;
     }
