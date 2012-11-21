@@ -250,7 +250,9 @@ struct RegisterTarget
       if( 0==strcmp(TIter->getName(), Name) )
         break;
     }
-    T.setTarget(*TIter);
+
+    if (TIter != TEnd)
+      T.setTarget(*TIter);
 
     TargetRegistry::RegisterTarget(T);
   }
