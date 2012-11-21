@@ -13,6 +13,7 @@
 #endif
 
 #include <mcld/ADT/Uncopyable.h>
+#include <cstddef>
 #include <map>
 
 #if defined(ENABLE_UNITTEST)
