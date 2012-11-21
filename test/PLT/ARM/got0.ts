@@ -1,5 +1,5 @@
 ; Build the shared library.
-; RUN: clang++ -emit-llvm -c -ccc-host-triple arm-none-linux-gnueabi \
+; RUN: clang++ -emit-llvm -c -target arm-none-linux-gnueabi \
 ; RUN: %p/gotplt.cpp -o Output/gotplt.bc
 
 ; RUN: %MCLinker -filetype=obj \

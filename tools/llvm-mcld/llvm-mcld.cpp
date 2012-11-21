@@ -25,6 +25,7 @@
 #include <llvm/Module.h>
 #include <llvm/PassManager.h>
 #include <llvm/Pass.h>
+#include <llvm/DataLayout.h>
 #include <llvm/ADT/Triple.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/MC/SubtargetFeature.h>
@@ -38,7 +39,6 @@
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/Support/Process.h>
-#include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetMachine.h>
 
 #if defined(HAVE_UNISTD_H)
@@ -1170,11 +1170,11 @@ int main(int argc, char* argv[])
   // Build up all of the passes that we want to do to the module.
   PassManager PM;
 
-  // Add the target data from the target machine, if it exists, or the module.
-  if (const TargetData *TD = TheTargetMachine.getTM().getTargetData())
-    PM.add(new TargetData(*TD));
-  else
-    PM.add(new TargetData(&mod));
+  // Add the data layout from the target machine, if it exists, or the module.
+  if (const DataLayout *DL = TheTargetMachine.getTM().getDataLayout())
+    PM.add(new DataLayout(*DL));
+   else
+    PM.add(new DataLayout(&mod));
 
   // Override default to generate verbose assembly.
   TheTargetMachine.getTM().setAsmVerbosityDefault(true);

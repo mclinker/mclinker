@@ -74,8 +74,8 @@ public:
                            mcld::LinkerConfig& pConfig,
                            bool DisableVerify = true);
 
-  /// getTargetData
-  const TargetData *getTargetData() const { return m_TM.getTargetData(); }
+  /// getDataLayout
+  const DataLayout *getDataLayout() const { return m_TM.getDataLayout(); }
 
   /// setAsmVerbosityDefault
   static void setAsmVerbosityDefault(bool pAsmVerbose) {

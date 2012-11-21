@@ -1,4 +1,4 @@
-RUN: clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -ccc-host-triple arm-none-linux-gnueabi
+RUN: clang++ -emit-llvm -S ./func.cpp -I. -o Output/func.ll -target arm-none-linux-gnueabi
 RUN: %MCLinker -filetype=asm -march=arm -dB ./Output/func.ll -o ./Output/func.s
 RUN: %MCLinker -filetype=obj -march=arm -dB ./Output/func.ll -o ./Output/func.o
 RUN: %MCLinker -filetype=dso -march=arm -dB ./Output/func.ll -o ./Output/func.so

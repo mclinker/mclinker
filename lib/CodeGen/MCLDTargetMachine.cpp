@@ -26,6 +26,7 @@
 #include <llvm/CodeGen/MachineModuleInfo.h>
 #include <llvm/CodeGen/GCStrategy.h>
 #include <llvm/CodeGen/Passes.h>
+#include <llvm/DataLayout.h>
 #include <llvm/MC/MCAsmInfo.h>
 #include <llvm/MC/MCStreamer.h>
 #include <llvm/MC/MCInstrInfo.h>
@@ -39,7 +40,6 @@
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/FormattedStream.h>
-#include <llvm/Target/TargetData.h>
 #include <llvm/Target/TargetInstrInfo.h>
 #include <llvm/Target/TargetLowering.h>
 #include <llvm/Target/TargetOptions.h>
@@ -283,7 +283,8 @@ bool mcld::MCLDTargetMachine::addCompilerPasses(PassManagerBase &pPM,
   MCAsmBackend *MAB = 0;
   if (ArgShowMCEncoding) {
     MCE = getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
-    MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+    MAB = getTarget().get()->createMCAsmBackend(m_Triple,
+                                                getTM().getTargetCPU());
   }
 
 
@@ -321,7 +322,8 @@ bool mcld::MCLDTargetMachine::addAssemblerPasses(PassManagerBase &pPM,
     getTarget().get()->createMCCodeEmitter(MII, MRI, STI, *Context);
 
   // MCAsmBackend
-  MCAsmBackend* MAB = getTarget().get()->createMCAsmBackend(m_Triple);
+  MCAsmBackend* MAB =
+    getTarget().get()->createMCAsmBackend(m_Triple,getTM().getTargetCPU());
   if (MCE == 0 || MAB == 0)
     return true;
 
