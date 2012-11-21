@@ -279,7 +279,7 @@ bool ELFObjectReader::readRelocations(Input& pInput)
     uint32_t offset = pInput.fileOffset() + (*rs)->offset();
     uint32_t size = (*rs)->size();
     MemoryRegion* region = mem->request(offset, size);
-    RelocData* rd = IRBuilder::CreateRelocData(**rs);
+    IRBuilder::CreateRelocData(**rs); ///< create relocation data for the header
     switch ((*rs)->type()) {
       case llvm::ELF::SHT_RELA: {
         if (!m_pELFReader->readRela(pInput, m_Linker, **rs, *region)) {
