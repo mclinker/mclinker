@@ -77,8 +77,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/CodeGen/MCLDTargetMachine.cpp \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
-        ${INCDIR}/Target/ELFEmulation.h \
-        ${LIBDIR}/Target/ELFEmulation.cpp \
+	${INCDIR}/Target/ELFEmulation.h \
+	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/SymbolEntryMap.h \
 	${INCDIR}/Target/PLT.h \
 	${LIBDIR}/Target/PLT.cpp \
@@ -112,7 +112,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
-        ${LIBDIR}/Target/ARM/ARMEmulation.cpp \
+	${LIBDIR}/Target/ARM/ARMEmulation.cpp \
 	${LIBDIR}/Target/ARM/ARMDiagnostic.cpp \
 	${LIBDIR}/Target/ARM/TargetInfo/ARMTargetInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMToARMStub.h \
@@ -136,7 +136,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.h \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.cpp \
-        ${LIBDIR}/Target/Mips/MipsEmulation.cpp \
+	${LIBDIR}/Target/Mips/MipsEmulation.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
@@ -156,7 +156,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86MCLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.h \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.cpp \
-        ${LIBDIR}/Target/X86/X86Emulation.cpp \
+	${LIBDIR}/Target/X86/X86Emulation.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
@@ -395,7 +395,7 @@ else
 UNITTEST_SOURCE =
 endif
 
-ANDROID_CPPFLAGS=-Wall -fno-rtti -Werror
+ANDROID_CPPFLAGS=-fno-rtti -Werror -Waddress -Wchar-subscripts -Wcomment -Wformat -Wnonnull -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var 
 
 noinst_LTLIBRARIES = ../lib/libmcld.debug.la
 
