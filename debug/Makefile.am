@@ -395,7 +395,7 @@ else
 UNITTEST_SOURCE =
 endif
 
-ANDROID_CPPFLAGS=-fno-rtti -Werror -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var 
+ANDROID_CPPFLAGS=-fno-rtti -Werror -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var -Wno-unnamed-type-template-args
 
 noinst_LTLIBRARIES = ../lib/libmcld.debug.la
 
