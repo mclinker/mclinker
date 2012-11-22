@@ -276,9 +276,9 @@ helper_extract_thumb_movw_movt_addend(ARMRelocationFactory::DWord pTarget)
 {
   // Consider the endianness problem, get the target data value from lower
   // and upper 16 bits
-  ARMRelocationFactory::DWord val =
-    (*(reinterpret_cast<uint16_t*>(&pTarget)) << 16) |
-    *(reinterpret_cast<uint16_t*>(&pTarget) + 1);
+  uint16_t* upper16 = reinterpret_cast<uint16_t*>(&pTarget);
+  uint16_t* lower16 = reinterpret_cast<uint16_t*>(&pTarget) + 1;
+  ARMRelocationFactory::DWord val = ((*upper16) << 16) | (*lower16);
 
   // imm16: [19-16][26][14-12][7-0]
   return helper_sign_extend((((val >> 4) & 0xf000U) |
@@ -292,7 +292,6 @@ static ARMRelocationFactory::DWord
 helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
                                        ARMRelocationFactory::DWord pImm)
 {
-  ARMRelocationFactory::DWord val;
   // imm16: [19-16][26][14-12][7-0]
   pTarget &= 0xfbf08f00U;
   pTarget |= (pImm & 0xf000U) << 4;
@@ -302,9 +301,9 @@ helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
 
   // Consider the endianness problem, write back data from lower and
   // upper 16 bits
-  val = (*(reinterpret_cast<uint16_t*>(&pTarget)) << 16) |
-        *(reinterpret_cast<uint16_t*>(&pTarget) + 1);
-  return val;
+  uint16_t* upper16 = reinterpret_cast<uint16_t*>(&pTarget);
+  uint16_t* lower16 = reinterpret_cast<uint16_t*>(&pTarget) + 1;
+  return ((*upper16) << 16) | (*lower16);
 }
 
 static ARMRelocationFactory::DWord
