@@ -564,7 +564,6 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
                 reinterpret_cast<llvm::ELF::Elf32_Sym*>(symbol_region->start());
 
   uint32_t st_name  = 0x0;
-  uint32_t st_size  = 0x0;
   uint8_t  st_info  = 0x0;
   uint8_t  st_other = 0x0;
   uint16_t st_shndx = 0x0;
@@ -572,12 +571,10 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
   st_other = entry->st_other;
   if (llvm::sys::isLittleEndianHost()) {
     st_name  = entry->st_name;
-    st_size  = entry->st_size;
     st_shndx = entry->st_shndx;
   }
   else {
     st_name  = bswap32(entry->st_name);
-    st_size  = bswap32(entry->st_size);
     st_shndx = bswap16(entry->st_shndx);
   }
 

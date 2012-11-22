@@ -52,10 +52,8 @@ size_t GOT::getEntrySize() const
 
 void GOT::reserve(size_t pNum)
 {
-  Entry* entry = NULL;
-
   for (size_t i = 0; i < pNum; i++) {
-    entry = new Entry(0, f_EntrySize, m_SectionData);
+    new Entry(0, f_EntrySize, m_SectionData);
   }
 }
 

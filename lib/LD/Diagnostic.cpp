@@ -87,8 +87,8 @@ void Diagnostic::format(const char* pBegin, const char* pEnd,
     // skip the %.
     ++cur_char;
 
-    const char* modifier = NULL, *argument = NULL;
-    size_t modifier_len = 0, argument_len = 0;
+    const char* modifier = NULL;
+    size_t modifier_len = 0;
 
     // we get a modifier
     if (!isdigit(*cur_char)) {
@@ -100,7 +100,6 @@ void Diagnostic::format(const char* pBegin, const char* pEnd,
       // we get an argument
       if ('{' == *cur_char) {
         ++cur_char; // skip '{'
-        argument = cur_char;
         cur_char = findMatch('}', cur_char, pEnd);
 
         if (cur_char == pEnd) {
@@ -109,7 +108,6 @@ void Diagnostic::format(const char* pBegin, const char* pEnd,
                                    llvm::Twine(getID()));
         }
 
-        argument_len = cur_char - argument;
         ++cur_char; // skip '}'
       }
     }
