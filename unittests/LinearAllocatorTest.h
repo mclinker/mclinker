@@ -63,7 +63,7 @@ public:
 	virtual void TearDown();
 
 protected:
-	enum { CHUNK_SIZE = 32 };
+	enum TemplateArgsType { CHUNK_SIZE = 32 };
 	typedef mcld::LinearAllocator<Data, CHUNK_SIZE> Alloc;
 protected:
 	Alloc* m_pTestee;
