@@ -12,8 +12,7 @@
 
 #include <cstddef>
 
-namespace mcld
-{
+namespace mcld {
 
 class NodeBase
 {
@@ -39,7 +38,7 @@ namespace proxy
 
 } // namespace of template proxy
 
-struct TreeIteratorBase
+class TreeIteratorBase
 {
 public:
   enum Direct {

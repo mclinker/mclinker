@@ -25,7 +25,7 @@ namespace mcld {
  *  @see LinearAllocator
  */
 template<typename DataType, size_t ChunkSize>
-struct Chunk
+class Chunk
 {
 public:
   typedef DataType value_type;
@@ -52,7 +52,7 @@ public:
 };
 
 template<typename DataType>
-struct Chunk<DataType, 0>
+class Chunk<DataType, 0>
 {
 public:
   typedef DataType value_type;

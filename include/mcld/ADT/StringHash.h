@@ -34,7 +34,7 @@ enum StringHashType
   BP,
   FNV,
   AP,
-  ES,
+  ES
 };
 
 /** \class template<uint32_t TYPE> StringHash
