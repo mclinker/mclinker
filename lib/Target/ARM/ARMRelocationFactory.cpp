@@ -571,13 +571,13 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     return ARMRelocationFactory::OK;
   }
 
-  // get lower and upper 16 bit instructions from relocation targetData
-  uint16_t upper16 = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
-  uint16_t lower16 = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  // get lower and upper 16-bit instructions from relocation targetData
+  ARMRelocationFactory::DWord upper_inst = pReloc.target() & 0xFFFF;
+  ARMRelocationFactory::DWord lower_inst = (pReloc.target() >> 16) & 0xFFFF;
 
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
-  ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper16,
-                                                               lower16);
+  ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper_inst,
+                                                               lower_inst);
   ARMRelocationFactory::Address P = pReloc.place();
   ARMRelocationFactory::Address S;
 
@@ -605,11 +605,11 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     // address
     S = helper_bit_select(S, P, 0x2);
     // rewrite instruction to BLX
-    lower16 &= ~0x1000U;
+    lower_inst &= ~0x1000U;
   }
   else {
     // otherwise, the instruction should be BL
-    lower16 |= 0x1000U;
+    lower_inst |= 0x1000U;
   }
 
   ARMRelocationFactory::DWord X = (S | T) - P;
@@ -619,13 +619,12 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     return ARMRelocationFactory::Overflow;
   }
 
-  upper16 = helper_thumb32_branch_upper(upper16, X);
-  lower16 = helper_thumb32_branch_lower(lower16, X);
+  upper_inst = helper_thumb32_branch_upper(upper_inst, X);
+  lower_inst = helper_thumb32_branch_lower(lower_inst, X);
 
- *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper16;
- *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower16;
+  pReloc.target() = upper_inst | (lower_inst << 16);
 
- return ARMRelocationFactory::OK;
+  return ARMRelocationFactory::OK;
 }
 
 // R_ARM_MOVW_ABS_NC: (S + A) | T
