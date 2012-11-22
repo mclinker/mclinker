@@ -448,7 +448,7 @@ protected:
     SHO_BSS,                 // .bss
     SHO_LARGE_BSS,           // .lbss
     SHO_UNDEFINED,           // default order
-    SHO_STRTAB,              // .strtab
+    SHO_STRTAB               // .strtab
   };
 
   struct SymCompare

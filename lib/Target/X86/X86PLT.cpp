@@ -178,8 +178,7 @@ void X86PLT::applyPLT0()
 // FIXME: It only works on little endian machine.
 void X86PLT::applyPLT1()
 {
-  uint64_t plt_base = m_Section.addr();
-  assert(plt_base && ".plt base address is NULL!");
+  assert(m_Section.addr() && ".plt base address is NULL!");
 
   X86PLT::iterator it = m_SectionData->begin();
   X86PLT::iterator ie = m_SectionData->end();

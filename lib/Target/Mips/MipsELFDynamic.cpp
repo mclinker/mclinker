@@ -21,7 +21,7 @@ enum {
   MIPS_BASE_ADDRESS = 0x70000006,
   MIPS_LOCAL_GOTNO  = 0x7000000a,
   MIPS_SYMTABNO     = 0x70000011,
-  MIPS_GOTSYM       = 0x70000013,
+  MIPS_GOTSYM       = 0x70000013
 };
 
 MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent)

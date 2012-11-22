@@ -58,7 +58,7 @@ public:
     kRelro         = 1 << 12, ///< [on] -z relro, [off] -z norelro
     kLazy          = 1 << 13, ///< [on] -z lazy, [off] -z now
     kOrigin        = 1 << 14, ///< -z origin
-    kZOptionMask   = 0xFFFF,
+    kZOptionMask   = 0xFFFF
   };
 
 public:

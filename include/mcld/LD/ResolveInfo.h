@@ -278,7 +278,7 @@ private:
    * |length of m_Name|reserved|Symbol|Type |ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
-  char m_Name[0];
+  char m_Name[];
 };
 
 } // namespace of mcld

@@ -93,7 +93,7 @@ private:
   enum {
     /// MaxArguments - The maximum number of arguments we can hold. We currently
     /// only support up to 10 arguments (%0-%9).
-    MaxArguments = 10,
+    MaxArguments = 10
   };
 
   struct State

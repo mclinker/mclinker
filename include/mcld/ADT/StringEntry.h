@@ -69,7 +69,7 @@ private:
 private:
   DataType m_Value;
   uint16_t m_KeyLen;
-  char m_Key[0];
+  char m_Key[];
 
   friend class StringEntryFactory<DataType>;
 };
@@ -123,7 +123,7 @@ private:
 private:
   llvm::StringRef m_Value;
   uint16_t m_KeyLen;
-  char m_Key[0];
+  char m_Key[];
 
   friend class StringEntryFactory<llvm::StringRef>;
 };

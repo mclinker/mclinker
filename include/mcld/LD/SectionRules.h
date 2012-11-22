@@ -75,7 +75,7 @@ private:
 private:
   const SectionMap& m_SectionNameMap;
   Module& m_Module;
-  RuleList m_RuleList;;
+  RuleList m_RuleList;
 };
 
 } // namespace of mcld

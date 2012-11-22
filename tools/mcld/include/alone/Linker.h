@@ -54,7 +54,7 @@ public:
     kReadSections,
     kReadSymbols,
     kAddAdditionalSymbols,
-    kMaxErrorCode,
+    kMaxErrorCode
   };
 
   static const char *GetErrorString(enum ErrorCode pErrCode);

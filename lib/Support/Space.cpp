@@ -73,9 +73,9 @@ Space* Space::Create(void* pMemBuffer, size_t pSize)
 Space* Space::Create(FileHandle& pHandler, size_t pStart, size_t pSize)
 {
   Type type;
-  void* memory;
+  void* memory = NULL;
   Space* result = NULL;
-  size_t start, size = 0, total_offset;
+  size_t start = 0, size = 0, total_offset;
   switch(type = policy(pStart, pSize)) {
     case ALLOCATED_ARRAY: {
       // adjust total_offset, start and size

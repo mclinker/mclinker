@@ -39,7 +39,6 @@ public:
 
 private:
   mcld::LinkerConfig* m_pConfig;
-  mcld::DiagnosticPrinter* m_pPrinter;
 };
 
 } // namespace of mcldtest
