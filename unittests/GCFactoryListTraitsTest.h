@@ -41,10 +41,11 @@ public:
     unsigned m_Init;
     unsigned m_Value;
 
-  private:
+  public:
+    Node() : m_Init(0), m_Value(0) { }
+
     Node(unsigned pInit) : m_Init(pInit), m_Value(pInit) { }
 
-  public:
     unsigned getInitialValue() const {
       return m_Init;
     }
