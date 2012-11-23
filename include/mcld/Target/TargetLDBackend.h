@@ -92,13 +92,7 @@ public:
   virtual DynObjWriter*  createDynObjWriter(FragmentLinker&) = 0;
   virtual ExecWriter*    createExecWriter(FragmentLinker&) = 0;
 
-  virtual bool initExecSections(ObjectBuilder& pBuilder) = 0;
-  virtual bool initDynObjSections(ObjectBuilder& pBuilder) = 0;
-  virtual bool initObjectSections(ObjectBuilder& pBuilder) = 0;
-
-  virtual LDFileFormat* getDynObjFileFormat() = 0;
-  virtual LDFileFormat* getExecFileFormat() = 0;
-  virtual LDFileFormat* getObjectFileFormat() = 0;
+  virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(Module& pModule, FragmentLinker& pLinker) = 0;

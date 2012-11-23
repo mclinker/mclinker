@@ -152,34 +152,31 @@ ELFExecWriter* GNULDBackend::createExecWriter(FragmentLinker& pLinker)
   return new ELFExecWriter(*this, pLinker);
 }
 
-bool GNULDBackend::initExecSections(ObjectBuilder& pBuilder)
+bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
 {
-  if (NULL == m_pExecFileFormat)
-    m_pExecFileFormat = new ELFExecFileFormat();
-
-  // initialize standard sections
-  m_pExecFileFormat->initStdSections(pBuilder, bitclass());
-  return true;
-}
-
-bool GNULDBackend::initDynObjSections(ObjectBuilder& pBuilder)
-{
-  if (NULL == m_pDynObjFileFormat)
-    m_pDynObjFileFormat = new ELFDynObjFileFormat();
-
-  // initialize standard sections
-  m_pDynObjFileFormat->initStdSections(pBuilder, bitclass());
-  return true;
-}
-
-bool GNULDBackend::initObjectSections(ObjectBuilder& pBuilder)
-{
-  if (NULL == m_pObjectFileFormat)
-    m_pObjectFileFormat = new ELFObjectFileFormat();
-
-  // initialize standard sections
-  m_pObjectFileFormat->initStdSections(pBuilder, bitclass());
-  return true;
+  switch (config().codeGenType()) {
+    case LinkerConfig::DynObj: {
+      if (NULL == m_pDynObjFileFormat)
+        m_pDynObjFileFormat = new ELFDynObjFileFormat();
+      m_pDynObjFileFormat->initStdSections(pBuilder, bitclass());
+      return true;
+    }
+    case LinkerConfig::Exec: {
+      if (NULL == m_pExecFileFormat)
+        m_pExecFileFormat = new ELFExecFileFormat();
+      m_pExecFileFormat->initStdSections(pBuilder, bitclass());
+      return true;
+    }
+    case LinkerConfig::Object: {
+      if (NULL == m_pObjectFileFormat)
+        m_pObjectFileFormat = new ELFObjectFileFormat();
+      m_pObjectFileFormat->initStdSections(pBuilder, bitclass());
+      return true;
+    }
+    default:
+      fatal(diag::unrecognized_output_file) << config().codeGenType();
+      return false;
+  }
 }
 
 /// initStandardSymbols - define and initialize standard symbols.
@@ -687,11 +684,14 @@ ELFFileFormat* GNULDBackend::getOutputFormat()
 {
   switch (config().codeGenType()) {
     case LinkerConfig::DynObj:
-      return getDynObjFileFormat();
+      assert(NULL != m_pDynObjFileFormat);
+      return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
-      return getExecFileFormat();
+      assert(NULL != m_pExecFileFormat);
+      return m_pExecFileFormat;
     case LinkerConfig::Object:
-      return getObjectFileFormat();
+      assert(NULL != m_pObjectFileFormat);
+      return m_pObjectFileFormat;
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
       return NULL;
@@ -702,51 +702,18 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
 {
   switch (config().codeGenType()) {
     case LinkerConfig::DynObj:
-      return getDynObjFileFormat();
+      assert(NULL != m_pDynObjFileFormat);
+      return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
-      return getExecFileFormat();
+      assert(NULL != m_pExecFileFormat);
+      return m_pExecFileFormat;
     case LinkerConfig::Object:
-      return getObjectFileFormat();
+      assert(NULL != m_pObjectFileFormat);
+      return m_pObjectFileFormat;
     default:
       fatal(diag::unrecognized_output_file) << config().codeGenType();
       return NULL;
   }
-}
-
-ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat()
-{
-  assert(NULL != m_pDynObjFileFormat);
-  return m_pDynObjFileFormat;
-}
-
-const ELFDynObjFileFormat* GNULDBackend::getDynObjFileFormat() const
-{
-  assert(NULL != m_pDynObjFileFormat);
-  return m_pDynObjFileFormat;
-}
-
-ELFExecFileFormat* GNULDBackend::getExecFileFormat()
-{
-  assert(NULL != m_pExecFileFormat);
-  return m_pExecFileFormat;
-}
-
-const ELFExecFileFormat* GNULDBackend::getExecFileFormat() const
-{
-  assert(NULL != m_pExecFileFormat);
-  return m_pExecFileFormat;
-}
-
-ELFObjectFileFormat* GNULDBackend::getObjectFileFormat()
-{
-  assert(NULL != m_pObjectFileFormat);
-  return m_pObjectFileFormat;
-}
-
-const ELFObjectFileFormat* GNULDBackend::getObjectFileFormat() const
-{
-  assert(NULL != m_pObjectFileFormat);
-  return m_pObjectFileFormat;
 }
 
 void GNULDBackend::partialScanRelocation(Relocation& pReloc,

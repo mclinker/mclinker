@@ -63,27 +63,12 @@ public:
   ELFExecWriter*   createExecWriter(FragmentLinker& pLinker);
 
   // -----  output sections  ----- //
-  /// initExecSections - initialize sections of the output executable file.
-  bool initExecSections(ObjectBuilder& pBuilder);
-
-  /// initDynObjSections - initialize sections of the output shared object.
-  bool initDynObjSections(ObjectBuilder& pBuilder);
-
-  /// initObjectSections - initialize sections of the output relocatable.
-  bool initObjectSections(ObjectBuilder& pBuilder);
+  /// initStdSections - initialize standard sections of the output file.
+  bool initStdSections(ObjectBuilder& pBuilder);
 
   /// getOutputFormat - get the sections of the output file.
   const ELFFileFormat* getOutputFormat() const;
   ELFFileFormat*       getOutputFormat();
-
-  ELFDynObjFileFormat* getDynObjFileFormat();
-  const ELFDynObjFileFormat* getDynObjFileFormat() const;
-
-  ELFExecFileFormat* getExecFileFormat();
-  const ELFExecFileFormat* getExecFileFormat() const;
-
-  ELFObjectFileFormat* getObjectFileFormat();
-  const ELFObjectFileFormat* getObjectFileFormat() const;
 
   // -----  target symbols ----- //
   /// initStandardSymbols - initialize standard symbols.

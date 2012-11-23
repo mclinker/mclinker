@@ -114,31 +114,8 @@ bool ObjectLinker::initStdSections()
   ObjectBuilder builder(m_Config, m_Module);
 
   // initialize standard sections
-  switch (m_Config.codeGenType()) {
-    case LinkerConfig::DynObj: {
-      // intialize standard and target-dependent sections
-      if (!m_LDBackend.initDynObjSections(builder))
-        return false;
-      break;
-    }
-    case LinkerConfig::Exec: {
-      // intialize standard and target-dependent sections
-      if (!m_LDBackend.initExecSections(builder))
-        return false;
-      break;
-    }
-    case LinkerConfig::Object: {
-      if (!m_LDBackend.initObjectSections(builder))
-        return false;
-      break;
-    }
-    default: {
-      llvm::report_fatal_error(llvm::Twine("unknown output type of file `") +
-                               m_Module.name() +
-                               llvm::Twine("'."));
-       return false;
-    }
-  } // end of switch
+  if (!m_LDBackend.initStdSections(builder))
+    return false;
 
   // initialize target-dependent sections
   m_LDBackend.initTargetSections(m_Module, builder);
