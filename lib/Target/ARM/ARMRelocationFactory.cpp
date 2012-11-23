@@ -272,38 +272,27 @@ helper_insert_val_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
 }
 
 static ARMRelocationFactory::DWord
-helper_extract_thumb_movw_movt_addend(ARMRelocationFactory::DWord pTarget)
+helper_extract_thumb_movw_movt_addend(ARMRelocationFactory::DWord pValue)
 {
-  // Consider the endianness problem, get the target data value from lower
-  // and upper 16 bits
-  uint16_t* upper16 = reinterpret_cast<uint16_t*>(&pTarget);
-  uint16_t* lower16 = reinterpret_cast<uint16_t*>(&pTarget) + 1;
-  ARMRelocationFactory::DWord val = ((*upper16) << 16) | (*lower16);
-
   // imm16: [19-16][26][14-12][7-0]
-  return helper_sign_extend((((val >> 4) & 0xf000U) |
-                             ((val >> 15) & 0x0800U) |
-                             ((val >> 4) & 0x0700U) |
-                             (val & 0x00ffU)),
+  return helper_sign_extend((((pValue >> 4) & 0xf000U) |
+                             ((pValue >> 15) & 0x0800U) |
+                             ((pValue >> 4) & 0x0700U) |
+                             (pValue& 0x00ffU)),
                             16);
 }
 
 static ARMRelocationFactory::DWord
-helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pTarget,
+helper_insert_val_thumb_movw_movt_inst(ARMRelocationFactory::DWord pValue,
                                        ARMRelocationFactory::DWord pImm)
 {
   // imm16: [19-16][26][14-12][7-0]
-  pTarget &= 0xfbf08f00U;
-  pTarget |= (pImm & 0xf000U) << 4;
-  pTarget |= (pImm & 0x0800U) << 15;
-  pTarget |= (pImm & 0x0700U) << 4;
-  pTarget |= (pImm & 0x00ffU);
-
-  // Consider the endianness problem, write back data from lower and
-  // upper 16 bits
-  uint16_t* upper16 = reinterpret_cast<uint16_t*>(&pTarget);
-  uint16_t* lower16 = reinterpret_cast<uint16_t*>(&pTarget) + 1;
-  return ((*upper16) << 16) | (*lower16);
+  pValue &= 0xfbf08f00U;
+  pValue |= (pImm & 0xf000U) << 4;
+  pValue |= (pImm & 0x0800U) << 15;
+  pValue |= (pImm & 0x0700U) << 4;
+  pValue |= (pImm & 0x00ffU);
+  return pValue;
 }
 
 static ARMRelocationFactory::DWord
@@ -571,9 +560,9 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
     return ARMRelocationFactory::OK;
   }
 
-  // get lower and upper 16-bit instructions from relocation targetData
-  ARMRelocationFactory::DWord upper_inst = pReloc.target() & 0xFFFF;
-  ARMRelocationFactory::DWord lower_inst = (pReloc.target() >> 16) & 0xFFFF;
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
 
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord A = helper_thumb32_branch_offset(upper_inst,
@@ -622,7 +611,8 @@ ARMRelocationFactory::Result thm_call(Relocation& pReloc,
   upper_inst = helper_thumb32_branch_upper(upper_inst, X);
   lower_inst = helper_thumb32_branch_lower(lower_inst, X);
 
-  pReloc.target() = upper_inst | (lower_inst << 16);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
 
   return ARMRelocationFactory::OK;
 }
@@ -730,8 +720,13 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
+
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  ARMRelocationFactory::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocationFactory::DWord A =
-      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
@@ -745,8 +740,11 @@ ARMRelocationFactory::Result thm_movw_abs_nc(Relocation& pReloc,
     }
   }
   X = (S + A) | T;
-  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                           X);
+
+  val = helper_insert_val_thumb_movw_movt_inst(val, X);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+
   return ARMRelocationFactory::OK;
 }
 
@@ -757,15 +755,21 @@ ARMRelocationFactory::Result thm_movw_prel_nc(Relocation& pReloc,
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place();
+
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  ARMRelocationFactory::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocationFactory::DWord A =
-      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
   X = ((S + A) | T) - P;
 
-  // check 16-bit overflow
-  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                           X);
+  val = helper_insert_val_thumb_movw_movt_inst(val, X);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+
   return ARMRelocationFactory::OK;
 }
 
@@ -777,15 +781,21 @@ ARMRelocationFactory::Result thm_movw_brel(Relocation& pReloc,
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord T = getThumbBit(pReloc);
   ARMRelocationFactory::DWord P = pReloc.place();
+
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  ARMRelocationFactory::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocationFactory::DWord A =
-      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
   X = ((S + A) | T) - P;
 
-  // check 16-bit overflow
-  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                           X);
+  val = helper_insert_val_thumb_movw_movt_inst(val, X);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+
   return ARMRelocationFactory::OK;
 }
 
@@ -795,8 +805,13 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
 {
   ResolveInfo* rsym = pReloc.symInfo();
   ARMRelocationFactory::Address S = pReloc.symValue();
+
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  ARMRelocationFactory::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocationFactory::DWord A =
-      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
@@ -816,8 +831,9 @@ ARMRelocationFactory::Result thm_movt_abs(Relocation& pReloc,
   if (helper_check_signed_overflow(X, 16)) {
     return ARMRelocationFactory::Overflow;
   } else {
-    pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                             X);
+    val = helper_insert_val_thumb_movw_movt_inst(val, X);
+    *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+    *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
     return ARMRelocationFactory::OK;
   }
 }
@@ -829,14 +845,22 @@ ARMRelocationFactory::Result thm_movt_prel(Relocation& pReloc,
 {
   ARMRelocationFactory::Address S = pReloc.symValue();
   ARMRelocationFactory::DWord P = pReloc.place();
+
+  // get lower and upper 16 bit instructions from relocation targetData
+  uint16_t upper_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()));
+  uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
+  ARMRelocationFactory::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocationFactory::DWord A =
-      helper_extract_thumb_movw_movt_addend(pReloc.target()) + pReloc.addend();
+      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
   ARMRelocationFactory::DWord X;
 
   X = S + A - P;
   X >>= 16;
-  pReloc.target() = helper_insert_val_thumb_movw_movt_inst(pReloc.target(),
-                                                             X);
+
+  val = helper_insert_val_thumb_movw_movt_inst(val, X);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+
   return ARMRelocationFactory::OK;
 }
 
