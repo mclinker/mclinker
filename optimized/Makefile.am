@@ -345,7 +345,11 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/SectionSymbolSet.h \
 	${LIBDIR}/LD/SectionSymbolSet.cpp
 
-ANDROID_CPPFLAGS=-Werror -Wall -fno-rtti
+ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var 
+
+if ENABLE_WERROR
+ANDROID_CPPFLAGS+=-Werror
+endif
 
 AM_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 

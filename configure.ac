@@ -76,6 +76,13 @@ AC_ARG_ENABLE(unittest,
              [unittest=false])
 AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 
+# Configure compiler warnings
+CHECK_WERROR_FLAGS
+CHECK_COMPILER_FLAG([-Wno-covered-switch-default])
+CHECK_COMPILER_FLAG([-Wno-variadic-macros])
+CHECK_COMPILER_FLAG([-Wno-c99-extensions])
+
+
 ####################
 # Check for header files
 AC_CHECK_HEADERS([dlfcn.h fcntl.h])
