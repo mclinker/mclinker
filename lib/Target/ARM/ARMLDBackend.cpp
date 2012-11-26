@@ -1061,11 +1061,7 @@ void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule,
 {
    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
      // make PT_ARM_EXIDX
-     // FIXME: once we have a patch for llvm/Support/ELF.h, we can refine this
-     enum {
-      PT_ARM_EXIDX = 0x70000001
-     };
-     ELFSegment* exidx_seg = elfSegmentTable().produce(PT_ARM_EXIDX,
+     ELFSegment* exidx_seg = elfSegmentTable().produce(llvm::ELF::PT_ARM_EXIDX,
                                                        llvm::ELF::PF_R);
      exidx_seg->addSection(m_pEXIDX);
    }
