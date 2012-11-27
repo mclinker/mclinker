@@ -201,6 +201,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/ScriptOptions.cpp \
 	${INCDIR}/BitcodeOption.h \
 	${LIBDIR}/Core/BitcodeOption.cpp \
+	${INCDIR}/TargetOptions.h \
+	${LIBDIR}/Core/TargetOptions.cpp \
 	${INCDIR}/AttributeOption.h \
 	${LIBDIR}/Core/AttributeOption.cpp \
 	${INCDIR}/IRBuilder.h \
