@@ -47,9 +47,8 @@ TEST_F( FragmentTest, Fragment_constructor ) {
   new Fragment(Fragment::Alignment, s);
   new Fragment(Fragment::Region, s);
   new Fragment(Fragment::Fillment, s);
-  new Fragment(Fragment::Relocation, s);
   new Fragment(Fragment::Target, s);
-  EXPECT_TRUE(6 == s->size());
+  EXPECT_TRUE(5 == s->size());
 
   LDSection::Destroy(test);
 //  SectionData::Destroy(s);

@@ -60,9 +60,8 @@ TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
   new Fragment(Fragment::Alignment, s);
   new Fragment(Fragment::Region, s);
   new Fragment(Fragment::Fillment, s);
-  new Fragment(Fragment::Relocation, s);
   new Fragment(Fragment::Target, s);
-  EXPECT_TRUE(6 == s->size());
+  EXPECT_TRUE(5 == s->size());
 
   //iterator
   llvm::iplist<Fragment>::iterator iter=s->begin();
@@ -73,8 +72,6 @@ TEST_F( SectionDataTest, Fragment_list_and_iterator ) {
   EXPECT_TRUE(Fragment::Region == iter->getKind());
   ++iter;
   EXPECT_TRUE(Fragment::Fillment == iter->getKind());
-  ++iter;
-  EXPECT_TRUE(Fragment::Relocation == iter->getKind());
   ++iter;
   EXPECT_TRUE(Fragment::Target == iter->getKind());
   ++iter;

@@ -33,7 +33,6 @@ public:
     Alignment,
     Fillment,
     Region,
-    Relocation,
     Target,
     Stub,
     Null

@@ -579,9 +579,6 @@ ELFWriter::emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const
         assert(0x0 == size);
         break;
       }
-      case Fragment::Relocation:
-        llvm::report_fatal_error("relocation fragment should not be in a regular section.\n");
-        break;
       case Fragment::Target:
         llvm::report_fatal_error("Target fragment should not be in a regular section.\n");
         break;
