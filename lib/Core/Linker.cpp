@@ -204,6 +204,8 @@ bool Linker::reset()
   m_pIRBuilder = NULL;
   m_pTarget = NULL;
 
+  // Because llvm::iplist will touch the removed node, we must clear
+  // RelocData before deleting target backend.
   RelocData::Clear();
 
   delete m_pBackend;
