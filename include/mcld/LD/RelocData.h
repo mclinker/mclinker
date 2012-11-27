@@ -56,8 +56,6 @@ public:
 public:
   static RelocData* Create(const LDSection& pSection);
 
-  static RelocData* Create();
-
   static void Destroy(RelocData*& pSection);
 
   const LDSection &getSection() const

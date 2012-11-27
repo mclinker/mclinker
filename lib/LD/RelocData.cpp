@@ -26,11 +26,6 @@ RelocData* RelocData::Create(const LDSection& pSection)
   return new RelocData(pSection);
 }
 
-RelocData* RelocData::Create()
-{
-  return new RelocData();
-}
-
 void RelocData::Destroy(RelocData*& pSection)
 {
   delete pSection;
