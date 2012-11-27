@@ -13,15 +13,11 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // RelocData
 //===----------------------------------------------------------------------===//
-RelocData::RelocData()
-  : m_pSection(NULL) {
+RelocData::RelocData(LDSection &pSection)
+  : m_Section(pSection) {
 }
 
-RelocData::RelocData(const LDSection &pSection)
-  : m_pSection(&pSection) {
-}
-
-RelocData* RelocData::Create(const LDSection& pSection)
+RelocData* RelocData::Create(LDSection& pSection)
 {
   return new RelocData(pSection);
 }

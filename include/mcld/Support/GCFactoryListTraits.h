@@ -17,8 +17,7 @@
 
 #include <assert.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class GCFactoryListTraits
  *  \brief GCFactoryListTraits provides trait class for llvm::iplist when

@@ -34,11 +34,7 @@ class LDSection;
 class RelocData
 {
 private:
-  RelocData();
-  explicit RelocData(const LDSection &pSection);
-
-  RelocData(const RelocData &);            // DO NOT IMPLEMENT
-  RelocData& operator=(const RelocData &); // DO NOT IMPLEMENT
+  explicit RelocData(LDSection &pSection);
 
 public:
   typedef llvm::iplist<Fragment,
@@ -54,15 +50,15 @@ public:
   typedef FragmentListType::const_reverse_iterator const_reverse_iterator;
 
 public:
-  static RelocData* Create(const LDSection& pSection);
+  static RelocData* Create(LDSection& pSection);
 
   static void Destroy(RelocData*& pSection);
 
-  const LDSection &getSection() const
-  { assert(NULL != m_pSection ); return *m_pSection; }
+  const LDSection& getSection() const { return m_Section; }
+  LDSection&       getSection()       { return m_Section; }
 
-  FragmentListType &getFragmentList() { return m_Fragments; }
-  const FragmentListType &getFragmentList() const { return m_Fragments; }
+  const FragmentListType& getFragmentList() const { return m_Fragments; }
+  FragmentListType&       getFragmentList()       { return m_Fragments; }
 
   size_t size() const { return m_Fragments.size(); }
 
@@ -84,7 +80,7 @@ public:
 
 private:
   FragmentListType m_Fragments;
-  const LDSection* m_pSection;
+  LDSection& m_Section;
 
 };
 
