@@ -64,6 +64,7 @@ AM_CONDITIONAL([HAVE_PTHREADS],[test "x$have_pthreads" == "xyes"])
 AC_SUBST(PTHREAD_CFLAGS)
 AC_SUBST(PTHREAD_LIBS)
 
+####################
 # Configure Unit-test
 AC_ARG_ENABLE(unittest,
             [AS_HELP_STRING([--enable-unittest],
@@ -76,6 +77,7 @@ AC_ARG_ENABLE(unittest,
              [unittest=false])
 AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 
+####################
 # Configure compiler warnings
 CHECK_WERROR_FLAGS
 CHECK_COMPILER_FLAG([-Wno-covered-switch-default])
