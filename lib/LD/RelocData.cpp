@@ -7,25 +7,44 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/RelocData.h>
+#include <mcld/Support/GCFactory.h>
+
+#include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
+
+typedef GCFactory<RelocData, MCLD_SECTIONS_PER_INPUT> RelocDataFactory;
+
+static llvm::ManagedStatic<RelocDataFactory> g_RelocDataFactory;
 
 //===----------------------------------------------------------------------===//
 // RelocData
 //===----------------------------------------------------------------------===//
+RelocData::RelocData()
+  : m_pSection(NULL) {
+}
+
 RelocData::RelocData(LDSection &pSection)
-  : m_Section(pSection) {
+  : m_pSection(&pSection) {
 }
 
 RelocData* RelocData::Create(LDSection& pSection)
 {
-  return new RelocData(pSection);
+  RelocData* result = g_RelocDataFactory->allocate();
+  new (result) RelocData(pSection);
+  return result;
 }
 
 void RelocData::Destroy(RelocData*& pSection)
 {
-  delete pSection;
+  pSection->~RelocData();
+  g_RelocDataFactory->deallocate(pSection);
   pSection = NULL;
+}
+
+void RelocData::Clear()
+{
+  g_RelocDataFactory->clear();
 }
 
 RelocData& RelocData::append(Relocation& pRelocation)

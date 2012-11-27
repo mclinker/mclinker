@@ -22,6 +22,7 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/RelocData.h>
 #include <mcld/Fragment/FragmentRef.h>
 
 #include <cassert>
@@ -202,6 +203,8 @@ bool Linker::reset()
   m_pModule = NULL;
   m_pIRBuilder = NULL;
   m_pTarget = NULL;
+
+  RelocData::Clear();
 
   delete m_pBackend;
   m_pBackend = NULL;

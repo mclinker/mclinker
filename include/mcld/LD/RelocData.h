@@ -26,14 +26,21 @@ namespace mcld {
 class LDSection;
 
 /** \class RelocData
- *  \brief RelocData is the special SectionData to store Relocation fragments.
+ *  \brief RelocData stores Relocation.
+ *
  *  Since Relocations are created by GCFactory, we use GCFactoryListTraits for the
- *  FragmentList here to avoid iplist to delete Relocations.
+ *  RelocationList here to avoid iplist to delete Relocations.
  */
 class RelocData
 {
 private:
+  friend class Chunk<RelocData, MCLD_SECTIONS_PER_INPUT>;
+
+  RelocData();
   explicit RelocData(LDSection &pSection);
+
+  RelocData(const RelocData &);            // DO NOT IMPLEMENT
+  RelocData& operator=(const RelocData &); // DO NOT IMPLEMENT
 
 public:
   typedef llvm::iplist<Relocation,
@@ -53,8 +60,10 @@ public:
 
   static void Destroy(RelocData*& pSection);
 
-  const LDSection& getSection() const { return m_Section; }
-  LDSection&       getSection()       { return m_Section; }
+  static void Clear();
+
+  const LDSection& getSection() const { return *m_pSection; }
+  LDSection&       getSection()       { return *m_pSection; }
 
   const RelocationListType& getRelocationList() const { return m_Relocations; }
   RelocationListType&       getRelocationList()       { return m_Relocations; }
@@ -81,7 +90,7 @@ public:
 
 private:
   RelocationListType m_Relocations;
-  LDSection& m_Section;
+  LDSection* m_pSection;
 
 };
 
