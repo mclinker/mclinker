@@ -382,7 +382,7 @@ uint64_t IRBuilder::AppendFragment(Fragment& pFrag, SectionData& pSD)
 /// AppendRelocation - To append an relocation to the given RelocData pRD.
 void IRBuilder::AppendRelocation(Relocation& pRelocation, RelocData& pRD)
 {
-  pRD.getFragmentList().push_back(&pRelocation);
+  pRD.append(pRelocation);
 }
 
 /// AppendEhFrame - To append a fragment to EhFrame.

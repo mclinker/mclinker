@@ -1970,10 +1970,10 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
         RelocData* out_reloc_data = output_sect->getRelocData();
 
         // move relocations from input's to output's RelcoationData
-        RelocData::FragmentListType& out_list =
-                                             out_reloc_data->getFragmentList();
-        RelocData::FragmentListType& in_list =
-                                      (*rs)->getRelocData()->getFragmentList();
+        RelocData::RelocationListType& out_list =
+                                             out_reloc_data->getRelocationList();
+        RelocData::RelocationListType& in_list =
+                                      (*rs)->getRelocData()->getRelocationList();
         out_list.splice(out_list.end(), in_list);
 
         // size output

@@ -49,7 +49,7 @@ public:
   { return m_pRelocData->empty(); }
 
 private:
-  typedef RelocData::iterator FragmentIterator;
+  typedef RelocData::iterator RelocIterator;
 
 private:
   Module& m_Module;
@@ -68,7 +68,7 @@ private:
   bool m_isVisit;
 
   /// m_ValidEntryIterator - point to the first valid entry
-  FragmentIterator m_ValidEntryIterator;
+  RelocIterator m_ValidEntryIterator;
 };
 
 } // namespace of mcld

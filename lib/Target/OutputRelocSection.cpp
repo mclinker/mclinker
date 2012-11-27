@@ -42,8 +42,7 @@ void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
                                       size_t pNum)
 {
   for(size_t i=0; i<pNum; i++) {
-    m_pRelocData->getFragmentList().push_back(
-                                              pRelFactory.produceEmptyEntry());
+    m_pRelocData->append(*pRelFactory.produceEmptyEntry());
     // update section size
     m_pSection->setSize(m_pSection->size() + m_EntryBytes);
   }
@@ -54,9 +53,9 @@ Relocation* OutputRelocSection::consumeEntry()
   // first time visit this function, set m_ValidEntryIterator to
   // Fragments.begin()
   if(!m_isVisit) {
-    assert(!m_pRelocData->getFragmentList().empty() &&
+    assert(!m_pRelocData->getRelocationList().empty() &&
              "DynRelSection contains no entries.");
-    m_ValidEntryIterator = m_pRelocData->getFragmentList().begin();
+    m_ValidEntryIterator = m_pRelocData->begin();
     m_isVisit = true;
   }
   else {
@@ -70,8 +69,7 @@ Relocation* OutputRelocSection::consumeEntry()
   assert(m_ValidEntryIterator != m_pRelocData->end() &&
          "No empty relocation entry for the incoming symbol.");
 
-  Relocation* result = &llvm::cast<Relocation>(*m_ValidEntryIterator);
-  return result;
+  return &(*m_ValidEntryIterator);
 }
 
 void OutputRelocSection::finalizeSectionSize()

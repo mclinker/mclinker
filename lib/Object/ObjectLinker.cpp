@@ -342,13 +342,9 @@ bool ObjectLinker::prelayout()
 {
   // finalize the section symbols, set their fragment reference and push them
   // into output symbol table
-  Module::iterator iter, iterEnd = m_Module.end();
-  for (iter = m_Module.begin(); iter != iterEnd; ++iter) {
-    LDSection* section = *iter;
-    if (0x0 == section->size() || LDFileFormat::Relocation == section->kind())
-      continue;
-    m_Module.getSectionSymbolSet().finalize(
-                                           *section, m_Module.getSymbolTable());
+  Module::iterator sect, sEnd = m_Module.end();
+  for (sect = m_Module.begin(); sect != sEnd; ++sect) {
+    m_Module.getSectionSymbolSet().finalize(**sect, m_Module.getSymbolTable());
   }
 
   m_LDBackend.preLayout(m_Module, *m_pLinker);

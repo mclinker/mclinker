@@ -28,3 +28,9 @@ void RelocData::Destroy(RelocData*& pSection)
   pSection = NULL;
 }
 
+RelocData& RelocData::append(Relocation& pRelocation)
+{
+  m_Relocations.push_back(&pRelocation);
+  return *this;
+}
+

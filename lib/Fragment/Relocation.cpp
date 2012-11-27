@@ -16,12 +16,15 @@
 
 using namespace mcld;
 
+Relocation::Relocation()
+  : m_Type(0x0), m_TargetData(0x0), m_pSymInfo(NULL), m_Addend(0x0) {
+}
+
 Relocation::Relocation(Relocation::Type pType,
                        FragmentRef* pTargetRef,
                        Relocation::Address pAddend,
                        Relocation::DWord pTargetData)
-  : Fragment(Fragment::Relocation),
-    m_Type(pType),
+  : m_Type(pType),
     m_TargetData(pTargetData),
     m_pSymInfo(NULL),
     m_Addend(pAddend)

@@ -64,13 +64,16 @@ bool SectionSymbolSet::add(LDSection& pOutSect, NamePool& pNamePool)
 bool SectionSymbolSet::finalize(LDSection& pOutSect,
                                 SymbolTable& pSymTab)
 {
+  if (0x0 == pOutSect.size())
+    return true;
+
   LDSymbol* sym = get(pOutSect);
   assert(NULL != sym);
   FragmentRef* frag_ref = NULL;
   switch (pOutSect.kind()) {
     case LDFileFormat::Relocation:
-      frag_ref = FragmentRef::Create(pOutSect.getRelocData()->front(), 0x0);
-      break;
+      // Relocation section should not have section symbol.
+      return true;
 
     case LDFileFormat::EhFrame:
       frag_ref = FragmentRef::Create(

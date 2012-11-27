@@ -487,7 +487,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
                                                                 pAddend);
 
   relocation->setSymInfo(resolve_info);
-  pSection.getRelocData()->getFragmentList().push_back(relocation);
+  pSection.getRelocData()->append(*relocation);
 
   return relocation;
 }
