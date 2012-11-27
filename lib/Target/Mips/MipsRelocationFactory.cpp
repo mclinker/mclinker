@@ -338,6 +338,39 @@ MipsRelocationFactory::Result got16(Relocation& pReloc,
   return MipsRelocationFactory::OK;
 }
 
+// R_MIPS_GOTHI16:
+//   external: (G - (short)G) >> 16 + A
+static
+MipsRelocationFactory::Result gothi16(Relocation& pReloc,
+                                      MipsRelocationFactory& pParent)
+{
+  int32_t res = 0;
+
+  RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
+  int32_t A = pReloc.target() + pReloc.addend();
+
+  res = (G - (int16_t)G) >> (16 + A);
+
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() |= (res & 0xFFFF);
+
+  return MipsRelocationFactory::OK;
+}
+
+// R_MIPS_GOTLO16:
+//   external: G & 0xffff
+static
+MipsRelocationFactory::Result gotlo16(Relocation& pReloc,
+                                      MipsRelocationFactory& pParent)
+{
+  RelocationFactory::Address G = helper_GetGOTOffset(pReloc, pParent);
+
+  pReloc.target() &= 0xFFFF0000;
+  pReloc.target() |= (G & 0xFFFF);
+
+  return MipsRelocationFactory::OK;
+}
+
 // R_MIPS_CALL16: G
 static
 MipsRelocationFactory::Result call16(Relocation& pReloc,

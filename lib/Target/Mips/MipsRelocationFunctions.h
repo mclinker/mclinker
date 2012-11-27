@@ -18,7 +18,9 @@ DECL_MIPS_APPLY_RELOC_FUNC(hi16) \
 DECL_MIPS_APPLY_RELOC_FUNC(lo16) \
 DECL_MIPS_APPLY_RELOC_FUNC(got16) \
 DECL_MIPS_APPLY_RELOC_FUNC(call16) \
-DECL_MIPS_APPLY_RELOC_FUNC(gprel32)
+DECL_MIPS_APPLY_RELOC_FUNC(gprel32) \
+DECL_MIPS_APPLY_RELOC_FUNC(gothi16) \
+DECL_MIPS_APPLY_RELOC_FUNC(gotlo16)
 
 #define DECL_MIPS_APPLY_RELOC_FUNC_PTRS \
   { &none,     0, "R_MIPS_NONE"            }, \
@@ -43,8 +45,8 @@ DECL_MIPS_APPLY_RELOC_FUNC(gprel32)
   { &none,    19, "R_MIPS_GOT_DISP"        }, \
   { &none,    20, "R_MIPS_GOT_PAGE"        }, \
   { &none,    21, "R_MIPS_GOT_OFST"        }, \
-  { &none,    22, "R_MIPS_GOT_HI16"        }, \
-  { &none,    23, "R_MIPS_GOT_LO16"        }, \
+  { &gothi16, 22, "R_MIPS_GOT_HI16"        }, \
+  { &gotlo16, 23, "R_MIPS_GOT_LO16"        }, \
   { &none,    24, "R_MIPS_SUB"             }, \
   { &none,    25, "R_MIPS_INSERT_A"        }, \
   { &none,    26, "R_MIPS_INSERT_B"        }, \
