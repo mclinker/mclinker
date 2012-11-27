@@ -227,9 +227,9 @@ bool Linker::initTarget()
   assert(NULL != m_pConfig);
 
   std::string error;
-  m_pTarget = TargetRegistry::lookupTarget(m_pConfig->triple().str(), error);
+  m_pTarget = TargetRegistry::lookupTarget(m_pConfig->targets().triple().str(), error);
   if (NULL == m_pTarget) {
-    fatal(diag::fatal_cannot_init_target) << m_pConfig->triple().str() << error;
+    fatal(diag::fatal_cannot_init_target) << m_pConfig->targets().triple().str() << error;
     return false;
   }
   return true;
@@ -240,7 +240,7 @@ bool Linker::initBackend()
   assert(NULL != m_pTarget);
   m_pBackend = m_pTarget->createLDBackend(*m_pConfig);
   if (NULL == m_pBackend) {
-    fatal(diag::fatal_cannot_init_backend) << m_pConfig->triple().str();
+    fatal(diag::fatal_cannot_init_backend) << m_pConfig->targets().triple().str();
     return false;
   }
   return true;
@@ -249,7 +249,7 @@ bool Linker::initBackend()
 bool Linker::initEmulator()
 {
   assert(NULL != m_pTarget && NULL != m_pConfig);
-  return m_pTarget->emulate(m_pConfig->triple().str(), *m_pConfig);
+  return m_pTarget->emulate(m_pConfig->targets().triple().str(), *m_pConfig);
 }
 
 bool Linker::initOStream()

@@ -854,7 +854,7 @@ namespace mcld {
 TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                     const LinkerConfig& pConfig)
 {
-  if (pConfig.triple().isOSDarwin()) {
+  if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
     /**
     return new X86MachOLDBackend(createX86MachOArchiveReader,
@@ -862,7 +862,7 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86MachOObjectWriter);
     **/
   }
-  if (pConfig.triple().isOSWindows()) {
+  if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
     /**
     return new X86COFFLDBackend(createX86COFFArchiveReader,

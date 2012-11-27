@@ -16,6 +16,7 @@
 
 #include <mcld/GeneralOptions.h>
 #include <mcld/ScriptOptions.h>
+#include <mcld/TargetOptions.h>
 #include <mcld/BitcodeOption.h>
 #include <mcld/AttributeOption.h>
 #include <mcld/Support/Path.h>
@@ -55,6 +56,9 @@ public:
   const ScriptOptions&  scripts() const { return m_Scripts; }
   ScriptOptions&        scripts()       { return m_Scripts; }
 
+  const TargetOptions&  targets() const { return m_Targets; }
+  TargetOptions&        targets()       { return m_Targets; }
+
   const BitcodeOption&  bitcode() const { return m_Bitcode; }
   BitcodeOption&        bitcode()       { return m_Bitcode; }
 
@@ -65,22 +69,16 @@ public:
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
-  const llvm::Triple& triple() const { return m_Triple; }
-
-  void setTriple(const std::string& pTriple);
-
-  void setTriple(const llvm::Triple& pTriple);
-
   static const char* version();
 
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
   ScriptOptions m_Scripts;
+  TargetOptions m_Targets;
   BitcodeOption m_Bitcode;
   AttributeOption m_Attribute;
 
-  llvm::Triple m_Triple;
   CodeGenType m_CodeGenType;
 };
 

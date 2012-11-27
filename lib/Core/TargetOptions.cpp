@@ -17,7 +17,21 @@ TargetOptions::TargetOptions()
 {
 }
 
+TargetOptions::TargetOptions(const std::string& pTriple)
+  : m_Triple(pTriple) {
+}
+
 TargetOptions::~TargetOptions()
 {
+}
+
+void TargetOptions::setTriple(const llvm::Triple& pTriple)
+{
+  m_Triple = pTriple;
+}
+
+void TargetOptions::setTriple(const std::string& pTriple)
+{
+  m_Triple.setTriple(pTriple);
 }
 

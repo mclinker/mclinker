@@ -94,7 +94,7 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
     }
     else {
       fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                               << pConfig.triple().str();
+                                               << pConfig.targets().triple().str();
     }
     ++input;
   }
