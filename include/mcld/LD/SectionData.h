@@ -55,6 +55,8 @@ public:
 
   static void Destroy(SectionData*& pSection);
 
+  static void Clear();
+
   const LDSection& getSection() const { return *m_pSection; }
   LDSection&       getSection()       { return *m_pSection; }
 

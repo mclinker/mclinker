@@ -44,3 +44,8 @@ void SectionData::Destroy(SectionData*& pSection)
   pSection = NULL;
 }
 
+void SectionData::Clear()
+{
+  g_SectDataFactory->clear();
+}
+

@@ -22,6 +22,7 @@
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDSymbol.h>
+#include <mcld/LD/SectionData.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Fragment/FragmentRef.h>
 
@@ -207,6 +208,7 @@ bool Linker::reset()
   // Because llvm::iplist will touch the removed node, we must clear
   // RelocData before deleting target backend.
   RelocData::Clear();
+  SectionData::Clear();
 
   delete m_pBackend;
   m_pBackend = NULL;
