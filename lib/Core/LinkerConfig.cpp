@@ -19,9 +19,9 @@ using namespace mcld;
 LinkerConfig::LinkerConfig()
   : m_Options(),
     m_Scripts(),
+    m_Targets(),
     m_Bitcode(),
     m_Attribute(),
-    m_Triple(),
     m_CodeGenType(Unknown)
 {
   // FIXME: is here the right place to hold this?
@@ -31,9 +31,9 @@ LinkerConfig::LinkerConfig()
 LinkerConfig::LinkerConfig(const std::string& pTripleString)
   : m_Options(),
     m_Scripts(),
+    m_Targets(pTripleString),
     m_Bitcode(),
     m_Attribute(),
-    m_Triple(pTripleString),
     m_CodeGenType(Unknown)
 {
   // FIXME: is here the right place to hold this?
@@ -44,16 +44,6 @@ LinkerConfig::~LinkerConfig()
 {
   // FIXME: is here the right place to hold this?
   FinalizeDiagnosticEngine();
-}
-
-void LinkerConfig::setTriple(const llvm::Triple& pTriple)
-{
-  m_Triple = pTriple;
-}
-
-void LinkerConfig::setTriple(const std::string& pTriple)
-{
-  m_Triple.setTriple(pTriple);
 }
 
 const char* LinkerConfig::version()

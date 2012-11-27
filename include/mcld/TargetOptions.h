@@ -12,6 +12,10 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/Triple.h>
+
+#include <string>
+
 namespace mcld {
 
 /** \class TargetOptions
@@ -22,7 +26,20 @@ class TargetOptions
 {
 public:
   TargetOptions();
+
+  TargetOptions(const std::string& pTriple);
+
   ~TargetOptions();
+
+  const llvm::Triple& triple() const { return m_Triple; }
+
+  void setTriple(const std::string& pTriple);
+
+  void setTriple(const llvm::Triple& pTriple);
+
+private:
+  llvm::Triple m_Triple;
+
 };
 
 } // namespace of mcld

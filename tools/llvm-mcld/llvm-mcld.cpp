@@ -1087,7 +1087,7 @@ int main(int argc, char* argv[])
     }
   }
   // Set up mcld::LinkerConfig
-  LDConfig.setTriple(TheTriple);
+  LDConfig.targets().setTriple(TheTriple);
 
   // Package up features to be passed to target/subtarget
   std::string FeaturesStr;

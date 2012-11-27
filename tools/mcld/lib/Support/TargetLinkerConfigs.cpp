@@ -133,7 +133,7 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
   getLDConfig()->attribute().predefined().setDynamic();
 
   // set up section map
-  if (llvm::Triple::arm == getLDConfig()->triple().getArch() &&
+  if (llvm::Triple::arm == getLDConfig()->targets().triple().getArch() &&
       getLDConfig()->codeGenType() != mcld::LinkerConfig::Object) {
     bool exist = false;
     getLDConfig()->scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);

@@ -1038,10 +1038,10 @@ void MipsGNULDBackend::doCreateProgramHdrs(Module& pModule,
 static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
                                             const LinkerConfig& pConfig)
 {
-  if (pConfig.triple().isOSDarwin()) {
+  if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
   }
-  if (pConfig.triple().isOSWindows()) {
+  if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
   }
   return new MipsGNULDBackend(pConfig);

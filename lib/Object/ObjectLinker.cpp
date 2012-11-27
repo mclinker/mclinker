@@ -178,7 +178,7 @@ void ObjectLinker::normalize()
     }
     else {
       fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                               << m_Config.triple().str();
+                                          << m_Config.targets().triple().str();
     }
   } // end of for
 }

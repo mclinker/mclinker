@@ -1075,7 +1075,7 @@ namespace mcld {
 TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                     const LinkerConfig& pConfig)
 {
-  if (pConfig.triple().isOSDarwin()) {
+  if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker is not supported yet");
     /**
     return new ARMMachOLDBackend(createARMMachOArchiveReader,
@@ -1083,7 +1083,7 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                createARMMachOObjectWriter);
     **/
   }
-  if (pConfig.triple().isOSWindows()) {
+  if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
     /**
     return new ARMCOFFLDBackend(createARMCOFFArchiveReader,
