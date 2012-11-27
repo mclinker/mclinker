@@ -53,8 +53,8 @@ DECL_MIPS_APPLY_RELOC_FUNC(gotlo16)
   { &none,    27, "R_MIPS_DELETE"          }, \
   { &none,    28, "R_MIPS_HIGHER"          }, \
   { &none,    29, "R_MIPS_HIGHEST"         }, \
-  { &none,    30, "R_MIPS_CALL_HI16"       }, \
-  { &none,    31, "R_MIPS_CALL_LO16"       }, \
+  { &gothi16, 30, "R_MIPS_CALL_HI16"       }, \
+  { &gotlo16, 31, "R_MIPS_CALL_LO16"       }, \
   { &none,    32, "R_MIPS_SCN_DISP"        }, \
   { &none,    33, "R_MIPS_REL16"           }, \
   { &none,    34, "R_MIPS_ADD_IMMEDIATE"   }, \
