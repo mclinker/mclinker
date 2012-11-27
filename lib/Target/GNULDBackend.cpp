@@ -1304,9 +1304,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
               &pSectHdr == &file_format->getCtors() ||
               &pSectHdr == &file_format->getDtors() ||
               &pSectHdr == &file_format->getJCR() ||
-              0 == pSectHdr.name().compare(".data.rel.ro"))
+              &pSectHdr == &file_format->getDataRelRo())
             return SHO_RELRO;
-          if (0 == pSectHdr.name().compare(".data.rel.ro.local"))
+          if (&pSectHdr == &file_format->getDataRelRoLocal())
             return SHO_RELRO_LOCAL;
         }
         if ((pSectHdr.flag() & llvm::ELF::SHF_TLS) != 0x0) {
