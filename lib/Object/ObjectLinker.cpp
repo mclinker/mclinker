@@ -23,7 +23,6 @@
 #include <mcld/LD/DynObjWriter.h>
 #include <mcld/LD/ExecWriter.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
@@ -379,8 +378,8 @@ bool ObjectLinker::prelayout()
 ///   directly
 bool ObjectLinker::layout()
 {
-  Layout layout;
-  return layout.layout(m_Module, m_LDBackend, m_Config);
+  m_LDBackend.layout(m_Module, *m_pLinker);
+  return true;
 }
 
 /// prelayout - help backend to do some modification after layout

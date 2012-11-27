@@ -253,8 +253,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/Resolver.cpp \
 	${INCDIR}/LD/LDSymbol.h \
 	${LIBDIR}/LD/LDSymbol.cpp \
-	${INCDIR}/LD/Layout.h \
-	${LIBDIR}/LD/Layout.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/Relocator.h \

@@ -11,6 +11,8 @@
 #include <string>
 #include <cstring>
 #include <cassert>
+#include <vector>
+#include <algorithm>
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
@@ -1911,6 +1913,70 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
         (*sect)->setAddr(start_addr);
     }
   }
+}
+
+/// layout - layout method
+void GNULDBackend::layout(Module& pModule, FragmentLinker& pLinker)
+{
+  std::vector<SHOEntry> output_list;
+  // 1. determine what sections will go into final output, and push the needed
+  // sections into output_list for later processing
+  for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
+       ++it) {
+    switch ((*it)->kind()) {
+      // take NULL and StackNote directly
+      case LDFileFormat::Null:
+      case LDFileFormat::StackNote:
+        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        break;
+      // ignore if section size is 0
+      case LDFileFormat::Regular:
+      case LDFileFormat::Target:
+      case LDFileFormat::MetaData:
+      case LDFileFormat::BSS:
+      case LDFileFormat::Debug:
+      case LDFileFormat::EhFrame:
+      case LDFileFormat::GCCExceptTable:
+      case LDFileFormat::NamePool:
+      case LDFileFormat::Relocation:
+      case LDFileFormat::Note:
+      case LDFileFormat::EhFrameHdr:
+        if (0 != (*it)->size()) {
+          output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        }
+        break;
+      case LDFileFormat::Group:
+        if (LinkerConfig::Object == config().codeGenType()) {
+          //TODO: support incremental linking
+          ;
+        }
+        break;
+      case LDFileFormat::Version:
+        if (0 != (*it)->size()) {
+          output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+          warning(diag::warn_unsupported_symbolic_versioning) << (*it)->name();
+        }
+        break;
+      default:
+        if (0 != (*it)->size()) {
+          error(diag::err_unsupported_section) << (*it)->name() << (*it)->kind();
+        }
+        break;
+    }
+  } // end of for
+
+  // 2. sort output section orders
+  std::stable_sort(output_list.begin(), output_list.end(), SHOCompare());
+
+  // 3. update output sections in Module
+  pModule.getSectionTable().clear();
+  for(size_t index = 0; index < output_list.size(); ++index) {
+    (output_list[index].first)->setIndex(index);
+    pModule.getSectionTable().push_back(output_list[index].first);
+  }
+
+  // 4. set output section offset
+  setOutputSectionOffset(pModule, pModule.begin(), pModule.end(), 0x0);
 }
 
 /// preLayout - Backend can do any needed modification before layout

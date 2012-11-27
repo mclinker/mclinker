@@ -370,6 +370,9 @@ private:
                                Module::iterator pSectBegin,
                                Module::iterator pSectEnd);
 
+  /// layout - layout method
+  void layout(Module& pModule, FragmentLinker& pLinker);
+
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(Module& pModule, FragmentLinker& pLinker);
 
@@ -440,6 +443,14 @@ protected:
     SHO_LARGE_BSS,           // .lbss
     SHO_UNDEFINED,           // default order
     SHO_STRTAB               // .strtab
+  };
+
+  typedef std::pair<LDSection*, unsigned int> SHOEntry;
+
+  struct SHOCompare
+  {
+    bool operator()(const SHOEntry& X, const SHOEntry& Y) const
+    { return X.second < Y.second; }
   };
 
   struct SymCompare

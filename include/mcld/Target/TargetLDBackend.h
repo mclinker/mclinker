@@ -98,6 +98,9 @@ public:
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 
+  /// layout - layout method
+  virtual void layout(Module& pModule, FragmentLinker& pLinker) = 0;
+
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(Module& pModule, FragmentLinker& pLinker) = 0;
 

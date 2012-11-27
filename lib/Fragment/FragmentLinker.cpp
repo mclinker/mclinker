@@ -20,7 +20,6 @@
 #include <mcld/Module.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/BranchIslandFactory.h>
-#include <mcld/LD/Layout.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
