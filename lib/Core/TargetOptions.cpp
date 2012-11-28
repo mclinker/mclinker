@@ -14,11 +14,14 @@ using namespace mcld;
 // TargetOptions
 //===----------------------------------------------------------------------===//
 TargetOptions::TargetOptions()
-{
+  : m_Endian(Unknown),
+    m_BitClass(0) {
 }
 
 TargetOptions::TargetOptions(const std::string& pTriple)
-  : m_Triple(pTriple) {
+  : m_Triple(pTriple),
+    m_Endian(Unknown),
+    m_BitClass(0) {
 }
 
 TargetOptions::~TargetOptions()
