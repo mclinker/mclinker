@@ -108,8 +108,19 @@ GNULDBackend::~GNULDBackend()
 
 size_t GNULDBackend::sectionStartOffset() const
 {
-  // FIXME: use fixed offset, we need 10 segments by default
-  return sizeof(llvm::ELF::Elf64_Ehdr)+10*sizeof(llvm::ELF::Elf64_Phdr);
+  switch (bitclass()) {
+    case 32u:
+      return sizeof(llvm::ELF::Elf32_Ehdr) +
+             numOfSegments() * sizeof(llvm::ELF::Elf32_Phdr);
+    case 64u:
+      return sizeof(llvm::ELF::Elf64_Ehdr) +
+             numOfSegments() * sizeof(llvm::ELF::Elf64_Phdr);
+    default:
+      llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
+                               llvm::Twine(bitclass()) +
+                               llvm::Twine(".\n"));
+      return 0;
+  }
 }
 
 uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
@@ -1975,7 +1986,12 @@ void GNULDBackend::layout(Module& pModule, FragmentLinker& pLinker)
     pModule.getSectionTable().push_back(output_list[index].first);
   }
 
-  // 4. set output section offset
+  // 4. create program headers
+  if (LinkerConfig::Object != config().codeGenType()) {
+    createProgramHdrs(pModule, pLinker);
+  }
+
+  // 5. set output section offset
   setOutputSectionOffset(pModule, pModule.begin(), pModule.end(), 0x0);
 }
 
@@ -2066,25 +2082,20 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
 void GNULDBackend::postLayout(Module& pModule,
                               FragmentLinker& pLinker)
 {
-  // 1. emit program headers
-  if (LinkerConfig::Object != config().codeGenType()) {
-    // 1.1 create program headers
-    createProgramHdrs(pModule, pLinker);
-  }
-
+  // 1. set up section address and segment attributes
   if (LinkerConfig::Object != config().codeGenType()) {
     if (config().options().hasRelro()) {
-      // 1.2 set up the offset constraint of PT_RELRO
+      // 1.1 set up the offset constraint of PT_RELRO
       setupRelro(pModule);
     }
 
-    // 1.3 set up the output sections' address
+    // 1.2 set up the output sections' address
     setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
 
-    // 1.4 do relaxation
+    // 1.3 do relaxation
     relax(pModule, pLinker);
 
-    // 1.5 set up the attributes of program headers
+    // 1.4 set up the attributes of program headers
     setupProgramHdrs(pLinker);
   }
 
