@@ -135,7 +135,7 @@ OptPortableList("portable",
 static void MCLDVersionPrinter() {
   llvm::raw_ostream &os = llvm::outs();
   os << "mcld (The MCLinker Project, http://mclinker.googlecode.com/):\n"
-     << "  version: "MCLD_VERSION"\n"
+     << "  version: " MCLD_VERSION "\n"
      << "  Default target: " << DEFAULT_TARGET_TRIPLE_STRING << "\n";
 
   os << "\n";
