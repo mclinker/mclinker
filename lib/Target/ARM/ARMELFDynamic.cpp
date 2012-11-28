@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "ARMELFDynamic.h"
 
 #include <mcld/LD/ELFFileFormat.h>
-#include "ARMELFDynamic.h"
 
 using namespace mcld;
 
-ARMELFDynamic::ARMELFDynamic(const GNULDBackend& pParent)
-  : ELFDynamic(pParent)
+ARMELFDynamic::ARMELFDynamic(const GNULDBackend& pParent,
+                             const LinkerConfig& pConfig)
+  : ELFDynamic(pParent, pConfig)
 {
 }
 

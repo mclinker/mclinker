@@ -109,7 +109,7 @@ void X86GNULDBackend::doPostLayout(Module& pModule,
 X86ELFDynamic& X86GNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
-    m_pDynamic = new X86ELFDynamic(*this);
+    m_pDynamic = new X86ELFDynamic(*this, config());
 
   return *m_pDynamic;
 }

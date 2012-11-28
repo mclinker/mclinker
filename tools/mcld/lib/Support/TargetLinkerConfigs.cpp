@@ -10,6 +10,7 @@
 #include "alone/Config/Config.h"
 #include "alone/Support/TargetLinkerConfigs.h"
 
+#include <mcld/TargetOptions.h>
 #include <mcld/MC/InputFactory.h>
 
 using namespace alone;
@@ -27,6 +28,10 @@ static const char* gDefaultSysroot = "/";
 //===----------------------------------------------------------------------===//
 #if defined(PROVIDE_ARM_CODEGEN)
 ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
+
+  // set up target-dependent options
+  getLDConfig()->targets().setEndian(mcld::TargetOptions::Little);
+  getLDConfig()->targets().setBitClass(32);
 
   // set up target-dependent constraints of attributes
   getLDConfig()->attribute().constraint().enableWholeArchive();
@@ -63,6 +68,10 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
 MipsLinkerConfig::MipsLinkerConfig()
   : LinkerConfig(DEFAULT_MIPS_TRIPLE_STRING) {
 
+  // set up target-dependent options
+  getLDConfig()->targets().setEndian(mcld::TargetOptions::Little);
+  getLDConfig()->targets().setBitClass(32);
+
   // set up target-dependent constraints of attibutes
   getLDConfig()->attribute().constraint().enableWholeArchive();
   getLDConfig()->attribute().constraint().disableAsNeeded();
@@ -89,6 +98,10 @@ MipsLinkerConfig::MipsLinkerConfig()
 #if defined(PROVIDE_X86_CODEGEN)
 X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   : LinkerConfig(pTriple) {
+  // set up target-dependent options
+  getLDConfig()->targets().setEndian(mcld::TargetOptions::Little);
+  getLDConfig()->targets().setBitClass(32);
+
   // set up target-dependent constraints of attibutes
   getLDConfig()->attribute().constraint().enableWholeArchive();
   getLDConfig()->attribute().constraint().disableAsNeeded();
@@ -123,6 +136,11 @@ X86_64LinkerConfig::X86_64LinkerConfig()
 //===----------------------------------------------------------------------===//
 GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
   : LinkerConfig(pTriple) {
+
+  // set up target-dependent options
+  getLDConfig()->targets().setEndian(mcld::TargetOptions::Little);
+  getLDConfig()->targets().setBitClass(32);
+
   // set up target-dependent constraints of attributes
   getLDConfig()->attribute().constraint().enableWholeArchive();
   getLDConfig()->attribute().constraint().disableAsNeeded();

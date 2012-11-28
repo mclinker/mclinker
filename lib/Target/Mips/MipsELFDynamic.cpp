@@ -6,11 +6,11 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "MipsELFDynamic.h"
 
+#include "MipsLDBackend.h"
 #include <mcld/LD/ELFFileFormat.h>
 #include <mcld/Target/GNULDBackend.h>
-#include "MipsELFDynamic.h"
-#include "MipsLDBackend.h"
 
 using namespace mcld;
 
@@ -24,8 +24,9 @@ enum {
   MIPS_GOTSYM       = 0x70000013
 };
 
-MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent)
-  : ELFDynamic(pParent),
+MipsELFDynamic::MipsELFDynamic(const MipsGNULDBackend& pParent,
+                               const LinkerConfig& pConfig)
+  : ELFDynamic(pParent, pConfig),
     m_pParent(pParent)
 {
 }

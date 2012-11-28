@@ -891,7 +891,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries until we get the size of the sections mentioned above
     if (!pIsStaticLink)
-      dynamic().reserveEntries(config(), *file_format);
+      dynamic().reserveEntries(*file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
   /// @}
@@ -1204,7 +1204,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     // set pointer to SONAME entry in dynamic string table.
     dynamic().applySoname(strtabsize);
   }
-  dynamic().applyEntries(config(), *file_format);
+  dynamic().applyEntries(*file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
   // emit soname

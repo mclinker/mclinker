@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "X86ELFDynamic.h"
 
 #include <mcld/LD/ELFFileFormat.h>
-#include "X86ELFDynamic.h"
 
 using namespace mcld;
 
-X86ELFDynamic::X86ELFDynamic(const GNULDBackend& pParent)
-  : ELFDynamic(pParent)
+X86ELFDynamic::X86ELFDynamic(const GNULDBackend& pParent,
+                             const LinkerConfig& pConfig)
+  : ELFDynamic(pParent, pConfig)
 {
 }
 

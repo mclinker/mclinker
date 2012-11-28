@@ -18,7 +18,7 @@ namespace mcld {
 
 class ARMELFDynamic : public ELFDynamic {
 public:
-  ARMELFDynamic(const GNULDBackend& pParent);
+  ARMELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~ARMELFDynamic();
 
 private:

@@ -18,6 +18,10 @@ static bool MCLDEmulateMipsELF(LinkerConfig& pConfig)
   if (!MCLDEmulateELF(pConfig))
     return false;
 
+  // set up bitclass and endian
+  pConfig.targets().setEndian(TargetOptions::Little);
+  pConfig.targets().setBitClass(32);
+
   // set up target-dependent constraints of attributes
   pConfig.attribute().constraint().enableWholeArchive();
   pConfig.attribute().constraint().enableAsNeeded();

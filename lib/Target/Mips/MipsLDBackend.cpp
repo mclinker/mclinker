@@ -242,7 +242,7 @@ void MipsGNULDBackend::doPostLayout(Module& pModule,
 MipsELFDynamic& MipsGNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
-    m_pDynamic = new MipsELFDynamic(*this);
+    m_pDynamic = new MipsELFDynamic(*this, config());
 
   return *m_pDynamic;
 }
@@ -415,7 +415,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries until we get the size of the sections mentioned above
-    dynamic().reserveEntries(config(), *file_format);
+    dynamic().reserveEntries(*file_format);
     file_format->getDynamic().setSize(dynamic().numOfBytes());
   }
   /// @}
@@ -630,7 +630,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   // initialize value of ELF .dynamic section
   if (LinkerConfig::DynObj == config().codeGenType())
     dynamic().applySoname(strtabsize);
-  dynamic().applyEntries(config(), *file_format);
+  dynamic().applyEntries(*file_format);
   dynamic().emit(dyn_sect, *dyn_region);
 
   strcpy((strtab + strtabsize), pModule.name().c_str());

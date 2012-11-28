@@ -242,7 +242,7 @@ void ARMGNULDBackend::doPostLayout(Module& pModule,
 ARMELFDynamic& ARMGNULDBackend::dynamic()
 {
   if (NULL == m_pDynamic)
-    m_pDynamic = new ARMELFDynamic(*this);
+    m_pDynamic = new ARMELFDynamic(*this, config());
 
   return *m_pDynamic;
 }

@@ -19,7 +19,7 @@ namespace mcld {
 class X86ELFDynamic : public ELFDynamic
 {
 public:
-  X86ELFDynamic(const GNULDBackend& pParent);
+  X86ELFDynamic(const GNULDBackend& pParent, const LinkerConfig& pConfig);
   ~X86ELFDynamic();
 
 private:

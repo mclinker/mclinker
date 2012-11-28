@@ -21,7 +21,7 @@ class MipsGNULDBackend;
 class MipsELFDynamic : public ELFDynamic
 {
 public:
-  MipsELFDynamic(const MipsGNULDBackend& pParent);
+  MipsELFDynamic(const MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
   ~MipsELFDynamic();
 
 private:

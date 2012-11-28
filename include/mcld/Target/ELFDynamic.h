@@ -17,11 +17,10 @@
 #include <vector>
 #include <cstring>
 
-namespace mcld
-{
+namespace mcld {
 
-class GNULDBackend;
 class ELFFileFormat;
+class GNULDBackend;
 class LinkerConfig;
 class MemoryRegion;
 
@@ -105,7 +104,7 @@ public:
   typedef EntryListType::const_iterator const_iterator;
 
 public:
-  ELFDynamic(const GNULDBackend& pParent);
+  ELFDynamic(const GNULDBackend& pBackend, const LinkerConfig& pConfig);
 
   virtual ~ELFDynamic();
 
@@ -116,29 +115,21 @@ public:
   size_t numOfBytes() const;
 
   /// reserveEntries - reserve entries
-  void reserveEntries(const LinkerConfig& pConfig,
-                      const ELFFileFormat& pFormat);
+  void reserveEntries(const ELFFileFormat& pFormat);
 
   /// reserveNeedEntry - reserve on DT_NEED entry.
   void reserveNeedEntry();
 
   /// applyEntries - apply entries
-  void applyEntries(const LinkerConfig& pConfig,
-                    const ELFFileFormat& pFormat);
+  void applyEntries(const ELFFileFormat& pFormat);
 
   void applySoname(uint64_t pStrTabIdx);
 
-  iterator needBegin()
-  { return m_NeedList.begin(); }
+  const_iterator needBegin() const { return m_NeedList.begin(); }
+  iterator       needBegin()       { return m_NeedList.begin(); }
 
-  iterator needEnd()
-  { return m_NeedList.end(); }
-
-  const_iterator needBegin() const
-  { return m_NeedList.begin(); }
-
-  const_iterator needEnd() const
-  { return m_NeedList.end(); }
+  const_iterator needEnd() const { return m_NeedList.end(); }
+  iterator       needEnd()       { return m_NeedList.end(); }
 
   /// emit
   void emit(const LDSection& pSection, MemoryRegion& pRegion) const;
@@ -162,6 +153,7 @@ private:
   EntryListType m_NeedList;
   elf_dynamic::EntryIF* m_pEntryFactory;
   const GNULDBackend& m_Backend;
+  const LinkerConfig& m_Config;
 
   // The entry reserved and the entry being applied are not must matched.
   // For better performance, we use a simple counter and apply entry one-by-one

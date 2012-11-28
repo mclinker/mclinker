@@ -20,6 +20,7 @@ using namespace elf_dynamic;
 
 //===----------------------------------------------------------------------===//
 // elf_dynamic::EntryIF
+//===----------------------------------------------------------------------===//
 EntryIF::EntryIF()
 {
 }
@@ -28,11 +29,15 @@ EntryIF::~EntryIF()
 {
 }
 
+#include <iostream>
+using namespace std;
 //===----------------------------------------------------------------------===//
 // ELFDynamic
-ELFDynamic::ELFDynamic(const GNULDBackend& pParent)
-  : m_pEntryFactory(NULL), m_Backend(pParent), m_Idx(0) {
-  if (32 == pParent.bitclass() && pParent.isLittleEndian()) {
+//===----------------------------------------------------------------------===//
+ELFDynamic::ELFDynamic(const GNULDBackend& pParent,
+                       const LinkerConfig& pConfig)
+  : m_pEntryFactory(NULL), m_Backend(pParent), m_Config(pConfig), m_Idx(0) {
+  if (m_Config.targets().is32Bits() && m_Config.targets().isLittleEndian()) {
     m_pEntryFactory = new Entry<32, true>();
   }
   // FIXME: support big-endian and 64-bit machine.
@@ -86,13 +91,12 @@ void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)
 }
 
 /// reserveEntries - reserve entries
-void ELFDynamic::reserveEntries(const LinkerConfig& pConfig,
-                                const ELFFileFormat& pFormat)
+void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
 {
-  if (LinkerConfig::DynObj == pConfig.codeGenType()) {
+  if (LinkerConfig::DynObj == m_Config.codeGenType()) {
     reserveOne(llvm::ELF::DT_SONAME); // DT_SONAME
 
-    if (pConfig.options().Bsymbolic())
+    if (m_Config.options().Bsymbolic())
       reserveOne(llvm::ELF::DT_SYMBOLIC); // DT_SYMBOLIC
   }
 
@@ -147,29 +151,29 @@ void ELFDynamic::reserveEntries(const LinkerConfig& pConfig,
     reserveOne(llvm::ELF::DT_RELAENT); // DT_RELAENT
   }
 
-  if (pConfig.options().hasOrigin() ||
-      pConfig.options().Bsymbolic() ||
-      pConfig.options().hasNow()    ||
+  if (m_Config.options().hasOrigin() ||
+      m_Config.options().Bsymbolic() ||
+      m_Config.options().hasNow()    ||
       m_Backend.hasTextRel()        ||
       (m_Backend.hasStaticTLS() &&
-        (LinkerConfig::DynObj == pConfig.codeGenType()))) {
+        (LinkerConfig::DynObj == m_Config.codeGenType()))) {
     reserveOne(llvm::ELF::DT_FLAGS); // DT_FLAGS
   }
 
   if (m_Backend.hasTextRel())
     reserveOne(llvm::ELF::DT_TEXTREL); // DT_TEXTREL
 
-  if (pConfig.options().hasNow()          ||
-      pConfig.options().hasLoadFltr()     ||
-      pConfig.options().hasOrigin()       ||
-      pConfig.options().hasInterPose()    ||
-      pConfig.options().hasNoDefaultLib() ||
-      pConfig.options().hasNoDump()       ||
-      pConfig.options().Bgroup()          ||
-      ((LinkerConfig::DynObj == pConfig.codeGenType()) &&
-       (pConfig.options().hasNoDelete()  ||
-        pConfig.options().hasInitFirst() ||
-        pConfig.options().hasNoDLOpen()))) {
+  if (m_Config.options().hasNow()          ||
+      m_Config.options().hasLoadFltr()     ||
+      m_Config.options().hasOrigin()       ||
+      m_Config.options().hasInterPose()    ||
+      m_Config.options().hasNoDefaultLib() ||
+      m_Config.options().hasNoDump()       ||
+      m_Config.options().Bgroup()          ||
+      ((LinkerConfig::DynObj == m_Config.codeGenType()) &&
+       (m_Config.options().hasNoDelete()  ||
+        m_Config.options().hasInitFirst() ||
+        m_Config.options().hasNoDLOpen()))) {
     reserveOne(llvm::ELF::DT_FLAGS_1); // DT_FLAGS_1
   }
 
@@ -177,11 +181,10 @@ void ELFDynamic::reserveEntries(const LinkerConfig& pConfig,
 }
 
 /// applyEntries - apply entries
-void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
-                              const ELFFileFormat& pFormat)
+void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
 {
-  if (LinkerConfig::DynObj == pConfig.codeGenType() &&
-      pConfig.options().Bsymbolic()) {
+  if (LinkerConfig::DynObj == m_Config.codeGenType() &&
+      m_Config.options().Bsymbolic()) {
       applyOne(llvm::ELF::DT_SYMBOLIC, 0x0); // DT_SYMBOLIC
   }
 
@@ -247,48 +250,48 @@ void ELFDynamic::applyEntries(const LinkerConfig& pConfig,
   if (m_Backend.hasTextRel()) {
     applyOne(llvm::ELF::DT_TEXTREL, 0x0); // DT_TEXTREL
 
-    if (pConfig.options().warnSharedTextrel() &&
-        LinkerConfig::DynObj == pConfig.codeGenType())
+    if (m_Config.options().warnSharedTextrel() &&
+        LinkerConfig::DynObj == m_Config.codeGenType())
       mcld::warning(mcld::diag::warn_shared_textrel);
   }
 
   uint64_t dt_flags = 0x0;
-  if (pConfig.options().hasOrigin())
+  if (m_Config.options().hasOrigin())
     dt_flags |= llvm::ELF::DF_ORIGIN;
-  if (pConfig.options().Bsymbolic())
+  if (m_Config.options().Bsymbolic())
     dt_flags |= llvm::ELF::DF_SYMBOLIC;
-  if (pConfig.options().hasNow())
+  if (m_Config.options().hasNow())
     dt_flags |= llvm::ELF::DF_BIND_NOW;
   if (m_Backend.hasTextRel())
     dt_flags |= llvm::ELF::DF_TEXTREL;
   if (m_Backend.hasStaticTLS() &&
-      (LinkerConfig::DynObj == pConfig.codeGenType()))
+      (LinkerConfig::DynObj == m_Config.codeGenType()))
     dt_flags |= llvm::ELF::DF_STATIC_TLS;
   if (0x0 != dt_flags) {
     applyOne(llvm::ELF::DT_FLAGS, dt_flags); // DT_FLAGS
   }
 
   uint64_t dt_flags_1 = 0x0;
-  if (pConfig.options().hasNow())
+  if (m_Config.options().hasNow())
     dt_flags_1 |= llvm::ELF::DF_1_NOW;
-  if (pConfig.options().hasLoadFltr())
+  if (m_Config.options().hasLoadFltr())
     dt_flags_1 |= llvm::ELF::DF_1_LOADFLTR;
-  if (pConfig.options().hasOrigin())
+  if (m_Config.options().hasOrigin())
     dt_flags_1 |= llvm::ELF::DF_1_ORIGIN;
-  if (pConfig.options().hasInterPose())
+  if (m_Config.options().hasInterPose())
     dt_flags_1 |= llvm::ELF::DF_1_INTERPOSE;
-  if (pConfig.options().hasNoDefaultLib())
+  if (m_Config.options().hasNoDefaultLib())
     dt_flags_1 |= llvm::ELF::DF_1_NODEFLIB;
-  if (pConfig.options().hasNoDump())
+  if (m_Config.options().hasNoDump())
     dt_flags_1 |= llvm::ELF::DF_1_NODUMP;
-  if (pConfig.options().Bgroup())
+  if (m_Config.options().Bgroup())
     dt_flags_1 |= llvm::ELF::DF_1_GROUP;
-  if (LinkerConfig::DynObj == pConfig.codeGenType()) {
-    if (pConfig.options().hasNoDelete())
+  if (LinkerConfig::DynObj == m_Config.codeGenType()) {
+    if (m_Config.options().hasNoDelete())
       dt_flags_1 |= llvm::ELF::DF_1_NODELETE;
-    if (pConfig.options().hasInitFirst())
+    if (m_Config.options().hasInitFirst())
       dt_flags_1 |= llvm::ELF::DF_1_INITFIRST;
-    if (pConfig.options().hasNoDLOpen())
+    if (m_Config.options().hasNoDLOpen())
       dt_flags_1 |= llvm::ELF::DF_1_NOOPEN;
   }
   if (0x0 != dt_flags_1)
