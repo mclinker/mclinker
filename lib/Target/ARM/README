@@ -1,2 +1,0 @@
-ARMLDBackend stands like ARMAsmBackend. It's a backend of linker, 
-and all target-dependent behavior and data are here.
