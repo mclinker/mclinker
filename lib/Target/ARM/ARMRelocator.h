@@ -1,4 +1,4 @@
-//===-  ARMRelocationFactory.h --------------------------------------------===//
+//===-  ARMRelocator.h ----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -12,26 +12,26 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/Relocator.h>
 #include <mcld/Target/GOT.h>
 #include <mcld/Target/SymbolEntryMap.h>
 #include "ARMLDBackend.h"
 
 namespace mcld {
 
-/** \class ARMRelocationFactory
- *  \brief ARMRelocationFactory creates and destroys the ARM relocations.
+/** \class ARMRelocator
+ *  \brief ARMRelocator creates and destroys the ARM relocations.
  *
  */
-class ARMRelocationFactory : public RelocationFactory
+class ARMRelocator : public Relocator
 {
 public:
   typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
   typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
 
 public:
-  ARMRelocationFactory(size_t pNum, ARMGNULDBackend& pParent);
-  ~ARMRelocationFactory();
+  ARMRelocator(ARMGNULDBackend& pParent);
+  ~ARMRelocator();
 
   Result applyRelocation(Relocation& pRelocation);
 

@@ -9,7 +9,7 @@
 #include "Mips.h"
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
-#include "MipsRelocationFactory.h"
+#include "MipsRelocator.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
@@ -45,7 +45,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
   : GNULDBackend(pConfig),
-    m_pRelocFactory(NULL),
+    m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pRelDyn(NULL),
     m_pDynamic(NULL),
@@ -56,7 +56,7 @@ MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
 
 MipsGNULDBackend::~MipsGNULDBackend()
 {
-  delete m_pRelocFactory;
+  delete m_pRelocator;
   delete m_pGOT;
   delete m_pRelDyn;
   delete m_pDynamic;
@@ -110,19 +110,19 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
   }
 }
 
-bool MipsGNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
+bool MipsGNULDBackend::initRelocator(const FragmentLinker& pLinker)
 {
-  if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new MipsRelocationFactory(1024, *this);
-    m_pRelocFactory->setFragmentLinker(pLinker);
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new MipsRelocator(*this);
+    m_pRelocator->setFragmentLinker(pLinker);
   }
   return true;
 }
 
-RelocationFactory* MipsGNULDBackend::getRelocFactory()
+Relocator* MipsGNULDBackend::getRelocator()
 {
-  assert(NULL != m_pRelocFactory);
-  return m_pRelocFactory;
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,

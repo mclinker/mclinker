@@ -75,8 +75,6 @@ public:
 
   ~X86GNULDBackend();
 
-  RelocationFactory* getRelocFactory();
-
   uint32_t machine() const;
 
   bool isLittleEndian() const
@@ -148,8 +146,11 @@ public:
   uint64_t defaultTextSegmentAddr() const
   { return 0x08048000; }
 
-  // initRelocFactory - create and initialize RelocationFactory
-  bool initRelocFactory(const FragmentLinker& pLinker);
+  /// initRelocator - create and initialize Relocator.
+  bool initRelocator(const FragmentLinker& pLinker);
+
+  /// getRelocator - return relocator.
+  Relocator* getRelocator();
 
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
@@ -217,7 +218,7 @@ private:
                                    const FragmentLinker& pLinker);
 
 private:
-  RelocationFactory* m_pRelocFactory;
+  Relocator* m_pRelocator;
   X86GOT* m_pGOT;
   X86PLT* m_pPLT;
   X86GOTPLT* m_pGOTPLT;

@@ -107,8 +107,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMPLT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
-	${LIBDIR}/Target/ARM/ARMRelocationFactory.h \
-	${LIBDIR}/Target/ARM/ARMRelocationFactory.cpp \
+	${LIBDIR}/Target/ARM/ARMRelocator.h \
+	${LIBDIR}/Target/ARM/ARMRelocator.cpp \
 	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.h \
 	${LIBDIR}/Target/ARM/ARMELFMCLinker.cpp \
@@ -131,8 +131,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsGOT.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
-	${LIBDIR}/Target/Mips/MipsRelocationFactory.h \
-	${LIBDIR}/Target/Mips/MipsRelocationFactory.cpp \
+	${LIBDIR}/Target/Mips/MipsRelocator.h \
+	${LIBDIR}/Target/Mips/MipsRelocator.cpp \
 	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.h \
 	${LIBDIR}/Target/Mips/MipsELFMCLinker.cpp \
@@ -151,8 +151,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86PLT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
-	${LIBDIR}/Target/X86/X86RelocationFactory.h \
-	${LIBDIR}/Target/X86/X86RelocationFactory.cpp \
+	${LIBDIR}/Target/X86/X86Relocator.h \
+	${LIBDIR}/Target/X86/X86Relocator.cpp \
 	${LIBDIR}/Target/X86/X86MCLinker.cpp \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.h \
 	${LIBDIR}/Target/X86/X86ELFMCLinker.cpp \
@@ -257,6 +257,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/Layout.cpp \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
+	${INCDIR}/LD/Relocator.h \
 	${INCDIR}/LD/StaticResolver.h \
 	${LIBDIR}/LD/StaticResolver.cpp \
 	${INCDIR}/LD/NamePool.h \
@@ -397,7 +398,7 @@ else
 UNITTEST_SOURCE =
 endif
 
-ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var 
+ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
 if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror

@@ -18,6 +18,7 @@ class LinkerConfig;
 class FragmentLinker;
 class Relocation;
 class RelocationFactory;
+class Relocator;
 class Layout;
 class ArchiveReader;
 class ObjectReader;
@@ -57,9 +58,12 @@ public:
   virtual void initTargetSymbols(FragmentLinker& pLinker) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
   virtual bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule) = 0;
-  virtual bool initRelocFactory(const FragmentLinker& pLinker) = 0;
+
+  virtual bool initRelocFactory() = 0;
+  virtual bool initRelocator(const FragmentLinker& pLinker) = 0;
 
   virtual RelocationFactory* getRelocFactory() = 0;
+  virtual Relocator* getRelocator() = 0;
 
   /// scanRelocation - When read in relocations, backend can do any modification
   /// to relocation and generate empty entries, such as GOT, dynamic relocation

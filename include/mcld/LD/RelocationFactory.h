@@ -16,14 +16,8 @@
 
 namespace mcld {
 
-class LDSymbol;
-class ResolveInfo;
 class FragmentRef;
-class FragmentLinker;
-class Layout;
-class GOT;
 class TargetLDBackend;
-class LinkerConfig;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -38,21 +32,10 @@ public:
   typedef Relocation::DWord DWord;
   typedef Relocation::SWord SWord;
 
-  enum Result {
-    OK,
-    BadReloc,
-    Overflow,
-    Unsupport,
-    Unknown
-  };
-
 public:
-  explicit RelocationFactory(size_t pNum);
+  explicit RelocationFactory(size_t pNum, TargetLDBackend& pTarget);
 
-  virtual ~RelocationFactory();
-
-  /// apply - general apply function
-  virtual Result applyRelocation(Relocation& pRelocation) = 0;
+  ~RelocationFactory();
 
   // ----- production ----- //
   /// produce - produce a relocation entry
@@ -69,22 +52,8 @@ public:
 
   void destroy(Relocation* pRelocation);
 
-  void setFragmentLinker(const FragmentLinker& pLinker);
-
-  // ------ observers -----//
-  const FragmentLinker& getFragmentLinker() const;
-
-  bool hasFragmentLinker() const;
-
-  virtual TargetLDBackend& getTarget() = 0;
-
-  virtual const TargetLDBackend& getTarget() const = 0;
-
-  virtual const char* getName(Type pType) const = 0;
-
 private:
-  const FragmentLinker* m_pLinker;
-
+  TargetLDBackend& m_Target;
 };
 
 } // namespace of mcld

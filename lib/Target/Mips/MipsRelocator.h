@@ -1,4 +1,4 @@
-//===- MipsRelocationFactory.h --------------------------------------------===//
+//===- MipsRelocator.h --------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -12,23 +12,23 @@
 #include <gtest.h>
 #endif
 
-#include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Target/SymbolEntryMap.h>
 #include "MipsLDBackend.h"
 
 namespace mcld {
 
-/** \class MipsRelocationFactory
- *  \brief MipsRelocationFactory creates and destroys the Mips relocations.
+/** \class MipsRelocator
+ *  \brief MipsRelocator creates and destroys the Mips relocations.
  */
-class MipsRelocationFactory : public RelocationFactory
+class MipsRelocator : public Relocator
 {
 public:
   typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
 
 public:
-  MipsRelocationFactory(size_t pNum, MipsGNULDBackend& pParent);
+  MipsRelocator(MipsGNULDBackend& pParent);
 
   Result applyRelocation(Relocation& pRelocation);
 

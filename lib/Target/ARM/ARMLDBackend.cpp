@@ -9,7 +9,7 @@
 #include "ARM.h"
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
-#include "ARMRelocationFactory.h"
+#include "ARMRelocator.h"
 #include "ARMToARMStub.h"
 #include "ARMToTHMStub.h"
 #include "THMToTHMStub.h"
@@ -46,7 +46,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
   : GNULDBackend(pConfig),
-    m_pRelocFactory(NULL),
+    m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
     m_pRelDyn(NULL),
@@ -62,27 +62,12 @@ ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
 
 ARMGNULDBackend::~ARMGNULDBackend()
 {
-  delete m_pRelocFactory;
+  delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
   delete m_pRelDyn;
   delete m_pRelPLT;
   delete m_pDynamic;
-}
-
-bool ARMGNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
-{
-  if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new ARMRelocationFactory(1024, *this);
-    m_pRelocFactory->setFragmentLinker(pLinker);
-  }
-  return true;
-}
-
-RelocationFactory* ARMGNULDBackend::getRelocFactory()
-{
-  assert(NULL != m_pRelocFactory);
-  return m_pRelocFactory;
 }
 
 void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
@@ -182,6 +167,21 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   0x0,  // value
                                                   exidx_end, // FragRef
                                                   ResolveInfo::Hidden);
+}
+
+bool ARMGNULDBackend::initRelocator(const FragmentLinker& pLinker)
+{
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new ARMRelocator(*this);
+    m_pRelocator->setFragmentLinker(pLinker);
+  }
+  return true;
+}
+
+Relocator* ARMGNULDBackend::getRelocator()
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
 }
 
 void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)

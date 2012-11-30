@@ -95,7 +95,10 @@ bool ObjectLinker::initFragmentLinker()
                                      *m_pDynObjReader, *m_pArchiveReader);
 
   // initialize RelocationFactory
-  m_LDBackend.initRelocFactory(*m_pLinker);
+  m_LDBackend.initRelocFactory();
+
+  // initialize Relocator
+  m_LDBackend.initRelocator(*m_pLinker);
 
   // initialize BranchIslandFactory
   m_LDBackend.initBRIslandFactory();

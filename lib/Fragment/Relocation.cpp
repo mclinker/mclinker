@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Fragment/Relocation.h>
-#include <mcld/LD/RelocationFactory.h>
+#include <mcld/LD/Relocator.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDSection.h>
@@ -52,31 +52,31 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply(RelocationFactory& pRelocFactory)
+void Relocation::apply(Relocator& pRelocator)
 {
-  RelocationFactory::Result result = pRelocFactory.applyRelocation(*this);
+  Relocator::Result result = pRelocator.applyRelocation(*this);
 
   switch (result) {
-    case RelocationFactory::OK: {
+    case Relocator::OK: {
       // do nothing
       return;
     }
-    case RelocationFactory::Overflow: {
-      error(diag::result_overflow) << pRelocFactory.getName(type())
+    case Relocator::Overflow: {
+      error(diag::result_overflow) << pRelocator.getName(type())
                                    << symInfo()->name();
       return;
     }
-    case RelocationFactory::BadReloc: {
-      error(diag::result_badreloc) << pRelocFactory.getName(type())
+    case Relocator::BadReloc: {
+      error(diag::result_badreloc) << pRelocator.getName(type())
                                    << symInfo()->name();
       return;
     }
-    case RelocationFactory::Unsupport: {
+    case Relocator::Unsupport: {
       fatal(diag::unsupported_relocation) << type()
                                           << "mclinker@googlegroups.com";
       return;
     }
-    case RelocationFactory::Unknown: {
+    case Relocator::Unknown: {
       fatal(diag::unknown_relocation) << type() << symInfo()->name();
       return;
     }

@@ -8,23 +8,21 @@
 //===----------------------------------------------------------------------===//
 
 #include <mcld/LD/RelocationFactory.h>
-
-#include <cstring>
-#include <cassert>
+#include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Host.h>
 
-#include <mcld/Target/GOT.h>
-#include <mcld/Target/TargetLDBackend.h>
+#include <cstring>
+#include <cassert>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // RelocationFactory
 //===----------------------------------------------------------------------===//
-RelocationFactory::RelocationFactory(size_t pNum)
+RelocationFactory::RelocationFactory(size_t pNum, TargetLDBackend& pTarget)
   : GCFactory<Relocation, 0>(pNum),
-    m_pLinker(NULL) {
+    m_Target(pTarget) {
 }
 
 RelocationFactory::~RelocationFactory()
@@ -41,10 +39,10 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   DWord target_data = 0;
 
   // byte swapping if the host and target have different endian
-  if(llvm::sys::isLittleEndianHost() != getTarget().isLittleEndian()) {
+  if(llvm::sys::isLittleEndianHost() != m_Target.isLittleEndian()) {
      uint32_t tmp_data;
 
-     switch(getTarget().bitclass()) {
+     switch(m_Target.bitclass()) {
       case 32u:
         pFragRef.memcpy(&tmp_data, 4);
         tmp_data = bswap32(tmp_data);
@@ -61,7 +59,7 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     }
   }
   else {
-    pFragRef.memcpy(&target_data, (getTarget().bitclass()/8));
+    pFragRef.memcpy(&target_data, (m_Target.bitclass()/8));
   }
 
   Relocation *result = allocate();
@@ -81,21 +79,5 @@ Relocation* RelocationFactory::produceEmptyEntry()
 void RelocationFactory::destroy(Relocation* pRelocation)
 {
    /** GCFactory will recycle the relocation **/
-}
-
-void RelocationFactory::setFragmentLinker(const FragmentLinker& pLinker)
-{
-  m_pLinker = &pLinker;
-}
-
-const FragmentLinker& RelocationFactory::getFragmentLinker() const
-{
-  assert(NULL != m_pLinker);
-  return *m_pLinker;
-}
-
-bool RelocationFactory::hasFragmentLinker() const
-{
-  return (NULL != m_pLinker);
 }
 

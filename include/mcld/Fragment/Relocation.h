@@ -20,7 +20,7 @@
 namespace mcld {
 
 class ResolveInfo;
-class RelocationFactory;
+class Relocator;
 class LinkerConfig;
 
 class Relocation : public llvm::ilist_node<Relocation>
@@ -71,7 +71,7 @@ public:
   const FragmentRef& targetRef() const { return m_TargetAddress; }
   FragmentRef&       targetRef()       { return m_TargetAddress; }
 
-  void apply(RelocationFactory& pRelocFactory);
+  void apply(Relocator& pRelocator);
 
   /// updateAddend - A relocation with a section symbol must update addend
   /// before reading its value.

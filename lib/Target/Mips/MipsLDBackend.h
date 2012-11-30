@@ -44,11 +44,11 @@ public:
   /// initTargetSymbols - initialize target dependent symbols in output.
   void initTargetSymbols(FragmentLinker& pLinker);
 
-  /// initRelocFactory - create and initialize RelocationFactory.
-  bool initRelocFactory(const FragmentLinker& pLinker);
+  /// initRelocator - create and initialize Relocator.
+  bool initRelocator(const FragmentLinker& pLinker);
 
-  /// getRelocFactory - return relocation factory.
-  RelocationFactory* getRelocFactory();
+  /// getRelocator - return relocator.
+  Relocator* getRelocator();
 
   /// scanRelocation - determine the empty entries are needed or not and
   /// create the empty entries if needed.
@@ -159,7 +159,7 @@ private:
                                    const FragmentLinker& pLinker);
 
 private:
-  RelocationFactory* m_pRelocFactory;
+  Relocator* m_pRelocator;
 
   MipsGOT* m_pGOT;                      // .got
   OutputRelocSection* m_pRelDyn;        // .rel.dyn

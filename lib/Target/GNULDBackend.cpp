@@ -23,6 +23,7 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/EhFrameHdr.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/LD/RelocationFactory.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
@@ -83,12 +84,14 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     f_p_EData(NULL),
     f_pBSSStart(NULL),
     f_pEnd(NULL),
-    f_p_End(NULL) {
+    f_p_End(NULL),
+    m_pRelocFactory(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
 {
+  delete m_pRelocFactory;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
   delete m_pSymIndexMap;
@@ -2338,5 +2341,19 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
   } while (!finished);
 
   return true;
+}
+
+bool GNULDBackend::initRelocFactory()
+{
+  if (NULL == m_pRelocFactory) {
+    m_pRelocFactory = new RelocationFactory(1024, *this);
+  }
+  return true;
+}
+
+RelocationFactory* GNULDBackend::getRelocFactory()
+{
+  assert(NULL != m_pRelocFactory);
+  return m_pRelocFactory;
 }
 

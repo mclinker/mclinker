@@ -9,7 +9,7 @@
 #include "X86.h"
 #include "X86ELFDynamic.h"
 #include "X86LDBackend.h"
-#include "X86RelocationFactory.h"
+#include "X86Relocator.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
@@ -33,7 +33,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
   : GNULDBackend(pConfig),
-    m_pRelocFactory(NULL),
+    m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
     m_pGOTPLT(NULL),
@@ -45,7 +45,7 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
 
 X86GNULDBackend::~X86GNULDBackend()
 {
-  delete m_pRelocFactory;
+  delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
   delete m_pGOTPLT;
@@ -54,19 +54,19 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
-RelocationFactory* X86GNULDBackend::getRelocFactory()
+bool X86GNULDBackend::initRelocator(const FragmentLinker& pLinker)
 {
-  assert(NULL != m_pRelocFactory);
-  return m_pRelocFactory;
-}
-
-bool X86GNULDBackend::initRelocFactory(const FragmentLinker& pLinker)
-{
-  if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new X86RelocationFactory(1024, *this);
-    m_pRelocFactory->setFragmentLinker(pLinker);
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new X86Relocator(*this);
+    m_pRelocator->setFragmentLinker(pLinker);
   }
   return true;
+}
+
+Relocator* X86GNULDBackend::getRelocator()
+{
+  assert(NULL != m_pRelocator);
+  return m_pRelocator;
 }
 
 void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
