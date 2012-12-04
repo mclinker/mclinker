@@ -66,6 +66,7 @@ inline uint64_t Align<64>(uint64_t pAddress)
   return (pAddress + 0x3F) & (~0x3F);
 }
 
+#ifndef __FreeBSD__
 /// bswap16 - byte swap 16-bit version
 /// @ref binary utilities - elfcpp_swap
 inline uint16_t bswap16(uint16_t pData)
@@ -97,6 +98,7 @@ inline uint64_t bswap64(uint64_t pData)
            ((pData & 0x000000000000FF00ULL) << 40) |
            ((pData & 0x00000000000000FFULL) << 56));
 }
+#endif
 
 template <size_t SizeOfStr, typename FieldType>
 class StringSizerHelper

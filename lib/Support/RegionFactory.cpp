@@ -9,6 +9,8 @@
 #include <mcld/Support/RegionFactory.h>
 #include <mcld/Support/Space.h>
 
+#include <new>
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//

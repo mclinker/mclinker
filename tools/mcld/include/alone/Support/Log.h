@@ -13,6 +13,6 @@
 #include <cstdio>
 
 #define ALOGE(fmt, args...) \
-printf("%s:%s:%d: "fmt, __FILE__, __FUNCTION__, __LINE__, args)
+printf("%s:%s:%d: " fmt, __FILE__, __FUNCTION__, __LINE__, args)
 
 #endif // ALONE_SUPPORT_LOG_H
