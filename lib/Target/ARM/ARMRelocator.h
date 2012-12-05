@@ -26,8 +26,8 @@ namespace mcld {
 class ARMRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
-  typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
+  typedef SymbolEntryMap<ARMGOTEntry> SymGOTMap;
+  typedef SymbolEntryMap<ARMPLT1> SymPLTMap;
 
 public:
   ARMRelocator(ARMGNULDBackend& pParent);

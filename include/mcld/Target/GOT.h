@@ -28,18 +28,25 @@ class ResolveInfo;
 class GOT
 {
 protected:
-  GOT(LDSection& pSection, size_t pEntrySize);
+  GOT(LDSection& pSection);
 
 public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
 
+  template<size_t SIZE>
   class Entry : public TargetFragment
   {
   public:
-    Entry(uint64_t pContent, size_t pEntrySize, SectionData* pParent);
+    enum { EntrySize = SIZE };
 
-    virtual ~Entry();
+  public:
+    Entry(uint64_t pContent, SectionData* pParent)
+      : TargetFragment(Fragment::Target, pParent),
+        f_Content(pContent) {
+    }
+
+    virtual ~Entry() {}
 
     uint64_t getContent() const
     { return f_Content; }
@@ -49,20 +56,16 @@ public:
 
     // Override pure virtual function
     size_t size() const
-    { return m_EntrySize; }
+    { return EntrySize; }
 
   protected:
     uint64_t f_Content;
-    size_t m_EntrySize;
   };
 
 public:
   virtual ~GOT();
 
   // ----- observers -----//
-  /// entrySize - the number of bytes per entry
-  size_t getEntrySize() const;
-
   uint64_t addr() const { return m_Section.addr(); }
 
   const_iterator begin() const { return m_SectionData->begin(); }
@@ -81,17 +84,11 @@ public:
   /// needed. If an entry is needed, the empty entry is reserved for layout
   /// to adjust the fragment offset. After that, we fill up the entries when
   /// applying relocations.
-  virtual void reserve(size_t pNum = 1);
-
-  /// consume - consume and return an empty entry
-  virtual Entry* consume();
+  virtual void reserve(size_t pNum = 1) = 0;
 
 protected:
   LDSection& m_Section;
   SectionData* m_SectionData;
-  size_t f_EntrySize;
-
-  Entry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

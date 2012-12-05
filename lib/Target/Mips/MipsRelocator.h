@@ -25,7 +25,7 @@ namespace mcld {
 class MipsRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
+  typedef SymbolEntryMap<MipsGOTEntry> SymGOTMap;
 
 public:
   MipsRelocator(MipsGNULDBackend& pParent);

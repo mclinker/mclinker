@@ -23,6 +23,14 @@ class LDSection;
 
 const unsigned int X86GOTPLT0Num = 3;
 
+class X86GOTPLTEntry : public GOT::Entry<4>
+{
+public:
+  X86GOTPLTEntry(uint64_t pContent, SectionData* pParent)
+   : GOT::Entry<4>(pContent, pParent)
+  {}
+};
+
 /** \class X86GOTPLT
  *  \brief X86 .got.plt section.
  */
@@ -33,12 +41,19 @@ public:
 
   ~X86GOTPLT();
 
+  void reserve(size_t pNum = 1);
+
+  X86GOTPLTEntry* consume();
+
   // hasGOT1 - return if this section has any GOT1 entry
   bool hasGOT1() const;
 
   void applyGOT0(uint64_t pAddress);
 
   void applyAllGOTPLT(const X86PLT& pPLT);
+
+private:
+  X86GOTPLTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

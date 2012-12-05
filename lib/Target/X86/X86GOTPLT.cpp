@@ -9,17 +9,11 @@
 #include "X86GOTPLT.h"
 #include "X86PLT.h"
 
-#include <new>
-
 #include <llvm/Support/Casting.h>
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/Support/MsgHandling.h>
-
-namespace {
-  const uint64_t X86GOTPLTEntrySize = 4;
-}
 
 namespace mcld {
 
@@ -27,7 +21,7 @@ namespace mcld {
 // X86GOTPLT
 //===----------------------------------------------------------------------===//
 X86GOTPLT::X86GOTPLT(LDSection& pSection)
-  : GOT(pSection, X86GOTPLTEntrySize)
+  : GOT(pSection), m_pLast(NULL)
 {
   // Create GOT0 entries
   reserve(X86GOTPLT0Num);
@@ -42,6 +36,27 @@ X86GOTPLT::~X86GOTPLT()
 {
 }
 
+void X86GOTPLT::reserve(size_t pNum)
+{
+  X86GOTPLTEntry* entry = NULL;
+
+  for (size_t i = 0; i < pNum; i++) {
+    entry = new X86GOTPLTEntry(0, m_SectionData);
+  }
+}
+
+X86GOTPLTEntry* X86GOTPLT::consume()
+{
+  if (NULL == m_pLast) {
+    assert(!empty() && "Consume empty GOT entry!");
+    m_pLast = llvm::cast<X86GOTPLTEntry>(&m_SectionData->front());
+    return m_pLast;
+  }
+
+  m_pLast = llvm::cast<X86GOTPLTEntry>(m_pLast->getNextNode());
+  return m_pLast;
+}
+
 bool X86GOTPLT::hasGOT1() const
 {
   return (m_SectionData->size() > X86GOTPLT0Num);
@@ -49,7 +64,7 @@ bool X86GOTPLT::hasGOT1() const
 
 void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
-  llvm::cast<Entry>
+  llvm::cast<X86GOTPLTEntry>
     (*(m_SectionData->getFragmentList().begin())).setContent(pAddress);
 }
 
@@ -62,7 +77,7 @@ void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   // address of corresponding plt entry
   uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
-    llvm::cast<Entry>(*it).setContent(plt_addr + 6);
+    llvm::cast<X86GOTPLTEntry>(*it).setContent(plt_addr + 6);
     plt_addr += pPLT.getPLT1Size();
   }
 }

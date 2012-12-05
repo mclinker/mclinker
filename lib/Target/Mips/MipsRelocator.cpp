@@ -105,9 +105,9 @@ Relocator::Address helper_GetGP(MipsRelocator& pParent)
 }
 
 static
-GOT::Entry& helper_GetGOTEntry(Relocation& pReloc,
-                               MipsRelocator& pParent,
-                               bool& pExist, int32_t value)
+MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
+                                 MipsRelocator& pParent,
+                                 bool& pExist, int32_t value)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -119,7 +119,7 @@ GOT::Entry& helper_GetGOTEntry(Relocation& pReloc,
     return *got.consumeLocal();
   }
 
-  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  MipsGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
     return *got_entry;
@@ -149,7 +149,7 @@ Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
                                        MipsRelocator& pParent)
 {
   bool exist;
-  GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
+  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
   return got_entry.getOffset() - 0x7FF0;
 }
 
@@ -315,7 +315,7 @@ MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
 
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
     bool exist;
-    GOT::Entry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
+    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
     got_entry.setContent(res);
     G = got_entry.getOffset() - 0x7FF0;

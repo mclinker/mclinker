@@ -89,7 +89,7 @@ public:
 
   const X86PLT& getPLT() const;
 
-  GOT::Entry& getTLSModuleID();
+  X86GOTEntry& getTLSModuleID();
 
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(FragmentLinker& pLinker);

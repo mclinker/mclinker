@@ -21,6 +21,17 @@ namespace mcld {
 class LDSection;
 class MemoryRegion;
 
+/** \class ARMGOTEntry
+ *  \brief GOT Entry with size of 4 bytes
+ */
+class ARMGOTEntry : public GOT::Entry<4>
+{
+public:
+  ARMGOTEntry(uint64_t pContent, SectionData* pParent)
+   : GOT::Entry<4>(pContent, pParent)
+  {}
+};
+
 /** \class ARMGOT
  *  \brief ARM Global Offset Table.
  *
@@ -45,13 +56,17 @@ public:
 
   ~ARMGOT();
 
+  void reserve(size_t pNum = 1);
+
   void reserveGOTPLT();
 
   void reserveGOT();
 
-  GOT::Entry* consumeGOT();
+  ARMGOTEntry* consume();
 
-  GOT::Entry* consumeGOTPLT();
+  ARMGOTEntry* consumeGOT();
+
+  ARMGOTEntry* consumeGOTPLT();
 
   uint64_t emit(MemoryRegion& pRegion);
 
@@ -67,14 +82,15 @@ private:
     Part() : front(NULL), last_used(NULL) { }
 
   public:
-    GOT::Entry* front;
-    GOT::Entry* last_used;
+    ARMGOTEntry* front;
+    ARMGOTEntry* last_used;
   };
 
 private:
   Part m_GOTPLT;
   Part m_GOT;
 
+  ARMGOTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

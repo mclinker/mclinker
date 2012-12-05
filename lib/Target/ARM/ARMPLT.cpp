@@ -17,31 +17,13 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 
-namespace {
-
-const uint32_t arm_plt0[] = {
-  0xe52de004, // str   lr, [sp, #-4]!
-  0xe59fe004, // ldr   lr, [pc, #4]
-  0xe08fe00e, // add   lr, pc, lr
-  0xe5bef008, // ldr   pc, [lr, #8]!
-  0x00000000, // &GOT[0] - .
-};
-
-const uint32_t arm_plt1[] = {
-  0xe28fc600, // add   ip, pc, #0xNN00000
-  0xe28cca00, // add   ip, ip, #0xNN000
-  0xe5bcf000, // ldr   pc, [ip, #0xNNN]!
-};
-
-} // anonymous namespace
-
 using namespace mcld;
 
 ARMPLT0::ARMPLT0(SectionData& pParent)
-  : PLT::Entry(sizeof(arm_plt0), pParent) {}
+  : PLT::Entry<sizeof(arm_plt0)>(pParent) {}
 
 ARMPLT1::ARMPLT1(SectionData& pParent)
-  : PLT::Entry(sizeof(arm_plt1), pParent) {}
+  : PLT::Entry<sizeof(arm_plt1)>(pParent) {}
 
 //===----------------------------------------------------------------------===//
 // ARMPLT
@@ -134,12 +116,12 @@ void ARMPLT::applyPLT0() {
   ARMPLT0* plt0 = &(llvm::cast<ARMPLT0>(*first));
 
   uint32_t* data = 0;
-  data = static_cast<uint32_t*>(malloc(plt0->getEntrySize()));
+  data = static_cast<uint32_t*>(malloc(ARMPLT0::EntrySize));
 
   if (!data)
     fatal(diag::fail_allocate_memory_plt);
 
-  memcpy(data, arm_plt0, plt0->getEntrySize());
+  memcpy(data, arm_plt0, ARMPLT0::EntrySize);
   data[4] = offset;
 
   plt0->setContent(reinterpret_cast<unsigned char*>(data));
@@ -157,21 +139,21 @@ void ARMPLT::applyPLT1() {
   ARMPLT::iterator ie = m_SectionData->end();
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
-  uint32_t GOTEntrySize = m_GOT.getEntrySize();
+  uint32_t GOTEntrySize = ARMGOTEntry::EntrySize;
   uint32_t GOTEntryAddress =
     got_base +  GOTEntrySize * 3;
 
   uint64_t PLTEntryAddress =
-    plt_base + llvm::cast<ARMPLT0>((*it)).getEntrySize(); //Offset of PLT0
+    plt_base + ARMPLT0::EntrySize; //Offset of PLT0
 
   ++it; //skip PLT0
-  uint64_t PLT1EntrySize = llvm::cast<ARMPLT1>((*it)).getEntrySize();
+  uint64_t PLT1EntrySize = ARMPLT1::EntrySize;
   ARMPLT1* plt1 = NULL;
 
   uint32_t* Out = NULL;
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));
-    Out = static_cast<uint32_t*>(malloc(plt1->getEntrySize()));
+    Out = static_cast<uint32_t*>(malloc(ARMPLT1::EntrySize));
 
     if (!Out)
       fatal(diag::fail_allocate_memory_plt);
@@ -198,21 +180,18 @@ uint64_t ARMPLT::emit(MemoryRegion& pRegion)
 {
   uint64_t result = 0x0;
   iterator it = begin();
-  unsigned int plt0_size = llvm::cast<ARMPLT0>((*it)).getEntrySize();
 
   unsigned char* buffer = pRegion.getBuffer();
-  memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), plt0_size);
-  result += plt0_size;
+  memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), ARMPLT0::EntrySize);
+  result += ARMPLT0::EntrySize;
   ++it;
 
   ARMPLT1* plt1 = 0;
   ARMPLT::iterator ie = end();
-  unsigned int entry_size = 0;
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));
-    entry_size = plt1->getEntrySize();
-    memcpy(buffer + result, plt1->getContent(), entry_size);
-    result += entry_size;
+    memcpy(buffer + result, plt1->getContent(), ARMPLT1::EntrySize);
+    result += ARMPLT1::EntrySize;
     ++it;
   }
   return result;

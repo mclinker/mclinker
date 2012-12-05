@@ -29,8 +29,9 @@ class ResolveInfo;
 class X86Relocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<PLT::Entry> SymPLTMap;
-  typedef SymbolEntryMap<GOT::Entry> SymGOTMap;
+  typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
+  typedef SymbolEntryMap<X86GOTEntry> SymGOTMap;
+  typedef SymbolEntryMap<X86GOTPLTEntry> SymGOTPLTMap;
 
 public:
   X86Relocator(X86GNULDBackend& pParent);
@@ -52,14 +53,14 @@ public:
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
 
-  const SymGOTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
-  SymGOTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+  const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
 private:
   X86GNULDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTMap;
-  SymGOTMap m_SymGOTPLTMap;
+  SymGOTPLTMap m_SymGOTPLTMap;
 };
 
 } // namespace of mcld

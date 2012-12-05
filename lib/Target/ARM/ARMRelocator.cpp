@@ -120,14 +120,14 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 }
 
 static
-GOT::Entry& helper_get_GOT_and_init(Relocation& pReloc,
-                                    ARMRelocator& pParent)
+ARMGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+                                     ARMRelocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
-  GOT::Entry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  ARMGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
     got_entry = ld_backend.getGOT().consumeGOT();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
@@ -172,19 +172,19 @@ ARMRelocator::Address helper_GOT_ORG(ARMRelocator& pParent)
 static
 ARMRelocator::Address helper_GOT(Relocation& pReloc, ARMRelocator& pParent)
 {
-  GOT::Entry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  ARMGOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   return helper_GOT_ORG(pParent) + got_entry.getOffset();
 }
 
 
 static
-PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc, ARMRelocator& pParent)
+ARMPLT1& helper_get_PLT_and_init(Relocation& pReloc, ARMRelocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   ARMGNULDBackend& ld_backend = pParent.getTarget();
 
-  PLT::Entry* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  ARMPLT1* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
   if (NULL != plt_entry)
     return *plt_entry;
 
@@ -193,7 +193,7 @@ PLT::Entry& helper_get_PLT_and_init(Relocation& pReloc, ARMRelocator& pParent)
 
   // If we first get this PLT entry, we should initialize it.
   if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
-    GOT::Entry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    ARMGOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOT().consumeGOTPLT();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
@@ -221,7 +221,7 @@ ARMRelocator::Address helper_PLT_ORG(ARMRelocator& pParent)
 static
 ARMRelocator::Address helper_PLT(Relocation& pReloc, ARMRelocator& pParent)
 {
-  PLT::Entry& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  ARMPLT1& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) + plt_entry.getOffset();
 }
 

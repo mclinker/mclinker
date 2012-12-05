@@ -11,9 +11,7 @@
 #include <mcld/LD/LDFileFormat.h>
 #include <mcld/LD/SectionData.h>
 
-namespace {
-  const size_t X86GOTEntrySize = 4;
-}
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -21,11 +19,32 @@ using namespace mcld;
 // X86GOT
 //===----------------------------------------------------------------------===//
 X86GOT::X86GOT(LDSection& pSection)
-             : GOT(pSection, X86GOTEntrySize)
+  : GOT(pSection), m_pLast(NULL)
 {
 }
 
 X86GOT::~X86GOT()
 {
+}
+
+void X86GOT::reserve(size_t pNum)
+{
+  X86GOTEntry* entry = NULL;
+
+  for (size_t i = 0; i < pNum; i++) {
+    entry = new X86GOTEntry(0, m_SectionData);
+  }
+}
+
+X86GOTEntry* X86GOT::consume()
+{
+  if (NULL == m_pLast) {
+    assert(!empty() && "Consume empty GOT entry!");
+    m_pLast = llvm::cast<X86GOTEntry>(&m_SectionData->front());
+    return m_pLast;
+  }
+
+  m_pLast = llvm::cast<X86GOTEntry>(m_pLast->getNextNode());
+  return m_pLast;
 }
 

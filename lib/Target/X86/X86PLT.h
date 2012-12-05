@@ -11,24 +11,70 @@
 
 #include <mcld/Target/PLT.h>
 
+namespace {
+
+const uint8_t x86_dyn_plt0[] = {
+  0xff, 0xb3, 0x04, 0, 0, 0, // pushl  0x4(%ebx)
+  0xff, 0xa3, 0x08, 0, 0, 0, // jmp    *0x8(%ebx)
+  0x0f, 0x1f, 0x4,  0        // nopl   0(%eax)
+};
+
+const uint8_t x86_dyn_plt1[] = {
+  0xff, 0xa3, 0, 0, 0, 0,    // jmp    *sym@GOT(%ebx)
+  0x68, 0, 0, 0, 0,          // pushl  $offset
+  0xe9, 0, 0, 0, 0           // jmp    plt0
+};
+
+const uint8_t x86_exec_plt0[] = {
+  0xff, 0x35, 0, 0, 0, 0,    // pushl  .got + 4
+  0xff, 0x25, 0, 0, 0, 0,    // jmp    *(.got + 8)
+  0x0f, 0x1f, 0x4, 0         // nopl   0(%eax)
+};
+
+const uint8_t x86_exec_plt1[] = {
+  0xff, 0x25, 0, 0, 0, 0,    // jmp    *(sym in .got)
+  0x68, 0, 0, 0, 0,          // pushl  $offset
+  0xe9, 0, 0, 0, 0           // jmp    plt0
+};
+
+} // anonymous namespace
+
 namespace mcld {
 
 class X86GOTPLT;
 class GOTEntry;
 class LinkerConfig;
 
-class X86PLT0 : public PLT::Entry
+//===----------------------------------------------------------------------===//
+// X86PLT Entry
+//===----------------------------------------------------------------------===//
+class X86DynPLT0 : public PLT::Entry<sizeof(x86_dyn_plt0)>
 {
 public:
-  X86PLT0(SectionData& pParent, unsigned int pSize);
+  X86DynPLT0(SectionData& pParent);
 };
 
-class X86PLT1 : public PLT::Entry
+class X86DynPLT1 : public PLT::Entry<sizeof(x86_dyn_plt1)>
 {
 public:
-  X86PLT1(SectionData& pParent, unsigned int pSize);
+  X86DynPLT1(SectionData& pParent);
 };
 
+class X86ExecPLT0 : public PLT::Entry<sizeof(x86_exec_plt0)>
+{
+public:
+  X86ExecPLT0(SectionData& pParent);
+};
+
+class X86ExecPLT1 : public PLT::Entry<sizeof(x86_exec_plt1)>
+{
+public:
+  X86ExecPLT1(SectionData& pParent);
+};
+
+//===----------------------------------------------------------------------===//
+// X86PLT
+//===----------------------------------------------------------------------===//
 /** \class X86PLT
  *  \brief X86 Procedure Linkage Table
  */
@@ -48,7 +94,7 @@ public:
 
   void reserveEntry(size_t pNum = 1) ;
 
-  PLT::Entry* consume();
+  PLTEntryBase* consume();
 
   void applyPLT0();
 
@@ -58,7 +104,7 @@ public:
   unsigned int getPLT1Size() const { return m_PLT1Size; }
 
 private:
-  X86PLT0* getPLT0() const;
+  PLTEntryBase* getPLT0() const;
 
 private:
   X86GOTPLT& m_GOTPLT;
@@ -77,3 +123,4 @@ private:
 } // namespace of mcld
 
 #endif
+

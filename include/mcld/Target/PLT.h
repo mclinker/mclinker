@@ -21,6 +21,36 @@ namespace mcld {
 class LDSection;
 class ResolveInfo;
 
+/** \class PLTEntryDefaultBase
+ *  \brief PLTEntryDefaultBase provides the default interface for PLE Entry
+ */
+class PLTEntryBase : public TargetFragment
+{
+public:
+  PLTEntryBase(SectionData& pParent)
+    : TargetFragment(Fragment::Target, &pParent)
+  {}
+
+  virtual ~PLTEntryBase()
+  {
+      if (m_pContent)
+        delete m_pContent;
+  }
+
+  void setContent(unsigned char* pContent)
+  { m_pContent = pContent; }
+
+  const unsigned char* getContent() const
+  { return m_pContent; }
+
+  //Used by llvm::cast<>.
+  static bool classof(const Fragment *O)
+  { return true; }
+
+protected:
+  unsigned char* m_pContent;
+};
+
 /** \class PLT
  *  \brief Procedure linkage table
  */
@@ -30,31 +60,21 @@ public:
   typedef SectionData::iterator iterator;
   typedef SectionData::const_iterator const_iterator;
 
-  class Entry : public TargetFragment
+  template<size_t SIZE, typename EntryBase = PLTEntryBase>
+  class Entry : public EntryBase
   {
   public:
-    Entry(size_t pSize, SectionData& pParent);
-    virtual ~Entry();
+    enum { EntrySize = SIZE };
 
-    size_t getEntrySize() const
-    { return m_EntrySize; }
+  public:
+    Entry(SectionData& pParent)
+      : EntryBase(pParent)
+    {}
 
-    void setContent(unsigned char* pContent)
-    { m_pContent = pContent; }
-
-    const unsigned char* getContent() const
-    { return m_pContent; }
-
-    //Used by llvm::cast<>.
-    static bool classof(const Fragment *O)
-    { return true; }
+    virtual ~Entry() {}
 
     size_t size() const
-    { return m_EntrySize; }
-
-  protected:
-    size_t m_EntrySize;
-    unsigned char* m_pContent;
+    { return EntrySize; }
   };
 
 public:
