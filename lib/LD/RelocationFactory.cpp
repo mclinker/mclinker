@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/RelocationFactory.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Target/TargetLDBackend.h>
 
 #include <llvm/Support/Host.h>
@@ -20,13 +20,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // RelocationFactory
 //===----------------------------------------------------------------------===//
-RelocationFactory::RelocationFactory(size_t pNum, TargetLDBackend& pTarget)
-  : GCFactory<Relocation, 0>(pNum),
-    m_Target(pTarget) {
-}
-
-RelocationFactory::~RelocationFactory()
-{
+RelocationFactory::RelocationFactory(size_t pNum, const LinkerConfig& pConfig)
+  : GCFactory<Relocation, 0>(pNum), m_Config(pConfig) {
 }
 
 Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
@@ -39,27 +34,21 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
   DWord target_data = 0;
 
   // byte swapping if the host and target have different endian
-  if(llvm::sys::isLittleEndianHost() != m_Target.isLittleEndian()) {
+  if(llvm::sys::isLittleEndianHost() != m_Config.targets().isLittleEndian()) {
      uint32_t tmp_data;
 
-     switch(m_Target.bitclass()) {
-      case 32u:
+     if (m_Config.targets().is32Bits()) {
         pFragRef.memcpy(&tmp_data, 4);
         tmp_data = bswap32(tmp_data);
         target_data = tmp_data;
-        break;
-
-      case 64u:
+     }
+     else if (m_Config.targets().is64Bits()) {
         pFragRef.memcpy(&target_data, 8);
         target_data = bswap64(target_data);
-        break;
-
-      default:
-        break;
-    }
+     }
   }
   else {
-    pFragRef.memcpy(&target_data, (m_Target.bitclass()/8));
+    pFragRef.memcpy(&target_data, (m_Config.targets().bitclass()/8));
   }
 
   Relocation *result = allocate();

@@ -17,7 +17,7 @@
 namespace mcld {
 
 class FragmentRef;
-class TargetLDBackend;
+class LinkerConfig;
 
 /** \class RelocationFactory
  *  \brief RelocationFactory provides the interface for generating target
@@ -33,9 +33,7 @@ public:
   typedef Relocation::SWord SWord;
 
 public:
-  explicit RelocationFactory(size_t pNum, TargetLDBackend& pTarget);
-
-  ~RelocationFactory();
+  explicit RelocationFactory(size_t pNum, const LinkerConfig& pConfig);
 
   // ----- production ----- //
   /// produce - produce a relocation entry
@@ -53,7 +51,7 @@ public:
   void destroy(Relocation* pRelocation);
 
 private:
-  TargetLDBackend& m_Target;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

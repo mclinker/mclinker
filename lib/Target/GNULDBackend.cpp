@@ -2423,7 +2423,7 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
 bool GNULDBackend::initRelocFactory()
 {
   if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new RelocationFactory(1024, *this);
+    m_pRelocFactory = new RelocationFactory(1024, config());
   }
   return true;
 }
