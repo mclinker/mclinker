@@ -6,16 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <llvm/ADT/Twine.h>
-#include <llvm/ADT/OwningPtr.h>
-#include <llvm/Support/ErrorHandling.h>
-
 #include <mcld/LD/ELFDynObjReader.h>
+
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
-#include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Target/GNULDBackend.h>
+
+#include <llvm/ADT/Twine.h>
+#include <llvm/ADT/OwningPtr.h>
+#include <llvm/Support/ErrorHandling.h>
 
 #include <string>
 
@@ -24,11 +26,13 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFDynObjReader
 //===----------------------------------------------------------------------===//
-ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
+ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
+                                 FragmentLinker& pLinker,
+                                 const LinkerConfig& pConfig)
   : DynObjReader(),
     m_pELFReader(0),
     m_Linker(pLinker) {
-  if (32 == pBackend.bitclass() && pBackend.isLittleEndian())
+  if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);
 }
 

@@ -191,17 +191,6 @@ uint64_t MipsGNULDBackend::flags() const
          E_MIPS_ABI_O32;
 }
 
-bool MipsGNULDBackend::isLittleEndian() const
-{
-  // Now we support little endian (mipsel) target only.
-  return true;
-}
-
-unsigned int MipsGNULDBackend::bitclass() const
-{
-  return 32;
-}
-
 uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
 {
   return 0x80000;
@@ -384,7 +373,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       }
 
       // set size
-      if (32 == bitclass())
+      if (config().targets().is32Bits())
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
       else
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
@@ -394,7 +383,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     }
     /* fall through */
     case LinkerConfig::Object: {
-      if (32 == bitclass())
+      if (config().targets().is32Bits())
         file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf32_Sym));
       else
         file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));

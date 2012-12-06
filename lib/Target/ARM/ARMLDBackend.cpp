@@ -78,7 +78,7 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_ARM_EXIDX,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_LINK_ORDER,
-                                           bitclass() / 8);
+                                           config().targets().bitclass() / 8);
   m_pEXTAB        = pBuilder.CreateSection(".ARM.extab",
                                            LDFileFormat::Target,
                                            llvm::ELF::SHT_PROGBITS,
@@ -320,7 +320,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
-  uint32_t addralign = bitclass() / 8;
+  uint32_t addralign = config().targets().bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
@@ -990,7 +990,7 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
               // increase the size of .symtab and .strtab
               LDSection& symtab = file_format->getSymTab();
               LDSection& strtab = file_format->getStrTab();
-              if (32 == bitclass())
+              if (config().targets().is32Bits())
                 symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
               else
                 symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));

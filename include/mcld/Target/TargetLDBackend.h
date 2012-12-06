@@ -109,12 +109,6 @@ public:
   virtual void postProcessing(FragmentLinker& pLinker,
                               MemoryArea& pOutput) = 0;
 
-  /// Is the target machine little endian? **/
-  virtual bool isLittleEndian() const = 0;
-
-  /// bit class. the bit length of the target machine, 32 or 64 **/
-  virtual unsigned int bitclass() const = 0;
-
   /// the common page size of the target machine
   virtual uint64_t commonPageSize() const = 0;
 

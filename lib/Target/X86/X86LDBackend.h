@@ -77,9 +77,6 @@ public:
 
   uint32_t machine() const;
 
-  bool isLittleEndian() const
-  { return true; }
-
   X86GOT& getGOT();
 
   const X86GOT& getGOT() const;
@@ -93,8 +90,6 @@ public:
   const X86PLT& getPLT() const;
 
   GOT::Entry& getTLSModuleID();
-
-  unsigned int bitclass() const;
 
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(FragmentLinker& pLinker);

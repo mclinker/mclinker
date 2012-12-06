@@ -628,10 +628,10 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
-  if(llvm::sys::isLittleEndianHost() != m_Backend.isLittleEndian()) {
+  if(llvm::sys::isLittleEndianHost() != m_Config.targets().isLittleEndian()) {
      uint64_t tmp_data = 0;
 
-     switch(m_Backend.bitclass()) {
+     switch(m_Config.targets().bitclass()) {
        case 32u:
          tmp_data = bswap32(pReloc.target());
          std::memcpy(target_addr, &tmp_data, 4);
@@ -647,7 +647,7 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
     }
   }
   else
-    std::memcpy(target_addr, &pReloc.target(), m_Backend.bitclass()/8);
+    std::memcpy(target_addr, &pReloc.target(), m_Config.targets().bitclass()/8);
 }
 
 /// isOutputPIC - return whether the output is position-independent

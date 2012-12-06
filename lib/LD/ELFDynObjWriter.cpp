@@ -26,10 +26,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFDynObjWriter
 //===----------------------------------------------------------------------===//
-ELFDynObjWriter::ELFDynObjWriter(GNULDBackend& pBackend, FragmentLinker& pLinker)
-  : DynObjWriter(pBackend),
-    ELFWriter(pBackend),
-    m_Linker(pLinker) {
+ELFDynObjWriter::ELFDynObjWriter(GNULDBackend& pBackend,
+                                 FragmentLinker& pLinker,
+                                 const LinkerConfig& pConfig)
+  : DynObjWriter(pBackend), ELFWriter(pBackend),
+    m_Linker(pLinker),
+    m_Config(pConfig) {
 
 }
 
@@ -115,7 +117,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
                   pModule,
                   pOutput);
 
-  if (32 == target().bitclass()) {
+  if (m_Config.targets().is32Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
@@ -126,7 +128,7 @@ llvm::error_code ELFDynObjWriter::writeDynObj(Module& pModule,
 
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
   }
-  else if (64 == target().bitclass()) {
+  else if (m_Config.targets().is64Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),

@@ -23,6 +23,7 @@ class FragmentLinker;
 class GNULDBackend;
 class ELFReaderIF;
 class EhFrameReader;
+class LinkerConfig;
 
 /** \lclass ELFObjectReader
  *  \brief ELFObjectReader reads target-independent parts of ELF object file
@@ -38,7 +39,9 @@ public:
   typedef Flags<ReadFlagType> ReadFlag;
 
 public:
-  ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker);
+  ELFObjectReader(GNULDBackend& pBackend,
+                  FragmentLinker& pLinker,
+                  const LinkerConfig& pConfig);
 
   ~ELFObjectReader();
 

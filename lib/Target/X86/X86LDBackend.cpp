@@ -186,7 +186,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
   // Determine the alignment by the symbol value
   // FIXME: here we use the largest alignment
-  uint32_t addralign = bitclass() / 8;
+  uint32_t addralign = config().targets().bitclass() / 8;
 
   // allocate space in BSS for the copy symbol
   Fragment* frag = new FillFragment(0x0, 1, pSym.size());
@@ -774,11 +774,6 @@ X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
     return SHO_PLT;
 
   return SHO_UNDEFINED;
-}
-
-unsigned int X86GNULDBackend::bitclass() const
-{
-  return 32;
 }
 
 void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)

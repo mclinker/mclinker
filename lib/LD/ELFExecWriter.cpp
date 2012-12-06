@@ -25,10 +25,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // ELFExecWriter
 //===----------------------------------------------------------------------===//
-ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker)
-  : ExecWriter(pBackend),
-    ELFWriter(pBackend),
-    m_Linker(pLinker) {
+ELFExecWriter::ELFExecWriter(GNULDBackend& pBackend,
+                             FragmentLinker& pLinker,
+                             const LinkerConfig& pConfig)
+  : ExecWriter(pBackend), ELFWriter(pBackend),
+    m_Linker(pLinker),
+    m_Config(pConfig) {
 
 }
 
@@ -114,7 +116,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
                   pModule,
                   pOutput);
 
-  if (32 == target().bitclass()) {
+  if (m_Config.targets().is32Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
@@ -125,7 +127,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
 
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
   }
-  else if (64 == target().bitclass()) {
+  else if (m_Config.targets().is64Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),

@@ -9,11 +9,13 @@
 #include <mcld/LD/ELFObjectWriter.h>
 
 #include <mcld/Module.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 
 #include <llvm/Support/system_error.h>
+
 using namespace llvm;
 using namespace mcld;
 
@@ -21,8 +23,11 @@ using namespace mcld;
 // ELFObjectWriter
 //===----------------------------------------------------------------------===//
 ELFObjectWriter::ELFObjectWriter(GNULDBackend& pBackend,
-                                 FragmentLinker& pLinker)
-  : ObjectWriter(pBackend), ELFWriter(pBackend), m_Linker(pLinker) {
+                                 FragmentLinker& pLinker,
+                                 const LinkerConfig& pConfig)
+  : ObjectWriter(pBackend), ELFWriter(pBackend),
+    m_Linker(pLinker),
+    m_Config(pConfig) {
 }
 
 ELFObjectWriter::~ELFObjectWriter()
@@ -101,7 +106,7 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
                   pModule,
                   pOutput);
 
-  if (32 == target().bitclass()) {
+  if (m_Config.targets().is32Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF32Header(m_Linker.getLDInfo(),
@@ -110,7 +115,7 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
 
     emitELF32SectionHeader(pModule, m_Linker.getLDInfo(), pOutput);
   }
-  else if (64 == target().bitclass()) {
+  else if (m_Config.targets().is64Bits()) {
     // Write out ELF header
     // Write out section header table
     writeELF64Header(m_Linker.getLDInfo(),

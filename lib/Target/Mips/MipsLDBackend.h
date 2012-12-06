@@ -69,10 +69,6 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
 
-  bool isLittleEndian() const;
-
-  unsigned int bitclass() const;
-
   uint64_t defaultTextSegmentAddr() const;
 
   /// abiPageSize - the abi page size of the target machine

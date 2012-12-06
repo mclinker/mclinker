@@ -11,13 +11,15 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
-#include <llvm/Support/system_error.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ELFWriter.h>
+
+#include <llvm/Support/system_error.h>
 
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class MemoryArea;
 class FragmentLinker;
 class GNULDBackend;
@@ -30,7 +32,9 @@ class GNULDBackend;
 class ELFObjectWriter : public ObjectWriter, protected ELFWriter
 {
 public:
-  ELFObjectWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
+  ELFObjectWriter(GNULDBackend& pBackend,
+                  FragmentLinker& pLinker,
+                  const LinkerConfig& pConfig);
 
   ~ELFObjectWriter();
 
@@ -38,6 +42,7 @@ public:
 
 private:
   FragmentLinker& m_Linker;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

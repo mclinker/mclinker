@@ -30,14 +30,16 @@ using namespace mcld;
 // ELFObjectReader
 //===----------------------------------------------------------------------===//
 /// constructor
-ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend, FragmentLinker& pLinker)
+ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend,
+                                 FragmentLinker& pLinker,
+                                 const LinkerConfig& pConfig)
   : ObjectReader(),
     m_pELFReader(NULL),
     m_pEhFrameReader(NULL),
     m_Linker(pLinker),
     m_ReadFlag(ParseEhFrame),
     m_Backend(pBackend) {
-  if (32 == pBackend.bitclass() && pBackend.isLittleEndian()) {
+  if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
 

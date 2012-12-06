@@ -49,7 +49,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
   memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
 
   header->e_ident[EI_CLASS]      = ELFCLASS32;
-  header->e_ident[EI_DATA]       = target().isLittleEndian()?
+  header->e_ident[EI_DATA]       = pConfig.targets().isLittleEndian()?
                                        ELFDATA2LSB : ELFDATA2MSB;
   header->e_ident[EI_VERSION]    = target().ELFVersion();
   header->e_ident[EI_OSABI]      = target().OSABI();
@@ -101,7 +101,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
   memcpy(header->e_ident, ElfMagic, EI_MAG3+1);
 
   header->e_ident[EI_CLASS]      = ELFCLASS64;
-  header->e_ident[EI_DATA]       = target().isLittleEndian()?
+  header->e_ident[EI_DATA]       = pConfig.targets().isLittleEndian()?
                                        ELFDATA2LSB : ELFDATA2MSB;
   header->e_ident[EI_VERSION]    = target().ELFVersion();
   header->e_ident[EI_OSABI]      = target().OSABI();

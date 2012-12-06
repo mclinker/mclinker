@@ -17,6 +17,7 @@
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class MemoryArea;
 class GNULDBackend;
 class FragmentLinker;
@@ -30,13 +31,17 @@ public:
   typedef ELFWriter::FileOffset FileOffset;
 
 public:
-  ELFExecWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
+  ELFExecWriter(GNULDBackend& pBackend,
+                FragmentLinker& pLinker,
+                const LinkerConfig& pConfig);
+
   ~ELFExecWriter();
 
   llvm::error_code writeExecutable(Module& pModule, MemoryArea& pOutput);
 
 private:
   FragmentLinker& m_Linker;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

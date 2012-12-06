@@ -14,10 +14,10 @@
 #include <mcld/LD/DynObjReader.h>
 #include <llvm/Support/system_error.h>
 
-namespace mcld
-{
+namespace mcld {
 
 class Input;
+class LinkerConfig;
 class FragmentLinker;
 class GNULDBackend;
 class ELFReaderIF;
@@ -29,7 +29,9 @@ class ELFReaderIF;
 class ELFDynObjReader : public DynObjReader
 {
 public:
-  ELFDynObjReader(GNULDBackend& pBackend, FragmentLinker& pLinker);
+  ELFDynObjReader(GNULDBackend& pBackend,
+                  FragmentLinker& pLinker,
+                  const LinkerConfig& pConfig);
   ~ELFDynObjReader();
 
   // -----  observers  ----- //

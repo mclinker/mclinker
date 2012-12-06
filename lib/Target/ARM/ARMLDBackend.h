@@ -126,12 +126,6 @@ public:
   virtual uint64_t flags() const
   { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }
 
-  bool isLittleEndian() const
-  { return true; }
-
-  unsigned int bitclass() const
-  { return 32; }
-
   uint64_t defaultTextSegmentAddr() const
   { return 0x8000; }
 

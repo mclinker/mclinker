@@ -107,7 +107,7 @@ GNULDBackend::~GNULDBackend()
 
 size_t GNULDBackend::sectionStartOffset() const
 {
-  switch (bitclass()) {
+  switch (config().targets().bitclass()) {
     case 32u:
       return sizeof(llvm::ELF::Elf32_Ehdr) +
              numOfSegments() * sizeof(llvm::ELF::Elf32_Phdr);
@@ -115,9 +115,8 @@ size_t GNULDBackend::sectionStartOffset() const
       return sizeof(llvm::ELF::Elf64_Ehdr) +
              numOfSegments() * sizeof(llvm::ELF::Elf64_Phdr);
     default:
-      llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
-                               llvm::Twine(bitclass()) +
-                               llvm::Twine(".\n"));
+      fatal(diag::unsupported_bitclass) << config().targets().triple().str()
+                                        << config().targets().bitclass();
       return 0;
   }
 }
@@ -143,28 +142,28 @@ GNULDBackend::createArchiveReader(Module& pModule)
 
 ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker)
 {
-  m_pObjectReader = new ELFObjectReader(*this, pLinker);
+  m_pObjectReader = new ELFObjectReader(*this, pLinker, config());
   return m_pObjectReader;
 }
 
 ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker)
 {
-  return new ELFDynObjReader(*this, pLinker);
+  return new ELFDynObjReader(*this, pLinker, config());
 }
 
 ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker& pLinker)
 {
-  return new ELFObjectWriter(*this, pLinker);
+  return new ELFObjectWriter(*this, pLinker, config());
 }
 
 ELFDynObjWriter* GNULDBackend::createDynObjWriter(FragmentLinker& pLinker)
 {
-  return new ELFDynObjWriter(*this, pLinker);
+  return new ELFDynObjWriter(*this, pLinker, config());
 }
 
 ELFExecWriter* GNULDBackend::createExecWriter(FragmentLinker& pLinker)
 {
-  return new ELFExecWriter(*this, pLinker);
+  return new ELFExecWriter(*this, pLinker, config());
 }
 
 bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
@@ -173,19 +172,22 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
     case LinkerConfig::DynObj: {
       if (NULL == m_pDynObjFileFormat)
         m_pDynObjFileFormat = new ELFDynObjFileFormat();
-      m_pDynObjFileFormat->initStdSections(pBuilder, bitclass());
+      m_pDynObjFileFormat->initStdSections(pBuilder,
+                                           config().targets().bitclass());
       return true;
     }
     case LinkerConfig::Exec: {
       if (NULL == m_pExecFileFormat)
         m_pExecFileFormat = new ELFExecFileFormat();
-      m_pExecFileFormat->initStdSections(pBuilder, bitclass());
+      m_pExecFileFormat->initStdSections(pBuilder,
+                                         config().targets().bitclass());
       return true;
     }
     case LinkerConfig::Object: {
       if (NULL == m_pObjectFileFormat)
         m_pObjectFileFormat = new ELFObjectFileFormat();
-      m_pObjectFileFormat->initStdSections(pBuilder, bitclass());
+      m_pObjectFileFormat->initStdSections(pBuilder,
+                                           config().targets().bitclass());
       return true;
     }
     default:
@@ -859,7 +861,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       }
 
       // set size
-      if (32 == bitclass())
+      if (config().targets().is32Bits())
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
       else
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
@@ -869,7 +871,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     }
     /* fall through */
     case LinkerConfig::Object: {
-      if (32 == bitclass())
+      if (config().targets().is32Bits())
         file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf32_Sym));
       else
         file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));
@@ -971,20 +973,21 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
-  if (32 == bitclass())
+  if (config().targets().is32Bits())
     symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
-  else if (64 == bitclass())
+  else if (config().targets().is64Bits())
     symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
-  else
-    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
-                             llvm::Twine(bitclass()) +
-                             llvm::Twine(".\n"));
+  else {
+    fatal(diag::unsupported_bitclass) << config().targets().triple().str()
+                                      << config().targets().bitclass();
+  }
+
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
   strtab[0] = '\0';
 
   // initialize the first ELF symbol
-  if (32 == bitclass()) {
+  if (config().targets().is32Bits()) {
     symtab32[0].st_name  = 0;
     symtab32[0].st_value = 0;
     symtab32[0].st_size  = 0;
@@ -1020,7 +1023,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
       entry->setValue(symtabIdx);
     }
 
-    if (32 == bitclass())
+    if (config().targets().is32Bits())
       emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
     else
@@ -1067,17 +1070,17 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   // set up symtab_region
   llvm::ELF::Elf32_Sym* symtab32 = NULL;
   llvm::ELF::Elf64_Sym* symtab64 = NULL;
-  if (32 == bitclass())
+  if (config().targets().is32Bits())
     symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
-  else if (64 == bitclass())
+  else if (config().targets().is64Bits())
     symtab64 = (llvm::ELF::Elf64_Sym*)symtab_region->start();
-  else
-    llvm::report_fatal_error(llvm::Twine("unsupported bitclass ") +
-                             llvm::Twine(bitclass()) +
-                             llvm::Twine(".\n"));
+  else {
+    fatal(diag::unsupported_bitclass) << config().targets().triple().str()
+                                      << config().targets().bitclass();
+  }
 
   // initialize the first ELF symbol
-  if (32 == bitclass()) {
+  if (config().targets().is32Bits()) {
     symtab32[0].st_name  = 0;
     symtab32[0].st_value = 0;
     symtab32[0].st_size  = 0;
@@ -1113,7 +1116,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     if (!isDynamicSymbol(**symbol))
       continue;
 
-    if (32 == bitclass())
+    if (config().targets().is32Bits())
       emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
     else
@@ -1132,7 +1135,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   // emit symbols in TLS category, all symbols in TLS category shold be emitited
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-    if (32 == bitclass())
+    if (config().targets().is32Bits())
       emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
     else
@@ -1154,7 +1157,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     if (!isDynamicSymbol(**symbol))
       continue;
 
-    if (32 == bitclass())
+    if (config().targets().is32Bits())
       emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
     else
@@ -1232,7 +1235,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 
   StringHash<ELF> hash_func;
 
-  if (32 == bitclass()) {
+  if (config().targets().is32Bits()) {
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
       llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
@@ -1240,7 +1243,7 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
       bucket[bucket_pos] = sym_idx;
     }
   }
-  else if (64 == bitclass()) {
+  else if (config().targets().is64Bits()) {
     for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
       llvm::StringRef name(strtab + symtab64[sym_idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
@@ -1675,7 +1678,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
     // update PT_PHDR
     if (llvm::ELF::PT_PHDR == segment.type()) {
       uint64_t offset, phdr_size;
-      if (32 == bitclass()) {
+      if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
       }
@@ -1688,7 +1691,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
-      segment.setAlign(bitclass() / 8);
+      segment.setAlign(config().targets().bitclass() / 8);
       continue;
     }
 
@@ -2106,7 +2109,7 @@ void GNULDBackend::postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput)
 {
   if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // emit eh_frame_hdr
-    if (bitclass() == 32)
+    if (config().targets().is32Bits())
       m_pEhFrameHdr->emitOutput<32>(pOutput);
   }
 }
