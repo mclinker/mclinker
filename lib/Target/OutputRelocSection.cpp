@@ -40,11 +40,8 @@ OutputRelocSection::~OutputRelocSection()
 
 void OutputRelocSection::reserveEntry(size_t pNum)
 {
-  for(size_t i=0; i<pNum; i++) {
+  for(size_t i=0; i<pNum; i++)
     m_pRelocData->append(*Relocation::Create());
-    // update section size
-    m_pSection->setSize(m_pSection->size() + m_EntryBytes);
-  }
 }
 
 Relocation* OutputRelocSection::consumeEntry()
