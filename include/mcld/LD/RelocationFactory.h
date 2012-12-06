@@ -33,7 +33,9 @@ public:
   typedef Relocation::SWord SWord;
 
 public:
-  explicit RelocationFactory(size_t pNum, const LinkerConfig& pConfig);
+  explicit RelocationFactory(unsigned int pNum);
+
+  void setConfig(const LinkerConfig& pConfig);
 
   // ----- production ----- //
   /// produce - produce a relocation entry
@@ -51,7 +53,7 @@ public:
   void destroy(Relocation* pRelocation);
 
 private:
-  const LinkerConfig& m_Config;
+  const LinkerConfig* m_pConfig;
 };
 
 } // namespace of mcld

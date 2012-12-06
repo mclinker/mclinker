@@ -18,6 +18,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
 #include <mcld/InputTree.h>
+#include <mcld/Config/Config.h>
 #include <mcld/ADT/SizeTraits.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/LDContext.h>
@@ -2423,7 +2424,8 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
 bool GNULDBackend::initRelocFactory()
 {
   if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new RelocationFactory(1024, config());
+    m_pRelocFactory = new RelocationFactory(MCLD_RELOCATIONS_PER_INPUT);
+    m_pRelocFactory->setConfig(config());
   }
   return true;
 }
