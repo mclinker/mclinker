@@ -21,8 +21,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // RelocationFactory
 //===----------------------------------------------------------------------===//
-RelocationFactory::RelocationFactory(unsigned int pNum)
-  : GCFactory<Relocation, 0>(pNum), m_pConfig(NULL) {
+RelocationFactory::RelocationFactory()
+  : GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>(), m_pConfig(NULL) {
 }
 
 void RelocationFactory::setConfig(const LinkerConfig& pConfig)

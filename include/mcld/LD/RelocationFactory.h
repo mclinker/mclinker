@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Config/Config.h>
 #include <mcld/Support/GCFactory.h>
 #include <mcld/Fragment/Relocation.h>
 
@@ -24,7 +25,7 @@ class LinkerConfig;
  *  relocation
  *
  */
-class RelocationFactory : public GCFactory<Relocation, 0>
+class RelocationFactory : public GCFactory<Relocation, MCLD_RELOCATIONS_PER_INPUT>
 {
 public:
   typedef Relocation::Type Type;
@@ -33,7 +34,7 @@ public:
   typedef Relocation::SWord SWord;
 
 public:
-  explicit RelocationFactory(unsigned int pNum);
+  explicit RelocationFactory();
 
   void setConfig(const LinkerConfig& pConfig);
 

@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Config/Config.h>
 #include <mcld/Fragment/FragmentRef.h>
 #include <mcld/Support/GCFactoryListTraits.h>
 
@@ -27,7 +28,7 @@ class Relocation : public llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
 friend class GCFactoryListTraits<Relocation>;
-friend class Chunk<Relocation, 0>;
+friend class Chunk<Relocation, MCLD_RELOCATIONS_PER_INPUT>;
 
 public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
