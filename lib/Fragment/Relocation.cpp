@@ -13,9 +13,54 @@
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/LD/RelocationFactory.h>
+
+#include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
 
+static llvm::ManagedStatic<RelocationFactory> g_RelocationFactory;
+
+//===----------------------------------------------------------------------===//
+// Relocation Factory Methods
+//===----------------------------------------------------------------------===//
+/// Initialize - set up the relocation factory
+void Relocation::SetUp(const LinkerConfig& pConfig)
+{
+  g_RelocationFactory->setConfig(pConfig);
+}
+
+/// Clear - Clean up the relocation factory
+void Relocation::Clear()
+{
+  g_RelocationFactory->clear();
+}
+
+/// Create - produce an empty relocation entry
+Relocation* Relocation::Create()
+{
+  return g_RelocationFactory->produceEmptyEntry();
+}
+
+/// Create - produce a relocation entry
+/// @param pType    [in] the type of the relocation entry
+/// @param pFragRef [in] the place to apply the relocation
+/// @param pAddend  [in] the addend of the relocation entry
+Relocation* Relocation::Create(Type pType, FragmentRef& pFragRef, Address pAddend)
+{
+  return g_RelocationFactory->produce(pType, pFragRef, pAddend);
+}
+
+/// Destroy - destroy a relocation entry
+void Relocation::Destroy(Relocation*& pRelocation)
+{
+  g_RelocationFactory->destroy(pRelocation);
+  pRelocation = NULL;
+}
+
+//===----------------------------------------------------------------------===//
+// Relocation
+//===----------------------------------------------------------------------===//
 Relocation::Relocation()
   : m_Type(0x0), m_TargetData(0x0), m_pSymInfo(NULL), m_Addend(0x0) {
 }

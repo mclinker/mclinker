@@ -47,6 +47,24 @@ private:
   ~Relocation();
 
 public:
+  /// Initialize - set up the relocation factory
+  static void SetUp(const LinkerConfig& pConfig);
+
+  /// Clear - Clean up the relocation factory
+  static void Clear();
+
+  /// Create - produce an empty relocation entry
+  static Relocation* Create();
+
+  /// Create - produce a relocation entry
+  /// @param pType    [in] the type of the relocation entry
+  /// @param pFragRef [in] the place to apply the relocation
+  /// @param pAddend  [in] the addend of the relocation entry
+  static Relocation* Create(Type pType, FragmentRef& pFragRef,
+                            Address pAddend = 0);
+
+  /// Destroy - destroy a relocation entry
+  static void Destroy(Relocation*& pRelocation);
 
   /// type - relocation type
   Type type() const
