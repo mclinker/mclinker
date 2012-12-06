@@ -163,7 +163,7 @@ void X86PLT::applyPLT0()
     *offset = m_GOTPLT.addr() + 8;
   }
 
-  plt0->setContent(data);
+  plt0->setValue(data);
 }
 
 // FIXME: It only works on little endian machine.
@@ -214,7 +214,7 @@ void X86PLT::applyPLT1()
     *offset = -(PLTEntryOffset + 12 + 4);
     PLTEntryOffset += m_PLT1Size;
 
-    plt1->setContent(data);
+    plt1->setValue(data);
     ++it;
   }
 }

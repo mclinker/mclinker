@@ -135,7 +135,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
 
   // If we first get this GOT entry, we should initialize it.
   if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
-    got_entry->setContent(pReloc.symValue());
+    got_entry->setValue(pReloc.symValue());
   }
   else {
     fatal(diag::reserve_entry_number_mismatch_got);
@@ -317,7 +317,7 @@ MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
     bool exist;
     MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
 
-    got_entry.setContent(res);
+    got_entry.setValue(res);
     G = got_entry.getOffset() - 0x7FF0;
   }
   else {

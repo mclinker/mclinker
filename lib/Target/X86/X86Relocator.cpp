@@ -129,17 +129,17 @@ X86GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   // If we first get this GOT entry, we should initialize it.
   if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {
     // No corresponding dynamic relocation, initialize to the symbol value.
-    got_entry->setContent(pReloc.symValue());
+    got_entry->setValue(pReloc.symValue());
   }
   else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
       helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_RELATIVE, pParent);
-      got_entry->setContent(pReloc.symValue());
+      got_entry->setValue(pReloc.symValue());
     }
     else {
       helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_386_GLOB_DAT, pParent);
-      got_entry->setContent(0);
+      got_entry->setValue(0);
     }
   }
   else {
@@ -409,14 +409,14 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86Relocator& pParent)
     got_entry1 = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry1);
     X86GOTEntry* got_entry2 = ld_backend.getGOT().consume();
-    got_entry1->setContent(0x0);
-    got_entry2->setContent(0x0);
+    got_entry1->setValue(0x0);
+    got_entry2->setValue(0x0);
     // setup dyn rel for get_entry1
     Relocation& rel_entry1 = helper_DynRel(rsym, *got_entry1, 0x0,
                                         llvm::ELF::R_386_TLS_DTPMOD32, pParent);
     if (rsym->isLocal()) {
       // for local symbol, set got_entry2 to symbol value
-      got_entry2->setContent(pReloc.symValue());
+      got_entry2->setValue(pReloc.symValue());
 
       // for local tls symbol, add rel entry against the section symbol this
       // symbol belong to (.tdata or .tbss)
@@ -496,7 +496,7 @@ X86Relocator::Result tls_ie(Relocation& pReloc, X86Relocator& pParent)
     X86GNULDBackend& ld_backend = pParent.getTarget();
     got_entry = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
-    got_entry->setContent(0x0);
+    got_entry->setValue(0x0);
     // set relocation entry
     Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
     rel_entry.setType(llvm::ELF::R_386_TLS_TPOFF);
@@ -529,7 +529,7 @@ X86Relocator::Result tls_gotie(Relocation& pReloc, X86Relocator& pParent)
     X86GNULDBackend& ld_backend = pParent.getTarget();
     got_entry = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
-    got_entry->setContent(0x0);
+    got_entry->setValue(0x0);
     // set relocation entry
     Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
     rel_entry.setType(llvm::ELF::R_386_TLS_TPOFF);

@@ -134,7 +134,7 @@ ARMGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
     // If we first get this GOT entry, we should initialize it.
     if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
       // No corresponding dynamic relocation, initialize to the symbol value.
-      got_entry->setContent(pReloc.symValue());
+      got_entry->setValue(pReloc.symValue());
     }
     else if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
 
@@ -143,13 +143,13 @@ ARMGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
       if ( rsym->isLocal() ||
           helper_use_relative_reloc(*rsym, pParent)) {
         // Initialize got entry to target symbol address
-        got_entry->setContent(pReloc.symValue());
+        got_entry->setValue(pReloc.symValue());
         rel_entry.setType(llvm::ELF::R_ARM_RELATIVE);
         rel_entry.setSymInfo(0);
       }
       else {
         // Initialize got entry to 0 for corresponding dynamic relocation.
-        got_entry->setContent(0);
+        got_entry->setValue(0);
         rel_entry.setType(llvm::ELF::R_ARM_GLOB_DAT);
         rel_entry.setSymInfo(rsym);
       }

@@ -33,22 +33,22 @@ public:
 
   virtual ~PLTEntryBase()
   {
-      if (m_pContent)
-        delete m_pContent;
+      if (m_pValue)
+        delete m_pValue;
   }
 
-  void setContent(unsigned char* pContent)
-  { m_pContent = pContent; }
+  void setValue(unsigned char* pValue)
+  { m_pValue = pValue; }
 
-  const unsigned char* getContent() const
-  { return m_pContent; }
+  const unsigned char* getValue() const
+  { return m_pValue; }
 
   //Used by llvm::cast<>.
   static bool classof(const Fragment *O)
   { return true; }
 
 protected:
-  unsigned char* m_pContent;
+  unsigned char* m_pValue;
 };
 
 /** \class PLT

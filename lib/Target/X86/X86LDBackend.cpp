@@ -613,7 +613,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
     X86PLT::iterator it = m_pPLT->begin();
     unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
 
-    memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getContent(), plt0_size);
+    memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
     RegionSize += plt0_size;
     ++it;
 
@@ -622,7 +622,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
     while (it != ie) {
       plt1 = &(llvm::cast<PLTEntryBase>(*it));
       EntrySize = plt1->size();
-      memcpy(buffer + RegionSize, plt1->getContent(), EntrySize);
+      memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
       RegionSize += EntrySize;
       ++it;
     }
@@ -639,7 +639,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
     for (X86GOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<X86GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getContent());
+      *buffer = static_cast<uint32_t>(got->getValue());
       RegionSize += EntrySize;
     }
   }
@@ -657,7 +657,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
     for (X86GOTPLT::iterator it = m_pGOTPLT->begin(),
          ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<X86GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getContent());
+      *buffer = static_cast<uint32_t>(got->getValue());
       RegionSize += EntrySize;
     }
   }
@@ -733,7 +733,7 @@ X86GOTEntry& X86GNULDBackend::getTLSModuleID()
   // Allocate 2 got entries and 1 dynamic reloc for R_386_TLS_LDM
   m_pGOT->reserve(2);
   got_entry = m_pGOT->consume();
-  m_pGOT->consume()->setContent(0x0);
+  m_pGOT->consume()->setValue(0x0);
 
   m_pRelDyn->reserveEntry();
   Relocation* rel_entry = m_pRelDyn->consumeEntry();

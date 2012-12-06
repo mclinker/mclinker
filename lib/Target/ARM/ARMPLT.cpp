@@ -124,7 +124,7 @@ void ARMPLT::applyPLT0() {
   memcpy(data, arm_plt0, ARMPLT0::EntrySize);
   data[4] = offset;
 
-  plt0->setContent(reinterpret_cast<unsigned char*>(data));
+  plt0->setValue(reinterpret_cast<unsigned char*>(data));
 }
 
 void ARMPLT::applyPLT1() {
@@ -166,7 +166,7 @@ void ARMPLT::applyPLT1() {
     Out[1] = arm_plt1[1] | ((Offset >> 12) & 0xFF);
     Out[2] = arm_plt1[2] | (Offset & 0xFFF);
 
-    plt1->setContent(reinterpret_cast<unsigned char*>(Out));
+    plt1->setValue(reinterpret_cast<unsigned char*>(Out));
     ++it;
 
     GOTEntryAddress += GOTEntrySize;
@@ -182,7 +182,7 @@ uint64_t ARMPLT::emit(MemoryRegion& pRegion)
   iterator it = begin();
 
   unsigned char* buffer = pRegion.getBuffer();
-  memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getContent(), ARMPLT0::EntrySize);
+  memcpy(buffer, llvm::cast<ARMPLT0>((*it)).getValue(), ARMPLT0::EntrySize);
   result += ARMPLT0::EntrySize;
   ++it;
 
@@ -190,7 +190,7 @@ uint64_t ARMPLT::emit(MemoryRegion& pRegion)
   ARMPLT::iterator ie = end();
   while (it != ie) {
     plt1 = &(llvm::cast<ARMPLT1>(*it));
-    memcpy(buffer + result, plt1->getContent(), ARMPLT1::EntrySize);
+    memcpy(buffer + result, plt1->getValue(), ARMPLT1::EntrySize);
     result += ARMPLT1::EntrySize;
     ++it;
   }

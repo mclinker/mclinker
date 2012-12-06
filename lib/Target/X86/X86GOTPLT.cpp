@@ -65,7 +65,7 @@ bool X86GOTPLT::hasGOT1() const
 void X86GOTPLT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<X86GOTPLTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setContent(pAddress);
+    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
@@ -77,7 +77,7 @@ void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   // address of corresponding plt entry
   uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
-    llvm::cast<X86GOTPLTEntry>(*it).setContent(plt_addr + 6);
+    llvm::cast<X86GOTPLTEntry>(*it).setValue(plt_addr + 6);
     plt_addr += pPLT.getPLT1Size();
   }
 }

@@ -81,7 +81,7 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   for (iterator it = begin(), ie = end();
        it != ie; ++it, ++buffer) {
     MipsGOTEntry* got = &(llvm::cast<MipsGOTEntry>((*it)));
-    *buffer = static_cast<uint32_t>(got->getContent());
+    *buffer = static_cast<uint32_t>(got->getValue());
     result += got->size();
   }
   return result;

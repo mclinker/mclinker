@@ -128,7 +128,7 @@ ARMGOTEntry* ARMGOT::consumeGOT()
 void ARMGOT::applyGOT0(uint64_t pAddress)
 {
   llvm::cast<ARMGOTEntry>
-    (*(m_SectionData->getFragmentList().begin())).setContent(pAddress);
+    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
 void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
@@ -144,7 +144,7 @@ void ARMGOT::applyGOTPLT(uint64_t pPLTBase)
     e_end = SectionData::iterator(m_GOT.front);
 
   while (entry != e_end) {
-    llvm::cast<ARMGOTEntry>(entry)->setContent(pPLTBase);
+    llvm::cast<ARMGOTEntry>(entry)->setValue(pPLTBase);
     ++entry;
   }
 }
@@ -157,7 +157,7 @@ uint64_t ARMGOT::emit(MemoryRegion& pRegion)
   uint64_t result = 0x0;
   for (iterator it = begin(), ie = end(); it != ie; ++it, ++buffer) {
       got = &(llvm::cast<ARMGOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getContent());
+      *buffer = static_cast<uint32_t>(got->getValue());
       result += ARMGOTEntry::EntrySize;
   }
   return result;
