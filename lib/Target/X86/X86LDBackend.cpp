@@ -89,13 +89,16 @@ void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
     if (m_pPLT->hasPLT1())
       m_pPLT->finalizeSectionSize();
 
+    ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty())
-      m_pRelDyn->finalizeSectionSize();
+      file_format->getRelDyn().setSize(
+                                  m_pRelDyn->numOfRelocs() * getRelEntrySize());
 
     // set .rel.plt size
     if (!m_pRelPLT->empty())
-      m_pRelPLT->finalizeSectionSize();
+      file_format->getRelPlt().setSize(
+                                  m_pRelPLT->numOfRelocs() * getRelEntrySize());
   }
 }
 

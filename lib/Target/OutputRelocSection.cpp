@@ -71,9 +71,9 @@ Relocation* OutputRelocSection::consumeEntry()
   return &(*m_ValidEntryIterator);
 }
 
-void OutputRelocSection::finalizeSectionSize()
+size_t OutputRelocSection::numOfRelocs()
 {
-  m_pSection->setSize(m_pRelocData->size() * m_EntryBytes);
+  return m_pRelocData->size();
 }
 
 bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)

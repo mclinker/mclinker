@@ -216,9 +216,11 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
       defineGOTSymbol(pLinker);
     }
 
+    ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty())
-      m_pRelDyn->finalizeSectionSize();
+      file_format->getRelDyn().setSize(
+                                  m_pRelDyn->numOfRelocs() * getRelEntrySize());
   }
 }
 void MipsGNULDBackend::doPostLayout(Module& pModule,

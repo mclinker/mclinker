@@ -48,6 +48,8 @@ public:
   bool empty()
   { return m_pRelocData->empty(); }
 
+  size_t numOfRelocs();
+
 private:
   typedef RelocData::iterator RelocIterator;
 
