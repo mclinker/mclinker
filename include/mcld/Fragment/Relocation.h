@@ -27,6 +27,7 @@ class Relocation : public llvm::ilist_node<Relocation>
 {
 friend class RelocationFactory;
 friend class GCFactoryListTraits<Relocation>;
+friend class Chunk<Relocation, 0>;
 
 public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
@@ -42,8 +43,9 @@ private:
              Address pAddend,
              DWord pTargetData);
 
-public:
   ~Relocation();
+
+public:
 
   /// type - relocation type
   Type type() const
