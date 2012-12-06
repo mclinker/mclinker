@@ -21,13 +21,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // OutputRelocSection
 //===----------------------------------------------------------------------===//
-OutputRelocSection::OutputRelocSection(Module& pModule,
-                                       LDSection& pSection,
-                                       unsigned int pEntrySize)
+OutputRelocSection::OutputRelocSection(Module& pModule, LDSection& pSection)
   : m_Module(pModule),
-    m_pSection(&pSection),
     m_pRelocData(NULL),
-    m_EntryBytes(pEntrySize),
     m_isVisit(false),
     m_ValidEntryIterator(){
   assert(!pSection.hasRelocData() && "Given section is not a relocation section");
@@ -78,3 +74,4 @@ bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)
   m_Module.getSymbolTable().changeLocalToTLS(pSymbol);
   return true;
 }
+

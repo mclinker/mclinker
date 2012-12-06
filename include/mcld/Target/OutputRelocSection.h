@@ -28,17 +28,13 @@ class RelocationFactory;
 class OutputRelocSection
 {
 public:
-  OutputRelocSection(Module& pModule,
-                     LDSection& pSection,
-                     unsigned int pEntrySize);
+  OutputRelocSection(Module& pModule, LDSection& pSection);
 
   ~OutputRelocSection();
 
   void reserveEntry(size_t pNum=1);
 
   Relocation* consumeEntry();
-
-  void finalizeSectionSize();
 
   /// addSymbolToDynSym - add local symbol to TLS category so that it'll be
   /// emitted into .dynsym
@@ -56,15 +52,9 @@ private:
 private:
   Module& m_Module;
 
-  /// m_pSection - LDSection of this Section
-  LDSection* m_pSection;
-
   /// m_RelocData - the output RelocData which contains the dynamic
   /// relocations
   RelocData* m_pRelocData;
-
-  /// m_EntryBytes - size of a relocation entry
-  unsigned int m_EntryBytes;
 
   /// m_isVisit - First time visit the function getEntry() or not
   bool m_isVisit;

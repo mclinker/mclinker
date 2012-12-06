@@ -800,14 +800,12 @@ void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
     relplt.setLink(&plt);
-    m_pRelPLT = new OutputRelocSection(pModule,
-                                       relplt,
-                                       getRelEntrySize());
+    m_pRelPLT = new OutputRelocSection(pModule, relplt);
+
     // initialize .rel.dyn
     LDSection& reldyn = file_format->getRelDyn();
-    m_pRelDyn = new OutputRelocSection(pModule,
-                                       reldyn,
-                                       getRelEntrySize());
+    m_pRelDyn = new OutputRelocSection(pModule, reldyn);
+
   }
 }
 
