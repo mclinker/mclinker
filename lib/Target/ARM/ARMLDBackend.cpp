@@ -398,7 +398,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
       if (pLinker.isOutputPIC()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
         }
@@ -444,7 +444,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // Reserve an entry in .rel.dyn
       if (pLinker.isOutputPIC()) {
         // create .rel.dyn section if not exist
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | 0x4u);
         return;
@@ -512,7 +512,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // in .got and .rel.plt. (GOT entry will be reserved simultaneously
           // when calling ARMPLT->reserveEntry())
           m_pPLT->reserveEntry();
-          m_pRelPLT->reserveEntry(*m_pRelocFactory);
+          m_pRelPLT->reserveEntry();
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
@@ -521,7 +521,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(
                       pLinker, *rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -596,7 +596,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(
                      pLinker, *rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -644,7 +644,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // in .got and .rel.plt. (GOT entry will be reserved simultaneously
       // when calling ARMPLT->reserveEntry())
       m_pPLT->reserveEntry();
-      m_pRelPLT->reserveEntry(*m_pRelocFactory);
+      m_pRelPLT->reserveEntry();
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
@@ -666,7 +666,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // if the symbol cannot be fully resolved at link time, then we need a
       // dynamic relocation
       if (!symbolFinalValueIsKnown(pLinker, *rsym)) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
         return;
@@ -984,7 +984,6 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
             Stub* stub = getStubFactory()->create(*relocation, // relocation
                                                   sym_value, // symbol value
                                                   pLinker,
-                                                  *getRelocFactory(),
                                                   *getBRIslandFactory());
             if (NULL != stub) {
               assert(NULL != stub->symInfo());

@@ -59,10 +59,8 @@ public:
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
   virtual bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule) = 0;
 
-  virtual bool initRelocFactory() = 0;
   virtual bool initRelocator(const FragmentLinker& pLinker) = 0;
 
-  virtual RelocationFactory* getRelocFactory() = 0;
   virtual Relocator* getRelocator() = 0;
 
   /// scanRelocation - When read in relocations, backend can do any modification

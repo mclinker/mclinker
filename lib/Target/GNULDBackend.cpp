@@ -87,14 +87,12 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
     f_p_EData(NULL),
     f_pBSSStart(NULL),
     f_pEnd(NULL),
-    f_p_End(NULL),
-    m_pRelocFactory(NULL) {
+    f_p_End(NULL) {
   m_pSymIndexMap = new HashTableType(1024);
 }
 
 GNULDBackend::~GNULDBackend()
 {
-  delete m_pRelocFactory;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
   delete m_pSymIndexMap;
@@ -2419,20 +2417,5 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
   } while (!finished);
 
   return true;
-}
-
-bool GNULDBackend::initRelocFactory()
-{
-  if (NULL == m_pRelocFactory) {
-    m_pRelocFactory = new RelocationFactory();
-    m_pRelocFactory->setConfig(config());
-  }
-  return true;
-}
-
-RelocationFactory* GNULDBackend::getRelocFactory()
-{
-  assert(NULL != m_pRelocFactory);
-  return m_pRelocFactory;
 }
 

@@ -93,9 +93,6 @@ bool ObjectLinker::initFragmentLinker()
   m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
                                      *m_pDynObjReader, *m_pArchiveReader);
 
-  // initialize RelocationFactory
-  m_LDBackend.initRelocFactory();
-
   // initialize Relocator
   m_LDBackend.initRelocator(*m_pLinker);
 

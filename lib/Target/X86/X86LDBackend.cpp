@@ -233,7 +233,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
       if (pLinker.isOutputPIC()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
       }
@@ -256,7 +256,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // entry in .rel.dyn
       if (LinkerConfig::DynObj ==
                    config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
         return;
@@ -276,7 +276,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         return;
       m_pGOT->reserve(2);
       // reserve an rel entry
-      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      m_pRelDyn->reserveEntry();
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       // define the section symbol for .tdata or .tbss
@@ -310,14 +310,14 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       setHasStaticTLS();
       // if buildint shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       if (rsym->reserved() & GOTRel)
         return;
       // reserve got and dyn relocation entries for tp-relative offset
       m_pGOT->reserve();
-      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      m_pRelDyn->reserveEntry();
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       m_pRelDyn->addSymbolToDynSym(*rsym->outSymbol());
@@ -329,7 +329,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         return;
       // reserve got and dyn relocation entries for tp-relative offset
       m_pGOT->reserve();
-      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      m_pRelDyn->reserveEntry();
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       m_pRelDyn->addSymbolToDynSym(*rsym->outSymbol());
@@ -340,7 +340,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       setHasStaticTLS();
       // if buildint shared object, a dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
         // the target symbol of the dynamic relocation is rsym, so we need to
         // emit it into .dynsym
@@ -379,7 +379,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
           m_pGOTPLT->reserve();
-          m_pRelPLT->reserveEntry(*m_pRelocFactory);
+          m_pRelPLT->reserveEntry();
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
@@ -388,7 +388,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
                                                                        true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -430,7 +430,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // when calling X86PLT->reserveEntry())
       m_pPLT->reserveEntry();
       m_pGOTPLT->reserve();
-      m_pRelPLT->reserveEntry(*m_pRelocFactory);
+      m_pRelPLT->reserveEntry();
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
       return;
@@ -446,7 +446,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       // entry in .rel.dyn
       if (LinkerConfig::DynObj ==
                    config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
         return;
@@ -469,7 +469,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           // when calling X86PLT->reserveEntry())
           m_pPLT->reserveEntry();
           m_pGOTPLT->reserve();
-          m_pRelPLT->reserveEntry(*m_pRelocFactory);
+          m_pRelPLT->reserveEntry();
           // set PLT bit
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
@@ -478,7 +478,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
                                                                       false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
@@ -496,7 +496,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       // reserve two pairs of got entry and dynamic relocation
       m_pGOT->reserve(2);
-      m_pRelDyn->reserveEntry(*m_pRelocFactory, 2);
+      m_pRelDyn->reserveEntry(2);
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -513,14 +513,14 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       setHasStaticTLS();
       // if buildint shared object, a RELATIVE dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       if (rsym->reserved() & GOTRel)
         return;
       // reserve got and dyn relocation entries for tp-relative offset
       m_pGOT->reserve();
-      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      m_pRelDyn->reserveEntry();
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -531,7 +531,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
       // reserve got and dyn relocation entries for tp-relative offset
       m_pGOT->reserve();
-      m_pRelDyn->reserveEntry(*m_pRelocFactory);
+      m_pRelDyn->reserveEntry();
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -541,7 +541,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       setHasStaticTLS();
       // if buildint shared object, a dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
       }
       return;
@@ -732,7 +732,7 @@ GOT::Entry& X86GNULDBackend::getTLSModuleID()
   got_entry = m_pGOT->consume();
   m_pGOT->consume()->setContent(0x0);
 
-  m_pRelDyn->reserveEntry(*m_pRelocFactory);
+  m_pRelDyn->reserveEntry();
   Relocation* rel_entry = m_pRelDyn->consumeEntry();
   rel_entry->setType(llvm::ELF::R_386_TLS_DTPMOD32);
   rel_entry->targetRef().assign(*got_entry, 0x0);

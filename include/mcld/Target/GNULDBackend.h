@@ -264,12 +264,6 @@ public:
   /// Target can override this function if needed.
   virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
 
-  /// initRelocFactory - create and initialize RelocationFactory
-  bool initRelocFactory();
-
-  /// getRelocFactory
-  RelocationFactory* getRelocFactory();
-
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -532,9 +526,6 @@ protected:
   LDSymbol* f_pBSSStart;
   LDSymbol* f_pEnd;
   LDSymbol* f_p_End;
-
-  RelocationFactory* m_pRelocFactory;
-
 };
 
 } // namespace of mcld

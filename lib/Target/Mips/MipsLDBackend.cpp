@@ -823,7 +823,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // section if the symbol section flags contains SHF_EXECINSTR.
         // 1. Find the reason of this condition.
         // 2. Check this condition here.
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
 
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
@@ -927,7 +927,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
       if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
-        m_pRelDyn->reserveEntry(*m_pRelocFactory);
+        m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).

@@ -6,25 +6,23 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #include <mcld/LD/StubFactory.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/BranchIsland.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
-#include <mcld/LD/RelocationFactory.h>
 #include <mcld/Fragment/Stub.h>
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/FragmentRef.h>
 
 #include <string>
+
 using namespace mcld;
 
-StubFactory::StubFactory()
-{
-}
-
+//===----------------------------------------------------------------------===//
+// StubFactory
+//===----------------------------------------------------------------------===//
 StubFactory::~StubFactory()
 {
   for (StubPoolType::iterator it = m_StubPool.begin(), ie = m_StubPool.end();
@@ -42,7 +40,6 @@ void StubFactory::addPrototype(Stub* pPrototype)
 Stub* StubFactory::create(Relocation& pReloc,
                           uint64_t pTargetSymValue,
                           FragmentLinker& pLinker,
-                          RelocationFactory& pRelocFactory,
                           BranchIslandFactory& pBRIslandFactory)
 {
   // find if there is a prototype stub for the input relocation
@@ -93,8 +90,7 @@ Stub* StubFactory::create(Relocation& pReloc,
       for (Stub::fixup_iterator it = stub->fixup_begin(),
              ie = stub->fixup_end(); it != ie; ++it) {
 
-        Relocation* reloc = pRelocFactory.produce(
-                                 (*it)->type(),
+        Relocation* reloc = Relocation::Create((*it)->type(),
                                  *(FragmentRef::Create(*stub, (*it)->offset())),
                                  (*it)->addend());
         reloc->setSymInfo(pReloc.symInfo());

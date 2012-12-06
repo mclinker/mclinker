@@ -24,6 +24,7 @@
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/SectionData.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/FragmentRef.h>
 
 #include <cassert>
@@ -219,6 +220,7 @@ bool Linker::reset()
   LDSection::Clear();
   LDSymbol::Clear();
   FragmentRef::Clear();
+  Relocation::Clear();
   return true;
 }
 
@@ -249,7 +251,12 @@ bool Linker::initBackend()
 bool Linker::initEmulator()
 {
   assert(NULL != m_pTarget && NULL != m_pConfig);
-  return m_pTarget->emulate(m_pConfig->targets().triple().str(), *m_pConfig);
+  bool result = m_pTarget->emulate(m_pConfig->targets().triple().str(),
+                                   *m_pConfig);
+
+  // Relocation should be set up after emulation.
+  Relocation::SetUp(*m_pConfig);
+  return result;
 }
 
 bool Linker::initOStream()

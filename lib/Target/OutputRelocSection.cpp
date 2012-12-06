@@ -6,15 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#include <llvm/Support/Casting.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/Module.h>
 #include <mcld/Support/MsgHandling.h>
-#include <mcld/Target/OutputRelocSection.h>
 #include <mcld/IRBuilder.h>
+
+#include <llvm/Support/Casting.h>
 
 using namespace mcld;
 
@@ -38,11 +38,10 @@ OutputRelocSection::~OutputRelocSection()
 {
 }
 
-void OutputRelocSection::reserveEntry(RelocationFactory& pRelFactory,
-                                      size_t pNum)
+void OutputRelocSection::reserveEntry(size_t pNum)
 {
   for(size_t i=0; i<pNum; i++) {
-    m_pRelocData->append(*pRelFactory.produceEmptyEntry());
+    m_pRelocData->append(*Relocation::Create());
     // update section size
     m_pSection->setSize(m_pSection->size() + m_EntryBytes);
   }

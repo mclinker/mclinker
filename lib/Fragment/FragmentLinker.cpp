@@ -30,6 +30,7 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/TargetLDBackend.h>
+#include <mcld/Fragment/Relocation.h>
 
 using namespace mcld;
 
@@ -481,9 +482,7 @@ Relocation* FragmentLinker::addRelocation(Relocation::Type pType,
 
   FragmentRef* frag_ref = FragmentRef::Create(*pSection.getLink(), pOffset);
 
-  Relocation* relocation = m_Backend.getRelocFactory()->produce(pType,
-                                                                *frag_ref,
-                                                                pAddend);
+  Relocation* relocation = Relocation::Create(pType, *frag_ref, pAddend);
 
   relocation->setSymInfo(resolve_info);
   pSection.getRelocData()->append(*relocation);

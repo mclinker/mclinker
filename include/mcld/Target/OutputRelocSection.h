@@ -34,7 +34,7 @@ public:
 
   ~OutputRelocSection();
 
-  void reserveEntry(RelocationFactory& pRelFactory, size_t pNum=1);
+  void reserveEntry(size_t pNum=1);
 
   Relocation* consumeEntry();
 

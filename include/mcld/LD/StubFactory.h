@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_LD_STUB_FACTORY_H
 #define MCLD_LD_STUB_FACTORY_H
 #ifdef ENABLE_UNITTEST
@@ -16,12 +15,10 @@
 #include <llvm/Support/DataTypes.h>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class Stub;
 class Relocation;
-class RelocationFactory;
 class BranchIslandFactory;
 class FragmentLinker;
 
@@ -32,8 +29,6 @@ class FragmentLinker;
 class StubFactory
 {
 public:
-  StubFactory();
-
   ~StubFactory();
 
   /// addPrototype - register a stub prototype
@@ -43,7 +38,6 @@ public:
   Stub* create(Relocation& pReloc,
                uint64_t pTargetSymValue,
                FragmentLinker& pLinker,
-               RelocationFactory& pRelocFactory,
                BranchIslandFactory& pBRIslandFactory);
 
 private:

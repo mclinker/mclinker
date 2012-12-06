@@ -12,6 +12,7 @@
 
 #include <mcld/TargetOptions.h>
 #include <mcld/MC/InputFactory.h>
+#include <mcld/Fragment/Relocation.h>
 
 using namespace alone;
 
@@ -58,6 +59,9 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
     getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
     getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
   }
+
+  // set up relocation factory
+  mcld::Relocation::SetUp(*getLDConfig());
 }
 #endif // defined(PROVIDE_ARM_CODEGEN)
 
@@ -89,6 +93,9 @@ MipsLinkerConfig::MipsLinkerConfig()
   if (!getLDConfig()->options().hasDyld()) {
     getLDConfig()->options().setDyld(gDefaultDyld);
   }
+
+  // set up relocation factory
+  mcld::Relocation::SetUp(*getLDConfig());
 }
 #endif // defined(PROVIDE_MIPS_CODEGEN)
 
@@ -119,6 +126,9 @@ X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   if (!getLDConfig()->options().hasDyld()) {
     getLDConfig()->options().setDyld(gDefaultDyld);
   }
+
+  // set up relocation factory
+  mcld::Relocation::SetUp(*getLDConfig());
 }
 
 X86_32LinkerConfig::X86_32LinkerConfig()
@@ -158,5 +168,8 @@ GeneralLinkerConfig::GeneralLinkerConfig(const std::string& pTriple)
     getLDConfig()->scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
     getLDConfig()->scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
   }
+
+  // set up relocation factory
+  mcld::Relocation::SetUp(*getLDConfig());
 }
 #endif // defined(TARGET_BUILD)
