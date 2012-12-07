@@ -93,7 +93,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
     pOldInfo->override(*old_symbol);
   }
 
-  // exit and is a symbol
+  // exist and is a symbol
   // symbol resolution
   bool override = false;
   unsigned int action = Resolver::LastAction;

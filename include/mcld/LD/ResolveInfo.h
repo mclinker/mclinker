@@ -26,7 +26,7 @@ class LDSymbol;
  *  - Desc - Defined, Reference, Common or Indirect
  *  - Binding - Global, Local, Weak
  *  - IsDyn - appear in dynamic objects or regular objects
- *  - Type - what the symbol points to
+ *  - Type - what the symbol refers to
  *  - Size  - the size of the symbol point to
  *  - Value - the pointer to another LDSymbol
  *  In order to save the memory and speed up the performance, FragmentLinker uses

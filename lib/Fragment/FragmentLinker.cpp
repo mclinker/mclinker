@@ -34,6 +34,9 @@
 
 using namespace mcld;
 
+//===----------------------------------------------------------------------===//
+// FragmentLinker
+//===----------------------------------------------------------------------===//
 /// Constructor
 FragmentLinker::FragmentLinker(const LinkerConfig& pConfig,
                                Module& pModule,
