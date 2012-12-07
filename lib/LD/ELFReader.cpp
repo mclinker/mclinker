@@ -105,7 +105,10 @@ ELFReaderIF::getSymFragmentRef(Input& pInput,
   if (Input::DynObj == pInput.type())
     return FragmentRef::Null();
 
-  if (pShndx == llvm::ELF::SHN_UNDEF || pShndx >= llvm::ELF::SHN_LORESERVE)
+  if (pShndx == llvm::ELF::SHN_UNDEF)
+    return FragmentRef::Null();
+
+  if (pShndx >= llvm::ELF::SHN_LORESERVE) // including ABS and COMMON
     return FragmentRef::Null();
 
   LDSection* sect_hdr = pInput.context()->getSection(pShndx);
