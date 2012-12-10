@@ -29,14 +29,10 @@ const char* Linker::GetErrorString(enum Linker::ErrorCode pErrCode) {
     "Successfully compiled.",
     /* kDoubleConfig */
     "Configure Linker twice.",
-    /* kCreateBackend */
-    "Cannot create backend.",
     /* kDelegateLDInfo */
     "Cannot get linker information",
     /* kFindNameSpec */
     "Cannot find -lnamespec",
-    /* kOpenNameSpec */
-    "Cannot open -lnamespec",
     /* kOpenObjectFile */
     "Cannot open object file",
     /* kNotConfig */
@@ -173,6 +169,6 @@ enum Linker::ErrorCode Linker::link() {
     mLinker->emit(mOutputHandler);
     return kSuccess;
   }
-  return kSuccess;
+  return kNotSetUpOutput;
 }
 

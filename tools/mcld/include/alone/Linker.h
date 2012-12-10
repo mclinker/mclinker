@@ -38,10 +38,8 @@ public:
   enum ErrorCode {
     kSuccess,
     kDoubleConfig,
-    kCreateBackend,
     kDelegateLDInfo,
     kFindNameSpec,
-    kOpenNameSpec,
     kOpenObjectFile,
     kOpenMemory,
     kNotConfig,
