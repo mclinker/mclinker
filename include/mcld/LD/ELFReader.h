@@ -31,7 +31,6 @@ namespace mcld {
 class Module;
 class IRBuilder;
 class FragmentRef;
-class FragmentLinker;
 class SectionData;
 class LDSection;
 
@@ -87,13 +86,11 @@ public:
 
   /// readRela - read ELF rela and create Relocation
   virtual bool readRela(Input& pInput,
-                        FragmentLinker& pLinker,
                         LDSection& pSection,
                         const MemoryRegion& pRegion) const = 0;
 
   /// readRel - read ELF rel and create Relocation
   virtual bool readRel(Input& pInput,
-                       FragmentLinker& pLinker,
                        LDSection& pSection,
                        const MemoryRegion& pRegion) const = 0;
 
@@ -194,13 +191,11 @@ public:
 
   /// readRela - read ELF rela and create Relocation
   bool readRela(Input& pInput,
-                FragmentLinker& pLinker,
                 LDSection& pSection,
                 const MemoryRegion& pRegion) const;
 
   /// readRel - read ELF rel and create Relocation
   bool readRel(Input& pInput,
-               FragmentLinker& pLinker,
                LDSection& pSection,
                const MemoryRegion& pRegion) const;
 

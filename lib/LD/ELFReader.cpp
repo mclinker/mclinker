@@ -9,7 +9,6 @@
 #include <mcld/LD/ELFReader.h>
 
 #include <mcld/IRBuilder.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/SectionData.h>
@@ -272,8 +271,13 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       ld_name = std::string(pStrTab + st_name);
     }
 
-    // push into FragmentLinker
-    pBuilder.AddSymbol(pInput, ld_name, ld_type, ld_desc, ld_binding, st_size, ld_value,
+    pBuilder.AddSymbol(pInput,
+                       ld_name,
+                       ld_type,
+                       ld_desc,
+                       ld_binding,
+                       st_size,
+                       ld_value,
                        section, ld_vis);
   } // end of for loop
   return true;
@@ -284,7 +288,6 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 //===----------------------------------------------------------------------===//
 /// ELFReader::readRela - read ELF rela and create Relocation
 bool ELFReader<32, true>::readRela(Input& pInput,
-                                   FragmentLinker& pLinker,
                                    LDSection& pSection,
                                    const MemoryRegion& pRegion) const
 {
@@ -315,14 +318,13 @@ bool ELFReader<32, true>::readRela(Input& pInput,
       fatal(diag::err_cannot_read_symbol) << r_sym << pInput.path();
     }
 
-    pLinker.addRelocation(r_type, *symbol, pSection, r_offset, r_addend);
+    IRBuilder::AddRelocation(pSection, r_type, *symbol, r_offset, r_addend);
   } // end of for
   return true;
 }
 
 /// readRel - read ELF rel and create Relocation
 bool ELFReader<32, true>::readRel(Input& pInput,
-                                  FragmentLinker& pLinker,
                                   LDSection& pSection,
                                   const MemoryRegion& pRegion) const
 {
@@ -351,7 +353,7 @@ bool ELFReader<32, true>::readRel(Input& pInput,
       fatal(diag::err_cannot_read_symbol) << r_sym << pInput.path();
     }
 
-    pLinker.addRelocation(r_type, *symbol, pSection, r_offset);
+    IRBuilder::AddRelocation(pSection, r_type, *symbol, r_offset);
   } // end of for
   return true;
 }

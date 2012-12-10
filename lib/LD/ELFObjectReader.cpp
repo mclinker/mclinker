@@ -286,14 +286,14 @@ bool ELFObjectReader::readRelocations(Input& pInput)
     IRBuilder::CreateRelocData(**rs); ///< create relocation data for the header
     switch ((*rs)->type()) {
       case llvm::ELF::SHT_RELA: {
-        if (!m_pELFReader->readRela(pInput, m_Linker, **rs, *region)) {
+        if (!m_pELFReader->readRela(pInput, **rs, *region)) {
           mem->release(region);
           return false;
         }
         break;
       }
       case llvm::ELF::SHT_REL: {
-        if (!m_pELFReader->readRel(pInput, m_Linker, **rs, *region)) {
+        if (!m_pELFReader->readRel(pInput, **rs, *region)) {
           mem->release(region);
           return false;
         }
