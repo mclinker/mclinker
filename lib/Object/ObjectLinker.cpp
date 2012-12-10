@@ -11,7 +11,7 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/Module.h>
 #include <mcld/InputTree.h>
-#include <mcld/MC/InputBuilder.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/Archive.h>
@@ -38,11 +38,11 @@ using namespace mcld;
 
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            Module& pModule,
-                           InputBuilder& pInputBuilder,
+                           IRBuilder& pBuilder,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
     m_Module(pModule),
-    m_InputBuilder(pInputBuilder),
+    m_Builder(pBuilder),
     m_pLinker(NULL),
     m_LDBackend(pLDBackend),
     m_pObjectReader(NULL),
@@ -129,7 +129,7 @@ void ObjectLinker::normalize()
   for (input = m_Module.input_begin(); input!=inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, m_InputBuilder, m_Config);
+      getGroupReader()->readGroup(input, m_Builder.getInputBuilder(), m_Config);
       continue;
     }
 
@@ -168,7 +168,7 @@ void ObjectLinker::normalize()
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, m_InputBuilder);
+      Archive archive(**input, m_Builder.getInputBuilder());
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_Module.getInputTree().merge<InputTree::Inclusive>(input,

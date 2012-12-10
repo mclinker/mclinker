@@ -22,7 +22,7 @@ namespace mcld {
 
 class Module;
 class LinkerConfig;
-class InputBuilder;
+class IRBuilder;
 class FragmentLinker;
 class TargetLDBackend;
 class MemoryArea;
@@ -43,7 +43,7 @@ class ObjectLinker
 public:
   ObjectLinker(const LinkerConfig& pConfig,
                Module& pModule,
-               InputBuilder& pInputBuilder,
+               IRBuilder& pBuilder,
                TargetLDBackend& pLDBackend);
 
   ~ObjectLinker();
@@ -148,8 +148,7 @@ private:
   const LinkerConfig& m_Config;
   Module& m_Module;
 
-  // we pass in InputBuilder for Archive and GroupReader.
-  InputBuilder& m_InputBuilder; 
+  IRBuilder& m_Builder; 
 
   FragmentLinker* m_pLinker;
   TargetLDBackend &m_LDBackend;

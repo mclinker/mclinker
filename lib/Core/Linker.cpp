@@ -67,7 +67,7 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
   m_pIRBuilder = &pBuilder;
   m_pObjLinker = new ObjectLinker(*m_pConfig,
                                   pModule,
-                                  m_pIRBuilder->getInputBuilder(),
+                                  *m_pIRBuilder,
                                   *m_pBackend);
 
   // 2. - initialize FragmentLinker
