@@ -262,7 +262,7 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
     // read the number of symbols
     uint32_t number = 0;
     if (llvm::sys::isLittleEndianHost())
-      number = bswap32(*data);
+      number = mcld::bswap32(*data);
     else
       number = *data;
 
@@ -273,7 +273,7 @@ bool GNUArchiveReader::readSymbolTable(Archive& pArchive)
     // add the archive symbols
     for (uint32_t i = 0; i < number; ++i) {
       if (llvm::sys::isLittleEndianHost())
-        pArchive.addSymbol(name, bswap32(*data));
+        pArchive.addSymbol(name, mcld::bswap32(*data));
       else
         pArchive.addSymbol(name, *data);
       name += strlen(name) + 1;

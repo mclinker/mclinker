@@ -51,13 +51,13 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
      switch (m_pConfig->targets().bitclass()) {
        case 32: {
          pFragRef.memcpy(&tmp_data, 4);
-         tmp_data = bswap32(tmp_data);
+         tmp_data = mcld::bswap32(tmp_data);
          target_data = tmp_data;
          break;
        }
        case 64: {
          pFragRef.memcpy(&target_data, 8);
-         target_data = bswap64(target_data);
+         target_data = mcld::bswap64(target_data);
          break;
        }
        default: {

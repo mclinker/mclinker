@@ -633,12 +633,12 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 
      switch(m_Config.targets().bitclass()) {
        case 32u:
-         tmp_data = bswap32(pReloc.target());
+         tmp_data = mcld::bswap32(pReloc.target());
          std::memcpy(target_addr, &tmp_data, 4);
          break;
 
        case 64u:
-         tmp_data = bswap64(pReloc.target());
+         tmp_data = mcld::bswap64(pReloc.target());
          std::memcpy(target_addr, &tmp_data, 8);
          break;
 

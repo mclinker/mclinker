@@ -223,10 +223,10 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       st_shndx = symtab[idx].st_shndx;
     }
     else {
-      st_name  = bswap32(symtab[idx].st_name);
-      st_value = bswap32(symtab[idx].st_value);
-      st_size  = bswap32(symtab[idx].st_size);
-      st_shndx = bswap16(symtab[idx].st_shndx);
+      st_name  = mcld::bswap32(symtab[idx].st_name);
+      st_value = mcld::bswap32(symtab[idx].st_value);
+      st_size  = mcld::bswap32(symtab[idx].st_size);
+      st_shndx = mcld::bswap16(symtab[idx].st_shndx);
     }
 
     // If the section should not be included, set the st_shndx SHN_UNDEF
@@ -327,9 +327,9 @@ bool ELFReader<32, true>::readRela(Input& pInput,
       r_addend = relaTab[idx].r_addend;
     }
     else {
-      r_offset = bswap32(relaTab[idx].r_offset);
-      r_info   = bswap32(relaTab[idx].r_info);
-      r_addend = bswap32(relaTab[idx].r_addend);
+      r_offset = mcld::bswap32(relaTab[idx].r_offset);
+      r_info   = mcld::bswap32(relaTab[idx].r_info);
+      r_addend = mcld::bswap32(relaTab[idx].r_addend);
     }
 
     uint8_t  r_type = static_cast<unsigned char>(r_info);
@@ -363,8 +363,8 @@ bool ELFReader<32, true>::readRel(Input& pInput,
       r_info   = relTab[idx].r_info;
     }
     else {
-      r_offset = bswap32(relTab[idx].r_offset);
-      r_info   = bswap32(relTab[idx].r_info);
+      r_offset = mcld::bswap32(relTab[idx].r_offset);
+      r_info   = mcld::bswap32(relTab[idx].r_info);
     }
 
     uint8_t  r_type = static_cast<unsigned char>(r_info);
@@ -397,7 +397,7 @@ bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
 
   if (llvm::sys::isLittleEndianHost())
     return (hdr->e_machine == target().machine());
-  return (bswap16(hdr->e_machine) == target().machine());
+  return (mcld::bswap16(hdr->e_machine) == target().machine());
 }
 
 /// fileType - return the file type
@@ -409,7 +409,7 @@ Input::Type ELFReader<32, true>::fileType(void* pELFHeader) const
   if (llvm::sys::isLittleEndianHost())
     type = hdr->e_type;
   else
-    type = bswap16(hdr->e_type);
+    type = mcld::bswap16(hdr->e_type);
 
   switch(type) {
   case llvm::ELF::ET_REL:
@@ -445,10 +445,10 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
     shstrtab  = ehdr->e_shstrndx;
   }
   else {
-    shoff     = bswap32(ehdr->e_shoff);
-    shentsize = bswap16(ehdr->e_shentsize);
-    shnum     = bswap16(ehdr->e_shnum);
-    shstrtab  = bswap16(ehdr->e_shstrndx);
+    shoff     = mcld::bswap32(ehdr->e_shoff);
+    shentsize = mcld::bswap16(ehdr->e_shentsize);
+    shnum     = mcld::bswap16(ehdr->e_shnum);
+    shstrtab  = mcld::bswap16(ehdr->e_shstrndx);
   }
 
   // If the file has no section header table, e_shoff holds zero.
@@ -476,8 +476,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
     sh_size   = shdr->sh_size;
   }
   else {
-    sh_offset = bswap32(shdr->sh_offset);
-    sh_size   = bswap32(shdr->sh_size);
+    sh_offset = mcld::bswap32(shdr->sh_offset);
+    sh_size   = mcld::bswap32(shdr->sh_size);
   }
 
   MemoryRegion* sect_name_region = pInput.memArea()->request(
@@ -500,14 +500,14 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
       sh_addralign = shdrTab[idx].sh_addralign;
     }
     else {
-      sh_name      = bswap32(shdrTab[idx].sh_name);
-      sh_type      = bswap32(shdrTab[idx].sh_type);
-      sh_flags     = bswap32(shdrTab[idx].sh_flags);
-      sh_offset    = bswap32(shdrTab[idx].sh_offset);
-      sh_size      = bswap32(shdrTab[idx].sh_size);
-      sh_link      = bswap32(shdrTab[idx].sh_link);
-      sh_info      = bswap32(shdrTab[idx].sh_info);
-      sh_addralign = bswap32(shdrTab[idx].sh_addralign);
+      sh_name      = mcld::bswap32(shdrTab[idx].sh_name);
+      sh_type      = mcld::bswap32(shdrTab[idx].sh_type);
+      sh_flags     = mcld::bswap32(shdrTab[idx].sh_flags);
+      sh_offset    = mcld::bswap32(shdrTab[idx].sh_offset);
+      sh_size      = mcld::bswap32(shdrTab[idx].sh_size);
+      sh_link      = mcld::bswap32(shdrTab[idx].sh_link);
+      sh_info      = mcld::bswap32(shdrTab[idx].sh_info);
+      sh_addralign = mcld::bswap32(shdrTab[idx].sh_addralign);
     }
 
     LDSection* section = IRBuilder::CreateELFHeader(pInput,
@@ -574,8 +574,8 @@ ResolveInfo* ELFReader<32, true>::readSignature(Input& pInput,
     st_shndx = entry->st_shndx;
   }
   else {
-    st_name  = bswap32(entry->st_name);
-    st_shndx = bswap16(entry->st_shndx);
+    st_name  = mcld::bswap32(entry->st_name);
+    st_shndx = mcld::bswap16(entry->st_shndx);
   }
 
   MemoryRegion* strtab_region = pInput.memArea()->request(
@@ -635,8 +635,8 @@ bool ELFReader<32, true>::readDynamic(Input& pInput) const
       d_tag = dynamic[idx].d_tag;
       d_val = dynamic[idx].d_un.d_val;
     } else {
-      d_tag = bswap32(dynamic[idx].d_tag);
-      d_val = bswap32(dynamic[idx].d_un.d_val);
+      d_tag = mcld::bswap32(dynamic[idx].d_tag);
+      d_val = mcld::bswap32(dynamic[idx].d_un.d_val);
     }
 
     switch (d_tag) {
