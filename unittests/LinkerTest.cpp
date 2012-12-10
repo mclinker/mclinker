@@ -352,6 +352,7 @@ TEST_F( LinkerTest, plasma_object) {
   gotplt_o.append("test/PLT/gotplt.o");
   Input* input = builder.CreateInput("gotplt.o", gotplt_o, Input::Object);
 
+  /// Sections
   /// [ 0]                   NULL            00000000 000000 000000 00      0   0  0
   builder.CreateELFHeader(*input,
                           "",
@@ -374,25 +375,35 @@ TEST_F( LinkerTest, plasma_object) {
   Fragment* text_frag = builder.CreateRegion(text_content, 0x10);
   builder.AppendFragment(*text_frag, *text_data);
 
-  // [ 3] .data             PROGBITS        00000000 000044 000000 00  WA  0   0  4
-  builder.CreateELFHeader(*input,
+  /// [ 2] .rel.text         REL             00000000 0002ac 000008 08      7   1  4
+  LDSection* rel_text = builder.CreateELFHeader(*input,
+                          ".rel.text",
+                          llvm::ELF::SHT_REL,
+                          0x0, 4);
+  rel_text->setLink(text);
+  builder.CreateRelocData(*rel_text);
+
+  /// [ 3] .data             PROGBITS        00000000 000044 000000 00  WA  0   0  4
+  LDSection* data = builder.CreateELFHeader(*input,
                           ".data",
                           llvm::ELF::SHT_PROGBITS,
                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                           4);
 
-  // [ 4] .bss              NOBITS          00000000 000044 000000 00  WA  0   0  4
-  builder.CreateELFHeader(*input,
+  /// [ 4] .bss              NOBITS          00000000 000044 000000 00  WA  0   0  4
+  LDSection* bss = builder.CreateELFHeader(*input,
                           ".bss",
-                          llvm::ELF::SHT_PROGBITS,
+                          llvm::ELF::SHT_NOBITS,
                           llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                           4);
-  // [ 5] .ARM.attributes   ARM_ATTRIBUTES  00000000 000044 000020 00      0   0  1
+  builder.CreateBSS(*bss);
+
+  /// [ 5] .ARM.attributes   ARM_ATTRIBUTES  00000000 000044 000020 00      0   0  1
   LDSection* attr = builder.CreateELFHeader(*input,
                               ".ARM.attributes",
                               llvm::ELF::SHT_ARM_ATTRIBUTES,
                               0x0,
-                              4);
+                              1);
 
   SectionData* attr_data = builder.CreateSectionData(*attr);
   static uint8_t attr_content[] = {
@@ -406,6 +417,48 @@ TEST_F( LinkerTest, plasma_object) {
                       0x18, 0x01, 0x19, 0x01 };
   Fragment* attr_frag = builder.CreateRegion(attr_content, 0x20);
   builder.AppendFragment(*attr_frag, *attr_data);
+
+  /// Symbols
+  /// 1: 00000000     0 FILE    LOCAL  DEFAULT  ABS Output/gotplt.bc
+  builder.AddSymbol(*input,
+                    "Output/gotplt.bc", ResolveInfo::File,
+                    ResolveInfo::Define, ResolveInfo::Local, 0);
+  /// 2: 00000000     0 SECTION LOCAL  DEFAULT    1 
+  builder.AddSymbol(*input,
+                    ".text", ResolveInfo::Section,
+                    ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, text);
+  /// 3: 00000000     0 SECTION LOCAL  DEFAULT    3
+  builder.AddSymbol(*input,
+                    ".data", ResolveInfo::Section,
+                    ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, data);
+  /// 4: 00000000     0 SECTION LOCAL  DEFAULT    4 
+  builder.AddSymbol(*input,
+                    ".bss", ResolveInfo::Section,
+                    ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, bss);
+  /// 5: 00000000     0 SECTION LOCAL  DEFAULT    5 
+  builder.AddSymbol(*input,
+                    ".ARM.attributes", ResolveInfo::Section,
+                    ResolveInfo::Define, ResolveInfo::Local, 0, 0x0, attr);
+  /// 6: 00000000    16 FUNC    GLOBAL DEFAULT    1 _Z1fv
+  builder.AddSymbol(*input,
+                    "_Z1fv", ResolveInfo::Function,
+                    ResolveInfo::Define, ResolveInfo::Global,
+                    16,
+                    0x0,
+                    text);
+
+  /// 7: 00000000     0 NOTYPE  GLOBAL DEFAULT  UND _Z1gv
+  LDSymbol* z1gv = builder.AddSymbol(*input,
+                                     "_Z1gv",
+                                     ResolveInfo::NoType,
+                                     ResolveInfo::Undefined,
+                                     ResolveInfo::Global,
+                                     0);
+
+ /// Relocations
+ /// Offset     Info    Type            Sym.Value  Sym. Name
+ /// 00000004  0000071b R_ARM_PLT32       00000000   _Z1gv
+ builder.AddRelocation(*rel_text, llvm::ELF::R_ARM_PLT32, *z1gv, 0x4);
 
   if (linker.link(module, builder)) {
     linker.emit("libgotplt.so"); ///< -o libgotplt.so
