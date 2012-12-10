@@ -28,13 +28,12 @@ class PLTEntryBase : public TargetFragment
 {
 public:
   PLTEntryBase(SectionData& pParent)
-    : TargetFragment(Fragment::Target, &pParent)
+    : TargetFragment(Fragment::Target, &pParent), m_pValue(NULL)
   {}
 
   virtual ~PLTEntryBase()
   {
-      if (m_pValue)
-        delete m_pValue;
+    delete m_pValue;
   }
 
   void setValue(unsigned char* pValue)
