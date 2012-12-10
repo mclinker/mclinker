@@ -229,7 +229,7 @@ bool Linker::initTarget()
   assert(NULL != m_pConfig);
 
   std::string error;
-  m_pTarget = TargetRegistry::lookupTarget(m_pConfig->targets().triple().str(), error);
+  m_pTarget = mcld::TargetRegistry::lookupTarget(m_pConfig->targets().triple().str(), error);
   if (NULL == m_pTarget) {
     fatal(diag::fatal_cannot_init_target) << m_pConfig->targets().triple().str() << error;
     return false;
