@@ -1890,16 +1890,18 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
     if (mapping != config().scripts().addressMap().end()) {
       // check address mapping
       start_addr = mapping.getEntry()->value();
-      const uint64_t remainder = start_addr % abiPageSize();
-      if (remainder != (*seg).front()->offset() % abiPageSize()) {
-        uint64_t padding = abiPageSize() + remainder -
-                           (*seg).front()->offset() % abiPageSize();
-        setOutputSectionOffset(pModule,
-                               pModule.begin() + (*seg).front()->index(),
-                               pModule.end(),
-                               (*seg).front()->offset() + padding);
-        if (config().options().hasRelro())
-          setupRelro(pModule);
+      if ((*seg).front()->kind() != LDFileFormat::Null) {
+        const uint64_t remainder = start_addr % abiPageSize();
+        if (remainder != (*seg).front()->offset() % abiPageSize()) {
+          uint64_t padding = abiPageSize() + remainder -
+                             (*seg).front()->offset() % abiPageSize();
+          setOutputSectionOffset(pModule,
+                                 pModule.begin() + (*seg).front()->index(),
+                                 pModule.end(),
+                                 (*seg).front()->offset() + padding);
+          if (config().options().hasRelro())
+            setupRelro(pModule);
+        }
       }
     }
     else {
