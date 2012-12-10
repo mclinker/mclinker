@@ -597,6 +597,51 @@ ArgForceUndefinedAlias("undefined",
                        cl::desc("alias for -u"),
                        cl::aliasopt(ArgForceUndefined));
 
+static cl::opt<std::string>
+ArgFormat("format",
+          cl::desc("input-format."),
+          cl::value_desc("input-format"));
+
+static cl::alias
+ArgFormatAlias("b",
+               cl::desc("alias for --format"),
+               cl::aliasopt(ArgFormat));
+
+static cl::opt<std::string>
+ArgOFormat("oformat",
+           cl::desc("output-format."),
+           cl::value_desc("output-format"));
+
+static cl::opt<std::string>
+ArgVersionScript("version-script",
+                 cl::desc("Version script."),
+                 cl::value_desc("Version script"));
+
+static cl::opt<bool>
+ArgNoStdLib("nostdlib",
+            cl::desc("Only search lib dirs explicitly specified on cmdline"),
+            cl::init(false));
+
+static cl::opt<bool>
+ArgDefineCommon("d",
+                cl::ZeroOrMore,
+                cl::desc("Define common symbol"),
+                cl::init(false));
+
+static cl::alias
+ArgDefineCommonAlias1("dc",
+                      cl::desc("alias for -d"),
+                      cl::aliasopt(ArgDefineCommon));
+
+static cl::alias
+ArgDefineCommonAlias2("dp",
+                      cl::desc("alias for -d"),
+                      cl::aliasopt(ArgDefineCommon));
+
+static cl::opt<bool>
+ArgWanrCommon("warn-common",
+              cl::desc("warn common symbol"),
+              cl::init(false));
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
