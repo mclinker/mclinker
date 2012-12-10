@@ -19,6 +19,7 @@
 
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/EhFrame.h>
+#include <mcld/LD/LDSymbol.h>
 
 #include <mcld/Fragment/Fragment.h>
 #include <mcld/Fragment/Relocation.h>
@@ -359,6 +360,54 @@ public:
   /// @param [in, out] pEhFrame The eh_frame being appended.
   /// @return Total size of the inserted fragments.
   static uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame);
+
+  /// AddSymbol - To add a symbol to the input file and module. The symbol is
+  /// resolved immediately.
+  ///
+  /// This is a general method for all kinds of symbol.
+  ///
+  /// @param [in, out] pInput   The input file. Either a relocatable or dynamic
+  ///                           object
+  /// @param [in]      pName    The name of the symbol
+  /// @param [in]      pType    What the symbol refers to
+  /// @param [in]      pDesc    { Undefined, Define, Common, Indirect }
+  /// @param [in]      pBind    { Global, Weak, Local, Absolute }
+  /// @param [in]      pSize    The size of the symbol. Bigger common symbols
+  ///                           overrides the smaller common symbols.
+  /// @param [in]      pValue   Common symbols' value are alignment constraints
+  ///                           Undefined symbols don't have value.
+  ///                           The rest symbols' value are relative section
+  ///                           offset.
+  /// @param [in]      pSection Absolute, undefined, common symbols do not have
+  ///                           pSection. Keep their pSection be NULL.
+  /// @oaram [in]      pVis     The visibility of the symbol
+  LDSymbol* AddSymbol(Input& pInput,
+                      const std::string& pName,
+                      ResolveInfo::Type pType,
+                      ResolveInfo::Desc pDesc,
+                      ResolveInfo::Binding pBind,
+                      ResolveInfo::SizeType pSize,
+                      LDSymbol::ValueType pValue = 0x0,
+                      LDSection* pSection = NULL,
+                      ResolveInfo::Visibility pVis = ResolveInfo::Default);
+
+private:
+  LDSymbol* addSymbolFromObject(const std::string& pName,
+                                ResolveInfo::Type pType,
+                                ResolveInfo::Desc pDesc,
+                                ResolveInfo::Binding pBinding,
+                                ResolveInfo::SizeType pSize,
+                                LDSymbol::ValueType pValue,
+                                FragmentRef* pFragmentRef,
+                                ResolveInfo::Visibility pVisibility);
+
+  LDSymbol* addSymbolFromDynObj(const std::string& pName,
+                                ResolveInfo::Type pType,
+                                ResolveInfo::Desc pDesc,
+                                ResolveInfo::Binding pBinding,
+                                ResolveInfo::SizeType pSize,
+                                LDSymbol::ValueType pValue,
+                                ResolveInfo::Visibility pVisibility);
 
 private:
   Module& m_Module;

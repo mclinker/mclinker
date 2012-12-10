@@ -13,6 +13,7 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Fragment/FragmentRef.h>
 
 using namespace mcld;
 
@@ -80,6 +81,22 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
     fatal(diag::err_unsupported_section) << pName << pType;
   }
   return LDFileFormat::MetaData;
+}
+
+bool shouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig)
+{
+  // forced local symbol matches all rules:
+  // 1. We are not doing incremental linking.
+  // 2. The symbol is with Hidden or Internal visibility.
+  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
+  // 4. The symbol is defined or common
+  if (LinkerConfig::Object != pConfig.codeGenType() &&
+      (pInfo.visibility() == ResolveInfo::Hidden ||
+         pInfo.visibility() == ResolveInfo::Internal) &&
+      (pInfo.isGlobal() || pInfo.isWeak()) &&
+      (pInfo.isDefine() || pInfo.isCommon()))
+    return true;
+  return false;
 }
 
 //===----------------------------------------------------------------------===//
@@ -409,5 +426,223 @@ uint64_t IRBuilder::AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame)
   pEhFrame.addCIE(pCIE);
   pEhFrame.getSection().setSize(pEhFrame.getSection().size() + pCIE.size());
   return pCIE.size();
+}
+
+/// AddSymbol - To add a symbol in the input file and resolve the symbol
+/// immediately
+LDSymbol* IRBuilder::AddSymbol(Input& pInput,
+                               const std::string& pName,
+                               ResolveInfo::Type pType,
+                               ResolveInfo::Desc pDesc,
+                               ResolveInfo::Binding pBind,
+                               ResolveInfo::SizeType pSize,
+                               LDSymbol::ValueType pValue,
+                               LDSection* pSection,
+                               ResolveInfo::Visibility pVis)
+{
+  // rename symbols
+  std::string name = pName;
+  if (!m_Config.scripts().renameMap().empty() &&
+      ResolveInfo::Undefined == pDesc) {
+    // If the renameMap is not empty, some symbols should be renamed.
+    // --wrap and --portable defines the symbol rename map.
+    ScriptOptions::SymbolRenameMap::const_iterator renameSym =
+                                    m_Config.scripts().renameMap().find(pName);
+    if (renameSym != m_Config.scripts().renameMap().end())
+      name = renameSym.getEntry()->value();
+  }
+
+  switch (pInput.type()) {
+    case Input::Object: {
+
+      FragmentRef* frag = NULL;
+      if (NULL == pSection ||
+          ResolveInfo::Undefined == pDesc ||
+          ResolveInfo::Common    == pDesc ||
+          ResolveInfo::Absolute  == pBind ||
+          LDFileFormat::Ignore   == pSection->kind() ||
+          LDFileFormat::Group    == pSection->kind())
+        frag = FragmentRef::Null();
+      else
+        frag = FragmentRef::Create(*pSection, pValue);
+
+      LDSymbol* input_sym = addSymbolFromObject(name, pType, pDesc, pBind, pSize, pValue, frag, pVis);
+      pInput.context()->addSymbol(input_sym);
+      return input_sym;
+    }
+    case Input::DynObj: {
+      return addSymbolFromDynObj(name, pType, pDesc, pBind, pSize, pValue, pVis);
+    }
+    default: {
+      return NULL;
+      break;
+    }
+  }
+}
+
+LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
+                                         ResolveInfo::Type pType,
+                                         ResolveInfo::Desc pDesc,
+                                         ResolveInfo::Binding pBinding,
+                                         ResolveInfo::SizeType pSize,
+                                         LDSymbol::ValueType pValue,
+                                         FragmentRef* pFragmentRef,
+                                         ResolveInfo::Visibility pVisibility)
+{
+  // Step 1. calculate a Resolver::Result
+  // resolved_result is a triple <resolved_info, existent, override>
+  Resolver::Result resolved_result;
+  ResolveInfo old_info; // used for arrange output symbols
+
+  if (pBinding == ResolveInfo::Local) {
+    // if the symbol is a local symbol, create a LDSymbol for input, but do not
+    // resolve them.
+    resolved_result.info     = m_Module.getNamePool().createSymbol(pName,
+                                                                   false,
+                                                                   pType,
+                                                                   pDesc,
+                                                                   pBinding,
+                                                                   pSize,
+                                                                   pVisibility);
+
+    // No matter if there is a symbol with the same name, insert the symbol
+    // into output symbol table. So, we let the existent false.
+    resolved_result.existent  = false;
+    resolved_result.overriden = true;
+  }
+  else {
+    // if the symbol is not local, insert and resolve it immediately
+    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+                                        pSize, pVisibility,
+                                        &old_info, resolved_result);
+  }
+
+  // the return ResolveInfo should not NULL
+  assert(NULL != resolved_result.info);
+
+  /// Step 2. create an input LDSymbol.
+  // create a LDSymbol for the input file.
+  LDSymbol* input_sym = LDSymbol::Create(*resolved_result.info);
+  input_sym->setFragmentRef(pFragmentRef);
+  input_sym->setValue(pValue);
+
+  // Step 3. Set up corresponding output LDSymbol
+  LDSymbol* output_sym = resolved_result.info->outSymbol();
+  bool has_output_sym = (NULL != output_sym);
+  if (!resolved_result.existent || !has_output_sym) {
+    // it is a new symbol, the output_sym should be NULL.
+    assert(NULL == output_sym);
+
+    if (pType == ResolveInfo::Section) {
+      // if it is a section symbol, its output LDSymbol is the input LDSymbol.
+      output_sym = input_sym;
+    }
+    else {
+      // if it is a new symbol, create a LDSymbol for the output
+      output_sym = LDSymbol::Create(*resolved_result.info);
+    }
+    resolved_result.info->setSymPtr(output_sym);
+  }
+
+  if (resolved_result.overriden || !has_output_sym) {
+    // symbol can be overriden only if it exists.
+    assert(output_sym != NULL);
+
+    // should override output LDSymbol
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+  }
+
+  // Step 4. Adjust the position of output LDSymbol.
+  // After symbol resolution, visibility is changed to the most restrict one.
+  // we need to arrange its position in the output symbol. We arrange the
+  // positions by sorting symbols in SymbolCategory.
+  if (pType != ResolveInfo::Section) {
+    if (!has_output_sym) {
+      // We merge sections when reading them. So we do not need to output symbols
+      // with section type
+
+      // No matter the symbol is already in the output or not, add it if it
+      // should be forcefully set local.
+      if (shouldForceLocal(*resolved_result.info, m_Config))
+        m_Module.getSymbolTable().forceLocal(*output_sym);
+      else {
+        // the symbol should not be forcefully local.
+        m_Module.getSymbolTable().add(*output_sym);
+      }
+    }
+    else if (resolved_result.overriden) {
+      if (!shouldForceLocal(old_info, m_Config) ||
+          !shouldForceLocal(*resolved_result.info, m_Config)) {
+        // If the old info and the new info are both forcefully local, then
+        // we should keep the output_sym in forcefully local category. Else,
+        // we should re-sort the output_sym
+        m_Module.getSymbolTable().arrange(*output_sym, old_info);
+      }
+    }
+  }
+
+  return input_sym;
+}
+
+LDSymbol* IRBuilder::addSymbolFromDynObj(const std::string& pName,
+                                         ResolveInfo::Type pType,
+                                         ResolveInfo::Desc pDesc,
+                                         ResolveInfo::Binding pBinding,
+                                         ResolveInfo::SizeType pSize,
+                                         LDSymbol::ValueType pValue,
+                                         ResolveInfo::Visibility pVisibility)
+{
+  // We don't need sections of dynamic objects. So we ignore section symbols.
+  if (pType == ResolveInfo::Section)
+    return NULL;
+
+  // ignore symbols with local binding or that have internal or hidden
+  // visibility
+  if (pBinding == ResolveInfo::Local ||
+      pVisibility == ResolveInfo::Internal ||
+      pVisibility == ResolveInfo::Hidden)
+    return NULL;
+
+  // A protected symbol in a shared library must be treated as a
+  // normal symbol when viewed from outside the shared library.
+  if (pVisibility == ResolveInfo::Protected)
+    pVisibility = ResolveInfo::Default;
+
+  // insert symbol and resolve it immediately
+  // resolved_result is a triple <resolved_info, existent, override>
+  Resolver::Result resolved_result;
+  m_Module.getNamePool().insertSymbol(pName, true, pType, pDesc,
+                                      pBinding, pSize, pVisibility,
+                                      NULL, resolved_result);
+
+  // the return ResolveInfo should not NULL
+  assert(NULL != resolved_result.info);
+
+  // create a LDSymbol for the input file.
+  LDSymbol* input_sym = LDSymbol::Create(*resolved_result.info);
+  input_sym->setFragmentRef(FragmentRef::Null());
+  input_sym->setValue(pValue);
+
+  LDSymbol* output_sym = NULL;
+  if (!resolved_result.existent) {
+    // we get a new symbol, leave it as NULL
+    resolved_result.info->setSymPtr(NULL);
+  }
+  else {
+    // we saw the symbol before, but the output_sym still may be NULL.
+    output_sym = resolved_result.info->outSymbol();
+  }
+
+  if (output_sym != NULL) {
+    // After symbol resolution, visibility is changed to the most restrict one.
+    // If we are not doing incremental linking, then any symbol with hidden
+    // or internal visibility is forcefully set as a local symbol.
+    if (shouldForceLocal(*resolved_result.info, m_Config)) {
+      m_Module.getSymbolTable().forceLocal(*output_sym);
+    }
+  }
+
+  return input_sym;
 }
 
