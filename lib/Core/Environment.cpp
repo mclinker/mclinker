@@ -9,6 +9,8 @@
 #include <mcld/Environment.h>
 #include <mcld/Support/TargetSelect.h>
 
+#include <llvm/Support/TargetSelect.h>
+
 void mcld::Initialize()
 {
   static bool is_initialized = false;
@@ -16,6 +18,7 @@ void mcld::Initialize()
   if (is_initialized)
     return;
 
+  llvm::InitializeAllTargets();
   mcld::InitializeAllTargets();
   mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
