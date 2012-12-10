@@ -391,6 +391,20 @@ public:
                       LDSection* pSection = NULL,
                       ResolveInfo::Visibility pVis = ResolveInfo::Default);
 
+  /// AddRelocation - To add a relocation entry
+  ///
+  /// @param [in] pSection The relocation section. pSection's link should point to
+  ///                      the target section.
+  /// @param [in] pType    The type of the relocation (target dependent)
+  /// @param [in] pSym     The symbol should be the symbol in the input file.
+  /// @param [in] pOffset  The offset of target section.
+  /// @param [in] pAddend  Tthe addend value for applying relocation
+  static Relocation* AddRelocation(LDSection& pSection,
+                                   Relocation::Type pType,
+                                   LDSymbol& pSym,
+                                   uint32_t pOffset,
+                                   Relocation::Address pAddend = 0);
+
 private:
   LDSymbol* addSymbolFromObject(const std::string& pName,
                                 ResolveInfo::Type pType,
