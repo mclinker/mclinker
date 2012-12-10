@@ -36,6 +36,7 @@ namespace mcld {
 
 class Module;
 class LinkerConfig;
+class IRBuilder;
 class Layout;
 class EhFrame;
 class EhFrameHdr;
@@ -56,8 +57,8 @@ public:
 
   // -----  readers/writers  ----- //
   GNUArchiveReader* createArchiveReader(Module& pModule);
-  ELFObjectReader* createObjectReader(FragmentLinker& pLinker);
-  ELFDynObjReader* createDynObjReader(FragmentLinker& pLinker);
+  ELFObjectReader* createObjectReader(FragmentLinker& pLinker, IRBuilder& pBuilder);
+  ELFDynObjReader* createDynObjReader(FragmentLinker& pLinker, IRBuilder& pBuilder);
   ELFObjectWriter* createObjectWriter(FragmentLinker& pLinker);
   ELFDynObjWriter* createDynObjWriter(FragmentLinker& pLinker);
   ELFExecWriter*   createExecWriter(FragmentLinker& pLinker);

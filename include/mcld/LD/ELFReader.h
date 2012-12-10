@@ -29,6 +29,7 @@
 namespace mcld {
 
 class Module;
+class IRBuilder;
 class FragmentRef;
 class FragmentLinker;
 class SectionData;
@@ -74,7 +75,7 @@ public:
 
   /// readSymbols - read ELF symbols and create LDSymbol
   virtual bool readSymbols(Input& pInput,
-                           FragmentLinker& pLinker,
+                           IRBuilder& pBuilder,
                            const MemoryRegion& pRegion,
                            const char* StrTab) const = 0;
 
@@ -181,9 +182,9 @@ public:
 
   /// readSymbols - read ELF symbols and create LDSymbol
   bool readSymbols(Input& pInput,
-                          FragmentLinker& pLinker,
-                          const MemoryRegion& pRegion,
-                          const char* StrTab) const;
+                   IRBuilder& pBuilder,
+                   const MemoryRegion& pRegion,
+                   const char* StrTab) const;
 
   /// readSignature - read a symbol from the given Input and index in symtab
   /// This is used to get the signature of a group section.

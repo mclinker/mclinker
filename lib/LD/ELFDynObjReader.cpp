@@ -9,6 +9,7 @@
 #include <mcld/LD/ELFDynObjReader.h>
 
 #include <mcld/LinkerConfig.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/Fragment/FragmentLinker.h>
@@ -28,10 +29,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
                                  FragmentLinker& pLinker,
+                                 IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
   : DynObjReader(),
     m_pELFReader(0),
-    m_Linker(pLinker) {
+    m_Linker(pLinker),
+    m_Builder(pBuilder) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);
 }
@@ -112,8 +115,8 @@ bool ELFDynObjReader::readSymbols(Input& pInput)
   MemoryRegion* strtab_region = pInput.memArea()->request(
               pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
   char* strtab = reinterpret_cast<char*>(strtab_region->start());
-  bool result = m_pELFReader->readSymbols(pInput, m_Linker, *symtab_region,
-                                            strtab);
+  bool result = m_pELFReader->readSymbols(pInput, m_Builder,
+                                          *symtab_region, strtab);
   pInput.memArea()->release(symtab_region);
   pInput.memArea()->release(strtab_region);
 

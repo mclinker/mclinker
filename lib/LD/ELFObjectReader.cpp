@@ -32,11 +32,13 @@ using namespace mcld;
 /// constructor
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend,
                                  FragmentLinker& pLinker,
+                                 IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
   : ObjectReader(),
     m_pELFReader(NULL),
     m_pEhFrameReader(NULL),
     m_Linker(pLinker),
+    m_Builder(pBuilder),
     m_ReadFlag(ParseEhFrame),
     m_Backend(pBackend) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian()) {
@@ -260,7 +262,7 @@ bool ELFObjectReader::readSymbols(Input& pInput)
              pInput.fileOffset() + strtab_shdr->offset(), strtab_shdr->size());
   char* strtab = reinterpret_cast<char*>(strtab_region->start());
   bool result = m_pELFReader->readSymbols(pInput,
-                                          m_Linker,
+                                          m_Builder,
                                           *symtab_region,
                                           strtab);
   pInput.memArea()->release(symtab_region);

@@ -37,6 +37,7 @@ class LDSymbol;
 class ResolveInfo
 {
 friend class FragmentLinker;
+friend class IRBuilder;
 public:
   typedef uint64_t SizeType;
 

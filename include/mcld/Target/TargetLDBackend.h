@@ -15,6 +15,7 @@ namespace mcld {
 
 class Module;
 class LinkerConfig;
+class IRBuilder;
 class FragmentLinker;
 class Relocation;
 class RelocationFactory;
@@ -88,8 +89,8 @@ public:
 
   // -----  format dependent  ----- //
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
-  virtual ObjectReader*  createObjectReader(FragmentLinker&) = 0;
-  virtual DynObjReader*  createDynObjReader(FragmentLinker&) = 0;
+  virtual ObjectReader*  createObjectReader(FragmentLinker&, IRBuilder&) = 0;
+  virtual DynObjReader*  createDynObjReader(FragmentLinker&, IRBuilder&) = 0;
   virtual ObjectWriter*  createObjectWriter(FragmentLinker&) = 0;
   virtual DynObjWriter*  createDynObjWriter(FragmentLinker&) = 0;
   virtual ExecWriter*    createExecWriter(FragmentLinker&) = 0;

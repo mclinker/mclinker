@@ -140,15 +140,15 @@ GNULDBackend::createArchiveReader(Module& pModule)
   return new GNUArchiveReader(pModule, *m_pObjectReader);
 }
 
-ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker)
+ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker, IRBuilder& pBuilder)
 {
-  m_pObjectReader = new ELFObjectReader(*this, pLinker, config());
+  m_pObjectReader = new ELFObjectReader(*this, pLinker, pBuilder, config());
   return m_pObjectReader;
 }
 
-ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker)
+ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker, IRBuilder& pBuilder)
 {
-  return new ELFDynObjReader(*this, pLinker, config());
+  return new ELFDynObjReader(*this, pLinker, pBuilder, config());
 }
 
 ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker& pLinker)

@@ -84,9 +84,9 @@ bool ObjectLinker::initFragmentLinker()
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
-  m_pObjectReader  = m_LDBackend.createObjectReader(*m_pLinker);
+  m_pObjectReader  = m_LDBackend.createObjectReader(*m_pLinker, m_Builder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module);
-  m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pLinker);
+  m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pLinker, m_Builder);
   m_pObjectWriter  = m_LDBackend.createObjectWriter(*m_pLinker);
   m_pDynObjWriter  = m_LDBackend.createDynObjWriter(*m_pLinker);
   m_pExecWriter    = m_LDBackend.createExecWriter(*m_pLinker);
