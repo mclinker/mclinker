@@ -295,6 +295,10 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/ELFDynObjWriter.cpp \
 	${INCDIR}/LD/ELFExecWriter.h \
 	${LIBDIR}/LD/ELFExecWriter.cpp \
+	${INCDIR}/LD/BinaryWriter.h \
+	${LIBDIR}/LD/BinaryWriter.cpp \
+	${INCDIR}/LD/ELFBinaryWriter.h \
+	${LIBDIR}/LD/ELFBinaryWriter.cpp \
 	${INCDIR}/LD/LDFileFormat.h \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${INCDIR}/LD/ELFFileFormat.h \
