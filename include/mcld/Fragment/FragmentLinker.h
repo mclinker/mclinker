@@ -65,17 +65,6 @@ public:
   ~FragmentLinker();
 
   // ----- about symbols  ----- //
-  /// addDynSymbol - add a symbol and resolve it immediately
-  template<Input::Type FROM>
-  LDSymbol* addSymbol(const llvm::StringRef& pName,
-                      ResolveInfo::Type pType,
-                      ResolveInfo::Desc pDesc,
-                      ResolveInfo::Binding pBinding,
-                      ResolveInfo::SizeType pSize,
-                      LDSymbol::ValueType pValue,
-                      FragmentRef* pFragmentRef,
-                      ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
-
   /// defineSymbol - add a symbol
   /// defineSymbol define a output symbol
   ///
@@ -107,20 +96,6 @@ public:
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   bool finalizeSymbols();
-
-  // -----  relocations  ----- //
-  /// addRelocation - add a relocation entry in FragmentLinker (only for object file)
-  /// @param pType - the type of the relocation
-  /// @param pSym  - the symbol should be the symbol in the input file. FragmentLinker
-  ///                  computes the real applied address by the output symbol.
-  /// @param pSection - the input relocation section
-  /// @param pOffset - the offset of target section.
-  /// @param pAddend - the addend value for applying relocation
-  Relocation* addRelocation(Relocation::Type pType,
-                            LDSymbol& pSym,
-                            LDSection& pSection,
-                            uint32_t pOffset,
-                            Relocation::Address pAddend = 0);
 
   /// applyRelocations - apply all relocation enties.
   bool applyRelocations();
@@ -181,24 +156,6 @@ private:
                                             ResolveInfo::Visibility pVisibility);
 
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
-
-  LDSymbol* addSymbolFromDynObj(const llvm::StringRef& pName,
-                                ResolveInfo::Type pType,
-                                ResolveInfo::Desc pDesc,
-                                ResolveInfo::Binding pBinding,
-                                ResolveInfo::SizeType pSize,
-                                LDSymbol::ValueType pValue,
-                                FragmentRef* pFragmentRef,
-                                ResolveInfo::Visibility pVisibility);
-
-  LDSymbol* addSymbolFromObject(const llvm::StringRef& pName,
-                                ResolveInfo::Type pType,
-                                ResolveInfo::Desc pDesc,
-                                ResolveInfo::Binding pBinding,
-                                ResolveInfo::SizeType pSize,
-                                LDSymbol::ValueType pValue,
-                                FragmentRef* pFragmentRef,
-                                ResolveInfo::Visibility pVisibility);
 
   /// checkIsOutputPIC - return whether the output is position-independent,
   /// called by isOutputPIC()

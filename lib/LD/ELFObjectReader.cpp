@@ -16,7 +16,6 @@
 
 #include <mcld/IRBuilder.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/EhFrameReader.h>
 #include <mcld/LD/EhFrame.h>
@@ -31,16 +30,15 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 /// constructor
 ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend,
-                                 FragmentLinker& pLinker,
                                  IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
   : ObjectReader(),
     m_pELFReader(NULL),
     m_pEhFrameReader(NULL),
-    m_Linker(pLinker),
     m_Builder(pBuilder),
     m_ReadFlag(ParseEhFrame),
-    m_Backend(pBackend) {
+    m_Backend(pBackend),
+    m_Config(pConfig) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
@@ -170,7 +168,7 @@ bool ELFObjectReader::readSections(Input& pInput)
         break;
       }
       case LDFileFormat::Debug: {
-        if (m_Linker.getLDInfo().options().stripDebug()) {
+        if (m_Config.options().stripDebug()) {
           (*section)->setKind(LDFileFormat::Ignore);
         }
         else {
@@ -184,7 +182,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::EhFrame: {
         EhFrame* eh_frame = IRBuilder::CreateEhFrame(**section);
 
-        if (m_Linker.getLDInfo().options().hasEhFrameHdr() &&
+        if (m_Config.options().hasEhFrameHdr() &&
             (m_ReadFlag & ParseEhFrame)) {
 
           // if --eh-frame-hdr option is given, parse .eh_frame.
@@ -235,7 +233,7 @@ bool ELFObjectReader::readSections(Input& pInput)
   return true;
 }
 
-/// readSymbols - read symbols into FragmentLinker from the input relocatable object.
+/// readSymbols - read symbols from the input relocatable object.
 bool ELFObjectReader::readSymbols(Input& pInput)
 {
   assert(pInput.hasMemArea());

@@ -12,7 +12,6 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Target/GNULDBackend.h>
 
@@ -28,12 +27,10 @@ using namespace mcld;
 // ELFDynObjReader
 //===----------------------------------------------------------------------===//
 ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
-                                 FragmentLinker& pLinker,
                                  IRBuilder& pBuilder,
                                  const LinkerConfig& pConfig)
   : DynObjReader(),
     m_pELFReader(0),
-    m_Linker(pLinker),
     m_Builder(pBuilder) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);

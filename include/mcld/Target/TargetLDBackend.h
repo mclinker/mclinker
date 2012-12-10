@@ -89,11 +89,11 @@ public:
 
   // -----  format dependent  ----- //
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
-  virtual ObjectReader*  createObjectReader(FragmentLinker&, IRBuilder&) = 0;
-  virtual DynObjReader*  createDynObjReader(FragmentLinker&, IRBuilder&) = 0;
-  virtual ObjectWriter*  createObjectWriter(FragmentLinker&) = 0;
-  virtual DynObjWriter*  createDynObjWriter(FragmentLinker&) = 0;
-  virtual ExecWriter*    createExecWriter(FragmentLinker&) = 0;
+  virtual ObjectReader*  createObjectReader(IRBuilder&) = 0;
+  virtual DynObjReader*  createDynObjReader(IRBuilder&) = 0;
+  virtual ObjectWriter*  createObjectWriter() = 0;
+  virtual DynObjWriter*  createDynObjWriter() = 0;
+  virtual ExecWriter*    createExecWriter() = 0;
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 

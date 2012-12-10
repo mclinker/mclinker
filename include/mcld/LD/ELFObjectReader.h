@@ -20,7 +20,6 @@ namespace mcld {
 class Module;
 class Input;
 class IRBuilder;
-class FragmentLinker;
 class GNULDBackend;
 class ELFReaderIF;
 class EhFrameReader;
@@ -41,7 +40,6 @@ public:
 
 public:
   ELFObjectReader(GNULDBackend& pBackend,
-                  FragmentLinker& pLinker,
                   IRBuilder& pBuilder,
                   const LinkerConfig& pConfig);
 
@@ -65,10 +63,10 @@ public:
 private:
   ELFReaderIF* m_pELFReader;
   EhFrameReader* m_pEhFrameReader;
-  FragmentLinker& m_Linker;
   IRBuilder& m_Builder;
   ReadFlag m_ReadFlag;
   GNULDBackend& m_Backend;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

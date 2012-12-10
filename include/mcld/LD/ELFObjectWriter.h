@@ -33,7 +33,6 @@ class ELFObjectWriter : public ObjectWriter, protected ELFWriter
 {
 public:
   ELFObjectWriter(GNULDBackend& pBackend,
-                  FragmentLinker& pLinker,
                   const LinkerConfig& pConfig);
 
   ~ELFObjectWriter();
@@ -41,7 +40,6 @@ public:
   llvm::error_code writeObject(Module& pModule, MemoryArea& pOutput);
 
 private:
-  FragmentLinker& m_Linker;
   const LinkerConfig& m_Config;
 };
 

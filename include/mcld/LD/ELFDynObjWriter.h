@@ -20,7 +20,6 @@ class Module;
 class LinkerConfig;
 class MemoryArea;
 class GNULDBackend;
-class FragmentLinker;
 
 /** \class ELFDynObjWriter
  *  \brief ELFDynObjWriter writes the dynamic sections.
@@ -32,7 +31,6 @@ public:
 
 public:
   ELFDynObjWriter(GNULDBackend& pBackend,
-                  FragmentLinker& pLinker,
                   const LinkerConfig& pConfig);
 
   ~ELFDynObjWriter();
@@ -40,7 +38,6 @@ public:
   llvm::error_code writeDynObj(Module& pModule, MemoryArea& pOutput);
 
 private:
-  FragmentLinker& m_Linker;
   const LinkerConfig& m_Config;
 };
 

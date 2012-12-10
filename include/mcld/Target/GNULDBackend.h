@@ -57,11 +57,11 @@ public:
 
   // -----  readers/writers  ----- //
   GNUArchiveReader* createArchiveReader(Module& pModule);
-  ELFObjectReader* createObjectReader(FragmentLinker& pLinker, IRBuilder& pBuilder);
-  ELFDynObjReader* createDynObjReader(FragmentLinker& pLinker, IRBuilder& pBuilder);
-  ELFObjectWriter* createObjectWriter(FragmentLinker& pLinker);
-  ELFDynObjWriter* createDynObjWriter(FragmentLinker& pLinker);
-  ELFExecWriter*   createExecWriter(FragmentLinker& pLinker);
+  ELFObjectReader* createObjectReader(IRBuilder& pBuilder);
+  ELFDynObjReader* createDynObjReader(IRBuilder& pBuilder);
+  ELFObjectWriter* createObjectWriter();
+  ELFDynObjWriter* createDynObjWriter();
+  ELFExecWriter*   createExecWriter();
 
   // -----  output sections  ----- //
   /// initStdSections - initialize standard sections of the output file.

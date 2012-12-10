@@ -140,30 +140,30 @@ GNULDBackend::createArchiveReader(Module& pModule)
   return new GNUArchiveReader(pModule, *m_pObjectReader);
 }
 
-ELFObjectReader* GNULDBackend::createObjectReader(FragmentLinker& pLinker, IRBuilder& pBuilder)
+ELFObjectReader* GNULDBackend::createObjectReader(IRBuilder& pBuilder)
 {
-  m_pObjectReader = new ELFObjectReader(*this, pLinker, pBuilder, config());
+  m_pObjectReader = new ELFObjectReader(*this, pBuilder, config());
   return m_pObjectReader;
 }
 
-ELFDynObjReader* GNULDBackend::createDynObjReader(FragmentLinker& pLinker, IRBuilder& pBuilder)
+ELFDynObjReader* GNULDBackend::createDynObjReader(IRBuilder& pBuilder)
 {
-  return new ELFDynObjReader(*this, pLinker, pBuilder, config());
+  return new ELFDynObjReader(*this, pBuilder, config());
 }
 
-ELFObjectWriter* GNULDBackend::createObjectWriter(FragmentLinker& pLinker)
+ELFObjectWriter* GNULDBackend::createObjectWriter()
 {
-  return new ELFObjectWriter(*this, pLinker, config());
+  return new ELFObjectWriter(*this, config());
 }
 
-ELFDynObjWriter* GNULDBackend::createDynObjWriter(FragmentLinker& pLinker)
+ELFDynObjWriter* GNULDBackend::createDynObjWriter()
 {
-  return new ELFDynObjWriter(*this, pLinker, config());
+  return new ELFDynObjWriter(*this, config());
 }
 
-ELFExecWriter* GNULDBackend::createExecWriter(FragmentLinker& pLinker)
+ELFExecWriter* GNULDBackend::createExecWriter()
 {
-  return new ELFExecWriter(*this, pLinker, config());
+  return new ELFExecWriter(*this, config());
 }
 
 bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
