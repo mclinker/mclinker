@@ -78,6 +78,9 @@ bool TestLinker::initialize(const std::string &pTriple)
     return false;
   }
 
+  // emulation
+  m_pTarget->emulate(pTriple, *m_pConfig);
+
   // create mcld::DiagnosticLineInfo
   m_pDiagLineInfo = m_pTarget->createDiagnosticLineInfo(*m_pTarget, pTriple);
   if (NULL == m_pDiagLineInfo) {
