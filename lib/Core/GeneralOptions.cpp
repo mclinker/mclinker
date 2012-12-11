@@ -43,11 +43,12 @@ GeneralOptions::GeneralOptions()
     m_bColor(true),
     m_bAllowShlibUndefined(true),
     m_bCreateEhFrameHdr(false),
-    m_NMagic(false),
-    m_OMagic(false),
-    m_StripDebug(false),
-    m_ExportDynamic(false),
-    m_WarnSharedTextrel(false)
+    m_bNMagic(false),
+    m_bOMagic(false),
+    m_bStripDebug(false),
+    m_bExportDynamic(false),
+    m_bWarnSharedTextrel(false),
+    m_bBinaryInput(false)
 {
 }
 

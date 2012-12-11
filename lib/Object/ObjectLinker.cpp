@@ -158,8 +158,14 @@ void ObjectLinker::normalize()
       continue;
     }
 
+    // read input as a binary file
+    if (m_Config.options().isBinaryInput()) {
+      (*input)->setType(Input::Object);
+      getBinaryReader()->readBinary(**input);
+      m_Module.getObjectList().push_back(*input);
+    }
     // is a relocatable object file
-    if (getObjectReader()->isMyFormat(**input)) {
+    else if (getObjectReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Object);
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);

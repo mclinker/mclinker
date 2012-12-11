@@ -605,7 +605,7 @@ enum Format {
 } // namespace of format
 
 static cl::opt<format::Format>
-ArgFormat("format",
+ArgFormat("b",
   cl::value_desc("Format"),
   cl::desc("set input format"),
   cl::init(format::Unknown),
@@ -615,8 +615,8 @@ ArgFormat("format",
     clEnumValEnd));
 
 static cl::alias
-ArgFormatAlias("b",
-               cl::desc("alias for --format"),
+ArgFormatAlias("format",
+               cl::desc("alias for -b"),
                cl::aliasopt(ArgFormat));
 
 static cl::opt<format::Format>
@@ -861,6 +861,10 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   else if (format::Binary == ArgOFormat) {
     ArgFileType = mcld::CGFT_BINARY;
   }
+
+  // -b [input-format], --format=[input-format]
+  if (format::Binary == ArgFormat)
+    pConfig.options().setBinaryInput();
 
   // -V
   if (ArgVersion) {

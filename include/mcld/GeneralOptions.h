@@ -199,38 +199,44 @@ public:
 
   // -n, --nmagic
   void setNMagic(bool pMagic = true)
-  { m_NMagic = pMagic; }
+  { m_bNMagic = pMagic; }
 
   bool nnagic() const
-  { return m_NMagic; }
+  { return m_bNMagic; }
 
   // -N, --omagic
   void setOMagic(bool pMagic = true)
-  { m_OMagic = pMagic; }
+  { m_bOMagic = pMagic; }
 
   bool omagic() const
-  { return m_OMagic; }
+  { return m_bOMagic; }
 
   // -S, --strip-debug
   void setStripDebug(bool pStripDebug = true)
-  { m_StripDebug = pStripDebug; }
+  { m_bStripDebug = pStripDebug; }
 
   bool stripDebug() const
-  { return m_StripDebug; }
+  { return m_bStripDebug; }
 
   // -E, --export-dynamic
   void setExportDynamic(bool pExportDynamic = true)
-  { m_ExportDynamic = pExportDynamic; }
+  { m_bExportDynamic = pExportDynamic; }
 
   bool exportDynamic() const
-  { return m_ExportDynamic; }
+  { return m_bExportDynamic; }
 
   // --warn-shared-textrel
   void setWarnSharedTextrel(bool pWarnSharedTextrel = true)
-  { m_WarnSharedTextrel = pWarnSharedTextrel; }
+  { m_bWarnSharedTextrel = pWarnSharedTextrel; }
 
   bool warnSharedTextrel() const
-  { return m_WarnSharedTextrel; }
+  { return m_bWarnSharedTextrel; }
+
+  void setBinaryInput(bool pBinaryInput = true)
+  { m_bBinaryInput = pBinaryInput; }
+
+  bool isBinaryInput() const
+  { return m_bBinaryInput; }
 
 private:
   enum status {
@@ -273,11 +279,12 @@ private:
   bool m_bColor         : 1;   // --color[=true,false,auto]
   bool m_bAllowShlibUndefined : 1; // --[no-]allow-shlib-undefined and
   bool m_bCreateEhFrameHdr : 1;    // --eh-frame-hdr
-  bool m_NMagic; // -n, --nmagic
-  bool m_OMagic; // -N, --omagic
-  bool m_StripDebug; // -S, --strip-debug
-  bool m_ExportDynamic; //-E, --export-dynamic
-  bool m_WarnSharedTextrel; // --warn-shared-textrel
+  bool m_bNMagic : 1; // -n, --nmagic
+  bool m_bOMagic : 1; // -N, --omagic
+  bool m_bStripDebug : 1; // -S, --strip-debug
+  bool m_bExportDynamic :1; //-E, --export-dynamic
+  bool m_bWarnSharedTextrel : 1; // --warn-shared-textrel
+  bool m_bBinaryInput : 1; // -b [input-format], --format=[input-format]
 };
 
 } // namespace of mcld
