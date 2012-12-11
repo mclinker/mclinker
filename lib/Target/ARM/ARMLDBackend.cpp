@@ -717,7 +717,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
-  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak())
+  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
 
   if ((rsym->reserved() & ReserveRel) != 0x0) {
