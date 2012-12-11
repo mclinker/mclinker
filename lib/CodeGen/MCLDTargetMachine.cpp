@@ -241,6 +241,16 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
       return true;
     break;
   }
+  case CGFT_BINARY: {
+    pConfig.setCodeGenType(LinkerConfig::Binary);
+    if (addLinkerPasses(pPM,
+                        pConfig,
+                        pModule,
+                        pOutput.memory(),
+                        Context))
+      return true;
+    break;
+  }
   case CGFT_DSOFile: {
     pConfig.setCodeGenType(LinkerConfig::DynObj);
     if (addLinkerPasses(pPM,

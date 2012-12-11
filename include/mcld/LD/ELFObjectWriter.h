@@ -21,7 +21,6 @@ namespace mcld {
 class Module;
 class LinkerConfig;
 class MemoryArea;
-class FragmentLinker;
 class GNULDBackend;
 
 /** \class ELFObjectWriter

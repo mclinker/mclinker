@@ -23,8 +23,8 @@ using namespace mcld;
 // ELFBinaryWriter
 //===----------------------------------------------------------------------===//
 ELFBinaryWriter::ELFBinaryWriter(GNULDBackend& pBackend,
-                                 FragmentLinker& pLinker)
-  : BinaryWriter(pBackend), ELFWriter(pBackend), m_Linker(pLinker) {
+                                 const LinkerConfig& pConfig)
+  : BinaryWriter(pBackend), ELFWriter(pBackend), m_Config(pConfig) {
 }
 
 ELFBinaryWriter::~ELFBinaryWriter()
@@ -78,7 +78,7 @@ llvm::error_code ELFBinaryWriter::writeBinary(Module& pModule,
           continue;
         }
       }
-  
+
       // write out sections with data
       switch((*sect)->kind()) {
         case LDFileFormat::Regular:
@@ -91,7 +91,7 @@ llvm::error_code ELFBinaryWriter::writeBinary(Module& pModule,
           break;
         }
         case LDFileFormat::Relocation:
-          emitRelocation(m_Linker.getLDInfo(), **sect, *region);
+          emitRelocation(m_Config, **sect, *region);
           break;
         case LDFileFormat::Target:
           target().emitSectionData(**sect, *region);

@@ -34,6 +34,7 @@ class GroupReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
+class BinaryWriter;
 
 /** \class ObjectLinker
  *  \brief ObjectLinker prepares parameters for FragmentLinker.
@@ -132,8 +133,8 @@ public:
   const ArchiveReader* getArchiveReader() const { return m_pArchiveReader; }
   ArchiveReader*       getArchiveReader()       { return m_pArchiveReader; }
 
-  const GroupReader* getGroupReader() const { return m_pGroupReader; }
-  GroupReader*       getGroupReader()       { return m_pGroupReader; }
+  const GroupReader*   getGroupReader  () const { return m_pGroupReader;   }
+  GroupReader*         getGroupReader  ()       { return m_pGroupReader;   }
 
   const ObjectWriter*  getObjectWriter () const { return m_pObjectWriter;  }
   ObjectWriter*        getObjectWriter ()       { return m_pObjectWriter;  }
@@ -143,6 +144,9 @@ public:
 
   const ExecWriter*    getExecWriter   () const { return m_pExecWriter;    }
   ExecWriter*          getExecWriter   ()       { return m_pExecWriter;    }
+
+  const BinaryWriter*  getBinaryWriter () const { return m_pBinaryWriter;  }
+  BinaryWriter*        getBinaryWriter ()       { return m_pBinaryWriter;  }
 
 private:
   const LinkerConfig& m_Config;
@@ -154,13 +158,14 @@ private:
   TargetLDBackend &m_LDBackend;
 
   // -----  readers and writers  ----- //
-  ObjectReader* m_pObjectReader;
-  DynObjReader* m_pDynObjReader;
+  ObjectReader*  m_pObjectReader;
+  DynObjReader*  m_pDynObjReader;
   ArchiveReader* m_pArchiveReader;
-  ObjectWriter* m_pObjectWriter;
-  DynObjWriter* m_pDynObjWriter;
-  ExecWriter* m_pExecWriter;
-  GroupReader* m_pGroupReader;
+  GroupReader*   m_pGroupReader;
+  ObjectWriter*  m_pObjectWriter;
+  DynObjWriter*  m_pDynObjWriter;
+  ExecWriter*    m_pExecWriter;
+  BinaryWriter*  m_pBinaryWriter;
 };
 
 } // end namespace mcld

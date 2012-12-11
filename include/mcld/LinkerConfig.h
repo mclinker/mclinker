@@ -40,7 +40,8 @@ public:
     Object,
     DynObj,
     Exec,
-    External
+    External,
+    Binary
   };
 
 public:

@@ -18,8 +18,8 @@
 namespace mcld {
 
 class Module;
+class LinkerConfig;
 class MemoryArea;
-class FragmentLinker;
 class GNULDBackend;
 
 /** \class ELFBinaryWriter
@@ -30,14 +30,14 @@ class GNULDBackend;
 class ELFBinaryWriter : public BinaryWriter, protected ELFWriter
 {
 public:
-  ELFBinaryWriter(GNULDBackend& pBackend, FragmentLinker& pLinker);
+  ELFBinaryWriter(GNULDBackend& pBackend, const LinkerConfig& pConfig);
 
   ~ELFBinaryWriter();
 
   llvm::error_code writeBinary(Module& pModule, MemoryArea& pOutput);
 
 private:
-  FragmentLinker& m_Linker;
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

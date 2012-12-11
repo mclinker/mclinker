@@ -11,7 +11,6 @@
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Target/GNULDBackend.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 
 #include <llvm/Support/system_error.h>

@@ -597,20 +597,37 @@ ArgForceUndefinedAlias("undefined",
                        cl::desc("alias for -u"),
                        cl::aliasopt(ArgForceUndefined));
 
-static cl::opt<std::string>
+namespace format {
+enum Format {
+  Binary,
+  Unknown // decided by triple
+};
+} // namespace of format
+
+static cl::opt<format::Format>
 ArgFormat("format",
-          cl::desc("input-format."),
-          cl::value_desc("input-format"));
+  cl::value_desc("Format"),
+  cl::desc("set input format"),
+  cl::init(format::Unknown),
+  cl::values(
+    clEnumValN(format::Binary, "binary",
+      "read in binary machine code."),
+    clEnumValEnd));
 
 static cl::alias
 ArgFormatAlias("b",
                cl::desc("alias for --format"),
                cl::aliasopt(ArgFormat));
 
-static cl::opt<std::string>
+static cl::opt<format::Format>
 ArgOFormat("oformat",
-           cl::desc("output-format."),
-           cl::value_desc("output-format"));
+  cl::value_desc("Format"),
+  cl::desc("set output format"),
+  cl::init(format::Unknown),
+  cl::values(
+    clEnumValN(format::Binary, "binary",
+      "generate binary machine code."),
+    clEnumValEnd));
 
 static cl::opt<std::string>
 ArgVersionScript("version-script",
@@ -788,6 +805,7 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
     break;
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:
+  case mcld::CGFT_BINARY:
   case mcld::CGFT_NULLFile:
     permission = 0755;
     break;
@@ -839,6 +857,9 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   }
   else if (true == ArgRelocatable) {
     ArgFileType = mcld::CGFT_PARTIAL;
+  }
+  else if (format::Binary == ArgOFormat) {
+    ArgFileType = mcld::CGFT_BINARY;
   }
 
   // -V
@@ -1048,7 +1069,8 @@ int main(int argc, char* argv[])
   if (ArgBitcodeFilename.empty() &&
       (mcld::CGFT_DSOFile != ArgFileType &&
        mcld::CGFT_EXEFile != ArgFileType &&
-       mcld::CGFT_PARTIAL != ArgFileType)) {
+       mcld::CGFT_PARTIAL != ArgFileType &&
+       mcld::CGFT_BINARY  != ArgFileType)) {
     // If the file is not given, forcefully read from stdin
     if (ArgVerbose >= 0) {
       errs() << "** The bitcode/llvm asm file is not given. Read from stdin.\n"

@@ -25,6 +25,7 @@
 #include <mcld/LD/ELFDynObjWriter.h>
 #include <mcld/LD/ELFExecWriter.h>
 #include <mcld/LD/ELFObjectWriter.h>
+#include <mcld/LD/ELFBinaryWriter.h>
 #include <mcld/LD/ELFSegment.h>
 #include <mcld/LD/ELFSegmentFactory.h>
 #include <mcld/Target/ELFDynamic.h>
@@ -62,6 +63,7 @@ public:
   ELFObjectWriter* createObjectWriter();
   ELFDynObjWriter* createDynObjWriter();
   ELFExecWriter*   createExecWriter();
+  ELFBinaryWriter* createBinaryWriter();
 
   // -----  output sections  ----- //
   /// initStdSections - initialize standard sections of the output file.

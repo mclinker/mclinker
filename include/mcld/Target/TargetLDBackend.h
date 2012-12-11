@@ -27,6 +27,7 @@ class DynObjReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
+class BinaryWriter;
 class LDFileFormat;
 class LDSymbol;
 class LDSection;
@@ -94,6 +95,7 @@ public:
   virtual ObjectWriter*  createObjectWriter() = 0;
   virtual DynObjWriter*  createDynObjWriter() = 0;
   virtual ExecWriter*    createExecWriter() = 0;
+  virtual BinaryWriter*  createBinaryWriter() = 0;
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 

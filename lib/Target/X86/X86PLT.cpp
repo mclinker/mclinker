@@ -52,7 +52,8 @@ X86PLT::X86PLT(LDSection& pSection,
     m_Config(pConfig)
 {
   assert(LinkerConfig::DynObj == m_Config.codeGenType() ||
-         LinkerConfig::Exec == m_Config.codeGenType());
+         LinkerConfig::Exec   == m_Config.codeGenType() ||
+         LinkerConfig::Binary == m_Config.codeGenType());
 
   if (LinkerConfig::DynObj == m_Config.codeGenType()) {
     m_PLT0 = x86_dyn_plt0;

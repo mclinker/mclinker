@@ -22,6 +22,7 @@
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/DynObjWriter.h>
 #include <mcld/LD/ExecWriter.h>
+#include <mcld/LD/BinaryWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/RealPath.h>
@@ -48,10 +49,11 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pObjectReader(NULL),
     m_pDynObjReader(NULL),
     m_pArchiveReader(NULL),
+    m_pGroupReader(NULL),
     m_pObjectWriter(NULL),
     m_pDynObjWriter(NULL),
     m_pExecWriter(NULL),
-    m_pGroupReader(NULL)
+    m_pBinaryWriter(NULL)
 {
   // set up soname
   if (!m_Config.options().soname().empty()) {
@@ -65,10 +67,11 @@ ObjectLinker::~ObjectLinker()
   delete m_pObjectReader;
   delete m_pDynObjReader;
   delete m_pArchiveReader;
+  delete m_pGroupReader;
   delete m_pObjectWriter;
   delete m_pDynObjWriter;
   delete m_pExecWriter;
-  delete m_pGroupReader;
+  delete m_pBinaryWriter;
 }
 
 /// initFragmentLinker - initialize FragmentLinker
@@ -92,6 +95,7 @@ bool ObjectLinker::initFragmentLinker()
   m_pExecWriter    = m_LDBackend.createExecWriter();
   m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
                                      *m_pDynObjReader, *m_pArchiveReader);
+  m_pBinaryWriter  = m_LDBackend.createBinaryWriter();
 
   // initialize Relocator
   m_LDBackend.initRelocator(*m_pLinker);
@@ -416,6 +420,9 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
       return true;
     case LinkerConfig::Exec:
       getExecWriter()->writeExecutable(m_Module, pOutput);
+      return true;
+    case LinkerConfig::Binary:
+      getBinaryWriter()->writeBinary(m_Module, pOutput);
       return true;
     default:
       fatal(diag::unrecognized_output_file) << m_Config.codeGenType();

@@ -107,6 +107,9 @@ GNULDBackend::~GNULDBackend()
 
 size_t GNULDBackend::sectionStartOffset() const
 {
+  if (LinkerConfig::Binary == config().codeGenType())
+    return 0x0;
+
   switch (config().targets().bitclass()) {
     case 32u:
       return sizeof(llvm::ELF::Elf32_Ehdr) +
@@ -166,6 +169,11 @@ ELFExecWriter* GNULDBackend::createExecWriter()
   return new ELFExecWriter(*this, config());
 }
 
+ELFBinaryWriter* GNULDBackend::createBinaryWriter()
+{
+  return new ELFBinaryWriter(*this, config());
+}
+
 bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
 {
   switch (config().codeGenType()) {
@@ -176,7 +184,8 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
                                            config().targets().bitclass());
       return true;
     }
-    case LinkerConfig::Exec: {
+    case LinkerConfig::Exec:
+    case LinkerConfig::Binary: {
       if (NULL == m_pExecFileFormat)
         m_pExecFileFormat = new ELFExecFileFormat();
       m_pExecFileFormat->initStdSections(pBuilder,
@@ -704,6 +713,7 @@ ELFFileFormat* GNULDBackend::getOutputFormat()
       assert(NULL != m_pDynObjFileFormat);
       return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
+    case LinkerConfig::Binary:
       assert(NULL != m_pExecFileFormat);
       return m_pExecFileFormat;
     case LinkerConfig::Object:
@@ -722,6 +732,7 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
       assert(NULL != m_pDynObjFileFormat);
       return m_pDynObjFileFormat;
     case LinkerConfig::Exec:
+    case LinkerConfig::Binary:
       assert(NULL != m_pExecFileFormat);
       return m_pExecFileFormat;
     case LinkerConfig::Object:
@@ -830,7 +841,8 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
         dynstr += pModule.name().size() + 1;
     }
     /** fall through **/
-    case LinkerConfig::Exec: {
+    case LinkerConfig::Exec:
+    case LinkerConfig::Binary: {
       // add DT_NEED strings into .dynstr and .dynamic
       // Rules:
       //   1. ignore --no-add-needed
@@ -887,7 +899,8 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   /// reserve fixed entries in the .dynamic section.
   /// @{
   if (LinkerConfig::DynObj == config().codeGenType() ||
-      LinkerConfig::Exec == config().codeGenType()) {
+      LinkerConfig::Exec   == config().codeGenType() ||
+      LinkerConfig::Binary == config().codeGenType()) {
     // Because some entries in .dynamic section need information of .dynsym,
     // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
     // entries until we get the size of the sections mentioned above
@@ -2152,7 +2165,8 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
   // If we are building shared object, and the visibility is external, we
   // need to add it.
   if (LinkerConfig::DynObj == config().codeGenType() ||
-      LinkerConfig::Exec == config().codeGenType()) {
+      LinkerConfig::Exec   == config().codeGenType() ||
+      LinkerConfig::Binary == config().codeGenType()) {
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
         pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected) {
       return true;
@@ -2173,7 +2187,8 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo)
   // If we are building shared object, and the visibility is external, we
   // need to add it.
   if (LinkerConfig::DynObj == config().codeGenType() ||
-      LinkerConfig::Exec == config().codeGenType()) {
+      LinkerConfig::Exec   == config().codeGenType() ||
+      LinkerConfig::Binary == config().codeGenType()) {
     if (pResolveInfo.visibility() == ResolveInfo::Default ||
         pResolveInfo.visibility() == ResolveInfo::Protected) {
       return true;
@@ -2242,7 +2257,8 @@ bool GNULDBackend::symbolNeedsDynRel(const FragmentLinker& pLinker,
   // resolved to 0 and no need a dynamic relocation
   if (pSym.isUndef() &&
       !pSym.isDyn() &&
-      LinkerConfig::Exec == config().codeGenType())
+      (LinkerConfig::Exec   == config().codeGenType() ||
+       LinkerConfig::Binary == config().codeGenType()))
     return false;
 
   if (pSym.isAbsolute())
@@ -2296,7 +2312,9 @@ bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
 {
   // if the output is pic code or if not executables, symbols' value may change
   // at runtime
-  if (pLinker.isOutputPIC() || LinkerConfig::Exec != config().codeGenType())
+  if (pLinker.isOutputPIC() ||
+      (LinkerConfig::Exec != config().codeGenType() &&
+       LinkerConfig::Binary != config().codeGenType()))
     return false;
 
   // if the symbol is from dynamic object, then its value is unknown
