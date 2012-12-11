@@ -19,6 +19,7 @@
 #include <mcld/LD/ObjectReader.h>
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GroupReader.h>
+#include <mcld/LD/BinaryReader.h>
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/DynObjWriter.h>
 #include <mcld/LD/ExecWriter.h>
@@ -50,6 +51,7 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pDynObjReader(NULL),
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
+    m_pBinaryReader(NULL),
     m_pObjectWriter(NULL),
     m_pDynObjWriter(NULL),
     m_pExecWriter(NULL),
@@ -68,6 +70,7 @@ ObjectLinker::~ObjectLinker()
   delete m_pDynObjReader;
   delete m_pArchiveReader;
   delete m_pGroupReader;
+  delete m_pBinaryReader;
   delete m_pObjectWriter;
   delete m_pDynObjWriter;
   delete m_pExecWriter;
@@ -90,11 +93,12 @@ bool ObjectLinker::initFragmentLinker()
   m_pObjectReader  = m_LDBackend.createObjectReader(m_Builder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(m_Builder);
+  m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
+                                     *m_pDynObjReader, *m_pArchiveReader);
+  m_pBinaryReader  = m_LDBackend.createBinaryReader(m_Builder);
   m_pObjectWriter  = m_LDBackend.createObjectWriter();
   m_pDynObjWriter  = m_LDBackend.createDynObjWriter();
   m_pExecWriter    = m_LDBackend.createExecWriter();
-  m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
-                                     *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryWriter  = m_LDBackend.createBinaryWriter();
 
   // initialize Relocator

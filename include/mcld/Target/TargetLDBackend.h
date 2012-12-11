@@ -24,6 +24,7 @@ class Layout;
 class ArchiveReader;
 class ObjectReader;
 class DynObjReader;
+class BinaryReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
@@ -92,6 +93,7 @@ public:
   virtual ArchiveReader* createArchiveReader(Module&) = 0;
   virtual ObjectReader*  createObjectReader(IRBuilder&) = 0;
   virtual DynObjReader*  createDynObjReader(IRBuilder&) = 0;
+  virtual BinaryReader*  createBinaryReader(IRBuilder&) = 0;
   virtual ObjectWriter*  createObjectWriter() = 0;
   virtual DynObjWriter*  createDynObjWriter() = 0;
   virtual ExecWriter*    createExecWriter() = 0;

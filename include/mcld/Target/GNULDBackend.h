@@ -22,6 +22,7 @@
 #include <mcld/LD/GNUArchiveReader.h>
 #include <mcld/LD/ELFObjectReader.h>
 #include <mcld/LD/ELFDynObjReader.h>
+#include <mcld/LD/ELFBinaryReader.h>
 #include <mcld/LD/ELFDynObjWriter.h>
 #include <mcld/LD/ELFExecWriter.h>
 #include <mcld/LD/ELFObjectWriter.h>
@@ -60,6 +61,7 @@ public:
   GNUArchiveReader* createArchiveReader(Module& pModule);
   ELFObjectReader* createObjectReader(IRBuilder& pBuilder);
   ELFDynObjReader* createDynObjReader(IRBuilder& pBuilder);
+  ELFBinaryReader* createBinaryReader(IRBuilder& pBuilder);
   ELFObjectWriter* createObjectWriter();
   ELFDynObjWriter* createDynObjWriter();
   ELFExecWriter*   createExecWriter();

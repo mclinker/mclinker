@@ -302,6 +302,9 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/BinaryWriter.cpp \
 	${INCDIR}/LD/ELFBinaryWriter.h \
 	${LIBDIR}/LD/ELFBinaryWriter.cpp \
+	${INCDIR}/LD/BinaryReader.h \
+	${INCDIR}/LD/ELFBinaryReader.h \
+	${LIBDIR}/LD/ELFBinaryReader.cpp \
 	${INCDIR}/LD/LDFileFormat.h \
 	${LIBDIR}/LD/LDFileFormat.cpp \
 	${INCDIR}/LD/ELFFileFormat.h \

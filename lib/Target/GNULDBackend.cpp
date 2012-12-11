@@ -154,6 +154,11 @@ ELFDynObjReader* GNULDBackend::createDynObjReader(IRBuilder& pBuilder)
   return new ELFDynObjReader(*this, pBuilder, config());
 }
 
+ELFBinaryReader* GNULDBackend::createBinaryReader(IRBuilder& pBuilder)
+{
+  return new ELFBinaryReader(*this, pBuilder, config());
+}
+
 ELFObjectWriter* GNULDBackend::createObjectWriter()
 {
   return new ELFObjectWriter(*this, config());
