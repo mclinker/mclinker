@@ -2175,7 +2175,8 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
       LinkerConfig::Exec   == config().codeGenType() ||
       LinkerConfig::Binary == config().codeGenType()) {
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
-        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected) {
+        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected ||
+        pSymbol.resolveInfo()->type() == ResolveInfo::ThreadLocal) {
       return true;
     }
   }
@@ -2197,7 +2198,8 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo)
       LinkerConfig::Exec   == config().codeGenType() ||
       LinkerConfig::Binary == config().codeGenType()) {
     if (pResolveInfo.visibility() == ResolveInfo::Default ||
-        pResolveInfo.visibility() == ResolveInfo::Protected) {
+        pResolveInfo.visibility() == ResolveInfo::Protected ||
+        pResolveInfo.type() == ResolveInfo::ThreadLocal) {
       return true;
     }
   }
