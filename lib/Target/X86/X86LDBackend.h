@@ -20,6 +20,7 @@
 namespace mcld {
 
 class LinkerConfig;
+class X86GNUInfo;
 
 //===----------------------------------------------------------------------===//
 /// X86GNULDBackend - linker backend of X86 target of GNU ELF format
@@ -71,7 +72,7 @@ public:
   };
 
 public:
-  X86GNULDBackend(const LinkerConfig& pConfig);
+  X86GNULDBackend(const LinkerConfig& pConfig, X86GNUInfo* pInfo);
 
   ~X86GNULDBackend();
 

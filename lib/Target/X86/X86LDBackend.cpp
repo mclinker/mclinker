@@ -10,6 +10,7 @@
 #include "X86ELFDynamic.h"
 #include "X86LDBackend.h"
 #include "X86Relocator.h"
+#include "X86GNUInfo.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
@@ -31,8 +32,8 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // X86GNULDBackend
 //===----------------------------------------------------------------------===//
-X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig)
-  : GNULDBackend(pConfig),
+X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig, X86GNUInfo* pInfo)
+  : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
@@ -670,11 +671,6 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   return RegionSize;
 }
 
-uint32_t X86GNULDBackend::machine() const
-{
-  return llvm::ELF::EM_386;
-}
-
 X86GOT& X86GNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT);
@@ -866,7 +862,7 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86COFFObjectWriter);
     **/
   }
-  return new X86GNULDBackend(pConfig);
+  return new X86GNULDBackend(pConfig, new X86GNUInfo());
 }
 
 } // namespace of mcld

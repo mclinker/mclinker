@@ -56,12 +56,13 @@ static bool isCIdentifier(const std::string& pName)
 //===----------------------------------------------------------------------===//
 // GNULDBackend
 //===----------------------------------------------------------------------===//
-GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
+GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
   : TargetLDBackend(pConfig),
     m_pObjectReader(NULL),
     m_pDynObjFileFormat(NULL),
     m_pExecFileFormat(NULL),
     m_pObjectFileFormat(NULL),
+    m_pInfo(pInfo),
     m_ELFSegmentTable(9), // magic number
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
@@ -93,6 +94,7 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig)
 
 GNULDBackend::~GNULDBackend()
 {
+  delete m_pInfo;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
   delete m_pSymIndexMap;

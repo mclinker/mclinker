@@ -70,7 +70,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
       llvm::errs() << "unspported output file type: " << pConfig.codeGenType() << ".\n";
       header->e_type = ET_NONE;
   }
-  header->e_machine   = target().machine();
+  header->e_machine   = target().getInfo().machine();
   header->e_version   = header->e_ident[EI_VERSION];
   header->e_entry     = getEntryPoint(pConfig, pModule);
 
@@ -122,7 +122,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
       llvm::errs() << "unspported output file type: " << pConfig.codeGenType() << ".\n";
       header->e_type = ET_NONE;
   }
-  header->e_machine   = target().machine();
+  header->e_machine   = target().getInfo().machine();
   header->e_version   = header->e_ident[EI_VERSION];
   header->e_entry     = getEntryPoint(pConfig, pModule);
 

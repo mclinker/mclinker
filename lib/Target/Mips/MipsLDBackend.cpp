@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Mips.h"
+#include "MipsGNUInfo.h"
 #include "MipsELFDynamic.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocator.h"
@@ -43,8 +44,9 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // MipsGNULDBackend
 //===----------------------------------------------------------------------===//
-MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig)
-  : GNULDBackend(pConfig),
+MipsGNULDBackend::MipsGNULDBackend(const LinkerConfig& pConfig,
+                                   MipsGNUInfo* pInfo)
+  : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pRelDyn(NULL),
@@ -161,11 +163,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     // set hasTextRelSection if needed
     checkAndSetHasTextRel(pSection);
   }
-}
-
-uint32_t MipsGNULDBackend::machine() const
-{
-  return llvm::ELF::EM_MIPS;
 }
 
 uint8_t MipsGNULDBackend::OSABI() const
@@ -1033,7 +1030,7 @@ static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
   if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
   }
-  return new MipsGNULDBackend(pConfig);
+  return new MipsGNULDBackend(pConfig, new MipsGNUInfo());
 }
 
 //===----------------------------------------------------------------------===//

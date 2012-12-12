@@ -97,8 +97,10 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
+        ${INCDIR}/Target/GNUInfo.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
+        ${INCDIR}/Target/ARM/ARMGNUInfo.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.h \
 	${LIBDIR}/Target/ARM/ARMLDBackend.cpp \
 	${LIBDIR}/Target/ARM/ARMGOT.h \
@@ -125,6 +127,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/THMToARMStub.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
+        ${INCDIR}/Target/Mips/MipsGNUInfo.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
 	${LIBDIR}/Target/Mips/MipsGOT.h \
@@ -141,6 +144,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
+        ${INCDIR}/Target/X86/X86GNUInfo.h \
 	${LIBDIR}/Target/X86/X86LDBackend.h \
 	${LIBDIR}/Target/X86/X86LDBackend.cpp \
 	${LIBDIR}/Target/X86/X86GOT.h \

@@ -19,6 +19,7 @@
 namespace mcld {
 
 class LinkerConfig;
+class GNUInfo;
 class FragmentLinker;
 class SectionMap;
 
@@ -38,7 +39,7 @@ public:
   static const int32_t THM2_MAX_BWD_BRANCH_OFFSET = (-(1 << 24) + 4);
 
 public:
-  ARMGNULDBackend(const LinkerConfig& pConfig);
+  ARMGNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
   ~ARMGNULDBackend();
 
 public:
@@ -110,9 +111,6 @@ public:
                       FragmentLinker& pLinker,
                       Module& pModule,
                       const LDSection& pSection);
-
-  uint32_t machine() const
-  { return llvm::ELF::EM_ARM; }
 
   /// OSABI - the value of e_ident[EI_OSABI]
   virtual uint8_t OSABI() const

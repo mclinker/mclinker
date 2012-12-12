@@ -374,8 +374,8 @@ bool ELFReader<32, true>::isMyMachine(void* pELFHeader) const
                           reinterpret_cast<llvm::ELF::Elf32_Ehdr*>(pELFHeader);
 
   if (llvm::sys::isLittleEndianHost())
-    return (hdr->e_machine == target().machine());
-  return (mcld::bswap16(hdr->e_machine) == target().machine());
+    return (hdr->e_machine == target().getInfo().machine());
+  return (mcld::bswap16(hdr->e_machine) == target().getInfo().machine());
 }
 
 /// fileType - return the file type

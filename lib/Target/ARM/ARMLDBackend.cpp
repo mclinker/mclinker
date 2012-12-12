@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "ARM.h"
+#include "ARMGNUInfo.h"
 #include "ARMELFDynamic.h"
 #include "ARMLDBackend.h"
 #include "ARMRelocator.h"
@@ -38,14 +39,15 @@
 #include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Fragment/NullFragment.h>
 #include <mcld/LD/LDContext.h>
+#include <mcld/Target/GNUInfo.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // ARMGNULDBackend
 //===----------------------------------------------------------------------===//
-ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig)
-  : GNULDBackend(pConfig),
+ARMGNULDBackend::ARMGNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
+  : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
     m_pPLT(NULL),
@@ -1089,7 +1091,7 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                createARMCOFFObjectWriter);
     **/
   }
-  return new ARMGNULDBackend(pConfig);
+  return new ARMGNULDBackend(pConfig, new ARMGNUInfo());
 }
 
 } // namespace of mcld

@@ -19,6 +19,7 @@ class FragmentLinker;
 class OutputRelocSection;
 class SectionMap;
 class MemoryArea;
+class MipsGNUInfo;
 
 //===----------------------------------------------------------------------===//
 /// MipsGNULDBackend - linker backend of Mips target of GNU ELF format
@@ -34,7 +35,7 @@ public:
   };
 
 public:
-  MipsGNULDBackend(const LinkerConfig& pConfig);
+  MipsGNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
   ~MipsGNULDBackend();
 
 public:
