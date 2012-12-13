@@ -11,12 +11,19 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/Support/ELF.h>
 
 namespace mcld {
 
+/** \class GNUInfo
+ *  \brief GNUInfo records ELF-dependent and target-dependnet data fields
+ */
 class GNUInfo
 {
 public:
+  /// ELFVersion - the value of e_ident[EI_VERSION]
+  virtual uint8_t ELFVersion() const { return llvm::ELF::EV_CURRENT; }
+
   /// The return value of machine() it the same as e_machine in the ELF header
   virtual uint32_t machine() const = 0;
 };

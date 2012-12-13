@@ -110,10 +110,6 @@ public:
   const GNUInfo& getInfo() const { return *m_pInfo; }
   GNUInfo&       getInfo()       { return *m_pInfo; }
 
-  /// ELFVersion - the value of e_ident[EI_VERSION]
-  virtual uint8_t ELFVersion() const
-  { return llvm::ELF::EV_CURRENT; }
-
   /// OSABI - the value of e_ident[EI_OSABI]
   virtual uint8_t OSABI() const = 0;
 
