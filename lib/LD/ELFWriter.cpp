@@ -500,10 +500,18 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection,
 /// getSectInfo - compute ElfXX_Shdr::sh_info
 uint64_t ELFWriter::getSectInfo(const LDSection& pSection) const
 {
-  const LDSection* info_link = pSection.getLink();
-  if (NULL == info_link)
-    return 0x0;
-  return info_link->index();
+  if (llvm::ELF::SHT_SYMTAB == pSection.type() ||
+      llvm::ELF::SHT_DYNSYM == pSection.type())
+    return pSection.getInfo();
+
+  if (llvm::ELF::SHT_REL == pSection.type() ||
+      llvm::ELF::SHT_RELA == pSection.type()) {
+    const LDSection* info_link = pSection.getLink();
+    if (NULL != info_link)
+      return info_link->index();
+  }
+
+  return 0x0;
 }
 
 /// getELF32LastStartOffset

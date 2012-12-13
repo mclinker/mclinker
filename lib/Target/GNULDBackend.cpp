@@ -793,6 +793,9 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   size_t shstrtab = 1;
   size_t hash   = 0;
 
+  // number of local symbol in the .dynsym
+  size_t dynsym_local_cnt = 0;
+
   /// compute the size of .symtab, .dynsym and .strtab
   /// @{
   Module::const_sym_iterator symbol;
@@ -824,6 +827,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     if (ResolveInfo::Section != (*symbol)->type())
       strtab += str_size;
   }
+  dynsym_local_cnt = dynsym;
   // compute the size of the reset of symbols
   symEnd = pModule.sym_end();
   for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
@@ -887,6 +891,9 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       file_format->getDynStrTab().setSize(dynstr);
       file_format->getHashTab().setSize(hash);
 
+      // set .dynsym sh_info to one greater than the symbol table
+      // index of the last local symbol
+      file_format->getDynSymTab().setInfo(dynsym_local_cnt);
     }
     /* fall through */
     case LinkerConfig::Object: {
@@ -895,6 +902,10 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       else
         file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));
       file_format->getStrTab().setSize(strtab);
+
+      // set .symtab sh_info to one greater than the symbol table
+      // index of the last local symbol
+      file_format->getSymTab().setInfo(symbols.numOfLocals() + 1);
       break;
     }
     default:
