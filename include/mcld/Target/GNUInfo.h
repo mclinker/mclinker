@@ -11,6 +11,7 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
 
 namespace mcld {
@@ -21,6 +22,8 @@ namespace mcld {
 class GNUInfo
 {
 public:
+  GNUInfo(const llvm::Triple& pTriple);
+
   /// ELFVersion - the value of e_ident[EI_VERSION]
   virtual uint8_t ELFVersion() const { return llvm::ELF::EV_CURRENT; }
 
@@ -28,10 +31,13 @@ public:
   virtual uint32_t machine() const = 0;
 
   /// OSABI - the value of e_ident[EI_OSABI]
-  virtual uint8_t OSABI() const { return llvm::ELF::ELFOSABI_NONE; }
+  uint8_t OSABI() const;
 
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   uint8_t ABIVersion() const { return 0x0; }
+
+private:
+  const llvm::Triple& m_Triple;
 };
 
 } // namespace of mcld

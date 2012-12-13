@@ -862,7 +862,7 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86COFFObjectWriter);
     **/
   }
-  return new X86GNULDBackend(pConfig, new X86GNUInfo());
+  return new X86GNULDBackend(pConfig, new X86GNUInfo(pConfig.targets().triple()));
 }
 
 } // namespace of mcld

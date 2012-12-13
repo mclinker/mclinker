@@ -1020,7 +1020,7 @@ static TargetLDBackend* createMipsLDBackend(const llvm::Target& pTarget,
   if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker is not supported yet");
   }
-  return new MipsGNULDBackend(pConfig, new MipsGNUInfo());
+  return new MipsGNULDBackend(pConfig, new MipsGNUInfo(pConfig.targets().triple()));
 }
 
 //===----------------------------------------------------------------------===//

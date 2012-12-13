@@ -17,6 +17,8 @@ namespace mcld {
 class X86GNUInfo : public GNUInfo
 {
 public:
+  X86GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+
   uint32_t machine() const { return llvm::ELF::EM_386; }
 
 };

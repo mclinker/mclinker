@@ -98,6 +98,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
         ${INCDIR}/Target/GNUInfo.h \
+        ${LIBDIR}/Target/GNUInfo.cpp \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
         ${INCDIR}/Target/ARM/ARMGNUInfo.h \

@@ -1091,7 +1091,7 @@ TargetLDBackend* createARMLDBackend(const llvm::Target& pTarget,
                                createARMCOFFObjectWriter);
     **/
   }
-  return new ARMGNULDBackend(pConfig, new ARMGNUInfo());
+  return new ARMGNULDBackend(pConfig, new ARMGNUInfo(pConfig.targets().triple()));
 }
 
 } // namespace of mcld

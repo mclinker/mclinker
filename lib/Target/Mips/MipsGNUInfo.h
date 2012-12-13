@@ -17,6 +17,8 @@ namespace mcld {
 class MipsGNUInfo : public GNUInfo
 {
 public:
+  MipsGNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+
   uint32_t machine() const { return llvm::ELF::EM_MIPS; }
 
 };
