@@ -124,11 +124,6 @@ public:
   uint64_t emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const;
 
-  /// OSABI - the value of e_ident[EI_OSABI]
-  /// FIXME
-  uint8_t OSABI() const
-  { return llvm::ELF::ELFOSABI_NONE; }
-
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   /// FIXME
   uint8_t ABIVersion() const

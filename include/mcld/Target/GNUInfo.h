@@ -26,6 +26,9 @@ public:
 
   /// The return value of machine() it the same as e_machine in the ELF header
   virtual uint32_t machine() const = 0;
+
+  /// OSABI - the value of e_ident[EI_OSABI]
+  virtual uint8_t OSABI() const { return llvm::ELF::ELFOSABI_NONE; }
 };
 
 } // namespace of mcld

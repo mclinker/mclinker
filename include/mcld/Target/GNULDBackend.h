@@ -110,9 +110,6 @@ public:
   const GNUInfo& getInfo() const { return *m_pInfo; }
   GNUInfo&       getInfo()       { return *m_pInfo; }
 
-  /// OSABI - the value of e_ident[EI_OSABI]
-  virtual uint8_t OSABI() const = 0;
-
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   virtual uint8_t ABIVersion() const = 0;
 

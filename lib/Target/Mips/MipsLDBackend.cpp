@@ -165,11 +165,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   }
 }
 
-uint8_t MipsGNULDBackend::OSABI() const
-{
-  return llvm::ELF::ELFOSABI_NONE;
-}
-
 uint8_t MipsGNULDBackend::ABIVersion() const
 {
   return 0;

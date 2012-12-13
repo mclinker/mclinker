@@ -59,11 +59,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  uint32_t machine() const;
-
-  /// OSABI - the value of e_ident[EI_OSABI]
-  uint8_t OSABI() const;
-
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   uint8_t ABIVersion() const;
 
