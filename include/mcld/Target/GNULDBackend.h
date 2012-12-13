@@ -110,9 +110,6 @@ public:
   const GNUInfo& getInfo() const { return *m_pInfo; }
   GNUInfo&       getInfo()       { return *m_pInfo; }
 
-  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
-  virtual uint8_t ABIVersion() const = 0;
-
   /// flags - the value of ElfXX_Ehdr::e_flags
   virtual uint64_t flags() const = 0;
 

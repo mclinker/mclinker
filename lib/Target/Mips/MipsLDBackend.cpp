@@ -165,11 +165,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   }
 }
 
-uint8_t MipsGNULDBackend::ABIVersion() const
-{
-  return 0;
-}
-
 uint64_t MipsGNULDBackend::flags() const
 {
   // TODO: (simon) The correct flag's set depend on command line

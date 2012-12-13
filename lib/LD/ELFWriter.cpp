@@ -53,7 +53,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
                                        ELFDATA2LSB : ELFDATA2MSB;
   header->e_ident[EI_VERSION]    = target().getInfo().ELFVersion();
   header->e_ident[EI_OSABI]      = target().getInfo().OSABI();
-  header->e_ident[EI_ABIVERSION] = target().ABIVersion();
+  header->e_ident[EI_ABIVERSION] = target().getInfo().ABIVersion();
 
   // FIXME: add processor-specific and core file types.
   switch(pConfig.codeGenType()) {
@@ -105,7 +105,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
                                        ELFDATA2LSB : ELFDATA2MSB;
   header->e_ident[EI_VERSION]    = target().getInfo().ELFVersion();
   header->e_ident[EI_OSABI]      = target().getInfo().OSABI();
-  header->e_ident[EI_ABIVERSION] = target().ABIVersion();
+  header->e_ident[EI_ABIVERSION] = target().getInfo().ABIVersion();
 
   // FIXME: add processor-specific and core file types.
   switch(pConfig.codeGenType()) {

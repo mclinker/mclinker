@@ -59,9 +59,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
-  uint8_t ABIVersion() const;
-
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
 

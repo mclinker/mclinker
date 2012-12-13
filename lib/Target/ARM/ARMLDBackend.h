@@ -112,10 +112,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
-  virtual uint8_t ABIVersion() const
-  { return 0x0; }
-
   /// flags - the value of ElfXX_Ehdr::e_flags
   virtual uint64_t flags() const
   { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }

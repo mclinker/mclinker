@@ -124,11 +124,6 @@ public:
   uint64_t emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const;
 
-  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
-  /// FIXME
-  uint8_t ABIVersion() const
-  { return 0x0; }
-
   /// flags - the value of ElfXX_Ehdr::e_flags
   /// FIXME
   uint64_t flags() const

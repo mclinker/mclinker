@@ -29,6 +29,9 @@ public:
 
   /// OSABI - the value of e_ident[EI_OSABI]
   virtual uint8_t OSABI() const { return llvm::ELF::ELFOSABI_NONE; }
+
+  /// ABIVersion - the value of e_ident[EI_ABIVRESION]
+  uint8_t ABIVersion() const { return 0x0; }
 };
 
 } // namespace of mcld
