@@ -97,6 +97,33 @@ OptDyld("dynamic-linker",
         llvm::cl::desc("Set the name of the dynamic linker."),
         llvm::cl::value_desc("Program"));
 
+static llvm::cl::opt<bool>
+OptRelocatable("relocatable",
+               llvm::cl::desc("Generate relocatable output"),
+               llvm::cl::init(false));
+
+static llvm::cl::alias
+OptRelocatableAlias("r",
+                    llvm::cl::desc("alias for --relocatable"),
+                    llvm::cl::aliasopt(OptRelocatable));
+
+static llvm::cl::opt<bool>
+OptDefineCommon("d",
+                llvm::cl::ZeroOrMore,
+                llvm::cl::desc("Define common symbol"),
+                llvm::cl::init(false));
+
+static llvm::cl::alias
+OptDefineCommonAlias1("dc",
+                      llvm::cl::desc("alias for -d"),
+                      llvm::cl::aliasopt(OptDefineCommon));
+
+static llvm::cl::alias
+OptDefineCommonAlias2("dp",
+                      llvm::cl::desc("alias for -d"),
+                      llvm::cl::aliasopt(OptDefineCommon));
+
+
 //===----------------------------------------------------------------------===//
 // Inputs
 //===----------------------------------------------------------------------===//
@@ -235,6 +262,10 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename) {
 
   // 8. Set up -Bsymbolic.
   config->setBsymbolic(OptBsymbolic);
+
+  // 9. Set up -d (define common symbols)
+  if (!OptRelocatable || OptDefineCommon)
+    config->setDefineCommon();
 
   Linker::ErrorCode result = pLinker.config(*config);
   if (Linker::kSuccess != result) {

@@ -86,6 +86,8 @@ public:
 
   void setBsymbolic(bool pEnable = true);
 
+  void setDefineCommon(bool pEnable = true);
+
   void setSOName(const std::string &pSOName);
 
   void setDyld(const std::string &pDyld);

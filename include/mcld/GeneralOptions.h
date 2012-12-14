@@ -238,6 +238,12 @@ public:
   bool isBinaryInput() const
   { return m_bBinaryInput; }
 
+  void setDefineCommon(bool pEnable = true)
+  { m_bDefineCommon = pEnable; }
+
+  bool isDefineCommon() const
+  { return m_bDefineCommon; }
+
 private:
   enum status {
     YES,
@@ -285,6 +291,7 @@ private:
   bool m_bExportDynamic :1; //-E, --export-dynamic
   bool m_bWarnSharedTextrel : 1; // --warn-shared-textrel
   bool m_bBinaryInput : 1; // -b [input-format], --format=[input-format]
+  bool m_bDefineCommon : 1; // -d, -dc, -dp
 };
 
 } // namespace of mcld

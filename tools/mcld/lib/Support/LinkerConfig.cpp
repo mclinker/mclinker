@@ -157,6 +157,11 @@ void LinkerConfig::setBsymbolic(bool pEnable) {
   return;
 }
 
+void LinkerConfig::setDefineCommon(bool pEnable) {
+  mLDConfig->options().setDefineCommon(pEnable);
+  return;
+}
+
 void LinkerConfig::setSOName(const std::string &pSOName) {
   mLDConfig->options().setSOName(pSOName);
   return;

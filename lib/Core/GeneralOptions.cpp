@@ -48,7 +48,8 @@ GeneralOptions::GeneralOptions()
     m_bStripDebug(false),
     m_bExportDynamic(false),
     m_bWarnSharedTextrel(false),
-    m_bBinaryInput(false)
+    m_bBinaryInput(false),
+    m_bDefineCommon(false)
 {
 }
 

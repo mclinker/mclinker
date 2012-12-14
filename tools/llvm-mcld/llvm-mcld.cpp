@@ -597,6 +597,29 @@ ArgForceUndefinedAlias("undefined",
                        cl::desc("alias for -u"),
                        cl::aliasopt(ArgForceUndefined));
 
+static cl::opt<std::string>
+ArgVersionScript("version-script",
+                 cl::desc("Version script."),
+                 cl::value_desc("Version script"));
+
+static cl::opt<bool>
+ArgNoStdLib("nostdlib",
+            cl::desc("Only search lib dirs explicitly specified on cmdline"),
+            cl::init(false));
+
+static cl::opt<bool>
+ArgWanrCommon("warn-common",
+              cl::desc("warn common symbol"),
+              cl::init(false));
+/// @{
+/// @name FIXME: end of unsupported options
+/// @}
+
+static cl::opt<bool>
+ArgWarnSharedTextrel("warn-shared-textrel",
+                     cl::desc("Warn if adding DT_TEXTREL in a shared object."),
+                     cl::init(false));
+
 namespace format {
 enum Format {
   Binary,
@@ -629,16 +652,6 @@ ArgOFormat("oformat",
       "generate binary machine code."),
     clEnumValEnd));
 
-static cl::opt<std::string>
-ArgVersionScript("version-script",
-                 cl::desc("Version script."),
-                 cl::value_desc("Version script"));
-
-static cl::opt<bool>
-ArgNoStdLib("nostdlib",
-            cl::desc("Only search lib dirs explicitly specified on cmdline"),
-            cl::init(false));
-
 static cl::opt<bool>
 ArgDefineCommon("d",
                 cl::ZeroOrMore,
@@ -654,19 +667,6 @@ static cl::alias
 ArgDefineCommonAlias2("dp",
                       cl::desc("alias for -d"),
                       cl::aliasopt(ArgDefineCommon));
-
-static cl::opt<bool>
-ArgWanrCommon("warn-common",
-              cl::desc("warn common symbol"),
-              cl::init(false));
-/// @{
-/// @name FIXME: end of unsupported options
-/// @}
-
-static cl::opt<bool>
-ArgWarnSharedTextrel("warn-shared-textrel",
-                     cl::desc("Warn if adding DT_TEXTREL in a shared object."),
-                     cl::init(false));
 
 //===----------------------------------------------------------------------===//
 // Scripting Options
@@ -908,6 +908,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setStripDebug(ArgStripDebug);
   pConfig.options().setExportDynamic(ArgExportDynamic);
   pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
+  if (!ArgRelocatable || ArgDefineCommon)
+    pConfig.options().setDefineCommon();
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
