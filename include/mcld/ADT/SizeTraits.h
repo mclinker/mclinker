@@ -66,6 +66,16 @@ inline uint64_t Align<64>(uint64_t pAddress)
   return (pAddress + 0x3F) & (~0x3F);
 }
 
+#ifdef bswap16
+#undef bswap16
+#endif
+#ifdef bswap32
+#undef bswap32
+#endif
+#ifdef bswap64
+#undef bswap64
+#endif
+
 /// bswap16 - byte swap 16-bit version
 /// @ref binary utilities - elfcpp_swap
 inline uint16_t bswap16(uint16_t pData)
