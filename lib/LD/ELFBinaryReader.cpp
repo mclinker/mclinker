@@ -60,20 +60,18 @@ bool ELFBinaryReader::readBinary(Input& pInput)
   m_Builder.AppendFragment(*frag, *data);
 
   // section: .shstrtab
-  LDSection* shstrtab = m_Builder.CreateELFHeader(pInput,
-                                                  ".shstrtab",
-                                                  LDFileFormat::NamePool,
-                                                  llvm::ELF::SHT_STRTAB,
-                                                  0x1);
+  m_Builder.CreateELFHeader(pInput,
+                            ".shstrtab",
+                            LDFileFormat::NamePool,
+                            llvm::ELF::SHT_STRTAB,
+                            0x1);
 
   // section: .symtab
-  LDSection* symtab =
-    m_Builder.CreateELFHeader(pInput,
-                              ".symtab",
-                              LDFileFormat::NamePool,
-                              llvm::ELF::SHT_SYMTAB,
-                              m_Config.targets().bitclass() / 8);
-  symtab->setLink(shstrtab);
+  m_Builder.CreateELFHeader(pInput,
+                            ".symtab",
+                            LDFileFormat::NamePool,
+                            llvm::ELF::SHT_SYMTAB,
+                            m_Config.targets().bitclass() / 8);
 
   // symbol: .data
   m_Builder.AddSymbol(pInput,
