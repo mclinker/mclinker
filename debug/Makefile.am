@@ -412,38 +412,38 @@ noinst_LTLIBRARIES = ../lib/libmcld.debug.la
 
 ___lib_libmcld_debug_la_SOURCES = ${SOURCE}
 
-bin_PROGRAMS = llvm-mcld.debug mcld.debug
+bin_PROGRAMS = ld.mcld ld.bcc
 
 if ENABLE_UNITTEST
 AM_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOOLDIR)/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-llvm_mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
+ld_mcld_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS}
 
-llvm_mcld_debug_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
-llvm_mcld_debug_LDADD = ../lib/libmcld.debug.la
+ld_mcld_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_mcld_LDADD = ../lib/libmcld.debug.la
 
-mcld_debug_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -O1 -DTOPDIR=\"${abs_top_srcdir}\" -DLLVM_VERSION=${LLVM_VERSION} -DENABLE_UNITTEST -DMCLD_DEBUG -I$(TOPLEVEL)/utils/gtest/include -I$(TOPLEVEL)/include -I$(TOPLEVEL)/unittests -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} -DGTEST_HAS_RTTI=0 ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_debug_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
-mcld_debug_LDADD = ../lib/libmcld.debug.la
+ld_bcc_LDFLAGS = -L$(BUILDTOP)/utils/gtest/lib -lgtest ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_bcc_LDADD = ../lib/libmcld.debug.la
 else
 AM_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+ld_mcld_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-llvm_mcld_debug_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
-llvm_mcld_debug_LDADD = ../lib/libmcld.debug.la
+ld_mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_mcld_LDADD = ../lib/libmcld.debug.la
 
-mcld_debug_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -O1 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-mcld_debug_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
-mcld_debug_LDADD = ../lib/libmcld.debug.la
+ld_bcc_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_bcc_LDADD = ../lib/libmcld.debug.la
 endif
 
-dist_llvm_mcld_debug_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
+dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp \
     ${UNITTEST_SOURCE}
 
-dist_mcld_debug_SOURCES = ${TOOLDIR}/mcld/main.cpp \
+dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
     ${TOOLDIR}/mcld/include/alone/Linker.h \
     ${TOOLDIR}/mcld/lib/Core/Linker.cpp \
     ${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
