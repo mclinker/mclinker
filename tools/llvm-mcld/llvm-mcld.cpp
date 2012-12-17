@@ -828,6 +828,44 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
   return result_output;
 }
 
+/// ParseProgName - Parse program name
+/// This function simplifies cross-compiling by reading triple from the program
+/// name. For example, if the program name is `arm-linux-eabi-ld.mcld', we can
+/// get the triple is arm-linux-eabi by the program name.
+static void ParseProgName(const char *progname)
+{
+  static const char *suffixes[] = {
+    "ld",
+    "ld.mcld",
+  };
+
+  std::string ProgName(mcld::sys::fs::Path(progname).stem().native());
+
+  for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
+    if (ProgName == suffixes[i])
+      return;
+  }
+
+  StringRef ProgNameRef(ProgName);
+  StringRef Prefix;
+
+  for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
+    if (!ProgNameRef.endswith(suffixes[i]))
+      continue;
+
+    StringRef::size_type LastComponent = ProgNameRef.rfind('-',
+      ProgNameRef.size() - strlen(suffixes[i]));
+    if (LastComponent == StringRef::npos)
+      continue;
+    StringRef Prefix = ProgNameRef.slice(0, LastComponent);
+    std::string IgnoredError;
+    if (!llvm::TargetRegistry::lookupTarget(Prefix, IgnoredError))
+      continue;
+    TargetTriple = Prefix.str();
+    return;
+  }
+}
+
 static bool ShouldColorize()
 {
    const char* term = getenv("TERM");
@@ -1059,6 +1097,7 @@ int main(int argc, char* argv[])
   mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
 
+  ParseProgName(argv[0]);
   cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
