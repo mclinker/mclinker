@@ -53,6 +53,10 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
     MemoryRegion* region = NULL;
     // request output region
     switch((*sect)->kind()) {
+      case LDFileFormat::Note:
+        if ((*sect)->getSectionData() == NULL)
+          continue;
+        // Fall through
       case LDFileFormat::Regular:
       case LDFileFormat::Relocation:
       case LDFileFormat::Target:
@@ -70,7 +74,6 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
       case LDFileFormat::Null:
       case LDFileFormat::NamePool:
       case LDFileFormat::BSS:
-      case LDFileFormat::Note:
       case LDFileFormat::MetaData:
       case LDFileFormat::Version:
       case LDFileFormat::EhFrameHdr:
@@ -92,6 +95,7 @@ llvm::error_code ELFExecWriter::writeExecutable(Module& pModule,
       case LDFileFormat::Regular:
       case LDFileFormat::Debug:
       case LDFileFormat::GCCExceptTable:
+      case LDFileFormat::Note:
       case LDFileFormat::EhFrame: {
         // FIXME: if optimization of exception handling sections is enabled,
         // then we should emit these sections by the other way.
