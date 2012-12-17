@@ -283,7 +283,7 @@ ArgSysRoot("sysroot",
            cl::value_desc("directory"),
            cl::ValueRequired);
 
-static cl::list<std::string>
+static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgSearchDirList("L",
                  cl::ZeroOrMore,
                  cl::desc("Add path searchdir to the list of paths that ld will search for archive libraries and ld control scripts."),

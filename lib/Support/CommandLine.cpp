@@ -16,6 +16,45 @@ using namespace llvm::cl;
 
 using namespace mcld;
 
+static const size_t MaxOptWidth = 8;  // arbitrary spacing for printOptionDiff
+
+//===----------------------------------------------------------------------===//
+// SearchDirParser
+//===----------------------------------------------------------------------===//
+// parse - Return true on error.
+bool SearchDirParser::parse(Option &pOption,
+                            StringRef pArgName,
+                            StringRef pArg,
+                            std::string &pValue)
+{
+  char separator = *(pArgName.data() + 1);
+  if ('=' == separator)
+    pValue = '=';
+  pValue += pArg.str();
+  return false;
+}
+
+void SearchDirParser::printOptionDiff(const Option &pOption,
+                                      StringRef pValue,
+                                      OptVal pDefault,
+                                      size_t pGlobalWidth) const
+{
+  printOptionName(pOption, pGlobalWidth);
+  outs() << "= " << pValue;
+  size_t NumSpaces = MaxOptWidth > pValue.size()?MaxOptWidth - pValue.size():0;
+  outs().indent(NumSpaces) << " (default: ";
+  if (pDefault.hasValue())
+    outs() << pDefault.getValue();
+  else
+    outs() << "*no default*";
+  outs() << ")\n";
+}
+
+void SearchDirParser::anchor()
+{
+  // do nothing
+}
+
 //===----------------------------------------------------------------------===//
 // parser<mcld::sys::fs::Path>
 //===----------------------------------------------------------------------===//
@@ -27,8 +66,6 @@ bool parser<mcld::sys::fs::Path>::parse(llvm::cl::Option &O,
   Val.assign<llvm::StringRef::const_iterator>(Arg.begin(), Arg.end());
   return false;
 }
-
-static const size_t MaxOptWidth = 8;  // arbitrary spacing for printOptionDiff
 
 void parser<mcld::sys::fs::Path>::printOptionDiff(const llvm::cl::Option &O,
                                                   const mcld::sys::fs::Path &V,

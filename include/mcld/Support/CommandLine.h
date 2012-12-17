@@ -11,18 +11,42 @@
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
+#include <mcld/Support/FileSystem.h>
+#include <mcld/MC/ZOption.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Support/CommandLine.h>
-#include <mcld/Support/FileSystem.h>
-#include <mcld/MC/MCLDDirectory.h>
-#include <mcld/MC/ZOption.h>
+
+#include <string>
+
+namespace llvm {
+namespace cl {
+
+//===----------------------------------------------------------------------===//
+// SearchDirParser
+//===----------------------------------------------------------------------===//
+class SearchDirParser : public llvm::cl::basic_parser<std::string>
+{
+public:
+  // parse - Return true on error.
+  bool parse(Option &pOption,
+             StringRef pArgName,
+             StringRef pArg,
+             std::string &pValue);
+
+  const char *getValueName() const { return "searchdir"; }
+
+  void printOptionDiff(const Option &pOption,
+                       StringRef pValue,
+                       OptVal pDefault,
+                       size_t pGlobalWidth) const;
+
+  void anchor();
+};
 
 //===----------------------------------------------------------------------===//
 // parser<mcld::sys::fs::Path>
 //===----------------------------------------------------------------------===//
-namespace llvm {
-namespace cl {
-
 template<>
 class parser<mcld::sys::fs::Path> : public basic_parser<mcld::sys::fs::Path>
 {
