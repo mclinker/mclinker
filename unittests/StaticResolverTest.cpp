@@ -26,8 +26,6 @@ StaticResolverTest::StaticResolverTest()
   // create testee. modify it if need
   m_pResolver = new StaticResolver();
 
-  mcld::InitializeAllDiagnostics();
-
   m_pConfig = new LinkerConfig("arm-none-linux-gnueabi");
 }
 

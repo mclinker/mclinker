@@ -1048,13 +1048,6 @@ int main(int argc, char* argv[])
 {
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
-  cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
-
-#ifdef ENABLE_UNITTEST
-  if (UnitTest) {
-    return unit_test( argc, argv );
-  }
-#endif
 
   // Initialize targets first, so that --version shows registered targets.
   InitializeAllTargets();
@@ -1065,6 +1058,14 @@ int main(int argc, char* argv[])
   mcld::InitializeAllLinkers();
   mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
+
+  cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
+
+#ifdef ENABLE_UNITTEST
+  if (UnitTest) {
+    return unit_test( argc, argv );
+  }
+#endif
 
   // Load the module to be compiled...
   std::auto_ptr<llvm::Module> M;

@@ -19,8 +19,6 @@ using namespace mcldtest;
 // Constructor can do set-up work for all test here.
 UniqueGCFactoryBaseTest::UniqueGCFactoryBaseTest()
 {
-  InitializeAllDiagnostics();
-
   m_pConfig = new LinkerConfig("arm-none-linux-gnueabi");
 }
 
