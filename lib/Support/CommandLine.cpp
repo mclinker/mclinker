@@ -53,40 +53,6 @@ void parser<mcld::sys::fs::Path>::anchor()
 }
 
 //===----------------------------------------------------------------------===//
-// parser<mcld::MCLDDirectory>
-//===----------------------------------------------------------------------===//
-bool parser<mcld::MCLDDirectory>::parse(llvm::cl::Option &O,
-                                llvm::StringRef ArgName,
-                                llvm::StringRef Arg,
-                                mcld::MCLDDirectory &Val)
-{
-  Val.assign(Arg);
-  return false;
-}
-
-void parser<mcld::MCLDDirectory>::printOptionDiff(const llvm::cl::Option &O,
-                                                  const mcld::MCLDDirectory &V,
-                                                  parser<mcld::MCLDDirectory>::OptVal Default,
-                                                  size_t GlobalWidth) const
-{
-  printOptionName(O, GlobalWidth);
-  outs() << "= " << V.name();
-  size_t VSize = V.name().size();
-  size_t NumSpaces = MaxOptWidth > VSize ? MaxOptWidth - VSize : 0;
-  outs().indent(NumSpaces) << " (default: ";
-  if (Default.hasValue())
-    outs() << Default.getValue().name();
-  else
-    outs() << "*no default*";
-  outs() << ")\n";
-}
-
-void parser<mcld::MCLDDirectory>::anchor()
-{
-  // do nothing
-}
-
-//===----------------------------------------------------------------------===//
 // parser<mcld::ZOption>
 //===----------------------------------------------------------------------===//
 bool parser<mcld::ZOption>::parse(llvm::cl::Option &O,

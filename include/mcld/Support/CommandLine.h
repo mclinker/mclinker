@@ -41,23 +41,6 @@ public:
 };
 
 //===----------------------------------------------------------------------===//
-// parser<mcld::MCLDDirectory>
-//===----------------------------------------------------------------------===//
-template<>
-class parser<mcld::MCLDDirectory> : public llvm::cl::basic_parser<mcld::MCLDDirectory>
-{
-public:
-  bool parse(Option &O, StringRef ArgName, StringRef Arg, mcld::MCLDDirectory &Val);
-
-  virtual const char *getValueName() const { return "directory"; }
-  void printOptionDiff(const Option &O,
-                       const mcld::MCLDDirectory &V,
-                       OptVal Default,
-                       size_t GlobalWidth) const;
-  virtual void anchor();
-};
-
-//===----------------------------------------------------------------------===//
 // parser<mcld::ZOption>
 //===----------------------------------------------------------------------===//
 template<>
