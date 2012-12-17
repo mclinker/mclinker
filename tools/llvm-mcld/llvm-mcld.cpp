@@ -608,9 +608,15 @@ ArgNoStdLib("nostdlib",
             cl::init(false));
 
 static cl::opt<bool>
-ArgWanrCommon("warn-common",
+ArgWarnCommon("warn-common",
               cl::desc("warn common symbol"),
               cl::init(false));
+
+static cl::opt<bool>
+ArgFatalWarnings("fatal-warnings",
+              cl::desc("turn all warnings into errors"),
+              cl::init(false));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
