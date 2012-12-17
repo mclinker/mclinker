@@ -372,16 +372,7 @@ ___lib_libmcld_la_SOURCES = ${SOURCE}
 
 ___lib_libmcld_la_DEPENDENCIES = ${SOURCE}
 
-bin_PROGRAMS = ld ld.mcld ld.bcc
-
-# ld.mcld
-ld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
-
-ld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
-
-ld_LDADD = ../lib/libmcld.la
-
-dist_ld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
+bin_PROGRAMS = ld.mcld ld.bcc
 
 # ld.mcld
 ld_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
