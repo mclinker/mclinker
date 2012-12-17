@@ -1,10 +1,10 @@
 
 if ENABLE_UNITTEST
-MCLD=$(abs_top_builddir)/debug/llvm-mcld.debug
-ALONELD=$(abs_top_builddir)/debug/mcld.debug
+MCLD=$(abs_top_builddir)/debug/ld.mcld
+ALONELD=$(abs_top_builddir)/debug/ld.bcc
 else
-MCLD=$(abs_top_builddir)/optimized/llvm-mcld
-ALONELD=$(abs_top_builddir)/optimized/mcld
+MCLD=$(abs_top_builddir)/optimized/ld.mcld
+ALONELD=$(abs_top_builddir)/optimized/ld.bcc
 endif
 
 LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
