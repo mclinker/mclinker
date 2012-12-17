@@ -917,8 +917,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setStripDebug(ArgStripDebug);
   pConfig.options().setExportDynamic(ArgExportDynamic);
   pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
-  if (!ArgRelocatable || ArgDefineCommon)
-    pConfig.options().setDefineCommon();
+  pConfig.options().setDefineCommon(ArgDefineCommon);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;

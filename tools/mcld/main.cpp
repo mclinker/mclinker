@@ -264,8 +264,7 @@ bool ConfigLinker(Linker &pLinker, const std::string &pOutputFilename) {
   config->setBsymbolic(OptBsymbolic);
 
   // 9. Set up -d (define common symbols)
-  if (!OptRelocatable || OptDefineCommon)
-    config->setDefineCommon();
+  config->setDefineCommon(OptDefineCommon);
 
   Linker::ErrorCode result = pLinker.config(*config);
   if (Linker::kSuccess != result) {

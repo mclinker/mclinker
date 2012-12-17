@@ -362,7 +362,8 @@ bool ObjectLinker::prelayout()
 
   m_LDBackend.preLayout(m_Module, *m_pLinker);
 
-  if (m_Config.options().isDefineCommon())
+  if (LinkerConfig::Object != m_Config.codeGenType() ||
+      m_Config.options().isDefineCommon())
     m_LDBackend.allocateCommonSymbols(m_Module);
 
   /// check program interpreter - computer the name size of the runtime dyld
