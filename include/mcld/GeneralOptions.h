@@ -244,6 +244,12 @@ public:
   bool isDefineCommon() const
   { return m_bDefineCommon; }
 
+  void setFatalWarnings(bool pEnable = true)
+  { m_bFatalWarnings = pEnable; }
+
+  bool isFatalWarnings() const
+  { return m_bFatalWarnings; }
+
 private:
   enum status {
     YES,
@@ -292,6 +298,7 @@ private:
   bool m_bWarnSharedTextrel : 1; // --warn-shared-textrel
   bool m_bBinaryInput : 1; // -b [input-format], --format=[input-format]
   bool m_bDefineCommon : 1; // -d, -dc, -dp
+  bool m_bFatalWarnings : 1; // --fatal-warnings
 };
 
 } // namespace of mcld

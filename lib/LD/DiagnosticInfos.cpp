@@ -146,6 +146,14 @@ bool DiagnosticInfos::process(DiagnosticEngine& pEngine) const
       break;
   } // end of switch
 
+  // If --fatal-warnings is turned on, then switch warnings and errors to fatal
+  if (m_Config.options().isFatalWarnings()) {
+    if (severity == DiagnosticEngine::Warning ||
+        severity == DiagnosticEngine::Error) {
+      severity = DiagnosticEngine::Fatal;
+    }
+  }
+
   // finally, report it.
   pEngine.getPrinter()->handleDiagnostic(severity, info);
   return true;

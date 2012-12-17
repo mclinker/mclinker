@@ -857,6 +857,9 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // set up soname
   pConfig.options().setSOName(ArgSOName);
 
+  // --fatal-warnings
+  pConfig.options().setFatalWarnings(ArgFatalWarnings);
+
   // -shared or -pie
   if (true == ArgShared || true == ArgPIE) {
     ArgFileType = mcld::CGFT_DSOFile;

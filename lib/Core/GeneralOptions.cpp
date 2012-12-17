@@ -49,7 +49,8 @@ GeneralOptions::GeneralOptions()
     m_bExportDynamic(false),
     m_bWarnSharedTextrel(false),
     m_bBinaryInput(false),
-    m_bDefineCommon(false)
+    m_bDefineCommon(false),
+    m_bFatalWarnings(false)
 {
 }
 
