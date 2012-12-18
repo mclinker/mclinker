@@ -1320,6 +1320,9 @@ int main(int argc, char* argv[])
     PM.run(mod);
   }
 
+  if (mcld::getDiagnosticEngine().getPrinter()->getNumErrors())
+    return 1;
+
   // Declare success.
   Out->keep();
   return 0;
