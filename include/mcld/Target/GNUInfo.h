@@ -24,6 +24,8 @@ class GNUInfo
 public:
   GNUInfo(const llvm::Triple& pTriple);
 
+  virtual ~GNUInfo() { }
+
   /// ELFVersion - the value of e_ident[EI_VERSION]
   virtual uint8_t ELFVersion() const { return llvm::ELF::EV_CURRENT; }
 
