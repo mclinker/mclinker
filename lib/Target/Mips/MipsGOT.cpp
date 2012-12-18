@@ -49,10 +49,8 @@ MipsGOT::MipsGOT(LDSection& pSection)
 
 void MipsGOT::reserve(size_t pNum)
 {
-  MipsGOTEntry* entry = NULL;
-
   for (size_t i = 0; i < pNum; i++) {
-    entry = new MipsGOTEntry(0, m_SectionData);
+    new MipsGOTEntry(0, m_SectionData);
   }
 }
 

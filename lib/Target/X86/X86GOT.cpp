@@ -29,10 +29,8 @@ X86GOT::~X86GOT()
 
 void X86GOT::reserve(size_t pNum)
 {
-  X86GOTEntry* entry = NULL;
-
   for (size_t i = 0; i < pNum; i++) {
-    entry = new X86GOTEntry(0, m_SectionData);
+    new X86GOTEntry(0, m_SectionData);
   }
 }
 

@@ -38,10 +38,8 @@ X86GOTPLT::~X86GOTPLT()
 
 void X86GOTPLT::reserve(size_t pNum)
 {
-  X86GOTPLTEntry* entry = NULL;
-
   for (size_t i = 0; i < pNum; i++) {
-    entry = new X86GOTPLTEntry(0, m_SectionData);
+    new X86GOTPLTEntry(0, m_SectionData);
   }
 }
 

@@ -46,10 +46,8 @@ bool ARMGOT::hasGOT1() const
 
 void ARMGOT::reserve(size_t pNum)
 {
-  ARMGOTEntry* entry = NULL;
-
   for (size_t i = 0; i < pNum; i++) {
-    entry = new ARMGOTEntry(0, m_SectionData);
+    new ARMGOTEntry(0, m_SectionData);
   }
 }
 
