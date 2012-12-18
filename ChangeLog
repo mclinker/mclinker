@@ -2,8 +2,8 @@
 	* Executive Summary:
 	1. IRBuilder supports adding symbols and relocations.
 	2. Reduce memory usage of relocation.
-	3. Ehhance GNU ld compatibility for FreeBSD and NetBSD.
-	4. Migrate on LLVM r168413
+	3. Enhance GNU ld compatibility for FreeBSD and NetBSD.
+	4. Migrate to LLVM r168413
 
 	* Command Line Options and Building System:
 	1. Support --oformat, --format options
@@ -16,8 +16,8 @@
 	   FragmentLinker.
 
 	* Relocations:
-	1. Provide Relocation's factory methods.
-	2. Let Relocation to inherit ilist_node<> directly for saving memory usage.
+	1. Provide Relocation factory method.
+	2. Derive Relocation directly from ilist_node<> for saving memory usage.
 	3. Isolate relocation applying functions. Collect them in Relocator.
 
 	* LinkerConfig and GNULDBackend's Configuration:
