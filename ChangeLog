@@ -1,3 +1,34 @@
+2012-12-18 Luba Tang <lubatang@gmail.com>
+	* Executive Summary:
+	1. IRBuilder supports adding symbols and relocations.
+	2. Reduce memory usage of relocation.
+	3. Ehhance GNU ld compatibility for FreeBSD and NetBSD.
+	4. Migrate on LLVM r168413
+
+	* Command Line Options and Building System:
+	1. Support --oformat, --format options
+	2. Support --fatal-warnings
+	3. Add --enable-werror in `./configure' script
+
+	* Readers, writers and IRBuilder:
+	1. Add IRBuilder::AddSymbol() and IRBuilder::AddRelocation() APIs.
+	2. ELFObjectReader, ELFDynObjReader and ELFReader use IRBuilder instead of
+	   FragmentLinker.
+
+	* Relocations:
+	1. Provide Relocation's factory methods.
+	2. Let Relocation to inherit ilist_node<> directly for saving memory usage.
+	3. Isolate relocation applying functions. Collect them in Relocator.
+
+	* LinkerConfig and GNULDBackend's Configuration:
+	1. Move bitclass and endian configuration out of GNULDBackend. Collect them
+	   in TargetOptions. This can break the dependency between GNULDBackend and
+	   Relocation.
+	2. Move triple from LinkerConfig to TargetOptions.
+	3. Merge Layout into GNULDBackend.
+	4. Refactor GOT and PLT.
+	5. Move GNU related options into GNUInfo.
+
 2012-11-20 Luba Tang <lubatang@gmail.com>
 	* Executive Summary:
 	1. Improve linking speed about x30 via new algorithm and architecture.
