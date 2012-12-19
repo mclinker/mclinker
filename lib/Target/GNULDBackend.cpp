@@ -1381,9 +1381,14 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
     case LDFileFormat::Target:
       return getTargetSectionOrder(pSectHdr);
 
-    // handle .interp
+    // handle .interp and .note.* sections
     case LDFileFormat::Note:
-      return SHO_INTERP;
+      if (&pSectHdr == &file_format->getInterp())
+        return SHO_INTERP;
+      else if (is_write)
+        return SHO_RW_NOTE;
+      else
+        return SHO_RO_NOTE;
 
     case LDFileFormat::EhFrame:
     case LDFileFormat::EhFrameHdr:
@@ -1693,6 +1698,25 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
                               llvm::ELF::PF_R |
                               llvm::ELF::PF_W |
                               getSegmentFlag(file_format->getStackNote().flag()));
+  }
+
+  // make PT_NOTE
+  ELFSegment *note_seg = NULL;
+  prev_flag = getSegmentFlag(0);
+  for (sect = pModule.begin(); sect != sect_end; ++sect) {
+    if ((*sect)->kind() != LDFileFormat::Note ||
+        ((*sect)->flag() & llvm::ELF::SHF_ALLOC) == 0)
+      continue;
+
+    cur_flag = getSegmentFlag((*sect)->flag());
+    // we have different section orders for read-only and writable notes, so
+    // create 2 segments if needed.
+    if (note_seg == NULL ||
+        (cur_flag & llvm::ELF::PF_W) != (prev_flag & llvm::ELF::PF_W))
+      note_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_NOTE, cur_flag);
+
+    note_seg->addSection(*sect);
+    prev_flag = cur_flag;
   }
 
   // create target dependent segments
