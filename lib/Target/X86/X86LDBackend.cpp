@@ -256,6 +256,13 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         return;
       // FIXME: check STT_GNU_IFUNC symbol
       m_pGOT->reserve();
+
+      // If the GOT is used in statically linked binaries,
+      // the GOT entry is enough and no relocation is needed.
+      if (pLinker.isStaticLink()) {
+        rsym->setReserved(rsym->reserved() | ReserveGOT);
+        return;
+      }
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
@@ -449,6 +456,13 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
       m_pGOT->reserve();
+
+      // If the GOT is used in statically linked binaries,
+      // the GOT entry is enough and no relocation is needed.
+      if (pLinker.isStaticLink()) {
+        rsym->setReserved(rsym->reserved() | ReserveGOT);
+        return;
+      }
       // If building shared object or the symbol is undefined, a dynamic
       // relocation is needed to relocate this GOT entry. Reserve an
       // entry in .rel.dyn
@@ -588,7 +602,7 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
   else // rsym is external
     scanGlobalReloc(pReloc, pLinker, pModule, pSection);
 
-  // check if we shoule issue undefined reference for the relocation target
+  // check if we should issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
