@@ -1383,7 +1383,7 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
 
     // handle .interp and .note.* sections
     case LDFileFormat::Note:
-      if (&pSectHdr == &file_format->getInterp())
+      if (file_format->hasInterp() && (&pSectHdr == &file_format->getInterp()))
         return SHO_INTERP;
       else if (is_write)
         return SHO_RW_NOTE;
