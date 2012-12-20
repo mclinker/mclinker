@@ -16,6 +16,8 @@
 
 #include <llvm/Support/ELF.h>
 
+#include <cctype>
+
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -83,9 +85,16 @@ bool ELFBinaryReader::readBinary(Input& pInput)
                       0x0,
                       data_sect);
 
+  std::string mangled_name = pInput.path().filename().string();
+  for (std::string::iterator it = mangled_name.begin(),
+    ie = mangled_name.end(); it != ie; ++it) {
+    if (isalnum(*it) == 0)
+      *it = '_';
+  }
+
   // symbol: _start
   m_Builder.AddSymbol(pInput,
-                      "_binary_" + pInput.path().filename().string() + "_start",
+                      "_binary_" + mangled_name + "_start",
                       ResolveInfo::NoType,
                       ResolveInfo::Define,
                       ResolveInfo::Global,
@@ -95,7 +104,7 @@ bool ELFBinaryReader::readBinary(Input& pInput)
 
   // symbol: _end
   m_Builder.AddSymbol(pInput,
-                      "_binary_" + pInput.path().filename().string() + "_end",
+                      "_binary_" + mangled_name + "_end",
                       ResolveInfo::NoType,
                       ResolveInfo::Define,
                       ResolveInfo::Global,
@@ -105,7 +114,7 @@ bool ELFBinaryReader::readBinary(Input& pInput)
 
   // symbol: _size
   m_Builder.AddSymbol(pInput,
-                      "_binary_" + pInput.path().filename().string() + "_size",
+                      "_binary_" + mangled_name + "_size",
                       ResolveInfo::NoType,
                       ResolveInfo::Define,
                       ResolveInfo::Global,
