@@ -150,19 +150,14 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pLinker);
+    scanLocalReloc(pReloc, pLinker, pSection);
   else
-    scanGlobalReloc(pReloc, pLinker);
+    scanGlobalReloc(pReloc, pLinker, pSection);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
-
-  if ((rsym->reserved() & ReserveRel) != 0x0) {
-    // set hasTextRelSection if needed
-    checkAndSetHasTextRel(pSection);
-  }
 }
 
 uint64_t MipsGNULDBackend::flags() const
@@ -796,7 +791,8 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 }
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker)
+                                      FragmentLinker& pLinker,
+                                      const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -812,6 +808,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // 2. Check this condition here.
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
+        checkAndSetHasTextRel(pSection);
 
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
@@ -892,7 +889,8 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                       FragmentLinker& pLinker)
+                                       FragmentLinker& pLinker,
+                                       const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -916,6 +914,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
+        checkAndSetHasTextRel(pSection);
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.

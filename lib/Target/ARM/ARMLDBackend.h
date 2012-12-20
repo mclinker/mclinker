@@ -181,9 +181,13 @@ public:
   bool readSection(Input& pInput, SectionData& pSD);
 
 private:
-  void scanLocalReloc(Relocation& pReloc, FragmentLinker& pLinker);
+  void scanLocalReloc(Relocation& pReloc,
+                      FragmentLinker& pLinker,
+                      const LDSection& pSection);
 
-  void scanGlobalReloc(Relocation& pReloc, FragmentLinker& pLinker);
+  void scanGlobalReloc(Relocation& pReloc,
+                       FragmentLinker& pLinker,
+                       const LDSection& pSection);
 
   void checkValidReloc(Relocation& pReloc,
                        const FragmentLinker& pLinker) const;

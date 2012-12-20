@@ -380,7 +380,8 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     FragmentLinker& pLinker)
+                                     FragmentLinker& pLinker,
+                                     const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -402,7 +403,8 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        }
+        checkAndSetHasTextRel(pSection);
+      }
       return;
     }
 
@@ -479,7 +481,8 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker)
+                                      FragmentLinker& pLinker,
+                                      const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -531,6 +534,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
+          checkAndSetHasTextRel(pSection);
         }
       }
       return;
@@ -606,6 +610,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
+          checkAndSetHasTextRel(pSection);
         }
       }
       return;
@@ -711,21 +716,16 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pLinker);
+    scanLocalReloc(pReloc, pLinker, pSection);
 
   // rsym is external
   else
-    scanGlobalReloc(pReloc, pLinker);
+    scanGlobalReloc(pReloc, pLinker, pSection);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
-
-  if ((rsym->reserved() & ReserveRel) != 0x0) {
-    // set hasTextRelSection if needed
-    checkAndSetHasTextRel(pSection);
-  }
 }
 
 uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
