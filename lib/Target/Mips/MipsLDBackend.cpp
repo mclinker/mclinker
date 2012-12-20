@@ -198,9 +198,12 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
-    if (!m_pRelDyn->empty())
+    if (!m_pRelDyn->empty()) {
+      assert(!pLinker.isStaticLink() &&
+            "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());
+    }
   }
 }
 void MipsGNULDBackend::doPostLayout(Module& pModule,

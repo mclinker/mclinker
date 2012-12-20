@@ -92,14 +92,19 @@ void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
 
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
-    if (!m_pRelDyn->empty())
+    if (!m_pRelDyn->empty()) {
+      assert(!pLinker.isStaticLink() &&
+            "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());
-
+    }
     // set .rel.plt size
-    if (!m_pRelPLT->empty())
+    if (!m_pRelPLT->empty()) {
+      assert(!pLinker.isStaticLink() &&
+            "static linkage should not result in a dynamic relocation section");
       file_format->getRelPlt().setSize(
                                   m_pRelPLT->numOfRelocs() * getRelEntrySize());
+    }
   }
 }
 
