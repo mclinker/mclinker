@@ -65,6 +65,8 @@ public:
   iterator       end  ()       { return m_DirList.end();   }
 
   // -----  modifiers  ----- //
+  bool insert(const char* pDirectory);
+
   bool insert(const std::string& pDirectory);
 
   bool insert(const sys::fs::Path& pDirectory);
