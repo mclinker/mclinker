@@ -413,8 +413,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
 
   uint32_t shoff     = 0x0;
   uint16_t shentsize = 0x0;
-  uint16_t shnum     = 0x0;
-  uint16_t shstrtab  = 0x0;
+  uint32_t shnum     = 0x0;
+  uint32_t shstrtab  = 0x0;
 
   if (llvm::sys::isLittleEndianHost()) {
     shoff     = ehdr->e_shoff;
@@ -433,11 +433,8 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   if (0x0 == shoff)
     return true;
 
-  MemoryRegion* shdr_region = pInput.memArea()->request(
-                                 pInput.fileOffset() + shoff, shnum*shentsize);
-  llvm::ELF::Elf32_Shdr* shdrTab =
-                reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
-
+  llvm::ELF::Elf32_Shdr *shdr = NULL;
+  MemoryRegion* shdr_region = NULL;
   uint32_t sh_name      = 0x0;
   uint32_t sh_type      = 0x0;
   uint32_t sh_flags     = 0x0;
@@ -447,8 +444,37 @@ ELFReader<32, true>::readSectionHeaders(Input& pInput, void* pELFHeader) const
   uint32_t sh_info      = 0x0;
   uint32_t sh_addralign = 0x0;
 
+  // if shnum and shstrtab overflow, the actual values are in the 1st shdr
+  if (shnum == llvm::ELF::SHN_UNDEF || shstrtab == llvm::ELF::SHN_XINDEX) {
+    shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
+                                            shentsize);
+    shdr = reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
+
+    if (llvm::sys::isLittleEndianHost()) {
+      sh_size = shdr->sh_size;
+      sh_link = shdr->sh_link;
+    }
+    else {
+      sh_size = mcld::bswap32(shdr->sh_size);
+      sh_link = mcld::bswap32(shdr->sh_link);
+    }
+    pInput.memArea()->release(shdr_region);
+
+    if (shnum == llvm::ELF::SHN_UNDEF)
+      shnum = sh_size;
+    if (shstrtab == llvm::ELF::SHN_XINDEX)
+      shstrtab = sh_link;
+
+    shoff += shentsize;
+  }
+
+  shdr_region = pInput.memArea()->request(pInput.fileOffset() + shoff,
+                                          shnum * shentsize);
+  llvm::ELF::Elf32_Shdr * shdrTab =
+    reinterpret_cast<llvm::ELF::Elf32_Shdr*>(shdr_region->start());
+
   // get .shstrtab first
-  llvm::ELF::Elf32_Shdr* shdr = &shdrTab[shstrtab];
+  shdr = &shdrTab[shstrtab];
   if (llvm::sys::isLittleEndianHost()) {
     sh_offset = shdr->sh_offset;
     sh_size   = shdr->sh_size;
