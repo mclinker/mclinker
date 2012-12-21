@@ -61,6 +61,7 @@ static const NameMap map[] =
 
 bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
 {
+  // set up section map
   if (pConfig.codeGenType() != LinkerConfig::Object) {
     const unsigned int map_size =  (sizeof(map) / sizeof(map[0]) );
     for (unsigned int i = 0; i < map_size; ++i) {
@@ -70,6 +71,16 @@ bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
         return false;
     }
   }
+
+  // set up default search path
+  if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
+    pConfig.options().directories().insert("=/usr/lib");
+  }
+  else {
+    pConfig.options().directories().insert("=/lib");
+    pConfig.options().directories().insert("=/usr/lib");
+  }
+
   return true;
 }
 
