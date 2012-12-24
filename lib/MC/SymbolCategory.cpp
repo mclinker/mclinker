@@ -298,7 +298,7 @@ SymbolCategory::iterator SymbolCategory::localBegin()
 
 SymbolCategory::iterator SymbolCategory::localEnd()
 {
-  iterator iter = m_OutputSymbols.begin();
+  iterator iter = localBegin();
   iter += m_pFile->size();
   iter += m_pLocal->size();
   return iter;
@@ -311,7 +311,7 @@ SymbolCategory::const_iterator SymbolCategory::localBegin() const
 
 SymbolCategory::const_iterator SymbolCategory::localEnd() const
 {
-  const_iterator iter = m_OutputSymbols.begin();
+  const_iterator iter = localBegin();
   iter += m_pFile->size();
   iter += m_pLocal->size();
   return iter;
@@ -324,7 +324,7 @@ SymbolCategory::iterator SymbolCategory::tlsBegin()
 
 SymbolCategory::iterator SymbolCategory::tlsEnd()
 {
-  iterator iter = localEnd();
+  iterator iter = tlsBegin();
   iter += m_pTLS->size();
   return iter;
 }
@@ -336,7 +336,7 @@ SymbolCategory::const_iterator SymbolCategory::tlsBegin() const
 
 SymbolCategory::const_iterator SymbolCategory::tlsEnd() const
 {
-  const_iterator iter = localEnd();
+  const_iterator iter = tlsBegin();
   iter += m_pTLS->size();
   return iter;
 }
@@ -348,7 +348,7 @@ SymbolCategory::iterator SymbolCategory::commonBegin()
 
 SymbolCategory::iterator SymbolCategory::commonEnd()
 {
-  iterator iter = tlsEnd();
+  iterator iter = commonBegin();
   iter += m_pCommon->size();
   return iter;
 }
@@ -360,7 +360,7 @@ SymbolCategory::const_iterator SymbolCategory::commonBegin() const
 
 SymbolCategory::const_iterator SymbolCategory::commonEnd() const
 {
-  const_iterator iter = tlsEnd();
+  const_iterator iter = commonBegin();
   iter += m_pCommon->size();
   return iter;
 }
