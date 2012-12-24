@@ -30,6 +30,14 @@ class Input;
 class GeneralOptions
 {
 public:
+  enum StripSymbolMode {
+    KeepAllSymbols,
+    StripTemporaries,
+    StripLocals,
+    StripAllSymbols
+  };
+
+public:
   GeneralOptions();
   ~GeneralOptions();
 
@@ -250,6 +258,12 @@ public:
   bool isFatalWarnings() const
   { return m_bFatalWarnings; }
 
+  StripSymbolMode getStripSymbolMode() const
+  { return m_StripSymbols; }
+
+  void setStripSymbols(StripSymbolMode pMode)
+  { m_StripSymbols = pMode; }
+
 private:
   enum status {
     YES,
@@ -299,6 +313,7 @@ private:
   bool m_bBinaryInput : 1; // -b [input-format], --format=[input-format]
   bool m_bDefineCommon : 1; // -d, -dc, -dp
   bool m_bFatalWarnings : 1; // --fatal-warnings
+  StripSymbolMode m_StripSymbols;
 };
 
 } // namespace of mcld
