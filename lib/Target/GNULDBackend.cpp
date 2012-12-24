@@ -1483,6 +1483,36 @@ size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
    return entry.getEntry()->value();
 }
 
+/// isTemporary - Whether pSymbol is a local label.
+bool GNULDBackend::isTemporary(const LDSymbol& pSymbol) const
+{
+  if (ResolveInfo::Local != pSymbol.binding())
+    return false;
+
+  if (pSymbol.nameSize() < 2)
+    return false;
+
+  const char* name = pSymbol.name();
+  if ('.' == name[0] && 'L' == name[1])
+    return true;
+
+  // UnixWare 2.1 cc generate DWARF debugging symbols with `..' prefix.
+  // @ref Google gold linker, target.cc:39 @@ Target::do_is_local_label_name()
+  if (name[0] == '.' && name[1] == '.')
+    return true;
+
+  // Work arround for gcc's bug
+  // gcc sometimes generate symbols with '_.L_' prefix.
+  // @ref Google gold linker, target.cc:39 @@ Target::do_is_local_label_name()
+  if (pSymbol.nameSize() < 4)
+    return false;
+
+  if (name[0] == '_' && name[1] == '.' && name[2] == 'L' && name[3] == '_')
+    return true;
+
+  return false;
+}
+
 /// allocateCommonSymbols - allocate common symbols in the corresponding
 /// sections. This is executed at pre-layout stage.
 /// @refer Google gold linker: common.cc: 214

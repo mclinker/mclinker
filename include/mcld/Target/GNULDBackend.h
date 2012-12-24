@@ -270,6 +270,9 @@ protected:
 
   uint64_t getSymbolShndx(const LDSymbol& pSymbol) const;
 
+  /// isTemporary - Whether pSymbol is a local label.
+  virtual bool isTemporary(const LDSymbol& pSymbol) const;
+
   /// getHashBucketCount - calculate hash bucket count.
   /// @ref Google gold linker, dynobj.cc:791
   static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
