@@ -552,6 +552,16 @@ ArgStripDebugAlias("S",
                    cl::aliasopt(ArgStripDebug));
 
 static cl::opt<bool>
+ArgStripAll("strip-all",
+            cl::desc("Omit all symbol information from the output file."),
+            cl::init(false));
+
+static cl::alias
+ArgStripAllAlias("s",
+                 cl::desc("alias for --strip-all"),
+                 cl::aliasopt(ArgStripAll));
+
+static cl::opt<bool>
 ArgExportDynamic("export-dynamic",
                  cl::desc("Export all dynamic symbols"),
                  cl::init(false));
@@ -952,10 +962,19 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setEhFrameHdr(ArgEhFrameHdr);
   pConfig.options().setNMagic(ArgNMagic);
   pConfig.options().setOMagic(ArgOMagic);
-  pConfig.options().setStripDebug(ArgStripDebug);
+  pConfig.options().setStripDebug(ArgStripDebug || ArgStripAll);
   pConfig.options().setExportDynamic(ArgExportDynamic);
   pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
   pConfig.options().setDefineCommon(ArgDefineCommon);
+
+  if (ArgStripAll)
+    pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);
+  else if (ArgDiscardAll)
+    pConfig.options().setStripSymbols(mcld::GeneralOptions::StripLocals);
+  else if (ArgDiscardLocals)
+    pConfig.options().setStripSymbols(mcld::GeneralOptions::StripTemporaries);
+  else
+    pConfig.options().setStripSymbols(mcld::GeneralOptions::KeepAllSymbols);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
@@ -1032,14 +1051,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
 
   if (ArgFIXCA8) {
     mcld::warning(mcld::diag::warn_unsupported_option) << ArgFIXCA8.ArgStr;
-  }
-
-  if (ArgDiscardLocals) {
-    mcld::warning(mcld::diag::warn_unsupported_option) << ArgDiscardLocals.ArgStr;
-  }
-
-  if (ArgDiscardAll) {
-    mcld::warning(mcld::diag::warn_unsupported_option) << ArgDiscardAll.ArgStr;
   }
 
   // add address mappings
