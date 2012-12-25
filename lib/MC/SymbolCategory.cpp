@@ -234,9 +234,19 @@ size_t SymbolCategory::numOfSymbols() const
   return m_OutputSymbols.size();
 }
 
+size_t SymbolCategory::numOfFiles() const
+{
+  return m_pFile->size();
+}
+
 size_t SymbolCategory::numOfLocals() const
 {
-  return (m_pFile->size() + m_pLocal->size() + m_pTLS->size());
+  return m_pLocal->size();
+}
+
+size_t SymbolCategory::numOfTLSs() const
+{
+  return m_pTLS->size();
 }
 
 size_t SymbolCategory::numOfCommons() const
@@ -256,9 +266,19 @@ bool SymbolCategory::empty() const
           emptyRegulars());
 }
 
+bool SymbolCategory::emptyFiles() const
+{
+  return m_pFile->empty();
+}
+
 bool SymbolCategory::emptyLocals() const
 {
-  return (m_pFile->empty() && m_pLocal->empty() && m_pTLS->empty());
+  return m_pLocal->empty();
+}
+
+bool SymbolCategory::emptyTLSs() const
+{
+  return m_pTLS->empty();
 }
 
 bool SymbolCategory::emptyCommons() const
@@ -291,28 +311,50 @@ SymbolCategory::const_iterator SymbolCategory::end() const
   return m_OutputSymbols.end();
 }
 
-SymbolCategory::iterator SymbolCategory::localBegin()
+SymbolCategory::iterator SymbolCategory::fileBegin()
 {
   return m_OutputSymbols.begin();
+}
+
+SymbolCategory::iterator SymbolCategory::fileEnd()
+{
+  iterator iter = fileBegin();
+  iter += m_pFile->size();
+  return iter;
+}
+
+SymbolCategory::const_iterator SymbolCategory::fileBegin() const
+{
+  return m_OutputSymbols.begin();
+}
+
+SymbolCategory::const_iterator SymbolCategory::fileEnd() const
+{
+  const_iterator iter = fileBegin();
+  iter += m_pFile->size();
+  return iter;
+}
+
+SymbolCategory::iterator SymbolCategory::localBegin()
+{
+  return fileEnd();
 }
 
 SymbolCategory::iterator SymbolCategory::localEnd()
 {
   iterator iter = localBegin();
-  iter += m_pFile->size();
   iter += m_pLocal->size();
   return iter;
 }
 
 SymbolCategory::const_iterator SymbolCategory::localBegin() const
 {
-  return m_OutputSymbols.begin();
+  return fileEnd();
 }
 
 SymbolCategory::const_iterator SymbolCategory::localEnd() const
 {
   const_iterator iter = localBegin();
-  iter += m_pFile->size();
   iter += m_pLocal->size();
   return iter;
 }

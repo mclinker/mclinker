@@ -63,7 +63,11 @@ public:
   // -----  observers  ----- //
   size_t numOfSymbols() const;
 
+  size_t numOfFiles() const;
+
   size_t numOfLocals() const;
+
+  size_t numOfTLSs() const;
 
   size_t numOfCommons() const;
 
@@ -71,7 +75,11 @@ public:
 
   bool empty() const;
 
+  bool emptyFiles() const;
+
   bool emptyLocals() const;
+
+  bool emptyTLSs() const;
 
   bool emptyCommons() const;
 
@@ -82,6 +90,11 @@ public:
   iterator end();
   const_iterator begin() const;
   const_iterator end() const;
+
+  iterator fileBegin();
+  iterator fileEnd();
+  const_iterator fileBegin() const;
+  const_iterator fileEnd() const;
 
   iterator localBegin();
   iterator localEnd();

@@ -282,7 +282,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   size_t str_size = 0;
   // compute the size of symbols in Local and File category
   Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
     if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
       ++dynsym;
@@ -383,7 +383,8 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
 
       // set .symtab sh_info to one greater than the symbol table
       // index of the last local symbol
-      file_format->getSymTab().setInfo(symbols.numOfLocals() + 1);
+      file_format->getSymTab().setInfo(symbols.numOfFiles() +
+                                symbols.numOfLocals() + symbols.numOfTLSs() + 1);
       break;
     }
     default: {
@@ -501,7 +502,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   // emit symbol in File and Local category if it's dynamic symbol
   Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
@@ -702,7 +703,8 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
-  if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
+  if (symbol_list.emptyCommons() && symbol_list.emptyFiles() &&
+      symbol_list.emptyLocals() && symbol_list.emptyTLSs())
     return true;
 
   SymbolCategory::iterator com_sym, com_end;
