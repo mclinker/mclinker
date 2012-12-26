@@ -944,6 +944,10 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       break;
     case llvm::ELF::R_MIPS_GOT16:
     case llvm::ELF::R_MIPS_CALL16:
+    case llvm::ELF::R_MIPS_GOT_HI16:
+    case llvm::ELF::R_MIPS_CALL_HI16:
+    case llvm::ELF::R_MIPS_GOT_LO16:
+    case llvm::ELF::R_MIPS_CALL_LO16:
       // For got16 section based relocations, we need to reserve got entries.
       if (rsym->type() == ResolveInfo::Section) {
         m_pGOT->reserveLocalEntry();
@@ -962,12 +966,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GPREL32:
     case llvm::ELF::R_MIPS_GPREL16:
     case llvm::ELF::R_MIPS_LITERAL:
-      break;
     case llvm::ELF::R_MIPS_GOT_DISP:
-    case llvm::ELF::R_MIPS_GOT_HI16:
-    case llvm::ELF::R_MIPS_CALL_HI16:
-    case llvm::ELF::R_MIPS_GOT_LO16:
-    case llvm::ELF::R_MIPS_CALL_LO16:
       break;
     case llvm::ELF::R_MIPS_TLS_DTPMOD32:
     case llvm::ELF::R_MIPS_TLS_DTPREL32:
