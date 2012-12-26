@@ -796,24 +796,55 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   // number of local symbol in the .dynsym
   size_t dynsym_local_cnt = 0;
 
-  /// compute the size of .symtab, .dynsym and .strtab
+  /// Compute the size of .symtab, .dynsym and .strtab
   /// @{
   Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   size_t str_size = 0;
-  // compute the size of symbols in Local and File category
-  Module::const_sym_iterator symEnd = symbols.localEnd();
+  // compute the size of symbols in File category
+  Module::const_sym_iterator symEnd = symbols.fileEnd();
   for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
+    assert(!isDynamicSymbol(**symbol));
+    switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::StripAllSymbols:
+      break;
+    case GeneralOptions::StripLocals:
+    case GeneralOptions::StripTemporaries:
+    case GeneralOptions::KeepAllSymbols:
+      str_size = (*symbol)->nameSize() + 1;
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += str_size;
+      break;
+    }
+  }
+
+  // compute the size of symbols in Local category
+  symEnd = symbols.localEnd();
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
     if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type())
         dynstr += str_size;
     }
-    ++symtab;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtab += str_size;
+
+    switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::StripAllSymbols:
+    case GeneralOptions::StripLocals:
+      break;
+    case GeneralOptions::StripTemporaries:
+      if (isTemporary(**symbol))
+        break;
+      // Fall through
+    case GeneralOptions::KeepAllSymbols:
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += str_size;
+      break;
+    }
   }
+
   // compute the size of symbols in TLS category
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
@@ -823,23 +854,38 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       if (ResolveInfo::Section != (*symbol)->type())
         dynstr += str_size;
     }
-    ++symtab;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtab += str_size;
+    switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::KeepAllSymbols:
+    case GeneralOptions::StripTemporaries:
+    case GeneralOptions::StripLocals:
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += str_size;
+    case GeneralOptions::StripAllSymbols:
+      break;
+    }
   }
   dynsym_local_cnt = dynsym;
   // compute the size of the reset of symbols
   symEnd = pModule.sym_end();
-  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.commonBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
     if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type())
         dynstr += str_size;
     }
-    ++symtab;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtab += str_size;
+    switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::KeepAllSymbols:
+    case GeneralOptions::StripTemporaries:
+    case GeneralOptions::StripLocals:
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += str_size;
+      break;
+    case GeneralOptions::StripAllSymbols:
+      break;
+    }
   }
 
   ELFFileFormat* file_format = getOutputFormat();
@@ -1045,10 +1091,25 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
-  // compute size of .symtab, .dynsym and .strtab
+  // compute size of .symtab and .strtab
   Module::const_sym_iterator symbol;
   Module::const_sym_iterator symEnd = pModule.sym_end();
   for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
+    switch (config().options().getStripSymbolMode()) {
+    case GeneralOptions::StripAllSymbols:
+      continue;
+    case GeneralOptions::StripLocals:
+      if ((*symbol)->binding() == ResolveInfo::Local)
+        continue;
+      break;
+    case GeneralOptions::StripTemporaries:
+      if (isTemporary(**symbol))
+        continue;
+      break;
+    case GeneralOptions::KeepAllSymbols:
+      break;
+    }
+
     // maintain output's symbol and index map if building .o file
     if (LinkerConfig::Object == config().codeGenType()) {
       entry = m_pSymIndexMap->insert(*symbol, sym_exist);
@@ -1142,9 +1203,9 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   // emit of .dynsym, and .dynstr
   Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  // emit symbol in File and Local category if it's dynamic symbol
+  // emit symbol in Local category if it's dynamic symbol
   Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
