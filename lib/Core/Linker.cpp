@@ -78,6 +78,9 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
   if (!m_pObjLinker->initStdSections())
     return false;
 
+  if (!Diagnose())
+    return false;
+
   // 4. - normalize the input tree
   m_pObjLinker->normalize();
 
