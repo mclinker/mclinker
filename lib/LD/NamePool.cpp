@@ -65,7 +65,6 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
   ResolveInfo* old_symbol = m_Table.insert(pName, exist);
   ResolveInfo* new_symbol = NULL;
   if (exist && old_symbol->isSymbol()) {
-    exist = true;
     new_symbol = m_Table.getEntryFactory().produce(pName);
   }
   else {
@@ -82,7 +81,7 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
   new_symbol->setSize(pSize);
 
   if (!exist) {
-    // not exit or not a symbol
+    // old_symbol is neither existed nor a symbol.
     pResult.info      = new_symbol;
     pResult.existent  = false;
     pResult.overriden = true;
@@ -102,8 +101,11 @@ void NamePool::insertSymbol(const llvm::StringRef& pName,
     pResult.existent  = true;
     pResult.overriden = override;
   }
-  else
+  else {
       m_pResolver->resolveAgain(*this, action, *old_symbol, *new_symbol, pResult);
+  }
+
+  m_Table.getEntryFactory().destroy(new_symbol);
   return;
 }
 
