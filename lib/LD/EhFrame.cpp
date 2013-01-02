@@ -9,10 +9,17 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/LDSection.h>
 #include <mcld/LD/SectionData.h>
-#include <mcld/Support/MemoryRegion.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/GCFactory.h>
+
+#include <llvm/Support/ManagedStatic.h>
 
 using namespace mcld;
+
+typedef GCFactory<EhFrame, MCLD_SECTIONS_PER_INPUT> EhFrameFactory;
+
+static llvm::ManagedStatic<EhFrameFactory> g_EhFrameFactory;
 
 //===----------------------------------------------------------------------===//
 // EhFrame::CIE
@@ -35,8 +42,12 @@ EhFrame::FDE::FDE(MemoryRegion& pRegion,
 //===----------------------------------------------------------------------===//
 // EhFrame
 //===----------------------------------------------------------------------===//
+EhFrame::EhFrame()
+  : m_pSection(NULL), m_pSectionData(NULL) {
+}
+
 EhFrame::EhFrame(LDSection& pSection)
-  : m_Section(pSection),
+  : m_pSection(&pSection),
     m_pSectionData(NULL) {
   m_pSectionData = SectionData::Create(pSection);
 }
@@ -45,6 +56,37 @@ EhFrame::~EhFrame()
 {
   // Since all CIEs, FDEs and regular fragments are stored in iplist, iplist
   // will delete the fragments and we do not need to handle with it.
+}
+
+EhFrame* EhFrame::Create(LDSection& pSection)
+{
+  EhFrame* result = g_EhFrameFactory->allocate();
+  new (result) EhFrame(pSection);
+  return result;
+}
+
+void EhFrame::Destroy(EhFrame*& pSection)
+{
+  pSection->~EhFrame();
+  g_EhFrameFactory->deallocate(pSection);
+  pSection = NULL;
+}
+
+void EhFrame::Clear()
+{
+  g_EhFrameFactory->clear();
+}
+
+const LDSection& EhFrame::getSection() const
+{
+  assert(NULL != m_pSection);
+  return *m_pSection;
+}
+
+LDSection& EhFrame::getSection()
+{
+  assert(NULL != m_pSection);
+  return *m_pSection;
 }
 
 void EhFrame::addFragment(RegionFragment& pFrag)

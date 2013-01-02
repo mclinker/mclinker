@@ -12,8 +12,11 @@
 #include <gtest.h>
 #endif
 
-#include <vector>
+#include <mcld/Config/Config.h>
 #include <mcld/Fragment/RegionFragment.h>
+#include <mcld/Support/Allocators.h>
+
+#include <vector>
 
 namespace mcld {
 
@@ -25,6 +28,17 @@ class SectionData;
  */
 class EhFrame
 {
+private:
+  friend class Chunk<EhFrame, MCLD_SECTIONS_PER_INPUT>;
+
+  EhFrame();
+  explicit EhFrame(LDSection& pSection);
+
+  ~EhFrame();
+
+  EhFrame(const EhFrame&);            // DO NOT IMPLEMENT
+  EhFrame& operator=(const EhFrame&); // DO NOT IMPLEMENT
+
 public:
   /** \class CIE
    *  \brief Common Information Entry.
@@ -56,6 +70,7 @@ public:
     const CIE& getCIE() const { return m_CIE; }
 
     uint32_t getDataStart() const { return m_DataStart; }
+
   private:
     const CIE& m_CIE;
     uint32_t m_DataStart;
@@ -74,15 +89,17 @@ public:
   typedef FDEList::const_iterator const_fde_iterator;
 
 public:
-  EhFrame(LDSection& pSection);
+  static EhFrame* Create(LDSection& pSection);
 
-  ~EhFrame();
+  static void Destroy(EhFrame*& pSection);
+
+  static void Clear();
 
   /// merge - move all data from pOther to this object.
   EhFrame& merge(EhFrame& pOther);
 
-  const LDSection& getSection() const { return m_Section; }
-  LDSection&       getSection()       { return m_Section; }
+  const LDSection& getSection() const;
+  LDSection&       getSection();
 
   const SectionData& getSectionData() const { return *m_pSectionData; }
   SectionData&       getSectionData()       { return *m_pSectionData; }
@@ -125,7 +142,7 @@ public:
   size_t numOfFDEs() const { return m_FDEs.size(); }
 
 private:
-  LDSection& m_Section;
+  LDSection* m_pSection;
   SectionData* m_pSectionData;
 
   CIEList m_CIEs;

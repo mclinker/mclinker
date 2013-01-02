@@ -41,7 +41,6 @@ class Module;
 class LinkerConfig;
 class IRBuilder;
 class Layout;
-class EhFrame;
 class EhFrameHdr;
 class BranchIslandFactory;
 class StubFactory;
@@ -490,9 +489,6 @@ protected:
 
   // map the LDSymbol to its index in the output symbol table
   HashTableType* m_pSymIndexMap;
-
-  /// m_pEhFrame - section .eh_frame
-  EhFrame* m_pEhFrame;
 
   // section .eh_frame_hdr
   EhFrameHdr* m_pEhFrameHdr;

@@ -333,7 +333,7 @@ EhFrame* IRBuilder::CreateEhFrame(LDSection& pSection)
 {
   assert(!pSection.hasEhFrame() && "pSection already has eh_frame.");
 
-  EhFrame* eh_frame = new EhFrame(pSection);
+  EhFrame* eh_frame = EhFrame::Create(pSection);
   pSection.setEhFrame(eh_frame);
   return eh_frame;
 }

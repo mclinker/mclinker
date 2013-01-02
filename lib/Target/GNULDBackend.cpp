@@ -66,7 +66,6 @@ GNULDBackend::GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo)
     m_ELFSegmentTable(9), // magic number
     m_pBRIslandFactory(NULL),
     m_pStubFactory(NULL),
-    m_pEhFrame(NULL),
     m_pEhFrameHdr(NULL),
     m_bHasTextRel(false),
     m_bHasStaticTLS(false),
@@ -99,7 +98,6 @@ GNULDBackend::~GNULDBackend()
   delete m_pExecFileFormat;
   delete m_pObjectFileFormat;
   delete m_pSymIndexMap;
-  delete m_pEhFrame;
   delete m_pEhFrameHdr;
   delete m_pBRIslandFactory;
   delete m_pStubFactory;
