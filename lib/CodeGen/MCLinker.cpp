@@ -382,6 +382,7 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
   std::vector<InputAction*>::iterator action, actionEnd = actions.end();
   for (action = actions.begin(); action != actionEnd; ++action) {
     (*action)->activate(pBuilder.getInputBuilder());
+    delete *action;
   }
 
   if (pBuilder.getInputBuilder().isInGroup())
