@@ -213,6 +213,7 @@ bool Linker::reset()
   // RelocData before deleting target backend.
   RelocData::Clear();
   SectionData::Clear();
+  EhFrame::Clear();
 
   delete m_pBackend;
   m_pBackend = NULL;
