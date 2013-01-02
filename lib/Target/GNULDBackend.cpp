@@ -97,14 +97,12 @@ GNULDBackend::~GNULDBackend()
   delete m_pInfo;
   delete m_pDynObjFileFormat;
   delete m_pExecFileFormat;
+  delete m_pObjectFileFormat;
   delete m_pSymIndexMap;
   delete m_pEhFrame;
   delete m_pEhFrameHdr;
-
-  if (NULL != m_pBRIslandFactory)
-    delete m_pBRIslandFactory;
-  if (NULL != m_pStubFactory)
-    delete m_pStubFactory;
+  delete m_pBRIslandFactory;
+  delete m_pStubFactory;
 }
 
 size_t GNULDBackend::sectionStartOffset() const
