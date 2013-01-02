@@ -56,7 +56,11 @@ bool SearchDirs::insert(const std::string& pPath)
     m_DirList.push_back(dir);
     return true;
   }
-  return false;
+  else {
+    delete dir;
+    return false;
+  }
+  return true;
 }
 
 bool SearchDirs::insert(const char* pPath)
