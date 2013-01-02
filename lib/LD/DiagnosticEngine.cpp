@@ -30,6 +30,9 @@ DiagnosticEngine::~DiagnosticEngine()
     delete m_pPrinter;
 
   delete m_pInfoMap;
+
+  // FIXME: design the destructive relation of LineInfo.
+  delete m_pLineInfo;
 }
 
 void DiagnosticEngine::reset(const LinkerConfig& pConfig)
