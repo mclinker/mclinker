@@ -26,8 +26,9 @@ bool is_symlink(FileStatus f)
 
 } // namespace of anonymous
 
-//==========================
+//===----------------------------------------------------------------------===//
 // Directory
+//===----------------------------------------------------------------------===//
 Directory::Directory()
   : m_Path(),
     m_FileStatus(),
@@ -165,16 +166,16 @@ DirIterator::~DirIterator()
 
 Path* DirIterator::path()
 {
-  if (m_pParent == 0) // end
-    return 0;
-  return m_pEntry->value();
+  if (NULL == m_pParent)
+    return NULL;
+  return &m_pEntry->value();
 }
 
 const Path* DirIterator::path() const
 {
-  if (m_pParent == 0) // end
-    return 0;
-  return m_pEntry->value();
+  if (NULL == m_pParent)
+    return NULL;
+  return &m_pEntry->value();
 }
 
 DirIterator& DirIterator::operator=(const DirIterator& pCopy)

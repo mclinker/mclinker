@@ -233,7 +233,7 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
     bool exist = false;
     entry = pIter.m_pParent->m_Cache.insert(path, exist);
     if (!exist)
-      entry->setValue(new Path(path));
+      entry->setValue(path);
     break;
   }
   case 0:// meet real end
@@ -264,7 +264,7 @@ void open_dir(Directory& pDir)
     bool exist = false;
     mcld::sys::fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
     if (!exist)
-      entry->setValue(new Path(path));
+      entry->setValue(path);
     return;
   }
   case 0:

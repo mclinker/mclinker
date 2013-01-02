@@ -24,7 +24,7 @@ namespace fs   {
 
 namespace {
   typedef HashEntry<llvm::StringRef,
-                    mcld::sys::fs::Path*,
+                    mcld::sys::fs::Path,
                     StringCompare<llvm::StringRef> > HashEntryType;
 } // anonymous namespace
 
