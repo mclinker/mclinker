@@ -100,6 +100,7 @@ void MemoryArea::release(MemoryRegion* pRegion)
       }
       m_SpaceMap.erase(Key(space->start(), space->size()));
       Space::Release(space, *m_pFileHandle);
+      Space::Destroy(space);
     }
   }
 }
