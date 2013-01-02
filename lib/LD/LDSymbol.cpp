@@ -19,10 +19,10 @@
 
 using namespace mcld;
 
-static LDSymbol* g_NullSymbol = NULL;
-
 typedef GCFactory<LDSymbol, MCLD_SYMBOLS_PER_INPUT> LDSymbolFactory;
 
+static llvm::ManagedStatic<LDSymbol> g_NullSymbol;
+static llvm::ManagedStatic<NullFragment> g_NullSymbolFragment;
 static llvm::ManagedStatic<LDSymbolFactory> g_LDSymbolFactory;
 
 //===----------------------------------------------------------------------===//
@@ -72,14 +72,13 @@ void LDSymbol::Clear()
 
 LDSymbol* LDSymbol::Null()
 {
-  if (NULL == g_NullSymbol) {
-    g_NullSymbol = new LDSymbol();
+  // lazy initialization
+  if (NULL == g_NullSymbol->resolveInfo()) {
     g_NullSymbol->setResolveInfo(*ResolveInfo::Null());
-    NullFragment* null_frag = new NullFragment();
-    g_NullSymbol->setFragmentRef(FragmentRef::Create(*null_frag, 0));
-    ResolveInfo::Null()->setSymPtr(g_NullSymbol);
+    g_NullSymbol->setFragmentRef(FragmentRef::Create(*g_NullSymbolFragment, 0));
+    ResolveInfo::Null()->setSymPtr(&*g_NullSymbol);
   }
-  return g_NullSymbol;
+  return &*g_NullSymbol;
 }
 
 void LDSymbol::setFragmentRef(FragmentRef* pFragmentRef)

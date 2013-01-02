@@ -19,6 +19,8 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/Allocators.h>
 
+#include <llvm/Support/ManagedStatic.h>
+
 namespace mcld {
 
 class FragmentRef;
@@ -127,6 +129,7 @@ public:
 
 private:
   friend class Chunk<LDSymbol, MCLD_SYMBOLS_PER_INPUT>;
+  template<class T> friend void* llvm::object_creator();
 
   LDSymbol();
   LDSymbol(const LDSymbol& pCopy);
