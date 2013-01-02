@@ -78,11 +78,9 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
 
 Relocation* RelocationFactory::produceEmptyEntry()
 {
-  // FIXME: To prevent relocations from double free by both iplist and
-  // GCFactory, currently we new relocations directly and let iplist
-  // delete them.
-
-  return new Relocation(0, 0, 0, 0);
+  Relocation *result = allocate();
+  new (result) Relocation(0, 0, 0, 0);
+  return result;
 }
 
 void RelocationFactory::destroy(Relocation* pRelocation)
