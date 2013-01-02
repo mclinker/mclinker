@@ -793,7 +793,8 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   size_t shstrtab = 1;
   size_t hash   = 0;
 
-  // number of local symbol in the .dynsym
+  // number of local symbol in the .symtab and .dynsym
+  size_t symtab_local_cnt = 0;
   size_t dynsym_local_cnt = 0;
 
   /// Compute the size of .symtab, .dynsym and .strtab
@@ -866,6 +867,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     }
   }
   dynsym_local_cnt = dynsym;
+  symtab_local_cnt = symtab;
   // compute the size of the reset of symbols
   symEnd = pModule.sym_end();
   for (symbol = symbols.commonBegin(); symbol != symEnd; ++symbol) {
@@ -951,8 +953,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
 
       // set .symtab sh_info to one greater than the symbol table
       // index of the last local symbol
-      file_format->getSymTab().setInfo(symbols.numOfFiles() +
-                                symbols.numOfLocals() + symbols.numOfTLSs() + 1);
+      file_format->getSymTab().setInfo(symtab_local_cnt);
       break;
     }
     default:

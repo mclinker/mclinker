@@ -993,15 +993,29 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
                                                   pLinker,
                                                   *getBRIslandFactory());
             if (NULL != stub) {
-              assert(NULL != stub->symInfo());
-              // increase the size of .symtab and .strtab
+              // a stub symbol should be local
+              assert(NULL != stub->symInfo() && stub->symInfo()->isLocal());
               LDSection& symtab = file_format->getSymTab();
               LDSection& strtab = file_format->getStrTab();
-              if (config().targets().is32Bits())
-                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
-              else
-                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
-              strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+
+              // increase the size of .symtab and .strtab if needed
+              switch (config().options().getStripSymbolMode()) {
+              case GeneralOptions::StripAllSymbols:
+              case GeneralOptions::StripLocals:
+                break;
+              case GeneralOptions::StripTemporaries:
+                if (isTemporary(*(stub->symInfo()->outSymbol())))
+                  break;
+                // Fall through
+              case GeneralOptions::KeepAllSymbols:
+                if (config().targets().is32Bits())
+                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+                else
+                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+                symtab.setInfo(symtab.getInfo() + 1);
+                strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+                break;
+              }
 
               isRelaxed = true;
             }
