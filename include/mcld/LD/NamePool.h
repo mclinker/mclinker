@@ -12,15 +12,17 @@
 #include <gtest.h>
 #endif
 
-#include <utility>
-
-#include <llvm/ADT/StringRef.h>
-
+#include <mcld/Config/Config.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/Uncopyable.h>
 #include <mcld/LD/Resolver.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/Support/GCFactory.h>
+
+#include <utility>
+
+#include <llvm/ADT/StringRef.h>
 
 namespace mcld {
 
@@ -97,9 +99,12 @@ public:
   size_type capacity() const;
 
 private:
+  typedef GCFactory<ResolveInfo*, 128> FreeInfoSet;
+
+private:
   Resolver* m_pResolver;
   Table m_Table;
-
+  FreeInfoSet m_FreeInfoSet;
 };
 
 } // namespace of mcld
