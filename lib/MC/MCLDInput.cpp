@@ -71,6 +71,7 @@ Input::~Input()
 {
   // Attribute is deleted by AttributeFactory
   // MemoryArea is deleted by MemoryAreaFactory
-  m_pMemArea->clear();
+  if (NULL != m_pMemArea)
+    m_pMemArea->clear();
 }
 
