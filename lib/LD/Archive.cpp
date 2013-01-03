@@ -129,7 +129,10 @@ bool Archive::addArchiveMember(const llvm::StringRef& pName,
   ArchiveMemberEntryType* entry = m_ArchiveMemberMap.insert(pName, exist);
   if (!exist) {
     ArchiveMember& ar = entry->value();
-    ar.file = *pLastPos;
+    if (pLastPos == m_pInputTree->root())
+      ar.file = &m_ArchiveFile;
+    else
+      ar.file = *pLastPos;
     ar.lastPos = pLastPos;
     ar.move = pMove;
   }
