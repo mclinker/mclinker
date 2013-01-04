@@ -32,11 +32,6 @@ MemoryArea::MemoryArea(FileHandle& pFileHandle)
 
 MemoryArea::~MemoryArea()
 {
-  SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
-  for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
-    if (space->second != NULL)
-      Space::Destroy(space->second);
-  }
 }
 
 // The layout of MemorySpace in the virtual memory space
@@ -68,7 +63,7 @@ MemoryRegion* MemoryArea::request(size_t pOffset, size_t pLength)
     }
 
     space = Space::Create(*m_pFileHandle, pOffset, pLength);
-    m_SpaceMap.insert(std::make_pair(Key(pOffset, pLength), space));
+    m_SpaceMap.insert(std::make_pair(Key(space->start(), space->size()), space));
   }
 
   // adjust r_start
@@ -98,8 +93,18 @@ void MemoryArea::release(MemoryRegion* pRegion)
         // synchronize writable space before we release it.
         Space::Sync(space, *m_pFileHandle);
       }
-      m_SpaceMap.erase(Key(space->start(), space->size()));
+
+      std::pair<SpaceMapType::iterator, SpaceMapType::iterator> range =
+        m_SpaceMap.equal_range(Key(space->start(), space->size()));
+      SpaceMapType::iterator it;
+      for (it = range.first; it != range.second; ++it) {
+        if (space == it->second)
+          break;
+      }
+      m_SpaceMap.erase(it);
+
       Space::Release(space, *m_pFileHandle);
+      assert(NULL != space);
       Space::Destroy(space);
     }
   }
@@ -111,24 +116,23 @@ void MemoryArea::clear()
   if (NULL == m_pFileHandle)
     return;
 
+  SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
   if (m_pFileHandle->isWritable()) {
-    SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
     for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
       Space::Sync(space->second, *m_pFileHandle);
       Space::Release(space->second, *m_pFileHandle);
+      assert(NULL != space->second);
+      Space::Destroy(space->second);
     }
   }
   else {
-    SpaceMapType::iterator space, sEnd = m_SpaceMap.end();
-    for (space = m_SpaceMap.begin(); space != sEnd; ++space)
+    for (space = m_SpaceMap.begin(); space != sEnd; ++space) {
       Space::Release(space->second, *m_pFileHandle);
+      assert(NULL != space->second);
+      Space::Destroy(space->second);
+    }
   }
 
-  for (SpaceMapType::iterator space = m_SpaceMap.begin(),
-         sEnd = m_SpaceMap.end(); space != sEnd; ++space) {
-    if (space->second != NULL)
-      Space::Destroy(space->second);
-  }
   m_SpaceMap.clear();
 }
 

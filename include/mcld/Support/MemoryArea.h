@@ -110,7 +110,7 @@ private:
     size_t m_Length;
   };
 
-  typedef std::map<Key, Space*, Key::Compare> SpaceMapType;
+  typedef std::multimap<Key, Space*, Key::Compare> SpaceMapType;
 
 private:
   SpaceMapType m_SpaceMap;
