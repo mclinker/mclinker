@@ -406,6 +406,15 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
           }
         }
 
+        if (!config().options().getRpathList().empty()) {
+          dynamic().reserveNeedEntry();
+          GeneralOptions::const_rpath_iterator rpath,
+            rpathEnd = config().options().rpath_end();
+          for (rpath = config().options().rpath_begin();
+               rpath != rpathEnd; ++rpath)
+            dynstr += (*rpath).size() + 1;
+        }
+
         // compute .hash
         // Both Elf32_Word and Elf64_Word are 4 bytes
         hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
@@ -709,6 +718,19 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   } // for
 
   // emit soname
+
+  if (!config().options().getRpathList().empty()) {
+    (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
+    ++dt_need;
+    GeneralOptions::const_rpath_iterator rpath,
+      rpathEnd = config().options().rpath_end();
+    for (rpath = config().options().rpath_begin(); rpath != rpathEnd; ++rpath) {
+      memcpy((strtab + strtabsize), (*rpath).data(), (*rpath).size());
+      strtabsize += (*rpath).size();
+      strtab[strtabsize++] = (rpath + 1 == rpathEnd ? '\0' : ':');
+    }
+  }
+
   // initialize value of ELF .dynamic section
   if (LinkerConfig::DynObj == config().codeGenType())
     dynamic().applySoname(strtabsize);

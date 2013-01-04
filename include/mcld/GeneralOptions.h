@@ -37,6 +37,10 @@ public:
     StripAllSymbols
   };
 
+  typedef std::vector<std::string> RpathList;
+  typedef RpathList::iterator rpath_iterator;
+  typedef RpathList::const_iterator const_rpath_iterator;
+
 public:
   GeneralOptions();
   ~GeneralOptions();
@@ -264,6 +268,15 @@ public:
   void setStripSymbols(StripSymbolMode pMode)
   { m_StripSymbols = pMode; }
 
+  // -----  link-in rpath  ----- //
+  const RpathList& getRpathList() const { return m_RpathList; }
+  RpathList&       getRpathList()       { return m_RpathList; }
+
+  const_rpath_iterator rpath_begin() const { return m_RpathList.begin(); }
+  rpath_iterator       rpath_begin()       { return m_RpathList.begin(); }
+  const_rpath_iterator rpath_end  () const { return m_RpathList.end();   }
+  rpath_iterator       rpath_end  ()       { return m_RpathList.end();   }
+
 private:
   enum status {
     YES,
@@ -314,6 +327,7 @@ private:
   bool m_bDefineCommon : 1; // -d, -dc, -dp
   bool m_bFatalWarnings : 1; // --fatal-warnings
   StripSymbolMode m_StripSymbols;
+  RpathList m_RpathList;
 };
 
 } // namespace of mcld

@@ -921,6 +921,15 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
           }
         }
 
+        if (!config().options().getRpathList().empty()) {
+          dynamic().reserveNeedEntry();
+          GeneralOptions::const_rpath_iterator rpath,
+            rpathEnd = config().options().rpath_end();
+          for (rpath = config().options().rpath_begin();
+               rpath != rpathEnd; ++rpath)
+            dynstr += (*rpath).size() + 1;
+        }
+
         // compute .hash
         // Both Elf32_Word and Elf64_Word are 4 bytes
         hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
@@ -1288,6 +1297,18 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
         strtabsize += (*lib)->name().size() + 1;
         ++dt_need;
       }
+    }
+  }
+
+  if (!config().options().getRpathList().empty()) {
+    (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
+    ++dt_need;
+    GeneralOptions::const_rpath_iterator rpath,
+      rpathEnd = config().options().rpath_end();
+    for (rpath = config().options().rpath_begin(); rpath != rpathEnd; ++rpath) {
+      memcpy((strtab + strtabsize), (*rpath).data(), (*rpath).size());
+      strtabsize += (*rpath).size();
+      strtab[strtabsize++] = (rpath + 1 == rpathEnd ? '\0' : ':');
     }
   }
 

@@ -576,10 +576,16 @@ ArgEmulation("m",
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
 
-static cl::opt<std::string>
+static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgRuntimePath("rpath",
+               cl::ZeroOrMore,
                cl::desc("Add a directory to the runtime library search path"),
                cl::value_desc("dir"));
+
+static cl::alias
+ArgRuntimePathAlias("R",
+                    cl::desc("alias for --rpath"),
+                    cl::aliasopt(ArgRuntimePath), cl::Prefix);
 
 static cl::opt<std::string>
 ArgRuntimePathLink("rpath-link",
@@ -904,6 +910,13 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
 
   // set up soname
   pConfig.options().setSOName(ArgSOName);
+
+  // add all rpath entries
+  cl::list<std::string>::iterator rp;
+  cl::list<std::string>::iterator rpEnd = ArgRuntimePath.end();
+  for (rp = ArgRuntimePath.begin(); rp != rpEnd; ++rp) {
+    pConfig.options().getRpathList().push_back(*rp);
+  }
 
   // --fatal-warnings
   pConfig.options().setFatalWarnings(ArgFatalWarnings);
