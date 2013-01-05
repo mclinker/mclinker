@@ -140,17 +140,8 @@ public:
   const BinaryReader*  getBinaryReader () const { return m_pBinaryReader;  }
   BinaryReader*        getBinaryReader ()       { return m_pBinaryReader;  }
 
-  const ObjectWriter*  getObjectWriter () const { return m_pObjectWriter;  }
-  ObjectWriter*        getObjectWriter ()       { return m_pObjectWriter;  }
-
-  const DynObjWriter*  getDynObjWriter () const { return m_pDynObjWriter;  }
-  DynObjWriter*        getDynObjWriter ()       { return m_pDynObjWriter;  }
-
-  const ExecWriter*    getExecWriter   () const { return m_pExecWriter;    }
-  ExecWriter*          getExecWriter   ()       { return m_pExecWriter;    }
-
-  const BinaryWriter*  getBinaryWriter () const { return m_pBinaryWriter;  }
-  BinaryWriter*        getBinaryWriter ()       { return m_pBinaryWriter;  }
+  const ObjectWriter*  getWriter () const { return m_pWriter;  }
+  ObjectWriter*        getWriter ()       { return m_pWriter;  }
 
 private:
   const LinkerConfig& m_Config;
@@ -167,10 +158,7 @@ private:
   ArchiveReader* m_pArchiveReader;
   GroupReader*   m_pGroupReader;
   BinaryReader*  m_pBinaryReader;
-  ObjectWriter*  m_pObjectWriter;
-  DynObjWriter*  m_pDynObjWriter;
-  ExecWriter*    m_pExecWriter;
-  BinaryWriter*  m_pBinaryWriter;
+  ObjectWriter*  m_pWriter;
 };
 
 } // end namespace mcld

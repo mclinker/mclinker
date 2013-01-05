@@ -40,6 +40,8 @@ public:
 
 private:
   const LinkerConfig& m_Config;
+
+  void writeSection(MemoryArea& pOutput, LDSection *section);
 };
 
 } // namespace of mcld

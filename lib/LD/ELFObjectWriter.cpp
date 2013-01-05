@@ -13,6 +13,7 @@
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 
+#include <llvm/Support/ErrorHandling.h>
 #include <llvm/Support/system_error.h>
 
 using namespace llvm;
@@ -31,77 +32,109 @@ ELFObjectWriter::~ELFObjectWriter()
 {
 }
 
+void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
+{
+  MemoryRegion* region;
+  // Request output region
+  switch (section->kind()) {
+  case LDFileFormat::Note:
+    if (section->getSectionData() == NULL)
+      return;
+    // Fall through
+  case LDFileFormat::Regular:
+  case LDFileFormat::Relocation:
+  case LDFileFormat::Target:
+  case LDFileFormat::Debug:
+  case LDFileFormat::GCCExceptTable:
+  case LDFileFormat::EhFrame: {
+    region = pOutput.request(section->offset(), section->size());
+    if (NULL == region) {
+      llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section `") +
+                               llvm::Twine(section->name()) +
+                               llvm::Twine("'.\n"));
+    }
+    break;
+  }
+  case LDFileFormat::Null:
+  case LDFileFormat::NamePool:
+  case LDFileFormat::BSS:
+  case LDFileFormat::MetaData:
+  case LDFileFormat::Version:
+  case LDFileFormat::EhFrameHdr:
+  case LDFileFormat::StackNote:
+    // Ignore these sections
+    return;
+  default:
+    llvm::errs() << "WARNING: unsupported section kind: "
+                 << section->kind()
+                 << " of section "
+                 << section->name()
+                 << ".\n";
+    return;
+  }
+
+  // Write out sections with data
+  switch(section->kind()) {
+  case LDFileFormat::GCCExceptTable:
+  case LDFileFormat::EhFrame:
+    // FIXME: if optimization of exception handling sections is enabled,
+    // then we should emit these sections by the other way.
+    emitSectionData(*section, *region);
+    break;
+  case LDFileFormat::Relocation:
+    emitRelocation(m_Config, *section, *region);
+    break;
+  case LDFileFormat::Regular:
+  case LDFileFormat::Debug:
+  case LDFileFormat::Note:
+  case LDFileFormat::Target:
+    target().emitSectionData(*section, *region);
+    break;
+  default:
+    llvm_unreachable("invalid section kind");
+  }
+}
+
 llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
                                               MemoryArea& pOutput)
 {
-  // Write out name pool sections: .symtab, .strtab
-  target().emitRegNamePools(pModule, pOutput);
+  bool is_dynobj = m_Config.codeGenType() == LinkerConfig::DynObj;
+  bool is_exec = m_Config.codeGenType() == LinkerConfig::Exec;
+  bool is_binary = m_Config.codeGenType() == LinkerConfig::Binary;
+  bool is_object = m_Config.codeGenType() == LinkerConfig::Object;
 
-  // Write out regular ELF sections
-  Module::iterator sect, sectEnd = pModule.end();
-  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-    MemoryRegion* region = NULL;
-    // request output region
-    switch((*sect)->kind()) {
-      case LDFileFormat::Note:
-        if ((*sect)->getSectionData() == NULL)
-          continue;
-        // Fall through
-      case LDFileFormat::Regular:
-      case LDFileFormat::Relocation:
-      case LDFileFormat::Target:
-      case LDFileFormat::Debug:
-      case LDFileFormat::GCCExceptTable:
-      case LDFileFormat::EhFrame: {
-        region = pOutput.request((*sect)->offset(), (*sect)->size());
-        if (NULL == region) {
-          llvm::report_fatal_error(llvm::Twine("cannot get enough memory region for output section `") +
-                                   llvm::Twine((*sect)->name()) +
-                                   llvm::Twine("'.\n"));
-        }
-        break;
-      }
-      case LDFileFormat::Null:
-      case LDFileFormat::NamePool:
-      case LDFileFormat::BSS:
-      case LDFileFormat::MetaData:
-      case LDFileFormat::Version:
-      case LDFileFormat::EhFrameHdr:
-      case LDFileFormat::StackNote:
-        // ignore these sections
-        continue;
-      default: {
-        llvm::errs() << "WARNING: unsupported section kind: "
-                     << (*sect)->kind()
-                     << " of section "
-                     << (*sect)->name()
-                     << ".\n";
-        continue;
+  assert(is_dynobj || is_exec || is_binary || is_object);
+
+  if (is_dynobj || is_exec) {
+    // Write out the interpreter section: .interp
+    target().emitInterp(pOutput);
+
+    // Write out name pool sections: .dynsym, .dynstr, .hash
+    target().emitDynNamePools(pModule, pOutput);
+  }
+
+  if (is_object || is_dynobj || is_exec) {
+    // Write out name pool sections: .symtab, .strtab
+    target().emitRegNamePools(pModule, pOutput);
+  }
+
+  if (is_binary) {
+    // Iterate over the loadable segments and write the corresponding sections
+    ELFSegmentFactory::iterator seg, segEnd = target().elfSegmentTable().end();
+
+    for (seg = target().elfSegmentTable().begin(); seg != segEnd; ++seg) {
+      if (llvm::ELF::PT_LOAD == (*seg).type()) {
+        ELFSegment::sect_iterator sect, sectEnd = (*seg).end();
+        for (sect = (*seg).begin(); sect != sectEnd; ++sect)
+          writeSection(pOutput, *sect);
       }
     }
-
-    // write out sections with data
-    switch((*sect)->kind()) {
-      case LDFileFormat::Regular:
-      case LDFileFormat::Debug:
-      case LDFileFormat::GCCExceptTable:
-      case LDFileFormat::Note:
-      case LDFileFormat::EhFrame: {
-        // FIXME: if optimization of exception handling sections is enabled,
-        // then we should emit these sections by the other way.
-        emitSectionData(**sect, *region);
-        break;
-      }
-      case LDFileFormat::Relocation:
-        emitRelocation(m_Config, **sect, *region);
-        break;
-      case LDFileFormat::Target:
-        target().emitSectionData(**sect, *region);
-        break;
-      default:
-        continue;
-    }
-  } // end of for loop
+  } else {
+    // Write out regular ELF sections
+    Module::iterator sect, sectEnd = pModule.end();
+    for (sect = pModule.begin(); sect != sectEnd; ++sect)
+      writeSection(pOutput, *sect);
+  }
 
   emitELFShStrTab(target().getOutputFormat()->getShStrTab(),
                   pModule,
@@ -113,6 +146,8 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     writeELF32Header(m_Config,
                      pModule,
                      pOutput);
+    if (is_dynobj || is_exec)
+      emitELF32ProgramHeader(pOutput);
 
     emitELF32SectionHeader(pModule, m_Config, pOutput);
   }
@@ -122,6 +157,8 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     writeELF64Header(m_Config,
                      pModule,
                      pOutput);
+    if (is_dynobj || is_exec)
+      emitELF64ProgramHeader(pOutput);
 
     emitELF64SectionHeader(pModule, m_Config, pOutput);
   }

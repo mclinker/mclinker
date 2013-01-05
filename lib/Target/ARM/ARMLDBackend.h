@@ -256,24 +256,6 @@ private:
 //  LDSection* m_pDebugOverlay;    // .ARM.debug_overlay
 //  LDSection* m_pOverlayTable;    // .ARM.overlay_table
 };
-
-//===----------------------------------------------------------------------===//
-/// ARMMachOLDBackend - linker backend of ARM target of MachO format
-///
-/**
-class ARMMachOLDBackend : public DarwinARMLDBackend
-{
-public:
-  ARMMachOLDBackend();
-  ~ARMMachOLDBackend();
-
-private:
-  MCMachOTargetArchiveReader *createTargetArchiveReader() const;
-  MCMachOTargetObjectReader *createTargetObjectReader() const;
-  MCMachOTargetObjectWriter *createTargetObjectWriter() const;
-
-};
-**/
 } // namespace of mcld
 
 #endif

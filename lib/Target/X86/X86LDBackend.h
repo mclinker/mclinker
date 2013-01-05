@@ -216,24 +216,6 @@ private:
   X86ELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
 };
-
-//===----------------------------------------------------------------------===//
-/// X86MachOLDBackend - linker backend of X86 target of MachO format
-///
-/**
-class X86MachOLDBackend : public DarwinX86LDBackend
-{
-public:
-  X86MachOLDBackend();
-  ~X86MachOLDBackend();
-
-private:
-  MCMachOTargetArchiveReader *createTargetArchiveReader() const;
-  MCMachOTargetObjectReader *createTargetObjectReader() const;
-  MCMachOTargetObjectWriter *createTargetObjectWriter() const;
-
-};
-**/
 } // namespace of mcld
 
 #endif

@@ -281,10 +281,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/GroupReader.cpp \
 	${INCDIR}/LD/ObjectWriter.h \
 	${LIBDIR}/LD/ObjectWriter.cpp \
-	${INCDIR}/LD/DynObjWriter.h \
-	${LIBDIR}/LD/DynObjWriter.cpp \
-	${INCDIR}/LD/ExecWriter.h \
-	${LIBDIR}/LD/ExecWriter.cpp \
 	${INCDIR}/LD/ELFReader.h \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${INCDIR}/LD/ELFWriter.h \
@@ -299,14 +295,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/LD/ELFDynObjReader.cpp \
 	${INCDIR}/LD/ELFObjectWriter.h \
 	${LIBDIR}/LD/ELFObjectWriter.cpp \
-	${INCDIR}/LD/ELFDynObjWriter.h \
-	${LIBDIR}/LD/ELFDynObjWriter.cpp \
-	${INCDIR}/LD/ELFExecWriter.h \
-	${LIBDIR}/LD/ELFExecWriter.cpp \
-	${INCDIR}/LD/BinaryWriter.h \
-	${LIBDIR}/LD/BinaryWriter.cpp \
-	${INCDIR}/LD/ELFBinaryWriter.h \
-	${LIBDIR}/LD/ELFBinaryWriter.cpp \
 	${INCDIR}/LD/BinaryReader.h \
 	${INCDIR}/LD/ELFBinaryReader.h \
 	${LIBDIR}/LD/ELFBinaryReader.cpp \

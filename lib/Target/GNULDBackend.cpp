@@ -157,24 +157,9 @@ ELFBinaryReader* GNULDBackend::createBinaryReader(IRBuilder& pBuilder)
   return new ELFBinaryReader(*this, pBuilder, config());
 }
 
-ELFObjectWriter* GNULDBackend::createObjectWriter()
+ELFObjectWriter* GNULDBackend::createWriter()
 {
   return new ELFObjectWriter(*this, config());
-}
-
-ELFDynObjWriter* GNULDBackend::createDynObjWriter()
-{
-  return new ELFDynObjWriter(*this, config());
-}
-
-ELFExecWriter* GNULDBackend::createExecWriter()
-{
-  return new ELFExecWriter(*this, config());
-}
-
-ELFBinaryWriter* GNULDBackend::createBinaryWriter()
-{
-  return new ELFBinaryWriter(*this, config());
 }
 
 bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)

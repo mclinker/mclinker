@@ -21,9 +21,6 @@
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/BinaryReader.h>
 #include <mcld/LD/ObjectWriter.h>
-#include <mcld/LD/DynObjWriter.h>
-#include <mcld/LD/ExecWriter.h>
-#include <mcld/LD/BinaryWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/RealPath.h>
@@ -52,10 +49,7 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
     m_pBinaryReader(NULL),
-    m_pObjectWriter(NULL),
-    m_pDynObjWriter(NULL),
-    m_pExecWriter(NULL),
-    m_pBinaryWriter(NULL)
+    m_pWriter(NULL)
 {
   // set up soname
   if (!m_Config.options().soname().empty()) {
@@ -71,10 +65,7 @@ ObjectLinker::~ObjectLinker()
   delete m_pArchiveReader;
   delete m_pGroupReader;
   delete m_pBinaryReader;
-  delete m_pObjectWriter;
-  delete m_pDynObjWriter;
-  delete m_pExecWriter;
-  delete m_pBinaryWriter;
+  delete m_pWriter;
 }
 
 /// initFragmentLinker - initialize FragmentLinker
@@ -96,10 +87,7 @@ bool ObjectLinker::initFragmentLinker()
   m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
                                      *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(m_Builder);
-  m_pObjectWriter  = m_LDBackend.createObjectWriter();
-  m_pDynObjWriter  = m_LDBackend.createDynObjWriter();
-  m_pExecWriter    = m_LDBackend.createExecWriter();
-  m_pBinaryWriter  = m_LDBackend.createBinaryWriter();
+  m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
   m_LDBackend.initRelocator(*m_pLinker);
@@ -423,23 +411,7 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
-  switch(m_Config.codeGenType()) {
-    case LinkerConfig::Object:
-      getObjectWriter()->writeObject(m_Module, pOutput);
-      return true;
-    case LinkerConfig::DynObj:
-      getDynObjWriter()->writeDynObj(m_Module, pOutput);
-      return true;
-    case LinkerConfig::Exec:
-      getExecWriter()->writeExecutable(m_Module, pOutput);
-      return true;
-    case LinkerConfig::Binary:
-      getBinaryWriter()->writeBinary(m_Module, pOutput);
-      return true;
-    default:
-      fatal(diag::unrecognized_output_file) << m_Config.codeGenType();
-  }
-  return false;
+  getWriter()->writeObject(m_Module, pOutput);
 }
 
 /// postProcessing - do modification after all processes
