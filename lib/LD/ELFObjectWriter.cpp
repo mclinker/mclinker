@@ -77,6 +77,9 @@ void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
   switch(section->kind()) {
   case LDFileFormat::GCCExceptTable:
   case LDFileFormat::EhFrame:
+  case LDFileFormat::Regular:
+  case LDFileFormat::Debug:
+  case LDFileFormat::Note:
     // FIXME: if optimization of exception handling sections is enabled,
     // then we should emit these sections by the other way.
     emitSectionData(*section, *region);
@@ -84,9 +87,6 @@ void ELFObjectWriter::writeSection(MemoryArea& pOutput, LDSection *section)
   case LDFileFormat::Relocation:
     emitRelocation(m_Config, *section, *region);
     break;
-  case LDFileFormat::Regular:
-  case LDFileFormat::Debug:
-  case LDFileFormat::Note:
   case LDFileFormat::Target:
     target().emitSectionData(*section, *region);
     break;
