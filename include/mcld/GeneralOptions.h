@@ -268,6 +268,12 @@ public:
   void setStripSymbols(StripSymbolMode pMode)
   { m_StripSymbols = pMode; }
 
+  void setNewDTags(bool pEnable = true)
+  { m_bNewDTags = pEnable; }
+
+  bool hasNewDTags() const
+  { return m_bNewDTags; }
+
   // -----  link-in rpath  ----- //
   const RpathList& getRpathList() const { return m_RpathList; }
   RpathList&       getRpathList()       { return m_RpathList; }
@@ -326,6 +332,7 @@ private:
   bool m_bBinaryInput : 1; // -b [input-format], --format=[input-format]
   bool m_bDefineCommon : 1; // -d, -dc, -dp
   bool m_bFatalWarnings : 1; // --fatal-warnings
+  bool m_bNewDTags: 1; // --enable-new-dtags
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
 };

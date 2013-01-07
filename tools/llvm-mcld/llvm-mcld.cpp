@@ -633,6 +633,11 @@ ArgRuntimePathAlias("R",
                     cl::aliasopt(ArgRuntimePath), cl::Prefix);
 
 static cl::opt<bool>
+ArgEnableNewDTags("enable-new-dtags",
+                  cl::desc("Enable use of DT_RUNPATH and DT_FLAGS"),
+                  cl::init(false));
+
+static cl::opt<bool>
 ArgFatalWarnings("fatal-warnings",
               cl::desc("turn all warnings into errors"),
               cl::init(false));
@@ -979,6 +984,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setExportDynamic(ArgExportDynamic);
   pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
   pConfig.options().setDefineCommon(ArgDefineCommon);
+  pConfig.options().setNewDTags(ArgEnableNewDTags);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);

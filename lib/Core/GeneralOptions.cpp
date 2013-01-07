@@ -51,6 +51,7 @@ GeneralOptions::GeneralOptions()
     m_bBinaryInput(false),
     m_bDefineCommon(false),
     m_bFatalWarnings(false),
+    m_bNewDTags(false),
     m_StripSymbols(KeepAllSymbols) {
 }
 
