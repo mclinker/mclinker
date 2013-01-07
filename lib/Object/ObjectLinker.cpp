@@ -411,7 +411,7 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
-  getWriter()->writeObject(m_Module, pOutput);
+  return llvm::errc::success == getWriter()->writeObject(m_Module, pOutput);
 }
 
 /// postProcessing - do modification after all processes
