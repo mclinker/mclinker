@@ -461,6 +461,46 @@ ArgColor("color",
       "surround result strings only if the output is a tty"),
     clEnumValEnd));
 
+static cl::opt<bool>
+ArgDiscardLocals("discard-locals",
+                 cl::desc("Delete all temporary local symbols."),
+                 cl::init(false));
+
+static cl::alias
+ArgDiscardLocalsAlias("X",
+                      cl::desc("alias for --discard-locals"),
+                      cl::aliasopt(ArgDiscardLocals));
+
+static cl::opt<bool>
+ArgDiscardAll("discard-all",
+              cl::desc("Delete all local symbols."),
+              cl::init(false));
+
+static cl::alias
+ArgDiscardAllAlias("x",
+                   cl::desc("alias for --discard-all"),
+                   cl::aliasopt(ArgDiscardAll));
+
+static cl::opt<bool>
+ArgStripDebug("strip-debug",
+              cl::desc("Omit debugger symbol information from the output file."),
+              cl::init(false));
+
+static cl::alias
+ArgStripDebugAlias("S",
+                   cl::desc("alias for --strip-debug"),
+                   cl::aliasopt(ArgStripDebug));
+
+static cl::opt<bool>
+ArgStripAll("strip-all",
+            cl::desc("Omit all symbol information from the output file."),
+            cl::init(false));
+
+static cl::alias
+ArgStripAllAlias("s",
+                 cl::desc("alias for --strip-all"),
+                 cl::aliasopt(ArgStripAll));
+
 /// @{
 /// @name FIXME: begin of unsupported options
 /// @}
@@ -502,26 +542,6 @@ ArgFIXCA8("fix-cortex-a8",
           cl::init(false));
 
 static cl::opt<bool>
-ArgDiscardLocals("discard-locals",
-                 cl::desc("Delete all temporary local symbols."),
-                 cl::init(false));
-
-static cl::alias
-ArgDiscardLocalsAlias("X",
-                      cl::desc("alias for --discard-locals"),
-                      cl::aliasopt(ArgDiscardLocals));
-
-static cl::opt<bool>
-ArgDiscardAll("discard-all",
-              cl::desc("Delete all local symbols."),
-              cl::init(false));
-
-static cl::alias
-ArgDiscardAllAlias("x",
-                   cl::desc("alias for --discard-all"),
-                   cl::aliasopt(ArgDiscardAll));
-
-static cl::opt<bool>
 ArgNMagic("nmagic",
           cl::desc("Do not page align data"),
           cl::init(false));
@@ -542,26 +562,6 @@ ArgOMagicAlias("N",
                cl::aliasopt(ArgOMagic));
 
 static cl::opt<bool>
-ArgStripDebug("strip-debug",
-              cl::desc("Omit debugger symbol information from the output file."),
-              cl::init(false));
-
-static cl::alias
-ArgStripDebugAlias("S",
-                   cl::desc("alias for --strip-debug"),
-                   cl::aliasopt(ArgStripDebug));
-
-static cl::opt<bool>
-ArgStripAll("strip-all",
-            cl::desc("Omit all symbol information from the output file."),
-            cl::init(false));
-
-static cl::alias
-ArgStripAllAlias("s",
-                 cl::desc("alias for --strip-all"),
-                 cl::aliasopt(ArgStripAll));
-
-static cl::opt<bool>
 ArgExportDynamic("export-dynamic",
                  cl::desc("Export all dynamic symbols"),
                  cl::init(false));
@@ -575,17 +575,6 @@ static cl::opt<std::string>
 ArgEmulation("m",
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
-
-static cl::list<std::string, bool, llvm::cl::SearchDirParser>
-ArgRuntimePath("rpath",
-               cl::ZeroOrMore,
-               cl::desc("Add a directory to the runtime library search path"),
-               cl::value_desc("dir"));
-
-static cl::alias
-ArgRuntimePathAlias("R",
-                    cl::desc("alias for --rpath"),
-                    cl::aliasopt(ArgRuntimePath), cl::Prefix);
 
 static cl::opt<std::string>
 ArgRuntimePathLink("rpath-link",
@@ -628,14 +617,25 @@ ArgWarnCommon("warn-common",
               cl::desc("warn common symbol"),
               cl::init(false));
 
+/// @{
+/// @name FIXME: end of unsupported options
+/// @}
+
+static cl::list<std::string, bool, llvm::cl::SearchDirParser>
+ArgRuntimePath("rpath",
+               cl::ZeroOrMore,
+               cl::desc("Add a directory to the runtime library search path"),
+               cl::value_desc("dir"));
+
+static cl::alias
+ArgRuntimePathAlias("R",
+                    cl::desc("alias for --rpath"),
+                    cl::aliasopt(ArgRuntimePath), cl::Prefix);
+
 static cl::opt<bool>
 ArgFatalWarnings("fatal-warnings",
               cl::desc("turn all warnings into errors"),
               cl::init(false));
-
-/// @{
-/// @name FIXME: end of unsupported options
-/// @}
 
 static cl::opt<bool>
 ArgWarnSharedTextrel("warn-shared-textrel",
