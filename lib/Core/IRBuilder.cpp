@@ -471,7 +471,7 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
       return input_sym;
     }
     case Input::DynObj: {
-      return addSymbolFromDynObj(name, pType, pDesc, pBind, pSize, pValue, pVis);
+      return addSymbolFromDynObj(pInput, name, pType, pDesc, pBind, pSize, pValue, pVis);
     }
     default: {
       return NULL;
@@ -585,7 +585,8 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
   return input_sym;
 }
 
-LDSymbol* IRBuilder::addSymbolFromDynObj(const std::string& pName,
+LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
+                                         const std::string& pName,
                                          ResolveInfo::Type pType,
                                          ResolveInfo::Desc pDesc,
                                          ResolveInfo::Binding pBinding,
@@ -618,6 +619,9 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(const std::string& pName,
 
   // the return ResolveInfo should not NULL
   assert(NULL != resolved_result.info);
+
+  if (resolved_result.overriden || !resolved_result.existent)
+    pInput.setNeeded();
 
   // create a LDSymbol for the input file.
   LDSymbol* input_sym = LDSymbol::Create(*resolved_result.info);

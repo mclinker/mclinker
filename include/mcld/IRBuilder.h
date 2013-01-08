@@ -415,7 +415,8 @@ private:
                                 FragmentRef* pFragmentRef,
                                 ResolveInfo::Visibility pVisibility);
 
-  LDSymbol* addSymbolFromDynObj(const std::string& pName,
+  LDSymbol* addSymbolFromDynObj(Input& pInput,
+                                const std::string& pName,
                                 ResolveInfo::Type pType,
                                 ResolveInfo::Desc pDesc,
                                 ResolveInfo::Binding pBinding,

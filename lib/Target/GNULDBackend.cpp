@@ -884,25 +884,12 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     case LinkerConfig::Exec:
     case LinkerConfig::Binary: {
       // add DT_NEED strings into .dynstr and .dynamic
-      // Rules:
-      //   1. ignore --no-add-needed
-      //   2. force count in --no-as-needed
-      //   3. judge --as-needed
       if (!pIsStaticLink) {
         Module::const_lib_iterator lib, libEnd = pModule.lib_end();
         for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-          // --add-needed
-          if ((*lib)->attribute()->isAddNeeded()) {
-            // --no-as-needed
-            if (!(*lib)->attribute()->isAsNeeded()) {
-              dynstr += (*lib)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
-            // --as-needed
-            else if ((*lib)->isNeeded()) {
-              dynstr += (*lib)->name().size() + 1;
-              dynamic().reserveNeedEntry();
-            }
+          if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
           }
         }
 
@@ -1261,29 +1248,14 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 
   // emit DT_NEED
   // add DT_NEED strings into .dynstr
-  // Rules:
-  //   1. ignore --no-add-needed
-  //   2. force count in --no-as-needed
-  //   3. judge --as-needed
   ELFDynamic::iterator dt_need = dynamic().needBegin();
   Module::const_lib_iterator lib, libEnd = pModule.lib_end();
   for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-    // --add-needed
-    if ((*lib)->attribute()->isAddNeeded()) {
-      // --no-as-needed
-      if (!(*lib)->attribute()->isAsNeeded()) {
-        strcpy((strtab + strtabsize), (*lib)->name().c_str());
-        (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
-        strtabsize += (*lib)->name().size() + 1;
-        ++dt_need;
-      }
-      // --as-needed
-      else if ((*lib)->isNeeded()) {
-        strcpy((strtab + strtabsize), (*lib)->name().c_str());
-        (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
-        strtabsize += (*lib)->name().size() + 1;
-        ++dt_need;
-      }
+    if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
+      strcpy((strtab + strtabsize), (*lib)->name().c_str());
+      (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
+      strtabsize += (*lib)->name().size() + 1;
+      ++dt_need;
     }
   }
 
