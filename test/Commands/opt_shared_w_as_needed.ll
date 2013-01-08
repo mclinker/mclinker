@@ -1,3 +1,4 @@
+; XFAIL:*
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
 ; RUN: -filetype=obj -relocation-model=pic -dB %s -o %t.o
 ; RUN: %MCLinker -mtriple="arm-none-linux-gnueabi" -march=arm \
