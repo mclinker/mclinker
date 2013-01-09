@@ -116,11 +116,6 @@ public:
   virtual const char* dyld() const
   { return "/usr/lib/libc.so.1"; }
 
-  /// defaultTextSegmentAddr - target should specify its own default start address
-  /// of the text segment. esp. for exec.
-  virtual uint64_t defaultTextSegmentAddr() const
-  { return 0x0; }
-
   bool hasTextRel() const
   { return m_bHasTextRel; }
 

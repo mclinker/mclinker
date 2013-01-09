@@ -62,8 +62,6 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
 
-  uint64_t defaultTextSegmentAddr() const;
-
   /// abiPageSize - the abi page size of the target machine
   uint64_t abiPageSize() const;
 

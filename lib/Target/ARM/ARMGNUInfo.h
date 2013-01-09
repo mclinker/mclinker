@@ -21,6 +21,8 @@ public:
 
   uint32_t machine() const { return llvm::ELF::EM_ARM; }
 
+  uint64_t defaultTextSegmentAddr() const { return 0x8000; }
+
 };
 
 } // namespace of mcld

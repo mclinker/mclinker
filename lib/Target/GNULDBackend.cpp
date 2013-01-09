@@ -131,7 +131,7 @@ uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
   else if (pLinker.isOutputPIC())
     return 0x0;
   else
-    return defaultTextSegmentAddr();
+    return m_pInfo->defaultTextSegmentAddr();
 }
 
 GNUArchiveReader*

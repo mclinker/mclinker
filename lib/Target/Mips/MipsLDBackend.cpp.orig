@@ -150,14 +150,19 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pLinker, pSection);
+    scanLocalReloc(pReloc, pLinker);
   else
-    scanGlobalReloc(pReloc, pLinker, pSection);
+    scanGlobalReloc(pReloc, pLinker);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
+
+  if ((rsym->reserved() & ReserveRel) != 0x0) {
+    // set hasTextRelSection if needed
+    checkAndSetHasTextRel(pSection);
+  }
 }
 
 uint64_t MipsGNULDBackend::flags() const
@@ -169,6 +174,11 @@ uint64_t MipsGNULDBackend::flags() const
          llvm::ELF::EF_MIPS_PIC |
          llvm::ELF::EF_MIPS_CPIC |
          E_MIPS_ABI_O32;
+}
+
+uint64_t MipsGNULDBackend::defaultTextSegmentAddr() const
+{
+  return 0x80000;
 }
 
 uint64_t MipsGNULDBackend::abiPageSize() const
@@ -193,12 +203,9 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
-    if (!m_pRelDyn->empty()) {
-      assert(!pLinker.isStaticLink() &&
-            "static linkage should not result in a dynamic relocation section");
+    if (!m_pRelDyn->empty())
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());
-    }
   }
 }
 void MipsGNULDBackend::doPostLayout(Module& pModule,
@@ -275,53 +282,19 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   size_t str_size = 0;
-  // compute the size of symbols in File category
-  Module::const_sym_iterator symEnd = symbols.fileEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-    assert(!isDynamicSymbol(**symbol));
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      break;
-    case GeneralOptions::StripLocals:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::KeepAllSymbols:
-      str_size = (*symbol)->nameSize() + 1;
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-      break;
-    }
-  }
-
-  // compute the size of symbols in Local category
-  symEnd = symbols.localEnd();
+  // compute the size of symbols in Local and File category
+  Module::const_sym_iterator symEnd = symbols.localEnd();
   for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     str_size = (*symbol)->nameSize() + 1;
     if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
       ++dynsym;
-    if (ResolveInfo::Section != (*symbol)->type() ||
-        *symbol == m_pGpDispSymbol)
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
         dynstr += str_size;
     }
-
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-    case GeneralOptions::StripLocals:
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        break;
-      // Fall through
-    case GeneralOptions::KeepAllSymbols:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-      break;
-    }
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
   }
-
   // compute the size of symbols in TLS category
   symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
@@ -331,19 +304,10 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
         dynstr += str_size;
     }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-    case GeneralOptions::StripAllSymbols:
-      break;
-    }
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
   }
-
   dynsym_local_cnt = dynsym;
   // compute the size of the reset of symbols
   symEnd = pModule.sym_end();
@@ -354,17 +318,9 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
         dynstr += str_size;
     }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-    case GeneralOptions::StripAllSymbols:
-      break;
-    }
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
+      strtab += str_size;
   }
 
   ELFFileFormat* file_format = getOutputFormat();
@@ -401,15 +357,6 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
           }
         }
 
-        if (!config().options().getRpathList().empty()) {
-          dynamic().reserveNeedEntry();
-          GeneralOptions::const_rpath_iterator rpath,
-            rpathEnd = config().options().rpath_end();
-          for (rpath = config().options().rpath_begin();
-               rpath != rpathEnd; ++rpath)
-            dynstr += (*rpath).size() + 1;
-        }
-
         // compute .hash
         // Both Elf32_Word and Elf64_Word are 4 bytes
         hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
@@ -438,8 +385,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
 
       // set .symtab sh_info to one greater than the symbol table
       // index of the last local symbol
-      file_format->getSymTab().setInfo(symbols.numOfFiles() +
-                                symbols.numOfLocals() + symbols.numOfTLSs() + 1);
+      file_format->getSymTab().setInfo(symbols.numOfLocals() + 1);
       break;
     }
     default: {
@@ -557,7 +503,7 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   // emit symbol in File and Local category if it's dynamic symbol
   Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
     if (!isDynamicSymbol(**symbol))
       continue;
 
@@ -583,21 +529,6 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
-
     emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
 
@@ -619,21 +550,6 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
     if (isGlobalGOTSymbol(**symbol))
       continue;
 
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
-
     emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
                    symtabIdx);
 
@@ -650,21 +566,6 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
        symbol_end = m_GlobalGOTSyms.end();
        symbol != symbol_end; ++symbol) {
-
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
 
     // Make sure this golbal GOT entry is a dynamic symbol.
     // If not, something is wrong earlier when putting this symbol into
@@ -713,19 +614,6 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   } // for
 
   // emit soname
-
-  if (!config().options().getRpathList().empty()) {
-    (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
-    ++dt_need;
-    GeneralOptions::const_rpath_iterator rpath,
-      rpathEnd = config().options().rpath_end();
-    for (rpath = config().options().rpath_begin(); rpath != rpathEnd; ++rpath) {
-      memcpy((strtab + strtabsize), (*rpath).data(), (*rpath).size());
-      strtabsize += (*rpath).size();
-      strtab[strtabsize++] = (rpath + 1 == rpathEnd ? '\0' : ':');
-    }
-  }
-
   // initialize value of ELF .dynamic section
   if (LinkerConfig::DynObj == config().codeGenType())
     dynamic().applySoname(strtabsize);
@@ -816,8 +704,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 {
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
-  if (symbol_list.emptyCommons() && symbol_list.emptyFiles() &&
-      symbol_list.emptyLocals() && symbol_list.emptyTLSs())
+  if (symbol_list.emptyCommons() && symbol_list.emptyLocals())
     return true;
 
   SymbolCategory::iterator com_sym, com_end;
@@ -909,8 +796,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 }
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker,
-                                      const LDSection& pSection)
+                                      FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -926,7 +812,6 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // 2. Check this condition here.
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
 
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
@@ -961,10 +846,6 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
       break;
     case llvm::ELF::R_MIPS_GOT16:
     case llvm::ELF::R_MIPS_CALL16:
-    case llvm::ELF::R_MIPS_GOT_HI16:
-    case llvm::ELF::R_MIPS_CALL_HI16:
-    case llvm::ELF::R_MIPS_GOT_LO16:
-    case llvm::ELF::R_MIPS_CALL_LO16:
       // For got16 section based relocations, we need to reserve got entries.
       if (rsym->type() == ResolveInfo::Section) {
         m_pGOT->reserveLocalEntry();
@@ -983,7 +864,12 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GPREL32:
     case llvm::ELF::R_MIPS_GPREL16:
     case llvm::ELF::R_MIPS_LITERAL:
+      break;
     case llvm::ELF::R_MIPS_GOT_DISP:
+    case llvm::ELF::R_MIPS_GOT_HI16:
+    case llvm::ELF::R_MIPS_CALL_HI16:
+    case llvm::ELF::R_MIPS_GOT_LO16:
+    case llvm::ELF::R_MIPS_CALL_LO16:
       break;
     case llvm::ELF::R_MIPS_TLS_DTPMOD32:
     case llvm::ELF::R_MIPS_TLS_DTPREL32:
@@ -1006,8 +892,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                       FragmentLinker& pLinker,
-                                       const LDSection& pSection)
+                                       FragmentLinker& pLinker)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -1031,7 +916,6 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.

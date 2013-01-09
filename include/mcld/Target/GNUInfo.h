@@ -38,6 +38,10 @@ public:
   /// ABIVersion - the value of e_ident[EI_ABIVRESION]
   uint8_t ABIVersion() const { return 0x0; }
 
+  /// defaultTextSegmentAddr - target should specify its own default start address
+  /// of the text segment. esp. for exec.
+  virtual uint64_t defaultTextSegmentAddr() const { return 0x0; }
+
 private:
   const llvm::Triple& m_Triple;
 };
