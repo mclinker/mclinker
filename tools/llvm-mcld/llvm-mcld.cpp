@@ -642,6 +642,22 @@ ArgFatalWarnings("fatal-warnings",
               cl::desc("turn all warnings into errors"),
               cl::init(false));
 
+static cl::opt<mcld::GeneralOptions::HashStyle>
+ArgHashStyle("hash-style", cl::init(mcld::GeneralOptions::SystemV),
+  cl::desc("Set the type of linker's hash table(s)."),
+  cl::values(
+       clEnumValN(mcld::GeneralOptions::SystemV, "sysv",
+                 "classic ELF .hash section"),
+       clEnumValN(mcld::GeneralOptions::GNU, "gnu",
+                 "new style GNU .gnu.hash section"),
+       clEnumValN(mcld::GeneralOptions::Both, "both",
+                 "both the classic ELF and new style GNU hash tables"),
+       clEnumValEnd));
+
+/// @{
+/// @name FIXME: end of unsupported options
+/// @}
+
 static cl::opt<bool>
 ArgWarnSharedTextrel("warn-shared-textrel",
                      cl::desc("Warn if adding DT_TEXTREL in a shared object."),
@@ -985,6 +1001,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setWarnSharedTextrel(ArgWarnSharedTextrel);
   pConfig.options().setDefineCommon(ArgDefineCommon);
   pConfig.options().setNewDTags(ArgEnableNewDTags);
+  pConfig.options().setHashStyle(ArgHashStyle);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);

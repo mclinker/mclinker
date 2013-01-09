@@ -37,6 +37,12 @@ public:
     StripAllSymbols
   };
 
+  enum HashStyle {
+    SystemV = 0x1,
+    GNU     = 0x2,
+    Both    = 0x3
+  };
+
   typedef std::vector<std::string> RpathList;
   typedef RpathList::iterator rpath_iterator;
   typedef RpathList::const_iterator const_rpath_iterator;
@@ -274,6 +280,11 @@ public:
   bool hasNewDTags() const
   { return m_bNewDTags; }
 
+  unsigned int getHashStyle() const { return m_HashStyle; }
+
+  void setHashStyle(unsigned int pStyle)
+  { m_HashStyle = pStyle; }
+
   // -----  link-in rpath  ----- //
   const RpathList& getRpathList() const { return m_RpathList; }
   RpathList&       getRpathList()       { return m_RpathList; }
@@ -335,6 +346,7 @@ private:
   bool m_bNewDTags: 1; // --enable-new-dtags
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
+  unsigned int m_HashStyle;
 };
 
 } // namespace of mcld
