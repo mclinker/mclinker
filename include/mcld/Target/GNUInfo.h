@@ -45,6 +45,18 @@ public:
   /// flags - the value of ElfXX_Ehdr::e_flags
   virtual uint64_t flags() const = 0;
 
+  /// entry - the symbol name of the entry point
+  virtual const char* entry() const { return "_start"; }
+
+  /// dyld - the name of the default dynamic linker
+  /// target may override this function if needed.
+  /// @ref gnu ld, bfd/elf32-i386.c:521
+  virtual const char* dyld() const { return "/usr/lib/libc.so.1"; }
+
+  /// isDefaultExecStack - target should specify whether the stack is default
+  /// executable. If target favors another choice, please override this function
+  virtual bool isDefaultExecStack() const { return true; }
+
 private:
   const llvm::Triple& m_Triple;
 };

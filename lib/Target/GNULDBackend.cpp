@@ -1334,7 +1334,7 @@ void GNULDBackend::sizeInterp()
   if (config().options().hasDyld())
     dyld_name = config().options().dyld().c_str();
   else
-    dyld_name = dyld();
+    dyld_name = m_pInfo->dyld();
 
   LDSection& interp = getOutputFormat()->getInterp();
   interp.setSize(std::strlen(dyld_name) + 1);
@@ -1350,7 +1350,7 @@ void GNULDBackend::emitInterp(MemoryArea& pOutput)
     if (config().options().hasDyld())
       dyld_name = config().options().dyld().c_str();
     else
-      dyld_name = dyld();
+      dyld_name = m_pInfo->dyld();
 
     std::memcpy(region->start(), dyld_name, interp.size());
   }
@@ -1885,7 +1885,7 @@ void GNULDBackend::setupGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
     // 2.3 a special case. Use the target default to decide if the stack should
     //     be executable
     if (llvm::ELF::SHF_EXECINSTR != flag && object_count != stack_note_count)
-      if (isDefaultExecStack())
+      if (m_pInfo->isDefaultExecStack())
         flag = llvm::ELF::SHF_EXECINSTR;
   }
 

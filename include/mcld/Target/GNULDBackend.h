@@ -103,21 +103,9 @@ public:
   const GNUInfo& getInfo() const { return *m_pInfo; }
   GNUInfo&       getInfo()       { return *m_pInfo; }
 
-  /// entry - the symbol name of the entry point
-  virtual const char* entry() const
-  { return "_start"; }
+  bool hasTextRel() const { return m_bHasTextRel; }
 
-  /// dyld - the name of the default dynamic linker
-  /// target may override this function if needed.
-  /// @ref gnu ld, bfd/elf32-i386.c:521
-  virtual const char* dyld() const
-  { return "/usr/lib/libc.so.1"; }
-
-  bool hasTextRel() const
-  { return m_bHasTextRel; }
-
-  bool hasStaticTLS() const
-  { return m_bHasStaticTLS; }
+  bool hasStaticTLS() const { return m_bHasStaticTLS; }
 
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr(const FragmentLinker& pLinker) const;
@@ -176,16 +164,13 @@ public:
   /// numOfSegments - return the number of segments
   /// if the target favors other ways to emit program header, please override
   /// this function
-  virtual unsigned int numOfSegments() const
-  { return m_ELFSegmentTable.size(); }
+  size_t numOfSegments() const { return m_ELFSegmentTable.size(); }
 
   /// elfSegmentTable - return the reference of the elf segment table
-  ELFSegmentFactory& elfSegmentTable()
-  { return m_ELFSegmentTable; }
+  ELFSegmentFactory&       elfSegmentTable()       { return m_ELFSegmentTable; }
 
   /// elfSegmentTable - return the reference of the elf segment table
-  const ELFSegmentFactory& elfSegmentTable() const
-  { return m_ELFSegmentTable; }
+  const ELFSegmentFactory& elfSegmentTable() const { return m_ELFSegmentTable; }
 
   /// commonPageSize - the common page size of the target machine, and we set it
   /// to 4K here. If target favors the different size, please override this
@@ -198,11 +183,6 @@ public:
 
   /// getSymbolIdx - get the symbol index of ouput symbol table
   size_t getSymbolIdx(LDSymbol* pSymbol) const;
-
-  /// isDefaultExecStack - target should specify whether the stack is default
-  /// executable. If target favors another choice, please override this function
-  virtual bool isDefaultExecStack() const
-  { return true; }
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.
@@ -302,8 +282,7 @@ protected:
   /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
   void checkAndSetHasTextRel(const LDSection& pSection);
 
-  void setHasStaticTLS(bool pVal = true)
-  { m_bHasStaticTLS = pVal; }
+  void setHasStaticTLS(bool pVal = true) { m_bHasStaticTLS = pVal; }
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers

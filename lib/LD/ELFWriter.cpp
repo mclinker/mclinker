@@ -150,7 +150,7 @@ uint64_t ELFWriter::getEntryPoint(const LinkerConfig& pConfig,
   if (pConfig.options().hasEntry())
     entry_name = pConfig.options().entry();
   else
-    entry_name = target().entry();
+    entry_name = target().getInfo().entry();
 
   uint64_t result = 0x0;
 
