@@ -28,17 +28,6 @@
 #include <mcld/Target/OutputRelocSection.h>
 #include <mcld/Object/ObjectBuilder.h>
 
-enum {
-  // The original o32 abi.
-  E_MIPS_ABI_O32    = 0x00001000,
-  // O32 extended to work on 64 bit architectures.
-  E_MIPS_ABI_O64    = 0x00002000,
-  // EABI in 32 bit mode.
-  E_MIPS_ABI_EABI32 = 0x00003000,
-  // EABI in 64 bit mode.
-  E_MIPS_ABI_EABI64 = 0x00004000
-};
-
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -158,17 +147,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
-}
-
-uint64_t MipsGNULDBackend::flags() const
-{
-  // TODO: (simon) The correct flag's set depend on command line
-  // arguments and flags from input .o files.
-  return llvm::ELF::EF_MIPS_ARCH_32R2 |
-         llvm::ELF::EF_MIPS_NOREORDER |
-         llvm::ELF::EF_MIPS_PIC |
-         llvm::ELF::EF_MIPS_CPIC |
-         E_MIPS_ABI_O32;
 }
 
 uint64_t MipsGNULDBackend::abiPageSize() const

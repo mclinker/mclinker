@@ -103,9 +103,6 @@ public:
   const GNUInfo& getInfo() const { return *m_pInfo; }
   GNUInfo&       getInfo()       { return *m_pInfo; }
 
-  /// flags - the value of ElfXX_Ehdr::e_flags
-  virtual uint64_t flags() const = 0;
-
   /// entry - the symbol name of the entry point
   virtual const char* entry() const
   { return "_start"; }

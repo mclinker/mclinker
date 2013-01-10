@@ -124,11 +124,6 @@ public:
   uint64_t emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const;
 
-  /// flags - the value of ElfXX_Ehdr::e_flags
-  /// FIXME
-  uint64_t flags() const
-  { return 0x0; }
-
   /// initRelocator - create and initialize Relocator.
   bool initRelocator(const FragmentLinker& pLinker);
 

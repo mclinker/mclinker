@@ -23,6 +23,9 @@ public:
 
   uint64_t defaultTextSegmentAddr() const { return 0x8000; }
 
+  uint64_t flags() const
+  { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }
+
 };
 
 } // namespace of mcld

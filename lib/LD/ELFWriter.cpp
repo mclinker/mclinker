@@ -80,7 +80,7 @@ void ELFWriter::writeELF32Header(const LinkerConfig& pConfig,
     header->e_phoff   = 0x0;
 
   header->e_shoff     = getELF32LastStartOffset(pModule);
-  header->e_flags     = target().flags();
+  header->e_flags     = target().getInfo().flags();
   header->e_ehsize    = sizeof(Elf32_Ehdr);
   header->e_phentsize = sizeof(Elf32_Phdr);
   header->e_phnum     = target().numOfSegments();
@@ -132,7 +132,7 @@ void ELFWriter::writeELF64Header(const LinkerConfig& pConfig,
     header->e_phoff   = 0x0;
 
   header->e_shoff     = getELF64LastStartOffset(pModule);
-  header->e_flags     = target().flags();
+  header->e_flags     = target().getInfo().flags();
   header->e_ehsize    = sizeof(Elf64_Ehdr);
   header->e_phentsize = sizeof(Elf64_Phdr);
   header->e_phnum     = target().numOfSegments();

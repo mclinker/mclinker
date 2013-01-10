@@ -112,10 +112,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  /// flags - the value of ElfXX_Ehdr::e_flags
-  virtual uint64_t flags() const
-  { return (llvm::ELF::EF_ARM_EABIMASK & 0x05000000); }
-
   /// doPreLayout - Backend can do any needed modification before layout
   void doPreLayout(FragmentLinker& pLinker);
 

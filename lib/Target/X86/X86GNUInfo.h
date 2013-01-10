@@ -22,6 +22,11 @@ public:
   uint32_t machine() const { return llvm::ELF::EM_386; }
 
   uint64_t defaultTextSegmentAddr() const { return 0x08048000; }
+
+  /// flags - the value of ElfXX_Ehdr::e_flags
+  /// FIXME
+  uint64_t flags() const { return 0x0; }
+
 };
 
 } // namespace of mcld

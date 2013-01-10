@@ -59,9 +59,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  /// flags - the value of ElfXX_Ehdr::e_flags
-  uint64_t flags() const;
-
   /// abiPageSize - the abi page size of the target machine
   uint64_t abiPageSize() const;
 

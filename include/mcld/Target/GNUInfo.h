@@ -42,6 +42,9 @@ public:
   /// of the text segment. esp. for exec.
   virtual uint64_t defaultTextSegmentAddr() const { return 0x0; }
 
+  /// flags - the value of ElfXX_Ehdr::e_flags
+  virtual uint64_t flags() const = 0;
+
 private:
   const llvm::Triple& m_Triple;
 };
