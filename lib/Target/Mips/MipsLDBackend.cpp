@@ -149,14 +149,6 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     fatal(diag::undefined_reference) << rsym->name();
 }
 
-uint64_t MipsGNULDBackend::abiPageSize() const
-{
-  if (config().options().maxPageSize() > 0)
-    return config().options().maxPageSize();
-  else
-    return static_cast<uint64_t>(0x10000);
-}
-
 void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 {
   // set .got size

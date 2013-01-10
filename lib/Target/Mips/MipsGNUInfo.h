@@ -46,6 +46,7 @@ public:
            E_MIPS_ABI_O32;
   }
 
+  uint64_t abiPageSize() const { return 0x10000; }
 };
 
 } // namespace of mcld

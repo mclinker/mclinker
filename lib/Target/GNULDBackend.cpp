@@ -2325,7 +2325,7 @@ uint64_t GNULDBackend::commonPageSize() const
   if (config().options().commPageSize() > 0)
     return std::min(config().options().commPageSize(), abiPageSize());
   else
-    return std::min(static_cast<uint64_t>(0x1000), abiPageSize());
+    return std::min(m_pInfo->commonPageSize(), abiPageSize());
 }
 
 /// abiPageSize - the abi page size of the target machine.
@@ -2335,7 +2335,7 @@ uint64_t GNULDBackend::abiPageSize() const
   if (config().options().maxPageSize() > 0)
     return config().options().maxPageSize();
   else
-    return static_cast<uint64_t>(0x1000);
+    return m_pInfo->abiPageSize();
 }
 
 /// isSymbolPreemtible - whether the symbol can be preemted by other

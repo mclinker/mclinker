@@ -59,9 +59,6 @@ public:
                       Module& pModule,
                       const LDSection& pSection);
 
-  /// abiPageSize - the abi page size of the target machine
-  uint64_t abiPageSize() const;
-
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(FragmentLinker& pLinker);
 

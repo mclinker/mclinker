@@ -172,14 +172,11 @@ public:
   /// elfSegmentTable - return the reference of the elf segment table
   const ELFSegmentFactory& elfSegmentTable() const { return m_ELFSegmentTable; }
 
-  /// commonPageSize - the common page size of the target machine, and we set it
-  /// to 4K here. If target favors the different size, please override this
-  /// function
-  virtual uint64_t commonPageSize() const;
+  /// commonPageSize - the common page size of the target machine
+  uint64_t commonPageSize() const;
 
-  /// abiPageSize - the abi page size of the target machine, and we set it to 4K
-  /// here. If target favors the different size, please override this function
-  virtual uint64_t abiPageSize() const;
+  /// abiPageSize - the abi page size of the target machine
+  uint64_t abiPageSize() const;
 
   /// getSymbolIdx - get the symbol index of ouput symbol table
   size_t getSymbolIdx(LDSymbol* pSymbol) const;

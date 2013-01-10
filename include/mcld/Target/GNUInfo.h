@@ -57,6 +57,14 @@ public:
   /// executable. If target favors another choice, please override this function
   virtual bool isDefaultExecStack() const { return true; }
 
+  /// commonPageSize - the common page size of the target machine, and we set it
+  /// to 4K here. If target favors the different size, please override this
+  virtual uint64_t commonPageSize() const { return 0x1000; }
+
+  /// abiPageSize - the abi page size of the target machine, and we set it to 4K
+  /// here. If target favors the different size, please override this function
+  virtual uint64_t abiPageSize() const { return 0x1000; }
+
 private:
   const llvm::Triple& m_Triple;
 };

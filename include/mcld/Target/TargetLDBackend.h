@@ -111,12 +111,6 @@ public:
   virtual void postProcessing(FragmentLinker& pLinker,
                               MemoryArea& pOutput) = 0;
 
-  /// the common page size of the target machine
-  virtual uint64_t commonPageSize() const = 0;
-
-  /// the abi page size of the target machine
-  virtual uint64_t abiPageSize() const = 0;
-
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;
 
