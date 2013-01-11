@@ -134,36 +134,36 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
     Module::iterator sect, sectEnd = pModule.end();
     for (sect = pModule.begin(); sect != sectEnd; ++sect)
       writeSection(pOutput, *sect);
+
+    emitELFShStrTab(target().getOutputFormat()->getShStrTab(),
+                    pModule,
+                    pOutput);
+
+    if (m_Config.targets().is32Bits()) {
+      // Write out ELF header
+      // Write out section header table
+      writeELF32Header(m_Config,
+                       pModule,
+                       pOutput);
+      if (is_dynobj || is_exec)
+        emitELF32ProgramHeader(pOutput);
+
+      emitELF32SectionHeader(pModule, m_Config, pOutput);
+    }
+    else if (m_Config.targets().is64Bits()) {
+      // Write out ELF header
+      // Write out section header table
+      writeELF64Header(m_Config,
+                       pModule,
+                       pOutput);
+      if (is_dynobj || is_exec)
+        emitELF64ProgramHeader(pOutput);
+
+      emitELF64SectionHeader(pModule, m_Config, pOutput);
+    }
+    else
+      return make_error_code(errc::not_supported);
   }
-
-  emitELFShStrTab(target().getOutputFormat()->getShStrTab(),
-                  pModule,
-                  pOutput);
-
-  if (m_Config.targets().is32Bits()) {
-    // Write out ELF header
-    // Write out section header table
-    writeELF32Header(m_Config,
-                     pModule,
-                     pOutput);
-    if (is_dynobj || is_exec)
-      emitELF32ProgramHeader(pOutput);
-
-    emitELF32SectionHeader(pModule, m_Config, pOutput);
-  }
-  else if (m_Config.targets().is64Bits()) {
-    // Write out ELF header
-    // Write out section header table
-    writeELF64Header(m_Config,
-                     pModule,
-                     pOutput);
-    if (is_dynobj || is_exec)
-      emitELF64ProgramHeader(pOutput);
-
-    emitELF64SectionHeader(pModule, m_Config, pOutput);
-  }
-  else
-    return make_error_code(errc::not_supported);
 
   pOutput.clear();
   return llvm::make_error_code(llvm::errc::success);
