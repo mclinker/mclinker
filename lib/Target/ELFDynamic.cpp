@@ -149,14 +149,22 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
     reserveOne(llvm::ELF::DT_RELAENT); // DT_RELAENT
   }
 
-  if (m_Config.options().hasOrigin() ||
-      m_Config.options().Bsymbolic() ||
-      m_Config.options().hasNow()    ||
-      m_Backend.hasTextRel()        ||
-      (m_Backend.hasStaticTLS() &&
-        (LinkerConfig::DynObj == m_Config.codeGenType()))) {
+  uint64_t dt_flags = 0x0;
+  if (m_Config.options().hasOrigin())
+    dt_flags |= llvm::ELF::DF_ORIGIN;
+  if (m_Config.options().Bsymbolic())
+    dt_flags |= llvm::ELF::DF_SYMBOLIC;
+  if (m_Config.options().hasNow())
+    dt_flags |= llvm::ELF::DF_BIND_NOW;
+  if (m_Backend.hasTextRel())
+    dt_flags |= llvm::ELF::DF_TEXTREL;
+  if (m_Backend.hasStaticTLS() &&
+      (LinkerConfig::DynObj == m_Config.codeGenType()))
+    dt_flags |= llvm::ELF::DF_STATIC_TLS;
+
+  if ((m_Config.options().hasNewDTags() && 0x0 != dt_flags) ||
+      0 != (dt_flags & llvm::ELF::DF_STATIC_TLS))
     reserveOne(llvm::ELF::DT_FLAGS); // DT_FLAGS
-  }
 
   if (m_Backend.hasTextRel())
     reserveOne(llvm::ELF::DT_TEXTREL); // DT_TEXTREL
@@ -265,9 +273,10 @@ void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
   if (m_Backend.hasStaticTLS() &&
       (LinkerConfig::DynObj == m_Config.codeGenType()))
     dt_flags |= llvm::ELF::DF_STATIC_TLS;
-  if (0x0 != dt_flags) {
+
+  if ((m_Config.options().hasNewDTags() && 0x0 != dt_flags) ||
+      0 != (dt_flags & llvm::ELF::DF_STATIC_TLS))
     applyOne(llvm::ELF::DT_FLAGS, dt_flags); // DT_FLAGS
-  }
 
   uint64_t dt_flags_1 = 0x0;
   if (m_Config.options().hasNow())
