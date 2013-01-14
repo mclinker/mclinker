@@ -22,12 +22,12 @@
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
 
-#include <llvm/Module.h>
 #include <llvm/PassManager.h>
 #include <llvm/Pass.h>
-#include <llvm/DataLayout.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/DataLayout.h>
+#include <llvm/IR/LLVMContext.h>
 #include <llvm/ADT/Triple.h>
-#include <llvm/LLVMContext.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>

@@ -28,7 +28,7 @@
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/Support/MemoryArea.h>
 
-#include <llvm/Module.h>
+#include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
 
 #include <algorithm>
