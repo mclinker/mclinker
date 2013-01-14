@@ -1260,12 +1260,12 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   }
 
   if (!config().options().getRpathList().empty()) {
-    (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
-    ++dt_need;
-    if (config().options().hasNewDTags()) {
+    if (!config().options().hasNewDTags())
+      (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
+    else
       (*dt_need)->setValue(llvm::ELF::DT_RUNPATH, strtabsize);
-      ++dt_need;
-    }
+    ++dt_need;
+
     GeneralOptions::const_rpath_iterator rpath,
       rpathEnd = config().options().rpath_end();
     for (rpath = config().options().rpath_begin(); rpath != rpathEnd; ++rpath) {
