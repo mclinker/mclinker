@@ -617,6 +617,39 @@ ArgWarnCommon("warn-common",
               cl::desc("warn common symbol"),
               cl::init(false));
 
+static cl::opt<mcld::GeneralOptions::HashStyle>
+ArgHashStyle("hash-style", cl::init(mcld::GeneralOptions::SystemV),
+  cl::desc("Set the type of linker's hash table(s)."),
+  cl::values(
+       clEnumValN(mcld::GeneralOptions::SystemV, "sysv",
+                 "classic ELF .hash section"),
+       clEnumValN(mcld::GeneralOptions::GNU, "gnu",
+                 "new style GNU .gnu.hash section"),
+       clEnumValN(mcld::GeneralOptions::Both, "both",
+                 "both the classic ELF and new style GNU hash tables"),
+       clEnumValEnd));
+
+static cl::opt<std::string>
+ArgFilter("F",
+          cl::desc("Filter for shared object symbol table"),
+          cl::value_desc("name"));
+
+static cl::alias
+ArgFilterAlias("filter",
+               cl::desc("alias for -F"),
+               cl::aliasopt(ArgFilterAlias));
+
+static cl::list<std::string>
+ArgAuxiliary("f",
+             cl::ZeroOrMore,
+             cl::desc("Auxiliary filter for shared object symbol table"),
+             cl::value_desc("name"));
+
+static cl::alias
+ArgAuxiliaryAlias("auxiliary",
+                  cl::desc("alias for -f"),
+                  cl::aliasopt(ArgAuxiliary));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
@@ -641,22 +674,6 @@ static cl::opt<bool>
 ArgFatalWarnings("fatal-warnings",
               cl::desc("turn all warnings into errors"),
               cl::init(false));
-
-static cl::opt<mcld::GeneralOptions::HashStyle>
-ArgHashStyle("hash-style", cl::init(mcld::GeneralOptions::SystemV),
-  cl::desc("Set the type of linker's hash table(s)."),
-  cl::values(
-       clEnumValN(mcld::GeneralOptions::SystemV, "sysv",
-                 "classic ELF .hash section"),
-       clEnumValN(mcld::GeneralOptions::GNU, "gnu",
-                 "new style GNU .gnu.hash section"),
-       clEnumValN(mcld::GeneralOptions::Both, "both",
-                 "both the classic ELF and new style GNU hash tables"),
-       clEnumValEnd));
-
-/// @{
-/// @name FIXME: end of unsupported options
-/// @}
 
 static cl::opt<bool>
 ArgWarnSharedTextrel("warn-shared-textrel",
@@ -1125,6 +1142,14 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
       pConfig.scripts().addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
   }
+
+  // set up filter/aux filter for shared object
+  pConfig.options().setFilter(ArgFilter);
+
+  cl::list<std::string>::iterator aux;
+  cl::list<std::string>::iterator auxEnd = ArgAuxiliary.end();
+  for (aux = ArgAuxiliary.begin(); aux != auxEnd; ++aux)
+    pConfig.options().getAuxiliaryList().push_back(*aux);
 
   return true;
 }

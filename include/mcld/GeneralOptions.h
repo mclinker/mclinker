@@ -47,6 +47,10 @@ public:
   typedef RpathList::iterator rpath_iterator;
   typedef RpathList::const_iterator const_rpath_iterator;
 
+  typedef std::vector<std::string> AuxiliaryList;
+  typedef AuxiliaryList::iterator aux_iterator;
+  typedef AuxiliaryList::const_iterator const_aux_iterator;
+
 public:
   GeneralOptions();
   ~GeneralOptions();
@@ -294,6 +298,24 @@ public:
   const_rpath_iterator rpath_end  () const { return m_RpathList.end();   }
   rpath_iterator       rpath_end  ()       { return m_RpathList.end();   }
 
+  // -----  filter and auxiliary filter  ----- //
+  void setFilter(const std::string& pFilter)
+  { m_Filter = pFilter; }
+
+  const std::string& filter() const
+  { return m_Filter; }
+
+  bool hasFilter() const
+  { return !m_Filter.empty(); }
+
+  const AuxiliaryList& getAuxiliaryList() const { return m_AuxiliaryList; }
+  AuxiliaryList&       getAuxiliaryList()       { return m_AuxiliaryList; }
+
+  const_aux_iterator aux_begin() const { return m_AuxiliaryList.begin(); }
+  aux_iterator       aux_begin()       { return m_AuxiliaryList.begin(); }
+  const_aux_iterator aux_end  () const { return m_AuxiliaryList.end();   }
+  aux_iterator       aux_end  ()       { return m_AuxiliaryList.end();   }
+
 private:
   enum status {
     YES,
@@ -347,6 +369,8 @@ private:
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   unsigned int m_HashStyle;
+  std::string m_Filter;
+  AuxiliaryList m_AuxiliaryList;
 };
 
 } // namespace of mcld
