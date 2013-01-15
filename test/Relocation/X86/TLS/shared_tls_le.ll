@@ -37,7 +37,11 @@
 
 
 ; check the local tls symbols have been emitted into .dynsym
-; RUN: readelf --dyn-syms %t.so | FileCheck %s -check-prefix=SYM
+; RUN: readelf -s %t.so | FileCheck %s -check-prefix=SYM
+; SYM: .dynsym
+; SYM: static_tls
+; SYM: static_tls_nodef
+; SYM: .symtab
 ; SYM: static_tls
 ; SYM: static_tls_nodef
 
