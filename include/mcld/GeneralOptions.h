@@ -223,7 +223,7 @@ public:
   void setNMagic(bool pMagic = true)
   { m_bNMagic = pMagic; }
 
-  bool nnagic() const
+  bool nmagic() const
   { return m_bNMagic; }
 
   // -N, --omagic

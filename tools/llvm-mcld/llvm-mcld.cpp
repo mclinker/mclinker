@@ -501,6 +501,26 @@ ArgStripAllAlias("s",
                  cl::desc("alias for --strip-all"),
                  cl::aliasopt(ArgStripAll));
 
+static cl::opt<bool>
+ArgNMagic("nmagic",
+          cl::desc("Do not page align data"),
+          cl::init(false));
+
+static cl::alias
+ArgNMagicAlias("n",
+               cl::desc("alias for --nmagic"),
+               cl::aliasopt(ArgNMagic));
+
+static cl::opt<bool>
+ArgOMagic("omagic",
+          cl::desc("Do not page align data, do not make text readonly"),
+          cl::init(false));
+
+static cl::alias
+ArgOMagicAlias("N",
+               cl::desc("alias for --omagic"),
+               cl::aliasopt(ArgOMagic));
+
 /// @{
 /// @name FIXME: begin of unsupported options
 /// @}
@@ -540,26 +560,6 @@ static cl::opt<bool>
 ArgFIXCA8("fix-cortex-a8",
           cl::desc("Enable Cortex-A8 Thumb-2 branch erratum fix"),
           cl::init(false));
-
-static cl::opt<bool>
-ArgNMagic("nmagic",
-          cl::desc("Do not page align data"),
-          cl::init(false));
-
-static cl::alias
-ArgNMagicAlias("n",
-               cl::desc("alias for --nmagic"),
-               cl::aliasopt(ArgNMagic));
-
-static cl::opt<bool>
-ArgOMagic("omagic",
-          cl::desc("Do not page align data, do not make text readonly"),
-          cl::init(false));
-
-static cl::alias
-ArgOMagicAlias("N",
-               cl::desc("alias for --omagic"),
-               cl::aliasopt(ArgOMagic));
 
 static cl::opt<bool>
 ArgExportDynamic("export-dynamic",

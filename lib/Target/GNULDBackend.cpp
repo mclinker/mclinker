@@ -1712,7 +1712,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
     if (createPT_LOAD) {
       // create new PT_LOAD segment
       load_seg = m_ELFSegmentTable.produce(llvm::ELF::PT_LOAD, cur_flag);
-      load_seg->setAlign(abiPageSize());
+      if (!config().options().nmagic() && !config().options().omagic())
+        load_seg->setAlign(abiPageSize());
     }
 
     assert(NULL != load_seg);
@@ -2008,10 +2009,10 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       // check address mapping
       start_addr = mapping.getEntry()->value();
       if ((*seg).front()->kind() != LDFileFormat::Null) {
-        const uint64_t remainder = start_addr % abiPageSize();
-        if (remainder != (*seg).front()->offset() % abiPageSize()) {
-          uint64_t padding = abiPageSize() + remainder -
-                             (*seg).front()->offset() % abiPageSize();
+        const uint64_t remainder = start_addr % (*seg).align();
+        if (remainder != (*seg).front()->offset() % (*seg).align()) {
+          uint64_t padding = (*seg).align() + remainder -
+                             (*seg).front()->offset() % (*seg).align();
           setOutputSectionOffset(pModule,
                                  pModule.begin() + (*seg).front()->index(),
                                  pModule.end(),
@@ -2036,8 +2037,8 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
       }
 
       // padding
-      if (((*seg).front()->offset() & (abiPageSize() - 1)) != 0)
-        start_addr += abiPageSize();
+      if (((*seg).front()->offset() & ((*seg).align() - 1)) != 0)
+        start_addr += (*seg).align();
     }
 
     for (ELFSegment::sect_iterator sect = (*seg).begin(),
