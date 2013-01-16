@@ -195,6 +195,12 @@ private:
   virtual void doCreateProgramHdrs(Module& pModule,
                                    const FragmentLinker& pLinker);
 
+  /// -----  tls optimization  ----- ///
+  /// convert R_386_TLS_IE to R_386_TLS_LE
+  void convertTLSIEtoLE(Relocation& pReloc,
+                        FragmentLinker& pLinker,
+                        LDSection& pSection);
+
 private:
   Relocator* m_pRelocator;
   X86GOT* m_pGOT;

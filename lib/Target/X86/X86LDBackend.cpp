@@ -330,6 +330,10 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
         checkAndSetHasTextRel(*pSection.getLink());
+      } else {
+        // for local sym, we can convert ie to le if not building shared object
+        convertTLSIEtoLE(pReloc, pLinker, pSection);
+        return;
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -544,6 +548,12 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
         checkAndSetHasTextRel(*pSection.getLink());
+      } else {
+        // for global sym, we can convert ie to le if its final value is known
+        if (symbolFinalValueIsKnown(pLinker, *rsym)) {
+          convertTLSIEtoLE(pReloc, pLinker, pSection);
+          return;
+        }
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -858,6 +868,57 @@ void X86GNULDBackend::doCreateProgramHdrs(Module& pModule,
                                           const FragmentLinker& pLinker)
 {
   // TODO
+}
+
+/// convert R_386_TLS_IE to R_386_TLS_LE
+void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
+                                       FragmentLinker& pLinker,
+                                       LDSection& pSection)
+{
+  assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
+  assert(NULL != pReloc.targetRef().frag());
+
+  // 1. create the fragment references and new relocs
+  int64_t off = pReloc.targetRef().offset();
+  if (off >= 4)
+    off -= 4;
+  else
+    off = 0;
+
+  FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
+  // TODO: add symbols for R_386_TLS_OPT relocs
+  Relocation* reloc = Relocation::Create(X86Relocator::R_386_TLS_OPT,
+                                         *fragref,
+                                         0x0);
+
+  // 2. modify the opcodes to the appropriate ones
+  uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
+  if (op[3] == 0xa1) {
+    op[3] = 0xb8;
+  } else {
+    switch (op[2]) {
+      case 0x8b:
+        assert((op[3] & 0xc7) == 0x05);
+        op[2] = 0xc7;
+        op[3] = 0xc0 | ((op[3] >> 3) & 7);
+        break;
+      case 0x03:
+        assert((op[3] & 0xc7) == 0x05);
+        op[2] = 0x81;
+        op[3] = 0xc0 | ((op[3] >> 3) & 7);
+        break;
+      default:
+        assert(0);
+        break;
+    }
+  }
+
+  // 3. insert the new relocs "BEFORE" the original reloc.
+  pSection.getRelocData()->getRelocationList().insert(
+    RelocData::iterator(pReloc), reloc);
+
+  // 4. change the type of the original reloc
+  pReloc.setType(llvm::ELF::R_386_TLS_LE);
 }
 
 namespace mcld {
