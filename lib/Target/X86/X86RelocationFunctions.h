@@ -8,8 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #define DECL_X86_APPLY_RELOC_FUNC(Name) \
-static X86Relocator::Result Name    (Relocation& pEntry, \
-					                          X86Relocator& pParent);
+static X86Relocator::Result Name(Relocation& pEntry, X86Relocator& pParent);
 
 #define DECL_X86_APPLY_RELOC_FUNCS \
 DECL_X86_APPLY_RELOC_FUNC(none)             \
@@ -17,7 +16,7 @@ DECL_X86_APPLY_RELOC_FUNC(abs)              \
 DECL_X86_APPLY_RELOC_FUNC(rel)              \
 DECL_X86_APPLY_RELOC_FUNC(plt32)            \
 DECL_X86_APPLY_RELOC_FUNC(got32)            \
-DECL_X86_APPLY_RELOC_FUNC(gotoff32)	        \
+DECL_X86_APPLY_RELOC_FUNC(gotoff32)         \
 DECL_X86_APPLY_RELOC_FUNC(gotpc32)          \
 DECL_X86_APPLY_RELOC_FUNC(tls_gd)           \
 DECL_X86_APPLY_RELOC_FUNC(tls_ie)           \
@@ -72,4 +71,5 @@ DECL_X86_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         40, "R_386_TLS_DESC_CALL"     },  \
   { &unsupport,         41, "R_386_TLS_DESC"          },  \
   { &unsupport,         42, "R_386_IRELATIVE"         },  \
-  { &unsupport,         43,  "R_386_NUM"              }
+  { &unsupport,         43, "R_386_NUM"               },  \
+  { &none,              44, "R_386_TLS_OPT"           }

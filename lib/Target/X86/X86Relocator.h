@@ -33,6 +33,10 @@ public:
   typedef SymbolEntryMap<X86GOTEntry> SymGOTMap;
   typedef SymbolEntryMap<X86GOTPLTEntry> SymGOTPLTMap;
 
+  enum {
+    R_386_TLS_OPT = 44 // mcld internal relocation type
+  };
+
 public:
   X86Relocator(X86GNULDBackend& pParent);
   ~X86Relocator();
