@@ -11,13 +11,6 @@
 ; RUN: %p/../../../libs/X86/Linux/ld-linux.so.2                           \
 ; RUN: -o %t.exe
 
-
-; check relocation type
-; RUN: readelf -r %t.exe | FileCheck %s -check-prefix=REL
-; REL: R_386_TLS_TPOFF {{[0-9a-fA-F]+}} tls_nodef
-; REL-NEXT: R_386_TLS_TPOFF {{[0-9a-fA-F]+}} tls_def
-
-
 ; check the TLS segment
 ; get .tdata address
 ; RUN: readelf -S %t.exe | grep -o "\.tdata *PROGBITS *[0-9a-f]*" | \
