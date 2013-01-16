@@ -957,7 +957,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   }
 
   // --fatal-warnings
-  pConfig.options().setFatalWarnings(ArgFatalWarnings);
+  // pConfig.options().setFatalWarnings(ArgFatalWarnings);
 
   // -shared or -pie
   if (true == ArgShared || true == ArgPIE) {
