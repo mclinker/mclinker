@@ -320,18 +320,13 @@ bool ObjectLinker::scanRelocations()
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
         // scan relocation
-        if (LinkerConfig::Object != m_Config.codeGenType()) {
-          m_LDBackend.scanRelocation(*relocation,
-                                     *m_pLinker,
-                                     m_Module,
-                                     *(*rs)->getLink());
-        }
-        else {
+        if (LinkerConfig::Object != m_Config.codeGenType())
+          m_LDBackend.scanRelocation(*relocation, *m_pLinker, m_Module, **rs);
+        else
           m_LDBackend.partialScanRelocation(*relocation,
-                                     *m_pLinker,
-                                     m_Module,
-                                     *(*rs)->getLink());
-        }
+                                            *m_pLinker,
+                                            m_Module,
+                                            **rs);
       } // for all relocations
     } // for all relocation section
   } // for all inputs

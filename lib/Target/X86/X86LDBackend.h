@@ -143,7 +143,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       FragmentLinker& pLinker,
                       Module& pModule,
-                      const LDSection& pSection);
+                      LDSection& pSection);
 
   OutputRelocSection& getRelDyn();
 
@@ -163,12 +163,12 @@ private:
   void scanLocalReloc(Relocation& pReloc,
                       FragmentLinker& pLinker,
                       Module& pModule,
-                      const LDSection& pSection);
+                      LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
                        FragmentLinker& pLinker,
                        Module& pModule,
-                       const LDSection& pSection);
+                       LDSection& pSection);
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section

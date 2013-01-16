@@ -76,7 +76,7 @@ public:
   virtual void scanRelocation(Relocation& pReloc,
                               FragmentLinker& pLinker,
                               Module& pModule,
-                              const LDSection& pSection) = 0;
+                              LDSection& pSection) = 0;
 
   /// partialScanRelocation - When doing partial linking, backend can do any
   /// modification to relocation to fix the relocation offset after section

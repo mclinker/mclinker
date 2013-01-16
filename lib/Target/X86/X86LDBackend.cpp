@@ -228,7 +228,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
                                      FragmentLinker& pLinker,
                                      Module& pModule,
-                                     const LDSection& pSection)
+                                     LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -245,7 +245,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
       }
       return;
 
@@ -329,7 +329,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -360,7 +360,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
         // the target symbol of the dynamic relocation is rsym, so we need to
         // emit it into .dynsym
         assert(NULL != rsym->outSymbol());
@@ -378,7 +378,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                       FragmentLinker& pLinker,
                                       Module& pModule,
-                                      const LDSection& pSection)
+                                      LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -543,7 +543,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
       }
       if (rsym->reserved() & GOTRel)
         return;
@@ -572,7 +572,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (LinkerConfig::DynObj == config().codeGenType()) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
       }
       return;
 
@@ -587,7 +587,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      FragmentLinker& pLinker,
                                      Module& pModule,
-                                     const LDSection& pSection)
+                                     LDSection& pSection)
 {
   if (LinkerConfig::Object == config().codeGenType())
     return;
@@ -597,7 +597,8 @@ void X86GNULDBackend::scanRelocation(Relocation& pReloc,
          "ResolveInfo of relocation not set while scanRelocation");
 
   pReloc.updateAddend();
-  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
     return;
 
   // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation

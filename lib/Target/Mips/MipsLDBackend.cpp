@@ -117,7 +117,7 @@ Relocator* MipsGNULDBackend::getRelocator()
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       FragmentLinker& pLinker,
                                       Module& pModule,
-                                      const LDSection& pSection)
+                                      LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -131,7 +131,8 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
 
   pReloc.updateAddend();
 
-  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
     return;
 
   // We test isLocal or if pInputSym is not a dynamic symbol
@@ -896,7 +897,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         // 2. Check this condition here.
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
 
         // Remeber this rsym is a local GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.
@@ -1001,7 +1002,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
 
         // Remeber this rsym is a global GOT entry (as if it needs an entry).
         // Actually we don't allocate an GOT entry.

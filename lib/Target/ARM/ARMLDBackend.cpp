@@ -409,7 +409,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
         m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(pSection);
+        checkAndSetHasTextRel(*pSection.getLink());
       }
       return;
     }
@@ -540,7 +540,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
-          checkAndSetHasTextRel(pSection);
+          checkAndSetHasTextRel(*pSection.getLink());
         }
       }
       return;
@@ -616,7 +616,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
           checkValidReloc(pReloc, pLinker);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
-          checkAndSetHasTextRel(pSection);
+          checkAndSetHasTextRel(*pSection.getLink());
         }
       }
       return;
@@ -706,14 +706,15 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
                                      FragmentLinker& pLinker,
                                      Module& pModule,
-                                     const LDSection& pSection)
+                                     LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
 
   pReloc.updateAddend();
-  if (0 == (pSection.flag() & llvm::ELF::SHF_ALLOC))
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
     return;
 
   // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation

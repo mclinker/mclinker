@@ -110,7 +110,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       FragmentLinker& pLinker,
                       Module& pModule,
-                      const LDSection& pSection);
+                      LDSection& pSection);
 
   /// doPreLayout - Backend can do any needed modification before layout
   void doPreLayout(FragmentLinker& pLinker);
