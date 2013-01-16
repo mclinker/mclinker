@@ -608,11 +608,6 @@ ArgVersionScript("version-script",
                  cl::value_desc("Version script"));
 
 static cl::opt<bool>
-ArgNoStdLib("nostdlib",
-            cl::desc("Only search lib dirs explicitly specified on cmdline"),
-            cl::init(false));
-
-static cl::opt<bool>
 ArgWarnCommon("warn-common",
               cl::desc("warn common symbol"),
               cl::init(false));
@@ -653,6 +648,11 @@ ArgAuxiliaryAlias("auxiliary",
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
+
+static cl::opt<bool>
+ArgNoStdlib("nostdlib",
+            cl::desc("Only search lib dirs explicitly specified on cmdline"),
+            cl::init(false));
 
 static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgRuntimePath("rpath",
@@ -1019,6 +1019,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setDefineCommon(ArgDefineCommon);
   pConfig.options().setNewDTags(ArgEnableNewDTags);
   pConfig.options().setHashStyle(ArgHashStyle);
+  pConfig.options().setNoStdlib(ArgNoStdlib);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);

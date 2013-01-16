@@ -284,6 +284,12 @@ public:
   bool hasNewDTags() const
   { return m_bNewDTags; }
 
+  void setNoStdlib(bool pEnable = true)
+  { m_bNoStdlib = pEnable; }
+
+  bool nostdlib() const
+  { return m_bNoStdlib; }
+
   unsigned int getHashStyle() const { return m_HashStyle; }
 
   void setHashStyle(unsigned int pStyle)
@@ -366,6 +372,7 @@ private:
   bool m_bDefineCommon : 1; // -d, -dc, -dp
   bool m_bFatalWarnings : 1; // --fatal-warnings
   bool m_bNewDTags: 1; // --enable-new-dtags
+  bool m_bNoStdlib: 1; // -nostdlib
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   unsigned int m_HashStyle;

@@ -52,6 +52,7 @@ GeneralOptions::GeneralOptions()
     m_bDefineCommon(false),
     m_bFatalWarnings(false),
     m_bNewDTags(false),
+    m_bNoStdlib(false),
     m_StripSymbols(KeepAllSymbols),
     m_HashStyle(SystemV) {
 }

@@ -72,15 +72,16 @@ bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
     }
   }
 
-  // set up default search path
-  if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
-    pConfig.options().directories().insert("=/usr/lib");
+  if (!pConfig.options().nostdlib()) {
+    // set up default search path
+    if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
+      pConfig.options().directories().insert("=/usr/lib");
+    }
+    else {
+      pConfig.options().directories().insert("=/lib");
+      pConfig.options().directories().insert("=/usr/lib");
+    }
   }
-  else {
-    pConfig.options().directories().insert("=/lib");
-    pConfig.options().directories().insert("=/usr/lib");
-  }
-
   return true;
 }
 
