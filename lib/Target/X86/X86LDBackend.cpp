@@ -879,7 +879,7 @@ void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
   assert(NULL != pReloc.targetRef().frag());
 
   // 1. create the fragment references and new relocs
-  int64_t off = pReloc.targetRef().offset();
+  uint64_t off = pReloc.targetRef().offset();
   if (off >= 4)
     off -= 4;
   else
@@ -893,19 +893,20 @@ void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
 
   // 2. modify the opcodes to the appropriate ones
   uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
-  if (op[3] == 0xa1) {
-    op[3] = 0xb8;
+  off = pReloc.targetRef().offset() - reloc->targetRef().offset() - 1;
+  if (op[off] == 0xa1) {
+    op[off] = 0xb8;
   } else {
-    switch (op[2]) {
+    switch (op[off - 1]) {
       case 0x8b:
-        assert((op[3] & 0xc7) == 0x05);
-        op[2] = 0xc7;
-        op[3] = 0xc0 | ((op[3] >> 3) & 7);
+        assert((op[off] & 0xc7) == 0x05);
+        op[off - 1] = 0xc7;
+        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
         break;
       case 0x03:
-        assert((op[3] & 0xc7) == 0x05);
-        op[2] = 0x81;
-        op[3] = 0xc0 | ((op[3] >> 3) & 7);
+        assert((op[off] & 0xc7) == 0x05);
+        op[off - 1] = 0x81;
+        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
         break;
       default:
         assert(0);
