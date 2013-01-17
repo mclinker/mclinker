@@ -789,8 +789,8 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
     assert(!isDynamicSymbol(**symbol));
     switch (config().options().getStripSymbolMode()) {
     case GeneralOptions::StripAllSymbols:
-      break;
     case GeneralOptions::StripLocals:
+      break;
     case GeneralOptions::StripTemporaries:
     case GeneralOptions::KeepAllSymbols:
       str_size = (*symbol)->nameSize() + 1;
@@ -1071,42 +1071,95 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
-  // compute size of .symtab and .strtab
-  Module::const_sym_iterator symbol;
-  Module::const_sym_iterator symEnd = pModule.sym_end();
-  for (symbol = pModule.sym_begin(); symbol != symEnd; ++symbol) {
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
+
+  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  Module::const_sym_iterator symbol, symEnd;
+  switch (config().options().getStripSymbolMode()) {
+  case GeneralOptions::StripAllSymbols:
+    break;
+  case GeneralOptions::StripTemporaries:
+  case GeneralOptions::KeepAllSymbols:
+    // emit File category
+    symEnd = symbols.fileEnd();
+    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
+      // maintain output's symbol and index map if building .o file
+      if (LinkerConfig::Object == config().codeGenType()) {
+        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+        entry->setValue(symtabIdx);
+      }
+      if (config().targets().is32Bits())
+        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      else
+        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      ++symtabIdx;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtabsize += (*symbol)->nameSize() + 1;
+    } // end of File category
+
+    // emit Local category
+    symEnd = symbols.localEnd();
+    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
+      // check if we're stripping temporary locals
+      if (config().options().getStripSymbolMode() ==
+          GeneralOptions::StripTemporaries && isTemporary(**symbol))
         continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
+      // maintain output's symbol and index map if building .o file
+      if (LinkerConfig::Object == config().codeGenType()) {
+        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+        entry->setValue(symtabIdx);
+      }
+      if (config().targets().is32Bits())
+        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      else
+        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      ++symtabIdx;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtabsize += (*symbol)->nameSize() + 1;
+    } // end of Local catefory
 
-    // maintain output's symbol and index map if building .o file
-    if (LinkerConfig::Object == config().codeGenType()) {
-      entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-      entry->setValue(symtabIdx);
-    }
+  case GeneralOptions::StripLocals:
+    // emit TLS category
+    symEnd = symbols.tlsEnd();
+    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+      // maintain output's symbol and index map if building .o file
+      if (LinkerConfig::Object == config().codeGenType()) {
+        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+        entry->setValue(symtabIdx);
+      }
+      if (config().targets().is32Bits())
+        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      else
+        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      ++symtabIdx;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtabsize += (*symbol)->nameSize() + 1;
+    } // end of TLS catefory
 
-    if (config().targets().is32Bits())
-      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-    else
-      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtabsize += (*symbol)->nameSize() + 1;
+    // emit the rest of symbols
+    symEnd = pModule.sym_end();
+    for (symbol = symbols.commonBegin(); symbol != symEnd; ++symbol) {
+      // maintain output's symbol and index map if building .o file
+      if (LinkerConfig::Object == config().codeGenType()) {
+        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+        entry->setValue(symtabIdx);
+      }
+      if (config().targets().is32Bits())
+        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      else
+        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
+                     symtabIdx);
+      ++symtabIdx;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtabsize += (*symbol)->nameSize() + 1;
+    } // end of the rest
+    break;
   }
 }
 
