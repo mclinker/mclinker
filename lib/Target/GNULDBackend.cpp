@@ -231,7 +231,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Global,
                                                     0x0, // size
-                                                    0x0, // value
                                                     start_fragref, // FragRef
                                                     ResolveInfo::Default);
 
@@ -244,7 +243,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Global,
                                                     0x0, // size
-                                                    0x0, // value
                                                     stop_fragref, // FragRef
                                                     ResolveInfo::Default);
     }
@@ -270,7 +268,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              preinit_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pPreInitArrayEnd =
@@ -280,7 +277,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Hidden);
 
@@ -302,7 +298,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              init_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pInitArrayEnd =
@@ -312,7 +307,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              init_array, // FragRef
                                              ResolveInfo::Hidden);
 
@@ -334,7 +328,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              fini_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pFiniArrayEnd =
@@ -344,7 +337,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              fini_array, // FragRef
                                              ResolveInfo::Hidden);
 
@@ -366,7 +358,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
                                              0x0, // size
-                                             0x0, // value
                                              stack, // FragRef
                                              ResolveInfo::Hidden);
 
@@ -380,7 +371,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                                    ResolveInfo::Define,
                                                    ResolveInfo::Local,
                                                    0x0, // size
-                                                   0x0, // value
                                                    FragmentRef::Null(), // FragRef
                                                    ResolveInfo::Hidden);
 
@@ -392,7 +382,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEText =
@@ -402,7 +391,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p_EText =
@@ -412,7 +400,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p__EText =
@@ -422,7 +409,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEData =
@@ -432,7 +418,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
@@ -443,7 +428,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
@@ -456,7 +440,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
@@ -469,7 +452,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 
@@ -482,7 +464,6 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
                                              0x0, // size
-                                             0x0, // value
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
 

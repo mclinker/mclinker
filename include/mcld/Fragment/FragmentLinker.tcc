@@ -14,7 +14,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
                                        ResolveInfo::Desc pDesc,
                                        ResolveInfo::Binding pBinding,
                                        ResolveInfo::SizeType pSize,
-                                       LDSymbol::ValueType pValue,
                                        FragmentRef* pFragmentRef,
                                        ResolveInfo::Visibility pVisibility)
 {
@@ -26,7 +25,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
                                   pDesc,
                                   pBinding,
                                   pSize,
-                                  pValue,
                                   pFragmentRef,
                                   pVisibility);
 
@@ -36,7 +34,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
                                  pDesc,
                                  pBinding,
                                  pSize,
-                                 pValue,
                                  pFragmentRef,
                                  pVisibility);
 
@@ -46,7 +43,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
                                             pDesc,
                                             pBinding,
                                             pSize,
-                                            pValue,
                                             pFragmentRef,
                                             pVisibility);
 
@@ -56,7 +52,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
                                            pDesc,
                                            pBinding,
                                            pSize,
-                                           pValue,
                                            pFragmentRef,
                                            pVisibility);
 }

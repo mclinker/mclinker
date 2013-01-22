@@ -78,7 +78,6 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    ResolveInfo::Define,
                    ResolveInfo::Local,
                    0x0,  // size
-                   0x0,  // value
                    FragmentRef::Null(), // FragRef
                    ResolveInfo::Hidden);
 
@@ -88,7 +87,6 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    ResolveInfo::Define,
                    ResolveInfo::Absolute,
                    0x0,  // size
-                   0x0,  // value
                    FragmentRef::Null(), // FragRef
                    ResolveInfo::Default);
 
@@ -1077,7 +1075,6 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Define,
                      ResolveInfo::Local,
                      0x0, // size
-                     0x0, // value
                      FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
@@ -1088,7 +1085,6 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Define,
                      ResolveInfo::Local,
                      0x0, // size
-                     0x0, // value
                      FragmentRef::Create(*(m_pGOT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
