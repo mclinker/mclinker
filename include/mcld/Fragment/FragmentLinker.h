@@ -86,7 +86,6 @@ public:
   ///         a new symbol and return the new one.
   template<DefinePolicy POLICY, ResolvePolicy RESOLVE>
   LDSymbol* defineSymbol(const llvm::StringRef& pName,
-                         bool pIsDyn,
                          ResolveInfo::Type pType,
                          ResolveInfo::Desc pDesc,
                          ResolveInfo::Binding pBinding,
@@ -116,7 +115,6 @@ public:
 
 private:
   LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
-                                   bool pIsDyn,
                                    ResolveInfo::Type pType,
                                    ResolveInfo::Desc pDesc,
                                    ResolveInfo::Binding pBinding,
@@ -126,7 +124,6 @@ private:
                                    ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
-                                             bool pIsDyn,
                                              ResolveInfo::Type pType,
                                              ResolveInfo::Desc pDesc,
                                              ResolveInfo::Binding pBinding,
@@ -136,7 +133,6 @@ private:
                                              ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
-                                  bool pIsDyn,
                                   ResolveInfo::Type pType,
                                   ResolveInfo::Desc pDesc,
                                   ResolveInfo::Binding pBinding,
@@ -146,7 +142,6 @@ private:
                                   ResolveInfo::Visibility pVisibility);
 
   LDSymbol* defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
-                                            bool pIsDyn,
                                             ResolveInfo::Type pType,
                                             ResolveInfo::Desc pDesc,
                                             ResolveInfo::Binding pBinding,

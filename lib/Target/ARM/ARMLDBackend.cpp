@@ -121,7 +121,6 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
   // same name in input
   m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
-                   false,
                    ResolveInfo::Object,
                    ResolveInfo::Define,
                    ResolveInfo::Local,
@@ -145,7 +144,6 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
   m_pEXIDXStart =
     pLinker.defineSymbol<FragmentLinker::Force,
                          FragmentLinker::Resolve>("__exidx_start",
-                                                  false,
                                                   ResolveInfo::NoType,
                                                   desc, // ResolveInfo::Desc
                                                   ResolveInfo::Global,
@@ -157,7 +155,6 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
   m_pEXIDXEnd =
     pLinker.defineSymbol<FragmentLinker::Force,
                          FragmentLinker::Resolve>("__exidx_end",
-                                                  false,
                                                   ResolveInfo::NoType,
                                                   desc, //ResolveInfo::Desc
                                                   ResolveInfo::Global,
@@ -268,7 +265,6 @@ void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,
@@ -280,7 +276,6 @@ void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   else {
     m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,
@@ -344,7 +339,6 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   // Define the copy symbol in the bss section and resolve it
   LDSymbol* cpy_sym = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                       pSym.name(),
-                      false,
                       (ResolveInfo::Type)pSym.type(),
                       ResolveInfo::Define,
                       binding,

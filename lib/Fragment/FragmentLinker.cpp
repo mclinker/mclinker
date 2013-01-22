@@ -57,7 +57,6 @@ FragmentLinker::~FragmentLinker()
 //===----------------------------------------------------------------------===//
 /// defineSymbolForcefully - define an output symbol and override it immediately
 LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
-                                           bool pIsDyn,
                                            ResolveInfo::Type pType,
                                            ResolveInfo::Desc pDesc,
                                            ResolveInfo::Binding pBinding,
@@ -72,7 +71,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     // the symbol is not in the pool, create a new one.
     // create a ResolveInfo
     Resolver::Result result;
-    m_Module.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc,
+    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc,
                                         pBinding, pSize, pVisibility,
                                         NULL, result);
     assert(!result.existent);
@@ -91,7 +90,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
     ResolveInfo old_info;
     old_info.override(*info);
 
-    info->setSource(pIsDyn);
+    info->setRegular();
     info->setType(pType);
     info->setDesc(pDesc);
     info->setBinding(pBinding);
@@ -121,7 +120,6 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
 
 /// defineSymbolAsRefered - define an output symbol and override it immediately
 LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
-                                           bool pIsDyn,
                                            ResolveInfo::Type pType,
                                            ResolveInfo::Desc pDesc,
                                            ResolveInfo::Binding pBinding,
@@ -141,7 +139,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   ResolveInfo old_info;
   old_info.override(*info);
 
-  info->setSource(pIsDyn);
+  info->setRegular();
   info->setType(pType);
   info->setDesc(pDesc);
   info->setBinding(pBinding);
@@ -169,7 +167,6 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
 /// defineAndResolveSymbolForcefully - define an output symbol and resolve it
 /// immediately
 LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
-                                                     bool pIsDyn,
                                                      ResolveInfo::Type pType,
                                                      ResolveInfo::Desc pDesc,
                                                      ResolveInfo::Binding pBinding,
@@ -181,7 +178,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
   // Result is <info, existent, override>
   Resolver::Result result;
   ResolveInfo old_info;
-  m_Module.getNamePool().insertSymbol(pName, pIsDyn, pType, pDesc, pBinding,
+  m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
                                       pSize, pVisibility,
                                       &old_info, result);
 
@@ -213,7 +210,6 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
 /// defineAndResolveSymbolAsRefered - define an output symbol and resolve it
 /// immediately.
 LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
-                                                    bool pIsDyn,
                                                     ResolveInfo::Type pType,
                                                     ResolveInfo::Desc pDesc,
                                                     ResolveInfo::Binding pBinding,
@@ -230,7 +226,6 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
   }
 
   return defineAndResolveSymbolForcefully(pName,
-                                          pIsDyn,
                                           pType,
                                           pDesc,
                                           pBinding,

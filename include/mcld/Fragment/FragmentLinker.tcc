@@ -10,7 +10,6 @@
 template<FragmentLinker::DefinePolicy POLICY,
          FragmentLinker::ResolvePolicy RESOLVE>
 LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
-                                       bool pIsDyn,
                                        ResolveInfo::Type pType,
                                        ResolveInfo::Desc pDesc,
                                        ResolveInfo::Binding pBinding,
@@ -23,7 +22,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
   // This function is defined for clarity.
   if (FragmentLinker::Force == POLICY && FragmentLinker::Unresolve == RESOLVE)
     return defineSymbolForcefully(pName,
-                                  pIsDyn,
                                   pType,
                                   pDesc,
                                   pBinding,
@@ -34,7 +32,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
 
   if (FragmentLinker::AsRefered == POLICY && FragmentLinker::Unresolve == RESOLVE)
     return defineSymbolAsRefered(pName,
-                                 pIsDyn,
                                  pType,
                                  pDesc,
                                  pBinding,
@@ -45,7 +42,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
 
   if (FragmentLinker::Force == POLICY && FragmentLinker::Resolve == RESOLVE)
     return defineAndResolveSymbolForcefully(pName,
-                                            pIsDyn,
                                             pType,
                                             pDesc,
                                             pBinding,
@@ -56,7 +52,6 @@ LDSymbol* FragmentLinker::defineSymbol(const llvm::StringRef& pName,
 
   if (FragmentLinker::AsRefered == POLICY && FragmentLinker::Resolve == RESOLVE)
     return defineAndResolveSymbolAsRefered(pName,
-                                           pIsDyn,
                                            pType,
                                            pDesc,
                                            pBinding,

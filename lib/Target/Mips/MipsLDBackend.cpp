@@ -74,7 +74,6 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
   // same name in input
   m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
-                   false,
                    ResolveInfo::Object,
                    ResolveInfo::Define,
                    ResolveInfo::Local,
@@ -85,7 +84,6 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 
   m_pGpDispSymbol = pLinker.defineSymbol<FragmentLinker::AsRefered, FragmentLinker::Resolve>(
                    "_gp_disp",
-                   false,
                    ResolveInfo::Section,
                    ResolveInfo::Define,
                    ResolveInfo::Absolute,
@@ -1075,7 +1073,6 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   if ( m_pGOTSymbol != NULL ) {
     pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,
@@ -1087,7 +1084,6 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   else {
     m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,

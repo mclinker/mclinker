@@ -76,7 +76,6 @@ Stub* StubFactory::create(Relocation& pReloc,
       LDSymbol* symbol =
         pLinker.defineSymbol<FragmentLinker::Force,
                              FragmentLinker::Resolve>(name,
-                               false, // isDyn
                                ResolveInfo::Function,
                                ResolveInfo::Define,
                                ResolveInfo::Local,

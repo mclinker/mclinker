@@ -137,7 +137,6 @@ void X86GNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   if (m_pGOTSymbol != NULL) {
     pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,
@@ -149,7 +148,6 @@ void X86GNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
   else {
     m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
-                     false,
                      ResolveInfo::Object,
                      ResolveInfo::Define,
                      ResolveInfo::Local,
@@ -213,7 +211,6 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
   LDSymbol* cpy_sym =
            pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
                       pSym.name(),
-                      false,
                       (ResolveInfo::Type)pSym.type(),
                       ResolveInfo::Define,
                       binding,
@@ -845,7 +842,6 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
     m_pGOTSymbol =
       pLinker.defineSymbol<FragmentLinker::AsRefered,
                            FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
-                                                    false,
                                                     ResolveInfo::Object,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Local,
