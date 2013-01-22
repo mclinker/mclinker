@@ -62,6 +62,14 @@ bool Linker::config(LinkerConfig& pConfig)
 
 bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 {
+  if (!resolve(pModule, pBuilder))
+    return false;
+
+  return layout();
+}
+
+bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
+{
   assert(NULL != m_pConfig);
 
   m_pIRBuilder = &pBuilder;
@@ -125,6 +133,11 @@ bool Linker::link(Module& pModule, IRBuilder& pBuilder)
   // 7. - merge all sections
   if (!m_pObjLinker->mergeSections())
     return false;
+}
+
+bool Linker::layout()
+{
+  assert(NULL != m_pConfig && NULL != m_pObjLinker);
 
   // 8. - add standard symbols and target-dependent symbols
   // m_pObjLinker->addUndefSymbols();

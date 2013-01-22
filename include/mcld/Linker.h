@@ -38,14 +38,26 @@ public:
 
   ~Linker();
 
+  /// config - To set up target-dependent options in pConfig.
   bool config(LinkerConfig& pConfig);
 
+  /// resolve - To read participatory input files and build up mcld::Module
+  bool resolve(Module& pModule, IRBuilder& pBuilder);
+
+  /// layout - To serialize the final result of the output mcld::Module
+  bool layout();
+
+  /// link - A convenient way to resolve and to layout the output mcld::Module.
   bool link(Module& pModule, IRBuilder& pBuilder);
 
+  /// emit - To emit output mcld::Module to a output MemoryArea
   bool emit(MemoryArea& pOutput);
 
+  /// emit - To open a file for output in pPath and to emit output mcld::Module
+  /// to the file.
   bool emit(const std::string& pPath);
 
+  /// emit - To emit output mcld::Module in the pFileDescriptor.
   bool emit(int pFileDescriptor);
 
   bool reset();
