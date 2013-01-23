@@ -61,6 +61,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
                                            ResolveInfo::Desc pDesc,
                                            ResolveInfo::Binding pBinding,
                                            ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
@@ -111,6 +112,7 @@ LDSymbol* FragmentLinker::defineSymbolForcefully(const llvm::StringRef& pName,
 
   if (NULL != output_sym) {
     output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
   }
 
   return output_sym;
@@ -122,6 +124,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
                                            ResolveInfo::Desc pDesc,
                                            ResolveInfo::Binding pBinding,
                                            ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
                                            FragmentRef* pFragmentRef,
                                            ResolveInfo::Visibility pVisibility)
 {
@@ -147,6 +150,7 @@ LDSymbol* FragmentLinker::defineSymbolAsRefered(const llvm::StringRef& pName,
   LDSymbol* output_sym = info->outSymbol();
   if (NULL != output_sym) {
     output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
     m_Module.getSymbolTable().arrange(*output_sym, old_info);
   }
   else {
@@ -167,6 +171,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
                                                      ResolveInfo::Desc pDesc,
                                                      ResolveInfo::Binding pBinding,
                                                      ResolveInfo::SizeType pSize,
+                                                     LDSymbol::ValueType pValue,
                                                      FragmentRef* pFragmentRef,
                                                      ResolveInfo::Visibility pVisibility)
 {
@@ -187,6 +192,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolForcefully(const llvm::StringRef
 
   if (result.overriden || !has_output_sym) {
     output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
   }
 
   // After symbol resolution, the visibility is changed to the most restrict.
@@ -208,6 +214,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
                                                     ResolveInfo::Desc pDesc,
                                                     ResolveInfo::Binding pBinding,
                                                     ResolveInfo::SizeType pSize,
+                                                    LDSymbol::ValueType pValue,
                                                     FragmentRef* pFragmentRef,
                                                     ResolveInfo::Visibility pVisibility)
 {
@@ -223,6 +230,7 @@ LDSymbol* FragmentLinker::defineAndResolveSymbolAsRefered(const llvm::StringRef&
                                           pDesc,
                                           pBinding,
                                           pSize,
+                                          pValue,
                                           pFragmentRef,
                                           pVisibility);
 }

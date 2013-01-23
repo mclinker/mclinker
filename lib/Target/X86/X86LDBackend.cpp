@@ -141,6 +141,7 @@ void X86GNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Define,
                      ResolveInfo::Local,
                      0x0, // size
+                     0x0, // value
                      FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
@@ -151,6 +152,7 @@ void X86GNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Define,
                      ResolveInfo::Local,
                      0x0, // size
+                     0x0, // value
                      FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
                      ResolveInfo::Hidden);
   }
@@ -213,6 +215,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
                       ResolveInfo::Define,
                       binding,
                       pSym.size(),  // size
+                      0x0,          // value
                       FragmentRef::Create(*frag, 0x0),
                       (ResolveInfo::Visibility)pSym.other());
 
@@ -843,6 +846,7 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Local,
                                                     0x0,  // size
+                                                    0x0,  // value
                                                     FragmentRef::Null(), // FragRef
                                                     ResolveInfo::Hidden);
   }

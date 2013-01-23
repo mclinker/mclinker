@@ -80,9 +80,9 @@ Stub* StubFactory::create(Relocation& pReloc,
                                ResolveInfo::Define,
                                ResolveInfo::Local,
                                stub->size(), // size
+                               stub->initSymValue(), // value
                                FragmentRef::Create(*stub, stub->initSymValue()),
                                ResolveInfo::Default);
-      symbol->setValue(stub->initSymValue());
       stub->setSymInfo(symbol->resolveInfo());
 
       // add relocations of this stub (i.e., set the branch target of the stub)

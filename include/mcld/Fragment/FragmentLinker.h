@@ -90,6 +90,7 @@ public:
                          ResolveInfo::Desc pDesc,
                          ResolveInfo::Binding pBinding,
                          ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
                          FragmentRef* pFragmentRef,
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
@@ -118,6 +119,7 @@ private:
                                    ResolveInfo::Desc pDesc,
                                    ResolveInfo::Binding pBinding,
                                    ResolveInfo::SizeType pSize,
+                                   LDSymbol::ValueType pValue,
                                    FragmentRef* pFragmentRef,
                                    ResolveInfo::Visibility pVisibility);
 
@@ -126,6 +128,7 @@ private:
                                              ResolveInfo::Desc pDesc,
                                              ResolveInfo::Binding pBinding,
                                              ResolveInfo::SizeType pSize,
+                                             LDSymbol::ValueType pValue,
                                              FragmentRef* pFragmentRef,
                                              ResolveInfo::Visibility pVisibility);
 
@@ -134,6 +137,7 @@ private:
                                   ResolveInfo::Desc pDesc,
                                   ResolveInfo::Binding pBinding,
                                   ResolveInfo::SizeType pSize,
+                                  LDSymbol::ValueType pValue,
                                   FragmentRef* pFragmentRef,
                                   ResolveInfo::Visibility pVisibility);
 
@@ -142,6 +146,7 @@ private:
                                             ResolveInfo::Desc pDesc,
                                             ResolveInfo::Binding pBinding,
                                             ResolveInfo::SizeType pSize,
+                                            LDSymbol::ValueType pValue,
                                             FragmentRef* pFragmentRef,
                                             ResolveInfo::Visibility pVisibility);
 
