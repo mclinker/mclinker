@@ -48,7 +48,7 @@ public:
   enum DefinePolicy
   {
     Force,
-    AsRefered
+    AsReferred
   };
 
   enum ResolvePolicy
@@ -90,8 +90,8 @@ public:
                          ResolveInfo::Desc pDesc,
                          ResolveInfo::Binding pBinding,
                          ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
+                         LDSymbol::ValueType pValue = 0x0,
+                         FragmentRef* pFragmentRef = FragmentRef::Null(),
                          ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   bool finalizeSymbols();
@@ -114,42 +114,6 @@ public:
   bool isStaticLink() const;
 
 private:
-  LDSymbol* defineSymbolForcefully(const llvm::StringRef& pName,
-                                   ResolveInfo::Type pType,
-                                   ResolveInfo::Desc pDesc,
-                                   ResolveInfo::Binding pBinding,
-                                   ResolveInfo::SizeType pSize,
-                                   LDSymbol::ValueType pValue,
-                                   FragmentRef* pFragmentRef,
-                                   ResolveInfo::Visibility pVisibility);
-
-  LDSymbol* defineAndResolveSymbolForcefully(const llvm::StringRef& pName,
-                                             ResolveInfo::Type pType,
-                                             ResolveInfo::Desc pDesc,
-                                             ResolveInfo::Binding pBinding,
-                                             ResolveInfo::SizeType pSize,
-                                             LDSymbol::ValueType pValue,
-                                             FragmentRef* pFragmentRef,
-                                             ResolveInfo::Visibility pVisibility);
-
-  LDSymbol* defineSymbolAsRefered(const llvm::StringRef& pName,
-                                  ResolveInfo::Type pType,
-                                  ResolveInfo::Desc pDesc,
-                                  ResolveInfo::Binding pBinding,
-                                  ResolveInfo::SizeType pSize,
-                                  LDSymbol::ValueType pValue,
-                                  FragmentRef* pFragmentRef,
-                                  ResolveInfo::Visibility pVisibility);
-
-  LDSymbol* defineAndResolveSymbolAsRefered(const llvm::StringRef& pName,
-                                            ResolveInfo::Type pType,
-                                            ResolveInfo::Desc pDesc,
-                                            ResolveInfo::Binding pBinding,
-                                            ResolveInfo::SizeType pSize,
-                                            LDSymbol::ValueType pValue,
-                                            FragmentRef* pFragmentRef,
-                                            ResolveInfo::Visibility pVisibility);
-
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
 
   /// checkIsOutputPIC - return whether the output is position-independent,
@@ -178,7 +142,49 @@ private:
   TargetLDBackend& m_Backend;
 };
 
-#include "FragmentLinker.tcc"
+template<> LDSymbol*
+FragmentLinker::defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+FragmentLinker::defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Unresolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+FragmentLinker::defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+FragmentLinker::defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Resolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
 
 } // namespace of mcld
 

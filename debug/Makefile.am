@@ -173,7 +173,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \
-	${INCDIR}/Fragment/FragmentLinker.tcc \
 	${LIBDIR}/Fragment/FragmentLinker.cpp \
 	${INCDIR}/Fragment/Fragment.h \
 	${LIBDIR}/Fragment/Fragment.cpp \

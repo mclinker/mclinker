@@ -840,7 +840,7 @@ void X86GNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
     // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
     // same name in input
     m_pGOTSymbol =
-      pLinker.defineSymbol<FragmentLinker::AsRefered,
+      pLinker.defineSymbol<FragmentLinker::AsReferred,
                            FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
                                                     ResolveInfo::Object,
                                                     ResolveInfo::Define,
