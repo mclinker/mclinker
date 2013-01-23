@@ -133,6 +133,7 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
   // 7. - merge all sections
   if (!m_pObjLinker->mergeSections())
     return false;
+  return true;
 }
 
 bool Linker::layout()
