@@ -785,13 +785,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   // compute the size of symbols in Local category
   symEnd = symbols.localEnd();
   for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
-      ++dynsym;
-      if (ResolveInfo::Section != (*symbol)->type())
-        dynstr += str_size;
-    }
-
+    assert(!isDynamicSymbol(**symbol));
     switch (config().options().getStripSymbolMode()) {
     case GeneralOptions::StripAllSymbols:
     case GeneralOptions::StripLocals:
@@ -801,6 +795,7 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
         break;
       // Fall through
     case GeneralOptions::KeepAllSymbols:
+      str_size = (*symbol)->nameSize() + 1;
       ++symtab;
       if (ResolveInfo::Section != (*symbol)->type())
         strtab += str_size;
@@ -1215,30 +1210,8 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   // emit of .dynsym, and .dynstr
   Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  // emit symbol in Local category if it's dynamic symbol
-  Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-    if (!isDynamicSymbol(**symbol))
-      continue;
-
-    if (config().targets().is32Bits())
-      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-    else
-      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtabsize += (*symbol)->nameSize() + 1;
-  }
-
   // emit symbols in TLS category, all symbols in TLS category shold be emitited
-  symEnd = symbols.tlsEnd();
+  Module::const_sym_iterator symEnd = symbols.tlsEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     if (config().targets().is32Bits())
       emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
@@ -2320,10 +2293,8 @@ bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
       LinkerConfig::Exec   == config().codeGenType() ||
       LinkerConfig::Binary == config().codeGenType()) {
     if (pSymbol.resolveInfo()->visibility() == ResolveInfo::Default ||
-        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected ||
-        pSymbol.resolveInfo()->type() == ResolveInfo::ThreadLocal) {
+        pSymbol.resolveInfo()->visibility() == ResolveInfo::Protected)
       return true;
-    }
   }
   return false;
 }
@@ -2343,10 +2314,8 @@ bool GNULDBackend::isDynamicSymbol(const ResolveInfo& pResolveInfo)
       LinkerConfig::Exec   == config().codeGenType() ||
       LinkerConfig::Binary == config().codeGenType()) {
     if (pResolveInfo.visibility() == ResolveInfo::Default ||
-        pResolveInfo.visibility() == ResolveInfo::Protected ||
-        pResolveInfo.type() == ResolveInfo::ThreadLocal) {
+        pResolveInfo.visibility() == ResolveInfo::Protected)
       return true;
-    }
   }
   return false;
 }
