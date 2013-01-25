@@ -44,11 +44,11 @@ class ObjectLinker
 {
 public:
   ObjectLinker(const LinkerConfig& pConfig,
-               Module& pModule,
-               IRBuilder& pBuilder,
                TargetLDBackend& pLDBackend);
 
   ~ObjectLinker();
+
+  void setup(Module& pModule, IRBuilder& pBuilder);
 
   /// initFragmentLinker - initialize FragmentLinker
   ///  Connect all components in FragmentLinker
@@ -145,11 +145,10 @@ public:
 
 private:
   const LinkerConfig& m_Config;
-  Module& m_Module;
-
-  IRBuilder& m_Builder; 
-
   FragmentLinker* m_pLinker;
+  Module* m_pModule;
+  IRBuilder* m_pBuilder; 
+
   TargetLDBackend &m_LDBackend;
 
   // -----  readers and writers  ----- //

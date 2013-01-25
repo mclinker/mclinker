@@ -32,29 +32,23 @@
 
 #include <llvm/Support/Casting.h>
 
+
 using namespace llvm;
 using namespace mcld;
 
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
-                           Module& pModule,
-                           IRBuilder& pBuilder,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
-    m_Module(pModule),
-    m_Builder(pBuilder),
     m_pLinker(NULL),
+    m_pModule(NULL),
+    m_pBuilder(NULL),
     m_LDBackend(pLDBackend),
     m_pObjectReader(NULL),
     m_pDynObjReader(NULL),
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
     m_pBinaryReader(NULL),
-    m_pWriter(NULL)
-{
-  // set up soname
-  if (!m_Config.options().soname().empty()) {
-    m_Module.setName(m_Config.options().soname());
-  }
+    m_pWriter(NULL) {
 }
 
 ObjectLinker::~ObjectLinker()
@@ -68,25 +62,35 @@ ObjectLinker::~ObjectLinker()
   delete m_pWriter;
 }
 
+void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
+{
+  m_pModule = &pModule;
+  m_pBuilder = &pBuilder;
+  // set up soname
+  if (!m_Config.options().soname().empty()) {
+    m_pModule->setName(m_Config.options().soname());
+  }
+}
+
 /// initFragmentLinker - initialize FragmentLinker
 ///  Connect all components with FragmentLinker
 bool ObjectLinker::initFragmentLinker()
 {
   if (NULL == m_pLinker) {
     m_pLinker = new FragmentLinker(m_Config,
-                                   m_Module,
+                                   *m_pModule,
                                    m_LDBackend);
   }
 
   // initialize the readers and writers
   // Because constructor can not be failed, we initalize all readers and
   // writers outside the FragmentLinker constructors.
-  m_pObjectReader  = m_LDBackend.createObjectReader(m_Builder);
-  m_pArchiveReader = m_LDBackend.createArchiveReader(m_Module);
-  m_pDynObjReader  = m_LDBackend.createDynObjReader(m_Builder);
-  m_pGroupReader   = new GroupReader(m_Module, *m_pObjectReader,
+  m_pObjectReader  = m_LDBackend.createObjectReader(*m_pBuilder);
+  m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
+  m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
+  m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
                                      *m_pDynObjReader, *m_pArchiveReader);
-  m_pBinaryReader  = m_LDBackend.createBinaryReader(m_Builder);
+  m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
@@ -106,14 +110,14 @@ bool ObjectLinker::initFragmentLinker()
 /// initStdSections - initialize standard sections
 bool ObjectLinker::initStdSections()
 {
-  ObjectBuilder builder(m_Config, m_Module);
+  ObjectBuilder builder(m_Config, *m_pModule);
 
   // initialize standard sections
   if (!m_LDBackend.initStdSections(builder))
     return false;
 
   // initialize target-dependent sections
-  m_LDBackend.initTargetSections(m_Module, builder);
+  m_LDBackend.initTargetSections(*m_pModule, builder);
 
   return true;
 }
@@ -121,11 +125,11 @@ bool ObjectLinker::initStdSections()
 void ObjectLinker::normalize()
 {
   // -----  set up inputs  ----- //
-  Module::input_iterator input, inEnd = m_Module.input_end();
-  for (input = m_Module.input_begin(); input!=inEnd; ++input) {
+  Module::input_iterator input, inEnd = m_pModule->input_end();
+  for (input = m_pModule->input_begin(); input!=inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, m_Builder.getInputBuilder(), m_Config);
+      getGroupReader()->readGroup(input, m_pBuilder->getInputBuilder(), m_Config);
       continue;
     }
 
@@ -137,12 +141,12 @@ void ObjectLinker::normalize()
       continue;
 
     if (Input::Object == (*input)->type()) {
-      m_Module.getObjectList().push_back(*input);
+      m_pModule->getObjectList().push_back(*input);
       continue;
     }
 
     if (Input::DynObj == (*input)->type()) {
-      m_Module.getLibraryList().push_back(*input);
+      m_pModule->getLibraryList().push_back(*input);
       continue;
     }
 
@@ -150,7 +154,7 @@ void ObjectLinker::normalize()
     if (m_Config.options().isBinaryInput()) {
       (*input)->setType(Input::Object);
       getBinaryReader()->readBinary(**input);
-      m_Module.getObjectList().push_back(*input);
+      m_pModule->getObjectList().push_back(*input);
     }
     // is a relocatable object file
     else if (getObjectReader()->isMyFormat(**input)) {
@@ -158,22 +162,22 @@ void ObjectLinker::normalize()
       getObjectReader()->readHeader(**input);
       getObjectReader()->readSections(**input);
       getObjectReader()->readSymbols(**input);
-      m_Module.getObjectList().push_back(*input);
+      m_pModule->getObjectList().push_back(*input);
     }
     // is a shared object file
     else if (getDynObjReader()->isMyFormat(**input)) {
       (*input)->setType(Input::DynObj);
       getDynObjReader()->readHeader(**input);
       getDynObjReader()->readSymbols(**input);
-      m_Module.getLibraryList().push_back(*input);
+      m_pModule->getLibraryList().push_back(*input);
     }
     // is an archive
     else if (getArchiveReader()->isMyFormat(**input)) {
       (*input)->setType(Input::Archive);
-      Archive archive(**input, m_Builder.getInputBuilder());
+      Archive archive(**input, m_pBuilder->getInputBuilder());
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
-        m_Module.getInputTree().merge<InputTree::Inclusive>(input,
+        m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
                                                             archive.inputs());
       }
     }
@@ -187,14 +191,14 @@ void ObjectLinker::normalize()
 bool ObjectLinker::linkable() const
 {
   // check we have input and output files
-  if (m_Module.getInputTree().empty()) {
+  if (m_pModule->getInputTree().empty()) {
     error(diag::err_no_inputs);
     return false;
   }
 
   // can not mix -static with shared objects
-  Module::const_lib_iterator lib, libEnd = m_Module.lib_end();
-  for (lib = m_Module.lib_begin(); lib != libEnd; ++lib) {
+  Module::const_lib_iterator lib, libEnd = m_pModule->lib_end();
+  for (lib = m_pModule->lib_begin(); lib != libEnd; ++lib) {
     if((*lib)->attribute()->isStatic()) {
       error(diag::err_mixed_shared_static_objects)
                                       << (*lib)->name() << (*lib)->path();
@@ -213,8 +217,8 @@ bool ObjectLinker::readRelocations()
 {
   // Bitcode is read by the other path. This function reads relocation sections
   // in object files.
-  mcld::InputTree::bfs_iterator input, inEnd = m_Module.getInputTree().bfs_end();
-  for (input=m_Module.getInputTree().bfs_begin(); input!=inEnd; ++input) {
+  mcld::InputTree::bfs_iterator input, inEnd = m_pModule->getInputTree().bfs_end();
+  for (input=m_pModule->getInputTree().bfs_begin(); input!=inEnd; ++input) {
     if ((*input)->type() == Input::Object && (*input)->hasMemArea()) {
       if (!getObjectReader()->readRelocations(**input))
         return false;
@@ -227,9 +231,9 @@ bool ObjectLinker::readRelocations()
 /// mergeSections - put allinput sections into output sections
 bool ObjectLinker::mergeSections()
 {
-  ObjectBuilder builder(m_Config, m_Module);
-  Module::obj_iterator obj, objEnd = m_Module.obj_end();
-  for (obj = m_Module.obj_begin(); obj != objEnd; ++obj) {
+  ObjectBuilder builder(m_Config, *m_pModule);
+  Module::obj_iterator obj, objEnd = m_pModule->obj_end();
+  for (obj = m_pModule->obj_begin(); obj != objEnd; ++obj) {
     LDContext::sect_iterator sect, sectEnd = (*obj)->context()->sectEnd();
     for (sect = (*obj)->context()->sectBegin(); sect != sectEnd; ++sect) {
       switch ((*sect)->kind()) {
@@ -243,7 +247,7 @@ bool ObjectLinker::mergeSections()
           // skip
           continue;
         case LDFileFormat::Target:
-          if (!m_LDBackend.mergeSection(m_Module, **sect)) {
+          if (!m_LDBackend.mergeSection(*m_pModule, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -284,12 +288,12 @@ bool ObjectLinker::mergeSections()
 bool ObjectLinker::addStandardSymbols()
 {
   // create and add section symbols for each output section
-  Module::iterator iter, iterEnd = m_Module.end();
-  for (iter = m_Module.begin(); iter != iterEnd; ++iter) {
-    m_Module.getSectionSymbolSet().add(**iter, m_Module.getNamePool());
+  Module::iterator iter, iterEnd = m_pModule->end();
+  for (iter = m_pModule->begin(); iter != iterEnd; ++iter) {
+    m_pModule->getSectionSymbolSet().add(**iter, m_pModule->getNamePool());
   }
 
-  return m_LDBackend.initStandardSymbols(*m_pLinker, m_Module);
+  return m_LDBackend.initStandardSymbols(*m_pLinker, *m_pModule);
 }
 
 /// addTargetSymbols - some targets, such as MIPS and ARM, need some
@@ -305,8 +309,8 @@ bool ObjectLinker::addTargetSymbols()
 bool ObjectLinker::scanRelocations()
 {
   // apply all relocations of all inputs
-  Module::obj_iterator input, inEnd = m_Module.obj_end();
-  for (input = m_Module.obj_begin(); input != inEnd; ++input) {
+  Module::obj_iterator input, inEnd = m_pModule->obj_end();
+  for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
     LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
       // bypass the reloc section if
@@ -321,11 +325,11 @@ bool ObjectLinker::scanRelocations()
         Relocation* relocation = llvm::cast<Relocation>(reloc);
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
-          m_LDBackend.scanRelocation(*relocation, *m_pLinker, m_Module, **rs);
+          m_LDBackend.scanRelocation(*relocation, *m_pLinker, *m_pModule, **rs);
         else
           m_LDBackend.partialScanRelocation(*relocation,
                                             *m_pLinker,
-                                            m_Module,
+                                            *m_pModule,
                                             **rs);
       } // for all relocations
     } // for all relocation section
@@ -338,16 +342,16 @@ bool ObjectLinker::prelayout()
 {
   // finalize the section symbols, set their fragment reference and push them
   // into output symbol table
-  Module::iterator sect, sEnd = m_Module.end();
-  for (sect = m_Module.begin(); sect != sEnd; ++sect) {
-    m_Module.getSectionSymbolSet().finalize(**sect, m_Module.getSymbolTable());
+  Module::iterator sect, sEnd = m_pModule->end();
+  for (sect = m_pModule->begin(); sect != sEnd; ++sect) {
+    m_pModule->getSectionSymbolSet().finalize(**sect, m_pModule->getSymbolTable());
   }
 
-  m_LDBackend.preLayout(m_Module, *m_pLinker);
+  m_LDBackend.preLayout(*m_pModule, *m_pLinker);
 
   if (LinkerConfig::Object != m_Config.codeGenType() ||
       m_Config.options().isDefineCommon())
-    m_LDBackend.allocateCommonSymbols(m_Module);
+    m_LDBackend.allocateCommonSymbols(*m_pModule);
 
   /// check program interpreter - computer the name size of the runtime dyld
   if (!m_pLinker->isStaticLink() &&
@@ -362,7 +366,7 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(m_Module, m_pLinker->isStaticLink());
+  m_LDBackend.sizeNamePools(*m_pModule, m_pLinker->isStaticLink());
 
   return true;
 }
@@ -374,14 +378,14 @@ bool ObjectLinker::prelayout()
 ///   directly
 bool ObjectLinker::layout()
 {
-  m_LDBackend.layout(m_Module, *m_pLinker);
+  m_LDBackend.layout(*m_pModule, *m_pLinker);
   return true;
 }
 
 /// prelayout - help backend to do some modification after layout
 bool ObjectLinker::postlayout()
 {
-  m_LDBackend.postLayout(m_Module, *m_pLinker);
+  m_LDBackend.postLayout(*m_pModule, *m_pLinker);
   return true;
 }
 
@@ -406,7 +410,7 @@ bool ObjectLinker::relocation()
 /// emitOutput - emit the output file.
 bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
-  return llvm::errc::success == getWriter()->writeObject(m_Module, pOutput);
+  return llvm::errc::success == getWriter()->writeObject(*m_pModule, pOutput);
 }
 
 /// postProcessing - do modification after all processes

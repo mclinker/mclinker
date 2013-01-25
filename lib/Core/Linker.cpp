@@ -51,6 +51,9 @@ bool Linker::config(LinkerConfig& pConfig)
   if (!initBackend())
     return false;
 
+  m_pObjLinker = new ObjectLinker(*m_pConfig,
+                                  *m_pBackend);
+
   if (!initEmulator())
     return false;
 
@@ -73,10 +76,8 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
   assert(NULL != m_pConfig);
 
   m_pIRBuilder = &pBuilder;
-  m_pObjLinker = new ObjectLinker(*m_pConfig,
-                                  pModule,
-                                  *m_pIRBuilder,
-                                  *m_pBackend);
+  assert(m_pObjLinker!=NULL);
+  m_pObjLinker->setup(pModule, pBuilder);
 
   // 2. - initialize FragmentLinker
   if (!m_pObjLinker->initFragmentLinker())
