@@ -206,7 +206,18 @@ bool ObjectLinker::linkable() const
     }
   }
 
-  // can not mix -r with shared objects
+  // can not mix -nmagic and -omagic with -shared and -r
+  if (m_Config.options().nmagic() &&
+      LinkerConfig::Exec != m_Config.codeGenType()) {
+    error(diag::err_nmagic_not_exec);
+    return false;
+  }
+
+  if (m_Config.options().omagic() &&
+      LinkerConfig::Exec != m_Config.codeGenType()) {
+    error(diag::err_omagic_not_exec);
+    return false;
+  }
   return true;
 }
 
