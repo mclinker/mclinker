@@ -462,23 +462,18 @@ bool FragmentLinker::isOutputPIC() const
 /// isStaticLink - return whether we're doing static link
 bool FragmentLinker::isStaticLink() const
 {
-  return checkIsStaticLink();
+  if (m_Config.options().nmagic() || m_Config.options().omagic())
+    return true;
+
+  if (m_Module.getLibraryList().empty() && !isOutputPIC())
+    return true;
+  return false;
 }
 
 bool FragmentLinker::checkIsOutputPIC() const
 {
   if (LinkerConfig::DynObj == m_Config.codeGenType() ||
       m_Config.options().isPIE())
-    return true;
-  return false;
-}
-
-bool FragmentLinker::checkIsStaticLink() const
-{
-  if (m_Config.options().nmagic() || m_Config.options().omagic())
-    return true;
-
-  if (m_Module.getLibraryList().empty() && !isOutputPIC())
     return true;
   return false;
 }

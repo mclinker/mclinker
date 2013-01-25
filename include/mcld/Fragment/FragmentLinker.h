@@ -110,7 +110,10 @@ public:
   /// isOutputPIC - return whether the output is position-independent
   bool isOutputPIC() const;
 
-  /// isStaticLink - return whether we're doing static link
+  /// isStaticLink - whether we're generating a static executable program or
+  /// not. A static executable program can not call outside libraries and does
+  /// not has any opened functions. All its linkage can be resolved by static
+  /// linkers
   bool isStaticLink() const;
 
 private:
@@ -119,10 +122,6 @@ private:
   /// checkIsOutputPIC - return whether the output is position-independent,
   /// called by isOutputPIC()
   bool checkIsOutputPIC() const;
-
-  /// checkIsStaticLink - return whether we're doing static link, called by
-  /// isStaticLink()
-  bool checkIsStaticLink() const;
 
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
