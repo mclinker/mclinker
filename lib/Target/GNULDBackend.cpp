@@ -2370,8 +2370,7 @@ bool GNULDBackend::isSymbolPreemptible(const ResolveInfo& pSym) const
 
 /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
 /// @ref Google gold linker, symtab.h:645
-bool GNULDBackend::symbolNeedsDynRel(const FragmentLinker& pLinker,
-                                     const ResolveInfo& pSym,
+bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
                                      bool pSymHasPLT,
                                      bool isAbsReloc) const
 {

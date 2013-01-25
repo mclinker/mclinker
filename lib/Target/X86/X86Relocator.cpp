@@ -233,7 +233,6 @@ X86Relocator::Result abs(Relocation& pReloc, X86Relocator& pParent)
   Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
-                              pParent.getFragmentLinker(),
                               *rsym,
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               true);
@@ -314,7 +313,6 @@ X86Relocator::Result rel(Relocation& pReloc, X86Relocator& pParent)
        pReloc.target() = S + A - P;
     }
     if (pParent.getTarget().symbolNeedsDynRel(
-                              pParent.getFragmentLinker(),
                               *rsym,
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               false)) {

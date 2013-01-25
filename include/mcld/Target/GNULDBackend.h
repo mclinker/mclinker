@@ -193,8 +193,7 @@ public:
 
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
   /// @ref Google gold linker, symtab.h:645
-  bool symbolNeedsDynRel(const FragmentLinker& pLinker,
-                         const ResolveInfo& pSym,
+  bool symbolNeedsDynRel(const ResolveInfo& pSym,
                          bool pSymHasPLT,
                          bool isAbsReloc) const;
 

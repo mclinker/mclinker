@@ -520,8 +520,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(
-                      pLinker, *rsym, (rsym->reserved() & ReservePLT), true)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
@@ -596,8 +595,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_MOVT_BREL:
     case llvm::ELF::R_ARM_MOVW_BREL: {
       // Relative addressing relocation, may needs dynamic relocation
-      if (symbolNeedsDynRel(
-                     pLinker, *rsym, (rsym->reserved() & ReservePLT), false)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {

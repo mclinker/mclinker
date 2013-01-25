@@ -405,8 +405,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
-                                                                       true)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
@@ -503,8 +502,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         }
       }
 
-      if (symbolNeedsDynRel(pLinker, *rsym, (rsym->reserved() & ReservePLT),
-                                                                      false)) {
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {

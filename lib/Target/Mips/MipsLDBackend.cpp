@@ -997,7 +997,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_64:
     case llvm::ELF::R_MIPS_HI16:
     case llvm::ELF::R_MIPS_LO16:
-      if (symbolNeedsDynRel(pLinker, *rsym, false, true)) {
+      if (symbolNeedsDynRel(*rsym, false, true)) {
         m_pRelDyn->reserveEntry();
         rsym->setReserved(rsym->reserved() | ReserveRel);
         checkAndSetHasTextRel(*pSection.getLink());
