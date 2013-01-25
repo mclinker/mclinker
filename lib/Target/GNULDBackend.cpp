@@ -122,7 +122,7 @@ size_t GNULDBackend::sectionStartOffset() const
   }
 }
 
-uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
+uint64_t GNULDBackend::segmentStartAddr() const
 {
   ScriptOptions::AddressMap::const_iterator mapping =
     config().scripts().addressMap().find(".text");
@@ -1804,7 +1804,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
 }
 
 /// setupProgramHdrs - set up the attributes of segments
-void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
+void GNULDBackend::setupProgramHdrs()
 {
   // update segment info
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
@@ -1823,7 +1823,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(segmentStartAddr(pLinker) + offset);
+      segment.setVaddr(segmentStartAddr() + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1838,7 +1838,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
     segment.setOffset(segment.front()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.front()->kind())
-      segment.setVaddr(segmentStartAddr(pLinker));
+      segment.setVaddr(segmentStartAddr());
     else
       segment.setVaddr(segment.front()->addr());
     segment.setPaddr(segment.vaddr());
@@ -1981,8 +1981,7 @@ void GNULDBackend::setOutputSectionOffset(Module& pModule,
 }
 
 /// setOutputSectionOffset - helper function to set output sections' address
-void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
-                                           Module& pModule,
+void GNULDBackend::setOutputSectionAddress(Module& pModule,
                                            Module::iterator pSectBegin,
                                            Module::iterator pSectEnd)
 {
@@ -2030,11 +2029,11 @@ void GNULDBackend::setOutputSectionAddress(FragmentLinker& pLinker,
     else {
       if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
-        start_addr = segmentStartAddr(pLinker);
+        start_addr = segmentStartAddr();
       }
       else if ((*prev).front()->kind() == LDFileFormat::Null) {
         // prev segment is 1st PT_LOAD
-        start_addr = segmentStartAddr(pLinker) + (*seg).front()->offset();
+        start_addr = segmentStartAddr() + (*seg).front()->offset();
       }
       else {
         // Others
@@ -2230,13 +2229,13 @@ void GNULDBackend::postLayout(Module& pModule,
     }
 
     // 1.2 set up the output sections' address
-    setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
+    setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
 
     // 1.3 do relaxation
     relax(pModule, pLinker);
 
     // 1.4 set up the attributes of program headers
-    setupProgramHdrs(pLinker);
+    setupProgramHdrs();
   }
 
   // 2. target specific post layout
@@ -2401,8 +2400,7 @@ bool GNULDBackend::symbolNeedsDynRel(const FragmentLinker& pLinker,
 
 /// symbolNeedsPLT - return whether the symbol needs a PLT entry
 /// @ref Google gold linker, symtab.h:596
-bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
-                                  const ResolveInfo& pSym) const
+bool GNULDBackend::symbolNeedsPLT(const ResolveInfo& pSym) const
 {
   if (pSym.isUndef() &&
       !pSym.isDyn() &&
@@ -2430,8 +2428,7 @@ bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
 /// symbolHasFinalValue - return true if the symbol's value can be decided at
 /// link time
 /// @ref Google gold linker, Symbol::final_value_is_known
-bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
-                                           const ResolveInfo& pSym) const
+bool GNULDBackend::symbolFinalValueIsKnown(const ResolveInfo& pSym) const
 {
   // if the output is pic code or if not executables, symbols' value may change
   // at runtime
@@ -2457,8 +2454,7 @@ bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
 }
 
 /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
-                                        const Relocation& pReloc,
+bool GNULDBackend::symbolNeedsCopyReloc(const Relocation& pReloc,
                                         const ResolveInfo& pSym) const
 {
   // only the reference from dynamic executable to non-function symbol in
@@ -2557,7 +2553,7 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
         setupRelro(pModule);
 
       // 3. set up the output sections' address
-      setOutputSectionAddress(pLinker, pModule, pModule.begin(), pModule.end());
+      setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
     }
   } while (!finished);
 

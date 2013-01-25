@@ -390,7 +390,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_8:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(pLinker, *rsym)) {
+      if (symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Symbol needs PLT entry, we need to reserve a PLT entry
@@ -409,7 +409,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                                                        true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
-        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
@@ -435,7 +435,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
 
       // if the symbol's value can be decided at link time, then no need plt
-      if (symbolFinalValueIsKnown(pLinker, *rsym))
+      if (symbolFinalValueIsKnown(*rsym))
         return;
 
       // if symbol is defined in the ouput file and it's not
@@ -487,8 +487,8 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_386_PC16:
     case llvm::ELF::R_386_PC8:
 
-      if (symbolNeedsPLT(pLinker, *rsym) &&
-                               LinkerConfig::DynObj != config().codeGenType()) {
+      if (symbolNeedsPLT(*rsym) &&
+          LinkerConfig::DynObj != config().codeGenType()) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Symbol needs PLT entry, we need to reserve a PLT entry
@@ -507,7 +507,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                                                       false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
-        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
@@ -547,7 +547,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         checkAndSetHasTextRel(*pSection.getLink());
       } else {
         // for global sym, we can convert ie to le if its final value is known
-        if (symbolFinalValueIsKnown(pLinker, *rsym)) {
+        if (symbolFinalValueIsKnown(*rsym)) {
           convertTLSIEtoLE(pReloc, pLinker, pSection);
           return;
         }

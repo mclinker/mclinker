@@ -108,7 +108,7 @@ public:
   bool hasStaticTLS() const { return m_bHasStaticTLS; }
 
   /// segmentStartAddr - this function returns the start address of the segment
-  uint64_t segmentStartAddr(const FragmentLinker& pLinker) const;
+  uint64_t segmentStartAddr() const;
 
   /// partialScanRelocation - When doing partial linking, fix the relocation
   /// offset after section merge
@@ -249,18 +249,15 @@ protected:
 
   /// symbolNeedsPLT - return whether the symbol needs a PLT entry
   /// @ref Google gold linker, symtab.h:596
-  bool symbolNeedsPLT(const FragmentLinker& pLinker,
-                      const ResolveInfo& pSym) const;
+  bool symbolNeedsPLT(const ResolveInfo& pSym) const;
 
   /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-  bool symbolNeedsCopyReloc(const FragmentLinker& pLinker,
-                            const Relocation& pReloc,
+  bool symbolNeedsCopyReloc(const Relocation& pReloc,
                             const ResolveInfo& pSym) const;
 
   /// symbolHasFinalValue - return true if the symbol's value can be decided at
   /// link time
-  bool symbolFinalValueIsKnown(const FragmentLinker& pLinker,
-                               const ResolveInfo& pSym) const;
+  bool symbolFinalValueIsKnown(const ResolveInfo& pSym) const;
 
   /// emitSymbol32 - emit an ELF32 symbol
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
@@ -292,7 +289,7 @@ private:
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
-  void setupProgramHdrs(const FragmentLinker& pLinker);
+  void setupProgramHdrs();
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag
@@ -320,8 +317,7 @@ private:
                               uint64_t pStartOffset = -1U);
 
   /// setOutputSectionOffset - helper function to set output sections' address.
-  void setOutputSectionAddress(FragmentLinker& pLinker,
-                               Module& pModule,
+  void setOutputSectionAddress(Module& pModule,
                                Module::iterator pSectBegin,
                                Module::iterator pSectEnd);
 

@@ -152,7 +152,7 @@ public:
   // -----  relaxation  ----- //
   virtual bool initBRIslandFactory() = 0;
   virtual bool initStubFactory() = 0;
-  virtual bool initTargetStubs(FragmentLinker& pLinker) { return true; }
+  virtual bool initTargetStubs() { return true; }
 
   virtual BranchIslandFactory* getBRIslandFactory() = 0;
   virtual StubFactory*         getStubFactory() = 0;

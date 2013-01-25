@@ -352,8 +352,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 
 /// checkValidReloc - When we attempt to generate a dynamic relocation for
 /// ouput file, check if the relocation is supported by dynamic linker.
-void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
-                                      const FragmentLinker& pLinker) const
+void ARMGNULDBackend::checkValidReloc(Relocation& pReloc) const
 {
   // If not PIC object, no relocation type is invalid
   if (!config().isCodeIndep())
@@ -379,9 +378,8 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
   }
 }
 
-void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     FragmentLinker& pLinker,
-                                     const LDSection& pSection)
+void
+ARMGNULDBackend::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -508,7 +506,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_ABS32_NOI: {
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
-      if (symbolNeedsPLT(pLinker, *rsym)) {
+      if (symbolNeedsPLT(*rsym)) {
         // create plt for this symbol if it does not have one
         if (!(rsym->reserved() & ReservePLT)){
           // Symbol needs PLT entry, we need to reserve a PLT entry
@@ -526,12 +524,12 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                       pLinker, *rsym, (rsym->reserved() & ReservePLT), true)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
-        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc, pLinker);
+          checkValidReloc(pReloc);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
           checkAndSetHasTextRel(*pSection.getLink());
@@ -602,12 +600,12 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                      pLinker, *rsym, (rsym->reserved() & ReservePLT), false)) {
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
-        if (symbolNeedsCopyReloc(pLinker, pReloc, *rsym)) {
+        if (symbolNeedsCopyReloc(pReloc, *rsym)) {
           LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
-          checkValidReloc(pReloc, pLinker);
+          checkValidReloc(pReloc);
           // set Rel bit
           rsym->setReserved(rsym->reserved() | ReserveRel);
           checkAndSetHasTextRel(*pSection.getLink());
@@ -635,7 +633,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         return;
 
       // if the symbol's value can be decided at link time, then no need plt
-      if (symbolFinalValueIsKnown(pLinker, *rsym))
+      if (symbolFinalValueIsKnown(*rsym))
         return;
 
       // if symbol is defined in the ouput file and it's not
@@ -671,7 +669,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       m_pGOT->reserveGOT();
       // if the symbol cannot be fully resolved at link time, then we need a
       // dynamic relocation
-      if (!symbolFinalValueIsKnown(pLinker, *rsym)) {
+      if (!symbolFinalValueIsKnown(*rsym)) {
         m_pRelDyn->reserveEntry();
         // set GOTRel bit
         rsym->setReserved(rsym->reserved() | GOTRel);
@@ -717,7 +715,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is local
   if (rsym->isLocal())
-    scanLocalReloc(pReloc, pLinker, pSection);
+    scanLocalReloc(pReloc, pSection);
 
   // rsym is external
   else
@@ -1057,7 +1055,7 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
 }
 
 /// initTargetStubs
-bool ARMGNULDBackend::initTargetStubs(FragmentLinker& pLinker)
+bool ARMGNULDBackend::initTargetStubs()
 {
   if (NULL != getStubFactory()) {
     getStubFactory()->addPrototype(new ARMToARMStub(config().isCodeIndep()));

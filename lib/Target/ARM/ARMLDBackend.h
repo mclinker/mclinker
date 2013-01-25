@@ -174,16 +174,13 @@ public:
   bool readSection(Input& pInput, SectionData& pSD);
 
 private:
-  void scanLocalReloc(Relocation& pReloc,
-                      FragmentLinker& pLinker,
-                      const LDSection& pSection);
+  void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
                        FragmentLinker& pLinker,
                        const LDSection& pSection);
 
-  void checkValidReloc(Relocation& pReloc,
-                       const FragmentLinker& pLinker) const;
+  void checkValidReloc(Relocation& pReloc) const;
 
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -211,7 +208,7 @@ private:
   bool doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished);
 
   /// initTargetStubs
-  bool initTargetStubs(FragmentLinker& pLinker);
+  bool initTargetStubs();
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
