@@ -71,6 +71,8 @@ public:
 
   size_t numOfCommons() const;
 
+  size_t numOfDynamics() const;
+
   size_t numOfRegulars() const;
 
   bool empty() const;
@@ -82,6 +84,8 @@ public:
   bool emptyTLSs() const;
 
   bool emptyCommons() const;
+
+  bool emptyDynamics() const;
 
   bool emptyRegulars() const;
 
@@ -111,6 +115,11 @@ public:
   const_iterator commonBegin() const;
   const_iterator commonEnd() const;
 
+  iterator dynamicBegin();
+  iterator dynamicEnd();
+  const_iterator dynamicBegin() const;
+  const_iterator dynamicEnd() const;
+
   iterator regularBegin();
   iterator regularEnd();
   const_iterator regularBegin() const;
@@ -125,8 +134,8 @@ private:
       Local,
       TLS,
       Common,
-      Weak,
-      Global
+      Dynamic,
+      Regular
     };
 
   public:
@@ -170,8 +179,8 @@ private:
   Category* m_pLocal;
   Category* m_pTLS;
   Category* m_pCommon;
-  Category* m_pWeak;
-  Category* m_pGlobal;
+  Category* m_pDynamic;
+  Category* m_pRegular;
 };
 
 } // namespace of mcld
