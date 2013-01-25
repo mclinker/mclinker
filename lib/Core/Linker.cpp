@@ -90,6 +90,8 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
     return false;
 
   // 4. - normalize the input tree
+  //   => read out sections and symbol/string tables (from the files) and set them in Module.
+  //   => Symbol resolution: when reading out the symbol, resolve them immediately and set their ResolveInfo
   m_pObjLinker->normalize();
 
   if (m_pConfig->options().trace()) {
@@ -128,9 +130,13 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
     return Diagnose();
 
   // 6. - read all relocation entries from input files
+  //   => for all relocation sections of each input file (in the tree), read out reloc entry info
+  //    from the object file and accordingly init their reloc entries in SectOrRelocData of LDSection 
   m_pObjLinker->readRelocations();
 
   // 7. - merge all sections
+  //   => push sections into Module's SectionTable. Merge sections that have the same name. 
+  //     Maintain them as fragments in the section
   if (!m_pObjLinker->mergeSections())
     return false;
   return true;
@@ -147,6 +153,7 @@ bool Linker::layout()
     return false;
 
   // 9. - scan all relocation entries by output symbols.
+  //   => reserve GOT space for layout to compute the section size
   m_pObjLinker->scanRelocations();
 
   // 10.a - pre-layout
