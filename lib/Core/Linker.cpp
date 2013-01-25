@@ -126,9 +126,32 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
     }
   }
 
-  // 5. - check if we can do static linking and if we use split-stack.
   if (!m_pObjLinker->linkable())
     return Diagnose();
+
+  // 5. - set up code position
+  if (LinkerConfig::DynObj == m_pConfig->codeGenType() ||
+      m_pConfig->options().isPIE()) {
+    m_pConfig->setCodePosition(LinkerConfig::Independent);
+  }
+  else if (m_pConfig->options().nmagic() || m_pConfig->options().omagic()) {
+    // --nmagic and --omagic options lead to static executable program.
+    // These options turn off page alignment of sections. Because the
+    // sections are not aligned to pages, these sections can not contain any
+    // exported functions. Also, because the two options disable linking
+    // against shared libraries, the output absolutely does not call outside
+    // functions.
+    m_pConfig->setCodePosition(LinkerConfig::StaticDependent);
+  }
+  else if (pModule.getLibraryList().empty()) {
+    // If the output is dependent on its loaded address, and it does not need
+    // to call outside functions, then we can treat the output static dependent
+    // and perform better optimizations.
+    m_pConfig->setCodePosition(LinkerConfig::StaticDependent);
+  }
+  else {
+    m_pConfig->setCodePosition(LinkerConfig::DynamicDependent);
+  }
 
   // 6. - read all relocation entries from input files
   //   => for all relocation sections of each input file (in the tree), read out reloc entry info
@@ -140,6 +163,7 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
   //     Maintain them as fragments in the section
   if (!m_pObjLinker->mergeSections())
     return false;
+
   return true;
 }
 

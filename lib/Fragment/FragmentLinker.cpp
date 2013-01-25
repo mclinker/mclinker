@@ -453,29 +453,3 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
     std::memcpy(target_addr, &pReloc.target(), m_Config.targets().bitclass()/8);
 }
 
-/// isOutputPIC - return whether the output is position-independent
-bool FragmentLinker::isOutputPIC() const
-{
-  if (LinkerConfig::DynObj == m_Config.codeGenType() ||
-      m_Config.options().isPIE())
-    return true;
-  return false;
-}
-
-/// isStaticLink - return whether we're doing static link
-bool FragmentLinker::isStaticLink() const
-{
-  // --nmagic and --omagic options lead to static executable program.
-  // These options turn off page alignment of sections. Because the
-  // sections are not aligned to pages, these sections can not contain any
-  // exported functions. Also, because the two options disable linking
-  // against shared libraries, the output absolutely does not call outside
-  // functions.
-  if (m_Config.options().nmagic() || m_Config.options().omagic())
-    return true;
-
-  if (m_Module.getLibraryList().empty() && !isOutputPIC())
-    return true;
-  return false;
-}
-

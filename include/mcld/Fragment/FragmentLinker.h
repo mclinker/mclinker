@@ -103,16 +103,6 @@ public:
   /// data to output file.
   void syncRelocationResult(MemoryArea& pOutput);
 
-  // ----- output attribute ----- //
-  /// isOutputPIC - whether the output is position-independent or not.
-  bool isOutputPIC() const;
-
-  /// isStaticLink - whether we're generating a static executable program or
-  /// not. A static executable program can not call outside libraries and does
-  /// not has any opened functions. All its linkage can be resolved by static
-  /// linkers
-  bool isStaticLink() const;
-
 private:
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
 

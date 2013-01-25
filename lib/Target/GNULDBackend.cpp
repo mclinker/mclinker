@@ -128,7 +128,7 @@ uint64_t GNULDBackend::segmentStartAddr(const FragmentLinker& pLinker) const
     config().scripts().addressMap().find(".text");
   if (mapping != config().scripts().addressMap().end())
     return mapping.getEntry()->value();
-  else if (pLinker.isOutputPIC())
+  else if (config().isCodeIndep())
     return 0x0;
   else
     return m_pInfo->defaultTextSegmentAddr();
@@ -2386,11 +2386,11 @@ bool GNULDBackend::symbolNeedsDynRel(const FragmentLinker& pLinker,
 
   if (pSym.isAbsolute())
     return false;
-  if (pLinker.isOutputPIC() && isAbsReloc)
+  if (config().isCodeIndep() && isAbsReloc)
     return true;
   if (pSymHasPLT && ResolveInfo::Function == pSym.type())
     return false;
-  if (!pLinker.isOutputPIC() && pSymHasPLT)
+  if (!config().isCodeIndep() && pSymHasPLT)
     return false;
   if (pSym.isDyn() || pSym.isUndef() ||
       isSymbolPreemptible(pSym))
@@ -2416,7 +2416,7 @@ bool GNULDBackend::symbolNeedsPLT(const FragmentLinker& pLinker,
   if (pSym.type() != ResolveInfo::Function)
     return false;
 
-  if (pLinker.isStaticLink() && !pLinker.isOutputPIC())
+  if (config().isCodeStatic())
     return false;
 
   if (config().options().isPIE())
@@ -2435,7 +2435,8 @@ bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
 {
   // if the output is pic code or if not executables, symbols' value may change
   // at runtime
-  if (pLinker.isOutputPIC() ||
+  // FIXME: CodeIndep() || LinkerConfig::Relocatable == CodeGenType
+  if (config().isCodeIndep() ||
       (LinkerConfig::Exec != config().codeGenType() &&
        LinkerConfig::Binary != config().codeGenType()))
     return false;
@@ -2452,7 +2453,7 @@ bool GNULDBackend::symbolFinalValueIsKnown(const FragmentLinker& pLinker,
   // if the symbol is undefined and not in dynamic objects, for example, a weak
   // undefined symbol, then whether the symbol's final value can be known
   // depends on whrther we're doing static link
-  return pLinker.isStaticLink();
+  return config().isCodeStatic();
 }
 
 /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
@@ -2462,7 +2463,7 @@ bool GNULDBackend::symbolNeedsCopyReloc(const FragmentLinker& pLinker,
 {
   // only the reference from dynamic executable to non-function symbol in
   // the dynamic objects may need copy relocation
-  if (pLinker.isOutputPIC() ||
+  if (config().isCodeIndep() ||
       !pSym.isDyn() ||
       pSym.type() == ResolveInfo::Function ||
       pSym.size() == 0)

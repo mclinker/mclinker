@@ -163,7 +163,7 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty()) {
-      assert(!pLinker.isStaticLink() &&
+      assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());

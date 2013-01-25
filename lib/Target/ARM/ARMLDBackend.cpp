@@ -198,7 +198,7 @@ void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty()) {
-      assert(!pLinker.isStaticLink() &&
+      assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());
@@ -206,7 +206,7 @@ void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
 
     // set .rel.plt size
     if (!m_pRelPLT->empty()) {
-      assert(!pLinker.isStaticLink() &&
+      assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelPlt().setSize(
                                   m_pRelPLT->numOfRelocs() * getRelEntrySize());
@@ -356,7 +356,7 @@ void ARMGNULDBackend::checkValidReloc(Relocation& pReloc,
                                       const FragmentLinker& pLinker) const
 {
   // If not PIC object, no relocation type is invalid
-  if (!pLinker.isOutputPIC())
+  if (!config().isCodeIndep())
     return;
 
   switch(pReloc.type()) {
@@ -399,7 +399,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (pLinker.isOutputPIC()) {
+      if (config().isCodeIndep()) {
         m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -418,7 +418,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
     case llvm::ELF::R_ARM_THM_MOVT_ABS: {
       // PIC code should not contain these kinds of relocation
-      if (pLinker.isOutputPIC()) {
+      if (config().isCodeIndep()) {
         error(diag::non_pic_relocation) << (int)pReloc.type()
                                         << pReloc.symInfo()->name();
       }
@@ -445,7 +445,7 @@ void ARMGNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If building PIC object, a dynamic relocation with
       // type RELATIVE is needed to relocate this GOT entry.
       // Reserve an entry in .rel.dyn
-      if (pLinker.isOutputPIC()) {
+      if (config().isCodeIndep()) {
         // create .rel.dyn section if not exist
         m_pRelDyn->reserveEntry();
         // set GOTRel bit
@@ -1060,10 +1060,10 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
 bool ARMGNULDBackend::initTargetStubs(FragmentLinker& pLinker)
 {
   if (NULL != getStubFactory()) {
-    getStubFactory()->addPrototype(new ARMToARMStub(pLinker.isOutputPIC()));
-    getStubFactory()->addPrototype(new ARMToTHMStub(pLinker.isOutputPIC()));
-    getStubFactory()->addPrototype(new THMToTHMStub(pLinker.isOutputPIC()));
-    getStubFactory()->addPrototype(new THMToARMStub(pLinker.isOutputPIC()));
+    getStubFactory()->addPrototype(new ARMToARMStub(config().isCodeIndep()));
+    getStubFactory()->addPrototype(new ARMToTHMStub(config().isCodeIndep()));
+    getStubFactory()->addPrototype(new THMToTHMStub(config().isCodeIndep()));
+    getStubFactory()->addPrototype(new THMToARMStub(config().isCodeIndep()));
     return true;
   }
   return false;

@@ -365,7 +365,7 @@ bool ObjectLinker::prelayout()
     m_LDBackend.allocateCommonSymbols(*m_pModule);
 
   /// check program interpreter - computer the name size of the runtime dyld
-  if (!m_pLinker->isStaticLink() &&
+  if (!m_Config.isCodeStatic() &&
       (LinkerConfig::Exec == m_Config.codeGenType() ||
        m_Config.options().isPIE() ||
        m_Config.options().hasDyld()))
@@ -377,7 +377,7 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(*m_pModule, m_pLinker->isStaticLink());
+  m_LDBackend.sizeNamePools(*m_pModule, m_Config.isCodeStatic());
 
   return true;
 }

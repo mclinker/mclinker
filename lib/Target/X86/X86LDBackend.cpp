@@ -93,14 +93,14 @@ void X86GNULDBackend::doPreLayout(FragmentLinker& pLinker)
     ELFFileFormat* file_format = getOutputFormat();
     // set .rel.dyn size
     if (!m_pRelDyn->empty()) {
-      assert(!pLinker.isStaticLink() &&
+      assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelDyn().setSize(
                                   m_pRelDyn->numOfRelocs() * getRelEntrySize());
     }
     // set .rel.plt size
     if (!m_pRelPLT->empty()) {
-      assert(!pLinker.isStaticLink() &&
+      assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
       file_format->getRelPlt().setSize(
                                   m_pRelPLT->numOfRelocs() * getRelEntrySize());
@@ -238,7 +238,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rel.dyn
-      if (pLinker.isOutputPIC()) {
+      if (config().isCodeIndep()) {
         m_pRelDyn->reserveEntry();
         // set Rel bit
         rsym->setReserved(rsym->reserved() | ReserveRel);
@@ -261,7 +261,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 
       // If the GOT is used in statically linked binaries,
       // the GOT entry is enough and no relocation is needed.
-      if (pLinker.isStaticLink()) {
+      if (config().isCodeStatic()) {
         rsym->setReserved(rsym->reserved() | ReserveGOT);
         return;
       }
@@ -465,7 +465,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 
       // If the GOT is used in statically linked binaries,
       // the GOT entry is enough and no relocation is needed.
-      if (pLinker.isStaticLink()) {
+      if (config().isCodeStatic()) {
         rsym->setReserved(rsym->reserved() | ReserveGOT);
         return;
       }

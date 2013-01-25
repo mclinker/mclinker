@@ -44,6 +44,28 @@ public:
     Binary
   };
 
+  /** \enum CodePosition
+   *  CodePosition indicates the ability of the generated output to be
+   *  loaded at different addresses. If the output can be loaded at different
+   *  addresses, we say the output is position independent. Shared libraries
+   *  and position-independent executable programs (PIE) are in this category.
+   *  ::Independent indicates the output is position independent.
+   *  If a executable program can not be loaded at arbitrary addresses, but it
+   *  can call outside functions, we say the program is dynamic dependent on
+   *  the address to be loaded. ::DynamicDependent indicates the output is not
+   *  only a executable program, but also dynamic dependent. In general,
+   *  executable programs are dynamic dependent.
+   *  If a executable program can not be loaded at different addresses, and
+   *  only call inner functions, then we say the program is static dependent on
+   *  its loaded address. ::StaticDependent is used to indicate this kind of
+   *  output.
+   */
+  enum CodePosition {
+    Independent,      ///< Position Independent
+    DynamicDependent, ///< Can call outside libraries
+    StaticDependent   ///< Can not call outside libraries
+  };
+
 public:
   LinkerConfig();
 
@@ -70,6 +92,13 @@ public:
 
   void setCodeGenType(CodeGenType pType) { m_CodeGenType = pType; }
 
+  CodePosition codePosition() const { return m_CodePosition; }
+  void setCodePosition(CodePosition pPosition) { m_CodePosition = pPosition; }
+
+  bool isCodeIndep()   const { return (Independent == m_CodePosition); }
+  bool isCodeDynamic() const { return (DynamicDependent == m_CodePosition); }
+  bool isCodeStatic()  const { return (StaticDependent == m_CodePosition); }
+
   static const char* version();
 
 private:
@@ -81,6 +110,7 @@ private:
   AttributeOption m_Attribute;
 
   CodeGenType m_CodeGenType;
+  CodePosition m_CodePosition;
 };
 
 } // namespace of mcld
