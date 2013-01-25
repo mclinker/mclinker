@@ -307,7 +307,7 @@ private:
   }
 
   /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
-  void setupGNUStackInfo(Module& pModule, FragmentLinker& pLinker);
+  void setupGNUStackInfo(Module& pModule);
 
   /// setupRelro - setup the offset constraint of PT_RELRO
   void setupRelro(Module& pModule);

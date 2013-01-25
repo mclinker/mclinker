@@ -1885,7 +1885,7 @@ void GNULDBackend::setupProgramHdrs(const FragmentLinker& pLinker)
 
 /// setupGNUStackInfo - setup the section flag of .note.GNU-stack in output
 /// @ref gold linker: layout.cc:2608
-void GNULDBackend::setupGNUStackInfo(Module& pModule, FragmentLinker& pLinker)
+void GNULDBackend::setupGNUStackInfo(Module& pModule)
 {
   uint32_t flag = 0x0;
   if (config().options().hasStackSet()) {
@@ -2244,7 +2244,7 @@ void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
   } // end of if
 
   // set up the section flag of .note.GNU-stack section
-  setupGNUStackInfo(pModule, pLinker);
+  setupGNUStackInfo(pModule);
 }
 
 /// postLayout - Backend can do any needed modification after layout
