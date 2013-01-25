@@ -103,9 +103,6 @@ public:
   /// data to output file.
   void syncRelocationResult(MemoryArea& pOutput);
 
-  // -----  capacity  ----- //
-  const LinkerConfig& getLDInfo() const { return m_Config; }
-
   // ----- output attribute ----- //
   /// isOutputPIC - whether the output is position-independent or not.
   bool isOutputPIC() const;
