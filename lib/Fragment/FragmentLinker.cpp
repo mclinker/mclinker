@@ -456,7 +456,10 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 /// isOutputPIC - return whether the output is position-independent
 bool FragmentLinker::isOutputPIC() const
 {
-  return checkIsOutputPIC();
+  if (LinkerConfig::DynObj == m_Config.codeGenType() ||
+      m_Config.options().isPIE())
+    return true;
+  return false;
 }
 
 /// isStaticLink - return whether we're doing static link
@@ -466,14 +469,6 @@ bool FragmentLinker::isStaticLink() const
     return true;
 
   if (m_Module.getLibraryList().empty() && !isOutputPIC())
-    return true;
-  return false;
-}
-
-bool FragmentLinker::checkIsOutputPIC() const
-{
-  if (LinkerConfig::DynObj == m_Config.codeGenType() ||
-      m_Config.options().isPIE())
     return true;
   return false;
 }

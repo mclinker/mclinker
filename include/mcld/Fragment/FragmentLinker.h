@@ -107,7 +107,7 @@ public:
   const LinkerConfig& getLDInfo() const { return m_Config; }
 
   // ----- output attribute ----- //
-  /// isOutputPIC - return whether the output is position-independent
+  /// isOutputPIC - whether the output is position-independent or not.
   bool isOutputPIC() const;
 
   /// isStaticLink - whether we're generating a static executable program or
@@ -118,10 +118,6 @@ public:
 
 private:
   bool shouldForceLocal(const ResolveInfo& pInfo) const;
-
-  /// checkIsOutputPIC - return whether the output is position-independent,
-  /// called by isOutputPIC()
-  bool checkIsOutputPIC() const;
 
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
