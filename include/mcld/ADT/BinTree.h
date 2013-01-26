@@ -12,8 +12,9 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/Uncopyable.h"
-#include "mcld/ADT/TreeAllocator.h"
+#include <mcld/ADT/Uncopyable.h>
+#include <mcld/ADT/TreeBase.h>
+#include <mcld/ADT/TreeAllocator.h>
 
 #include <cstddef>
 #include <iterator>
@@ -21,8 +22,7 @@
 #include <queue>
 #include <stack>
 
-namespace mcld
-{
+namespace mcld {
 
 template<class DataType>
 class BinaryTree;

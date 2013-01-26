@@ -13,10 +13,8 @@
 #endif
 #include <set>
 #include "mcld/Support/GCFactory.h"
-#include "mcld/ADT/TreeBase.h"
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class NodeFactory
  *  \brief NodeFactory manages the creation and destruction of mcld::Node.
