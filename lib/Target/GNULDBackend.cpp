@@ -1016,25 +1016,12 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
-  strtab[0] = '\0';
 
-  // initialize the first ELF symbol
-  if (config().targets().is32Bits()) {
-    symtab32[0].st_name  = 0;
-    symtab32[0].st_value = 0;
-    symtab32[0].st_size  = 0;
-    symtab32[0].st_info  = 0;
-    symtab32[0].st_other = 0;
-    symtab32[0].st_shndx = 0;
-  }
-  else { // must 64
-    symtab64[0].st_name  = 0;
-    symtab64[0].st_value = 0;
-    symtab64[0].st_size  = 0;
-    symtab64[0].st_info  = 0;
-    symtab64[0].st_other = 0;
-    symtab64[0].st_shndx = 0;
-  }
+  // emit the first ELF symbol
+  if (config().targets().is32Bits())
+    emitSymbol32(symtab32[0], *LDSymbol::Null(), strtab, 0, 0);
+  else
+    emitSymbol64(symtab64[0], *LDSymbol::Null(), strtab, 0, 0);
 
   bool sym_exist = false;
   HashTableType::entry_type* entry = NULL;
@@ -1179,26 +1166,14 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
                                       << config().targets().bitclass();
   }
 
-  // initialize the first ELF symbol
-  if (config().targets().is32Bits()) {
-    symtab32[0].st_name  = 0;
-    symtab32[0].st_value = 0;
-    symtab32[0].st_size  = 0;
-    symtab32[0].st_info  = 0;
-    symtab32[0].st_other = 0;
-    symtab32[0].st_shndx = 0;
-  }
-  else { // must 64
-    symtab64[0].st_name  = 0;
-    symtab64[0].st_value = 0;
-    symtab64[0].st_size  = 0;
-    symtab64[0].st_info  = 0;
-    symtab64[0].st_other = 0;
-    symtab64[0].st_shndx = 0;
-  }
   // set up strtab_region
   char* strtab = (char*)strtab_region->start();
-  strtab[0] = '\0';
+
+  // emit the first ELF symbol
+  if (config().targets().is32Bits())
+    emitSymbol32(symtab32[0], *LDSymbol::Null(), strtab, 0, 0);
+  else
+    emitSymbol64(symtab64[0], *LDSymbol::Null(), strtab, 0, 0);
 
   // add the first symbol into m_pSymIndexMap
   entry = m_pSymIndexMap->insert(NULL, sym_exist);

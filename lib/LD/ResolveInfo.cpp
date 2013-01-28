@@ -275,6 +275,7 @@ ResolveInfo* ResolveInfo::Null()
     new (g_NullResolveInfo) ResolveInfo();
     g_NullResolveInfo->m_Name[0] = '\0';
     g_NullResolveInfo->m_BitField = 0x0;
+    g_NullResolveInfo->setBinding(Local);
   }
   return g_NullResolveInfo;
 }
