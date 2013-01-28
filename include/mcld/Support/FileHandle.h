@@ -35,6 +35,7 @@ public:
     BadBit     = 1L << 0, // error due to the inappropriate operation
     EOFBit     = 1L << 1, // reached End-Of-File
     FailBit    = 1L << 2, // internal logic fail
+    DeputedBit = 1L << 3, // the file descriptor is delegated
     IOStateEnd = 1L << 16
   };
 
@@ -120,14 +121,15 @@ public:
 
   bool isFailed() const;
 
+  bool isOwned() const;
+
   bool isReadable() const;
 
   bool isWritable() const;
 
   bool isReadWrite() const;
 
-  int error() const
-  { return errno; }
+  int error() const { return errno; }
 
 private:
   sys::fs::Path m_Path;
