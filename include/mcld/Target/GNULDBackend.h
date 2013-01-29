@@ -136,9 +136,7 @@ public:
 
   /// emitELFHashTab - emit .hash
   virtual void emitELFHashTab(const Module::SymbolTable& pSymtab,
-                              MemoryArea& pOutput,
-                              MemoryRegion& pDynsym,
-                              MemoryRegion& pDynstr);
+                              MemoryArea& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name

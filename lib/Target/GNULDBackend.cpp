@@ -1194,14 +1194,12 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 
   if (GeneralOptions::SystemV == config().options().getHashStyle() ||
       GeneralOptions::Both == config().options().getHashStyle())
-    emitELFHashTab(symbols, pOutput, *symtab_region, *strtab_region);
+    emitELFHashTab(symbols, pOutput);
 }
 
 /// emitELFHashTab - emit .hash
 void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
-                                  MemoryArea& pOutput,
-                                  MemoryRegion& pDynsym,
-                                  MemoryRegion& pDynstr)
+                                  MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasHashTab())
@@ -1209,17 +1207,6 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   LDSection& hash_sect = file_format->getHashTab();
   MemoryRegion* hash_region = pOutput.request(hash_sect.offset(),
                                               hash_sect.size());
-  // set up symtab
-  llvm::ELF::Elf32_Sym* symtab32 = NULL;
-  llvm::ELF::Elf64_Sym* symtab64 = NULL;
-  if (config().targets().is32Bits())
-    symtab32 = (llvm::ELF::Elf32_Sym*)pDynsym.start();
-  else
-    symtab64 = (llvm::ELF::Elf64_Sym*)pDynsym.start();
-
-  // set up strtab
-  char* strtab = (char*)pDynstr.start();
-
   // both 32 and 64 bits hash table use 32-bit entry
   // set up hash_region
   uint32_t* word_array = (uint32_t*)hash_region->start();
@@ -1238,20 +1225,14 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
 
   StringHash<ELF> hash_func;
 
-  if (config().targets().is32Bits()) {
-    for (size_t idx = 0; idx < dynsymSize; ++idx) {
-      llvm::StringRef name(strtab + symtab32[idx].st_name);
-      size_t bucket_pos = hash_func(name) % nbucket;
-      chain[idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = idx;
-    }
-  } else {
-    for (size_t idx = 0; idx < dynsymSize; ++idx) {
-      llvm::StringRef name(strtab + symtab64[idx].st_name);
-      size_t bucket_pos = hash_func(name) % nbucket;
-      chain[idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = idx;
-    }
+  size_t idx = 1;
+  Module::const_sym_iterator symbol, symEnd = pSymtab.dynamicEnd();
+  for (symbol = pSymtab.tlsBegin(); symbol != symEnd; ++symbol) {
+    llvm::StringRef name((*symbol)->name());
+    size_t bucket_pos = hash_func(name) % nbucket;
+    chain[idx] = bucket[bucket_pos];
+    bucket[bucket_pos] = idx;
+    ++idx;
   }
 }
 
