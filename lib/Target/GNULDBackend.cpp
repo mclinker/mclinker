@@ -849,9 +849,13 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
         }
 
         // compute .hash
-        // Both Elf32_Word and Elf64_Word are 4 bytes
-        hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
-               sizeof(llvm::ELF::Elf32_Word);
+        if (GeneralOptions::SystemV == config().options().getHashStyle() ||
+            GeneralOptions::Both == config().options().getHashStyle()) {
+          // Both Elf32_Word and Elf64_Word are 4 bytes
+          hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
+                 sizeof(llvm::ELF::Elf32_Word);
+          file_format->getHashTab().setSize(hash);
+        }
       }
 
       // set size
@@ -860,7 +864,6 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
       else
         file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
       file_format->getDynStrTab().setSize(dynstr);
-      file_format->getHashTab().setSize(hash);
 
       // set .dynsym sh_info to one greater than the symbol table
       // index of the last local symbol
@@ -1089,7 +1092,6 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasDynSymTab() ||
       !file_format->hasDynStrTab() ||
-      !file_format->hasHashTab()   ||
       !file_format->hasDynamic())
     return;
 
@@ -1098,15 +1100,12 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
 
   LDSection& symtab_sect = file_format->getDynSymTab();
   LDSection& strtab_sect = file_format->getDynStrTab();
-  LDSection& hash_sect   = file_format->getHashTab();
   LDSection& dyn_sect    = file_format->getDynamic();
 
   MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
                                                 symtab_sect.size());
   MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
                                                 strtab_sect.size());
-  MemoryRegion* hash_region   = pOutput.request(hash_sect.offset(),
-                                                hash_sect.size());
   MemoryRegion* dyn_region    = pOutput.request(dyn_sect.offset(),
                                                 dyn_sect.size());
   // set up symtab_region
@@ -1192,9 +1191,34 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     strcpy((strtab + strtabsize), pModule.name().c_str());
     strtabsize += pModule.name().size() + 1;
   }
-  // emit hash table
-  // FIXME: this verion only emit SVR4 hash section.
-  //        Please add GNU new hash section
+
+  if (GeneralOptions::SystemV == config().options().getHashStyle() ||
+      GeneralOptions::Both == config().options().getHashStyle())
+    emitELFHashTab(symbols, pOutput, *symtab_region, *strtab_region);
+}
+
+/// emitELFHashTab - emit .hash
+void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
+                                  MemoryArea& pOutput,
+                                  MemoryRegion& pDynsym,
+                                  MemoryRegion& pDynstr)
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  if (!file_format->hasHashTab())
+    return;
+  LDSection& hash_sect = file_format->getHashTab();
+  MemoryRegion* hash_region = pOutput.request(hash_sect.offset(),
+                                              hash_sect.size());
+  // set up symtab
+  llvm::ELF::Elf32_Sym* symtab32 = NULL;
+  llvm::ELF::Elf64_Sym* symtab64 = NULL;
+  if (config().targets().is32Bits())
+    symtab32 = (llvm::ELF::Elf32_Sym*)pDynsym.start();
+  else
+    symtab64 = (llvm::ELF::Elf64_Sym*)pDynsym.start();
+
+  // set up strtab
+  char* strtab = (char*)pDynstr.start();
 
   // both 32 and 64 bits hash table use 32-bit entry
   // set up hash_region
@@ -1202,8 +1226,9 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain  = word_array[1];
 
-  nbucket = getHashBucketCount(symIdx, false);
-  nchain  = symIdx;
+  size_t dynsymSize = 1 + pSymtab.numOfTLSs() + pSymtab.numOfDynamics();
+  nbucket = getHashBucketCount(dynsymSize, false);
+  nchain  = dynsymSize;
 
   uint32_t* bucket = (word_array + 2);
   uint32_t* chain  = (bucket + nbucket);
@@ -1214,15 +1239,14 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   StringHash<ELF> hash_func;
 
   if (config().targets().is32Bits()) {
-    for (size_t idx = 0; idx < symIdx; ++idx) {
+    for (size_t idx = 0; idx < dynsymSize; ++idx) {
       llvm::StringRef name(strtab + symtab32[idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
       chain[idx] = bucket[bucket_pos];
       bucket[bucket_pos] = idx;
     }
-  }
-  else if (config().targets().is64Bits()) {
-    for (size_t idx = 0; idx < symIdx; ++idx) {
+  } else {
+    for (size_t idx = 0; idx < dynsymSize; ++idx) {
       llvm::StringRef name(strtab + symtab64[idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
       chain[idx] = bucket[bucket_pos];

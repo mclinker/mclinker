@@ -134,6 +134,12 @@ public:
   virtual void emitDynNamePools(const Module& pModule,
                                 MemoryArea& pOutput);
 
+  /// emitELFHashTab - emit .hash
+  virtual void emitELFHashTab(const Module::SymbolTable& pSymtab,
+                              MemoryArea& pOutput,
+                              MemoryRegion& pDynsym,
+                              MemoryRegion& pDynstr);
+
   /// sizeInterp - compute the size of program interpreter's name
   /// In ELF executables, this is the length of dynamic linker's path name
   virtual void sizeInterp();
