@@ -237,104 +237,72 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   size_t hash   = 0;
 
   // number of local symbol in the .dynsym
+  size_t symtab_local_cnt = 0;
   size_t dynsym_local_cnt = 0;
 
-  /// compute the size of .symtab, .dynsym and .strtab
-  /// @{
-  Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  size_t str_size = 0;
-  // compute the size of symbols in File category
-  Module::const_sym_iterator symEnd = symbols.fileEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-    assert(!isDynamicSymbol(**symbol));
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      break;
-    case GeneralOptions::StripLocals:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::KeepAllSymbols:
-      str_size = (*symbol)->nameSize() + 1;
+  Module::const_sym_iterator symbol, symEnd;
+  /// Compute the size of .symtab, .strtab, and symtab_local_cnt
+  /// @{
+  switch (config().options().getStripSymbolMode()) {
+  case GeneralOptions::StripAllSymbols:
+    break;
+  case GeneralOptions::StripTemporaries:
+    symEnd = symbols.fileEnd();
+    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
       ++symtab;
       if (ResolveInfo::Section != (*symbol)->type() ||
           *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-      break;
-    }
-  }
-
-  // compute the size of symbols in Local category
-  symEnd = symbols.localEnd();
-  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
-      ++dynsym;
-    if (ResolveInfo::Section != (*symbol)->type() ||
-        *symbol == m_pGpDispSymbol)
-        dynstr += str_size;
+        strtab += (*symbol)->nameSize() + 1;
     }
 
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-    case GeneralOptions::StripLocals:
-      break;
-    case GeneralOptions::StripTemporaries:
+    symEnd = symbols.localEnd();
+    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
       if (isTemporary(**symbol))
-        break;
-      // Fall through
-    case GeneralOptions::KeepAllSymbols:
+        continue;
       ++symtab;
       if (ResolveInfo::Section != (*symbol)->type() ||
           *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-      break;
+        strtab += (*symbol)->nameSize() + 1;
     }
-  }
+    symtab_local_cnt = symtab;
+    // Fall through
+  case GeneralOptions::StripLocals:
+    symEnd = symbols.end();
+    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type() ||
+          *symbol == m_pGpDispSymbol)
+        strtab += (*symbol)->nameSize() + 1;
+    }
+    break;
+  case GeneralOptions::KeepAllSymbols:
+    symEnd = symbols.end();
+    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type() ||
+          *symbol == m_pGpDispSymbol)
+        strtab += (*symbol)->nameSize() + 1;
+    }
+    symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
+                       symbols.numOfTLSs();
+    break;
+  } // end of switch
+  /// @}
 
-  // compute the size of symbols in TLS category
-  symEnd = symbols.tlsEnd();
-  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink) {
+  /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
+  /// @{
+  if (!pIsStaticLink) {
+    symEnd = symbols.dynamicEnd();
+    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
       ++dynsym;
-      if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-        dynstr += str_size;
-    }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
       if (ResolveInfo::Section != (*symbol)->type() ||
           *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-    case GeneralOptions::StripAllSymbols:
-      break;
+        dynstr += (*symbol)->nameSize() + 1;
     }
+    dynsym_local_cnt = 1 + symbols.numOfTLSs();
   }
-
-  dynsym_local_cnt = dynsym;
-  // compute the size of the reset of symbols
-  symEnd = pModule.sym_end();
-  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
-      ++dynsym;
-    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-        dynstr += str_size;
-    }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += str_size;
-    case GeneralOptions::StripAllSymbols:
-      break;
-    }
-  }
+  /// @}
 
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -407,8 +375,7 @@ MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
 
       // set .symtab sh_info to one greater than the symbol table
       // index of the last local symbol
-      file_format->getSymTab().setInfo(symbols.numOfFiles() +
-                                symbols.numOfLocals() + symbols.numOfTLSs() + 1);
+      file_format->getSymTab().setInfo(symtab_local_cnt);
       break;
     }
     default: {
@@ -521,91 +488,14 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
 
-  // emit of .dynsym, and .dynstr except GOT entries
-  Module::const_sym_iterator symbol;
+  // emit .dynsym, and .dynstr (emit TLS and Dynamic category) except GOT
+  // entries
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  // emit symbol in File and Local category if it's dynamic symbol
-  Module::const_sym_iterator symEnd = symbols.localEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-    if (!isDynamicSymbol(**symbol))
-      continue;
-
-    if (isGlobalGOTSymbol(**symbol))
-      continue;
-
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-      strtabsize += (*symbol)->nameSize() + 1;
-  }
-
-  // emit symbols in TLS category, all symbols in TLS category shold be emitited
-  // directly, except GOT entries
-  symEnd = symbols.tlsEnd();
+  Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     if (isGlobalGOTSymbol(**symbol))
       continue;
-
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
-
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-      strtabsize += (*symbol)->nameSize() + 1;
-  }
-
-  // emit the reset of the symbols if the symbol is dynamic symbol
-  symEnd = pModule.sym_end();
-  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
-    if (!isDynamicSymbol(**symbol))
-      continue;
-
-    if (isGlobalGOTSymbol(**symbol))
-      continue;
-
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
-
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
     entry->setValue(symtabIdx);
@@ -619,37 +509,19 @@ void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
   for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
        symbol_end = m_GlobalGOTSyms.end();
        symbol != symbol_end; ++symbol) {
-
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-      continue;
-    case GeneralOptions::StripLocals:
-      if ((*symbol)->binding() == ResolveInfo::Local)
-        continue;
-      break;
-    case GeneralOptions::StripTemporaries:
-      if (isTemporary(**symbol))
-        continue;
-      break;
-    case GeneralOptions::KeepAllSymbols:
-      break;
-    }
-
     // Make sure this golbal GOT entry is a dynamic symbol.
     // If not, something is wrong earlier when putting this symbol into
     //  global GOT.
     if (!isDynamicSymbol(**symbol))
       fatal(diag::mips_got_symbol) << (*symbol)->name();
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
+    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
     entry->setValue(symtabIdx);
-
     // sum up counters
     ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
+    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
       strtabsize += (*symbol)->nameSize() + 1;
   }
 
