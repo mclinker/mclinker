@@ -119,49 +119,51 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Resolve>(
-                   "_GLOBAL_OFFSET_TABLE_",
-                   ResolveInfo::Object,
-                   ResolveInfo::Define,
-                   ResolveInfo::Local,
-                   0x0,  // size
-                   0x0,  // value
-                   FragmentRef::Null(), // FragRef
-                   ResolveInfo::Hidden);
-
+  m_pGOTSymbol =
+    pLinker.defineSymbol<FragmentLinker::AsReferred,
+                         FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
+                                                  ResolveInfo::Object,
+                                                  ResolveInfo::Define,
+                                                  ResolveInfo::Local,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  FragmentRef::Null(),
+                                                  ResolveInfo::Hidden);
   FragmentRef* exidx_start = NULL;
   FragmentRef* exidx_end = NULL;
+  ResolveInfo::Type type = ResolveInfo::NoType;
   ResolveInfo::Desc desc = ResolveInfo::Undefined;
   if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
     exidx_start = FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
-    exidx_end = FragmentRef::Create(m_pEXIDX->getSectionData()->back(), 0x0);
+    exidx_end   = FragmentRef::Create(m_pEXIDX->getSectionData()->front(),
+                                      m_pEXIDX->size());
+    type = ResolveInfo::Object;
     desc = ResolveInfo::Define;
-  }
-  else {
+  } else {
     exidx_start = FragmentRef::Null();
     exidx_end = FragmentRef::Null();
   }
   m_pEXIDXStart =
-    pLinker.defineSymbol<FragmentLinker::Force,
+    pLinker.defineSymbol<FragmentLinker::AsReferred,
                          FragmentLinker::Resolve>("__exidx_start",
-                                                  ResolveInfo::NoType,
+                                                  type, // ResolveInfo::Type
                                                   desc, // ResolveInfo::Desc
                                                   ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_start, // FragRef
-                                                  ResolveInfo::Hidden);
+                                                  ResolveInfo::Default);
 
   m_pEXIDXEnd =
     pLinker.defineSymbol<FragmentLinker::Force,
                          FragmentLinker::Resolve>("__exidx_end",
-                                                  ResolveInfo::NoType,
+                                                  type, // ResolveInfo::Type
                                                   desc, //ResolveInfo::Desc
                                                   ResolveInfo::Global,
                                                   0x0,  // size
                                                   0x0,  // value
                                                   exidx_end, // FragRef
-                                                  ResolveInfo::Hidden);
+                                                  ResolveInfo::Default);
 }
 
 bool ARMGNULDBackend::initRelocator(const FragmentLinker& pLinker)
