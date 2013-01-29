@@ -18,8 +18,8 @@ extern "C" void MCLDInitializeHexagonLDTarget() {
 }
 
 mcld::HexagonTargetMachine::HexagonTargetMachine(llvm::TargetMachine& pPM,
-                                         const mcld::Target &pTarget,
-                                         const std::string& pTriple)
+                                                 const mcld::Target &pTarget,
+                                                 const std::string& pTriple)
   : mcld::MCLDTargetMachine(pPM, pTarget, pTriple) {
 }
 
