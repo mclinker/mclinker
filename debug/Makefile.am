@@ -164,6 +164,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86Emulation.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
+	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.h \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
 	${INCDIR}/Object/ObjectBuilder.h \
