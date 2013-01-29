@@ -544,6 +544,7 @@ enum Mode {
 
 static cl::opt<icf::Mode>
 ArgICF("icf",
+       cl::ZeroOrMore,
        cl::desc("Identical Code Folding"),
        cl::init(icf::None),
        cl::values(
