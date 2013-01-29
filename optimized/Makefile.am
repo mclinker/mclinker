@@ -96,8 +96,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ELFDynamic.cpp \
 	${INCDIR}/Target/OutputRelocSection.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
-        ${INCDIR}/Target/GNUInfo.h \
-        ${LIBDIR}/Target/GNUInfo.cpp \
+	${INCDIR}/Target/GNUInfo.h \
+	${LIBDIR}/Target/GNUInfo.cpp \
 	${LIBDIR}/Target/ARM/ARM.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
@@ -379,13 +379,13 @@ ld_bcc_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
 ld_bcc_LDADD = ../lib/libmcld.la
 
 dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
-    ${TOOLDIR}/mcld/include/alone/Linker.h \
-    ${TOOLDIR}/mcld/lib/Core/Linker.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
-    ${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
-    ${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
-    ${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
-    ${TOOLDIR}/mcld/include/alone/Support/Log.h
+	${TOOLDIR}/mcld/include/alone/Linker.h \
+	${TOOLDIR}/mcld/lib/Core/Linker.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/LinkerConfig.h \
+	${TOOLDIR}/mcld/lib/Support/LinkerConfig.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/TargetLinkerConfigs.h \
+	${TOOLDIR}/mcld/lib/Support/TargetLinkerConfigs.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/Initialization.h \
+	${TOOLDIR}/mcld/lib/Support/Initialization.cpp \
+	${TOOLDIR}/mcld/include/alone/Support/Log.h
 
