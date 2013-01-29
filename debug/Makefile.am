@@ -166,12 +166,12 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
-	${LIBDIR}/Target/hexagon/HexagonEmulation.cpp \
-	${LIBDIR}/Target/hexagon/HexagonELFDynamic.h \
-	${LIBDIR}/Target/hexagon/HexagonELFDynamic.cpp \
-	${LIBDIR}/Target/hexagon/HexagonTargetMachine.h \
-	${LIBDIR}/Target/hexagon/HexagonTargetMachine.cpp \
-	${LIBDIR}/Target/hexagon/HexagonMCLinker.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonEmulation.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonELFDynamic.h \
+	${LIBDIR}/Target/Hexagon/HexagonELFDynamic.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.h \
+	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonMCLinker.cpp \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.h \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
