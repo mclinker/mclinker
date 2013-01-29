@@ -1,4 +1,4 @@
-//===- HexagonELFDynamic.cpp -----------------------------------------------===//
+//===- HexagonELFDynamic.cpp ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -13,9 +13,8 @@
 using namespace mcld;
 
 HexagonELFDynamic::HexagonELFDynamic(const GNULDBackend& pParent,
-                             const LinkerConfig& pConfig)
-  : ELFDynamic(pParent, pConfig)
-{
+                                     const LinkerConfig& pConfig)
+  : ELFDynamic(pParent, pConfig) {
 }
 
 HexagonELFDynamic::~HexagonELFDynamic()
