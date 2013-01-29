@@ -1,4 +1,4 @@
-//===- HexagonEmulation.cpp ---------------------------------------------------===//
+//===- HexagonEmulation.cpp -----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -59,6 +59,7 @@ bool emulateHexagonLD(const std::string& pTriple, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonEmulation() {
   // Register the emulation
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheHexagonTarget, mcld::emulateHexagonLD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheHexagonTarget,
+                                          mcld::emulateHexagonLD);
 }
 
