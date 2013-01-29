@@ -178,7 +178,8 @@ bool Linker::layout()
     return false;
 
   // 9. - scan all relocation entries by output symbols.
-  //   => reserve GOT space for layout to compute the section size
+  //   reserve GOT space for layout.
+  //   the space info is needed by pre-layout to compute the section size
   m_pObjLinker->scanRelocations();
 
   // 10.a - init relaxation stuff.
@@ -188,6 +189,10 @@ bool Linker::layout()
   m_pObjLinker->prelayout();
 
   // 10.c - linear layout
+  //   Decide which sections will be left in. Sort the sections according to
+  //   a given order. Then, create program header accordingly.
+  //   Finally, set the offset for sections (@ref LDSection)
+  //   according to the new order.
   m_pObjLinker->layout();
 
   // 10.d - post-layout (create segment, instruction relaxing)
