@@ -95,15 +95,6 @@ bool ObjectLinker::initFragmentLinker()
 
   // initialize Relocator
   m_LDBackend.initRelocator(*m_pLinker);
-
-  // initialize BranchIslandFactory
-  m_LDBackend.initBRIslandFactory();
-
-  // initialize StubFactory
-  m_LDBackend.initStubFactory();
-
-  // initialize target stubs
-  m_LDBackend.initTargetStubs();
   return true;
 }
 
@@ -345,6 +336,20 @@ bool ObjectLinker::scanRelocations()
       } // for all relocations
     } // for all relocation section
   } // for all inputs
+  return true;
+}
+
+/// initStubs - initialize stub-related stuff.
+bool ObjectLinker::initStubs()
+{
+  // initialize BranchIslandFactory
+  m_LDBackend.initBRIslandFactory();
+
+  // initialize StubFactory
+  m_LDBackend.initStubFactory();
+
+  // initialize target stubs
+  m_LDBackend.initTargetStubs();
   return true;
 }
 

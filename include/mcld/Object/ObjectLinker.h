@@ -87,6 +87,9 @@ public:
   /// scanRelocations - scan all relocation entries by output symbols.
   bool scanRelocations();
 
+  /// initStubs - initialize stub-related stuff.
+  bool initStubs();
+
   /// prelayout - help backend to do some modification before layout
   bool prelayout();
 

@@ -181,13 +181,16 @@ bool Linker::layout()
   //   => reserve GOT space for layout to compute the section size
   m_pObjLinker->scanRelocations();
 
-  // 10.a - pre-layout
+  // 10.a - init relaxation stuff.
+  m_pObjLinker->initStubs();
+
+  // 10.b - pre-layout
   m_pObjLinker->prelayout();
 
-  // 10.b - linear layout
+  // 10.c - linear layout
   m_pObjLinker->layout();
 
-  // 10.c - post-layout (create segment, instruction relaxing)
+  // 10.d - post-layout (create segment, instruction relaxing)
   m_pObjLinker->postlayout();
 
   // 11. - finalize symbol value
