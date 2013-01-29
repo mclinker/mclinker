@@ -11,6 +11,8 @@
 #include "mcld/ADT/TypeTraits.h"
 
 #include <cstddef>
+#include <cassert>
+#include <iterator>
 
 namespace mcld {
 

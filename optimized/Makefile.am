@@ -76,6 +76,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/CodeGen/MCLDTargetMachine.cpp \
 	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
+	${INCDIR}/Target/ELFEmulation.h \
+	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/SymbolEntryMap.h \
 	${INCDIR}/Target/PLT.h \
 	${LIBDIR}/Target/PLT.cpp \
@@ -89,8 +91,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/GNULDBackend.cpp \
 	${INCDIR}/Target/ELFMCLinker.h \
 	${LIBDIR}/Target/ELFMCLinker.cpp \
-	${INCDIR}/Target/ELFEmulation.h \
-	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/ELFDynamic.h \
 	${INCDIR}/Target/ELFDynamic.tcc \
 	${LIBDIR}/Target/ELFDynamic.cpp \
@@ -98,7 +98,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/OutputRelocSection.cpp \
 	${INCDIR}/Target/GNUInfo.h \
 	${LIBDIR}/Target/GNUInfo.cpp \
-	${LIBDIR}/Target/ARM/ARM.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.h \
 	${LIBDIR}/Target/ARM/ARMELFDynamic.cpp \
 	${LIBDIR}/Target/ARM/ARMGNUInfo.h \
@@ -110,7 +109,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/ARMPLT.cpp \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.h \
 	${LIBDIR}/Target/ARM/ARMTargetMachine.cpp \
-	${LIBDIR}/Target/ARM/ARMRelocationFunctions.h \
 	${LIBDIR}/Target/ARM/ARMRelocator.h \
 	${LIBDIR}/Target/ARM/ARMRelocator.cpp \
 	${LIBDIR}/Target/ARM/ARMMCLinker.cpp \
@@ -127,7 +125,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/ARM/THMToTHMStub.cpp \
 	${LIBDIR}/Target/ARM/THMToARMStub.h \
 	${LIBDIR}/Target/ARM/THMToARMStub.cpp \
-	${LIBDIR}/Target/Mips/Mips.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsGNUInfo.h \
@@ -137,7 +134,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsGOT.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
-	${LIBDIR}/Target/Mips/MipsRelocationFunctions.h \
 	${LIBDIR}/Target/Mips/MipsRelocator.h \
 	${LIBDIR}/Target/Mips/MipsRelocator.cpp \
 	${LIBDIR}/Target/Mips/MipsMCLinker.cpp \
@@ -146,7 +142,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Mips/MipsEmulation.cpp \
 	${LIBDIR}/Target/Mips/MipsDiagnostic.cpp \
 	${LIBDIR}/Target/Mips/TargetInfo/MipsTargetInfo.cpp \
-	${LIBDIR}/Target/X86/X86.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.h \
 	${LIBDIR}/Target/X86/X86ELFDynamic.cpp \
 	${LIBDIR}/Target/X86/X86GNUInfo.h \
@@ -160,7 +155,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86PLT.cpp \
 	${LIBDIR}/Target/X86/X86TargetMachine.h \
 	${LIBDIR}/Target/X86/X86TargetMachine.cpp \
-	${LIBDIR}/Target/X86/X86RelocationFunctions.h \
 	${LIBDIR}/Target/X86/X86Relocator.h \
 	${LIBDIR}/Target/X86/X86Relocator.cpp \
 	${LIBDIR}/Target/X86/X86MCLinker.cpp \
@@ -178,7 +172,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/MC/SymbolCategory.h \
 	${LIBDIR}/MC/SymbolCategory.cpp \
 	${INCDIR}/Fragment/FragmentLinker.h \
-	${INCDIR}/Fragment/FragmentLinker.tcc \
 	${LIBDIR}/Fragment/FragmentLinker.cpp \
 	${INCDIR}/Fragment/Fragment.h \
 	${LIBDIR}/Fragment/Fragment.cpp \
@@ -201,10 +194,10 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${INCDIR}/MC/InputFactory.h \
 	${LIBDIR}/MC/InputFactory.cpp \
-	${INCDIR}/LinkerConfig.h \
-	${LIBDIR}/Core/LinkerConfig.cpp \
 	${INCDIR}/Module.h \
 	${LIBDIR}/Core/Module.cpp \
+	${INCDIR}/LinkerConfig.h \
+	${LIBDIR}/Core/LinkerConfig.cpp \
 	${INCDIR}/GeneralOptions.h \
 	${LIBDIR}/Core/GeneralOptions.cpp \
 	${INCDIR}/ScriptOptions.h \
@@ -217,6 +210,8 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Core/AttributeOption.cpp \
 	${INCDIR}/IRBuilder.h \
 	${LIBDIR}/Core/IRBuilder.cpp \
+	${INCDIR}/Environment.h \
+	${LIBDIR}/Core/Environment.cpp \
 	${INCDIR}/InputTree.h \
 	${LIBDIR}/Core/InputTree.cpp \
 	${INCDIR}/Linker.h \
