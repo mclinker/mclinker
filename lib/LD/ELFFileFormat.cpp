@@ -59,7 +59,8 @@ ELFFileFormat::ELFFileFormat()
     f_pStabStr(NULL),
     f_pStack(NULL),
     f_pStackNote(NULL),
-    f_pDataRelRoLocal(NULL) {
+    f_pDataRelRoLocal(NULL),
+    f_pGNUHashTab(NULL) {
 
 }
 

@@ -52,12 +52,12 @@ void ELFDynObjFileFormat::initObjectFormat(ObjectBuilder& pBuilder,
                                            llvm::ELF::SHT_RELA,
                                            llvm::ELF::SHF_ALLOC,
                                            pBitClass / 8);
-  f_pRelDyn      = pBuilder.CreateSection(".rel.dyn",
+  f_pRelDyn       = pBuilder.CreateSection(".rel.dyn",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_REL,
                                            llvm::ELF::SHF_ALLOC,
                                            pBitClass / 8);
-  f_pRelPlt      = pBuilder.CreateSection(".rel.plt",
+  f_pRelPlt       = pBuilder.CreateSection(".rel.plt",
                                            LDFileFormat::Relocation,
                                            llvm::ELF::SHT_REL,
                                            llvm::ELF::SHF_ALLOC,
@@ -77,10 +77,15 @@ void ELFDynObjFileFormat::initObjectFormat(ObjectBuilder& pBuilder,
                                            llvm::ELF::SHT_PROGBITS,
                                            llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                            pBitClass / 8);
-  f_pEhFrameHdr     = pBuilder.CreateSection(".eh_frame_hdr",
-                                              LDFileFormat::EhFrameHdr,
-                                              llvm::ELF::SHT_PROGBITS,
-                                              llvm::ELF::SHF_ALLOC,
-                                              0x4);
+  f_pEhFrameHdr   = pBuilder.CreateSection(".eh_frame_hdr",
+                                           LDFileFormat::EhFrameHdr,
+                                           llvm::ELF::SHT_PROGBITS,
+                                           llvm::ELF::SHF_ALLOC,
+                                           0x4);
+  f_pGNUHashTab   = pBuilder.CreateSection(".gnu.hash",
+                                           LDFileFormat::NamePool,
+                                           llvm::ELF::SHT_GNU_HASH,
+                                           llvm::ELF::SHF_ALLOC,
+                                           pBitClass / 8);
 }
 
