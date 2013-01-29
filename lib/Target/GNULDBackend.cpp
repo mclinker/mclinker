@@ -759,93 +759,63 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
   size_t symtab_local_cnt = 0;
   size_t dynsym_local_cnt = 0;
 
-  /// Compute the size of .symtab, .dynsym and .strtab
-  /// @{
-  Module::const_sym_iterator symbol;
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  size_t str_size = 0;
-  // compute the size of symbols in File category
-  Module::const_sym_iterator symEnd = symbols.fileEnd();
-  for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-    assert(!isDynamicSymbol(**symbol));
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-    case GeneralOptions::StripLocals:
-      break;
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::KeepAllSymbols:
-      str_size = (*symbol)->nameSize() + 1;
+  Module::const_sym_iterator symbol, symEnd;
+  /// Compute the size of .symtab, .strtab, and symtab_local_cnt
+  /// @{
+  switch (config().options().getStripSymbolMode()) {
+  case GeneralOptions::StripAllSymbols:
+    break;
+  case GeneralOptions::StripTemporaries:
+    symEnd = symbols.fileEnd();
+    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
       ++symtab;
       if (ResolveInfo::Section != (*symbol)->type())
-        strtab += str_size;
-      break;
+        strtab += (*symbol)->nameSize() + 1;
     }
-  }
-
-  // compute the size of symbols in Local category
-  symEnd = symbols.localEnd();
-  for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-    assert(!isDynamicSymbol(**symbol));
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::StripAllSymbols:
-    case GeneralOptions::StripLocals:
-      break;
-    case GeneralOptions::StripTemporaries:
+    symEnd = symbols.localEnd();
+    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
       if (isTemporary(**symbol))
-        break;
-      // Fall through
-    case GeneralOptions::KeepAllSymbols:
-      str_size = (*symbol)->nameSize() + 1;
+        continue;
       ++symtab;
       if (ResolveInfo::Section != (*symbol)->type())
-        strtab += str_size;
-      break;
+        strtab += (*symbol)->nameSize() + 1;
     }
-  }
+    symtab_local_cnt = symtab;
+    // Fall through
+  case GeneralOptions::StripLocals:
+    symEnd = symbols.end();
+    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += (*symbol)->nameSize() + 1;
+    }
+    break;
+  case GeneralOptions::KeepAllSymbols:
+    symEnd = symbols.end();
+    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+      ++symtab;
+      if (ResolveInfo::Section != (*symbol)->type())
+        strtab += (*symbol)->nameSize() + 1;
+    }
+    symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
+                       symbols.numOfTLSs();
+    break;
+  } // end of switch
+  /// @}
 
-  // compute the size of symbols in TLS category
-  symEnd = symbols.tlsEnd();
-  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink) {
+  /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
+  /// @{
+  if (!pIsStaticLink) {
+    symEnd = symbols.dynamicEnd();
+    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type())
-        dynstr += str_size;
+        dynstr += (*symbol)->nameSize() + 1;
     }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += str_size;
-    case GeneralOptions::StripAllSymbols:
-      break;
-    }
+    dynsym_local_cnt = 1 + symbols.numOfTLSs();
   }
-  dynsym_local_cnt = dynsym;
-  symtab_local_cnt = symtab;
-  // compute the size of the reset of symbols
-  symEnd = pModule.sym_end();
-  for (symbol = symbols.commonBegin(); symbol != symEnd; ++symbol) {
-    str_size = (*symbol)->nameSize() + 1;
-    if (!pIsStaticLink && isDynamicSymbol(**symbol)) {
-      ++dynsym;
-      if (ResolveInfo::Section != (*symbol)->type())
-        dynstr += str_size;
-    }
-    switch (config().options().getStripSymbolMode()) {
-    case GeneralOptions::KeepAllSymbols:
-    case GeneralOptions::StripTemporaries:
-    case GeneralOptions::StripLocals:
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += str_size;
-      break;
-    case GeneralOptions::StripAllSymbols:
-      break;
-    }
-  }
+  /// @}
 
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -1026,11 +996,11 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   bool sym_exist = false;
   HashTableType::entry_type* entry = NULL;
   if (LinkerConfig::Object == config().codeGenType()) {
-    entry = m_pSymIndexMap->insert(NULL, sym_exist);
+    entry = m_pSymIndexMap->insert(LDSymbol::Null(), sym_exist);
     entry->setValue(0);
   }
 
-  size_t symtabIdx = 1;
+  size_t symIdx = 1;
   size_t strtabsize = 1;
 
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
@@ -1039,89 +1009,74 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
   case GeneralOptions::StripAllSymbols:
     break;
   case GeneralOptions::StripTemporaries:
-  case GeneralOptions::KeepAllSymbols:
-    // emit File category
     symEnd = symbols.fileEnd();
     for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
       // maintain output's symbol and index map if building .o file
       if (LinkerConfig::Object == config().codeGenType()) {
         entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symtabIdx);
+        entry->setValue(symIdx);
       }
       if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
+        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
       else
-        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
-      ++symtabIdx;
+        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
+      ++symIdx;
       if (ResolveInfo::Section != (*symbol)->type())
         strtabsize += (*symbol)->nameSize() + 1;
-    } // end of File category
-
-    // emit Local category
+    }
     symEnd = symbols.localEnd();
     for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-      // check if we're stripping temporary locals
-      if (config().options().getStripSymbolMode() ==
-          GeneralOptions::StripTemporaries && isTemporary(**symbol))
+      if (isTemporary(**symbol))
         continue;
       // maintain output's symbol and index map if building .o file
       if (LinkerConfig::Object == config().codeGenType()) {
         entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symtabIdx);
+        entry->setValue(symIdx);
       }
       if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
+        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
       else
-        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
-      ++symtabIdx;
+        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
+      ++symIdx;
       if (ResolveInfo::Section != (*symbol)->type())
         strtabsize += (*symbol)->nameSize() + 1;
-    } // end of Local catefory
-
+    }
+    // Fall through
   case GeneralOptions::StripLocals:
-    // emit TLS category
-    symEnd = symbols.tlsEnd();
+    symEnd = symbols.end();
     for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
       // maintain output's symbol and index map if building .o file
       if (LinkerConfig::Object == config().codeGenType()) {
         entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symtabIdx);
+        entry->setValue(symIdx);
       }
       if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
+        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
       else
-        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
-      ++symtabIdx;
+        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
+      ++symIdx;
       if (ResolveInfo::Section != (*symbol)->type())
         strtabsize += (*symbol)->nameSize() + 1;
-    } // end of TLS catefory
-
-    // emit the rest of symbols
-    symEnd = pModule.sym_end();
-    for (symbol = symbols.commonBegin(); symbol != symEnd; ++symbol) {
+    }
+    break;
+  case GeneralOptions::KeepAllSymbols:
+    symEnd = symbols.end();
+    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
       // maintain output's symbol and index map if building .o file
       if (LinkerConfig::Object == config().codeGenType()) {
         entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symtabIdx);
+        entry->setValue(symIdx);
       }
       if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
+        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
       else
-        emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                     symtabIdx);
-      ++symtabIdx;
+        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
+      ++symIdx;
       if (ResolveInfo::Section != (*symbol)->type())
         strtabsize += (*symbol)->nameSize() + 1;
-    } // end of the rest
+    }
     break;
-  }
+  } // end of switch
 }
 
 /// emitDynNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
@@ -1175,53 +1130,22 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   else
     emitSymbol64(symtab64[0], *LDSymbol::Null(), strtab, 0, 0);
 
-  // add the first symbol into m_pSymIndexMap
-  entry = m_pSymIndexMap->insert(NULL, sym_exist);
-  entry->setValue(0);
-
-  size_t symtabIdx = 1;
+  size_t symIdx = 1;
   size_t strtabsize = 1;
 
-  // emit of .dynsym, and .dynstr
-  Module::const_sym_iterator symbol;
+  // emit .dynsym, and .dynstr (emit TLS and Dynamic category)
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  // emit symbols in TLS category, all symbols in TLS category shold be emitited
-  Module::const_sym_iterator symEnd = symbols.tlsEnd();
+  Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     if (config().targets().is32Bits())
-      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
+      emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
     else
-      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
+      emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
     // maintain output's symbol and index map
     entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
+    entry->setValue(symIdx);
     // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
-      strtabsize += (*symbol)->nameSize() + 1;
-  }
-
-  // emit the reset of the symbols if the symbol is dynamic symbol
-  symEnd = pModule.sym_end();
-  for (symbol = symbols.tlsEnd(); symbol != symEnd; ++symbol) {
-    if (!isDynamicSymbol(**symbol))
-      continue;
-
-    if (config().targets().is32Bits())
-      emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-    else
-      emitSymbol64(symtab64[symtabIdx], **symbol, strtab, strtabsize,
-                   symtabIdx);
-
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
+    ++symIdx;
     if (ResolveInfo::Section != (*symbol)->type())
       strtabsize += (*symbol)->nameSize() + 1;
   }
@@ -1278,8 +1202,8 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain  = word_array[1];
 
-  nbucket = getHashBucketCount(symtabIdx, false);
-  nchain  = symtabIdx;
+  nbucket = getHashBucketCount(symIdx, false);
+  nchain  = symIdx;
 
   uint32_t* bucket = (word_array + 2);
   uint32_t* chain  = (bucket + nbucket);
@@ -1290,19 +1214,19 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   StringHash<ELF> hash_func;
 
   if (config().targets().is32Bits()) {
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
+    for (size_t idx = 0; idx < symIdx; ++idx) {
+      llvm::StringRef name(strtab + symtab32[idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
-      chain[sym_idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = sym_idx;
+      chain[idx] = bucket[bucket_pos];
+      bucket[bucket_pos] = idx;
     }
   }
   else if (config().targets().is64Bits()) {
-    for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-      llvm::StringRef name(strtab + symtab64[sym_idx].st_name);
+    for (size_t idx = 0; idx < symIdx; ++idx) {
+      llvm::StringRef name(strtab + symtab64[idx].st_name);
       size_t bucket_pos = hash_func(name) % nbucket;
-      chain[sym_idx] = bucket[bucket_pos];
-      bucket[bucket_pos] = sym_idx;
+      chain[idx] = bucket[bucket_pos];
+      bucket[bucket_pos] = idx;
     }
   }
 }
