@@ -1,4 +1,4 @@
-//===- HexagonMCLinker.cpp ----------------------------------------------------===//
+//===- HexagonMCLinker.cpp ------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -16,13 +16,12 @@ using namespace mcld;
 
 namespace mcld {
 
-//===----------------------------------------------------------------------===//
-/// createHexagonMCLinker - the help funtion to create corresponding HexagonMCLinker
-//===----------------------------------------------------------------------===//
+/// createHexagonMCLinker - the help funtion to create corresponding
+/// HexagonMCLinker
 MCLinker* createHexagonMCLinker(const std::string &pTriple,
-                            LinkerConfig& pConfig,
-                            mcld::Module& pModule,
-                            MemoryArea& pOutput)
+                                LinkerConfig& pConfig,
+                                mcld::Module& pModule,
+                                MemoryArea& pOutput)
 {
   Triple theTriple(pTriple);
   if (theTriple.isOSDarwin()) {
@@ -48,6 +47,7 @@ MCLinker* createHexagonMCLinker(const std::string &pTriple,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonMCLinker() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterMCLinker(TheHexagonTarget, createHexagonMCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheHexagonTarget,
+                                         createHexagonMCLinker);
 }
 
