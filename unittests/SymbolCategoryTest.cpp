@@ -82,7 +82,7 @@ TEST_F(SymbolCategoryTest, upward_test) {
 
   ASSERT_TRUE(1 == m_pTestee->numOfLocals());
   ASSERT_TRUE(1 == m_pTestee->numOfCommons());
-  ASSERT_TRUE(2 == m_pTestee->numOfRegulars());
+  ASSERT_TRUE(2 == m_pTestee->numOfDynamics());
   ASSERT_TRUE(5 == m_pTestee->numOfSymbols());
 }
 
