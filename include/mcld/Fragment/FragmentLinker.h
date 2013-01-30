@@ -30,33 +30,13 @@ namespace mcld {
 class Module;
 class TargetLDBackend;
 class LinkerConfig;
-class LDSection;
-class LDSectionFactory;
-class SectionData;
-class Output;
-class EhFrame;
-class EhFrameHdr;
 class MemoryArea;
-class RelocData;
 
 /** \class FragmentLinker
  *  \brief FragmentLinker provides a pass to link object files.
  */
 class FragmentLinker
 {
-public:
-  enum DefinePolicy
-  {
-    Force,
-    AsReferred
-  };
-
-  enum ResolvePolicy
-  {
-    Unresolve,
-    Resolve
-  };
-
 public:
   FragmentLinker(const LinkerConfig& pConfig,
                  Module& pModule,
