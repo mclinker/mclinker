@@ -78,7 +78,7 @@ public:
   /// to the begin of the .init_array section, then relocation enties to
   /// __init_array_begin can be applied without emission of "undefined
   /// reference to `__init_array_begin'".
-  bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule);
+  bool initStandardSymbols(IRBuilder& pBuilder, Module& pModule);
 
   /// finalizeSymbol - Linker checks pSymbol.reserved() if it's not zero,
   /// then it will ask backend to finalize the symbol value.

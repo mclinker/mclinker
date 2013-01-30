@@ -196,7 +196,7 @@ bool GNULDBackend::initStdSections(ObjectBuilder& pBuilder)
 
 /// initStandardSymbols - define and initialize standard symbols.
 /// This function is called after section merging but before read relocations.
-bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
+bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
                                        Module& pModule)
 {
   if (LinkerConfig::Object == config().codeGenType())
@@ -226,8 +226,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
       llvm::StringRef start_name = llvm::StringRef("__start_" + section->name());
       FragmentRef* start_fragref = FragmentRef::Create(
                                        section->getSectionData()->front(), 0x0);
-      pLinker.defineSymbol<FragmentLinker::AsReferred,
-                           FragmentLinker::Resolve>(start_name,
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                    start_name,
                                                     ResolveInfo::NoType,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Global,
@@ -239,8 +239,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
       llvm::StringRef stop_name = llvm::StringRef("__stop_" + section->name());
       FragmentRef* stop_fragref = FragmentRef::Create(
                            section->getSectionData()->front(), section->size());
-      pLinker.defineSymbol<FragmentLinker::AsReferred,
-                           FragmentLinker::Resolve>(stop_name,
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                    stop_name,
                                                     ResolveInfo::NoType,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Global,
@@ -265,8 +265,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
     preinit_array = FragmentRef::Null();
   }
   f_pPreInitArrayStart =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__preinit_array_start",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__preinit_array_start",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -275,8 +275,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              preinit_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pPreInitArrayEnd =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__preinit_array_end",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__preinit_array_end",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -297,8 +297,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   }
 
   f_pInitArrayStart =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__init_array_start",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__init_array_start",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -307,8 +307,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              init_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pInitArrayEnd =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__init_array_end",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__init_array_end",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -329,8 +329,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   }
 
   f_pFiniArrayStart =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__fini_array_start",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__fini_array_start",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -339,8 +339,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              fini_array, // FragRef
                                              ResolveInfo::Hidden);
   f_pFiniArrayEnd =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__fini_array_end",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__fini_array_end",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -361,8 +361,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   }
 
   f_pStack =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__stack",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__stack",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Global,
@@ -375,8 +375,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   // TODO: add SectionData for .dynamic section, and then we can get the correct
   // symbol section index for _DYNAMIC. Now it will be ABS.
   f_pDynamic =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("_DYNAMIC",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                   "_DYNAMIC",
                                                    ResolveInfo::Object,
                                                    ResolveInfo::Define,
                                                    ResolveInfo::Local,
@@ -387,8 +387,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
 
   // -----  segment symbols  ----- //
   f_pExecutableStart =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__executable_start",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__executable_start",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -397,8 +397,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEText =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("etext",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "etext",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -407,8 +407,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p_EText =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("_etext",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "_etext",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -417,8 +417,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_p__EText =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("__etext",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "__etext",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -427,8 +427,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              FragmentRef::Null(), // FragRef
                                              ResolveInfo::Default);
   f_pEData =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("edata",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "edata",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -438,8 +438,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
                                              ResolveInfo::Default);
 
   f_pEnd =
-     pLinker.defineSymbol<FragmentLinker::AsReferred,
-                          FragmentLinker::Resolve>("end",
+     pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                             "end",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -451,8 +451,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   // _edata is defined forcefully.
   // @ref Google gold linker: defstd.cc: 186
   f_p_EData =
-     pLinker.defineSymbol<FragmentLinker::Force,
-                          FragmentLinker::Resolve>("_edata",
+     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                             "_edata",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -464,8 +464,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   // __bss_start is defined forcefully.
   // @ref Google gold linker: defstd.cc: 214
   f_pBSSStart =
-     pLinker.defineSymbol<FragmentLinker::Force,
-                          FragmentLinker::Resolve>("__bss_start",
+     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                             "__bss_start",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,
@@ -477,8 +477,8 @@ bool GNULDBackend::initStandardSymbols(FragmentLinker& pLinker,
   // _end is defined forcefully.
   // @ref Google gold linker: defstd.cc: 228
   f_p_End =
-     pLinker.defineSymbol<FragmentLinker::Force,
-                          FragmentLinker::Resolve>("_end",
+     pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                             "_end",
                                              ResolveInfo::NoType,
                                              ResolveInfo::Define,
                                              ResolveInfo::Absolute,

@@ -295,7 +295,7 @@ bool ObjectLinker::addStandardSymbols()
     m_pModule->getSectionSymbolSet().add(**iter, m_pModule->getNamePool());
   }
 
-  return m_LDBackend.initStandardSymbols(*m_pLinker, *m_pModule);
+  return m_LDBackend.initStandardSymbols(*m_pBuilder, *m_pModule);
 }
 
 /// addTargetSymbols - some targets, such as MIPS and ARM, need some

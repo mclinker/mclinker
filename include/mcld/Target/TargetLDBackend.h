@@ -60,7 +60,7 @@ public:
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) { }
   virtual void initTargetSymbols(FragmentLinker& pLinker) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
-  virtual bool initStandardSymbols(FragmentLinker& pLinker, Module& pModule) = 0;
+  virtual bool initStandardSymbols(IRBuilder& pBuilder, Module& pModule) = 0;
 
   virtual bool initRelocator(const FragmentLinker& pLinker) = 0;
 
