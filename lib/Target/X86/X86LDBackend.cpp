@@ -59,7 +59,6 @@ bool X86GNULDBackend::initRelocator(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new X86Relocator(*this);
-    m_pRelocator->setFragmentLinker(pLinker);
   }
   return true;
 }

@@ -101,7 +101,6 @@ bool MipsGNULDBackend::initRelocator(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new MipsRelocator(*this);
-    m_pRelocator->setFragmentLinker(pLinker);
   }
   return true;
 }

@@ -168,7 +168,6 @@ bool ARMGNULDBackend::initRelocator(const FragmentLinker& pLinker)
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new ARMRelocator(*this);
-    m_pRelocator->setFragmentLinker(pLinker);
   }
   return true;
 }
