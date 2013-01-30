@@ -1,4 +1,4 @@
-//===- HexagonDiagnostic.cpp -----------------------------------------------===//
+//===- HexagonDiagnostic.cpp ----------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -31,6 +31,7 @@ createHexagonDiagLineInfo(const Target& pTarget, const std::string &pTriple)
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonDiagnosticLineInfo() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheHexagonTarget, createHexagonDiagLineInfo);
+  mcld::TargetRegistry::RegisterDiagnosticLineInfo(TheHexagonTarget,
+                                                   createHexagonDiagLineInfo);
 }
 
