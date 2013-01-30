@@ -106,6 +106,7 @@ void HexagonLDBackend::scanRelocation(Relocation& pReloc,
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
                                           MemoryRegion& pRegion) const
 {
+  return 0;
 }
 
 HexagonGOT& HexagonLDBackend::getGOT()
