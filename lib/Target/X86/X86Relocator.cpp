@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "X86Relocator.h"
+#include "X86RelocationFunctions.h"
+
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/LD/LDSymbol.h>
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
-#include <mcld/Support/MsgHandling.h>
-
-#include "X86Relocator.h"
-#include "X86RelocationFunctions.h"
 
 using namespace mcld;
 
