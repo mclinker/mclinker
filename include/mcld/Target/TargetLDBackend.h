@@ -56,7 +56,7 @@ public:
   virtual ~TargetLDBackend();
 
   // -----  target dependent  ----- //
-  virtual void initTargetSegments(FragmentLinker& pLinker) { }
+  virtual void initTargetSegments(IRBuilder& pBuilder) { }
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) { }
   virtual void initTargetSymbols(IRBuilder& pBuilder) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
