@@ -58,7 +58,7 @@ public:
   // -----  target dependent  ----- //
   virtual void initTargetSegments(FragmentLinker& pLinker) { }
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) { }
-  virtual void initTargetSymbols(FragmentLinker& pLinker) { }
+  virtual void initTargetSymbols(IRBuilder& pBuilder) { }
   virtual void initTargetRelocation(FragmentLinker& pLinker) { }
   virtual bool initStandardSymbols(IRBuilder& pBuilder, Module& pModule) = 0;
 

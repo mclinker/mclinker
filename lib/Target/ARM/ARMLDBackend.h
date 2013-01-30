@@ -93,7 +93,7 @@ public:
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(FragmentLinker& pLinker);
+  void initTargetSymbols(IRBuilder& pBuilder);
 
   /// initRelocator - create and initialize Relocator.
   bool initRelocator(const FragmentLinker& pLinker);

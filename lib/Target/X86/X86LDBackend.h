@@ -132,7 +132,7 @@ public:
 
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
-  void initTargetSymbols(FragmentLinker& pLinker);
+  void initTargetSymbols(IRBuilder& pLinker);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.

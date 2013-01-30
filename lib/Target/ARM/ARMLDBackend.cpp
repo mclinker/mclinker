@@ -115,13 +115,12 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
   }
 }
 
-void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
+void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol =
-    pLinker.defineSymbol<FragmentLinker::AsReferred,
-                         FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
+  m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                  "_GLOBAL_OFFSET_TABLE_",
                                                   ResolveInfo::Object,
                                                   ResolveInfo::Define,
                                                   ResolveInfo::Local,
@@ -144,8 +143,8 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
     exidx_end = FragmentRef::Null();
   }
   m_pEXIDXStart =
-    pLinker.defineSymbol<FragmentLinker::AsReferred,
-                         FragmentLinker::Resolve>("__exidx_start",
+    pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                  "__exidx_start",
                                                   type, // ResolveInfo::Type
                                                   desc, // ResolveInfo::Desc
                                                   ResolveInfo::Global,
@@ -154,9 +153,8 @@ void ARMGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                                                   exidx_start, // FragRef
                                                   ResolveInfo::Default);
 
-  m_pEXIDXEnd =
-    pLinker.defineSymbol<FragmentLinker::Force,
-                         FragmentLinker::Resolve>("__exidx_end",
+  m_pEXIDXEnd = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                                  "__exidx_end",
                                                   type, // ResolveInfo::Type
                                                   desc, //ResolveInfo::Desc
                                                   ResolveInfo::Global,

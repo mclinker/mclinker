@@ -201,14 +201,13 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
   }
 }
 
-void HexagonLDBackend::initTargetSymbols(FragmentLinker& pLinker)
+void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
     // same name in input
-    m_pGOTSymbol =
-      pLinker.defineSymbol<FragmentLinker::AsReferred,
-                           FragmentLinker::Resolve>("_GLOBAL_OFFSET_TABLE_",
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                    "_GLOBAL_OFFSET_TABLE_",
                                                     ResolveInfo::Object,
                                                     ResolveInfo::Define,
                                                     ResolveInfo::Local,

@@ -68,11 +68,11 @@ void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuild
   }
 }
 
-void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
+void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Resolve>(
+  m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                    "_GLOBAL_OFFSET_TABLE_",
                    ResolveInfo::Object,
                    ResolveInfo::Define,
@@ -82,7 +82,7 @@ void MipsGNULDBackend::initTargetSymbols(FragmentLinker& pLinker)
                    FragmentRef::Null(), // FragRef
                    ResolveInfo::Hidden);
 
-  m_pGpDispSymbol = pLinker.defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Resolve>(
+  m_pGpDispSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                    "_gp_disp",
                    ResolveInfo::Section,
                    ResolveInfo::Define,
