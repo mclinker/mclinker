@@ -74,8 +74,6 @@ public:
   void syncRelocationResult(MemoryArea& pOutput);
 
 private:
-  bool shouldForceLocal(const ResolveInfo& pInfo) const;
-
   /// normalSyncRelocationResult - sync relocation result when producing shared
   /// objects or executables
   void normalSyncRelocationResult(MemoryArea& pOutput);

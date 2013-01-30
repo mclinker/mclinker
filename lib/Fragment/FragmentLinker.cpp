@@ -86,22 +86,6 @@ bool FragmentLinker::finalizeSymbols()
   return m_Backend.finalizeSymbols(*this);
 }
 
-bool FragmentLinker::shouldForceLocal(const ResolveInfo& pInfo) const
-{
-  // forced local symbol matches all rules:
-  // 1. We are not doing incremental linking.
-  // 2. The symbol is with Hidden or Internal visibility.
-  // 3. The symbol should be global or weak. Otherwise, local symbol is local.
-  // 4. The symbol is defined or common
-  if (LinkerConfig::Object != m_Config.codeGenType() &&
-      (pInfo.visibility() == ResolveInfo::Hidden ||
-         pInfo.visibility() == ResolveInfo::Internal) &&
-      (pInfo.isGlobal() || pInfo.isWeak()) &&
-      (pInfo.isDefine() || pInfo.isCommon()))
-    return true;
-  return false;
-}
-
 //===----------------------------------------------------------------------===//
 // Relocation Operations
 //===----------------------------------------------------------------------===//
