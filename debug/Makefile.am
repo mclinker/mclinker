@@ -172,6 +172,17 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonMCLinker.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.h \
+	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonGOT.h \
+	${LIBDIR}/Target/Hexagon/HexagonGOT.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonPLT.h \
+	${LIBDIR}/Target/Hexagon/HexagonPLT.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonRelocationFunctions.h \
+	${LIBDIR}/Target/Hexagon/HexagonRelocator.h \
+	${LIBDIR}/Target/Hexagon/HexagonRelocator.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonLDBackend.h \
+	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
