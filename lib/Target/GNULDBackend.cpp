@@ -715,7 +715,6 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
 }
 
 void GNULDBackend::partialScanRelocation(Relocation& pReloc,
-                                         FragmentLinker& pLinker,
                                          Module& pModule,
                                          const LDSection& pSection)
 {

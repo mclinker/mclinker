@@ -113,7 +113,6 @@ public:
   /// partialScanRelocation - When doing partial linking, fix the relocation
   /// offset after section merge
   void partialScanRelocation(Relocation& pReloc,
-                             FragmentLinker& pLinker,
                              Module& pModule,
                              const LDSection& pSection);
 
