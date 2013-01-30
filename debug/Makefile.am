@@ -172,7 +172,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonMCLinker.cpp \
-	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.h \
+	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp \
 	${INCDIR}/Object/ObjectLinker.h \
 	${LIBDIR}/Object/ObjectLinker.cpp \
 	${INCDIR}/Object/ObjectBuilder.h \
