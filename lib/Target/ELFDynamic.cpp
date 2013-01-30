@@ -117,6 +117,10 @@ void ELFDynamic::reserveEntries(const ELFFileFormat& pFormat)
   if (pFormat.hasHashTab())
     reserveOne(llvm::ELF::DT_HASH); // DT_HASH
 
+  // FIXME: use llvm enum constant
+  if (pFormat.hasGNUHashTab())
+    reserveOne(0x6ffffef5); // DT_GNU_HASH
+
   if (pFormat.hasDynSymTab()) {
     reserveOne(llvm::ELF::DT_SYMTAB); // DT_SYMTAB
     reserveOne(llvm::ELF::DT_SYMENT); // DT_SYMENT
@@ -218,6 +222,10 @@ void ELFDynamic::applyEntries(const ELFFileFormat& pFormat)
 
   if (pFormat.hasHashTab())
     applyOne(llvm::ELF::DT_HASH, pFormat.getHashTab().addr()); // DT_HASH
+
+  // FIXME: use llvm enum constant
+  if (pFormat.hasGNUHashTab())
+    applyOne(0x6ffffef5, pFormat.getGNUHashTab().addr()); // DT_GNU_HASH
 
   if (pFormat.hasDynSymTab()) {
     applyOne(llvm::ELF::DT_SYMTAB, pFormat.getDynSymTab().addr()); // DT_SYMTAB

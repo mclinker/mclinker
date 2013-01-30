@@ -13,6 +13,7 @@
 #include <cassert>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
@@ -740,8 +741,7 @@ void GNULDBackend::partialScanRelocation(Relocation& pReloc,
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
-void
-GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
+void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
 {
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
@@ -750,16 +750,17 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
 
   // size of string tables starts from 1 to hold the null character in their
   // first byte
-  size_t strtab = 1;
-  size_t dynstr = pIsStaticLink ? 0 : 1;
+  size_t strtab   = 1;
+  size_t dynstr   = pIsStaticLink ? 0 : 1;
   size_t shstrtab = 1;
-  size_t hash   = 0;
+  size_t hash     = 0;
+  size_t gnuhash  = 0;
 
   // number of local symbol in the .symtab and .dynsym
   size_t symtab_local_cnt = 0;
   size_t dynsym_local_cnt = 0;
 
-  const Module::SymbolTable& symbols = pModule.getSymbolTable();
+  Module::SymbolTable& symbols = pModule.getSymbolTable();
   Module::const_sym_iterator symbol, symEnd;
   /// Compute the size of .symtab, .strtab, and symtab_local_cnt
   /// @{
@@ -848,6 +849,30 @@ GNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
             dynstr += (*rpath).size() + 1;
         }
 
+        // compute .gnu.hash
+        if (GeneralOptions::GNU  == config().options().getHashStyle() ||
+            GeneralOptions::Both == config().options().getHashStyle()) {
+          // sort .dynsym
+          std::stable_sort(symbols.tlsEnd(), symbols.dynamicEnd(),
+                           DynsymCompare());
+          // count the number of dynsym to hash
+          size_t hashed_sym_cnt = symbols.numOfDynamics();
+          symEnd = symbols.dynamicEnd();
+          for (symbol = symbols.dynamicBegin(); symbol != symEnd; ++symbol) {
+            if (DynsymCompare().needGNUHash(**symbol))
+              break;
+              --hashed_sym_cnt;
+          }
+          // Special case for empty .dynsym
+          if (hashed_sym_cnt == 0)
+            gnuhash = 5 * 4 + config().targets().bitclass() / 8;
+          else {
+            size_t nbucket = getHashBucketCount(hashed_sym_cnt, true);
+            gnuhash = (4 + nbucket + hashed_sym_cnt) * 4;
+            gnuhash += (1U << getGNUHashMaskbitslog2(hashed_sym_cnt)) / 8;
+          }
+          file_format->getGNUHashTab().setSize(gnuhash);
+        }
         // compute .hash
         if (GeneralOptions::SystemV == config().options().getHashStyle() ||
             GeneralOptions::Both == config().options().getHashStyle()) {
@@ -1086,8 +1111,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void GNULDBackend::emitDynNamePools(const Module& pModule,
-                                    MemoryArea& pOutput)
+void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasDynSymTab() ||
@@ -1132,8 +1156,17 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
   size_t symIdx = 1;
   size_t strtabsize = 1;
 
+  Module::SymbolTable& symbols = pModule.getSymbolTable();
+  // emit .gnu.hash
+  if (GeneralOptions::GNU  == config().options().getHashStyle() ||
+      GeneralOptions::Both == config().options().getHashStyle())
+    emitGNUHashTab(symbols, pOutput);
+  // emit .hash
+  if (GeneralOptions::SystemV == config().options().getHashStyle() ||
+      GeneralOptions::Both == config().options().getHashStyle())
+    emitELFHashTab(symbols, pOutput);
+
   // emit .dynsym, and .dynstr (emit TLS and Dynamic category)
-  const Module::SymbolTable& symbols = pModule.getSymbolTable();
   Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
   for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
     if (config().targets().is32Bits())
@@ -1191,10 +1224,6 @@ void GNULDBackend::emitDynNamePools(const Module& pModule,
     strcpy((strtab + strtabsize), pModule.name().c_str());
     strtabsize += pModule.name().size() + 1;
   }
-
-  if (GeneralOptions::SystemV == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle())
-    emitELFHashTab(symbols, pOutput);
 }
 
 /// emitELFHashTab - emit .hash
@@ -1233,6 +1262,132 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
     chain[idx] = bucket[bucket_pos];
     bucket[bucket_pos] = idx;
     ++idx;
+  }
+}
+
+/// emitGNUHashTab - emit .gnu.hash
+void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
+                                  MemoryArea& pOutput)
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  if (!file_format->hasGNUHashTab())
+    return;
+
+  MemoryRegion* gnuhash_region =
+    pOutput.request(file_format->getGNUHashTab().offset(),
+                    file_format->getGNUHashTab().size());
+
+  uint32_t* word_array = (uint32_t*)gnuhash_region->start();
+  // fixed-length fields
+  uint32_t& nbucket   = word_array[0];
+  uint32_t& symidx    = word_array[1];
+  uint32_t& maskwords = word_array[2];
+  uint32_t& shift2    = word_array[3];
+  // variable-length fields
+  uint8_t*  bitmask = (uint8_t*)(word_array + 4);
+  uint32_t* bucket  = NULL;
+  uint32_t* chain   = NULL;
+
+  // count the number of dynsym to hash
+  size_t unhashed_sym_cnt = pSymtab.numOfTLSs();
+  size_t hashed_sym_cnt   = pSymtab.numOfDynamics();
+  Module::const_sym_iterator symbol, symEnd = pSymtab.dynamicEnd();
+  for (symbol = pSymtab.dynamicBegin(); symbol != symEnd; ++symbol) {
+    if (DynsymCompare().needGNUHash(**symbol))
+      break;
+      ++unhashed_sym_cnt;
+      --hashed_sym_cnt;
+  }
+
+  // special case for the empty hash table
+  if (hashed_sym_cnt == 0) {
+    nbucket   = 1; // one empty bucket
+    symidx    = 1 + unhashed_sym_cnt; // symidx above unhashed symbols
+    maskwords = 1; // bitmask length
+    shift2    = 0; // bloom filter
+
+    if (config().targets().is32Bits()) {
+      uint32_t* maskval = (uint32_t*)bitmask;
+      *maskval = 0; // no valid hashes
+    } else {
+      // must be 64
+      uint64_t* maskval = (uint64_t*)bitmask;
+      *maskval = 0; // no valid hashes
+    }
+    bucket  = (uint32_t*)(bitmask + config().targets().bitclass() / 8);
+    *bucket = 0; // no hash in the only bucket
+    return;
+  }
+
+  uint32_t maskbitslog2 = getGNUHashMaskbitslog2(hashed_sym_cnt);
+  uint32_t maskbits = 1u << maskbitslog2;
+  uint32_t shift1 = config().targets().is32Bits() ? 5 : 6;
+  uint32_t mask = (1u << shift1) - 1;
+
+  nbucket   = getHashBucketCount(hashed_sym_cnt, true);
+  symidx    = 1 + unhashed_sym_cnt;
+  maskwords = 1 << (maskbitslog2 - shift1);
+  shift2    = maskbitslog2;
+
+  // setup bucket and chain
+  bucket = (uint32_t*)(bitmask + maskbits / 8);
+  chain  = (bucket + nbucket);
+
+  // build the gnu style hash table
+  typedef std::multimap<uint32_t,
+                        std::pair<LDSymbol*, uint32_t> > SymMapType;
+  SymMapType symmap;
+  symEnd = pSymtab.dynamicEnd();
+  for (symbol = pSymtab.tlsBegin() + symidx - 1; symbol != symEnd;
+    ++symbol) {
+    StringHash<DJB> hasher;
+    uint32_t djbhash = hasher((*symbol)->name());
+    uint32_t hash = djbhash % nbucket;
+    symmap.insert(std::make_pair(hash, std::make_pair(*symbol, djbhash)));
+  }
+
+  // compute bucket, chain, and bitmask
+  std::vector<uint64_t> bitmasks(maskwords);
+  size_t hashedidx = symidx;
+  for (size_t idx = 0; idx < nbucket; ++idx) {
+    size_t count = 0;
+    std::pair<SymMapType::iterator, SymMapType::iterator> ret;
+    ret = symmap.equal_range(idx);
+    for (SymMapType::iterator it = ret.first; it != ret.second; ) {
+      // rearrange the hashed symbol ordering
+      *(pSymtab.tlsBegin() + hashedidx - 1) = it->second.first;
+      uint32_t djbhash = it->second.second;
+      uint32_t val = ((djbhash >> shift1) & ((maskbits >> shift1) - 1));
+      bitmasks[val] |= 1u << (djbhash & mask);
+      bitmasks[val] |= 1u << ((djbhash >> shift2) & mask);
+      val = djbhash & ~1u;
+      // advance the iterator and check if we're dealing w/ the last elment
+      if (++it == ret.second) {
+        // last element terminates the chain
+        val |= 1;
+      }
+      chain[hashedidx - symidx] = val;
+
+      ++hashedidx;
+      ++count;
+    }
+
+    if (count == 0)
+      bucket[idx] = 0;
+    else
+      bucket[idx] = hashedidx - count;
+  }
+
+  // write the bitmasks
+  if (config().targets().is32Bits()) {
+    uint32_t* maskval = (uint32_t*)bitmask;
+    for (size_t i = 0; i < maskwords; ++i)
+      std::memcpy(maskval + i, &bitmasks[i], 4);
+  } else {
+    // must be 64
+    uint64_t* maskval = (uint64_t*)bitmask;
+    for (size_t i = 0; i < maskwords; ++i)
+      std::memcpy(maskval + i, &bitmasks[i], 8);
   }
 }
 
@@ -2181,6 +2336,27 @@ unsigned GNULDBackend::getHashBucketCount(unsigned pNumOfSymbols,
   return result;
 }
 
+/// getGNUHashMaskbitslog2 - calculate the number of mask bits in log2
+/// @ref binutils gold, dynobj.cc:1165
+unsigned GNULDBackend::getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const
+{
+  uint32_t maskbitslog2 = 1;
+  for (uint32_t x = pNumOfSymbols >> 1; x != 0; x >>=1)
+    ++maskbitslog2;
+
+  if (maskbitslog2 < 3)
+    maskbitslog2 = 5;
+  else if (((1U << (maskbitslog2 - 2)) & pNumOfSymbols) != 0)
+    maskbitslog2 += 3;
+  else
+    maskbitslog2 += 2;
+
+  if (config().targets().bitclass() == 64 && maskbitslog2 == 5)
+    maskbitslog2 = 6;
+
+  return maskbitslog2;
+}
+
 /// isDynamicSymbol
 /// @ref Google gold linker: symtab.cc:311
 bool GNULDBackend::isDynamicSymbol(const LDSymbol& pSymbol)
@@ -2461,5 +2637,19 @@ bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
   } while (!finished);
 
   return true;
+}
+
+bool GNULDBackend::DynsymCompare::needGNUHash(const LDSymbol& X) const
+{
+  // FIXME: in bfd and gold linker, an undefined symbol might be hashed
+  // when the ouput is not PIC, if the symbol is referred by a non pc-relative
+  // reloc, and its value is set to the addr of the plt entry.
+  return !X.resolveInfo()->isUndef() && !X.isDyn();
+}
+
+bool GNULDBackend::DynsymCompare::operator()(const LDSymbol* X,
+                                             const LDSymbol* Y) const
+{
+  return !needGNUHash(*X) && needGNUHash(*Y);
 }
 

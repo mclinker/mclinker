@@ -120,22 +120,24 @@ public:
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
-  virtual void sizeNamePools(const Module& pModule, bool pIsStaticLink);
+  virtual void sizeNamePools(Module& pModule, bool pIsStaticLink);
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const LDSection& pSection,
                                    MemoryRegion& pRegion) const = 0;
 
   /// emitRegNamePools - emit regular name pools - .symtab, .strtab
-  virtual void emitRegNamePools(const Module& pModule,
-                                MemoryArea& pOutput);
+  virtual void emitRegNamePools(const Module& pModule, MemoryArea& pOutput);
 
   /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  virtual void emitDynNamePools(const Module& pModule,
-                                MemoryArea& pOutput);
+  virtual void emitDynNamePools(Module& pModule, MemoryArea& pOutput);
 
   /// emitELFHashTab - emit .hash
   virtual void emitELFHashTab(const Module::SymbolTable& pSymtab,
+                              MemoryArea& pOutput);
+
+  /// emitGNUHashTab - emit .gnu.hash
+  virtual void emitGNUHashTab(Module::SymbolTable& pSymtab,
                               MemoryArea& pOutput);
 
   /// sizeInterp - compute the size of program interpreter's name
@@ -241,6 +243,10 @@ protected:
   /// getHashBucketCount - calculate hash bucket count.
   /// @ref Google gold linker, dynobj.cc:791
   static unsigned getHashBucketCount(unsigned pNumOfSymbols, bool pIsGNUStyle);
+
+  /// getGNUHashMaskbitslog2 - calculate the number of mask bits in log2
+  /// @ref binutils gold, dynobj.cc:1165
+  unsigned getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const;
 
   /// isDynamicSymbol
   /// @ref Google gold linker: symtab.cc:311
@@ -411,6 +417,14 @@ protected:
   {
     bool operator()(const LDSymbol* X, const LDSymbol* Y) const
     { return (X==Y); }
+  };
+
+  // for gnu style hash table
+  struct DynsymCompare
+  {
+    bool needGNUHash(const LDSymbol& X) const;
+
+    bool operator()(const LDSymbol* X, const LDSymbol* Y) const;
   };
 
   struct SymPtrHash

@@ -222,7 +222,7 @@ bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
 void
-MipsGNULDBackend::sizeNamePools(const Module& pModule, bool pIsStaticLink)
+MipsGNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
 {
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
@@ -439,8 +439,7 @@ void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
 ///
 /// the size of these tables should be computed before layout
 /// layout should computes the start offset of these tables
-void MipsGNULDBackend::emitDynNamePools(const Module& pModule,
-                                        MemoryArea& pOutput)
+void MipsGNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
 {
   ELFFileFormat* file_format = getOutputFormat();
   if (!file_format->hasDynSymTab() ||

@@ -448,7 +448,8 @@ uint64_t ELFWriter::getELF32SectEntrySize(const LDSection& pSection) const
     return sizeof(llvm::ELF::Elf32_Rel);
   if (llvm::ELF::SHT_RELA == pSection.type())
     return sizeof(llvm::ELF::Elf32_Rela);
-  if (llvm::ELF::SHT_HASH == pSection.type())
+  if (llvm::ELF::SHT_HASH     == pSection.type() ||
+      llvm::ELF::SHT_GNU_HASH == pSection.type())
     return sizeof(llvm::ELF::Elf32_Word);
   if (llvm::ELF::SHT_DYNAMIC == pSection.type())
     return sizeof(llvm::ELF::Elf32_Dyn);
@@ -482,7 +483,8 @@ uint64_t ELFWriter::getSectLink(const LDSection& pSection,
     return target().getOutputFormat()->getDynStrTab().index();
   if (llvm::ELF::SHT_DYNAMIC == pSection.type())
     return target().getOutputFormat()->getDynStrTab().index();
-  if (llvm::ELF::SHT_HASH == pSection.type())
+  if (llvm::ELF::SHT_HASH     == pSection.type() ||
+      llvm::ELF::SHT_GNU_HASH == pSection.type())
     return target().getOutputFormat()->getDynSymTab().index();
   if (llvm::ELF::SHT_REL == pSection.type() ||
       llvm::ELF::SHT_RELA == pSection.type()) {
