@@ -340,7 +340,7 @@ private:
   virtual void doPostLayout(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  void postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput);
+  void postProcessing(MemoryArea& pOutput);
 
   /// dynamic - the dynamic section of the target machine.
   virtual ELFDynamic& dynamic() = 0;

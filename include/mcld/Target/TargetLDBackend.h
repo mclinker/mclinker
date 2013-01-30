@@ -108,8 +108,7 @@ public:
   virtual void postLayout(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
-  virtual void postProcessing(FragmentLinker& pLinker,
-                              MemoryArea& pOutput) = 0;
+  virtual void postProcessing(MemoryArea& pOutput) = 0;
 
   /// section start offset in the output file
   virtual size_t sectionStartOffset() const = 0;

@@ -2146,7 +2146,7 @@ void GNULDBackend::postLayout(Module& pModule,
   doPostLayout(pModule, pLinker);
 }
 
-void GNULDBackend::postProcessing(FragmentLinker& pLinker, MemoryArea& pOutput)
+void GNULDBackend::postProcessing(MemoryArea& pOutput)
 {
   if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // emit eh_frame_hdr
