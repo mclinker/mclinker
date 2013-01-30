@@ -113,7 +113,7 @@ Relocator* MipsGNULDBackend::getRelocator()
 }
 
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
-                                      FragmentLinker& pLinker,
+                                      IRBuilder& pBuilder,
                                       Module& pModule,
                                       LDSection& pSection)
 {
@@ -138,9 +138,9 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pLinker, pSection);
+    scanLocalReloc(pReloc, pBuilder, pSection);
   else
-    scanGlobalReloc(pReloc, pLinker, pSection);
+    scanGlobalReloc(pReloc, pBuilder, pSection);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
@@ -750,7 +750,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 }
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker,
+                                      IRBuilder& pBuilder,
                                       const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -847,7 +847,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                       FragmentLinker& pLinker,
+                                       IRBuilder& pBuilder,
                                        const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();

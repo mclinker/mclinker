@@ -108,7 +108,7 @@ public:
   /// - PLT entry (for .plt section)
   /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
   void scanRelocation(Relocation& pReloc,
-                      FragmentLinker& pLinker,
+                      IRBuilder& pBuilder,
                       Module& pModule,
                       LDSection& pSection);
 
@@ -177,7 +177,7 @@ private:
   void scanLocalReloc(Relocation& pReloc, const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
-                       FragmentLinker& pLinker,
+                       IRBuilder& pBuilder,
                        const LDSection& pSection);
 
   void checkValidReloc(Relocation& pReloc) const;
@@ -189,7 +189,7 @@ private:
   /// defineSymbolforCopyReloc - allocate a space in BSS section and
   /// and force define the copy of pSym to BSS section
   /// @return the output LDSymbol of the copy symbol
-  LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
+  LDSymbol& defineSymbolforCopyReloc(IRBuilder& pLinker,
                                      const ResolveInfo& pSym);
 
   void defineGOTSymbol(IRBuilder& pBuilder);

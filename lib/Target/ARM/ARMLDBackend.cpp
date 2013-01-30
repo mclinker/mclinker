@@ -302,7 +302,7 @@ void ARMGNULDBackend::addCopyReloc(ResolveInfo& pSym)
 /// copy.
 /// This is executed at scan relocation stage.
 LDSymbol&
-ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
+ARMGNULDBackend::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                                           const ResolveInfo& pSym)
 {
   // get or create corresponding BSS LDSection
@@ -337,7 +337,7 @@ ARMGNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
                       pSym.name(),
                       (ResolveInfo::Type)pSym.type(),
                       ResolveInfo::Define,
@@ -479,7 +479,7 @@ ARMGNULDBackend::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 }
 
 void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker,
+                                      IRBuilder& pBuilder,
                                       const LDSection& pSection)
 {
   // rsym - The relocation target symbol
@@ -524,7 +524,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
@@ -599,7 +599,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
@@ -694,7 +694,7 @@ void ARMGNULDBackend::scanGlobalReloc(Relocation& pReloc,
 }
 
 void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
-                                     FragmentLinker& pLinker,
+                                     IRBuilder& pBuilder,
                                      Module& pModule,
                                      LDSection& pSection)
 {
@@ -717,7 +717,7 @@ void ARMGNULDBackend::scanRelocation(Relocation& pReloc,
 
   // rsym is external
   else
-    scanGlobalReloc(pReloc, pLinker, pSection);
+    scanGlobalReloc(pReloc, pBuilder, pSection);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol

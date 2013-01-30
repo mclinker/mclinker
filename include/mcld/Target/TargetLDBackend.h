@@ -74,7 +74,7 @@ public:
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
   virtual void scanRelocation(Relocation& pReloc,
-                              FragmentLinker& pLinker,
+                              IRBuilder& pBuilder,
                               Module& pModule,
                               LDSection& pSection) = 0;
 

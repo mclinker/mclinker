@@ -97,9 +97,9 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 }
 
 void HexagonLDBackend::scanRelocation(Relocation& pReloc,
-                                     FragmentLinker& pLinker,
-                                     Module& pModule,
-                                     LDSection& pSection)
+                                      IRBuilder& pBuilder,
+                                      Module& pModule,
+                                      LDSection& pSection)
 {
 }
 

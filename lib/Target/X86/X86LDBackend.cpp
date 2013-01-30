@@ -172,7 +172,7 @@ void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
 /// section and all other reference to this symbol should refer to this
 /// copy.
 /// @note This is executed at `scan relocation' stage.
-LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
+LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                                                     const ResolveInfo& pSym)
 {
   // get or create corresponding BSS LDSection
@@ -208,8 +208,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
     binding = ResolveInfo::Global;
 
   // Define the copy symbol in the bss section and resolve it
-  LDSymbol* cpy_sym =
-           pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
                       pSym.name(),
                       (ResolveInfo::Type)pSym.type(),
                       ResolveInfo::Define,
@@ -223,7 +222,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(FragmentLinker& pLinker,
 }
 
 void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     FragmentLinker& pLinker,
+                                     IRBuilder& pBuilder,
                                      Module& pModule,
                                      LDSection& pSection)
 {
@@ -377,7 +376,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      FragmentLinker& pLinker,
+                                      IRBuilder& pBuilder,
                                       Module& pModule,
                                       LDSection& pSection)
 {
@@ -409,7 +408,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
@@ -506,7 +505,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
         // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
         m_pRelDyn->reserveEntry();
         if (symbolNeedsCopyReloc(pReloc, *rsym)) {
-          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pLinker, *rsym);
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
           addCopyReloc(*cpy_sym.resolveInfo());
         }
         else {
@@ -590,7 +589,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
 }
 
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
-                                     FragmentLinker& pLinker,
+                                     IRBuilder& pLinker,
                                      Module& pModule,
                                      LDSection& pSection)
 {

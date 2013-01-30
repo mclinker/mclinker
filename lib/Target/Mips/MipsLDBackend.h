@@ -55,7 +55,7 @@ public:
   /// create the empty entries if needed.
   /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
   void scanRelocation(Relocation& pReloc,
-                      FragmentLinker& pLinker,
+                      IRBuilder& pBuilder,
                       Module& pModule,
                       LDSection& pSection);
 
@@ -114,11 +114,11 @@ public:
 
 private:
   void scanLocalReloc(Relocation& pReloc,
-                      FragmentLinker& pLinker,
+                      IRBuilder& pBuilder,
                       const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
-                       FragmentLinker& pLinker,
+                       IRBuilder& pBuilder,
                        const LDSection& pSection);
 
   void defineGOTSymbol(IRBuilder& pBuilder);
