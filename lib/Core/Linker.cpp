@@ -32,7 +32,7 @@
 using namespace mcld;
 
 Linker::Linker()
-  : m_pConfig(NULL), m_pModule(NULL), m_pIRBuilder(NULL),
+  : m_pConfig(NULL), m_pIRBuilder(NULL),
     m_pTarget(NULL), m_pBackend(NULL), m_pObjLinker(NULL) {
 }
 
@@ -263,7 +263,6 @@ bool Linker::emit(int pFileDescriptor)
 bool Linker::reset()
 {
   m_pConfig = NULL;
-  m_pModule = NULL;
   m_pIRBuilder = NULL;
   m_pTarget = NULL;
 

@@ -73,7 +73,6 @@ private:
 
 private:
   LinkerConfig* m_pConfig;
-  Module* m_pModule;
   IRBuilder* m_pIRBuilder;
 
   const Target* m_pTarget;
