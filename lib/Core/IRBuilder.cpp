@@ -83,7 +83,7 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
   return LDFileFormat::MetaData;
 }
 
-bool shouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig)
+bool ShouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig)
 {
   // forced local symbol matches all rules:
   // 1. We are not doing incremental linking.
@@ -564,7 +564,7 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
 
       // No matter the symbol is already in the output or not, add it if it
       // should be forcefully set local.
-      if (shouldForceLocal(*resolved_result.info, m_Config))
+      if (ShouldForceLocal(*resolved_result.info, m_Config))
         m_Module.getSymbolTable().forceLocal(*output_sym);
       else {
         // the symbol should not be forcefully local.
@@ -572,8 +572,8 @@ LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,
       }
     }
     else if (resolved_result.overriden) {
-      if (!shouldForceLocal(old_info, m_Config) ||
-          !shouldForceLocal(*resolved_result.info, m_Config)) {
+      if (!ShouldForceLocal(old_info, m_Config) ||
+          !ShouldForceLocal(*resolved_result.info, m_Config)) {
         // If the old info and the new info are both forcefully local, then
         // we should keep the output_sym in forcefully local category. Else,
         // we should re-sort the output_sym
@@ -642,7 +642,7 @@ LDSymbol* IRBuilder::addSymbolFromDynObj(Input& pInput,
     // After symbol resolution, visibility is changed to the most restrict one.
     // If we are not doing incremental linking, then any symbol with hidden
     // or internal visibility is forcefully set as a local symbol.
-    if (shouldForceLocal(*resolved_result.info, m_Config)) {
+    if (ShouldForceLocal(*resolved_result.info, m_Config)) {
       m_Module.getSymbolTable().forceLocal(*output_sym);
     }
   }
@@ -676,5 +676,192 @@ Relocation* IRBuilder::AddRelocation(LDSection& pSection,
   pSection.getRelocData()->append(*relocation);
 
   return relocation;
+}
+
+/// AddSymbol - define an output symbol and override it immediately
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                                           const llvm::StringRef& pName,
+                                           ResolveInfo::Type pType,
+                                           ResolveInfo::Desc pDesc,
+                                           ResolveInfo::Binding pBinding,
+                                           ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
+                                           FragmentRef* pFragmentRef,
+                                           ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
+  LDSymbol* output_sym = NULL;
+  if (NULL == info) {
+    // the symbol is not in the pool, create a new one.
+    // create a ResolveInfo
+    Resolver::Result result;
+    m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc,
+                                        pBinding, pSize, pVisibility,
+                                        NULL, result);
+    assert(!result.existent);
+
+    // create a output LDSymbol
+    output_sym = LDSymbol::Create(*result.info);
+    result.info->setSymPtr(output_sym);
+
+    if (ShouldForceLocal(*result.info, m_Config))
+      m_Module.getSymbolTable().forceLocal(*output_sym);
+    else
+      m_Module.getSymbolTable().add(*output_sym);
+  }
+  else {
+    // the symbol is already in the pool, override it
+    ResolveInfo old_info;
+    old_info.override(*info);
+
+    info->setRegular();
+    info->setType(pType);
+    info->setDesc(pDesc);
+    info->setBinding(pBinding);
+    info->setVisibility(pVisibility);
+    info->setIsSymbol(true);
+    info->setSize(pSize);
+
+    output_sym = info->outSymbol();
+    if (NULL != output_sym)
+      m_Module.getSymbolTable().arrange(*output_sym, old_info);
+    else {
+      // create a output LDSymbol
+      output_sym = LDSymbol::Create(*info);
+      info->setSymPtr(output_sym);
+
+      m_Module.getSymbolTable().add(*output_sym);
+    }
+  }
+
+  if (NULL != output_sym) {
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+  }
+
+  return output_sym;
+}
+
+/// AddSymbol - define an output symbol and override it immediately
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
+                                           const llvm::StringRef& pName,
+                                           ResolveInfo::Type pType,
+                                           ResolveInfo::Desc pDesc,
+                                           ResolveInfo::Binding pBinding,
+                                           ResolveInfo::SizeType pSize,
+                                           LDSymbol::ValueType pValue,
+                                           FragmentRef* pFragmentRef,
+                                           ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
+
+  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+    // only undefined symbol and dynamic symbol can make a reference.
+    return NULL;
+  }
+
+  // the symbol is already in the pool, override it
+  ResolveInfo old_info;
+  old_info.override(*info);
+
+  info->setRegular();
+  info->setType(pType);
+  info->setDesc(pDesc);
+  info->setBinding(pBinding);
+  info->setVisibility(pVisibility);
+  info->setIsSymbol(true);
+  info->setSize(pSize);
+
+  LDSymbol* output_sym = info->outSymbol();
+  if (NULL != output_sym) {
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+    m_Module.getSymbolTable().arrange(*output_sym, old_info);
+  }
+  else {
+    // create a output LDSymbol
+    output_sym = LDSymbol::Create(*info);
+    info->setSymPtr(output_sym);
+
+    m_Module.getSymbolTable().add(*output_sym);
+  }
+
+  return output_sym;
+}
+
+/// AddSymbol - define an output symbol and resolve it
+/// immediately
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                             const llvm::StringRef& pName,
+                                             ResolveInfo::Type pType,
+                                             ResolveInfo::Desc pDesc,
+                                             ResolveInfo::Binding pBinding,
+                                             ResolveInfo::SizeType pSize,
+                                             LDSymbol::ValueType pValue,
+                                             FragmentRef* pFragmentRef,
+                                             ResolveInfo::Visibility pVisibility)
+{
+  // Result is <info, existent, override>
+  Resolver::Result result;
+  ResolveInfo old_info;
+  m_Module.getNamePool().insertSymbol(pName, false, pType, pDesc, pBinding,
+                                      pSize, pVisibility,
+                                      &old_info, result);
+
+  LDSymbol* output_sym = result.info->outSymbol();
+  bool has_output_sym = (NULL != output_sym);
+
+  if (!result.existent || !has_output_sym) {
+    output_sym = LDSymbol::Create(*result.info);
+    result.info->setSymPtr(output_sym);
+  }
+
+  if (result.overriden || !has_output_sym) {
+    output_sym->setFragmentRef(pFragmentRef);
+    output_sym->setValue(pValue);
+  }
+
+  // After symbol resolution, the visibility is changed to the most restrict.
+  // arrange the output position
+  if (ShouldForceLocal(*result.info, m_Config))
+    m_Module.getSymbolTable().forceLocal(*output_sym);
+  else if (has_output_sym)
+    m_Module.getSymbolTable().arrange(*output_sym, old_info);
+  else
+    m_Module.getSymbolTable().add(*output_sym);
+
+  return output_sym;
+}
+
+/// defineSymbol - define an output symbol and resolve it immediately.
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                            const llvm::StringRef& pName,
+                                            ResolveInfo::Type pType,
+                                            ResolveInfo::Desc pDesc,
+                                            ResolveInfo::Binding pBinding,
+                                            ResolveInfo::SizeType pSize,
+                                            LDSymbol::ValueType pValue,
+                                            FragmentRef* pFragmentRef,
+                                            ResolveInfo::Visibility pVisibility)
+{
+  ResolveInfo* info = m_Module.getNamePool().findInfo(pName);
+
+  if (NULL == info || !(info->isUndef() || info->isDyn())) {
+    // only undefined symbol and dynamic symbol can make a reference.
+    return NULL;
+  }
+
+  return AddSymbol<Force, Resolve>(pName,
+                                   pType,
+                                   pDesc,
+                                   pBinding,
+                                   pSize,
+                                   pValue,
+                                   pFragmentRef,
+                                   pVisibility);
 }
 

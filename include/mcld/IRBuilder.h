@@ -25,6 +25,7 @@
 #include <mcld/Fragment/Relocation.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Fragment/FillFragment.h>
+#include <mcld/Fragment/FragmentRef.h>
 
 #include <mcld/Support/Path.h>
 #include <mcld/Support/FileHandle.h>
@@ -51,6 +52,16 @@ public:
     ELF,
     MachO,
     COFF
+  };
+
+  enum SymbolDefinePolicy {
+    Force,
+    AsReferred
+  };
+
+  enum SymbolResolvePolicy {
+    Unresolve,
+    Resolve
   };
 
 public:
@@ -361,15 +372,19 @@ public:
   /// @return Total size of the inserted fragments.
   static uint64_t AppendEhFrame(EhFrame::CIE& pCIE, EhFrame& pEhFrame);
 
-  /// AddSymbol - To add a symbol to the input file and module. The symbol is
-  /// resolved immediately.
+  /// AddSymbol - To add a symbol to the input file.
+  /// This function create a new symbol and insert it into the input file. If
+  /// mcld::Module has another symbol with the same name, then this function
+  /// resolves these two symbols and keeps one in mcld::Module by their
+  /// attributes.
   ///
   /// This is a general method for all kinds of symbol.
   ///
   /// @param [in, out] pInput   The input file. Either a relocatable or dynamic
   ///                           object
   /// @param [in]      pName    The name of the symbol
-  /// @param [in]      pType    What the symbol refers to
+  /// @param [in]      pType    What the symbol refers to. May be a object,
+  ///                           function, no-type and so on. @see ResolveInfo
   /// @param [in]      pDesc    { Undefined, Define, Common, Indirect }
   /// @param [in]      pBind    { Global, Weak, Local, Absolute }
   /// @param [in]      pSize    The size of the symbol. Bigger common symbols
@@ -390,6 +405,51 @@ public:
                       LDSymbol::ValueType pValue = 0x0,
                       LDSection* pSection = NULL,
                       ResolveInfo::Visibility pVis = ResolveInfo::Default);
+
+  /// AddSymbol - To add a symbol in mcld::Module
+  /// This function create a new symbol and insert it into mcld::Module.
+  ///
+  /// @tparam POLICY idicate the condition to define or not to define the
+  /// symbol.
+  ///   - AsRefered
+  ///     - Define a symbol only if mcld::Module contains a symbol with
+  ///       identical name. If mcld::Module does not have any symbol with
+  ///       the same name, this function returns NULL.
+  ///
+  ///   - Force
+  ///     - Define a symbol no matter mcld::Module has a symbol with identical
+  ///       name or not.
+  ///
+  /// @tparam RESOLVE indicate the method to define a symbol. If we must define
+  /// a symbol in mcld::Module, then how to define it.
+  ///
+  ///   - Resolve
+  ///      - Follow the symbol resolution rule to bind the symbol references.
+  ///        Resolution of the symbols with idential name depends on their
+  ///        attributes.
+  ///
+  ///   - Unresolve
+  ///      - Forcefully override the symbol in mcld::Module.  With this
+  ///        argument, AddSymbol function turns a blind eye to symbol
+  ///        resolution rules.
+  ///
+  /// @param [in] pName    The name of the symbol
+  /// @param [in] pType    The type of the symbol
+  /// @param [in] pDesc    The description of the symbol, Could be one of
+  ///                      { Undefined, Define, Common, Indirect }
+  /// @param [in] pBinding The binding of the symbol. Could be one of
+  ///                      { Global, Weak, Local, Absolute }
+  ///
+  /// @return The symbol kept in mcld::Module.
+  template<SymbolDefinePolicy POLICY, SymbolResolvePolicy RESOLVE>
+  LDSymbol* AddSymbol(const llvm::StringRef& pName,
+                      ResolveInfo::Type pType,
+                      ResolveInfo::Desc pDesc,
+                      ResolveInfo::Binding pBinding,
+                      ResolveInfo::SizeType pSize = 0,
+                      LDSymbol::ValueType pValue = 0x0,
+                      FragmentRef* pFragmentRef = FragmentRef::Null(),
+                      ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
 
   /// AddRelocation - To add a relocation entry
   ///
@@ -430,6 +490,50 @@ private:
 
   InputBuilder m_InputBuilder;
 };
+
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Unresolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
+
+template<> LDSymbol*
+IRBuilder::AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                         const llvm::StringRef& pName,
+                         ResolveInfo::Type pType,
+                         ResolveInfo::Desc pDesc,
+                         ResolveInfo::Binding pBinding,
+                         ResolveInfo::SizeType pSize,
+                         LDSymbol::ValueType pValue,
+                         FragmentRef* pFragmentRef,
+                         ResolveInfo::Visibility pVisibility);
 
 } // end of namespace mcld
 
