@@ -64,36 +64,6 @@ public:
 
   ~FragmentLinker();
 
-  // ----- about symbols  ----- //
-  /// defineSymbol - add a symbol
-  /// defineSymbol define a output symbol
-  ///
-  /// @tparam POLICY idicate how to define the symbol.
-  ///   - Force
-  ///     - Define the symbol forcefully. If the symbol has existed, override
-  ///       it. Otherwise, define it.
-  ///   - AsRefered
-  ///     - If the symbol has existed, override it. Otherwise, return NULL
-  ///       immediately.
-  ///
-  /// @tparam RESOLVE indicate whether to resolve the symbol or not.
-  ///   - Unresolve
-  ///      - Do not resolve the symbol, and override the symbol immediately.
-  ///   - Resolve
-  ///      - Resolve the defined symbol.
-  ///
-  /// @return If the output symbol has existed, return it. Otherwise, create
-  ///         a new symbol and return the new one.
-  template<DefinePolicy POLICY, ResolvePolicy RESOLVE>
-  LDSymbol* defineSymbol(const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue = 0x0,
-                         FragmentRef* pFragmentRef = FragmentRef::Null(),
-                         ResolveInfo::Visibility pVisibility = ResolveInfo::Default);
-
   bool finalizeSymbols();
 
   /// applyRelocations - apply all relocation enties.
@@ -123,50 +93,6 @@ private:
   Module& m_Module;
   TargetLDBackend& m_Backend;
 };
-
-template<> LDSymbol*
-FragmentLinker::defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
-
-template<> LDSymbol*
-FragmentLinker::defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Unresolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
-
-template<> LDSymbol*
-FragmentLinker::defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
-
-template<> LDSymbol*
-FragmentLinker::defineSymbol<FragmentLinker::AsReferred, FragmentLinker::Resolve>(
-                         const llvm::StringRef& pName,
-                         ResolveInfo::Type pType,
-                         ResolveInfo::Desc pDesc,
-                         ResolveInfo::Binding pBinding,
-                         ResolveInfo::SizeType pSize,
-                         LDSymbol::ValueType pValue,
-                         FragmentRef* pFragmentRef,
-                         ResolveInfo::Visibility pVisibility);
 
 } // namespace of mcld
 
