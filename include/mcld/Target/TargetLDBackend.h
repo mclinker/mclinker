@@ -102,7 +102,7 @@ public:
   virtual void layout(Module& pModule, FragmentLinker& pLinker) = 0;
 
   /// preLayout - Backend can do any needed modification before layout
-  virtual void preLayout(Module& pModule, FragmentLinker& pLinker) = 0;
+  virtual void preLayout(Module& pModule, IRBuilder& pBuilder) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void postLayout(Module& pModule, FragmentLinker& pLinker) = 0;

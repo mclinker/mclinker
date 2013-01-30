@@ -148,7 +148,7 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
     fatal(diag::undefined_reference) << rsym->name();
 }
 
-void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
+void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
   // set .got size
   // when building shared object, the .got section is must.
@@ -157,7 +157,7 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
         m_pGOT->hasGOT1() ||
         NULL != m_pGOTSymbol) {
       m_pGOT->finalizeSectionSize();
-      defineGOTSymbol(pLinker);
+      defineGOTSymbol(pBuilder);
     }
 
     ELFFileFormat* file_format = getOutputFormat();
@@ -170,6 +170,7 @@ void MipsGNULDBackend::doPreLayout(FragmentLinker& pLinker)
     }
   }
 }
+
 void MipsGNULDBackend::doPostLayout(Module& pModule,
                                     FragmentLinker& pLinker)
 {
@@ -938,11 +939,11 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
   }
 }
 
-void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
+void MipsGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
 {
   // define symbol _GLOBAL_OFFSET_TABLE_
   if ( m_pGOTSymbol != NULL ) {
-    pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
+    pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      ResolveInfo::Object,
                      ResolveInfo::Define,
@@ -953,7 +954,7 @@ void MipsGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Hidden);
   }
   else {
-    m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      ResolveInfo::Object,
                      ResolveInfo::Define,

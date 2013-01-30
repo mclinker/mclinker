@@ -60,7 +60,7 @@ public:
                       LDSection& pSection);
 
   /// preLayout - Backend can do any needed modification before layout
-  void doPreLayout(FragmentLinker& pLinker);
+  void doPreLayout(IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(Module& pModule, FragmentLinker& pLinker);
@@ -121,7 +121,7 @@ private:
                        FragmentLinker& pLinker,
                        const LDSection& pSection);
 
-  void defineGOTSymbol(FragmentLinker& pLinker);
+  void defineGOTSymbol(IRBuilder& pBuilder);
 
   /// emitSymbol32 - emit an ELF32 symbol, override parent's function
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,

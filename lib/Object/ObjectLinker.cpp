@@ -373,7 +373,7 @@ bool ObjectLinker::prelayout()
     m_pModule->getSectionSymbolSet().finalize(**sect, m_pModule->getSymbolTable());
   }
 
-  m_LDBackend.preLayout(*m_pModule, *m_pLinker);
+  m_LDBackend.preLayout(*m_pModule, *m_pBuilder);
 
   /// check program interpreter - computer the name size of the runtime dyld
   if (!m_Config.isCodeStatic() &&

@@ -334,13 +334,13 @@ private:
   void layout(Module& pModule, FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
-  void preLayout(Module& pModule, FragmentLinker& pLinker);
+  void preLayout(Module& pModule, IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
   void postLayout(Module& pModule, FragmentLinker& pLinker);
 
   /// preLayout - Backend can do any needed modification before layout
-  virtual void doPreLayout(FragmentLinker& pLinker) = 0;
+  virtual void doPreLayout(IRBuilder& pBuilder) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
   virtual void doPostLayout(Module& pModule, FragmentLinker& pLinker) = 0;

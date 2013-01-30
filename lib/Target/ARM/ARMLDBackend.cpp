@@ -179,7 +179,7 @@ Relocator* ARMGNULDBackend::getRelocator()
   return m_pRelocator;
 }
 
-void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
+void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
   // set .got size
   // when building shared object, the .got section is must
@@ -188,7 +188,7 @@ void ARMGNULDBackend::doPreLayout(FragmentLinker& pLinker)
         m_pGOT->hasGOT1() ||
         NULL != m_pGOTSymbol) {
       m_pGOT->finalizeSectionSize();
-      defineGOTSymbol(pLinker);
+      defineGOTSymbol(pBuilder);
     }
 
     // set .plt size
@@ -259,11 +259,11 @@ const ARMELFDynamic& ARMGNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
+void ARMGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
 {
   // define symbol _GLOBAL_OFFSET_TABLE_ when .got create
   if (m_pGOTSymbol != NULL) {
-    pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Unresolve>(
+    pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      ResolveInfo::Object,
                      ResolveInfo::Define,
@@ -274,7 +274,7 @@ void ARMGNULDBackend::defineGOTSymbol(FragmentLinker& pLinker)
                      ResolveInfo::Hidden);
   }
   else {
-    m_pGOTSymbol = pLinker.defineSymbol<FragmentLinker::Force, FragmentLinker::Resolve>(
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
                      "_GLOBAL_OFFSET_TABLE_",
                      ResolveInfo::Object,
                      ResolveInfo::Define,

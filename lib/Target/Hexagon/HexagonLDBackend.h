@@ -42,7 +42,7 @@ public:
   const HexagonPLT& getPLT() const;
 
   /// preLayout - Backend can do any needed modification before layout
-  void doPreLayout(FragmentLinker& pLinker);
+  void doPreLayout(IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(Module& pModule, FragmentLinker& pLinker);

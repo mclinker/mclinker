@@ -2194,10 +2194,10 @@ void GNULDBackend::layout(Module& pModule, FragmentLinker& pLinker)
 }
 
 /// preLayout - Backend can do any needed modification before layout
-void GNULDBackend::preLayout(Module& pModule, FragmentLinker& pLinker)
+void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 {
   // prelayout target first
-  doPreLayout(pLinker);
+  doPreLayout(pBuilder);
 
   if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // init EhFrameHdr and size the output section

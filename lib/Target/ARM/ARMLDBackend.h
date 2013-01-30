@@ -113,7 +113,7 @@ public:
                       LDSection& pSection);
 
   /// doPreLayout - Backend can do any needed modification before layout
-  void doPreLayout(FragmentLinker& pLinker);
+  void doPreLayout(IRBuilder& pBuilder);
 
   /// doPostLayout -Backend can do any needed modification after layout
   void doPostLayout(Module& pModule, FragmentLinker& pLinker);
@@ -192,7 +192,7 @@ private:
   LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
 
-  void defineGOTSymbol(FragmentLinker& pLinker);
+  void defineGOTSymbol(IRBuilder& pBuilder);
 
   /// maxBranchOffset
   /// FIXME: if we can handle arm attributes, we may refine this!

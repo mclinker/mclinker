@@ -69,7 +69,7 @@ Relocator* HexagonLDBackend::getRelocator()
   return m_pRelocator;
 }
 
-void HexagonLDBackend::doPreLayout(FragmentLinker& pLinker)
+void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 {
 }
 

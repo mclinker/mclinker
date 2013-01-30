@@ -93,7 +93,7 @@ public:
   X86GOTEntry& getTLSModuleID();
 
   /// preLayout - Backend can do any needed modification before layout
-  void doPreLayout(FragmentLinker& pLinker);
+  void doPreLayout(IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
   void doPostLayout(Module& pModule, FragmentLinker& pLinker);
@@ -180,7 +180,7 @@ private:
   LDSymbol& defineSymbolforCopyReloc(FragmentLinker& pLinker,
                                      const ResolveInfo& pSym);
 
-  void defineGOTSymbol(FragmentLinker& pLinker);
+  void defineGOTSymbol(IRBuilder& pBuilder);
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
