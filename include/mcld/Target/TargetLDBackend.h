@@ -124,7 +124,7 @@ public:
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  virtual bool finalizeSymbols(FragmentLinker& pLinker) = 0;
+  virtual bool finalizeSymbols() = 0;
 
   /// finalizeTLSSymbol - Linker asks backend to set the symbol value when it
   /// meets a TLS symbol

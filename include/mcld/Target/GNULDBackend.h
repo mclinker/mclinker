@@ -84,16 +84,16 @@ public:
   /// then it will ask backend to finalize the symbol value.
   /// @return ture - if backend set the symbol value sucessfully
   /// @return false - if backend do not recognize the symbol
-  bool finalizeSymbols(FragmentLinker& pLinker) {
-    return (finalizeStandardSymbols(pLinker) &&
-            finalizeTargetSymbols(pLinker));
+  bool finalizeSymbols() {
+    return (finalizeStandardSymbols() &&
+            finalizeTargetSymbols());
   }
 
   /// finalizeStandardSymbols - set the value of standard symbols
-  virtual bool finalizeStandardSymbols(FragmentLinker& pLinker);
+  virtual bool finalizeStandardSymbols();
 
   /// finalizeTargetSymbols - set the value of target symbols
-  virtual bool finalizeTargetSymbols(FragmentLinker& pLinker) = 0;
+  virtual bool finalizeTargetSymbols() = 0;
 
   /// finalizeTLSSymbol - set the value of a TLS symbol
   virtual bool finalizeTLSSymbol(LDSymbol& pSymbol);

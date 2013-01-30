@@ -490,8 +490,7 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
   return true;
 }
 
-bool
-GNULDBackend::finalizeStandardSymbols(FragmentLinker& pLinker)
+bool GNULDBackend::finalizeStandardSymbols()
 {
   if (LinkerConfig::Object == config().codeGenType())
     return true;

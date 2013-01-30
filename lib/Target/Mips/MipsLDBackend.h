@@ -106,7 +106,7 @@ public:
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeSymbol - finalize the symbol value
-  bool finalizeTargetSymbols(FragmentLinker& pLinker);
+  bool finalizeTargetSymbols();
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.

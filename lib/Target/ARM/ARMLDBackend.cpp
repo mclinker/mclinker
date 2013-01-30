@@ -805,7 +805,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool ARMGNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
+bool ARMGNULDBackend::finalizeTargetSymbols()
 {
   if (NULL != m_pEXIDXStart) {
     if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size())

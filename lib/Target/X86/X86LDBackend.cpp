@@ -850,7 +850,7 @@ void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool X86GNULDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
+bool X86GNULDBackend::finalizeTargetSymbols()
 {
   return true;
 }

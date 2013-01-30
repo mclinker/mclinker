@@ -218,7 +218,7 @@ void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder)
 }
 
 /// finalizeSymbol - finalize the symbol value
-bool HexagonLDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
+bool HexagonLDBackend::finalizeTargetSymbols()
 {
   return true;
 }

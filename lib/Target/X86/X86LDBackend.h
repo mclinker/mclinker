@@ -157,7 +157,7 @@ public:
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
 
   /// finalizeTargetSymbols - finalize the symbol value
-  bool finalizeTargetSymbols(FragmentLinker& pLinker);
+  bool finalizeTargetSymbols();
 
 private:
   void scanLocalReloc(Relocation& pReloc,
