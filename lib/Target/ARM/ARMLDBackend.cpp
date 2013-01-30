@@ -1067,8 +1067,7 @@ bool ARMGNULDBackend::initTargetStubs()
 
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
-void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule,
-                                          const FragmentLinker& pLinker)
+void ARMGNULDBackend::doCreateProgramHdrs(Module& pModule)
 {
    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
      // make PT_ARM_EXIDX

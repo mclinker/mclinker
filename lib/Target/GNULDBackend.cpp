@@ -1719,8 +1719,7 @@ GNULDBackend::allocateCommonSymbols(Module& pModule)
 
 
 /// createProgramHdrs - base on output sections to create the program headers
-void GNULDBackend::createProgramHdrs(Module& pModule,
-                                     const FragmentLinker& pLinker)
+void GNULDBackend::createProgramHdrs(Module& pModule)
 {
   ELFFileFormat *file_format = getOutputFormat();
 
@@ -1858,7 +1857,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule,
   }
 
   // create target dependent segments
-  doCreateProgramHdrs(pModule, pLinker);
+  doCreateProgramHdrs(pModule);
 }
 
 /// setupProgramHdrs - set up the attributes of segments
@@ -2124,7 +2123,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
 }
 
 /// layout - layout method
-void GNULDBackend::layout(Module& pModule, FragmentLinker& pLinker)
+void GNULDBackend::layout(Module& pModule)
 {
   std::vector<SHOEntry> output_list;
   // 1. determine what sections will go into final output, and push the needed
@@ -2185,7 +2184,7 @@ void GNULDBackend::layout(Module& pModule, FragmentLinker& pLinker)
 
   // 4. create program headers
   if (LinkerConfig::Object != config().codeGenType()) {
-    createProgramHdrs(pModule, pLinker);
+    createProgramHdrs(pModule);
   }
 
   // 5. set output section offset

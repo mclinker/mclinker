@@ -225,8 +225,7 @@ bool HexagonLDBackend::finalizeTargetSymbols(FragmentLinker& pLinker)
 
 /// doCreateProgramHdrs - backend can implement this function to create the
 /// target-dependent segments
-void HexagonLDBackend::doCreateProgramHdrs(Module& pModule,
-                                          const FragmentLinker& pLinker)
+void HexagonLDBackend::doCreateProgramHdrs(Module& pModule)
 {
   // TODO
 }

@@ -288,12 +288,11 @@ protected:
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers
-  void createProgramHdrs(Module& pModule, const FragmentLinker& pLinker);
+  void createProgramHdrs(Module& pModule);
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
-  virtual void doCreateProgramHdrs(Module& pModule,
-                                   const FragmentLinker& pLinker) = 0;
+  virtual void doCreateProgramHdrs(Module& pModule) = 0;
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
@@ -330,7 +329,7 @@ private:
                                Module::iterator pSectEnd);
 
   /// layout - layout method
-  void layout(Module& pModule, FragmentLinker& pLinker);
+  void layout(Module& pModule);
 
   /// preLayout - Backend can do any needed modification before layout
   void preLayout(Module& pModule, IRBuilder& pBuilder);

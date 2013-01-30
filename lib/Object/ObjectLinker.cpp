@@ -397,7 +397,7 @@ bool ObjectLinker::prelayout()
 ///   directly
 bool ObjectLinker::layout()
 {
-  m_LDBackend.layout(*m_pModule, *m_pLinker);
+  m_LDBackend.layout(*m_pModule);
   return true;
 }
 

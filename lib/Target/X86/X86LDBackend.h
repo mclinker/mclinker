@@ -192,8 +192,7 @@ private:
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
-  virtual void doCreateProgramHdrs(Module& pModule,
-                                   const FragmentLinker& pLinker);
+  void doCreateProgramHdrs(Module& pModule);
 
   /// -----  tls optimization  ----- ///
   /// convert R_386_TLS_IE to R_386_TLS_LE
