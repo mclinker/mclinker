@@ -14,7 +14,7 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 	AC_ARG_ENABLE([alone-target],
 		[AS_HELP_STRING([--enable-alone-target],
 				[Build specific target. Valid target is one of:
-	     host, x86, x86_64, sparc, powerpc, alpha, arm, mips, spu,
+	     host, x86, x86_64, sparc, powerpc, alpha, arm, mips, spu, hexagon,
 	     xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=host)])],
 		[],
 		[enableval=host])
@@ -66,6 +66,11 @@ AC_DEFUN([CHECK_ALONE_TARGET],
 		DEFAULT_ALONE_TARGET="MIPS"
 		AC_DEFINE(TARGET_BUILD)
 		;;
+	  hexagon)
+		PROVIDE_ALONE_TARGET="HEXAGON"
+		DEFAULT_ALONE_TARGET="HEXAGON"
+		AC_DEFINE(TARGET_BUILD)
+		;;
 	  *) AC_MSG_ERROR([Unrecognized target $enableval]) ;;
 	esac
 
@@ -91,13 +96,13 @@ AC_DEFUN([ENUM_MCLD_TARGETS],
 	AC_ARG_ENABLE([targets],
 		[AS_HELP_STRING([--enable-targets],
 			        [Build specific host targets: all or target1,target2,... Valid targets are:
-	     host, x86, x86_64, sparc, powerpc, alpha, arm, mips, spu,
+	     host, x86, x86_64, sparc, powerpc, alpha, arm, mips, spu, hexagon, 
 	     xcore, msp430, systemz, blackfin, ptx, cbe, and cpp (default=all)])],
 		[],
 		[enableval=all])
 
 	case "$enableval" in
-	  all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha ARM Mips CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX" ;;
+	  all) TARGETS_TO_BUILD="X86 Sparc PowerPC Alpha ARM Mips Hexagon CellSPU XCore MSP430 SystemZ Blackfin CBackend CppBackend MBlaze PTX" ;;
 	  *)for a_target in `echo $enableval|sed -e 's/,/ /g' ` ; do
 	      case "$a_target" in
 		x86)      TARGETS_TO_BUILD="X86 $TARGETS_TO_BUILD" ;;
@@ -107,6 +112,7 @@ AC_DEFUN([ENUM_MCLD_TARGETS],
 		alpha)    TARGETS_TO_BUILD="Alpha $TARGETS_TO_BUILD" ;;
 		arm)      TARGETS_TO_BUILD="ARM $TARGETS_TO_BUILD" ;;
 		mips)     TARGETS_TO_BUILD="Mips $TARGETS_TO_BUILD" ;;
+		hexagon)  TARGETS_TO_BUILD="Hexagon $TARGETS_TO_BUILD" ;;
 		spu)      TARGETS_TO_BUILD="CellSPU $TARGETS_TO_BUILD" ;;
 		xcore)    TARGETS_TO_BUILD="XCore $TARGETS_TO_BUILD" ;;
 		msp430)   TARGETS_TO_BUILD="MSP430 $TARGETS_TO_BUILD" ;;
