@@ -55,7 +55,7 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
-bool X86GNULDBackend::initRelocator(const FragmentLinker& pLinker)
+bool X86GNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new X86Relocator(*this);

@@ -164,7 +164,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
                                                   ResolveInfo::Default);
 }
 
-bool ARMGNULDBackend::initRelocator(const FragmentLinker& pLinker)
+bool ARMGNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new ARMRelocator(*this);

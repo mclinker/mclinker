@@ -97,7 +97,7 @@ void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
   }
 }
 
-bool MipsGNULDBackend::initRelocator(const FragmentLinker& pLinker)
+bool MipsGNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new MipsRelocator(*this);

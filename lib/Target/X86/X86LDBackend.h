@@ -125,7 +125,7 @@ public:
                            MemoryRegion& pRegion) const;
 
   /// initRelocator - create and initialize Relocator.
-  bool initRelocator(const FragmentLinker& pLinker);
+  bool initRelocator();
 
   /// getRelocator - return relocator.
   Relocator* getRelocator();

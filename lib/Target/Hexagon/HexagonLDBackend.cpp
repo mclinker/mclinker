@@ -54,7 +54,7 @@ HexagonLDBackend::~HexagonLDBackend()
   delete m_pDynamic;
 }
 
-bool HexagonLDBackend::initRelocator(const FragmentLinker& pLinker)
+bool HexagonLDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
     m_pRelocator = new HexagonRelocator(*this);

@@ -94,7 +94,7 @@ bool ObjectLinker::initFragmentLinker()
   m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
-  m_LDBackend.initRelocator(*m_pLinker);
+  m_LDBackend.initRelocator();
   return true;
 }
 

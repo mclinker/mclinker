@@ -16,7 +16,6 @@ namespace mcld {
 class Module;
 class LinkerConfig;
 class IRBuilder;
-class FragmentLinker;
 class Relocation;
 class RelocationFactory;
 class Relocator;
@@ -59,10 +58,10 @@ public:
   virtual void initTargetSegments(IRBuilder& pBuilder) { }
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) { }
   virtual void initTargetSymbols(IRBuilder& pBuilder) { }
-  virtual void initTargetRelocation(FragmentLinker& pLinker) { }
+  virtual void initTargetRelocation(IRBuilder& pBuilder) { }
   virtual bool initStandardSymbols(IRBuilder& pBuilder, Module& pModule) = 0;
 
-  virtual bool initRelocator(const FragmentLinker& pLinker) = 0;
+  virtual bool initRelocator() = 0;
 
   virtual Relocator* getRelocator() = 0;
 

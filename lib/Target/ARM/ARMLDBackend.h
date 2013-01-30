@@ -20,7 +20,6 @@ namespace mcld {
 
 class LinkerConfig;
 class GNUInfo;
-class FragmentLinker;
 class SectionMap;
 
 //===----------------------------------------------------------------------===//
@@ -96,7 +95,7 @@ public:
   void initTargetSymbols(IRBuilder& pBuilder);
 
   /// initRelocator - create and initialize Relocator.
-  bool initRelocator(const FragmentLinker& pLinker);
+  bool initRelocator();
 
   /// getRelocator - return relocator.
   Relocator* getRelocator();
