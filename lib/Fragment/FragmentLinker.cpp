@@ -82,8 +82,7 @@ bool FragmentLinker::finalizeSymbols()
     }
   }
 
-  // finialize target-dependent symbols
-  return m_Backend.finalizeSymbols();
+  return true;
 }
 
 //===----------------------------------------------------------------------===//

@@ -413,7 +413,7 @@ bool ObjectLinker::postlayout()
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {
-  return m_pLinker->finalizeSymbols();
+  return (m_pLinker->finalizeSymbols() && m_LDBackend.finalizeSymbols());
 }
 
 /// relocate - applying relocation entries and create relocation
