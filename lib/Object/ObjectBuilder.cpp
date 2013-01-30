@@ -125,12 +125,6 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
   }
   to_list.splice(to_list.end(), from_list);
 
-  // append the null fragment
-  NullFragment* null = new NullFragment();
-  null->setParent(&pTo);
-  null->setOffset(offset);
-  pTo.getFragmentList().push_back(null);
-
   // set up pTo's header
   pTo.getSection().setSize(offset);
   if (pFrom.getSection().align() > pTo.getSection().align())
