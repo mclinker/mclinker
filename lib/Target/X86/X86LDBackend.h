@@ -197,9 +197,7 @@ private:
 
   /// -----  tls optimization  ----- ///
   /// convert R_386_TLS_IE to R_386_TLS_LE
-  void convertTLSIEtoLE(Relocation& pReloc,
-                        FragmentLinker& pLinker,
-                        LDSection& pSection);
+  void convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection);
 
 private:
   Relocator* m_pRelocator;

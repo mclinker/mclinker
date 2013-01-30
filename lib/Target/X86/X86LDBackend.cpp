@@ -329,7 +329,7 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
         checkAndSetHasTextRel(*pSection.getLink());
       } else {
         // for local sym, we can convert ie to le if not building shared object
-        convertTLSIEtoLE(pReloc, pLinker, pSection);
+        convertTLSIEtoLE(pReloc, pSection);
         return;
       }
       if (rsym->reserved() & GOTRel)
@@ -546,7 +546,7 @@ void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       } else {
         // for global sym, we can convert ie to le if its final value is known
         if (symbolFinalValueIsKnown(*rsym)) {
-          convertTLSIEtoLE(pReloc, pLinker, pSection);
+          convertTLSIEtoLE(pReloc, pSection);
           return;
         }
       }
@@ -865,9 +865,7 @@ void X86GNULDBackend::doCreateProgramHdrs(Module& pModule,
 }
 
 /// convert R_386_TLS_IE to R_386_TLS_LE
-void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
-                                       FragmentLinker& pLinker,
-                                       LDSection& pSection)
+void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
 {
   assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
   assert(NULL != pReloc.targetRef().frag());
