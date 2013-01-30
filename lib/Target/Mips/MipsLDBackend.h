@@ -15,7 +15,6 @@
 namespace mcld {
 
 class LinkerConfig;
-class FragmentLinker;
 class OutputRelocSection;
 class SectionMap;
 class MemoryArea;

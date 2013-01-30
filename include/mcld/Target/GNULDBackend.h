@@ -74,7 +74,7 @@ public:
   /// initStandardSymbols - initialize standard symbols.
   /// Some section symbols is undefined in input object, and linkers must set
   /// up its value. Take __init_array_begin for example. This symbol is an
-  /// undefined symbol in input objects. FragmentLinker must finalize its value
+  /// undefined symbol in input objects. ObjectLinker must finalize its value
   /// to the begin of the .init_array section, then relocation enties to
   /// __init_array_begin can be applied without emission of "undefined
   /// reference to `__init_array_begin'".

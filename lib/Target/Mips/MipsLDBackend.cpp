@@ -20,7 +20,6 @@
 #include <mcld/IRBuilder.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Fragment/FillFragment.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>

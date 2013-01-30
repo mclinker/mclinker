@@ -9,7 +9,6 @@
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/ELF.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
 

@@ -11,7 +11,6 @@
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MsgHandling.h>
 #include "ARMRelocator.h"
 #include "ARMRelocationFunctions.h"

@@ -28,7 +28,6 @@
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
@@ -824,7 +823,7 @@ bool ARMGNULDBackend::mergeSection(Module& pModule, LDSection& pSection)
     case llvm::ELF::SHT_ARM_ATTRIBUTES: {
       // FIXME: (Luba)
       // Handle ARM attributes in the right way.
-      // In current milestone, FragmentLinker goes through the shortcut.
+      // In current milestone, we goes through the shortcut.
       // It reads input's ARM attributes and copies the first ARM attributes
       // into the output file. The correct way is merge these sections, not
       // just copy.

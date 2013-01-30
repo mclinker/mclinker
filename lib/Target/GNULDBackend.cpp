@@ -29,7 +29,6 @@
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/MC/Attribute.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
