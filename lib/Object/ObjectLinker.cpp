@@ -197,18 +197,21 @@ bool ObjectLinker::linkable() const
     }
   }
 
-  // can not mix -nmagic and -omagic with -shared and -r
-  if (m_Config.options().nmagic() &&
-      LinkerConfig::Exec != m_Config.codeGenType()) {
-    error(diag::err_nmagic_not_exec);
+  // --nmagic and --omagic options lead to static executable program.
+  // These options turn off page alignment of sections. Because the
+  // sections are not aligned to pages, these sections can not contain any
+  // exported functions. Also, because the two options disable linking
+  // against shared libraries, the output absolutely does not call outside
+  // functions.
+  if (m_Config.options().nmagic() && !m_Config.isCodeStatic()) {
+    error(diag::err_nmagic_not_static);
+    return false;
+  }
+  if (m_Config.options().omagic() && !m_Config.isCodeStatic()) {
+    error(diag::err_omagic_not_static);
     return false;
   }
 
-  if (m_Config.options().omagic() &&
-      LinkerConfig::Exec != m_Config.codeGenType()) {
-    error(diag::err_omagic_not_exec);
-    return false;
-  }
   return true;
 }
 

@@ -45,5 +45,5 @@ DIAG(fatal_unwritable_output, DiagnosticEngine::Fatal, "unable to write output f
 DIAG(warn_unsupported_option, DiagnosticEngine::Warning, "Option `%0' is not implemented yet!", "Option `%0' is not implemented yet!")
 DIAG(warn_shared_textrel, DiagnosticEngine::Warning, "Add DT_TEXTREL in a shared object!", "Add DT_TEXTREL in a shared object.")
 DIAG(fatal_illegal_codegen_type, DiagnosticEngine::Fatal, "illegal output format of output %0", "illegal output format of output %0")
-DIAG(err_nmagic_not_exec, DiagnosticEngine::Error, "cannot mix -nmagic option with -r and -shared", "cannot mix -nmagic option with -r and -shared")
-DIAG(err_omagic_not_exec, DiagnosticEngine::Error, "cannot mix -omagic option with -r and -shared", "cannot mix -omagic option with -r and -shared")
+DIAG(err_nmagic_not_static, DiagnosticEngine::Error, "cannot mix -nmagic option with -shared", "cannot mix -nmagic option with -shared")
+DIAG(err_omagic_not_static, DiagnosticEngine::Error, "cannot mix -omagic option with -shared", "cannot mix -omagic option with -shared")
