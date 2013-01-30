@@ -2276,8 +2276,7 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 }
 
 /// postLayout - Backend can do any needed modification after layout
-void GNULDBackend::postLayout(Module& pModule,
-                              FragmentLinker& pLinker)
+void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
 {
   // 1. set up section address and segment attributes
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -2290,14 +2289,14 @@ void GNULDBackend::postLayout(Module& pModule,
     setOutputSectionAddress(pModule, pModule.begin(), pModule.end());
 
     // 1.3 do relaxation
-    relax(pModule, pLinker);
+    relax(pModule, pBuilder);
 
     // 1.4 set up the attributes of program headers
     setupProgramHdrs();
   }
 
   // 2. target specific post layout
-  doPostLayout(pModule, pLinker);
+  doPostLayout(pModule, pBuilder);
 }
 
 void GNULDBackend::postProcessing(MemoryArea& pOutput)
@@ -2612,14 +2611,14 @@ bool GNULDBackend::initStubFactory()
   return true;
 }
 
-bool GNULDBackend::relax(Module& pModule, FragmentLinker& pLinker)
+bool GNULDBackend::relax(Module& pModule, IRBuilder& pBuilder)
 {
   if (!mayRelax())
     return true;
 
   bool finished = true;
   do {
-    if (doRelax(pModule, pLinker, finished)) {
+    if (doRelax(pModule, pBuilder, finished)) {
       // If the sections (e.g., .text) are relaxed, the layout is also changed
       // We need to do the following:
 

@@ -73,8 +73,7 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 {
 }
 
-void HexagonLDBackend::doPostLayout(Module& pModule,
-                                   FragmentLinker& pLinker)
+void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
 }
 

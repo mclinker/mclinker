@@ -404,7 +404,7 @@ bool ObjectLinker::layout()
 /// prelayout - help backend to do some modification after layout
 bool ObjectLinker::postlayout()
 {
-  m_LDBackend.postLayout(*m_pModule, *m_pLinker);
+  m_LDBackend.postLayout(*m_pModule, *m_pBuilder);
   return true;
 }
 

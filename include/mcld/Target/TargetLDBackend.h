@@ -103,8 +103,8 @@ public:
   /// preLayout - Backend can do any needed modification before layout
   virtual void preLayout(Module& pModule, IRBuilder& pBuilder) = 0;
 
-  /// postLayout -Backend can do any needed modification after layout
-  virtual void postLayout(Module& pModule, FragmentLinker& pLinker) = 0;
+  /// postLayout - Backend can do any needed modification after layout
+  virtual void postLayout(Module& pModule, IRBuilder& pBuilder) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   virtual void postProcessing(MemoryArea& pOutput) = 0;
@@ -155,7 +155,7 @@ public:
   virtual StubFactory*         getStubFactory() = 0;
 
   /// relax - the relaxation pass
-  virtual bool relax(Module& pModule, FragmentLinker& pLinker) = 0;
+  virtual bool relax(Module& pModule, IRBuilder& pBuilder) = 0;
 
   /// mayRelax - return true if the backend needs to do relaxation
   virtual bool mayRelax() = 0;

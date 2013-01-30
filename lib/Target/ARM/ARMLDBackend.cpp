@@ -214,8 +214,7 @@ void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
   }
 }
 
-void ARMGNULDBackend::doPostLayout(Module& pModule,
-                                   FragmentLinker& pLinker)
+void ARMGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
   const ELFFileFormat *file_format = getOutputFormat();
 
@@ -937,7 +936,8 @@ ARMGNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 }
 
 /// doRelax
-bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished)
+bool
+ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
 {
   assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
 
@@ -981,7 +981,7 @@ bool ARMGNULDBackend::doRelax(Module& pModule, FragmentLinker& pLinker, bool& pF
 
             Stub* stub = getStubFactory()->create(*relocation, // relocation
                                                   sym_value, // symbol value
-                                                  pLinker,
+                                                  pBuilder,
                                                   *getBRIslandFactory());
             if (NULL != stub) {
               // a stub symbol should be local

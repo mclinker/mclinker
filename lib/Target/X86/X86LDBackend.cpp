@@ -109,7 +109,7 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
 }
 
 void X86GNULDBackend::doPostLayout(Module& pModule,
-                                   FragmentLinker& pLinker)
+                                   IRBuilder& pBuilder)
 {
 }
 

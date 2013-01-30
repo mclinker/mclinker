@@ -7,13 +7,13 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/StubFactory.h>
+#include <mcld/IRBuilder.h>
 #include <mcld/LD/BranchIslandFactory.h>
 #include <mcld/LD/BranchIsland.h>
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Fragment/Stub.h>
 #include <mcld/Fragment/Relocation.h>
-#include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Fragment/FragmentRef.h>
 
 #include <string>
@@ -39,7 +39,7 @@ void StubFactory::addPrototype(Stub* pPrototype)
 /// create - create a stub if needed, otherwise return NULL
 Stub* StubFactory::create(Relocation& pReloc,
                           uint64_t pTargetSymValue,
-                          FragmentLinker& pLinker,
+                          IRBuilder& pBuilder,
                           BranchIslandFactory& pBRIslandFactory)
 {
   // find if there is a prototype stub for the input relocation
@@ -74,8 +74,8 @@ Stub* StubFactory::create(Relocation& pReloc,
 
       // create LDSymbol for the stub
       LDSymbol* symbol =
-        pLinker.defineSymbol<FragmentLinker::Force,
-                             FragmentLinker::Resolve>(name,
+        pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                               name,
                                ResolveInfo::Function,
                                ResolveInfo::Define,
                                ResolveInfo::Local,

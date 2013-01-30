@@ -96,7 +96,7 @@ public:
   void doPreLayout(IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
-  void doPostLayout(Module& pModule, FragmentLinker& pLinker);
+  void doPostLayout(Module& pModule, IRBuilder& pBuilder);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.

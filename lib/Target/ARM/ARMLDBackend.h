@@ -116,7 +116,7 @@ public:
   void doPreLayout(IRBuilder& pBuilder);
 
   /// doPostLayout -Backend can do any needed modification after layout
-  void doPostLayout(Module& pModule, FragmentLinker& pLinker);
+  void doPostLayout(Module& pModule, IRBuilder& pBuilder);
 
   /// dynamic - the dynamic section of the target machine.
   /// Use co-variant return type to return its own dynamic section.
@@ -205,7 +205,7 @@ private:
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
   /// otherwise set it to false.
-  bool doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished);
+  bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished);
 
   /// initTargetStubs
   bool initTargetStubs();

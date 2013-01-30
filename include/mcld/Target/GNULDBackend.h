@@ -336,13 +336,13 @@ private:
   void preLayout(Module& pModule, IRBuilder& pBuilder);
 
   /// postLayout -Backend can do any needed modification after layout
-  void postLayout(Module& pModule, FragmentLinker& pLinker);
+  void postLayout(Module& pModule, IRBuilder& pBuilder);
 
   /// preLayout - Backend can do any needed modification before layout
   virtual void doPreLayout(IRBuilder& pBuilder) = 0;
 
   /// postLayout -Backend can do any needed modification after layout
-  virtual void doPostLayout(Module& pModule, FragmentLinker& pLinker) = 0;
+  virtual void doPostLayout(Module& pModule, IRBuilder& pLinker) = 0;
 
   /// postProcessing - Backend can do any needed modification in the final stage
   void postProcessing(MemoryArea& pOutput);
@@ -354,7 +354,7 @@ private:
   virtual const ELFDynamic& dynamic() const = 0;
 
   /// relax - the relaxation pass
-  bool relax(Module& pModule, FragmentLinker& pLinker);
+  bool relax(Module& pModule, IRBuilder& pBuilder);
 
   /// mayRelax - Backends should override this function if they need relaxation
   virtual bool mayRelax() { return false; }
@@ -363,7 +363,7 @@ private:
   /// implementation. Return true if the output (e.g., .text) is "relaxed"
   /// (i.e. layout is changed), and set pFinished to true if everything is fit,
   /// otherwise set it to false.
-  virtual bool doRelax(Module& pModule, FragmentLinker& pLinker, bool& pFinished)
+  virtual bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
   { return false; }
 
   /// getRelEntrySize - the size in BYTE of rel type relocation

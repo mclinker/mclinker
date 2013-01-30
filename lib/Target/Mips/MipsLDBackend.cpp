@@ -171,8 +171,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
   }
 }
 
-void MipsGNULDBackend::doPostLayout(Module& pModule,
-                                    FragmentLinker& pLinker)
+void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
 }
 

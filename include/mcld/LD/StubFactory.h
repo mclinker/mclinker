@@ -20,7 +20,7 @@ namespace mcld {
 class Stub;
 class Relocation;
 class BranchIslandFactory;
-class FragmentLinker;
+class IRBuilder;
 
 /** \class StubFactory
  *  \brief the clone factory of Stub
@@ -37,7 +37,7 @@ public:
   /// create - create a stub if needed, otherwise return NULL
   Stub* create(Relocation& pReloc,
                uint64_t pTargetSymValue,
-               FragmentLinker& pLinker,
+               IRBuilder& pBuilder,
                BranchIslandFactory& pBRIslandFactory);
 
 private:
