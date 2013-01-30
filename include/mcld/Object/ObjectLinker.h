@@ -72,6 +72,10 @@ public:
   /// mergeSections - put allinput sections into output sections
   bool mergeSections();
 
+  /// allocateCommonSymobols - allocate fragments for common symbols to the
+  /// corresponding sections
+  bool allocateCommonSymbols();
+
   /// addStandardSymbols - shared object and executable files need some
   /// standard symbols
   ///   @return if there are some input symbols with the same name to the
@@ -150,7 +154,7 @@ private:
   const LinkerConfig& m_Config;
   FragmentLinker* m_pLinker;
   Module* m_pModule;
-  IRBuilder* m_pBuilder; 
+  IRBuilder* m_pBuilder;
 
   TargetLDBackend &m_LDBackend;
 

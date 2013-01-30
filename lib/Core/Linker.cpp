@@ -155,15 +155,19 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
 
   // 6. - read all relocation entries from input files
   //   => for all relocation sections of each input file (in the tree), read out reloc entry info
-  //    from the object file and accordingly init their reloc entries in SectOrRelocData of LDSection 
+  //    from the object file and accordingly init their reloc entries in SectOrRelocData of LDSection
   m_pObjLinker->readRelocations();
 
   // 7. - merge all sections
-  //   => push sections into Module's SectionTable. Merge sections that have the same name. 
+  //   => push sections into Module's SectionTable. Merge sections that have the same name.
   //     Maintain them as fragments in the section
   if (!m_pObjLinker->mergeSections())
     return false;
 
+  // 8. - allocateCommonSymbols
+  //   => allocate fragments for common symbols to the corresponding sections
+  if (!m_pObjLinker->allocateCommonSymbols())
+    return false;
   return true;
 }
 
@@ -171,37 +175,37 @@ bool Linker::layout()
 {
   assert(NULL != m_pConfig && NULL != m_pObjLinker);
 
-  // 8. - add standard symbols and target-dependent symbols
+  // 9. - add standard symbols and target-dependent symbols
   // m_pObjLinker->addUndefSymbols();
   if (!m_pObjLinker->addStandardSymbols() ||
       !m_pObjLinker->addTargetSymbols())
     return false;
 
-  // 9. - scan all relocation entries by output symbols.
+  // 10. - scan all relocation entries by output symbols.
   //   reserve GOT space for layout.
   //   the space info is needed by pre-layout to compute the section size
   m_pObjLinker->scanRelocations();
 
-  // 10.a - init relaxation stuff.
+  // 11.a - init relaxation stuff.
   m_pObjLinker->initStubs();
 
-  // 10.b - pre-layout
+  // 11.b - pre-layout
   m_pObjLinker->prelayout();
 
-  // 10.c - linear layout
+  // 11.c - linear layout
   //   Decide which sections will be left in. Sort the sections according to
   //   a given order. Then, create program header accordingly.
   //   Finally, set the offset for sections (@ref LDSection)
   //   according to the new order.
   m_pObjLinker->layout();
 
-  // 10.d - post-layout (create segment, instruction relaxing)
+  // 11.d - post-layout (create segment, instruction relaxing)
   m_pObjLinker->postlayout();
 
-  // 11. - finalize symbol value
+  // 12. - finalize symbol value
   m_pObjLinker->finalizeSymbolValue();
 
-  // 12. - apply relocations
+  // 13. - apply relocations
   m_pObjLinker->relocation();
 
   if (!Diagnose())

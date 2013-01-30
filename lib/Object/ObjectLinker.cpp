@@ -353,6 +353,16 @@ bool ObjectLinker::initStubs()
   return true;
 }
 
+/// allocateCommonSymobols - allocate fragments for common symbols to the
+/// corresponding sections
+bool ObjectLinker::allocateCommonSymbols()
+{
+  if (LinkerConfig::Object != m_Config.codeGenType() ||
+      m_Config.options().isDefineCommon())
+    return m_LDBackend.allocateCommonSymbols(*m_pModule);
+  return true;
+}
+
 /// prelayout - help backend to do some modification before layout
 bool ObjectLinker::prelayout()
 {
@@ -364,10 +374,6 @@ bool ObjectLinker::prelayout()
   }
 
   m_LDBackend.preLayout(*m_pModule, *m_pLinker);
-
-  if (LinkerConfig::Object != m_Config.codeGenType() ||
-      m_Config.options().isDefineCommon())
-    m_LDBackend.allocateCommonSymbols(*m_pModule);
 
   /// check program interpreter - computer the name size of the runtime dyld
   if (!m_Config.isCodeStatic() &&
