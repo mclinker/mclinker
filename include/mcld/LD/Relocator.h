@@ -41,7 +41,7 @@ public:
   };
 
 public:
-  virtual ~Relocator() {}
+  virtual ~Relocator() = 0;
 
   /// apply - general apply function
   virtual Result applyRelocation(Relocation& pRelocation) = 0;

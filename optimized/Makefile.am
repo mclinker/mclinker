@@ -278,6 +278,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/RelocationFactory.h \
 	${LIBDIR}/LD/RelocationFactory.cpp \
 	${INCDIR}/LD/Relocator.h \
+	${LIBDIR}/LD/Relocator.cpp \
 	${INCDIR}/LD/StaticResolver.h \
 	${LIBDIR}/LD/StaticResolver.cpp \
 	${INCDIR}/LD/NamePool.h \
