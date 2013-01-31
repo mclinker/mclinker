@@ -1,3 +1,41 @@
+2013-01-31 Diana Chen <mysekki@gmail.com>
+  * Executive Summary:
+  1. IRBuilder supports define Symbols
+  2. Remove memory leakage
+	3. Enhance GNU ld compatibility for FreeBSD and NetBSD
+  4. Support part of X86 TLS optimization
+  5. Migrate to LLVM r171906
+
+  * Command Line Options and Building System:
+  1. Support -x, -X and -s options
+  2. Support -rpath option
+  3. Set default search path
+  4. Support -enable-new-dtags option
+  5. Support --hash-style option and GNU style hash table
+  6. Support --nmagic and --omagic options
+  7. Support -nostdlib option
+
+  * New Features:
+  1. Add IRBuilder::defineSymbol. Replace functions in FragmentLinker to
+     IRBuilder
+  2. Introduce to CodePosition concept
+
+  * Target Backends:
+  1. Move backend flag and page size to GNUInfo
+  2. Mips backend: Handle XGOT types of relocation
+  3. Support part of X86 TLS optimizations
+  4. Add the prototype of Hexagon backend support
+
+  * Readers and writers:
+  1. Merge writers for Binary/Executable/Object/Dynamic Object to
+     ELFObjectWriter
+  2. Remove ARMELFArchiveReader
+
+  * Linking process:
+  1. Separate the linking program process into two steps - resolve and layout
+  2. Initial relaxation stuff after normalization
+  3. Do allocateCommonSymbols immediately after mergeSection
+
 2012-12-18 Luba Tang <lubatang@gmail.com>
 	* Executive Summary:
 	1. IRBuilder supports adding symbols and relocations.
