@@ -16,7 +16,7 @@
   7. Support -nostdlib option
 
   * New Features:
-  1. Add IRBuilder::defineSymbol. Replace functions in FragmentLinker to
+  1. Add IRBuilder::AddSymbol. Replace functions in FragmentLinker to
      IRBuilder
   2. Introduce to CodePosition concept
 
