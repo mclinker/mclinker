@@ -6,33 +6,40 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #define DECL_HEXAGON_APPLY_RELOC_FUNC(Name) \
 static HexagonRelocator::Result Name    (Relocation& pEntry, \
                                      HexagonRelocator& pParent);
 
 #define DECL_HEXAGON_APPLY_RELOC_FUNCS \
-DECL_HEXAGON_APPLY_RELOC_FUNC(none)             \
+DECL_HEXAGON_APPLY_RELOC_FUNC(none)              \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocB22PCREL)     \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocB15PCREL)     \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocLO16)         \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHI16)         \
+DECL_HEXAGON_APPLY_RELOC_FUNC(reloc32)           \
+DECL_HEXAGON_APPLY_RELOC_FUNC(reloc16)           \
+DECL_HEXAGON_APPLY_RELOC_FUNC(reloc8)            \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocB13PCREL)     \
+DECL_HEXAGON_APPLY_RELOC_FUNC(reloc32PCREL)      \
 DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
 
 
 #define DECL_HEXAGON_APPLY_RELOC_FUNC_PTRS \
   { &none,                0, "R_HEX_NONE"                        }, \
   { &relocB22PCREL,       1, "R_HEX_B22_PCREL"                   }, \
-  { &unsupport,           2, "R_HEX_B15_PCREL"                   }, \
+  { &relocB15PCREL,       2, "R_HEX_B15_PCREL"                   }, \
   { &unsupport,           3, "R_HEX_B7_PCREL"                    }, \
-  { &unsupport,           4, "R_HEX_LO16"                        }, \
-  { &unsupport,           5, "R_HEX_HI16"                        }, \
-  { &unsupport,           6, "R_HEX_32"                          }, \
-  { &unsupport,           7, "R_HEX_16"                          }, \
-  { &unsupport,           8, "R_HEX_8"                           }, \
+  { &relocLO16,           4, "R_HEX_LO16"                        }, \
+  { &relocHI16,           5, "R_HEX_HI16"                        }, \
+  { &reloc32,             6, "R_HEX_32"                          }, \
+  { &reloc16,             7, "R_HEX_16"                          }, \
+  { &reloc8,              8, "R_HEX_8"                           }, \
   { &unsupport,           9, "R_HEX_GPREL16_0"                   }, \
   { &unsupport,           10, "R_HEX_GPREL16_1"                  }, \
   { &unsupport,           11, "R_HEX_GPREL16_2"                  }, \
   { &unsupport,           12, "R_HEX_GPREL16_3"                  }, \
   { &unsupport,           13, "R_HEX_HL16"                       }, \
-  { &unsupport,           14, "R_HEX_B13_PCREL"                  }, \
+  { &relocB13PCREL,       14, "R_HEX_B13_PCREL"                  }, \
   { &unsupport,           15, "R_HEX_B9_PCREL"                   }, \
   { &unsupport,           16, "R_HEX_B32_PCREL_X"                }, \
   { &unsupport,           17, "R_HEX_32_6_X"                     }, \
@@ -49,7 +56,7 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,           28, "R_HEX_8_X"                        }, \
   { &unsupport,           29, "R_HEX_7_X"                        }, \
   { &unsupport,           30, "R_HEX_6_X"                        }, \
-  { &unsupport,           31, "R_HEX_32_PCREL"                   }, \
+  { &reloc32PCREL,        31, "R_HEX_32_PCREL"                   }, \
   { &unsupport,           32, "R_HEX_COPY"                       }, \
   { &unsupport,           33, "R_HEX_GLOB_DAT"                   }, \
   { &unsupport,           34, "R_HEX_JMP_SLOT"                   }, \
