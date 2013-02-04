@@ -133,6 +133,7 @@ private:
 
   HexagonELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
+  LDSymbol* m_pBSSEnd;
 };
 } // namespace of mcld
 
