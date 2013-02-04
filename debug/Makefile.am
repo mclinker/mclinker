@@ -165,6 +165,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
+	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonEmulation.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonELFDynamic.h \
