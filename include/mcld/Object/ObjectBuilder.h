@@ -65,8 +65,9 @@ public:
   ///
   /// @see SectionMap
   /// @param [in] pInputSection The merged input section.
-  /// @return If the corresponding output sections is not defined, return false.
-  bool MergeSection(LDSection& pInputSection);
+  /// @return The merged output section. If the corresponding output sections
+  /// is not defined, return NULL.
+  LDSection* MergeSection(LDSection& pInputSection);
 
   /// MoveSectionData - move the fragment of pFrom to pTo section data.
   static bool MoveSectionData(SectionData& pFrom, SectionData& pTo);

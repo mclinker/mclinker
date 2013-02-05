@@ -262,7 +262,7 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasEhFrame())
             continue; // skip
 
-          if (!builder.MergeSection(**sect)) {
+          if (NULL == builder.MergeSection(**sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -273,7 +273,7 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasSectionData())
             continue; // skip
 
-          if (!builder.MergeSection(**sect)) {
+          if (NULL == builder.MergeSection(**sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;

@@ -49,7 +49,7 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
 }
 
 /// MergeSection - merge the pInput section to the pOutput section
-bool ObjectBuilder::MergeSection(LDSection& pInputSection)
+LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
 {
   const SectionMap::NamePair& pair =
               m_Config.scripts().sectionMap().find(pInputSection.name());
@@ -70,7 +70,7 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
     case LDFileFormat::Relocation:
     case LDFileFormat::NamePool:
       /** do nothing **/
-      return true;
+      return target;
     case LDFileFormat::EhFrame: {
       EhFrame* eh_frame = NULL;
       if (target->hasEhFrame())
@@ -79,7 +79,7 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
         eh_frame = IRBuilder::CreateEhFrame(*target);
 
       eh_frame->merge(*pInputSection.getEhFrame());
-      return true;
+      return target;
     }
     default: {
       SectionData* data = NULL;
@@ -88,10 +88,12 @@ bool ObjectBuilder::MergeSection(LDSection& pInputSection)
       else
         data = IRBuilder::CreateSectionData(*target);
 
-      return MoveSectionData(*pInputSection.getSectionData(), *data);
+      if (MoveSectionData(*pInputSection.getSectionData(), *data))
+        return target;
+      return NULL;
     }
   }
-  return true;
+  return target;
 }
 
 /// MoveSectionData - move the fragments of pTO section data to pTo
