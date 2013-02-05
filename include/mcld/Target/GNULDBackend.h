@@ -191,6 +191,10 @@ public:
   /// Different concrete target backend may overlap this function.
   virtual bool allocateCommonSymbols(Module& pModule);
 
+  /// updateSectionFlags - update pTo's flags when merging pFrom
+  /// update the output section flags based on input section flags.
+  virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom);
+
   /// isSymbolPreemtible - whether the symbol can be preemted by other
   /// link unit
   /// @ref Google gold linker, symtab.h:551

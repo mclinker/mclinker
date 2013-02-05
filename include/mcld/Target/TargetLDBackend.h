@@ -137,6 +137,13 @@ public:
   virtual bool mergeSection(Module& pModule, LDSection& pInputSection)
   { return true; }
 
+  /// updateSectionFlags - update pTo's flags when merging pFrom
+  /// update the output section flags based on input section flags.
+  /// FIXME: (Luba) I know ELF need to merge flags, but I'm not sure if
+  /// MachO and COFF also need this.
+  virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom)
+  { return true; }
+
   /// readSection - read a target dependent section
   virtual bool readSection(Input& pInput, SectionData& pSD)
   { return true; }

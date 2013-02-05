@@ -273,7 +273,15 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasSectionData())
             continue; // skip
 
-          if (NULL == builder.MergeSection(**sect)) {
+          LDSection* out_sect = builder.MergeSection(**sect);
+          if (NULL != out_sect) {
+            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
+              error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                    << (*obj)->name();
+              return false;
+            }
+          }
+          else {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;

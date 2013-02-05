@@ -1715,6 +1715,30 @@ GNULDBackend::allocateCommonSymbols(Module& pModule)
   return true;
 }
 
+/// updateSectionFlags - update pTo's flags when merging pFrom
+/// update the output section flags based on input section flags.
+/// @ref The Google gold linker:
+///      output.cc: 2809: Output_section::update_flags_for_input_section
+bool GNULDBackend::updateSectionFlags(LDSection& pTo, const LDSection& pFrom)
+{
+  // union the flags from input
+  uint32_t flags = pTo.flag();
+  flags |= (pFrom.flag() &
+              (llvm::ELF::SHF_WRITE |
+               llvm::ELF::SHF_ALLOC |
+               llvm::ELF::SHF_EXECINSTR));
+
+  // if there is an input section is not SHF_MERGE, clean this flag
+  if (0 == (pFrom.flag() & llvm::ELF::SHF_MERGE))
+    flags &= ~llvm::ELF::SHF_MERGE;
+
+  // if there is an input section is not SHF_STRINGS, clean this flag
+  if (0 == (pFrom.flag() & llvm::ELF::SHF_STRINGS))
+    flags &= ~llvm::ELF::SHF_STRINGS;
+
+  pTo.setFlag(flags);
+  return true;
+}
 
 /// createProgramHdrs - base on output sections to create the program headers
 void GNULDBackend::createProgramHdrs(Module& pModule)
