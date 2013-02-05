@@ -79,6 +79,7 @@ LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
         eh_frame = IRBuilder::CreateEhFrame(*target);
 
       eh_frame->merge(*pInputSection.getEhFrame());
+			UpdateSectionAlign(*target, pInputSection);
       return target;
     }
     default: {
@@ -88,8 +89,10 @@ LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
       else
         data = IRBuilder::CreateSectionData(*target);
 
-      if (MoveSectionData(*pInputSection.getSectionData(), *data))
+      if (MoveSectionData(*pInputSection.getSectionData(), *data)) {
+        UpdateSectionAlign(*target, pInputSection);
         return target;
+      }
       return NULL;
     }
   }
@@ -129,10 +132,15 @@ bool ObjectBuilder::MoveSectionData(SectionData& pFrom, SectionData& pTo)
 
   // set up pTo's header
   pTo.getSection().setSize(offset);
-  if (pFrom.getSection().align() > pTo.getSection().align())
-    pTo.getSection().setAlign(pFrom.getSection().align());
 
   return true;
+}
+
+/// UpdateSectionFlags - update alignment for input section
+void ObjectBuilder::UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom)
+{
+  if (pFrom.align() > pTo.align())
+    pTo.setAlign(pFrom.align());
 }
 
 /// AppendFragment - To append pFrag to the given SectionData pSD.

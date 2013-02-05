@@ -72,6 +72,9 @@ public:
   /// MoveSectionData - move the fragment of pFrom to pTo section data.
   static bool MoveSectionData(SectionData& pFrom, SectionData& pTo);
 
+  /// UpdateSectionAlign - update alignment for input section
+  static void UpdateSectionAlign(LDSection& pTo, const LDSection& pFrom);
+
 /// @}
 /// @name Fragment Methods
 /// @{
