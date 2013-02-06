@@ -369,29 +369,27 @@ endif
 
 AM_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-noinst_LTLIBRARIES = ../lib/libmcld.la
+lib_LTLIBRARIES= libmcld.la
 
-___lib_libmcld_la_SOURCES = ${SOURCE}
-
-___lib_libmcld_la_DEPENDENCIES = ${SOURCE}
+libmcld_la_SOURCES = ${SOURCE}
 
 bin_PROGRAMS = ld.mcld ld.bcc
 
 # ld.mcld
 ld_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-ld_mcld_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 
-ld_mcld_LDADD = ../lib/libmcld.la
+ld_mcld_LDADD = libmcld.la
 
 dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
 # ld.bcc
 ld_bcc_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
-ld_bcc_LDFLAGS = ${LLVM_LDFLAGS} -L$(BUILDTOP)/lib
+ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 
-ld_bcc_LDADD = ../lib/libmcld.la
+ld_bcc_LDADD = libmcld.la
 
 dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/include/alone/Linker.h \
