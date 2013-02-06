@@ -65,18 +65,14 @@ SymbolCategory::~SymbolCategory()
   }
 }
 
-SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
+SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol, Category::Type pTarget)
 {
-  m_OutputSymbols.push_back(&pSymbol);
-
-  assert(NULL != pSymbol.resolveInfo());
-  Category::Type target = Category::categorize(*pSymbol.resolveInfo());
-
   Category* current = m_pRegular;
+  m_OutputSymbols.push_back(&pSymbol);
 
   // use non-stable bubble sort to arrange the order of symbols.
   while (NULL != current) {
-    if (current->type == target) {
+    if (current->type == pTarget) {
       current->end++;
       break;
     }
@@ -93,23 +89,19 @@ SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
   return *this;
 }
 
-SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
+SymbolCategory& SymbolCategory::add(LDSymbol& pSymbol)
 {
-  m_OutputSymbols.insert(localEnd(), &pSymbol);
-  m_pLocal->end++;
-  m_pTLS->begin++;
-  m_pTLS->end++;
-  m_pCommon->begin++;
-  m_pCommon->end++;
-  m_pDynamic->begin++;
-  m_pDynamic->end++;
-  m_pRegular->begin++;
-  m_pRegular->end++;
-
-  return *this;
+  assert(NULL != pSymbol.resolveInfo());
+  return add(pSymbol, Category::categorize(*pSymbol.resolveInfo()));
 }
 
-SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol, const ResolveInfo& pSourceInfo)
+SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
+{
+  return add(pSymbol, Category::Local);
+}
+
+SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
+                                        const ResolveInfo& pSourceInfo)
 {
   assert(NULL != pSymbol.resolveInfo());
   Category::Type source = Category::categorize(pSourceInfo);

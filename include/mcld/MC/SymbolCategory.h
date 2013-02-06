@@ -169,8 +169,10 @@ private:
     { return (NULL == next); }
 
     static Type categorize(const ResolveInfo& pInfo);
-
   };
+
+private:
+  SymbolCategory& add(LDSymbol& pSymbol, Category::Type pTarget);
 
 private:
   OutputSymbols m_OutputSymbols;
