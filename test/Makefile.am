@@ -15,7 +15,10 @@ LLVM_SRC_ROOT="`$(LLVM_CONFIG_BIN) --src-root`"
 check: check-local-lit
 
 LIT_ARGS := -s -v
-ULIMIT=ulimit -t 600 ; ulimit -d 512000 ; ulimit -v 512000 ;
+# Newer versions of python try to allocate an insane amount of address
+# space for its thread-local storage, don't set a limit here.
+# FIXME: Those limits should be enforced by lit instead of globally.
+ULIMIT=ulimit -t 600 ; ulimit -d 512000 ;
 
 check-local-lit: lit.site.cfg
 	@( $(ULIMIT) \
