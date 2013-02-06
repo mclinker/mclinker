@@ -3,8 +3,9 @@ TOPLEVEL=${srcdir}/..
 TOOLDIR=${TOPLEVEL}/tools
 LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
+GENDIR=${BUILDTOP}/include/mcld
 
-SOURCE = ${INCDIR}/ADT/Uncopyable.h \
+HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
 	${INCDIR}/ADT/TreeBase.h \
@@ -12,7 +13,6 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/BinTree.h \
 	${INCDIR}/ADT/StringEntry.h \
 	${INCDIR}/ADT/StringEntry.tcc \
-	${LIBDIR}/ADT/StringEntry.cpp \
 	${INCDIR}/ADT/HashEntry.h \
 	${INCDIR}/ADT/HashEntry.tcc \
 	${INCDIR}/ADT/HashEntryFactory.h \
@@ -25,47 +25,146 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/Flags.h \
 	${INCDIR}/Support/Allocators.h \
 	${INCDIR}/Support/Path.h \
-	${LIBDIR}/Support/Path.cpp \
 	${INCDIR}/Support/PathCache.h \
 	${INCDIR}/Support/RealPath.h \
-	${LIBDIR}/Support/RealPath.cpp \
 	${INCDIR}/Support/Directory.h \
-	${LIBDIR}/Support/Directory.cpp \
 	${INCDIR}/Support/FileSystem.h \
-	${LIBDIR}/Support/FileSystem.cpp \
 	${INCDIR}/Support/SystemUtils.h \
-	${LIBDIR}/Support/SystemUtils.cpp \
 	${INCDIR}/Support/LEB128.h \
-	${LIBDIR}/Support/LEB128.cpp \
 	${INCDIR}/Support/FileHandle.h \
-	${LIBDIR}/Support/FileHandle.cpp \
 	${INCDIR}/Support/MemoryArea.h \
-	${LIBDIR}/Support/MemoryArea.cpp \
 	${INCDIR}/Support/Space.h \
-	${LIBDIR}/Support/Space.cpp \
 	${INCDIR}/Support/MemoryRegion.h \
-	${LIBDIR}/Support/MemoryRegion.cpp \
 	${INCDIR}/Support/RegionFactory.h \
-	${LIBDIR}/Support/RegionFactory.cpp \
 	${INCDIR}/Support/HandleToArea.h \
-	${LIBDIR}/Support/HandleToArea.cpp \
 	${INCDIR}/Support/MemoryAreaFactory.h \
-	${LIBDIR}/Support/MemoryAreaFactory.cpp \
 	${INCDIR}/Support/raw_mem_ostream.h \
-	${LIBDIR}/Support/raw_mem_ostream.cpp \
 	${INCDIR}/Support/ToolOutputFile.h \
-	${LIBDIR}/Support/ToolOutputFile.cpp \
 	${INCDIR}/Support/CommandLine.h \
-	${LIBDIR}/Support/CommandLine.cpp \
 	${INCDIR}/Support/GCFactory.h \
 	${INCDIR}/Support/UniqueGCFactory.h \
 	${INCDIR}/Support/GCFactoryListTraits.h \
 	${INCDIR}/Support/TargetRegistry.h \
-	${LIBDIR}/Support/TargetRegistry.cpp \
 	${INCDIR}/Support/TargetSelect.h \
 	${INCDIR}/Support/raw_ostream.h \
-	${LIBDIR}/Support/raw_ostream.cpp \
 	${INCDIR}/Support/MsgHandling.h \
+	${INCDIR}/CodeGen/MCLinker.h \
+	${INCDIR}/Object/ObjectLinker.h \
+	${INCDIR}/Object/ObjectBuilder.h \
+	${INCDIR}/Object/SectionMap.h \
+	${INCDIR}/Fragment/Fragment.h \
+	${INCDIR}/Fragment/FragmentRef.h \
+	${INCDIR}/Fragment/AlignFragment.h \
+	${INCDIR}/Fragment/RegionFragment.h \
+	${INCDIR}/Fragment/FillFragment.h \
+	${INCDIR}/Fragment/TargetFragment.h \
+	${INCDIR}/Fragment/NullFragment.h \
+	${INCDIR}/Fragment/Stub.h \
+	${INCDIR}/Fragment/Relocation.h \
+	${INCDIR}/MC/SymbolCategory.h \
+	${INCDIR}/MC/MCLDInput.h \
+	${INCDIR}/MC/InputFactory.h \
+	${INCDIR}/MC/ContextFactory.h \
+	${INCDIR}/MC/SearchDirs.h \
+	${INCDIR}/MC/MCLDDirectory.h \
+	${INCDIR}/MC/Attribute.h \
+	${INCDIR}/MC/AttributeSet.h \
+	${INCDIR}/MC/ZOption.h \
+	${INCDIR}/MC/InputAction.h \
+	${INCDIR}/MC/CommandAction.h \
+	${INCDIR}/MC/FileAction.h \
+	${INCDIR}/MC/InputBuilder.h \
+	${INCDIR}/LD/LDSection.h \
+	${INCDIR}/LD/SectionData.h \
+	${INCDIR}/LD/RelocData.h \
+	${INCDIR}/LD/ResolveInfo.h \
+	${INCDIR}/LD/Resolver.h \
+	${INCDIR}/LD/LDSymbol.h \
+	${INCDIR}/LD/StaticResolver.h \
+	${INCDIR}/LD/Relocator.h \
+	${INCDIR}/LD/RelocationFactory.h \
+	${INCDIR}/LD/NamePool.h \
+	${INCDIR}/LD/LDReader.h \
+	${INCDIR}/LD/LDWriter.h \
+	${INCDIR}/LD/ArchiveReader.h \
+	${INCDIR}/LD/ObjectReader.h \
+	${INCDIR}/LD/GroupReader.h \
+	${INCDIR}/LD/DynObjReader.h \
+	${INCDIR}/LD/ObjectWriter.h \
+	${INCDIR}/LD/ELFReader.h \
+	${INCDIR}/LD/ELFWriter.h \
+	${INCDIR}/LD/GNUArchiveReader.h \
+	${INCDIR}/LD/BSDArchiveReader.h \
+	${INCDIR}/LD/ELFObjectReader.h \
+	${INCDIR}/LD/ELFDynObjReader.h \
+	${INCDIR}/LD/ELFObjectWriter.h \
+	${INCDIR}/LD/BinaryReader.h \
+	${INCDIR}/LD/ELFBinaryReader.h \
+	${INCDIR}/LD/LDFileFormat.h \
+	${INCDIR}/LD/ELFFileFormat.h \
+	${INCDIR}/LD/ELFDynObjFileFormat.h \
+	${INCDIR}/LD/ELFExecFileFormat.h \
+	${INCDIR}/LD/ELFObjectFileFormat.h \
+	${INCDIR}/LD/SectionRules.h \
+	${INCDIR}/LD/ELFSegment.h \
+	${INCDIR}/LD/ELFSegmentFactory.h \
+	${INCDIR}/LD/EhFrame.h \
+	${INCDIR}/LD/EhFrameHdr.h \
+	${INCDIR}/LD/EhFrameReader.h \
+	${INCDIR}/LD/MsgHandler.h \
+	${INCDIR}/LD/Diagnostic.h \
+	${INCDIR}/LD/DiagnosticEngine.h \
+	${INCDIR}/LD/DiagnosticInfos.h \
+	${INCDIR}/LD/DiagnosticLineInfo.h \
+	${INCDIR}/LD/DWARFLineInfo.h \
+	${INCDIR}/LD/DiagnosticPrinter.h \
+	${INCDIR}/LD/TextDiagnosticPrinter.h \
+	${INCDIR}/LD/DiagCommonKinds.inc \
+	${INCDIR}/LD/DiagReaders.inc \
+	${INCDIR}/LD/DiagSymbolResolutions.inc \
+	${INCDIR}/LD/DiagRelocations.inc \
+	${INCDIR}/LD/DiagLayouts.inc \
+	${INCDIR}/LD/DiagGOTPLT.inc \
+	${INCDIR}/LD/LDContext.h \
+	${INCDIR}/LD/Archive.h \
+	${INCDIR}/LD/BranchIsland.h \
+	${INCDIR}/LD/BranchIslandFactory.h \
+	${INCDIR}/LD/StubFactory.h \
+	${INCDIR}/LD/SectionSymbolSet.h \
+	${INCDIR}/Module.h \
+	${INCDIR}/LinkerConfig.h \
+	${INCDIR}/GeneralOptions.h \
+	${INCDIR}/ScriptOptions.h \
+	${INCDIR}/TargetOptions.h \
+	${INCDIR}/AttributeOption.h \
+	${INCDIR}/BitcodeOption.h \
+	${INCDIR}/IRBuilder.h \
+	${INCDIR}/Environment.h \
+	${INCDIR}/InputTree.h \
+	${INCDIR}/Linker.h \
+	${GENDIR}/Config/Config.h \
+	${GENDIR}/Config/Linkers.def \
+	${GENDIR}/Config/Targets.def
+
+SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
+	${LIBDIR}/Support/Path.cpp \
+	${LIBDIR}/Support/RealPath.cpp \
+	${LIBDIR}/Support/Directory.cpp \
+	${LIBDIR}/Support/FileSystem.cpp \
+	${LIBDIR}/Support/SystemUtils.cpp \
+	${LIBDIR}/Support/LEB128.cpp \
+	${LIBDIR}/Support/FileHandle.cpp \
+	${LIBDIR}/Support/MemoryArea.cpp \
+	${LIBDIR}/Support/Space.cpp \
+	${LIBDIR}/Support/MemoryRegion.cpp \
+	${LIBDIR}/Support/RegionFactory.cpp \
+	${LIBDIR}/Support/HandleToArea.cpp \
+	${LIBDIR}/Support/MemoryAreaFactory.cpp \
+	${LIBDIR}/Support/raw_mem_ostream.cpp \
+	${LIBDIR}/Support/ToolOutputFile.cpp \
+	${LIBDIR}/Support/CommandLine.cpp \
+	${LIBDIR}/Support/TargetRegistry.cpp \
+	${LIBDIR}/Support/raw_ostream.cpp \
 	${LIBDIR}/Support/MsgHandling.cpp \
 	${LIBDIR}/Support/Unix/FileSystem.inc \
 	${LIBDIR}/Support/Unix/PathV3.inc \
@@ -74,8 +173,92 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Support/Windows/PathV3.inc \
 	${LIBDIR}/Support/Windows/System.inc \
 	${LIBDIR}/CodeGen/MCLDTargetMachine.cpp \
-	${INCDIR}/CodeGen/MCLinker.h \
 	${LIBDIR}/CodeGen/MCLinker.cpp \
+	${LIBDIR}/Object/ObjectLinker.cpp \
+	${LIBDIR}/Object/ObjectBuilder.cpp \
+	${LIBDIR}/Object/SectionMap.cpp \
+	${LIBDIR}/MC/SymbolCategory.cpp \
+	${INCDIR}/Fragment/FragmentLinker.h \
+	${LIBDIR}/Fragment/FragmentLinker.cpp \
+	${LIBDIR}/Fragment/Fragment.cpp \
+	${LIBDIR}/Fragment/FragmentRef.cpp \
+	${LIBDIR}/Fragment/AlignFragment.cpp \
+	${LIBDIR}/Fragment/RegionFragment.cpp \
+	${LIBDIR}/Fragment/FillFragment.cpp \
+	${LIBDIR}/Fragment/Relocation.cpp \
+	${LIBDIR}/Fragment/Stub.cpp \
+	${LIBDIR}/Fragment/NullFragment.cpp \
+	${LIBDIR}/MC/MCLDInput.cpp \
+	${LIBDIR}/MC/InputFactory.cpp \
+	${LIBDIR}/Core/Module.cpp \
+	${LIBDIR}/Core/LinkerConfig.cpp \
+	${LIBDIR}/Core/GeneralOptions.cpp \
+	${LIBDIR}/Core/ScriptOptions.cpp \
+	${LIBDIR}/Core/BitcodeOption.cpp \
+	${LIBDIR}/Core/TargetOptions.cpp \
+	${LIBDIR}/Core/AttributeOption.cpp \
+	${LIBDIR}/Core/IRBuilder.cpp \
+	${LIBDIR}/Core/Environment.cpp \
+	${LIBDIR}/Core/InputTree.cpp \
+	${LIBDIR}/Core/Linker.cpp \
+	${LIBDIR}/MC/ContextFactory.cpp \
+	${LIBDIR}/MC/SearchDirs.cpp \
+	${LIBDIR}/MC/MCLDDirectory.cpp \
+	${LIBDIR}/MC/Attribute.cpp \
+	${LIBDIR}/MC/AttributeSet.cpp \
+	${LIBDIR}/MC/ZOption.cpp \
+	${LIBDIR}/MC/InputAction.cpp \
+	${LIBDIR}/MC/CommandAction.cpp \
+	${LIBDIR}/MC/FileAction.cpp \
+	${LIBDIR}/MC/InputBuilder.cpp \
+	${LIBDIR}/LD/LDContext.cpp \
+	${LIBDIR}/LD/LDSection.cpp \
+	${LIBDIR}/LD/SectionData.cpp \
+	${LIBDIR}/LD/RelocData.cpp \
+	${LIBDIR}/LD/ResolveInfo.cpp \
+	${LIBDIR}/LD/Resolver.cpp \
+	${LIBDIR}/LD/LDSymbol.cpp \
+	${LIBDIR}/LD/RelocationFactory.cpp \
+	${LIBDIR}/LD/Relocator.cpp \
+	${LIBDIR}/LD/StaticResolver.cpp \
+	${LIBDIR}/LD/NamePool.cpp \
+	${LIBDIR}/LD/LDReader.cpp \
+	${LIBDIR}/LD/LDWriter.cpp \
+	${LIBDIR}/LD/ArchiveReader.cpp \
+	${LIBDIR}/LD/DynObjReader.cpp \
+	${LIBDIR}/LD/GroupReader.cpp \
+	${LIBDIR}/LD/ObjectWriter.cpp \
+	${LIBDIR}/LD/ELFReader.cpp \
+	${LIBDIR}/LD/ELFWriter.cpp \
+	${LIBDIR}/LD/GNUArchiveReader.cpp \
+	${LIBDIR}/LD/BSDArchiveReader.cpp \
+	${LIBDIR}/LD/ELFObjectReader.cpp \
+	${LIBDIR}/LD/ELFDynObjReader.cpp \
+	${LIBDIR}/LD/ELFObjectWriter.cpp \
+	${LIBDIR}/LD/ELFBinaryReader.cpp \
+	${LIBDIR}/LD/LDFileFormat.cpp \
+	${LIBDIR}/LD/ELFFileFormat.cpp \
+	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
+	${LIBDIR}/LD/ELFExecFileFormat.cpp \
+	${LIBDIR}/LD/SectionRules.cpp \
+	${LIBDIR}/LD/ELFSegment.cpp \
+	${LIBDIR}/LD/ELFSegmentFactory.cpp \
+	${LIBDIR}/LD/EhFrame.cpp \
+	${LIBDIR}/LD/EhFrameHdr.cpp \
+	${LIBDIR}/LD/EhFrameReader.cpp \
+	${LIBDIR}/LD/MsgHandler.cpp \
+	${LIBDIR}/LD/Diagnostic.cpp \
+	${LIBDIR}/LD/DiagnosticInfos.cpp \
+	${LIBDIR}/LD/DiagnosticLineInfo.cpp \
+	${LIBDIR}/LD/DWARFLineInfo.cpp \
+	${LIBDIR}/LD/DiagnosticEngine.cpp \
+	${LIBDIR}/LD/DiagnosticPrinter.cpp \
+	${LIBDIR}/LD/TextDiagnosticPrinter.cpp \
+	${LIBDIR}/LD/Archive.cpp \
+	${LIBDIR}/LD/BranchIsland.cpp \
+	${LIBDIR}/LD/BranchIslandFactory.cpp \
+	${LIBDIR}/LD/StubFactory.cpp \
+	${LIBDIR}/LD/SectionSymbolSet.cpp \
 	${INCDIR}/Target/ELFEmulation.h \
 	${LIBDIR}/Target/ELFEmulation.cpp \
 	${INCDIR}/Target/SymbolEntryMap.h \
@@ -164,6 +347,7 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
+	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonEmulation.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonELFDynamic.h \
@@ -171,195 +355,18 @@ SOURCE = ${INCDIR}/ADT/Uncopyable.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.h \
 	${LIBDIR}/Target/Hexagon/HexagonTargetMachine.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonMCLinker.cpp \
-	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.h \
-	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp \
-	${LIBDIR}/Target/Hexagon/HexagonLDBackend.h \
-	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGOT.h \
 	${LIBDIR}/Target/Hexagon/HexagonGOT.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.h \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonRelocationFunctions.h \
 	${LIBDIR}/Target/Hexagon/HexagonRelocator.h \
 	${LIBDIR}/Target/Hexagon/HexagonRelocator.cpp \
-	${INCDIR}/Object/ObjectLinker.h \
-	${LIBDIR}/Object/ObjectLinker.cpp \
-	${INCDIR}/Object/ObjectBuilder.h \
-	${LIBDIR}/Object/ObjectBuilder.cpp \
-	${INCDIR}/Object/SectionMap.h \
-	${LIBDIR}/Object/SectionMap.cpp \
-	${INCDIR}/MC/SymbolCategory.h \
-	${LIBDIR}/MC/SymbolCategory.cpp \
-	${INCDIR}/Fragment/FragmentLinker.h \
-	${LIBDIR}/Fragment/FragmentLinker.cpp \
-	${INCDIR}/Fragment/Fragment.h \
-	${LIBDIR}/Fragment/Fragment.cpp \
-	${INCDIR}/Fragment/FragmentRef.h \
-	${LIBDIR}/Fragment/FragmentRef.cpp \
-	${INCDIR}/Fragment/AlignFragment.h \
-	${LIBDIR}/Fragment/AlignFragment.cpp \
-	${INCDIR}/Fragment/RegionFragment.h \
-	${LIBDIR}/Fragment/RegionFragment.cpp \
-	${INCDIR}/Fragment/FillFragment.h \
-	${LIBDIR}/Fragment/FillFragment.cpp \
-	${INCDIR}/Fragment/TargetFragment.h \
-	${INCDIR}/Fragment/Relocation.h \
-	${LIBDIR}/Fragment/Relocation.cpp \
-	${INCDIR}/Fragment/Stub.h \
-	${LIBDIR}/Fragment/Stub.cpp \
-	${INCDIR}/Fragment/NullFragment.h \
-	${LIBDIR}/Fragment/NullFragment.cpp \
-	${INCDIR}/MC/MCLDInput.h \
-	${LIBDIR}/MC/MCLDInput.cpp \
-	${INCDIR}/MC/InputFactory.h \
-	${LIBDIR}/MC/InputFactory.cpp \
-	${INCDIR}/Module.h \
-	${LIBDIR}/Core/Module.cpp \
-	${INCDIR}/LinkerConfig.h \
-	${LIBDIR}/Core/LinkerConfig.cpp \
-	${INCDIR}/GeneralOptions.h \
-	${LIBDIR}/Core/GeneralOptions.cpp \
-	${INCDIR}/ScriptOptions.h \
-	${LIBDIR}/Core/ScriptOptions.cpp \
-	${INCDIR}/BitcodeOption.h \
-	${LIBDIR}/Core/BitcodeOption.cpp \
-	${INCDIR}/TargetOptions.h \
-	${LIBDIR}/Core/TargetOptions.cpp \
-	${INCDIR}/AttributeOption.h \
-	${LIBDIR}/Core/AttributeOption.cpp \
-	${INCDIR}/IRBuilder.h \
-	${LIBDIR}/Core/IRBuilder.cpp \
-	${INCDIR}/Environment.h \
-	${LIBDIR}/Core/Environment.cpp \
-	${INCDIR}/InputTree.h \
-	${LIBDIR}/Core/InputTree.cpp \
-	${INCDIR}/Linker.h \
-	${LIBDIR}/Core/Linker.cpp \
-	${INCDIR}/MC/ContextFactory.h \
-	${LIBDIR}/MC/ContextFactory.cpp \
-	${INCDIR}/MC/SearchDirs.h \
-	${LIBDIR}/MC/SearchDirs.cpp \
-	${INCDIR}/MC/MCLDDirectory.h \
-	${LIBDIR}/MC/MCLDDirectory.cpp \
-	${INCDIR}/MC/Attribute.h \
-	${LIBDIR}/MC/Attribute.cpp \
-	${INCDIR}/MC/AttributeSet.h \
-	${LIBDIR}/MC/AttributeSet.cpp \
-	${INCDIR}/MC/ZOption.h \
-	${LIBDIR}/MC/ZOption.cpp \
-	${INCDIR}/MC/InputAction.h \
-	${LIBDIR}/MC/InputAction.cpp \
-	${INCDIR}/MC/CommandAction.h \
-	${LIBDIR}/MC/CommandAction.cpp \
-	${INCDIR}/MC/FileAction.h \
-	${LIBDIR}/MC/FileAction.cpp \
-	${INCDIR}/MC/InputBuilder.h \
-	${LIBDIR}/MC/InputBuilder.cpp \
-	${INCDIR}/LD/DiagCommonKinds.inc \
-	${INCDIR}/LD/DiagReaders.inc \
-	${INCDIR}/LD/DiagSymbolResolutions.inc \
-	${INCDIR}/LD/DiagRelocations.inc \
-	${INCDIR}/LD/DiagLayouts.inc \
-	${INCDIR}/LD/DiagGOTPLT.inc \
-	${INCDIR}/LD/LDContext.h \
-	${LIBDIR}/LD/LDContext.cpp \
-	${INCDIR}/LD/LDSection.h \
-	${LIBDIR}/LD/LDSection.cpp \
-	${INCDIR}/LD/SectionData.h \
-	${LIBDIR}/LD/SectionData.cpp \
-	${INCDIR}/LD/RelocData.h \
-	${LIBDIR}/LD/RelocData.cpp \
-	${INCDIR}/LD/ResolveInfo.h \
-	${LIBDIR}/LD/ResolveInfo.cpp \
-	${INCDIR}/LD/Resolver.h \
-	${LIBDIR}/LD/Resolver.cpp \
-	${INCDIR}/LD/LDSymbol.h \
-	${LIBDIR}/LD/LDSymbol.cpp \
-	${INCDIR}/LD/RelocationFactory.h \
-	${LIBDIR}/LD/RelocationFactory.cpp \
-	${INCDIR}/LD/Relocator.h \
-	${LIBDIR}/LD/Relocator.cpp \
-	${INCDIR}/LD/StaticResolver.h \
-	${LIBDIR}/LD/StaticResolver.cpp \
-	${INCDIR}/LD/NamePool.h \
-	${LIBDIR}/LD/NamePool.cpp \
-	${INCDIR}/LD/LDReader.h \
-	${LIBDIR}/LD/LDReader.cpp \
-	${INCDIR}/LD/LDWriter.h \
-	${LIBDIR}/LD/LDWriter.cpp \
-	${INCDIR}/LD/ArchiveReader.h \
-	${LIBDIR}/LD/ArchiveReader.cpp \
-	${INCDIR}/LD/ObjectReader.h \
-	${INCDIR}/LD/DynObjReader.h \
-	${LIBDIR}/LD/DynObjReader.cpp \
-	${INCDIR}/LD/GroupReader.h \
-	${LIBDIR}/LD/GroupReader.cpp \
-	${INCDIR}/LD/ObjectWriter.h \
-	${LIBDIR}/LD/ObjectWriter.cpp \
-	${INCDIR}/LD/ELFReader.h \
-	${LIBDIR}/LD/ELFReader.cpp \
-	${INCDIR}/LD/ELFWriter.h \
-	${LIBDIR}/LD/ELFWriter.cpp \
-	${INCDIR}/LD/GNUArchiveReader.h \
-	${LIBDIR}/LD/GNUArchiveReader.cpp \
-	${INCDIR}/LD/BSDArchiveReader.h \
-	${LIBDIR}/LD/BSDArchiveReader.cpp \
-	${INCDIR}/LD/ELFObjectReader.h \
-	${LIBDIR}/LD/ELFObjectReader.cpp \
-	${INCDIR}/LD/ELFDynObjReader.h \
-	${LIBDIR}/LD/ELFDynObjReader.cpp \
-	${INCDIR}/LD/ELFObjectWriter.h \
-	${LIBDIR}/LD/ELFObjectWriter.cpp \
-	${INCDIR}/LD/BinaryReader.h \
-	${INCDIR}/LD/ELFBinaryReader.h \
-	${LIBDIR}/LD/ELFBinaryReader.cpp \
-	${INCDIR}/LD/LDFileFormat.h \
-	${LIBDIR}/LD/LDFileFormat.cpp \
-	${INCDIR}/LD/ELFFileFormat.h \
-	${LIBDIR}/LD/ELFFileFormat.cpp \
-	${INCDIR}/LD/ELFDynObjFileFormat.h \
-	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
-	${INCDIR}/LD/ELFExecFileFormat.h \
-	${LIBDIR}/LD/ELFExecFileFormat.cpp \
-	${INCDIR}/LD/ELFObjectFileFormat.h \
-	${INCDIR}/LD/SectionRules.h \
-	${LIBDIR}/LD/SectionRules.cpp \
-	${INCDIR}/LD/ELFSegment.h \
-	${LIBDIR}/LD/ELFSegment.cpp \
-	${INCDIR}/LD/ELFSegmentFactory.h \
-	${LIBDIR}/LD/ELFSegmentFactory.cpp \
-	${INCDIR}/LD/EhFrame.h \
-	${LIBDIR}/LD/EhFrame.cpp \
-	${INCDIR}/LD/EhFrameHdr.h \
-	${LIBDIR}/LD/EhFrameHdr.cpp \
-	${INCDIR}/LD/EhFrameReader.h \
-	${LIBDIR}/LD/EhFrameReader.cpp \
-	${INCDIR}/LD/MsgHandler.h \
-	${LIBDIR}/LD/MsgHandler.cpp \
-	${INCDIR}/LD/Diagnostic.h \
-	${LIBDIR}/LD/Diagnostic.cpp \
-	${INCDIR}/LD/DiagnosticInfos.h \
-	${LIBDIR}/LD/DiagnosticInfos.cpp \
-	${INCDIR}/LD/DiagnosticLineInfo.h \
-	${LIBDIR}/LD/DiagnosticLineInfo.cpp \
-	${INCDIR}/LD/DWARFLineInfo.h \
-	${LIBDIR}/LD/DWARFLineInfo.cpp \
-	${INCDIR}/LD/DiagnosticEngine.h \
-	${LIBDIR}/LD/DiagnosticEngine.cpp \
-	${INCDIR}/LD/DiagnosticPrinter.h \
-	${LIBDIR}/LD/DiagnosticPrinter.cpp \
-	${INCDIR}/LD/TextDiagnosticPrinter.h \
-	${LIBDIR}/LD/TextDiagnosticPrinter.cpp \
-	${INCDIR}/LD/Archive.h \
-	${LIBDIR}/LD/Archive.cpp \
-	${INCDIR}/LD/BranchIsland.h \
-	${LIBDIR}/LD/BranchIsland.cpp \
-	${INCDIR}/LD/BranchIslandFactory.h \
-	${LIBDIR}/LD/BranchIslandFactory.cpp \
-	${INCDIR}/LD/StubFactory.h \
-	${LIBDIR}/LD/StubFactory.cpp \
-	${INCDIR}/LD/SectionSymbolSet.h \
-	${LIBDIR}/LD/SectionSymbolSet.cpp
+	${LIBDIR}/Target/Hexagon/HexagonLDBackend.h \
+	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
+	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
@@ -369,9 +376,11 @@ endif
 
 AM_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
-lib_LTLIBRARIES= libmcld.la
+lib_LIBRARIES= libmcld.a
 
-libmcld_la_SOURCES = ${SOURCE}
+libmcld_a_SOURCES = ${SOURCE}
+
+nobase_include_HEADERS = ${HEADER}
 
 bin_PROGRAMS = ld.mcld ld.bcc
 
@@ -380,7 +389,7 @@ ld_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -
 
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 
-ld_mcld_LDADD = libmcld.la
+ld_mcld_LDADD = libmcld.a
 
 dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
@@ -389,7 +398,7 @@ ld_bcc_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 
-ld_bcc_LDADD = libmcld.la
+ld_bcc_LDADD = libmcld.a
 
 dist_ld_bcc_SOURCES = ${TOOLDIR}/mcld/main.cpp \
 	${TOOLDIR}/mcld/include/alone/Linker.h \
