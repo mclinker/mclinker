@@ -825,16 +825,12 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
         // compute .gnu.hash
         if (GeneralOptions::GNU  == config().options().getHashStyle() ||
             GeneralOptions::Both == config().options().getHashStyle()) {
-          // sort .dynsym
-          std::stable_sort(symbols.tlsEnd(), symbols.dynamicEnd(),
-                           DynsymCompare());
           // count the number of dynsym to hash
-          size_t hashed_sym_cnt = symbols.numOfDynamics();
+          size_t hashed_sym_cnt = 0;
           symEnd = symbols.dynamicEnd();
           for (symbol = symbols.dynamicBegin(); symbol != symEnd; ++symbol) {
             if (DynsymCompare().needGNUHash(**symbol))
-              break;
-              --hashed_sym_cnt;
+              ++hashed_sym_cnt;
           }
           // Special case for empty .dynsym
           if (hashed_sym_cnt == 0)
@@ -1144,8 +1140,14 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
   Module::SymbolTable& symbols = pModule.getSymbolTable();
   // emit .gnu.hash
   if (GeneralOptions::GNU  == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle())
+      GeneralOptions::Both == config().options().getHashStyle()) {
+    // Currently we may add output symbols after sizeNamePools(), and a
+    // non-stable sort is used in SymbolCategory::arrange(), so we just
+    // sort .dynsym right before emitting .gnu.hash
+    std::stable_sort(symbols.dynamicBegin(), symbols.dynamicEnd(),
+                     DynsymCompare());
     emitGNUHashTab(symbols, pOutput);
+  }
   // emit .hash
   if (GeneralOptions::SystemV == config().options().getHashStyle() ||
       GeneralOptions::Both == config().options().getHashStyle())
