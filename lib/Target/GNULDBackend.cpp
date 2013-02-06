@@ -802,49 +802,25 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
   } // end of switch
   /// @}
 
-  /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
-  /// @{
-  if (!pIsStaticLink) {
-    symEnd = symbols.dynamicEnd();
-    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-      ++dynsym;
-      if (ResolveInfo::Section != (*symbol)->type())
-        dynstr += (*symbol)->nameSize() + 1;
-    }
-    dynsym_local_cnt = 1 + symbols.numOfTLSs();
-  }
-  /// @}
-
   ELFFileFormat* file_format = getOutputFormat();
 
   switch(config().codeGenType()) {
-    // compute size of .dynstr and .hash
     case LinkerConfig::DynObj: {
       // soname
-      if (!pIsStaticLink)
-        dynstr += pModule.name().size() + 1;
+      dynstr += pModule.name().size() + 1;
     }
     /** fall through **/
     case LinkerConfig::Exec:
     case LinkerConfig::Binary: {
-      // add DT_NEED strings into .dynstr and .dynamic
       if (!pIsStaticLink) {
-        Module::const_lib_iterator lib, libEnd = pModule.lib_end();
-        for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-          if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
-            dynstr += (*lib)->name().size() + 1;
-            dynamic().reserveNeedEntry();
-          }
+        /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
+        symEnd = symbols.dynamicEnd();
+        for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+          ++dynsym;
+          if (ResolveInfo::Section != (*symbol)->type())
+            dynstr += (*symbol)->nameSize() + 1;
         }
-
-        if (!config().options().getRpathList().empty()) {
-          dynamic().reserveNeedEntry();
-          GeneralOptions::const_rpath_iterator rpath,
-            rpathEnd = config().options().rpath_end();
-          for (rpath = config().options().rpath_begin();
-               rpath != rpathEnd; ++rpath)
-            dynstr += (*rpath).size() + 1;
-        }
+        dynsym_local_cnt = 1 + symbols.numOfTLSs();
 
         // compute .gnu.hash
         if (GeneralOptions::GNU  == config().options().getHashStyle() ||
@@ -868,28 +844,57 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
             gnuhash = (4 + nbucket + hashed_sym_cnt) * 4;
             gnuhash += (1U << getGNUHashMaskbitslog2(hashed_sym_cnt)) / 8;
           }
-          file_format->getGNUHashTab().setSize(gnuhash);
         }
+
         // compute .hash
         if (GeneralOptions::SystemV == config().options().getHashStyle() ||
             GeneralOptions::Both == config().options().getHashStyle()) {
           // Both Elf32_Word and Elf64_Word are 4 bytes
           hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
                  sizeof(llvm::ELF::Elf32_Word);
-          file_format->getHashTab().setSize(hash);
         }
+
+        // add DT_NEEDED
+        Module::const_lib_iterator lib, libEnd = pModule.lib_end();
+        for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
+          if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
+            dynstr += (*lib)->name().size() + 1;
+            dynamic().reserveNeedEntry();
+          }
+        }
+
+        // add DT_RPATH
+        if (!config().options().getRpathList().empty()) {
+          dynamic().reserveNeedEntry();
+          GeneralOptions::const_rpath_iterator rpath,
+            rpathEnd = config().options().rpath_end();
+          for (rpath = config().options().rpath_begin();
+               rpath != rpathEnd; ++rpath)
+            dynstr += (*rpath).size() + 1;
+        }
+
+        // set size
+        if (config().targets().is32Bits()) {
+          file_format->getDynSymTab().setSize(dynsym *
+                                              sizeof(llvm::ELF::Elf32_Sym));
+        } else {
+          file_format->getDynSymTab().setSize(dynsym *
+                                              sizeof(llvm::ELF::Elf64_Sym));
+        }
+        file_format->getDynStrTab().setSize(dynstr);
+        file_format->getHashTab().setSize(hash);
+        file_format->getGNUHashTab().setSize(gnuhash);
+
+        // set .dynsym sh_info to one greater than the symbol table
+        // index of the last local symbol
+        file_format->getDynSymTab().setInfo(dynsym_local_cnt);
+
+        // Because some entries in .dynamic section need information of .dynsym,
+        // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
+        // entries until we get the size of the sections mentioned above
+        dynamic().reserveEntries(*file_format);
+        file_format->getDynamic().setSize(dynamic().numOfBytes());
       }
-
-      // set size
-      if (config().targets().is32Bits())
-        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf32_Sym));
-      else
-        file_format->getDynSymTab().setSize(dynsym*sizeof(llvm::ELF::Elf64_Sym));
-      file_format->getDynStrTab().setSize(dynstr);
-
-      // set .dynsym sh_info to one greater than the symbol table
-      // index of the last local symbol
-      file_format->getDynSymTab().setInfo(dynsym_local_cnt);
     }
     /* fall through */
     case LinkerConfig::Object: {
@@ -902,40 +907,23 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
       // set .symtab sh_info to one greater than the symbol table
       // index of the last local symbol
       file_format->getSymTab().setInfo(symtab_local_cnt);
+
+      // compute the size of .shstrtab section.
+      Module::const_iterator sect, sectEnd = pModule.end();
+      for (sect = pModule.begin(); sect != sectEnd; ++sect) {
+        // StackNote sections will always be in output!
+        if (0 != (*sect)->size() ||
+            LDFileFormat::StackNote == (*sect)->kind())
+          shstrtab += ((*sect)->name().size() + 1);
+      }
+      shstrtab += (strlen(".shstrtab") + 1);
+      file_format->getShStrTab().setSize(shstrtab);
       break;
     }
     default:
       fatal(diag::fatal_illegal_codegen_type) << pModule.name();
       break;
   } // end of switch
-  /// @}
-
-  /// reserve fixed entries in the .dynamic section.
-  /// @{
-  if (LinkerConfig::DynObj == config().codeGenType() ||
-      LinkerConfig::Exec   == config().codeGenType() ||
-      LinkerConfig::Binary == config().codeGenType()) {
-    // Because some entries in .dynamic section need information of .dynsym,
-    // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
-    // entries until we get the size of the sections mentioned above
-    if (!pIsStaticLink)
-      dynamic().reserveEntries(*file_format);
-    file_format->getDynamic().setSize(dynamic().numOfBytes());
-  }
-  /// @}
-
-  /// compute the size of .shstrtab section.
-  /// @{
-  Module::const_iterator sect, sectEnd = pModule.end();
-  for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-    // StackNote sections will always be in output!
-    if (0 != (*sect)->size() || LDFileFormat::StackNote == (*sect)->kind()) {
-      shstrtab += ((*sect)->name().size() + 1);
-    }
-  }
-  shstrtab += (strlen(".shstrtab") + 1);
-  file_format->getShStrTab().setSize(shstrtab);
-  /// @}
 }
 
 /// emitSymbol32 - emit an ELF32 symbol
