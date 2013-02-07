@@ -20,7 +20,16 @@ static bool MCLDEmulateX86ELF(LinkerConfig& pConfig)
 
   // set up bitclass and endian
   pConfig.targets().setEndian(TargetOptions::Little);
-  pConfig.targets().setBitClass(32);
+  unsigned int bitclass;
+  Triple::ArchType arch = pConfig.targets().triple().getArch();
+  if (arch == Triple::x86) {
+    bitclass = 32;
+  }
+  else {
+    assert (arch == Triple::x86_64);
+    bitclass = 64;
+  }
+  pConfig.targets().setBitClass(bitclass);
 
   // set up target-dependent constraints of attributes
   pConfig.attribute().constraint().enableWholeArchive();
