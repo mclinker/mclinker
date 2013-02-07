@@ -71,14 +71,14 @@ Relocation* RelocationFactory::produce(RelocationFactory::Type pType,
     pFragRef.memcpy(&target_data, (m_pConfig->targets().bitclass()/8));
   }
 
-  Relocation *result = allocate();
+  Relocation* result = allocate();
   new (result) Relocation(pType, &pFragRef, pAddend, target_data);
   return result;
 }
 
 Relocation* RelocationFactory::produceEmptyEntry()
 {
-  Relocation *result = allocate();
+  Relocation* result = allocate();
   new (result) Relocation(0, 0, 0, 0);
   return result;
 }
