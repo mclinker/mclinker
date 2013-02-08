@@ -71,6 +71,10 @@ Relocator* X86GNULDBackend::getRelocator()
 
 void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
+  // initialize .dynamic data
+  if (!config().isCodeStatic() && NULL == m_pDynamic)
+    m_pDynamic = new X86ELFDynamic(*this, config());
+
   // set .got.plt size
   // when building shared object, the .got section is must
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -116,9 +120,7 @@ void X86GNULDBackend::doPostLayout(Module& pModule,
 /// Use co-variant return type to return its own dynamic section.
 X86ELFDynamic& X86GNULDBackend::dynamic()
 {
-  if (NULL == m_pDynamic)
-    m_pDynamic = new X86ELFDynamic(*this, config());
-
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 
@@ -126,7 +128,7 @@ X86ELFDynamic& X86GNULDBackend::dynamic()
 /// Use co-variant return type to return its own dynamic section.
 const X86ELFDynamic& X86GNULDBackend::dynamic() const
 {
-  assert( NULL != m_pDynamic);
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 

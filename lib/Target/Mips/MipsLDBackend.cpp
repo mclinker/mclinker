@@ -148,6 +148,10 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
 
 void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
+  // initialize .dynamic data
+  if (!config().isCodeStatic() && NULL == m_pDynamic)
+    m_pDynamic = new MipsELFDynamic(*this, config());
+
   // set .got size
   // when building shared object, the .got section is must.
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -177,9 +181,7 @@ void MipsGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 /// Use co-variant return type to return its own dynamic section.
 MipsELFDynamic& MipsGNULDBackend::dynamic()
 {
-  if (NULL == m_pDynamic)
-    m_pDynamic = new MipsELFDynamic(*this, config());
-
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 
@@ -187,7 +189,7 @@ MipsELFDynamic& MipsGNULDBackend::dynamic()
 /// Use co-variant return type to return its own dynamic section.
 const MipsELFDynamic& MipsGNULDBackend::dynamic() const
 {
-  assert( NULL != m_pDynamic);
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 

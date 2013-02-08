@@ -69,6 +69,9 @@ Relocator* HexagonLDBackend::getRelocator()
 
 void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 {
+  // initialize .dynamic data
+  if (!config().isCodeStatic() && NULL == m_pDynamic)
+    m_pDynamic = new HexagonELFDynamic(*this, config());
 }
 
 void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
@@ -79,9 +82,7 @@ void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 /// Use co-variant return type to return its own dynamic section.
 HexagonELFDynamic& HexagonLDBackend::dynamic()
 {
-  if (NULL == m_pDynamic)
-    m_pDynamic = new HexagonELFDynamic(*this, config());
-
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 
@@ -89,7 +90,7 @@ HexagonELFDynamic& HexagonLDBackend::dynamic()
 /// Use co-variant return type to return its own dynamic section.
 const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 {
-  assert( NULL != m_pDynamic);
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 

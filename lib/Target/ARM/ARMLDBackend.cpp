@@ -179,6 +179,10 @@ Relocator* ARMGNULDBackend::getRelocator()
 
 void ARMGNULDBackend::doPreLayout(IRBuilder& pBuilder)
 {
+  // initialize .dynamic data
+  if (!config().isCodeStatic() && NULL == m_pDynamic)
+    m_pDynamic = new ARMELFDynamic(*this, config());
+
   // set .got size
   // when building shared object, the .got section is must
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -242,9 +246,7 @@ void ARMGNULDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 /// Use co-variant return type to return its own dynamic section.
 ARMELFDynamic& ARMGNULDBackend::dynamic()
 {
-  if (NULL == m_pDynamic)
-    m_pDynamic = new ARMELFDynamic(*this, config());
-
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 
@@ -252,7 +254,7 @@ ARMELFDynamic& ARMGNULDBackend::dynamic()
 /// Use co-variant return type to return its own dynamic section.
 const ARMELFDynamic& ARMGNULDBackend::dynamic() const
 {
-  assert( NULL != m_pDynamic);
+  assert(NULL != m_pDynamic);
   return *m_pDynamic;
 }
 
