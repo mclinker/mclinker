@@ -2079,21 +2079,8 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
       mapping = config().scripts().addressMap().find((*seg).front()->name());
 
     if (mapping != config().scripts().addressMap().end()) {
-      // check address mapping
+      // use address mapping in script options
       start_addr = mapping.getEntry()->value();
-      if ((*seg).front()->kind() != LDFileFormat::Null) {
-        const uint64_t remainder = start_addr % (*seg).align();
-        if (remainder != (*seg).front()->offset() % (*seg).align()) {
-          uint64_t padding = (*seg).align() + remainder -
-                             (*seg).front()->offset() % (*seg).align();
-          setOutputSectionOffset(pModule,
-                                 pModule.begin() + (*seg).front()->index(),
-                                 pModule.end(),
-                                 (*seg).front()->offset() + padding);
-          if (config().options().hasRelro())
-            setupRelro(pModule);
-        }
-      }
     }
     else {
       if ((*seg).front()->kind() == LDFileFormat::Null) {
@@ -2108,19 +2095,26 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
         // Others
         start_addr = (*prev).front()->addr() + (*seg).front()->offset();
       }
+      // let previous and current load segments in different pages
+      if (((*seg).front()->offset() & ((*seg).align() - 1)) != 0)
+        start_addr += (*seg).align();
+    }
 
-      // padding
-      if (((*seg).front()->offset() & ((*seg).align() - 1)) != 0) {
-        uint64_t offset = (*seg).front()->offset();
-        alignAddress(offset, (*seg).align());
-        alignAddress(start_addr, (*seg).align());
-        setOutputSectionOffset(pModule,
-                               pModule.begin() + (*seg).front()->index(),
-                               pModule.end(),
-                               offset);
-        if (config().options().hasRelro())
-          setupRelro(pModule);
-      }
+    // in p75, http://www.sco.com/developers/devspecs/gabi41.pdf
+    // p_align: As "Program Loading" describes in this chapter of the
+    // processor supplement, loadable process segments must have congruent
+    // values for p_vaddr and p_offset, modulo the page size.
+    if ((start_addr & ((*seg).align() - 1)) !=
+        ((*seg).front()->offset() & ((*seg).align() - 1))) {
+      uint64_t padding = (*seg).align() +
+                         (start_addr & ((*seg).align() - 1)) -
+                         ((*seg).front()->offset() & ((*seg).align() - 1));
+      setOutputSectionOffset(pModule,
+                             pModule.begin() + (*seg).front()->index(),
+                             pModule.end(),
+                             (*seg).front()->offset() + padding);
+      if (config().options().hasRelro())
+        setupRelro(pModule);
     }
 
     for (ELFSegment::sect_iterator sect = (*seg).begin(),
