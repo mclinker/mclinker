@@ -20,7 +20,7 @@
 namespace mcld {
 
 class LinkerConfig;
-class X86GNUInfo;
+class GNUInfo;
 
 //===----------------------------------------------------------------------===//
 /// X86GNULDBackend - linker backend of X86 target of GNU ELF format
@@ -72,7 +72,10 @@ public:
   };
 
 public:
-  X86GNULDBackend(const LinkerConfig& pConfig, X86GNUInfo* pInfo);
+  X86GNULDBackend(const LinkerConfig& pConfig,
+		  GNUInfo* pInfo,
+		  size_t pRelEntrySize,
+		  size_t pRelaEntrySize);
 
   ~X86GNULDBackend();
 
@@ -184,11 +187,11 @@ private:
 
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
-  { return 8; }
+  { return m_RelEntrySize; }
 
   /// getRelEntrySize - the size in BYTE of rela type relocation
   size_t getRelaEntrySize()
-  { return 12; }
+  { return m_RelaEntrySize; }
 
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
@@ -210,6 +213,29 @@ private:
 
   X86ELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
+
+  size_t m_RelEntrySize;
+  size_t m_RelaEntrySize;
+};
+
+//
+//===----------------------------------------------------------------------===//
+/// X86_32GNULDBackend - linker backend of X86-32 target of GNU ELF format
+///
+class X86_32GNULDBackend : public X86GNULDBackend
+{
+public:
+  X86_32GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
+};
+
+//
+//===----------------------------------------------------------------------===//
+/// X86_64GNULDBackend - linker backend of X86-64 target of GNU ELF format
+///
+class X86_64GNULDBackend : public X86GNULDBackend
+{
+public:
+  X86_64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
 };
 } // namespace of mcld
 

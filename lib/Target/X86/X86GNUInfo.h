@@ -14,14 +14,29 @@
 
 namespace mcld {
 
-class X86GNUInfo : public GNUInfo
+class X86_32GNUInfo : public GNUInfo
 {
 public:
-  X86GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+  X86_32GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
 
   uint32_t machine() const { return llvm::ELF::EM_386; }
 
   uint64_t defaultTextSegmentAddr() const { return 0x08048000; }
+
+  /// flags - the value of ElfXX_Ehdr::e_flags
+  /// FIXME
+  uint64_t flags() const { return 0x0; }
+
+};
+
+class X86_64GNUInfo : public GNUInfo
+{
+public:
+  X86_64GNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+
+  uint32_t machine() const { return llvm::ELF::EM_X86_64; }
+
+  uint64_t defaultTextSegmentAddr() const { return 0x400000; }
 
   /// flags - the value of ElfXX_Ehdr::e_flags
   /// FIXME

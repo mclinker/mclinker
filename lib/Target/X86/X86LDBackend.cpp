@@ -32,7 +32,10 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // X86GNULDBackend
 //===----------------------------------------------------------------------===//
-X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig, X86GNUInfo* pInfo)
+X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
+				 GNUInfo* pInfo,
+				 size_t pRelEntrySize,
+				 size_t pRelaEntrySize)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
@@ -41,7 +44,9 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig, X86GNUInfo* pInfo)
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
     m_pDynamic(NULL),
-    m_pGOTSymbol(NULL) {
+    m_pGOTSymbol(NULL),
+    m_RelEntrySize(pRelEntrySize),
+    m_RelaEntrySize(pRelaEntrySize) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
@@ -53,6 +58,16 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pRelDyn;
   delete m_pRelPLT;
   delete m_pDynamic;
+}
+
+X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
+				       GNUInfo* pInfo)
+  : X86GNULDBackend(pConfig, pInfo, 8, 12) {
+}
+
+X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
+				       GNUInfo* pInfo)
+  : X86GNULDBackend(pConfig, pInfo, 16, 24) {
 }
 
 bool X86GNULDBackend::initRelocator()
@@ -937,7 +952,13 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
                                createX86COFFObjectWriter);
     **/
   }
-  return new X86GNULDBackend(pConfig, new X86GNUInfo(pConfig.targets().triple()));
+  Triple::ArchType arch = pConfig.targets().triple().getArch();
+  if (arch == Triple::x86)
+    return new X86_32GNULDBackend(pConfig,
+				  new X86_32GNUInfo(pConfig.targets().triple()));
+  assert (arch == Triple::x86_64);
+  return new X86_64GNULDBackend(pConfig,
+				new X86_64GNUInfo(pConfig.targets().triple()));
 }
 
 } // namespace of mcld
