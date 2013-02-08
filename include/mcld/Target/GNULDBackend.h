@@ -200,6 +200,10 @@ public:
   /// @ref Google gold linker, symtab.h:551
   bool isSymbolPreemptible(const ResolveInfo& pSym) const;
 
+  virtual ResolveInfo::Desc getSymDesc(uint16_t pShndx) const {
+    return ResolveInfo::Define;
+  }
+
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
   /// @ref Google gold linker, symtab.h:645
   bool symbolNeedsDynRel(const ResolveInfo& pSym,

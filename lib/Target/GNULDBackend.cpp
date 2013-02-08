@@ -2110,8 +2110,16 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
       }
 
       // padding
-      if (((*seg).front()->offset() & ((*seg).align() - 1)) != 0)
-        start_addr += (*seg).align();
+      if (((*seg).front()->offset() &  ((*seg).align() - 1)) != 0) {
+        int64_t segAlign = (*seg).align();
+        start_addr = (start_addr + segAlign - 1) & ~(segAlign - 1);
+        int64_t aligned_offset = ((*seg).front()->offset() + segAlign - 1)
+                                            & ~(segAlign - 1);
+        setOutputSectionOffset(pModule,
+                               pModule.begin() + (*seg).front()->index(),
+                               pModule.end(),
+                               aligned_offset);
+      }
     }
 
     for (ELFSegment::sect_iterator sect = (*seg).begin(),

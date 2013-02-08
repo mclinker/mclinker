@@ -67,6 +67,10 @@ ResolveInfo::Desc ELFReaderIF::getSymDesc(uint16_t pShndx, const Input& pInput) 
   if (pShndx == llvm::ELF::SHN_COMMON)
     return ResolveInfo::Common;
 
+  if (pShndx >= llvm::ELF::SHN_LOPROC &&
+      pShndx <= llvm::ELF::SHN_HIPROC)
+    return target().getSymDesc(pShndx);
+
   // FIXME: ELF weak alias should be ResolveInfo::Indirect
   return ResolveInfo::NoneDesc;
 }

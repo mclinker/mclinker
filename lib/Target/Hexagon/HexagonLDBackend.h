@@ -79,6 +79,14 @@ public:
   /// getRelocator - return relocator.
   Relocator* getRelocator();
 
+  ResolveInfo::Desc getSymDesc(uint16_t shndx) const
+  {
+    if (shndx >= llvm::ELF::SHN_HEXAGON_SCOMMON &&
+        shndx <= llvm::ELF::SHN_HEXAGON_SCOMMON_8)
+      return ResolveInfo::Common;
+    return ResolveInfo::NoneDesc;
+  }
+
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
   void initTargetSymbols(IRBuilder& pLinker);
