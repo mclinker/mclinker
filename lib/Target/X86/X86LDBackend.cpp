@@ -35,7 +35,8 @@ using namespace mcld;
 X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
 				 GNUInfo* pInfo,
 				 size_t pRelEntrySize,
-				 size_t pRelaEntrySize)
+				 size_t pRelaEntrySize,
+				 Relocation::Type pCopyRel)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
@@ -46,7 +47,8 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL),
     m_RelEntrySize(pRelEntrySize),
-    m_RelaEntrySize(pRelaEntrySize) {
+    m_RelaEntrySize(pRelaEntrySize),
+    m_CopyRel(pCopyRel) {
 }
 
 X86GNULDBackend::~X86GNULDBackend()
@@ -62,12 +64,12 @@ X86GNULDBackend::~X86GNULDBackend()
 
 X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 8, 12) {
+  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY) {
 }
 
 X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 16, 24) {
+  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY) {
 }
 
 bool X86GNULDBackend::initRelocator()
@@ -177,7 +179,7 @@ void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
 void X86GNULDBackend::addCopyReloc(ResolveInfo& pSym)
 {
   Relocation& rel_entry = *m_pRelDyn->consumeEntry();
-  rel_entry.setType(llvm::ELF::R_386_COPY);
+  rel_entry.setType(m_CopyRel);
   assert(pSym.outSymbol()->hasFragRef());
   rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
   rel_entry.setSymInfo(&pSym);
