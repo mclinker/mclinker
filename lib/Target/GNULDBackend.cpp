@@ -2095,9 +2095,10 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
         // Others
         start_addr = (*prev).front()->addr() + (*seg).front()->offset();
       }
-      // let previous and current load segments in different pages
-      if (((*seg).front()->offset() & ((*seg).align() - 1)) != 0)
-        start_addr += (*seg).align();
+      // Try to align p_vaddr at page boundary if not in script options.
+      // To do so will add more padding in file, but can save one page
+      // at runtime.
+      alignAddress(start_addr, (*seg).align());
     }
 
     // in p75, http://www.sco.com/developers/devspecs/gabi41.pdf
