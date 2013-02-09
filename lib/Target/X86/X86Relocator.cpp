@@ -111,14 +111,14 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 }
 
 static
-X86GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+X86_32GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
                                      X86Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   X86GNULDBackend& ld_backend = pParent.getTarget();
 
-  X86GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL != got_entry)
     return *got_entry;
 
@@ -159,7 +159,7 @@ X86Relocator::Address helper_GOT_ORG(X86Relocator& pParent)
 static
 X86Relocator::Address helper_GOT(Relocation& pReloc, X86Relocator& pParent)
 {
-  X86GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  X86_32GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86Relocator::Address got_addr = pParent.getTarget().getGOT().addr();
   return got_addr + got_entry.getOffset();
 }
@@ -181,7 +181,7 @@ PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc, X86Relocator& pParent)
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
   // If we first get this PLT entry, we should initialize it.
   if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-    X86GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    X86_32GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOTPLT().consume();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
@@ -400,13 +400,13 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86Relocator& pParent)
   // get first got entry, if there is already a got entry for rsym, then apply
   // this relocation to the got entry directly. If not, setup the corresponding
   // got and dyn relocation entries
-  X86GOTEntry* got_entry1 = pParent.getSymGOTMap().lookUp(*rsym);
+  X86_32GOTEntry* got_entry1 = pParent.getSymGOTMap().lookUp(*rsym);
 
   if (NULL == got_entry1) {
     // get and init two got entries if not exist
     got_entry1 = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry1);
-    X86GOTEntry* got_entry2 = ld_backend.getGOT().consume();
+    X86_32GOTEntry* got_entry2 = ld_backend.getGOT().consume();
     got_entry1->setValue(0x0);
     got_entry2->setValue(0x0);
     // setup dyn rel for get_entry1
@@ -451,7 +451,7 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86Relocator& pParent)
 X86Relocator::Result tls_ldm(Relocation& pReloc, X86Relocator& pParent)
 {
   // FIXME: no linker optimization for TLS relocation
-  const X86GOTEntry& got_entry = pParent.getTarget().getTLSModuleID();
+  const X86_32GOTEntry& got_entry = pParent.getTarget().getTLSModuleID();
 
   // All GOT offsets are relative to the end of the GOT.
   X86Relocator::SWord GOT_S = got_entry.getOffset() -
@@ -488,7 +488,7 @@ X86Relocator::Result tls_ie(Relocation& pReloc, X86Relocator& pParent)
   }
 
   // set up the got and dynamic relocation entries if not exist
-  X86GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
     // set got entry
     X86GNULDBackend& ld_backend = pParent.getTarget();
@@ -521,7 +521,7 @@ X86Relocator::Result tls_gotie(Relocation& pReloc, X86Relocator& pParent)
   }
 
   // set up the got and dynamic relocation entries if not exist
-  X86GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
     // set got entry
     X86GNULDBackend& ld_backend = pParent.getTarget();

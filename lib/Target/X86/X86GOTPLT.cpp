@@ -18,10 +18,10 @@
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
-// X86GOTPLT
+// X86_32GOTPLT
 //===----------------------------------------------------------------------===//
-X86GOTPLT::X86GOTPLT(LDSection& pSection)
-  : X86GOT(pSection)
+X86_32GOTPLT::X86_32GOTPLT(LDSection& pSection)
+  : X86_32GOT(pSection)
 {
   // Create GOT0 entries
   reserve(X86GOTPLT0Num);
@@ -32,22 +32,22 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection)
   }
 }
 
-X86GOTPLT::~X86GOTPLT()
+X86_32GOTPLT::~X86_32GOTPLT()
 {
 }
 
-bool X86GOTPLT::hasGOT1() const
+bool X86_32GOTPLT::hasGOT1() const
 {
   return (m_SectionData->size() > X86GOTPLT0Num);
 }
 
-void X86GOTPLT::applyGOT0(uint64_t pAddress)
+void X86_32GOTPLT::applyGOT0(uint64_t pAddress)
 {
-  llvm::cast<X86GOTEntry>
+  llvm::cast<X86_32GOTEntry>
     (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
 }
 
-void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
+void X86_32GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
 {
   iterator it = begin();
   // skip GOT0
@@ -56,7 +56,7 @@ void X86GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   // address of corresponding plt entry
   uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
   for (; it != end() ; ++it) {
-    llvm::cast<X86GOTEntry>(*it).setValue(plt_addr + 6);
+    llvm::cast<X86_32GOTEntry>(*it).setValue(plt_addr + 6);
     plt_addr += pPLT.getPLT1Size();
   }
 }

@@ -82,19 +82,19 @@ public:
 
   uint32_t machine() const;
 
-  X86GOT& getGOT();
+  X86_32GOT& getGOT();
 
-  const X86GOT& getGOT() const;
+  const X86_32GOT& getGOT() const;
 
-  X86GOTPLT& getGOTPLT();
+  X86_32GOTPLT& getGOTPLT();
 
-  const X86GOTPLT& getGOTPLT() const;
+  const X86_32GOTPLT& getGOTPLT() const;
 
   X86PLT& getPLT();
 
   const X86PLT& getPLT() const;
 
-  X86GOTEntry& getTLSModuleID();
+  X86_32GOTEntry& getTLSModuleID();
 
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(IRBuilder& pBuilder);
@@ -204,9 +204,9 @@ private:
 
 private:
   Relocator* m_pRelocator;
-  X86GOT* m_pGOT;
+  X86_32GOT* m_pGOT;
   X86PLT* m_pPLT;
-  X86GOTPLT* m_pGOTPLT;
+  X86_32GOTPLT* m_pGOTPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt

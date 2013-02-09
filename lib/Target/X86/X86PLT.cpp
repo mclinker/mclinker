@@ -45,7 +45,7 @@ X86ExecPLT1::X86ExecPLT1(SectionData& pParent)
 // X86PLT
 //===----------------------------------------------------------------------===//
 X86PLT::X86PLT(LDSection& pSection,
-               X86GOTPLT &pGOTPLT,
+               X86_32GOTPLT &pGOTPLT,
                const LinkerConfig& pConfig)
   : PLT(pSection),
     m_GOTPLT(pGOTPLT),
@@ -176,7 +176,7 @@ void X86PLT::applyPLT1()
   X86PLT::iterator ie = m_SectionData->end();
   assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
 
-  uint64_t GOTEntrySize = X86GOTEntry::EntrySize;
+  uint64_t GOTEntrySize = X86_32GOTEntry::EntrySize;
 
   // Skip GOT0
   uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;

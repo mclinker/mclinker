@@ -678,12 +678,12 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-    X86GOTEntry* got = 0;
-    EntrySize = X86GOTEntry::EntrySize;
+    X86_32GOTEntry* got = 0;
+    EntrySize = X86_32GOTEntry::EntrySize;
 
-    for (X86GOT::iterator it = m_pGOT->begin(),
+    for (X86_32GOT::iterator it = m_pGOT->begin(),
          ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<X86GOTEntry>((*it)));
+      got = &(llvm::cast<X86_32GOTEntry>((*it)));
       *buffer = static_cast<uint32_t>(got->getValue());
       RegionSize += EntrySize;
     }
@@ -696,12 +696,12 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
 
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
-    X86GOTEntry* got = 0;
-    EntrySize = X86GOTEntry::EntrySize;
+    X86_32GOTEntry* got = 0;
+    EntrySize = X86_32GOTEntry::EntrySize;
 
-    for (X86GOTPLT::iterator it = m_pGOTPLT->begin(),
+    for (X86_32GOTPLT::iterator it = m_pGOTPLT->begin(),
          ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<X86GOTEntry>((*it)));
+      got = &(llvm::cast<X86_32GOTEntry>((*it)));
       *buffer = static_cast<uint32_t>(got->getValue());
       RegionSize += EntrySize;
     }
@@ -715,25 +715,25 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   return RegionSize;
 }
 
-X86GOT& X86GNULDBackend::getGOT()
+X86_32GOT& X86GNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
-const X86GOT& X86GNULDBackend::getGOT() const
+const X86_32GOT& X86GNULDBackend::getGOT() const
 {
   assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
-X86GOTPLT& X86GNULDBackend::getGOTPLT()
+X86_32GOTPLT& X86GNULDBackend::getGOTPLT()
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
 }
 
-const X86GOTPLT& X86GNULDBackend::getGOTPLT() const
+const X86_32GOTPLT& X86GNULDBackend::getGOTPLT() const
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
@@ -764,9 +764,9 @@ const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 }
 
 // Create a GOT entry for the TLS module index
-X86GOTEntry& X86GNULDBackend::getTLSModuleID()
+X86_32GOTEntry& X86GNULDBackend::getTLSModuleID()
 {
-  static X86GOTEntry* got_entry = NULL;
+  static X86_32GOTEntry* got_entry = NULL;
   if (NULL != got_entry)
     return *got_entry;
 
@@ -825,11 +825,11 @@ void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
-    m_pGOT = new X86GOT(got);
+    m_pGOT = new X86_32GOT(got);
 
     // initialize .got.plt
     LDSection& gotplt = file_format->getGOTPLT();
-    m_pGOTPLT = new X86GOTPLT(gotplt);
+    m_pGOTPLT = new X86_32GOTPLT(gotplt);
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();

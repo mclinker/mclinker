@@ -30,8 +30,8 @@ class X86Relocator : public Relocator
 {
 public:
   typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
-  typedef SymbolEntryMap<X86GOTEntry> SymGOTMap;
-  typedef SymbolEntryMap<X86GOTEntry> SymGOTPLTMap;
+  typedef SymbolEntryMap<X86_32GOTEntry> SymGOTMap;
+  typedef SymbolEntryMap<X86_32GOTEntry> SymGOTPLTMap;
 
   enum {
     R_386_TLS_OPT = 44 // mcld internal relocation type

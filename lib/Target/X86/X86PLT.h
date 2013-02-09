@@ -41,7 +41,7 @@ const uint8_t x86_exec_plt1[] = {
 
 namespace mcld {
 
-class X86GOTPLT;
+class X86_32GOTPLT;
 class GOTEntry;
 class LinkerConfig;
 
@@ -82,7 +82,7 @@ class X86PLT : public PLT
 {
 public:
   X86PLT(LDSection& pSection,
-         X86GOTPLT& pGOTPLT,
+         X86_32GOTPLT& pGOTPLT,
          const LinkerConfig& pConfig);
   ~X86PLT();
 
@@ -107,7 +107,7 @@ private:
   PLTEntryBase* getPLT0() const;
 
 private:
-  X86GOTPLT& m_GOTPLT;
+  X86_32GOTPLT& m_GOTPLT;
 
   // the last consumed entry.
   SectionData::iterator m_Last;

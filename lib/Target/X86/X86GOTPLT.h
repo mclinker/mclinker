@@ -23,15 +23,15 @@ class LDSection;
 
 const unsigned int X86GOTPLT0Num = 3;
 
-/** \class X86GOTPLT
- *  \brief X86 .got.plt section.
+/** \class X86_32GOTPLT
+ *  \brief X86_32 .got.plt section.
  */
-class X86GOTPLT : public X86GOT
+class X86_32GOTPLT : public X86_32GOT
 {
 public:
-  X86GOTPLT(LDSection &pSection);
+  X86_32GOTPLT(LDSection &pSection);
 
-  ~X86GOTPLT();
+  ~X86_32GOTPLT();
 
   // hasGOT1 - return if this section has any GOT1 entry
   bool hasGOT1() const;
