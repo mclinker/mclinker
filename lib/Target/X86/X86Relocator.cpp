@@ -181,7 +181,7 @@ PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc, X86Relocator& pParent)
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
   // If we first get this PLT entry, we should initialize it.
   if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
-    X86GOTPLTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    X86GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOTPLT().consume();
     pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);

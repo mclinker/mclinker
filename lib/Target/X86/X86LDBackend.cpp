@@ -697,7 +697,7 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
     uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
 
     X86GOTEntry* got = 0;
-    EntrySize = X86GOTPLTEntry::EntrySize;
+    EntrySize = X86GOTEntry::EntrySize;
 
     for (X86GOTPLT::iterator it = m_pGOTPLT->begin(),
          ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {

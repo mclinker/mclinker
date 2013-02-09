@@ -14,7 +14,7 @@
 
 #include <llvm/ADT/DenseMap.h>
 
-#include <mcld/Target/GOT.h>
+#include "X86GOT.h"
 
 namespace mcld {
 
@@ -22,14 +22,6 @@ class X86PLT;
 class LDSection;
 
 const unsigned int X86GOTPLT0Num = 3;
-
-class X86GOTPLTEntry : public GOT::Entry<4>
-{
-public:
-  X86GOTPLTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<4>(pContent, pParent)
-  {}
-};
 
 /** \class X86GOTPLT
  *  \brief X86 .got.plt section.
@@ -43,7 +35,7 @@ public:
 
   void reserve(size_t pNum = 1);
 
-  X86GOTPLTEntry* consume();
+  X86GOTEntry* consume();
 
   // hasGOT1 - return if this section has any GOT1 entry
   bool hasGOT1() const;
@@ -53,7 +45,7 @@ public:
   void applyAllGOTPLT(const X86PLT& pPLT);
 
 private:
-  X86GOTPLTEntry* m_pLast; ///< the last consumed entry
+  X86GOTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld
