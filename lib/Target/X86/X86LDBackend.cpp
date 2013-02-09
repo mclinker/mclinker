@@ -833,9 +833,9 @@ void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
 
     // initialize .plt
     LDSection& plt = file_format->getPLT();
-    m_pPLT = new X86PLT(plt,
-                        *m_pGOTPLT,
-                        config());
+    m_pPLT = new X86_32PLT(plt,
+			   *m_pGOTPLT,
+			   config());
 
     // initialize .rel.plt
     LDSection& relplt = file_format->getRelPlt();
