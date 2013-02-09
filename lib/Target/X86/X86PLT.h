@@ -166,6 +166,27 @@ private:
   X86_32GOTPLT& m_GOTPLT;
 };
 
+//===----------------------------------------------------------------------===//
+// X86_64PLT
+//===----------------------------------------------------------------------===//
+/** \class X86_64PLT
+ *  \brief X86_64 Procedure Linkage Table
+ */
+class X86_64PLT : public X86PLT
+{
+public:
+  X86_64PLT(LDSection& pSection,
+	    X86_64GOTPLT& pGOTPLT,
+	    const LinkerConfig& pConfig);
+
+  void applyPLT0();
+
+  void applyPLT1();
+
+private:
+  X86_64GOTPLT& m_GOTPLT;
+};
+
 } // namespace of mcld
 
 #endif

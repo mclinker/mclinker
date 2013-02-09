@@ -49,6 +49,36 @@ private:
   X86_32GOTEntry* m_pLast; ///< the last consumed entry
 };
 
+/** \class X86_64GOTEntry
+ *  \brief GOT Entry with size of 8 bytes
+ */
+class X86_64GOTEntry : public GOT::Entry<8>
+{
+public:
+  X86_64GOTEntry(uint64_t pContent, SectionData* pParent)
+   : GOT::Entry<8>(pContent, pParent)
+  {}
+};
+
+/** \class X86_64GOT
+ *  \brief X86_64 Global Offset Table.
+ */
+
+class X86_64GOT : public GOT
+{
+public:
+  X86_64GOT(LDSection& pSection);
+
+  ~X86_64GOT();
+
+  void reserve(size_t pNum = 1);
+
+  X86_64GOTEntry* consume();
+
+private:
+  X86_64GOTEntry* m_pLast; ///< the last consumed entry
+};
+
 } // namespace of mcld
 
 #endif

@@ -61,4 +61,48 @@ void X86_32GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
   }
 }
 
+//===----------------------------------------------------------------------===//
+// X86_64GOTPLT
+//===----------------------------------------------------------------------===//
+X86_64GOTPLT::X86_64GOTPLT(LDSection& pSection)
+  : X86_64GOT(pSection)
+{
+  // Create GOT0 entries
+  reserve(X86GOTPLT0Num);
+
+  // Skip GOT0 entries
+  for (size_t i = 0; i < X86GOTPLT0Num; ++i) {
+    consume();
+  }
+}
+
+X86_64GOTPLT::~X86_64GOTPLT()
+{
+}
+
+bool X86_64GOTPLT::hasGOT1() const
+{
+  return (m_SectionData->size() > X86GOTPLT0Num);
+}
+
+void X86_64GOTPLT::applyGOT0(uint64_t pAddress)
+{
+  llvm::cast<X86_64GOTEntry>
+    (*(m_SectionData->getFragmentList().begin())).setValue(pAddress);
+}
+
+void X86_64GOTPLT::applyAllGOTPLT(const X86PLT& pPLT)
+{
+  iterator it = begin();
+  // skip GOT0
+  for (size_t i = 0; i < X86GOTPLT0Num; ++i)
+    ++it;
+  // address of corresponding plt entry
+  uint64_t plt_addr = pPLT.addr() + pPLT.getPLT0Size();
+  for (; it != end() ; ++it) {
+    llvm::cast<X86_64GOTEntry>(*it).setValue(plt_addr + 6);
+    plt_addr += pPLT.getPLT1Size();
+  }
+}
+
 } //end mcld namespace

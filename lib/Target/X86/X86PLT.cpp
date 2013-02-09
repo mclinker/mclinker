@@ -251,3 +251,72 @@ void X86_32PLT::applyPLT1()
   }
 }
 
+//===----------------------------------------------------------------------===//
+// X86_64PLT
+//===----------------------------------------------------------------------===//
+X86_64PLT::X86_64PLT(LDSection& pSection,
+		     X86_64GOTPLT& pGOTPLT,
+		     const LinkerConfig& pConfig)
+  : X86PLT(pSection, pConfig, 64),
+    m_GOTPLT(pGOTPLT) {
+}
+
+// FIXME: It only works on little endian machine.
+void X86_64PLT::applyPLT0()
+{
+  PLTEntryBase* plt0 = getPLT0();
+
+  unsigned char* data = 0;
+  data = static_cast<unsigned char*>(malloc(plt0->size()));
+
+  if (!data)
+    fatal(diag::fail_allocate_memory_plt);
+
+  memcpy(data, m_PLT0, plt0->size());
+
+  assert(0 && "Update PLT0");
+
+  plt0->setValue(data);
+}
+
+// FIXME: It only works on little endian machine.
+void X86_64PLT::applyPLT1()
+{
+  assert(m_Section.addr() && ".plt base address is NULL!");
+
+  X86PLT::iterator it = m_SectionData->begin();
+  X86PLT::iterator ie = m_SectionData->end();
+  assert(it != ie && "FragmentList is empty, applyPLT1 failed!");
+
+  uint64_t GOTEntrySize = X86_64GOTEntry::EntrySize;
+
+  // Skip GOT0
+  uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;
+  if (LinkerConfig::Exec == m_Config.codeGenType())
+    GOTEntryOffset += m_GOTPLT.addr();
+
+  //skip PLT0
+  uint64_t PLTEntryOffset = m_PLT0Size;
+  ++it;
+
+  PLTEntryBase* plt1 = 0;
+
+  uint64_t PLTRelOffset = 0;
+
+  while (it != ie) {
+    plt1 = &(llvm::cast<PLTEntryBase>(*it));
+    unsigned char *data;
+    data = static_cast<unsigned char*>(malloc(plt1->size()));
+
+    if (!data)
+      fatal(diag::fail_allocate_memory_plt);
+
+    memcpy(data, m_PLT1, plt1->size());
+
+    assert(0 && "Update PLT1");
+
+    plt1->setValue(data);
+    ++it;
+  }
+}
+

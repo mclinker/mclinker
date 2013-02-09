@@ -41,6 +41,24 @@ public:
   void applyAllGOTPLT(const X86PLT& pPLT);
 };
 
+/** \class X86_64GOTPLT
+ *  \brief X86_64 .got.plt section.
+ */
+class X86_64GOTPLT : public X86_64GOT
+{
+public:
+  X86_64GOTPLT(LDSection &pSection);
+
+  ~X86_64GOTPLT();
+
+  // hasGOT1 - return if this section has any GOT1 entry
+  bool hasGOT1() const;
+
+  void applyGOT0(uint64_t pAddress);
+
+  void applyAllGOTPLT(const X86PLT& pPLT);
+};
+
 } // namespace of mcld
 
 #endif

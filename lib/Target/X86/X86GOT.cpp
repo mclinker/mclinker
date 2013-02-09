@@ -46,3 +46,34 @@ X86_32GOTEntry* X86_32GOT::consume()
   return m_pLast;
 }
 
+//===----------------------------------------------------------------------===//
+// X86_64GOT
+//===----------------------------------------------------------------------===//
+X86_64GOT::X86_64GOT(LDSection& pSection)
+  : GOT(pSection), m_pLast(NULL)
+{
+}
+
+X86_64GOT::~X86_64GOT()
+{
+}
+
+void X86_64GOT::reserve(size_t pNum)
+{
+  for (size_t i = 0; i < pNum; i++) {
+    new X86_64GOTEntry(0, m_SectionData);
+  }
+}
+
+X86_64GOTEntry* X86_64GOT::consume()
+{
+  if (NULL == m_pLast) {
+    assert(!empty() && "Consume empty GOT entry!");
+    m_pLast = llvm::cast<X86_64GOTEntry>(&m_SectionData->front());
+    return m_pLast;
+  }
+
+  m_pLast = llvm::cast<X86_64GOTEntry>(m_pLast->getNextNode());
+  return m_pLast;
+}
+
