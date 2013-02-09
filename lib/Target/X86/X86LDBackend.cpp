@@ -62,16 +62,6 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
-X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
-				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY) {
-}
-
-X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
-				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY) {
-}
-
 bool X86GNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
@@ -928,6 +918,16 @@ void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
 
   // 4. change the type of the original reloc
   pReloc.setType(llvm::ELF::R_386_TLS_LE);
+}
+
+X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
+				       GNUInfo* pInfo)
+  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY) {
+}
+
+X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
+				       GNUInfo* pInfo)
+  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY) {
 }
 
 namespace mcld {
