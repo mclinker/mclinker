@@ -26,16 +26,12 @@ const unsigned int X86GOTPLT0Num = 3;
 /** \class X86GOTPLT
  *  \brief X86 .got.plt section.
  */
-class X86GOTPLT : public GOT
+class X86GOTPLT : public X86GOT
 {
 public:
   X86GOTPLT(LDSection &pSection);
 
   ~X86GOTPLT();
-
-  void reserve(size_t pNum = 1);
-
-  X86GOTEntry* consume();
 
   // hasGOT1 - return if this section has any GOT1 entry
   bool hasGOT1() const;
@@ -43,9 +39,6 @@ public:
   void applyGOT0(uint64_t pAddress);
 
   void applyAllGOTPLT(const X86PLT& pPLT);
-
-private:
-  X86GOTEntry* m_pLast; ///< the last consumed entry
 };
 
 } // namespace of mcld

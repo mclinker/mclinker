@@ -21,7 +21,7 @@ namespace mcld {
 // X86GOTPLT
 //===----------------------------------------------------------------------===//
 X86GOTPLT::X86GOTPLT(LDSection& pSection)
-  : GOT(pSection), m_pLast(NULL)
+  : X86GOT(pSection)
 {
   // Create GOT0 entries
   reserve(X86GOTPLT0Num);
@@ -34,25 +34,6 @@ X86GOTPLT::X86GOTPLT(LDSection& pSection)
 
 X86GOTPLT::~X86GOTPLT()
 {
-}
-
-void X86GOTPLT::reserve(size_t pNum)
-{
-  for (size_t i = 0; i < pNum; i++) {
-    new X86GOTEntry(0, m_SectionData);
-  }
-}
-
-X86GOTEntry* X86GOTPLT::consume()
-{
-  if (NULL == m_pLast) {
-    assert(!empty() && "Consume empty GOT entry!");
-    m_pLast = llvm::cast<X86GOTEntry>(&m_SectionData->front());
-    return m_pLast;
-  }
-
-  m_pLast = llvm::cast<X86GOTEntry>(m_pLast->getNextNode());
-  return m_pLast;
 }
 
 bool X86GOTPLT::hasGOT1() const
