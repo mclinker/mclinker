@@ -300,7 +300,7 @@ private:
                        LDSection& pSection) {}
 
   /// initRelocator - create and initialize Relocator.
-  bool initRelocator() { return false; }
+  bool initRelocator();
 
   void setGOTSectionSize(IRBuilder& pBuilder);
 

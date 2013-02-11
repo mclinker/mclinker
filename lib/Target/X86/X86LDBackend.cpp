@@ -968,6 +968,14 @@ X86_64GNULDBackend::~X86_64GNULDBackend()
   delete m_pGOTPLT;
 }
 
+bool X86_64GNULDBackend::initRelocator()
+{
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new X86_64Relocator(*this);
+  }
+  return true;
+}
+
 X86_64GOT& X86_64GNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT);
