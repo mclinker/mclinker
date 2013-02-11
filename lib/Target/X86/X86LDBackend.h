@@ -82,19 +82,9 @@ public:
 
   uint32_t machine() const;
 
-  X86_32GOT& getGOT();
-
-  const X86_32GOT& getGOT() const;
-
-  X86_32GOTPLT& getGOTPLT();
-
-  const X86_32GOTPLT& getGOTPLT() const;
-
   X86PLT& getPLT();
 
   const X86PLT& getPLT() const;
-
-  X86_32GOTEntry& getTLSModuleID();
 
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(IRBuilder& pBuilder);
@@ -134,7 +124,7 @@ public:
   /// getRelocator - return relocator.
   Relocator* getRelocator();
 
-  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
+  virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) = 0;
 
   void initTargetSymbols(IRBuilder& pLinker);
 
@@ -185,7 +175,7 @@ protected:
   LDSymbol& defineSymbolforCopyReloc(IRBuilder& pLinker,
                                      const ResolveInfo& pSym);
 
-  void defineGOTSymbol(IRBuilder& pBuilder);
+  void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
 private:
   /// getRelEntrySize - the size in BYTE of rel type relocation
@@ -200,11 +190,16 @@ private:
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
 
+  virtual void setGOTSectionSize(IRBuilder& pBuilder) = 0;
+
+  virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const = 0;
+
+  virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
+					 const ELFFileFormat* FileFormat) const = 0;
+
 protected:
   Relocator* m_pRelocator;
-  X86_32GOT* m_pGOT;
   X86PLT* m_pPLT;
-  X86_32GOTPLT* m_pGOTPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
@@ -228,6 +223,20 @@ class X86_32GNULDBackend : public X86GNULDBackend
 public:
   X86_32GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
 
+  ~X86_32GNULDBackend();
+
+  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
+
+  X86_32GOT& getGOT();
+
+  const X86_32GOT& getGOT() const;
+
+  X86_32GOTPLT& getGOTPLT();
+
+  const X86_32GOTPLT& getGOTPLT() const;
+
+  X86_32GOTEntry& getTLSModuleID();
+
 private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
@@ -245,6 +254,17 @@ private:
   /// -----  tls optimization  ----- ///
   /// convert R_386_TLS_IE to R_386_TLS_LE
   void convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection);
+
+  void setGOTSectionSize(IRBuilder& pBuilder);
+
+  uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
+
+  uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
+				 const ELFFileFormat* FileFormat) const;
+
+private:
+  X86_32GOT* m_pGOT;
+  X86_32GOTPLT* m_pGOTPLT;
 };
 
 //
@@ -255,6 +275,18 @@ class X86_64GNULDBackend : public X86GNULDBackend
 {
 public:
   X86_64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
+
+  ~X86_64GNULDBackend();
+
+  void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
+
+  X86_64GOT& getGOT();
+
+  const X86_64GOT& getGOT() const;
+
+  X86_64GOTPLT& getGOTPLT();
+
+  const X86_64GOTPLT& getGOTPLT() const;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
@@ -269,6 +301,17 @@ private:
 
   /// initRelocator - create and initialize Relocator.
   bool initRelocator() { return false; }
+
+  void setGOTSectionSize(IRBuilder& pBuilder);
+
+  uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
+
+  uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
+				 const ELFFileFormat* FileFormat) const;
+
+private:
+  X86_64GOT* m_pGOT;
+  X86_64GOTPLT* m_pGOTPLT;
 };
 } // namespace of mcld
 

@@ -39,9 +39,7 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
 				 Relocation::Type pCopyRel)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
-    m_pGOT(NULL),
     m_pPLT(NULL),
-    m_pGOTPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
     m_pDynamic(NULL),
@@ -54,9 +52,7 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
 X86GNULDBackend::~X86GNULDBackend()
 {
   delete m_pRelocator;
-  delete m_pGOT;
   delete m_pPLT;
-  delete m_pGOTPLT;
   delete m_pRelDyn;
   delete m_pRelPLT;
   delete m_pDynamic;
@@ -82,19 +78,10 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
   if (!config().isCodeStatic() && NULL == m_pDynamic)
     m_pDynamic = new X86ELFDynamic(*this, config());
 
-  // set .got.plt size
+  // set .got.plt and .got sizes
   // when building shared object, the .got section is must
   if (LinkerConfig::Object != config().codeGenType()) {
-    if (LinkerConfig::DynObj == config().codeGenType() ||
-        m_pGOTPLT->hasGOT1() ||
-        NULL != m_pGOTSymbol) {
-      m_pGOTPLT->finalizeSectionSize();
-      defineGOTSymbol(pBuilder);
-    }
-
-    // set .got size
-    if (!m_pGOT->empty())
-      m_pGOT->finalizeSectionSize();
+    setGOTSectionSize(pBuilder);
 
     // set .plt size
     if (m_pPLT->hasPLT1())
@@ -139,7 +126,8 @@ const X86ELFDynamic& X86GNULDBackend::dynamic() const
   return *m_pDynamic;
 }
 
-void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
+void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder,
+				      Fragment& pFrag)
 {
   // define symbol _GLOBAL_OFFSET_TABLE_
   if (m_pGOTSymbol != NULL) {
@@ -150,7 +138,7 @@ void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+                     FragmentRef::Create(pFrag, 0x0),
                      ResolveInfo::Hidden);
   }
   else {
@@ -161,7 +149,7 @@ void X86GNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)
                      ResolveInfo::Local,
                      0x0, // size
                      0x0, // value
-                     FragmentRef::Create(*(m_pGOTPLT->begin()), 0x0),
+                     FragmentRef::Create(pFrag, 0x0),
                      ResolveInfo::Hidden);
   }
 }
@@ -664,37 +652,11 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   }
 
   else if (&pSection == &(FileFormat->getGOT())) {
-    assert(m_pGOT && "emitSectionData failed, m_pGOT is NULL!");
-
-    uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
-
-    X86_32GOTEntry* got = 0;
-    EntrySize = X86_32GOTEntry::EntrySize;
-
-    for (X86_32GOT::iterator it = m_pGOT->begin(),
-         ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<X86_32GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getValue());
-      RegionSize += EntrySize;
-    }
+    RegionSize += emitGOTSectionData(pRegion);
   }
 
   else if (&pSection == &(FileFormat->getGOTPLT())) {
-    assert(m_pGOTPLT && "emitSectionData failed, m_pGOTPLT is NULL!");
-    m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
-    m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
-
-    uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
-
-    X86_32GOTEntry* got = 0;
-    EntrySize = X86_32GOTEntry::EntrySize;
-
-    for (X86_32GOTPLT::iterator it = m_pGOTPLT->begin(),
-         ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
-      got = &(llvm::cast<X86_32GOTEntry>((*it)));
-      *buffer = static_cast<uint32_t>(got->getValue());
-      RegionSize += EntrySize;
-    }
+    RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
   }
 
   else {
@@ -705,25 +667,25 @@ uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
   return RegionSize;
 }
 
-X86_32GOT& X86GNULDBackend::getGOT()
+X86_32GOT& X86_32GNULDBackend::getGOT()
 {
   assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
-const X86_32GOT& X86GNULDBackend::getGOT() const
+const X86_32GOT& X86_32GNULDBackend::getGOT() const
 {
   assert(NULL != m_pGOT);
   return *m_pGOT;
 }
 
-X86_32GOTPLT& X86GNULDBackend::getGOTPLT()
+X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT()
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
 }
 
-const X86_32GOTPLT& X86GNULDBackend::getGOTPLT() const
+const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
 {
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
@@ -754,7 +716,7 @@ const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 }
 
 // Create a GOT entry for the TLS module index
-X86_32GOTEntry& X86GNULDBackend::getTLSModuleID()
+X86_32GOTEntry& X86_32GNULDBackend::getTLSModuleID()
 {
   static X86_32GOTEntry* got_entry = NULL;
   if (NULL != got_entry)
@@ -809,7 +771,8 @@ X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   return SHO_UNDEFINED;
 }
 
-void X86GNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilder)
+void X86_32GNULDBackend::initTargetSections(Module& pModule,
+					    ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     ELFFileFormat* file_format = getOutputFormat();
@@ -923,12 +886,175 @@ void X86_32GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
 
 X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY) {
+  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY),
+    m_pGOT (NULL),
+    m_pGOTPLT (NULL) {
+}
+
+X86_32GNULDBackend::~X86_32GNULDBackend()
+{
+  delete m_pGOT;
+  delete m_pGOTPLT;
+}
+
+void X86_32GNULDBackend::setGOTSectionSize(IRBuilder& pBuilder)
+{
+  // set .got.plt size
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOTPLT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOTPLT->finalizeSectionSize();
+    defineGOTSymbol(pBuilder, *(m_pGOTPLT->begin()));
+  }
+
+  // set .got size
+  if (!m_pGOT->empty())
+    m_pGOT->finalizeSectionSize();
+}
+
+uint64_t X86_32GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+{
+  assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  X86_32GOTEntry* got = 0;
+  unsigned int EntrySize = X86_32GOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (X86_32GOT::iterator it = m_pGOT->begin(),
+       ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<X86_32GOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
+}
+
+uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
+						   const ELFFileFormat* FileFormat) const
+{
+  assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
+  m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+  m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  X86_32GOTEntry* got = 0;
+  unsigned int EntrySize = X86_32GOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (X86_32GOTPLT::iterator it = m_pGOTPLT->begin(),
+       ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<X86_32GOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
 }
 
 X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY) {
+  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY),
+    m_pGOT (NULL),
+    m_pGOTPLT (NULL) {
+}
+
+X86_64GNULDBackend::~X86_64GNULDBackend()
+{
+  delete m_pGOT;
+  delete m_pGOTPLT;
+}
+
+void X86_64GNULDBackend::initTargetSections(Module& pModule,
+					    ObjectBuilder& pBuilder)
+{
+  if (LinkerConfig::Object != config().codeGenType()) {
+    ELFFileFormat* file_format = getOutputFormat();
+    // initialize .got
+    LDSection& got = file_format->getGOT();
+    m_pGOT = new X86_64GOT(got);
+
+    // initialize .got.plt
+    LDSection& gotplt = file_format->getGOTPLT();
+    m_pGOTPLT = new X86_64GOTPLT(gotplt);
+
+    // initialize .plt
+    LDSection& plt = file_format->getPLT();
+    m_pPLT = new X86_64PLT(plt,
+			   *m_pGOTPLT,
+			   config());
+
+    // initialize .rela.plt
+    LDSection& relplt = file_format->getRelaPlt();
+    relplt.setLink(&plt);
+    m_pRelPLT = new OutputRelocSection(pModule, relplt);
+
+    // initialize .rela.dyn
+    LDSection& reldyn = file_format->getRelaDyn();
+    m_pRelDyn = new OutputRelocSection(pModule, reldyn);
+
+  }
+}
+
+void X86_64GNULDBackend::setGOTSectionSize(IRBuilder& pBuilder)
+{
+  // set .got.plt size
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOTPLT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOTPLT->finalizeSectionSize();
+    defineGOTSymbol(pBuilder, *(m_pGOTPLT->begin()));
+  }
+
+  // set .got size
+  if (!m_pGOT->empty())
+    m_pGOT->finalizeSectionSize();
+}
+
+uint64_t X86_64GNULDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+{
+  assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
+
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+
+  X86_64GOTEntry* got = 0;
+  unsigned int EntrySize = X86_64GOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (X86_64GOT::iterator it = m_pGOT->begin(),
+       ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<X86_64GOTEntry>((*it)));
+    *buffer = static_cast<uint64_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
+}
+
+uint64_t X86_64GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
+						   const ELFFileFormat* FileFormat) const
+{
+  assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
+  m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+  m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
+
+  uint64_t* buffer = reinterpret_cast<uint64_t*>(pRegion.getBuffer());
+
+  X86_64GOTEntry* got = 0;
+  unsigned int EntrySize = X86_64GOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (X86_64GOTPLT::iterator it = m_pGOTPLT->begin(),
+       ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<X86_64GOTEntry>((*it)));
+    *buffer = static_cast<uint64_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
 }
 
 namespace mcld {

@@ -177,7 +177,7 @@ PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  X86GNULDBackend& ld_backend = pParent.getTarget();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
 
   PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
   if (NULL != plt_entry)
@@ -401,7 +401,7 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
      return X86Relocator::BadReloc;
   }
 
-  X86GNULDBackend& ld_backend = pParent.getTarget();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
   ELFFileFormat* file_format = pParent.getTarget().getOutputFormat();
   // setup corresponding got and dynamic relocatio entries:
   // get first got entry, if there is already a got entry for rsym, then apply
@@ -498,7 +498,7 @@ X86Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
     // set got entry
-    X86GNULDBackend& ld_backend = pParent.getTarget();
+    X86_32GNULDBackend& ld_backend = pParent.getTarget();
     got_entry = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
     got_entry->setValue(0x0);
@@ -531,7 +531,7 @@ X86Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL == got_entry) {
     // set got entry
-    X86GNULDBackend& ld_backend = pParent.getTarget();
+    X86_32GNULDBackend& ld_backend = pParent.getTarget();
     got_entry = ld_backend.getGOT().consume();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
     got_entry->setValue(0x0);
