@@ -43,9 +43,8 @@ static const X86_32ApplyFunctionTriple X86_32ApplyFunctions[] = {
 //===--------------------------------------------------------------------===//
 // X86Relocator
 //===--------------------------------------------------------------------===//
-X86Relocator::X86Relocator(X86GNULDBackend& pParent)
-  : Relocator(),
-    m_Target(pParent) {
+X86Relocator::X86Relocator()
+  : Relocator() {
 }
 
 X86Relocator::~X86Relocator()
@@ -55,8 +54,8 @@ X86Relocator::~X86Relocator()
 //===--------------------------------------------------------------------===//
 // X86_32Relocator
 //===--------------------------------------------------------------------===//
-X86_32Relocator::X86_32Relocator(X86GNULDBackend& pParent)
-  : X86Relocator(pParent) {
+X86_32Relocator::X86_32Relocator(X86_32GNULDBackend& pParent)
+  : X86Relocator(), m_Target(pParent) {
 }
 
 Relocator::Result
@@ -87,9 +86,9 @@ Relocation& helper_DynRel(ResolveInfo* pSym,
                           Fragment& pFrag,
                           uint64_t pOffset,
                           X86Relocator::Type pType,
-                          X86Relocator& pParent)
+                          X86_32Relocator& pParent)
 {
-  X86GNULDBackend& ld_backend = pParent.getTarget();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
   Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
   rel_entry.setType(pType);
   rel_entry.targetRef().assign(pFrag, pOffset);
@@ -106,7 +105,7 @@ Relocation& helper_DynRel(ResolveInfo* pSym,
 /// R_386_RELATIVE
 static bool
 helper_use_relative_reloc(const ResolveInfo& pSym,
-                          const X86Relocator& pFactory)
+                          const X86_32Relocator& pFactory)
 
 {
   // if symbol is dynamic or undefine or preemptible
@@ -123,7 +122,7 @@ X86_32GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  X86GNULDBackend& ld_backend = pParent.getTarget();
+  X86_32GNULDBackend& ld_backend = pParent.getTarget();
 
   X86_32GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL != got_entry)
@@ -157,7 +156,7 @@ X86_32GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
 
 
 static
-X86Relocator::Address helper_GOT_ORG(X86Relocator& pParent)
+X86Relocator::Address helper_GOT_ORG(X86_32Relocator& pParent)
 {
   return pParent.getTarget().getGOTPLT().addr();
 }
@@ -208,7 +207,7 @@ PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
 
 
 static
-X86Relocator::Address helper_PLT_ORG(X86Relocator& pParent)
+X86Relocator::Address helper_PLT_ORG(X86_32Relocator& pParent)
 {
   return pParent.getTarget().getPLT().addr();
 }
