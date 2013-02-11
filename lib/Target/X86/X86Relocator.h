@@ -85,6 +85,41 @@ private:
   SymGOTPLTMap m_SymGOTPLTMap;
 };
 
+/** \class X86_64Relocator
+ *  \brief X86_64Relocator creates and destroys the X86-64 relocations.
+ *
+ */
+class X86_64Relocator : public X86Relocator
+{
+public:
+  typedef SymbolEntryMap<X86_64GOTEntry> SymGOTMap;
+  typedef SymbolEntryMap<X86_64GOTEntry> SymGOTPLTMap;
+
+public:
+  X86_64Relocator(X86_64GNULDBackend& pParent);
+
+  Result applyRelocation(Relocation& pRelocation);
+
+  X86_64GNULDBackend& getTarget()
+  { return m_Target; }
+
+  const X86_64GNULDBackend& getTarget() const
+  { return m_Target; }
+
+  const char* getName(Relocation::Type pType) const;
+
+  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
+  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+
+  const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+
+private:
+  X86_64GNULDBackend& m_Target;
+  SymGOTMap m_SymGOTMap;
+  SymGOTPLTMap m_SymGOTPLTMap;
+};
+
 } // namespace of mcld
 
 #endif

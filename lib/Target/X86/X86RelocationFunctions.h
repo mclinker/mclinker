@@ -73,3 +73,51 @@ DECL_X86_32_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         42, "R_386_IRELATIVE"         },  \
   { &unsupport,         43, "R_386_NUM"               },  \
   { &none,              44, "R_386_TLS_OPT"           }
+
+#define DECL_X86_64_APPLY_RELOC_FUNC(Name) \
+static X86Relocator::Result Name(Relocation& pEntry, X86_64Relocator& pParent);
+
+#define DECL_X86_64_APPLY_RELOC_FUNCS \
+DECL_X86_64_APPLY_RELOC_FUNC(none)             \
+DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
+
+#define DECL_X86_64_APPLY_RELOC_FUNC_PTRS \
+  { &none,               0, "R_X86_64_NONE"             },  \
+  { &unsupport,          1, "R_X86_64_32"               },  \
+  { &unsupport,          2, "R_X86_64_PC32"             },  \
+  { &unsupport,          3, "R_X86_64_GOT32"            },  \
+  { &unsupport,          4, "R_X86_64_PLT32"            },  \
+  { &none,               5, "R_X86_64_COPY"             },  \
+  { &none,               6, "R_X86_64_GLOB_DAT"         },  \
+  { &none,               7, "R_X86_64_JMP_SLOT"         },  \
+  { &none,               8, "R_X86_64_RELATIVE"         },  \
+  { &unsupport,          9, "R_X86_64_GOTPCREL"         },  \
+  { &unsupport,         10, "R_X86_64_32"               },  \
+  { &unsupport,         11, "R_X86_64_32S"              },  \
+  { &unsupport,         12, "R_X86_64_16"               },  \
+  { &unsupport,         13, "R_X86_64_PC16"             },  \
+  { &unsupport,         14, "R_X86_64_8"                },  \
+  { &unsupport,         15, "R_X86_64_PC8"              },  \
+  { &none,              16, "R_X86_64_DTPMOD64"         },  \
+  { &unsupport,         17, "R_X86_64_DTPOFF64"         },  \
+  { &unsupport,         18, "R_X86_64_TPOFF64"          },  \
+  { &unsupport,         19, "R_X86_64_TLSGD"            },  \
+  { &unsupport,         20, "R_X86_64_TLSLD"            },  \
+  { &unsupport,         21, "R_X86_64_DTPOFF32"         },  \
+  { &unsupport,         22, "R_X86_64_GOTTPOFF"         },  \
+  { &unsupport,         23, "R_X86_64_TPOFF32,"         },  \
+  { &unsupport,         24, "R_X86_64_PC64,"            },  \
+  { &unsupport,         25, "R_X86_64_GOTOFF64"         },  \
+  { &unsupport,         26, "R_X86_64_GOTPC32"          },  \
+  { &unsupport,         27, "R_X86_64_GOT64"            },  \
+  { &unsupport,         28, "R_X86_64_GOTPCREL64"       },  \
+  { &unsupport,         29, "R_X86_64_GOTPC64"          },  \
+  { &unsupport,         30, "R_X86_64_GOTPLT64"         },  \
+  { &unsupport,         31, "R_X86_64_PLTOFF64"         },  \
+  { &unsupport,         32, "R_X86_64_SIZE32"           },  \
+  { &unsupport,         33, "R_X86_64_SIZE64"           },  \
+  { &unsupport,         34, "R_X86_64_GOTPC32_TLSDESC"  },  \
+  { &unsupport,         35, "R_X86_64_TLSDESC_CALL"     },  \
+  { &none,              36, "R_X86_64_TLSDESC"          },  \
+  { &none,              37, "R_X86_64_IRELATIVE"        },  \
+  { &none,              38, "R_X86_64_RELATIVE64"       }

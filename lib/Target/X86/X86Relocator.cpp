@@ -579,3 +579,60 @@ X86Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent)
   return X86Relocator::Unsupport;
 }
 
+//===--------------------------------------------------------------------===//
+// Relocation Functions and Tables
+//===--------------------------------------------------------------------===//
+DECL_X86_64_APPLY_RELOC_FUNCS
+
+/// the prototype of applying function
+typedef Relocator::Result (*X86_64ApplyFunctionType)(Relocation& pReloc,
+						     X86_64Relocator& pParent);
+
+// the table entry of applying functions
+struct X86_64ApplyFunctionTriple
+{
+  X86_64ApplyFunctionType func;
+  unsigned int type;
+  const char* name;
+};
+
+// declare the table of applying functions
+static const X86_64ApplyFunctionTriple X86_64ApplyFunctions[] = {
+  DECL_X86_64_APPLY_RELOC_FUNC_PTRS
+};
+
+//===--------------------------------------------------------------------===//
+// X86_64Relocator
+//===--------------------------------------------------------------------===//
+X86_64Relocator::X86_64Relocator(X86_64GNULDBackend& pParent)
+  : X86Relocator(), m_Target(pParent) {
+}
+
+Relocator::Result
+X86_64Relocator::applyRelocation(Relocation& pRelocation)
+{
+  Relocation::Type type = pRelocation.type();
+
+  if (type >= sizeof (X86_64ApplyFunctions) / sizeof (X86_64ApplyFunctions[0]) ) {
+    return Unknown;
+  }
+
+  // apply the relocation
+  return X86_64ApplyFunctions[type].func(pRelocation, *this);
+}
+
+const char* X86_64Relocator::getName(Relocation::Type pType) const
+{
+  return X86_64ApplyFunctions[pType].name;
+}
+//
+// R_X86_64_NONE
+X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  return X86Relocator::OK;
+}
+
+X86Relocator::Result unsupport(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  return X86Relocator::Unsupport;
+}
