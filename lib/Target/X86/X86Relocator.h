@@ -30,6 +30,36 @@ class X86Relocator : public Relocator
 {
 public:
   typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
+
+public:
+  X86Relocator(X86GNULDBackend& pParent);
+  ~X86Relocator();
+
+  virtual Result applyRelocation(Relocation& pRelocation) = 0;
+
+  X86GNULDBackend& getTarget()
+  { return m_Target; }
+
+  const X86GNULDBackend& getTarget() const
+  { return m_Target; }
+
+  virtual const char* getName(Relocation::Type pType) const = 0;
+
+  const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
+  SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
+
+private:
+  X86GNULDBackend& m_Target;
+  SymPLTMap m_SymPLTMap;
+};
+
+/** \class X86_32Relocator
+ *  \brief X86_32Relocator creates and destroys the X86-32 relocations.
+ *
+ */
+class X86_32Relocator : public X86Relocator
+{
+public:
   typedef SymbolEntryMap<X86_32GOTEntry> SymGOTMap;
   typedef SymbolEntryMap<X86_32GOTEntry> SymGOTPLTMap;
 
@@ -38,21 +68,11 @@ public:
   };
 
 public:
-  X86Relocator(X86GNULDBackend& pParent);
-  ~X86Relocator();
+  X86_32Relocator(X86GNULDBackend& pParent);
 
   Result applyRelocation(Relocation& pRelocation);
 
-  X86GNULDBackend& getTarget()
-  { return m_Target; }
-
-  const X86GNULDBackend& getTarget() const
-  { return m_Target; }
-
   const char* getName(Relocation::Type pType) const;
-
-  const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
-  SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
 
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
@@ -61,8 +81,6 @@ public:
   SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
 
 private:
-  X86GNULDBackend& m_Target;
-  SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTMap;
   SymGOTPLTMap m_SymGOTPLTMap;
 };

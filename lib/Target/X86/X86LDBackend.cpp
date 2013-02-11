@@ -62,10 +62,10 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
-bool X86GNULDBackend::initRelocator()
+bool X86_32GNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
-    m_pRelocator = new X86Relocator(*this);
+    m_pRelocator = new X86_32Relocator(*this);
   }
   return true;
 }
@@ -229,10 +229,10 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(IRBuilder& pBuilder,
   return *cpy_sym;
 }
 
-void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                     IRBuilder& pBuilder,
-                                     Module& pModule,
-                                     LDSection& pSection)
+void X86_32GNULDBackend::scanLocalReloc(Relocation& pReloc,
+					IRBuilder& pBuilder,
+					Module& pModule,
+					LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -383,10 +383,10 @@ void X86GNULDBackend::scanLocalReloc(Relocation& pReloc,
   } // end switch
 }
 
-void X86GNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
-                                      Module& pModule,
-                                      LDSection& pSection)
+void X86_32GNULDBackend::scanGlobalReloc(Relocation& pReloc,
+					 IRBuilder& pBuilder,
+					 Module& pModule,
+					 LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -871,7 +871,8 @@ void X86GNULDBackend::doCreateProgramHdrs(Module& pModule)
 }
 
 /// convert R_386_TLS_IE to R_386_TLS_LE
-void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
+void X86_32GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
+					  LDSection& pSection)
 {
   assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
   assert(NULL != pReloc.targetRef().frag());
@@ -885,7 +886,7 @@ void X86GNULDBackend::convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection)
 
   FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
   // TODO: add symbols for R_386_TLS_OPT relocs
-  Relocation* reloc = Relocation::Create(X86Relocator::R_386_TLS_OPT,
+  Relocation* reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
                                          *fragref,
                                          0x0);
 

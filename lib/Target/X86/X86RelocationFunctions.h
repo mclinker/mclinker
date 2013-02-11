@@ -7,27 +7,27 @@
 //
 //===----------------------------------------------------------------------===//
 
-#define DECL_X86_APPLY_RELOC_FUNC(Name) \
-static X86Relocator::Result Name(Relocation& pEntry, X86Relocator& pParent);
+#define DECL_X86_32_APPLY_RELOC_FUNC(Name) \
+static X86Relocator::Result Name(Relocation& pEntry, X86_32Relocator& pParent);
 
-#define DECL_X86_APPLY_RELOC_FUNCS \
-DECL_X86_APPLY_RELOC_FUNC(none)             \
-DECL_X86_APPLY_RELOC_FUNC(abs)              \
-DECL_X86_APPLY_RELOC_FUNC(rel)              \
-DECL_X86_APPLY_RELOC_FUNC(plt32)            \
-DECL_X86_APPLY_RELOC_FUNC(got32)            \
-DECL_X86_APPLY_RELOC_FUNC(gotoff32)         \
-DECL_X86_APPLY_RELOC_FUNC(gotpc32)          \
-DECL_X86_APPLY_RELOC_FUNC(tls_gd)           \
-DECL_X86_APPLY_RELOC_FUNC(tls_ie)           \
-DECL_X86_APPLY_RELOC_FUNC(tls_gotie)        \
-DECL_X86_APPLY_RELOC_FUNC(tls_le)           \
-DECL_X86_APPLY_RELOC_FUNC(tls_ldm)          \
-DECL_X86_APPLY_RELOC_FUNC(tls_ldo_32)       \
-DECL_X86_APPLY_RELOC_FUNC(unsupport)
+#define DECL_X86_32_APPLY_RELOC_FUNCS \
+DECL_X86_32_APPLY_RELOC_FUNC(none)             \
+DECL_X86_32_APPLY_RELOC_FUNC(abs)              \
+DECL_X86_32_APPLY_RELOC_FUNC(rel)              \
+DECL_X86_32_APPLY_RELOC_FUNC(plt32)            \
+DECL_X86_32_APPLY_RELOC_FUNC(got32)            \
+DECL_X86_32_APPLY_RELOC_FUNC(gotoff32)         \
+DECL_X86_32_APPLY_RELOC_FUNC(gotpc32)          \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_gd)           \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_ie)           \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_gotie)        \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_le)           \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_ldm)          \
+DECL_X86_32_APPLY_RELOC_FUNC(tls_ldo_32)       \
+DECL_X86_32_APPLY_RELOC_FUNC(unsupport)
 
 
-#define DECL_X86_APPLY_RELOC_FUNC_PTRS \
+#define DECL_X86_32_APPLY_RELOC_FUNC_PTRS \
   { &none,               0, "R_386_NONE"              },  \
   { &abs,                1, "R_386_32"                },  \
   { &rel,                2, "R_386_PC32"              },  \

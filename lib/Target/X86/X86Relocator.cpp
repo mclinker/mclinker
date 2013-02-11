@@ -21,23 +21,23 @@ using namespace mcld;
 //===--------------------------------------------------------------------===//
 // Relocation Functions and Tables
 //===--------------------------------------------------------------------===//
-DECL_X86_APPLY_RELOC_FUNCS
+DECL_X86_32_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
-typedef Relocator::Result (*ApplyFunctionType)(Relocation& pReloc,
-                                               X86Relocator& pParent);
+typedef Relocator::Result (*X86_32ApplyFunctionType)(Relocation& pReloc,
+						     X86_32Relocator& pParent);
 
 // the table entry of applying functions
-struct ApplyFunctionTriple
+struct X86_32ApplyFunctionTriple
 {
-  ApplyFunctionType func;
+  X86_32ApplyFunctionType func;
   unsigned int type;
   const char* name;
 };
 
 // declare the table of applying functions
-static const ApplyFunctionTriple ApplyFunctions[] = {
-  DECL_X86_APPLY_RELOC_FUNC_PTRS
+static const X86_32ApplyFunctionTriple X86_32ApplyFunctions[] = {
+  DECL_X86_32_APPLY_RELOC_FUNC_PTRS
 };
 
 //===--------------------------------------------------------------------===//
@@ -52,22 +52,29 @@ X86Relocator::~X86Relocator()
 {
 }
 
+//===--------------------------------------------------------------------===//
+// X86_32Relocator
+//===--------------------------------------------------------------------===//
+X86_32Relocator::X86_32Relocator(X86GNULDBackend& pParent)
+  : X86Relocator(pParent) {
+}
+
 Relocator::Result
-X86Relocator::applyRelocation(Relocation& pRelocation)
+X86_32Relocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
 
-  if (type >= sizeof (ApplyFunctions) / sizeof (ApplyFunctions[0]) ) {
+  if (type >= sizeof (X86_32ApplyFunctions) / sizeof (X86_32ApplyFunctions[0]) ) {
     return Unknown;
   }
 
   // apply the relocation
-  return ApplyFunctions[type].func(pRelocation, *this);
+  return X86_32ApplyFunctions[type].func(pRelocation, *this);
 }
 
-const char* X86Relocator::getName(Relocation::Type pType) const
+const char* X86_32Relocator::getName(Relocation::Type pType) const
 {
-  return ApplyFunctions[pType].name;
+  return X86_32ApplyFunctions[pType].name;
 }
 
 //===--------------------------------------------------------------------===//
@@ -112,7 +119,7 @@ helper_use_relative_reloc(const ResolveInfo& pSym,
 
 static
 X86_32GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
-                                     X86Relocator& pParent)
+					X86_32Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -157,7 +164,7 @@ X86Relocator::Address helper_GOT_ORG(X86Relocator& pParent)
 
 
 static
-X86Relocator::Address helper_GOT(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Address helper_GOT(Relocation& pReloc, X86_32Relocator& pParent)
 {
   X86_32GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
   X86Relocator::Address got_addr = pParent.getTarget().getGOT().addr();
@@ -166,7 +173,8 @@ X86Relocator::Address helper_GOT(Relocation& pReloc, X86Relocator& pParent)
 
 
 static
-PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc, X86Relocator& pParent)
+PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
+				      X86_32Relocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -207,7 +215,7 @@ X86Relocator::Address helper_PLT_ORG(X86Relocator& pParent)
 
 
 static
-X86Relocator::Address helper_PLT(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Address helper_PLT(Relocation& pReloc, X86_32Relocator& pParent)
 {
   PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) + plt_entry.getOffset();
@@ -219,7 +227,7 @@ X86Relocator::Address helper_PLT(Relocation& pReloc, X86Relocator& pParent)
 //=========================================//
 
 // R_386_NONE
-X86Relocator::Result none(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result none(Relocation& pReloc, X86_32Relocator& pParent)
 {
   return X86Relocator::OK;
 }
@@ -227,7 +235,7 @@ X86Relocator::Result none(Relocation& pReloc, X86Relocator& pParent)
 // R_386_32: S + A
 // R_386_16
 // R_386_8
-X86Relocator::Result abs(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
@@ -291,7 +299,7 @@ X86Relocator::Result abs(Relocation& pReloc, X86Relocator& pParent)
 // R_386_PC32: S + A - P
 // R_386_PC16
 // R_386_PC8
-X86Relocator::Result rel(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result rel(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::DWord A = pReloc.target() + pReloc.addend();
@@ -334,7 +342,7 @@ X86Relocator::Result rel(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_GOTOFF: S + A - GOT_ORG
-X86Relocator::Result gotoff32(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result gotoff32(Relocation& pReloc, X86_32Relocator& pParent)
 {
   Relocator::DWord      A = pReloc.target() + pReloc.addend();
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
@@ -345,7 +353,7 @@ X86Relocator::Result gotoff32(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_GOTPC: GOT_ORG + A - P
-X86Relocator::Result gotpc32(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result gotpc32(Relocation& pReloc, X86_32Relocator& pParent)
 {
   Relocator::DWord      A       = pReloc.target() + pReloc.addend();
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
@@ -355,7 +363,7 @@ X86Relocator::Result gotpc32(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_GOT32: GOT(S) + A - GOT_ORG
-X86Relocator::Result got32(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result got32(Relocation& pReloc, X86_32Relocator& pParent)
 {
   if (!(pReloc.symInfo()->reserved()
        & (X86GNULDBackend::ReserveGOT |X86GNULDBackend::GOTRel))) {
@@ -370,7 +378,7 @@ X86Relocator::Result got32(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_PLT32: PLT(S) + A - P
-X86Relocator::Result plt32(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result plt32(Relocation& pReloc, X86_32Relocator& pParent)
 {
   // PLT_S depends on if there is a PLT entry.
   X86Relocator::Address PLT_S;
@@ -385,7 +393,7 @@ X86Relocator::Result plt32(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_TLS_GD:
-X86Relocator::Result tls_gd(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_gd(Relocation& pReloc, X86_32Relocator& pParent)
 {
   // global-dynamic
   ResolveInfo* rsym = pReloc.symInfo();
@@ -448,7 +456,7 @@ X86Relocator::Result tls_gd(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_TLS_LDM
-X86Relocator::Result tls_ldm(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_ldm(Relocation& pReloc, X86_32Relocator& pParent)
 {
   // FIXME: no linker optimization for TLS relocation
   const X86_32GOTEntry& got_entry = pParent.getTarget().getTLSModuleID();
@@ -464,7 +472,7 @@ X86Relocator::Result tls_ldm(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_TLS_LDO_32
-X86Relocator::Result tls_ldo_32(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_ldo_32(Relocation& pReloc, X86_32Relocator& pParent)
 {
   // FIXME: no linker optimization for TLS relocation
   Relocator::DWord A = pReloc.target() + pReloc.addend();
@@ -474,7 +482,7 @@ X86Relocator::Result tls_ldo_32(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_X86_TLS_IE
-X86Relocator::Result tls_ie(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_ie(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   if (!(rsym->reserved() & X86GNULDBackend::GOTRel)) {
@@ -513,7 +521,7 @@ X86Relocator::Result tls_ie(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_386_TLS_GOTIE
-X86Relocator::Result tls_gotie(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_gotie(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   if (!(rsym->reserved() & X86GNULDBackend::GOTRel)) {
@@ -545,7 +553,7 @@ X86Relocator::Result tls_gotie(Relocation& pReloc, X86Relocator& pParent)
 }
 
 // R_X86_TLS_LE
-X86Relocator::Result tls_le(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result tls_le(Relocation& pReloc, X86_32Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   if (pReloc.symInfo()->reserved() & X86GNULDBackend::ReserveRel) {
@@ -567,7 +575,7 @@ X86Relocator::Result tls_le(Relocation& pReloc, X86Relocator& pParent)
   return X86Relocator::OK;
 }
 
-X86Relocator::Result unsupport(Relocation& pReloc, X86Relocator& pParent)
+X86Relocator::Result unsupport(Relocation& pReloc, X86_32Relocator& pParent)
 {
   return X86Relocator::Unsupport;
 }

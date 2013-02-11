@@ -129,7 +129,7 @@ public:
                            MemoryRegion& pRegion) const;
 
   /// initRelocator - create and initialize Relocator.
-  bool initRelocator();
+  virtual bool initRelocator() = 0;
 
   /// getRelocator - return relocator.
   Relocator* getRelocator();
@@ -164,16 +164,17 @@ public:
   bool finalizeTargetSymbols();
 
 private:
-  void scanLocalReloc(Relocation& pReloc,
-                      IRBuilder& pBuilder,
-                      Module& pModule,
-                      LDSection& pSection);
+  virtual void scanLocalReloc(Relocation& pReloc,
+			      IRBuilder& pBuilder,
+			      Module& pModule,
+			      LDSection& pSection) = 0;
 
-  void scanGlobalReloc(Relocation& pReloc,
-                       IRBuilder& pBuilder,
-                       Module& pModule,
-                       LDSection& pSection);
+  virtual void scanGlobalReloc(Relocation& pReloc,
+			       IRBuilder& pBuilder,
+			       Module& pModule,
+			       LDSection& pSection) = 0;
 
+protected:
   /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
   void addCopyReloc(ResolveInfo& pSym);
@@ -186,6 +187,7 @@ private:
 
   void defineGOTSymbol(IRBuilder& pBuilder);
 
+private:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
   { return m_RelEntrySize; }
@@ -198,11 +200,7 @@ private:
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
 
-  /// -----  tls optimization  ----- ///
-  /// convert R_386_TLS_IE to R_386_TLS_LE
-  void convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection);
-
-private:
+protected:
   Relocator* m_pRelocator;
   X86_32GOT* m_pGOT;
   X86PLT* m_pPLT;
@@ -229,6 +227,24 @@ class X86_32GNULDBackend : public X86GNULDBackend
 {
 public:
   X86_32GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
+
+private:
+  void scanLocalReloc(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      Module& pModule,
+                      LDSection& pSection);
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       IRBuilder& pBuilder,
+                       Module& pModule,
+                       LDSection& pSection);
+
+  /// initRelocator - create and initialize Relocator.
+  bool initRelocator();
+
+  /// -----  tls optimization  ----- ///
+  /// convert R_386_TLS_IE to R_386_TLS_LE
+  void convertTLSIEtoLE(Relocation& pReloc, LDSection& pSection);
 };
 
 //
@@ -239,6 +255,20 @@ class X86_64GNULDBackend : public X86GNULDBackend
 {
 public:
   X86_64GNULDBackend(const LinkerConfig& pConfig, GNUInfo* pInfo);
+
+private:
+  void scanLocalReloc(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      Module& pModule,
+                      LDSection& pSection) {}
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       IRBuilder& pBuilder,
+                       Module& pModule,
+                       LDSection& pSection) {}
+
+  /// initRelocator - create and initialize Relocator.
+  bool initRelocator() { return false; }
 };
 } // namespace of mcld
 
