@@ -34,11 +34,7 @@ MCLinker* createX86MCLinker(const std::string &pTriple,
     return NULL;
   }
 
-  if (theTriple.isArch32Bit())
-    return new X86ELFMCLinker(pConfig, pModule, pOutput);
-
-  assert(0 && "X86_64 has not supported yet");
-  return NULL;
+  return new X86ELFMCLinker(pConfig, pModule, pOutput);
 }
 
 } // namespace of mcld
@@ -48,6 +44,7 @@ MCLinker* createX86MCLinker(const std::string &pTriple,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86MCLinker() {
   // Register the linker frontend
-  mcld::TargetRegistry::RegisterMCLinker(TheX86Target, createX86MCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheX86_32Target, createX86MCLinker);
+  mcld::TargetRegistry::RegisterMCLinker(TheX86_64Target, createX86MCLinker);
 }
 

@@ -1129,5 +1129,6 @@ TargetLDBackend* createX86LDBackend(const llvm::Target& pTarget,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86LDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheX86Target, createX86LDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(TheX86_32Target, createX86LDBackend);
+  mcld::TargetRegistry::RegisterTargetLDBackend(TheX86_64Target, createX86LDBackend);
 }

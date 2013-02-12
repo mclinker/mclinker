@@ -68,6 +68,7 @@ bool emulateX86LD(const std::string& pTriple, LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeX86Emulation() {
   // Register the emulation
-  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86Target, mcld::emulateX86LD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_32Target, mcld::emulateX86LD);
+  mcld::TargetRegistry::RegisterEmulation(mcld::TheX86_64Target, mcld::emulateX86LD);
 }
 

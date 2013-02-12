@@ -11,11 +11,13 @@
 
 namespace mcld {
 
-mcld::Target TheX86Target;
+mcld::Target TheX86_32Target;
+mcld::Target TheX86_64Target;
 
 extern "C" void MCLDInitializeX86LDTargetInfo() {
   // register into mcld::TargetRegistry
-  mcld::RegisterTarget X(TheX86Target, "x86");
+  mcld::RegisterTarget X(TheX86_32Target, "x86");
+  mcld::RegisterTarget Y(TheX86_64Target, "x86-64");
 }
 
 } // namespace of mcld

@@ -14,7 +14,8 @@
 
 extern "C" void MCLDInitializeX86LDTarget() {
   // Register createTargetMachine function pointer to mcld::Target
-  mcld::RegisterTargetMachine<mcld::X86TargetMachine> X(mcld::TheX86Target);
+  mcld::RegisterTargetMachine<mcld::X86TargetMachine> X(mcld::TheX86_32Target);
+  mcld::RegisterTargetMachine<mcld::X86TargetMachine> Y(mcld::TheX86_64Target);
 }
 
 mcld::X86TargetMachine::X86TargetMachine(llvm::TargetMachine& pPM,
