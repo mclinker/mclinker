@@ -84,7 +84,7 @@ private:
   MipsGOTEntry* m_pLast; ///< the last consumed entry
 
 private:
-  void reserve(size_t pNum = 1);
+  void reserve(size_t pNum);
 };
 
 } // namespace of mcld
