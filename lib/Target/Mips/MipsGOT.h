@@ -48,7 +48,6 @@ public:
   size_t getTotalNum() const;
   size_t getLocalNum() const;
 
-  MipsGOTEntry* consume();
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
 
@@ -71,17 +70,21 @@ public:
   /// hasGOT1 - return if this got section has any GOT1 entry
   bool hasGOT1() const;
 
+public:
+  /// Do real allocation of the GOT entries.
+  virtual void finalizeSectionSize();
+
 private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 
 private:
   SymbolTypeMapType m_GOTTypeMap;
 
-  iterator m_LocalGOTIterator;  // last local GOT entries
-  iterator m_GlobalGOTIterator; // last global GOT entries
-  size_t m_pLocalNum;
+  size_t m_pLocalNum;           ///< number of reserved local entries
+  size_t m_pGlobalNum;          ///< number of reserved global entries
 
-  MipsGOTEntry* m_pLast; ///< the last consumed entry
+  MipsGOTEntry* m_pLastLocal;   ///< the last consumed local entry
+  MipsGOTEntry* m_pLastGlobal;  ///< the last consumed global entry
 
 private:
   void reserve(size_t pNum);
