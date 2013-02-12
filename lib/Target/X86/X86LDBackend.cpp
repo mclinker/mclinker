@@ -968,6 +968,30 @@ X86_64GNULDBackend::~X86_64GNULDBackend()
   delete m_pGOTPLT;
 }
 
+X86_64GOT& X86_64GNULDBackend::getGOT()
+{
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
+}
+
+const X86_64GOT& X86_64GNULDBackend::getGOT() const
+{
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
+}
+
+X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT()
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
 void X86_64GNULDBackend::initTargetSections(Module& pModule,
 					    ObjectBuilder& pBuilder)
 {
