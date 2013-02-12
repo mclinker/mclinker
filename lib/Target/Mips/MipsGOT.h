@@ -42,7 +42,6 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
-  void reserve(size_t pNum = 1);
   void reserveLocalEntry();
   void reserveGlobalEntry();
 
@@ -83,6 +82,9 @@ private:
   size_t m_pLocalNum;
 
   MipsGOTEntry* m_pLast; ///< the last consumed entry
+
+private:
+  void reserve(size_t pNum = 1);
 };
 
 } // namespace of mcld
