@@ -58,14 +58,6 @@ X86GNULDBackend::~X86GNULDBackend()
   delete m_pDynamic;
 }
 
-bool X86_32GNULDBackend::initRelocator()
-{
-  if (NULL == m_pRelocator) {
-    m_pRelocator = new X86_32Relocator(*this);
-  }
-  return true;
-}
-
 Relocator* X86GNULDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);
@@ -215,6 +207,200 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                       (ResolveInfo::Visibility)pSym.other());
 
   return *cpy_sym;
+}
+
+void X86GNULDBackend::scanRelocation(Relocation& pReloc,
+                                     IRBuilder& pLinker,
+                                     Module& pModule,
+                                     LDSection& pSection)
+{
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  assert(NULL != rsym &&
+         "ResolveInfo of relocation not set while scanRelocation");
+
+  pReloc.updateAddend();
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+    return;
+
+  // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
+  // entries should be created.
+  if (rsym->isLocal()) // rsym is local
+    scanLocalReloc(pReloc, pLinker, pModule, pSection);
+  else // rsym is external
+    scanGlobalReloc(pReloc, pLinker, pModule, pSection);
+
+  // check if we should issue undefined reference for the relocation target
+  // symbol
+  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
+    fatal(diag::undefined_reference) << rsym->name();
+}
+
+uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
+                                          MemoryRegion& pRegion) const
+{
+  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+
+  const ELFFileFormat* FileFormat = getOutputFormat();
+  assert(FileFormat &&
+         "ELFFileFormat is NULL in X86GNULDBackend::emitSectionData!");
+
+  unsigned int EntrySize = 0;
+  uint64_t RegionSize = 0;
+
+  if (&pSection == &(FileFormat->getPLT())) {
+    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+
+    unsigned char* buffer = pRegion.getBuffer();
+
+    m_pPLT->applyPLT0();
+    m_pPLT->applyPLT1();
+    X86PLT::iterator it = m_pPLT->begin();
+    unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
+
+    memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
+    RegionSize += plt0_size;
+    ++it;
+
+    PLTEntryBase* plt1 = 0;
+    X86PLT::iterator ie = m_pPLT->end();
+    while (it != ie) {
+      plt1 = &(llvm::cast<PLTEntryBase>(*it));
+      EntrySize = plt1->size();
+      memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
+      RegionSize += EntrySize;
+      ++it;
+    }
+  }
+
+  else if (&pSection == &(FileFormat->getGOT())) {
+    RegionSize += emitGOTSectionData(pRegion);
+  }
+
+  else if (&pSection == &(FileFormat->getGOTPLT())) {
+    RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
+  }
+
+  else {
+    fatal(diag::unrecognized_output_sectoin)
+            << pSection.name()
+            << "mclinker@googlegroups.com";
+  }
+  return RegionSize;
+}
+
+X86PLT& X86GNULDBackend::getPLT()
+{
+  assert(NULL != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+const X86PLT& X86GNULDBackend::getPLT() const
+{
+  assert(NULL != m_pPLT && "PLT section not exist");
+  return *m_pPLT;
+}
+
+OutputRelocSection& X86GNULDBackend::getRelDyn()
+{
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
+  return *m_pRelDyn;
+}
+
+const OutputRelocSection& X86GNULDBackend::getRelDyn() const
+{
+  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
+  return *m_pRelDyn;
+}
+
+OutputRelocSection& X86GNULDBackend::getRelPLT()
+{
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
+  return *m_pRelPLT;
+}
+
+const OutputRelocSection& X86GNULDBackend::getRelPLT() const
+{
+  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
+  return *m_pRelPLT;
+}
+
+unsigned int
+X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
+{
+  const ELFFileFormat* file_format = getOutputFormat();
+
+  if (&pSectHdr == &file_format->getGOT()) {
+    if (config().options().hasNow())
+      return SHO_RELRO;
+    return SHO_RELRO_LAST;
+  }
+
+  if (&pSectHdr == &file_format->getGOTPLT()) {
+    if (config().options().hasNow())
+      return SHO_RELRO;
+    return SHO_NON_RELRO_FIRST;
+  }
+
+  if (&pSectHdr == &file_format->getPLT())
+    return SHO_PLT;
+
+  return SHO_UNDEFINED;
+}
+
+void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
+{
+  if (LinkerConfig::Object != config().codeGenType()) {
+    // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+    // same name in input
+    m_pGOTSymbol =
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                "_GLOBAL_OFFSET_TABLE_",
+                                                ResolveInfo::Object,
+                                                ResolveInfo::Define,
+                                                ResolveInfo::Local,
+                                                0x0,  // size
+                                                0x0,  // value
+                                                FragmentRef::Null(), // FragRef
+                                                ResolveInfo::Hidden);
+  }
+}
+
+/// finalizeSymbol - finalize the symbol value
+bool X86GNULDBackend::finalizeTargetSymbols()
+{
+  return true;
+}
+
+/// doCreateProgramHdrs - backend can implement this function to create the
+/// target-dependent segments
+void X86GNULDBackend::doCreateProgramHdrs(Module& pModule)
+{
+  // TODO
+}
+
+X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
+				       GNUInfo* pInfo)
+  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY),
+    m_pGOT (NULL),
+    m_pGOTPLT (NULL) {
+}
+
+X86_32GNULDBackend::~X86_32GNULDBackend()
+{
+  delete m_pGOT;
+  delete m_pGOTPLT;
+}
+
+bool X86_32GNULDBackend::initRelocator()
+{
+  if (NULL == m_pRelocator) {
+    m_pRelocator = new X86_32Relocator(*this);
+  }
+  return true;
 }
 
 void X86_32GNULDBackend::scanLocalReloc(Relocation& pReloc,
@@ -584,193 +770,6 @@ void X86_32GNULDBackend::scanGlobalReloc(Relocation& pReloc,
   } // end switch
 }
 
-void X86GNULDBackend::scanRelocation(Relocation& pReloc,
-                                     IRBuilder& pLinker,
-                                     Module& pModule,
-                                     LDSection& pSection)
-{
-  if (LinkerConfig::Object == config().codeGenType())
-    return;
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  assert(NULL != rsym &&
-         "ResolveInfo of relocation not set while scanRelocation");
-
-  pReloc.updateAddend();
-  assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
-    return;
-
-  // Scan relocation type to determine if the GOT/PLT/Dynamic Relocation
-  // entries should be created.
-  if (rsym->isLocal()) // rsym is local
-    scanLocalReloc(pReloc, pLinker, pModule, pSection);
-  else // rsym is external
-    scanGlobalReloc(pReloc, pLinker, pModule, pSection);
-
-  // check if we should issue undefined reference for the relocation target
-  // symbol
-  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
-}
-
-uint64_t X86GNULDBackend::emitSectionData(const LDSection& pSection,
-                                          MemoryRegion& pRegion) const
-{
-  assert(pRegion.size() && "Size of MemoryRegion is zero!");
-
-  const ELFFileFormat* FileFormat = getOutputFormat();
-  assert(FileFormat &&
-         "ELFFileFormat is NULL in X86GNULDBackend::emitSectionData!");
-
-  unsigned int EntrySize = 0;
-  uint64_t RegionSize = 0;
-
-  if (&pSection == &(FileFormat->getPLT())) {
-    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
-
-    unsigned char* buffer = pRegion.getBuffer();
-
-    m_pPLT->applyPLT0();
-    m_pPLT->applyPLT1();
-    X86PLT::iterator it = m_pPLT->begin();
-    unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
-
-    memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
-    RegionSize += plt0_size;
-    ++it;
-
-    PLTEntryBase* plt1 = 0;
-    X86PLT::iterator ie = m_pPLT->end();
-    while (it != ie) {
-      plt1 = &(llvm::cast<PLTEntryBase>(*it));
-      EntrySize = plt1->size();
-      memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
-      RegionSize += EntrySize;
-      ++it;
-    }
-  }
-
-  else if (&pSection == &(FileFormat->getGOT())) {
-    RegionSize += emitGOTSectionData(pRegion);
-  }
-
-  else if (&pSection == &(FileFormat->getGOTPLT())) {
-    RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
-  }
-
-  else {
-    fatal(diag::unrecognized_output_sectoin)
-            << pSection.name()
-            << "mclinker@googlegroups.com";
-  }
-  return RegionSize;
-}
-
-X86_32GOT& X86_32GNULDBackend::getGOT()
-{
-  assert(NULL != m_pGOT);
-  return *m_pGOT;
-}
-
-const X86_32GOT& X86_32GNULDBackend::getGOT() const
-{
-  assert(NULL != m_pGOT);
-  return *m_pGOT;
-}
-
-X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT()
-{
-  assert(NULL != m_pGOTPLT);
-  return *m_pGOTPLT;
-}
-
-const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
-{
-  assert(NULL != m_pGOTPLT);
-  return *m_pGOTPLT;
-}
-
-X86PLT& X86GNULDBackend::getPLT()
-{
-  assert(NULL != m_pPLT && "PLT section not exist");
-  return *m_pPLT;
-}
-
-const X86PLT& X86GNULDBackend::getPLT() const
-{
-  assert(NULL != m_pPLT && "PLT section not exist");
-  return *m_pPLT;
-}
-
-OutputRelocSection& X86GNULDBackend::getRelDyn()
-{
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
-}
-
-const OutputRelocSection& X86GNULDBackend::getRelDyn() const
-{
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
-}
-
-// Create a GOT entry for the TLS module index
-X86_32GOTEntry& X86_32GNULDBackend::getTLSModuleID()
-{
-  static X86_32GOTEntry* got_entry = NULL;
-  if (NULL != got_entry)
-    return *got_entry;
-
-  // Allocate 2 got entries and 1 dynamic reloc for R_386_TLS_LDM
-  m_pGOT->reserve(2);
-  got_entry = m_pGOT->consume();
-  m_pGOT->consume()->setValue(0x0);
-
-  m_pRelDyn->reserveEntry();
-  Relocation* rel_entry = m_pRelDyn->consumeEntry();
-  rel_entry->setType(llvm::ELF::R_386_TLS_DTPMOD32);
-  rel_entry->targetRef().assign(*got_entry, 0x0);
-  rel_entry->setSymInfo(NULL);
-
-  return *got_entry;
-}
-
-OutputRelocSection& X86GNULDBackend::getRelPLT()
-{
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
-}
-
-const OutputRelocSection& X86GNULDBackend::getRelPLT() const
-{
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
-}
-
-unsigned int
-X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
-{
-  const ELFFileFormat* file_format = getOutputFormat();
-
-  if (&pSectHdr == &file_format->getGOT()) {
-    if (config().options().hasNow())
-      return SHO_RELRO;
-    return SHO_RELRO_LAST;
-  }
-
-  if (&pSectHdr == &file_format->getGOTPLT()) {
-    if (config().options().hasNow())
-      return SHO_RELRO;
-    return SHO_NON_RELRO_FIRST;
-  }
-
-  if (&pSectHdr == &file_format->getPLT())
-    return SHO_PLT;
-
-  return SHO_UNDEFINED;
-}
-
 void X86_32GNULDBackend::initTargetSections(Module& pModule,
 					    ObjectBuilder& pBuilder)
 {
@@ -802,99 +801,28 @@ void X86_32GNULDBackend::initTargetSections(Module& pModule,
   }
 }
 
-void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
+X86_32GOT& X86_32GNULDBackend::getGOT()
 {
-  if (LinkerConfig::Object != config().codeGenType()) {
-    // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
-    // same name in input
-    m_pGOTSymbol =
-      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                "_GLOBAL_OFFSET_TABLE_",
-                                                ResolveInfo::Object,
-                                                ResolveInfo::Define,
-                                                ResolveInfo::Local,
-                                                0x0,  // size
-                                                0x0,  // value
-                                                FragmentRef::Null(), // FragRef
-                                                ResolveInfo::Hidden);
-  }
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
 }
 
-/// finalizeSymbol - finalize the symbol value
-bool X86GNULDBackend::finalizeTargetSymbols()
+const X86_32GOT& X86_32GNULDBackend::getGOT() const
 {
-  return true;
+  assert(NULL != m_pGOT);
+  return *m_pGOT;
 }
 
-/// doCreateProgramHdrs - backend can implement this function to create the
-/// target-dependent segments
-void X86GNULDBackend::doCreateProgramHdrs(Module& pModule)
+X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT()
 {
-  // TODO
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
 }
 
-/// convert R_386_TLS_IE to R_386_TLS_LE
-void X86_32GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
-					  LDSection& pSection)
+const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
 {
-  assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
-  assert(NULL != pReloc.targetRef().frag());
-
-  // 1. create the fragment references and new relocs
-  uint64_t off = pReloc.targetRef().offset();
-  if (off >= 4)
-    off -= 4;
-  else
-    off = 0;
-
-  FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
-  // TODO: add symbols for R_386_TLS_OPT relocs
-  Relocation* reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
-                                         *fragref,
-                                         0x0);
-
-  // 2. modify the opcodes to the appropriate ones
-  uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
-  off = pReloc.targetRef().offset() - reloc->targetRef().offset() - 1;
-  if (op[off] == 0xa1) {
-    op[off] = 0xb8;
-  } else {
-    switch (op[off - 1]) {
-      case 0x8b:
-        assert((op[off] & 0xc7) == 0x05);
-        op[off - 1] = 0xc7;
-        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
-        break;
-      case 0x03:
-        assert((op[off] & 0xc7) == 0x05);
-        op[off - 1] = 0x81;
-        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
-        break;
-      default:
-        assert(0);
-        break;
-    }
-  }
-
-  // 3. insert the new relocs "BEFORE" the original reloc.
-  pSection.getRelocData()->getRelocationList().insert(
-    RelocData::iterator(pReloc), reloc);
-
-  // 4. change the type of the original reloc
-  pReloc.setType(llvm::ELF::R_386_TLS_LE);
-}
-
-X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
-				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY),
-    m_pGOT (NULL),
-    m_pGOTPLT (NULL) {
-}
-
-X86_32GNULDBackend::~X86_32GNULDBackend()
-{
-  delete m_pGOT;
-  delete m_pGOTPLT;
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
 }
 
 void X86_32GNULDBackend::setGOTSectionSize(IRBuilder& pBuilder)
@@ -953,6 +881,78 @@ uint64_t X86_32GNULDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
   }
 
   return RegionSize;
+}
+
+/// convert R_386_TLS_IE to R_386_TLS_LE
+void X86_32GNULDBackend::convertTLSIEtoLE(Relocation& pReloc,
+					  LDSection& pSection)
+{
+  assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
+  assert(NULL != pReloc.targetRef().frag());
+
+  // 1. create the fragment references and new relocs
+  uint64_t off = pReloc.targetRef().offset();
+  if (off >= 4)
+    off -= 4;
+  else
+    off = 0;
+
+  FragmentRef* fragref = FragmentRef::Create(*pReloc.targetRef().frag(), off);
+  // TODO: add symbols for R_386_TLS_OPT relocs
+  Relocation* reloc = Relocation::Create(X86_32Relocator::R_386_TLS_OPT,
+                                         *fragref,
+                                         0x0);
+
+  // 2. modify the opcodes to the appropriate ones
+  uint8_t* op =  (reinterpret_cast<uint8_t*>(&reloc->target()));
+  off = pReloc.targetRef().offset() - reloc->targetRef().offset() - 1;
+  if (op[off] == 0xa1) {
+    op[off] = 0xb8;
+  } else {
+    switch (op[off - 1]) {
+      case 0x8b:
+        assert((op[off] & 0xc7) == 0x05);
+        op[off - 1] = 0xc7;
+        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
+        break;
+      case 0x03:
+        assert((op[off] & 0xc7) == 0x05);
+        op[off - 1] = 0x81;
+        op[off]     = 0xc0 | ((op[off] >> 3) & 7);
+        break;
+      default:
+        assert(0);
+        break;
+    }
+  }
+
+  // 3. insert the new relocs "BEFORE" the original reloc.
+  pSection.getRelocData()->getRelocationList().insert(
+    RelocData::iterator(pReloc), reloc);
+
+  // 4. change the type of the original reloc
+  pReloc.setType(llvm::ELF::R_386_TLS_LE);
+}
+
+// Create a GOT entry for the TLS module index
+X86_32GOTEntry& X86_32GNULDBackend::getTLSModuleID()
+{
+  static X86_32GOTEntry* got_entry = NULL;
+  if (NULL != got_entry)
+    return *got_entry;
+
+  // Allocate 2 got entries and 1 dynamic reloc for R_386_TLS_LDM
+  m_pGOT->reserve(2);
+  got_entry = m_pGOT->consume();
+  m_pGOT->consume()->setValue(0x0);
+
+  m_pRelDyn->reserveEntry();
+  Relocation* rel_entry = m_pRelDyn->consumeEntry();
+  rel_entry->setType(llvm::ELF::R_386_TLS_DTPMOD32);
+  rel_entry->targetRef().assign(*got_entry, 0x0);
+  rel_entry->setSymInfo(NULL);
+
+  return *got_entry;
 }
 
 X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
