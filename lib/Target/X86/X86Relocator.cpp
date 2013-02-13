@@ -625,10 +625,115 @@ const char* X86_64Relocator::getName(Relocation::Type pType) const
 {
   return X86_64ApplyFunctions[pType].name;
 }
+
+/// helper_DynRel - Get an relocation entry in .rela.dyn
+static
+Relocation& helper_DynRel(ResolveInfo* pSym,
+                          Fragment& pFrag,
+                          uint64_t pOffset,
+                          X86Relocator::Type pType,
+                          X86_64Relocator& pParent)
+{
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  rel_entry.setType(pType);
+  rel_entry.targetRef().assign(pFrag, pOffset);
+  if (pType == llvm::ELF::R_X86_64_RELATIVE || NULL == pSym)
+    rel_entry.setSymInfo(0);
+  else
+    rel_entry.setSymInfo(pSym);
+
+  return rel_entry;
+}
+
+
+/// helper_use_relative_reloc - Check if symbol can use relocation
+/// R_X86_64_RELATIVE
+static bool
+helper_use_relative_reloc(const ResolveInfo& pSym,
+                          const X86_64Relocator& pFactory)
+
+{
+  // if symbol is dynamic or undefine or preemptible
+  if (pSym.isDyn() ||
+      pSym.isUndef() ||
+      pFactory.getTarget().isSymbolPreemptible(pSym))
+    return false;
+  return true;
+}
+
+static
+X86_64GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
+					X86_64Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+
+  X86_64GOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  if (NULL != got_entry)
+    return *got_entry;
+
+  // not found
+  got_entry = ld_backend.getGOT().consume();
+  pParent.getSymGOTMap().record(*rsym, *got_entry);
+
+  // If we first get this GOT entry, we should initialize it.
+  if (rsym->reserved() & X86GNULDBackend::ReserveGOT) {
+    // No corresponding dynamic relocation, initialize to the symbol value.
+    got_entry->setValue(pReloc.symValue());
+  }
+  else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
+    // Initialize got_entry content and the corresponding dynamic relocation.
+    if (helper_use_relative_reloc(*rsym, pParent)) {
+      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_RELATIVE,
+		    pParent);
+      got_entry->setValue(pReloc.symValue());
+    }
+    else {
+      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
+		    pParent);
+      got_entry->setValue(0);
+    }
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_got);
+  }
+  return *got_entry;
+}
+
+static
+X86Relocator::Address helper_GOT_ORG(X86_64Relocator& pParent)
+{
+  return pParent.getTarget().getGOT().addr();
+}
+
+static
+X86Relocator::Address helper_GOT(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  X86_64GOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
+  return got_entry.getOffset();
+}
+
 //
 // R_X86_64_NONE
 X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
 {
+  return X86Relocator::OK;
+}
+
+// R_X86_64_GOTPCREL: GOT(S) + GOT_ORG + A - P
+X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  if (!(pReloc.symInfo()->reserved()
+       & (X86GNULDBackend::ReserveGOT |X86GNULDBackend::GOTRel))) {
+    return X86Relocator::BadReloc;
+  }
+  X86Relocator::Address GOT_S   = helper_GOT(pReloc, pParent);
+  Relocator::DWord      A       = pReloc.target() + pReloc.addend();
+  X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
+  // Apply relocation.
+  pReloc.target() = GOT_S + GOT_ORG + A - pReloc.place();
   return X86Relocator::OK;
 }
 

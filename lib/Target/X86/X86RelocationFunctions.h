@@ -79,6 +79,7 @@ static X86Relocator::Result Name(Relocation& pEntry, X86_64Relocator& pParent);
 
 #define DECL_X86_64_APPLY_RELOC_FUNCS \
 DECL_X86_64_APPLY_RELOC_FUNC(none)             \
+DECL_X86_64_APPLY_RELOC_FUNC(gotpcrel)         \
 DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_X86_64_APPLY_RELOC_FUNC_PTRS \
@@ -91,7 +92,7 @@ DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
   { &none,               6, "R_X86_64_GLOB_DAT"         },  \
   { &none,               7, "R_X86_64_JMP_SLOT"         },  \
   { &none,               8, "R_X86_64_RELATIVE"         },  \
-  { &unsupport,          9, "R_X86_64_GOTPCREL"         },  \
+  { &gotpcrel,           9, "R_X86_64_GOTPCREL"         },  \
   { &unsupport,         10, "R_X86_64_32"               },  \
   { &unsupport,         11, "R_X86_64_32S"              },  \
   { &unsupport,         12, "R_X86_64_16"               },  \

@@ -299,12 +299,12 @@ private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
-                      LDSection& pSection) {}
+                      LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
                        IRBuilder& pBuilder,
                        Module& pModule,
-                       LDSection& pSection) {}
+                       LDSection& pSection);
 
   /// initRelocator - create and initialize Relocator.
   bool initRelocator();
