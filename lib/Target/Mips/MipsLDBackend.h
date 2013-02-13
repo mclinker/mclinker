@@ -115,10 +115,12 @@ public:
 private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
+                      Input& pInput,
                       const LDSection& pSection);
 
   void scanGlobalReloc(Relocation& pReloc,
                        IRBuilder& pBuilder,
+                       Input& pInput,
                        const LDSection& pSection);
 
   void defineGOTSymbol(IRBuilder& pBuilder);

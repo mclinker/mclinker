@@ -21,6 +21,7 @@
 
 namespace mcld
 {
+class Input;
 class LDSection;
 class MemoryRegion;
 
@@ -45,8 +46,8 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
-  void reserveLocalEntry();
-  void reserveGlobalEntry();
+  void reserveLocalEntry(const Input& pInput);
+  void reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
 
   size_t getTotalNum() const;
   size_t getLocalNum() const;
@@ -83,14 +84,22 @@ private:
    */
   struct GOTMultipart
   {
+    GOTMultipart(size_t local = 0, size_t global = 0);
+
     size_t m_LocalNum;  ///< number of reserved local entries
     size_t m_GlobalNum; ///< number of reserved global entries
   };
 
   typedef std::list<GOTMultipart> MultipartListType;
-  typedef std::set<ResolveInfo*> SymbolSetType;
+  typedef std::set<const ResolveInfo*> SymbolSetType;
 
   MultipartListType m_MultipartList;  ///< list of GOT's descriptors
+  GOTMultipart m_CurrentGOT;          ///< number of GOT entries from current input
+  const Input* m_pInput;              ///< current input
+  SymbolSetType m_MergedGlobalSymbols;///< merged global symbols
+  SymbolSetType m_InputGlobalSymbols; ///< global symbols from current input
+
+  void merge(const Input& pInput);
 
 private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;

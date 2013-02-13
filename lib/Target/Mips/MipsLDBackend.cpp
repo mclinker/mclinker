@@ -137,9 +137,9 @@ void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
   // Don't put undef symbols into local entries.
   if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
       !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pBuilder, pSection);
+    scanLocalReloc(pReloc, pBuilder, pInput, pSection);
   else
-    scanGlobalReloc(pReloc, pBuilder, pSection);
+    scanGlobalReloc(pReloc, pBuilder, pInput, pSection);
 
   // check if we shoule issue undefined reference for the relocation target
   // symbol
@@ -705,6 +705,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
 
 void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
                                       IRBuilder& pBuilder,
+                                      Input& pInput,
                                       const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -762,14 +763,14 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_LO16:
       // For got16 section based relocations, we need to reserve got entries.
       if (rsym->type() == ResolveInfo::Section) {
-        m_pGOT->reserveLocalEntry();
+        m_pGOT->reserveLocalEntry(pInput);
         // Remeber this rsym is a local GOT entry
         m_pGOT->setLocal(rsym);
         return;
       }
 
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveLocalEntry();
+        m_pGOT->reserveLocalEntry(pInput);
         rsym->setReserved(rsym->reserved() | ReserveGot);
         // Remeber this rsym is a local GOT entry
         m_pGOT->setLocal(rsym);
@@ -802,6 +803,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
 
 void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
                                        IRBuilder& pBuilder,
+                                       Input& pInput,
                                        const LDSection& pSection)
 {
   ResolveInfo* rsym = pReloc.symInfo();
@@ -843,7 +845,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
       if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveGlobalEntry();
+        m_pGOT->reserveGlobalEntry(pInput, *rsym);
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_GlobalGOTSyms.push_back(rsym->outSymbol());
         // Remeber this rsym is a global GOT entry

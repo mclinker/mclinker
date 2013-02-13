@@ -17,15 +17,26 @@
 
 namespace {
   const size_t MipsGOT0Num = 1;
+  const size_t MipsGOTSize = 0xffff / mcld::MipsGOTEntry::EntrySize;
 }
 
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// MipsGOT::GOTMultipart
+//===----------------------------------------------------------------------===//
+MipsGOT::GOTMultipart::GOTMultipart(size_t local, size_t global)
+  : m_LocalNum(local),
+    m_GlobalNum(global)
+{
+}
 
 //===----------------------------------------------------------------------===//
 // MipsGOT
 //===----------------------------------------------------------------------===//
 MipsGOT::MipsGOT(LDSection& pSection)
   : GOT(pSection),
+    m_pInput(NULL),
     m_LocalNum(0),
     m_GlobalNum(0),
     m_pLastLocal(NULL),
@@ -72,13 +83,57 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   return result;
 }
 
-void MipsGOT::reserveLocalEntry()
+void MipsGOT::merge(const Input& pInput)
 {
+  if (m_pInput == NULL) {
+    m_pInput = &pInput;
+    m_CurrentGOT.m_LocalNum = 0;
+    m_CurrentGOT.m_GlobalNum = 0;
+    m_MultipartList.push_back(GOTMultipart());
+  }
+
+  if (m_pInput != &pInput) {
+    m_pInput = &pInput;
+    m_CurrentGOT.m_LocalNum = 0;
+    m_CurrentGOT.m_GlobalNum = 0;
+    m_InputGlobalSymbols.clear();
+  }
+
+  size_t gotSize = m_MultipartList.back().m_LocalNum +
+                   m_MultipartList.back().m_GlobalNum;
+
+  if (m_MultipartList.size() == 1)
+    ++gotSize;
+
+  assert(gotSize <= MipsGOTSize && "GOT overflow!");
+
+  if (gotSize >= MipsGOTSize) {
+    m_MultipartList.back().m_LocalNum -= m_CurrentGOT.m_LocalNum;
+    m_MultipartList.back().m_GlobalNum -= m_CurrentGOT.m_GlobalNum;
+    m_MergedGlobalSymbols = m_InputGlobalSymbols;
+    m_MultipartList.push_back(GOTMultipart(m_CurrentGOT.m_LocalNum, m_CurrentGOT.m_GlobalNum));
+  }
+}
+
+void MipsGOT::reserveLocalEntry(const Input& pInput)
+{
+  merge(pInput);
+
+  ++m_MultipartList.back().m_LocalNum;
+  ++m_CurrentGOT.m_LocalNum;
+
   ++m_LocalNum;
 }
 
-void MipsGOT::reserveGlobalEntry()
+void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
 {
+  merge(pInput);
+
+  if (m_MergedGlobalSymbols.insert(&pInfo).second)
+    ++m_MultipartList.back().m_GlobalNum;
+  if (m_InputGlobalSymbols.insert(&pInfo).second)
+    ++m_CurrentGOT.m_GlobalNum;
+
   ++m_GlobalNum;
 }
 
