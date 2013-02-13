@@ -303,25 +303,25 @@ const X86PLT& X86GNULDBackend::getPLT() const
 
 OutputRelocSection& X86GNULDBackend::getRelDyn()
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn/.rela.dyn section not exist");
   return *m_pRelDyn;
 }
 
 const OutputRelocSection& X86GNULDBackend::getRelDyn() const
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
+  assert(NULL != m_pRelDyn && ".rel.dyn/.rela.dyn section not exist");
   return *m_pRelDyn;
 }
 
 OutputRelocSection& X86GNULDBackend::getRelPLT()
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt/.rela.plt section not exist");
   return *m_pRelPLT;
 }
 
 const OutputRelocSection& X86GNULDBackend::getRelPLT() const
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
+  assert(NULL != m_pRelPLT && ".rel.plt/.rela.plt section not exist");
   return *m_pRelPLT;
 }
 
