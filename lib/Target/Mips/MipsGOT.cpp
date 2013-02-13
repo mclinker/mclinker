@@ -26,25 +26,13 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 MipsGOT::MipsGOT(LDSection& pSection)
   : GOT(pSection),
-    m_pLocalNum(0),
-    m_pLast(NULL)
+    m_LocalNum(0),
+    m_GlobalNum(0),
+    m_pLastLocal(NULL),
+    m_pLastGlobal(NULL)
 {
   // Create GOT0 entries.
   reserve(MipsGOT0Num);
-
-  // Skip GOT0 entries.
-  iterator it = m_SectionData->begin();
-
-  for (size_t i = 1; i < MipsGOT0Num; ++i) {
-    assert((it != m_SectionData->end()) &&
-           "Generation of GOT0 entries is incomplete!");
-
-    ++it;
-  }
-
-  m_LocalGOTIterator = it;
-  m_GlobalGOTIterator = it;
-  m_pLocalNum = MipsGOT0Num;
 }
 
 void MipsGOT::reserve(size_t pNum)
@@ -54,21 +42,20 @@ void MipsGOT::reserve(size_t pNum)
   }
 }
 
-MipsGOTEntry* MipsGOT::consume()
-{
-  if (NULL == m_pLast) {
-    assert(!empty() && "Consume empty GOT entry!");
-    m_pLast = llvm::cast<MipsGOTEntry>(&m_SectionData->front());
-    return m_pLast;
-  }
-
-  m_pLast = llvm::cast<MipsGOTEntry>(m_pLast->getNextNode());
-  return m_pLast;
-}
-
 bool MipsGOT::hasGOT1() const
 {
-  return (m_SectionData->size() > MipsGOT0Num);
+  return (m_LocalNum + m_GlobalNum) > 0;
+}
+
+void MipsGOT::finalizeSectionSize()
+{
+  m_pLastLocal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
+  reserve(m_LocalNum);
+
+  m_pLastGlobal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
+  reserve(m_GlobalNum);
+
+  GOT::finalizeSectionSize();
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
@@ -87,44 +74,35 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 
 void MipsGOT::reserveLocalEntry()
 {
-  reserve(1);
-  ++m_pLocalNum;
-
-  // Move global entries iterator forward.
-  // We need to put global GOT entries after all local ones.
-  ++m_GlobalGOTIterator;
+  ++m_LocalNum;
 }
 
 void MipsGOT::reserveGlobalEntry()
 {
-  reserve(1);
+  ++m_GlobalNum;
 }
 
 MipsGOTEntry* MipsGOT::consumeLocal()
 {
-  iterator& it = m_LocalGOTIterator;
-  ++it;
-  assert(it != m_SectionData->getFragmentList().end() &&
-         "The number of GOT Entries and ResolveInfo doesn't match");
-  return llvm::cast<MipsGOTEntry>(&(*it));
+  assert(m_LocalNum && "Consume empty local GOT entry!");
+  m_pLastLocal = llvm::cast<MipsGOTEntry>(m_pLastLocal->getNextNode());
+  return m_pLastLocal;
 }
 
 MipsGOTEntry* MipsGOT::consumeGlobal()
 {
-  iterator& it = m_GlobalGOTIterator;
-  ++it;
-  assert(it != m_SectionData->getFragmentList().end() &&
-         "The number of GOT Entries and ResolveInfo doesn't match");
-  return llvm::cast<MipsGOTEntry>(&(*it));
+  assert(m_GlobalNum && "Consume empty global GOT entry!");
+  m_pLastGlobal = llvm::cast<MipsGOTEntry>(m_pLastGlobal->getNextNode());
+  return m_pLastGlobal;
 }
 
 size_t MipsGOT::getTotalNum() const
 {
-  return m_SectionData->getFragmentList().size();
+  return getLocalNum() + m_GlobalNum;
 }
 
 size_t MipsGOT::getLocalNum() const
 {
-  return m_pLocalNum;
+  return MipsGOT0Num + m_LocalNum;
 }
 
