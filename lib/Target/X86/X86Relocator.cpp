@@ -715,6 +715,53 @@ X86Relocator::Address helper_GOT(Relocation& pReloc, X86_64Relocator& pParent)
   return got_entry.getOffset();
 }
 
+static
+PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
+				      X86_64Relocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  X86_64GNULDBackend& ld_backend = pParent.getTarget();
+
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  if (NULL != plt_entry)
+    return *plt_entry;
+
+  // not found
+  plt_entry = ld_backend.getPLT().consume();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+  // If we first get this PLT entry, we should initialize it.
+  if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+    X86_64GOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    gotplt_entry = ld_backend.getGOTPLT().consume();
+    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+    // init the corresponding rel entry in .rel.plt
+    Relocation& rel_entry = *ld_backend.getRelPLT().consumeEntry();
+    rel_entry.setType(llvm::ELF::R_X86_64_JUMP_SLOT);
+    rel_entry.targetRef().assign(*gotplt_entry);
+    rel_entry.setSymInfo(rsym);
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_plt);
+  }
+
+  return *plt_entry;
+}
+
+static
+X86Relocator::Address helper_PLT_ORG(X86_64Relocator& pParent)
+{
+  return pParent.getTarget().getPLT().addr();
+}
+
+static
+X86Relocator::Address helper_PLT(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
+}
+
 //
 // R_X86_64_NONE
 X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
@@ -734,6 +781,21 @@ X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + GOT_ORG + A - pReloc.place();
+  return X86Relocator::OK;
+}
+
+// R_X86_64_PLT32: PLT(S) + A - P
+X86Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  // PLT_S depends on if there is a PLT entry.
+  X86Relocator::Address PLT_S;
+  if ((pReloc.symInfo()->reserved() & X86GNULDBackend::ReservePLT))
+    PLT_S = helper_PLT(pReloc, pParent);
+  else
+    PLT_S = pReloc.symValue();
+  Relocator::DWord      A = pReloc.target() + pReloc.addend();
+  X86Relocator::Address P = pReloc.place();
+  pReloc.target() = PLT_S + A - P;
   return X86Relocator::OK;
 }
 

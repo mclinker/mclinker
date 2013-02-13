@@ -274,7 +274,12 @@ void X86_64PLT::applyPLT0()
 
   memcpy(data, m_PLT0, plt0->size());
 
-  assert(0 && "Update PLT0");
+  // pushq GOT + 8(%rip)
+  uint32_t *offset = reinterpret_cast<uint32_t*>(data + 2);
+  *offset = m_GOTPLT.addr() - addr() + 8 - 6;
+  // jmq *GOT + 16(%rip)
+  offset = reinterpret_cast<uint32_t*>(data + 8);
+  *offset = m_GOTPLT.addr() - addr() + 16 - 12;
 
   plt0->setValue(data);
 }
@@ -290,18 +295,22 @@ void X86_64PLT::applyPLT1()
 
   uint64_t GOTEntrySize = X86_64GOTEntry::EntrySize;
 
-  // Skip GOT0
-  uint64_t GOTEntryOffset = GOTEntrySize * X86GOTPLT0Num;
-  if (LinkerConfig::Exec == m_Config.codeGenType())
-    GOTEntryOffset += m_GOTPLT.addr();
+  // compute sym@GOTPCREL of the PLT1 entry.
+  uint64_t SymGOTPCREL = m_GOTPLT.addr();
 
-  //skip PLT0
+  // Skip GOT0
+  SymGOTPCREL += GOTEntrySize * X86GOTPLT0Num;
+
+  // skip PLT0
   uint64_t PLTEntryOffset = m_PLT0Size;
   ++it;
 
+  // PC-relative to entry in PLT section.
+  SymGOTPCREL -= addr() + PLTEntryOffset + 6;
+
   PLTEntryBase* plt1 = 0;
 
-  uint64_t PLTRelOffset = 0;
+  uint64_t PLTRelIndex = 0;
 
   while (it != ie) {
     plt1 = &(llvm::cast<PLTEntryBase>(*it));
@@ -313,7 +322,22 @@ void X86_64PLT::applyPLT1()
 
     memcpy(data, m_PLT1, plt1->size());
 
-    assert(0 && "Update PLT1");
+    uint32_t* offset;
+
+    // jmpq *sym@GOTPCREL(%rip)
+    offset = reinterpret_cast<uint32_t*>(data + 2);
+    *offset = SymGOTPCREL;
+    SymGOTPCREL += GOTEntrySize - m_PLT1Size;
+
+    // pushq $index
+    offset = reinterpret_cast<uint32_t*>(data + 7);
+    *offset = PLTRelIndex;
+    PLTRelIndex++;
+
+    // jmpq plt0
+    offset = reinterpret_cast<uint32_t*>(data + 12);
+    *offset = -(PLTEntryOffset + 12 + 4);
+    PLTEntryOffset += m_PLT1Size;
 
     plt1->setValue(data);
     ++it;

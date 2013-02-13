@@ -45,7 +45,7 @@ const uint8_t x86_64_plt0[] = {
 
 const uint8_t x86_64_plt1[] = {
   0xff, 0x25, 0, 0, 0, 0,    // jmpq   *sym@GOTPCREL(%rip)
-  0x68, 0, 0, 0, 0,          // pushq  $offset
+  0x68, 0, 0, 0, 0,          // pushq  $index
   0xe9, 0, 0, 0, 0           // jmpq   plt0
 };
 

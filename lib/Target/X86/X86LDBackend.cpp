@@ -1074,6 +1074,35 @@ void X86_64GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
+    case llvm::ELF::R_X86_64_PLT32:
+      // A PLT entry is needed when building shared library
+
+      // return if we already create plt for this symbol
+      if (rsym->reserved() & ReservePLT)
+        return;
+
+      // if the symbol's value can be decided at link time, then no need plt
+      if (symbolFinalValueIsKnown(*rsym))
+        return;
+
+      // if symbol is defined in the ouput file and it's not
+      // preemptible, no need plt
+      if (rsym->isDefine() && !rsym->isDyn() &&
+         !isSymbolPreemptible(*rsym)) {
+        return;
+      }
+
+      // Symbol needs PLT entry, we need to reserve a PLT entry
+      // and the corresponding GOT and dynamic relocation entry
+      // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+      // when calling X86PLT->reserveEntry())
+      m_pPLT->reserveEntry();
+      m_pGOTPLT->reserve();
+      m_pRelPLT->reserveEntry();
+      // set PLT bit
+      rsym->setReserved(rsym->reserved() | ReservePLT);
+      return;
+
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
