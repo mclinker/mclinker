@@ -113,6 +113,7 @@ Relocator* MipsGNULDBackend::getRelocator()
 void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
                                       IRBuilder& pBuilder,
                                       Module& pModule,
+                                      Input& pInput,
                                       LDSection& pSection)
 {
   // rsym - The relocation target symbol

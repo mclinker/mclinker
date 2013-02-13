@@ -56,6 +56,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
+                      Input& pInput,
                       LDSection& pSection);
 
   /// preLayout - Backend can do any needed modification before layout

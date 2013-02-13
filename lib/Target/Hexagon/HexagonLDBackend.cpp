@@ -103,6 +103,7 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 void HexagonLDBackend::scanRelocation(Relocation& pReloc,
                                       IRBuilder& pBuilder,
                                       Module& pModule,
+                                      Input& pInput,
                                       LDSection& pSection)
 {
   pReloc.updateAddend();

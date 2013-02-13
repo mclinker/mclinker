@@ -75,6 +75,7 @@ public:
   virtual void scanRelocation(Relocation& pReloc,
                               IRBuilder& pBuilder,
                               Module& pModule,
+                              Input& pInput,
                               LDSection& pSection) = 0;
 
   /// partialScanRelocation - When doing partial linking, backend can do any

@@ -135,6 +135,7 @@ public:
   void scanRelocation(Relocation& pReloc,
                       IRBuilder& pBuilder,
                       Module& pModule,
+                      Input& pInput,
                       LDSection& pSection);
 
   OutputRelocSection& getRelDyn();

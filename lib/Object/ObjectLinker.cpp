@@ -347,7 +347,8 @@ bool ObjectLinker::scanRelocations()
         Relocation* relocation = llvm::cast<Relocation>(reloc);
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
-          m_LDBackend.scanRelocation(*relocation, *m_pBuilder, *m_pModule, **rs);
+          m_LDBackend.scanRelocation(*relocation, *m_pBuilder, *m_pModule,
+                                     **input, **rs);
         else
           m_LDBackend.partialScanRelocation(*relocation, *m_pModule, **rs);
       } // for all relocations

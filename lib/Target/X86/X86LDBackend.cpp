@@ -222,6 +222,7 @@ LDSymbol& X86GNULDBackend::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 void X86GNULDBackend::scanRelocation(Relocation& pReloc,
                                      IRBuilder& pLinker,
                                      Module& pModule,
+                                     Input& pInput,
                                      LDSection& pSection)
 {
   if (LinkerConfig::Object == config().codeGenType())
