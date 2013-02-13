@@ -27,8 +27,34 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 MipsGOT::GOTMultipart::GOTMultipart(size_t local, size_t global)
   : m_LocalNum(local),
-    m_GlobalNum(global)
+    m_GlobalNum(global),
+    m_ConsumedLocal(0),
+    m_ConsumedGlobal(0),
+    m_pLastLocal(NULL),
+    m_pLastGlobal(NULL)
 {
+}
+
+bool MipsGOT::GOTMultipart::isConsumed() const
+{
+  return m_LocalNum == m_ConsumedLocal &&
+         m_GlobalNum == m_ConsumedGlobal;
+}
+
+void MipsGOT::GOTMultipart::consumeLocal()
+{
+  assert(m_ConsumedLocal < m_LocalNum &&
+         "Consumed too many local GOT entries");
+  ++m_ConsumedLocal;
+  m_pLastLocal = llvm::cast<MipsGOTEntry>(m_pLastLocal->getNextNode());
+}
+
+void MipsGOT::GOTMultipart::consumeGlobal()
+{
+  assert(m_ConsumedGlobal < m_GlobalNum &&
+         "Consumed too many global GOT entries");
+  ++m_ConsumedGlobal;
+  m_pLastGlobal = llvm::cast<MipsGOTEntry>(m_pLastGlobal->getNextNode());
 }
 
 //===----------------------------------------------------------------------===//
@@ -37,10 +63,9 @@ MipsGOT::GOTMultipart::GOTMultipart(size_t local, size_t global)
 MipsGOT::MipsGOT(LDSection& pSection)
   : GOT(pSection),
     m_pInput(NULL),
-    m_LocalNum(0),
-    m_GlobalNum(0),
-    m_pLastLocal(NULL),
-    m_pLastGlobal(NULL)
+    m_CurrentGOTPart(0),
+    m_TotalLocalNum(0),
+    m_TotalGlobalNum(0)
 {
   // Create GOT0 entries.
   reserve(MipsGOT0Num);
@@ -55,16 +80,30 @@ void MipsGOT::reserve(size_t pNum)
 
 bool MipsGOT::hasGOT1() const
 {
-  return (m_LocalNum + m_GlobalNum) > 0;
+  return !m_MultipartList.empty();
 }
 
 void MipsGOT::finalizeSectionSize()
 {
-  m_pLastLocal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
-  reserve(m_LocalNum);
+  m_TotalLocalNum  = 0;
+  m_TotalGlobalNum = 0;
 
-  m_pLastGlobal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
-  reserve(m_GlobalNum);
+  for (MultipartListType::const_iterator it = m_MultipartList.begin();
+       it != m_MultipartList.end(); ++it) {
+    m_TotalLocalNum  += it->m_LocalNum;
+    m_TotalGlobalNum += it->m_GlobalNum;
+  }
+
+  for (MultipartListType::iterator it = m_MultipartList.begin();
+       it != m_MultipartList.end(); ++it) {
+    it->m_pLastLocal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
+    reserve(it->m_LocalNum);
+    it->m_pLastGlobal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
+    reserve(it->m_GlobalNum);
+
+    if (it == m_MultipartList.begin())
+      reserve(m_TotalGlobalNum - it->m_GlobalNum);
+  }
 
   GOT::finalizeSectionSize();
 }
@@ -111,7 +150,8 @@ void MipsGOT::merge(const Input& pInput)
     m_MultipartList.back().m_LocalNum -= m_CurrentGOT.m_LocalNum;
     m_MultipartList.back().m_GlobalNum -= m_CurrentGOT.m_GlobalNum;
     m_MergedGlobalSymbols = m_InputGlobalSymbols;
-    m_MultipartList.push_back(GOTMultipart(m_CurrentGOT.m_LocalNum, m_CurrentGOT.m_GlobalNum));
+    m_MultipartList.push_back(GOTMultipart(m_CurrentGOT.m_LocalNum,
+                                           m_CurrentGOT.m_GlobalNum));
   }
 }
 
@@ -121,8 +161,6 @@ void MipsGOT::reserveLocalEntry(const Input& pInput)
 
   ++m_MultipartList.back().m_LocalNum;
   ++m_CurrentGOT.m_LocalNum;
-
-  ++m_LocalNum;
 }
 
 void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
@@ -133,31 +171,39 @@ void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
     ++m_MultipartList.back().m_GlobalNum;
   if (m_InputGlobalSymbols.insert(&pInfo).second)
     ++m_CurrentGOT.m_GlobalNum;
-
-  ++m_GlobalNum;
 }
 
 MipsGOTEntry* MipsGOT::consumeLocal()
 {
-  assert(m_LocalNum && "Consume empty local GOT entry!");
-  m_pLastLocal = llvm::cast<MipsGOTEntry>(m_pLastLocal->getNextNode());
-  return m_pLastLocal;
+  assert(m_CurrentGOTPart < m_MultipartList.size() && "GOT number is out of range!");
+
+  if (m_MultipartList[m_CurrentGOTPart].isConsumed())
+    ++m_CurrentGOTPart;
+
+  m_MultipartList[m_CurrentGOTPart].consumeLocal();
+
+  return m_MultipartList[m_CurrentGOTPart].m_pLastLocal;
 }
 
 MipsGOTEntry* MipsGOT::consumeGlobal()
 {
-  assert(m_GlobalNum && "Consume empty global GOT entry!");
-  m_pLastGlobal = llvm::cast<MipsGOTEntry>(m_pLastGlobal->getNextNode());
-  return m_pLastGlobal;
-}
+  assert(m_CurrentGOTPart < m_MultipartList.size() && "GOT number is out of range!");
 
-size_t MipsGOT::getTotalNum() const
-{
-  return getLocalNum() + m_GlobalNum;
+  if (m_MultipartList[m_CurrentGOTPart].isConsumed())
+    ++m_CurrentGOTPart;
+
+  m_MultipartList[m_CurrentGOTPart].consumeGlobal();
+
+  return m_MultipartList[m_CurrentGOTPart].m_pLastGlobal;
 }
 
 size_t MipsGOT::getLocalNum() const
 {
-  return MipsGOT0Num + m_LocalNum;
+  assert(!m_MultipartList.empty() && "GOT is empty!");
+  return m_MultipartList[0].m_LocalNum + MipsGOT0Num;
 }
 
+size_t MipsGOT::getGlobalNum() const
+{
+  return m_TotalGlobalNum;
+}

@@ -8,7 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MIPS_GOT_H
 #define MCLD_MIPS_GOT_H
-#include <list>
+#include <vector>
 #include <map>
 
 #ifdef ENABLE_UNITTEST
@@ -49,8 +49,8 @@ public:
   void reserveLocalEntry(const Input& pInput);
   void reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
 
-  size_t getTotalNum() const;
-  size_t getLocalNum() const;
+  size_t getLocalNum() const;   ///< number of local symbols in primary GOT
+  size_t getGlobalNum() const;  ///< total number of global symbols
 
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
@@ -88,9 +88,20 @@ private:
 
     size_t m_LocalNum;  ///< number of reserved local entries
     size_t m_GlobalNum; ///< number of reserved global entries
+
+    size_t m_ConsumedLocal;       ///< consumed local entries
+    size_t m_ConsumedGlobal;      ///< consumed global entries
+
+    MipsGOTEntry* m_pLastLocal;   ///< the last consumed local entry
+    MipsGOTEntry* m_pLastGlobal;  ///< the last consumed global entry
+
+    bool isConsumed() const;
+
+    void consumeLocal();
+    void consumeGlobal();
   };
 
-  typedef std::list<GOTMultipart> MultipartListType;
+  typedef std::vector<GOTMultipart> MultipartListType;
   typedef std::set<const ResolveInfo*> SymbolSetType;
 
   MultipartListType m_MultipartList;  ///< list of GOT's descriptors
@@ -99,21 +110,18 @@ private:
   SymbolSetType m_MergedGlobalSymbols;///< merged global symbols
   SymbolSetType m_InputGlobalSymbols; ///< global symbols from current input
 
+  size_t m_CurrentGOTPart;
+
+  size_t m_TotalLocalNum;
+  size_t m_TotalGlobalNum;
+
   void merge(const Input& pInput);
+  void reserve(size_t pNum);
 
 private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 
   SymbolTypeMapType m_GOTTypeMap;
-
-  size_t m_LocalNum;            ///< number of reserved local entries
-  size_t m_GlobalNum;           ///< number of reserved global entries
-
-  MipsGOTEntry* m_pLastLocal;   ///< the last consumed local entry
-  MipsGOTEntry* m_pLastGlobal;  ///< the last consumed global entry
-
-private:
-  void reserve(size_t pNum);
 };
 
 } // namespace of mcld
