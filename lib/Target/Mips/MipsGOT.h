@@ -80,8 +80,8 @@ private:
 private:
   SymbolTypeMapType m_GOTTypeMap;
 
-  size_t m_pLocalNum;           ///< number of reserved local entries
-  size_t m_pGlobalNum;          ///< number of reserved global entries
+  size_t m_LocalNum;            ///< number of reserved local entries
+  size_t m_GlobalNum;           ///< number of reserved global entries
 
   MipsGOTEntry* m_pLastLocal;   ///< the last consumed local entry
   MipsGOTEntry* m_pLastGlobal;  ///< the last consumed global entry
