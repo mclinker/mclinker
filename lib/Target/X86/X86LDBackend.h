@@ -177,7 +177,7 @@ protected:
 
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
-private:
+protected:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
   { return m_RelEntrySize; }
@@ -186,6 +186,7 @@ private:
   size_t getRelaEntrySize()
   { return m_RelaEntrySize; }
 
+private:
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
@@ -196,6 +197,9 @@ private:
 
   virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
 					 const ELFFileFormat* FileFormat) const = 0;
+
+  virtual void setRelDynSize() = 0;
+  virtual void setRelPLTSize() = 0;
 
 protected:
   Relocator* m_pRelocator;
@@ -262,6 +266,9 @@ private:
   uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
 				 const ELFFileFormat* FileFormat) const;
 
+  void setRelDynSize();
+  void setRelPLTSize();
+
 private:
   X86_32GOT* m_pGOT;
   X86_32GOTPLT* m_pGOTPLT;
@@ -308,6 +315,9 @@ private:
 
   uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
 				 const ELFFileFormat* FileFormat) const;
+
+  void setRelDynSize();
+  void setRelPLTSize();
 
 private:
   X86_64GOT* m_pGOT;

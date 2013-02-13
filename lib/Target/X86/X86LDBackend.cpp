@@ -79,20 +79,17 @@ void X86GNULDBackend::doPreLayout(IRBuilder& pBuilder)
     if (m_pPLT->hasPLT1())
       m_pPLT->finalizeSectionSize();
 
-    ELFFileFormat* file_format = getOutputFormat();
-    // set .rel.dyn size
+    // set .rel.dyn/.rela.dyn size
     if (!m_pRelDyn->empty()) {
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
-      file_format->getRelDyn().setSize(
-                                  m_pRelDyn->numOfRelocs() * getRelEntrySize());
+      setRelDynSize();
     }
-    // set .rel.plt size
+    // set .rel.plt/.rela.plt size
     if (!m_pRelPLT->empty()) {
       assert(!config().isCodeStatic() &&
             "static linkage should not result in a dynamic relocation section");
-      file_format->getRelPlt().setSize(
-                                  m_pRelPLT->numOfRelocs() * getRelEntrySize());
+      setRelPLTSize();
     }
   }
 }
@@ -825,6 +822,20 @@ const X86_32GOTPLT& X86_32GNULDBackend::getGOTPLT() const
   return *m_pGOTPLT;
 }
 
+void X86_32GNULDBackend::setRelDynSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelDyn().setSize
+    (m_pRelDyn->numOfRelocs() * getRelEntrySize());
+}
+
+void X86_32GNULDBackend::setRelPLTSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelPlt().setSize
+    (m_pRelPLT->numOfRelocs() * getRelEntrySize());
+}
+
 void X86_32GNULDBackend::setGOTSectionSize(IRBuilder& pBuilder)
 {
   // set .got.plt size
@@ -999,6 +1010,21 @@ const X86_64GOTPLT& X86_64GNULDBackend::getGOTPLT() const
   assert(NULL != m_pGOTPLT);
   return *m_pGOTPLT;
 }
+
+void X86_64GNULDBackend::setRelDynSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaDyn().setSize
+    (m_pRelDyn->numOfRelocs() * getRelaEntrySize());
+}
+
+void X86_64GNULDBackend::setRelPLTSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaPlt().setSize
+    (m_pRelPLT->numOfRelocs() * getRelaEntrySize());
+}
+
 
 void X86_64GNULDBackend::initTargetSections(Module& pModule,
 					    ObjectBuilder& pBuilder)
