@@ -8,6 +8,9 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MIPS_GOT_H
 #define MCLD_MIPS_GOT_H
+#include <list>
+#include <map>
+
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -75,9 +78,23 @@ public:
   virtual void finalizeSectionSize();
 
 private:
-  typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
+  /** \class GOTMultipart
+   *  \brief GOTMultipart counts local and global entries in the GOT.
+   */
+  struct GOTMultipart
+  {
+    size_t m_LocalNum;  ///< number of reserved local entries
+    size_t m_GlobalNum; ///< number of reserved global entries
+  };
+
+  typedef std::list<GOTMultipart> MultipartListType;
+  typedef std::set<ResolveInfo*> SymbolSetType;
+
+  MultipartListType m_MultipartList;  ///< list of GOT's descriptors
 
 private:
+  typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
+
   SymbolTypeMapType m_GOTTypeMap;
 
   size_t m_LocalNum;            ///< number of reserved local entries
