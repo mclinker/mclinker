@@ -74,9 +74,8 @@ public:
   /// hasGOT1 - return if this got section has any GOT1 entry
   bool hasGOT1() const;
 
-public:
-  /// Do real allocation of the GOT entries.
-  virtual void finalizeSectionSize();
+  /// Create GOT entries and reserve dynrel entries. 
+  void finalizeScanning();
 
 private:
   /** \class GOTMultipart

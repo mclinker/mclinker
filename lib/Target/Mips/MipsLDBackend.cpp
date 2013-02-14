@@ -159,6 +159,7 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
     if (LinkerConfig::DynObj == config().codeGenType() ||
         m_pGOT->hasGOT1() ||
         NULL != m_pGOTSymbol) {
+      m_pGOT->finalizeScanning();
       m_pGOT->finalizeSectionSize();
       defineGOTSymbol(pBuilder);
     }

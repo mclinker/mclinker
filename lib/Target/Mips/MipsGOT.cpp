@@ -83,7 +83,7 @@ bool MipsGOT::hasGOT1() const
   return !m_MultipartList.empty();
 }
 
-void MipsGOT::finalizeSectionSize()
+void MipsGOT::finalizeScanning()
 {
   m_TotalLocalNum  = 0;
   m_TotalGlobalNum = 0;
@@ -104,8 +104,6 @@ void MipsGOT::finalizeSectionSize()
     if (it == m_MultipartList.begin())
       reserve(m_TotalGlobalNum - it->m_GlobalNum);
   }
-
-  GOT::finalizeSectionSize();
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
