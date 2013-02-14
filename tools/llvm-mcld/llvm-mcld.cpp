@@ -577,8 +577,9 @@ ArgEmulation("m",
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
 
-static cl::opt<std::string>
+static cl::list<std::string, bool, llvm::cl::SearchDirParser>
 ArgRuntimePathLink("rpath-link",
+                   cl::ZeroOrMore,
                    cl::desc("Add a directory to the link time library search path"),
                    cl::value_desc("dir"));
 
