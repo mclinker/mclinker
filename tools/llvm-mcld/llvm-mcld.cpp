@@ -678,7 +678,7 @@ public:
 
   // parse - Return true on error.
   bool parse(cl::Option &O, StringRef ArgName, StringRef Arg, bool &Val) {
-    if (parser<bool>::parse(O, ArgName, Arg, Val))
+    if (cl::parser<bool>::parse(O, ArgName, Arg, Val))
       return false;
     Val = false;
     return false;
