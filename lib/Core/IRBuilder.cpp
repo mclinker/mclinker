@@ -478,6 +478,7 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
       break;
     }
   }
+  return NULL;
 }
 
 LDSymbol* IRBuilder::addSymbolFromObject(const std::string& pName,

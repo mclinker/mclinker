@@ -396,6 +396,9 @@ public:
   /// @param [in]      pSection Absolute, undefined, common symbols do not have
   ///                           pSection. Keep their pSection be NULL.
   /// @oaram [in]      pVis     The visibility of the symbol
+  ///
+  /// @return The added symbol. If the insertion fails due to the resoluction,
+  /// return NULL.
   LDSymbol* AddSymbol(Input& pInput,
                       const std::string& pName,
                       ResolveInfo::Type pType,
