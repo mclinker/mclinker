@@ -34,8 +34,6 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
 				 GNUInfo* pInfo,
-				 size_t pRelEntrySize,
-				 size_t pRelaEntrySize,
 				 Relocation::Type pCopyRel)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
@@ -44,9 +42,19 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
     m_pRelPLT(NULL),
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL),
-    m_RelEntrySize(pRelEntrySize),
-    m_RelaEntrySize(pRelaEntrySize),
-    m_CopyRel(pCopyRel) {
+    m_CopyRel(pCopyRel)
+{
+  Triple::ArchType arch = pConfig.targets().triple().getArch();
+  assert (arch == Triple::x86 || arch == Triple::x86_64);
+  if (arch == Triple::x86 ||
+      pConfig.targets().triple().getEnvironment() == Triple::GNUX32) {
+    m_RelEntrySize = 8;
+    m_RelaEntrySize = 12;
+  }
+  else {
+    m_RelEntrySize = 16;
+    m_RelaEntrySize = 24;
+  }
 }
 
 X86GNULDBackend::~X86GNULDBackend()
@@ -381,7 +389,7 @@ void X86GNULDBackend::doCreateProgramHdrs(Module& pModule)
 
 X86_32GNULDBackend::X86_32GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 8, 12, llvm::ELF::R_386_COPY),
+  : X86GNULDBackend(pConfig, pInfo, llvm::ELF::R_386_COPY),
     m_pGOT (NULL),
     m_pGOTPLT (NULL) {
 }
@@ -968,7 +976,7 @@ X86_32GOTEntry& X86_32GNULDBackend::getTLSModuleID()
 
 X86_64GNULDBackend::X86_64GNULDBackend(const LinkerConfig& pConfig,
 				       GNUInfo* pInfo)
-  : X86GNULDBackend(pConfig, pInfo, 16, 24, llvm::ELF::R_X86_64_COPY),
+  : X86GNULDBackend(pConfig, pInfo, llvm::ELF::R_X86_64_COPY),
     m_pGOT (NULL),
     m_pGOTPLT (NULL) {
 }

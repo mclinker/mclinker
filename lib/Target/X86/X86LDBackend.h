@@ -74,8 +74,6 @@ public:
 public:
   X86GNULDBackend(const LinkerConfig& pConfig,
 		  GNUInfo* pInfo,
-		  size_t pRelEntrySize,
-		  size_t pRelaEntrySize,
 		  Relocation::Type pCopyRel);
 
   ~X86GNULDBackend();
