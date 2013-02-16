@@ -24,6 +24,7 @@ namespace mcld
 class Input;
 class LDSection;
 class MemoryRegion;
+class OutputRelocSection;
 
 /** \class MipsGOTEntry
  *  \brief GOT Entry with size of 4 bytes
@@ -75,7 +76,9 @@ public:
   bool hasGOT1() const;
 
   /// Create GOT entries and reserve dynrel entries. 
-  void finalizeScanning();
+  void finalizeScanning(OutputRelocSection& pRelDyn);
+
+  void setupRelDynEntries(OutputRelocSection& pRelDyn);
 
 private:
   /** \class GOTMultipart

@@ -159,8 +159,9 @@ void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
     if (LinkerConfig::DynObj == config().codeGenType() ||
         m_pGOT->hasGOT1() ||
         NULL != m_pGOTSymbol) {
-      m_pGOT->finalizeScanning();
+      m_pGOT->finalizeScanning(*m_pRelDyn);
       m_pGOT->finalizeSectionSize();
+
       defineGOTSymbol(pBuilder);
     }
 
@@ -601,6 +602,9 @@ bool MipsGNULDBackend::finalizeTargetSymbols()
 {
   if (NULL != m_pGpDispSymbol)
     m_pGpDispSymbol->setValue(m_pGOT->addr() + 0x7FF0);
+
+  m_pGOT->setupRelDynEntries(getRelDyn());
+
   return true;
 }
 

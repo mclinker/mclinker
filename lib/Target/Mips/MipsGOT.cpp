@@ -10,10 +10,12 @@
 #include "MipsGOT.h"
 
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/ELF.h>
 
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Target/OutputRelocSection.h>
 
 namespace {
   const size_t MipsGOT0Num = 1;
@@ -83,7 +85,7 @@ bool MipsGOT::hasGOT1() const
   return !m_MultipartList.empty();
 }
 
-void MipsGOT::finalizeScanning()
+void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
 {
   m_TotalLocalNum  = 0;
   m_TotalGlobalNum = 0;
@@ -102,7 +104,56 @@ void MipsGOT::finalizeScanning()
     reserve(it->m_GlobalNum);
 
     if (it == m_MultipartList.begin())
+      // Reserve entries in the second part of the primary GOT.
+      // These entries correspond to the global symbols in all
+      // non-primary GOTs.
       reserve(m_TotalGlobalNum - it->m_GlobalNum);
+    else {
+      // Reserver reldyn entries for R_MIPS_REL32 relocations
+      // for all global entries of secondary GOTs.
+      // FIXME: (simon) Do not count local entries for non-pic.
+      size_t count = it->m_GlobalNum + it->m_LocalNum;
+      for (size_t i = 0; i < count; ++i)
+        pRelDyn.reserveEntry();
+    }
+  }
+}
+
+// FIXME: (simon) Make a class member function.
+static Fragment* advanceEntry(Fragment* pEntry, size_t num)
+{
+  for (size_t i = 0; i < num; ++i)
+    pEntry = pEntry->getNextNode();
+
+  return pEntry;
+}
+
+void MipsGOT::setupRelDynEntries(OutputRelocSection& pRelDyn)
+{
+  Fragment* pGOTFragment = &m_SectionData->front();
+
+  pGOTFragment = advanceEntry(pGOTFragment, MipsGOT0Num);
+
+  for (MultipartListType::const_iterator it = m_MultipartList.begin();
+       it != m_MultipartList.end(); ++it) {
+    if (it == m_MultipartList.begin()) {
+      pGOTFragment = advanceEntry(pGOTFragment, it->m_GlobalNum +
+                                                it->m_LocalNum);
+      continue;
+    }
+
+    // FIXME: (simon) Do not count local entries for non-pic.
+    size_t count = it->m_GlobalNum + it->m_LocalNum;
+
+    for (size_t i = 0; i < count; ++i) {
+      Relocation& pRelEntry = *pRelDyn.consumeEntry();
+      pRelEntry.setType(llvm::ELF::R_MIPS_REL32);
+      pRelEntry.targetRef() =
+        *FragmentRef::Create(*llvm::cast<MipsGOTEntry>(pGOTFragment), 0);
+      // FIXME: (simon) pRelEntry.setSymInfo(rsym);
+
+      pGOTFragment = advanceEntry(pGOTFragment, 1);
+    }
   }
 }
 
