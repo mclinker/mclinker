@@ -169,10 +169,11 @@ bool Linker::layout()
 {
   assert(NULL != m_pConfig && NULL != m_pObjLinker);
 
-  // 9. - add standard symbols and target-dependent symbols
+  // 9. - add standard symbols, target-dependent symbols and script symbols
   // m_pObjLinker->addUndefSymbols();
   if (!m_pObjLinker->addStandardSymbols() ||
-      !m_pObjLinker->addTargetSymbols())
+      !m_pObjLinker->addTargetSymbols() ||
+      !m_pObjLinker->addScriptSymbols())
     return false;
 
   // 10. - scan all relocation entries by output symbols.

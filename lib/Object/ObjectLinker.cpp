@@ -319,6 +319,15 @@ bool ObjectLinker::addTargetSymbols()
   return true;
 }
 
+/// addScriptSymbols - define symbols from the command line option or linker
+/// scripts.
+///   @return if there are some existing symbols with identical name to the
+///   script symbols, return false.
+bool ObjectLinker::addScriptSymbols()
+{
+  return true;
+}
+
 bool ObjectLinker::scanRelocations()
 {
   // apply all relocations of all inputs
