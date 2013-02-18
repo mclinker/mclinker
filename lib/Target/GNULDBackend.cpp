@@ -1428,13 +1428,14 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
   // TODO: need to take care other possible output sections
   switch (pSectHdr.kind()) {
     case LDFileFormat::Regular:
-      if (is_exec) {
-        if (&pSectHdr == &file_format->getInit())
-          return SHO_INIT;
-        if (&pSectHdr == &file_format->getFini())
-          return SHO_FINI;
-        return SHO_TEXT;
-      } else if (!is_write) {
+      if (!is_write) {
+        if (is_exec) {
+          if (&pSectHdr == &file_format->getInit())
+            return SHO_INIT;
+          if (&pSectHdr == &file_format->getFini())
+            return SHO_FINI;
+          return SHO_TEXT;
+        }
         return SHO_RO;
       } else {
         if (config().options().hasRelro()) {
