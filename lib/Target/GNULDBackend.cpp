@@ -2477,7 +2477,11 @@ bool GNULDBackend::symbolNeedsDynRel(const ResolveInfo& pSym,
        LinkerConfig::Binary == config().codeGenType()))
     return false;
 
-  if (pSym.isAbsolute())
+  // An absolute symbol can be resolved directly if it is either local
+  // or we are linking statically. Otherwise it can still be overridden
+  // at runtime.
+  if (pSym.isAbsolute() &&
+      (pSym.binding() == ResolveInfo::Local || config().isCodeStatic()))
     return false;
   if (config().isCodeIndep() && isAbsReloc)
     return true;
