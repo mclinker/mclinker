@@ -55,7 +55,7 @@ public:
   /// getName - get the name of a relocation
   virtual const char* getName(Type pType) const = 0;
 
-  /// getSize - get the size of a relocation in byte
+  /// getSize - get the size of a relocation in bit
   virtual Size getSize(Type pType) const = 0;
 };
 
