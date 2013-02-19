@@ -53,6 +53,8 @@ public:
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
   size_t getGlobalNum() const;  ///< total number of global symbols
 
+  bool isPrimaryGOTConsumed();
+
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
 
@@ -77,8 +79,6 @@ public:
 
   /// Create GOT entries and reserve dynrel entries. 
   void finalizeScanning(OutputRelocSection& pRelDyn);
-
-  void setupRelDynEntries(OutputRelocSection& pRelDyn);
 
 private:
   /** \class GOTMultipart

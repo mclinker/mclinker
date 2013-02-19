@@ -109,6 +109,20 @@ Relocator::Address helper_GetGP(MipsRelocator& pParent)
 }
 
 static
+void helper_SetupRelDynForGOTEntry(MipsGOTEntry& got_entry,
+                                   Relocation& pReloc,
+                                   ResolveInfo* rsym,
+                                   MipsRelocator& pParent)
+{
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  rel_entry.setType(llvm::ELF::R_MIPS_REL32);
+  rel_entry.targetRef() = *FragmentRef::Create(got_entry, 0);
+  rel_entry.setSymInfo(rsym);
+}
+
+static
 MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
                                  MipsRelocator& pParent,
                                  int32_t value)
@@ -117,13 +131,17 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
+  MipsGOTEntry* got_entry;
 
   if (got.isLocal(rsym) && ResolveInfo::Section == rsym->type()) {
     // Local section symbols consume local got entries.
-    return *got.consumeLocal();
+    got_entry = got.consumeLocal();
+    if (got.isPrimaryGOTConsumed())
+      helper_SetupRelDynForGOTEntry(*got_entry, pReloc, NULL, pParent);
+    return *got_entry;
   }
 
-  MipsGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  got_entry = pParent.getSymGOTMap().lookUp(*rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
     return *got_entry;
@@ -144,6 +162,9 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   else {
     fatal(diag::reserve_entry_number_mismatch_got);
   }
+
+  if (got.isPrimaryGOTConsumed())
+    helper_SetupRelDynForGOTEntry(*got_entry, pReloc, got.isLocal(rsym) ? NULL : rsym, pParent);
 
   return *got_entry;
 }

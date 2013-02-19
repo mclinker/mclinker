@@ -119,44 +119,6 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
   }
 }
 
-// FIXME: (simon) Make a class member function.
-static Fragment* advanceEntry(Fragment* pEntry, size_t num)
-{
-  for (size_t i = 0; i < num; ++i)
-    pEntry = pEntry->getNextNode();
-
-  return pEntry;
-}
-
-void MipsGOT::setupRelDynEntries(OutputRelocSection& pRelDyn)
-{
-  Fragment* pGOTFragment = &m_SectionData->front();
-
-  pGOTFragment = advanceEntry(pGOTFragment, MipsGOT0Num);
-
-  for (MultipartListType::const_iterator it = m_MultipartList.begin();
-       it != m_MultipartList.end(); ++it) {
-    if (it == m_MultipartList.begin()) {
-      pGOTFragment = advanceEntry(pGOTFragment, it->m_GlobalNum +
-                                                it->m_LocalNum);
-      continue;
-    }
-
-    // FIXME: (simon) Do not count local entries for non-pic.
-    size_t count = it->m_GlobalNum + it->m_LocalNum;
-
-    for (size_t i = 0; i < count; ++i) {
-      Relocation& pRelEntry = *pRelDyn.consumeEntry();
-      pRelEntry.setType(llvm::ELF::R_MIPS_REL32);
-      pRelEntry.targetRef() =
-        *FragmentRef::Create(*llvm::cast<MipsGOTEntry>(pGOTFragment), 0);
-      // FIXME: (simon) pRelEntry.setSymInfo(rsym);
-
-      pGOTFragment = advanceEntry(pGOTFragment, 1);
-    }
-  }
-}
-
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 {
   uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
@@ -220,6 +182,11 @@ void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
     ++m_MultipartList.back().m_GlobalNum;
   if (m_InputGlobalSymbols.insert(&pInfo).second)
     ++m_CurrentGOT.m_GlobalNum;
+}
+
+bool MipsGOT::isPrimaryGOTConsumed()
+{
+  return m_CurrentGOTPart > 0;
 }
 
 MipsGOTEntry* MipsGOT::consumeLocal()
