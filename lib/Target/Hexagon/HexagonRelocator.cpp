@@ -69,6 +69,10 @@ const char* HexagonRelocator::getName(Relocation::Type pType) const
   return ApplyFunctions[pType].name;
 }
 
+Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const
+{
+  return 32;
+}
 //===--------------------------------------------------------------------===//
 // Relocation helper function
 //===--------------------------------------------------------------------===//
@@ -99,7 +103,7 @@ HexagonRelocator::Result none(Relocation& pReloc, HexagonRelocator& pParent)
 }
 
 // R_HEX_B22_PCREL: Word32_B22 : 0x01ff3ffe  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB22PCREL(Relocation& pReloc, 
+HexagonRelocator::Result relocB22PCREL(Relocation& pReloc,
                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
@@ -227,7 +231,7 @@ HexagonRelocator::Result relocB13PCREL(Relocation& pReloc,
   return HexagonRelocator::Overflow;
 }
 
-HexagonRelocator::Result unsupport(Relocation& pReloc, 
+HexagonRelocator::Result unsupport(Relocation& pReloc,
                                    HexagonRelocator& pParent)
 {
   return HexagonRelocator::Unsupport;

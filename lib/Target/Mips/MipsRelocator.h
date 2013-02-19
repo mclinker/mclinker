@@ -48,6 +48,8 @@ public:
 
   const char* getName(Relocation::Type pType) const;
 
+  Size getSize(Relocation::Type pType) const;
+
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
 

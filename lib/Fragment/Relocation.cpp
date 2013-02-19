@@ -143,10 +143,9 @@ void Relocation::setSymInfo(ResolveInfo* pSym)
   m_pSymInfo = pSym;
 }
 
-size_t Relocation::size() const
+Relocation::Size Relocation::size(Relocator& pRelocator) const
 {
-  // TODO: the size of Relocation fragment is handled by backend
-  return 0;
+  return pRelocator.getSize(m_Type);
 }
 
 void Relocation::updateAddend()

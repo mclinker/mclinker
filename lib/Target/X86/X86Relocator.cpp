@@ -76,6 +76,11 @@ const char* X86_32Relocator::getName(Relocation::Type pType) const
   return X86_32ApplyFunctions[pType].name;
 }
 
+Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const
+{
+  return 32;
+}
+
 //===--------------------------------------------------------------------===//
 // Relocation helper function
 //===--------------------------------------------------------------------===//
@@ -594,6 +599,7 @@ struct X86_64ApplyFunctionTriple
   X86_64ApplyFunctionType func;
   unsigned int type;
   const char* name;
+  unsigned int size;
 };
 
 // declare the table of applying functions
@@ -624,6 +630,11 @@ X86_64Relocator::applyRelocation(Relocation& pRelocation)
 const char* X86_64Relocator::getName(Relocation::Type pType) const
 {
   return X86_64ApplyFunctions[pType].name;
+}
+
+Relocator::Size X86_64Relocator::getSize(Relocation::Type pType) const
+{
+  return X86_64ApplyFunctions[pType].size;
 }
 
 /// helper_DynRel - Get an relocation entry in .rela.dyn

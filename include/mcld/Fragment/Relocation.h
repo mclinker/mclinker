@@ -32,9 +32,10 @@ friend class Chunk<Relocation, MCLD_RELOCATIONS_PER_INPUT>;
 
 public:
   typedef uint64_t Address; // FIXME: use SizeTrait<T>::Address instead
-  typedef uint64_t DWord; // FIXME: use SizeTrait<T>::Word instead
-  typedef int64_t SWord; // FIXME: use SizeTrait<T>::SWord instead
-  typedef uint8_t Type;
+  typedef uint64_t DWord;   // FIXME: use SizeTrait<T>::Word instead
+  typedef int64_t  SWord;   // FIXME: use SizeTrait<T>::SWord instead
+  typedef uint8_t  Type;
+  typedef uint32_t Size;
 
 private:
   Relocation();
@@ -80,6 +81,9 @@ public:
   /// place - P value - address of the place being relocated
   Address place() const;
 
+  /// size - the size of the relocation in bit
+  Size size(Relocator& pRelocator) const;
+
   /// symbol info - binding, type
   const ResolveInfo* symInfo() const { return m_pSymInfo; }
   ResolveInfo*       symInfo()       { return m_pSymInfo; }
@@ -104,8 +108,6 @@ public:
   void setAddend(Address pAddend);
 
   void setSymInfo(ResolveInfo* pSym);
-
-  size_t size() const;
 
 private:
   /// m_Type - the type of the relocation entries

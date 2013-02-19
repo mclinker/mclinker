@@ -26,10 +26,11 @@ class TargetLDBackend;
 class Relocator
 {
 public:
-  typedef Relocation::Type Type;
+  typedef Relocation::Type    Type;
   typedef Relocation::Address Address;
-  typedef Relocation::DWord DWord;
-  typedef Relocation::SWord SWord;
+  typedef Relocation::DWord   DWord;
+  typedef Relocation::SWord   SWord;
+  typedef Relocation::Size    Size;
 
 public:
   enum Result {
@@ -51,7 +52,11 @@ public:
 
   virtual const TargetLDBackend& getTarget() const = 0;
 
+  /// getName - get the name of a relocation
   virtual const char* getName(Type pType) const = 0;
+
+  /// getSize - get the size of a relocation in byte
+  virtual Size getSize(Type pType) const = 0;
 };
 
 } // namespace of mcld

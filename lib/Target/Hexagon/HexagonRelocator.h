@@ -46,6 +46,8 @@ public:
 
   const char* getName(Relocation::Type pType) const;
 
+  Size getSize(Relocation::Type pType) const;
+
   const SymPLTMap& getSymPLTMap() const { return m_SymPLTMap; }
   SymPLTMap&       getSymPLTMap()       { return m_SymPLTMap; }
 

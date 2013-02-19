@@ -67,8 +67,14 @@ const char* ARMRelocator::getName(Relocator::Type pType) const
   return ApplyFunctions[pType].name;
 }
 
+Relocator::Size ARMRelocator::getSize(Relocation::Type pType) const
+{
+  return 32;
+}
+
 //===--------------------------------------------------------------------===//
 // non-member functions
+//===--------------------------------------------------------------------===//
 static Relocator::DWord getThumbBit(const Relocation& pReloc)
 {
   // Set thumb bit if

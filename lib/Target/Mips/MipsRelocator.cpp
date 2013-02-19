@@ -67,9 +67,13 @@ const char* MipsRelocator::getName(Relocation::Type pType) const
   return ApplyFunctions[pType].name;
 }
 
+Relocator::Size MipsRelocator::getSize(Relocation::Type pType) const
+{
+  return 32;
+}
+
 //===----------------------------------------------------------------------===//
 // Relocation helper function
-
 //===----------------------------------------------------------------------===//
 static const char * const GP_DISP_NAME = "_gp_disp";
 
