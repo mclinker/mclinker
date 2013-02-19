@@ -907,11 +907,33 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
       // compute the size of .shstrtab section.
       Module::const_iterator sect, sectEnd = pModule.end();
       for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-        // StackNote sections will always be in output!
-        if (0 != (*sect)->size() ||
-            LDFileFormat::StackNote == (*sect)->kind())
+        switch ((*sect)->kind()) {
+        case LDFileFormat::Null:
+          break;
+        // take StackNote directly
+        case LDFileFormat::StackNote:
           shstrtab += ((*sect)->name().size() + 1);
-      }
+          break;
+        case LDFileFormat::EhFrame:
+          if (((*sect)->size() != 0) ||
+              ((*sect)->hasEhFrame() &&
+               config().codeGenType() == LinkerConfig::Object))
+            shstrtab += ((*sect)->name().size() + 1);
+          break;
+        case LDFileFormat::Relocation:
+          if (((*sect)->size() != 0) ||
+              ((*sect)->hasRelocData() &&
+               config().codeGenType() == LinkerConfig::Object))
+            shstrtab += ((*sect)->name().size() + 1);
+          break;
+        default:
+          if (((*sect)->size() != 0) ||
+              ((*sect)->hasSectionData() &&
+               config().codeGenType() == LinkerConfig::Object))
+            shstrtab += ((*sect)->name().size() + 1);
+          break;
+        } // end of switch
+      } // end of for
       shstrtab += (strlen(".shstrtab") + 1);
       file_format->getShStrTab().setSize(shstrtab);
       break;
@@ -2150,44 +2172,55 @@ void GNULDBackend::layout(Module& pModule)
   for (Module::iterator it = pModule.begin(), ie = pModule.end(); it != ie;
        ++it) {
     switch ((*it)->kind()) {
-      // take NULL and StackNote directly
-      case LDFileFormat::Null:
-      case LDFileFormat::StackNote:
+    // take NULL and StackNote directly
+    case LDFileFormat::Null:
+    case LDFileFormat::StackNote:
+      output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      break;
+    // ignore if section size is 0
+    case LDFileFormat::EhFrame:
+      if (((*it)->size() != 0) ||
+          ((*it)->hasEhFrame() &&
+           config().codeGenType() == LinkerConfig::Object))
         output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
-        break;
-      // ignore if section size is 0
-      case LDFileFormat::Regular:
-      case LDFileFormat::Target:
-      case LDFileFormat::MetaData:
-      case LDFileFormat::BSS:
-      case LDFileFormat::Debug:
-      case LDFileFormat::EhFrame:
-      case LDFileFormat::GCCExceptTable:
-      case LDFileFormat::NamePool:
-      case LDFileFormat::Relocation:
-      case LDFileFormat::Note:
-      case LDFileFormat::EhFrameHdr:
-        if (0 != (*it)->size()) {
-          output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
-        }
-        break;
-      case LDFileFormat::Group:
-        if (LinkerConfig::Object == config().codeGenType()) {
-          //TODO: support incremental linking
-          ;
-        }
-        break;
-      case LDFileFormat::Version:
-        if (0 != (*it)->size()) {
-          output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
-          warning(diag::warn_unsupported_symbolic_versioning) << (*it)->name();
-        }
-        break;
-      default:
-        if (0 != (*it)->size()) {
-          error(diag::err_unsupported_section) << (*it)->name() << (*it)->kind();
-        }
-        break;
+      break;
+    case LDFileFormat::Relocation:
+      if (((*it)->size() != 0) ||
+          ((*it)->hasRelocData() &&
+           config().codeGenType() == LinkerConfig::Object))
+        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      break;
+    case LDFileFormat::Regular:
+    case LDFileFormat::Target:
+    case LDFileFormat::MetaData:
+    case LDFileFormat::BSS:
+    case LDFileFormat::Debug:
+    case LDFileFormat::GCCExceptTable:
+    case LDFileFormat::Note:
+    case LDFileFormat::NamePool:
+    case LDFileFormat::EhFrameHdr:
+      if (((*it)->size() != 0) ||
+          ((*it)->hasSectionData() &&
+           config().codeGenType() == LinkerConfig::Object))
+        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+      break;
+    case LDFileFormat::Group:
+      if (LinkerConfig::Object == config().codeGenType()) {
+        //TODO: support incremental linking
+        ;
+      }
+      break;
+    case LDFileFormat::Version:
+      if (0 != (*it)->size()) {
+        output_list.push_back(std::make_pair(*it, getSectionOrder(**it)));
+        warning(diag::warn_unsupported_symbolic_versioning) << (*it)->name();
+      }
+      break;
+    default:
+      if (0 != (*it)->size()) {
+        error(diag::err_unsupported_section) << (*it)->name() << (*it)->kind();
+      }
+      break;
     }
   } // end of for
 

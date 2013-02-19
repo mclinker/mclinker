@@ -336,11 +336,14 @@ ELFWriter::emitSectionData(const LDSection& pSection,
   const SectionData* sd = NULL;
   switch (pSection.kind()) {
     case LDFileFormat::Relocation:
+      assert(pSection.hasRelocData());
       return;
     case LDFileFormat::EhFrame:
+      assert(pSection.hasEhFrame());
       sd = &pSection.getEhFrame()->getSectionData();
       break;
     default:
+      assert(pSection.hasSectionData());
       sd = pSection.getSectionData();
       break;
   }
