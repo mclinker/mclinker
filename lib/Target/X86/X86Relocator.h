@@ -35,7 +35,7 @@ public:
   X86Relocator();
   ~X86Relocator();
 
-  virtual Result applyRelocation(Relocation& pRelocation) = 0;
+  virtual Result applyRelocation(Relocation& pRelocation, Input* pInput) = 0;
 
   virtual const char* getName(Relocation::Type pType) const = 0;
 
@@ -63,7 +63,7 @@ public:
 public:
   X86_32Relocator(X86_32GNULDBackend& pParent);
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   X86_32GNULDBackend& getTarget()
   { return m_Target; }
@@ -100,7 +100,7 @@ public:
 public:
   X86_64Relocator(X86_64GNULDBackend& pParent);
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   X86_64GNULDBackend& getTarget()
   { return m_Target; }

@@ -45,7 +45,7 @@ public:
   virtual ~Relocator() = 0;
 
   /// apply - general apply function
-  virtual Result applyRelocation(Relocation& pRelocation) = 0;
+  virtual Result applyRelocation(Relocation& pRelocation, Input* pInput) = 0;
 
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;

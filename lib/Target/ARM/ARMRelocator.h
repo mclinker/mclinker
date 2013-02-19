@@ -33,7 +33,7 @@ public:
   ARMRelocator(ARMGNULDBackend& pParent);
   ~ARMRelocator();
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   ARMGNULDBackend& getTarget()
   { return m_Target; }

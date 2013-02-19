@@ -36,7 +36,7 @@ public:
   HexagonRelocator(HexagonLDBackend& pParent);
   ~HexagonRelocator();
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   HexagonLDBackend& getTarget()
   { return m_Target; }

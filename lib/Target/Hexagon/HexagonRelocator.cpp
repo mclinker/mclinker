@@ -52,7 +52,7 @@ HexagonRelocator::~HexagonRelocator()
 }
 
 Relocator::Result
-HexagonRelocator::applyRelocation(Relocation& pRelocation)
+HexagonRelocator::applyRelocation(Relocation& pRelocation, Input* pInput)
 {
   Relocation::Type type = pRelocation.type();
 

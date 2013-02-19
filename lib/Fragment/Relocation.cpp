@@ -97,9 +97,9 @@ Relocation::Address Relocation::symValue() const
   return m_pSymInfo->outSymbol()->value();
 }
 
-void Relocation::apply(Relocator& pRelocator)
+void Relocation::apply(Relocator& pRelocator, Input* pInput)
 {
-  Relocator::Result result = pRelocator.applyRelocation(*this);
+  Relocator::Result result = pRelocator.applyRelocation(*this, pInput);
 
   switch (result) {
     case Relocator::OK: {

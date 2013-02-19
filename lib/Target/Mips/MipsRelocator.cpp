@@ -23,7 +23,9 @@ using namespace mcld;
 DECL_MIPS_APPLY_RELOC_FUNCS
 
 /// the prototype of applying function
-typedef Relocator::Result (*ApplyFunctionType)(Relocation&, MipsRelocator&);
+typedef Relocator::Result (*ApplyFunctionType)(Relocation&,
+                                               MipsRelocator&,
+                                               Input* pInput);
 
 // the table entry of applying functions
 struct ApplyFunctionTriple
@@ -50,8 +52,7 @@ MipsRelocator::MipsRelocator(MipsGNULDBackend& pParent)
 }
 
 Relocator::Result
-MipsRelocator::applyRelocation(Relocation& pRelocation)
-
+MipsRelocator::applyRelocation(Relocation& pRelocation, Input* pInput)
 {
   Relocation::Type type = pRelocation.type();
 
@@ -60,7 +61,7 @@ MipsRelocator::applyRelocation(Relocation& pRelocation)
   }
 
   // apply the relocation
-  return ApplyFunctions[type].func(pRelocation, *this);
+  return ApplyFunctions[type].func(pRelocation, *this, pInput);
 }
 
 const char* MipsRelocator::getName(Relocation::Type pType) const
@@ -227,14 +228,18 @@ void helper_DynRel(Relocation& pReloc, MipsRelocator& pParent)
 
 // R_MIPS_NONE and those unsupported/deprecated relocation type
 static
-MipsRelocator::Result none(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result none(Relocation& pReloc,
+                           MipsRelocator& pParent,
+                           Input* pInput)
 {
   return MipsRelocator::OK;
 }
 
 // R_MIPS_32: S + A
 static
-MipsRelocator::Result abs32(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result abs32(Relocation& pReloc,
+                            MipsRelocator& pParent,
+                            Input* pInput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -264,7 +269,9 @@ MipsRelocator::Result abs32(Relocation& pReloc, MipsRelocator& pParent)
 //   local/external: ((AHL + S) - (short)(AHL + S)) >> 16
 //   _gp_disp      : ((AHL + GP - P) - (short)(AHL + GP - P)) >> 16
 static
-MipsRelocator::Result hi16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result hi16(Relocation& pReloc,
+                           MipsRelocator& pParent,
+                           Input* pInput)
 {
   Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
   assert(NULL != lo_reloc && "There is no paired R_MIPS_LO16 for R_MIPS_HI16");
@@ -294,7 +301,9 @@ MipsRelocator::Result hi16(Relocation& pReloc, MipsRelocator& pParent)
 //   local/external: AHL + S
 //   _gp_disp      : AHL + GP - P + 4
 static
-MipsRelocator::Result lo16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result lo16(Relocation& pReloc,
+                           MipsRelocator& pParent,
+                           Input* pInput)
 {
   int32_t res = 0;
 
@@ -323,7 +332,9 @@ MipsRelocator::Result lo16(Relocation& pReloc, MipsRelocator& pParent)
 //   local   : G (calculate AHL and put high 16 bit to GOT)
 //   external: G
 static
-MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result got16(Relocation& pReloc,
+                            MipsRelocator& pParent,
+                            Input* pInput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::Address G = 0;
@@ -356,7 +367,9 @@ MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
 // R_MIPS_GOTHI16:
 //   external: (G - (short)G) >> 16 + A
 static
-MipsRelocator::Result gothi16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result gothi16(Relocation& pReloc,
+                              MipsRelocator& pParent,
+                              Input* pInput)
 {
   int32_t res = 0;
 
@@ -374,7 +387,9 @@ MipsRelocator::Result gothi16(Relocation& pReloc, MipsRelocator& pParent)
 // R_MIPS_GOTLO16:
 //   external: G & 0xffff
 static
-MipsRelocator::Result gotlo16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result gotlo16(Relocation& pReloc,
+                              MipsRelocator& pParent,
+                              Input* pInput)
 {
   Relocator::Address G = helper_GetGOTOffset(pReloc, pParent);
 
@@ -386,7 +401,9 @@ MipsRelocator::Result gotlo16(Relocation& pReloc, MipsRelocator& pParent)
 
 // R_MIPS_CALL16: G
 static
-MipsRelocator::Result call16(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result call16(Relocation& pReloc,
+                             MipsRelocator& pParent,
+                             Input* pInput)
 {
   Relocator::Address G = helper_GetGOTOffset(pReloc, pParent);
 
@@ -398,7 +415,9 @@ MipsRelocator::Result call16(Relocation& pReloc, MipsRelocator& pParent)
 
 // R_MIPS_GPREL32: A + S + GP0 - GP
 static
-MipsRelocator::Result gprel32(Relocation& pReloc, MipsRelocator& pParent)
+MipsRelocator::Result gprel32(Relocation& pReloc,
+                              MipsRelocator& pParent,
+                              Input* pInput)
 {
   // Remember to add the section offset to A.
   int32_t A = pReloc.target() + pReloc.addend();

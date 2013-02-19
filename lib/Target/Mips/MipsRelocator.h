@@ -30,7 +30,7 @@ public:
 public:
   MipsRelocator(MipsGNULDBackend& pParent);
 
-  Result applyRelocation(Relocation& pRelocation);
+  Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }
