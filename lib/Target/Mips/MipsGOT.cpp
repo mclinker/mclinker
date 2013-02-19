@@ -153,7 +153,7 @@ void MipsGOT::merge(const Input& pInput)
                    m_MultipartList.back().m_GlobalNum;
 
   if (m_MultipartList.size() == 1)
-    ++gotSize;
+    gotSize += MipsGOT0Num;
 
   assert(gotSize <= MipsGOTSize && "GOT overflow!");
 
