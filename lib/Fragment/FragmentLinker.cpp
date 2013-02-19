@@ -221,15 +221,25 @@ void FragmentLinker::partialSyncRelocationResult(MemoryArea& pOutput)
 void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
 {
   // get output file offset
-  size_t out_offset = pReloc.targetRef().frag()->getParent()->getSection().offset() +
-                      pReloc.targetRef().getOutputOffset();
+  size_t out_offset =
+                 pReloc.targetRef().frag()->getParent()->getSection().offset() +
+                 pReloc.targetRef().getOutputOffset();
 
   uint8_t* target_addr = pOutput + out_offset;
   // byte swapping if target and host has different endian, and then write back
   if(llvm::sys::isLittleEndianHost() != m_Config.targets().isLittleEndian()) {
      uint64_t tmp_data = 0;
 
-     switch(m_Config.targets().bitclass()) {
+     switch(pReloc.size(*m_Backend.getRelocator())) {
+       case 8u:
+         std::memcpy(target_addr, &pReloc.target(), 1);
+         break;
+
+       case 16u:
+         tmp_data = mcld::bswap16(pReloc.target());
+         std::memcpy(target_addr, &tmp_data, 2);
+         break;
+
        case 32u:
          tmp_data = mcld::bswap32(pReloc.target());
          std::memcpy(target_addr, &tmp_data, 4);
@@ -245,6 +255,7 @@ void FragmentLinker::writeRelocationResult(Relocation& pReloc, uint8_t* pOutput)
     }
   }
   else
-    std::memcpy(target_addr, &pReloc.target(), m_Config.targets().bitclass()/8);
+    std::memcpy(target_addr, &pReloc.target(),
+                                      pReloc.size(*m_Backend.getRelocator())/8);
 }
 
