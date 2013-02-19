@@ -1556,7 +1556,8 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
   if (pSymbol.resolveInfo()->isUndef() || pSymbol.isDyn())
     return llvm::ELF::SHN_UNDEF;
 
-  if (pSymbol.resolveInfo()->isLocal()) {
+  if (pSymbol.resolveInfo()->isLocal() &&
+      LinkerConfig::Object != config().codeGenType()) {
     switch (pSymbol.type()) {
       case ResolveInfo::NoType:
       case ResolveInfo::File:
