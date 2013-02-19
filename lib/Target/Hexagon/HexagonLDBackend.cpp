@@ -99,6 +99,7 @@ void HexagonLDBackend::scanRelocation(Relocation& pReloc,
                                       Module& pModule,
                                       LDSection& pSection)
 {
+  pReloc.updateAddend();
 }
 
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
