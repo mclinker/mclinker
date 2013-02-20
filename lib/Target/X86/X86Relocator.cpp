@@ -33,6 +33,7 @@ struct X86_32ApplyFunctionTriple
   X86_32ApplyFunctionType func;
   unsigned int type;
   const char* name;
+  unsigned int size;
 };
 
 // declare the table of applying functions
@@ -78,7 +79,7 @@ const char* X86_32Relocator::getName(Relocation::Type pType) const
 
 Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const
 {
-  return 32;
+  return X86_32ApplyFunctions[pType].size;;
 }
 
 //===--------------------------------------------------------------------===//
