@@ -65,6 +65,7 @@ void MipsGOT::GOTMultipart::consumeGlobal()
 MipsGOT::MipsGOT(LDSection& pSection)
   : GOT(pSection),
     m_pInput(NULL),
+    m_InputLocalNum(0),
     m_CurrentGOTPart(0),
     m_TotalLocalNum(0),
     m_TotalGlobalNum(0)
@@ -133,19 +134,17 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   return result;
 }
 
-void MipsGOT::merge(const Input& pInput)
+void MipsGOT::merge(const Input& pInput, const ResolveInfo* pInfo)
 {
   if (m_pInput == NULL) {
     m_pInput = &pInput;
-    m_CurrentGOT.m_LocalNum = 0;
-    m_CurrentGOT.m_GlobalNum = 0;
+    m_InputLocalNum = 0;
     m_MultipartList.push_back(GOTMultipart());
   }
 
   if (m_pInput != &pInput) {
     m_pInput = &pInput;
-    m_CurrentGOT.m_LocalNum = 0;
-    m_CurrentGOT.m_GlobalNum = 0;
+    m_InputLocalNum = 0;
     m_InputGlobalSymbols.clear();
   }
 
@@ -157,31 +156,49 @@ void MipsGOT::merge(const Input& pInput)
 
   assert(gotSize <= MipsGOTSize && "GOT overflow!");
 
-  if (gotSize >= MipsGOTSize) {
-    m_MultipartList.back().m_LocalNum -= m_CurrentGOT.m_LocalNum;
-    m_MultipartList.back().m_GlobalNum -= m_CurrentGOT.m_GlobalNum;
-    m_MergedGlobalSymbols = m_InputGlobalSymbols;
-    m_MultipartList.push_back(GOTMultipart(m_CurrentGOT.m_LocalNum,
-                                           m_CurrentGOT.m_GlobalNum));
+  // GOT is not filled completely.
+  if (gotSize < MipsGOTSize)
+    return;
+
+  // This global symbol has been counted already
+  // and does not increases the GOT size.
+  if (pInfo && m_MergedGlobalSymbols.count(pInfo))
+    return;
+
+  m_MultipartList.back().m_LocalNum -= m_InputLocalNum;
+  for (SymbolCountMapType::const_iterator it = m_InputGlobalSymbols.begin();
+                                          it != m_InputGlobalSymbols.end();
+                                          ++it) {
+    SymbolCountMapType::iterator m = m_MergedGlobalSymbols.find(it->first);
+
+    assert(m != m_MergedGlobalSymbols.end() && "Cannot find merged symbol");
+    assert(m->second >= it->second && "Incorrect merged symbols number");
+
+    if (m->second - it->second == 0)
+      m_MergedGlobalSymbols.erase(m);
   }
+  m_MultipartList.back().m_GlobalNum = m_MergedGlobalSymbols.size();
+
+  m_MergedGlobalSymbols = m_InputGlobalSymbols;
+  m_MultipartList.push_back(GOTMultipart(m_InputLocalNum,
+                                         m_InputGlobalSymbols.size()));
 }
 
 void MipsGOT::reserveLocalEntry(const Input& pInput)
 {
-  merge(pInput);
+  merge(pInput, NULL);
 
   ++m_MultipartList.back().m_LocalNum;
-  ++m_CurrentGOT.m_LocalNum;
+  ++m_InputLocalNum;
 }
 
 void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
 {
-  merge(pInput);
+  merge(pInput, &pInfo);
 
-  if (m_MergedGlobalSymbols.insert(&pInfo).second)
-    ++m_MultipartList.back().m_GlobalNum;
-  if (m_InputGlobalSymbols.insert(&pInfo).second)
-    ++m_CurrentGOT.m_GlobalNum;
+  ++m_MultipartList.back().m_GlobalNum;
+  ++m_MergedGlobalSymbols[&pInfo];
+  ++m_InputGlobalSymbols[&pInfo];
 }
 
 bool MipsGOT::isPrimaryGOTConsumed()

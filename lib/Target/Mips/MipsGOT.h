@@ -106,20 +106,20 @@ private:
   };
 
   typedef std::vector<GOTMultipart> MultipartListType;
-  typedef std::set<const ResolveInfo*> SymbolSetType;
+  typedef llvm::DenseMap<const ResolveInfo*, size_t> SymbolCountMapType;
 
   MultipartListType m_MultipartList;  ///< list of GOT's descriptors
-  GOTMultipart m_CurrentGOT;          ///< number of GOT entries from current input
   const Input* m_pInput;              ///< current input
-  SymbolSetType m_MergedGlobalSymbols;///< merged global symbols
-  SymbolSetType m_InputGlobalSymbols; ///< global symbols from current input
+  SymbolCountMapType m_MergedGlobalSymbols; ///< merged global symbols
+  SymbolCountMapType m_InputGlobalSymbols;  ///< input global symbols
+  size_t m_InputLocalNum;                   ///< input local symbols
 
   size_t m_CurrentGOTPart;
 
   size_t m_TotalLocalNum;
   size_t m_TotalGlobalNum;
 
-  void merge(const Input& pInput);
+  void merge(const Input& pInput, const ResolveInfo* pInfo);
   void reserve(size_t pNum);
 
 private:
