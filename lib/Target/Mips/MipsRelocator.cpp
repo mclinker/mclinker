@@ -127,8 +127,7 @@ void helper_SetupRelDynForGOTEntry(MipsGOTEntry& got_entry,
 static
 MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
                                  MipsRelocator& pParent,
-                                 Input* pInput,
-                                 int32_t value)
+                                 Input* pInput)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -177,7 +176,7 @@ Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
                                        MipsRelocator& pParent,
                                        Input* pInput)
 {
-  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput, 0);
+  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
   return got_entry.getOffset() - 0x7FF0;
 }
 
@@ -352,7 +351,7 @@ MipsRelocator::Result got16(Relocation& pReloc,
     pParent.setAHL(AHL);
 
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
-    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput, res);
+    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
 
     got_entry.setValue(res);
     G = got_entry.getOffset() - 0x7FF0;
