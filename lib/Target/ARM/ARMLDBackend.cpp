@@ -990,23 +990,12 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
               LDSection& strtab = file_format->getStrTab();
 
               // increase the size of .symtab and .strtab if needed
-              switch (config().options().getStripSymbolMode()) {
-              case GeneralOptions::StripAllSymbols:
-              case GeneralOptions::StripLocals:
-                break;
-              case GeneralOptions::StripTemporaries:
-                if (isTemporary(*(stub->symInfo()->outSymbol())))
-                  break;
-                // Fall through
-              case GeneralOptions::KeepAllSymbols:
-                if (config().targets().is32Bits())
-                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
-                else
-                  symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
-                symtab.setInfo(symtab.getInfo() + 1);
-                strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
-                break;
-              }
+              if (config().targets().is32Bits())
+                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+              else
+                symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf64_Sym));
+              symtab.setInfo(symtab.getInfo() + 1);
+              strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
 
               isRelaxed = true;
             }

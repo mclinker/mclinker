@@ -244,50 +244,15 @@ MipsGNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
   Module::const_sym_iterator symbol, symEnd;
   /// Compute the size of .symtab, .strtab, and symtab_local_cnt
   /// @{
-  switch (config().options().getStripSymbolMode()) {
-  case GeneralOptions::StripAllSymbols:
-    break;
-  case GeneralOptions::StripTemporaries:
-    symEnd = symbols.fileEnd();
-    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += (*symbol)->nameSize() + 1;
-    }
-
-    symEnd = symbols.localEnd();
-    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-      if (isTemporary(**symbol))
-        continue;
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    symtab_local_cnt = symtab;
-    // Fall through
-  case GeneralOptions::StripLocals:
-    symEnd = symbols.end();
-    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    break;
-  case GeneralOptions::KeepAllSymbols:
-    symEnd = symbols.end();
-    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type() ||
-          *symbol == m_pGpDispSymbol)
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                       symbols.numOfTLSs();
-    break;
-  } // end of switch
+  symEnd = symbols.end();
+  for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type() ||
+        *symbol == m_pGpDispSymbol)
+      strtab += (*symbol)->nameSize() + 1;
+  }
+  symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
+                     symbols.numOfTLSs();
   /// @}
 
   /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt

@@ -761,46 +761,14 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
   Module::const_sym_iterator symbol, symEnd;
   /// Compute the size of .symtab, .strtab, and symtab_local_cnt
   /// @{
-  switch (config().options().getStripSymbolMode()) {
-  case GeneralOptions::StripAllSymbols:
-    break;
-  case GeneralOptions::StripTemporaries:
-    symEnd = symbols.fileEnd();
-    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    symEnd = symbols.localEnd();
-    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-      if (isTemporary(**symbol))
-        continue;
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    symtab_local_cnt = symtab;
-    // Fall through
-  case GeneralOptions::StripLocals:
-    symEnd = symbols.end();
-    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    break;
-  case GeneralOptions::KeepAllSymbols:
-    symEnd = symbols.end();
-    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
-      ++symtab;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtab += (*symbol)->nameSize() + 1;
-    }
-    symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                       symbols.numOfTLSs();
-    break;
-  } // end of switch
-  /// @}
+  symEnd = symbols.end();
+  for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+    ++symtab;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtab += (*symbol)->nameSize() + 1;
+  }
+  symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
+                     symbols.numOfTLSs();
 
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -1036,78 +1004,21 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
 
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   Module::const_sym_iterator symbol, symEnd;
-  switch (config().options().getStripSymbolMode()) {
-  case GeneralOptions::StripAllSymbols:
-    break;
-  case GeneralOptions::StripTemporaries:
-    symEnd = symbols.fileEnd();
-    for (symbol = symbols.fileBegin(); symbol != symEnd; ++symbol) {
-      // maintain output's symbol and index map if building .o file
-      if (LinkerConfig::Object == config().codeGenType()) {
-        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symIdx);
-      }
-      if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
-      else
-        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
-      ++symIdx;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtabsize += (*symbol)->nameSize() + 1;
+
+  symEnd = symbols.end();
+  for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
+    if (LinkerConfig::Object == config().codeGenType()) {
+      entry = m_pSymIndexMap->insert(*symbol, sym_exist);
+      entry->setValue(symIdx);
     }
-    symEnd = symbols.localEnd();
-    for (symbol = symbols.localBegin(); symbol != symEnd; ++symbol) {
-      if (isTemporary(**symbol))
-        continue;
-      // maintain output's symbol and index map if building .o file
-      if (LinkerConfig::Object == config().codeGenType()) {
-        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symIdx);
-      }
-      if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
-      else
-        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
-      ++symIdx;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtabsize += (*symbol)->nameSize() + 1;
-    }
-    // Fall through
-  case GeneralOptions::StripLocals:
-    symEnd = symbols.end();
-    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
-      // maintain output's symbol and index map if building .o file
-      if (LinkerConfig::Object == config().codeGenType()) {
-        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symIdx);
-      }
-      if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
-      else
-        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
-      ++symIdx;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtabsize += (*symbol)->nameSize() + 1;
-    }
-    break;
-  case GeneralOptions::KeepAllSymbols:
-    symEnd = symbols.end();
-    for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
-      // maintain output's symbol and index map if building .o file
-      if (LinkerConfig::Object == config().codeGenType()) {
-        entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-        entry->setValue(symIdx);
-      }
-      if (config().targets().is32Bits())
-        emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
-      else
-        emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
-      ++symIdx;
-      if (ResolveInfo::Section != (*symbol)->type())
-        strtabsize += (*symbol)->nameSize() + 1;
-    }
-    break;
-  } // end of switch
+    if (config().targets().is32Bits())
+      emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
+    else
+      emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
+    ++symIdx;
+    if (ResolveInfo::Section != (*symbol)->type())
+      strtabsize += (*symbol)->nameSize() + 1;
+  }
 }
 
 /// emitDynNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
