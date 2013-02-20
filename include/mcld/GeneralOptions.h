@@ -120,12 +120,6 @@ public:
   const std::string& soname() const
   { return m_SOName; }
 
-  void setAllowShlibUndefined(bool pEnabled = true)
-  { m_bAllowShlibUndefined = pEnabled; }
-
-  bool isAllowShlibUndefined() const
-  { return m_bAllowShlibUndefined; }
-
   void setVerbose(int8_t pVerbose = -1)
   { m_Verbose = pVerbose; }
 
@@ -361,7 +355,6 @@ private:
   bool m_Bgroup         : 1;
   bool m_bPIE           : 1;
   bool m_bColor         : 1;   // --color[=true,false,auto]
-  bool m_bAllowShlibUndefined : 1; // --[no-]allow-shlib-undefined and
   bool m_bCreateEhFrameHdr : 1;    // --eh-frame-hdr
   bool m_bNMagic : 1; // -n, --nmagic
   bool m_bOMagic : 1; // -N, --omagic

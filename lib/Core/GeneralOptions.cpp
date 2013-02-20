@@ -41,7 +41,6 @@ GeneralOptions::GeneralOptions()
     m_Bgroup(false),
     m_bPIE(false),
     m_bColor(true),
-    m_bAllowShlibUndefined(true),
     m_bCreateEhFrameHdr(false),
     m_bNMagic(false),
     m_bOMagic(false),
