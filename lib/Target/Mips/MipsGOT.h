@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #ifndef MCLD_MIPS_GOT_H
 #define MCLD_MIPS_GOT_H
+#include <map>
 #include <vector>
 
 #ifdef ENABLE_UNITTEST
@@ -59,6 +60,12 @@ public:
   MipsGOTEntry* consumeGlobal();
 
   uint64_t getGPAddr(Input& pInput);
+
+  void recordEntry(const Input* pInput,
+                   const ResolveInfo* pInfo,
+                   MipsGOTEntry* pEntry);
+  MipsGOTEntry* lookupEntry(const Input* pInput,
+                            const ResolveInfo* pInfo);
 
   void setLocal(const ResolveInfo* pInfo) {
     m_GOTTypeMap[pInfo] = false;
@@ -130,6 +137,24 @@ private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;
 
   SymbolTypeMapType m_GOTTypeMap;
+
+private:
+  struct GotEntryKey
+  {
+    const Input* m_pInput;
+    const ResolveInfo* m_pInfo;
+
+    bool operator<(const GotEntryKey& key) const
+    {
+      if (m_pInput == key.m_pInput)
+        return m_pInfo < key.m_pInfo;
+      else
+        return m_pInput < key.m_pInput;
+    }
+  };
+
+  typedef std::map<GotEntryKey, MipsGOTEntry*> GotEntryMapType;
+  GotEntryMapType m_GotEntriesMap;
 };
 
 } // namespace of mcld

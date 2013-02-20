@@ -127,6 +127,7 @@ void helper_SetupRelDynForGOTEntry(MipsGOTEntry& got_entry,
 static
 MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
                                  MipsRelocator& pParent,
+                                 Input* pInput,
                                  int32_t value)
 {
   // rsym - The relocation target symbol
@@ -143,7 +144,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
     return *got_entry;
   }
 
-  got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  got_entry = got.lookupEntry(pInput, rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
     return *got_entry;
@@ -155,7 +156,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   else
     got_entry = got.consumeGlobal();
 
-  pParent.getSymGOTMap().record(*rsym, *got_entry);
+  got.recordEntry(pInput, rsym, got_entry);
 
   // If we first get this GOT entry, we should initialize it.
   if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
@@ -173,9 +174,10 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
 
 static
 Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
-                                       MipsRelocator& pParent)
+                                       MipsRelocator& pParent,
+                                       Input* pInput)
 {
-  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, 0);
+  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput, 0);
   return got_entry.getOffset() - 0x7FF0;
 }
 
@@ -350,13 +352,13 @@ MipsRelocator::Result got16(Relocation& pReloc,
     pParent.setAHL(AHL);
 
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
-    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, res);
+    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput, res);
 
     got_entry.setValue(res);
     G = got_entry.getOffset() - 0x7FF0;
   }
   else {
-    G = helper_GetGOTOffset(pReloc, pParent);
+    G = helper_GetGOTOffset(pReloc, pParent, pInput);
   }
 
   pReloc.target() &= 0xFFFF0000;
@@ -374,7 +376,7 @@ MipsRelocator::Result gothi16(Relocation& pReloc,
 {
   int32_t res = 0;
 
-  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent);
+  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent, pInput);
   int32_t A = pReloc.target() + pReloc.addend();
 
   res = (G - (int16_t)G) >> (16 + A);
@@ -392,7 +394,7 @@ MipsRelocator::Result gotlo16(Relocation& pReloc,
                               MipsRelocator& pParent,
                               Input* pInput)
 {
-  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent);
+  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent, pInput);
 
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= (G & 0xFFFF);
@@ -406,7 +408,7 @@ MipsRelocator::Result call16(Relocation& pReloc,
                              MipsRelocator& pParent,
                              Input* pInput)
 {
-  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent);
+  Relocator::Address G = helper_GetGOTOffset(pReloc, pParent, pInput);
 
   pReloc.target() &= 0xFFFF0000;
   pReloc.target() |= (G & 0xFFFF);

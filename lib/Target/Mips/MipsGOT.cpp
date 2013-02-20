@@ -246,6 +246,30 @@ uint64_t MipsGOT::getGPAddr(Input& pInput)
   return addr() + 0x7FF0 * (2 * gotNum + 1);
 }
 
+void MipsGOT::recordEntry(const Input* pInput,
+                          const ResolveInfo* pInfo,
+                          MipsGOTEntry* pEntry)
+{
+  GotEntryKey key;
+  key.m_pInput = pInput;
+  key.m_pInfo = pInfo;
+  m_GotEntriesMap[key] = pEntry;
+}
+
+MipsGOTEntry* MipsGOT::lookupEntry(const Input* pInput,
+                                   const ResolveInfo* pInfo)
+{
+  GotEntryKey key;
+  key.m_pInput = pInput;
+  key.m_pInfo = pInfo;
+  GotEntryMapType::iterator it = m_GotEntriesMap.find(key);
+
+  if (it == m_GotEntriesMap.end())
+    return NULL;
+
+  return it->second;
+}
+
 size_t MipsGOT::getLocalNum() const
 {
   assert(!m_MultipartList.empty() && "GOT is empty!");
