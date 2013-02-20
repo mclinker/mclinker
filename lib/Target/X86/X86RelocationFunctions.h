@@ -84,42 +84,42 @@ DECL_X86_64_APPLY_RELOC_FUNC(plt32)            \
 DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_X86_64_APPLY_RELOC_FUNC_PTRS \
-  { &none,               0, "R_X86_64_NONE",            32 },  \
-  { &unsupport,          1, "R_X86_64_32",              32 },  \
+  { &none,               0, "R_X86_64_NONE",            0  },  \
+  { &unsupport,          1, "R_X86_64_64",              64 },  \
   { &unsupport,          2, "R_X86_64_PC32",            32 },  \
   { &unsupport,          3, "R_X86_64_GOT32",           32 },  \
   { &plt32,              4, "R_X86_64_PLT32",           32 },  \
-  { &none,               5, "R_X86_64_COPY",            32 },  \
-  { &none,               6, "R_X86_64_GLOB_DAT",        32 },  \
-  { &none,               7, "R_X86_64_JMP_SLOT",        32 },  \
-  { &none,               8, "R_X86_64_RELATIVE",        32 },  \
+  { &none,               5, "R_X86_64_COPY",            0  },  \
+  { &none,               6, "R_X86_64_GLOB_DAT",        0  },  \
+  { &none,               7, "R_X86_64_JMP_SLOT",        0  },  \
+  { &none,               8, "R_X86_64_RELATIVE",        0  },  \
   { &gotpcrel,           9, "R_X86_64_GOTPCREL",        32 },  \
   { &unsupport,         10, "R_X86_64_32",              32 },  \
   { &unsupport,         11, "R_X86_64_32S",             32 },  \
-  { &unsupport,         12, "R_X86_64_16",              32 },  \
-  { &unsupport,         13, "R_X86_64_PC16",            32 },  \
-  { &unsupport,         14, "R_X86_64_8",               32 },  \
-  { &unsupport,         15, "R_X86_64_PC8",             32 },  \
-  { &none,              16, "R_X86_64_DTPMOD64",        32 },  \
-  { &unsupport,         17, "R_X86_64_DTPOFF64",        32 },  \
-  { &unsupport,         18, "R_X86_64_TPOFF64",         32 },  \
-  { &unsupport,         19, "R_X86_64_TLSGD",           32 },  \
-  { &unsupport,         20, "R_X86_64_TLSLD",           32 },  \
-  { &unsupport,         21, "R_X86_64_DTPOFF32",        32 },  \
-  { &unsupport,         22, "R_X86_64_GOTTPOFF",        32 },  \
-  { &unsupport,         23, "R_X86_64_TPOFF32",         32 },  \
-  { &unsupport,         24, "R_X86_64_PC64",            32 },  \
-  { &unsupport,         25, "R_X86_64_GOTOFF64",        32 },  \
+  { &unsupport,         12, "R_X86_64_16",              16 },  \
+  { &unsupport,         13, "R_X86_64_PC16",            16 },  \
+  { &unsupport,         14, "R_X86_64_8",               8  },  \
+  { &unsupport,         15, "R_X86_64_PC8",             8  },  \
+  { &none,              16, "R_X86_64_DTPMOD64",        0  },  \
+  { &unsupport,         17, "R_X86_64_DTPOFF64",        0  },  \
+  { &none,              18, "R_X86_64_TPOFF64",         0  },  \
+  { &unsupport,         19, "R_X86_64_TLSGD",           0  },  \
+  { &unsupport,         20, "R_X86_64_TLSLD",           0  },  \
+  { &unsupport,         21, "R_X86_64_DTPOFF32",        0  },  \
+  { &unsupport,         22, "R_X86_64_GOTTPOFF",        0  },  \
+  { &unsupport,         23, "R_X86_64_TPOFF32",         0  },  \
+  { &unsupport,         24, "R_X86_64_PC64",            64 },  \
+  { &unsupport,         25, "R_X86_64_GOTOFF64",        64 },  \
   { &unsupport,         26, "R_X86_64_GOTPC32",         32 },  \
-  { &unsupport,         27, "R_X86_64_GOT64",           32 },  \
-  { &unsupport,         28, "R_X86_64_GOTPCREL64",      32 },  \
-  { &unsupport,         29, "R_X86_64_GOTPC64",         32 },  \
-  { &unsupport,         30, "R_X86_64_GOTPLT64",        32 },  \
-  { &unsupport,         31, "R_X86_64_PLTOFF64",        32 },  \
+  { &unsupport,         27, "R_X86_64_GOT64",           64 },  \
+  { &unsupport,         28, "R_X86_64_GOTPCREL64",      64 },  \
+  { &unsupport,         29, "R_X86_64_GOTPC64",         64 },  \
+  { &unsupport,         30, "R_X86_64_GOTPLT64",        64 },  \
+  { &unsupport,         31, "R_X86_64_PLTOFF64",        64 },  \
   { &unsupport,         32, "R_X86_64_SIZE32",          32 },  \
-  { &unsupport,         33, "R_X86_64_SIZE64",          32 },  \
-  { &unsupport,         34, "R_X86_64_GOTPC32_TLSDESC", 32 },  \
-  { &unsupport,         35, "R_X86_64_TLSDESC_CALL",    32 },  \
-  { &none,              36, "R_X86_64_TLSDESC",         32 },  \
-  { &none,              37, "R_X86_64_IRELATIVE",       32 },  \
-  { &none,              38, "R_X86_64_RELATIVE64",      32 }
+  { &unsupport,         33, "R_X86_64_SIZE64",          64 },  \
+  { &unsupport,         34, "R_X86_64_GOTPC32_TLSDESC", 0  },  \
+  { &unsupport,         35, "R_X86_64_TLSDESC_CALL",    0  },  \
+  { &none,              36, "R_X86_64_TLSDESC",         0  },  \
+  { &none,              37, "R_X86_64_IRELATIVE",       0  },  \
+  { &none,              38, "R_X86_64_RELATIVE64",      0  }
