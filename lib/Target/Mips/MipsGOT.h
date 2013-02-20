@@ -9,13 +9,13 @@
 #ifndef MCLD_MIPS_GOT_H
 #define MCLD_MIPS_GOT_H
 #include <vector>
-#include <map>
 
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
 #include <llvm/ADT/DenseMap.h>
+#include <llvm/ADT/DenseSet.h>
 
 #include <mcld/Target/GOT.h>
 
@@ -90,6 +90,8 @@ private:
   {
     GOTMultipart(size_t local = 0, size_t global = 0);
 
+    typedef llvm::DenseSet<const Input*> InputSetType;
+
     size_t m_LocalNum;  ///< number of reserved local entries
     size_t m_GlobalNum; ///< number of reserved global entries
 
@@ -98,6 +100,8 @@ private:
 
     MipsGOTEntry* m_pLastLocal;   ///< the last consumed local entry
     MipsGOTEntry* m_pLastGlobal;  ///< the last consumed global entry
+
+    InputSetType m_Inputs;
 
     bool isConsumed() const;
 

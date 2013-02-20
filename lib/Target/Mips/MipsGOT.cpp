@@ -165,6 +165,7 @@ void MipsGOT::merge(const Input& pInput, const ResolveInfo* pInfo)
   if (pInfo && m_MergedGlobalSymbols.count(pInfo))
     return;
 
+  m_MultipartList.back().m_Inputs.erase(&pInput);
   m_MultipartList.back().m_LocalNum -= m_InputLocalNum;
   for (SymbolCountMapType::const_iterator it = m_InputGlobalSymbols.begin();
                                           it != m_InputGlobalSymbols.end();
@@ -188,6 +189,7 @@ void MipsGOT::reserveLocalEntry(const Input& pInput)
 {
   merge(pInput, NULL);
 
+  m_MultipartList.back().m_Inputs.insert(&pInput);
   ++m_MultipartList.back().m_LocalNum;
   ++m_InputLocalNum;
 }
@@ -196,6 +198,7 @@ void MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
 {
   merge(pInput, &pInfo);
 
+  m_MultipartList.back().m_Inputs.insert(&pInput);
   ++m_MultipartList.back().m_GlobalNum;
   ++m_MergedGlobalSymbols[&pInfo];
   ++m_InputGlobalSymbols[&pInfo];
