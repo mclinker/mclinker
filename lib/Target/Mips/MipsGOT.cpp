@@ -235,7 +235,15 @@ MipsGOTEntry* MipsGOT::consumeGlobal()
 
 uint64_t MipsGOT::getGPAddr(Input& pInput)
 {
-  return addr() + 0x7FF0;
+  size_t gotNum = 0;
+  for (size_t i = 0; i < m_MultipartList.size(); ++i) {
+    if (m_MultipartList[i].m_Inputs.count(&pInput)) {
+      gotNum = i;
+      break;
+    }
+  }
+
+  return addr() + 0x7FF0 * (2 * gotNum + 1);
 }
 
 size_t MipsGOT::getLocalNum() const
