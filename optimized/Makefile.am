@@ -92,6 +92,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/DynObjReader.h \
 	${INCDIR}/LD/ObjectWriter.h \
 	${INCDIR}/LD/ELFReader.h \
+	${INCDIR}/LD/ELFReaderIf.h \
 	${INCDIR}/LD/ELFWriter.h \
 	${INCDIR}/LD/GNUArchiveReader.h \
 	${INCDIR}/LD/BSDArchiveReader.h \
@@ -229,6 +230,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/GroupReader.cpp \
 	${LIBDIR}/LD/ObjectWriter.cpp \
 	${LIBDIR}/LD/ELFReader.cpp \
+	${LIBDIR}/LD/ELFReaderIf.cpp \
 	${LIBDIR}/LD/ELFWriter.cpp \
 	${LIBDIR}/LD/GNUArchiveReader.cpp \
 	${LIBDIR}/LD/BSDArchiveReader.cpp \
