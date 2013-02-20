@@ -213,6 +213,11 @@ MipsGOTEntry* MipsGOT::consumeGlobal()
   return m_MultipartList[m_CurrentGOTPart].m_pLastGlobal;
 }
 
+uint64_t MipsGOT::getGPAddr(Input& pInput)
+{
+  return addr() + 0x7FF0;
+}
+
 size_t MipsGOT::getLocalNum() const
 {
   assert(!m_MultipartList.empty() && "GOT is empty!");

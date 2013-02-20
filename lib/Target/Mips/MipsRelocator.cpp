@@ -104,9 +104,10 @@ bool helper_isGpDisp(const Relocation& pReloc)
 }
 
 static
-Relocator::Address helper_GetGP(MipsRelocator& pParent)
+Relocator::Address helper_GetGP(MipsRelocator& pParent, Input* pInput)
 {
-  return pParent.getTarget().getGOT().addr() + 0x7FF0;
+  assert(pInput && "Cannot calculate GP without input object");
+  return pParent.getTarget().getGOT().getGPAddr(*pInput);
 }
 
 static
@@ -283,7 +284,7 @@ MipsRelocator::Result hi16(Relocation& pReloc,
 
   if (helper_isGpDisp(pReloc)) {
     int32_t P = pReloc.place();
-    int32_t GP = helper_GetGP(pParent);
+    int32_t GP = helper_GetGP(pParent, pInput);
     res = ((AHL + GP - P) - (int16_t)(AHL + GP - P)) >> 16;
   }
   else {
@@ -309,7 +310,7 @@ MipsRelocator::Result lo16(Relocation& pReloc,
 
   if (helper_isGpDisp(pReloc)) {
     int32_t P = pReloc.place();
-    int32_t GP = helper_GetGP(pParent);
+    int32_t GP = helper_GetGP(pParent, pInput);
     int32_t AHL = pParent.getAHL();
     res = AHL + GP - P + 4;
   }
@@ -422,7 +423,7 @@ MipsRelocator::Result gprel32(Relocation& pReloc,
   // Remember to add the section offset to A.
   int32_t A = pReloc.target() + pReloc.addend();
   int32_t S = pReloc.symValue();
-  int32_t GP = helper_GetGP(pParent);
+  int32_t GP = helper_GetGP(pParent, pInput);
 
   // llvm does not emits SHT_MIPS_REGINFO section.
   // Assume that GP0 is zero.

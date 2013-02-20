@@ -58,6 +58,8 @@ public:
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
 
+  uint64_t getGPAddr(Input& pInput);
+
   void setLocal(const ResolveInfo* pInfo) {
     m_GOTTypeMap[pInfo] = false;
   }
