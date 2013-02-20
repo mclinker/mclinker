@@ -92,6 +92,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/GroupReader.h \
 	${INCDIR}/LD/DynObjReader.h \
 	${INCDIR}/LD/ObjectWriter.h \
+	${INCDIR}/LD/ELFReaderIf.h \
 	${INCDIR}/LD/ELFReader.h \
 	${INCDIR}/LD/ELFWriter.h \
 	${INCDIR}/LD/GNUArchiveReader.h \
@@ -229,6 +230,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/DynObjReader.cpp \
 	${LIBDIR}/LD/GroupReader.cpp \
 	${LIBDIR}/LD/ObjectWriter.cpp \
+	${LIBDIR}/LD/ELFReaderIf.cpp \
 	${LIBDIR}/LD/ELFReader.cpp \
 	${LIBDIR}/LD/ELFWriter.cpp \
 	${LIBDIR}/LD/GNUArchiveReader.cpp \
@@ -410,7 +412,9 @@ UNITTEST_SOURCE = \
 	${UNITTEST}/SystemUtilsTest.h \
 	${UNITTEST}/SystemUtilsTest.cpp \
 	${UNITTEST}/LinkerTest.h \
-	${UNITTEST}/LinkerTest.cpp
+	${UNITTEST}/LinkerTest.cpp \
+	${UNITTEST}/ELFReaderTest.h \
+	${UNITTEST}/ELFReaderTest.cpp
 
 else
 UNITTEST_SOURCE =

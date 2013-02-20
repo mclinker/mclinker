@@ -51,7 +51,6 @@ ELFReaderTest::~ELFReaderTest()
   delete m_pModule;
   delete m_pIRBuilder;
   delete m_pELFObjReader;
-  //delete m_pInfo; //FIXME
 }
 
 // SetUp() will be called immediately before each test.
@@ -62,7 +61,7 @@ void ELFReaderTest::SetUp()
 
   m_pInput = m_pIRBuilder->ReadInput("test_x86_64", path);
   ASSERT_TRUE(NULL!=m_pInput);
-  
+
   ASSERT_TRUE(m_pInput->hasMemArea());
   size_t hdr_size = m_pELFReader->getELFHeaderSize();
   MemoryRegion* region = m_pInput->memArea()->request(m_pInput->fileOffset(),
@@ -104,10 +103,10 @@ TEST_F( ELFReaderTest, read_symbol_and_rela )
   // -- read symbols
   LDSection* symtab_shdr = m_pInput->context()->getSection(".symtab");
   ASSERT_TRUE(NULL!=symtab_shdr);
-  
+
   LDSection* strtab_shdr = symtab_shdr->getLink();
   ASSERT_TRUE(NULL!=strtab_shdr);
-  
+
   MemoryRegion* symtab_region = m_pInput->memArea()->request(
                          m_pInput->fileOffset() + symtab_shdr->offset(),
                          symtab_shdr->size());
@@ -130,17 +129,17 @@ TEST_F( ELFReaderTest, read_symbol_and_rela )
   LDContext::sect_iterator rs = m_pInput->context()->relocSectBegin();
   ASSERT_TRUE(rs!=m_pInput->context()->relocSectEnd());
   ASSERT_EQ(".rela.text", (*rs)->name());
-  
+
   uint64_t offset = m_pInput->fileOffset() + (*rs)->offset();
   uint64_t size = (*rs)->size();
-  MemoryRegion* region = mem->request(offset, size); /// FIXME: truncation?
+  MemoryRegion* region = mem->request(offset, size);
   IRBuilder::CreateRelocData(**rs); /// create relocation data for the header
 
   ASSERT_EQ(llvm::ELF::SHT_RELA, (*rs)->type());
   ASSERT_TRUE(m_pELFReader->readRela(*m_pInput, **rs, *region));
   mem->release(region);
 
-  const RelocData::RelocationListType &rRelocs = 
+  const RelocData::RelocationListType &rRelocs =
                           (*rs)->getRelocData()->getRelocationList();
   RelocData::const_iterator rReloc = rRelocs.begin();
   ASSERT_EQ(2, rRelocs.size());

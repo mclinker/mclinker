@@ -42,6 +42,9 @@ ELFObjectReader::ELFObjectReader(GNULDBackend& pBackend,
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian()) {
     m_pELFReader = new ELFReader<32, true>(pBackend);
   }
+  else if (pConfig.targets().is64Bits() && pConfig.targets().isLittleEndian()) {
+    m_pELFReader = new ELFReader<64, true>(pBackend);
+  }
 
   m_pEhFrameReader = new EhFrameReader();
 }
