@@ -14,7 +14,6 @@
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/Target/SymbolEntryMap.h>
 #include "MipsLDBackend.h"
 
 namespace mcld {
@@ -24,9 +23,6 @@ namespace mcld {
  */
 class MipsRelocator : public Relocator
 {
-public:
-  typedef SymbolEntryMap<MipsGOTEntry> SymGOTMap;
-
 public:
   MipsRelocator(MipsGNULDBackend& pParent);
 
@@ -50,13 +46,9 @@ public:
 
   Size getSize(Relocation::Type pType) const;
 
-  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
-  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
-
 private:
   MipsGNULDBackend& m_Target;
   int32_t m_AHL;
-  SymGOTMap m_SymGOTMap;
 };
 
 } // namespace of mcld
