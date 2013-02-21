@@ -35,10 +35,17 @@ EntryIF::~EntryIF()
 ELFDynamic::ELFDynamic(const GNULDBackend& pParent,
                        const LinkerConfig& pConfig)
   : m_pEntryFactory(NULL), m_Backend(pParent), m_Config(pConfig), m_Idx(0) {
-  if (m_Config.targets().is32Bits() && m_Config.targets().isLittleEndian()) {
-    m_pEntryFactory = new Entry<32, true>();
+  // FIXME: support big-endian machine.
+  if (m_Config.targets().is32Bits()) {
+    if (m_Config.targets().isLittleEndian())
+      m_pEntryFactory = new Entry<32, true>();
+  } else if (m_Config.targets().is64Bits()) {
+    if (m_Config.targets().isLittleEndian())
+      m_pEntryFactory = new Entry<64, true>();
+  } else {
+    fatal(diag::unsupported_bitclass) << m_Config.targets().triple().str()
+                                      << m_Config.targets().bitclass();
   }
-  // FIXME: support big-endian and 64-bit machine.
 }
 
 
@@ -78,7 +85,7 @@ size_t ELFDynamic::entrySize() const
 void ELFDynamic::reserveOne(uint64_t pTag)
 {
   assert(NULL != m_pEntryFactory);
-  m_EntryList.push_back(new elf_dynamic::Entry<32, true>());
+  m_EntryList.push_back(m_pEntryFactory->clone());
 }
 
 void ELFDynamic::applyOne(uint64_t pTag, uint64_t pValue)

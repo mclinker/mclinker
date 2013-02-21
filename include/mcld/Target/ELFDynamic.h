@@ -88,6 +88,43 @@ private:
   Pair m_Pair;
 };
 
+template<>
+class Entry<64, true> : public EntryIF
+{
+public:
+  typedef llvm::ELF::Elf64_Dyn  Pair;
+  typedef llvm::ELF::Elf64_Sym  Symbol;
+  typedef llvm::ELF::Elf64_Rel  Rel;
+  typedef llvm::ELF::Elf64_Rela Rela;
+
+public:
+  inline Entry();
+
+  inline ~Entry();
+
+  Entry* clone() const
+  { return new Entry(); }
+
+  size_t size() const
+  { return sizeof(Pair); }
+
+  size_t symbolSize() const
+  { return sizeof(Symbol); }
+
+  size_t relSize() const
+  { return sizeof(Rel); }
+
+  size_t relaSize() const
+  { return sizeof(Rela); }
+
+  inline void setValue(uint64_t pTag, uint64_t pValue);
+
+  inline size_t emit(uint8_t* pAddress) const;
+
+private:
+  Pair m_Pair;
+};
+
 #include "ELFDynamic.tcc"
 
 } // namespace of elf_dynamic
