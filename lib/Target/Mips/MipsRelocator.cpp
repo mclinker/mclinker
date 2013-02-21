@@ -31,6 +31,7 @@ struct ApplyFunctionTriple
   ApplyFunctionType func;
   unsigned int type;
   const char* name;
+  unsigned int size;
 };
 
 // declare the table of applying functions
@@ -69,7 +70,7 @@ const char* MipsRelocator::getName(Relocation::Type pType) const
 
 Relocator::Size MipsRelocator::getSize(Relocation::Type pType) const
 {
-  return 32;
+  return ApplyFunctions[pType].size;
 }
 
 //===----------------------------------------------------------------------===//
