@@ -781,6 +781,73 @@ X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
   return X86Relocator::OK;
 }
 
+// R_X86_64_64: S + A
+// R_X86_64_32:
+// R_X86_64_16:
+// R_X86_64_8
+X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
+  Relocator::DWord S = pReloc.symValue();
+  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
+                              *rsym,
+                              (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                              true);
+
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+    pReloc.target() = S + A;
+    return X86Relocator::OK;
+  }
+
+  Relocation::Type pointerRel = pParent.getTarget().getPointerRel();
+
+  // A local symbol may need REL Type dynamic relocation
+  if (rsym->isLocal() && has_dyn_rel) {
+    if (pointerRel == pReloc.type()) {
+      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
+					    pReloc.targetRef().offset(),
+					    llvm::ELF::R_X86_64_RELATIVE,
+					    pParent);
+      rel_entry.setAddend(S + A);
+    }
+    else {
+      // FIXME: check Section symbol
+      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
+					    pReloc.targetRef().offset(),
+					    pReloc.type(), pParent);
+      rel_entry.setAddend(S + A);
+    }
+    return X86Relocator::OK;
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    // If we generate a dynamic relocation for a place, we should not
+    // perform static relocation on it.
+    if (has_dyn_rel) {
+      // We shouldn't need PLT if we generate a dynamic relocation.
+      assert ((rsym->reserved() & X86GNULDBackend::ReservePLT) == 0);
+      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
+					    pReloc.targetRef().offset(),
+					    pReloc.type(), pParent);
+      // Copy addend.
+      rel_entry.setAddend(A);
+      return X86Relocator::OK;
+    }
+    else if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+      S = helper_PLT(pReloc, pParent);
+    }
+  }
+
+  // perform static relocation
+  pReloc.target() = S + A;
+  return X86Relocator::OK;
+}
+
 // R_X86_64_GOTPCREL: GOT(S) + GOT_ORG + A - P
 X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
 {

@@ -151,6 +151,10 @@ public:
   /// finalizeTargetSymbols - finalize the symbol value
   bool finalizeTargetSymbols();
 
+  /// getPointerRel - get pointer relocation type. 
+  Relocation::Type getPointerRel()
+  { return m_PointerRel; }
+
 private:
   virtual void scanLocalReloc(Relocation& pReloc,
 			      IRBuilder& pBuilder,
@@ -214,6 +218,7 @@ protected:
   size_t m_RelaEntrySize;
 
   Relocation::Type m_CopyRel;
+  Relocation::Type m_PointerRel;
 };
 
 //

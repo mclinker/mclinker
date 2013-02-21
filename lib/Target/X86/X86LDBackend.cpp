@@ -50,10 +50,15 @@ X86GNULDBackend::X86GNULDBackend(const LinkerConfig& pConfig,
       pConfig.targets().triple().getEnvironment() == Triple::GNUX32) {
     m_RelEntrySize = 8;
     m_RelaEntrySize = 12;
+    if (arch == Triple::x86)
+      m_PointerRel = llvm::ELF::R_386_32;
+    else
+      m_PointerRel = llvm::ELF::R_X86_64_32;
   }
   else {
     m_RelEntrySize = 16;
     m_RelaEntrySize = 24;
+    m_PointerRel = llvm::ELF::R_X86_64_64;
   }
 }
 
@@ -1038,7 +1043,25 @@ void X86_64GNULDBackend::scanLocalReloc(Relocation& pReloc,
 					Module& pModule,
 					LDSection& pSection)
 {
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+
   switch(pReloc.type()){
+    case llvm::ELF::R_X86_64_64:
+    case llvm::ELF::R_X86_64_32:
+    case llvm::ELF::R_X86_64_16:
+    case llvm::ELF::R_X86_64_8:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rela.dyn
+      if (config().isCodeIndep()) {
+        m_pRelDyn->reserveEntry();
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        checkAndSetHasTextRel(*pSection.getLink());
+      }
+      return;
+
     case llvm::ELF::R_X86_64_PC32:
     case llvm::ELF::R_X86_64_PC16:
     case llvm::ELF::R_X86_64_PC8:
@@ -1060,6 +1083,42 @@ void X86_64GNULDBackend::scanGlobalReloc(Relocation& pReloc,
   ResolveInfo* rsym = pReloc.symInfo();
 
   switch(pReloc.type()) {
+    case llvm::ELF::R_X86_64_64:
+    case llvm::ELF::R_X86_64_32:
+    case llvm::ELF::R_X86_64_16:
+    case llvm::ELF::R_X86_64_8:
+      // Absolute relocation type, symbol may needs PLT entry or
+      // dynamic relocation entry
+      if (symbolNeedsPLT(*rsym)) {
+        // create plt for this symbol if it does not have one
+        if (!(rsym->reserved() & ReservePLT)){
+          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // and the corresponding GOT and dynamic relocation entry
+          // in .got and .rela.plt. (GOT entry will be reserved simultaneously
+          // when calling X86PLT->reserveEntry())
+          m_pPLT->reserveEntry();
+          m_pGOTPLT->reserve();
+          m_pRelPLT->reserveEntry();
+          // set PLT bit
+          rsym->setReserved(rsym->reserved() | ReservePLT);
+        }
+      }
+
+      if (symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
+        // symbol needs dynamic relocation entry, reserve an entry in .rela.dyn
+        m_pRelDyn->reserveEntry();
+        if (symbolNeedsCopyReloc(pReloc, *rsym)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+	  checkAndSetHasTextRel(*pSection.getLink());
+        }
+      }
+      return;
+
     case llvm::ELF::R_X86_64_GOTPCREL:
       // Symbol needs GOT entry, reserve entry in .got
       // return if we already create GOT for this symbol
