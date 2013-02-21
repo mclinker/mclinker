@@ -698,15 +698,16 @@ X86_64GOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
   else if (rsym->reserved() & X86GNULDBackend::GOTRel) {
     // Initialize got_entry content and the corresponding dynamic relocation.
     if (helper_use_relative_reloc(*rsym, pParent)) {
-      helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_RELATIVE,
-		    pParent);
-      got_entry->setValue(pReloc.symValue());
+      Relocation& rel_entry = helper_DynRel(rsym, *got_entry, 0x0,
+					    llvm::ELF::R_X86_64_RELATIVE,
+					    pParent);
+      rel_entry.setAddend(pReloc.symValue());
     }
     else {
       helper_DynRel(rsym, *got_entry, 0x0, llvm::ELF::R_X86_64_GLOB_DAT,
 		    pParent);
-      got_entry->setValue(0);
     }
+    got_entry->setValue(0);
   }
   else {
     fatal(diag::reserve_entry_number_mismatch_got);
