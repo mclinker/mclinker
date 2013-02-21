@@ -1039,6 +1039,11 @@ void X86_64GNULDBackend::scanLocalReloc(Relocation& pReloc,
 					LDSection& pSection)
 {
   switch(pReloc.type()){
+    case llvm::ELF::R_X86_64_PC32:
+    case llvm::ELF::R_X86_64_PC16:
+    case llvm::ELF::R_X86_64_PC8:
+      return;
+
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
@@ -1109,6 +1114,26 @@ void X86_64GNULDBackend::scanGlobalReloc(Relocation& pReloc,
       m_pRelPLT->reserveEntry();
       // set PLT bit
       rsym->setReserved(rsym->reserved() | ReservePLT);
+      return;
+
+    case llvm::ELF::R_X86_64_PC32:
+    case llvm::ELF::R_X86_64_PC16:
+    case llvm::ELF::R_X86_64_PC8:
+      if (symbolNeedsPLT(*rsym) &&
+          LinkerConfig::DynObj != config().codeGenType()) {
+        // create plt for this symbol if it does not have one
+        if (!(rsym->reserved() & ReservePLT)){
+          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // and the corresponding GOT and dynamic relocation entry
+          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+          // when calling X86PLT->reserveEntry())
+          m_pPLT->reserveEntry();
+          m_pGOTPLT->reserve();
+          m_pRelPLT->reserveEntry();
+          // set PLT bit
+          rsym->setReserved(rsym->reserved() | ReservePLT);
+        }
+      }
       return;
 
     default:

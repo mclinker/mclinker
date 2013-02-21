@@ -81,12 +81,13 @@ static X86Relocator::Result Name(Relocation& pEntry, X86_64Relocator& pParent);
 DECL_X86_64_APPLY_RELOC_FUNC(none)             \
 DECL_X86_64_APPLY_RELOC_FUNC(gotpcrel)         \
 DECL_X86_64_APPLY_RELOC_FUNC(plt32)            \
+DECL_X86_64_APPLY_RELOC_FUNC(rel)              \
 DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
 
 #define DECL_X86_64_APPLY_RELOC_FUNC_PTRS \
   { &none,               0, "R_X86_64_NONE",            0  },  \
   { &unsupport,          1, "R_X86_64_64",              64 },  \
-  { &unsupport,          2, "R_X86_64_PC32",            32 },  \
+  { &rel,                2, "R_X86_64_PC32",            32 },  \
   { &unsupport,          3, "R_X86_64_GOT32",           32 },  \
   { &plt32,              4, "R_X86_64_PLT32",           32 },  \
   { &none,               5, "R_X86_64_COPY",            0  },  \
@@ -97,9 +98,9 @@ DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,         10, "R_X86_64_32",              32 },  \
   { &unsupport,         11, "R_X86_64_32S",             32 },  \
   { &unsupport,         12, "R_X86_64_16",              16 },  \
-  { &unsupport,         13, "R_X86_64_PC16",            16 },  \
+  { &rel,               13, "R_X86_64_PC16",            16 },  \
   { &unsupport,         14, "R_X86_64_8",               8  },  \
-  { &unsupport,         15, "R_X86_64_PC8",             8  },  \
+  { &rel,               15, "R_X86_64_PC8",             8  },  \
   { &none,              16, "R_X86_64_DTPMOD64",        0  },  \
   { &unsupport,         17, "R_X86_64_DTPOFF64",        0  },  \
   { &none,              18, "R_X86_64_TPOFF64",         0  },  \

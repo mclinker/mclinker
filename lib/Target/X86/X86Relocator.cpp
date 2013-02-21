@@ -811,6 +811,43 @@ X86Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
   return X86Relocator::OK;
 }
 
+// R_X86_64_PC32: S + A - P
+// R_X86_64_PC16
+// R_X86_64_PC8
+X86Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
+  Relocator::DWord S = pReloc.symValue();
+  Relocator::DWord P = pReloc.place();
+
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
+    pReloc.target() = S + A - P;
+    return X86Relocator::OK;
+  }
+
+  // An external symbol may need PLT and dynamic relocation
+  if (!rsym->isLocal()) {
+    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+       S = helper_PLT(pReloc, pParent);
+       pReloc.target() = S + A - P;
+    }
+    if (pParent.getTarget().symbolNeedsDynRel(
+                              *rsym,
+                              (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                              false)) {
+          return X86Relocator::Overflow;
+    }
+  }
+
+   // perform static relocation
+  pReloc.target() = S + A - P;
+  return X86Relocator::OK;
+}
+
 X86Relocator::Result unsupport(Relocation& pReloc, X86_64Relocator& pParent)
 {
   return X86Relocator::Unsupport;
