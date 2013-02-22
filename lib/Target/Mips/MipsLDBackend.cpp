@@ -67,7 +67,7 @@ void MipsGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuild
   }
 }
 
-void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
+void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input

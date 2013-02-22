@@ -200,7 +200,7 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
   }
 }
 
-void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder)
+void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the

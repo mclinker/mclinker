@@ -315,7 +315,7 @@ bool ObjectLinker::addStandardSymbols()
 ///   target symbols, return false
 bool ObjectLinker::addTargetSymbols()
 {
-  m_LDBackend.initTargetSymbols(*m_pBuilder);
+  m_LDBackend.initTargetSymbols(*m_pBuilder, *m_pModule);
   return true;
 }
 

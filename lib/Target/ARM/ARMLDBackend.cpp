@@ -114,7 +114,7 @@ void ARMGNULDBackend::initTargetSections(Module& pModule, ObjectBuilder& pBuilde
   }
 }
 
-void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
+void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
@@ -127,36 +127,39 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
                                                   0x0,  // value
                                                   FragmentRef::Null(),
                                                   ResolveInfo::Hidden);
-  FragmentRef* exidx_start = NULL;
-  FragmentRef* exidx_end = NULL;
   if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
-    exidx_start = FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
-    exidx_end   = FragmentRef::Create(m_pEXIDX->getSectionData()->front(),
-                                      m_pEXIDX->size());
+    FragmentRef* exidx_start =
+      FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
+    FragmentRef* exidx_end =
+      FragmentRef::Create(m_pEXIDX->getSectionData()->front(),
+                          m_pEXIDX->size());
     m_pEXIDXStart =
-      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                     "__exidx_start",
                                                     ResolveInfo::Object,
                                                     ResolveInfo::Define,
-                                                    ResolveInfo::Global,
+                                                    ResolveInfo::Local,
                                                     0x0, // size
                                                     0x0, // value
                                                     exidx_start, // FragRef
                                                     ResolveInfo::Default);
 
     m_pEXIDXEnd =
-      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                     "__exidx_end",
                                                     ResolveInfo::Object,
                                                     ResolveInfo::Define,
-                                                    ResolveInfo::Global,
+                                                    ResolveInfo::Local,
                                                     0x0, // size
                                                     0x0, // value
                                                     exidx_end, // FragRef
                                                     ResolveInfo::Default);
+    // change __exidx_start/_end to local dynamic category
+    if (NULL != m_pEXIDXStart)
+      pModule.getSymbolTable().changeLocalToDynamic(*m_pEXIDXStart);
+    if (NULL != m_pEXIDXEnd)
+      pModule.getSymbolTable().changeLocalToDynamic(*m_pEXIDXEnd);
   } else {
-    exidx_start = FragmentRef::Null();
-    exidx_end   = FragmentRef::Null();
     m_pEXIDXStart =
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                     "__exidx_start",
@@ -165,7 +168,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
                                                     ResolveInfo::Absolute,
                                                     0x0, // size
                                                     0x0, // value
-                                                    exidx_start, // FragRef
+                                                    FragmentRef::Null(),
                                                     ResolveInfo::Default);
 
     m_pEXIDXEnd =
@@ -176,7 +179,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
                                                     ResolveInfo::Absolute,
                                                     0x0, // size
                                                     0x0, // value
-                                                    exidx_end, // FragRef
+                                                    FragmentRef::Null(),
                                                     ResolveInfo::Default);
   }
 }

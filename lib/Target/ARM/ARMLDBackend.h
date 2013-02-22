@@ -92,7 +92,7 @@ public:
   void initTargetSections(Module& pModule, ObjectBuilder& pBuilder);
 
   /// initTargetSymbols - initialize target dependent symbols in output.
-  void initTargetSymbols(IRBuilder& pBuilder);
+  void initTargetSymbols(IRBuilder& pBuilder, Module& pModule);
 
   /// initRelocator - create and initialize Relocator.
   bool initRelocator();

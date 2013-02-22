@@ -124,7 +124,7 @@ public:
 
   virtual void initTargetSections(Module& pModule, ObjectBuilder& pBuilder) = 0;
 
-  void initTargetSymbols(IRBuilder& pLinker);
+  void initTargetSymbols(IRBuilder& pBuilder, Module& pModule);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.

@@ -361,7 +361,7 @@ X86GNULDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   return SHO_UNDEFINED;
 }
 
-void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
+void X86GNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
     // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
