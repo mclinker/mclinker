@@ -1195,6 +1195,19 @@ void X86_64GNULDBackend::scanGlobalReloc(Relocation& pReloc,
           rsym->setReserved(rsym->reserved() | ReservePLT);
         }
       }
+
+      // Only PC relative relocation against dynamic symbol needs a
+      // dynamic relocation.  Only dynamic copy relocation is allowed
+      // and PC relative relocation will be resolved to the local copy.
+      // All other dynamic relocations may lead to run-time relocation
+      // overflow.
+      if (isDynamicSymbol(*rsym) &&
+	  symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false) &&
+	  symbolNeedsCopyReloc(pReloc, *rsym)) {
+        m_pRelDyn->reserveEntry();
+	LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+	addCopyReloc(*cpy_sym.resolveInfo());
+      }
       return;
 
     default:
