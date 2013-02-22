@@ -1051,6 +1051,7 @@ void X86_64GNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_X86_64_32:
     case llvm::ELF::R_X86_64_16:
     case llvm::ELF::R_X86_64_8:
+    case llvm::ELF::R_X86_64_32S:
       // If buiding PIC object (shared library or PIC executable),
       // a dynamic relocations with RELATIVE type to this location is needed.
       // Reserve an entry in .rela.dyn
@@ -1087,6 +1088,7 @@ void X86_64GNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_X86_64_32:
     case llvm::ELF::R_X86_64_16:
     case llvm::ELF::R_X86_64_8:
+    case llvm::ELF::R_X86_64_32S:
       // Absolute relocation type, symbol may needs PLT entry or
       // dynamic relocation entry
       if (symbolNeedsPLT(*rsym)) {

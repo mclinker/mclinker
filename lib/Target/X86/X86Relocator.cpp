@@ -849,6 +849,39 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
   return X86Relocator::OK;
 }
 
+// R_X86_64_32S: S + A
+X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
+{
+  ResolveInfo* rsym = pReloc.symInfo();
+  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord S = pReloc.symValue();
+  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
+                              *rsym,
+                              (rsym->reserved() & X86GNULDBackend::ReservePLT),
+                              true);
+
+  // There should be no dynamic relocations for R_X86_64_32S.
+  if (has_dyn_rel)
+    return X86Relocator::BadReloc;
+ 
+  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  // If the flag of target section is not ALLOC, we will not scan this relocation
+  // but perform static relocation. (e.g., applying .debug section)
+  // An external symbol may need PLT and dynamic relocation
+  if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag()) &&
+      !rsym->isLocal() && rsym->reserved() & X86GNULDBackend::ReservePLT)
+    S = helper_PLT(pReloc, pParent);
+
+  // Check 32-bit signed overflow.
+  Relocator::SWord V = S + A;
+  if (V > INT64_C(0x7fffffff) || V < INT64_C(-0x80000000))
+    return X86Relocator::Overflow;
+
+  // perform static relocation
+  pReloc.target() = S + A;
+  return X86Relocator::OK;
+}
+
 // R_X86_64_GOTPCREL: GOT(S) + GOT_ORG + A - P
 X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
 {

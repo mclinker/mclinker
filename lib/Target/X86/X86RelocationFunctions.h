@@ -80,6 +80,7 @@ static X86Relocator::Result Name(Relocation& pEntry, X86_64Relocator& pParent);
 #define DECL_X86_64_APPLY_RELOC_FUNCS \
 DECL_X86_64_APPLY_RELOC_FUNC(none)             \
 DECL_X86_64_APPLY_RELOC_FUNC(abs)              \
+DECL_X86_64_APPLY_RELOC_FUNC(signed32)         \
 DECL_X86_64_APPLY_RELOC_FUNC(gotpcrel)         \
 DECL_X86_64_APPLY_RELOC_FUNC(plt32)            \
 DECL_X86_64_APPLY_RELOC_FUNC(rel)              \
@@ -97,7 +98,7 @@ DECL_X86_64_APPLY_RELOC_FUNC(unsupport)
   { &none,               8, "R_X86_64_RELATIVE",        0  },  \
   { &gotpcrel,           9, "R_X86_64_GOTPCREL",        32 },  \
   { &abs,               10, "R_X86_64_32",              32 },  \
-  { &unsupport,         11, "R_X86_64_32S",             32 },  \
+  { &signed32,          11, "R_X86_64_32S",             32 },  \
   { &abs,               12, "R_X86_64_16",              16 },  \
   { &rel,               13, "R_X86_64_PC16",            16 },  \
   { &abs,               14, "R_X86_64_8",               8  },  \
