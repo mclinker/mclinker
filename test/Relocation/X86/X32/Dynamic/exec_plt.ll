@@ -2,7 +2,7 @@
 ; RUN: -dynamic-linker /libx32/ld-linux-x32.so.2                    \
 ; RUN: %p/../../../../libs/X86/Linux/X32/crt1.o                     \
 ; RUN: %p/../../../../libs/X86/Linux/X32/crti.o                     \
-; RUN: %p/hello1.o                                                  \
+; RUN: %p/exec_plt.o                                                \
 ; RUN: %p/../../../../libs/X86/Linux/X32/libc_nonshared.a           \
 ; RUN: --as-needed                                                  \
 ; RUN: %p/../../../../libs/X86/Linux/X32/ld-linux-x32.so.2          \
