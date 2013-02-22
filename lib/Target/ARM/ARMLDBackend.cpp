@@ -129,38 +129,56 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
                                                   ResolveInfo::Hidden);
   FragmentRef* exidx_start = NULL;
   FragmentRef* exidx_end = NULL;
-  ResolveInfo::Type type = ResolveInfo::NoType;
-  ResolveInfo::Desc desc = ResolveInfo::Undefined;
   if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
     exidx_start = FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
     exidx_end   = FragmentRef::Create(m_pEXIDX->getSectionData()->front(),
                                       m_pEXIDX->size());
-    type = ResolveInfo::Object;
-    desc = ResolveInfo::Define;
+    m_pEXIDXStart =
+      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                                    "__exidx_start",
+                                                    ResolveInfo::Object,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Global,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    exidx_start, // FragRef
+                                                    ResolveInfo::Default);
+
+    m_pEXIDXEnd =
+      pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                                                    "__exidx_end",
+                                                    ResolveInfo::Object,
+                                                    ResolveInfo::Define,
+                                                    ResolveInfo::Global,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    exidx_end, // FragRef
+                                                    ResolveInfo::Default);
   } else {
     exidx_start = FragmentRef::Null();
-    exidx_end = FragmentRef::Null();
-  }
-  m_pEXIDXStart =
-    pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                  "__exidx_start",
-                                                  type, // ResolveInfo::Type
-                                                  desc, // ResolveInfo::Desc
-                                                  ResolveInfo::Global,
-                                                  0x0,  // size
-                                                  0x0,  // value
-                                                  exidx_start, // FragRef
-                                                  ResolveInfo::Default);
+    exidx_end   = FragmentRef::Null();
+    m_pEXIDXStart =
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                    "__exidx_start",
+                                                    ResolveInfo::NoType,
+                                                    ResolveInfo::Undefined,
+                                                    ResolveInfo::Absolute,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    exidx_start, // FragRef
+                                                    ResolveInfo::Default);
 
-  m_pEXIDXEnd = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                                                  "__exidx_end",
-                                                  type, // ResolveInfo::Type
-                                                  desc, //ResolveInfo::Desc
-                                                  ResolveInfo::Global,
-                                                  0x0,  // size
-                                                  0x0,  // value
-                                                  exidx_end, // FragRef
-                                                  ResolveInfo::Default);
+    m_pEXIDXEnd =
+      pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                    "__exidx_end",
+                                                    ResolveInfo::NoType,
+                                                    ResolveInfo::Undefined,
+                                                    ResolveInfo::Absolute,
+                                                    0x0, // size
+                                                    0x0, // value
+                                                    exidx_end, // FragRef
+                                                    ResolveInfo::Default);
+  }
 }
 
 bool ARMGNULDBackend::initRelocator()
@@ -807,15 +825,6 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
 /// finalizeSymbol - finalize the symbol value
 bool ARMGNULDBackend::finalizeTargetSymbols()
 {
-  if (NULL != m_pEXIDXStart) {
-    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size())
-      m_pEXIDXStart->setValue(m_pEXIDX->addr());
-  }
-
-  if (NULL != m_pEXIDXEnd) {
-    if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size())
-      m_pEXIDXEnd->setValue(m_pEXIDX->addr() + m_pEXIDX->size());
-  }
   return true;
 }
 
