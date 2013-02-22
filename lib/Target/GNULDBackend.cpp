@@ -768,7 +768,7 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
       strtab += (*symbol)->nameSize() + 1;
   }
   symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                     symbols.numOfTLSs();
+                     symbols.numOfLocalDyns();
 
   ELFFileFormat* file_format = getOutputFormat();
 
@@ -783,12 +783,12 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
       if (!pIsStaticLink) {
         /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
         symEnd = symbols.dynamicEnd();
-        for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+        for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
           ++dynsym;
           if (ResolveInfo::Section != (*symbol)->type())
             dynstr += (*symbol)->nameSize() + 1;
         }
-        dynsym_local_cnt = 1 + symbols.numOfTLSs();
+        dynsym_local_cnt = 1 + symbols.numOfLocalDyns();
 
         // compute .gnu.hash
         if (GeneralOptions::GNU  == config().options().getHashStyle() ||
@@ -1086,9 +1086,9 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
       GeneralOptions::Both == config().options().getHashStyle())
     emitELFHashTab(symbols, pOutput);
 
-  // emit .dynsym, and .dynstr (emit TLS and Dynamic category)
+  // emit .dynsym, and .dynstr (emit LocalDyn and Dynamic category)
   Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
-  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
     if (config().targets().is32Bits())
       emitSymbol32(symtab32[symIdx], **symbol, strtab, strtabsize, symIdx);
     else
@@ -1162,7 +1162,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   uint32_t& nbucket = word_array[0];
   uint32_t& nchain  = word_array[1];
 
-  size_t dynsymSize = 1 + pSymtab.numOfTLSs() + pSymtab.numOfDynamics();
+  size_t dynsymSize = 1 + pSymtab.numOfLocalDyns() + pSymtab.numOfDynamics();
   nbucket = getHashBucketCount(dynsymSize, false);
   nchain  = dynsymSize;
 
@@ -1176,7 +1176,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
 
   size_t idx = 1;
   Module::const_sym_iterator symbol, symEnd = pSymtab.dynamicEnd();
-  for (symbol = pSymtab.tlsBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = pSymtab.localDynBegin(); symbol != symEnd; ++symbol) {
     llvm::StringRef name((*symbol)->name());
     size_t bucket_pos = hash_func(name) % nbucket;
     chain[idx] = bucket[bucket_pos];
@@ -1209,7 +1209,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
   uint32_t* chain   = NULL;
 
   // count the number of dynsym to hash
-  size_t unhashed_sym_cnt = pSymtab.numOfTLSs();
+  size_t unhashed_sym_cnt = pSymtab.numOfLocalDyns();
   size_t hashed_sym_cnt   = pSymtab.numOfDynamics();
   Module::const_sym_iterator symbol, symEnd = pSymtab.dynamicEnd();
   for (symbol = pSymtab.dynamicBegin(); symbol != symEnd; ++symbol) {
@@ -1258,7 +1258,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
                         std::pair<LDSymbol*, uint32_t> > SymMapType;
   SymMapType symmap;
   symEnd = pSymtab.dynamicEnd();
-  for (symbol = pSymtab.tlsBegin() + symidx - 1; symbol != symEnd;
+  for (symbol = pSymtab.localDynBegin() + symidx - 1; symbol != symEnd;
     ++symbol) {
     StringHash<DJB> hasher;
     uint32_t djbhash = hasher((*symbol)->name());
@@ -1275,7 +1275,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
     ret = symmap.equal_range(idx);
     for (SymMapType::iterator it = ret.first; it != ret.second; ) {
       // rearrange the hashed symbol ordering
-      *(pSymtab.tlsBegin() + hashedidx - 1) = it->second.first;
+      *(pSymtab.localDynBegin() + hashedidx - 1) = it->second.first;
       uint32_t djbhash = it->second.second;
       uint32_t val = ((djbhash >> shift1) & ((maskbits >> shift1) - 1));
       bitmasks[val] |= 1u << (djbhash & mask);
@@ -1551,7 +1551,7 @@ GNULDBackend::allocateCommonSymbols(Module& pModule)
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyFiles() &&
-      symbol_list.emptyLocals() && symbol_list.emptyTLSs())
+      symbol_list.emptyLocals() && symbol_list.emptyLocalDyns())
     return true;
 
   SymbolCategory::iterator com_sym, com_end;
@@ -2167,12 +2167,12 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
     m_pEhFrameHdr->sizeOutput();
   }
 
-  // change .tbss and .tdata section symbol from Local to TLS category
+  // change .tbss and .tdata section symbol from Local to LocalDyn category
   if (NULL != f_pTDATA)
-    pModule.getSymbolTable().changeLocalToTLS(*f_pTDATA);
+    pModule.getSymbolTable().changeLocalToDynamic(*f_pTDATA);
 
   if (NULL != f_pTBSS)
-    pModule.getSymbolTable().changeLocalToTLS(*f_pTBSS);
+    pModule.getSymbolTable().changeLocalToDynamic(*f_pTBSS);
 
   // To merge input's relocation sections into output's relocation sections.
   //

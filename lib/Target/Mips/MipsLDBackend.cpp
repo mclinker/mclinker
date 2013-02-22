@@ -252,20 +252,20 @@ MipsGNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
       strtab += (*symbol)->nameSize() + 1;
   }
   symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                     symbols.numOfTLSs();
+                     symbols.numOfLocalDyns();
   /// @}
 
   /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
   /// @{
   if (!pIsStaticLink) {
     symEnd = symbols.dynamicEnd();
-    for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+    for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
       ++dynsym;
       if (ResolveInfo::Section != (*symbol)->type() ||
           *symbol == m_pGpDispSymbol)
         dynstr += (*symbol)->nameSize() + 1;
     }
-    dynsym_local_cnt = 1 + symbols.numOfTLSs();
+    dynsym_local_cnt = 1 + symbols.numOfLocalDyns();
   }
   /// @}
 
@@ -452,11 +452,11 @@ void MipsGNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
   size_t symtabIdx = 1;
   size_t strtabsize = 1;
 
-  // emit .dynsym, and .dynstr (emit TLS and Dynamic category) except GOT
+  // emit .dynsym, and .dynstr (emit LocalDyn and Dynamic category) except GOT
   // entries
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
-  for (symbol = symbols.tlsBegin(); symbol != symEnd; ++symbol) {
+  for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
     if (isGlobalGOTSymbol(**symbol))
       continue;
     emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
@@ -622,7 +622,7 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyFiles() &&
-      symbol_list.emptyLocals() && symbol_list.emptyTLSs())
+      symbol_list.emptyLocals() && symbol_list.emptyLocalDyns())
     return true;
 
   SymbolCategory::iterator com_sym, com_end;

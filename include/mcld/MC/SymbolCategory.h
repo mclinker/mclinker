@@ -45,7 +45,7 @@ public:
 
   SymbolCategory& changeCommonsToGlobal();
 
-  SymbolCategory& changeLocalToTLS(const LDSymbol& pSymbol);
+  SymbolCategory& changeLocalToDynamic(const LDSymbol& pSymbol);
 
   // -----  access  ----- //
   LDSymbol& at(size_t pPosition)
@@ -67,7 +67,7 @@ public:
 
   size_t numOfLocals() const;
 
-  size_t numOfTLSs() const;
+  size_t numOfLocalDyns() const;
 
   size_t numOfCommons() const;
 
@@ -81,7 +81,7 @@ public:
 
   bool emptyLocals() const;
 
-  bool emptyTLSs() const;
+  bool emptyLocalDyns() const;
 
   bool emptyCommons() const;
 
@@ -105,10 +105,10 @@ public:
   const_iterator localBegin() const;
   const_iterator localEnd() const;
 
-  iterator tlsBegin();
-  iterator tlsEnd();
-  const_iterator tlsBegin() const;
-  const_iterator tlsEnd() const;
+  iterator localDynBegin();
+  iterator localDynEnd();
+  const_iterator localDynBegin() const;
+  const_iterator localDynEnd() const;
 
   iterator commonBegin();
   iterator commonEnd();
@@ -132,7 +132,7 @@ private:
     enum Type {
       File,
       Local,
-      TLS,
+      LocalDyn,
       Common,
       Dynamic,
       Regular
@@ -179,7 +179,7 @@ private:
 
   Category* m_pFile;
   Category* m_pLocal;
-  Category* m_pTLS;
+  Category* m_pLocalDyn;
   Category* m_pCommon;
   Category* m_pDynamic;
   Category* m_pRegular;

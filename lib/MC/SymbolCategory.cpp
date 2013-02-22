@@ -35,24 +35,24 @@ SymbolCategory::Category::categorize(const ResolveInfo& pInfo)
 // SymbolCategory
 SymbolCategory::SymbolCategory()
 {
-  m_pFile    = new Category(Category::File);
-  m_pLocal   = new Category(Category::Local);
-  m_pTLS     = new Category(Category::TLS);
-  m_pCommon  = new Category(Category::Common);
-  m_pDynamic = new Category(Category::Dynamic);
-  m_pRegular = new Category(Category::Regular);
+  m_pFile     = new Category(Category::File);
+  m_pLocal    = new Category(Category::Local);
+  m_pLocalDyn = new Category(Category::LocalDyn);
+  m_pCommon   = new Category(Category::Common);
+  m_pDynamic  = new Category(Category::Dynamic);
+  m_pRegular  = new Category(Category::Regular);
 
-  m_pFile->next    = m_pLocal;
-  m_pLocal->next   = m_pTLS;
-  m_pTLS->next     = m_pCommon;
-  m_pCommon->next  = m_pDynamic;
-  m_pDynamic->next = m_pRegular;
+  m_pFile->next     = m_pLocal;
+  m_pLocal->next    = m_pLocalDyn;
+  m_pLocalDyn->next = m_pCommon;
+  m_pCommon->next   = m_pDynamic;
+  m_pDynamic->next  = m_pRegular;
 
-  m_pRegular->prev = m_pDynamic;
-  m_pDynamic->prev = m_pCommon;
-  m_pCommon->prev  = m_pTLS;
-  m_pTLS->prev     = m_pLocal;
-  m_pLocal->prev   = m_pFile;
+  m_pRegular->prev  = m_pDynamic;
+  m_pDynamic->prev  = m_pCommon;
+  m_pCommon->prev   = m_pLocalDyn;
+  m_pLocalDyn->prev = m_pLocal;
+  m_pLocal->prev    = m_pFile;
 }
 
 SymbolCategory::~SymbolCategory()
@@ -205,7 +205,7 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
   return *this;
 }
 
-SymbolCategory& SymbolCategory::changeLocalToTLS(const LDSymbol& pSymbol)
+SymbolCategory& SymbolCategory::changeLocalToDynamic(const LDSymbol& pSymbol)
 {
   // find the position of pSymbol from local category
   size_t pos = m_pLocal->begin;
@@ -219,10 +219,10 @@ SymbolCategory& SymbolCategory::changeLocalToTLS(const LDSymbol& pSymbol)
   if (m_pLocal->end == pos)
     return *this;
 
-  // bubble sort downward to TLS
+  // bubble sort downward to LocalDyn
   std::swap(m_OutputSymbols[pos], m_OutputSymbols[m_pLocal->end - 1]);
   m_pLocal->end--;
-  m_pTLS->begin--;
+  m_pLocalDyn->begin--;
   return *this;
 }
 
@@ -241,9 +241,9 @@ size_t SymbolCategory::numOfLocals() const
   return m_pLocal->size();
 }
 
-size_t SymbolCategory::numOfTLSs() const
+size_t SymbolCategory::numOfLocalDyns() const
 {
-  return m_pTLS->size();
+  return m_pLocalDyn->size();
 }
 
 size_t SymbolCategory::numOfCommons() const
@@ -276,9 +276,9 @@ bool SymbolCategory::emptyLocals() const
   return m_pLocal->empty();
 }
 
-bool SymbolCategory::emptyTLSs() const
+bool SymbolCategory::emptyLocalDyns() const
 {
-  return m_pTLS->empty();
+  return m_pLocalDyn->empty();
 }
 
 bool SymbolCategory::emptyCommons() const
@@ -364,33 +364,33 @@ SymbolCategory::const_iterator SymbolCategory::localEnd() const
   return iter;
 }
 
-SymbolCategory::iterator SymbolCategory::tlsBegin()
+SymbolCategory::iterator SymbolCategory::localDynBegin()
 {
   return localEnd();
 }
 
-SymbolCategory::iterator SymbolCategory::tlsEnd()
+SymbolCategory::iterator SymbolCategory::localDynEnd()
 {
-  iterator iter = tlsBegin();
-  iter += m_pTLS->size();
+  iterator iter = localDynBegin();
+  iter += m_pLocalDyn->size();
   return iter;
 }
 
-SymbolCategory::const_iterator SymbolCategory::tlsBegin() const
+SymbolCategory::const_iterator SymbolCategory::localDynBegin() const
 {
   return localEnd();
 }
 
-SymbolCategory::const_iterator SymbolCategory::tlsEnd() const
+SymbolCategory::const_iterator SymbolCategory::localDynEnd() const
 {
-  const_iterator iter = tlsBegin();
-  iter += m_pTLS->size();
+  const_iterator iter = localDynBegin();
+  iter += m_pLocalDyn->size();
   return iter;
 }
 
 SymbolCategory::iterator SymbolCategory::commonBegin()
 {
-  return tlsEnd();
+  return localDynEnd();
 }
 
 SymbolCategory::iterator SymbolCategory::commonEnd()
@@ -402,7 +402,7 @@ SymbolCategory::iterator SymbolCategory::commonEnd()
 
 SymbolCategory::const_iterator SymbolCategory::commonBegin() const
 {
-  return tlsEnd();
+  return localDynEnd();
 }
 
 SymbolCategory::const_iterator SymbolCategory::commonEnd() const

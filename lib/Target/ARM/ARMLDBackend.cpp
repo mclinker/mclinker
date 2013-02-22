@@ -161,7 +161,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                     "__exidx_start",
                                                     ResolveInfo::NoType,
-                                                    ResolveInfo::Undefined,
+                                                    ResolveInfo::Define,
                                                     ResolveInfo::Absolute,
                                                     0x0, // size
                                                     0x0, // value
@@ -172,7 +172,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder)
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                     "__exidx_end",
                                                     ResolveInfo::NoType,
-                                                    ResolveInfo::Undefined,
+                                                    ResolveInfo::Define,
                                                     ResolveInfo::Absolute,
                                                     0x0, // size
                                                     0x0, // value
