@@ -827,11 +827,9 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
 
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
-    // If we generate a dynamic relocation for a place, we should not
-    // perform static relocation on it.
+    // If we generate a dynamic relocation for a place with explicit
+    // addend, there is no need to perform static relocation on it.
     if (has_dyn_rel) {
-      // We shouldn't need PLT if we generate a dynamic relocation.
-      assert ((rsym->reserved() & X86GNULDBackend::ReservePLT) == 0);
       Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
 					    pReloc.targetRef().offset(),
 					    pReloc.type(), pParent);
