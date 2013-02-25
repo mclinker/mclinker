@@ -34,6 +34,8 @@ ELFDynObjReader::ELFDynObjReader(GNULDBackend& pBackend,
     m_Builder(pBuilder) {
   if (pConfig.targets().is32Bits() && pConfig.targets().isLittleEndian())
     m_pELFReader = new ELFReader<32, true>(pBackend);
+  else if (pConfig.targets().is64Bits() && pConfig.targets().isLittleEndian())
+    m_pELFReader = new ELFReader<64, true>(pBackend);
 }
 
 ELFDynObjReader::~ELFDynObjReader()
