@@ -185,6 +185,11 @@ void MipsGOT::merge(const Input& pInput, const ResolveInfo* pInfo)
                                          m_InputGlobalSymbols.size()));
 }
 
+bool MipsGOT::isReserved(const Input& pInput, const ResolveInfo& pInfo) const
+{
+  return (pInfo.reserved() & 2/*MipsGNULDBackend::ReserveGot*/) != 0;
+}
+
 void MipsGOT::reserveLocalEntry(const Input& pInput)
 {
   merge(pInput, NULL);

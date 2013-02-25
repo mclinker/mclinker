@@ -48,6 +48,8 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
+  bool isReserved(const Input& pInput, const ResolveInfo& pInfo) const;
+
   void reserveLocalEntry(const Input& pInput);
   void reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
 

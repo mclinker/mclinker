@@ -772,7 +772,7 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
         return;
       }
 
-      if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
+      if (!m_pGOT->isReserved(pInput, *rsym)) {
         m_pGOT->reserveLocalEntry(pInput);
         rsym->setReserved(rsym->reserved() | ReserveGot);
         // Remeber this rsym is a local GOT entry
@@ -847,7 +847,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_LO16:
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
-      if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
+      if (!m_pGOT->isReserved(pInput, *rsym)) {
         m_pGOT->reserveGlobalEntry(pInput, *rsym);
         rsym->setReserved(rsym->reserved() | ReserveGot);
         m_GlobalGOTSyms.push_back(rsym->outSymbol());
