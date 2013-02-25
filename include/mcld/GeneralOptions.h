@@ -65,6 +65,8 @@ public:
 
   void setSysroot(const sys::fs::Path &pPath);
 
+  bool hasSysroot() const;
+
   /// search directory
   SearchDirs& directories()
   { return m_SearchDirs; }
