@@ -33,6 +33,7 @@
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MsgHandling.h>
 
 using namespace llvm::ELF;
 using namespace mcld;
@@ -358,11 +359,25 @@ void ELFWriter::emitRelocation(const LinkerConfig& pConfig,
   const RelocData* sect_data = pSection.getRelocData();
   assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
-  if (pSection.type() == SHT_REL && pConfig.targets().is32Bits())
-    emitRel<32>(pConfig, *sect_data, pRegion);
-  else if (pSection.type() == SHT_RELA && pConfig.targets().is32Bits())
-    emitRela<32>(pConfig, *sect_data, pRegion);
-  else
+  if (pSection.type() == SHT_REL) {
+    if (pConfig.targets().is32Bits())
+      emitRel<32>(pConfig, *sect_data, pRegion);
+    else if (pConfig.targets().is64Bits())
+      emitRel<64>(pConfig, *sect_data, pRegion);
+    else {
+      fatal(diag::unsupported_bitclass) << pConfig.targets().triple().str()
+                                        << pConfig.targets().bitclass();
+    }
+  } else if (pSection.type() == SHT_RELA) {
+    if (pConfig.targets().is32Bits())
+      emitRela<32>(pConfig, *sect_data, pRegion);
+    else if (pConfig.targets().is64Bits())
+      emitRela<64>(pConfig, *sect_data, pRegion);
+    else {
+      fatal(diag::unsupported_bitclass) << pConfig.targets().triple().str()
+                                        << pConfig.targets().bitclass();
+    }
+  } else
     llvm::report_fatal_error("unsupported relocation section type!");
 }
 
