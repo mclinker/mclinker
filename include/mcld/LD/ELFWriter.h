@@ -86,10 +86,12 @@ protected:
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
+  template<unsigned int SIZE>
   void emitRel(const LinkerConfig& pConfig,
                const RelocData& pRelocData,
                MemoryRegion& pRegion) const;
 
+  template<unsigned int SIZE>
   void emitRela(const LinkerConfig& pConfig,
                 const RelocData& pRelocData,
                 MemoryRegion& pRegion) const;
@@ -117,6 +119,26 @@ private:
 protected:
   GNULDBackend& f_Backend;
 };
+
+template<>
+void ELFWriter::emitRel<32>(const LinkerConfig& pConfig,
+                            const RelocData& pRelocData,
+                            MemoryRegion& pRegion) const;
+
+template<>
+void ELFWriter::emitRela<32>(const LinkerConfig& pConfig,
+                             const RelocData& pRelocData,
+                             MemoryRegion& pRegion) const;
+
+template<>
+void ELFWriter::emitRel<64>(const LinkerConfig& pConfig,
+                            const RelocData& pRelocData,
+                            MemoryRegion& pRegion) const;
+
+template<>
+void ELFWriter::emitRela<64>(const LinkerConfig& pConfig,
+                             const RelocData& pRelocData,
+                             MemoryRegion& pRegion) const;
 
 } // namespace of mcld
 

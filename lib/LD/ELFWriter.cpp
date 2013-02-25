@@ -358,19 +358,20 @@ void ELFWriter::emitRelocation(const LinkerConfig& pConfig,
   const RelocData* sect_data = pSection.getRelocData();
   assert(NULL != sect_data && "SectionData is NULL in emitRelocation!");
 
-  if (pSection.type() == SHT_REL)
-    emitRel(pConfig, *sect_data, pRegion);
-  else if (pSection.type() == SHT_RELA)
-    emitRela(pConfig, *sect_data, pRegion);
+  if (pSection.type() == SHT_REL && pConfig.targets().is32Bits())
+    emitRel<32>(pConfig, *sect_data, pRegion);
+  else if (pSection.type() == SHT_RELA && pConfig.targets().is32Bits())
+    emitRela<32>(pConfig, *sect_data, pRegion);
   else
     llvm::report_fatal_error("unsupported relocation section type!");
 }
 
 
 /// emitRel
-void ELFWriter::emitRel(const LinkerConfig& pConfig,
-                        const RelocData& pRelocData,
-                        MemoryRegion& pRegion) const
+template<> void
+ELFWriter::emitRel<32>(const LinkerConfig& pConfig,
+                       const RelocData& pRelocData,
+                       MemoryRegion& pRegion) const
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>(pRegion.start());
 
@@ -403,10 +404,48 @@ void ELFWriter::emitRel(const LinkerConfig& pConfig,
   }
 }
 
+/// emitRel
+template<> void
+ELFWriter::emitRel<64>(const LinkerConfig& pConfig,
+                       const RelocData& pRelocData,
+                       MemoryRegion& pRegion) const
+{
+  Elf64_Rel* rel = reinterpret_cast<Elf64_Rel*>(pRegion.start());
+
+  Relocation* relocation = NULL;
+  FragmentRef* frag_ref = NULL;
+
+  for (RelocData::const_iterator it = pRelocData.begin(),
+       ie = pRelocData.end(); it != ie; ++it, ++rel) {
+
+    relocation = &(llvm::cast<Relocation>(*it));
+    frag_ref = &(relocation->targetRef());
+
+    if(LinkerConfig::DynObj == pConfig.codeGenType() ||
+       LinkerConfig::Exec == pConfig.codeGenType()) {
+      rel->r_offset = static_cast<Elf64_Addr>(
+                      frag_ref->frag()->getParent()->getSection().addr() +
+                      frag_ref->getOutputOffset());
+    }
+    else {
+      rel->r_offset = static_cast<Elf64_Addr>(frag_ref->getOutputOffset());
+    }
+    Elf64_Word Index;
+    if( relocation->symInfo() == NULL )
+      Index = 0;
+    else
+      Index = static_cast<Elf64_Word>(
+              f_Backend.getSymbolIdx(relocation->symInfo()->outSymbol()));
+
+    rel->setSymbolAndType(Index, relocation->type());
+  }
+}
+
 /// emitRela
-void ELFWriter::emitRela(const LinkerConfig& pConfig,
-                         const RelocData& pRelocData,
-                         MemoryRegion& pRegion) const
+template<> void
+ELFWriter::emitRela<32>(const LinkerConfig& pConfig,
+                        const RelocData& pRelocData,
+                        MemoryRegion& pRegion) const
 {
   Elf32_Rela* rel = reinterpret_cast<Elf32_Rela*>(pRegion.start());
 
@@ -434,6 +473,45 @@ void ELFWriter::emitRela(const LinkerConfig& pConfig,
       Index = 0;
     else
       Index = static_cast<Elf32_Word>(
+              f_Backend.getSymbolIdx(relocation->symInfo()->outSymbol()));
+
+    rel->setSymbolAndType(Index, relocation->type());
+    rel->r_addend = relocation->addend();
+  }
+}
+
+/// emitRela
+template<> void
+ELFWriter::emitRela<64>(const LinkerConfig& pConfig,
+                        const RelocData& pRelocData,
+                        MemoryRegion& pRegion) const
+{
+  Elf64_Rela* rel = reinterpret_cast<Elf64_Rela*>(pRegion.start());
+
+  Relocation* relocation = 0;
+  FragmentRef* frag_ref = 0;
+
+  for (RelocData::const_iterator it = pRelocData.begin(),
+       ie = pRelocData.end(); it != ie; ++it, ++rel) {
+
+    relocation = &(llvm::cast<Relocation>(*it));
+    frag_ref = &(relocation->targetRef());
+
+    if(LinkerConfig::DynObj == pConfig.codeGenType() ||
+       LinkerConfig::Exec == pConfig.codeGenType()) {
+      rel->r_offset = static_cast<Elf64_Addr>(
+                      frag_ref->frag()->getParent()->getSection().addr() +
+                      frag_ref->getOutputOffset());
+    }
+    else {
+      rel->r_offset = static_cast<Elf64_Addr>(frag_ref->getOutputOffset());
+    }
+
+    Elf64_Word Index;
+    if( relocation->symInfo() == NULL )
+      Index = 0;
+    else
+      Index = static_cast<Elf64_Word>(
               f_Backend.getSymbolIdx(relocation->symInfo()->outSymbol()));
 
     rel->setSymbolAndType(Index, relocation->type());
