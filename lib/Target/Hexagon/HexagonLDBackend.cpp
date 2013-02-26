@@ -11,6 +11,7 @@
 #include "HexagonLDBackend.h"
 #include "HexagonRelocator.h"
 #include "HexagonGNUInfo.h"
+#include "HexagonAbsoluteStub.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/Casting.h>
@@ -23,6 +24,11 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Object/ObjectBuilder.h>
+#include <mcld/Fragment/Stub.h>
+#include <mcld/LD/BranchIslandFactory.h>
+#include <mcld/LD/StubFactory.h>
+#include <mcld/LD/LDContext.h>
+
 
 #include <cstring>
 
@@ -215,6 +221,118 @@ void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                     FragmentRef::Null(),
                                                     ResolveInfo::Hidden);
   }
+}
+
+bool HexagonLDBackend::initTargetStubs()
+{
+  if (NULL != getStubFactory()) {
+    getStubFactory()->addPrototype
+                        (new HexagonAbsoluteStub(config().isCodeIndep()));
+    return true;
+  }
+  return false;
+}
+
+bool HexagonLDBackend::initBRIslandFactory()
+{
+  if (NULL == m_pBRIslandFactory) {
+    m_pBRIslandFactory = new BranchIslandFactory(maxBranchOffset(), 0);
+  }
+  return true;
+}
+
+bool HexagonLDBackend::initStubFactory()
+{
+  if (NULL == m_pStubFactory) {
+    m_pStubFactory = new StubFactory();
+  }
+  return true;
+}
+
+bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
+                               bool& pFinished)
+{
+  assert(NULL != getStubFactory() && NULL != getBRIslandFactory());
+  bool isRelaxed = false;
+  ELFFileFormat* file_format = getOutputFormat();
+  // check branch relocs and create the related stubs if needed
+  Module::obj_iterator input, inEnd = pModule.obj_end();
+  for (input = pModule.obj_begin(); input != inEnd; ++input) {
+    LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
+    for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
+      if (LDFileFormat::Ignore == (*rs)->kind() || !(*rs)->hasRelocData())
+        continue;
+      RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
+      for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
+        switch (reloc->type()) {
+          case llvm::ELF::R_HEX_B22_PCREL:
+          case llvm::ELF::R_HEX_B15_PCREL:
+          case llvm::ELF::R_HEX_B7_PCREL:
+          case llvm::ELF::R_HEX_B13_PCREL:
+          case llvm::ELF::R_HEX_B9_PCREL: {
+            Relocation* relocation = llvm::cast<Relocation>(reloc);
+            uint64_t sym_value = 0x0;
+            LDSymbol* symbol = relocation->symInfo()->outSymbol();
+            if (symbol->hasFragRef()) {
+              uint64_t value = symbol->fragRef()->getOutputOffset();
+              uint64_t addr =
+                symbol->fragRef()->frag()->getParent()->getSection().addr();
+              sym_value = addr + value;
+            }
+            Stub* stub = getStubFactory()->create(*relocation, // relocation
+                                                  sym_value, //symbol value
+                                                  pBuilder,
+                                                  *getBRIslandFactory());
+            if (NULL != stub) {
+              assert(NULL != stub->symInfo());
+              // increase the size of .symtab and .strtab
+              LDSection& symtab = file_format->getSymTab();
+              LDSection& strtab = file_format->getStrTab();
+              symtab.setSize(symtab.size() + sizeof(llvm::ELF::Elf32_Sym));
+              strtab.setSize(strtab.size() + stub->symInfo()->nameSize() + 1);
+              isRelaxed = true;
+            }
+          }
+          break;
+
+          default:
+            break;
+        }
+      }
+    }
+  }
+
+  // find the first fragment w/ invalid offset due to stub insertion
+  Fragment* invalid = NULL;
+  pFinished = true;
+  for (BranchIslandFactory::iterator island = getBRIslandFactory()->begin(),
+       island_end = getBRIslandFactory()->end(); island != island_end; ++island)
+  {
+    if ((*island).end() == file_format->getText().getSectionData()->end())
+      break;
+
+    Fragment* exit = (*island).end();
+    if (((*island).offset() + (*island).size()) > exit->getOffset()) {
+      invalid = exit;
+      pFinished = false;
+      break;
+    }
+  }
+
+  // reset the offset of invalid fragments
+  while (NULL != invalid) {
+    invalid->setOffset(invalid->getPrevNode()->getOffset() +
+                       invalid->getPrevNode()->size());
+    invalid = invalid->getNextNode();
+  }
+
+  // reset the size of .text
+  if (isRelaxed) {
+    file_format->getText().setSize(
+      file_format->getText().getSectionData()->back().getOffset() +
+      file_format->getText().getSectionData()->back().size());
+  }
+  return isRelaxed;
 }
 
 /// finalizeSymbol - finalize the symbol value

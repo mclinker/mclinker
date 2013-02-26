@@ -101,6 +101,15 @@ public:
                       IRBuilder& pBuilder,
                       Module& pModule,
                       LDSection& pSection);
+  bool initBRIslandFactory();
+
+  bool initStubFactory();
+
+  bool mayRelax() { return true; }
+
+  bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished);
+
+  bool initTargetStubs();
 
   OutputRelocSection& getRelDyn();
 
@@ -129,6 +138,8 @@ private:
   /// doCreateProgramHdrs - backend can implement this function to create the
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
+
+  uint64_t maxBranchOffset() { return ~(~0 << 6); }
 
 private:
   Relocator* m_pRelocator;

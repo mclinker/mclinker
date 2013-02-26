@@ -369,6 +369,8 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonRelocator.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonLDBackend.h \
 	${LIBDIR}/Target/Hexagon/HexagonLDBackend.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.h \
 	${LIBDIR}/Target/Hexagon/TargetInfo/HexagonTargetInfo.cpp
 
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
