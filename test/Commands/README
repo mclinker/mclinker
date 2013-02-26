@@ -32,3 +32,5 @@
   generate shared object w/ -Ttext, -Tdata, and -Tbss
 14) opt_shared_w_section_start.ll
   generate shared object w/ --section-start
+15) opt_static_w_output.ll
+  generate a simple statically linked output
