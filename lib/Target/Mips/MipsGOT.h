@@ -37,7 +37,7 @@ public:
   MipsGOTEntry(uint64_t pContent, SectionData* pParent);
 
   /// Offset from _gp_disp.
-  SizeTraits<32>::Address getGPRelOffset() const;
+  SizeTraits<32>::Offset getGPRelOffset() const;
 };
 
 /** \class MipsGOT

@@ -32,7 +32,7 @@ MipsGOTEntry::MipsGOTEntry(uint64_t pContent, SectionData* pParent)
    : GOT::Entry<4>(pContent, pParent)
 {}
 
-SizeTraits<32>::Address MipsGOTEntry::getGPRelOffset() const
+SizeTraits<32>::Offset MipsGOTEntry::getGPRelOffset() const
 {
   return getOffset() - MipsGOTGpOffset;
 }
