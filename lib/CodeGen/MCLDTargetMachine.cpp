@@ -214,8 +214,6 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                           pOutput.formatted_os(),
                           Context))
       return true;
-
-    pPM.add(createGCInfoDeleter()); // not in addPassesToMC
     break;
   }
   case CGFT_OBJFile: {
@@ -227,8 +225,6 @@ bool mcld::MCLDTargetMachine::addPassesToEmitFile(PassManagerBase &pPM,
                            pOutput.mem_os(),
                            Context))
       return true;
-
-    pPM.add(createGCInfoDeleter()); // not in addPassesToMC
     break;
   }
   case CGFT_EXEFile: {
