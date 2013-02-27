@@ -19,6 +19,7 @@
 
 namespace {
   const size_t MipsGOT0Num = 1;
+  const size_t MipsGOTGpOffset = 0x7FF0;
   const size_t MipsGOTSize = 0xffff / mcld::MipsGOTEntry::EntrySize;
 }
 
@@ -33,7 +34,7 @@ MipsGOTEntry::MipsGOTEntry(uint64_t pContent, SectionData* pParent)
 
 SizeTraits<32>::Address MipsGOTEntry::getGPRelOffset() const
 {
-  return getOffset() - 0x7FF0;
+  return getOffset() - MipsGOTGpOffset;
 }
 
 //===----------------------------------------------------------------------===//
@@ -88,7 +89,7 @@ MipsGOT::MipsGOT(LDSection& pSection)
 
 SizeTraits<32>::Address MipsGOT::getGPDispAddress() const
 {
-  return addr() + 0x7FF0;
+  return addr() + MipsGOTGpOffset;
 }
 
 void MipsGOT::reserve(size_t pNum)
@@ -265,7 +266,7 @@ uint64_t MipsGOT::getGPAddr(Input& pInput)
     }
   }
 
-  return addr() + 0x7FF0 * (2 * gotNum + 1);
+  return addr() + MipsGOTGpOffset * (2 * gotNum + 1);
 }
 
 void MipsGOT::recordEntry(const Input* pInput,
