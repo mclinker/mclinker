@@ -82,8 +82,6 @@ MipsGOT::MipsGOT(LDSection& pSection)
     m_TotalLocalNum(0),
     m_TotalGlobalNum(0)
 {
-  // Create GOT0 entries.
-  reserve(MipsGOT0Num);
 }
 
 SizeTraits<32>::Address MipsGOT::getGPDispAddress() const
@@ -121,6 +119,7 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
 
   for (MultipartListType::iterator it = m_MultipartList.begin();
        it != m_MultipartList.end(); ++it) {
+    reserve(MipsGOT0Num);
     it->m_pLastLocal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
     reserve(it->m_LocalNum);
     it->m_pLastGlobal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
@@ -194,11 +193,9 @@ void MipsGOT::changeInput(const Input& pInput)
 
 bool MipsGOT::isGOTFull() const
 {
-  uint64_t gotCount = m_MultipartList.back().m_LocalNum +
+  uint64_t gotCount = MipsGOT0Num +
+                      m_MultipartList.back().m_LocalNum +
                       m_MultipartList.back().m_GlobalNum;
-
-  if (m_MultipartList.size() == 1)
-    gotCount += MipsGOT0Num;
 
   gotCount += 1;
 
@@ -312,9 +309,9 @@ uint64_t MipsGOT::getGPAddr(Input& pInput)
     if (it->m_Inputs.count(&pInput))
       break;
 
-    gotSize += (it->m_LocalNum + it->m_GlobalNum);
+    gotSize += (MipsGOT0Num + it->m_LocalNum + it->m_GlobalNum);
     if (it == m_MultipartList.begin())
-      gotSize += MipsGOT0Num + m_TotalGlobalNum - it->m_GlobalNum - 1;
+      gotSize += m_TotalGlobalNum - it->m_GlobalNum - 1;
   }
 
   return addr() + gotSize * MipsGOTEntry::EntrySize + MipsGOTGpOffset;
