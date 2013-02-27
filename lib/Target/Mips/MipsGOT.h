@@ -18,6 +18,7 @@
 #include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/DenseSet.h>
 
+#include <mcld/ADT/SizeTraits.h>
 #include <mcld/Target/GOT.h>
 
 namespace mcld
@@ -33,9 +34,10 @@ class OutputRelocSection;
 class MipsGOTEntry : public GOT::Entry<4>
 {
 public:
-  MipsGOTEntry(uint64_t pContent, SectionData* pParent)
-   : GOT::Entry<4>(pContent, pParent)
-  {}
+  MipsGOTEntry(uint64_t pContent, SectionData* pParent);
+
+  /// Offset from _gp_disp.
+  SizeTraits<32>::Address getGPRelOffset() const;
 };
 
 /** \class MipsGOT

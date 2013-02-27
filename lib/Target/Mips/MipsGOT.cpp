@@ -25,6 +25,18 @@ namespace {
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
+// MipsGOTEntry
+//===----------------------------------------------------------------------===//
+MipsGOTEntry::MipsGOTEntry(uint64_t pContent, SectionData* pParent)
+   : GOT::Entry<4>(pContent, pParent)
+{}
+
+SizeTraits<32>::Address MipsGOTEntry::getGPRelOffset() const
+{
+  return getOffset() - 0x7FF0;
+}
+
+//===----------------------------------------------------------------------===//
 // MipsGOT::GOTMultipart
 //===----------------------------------------------------------------------===//
 MipsGOT::GOTMultipart::GOTMultipart(size_t local, size_t global)
