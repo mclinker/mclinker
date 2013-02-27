@@ -35,9 +35,6 @@ class MipsGOTEntry : public GOT::Entry<4>
 {
 public:
   MipsGOTEntry(uint64_t pContent, SectionData* pParent);
-
-  /// Offset from _gp_disp.
-  SizeTraits<32>::Offset getGPRelOffset() const;
 };
 
 /** \class MipsGOT
@@ -64,7 +61,9 @@ public:
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
 
-  SizeTraits<32>::Address getGPAddr(Input& pInput) const;
+  SizeTraits<32>::Address getGPAddr(const Input& pInput) const;
+  SizeTraits<32>::Offset getGPRelOffset(const Input& pInput,
+                                        const MipsGOTEntry& pEntry) const;
 
   void recordEntry(const Input* pInput,
                    const ResolveInfo* pInfo,

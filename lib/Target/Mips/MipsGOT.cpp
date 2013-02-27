@@ -32,11 +32,6 @@ MipsGOTEntry::MipsGOTEntry(uint64_t pContent, SectionData* pParent)
    : GOT::Entry<4>(pContent, pParent)
 {}
 
-SizeTraits<32>::Offset MipsGOTEntry::getGPRelOffset() const
-{
-  return getOffset() - MipsGOTGpOffset;
-}
-
 //===----------------------------------------------------------------------===//
 // MipsGOT::GOTMultipart
 //===----------------------------------------------------------------------===//
@@ -301,7 +296,7 @@ MipsGOTEntry* MipsGOT::consumeGlobal()
   return m_MultipartList[m_CurrentGOTPart].m_pLastGlobal;
 }
 
-SizeTraits<32>::Address MipsGOT::getGPAddr(Input& pInput) const
+SizeTraits<32>::Address MipsGOT::getGPAddr(const Input& pInput) const
 {
   uint64_t gotSize = 0;
   for (MultipartListType::const_iterator it = m_MultipartList.begin();
@@ -315,6 +310,13 @@ SizeTraits<32>::Address MipsGOT::getGPAddr(Input& pInput) const
   }
 
   return addr() + gotSize * MipsGOTEntry::EntrySize + MipsGOTGpOffset;
+}
+
+SizeTraits<32>::Offset MipsGOT::getGPRelOffset(const Input& pInput,
+                                               const MipsGOTEntry& pEntry) const
+{
+  SizeTraits<32>::Address gpAddr = getGPAddr(pInput);
+  return addr() + pEntry.getOffset() - gpAddr;
 }
 
 void MipsGOT::recordEntry(const Input* pInput,

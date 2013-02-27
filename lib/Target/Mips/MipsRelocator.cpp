@@ -175,8 +175,10 @@ Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
                                        MipsRelocator& pParent,
                                        Input* pInput)
 {
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
   MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
-  return got_entry.getGPRelOffset();
+  return got.getGPRelOffset(*pInput, got_entry);
 }
 
 static
@@ -337,6 +339,8 @@ MipsRelocator::Result got16(Relocation& pReloc,
                             MipsRelocator& pParent,
                             Input* pInput)
 {
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::Address G = 0;
 
@@ -353,7 +357,7 @@ MipsRelocator::Result got16(Relocation& pReloc,
     MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
 
     got_entry.setValue(res);
-    G = got_entry.getGPRelOffset();
+    G = got.getGPRelOffset(*pInput, got_entry);
   }
   else {
     G = helper_GetGOTOffset(pReloc, pParent, pInput);
