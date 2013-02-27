@@ -301,7 +301,7 @@ MipsGOTEntry* MipsGOT::consumeGlobal()
   return m_MultipartList[m_CurrentGOTPart].m_pLastGlobal;
 }
 
-uint64_t MipsGOT::getGPAddr(Input& pInput)
+SizeTraits<32>::Address MipsGOT::getGPAddr(Input& pInput) const
 {
   uint64_t gotSize = 0;
   for (MultipartListType::const_iterator it = m_MultipartList.begin();

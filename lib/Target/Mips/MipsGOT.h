@@ -64,7 +64,7 @@ public:
   MipsGOTEntry* consumeLocal();
   MipsGOTEntry* consumeGlobal();
 
-  uint64_t getGPAddr(Input& pInput);
+  SizeTraits<32>::Address getGPAddr(Input& pInput) const;
 
   void recordEntry(const Input* pInput,
                    const ResolveInfo* pInfo,
