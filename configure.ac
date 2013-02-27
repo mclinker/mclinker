@@ -87,11 +87,7 @@ CHECK_COMPILER_FLAG([-Wno-c99-extensions])
 
 ####################
 # Check for header files
-AC_CHECK_HEADERS([dlfcn.h fcntl.h])
-AC_CHECK_HEADERS([malloc.h setjmp.h signal.h stdint.h termios.h unistd.h])
-AC_CHECK_HEADERS([utime.h windows.h])
-AC_CHECK_HEADERS([sys/mman.h sys/param.h sys/resource.h sys/time.h sys/uio.h])
-AC_CHECK_HEADERS([sys/types.h sys/ioctl.h malloc/malloc.h mach/mach.h])
+AC_CHECK_HEADERS([fcntl.h unistd.h])
 
 ####################
 # Configure LLVM
