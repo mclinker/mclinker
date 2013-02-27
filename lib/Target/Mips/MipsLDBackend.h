@@ -29,8 +29,7 @@ public:
   enum ReservedEntryType {
     None          = 0,  // no reserved entry
     ReserveRel    = 1,  // reserve a dynamic relocation entry
-    ReserveGot    = 2,  // reserve a GOT entry
-    ReserveGpDisp = 8   // reserve _gp_disp symbol
+    ReserveGpDisp = 4   // reserve _gp_disp symbol
   };
 
 public:

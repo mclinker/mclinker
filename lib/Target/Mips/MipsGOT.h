@@ -55,8 +55,8 @@ public:
 
   bool isReserved(const Input& pInput, const ResolveInfo& pInfo) const;
 
-  void reserveLocalEntry(const Input& pInput);
-  void reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
+  bool reserveLocalEntry(const Input& pInput, const ResolveInfo& pInfo);
+  bool reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
 
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
   size_t getGlobalNum() const;  ///< total number of global symbols
@@ -93,6 +93,8 @@ public:
   /// hasGOT1 - return if this got section has any GOT1 entry
   bool hasGOT1() const;
 
+  bool hasMultipleGOT() const;
+
   /// Create GOT entries and reserve dynrel entries. 
   void finalizeScanning(OutputRelocSection& pRelDyn);
 
@@ -124,20 +126,26 @@ private:
   };
 
   typedef std::vector<GOTMultipart> MultipartListType;
-  typedef llvm::DenseMap<const ResolveInfo*, size_t> SymbolCountMapType;
+
+  typedef llvm::DenseSet<const ResolveInfo*> SymbolSetType;
+  typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolUniqueMapType;
 
   MultipartListType m_MultipartList;  ///< list of GOT's descriptors
   const Input* m_pInput;              ///< current input
-  SymbolCountMapType m_MergedGlobalSymbols; ///< merged global symbols
-  SymbolCountMapType m_InputGlobalSymbols;  ///< input global symbols
-  size_t m_InputLocalNum;                   ///< input local symbols
+  SymbolSetType m_MergedGlobalSymbols; ///< merged global symbols from
+  SymbolUniqueMapType m_InputGlobalSymbols; ///< input global symbols
+  SymbolSetType m_MergedLocalSymbols;
+  SymbolSetType m_InputLocalSymbols;
 
   size_t m_CurrentGOTPart;
 
   size_t m_TotalLocalNum;
   size_t m_TotalGlobalNum;
 
-  void merge(const Input& pInput, const ResolveInfo* pInfo);
+  void initGOTList(const Input& pInput);
+  void changeInput(const Input& pInput);
+  bool isGOTFull() const;
+  void split();
   void reserve(size_t pNum);
 
 private:

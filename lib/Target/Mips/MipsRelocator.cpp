@@ -134,7 +134,8 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
   MipsGOTEntry* got_entry;
-
+// FIXME: (simon) Test
+#if 0
   if (got.isLocal(rsym) && ResolveInfo::Section == rsym->type()) {
     // Local section symbols consume local got entries.
     got_entry = got.consumeLocal();
@@ -142,7 +143,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
       helper_SetupRelDynForGOTEntry(*got_entry, pReloc, NULL, pParent);
     return *got_entry;
   }
-
+#endif
   got_entry = got.lookupEntry(pInput, rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
@@ -157,12 +158,10 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
 
   got.recordEntry(pInput, rsym, got_entry);
 
-  // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & MipsGNULDBackend::ReserveGot) {
-    got_entry->setValue(pReloc.symValue());
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_got);
+  // First get this GOT entry, so should initialize it.
+  if (!got.isLocal(rsym) || ResolveInfo::Section != rsym->type()) {
+    if (!got.isPrimaryGOTConsumed())
+      got_entry->setValue(pReloc.symValue());
   }
 
   if (got.isPrimaryGOTConsumed())
