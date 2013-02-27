@@ -227,12 +227,6 @@ void MipsGOT::split()
   m_MultipartList.back().m_Inputs.insert(m_pInput);
 }
 
-// FIXME: (simon) Not used
-bool MipsGOT::isReserved(const Input& pInput, const ResolveInfo& pInfo) const
-{
-  return m_pInput == &pInput && m_InputGlobalSymbols.count(&pInfo);
-}
-
 bool MipsGOT::reserveLocalEntry(const Input& pInput, const ResolveInfo& pInfo)
 {
   if (m_pInput == NULL)
