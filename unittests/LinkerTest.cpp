@@ -84,6 +84,11 @@ TEST_F( LinkerTest, plasma) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config("armv7-none-linux-gnueabi");
 
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  Path search_dir(TOPDIR);
+  search_dir.append("test/libs/ARM/Android/android-14");
+  config.options().directories().insert(search_dir);
+
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
   linker.config(config);
@@ -91,11 +96,6 @@ TEST_F( LinkerTest, plasma) {
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libplasma.so");   ///< --soname=libplasma.so
   config.options().setBsymbolic();              ///< -Bsymbolic
-
-  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  Path search_dir(TOPDIR);
-  search_dir.append("test/libs/ARM/Android/android-14");
-  config.options().directories().insert(search_dir);
 
   Module module("libplasma.so");
   IRBuilder builder(module, config);
@@ -141,6 +141,11 @@ TEST_F( LinkerTest, plasma_twice) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config1("armv7-none-linux-gnueabi");
 
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  Path search_dir(TOPDIR);
+  search_dir.append("test/libs/ARM/Android/android-14");
+  config1.options().directories().insert(search_dir);
+
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
   linker.config(config1);
@@ -148,11 +153,6 @@ TEST_F( LinkerTest, plasma_twice) {
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
   config1.options().setBsymbolic(false);              ///< -Bsymbolic
-
-  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  Path search_dir(TOPDIR);
-  search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
 
   Module module1("libplasma.once.so");
   IRBuilder builder1(module1, config1);
@@ -191,6 +191,9 @@ TEST_F( LinkerTest, plasma_twice) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  config2.options().directories().insert(search_dir);
+
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
   linker.config(config2);
@@ -198,9 +201,6 @@ TEST_F( LinkerTest, plasma_twice) {
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
   config2.options().setBsymbolic();              ///< -Bsymbolic
-
-  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
 
   Module module2("libplasma.so");
   IRBuilder builder2(module2, config2);
@@ -236,6 +236,11 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config1("armv7-none-linux-gnueabi");
 
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  Path search_dir(TOPDIR);
+  search_dir.append("test/libs/ARM/Android/android-14");
+  config1.options().directories().insert(search_dir);
+
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
   linker.config(config1);
@@ -243,11 +248,6 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
   config1.options().setBsymbolic(false);              ///< -Bsymbolic
-
-  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  Path search_dir(TOPDIR);
-  search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
 
   Module module1("libplasma.once.so");
   IRBuilder *builder1 = new IRBuilder(module1, config1);
@@ -291,6 +291,9 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
+  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
+  config2.options().directories().insert(search_dir);
+
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
   linker.config(config2);
@@ -298,9 +301,6 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
   config2.options().setBsymbolic();              ///< -Bsymbolic
-
-  /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
 
   Module module2("libplasma.so");
   IRBuilder* builder2 = new IRBuilder(module2, config2);
