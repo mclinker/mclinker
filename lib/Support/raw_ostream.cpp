@@ -6,6 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+#include "mcld/Config/Config.h"
 #include <mcld/Support/raw_ostream.h>
 
 #if defined(HAVE_UNISTD_H)
