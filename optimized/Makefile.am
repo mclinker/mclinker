@@ -5,6 +5,11 @@ LIBDIR=${TOPLEVEL}/lib
 INCDIR=${TOPLEVEL}/include/mcld
 GENDIR=${BUILDTOP}/include/mcld
 
+AM_CXXFLAGS = \
+	@NO_VARIADIC_MACROS@ \
+	@NO_COVERED_SWITCH_DEFAULT@ \
+	@NO_C99_EXTENSIONS@
+
 HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
@@ -376,7 +381,7 @@ if ENABLE_WERROR
 ANDROID_CPPFLAGS+=-Werror
 endif
 
-AM_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+AM_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
 lib_LIBRARIES= libmcld.a
 
@@ -387,7 +392,7 @@ nobase_include_HEADERS = ${HEADER}
 bin_PROGRAMS = ld.mcld ld.bcc
 
 # ld.mcld
-ld_mcld_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
+ld_mcld_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS}
 
 ld_mcld_LDFLAGS = ${LLVM_LDFLAGS}
 
@@ -396,7 +401,7 @@ ld_mcld_LDADD = libmcld.a
 dist_ld_mcld_SOURCES = ${TOOLDIR}/llvm-mcld/llvm-mcld.cpp
 
 # ld.bcc
-ld_bcc_CPPFLAGS = -g -O2 -DLLVM_VERSION=${LLVM_VERSION} -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
+ld_bcc_CPPFLAGS = -g -I$(TOPLEVEL)/include -I$(BUILDTOP)/include ${LLVM_CPPFLAGS} ${ANDROID_CPPFLAGS} -I$(TOPLEVEL)/tools/mcld/include -I$(BUILDTOP)/tools/mcld/include
 
 ld_bcc_LDFLAGS = ${LLVM_LDFLAGS}
 

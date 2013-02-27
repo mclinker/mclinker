@@ -34,6 +34,8 @@ DEV_VERSION=$MAJOR.$MINOR.$MICRO.$AGE-$BUILD
 PKG_VERSION=$MAJOR.$MINOR.$MICRO-$BUILD
 MCLD_VERSION=$DEV_VERSION
 AC_SUBST(MCLD_VERSION)
+AC_DEFINE_UNQUOTED([MCLD_VERSION], ["$MCLD_VERSION"])
+AH_TEMPLATE([MCLD_VERSION], [MCLINKER version])
 
 ####################
 #  Languages
@@ -80,10 +82,11 @@ AM_CONDITIONAL([ENABLE_UNITTEST],[test "x${unittest}" == "xtrue" ])
 ####################
 # Configure compiler warnings
 CHECK_WERROR_FLAGS
-CHECK_COMPILER_FLAG([-Wno-covered-switch-default])
-CHECK_COMPILER_FLAG([-Wno-variadic-macros])
-CHECK_COMPILER_FLAG([-Wno-c99-extensions])
-
+AC_MSG_CHECKING([for optional compiler flags])
+CXX_FLAG_CHECK(NO_VARIADIC_MACROS, [-Wno-variadic-macros])
+CXX_FLAG_CHECK(NO_COVERED_SWITCH_DEFAULT, [-Wno-covered-switch-default])
+CXX_FLAG_CHECK(NO_C99_EXTENSIONS, [-Wno-c99-extensions])
+AC_MSG_RESULT([$NO_VARIADIC_MACROS $NO_COVERED_SWITCH_DEFAULT $NO_C99_EXTENSIONS])
 
 ####################
 # Check for header files
@@ -91,9 +94,35 @@ AC_CHECK_HEADERS([fcntl.h unistd.h])
 
 ####################
 # Configure LLVM
-CHECK_LLVM([3.0])
+CHECK_LLVM([3.3])
 ENUM_MCLD_TARGETS
 CHECK_ALONE_TARGET
+
+# Config.h
+AC_CONFIG_HEADER(include/mcld/Config/Config.h)
+
+AH_TOP([
+//===- Config.h.in --------------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef MCLD_CONFIG_H
+#define MCLD_CONFIG_H
+])
+
+AH_BOTTOM([
+#define MCLD_REGION_CHUNK_SIZE 32
+#define MCLD_NUM_OF_INPUTS 32
+#define MCLD_SECTIONS_PER_INPUT 16
+#define MCLD_SYMBOLS_PER_INPUT 128
+#define MCLD_RELOCATIONS_PER_INPUT 1024
+
+#endif
+])
 
 ####################
 # OUTPUT
@@ -106,7 +135,6 @@ AC_CONFIG_FILES([utils/gtest/Makefile])
 AC_CONFIG_FILES([utils/gtest/obj/Makefile])
 AC_CONFIG_FILES([include/mcld/Config/Targets.def])
 AC_CONFIG_FILES([include/mcld/Config/Linkers.def])
-AC_CONFIG_FILES([include/mcld/Config/Config.h])
 AC_CONFIG_FILES([tools/mcld/include/alone/Config/Config.h])
 AC_CONFIG_FILES([test/Makefile])
 

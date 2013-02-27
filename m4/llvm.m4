@@ -69,12 +69,10 @@ AC_DEFUN([CHECK_LLVM],
 	LLVM_LDFLAGS="${LLVM_LDFLAGS} `${LLVM_CONFIG_BIN} --ldflags`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/\n//g'`"
 	LLVM_LDFLAGS="`echo ${LLVM_LDFLAGS} | sed 's/-lgtest_main -lgtest//g'`"
-	LLVM_VERSION=${tool_major}
 	
 	AC_SUBST(LLVM_CFLAGS)
 	AC_SUBST(LLVM_CPPFLAGS)
 	AC_SUBST(LLVM_LDFLAGS)
-	AC_SUBST(LLVM_VERSION)
 	ifelse([$2], , , [$2])
 
 	AC_CACHE_CHECK([type of operating system we're going to host on],

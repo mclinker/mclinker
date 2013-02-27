@@ -6,6 +6,8 @@ dnl   CHECK_TARGET
 dnl
 dnl Luba Tang <lubatang@gmail.com>
 
+AH_TEMPLATE([TARGET_BUILD], [Define for standalone Android linker])
+
 AC_DEFUN([CHECK_ALONE_TARGET],
 [dnl
 	PROVIDE_ALONE_TARGET="";

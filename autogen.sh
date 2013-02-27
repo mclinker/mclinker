@@ -16,4 +16,5 @@ cd $root
 aclocal -I ./m4
 ${LIBTOOLIZE} --force
 automake --add-missing
+autoheader
 autoconf
