@@ -75,18 +75,14 @@ bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
   }
 
   if (!pConfig.options().nostdlib()) {
-    // FIXME: maybe we can only check ARCH and OS type?
-    bool is_native = (llvm::sys::getDefaultTargetTriple() ==
-                      pConfig.targets().triple().getTriple());
-    if (is_native || pConfig.options().hasSysroot()) {
-      // set up default search path
-      if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
-        pConfig.options().directories().insert("=/usr/lib");
-      }
-      else {
-        pConfig.options().directories().insert("=/lib");
-        pConfig.options().directories().insert("=/usr/lib");
-      }
+    // TODO: check if user sets the default search path instead via -Y option
+    // set up default search path
+    if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
+      pConfig.options().directories().insert("=/usr/lib");
+    }
+    else {
+      pConfig.options().directories().insert("=/lib");
+      pConfig.options().directories().insert("=/usr/lib");
     }
   }
   return true;
