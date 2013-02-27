@@ -31,7 +31,7 @@ using namespace alone;
 // Compiler Options
 //===----------------------------------------------------------------------===//
 #ifdef TARGET_BUILD
-static const std::string OptTargetTripe(DEFAULT_TARGET_TRIPLE_STRING);
+static const std::string OptTargetTriple(DEFAULT_TARGET_TRIPLE_STRING);
 #else
 static llvm::cl::opt<std::string>
 OptTargetTriple("mtriple",
