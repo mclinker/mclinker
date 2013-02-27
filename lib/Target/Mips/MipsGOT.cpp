@@ -86,6 +86,11 @@ MipsGOT::MipsGOT(LDSection& pSection)
   reserve(MipsGOT0Num);
 }
 
+SizeTraits<32>::Address MipsGOT::getGPDispAddress() const
+{
+  return addr() + 0x7FF0;
+}
+
 void MipsGOT::reserve(size_t pNum)
 {
   for (size_t i = 0; i < pNum; i++) {

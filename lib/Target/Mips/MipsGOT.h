@@ -48,6 +48,9 @@ class MipsGOT : public GOT
 public:
   MipsGOT(LDSection& pSection);
 
+  // Address of _gp_disp symbol.
+  SizeTraits<32>::Address getGPDispAddress() const;
+
   uint64_t emit(MemoryRegion& pRegion);
 
   bool isReserved(const Input& pInput, const ResolveInfo& pInfo) const;
