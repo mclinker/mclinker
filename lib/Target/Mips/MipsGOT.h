@@ -48,7 +48,7 @@ class MipsGOT : public GOT
 public:
   MipsGOT(LDSection& pSection);
 
-  // Address of _gp_disp symbol.
+  /// Address of _gp_disp symbol.
   SizeTraits<32>::Address getGPDispAddress() const;
 
   uint64_t emit(MemoryRegion& pRegion);
