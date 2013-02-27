@@ -390,8 +390,8 @@ ELFWriter::emitRel<32>(const LinkerConfig& pConfig,
 {
   Elf32_Rel* rel = reinterpret_cast<Elf32_Rel*>(pRegion.start());
 
-  Relocation* relocation = 0;
-  FragmentRef* frag_ref = 0;
+  const Relocation* relocation = 0;
+  const FragmentRef* frag_ref = 0;
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
@@ -427,8 +427,8 @@ ELFWriter::emitRel<64>(const LinkerConfig& pConfig,
 {
   Elf64_Rel* rel = reinterpret_cast<Elf64_Rel*>(pRegion.start());
 
-  Relocation* relocation = NULL;
-  FragmentRef* frag_ref = NULL;
+  const Relocation* relocation = NULL;
+  const FragmentRef* frag_ref = NULL;
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
@@ -464,8 +464,8 @@ ELFWriter::emitRela<32>(const LinkerConfig& pConfig,
 {
   Elf32_Rela* rel = reinterpret_cast<Elf32_Rela*>(pRegion.start());
 
-  Relocation* relocation = 0;
-  FragmentRef* frag_ref = 0;
+  const Relocation* relocation = 0;
+  const FragmentRef* frag_ref = 0;
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
@@ -503,8 +503,8 @@ ELFWriter::emitRela<64>(const LinkerConfig& pConfig,
 {
   Elf64_Rela* rel = reinterpret_cast<Elf64_Rela*>(pRegion.start());
 
-  Relocation* relocation = 0;
-  FragmentRef* frag_ref = 0;
+  const Relocation* relocation = 0;
+  const FragmentRef* frag_ref = 0;
 
   for (RelocData::const_iterator it = pRelocData.begin(),
        ie = pRelocData.end(); it != ie; ++it, ++rel) {
@@ -645,7 +645,7 @@ ELFWriter::emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const
       }
       case Fragment::Alignment: {
         // TODO: emit values with different sizes (> 1 byte), and emit nops
-        AlignFragment& align_frag = llvm::cast<AlignFragment>(*fragIter);
+        const AlignFragment& align_frag = llvm::cast<AlignFragment>(*fragIter);
         uint64_t count = size / align_frag.getValueSize();
         switch (align_frag.getValueSize()) {
           case 1u:
@@ -660,7 +660,7 @@ ELFWriter::emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const
         break;
       }
       case Fragment::Fillment: {
-        FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
+        const FillFragment& fill_frag = llvm::cast<FillFragment>(*fragIter);
         if (0 == size ||
             0 == fill_frag.getValueSize() ||
             0 == fill_frag.size()) {
@@ -677,7 +677,7 @@ ELFWriter::emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const
         break;
       }
       case Fragment::Stub: {
-        Stub& stub_frag = llvm::cast<Stub>(*fragIter);
+        const Stub& stub_frag = llvm::cast<Stub>(*fragIter);
         memcpy(pRegion.getBuffer(cur_offset), stub_frag.getContent(), size);
         break;
       }

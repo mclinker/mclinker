@@ -184,7 +184,7 @@ public:
   uint64_t abiPageSize() const;
 
   /// getSymbolIdx - get the symbol index of ouput symbol table
-  size_t getSymbolIdx(LDSymbol* pSymbol) const;
+  size_t getSymbolIdx(const LDSymbol* pSymbol) const;
 
   /// allocateCommonSymbols - allocate common symbols in the corresponding
   /// sections.

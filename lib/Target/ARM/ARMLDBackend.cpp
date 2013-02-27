@@ -782,7 +782,7 @@ uint64_t ARMGNULDBackend::emitSectionData(const LDSection& pSection,
           break;
         }
         case Fragment::Alignment: {
-          AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
+          const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
           uint64_t count = size / align_frag.getValueSize();
           switch (align_frag.getValueSize()) {
             case 1u:

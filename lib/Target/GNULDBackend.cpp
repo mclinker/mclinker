@@ -1505,9 +1505,9 @@ GNULDBackend::getSymbolShndx(const LDSymbol& pSymbol) const
 }
 
 /// getSymbolIdx - called by emitRelocation to get the ouput symbol table index
-size_t GNULDBackend::getSymbolIdx(LDSymbol* pSymbol) const
+size_t GNULDBackend::getSymbolIdx(const LDSymbol* pSymbol) const
 {
-   HashTableType::iterator entry = m_pSymIndexMap->find(pSymbol);
+   HashTableType::iterator entry = m_pSymIndexMap->find(const_cast<LDSymbol *>(pSymbol));
    assert(entry != m_pSymIndexMap->end() && "symbol not found in the symbol table");
    return entry.getEntry()->value();
 }
