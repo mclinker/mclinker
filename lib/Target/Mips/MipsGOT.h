@@ -147,9 +147,6 @@ private:
 
   size_t m_CurrentGOTPart;
 
-  size_t m_TotalLocalNum;
-  size_t m_TotalGlobalNum;
-
   SymbolsArrayType m_OrderedGlobalSym;
 
   void initGOTList(const Input& pInput);

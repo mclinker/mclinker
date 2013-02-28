@@ -74,9 +74,7 @@ void MipsGOT::GOTMultipart::consumeGlobal()
 MipsGOT::MipsGOT(LDSection& pSection)
   : GOT(pSection),
     m_pInput(NULL),
-    m_CurrentGOTPart(0),
-    m_TotalLocalNum(0),
-    m_TotalGlobalNum(0)
+    m_CurrentGOTPart(0)
 {
 }
 
@@ -104,15 +102,6 @@ bool MipsGOT::hasMultipleGOT() const
 
 void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
 {
-  m_TotalLocalNum  = 0;
-  m_TotalGlobalNum = 0;
-
-  for (MultipartListType::const_iterator it = m_MultipartList.begin();
-       it != m_MultipartList.end(); ++it) {
-    m_TotalLocalNum  += it->m_LocalNum;
-    m_TotalGlobalNum += it->m_GlobalNum;
-  }
-
   for (MultipartListType::iterator it = m_MultipartList.begin();
        it != m_MultipartList.end(); ++it) {
     reserve(MipsGOT0Num);
