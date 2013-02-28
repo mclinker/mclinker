@@ -9,6 +9,7 @@
 #include "Mips.h"
 #include "MipsGNUInfo.h"
 #include "MipsELFDynamic.h"
+#include "MipsEntryType.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocator.h"
 
@@ -213,12 +214,6 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
           << pSection.name()
           << "mclinker@googlegroups.com";
   return 0;
-}
-/// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
-bool MipsGNULDBackend::isGlobalGOTSymbol(const LDSymbol& pSymbol) const
-{
-  return std::find(m_GlobalGOTSyms.begin(),
-                   m_GlobalGOTSyms.end(), &pSymbol) != m_GlobalGOTSyms.end();
 }
 
 /// sizeNamePools - compute the size of regular name pools
@@ -456,7 +451,7 @@ void MipsGNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
   const Module::SymbolTable& symbols = pModule.getSymbolTable();
   Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
   for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
-    if (isGlobalGOTSymbol(**symbol))
+    if (m_pGOT->isSymGlobal(**symbol))
       continue;
     emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
     // maintain output's symbol and index map
@@ -469,8 +464,8 @@ void MipsGNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
   }
 
   // emit global GOT
-  for (std::vector<LDSymbol*>::const_iterator symbol = m_GlobalGOTSyms.begin(),
-       symbol_end = m_GlobalGOTSyms.end();
+  for (MipsGOT::const_sym_iterator symbol = m_pGOT->global_sym_begin(),
+       symbol_end = m_pGOT->global_sym_end();
        symbol != symbol_end; ++symbol) {
     // Make sure this golbal GOT entry is a dynamic symbol.
     // If not, something is wrong earlier when putting this symbol into
@@ -852,7 +847,6 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
       if (m_pGOT->reserveGlobalEntry(pInput, *rsym)) {
         if (m_pGOT->hasMultipleGOT()) // FIXME: is it necessary?
           checkAndSetHasTextRel(*pSection.getLink());
-        m_GlobalGOTSyms.push_back(rsym->outSymbol());
         // Remeber this rsym is a global GOT entry
         m_pGOT->setGlobal(rsym);
       }

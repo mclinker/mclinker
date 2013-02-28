@@ -12,6 +12,7 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
 
+#include "MipsEntryType.h"
 #include "MipsRelocator.h"
 #include "MipsRelocationFunctions.h"
 
@@ -257,7 +258,7 @@ MipsRelocator::Result abs32(Relocation& pReloc,
     return MipsRelocator::OK;
   }
 
-  if (rsym->reserved() & MipsGNULDBackend::ReserveRel) {
+  if (rsym->reserved() & ReserveRel) {
     helper_DynRel(pReloc, pParent);
 
     return MipsRelocator::OK;

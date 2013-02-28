@@ -25,6 +25,7 @@ namespace mcld
 {
 class Input;
 class LDSection;
+class LDSymbol;
 class MemoryRegion;
 class OutputRelocSection;
 
@@ -43,6 +44,10 @@ public:
 class MipsGOT : public GOT
 {
 public:
+  typedef std::vector<LDSymbol*> SymbolsArrayType;
+  typedef SymbolsArrayType::const_iterator const_sym_iterator;
+
+public:
   MipsGOT(LDSection& pSection);
 
   /// Address of _gp_disp symbol.
@@ -50,8 +55,8 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
-  bool reserveLocalEntry(const Input& pInput, const ResolveInfo& pInfo);
-  bool reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo);
+  bool reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo);
+  bool reserveGlobalEntry(const Input& pInput, ResolveInfo& pInfo);
 
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
   size_t getGlobalNum() const;  ///< total number of global symbols
@@ -94,6 +99,12 @@ public:
 
   /// Create GOT entries and reserve dynrel entries. 
   void finalizeScanning(OutputRelocSection& pRelDyn);
+
+  /// Return true if the symbol is the global GOT entry.
+  bool isSymGlobal(const LDSymbol& pSymbol) const;
+
+  const_sym_iterator global_sym_begin() const;
+  const_sym_iterator global_sym_end() const;
 
 private:
   /** \class GOTMultipart
@@ -138,6 +149,8 @@ private:
 
   size_t m_TotalLocalNum;
   size_t m_TotalGlobalNum;
+
+  SymbolsArrayType m_OrderedGlobalSym;
 
   void initGOTList(const Input& pInput);
   void changeInput(const Input& pInput);

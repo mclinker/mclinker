@@ -7,8 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "MipsGOT.h"
-
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/ELF.h>
 
@@ -16,6 +14,9 @@
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
+
+#include "MipsEntryType.h"
+#include "MipsGOT.h"
 
 namespace {
   const size_t MipsGOT0Num = 1;
@@ -124,7 +125,7 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
       // Reserve entries in the second part of the primary GOT.
       // These entries correspond to the global symbols in all
       // non-primary GOTs.
-      reserve(m_TotalGlobalNum - it->m_GlobalNum);
+      reserve(getGlobalNum() - it->m_GlobalNum);
     else {
       // Reserver reldyn entries for R_MIPS_REL32 relocations
       // for all global entries of secondary GOTs.
@@ -134,6 +135,22 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
         pRelDyn.reserveEntry();
     }
   }
+}
+
+bool MipsGOT::isSymGlobal(const LDSymbol& pSymbol) const
+{
+  return m_OrderedGlobalSym.end() !=
+    std::find(m_OrderedGlobalSym.begin(), m_OrderedGlobalSym.end(), &pSymbol);
+}
+
+MipsGOT::const_sym_iterator MipsGOT::global_sym_begin() const
+{
+  return m_OrderedGlobalSym.begin();
+}
+
+MipsGOT::const_sym_iterator MipsGOT::global_sym_end() const
+{
+  return m_OrderedGlobalSym.end();
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
@@ -153,6 +170,8 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 void MipsGOT::initGOTList(const Input& pInput)
 {
   m_pInput = &pInput;
+
+  m_OrderedGlobalSym.clear();
 
   m_MultipartList.clear();
   m_MultipartList.push_back(GOTMultipart());
@@ -219,7 +238,7 @@ void MipsGOT::split()
   m_MultipartList.back().m_Inputs.insert(m_pInput);
 }
 
-bool MipsGOT::reserveLocalEntry(const Input& pInput, const ResolveInfo& pInfo)
+bool MipsGOT::reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo)
 {
   if (m_pInput == NULL)
     initGOTList(pInput);
@@ -243,7 +262,7 @@ bool MipsGOT::reserveLocalEntry(const Input& pInput, const ResolveInfo& pInfo)
   return true;
 }
 
-bool MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
+bool MipsGOT::reserveGlobalEntry(const Input& pInput, ResolveInfo& pInfo)
 {
   if (m_pInput == NULL)
     initGOTList(pInput);
@@ -264,6 +283,12 @@ bool MipsGOT::reserveGlobalEntry(const Input& pInput, const ResolveInfo& pInfo)
 
   m_InputGlobalSymbols[&pInfo] = true;
   ++m_MultipartList.back().m_GlobalNum;
+
+  if (!(pInfo.reserved() & ReserveGot)) {
+    m_OrderedGlobalSym.push_back(pInfo.outSymbol());
+    pInfo.setReserved(pInfo.reserved() | ReserveGot);
+  }
+
   return true;
 }
 
@@ -306,7 +331,7 @@ SizeTraits<32>::Address MipsGOT::getGPAddr(const Input& pInput) const
 
     gotSize += (MipsGOT0Num + it->m_LocalNum + it->m_GlobalNum);
     if (it == m_MultipartList.begin())
-      gotSize += m_TotalGlobalNum - it->m_GlobalNum - 1;
+      gotSize += getGlobalNum() - it->m_GlobalNum;
   }
 
   return addr() + gotSize * MipsGOTEntry::EntrySize + MipsGOTGpOffset;
@@ -351,5 +376,5 @@ size_t MipsGOT::getLocalNum() const
 
 size_t MipsGOT::getGlobalNum() const
 {
-  return m_TotalGlobalNum;
+  return m_OrderedGlobalSym.size();
 }

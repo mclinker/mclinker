@@ -26,13 +26,6 @@ class MipsGNUInfo;
 class MipsGNULDBackend : public GNULDBackend
 {
 public:
-  enum ReservedEntryType {
-    None          = 0,  // no reserved entry
-    ReserveRel    = 1,  // reserve a dynamic relocation entry
-    ReserveGpDisp = 4   // reserve _gp_disp symbol
-  };
-
-public:
   MipsGNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
   ~MipsGNULDBackend();
 
@@ -152,13 +145,6 @@ private:
   MipsELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pGpDispSymbol;
-
-  std::vector<LDSymbol*> m_GlobalGOTSyms;
-
-private:
-  /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
-  bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
-
 };
 
 } // namespace of mcld
