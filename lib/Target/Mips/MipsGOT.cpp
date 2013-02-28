@@ -116,7 +116,7 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
       // non-primary GOTs.
       reserve(getGlobalNum() - it->m_GlobalNum);
     else {
-      // Reserver reldyn entries for R_MIPS_REL32 relocations
+      // Reserve reldyn entries for R_MIPS_REL32 relocations
       // for all global entries of secondary GOTs.
       // FIXME: (simon) Do not count local entries for non-pic.
       size_t count = it->m_GlobalNum + it->m_LocalNum;
