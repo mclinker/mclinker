@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <mcld/LD/ObjectWriter.h>
+#include <cassert>
 
 #include <llvm/Support/system_error.h>
 
@@ -54,32 +55,29 @@ private:
 
   const GNULDBackend& target() const  { return m_Backend; }
 
-  virtual void writeELF32Header(const LinkerConfig& pConfig,
-                                const Module& pModule,
-                                MemoryArea& pOutput) const;
+  // writeELFHeader - emit ElfXX_Ehdr
+  template<size_t SIZE>
+  void writeELFHeader(const LinkerConfig& pConfig,
+                      const Module& pModule,
+                      MemoryArea& pOutput) const;
 
-  virtual void writeELF64Header(const LinkerConfig& pConfig,
-                                const Module& pModule,
-                                MemoryArea& pOutput) const;
+  uint64_t getEntryPoint(const LinkerConfig& pConfig,
+                         const Module& pModule) const;
 
-  virtual uint64_t getEntryPoint(const LinkerConfig& pConfig,
-                                 const Module& pModule) const;
+  // emitSectionHeader - emit ElfXX_Shdr
+  template<size_t SIZE>
+  void emitSectionHeader(const Module& pModule,
+                         const LinkerConfig& pConfig,
+                         MemoryArea& pOutput) const;
 
-  void emitELF32SectionHeader(const Module& pModule,
-                              const LinkerConfig& pConfig,
-                              MemoryArea& pOutput) const;
-
-  void emitELF64SectionHeader(const Module& pModule,
-                              const LinkerConfig& pConfig,
-                              MemoryArea& pOutput) const;
-
-  void emitELF32ProgramHeader(MemoryArea& pOutput) const;
-
-  void emitELF64ProgramHeader(MemoryArea& pOutput) const;
+  // emitProgramHeader - emit ElfXX_Phdr
+  template<size_t SIZE>
+  void emitProgramHeader(MemoryArea& pOutput) const;
 
   // emitShStrTab - emit .shstrtab
-  void emitELFShStrTab(const LDSection& pShStrTab, const Module& pModule,
-                       MemoryArea& pOutput);
+  void emitShStrTab(const LDSection& pShStrTab,
+                    const Module& pModule,
+                    MemoryArea& pOutput);
 
   void emitSectionData(const LDSection& pSection,
                        MemoryRegion& pRegion) const;
@@ -88,32 +86,35 @@ private:
                       const LDSection& pSection,
                       MemoryRegion& pRegion) const;
 
-  template<unsigned int SIZE>
+  // emitRel - emit ElfXX_Rel
+  template<size_t SIZE>
   void emitRel(const LinkerConfig& pConfig,
                const RelocData& pRelocData,
                MemoryRegion& pRegion) const;
 
-  template<unsigned int SIZE>
+  // emitRela - emit ElfXX_Rela
+  template<size_t SIZE>
   void emitRela(const LinkerConfig& pConfig,
                 const RelocData& pRelocData,
                 MemoryRegion& pRegion) const;
 
   // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
-  uint64_t getELF32SectEntrySize(const LDSection& pSection) const;
+  template<size_t SIZE>
+  uint64_t getSectEntrySize(const LDSection& pSection) const;
 
-  // getSectEntrySize - compute ElfXX_Shdr::sh_entsize
-  uint64_t getELF64SectEntrySize(const LDSection& pSection) const;
-
-  // getSectEntrySize - compute ElfXX_Shdr::sh_link
+  // getSectLink - compute ElfXX_Shdr::sh_link
   uint64_t getSectLink(const LDSection& pSection,
                        const LinkerConfig& pConfig) const;
 
-  // getSectEntrySize - compute ElfXX_Shdr::sh_info
+  // getSectInfo - compute ElfXX_Shdr::sh_info
   uint64_t getSectInfo(const LDSection& pSection) const;
 
-  uint64_t getELF32LastStartOffset(const Module& pModule) const;
-
-  uint64_t getELF64LastStartOffset(const Module& pModule) const;
+  template<size_t SIZE>
+  uint64_t getLastStartOffset(const Module& pModule) const
+  {
+    assert(0 && "Call invalid ELFObjectWriter::getLastStartOffset");
+    return 0;
+  }
 
   void emitSectionData(const SectionData& pSD, MemoryRegion& pRegion) const;
 
@@ -124,24 +125,10 @@ private:
 };
 
 template<>
-void ELFObjectWriter::emitRel<32>(const LinkerConfig& pConfig,
-                                  const RelocData& pRelocData,
-                                  MemoryRegion& pRegion) const;
+uint64_t ELFObjectWriter::getLastStartOffset<32>(const Module& pModule) const;
 
 template<>
-void ELFObjectWriter::emitRela<32>(const LinkerConfig& pConfig,
-                                   const RelocData& pRelocData,
-                                   MemoryRegion& pRegion) const;
-
-template<>
-void ELFObjectWriter::emitRel<64>(const LinkerConfig& pConfig,
-                                  const RelocData& pRelocData,
-                                  MemoryRegion& pRegion) const;
-
-template<>
-void ELFObjectWriter::emitRela<64>(const LinkerConfig& pConfig,
-                                   const RelocData& pRelocData,
-                                   MemoryRegion& pRegion) const;
+uint64_t ELFObjectWriter::getLastStartOffset<64>(const Module& pModule) const;
 
 } // namespace of mcld
 
