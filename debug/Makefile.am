@@ -91,7 +91,6 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/RelocationFactory.h \
 	${INCDIR}/LD/NamePool.h \
 	${INCDIR}/LD/LDReader.h \
-	${INCDIR}/LD/LDWriter.h \
 	${INCDIR}/LD/ArchiveReader.h \
 	${INCDIR}/LD/ObjectReader.h \
 	${INCDIR}/LD/GroupReader.h \
@@ -230,7 +229,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/StaticResolver.cpp \
 	${LIBDIR}/LD/NamePool.cpp \
 	${LIBDIR}/LD/LDReader.cpp \
-	${LIBDIR}/LD/LDWriter.cpp \
 	${LIBDIR}/LD/ArchiveReader.cpp \
 	${LIBDIR}/LD/DynObjReader.cpp \
 	${LIBDIR}/LD/GroupReader.cpp \
