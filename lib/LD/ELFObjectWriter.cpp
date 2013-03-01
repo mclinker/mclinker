@@ -24,7 +24,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 ELFObjectWriter::ELFObjectWriter(GNULDBackend& pBackend,
                                  const LinkerConfig& pConfig)
-  : ObjectWriter(pBackend), ELFWriter(pBackend),
+  : ObjectWriter(), ELFWriter(pBackend),
     m_Config(pConfig) {
 }
 

@@ -7,14 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ObjectWriter.h>
-#include <mcld/MC/MCLDInput.h>
-#include <mcld/Target/GNULDBackend.h>
 
 using namespace mcld;
 
 //==========================
 // ObjectWriter
-ObjectWriter::ObjectWriter(GNULDBackend& pBackend)
+ObjectWriter::ObjectWriter()
 {
 }
 

@@ -17,7 +17,6 @@ namespace mcld {
 
 class Module;
 class MemoryArea;
-class GNULDBackend;
 
 /** \class ObjectWriter
  *  \brief ObjectWriter provides a common interface for object file writers.
@@ -25,7 +24,7 @@ class GNULDBackend;
 class ObjectWriter
 {
 protected:
-  ObjectWriter(GNULDBackend& pBackend);
+  ObjectWriter();
 
 public:
   virtual ~ObjectWriter();
