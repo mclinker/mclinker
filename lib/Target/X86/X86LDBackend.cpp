@@ -1068,6 +1068,33 @@ void X86_64GNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_X86_64_PC8:
       return;
 
+    case llvm::ELF::R_X86_64_GOTPCREL:
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
+        return;
+      m_pGOT->reserve();
+
+      // If the GOT is used in statically linked binaries,
+      // the GOT entry is enough and no relocation is needed.
+      if (config().isCodeStatic()) {
+        rsym->setReserved(rsym->reserved() | ReserveGOT);
+        return;
+      }
+      // If building shared object or the symbol is undefined, a dynamic
+      // relocation is needed to relocate this GOT entry. Reserve an
+      // entry in .rela.dyn
+      if (LinkerConfig::DynObj ==
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
+        m_pRelDyn->reserveEntry();
+        // set GOTRel bit
+        rsym->setReserved(rsym->reserved() | GOTRel);
+        return;
+      }
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+
     default:
       fatal(diag::unsupported_relocation) << (int)pReloc.type()
                                           << "mclinker@googlegroups.com";
