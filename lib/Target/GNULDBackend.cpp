@@ -2164,7 +2164,8 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
   // prelayout target first
   doPreLayout(pBuilder);
 
-  if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
+  if (LinkerConfig::Object != config().codeGenType() &&
+      config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // init EhFrameHdr and size the output section
     ELFFileFormat* format = getOutputFormat();
     m_pEhFrameHdr = new EhFrameHdr(format->getEhFrameHdr(),
@@ -2267,7 +2268,8 @@ void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
 
 void GNULDBackend::postProcessing(MemoryArea& pOutput)
 {
-  if (config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
+  if (LinkerConfig::Object != config().codeGenType() &&
+      config().options().hasEhFrameHdr() && getOutputFormat()->hasEhFrame()) {
     // emit eh_frame_hdr
     if (config().targets().is32Bits())
       m_pEhFrameHdr->emitOutput<32>(pOutput);
