@@ -38,11 +38,7 @@ class MemoryArea;
 class ELFObjectWriter : public ObjectWriter
 {
 public:
-  typedef uint64_t FileOffset;
-
-public:
-  ELFObjectWriter(GNULDBackend& pBackend,
-                  const LinkerConfig& pConfig);
+  ELFObjectWriter(GNULDBackend& pBackend, const LinkerConfig& pConfig);
 
   ~ELFObjectWriter();
 
