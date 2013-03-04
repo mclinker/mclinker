@@ -89,6 +89,10 @@ bool GNUArchiveReader::isThinArchive(Input& pInput) const
 
 bool GNUArchiveReader::readArchive(Archive& pArchive)
 {
+  // bypass the empty archive
+  if (Archive::MAGIC_LEN == pArchive.getARFile().memArea()->handler()->size())
+    return true;
+
   if (pArchive.getARFile().attribute()->isWholeArchive())
     return includeAllMembers(pArchive);
 
