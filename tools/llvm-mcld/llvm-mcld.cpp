@@ -647,6 +647,16 @@ ArgAuxiliaryAlias("auxiliary",
                   cl::desc("alias for -f"),
                   cl::aliasopt(ArgAuxiliary));
 
+static cl::opt<bool>
+ArgEB("EB",
+      cl::desc("Link big-endian objects. This affects the default output format."),
+      cl::init(false));
+
+static cl::opt<bool>
+ArgEL("EL",
+      cl::desc("Link little-endian objects. This affects the default output format."),
+      cl::init(false));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
