@@ -951,7 +951,6 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
    else {
      pSym.st_name  = 0;
    }
-   pSym.st_name  = pStrtabsize;
    pSym.st_value = pSymbol.value();
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
