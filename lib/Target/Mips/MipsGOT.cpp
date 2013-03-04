@@ -333,21 +333,18 @@ SizeTraits<32>::Offset MipsGOT::getGPRelOffset(const Input& pInput,
   return addr() + pEntry.getOffset() - gpAddr;
 }
 
-void MipsGOT::recordEntry(const Input* pInput,
-                          const ResolveInfo* pInfo,
-                          MipsGOTEntry* pEntry)
+void MipsGOT::recordEntry(const ResolveInfo* pInfo, MipsGOTEntry* pEntry)
 {
   GotEntryKey key;
-  key.m_pInput = pInput;
+  key.m_GOTPage = m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   m_GotEntriesMap[key] = pEntry;
 }
 
-MipsGOTEntry* MipsGOT::lookupEntry(const Input* pInput,
-                                   const ResolveInfo* pInfo)
+MipsGOTEntry* MipsGOT::lookupEntry(const ResolveInfo* pInfo)
 {
   GotEntryKey key;
-  key.m_pInput = pInput;
+  key.m_GOTPage= m_CurrentGOTPart;
   key.m_pInfo = pInfo;
   GotEntryMapType::iterator it = m_GotEntriesMap.find(key);
 

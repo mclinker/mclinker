@@ -145,7 +145,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
     return *got_entry;
   }
 #endif
-  got_entry = got.lookupEntry(pInput, rsym);
+  got_entry = got.lookupEntry(rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
     return *got_entry;
@@ -157,7 +157,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   else
     got_entry = got.consumeGlobal();
 
-  got.recordEntry(pInput, rsym, got_entry);
+  got.recordEntry(rsym, got_entry);
 
   // First get this GOT entry, so should initialize it.
   if (!got.isLocal(rsym) || ResolveInfo::Section != rsym->type()) {

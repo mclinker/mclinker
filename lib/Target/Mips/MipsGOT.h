@@ -70,11 +70,8 @@ public:
   SizeTraits<32>::Offset getGPRelOffset(const Input& pInput,
                                         const MipsGOTEntry& pEntry) const;
 
-  void recordEntry(const Input* pInput,
-                   const ResolveInfo* pInfo,
-                   MipsGOTEntry* pEntry);
-  MipsGOTEntry* lookupEntry(const Input* pInput,
-                            const ResolveInfo* pInfo);
+  void recordEntry(const ResolveInfo* pInfo, MipsGOTEntry* pEntry);
+  MipsGOTEntry* lookupEntry(const ResolveInfo* pInfo);
 
   void setLocal(const ResolveInfo* pInfo) {
     m_GOTTypeMap[pInfo] = false;
@@ -163,15 +160,15 @@ private:
 private:
   struct GotEntryKey
   {
-    const Input* m_pInput;
+    size_t m_GOTPage;
     const ResolveInfo* m_pInfo;
 
     bool operator<(const GotEntryKey& key) const
     {
-      if (m_pInput == key.m_pInput)
+      if (m_GOTPage == key.m_GOTPage)
         return m_pInfo < key.m_pInfo;
       else
-        return m_pInput < key.m_pInput;
+        return m_GOTPage < key.m_GOTPage;
     }
   };
 
