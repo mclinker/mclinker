@@ -2273,6 +2273,8 @@ void GNULDBackend::postProcessing(MemoryArea& pOutput)
     // emit eh_frame_hdr
     if (config().targets().is32Bits())
       m_pEhFrameHdr->emitOutput<32>(pOutput);
+    else
+      m_pEhFrameHdr->emitOutput<64>(pOutput);
   }
 }
 

@@ -70,6 +70,9 @@ private:
 template<>
 void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput);
 
+template<>
+void EhFrameHdr::emitOutput<64>(MemoryArea& pOutput);
+
 } // namespace of mcld
 
 #endif
