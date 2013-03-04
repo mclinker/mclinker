@@ -572,7 +572,7 @@ ArgExportDynamicAlias("E",
                       cl::desc("alias for --export-dynamic"),
                       cl::aliasopt(ArgExportDynamic));
 
-static cl::opt<std::string>
+static cl::opt<std::string, false, llvm::cl::EmulationParser>
 ArgEmulation("m",
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
@@ -1267,6 +1267,9 @@ int main(int argc, char* argv[])
   if (!TargetTriple.empty()) {
     TheTriple.setTriple(TargetTriple);
     mod.setTargetTriple(TargetTriple);
+  } else if (!ArgEmulation.empty()) {
+    TheTriple.setTriple(ArgEmulation);
+    mod.setTargetTriple(ArgEmulation);
   }
 
   // User doesn't specify the triple from command.

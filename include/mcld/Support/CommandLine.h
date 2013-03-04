@@ -15,6 +15,7 @@
 #include <mcld/MC/ZOption.h>
 
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/Triple.h>
 #include <llvm/Support/CommandLine.h>
 
 #include <string>
@@ -78,6 +79,28 @@ public:
                        const mcld::ZOption &V,
                        OptVal Default,
                        size_t GlobalWidth) const;
+  virtual void anchor();
+};
+
+//===----------------------------------------------------------------------===//
+// EmulationParser
+//===----------------------------------------------------------------------===//
+class EmulationParser : public llvm::cl::parser<std::string>
+{
+public:
+  // parse - Return true on error.
+  bool parse(Option &pOption,
+             StringRef pArgName,
+             StringRef pArg,
+             std::string &pValue);
+
+  virtual const char *getValueName() const { return "emulation"; }
+
+  void printOptionDiff(const Option &pOption,
+                       const std::string &pValue,
+                       OptVal pDefault,
+                       size_t pGlobalWidth) const;
+
   virtual void anchor();
 };
 

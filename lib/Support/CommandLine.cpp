@@ -7,8 +7,10 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/CommandLine.h>
+
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/ADT/StringSwitch.h>
 #include <llvm/Support/ErrorHandling.h>
 
 using namespace llvm;
@@ -163,6 +165,54 @@ void parser<mcld::ZOption>::printOptionDiff(const llvm::cl::Option &O,
 }
 
 void parser<mcld::ZOption>::anchor()
+{
+  // do nothing
+}
+
+//===----------------------------------------------------------------------===//
+// EmulationParser
+//===----------------------------------------------------------------------===//
+bool EmulationParser::parse(Option &pOption,
+                            StringRef pArgName,
+                            StringRef pArg,
+                            std::string &pValue)
+{
+  pValue = llvm::StringSwitch<std::string>(pArg)
+    .Case("arm_linux_eabi", "arm-none-linux-eabi")
+    .Case("elf_i386", "i386-none-linux")
+    .Case("elf_x86_64", "x86_64-none-linux")
+    .Case("elf32_x86_64", "x86_64-none-linux-gnux32")
+    .Case("elf_i386_fbsd", "i386-none-freebsd")
+    .Case("elf_x86_64_fbsd", "x86_64-none-freebsd")
+    .Case("i386nbsd", "i386-none-netbsd")
+    .Case("elf32ltsmip", "mipsel-none-linux-gnu")
+    .Default("");
+
+  if (pValue.empty()) {
+    errs() << "Unsupported target emulation: `" << pArg << "'\n";
+    return true;
+  }
+
+  return false;
+}
+
+void EmulationParser::printOptionDiff(const Option &pOption,
+                                      const std::string &pValue,
+                                      OptVal pDefault,
+                                      size_t pGlobalWidth) const
+{
+  printOptionName(pOption, pGlobalWidth);
+  outs() << "= " << pValue;
+  size_t NumSpaces = MaxOptWidth > pValue.size() ? MaxOptWidth - pValue.size() : 0;
+  outs().indent(NumSpaces) << " (default: ";
+  if (pDefault.hasValue())
+    outs() << pDefault.getValue();
+  else
+    outs() << "*no default*";
+  outs() << ")\n";
+}
+
+void EmulationParser::anchor()
 {
   // do nothing
 }
