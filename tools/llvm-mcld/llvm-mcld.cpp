@@ -792,6 +792,19 @@ ArgTextSegAddr("Ttext",
                cl::init(-1U));
 
 //===----------------------------------------------------------------------===//
+// Ignored GCC Compatibility Options
+//===----------------------------------------------------------------------===//
+static cl::opt<bool>
+ArgEL("EL",
+      cl::desc("GCC/collect2 compatibility: MIPS little endian.  Ignored"),
+      cl::init(false));
+
+static cl::opt<bool>
+ArgEB("EB",
+      cl::desc("GCC/collect2 compatibility: MIPS big endian.  Ignored"),
+      cl::init(false));
+
+//===----------------------------------------------------------------------===//
 // non-member functions
 //===----------------------------------------------------------------------===//
 /// GetOutputStream - get the output stream.
