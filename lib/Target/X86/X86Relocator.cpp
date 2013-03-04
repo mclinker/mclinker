@@ -832,7 +832,8 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
     if (has_dyn_rel) {
       Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
 					    pReloc.targetRef().offset(),
-					    pReloc.type(), pParent);
+					    llvm::ELF::R_X86_64_RELATIVE,
+					    pParent);
       // Copy addend.
       rel_entry.setAddend(A);
       return X86Relocator::OK;
