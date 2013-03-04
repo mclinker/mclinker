@@ -944,14 +944,19 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
 {
    // FIXME: check the endian between host and target
    // write out symbol
+   if (ResolveInfo::Section != pSymbol.type()) {
+     pSym.st_name  = pStrtabsize;
+     strcpy((pStrtab + pStrtabsize), pSymbol.name());
+   }
+   else {
+     pSym.st_name  = 0;
+   }
    pSym.st_name  = pStrtabsize;
    pSym.st_value = pSymbol.value();
    pSym.st_size  = getSymbolSize(pSymbol);
    pSym.st_info  = getSymbolInfo(pSymbol);
    pSym.st_other = pSymbol.visibility();
    pSym.st_shndx = getSymbolShndx(pSymbol);
-   // write out string
-   strcpy((pStrtab + pStrtabsize), pSymbol.name());
 }
 
 /// emitRegNamePools - emit regular name pools - .symtab, .strtab
