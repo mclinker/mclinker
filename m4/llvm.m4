@@ -76,49 +76,77 @@ AC_DEFUN([CHECK_LLVM],
 	ifelse([$2], , , [$2])
 
 	AC_CACHE_CHECK([type of operating system we're going to host on],
-        		[llvm_cv_platform_type],
+			[llvm_cv_os_type],
 			[case $host in
 			*-*-aix*)
+				llvm_cv_os_type="AIX"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-irix*)
+				llvm_cv_os_type="IRIX"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-cygwin*)
+				llvm_cv_os_type="Cygwin"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-darwin*)
+				llvm_cv_os_type="Darwin"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-minix*)
+				llvm_cv_os_type="Minix"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-freebsd*)
+				llvm_cv_os_type="FreeBSD"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-openbsd*)
+				llvm_cv_os_type="OpenBSD"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-netbsd*)
+				llvm_cv_os_type="NetBSD"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-dragonfly*)
+				llvm_cv_os_type="DragonFly"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-hpux*)
+				llvm_cv_os_type="HP-UX"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-interix*)
+				llvm_cv_os_type="Interix"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-linux*)
+				llvm_cv_os_type="Linux"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-solaris*)
+				llvm_cv_os_type="SunOS"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-auroraux*)
+				llvm_cv_os_type="AuroraUX"
 				llvm_cv_platform_type="Unix" ;;
 			*-*-win32*)
+				llvm_cv_os_type="Win32"
 				llvm_cv_platform_type="Win32" ;;
 			*-*-mingw*)
+				llvm_cv_os_type="MingW"
 				llvm_cv_platform_type="Win32" ;;
 			*-*-haiku*)
+				llvm_cv_os_type="Haiku"
 				llvm_cv_platform_type="Unix" ;;
 			*-unknown-eabi*)
+				llvm_cv_os_type="Freestanding"
 				llvm_cv_platform_type="Unix" ;;
 			*-unknown-elf*)
+				llvm_cv_os_type="Freestanding"
 				llvm_cv_platform_type="Unix" ;;
 			*)
+				llvm_cv_os_type="Unknown"
 				llvm_cv_platform_type="Unknown" ;;
 			esac])
+
+dnl Set the "OS" Makefile variable based on the platform type so the
+dnl makefile can configure itself to specific build hosts
+if test "$llvm_cv_os_type" = "Unknown" ; then
+	AC_MSG_ERROR([Operating system is unknown, configure can't continue])
+fi
+
+AC_SUBST(HOST_OS,$llvm_cv_os_type)
 
 	dnl Set the "MCLD_ON_*" variables based on llvm_cv_llvm_cv_platform_type
 	dnl This is used by lib/Support to determine the basic kind of implementation
