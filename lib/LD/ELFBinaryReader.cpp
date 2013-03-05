@@ -85,6 +85,8 @@ bool ELFBinaryReader::readBinary(Input& pInput)
                       0x0,
                       data_sect);
 
+  // Note: in Win32, the filename is wstring. Is it correct to convert
+  // filename to std::string?
   std::string mangled_name = pInput.path().filename().string();
   for (std::string::iterator it = mangled_name.begin(),
     ie = mangled_name.end(); it != ie; ++it) {
