@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Support/Directory.h"
-#include "mcld/Support/FileSystem.h"
+#include <mcld/Support/Directory.h>
+#include <mcld/Support/FileSystem.h>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
@@ -23,6 +23,15 @@ bool is_symlink(FileStatus f)
 {
   return f.type() == SymlinkFile;
 }
+
+#if defined(MCLD_ON_WIN32)
+const Path dot_path(L".");
+const Path dot_dot_path(L"..");
+
+#else
+const Path dot_path(".");
+const Path dot_dot_path("..");
+#endif
 
 } // namespace of anonymous
 
@@ -47,8 +56,8 @@ Directory::Directory(const Path& pPath,
     m_Handler(0),
     m_Cache(),
     m_CacheFull(false) {
-  if (m_Path.native() == ".")
-    detail::get_pwd(m_Path.native());
+  if (m_Path == dot_path)
+    detail::get_pwd(m_Path);
   m_Path.m_append_separator_if_needed();
   mcld::sys::fs::detail::open_dir(*this);
 }
@@ -87,8 +96,8 @@ void Directory::assign(const Path& pPath,
     clear();
 
   m_Path = pPath;
-  if (m_Path.native() == ".")
-    detail::get_pwd(m_Path.native());
+  if (m_Path == dot_path)
+    detail::get_pwd(m_Path);
   m_Path.m_append_separator_if_needed();
 
   m_FileStatus = st;

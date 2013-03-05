@@ -48,12 +48,12 @@ void RealPath::initialize()
     detail::canonicalize(m_PathName);
   }
   else if (isFromPWD()) {
-    std::string path_name;
+    Path path_name;
     detail::get_pwd(path_name);
-    path_name += '/';
-    path_name += m_PathName;
-    detail::canonicalize(path_name);
-    m_PathName = path_name;
+    path_name.native() += preferred_separator;
+    path_name.native() += m_PathName;
+    detail::canonicalize(path_name.native());
+    m_PathName = path_name.native();
   }
 }
 

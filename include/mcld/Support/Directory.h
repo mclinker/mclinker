@@ -12,13 +12,13 @@
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/TypeTraits.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/Path.h"
-#include "mcld/Support/PathCache.h"
+#include <mcld/ADT/TypeTraits.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 #include <llvm/Support/Allocator.h>
 #include <cstddef>
 
+#include "PathCache.h"
 
 namespace mcld {
 namespace sys {

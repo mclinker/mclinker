@@ -88,24 +88,23 @@ inline static bool is_directory(FileStatus f) {
   return f.type() == mcld::sys::fs::DirectoryFile;
 }
 
-namespace detail
-{
+namespace detail {
 
-extern std::string static_library_extension;
-extern std::string shared_library_extension;
-extern std::string executable_extension;
-extern std::string relocatable_extension;
-extern std::string assembly_extension;
-extern std::string bitcode_extension;
+extern Path::StringType static_library_extension;
+extern Path::StringType shared_library_extension;
+extern Path::StringType executable_extension;
+extern Path::StringType relocatable_extension;
+extern Path::StringType assembly_extension;
+extern Path::StringType bitcode_extension;
 
-size_t canonicalize(std::string& pPathName);
+size_t canonicalize(Path::StringType& pPathName);
 bool not_found_error(int perrno);
 void status(const Path& p, FileStatus& pFileStatus);
 void symlink_status(const Path& p, FileStatus& pFileStatus);
 mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter);
 void open_dir(Directory& pDir);
 void close_dir(Directory& pDir);
-void get_pwd(std::string& pPWD);
+void get_pwd(Path& pPWD);
 
 int open(const Path& pPath, int pOFlag);
 int open(const Path& pPath, int pOFlag, int pPermission);
