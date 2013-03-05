@@ -922,7 +922,7 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
 /// This function simplifies cross-compiling by reading triple from the program
 /// name. For example, if the program name is `arm-linux-eabi-ld.mcld', we can
 /// get the triple is arm-linux-eabi by the program name.
-static void ParseProgName(const char *progname)
+static std::string ParseProgName(const char *progname)
 {
   static const char *suffixes[] = {
     "ld",
@@ -933,7 +933,7 @@ static void ParseProgName(const char *progname)
 
   for (size_t i = 0; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
     if (ProgName == suffixes[i])
-      return;
+      return std::string();
   }
 
   StringRef ProgNameRef(ProgName);
@@ -951,9 +951,9 @@ static void ParseProgName(const char *progname)
     std::string IgnoredError;
     if (!llvm::TargetRegistry::lookupTarget(Prefix, IgnoredError))
       continue;
-    TargetTriple = Prefix.str();
-    return;
+    return Prefix.str();
   }
+  return std::string();
 }
 
 static bool ShouldColorize()
@@ -1206,7 +1206,6 @@ int main(int argc, char* argv[])
   mcld::InitializeAllEmulations();
   mcld::InitializeAllDiagnostics();
 
-  ParseProgName(argv[0]);
   cl::ParseCommandLineOptions(argc, argv, "MCLinker\n");
 
 #ifdef ENABLE_UNITTEST
@@ -1273,8 +1272,16 @@ int main(int argc, char* argv[])
     TheTriple.setTriple(TargetTriple);
     mod.setTargetTriple(TargetTriple);
   } else if (!ArgEmulation.empty()) {
+    // Using target emulation.
     TheTriple.setTriple(ArgEmulation);
     mod.setTargetTriple(ArgEmulation);
+  } else {
+    // Try to get target triple from program name.
+    std::string ProgNameTriple = ParseProgName(argv[0]);
+    if (!ProgNameTriple.empty()) {
+      TheTriple.setTriple(ProgNameTriple);
+      mod.setTargetTriple(ProgNameTriple);
+    }
   }
 
   // User doesn't specify the triple from command.
