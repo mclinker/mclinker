@@ -285,7 +285,7 @@ void close_dir(Directory& pDir)
   pDir.m_Handler = 0;
 }
 
-void get_pwd(std::string& pPWD)
+void get_pwd(Path& pPWD)
 {
   char* pwd = (char*)malloc(PATH_MAX);
   pPWD.assign(getcwd(pwd, PATH_MAX));
