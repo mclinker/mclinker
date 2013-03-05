@@ -178,7 +178,7 @@ bool EmulationParser::parse(Option &pOption,
                             std::string &pValue)
 {
   pValue = llvm::StringSwitch<std::string>(pArg)
-    .Case("arm_linux_eabi", "arm-none-linux-eabi")
+    .Case("armelf_linux_eabi", "arm-none-linux-eabi")
     .Case("elf_i386", "i386-none-linux")
     .Case("elf_x86_64", "x86_64-none-linux")
     .Case("elf32_x86_64", "x86_64-none-linux-gnux32")
