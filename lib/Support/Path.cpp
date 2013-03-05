@@ -29,11 +29,15 @@ bool is_separator(wchar_t value)
   return (value == separator || value == preferred_separator);
 }
 
+const Path::StringType separator_str(L"\\");
+
 #else
 bool is_separator(char value)
 {
   return (value == separator);
 }
+
+const Path::StringType separator_str("/");
 
 #endif
 } // anonymous namespace
@@ -109,11 +113,7 @@ Path& Path::append(const Path& pPath)
   //first path is a,second path is b
   else if(this->native()[this->native().size()-1] != separator &&
           pPath.native()[0] != separator) {
-#if defined(MCLD_ON_WIN32)
-    m_PathName.append(L"\\");
-#else
-    m_PathName.append("/");
-#endif
+    m_PathName.append(separator_str);
     m_PathName.append(pPath.native());
   }
   // a/,b or a,/b just append
