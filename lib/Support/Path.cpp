@@ -20,7 +20,20 @@ using namespace mcld;
 using namespace mcld::sys::fs;
 
 //===--------------------------------------------------------------------===//
+// Helper
+//===--------------------------------------------------------------------===//
+namespace {
+#if defined(MCLD_ON_WIN32)
+bool is_separator(wchar_t value);
+#else
+bool is_separator(char value);
+#endif
+} // anonymous namespace
+
+
+//===--------------------------------------------------------------------===//
 // Path
+//===--------------------------------------------------------------------===//
 Path::Path()
   : m_PathName() {
 }
@@ -79,12 +92,20 @@ Path& Path::append(const Path& pPath)
     unsigned int new_size = old_size + pPath.native().size();
 
     m_PathName.resize(new_size);
-    strcpy(const_cast<char*>(m_PathName.data()+old_size), pPath.native().data());
+#if defined(MCLD_ON_WIN32)
+    wcscpy(const_cast<ValueType*>(m_PathName.data()+old_size), pPath.native().data());
+#else
+    strcpy(const_cast<ValueType*>(m_PathName.data()+old_size), pPath.native().data());
+#endif
   }
   //first path is a,second path is b
-  else if(this->string()[this->native().size()-1] != separator &&
-          pPath.string()[0] != separator) {
+  else if(this->native()[this->native().size()-1] != separator &&
+          pPath.native()[0] != separator) {
+#if defined(MCLD_ON_WIN32)
+    m_PathName.append(L"\\");
+#else
     m_PathName.append("/");
+#endif
     m_PathName.append(pPath.native());
   }
   // a/,b or a,/b just append
@@ -99,14 +120,16 @@ bool Path::empty() const
   return m_PathName.empty();
 }
 
+/**
 std::string Path::string() const
 {
   return m_PathName;
 }
+**/
 
 Path::StringType Path::generic_string() const
 {
-  std::string result = m_PathName;
+  StringType result = m_PathName;
   detail::canonicalize(result);
   return result;
 }
@@ -162,7 +185,7 @@ Path Path::filename() const
 Path Path::stem() const
 {
   size_t begin_pos = m_PathName.find_last_of(separator)+1;
-  size_t end_pos   = m_PathName.find_last_of(".");
+  size_t end_pos   = m_PathName.find_last_of(dot);
   Path result_path(m_PathName.substr(begin_pos, end_pos - begin_pos));
   return result_path;
 }
@@ -194,15 +217,6 @@ Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS)
   return result;
 }
 
-bool mcld::sys::fs::is_separator(char value)
-{
-  return (value == separator
-#if defined(MCLD_ON_WIN32)
-          || value == preferred_separator
-#endif
-          );
-}
-
 bool mcld::sys::fs::exists(const Path &pPath)
 {
   FileStatus pFileStatus;
@@ -217,21 +231,16 @@ bool mcld::sys::fs::is_directory(const Path &pPath)
   return is_directory(pFileStatus);
 }
 
-std::ostream &mcld::sys::fs::operator<<(std::ostream& pOS,
-                                        const Path& pPath)
+#if defined(MCLD_ON_WIN32)
+bool is_separator(wchar_t value)
 {
-  return pOS << pPath.native();
+  return (value == separator || value == preferred_separator);
 }
 
-std::istream &mcld::sys::fs::operator>>(std::istream& pOS,
-                                        Path& pPath)
+#else
+bool is_separator(char value)
 {
-  return pOS >> pPath.native();
+  return (value == separator);
 }
 
-llvm::raw_ostream &mcld::sys::fs::operator<<(llvm::raw_ostream &pOS,
-                                             const Path &pPath)
-{
-  return pOS << pPath.native();
-}
-
+#endif
