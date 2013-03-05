@@ -91,6 +91,7 @@ AC_MSG_RESULT([$NO_VARIADIC_MACROS $NO_COVERED_SWITCH_DEFAULT $NO_C99_EXTENSIONS
 ####################
 # Check for header files
 AC_CHECK_HEADERS([fcntl.h unistd.h])
+AC_CHECK_HEADERS([sys/mman.h])
 
 ####################
 # Configure LLVM
