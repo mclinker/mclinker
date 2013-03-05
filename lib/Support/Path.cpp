@@ -24,9 +24,17 @@ using namespace mcld::sys::fs;
 //===--------------------------------------------------------------------===//
 namespace {
 #if defined(MCLD_ON_WIN32)
-bool is_separator(wchar_t value);
+bool is_separator(wchar_t value)
+{
+  return (value == separator || value == preferred_separator);
+}
+
 #else
-bool is_separator(char value);
+bool is_separator(char value)
+{
+  return (value == separator);
+}
+
 #endif
 } // anonymous namespace
 
@@ -119,13 +127,6 @@ bool Path::empty() const
 {
   return m_PathName.empty();
 }
-
-/**
-std::string Path::string() const
-{
-  return m_PathName;
-}
-**/
 
 Path::StringType Path::generic_string() const
 {
@@ -231,16 +232,36 @@ bool mcld::sys::fs::is_directory(const Path &pPath)
   return is_directory(pFileStatus);
 }
 
+// FIXME: Move the platform dependent code to Unix/PathV3.inc and
+// Windows/PathV3.inc
 #if defined(MCLD_ON_WIN32)
-bool is_separator(wchar_t value)
+std::string Path::string() const
 {
-  return (value == separator || value == preferred_separator);
+  std::string result;
+  if (!m_PathName.empty()) {
+    // TODO: convert
+  }
+  return result;
+}
+
+std::wstring Path::wstring() const
+{
+  return m_PathName;
 }
 
 #else
-bool is_separator(char value)
+std::string Path::string() const
 {
-  return (value == separator);
+  return m_PathName;
+}
+
+std::wstring Path::wstring() const
+{
+  std::wstring result;
+  if (!m_PathName.empty()) {
+    // TODO: convert
+  }
+  return result;
 }
 
 #endif

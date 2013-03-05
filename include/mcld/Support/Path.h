@@ -57,6 +57,7 @@ public:
   typedef char                               ValueType;
   typedef std::string                        StringType;
 #endif
+  typedef std::codecvt<wchar_t, char, mbstate_t> CodeCVT;
 
 public:
   Path();
@@ -91,7 +92,8 @@ public:
   const ValueType* c_str() const
   { return m_PathName.c_str(); }
 
-//  std::string string() const;
+  std::string string() const;
+  std::wstring wstring() const;
 
   // -----  decomposition  ----- //
   Path parent_path() const;
