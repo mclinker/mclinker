@@ -47,3 +47,4 @@ DIAG(warn_shared_textrel, DiagnosticEngine::Warning, "Add DT_TEXTREL in a shared
 DIAG(fatal_illegal_codegen_type, DiagnosticEngine::Fatal, "illegal output format of output %0", "illegal output format of output %0")
 DIAG(err_nmagic_not_static, DiagnosticEngine::Error, "cannot mix -nmagic option with -shared", "cannot mix -nmagic option with -shared")
 DIAG(err_omagic_not_static, DiagnosticEngine::Error, "cannot mix -omagic option with -shared", "cannot mix -omagic option with -shared")
+DIAG(warn_found_triple_n_emu, DiagnosticEngine::Warning, "Both target triple and emulation are set! Using triple: `%0'.", "Both target triple and emulation are set! Using triple: `%0'.")

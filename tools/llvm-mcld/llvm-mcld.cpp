@@ -1265,6 +1265,11 @@ int main(int argc, char* argv[])
   // If we are supposed to override the target triple, do so now.
   Triple TheTriple;
   if (!TargetTriple.empty()) {
+    if (!ArgEmulation.empty()) {
+      // Warn if both target triple and emulation are set.
+      mcld::warning(mcld::diag::warn_found_triple_n_emu) << TargetTriple
+                                                         << "\n";
+    }
     TheTriple.setTriple(TargetTriple);
     mod.setTargetTriple(TargetTriple);
   } else if (!ArgEmulation.empty()) {
