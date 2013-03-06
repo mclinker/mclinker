@@ -640,7 +640,6 @@ ARMRelocator::Result movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::DWord T = getThumbBit(pReloc);
   ARMRelocator::DWord A =
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
-  ARMRelocator::DWord X;
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
 
@@ -655,7 +654,7 @@ ARMRelocator::Result movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
   }
 
   // perform static relocation
-  X = (S + A) | T;
+  ARMRelocator::DWord X = (S + A) | T;
   pReloc.target() = helper_insert_val_movw_movt_inst(
                                          pReloc.target() + pReloc.addend(), X);
   return ARMRelocator::OK;
@@ -669,9 +668,7 @@ ARMRelocator::Result movw_prel_nc(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::DWord P = pReloc.place();
   ARMRelocator::DWord A =
       helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
-  ARMRelocator::DWord X;
-
-  X = ((S + A) | T) - P;
+  ARMRelocator::DWord X = ((S + A) | T) - P;
 
   if (helper_check_signed_overflow(X, 16)) {
     return ARMRelocator::Overflow;
@@ -688,7 +685,6 @@ ARMRelocator::Result movt_abs(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::Address S = pReloc.symValue();
   ARMRelocator::DWord A =
     helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
-  ARMRelocator::DWord X;
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
 
@@ -701,7 +697,7 @@ ARMRelocator::Result movt_abs(Relocation& pReloc, ARMRelocator& pParent)
     }
   }
 
-  X = S + A;
+  ARMRelocator::DWord X = S + A;
   X >>= 16;
   // perform static relocation
   pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
@@ -714,10 +710,8 @@ ARMRelocator::Result movt_prel(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::Address S = pReloc.symValue();
   ARMRelocator::DWord P = pReloc.place();
   ARMRelocator::DWord A =
-            helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
-  ARMRelocator::DWord X;
-
-  X = S + A - P;
+             helper_extract_movw_movt_addend(pReloc.target()) + pReloc.addend();
+  ARMRelocator::DWord X = S + A - P;
   X >>= 16;
 
   pReloc.target() = helper_insert_val_movw_movt_inst(pReloc.target(), X);
@@ -736,8 +730,7 @@ ARMRelocator::Result thm_movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
   ARMRelocator::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocator::DWord A =
-      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
-  ARMRelocator::DWord X;
+                   helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
@@ -749,11 +742,11 @@ ARMRelocator::Result thm_movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
       T = 0; // PLT is not thumb
     }
   }
-  X = (S + A) | T;
+  ARMRelocator::DWord X = (S + A) | T;
 
   val = helper_insert_val_thumb_movw_movt_inst(val, X);
-  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
-  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = val >> 16;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = val & 0xFFFFu;
 
   return ARMRelocator::OK;
 }
@@ -770,14 +763,12 @@ ARMRelocator::Result thm_movw_prel_nc(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
   ARMRelocator::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocator::DWord A =
-      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
-  ARMRelocator::DWord X;
-
-  X = ((S + A) | T) - P;
+                   helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
+  ARMRelocator::DWord X = ((S + A) | T) - P;
 
   val = helper_insert_val_thumb_movw_movt_inst(val, X);
-  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
-  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = val >> 16;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = val & 0xFFFFu;
 
   return ARMRelocator::OK;
 }
@@ -795,14 +786,13 @@ ARMRelocator::Result thm_movw_brel(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
   ARMRelocator::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocator::DWord A =
-      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
-  ARMRelocator::DWord X;
+                   helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
 
-  X = ((S + A) | T) - P;
+  ARMRelocator::DWord X = ((S + A) | T) - P;
 
   val = helper_insert_val_thumb_movw_movt_inst(val, X);
-  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
-  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = val >> 16;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = val & 0xFFFFu;
 
   return ARMRelocator::OK;
 }
@@ -818,12 +808,11 @@ ARMRelocator::Result thm_movt_abs(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
   ARMRelocator::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocator::DWord A =
-      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
-  ARMRelocator::DWord X;
+                   helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
 
   LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
-  // If the flag of target section is not ALLOC, we will not scan this relocation
-  // but perform static relocation. (e.g., applying .debug section)
+  // If the flag of target section is not ALLOC, we will not scan this
+  // relocation but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
     if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
@@ -831,18 +820,17 @@ ARMRelocator::Result thm_movt_abs(Relocation& pReloc, ARMRelocator& pParent)
     }
   }
 
-  X = S + A;
+  ARMRelocator::DWord X = S + A;
   X >>= 16;
 
   // check 16-bit overflow
-  if (helper_check_signed_overflow(X, 16)) {
+  if (helper_check_signed_overflow(X, 16))
     return ARMRelocator::Overflow;
-  } else {
-    val = helper_insert_val_thumb_movw_movt_inst(val, X);
-    *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
-    *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
-    return ARMRelocator::OK;
-  }
+  val = helper_insert_val_thumb_movw_movt_inst(val, X);
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = val >> 16;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = val & 0xFFFFu;
+  return ARMRelocator::OK;
+
 }
 
 // R_ARM_THM_MOVT_PREL: S + A - P
@@ -857,15 +845,13 @@ ARMRelocator::Result thm_movt_prel(Relocation& pReloc, ARMRelocator& pParent)
   uint16_t lower_inst = *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1);
   ARMRelocator::DWord val = ((upper_inst) << 16) | (lower_inst);
   ARMRelocator::DWord A =
-      helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
-  ARMRelocator::DWord X;
-
-  X = S + A - P;
+                   helper_extract_thumb_movw_movt_addend(val) + pReloc.addend();
+  ARMRelocator::DWord X = S + A - P;
   X >>= 16;
 
   val = helper_insert_val_thumb_movw_movt_inst(val, X);
-  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = upper_inst;
-  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = lower_inst;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target())) = val >> 16;
+  *(reinterpret_cast<uint16_t*>(&pReloc.target()) + 1) = val & 0xFFFFu;
 
   return ARMRelocator::OK;
 }
@@ -875,12 +861,9 @@ ARMRelocator::Result prel31(Relocation& pReloc, ARMRelocator& pParent)
 {
   ARMRelocator::DWord target = pReloc.target();
   ARMRelocator::DWord T = getThumbBit(pReloc);
-  ARMRelocator::DWord A = helper_sign_extend(target, 31) +
-                                  pReloc.addend();
+  ARMRelocator::DWord A = helper_sign_extend(target, 31) + pReloc.addend();
   ARMRelocator::DWord P = pReloc.place();
-  ARMRelocator::Address S;
-
-  S = pReloc.symValue();
+  ARMRelocator::Address S = pReloc.symValue();
   // if symbol has plt
   if ( pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
