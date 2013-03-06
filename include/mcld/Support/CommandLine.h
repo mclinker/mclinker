@@ -82,28 +82,6 @@ public:
   virtual void anchor();
 };
 
-//===----------------------------------------------------------------------===//
-// EmulationParser
-//===----------------------------------------------------------------------===//
-class EmulationParser : public llvm::cl::parser<std::string>
-{
-public:
-  // parse - Return true on error.
-  bool parse(Option &pOption,
-             StringRef pArgName,
-             StringRef pArg,
-             std::string &pValue);
-
-  virtual const char *getValueName() const { return "emulation"; }
-
-  void printOptionDiff(const Option &pOption,
-                       const std::string &pValue,
-                       OptVal pDefault,
-                       size_t pGlobalWidth) const;
-
-  virtual void anchor();
-};
-
 } // namespace of cl
 } // namespace of llvm
 

@@ -29,6 +29,7 @@
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/ADT/Triple.h>
+#include <llvm/ADT/StringSwitch.h>
 #include <llvm/MC/SubtargetFeature.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Debug.h>
@@ -573,7 +574,7 @@ ArgExportDynamicAlias("E",
                       cl::desc("alias for --export-dynamic"),
                       cl::aliasopt(ArgExportDynamic));
 
-static cl::opt<std::string, false, llvm::cl::EmulationParser>
+static cl::opt<std::string>
 ArgEmulation("m",
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
@@ -957,6 +958,26 @@ static std::string ParseProgName(const char *progname)
   return std::string();
 }
 
+static Triple ParseEmulation(const std::string& pEmulation)
+{
+  Triple result = StringSwitch<Triple>(pEmulation)
+    .Case("armelf_linux_eabi", Triple("arm", "", "linux", "gnueabi"))
+    .Case("elf_i386",          Triple("i386", "", "", "gnu"))
+    .Case("elf_x86_64",        Triple("x86_64", "", "", "gnu"))
+    .Case("elf32_x86_64",      Triple("x86_64", "", "", "gnux32"))
+    .Case("elf_i386_fbsd",     Triple("i386", "", "freebsd", "gnu"))
+    .Case("elf_x86_64_fbsd",   Triple("x86_64", "", "freebsd", "gnu"))
+    .Case("elf32ltsmip",       Triple("mipsel", "", "", "gnu"))
+    .Default(Triple());
+
+  if (result.getArch()        == Triple::UnknownArch &&
+      result.getOS()          == Triple::UnknownOS &&
+      result.getEnvironment() == Triple::UnknownEnvironment)
+    mcld::error(mcld::diag::err_invalid_emulation) << pEmulation << "\n";
+
+  return result;
+}
+
 static bool ShouldColorize()
 {
    const char* term = getenv("TERM");
@@ -1265,35 +1286,32 @@ int main(int argc, char* argv[])
   // If we are supposed to override the target triple, do so now.
   Triple TheTriple;
   if (!TargetTriple.empty()) {
-    if (!ArgEmulation.empty()) {
-      // Warn if both target triple and emulation are set.
-      mcld::warning(mcld::diag::warn_found_triple_n_emu) << TargetTriple
-                                                         << "\n";
-    }
+    // 1. Use the triple from command.
     TheTriple.setTriple(TargetTriple);
     mod.setTargetTriple(TargetTriple);
-  } else if (!ArgEmulation.empty()) {
-    // Using target emulation.
-    TheTriple.setTriple(ArgEmulation);
-    mod.setTargetTriple(ArgEmulation);
+  } else if (!mod.getTargetTriple().empty()) {
+    // 2. Use the triple in the input Module.
+    TheTriple.setTriple(mod.getTargetTriple());
   } else {
-    // Try to get target triple from program name.
     std::string ProgNameTriple = ParseProgName(argv[0]);
     if (!ProgNameTriple.empty()) {
+      // 3. Use the triple from the program name prefix.
       TheTriple.setTriple(ProgNameTriple);
       mod.setTargetTriple(ProgNameTriple);
-    }
-  }
-
-  // User doesn't specify the triple from command.
-  if (TheTriple.getTriple().empty()) {
-    // Try to get one from the input Module.
-    const std::string &TripleStr = mod.getTargetTriple();
-
-    if (TripleStr.empty())
+    } else {
+      // 4. Use the default target triple.
       TheTriple.setTriple(mcld::sys::getDefaultTargetTriple());
-    else
-      TheTriple.setTriple(TripleStr);
+      if (!ArgEmulation.empty()) {
+        // Process target emulation.
+        Triple EmulationTriple = ParseEmulation(ArgEmulation);
+        if (EmulationTriple.getArch() != Triple::UnknownArch)
+          TheTriple.setArch(EmulationTriple.getArch());
+        if (EmulationTriple.getOS() != Triple::UnknownOS)
+          TheTriple.setOS(EmulationTriple.getOS());
+        if (EmulationTriple.getEnvironment() != Triple::UnknownEnvironment)
+          TheTriple.setEnvironment(EmulationTriple.getEnvironment());
+      }
+    }
   }
 
   // Allocate target machine.  First, check whether the user has explicitly
