@@ -14,6 +14,11 @@
 namespace mcld{
 namespace sys{
 
+std::string getDefaultTargetTriple()
+{
+  return MCLD_DEFAULT_TARGET_TRIPLE;
+}
+
 } // namespace of sys
 } // namespace of mcld
 

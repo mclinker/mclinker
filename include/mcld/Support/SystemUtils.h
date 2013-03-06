@@ -14,6 +14,7 @@
 
 #include <llvm/Support/DataTypes.h>
 #include <mcld/Config/Config.h>
+#include <string>
 
 namespace mcld {
 namespace sys {
@@ -25,6 +26,8 @@ typedef off_t Offset;
  *  \brief system error message
  */
 char *strerror(int pErrnum);
+
+std::string getDefaultTargetTriple();
 
 } // namespace of sys
 } // namespace of mcld

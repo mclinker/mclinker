@@ -18,6 +18,7 @@
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/SystemUtils.h>
 #include <mcld/Support/ToolOutputFile.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/TextDiagnosticPrinter.h>
@@ -1290,7 +1291,7 @@ int main(int argc, char* argv[])
     const std::string &TripleStr = mod.getTargetTriple();
 
     if (TripleStr.empty())
-      TheTriple.setTriple(sys::getDefaultTargetTriple());
+      TheTriple.setTriple(mcld::sys::getDefaultTargetTriple());
     else
       TheTriple.setTriple(TripleStr);
   }
