@@ -487,6 +487,26 @@ ARMRelocator::Result got_prel(Relocation& pReloc, ARMRelocator& pParent)
   return ARMRelocator::OK;
 }
 
+// R_ARM_THM_JUMP11: S + A - P
+ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
+{
+  ARMRelocator::DWord P = pReloc.place();
+  ARMRelocator::DWord A =
+                       helper_sign_extend((pReloc.target() & 0x07ff) << 1, 11) +
+                       pReloc.addend();
+  // S depends on PLT exists or not
+  ARMRelocator::Address S = pReloc.symValue();
+  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)
+    S = helper_PLT(pReloc, pParent);
+
+  ARMRelocator::DWord X = S + A - P;
+  if (helper_check_signed_overflow(X, 11))
+    return ARMRelocator::Overflow;
+  //                    Make sure the Imm is 0.          Result Mask.
+  pReloc.target() = (pReloc.target() & 0xFFFFF800u) | ((X & 0x0FFEu) >> 1);
+  return ARMRelocator::OK;
+}
+
 // R_ARM_PLT32: ((S + A) | T) - P
 // R_ARM_JUMP24: ((S + A) | T) - P
 // R_ARM_CALL: ((S + A) | T) - P
@@ -504,14 +524,14 @@ ARMRelocator::Result call(Relocation& pReloc, ARMRelocator& pParent)
     return ARMRelocator::OK;
   }
 
-  ARMRelocator::Address S; // S depends on PLT exists or not.
   ARMRelocator::DWord   T = getThumbBit(pReloc);
   ARMRelocator::DWord   A =
-    helper_sign_extend((pReloc.target() & 0x00FFFFFFu) << 2, 26)
-    + pReloc.addend();
+    helper_sign_extend((pReloc.target() & 0x00FFFFFFu) << 2, 26) +
+    pReloc.addend();
   ARMRelocator::Address P = pReloc.place();
 
-  S = pReloc.symValue();
+  // S depends on PLT exists or not
+  ARMRelocator::Address S = pReloc.symValue();
   if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
@@ -541,7 +561,7 @@ ARMRelocator::Result call(Relocation& pReloc, ARMRelocator& pParent)
 }
 
 // R_ARM_THM_CALL: ((S + A) | T) - P
-// R_ARM_THM_JUMP24: (((S + A) | T) - P)
+// R_ARM_THM_JUMP24: ((S + A) | T) - P
 ARMRelocator::Result thm_call(Relocation& pReloc, ARMRelocator& pParent)
 {
   // If target is undefined weak symbol, we only need to jump to the
