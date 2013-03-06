@@ -140,13 +140,14 @@ AC_DEFUN([CHECK_LLVM],
 				llvm_cv_platform_type="Unknown" ;;
 			esac])
 
-dnl Set the "OS" Makefile variable based on the platform type so the
-dnl makefile can configure itself to specific build hosts
-if test "$llvm_cv_os_type" = "Unknown" ; then
-	AC_MSG_ERROR([Operating system is unknown, configure can't continue])
-fi
+	dnl Set the "OS" Makefile variable based on the platform type so the
+	dnl makefile can configure itself to specific build hosts
+	if test "$llvm_cv_os_type" = "Unknown" ; then
+		AC_MSG_ERROR([Operating system is unknown, configure can't continue])
+	fi
 
-AC_SUBST(HOST_OS,$llvm_cv_os_type)
+	AC_SUBST(HOST_OS,$llvm_cv_os_type)
+	AC_SUBST(TARGET_OS,$llvm_cv_target_os_type)
 
 	dnl Set the "MCLD_ON_*" variables based on llvm_cv_llvm_cv_platform_type
 	dnl This is used by lib/Support to determine the basic kind of implementation
@@ -161,4 +162,84 @@ AC_SUBST(HOST_OS,$llvm_cv_os_type)
 		AC_SUBST(MCLD_ON_PLATFORM,[MCLD_ON_WIN32])
 	;;
 	esac
+
+	AC_CACHE_CHECK([type of operating system we're going to target],
+	               [llvm_cv_target_os_type],
+	[case $target in
+	  *-*-aix*)
+	    llvm_cv_target_os_type="AIX" ;;
+	  *-*-irix*)
+	    llvm_cv_target_os_type="IRIX" ;;
+	  *-*-cygwin*)
+	    llvm_cv_target_os_type="Cygwin" ;;
+	  *-*-darwin*)
+	    llvm_cv_target_os_type="Darwin" ;;
+	  *-*-minix*)
+	    llvm_cv_target_os_type="Minix" ;;
+	  *-*-freebsd* | *-*-kfreebsd-gnu)
+	    llvm_cv_target_os_type="FreeBSD" ;;
+	  *-*-openbsd*)
+	    llvm_cv_target_os_type="OpenBSD" ;;
+	  *-*-netbsd*)
+	    llvm_cv_target_os_type="NetBSD" ;;
+	  *-*-dragonfly*)
+	    llvm_cv_target_os_type="DragonFly" ;;
+	  *-*-hpux*)
+	    llvm_cv_target_os_type="HP-UX" ;;
+	  *-*-interix*)
+	    llvm_cv_target_os_type="Interix" ;;
+	  *-*-linux*)
+	    llvm_cv_target_os_type="Linux" ;;
+	  *-*-gnu*)
+	    llvm_cv_target_os_type="GNU" ;;
+	  *-*-solaris*)
+	    llvm_cv_target_os_type="SunOS" ;;
+	  *-*-auroraux*)
+	    llvm_cv_target_os_type="AuroraUX" ;;
+	  *-*-win32*)
+	    llvm_cv_target_os_type="Win32" ;;
+	  *-*-mingw*)
+	    llvm_cv_target_os_type="MingW" ;;
+	  *-*-haiku*)
+	    llvm_cv_target_os_type="Haiku" ;;
+	  *-*-rtems*)
+	    llvm_cv_target_os_type="RTEMS" ;;
+	  *-*-nacl*)
+	    llvm_cv_target_os_type="NativeClient" ;;
+	  *-unknown-eabi*)
+	    llvm_cv_target_os_type="Freestanding" ;;
+	  *)
+	    llvm_cv_target_os_type="Unknown" ;;
+	esac])
+
+	dnl Determine what our target architecture is and configure accordingly.
+	dnl This will allow Makefiles to make a distinction between the hardware and
+	dnl the OS.
+	AC_CACHE_CHECK([target architecture],[llvm_cv_target_arch],
+	[case $target in
+	  i?86-*)                 llvm_cv_target_arch="x86" ;;
+	  amd64-* | x86_64-*)     llvm_cv_target_arch="x86_64" ;;
+	  sparc*-*)               llvm_cv_target_arch="Sparc" ;;
+	  powerpc*-*)             llvm_cv_target_arch="PowerPC" ;;
+	  arm*-*)                 llvm_cv_target_arch="ARM" ;;
+	  aarch64*-*)             llvm_cv_target_arch="AArch64" ;;
+	  mips-* | mips64-*)      llvm_cv_target_arch="Mips" ;;
+	  mipsel-* | mips64el-*)  llvm_cv_target_arch="Mips" ;;
+	  xcore-*)                llvm_cv_target_arch="XCore" ;;
+	  msp430-*)               llvm_cv_target_arch="MSP430" ;;
+	  hexagon-*)              llvm_cv_target_arch="Hexagon" ;;
+	  mblaze-*)               llvm_cv_target_arch="MBlaze" ;;
+	  nvptx-*)                llvm_cv_target_arch="NVPTX" ;;
+	  *)                      llvm_cv_target_arch="Unknown" ;;
+	esac])
+
+	if test "$llvm_cv_target_arch" = "Unknown" ; then
+	  AC_MSG_WARN([Configuring MCLINKER for an unknown target archicture])
+	fi
+
+	dnl Set the "MCLD_DEFAULT_TARGET_TRIPLE" variable based on $target.
+	dnl This is used to determine the default target triple and emulation
+	dnl to use.
+	AC_DEFINE_UNQUOTED([MCLD_DEFAULT_TARGET_TRIPLE], ["$target"],
+                           [Target triple MCLinker will generate code for by default])
 ])

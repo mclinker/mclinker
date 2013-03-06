@@ -20,6 +20,12 @@ AC_CONFIG_SRCDIR([./COPYING])
 AC_CONFIG_AUX_DIR([scripts])
 AC_CONFIG_MACRO_DIR([m4])
 
+dnl Check the target for which we're linking and the host that will do the
+dnl linking. This will tell us which MCLINKER will be used for linking
+dnl input objects into output. This needs to be done early because
+dnl following tests depend on it.
+AC_CANONICAL_TARGET
+
 AM_INIT_AUTOMAKE([1.9 dist-bzip2 foreign])
 
 ####################
