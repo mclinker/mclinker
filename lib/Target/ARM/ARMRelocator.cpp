@@ -100,9 +100,13 @@ static
 uint64_t helper_sign_extend(uint64_t pVal, uint64_t pOri_width)
 {
   assert(pOri_width <= 64);
+  if (pOri_width == 64)
+    return pVal;
+  uint64_t mask = (~((uint64_t)0)) >> (64 - pOri_width);
+  pVal &= mask;
+  // Reverse sign bit, then subtract sign bit.
   uint64_t sign_bit = 1 << (pOri_width - 1);
   return (pVal ^ sign_bit) - sign_bit;
-  // Reverse sign bit, then subtract sign bit.
 }
 
 static
