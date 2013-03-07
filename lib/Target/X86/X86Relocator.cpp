@@ -249,8 +249,10 @@ X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
                               *rsym,
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               true);
+  FragmentRef &target_fragref = pReloc.targetRef();
+  Fragment *target_frag = target_fragref.frag();
 
-  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  LDSection& target_sect = target_frag->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
@@ -260,16 +262,10 @@ X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
 
   // A local symbol may need REL Type dynamic relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    if (llvm::ELF::R_386_32 == pReloc.type()) {
-      helper_DynRel(rsym, *pReloc.targetRef().frag(),
-                    pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE,
-                    pParent);
-    }
-    else {
-      // FIXME: check Section symbol
-      helper_DynRel(rsym, *pReloc.targetRef().frag(),
-                    pReloc.targetRef().offset(), pReloc.type(), pParent);
-    }
+    X86Relocator::Type pType = pReloc.type();
+    if (llvm::ELF::R_386_32 == pType)
+      pType = llvm::ELF::R_386_RELATIVE;
+    helper_DynRel(rsym, *target_frag, target_fragref.offset(), pType, pParent);
     pReloc.target() = S + A;
     return X86Relocator::OK;
   }
@@ -285,12 +281,12 @@ X86Relocator::Result abs(Relocation& pReloc, X86_32Relocator& pParent)
     if (has_dyn_rel) {
       if (llvm::ELF::R_386_32 == pReloc.type() &&
           helper_use_relative_reloc(*rsym, pParent)) {
-        helper_DynRel(rsym, *pReloc.targetRef().frag(),
-              pReloc.targetRef().offset(), llvm::ELF::R_386_RELATIVE, pParent);
+        helper_DynRel(rsym, *target_frag, target_fragref.offset(),
+              llvm::ELF::R_386_RELATIVE, pParent);
       }
       else {
-        helper_DynRel(rsym, *pReloc.targetRef().frag(),
-                          pReloc.targetRef().offset(), pReloc.type(), pParent);
+        helper_DynRel(rsym, *target_frag, target_fragref.offset(),
+                      pReloc.type(), pParent);
         return X86Relocator::OK;
       }
     }
