@@ -62,28 +62,33 @@ bool SectionSymbolSet::add(LDSection& pOutSect, NamePool& pNamePool)
 }
 
 bool SectionSymbolSet::finalize(LDSection& pOutSect,
-                                SymbolTable& pSymTab)
+                                SymbolTable& pSymTab, bool relocatable)
 {
-  if (0x0 == pOutSect.size())
-    return true;
+  if (!relocatable && pOutSect.size() == 0)
+      return true;
 
   LDSymbol* sym = get(pOutSect);
   assert(NULL != sym);
-  FragmentRef* frag_ref = NULL;
+  SectionData* data = NULL;
   switch (pOutSect.kind()) {
     case LDFileFormat::Relocation:
       // Relocation section should not have section symbol.
       return true;
 
     case LDFileFormat::EhFrame:
-      frag_ref = FragmentRef::Create(
-                          pOutSect.getEhFrame()->getSectionData()->front(), 0x0);
+      if (EhFrame *ehframe = pOutSect.getEhFrame())
+          data = ehframe->getSectionData();
       break;
 
     default:
-      frag_ref = FragmentRef::Create(pOutSect.getSectionData()->front(), 0x0);
+      data = pOutSect.getSectionData();
       break;
   }
+  FragmentRef* frag_ref;
+  if (data && !data->empty())
+    frag_ref = FragmentRef::Create(data->front(), 0x0);
+  else
+    frag_ref = FragmentRef::Null();
   sym->setFragmentRef(frag_ref);
   // push symbol into output symbol table
   pSymTab.add(*sym);

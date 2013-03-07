@@ -387,7 +387,9 @@ bool ObjectLinker::prelayout()
   // into output symbol table
   Module::iterator sect, sEnd = m_pModule->end();
   for (sect = m_pModule->begin(); sect != sEnd; ++sect) {
-    m_pModule->getSectionSymbolSet().finalize(**sect, m_pModule->getSymbolTable());
+    m_pModule->getSectionSymbolSet().finalize(**sect,
+        m_pModule->getSymbolTable(),
+        m_Config.codeGenType() == LinkerConfig::Object);
   }
 
   m_LDBackend.preLayout(*m_pModule, *m_pBuilder);

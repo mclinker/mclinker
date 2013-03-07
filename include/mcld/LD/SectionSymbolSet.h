@@ -42,7 +42,7 @@ public:
 
   /// finalize - set section symbols' fragmentRef and push it into the output
   /// symbol table
-  bool finalize(LDSection& pOutSect, SymbolTable& pSymTab);
+  bool finalize(LDSection& pOutSect, SymbolTable& pSymTab, bool relocatable);
 
   /// get - get the section symbol for section pOutpSect
   LDSymbol* get(const LDSection& pOutSect);
