@@ -406,7 +406,7 @@ void IRBuilder::AppendRelocation(Relocation& pRelocation, RelocData& pRD)
 uint64_t IRBuilder::AppendEhFrame(Fragment& pFrag, EhFrame& pEhFrame)
 {
   uint64_t size = ObjectBuilder::AppendFragment(pFrag,
-                              pEhFrame.getSectionData(),
+                              *pEhFrame.getSectionData(),
                               pEhFrame.getSection().align());
   pEhFrame.getSection().setSize(pEhFrame.getSection().size() + size);
   return size;

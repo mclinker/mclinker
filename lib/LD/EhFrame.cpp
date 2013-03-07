@@ -113,7 +113,7 @@ void EhFrame::addFDE(EhFrame::FDE& pFDE)
 
 EhFrame& EhFrame::merge(EhFrame& pOther)
 {
-  ObjectBuilder::MoveSectionData(pOther.getSectionData(), *m_pSectionData);
+  ObjectBuilder::MoveSectionData(*pOther.getSectionData(), *m_pSectionData);
 
   m_CIEs.reserve(pOther.numOfCIEs() + m_CIEs.size());
   for (cie_iterator cie = pOther.cie_begin(); cie != pOther.cie_end(); ++cie)

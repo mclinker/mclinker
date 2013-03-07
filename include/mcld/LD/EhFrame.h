@@ -101,8 +101,8 @@ public:
   const LDSection& getSection() const;
   LDSection&       getSection();
 
-  const SectionData& getSectionData() const { return *m_pSectionData; }
-  SectionData&       getSectionData()       { return *m_pSectionData; }
+  const SectionData* getSectionData() const { return m_pSectionData; }
+  SectionData*       getSectionData()       { return m_pSectionData; }
 
   // -----  fragment  ----- //
   /// addFragment - when we start treating CIEs and FDEs as regular fragments,

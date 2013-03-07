@@ -81,7 +81,7 @@ FragmentRef* FragmentRef::Create(LDSection& pSection, uint64_t pOffset)
       break;
     case LDFileFormat::EhFrame:
       if (pSection.hasEhFrame())
-        data = &pSection.getEhFrame()->getSectionData();
+        data = pSection.getEhFrame()->getSectionData();
       break;
     default:
       data = pSection.getSectionData();

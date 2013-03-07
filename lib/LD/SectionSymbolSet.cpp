@@ -77,7 +77,7 @@ bool SectionSymbolSet::finalize(LDSection& pOutSect,
 
     case LDFileFormat::EhFrame:
       frag_ref = FragmentRef::Create(
-                          pOutSect.getEhFrame()->getSectionData().front(), 0x0);
+                          pOutSect.getEhFrame()->getSectionData()->front(), 0x0);
       break;
 
     default:

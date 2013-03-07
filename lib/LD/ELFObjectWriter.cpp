@@ -381,7 +381,7 @@ ELFObjectWriter::emitSectionData(const LDSection& pSection,
       return;
     case LDFileFormat::EhFrame:
       assert(pSection.hasEhFrame());
-      sd = &pSection.getEhFrame()->getSectionData();
+      sd = pSection.getEhFrame()->getSectionData();
       break;
     default:
       assert(pSection.hasSectionData());

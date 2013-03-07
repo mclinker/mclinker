@@ -197,7 +197,7 @@ bool ELFObjectReader::readSections(Input& pInput)
         }
         else {
           if (!m_pELFReader->readRegularSection(pInput,
-                                                eh_frame->getSectionData())) {
+                                                *eh_frame->getSectionData())) {
             fatal(diag::err_cannot_read_section) << (*section)->name();
           }
         }
