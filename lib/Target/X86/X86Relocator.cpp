@@ -792,7 +792,10 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
                               (rsym->reserved() & X86GNULDBackend::ReservePLT),
                               true);
 
-  LDSection& target_sect = pReloc.targetRef().frag()->getParent()->getSection();
+  FragmentRef &target_fragref = pReloc.targetRef();
+  Fragment *target_frag = target_fragref.frag();
+
+  LDSection& target_sect = target_frag->getParent()->getSection();
   // If the flag of target section is not ALLOC, we will not scan this relocation
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 == (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
@@ -800,42 +803,38 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
     return X86Relocator::OK;
   }
 
-  Relocation::Type pointerRel = pParent.getTarget().getPointerRel();
-
-  // A local symbol may need REL Type dynamic relocation
+  // A local symbol may need RELA Type dynamic relocation
   if (rsym->isLocal() && has_dyn_rel) {
-    if (pointerRel == pReloc.type()) {
-      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
-					    pReloc.targetRef().offset(),
-					    llvm::ELF::R_X86_64_RELATIVE,
-					    pParent);
-      rel_entry.setAddend(S + A);
-    }
-    else {
-      // FIXME: check Section symbol
-      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
-					    pReloc.targetRef().offset(),
-					    pReloc.type(), pParent);
-      rel_entry.setAddend(S + A);
-    }
+    X86Relocator::Type pType = pReloc.type();
+    if (llvm::ELF::R_X86_64_64 == pType)
+      pType = llvm::ELF::R_X86_64_RELATIVE;
+    Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
+        target_fragref.offset(), pType, pParent);
+    rel_entry.setAddend(S + A);
     return X86Relocator::OK;
   }
 
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
-    // If we generate a dynamic relocation for a place with explicit
-    // addend, there is no need to perform static relocation on it.
-    if (has_dyn_rel) {
-      Relocation& rel_entry = helper_DynRel(rsym, *pReloc.targetRef().frag(),
-					    pReloc.targetRef().offset(),
-					    llvm::ELF::R_X86_64_RELATIVE,
-					    pParent);
-      // Copy addend.
-      rel_entry.setAddend(A);
-      return X86Relocator::OK;
-    }
-    else if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
+    if (rsym->reserved() & X86GNULDBackend::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
+    }
+    // If we generate a dynamic relocation (except R_X86_64_RELATIVE)
+    // for a place, we should not perform static relocation on it
+    // in order to keep the addend store in the place correct.
+    if (has_dyn_rel) {
+      if (llvm::ELF::R_X86_64_64 == pReloc.type() &&
+          helper_use_relative_reloc(*rsym, pParent)) {
+        Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
+            target_fragref.offset(), llvm::ELF::R_X86_64_RELATIVE, pParent);
+        rel_entry.setAddend(S + A);
+      }
+      else {
+        Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
+            target_fragref.offset(), pReloc.type(), pParent);
+        rel_entry.setAddend(S + A);
+        return X86Relocator::OK;
+      }
     }
   }
 
