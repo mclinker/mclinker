@@ -114,12 +114,6 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
   pOutput.release(ehframe_region);
 }
 
-/// emitOutput<64> - write out eh_frame_hdr
-template<>
-void EhFrameHdr::emitOutput<64>(MemoryArea& pOutput)
-{
-}
-
 //===----------------------------------------------------------------------===//
 // EhFrameHdr
 //===----------------------------------------------------------------------===//
