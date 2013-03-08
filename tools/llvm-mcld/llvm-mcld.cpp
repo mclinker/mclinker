@@ -684,22 +684,9 @@ ArgEnableNewDTags("enable-new-dtags",
                   cl::desc("Enable use of DT_RUNPATH and DT_FLAGS"),
                   cl::init(false));
 
-class FalseParser : public cl::parser<bool> {
-  const char *ArgStr;
-public:
-
-  // parse - Return true on error.
-  bool parse(cl::Option &O, StringRef ArgName, StringRef Arg, bool &Val) {
-    if (cl::parser<bool>::parse(O, ArgName, Arg, Val))
-      return false;
-    Val = false;
-    return false;
-  }
-};
-
 static bool ArgFatalWarnings;
 
-static cl::opt<bool, true, FalseParser>
+static cl::opt<bool, true, cl::FalseParser>
 ArgNoFatalWarnings("no-fatal-warnings",
               cl::location(ArgFatalWarnings),
               cl::desc("do not turn warnings into errors"),

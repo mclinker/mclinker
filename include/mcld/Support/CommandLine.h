@@ -46,6 +46,21 @@ public:
 };
 
 //===----------------------------------------------------------------------===//
+// FalseParser
+//===----------------------------------------------------------------------===//
+class FalseParser : public cl::parser<bool>
+{
+public:
+  // parse - Return true on error.
+  bool parse(cl::Option &O, StringRef ArgName, StringRef Arg, bool &Val) {
+    if (cl::parser<bool>::parse(O, ArgName, Arg, Val))
+      return false;
+    Val = false;
+    return false;
+  }
+};
+
+//===----------------------------------------------------------------------===//
 // parser<mcld::sys::fs::Path>
 //===----------------------------------------------------------------------===//
 template<>
