@@ -684,6 +684,16 @@ ArgEnableNewDTags("enable-new-dtags",
                   cl::desc("Enable use of DT_RUNPATH and DT_FLAGS"),
                   cl::init(false));
 
+static cl::opt<bool>
+ArgPrintMap("M",
+            cl::desc("Print a link map to the standard output."),
+            cl::init(false));
+
+static cl::alias
+ArgPrintMapAlias("print-map",
+                 cl::desc("alias for -M"),
+                 cl::aliasopt(ArgPrintMap));
+
 static bool ArgFatalWarnings;
 
 static cl::opt<bool, true, cl::FalseParser>
@@ -694,7 +704,7 @@ ArgNoFatalWarnings("no-fatal-warnings",
               cl::ValueDisallowed);
 
 static cl::opt<bool, true>
-ArgFatalWarnings_("fatal-warnings",
+ArgFatalWarningsFlag("fatal-warnings",
               cl::location(ArgFatalWarnings),
               cl::desc("turn all warnings into errors"),
               cl::init(false),
@@ -1065,6 +1075,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   pConfig.options().setNewDTags(ArgEnableNewDTags);
   pConfig.options().setHashStyle(ArgHashStyle);
   pConfig.options().setNoStdlib(ArgNoStdlib);
+  pConfig.options().setPrintMap(ArgPrintMap);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);
