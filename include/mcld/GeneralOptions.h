@@ -286,6 +286,13 @@ public:
   bool nostdlib() const
   { return m_bNoStdlib; }
 
+  // -M, --print-map
+  void setPrintMap(bool pEnable = true)
+  { m_bPrintMap = pEnable; }
+
+  bool printMap() const 
+  { return m_bPrintMap; }
+
   unsigned int getHashStyle() const { return m_HashStyle; }
 
   void setHashStyle(unsigned int pStyle)
@@ -368,6 +375,7 @@ private:
   bool m_bFatalWarnings : 1; // --fatal-warnings
   bool m_bNewDTags: 1; // --enable-new-dtags
   bool m_bNoStdlib: 1; // -nostdlib
+  bool m_bPrintMap: 1; // --print-map
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   unsigned int m_HashStyle;
