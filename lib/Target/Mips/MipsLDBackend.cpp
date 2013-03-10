@@ -759,18 +759,8 @@ void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_HI16:
     case llvm::ELF::R_MIPS_GOT_LO16:
     case llvm::ELF::R_MIPS_CALL_LO16:
-// FIXME: (simon) Test
-#if 0
-      // For got16 section based relocations, we need to reserve got entries.
-      if (rsym->type() == ResolveInfo::Section) {
-        m_pGOT->reserveLocalEntry(pInput, *rsym);
-        // Remeber this rsym is a local GOT entry
-        m_pGOT->setLocal(rsym);
-        return;
-      }
-#endif
       if (m_pGOT->reserveLocalEntry(pInput, *rsym)) {
-        if (m_pGOT->hasMultipleGOT()) // FIXME: (simon) is it necessary?
+        if (m_pGOT->hasMultipleGOT())
           checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a local GOT entry
         m_pGOT->setLocal(rsym);
@@ -845,7 +835,7 @@ void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
       if (m_pGOT->reserveGlobalEntry(pInput, *rsym)) {
-        if (m_pGOT->hasMultipleGOT()) // FIXME: is it necessary?
+        if (m_pGOT->hasMultipleGOT())
           checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a global GOT entry
         m_pGOT->setGlobal(rsym);
