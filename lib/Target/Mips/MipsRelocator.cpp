@@ -135,8 +135,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
   MipsGOTEntry* got_entry;
-// FIXME: (simon) Test
-#if 0
+
   if (got.isLocal(rsym) && ResolveInfo::Section == rsym->type()) {
     // Local section symbols consume local got entries.
     got_entry = got.consumeLocal();
@@ -144,7 +143,7 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
       helper_SetupRelDynForGOTEntry(*got_entry, pReloc, NULL, pParent);
     return *got_entry;
   }
-#endif
+
   got_entry = got.lookupEntry(rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
@@ -166,7 +165,8 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   }
 
   if (got.isPrimaryGOTConsumed())
-    helper_SetupRelDynForGOTEntry(*got_entry, pReloc, got.isLocal(rsym) ? NULL : rsym, pParent);
+    helper_SetupRelDynForGOTEntry(*got_entry, pReloc,
+                                  got.isLocal(rsym) ? NULL : rsym, pParent);
 
   return *got_entry;
 }

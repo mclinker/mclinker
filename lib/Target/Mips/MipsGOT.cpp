@@ -235,18 +235,22 @@ bool MipsGOT::reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo)
   if (m_pInput != &pInput)
     changeInput(pInput);
 
-  if (m_InputLocalSymbols.count(&pInfo))
-    return false;
+  if (pInfo.type() != ResolveInfo::Section) {
+    if (m_InputLocalSymbols.count(&pInfo))
+      return false;
 
-  if (m_MergedLocalSymbols.count(&pInfo)) {
-    m_InputLocalSymbols.insert(&pInfo);
-    return false;
+    if (m_MergedLocalSymbols.count(&pInfo)) {
+      m_InputLocalSymbols.insert(&pInfo);
+      return false;
+    }
   }
 
   if (isGOTFull())
     split();
 
-  m_InputLocalSymbols.insert(&pInfo);
+  if (pInfo.type() != ResolveInfo::Section)
+    m_InputLocalSymbols.insert(&pInfo);
+
   ++m_MultipartList.back().m_LocalNum;
   return true;
 }
