@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <mcld/Support/FileHandle.h>
@@ -68,6 +69,17 @@ ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
 int ftruncate(int pFD, size_t pLength)
 {
   return ::ftruncate(pFD, pLength);
+}
+
+void*
+mmap(void *pAddr, size_t pLen, int pProt, int pFlags, int pFD, off_t pOffset)
+{
+  return ::mmap(pAddr, pLen, pProt, pFlags, pFD, pOffset);
+}
+
+int munmap(void *pAddr, size_t pLen)
+{
+  return ::munmap(pAddr, pLen);
 }
 
 } // namespace of detail

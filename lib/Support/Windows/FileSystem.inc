@@ -70,6 +70,17 @@ int ftruncate(int pFD, size_t pLength)
   return ::_chsize(pFD, pLength);
 }
 
+void*
+mmap(void *pAddr, size_t pLen, int pProt, int pFlags, int pFD, off_t pOffset)
+{
+  return NULL;
+}
+
+int munmap(void *pAddr, size_t pLen)
+{
+  return 0;
+}
+
 } // namespace of detail
 } // namespace of fs
 } // namespace of sys

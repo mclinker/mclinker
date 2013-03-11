@@ -19,7 +19,6 @@
 #endif
 
 #include <sys/stat.h>
-#include <sys/mman.h>
 
 #if defined(_MSC_VER)
 #include <io.h>
@@ -255,7 +254,12 @@ bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
     return false;
   }
 
-  pMemBuffer = ::mmap(NULL, pLength, prot, flag, m_Handler, pStartOffset);
+  pMemBuffer = sys::fs::detail::mmap(NULL,
+                                    pLength,
+                                    prot,
+                                    flag,
+                                    m_Handler,
+                                    pStartOffset);
 
   if (MAP_FAILED == pMemBuffer) {
     setState(FailBit);
@@ -272,7 +276,7 @@ bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
     return false;
   }
 
-  if (-1 == ::munmap(pMemBuffer, pLength)) {
+  if (-1 == sys::fs::detail::munmap(pMemBuffer, pLength)) {
     setState(FailBit);
     return false;
   }
