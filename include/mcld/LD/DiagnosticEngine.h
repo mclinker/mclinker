@@ -53,6 +53,7 @@ public:
     ak_c_string,    // const char *
     ak_sint,        // int
     ak_uint,        // unsigned int
+    ak_ulonglong,   // unsigned long long
     ak_bool         // bool
   };
 

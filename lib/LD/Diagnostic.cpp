@@ -157,6 +157,11 @@ void Diagnostic::format(const char* pBegin, const char* pEnd,
         llvm::raw_string_ostream(pOutStr) << val;
         break;
       }
+      case DiagnosticEngine::ak_ulonglong: {
+        unsigned long long val = getArgUInt(arg_no);
+        llvm::raw_string_ostream(pOutStr) << val;
+        break;
+      }
       case DiagnosticEngine::ak_bool: {
         bool val = getArgBool(arg_no);
         if (val)

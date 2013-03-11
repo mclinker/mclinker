@@ -16,8 +16,7 @@
 #include <cassert>
 #include <mcld/LD/DiagnosticEngine.h>
 
-namespace mcld
-{
+namespace mcld {
 
 /** \class Diagnostic
  *  \brief Diagnostic provides current status to DiagnosticPrinters.
@@ -62,6 +61,12 @@ public:
     assert(getArgKind(pIdx) == DiagnosticEngine::ak_uint &&
            "Invalid argument accessor!");
     return (unsigned int)m_Engine.state().ArgumentVals[pIdx];
+  }
+
+  unsigned long long getArgULongLong(unsigned pIdx) const {
+    assert(getArgKind(pIdx) == DiagnosticEngine::ak_ulonglong &&
+           "Invalid argument accessor!");
+    return (unsigned long long)m_Engine.state().ArgumentVals[pIdx];
   }
 
   bool getArgBool(unsigned int pIdx) const {

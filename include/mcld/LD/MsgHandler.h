@@ -103,6 +103,13 @@ operator<<(const MsgHandler& pHandler, unsigned long pValue)
 }
 
 inline const MsgHandler &
+operator<<(const MsgHandler& pHandler, unsigned long long pValue)
+{
+  pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_ulonglong);
+  return pHandler;
+}
+
+inline const MsgHandler &
 operator<<(const MsgHandler& pHandler, bool pValue)
 {
   pHandler.addTaggedVal(pValue, DiagnosticEngine::ak_bool);
