@@ -225,7 +225,7 @@ bool Linker::emit(MemoryArea& pOutput)
 bool Linker::emit(const std::string& pPath)
 {
   FileHandle file;
-  FileHandle::Permission perm = 0755;
+  FileHandle::Permission perm = FileHandle::Permission(0x755);
   if (!file.open(pPath,
             FileHandle::ReadWrite | FileHandle::Truncate | FileHandle::Create,
             perm)) {

@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <mcld/Support/FileHandle.h>
 
 namespace mcld{
 namespace sys{
@@ -31,7 +32,27 @@ int open(const Path& pPath, int pOFlag)
 
 int open(const Path& pPath, int pOFlag, int pPerm)
 {
-  return ::open(pPath.native().c_str(), pOFlag, pPerm);
+  mode_t perm = 0;
+  if (pPerm & FileHandle::ReadOwner)
+    perm |= S_IRUSR;
+  if (pPerm & FileHandle::WriteOwner)
+    perm |= S_IWUSR;
+  if (pPerm & FileHandle::ExeOwner)
+    perm |= S_IXUSR;
+  if (pPerm & FileHandle::ReadGroup)
+    perm |= S_IRGRP;
+  if (pPerm & FileHandle::WriteGroup)
+    perm |= S_IWGRP;
+  if (pPerm & FileHandle::ExeGroup)
+    perm |= S_IXGRP;
+  if (pPerm & FileHandle::ReadOther)
+    perm |= S_IROTH;
+  if (pPerm & FileHandle::WriteOther)
+    perm |= S_IWOTH;
+  if (pPerm & FileHandle::ExeOther)
+    perm |= S_IXOTH;
+
+  return ::open(pPath.native().c_str(), pOFlag, perm);
 }
 
 ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)

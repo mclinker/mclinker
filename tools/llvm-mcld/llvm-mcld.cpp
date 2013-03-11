@@ -882,13 +882,13 @@ static mcld::ToolOutputFile *GetOutputStream(const char* pTargetName,
   case mcld::CGFT_ASMFile:
   case mcld::CGFT_OBJFile:
   case mcld::CGFT_PARTIAL:
-    permission = 0644;
+    permission = mcld::FileHandle::Permission(0x644);
     break;
   case mcld::CGFT_DSOFile:
   case mcld::CGFT_EXEFile:
   case mcld::CGFT_BINARY:
   case mcld::CGFT_NULLFile:
-    permission = 0755;
+    permission = mcld::FileHandle::Permission(0x755);
     break;
   }
 
