@@ -232,36 +232,3 @@ bool mcld::sys::fs::is_directory(const Path &pPath)
   return is_directory(pFileStatus);
 }
 
-// FIXME: Move the platform dependent code to Unix/PathV3.inc and
-// Windows/PathV3.inc
-#if defined(MCLD_ON_WIN32)
-std::string Path::string() const
-{
-  std::string result;
-  if (!m_PathName.empty()) {
-    // TODO: convert
-  }
-  return result;
-}
-
-std::wstring Path::wstring() const
-{
-  return m_PathName;
-}
-
-#else
-std::string Path::string() const
-{
-  return m_PathName;
-}
-
-std::wstring Path::wstring() const
-{
-  std::wstring result;
-  if (!m_PathName.empty()) {
-    // TODO: convert
-  }
-  return result;
-}
-
-#endif

@@ -23,6 +23,27 @@
 namespace mcld{
 namespace sys{
 namespace fs{
+
+//===----------------------------------------------------------------------===//
+// mcld::sys::fs::Path
+//===----------------------------------------------------------------------===//
+std::string Path::string() const
+{
+  return m_PathName;
+}
+
+std::wstring Path::wstring() const
+{
+  std::wstring result;
+  if (!m_PathName.empty()) {
+    // TODO: convert
+  }
+  return result;
+}
+
+//===----------------------------------------------------------------------===//
+// mcld::sys::fs::detail
+//===----------------------------------------------------------------------===//
 namespace detail{
 
 const char          separator = '/';
