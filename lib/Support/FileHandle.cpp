@@ -32,6 +32,8 @@
 #ifndef STDERR_FILENO
 # define STDERR_FILENO 2
 #endif
+#else
+#include <sys/mman.h>
 #endif
 
 using namespace mcld;
