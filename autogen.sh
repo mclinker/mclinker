@@ -13,8 +13,8 @@ fi
 root=`dirname $0`
 cd $root
 
-autoheader
 aclocal -I ./m4
+autoheader
 ${LIBTOOLIZE} --force
 automake --add-missing
 autoconf
