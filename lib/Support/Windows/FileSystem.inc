@@ -7,18 +7,20 @@
 //
 //===----------------------------------------------------------------------===//
 #include <string>
+#include <io.h>
+#include <mcld/Support/FileHandle.h>
 
 namespace mcld{
 namespace sys{
 namespace fs{
 namespace detail{
 
-std::string static_library_extension = ".lib";
-std::string shared_library_extension = ".dll";
-std::string executable_extension = ".exe";
-std::string relocatable_extension = ".obj";
-std::string assembly_extension = ".s";
-std::string bitcode_extension = ".bc";
+Path::StringType static_library_extension = L".lib";
+Path::StringType shared_library_extension = L".dll";
+Path::StringType executable_extension     = L".exe";
+Path::StringType relocatable_extension    = L".obj";
+Path::StringType assembly_extension       = L".s";
+Path::StringType bitcode_extension        = L".bc";
 
 int open(const Path& pPath, int pOFlag)
 {
@@ -43,29 +45,29 @@ int open(const Path& pPath, int pOFlag, int pPerm)
 
 ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)
 {
-  off_t curr_pos = ::lseek(pFD, 0, SEEK_CUR);
-  if (::lseek (pFD, pOffset, SEEK_SET) != pOffset)
+  off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
+  if (::_lseek (pFD, pOffset, SEEK_SET) != pOffset)
     return -1;
-  ssize_t retval = ::read(pFD, pBuf, pCount);
-  if (::lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
+  ssize_t retval = ::_read(pFD, pBuf, pCount);
+  if (::_lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
     return -1;
   return retval;
 }
 
 ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
 {
-  off_t curr_pos = ::lseek(pFD, 0, SEEK_CUR);
-  if (::lseek(pFD, pOffset, SEEK_SET) != pOffset)
+  off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
+  if (::_lseek(pFD, pOffset, SEEK_SET) != pOffset)
     return -1;
-  ssize_t retval = ::write(pFD, pBuf, pCount);
-  if (::lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
+  ssize_t retval = ::_write(pFD, pBuf, pCount);
+  if (::_lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
     return -1;
   return retval; 
 }
 
 int ftruncate(int pFD, size_t pLength)
 {
-  return ::ftruncate(pFD, pLength);
+  return ::_chsize(pFD, pLength);
 }
 
 } // namespace of detail
