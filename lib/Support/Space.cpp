@@ -9,6 +9,7 @@
 #include <mcld/Support/Space.h>
 #include <mcld/Support/FileHandle.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/SystemUtils.h>
 #include <cstdlib>
 #include <unistd.h>
 
@@ -16,7 +17,8 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // constant data
-static const off_t PageSize = getpagesize();
+//===----------------------------------------------------------------------===//
+static const off_t PageSize = mcld::sys::GetPageSize();
 
 //===----------------------------------------------------------------------===//
 // Non-member functions

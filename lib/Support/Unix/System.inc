@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <llvm/ADT/StringRef.h>
 
@@ -58,6 +59,11 @@ std::string getDefaultTargetTriple()
   }
 
   return Triple;
+}
+
+off_t GetPageSize()
+{
+  return getpagesize();
 }
 
 } // namespace of sys
