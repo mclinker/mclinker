@@ -26,6 +26,9 @@ std::string relocatable_extension = ".o";
 std::string assembly_extension = ".s";
 std::string bitcode_extension = ".bc";
 
+//===----------------------------------------------------------------------===//
+// Helper Functions
+//===----------------------------------------------------------------------===//
 int open(const Path& pPath, int pOFlag)
 {
   return ::open(pPath.native().c_str(), pOFlag);
@@ -71,19 +74,69 @@ int ftruncate(int pFD, size_t pLength)
   return ::ftruncate(pFD, pLength);
 }
 
-void*
-mmap(void *pAddr, size_t pLen, int pProt, int pFlags, int pFD, off_t pOffset)
-{
-  return ::mmap(pAddr, pLen, pProt, pFlags, pFD, pOffset);
-}
-
-int munmap(void *pAddr, size_t pLen)
-{
-  return ::munmap(pAddr, pLen);
-}
-
 } // namespace of detail
 } // namespace of fs
 } // namespace of sys
+
+//===----------------------------------------------------------------------===//
+// FileHandler
+//===----------------------------------------------------------------------===//
+bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
+{
+  if (!isOpened()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (0 == pLength)
+    return true;
+
+  int prot, flag;
+  if (isReadable() && !isWritable()) {
+    // read-only
+    prot = PROT_READ;
+    flag = MAP_FILE | MAP_PRIVATE;
+  }
+  else if (!isReadable() && isWritable()) {
+    // write-only
+    prot = PROT_WRITE;
+    flag = MAP_FILE | MAP_SHARED;
+  }
+  else if (isReadWrite()) {
+    // read and write
+    prot = PROT_READ | PROT_WRITE;
+    flag = MAP_FILE | MAP_SHARED;
+  }
+  else {
+    // can not read/write
+    setState(BadBit);
+    return false;
+  }
+
+  pMemBuffer = ::mmap(NULL, pLength, prot, flag, m_Handler, pStartOffset);
+
+  if (MAP_FAILED == pMemBuffer) {
+    setState(FailBit);
+    return false;
+  }
+
+  return true;
+}
+
+bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
+{
+  if (!isOpened()) {
+    setState(BadBit);
+    return false;
+  }
+
+  if (-1 == ::munmap(pMemBuffer, pLength)) {
+    setState(FailBit);
+    return false;
+  }
+
+  return true;
+}
+
 } // namespace of mcld
 

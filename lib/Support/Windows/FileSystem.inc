@@ -8,7 +8,19 @@
 //===----------------------------------------------------------------------===//
 #include <string>
 #include <io.h>
+#include <fcntl.h>
+#include <cstdlib>
 #include <mcld/Support/FileHandle.h>
+
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
 
 namespace mcld{
 namespace sys{
@@ -70,19 +82,26 @@ int ftruncate(int pFD, size_t pLength)
   return ::_chsize(pFD, pLength);
 }
 
-void*
-mmap(void *pAddr, size_t pLen, int pProt, int pFlags, int pFD, off_t pOffset)
-{
-  return NULL;
-}
-
-int munmap(void *pAddr, size_t pLen)
-{
-  return 0;
-}
-
 } // namespace of detail
 } // namespace of fs
 } // namespace of sys
+
+//===----------------------------------------------------------------------===//
+// FileHandle
+//===----------------------------------------------------------------------===//
+bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
+{
+  // FIXME: This implementation reduces mmap to read. Use Windows APIs.
+  pMemBuffer = (void*)malloc(size);
+  return read(pMemBuffer, pStartOffset, pLength);
+}
+
+bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
+{
+  // FIXME: This implementation reduces mmap to read. Use Windows APIs.
+  free(pMemBuffer);
+  return true;
+}
+
 } // namespace of mcld
 

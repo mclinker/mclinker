@@ -20,22 +20,6 @@
 
 #include <sys/stat.h>
 
-#if defined(_MSC_VER)
-#include <io.h>
-#include <fcntl.h>
-#ifndef STDIN_FILENO
-# define STDIN_FILENO 0
-#endif
-#ifndef STDOUT_FILENO
-# define STDOUT_FILENO 1
-#endif
-#ifndef STDERR_FILENO
-# define STDERR_FILENO 2
-#endif
-#else
-#include <sys/mman.h>
-#endif
-
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
@@ -217,68 +201,6 @@ bool FileHandle::write(const void* pMemBuffer, size_t pStartOffset, size_t pLeng
                                                 pStartOffset);
 
   if (-1 == write_bytes) {
-    setState(FailBit);
-    return false;
-  }
-
-  return true;
-}
-
-bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
-{
-  if (!isOpened()) {
-    setState(BadBit);
-    return false;
-  }
-
-  if (0 == pLength)
-    return true;
-
-  int prot, flag;
-  if (isReadable() && !isWritable()) {
-    // read-only
-    prot = PROT_READ;
-    flag = MAP_FILE | MAP_PRIVATE;
-  }
-  else if (!isReadable() && isWritable()) {
-    // write-only
-    prot = PROT_WRITE;
-    flag = MAP_FILE | MAP_SHARED;
-  }
-  else if (isReadWrite()) {
-    // read and write
-    prot = PROT_READ | PROT_WRITE;
-    flag = MAP_FILE | MAP_SHARED;
-  }
-  else {
-    // can not read/write
-    setState(BadBit);
-    return false;
-  }
-
-  pMemBuffer = sys::fs::detail::mmap(NULL,
-                                    pLength,
-                                    prot,
-                                    flag,
-                                    m_Handler,
-                                    pStartOffset);
-
-  if (MAP_FAILED == pMemBuffer) {
-    setState(FailBit);
-    return false;
-  }
-
-  return true;
-}
-
-bool FileHandle::munmap(void* pMemBuffer, size_t pLength)
-{
-  if (!isOpened()) {
-    setState(BadBit);
-    return false;
-  }
-
-  if (-1 == sys::fs::detail::munmap(pMemBuffer, pLength)) {
     setState(FailBit);
     return false;
   }
