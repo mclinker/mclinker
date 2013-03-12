@@ -92,7 +92,7 @@ int ftruncate(int pFD, size_t pLength)
 bool FileHandle::mmap(void*& pMemBuffer, size_t pStartOffset, size_t pLength)
 {
   // FIXME: This implementation reduces mmap to read. Use Windows APIs.
-  pMemBuffer = (void*)malloc(size);
+  pMemBuffer = (void*)::malloc(pLength);
   return read(pMemBuffer, pStartOffset, pLength);
 }
 
