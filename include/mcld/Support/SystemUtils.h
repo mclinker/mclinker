@@ -29,7 +29,7 @@ char *strerror(int pErrnum);
 
 std::string getDefaultTargetTriple();
 
-off_t GetPageSize();
+int GetPageSize();
 
 } // namespace of sys
 } // namespace of mcld

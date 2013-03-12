@@ -61,7 +61,7 @@ std::string getDefaultTargetTriple()
   return Triple;
 }
 
-off_t GetPageSize()
+int GetPageSize()
 {
   return getpagesize();
 }
