@@ -7,7 +7,12 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/Path.h>
+#include <mcld/Support/Directory.h>
+#include <Windows.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <limits.h>
+#include <stack>
 
 namespace mcld{
 namespace sys{
@@ -144,8 +149,8 @@ bool not_found_error(int perrno)
 
 void status(const Path& p, FileStatus& pFileStatus)
 {
-  struct stat path_stat;
-  if(stat(p.c_str(), &path_stat)!= 0)
+  struct ::_stat path_stat;
+  if(::_wstat(p.c_str(), &path_stat)!= 0)
   {
     if(not_found_error(errno))
     {
@@ -234,6 +239,7 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
+
   if (pDir.m_Handler == 0) {
     errno = 0; // opendir() will set errno if it failed to open directory.
     pDir.m_CacheFull = true;
@@ -264,7 +270,7 @@ void open_dir(Directory& pDir)
 void close_dir(Directory& pDir)
 {
   if (pDir.m_Handler)
-    closedir(reinterpret_cast<DIR *>(pDir.m_Handler));
+    ::FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
   pDir.m_Handler = 0;
 }
 
