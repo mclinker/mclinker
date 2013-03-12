@@ -84,8 +84,6 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
     // prepare the binary search table
     typedef std::vector<bit32::Entry> SearchTableType;
     SearchTableType search_table;
-    MemoryRegion* ehframe_region =
-      pOutput.request(m_EhFrame.offset(), m_EhFrame.size());
     EhFrame::const_fde_iterator fde, fde_end = m_EhFrame.getEhFrame()->fde_end();
     for(fde = m_EhFrame.getEhFrame()->fde_begin(); fde != fde_end; ++fde) {
       assert(*fde != NULL);
@@ -97,7 +95,6 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
       fde_addr = m_EhFrame.addr() + offset;
       search_table.push_back(std::make_pair(fde_pc, fde_addr));
     }
-    pOutput.release(ehframe_region);
 
     std::sort(search_table.begin(), search_table.end(), bit32::EntryCompare);
 
