@@ -120,8 +120,11 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
     { addCIE, addFDE, addTerm, reject}, // Q1
   };
 
-  // get file offset and address
   LDSection& section = pEhFrame.getSection();
+  if (section.size() == 0x0)
+    return true;
+
+  // get file offset and address
   uint64_t file_off = pInput.fileOffset() + section.offset();
   MemoryRegion* sect_reg =
                        pInput.memArea()->request(file_off, section.size());
