@@ -1577,8 +1577,9 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
         rel_entry.setAddend(S + A);
       }
       else {
-        helper_DynRel(rsym, *target_frag, target_fragref.offset(),
-                      pReloc.type(), pParent);
+        Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
+            target_fragref.offset(), pReloc.type(), pParent);
+        rel_entry.setAddend(A);
         return X86Relocator::OK;
       }
     }
