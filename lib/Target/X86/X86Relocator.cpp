@@ -1532,7 +1532,7 @@ X86Relocator::Result none(Relocation& pReloc, X86_64Relocator& pParent)
 X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
                               *rsym,
@@ -1594,7 +1594,7 @@ X86Relocator::Result abs(Relocation& pReloc, X86_64Relocator& pParent)
 X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
                               *rsym,
@@ -1613,10 +1613,12 @@ X86Relocator::Result signed32(Relocation& pReloc, X86_64Relocator& pParent)
       !rsym->isLocal() && rsym->reserved() & X86Relocator::ReservePLT)
     S = helper_PLT(pReloc, pParent);
 
+#if notyet
   // Check 32-bit signed overflow.
   Relocator::SWord V = S + A;
   if (V > INT64_C(0x7fffffff) || V < INT64_C(-0x80000000))
     return X86Relocator::Overflow;
+#endif
 
   // perform static relocation
   pReloc.target() = S + A;
@@ -1631,7 +1633,7 @@ X86Relocator::Result gotpcrel(Relocation& pReloc, X86_64Relocator& pParent)
     return X86Relocator::BadReloc;
   }
   X86Relocator::Address GOT_S   = helper_GOT(pReloc, pParent);
-  Relocator::DWord      A       = pReloc.addend();
+  Relocator::DWord      A       = pReloc.target() + pReloc.addend();
   X86Relocator::Address GOT_ORG = helper_GOT_ORG(pParent);
   // Apply relocation.
   pReloc.target() = GOT_S + GOT_ORG + A - pReloc.place();
@@ -1647,7 +1649,7 @@ X86Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
     PLT_S = helper_PLT(pReloc, pParent);
   else
     PLT_S = pReloc.symValue();
-  Relocator::DWord      A = pReloc.addend();
+  Relocator::DWord      A = pReloc.target() + pReloc.addend();
   X86Relocator::Address P = pReloc.place();
   pReloc.target() = PLT_S + A - P;
   return X86Relocator::OK;
@@ -1659,7 +1661,7 @@ X86Relocator::Result plt32(Relocation& pReloc, X86_64Relocator& pParent)
 X86Relocator::Result rel(Relocation& pReloc, X86_64Relocator& pParent)
 {
   ResolveInfo* rsym = pReloc.symInfo();
-  Relocator::DWord A = pReloc.addend();
+  Relocator::DWord A = pReloc.target() + pReloc.addend();
   Relocator::DWord S = pReloc.symValue();
   Relocator::DWord P = pReloc.place();
 
