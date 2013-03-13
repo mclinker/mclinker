@@ -56,9 +56,9 @@ X86Relocator::~X86Relocator()
 }
 
 void X86Relocator::scanRelocation(Relocation& pReloc,
-                                     IRBuilder& pLinker,
-                                     Module& pModule,
-                                     LDSection& pSection)
+                                  IRBuilder& pLinker,
+                                  Module& pModule,
+                                  LDSection& pSection)
 {
   if (LinkerConfig::Object == config().codeGenType())
     return;
@@ -181,9 +181,9 @@ Relocator::Size X86_32Relocator::getSize(Relocation::Type pType) const
 }
 
 void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
-					IRBuilder& pBuilder,
-					Module& pModule,
-					LDSection& pSection)
+															     	 IRBuilder& pBuilder,
+																		 Module& pModule,
+																		 LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -335,9 +335,9 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
 }
 
 void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
-					 IRBuilder& pBuilder,
-					 Module& pModule,
-					 LDSection& pSection)
+								 				 				 		  IRBuilder& pBuilder,
+								 				 				 		  Module& pModule,
+								 				 				 		  LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -570,7 +570,7 @@ X86_32GOTEntry& X86_32Relocator::getTLSModuleID()
 
 /// convert R_386_TLS_IE to R_386_TLS_LE
 void X86_32Relocator::convertTLSIEtoLE(Relocation& pReloc,
-					  LDSection& pSection)
+                                       LDSection& pSection)
 {
   assert(pReloc.type() == llvm::ELF::R_386_TLS_IE);
   assert(NULL != pReloc.targetRef().frag());
@@ -1173,9 +1173,9 @@ Relocator::Size X86_64Relocator::getSize(Relocation::Type pType) const
 }
 
 void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
-					IRBuilder& pBuilder,
-					Module& pModule,
-					LDSection& pSection)
+                                     IRBuilder& pBuilder,
+                                     Module& pModule,
+                                     LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -1237,9 +1237,9 @@ void X86_64Relocator::scanLocalReloc(Relocation& pReloc,
 }
 
 void X86_64Relocator::scanGlobalReloc(Relocation& pReloc,
-					 IRBuilder& pBuilder,
-					 Module& pModule,
-					 LDSection& pSection)
+                                      IRBuilder& pBuilder,
+                                      Module& pModule,
+                                      LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();

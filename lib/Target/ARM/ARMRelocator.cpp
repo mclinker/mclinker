@@ -93,7 +93,7 @@ void ARMRelocator::addCopyReloc(ResolveInfo& pSym)
 /// This is executed at scan relocation stage.
 LDSymbol&
 ARMRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
-                                          const ResolveInfo& pSym)
+                                       const ResolveInfo& pSym)
 {
   // get or create corresponding BSS LDSection
   LDSection* bss_sect_hdr = NULL;
@@ -269,8 +269,8 @@ ARMRelocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
 }
 
 void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
-                                      const LDSection& pSection)
+                                   IRBuilder& pBuilder,
+                                   const LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -484,13 +484,14 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
 }
 
 void ARMRelocator::scanRelocation(Relocation& pReloc,
-                                     IRBuilder& pBuilder,
-                                     Module& pModule,
-                                     LDSection& pSection)
+                                  IRBuilder& pBuilder,
+                                  Module& pModule,
+                                  LDSection& pSection)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
-  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
+  assert(NULL != rsym &&
+         "ResolveInfo of relocation not set while scanRelocation");
 
   pReloc.updateAddend();
   assert(NULL != pSection.getLink());
@@ -529,9 +530,6 @@ static Relocator::DWord getThumbBit(const Relocation& pReloc)
         1:0;
   return thumbBit;
 }
-
-
-
 
 //=========================================//
 // Relocation helper function              //
