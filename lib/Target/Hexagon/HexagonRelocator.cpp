@@ -42,8 +42,9 @@ static const ApplyFunctionTriple ApplyFunctions[] = {
 //===--------------------------------------------------------------------===//
 // HexagonRelocator
 //===--------------------------------------------------------------------===//
-HexagonRelocator::HexagonRelocator(HexagonLDBackend& pParent)
-  : Relocator(),
+HexagonRelocator::HexagonRelocator(HexagonLDBackend& pParent,
+                                   const LinkerConfig& pConfig)
+  : Relocator(pConfig),
     m_Target(pParent) {
 }
 
@@ -73,6 +74,15 @@ Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const
 {
   return 32;
 }
+
+void HexagonRelocator::scanRelocation(Relocation& pReloc,
+                                      IRBuilder& pBuilder,
+                                      Module& pModule,
+                                      LDSection& pSection)
+{
+  pReloc.updateAddend();
+}
+
 //===--------------------------------------------------------------------===//
 // Relocation helper function
 //===--------------------------------------------------------------------===//

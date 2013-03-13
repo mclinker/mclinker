@@ -7,11 +7,15 @@
 //
 //===--------------------------------------------------------------------===//
 
+#include <mcld/LinkerConfig.h>
+#include <mcld/IRBuilder.h>
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Host.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/LD/LDSymbol.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include "ARMRelocator.h"
 #include "ARMRelocationFunctions.h"
 
@@ -42,8 +46,9 @@ static const ApplyFunctionTriple ApplyFunctions[] = {
 //===--------------------------------------------------------------------===//
 // ARMRelocator
 //===--------------------------------------------------------------------===//
-ARMRelocator::ARMRelocator(ARMGNULDBackend& pParent)
-  : Relocator(),
+ARMRelocator::ARMRelocator(ARMGNULDBackend& pParent,
+                           const LinkerConfig& pConfig)
+  : Relocator(pConfig),
     m_Target(pParent) {
 }
 
@@ -70,6 +75,444 @@ const char* ARMRelocator::getName(Relocator::Type pType) const
 Relocator::Size ARMRelocator::getSize(Relocation::Type pType) const
 {
   return 32;
+}
+
+void ARMRelocator::addCopyReloc(ResolveInfo& pSym)
+{
+  Relocation& rel_entry = *getTarget().getRelDyn().consumeEntry();
+  rel_entry.setType(llvm::ELF::R_ARM_COPY);
+  assert(pSym.outSymbol()->hasFragRef());
+  rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
+  rel_entry.setSymInfo(&pSym);
+}
+
+/// defineSymbolForCopyReloc
+/// For a symbol needing copy relocation, define a copy symbol in the BSS
+/// section and all other reference to this symbol should refer to this
+/// copy.
+/// This is executed at scan relocation stage.
+LDSymbol&
+ARMRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
+                                          const ResolveInfo& pSym)
+{
+  // get or create corresponding BSS LDSection
+  LDSection* bss_sect_hdr = NULL;
+  ELFFileFormat* file_format = getTarget().getOutputFormat();
+  if (ResolveInfo::ThreadLocal == pSym.type())
+    bss_sect_hdr = &file_format->getTBSS();
+  else
+    bss_sect_hdr = &file_format->getBSS();
+
+  // get or create corresponding BSS SectionData
+  SectionData* bss_data = NULL;
+  if (bss_sect_hdr->hasSectionData())
+    bss_data = bss_sect_hdr->getSectionData();
+  else
+    bss_data = IRBuilder::CreateSectionData(*bss_sect_hdr);
+
+  // Determine the alignment by the symbol value
+  // FIXME: here we use the largest alignment
+  uint32_t addralign = config().targets().bitclass() / 8;
+
+  // allocate space in BSS for the copy symbol
+  Fragment* frag = new FillFragment(0x0, 1, pSym.size());
+  uint64_t size = ObjectBuilder::AppendFragment(*frag,
+                                                *bss_data,
+                                                addralign);
+  bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
+
+  // change symbol binding to Global if it's a weak symbol
+  ResolveInfo::Binding binding = (ResolveInfo::Binding)pSym.binding();
+  if (binding == ResolveInfo::Weak)
+    binding = ResolveInfo::Global;
+
+  // Define the copy symbol in the bss section and resolve it
+  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                      pSym.name(),
+                      (ResolveInfo::Type)pSym.type(),
+                      ResolveInfo::Define,
+                      binding,
+                      pSym.size(),  // size
+                      0x0,          // value
+                      FragmentRef::Create(*frag, 0x0),
+                      (ResolveInfo::Visibility)pSym.other());
+
+  return *cpy_sym;
+}
+
+/// checkValidReloc - When we attempt to generate a dynamic relocation for
+/// ouput file, check if the relocation is supported by dynamic linker.
+void ARMRelocator::checkValidReloc(Relocation& pReloc) const
+{
+  // If not PIC object, no relocation type is invalid
+  if (!config().isCodeIndep())
+    return;
+
+  switch(pReloc.type()) {
+    case llvm::ELF::R_ARM_RELATIVE:
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS32_NOI:
+    case llvm::ELF::R_ARM_PC24:
+    case llvm::ELF::R_ARM_TLS_DTPMOD32:
+    case llvm::ELF::R_ARM_TLS_DTPOFF32:
+    case llvm::ELF::R_ARM_TLS_TPOFF32:
+      break;
+
+    default:
+      error(diag::non_pic_relocation) << (int)pReloc.type()
+                                      << pReloc.symInfo()->name();
+      break;
+  }
+}
+
+void
+ARMRelocator::scanLocalReloc(Relocation& pReloc, const LDSection& pSection)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  switch(pReloc.type()){
+
+    // Set R_ARM_TARGET1 to R_ARM_ABS32
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET1 should be set by option --target1-rel
+    // or --target1-rel
+    case llvm::ELF::R_ARM_TARGET1:
+       pReloc.setType(llvm::ELF::R_ARM_ABS32);
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS32_NOI: {
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        getTarget().getRelDyn().reserveEntry();
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      }
+      return;
+    }
+
+    case llvm::ELF::R_ARM_ABS16:
+    case llvm::ELF::R_ARM_ABS12:
+    case llvm::ELF::R_ARM_THM_ABS5:
+    case llvm::ELF::R_ARM_ABS8:
+    case llvm::ELF::R_ARM_BASE_ABS:
+    case llvm::ELF::R_ARM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_MOVT_ABS:
+    case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_ABS: {
+      // PIC code should not contain these kinds of relocation
+      if (config().isCodeIndep()) {
+        error(diag::non_pic_relocation) << (int)pReloc.type()
+                                        << pReloc.symInfo()->name();
+      }
+      return;
+    }
+    case llvm::ELF::R_ARM_GOTOFF32:
+    case llvm::ELF::R_ARM_GOTOFF12: {
+      // FIXME: A GOT section is needed
+      return;
+    }
+
+    // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET2 should be set by option --target2
+    case llvm::ELF::R_ARM_TARGET2:
+      pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
+    case llvm::ELF::R_ARM_GOT_BREL:
+    case llvm::ELF::R_ARM_GOT_PREL: {
+      // A GOT entry is needed for these relocation type.
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
+        return;
+      getTarget().getGOT().reserveGOT();
+      // If building PIC object, a dynamic relocation with
+      // type RELATIVE is needed to relocate this GOT entry.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        // create .rel.dyn section if not exist
+        getTarget().getRelDyn().reserveEntry();
+        // set GOTRel bit
+        rsym->setReserved(rsym->reserved() | 0x4u);
+        return;
+      }
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | 0x2u);
+      return;
+    }
+
+    case llvm::ELF::R_ARM_BASE_PREL: {
+      // FIXME: Currently we only support R_ARM_BASE_PREL against
+      // symbol _GLOBAL_OFFSET_TABLE_
+      if (rsym != getTarget().getGOTSymbol()->resolveInfo())
+        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+                                     << "mclinker@googlegroups.com";
+      return;
+    }
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_RELATIVE: {
+      // These are relocation type for dynamic linker, shold not
+      // appear in object file.
+      fatal(diag::dynamic_relocation) << (int)pReloc.type();
+      break;
+    }
+    default: {
+      break;
+    }
+  } // end switch
+}
+
+void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
+                                      IRBuilder& pBuilder,
+                                      const LDSection& pSection)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  switch(pReloc.type()) {
+
+    // Set R_ARM_TARGET1 to R_ARM_ABS32
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET1 should be set by option --target1-rel
+    // or --target1-rel
+    case llvm::ELF::R_ARM_TARGET1:
+      pReloc.setType(llvm::ELF::R_ARM_ABS32);
+    case llvm::ELF::R_ARM_ABS32:
+    case llvm::ELF::R_ARM_ABS16:
+    case llvm::ELF::R_ARM_ABS12:
+    case llvm::ELF::R_ARM_THM_ABS5:
+    case llvm::ELF::R_ARM_ABS8:
+    case llvm::ELF::R_ARM_BASE_ABS:
+    case llvm::ELF::R_ARM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_MOVT_ABS:
+    case llvm::ELF::R_ARM_THM_MOVW_ABS_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_ABS:
+    case llvm::ELF::R_ARM_ABS32_NOI: {
+      // Absolute relocation type, symbol may needs PLT entry or
+      // dynamic relocation entry
+      if (getTarget().symbolNeedsPLT(*rsym)) {
+        // create plt for this symbol if it does not have one
+        if (!(rsym->reserved() & ReservePLT)){
+          // Symbol needs PLT entry, we need to reserve a PLT entry
+          // and the corresponding GOT and dynamic relocation entry
+          // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+          // when calling ARMPLT->reserveEntry())
+          getTarget().getPLT().reserveEntry();
+          getTarget().getRelPLT().reserveEntry();
+          // set PLT bit
+          rsym->setReserved(rsym->reserved() | ReservePLT);
+        }
+      }
+
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), true)) {
+        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
+        getTarget().getRelDyn().reserveEntry();
+        if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          checkValidReloc(pReloc);
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
+        }
+      }
+      return;
+    }
+
+    case llvm::ELF::R_ARM_GOTOFF32:
+    case llvm::ELF::R_ARM_GOTOFF12: {
+      // FIXME: A GOT section is needed
+      return;
+    }
+
+    case llvm::ELF::R_ARM_BASE_PREL:
+    case llvm::ELF::R_ARM_THM_MOVW_BREL_NC:
+    case llvm::ELF::R_ARM_THM_MOVW_BREL:
+    case llvm::ELF::R_ARM_THM_MOVT_BREL:
+      // FIXME: Currently we only support these relocations against
+      // symbol _GLOBAL_OFFSET_TABLE_
+      if (rsym != getTarget().getGOTSymbol()->resolveInfo()) {
+        fatal(diag::base_relocation) << (int)pReloc.type() << rsym->name()
+                                     << "mclinker@googlegroups.com";
+      }
+    case llvm::ELF::R_ARM_REL32:
+    case llvm::ELF::R_ARM_LDR_PC_G0:
+    case llvm::ELF::R_ARM_SBREL32:
+    case llvm::ELF::R_ARM_THM_PC8:
+    case llvm::ELF::R_ARM_MOVW_PREL_NC:
+    case llvm::ELF::R_ARM_MOVT_PREL:
+    case llvm::ELF::R_ARM_THM_MOVW_PREL_NC:
+    case llvm::ELF::R_ARM_THM_MOVT_PREL:
+    case llvm::ELF::R_ARM_THM_ALU_PREL_11_0:
+    case llvm::ELF::R_ARM_THM_PC12:
+    case llvm::ELF::R_ARM_REL32_NOI:
+    case llvm::ELF::R_ARM_ALU_PC_G0_NC:
+    case llvm::ELF::R_ARM_ALU_PC_G0:
+    case llvm::ELF::R_ARM_ALU_PC_G1_NC:
+    case llvm::ELF::R_ARM_ALU_PC_G1:
+    case llvm::ELF::R_ARM_ALU_PC_G2:
+    case llvm::ELF::R_ARM_LDR_PC_G1:
+    case llvm::ELF::R_ARM_LDR_PC_G2:
+    case llvm::ELF::R_ARM_LDRS_PC_G0:
+    case llvm::ELF::R_ARM_LDRS_PC_G1:
+    case llvm::ELF::R_ARM_LDRS_PC_G2:
+    case llvm::ELF::R_ARM_LDC_PC_G0:
+    case llvm::ELF::R_ARM_LDC_PC_G1:
+    case llvm::ELF::R_ARM_LDC_PC_G2:
+    case llvm::ELF::R_ARM_ALU_SB_G0_NC:
+    case llvm::ELF::R_ARM_ALU_SB_G0:
+    case llvm::ELF::R_ARM_ALU_SB_G1_NC:
+    case llvm::ELF::R_ARM_ALU_SB_G1:
+    case llvm::ELF::R_ARM_ALU_SB_G2:
+    case llvm::ELF::R_ARM_LDR_SB_G0:
+    case llvm::ELF::R_ARM_LDR_SB_G1:
+    case llvm::ELF::R_ARM_LDR_SB_G2:
+    case llvm::ELF::R_ARM_LDRS_SB_G0:
+    case llvm::ELF::R_ARM_LDRS_SB_G1:
+    case llvm::ELF::R_ARM_LDRS_SB_G2:
+    case llvm::ELF::R_ARM_LDC_SB_G0:
+    case llvm::ELF::R_ARM_LDC_SB_G1:
+    case llvm::ELF::R_ARM_LDC_SB_G2:
+    case llvm::ELF::R_ARM_MOVW_BREL_NC:
+    case llvm::ELF::R_ARM_MOVT_BREL:
+    case llvm::ELF::R_ARM_MOVW_BREL: {
+      // Relative addressing relocation, may needs dynamic relocation
+      if (getTarget().symbolNeedsDynRel(*rsym, (rsym->reserved() & ReservePLT), false)) {
+        // symbol needs dynamic relocation entry, reserve an entry in .rel.dyn
+        getTarget().getRelDyn().reserveEntry();
+        if (getTarget().symbolNeedsCopyReloc(pReloc, *rsym)) {
+          LDSymbol& cpy_sym = defineSymbolforCopyReloc(pBuilder, *rsym);
+          addCopyReloc(*cpy_sym.resolveInfo());
+        }
+        else {
+          checkValidReloc(pReloc);
+          // set Rel bit
+          rsym->setReserved(rsym->reserved() | ReserveRel);
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
+        }
+      }
+      return;
+    }
+
+    case llvm::ELF::R_ARM_THM_CALL:
+    case llvm::ELF::R_ARM_PLT32:
+    case llvm::ELF::R_ARM_CALL:
+    case llvm::ELF::R_ARM_JUMP24:
+    case llvm::ELF::R_ARM_THM_JUMP24:
+    case llvm::ELF::R_ARM_SBREL31:
+    case llvm::ELF::R_ARM_PREL31:
+    case llvm::ELF::R_ARM_THM_JUMP19:
+    case llvm::ELF::R_ARM_THM_JUMP6:
+    case llvm::ELF::R_ARM_THM_JUMP11:
+    case llvm::ELF::R_ARM_THM_JUMP8: {
+      // These are branch relocation (except PREL31)
+      // A PLT entry is needed when building shared library
+
+      // return if we already create plt for this symbol
+      if (rsym->reserved() & ReservePLT)
+        return;
+
+      // if the symbol's value can be decided at link time, then no need plt
+      if (getTarget().symbolFinalValueIsKnown(*rsym))
+        return;
+
+      // if symbol is defined in the ouput file and it's not
+      // preemptible, no need plt
+      if (rsym->isDefine() && !rsym->isDyn() &&
+          !getTarget().isSymbolPreemptible(*rsym)) {
+        return;
+      }
+
+      // Symbol needs PLT entry, we need to reserve a PLT entry
+      // and the corresponding GOT and dynamic relocation entry
+      // in .got and .rel.plt. (GOT entry will be reserved simultaneously
+      // when calling ARMPLT->reserveEntry())
+      getTarget().getPLT().reserveEntry();
+      getTarget().getRelPLT().reserveEntry();
+      // set PLT bit
+      rsym->setReserved(rsym->reserved() | ReservePLT);
+      return;
+    }
+
+    // Set R_ARM_TARGET2 to R_ARM_GOT_PREL
+    // Ref: GNU gold 1.11 arm.cc, line 9892
+    // FIXME: R_ARM_TARGET2 should be set by option --target2
+    case llvm::ELF::R_ARM_TARGET2:
+      pReloc.setType(llvm::ELF::R_ARM_GOT_PREL);
+    case llvm::ELF::R_ARM_GOT_BREL:
+    case llvm::ELF::R_ARM_GOT_ABS:
+    case llvm::ELF::R_ARM_GOT_PREL: {
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
+        return;
+      getTarget().getGOT().reserveGOT();
+      // if the symbol cannot be fully resolved at link time, then we need a
+      // dynamic relocation
+      if (!getTarget().symbolFinalValueIsKnown(*rsym)) {
+        getTarget().getRelDyn().reserveEntry();
+        // set GOTRel bit
+        rsym->setReserved(rsym->reserved() | GOTRel);
+        return;
+      }
+      // set GOT bit
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+    }
+
+    case llvm::ELF::R_ARM_COPY:
+    case llvm::ELF::R_ARM_GLOB_DAT:
+    case llvm::ELF::R_ARM_JUMP_SLOT:
+    case llvm::ELF::R_ARM_RELATIVE: {
+      // These are relocation type for dynamic linker, shold not
+      // appear in object file.
+      fatal(diag::dynamic_relocation) << (int)pReloc.type();
+      break;
+    }
+    default: {
+      break;
+    }
+  } // end switch
+}
+
+void ARMRelocator::scanRelocation(Relocation& pReloc,
+                                     IRBuilder& pBuilder,
+                                     Module& pModule,
+                                     LDSection& pSection)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
+
+  pReloc.updateAddend();
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+    return;
+
+  // Scan relocation type to determine if an GOT/PLT/Dynamic Relocation
+  // entries should be created.
+  // FIXME: Below judgements concern nothing about TLS related relocation
+
+  // rsym is local
+  if (rsym->isLocal())
+    scanLocalReloc(pReloc, pSection);
+
+  // rsym is external
+  else
+    scanGlobalReloc(pReloc, pBuilder, pSection);
+
+  // check if we shoule issue undefined reference for the relocation target
+  // symbol
+  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
+    fatal(diag::undefined_reference) << rsym->name();
 }
 
 //===--------------------------------------------------------------------===//
@@ -141,11 +584,11 @@ ARMGOTEntry& helper_get_GOT_and_init(Relocation& pReloc,
     got_entry = ld_backend.getGOT().consumeGOT();
     pParent.getSymGOTMap().record(*rsym, *got_entry);
     // If we first get this GOT entry, we should initialize it.
-    if (rsym->reserved() & ARMGNULDBackend::ReserveGOT) {
+    if (rsym->reserved() & ARMRelocator::ReserveGOT) {
       // No corresponding dynamic relocation, initialize to the symbol value.
       got_entry->setValue(pReloc.symValue());
     }
-    else if (rsym->reserved() & ARMGNULDBackend::GOTRel) {
+    else if (rsym->reserved() & ARMRelocator::GOTRel) {
 
       // Initialize corresponding dynamic relocation.
       Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
@@ -201,7 +644,7 @@ ARMPLT1& helper_get_PLT_and_init(Relocation& pReloc, ARMRelocator& pParent)
   pParent.getSymPLTMap().record(*rsym, *plt_entry);
 
   // If we first get this PLT entry, we should initialize it.
-  if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+  if (rsym->reserved() & ARMRelocator::ReservePLT) {
     ARMGOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
     assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
     gotplt_entry = ld_backend.getGOT().consumeGOTPLT();
@@ -381,7 +824,7 @@ ARMRelocator::Result abs32(Relocation& pReloc, ARMRelocator& pParent)
   }
 
   // A local symbol may need REL Type dynamic relocation
-  if (rsym->isLocal() && (rsym->reserved() & ARMGNULDBackend::ReserveRel)) {
+  if (rsym->isLocal() && (rsym->reserved() & ARMRelocator::ReserveRel)) {
     helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
     pReloc.target() = (S + A) | T ;
     return ARMRelocator::OK;
@@ -389,14 +832,14 @@ ARMRelocator::Result abs32(Relocation& pReloc, ARMRelocator& pParent)
 
   // An external symbol may need PLT and dynamic relocation
   if (!rsym->isLocal()) {
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (rsym->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0 ; // PLT is not thumb
     }
     // If we generate a dynamic relocation (except R_ARM_RELATIVE)
     // for a place, we should not perform static relocation on it
     // in order to keep the addend store in the place correct.
-    if (rsym->reserved() & ARMGNULDBackend::ReserveRel) {
+    if (rsym->reserved() & ARMRelocator::ReserveRel) {
       if (helper_use_relative_reloc(*rsym, pParent)) {
         helper_DynRel(pReloc, llvm::ELF::R_ARM_RELATIVE, pParent);
       }
@@ -423,7 +866,7 @@ ARMRelocator::Result rel32(Relocation& pReloc, ARMRelocator& pParent)
 
   // An external symbol may need PLT (this reloc is from stub)
   if (!pReloc.symInfo()->isLocal()) {
-    if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0;  // PLT is not thumb.
     }
@@ -460,7 +903,7 @@ ARMRelocator::Result gotoff32(Relocation& pReloc, ARMRelocator& pParent)
 ARMRelocator::Result got_brel(Relocation& pReloc, ARMRelocator& pParent)
 {
   if (!(pReloc.symInfo()->reserved() &
-      (ARMGNULDBackend::ReserveGOT | ARMGNULDBackend::GOTRel))) {
+      (ARMRelocator::ReserveGOT | ARMRelocator::GOTRel))) {
     return ARMRelocator::BadReloc;
   }
   ARMRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
@@ -475,7 +918,7 @@ ARMRelocator::Result got_brel(Relocation& pReloc, ARMRelocator& pParent)
 ARMRelocator::Result got_prel(Relocation& pReloc, ARMRelocator& pParent)
 {
   if (!(pReloc.symInfo()->reserved() &
-      (ARMGNULDBackend::ReserveGOT | ARMGNULDBackend::GOTRel))) {
+      (ARMRelocator::ReserveGOT | ARMRelocator::GOTRel))) {
     return ARMRelocator::BadReloc;
   }
   ARMRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
@@ -496,7 +939,7 @@ ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
                        pReloc.addend();
   // S depends on PLT exists or not
   ARMRelocator::Address S = pReloc.symValue();
-  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)
+  if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT)
     S = helper_PLT(pReloc, pParent);
 
   ARMRelocator::DWord X = S + A - P;
@@ -518,7 +961,7 @@ ARMRelocator::Result call(Relocation& pReloc, ARMRelocator& pParent)
   if (pReloc.symInfo()->isWeak() &&
       pReloc.symInfo()->isUndef() &&
       !pReloc.symInfo()->isDyn() &&
-      !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
+      !(pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT)) {
     // change target to NOP : mov r0, r0
     pReloc.target() = (pReloc.target() & 0xf0000000U) | 0x01a00000;
     return ARMRelocator::OK;
@@ -532,7 +975,7 @@ ARMRelocator::Result call(Relocation& pReloc, ARMRelocator& pParent)
 
   // S depends on PLT exists or not
   ARMRelocator::Address S = pReloc.symValue();
-  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
+  if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
@@ -570,7 +1013,7 @@ ARMRelocator::Result thm_call(Relocation& pReloc, ARMRelocator& pParent)
   if (pReloc.symInfo()->isWeak() &&
       pReloc.symInfo()->isUndef() &&
       !pReloc.symInfo()->isDyn() &&
-      !(pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT)) {
+      !(pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT)) {
     pReloc.target() = (0xe000U << 16) | 0xbf00U;
     return ARMRelocator::OK;
   }
@@ -586,7 +1029,7 @@ ARMRelocator::Result thm_call(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::Address S;
 
   // if symbol has plt
-  if (pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
+  if (pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }
@@ -647,7 +1090,7 @@ ARMRelocator::Result movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
   // relocation but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (rsym->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0 ; // PLT is not thumb
     }
@@ -692,7 +1135,7 @@ ARMRelocator::Result movt_abs(Relocation& pReloc, ARMRelocator& pParent)
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (rsym->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
     }
   }
@@ -737,7 +1180,7 @@ ARMRelocator::Result thm_movw_abs_nc(Relocation& pReloc, ARMRelocator& pParent)
   // but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (rsym->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
       T = 0; // PLT is not thumb
     }
@@ -815,7 +1258,7 @@ ARMRelocator::Result thm_movt_abs(Relocation& pReloc, ARMRelocator& pParent)
   // relocation but perform static relocation. (e.g., applying .debug section)
   if (0x0 != (llvm::ELF::SHF_ALLOC & target_sect.flag())) {
     // use plt
-    if (rsym->reserved() & ARMGNULDBackend::ReservePLT) {
+    if (rsym->reserved() & ARMRelocator::ReservePLT) {
       S = helper_PLT(pReloc, pParent);
     }
   }
@@ -865,7 +1308,7 @@ ARMRelocator::Result prel31(Relocation& pReloc, ARMRelocator& pParent)
   ARMRelocator::DWord P = pReloc.place();
   ARMRelocator::Address S = pReloc.symValue();
   // if symbol has plt
-  if ( pReloc.symInfo()->reserved() & ARMGNULDBackend::ReservePLT) {
+  if ( pReloc.symInfo()->reserved() & ARMRelocator::ReservePLT) {
     S = helper_PLT(pReloc, pParent);
     T = 0;  // PLT is not thumb.
   }

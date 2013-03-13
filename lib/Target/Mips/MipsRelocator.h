@@ -27,8 +27,23 @@ class MipsRelocator : public Relocator
 public:
   typedef SymbolEntryMap<MipsGOTEntry> SymGOTMap;
 
+  enum ReservedEntryType {
+    None          = 0,  // no reserved entry
+    ReserveRel    = 1,  // reserve a dynamic relocation entry
+    ReserveGot    = 2,  // reserve a GOT entry
+    ReserveGpDisp = 8   // reserve _gp_disp symbol
+  };
+
 public:
-  MipsRelocator(MipsGNULDBackend& pParent);
+  MipsRelocator(MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
+
+  /// scanRelocation - determine the empty entries are needed or not and
+  /// create the empty entries if needed.
+  /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
+  void scanRelocation(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      Module& pModule,
+                      LDSection& pSection);
 
   Result applyRelocation(Relocation& pRelocation);
 
@@ -52,6 +67,17 @@ public:
 
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
+
+private:
+  void scanLocalReloc(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      const LDSection& pSection);
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       IRBuilder& pBuilder,
+                       const LDSection& pSection);
+
+
 
 private:
   MipsGNULDBackend& m_Target;

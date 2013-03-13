@@ -92,14 +92,14 @@ void MipsGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                    ResolveInfo::Default);
 
   if (NULL != m_pGpDispSymbol) {
-    m_pGpDispSymbol->resolveInfo()->setReserved(ReserveGpDisp);
+    m_pGpDispSymbol->resolveInfo()->setReserved(MipsRelocator::ReserveGpDisp);
   }
 }
 
 bool MipsGNULDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
-    m_pRelocator = new MipsRelocator(*this);
+    m_pRelocator = new MipsRelocator(*this, config());
   }
   return true;
 }
@@ -108,42 +108,6 @@ Relocator* MipsGNULDBackend::getRelocator()
 {
   assert(NULL != m_pRelocator);
   return m_pRelocator;
-}
-
-void MipsGNULDBackend::scanRelocation(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
-                                      Module& pModule,
-                                      LDSection& pSection)
-{
-  // rsym - The relocation target symbol
-  ResolveInfo* rsym = pReloc.symInfo();
-  assert(NULL != rsym && "ResolveInfo of relocation not set while scanRelocation");
-
-  // Skip relocation against _gp_disp
-  if (NULL != m_pGpDispSymbol) {
-    if (pReloc.symInfo() == m_pGpDispSymbol->resolveInfo())
-      return;
-  }
-
-  pReloc.updateAddend();
-
-  assert(NULL != pSection.getLink());
-  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
-    return;
-
-  // We test isLocal or if pInputSym is not a dynamic symbol
-  // We assume -Bsymbolic to bind all symbols internaly via !rsym->isDyn()
-  // Don't put undef symbols into local entries.
-  if ((rsym->isLocal() || !isDynamicSymbol(*rsym) ||
-      !rsym->isDyn()) && !rsym->isUndef())
-    scanLocalReloc(pReloc, pBuilder, pSection);
-  else
-    scanGlobalReloc(pReloc, pBuilder, pSection);
-
-  // check if we shoule issue undefined reference for the relocation target
-  // symbol
-  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
-    fatal(diag::undefined_reference) << rsym->name();
 }
 
 void MipsGNULDBackend::doPreLayout(IRBuilder& pBuilder)
@@ -700,196 +664,6 @@ bool MipsGNULDBackend::allocateCommonSymbols(Module& pModule)
   tbss_sect.setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
   return true;
-}
-
-void MipsGNULDBackend::scanLocalReloc(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
-                                      const LDSection& pSection)
-{
-  ResolveInfo* rsym = pReloc.symInfo();
-
-  switch (pReloc.type()){
-    case llvm::ELF::R_MIPS_NONE:
-    case llvm::ELF::R_MIPS_16:
-      break;
-    case llvm::ELF::R_MIPS_32:
-      if (LinkerConfig::DynObj == config().codeGenType()) {
-        // TODO: (simon) The gold linker does not create an entry in .rel.dyn
-        // section if the symbol section flags contains SHF_EXECINSTR.
-        // 1. Find the reason of this condition.
-        // 2. Check this condition here.
-        m_pRelDyn->reserveEntry();
-        rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(*pSection.getLink());
-
-        // Remeber this rsym is a local GOT entry (as if it needs an entry).
-        // Actually we don't allocate an GOT entry.
-        m_pGOT->setLocal(rsym);
-      }
-      break;
-    case llvm::ELF::R_MIPS_REL32:
-    case llvm::ELF::R_MIPS_26:
-    case llvm::ELF::R_MIPS_HI16:
-    case llvm::ELF::R_MIPS_LO16:
-    case llvm::ELF::R_MIPS_PC16:
-    case llvm::ELF::R_MIPS_SHIFT5:
-    case llvm::ELF::R_MIPS_SHIFT6:
-    case llvm::ELF::R_MIPS_64:
-    case llvm::ELF::R_MIPS_GOT_PAGE:
-    case llvm::ELF::R_MIPS_GOT_OFST:
-    case llvm::ELF::R_MIPS_SUB:
-    case llvm::ELF::R_MIPS_INSERT_A:
-    case llvm::ELF::R_MIPS_INSERT_B:
-    case llvm::ELF::R_MIPS_DELETE:
-    case llvm::ELF::R_MIPS_HIGHER:
-    case llvm::ELF::R_MIPS_HIGHEST:
-    case llvm::ELF::R_MIPS_SCN_DISP:
-    case llvm::ELF::R_MIPS_REL16:
-    case llvm::ELF::R_MIPS_ADD_IMMEDIATE:
-    case llvm::ELF::R_MIPS_PJUMP:
-    case llvm::ELF::R_MIPS_RELGOT:
-    case llvm::ELF::R_MIPS_JALR:
-    case llvm::ELF::R_MIPS_GLOB_DAT:
-    case llvm::ELF::R_MIPS_COPY:
-    case llvm::ELF::R_MIPS_JUMP_SLOT:
-      break;
-    case llvm::ELF::R_MIPS_GOT16:
-    case llvm::ELF::R_MIPS_CALL16:
-    case llvm::ELF::R_MIPS_GOT_HI16:
-    case llvm::ELF::R_MIPS_CALL_HI16:
-    case llvm::ELF::R_MIPS_GOT_LO16:
-    case llvm::ELF::R_MIPS_CALL_LO16:
-      // For got16 section based relocations, we need to reserve got entries.
-      if (rsym->type() == ResolveInfo::Section) {
-        m_pGOT->reserveLocalEntry();
-        // Remeber this rsym is a local GOT entry
-        m_pGOT->setLocal(rsym);
-        return;
-      }
-
-      if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveLocalEntry();
-        rsym->setReserved(rsym->reserved() | ReserveGot);
-        // Remeber this rsym is a local GOT entry
-        m_pGOT->setLocal(rsym);
-      }
-      break;
-    case llvm::ELF::R_MIPS_GPREL32:
-    case llvm::ELF::R_MIPS_GPREL16:
-    case llvm::ELF::R_MIPS_LITERAL:
-    case llvm::ELF::R_MIPS_GOT_DISP:
-      break;
-    case llvm::ELF::R_MIPS_TLS_DTPMOD32:
-    case llvm::ELF::R_MIPS_TLS_DTPREL32:
-    case llvm::ELF::R_MIPS_TLS_DTPMOD64:
-    case llvm::ELF::R_MIPS_TLS_DTPREL64:
-    case llvm::ELF::R_MIPS_TLS_GD:
-    case llvm::ELF::R_MIPS_TLS_LDM:
-    case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
-    case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
-    case llvm::ELF::R_MIPS_TLS_GOTTPREL:
-    case llvm::ELF::R_MIPS_TLS_TPREL32:
-    case llvm::ELF::R_MIPS_TLS_TPREL64:
-    case llvm::ELF::R_MIPS_TLS_TPREL_HI16:
-    case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
-      break;
-    default:
-      fatal(diag::unknown_relocation) << (int)pReloc.type()
-                                      << pReloc.symInfo()->name();
-  }
-}
-
-void MipsGNULDBackend::scanGlobalReloc(Relocation& pReloc,
-                                       IRBuilder& pBuilder,
-                                       const LDSection& pSection)
-{
-  ResolveInfo* rsym = pReloc.symInfo();
-
-  switch (pReloc.type()){
-    case llvm::ELF::R_MIPS_NONE:
-    case llvm::ELF::R_MIPS_INSERT_A:
-    case llvm::ELF::R_MIPS_INSERT_B:
-    case llvm::ELF::R_MIPS_DELETE:
-    case llvm::ELF::R_MIPS_TLS_DTPMOD64:
-    case llvm::ELF::R_MIPS_TLS_DTPREL64:
-    case llvm::ELF::R_MIPS_REL16:
-    case llvm::ELF::R_MIPS_ADD_IMMEDIATE:
-    case llvm::ELF::R_MIPS_PJUMP:
-    case llvm::ELF::R_MIPS_RELGOT:
-    case llvm::ELF::R_MIPS_TLS_TPREL64:
-      break;
-    case llvm::ELF::R_MIPS_32:
-    case llvm::ELF::R_MIPS_64:
-    case llvm::ELF::R_MIPS_HI16:
-    case llvm::ELF::R_MIPS_LO16:
-      if (symbolNeedsDynRel(*rsym, false, true)) {
-        m_pRelDyn->reserveEntry();
-        rsym->setReserved(rsym->reserved() | ReserveRel);
-        checkAndSetHasTextRel(*pSection.getLink());
-
-        // Remeber this rsym is a global GOT entry (as if it needs an entry).
-        // Actually we don't allocate an GOT entry.
-        m_pGOT->setGlobal(rsym);
-      }
-      break;
-    case llvm::ELF::R_MIPS_GOT16:
-    case llvm::ELF::R_MIPS_CALL16:
-    case llvm::ELF::R_MIPS_GOT_DISP:
-    case llvm::ELF::R_MIPS_GOT_HI16:
-    case llvm::ELF::R_MIPS_CALL_HI16:
-    case llvm::ELF::R_MIPS_GOT_LO16:
-    case llvm::ELF::R_MIPS_CALL_LO16:
-    case llvm::ELF::R_MIPS_GOT_PAGE:
-    case llvm::ELF::R_MIPS_GOT_OFST:
-      if (!(rsym->reserved() & MipsGNULDBackend::ReserveGot)) {
-        m_pGOT->reserveGlobalEntry();
-        rsym->setReserved(rsym->reserved() | ReserveGot);
-        m_GlobalGOTSyms.push_back(rsym->outSymbol());
-        // Remeber this rsym is a global GOT entry
-        m_pGOT->setGlobal(rsym);
-      }
-      break;
-    case llvm::ELF::R_MIPS_LITERAL:
-    case llvm::ELF::R_MIPS_GPREL32:
-      fatal(diag::invalid_global_relocation) << (int)pReloc.type()
-                                             << pReloc.symInfo()->name();
-      break;
-    case llvm::ELF::R_MIPS_GPREL16:
-      break;
-    case llvm::ELF::R_MIPS_26:
-    case llvm::ELF::R_MIPS_PC16:
-      break;
-    case llvm::ELF::R_MIPS_16:
-    case llvm::ELF::R_MIPS_SHIFT5:
-    case llvm::ELF::R_MIPS_SHIFT6:
-    case llvm::ELF::R_MIPS_SUB:
-    case llvm::ELF::R_MIPS_HIGHER:
-    case llvm::ELF::R_MIPS_HIGHEST:
-    case llvm::ELF::R_MIPS_SCN_DISP:
-      break;
-    case llvm::ELF::R_MIPS_TLS_DTPREL32:
-    case llvm::ELF::R_MIPS_TLS_GD:
-    case llvm::ELF::R_MIPS_TLS_LDM:
-    case llvm::ELF::R_MIPS_TLS_DTPREL_HI16:
-    case llvm::ELF::R_MIPS_TLS_DTPREL_LO16:
-    case llvm::ELF::R_MIPS_TLS_GOTTPREL:
-    case llvm::ELF::R_MIPS_TLS_TPREL32:
-    case llvm::ELF::R_MIPS_TLS_TPREL_HI16:
-    case llvm::ELF::R_MIPS_TLS_TPREL_LO16:
-      break;
-    case llvm::ELF::R_MIPS_REL32:
-      break;
-    case llvm::ELF::R_MIPS_JALR:
-      break;
-    case llvm::ELF::R_MIPS_COPY:
-    case llvm::ELF::R_MIPS_GLOB_DAT:
-    case llvm::ELF::R_MIPS_JUMP_SLOT:
-      fatal(diag::dynamic_relocation) << (int)pReloc.type();
-      break;
-    default:
-      fatal(diag::unknown_relocation) << (int)pReloc.type()
-                                      << pReloc.symInfo()->name();
-  }
 }
 
 void MipsGNULDBackend::defineGOTSymbol(IRBuilder& pBuilder)

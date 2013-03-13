@@ -23,6 +23,7 @@
 #include <mcld/LD/ObjectWriter.h>
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/LD/Relocator.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
@@ -347,7 +348,7 @@ bool ObjectLinker::scanRelocations()
         Relocation* relocation = llvm::cast<Relocation>(reloc);
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
-          m_LDBackend.scanRelocation(*relocation, *m_pBuilder, *m_pModule, **rs);
+          m_LDBackend.getRelocator()->scanRelocation(*relocation, *m_pBuilder, *m_pModule, **rs);
         else
           m_LDBackend.partialScanRelocation(*relocation, *m_pModule, **rs);
       } // for all relocations

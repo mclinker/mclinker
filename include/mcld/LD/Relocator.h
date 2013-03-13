@@ -19,6 +19,8 @@ namespace mcld
 
 class FragmentLinker;
 class TargetLDBackend;
+class IRBuilder;
+class Module;
 
 /** \class Relocator
  *  \brief Relocator provides the interface of performing relocations
@@ -42,6 +44,10 @@ public:
   };
 
 public:
+  Relocator(const LinkerConfig& pConfig)
+    : m_Config(pConfig)
+  {}
+
   virtual ~Relocator() = 0;
 
   /// apply - general apply function
@@ -57,6 +63,24 @@ public:
 
   /// getSize - get the size of a relocation in bit
   virtual Size getSize(Type pType) const = 0;
+
+  /// scanRelocation - When read in relocations, backend can do any modification
+  /// to relocation and generate empty entries, such as GOT, dynamic relocation
+  /// entries and other target dependent entries. These entries are generated
+  /// for layout to adjust the ouput offset.
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
+  virtual void scanRelocation(Relocation& pReloc,
+                              IRBuilder& pBuilder,
+                              Module& pModule,
+                              LDSection& pSection) = 0;
+
+protected:
+    const LinkerConfig& config() const { return m_Config; }
+
+private:
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld
