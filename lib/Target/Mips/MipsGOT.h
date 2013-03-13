@@ -148,6 +148,7 @@ private:
   bool isGOTFull() const;
   void split();
   void reserve(size_t pNum);
+  void reserveHeader();
 
 private:
   typedef llvm::DenseMap<const ResolveInfo*, bool> SymbolTypeMapType;

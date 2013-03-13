@@ -19,7 +19,8 @@
 #include "MipsRelocator.h"
 
 namespace {
-  const size_t MipsGOT0Num = 1;
+  const uint32_t MipsModulePtr = 0x80000000;
+  const size_t MipsGOT0Num = 2;
   const size_t MipsGOTGpOffset = 0x7FF0;
   const size_t MipsGOTSize = MipsGOTGpOffset + 0x7FFF;
 }
@@ -90,6 +91,12 @@ void MipsGOT::reserve(size_t pNum)
   }
 }
 
+void MipsGOT::reserveHeader()
+{
+  new MipsGOTEntry(0, m_SectionData);
+  new MipsGOTEntry(MipsModulePtr, m_SectionData);
+}
+
 bool MipsGOT::hasGOT1() const
 {
   return !m_MultipartList.empty();
@@ -104,7 +111,7 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
 {
   for (MultipartListType::iterator it = m_MultipartList.begin();
        it != m_MultipartList.end(); ++it) {
-    reserve(MipsGOT0Num);
+    reserveHeader();
     it->m_pLastLocal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());
     reserve(it->m_LocalNum);
     it->m_pLastGlobal = llvm::cast<MipsGOTEntry>(&m_SectionData->back());

@@ -1,13 +1,14 @@
-; RUN: %MCLinker -march mipsel -mtriple=mipsel-none-linux-gnueabi -filetype=dso -shared -fPIC \
+; RUN: %MCLinker -march mipsel -mtriple=mipsel-none-linux-gnueabi \
+; RUN:           -filetype=dso -shared -fPIC \
 ; RUN:           -o %t.so %p/mgot0.o %p/mgot1.o
 ;
 ; RUN: readelf -a %t.so | FileCheck %s -check-prefix=MGOT
 ;
 ; Check GOT section size
-; MGOT: .got PROGBITS {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} 010170
+; MGOT: .got PROGBITS {{[0-9a-fA-F]+}} {{[0-9a-fA-F]+}} 010178
 ;
 ; Check GOT elements numbers
-; MGOT: (MIPS_LOCAL_GOTNO)   3
+; MGOT: (MIPS_LOCAL_GOTNO)   4
 ; MGOT: (MIPS_GOTSYM)      0x7
 ;
 ; Check .rel.dyn size
@@ -33,14 +34,16 @@
 ; MGOT:  Canonical gp value: {{[0-9a-fA-F]+}}
 ; MGOT:  Reserved entries:
 ; MGOT:   {{[0-9a-fA-F]+}} -32752(gp) 00000000 Lazy resolver
+; MGOT:   {{[0-9a-fA-F]+}} -32748(gp) 80000000 Module pointer (GNU extension)
 ; MGOT:  Local entries:
-; MGOT:   {{[0-9a-fA-F]+}} -32748(gp) 00100000
 ; MGOT:   {{[0-9a-fA-F]+}} -32744(gp) 00100000
+; MGOT:   {{[0-9a-fA-F]+}} -32740(gp) 00100000
 ; MGOT:  Global entries:
-; MGOT:   {{[0-9a-fA-F]+}} -32740(gp) 00000000 00000000 NOTYPE  UND printf
-; MGOT:   {{[0-9a-fA-F]+}} -32736(gp) 00000000 00000000 NOTYPE  UND foo00000
-; MGOT:   {{[0-9a-fA-F]+}}  32760(gp) 00000000 00000000 NOTYPE  UND foo16374
-; MGOT:   {{[0-9a-fA-F]+}}  32764(gp) 00000000 00000000 NOTYPE  UND foo16375
+; MGOT:   {{[0-9a-fA-F]+}} -32736(gp) 00000000 00000000 NOTYPE  UND printf
+; MGOT:   {{[0-9a-fA-F]+}} -32732(gp) 00000000 00000000 NOTYPE  UND foo00000
+; MGOT:   {{[0-9a-fA-F]+}}  32760(gp) 00000000 00000000 NOTYPE  UND foo16373
+; MGOT:   {{[0-9a-fA-F]+}}  32764(gp) 00000000 00000000 NOTYPE  UND foo16374
+; MGOT:   {{[0-9a-fA-F]+}}            00000000 00000000 NOTYPE  UND foo16375
 ; MGOT:   {{[0-9a-fA-F]+}}            00000000 00000000 NOTYPE  UND foo16376
 ; MGOT:   {{[0-9a-fA-F]+}}            00000000 00000000 NOTYPE  UND foo16377
 ; MGOT:   {{[0-9a-fA-F]+}}            00000000 00000000 NOTYPE  UND foo16378

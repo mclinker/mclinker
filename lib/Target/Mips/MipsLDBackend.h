@@ -11,6 +11,8 @@
 #include <mcld/Target/GNULDBackend.h>
 #include "MipsELFDynamic.h"
 #include "MipsGOT.h"
+#include "MipsGOTPLT.h"
+#include "MipsPLT.h"
 
 namespace mcld {
 
@@ -31,6 +33,11 @@ public:
 public:
   MipsGNULDBackend(const LinkerConfig& pConfig, MipsGNUInfo* pInfo);
   ~MipsGNULDBackend();
+
+  bool needsLA25Stub(Relocation& pReloc);
+
+  void addNonPICBranchSym(ResolveInfo* rsym);
+  bool hasNonPICBranch(const ResolveInfo* rsym) const;
 
 public:
   /// initTargetSections - initialize target dependent sections in output
@@ -85,6 +92,15 @@ public:
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;
 
+  MipsPLT& getPLT();
+  const MipsPLT& getPLT() const;
+
+  MipsGOTPLT& getGOTPLT();
+  const MipsGOTPLT& getGOTPLT() const;
+
+  OutputRelocSection& getRelPLT();
+  const OutputRelocSection& getRelPLT() const;
+
   OutputRelocSection& getRelDyn();
   const OutputRelocSection& getRelDyn() const;
 
@@ -109,6 +125,7 @@ public:
 
 private:
   void defineGOTSymbol(IRBuilder& pBuilder);
+  void defineGOTPLTSymbol(IRBuilder& pBuilder);
 
   /// emitSymbol32 - emit an ELF32 symbol, override parent's function
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
@@ -129,20 +146,40 @@ private:
   /// target-dependent segments
   void doCreateProgramHdrs(Module& pModule);
 
+  /// mayRelax - Backends should override this function if they need relaxation
+  bool mayRelax() { return true; }
+
+  /// doRelax - Backend can orevride this function to add its relaxation
+  /// implementation. Return true if the output (e.g., .text) is "relaxed"
+  /// (i.e. layout is changed), and set pFinished to true if everything is fit,
+  /// otherwise set it to false.
+  bool doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished);
+
+  /// initTargetStubs
+  bool initTargetStubs();
+
 private:
+  typedef llvm::DenseSet<const ResolveInfo*> ResolveInfoSetType;
+
+private:
+  MipsGNUInfo& m_pInfo;
   Relocator* m_pRelocator;
 
   MipsGOT* m_pGOT;                      // .got
+  MipsPLT* m_pPLT;                      // .plt
+  MipsGOTPLT* m_pGOTPLT;                // .got.plt
+  OutputRelocSection* m_pRelPlt;        // .rel.plt
   OutputRelocSection* m_pRelDyn;        // .rel.dyn
 
   MipsELFDynamic* m_pDynamic;
   LDSymbol* m_pGOTSymbol;
+  LDSymbol* m_pPLTSymbol;
   LDSymbol* m_pGpDispSymbol;
 
   SymbolListType m_GlobalGOTSyms;
+  ResolveInfoSetType m_HasNonPICBranchSyms;
 };
 
 } // namespace of mcld
 
 #endif
-

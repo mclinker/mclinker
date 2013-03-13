@@ -1,0 +1,23 @@
+; ModuleID = 'bar.c'
+target datalayout = "e-p:32:32:32-i1:8:8-i8:8:32-i16:16:32-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-n32-S64"
+target triple = "mipsel--linux-gnu"
+
+; Function Attrs: nounwind
+define i32 @bar() #0 {
+  %1 = call i32 @bar2()
+  ret i32 %1
+}
+
+; Function Attrs: nounwind
+define internal i32 @bar2() #0 {
+  %1 = call i32 @bar1()
+  %2 = add nsw i32 %1, 2
+  ret i32 %2
+}
+
+; Function Attrs: nounwind
+define internal i32 @bar1() #0 {
+  ret i32 1
+}
+
+attributes #0 = { nounwind "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }

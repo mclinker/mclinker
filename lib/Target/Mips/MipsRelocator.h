@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <llvm/ADT/DenseMapInfo.h>
 #include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
 #include "MipsLDBackend.h"
@@ -28,7 +29,7 @@ public:
     None          = 0,  // no reserved entry
     ReserveRel    = 1,  // reserve a dynamic relocation entry
     ReserveGot    = 2,  // reserve a GOT entry
-    ReserveGpDisp = 8   // reserve _gp_disp symbol
+    ReservePLT    = 4   // reserve a PLT entry
   };
 
 public:
@@ -77,9 +78,23 @@ public:
   void setAHL(int32_t pAHL)
   { m_AHL = pAHL; }
 
+  /// getPLTOffset - initialize PLT-related entries for the symbol
+  /// @return - return address of PLT entry
+  uint64_t getPLTAddress(ResolveInfo& rsym);
+
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
+
+private:
+  typedef std::pair<Fragment*, Fragment*> PLTDescriptor;
+  typedef llvm::DenseMap<const ResolveInfo*, PLTDescriptor> SymPLTMap;
+
+private:
+  MipsGNULDBackend& m_Target;
+  SymPLTMap m_SymPLTMap;
+  Input* m_pApplyingInput;
+  int32_t m_AHL;
 
 private:
   void scanLocalReloc(Relocation& pReloc,
@@ -90,10 +105,15 @@ private:
                        IRBuilder& pBuilder,
                        const LDSection& pSection);
 
-private:
-  MipsGNULDBackend& m_Target;
-  Input* m_pApplyingInput;
-  int32_t m_AHL;
+  /// addCopyReloc - add a copy relocation into .rel.dyn for pSym
+  /// @param pSym - A resolved copy symbol that defined in BSS section
+  void addCopyReloc(ResolveInfo& pSym);
+
+  /// defineSymbolforCopyReloc - allocate a space in BSS section and
+  /// and force define the copy of pSym to BSS section
+  /// @return the output LDSymbol of the copy symbol
+  LDSymbol& defineSymbolforCopyReloc(IRBuilder& pBuilder,
+                                     const ResolveInfo& pSym);
 };
 
 } // namespace of mcld

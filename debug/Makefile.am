@@ -319,10 +319,17 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.h \
 	${LIBDIR}/Target/Mips/MipsELFDynamic.cpp \
 	${LIBDIR}/Target/Mips/MipsGNUInfo.h \
+	${LIBDIR}/Target/Mips/MipsGNUInfo.cpp \
 	${LIBDIR}/Target/Mips/MipsLDBackend.h \
 	${LIBDIR}/Target/Mips/MipsLDBackend.cpp \
 	${LIBDIR}/Target/Mips/MipsGOT.h \
 	${LIBDIR}/Target/Mips/MipsGOT.cpp \
+	${LIBDIR}/Target/Mips/MipsGOTPLT.h \
+	${LIBDIR}/Target/Mips/MipsGOTPLT.cpp \
+	${LIBDIR}/Target/Mips/MipsPLT.h \
+	${LIBDIR}/Target/Mips/MipsPLT.cpp \
+	${LIBDIR}/Target/Mips/MipsLA25Stub.h \
+	${LIBDIR}/Target/Mips/MipsLA25Stub.cpp \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.h \
 	${LIBDIR}/Target/Mips/MipsTargetMachine.cpp \
 	${LIBDIR}/Target/Mips/MipsRelocationFunctions.h \
