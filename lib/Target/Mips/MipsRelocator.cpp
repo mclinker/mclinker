@@ -411,7 +411,8 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc, MipsRelocator& pParent)
 }
 
 static
-Relocator::Address helper_GetGOTOffset(Relocation& pReloc, MipsRelocator& pParent)
+Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
+                                       MipsRelocator& pParent)
 {
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
