@@ -42,6 +42,22 @@ public:
                       Module& pModule,
                       LDSection& pSection);
 
+  /// initializeScan - do initialization before scan relocations in pInput
+  /// @return - return true for initialization success
+  bool initializeScan(Input& pInput);
+
+  /// finalizeScan - do finalizarion after scan relocations in pInput
+  /// @return - return true for finalization success
+  bool finalizeScan(Input& pInput);
+
+  /// initializeApply - do initialization before apply relocations in pInput
+  /// @return - return true for initialization success
+  bool initializeApply(Input& pInput);
+
+  /// finalizeApply - do finalizarion after apply relocations in pInput
+  /// @return - return true for finalization success
+  bool finalizeApply(Input& pInput);
+
   Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
   MipsGNULDBackend& getTarget()
@@ -70,8 +86,6 @@ private:
   void scanGlobalReloc(Relocation& pReloc,
                        IRBuilder& pBuilder,
                        const LDSection& pSection);
-
-
 
 private:
   MipsGNULDBackend& m_Target;

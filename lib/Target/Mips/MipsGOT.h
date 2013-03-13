@@ -55,8 +55,11 @@ public:
 
   uint64_t emit(MemoryRegion& pRegion);
 
-  bool reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo);
-  bool reserveGlobalEntry(const Input& pInput, ResolveInfo& pInfo);
+  void initializeScan(const Input& pInput);
+  void finalizeScan(const Input& pInput);
+
+  bool reserveLocalEntry(ResolveInfo& pInfo);
+  bool reserveGlobalEntry(ResolveInfo& pInfo);
 
   size_t getLocalNum() const;   ///< number of local symbols in primary GOT
   size_t getGlobalNum() const;  ///< total number of global symbols
@@ -146,8 +149,8 @@ private:
 
   SymbolsArrayType m_OrderedGlobalSym;
 
-  void initGOTList(const Input& pInput);
-  void changeInput(const Input& pInput);
+  void initGOTList();
+  void changeInput();
   bool isGOTFull() const;
   void split();
   void reserve(size_t pNum);

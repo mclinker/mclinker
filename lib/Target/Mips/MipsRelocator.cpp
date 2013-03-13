@@ -114,6 +114,28 @@ void MipsRelocator::scanRelocation(Relocation& pReloc,
     fatal(diag::undefined_reference) << rsym->name();
 }
 
+bool MipsRelocator::initializeScan(Input& pInput)
+{
+  getTarget().getGOT().initializeScan(pInput);
+  return true;
+}
+
+bool MipsRelocator::finalizeScan(Input& pInput)
+{
+  getTarget().getGOT().finalizeScan(pInput);
+  return true;
+}
+
+bool MipsRelocator::initializeApply(Input& pInput)
+{
+  return true;
+}
+
+bool MipsRelocator::finalizeApply(Input& pInput)
+{
+  return true;
+}
+
 void MipsRelocator::scanLocalReloc(Relocation& pReloc,
                                    IRBuilder& pBuilder,
                                    const LDSection& pSection)
@@ -171,8 +193,7 @@ void MipsRelocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_HI16:
     case llvm::ELF::R_MIPS_GOT_LO16:
     case llvm::ELF::R_MIPS_CALL_LO16:
-      // FIXME: use another way to get Input module
-      if (false/*getTarget().getGOT().reserveLocalEntry(pInput, *rsym)*/) {
+      if (getTarget().getGOT().reserveLocalEntry(*rsym)) {
         if (getTarget().getGOT().hasMultipleGOT())
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a local GOT entry
@@ -246,8 +267,7 @@ void MipsRelocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_LO16:
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
-      // FIXME: use another way to get Input module
-      if (false/*getTarget().getGOT().reserveGlobalEntry(pInput, *rsym)*/) {
+      if (getTarget().getGOT().reserveGlobalEntry(*rsym)) {
         if (getTarget().getGOT().hasMultipleGOT())
           getTarget().checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a global GOT entry

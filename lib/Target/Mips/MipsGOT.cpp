@@ -156,10 +156,8 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
   return result;
 }
 
-void MipsGOT::initGOTList(const Input& pInput)
+void MipsGOT::initGOTList()
 {
-  m_pInput = &pInput;
-
   m_OrderedGlobalSym.clear();
 
   m_MultipartList.clear();
@@ -173,10 +171,8 @@ void MipsGOT::initGOTList(const Input& pInput)
   m_InputLocalSymbols.clear();
 }
 
-void MipsGOT::changeInput(const Input& pInput)
+void MipsGOT::changeInput()
 {
-  m_pInput = &pInput;
-
   m_MultipartList.back().m_Inputs.insert(m_pInput);
 
   for (SymbolSetType::iterator it = m_InputLocalSymbols.begin(),
@@ -227,14 +223,24 @@ void MipsGOT::split()
   m_MultipartList.back().m_Inputs.insert(m_pInput);
 }
 
-bool MipsGOT::reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo)
+void MipsGOT::initializeScan(const Input& pInput)
 {
-  if (m_pInput == NULL)
-    initGOTList(pInput);
+  if (m_pInput == NULL) {
+    m_pInput = &pInput;
+    initGOTList();
+  }
+  else {
+    m_pInput = &pInput;
+    changeInput();
+  }
+}
 
-  if (m_pInput != &pInput)
-    changeInput(pInput);
+void MipsGOT::finalizeScan(const Input& pInput)
+{
+}
 
+bool MipsGOT::reserveLocalEntry(ResolveInfo& pInfo)
+{
   if (pInfo.type() != ResolveInfo::Section) {
     if (m_InputLocalSymbols.count(&pInfo))
       return false;
@@ -255,14 +261,8 @@ bool MipsGOT::reserveLocalEntry(const Input& pInput, ResolveInfo& pInfo)
   return true;
 }
 
-bool MipsGOT::reserveGlobalEntry(const Input& pInput, ResolveInfo& pInfo)
+bool MipsGOT::reserveGlobalEntry(ResolveInfo& pInfo)
 {
-  if (m_pInput == NULL)
-    initGOTList(pInput);
-
-  if (m_pInput != &pInput)
-    changeInput(pInput);
-
   if (m_InputGlobalSymbols.count(&pInfo))
     return false;
 
