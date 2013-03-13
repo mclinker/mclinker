@@ -46,7 +46,7 @@ public:
   /// @return - return true for initialization success
   bool initializeScan(Input& pInput);
 
-  /// finalizeScan - do finalizarion after scan relocations in pInput
+  /// finalizeScan - do finalization after scan relocations in pInput
   /// @return - return true for finalization success
   bool finalizeScan(Input& pInput);
 
@@ -54,11 +54,14 @@ public:
   /// @return - return true for initialization success
   bool initializeApply(Input& pInput);
 
-  /// finalizeApply - do finalizarion after apply relocations in pInput
+  /// finalizeApply - do finalization after apply relocations in pInput
   /// @return - return true for finalization success
   bool finalizeApply(Input& pInput);
 
   Result applyRelocation(Relocation& pRelocation);
+
+  const Input& getApplyingInput() const
+  { return *m_pApplyingInput; }
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }
