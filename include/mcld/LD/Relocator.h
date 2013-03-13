@@ -19,6 +19,9 @@ namespace mcld
 
 class FragmentLinker;
 class TargetLDBackend;
+class IRBuilder;
+class Module;
+class Input;
 
 /** \class Relocator
  *  \brief Relocator provides the interface of performing relocations
@@ -42,10 +45,56 @@ public:
   };
 
 public:
+  Relocator(const LinkerConfig& pConfig)
+    : m_Config(pConfig)
+  {}
+
   virtual ~Relocator() = 0;
 
   /// apply - general apply function
   virtual Result applyRelocation(Relocation& pRelocation, Input* pInput) = 0;
+
+  /// scanRelocation - When read in relocations, backend can do any modification
+  /// to relocation and generate empty entries, such as GOT, dynamic relocation
+  /// entries and other target dependent entries. These entries are generated
+  /// for layout to adjust the ouput offset.
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
+  virtual void scanRelocation(Relocation& pReloc,
+                              IRBuilder& pBuilder,
+                              Module& pModule,
+                              LDSection& pSection) = 0;
+
+  /// initializeScan - do initialization before scan relocations in pInput
+  /// @return - return true for initialization success
+  virtual bool initializeScan(Input& pInput)
+  { return true; }
+
+  /// finalizeScan - do finalizarion after scan relocations in pInput
+  /// @return - return true for finalization success
+  virtual bool finalizeScan(Input& pInput)
+  { return true; }
+
+  /// initializeApply - do initialization before apply relocations in pInput
+  /// @return - return true for initialization success
+  virtual bool initializeApply(Input& pInput)
+  { return true; }
+
+  /// finalizeApply - do finalizarion after apply relocations in pInput
+  /// @return - return true for finalization success
+  virtual bool finalizeApply(Input& pInput)
+  { return true; }
+
+  /// partialScanRelocation - When doing partial linking, backend can do any
+  /// modification to relocation to fix the relocation offset after section
+  /// merge
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
+  void partialScanRelocation(Relocation& pReloc,
+                             Module& pModule,
+                             const LDSection& pSection);
 
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;
@@ -57,6 +106,12 @@ public:
 
   /// getSize - get the size of a relocation in bit
   virtual Size getSize(Type pType) const = 0;
+
+protected:
+  const LinkerConfig& config() const { return m_Config; }
+
+private:
+  const LinkerConfig& m_Config;
 };
 
 } // namespace of mcld

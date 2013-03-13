@@ -21,7 +21,7 @@ std::string getDefaultTargetTriple()
   return MCLD_DEFAULT_TARGET_TRIPLE;
 }
 
-off_t GetPageSize()
+int GetPageSize()
 {
   static int _pagesize = 0;
   if (! _pagesize) {

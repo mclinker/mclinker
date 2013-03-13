@@ -18,7 +18,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // constant data
 //===----------------------------------------------------------------------===//
-static const off_t PageSize = mcld::sys::GetPageSize();
+static const int PageSize = mcld::sys::GetPageSize();
 
 //===----------------------------------------------------------------------===//
 // Non-member functions

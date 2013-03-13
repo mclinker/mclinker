@@ -37,7 +37,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // HexagonLDBackend
 //===----------------------------------------------------------------------===//
-HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig, 
+HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
                                    HexagonGNUInfo* pInfo)
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
@@ -62,7 +62,7 @@ HexagonLDBackend::~HexagonLDBackend()
 bool HexagonLDBackend::initRelocator()
 {
   if (NULL == m_pRelocator) {
-    m_pRelocator = new HexagonRelocator(*this);
+    m_pRelocator = new HexagonRelocator(*this, config());
   }
   return true;
 }
@@ -98,15 +98,6 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 {
   assert(NULL != m_pDynamic);
   return *m_pDynamic;
-}
-
-void HexagonLDBackend::scanRelocation(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
-                                      Module& pModule,
-                                      Input& pInput,
-                                      LDSection& pSection)
-{
-  pReloc.updateAddend();
 }
 
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
@@ -180,7 +171,7 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   return SHO_UNDEFINED;
 }
 
-void HexagonLDBackend::initTargetSections(Module& pModule, 
+void HexagonLDBackend::initTargetSections(Module& pModule,
                                           ObjectBuilder& pBuilder)
 {
   if (LinkerConfig::Object != config().codeGenType()) {
@@ -352,7 +343,7 @@ void HexagonLDBackend::doCreateProgramHdrs(Module& pModule)
 namespace mcld {
 
 //===----------------------------------------------------------------------===//
-/// createHexagonLDBackend - the help funtion to create corresponding 
+/// createHexagonLDBackend - the help funtion to create corresponding
 /// HexagonLDBackend
 TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
                                     const LinkerConfig& pConfig)
@@ -373,7 +364,7 @@ TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
                                createHexagonCOFFObjectWriter);
     **/
   }
-  return new HexagonLDBackend(pConfig, 
+  return new HexagonLDBackend(pConfig,
                               new HexagonGNUInfo(pConfig.targets().triple()));
 }
 
@@ -384,6 +375,6 @@ TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
 //===----------------------------------------------------------------------===//
 extern "C" void MCLDInitializeHexagonLDBackend() {
   // Register the linker backend
-  mcld::TargetRegistry::RegisterTargetLDBackend(TheHexagonTarget, 
+  mcld::TargetRegistry::RegisterTargetLDBackend(TheHexagonTarget,
                                                 createHexagonLDBackend);
 }

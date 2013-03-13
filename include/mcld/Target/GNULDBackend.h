@@ -110,12 +110,6 @@ public:
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr() const;
 
-  /// partialScanRelocation - When doing partial linking, fix the relocation
-  /// offset after section merge
-  void partialScanRelocation(Relocation& pReloc,
-                             Module& pModule,
-                             const LDSection& pSection);
-
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
@@ -145,6 +139,9 @@ public:
 
   /// emitInterp - emit the .interp
   virtual void emitInterp(MemoryArea& pOutput);
+
+  void setHasStaticTLS(bool pVal = true)
+  { m_bHasStaticTLS = pVal; }
 
   /// getSectionOrder - compute the layout order of the section
   /// Layout calls this function to get the default order of the pSectHdr.
@@ -195,20 +192,46 @@ public:
   /// update the output section flags based on input section flags.
   virtual bool updateSectionFlags(LDSection& pTo, const LDSection& pFrom);
 
-  /// isSymbolPreemtible - whether the symbol can be preemted by other
-  /// link unit
-  /// @ref Google gold linker, symtab.h:551
-  bool isSymbolPreemptible(const ResolveInfo& pSym) const;
+  /// symbolNeedsPLT - return whether the symbol needs a PLT entry
+  /// @ref Google gold linker, symtab.h:596
+  bool symbolNeedsPLT(const ResolveInfo& pSym) const;
 
-  virtual ResolveInfo::Desc getSymDesc(uint16_t pShndx) const {
-    return ResolveInfo::Define;
-  }
+  /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
+  bool symbolNeedsCopyReloc(const Relocation& pReloc,
+                            const ResolveInfo& pSym) const;
 
   /// symbolNeedsDynRel - return whether the symbol needs a dynamic relocation
   /// @ref Google gold linker, symtab.h:645
   bool symbolNeedsDynRel(const ResolveInfo& pSym,
                          bool pSymHasPLT,
                          bool isAbsReloc) const;
+
+  /// isSymbolPreemtible - whether the symbol can be preemted by other
+  /// link unit
+  /// @ref Google gold linker, symtab.h:551
+  bool isSymbolPreemptible(const ResolveInfo& pSym) const;
+
+  /// symbolHasFinalValue - return true if the symbol's value can be decided at
+  /// link time
+  bool symbolFinalValueIsKnown(const ResolveInfo& pSym) const;
+
+  /// isDynamicSymbol
+  /// @ref Google gold linker: symtab.cc:311
+  bool isDynamicSymbol(const LDSymbol& pSymbol);
+
+  /// isDynamicSymbol
+  /// @ref Google gold linker: symtab.cc:311
+  bool isDynamicSymbol(const ResolveInfo& pResolveInfo);
+
+  virtual ResolveInfo::Desc getSymDesc(uint16_t pShndx) const {
+    return ResolveInfo::Define;
+  }
+
+  bool hasTDATASymbol() const { return (NULL != f_pTDATA); }
+  bool hasTBSSSymbol()  const { return (NULL != f_pTBSS);  }
+
+  void setTDATASymbol(LDSymbol& pTDATA) { f_pTDATA = &pTDATA; }
+  void setTBSSSymbol(LDSymbol& pTBSS)   { f_pTBSS  = &pTBSS;  }
 
   // getTDATASymbol - get section symbol of .tdata
   LDSymbol& getTDATASymbol();
@@ -235,6 +258,9 @@ public:
   /// Target can override this function if needed.
   virtual uint64_t maxBranchOffset() { return (uint64_t)-1; }
 
+  /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
+  void checkAndSetHasTextRel(const LDSection& pSection);
+
 protected:
   uint64_t getSymbolSize(const LDSymbol& pSymbol) const;
 
@@ -255,26 +281,6 @@ protected:
   /// @ref binutils gold, dynobj.cc:1165
   unsigned getGNUHashMaskbitslog2(unsigned pNumOfSymbols) const;
 
-  /// isDynamicSymbol
-  /// @ref Google gold linker: symtab.cc:311
-  bool isDynamicSymbol(const LDSymbol& pSymbol);
-
-  /// isDynamicSymbol
-  /// @ref Google gold linker: symtab.cc:311
-  bool isDynamicSymbol(const ResolveInfo& pResolveInfo);
-
-  /// symbolNeedsPLT - return whether the symbol needs a PLT entry
-  /// @ref Google gold linker, symtab.h:596
-  bool symbolNeedsPLT(const ResolveInfo& pSym) const;
-
-  /// symbolNeedsCopyReloc - return whether the symbol needs a copy relocation
-  bool symbolNeedsCopyReloc(const Relocation& pReloc,
-                            const ResolveInfo& pSym) const;
-
-  /// symbolHasFinalValue - return true if the symbol's value can be decided at
-  /// link time
-  bool symbolFinalValueIsKnown(const ResolveInfo& pSym) const;
-
   /// emitSymbol32 - emit an ELF32 symbol
   void emitSymbol32(llvm::ELF::Elf32_Sym& pSym32,
                     LDSymbol& pSymbol,
@@ -288,11 +294,6 @@ protected:
                     char* pStrtab,
                     size_t pStrtabsize,
                     size_t pSymtabIdx);
-
-  /// checkAndSetHasTextRel - check pSection flag to set HasTextRel
-  void checkAndSetHasTextRel(const LDSection& pSection);
-
-  void setHasStaticTLS(bool pVal = true) { m_bHasStaticTLS = pVal; }
 
 private:
   /// createProgramHdrs - base on output sections to create the program headers

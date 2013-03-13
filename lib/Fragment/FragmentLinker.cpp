@@ -24,6 +24,7 @@
 #include <mcld/LD/LDContext.h>
 #include <mcld/LD/RelocationFactory.h>
 #include <mcld/LD/RelocData.h>
+#include <mcld/LD/Relocator.h>
 #include <mcld/LD/SectionRules.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
@@ -97,6 +98,7 @@ bool FragmentLinker::applyRelocations()
   // apply all relocations of all inputs
   Module::obj_iterator input, inEnd = m_Module.obj_end();
   for (input = m_Module.obj_begin(); input != inEnd; ++input) {
+    m_Backend.getRelocator()->initializeApply(**input);
     LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
       // bypass the reloc section if
@@ -112,6 +114,7 @@ bool FragmentLinker::applyRelocations()
         relocation->apply(*m_Backend.getRelocator(), *input);
       } // for all relocations
     } // for all relocation section
+    m_Backend.getRelocator()->finalizeApply(**input);
   } // for all inputs
 
   // apply relocations created by relaxation

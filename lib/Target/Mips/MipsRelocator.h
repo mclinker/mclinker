@@ -24,7 +24,23 @@ namespace mcld {
 class MipsRelocator : public Relocator
 {
 public:
-  MipsRelocator(MipsGNULDBackend& pParent);
+  enum ReservedEntryType {
+    None          = 0,  // no reserved entry
+    ReserveRel    = 1,  // reserve a dynamic relocation entry
+    ReserveGot    = 2,  // reserve a GOT entry
+    ReserveGpDisp = 8   // reserve _gp_disp symbol
+  };
+
+public:
+  MipsRelocator(MipsGNULDBackend& pParent, const LinkerConfig& pConfig);
+
+  /// scanRelocation - determine the empty entries are needed or not and
+  /// create the empty entries if needed.
+  /// For Mips, the GOT, GP, and dynamic relocation entries are check to create.
+  void scanRelocation(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      Module& pModule,
+                      LDSection& pSection);
 
   Result applyRelocation(Relocation& pRelocation, Input* pInput);
 
@@ -45,6 +61,17 @@ public:
   const char* getName(Relocation::Type pType) const;
 
   Size getSize(Relocation::Type pType) const;
+
+private:
+  void scanLocalReloc(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      const LDSection& pSection);
+
+  void scanGlobalReloc(Relocation& pReloc,
+                       IRBuilder& pBuilder,
+                       const LDSection& pSection);
+
+
 
 private:
   MipsGNULDBackend& m_Target;

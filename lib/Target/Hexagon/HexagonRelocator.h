@@ -21,6 +21,7 @@
 namespace mcld {
 
 class ResolveInfo;
+class LinkerConfig;
 
 /** \class HexagonRelocator
  *  \brief HexagonRelocator creates and destroys the Hexagon relocations.
@@ -33,10 +34,21 @@ public:
   typedef SymbolEntryMap<HexagonGOTEntry> SymGOTMap;
 
 public:
-  HexagonRelocator(HexagonLDBackend& pParent);
+  HexagonRelocator(HexagonLDBackend& pParent, const LinkerConfig& pConfig);
   ~HexagonRelocator();
 
   Result applyRelocation(Relocation& pRelocation, Input* pInput);
+
+  /// scanRelocation - determine the empty entries are needed or not and create
+  /// the empty entries if needed.
+  /// For Hexagon, following entries are check to create:
+  /// - GOT entry (for .got and .got.plt sections)
+  /// - PLT entry (for .plt section)
+  /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
+  void scanRelocation(Relocation& pReloc,
+                      IRBuilder& pBuilder,
+                      Module& pModule,
+                      LDSection& pSection);
 
   HexagonLDBackend& getTarget()
   { return m_Target; }

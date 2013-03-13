@@ -91,17 +91,6 @@ public:
 
   void initTargetSymbols(IRBuilder& pBuilder, Module& pModule);
 
-  /// scanRelocation - determine the empty entries are needed or not and create
-  /// the empty entries if needed.
-  /// For Hexagon, following entries are check to create:
-  /// - GOT entry (for .got and .got.plt sections)
-  /// - PLT entry (for .plt section)
-  /// - dynamin relocation entries (for .rel.plt and .rel.dyn sections)
-  void scanRelocation(Relocation& pReloc,
-                      IRBuilder& pBuilder,
-                      Module& pModule,
-                      Input& pInput,
-                      LDSection& pSection);
   bool initBRIslandFactory();
 
   bool initStubFactory();
@@ -127,7 +116,6 @@ public:
   bool finalizeTargetSymbols();
 
 private:
-
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
   { return 8; }
