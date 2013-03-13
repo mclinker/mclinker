@@ -21,6 +21,7 @@ class FragmentLinker;
 class TargetLDBackend;
 class IRBuilder;
 class Module;
+class Input;
 
 /** \class Relocator
  *  \brief Relocator provides the interface of performing relocations
@@ -53,17 +54,6 @@ public:
   /// apply - general apply function
   virtual Result applyRelocation(Relocation& pRelocation) = 0;
 
-  // ------ observers -----//
-  virtual TargetLDBackend& getTarget() = 0;
-
-  virtual const TargetLDBackend& getTarget() const = 0;
-
-  /// getName - get the name of a relocation
-  virtual const char* getName(Type pType) const = 0;
-
-  /// getSize - get the size of a relocation in bit
-  virtual Size getSize(Type pType) const = 0;
-
   /// scanRelocation - When read in relocations, backend can do any modification
   /// to relocation and generate empty entries, such as GOT, dynamic relocation
   /// entries and other target dependent entries. These entries are generated
@@ -76,8 +66,35 @@ public:
                               Module& pModule,
                               LDSection& pSection) = 0;
 
+  /// initializeScan - do initialization before scan relocations in pInput
+  virtual bool initializeScan(Input& pInput)
+  { return false; }
+
+  /// finalizeScan - do finalizarion after scan relocations in pInput
+  virtual bool finalizeScan(Input& pInput)
+  { return false; }
+
+  /// initializeApply - do initialization before apply relocations in pInput
+  virtual bool initializeApply(Input& pInput)
+  { return false; }
+
+  /// finalizeApply - do finalizarion after apply relocations in pInput
+  virtual bool finalizeApply(Input& pInput)
+  { return false; }
+
+  // ------ observers -----//
+  virtual TargetLDBackend& getTarget() = 0;
+
+  virtual const TargetLDBackend& getTarget() const = 0;
+
+  /// getName - get the name of a relocation
+  virtual const char* getName(Type pType) const = 0;
+
+  /// getSize - get the size of a relocation in bit
+  virtual Size getSize(Type pType) const = 0;
+
 protected:
-    const LinkerConfig& config() const { return m_Config; }
+  const LinkerConfig& config() const { return m_Config; }
 
 private:
   const LinkerConfig& m_Config;

@@ -334,6 +334,7 @@ bool ObjectLinker::scanRelocations()
   // apply all relocations of all inputs
   Module::obj_iterator input, inEnd = m_pModule->obj_end();
   for (input = m_pModule->obj_begin(); input != inEnd; ++input) {
+    m_LDBackend.getRelocator()->initializeScan(**input);
     LDContext::sect_iterator rs, rsEnd = (*input)->context()->relocSectEnd();
     for (rs = (*input)->context()->relocSectBegin(); rs != rsEnd; ++rs) {
       // bypass the reloc section if
@@ -348,11 +349,13 @@ bool ObjectLinker::scanRelocations()
         Relocation* relocation = llvm::cast<Relocation>(reloc);
         // scan relocation
         if (LinkerConfig::Object != m_Config.codeGenType())
-          m_LDBackend.getRelocator()->scanRelocation(*relocation, *m_pBuilder, *m_pModule, **rs);
+          m_LDBackend.getRelocator()->scanRelocation(
+                                    *relocation, *m_pBuilder, *m_pModule, **rs);
         else
           m_LDBackend.partialScanRelocation(*relocation, *m_pModule, **rs);
       } // for all relocations
     } // for all relocation section
+    m_LDBackend.getRelocator()->finalizeScan(**input);
   } // for all inputs
   return true;
 }
