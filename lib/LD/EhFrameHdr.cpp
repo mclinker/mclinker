@@ -61,25 +61,21 @@ void EhFrameHdr::emitOutput<32>(MemoryArea& pOutput)
   // fde_count
   uint32_t* fde_count = (uint32_t*)(data + 8);
   if (m_EhFrame.hasEhFrame())
-    *fde_count = 0;
-  else
     *fde_count = m_EhFrame.getEhFrame()->numOfFDEs();
+  else
+    *fde_count = 0;
 
-  if (0 != *fde_count) {
-    // fde_count_enc
-    data[2] = DW_EH_PE_udata4;
-    // table_enc
-    data[3] = DW_EH_PE_datarel | DW_EH_PE_sdata4;
-
-  }
-  else {
+  if (0 == *fde_count) {
     // fde_count_enc
     data[2] = DW_EH_PE_omit;
     // table_enc
     data[3] = DW_EH_PE_omit;
   }
-
-  if (0 != *fde_count) {
+  else {
+    // fde_count_enc
+    data[2] = DW_EH_PE_udata4;
+    // table_enc
+    data[3] = DW_EH_PE_datarel | DW_EH_PE_sdata4;
 
     // prepare the binary search table
     typedef std::vector<bit32::Entry> SearchTableType;
