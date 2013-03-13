@@ -111,7 +111,7 @@ bool FragmentLinker::applyRelocations()
       RelocData::iterator reloc, rEnd = (*rs)->getRelocData()->end();
       for (reloc = (*rs)->getRelocData()->begin(); reloc != rEnd; ++reloc) {
         Relocation* relocation = llvm::cast<Relocation>(reloc);
-        relocation->apply(*m_Backend.getRelocator(), *input);
+        relocation->apply(*m_Backend.getRelocator());
       } // for all relocations
     } // for all relocation section
     m_Backend.getRelocator()->finalizeApply(**input);
@@ -124,7 +124,7 @@ bool FragmentLinker::applyRelocations()
     BranchIsland& island = *facIter;
     BranchIsland::reloc_iterator iter, iterEnd = island.reloc_end();
     for (iter = island.reloc_begin(); iter != iterEnd; ++iter)
-      (*iter)->apply(*m_Backend.getRelocator(), NULL);
+      (*iter)->apply(*m_Backend.getRelocator());
   }
   return true;
 }

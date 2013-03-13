@@ -76,7 +76,7 @@ public:
   ARMRelocator(ARMGNULDBackend& pParent, const LinkerConfig& pConfig);
   ~ARMRelocator();
 
-  Result applyRelocation(Relocation& pRelocation, Input* pInput);
+  Result applyRelocation(Relocation& pRelocation);
 
   ARMGNULDBackend& getTarget()
   { return m_Target; }

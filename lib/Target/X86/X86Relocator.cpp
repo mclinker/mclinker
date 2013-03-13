@@ -158,7 +158,7 @@ X86_32Relocator::X86_32Relocator(X86_32GNULDBackend& pParent,
 }
 
 Relocator::Result
-X86_32Relocator::applyRelocation(Relocation& pRelocation, Input* pInput)
+X86_32Relocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
 
@@ -1150,7 +1150,7 @@ X86_64Relocator::X86_64Relocator(X86_64GNULDBackend& pParent,
 }
 
 Relocator::Result
-X86_64Relocator::applyRelocation(Relocation& pRelocation, Input* pInput)
+X86_64Relocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
 

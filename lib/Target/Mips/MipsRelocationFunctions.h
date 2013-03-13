@@ -10,7 +10,7 @@
 #define DECL_MIPS_APPLY_RELOC_FUNC(Name) \
 static MipsRelocator::Result Name(Relocation& pEntry, \
                                   MipsRelocator& pParent, \
-                                  Input* pInput);
+                                  Input& pInput);
 
 #define DECL_MIPS_APPLY_RELOC_FUNCS \
 DECL_MIPS_APPLY_RELOC_FUNC(none) \

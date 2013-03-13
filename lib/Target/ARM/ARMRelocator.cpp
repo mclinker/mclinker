@@ -57,7 +57,7 @@ ARMRelocator::~ARMRelocator()
 }
 
 Relocator::Result
-ARMRelocator::applyRelocation(Relocation& pRelocation, Input* pInput)
+ARMRelocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
   if (type > 130) { // 131-255 doesn't noted in ARM spec

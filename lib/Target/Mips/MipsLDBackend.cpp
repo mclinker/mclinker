@@ -9,7 +9,6 @@
 #include "Mips.h"
 #include "MipsGNUInfo.h"
 #include "MipsELFDynamic.h"
-#include "MipsEntryType.h"
 #include "MipsLDBackend.h"
 #include "MipsRelocator.h"
 

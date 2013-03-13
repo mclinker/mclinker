@@ -20,7 +20,6 @@
 
 namespace mcld {
 
-class Input;
 class ResolveInfo;
 class Relocator;
 class LinkerConfig;
@@ -97,7 +96,7 @@ public:
   const FragmentRef& targetRef() const { return m_TargetAddress; }
   FragmentRef&       targetRef()       { return m_TargetAddress; }
 
-  void apply(Relocator& pRelocator, Input* pInput);
+  void apply(Relocator& pRelocator);
 
   /// updateAddend - A relocation with a section symbol must update addend
   /// before reading its value.

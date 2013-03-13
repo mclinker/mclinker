@@ -58,7 +58,7 @@ public:
   /// @return - return true for finalization success
   bool finalizeApply(Input& pInput);
 
-  Result applyRelocation(Relocation& pRelocation, Input* pInput);
+  Result applyRelocation(Relocation& pRelocation);
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }
@@ -89,6 +89,7 @@ private:
 
 private:
   MipsGNULDBackend& m_Target;
+  Input* m_pApplyingInput;
   int32_t m_AHL;
 };
 

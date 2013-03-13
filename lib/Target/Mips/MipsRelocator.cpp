@@ -14,7 +14,6 @@
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
 
-#include "MipsEntryType.h"
 #include "MipsRelocator.h"
 #include "MipsRelocationFunctions.h"
 
@@ -28,7 +27,7 @@ DECL_MIPS_APPLY_RELOC_FUNCS
 /// the prototype of applying function
 typedef Relocator::Result (*ApplyFunctionType)(Relocation&,
                                                MipsRelocator&,
-                                               Input* pInput);
+                                               Input&);
 
 // the table entry of applying functions
 struct ApplyFunctionTriple
@@ -51,12 +50,13 @@ MipsRelocator::MipsRelocator(MipsGNULDBackend& pParent,
                              const LinkerConfig& pConfig)
   : Relocator(pConfig),
     m_Target(pParent),
+    m_pApplyingInput(NULL),
     m_AHL(0)
 {
 }
 
 Relocator::Result
-MipsRelocator::applyRelocation(Relocation& pRelocation, Input* pInput)
+MipsRelocator::applyRelocation(Relocation& pRelocation)
 {
   Relocation::Type type = pRelocation.type();
 
@@ -65,7 +65,7 @@ MipsRelocator::applyRelocation(Relocation& pRelocation, Input* pInput)
   }
 
   // apply the relocation
-  return ApplyFunctions[type].func(pRelocation, *this, pInput);
+  return ApplyFunctions[type].func(pRelocation, *this, *m_pApplyingInput);
 }
 
 const char* MipsRelocator::getName(Relocation::Type pType) const
@@ -128,11 +128,13 @@ bool MipsRelocator::finalizeScan(Input& pInput)
 
 bool MipsRelocator::initializeApply(Input& pInput)
 {
+  m_pApplyingInput = &pInput;
   return true;
 }
 
 bool MipsRelocator::finalizeApply(Input& pInput)
 {
+  m_pApplyingInput = NULL;
   return true;
 }
 
@@ -347,10 +349,9 @@ bool helper_isGpDisp(const Relocation& pReloc)
 }
 
 static
-Relocator::Address helper_GetGP(MipsRelocator& pParent, Input* pInput)
+Relocator::Address helper_GetGP(MipsRelocator& pParent, Input& pInput)
 {
-  assert(pInput && "Cannot calculate GP without input object");
-  return pParent.getTarget().getGOT().getGPAddr(*pInput);
+  return pParent.getTarget().getGOT().getGPAddr(pInput);
 }
 
 static
@@ -370,7 +371,7 @@ void helper_SetupRelDynForGOTEntry(MipsGOTEntry& got_entry,
 static
 MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
                                  MipsRelocator& pParent,
-                                 Input* pInput)
+                                 Input& pInput)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
@@ -401,11 +402,9 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   got.recordEntry(rsym, got_entry);
 
   // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & MipsRelocator::ReserveGot) {
-    got_entry->setValue(pReloc.symValue());
-  }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_got);
+  if (!got.isLocal(rsym) || ResolveInfo::Section != rsym->type()) {
+    if (!got.isPrimaryGOTConsumed())
+      got_entry->setValue(pReloc.symValue());
   }
 
   if (got.isPrimaryGOTConsumed())
@@ -418,12 +417,12 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
 static
 Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
                                        MipsRelocator& pParent,
-                                       Input* pInput)
+                                       Input& pInput)
 {
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
   MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
-  return got.getGPRelOffset(*pInput, got_entry);
+  return got.getGPRelOffset(pInput, got_entry);
 }
 
 static
@@ -478,7 +477,7 @@ void helper_DynRel(Relocation& pReloc, MipsRelocator& pParent)
 static
 MipsRelocator::Result none(Relocation& pReloc,
                            MipsRelocator& pParent,
-                           Input* pInput)
+                           Input& pInput)
 {
   return MipsRelocator::OK;
 }
@@ -487,7 +486,7 @@ MipsRelocator::Result none(Relocation& pReloc,
 static
 MipsRelocator::Result abs32(Relocation& pReloc,
                             MipsRelocator& pParent,
-                            Input* pInput)
+                            Input& pInput)
 {
   ResolveInfo* rsym = pReloc.symInfo();
 
@@ -519,7 +518,7 @@ MipsRelocator::Result abs32(Relocation& pReloc,
 static
 MipsRelocator::Result hi16(Relocation& pReloc,
                            MipsRelocator& pParent,
-                           Input* pInput)
+                           Input& pInput)
 {
   Relocation* lo_reloc = helper_FindLo16Reloc(pReloc);
   assert(NULL != lo_reloc && "There is no paired R_MIPS_LO16 for R_MIPS_HI16");
@@ -551,7 +550,7 @@ MipsRelocator::Result hi16(Relocation& pReloc,
 static
 MipsRelocator::Result lo16(Relocation& pReloc,
                            MipsRelocator& pParent,
-                           Input* pInput)
+                           Input& pInput)
 {
   int32_t res = 0;
 
@@ -582,7 +581,7 @@ MipsRelocator::Result lo16(Relocation& pReloc,
 static
 MipsRelocator::Result got16(Relocation& pReloc,
                             MipsRelocator& pParent,
-                            Input* pInput)
+                            Input& pInput)
 {
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
@@ -602,7 +601,7 @@ MipsRelocator::Result got16(Relocation& pReloc,
     MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, pInput);
 
     got_entry.setValue(res);
-    G = got.getGPRelOffset(*pInput, got_entry);
+    G = got.getGPRelOffset(pInput, got_entry);
   }
   else {
     G = helper_GetGOTOffset(pReloc, pParent, pInput);
@@ -619,7 +618,7 @@ MipsRelocator::Result got16(Relocation& pReloc,
 static
 MipsRelocator::Result gothi16(Relocation& pReloc,
                               MipsRelocator& pParent,
-                              Input* pInput)
+                              Input& pInput)
 {
   int32_t res = 0;
 
@@ -639,7 +638,7 @@ MipsRelocator::Result gothi16(Relocation& pReloc,
 static
 MipsRelocator::Result gotlo16(Relocation& pReloc,
                               MipsRelocator& pParent,
-                              Input* pInput)
+                              Input& pInput)
 {
   Relocator::Address G = helper_GetGOTOffset(pReloc, pParent, pInput);
 
@@ -653,7 +652,7 @@ MipsRelocator::Result gotlo16(Relocation& pReloc,
 static
 MipsRelocator::Result call16(Relocation& pReloc,
                              MipsRelocator& pParent,
-                             Input* pInput)
+                             Input& pInput)
 {
   Relocator::Address G = helper_GetGOTOffset(pReloc, pParent, pInput);
 
@@ -667,7 +666,7 @@ MipsRelocator::Result call16(Relocation& pReloc,
 static
 MipsRelocator::Result gprel32(Relocation& pReloc,
                               MipsRelocator& pParent,
-                              Input* pInput)
+                              Input& pInput)
 {
   // Remember to add the section offset to A.
   int32_t A = pReloc.target() + pReloc.addend();

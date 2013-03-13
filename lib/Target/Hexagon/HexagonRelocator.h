@@ -37,7 +37,7 @@ public:
   HexagonRelocator(HexagonLDBackend& pParent, const LinkerConfig& pConfig);
   ~HexagonRelocator();
 
-  Result applyRelocation(Relocation& pRelocation, Input* pInput);
+  Result applyRelocation(Relocation& pRelocation);
 
   /// scanRelocation - determine the empty entries are needed or not and create
   /// the empty entries if needed.

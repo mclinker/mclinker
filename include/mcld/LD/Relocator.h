@@ -52,7 +52,7 @@ public:
   virtual ~Relocator() = 0;
 
   /// apply - general apply function
-  virtual Result applyRelocation(Relocation& pRelocation, Input* pInput) = 0;
+  virtual Result applyRelocation(Relocation& pRelocation) = 0;
 
   /// scanRelocation - When read in relocations, backend can do any modification
   /// to relocation and generate empty entries, such as GOT, dynamic relocation

@@ -15,8 +15,8 @@
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Target/OutputRelocSection.h>
 
-#include "MipsEntryType.h"
 #include "MipsGOT.h"
+#include "MipsRelocator.h"
 
 namespace {
   const size_t MipsGOT0Num = 1;
@@ -277,9 +277,9 @@ bool MipsGOT::reserveGlobalEntry(ResolveInfo& pInfo)
   m_InputGlobalSymbols[&pInfo] = true;
   ++m_MultipartList.back().m_GlobalNum;
 
-  if (!(pInfo.reserved() & ReserveGot)) {
+  if (!(pInfo.reserved() & MipsRelocator::ReserveGot)) {
     m_OrderedGlobalSym.push_back(pInfo.outSymbol());
-    pInfo.setReserved(pInfo.reserved() | ReserveGot);
+    pInfo.setReserved(pInfo.reserved() | MipsRelocator::ReserveGot);
   }
 
   return true;
