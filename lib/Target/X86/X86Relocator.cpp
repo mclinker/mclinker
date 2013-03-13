@@ -204,6 +204,9 @@ void X86_32Relocator::scanLocalReloc(Relocation& pReloc,
       }
       return;
 
+    case llvm::ELF::R_386_PLT32:
+      return;
+
     case llvm::ELF::R_386_GOTOFF:
     case llvm::ELF::R_386_GOTPC:
       // FIXME: A GOT section is needed

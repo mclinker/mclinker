@@ -71,7 +71,7 @@ public:
   virtual bool initializeScan(Input& pInput)
   { return true; }
 
-  /// finalizeScan - do finalizarion after scan relocations in pInput
+  /// finalizeScan - do finalization after scan relocations in pInput
   /// @return - return true for finalization success
   virtual bool finalizeScan(Input& pInput)
   { return true; }
@@ -81,7 +81,7 @@ public:
   virtual bool initializeApply(Input& pInput)
   { return true; }
 
-  /// finalizeApply - do finalizarion after apply relocations in pInput
+  /// finalizeApply - do finalization after apply relocations in pInput
   /// @return - return true for finalization success
   virtual bool finalizeApply(Input& pInput)
   { return true; }

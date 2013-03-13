@@ -143,6 +143,33 @@ bool ELFObjectReader::readSections(Input& pInput)
         ResolveInfo::Destroy(signature);
         break;
       }
+      /** linkonce sections **/
+      case LDFileFormat::LinkOnce: {
+        bool exist = false;
+        // .gnu.linkonce + "." + type + "." + name
+        llvm::StringRef name((*section)->name().substr(14));
+        signatures().insert(name.split(".").second, exist);
+        if (!exist) {
+          if (name.startswith("wi")) {
+            (*section)->setKind(LDFileFormat::Debug);
+            if (m_Config.options().stripDebug())
+              (*section)->setKind(LDFileFormat::Ignore);
+            else {
+              SectionData* sd = IRBuilder::CreateSectionData(**section);
+              if (!m_pELFReader->readRegularSection(pInput, *sd))
+                fatal(diag::err_cannot_read_section) << (*section)->name();
+            }
+          } else {
+            (*section)->setKind(LDFileFormat::Regular);
+            SectionData* sd = IRBuilder::CreateSectionData(**section);
+            if (!m_pELFReader->readRegularSection(pInput, *sd))
+              fatal(diag::err_cannot_read_section) << (*section)->name();
+          }
+        } else {
+          (*section)->setKind(LDFileFormat::Ignore);
+        }
+        break;
+      }
       /** relocation sections **/
       case LDFileFormat::Relocation: {
         assert(NULL != (*section)->getLink());

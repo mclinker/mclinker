@@ -26,7 +26,6 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
   llvm::StringRef name(pName);
   if (name.startswith(".debug") ||
       name.startswith(".zdebug") ||
-      name.startswith(".gnu.linkonce.wi.") ||
       name.startswith(".line") ||
       name.startswith(".stab"))
     return LDFileFormat::Debug;
@@ -42,6 +41,8 @@ LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
     return LDFileFormat::GCCExceptTable;
   if (name.startswith(".note.GNU-stack"))
     return LDFileFormat::StackNote;
+  if (name.startswith(".gnu.linkonce"))
+    return LDFileFormat::LinkOnce;
 
   // type rules
   switch(pType) {

@@ -141,19 +141,27 @@ void MemoryArea::clear()
 //===--------------------------------------------------------------------===//
 Space* MemoryArea::find(size_t pOffset, size_t pLength)
 {
-  SpaceMapType::iterator it = m_SpaceMap.find(Key(pOffset, pLength));
-  if (it != m_SpaceMap.end())
-    return it->second;
-
+  std::pair<SpaceMapType::iterator, SpaceMapType::iterator> range =
+    m_SpaceMap.equal_range(Key(pOffset, pLength));
+  SpaceMapType::iterator it;
+  for (it = range.first; it != range.second; ++it) {
+    if ((it->second->start() <= pOffset) &&
+        ((pOffset + pLength) <= (it->second->start() + it->second->size())))
+      return it->second;
+  }
   return NULL;
 }
 
 const Space* MemoryArea::find(size_t pOffset, size_t pLength) const
 {
-  SpaceMapType::const_iterator it = m_SpaceMap.find(Key(pOffset, pLength));
-  if (it != m_SpaceMap.end())
-    return it->second;
-
+  std::pair<SpaceMapType::const_iterator, SpaceMapType::const_iterator> range =
+    m_SpaceMap.equal_range(Key(pOffset, pLength));
+  SpaceMapType::const_iterator it;
+  for (it = range.first; it != range.second; ++it) {
+    if ((it->second->start() <= pOffset) &&
+        ((pOffset + pLength) <= (it->second->start() + it->second->size())))
+      return it->second;
+  }
   return NULL;
 }
 
