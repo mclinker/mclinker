@@ -110,12 +110,6 @@ public:
   /// segmentStartAddr - this function returns the start address of the segment
   uint64_t segmentStartAddr() const;
 
-  /// partialScanRelocation - When doing partial linking, fix the relocation
-  /// offset after section merge
-  void partialScanRelocation(Relocation& pReloc,
-                             Module& pModule,
-                             const LDSection& pSection);
-
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash

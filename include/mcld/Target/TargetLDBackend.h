@@ -74,16 +74,6 @@ public:
 
   virtual bool initStdSections(ObjectBuilder& pBuilder) = 0;
 
-  /// partialScanRelocation - When doing partial linking, backend can do any
-  /// modification to relocation to fix the relocation offset after section
-  /// merge
-  /// @param pReloc - a read in relocation entry
-  /// @param pInputSym - the input LDSymbol of relocation target symbol
-  /// @param pSection - the section of relocation applying target
-  virtual void partialScanRelocation(Relocation& pReloc,
-                                     Module& pModule,
-                                     const LDSection& pSection) = 0;
-
   /// layout - layout method
   virtual void layout(Module& pModule) = 0;
 

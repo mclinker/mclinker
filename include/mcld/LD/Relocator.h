@@ -86,6 +86,16 @@ public:
   virtual bool finalizeApply(Input& pInput)
   { return true; }
 
+  /// partialScanRelocation - When doing partial linking, backend can do any
+  /// modification to relocation to fix the relocation offset after section
+  /// merge
+  /// @param pReloc - a read in relocation entry
+  /// @param pInputSym - the input LDSymbol of relocation target symbol
+  /// @param pSection - the section of relocation applying target
+  void partialScanRelocation(Relocation& pReloc,
+                             Module& pModule,
+                             const LDSection& pSection);
+
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;
 
