@@ -67,20 +67,24 @@ public:
                               LDSection& pSection) = 0;
 
   /// initializeScan - do initialization before scan relocations in pInput
+  /// @return - return true for initialization success
   virtual bool initializeScan(Input& pInput)
-  { return false; }
+  { return true; }
 
   /// finalizeScan - do finalizarion after scan relocations in pInput
+  /// @return - return true for finalization success
   virtual bool finalizeScan(Input& pInput)
-  { return false; }
+  { return true; }
 
   /// initializeApply - do initialization before apply relocations in pInput
+  /// @return - return true for initialization success
   virtual bool initializeApply(Input& pInput)
-  { return false; }
+  { return true; }
 
   /// finalizeApply - do finalizarion after apply relocations in pInput
+  /// @return - return true for finalization success
   virtual bool finalizeApply(Input& pInput)
-  { return false; }
+  { return true; }
 
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;
