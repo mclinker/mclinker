@@ -41,6 +41,7 @@ public:
     Note,
     MetaData,
     Group,
+    LinkOnce,
     StackNote,
     Ignore
   };
