@@ -118,7 +118,8 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
   // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
   // same name in input
-  m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+  if (LinkerConfig::Object != config().codeGenType()) {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
                                                   "_GLOBAL_OFFSET_TABLE_",
                                                   ResolveInfo::Object,
                                                   ResolveInfo::Define,
@@ -127,6 +128,7 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                   0x0,  // value
                                                   FragmentRef::Null(),
                                                   ResolveInfo::Hidden);
+  }
   if (NULL != m_pEXIDX && 0x0 != m_pEXIDX->size()) {
     FragmentRef* exidx_start =
       FragmentRef::Create(m_pEXIDX->getSectionData()->front(), 0x0);
