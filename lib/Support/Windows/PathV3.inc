@@ -178,32 +178,6 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
   pFileStatus.setType(FileNotFound);
 }
 
-/// read_dir - return true if we read one entry
-//  @return value -1: read error
-//                 0: read the end
-//                 1: success
-static int read_dir(intptr_t& pDir, std::string& pOutFilename)
-{
-  errno = 0;
-  dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
-  if (0 == cur_dir && 0 != errno)
-    return -1;
-
-  // idx does not stay at the end, but all elements had beed put into cache.
-  if (NULL == cur_dir) {
-    return 0;
-  }
-
-  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
-  if ((name.size() == 1 && name[0] == '.') ||
-      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
-    return read_dir(pDir, pOutFilename);
-
-  // find a new directory
-  pOutFilename.append(name.data(), name.size());
-  return 1;
-}
-
 /// directory_iterator_increment - increment function implementation
 //
 //  iterator will call this function in two situations:
@@ -213,71 +187,21 @@ static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 //     An iterator now is staying at the end of cache. (a temporal end)
 mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 {
-  mcld::sys::fs::PathCache::entry_type* entry = 0;
-  std::string path(pIter.m_pParent->m_Path.native());
-  switch (read_dir(pIter.m_pParent->m_Handler, path)) {
-  case 1: {
-    // read one
-    bool exist = false;
-    entry = pIter.m_pParent->m_Cache.insert(path, exist);
-    if (!exist)
-      entry->setValue(path);
-    break;
-  }
-  case 0:// meet real end
-    pIter.m_pParent->m_CacheFull = true;
-    break;
-  default:
-  case -1:
-    llvm::report_fatal_error(std::string("Can't read directory: ")+
-                             pIter.m_pParent->path().native());
-    break;
-  }
-  return entry;
+  return NULL;
 }
 
 void open_dir(Directory& pDir)
 {
-  pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
-
-  if (pDir.m_Handler == 0) {
-    errno = 0; // opendir() will set errno if it failed to open directory.
-    pDir.m_CacheFull = true;
-    return;
-  }
-  // read one entry for advance the end element of the cache.
-  std::string path(pDir.path().native());
-  switch (read_dir(pDir.m_Handler, path)) {
-  case 1: {
-    // find a new directory
-    bool exist = false;
-    mcld::sys::fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
-    if (!exist)
-      entry->setValue(path);
-    return;
-  }
-  case 0:
-    // FIXME: a warning function
-    pDir.m_CacheFull = true;
-    return;
-  default:
-  case -1:
-    llvm::report_fatal_error(std::string("Can't read directory: ")+
-                             pDir.path().native());
-  }
 }
 
 void close_dir(Directory& pDir)
 {
-  if (pDir.m_Handler)
-    ::FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
-  pDir.m_Handler = 0;
 }
 
 void get_pwd(Path& pPWD)
 {
-  char* pwd = (char*)malloc(PATH_MAX);
-  pPWD.assign(getcwd(pwd, PATH_MAX));
+  wchar_t* pwd = (wchar_t*)malloc(PATH_MAX);
+  pPWD.assign(_wgetcwd(pwd, PATH_MAX));
   free(pwd);
 }
 
