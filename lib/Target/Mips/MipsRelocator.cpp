@@ -48,13 +48,13 @@ MipsRelocator::MipsRelocator(MipsGNULDBackend& pParent,
                              const LinkerConfig& pConfig)
   : Relocator(pConfig),
     m_Target(pParent),
+    m_pApplyingInput(NULL),
     m_AHL(0)
 {
 }
 
 Relocator::Result
 MipsRelocator::applyRelocation(Relocation& pRelocation)
-
 {
   Relocation::Type type = pRelocation.type();
 
@@ -110,6 +110,30 @@ void MipsRelocator::scanRelocation(Relocation& pReloc,
   // symbol
   if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
     fatal(diag::undefined_reference) << rsym->name();
+}
+
+bool MipsRelocator::initializeScan(Input& pInput)
+{
+  getTarget().getGOT().initializeScan(pInput);
+  return true;
+}
+
+bool MipsRelocator::finalizeScan(Input& pInput)
+{
+  getTarget().getGOT().finalizeScan(pInput);
+  return true;
+}
+
+bool MipsRelocator::initializeApply(Input& pInput)
+{
+  m_pApplyingInput = &pInput;
+  return true;
+}
+
+bool MipsRelocator::finalizeApply(Input& pInput)
+{
+  m_pApplyingInput = NULL;
+  return true;
 }
 
 void MipsRelocator::scanLocalReloc(Relocation& pReloc,
@@ -169,17 +193,9 @@ void MipsRelocator::scanLocalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_HI16:
     case llvm::ELF::R_MIPS_GOT_LO16:
     case llvm::ELF::R_MIPS_CALL_LO16:
-      // For got16 section based relocations, we need to reserve got entries.
-      if (rsym->type() == ResolveInfo::Section) {
-        getTarget().getGOT().reserveLocalEntry();
-        // Remeber this rsym is a local GOT entry
-        getTarget().getGOT().setLocal(rsym);
-        return;
-      }
-
-      if (!(rsym->reserved() & MipsRelocator::ReserveGot)) {
-        getTarget().getGOT().reserveLocalEntry();
-        rsym->setReserved(rsym->reserved() | ReserveGot);
+      if (getTarget().getGOT().reserveLocalEntry(*rsym)) {
+        if (getTarget().getGOT().hasMultipleGOT())
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a local GOT entry
         getTarget().getGOT().setLocal(rsym);
       }
@@ -251,10 +267,9 @@ void MipsRelocator::scanGlobalReloc(Relocation& pReloc,
     case llvm::ELF::R_MIPS_CALL_LO16:
     case llvm::ELF::R_MIPS_GOT_PAGE:
     case llvm::ELF::R_MIPS_GOT_OFST:
-      if (!(rsym->reserved() & MipsRelocator::ReserveGot)) {
-        getTarget().getGOT().reserveGlobalEntry();
-        rsym->setReserved(rsym->reserved() | ReserveGot);
-        getTarget().getGlobalGOTSyms().push_back(rsym->outSymbol());
+      if (getTarget().getGOT().reserveGlobalEntry(*rsym)) {
+        if (getTarget().getGOT().hasMultipleGOT())
+          getTarget().checkAndSetHasTextRel(*pSection.getLink());
         // Remeber this rsym is a global GOT entry
         getTarget().getGOT().setGlobal(rsym);
       }
@@ -334,25 +349,41 @@ bool helper_isGpDisp(const Relocation& pReloc)
 static
 Relocator::Address helper_GetGP(MipsRelocator& pParent)
 {
-  return pParent.getTarget().getGOT().addr() + 0x7FF0;
+  return pParent.getTarget().getGOT().getGPAddr(pParent.getApplyingInput());
 }
 
 static
-MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
-                                 MipsRelocator& pParent,
-                                 bool& pExist, int32_t value)
+void helper_SetupRelDynForGOTEntry(MipsGOTEntry& got_entry,
+                                   Relocation& pReloc,
+                                   ResolveInfo* rsym,
+                                   MipsRelocator& pParent)
+{
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+
+  Relocation& rel_entry = *ld_backend.getRelDyn().consumeEntry();
+  rel_entry.setType(llvm::ELF::R_MIPS_REL32);
+  rel_entry.targetRef() = *FragmentRef::Create(got_entry, 0);
+  rel_entry.setSymInfo(rsym);
+}
+
+static
+MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc, MipsRelocator& pParent)
 {
   // rsym - The relocation target symbol
   ResolveInfo* rsym = pReloc.symInfo();
   MipsGNULDBackend& ld_backend = pParent.getTarget();
   MipsGOT& got = ld_backend.getGOT();
+  MipsGOTEntry* got_entry;
 
   if (got.isLocal(rsym) && ResolveInfo::Section == rsym->type()) {
     // Local section symbols consume local got entries.
-    return *got.consumeLocal();
+    got_entry = got.consumeLocal();
+    if (got.isPrimaryGOTConsumed())
+      helper_SetupRelDynForGOTEntry(*got_entry, pReloc, NULL, pParent);
+    return *got_entry;
   }
 
-  MipsGOTEntry* got_entry = pParent.getSymGOTMap().lookUp(*rsym);
+  got_entry = got.lookupEntry(rsym);
   if (NULL != got_entry) {
     // found a mapping, then return the mapped entry immediately
     return *got_entry;
@@ -364,15 +395,17 @@ MipsGOTEntry& helper_GetGOTEntry(Relocation& pReloc,
   else
     got_entry = got.consumeGlobal();
 
-  pParent.getSymGOTMap().record(*rsym, *got_entry);
+  got.recordEntry(rsym, got_entry);
 
   // If we first get this GOT entry, we should initialize it.
-  if (rsym->reserved() & MipsRelocator::ReserveGot) {
-    got_entry->setValue(pReloc.symValue());
+  if (!got.isLocal(rsym) || ResolveInfo::Section != rsym->type()) {
+    if (!got.isPrimaryGOTConsumed())
+      got_entry->setValue(pReloc.symValue());
   }
-  else {
-    fatal(diag::reserve_entry_number_mismatch_got);
-  }
+
+  if (got.isPrimaryGOTConsumed())
+    helper_SetupRelDynForGOTEntry(*got_entry, pReloc,
+                                  got.isLocal(rsym) ? NULL : rsym, pParent);
 
   return *got_entry;
 }
@@ -381,9 +414,10 @@ static
 Relocator::Address helper_GetGOTOffset(Relocation& pReloc,
                                        MipsRelocator& pParent)
 {
-  bool exist;
-  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, 0);
-  return got_entry.getOffset() - 0x7FF0;
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
+  MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
+  return got.getGPRelOffset(pParent.getApplyingInput(), got_entry);
 }
 
 static
@@ -534,6 +568,8 @@ MipsRelocator::Result lo16(Relocation& pReloc, MipsRelocator& pParent)
 static
 MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
 {
+  MipsGNULDBackend& ld_backend = pParent.getTarget();
+  MipsGOT& got = ld_backend.getGOT();
   ResolveInfo* rsym = pReloc.symInfo();
   Relocator::Address G = 0;
 
@@ -547,11 +583,10 @@ MipsRelocator::Result got16(Relocation& pReloc, MipsRelocator& pParent)
     pParent.setAHL(AHL);
 
     int32_t res = (AHL + S + 0x8000) & 0xFFFF0000;
-    bool exist;
-    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent, exist, res);
+    MipsGOTEntry& got_entry = helper_GetGOTEntry(pReloc, pParent);
 
     got_entry.setValue(res);
-    G = got_entry.getOffset() - 0x7FF0;
+    G = got.getGPRelOffset(pParent.getApplyingInput(), got_entry);
   }
   else {
     G = helper_GetGOTOffset(pReloc, pParent);

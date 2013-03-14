@@ -139,11 +139,6 @@ private:
   LDSymbol* m_pGpDispSymbol;
 
   SymbolListType m_GlobalGOTSyms;
-
-private:
-  /// isGlobalGOTSymbol - return true if the symbol is the global GOT entry.
-  bool isGlobalGOTSymbol(const LDSymbol& pSymbol) const;
-
 };
 
 } // namespace of mcld

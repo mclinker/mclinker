@@ -14,7 +14,6 @@
 
 #include <mcld/LD/Relocator.h>
 #include <mcld/Support/GCFactory.h>
-#include <mcld/Target/SymbolEntryMap.h>
 #include "MipsLDBackend.h"
 
 namespace mcld {
@@ -25,8 +24,6 @@ namespace mcld {
 class MipsRelocator : public Relocator
 {
 public:
-  typedef SymbolEntryMap<MipsGOTEntry> SymGOTMap;
-
   enum ReservedEntryType {
     None          = 0,  // no reserved entry
     ReserveRel    = 1,  // reserve a dynamic relocation entry
@@ -45,7 +42,26 @@ public:
                       Module& pModule,
                       LDSection& pSection);
 
+  /// initializeScan - do initialization before scan relocations in pInput
+  /// @return - return true for initialization success
+  bool initializeScan(Input& pInput);
+
+  /// finalizeScan - do finalization after scan relocations in pInput
+  /// @return - return true for finalization success
+  bool finalizeScan(Input& pInput);
+
+  /// initializeApply - do initialization before apply relocations in pInput
+  /// @return - return true for initialization success
+  bool initializeApply(Input& pInput);
+
+  /// finalizeApply - do finalization after apply relocations in pInput
+  /// @return - return true for finalization success
+  bool finalizeApply(Input& pInput);
+
   Result applyRelocation(Relocation& pRelocation);
+
+  const Input& getApplyingInput() const
+  { return *m_pApplyingInput; }
 
   MipsGNULDBackend& getTarget()
   { return m_Target; }
@@ -65,9 +81,6 @@ public:
 
   Size getSize(Relocation::Type pType) const;
 
-  const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
-  SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
-
 private:
   void scanLocalReloc(Relocation& pReloc,
                       IRBuilder& pBuilder,
@@ -77,12 +90,10 @@ private:
                        IRBuilder& pBuilder,
                        const LDSection& pSection);
 
-
-
 private:
   MipsGNULDBackend& m_Target;
+  Input* m_pApplyingInput;
   int32_t m_AHL;
-  SymGOTMap m_SymGOTMap;
 };
 
 } // namespace of mcld
