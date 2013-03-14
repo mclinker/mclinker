@@ -59,7 +59,7 @@ private:
   class CleanupInstaller
   {
   public:
-    explicit CleanupInstaller(const std::string& pFilename);
+    explicit CleanupInstaller(const sys::fs::Path& pPath);
 
     ~CleanupInstaller();
 
@@ -67,7 +67,7 @@ private:
     bool Keep;
 
   private:
-    std::string m_Filename;
+    sys::fs::Path m_Path;
   }; 
 
 private:
