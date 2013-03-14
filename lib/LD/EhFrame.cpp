@@ -99,6 +99,16 @@ void EhFrame::addFragment(RegionFragment& pFrag)
   pFrag.setOffset(offset);
 }
 
+void EhFrame::addFragment(NullFragment& pFrag)
+{
+  uint32_t offset = 0;
+  if (!m_pSectionData->empty())
+    offset = m_pSectionData->back().getOffset() + m_pSectionData->back().size();
+
+  m_pSectionData->getFragmentList().push_back(&pFrag);
+  pFrag.setOffset(offset);
+}
+
 void EhFrame::addCIE(EhFrame::CIE& pCIE)
 {
   m_CIEs.push_back(&pCIE);

@@ -121,8 +121,11 @@ bool EhFrameReader::read<32, true>(Input& pInput, EhFrame& pEhFrame)
   };
 
   LDSection& section = pEhFrame.getSection();
-  if (section.size() == 0x0)
+  if (section.size() == 0x0) {
+    NullFragment* frag = new NullFragment();
+    pEhFrame.addFragment(*frag);
     return true;
+  }
 
   // get file offset and address
   uint64_t file_off = pInput.fileOffset() + section.offset();
