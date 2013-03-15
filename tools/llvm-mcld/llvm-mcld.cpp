@@ -741,11 +741,13 @@ ArgDefineCommon("d",
 
 static cl::alias
 ArgDefineCommonAlias1("dc",
+                      cl::ZeroOrMore,
                       cl::desc("alias for -d"),
                       cl::aliasopt(ArgDefineCommon));
 
 static cl::alias
 ArgDefineCommonAlias2("dp",
+                      cl::ZeroOrMore,
                       cl::desc("alias for -d"),
                       cl::aliasopt(ArgDefineCommon));
 
