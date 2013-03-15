@@ -69,6 +69,7 @@ bool ARMToARMStub::isMyDuty(const class Relocation& pReloc,
   // Check if the branch target is ARM
   if ((pTargetSymValue & 0x1) == 0x0) {
     switch (pReloc.type()) {
+      case llvm::ELF::R_ARM_PC24:
       case llvm::ELF::R_ARM_CALL:
       case llvm::ELF::R_ARM_JUMP24:
       case llvm::ELF::R_ARM_PLT32: {

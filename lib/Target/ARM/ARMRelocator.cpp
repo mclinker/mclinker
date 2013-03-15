@@ -402,6 +402,7 @@ void ARMRelocator::scanGlobalReloc(Relocation& pReloc,
       return;
     }
 
+    case llvm::ELF::R_ARM_PC24:
     case llvm::ELF::R_ARM_THM_CALL:
     case llvm::ELF::R_ARM_PLT32:
     case llvm::ELF::R_ARM_CALL:
@@ -948,6 +949,7 @@ ARMRelocator::Result thm_jump11(Relocation& pReloc, ARMRelocator& pParent)
   return ARMRelocator::OK;
 }
 
+// R_ARM_PC24: ((S + A) | T) - P
 // R_ARM_PLT32: ((S + A) | T) - P
 // R_ARM_JUMP24: ((S + A) | T) - P
 // R_ARM_CALL: ((S + A) | T) - P
@@ -985,6 +987,8 @@ ARMRelocator::Result call(Relocation& pReloc, ARMRelocator& pParent)
   if (T != 0) {
     // cannot rewrite to blx for R_ARM_JUMP24
     if (pReloc.type() == llvm::ELF::R_ARM_JUMP24)
+      return ARMRelocator::BadReloc;
+    if (pReloc.type() == llvm::ELF::R_ARM_PC24)
       return ARMRelocator::BadReloc;
 
     pReloc.target() = (pReloc.target() & 0xffffff) |

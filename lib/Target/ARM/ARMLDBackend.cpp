@@ -531,6 +531,7 @@ ARMGNULDBackend::doRelax(Module& pModule, IRBuilder& pBuilder, bool& pFinished)
         Relocation* relocation = llvm::cast<Relocation>(reloc);
 
         switch (relocation->type()) {
+          case llvm::ELF::R_ARM_PC24:
           case llvm::ELF::R_ARM_CALL:
           case llvm::ELF::R_ARM_JUMP24:
           case llvm::ELF::R_ARM_PLT32:

@@ -83,6 +83,7 @@ bool ARMToTHMStub::isMyDuty(const class Relocation& pReloc,
         }
         break;
       }
+      case llvm::ELF::R_ARM_PC24:
       case llvm::ELF::R_ARM_JUMP24:
       case llvm::ELF::R_ARM_PLT32: {
         // always need a stub to switch mode
