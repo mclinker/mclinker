@@ -485,6 +485,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // reserve two pairs of got entry and dynamic relocation
       getTarget().getGOT().reserve(2);
       getTarget().getRelDyn().reserveEntry(2);
+      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -516,6 +517,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // reserve got and dyn relocation entries for tp-relative offset
       getTarget().getGOT().reserve();
       getTarget().getRelDyn().reserveEntry();
+      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -527,6 +529,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // reserve got and dyn relocation entries for tp-relative offset
       getTarget().getGOT().reserve();
       getTarget().getRelDyn().reserveEntry();
+      getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
       // set GOTRel bit
       rsym->setReserved(rsym->reserved() | GOTRel);
       return;
@@ -537,6 +540,7 @@ void X86_32Relocator::scanGlobalReloc(Relocation& pReloc,
       // if buildint shared object, a dynamic relocation is needed
       if (LinkerConfig::DynObj == config().codeGenType()) {
         getTarget().getRelDyn().reserveEntry();
+        getTarget().getRelDyn().addSymbolToDynSym(*rsym->outSymbol());
         rsym->setReserved(rsym->reserved() | ReserveRel);
         getTarget().checkAndSetHasTextRel(*pSection.getLink());
       }
