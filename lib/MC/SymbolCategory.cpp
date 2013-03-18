@@ -101,13 +101,10 @@ SymbolCategory& SymbolCategory::forceLocal(LDSymbol& pSymbol)
 }
 
 SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
-                                        const ResolveInfo& pSourceInfo)
+                                        Category::Type pSource,
+                                        Category::Type pTarget)
 {
-  assert(NULL != pSymbol.resolveInfo());
-  Category::Type source = Category::categorize(pSourceInfo);
-  Category::Type target = Category::categorize(*pSymbol.resolveInfo());
-
-  int distance = target - source;
+  int distance = pTarget - pSource;
   if (0 == distance) {
     // in the same category, do not need to re-arrange
     return *this;
@@ -117,7 +114,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
   // find the category of source
   Category* current = m_pFile;
   while(NULL != current) {
-    if (source == current->type)
+    if (pSource == current->type)
       break;
     current = current->next;
   }
@@ -133,14 +130,16 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
     ++pos;
   }
 
-  assert(current->end != pos);
+  // if symbol is not in the given source category, then do nothing
+  if (current->end == pos)
+    return *this;
 
   // The distance is positive. It means we should bubble sort downward.
   if (distance > 0) {
     // downward
     size_t rear;
     do {
-      if (current->type == target) {
+      if (current->type == pTarget) {
         break;
       }
       else {
@@ -162,7 +161,7 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
 
     // upward
     do {
-      if (current->type == target) {
+      if (current->type == pTarget) {
         break;
       }
       else {
@@ -178,6 +177,15 @@ SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
     return *this;
   } // upward
   return *this;
+}
+
+SymbolCategory& SymbolCategory::arrange(LDSymbol& pSymbol,
+                                        const ResolveInfo& pSourceInfo)
+{
+  assert(NULL != pSymbol.resolveInfo());
+  return arrange(pSymbol,
+                 Category::categorize(pSourceInfo),
+                 Category::categorize(*pSymbol.resolveInfo()));
 }
 
 SymbolCategory& SymbolCategory::changeCommonsToGlobal()
@@ -205,25 +213,12 @@ SymbolCategory& SymbolCategory::changeCommonsToGlobal()
   return *this;
 }
 
-SymbolCategory& SymbolCategory::changeLocalToDynamic(const LDSymbol& pSymbol)
+SymbolCategory& SymbolCategory::changeToDynamic(LDSymbol& pSymbol)
 {
-  // find the position of pSymbol from local category
-  size_t pos = m_pLocal->begin;
-  while (pos != m_pLocal->end) {
-    if (m_OutputSymbols[pos] == &pSymbol)
-      break;
-    ++pos;
-  }
-
-  // if symbol is not in Local, then do nothing
-  if (m_pLocal->end == pos)
-    return *this;
-
-  // bubble sort downward to LocalDyn
-  std::swap(m_OutputSymbols[pos], m_OutputSymbols[m_pLocal->end - 1]);
-  m_pLocal->end--;
-  m_pLocalDyn->begin--;
-  return *this;
+  assert(NULL != pSymbol.resolveInfo());
+  return arrange(pSymbol,
+                 Category::categorize(*pSymbol.resolveInfo()),
+                 Category::LocalDyn);
 }
 
 size_t SymbolCategory::numOfSymbols() const

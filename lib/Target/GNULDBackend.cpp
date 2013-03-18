@@ -2151,10 +2151,10 @@ void GNULDBackend::preLayout(Module& pModule, IRBuilder& pBuilder)
 
   // change .tbss and .tdata section symbol from Local to LocalDyn category
   if (NULL != f_pTDATA)
-    pModule.getSymbolTable().changeLocalToDynamic(*f_pTDATA);
+    pModule.getSymbolTable().changeToDynamic(*f_pTDATA);
 
   if (NULL != f_pTBSS)
-    pModule.getSymbolTable().changeLocalToDynamic(*f_pTBSS);
+    pModule.getSymbolTable().changeToDynamic(*f_pTBSS);
 
   // To merge input's relocation sections into output's relocation sections.
   //

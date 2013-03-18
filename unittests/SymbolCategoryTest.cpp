@@ -129,7 +129,7 @@ TEST_F(SymbolCategoryTest, change_local_to_dynamic) {
   ++sym;
   ASSERT_STREQ("e", (*sym)->name());
 
-  m_pTestee->changeLocalToDynamic(*bb);
+  m_pTestee->changeToDynamic(*bb);
 
   sym = m_pTestee->begin();
   ASSERT_STREQ("c", (*sym)->name());

@@ -71,7 +71,7 @@ size_t OutputRelocSection::numOfRelocs()
 
 bool OutputRelocSection::addSymbolToDynSym(LDSymbol& pSymbol)
 {
-  m_Module.getSymbolTable().changeLocalToDynamic(pSymbol);
+  m_Module.getSymbolTable().changeToDynamic(pSymbol);
   return true;
 }
 

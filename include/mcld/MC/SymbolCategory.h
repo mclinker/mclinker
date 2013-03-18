@@ -45,7 +45,7 @@ public:
 
   SymbolCategory& changeCommonsToGlobal();
 
-  SymbolCategory& changeLocalToDynamic(const LDSymbol& pSymbol);
+  SymbolCategory& changeToDynamic(LDSymbol& pSymbol);
 
   // -----  access  ----- //
   LDSymbol& at(size_t pPosition)
@@ -173,6 +173,10 @@ private:
 
 private:
   SymbolCategory& add(LDSymbol& pSymbol, Category::Type pTarget);
+
+  SymbolCategory& arrange(LDSymbol& pSymbol,
+                          Category::Type pSource,
+                          Category::Type pTarget);
 
 private:
   OutputSymbols m_OutputSymbols;

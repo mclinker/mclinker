@@ -158,9 +158,9 @@ void ARMGNULDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                     ResolveInfo::Default);
     // change __exidx_start/_end to local dynamic category
     if (NULL != m_pEXIDXStart)
-      pModule.getSymbolTable().changeLocalToDynamic(*m_pEXIDXStart);
+      pModule.getSymbolTable().changeToDynamic(*m_pEXIDXStart);
     if (NULL != m_pEXIDXEnd)
-      pModule.getSymbolTable().changeLocalToDynamic(*m_pEXIDXEnd);
+      pModule.getSymbolTable().changeToDynamic(*m_pEXIDXEnd);
   } else {
     m_pEXIDXStart =
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
