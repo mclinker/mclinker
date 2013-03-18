@@ -645,6 +645,16 @@ ArgEL("EL",
       cl::desc("Link little-endian objects. This affects the default output format."),
       cl::init(false));
 
+static cl::list<std::string>
+ArgPlugin("plugin",
+          cl::desc("Load a plugin library."),
+          cl::value_desc("plugin"));
+
+static cl::list<std::string>
+ArgPluginOpt("plugin-opt",
+             cl::desc("	Pass an option to the plugin."),
+             cl::value_desc("option"));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
