@@ -1,4 +1,4 @@
-; RUN: %MCLinker -march mipsel -filetype=dso -shared -fPIC \
+; RUN: %MCLinker -march mipsel -mtriple=mipsel-none-linux-gnueabi -filetype=dso -shared -fPIC \
 ; RUN:           -o %t.so %p/mgot0.o %p/mgot1.o
 ;
 ; RUN: readelf -a %t.so | FileCheck %s -check-prefix=MGOT
