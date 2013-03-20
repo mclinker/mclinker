@@ -43,9 +43,6 @@ const char    dot = L'.';
 /** \class Path
  *  \brief Path provides an abstraction for the path to a file or directory in
  *   the operating system's filesystem.
- *
- *  FIXME: current Path library only support UTF-8 chararcter set.
- *
  */
 class Path
 {
@@ -83,11 +80,8 @@ public:
   bool isFromRoot() const;
   bool isFromPWD() const;
 
-  const StringType &native() const
-  { return m_PathName; }
-
-  StringType &native()
-  { return m_PathName; }
+  const StringType& native() const { return m_PathName; }
+  StringType&       native()       { return m_PathName; }
 
   const ValueType* c_str() const
   { return m_PathName.c_str(); }
