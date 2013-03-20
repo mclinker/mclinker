@@ -87,13 +87,12 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
   case llvm::ELF::STB_LOCAL:
     return ResolveInfo::Local;
   case llvm::ELF::STB_GLOBAL:
+    if (pShndx == llvm::ELF::SHN_ABS)
+      return ResolveInfo::Absolute;
     return ResolveInfo::Global;
   case llvm::ELF::STB_WEAK:
     return ResolveInfo::Weak;
   }
-
-  if (pShndx == llvm::ELF::SHN_ABS)
-    return ResolveInfo::Absolute;
 
   return ResolveInfo::NoneBinding;
 }
