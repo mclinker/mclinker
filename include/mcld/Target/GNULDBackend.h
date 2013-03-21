@@ -140,6 +140,12 @@ public:
   /// emitInterp - emit the .interp
   virtual void emitInterp(MemoryArea& pOutput);
 
+  /// hasEntryInStrTab - symbol has an entry in a .strtab
+  virtual bool hasEntryInStrTab(const LDSymbol& pSym) const;
+
+  /// orderSymbolTable - order symbol table before emitting
+  virtual void orderSymbolTable(Module& pModule);
+
   void setHasStaticTLS(bool pVal = true)
   { m_bHasStaticTLS = pVal; }
 
