@@ -562,6 +562,7 @@ ArgExportDynamicAlias("E",
 
 static cl::opt<std::string>
 ArgEmulation("m",
+             cl::ZeroOrMore,
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
 
