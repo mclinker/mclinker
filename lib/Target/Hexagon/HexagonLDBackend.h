@@ -44,6 +44,8 @@ public:
   /// preLayout - Backend can do any needed modification before layout
   void doPreLayout(IRBuilder& pBuilder);
 
+  bool allocateCommonSymbols(Module& pModule);
+
   /// postLayout - Backend can do any needed modification after layout
   void doPostLayout(Module& pModule, IRBuilder& pBuilder);
 
@@ -115,6 +117,20 @@ public:
   /// finalizeTargetSymbols - finalize the symbol value
   bool finalizeTargetSymbols();
 
+  /// mergeSection - merge target dependent sections
+  bool mergeSection(Module& pModule, LDSection& pSection);
+
+  /// readSection - read target dependent sections
+  bool readSection(Input& pInput, SectionData& pSD);
+
+  bool MoveCommonData(SectionData &pFrom, SectionData &pTo);
+
+  bool MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo);
+
+  bool SetSDataSection(bool moveCommonData=false);
+
+  uint32_t getGP() { return m_psdata->addr(); }
+
 private:
   /// getRelEntrySize - the size in BYTE of rel type relocation
   size_t getRelEntrySize()
@@ -140,6 +156,14 @@ private:
   OutputRelocSection* m_pRelPLT;
 
   HexagonELFDynamic* m_pDynamic;
+
+  LDSection* m_psdata;
+  LDSection* m_pscommon_1;
+  LDSection* m_pscommon_2;
+  LDSection* m_pscommon_4;
+  LDSection* m_pscommon_8;
+  LDSymbol* m_psdabase;
+
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pBSSEnd;
 };
