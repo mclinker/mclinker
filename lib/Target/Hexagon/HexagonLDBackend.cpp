@@ -107,7 +107,8 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
 {
   assert(pRegion.size() && "Size of MemoryRegion is zero!");
 
-  const ELFFileFormat* file_format = getOutputFormat();
+  // FIXME: remove for unused variable.
+  // const ELFFileFormat* file_format = getOutputFormat();
 
   if (&pSection == m_psdata) {
     const SectionData* sect_data = pSection.getSectionData();

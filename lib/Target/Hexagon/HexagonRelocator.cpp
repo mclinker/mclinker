@@ -488,7 +488,8 @@ HexagonRelocator::Result relocHexNX(Relocation& pReloc, HexagonRelocator& pParen
   uint32_t result = (S + A);
 
   // Get the instruction
-  uint32_t insn = pReloc.target();
+  // FIXME: Remove for unused variable
+  // uint32_t insn = pReloc.target();
 
   uint32_t bitMask = 0;
 
