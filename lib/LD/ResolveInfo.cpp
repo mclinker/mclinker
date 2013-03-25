@@ -7,6 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/Support/GCFactory.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <cstdlib>
 #include <cstring>
 
@@ -19,7 +22,7 @@ static ResolveInfo* g_NullResolveInfo = NULL;
 // ResolveInfo
 //===----------------------------------------------------------------------===//
 ResolveInfo::ResolveInfo()
-  : m_Size(0), m_BitField(0) {
+  : m_Size(0), m_BitField(0), m_hasAlias(false) {
   m_Ptr.sym_ptr = 0;
 }
 
@@ -279,4 +282,5 @@ ResolveInfo* ResolveInfo::Null()
   }
   return g_NullResolveInfo;
 }
+
 
