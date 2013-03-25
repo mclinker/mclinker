@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include <llvm/ADT/ilist.h>
 
@@ -60,6 +61,11 @@ public:
   typedef SymbolCategory SymbolTable;
   typedef SymbolTable::iterator sym_iterator;
   typedef SymbolTable::const_iterator const_sym_iterator;
+
+  typedef std::map<const ResolveInfo*, const ResolveInfo*> AliasList;
+  typedef std::pair<const ResolveInfo*, const ResolveInfo*> AliasPair;
+  typedef AliasList::iterator alias_iterator;
+  typedef AliasList::const_iterator const_alias_iterator;
 
 public:
   Module();
@@ -149,6 +155,11 @@ public:
   const NamePool& getNamePool() const { return m_NamePool; }
   NamePool&       getNamePool()       { return m_NamePool; }
 
+  // -----  Aliases  ----- //
+  void setAlias(const ResolveInfo *s1, const ResolveInfo *s2);
+  ResolveInfo* getAlias(const ResolveInfo *s);
+  const ResolveInfo* getAlias(const ResolveInfo *s) const;
+
 private:
   std::string m_Name;
   ObjectList m_ObjectList;
@@ -158,6 +169,7 @@ private:
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
   SectionSymbolSet m_SectSymbolSet;
+  AliasList m_Aliases;
 };
 
 } // namespace of mcld

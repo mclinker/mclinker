@@ -54,3 +54,26 @@ const LDSection* Module::getSection(const std::string& pName) const
   return NULL;
 }
 
+void Module::setAlias(const ResolveInfo *s1, const ResolveInfo *s2)
+{
+  m_Aliases.insert(AliasPair(s1, s2));
+}
+
+ResolveInfo* Module::getAlias(const ResolveInfo *s)
+{
+  alias_iterator it = m_Aliases.find(s);
+  if (it!=m_Aliases.end())
+    return const_cast<ResolveInfo*>( it->second );
+  else
+    return NULL;
+}
+
+const ResolveInfo* Module::getAlias(const ResolveInfo *s) const
+{
+  const_alias_iterator it = m_Aliases.find(s);
+  if (it!=m_Aliases.end())
+    return it->second;
+  else
+    return NULL;
+}
+
