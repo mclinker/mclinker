@@ -147,16 +147,13 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                       (ResolveInfo::Visibility)pSym.other());
 
   // output all other alias symbols if any
-  // FIXME: to accurately identify aliases, we need to
-  // know whether the symbols are from the same .so
-  // after symbol resolution.
-  if (pSym.hasAlias()) {
-    Module &pModule = pBuilder.getModule();
+  Module &pModule = pBuilder.getModule();
+  if (NULL!=pModule.getAlias(pSym)) {
     ResolveInfo* sym_b = const_cast<ResolveInfo*>(&pSym);
     ResolveInfo* sym_i = sym_b;
 
     do {
-      sym_i = pModule.getAlias(sym_i);
+      sym_i = pModule.getAlias(*sym_i);
       if (sym_i->isDyn())
         pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
                            sym_i->name(),
@@ -167,7 +164,7 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
                            0x0,          // value
                            FragmentRef::Create(*frag, 0x0),
                            (ResolveInfo::Visibility)sym_i->other());
-    } while (sym_i==sym_b);
+    } while (sym_i!=sym_b);
   }
 
   return *cpy_sym;

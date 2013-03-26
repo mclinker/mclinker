@@ -142,9 +142,6 @@ public:
     m_BitField |= indirect_flag;
   }
 
-  void setHasAlias()
-  { m_hasAlias = true; }
-
   // -----  observers  ----- //
   bool isNull() const;
 
@@ -209,9 +206,6 @@ public:
 
   uint32_t bitfield() const
   { return m_BitField; }
-
-  bool hasAlias() const
-  { return m_hasAlias; }
 
   // -----  For HashTable  ----- //
   bool compare(const key_type& pKey);
@@ -284,7 +278,6 @@ private:
    * |length of m_Name|reserved|Symbol|Type |ELF visibility|Local|Com|Def|Dyn|Weak|
    */
   uint32_t m_BitField;
-  bool m_hasAlias;
   char m_Name[];
 };
 

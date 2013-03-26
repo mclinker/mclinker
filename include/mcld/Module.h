@@ -156,9 +156,9 @@ public:
   NamePool&       getNamePool()       { return m_NamePool; }
 
   // -----  Aliases  ----- //
-  void setAlias(const ResolveInfo *s1, const ResolveInfo *s2);
-  ResolveInfo* getAlias(const ResolveInfo *s);
-  const ResolveInfo* getAlias(const ResolveInfo *s) const;
+  void setAlias(const ResolveInfo& pSym, const ResolveInfo& pAlias);
+  const ResolveInfo* getAlias(const ResolveInfo& pSym) const;
+  ResolveInfo*       getAlias(const ResolveInfo& pSym);
 
 private:
   std::string m_Name;

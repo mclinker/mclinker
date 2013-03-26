@@ -22,7 +22,7 @@ static ResolveInfo* g_NullResolveInfo = NULL;
 // ResolveInfo
 //===----------------------------------------------------------------------===//
 ResolveInfo::ResolveInfo()
-  : m_Size(0), m_BitField(0), m_hasAlias(false) {
+  : m_Size(0), m_BitField(0) {
   m_Ptr.sym_ptr = 0;
 }
 
