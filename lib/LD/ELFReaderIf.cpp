@@ -157,7 +157,7 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   }
 
   // In executable and shared object files, st_value holds a virtual address.
-  // the virtual address is useless during linking.
-  return 0x0;
+  // the virtual address is needed for alias identification.
+  return pValue;
 }
 
