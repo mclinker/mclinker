@@ -27,6 +27,7 @@
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/DefSymParser.h>
 #include <mcld/Target/TargetLDBackend.h>
 #include <mcld/Fragment/FragmentLinker.h>
 #include <mcld/Object/ObjectBuilder.h>
@@ -36,7 +37,6 @@
 
 using namespace llvm;
 using namespace mcld;
-
 ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
                            TargetLDBackend& pLDBackend)
   : m_Config(pConfig),
@@ -49,7 +49,8 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
     m_pBinaryReader(NULL),
-    m_pWriter(NULL) {
+    m_pWriter(NULL),
+    m_pDefSymParser(NULL) {
 }
 
 ObjectLinker::~ObjectLinker()
@@ -61,6 +62,7 @@ ObjectLinker::~ObjectLinker()
   delete m_pGroupReader;
   delete m_pBinaryReader;
   delete m_pWriter;
+  delete m_pDefSymParser;
 }
 
 void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
@@ -93,6 +95,7 @@ bool ObjectLinker::initFragmentLinker()
                                      *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pWriter        = m_LDBackend.createWriter();
+  m_pDefSymParser  = new DefSymParser(m_pModule);
 
   // initialize Relocator
   m_LDBackend.initRelocator();
@@ -322,10 +325,43 @@ bool ObjectLinker::addTargetSymbols()
 
 /// addScriptSymbols - define symbols from the command line option or linker
 /// scripts.
-///   @return if there are some existing symbols with identical name to the
-///   script symbols, return false.
 bool ObjectLinker::addScriptSymbols()
 {
+  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
+    m_Config.scripts().defSymMap().begin(),
+  ie =  m_Config.scripts().defSymMap().end();
+  // go through the entire defSymMap
+  for (;it != ie; it++) {
+    const llvm::StringRef sym =  it.getEntry()->key();
+    ResolveInfo* old_info = m_pModule->getNamePool().findInfo(sym);
+    // if the symbol does not exist, we can set type to NOTYPE
+    // else we retain its type, same goes for size - 0 or retain old value
+    // and visibility - Default or retain
+    if (old_info != NULL) {
+      if(!m_pBuilder->AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                             sym,
+                             static_cast<ResolveInfo::Type>(old_info->type()),
+                             ResolveInfo::Define,
+                             ResolveInfo::Absolute,
+                             old_info->size(),
+                             0x0,
+                             FragmentRef::Null(),
+                             old_info->visibility()))
+        return false;
+    }
+    else {
+      if (!m_pBuilder->AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                             sym,
+                             ResolveInfo::NoType,
+                             ResolveInfo::Define,
+                             ResolveInfo::Absolute,
+                             0x0,
+                             0x0,
+                             FragmentRef::Null(),
+                             ResolveInfo::Default))
+        return false;
+    }
+  }
   return true;
 }
 
@@ -440,7 +476,27 @@ bool ObjectLinker::postlayout()
 ///   symbol.
 bool ObjectLinker::finalizeSymbolValue()
 {
-  return (m_pLinker->finalizeSymbols() && m_LDBackend.finalizeSymbols());
+  bool finalized = m_pLinker->finalizeSymbols() && m_LDBackend.finalizeSymbols();
+  bool scriptSymsAdded = true;
+  uint64_t symVal;
+
+  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
+    m_Config.scripts().defSymMap().begin(),
+    ie =  m_Config.scripts().defSymMap().end();
+
+  for (;it != ie; it++) {
+    llvm::StringRef symName =  it.getEntry()->key();
+    llvm::StringRef expr =  it.getEntry()->value();
+
+    LDSymbol* symbol = m_pModule->getNamePool().findSymbol(symName);
+    if (!symbol)
+      return false;
+    scriptSymsAdded &= m_pDefSymParser->parse(expr, symVal);
+    if (!scriptSymsAdded)
+      break;
+    symbol->setValue(symVal);
+  }
+  return finalized && scriptSymsAdded ;
 }
 
 /// relocate - applying relocation entries and create relocation
@@ -458,6 +514,7 @@ bool ObjectLinker::emitOutput(MemoryArea& pOutput)
 {
   return llvm::errc::success == getWriter()->writeObject(*m_pModule, pOutput);
 }
+
 
 /// postProcessing - do modification after all processes
 bool ObjectLinker::postProcessing(MemoryArea& pOutput)

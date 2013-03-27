@@ -36,6 +36,7 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
+class DefSymParser;
 
 /** \class ObjectLinker
  *  \brief ObjectLinker prepares parameters for FragmentLinker.
@@ -90,8 +91,6 @@ public:
 
   /// addScriptSymbols - define symbols from the command line option or linker
   /// scripts.
-  ///   @return if there are some existing symbols with identical name to the
-  ///   script symbols, return false.
   bool addScriptSymbols();
 
   /// scanRelocations - scan all relocation entries by output symbols.
@@ -171,6 +170,7 @@ private:
   GroupReader*   m_pGroupReader;
   BinaryReader*  m_pBinaryReader;
   ObjectWriter*  m_pWriter;
+  DefSymParser*  m_pDefSymParser;
 };
 
 } // end namespace mcld
