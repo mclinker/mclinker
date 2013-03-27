@@ -62,8 +62,7 @@ public:
   typedef SymbolTable::iterator sym_iterator;
   typedef SymbolTable::const_iterator const_sym_iterator;
 
-  typedef std::map<const ResolveInfo*, const ResolveInfo*> AliasList;
-  typedef std::pair<const ResolveInfo*, const ResolveInfo*> AliasPair;
+  typedef std::vector<const ResolveInfo*> AliasList;
   typedef AliasList::iterator alias_iterator;
   typedef AliasList::const_iterator const_alias_iterator;
 
@@ -156,9 +155,13 @@ public:
   NamePool&       getNamePool()       { return m_NamePool; }
 
   // -----  Aliases  ----- //
-  void setAlias(const ResolveInfo& pSym, const ResolveInfo& pAlias);
-  const ResolveInfo* getAlias(const ResolveInfo& pSym) const;
-  ResolveInfo*       getAlias(const ResolveInfo& pSym);
+  // create an alias list for pSym, the aliases of pSym
+  // can be added into the list by calling addAlias
+  void CreateAliasList(const ResolveInfo& pSym);
+
+  // add pAlias into the newly created alias list
+  void addAlias(const ResolveInfo& pAlias);
+  AliasList* getAliasList(const ResolveInfo& pSym);
 
 private:
   std::string m_Name;
@@ -169,7 +172,7 @@ private:
   SymbolTable m_SymbolTable;
   NamePool m_NamePool;
   SectionSymbolSet m_SectSymbolSet;
-  AliasList m_Aliases;
+  std::vector<AliasList*> m_AliasLists;
 };
 
 } // namespace of mcld

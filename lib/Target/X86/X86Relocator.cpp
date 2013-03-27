@@ -148,23 +148,23 @@ LDSymbol& X86Relocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
 
   // output all other alias symbols if any
   Module &pModule = pBuilder.getModule();
-  if (NULL!=pModule.getAlias(pSym)) {
-    ResolveInfo* sym_b = const_cast<ResolveInfo*>(&pSym);
-    ResolveInfo* sym_i = sym_b;
-
-    do {
-      sym_i = pModule.getAlias(*sym_i);
-      if (sym_i->isDyn())
+  Module::AliasList* alias_list = pModule.getAliasList(pSym);
+  if (NULL!=alias_list) {
+    Module::alias_iterator it, it_e=alias_list->end();
+    for (it=alias_list->begin(); it!=it_e; ++it) {
+      const ResolveInfo* alias = *it;
+      if (alias!=&pSym && alias->isDyn()) {
         pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
-                           sym_i->name(),
-                           (ResolveInfo::Type)sym_i->type(),
+                           alias->name(),
+                           (ResolveInfo::Type)alias->type(),
                            ResolveInfo::Define,
                            binding,
-                           sym_i->size(),  // size
+                           alias->size(),  // size
                            0x0,          // value
                            FragmentRef::Create(*frag, 0x0),
-                           (ResolveInfo::Visibility)sym_i->other());
-    } while (sym_i!=sym_b);
+                           (ResolveInfo::Visibility)alias->other());
+      }
+    }
   }
 
   return *cpy_sym;

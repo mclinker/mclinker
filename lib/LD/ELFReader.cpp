@@ -173,7 +173,7 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   // FIXME: it is better to let IRBuilder handle alias anlysis.
   //        1. eliminate code duplication
   //        2. easy to know if a symbol is from .so
-  //           (so that it is a potential alias)
+  //           (so that it may be a potential alias)
   if ( is_dyn_obj ) {
     // sort symbols by symbol value and then weak before strong
     std::sort( potential_aliases.begin(), potential_aliases.end(), less);
@@ -188,19 +188,14 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
 
       Module& pModule = pBuilder.getModule();
       std::vector<AliasInfo>::iterator alias_it = sym_it+1;
-      ResolveInfo *from=NULL, *to=sym_it->pt_alias->resolveInfo();
       while(alias_it!=sym_e) {
         if ( sym_it->ld_value != alias_it->ld_value )
           break;
 
-        from = to;
-        to = alias_it->pt_alias->resolveInfo();
-        pModule.setAlias(*from, *to);
+        if (sym_it+1==alias_it)
+          pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
+        pModule.addAlias(*alias_it->pt_alias->resolveInfo());
         ++alias_it;
-      }
-
-      if (sym_it+1!=alias_it) {
-        pModule.setAlias(*to, *sym_it->pt_alias->resolveInfo());
       }
 
       sym_it = alias_it-1;
@@ -742,29 +737,25 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
 
     // for each weak symbol, find out all its aliases, and
     // then link them as a circular list in Module
-    std::vector<AliasInfo>::iterator symIt1, symEnd;
-    symEnd = potential_aliases.end();
-    for (symIt1 = potential_aliases.begin(); symIt1!=symEnd; ++symIt1) {
-      if (ResolveInfo::Weak!=symIt1->ld_binding)
+    std::vector<AliasInfo>::iterator sym_it, sym_e;
+    sym_e = potential_aliases.end();
+    for (sym_it = potential_aliases.begin(); sym_it!=sym_e; ++sym_it) {
+      if (ResolveInfo::Weak!=sym_it->ld_binding)
         continue;
 
       Module& pModule = pBuilder.getModule();
-      std::vector<AliasInfo>::iterator symIt2;
-      ResolveInfo *from=NULL, *to = symIt1->pt_alias->resolveInfo();
-      for (symIt2=symIt1+1; symIt2!=symEnd; ++symIt2) {
-        if ( symIt1->ld_value != symIt2->ld_value )
+      std::vector<AliasInfo>::iterator alias_it = sym_it+1;
+      while(alias_it!=sym_e) {
+        if ( sym_it->ld_value != alias_it->ld_value )
           break;
 
-        from = to;
-        to = symIt2->pt_alias->resolveInfo();
-        pModule.setAlias(*from, *to);
+        if (sym_it+1==alias_it)
+          pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
+        pModule.addAlias(*alias_it->pt_alias->resolveInfo());
+        ++alias_it;
       }
 
-      if (to!=symIt1->pt_alias->resolveInfo()) {
-        pModule.setAlias(*to, *symIt1->pt_alias->resolveInfo());
-      }
-
-      symIt1 = symIt2-1;
+      sym_it = alias_it-1;
     }// end of for loop
   }
   return true;
