@@ -209,6 +209,7 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   // we discard this CIE if the augumentation string is '\0'
   if (0 == augment.size()) {
     EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
+    cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
     pEhFrame.addCIE(*cie);
     return true;
   }
