@@ -20,7 +20,9 @@ DefSymParser::~DefSymParser()
 {
 }
 
-int DefSymParser::precedence(const char* x)
+// passing a valid operator will return a number whose quantity relative
+// to other such obtained quantities will give the priority of the operator
+static inline int precedence(const char* x)
 {
   switch (*x) {
     case '-' :
