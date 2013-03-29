@@ -36,7 +36,6 @@ class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
 class BinaryWriter;
-class DefSymParser;
 
 /** \class ObjectLinker
  *  \brief ObjectLinker prepares parameters for FragmentLinker.
@@ -170,7 +169,6 @@ private:
   GroupReader*   m_pGroupReader;
   BinaryReader*  m_pBinaryReader;
   ObjectWriter*  m_pWriter;
-  DefSymParser*  m_pDefSymParser;
 };
 
 } // end namespace mcld

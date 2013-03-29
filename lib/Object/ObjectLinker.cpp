@@ -49,8 +49,7 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
     m_pBinaryReader(NULL),
-    m_pWriter(NULL),
-    m_pDefSymParser(NULL) {
+    m_pWriter(NULL) {
 }
 
 ObjectLinker::~ObjectLinker()
@@ -62,7 +61,6 @@ ObjectLinker::~ObjectLinker()
   delete m_pGroupReader;
   delete m_pBinaryReader;
   delete m_pWriter;
-  delete m_pDefSymParser;
 }
 
 void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
@@ -95,7 +93,6 @@ bool ObjectLinker::initFragmentLinker()
                                      *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pWriter        = m_LDBackend.createWriter();
-  m_pDefSymParser  = new DefSymParser(*m_pModule);
 
   // initialize Relocator
   m_LDBackend.initRelocator();
@@ -484,6 +481,7 @@ bool ObjectLinker::finalizeSymbolValue()
     m_Config.scripts().defSymMap().begin(),
     ie =  m_Config.scripts().defSymMap().end();
 
+  DefSymParser parser(*m_pModule);
   for (;it != ie; it++) {
     llvm::StringRef symName =  it.getEntry()->key();
     llvm::StringRef expr =  it.getEntry()->value();
@@ -491,7 +489,7 @@ bool ObjectLinker::finalizeSymbolValue()
     LDSymbol* symbol = m_pModule->getNamePool().findSymbol(symName);
     if (!symbol)
       return false;
-    scriptSymsAdded &= m_pDefSymParser->parse(expr, symVal);
+    scriptSymsAdded &= parser.parse(expr, symVal);
     if (!scriptSymsAdded)
       break;
     symbol->setValue(symVal);
