@@ -1205,7 +1205,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     addr_mapping->setValue(address);
   }
 
-//defsym symbols
+  // --defsym symbols
   for (cl::list<std::string>::iterator
        it = ArgDefSymList.begin(), ie = ArgDefSymList.end();
        it != ie ; ++it) {
@@ -1224,7 +1224,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     // --defsym abc=pqr=expression
 
     mcld::StringEntry<llvm::StringRef> *defsyms =
-    pConfig.scripts().defSymMap().insert(expression.substr(0,pos),exist);
+         pConfig.scripts().defSymMap().insert(expression.substr(0,pos),exist);
     defsyms->setValue(expression.substr(pos + 1));
   }
 

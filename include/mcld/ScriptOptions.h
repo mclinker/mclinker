@@ -53,7 +53,7 @@ public:
   SectionMap&       sectionMap()       { return m_SectionMap; }
 
   const DefSymMap& defSymMap() const { return m_DefSymMap; }
-  DefSymMap&       defSymMap()      { return m_DefSymMap; }
+  DefSymMap&       defSymMap()       { return m_DefSymMap; }
 
 private:
   SymbolRenameMap m_SymbolRenames;

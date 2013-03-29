@@ -22,7 +22,7 @@ class DefSymParser
 public:
   DefSymParser(const Module& pModule);
 
-  //parse a valid expression and set the value in the second paramter
+  // parse a valid expression and set the value in the second parameter
   bool parse(llvm::StringRef, uint64_t&);
 
 private:
