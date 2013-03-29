@@ -365,8 +365,8 @@ bool mcld::MCLDTargetMachine::addLinkerPasses(PassManagerBase &pPM,
   // set up output's SOName
   if (pConfig.options().soname().empty()) {
     // if the output is a shared object, and the option -soname was not
-    // enable, set soname as the output file name.
-    pModule.setName(pOutput.handler()->path().native());
+    // enable, set soname as the output file name. soname must be UTF-8 string.
+    pModule.setName(pOutput.handler()->path().filename().string());
   }
   else {
     pModule.setName(pConfig.options().soname());
