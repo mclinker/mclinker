@@ -487,8 +487,7 @@ bool ObjectLinker::finalizeSymbolValue()
     llvm::StringRef expr =  it.getEntry()->value();
 
     LDSymbol* symbol = m_pModule->getNamePool().findSymbol(symName);
-    if (!symbol)
-      return false;
+    assert(NULL != symbol && "--defsym symbol should be in the name pool");
     scriptSymsAdded &= parser.parse(expr, symVal);
     if (!scriptSymsAdded)
       break;
