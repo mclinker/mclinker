@@ -9,10 +9,7 @@
 #ifndef MCLD_DEFSYM_PARSER_H
 #define MCLD_DEFSYM_PARSER_H
 
-#include <mcld/LD/LDSymbol.h>
 #include <mcld/Module.h>
-#include <mcld/Support/MsgHandling.h>
-
 #include <llvm/ADT/StringRef.h>
 
 namespace mcld {
@@ -24,8 +21,6 @@ class DefSymParser
 {
 public:
   DefSymParser(const Module& pModule);
-
-  ~DefSymParser();
 
   //parse a valid expression and set the value in the second paramter
   bool parse(llvm::StringRef, uint64_t&);

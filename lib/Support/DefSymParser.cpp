@@ -7,17 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/DefSymParser.h>
+#include <mcld/Support/MsgHandling.h>
+#include <mcld/LD/LDSymbol.h>
 
 using namespace llvm;
 using namespace mcld;
 
 DefSymParser::DefSymParser(const Module& pModule)
   : m_Module(pModule) {
-}
-
-// ObjectLinker deletes Module
-DefSymParser::~DefSymParser()
-{
 }
 
 // passing a valid operator will return a number whose quantity relative
