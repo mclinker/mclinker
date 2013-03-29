@@ -18,9 +18,11 @@
 
 #include <mcld/LinkerConfig.h>
 #include <mcld/IRBuilder.h>
+#include <mcld/Fragment/AlignFragment.h>
 #include <mcld/Fragment/FillFragment.h>
 #include <mcld/Fragment/RegionFragment.h>
 #include <mcld/Support/MemoryRegion.h>
+#include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/Object/ObjectBuilder.h>
@@ -103,6 +105,61 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
                                           MemoryRegion& pRegion) const
 {
+  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+
+  // FIXME: remove for unused variable.
+  // const ELFFileFormat* file_format = getOutputFormat();
+
+  if (&pSection == m_psdata) {
+    const SectionData* sect_data = pSection.getSectionData();
+    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
+    uint8_t* out_offset = pRegion.start();
+    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+      size_t size = frag_iter->size();
+      switch(frag_iter->getKind()) {
+        case Fragment::Fillment: {
+          const FillFragment& fill_frag =
+            llvm::cast<FillFragment>(*frag_iter);
+          if (0 == fill_frag.getValueSize()) {
+            // virtual fillment, ignore it.
+            break;
+          }
+          memset(out_offset, fill_frag.getValue(), fill_frag.size());
+          break;
+        }
+        case Fragment::Region: {
+          const RegionFragment& region_frag =
+            llvm::cast<RegionFragment>(*frag_iter);
+          const uint8_t* start = region_frag.getRegion().start();
+          memcpy(out_offset, start, size);
+          break;
+        }
+        case Fragment::Alignment: {
+          const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
+          uint64_t count = size / align_frag.getValueSize();
+          switch (align_frag.getValueSize()) {
+            case 1u:
+              std::memset(out_offset, align_frag.getValue(), count);
+              break;
+            default:
+              llvm::report_fatal_error(
+                "unsupported value size for align fragment emission yet.\n");
+              break;
+          } // end switch
+          break;
+        }
+        case Fragment::Null: {
+          assert(0x0 == size);
+          break;
+        }
+        default:
+          llvm::report_fatal_error("unsupported fragment type.\n");
+          break;
+      } // end switch
+      out_offset += size;
+    } // end for
+    return pRegion.size();
+  } // end if
   return 0;
 }
 
@@ -196,23 +253,67 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
     m_pRelDyn = new OutputRelocSection(pModule, reldyn);
 
   }
+  m_psdata = pBuilder.CreateSection(".sdata",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    4*1024);
+  m_pscommon_1 = pBuilder.CreateSection(".scommon.1",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    1);
+  IRBuilder::CreateSectionData(*m_pscommon_1);
+
+  m_pscommon_2 = pBuilder.CreateSection(".scommon.2",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    2);
+  IRBuilder::CreateSectionData(*m_pscommon_2);
+
+  m_pscommon_4 = pBuilder.CreateSection(".scommon.4",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    4);
+  IRBuilder::CreateSectionData(*m_pscommon_4);
+
+  m_pscommon_8 = pBuilder.CreateSection(".scommon.8",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    8);
+  IRBuilder::CreateSectionData(*m_pscommon_8);
 }
 
 void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
 {
-  if (LinkerConfig::Object != config().codeGenType()) {
-    // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
-    // same name in input
-    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
-                                                    "_GLOBAL_OFFSET_TABLE_",
-                                                    ResolveInfo::Object,
-                                                    ResolveInfo::Define,
-                                                    ResolveInfo::Local,
-                                                    0x0,  // size
-                                                    0x0,  // value
-                                                    FragmentRef::Null(),
-                                                    ResolveInfo::Hidden);
-  }
+  if (config().codeGenType() == LinkerConfig::Object)
+    return;
+
+  // Define the symbol _GLOBAL_OFFSET_TABLE_ if there is a symbol with the
+  // same name in input
+  m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                  "_GLOBAL_OFFSET_TABLE_",
+                                                  ResolveInfo::Object,
+                                                  ResolveInfo::Define,
+                                                  ResolveInfo::Local,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  FragmentRef::Null(),
+                                                  ResolveInfo::Hidden);
+  m_psdabase =
+    pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                  "_SDA_BASE_",
+                                                  ResolveInfo::Object,
+                                                  ResolveInfo::Define,
+                                                  ResolveInfo::Absolute,
+                                                  0x0,  // size
+                                                  0x0,  // value
+                                                  FragmentRef::Null(),
+                                                  ResolveInfo::Hidden);
+
 }
 
 bool HexagonLDBackend::initTargetStubs()
@@ -330,6 +431,336 @@ bool HexagonLDBackend::doRelax(Module& pModule, IRBuilder& pBuilder,
 /// finalizeSymbol - finalize the symbol value
 bool HexagonLDBackend::finalizeTargetSymbols()
 {
+  if (config().codeGenType() == LinkerConfig::Object)
+    return true;
+  if (m_psdabase)
+    m_psdabase->setValue(m_psdata->addr());
+  return true;
+}
+
+/// merge Input Sections
+bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
+{
+  if ((pInputSection.flag() & llvm::ELF::SHF_HEX_GPREL) ||
+      (pInputSection.kind() == LDFileFormat::LinkOnce) ||
+      (pInputSection.kind() == LDFileFormat::Target)) {
+    SectionData *sd = NULL;
+    if (!m_psdata->hasSectionData()) {
+      sd = IRBuilder::CreateSectionData(*m_psdata);
+      m_psdata->setSectionData(sd);
+    }
+    sd = m_psdata->getSectionData();
+    MoveSectionDataAndSort(*pInputSection.getSectionData(), *sd);
+  }
+  else {
+    ObjectBuilder builder(config(), pModule);
+    return builder.MergeSection(pInputSection);
+  }
+  return true;
+}
+
+bool HexagonLDBackend::SetSDataSection(bool moveCommonData) {
+  SectionData *pTo = (m_psdata->getSectionData());
+
+  if ((moveCommonData) && (pTo)) {
+    MoveCommonData(*m_pscommon_1->getSectionData(), *pTo);
+    MoveCommonData(*m_pscommon_2->getSectionData(), *pTo);
+    MoveCommonData(*m_pscommon_4->getSectionData(), *pTo);
+    MoveCommonData(*m_pscommon_8->getSectionData(), *pTo);
+
+    SectionData::FragmentListType& to_list = pTo->getFragmentList();
+    SectionData::FragmentListType::iterator fragTo, fragToEnd = to_list.end();
+    uint32_t offset = 0;
+    for (fragTo = to_list.begin(); fragTo != fragToEnd; ++fragTo) {
+      fragTo->setOffset(offset);
+      offset += fragTo->size();
+    }
+
+    // set up pTo's header
+    pTo->getSection().setSize(offset);
+
+    SectionData::FragmentListType& newlist = pTo->getFragmentList();
+
+    for (fragTo = newlist.begin(), fragToEnd = newlist.end();
+         fragTo != fragToEnd; ++fragTo) {
+      fragTo->setParent(pTo);
+    }
+  }
+
+  return true;
+}
+
+/// allocateCommonSymbols - allocate common symbols in the corresponding
+/// sections. This is called at pre-layout stage.
+/// @refer Google gold linker: common.cc: 214
+bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
+{
+  SymbolCategory& symbol_list = pModule.getSymbolTable();
+
+  if (symbol_list.emptyCommons() && symbol_list.emptyLocals()) {
+    SetSDataSection();
+    return true;
+  }
+
+  SymbolCategory::iterator com_sym, com_end;
+
+  // get corresponding BSS LDSection
+  ELFFileFormat* file_format = getOutputFormat();
+  LDSection& bss_sect = file_format->getBSS();
+  LDSection& tbss_sect = file_format->getTBSS();
+
+  // get or create corresponding BSS SectionData
+  SectionData* bss_sect_data = NULL;
+  if (bss_sect.hasSectionData())
+    bss_sect_data = bss_sect.getSectionData();
+  else
+    bss_sect_data = IRBuilder::CreateSectionData(bss_sect);
+
+  SectionData* tbss_sect_data = NULL;
+  if (tbss_sect.hasSectionData())
+    tbss_sect_data = tbss_sect.getSectionData();
+  else
+    tbss_sect_data = IRBuilder::CreateSectionData(tbss_sect);
+
+  // remember original BSS size
+  uint64_t bss_offset  = bss_sect.size();
+  uint64_t tbss_offset = tbss_sect.size();
+
+  // allocate all local common symbols
+  com_end = symbol_list.localEnd();
+
+  for (com_sym = symbol_list.localBegin(); com_sym != com_end; ++com_sym) {
+    if (ResolveInfo::Common == (*com_sym)->desc()) {
+      // We have to reset the description of the symbol here. When doing
+      // incremental linking, the output relocatable object may have common
+      // symbols. Therefore, we can not treat common symbols as normal symbols
+      // when emitting the regular name pools. We must change the symbols'
+      // description here.
+      (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
+      Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+      (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+
+      switch((*com_sym)->size())  {
+      case 1:
+        ObjectBuilder::AppendFragment(*frag,
+                                      *(m_pscommon_1->getSectionData()),
+                                      (*com_sym)->value());
+        continue;
+      case 2:
+        ObjectBuilder::AppendFragment(*frag,
+                                      *(m_pscommon_2->getSectionData()),
+                                      (*com_sym)->value());
+        continue;
+      case 4:
+        ObjectBuilder::AppendFragment(*frag,
+                                      *(m_pscommon_4->getSectionData()),
+                                      (*com_sym)->value());
+        continue;
+      case 8:
+        ObjectBuilder::AppendFragment(*frag,
+                                      *(m_pscommon_8->getSectionData()),
+                                      (*com_sym)->value());
+        continue;
+      default:
+        break;
+      }
+
+      if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+        // allocate TLS common symbol in tbss section
+        tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                     *tbss_sect_data,
+                                                     (*com_sym)->value());
+      }
+      // FIXME: how to identify small and large common symbols?
+      else {
+        bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                    *bss_sect_data,
+                                                    (*com_sym)->value());
+      }
+    }
+  }
+
+  // allocate all global common symbols
+  com_end = symbol_list.commonEnd();
+  for (com_sym = symbol_list.commonBegin(); com_sym != com_end; ++com_sym) {
+    // We have to reset the description of the symbol here. When doing
+    // incremental linking, the output relocatable object may have common
+    // symbols. Therefore, we can not treat common symbols as normal symbols
+    // when emitting the regular name pools. We must change the symbols'
+    // description here.
+    (*com_sym)->resolveInfo()->setDesc(ResolveInfo::Define);
+    Fragment* frag = new FillFragment(0x0, 1, (*com_sym)->size());
+    (*com_sym)->setFragmentRef(FragmentRef::Create(*frag, 0));
+
+    switch((*com_sym)->size())  {
+    case 1:
+      ObjectBuilder::AppendFragment(*frag,
+                                    *(m_pscommon_1->getSectionData()),
+                                    (*com_sym)->value());
+      continue;
+    case 2:
+      ObjectBuilder::AppendFragment(*frag,
+                                    *(m_pscommon_2->getSectionData()),
+                                    (*com_sym)->value());
+      continue;
+    case 4:
+      ObjectBuilder::AppendFragment(*frag,
+                                    *(m_pscommon_4->getSectionData()),
+                                    (*com_sym)->value());
+      continue;
+    case 8:
+      ObjectBuilder::AppendFragment(*frag,
+                                    *(m_pscommon_8->getSectionData()),
+                                    (*com_sym)->value());
+      continue;
+    default:
+      break;
+    }
+
+    if (ResolveInfo::ThreadLocal == (*com_sym)->type()) {
+      // allocate TLS common symbol in tbss section
+      tbss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                   *tbss_sect_data,
+                                                   (*com_sym)->value());
+    }
+    // FIXME: how to identify small and large common symbols?
+    else {
+      bss_offset += ObjectBuilder::AppendFragment(*frag,
+                                                  *bss_sect_data,
+                                                  (*com_sym)->value());
+    }
+  }
+
+  bss_sect.setSize(bss_offset);
+  tbss_sect.setSize(tbss_offset);
+  symbol_list.changeCommonsToGlobal();
+  SetSDataSection(true);
+  return true;
+}
+
+bool HexagonLDBackend::MoveCommonData(SectionData &pFrom, SectionData &pTo)
+{
+  SectionData::FragmentListType& to_list = pTo.getFragmentList();
+  SectionData::FragmentListType::iterator frag, fragEnd = to_list.end();
+
+  uint32_t pFromFlag = pFrom.getSection().align();
+  bool found = false;
+
+  SectionData::FragmentListType::iterator fragInsert;
+
+  for (frag = to_list.begin(); frag != fragEnd; ++frag) {
+    if (frag->getKind() == mcld::Fragment::Alignment) {
+      fragInsert = frag;
+      continue;
+    }
+    if ((frag->getKind() != mcld::Fragment::Region) &&
+        (frag->getKind() != mcld::Fragment::Fillment)) {
+      continue;
+    }
+    uint32_t flag = frag->getParent()->getSection().align();
+    if (pFromFlag < flag) {
+      found = true;
+      break;
+    }
+  }
+  AlignFragment* align = NULL;
+  if (pFrom.getSection().align() > 1) {
+    // if the align constraint is larger than 1, append an alignment
+    align = new AlignFragment(pFrom.getSection().align(), // alignment
+                              0x0, // the filled value
+                              1u,  // the size of filled value
+                              pFrom.getSection().align() - 1 // max bytes to emit
+                              );
+    pFrom.getFragmentList().push_front(align);
+  }
+  if (found)
+    to_list.splice(fragInsert, pFrom.getFragmentList());
+  else
+    to_list.splice(frag, pFrom.getFragmentList());
+
+  return true;
+}
+
+bool HexagonLDBackend::readSection(Input& pInput, SectionData& pSD)
+{
+  Fragment* frag = NULL;
+  uint32_t offset = pInput.fileOffset() + pSD.getSection().offset();
+  uint32_t size = pSD.getSection().size();
+
+  if (pSD.getSection().type() == llvm::ELF::SHT_NOBITS) {
+    frag = new FillFragment(0x0, 1, size);
+  }
+  else {
+    MemoryRegion* region = pInput.memArea()->request(offset, size);
+    if (NULL == region) {
+      // If the input section's size is zero, we got a NULL region.
+      // use a virtual fill fragment
+      frag = new FillFragment(0x0, 0, 0);
+    }
+    else {
+      frag = new RegionFragment(*region);
+    }
+  }
+
+  ObjectBuilder::AppendFragment(*frag, pSD);
+  return true;
+}
+
+/// MoveSectionData - move the fragments of pTO section data to pTo
+bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo)
+{
+  assert(&pFrom != &pTo && "Cannot move section data to itself!");
+  SectionData::FragmentListType& to_list = pTo.getFragmentList();
+  SectionData::FragmentListType::iterator frag, fragEnd = to_list.end();
+
+  uint32_t pFromFlag = pFrom.getSection().align();
+  bool found = false;
+
+  SectionData::FragmentListType::iterator fragInsert;
+
+  for (frag = to_list.begin(); frag != fragEnd; ++frag) {
+    if (frag->getKind() == mcld::Fragment::Alignment) {
+      fragInsert = frag;
+      continue;
+    }
+    if (frag->getKind() != mcld::Fragment::Region) {
+      continue;
+    }
+    uint32_t flag = frag->getParent()->getSection().align();
+    if (pFromFlag < flag) {
+      found = true;
+      break;
+    }
+  }
+  AlignFragment* align = NULL;
+  if (pFrom.getSection().align() > 1) {
+    // if the align constraint is larger than 1, append an alignment
+    align = new AlignFragment(pFrom.getSection().align(), // alignment
+                              0x0, // the filled value
+                              1u,  // the size of filled value
+                              pFrom.getSection().align() - 1 // max bytes to emit
+                              );
+    pFrom.getFragmentList().push_front(align);
+  }
+  if (found)
+    to_list.splice(fragInsert, pFrom.getFragmentList());
+  else
+    to_list.splice(frag, pFrom.getFragmentList());
+
+  uint32_t offset = 0;
+  for (frag = to_list.begin(); frag != fragEnd; ++frag) {
+    frag->setOffset(offset);
+    offset += frag->size();
+  }
+
+  // set up pTo's header
+  pTo.getSection().setSize(offset);
+
+  if (pFrom.getSection().align() > pTo.getSection().align())
+    pTo.getSection().setAlign(pFrom.getSection().align());
+
+  if (pFrom.getSection().flag() > pTo.getSection().flag())
+    pTo.getSection().setFlag(pFrom.getSection().flag());
   return true;
 }
 

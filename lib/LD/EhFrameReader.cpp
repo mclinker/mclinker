@@ -207,8 +207,12 @@ bool EhFrameReader::addCIE(EhFrame& pEhFrame,
   llvm::StringRef augment((const char*)aug_str_front);
 
   // we discard this CIE if the augumentation string is '\0'
-  if (0 == augment.size())
-    return false;
+  if (0 == augment.size()) {
+    EhFrame::CIE* cie = new EhFrame::CIE(pRegion);
+    cie->setFDEEncode(llvm::dwarf::DW_EH_PE_absptr);
+    pEhFrame.addCIE(*cie);
+    return true;
+  }
 
   // the Augmentation String start with 'eh' is a CIE from gcc before 3.0,
   // in LSB Core Spec 3.0RC1. We do not support it.

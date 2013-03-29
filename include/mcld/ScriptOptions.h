@@ -34,6 +34,10 @@ public:
                     StringHash<ELF>,
                     StringEntryFactory<uint64_t> > AddressMap;
 
+  typedef HashTable<StringEntry<llvm::StringRef>,
+                    StringHash<ELF>,
+                    StringEntryFactory<llvm::StringRef> > DefSymMap;
+
 public:
   ScriptOptions();
 
@@ -48,10 +52,14 @@ public:
   const SectionMap& sectionMap() const { return m_SectionMap; }
   SectionMap&       sectionMap()       { return m_SectionMap; }
 
+  const DefSymMap& defSymMap() const { return m_DefSymMap; }
+  DefSymMap&       defSymMap()       { return m_DefSymMap; }
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
+  DefSymMap m_DefSymMap;
 };
 
 } // namespace of mcld

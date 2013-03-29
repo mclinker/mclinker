@@ -142,7 +142,6 @@ public:
     m_BitField |= indirect_flag;
   }
 
-
   // -----  observers  ----- //
   bool isNull() const;
 

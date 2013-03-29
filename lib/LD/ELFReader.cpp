@@ -84,6 +84,9 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
   // skip the first NULL symbol
   pInput.context()->addSymbol(LDSymbol::Null());
 
+  /// recording symbols added from DynObj to analyze weak alias
+  std::vector<AliasInfo> potential_aliases;
+  bool is_dyn_obj = (pInput.type()==Input::DynObj);
   for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
@@ -141,15 +144,64 @@ bool ELFReader<32, true>::readSymbols(Input& pInput,
       ld_name = std::string(pStrTab + st_name);
     }
 
-    pBuilder.AddSymbol(pInput,
-                       ld_name,
-                       ld_type,
-                       ld_desc,
-                       ld_binding,
-                       st_size,
-                       ld_value,
-                       section, ld_vis);
+    LDSymbol *psym =
+        pBuilder.AddSymbol(pInput,
+                           ld_name,
+                           ld_type,
+                           ld_desc,
+                           ld_binding,
+                           st_size,
+                           ld_value,
+                           section, ld_vis);
+
+    if ( is_dyn_obj
+         && NULL!=psym
+         && ResolveInfo::Undefined!=ld_desc
+         && (ResolveInfo::Global==ld_binding ||
+             ResolveInfo::Weak==ld_binding)
+         && ResolveInfo::Object==ld_type ) {
+      AliasInfo p;
+      p.pt_alias = psym;
+      p.ld_binding = ld_binding;
+      p.ld_value = ld_value;
+      potential_aliases.push_back(p);
+    }
+
   } // end of for loop
+
+  // analyze weak alias
+  // FIXME: it is better to let IRBuilder handle alias anlysis.
+  //        1. eliminate code duplication
+  //        2. easy to know if a symbol is from .so
+  //           (so that it may be a potential alias)
+  if ( is_dyn_obj ) {
+    // sort symbols by symbol value and then weak before strong
+    std::sort( potential_aliases.begin(), potential_aliases.end(), less);
+
+    // for each weak symbol, find out all its aliases, and
+    // then link them as a circular list in Module
+    std::vector<AliasInfo>::iterator sym_it, sym_e;
+    sym_e = potential_aliases.end();
+    for (sym_it = potential_aliases.begin(); sym_it!=sym_e; ++sym_it) {
+      if (ResolveInfo::Weak!=sym_it->ld_binding)
+        continue;
+
+      Module& pModule = pBuilder.getModule();
+      std::vector<AliasInfo>::iterator alias_it = sym_it+1;
+      while(alias_it!=sym_e) {
+        if ( sym_it->ld_value != alias_it->ld_value )
+          break;
+
+        if (sym_it+1==alias_it)
+          pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
+        pModule.addAlias(*alias_it->pt_alias->resolveInfo());
+        ++alias_it;
+      }
+
+      sym_it = alias_it-1;
+    }// end of for loop
+  }
+
   return true;
 }
 
@@ -593,6 +645,9 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
   // skip the first NULL symbol
   pInput.context()->addSymbol(LDSymbol::Null());
 
+  /// recording symbols added from DynObj to analyze weak alias
+  std::vector<AliasInfo> potential_aliases;
+  bool is_dyn_obj = (pInput.type()==Input::DynObj);
   for (size_t idx = 1; idx < entsize; ++idx) {
     st_info  = symtab[idx].st_info;
     st_other = symtab[idx].st_other;
@@ -650,15 +705,59 @@ bool ELFReader<64, true>::readSymbols(Input& pInput,
       ld_name = std::string(pStrTab + st_name);
     }
 
-    pBuilder.AddSymbol(pInput,
-                       ld_name,
-                       ld_type,
-                       ld_desc,
-                       ld_binding,
-                       st_size,
-                       ld_value,
-                       section, ld_vis);
+    LDSymbol *psym =
+            pBuilder.AddSymbol(pInput,
+                               ld_name,
+                               ld_type,
+                               ld_desc,
+                               ld_binding,
+                               st_size,
+                               ld_value,
+                               section, ld_vis);
+
+    if ( is_dyn_obj
+         && NULL!=psym
+         && ResolveInfo::Undefined!=ld_desc
+         && (ResolveInfo::Global==ld_binding ||
+             ResolveInfo::Weak==ld_binding)
+         && ResolveInfo::Object==ld_type ) {
+      AliasInfo p;
+      p.pt_alias = psym;
+      p.ld_binding = ld_binding;
+      p.ld_value = ld_value;
+      potential_aliases.push_back(p);
+    }
+
   } // end of for loop
+
+  // analyze weak alias here
+  if ( is_dyn_obj ) {
+    // sort symbols by symbol value and then weak before strong
+    std::sort( potential_aliases.begin(), potential_aliases.end(), less);
+
+    // for each weak symbol, find out all its aliases, and
+    // then link them as a circular list in Module
+    std::vector<AliasInfo>::iterator sym_it, sym_e;
+    sym_e = potential_aliases.end();
+    for (sym_it = potential_aliases.begin(); sym_it!=sym_e; ++sym_it) {
+      if (ResolveInfo::Weak!=sym_it->ld_binding)
+        continue;
+
+      Module& pModule = pBuilder.getModule();
+      std::vector<AliasInfo>::iterator alias_it = sym_it+1;
+      while(alias_it!=sym_e) {
+        if ( sym_it->ld_value != alias_it->ld_value )
+          break;
+
+        if (sym_it+1==alias_it)
+          pModule.CreateAliasList(*sym_it->pt_alias->resolveInfo());
+        pModule.addAlias(*alias_it->pt_alias->resolveInfo());
+        ++alias_it;
+      }
+
+      sym_it = alias_it-1;
+    }// end of for loop
+  }
   return true;
 }
 

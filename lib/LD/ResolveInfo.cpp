@@ -7,6 +7,9 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDSection.h>
+#include <mcld/Support/GCFactory.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <cstdlib>
 #include <cstring>
 
@@ -279,4 +282,5 @@ ResolveInfo* ResolveInfo::Null()
   }
   return g_NullResolveInfo;
 }
+
 

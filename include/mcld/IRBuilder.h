@@ -71,6 +71,8 @@ public:
 
   const InputBuilder& getInputBuilder() const { return m_InputBuilder; }
   InputBuilder&       getInputBuilder()       { return m_InputBuilder; }
+  const Module& getModule() const { return m_Module; }
+  Module&       getModule()       { return m_Module; }
 
 /// @}
 /// @name Input Files On The Command Line

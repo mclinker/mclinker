@@ -741,7 +741,7 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
   symEnd = symbols.end();
   for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
     ++symtab;
-    if (ResolveInfo::Section != (*symbol)->type())
+    if (hasEntryInStrTab(**symbol))
       strtab += (*symbol)->nameSize() + 1;
   }
   symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
@@ -762,7 +762,7 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
         symEnd = symbols.dynamicEnd();
         for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
           ++dynsym;
-          if (ResolveInfo::Section != (*symbol)->type())
+          if (hasEntryInStrTab(**symbol))
             dynstr += (*symbol)->nameSize() + 1;
         }
         dynsym_local_cnt = 1 + symbols.numOfLocalDyns();
@@ -898,7 +898,7 @@ void GNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
 {
    // FIXME: check the endian between host and target
    // write out symbol
-   if (ResolveInfo::Section != pSymbol.type()) {
+   if (hasEntryInStrTab(pSymbol)) {
      pSym.st_name  = pStrtabsize;
      strcpy((pStrtab + pStrtabsize), pSymbol.name());
    }
@@ -921,7 +921,7 @@ void GNULDBackend::emitSymbol64(llvm::ELF::Elf64_Sym& pSym,
 {
    // FIXME: check the endian between host and target
    // write out symbol
-   if (ResolveInfo::Section != pSymbol.type()) {
+   if (hasEntryInStrTab(pSymbol)) {
      pSym.st_name  = pStrtabsize;
      strcpy((pStrtab + pStrtabsize), pSymbol.name());
    }
@@ -997,7 +997,7 @@ void GNULDBackend::emitRegNamePools(const Module& pModule,
     else
       emitSymbol64(symtab64[symIdx], **symbol, strtab, strtabsize, symIdx);
     ++symIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
+    if (hasEntryInStrTab(**symbol))
       strtabsize += (*symbol)->nameSize() + 1;
   }
 }
@@ -1054,14 +1054,9 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
   Module::SymbolTable& symbols = pModule.getSymbolTable();
   // emit .gnu.hash
   if (GeneralOptions::GNU  == config().options().getHashStyle() ||
-      GeneralOptions::Both == config().options().getHashStyle()) {
-    // Currently we may add output symbols after sizeNamePools(), and a
-    // non-stable sort is used in SymbolCategory::arrange(), so we just
-    // sort .dynsym right before emitting .gnu.hash
-    std::stable_sort(symbols.dynamicBegin(), symbols.dynamicEnd(),
-                     DynsymCompare());
+      GeneralOptions::Both == config().options().getHashStyle())
     emitGNUHashTab(symbols, pOutput);
-  }
+
   // emit .hash
   if (GeneralOptions::SystemV == config().options().getHashStyle() ||
       GeneralOptions::Both == config().options().getHashStyle())
@@ -1079,7 +1074,7 @@ void GNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
     entry->setValue(symIdx);
     // sum up counters
     ++symIdx;
-    if (ResolveInfo::Section != (*symbol)->type())
+    if (hasEntryInStrTab(**symbol))
       strtabsize += (*symbol)->nameSize() + 1;
   }
 
@@ -1319,6 +1314,24 @@ void GNULDBackend::emitInterp(MemoryArea& pOutput)
 
     std::memcpy(region->start(), dyld_name, interp.size());
   }
+}
+
+bool GNULDBackend::hasEntryInStrTab(const LDSymbol& pSym) const
+{
+  return ResolveInfo::Section != pSym.type();
+}
+
+void GNULDBackend::orderSymbolTable(Module& pModule)
+{
+  Module::SymbolTable& symbols = pModule.getSymbolTable();
+
+  if (GeneralOptions::GNU  == config().options().getHashStyle() ||
+      GeneralOptions::Both == config().options().getHashStyle())
+    // Currently we may add output symbols after sizeNamePools(), and a
+    // non-stable sort is used in SymbolCategory::arrange(), so we just
+    // sort .dynsym right before emitting .gnu.hash
+    std::stable_sort(symbols.dynamicBegin(), symbols.dynamicEnd(),
+                     DynsymCompare());
 }
 
 /// getSectionOrder

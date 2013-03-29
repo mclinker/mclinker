@@ -126,20 +126,15 @@ void MipsGOT::finalizeScanning(OutputRelocSection& pRelDyn)
   }
 }
 
-bool MipsGOT::isSymGlobal(const LDSymbol& pSymbol) const
+bool MipsGOT::dynSymOrderCompare(const LDSymbol* pX, const LDSymbol* pY) const
 {
-  return m_OrderedGlobalSym.end() !=
-    std::find(m_OrderedGlobalSym.begin(), m_OrderedGlobalSym.end(), &pSymbol);
-}
+  SymbolOrderMapType::const_iterator itX = m_SymbolOrderMap.find(pX);
+  SymbolOrderMapType::const_iterator itY = m_SymbolOrderMap.find(pY);
 
-MipsGOT::const_sym_iterator MipsGOT::global_sym_begin() const
-{
-  return m_OrderedGlobalSym.begin();
-}
+  if (itX != m_SymbolOrderMap.end() && itY != m_SymbolOrderMap.end())
+    return itX->second < itY->second;
 
-MipsGOT::const_sym_iterator MipsGOT::global_sym_end() const
-{
-  return m_OrderedGlobalSym.end();
+  return itX == m_SymbolOrderMap.end() && itY != m_SymbolOrderMap.end();
 }
 
 uint64_t MipsGOT::emit(MemoryRegion& pRegion)
@@ -158,7 +153,7 @@ uint64_t MipsGOT::emit(MemoryRegion& pRegion)
 
 void MipsGOT::initGOTList()
 {
-  m_OrderedGlobalSym.clear();
+  m_SymbolOrderMap.clear();
 
   m_MultipartList.clear();
   m_MultipartList.push_back(GOTMultipart());
@@ -278,7 +273,7 @@ bool MipsGOT::reserveGlobalEntry(ResolveInfo& pInfo)
   ++m_MultipartList.back().m_GlobalNum;
 
   if (!(pInfo.reserved() & MipsRelocator::ReserveGot)) {
-    m_OrderedGlobalSym.push_back(pInfo.outSymbol());
+    m_SymbolOrderMap[pInfo.outSymbol()] = m_SymbolOrderMap.size();
     pInfo.setReserved(pInfo.reserved() | MipsRelocator::ReserveGot);
   }
 
@@ -366,5 +361,5 @@ size_t MipsGOT::getLocalNum() const
 
 size_t MipsGOT::getGlobalNum() const
 {
-  return m_OrderedGlobalSym.size();
+  return m_SymbolOrderMap.size();
 }

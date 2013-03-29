@@ -562,6 +562,7 @@ ArgExportDynamicAlias("E",
 
 static cl::opt<std::string>
 ArgEmulation("m",
+             cl::ZeroOrMore,
              cl::desc("Set GNU linker emulation"),
              cl::value_desc("emulation"));
 
@@ -782,6 +783,12 @@ ArgAddressMapList("section-start",
                   cl::desc("Locate a output section at the given absolute address"),
                   cl::value_desc("Set address of section"),
                   cl::Prefix);
+
+static cl::list<std::string>
+ArgDefSymList("defsym",
+              cl::ZeroOrMore,
+              cl::desc("Define a symbol"),
+              cl::value_desc("symbol=expression"));
 
 static cl::opt<unsigned long long>
 ArgBssSegAddr("Tbss",
@@ -1198,6 +1205,29 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     addr_mapping->setValue(address);
   }
 
+  // --defsym symbols
+  for (cl::list<std::string>::iterator
+       it = ArgDefSymList.begin(), ie = ArgDefSymList.end();
+       it != ie ; ++it) {
+    llvm::StringRef expression(*it);
+    size_t pos = expression.find_last_of('=');
+    if (pos == expression.size() - 1) {
+      errs() << "defsym option: expression must not end with '='\n";
+      return false;
+    }
+    if (llvm::StringRef::npos == pos) {
+      errs() << "syntax : --defsym symbol=expression\n";
+      return false;
+    }
+    bool exist = false;
+    // FIXME: This will not work with multiple destinations such as
+    // --defsym abc=pqr=expression
+
+    mcld::StringEntry<llvm::StringRef> *defsyms =
+         pConfig.scripts().defSymMap().insert(expression.substr(0,pos),exist);
+    defsyms->setValue(expression.substr(pos + 1));
+  }
+
   // set up filter/aux filter for shared object
   pConfig.options().setFilter(ArgFilter);
 
@@ -1466,4 +1496,3 @@ int main(int argc, char* argv[])
   Out->keep();
   return 0;
 }
-

@@ -18,6 +18,7 @@
 
 #include <mcld/LD/ELFReaderIf.h>
 #include <mcld/LD/ResolveInfo.h>
+#include <mcld/LD/LDSymbol.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Support/MemoryRegion.h>
 #include <mcld/Support/MemoryArea.h>
@@ -100,6 +101,29 @@ public:
 
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;
+
+private:
+  struct AliasInfo {
+    LDSymbol* pt_alias; ///potential alias
+    uint64_t ld_value;
+    ResolveInfo::Binding ld_binding;
+  };
+
+  /// comparison function to sort symbols for analyzing weak alias.
+  /// sort symbols by symbol value and then weak before strong.
+  /// ref. to gold symtabl.cc 1595
+  static bool less(AliasInfo p1, AliasInfo p2) {
+    if (p1.ld_value != p2.ld_value)
+      return (p1.ld_value < p2.ld_value);
+    if (p1.ld_binding != p2.ld_binding) {
+      if (ResolveInfo::Weak==p1.ld_binding)
+        return true;
+      else if (ResolveInfo::Weak==p2.ld_binding)
+        return false;
+    }
+    return p1.pt_alias->str() < p2.pt_alias->str();
+  }
+
 };
 
 
@@ -167,6 +191,29 @@ public:
 
   /// readDynamic - read ELF .dynamic in input dynobj
   bool readDynamic(Input& pInput) const;
+
+private:
+  struct AliasInfo {
+    LDSymbol* pt_alias; ///potential alias
+    uint64_t ld_value;
+    ResolveInfo::Binding ld_binding;
+  };
+
+  /// comparison function to sort symbols for analyzing weak alias.
+  /// sort symbols by symbol value and then weak before strong.
+  /// ref. to gold symtabl.cc 1595
+  static bool less(AliasInfo p1, AliasInfo p2) {
+    if (p1.ld_value != p2.ld_value)
+      return (p1.ld_value < p2.ld_value);
+    if (p1.ld_binding != p2.ld_binding) {
+      if (ResolveInfo::Weak==p1.ld_binding)
+        return true;
+      else if (ResolveInfo::Weak==p2.ld_binding)
+        return false;
+    }
+    return p1.pt_alias->str() < p2.pt_alias->str();
+  }
+
 };
 
 } // namespace of mcld

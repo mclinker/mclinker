@@ -18,6 +18,8 @@
 
 using namespace mcld;
 
+static GCFactory<Module::AliasList, MCLD_SECTIONS_PER_INPUT> gc_aliaslist_factory;
+
 //===----------------------------------------------------------------------===//
 // Module
 //===----------------------------------------------------------------------===//
@@ -50,6 +52,36 @@ const LDSection* Module::getSection(const std::string& pName) const
   for (sect = begin(); sect != sectEnd; ++sect) {
     if ((*sect)->name() == pName)
       return *sect;
+  }
+  return NULL;
+}
+
+void Module::CreateAliasList(const ResolveInfo& pSym)
+{
+  AliasList* result = gc_aliaslist_factory.allocate();
+  new (result) AliasList();
+  m_AliasLists.push_back(result);
+  result->push_back(&pSym);
+}
+
+void Module::addAlias(const ResolveInfo& pAlias)
+{
+  assert(0!=m_AliasLists.size());
+  uint32_t last_pos = m_AliasLists.size()-1;
+  m_AliasLists[last_pos]->push_back(&pAlias);
+}
+
+Module::AliasList* Module::getAliasList(const ResolveInfo& pSym)
+{
+  std::vector<AliasList*>::iterator list_it, list_it_e=m_AliasLists.end();
+  for (list_it=m_AliasLists.begin(); list_it!=list_it_e; ++list_it) {
+    AliasList& list = **list_it;
+    alias_iterator alias_it, alias_it_e=list.end();
+    for (alias_it=list.begin(); alias_it!=list.end(); ++alias_it) {
+      if ( 0==strcmp((*alias_it)->name(), pSym.name()) ) {
+        return &list;
+      }
+    }
   }
   return NULL;
 }

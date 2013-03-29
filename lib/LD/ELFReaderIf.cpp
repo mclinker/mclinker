@@ -87,13 +87,12 @@ ELFReaderIF::getSymBinding(uint8_t pBinding, uint16_t pShndx, uint8_t pVis) cons
   case llvm::ELF::STB_LOCAL:
     return ResolveInfo::Local;
   case llvm::ELF::STB_GLOBAL:
+    if (pShndx == llvm::ELF::SHN_ABS)
+      return ResolveInfo::Absolute;
     return ResolveInfo::Global;
   case llvm::ELF::STB_WEAK:
     return ResolveInfo::Weak;
   }
-
-  if (pShndx == llvm::ELF::SHN_ABS)
-    return ResolveInfo::Absolute;
 
   return ResolveInfo::NoneBinding;
 }
@@ -158,7 +157,7 @@ uint64_t ELFReaderIF::getSymValue(uint64_t pValue,
   }
 
   // In executable and shared object files, st_value holds a virtual address.
-  // the virtual address is useless during linking.
-  return 0x0;
+  // the virtual address is needed for alias identification.
+  return pValue;
 }
 

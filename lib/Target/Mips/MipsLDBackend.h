@@ -76,10 +76,11 @@ public:
   uint64_t emitSectionData(const LDSection& pSection,
                            MemoryRegion& pRegion) const;
 
-  void sizeNamePools(Module& pModule, bool pIsStaticLink);
+  /// hasEntryInStrTab - symbol has an entry in a .strtab
+  bool hasEntryInStrTab(const LDSymbol& pSym) const;
 
-  /// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-  void emitDynNamePools(Module& pModule, MemoryArea& pOut);
+  /// orderSymbolTable - order symbol table before emitting
+  void orderSymbolTable(Module& pModule);
 
   MipsGOT& getGOT();
   const MipsGOT& getGOT() const;

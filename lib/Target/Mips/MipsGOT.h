@@ -44,10 +44,6 @@ public:
 class MipsGOT : public GOT
 {
 public:
-  typedef std::vector<LDSymbol*> SymbolsArrayType;
-  typedef SymbolsArrayType::const_iterator const_sym_iterator;
-
-public:
   MipsGOT(LDSection& pSection);
 
   /// Address of _gp_disp symbol.
@@ -100,11 +96,8 @@ public:
   /// Create GOT entries and reserve dynrel entries. 
   void finalizeScanning(OutputRelocSection& pRelDyn);
 
-  /// Return true if the symbol is the global GOT entry.
-  bool isSymGlobal(const LDSymbol& pSymbol) const;
-
-  const_sym_iterator global_sym_begin() const;
-  const_sym_iterator global_sym_end() const;
+  /// Compare two symbols to define order in the .dynsym.
+  bool dynSymOrderCompare(const LDSymbol* pX, const LDSymbol* pY) const;
 
 private:
   /** \class GOTMultipart
@@ -147,7 +140,8 @@ private:
 
   size_t m_CurrentGOTPart;
 
-  SymbolsArrayType m_OrderedGlobalSym;
+  typedef llvm::DenseMap<const LDSymbol*, unsigned> SymbolOrderMapType;
+  SymbolOrderMapType m_SymbolOrderMap;
 
   void initGOTList();
   void changeInput();

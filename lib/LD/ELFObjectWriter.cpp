@@ -124,6 +124,9 @@ llvm::error_code ELFObjectWriter::writeObject(Module& pModule,
   assert(is_dynobj || is_exec || is_binary || is_object);
 
   if (is_dynobj || is_exec) {
+    // Allow backend to sort symbols before emitting
+    target().orderSymbolTable(pModule);
+
     // Write out the interpreter section: .interp
     target().emitInterp(pOutput);
 

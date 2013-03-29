@@ -34,3 +34,5 @@
   generate shared object w/ --section-start
 15) opt_static_w_output.ll
   generate a simple statically linked output
+16) opt_defsym.ll
+  define symbols on command line

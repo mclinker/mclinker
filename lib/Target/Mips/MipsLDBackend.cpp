@@ -178,345 +178,44 @@ uint64_t MipsGNULDBackend::emitSectionData(const LDSection& pSection,
   return 0;
 }
 
-/// sizeNamePools - compute the size of regular name pools
-/// In ELF executable files, regular name pools are .symtab, .strtab,
-/// .dynsym, .dynstr, .hash and .shstrtab.
-void
-MipsGNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
+bool MipsGNULDBackend::hasEntryInStrTab(const LDSymbol& pSym) const
 {
-  // number of entries in symbol tables starts from 1 to hold the special entry
-  // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
-  size_t symtab = 1;
-  size_t dynsym = pIsStaticLink ? 0 : 1;
-
-  // size of string tables starts from 1 to hold the null character in their
-  // first byte
-  size_t strtab = 1;
-  size_t dynstr = pIsStaticLink ? 0 : 1;
-  size_t shstrtab = 1;
-  size_t hash   = 0;
-
-  // number of local symbol in the .dynsym
-  size_t symtab_local_cnt = 0;
-  size_t dynsym_local_cnt = 0;
-
-  const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  Module::const_sym_iterator symbol, symEnd;
-  /// Compute the size of .symtab, .strtab, and symtab_local_cnt
-  /// @{
-  symEnd = symbols.end();
-  for (symbol = symbols.begin(); symbol != symEnd; ++symbol) {
-    ++symtab;
-    if (ResolveInfo::Section != (*symbol)->type() ||
-        *symbol == m_pGpDispSymbol)
-      strtab += (*symbol)->nameSize() + 1;
-  }
-  symtab_local_cnt = 1 + symbols.numOfFiles() + symbols.numOfLocals() +
-                     symbols.numOfLocalDyns();
-  /// @}
-
-  ELFFileFormat* file_format = getOutputFormat();
-
-  switch(config().codeGenType()) {
-    // compute size of .dynstr and .hash
-    case LinkerConfig::DynObj: {
-      // soname
-      dynstr += pModule.name().size() + 1;
-    }
-    /** fall through **/
-    case LinkerConfig::Exec: {
-      // add DT_NEED strings into .dynstr and .dynamic
-      if (!pIsStaticLink) {
-        /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
-        /// @{
-        symEnd = symbols.dynamicEnd();
-        for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
-          ++dynsym;
-          if (ResolveInfo::Section != (*symbol)->type() ||
-              *symbol == m_pGpDispSymbol)
-            dynstr += (*symbol)->nameSize() + 1;
-        }
-        dynsym_local_cnt = 1 + symbols.numOfLocalDyns();
-        /// @}
-
-        // compute .hash
-        if (GeneralOptions::SystemV == config().options().getHashStyle() ||
-            GeneralOptions::Both == config().options().getHashStyle()) {
-          // Both Elf32_Word and Elf64_Word are 4 bytes
-          hash = (2 + getHashBucketCount(dynsym, false) + dynsym) *
-                 sizeof(llvm::ELF::Elf32_Word);
-        }
-
-        // add DT_NEEDED
-        Module::const_lib_iterator lib, libEnd = pModule.lib_end();
-        for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-          if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
-            dynstr += (*lib)->name().size() + 1;
-            dynamic().reserveNeedEntry();
-          }
-        }
-
-        // add DT_RPATH
-        if (!config().options().getRpathList().empty()) {
-          dynamic().reserveNeedEntry();
-          GeneralOptions::const_rpath_iterator rpath,
-            rpathEnd = config().options().rpath_end();
-          for (rpath = config().options().rpath_begin();
-               rpath != rpathEnd; ++rpath)
-            dynstr += (*rpath).size() + 1;
-        }
-
-        // set size
-        if (config().targets().is32Bits()) {
-          file_format->getDynSymTab().setSize(dynsym *
-                                              sizeof(llvm::ELF::Elf32_Sym));
-        } else {
-          file_format->getDynSymTab().setSize(dynsym *
-                                              sizeof(llvm::ELF::Elf64_Sym));
-        }
-        file_format->getDynStrTab().setSize(dynstr);
-        file_format->getHashTab().setSize(hash);
-
-        // set .dynsym sh_info to one greater than the symbol table
-        // index of the last local symbol
-        file_format->getDynSymTab().setInfo(dynsym_local_cnt);
-
-        // Because some entries in .dynamic section need information of .dynsym,
-        // .dynstr, .symtab, .strtab and .hash, we can not reserve non-DT_NEEDED
-        // entries until we get the size of the sections mentioned above
-        dynamic().reserveEntries(*file_format);
-        file_format->getDynamic().setSize(dynamic().numOfBytes());
-      }
-    }
-    /* fall through */
-    case LinkerConfig::Object: {
-      if (config().targets().is32Bits())
-        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf32_Sym));
-      else
-        file_format->getSymTab().setSize(symtab*sizeof(llvm::ELF::Elf64_Sym));
-      file_format->getStrTab().setSize(strtab);
-
-      // set .symtab sh_info to one greater than the symbol table
-      // index of the last local symbol
-      file_format->getSymTab().setInfo(symtab_local_cnt);
-
-      // compute the size of .shstrtab section.
-      Module::const_iterator sect, sectEnd = pModule.end();
-      for (sect = pModule.begin(); sect != sectEnd; ++sect) {
-        switch ((*sect)->kind()) {
-        case LDFileFormat::Null:
-          break;
-        // take StackNote directly
-        case LDFileFormat::StackNote:
-          shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::EhFrame:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasEhFrame() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        case LDFileFormat::Relocation:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasRelocData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        default:
-          if (((*sect)->size() != 0) ||
-              ((*sect)->hasSectionData() &&
-               config().codeGenType() == LinkerConfig::Object))
-            shstrtab += ((*sect)->name().size() + 1);
-          break;
-        } // end of switch
-      } // end of for
-      shstrtab += (strlen(".shstrtab") + 1);
-      file_format->getShStrTab().setSize(shstrtab);
-      break;
-    }
-    default: {
-      fatal(diag::fatal_illegal_codegen_type) << pModule.name();
-      break;
-    }
-  } // end of switch
+  return ResolveInfo::Section != pSym.type() ||
+         m_pGpDispSymbol == &pSym;
 }
 
-/// emitSymbol32 - emit an ELF32 symbol
-void MipsGNULDBackend::emitSymbol32(llvm::ELF::Elf32_Sym& pSym,
-                                    LDSymbol& pSymbol,
-                                    char* pStrtab,
-                                    size_t pStrtabsize,
-                                    size_t pSymtabIdx)
-{
-   // FIXME: check the endian between host and target
-   // write out symbol
-    if (ResolveInfo::Section != pSymbol.type() ||
-          &pSymbol == m_pGpDispSymbol) {
-     pSym.st_name  = pStrtabsize;
-     strcpy((pStrtab + pStrtabsize), pSymbol.name());
-   }
-   else {
-     pSym.st_name  = 0;
-   }
-   pSym.st_value = pSymbol.value();
-   pSym.st_size  = getSymbolSize(pSymbol);
-   pSym.st_info  = getSymbolInfo(pSymbol);
-   pSym.st_other = pSymbol.visibility();
-   pSym.st_shndx = getSymbolShndx(pSymbol);
+namespace {
+  struct DynsymGOTCompare
+  {
+    const MipsGOT& m_pGOT;
+
+    DynsymGOTCompare(const MipsGOT& pGOT)
+      : m_pGOT(pGOT)
+    {
+    }
+
+    bool operator()(const LDSymbol* X, const LDSymbol* Y) const
+    {
+      return m_pGOT.dynSymOrderCompare(X, Y);
+    }
+  };
 }
 
-/// emitNamePools - emit dynamic name pools - .dyntab, .dynstr, .hash
-///
-/// the size of these tables should be computed before layout
-/// layout should computes the start offset of these tables
-void MipsGNULDBackend::emitDynNamePools(Module& pModule, MemoryArea& pOutput)
+void MipsGNULDBackend::orderSymbolTable(Module& pModule)
 {
-  ELFFileFormat* file_format = getOutputFormat();
-  if (!file_format->hasDynSymTab() ||
-      !file_format->hasDynStrTab() ||
-      !file_format->hasHashTab()   ||
-      !file_format->hasDynamic())
-    return;
-
-  bool sym_exist = false;
-  HashTableType::entry_type* entry = 0;
-
-  LDSection& symtab_sect = file_format->getDynSymTab();
-  LDSection& strtab_sect = file_format->getDynStrTab();
-  LDSection& hash_sect   = file_format->getHashTab();
-  LDSection& dyn_sect    = file_format->getDynamic();
-
-  MemoryRegion* symtab_region = pOutput.request(symtab_sect.offset(),
-                                                symtab_sect.size());
-  MemoryRegion* strtab_region = pOutput.request(strtab_sect.offset(),
-                                                strtab_sect.size());
-  MemoryRegion* hash_region   = pOutput.request(hash_sect.offset(),
-                                                hash_sect.size());
-  MemoryRegion* dyn_region    = pOutput.request(dyn_sect.offset(),
-                                                dyn_sect.size());
-
-  // set up symtab_region
-  llvm::ELF::Elf32_Sym* symtab32 = NULL;
-  symtab32 = (llvm::ELF::Elf32_Sym*)symtab_region->start();
-
-  // set up strtab_region
-  char* strtab = (char*)strtab_region->start();
-
-  // emit the first ELF symbol
-    emitSymbol32(symtab32[0], *LDSymbol::Null(), strtab, 0, 0);
-
-  size_t symtabIdx = 1;
-  size_t strtabsize = 1;
-
-  // emit .dynsym, and .dynstr (emit LocalDyn and Dynamic category) except GOT
-  // entries
-  const Module::SymbolTable& symbols = pModule.getSymbolTable();
-  Module::const_sym_iterator symbol, symEnd = symbols.dynamicEnd();
-  for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {
-    if (m_pGOT->isSymGlobal(**symbol))
-      continue;
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-      strtabsize += (*symbol)->nameSize() + 1;
+  if (GeneralOptions::GNU  == config().options().getHashStyle() ||
+      GeneralOptions::Both == config().options().getHashStyle()) {
+    // The MIPS ABI and .gnu.hash require .dynsym to be sorted
+    // in different ways. The MIPS ABI requires a mapping between
+    // the GOT and the symbol table. At the same time .gnu.hash
+    // needs symbols to be grouped by hash code.
+    llvm::errs() << ".gnu.hash is incompatible with the MIPS ABI\n";
   }
 
-  // emit global GOT
-  for (MipsGOT::const_sym_iterator symbol = m_pGOT->global_sym_begin(),
-       symbol_end = m_pGOT->global_sym_end();
-       symbol != symbol_end; ++symbol) {
-    // Make sure this golbal GOT entry is a dynamic symbol.
-    // If not, something is wrong earlier when putting this symbol into
-    //  global GOT.
-    if (!isDynamicSymbol(**symbol))
-      fatal(diag::mips_got_symbol) << (*symbol)->name();
+  Module::SymbolTable& symbols = pModule.getSymbolTable();
 
-    emitSymbol32(symtab32[symtabIdx], **symbol, strtab, strtabsize, symtabIdx);
-    // maintain output's symbol and index map
-    entry = m_pSymIndexMap->insert(*symbol, sym_exist);
-    entry->setValue(symtabIdx);
-    // sum up counters
-    ++symtabIdx;
-    if (ResolveInfo::Section != (*symbol)->type() || *symbol == m_pGpDispSymbol)
-      strtabsize += (*symbol)->nameSize() + 1;
-  }
-
-  // emit DT_NEED
-  // add DT_NEED strings into .dynstr
-  ELFDynamic::iterator dt_need = dynamic().needBegin();
-  Module::const_lib_iterator lib, libEnd = pModule.lib_end();
-  for (lib = pModule.lib_begin(); lib != libEnd; ++lib) {
-    if (!(*lib)->attribute()->isAsNeeded() || (*lib)->isNeeded()) {
-      strcpy((strtab + strtabsize), (*lib)->name().c_str());
-      (*dt_need)->setValue(llvm::ELF::DT_NEEDED, strtabsize);
-      strtabsize += (*lib)->name().size() + 1;
-      ++dt_need;
-    }
-  }
-
-  if (!config().options().getRpathList().empty()) {
-    if (!config().options().hasNewDTags())
-      (*dt_need)->setValue(llvm::ELF::DT_RPATH, strtabsize);
-    else
-      (*dt_need)->setValue(llvm::ELF::DT_RUNPATH, strtabsize);
-    ++dt_need;
-
-    GeneralOptions::const_rpath_iterator rpath,
-      rpathEnd = config().options().rpath_end();
-    for (rpath = config().options().rpath_begin(); rpath != rpathEnd; ++rpath) {
-      memcpy((strtab + strtabsize), (*rpath).data(), (*rpath).size());
-      strtabsize += (*rpath).size();
-      strtab[strtabsize++] = (rpath + 1 == rpathEnd ? '\0' : ':');
-    }
-  }
-
-  // initialize value of ELF .dynamic section
-  if (LinkerConfig::DynObj == config().codeGenType()) {
-    // set pointer to SONAME entry in dynamic string table.
-    dynamic().applySoname(strtabsize);
-  }
-  dynamic().applyEntries(*file_format);
-  dynamic().emit(dyn_sect, *dyn_region);
-
-  // emit soname
-  if (LinkerConfig::DynObj == config().codeGenType()) {
-    strcpy((strtab + strtabsize), pModule.name().c_str());
-    strtabsize += pModule.name().size() + 1;
-  }
-
-  // emit .hash
-  // FIXME: this verion only emit SVR4 hash section.
-  //        Please add GNU new hash section
-  // FIXME: If we'd like to use GNULDBackend::emitELFHashTab(), we need to sort
-  // SymbolCategory from localDynBegin to dynamicEnd first.
-
-  // both 32 and 64 bits hash table use 32-bit entry
-  // set up hash_region
-  uint32_t* word_array = (uint32_t*)hash_region->start();
-  uint32_t& nbucket = word_array[0];
-  uint32_t& nchain  = word_array[1];
-
-  nbucket = getHashBucketCount(symtabIdx, false);
-  nchain  = symtabIdx;
-
-  uint32_t* bucket = (word_array + 2);
-  uint32_t* chain  = (bucket + nbucket);
-
-  // initialize bucket
-  bzero((void*)bucket, nbucket);
-
-  StringHash<ELF> hash_func;
-
-  for (size_t sym_idx=0; sym_idx < symtabIdx; ++sym_idx) {
-    llvm::StringRef name(strtab + symtab32[sym_idx].st_name);
-    size_t bucket_pos = hash_func(name) % nbucket;
-    chain[sym_idx] = bucket[bucket_pos];
-    bucket[bucket_pos] = sym_idx;
-  }
+  std::stable_sort(symbols.dynamicBegin(), symbols.dynamicEnd(),
+                   DynsymGOTCompare(*m_pGOT));
 }
 
 MipsGOT& MipsGNULDBackend::getGOT()
