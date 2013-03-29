@@ -95,7 +95,7 @@ bool ObjectLinker::initFragmentLinker()
                                      *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pWriter        = m_LDBackend.createWriter();
-  m_pDefSymParser  = new DefSymParser(m_pModule);
+  m_pDefSymParser  = new DefSymParser(*m_pModule);
 
   // initialize Relocator
   m_LDBackend.initRelocator();

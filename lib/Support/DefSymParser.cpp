@@ -11,8 +11,8 @@
 using namespace llvm;
 using namespace mcld;
 
-DefSymParser::DefSymParser(Module* pModule)
-  : m_pModule(pModule) {
+DefSymParser::DefSymParser(const Module& pModule)
+  : m_Module(pModule) {
 }
 
 // ObjectLinker deletes Module
@@ -41,8 +41,6 @@ bool DefSymParser::parse(StringRef pExpr, uint64_t& pSymVal)
                 result = 0;
   std::string token;
   std::vector<std::string> postfixString;
-  LDSymbol* symbol;
-
   std::vector<std::string>::iterator it;
   llvm::StringRef::iterator si = pExpr.begin();
 
@@ -126,7 +124,8 @@ bool DefSymParser::parse(StringRef pExpr, uint64_t& pSymVal)
         if(stringOperand.getAsInteger(0,result)) {
           // the integer conversion failed means the token is a symbol
           // or its invalid if the NamePool has no such symbol;
-          symbol = m_pModule->getNamePool().findSymbol(stringOperand);
+          const LDSymbol* symbol =
+                              m_Module.getNamePool().findSymbol(stringOperand);
 
           if (!symbol)
             fatal(diag::fail_sym_resolution)

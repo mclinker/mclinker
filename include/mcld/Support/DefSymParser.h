@@ -23,9 +23,10 @@ namespace mcld {
 class DefSymParser
 {
 public:
-  DefSymParser(Module* pModule);
+  DefSymParser(const Module& pModule);
 
   ~DefSymParser();
+
   // passing a valid operator will return a number whose quantity relative
   // to other such obtained quantities will give the priority of the operator
   int precedence(const char* x);
@@ -34,7 +35,7 @@ public:
   bool parse(llvm::StringRef, uint64_t&);
 
 private:
-  mcld::Module* m_pModule;
+  const Module& m_Module;
 };
 
 } // mcld
