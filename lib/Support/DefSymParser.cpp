@@ -1,16 +1,27 @@
+//===- DefSymParser.cpp ---------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
 #include <mcld/Support/DefSymParser.h>
 
 using namespace llvm;
 using namespace mcld;
 
 DefSymParser::DefSymParser(Module* pModule)
-  : m_pModule(pModule)
-  {}
+  : m_pModule(pModule) {
+}
 
+// ObjectLinker deletes Module
 DefSymParser::~DefSymParser()
-  {} // ObjectLinker deletes Module
+{
+}
 
-int DefSymParser::precedence(const char* x) {
+int DefSymParser::precedence(const char* x)
+{
   switch (*x) {
     case '-' :
     case '+' : return 0;
@@ -21,7 +32,8 @@ int DefSymParser::precedence(const char* x) {
   return 0;
 }
 
-bool DefSymParser::parse(StringRef pExpr, uint64_t& pSymVal) {
+bool DefSymParser::parse(StringRef pExpr, uint64_t& pSymVal)
+{
   std::stack<const char*> operatorStack;
   std::stack<unsigned long> operandStack;
   unsigned long operand1 = 0,

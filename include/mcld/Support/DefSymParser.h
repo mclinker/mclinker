@@ -1,5 +1,13 @@
-#ifndef MCLD_DEFSYM_PARSER
-#define MCLD_DEFSYM_PARSER
+//===- DefSymParser.h 0----------------------------------------------------===//
+//
+//                     The MCLinker Project
+//
+// This file is distributed under the University of Illinois Open Source
+// License. See LICENSE.TXT for details.
+//
+//===----------------------------------------------------------------------===//
+#ifndef MCLD_DEFSYM_PARSER_H
+#define MCLD_DEFSYM_PARSER_H
 
 #include <mcld/LD/LDSymbol.h>
 #include <mcld/Module.h>
@@ -8,6 +16,10 @@
 #include <llvm/ADT/StringRef.h>
 
 namespace mcld {
+
+/** \class DefSymParser
+ *  \brief DefSymParser parses --defsym option.
+ */
 class DefSymParser
 {
 public:
@@ -26,4 +38,5 @@ private:
 };
 
 } // mcld
+
 #endif
