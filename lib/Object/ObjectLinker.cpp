@@ -263,7 +263,14 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasEhFrame())
             continue; // skip
 
-          if (NULL == builder.MergeSection(**sect)) {
+          LDSection* out_sect = NULL;
+          if (NULL == (out_sect = builder.MergeSection(**sect))) {
+            error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                  << (*obj)->name();
+            return false;
+          }
+
+          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
@@ -274,15 +281,14 @@ bool ObjectLinker::mergeSections()
           if (!(*sect)->hasSectionData())
             continue; // skip
 
-          LDSection* out_sect = builder.MergeSection(**sect);
-          if (NULL != out_sect) {
-            if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
-              error(diag::err_cannot_merge_section) << (*sect)->name()
-                                                    << (*obj)->name();
-              return false;
-            }
+          LDSection* out_sect = NULL;
+          if (NULL == (out_sect = builder.MergeSection(**sect))) {
+            error(diag::err_cannot_merge_section) << (*sect)->name()
+                                                  << (*obj)->name();
+            return false;
           }
-          else {
+
+          if (!m_LDBackend.updateSectionFlags(*out_sect, **sect)) {
             error(diag::err_cannot_merge_section) << (*sect)->name()
                                                   << (*obj)->name();
             return false;
