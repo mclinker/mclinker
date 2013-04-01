@@ -98,9 +98,7 @@ bool mcld::raw_fd_ostream::is_displayed() const
 //===----------------------------------------------------------------------===//
 mcld::raw_fd_ostream& mcld::outs() {
   // Set buffer settings to model stdout behavior.
-  // Delete the file descriptor when the program exists, forcing error
-  // detection. If you don't want this behavior, don't use outs().
-  static mcld::raw_fd_ostream S(STDOUT_FILENO, true);
+  static mcld::raw_fd_ostream S(STDOUT_FILENO, false);
   return S;
 }
 
