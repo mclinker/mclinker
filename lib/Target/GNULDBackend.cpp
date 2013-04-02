@@ -1412,6 +1412,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
         return SHO_RO_NOTE;
 
     case LDFileFormat::EhFrame:
+      // set writable .eh_frame as relro
+      if (is_write)
+        return SHO_RELRO;
     case LDFileFormat::EhFrameHdr:
     case LDFileFormat::GCCExceptTable:
       return SHO_EXCEPTION;
