@@ -6,7 +6,7 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-// This file declares the mcld::sys::fs:: namespace. It follows TR2/boost
+// This file declares the mcld::sys::fs::Path. It follows TR2/boost
 // filesystem (v3), but modified to remove exception handling and the
 // path class.
 //===----------------------------------------------------------------------===//
