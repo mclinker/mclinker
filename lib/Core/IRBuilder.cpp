@@ -20,8 +20,12 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
-LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName)
+LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
+                                     uint32_t pFlag)
 {
+  if (pFlag & llvm::ELF::SHF_MASKPROC)
+    return LDFileFormat::Target;
+
   // name rules
   llvm::StringRef name(pName);
   if (name.startswith(".debug") ||
@@ -300,7 +304,7 @@ LDSection* IRBuilder::CreateELFHeader(Input& pInput,
                                       uint32_t pAlign)
 {
   // Create section header
-  LDFileFormat::Kind kind = GetELFSectionKind(pType, pName.c_str());
+  LDFileFormat::Kind kind = GetELFSectionKind(pType, pName.c_str(), pFlag);
   LDSection* header = LDSection::Create(pName, kind, pType, pFlag);
   header->setAlign(pAlign);
 
