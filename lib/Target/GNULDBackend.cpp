@@ -1412,6 +1412,9 @@ unsigned int GNULDBackend::getSectionOrder(const LDSection& pSectHdr) const
         return SHO_RO_NOTE;
 
     case LDFileFormat::EhFrame:
+      // set writable .eh_frame as relro
+      if (is_write)
+        return SHO_RELRO;
     case LDFileFormat::EhFrameHdr:
     case LDFileFormat::GCCExceptTable:
       return SHO_EXCEPTION;
@@ -1811,7 +1814,7 @@ void GNULDBackend::setupProgramHdrs()
 
     // update PT_PHDR
     if (llvm::ELF::PT_PHDR == segment.type()) {
-      uint64_t offset, phdr_size;
+      uint64_t offset = 0, phdr_size = 0;
       if (config().targets().is32Bits()) {
         offset = sizeof(llvm::ELF::Elf32_Ehdr);
         phdr_size = sizeof(llvm::ELF::Elf32_Phdr);
