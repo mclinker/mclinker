@@ -13,6 +13,7 @@
 #endif
 #include <llvm/ADT/Triple.h>
 #include <llvm/Support/ELF.h>
+#include <llvm/Target/TargetMachine.h>
 
 namespace mcld {
 

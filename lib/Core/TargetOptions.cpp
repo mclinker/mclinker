@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/TargetOptions.h>
+#include <mcld/Support/TargetRegistry.h>
 
 using namespace mcld;
 
@@ -15,13 +16,15 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 TargetOptions::TargetOptions()
   : m_Endian(Unknown),
-    m_BitClass(0) {
+    m_BitClass(0),
+    m_pTargetMachine(NULL) {
 }
 
 TargetOptions::TargetOptions(const std::string& pTriple)
   : m_Triple(pTriple),
     m_Endian(Unknown),
-    m_BitClass(0) {
+    m_BitClass(0),
+    m_pTargetMachine(NULL) {
 }
 
 TargetOptions::~TargetOptions()
@@ -38,3 +41,7 @@ void TargetOptions::setTriple(const std::string& pTriple)
   m_Triple.setTriple(pTriple);
 }
 
+void TargetOptions::setTargetMachine(const llvm::TargetMachine* pTargetMachine)
+{
+  m_pTargetMachine = pTargetMachine;
+}
