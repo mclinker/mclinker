@@ -818,8 +818,7 @@ TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
     **/
   }
   return new HexagonLDBackend(pConfig,
-                          new HexagonGNUInfo(pConfig.targets().triple(),
-                                            pConfig.targets().targetMachine()));
+                              new HexagonGNUInfo(pConfig.targets().triple()));
 }
 
 } // namespace of mcld

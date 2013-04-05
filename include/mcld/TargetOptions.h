@@ -13,7 +13,6 @@
 #endif
 
 #include <llvm/ADT/Triple.h>
-#include <llvm/Target/TargetMachine.h>
 
 #include <string>
 
@@ -45,10 +44,6 @@ public:
 
   void setTriple(const llvm::Triple& pTriple);
 
-  void setTargetMachine(const llvm::TargetMachine* pTargetMachine);
-
-  const llvm::TargetMachine* targetMachine() const { return m_pTargetMachine; }
-
   Endian endian() const { return m_Endian; }
 
   void setEndian(Endian pEndian) { m_Endian = pEndian; }
@@ -67,7 +62,6 @@ private:
   llvm::Triple m_Triple;
   Endian m_Endian;
   unsigned int m_BitClass;
-  const llvm::TargetMachine* m_pTargetMachine;
 
 };
 
