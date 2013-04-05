@@ -8,11 +8,24 @@
 //===----------------------------------------------------------------------===//
 #include "HexagonGNUInfo.h"
 
+#include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/StringSwitch.h>
+
 using namespace mcld;
+
+//===----------------------------------------------------------------------===//
+// HexagonGNUInfo
+//===----------------------------------------------------------------------===//
+HexagonGNUInfo::HexagonGNUInfo(const TargetOptions& pTargetOptions)
+  : GNUInfo(pTargetOptions.triple()), m_Options(pTargetOptions) {
+}
 
 /// flags - the value of ElfXX_Ehdr::e_flags
 uint64_t HexagonGNUInfo::flags() const
 {
-  return 0x3;
+  return llvm::StringSwitch<uint64_t>(m_Options.getTargetCPU())
+           .Case("hexagonv4", V4)
+           .Case("hexagonv5", V5)
+           .Default(V4);
 }
 

@@ -9,6 +9,7 @@
 #ifndef MCLD_TARGET_HEXAGON_GNU_INFO_H
 #define MCLD_TARGET_HEXAGON_GNU_INFO_H
 #include <mcld/Target/GNUInfo.h>
+#include <mcld/TargetOptions.h>
 
 #include <llvm/Support/ELF.h>
 
@@ -24,7 +25,7 @@ public:
   };
 
 public:
-  HexagonGNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
+  HexagonGNUInfo(const TargetOptions& pTargetOptions);
 
   uint32_t machine() const { return llvm::ELF::EM_HEXAGON; }
 
@@ -32,6 +33,9 @@ public:
 
   /// flags - the value of ElfXX_Ehdr::e_flags
   uint64_t flags() const;
+
+private:
+  const TargetOptions& m_Options;
 };
 
 } // namespace of mcld
