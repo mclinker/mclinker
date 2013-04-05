@@ -17,6 +17,13 @@ namespace mcld {
 class HexagonGNUInfo : public GNUInfo
 {
 public:
+  enum CPUType {
+    V3 = 0x2,
+    V4 = 0x3,
+    V5
+  };
+
+public:
   HexagonGNUInfo(const llvm::Triple& pTriple) : GNUInfo(pTriple) { }
 
   uint32_t machine() const { return llvm::ELF::EM_HEXAGON; }
