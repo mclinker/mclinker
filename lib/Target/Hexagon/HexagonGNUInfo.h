@@ -31,7 +31,7 @@ public:
   uint64_t defaultTextSegmentAddr() const { return 0x0; }
 
   /// flags - the value of ElfXX_Ehdr::e_flags
-  uint64_t flags() const { return 0x3; }
+  uint64_t flags() const;
 };
 
 } // namespace of mcld

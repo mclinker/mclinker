@@ -353,6 +353,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
+	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.cpp \
 	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.cpp \
