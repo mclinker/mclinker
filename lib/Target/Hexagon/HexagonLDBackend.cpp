@@ -225,7 +225,7 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;
 
-  return SHO_UNDEFINED;
+  return SHO_SMALL_DATA;
 }
 
 void HexagonLDBackend::initTargetSections(Module& pModule,
