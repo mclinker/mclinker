@@ -1444,6 +1444,9 @@ int main(int argc, char* argv[])
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::MCLDTargetMachine &TheTargetMachine = *target_machine.get();
 
+  LDConfig.targets().setTargetCPU(MCPU);
+  LDConfig.targets().setTargetFeatureString(FeaturesStr);
+
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);
 
