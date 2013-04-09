@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include <llvm/ADT/Twine.h>
+#include <mcld/LD/LDSymbol.h>
 #include <llvm/Support/DataTypes.h>
 #include <llvm/Support/ELF.h>
 #include <mcld/Support/MsgHandling.h>
@@ -81,6 +82,30 @@ void HexagonRelocator::scanRelocation(Relocation& pReloc,
                                       LDSection& pSection)
 {
   pReloc.updateAddend();
+}
+
+void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
+                                      Module& pModule,
+                                      const LDSection& pSection)
+{
+  pReloc.updateAddend();
+  // if we meet a section symbol
+  if (pReloc.symInfo()->type() == ResolveInfo::Section) {
+    LDSymbol* input_sym = pReloc.symInfo()->outSymbol();
+
+    // 1. update the relocation target offset
+    assert(input_sym->hasFragRef());
+    uint64_t offset = input_sym->fragRef()->getOutputOffset();
+
+    // 2. get output section symbol
+    // get the output LDSection which the symbol defined in
+    const LDSection& out_sect =
+                        input_sym->fragRef()->frag()->getParent()->getSection();
+    ResolveInfo* sym_info =
+                     pModule.getSectionSymbolSet().get(out_sect)->resolveInfo();
+    // set relocation target symbol to the output section symbol's resolveInfo
+    pReloc.setSymInfo(sym_info);
+  }
 }
 
 //===--------------------------------------------------------------------===//

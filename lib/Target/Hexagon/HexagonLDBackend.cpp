@@ -84,6 +84,7 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 
 void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
+  SetSDataSection();
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -105,7 +106,8 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
                                           MemoryRegion& pRegion) const
 {
-  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+  if (!pRegion.size())
+    return 0;
 
   // FIXME: remove for unused variable.
   // const ELFFileFormat* file_format = getOutputFormat();
@@ -216,14 +218,16 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT()) {
-    if (config().options().hasNow())
-      return SHO_RELRO;
-    return SHO_RELRO_LAST;
-  }
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (&pSectHdr == &file_format->getGOT()) {
+      if (config().options().hasNow())
+        return SHO_RELRO;
+      return SHO_RELRO_LAST;
+    }
 
-  if (&pSectHdr == &file_format->getPLT())
-    return SHO_PLT;
+    if (&pSectHdr == &file_format->getPLT())
+      return SHO_PLT;
+  }
 
   return SHO_SMALL_DATA;
 }
@@ -480,10 +484,10 @@ bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
   return true;
 }
 
-bool HexagonLDBackend::SetSDataSection(bool moveCommonData) {
+bool HexagonLDBackend::SetSDataSection() {
   SectionData *pTo = (m_psdata->getSectionData());
 
-  if ((moveCommonData) && (pTo)) {
+  if (pTo) {
     MoveCommonData(*m_pscommon_1->getSectionData(), *pTo);
     MoveCommonData(*m_pscommon_2->getSectionData(), *pTo);
     MoveCommonData(*m_pscommon_4->getSectionData(), *pTo);
@@ -519,7 +523,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals()) {
-    SetSDataSection();
     return true;
   }
 
@@ -655,7 +658,6 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   bss_sect.setSize(bss_offset);
   tbss_sect.setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
-  SetSDataSection(true);
   return true;
 }
 

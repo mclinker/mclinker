@@ -50,6 +50,11 @@ public:
                       Module& pModule,
                       LDSection& pSection);
 
+  // Handle partial linking
+  void partialScanRelocation(Relocation& pReloc,
+                             Module& pModule,
+                             const LDSection& pSection);
+
   HexagonLDBackend& getTarget()
   { return m_Target; }
 

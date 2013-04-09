@@ -127,7 +127,7 @@ public:
 
   bool MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo);
 
-  bool SetSDataSection(bool moveCommonData=false);
+  bool SetSDataSection();
 
   uint32_t getGP() { return m_psdata->addr(); }
 
