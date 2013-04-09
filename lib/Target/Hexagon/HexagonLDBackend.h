@@ -162,6 +162,7 @@ private:
   LDSection* m_pscommon_2;
   LDSection* m_pscommon_4;
   LDSection* m_pscommon_8;
+  LDSection* m_pstart;
   LDSymbol* m_psdabase;
 
   LDSymbol* m_pGOTSymbol;

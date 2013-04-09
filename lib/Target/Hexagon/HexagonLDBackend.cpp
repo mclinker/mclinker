@@ -109,60 +109,55 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
   if (!pRegion.size())
     return 0;
 
-  // FIXME: remove for unused variable.
-  // const ELFFileFormat* file_format = getOutputFormat();
-
-  if (&pSection == m_psdata) {
-    const SectionData* sect_data = pSection.getSectionData();
-    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-    uint8_t* out_offset = pRegion.start();
-    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
-      size_t size = frag_iter->size();
-      switch(frag_iter->getKind()) {
-        case Fragment::Fillment: {
-          const FillFragment& fill_frag =
-            llvm::cast<FillFragment>(*frag_iter);
-          if (0 == fill_frag.getValueSize()) {
-            // virtual fillment, ignore it.
+  const SectionData* sect_data = pSection.getSectionData();
+  SectionData::const_iterator frag_iter, frag_end = sect_data->end();
+  uint8_t* out_offset = pRegion.start();
+  for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+    size_t size = frag_iter->size();
+    switch(frag_iter->getKind()) {
+      case Fragment::Fillment: {
+        const FillFragment& fill_frag =
+          llvm::cast<FillFragment>(*frag_iter);
+        if (0 == fill_frag.getValueSize()) {
+          // virtual fillment, ignore it.
+          break;
+        }
+        memset(out_offset, fill_frag.getValue(), fill_frag.size());
+        break;
+      }
+      case Fragment::Region: {
+        const RegionFragment& region_frag =
+          llvm::cast<RegionFragment>(*frag_iter);
+        const uint8_t* start = region_frag.getRegion().start();
+        memcpy(out_offset, start, size);
+        break;
+      }
+      case Fragment::Alignment: {
+        const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
+        uint64_t count = size / align_frag.getValueSize();
+        switch (align_frag.getValueSize()) {
+          case 1u:
+            std::memset(out_offset, align_frag.getValue(), count);
             break;
-          }
-          memset(out_offset, fill_frag.getValue(), fill_frag.size());
-          break;
-        }
-        case Fragment::Region: {
-          const RegionFragment& region_frag =
-            llvm::cast<RegionFragment>(*frag_iter);
-          const uint8_t* start = region_frag.getRegion().start();
-          memcpy(out_offset, start, size);
-          break;
-        }
-        case Fragment::Alignment: {
-          const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
-          uint64_t count = size / align_frag.getValueSize();
-          switch (align_frag.getValueSize()) {
-            case 1u:
-              std::memset(out_offset, align_frag.getValue(), count);
-              break;
-            default:
-              llvm::report_fatal_error(
-                "unsupported value size for align fragment emission yet.\n");
-              break;
-          } // end switch
-          break;
-        }
-        case Fragment::Null: {
-          assert(0x0 == size);
-          break;
-        }
-        default:
-          llvm::report_fatal_error("unsupported fragment type.\n");
-          break;
-      } // end switch
-      out_offset += size;
-    } // end for
-    return pRegion.size();
-  } // end if
-  return 0;
+          default:
+            llvm::report_fatal_error(
+              "unsupported value size for align fragment emission yet.\n");
+            break;
+        } // end switch
+        break;
+      }
+      case Fragment::Null: {
+        assert(0x0 == size);
+        break;
+      }
+      default:
+        llvm::report_fatal_error("unsupported fragment type.\n");
+        break;
+    } // end switch
+    out_offset += size;
+  } // end for
+
+  return pRegion.size();
 }
 
 HexagonGOT& HexagonLDBackend::getGOT()
@@ -229,7 +224,13 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
       return SHO_PLT;
   }
 
-  return SHO_SMALL_DATA;
+  if (&pSectHdr == m_pstart)
+    return SHO_INIT;
+
+  if (&pSectHdr == m_psdata)
+    return SHO_SMALL_DATA;
+
+  return SHO_UNDEFINED;
 }
 
 void HexagonLDBackend::initTargetSections(Module& pModule,
@@ -289,6 +290,13 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
                                     llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                     8);
   IRBuilder::CreateSectionData(*m_pscommon_8);
+
+  m_pstart = pBuilder.CreateSection(".start",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    8);
+  IRBuilder::CreateSectionData(*m_pstart);
 }
 
 void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
