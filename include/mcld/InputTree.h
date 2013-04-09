@@ -67,6 +67,162 @@ public:
   }
 };
 
+template<>
+class BinaryTree<Input> : public BinaryTreeBase<Input>
+{
+public:
+  typedef size_t             size_type;
+  typedef ptrdiff_t          difference_type;
+  typedef Input              value_type;
+  typedef value_type*        pointer;
+  typedef value_type&        reference;
+  typedef const value_type*  const_pointer;
+  typedef const value_type&  const_reference;
+
+  typedef BinaryTree<Input>  Self;
+  typedef TreeIterator<value_type, NonConstTraits<value_type> > iterator;
+  typedef TreeIterator<value_type, ConstTraits<value_type> >    const_iterator;
+
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, DFSIterator> dfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, DFSIterator>    const_dfs_iterator;
+  typedef PolicyIterator<value_type, NonConstTraits<value_type>, BFSIterator> bfs_iterator;
+  typedef PolicyIterator<value_type, ConstTraits<value_type>, BFSIterator>    const_bfs_iterator;
+
+protected:
+  typedef Node<value_type> node_type;
+
+public:
+  // -----  constructors and destructor  ----- //
+  BinaryTree()
+  : BinaryTreeBase<Input>()
+  { }
+
+  ~BinaryTree() {
+  }
+
+  // -----  iterators  ----- //
+  bfs_iterator bfs_begin()
+  {
+     bfs_iterator it = bfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+     if (it.isGroup())
+       ++it;
+     return it;
+  }
+
+  bfs_iterator bfs_end()
+  { return bfs_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  const_bfs_iterator bfs_begin() const
+  {
+     const_bfs_iterator it =
+                    const_bfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+     if (it.isGroup())
+       ++it;
+     return it;
+  }
+
+  const_bfs_iterator bfs_end() const
+  { return const_bfs_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  dfs_iterator dfs_begin()
+  {
+    dfs_iterator it = dfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+    if (it.isGroup())
+      ++it;
+    return it;
+  }
+
+  dfs_iterator dfs_end()
+  { return dfs_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  const_dfs_iterator dfs_begin() const
+  {
+    const_dfs_iterator it =
+                    const_dfs_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+    if (it.isGroup())
+      ++it;
+    return it;
+  }
+
+  const_dfs_iterator dfs_end() const
+  { return const_dfs_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  iterator root()
+  { return iterator(&(BinaryTreeBase<Input>::m_Root.node)); }
+
+  const_iterator root() const
+  {
+    // FIXME: provide the iterater constructors for constant NodeBase instead of
+    // using const_cast
+    return const_iterator(
+                    const_cast<NodeBase*>(&BinaryTreeBase<Input>::m_Root.node));
+  }
+
+  iterator begin()
+  {
+    iterator it = iterator(BinaryTreeBase<Input>::m_Root.node.left);
+    // bypass the Group node
+    if (!it.hasData())
+      ++it;
+    return it;
+  }
+
+  iterator end()
+  { return iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  const_iterator begin() const
+  {
+    const_iterator it = const_iterator(BinaryTreeBase<Input>::m_Root.node.left);
+    // bypass the Group node
+    if (!it.hasData())
+      ++it;
+    return it;
+  }
+
+  const_iterator end() const
+  { return const_iterator(BinaryTreeBase<Input>::m_Root.node.right); }
+
+  // ----- modifiers  ----- //
+  /// join - create a leaf node and merge it in the tree.
+  //  This version of join determines the direction on compilation time.
+  //  @param DIRECT the direction of the connecting edge of the parent node.
+  //  @param position the parent node
+  //  @param value the value being pushed.
+  template<size_t DIRECT, class Pos>
+  BinaryTree& join(Pos position, const Input& value) {
+    node_type *node = BinaryTreeBase<Input>::createNode();
+    node->data = const_cast<Input*>(&value);
+    if (position.isRoot())
+      proxy::hook<TreeIteratorBase::Leftward>(position.m_pNode,
+                          const_cast<const node_type*>(node));
+    else
+      proxy::hook<DIRECT>(position.m_pNode,
+                          const_cast<const node_type*>(node));
+    return *this;
+  }
+
+  /// merge - merge the tree
+  //  @param DIRECT the direction of the connecting edge of the parent node.
+  //  @param position the parent node
+  //  @param the tree being joined.
+  //  @return the joined tree
+  template<size_t DIRECT, class Pos>
+  BinaryTree& merge(Pos position, BinaryTree& pTree) {
+    if (this == &pTree)
+      return *this;
+
+    if (!pTree.empty()) {
+      proxy::hook<DIRECT>(position.m_pNode,
+                        const_cast<const NodeBase*>(pTree.m_Root.node.left));
+      BinaryTreeBase<Input>::m_Root.summon(
+                                   pTree.BinaryTreeBase<Input>::m_Root);
+      BinaryTreeBase<Input>::m_Root.delegate(pTree.m_Root);
+      pTree.m_Root.node.left = pTree.m_Root.node.right = &pTree.m_Root.node;
+    }
+    return *this;
+  }
+};
+
 /** \class InputTree
  *  \brief InputTree is the input tree to contains all inputs from the
  *  command line.
