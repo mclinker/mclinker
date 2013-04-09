@@ -1,4 +1,4 @@
-//===- HexagonV4Encodings.h -----------------------------------------------===//
+//===- HexagonEncodings.h -------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,7 +6,10 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-Instruction insn_encodings_v4[] = {
+#ifndef HEXAGON_ENCODINGS_H
+#define HEXAGON_ENCODINGS_H
+
+Instruction insn_encodings[] = {
   { "if (Pv4) memb(Rs32+#u6:0)=Rt32",
     0xffe00004,
     0x40000000,
@@ -221,12 +224,6 @@ Instruction insn_encodings_v4[] = {
     0xf8003fc7,
     0x40003fc4,
     0x7f00000,
-    0x1
-  },
-  { "Rd16=#U6 ; allocframe(#u5:3)",
-    0xfc003e00,
-    0x68003c00,
-    0x3f00000,
     0x1
   },
   { "Rx16=add(Rx16,#s7) ; if (!p0) jumpr Lr",
@@ -494,7 +491,7 @@ Instruction insn_encodings_v4[] = {
     0x1
   },
   { "Rd32=+mpyi(Rs32,#u8)",
-    0xff800000,
+    0xff802000,
     0xe0000000,
     0x1fe0,
     0x0
@@ -1031,6 +1028,12 @@ Instruction insn_encodings_v4[] = {
     0xfc003fc7,
     0x48003f44,
     0x3f00000,
+    0x1
+  },
+  { "Rx16=add(Rx16,#S7) ; memw(Rs16+#u4:2)=Rt16",
+    0xf8003000,
+    0x60000000,
+    0x7f00000,
     0x1
   },
   { "Rd16=#u6 ; if (!p0) dealloc_return",
@@ -1705,12 +1708,6 @@ Instruction insn_encodings_v4[] = {
     0x1f80,
     0x0
   },
-  { "Ryy32=memb_fifo(Rt32<<#0+#U6)",
-    0xffe03080,
-    0x9c801000,
-    0xf60,
-    0x0
-  },
   { "memw(Rs32+#u6:2)&=Rt32",
     0xff602060,
     0x3e400040,
@@ -1733,6 +1730,12 @@ Instruction insn_encodings_v4[] = {
     0xff000016,
     0xde000014,
     0xe020e8,
+    0x0
+  },
+  { "Ryy32=memb_fifo(Rt32<<#0+#U6)",
+    0xffe03080,
+    0x9c801000,
+    0xf60,
     0x0
   },
   { "p0=cmp.eq(Rs16,#-1); if (!p0.new) jump:t #r9:2",
@@ -2042,7 +2045,7 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
   { "Rx32+=mpyi(Rs32,#u8)",
-    0xff800000,
+    0xff802000,
     0xe1000000,
     0x1fe0,
     0x0
@@ -2072,7 +2075,7 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
   { "Rx32-=mpyi(Rs32,#u8)",
-    0xff800000,
+    0xff802000,
     0xe1800000,
     0x1fe0,
     0x0
@@ -2131,6 +2134,12 @@ Instruction insn_encodings_v4[] = {
     0x3000fe,
     0x0
   },
+  { "Rx32=and(#u8,asl(Rx32,#U5))",
+    0xff000016,
+    0xde000000,
+    0xe020e8,
+    0x0
+  },
   { "Rd32=memub(Rt32<<#2+#U6)",
     0xffe03080,
     0x9d203000,
@@ -2144,7 +2153,7 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
   { "Rx32+=add(Rs32,#s8)",
-    0xff800000,
+    0xff802000,
     0xe2000000,
     0x1fe0,
     0x0
@@ -2172,12 +2181,6 @@ Instruction insn_encodings_v4[] = {
     0x48002000,
     0x3f00000,
     0x1
-  },
-  { "Rx32=and(#u8,asl(Rx32,#U5))",
-    0xff000016,
-    0xde000000,
-    0xe020e8,
-    0x0
   },
   { "Rx16=add(Rx16,#s7) ; Rd16=Rs16",
     0xf8003f00,
@@ -2864,7 +2867,7 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
   { "if (!Pu4) call #r15:2",
-    0xff201800,
+    0xff200800,
     0x5d200000,
     0xdf20fe,
     0x0
@@ -2876,7 +2879,7 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
   { "if (Pu4) call #r15:2",
-    0xff201800,
+    0xff200800,
     0x5d000000,
     0xdf20fe,
     0x0
@@ -2924,7 +2927,7 @@ Instruction insn_encodings_v4[] = {
     0x1
   },
   { "Rx32-=add(Rs32,#s8)",
-    0xff800000,
+    0xff802000,
     0xe2800000,
     0x1fe0,
     0x0
@@ -3024,12 +3027,6 @@ Instruction insn_encodings_v4[] = {
     0x15002000,
     0x3000fe,
     0x0
-  },
-  { "Rx16=add(Rx16,#S7) ; memw(Rs16+#u4:2)=Rt16",
-    0xf8003000,
-    0x60000000,
-    0x7f00000,
-    0x1
   },
   { "if (Rs32==#0) jump:nt #r13:2",
     0xffc01000,
@@ -3367,6 +3364,12 @@ Instruction insn_encodings_v4[] = {
     0x3f,
     0x0
   },
+  { "Rd16=#U6 ; allocframe(#u5:3)",
+    0xfc003e00,
+    0x68003c00,
+    0x3f00000,
+    0x1
+  },
   { "Rx32=add(#u8,asl(Rx32,#U5))",
     0xff000016,
     0xde000004,
@@ -3554,3 +3557,5 @@ Instruction insn_encodings_v4[] = {
     0x0
   },
 };
+
+#endif

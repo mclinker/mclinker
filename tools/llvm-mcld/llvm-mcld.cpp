@@ -656,6 +656,16 @@ ArgPluginOpt("plugin-opt",
              cl::desc("	Pass an option to the plugin."),
              cl::value_desc("option"));
 
+static cl::opt<bool>
+ArgSVR4Compatibility("Qy",
+                    cl::desc("This option is ignored for SVR4 compatibility"),
+                    cl::init(false));
+
+static cl::list<std::string>
+ArgY("Y",
+     cl::desc("Add path to the default library search path"),
+     cl::value_desc("default-search-path"));
+
 /// @{
 /// @name FIXME: end of unsupported options
 /// @}
@@ -1433,6 +1443,9 @@ int main(int argc, char* argv[])
                                          ArgRelocModel, CMModel, OLvl));
   assert(target_machine.get() && "Could not allocate target machine!");
   mcld::MCLDTargetMachine &TheTargetMachine = *target_machine.get();
+
+  LDConfig.targets().setTargetCPU(MCPU);
+  LDConfig.targets().setTargetFeatureString(FeaturesStr);
 
   TheTargetMachine.getTM().setMCUseLoc(false);
   TheTargetMachine.getTM().setMCUseCFI(false);

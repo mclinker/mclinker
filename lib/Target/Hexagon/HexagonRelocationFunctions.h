@@ -14,8 +14,12 @@ typedef struct {
         bool isDuplex;
 } Instruction;
 
-#include "HexagonV4Encodings.h"
+#include "HexagonEncodings.h"
 
+#define FINDBITMASK(INSN) \
+  findBitMask((uint32_t)INSN,\
+              insn_encodings,\
+              sizeof(insn_encodings) / sizeof(Instruction))
 
 uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
   for (int32_t i = 0; i < numInsns ; i++) {
