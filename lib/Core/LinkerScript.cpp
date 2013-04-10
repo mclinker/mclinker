@@ -1,4 +1,4 @@
-//===- ScriptOptions.cpp --------------------------------------------------===//
+//===- LinkerScript.cpp ---------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,18 +6,18 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/ScriptOptions.h>
+#include <mcld/LinkerScript.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// ScriptOptions
+// LinkerScript
 //===----------------------------------------------------------------------===//
-ScriptOptions::ScriptOptions()
+LinkerScript::LinkerScript()
 {
 }
 
-ScriptOptions::~ScriptOptions()
+LinkerScript::~LinkerScript()
 {
 }
 

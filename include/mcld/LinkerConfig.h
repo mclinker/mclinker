@@ -15,7 +15,7 @@
 #include <llvm/ADT/Triple.h>
 
 #include <mcld/GeneralOptions.h>
-#include <mcld/ScriptOptions.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/TargetOptions.h>
 #include <mcld/BitcodeOption.h>
 #include <mcld/AttributeOption.h>
@@ -76,8 +76,8 @@ public:
   const GeneralOptions& options() const { return m_Options; }
   GeneralOptions&       options()       { return m_Options; }
 
-  const ScriptOptions&  scripts() const { return m_Scripts; }
-  ScriptOptions&        scripts()       { return m_Scripts; }
+  const LinkerScript&  scripts() const { return m_Scripts; }
+  LinkerScript&        scripts()       { return m_Scripts; }
 
   const TargetOptions&  targets() const { return m_Targets; }
   TargetOptions&        targets()       { return m_Targets; }
@@ -104,7 +104,7 @@ public:
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
-  ScriptOptions m_Scripts;
+  LinkerScript m_Scripts;
   TargetOptions m_Targets;
   BitcodeOption m_Bitcode;
   AttributeOption m_Attribute;

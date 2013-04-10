@@ -1,4 +1,4 @@
-//===- ScriptOptions.h ----------------------------------------------------===//
+//===- LinkerScript.h -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_OPTIONS_H
-#define MCLD_SCRIPT_OPTIONS_H
+#ifndef MCLD_LINKER_SCRIPT_H
+#define MCLD_LINKER_SCRIPT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -20,10 +20,10 @@
 
 namespace mcld {
 
-/** \class ScriptOptions
+/** \class LinkerScript
  *
  */
-class ScriptOptions
+class LinkerScript
 {
 public:
   typedef HashTable<StringEntry<llvm::StringRef>,
@@ -39,9 +39,9 @@ public:
                     StringEntryFactory<llvm::StringRef> > DefSymMap;
 
 public:
-  ScriptOptions();
+  LinkerScript();
 
-  ~ScriptOptions();
+  ~LinkerScript();
 
   const SymbolRenameMap& renameMap() const { return m_SymbolRenames; }
   SymbolRenameMap&       renameMap()       { return m_SymbolRenames; }

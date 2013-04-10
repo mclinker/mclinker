@@ -124,7 +124,7 @@ size_t GNULDBackend::sectionStartOffset() const
 
 uint64_t GNULDBackend::segmentStartAddr() const
 {
-  ScriptOptions::AddressMap::const_iterator mapping =
+  LinkerScript::AddressMap::const_iterator mapping =
     config().scripts().addressMap().find(".text");
   if (mapping != config().scripts().addressMap().end())
     return mapping.getEntry()->value();
@@ -2000,7 +2000,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
       continue;
 
     uint64_t start_addr = 0x0;
-    ScriptOptions::AddressMap::const_iterator mapping;
+    LinkerScript::AddressMap::const_iterator mapping;
     if ((*seg).front()->kind() == LDFileFormat::Null)
       mapping = config().scripts().addressMap().find(".text");
     else if ((*seg).isDataSegment())

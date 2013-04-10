@@ -451,7 +451,7 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
       ResolveInfo::Undefined == pDesc) {
     // If the renameMap is not empty, some symbols should be renamed.
     // --wrap and --portable defines the symbol rename map.
-    ScriptOptions::SymbolRenameMap::const_iterator renameSym =
+    LinkerScript::SymbolRenameMap::const_iterator renameSym =
                                     m_Config.scripts().renameMap().find(pName);
     if (renameSym != m_Config.scripts().renameMap().end())
       name = renameSym.getEntry()->value();

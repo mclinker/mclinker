@@ -330,7 +330,7 @@ bool ObjectLinker::addTargetSymbols()
 /// scripts.
 bool ObjectLinker::addScriptSymbols()
 {
-  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
+  mcld::LinkerScript::DefSymMap::const_entry_iterator it =
     m_Config.scripts().defSymMap().begin(),
   ie =  m_Config.scripts().defSymMap().end();
   // go through the entire defSymMap
@@ -483,7 +483,7 @@ bool ObjectLinker::finalizeSymbolValue()
   bool scriptSymsAdded = true;
   uint64_t symVal;
 
-  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
+  mcld::LinkerScript::DefSymMap::const_entry_iterator it =
     m_Config.scripts().defSymMap().begin(),
     ie =  m_Config.scripts().defSymMap().end();
 
