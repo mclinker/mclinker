@@ -110,7 +110,6 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ELFDynObjFileFormat.h \
 	${INCDIR}/LD/ELFExecFileFormat.h \
 	${INCDIR}/LD/ELFObjectFileFormat.h \
-	${INCDIR}/LD/SectionRules.h \
 	${INCDIR}/LD/ELFSegment.h \
 	${INCDIR}/LD/ELFSegmentFactory.h \
 	${INCDIR}/LD/EhFrame.h \
@@ -245,7 +244,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/ELFFileFormat.cpp \
 	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
-	${LIBDIR}/LD/SectionRules.cpp \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${LIBDIR}/LD/ELFSegmentFactory.cpp \
 	${LIBDIR}/LD/EhFrame.cpp \
