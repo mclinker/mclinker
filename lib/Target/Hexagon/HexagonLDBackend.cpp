@@ -225,7 +225,7 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
   if (&pSectHdr == &file_format->getPLT())
     return SHO_PLT;
 
-  return SHO_UNDEFINED;
+  return SHO_SMALL_DATA;
 }
 
 void HexagonLDBackend::initTargetSections(Module& pModule,
@@ -435,6 +435,27 @@ bool HexagonLDBackend::finalizeTargetSymbols()
     return true;
   if (m_psdabase)
     m_psdabase->setValue(m_psdata->addr());
+
+  ELFSegment *edata = m_ELFSegmentTable.find(llvm::ELF::PT_LOAD,
+                                             llvm::ELF::PF_W, llvm::ELF::PF_X);
+  if (NULL != edata) {
+    if (NULL != f_pEData && ResolveInfo::ThreadLocal != f_pEData->type()) {
+      f_pEData->setValue(edata->vaddr() + edata->filesz());
+    }
+    if (NULL != f_p_EData && ResolveInfo::ThreadLocal != f_p_EData->type()) {
+      f_p_EData->setValue(edata->vaddr() + edata->filesz());
+    }
+    if (NULL != f_pBSSStart &&
+        ResolveInfo::ThreadLocal != f_pBSSStart->type()) {
+      f_pBSSStart->setValue(edata->vaddr() + edata->filesz());
+    }
+    if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
+      f_pEnd->setValue(edata->vaddr() + edata->memsz());
+    }
+    if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
+      f_p_End->setValue(edata->vaddr() + edata->memsz());
+    }
+  }
   return true;
 }
 
