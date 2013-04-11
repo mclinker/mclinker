@@ -142,6 +142,12 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
     // to call outside functions, then we can treat the output static dependent
     // and perform better optimizations.
     m_pConfig->setCodePosition(LinkerConfig::StaticDependent);
+
+    if (LinkerConfig::Exec == m_pConfig->codeGenType()) {
+      // Since the output is static dependent, there should not have any undefined
+      // references in the output module.
+      m_pConfig->options().setNoUndefined();
+    }
   }
   else {
     m_pConfig->setCodePosition(LinkerConfig::DynamicDependent);
