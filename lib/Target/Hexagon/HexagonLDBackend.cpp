@@ -462,10 +462,12 @@ bool HexagonLDBackend::finalizeTargetSymbols()
       f_pBSSStart->setValue(edata->vaddr() + edata->filesz());
     }
     if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
-      f_pEnd->setValue(edata->vaddr() + edata->memsz());
+      f_pEnd->setValue(((edata->vaddr() +
+                       edata->memsz()) + 7) & ~7);
     }
     if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
-      f_p_End->setValue(edata->vaddr() + edata->memsz());
+      f_p_End->setValue(((edata->vaddr() +
+                       edata->memsz()) + 7) & ~7);
     }
   }
   return true;
