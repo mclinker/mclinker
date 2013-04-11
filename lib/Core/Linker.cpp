@@ -53,13 +53,10 @@ bool Linker::emulate(LinkerConfig& pConfig)
   if (!initBackend())
     return false;
 
-  m_pObjLinker = new ObjectLinker(*m_pConfig,
-                                  *m_pBackend);
-
-  if (!initEmulator())
+  if (!initOStream())
     return false;
 
-  if (!initOStream())
+  if (!initEmulator())
     return false;
 
   return true;
@@ -82,7 +79,8 @@ bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
   assert(NULL != m_pConfig);
 
   m_pIRBuilder = &pBuilder;
-  assert(m_pObjLinker!=NULL);
+
+  m_pObjLinker = new ObjectLinker(*m_pConfig, *m_pBackend);
 
   m_pObjLinker->setup(pModule, pBuilder);
 
@@ -329,8 +327,6 @@ bool Linker::initEmulator()
   bool result = m_pTarget->emulate(m_pConfig->targets().triple().str(),
                                    *m_pConfig);
 
-  // Relocation should be set up after emulation.
-  Relocation::SetUp(*m_pConfig);
   return result;
 }
 
