@@ -534,6 +534,8 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     return true;
   }
 
+  int8_t maxGPSize = config().options().getGPSize();
+
   SymbolCategory::iterator com_sym, com_end;
 
   // get corresponding BSS LDSection
@@ -574,21 +576,29 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
 
       switch((*com_sym)->size())  {
       case 1:
+        if (maxGPSize <= 0)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_1->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 2:
+        if (maxGPSize <= 1)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_2->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 4:
+        if (maxGPSize <= 3)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_4->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 8:
+        if (maxGPSize <= 7)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_8->getSectionData()),
                                       (*com_sym)->value());
@@ -626,21 +636,29 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
 
     switch((*com_sym)->size())  {
     case 1:
+      if (maxGPSize <= 0)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_1->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 2:
+      if (maxGPSize <= 1)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_2->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 4:
+      if (maxGPSize <= 3)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_4->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 8:
+      if (maxGPSize <= 7)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_8->getSectionData()),
                                     (*com_sym)->value());
