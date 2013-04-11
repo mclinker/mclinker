@@ -110,6 +110,9 @@ bool ShouldForceLocal(const ResolveInfo& pInfo, const LinkerConfig& pConfig)
 IRBuilder::IRBuilder(Module& pModule, const LinkerConfig& pConfig)
   : m_Module(pModule), m_Config(pConfig), m_InputBuilder(pConfig) {
   m_InputBuilder.setCurrentTree(m_Module.getInputTree());
+
+  // FIXME: where to set up Relocation?
+  Relocation::SetUp(m_Config);
 }
 
 IRBuilder::~IRBuilder()

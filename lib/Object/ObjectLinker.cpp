@@ -68,9 +68,6 @@ void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
   m_pModule = &pModule;
   m_pBuilder = &pBuilder;
 
-  // Relocation should be set up after emulation.
-  Relocation::SetUp(m_Config);
-
   // set up soname
   if (!m_Config.options().soname().empty()) {
     m_pModule->setName(m_Config.options().soname());
