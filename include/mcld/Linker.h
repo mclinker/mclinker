@@ -41,10 +41,13 @@ public:
   /// emulate - To set up target-dependent options and default linker script.
   bool emulate(LinkerConfig& pConfig);
 
-  /// resolve - To read participatory input files and build up mcld::Module
-  bool resolve(Module& pModule, IRBuilder& pBuilder);
+  /// normalize - To normalize the command line language into mcld::Module.
+  bool normalize(Module& pModule, IRBuilder& pBuilder);
 
-  /// layout - To serialize the final result of the output mcld::Module
+  /// resolve - To build up the topology of mcld::Module.
+  bool resolve();
+
+  /// layout - To serialize the final result of the output mcld::Module.
   bool layout();
 
   /// link - A convenient way to resolve and to layout the output mcld::Module.

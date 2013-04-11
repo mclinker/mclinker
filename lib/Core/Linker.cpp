@@ -67,18 +67,23 @@ bool Linker::emulate(LinkerConfig& pConfig)
 
 bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 {
-  if (!resolve(pModule, pBuilder))
+  if (!normalize(pModule, pBuilder))
+    return false;
+
+  if (!resolve())
     return false;
 
   return layout();
 }
 
-bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
+/// normalize - to convert the command line language to the input tree.
+bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
 {
   assert(NULL != m_pConfig);
 
   m_pIRBuilder = &pBuilder;
   assert(m_pObjLinker!=NULL);
+
   m_pObjLinker->setup(pModule, pBuilder);
 
   // 2. - initialize FragmentLinker
@@ -147,16 +152,28 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
   if (!m_pObjLinker->linkable())
     return Diagnose();
 
+  return true;
+}
+
+bool Linker::resolve()
+{
+  assert(NULL != m_pConfig);
+  assert(m_pObjLinker != NULL);
+
   // 6. - read all relocation entries from input files
   //   For all relocation sections of each input file (in the tree),
   //   read out reloc entry info from the object file and accordingly
   //   initiate their reloc entries in SectOrRelocData of LDSection.
+  //
+  //   To collect all edges in the reference graph.
   m_pObjLinker->readRelocations();
 
   // 7. - merge all sections
   //   Push sections into Module's SectionTable.
   //   Merge sections that have the same name.
   //   Maintain them as fragments in the section.
+  //
+  //   To merge nodes of the reference graph.
   if (!m_pObjLinker->mergeSections())
     return false;
 
