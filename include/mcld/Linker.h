@@ -38,8 +38,8 @@ public:
 
   ~Linker();
 
-  /// config - To set up target-dependent options in pConfig.
-  bool config(LinkerConfig& pConfig);
+  /// emulate - To set up target-dependent options and default linker script.
+  bool emulate(LinkerConfig& pConfig);
 
   /// resolve - To read participatory input files and build up mcld::Module
   bool resolve(Module& pModule, IRBuilder& pBuilder);

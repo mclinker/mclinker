@@ -56,7 +56,7 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
   config.setCodeGenType(LinkerConfig::DynObj);
 
   Linker linker;
-  linker.config(config);
+  linker.emulate(config);
 
   IRBuilder builder(module, config);
   // create inputs here
@@ -91,7 +91,7 @@ TEST_F( LinkerTest, plasma) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config);
+  linker.emulate(config);
 
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libplasma.so");   ///< --soname=libplasma.so
@@ -148,7 +148,7 @@ TEST_F( LinkerTest, plasma_twice) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config1);
+  linker.emulate(config1);
 
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
@@ -196,7 +196,7 @@ TEST_F( LinkerTest, plasma_twice) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config2);
+  linker.emulate(config2);
 
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
@@ -243,7 +243,7 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config1);
+  linker.emulate(config1);
 
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
@@ -296,7 +296,7 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config2);
+  linker.emulate(config2);
 
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
@@ -340,7 +340,7 @@ TEST_F( LinkerTest, plasma_object) {
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config);
+  linker.emulate(config);
 
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libgotplt.so");   ///< --soname=libgotplt.so

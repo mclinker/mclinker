@@ -41,7 +41,9 @@ Linker::~Linker()
   reset();
 }
 
-bool Linker::config(LinkerConfig& pConfig)
+/// emulate - To set up target-dependent options and default linker script.
+/// Follow GNU ld quirks.
+bool Linker::emulate(LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
 

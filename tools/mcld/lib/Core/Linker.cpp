@@ -108,7 +108,7 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   mLinker = new mcld::Linker();
 
-  mLinker->config(const_cast<mcld::LinkerConfig&>(*mLDConfig));
+  mLinker->emulate(const_cast<mcld::LinkerConfig&>(*mLDConfig));
 
   return kSuccess;
 }
