@@ -77,7 +77,7 @@ Module::AliasList* Module::getAliasList(const ResolveInfo& pSym)
   for (list_it=m_AliasLists.begin(); list_it!=list_it_e; ++list_it) {
     AliasList& list = **list_it;
     alias_iterator alias_it, alias_it_e=list.end();
-    for (alias_it=list.begin(); alias_it!=list.end(); ++alias_it) {
+    for (alias_it=list.begin(); alias_it!=alias_it_e; ++alias_it) {
       if ( 0==strcmp((*alias_it)->name(), pSym.name()) ) {
         return &list;
       }
