@@ -14,7 +14,6 @@
 #include <string>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
-#include <mcld/MC/SearchDirs.h>
 #include <mcld/MC/ZOption.h>
 
 namespace mcld {
@@ -59,20 +58,6 @@ public:
   bool hasDefaultLDScript() const;
   const char* defaultLDScript() const;
   void setDefaultLDScript(const std::string& pFilename);
-
-  /// sysroot
-  const sys::fs::Path& sysroot() const;
-
-  void setSysroot(const sys::fs::Path &pPath);
-
-  bool hasSysroot() const;
-
-  /// search directory
-  SearchDirs& directories()
-  { return m_SearchDirs; }
-
-  const SearchDirs& directories() const
-  { return m_SearchDirs; }
 
   /// trace
   void setTrace(bool pEnableTrace = true)
@@ -335,7 +320,6 @@ private:
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
-  SearchDirs m_SearchDirs;
   std::string m_Entry;
   std::string m_Dyld;
   std::string m_SOName;

@@ -78,11 +78,11 @@ bool mcld::MCLDEmulateELF(LinkerConfig& pConfig)
     // TODO: check if user sets the default search path instead via -Y option
     // set up default search path
     if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
-      pConfig.options().directories().insert("=/usr/lib");
+      pConfig.scripts().directories().insert("=/usr/lib");
     }
     else {
-      pConfig.options().directories().insert("=/lib");
-      pConfig.options().directories().insert("=/usr/lib");
+      pConfig.scripts().directories().insert("=/lib");
+      pConfig.scripts().directories().insert("=/usr/lib");
     }
   }
   return true;

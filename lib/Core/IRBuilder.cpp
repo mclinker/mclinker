@@ -162,17 +162,17 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 
     if (m_InputBuilder.getAttributes().isStatic()) {
       // with --static, we must search an archive.
-      path = m_Config.options().directories().find(pNameSpec, Input::Archive);
+      path = m_Config.scripts().directories().find(pNameSpec, Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
-      path = m_Config.options().directories().find(pNameSpec, Input::DynObj);
+      path = m_Config.scripts().directories().find(pNameSpec, Input::DynObj);
     }
   }
   else {
     // In the system without shared object support, we only look for an archive
-    path = m_Config.options().directories().find(pNameSpec, Input::Archive);
+    path = m_Config.scripts().directories().find(pNameSpec, Input::Archive);
   }
 
   if (NULL == path) {

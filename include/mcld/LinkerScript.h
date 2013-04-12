@@ -17,6 +17,7 @@
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/Object/SectionMap.h>
+#include <mcld/MC/SearchDirs.h>
 
 namespace mcld {
 
@@ -55,11 +56,23 @@ public:
   const DefSymMap& defSymMap() const { return m_DefSymMap; }
   DefSymMap&       defSymMap()       { return m_DefSymMap; }
 
+  /// search directory
+  const SearchDirs& directories() const { return m_SearchDirs; }
+  SearchDirs&       directories()       { return m_SearchDirs; }
+
+  /// sysroot
+  const sys::fs::Path& sysroot() const;
+
+  void setSysroot(const sys::fs::Path &pPath);
+
+  bool hasSysroot() const;
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   DefSymMap m_DefSymMap;
+  SearchDirs m_SearchDirs;
 };
 
 } // namespace of mcld

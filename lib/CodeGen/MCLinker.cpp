@@ -280,7 +280,7 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
   for (namespec = nsBegin; namespec != nsEnd; ++namespec) {
     unsigned int pos = ArgNameSpecList.getPosition(namespec - nsBegin);
     actions.push_back(new NamespecAction(pos, *namespec,
-                                         m_Config.options().directories()));
+                                         m_Config.scripts().directories()));
     actions.push_back(new ContextAction(pos));
     actions.push_back(new MemoryAreaAction(pos, FileHandle::ReadOnly));
   }

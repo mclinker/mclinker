@@ -173,7 +173,7 @@ void LinkerConfig::setDyld(const std::string &pDyld) {
 }
 
 void LinkerConfig::setSysRoot(const std::string &pSysRoot) {
-  mLDConfig->options().setSysroot(mcld::sys::fs::Path(pSysRoot));
+  mLDConfig->scripts().setSysroot(mcld::sys::fs::Path(pSysRoot));
   return;
 }
 
@@ -328,7 +328,7 @@ void LinkerConfig::addPortable(const std::string &pPortableSymbol) {
 
 void LinkerConfig::addSearchDir(const std::string &pDirPath) {
   // SearchDirs will remove the created MCLDDirectory.
-  if (!mLDConfig->options().directories().insert(pDirPath)) {
+  if (!mLDConfig->scripts().directories().insert(pDirPath)) {
     mcld::warning(mcld::diag::warn_cannot_open_search_dir) << pDirPath;
   }
 }

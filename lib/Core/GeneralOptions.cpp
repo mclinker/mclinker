@@ -74,21 +74,6 @@ void GeneralOptions::setDefaultLDScript(const std::string& pFilename)
 {
 }
 
-const mcld::sys::fs::Path& GeneralOptions::sysroot() const
-{
-  return m_SearchDirs.sysroot();
-}
-
-void GeneralOptions::setSysroot(const mcld::sys::fs::Path &pSysroot)
-{
-  m_SearchDirs.setSysRoot(pSysroot);
-}
-
-bool GeneralOptions::hasSysroot() const
-{
-  return !sysroot().empty();
-}
-
 void GeneralOptions::setSOName(const std::string& pName)
 {
   size_t pos = pName.find_last_of(sys::fs::separator);

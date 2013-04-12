@@ -87,7 +87,7 @@ TEST_F( LinkerTest, plasma) {
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config.options().directories().insert(search_dir);
+  config.scripts().directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
@@ -144,7 +144,7 @@ TEST_F( LinkerTest, plasma_twice) {
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
+  config1.scripts().directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
@@ -192,7 +192,7 @@ TEST_F( LinkerTest, plasma_twice) {
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
+  config2.scripts().directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
@@ -239,7 +239,7 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
+  config1.scripts().directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
@@ -292,7 +292,7 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
+  config2.scripts().directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.

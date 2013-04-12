@@ -1054,14 +1054,14 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      pConfig.options().setSysroot(ArgSysRoot);
+      pConfig.scripts().setSysroot(ArgSysRoot);
   }
 
   // add all search directories
   cl::list<std::string>::iterator sd;
   cl::list<std::string>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
-    if (!pConfig.options().directories().insert(*sd)) {
+    if (!pConfig.scripts().directories().insert(*sd)) {
       // FIXME: need a warning function
       errs() << "WARNING: can not open search directory `-L"
              << *sd

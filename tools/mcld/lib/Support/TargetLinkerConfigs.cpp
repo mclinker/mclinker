@@ -44,8 +44,8 @@ ARMLinkerConfig::ARMLinkerConfig() : LinkerConfig(DEFAULT_ARM_TRIPLE_STRING) {
   getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDConfig()->options().sysroot().empty()) {
-    getLDConfig()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->scripts().sysroot().empty()) {
+    getLDConfig()->scripts().setSysroot(gDefaultSysroot);
   }
 
   if (!getLDConfig()->options().hasDyld()) {
@@ -86,8 +86,8 @@ MipsLinkerConfig::MipsLinkerConfig()
   getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDConfig()->options().sysroot().empty()) {
-    getLDConfig()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->scripts().sysroot().empty()) {
+    getLDConfig()->scripts().setSysroot(gDefaultSysroot);
   }
 
   if (!getLDConfig()->options().hasDyld()) {
@@ -119,8 +119,8 @@ X86FamilyLinkerConfigBase::X86FamilyLinkerConfigBase(const std::string& pTriple)
   getLDConfig()->attribute().predefined().setDynamic();
 
   // set up target dependent options
-  if (getLDConfig()->options().sysroot().empty()) {
-    getLDConfig()->options().setSysroot(gDefaultSysroot);
+  if (getLDConfig()->scripts().sysroot().empty()) {
+    getLDConfig()->scripts().setSysroot(gDefaultSysroot);
   }
 
   if (!getLDConfig()->options().hasDyld()) {
