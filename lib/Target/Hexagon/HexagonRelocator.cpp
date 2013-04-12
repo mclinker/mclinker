@@ -95,10 +95,7 @@ void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
 
     // 1. update the relocation target offset
     assert(input_sym->hasFragRef());
-    uint64_t offset = input_sym->fragRef()->getOutputOffset();
-
-    // 2. get output section symbol
-    // get the output LDSection which the symbol defined in
+    // 2. get the output LDSection which the symbol defined in
     const LDSection& out_sect =
                         input_sym->fragRef()->frag()->getParent()->getSection();
     ResolveInfo* sym_info =
