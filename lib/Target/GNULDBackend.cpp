@@ -122,7 +122,7 @@ size_t GNULDBackend::sectionStartOffset() const
   }
 }
 
-uint64_t GNULDBackend::segmentStartAddr() const
+uint64_t GNULDBackend::getSegmentStartAddr() const
 {
   LinkerScript::AddressMap::const_iterator mapping =
     config().scripts().addressMap().find(".text");
@@ -1808,6 +1808,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 void GNULDBackend::setupProgramHdrs()
 {
   // update segment info
+  uint64_t seg_start_addr = getSegmentStartAddr();
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
@@ -1824,7 +1825,7 @@ void GNULDBackend::setupProgramHdrs()
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(segmentStartAddr() + offset);
+      segment.setVaddr(seg_start_addr + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1839,7 +1840,7 @@ void GNULDBackend::setupProgramHdrs()
     segment.setOffset(segment.front()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.front()->kind())
-      segment.setVaddr(segmentStartAddr());
+      segment.setVaddr(seg_start_addr);
     else
       segment.setVaddr(segment.front()->addr());
     segment.setPaddr(segment.vaddr());
@@ -1993,6 +1994,7 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
          (pSectEnd != pModule.end() &&
           (*pSectBegin)->index() <= (*pSectEnd)->index()));
 
+  uint64_t seg_start_addr = getSegmentStartAddr();
   for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
          segEnd = elfSegmentTable().end(), prev = elfSegmentTable().end();
        seg != segEnd; prev = seg, ++seg) {
@@ -2017,11 +2019,11 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
     else {
       if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
-        start_addr = segmentStartAddr();
+        start_addr = seg_start_addr;
       }
       else if ((*prev).front()->kind() == LDFileFormat::Null) {
         // prev segment is 1st PT_LOAD
-        start_addr = segmentStartAddr() + (*seg).front()->offset();
+        start_addr = seg_start_addr + (*seg).front()->offset();
       }
       else {
         // Others
