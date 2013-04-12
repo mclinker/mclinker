@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 #include <string>
+#include <vector>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/FileSystem.h>
 #include <mcld/MC/ZOption.h>
@@ -274,7 +275,7 @@ public:
   void setPrintMap(bool pEnable = true)
   { m_bPrintMap = pEnable; }
 
-  bool printMap() const 
+  bool printMap() const
   { return m_bPrintMap; }
 
   unsigned int getHashStyle() const { return m_HashStyle; }

@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
+#include <ctype.h>
 #include <fcntl.h>
 #include <unistd.h>
 
