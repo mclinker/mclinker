@@ -15,8 +15,9 @@
 namespace mcld {
 
 class LinkerConfig;
+class LinkerScript;
 
-bool MCLDEmulateELF(LinkerConfig& pConfig);
+bool MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig);
 
 } // namespace of mcld
 

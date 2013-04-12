@@ -24,7 +24,6 @@ class Input;
  *  \brief GeneralOptions collects the options that not be one of the
  *     - input files
  *     - attribute of input files
- *     - script options
  */
 class GeneralOptions
 {

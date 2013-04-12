@@ -162,17 +162,17 @@ Input* IRBuilder::ReadInput(const std::string& pNameSpec)
 
     if (m_InputBuilder.getAttributes().isStatic()) {
       // with --static, we must search an archive.
-      path = m_Config.scripts().directories().find(pNameSpec, Input::Archive);
+      path = m_Module.getScript().directories().find(pNameSpec, Input::Archive);
     }
     else {
       // otherwise, with --Bdynamic, we can find either an archive or a
       // shared object.
-      path = m_Config.scripts().directories().find(pNameSpec, Input::DynObj);
+      path = m_Module.getScript().directories().find(pNameSpec, Input::DynObj);
     }
   }
   else {
     // In the system without shared object support, we only look for an archive
-    path = m_Config.scripts().directories().find(pNameSpec, Input::Archive);
+    path = m_Module.getScript().directories().find(pNameSpec, Input::Archive);
   }
 
   if (NULL == path) {
@@ -450,13 +450,14 @@ LDSymbol* IRBuilder::AddSymbol(Input& pInput,
 {
   // rename symbols
   std::string name = pName;
-  if (!m_Config.scripts().renameMap().empty() &&
+  if (!m_Module.getScript().renameMap().empty() &&
       ResolveInfo::Undefined == pDesc) {
     // If the renameMap is not empty, some symbols should be renamed.
     // --wrap and --portable defines the symbol rename map.
+    const LinkerScript& script = m_Module.getScript();
     LinkerScript::SymbolRenameMap::const_iterator renameSym =
-                                    m_Config.scripts().renameMap().find(pName);
-    if (renameSym != m_Config.scripts().renameMap().end())
+                                                script.renameMap().find(pName);
+    if (script.renameMap().end() != renameSym)
       name = renameSym.getEntry()->value();
   }
 

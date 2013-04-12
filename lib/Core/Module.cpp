@@ -23,12 +23,12 @@ static GCFactory<Module::AliasList, MCLD_SECTIONS_PER_INPUT> gc_aliaslist_factor
 //===----------------------------------------------------------------------===//
 // Module
 //===----------------------------------------------------------------------===//
-Module::Module()
-  : m_NamePool(1024) {
+Module::Module(LinkerScript& pScript)
+  : m_Script(pScript), m_NamePool(1024) {
 }
 
-Module::Module(const std::string& pName)
-  : m_Name(pName), m_NamePool(1024) {
+Module::Module(const std::string& pName, LinkerScript& pScript)
+  : m_Name(pName), m_Script(pScript), m_NamePool(1024) {
 }
 
 Module::~Module()

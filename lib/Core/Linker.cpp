@@ -43,7 +43,7 @@ Linker::~Linker()
 
 /// emulate - To set up target-dependent options and default linker script.
 /// Follow GNU ld quirks.
-bool Linker::emulate(LinkerConfig& pConfig)
+bool Linker::emulate(LinkerScript& pScript, LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
 
@@ -56,7 +56,7 @@ bool Linker::emulate(LinkerConfig& pConfig)
   if (!initOStream())
     return false;
 
-  if (!initEmulator())
+  if (!initEmulator(pScript))
     return false;
 
   return true;
@@ -327,15 +327,6 @@ bool Linker::initBackend()
   return true;
 }
 
-bool Linker::initEmulator()
-{
-  assert(NULL != m_pTarget && NULL != m_pConfig);
-  bool result = m_pTarget->emulate(m_pConfig->targets().triple().str(),
-                                   *m_pConfig);
-
-  return result;
-}
-
 bool Linker::initOStream()
 {
   assert(NULL != m_pConfig);
@@ -344,5 +335,11 @@ bool Linker::initOStream()
   mcld::errs().setColor(m_pConfig->options().color());
 
   return true;
+}
+
+bool Linker::initEmulator(LinkerScript& pScript)
+{
+  assert(NULL != m_pTarget && NULL != m_pConfig);
+  return m_pTarget->emulate(pScript, *m_pConfig);
 }
 

@@ -7,15 +7,16 @@
 //
 //===----------------------------------------------------------------------===//
 #include "Mips.h"
+#include <mcld/LinkerScript.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
 
 namespace mcld {
 
-static bool MCLDEmulateMipsELF(LinkerConfig& pConfig)
+static bool MCLDEmulateMipsELF(LinkerScript& pScript, LinkerConfig& pConfig)
 {
-  if (!MCLDEmulateELF(pConfig))
+  if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
   // set up bitclass and endian
@@ -37,19 +38,18 @@ static bool MCLDEmulateMipsELF(LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateMipsLD - the help function to emulate Mips ld
 //===----------------------------------------------------------------------===//
-bool emulateMipsLD(const std::string& pTriple, LinkerConfig& pConfig)
+bool emulateMipsLD(LinkerScript& pScript, LinkerConfig& pConfig)
 {
-  llvm::Triple theTriple(pTriple);
-  if (theTriple.isOSDarwin()) {
+  if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
   }
-  if (theTriple.isOSWindows()) {
+  if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
     return false;
   }
 
-  return MCLDEmulateMipsELF(pConfig);
+  return MCLDEmulateMipsELF(pScript, pConfig);
 }
 
 } // namespace of mcld

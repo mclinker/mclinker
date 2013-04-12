@@ -18,6 +18,7 @@ namespace mcld {
 
 class Module;
 class LinkerConfig;
+class LinkerScript;
 
 class Target;
 class TargetLDBackend;
@@ -39,7 +40,7 @@ public:
   ~Linker();
 
   /// emulate - To set up target-dependent options and default linker script.
-  bool emulate(LinkerConfig& pConfig);
+  bool emulate(LinkerScript& pScript, LinkerConfig& pConfig);
 
   /// normalize - To normalize the command line language into mcld::Module.
   bool normalize(Module& pModule, IRBuilder& pBuilder);
@@ -70,9 +71,9 @@ private:
 
   bool initBackend();
 
-  bool initEmulator();
-
   bool initOStream();
+
+  bool initEmulator(LinkerScript& pScript);
 
 private:
   LinkerConfig* m_pConfig;

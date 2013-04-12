@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 #include <mcld/Module.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/Target/TargetMachine.h>
 #include <mcld/Support/TargetSelect.h>
 #include <mcld/Support/TargetRegistry.h>
@@ -996,7 +997,9 @@ static bool ShouldColorize()
    return term && (0 != strcmp(term, "dumb"));
 }
 
-static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
+static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
+                                            mcld::LinkerConfig& pConfig)
+{
   // -----  Set up General Options  ----- //
   // set up colorize
   switch (ArgColor) {
@@ -1054,14 +1057,14 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   // set up sysroot
   if (!ArgSysRoot.empty()) {
     if (exists(ArgSysRoot) && is_directory(ArgSysRoot))
-      pConfig.scripts().setSysroot(ArgSysRoot);
+      pScript.setSysroot(ArgSysRoot);
   }
 
   // add all search directories
   cl::list<std::string>::iterator sd;
   cl::list<std::string>::iterator sdEnd = ArgSearchDirList.end();
   for (sd=ArgSearchDirList.begin(); sd!=sdEnd; ++sd) {
-    if (!pConfig.scripts().directories().insert(*sd)) {
+    if (!pScript.directories().insert(*sd)) {
       // FIXME: need a warning function
       errs() << "WARNING: can not open search directory `-L"
              << *sd
@@ -1109,7 +1112,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
 
     // add wname -> __wrap_wname
     mcld::StringEntry<llvm::StringRef>* to_wrap =
-                    pConfig.scripts().renameMap().insert(*wname, exist);
+                                     pScript.renameMap().insert(*wname, exist);
 
     std::string to_wrap_str = "__wrap_" + *wname;
     to_wrap->setValue(to_wrap_str);
@@ -1120,7 +1123,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     // add __real_wname -> wname
     std::string from_real_str = "__real_" + *wname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pConfig.scripts().renameMap().insert(from_real_str, exist);
+                              pScript.renameMap().insert(from_real_str, exist);
     from_real->setValue(*wname);
     if (exist)
       mcld::warning(mcld::diag::rewrap) << *wname << from_real_str;
@@ -1134,7 +1137,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
 
     // add pname -> pname_portable
     mcld::StringEntry<llvm::StringRef>* to_port =
-                  pConfig.scripts().renameMap().insert(*pname, exist);
+                                     pScript.renameMap().insert(*pname, exist);
 
     std::string to_port_str = *pname + "_portable";
     to_port->setValue(to_port_str);
@@ -1145,7 +1148,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     // add __real_pname -> pname
     std::string from_real_str = "__real_" + *pname;
     mcld::StringEntry<llvm::StringRef>* from_real =
-             pConfig.scripts().renameMap().insert(from_real_str, exist);
+                              pScript.renameMap().insert(from_real_str, exist);
 
     from_real->setValue(*pname);
     if (exist)
@@ -1183,21 +1186,21 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
   if (-1U != ArgTextSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* text_mapping =
-      pConfig.scripts().addressMap().insert(".text", exist);
+                                   pScript.addressMap().insert(".text", exist);
     text_mapping->setValue(ArgTextSegAddr);
   }
   // -Tdata
   if (-1U != ArgDataSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* data_mapping =
-      pConfig.scripts().addressMap().insert(".data", exist);
+                                   pScript.addressMap().insert(".data", exist);
     data_mapping->setValue(ArgDataSegAddr);
   }
   // -Tbss
   if (-1U != ArgBssSegAddr) {
     bool exist = false;
     mcld::StringEntry<uint64_t>* bss_mapping =
-      pConfig.scripts().addressMap().insert(".bss", exist);
+                                    pScript.addressMap().insert(".bss", exist);
     bss_mapping->setValue(ArgBssSegAddr);
   }
   // --section-start SECTION=ADDRESS
@@ -1211,7 +1214,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     script.substr(pos + 1).getAsInteger(0, address);
     bool exist = false;
     mcld::StringEntry<uint64_t>* addr_mapping =
-      pConfig.scripts().addressMap().insert(script.substr(0, pos), exist);
+                     pScript.addressMap().insert(script.substr(0, pos), exist);
     addr_mapping->setValue(address);
   }
 
@@ -1234,7 +1237,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerConfig& pConfig) {
     // --defsym abc=pqr=expression
 
     mcld::StringEntry<llvm::StringRef> *defsyms =
-         pConfig.scripts().defSymMap().insert(expression.substr(0,pos),exist);
+                    pScript.defSymMap().insert(expression.substr(0,pos),exist);
     defsyms->setValue(expression.substr(pos + 1));
   }
 
@@ -1276,12 +1279,12 @@ int main(int argc, char* argv[])
   std::auto_ptr<llvm::Module> M;
 
   // Load the module to be linked...
-  mcld::Module LDIRModule;
-
+  mcld::LinkerScript LDScript;
+  mcld::Module LDIRModule(LDScript);
   mcld::LinkerConfig LDConfig;
 
   // Process the linker input from the command line
-  if (!ProcessLinkerOptionsFromCommand(LDConfig)) {
+  if (!ProcessLinkerOptionsFromCommand(LDScript, LDConfig)) {
     errs() << argv[0] << ": failed to process linker options from command line!\n";
     return 1;
   }

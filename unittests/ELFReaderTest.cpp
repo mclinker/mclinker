@@ -32,10 +32,11 @@ ELFReaderTest::ELFReaderTest()
   m_pConfig->targets().setBitClass( 64 );
   Relocation::SetUp( *m_pConfig );
 
+  m_pScript = new LinkerScript();
   m_pInfo = new X86_64GNUInfo( m_pConfig->targets().triple() );
   m_pLDBackend = new X86_64GNULDBackend( *m_pConfig, m_pInfo );
   m_pELFReader = new ELFReader<64, true>( *m_pLDBackend );
-  m_pModule = new Module();
+  m_pModule = new Module(*m_pScript);
   m_pIRBuilder = new IRBuilder( *m_pModule, *m_pConfig);
   m_pELFObjReader = new ELFObjectReader(*m_pLDBackend,
                                         *m_pIRBuilder,
@@ -48,6 +49,7 @@ ELFReaderTest::~ELFReaderTest()
   delete m_pConfig;
   delete m_pLDBackend;
   delete m_pELFReader;
+  delete m_pScript;
   delete m_pModule;
   delete m_pIRBuilder;
   delete m_pELFObjReader;

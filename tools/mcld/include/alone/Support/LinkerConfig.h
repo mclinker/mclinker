@@ -13,6 +13,7 @@
 #include <string>
 
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/Support/TargetRegistry.h>
 #include <mcld/LD/DiagnosticLineInfo.h>
 #include <mcld/LD/DiagnosticPrinter.h>
@@ -36,6 +37,9 @@ private:
 
   mcld::LinkerConfig *mLDConfig;
   bool initializeLDInfo();
+
+  mcld::LinkerScript *mLDScript;
+  bool initializeLDScript();
 
   mcld::DiagnosticLineInfo *mDiagLineInfo;
   mcld::DiagnosticPrinter *mDiagPrinter;
@@ -76,6 +80,12 @@ public:
 
   inline const mcld::LinkerConfig* getLDConfig() const
   { return mLDConfig; }
+
+  inline mcld::LinkerScript* getLDScript()
+  { return mLDScript; }
+
+  inline const mcld::LinkerScript* getLDScript() const
+  { return mLDScript; }
 
   bool isShared() const;
 

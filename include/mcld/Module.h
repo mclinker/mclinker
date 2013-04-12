@@ -20,8 +20,7 @@
 #include <string>
 #include <map>
 
-#include <llvm/ADT/ilist.h>
-
+#include <mcld/LinkerScript.h>
 #include <mcld/InputTree.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/ADT/HashEntry.h>
@@ -31,6 +30,8 @@
 #include <mcld/LD/SectionSymbolSet.h>
 #include <mcld/MC/SymbolCategory.h>
 #include <mcld/MC/MCLDInput.h>
+
+#include <llvm/ADT/ilist.h>
 
 namespace mcld {
 
@@ -67,16 +68,19 @@ public:
   typedef AliasList::const_iterator const_alias_iterator;
 
 public:
-  Module();
+  explicit Module(LinkerScript& pScript);
 
-  Module(const std::string& pName);
+  Module(const std::string& pName, LinkerScript& pScript);
 
   ~Module();
 
-  // -----  name  ----- //
   const std::string& name() const { return m_Name; }
 
   void setName(const std::string& pName) { m_Name = pName; }
+
+  const LinkerScript& getScript() const { return m_Script; }
+
+  LinkerScript&       getScript()       { return m_Script; }
 
   // -----  link-in objects ----- //
   const ObjectList& getObjectList() const { return m_ObjectList; }
@@ -165,6 +169,7 @@ public:
 
 private:
   std::string m_Name;
+  LinkerScript& m_Script;
   ObjectList m_ObjectList;
   LibraryList m_LibraryList;
   InputTree m_MainTree;

@@ -15,7 +15,6 @@
 #include <llvm/ADT/Triple.h>
 
 #include <mcld/GeneralOptions.h>
-#include <mcld/LinkerScript.h>
 #include <mcld/TargetOptions.h>
 #include <mcld/BitcodeOption.h>
 #include <mcld/AttributeOption.h>
@@ -28,7 +27,6 @@ namespace mcld {
 /** \class LinkerConfig
  *  \brief LinkerConfig is composed of argumments of MCLinker.
  *   options()        - the general options
- *   scripts()        - the script options
  *   bitcode()        - the bitcode being linked
  *   attribute()      - the attribute options
  */
@@ -76,9 +74,6 @@ public:
   const GeneralOptions& options() const { return m_Options; }
   GeneralOptions&       options()       { return m_Options; }
 
-  const LinkerScript&  scripts() const { return m_Scripts; }
-  LinkerScript&        scripts()       { return m_Scripts; }
-
   const TargetOptions&  targets() const { return m_Targets; }
   TargetOptions&        targets()       { return m_Targets; }
 
@@ -104,7 +99,6 @@ public:
 private:
   // -----  General Options  ----- //
   GeneralOptions m_Options;
-  LinkerScript m_Scripts;
   TargetOptions m_Targets;
   BitcodeOption m_Bitcode;
   AttributeOption m_Attribute;
