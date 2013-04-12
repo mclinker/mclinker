@@ -122,11 +122,11 @@ size_t GNULDBackend::sectionStartOffset() const
   }
 }
 
-uint64_t GNULDBackend::segmentStartAddr() const
+uint64_t GNULDBackend::getSegmentStartAddr(const LinkerScript& pScript) const
 {
-  ScriptOptions::AddressMap::const_iterator mapping =
-    config().scripts().addressMap().find(".text");
-  if (mapping != config().scripts().addressMap().end())
+  LinkerScript::AddressMap::const_iterator mapping =
+    pScript.addressMap().find(".text");
+  if (pScript.addressMap().end() != mapping)
     return mapping.getEntry()->value();
   else if (config().isCodeIndep())
     return 0x0;
@@ -1699,8 +1699,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     }
     else if ((*sect)->kind() == LDFileFormat::BSS &&
              load_seg->isDataSegment() &&
-             config().scripts().addressMap().find(".bss") !=
-             (config().scripts().addressMap().end())) {
+             pModule.getScript().addressMap().find(".bss") !=
+             (pModule.getScript().addressMap().end())) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
@@ -1708,8 +1708,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       if ((*sect != &(file_format->getText())) &&
           (*sect != &(file_format->getData())) &&
           (*sect != &(file_format->getBSS())) &&
-          (config().scripts().addressMap().find((*sect)->name()) !=
-           config().scripts().addressMap().end()))
+          (pModule.getScript().addressMap().find((*sect)->name()) !=
+           pModule.getScript().addressMap().end()))
         // 4. create PT_LOAD for sections in address map except for text, data,
         // and bss
         createPT_LOAD = true;
@@ -1805,9 +1805,10 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
 }
 
 /// setupProgramHdrs - set up the attributes of segments
-void GNULDBackend::setupProgramHdrs()
+void GNULDBackend::setupProgramHdrs(const LinkerScript& pScript)
 {
   // update segment info
+  uint64_t seg_start_addr = getSegmentStartAddr(pScript);
   ELFSegmentFactory::iterator seg, seg_end = m_ELFSegmentTable.end();
   for (seg = m_ELFSegmentTable.begin(); seg != seg_end; ++seg) {
     ELFSegment& segment = *seg;
@@ -1824,7 +1825,7 @@ void GNULDBackend::setupProgramHdrs()
         phdr_size = sizeof(llvm::ELF::Elf64_Phdr);
       }
       segment.setOffset(offset);
-      segment.setVaddr(segmentStartAddr() + offset);
+      segment.setVaddr(seg_start_addr + offset);
       segment.setPaddr(segment.vaddr());
       segment.setFilesz(numOfSegments() * phdr_size);
       segment.setMemsz(numOfSegments() * phdr_size);
@@ -1839,7 +1840,7 @@ void GNULDBackend::setupProgramHdrs()
     segment.setOffset(segment.front()->offset());
     if (llvm::ELF::PT_LOAD == segment.type() &&
         LDFileFormat::Null == segment.front()->kind())
-      segment.setVaddr(segmentStartAddr());
+      segment.setVaddr(seg_start_addr);
     else
       segment.setVaddr(segment.front()->addr());
     segment.setPaddr(segment.vaddr());
@@ -1993,6 +1994,8 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
          (pSectEnd != pModule.end() &&
           (*pSectBegin)->index() <= (*pSectEnd)->index()));
 
+  const LinkerScript& script = pModule.getScript();
+  uint64_t seg_start_addr = getSegmentStartAddr(script);
   for (ELFSegmentFactory::iterator seg = elfSegmentTable().begin(),
          segEnd = elfSegmentTable().end(), prev = elfSegmentTable().end();
        seg != segEnd; prev = seg, ++seg) {
@@ -2000,28 +2003,28 @@ void GNULDBackend::setOutputSectionAddress(Module& pModule,
       continue;
 
     uint64_t start_addr = 0x0;
-    ScriptOptions::AddressMap::const_iterator mapping;
+    LinkerScript::AddressMap::const_iterator mapping;
     if ((*seg).front()->kind() == LDFileFormat::Null)
-      mapping = config().scripts().addressMap().find(".text");
+      mapping = script.addressMap().find(".text");
     else if ((*seg).isDataSegment())
-      mapping = config().scripts().addressMap().find(".data");
+      mapping = script.addressMap().find(".data");
     else if ((*seg).isBssSegment())
-      mapping = config().scripts().addressMap().find(".bss");
+      mapping = script.addressMap().find(".bss");
     else
-      mapping = config().scripts().addressMap().find((*seg).front()->name());
+      mapping = script.addressMap().find((*seg).front()->name());
 
-    if (mapping != config().scripts().addressMap().end()) {
+    if (mapping != script.addressMap().end()) {
       // use address mapping in script options
       start_addr = mapping.getEntry()->value();
     }
     else {
       if ((*seg).front()->kind() == LDFileFormat::Null) {
         // 1st PT_LOAD
-        start_addr = segmentStartAddr();
+        start_addr = seg_start_addr;
       }
       else if ((*prev).front()->kind() == LDFileFormat::Null) {
         // prev segment is 1st PT_LOAD
-        start_addr = segmentStartAddr() + (*seg).front()->offset();
+        start_addr = seg_start_addr + (*seg).front()->offset();
       }
       else {
         // Others
@@ -2251,7 +2254,7 @@ void GNULDBackend::postLayout(Module& pModule, IRBuilder& pBuilder)
     relax(pModule, pBuilder);
 
     // 1.4 set up the attributes of program headers
-    setupProgramHdrs();
+    setupProgramHdrs(pModule.getScript());
   }
 
   // 2. target specific post layout

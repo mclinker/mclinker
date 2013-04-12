@@ -23,12 +23,12 @@ static GCFactory<Module::AliasList, MCLD_SECTIONS_PER_INPUT> gc_aliaslist_factor
 //===----------------------------------------------------------------------===//
 // Module
 //===----------------------------------------------------------------------===//
-Module::Module()
-  : m_NamePool(1024) {
+Module::Module(LinkerScript& pScript)
+  : m_Script(pScript), m_NamePool(1024) {
 }
 
-Module::Module(const std::string& pName)
-  : m_Name(pName), m_NamePool(1024) {
+Module::Module(const std::string& pName, LinkerScript& pScript)
+  : m_Name(pName), m_Script(pScript), m_NamePool(1024) {
 }
 
 Module::~Module()
@@ -77,7 +77,7 @@ Module::AliasList* Module::getAliasList(const ResolveInfo& pSym)
   for (list_it=m_AliasLists.begin(); list_it!=list_it_e; ++list_it) {
     AliasList& list = **list_it;
     alias_iterator alias_it, alias_it_e=list.end();
-    for (alias_it=list.begin(); alias_it!=list.end(); ++alias_it) {
+    for (alias_it=list.begin(); alias_it!=alias_it_e; ++alias_it) {
       if ( 0==strcmp((*alias_it)->name(), pSym.name()) ) {
         return &list;
       }

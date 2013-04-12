@@ -210,7 +210,7 @@ bool MCLinker::doInitialization(llvm::Module &pM)
   // Now, all input arguments are prepared well, send it into ObjectLinker
   m_pLinker = new Linker();
 
-  if (!m_pLinker->config(m_Config))
+  if (!m_pLinker->emulate(m_Module.getScript(), m_Config))
     return false;
 
   m_pBuilder = new IRBuilder(m_Module, m_Config);
@@ -277,10 +277,11 @@ void MCLinker::initializeInputTree(IRBuilder& pBuilder)
   cl::list<std::string>::iterator namespec, nsBegin, nsEnd;
   nsBegin = ArgNameSpecList.begin();
   nsEnd = ArgNameSpecList.end();
+  mcld::Module& module = pBuilder.getModule();
   for (namespec = nsBegin; namespec != nsEnd; ++namespec) {
     unsigned int pos = ArgNameSpecList.getPosition(namespec - nsBegin);
     actions.push_back(new NamespecAction(pos, *namespec,
-                                         m_Config.options().directories()));
+                                         module.getScript().directories()));
     actions.push_back(new ContextAction(pos));
     actions.push_back(new MemoryAreaAction(pos, FileHandle::ReadOnly));
   }

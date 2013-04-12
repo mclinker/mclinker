@@ -41,7 +41,9 @@ Linker::~Linker()
   reset();
 }
 
-bool Linker::config(LinkerConfig& pConfig)
+/// emulate - To set up target-dependent options and default linker script.
+/// Follow GNU ld quirks.
+bool Linker::emulate(LinkerScript& pScript, LinkerConfig& pConfig)
 {
   m_pConfig = &pConfig;
 
@@ -51,13 +53,10 @@ bool Linker::config(LinkerConfig& pConfig)
   if (!initBackend())
     return false;
 
-  m_pObjLinker = new ObjectLinker(*m_pConfig,
-                                  *m_pBackend);
-
-  if (!initEmulator())
+  if (!initOStream())
     return false;
 
-  if (!initOStream())
+  if (!initEmulator(pScript))
     return false;
 
   return true;
@@ -65,18 +64,24 @@ bool Linker::config(LinkerConfig& pConfig)
 
 bool Linker::link(Module& pModule, IRBuilder& pBuilder)
 {
-  if (!resolve(pModule, pBuilder))
+  if (!normalize(pModule, pBuilder))
+    return false;
+
+  if (!resolve())
     return false;
 
   return layout();
 }
 
-bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
+/// normalize - to convert the command line language to the input tree.
+bool Linker::normalize(Module& pModule, IRBuilder& pBuilder)
 {
   assert(NULL != m_pConfig);
 
   m_pIRBuilder = &pBuilder;
-  assert(m_pObjLinker!=NULL);
+
+  m_pObjLinker = new ObjectLinker(*m_pConfig, *m_pBackend);
+
   m_pObjLinker->setup(pModule, pBuilder);
 
   // 2. - initialize FragmentLinker
@@ -137,6 +142,12 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
     // to call outside functions, then we can treat the output static dependent
     // and perform better optimizations.
     m_pConfig->setCodePosition(LinkerConfig::StaticDependent);
+
+    if (LinkerConfig::Exec == m_pConfig->codeGenType()) {
+      // Since the output is static dependent, there should not have any undefined
+      // references in the output module.
+      m_pConfig->options().setNoUndefined();
+    }
   }
   else {
     m_pConfig->setCodePosition(LinkerConfig::DynamicDependent);
@@ -145,16 +156,28 @@ bool Linker::resolve(Module& pModule, IRBuilder& pBuilder)
   if (!m_pObjLinker->linkable())
     return Diagnose();
 
+  return true;
+}
+
+bool Linker::resolve()
+{
+  assert(NULL != m_pConfig);
+  assert(m_pObjLinker != NULL);
+
   // 6. - read all relocation entries from input files
   //   For all relocation sections of each input file (in the tree),
   //   read out reloc entry info from the object file and accordingly
   //   initiate their reloc entries in SectOrRelocData of LDSection.
+  //
+  //   To collect all edges in the reference graph.
   m_pObjLinker->readRelocations();
 
   // 7. - merge all sections
   //   Push sections into Module's SectionTable.
   //   Merge sections that have the same name.
   //   Maintain them as fragments in the section.
+  //
+  //   To merge nodes of the reference graph.
   if (!m_pObjLinker->mergeSections())
     return false;
 
@@ -304,17 +327,6 @@ bool Linker::initBackend()
   return true;
 }
 
-bool Linker::initEmulator()
-{
-  assert(NULL != m_pTarget && NULL != m_pConfig);
-  bool result = m_pTarget->emulate(m_pConfig->targets().triple().str(),
-                                   *m_pConfig);
-
-  // Relocation should be set up after emulation.
-  Relocation::SetUp(*m_pConfig);
-  return result;
-}
-
 bool Linker::initOStream()
 {
   assert(NULL != m_pConfig);
@@ -323,5 +335,11 @@ bool Linker::initOStream()
   mcld::errs().setColor(m_pConfig->options().color());
 
   return true;
+}
+
+bool Linker::initEmulator(LinkerScript& pScript)
+{
+  assert(NULL != m_pTarget && NULL != m_pConfig);
+  return m_pTarget->emulate(pScript, *m_pConfig);
 }
 

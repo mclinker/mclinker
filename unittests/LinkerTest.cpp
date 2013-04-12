@@ -51,12 +51,12 @@ TEST_F( LinkerTest, set_up_n_clean_up) {
 
   Initialize();
   LinkerConfig config("arm-none-linux-gnueabi");
-
-  Module module("test");
+  LinkerScript script;
+  Module module("test", script);
   config.setCodeGenType(LinkerConfig::DynObj);
 
   Linker linker;
-  linker.config(config);
+  linker.emulate(script, config);
 
   IRBuilder builder(module, config);
   // create inputs here
@@ -80,6 +80,7 @@ TEST_F( LinkerTest, plasma) {
 
   Initialize();
   Linker linker;
+  LinkerScript script;
 
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config("armv7-none-linux-gnueabi");
@@ -87,17 +88,17 @@ TEST_F( LinkerTest, plasma) {
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config.options().directories().insert(search_dir);
+  script.directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config);
+  linker.emulate(script, config);
 
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libplasma.so");   ///< --soname=libplasma.so
   config.options().setBsymbolic();              ///< -Bsymbolic
 
-  Module module("libplasma.so");
+  Module module("libplasma.so", script);
   IRBuilder builder(module, config);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -141,20 +142,21 @@ TEST_F( LinkerTest, plasma_twice) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config1("armv7-none-linux-gnueabi");
 
+  LinkerScript script1;
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
+  script1.directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config1);
+  linker.emulate(script1, config1);
 
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
   config1.options().setBsymbolic(false);              ///< -Bsymbolic
 
-  Module module1("libplasma.once.so");
+  Module module1("libplasma.once.so", script1);
   IRBuilder builder1(module1, config1);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -191,18 +193,19 @@ TEST_F( LinkerTest, plasma_twice) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
+  LinkerScript script2;
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
+  script2.directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config2);
+  linker.emulate(script2, config2);
 
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
   config2.options().setBsymbolic();              ///< -Bsymbolic
 
-  Module module2("libplasma.so");
+  Module module2("libplasma.so", script2);
   IRBuilder builder2(module2, config2);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -236,20 +239,21 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config1("armv7-none-linux-gnueabi");
 
+  LinkerScript script1;
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
   Path search_dir(TOPDIR);
   search_dir.append("test/libs/ARM/Android/android-14");
-  config1.options().directories().insert(search_dir);
+  script1.directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config1);
+  linker.emulate(script1, config1);
 
   config1.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config1.options().setSOName("libplasma.once.so");   ///< --soname=libplasma.twice.so
   config1.options().setBsymbolic(false);              ///< -Bsymbolic
 
-  Module module1("libplasma.once.so");
+  Module module1("libplasma.once.so", script1);
   IRBuilder *builder1 = new IRBuilder(module1, config1);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -291,18 +295,19 @@ TEST_F( LinkerTest, plasma_twice_irbuilder_heap) {
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config2("armv7-none-linux-gnueabi");
 
+  LinkerScript script2;
   /// -L=${TOPDIR}/test/libs/ARM/Android/android-14
-  config2.options().directories().insert(search_dir);
+  script2.directories().insert(search_dir);
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config2);
+  linker.emulate(script2, config2);
 
   config2.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config2.options().setSOName("libplasma.twice.so");   ///< --soname=libplasma.twice.exe
   config2.options().setBsymbolic();              ///< -Bsymbolic
 
-  Module module2("libplasma.so");
+  Module module2("libplasma.so", script2);
   IRBuilder* builder2 = new IRBuilder(module2, config2);
 
   /// ${TOPDIR}/test/libs/ARM/Android/android-14/crtbegin_so.o
@@ -337,15 +342,16 @@ TEST_F( LinkerTest, plasma_object) {
 
   ///< --mtriple="armv7-none-linux-gnueabi"
   LinkerConfig config("armv7-none-linux-gnueabi");
+  LinkerScript script;
 
   /// To configure linker before setting options. Linker::config sets up
   /// default target-dependent configuration to LinkerConfig.
-  linker.config(config);
+  linker.emulate(script, config);
 
   config.setCodeGenType(LinkerConfig::DynObj);  ///< --shared
   config.options().setSOName("libgotplt.so");   ///< --soname=libgotplt.so
 
-  Module module;
+  Module module(script);
   IRBuilder builder(module, config);
 
   Path gotplt_o(TOPDIR);

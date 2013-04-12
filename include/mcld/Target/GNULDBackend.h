@@ -107,8 +107,8 @@ public:
 
   bool hasStaticTLS() const { return m_bHasStaticTLS; }
 
-  /// segmentStartAddr - this function returns the start address of the segment
-  uint64_t segmentStartAddr() const;
+  /// getSegmentStartAddr - this function returns the start address of the segment
+  uint64_t getSegmentStartAddr(const LinkerScript& pScript) const;
 
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
@@ -311,7 +311,7 @@ private:
 
   /// setupProgramHdrs - set up the attributes of segments
   ///  (i.e., offset, addresses, file/mem size, flag,  and alignment)
-  void setupProgramHdrs();
+  void setupProgramHdrs(const LinkerScript& pScript);
 
   /// getSegmentFlag - give a section flag and return the corresponding segment
   /// flag

@@ -11,6 +11,7 @@
 
 #include <gtest.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/LD/ELFReaderIf.h>
 #include <mcld/LD/ELFReader.h>
 #include <mcld/LD/ELFObjectReader.h>
@@ -40,14 +41,15 @@ public:
   virtual void TearDown();
 
 protected:
-  mcld::Input *m_pInput;
-  mcld::LinkerConfig *m_pConfig;
-  mcld::GNUInfo *m_pInfo;
-  mcld::GNULDBackend *m_pLDBackend;
-  mcld::ELFReaderIF *m_pELFReader;
-  mcld::Module *m_pModule;
-  mcld::IRBuilder *m_pIRBuilder;
-  mcld::ELFObjectReader *m_pELFObjReader;
+  mcld::Input* m_pInput;
+  mcld::LinkerConfig* m_pConfig;
+  mcld::LinkerScript* m_pScript;
+  mcld::GNUInfo* m_pInfo;
+  mcld::GNULDBackend* m_pLDBackend;
+  mcld::ELFReaderIF* m_pELFReader;
+  mcld::Module* m_pModule;
+  mcld::IRBuilder* m_pIRBuilder;
+  mcld::ELFObjectReader* m_pELFObjReader;
 };
 
 } // namespace of mcldtest

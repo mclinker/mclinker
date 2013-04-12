@@ -1,4 +1,4 @@
-//===- ScriptOptions.h ----------------------------------------------------===//
+//===- LinkerScript.h -----------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,8 +6,8 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#ifndef MCLD_SCRIPT_OPTIONS_H
-#define MCLD_SCRIPT_OPTIONS_H
+#ifndef MCLD_LINKER_SCRIPT_H
+#define MCLD_LINKER_SCRIPT_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
@@ -17,13 +17,14 @@
 #include <mcld/ADT/StringHash.h>
 #include <mcld/ADT/HashTable.h>
 #include <mcld/Object/SectionMap.h>
+#include <mcld/MC/SearchDirs.h>
 
 namespace mcld {
 
-/** \class ScriptOptions
+/** \class LinkerScript
  *
  */
-class ScriptOptions
+class LinkerScript
 {
 public:
   typedef HashTable<StringEntry<llvm::StringRef>,
@@ -39,9 +40,9 @@ public:
                     StringEntryFactory<llvm::StringRef> > DefSymMap;
 
 public:
-  ScriptOptions();
+  LinkerScript();
 
-  ~ScriptOptions();
+  ~LinkerScript();
 
   const SymbolRenameMap& renameMap() const { return m_SymbolRenames; }
   SymbolRenameMap&       renameMap()       { return m_SymbolRenames; }
@@ -55,11 +56,23 @@ public:
   const DefSymMap& defSymMap() const { return m_DefSymMap; }
   DefSymMap&       defSymMap()       { return m_DefSymMap; }
 
+  /// search directory
+  const SearchDirs& directories() const { return m_SearchDirs; }
+  SearchDirs&       directories()       { return m_SearchDirs; }
+
+  /// sysroot
+  const sys::fs::Path& sysroot() const;
+
+  void setSysroot(const sys::fs::Path &pPath);
+
+  bool hasSysroot() const;
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   DefSymMap m_DefSymMap;
+  SearchDirs m_SearchDirs;
 };
 
 } // namespace of mcld

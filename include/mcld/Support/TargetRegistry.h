@@ -23,6 +23,7 @@ namespace mcld {
 
 class Module;
 class LinkerConfig;
+class LinkerScript;
 class MemoryArea;
 class MCLDTargetMachine;
 class TargetRegistry;
@@ -50,7 +51,7 @@ public:
                                       Module&,
                                       MemoryArea& pOutput);
 
-  typedef bool (*EmulationFnTy)(const std::string& pTriple, LinkerConfig&);
+  typedef bool (*EmulationFnTy)(LinkerScript&, LinkerConfig&);
 
   typedef TargetLDBackend  *(*TargetLDBackendCtorTy)(const llvm::Target&,
                                                      const LinkerConfig&);
@@ -93,10 +94,10 @@ public:
 
   /// emulate - given MCLinker default values for the other aspects of the
   /// target system.
-  bool emulate(const std::string& pTriple, LinkerConfig& pConfig) const {
+  bool emulate(LinkerScript& pScript, LinkerConfig& pConfig) const {
     if (!EmulationFn)
       return false;
-    return EmulationFn(pTriple, pConfig);
+    return EmulationFn(pScript, pConfig);
   }
 
   /// createLDBackend - create target-specific LDBackend

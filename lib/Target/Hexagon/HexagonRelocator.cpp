@@ -113,7 +113,8 @@ HexagonRelocator::Result none(Relocation& pReloc, HexagonRelocator& pParent)
 }
 
 // R_HEX_B15_PCREL: Word32_B15 : 0x00df20fe  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB15PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB15PCREL(Relocation& pReloc,
+                                       HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -129,7 +130,8 @@ HexagonRelocator::Result relocB15PCREL(Relocation& pReloc, HexagonRelocator& pPa
 }
 
 // R_HEX_B22_PCREL: Word32_B22 : 0x01ff3ffe  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB22PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB22PCREL(Relocation& pReloc,
+                                       HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -137,9 +139,7 @@ HexagonRelocator::Result relocB22PCREL(Relocation& pReloc, HexagonRelocator& pPa
 
   int32_t result = (int32_t) ((S + A - P) >> 2);
   int32_t range = 1 << 21;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if ( (result < range) && (result > -range)) {
     pReloc.target() = pReloc.target() | ApplyMask<int32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -148,7 +148,8 @@ HexagonRelocator::Result relocB22PCREL(Relocation& pReloc, HexagonRelocator& pPa
 }
 
 // R_HEX_B7_PCREL: Word32_B7 : 0x0001f18  (S + A - P) >> 2 : Signed Verify
-HexagonRelocator::Result relocB7PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB7PCREL(Relocation& pReloc,
+                                      HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -164,7 +165,8 @@ HexagonRelocator::Result relocB7PCREL(Relocation& pReloc, HexagonRelocator& pPar
 }
 
 // R_HEX_32: Word32 : 0xffffffff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc32(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result reloc32(Relocation& pReloc,
+                                 HexagonRelocator& pParent)
 {
   HexagonRelocator::DWord A = pReloc.addend();
   HexagonRelocator::DWord S = pReloc.symValue();
@@ -176,7 +178,8 @@ HexagonRelocator::Result reloc32(Relocation& pReloc, HexagonRelocator& pParent)
 }
 
 // R_HEX_16: Word32 : 0xffff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc16(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result reloc16(Relocation& pReloc,
+                                 HexagonRelocator& pParent)
 {
   HexagonRelocator::DWord A = pReloc.addend();
   HexagonRelocator::DWord S = pReloc.symValue();
@@ -188,7 +191,8 @@ HexagonRelocator::Result reloc16(Relocation& pReloc, HexagonRelocator& pParent)
 }
 
 // R_HEX_8: Word32 : 0xff : (S + A) : Unsigned Truncate
-HexagonRelocator::Result reloc8(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result reloc8(Relocation& pReloc,
+                                HexagonRelocator& pParent)
 {
   HexagonRelocator::DWord A = pReloc.addend();
   HexagonRelocator::DWord S = pReloc.symValue();
@@ -200,7 +204,8 @@ HexagonRelocator::Result reloc8(Relocation& pReloc, HexagonRelocator& pParent)
 }
 
 // R_HEX_LO16: Word32_LO : 0x00c03fff  (S + A) : Unsigned Truncate
-HexagonRelocator::Result relocLO16(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocLO16(Relocation& pReloc,
+                                   HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -212,7 +217,8 @@ HexagonRelocator::Result relocLO16(Relocation& pReloc, HexagonRelocator& pParent
 }
 
 // R_HEX_HI16: Word32_LO : 0x00c03fff  (S + A) >> 16 : Unsigned Truncate
-HexagonRelocator::Result relocHI16(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocHI16(Relocation& pReloc,
+                                   HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -224,7 +230,8 @@ HexagonRelocator::Result relocHI16(Relocation& pReloc, HexagonRelocator& pParent
 }
 
 // R_HEX_GPREL16_0 : Word32_GP : 0x061f2ff  (S + A - GP) : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -233,9 +240,7 @@ HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc, HexagonRelocator& pP
 
   int64_t result = (int64_t) (S + A - GP);
   int64_t range = 1UL << 32;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -244,7 +249,8 @@ HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc, HexagonRelocator& pP
 }
 
 // R_HEX_GPREL16_1 : Word32_GP : 0x061f2ff  (S + A - GP)>>1 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -253,9 +259,7 @@ HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc, HexagonRelocator& pP
 
   int64_t result = (int64_t) ((S + A - GP) >> 1);
   int64_t range = 1L << 32;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -264,7 +268,8 @@ HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc, HexagonRelocator& pP
 }
 
 // R_HEX_GPREL16_2 : Word32_GP : 0x061f2ff  (S + A - GP)>>2 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -273,9 +278,7 @@ HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc, HexagonRelocator& pP
 
   int64_t result = (int64_t) ((S + A - GP) >> 2);
   int64_t range = 1L << 32;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -284,7 +287,8 @@ HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc, HexagonRelocator& pP
 }
 
 // R_HEX_GPREL16_3 : Word32_GP : 0x061f2ff  (S + A - GP)>>3 : Unsigned Verify
-HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -293,9 +297,7 @@ HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc, HexagonRelocator& pP
 
   int64_t result = (int64_t) ((S + A - GP) >> 3);
   int64_t range = 1L << 32;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -304,7 +306,8 @@ HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc, HexagonRelocator& pP
 }
 
 // R_HEX_B13_PCREL : Word32_B13 : 0x00202ffe  (S + A - P)>>2 : Signed Verify
-HexagonRelocator::Result relocB13PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB13PCREL(Relocation& pReloc,
+                                       HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -320,7 +323,8 @@ HexagonRelocator::Result relocB13PCREL(Relocation& pReloc, HexagonRelocator& pPa
 }
 
 // R_HEX_B9_PCREL : Word32_B9 : 0x00300ffe  (S + A - P)>>2 : Signed Verify
-HexagonRelocator::Result relocB9PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB9PCREL(Relocation& pReloc,
+                                      HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -328,9 +332,7 @@ HexagonRelocator::Result relocB9PCREL(Relocation& pReloc, HexagonRelocator& pPar
 
   int32_t result = ((S + A - P) >> 2);
   int32_t range = 1L << 8;
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result < range && result > -range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -339,7 +341,8 @@ HexagonRelocator::Result relocB9PCREL(Relocation& pReloc, HexagonRelocator& pPar
 }
 
 // R_HEX_B32_PCREL_X : Word32_X26 : 0x0fff3fff  (S + A - P)>>6 : Truncate
-HexagonRelocator::Result relocB32PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocB32PCRELX(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -352,7 +355,8 @@ HexagonRelocator::Result relocB32PCRELX(Relocation& pReloc, HexagonRelocator& pP
 }
 
 // R_HEX_32_6_X : Word32_X26 : 0x0fff3fff  (S + A)>>6 : Unsigned Verify
-HexagonRelocator::Result reloc32_6_X(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result reloc32_6_X(Relocation& pReloc,
+                                     HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -368,8 +372,10 @@ HexagonRelocator::Result reloc32_6_X(Relocation& pReloc, HexagonRelocator& pPare
   return HexagonRelocator::OK;
 }
 
-// R_HEX_B22_PCREL_X : Word32_B22 : 0x01ff3ffe  ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB22PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+// R_HEX_B22_PCREL_X : Word32_B22 : 0x01ff3ffe
+// ((S + A - P) & 0x3f)>>2 : Signed Verify
+HexagonRelocator::Result relocB22PCRELX(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -386,8 +392,10 @@ HexagonRelocator::Result relocB22PCRELX(Relocation& pReloc, HexagonRelocator& pP
   return HexagonRelocator::Overflow;
 }
 
-// R_HEX_B15_PCREL_X : Word32_B15 : 0x00df20fe  ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB15PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+// R_HEX_B15_PCREL_X : Word32_B15 : 0x00df20fe
+// ((S + A - P) & 0x3f)>>2 : Signed Verify
+HexagonRelocator::Result relocB15PCRELX(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -404,8 +412,10 @@ HexagonRelocator::Result relocB15PCRELX(Relocation& pReloc, HexagonRelocator& pP
   return HexagonRelocator::Overflow;
 }
 
-// R_HEX_B13_PCREL_X : Word32_B13 : 0x00202ffe  ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB13PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+// R_HEX_B13_PCREL_X : Word32_B13 : 0x00202ffe
+// ((S + A - P) & 0x3f)>>2 : Signed Verify
+HexagonRelocator::Result relocB13PCRELX(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -422,8 +432,10 @@ HexagonRelocator::Result relocB13PCRELX(Relocation& pReloc, HexagonRelocator& pP
   return HexagonRelocator::Overflow;
 }
 
-// R_HEX_B9_PCREL_X : Word32_B9 : 0x003000fe  ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB9PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+// R_HEX_B9_PCREL_X : Word32_B9 : 0x003000fe
+// ((S + A - P) & 0x3f)>>2 : Signed Verify
+HexagonRelocator::Result relocB9PCRELX(Relocation& pReloc,
+                                       HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -432,9 +444,7 @@ HexagonRelocator::Result relocB9PCRELX(Relocation& pReloc, HexagonRelocator& pPa
   int32_t result = ((S + A - P) & 0x3f);
   int32_t range = 1 << 8;
 
-  uint32_t bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result < range && result > -range)  {
     pReloc.target() = pReloc.target() | ApplyMask<int32_t>(bitMask, result);
     return HexagonRelocator::OK;
@@ -443,8 +453,10 @@ HexagonRelocator::Result relocB9PCRELX(Relocation& pReloc, HexagonRelocator& pPa
   return HexagonRelocator::Overflow;
 }
 
-// R_HEX_B7_PCREL_X : Word32_B7 : 0x00001f18  ((S + A - P) & 0x3f)>>2 : Signed Verify
-HexagonRelocator::Result relocB7PCRELX(Relocation& pReloc, HexagonRelocator& pParent)
+// R_HEX_B7_PCREL_X : Word32_B7 : 0x00001f18
+// ((S + A - P) & 0x3f)>>2 : Signed Verify
+HexagonRelocator::Result relocB7PCRELX(Relocation& pReloc,
+                                       HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -462,7 +474,8 @@ HexagonRelocator::Result relocB7PCRELX(Relocation& pReloc, HexagonRelocator& pPa
 }
 
 // R_HEX_32_PCREL : Word32 : 0xffffffff  (S + A - P) : Signed Verify
-HexagonRelocator::Result reloc32PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result reloc32PCREL(Relocation& pReloc,
+                                      HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
@@ -480,27 +493,20 @@ HexagonRelocator::Result reloc32PCREL(Relocation& pReloc, HexagonRelocator& pPar
 }
 
 // R_HEX_N_X : Word32_U6 : (S + A) : Unsigned Truncate
-HexagonRelocator::Result relocHexNX(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result relocHexNX(Relocation& pReloc,
+                                    HexagonRelocator& pParent)
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
-
   uint32_t result = (S + A);
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
 
-  // Get the instruction
-  // FIXME: Remove for unused variable
-  // uint32_t insn = pReloc.target();
-
-  uint32_t bitMask = 0;
-
-    bitMask = findBitMask((uint32_t)pReloc.target(),
-                                 insn_encodings_v4,
-                                 sizeof(insn_encodings_v4)/sizeof(Instruction));
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
   return HexagonRelocator::OK;
 }
 
-HexagonRelocator::Result unsupport(Relocation& pReloc, HexagonRelocator& pParent)
+HexagonRelocator::Result unsupport(Relocation& pReloc,
+                                   HexagonRelocator& pParent)
 {
   return HexagonRelocator::Unsupport;
 }

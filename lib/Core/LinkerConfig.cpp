@@ -18,7 +18,6 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 LinkerConfig::LinkerConfig()
   : m_Options(),
-    m_Scripts(),
     m_Targets(),
     m_Bitcode(),
     m_Attribute(),
@@ -31,7 +30,6 @@ LinkerConfig::LinkerConfig()
 
 LinkerConfig::LinkerConfig(const std::string& pTripleString)
   : m_Options(),
-    m_Scripts(),
     m_Targets(pTripleString),
     m_Bitcode(),
     m_Attribute(),

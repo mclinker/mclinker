@@ -40,7 +40,7 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
                                         uint32_t pAlign)
 {
   // try to get one from output LDSection
-  const SectionMap::NamePair& pair = m_Config.scripts().sectionMap().find(pName);
+  const SectionMap::NamePair& pair = m_Module.getScript().sectionMap().find(pName);
   std::string output_name = (pair.isNull())?pName:pair.to;
   LDSection* output_sect = LDSection::Create(output_name, pKind, pType, pFlag);
   output_sect->setAlign(pAlign);
@@ -52,7 +52,7 @@ LDSection* ObjectBuilder::CreateSection(const std::string& pName,
 LDSection* ObjectBuilder::MergeSection(LDSection& pInputSection)
 {
   const SectionMap::NamePair& pair =
-              m_Config.scripts().sectionMap().find(pInputSection.name());
+              m_Module.getScript().sectionMap().find(pInputSection.name());
   std::string output_name = (pair.isNull())?pInputSection.name():pair.to;
   LDSection* target = m_Module.getSection(output_name);
 

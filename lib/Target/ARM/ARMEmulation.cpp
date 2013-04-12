@@ -8,14 +8,15 @@
 //===----------------------------------------------------------------------===//
 #include "ARM.h"
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 #include <mcld/Target/ELFEmulation.h>
 #include <mcld/Support/TargetRegistry.h>
 
 namespace mcld {
 
-static bool MCLDEmulateARMELF(LinkerConfig& pConfig)
+static bool MCLDEmulateARMELF(LinkerScript& pScript, LinkerConfig& pConfig)
 {
-  if (!MCLDEmulateELF(pConfig))
+  if (!MCLDEmulateELF(pScript, pConfig))
     return false;
 
   // set up bitclass and endian
@@ -35,9 +36,9 @@ static bool MCLDEmulateARMELF(LinkerConfig& pConfig)
   // set up section map
   if (pConfig.codeGenType() != LinkerConfig::Object) {
     bool exist = false;
-    pConfig.scripts().sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
-    pConfig.scripts().sectionMap().append(".ARM.extab", ".ARM.extab", exist);
-    pConfig.scripts().sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
+    pScript.sectionMap().append(".ARM.exidx", ".ARM.exidx", exist);
+    pScript.sectionMap().append(".ARM.extab", ".ARM.extab", exist);
+    pScript.sectionMap().append(".ARM.attributes", ".ARM.attributes", exist);
   }
   return true;
 }
@@ -45,19 +46,18 @@ static bool MCLDEmulateARMELF(LinkerConfig& pConfig)
 //===----------------------------------------------------------------------===//
 // emulateARMLD - the help function to emulate ARM ld
 //===----------------------------------------------------------------------===//
-bool emulateARMLD(const std::string& pTriple, LinkerConfig& pConfig)
+bool emulateARMLD(LinkerScript& pScript, LinkerConfig& pConfig)
 {
-  llvm::Triple theTriple(pTriple);
-  if (theTriple.isOSDarwin()) {
+  if (pConfig.targets().triple().isOSDarwin()) {
     assert(0 && "MachO linker has not supported yet");
     return false;
   }
-  if (theTriple.isOSWindows()) {
+  if (pConfig.targets().triple().isOSWindows()) {
     assert(0 && "COFF linker has not supported yet");
     return false;
   }
 
-  return MCLDEmulateARMELF(pConfig);
+  return MCLDEmulateARMELF(pScript, pConfig);
 }
 
 } // namespace of mcld

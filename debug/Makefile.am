@@ -111,7 +111,6 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/ELFDynObjFileFormat.h \
 	${INCDIR}/LD/ELFExecFileFormat.h \
 	${INCDIR}/LD/ELFObjectFileFormat.h \
-	${INCDIR}/LD/SectionRules.h \
 	${INCDIR}/LD/ELFSegment.h \
 	${INCDIR}/LD/ELFSegmentFactory.h \
 	${INCDIR}/LD/EhFrame.h \
@@ -137,10 +136,10 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/LD/BranchIslandFactory.h \
 	${INCDIR}/LD/StubFactory.h \
 	${INCDIR}/LD/SectionSymbolSet.h \
+	${INCDIR}/LinkerScript.h \
 	${INCDIR}/Module.h \
 	${INCDIR}/LinkerConfig.h \
 	${INCDIR}/GeneralOptions.h \
-	${INCDIR}/ScriptOptions.h \
 	${INCDIR}/TargetOptions.h \
 	${INCDIR}/AttributeOption.h \
 	${INCDIR}/BitcodeOption.h \
@@ -197,10 +196,10 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Fragment/NullFragment.cpp \
 	${LIBDIR}/MC/MCLDInput.cpp \
 	${LIBDIR}/MC/InputFactory.cpp \
+	${LIBDIR}/Core/LinkerScript.cpp \
 	${LIBDIR}/Core/Module.cpp \
 	${LIBDIR}/Core/LinkerConfig.cpp \
 	${LIBDIR}/Core/GeneralOptions.cpp \
-	${LIBDIR}/Core/ScriptOptions.cpp \
 	${LIBDIR}/Core/BitcodeOption.cpp \
 	${LIBDIR}/Core/TargetOptions.cpp \
 	${LIBDIR}/Core/AttributeOption.cpp \
@@ -246,7 +245,6 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/LD/ELFFileFormat.cpp \
 	${LIBDIR}/LD/ELFDynObjFileFormat.cpp \
 	${LIBDIR}/LD/ELFExecFileFormat.cpp \
-	${LIBDIR}/LD/SectionRules.cpp \
 	${LIBDIR}/LD/ELFSegment.cpp \
 	${LIBDIR}/LD/ELFSegmentFactory.cpp \
 	${LIBDIR}/LD/EhFrame.cpp \
@@ -353,6 +351,7 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/X86/X86Diagnostic.cpp \
 	${LIBDIR}/Target/X86/TargetInfo/X86TargetInfo.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.h \
+	${LIBDIR}/Target/Hexagon/HexagonGNUInfo.cpp \
 	${LIBDIR}/Target/Hexagon/Hexagon.h \
 	${LIBDIR}/Target/Hexagon/HexagonDiagnostic.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonAbsoluteStub.cpp \

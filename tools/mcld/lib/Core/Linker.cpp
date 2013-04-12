@@ -102,13 +102,15 @@ enum Linker::ErrorCode Linker::config(const LinkerConfig& pConfig) {
 
   extractFiles(pConfig);
 
-  mModule = new mcld::Module(mLDConfig->options().soname());
+  mModule = new mcld::Module(mLDConfig->options().soname(),
+                   const_cast<mcld::LinkerScript&>(*pConfig.getLDScript()));
 
   mBuilder = new mcld::IRBuilder(*mModule, *mLDConfig);
 
   mLinker = new mcld::Linker();
 
-  mLinker->config(const_cast<mcld::LinkerConfig&>(*mLDConfig));
+  mLinker->emulate(const_cast<mcld::LinkerScript&>(*pConfig.getLDScript()),
+                   const_cast<mcld::LinkerConfig&>(*mLDConfig));
 
   return kSuccess;
 }

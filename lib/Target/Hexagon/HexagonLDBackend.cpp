@@ -744,7 +744,8 @@ bool HexagonLDBackend::MoveSectionDataAndSort(SectionData& pFrom, SectionData& p
       fragInsert = frag;
       continue;
     }
-    if (frag->getKind() != mcld::Fragment::Region) {
+    if ((frag->getKind() != mcld::Fragment::Region) &&
+        (frag->getKind() != mcld::Fragment::Fillment)) {
       continue;
     }
     uint32_t flag = frag->getParent()->getSection().align();
@@ -816,8 +817,7 @@ TargetLDBackend* createHexagonLDBackend(const llvm::Target& pTarget,
                                createHexagonCOFFObjectWriter);
     **/
   }
-  return new HexagonLDBackend(pConfig,
-                              new HexagonGNUInfo(pConfig.targets().triple()));
+  return new HexagonLDBackend(pConfig, new HexagonGNUInfo(pConfig.targets()));
 }
 
 } // namespace of mcld

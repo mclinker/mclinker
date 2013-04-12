@@ -67,6 +67,7 @@ void ObjectLinker::setup(Module& pModule, IRBuilder& pBuilder)
 {
   m_pModule = &pModule;
   m_pBuilder = &pBuilder;
+
   // set up soname
   if (!m_Config.options().soname().empty()) {
     m_pModule->setName(m_Config.options().soname());
@@ -330,11 +331,11 @@ bool ObjectLinker::addTargetSymbols()
 /// scripts.
 bool ObjectLinker::addScriptSymbols()
 {
-  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
-    m_Config.scripts().defSymMap().begin(),
-  ie =  m_Config.scripts().defSymMap().end();
+  const LinkerScript& script = m_pModule->getScript();
+  LinkerScript::DefSymMap::const_entry_iterator it;
+  LinkerScript::DefSymMap::const_entry_iterator ie = script.defSymMap().end();
   // go through the entire defSymMap
-  for (;it != ie; it++) {
+  for (it = script.defSymMap().begin(); it != ie; ++it) {
     const llvm::StringRef sym =  it.getEntry()->key();
     ResolveInfo* old_info = m_pModule->getNamePool().findInfo(sym);
     // if the symbol does not exist, we can set type to NOTYPE
@@ -482,13 +483,12 @@ bool ObjectLinker::finalizeSymbolValue()
   bool finalized = m_pLinker->finalizeSymbols() && m_LDBackend.finalizeSymbols();
   bool scriptSymsAdded = true;
   uint64_t symVal;
-
-  mcld::ScriptOptions::DefSymMap::const_entry_iterator it =
-    m_Config.scripts().defSymMap().begin(),
-    ie =  m_Config.scripts().defSymMap().end();
+  const LinkerScript& script = m_pModule->getScript();
+  LinkerScript::DefSymMap::const_entry_iterator it;
+  LinkerScript::DefSymMap::const_entry_iterator ie = script.defSymMap().end();
 
   DefSymParser parser(*m_pModule);
-  for (;it != ie; it++) {
+  for (it = script.defSymMap().begin(); it != ie; ++it) {
     llvm::StringRef symName =  it.getEntry()->key();
     llvm::StringRef expr =  it.getEntry()->value();
 
