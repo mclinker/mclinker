@@ -9,10 +9,7 @@
 #include <mcld/LD/Archive.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/MC/MCLDInput.h>
-#include <mcld/MC/AttributeSet.h>
-#include <mcld/MC/ContextFactory.h>
 #include <llvm/ADT/StringRef.h>
-#include <mcld/Support/MemoryAreaFactory.h>
 #include <mcld/Support/MsgHandling.h>
 
 using namespace mcld;

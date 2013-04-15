@@ -26,9 +26,6 @@ namespace mcld {
 class Input;
 class InputFactory;
 class InputBuilder;
-class AttributeFactory;
-class ContextFactory;
-class MemoryAreaFactory;
 
 /** \class Archive
  *  \brief This class define the interfacee to Archive files
