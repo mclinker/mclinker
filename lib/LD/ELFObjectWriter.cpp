@@ -246,14 +246,14 @@ uint64_t ELFObjectWriter::getEntryPoint(const LinkerConfig& pConfig,
                                         const Module& pModule) const
 {
   llvm::StringRef entry_name;
-  if (pConfig.options().hasEntry())
-    entry_name = pConfig.options().entry();
+  if (pModule.getScript().hasEntry())
+    entry_name = pModule.getScript().entry();
   else
     entry_name = target().getInfo().entry();
 
   uint64_t result = 0x0;
 
-  bool issue_warning = (pConfig.options().hasEntry() &&
+  bool issue_warning = (pModule.getScript().hasEntry() &&
                         LinkerConfig::Object != pConfig.codeGenType() &&
                         LinkerConfig::DynObj != pConfig.codeGenType());
 

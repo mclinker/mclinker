@@ -67,12 +67,23 @@ public:
 
   bool hasSysroot() const;
 
+  /// entry point
+  bool hasEntry() const
+  { return !m_Entry.empty(); }
+
+  void setEntry(const std::string& pEntry)
+  { m_Entry = pEntry; }
+
+  const std::string& entry() const
+  { return m_Entry; }
+
 private:
   SymbolRenameMap m_SymbolRenames;
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   DefSymMap m_DefSymMap;
   SearchDirs m_SearchDirs;
+  std::string m_Entry;
 };
 
 } // namespace of mcld

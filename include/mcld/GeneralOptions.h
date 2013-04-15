@@ -84,15 +84,6 @@ public:
   bool Bgroup() const
   { return m_Bgroup; }
 
-  bool hasEntry() const
-  { return !m_Entry.empty(); }
-
-  void setEntry(const std::string& pEntry)
-  { m_Entry = pEntry; }
-
-  const std::string& entry() const
-  { return m_Entry; }
-
   void setDyld(const std::string& pDyld)
   { m_Dyld = pDyld; }
 
@@ -320,7 +311,6 @@ private:
 private:
   Input* m_pDefaultBitcode;
   std::string m_DefaultLDScript;
-  std::string m_Entry;
   std::string m_Dyld;
   std::string m_SOName;
   int8_t m_Verbose;            // --verbose[=0,1,2]

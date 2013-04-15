@@ -1077,7 +1077,6 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   pConfig.options().setVerbose(ArgVerbose);
   pConfig.options().setMaxErrorNum(ArgMaxErrorNum);
   pConfig.options().setMaxWarnNum(ArgMaxWarnNum);
-  pConfig.options().setEntry(ArgEntry);
   pConfig.options().setBsymbolic(ArgBsymbolic);
   pConfig.options().setBgroup(ArgBgroup);
   pConfig.options().setDyld(ArgDyld);
@@ -1103,6 +1102,9 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripTemporaries);
   else
     pConfig.options().setStripSymbols(mcld::GeneralOptions::KeepAllSymbols);
+
+  // set up entry point from -e
+  pScript.setEntry(ArgEntry);
 
   // set up rename map, for --wrap
   cl::list<std::string>::iterator wname;
