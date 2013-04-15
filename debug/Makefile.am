@@ -428,11 +428,17 @@ endif
 
 LINKERSCRIPT_HEADER = \
 	${INCDIR}/LD/LinkerScript/ScriptCommand.h \
+	${INCDIR}/LD/LinkerScript/ScriptInput.h \
+	${INCDIR}/LD/LinkerScript/OutputFormatCmd.h \
+	${INCDIR}/LD/LinkerScript/GroupCmd.h \
 	${INCDIR}/LD/LinkerScript/ScriptFile.h \
 	${INCDIR}/LD/LinkerScript/ScriptScanner.h \
 	${INCDIR}/LD/LinkerScript/ScriptReader.h
 
 LINKERSCRIPT_SOURCE = \
+	${LIBDIR}/LD/LinkerScript/ScriptInput.cpp \
+	${LIBDIR}/LD/LinkerScript/OutputFormatCmd.cpp \
+	${LIBDIR}/LD/LinkerScript/GroupCmd.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptFile.cpp \
 	${LIBDIR}/LD/LinkerScript/ScriptParser.yy \
 	${LIBDIR}/LD/LinkerScript/ScriptScanner.ll \

@@ -11,13 +11,13 @@
 /* C/C++ Declarations */
 
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
+#include <string>
 
 typedef mcld::ScriptParser::token token;
 typedef mcld::ScriptParser::token_type token_type;
 
 #define yyterminate() return token::END
 #define YY_NO_UNISTD_H
-
 %}
 
 /* Flex Declarations and Options */
@@ -31,6 +31,16 @@ typedef mcld::ScriptParser::token_type token_type;
 #define YY_USER_ACTION  yylloc->columns(yyleng);
 %}
 
+/* abbrev. of re */
+FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
+SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
+FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
+NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
+WS  [ \t\r]
+
+/* Start states */
+%x COMMENT
+
 %% /* Regular Expressions */
 
  /* code to place at the beginning of yylex() */
@@ -38,6 +48,33 @@ typedef mcld::ScriptParser::token_type token_type;
   // reset location
   yylloc->step();
 %}
+
+ /* File Commands */
+"GROUP"                      { return token::GROUP; }
+"AS_NEEDED"                  { return token::AS_NEEDED; }
+ /* Format Commands */
+"OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
+
+{FILENAMECHAR1}{FILENAMECHAR}* {
+  yylval->string = yytext;
+  return token::STRING;
+}
+
+ /* gobble up C comments */
+"/*"                  { BEGIN(COMMENT); }
+<COMMENT>[^*\n]*      { /* eat anything that's not a '*' */ }
+<COMMENT>"*"+[^*/\n]* { /* eat up '*'s not followed by '/'s */ }
+<COMMENT>\n           { yylloc->lines(1); }
+<COMMENT>"*"+"/"      { BEGIN(INITIAL); }
+
+ /* gobble up white-spaces */
+{WS}+ { yylloc->step(); }
+
+ /* gobble up end-of-lines */
+\n {
+  yylloc->lines(yyleng);
+  yylloc->step();
+}
 
  /* pass all other characters up to bison */
 . { return static_cast<token_type>(*yytext); }

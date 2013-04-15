@@ -12,6 +12,7 @@
 #include <gtest.h>
 #endif
 
+#include <mcld/LD/LinkerScript/ScriptInput.h>
 #include <vector>
 
 namespace mcld
@@ -21,6 +22,8 @@ class ScriptCommand;
 class Input;
 class InputTree;
 class InputBuilder;
+class GroupReader;
+class LinkerConfig;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -58,7 +61,25 @@ public:
   void dump() const;
   void activate();
 
+  /// OUTPUT_FORMAT(bfdname)
+  /// OUTPUT_FORMAT(default, big, little)
+  void addOutputFormatCmd(const char* pFormat);
+  void addOutputFormatCmd(const char* pDefault,
+                          const char* pBig,
+                          const char* pLittle);
+
+  void addScriptInput(const char* pPath);
+
+  /// AS_NEEDED(file, file, ...)
+  /// AS_NEEDED(file file ...)
+  void setAsNeeded(bool pEnable = true);
+
+  /// GROUP(file, file, ...)
+  /// GROUP(file file ...)
+  void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
+
 private:
+  std::string m_Name;
   Input& m_Script;
   InputTree* m_pInputTree;
   InputBuilder& m_Builder;

@@ -44,7 +44,7 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
     return false;
 
   ScriptScanner scanner(&in);
-  ScriptParser parser(*this, scanner, pScriptFile, pConfig);
+  ScriptParser parser(pConfig, pScriptFile, scanner, *this);
 
   return (parser.parse() == 0);
 }
