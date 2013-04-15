@@ -56,6 +56,34 @@ void GroupCmd::dump() const
 
 void GroupCmd::activate()
 {
-  // TODO
+  // construct the Group tree
+  m_Builder.setCurrentTree(m_InputTree);
+  // --start-group
+  m_Builder.enterGroup();
+  InputTree::iterator group = m_Builder.getCurrentNode();
+
+  for (ScriptInput::const_iterator it = scriptInput().begin(),
+    ie = scriptInput().end(); it != ie; ++it) {
+    if ((*it).asNeeded())
+      m_Builder.getAttributes().setAsNeeded();
+    else
+      m_Builder.getAttributes().unsetAsNeeded();
+
+    m_Builder.createNode<InputTree::Positional>(
+      (*it).path().filename().native(), (*it).path(), Input::Unknown);
+
+    Input* input = *m_Builder.getCurrentNode();
+    assert(input != NULL);
+    if (!m_Builder.setMemory(*input, FileHandle::ReadOnly))
+      error(diag::err_cannot_open_input) << input->name() << input->path();
+    m_Builder.setContext(*input);
+  }
+
+  // --end-group
+  m_Builder.exitGroup();
+
+  // read the group
+  m_GroupReader.readGroup(group, m_InputTree.end(), m_Builder, m_Config);
+
 }
 

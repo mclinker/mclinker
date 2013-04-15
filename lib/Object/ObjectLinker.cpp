@@ -127,7 +127,8 @@ void ObjectLinker::normalize()
   for (input = m_pModule->input_begin(); input!=inEnd; ++input) {
     // is a group node
     if (isGroup(input)) {
-      getGroupReader()->readGroup(input, m_pBuilder->getInputBuilder(), m_Config);
+      getGroupReader()->readGroup(input, inEnd, m_pBuilder->getInputBuilder(),
+                                  m_Config);
       continue;
     }
 

@@ -33,6 +33,7 @@ GroupReader::~GroupReader()
 }
 
 bool GroupReader::readGroup(Module::input_iterator pRoot,
+                            Module::input_iterator pEnd,
                             InputBuilder& pBuilder,
                             const LinkerConfig& pConfig)
 {
@@ -47,12 +48,8 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
 
   Module::input_iterator input = --pRoot;
 
-  // Since the end of a sub-tree is the same node to the end of whole tree, we
-  // take the end of the whole input tree for conventience.
-  Module::input_iterator input_end = m_Module.input_end();
-
   // first time read the sub-tree
-  while (input != input_end) {
+  while (input != pEnd) {
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||

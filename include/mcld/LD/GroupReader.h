@@ -41,6 +41,7 @@ public:
   /// readGroup - handle the input sub-tree wich its root is pRoot
   /// @param pRoot - the root Group node of the sub-tree
   bool readGroup(Module::input_iterator pRoot,
+                 Module::input_iterator pEnd,
                  InputBuilder& pBuilder,
                  const LinkerConfig& pConfig);
 
