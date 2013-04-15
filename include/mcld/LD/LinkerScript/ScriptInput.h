@@ -14,6 +14,7 @@
 
 #include <mcld/Support/Path.h>
 #include <string>
+#include <vector>
 
 namespace mcld
 {

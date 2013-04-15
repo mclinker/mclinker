@@ -14,7 +14,6 @@
 
 #include <mcld/LD/LinkerScript/ScriptCommand.h>
 #include <mcld/LD/LinkerScript/ScriptInput.h>
-#include <vector>
 
 namespace mcld
 {
