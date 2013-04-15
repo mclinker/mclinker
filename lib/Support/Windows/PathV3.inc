@@ -30,11 +30,6 @@ std::string Path::string() const
   return result;
 }
 
-std::wstring Path::wstring() const
-{
-  return m_PathName;
-}
-
 //===----------------------------------------------------------------------===//
 // mcld::sys::fs::detail
 //===----------------------------------------------------------------------===//
