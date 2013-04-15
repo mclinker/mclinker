@@ -1681,6 +1681,8 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
   uint32_t cur_flag, prev_flag = getSegmentFlag(0);
   ELFSegment* load_seg = NULL;
   // make possible PT_LOAD segments
+  LinkerScript::AddressMap::iterator addrEnd
+                                      = pModule.getScript().addressMap().end();
   Module::iterator sect, sect_end = pModule.end();
   for (sect = pModule.begin(); sect != sect_end; ++sect) {
 
@@ -1701,8 +1703,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
     }
     else if ((*sect)->kind() == LDFileFormat::BSS &&
              load_seg->isDataSegment() &&
-             pModule.getScript().addressMap().find(".bss") !=
-             (pModule.getScript().addressMap().end())) {
+             addrEnd != pModule.getScript().addressMap().find(".bss")) {
       // 3. create bss segment if w/ -Tbss and there is a data segment
       createPT_LOAD = true;
     }
@@ -1710,8 +1711,7 @@ void GNULDBackend::createProgramHdrs(Module& pModule)
       if ((*sect != &(file_format->getText())) &&
           (*sect != &(file_format->getData())) &&
           (*sect != &(file_format->getBSS())) &&
-          (pModule.getScript().addressMap().find((*sect)->name()) !=
-           pModule.getScript().addressMap().end()))
+          (addrEnd != pModule.getScript().addressMap().find((*sect)->name())))
         // 4. create PT_LOAD for sections in address map except for text, data,
         // and bss
         createPT_LOAD = true;
