@@ -24,6 +24,8 @@
 #include <mcld/LD/ResolveInfo.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/LD/Relocator.h>
+#include <mcld/LD/LinkerScript/ScriptFile.h>
+#include <mcld/LD/LinkerScript/ScriptReader.h>
 #include <mcld/Support/RealPath.h>
 #include <mcld/Support/MemoryArea.h>
 #include <mcld/Support/MsgHandling.h>
@@ -49,6 +51,7 @@ ObjectLinker::ObjectLinker(const LinkerConfig& pConfig,
     m_pArchiveReader(NULL),
     m_pGroupReader(NULL),
     m_pBinaryReader(NULL),
+    m_pScriptReader(NULL),
     m_pWriter(NULL) {
 }
 
@@ -60,6 +63,7 @@ ObjectLinker::~ObjectLinker()
   delete m_pArchiveReader;
   delete m_pGroupReader;
   delete m_pBinaryReader;
+  delete m_pScriptReader;
   delete m_pWriter;
 }
 
@@ -92,6 +96,7 @@ bool ObjectLinker::initFragmentLinker()
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
   m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
                                      *m_pDynObjReader, *m_pArchiveReader);
+  m_pScriptReader  = new ScriptReader(*m_pGroupReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
   m_pWriter        = m_LDBackend.createWriter();
 
@@ -171,12 +176,26 @@ void ObjectLinker::normalize()
       getArchiveReader()->readArchive(archive);
       if(archive.numOfObjectMember() > 0) {
         m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
-                                                            archive.inputs());
+                                                              archive.inputs());
       }
     }
     else {
-      fatal(diag::err_unrecognized_input_file) << (*input)->path()
-                                          << m_Config.targets().triple().str();
+      // try to parse input as a linker script
+      if (getScriptReader()->isMyFormat(**input)) {
+        ScriptFile script(**input, m_pBuilder->getInputBuilder());
+        if (getScriptReader()->readScript(m_Config, script)) {
+          (*input)->setType(Input::Script);
+          script.activate();
+          if (script.inputs().size() > 0) {
+            m_pModule->getInputTree().merge<InputTree::Inclusive>(input,
+              script.inputs());
+          }
+        }
+        else {
+          fatal(diag::err_unrecognized_input_file) << (*input)->path()
+            << m_Config.targets().triple().str();
+        }
+      }
     }
   } // end of for
 }

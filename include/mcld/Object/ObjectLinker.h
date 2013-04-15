@@ -32,6 +32,7 @@ class DynObjReader;
 class ArchiveReader;
 class GroupReader;
 class BinaryReader;
+class ScriptReader;
 class ObjectWriter;
 class DynObjWriter;
 class ExecWriter;
@@ -151,6 +152,9 @@ public:
   const BinaryReader*  getBinaryReader () const { return m_pBinaryReader;  }
   BinaryReader*        getBinaryReader ()       { return m_pBinaryReader;  }
 
+  const ScriptReader*  getScriptReader () const { return m_pScriptReader;  }
+  ScriptReader*        getScriptReader ()       { return m_pScriptReader;  }
+
   const ObjectWriter*  getWriter () const { return m_pWriter;  }
   ObjectWriter*        getWriter ()       { return m_pWriter;  }
 
@@ -168,6 +172,7 @@ private:
   ArchiveReader* m_pArchiveReader;
   GroupReader*   m_pGroupReader;
   BinaryReader*  m_pBinaryReader;
+  ScriptReader*  m_pScriptReader;
   ObjectWriter*  m_pWriter;
 };
 
