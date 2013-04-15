@@ -715,17 +715,17 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
 /// sizeNamePools - compute the size of regular name pools
 /// In ELF executable files, regular name pools are .symtab, .strtab,
 /// .dynsym, .dynstr, .hash and .shstrtab.
-void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
+void GNULDBackend::sizeNamePools(Module& pModule)
 {
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
   size_t symtab = 1;
-  size_t dynsym = pIsStaticLink ? 0 : 1;
+  size_t dynsym = config().isCodeStatic()? 0 : 1;
 
   // size of string tables starts from 1 to hold the null character in their
   // first byte
   size_t strtab   = 1;
-  size_t dynstr   = pIsStaticLink ? 0 : 1;
+  size_t dynstr   = config().isCodeStatic()? 0 : 1;
   size_t shstrtab = 1;
   size_t hash     = 0;
   size_t gnuhash  = 0;
@@ -757,7 +757,7 @@ void GNULDBackend::sizeNamePools(Module& pModule, bool pIsStaticLink)
     /** fall through **/
     case LinkerConfig::Exec:
     case LinkerConfig::Binary: {
-      if (!pIsStaticLink) {
+      if (!config().isCodeStatic()) {
         /// Compute the size of .dynsym, .dynstr, and dynsym_local_cnt
         symEnd = symbols.dynamicEnd();
         for (symbol = symbols.localDynBegin(); symbol != symEnd; ++symbol) {

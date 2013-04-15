@@ -452,7 +452,9 @@ bool ObjectLinker::prelayout()
   ///
   /// dump all symbols and strings from FragmentLinker and build the format-dependent
   /// hash table.
-  m_LDBackend.sizeNamePools(*m_pModule, m_Config.isCodeStatic());
+  /// @note sizeNamePools replies on LinkerConfig::CodePosition. Must determine
+  /// code position model before calling GNULDBackend::sizeNamePools()
+  m_LDBackend.sizeNamePools(*m_pModule);
 
   return true;
 }

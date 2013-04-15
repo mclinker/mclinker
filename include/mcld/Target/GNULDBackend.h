@@ -113,7 +113,7 @@ public:
   /// sizeNamePools - compute the size of regular name pools
   /// In ELF executable files, regular name pools are .symtab, .strtab.,
   /// .dynsym, .dynstr, and .hash
-  virtual void sizeNamePools(Module& pModule, bool pIsStaticLink);
+  virtual void sizeNamePools(Module& pModule);
 
   /// emitSectionData - emit target-dependent section data
   virtual uint64_t emitSectionData(const LDSection& pSection,
