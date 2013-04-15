@@ -11,6 +11,8 @@ AM_CXXFLAGS = \
 	@NO_COVERED_SWITCH_DEFAULT@ \
 	@NO_C99_EXTENSIONS@
 
+AM_LFLAGS = -olex.yy.c
+
 HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/ADT/TypeTraits.h \
 	${INCDIR}/ADT/SizeTraits.h \
@@ -424,6 +426,18 @@ else
 UNITTEST_SOURCE =
 endif
 
+LINKERSCRIPT_HEADER = \
+	${INCDIR}/LD/LinkerScript/ScriptCommand.h \
+	${INCDIR}/LD/LinkerScript/ScriptFile.h \
+	${INCDIR}/LD/LinkerScript/ScriptScanner.h \
+	${INCDIR}/LD/LinkerScript/ScriptReader.h
+
+LINKERSCRIPT_SOURCE = \
+	${LIBDIR}/LD/LinkerScript/ScriptFile.cpp \
+	${LIBDIR}/LD/LinkerScript/ScriptParser.yy \
+	${LIBDIR}/LD/LinkerScript/ScriptScanner.ll \
+	${LIBDIR}/LD/LinkerScript/ScriptReader.cpp
+
 ANDROID_CPPFLAGS=-fno-rtti -fno-exceptions -Waddress -Wchar-subscripts -Wcomment -Wformat -Wparentheses -Wreorder -Wreturn-type -Wsequence-point -Wstrict-aliasing -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized -Wunknown-pragmas -Wunused-function -Wunused-label -Wunused-value -Wunused-variable -Wvolatile-register-var
 
 if ENABLE_WERROR
@@ -432,9 +446,9 @@ endif
 
 lib_LIBRARIES= libmcld.a
 
-libmcld_a_SOURCES = ${SOURCE}
+libmcld_a_SOURCES = ${SOURCE} ${LINKERSCRIPT_SOURCE}
 
-nobase_include_HEADERS = ${HEADER}
+nobase_include_HEADERS = ${HEADER} ${LINKERSCRIPT_HEADER}
 
 bin_PROGRAMS = ld.mcld ld.bcc
 
