@@ -27,11 +27,6 @@ namespace fs{
 //===----------------------------------------------------------------------===//
 // mcld::sys::fs::Path
 //===----------------------------------------------------------------------===//
-std::string Path::string() const
-{
-  return m_PathName;
-}
-
 std::wstring Path::wstring() const
 {
   std::wstring result;

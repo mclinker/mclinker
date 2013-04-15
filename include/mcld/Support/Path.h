@@ -86,8 +86,13 @@ public:
   const ValueType* c_str() const
   { return m_PathName.c_str(); }
 
+#if defined(MCLD_ON_WIN32)
   std::string string() const;
+  const std::wstring& wstring() const { return m_PathName; }
+#else
+  const std::string& string() const { return m_PathName; }
   std::wstring wstring() const;
+#endif
 
   // -----  decomposition  ----- //
   Path parent_path() const;
