@@ -22,7 +22,7 @@ LinkerConfig::LinkerConfig()
     m_Bitcode(),
     m_Attribute(),
     m_CodeGenType(Unknown),
-    m_CodePosition(DynamicDependent)
+    m_CodePosition(Unset)
 {
   // FIXME: is here the right place to hold this?
   InitializeDiagnosticEngine(*this);
@@ -34,7 +34,7 @@ LinkerConfig::LinkerConfig(const std::string& pTripleString)
     m_Bitcode(),
     m_Attribute(),
     m_CodeGenType(Unknown),
-    m_CodePosition(DynamicDependent)
+    m_CodePosition(Unset)
 {
   // FIXME: is here the right place to hold this?
   InitializeDiagnosticEngine(*this);

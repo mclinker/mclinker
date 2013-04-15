@@ -717,6 +717,8 @@ const ELFFileFormat* GNULDBackend::getOutputFormat() const
 /// .dynsym, .dynstr, .hash and .shstrtab.
 void GNULDBackend::sizeNamePools(Module& pModule)
 {
+  assert(LinkerConfig::Unset != config().codePosition());
+
   // number of entries in symbol tables starts from 1 to hold the special entry
   // at index 0 (STN_UNDEF). See ELF Spec Book I, p1-21.
   size_t symtab = 1;

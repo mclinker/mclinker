@@ -61,7 +61,8 @@ public:
   enum CodePosition {
     Independent,      ///< Position Independent
     DynamicDependent, ///< Can call outside libraries
-    StaticDependent   ///< Can not call outside libraries
+    StaticDependent,  ///< Can not call outside libraries
+    Unset             ///< Undetermine code position mode
   };
 
 public:
