@@ -36,7 +36,7 @@ FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
 SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
 FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
-WS  [ \t\r]
+WS [ \t\n\r]
 
 /* Start states */
 %x COMMENT
@@ -49,14 +49,20 @@ WS  [ \t\r]
   yylloc->step();
 %}
 
+ /* Entry Point */
+"ENTRY"                      { return token::ENTRY; }
  /* File Commands */
 "GROUP"                      { return token::GROUP; }
 "AS_NEEDED"                  { return token::AS_NEEDED; }
  /* Format Commands */
 "OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
+ /* Misc Commands */
+"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
 
+ /* String */
 {FILENAMECHAR1}{FILENAMECHAR}* {
-  yylval->string = yytext;
+  yylval->strToken.text = yytext;
+  yylval->strToken.length = yyleng;
   return token::STRING;
 }
 

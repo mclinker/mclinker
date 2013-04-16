@@ -14,6 +14,7 @@
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LinkerConfig.h>
+#include <mcld/LinkerScript.h>
 
 #include <fstream>
 #include <sstream>
@@ -37,6 +38,7 @@ bool ScriptReader::isMyFormat(Input& input) const
 }
 
 bool ScriptReader::readScript(const LinkerConfig& pConfig,
+                              LinkerScript& pScript,
                               ScriptFile& pScriptFile)
 {
   std::ifstream in(pScriptFile.script().path().native().c_str());
@@ -44,7 +46,7 @@ bool ScriptReader::readScript(const LinkerConfig& pConfig,
     return false;
 
   ScriptScanner scanner(&in);
-  ScriptParser parser(pConfig, pScriptFile, scanner, *this);
+  ScriptParser parser(pConfig, pScript, pScriptFile, scanner, *this);
 
   return (parser.parse() == 0);
 }

@@ -21,6 +21,7 @@ class ScriptFile;
 class Input;
 class GroupReader;
 class LinkerConfig;
+class LinkerScript;
 
 class ScriptReader : public LDReader
 {
@@ -30,7 +31,9 @@ public:
   ~ScriptReader();
 
   /// readScript
-  bool readScript(const LinkerConfig& pConfig, ScriptFile& pScriptFile);
+  bool readScript(const LinkerConfig& pConfig,
+                  LinkerScript& pScript,
+                  ScriptFile& pScriptFile);
 
   /// isMyFormat
   bool isMyFormat(Input& pInput) const;

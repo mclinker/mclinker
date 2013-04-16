@@ -184,7 +184,8 @@ void ObjectLinker::normalize()
       // try to parse input as a linker script
       if (getScriptReader()->isMyFormat(**input)) {
         ScriptFile script(**input, m_pBuilder->getInputBuilder());
-        if (getScriptReader()->readScript(m_Config, script)) {
+        if (getScriptReader()->readScript(m_Config, m_pModule->getScript(),
+                                          script)) {
           (*input)->setType(Input::Script);
           script.activate();
           if (script.inputs().size() > 0) {

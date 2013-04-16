@@ -9,8 +9,10 @@
 #include <mcld/LD/LinkerScript/ScriptFile.h>
 #include <mcld/LD/LinkerScript/ScriptInput.h>
 #include <mcld/LD/LinkerScript/ScriptCommand.h>
+#include <mcld/LD/LinkerScript/EntryCmd.h>
 #include <mcld/LD/LinkerScript/OutputFormatCmd.h>
 #include <mcld/LD/LinkerScript/GroupCmd.h>
+#include <mcld/LD/LinkerScript/OutputArchCmd.h>
 #include <mcld/MC/MCLDInput.h>
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/InputTree.h>
@@ -49,25 +51,36 @@ void ScriptFile::activate()
     (*it)->activate();
 }
 
-void ScriptFile::addOutputFormatCmd(const char* pName)
+void ScriptFile::addEntryPoint(const StrToken& pSymbol, LinkerScript& pScript)
 {
-  m_CommandQueue.push_back(new OutputFormatCmd(pName));
+  std::string sym(pSymbol.text, pSymbol.length);
+  m_CommandQueue.push_back(new EntryCmd(sym, pScript));
 }
 
-void ScriptFile::addOutputFormatCmd(const char* pDefault,
-                                    const char* pBig,
-                                    const char* pLittle)
+void ScriptFile::addOutputFormatCmd(const StrToken& pName)
 {
-  m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
+  std::string format(pName.text, pName.length);
+  m_CommandQueue.push_back(new OutputFormatCmd(format));
 }
 
-void ScriptFile::addScriptInput(const char* pPath)
+void ScriptFile::addOutputFormatCmd(const StrToken& pDefault,
+                                    const StrToken& pBig,
+                                    const StrToken& pLittle)
+{
+  std::string def(pDefault.text, pDefault.length);
+  std::string big(pBig.text, pDefault.length);
+  std::string lit(pLittle.text, pLittle.length);
+  m_CommandQueue.push_back(new OutputFormatCmd(def, big, lit));
+}
+
+void ScriptFile::addScriptInput(const StrToken& pPath)
 {
   assert(!m_CommandQueue.empty());
+  std::string path(pPath.text, pPath.length);
   ScriptCommand* cmd = back();
   switch (cmd->getKind()) {
   case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().append(pPath);
+    llvm::cast<GroupCmd>(cmd)->scriptInput().append(path);
     break;
   default:
     assert(0 && "Invalid command to add script input!");
@@ -96,3 +109,8 @@ void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
     new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
+void ScriptFile::addOutputArchCmd(const StrToken& pArch)
+{
+  std::string arch(pArch.text, pArch.length);
+  m_CommandQueue.push_back(new OutputArchCmd(arch));
+}

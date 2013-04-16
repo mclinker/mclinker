@@ -14,15 +14,15 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 // OutputFormatCmd
 //===----------------------------------------------------------------------===//
-OutputFormatCmd::OutputFormatCmd(const char* pFormat)
+OutputFormatCmd::OutputFormatCmd(const std::string& pFormat)
   : ScriptCommand(ScriptCommand::OutputFormat)
 {
   m_FormatList.push_back(pFormat);
 }
 
-OutputFormatCmd::OutputFormatCmd(const char* pDefault,
-                                 const char* pBig,
-                                 const char* pLittle)
+OutputFormatCmd::OutputFormatCmd(const std::string& pDefault,
+                                 const std::string& pBig,
+                                 const std::string& pLittle)
   : ScriptCommand(ScriptCommand::OutputFormat)
 {
   m_FormatList.push_back(pDefault);

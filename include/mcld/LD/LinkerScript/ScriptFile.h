@@ -24,6 +24,7 @@ class InputTree;
 class InputBuilder;
 class GroupReader;
 class LinkerConfig;
+class LinkerScript;
 
 /** \class ScriptFile
  *  \brief This class defines the interfaces to a linker script file.
@@ -31,6 +32,12 @@ class LinkerConfig;
 
 class ScriptFile
 {
+public:
+  struct StrToken {
+    const char* text;
+    size_t length;
+  };
+
 public:
   typedef std::vector<ScriptCommand*> CommandQueue;
   typedef CommandQueue::const_iterator const_iterator;
@@ -61,14 +68,17 @@ public:
   void dump() const;
   void activate();
 
+  /// ENTRY(symbol)
+  void addEntryPoint(const StrToken& pSymbol, LinkerScript& pScript);
+
   /// OUTPUT_FORMAT(bfdname)
   /// OUTPUT_FORMAT(default, big, little)
-  void addOutputFormatCmd(const char* pFormat);
-  void addOutputFormatCmd(const char* pDefault,
-                          const char* pBig,
-                          const char* pLittle);
+  void addOutputFormatCmd(const StrToken& pFormat);
+  void addOutputFormatCmd(const StrToken& pDefault,
+                          const StrToken& pBig,
+                          const StrToken& pLittle);
 
-  void addScriptInput(const char* pPath);
+  void addScriptInput(const StrToken& pPath);
 
   /// AS_NEEDED(file, file, ...)
   /// AS_NEEDED(file file ...)
@@ -77,6 +87,9 @@ public:
   /// GROUP(file, file, ...)
   /// GROUP(file file ...)
   void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
+
+  /// OUTPUT_ARCH(bfdarch)
+  void addOutputArchCmd(const StrToken& pArch);
 
 private:
   std::string m_Name;

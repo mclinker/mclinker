@@ -23,8 +23,10 @@ class ScriptCommand
 {
 public:
   enum Kind {
+    Entry,
     OutputFormat,
     Group,
+    OutputArch,
   };
 
 protected:

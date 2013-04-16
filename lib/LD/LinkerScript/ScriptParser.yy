@@ -20,6 +20,7 @@
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
 %parse-param { const class LinkerConfig& pConfig }
+%parse-param { class LinkerScript& pLDScript }
 %parse-param { class ScriptFile& pScriptFile }
 %parse-param { class ScriptScanner& pScriptScanner }
 %parse-param { class ScriptReader& pScriptReader }
@@ -27,23 +28,28 @@
 %locations
 %start linker_script
 
+%code requires {
+#include <mcld/LD/LinkerScript/ScriptFile.h>
+}
+
 %union {
-  char* string;
+  mcld::ScriptFile::StrToken strToken;
 }
 
 %token END 0 /* EOF */
-%token <string> STRING
+%token <strToken> STRING
 
+%token ENTRY
 %token GROUP
 %token OUTPUT_FORMAT
 %token AS_NEEDED
+%token OUTPUT_ARCH
 
-%type <string> string
+%type <strToken> string
 
 %{
 #include <mcld/LD/LinkerScript/ScriptReader.h>
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
-#include <mcld/LD/LinkerScript/ScriptFile.h>
 #include <mcld/Support/raw_ostream.h>
 
 #undef yylex
@@ -57,9 +63,15 @@ linker_script : linker_script script_command
               | /* Empty */
               ;
 
-script_command : output_format_command
+script_command : entry_command
+               | output_format_command
                | group_command
+               | output_arch_command
                ;
+
+entry_command : ENTRY '(' STRING ')'
+                { pScriptFile.addEntryPoint($3, pLDScript); }
+              ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
                         { pScriptFile.addOutputFormatCmd($3); }
@@ -74,6 +86,10 @@ group_command : GROUP
                 }
                 '(' input_list ')'
               ;
+
+output_arch_command : OUTPUT_ARCH '(' STRING ')'
+                      { pScriptFile.addOutputArchCmd($3); }
+                    ;
 
 input_list : input_list input_node
            | input_list ',' input_node

@@ -13,7 +13,6 @@
 #endif
 
 #include <mcld/Support/Path.h>
-#include <string>
 #include <vector>
 
 namespace mcld
@@ -26,7 +25,7 @@ class ScriptInput
 public:
   class Node {
   public:
-    Node(const char* pPath, bool pAsNeeded)
+    Node(const std::string& pPath, bool pAsNeeded)
       : m_Path(pPath), m_bAsNeeded(pAsNeeded)
     {}
     ~Node()
@@ -62,7 +61,7 @@ public:
 
   bool empty() const { return m_InputList.empty(); }
 
-  void append(const char* pPath);
+  void append(const std::string& pPath);
 
   /// AS_NEEDED(file, file, ...)
   /// AS_NEEDED(file file ...)

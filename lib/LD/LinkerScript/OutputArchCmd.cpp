@@ -1,4 +1,4 @@
-//===- ScriptInput.cpp ----------------------------------------------------===//
+//===- OutputArchCmd.cpp --------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,30 +6,31 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include <mcld/LD/LinkerScript/ScriptInput.h>
+#include <mcld/LD/LinkerScript/OutputArchCmd.h>
 #include <mcld/Support/raw_ostream.h>
 
 using namespace mcld;
 
 //===----------------------------------------------------------------------===//
-// ScriptInput
+// OutputArchCmd
 //===----------------------------------------------------------------------===//
-ScriptInput::ScriptInput()
-  : m_bAsNeeded(false)
+OutputArchCmd::OutputArchCmd(const std::string& pArch)
+  : ScriptCommand(ScriptCommand::OutputArch),
+    m_Arch(pArch)
 {
 }
 
-ScriptInput::~ScriptInput()
+OutputArchCmd::~OutputArchCmd()
 {
 }
 
-void ScriptInput::append(const std::string& pPath)
+void OutputArchCmd::dump() const
 {
-  m_InputList.push_back(Node(pPath, m_bAsNeeded));
+  mcld::outs() << "OUTPUT_ARCH ( " << m_Arch << " )\n";
 }
 
-void ScriptInput::setAsNeeded(bool pEnable)
+void OutputArchCmd::activate()
 {
-  m_bAsNeeded = pEnable;
+  // TODO
 }
 

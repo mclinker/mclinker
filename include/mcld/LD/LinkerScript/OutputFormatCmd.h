@@ -31,10 +31,10 @@ public:
   typedef FormatList::iterator iterator;
 
 public:
-  OutputFormatCmd(const char* pFormat);
-  OutputFormatCmd(const char* pDefault,
-                  const char* pBig,
-                  const char* pLittle);
+  OutputFormatCmd(const std::string& pFormat);
+  OutputFormatCmd(const std::string& pDefault,
+                  const std::string& pBig,
+                  const std::string& pLittle);
   ~OutputFormatCmd();
 
   const_iterator begin() const { return m_FormatList.begin(); }
