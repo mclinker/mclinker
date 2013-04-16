@@ -122,15 +122,15 @@ TEST_F( PathTest, append_success ) {
   delete m_pTestee;
   m_pTestee = new Path("aa/");
   m_pTestee->append("/aaa");
-  EXPECT_TRUE(m_pTestee->string()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa");
   m_pTestee->append("/aaa");
-  EXPECT_TRUE(m_pTestee->string()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
   delete m_pTestee;
   m_pTestee = new Path("aa");
   m_pTestee->append("aaa");
-  EXPECT_TRUE(m_pTestee->string()=="aa/aaa");
+  EXPECT_TRUE(m_pTestee->native()=="aa/aaa");
 }
 
 TEST_F( PathTest, should_become_generic_string ) {
