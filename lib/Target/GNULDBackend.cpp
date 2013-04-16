@@ -1148,7 +1148,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   uint32_t* chain  = (bucket + nbucket);
 
   // initialize bucket
-  bzero((void*)bucket, nbucket);
+  memset((void*)bucket, 0, nbucket);
 
   StringHash<ELF> hash_func;
 
