@@ -36,7 +36,7 @@ FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
 SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
 FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
-WS [ \t\n\r]
+WS [ \t\r]
 
 /* Start states */
 %x COMMENT

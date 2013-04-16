@@ -9,7 +9,15 @@
 
 %{
 /* C/C++ Declarations */
+#include <mcld/LD/LinkerScript/ScriptReader.h>
+#include <mcld/LD/LinkerScript/ScriptScanner.h>
+#include <mcld/Support/raw_ostream.h>
+#include <mcld/MC/MCLDInput.h>
+#include "location.hh"
+#include "position.hh"
 
+#undef yylex
+#define yylex pScriptScanner.lex
 %}
 
 %require "2.3"
@@ -26,6 +34,12 @@
 %parse-param { class ScriptReader& pScriptReader }
 
 %locations
+%initial-action
+{
+  /* Initialize the initial location. */
+  @$.begin.filename = @$.end.filename = &(pScriptFile.name());
+}
+
 %start linker_script
 
 %code requires {
@@ -47,16 +61,6 @@
 %token OUTPUT_ARCH
 
 %type <strToken> string
-
-%{
-#include <mcld/LD/LinkerScript/ScriptReader.h>
-#include <mcld/LD/LinkerScript/ScriptScanner.h>
-#include <mcld/Support/raw_ostream.h>
-
-#undef yylex
-#define yylex pScriptScanner.lex
-
-%}
 
 %% /* Grammar Rules */
 
@@ -121,5 +125,12 @@ string : STRING
 void mcld::ScriptParser::error(const mcld::ScriptParser::location_type& pLoc,
                                const std::string &pMsg)
 {
+  position last = pLoc.end - 1;
+  if (last.filename != NULL)
+    mcld::errs() << *last.filename << ":";
+
+  mcld::errs() << last.line << ":"
+               << last.column << ":"
+               << " error: " << pMsg << "\n";
 }
 

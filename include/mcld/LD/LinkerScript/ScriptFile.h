@@ -14,6 +14,7 @@
 
 #include <mcld/LD/LinkerScript/ScriptInput.h>
 #include <vector>
+#include <string>
 
 namespace mcld
 {
@@ -64,6 +65,9 @@ public:
 
   const InputTree& inputs() const { return *m_pInputTree; }
   InputTree&       inputs()       { return *m_pInputTree; }
+
+  const std::string& name() const { return m_Name; }
+  std::string&       name()       { return m_Name; }
 
   void dump() const;
   void activate();
