@@ -9,6 +9,7 @@
 #include <mcld/Support/LEB128.h>
 #include "LEB128Test.h"
 
+#include <mcld/Support/SystemUtils.h>
 #include <ctime>
 #include <cstdlib>
 
@@ -20,7 +21,7 @@ using namespace mcldtest;
 LEB128Test::LEB128Test()
 {
 	// Initialize the seed for random number generator using during the tests.
-  ::srandom(::time(NULL));
+  sys::SetRandomSeed(::time(NULL));
 }
 
 // Destructor can do clean-up work that doesn't throw exceptions here.
@@ -459,7 +460,7 @@ TEST_F( LEB128Test, Random_Regression_Test) {
   leb128::ByteType buffer[9];
 
   for (int i = 0; i < 20; i++) {
-    unsigned long int value = random();
+    unsigned long int value = sys::GetRandomNum();
     uint64_t value2 = value * value;
     int64_t value3 = value * value;
     leb128::ByteType *result;

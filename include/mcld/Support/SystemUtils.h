@@ -31,6 +31,12 @@ std::string getDefaultTargetTriple();
 
 int GetPageSize();
 
+/// GetRandomNum - generate a random number.
+long GetRandomNum();
+
+/// SetRandomSeed - set the initial seed value for future calls to random().
+void SetRandomSeed(unsigned pSeed);
+
 } // namespace of sys
 } // namespace of mcld
 
