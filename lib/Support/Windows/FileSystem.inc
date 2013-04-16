@@ -27,16 +27,16 @@ namespace sys{
 namespace fs{
 namespace detail{
 
-Path::StringType static_library_extension = L".lib";
-Path::StringType shared_library_extension = L".dll";
-Path::StringType executable_extension     = L".exe";
-Path::StringType relocatable_extension    = L".obj";
-Path::StringType assembly_extension       = L".s";
-Path::StringType bitcode_extension        = L".bc";
+Path::StringType static_library_extension = ".lib";
+Path::StringType shared_library_extension = ".dll";
+Path::StringType executable_extension     = ".exe";
+Path::StringType relocatable_extension    = ".obj";
+Path::StringType assembly_extension       = ".s";
+Path::StringType bitcode_extension        = ".bc";
 
 int open(const Path& pPath, int pOFlag)
 {
-  return ::_wopen(pPath.native().c_str(), pOFlag);
+  return ::_open(pPath.native().c_str(), pOFlag);
 }
 
 int open(const Path& pPath, int pOFlag, int pPerm)
@@ -52,7 +52,7 @@ int open(const Path& pPath, int pOFlag, int pPerm)
       pPerm & FileHandle::WriteOther)
     perm |= _S_IWRITE;
 
-  return ::_wopen(pPath.native().c_str(), pOFlag, perm);
+  return ::_open(pPath.native().c_str(), pOFlag, perm);
 }
 
 ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)

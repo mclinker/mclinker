@@ -25,24 +25,9 @@ namespace sys{
 namespace fs{
 
 //===----------------------------------------------------------------------===//
-// mcld::sys::fs::Path
-//===----------------------------------------------------------------------===//
-std::wstring Path::wstring() const
-{
-  std::wstring result;
-  if (!m_PathName.empty()) {
-    // TODO: convert
-  }
-  return result;
-}
-
-//===----------------------------------------------------------------------===//
 // mcld::sys::fs::detail
 //===----------------------------------------------------------------------===//
 namespace detail{
-
-const char          separator = '/';
-const char          preferred_separator = '/';
 
 // return the last charactor being handled.
 size_t canonicalize(std::string& pathname)
