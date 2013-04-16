@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <cstdlib>
 #include <windows.h>
 
 namespace mcld{
@@ -30,6 +30,18 @@ int GetPageSize()
     _pagesize = sysinfo.dwPageSize;
   }
   return _pagesize;
+}
+
+/// random - generate a random number.
+long GetRandomNum()
+{
+  return ::rand();
+}
+
+/// srandom - set the initial seed value for future calls to random().
+void SetRandomSeed(unsigned pSeed)
+{
+  ::srand(pSeed);
 }
 
 } // namespace of sys

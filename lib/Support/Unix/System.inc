@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <ctype.h>
+#include <cstdlib>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -65,6 +66,18 @@ std::string getDefaultTargetTriple()
 int GetPageSize()
 {
   return getpagesize();
+}
+
+/// random - generate a random number.
+long GetRandomNum()
+{
+  return ::random();
+}
+
+/// srandom - set the initial seed value for future calls to random().
+void SetRandomSeed(unsigned pSeed)
+{
+  ::srandom(pSeed);
 }
 
 } // namespace of sys
