@@ -6,14 +6,15 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/MC/MCLDDirectory.h"
-#include "mcld/Support/FileSystem.h"
+#include <mcld/MC/MCLDDirectory.h>
+#include <mcld/Support/FileSystem.h>
 
 using namespace mcld;
 using namespace mcld::sys::fs;
 
-//==========================
+//===----------------------------------------------------------------------===//
 // MCLDDirectory
+//===----------------------------------------------------------------------===//
 MCLDDirectory::MCLDDirectory()
   : Directory(), m_Name(), m_bInSysroot(false) {
 }
