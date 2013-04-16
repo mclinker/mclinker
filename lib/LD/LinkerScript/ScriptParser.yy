@@ -43,6 +43,7 @@
 %token GROUP
 %token OUTPUT_FORMAT
 %token AS_NEEDED
+%token SEARCH_DIR
 %token OUTPUT_ARCH
 
 %type <strToken> string
@@ -66,6 +67,7 @@ linker_script : linker_script script_command
 script_command : entry_command
                | output_format_command
                | group_command
+               | search_dir_command
                | output_arch_command
                ;
 
@@ -86,6 +88,10 @@ group_command : GROUP
                 }
                 '(' input_list ')'
               ;
+
+search_dir_command : SEARCH_DIR '(' STRING ')'
+                     { pScriptFile.addSearchDirCmd($3, pLDScript); }
+                   ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
                       { pScriptFile.addOutputArchCmd($3); }

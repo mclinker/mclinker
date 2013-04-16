@@ -88,6 +88,9 @@ public:
   /// GROUP(file file ...)
   void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
 
+  /// SEARCH_DIR(path)
+  void addSearchDirCmd(const StrToken& pPath, LinkerScript& pScript);
+
   /// OUTPUT_ARCH(bfdarch)
   void addOutputArchCmd(const StrToken& pArch);
 

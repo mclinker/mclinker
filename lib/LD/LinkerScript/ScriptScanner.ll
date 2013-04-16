@@ -54,6 +54,7 @@ WS [ \t\n\r]
  /* File Commands */
 "GROUP"                      { return token::GROUP; }
 "AS_NEEDED"                  { return token::AS_NEEDED; }
+"SEARCH_DIR"                 { return token::SEARCH_DIR; }
  /* Format Commands */
 "OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
  /* Misc Commands */
