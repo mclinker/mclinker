@@ -11,10 +11,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include <cstring>
 #include <windows.h>
 
 namespace mcld{
 namespace sys{
+
+char* strerror(int errnum)
+{
+  return std::strerror(errnum);
+}
 
 std::string getDefaultTargetTriple()
 {
