@@ -172,10 +172,40 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 
 void open_dir(Directory& pDir)
 {
+  fs::Path file_filter(pDir.path());
+  file_filter.append("*");
+
+  WIN32_FIND_DATA FindFileData;
+  HANDLE hFile = FindFirstFile(file_filter.c_str(), &FindFileData);
+  pDir.m_Handler = reinterpret_cast<intptr_t>(hFile);
+
+  if (INVALID_HANDLE_VALUE == hFile) {
+    if (ERROR_FILE_NOT_FOUND == GetLastError()) {
+      // find an empty directory
+      // set cache is full, then Directory::begin() can return end().
+      pDir.m_CacheFull = true;
+    }
+    else {
+      // fail to read
+      llvm::report_fatal_error(std::string("Can't read directory: ")+
+                               pDir.path().native());
+    }
+    return;
+  }
+
+  // find a new directory and file
+  bool exist = false;
+  std::string path(FindFileData.cFileName);
+  fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
+  if (!exist)
+    entry->setValue(path);
 }
 
 void close_dir(Directory& pDir)
 {
+  if (pDir.m_Handler)
+    FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
+  pDir.m_Handler = 0;
 }
 
 void get_pwd(Path& pPWD)

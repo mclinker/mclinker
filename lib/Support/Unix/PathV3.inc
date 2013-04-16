@@ -252,8 +252,9 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
-  if (pDir.m_Handler == 0) {
+  if (NULL == pDir.m_Handler) {
     errno = 0; // opendir() will set errno if it failed to open directory.
+    // set cache is full, then Directory::begin() can return end().
     pDir.m_CacheFull = true;
     return;
   }
