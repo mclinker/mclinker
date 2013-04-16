@@ -239,7 +239,7 @@ HexagonRelocator::Result relocGPREL16_0(Relocation& pReloc,
   HexagonRelocator::DWord   GP = ld_backend.getGP();
 
   int64_t result = (int64_t) (S + A - GP);
-  int64_t range = 1UL << 32;
+  int64_t range = 1ULL << 32;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
@@ -258,7 +258,7 @@ HexagonRelocator::Result relocGPREL16_1(Relocation& pReloc,
   HexagonRelocator::DWord   GP = ld_backend.getGP();
 
   int64_t result = (int64_t) ((S + A - GP) >> 1);
-  int64_t range = 1L << 32;
+  int64_t range = 1LL << 32;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
@@ -277,7 +277,7 @@ HexagonRelocator::Result relocGPREL16_2(Relocation& pReloc,
   HexagonRelocator::DWord   GP = ld_backend.getGP();
 
   int64_t result = (int64_t) ((S + A - GP) >> 2);
-  int64_t range = 1L << 32;
+  int64_t range = 1LL << 32;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
@@ -296,7 +296,7 @@ HexagonRelocator::Result relocGPREL16_3(Relocation& pReloc,
   HexagonRelocator::DWord   GP = ld_backend.getGP();
 
   int64_t result = (int64_t) ((S + A - GP) >> 3);
-  int64_t range = 1L << 32;
+  int64_t range = 1LL << 32;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   if (result <= range) {
     pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
@@ -362,7 +362,7 @@ HexagonRelocator::Result reloc32_6_X(Relocation& pReloc,
   HexagonRelocator::DWord   A = pReloc.addend();
 
   int64_t result = ((S + A) >> 6);
-  int64_t range = 1L << 32;
+  int64_t range = 1LL << 32;
 
   if (result > range)
     return HexagonRelocator::Overflow;
