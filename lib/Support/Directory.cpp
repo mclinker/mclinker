@@ -24,14 +24,8 @@ bool is_symlink(FileStatus f)
   return f.type() == SymlinkFile;
 }
 
-#if defined(MCLD_ON_WIN32)
-const Path dot_path(L".");
-const Path dot_dot_path(L"..");
-
-#else
 const Path dot_path(".");
 const Path dot_dot_path("..");
-#endif
 
 } // namespace of anonymous
 

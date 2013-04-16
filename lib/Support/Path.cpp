@@ -24,12 +24,12 @@ using namespace mcld::sys::fs;
 //===--------------------------------------------------------------------===//
 namespace {
 #if defined(MCLD_ON_WIN32)
-bool is_separator(wchar_t value)
+bool is_separator(char value)
 {
   return (value == separator || value == preferred_separator);
 }
 
-const Path::StringType separator_str(L"\\");
+const Path::StringType separator_str("\\");
 
 #else
 bool is_separator(char value)
@@ -104,11 +104,7 @@ Path& Path::append(const Path& pPath)
     unsigned int new_size = old_size + pPath.native().size();
 
     m_PathName.resize(new_size);
-#if defined(MCLD_ON_WIN32)
-    wcscpy(const_cast<ValueType*>(m_PathName.data()+old_size), pPath.native().data());
-#else
     strcpy(const_cast<ValueType*>(m_PathName.data()+old_size), pPath.native().data());
-#endif
   }
   //first path is a,second path is b
   else if(this->native()[this->native().size()-1] != separator &&

@@ -29,16 +29,15 @@ namespace sys  {
 namespace fs   {
 
 #if defined(MCLD_ON_WIN32)
-const wchar_t preferred_separator = L'\\';
-const wchar_t separator = L'\\';
-const wchar_t colon = L':';
-const wchar_t dot = L'.';
+const char preferred_separator = '\\';
+const char separator = '\\';
 #else
-const char    preferred_separator = '/';
-const char    separator = '/';
-const char    colon = ':';
-const char    dot = L'.';
+const char preferred_separator = '/';
+const char separator = '/';
 #endif
+
+const char colon = ':';
+const char dot = '.';
 
 /** \class Path
  *  \brief Path provides an abstraction for the path to a file or directory in
@@ -47,14 +46,8 @@ const char    dot = L'.';
 class Path
 {
 public:
-#if defined(MCLD_ON_WIN32)
-  typedef wchar_t                            ValueType;
-  typedef std::wstring                       StringType;
-#else
   typedef char                               ValueType;
   typedef std::string                        StringType;
-#endif
-  typedef std::codecvt<wchar_t, char, mbstate_t> CodeCVT;
 
 public:
   Path();
@@ -85,14 +78,6 @@ public:
 
   const ValueType* c_str() const
   { return m_PathName.c_str(); }
-
-#if defined(MCLD_ON_WIN32)
-  std::string string() const;
-  const std::wstring& wstring() const { return m_PathName; }
-#else
-  const std::string& string() const { return m_PathName; }
-  std::wstring wstring() const;
-#endif
 
   // -----  decomposition  ----- //
   Path parent_path() const;

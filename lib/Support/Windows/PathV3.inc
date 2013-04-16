@@ -19,24 +19,9 @@ namespace sys{
 namespace fs{
 
 //===----------------------------------------------------------------------===//
-// mcld::sys::fs::Path
-//===----------------------------------------------------------------------===//
-std::string Path::string() const
-{
-  std::string result;
-  if (!m_PathName.empty()) {
-    // TODO: convert
-  }
-  return result;
-}
-
-//===----------------------------------------------------------------------===//
 // mcld::sys::fs::detail
 //===----------------------------------------------------------------------===//
 namespace detail{
-
-const char          separator = '\\';
-const char          preferred_separator = '\\';
 
 // return the last charactor being handled.
 size_t canonicalize(std::string& pathname)
@@ -145,7 +130,7 @@ bool not_found_error(int perrno)
 void status(const Path& p, FileStatus& pFileStatus)
 {
   struct ::_stat path_stat;
-  if(::_wstat(p.c_str(), &path_stat)!= 0)
+  if(::_stat(p.c_str(), &path_stat)!= 0)
   {
     if(not_found_error(errno))
     {
@@ -195,8 +180,8 @@ void close_dir(Directory& pDir)
 
 void get_pwd(Path& pPWD)
 {
-  wchar_t* pwd = (wchar_t*)malloc(PATH_MAX);
-  pPWD.assign(_wgetcwd(pwd, PATH_MAX));
+  char* pwd = (char*)malloc(PATH_MAX);
+  pPWD.assign(_getcwd(pwd, PATH_MAX));
   free(pwd);
 }
 
