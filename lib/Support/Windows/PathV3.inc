@@ -167,7 +167,30 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
 //     An iterator now is staying at the end of cache. (a temporal end)
 mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 {
-  return NULL;
+  mcld::sys::fs::PathCache::entry_type* entry = 0;
+  fs::Path file_filter(pIter.m_pParent->m_Path);
+  file_filter.append("*");
+
+  WIN32_FIND_DATA FindFileData;
+  if (FindNextFile(reinterpret_cast<HANDLE>(pIter.m_pParent->m_Handler),
+                   &FindFileData)) {
+    // read one
+    bool exist = false;
+    std::string path(FindFileData.cFileName);
+    entry = pIter.m_pParent->m_Cache.insert(path, exist);
+    if (!exist)
+      entry->setValue(path);
+  }
+  else if (ERROR_NO_MORE_FILES == GetLastError()){
+    // meet real end
+    pIter.m_pParent->m_CacheFull = true;
+  }
+  else {
+    llvm::report_fatal_error(std::string("Can't read directory: ")+
+                             pIter.m_pParent->path().native());
+  }
+
+  return entry;
 }
 
 void open_dir(Directory& pDir)
@@ -180,16 +203,8 @@ void open_dir(Directory& pDir)
   pDir.m_Handler = reinterpret_cast<intptr_t>(hFile);
 
   if (INVALID_HANDLE_VALUE == hFile) {
-    if (ERROR_FILE_NOT_FOUND == GetLastError()) {
-      // find an empty directory
-      // set cache is full, then Directory::begin() can return end().
-      pDir.m_CacheFull = true;
-    }
-    else {
-      // fail to read
-      llvm::report_fatal_error(std::string("Can't read directory: ")+
-                               pDir.path().native());
-    }
+    // set cache is full, then Directory::begin() can return end().
+    pDir.m_CacheFull = true;
     return;
   }
 
