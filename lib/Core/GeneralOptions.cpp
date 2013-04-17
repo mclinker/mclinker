@@ -52,7 +52,7 @@ GeneralOptions::GeneralOptions()
     m_bFatalWarnings(false),
     m_bNewDTags(false),
     m_bNoStdlib(false),
-    m_gpsize(8),
+    m_GPSize(8),
     m_StripSymbols(KeepAllSymbols),
     m_HashStyle(SystemV) {
 }

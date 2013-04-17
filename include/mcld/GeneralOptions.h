@@ -280,10 +280,10 @@ public:
 
   // -G, max GP size option
   void setGPSize(int gpsize)
-  { m_gpsize = gpsize; }
+  { m_GPSize = gpsize; }
 
   int getGPSize() const
-  { return m_gpsize; }
+  { return m_GPSize; }
 
   unsigned int getHashStyle() const { return m_HashStyle; }
 
@@ -367,7 +367,7 @@ private:
   bool m_bNewDTags: 1; // --enable-new-dtags
   bool m_bNoStdlib: 1; // -nostdlib
   bool m_bPrintMap: 1; // --print-map
-  int8_t m_gpsize; // -G, --gpsize
+  uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   unsigned int m_HashStyle;
