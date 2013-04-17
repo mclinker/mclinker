@@ -222,7 +222,7 @@ static int read_dir(intptr_t& pDir, std::string& pOutFilename)
 //  iterator will call this function in two situations:
 //  1. All elements have been put into cache, and iterator stays at the end
 //     of cache. (a real end)
-//  2. Some but not all elements had beed put into cache, and we stoped.
+//  2. Some but not all elements had been put into cache, and we stoped.
 //     An iterator now is staying at the end of cache. (a temporal end)
 mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 {
