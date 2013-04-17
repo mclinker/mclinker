@@ -79,12 +79,17 @@ bool mcld::MCLDEmulateELF(LinkerScript& pScript, LinkerConfig& pConfig)
   if (!pConfig.options().nostdlib()) {
     // TODO: check if user sets the default search path instead via -Y option
     // set up default search path
-    if (llvm::Triple::NetBSD == pConfig.targets().triple().getOS()) {
-      pScript.directories().insert("=/usr/lib");
-    }
-    else {
-      pScript.directories().insert("=/lib");
-      pScript.directories().insert("=/usr/lib");
+    switch (pConfig.targets().triple().getOS()) {
+      case llvm::Triple::NetBSD:
+        pScript.directories().insert("=/usr/lib");
+        break;
+      case llvm::Triple::MinGW32:
+        pScript.directories().insert("=/mingw/lib");
+        break;
+      default:
+        pScript.directories().insert("=/lib");
+        pScript.directories().insert("=/usr/lib");
+        break;
     }
   }
   return true;
