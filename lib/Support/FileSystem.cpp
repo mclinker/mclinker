@@ -10,23 +10,22 @@
 #include <mcld/Support/FileSystem.h>
 #include <mcld/Support/Path.h>
 
-using namespace mcld::sys::fs;
-
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 // non-member functions
-//===--------------------------------------------------------------------===//
+//===----------------------------------------------------------------------===//
 bool mcld::sys::fs::exists(const Path &pPath)
 {
-  FileStatus pFileStatus;
-  detail::status(pPath, pFileStatus);
-  return exists(pFileStatus);
+  mcld::sys::fs::FileStatus file_status;
+  mcld::sys::fs::detail::status(pPath, file_status);
+  return (file_status.type() != mcld::sys::fs::StatusError) &&
+         (file_status.type() != mcld::sys::fs::FileNotFound);
 }
 
 bool mcld::sys::fs::is_directory(const Path &pPath)
 {
-  FileStatus pFileStatus;
-  detail::status(pPath, pFileStatus);
-  return is_directory(pFileStatus);
+  FileStatus file_status;
+  detail::status(pPath, file_status);
+  return (file_status.type() == mcld::sys::fs::DirectoryFile);
 }
 
 // Include the truly platform-specific parts. 
