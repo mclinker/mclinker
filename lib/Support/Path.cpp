@@ -214,17 +214,3 @@ Path mcld::sys::fs::operator+(const Path& pLHS, const Path& pRHS)
   return result;
 }
 
-bool mcld::sys::fs::exists(const Path &pPath)
-{
-  FileStatus pFileStatus;
-  detail::status(pPath, pFileStatus);
-  return exists(pFileStatus);
-}
-
-bool mcld::sys::fs::is_directory(const Path &pPath)
-{
-  FileStatus pFileStatus;
-  detail::status(pPath, pFileStatus);
-  return is_directory(pFileStatus);
-}
-

@@ -6,18 +6,28 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Config/Config.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/Path.h"
+#include <mcld/Config/Config.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 
 using namespace mcld::sys::fs;
 
-
-//===--------------------------------------------------------------------===//
-// SearchDirs
-
 //===--------------------------------------------------------------------===//
 // non-member functions
+//===--------------------------------------------------------------------===//
+bool mcld::sys::fs::exists(const Path &pPath)
+{
+  FileStatus pFileStatus;
+  detail::status(pPath, pFileStatus);
+  return exists(pFileStatus);
+}
+
+bool mcld::sys::fs::is_directory(const Path &pPath)
+{
+  FileStatus pFileStatus;
+  detail::status(pPath, pFileStatus);
+  return is_directory(pFileStatus);
+}
 
 // Include the truly platform-specific parts. 
 #if defined(MCLD_ON_UNIX)
