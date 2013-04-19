@@ -6,9 +6,9 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-#include "mcld/Config/Config.h"
-#include "mcld/Support/FileSystem.h"
-#include "mcld/Support/Path.h"
+#include <mcld/Config/Config.h>
+#include <mcld/Support/FileSystem.h>
+#include <mcld/Support/Path.h>
 #include <llvm/ADT/StringRef.h>
 
 #include <locale>
