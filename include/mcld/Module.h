@@ -131,9 +131,6 @@ public:
   LDSection*       getSection(const std::string& pName);
   const LDSection* getSection(const std::string& pName) const;
 
-  LDSymbol*       getSectionSymbol(const LDSection* pSection);
-  const LDSymbol* getSectionSymbol(const LDSection* pSection) const;
-
 /// @}
 /// @name Symbol Accessors
 /// @{
@@ -149,6 +146,12 @@ public:
   size_t             sym_size () const { return m_SymbolTable.numOfSymbols();  }
 
   // ----- section symbols ----- //
+  const LDSymbol* getSectionSymbol(const LDSection& pSection) const
+  { return m_SectSymbolSet.get(pSection); }
+
+  LDSymbol* getSectionSymbol(const LDSection& pSection)
+  { return m_SectSymbolSet.get(pSection); }
+
   const SectionSymbolSet& getSectionSymbolSet() const
   { return m_SectSymbolSet; }
   SectionSymbolSet&       getSectionSymbolSet()
