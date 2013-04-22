@@ -15,4 +15,4 @@ config.fakeld = "@FAKELD@"
 config.llvm_config = "@LLVM_CONFIG@"
 
 # Let the main config do the real work.
-lit.load_config(config, os.path.join(config.mclinker_src_root, 'test/lit.cfg'))
+lit.load_config(config, "@MCLINKER_SOURCE_ROOT@/test/lit.cfg")
