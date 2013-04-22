@@ -166,7 +166,7 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
 {
   mcld::sys::fs::PathCache::entry_type* entry = 0;
   fs::Path file_filter(pIter.m_pParent->m_Path);
-  file_filter.append("*");
+  file_filter.append("/*");
 
   WIN32_FIND_DATA FindFileData;
   if (FindNextFile(reinterpret_cast<HANDLE>(pIter.m_pParent->m_Handler),
