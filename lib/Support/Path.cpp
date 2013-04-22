@@ -29,7 +29,7 @@ bool is_separator(char value)
   return (value == separator || value == preferred_separator);
 }
 
-const Path::StringType separator_str("\\");
+const Path::StringType separator_str("\\\\");
 
 #else
 bool is_separator(char value)
@@ -138,14 +138,15 @@ bool Path::canonicalize()
 
 Path::StringType::size_type Path::m_append_separator_if_needed()
 {
+  StringType::value_type last_char = m_PathName[m_PathName.size() - 1];
   if (!m_PathName.empty() &&
 #if defined(MCLD_ON_WIN32)
-      *(m_PathName.end()-1) != colon &&
+      colon != last_char &&
 #endif
-      !is_separator(*(m_PathName.end()-1))) {
-        StringType::size_type tmp(m_PathName.size());
-        m_PathName += preferred_separator;
-        return tmp;
+      !is_separator(last_char)) {
+    StringType::size_type tmp(m_PathName.size());
+    m_PathName += separator_str;
+    return tmp;
   }
   return 0;
 }
@@ -153,9 +154,14 @@ Path::StringType::size_type Path::m_append_separator_if_needed()
 void Path::m_erase_redundant_separator(Path::StringType::size_type pSepPos)
 {
   size_t begin=pSepPos;
-  // skip '/'
-  while(separator == m_PathName[pSepPos])
+  // skip '/' or '\\'
+  while(separator == m_PathName[pSepPos]) {
+#if defined(MCLD_ON_WIN32)
+    pSepPos += 2;
+#else
     ++pSepPos;
+#endif
+  }
 
   if(begin!=pSepPos)
     m_PathName.erase(begin+1,pSepPos-begin-1);
