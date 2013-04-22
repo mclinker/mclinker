@@ -29,8 +29,8 @@ namespace sys  {
 namespace fs   {
 
 #if defined(MCLD_ON_WIN32)
-const char preferred_separator = '\\';
-const char separator = '\\';
+const char preferred_separator = '/';
+const char separator = '/';
 #else
 const char preferred_separator = '/';
 const char separator = '/';
