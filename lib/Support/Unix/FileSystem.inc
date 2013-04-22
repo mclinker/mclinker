@@ -22,10 +22,10 @@ namespace detail{
 
 std::string static_library_extension = ".a";
 std::string shared_library_extension = ".so";
-std::string executable_extension = "";
-std::string relocatable_extension = ".o";
-std::string assembly_extension = ".s";
-std::string bitcode_extension = ".bc";
+std::string executable_extension     = "";
+std::string relocatable_extension    = ".o";
+std::string assembly_extension       = ".s";
+std::string bitcode_extension        = ".bc";
 
 //===----------------------------------------------------------------------===//
 // Helper Functions
