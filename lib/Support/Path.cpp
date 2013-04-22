@@ -138,11 +138,13 @@ bool Path::canonicalize()
 
 Path::StringType::size_type Path::m_append_separator_if_needed()
 {
+#if defined(MCLD_ON_WIN32)
+  // On Windows platform, path can not append separator.
+  return 0;
+#endif
+
   StringType::value_type last_char = m_PathName[m_PathName.size() - 1];
   if (!m_PathName.empty() &&
-#if defined(MCLD_ON_WIN32)
-      colon != last_char &&
-#endif
       !is_separator(last_char)) {
     StringType::size_type tmp(m_PathName.size());
     m_PathName += separator_str;
