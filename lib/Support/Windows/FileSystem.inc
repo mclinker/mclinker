@@ -10,7 +10,10 @@
 #include <io.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include <Windows.h>
+#include <limits.h>
 #include <mcld/Support/FileHandle.h>
+#include <mcld/Support/Directory.h>
 
 #ifndef STDIN_FILENO
 # define STDIN_FILENO 0
@@ -33,6 +36,36 @@ Path::StringType executable_extension     = ".exe";
 Path::StringType relocatable_extension    = ".obj";
 Path::StringType assembly_extension       = ".s";
 Path::StringType bitcode_extension        = ".bc";
+
+void open_dir(Directory& pDir)
+{
+  fs::Path file_filter(pDir.path());
+  file_filter.append("*");
+
+  WIN32_FIND_DATA FindFileData;
+  HANDLE hFile = FindFirstFile(file_filter.c_str(), &FindFileData);
+  pDir.m_Handler = reinterpret_cast<intptr_t>(hFile);
+
+  if (INVALID_HANDLE_VALUE == hFile) {
+    // set cache is full, then Directory::begin() can return end().
+    pDir.m_CacheFull = true;
+    return;
+  }
+
+  // find a new directory and file
+  bool exist = false;
+  std::string path(FindFileData.cFileName);
+  fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
+  if (!exist)
+    entry->setValue(path);
+}
+
+void close_dir(Directory& pDir)
+{
+  if (pDir.m_Handler)
+    FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
+  pDir.m_Handler = 0;
+}
 
 int open(const Path& pPath, int pOFlag)
 {
@@ -80,6 +113,13 @@ ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
 int ftruncate(int pFD, size_t pLength)
 {
   return ::_chsize(pFD, pLength);
+}
+
+void get_pwd(Path& pPWD)
+{
+  char* pwd = (char*)malloc(PATH_MAX);
+  pPWD.assign(_getcwd(pwd, PATH_MAX));
+  free(pwd);
 }
 
 } // namespace of detail

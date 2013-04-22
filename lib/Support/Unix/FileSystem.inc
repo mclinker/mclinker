@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <mcld/Support/FileHandle.h>
+#include <mcld/Support/Directory.h>
 
 namespace mcld{
 namespace sys{
@@ -29,6 +30,44 @@ std::string bitcode_extension = ".bc";
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
+void open_dir(Directory& pDir)
+{
+  pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));
+  if (0 == pDir.m_Handler) {
+    errno = 0; // opendir() will set errno if it failed to open directory.
+    // set cache is full, then Directory::begin() can return end().
+    pDir.m_CacheFull = true;
+    return;
+  }
+  // read one entry for advance the end element of the cache.
+  std::string path(pDir.path().native());
+  switch (read_dir(pDir.m_Handler, path)) {
+  case 1: {
+    // find a new directory
+    bool exist = false;
+    mcld::sys::fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
+    if (!exist)
+      entry->setValue(path);
+    return;
+  }
+  case 0:
+    // FIXME: a warning function
+    pDir.m_CacheFull = true;
+    return;
+  default:
+  case -1:
+    llvm::report_fatal_error(std::string("Can't read directory: ")+
+                             pDir.path().native());
+  }
+}
+
+void close_dir(Directory& pDir)
+{
+  if (pDir.m_Handler)
+    closedir(reinterpret_cast<DIR *>(pDir.m_Handler));
+  pDir.m_Handler = 0;
+}
+
 int open(const Path& pPath, int pOFlag)
 {
   return ::open(pPath.native().c_str(), pOFlag);
@@ -72,6 +111,13 @@ ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
 int ftruncate(int pFD, size_t pLength)
 {
   return ::ftruncate(pFD, pLength);
+}
+
+void get_pwd(Path& pPWD)
+{
+  char* pwd = (char*)malloc(PATH_MAX);
+  pPWD.assign(getcwd(pwd, PATH_MAX));
+  free(pwd);
 }
 
 } // namespace of detail

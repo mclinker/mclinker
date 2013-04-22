@@ -7,11 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 #include <mcld/Support/Path.h>
-#include <mcld/Support/Directory.h>
-#include <Windows.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <limits.h>
 #include <stack>
 
 namespace mcld{
@@ -191,43 +188,6 @@ mcld::sys::fs::PathCache::entry_type* bring_one_into_cache(DirIterator& pIter)
   }
 
   return entry;
-}
-
-void open_dir(Directory& pDir)
-{
-  fs::Path file_filter(pDir.path());
-  file_filter.append("*");
-
-  WIN32_FIND_DATA FindFileData;
-  HANDLE hFile = FindFirstFile(file_filter.c_str(), &FindFileData);
-  pDir.m_Handler = reinterpret_cast<intptr_t>(hFile);
-
-  if (INVALID_HANDLE_VALUE == hFile) {
-    // set cache is full, then Directory::begin() can return end().
-    pDir.m_CacheFull = true;
-    return;
-  }
-
-  // find a new directory and file
-  bool exist = false;
-  std::string path(FindFileData.cFileName);
-  fs::PathCache::entry_type* entry = pDir.m_Cache.insert(path, exist);
-  if (!exist)
-    entry->setValue(path);
-}
-
-void close_dir(Directory& pDir)
-{
-  if (pDir.m_Handler)
-    FindClose(reinterpret_cast<HANDLE>(pDir.m_Handler));
-  pDir.m_Handler = 0;
-}
-
-void get_pwd(Path& pPWD)
-{
-  char* pwd = (char*)malloc(PATH_MAX);
-  pPWD.assign(_getcwd(pwd, PATH_MAX));
-  free(pwd);
 }
 
 } // namespace of detail
