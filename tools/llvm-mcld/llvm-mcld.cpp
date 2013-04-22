@@ -1254,6 +1254,8 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
 
 int main(int argc, char* argv[])
 {
+  sys::PrintStackTraceOnErrorSignal();
+
   LLVMContext &Context = getGlobalContext();
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
 
