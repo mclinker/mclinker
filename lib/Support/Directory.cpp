@@ -53,7 +53,7 @@ Directory::Directory(const Path& pPath,
   if (m_Path == dot_path)
     detail::get_pwd(m_Path);
   m_Path.m_append_separator_if_needed();
-  mcld::sys::fs::detail::open_dir(*this);
+  detail::open_dir(*this);
 }
 
 Directory::Directory(const Directory& pCopy)
@@ -63,7 +63,7 @@ Directory::Directory(const Directory& pCopy)
     m_Handler(0),
     m_Cache(),
     m_CacheFull(false) {
-  mcld::sys::fs::detail::open_dir(*this);
+  detail::open_dir(*this);
 }
 
 Directory::~Directory()
