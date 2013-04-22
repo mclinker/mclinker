@@ -30,10 +30,11 @@ namespace sys{
 namespace fs{
 namespace detail{
 
-Path::StringType static_library_extension = ".lib";
-Path::StringType shared_library_extension = ".dll";
+// FIXME: the extension depends on target machine, not host machine.
+Path::StringType static_library_extension = ".a";
+Path::StringType shared_library_extension = ".so";
 Path::StringType executable_extension     = ".exe";
-Path::StringType relocatable_extension    = ".obj";
+Path::StringType relocatable_extension    = ".o";
 Path::StringType assembly_extension       = ".s";
 Path::StringType bitcode_extension        = ".bc";
 
