@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <mcld/Support/FileHandle.h>
@@ -30,6 +31,32 @@ std::string bitcode_extension        = ".bc";
 //===----------------------------------------------------------------------===//
 // Helper Functions
 //===----------------------------------------------------------------------===//
+/// read_dir - return true if we read one entry
+//  @return value -1: read error
+//                 0: read the end
+//                 1: success
+static int read_dir(intptr_t& pDir, std::string& pOutFilename)
+{
+  errno = 0;
+  dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
+  if (0 == cur_dir && 0 != errno)
+    return -1;
+
+  // idx does not stay at the end, but all elements had beed put into cache.
+  if (NULL == cur_dir) {
+    return 0;
+  }
+
+  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
+  if ((name.size() == 1 && name[0] == '.') ||
+      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
+    return read_dir(pDir, pOutFilename);
+
+  // find a new directory
+  pOutFilename.append(name.data(), name.size());
+  return 1;
+}
+
 void open_dir(Directory& pDir)
 {
   pDir.m_Handler = reinterpret_cast<intptr_t>(opendir(pDir.path().c_str()));

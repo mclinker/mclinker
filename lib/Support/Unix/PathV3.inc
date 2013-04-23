@@ -11,7 +11,6 @@
 #include <llvm/Support/ErrorHandling.h>
 
 #include <cerrno>
-#include <dirent.h>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -188,32 +187,6 @@ void symlink_status(const Path& p, FileStatus& pFileStatus)
     pFileStatus.setType(SocketFile);
   else
     pFileStatus.setType(TypeUnknown);
-}
-
-/// read_dir - return true if we read one entry
-//  @return value -1: read error
-//                 0: read the end
-//                 1: success
-static int read_dir(intptr_t& pDir, std::string& pOutFilename)
-{
-  errno = 0;
-  dirent *cur_dir = ::readdir(reinterpret_cast<DIR*>(pDir));
-  if (0 == cur_dir && 0 != errno)
-    return -1;
-
-  // idx does not stay at the end, but all elements had beed put into cache.
-  if (NULL == cur_dir) {
-    return 0;
-  }
-
-  llvm::StringRef name(cur_dir->d_name, strlen(cur_dir->d_name));
-  if ((name.size() == 1 && name[0] == '.') ||
-      (name.size() == 2 && name[0] == '.' && name[1] == '.'))
-    return read_dir(pDir, pOutFilename);
-
-  // find a new directory
-  pOutFilename.append(name.data(), name.size());
-  return 1;
 }
 
 /// directory_iterator_increment - increment function implementation
