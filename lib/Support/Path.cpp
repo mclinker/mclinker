@@ -29,7 +29,7 @@ bool is_separator(char value)
   return (value == separator || value == preferred_separator);
 }
 
-const Path::StringType separator_str("\\\\");
+const Path::StringType separator_str("/");
 
 #else
 bool is_separator(char value)
