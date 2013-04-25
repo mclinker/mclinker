@@ -40,6 +40,9 @@ inline static off_t page_boundary(off_t pFileOffset)
 
 inline static Space::Type policy(off_t pOffset, size_t pLength)
 {
+#if defined(MCLD_ON_WIN32)
+  return Space::ALLOCATED_ARRAY;
+#endif
   const size_t threshold = (PageSize*3)/4; // 3/4 page size in Linux
   if (pLength < threshold)
     return Space::ALLOCATED_ARRAY;
