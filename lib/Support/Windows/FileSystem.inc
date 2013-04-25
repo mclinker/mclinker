@@ -70,7 +70,7 @@ void close_dir(Directory& pDir)
 
 int open(const Path& pPath, int pOFlag)
 {
-  return ::_open(pPath.native().c_str(), pOFlag);
+  return ::_open(pPath.native().c_str(), pOFlag | _O_BINARY);
 }
 
 int open(const Path& pPath, int pOFlag, int pPerm)
@@ -86,7 +86,7 @@ int open(const Path& pPath, int pOFlag, int pPerm)
       pPerm & FileHandle::WriteOther)
     perm |= _S_IWRITE;
 
-  return ::_open(pPath.native().c_str(), pOFlag, perm);
+  return ::_open(pPath.native().c_str(), pOFlag | _O_BINARY, perm);
 }
 
 ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
