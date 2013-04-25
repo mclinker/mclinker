@@ -91,24 +91,48 @@ int open(const Path& pPath, int pOFlag, int pPerm)
 
 ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
 {
-  off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
-  if (::_lseek (pFD, pOffset, SEEK_SET) != pOffset)
+  ssize_t ret;
+  off_t old_pos;
+  if (-1 == (old_pos = ::lseek(pFD, 0, SEEK_CUR)))
+     return -1;
+
+  if (-1 == ::lseek(pFD, pOffset, SEEK_SET))
     return -1;
-  ssize_t retval = ::_read(pFD, pBuf, pCount);
-  if (::_lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
+
+  if (-1 == (ret = ::read(pFD, pBuf, pCount))) {
+    int err = errno;
+    ::lseek(pFD, old_pos, SEEK_SET);
+    errno = err;
+     return -1;
+  }
+
+  if (-1 == ::lseek(pFD, old_pos, SEEK_SET))
     return -1;
-  return retval;
+
+  return ret;
 }
 
 ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset)
 {
-  off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
-  if (::_lseek(pFD, pOffset, SEEK_SET) != pOffset)
+  ssize_t ret;
+  off_t old_pos;
+  if (-1 == (old_pos = ::lseek(pFD, 0, SEEK_CUR)))
     return -1;
-  ssize_t retval = ::_write(pFD, pBuf, pCount);
-  if (::_lseek(pFD, curr_pos, SEEK_SET) != curr_pos)
+
+  if (-1 == ::lseek(pFD, pOffset, SEEK_SET))
     return -1;
-  return retval; 
+
+  if (-1 == (ret = ::write(pFD, pBuf, pCount))) {
+    int err = errno;
+    ::lseek(pFD, old_pos, SEEK_SET);
+    errno = err;
+    return -1;
+  }
+
+  if (-1 == ::lseek(pFD, old_pos, SEEK_SET))
+    return -1;
+
+  return ret;
 }
 
 int ftruncate(int pFD, size_t pLength)
