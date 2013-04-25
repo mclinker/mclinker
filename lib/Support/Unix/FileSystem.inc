@@ -125,12 +125,12 @@ int open(const Path& pPath, int pOFlag, int pPerm)
   return ::open(pPath.native().c_str(), pOFlag, perm);
 }
 
-ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)
+ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
 {
   return ::pread(pFD, pBuf, pCount, pOffset);
 }
 
-ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset)
 {
   return ::pwrite(pFD, pBuf, pCount, pOffset);
 }

@@ -100,8 +100,8 @@ void get_pwd(Path& pPWD);
 
 int open(const Path& pPath, int pOFlag);
 int open(const Path& pPath, int pOFlag, int pPermission);
-ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset);
-ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset);
+ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset);
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset);
 int ftruncate(int pFD, size_t pLength);
 void* mmap(void *pAddr, size_t pLen,
            int pProt, int pFlags, int pFD, off_t pOffset);

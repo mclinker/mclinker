@@ -89,7 +89,7 @@ int open(const Path& pPath, int pOFlag, int pPerm)
   return ::_open(pPath.native().c_str(), pOFlag, perm);
 }
 
-ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)
+ssize_t pread(int pFD, void* pBuf, size_t pCount, off_t pOffset)
 {
   off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
   if (::_lseek (pFD, pOffset, SEEK_SET) != pOffset)
@@ -100,7 +100,7 @@ ssize_t pread(int pFD, void* pBuf, size_t pCount, size_t pOffset)
   return retval;
 }
 
-ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, size_t pOffset)
+ssize_t pwrite(int pFD, const void* pBuf, size_t pCount, off_t pOffset)
 {
   off_t curr_pos = ::_lseek(pFD, 0, SEEK_CUR);
   if (::_lseek(pFD, pOffset, SEEK_SET) != pOffset)
