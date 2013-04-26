@@ -18,8 +18,9 @@
 #include <functional>
 
 namespace mcld {
+namespace hash {
 
-enum StringHashType {
+enum Type {
   RS,
   JS,
   PJW,
@@ -359,6 +360,7 @@ struct StringCompare<char*> : public std::binary_function<const char*, const cha
   { return (0 == std::strcmp(X, Y)); }
 };
 
+} // namespace of hash
 } // namespace of mcld
 
 #endif

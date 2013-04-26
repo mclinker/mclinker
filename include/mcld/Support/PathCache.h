@@ -24,10 +24,10 @@ namespace fs   {
 namespace {
   typedef HashEntry<llvm::StringRef,
                     mcld::sys::fs::Path,
-                    StringCompare<llvm::StringRef> > HashEntryType;
+                    hash::StringCompare<llvm::StringRef> > HashEntryType;
 } // anonymous namespace
 
-typedef HashTable<HashEntryType, StringHash<BKDR>, EntryFactory<HashEntryType> > PathCache;
+typedef HashTable<HashEntryType, hash::StringHash<hash::BKDR>, EntryFactory<HashEntryType> > PathCache;
 
 } // namespace of fs
 } // namespace of sys

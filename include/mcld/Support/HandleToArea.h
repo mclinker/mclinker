@@ -18,8 +18,7 @@
 #include <mcld/Support/FileHandle.h>
 #include <vector>
 
-namespace mcld
-{
+namespace mcld {
 
 class MemoryArea;
 
@@ -48,7 +47,7 @@ private:
   // vector and sequential search here.
   typedef std::vector<Bucket> HandleToAreaMap;
 
-  typedef StringHash<BKDR> HashFunction;
+  typedef hash::StringHash<hash::BKDR> HashFunction;
 
 public:
   typedef HandleToAreaMap::iterator iterator;

@@ -28,15 +28,15 @@ class LinkerScript
 {
 public:
   typedef HashTable<StringEntry<llvm::StringRef>,
-                    StringHash<ELF>,
+                    hash::StringHash<hash::ELF>,
                     StringEntryFactory<llvm::StringRef> > SymbolRenameMap;
 
   typedef HashTable<StringEntry<uint64_t>,
-                    StringHash<ELF>,
+                    hash::StringHash<hash::ELF>,
                     StringEntryFactory<uint64_t> > AddressMap;
 
   typedef HashTable<StringEntry<llvm::StringRef>,
-                    StringHash<ELF>,
+                    hash::StringHash<hash::ELF>,
                     StringEntryFactory<llvm::StringRef> > DefSymMap;
 
 public:

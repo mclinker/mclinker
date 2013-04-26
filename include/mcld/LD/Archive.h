@@ -94,11 +94,11 @@ public:
 private:
   typedef HashEntry<const llvm::StringRef,
                     ArchiveMember,
-                    StringCompare<llvm::StringRef> > ArchiveMemberEntryType;
+                    hash::StringCompare<llvm::StringRef> > ArchiveMemberEntryType;
 
 public:
   typedef HashTable<ArchiveMemberEntryType,
-                    StringHash<ELF>,
+                    hash::StringHash<hash::ELF>,
                     EntryFactory<ArchiveMemberEntryType> > ArchiveMemberMapType;
 
   struct Symbol
