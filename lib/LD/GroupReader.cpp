@@ -11,6 +11,7 @@
 #include <mcld/LD/DynObjReader.h>
 #include <mcld/LD/GroupReader.h>
 #include <mcld/LD/ObjectReader.h>
+#include <mcld/LD/BinaryReader.h>
 #include <mcld/LinkerConfig.h>
 #include <mcld/MC/Attribute.h>
 #include <mcld/Support/MsgHandling.h>
@@ -20,11 +21,13 @@ using namespace mcld;
 GroupReader::GroupReader(Module& pModule,
                          ObjectReader& pObjectReader,
                          DynObjReader& pDynObjReader,
-                         ArchiveReader& pArchiveReader)
+                         ArchiveReader& pArchiveReader,
+                         BinaryReader& pBinaryReader)
   : m_Module(pModule),
     m_ObjectReader(pObjectReader),
     m_DynObjReader(pDynObjReader),
-    m_ArchiveReader(pArchiveReader)
+    m_ArchiveReader(pArchiveReader),
+    m_BinaryReader(pBinaryReader)
 {
 }
 
@@ -56,11 +59,19 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
     // already got type - for example, bitcode or external OIR (object
     // intermediate representation)
     if ((*input)->type() == Input::Script ||
-        (*input)->type() == Input::Object ||
-        (*input)->type() == Input::DynObj  ||
         (*input)->type() == Input::Archive ||
         (*input)->type() == Input::External) {
       ++input;
+      continue;
+    }
+
+    if (Input::Object == (*input)->type()) {
+      m_Module.getObjectList().push_back(*input);
+      continue;
+    }
+
+    if (Input::DynObj == (*input)->type()) {
+      m_Module.getLibraryList().push_back(*input);
       continue;
     }
 
@@ -74,6 +85,12 @@ bool GroupReader::readGroup(Module::input_iterator pRoot,
       // read archive
       m_ArchiveReader.readArchive(*ar);
       cur_obj_cnt += ar->numOfObjectMember();
+    }
+    // read input as a binary file
+    else if (pConfig.options().isBinaryInput()) {
+      (*input)->setType(Input::Object);
+      m_BinaryReader.readBinary(**input);
+      m_Module.getObjectList().push_back(*input);
     }
     // is a relocatable object file
     else if (m_ObjectReader.isMyFormat(**input)) {

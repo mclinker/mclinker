@@ -21,6 +21,7 @@ class ArchiveReader;
 class DynObjReader;
 class LinkerConfig;
 class ObjectReader;
+class BinaryReader;
 
 /** \class GroupReader
  *  \brief GroupReader handles the Group Node in InputTree
@@ -34,7 +35,8 @@ public:
   GroupReader(Module& pModule,
               ObjectReader& pObjectReader,
               DynObjReader& pDynObjReader,
-              ArchiveReader& pArchiveReader);
+              ArchiveReader& pArchiveReader,
+              BinaryReader& pBinaryReader);
 
   ~GroupReader();
 
@@ -60,6 +62,7 @@ private:
   ObjectReader& m_ObjectReader;
   DynObjReader& m_DynObjReader;
   ArchiveReader& m_ArchiveReader;
+  BinaryReader& m_BinaryReader;
 };
 
 } // namespace of mcld

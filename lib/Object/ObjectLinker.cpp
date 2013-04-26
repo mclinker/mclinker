@@ -90,9 +90,9 @@ bool ObjectLinker::initFragmentLinker()
   m_pObjectReader  = m_LDBackend.createObjectReader(*m_pBuilder);
   m_pArchiveReader = m_LDBackend.createArchiveReader(*m_pModule);
   m_pDynObjReader  = m_LDBackend.createDynObjReader(*m_pBuilder);
-  m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
-                                     *m_pDynObjReader, *m_pArchiveReader);
   m_pBinaryReader  = m_LDBackend.createBinaryReader(*m_pBuilder);
+  m_pGroupReader   = new GroupReader(*m_pModule, *m_pObjectReader,
+                         *m_pDynObjReader, *m_pArchiveReader, *m_pBinaryReader);
   m_pWriter        = m_LDBackend.createWriter();
 
   // initialize Relocator
