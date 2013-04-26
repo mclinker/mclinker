@@ -46,8 +46,8 @@ HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
     m_pGOT(NULL),
     m_pGOTPLT(NULL),
     m_pPLT(NULL),
-    m_pRelDyn(NULL),
-    m_pRelPLT(NULL),
+    m_pRelaDyn(NULL),
+    m_pRelaPLT(NULL),
     m_pDynamic(NULL),
     m_pGOTSymbol(NULL) {
 }
@@ -57,8 +57,8 @@ HexagonLDBackend::~HexagonLDBackend()
   delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
-  delete m_pRelDyn;
-  delete m_pRelPLT;
+  delete m_pRelaDyn;
+  delete m_pRelaPLT;
   delete m_pDynamic;
 }
 
@@ -185,28 +185,28 @@ const HexagonPLT& HexagonLDBackend::getPLT() const
   return *m_pPLT;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelDyn()
+OutputRelocSection& HexagonLDBackend::getRelaDyn()
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelDyn() const
+const OutputRelocSection& HexagonLDBackend::getRelaDyn() const
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelPLT()
+OutputRelocSection& HexagonLDBackend::getRelaPLT()
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelPLT() const
+const OutputRelocSection& HexagonLDBackend::getRelaPLT() const
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
 }
 
 unsigned int
@@ -253,14 +253,14 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
                         *m_pGOTPLT,
                         config());
 
-    // initialize .rel.plt
-    LDSection& relplt = file_format->getRelPlt();
-    relplt.setLink(&plt);
-    m_pRelPLT = new OutputRelocSection(pModule, relplt);
+    // initialize .rela.plt
+    LDSection& relaplt = file_format->getRelaPlt();
+    relaplt.setLink(&plt);
+    m_pRelaPLT = new OutputRelocSection(pModule, relaplt);
 
-    // initialize .rel.dyn
-    LDSection& reldyn = file_format->getRelDyn();
-    m_pRelDyn = new OutputRelocSection(pModule, reldyn);
+    // initialize .rela.dyn
+    LDSection& reladyn = file_format->getRelaDyn();
+    m_pRelaDyn = new OutputRelocSection(pModule, reladyn);
 
   }
   m_psdata = pBuilder.CreateSection(".sdata",

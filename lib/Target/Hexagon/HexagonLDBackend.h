@@ -104,13 +104,13 @@ public:
 
   bool initTargetStubs();
 
-  OutputRelocSection& getRelDyn();
+  OutputRelocSection& getRelaDyn();
 
-  const OutputRelocSection& getRelDyn() const;
+  const OutputRelocSection& getRelaDyn() const;
 
-  OutputRelocSection& getRelPLT();
+  OutputRelocSection& getRelaPLT();
 
-  const OutputRelocSection& getRelPLT() const;
+  const OutputRelocSection& getRelaPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of Hexagon target section
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
@@ -133,11 +133,11 @@ public:
   uint32_t getGP() { return m_psdata->addr(); }
 
 private:
-  /// getRelEntrySize - the size in BYTE of rel type relocation
-  size_t getRelEntrySize()
-  { return 8; }
-
   /// getRelEntrySize - the size in BYTE of rela type relocation
+  size_t getRelEntrySize()
+  { return 0; }
+
+  /// getRelaEntrySize - the size in BYTE of rela type relocation
   size_t getRelaEntrySize()
   { return 12; }
 
@@ -153,9 +153,9 @@ private:
   HexagonGOTPLT* m_pGOTPLT;
   HexagonPLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
-  OutputRelocSection* m_pRelDyn;
+  OutputRelocSection* m_pRelaDyn;
   /// m_RelPLT - dynamic relocation table of .rel.plt
-  OutputRelocSection* m_pRelPLT;
+  OutputRelocSection* m_pRelaPLT;
 
   HexagonELFDynamic* m_pDynamic;
 
