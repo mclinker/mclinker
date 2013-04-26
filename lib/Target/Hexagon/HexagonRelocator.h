@@ -32,6 +32,8 @@ class HexagonRelocator : public Relocator
 public:
   typedef SymbolEntryMap<PLTEntryBase> SymPLTMap;
   typedef SymbolEntryMap<HexagonGOTEntry> SymGOTMap;
+  typedef SymbolEntryMap<HexagonGOTEntry> SymGOTPLTMap;
+
 
 public:
   /** \enum ReservedEntryType
@@ -116,6 +118,9 @@ public:
   const SymGOTMap& getSymGOTMap() const { return m_SymGOTMap; }
   SymGOTMap&       getSymGOTMap()       { return m_SymGOTMap; }
 
+  const SymGOTPLTMap& getSymGOTPLTMap() const { return m_SymGOTPLTMap; }
+  SymGOTPLTMap&       getSymGOTPLTMap()       { return m_SymGOTPLTMap; }
+
 protected:
   /// addCopyReloc - add a copy relocation into .rela.dyn for pSym
   /// @param pSym - A resolved copy symbol that defined in BSS section
@@ -142,6 +147,7 @@ private:
   HexagonLDBackend& m_Target;
   SymPLTMap m_SymPLTMap;
   SymGOTMap m_SymGOTMap;
+  SymGOTPLTMap m_SymGOTPLTMap;
 };
 
 } // namespace of mcld

@@ -267,6 +267,54 @@ void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
   }
 }
 
+static
+PLTEntryBase& helper_get_PLT_and_init(Relocation& pReloc,
+				      HexagonRelocator& pParent)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  HexagonLDBackend& ld_backend = pParent.getTarget();
+
+  PLTEntryBase* plt_entry = pParent.getSymPLTMap().lookUp(*rsym);
+  if (NULL != plt_entry)
+    return *plt_entry;
+
+  // not found
+  plt_entry = ld_backend.getPLT().consume();
+  pParent.getSymPLTMap().record(*rsym, *plt_entry);
+  // If we first get this PLT entry, we should initialize it.
+  if (rsym->reserved() & HexagonRelocator::ReservePLT) {
+    HexagonGOTEntry* gotplt_entry = pParent.getSymGOTPLTMap().lookUp(*rsym);
+    assert(NULL == gotplt_entry && "PLT entry not exist, but DynRel entry exist!");
+    gotplt_entry = ld_backend.getGOTPLT().consume();
+    pParent.getSymGOTPLTMap().record(*rsym, *gotplt_entry);
+    // init the corresponding rel entry in .rel.plt
+    Relocation& rela_entry = *ld_backend.getRelaPLT().consumeEntry();
+    rela_entry.setType(llvm::ELF::R_HEX_JMP_SLOT);
+    rela_entry.targetRef().assign(*gotplt_entry);
+    rela_entry.setSymInfo(rsym);
+  }
+  else {
+    fatal(diag::reserve_entry_number_mismatch_plt);
+  }
+
+  return *plt_entry;
+}
+
+static
+HexagonRelocator::Address helper_PLT_ORG(HexagonRelocator& pParent)
+{
+  return pParent.getTarget().getPLT().addr();
+}
+
+static
+HexagonRelocator::Address helper_PLT(Relocation& pReloc,
+                                     HexagonRelocator& pParent)
+{
+  PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
+  return helper_PLT_ORG(pParent) + plt_entry.getOffset();
+}
+
 //===--------------------------------------------------------------------===//
 // Relocation helper function
 //===--------------------------------------------------------------------===//
@@ -686,6 +734,21 @@ HexagonRelocator::Result relocHexNX(Relocation& pReloc,
   uint32_t bitMask = FINDBITMASK(pReloc.target());
 
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
+// R_HEX_PLT_B22_PCREL: PLT(S) + A - P
+HexagonRelocator::Result relocPLTB22PCREL(Relocation& pReloc, HexagonRelocator& pParent)
+{
+  // PLT_S depends on if there is a PLT entry.
+  HexagonRelocator::Address PLT_S;
+  if ((pReloc.symInfo()->reserved() & HexagonRelocator::ReservePLT))
+    PLT_S = helper_PLT(pReloc, pParent);
+  else
+    PLT_S = pReloc.symValue();
+  Relocator::DWord      A = pReloc.target() + pReloc.addend();
+  HexagonRelocator::Address P = pReloc.place();
+  pReloc.target() = PLT_S + A - P;
   return HexagonRelocator::OK;
 }
 
