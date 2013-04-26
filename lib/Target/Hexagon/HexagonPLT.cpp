@@ -137,8 +137,9 @@ void HexagonPLT::applyPLT0()
   int32_t result = ((gotpltAddr - pltBase ) >> 6);
   *dest |= ApplyMask<int32_t>(0xfff3fff, result);
   dest = dest + 1;
-  result = ((gotpltAddr + 4) >> 6);
-  *(dest) |= ApplyMask<int32_t>(0xfff3fff, result);
+  // Already calculated using pltBase
+  result = (gotpltAddr - pltBase);
+  *(dest) |= ApplyMask<int32_t>(0x1f80, result);
 
   plt0->setValue(data);
 }
@@ -176,12 +177,12 @@ void HexagonPLT::applyPLT1() {
 
     memcpy(Out, hexagon_plt1, plt1->size());
 
-    unsigned char *dest = (unsigned char *)Out;
-    int32_t result = ((GOTEntryAddress - PLTEntryAddress) >> 6);
+    int32_t *dest = (int32_t *)Out;
+    int32_t result = ((GOTEntryAddress - PLTEntryAddress ) >> 6);
     *dest |= ApplyMask<int32_t>(0xfff3fff, result);
-    result = ((GOTEntryAddress + 4) >> 6);
-    dest = dest + 4;
-    *(dest) |= ApplyMask<int32_t>(0xfff3fff, result);
+    dest = dest + 1;
+    result = (GOTEntryAddress - PLTEntryAddress);
+    *(dest) |= ApplyMask<int32_t>(0x1f80, result);
 
     // Address in the PLT entries point to the corresponding GOT entries
     // TODO: Fixup plt to point to the corresponding GOTEntryAddress

@@ -399,6 +399,12 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
       return SHO_RELRO_LAST;
     }
 
+    if (&pSectHdr == &file_format->getGOTPLT()) {
+      if (config().options().hasNow())
+        return SHO_RELRO;
+      return SHO_NON_RELRO_FIRST;
+    }
+
     if (&pSectHdr == &file_format->getPLT())
       return SHO_PLT;
   }
