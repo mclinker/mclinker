@@ -81,6 +81,33 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
   // initialize .dynamic data
   if (!config().isCodeStatic() && NULL == m_pDynamic)
     m_pDynamic = new HexagonELFDynamic(*this, config());
+
+  // set .got.plt and .got sizes
+  // when building shared object, the .got section is must
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
+    setGOTSectionSize(pBuilder);
+
+    // set .plt size
+    if (m_pPLT->hasPLT1())
+      m_pPLT->finalizeSectionSize();
+
+    // set .rela.dyn size
+    if (!m_pRelaDyn->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      setRelaDynSize();
+    }
+    // set .rela.plt size
+    if (!m_pRelaPLT->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      setRelaPLTSize();
+    }
+  }
+  // Shared libraries are compiled with -G0 so there is no need to set SData.
+  if (LinkerConfig::Object == config().codeGenType())
+    SetSDataSection();
 }
 
 void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
@@ -207,6 +234,118 @@ const OutputRelocSection& HexagonLDBackend::getRelaPLT() const
 {
   assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
   return *m_pRelaPLT;
+}
+
+HexagonGOTPLT& HexagonLDBackend::getGOTPLT()
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+const HexagonGOTPLT& HexagonLDBackend::getGOTPLT() const
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+void HexagonLDBackend::setRelaDynSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaDyn().setSize
+    (m_pRelaDyn->numOfRelocs() * getRelaEntrySize());
+}
+
+void HexagonLDBackend::setRelaPLTSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaPlt().setSize
+    (m_pRelaPLT->numOfRelocs() * getRelaEntrySize());
+}
+
+void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
+{
+  // set .got.plt size
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOTPLT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOTPLT->finalizeSectionSize();
+    defineGOTSymbol(pBuilder, *(m_pGOTPLT->begin()));
+  }
+
+  // set .got size
+  if (!m_pGOT->empty())
+    m_pGOT->finalizeSectionSize();
+}
+
+uint64_t HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+{
+  assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  HexagonGOTEntry* got = 0;
+  unsigned int EntrySize = HexagonGOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (HexagonGOT::iterator it = m_pGOT->begin(),
+       ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<HexagonGOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
+}
+
+void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
+                                      Fragment& pFrag)
+{
+  // define symbol _GLOBAL_OFFSET_TABLE_
+  if (m_pGOTSymbol != NULL) {
+    pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(pFrag, 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(pFrag, 0x0),
+                     ResolveInfo::Hidden);
+  }
+}
+
+uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
+                                         const ELFFileFormat* FileFormat) const
+{
+  assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
+  m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+  m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  HexagonGOTEntry* got = 0;
+  unsigned int EntrySize = HexagonGOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (HexagonGOTPLT::iterator it = m_pGOTPLT->begin(),
+       ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<HexagonGOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
 }
 
 unsigned int

@@ -68,6 +68,9 @@ public:
   // finalizeSectionSize - set LDSection size
   void finalizeSectionSize();
 
+  // hasPLT1 - return if this PLT has any PLT1 entry
+  bool hasPLT1() const;
+
   void reserveEntry(size_t pNum = 1) ;
 
   HexagonPLT1* consume();

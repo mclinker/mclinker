@@ -83,6 +83,11 @@ void HexagonPLT::finalizeSectionSize()
   }
 }
 
+bool HexagonPLT::hasPLT1() const
+{
+  return (m_SectionData->size() > 1);
+}
+
 void HexagonPLT::reserveEntry(size_t pNum)
 {
   PLTEntryBase* plt1_entry = NULL;

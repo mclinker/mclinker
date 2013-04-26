@@ -108,6 +108,10 @@ public:
 
   const OutputRelocSection& getRelaDyn() const;
 
+  HexagonGOTPLT& getGOTPLT();
+
+  const HexagonGOTPLT& getGOTPLT() const;
+
   OutputRelocSection& getRelaPLT();
 
   const OutputRelocSection& getRelaPLT() const;
@@ -132,6 +136,9 @@ public:
 
   uint32_t getGP() { return m_psdata->addr(); }
 
+protected:
+  void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
+
 private:
   /// getRelEntrySize - the size in BYTE of rela type relocation
   size_t getRelEntrySize()
@@ -146,6 +153,16 @@ private:
   void doCreateProgramHdrs(Module& pModule);
 
   uint64_t maxBranchOffset() { return ~(~0 << 6); }
+
+  virtual void setGOTSectionSize(IRBuilder& pBuilder);
+
+  virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
+
+  virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
+					 const ELFFileFormat* FileFormat) const;
+
+  virtual void setRelaDynSize();
+  virtual void setRelaPLTSize();
 
 private:
   Relocator* m_pRelocator;
