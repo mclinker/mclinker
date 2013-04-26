@@ -13,7 +13,10 @@
 #include "HexagonGOT.h"
 #include "HexagonPLT.h"
 #include "HexagonGOTPLT.h"
+#include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Target/OutputRelocSection.h>
 
@@ -136,6 +139,8 @@ public:
 
   uint32_t getGP() { return m_psdata->addr(); }
 
+  Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
+
 protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 
@@ -186,6 +191,7 @@ private:
 
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pBSSEnd;
+  Relocation::Type m_CopyRel;
 };
 } // namespace of mcld
 

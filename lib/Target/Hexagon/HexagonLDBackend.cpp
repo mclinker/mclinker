@@ -49,7 +49,8 @@ HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
     m_pRelaDyn(NULL),
     m_pRelaPLT(NULL),
     m_pDynamic(NULL),
-    m_pGOTSymbol(NULL) {
+    m_pGOTSymbol(NULL),
+    m_CopyRel(llvm::ELF::R_HEX_COPY) {
 }
 
 HexagonLDBackend::~HexagonLDBackend()
