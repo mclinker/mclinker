@@ -77,11 +77,173 @@ Relocator::Size HexagonRelocator::getSize(Relocation::Type pType) const
 }
 
 void HexagonRelocator::scanRelocation(Relocation& pReloc,
-                                      IRBuilder& pBuilder,
+                                      IRBuilder& pLinker,
                                       Module& pModule,
                                       LDSection& pSection)
 {
+  if (LinkerConfig::Object == config().codeGenType())
+    return;
+
   pReloc.updateAddend();
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+  assert(NULL != rsym &&
+         "ResolveInfo of relocation not set while scanRelocation");
+
+  pReloc.updateAddend();
+  assert(NULL != pSection.getLink());
+  if (0 == (pSection.getLink()->flag() & llvm::ELF::SHF_ALLOC))
+    return;
+
+  // FIXME_HEXAGON: There is a compiler bug that creates a PLT relocation
+  // even for static functions, once that is fixed, remove this
+  if (!rsym->isLocal()) // rsym is local
+    scanLocalReloc(pReloc, pLinker, pModule, pSection);
+  else // rsym is external
+    scanGlobalReloc(pReloc, pLinker, pModule, pSection);
+
+  // check if we should issue undefined reference for the relocation target
+  // symbol
+  if (rsym->isUndef() && !rsym->isDyn() && !rsym->isWeak() && !rsym->isNull())
+    fatal(diag::undefined_reference) << rsym->name();
+}
+
+void HexagonRelocator::addCopyReloc(ResolveInfo& pSym,
+                                    HexagonLDBackend& pTarget)
+{
+  Relocation& rel_entry = *pTarget.getRelaDyn().consumeEntry();
+  rel_entry.setType(pTarget.getCopyRelType());
+  assert(pSym.outSymbol()->hasFragRef());
+  rel_entry.targetRef().assign(*pSym.outSymbol()->fragRef());
+  rel_entry.setSymInfo(&pSym);
+}
+
+void HexagonRelocator::scanLocalReloc(Relocation& pReloc,
+                                     IRBuilder& pBuilder,
+                                     Module& pModule,
+                                     LDSection& pSection)
+{
+}
+
+void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
+                                       IRBuilder& pBuilder,
+                                       Module& pModule,
+                                       LDSection& pSection)
+{
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  switch(pReloc.type()) {
+    case llvm::ELF::R_HEX_PLT_B22_PCREL:
+      // return if we already create plt for this symbol
+      if (rsym->reserved() & ReservePLT)
+        return;
+
+      // Symbol needs PLT entry, we need to reserve a PLT entry
+      // and the corresponding GOT and dynamic relocation entry
+      // in .got.plt and .rela.plt.
+      getTarget().getPLT().reserveEntry();
+      getTarget().getGOTPLT().reserve();
+      getTarget().getRelaPLT().reserveEntry();
+      // set PLT bit
+      rsym->setReserved(rsym->reserved() | ReservePLT);
+      return;
+
+    case llvm::ELF::R_HEX_GOT_32_6_X:
+    case llvm::ELF::R_HEX_GOT_16_X:
+    case llvm::ELF::R_HEX_GOT_11_X:
+      // Symbol needs GOT entry, reserve entry in .got
+      // return if we already create GOT for this symbol
+      if (rsym->reserved() & (ReserveGOT | GOTRel))
+        return;
+      getTarget().getGOT().reserve();
+      getTarget().getRelaDyn().reserveEntry();
+      rsym->setReserved(rsym->reserved() | GOTRel);
+      rsym->setReserved(rsym->reserved() | ReserveGOT);
+      return;
+
+    default: {
+      fatal(diag::unsupported_relocation) << (int)pReloc.type()
+                                          << "mclinker@googlegroups.com";
+      break;
+    }
+  } // end switch
+}
+
+/// defineSymbolforCopyReloc
+/// For a symbol needing copy relocation, define a copy symbol in the BSS
+/// section and all other reference to this symbol should refer to this
+/// copy.
+/// @note This is executed at `scan relocation' stage.
+LDSymbol& HexagonRelocator::defineSymbolforCopyReloc(IRBuilder& pBuilder,
+                                                 const ResolveInfo& pSym,
+                                                 HexagonLDBackend& pTarget)
+{
+  // get or create corresponding BSS LDSection
+  LDSection* bss_sect_hdr = NULL;
+  ELFFileFormat* file_format = pTarget.getOutputFormat();
+  if (ResolveInfo::ThreadLocal == pSym.type())
+    bss_sect_hdr = &file_format->getTBSS();
+  else
+    bss_sect_hdr = &file_format->getBSS();
+
+  // get or create corresponding BSS SectionData
+  assert(NULL != bss_sect_hdr);
+  SectionData* bss_section = NULL;
+  if (bss_sect_hdr->hasSectionData())
+    bss_section = bss_sect_hdr->getSectionData();
+  else
+    bss_section = IRBuilder::CreateSectionData(*bss_sect_hdr);
+
+  // Determine the alignment by the symbol value
+  // FIXME: here we use the largest alignment
+  uint32_t addralign = config().targets().bitclass() / 8;
+
+  // allocate space in BSS for the copy symbol
+  Fragment* frag = new FillFragment(0x0, 1, pSym.size());
+  uint64_t size = ObjectBuilder::AppendFragment(*frag,
+                                                *bss_section,
+                                                addralign);
+  bss_sect_hdr->setSize(bss_sect_hdr->size() + size);
+
+  // change symbol binding to Global if it's a weak symbol
+  ResolveInfo::Binding binding = (ResolveInfo::Binding)pSym.binding();
+  if (binding == ResolveInfo::Weak)
+    binding = ResolveInfo::Global;
+
+  // Define the copy symbol in the bss section and resolve it
+  LDSymbol* cpy_sym = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                      pSym.name(),
+                      (ResolveInfo::Type)pSym.type(),
+                      ResolveInfo::Define,
+                      binding,
+                      pSym.size(),  // size
+                      0x0,          // value
+                      FragmentRef::Create(*frag, 0x0),
+                      (ResolveInfo::Visibility)pSym.other());
+
+  // output all other alias symbols if any
+  Module &pModule = pBuilder.getModule();
+  Module::AliasList* alias_list = pModule.getAliasList(pSym);
+  if (NULL!=alias_list) {
+    Module::alias_iterator it, it_e=alias_list->end();
+    for (it=alias_list->begin(); it!=it_e; ++it) {
+      const ResolveInfo* alias = *it;
+      if (alias!=&pSym && alias->isDyn()) {
+        pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                           alias->name(),
+                           (ResolveInfo::Type)alias->type(),
+                           ResolveInfo::Define,
+                           binding,
+                           alias->size(),  // size
+                           0x0,          // value
+                           FragmentRef::Create(*frag, 0x0),
+                           (ResolveInfo::Visibility)alias->other());
+      }
+    }
+  }
+
+  return *cpy_sym;
 }
 
 void HexagonRelocator::partialScanRelocation(Relocation& pReloc,
