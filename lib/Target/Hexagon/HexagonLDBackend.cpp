@@ -113,7 +113,6 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
 
 void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
 {
-  SetSDataSection();
 }
 
 /// dynamic - the dynamic section of the target machine.
@@ -744,6 +743,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   SymbolCategory& symbol_list = pModule.getSymbolTable();
 
   if (symbol_list.emptyCommons() && symbol_list.emptyLocals()) {
+    SetSDataSection();
     return true;
   }
 
@@ -897,6 +897,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   bss_sect.setSize(bss_offset);
   tbss_sect.setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
+  SetSDataSection();
   return true;
 }
 
