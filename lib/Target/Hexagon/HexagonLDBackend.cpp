@@ -142,7 +142,8 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (LinkerConfig::Object != config().codeGenType()) {
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
     if (&pSection == &(FileFormat->getPLT())) {
       assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
@@ -423,7 +424,9 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 void HexagonLDBackend::initTargetSections(Module& pModule,
                                           ObjectBuilder& pBuilder)
 {
-  if (LinkerConfig::Object != config().codeGenType()) {
+
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
@@ -516,7 +519,24 @@ void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                   0x0,  // value
                                                   FragmentRef::Null(),
                                                   ResolveInfo::Hidden);
-
+  pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                "__sbss_start",
+                                                ResolveInfo::Object,
+                                                ResolveInfo::Define,
+                                                ResolveInfo::Absolute,
+                                                0x0,  // size
+                                                0x0,  // value
+                                                FragmentRef::Null(),
+                                                ResolveInfo::Hidden);
+  pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                "__sbss_end",
+                                                ResolveInfo::Object,
+                                                ResolveInfo::Define,
+                                                ResolveInfo::Absolute,
+                                                0x0,  // size
+                                                0x0,  // value
+                                                FragmentRef::Null(),
+                                                ResolveInfo::Hidden);
 }
 
 bool HexagonLDBackend::initTargetStubs()
