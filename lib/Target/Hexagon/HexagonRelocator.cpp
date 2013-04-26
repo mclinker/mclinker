@@ -160,9 +160,26 @@ void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
       // return if we already create GOT for this symbol
       if (rsym->reserved() & (ReserveGOT | GOTRel))
         return;
+      // FIXME: check STT_GNU_IFUNC symbol
       getTarget().getGOT().reserve();
-      getTarget().getRelaDyn().reserveEntry();
-      rsym->setReserved(rsym->reserved() | GOTRel);
+
+      // If the GOT is used in statically linked binaries,
+      // the GOT entry is enough and no relocation is needed.
+      if (config().isCodeStatic()) {
+        rsym->setReserved(rsym->reserved() | ReserveGOT);
+        return;
+      }
+      // If building shared object or the symbol is undefined, a dynamic
+      // relocation is needed to relocate this GOT entry. Reserve an
+      // entry in .rel.dyn
+      if (LinkerConfig::DynObj ==
+                   config().codeGenType() || rsym->isUndef() || rsym->isDyn()) {
+        getTarget().getRelaDyn().reserveEntry();
+        // set GOTRel bit
+        rsym->setReserved(rsym->reserved() | GOTRel);
+        return;
+      }
+      // set GOT bit
       rsym->setReserved(rsym->reserved() | ReserveGOT);
       return;
 
@@ -875,6 +892,37 @@ HexagonRelocator::Result relocHex6PCRELX(Relocation& pReloc,
   int32_t result = (S + A - P);
   uint32_t bitMask = FINDBITMASK(pReloc.target());
 
+  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
+// R_HEX_GOT_32_6_X : (G) >> 6
+HexagonRelocator::Result relocHexGOT326X(Relocation& pReloc,
+                                         HexagonRelocator& pParent)
+{
+  if (!(pReloc.symInfo()->reserved()
+       & (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
+    return HexagonRelocator::BadReloc;
+  }
+  HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
+  int32_t result = (GOT_S);
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
+  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
+// R_HEX_GOT_16_X : (G)
+// R_HEX_GOT_11_X : (G)
+HexagonRelocator::Result relocHexGOT1611X(Relocation& pReloc,
+                                         HexagonRelocator& pParent)
+{
+  if (!(pReloc.symInfo()->reserved()
+       & (HexagonRelocator::ReserveGOT | HexagonRelocator::GOTRel))) {
+    return HexagonRelocator::BadReloc;
+  }
+  HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
+  int32_t result = (GOT_S);
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
   return HexagonRelocator::OK;
 }

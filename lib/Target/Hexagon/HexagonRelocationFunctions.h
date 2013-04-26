@@ -82,6 +82,8 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOTRELHI16)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOTREL32)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocPLTB22PCREL)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocHex6PCRELX)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOT326X)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOT1611X)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
 
 
@@ -155,9 +157,9 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,           66, "R_HEX_GOTREL_32_6_X"              }, \
   { &unsupport,           67, "R_HEX_GOTREL_16_X"                }, \
   { &unsupport,           68, "R_HEX_GOTREL_11_X"                }, \
-  { &unsupport,           69, "R_HEX_GOT_32_6_X"                 }, \
-  { &unsupport,           70, "R_HEX_GOT_16_X"                   }, \
-  { &unsupport,           71, "R_HEX_GOT_11_X"                   }, \
+  { &relocHexGOT326X,     69, "R_HEX_GOT_32_6_X"                 }, \
+  { &relocHexGOT1611X,    70, "R_HEX_GOT_16_X"                   }, \
+  { &relocHexGOT1611X,    71, "R_HEX_GOT_11_X"                   }, \
   { &unsupport,           72, "R_HEX_DTPREL_32_6_X"              }, \
   { &unsupport,           73, "R_HEX_DTPREL_16_X"                }, \
   { &unsupport,           74, "R_HEX_DTPREL_11_X"                }, \
