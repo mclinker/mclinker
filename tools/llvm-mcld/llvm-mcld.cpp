@@ -582,7 +582,8 @@ ArgExcludeLIBS("exclude-libs",
 static cl::opt<std::string>
 ArgBuildID("build-id",
            cl::desc("Request creation of \".note.gnu.build-id\" ELF note section."),
-           cl::value_desc("style"));
+           cl::value_desc("style"),
+           cl::ValueOptional);
 
 static cl::opt<std::string>
 ArgForceUndefined("u",
