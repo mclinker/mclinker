@@ -15,6 +15,7 @@
 
 #include "HexagonRelocator.h"
 #include "HexagonRelocationFunctions.h"
+#include "HexagonEncodings.h"
 
 using namespace mcld;
 
@@ -39,6 +40,11 @@ struct ApplyFunctionTriple
 static const ApplyFunctionTriple ApplyFunctions[] = {
   DECL_HEXAGON_APPLY_RELOC_FUNC_PTRS
 };
+
+#define FINDBITMASK(INSN) \
+  findBitMask((uint32_t)INSN,\
+              insn_encodings,\
+              sizeof(insn_encodings) / sizeof(Instruction))
 
 //===--------------------------------------------------------------------===//
 // HexagonRelocator
@@ -313,25 +319,6 @@ HexagonRelocator::Address helper_PLT(Relocation& pReloc,
 {
   PLTEntryBase& plt_entry = helper_get_PLT_and_init(pReloc, pParent);
   return helper_PLT_ORG(pParent) + plt_entry.getOffset();
-}
-
-//===--------------------------------------------------------------------===//
-// Relocation helper function
-//===--------------------------------------------------------------------===//
-template<typename T1, typename T2>
-T1 ApplyMask(T2 pMask, T1 pData) {
-  T1 result = 0;
-  size_t off = 0;
-
-  for (size_t bit = 0; bit != sizeof (T1) * 8; ++bit) {
-    const bool valBit = (pData >> off) & 1;
-    const bool maskBit = (pMask >> bit) & 1;
-    if (maskBit) {
-      result |= static_cast<T1>(valBit) << bit;
-      ++off;
-    }
-  }
-  return result;
 }
 
 //=========================================//
@@ -746,9 +733,10 @@ HexagonRelocator::Result relocPLTB22PCREL(Relocation& pReloc, HexagonRelocator& 
     PLT_S = helper_PLT(pReloc, pParent);
   else
     PLT_S = pReloc.symValue();
-  Relocator::DWord      A = pReloc.target() + pReloc.addend();
   HexagonRelocator::Address P = pReloc.place();
-  pReloc.target() = PLT_S + A - P;
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
+  uint32_t result = (PLT_S + pReloc.addend() - P) >> 2;
+  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
   return HexagonRelocator::OK;
 }
 

@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "HexagonPLT.h"
+#include "HexagonRelocationFunctions.h"
 
 #include <llvm/Support/ELF.h>
 #include <llvm/Support/Casting.h>
@@ -49,6 +50,7 @@ HexagonPLT::HexagonPLT(LDSection& pSection,
   // create PLT0
   new HexagonPLT0(*m_SectionData);
   m_Last = m_SectionData->begin();
+  pSection.setAlign(16);
 }
 
 HexagonPLT::~HexagonPLT()
@@ -120,6 +122,7 @@ HexagonPLT1* HexagonPLT::consume()
 void HexagonPLT::applyPLT0()
 {
   PLTEntryBase* plt0 = getPLT0();
+  uint64_t pltBase = m_Section.addr();
 
   unsigned char* data = 0;
   data = static_cast<unsigned char*>(malloc(plt0->size()));
@@ -128,10 +131,14 @@ void HexagonPLT::applyPLT0()
     fatal(diag::fail_allocate_memory_plt);
 
   memcpy(data, m_PLT0, plt0->size());
+  uint32_t gotpltAddr = m_GOTPLT.addr();
 
-  // uint32_t gotpltAddr = m_GOTPLT.addr();
-  // SHANKARE TODO: Set the first entry and the second entry to the address
-  // of the gotPltAddr
+  int32_t *dest = (int32_t *)data;
+  int32_t result = ((gotpltAddr - pltBase ) >> 6);
+  *dest |= ApplyMask<int32_t>(0xfff3fff, result);
+  dest = dest + 1;
+  result = ((gotpltAddr + 4) >> 6);
+  *(dest) |= ApplyMask<int32_t>(0xfff3fff, result);
 
   plt0->setValue(data);
 }
@@ -166,6 +173,15 @@ void HexagonPLT::applyPLT1() {
 
     if (!Out)
       fatal(diag::fail_allocate_memory_plt);
+
+    memcpy(Out, hexagon_plt1, plt1->size());
+
+    unsigned char *dest = (unsigned char *)Out;
+    int32_t result = ((GOTEntryAddress - PLTEntryAddress) >> 6);
+    *dest |= ApplyMask<int32_t>(0xfff3fff, result);
+    result = ((GOTEntryAddress + 4) >> 6);
+    dest = dest + 4;
+    *(dest) |= ApplyMask<int32_t>(0xfff3fff, result);
 
     // Address in the PLT entries point to the corresponding GOT entries
     // TODO: Fixup plt to point to the corresponding GOTEntryAddress

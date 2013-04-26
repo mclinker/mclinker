@@ -14,14 +14,26 @@ typedef struct {
         bool isDuplex;
 } Instruction;
 
-#include "HexagonEncodings.h"
+//===--------------------------------------------------------------------===//
+// Relocation helper function
+//===--------------------------------------------------------------------===//
+template<typename T1, typename T2>
+T1 ApplyMask(T2 pMask, T1 pData) {
+  T1 result = 0;
+  size_t off = 0;
 
-#define FINDBITMASK(INSN) \
-  findBitMask((uint32_t)INSN,\
-              insn_encodings,\
-              sizeof(insn_encodings) / sizeof(Instruction))
+  for (size_t bit = 0; bit != sizeof (T1) * 8; ++bit) {
+    const bool valBit = (pData >> off) & 1;
+    const bool maskBit = (pMask >> bit) & 1;
+    if (maskBit) {
+      result |= static_cast<T1>(valBit) << bit;
+      ++off;
+    }
+  }
+  return result;
+}
 
-uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
+static uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
   for (int32_t i = 0; i < numInsns ; i++) {
     if (((insn & 0xc000) == 0) && !(encodings[i].isDuplex))
       continue;

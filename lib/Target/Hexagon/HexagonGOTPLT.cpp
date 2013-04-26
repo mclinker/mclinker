@@ -30,6 +30,7 @@ HexagonGOTPLT::HexagonGOTPLT(LDSection& pSection)
   for (size_t i = 0; i < HexagonGOTPLT0Num; ++i) {
     consume();
   }
+  pSection.setAlign(8);
 }
 
 HexagonGOTPLT::~HexagonGOTPLT()
@@ -55,7 +56,8 @@ void HexagonGOTPLT::applyAllGOTPLT(const HexagonPLT& pPLT)
   for (size_t i = 0; i < HexagonGOTPLT0Num; ++i)
     ++it;
   // Set the initial value of the GOT entry to the address
-  // of PLT0
+  // of PLT0, the stub calculates the index of the caller directly from
+  // the address where the call arised
   for (; it != end() ; ++it) {
     llvm::cast<HexagonGOTEntry>(*it).setValue(pPLT.addr());
   }
