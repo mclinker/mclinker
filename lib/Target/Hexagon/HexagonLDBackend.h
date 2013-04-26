@@ -141,6 +141,11 @@ public:
 
   Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
 
+  virtual uint32_t getGOTSymbolAddr() {
+    return m_pGOTSymbol->value();
+  }
+
+
 protected:
   void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
 

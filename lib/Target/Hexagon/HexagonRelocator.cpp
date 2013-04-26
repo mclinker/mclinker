@@ -370,7 +370,7 @@ static
 HexagonRelocator::Address helper_GOT(Relocation& pReloc, HexagonRelocator& pParent)
 {
   HexagonGOTEntry& got_entry = helper_get_GOT_and_init(pReloc, pParent);
-  return got_entry.getOffset();
+  return helper_GOT_ORG(pParent) + got_entry.getOffset();
 }
 
 static
@@ -846,7 +846,7 @@ HexagonRelocator::Result relocHexGOTRELLO16(Relocation& pReloc,
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = helper_GOT_ORG(pParent);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
 
   uint32_t result = (uint32_t) (S + A - GOT);
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(0x00c03fff, result);
@@ -859,7 +859,7 @@ HexagonRelocator::Result relocHexGOTRELHI16(Relocation& pReloc,
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = helper_GOT_ORG(pParent);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
 
   uint32_t result = (uint32_t) ((S + A - GOT) >> 16);
 
@@ -873,7 +873,7 @@ HexagonRelocator::Result relocHexGOTREL32(Relocation& pReloc,
 {
   HexagonRelocator::Address S = pReloc.symValue();
   HexagonRelocator::DWord   A = pReloc.addend();
-  HexagonRelocator::Address GOT = helper_GOT_ORG(pParent);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
 
   uint32_t result = (uint32_t) (S + A - GOT);
 
@@ -905,7 +905,8 @@ HexagonRelocator::Result relocHexGOT326X(Relocation& pReloc,
     return HexagonRelocator::BadReloc;
   }
   HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
-  int32_t result = (GOT_S);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
+  int32_t result = (GOT_S - GOT) >> 6;
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
   return HexagonRelocator::OK;
@@ -921,7 +922,8 @@ HexagonRelocator::Result relocHexGOT1611X(Relocation& pReloc,
     return HexagonRelocator::BadReloc;
   }
   HexagonRelocator::Address GOT_S   = helper_GOT(pReloc, pParent);
-  int32_t result = (GOT_S);
+  HexagonRelocator::Address GOT = pParent.getTarget().getGOTSymbolAddr();
+  int32_t result = (GOT_S - GOT);
   uint32_t bitMask = FINDBITMASK(pReloc.target());
   pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
   return HexagonRelocator::OK;
