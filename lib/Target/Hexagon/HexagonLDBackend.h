@@ -12,6 +12,7 @@
 #include "HexagonELFDynamic.h"
 #include "HexagonGOT.h"
 #include "HexagonPLT.h"
+#include "HexagonGOTPLT.h"
 #include <mcld/LD/LDSection.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Target/OutputRelocSection.h>
@@ -149,6 +150,7 @@ private:
 private:
   Relocator* m_pRelocator;
   HexagonGOT* m_pGOT;
+  HexagonGOTPLT* m_pGOTPLT;
   HexagonPLT* m_pPLT;
   /// m_RelDyn - dynamic relocation table of .rel.dyn
   OutputRelocSection* m_pRelDyn;

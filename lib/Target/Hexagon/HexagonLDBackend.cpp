@@ -44,6 +44,7 @@ HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
+    m_pGOTPLT(NULL),
     m_pPLT(NULL),
     m_pRelDyn(NULL),
     m_pRelPLT(NULL),
@@ -242,10 +243,14 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
     LDSection& got = file_format->getGOT();
     m_pGOT = new HexagonGOT(got);
 
+    // initialize .got.plt
+    LDSection& gotplt = file_format->getGOTPLT();
+    m_pGOTPLT = new HexagonGOTPLT(gotplt);
+
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new HexagonPLT(plt,
-                        *m_pGOT,
+                        *m_pGOTPLT,
                         config());
 
     // initialize .rel.plt
