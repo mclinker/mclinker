@@ -1,4 +1,4 @@
-//===- StringHash.h ---------------------------------------------------------===//
+//===- StringHash.h -------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_STRING_HASH_FUNCTION_H
 #define MCLD_STRING_HASH_FUNCTION_H
 #ifdef ENABLE_UNITTEST
@@ -18,11 +17,9 @@
 #include <cctype>
 #include <functional>
 
-namespace mcld
-{
+namespace mcld {
 
-enum StringHashType
-{
+enum StringHashType {
   RS,
   JS,
   PJW,

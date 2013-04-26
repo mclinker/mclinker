@@ -14,6 +14,7 @@ using namespace mcld;
 
 //===----------------------------------------------------------------------===//
 // HandleToArea
+//===----------------------------------------------------------------------===//
 bool HandleToArea::push_back(FileHandle* pHandle, MemoryArea* pArea)
 {
   if (NULL == pHandle || NULL == pArea)

@@ -6,17 +6,16 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_PATHCACHE_H
 #define MCLD_PATHCACHE_H
 #ifdef ENABLE_UNITTEST
 #include <gtest.h>
 #endif
 
-#include "mcld/ADT/HashEntry.h"
-#include "mcld/ADT/HashTable.h"
-#include "mcld/ADT/StringHash.h"
-#include "mcld/Support/Path.h"
+#include <mcld/ADT/HashEntry.h>
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/StringHash.h>
+#include <mcld/Support/Path.h>
 
 namespace mcld {
 namespace sys  {

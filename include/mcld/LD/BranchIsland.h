@@ -22,8 +22,7 @@
 #include <mcld/Fragment/Stub.h>
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 class Stub;
 class Relocation;
