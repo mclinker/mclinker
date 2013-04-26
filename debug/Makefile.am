@@ -36,6 +36,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/Directory.h \
 	${INCDIR}/Support/FileSystem.h \
 	${INCDIR}/Support/SystemUtils.h \
+	${INCDIR}/Support/ELF.h \
 	${INCDIR}/Support/LEB128.h \
 	${INCDIR}/Support/FileHandle.h \
 	${INCDIR}/Support/MemoryArea.h \
