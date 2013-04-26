@@ -97,7 +97,7 @@ void HexagonRelocator::scanRelocation(Relocation& pReloc,
 
   // FIXME_HEXAGON: There is a compiler bug that creates a PLT relocation
   // even for static functions, once that is fixed, remove this
-  if (!rsym->isLocal()) // rsym is local
+  if (rsym->isLocal()) // rsym is local
     scanLocalReloc(pReloc, pLinker, pModule, pSection);
   else // rsym is external
     scanGlobalReloc(pReloc, pLinker, pModule, pSection);

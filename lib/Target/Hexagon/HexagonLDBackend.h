@@ -174,9 +174,9 @@ private:
   HexagonGOT* m_pGOT;
   HexagonGOTPLT* m_pGOTPLT;
   HexagonPLT* m_pPLT;
-  /// m_RelDyn - dynamic relocation table of .rel.dyn
+  /// m_RelaDyn - dynamic relocation table of .rela.dyn
   OutputRelocSection* m_pRelaDyn;
-  /// m_RelPLT - dynamic relocation table of .rel.plt
+  /// m_RelaPLT - dynamic relocation table of .rela.plt
   OutputRelocSection* m_pRelaPLT;
 
   HexagonELFDynamic* m_pDynamic;

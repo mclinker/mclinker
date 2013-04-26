@@ -73,6 +73,14 @@ void HexagonPLT::finalizeSectionSize()
   // plt0 size
   size = getPLT0()->size();
 
+  // get first plt1 entry
+  HexagonPLT::iterator it = begin();
+  ++it;
+  if (end() != it) {
+    // plt1 size
+    PLTEntryBase* plt1 = &(llvm::cast<PLTEntryBase>(*it));
+    size += (m_SectionData->size() - 1) * plt1->size();
+  }
   m_Section.setSize(size);
 
   uint32_t offset = 0;
