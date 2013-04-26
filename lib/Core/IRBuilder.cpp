@@ -13,6 +13,7 @@
 #include <mcld/LD/EhFrame.h>
 #include <mcld/LD/RelocData.h>
 #include <mcld/Support/MsgHandling.h>
+#include <mcld/Support/ELF.h>
 #include <mcld/Fragment/FragmentRef.h>
 
 using namespace mcld;
@@ -23,6 +24,9 @@ using namespace mcld;
 LDFileFormat::Kind GetELFSectionKind(uint32_t pType, const char* pName,
                                      uint32_t pFlag)
 {
+  if (pFlag & mcld::ELF::SHF_EXCLUDE)
+    return LDFileFormat::Exclude;
+
   if (pFlag & llvm::ELF::SHF_MASKPROC)
     return LDFileFormat::Target;
 
