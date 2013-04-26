@@ -864,6 +864,21 @@ HexagonRelocator::Result relocHexGOTREL32(Relocation& pReloc,
   return HexagonRelocator::OK;
 }
 
+// R_HEX_6_PCREL_X : (S + A - P)
+HexagonRelocator::Result relocHex6PCRELX(Relocation& pReloc,
+                                        HexagonRelocator& pParent)
+{
+  HexagonRelocator::Address S = pReloc.symValue();
+  HexagonRelocator::DWord   A = pReloc.addend();
+  HexagonRelocator::DWord   P = pReloc.place();
+
+  int32_t result = (S + A - P);
+  uint32_t bitMask = FINDBITMASK(pReloc.target());
+
+  pReloc.target() = pReloc.target() | ApplyMask<uint32_t>(bitMask, result);
+  return HexagonRelocator::OK;
+}
+
 HexagonRelocator::Result unsupport(Relocation& pReloc,
                                    HexagonRelocator& pParent)
 {
