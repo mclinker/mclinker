@@ -142,38 +142,40 @@ uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
   unsigned int EntrySize = 0;
   uint64_t RegionSize = 0;
 
-  if (&pSection == &(FileFormat->getPLT())) {
-    assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (&pSection == &(FileFormat->getPLT())) {
+      assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
 
-    unsigned char* buffer = pRegion.getBuffer();
+      unsigned char* buffer = pRegion.getBuffer();
 
-    m_pPLT->applyPLT0();
-    m_pPLT->applyPLT1();
-    HexagonPLT::iterator it = m_pPLT->begin();
-    unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
+      m_pPLT->applyPLT0();
+      m_pPLT->applyPLT1();
+      HexagonPLT::iterator it = m_pPLT->begin();
+      unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
 
-    memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
-    RegionSize += plt0_size;
-    ++it;
-
-    PLTEntryBase* plt1 = 0;
-    HexagonPLT::iterator ie = m_pPLT->end();
-    while (it != ie) {
-      plt1 = &(llvm::cast<PLTEntryBase>(*it));
-      EntrySize = plt1->size();
-      memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
-      RegionSize += EntrySize;
+      memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
+      RegionSize += plt0_size;
       ++it;
+
+      PLTEntryBase* plt1 = 0;
+      HexagonPLT::iterator ie = m_pPLT->end();
+      while (it != ie) {
+        plt1 = &(llvm::cast<PLTEntryBase>(*it));
+        EntrySize = plt1->size();
+        memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
+        RegionSize += EntrySize;
+        ++it;
+      }
+      return RegionSize;
     }
-    return RegionSize;
-  }
-  else if (&pSection == &(FileFormat->getGOT())) {
-    RegionSize += emitGOTSectionData(pRegion);
-    return RegionSize;
-  }
-  else if (&pSection == &(FileFormat->getGOTPLT())) {
-    RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
-    return RegionSize;
+    else if (&pSection == &(FileFormat->getGOT())) {
+      RegionSize += emitGOTSectionData(pRegion);
+      return RegionSize;
+    }
+    else if (&pSection == &(FileFormat->getGOTPLT())) {
+      RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
+      return RegionSize;
+    }
   }
 
   const SectionData* sect_data = pSection.getSectionData();
