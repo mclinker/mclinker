@@ -126,6 +126,28 @@ void HexagonRelocator::scanLocalReloc(Relocation& pReloc,
                                      Module& pModule,
                                      LDSection& pSection)
 {
+  // rsym - The relocation target symbol
+  ResolveInfo* rsym = pReloc.symInfo();
+
+  switch(pReloc.type()){
+
+    case llvm::ELF::R_HEX_32:
+    case llvm::ELF::R_HEX_16:
+    case llvm::ELF::R_HEX_8:
+      // If buiding PIC object (shared library or PIC executable),
+      // a dynamic relocations with RELATIVE type to this location is needed.
+      // Reserve an entry in .rel.dyn
+      if (config().isCodeIndep()) {
+        getTarget().getRelaDyn().reserveEntry();
+        // set Rel bit
+        rsym->setReserved(rsym->reserved() | ReserveRel);
+        getTarget().checkAndSetHasTextRel(*pSection.getLink());
+      }
+      return;
+
+    default:
+      break;
+  }
 }
 
 void HexagonRelocator::scanGlobalReloc(Relocation& pReloc,
@@ -488,6 +510,21 @@ HexagonRelocator::Result reloc32(Relocation& pReloc,
 {
   HexagonRelocator::DWord A = pReloc.addend();
   HexagonRelocator::DWord S = pReloc.symValue();
+  ResolveInfo* rsym = pReloc.symInfo();
+  bool has_dyn_rel = pParent.getTarget().symbolNeedsDynRel(
+                              *rsym,
+                              (rsym->reserved() & HexagonRelocator::ReservePLT),
+                              true);
+
+  // A local symbol may need REL Type dynamic relocation
+  if (rsym->isLocal() && has_dyn_rel) {
+    FragmentRef &target_fragref = pReloc.targetRef();
+    Fragment *target_frag = target_fragref.frag();
+    HexagonRelocator::Type pType = llvm::ELF::R_HEX_RELATIVE;
+    Relocation& rel_entry = helper_DynRel(rsym, *target_frag,
+        target_fragref.offset(), pType, pParent);
+    rel_entry.setAddend(S + A);
+  }
 
   uint32_t result = (uint32_t) (S + A);
 
