@@ -161,9 +161,6 @@ public:
   iterator begin()
   {
     iterator it = iterator(BinaryTreeBase<Input>::m_Root.node.left);
-    // bypass the Group node
-    if (!it.hasData())
-      ++it;
     return it;
   }
 
@@ -173,9 +170,6 @@ public:
   const_iterator begin() const
   {
     const_iterator it = const_iterator(BinaryTreeBase<Input>::m_Root.node.left);
-    // bypass the Group node
-    if (!it.hasData())
-      ++it;
     return it;
   }
 
