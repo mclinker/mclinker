@@ -11,6 +11,7 @@
 /* C/C++ Declarations */
 
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
+#include <mcld/Support/MsgHandling.h>
 #include <string>
 
 typedef mcld::ScriptParser::token token;
@@ -31,15 +32,12 @@ typedef mcld::ScriptParser::token_type token_type;
 #define YY_USER_ACTION  yylloc->columns(yyleng);
 %}
 
-/* abbrev. of re */
+/* abbrev. of RE @ref binutils ld/ldlex.l */
 FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
 SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
 FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
 WS [ \t\r]
-
-/* Start states */
-%x COMMENT
 
 %% /* Regular Expressions */
 
@@ -68,18 +66,19 @@ WS [ \t\r]
 }
 
  /* gobble up C comments */
-"/*"                  { BEGIN(COMMENT); }
-<COMMENT>[^*\n]*      { /* eat anything that's not a '*' */ }
-<COMMENT>"*"+[^*/\n]* { /* eat up '*'s not followed by '/'s */ }
-<COMMENT>\n           { yylloc->lines(1); }
-<COMMENT>"*"+"/"      { BEGIN(INITIAL); }
+"/*" {
+  enterComments(*yylloc);
+  yylloc->step();
+}
 
  /* gobble up white-spaces */
-{WS}+ { yylloc->step(); }
+{WS}+ {
+  yylloc->step();
+}
 
  /* gobble up end-of-lines */
 \n {
-  yylloc->lines(yyleng);
+  yylloc->lines(1);
   yylloc->step();
 }
 
@@ -97,6 +96,51 @@ ScriptScanner::ScriptScanner(std::istream* yyin, std::ostream* yyout)
 
 ScriptScanner::~ScriptScanner()
 {
+}
+
+void ScriptScanner::enterComments(ScriptParser::location_type& pLocation)
+{
+  const int start_line = pLocation.begin.line;
+  const int start_col  = pLocation.begin.column;
+
+  int ch = 0;
+
+  while (true) {
+    ch = yyinput();
+    pLocation.columns(1);
+
+    while (ch != '*' && ch != EOF) {
+      if (ch == '\n') {
+        pLocation.lines(1);
+      }
+
+      ch = yyinput();
+      pLocation.columns(1);
+    }
+
+    if (ch == '*') {
+      ch = yyinput();
+      pLocation.columns(1);
+
+      while (ch == '*') {
+        ch = yyinput();
+        pLocation.columns(1);
+      }
+
+      if (ch == '/')
+        break;
+    }
+
+    if (ch == '\n')
+      pLocation.lines(1);
+
+    if (ch == EOF) {
+      error(diag::err_unterminated_comment) << pLocation.begin.filename
+                                            << start_line
+                                            << start_col;
+      break;
+    }
+  }
 }
 
 } /* namespace of mcld */

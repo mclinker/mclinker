@@ -39,6 +39,9 @@ public:
 
   virtual ScriptParser::token_type lex(ScriptParser::semantic_type* yylval,
                                        ScriptParser::location_type* yylloc);
+
+private:
+  void enterComments(ScriptParser::location_type& pLocation);
 };
 
 } // namespace of mcld

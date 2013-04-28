@@ -48,6 +48,7 @@ static const DiagStaticInfo DiagCommonInfo[] = {
 #include "mcld/LD/DiagRelocations.inc"
 #include "mcld/LD/DiagLayouts.inc"
 #include "mcld/LD/DiagGOTPLT.inc"
+#include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
   { 0, DiagnosticEngine::None, 0, 0}
 };
@@ -63,6 +64,7 @@ static const DiagStaticInfo DiagLoCInfo[] = {
 #include "mcld/LD/DiagRelocations.inc"
 #include "mcld/LD/DiagLayouts.inc"
 #include "mcld/LD/DiagGOTPLT.inc"
+#include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
   { 0, DiagnosticEngine::None, 0, 0}
 };

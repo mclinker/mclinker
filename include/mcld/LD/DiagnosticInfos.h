@@ -24,6 +24,7 @@ namespace diag {
 #include "mcld/LD/DiagRelocations.inc"
 #include "mcld/LD/DiagLayouts.inc"
 #include "mcld/LD/DiagGOTPLT.inc"
+#include "mcld/LD/DiagLDScript.inc"
 #undef DIAG
     NUM_OF_BUILDIN_DIAGNOSTIC_INFO
   };
