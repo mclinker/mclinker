@@ -11,7 +11,7 @@
 /* C/C++ Declarations */
 #include <mcld/LD/LinkerScript/ScriptReader.h>
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
-#include <mcld/Support/raw_ostream.h>
+#include <mcld/Support/MsgHandling.h>
 #include <mcld/MC/MCLDInput.h>
 #include "location.hh"
 #include "position.hh"
@@ -126,11 +126,11 @@ void mcld::ScriptParser::error(const mcld::ScriptParser::location_type& pLoc,
                                const std::string &pMsg)
 {
   position last = pLoc.end - 1;
+  std::string filename = "NaN";
   if (last.filename != NULL)
-    mcld::errs() << *last.filename << ":";
+    filename = *last.filename;
 
-  mcld::errs() << last.line << ":"
-               << last.column << ":"
-               << " error: " << pMsg << "\n";
+  mcld::error(diag::err_syntax_error)
+    << filename << last.line << last.column << pMsg;
 }
 
