@@ -20,10 +20,13 @@
 #define YY_DECL                                                       \
   mcld::ScriptParser::token_type                                      \
   mcld::ScriptScanner::lex(mcld::ScriptParser::semantic_type* yylval, \
-                           mcld::ScriptParser::location_type* yylloc)
+                           mcld::ScriptParser::location_type* yylloc, \
+                           const mcld::ScriptFile& pScriptFile)
 #endif
 
+#include <mcld/LD/LinkerScript/ScriptFile.h>
 #include "ScriptParser.h"
+#include <stack>
 
 namespace mcld {
 
@@ -38,10 +41,21 @@ public:
   virtual ~ScriptScanner();
 
   virtual ScriptParser::token_type lex(ScriptParser::semantic_type* yylval,
-                                       ScriptParser::location_type* yylloc);
+                                       ScriptParser::location_type* yylloc,
+                                       const ScriptFile& pScriptFile);
 
 private:
+  friend ScriptParser;
+
+  void setLexState(ScriptFile::Kind pKind);
+
+  void popLexState();
+
   void enterComments(ScriptParser::location_type& pLocation);
+
+private:
+  ScriptFile::Kind m_Kind;
+  std::stack<ScriptFile::Kind> m_StateStack;
 };
 
 } // namespace of mcld

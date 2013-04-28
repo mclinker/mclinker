@@ -39,45 +39,63 @@ FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
 WS [ \t\r]
 
+/* Starte conditions */
+%s LDSCRIPT
+
 %% /* Regular Expressions */
 
  /* code to place at the beginning of yylex() */
 %{
-  // reset location
+  /* reset location */
   yylloc->step();
+
+  /* determine the initial parser state */
+  if (m_Kind == ScriptFile::Unknown) {
+    m_Kind = pScriptFile.getKind();
+    switch (pScriptFile.getKind()) {
+    case ScriptFile::LDScript:
+      return token::LINKER_SCRIPT;
+    case ScriptFile::Expression:
+    case ScriptFile::VersionScript:
+    case ScriptFile::DynamicList:
+    default:
+      assert(0 && "Unsupported script type!");
+      break;
+    }
+  }
 %}
 
  /* Entry Point */
-"ENTRY"                      { return token::ENTRY; }
+<LDSCRIPT>"ENTRY"                      { return token::ENTRY; }
  /* File Commands */
-"GROUP"                      { return token::GROUP; }
-"AS_NEEDED"                  { return token::AS_NEEDED; }
-"SEARCH_DIR"                 { return token::SEARCH_DIR; }
+<LDSCRIPT>"GROUP"                      { return token::GROUP; }
+<LDSCRIPT>"AS_NEEDED"                  { return token::AS_NEEDED; }
+<LDSCRIPT>"SEARCH_DIR"                 { return token::SEARCH_DIR; }
  /* Format Commands */
-"OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
+<LDSCRIPT>"OUTPUT_FORMAT"              { return token::OUTPUT_FORMAT; }
  /* Misc Commands */
-"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
+<LDSCRIPT>"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
 
  /* String */
-{FILENAMECHAR1}{FILENAMECHAR}* {
+<LDSCRIPT>{FILENAMECHAR1}{FILENAMECHAR}* {
   yylval->strToken.text = yytext;
   yylval->strToken.length = yyleng;
   return token::STRING;
 }
 
  /* gobble up C comments */
-"/*" {
+<LDSCRIPT>"/*" {
   enterComments(*yylloc);
   yylloc->step();
 }
 
  /* gobble up white-spaces */
-{WS}+ {
+<LDSCRIPT>{WS}+ {
   yylloc->step();
 }
 
  /* gobble up end-of-lines */
-\n {
+<LDSCRIPT>\n {
   yylloc->lines(1);
   yylloc->step();
 }
@@ -90,7 +108,7 @@ WS [ \t\r]
 namespace mcld {
 
 ScriptScanner::ScriptScanner(std::istream* yyin, std::ostream* yyout)
-  : yyFlexLexer(yyin, yyout)
+  : yyFlexLexer(yyin, yyout), m_Kind(ScriptFile::Unknown)
 {
 }
 
@@ -138,6 +156,47 @@ void ScriptScanner::enterComments(ScriptParser::location_type& pLocation)
       error(diag::err_unterminated_comment) << pLocation.begin.filename
                                             << start_line
                                             << start_col;
+      break;
+    }
+  }
+}
+
+void ScriptScanner::setLexState(ScriptFile::Kind pKind)
+{
+  /* push the state into the top of stach */
+  m_StateStack.push(pKind);
+
+  switch (pKind) {
+  case ScriptFile::LDScript:
+    BEGIN(LDSCRIPT);
+    break;
+  case ScriptFile::Expression:
+    break;
+  case ScriptFile::VersionScript:
+  case ScriptFile::DynamicList:
+  default:
+    assert(0 && "Unsupported script type!");
+    break;
+  }
+}
+
+void ScriptScanner::popLexState()
+{
+  /* pop the last state */
+  m_StateStack.pop();
+
+  /* resume the appropriate state */
+  if (!m_StateStack.empty()) {
+    switch (m_StateStack.top()) {
+    case ScriptFile::LDScript:
+      BEGIN(LDSCRIPT);
+      break;
+    case ScriptFile::Expression:
+      break;
+    case ScriptFile::VersionScript:
+    case ScriptFile::DynamicList:
+    default:
+      assert(0 && "Unsupported script type!");
       break;
     }
   }

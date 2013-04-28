@@ -22,8 +22,9 @@
 
 using namespace mcld;
 
-ScriptFile::ScriptFile(Input& pInput, InputBuilder& pBuilder)
-  : m_Name(pInput.path().native()),
+ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
+  : m_Kind(pKind),
+    m_Name(pInput.path().native()),
     m_Script(pInput),
     m_pInputTree(NULL),
     m_Builder(pBuilder)

@@ -34,12 +34,19 @@ class LinkerScript;
 class ScriptFile
 {
 public:
+  enum Kind {
+    LDScript,      // -T
+    Expression,    // --defsym
+    VersionScript, // --version-script
+    DynamicList,   // --dynamic-list
+    Unknown,
+  };
+
   struct StrToken {
     const char* text;
     size_t length;
   };
 
-public:
   typedef std::vector<ScriptCommand*> CommandQueue;
   typedef CommandQueue::const_iterator const_iterator;
   typedef CommandQueue::iterator iterator;
@@ -47,7 +54,7 @@ public:
   typedef CommandQueue::reference reference;
 
 public:
-  ScriptFile(Input& pInput, InputBuilder& pBuilder);
+  ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder);
   ~ScriptFile();
 
   const_iterator   begin()  const { return m_CommandQueue.begin(); }
@@ -59,6 +66,8 @@ public:
   reference        front()        { return m_CommandQueue.front(); }
   const_reference  back()   const { return m_CommandQueue.back(); }
   reference        back()         { return m_CommandQueue.back(); }
+
+  Kind getKind() const { return m_Kind; }
 
   const Input&     script() const { return m_Script; }
   Input&           script()       { return m_Script; }
@@ -99,6 +108,7 @@ public:
   void addOutputArchCmd(const StrToken& pArch);
 
 private:
+  Kind m_Kind;
   std::string m_Name;
   Input& m_Script;
   InputTree* m_pInputTree;

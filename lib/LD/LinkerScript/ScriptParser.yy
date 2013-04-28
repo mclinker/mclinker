@@ -32,6 +32,7 @@
 %parse-param { class ScriptFile& pScriptFile }
 %parse-param { class ScriptScanner& pScriptScanner }
 %parse-param { class ScriptReader& pScriptReader }
+%lex-param { const class ScriptFile& pScriptFile }
 
 %locations
 %initial-action
@@ -40,7 +41,7 @@
   @$.begin.filename = @$.end.filename = &(pScriptFile.name());
 }
 
-%start linker_script
+%start script_file
 
 %code requires {
 #include <mcld/LD/LinkerScript/ScriptFile.h>
@@ -53,6 +54,9 @@
 %token END 0 /* EOF */
 %token <strToken> STRING
 
+/* Initial states */
+%token LINKER_SCRIPT DEFSYM VERSION_SCRIPT DYNAMIC_LIST
+
 %token ENTRY
 %token GROUP
 %token OUTPUT_FORMAT
@@ -63,6 +67,12 @@
 %type <strToken> string
 
 %% /* Grammar Rules */
+
+script_file : LINKER_SCRIPT
+              { pScriptScanner.setLexState(ScriptFile::LDScript); }
+              linker_script
+              { pScriptScanner.popLexState(); }
+            ;
 
 linker_script : linker_script script_command
               | /* Empty */
