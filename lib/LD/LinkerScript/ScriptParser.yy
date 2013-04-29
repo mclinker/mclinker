@@ -20,11 +20,11 @@
 #define yylex pScriptScanner.lex
 %}
 
-%require "2.3"
+%require "2.4"
 %skeleton "lalr1.cc"
+%defines "ScriptParser.h"
 %debug
 %error-verbose
-%defines
 %define namespace "mcld"
 %define "parser_class_name" "ScriptParser"
 %parse-param { const class LinkerConfig& pConfig }
