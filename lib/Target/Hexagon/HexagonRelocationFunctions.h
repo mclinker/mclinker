@@ -14,27 +14,24 @@ typedef struct {
         bool isDuplex;
 } Instruction;
 
-#include "HexagonEncodings.h"
+//===--------------------------------------------------------------------===//
+// Relocation helper function
+//===--------------------------------------------------------------------===//
+template<typename T1, typename T2>
+T1 ApplyMask(T2 pMask, T1 pData) {
+  T1 result = 0;
+  size_t off = 0;
 
-#define FINDBITMASK(INSN) \
-  findBitMask((uint32_t)INSN,\
-              insn_encodings,\
-              sizeof(insn_encodings) / sizeof(Instruction))
-
-uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
-  for (int32_t i = 0; i < numInsns ; i++) {
-    if (((insn & 0xc000) == 0) && !(encodings[i].isDuplex))
-      continue;
-
-    if (((insn & 0xc000) != 0) && (encodings[i].isDuplex))
-      continue;
-
-    if (((encodings[i].insnMask) & insn) == encodings[i].insnCmpMask)
-      return encodings[i].insnBitMask;
+  for (size_t bit = 0; bit != sizeof (T1) * 8; ++bit) {
+    const bool valBit = (pData >> off) & 1;
+    const bool maskBit = (pMask >> bit) & 1;
+    if (maskBit) {
+      result |= static_cast<T1>(valBit) << bit;
+      ++off;
+    }
   }
-  assert(0);
+  return result;
 }
-
 
 #define DECL_HEXAGON_APPLY_RELOC_FUNC(Name) \
 static HexagonRelocator::Result Name    (Relocation& pEntry, \
@@ -65,6 +62,13 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(relocB9PCRELX)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocB7PCRELX)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(reloc32PCREL)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexNX)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOTRELLO16)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOTRELHI16)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOTREL32)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocPLTB22PCREL)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHex6PCRELX)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOT326X)  \
+DECL_HEXAGON_APPLY_RELOC_FUNC(relocHexGOT1611X)  \
 DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
 
 
@@ -105,10 +109,10 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,           33, "R_HEX_GLOB_DAT"                   }, \
   { &unsupport,           34, "R_HEX_JMP_SLOT"                   }, \
   { &unsupport,           35, "R_HEX_RELATIVE"                   }, \
-  { &unsupport,           36, "R_HEX_PLT_B22_PCREL"              }, \
-  { &unsupport,           37, "R_HEX_GOTREL_LO16"                }, \
-  { &unsupport,           38, "R_HEX_GOTREL_HI16"                }, \
-  { &unsupport,           39, "R_HEX_GOTREL_32"                  }, \
+  { &relocPLTB22PCREL,    36, "R_HEX_PLT_B22_PCREL"              }, \
+  { &relocHexGOTRELLO16,  37, "R_HEX_GOTREL_LO16"                }, \
+  { &relocHexGOTRELHI16,  38, "R_HEX_GOTREL_HI16"                }, \
+  { &relocHexGOTREL32,    39, "R_HEX_GOTREL_32"                  }, \
   { &unsupport,           40, "R_HEX_GOT_LO16"                   }, \
   { &unsupport,           41, "R_HEX_GOT_HI16"                   }, \
   { &unsupport,           42, "R_HEX_GOT_32"                     }, \
@@ -134,13 +138,13 @@ DECL_HEXAGON_APPLY_RELOC_FUNC(unsupport)
   { &unsupport,           62, "R_HEX_TPREL_HI16"                 }, \
   { &unsupport,           63, "R_HEX_TPREL_32"                   }, \
   { &unsupport,           64, "R_HEX_TPREL_16"                   }, \
-  { &unsupport,           65, "R_HEX_6_PCREL_X"                  }, \
+  { &relocHex6PCRELX,     65, "R_HEX_6_PCREL_X"                  }, \
   { &unsupport,           66, "R_HEX_GOTREL_32_6_X"              }, \
   { &unsupport,           67, "R_HEX_GOTREL_16_X"                }, \
   { &unsupport,           68, "R_HEX_GOTREL_11_X"                }, \
-  { &unsupport,           69, "R_HEX_GOT_32_6_X"                 }, \
-  { &unsupport,           70, "R_HEX_GOT_16_X"                   }, \
-  { &unsupport,           71, "R_HEX_GOT_11_X"                   }, \
+  { &relocHexGOT326X,     69, "R_HEX_GOT_32_6_X"                 }, \
+  { &relocHexGOT1611X,    70, "R_HEX_GOT_16_X"                   }, \
+  { &relocHexGOT1611X,    71, "R_HEX_GOT_11_X"                   }, \
   { &unsupport,           72, "R_HEX_DTPREL_32_6_X"              }, \
   { &unsupport,           73, "R_HEX_DTPREL_16_X"                }, \
   { &unsupport,           74, "R_HEX_DTPREL_11_X"                }, \

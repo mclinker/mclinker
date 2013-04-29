@@ -38,7 +38,7 @@ class SectionData;
 class NamePool : private Uncopyable
 {
 public:
-  typedef HashTable<ResolveInfo, StringHash<ELF> > Table;
+  typedef HashTable<ResolveInfo, hash::StringHash<hash::ELF> > Table;
   typedef size_t size_type;
 
 public:

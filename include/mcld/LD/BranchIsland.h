@@ -22,8 +22,7 @@
 #include <mcld/Fragment/Stub.h>
 #include <string>
 
-namespace mcld
-{
+namespace mcld {
 
 class Stub;
 class Relocation;
@@ -126,7 +125,7 @@ private:
       size_t operator() (const Key& KEY) const
       {
         llvm::StringRef sym_name(KEY.symbol()->name());
-        StringHash<ELF> str_hasher;
+        hash::StringHash<hash::ELF> str_hasher;
         return (size_t((uintptr_t)KEY.prototype())) ^
                str_hasher(sym_name) ^
                KEY.addend();

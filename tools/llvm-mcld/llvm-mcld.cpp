@@ -510,6 +510,12 @@ ArgOMagicAlias("N",
                cl::desc("alias for --omagic"),
                cl::aliasopt(ArgOMagic));
 
+
+static cl::opt<int>
+ArgGPSize("G",
+          cl::desc("Set the maximum size of objects to be optimized using GP"),
+          cl::init(8));
+
 /// @{
 /// @name FIXME: begin of unsupported options
 /// @}
@@ -1094,6 +1100,7 @@ static bool ProcessLinkerOptionsFromCommand(mcld::LinkerScript& pScript,
   pConfig.options().setHashStyle(ArgHashStyle);
   pConfig.options().setNoStdlib(ArgNoStdlib);
   pConfig.options().setPrintMap(ArgPrintMap);
+  pConfig.options().setGPSize(ArgGPSize);
 
   if (ArgStripAll)
     pConfig.options().setStripSymbols(mcld::GeneralOptions::StripAllSymbols);

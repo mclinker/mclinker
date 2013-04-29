@@ -12,7 +12,11 @@
 #include "HexagonELFDynamic.h"
 #include "HexagonGOT.h"
 #include "HexagonPLT.h"
+#include "HexagonGOTPLT.h"
+#include <mcld/IRBuilder.h>
+#include <mcld/LinkerConfig.h>
 #include <mcld/LD/LDSection.h>
+#include <mcld/Object/ObjectBuilder.h>
 #include <mcld/Target/GNULDBackend.h>
 #include <mcld/Target/OutputRelocSection.h>
 
@@ -103,13 +107,17 @@ public:
 
   bool initTargetStubs();
 
-  OutputRelocSection& getRelDyn();
+  OutputRelocSection& getRelaDyn();
 
-  const OutputRelocSection& getRelDyn() const;
+  const OutputRelocSection& getRelaDyn() const;
 
-  OutputRelocSection& getRelPLT();
+  HexagonGOTPLT& getGOTPLT();
 
-  const OutputRelocSection& getRelPLT() const;
+  const HexagonGOTPLT& getGOTPLT() const;
+
+  OutputRelocSection& getRelaPLT();
+
+  const OutputRelocSection& getRelaPLT() const;
 
   /// getTargetSectionOrder - compute the layout order of Hexagon target section
   unsigned int getTargetSectionOrder(const LDSection& pSectHdr) const;
@@ -127,16 +135,26 @@ public:
 
   bool MoveSectionDataAndSort(SectionData& pFrom, SectionData& pTo);
 
-  bool SetSDataSection(bool moveCommonData=false);
+  bool SetSDataSection();
 
   uint32_t getGP() { return m_psdata->addr(); }
 
-private:
-  /// getRelEntrySize - the size in BYTE of rel type relocation
-  size_t getRelEntrySize()
-  { return 8; }
+  Relocation::Type getCopyRelType()    const { return m_CopyRel;    }
 
+  virtual uint32_t getGOTSymbolAddr() {
+    return m_pGOTSymbol->value();
+  }
+
+
+protected:
+  void defineGOTSymbol(IRBuilder& pBuilder, Fragment&);
+
+private:
   /// getRelEntrySize - the size in BYTE of rela type relocation
+  size_t getRelEntrySize()
+  { return 0; }
+
+  /// getRelaEntrySize - the size in BYTE of rela type relocation
   size_t getRelaEntrySize()
   { return 12; }
 
@@ -146,14 +164,25 @@ private:
 
   uint64_t maxBranchOffset() { return ~(~0 << 6); }
 
+  virtual void setGOTSectionSize(IRBuilder& pBuilder);
+
+  virtual uint64_t emitGOTSectionData(MemoryRegion& pRegion) const;
+
+  virtual uint64_t emitGOTPLTSectionData(MemoryRegion& pRegion,
+					 const ELFFileFormat* FileFormat) const;
+
+  virtual void setRelaDynSize();
+  virtual void setRelaPLTSize();
+
 private:
   Relocator* m_pRelocator;
   HexagonGOT* m_pGOT;
+  HexagonGOTPLT* m_pGOTPLT;
   HexagonPLT* m_pPLT;
-  /// m_RelDyn - dynamic relocation table of .rel.dyn
-  OutputRelocSection* m_pRelDyn;
-  /// m_RelPLT - dynamic relocation table of .rel.plt
-  OutputRelocSection* m_pRelPLT;
+  /// m_RelaDyn - dynamic relocation table of .rela.dyn
+  OutputRelocSection* m_pRelaDyn;
+  /// m_RelaPLT - dynamic relocation table of .rela.plt
+  OutputRelocSection* m_pRelaPLT;
 
   HexagonELFDynamic* m_pDynamic;
 
@@ -162,10 +191,12 @@ private:
   LDSection* m_pscommon_2;
   LDSection* m_pscommon_4;
   LDSection* m_pscommon_8;
+  LDSection* m_pstart;
   LDSymbol* m_psdabase;
 
   LDSymbol* m_pGOTSymbol;
   LDSymbol* m_pBSSEnd;
+  Relocation::Type m_CopyRel;
 };
 } // namespace of mcld
 

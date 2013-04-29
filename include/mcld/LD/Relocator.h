@@ -92,9 +92,9 @@ public:
   /// @param pReloc - a read in relocation entry
   /// @param pInputSym - the input LDSymbol of relocation target symbol
   /// @param pSection - the section of relocation applying target
-  void partialScanRelocation(Relocation& pReloc,
-                             Module& pModule,
-                             const LDSection& pSection);
+  virtual void partialScanRelocation(Relocation& pReloc,
+                                     Module& pModule,
+                                     const LDSection& pSection);
 
   // ------ observers -----//
   virtual TargetLDBackend& getTarget() = 0;

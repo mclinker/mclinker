@@ -1150,7 +1150,7 @@ void GNULDBackend::emitELFHashTab(const Module::SymbolTable& pSymtab,
   // initialize bucket
   memset((void*)bucket, 0, nbucket);
 
-  StringHash<ELF> hash_func;
+  hash::StringHash<hash::ELF> hash_func;
 
   size_t idx = 1;
   Module::const_sym_iterator symbol, symEnd = pSymtab.dynamicEnd();
@@ -1238,7 +1238,7 @@ void GNULDBackend::emitGNUHashTab(Module::SymbolTable& pSymtab,
   symEnd = pSymtab.dynamicEnd();
   for (symbol = pSymtab.localDynBegin() + symidx - 1; symbol != symEnd;
     ++symbol) {
-    StringHash<DJB> hasher;
+    hash::StringHash<hash::DJB> hasher;
     uint32_t djbhash = hasher((*symbol)->name());
     uint32_t hash = djbhash % nbucket;
     symmap.insert(std::make_pair(hash, std::make_pair(*symbol, djbhash)));

@@ -38,6 +38,7 @@ HEADER = ${INCDIR}/ADT/Uncopyable.h \
 	${INCDIR}/Support/Directory.h \
 	${INCDIR}/Support/FileSystem.h \
 	${INCDIR}/Support/SystemUtils.h \
+	${INCDIR}/Support/ELF.h \
 	${INCDIR}/Support/LEB128.h \
 	${INCDIR}/Support/FileHandle.h \
 	${INCDIR}/Support/MemoryArea.h \
@@ -368,6 +369,8 @@ SOURCE = ${LIBDIR}/ADT/StringEntry.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonELFMCLinker.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonGOT.h \
 	${LIBDIR}/Target/Hexagon/HexagonGOT.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonGOTPLT.cpp \
+	${LIBDIR}/Target/Hexagon/HexagonGOTPLT.h \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.h \
 	${LIBDIR}/Target/Hexagon/HexagonPLT.cpp \
 	${LIBDIR}/Target/Hexagon/HexagonRelocationFunctions.h \

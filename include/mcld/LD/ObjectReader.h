@@ -29,7 +29,7 @@ class Input;
 class ObjectReader : public LDReader
 {
 protected:
-  typedef HashTable<ResolveInfo, StringHash<ELF> > GroupSignatureMap;
+  typedef HashTable<ResolveInfo, hash::StringHash<hash::ELF> > GroupSignatureMap;
 
 protected:
   ObjectReader()

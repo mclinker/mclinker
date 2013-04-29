@@ -1,4 +1,4 @@
-//===- StringHash.h ---------------------------------------------------------===//
+//===- StringHash.h -------------------------------------------------------===//
 //
 //                     The MCLinker Project
 //
@@ -6,7 +6,6 @@
 // License. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
 #ifndef MCLD_STRING_HASH_FUNCTION_H
 #define MCLD_STRING_HASH_FUNCTION_H
 #ifdef ENABLE_UNITTEST
@@ -18,11 +17,10 @@
 #include <cctype>
 #include <functional>
 
-namespace mcld
-{
+namespace mcld {
+namespace hash {
 
-enum StringHashType
-{
+enum Type {
   RS,
   JS,
   PJW,
@@ -362,6 +360,7 @@ struct StringCompare<char*> : public std::binary_function<const char*, const cha
   { return (0 == std::strcmp(X, Y)); }
 };
 
+} // namespace of hash
 } // namespace of mcld
 
 #endif

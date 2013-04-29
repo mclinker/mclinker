@@ -36,3 +36,7 @@
   generate a simple statically linked output
 16) opt_defsym.ll
   define symbols on command line
+17) opt_build_id.ll
+  --build-id option can have not a following value.
+18) opt_no_object.ll
+  there are no relocatable objects on the command line.

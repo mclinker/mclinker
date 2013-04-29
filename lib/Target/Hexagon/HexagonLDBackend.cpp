@@ -44,11 +44,13 @@ HexagonLDBackend::HexagonLDBackend(const LinkerConfig& pConfig,
   : GNULDBackend(pConfig, pInfo),
     m_pRelocator(NULL),
     m_pGOT(NULL),
+    m_pGOTPLT(NULL),
     m_pPLT(NULL),
-    m_pRelDyn(NULL),
-    m_pRelPLT(NULL),
+    m_pRelaDyn(NULL),
+    m_pRelaPLT(NULL),
     m_pDynamic(NULL),
-    m_pGOTSymbol(NULL) {
+    m_pGOTSymbol(NULL),
+    m_CopyRel(llvm::ELF::R_HEX_COPY) {
 }
 
 HexagonLDBackend::~HexagonLDBackend()
@@ -56,8 +58,8 @@ HexagonLDBackend::~HexagonLDBackend()
   delete m_pRelocator;
   delete m_pGOT;
   delete m_pPLT;
-  delete m_pRelDyn;
-  delete m_pRelPLT;
+  delete m_pRelaDyn;
+  delete m_pRelaPLT;
   delete m_pDynamic;
 }
 
@@ -80,6 +82,33 @@ void HexagonLDBackend::doPreLayout(IRBuilder& pBuilder)
   // initialize .dynamic data
   if (!config().isCodeStatic() && NULL == m_pDynamic)
     m_pDynamic = new HexagonELFDynamic(*this, config());
+
+  // set .got.plt and .got sizes
+  // when building shared object, the .got section is must
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
+    setGOTSectionSize(pBuilder);
+
+    // set .plt size
+    if (m_pPLT->hasPLT1())
+      m_pPLT->finalizeSectionSize();
+
+    // set .rela.dyn size
+    if (!m_pRelaDyn->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      setRelaDynSize();
+    }
+    // set .rela.plt size
+    if (!m_pRelaPLT->empty()) {
+      assert(!config().isCodeStatic() &&
+            "static linkage should not result in a dynamic relocation section");
+      setRelaPLTSize();
+    }
+  }
+  // Shared libraries are compiled with -G0 so there is no need to set SData.
+  if (LinkerConfig::Object == config().codeGenType())
+    SetSDataSection();
 }
 
 void HexagonLDBackend::doPostLayout(Module& pModule, IRBuilder& pBuilder)
@@ -105,62 +134,99 @@ const HexagonELFDynamic& HexagonLDBackend::dynamic() const
 uint64_t HexagonLDBackend::emitSectionData(const LDSection& pSection,
                                           MemoryRegion& pRegion) const
 {
-  assert(pRegion.size() && "Size of MemoryRegion is zero!");
+  if (!pRegion.size())
+    return 0;
 
-  // FIXME: remove for unused variable.
-  // const ELFFileFormat* file_format = getOutputFormat();
+  const ELFFileFormat* FileFormat = getOutputFormat();
+  unsigned int EntrySize = 0;
+  uint64_t RegionSize = 0;
 
-  if (&pSection == m_psdata) {
-    const SectionData* sect_data = pSection.getSectionData();
-    SectionData::const_iterator frag_iter, frag_end = sect_data->end();
-    uint8_t* out_offset = pRegion.start();
-    for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
-      size_t size = frag_iter->size();
-      switch(frag_iter->getKind()) {
-        case Fragment::Fillment: {
-          const FillFragment& fill_frag =
-            llvm::cast<FillFragment>(*frag_iter);
-          if (0 == fill_frag.getValueSize()) {
-            // virtual fillment, ignore it.
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
+    if (&pSection == &(FileFormat->getPLT())) {
+      assert(m_pPLT && "emitSectionData failed, m_pPLT is NULL!");
+
+      unsigned char* buffer = pRegion.getBuffer();
+
+      m_pPLT->applyPLT0();
+      m_pPLT->applyPLT1();
+      HexagonPLT::iterator it = m_pPLT->begin();
+      unsigned int plt0_size = llvm::cast<PLTEntryBase>((*it)).size();
+
+      memcpy(buffer, llvm::cast<PLTEntryBase>((*it)).getValue(), plt0_size);
+      RegionSize += plt0_size;
+      ++it;
+
+      PLTEntryBase* plt1 = 0;
+      HexagonPLT::iterator ie = m_pPLT->end();
+      while (it != ie) {
+        plt1 = &(llvm::cast<PLTEntryBase>(*it));
+        EntrySize = plt1->size();
+        memcpy(buffer + RegionSize, plt1->getValue(), EntrySize);
+        RegionSize += EntrySize;
+        ++it;
+      }
+      return RegionSize;
+    }
+    else if (&pSection == &(FileFormat->getGOT())) {
+      RegionSize += emitGOTSectionData(pRegion);
+      return RegionSize;
+    }
+    else if (&pSection == &(FileFormat->getGOTPLT())) {
+      RegionSize += emitGOTPLTSectionData(pRegion, FileFormat);
+      return RegionSize;
+    }
+  }
+
+  const SectionData* sect_data = pSection.getSectionData();
+  SectionData::const_iterator frag_iter, frag_end = sect_data->end();
+  uint8_t* out_offset = pRegion.start();
+  for (frag_iter = sect_data->begin(); frag_iter != frag_end; ++frag_iter) {
+    size_t size = frag_iter->size();
+    switch(frag_iter->getKind()) {
+      case Fragment::Fillment: {
+        const FillFragment& fill_frag =
+          llvm::cast<FillFragment>(*frag_iter);
+        if (0 == fill_frag.getValueSize()) {
+          // virtual fillment, ignore it.
+          break;
+        }
+        memset(out_offset, fill_frag.getValue(), fill_frag.size());
+        break;
+      }
+      case Fragment::Region: {
+        const RegionFragment& region_frag =
+          llvm::cast<RegionFragment>(*frag_iter);
+        const uint8_t* start = region_frag.getRegion().start();
+        memcpy(out_offset, start, size);
+        break;
+      }
+      case Fragment::Alignment: {
+        const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
+        uint64_t count = size / align_frag.getValueSize();
+        switch (align_frag.getValueSize()) {
+          case 1u:
+            std::memset(out_offset, align_frag.getValue(), count);
             break;
-          }
-          memset(out_offset, fill_frag.getValue(), fill_frag.size());
-          break;
-        }
-        case Fragment::Region: {
-          const RegionFragment& region_frag =
-            llvm::cast<RegionFragment>(*frag_iter);
-          const uint8_t* start = region_frag.getRegion().start();
-          memcpy(out_offset, start, size);
-          break;
-        }
-        case Fragment::Alignment: {
-          const AlignFragment& align_frag = llvm::cast<AlignFragment>(*frag_iter);
-          uint64_t count = size / align_frag.getValueSize();
-          switch (align_frag.getValueSize()) {
-            case 1u:
-              std::memset(out_offset, align_frag.getValue(), count);
-              break;
-            default:
-              llvm::report_fatal_error(
-                "unsupported value size for align fragment emission yet.\n");
-              break;
-          } // end switch
-          break;
-        }
-        case Fragment::Null: {
-          assert(0x0 == size);
-          break;
-        }
-        default:
-          llvm::report_fatal_error("unsupported fragment type.\n");
-          break;
-      } // end switch
-      out_offset += size;
-    } // end for
-    return pRegion.size();
-  } // end if
-  return 0;
+          default:
+            llvm::report_fatal_error(
+              "unsupported value size for align fragment emission yet.\n");
+            break;
+        } // end switch
+        break;
+      }
+      case Fragment::Null: {
+        assert(0x0 == size);
+        break;
+      }
+      default:
+        llvm::report_fatal_error("unsupported fragment type.\n");
+        break;
+    } // end switch
+    out_offset += size;
+  } // end for
+
+  return pRegion.size();
 }
 
 HexagonGOT& HexagonLDBackend::getGOT()
@@ -187,28 +253,140 @@ const HexagonPLT& HexagonLDBackend::getPLT() const
   return *m_pPLT;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelDyn()
+OutputRelocSection& HexagonLDBackend::getRelaDyn()
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelDyn() const
+const OutputRelocSection& HexagonLDBackend::getRelaDyn() const
 {
-  assert(NULL != m_pRelDyn && ".rel.dyn section not exist");
-  return *m_pRelDyn;
+  assert(NULL != m_pRelaDyn && ".rela.dyn section not exist");
+  return *m_pRelaDyn;
 }
 
-OutputRelocSection& HexagonLDBackend::getRelPLT()
+OutputRelocSection& HexagonLDBackend::getRelaPLT()
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
 }
 
-const OutputRelocSection& HexagonLDBackend::getRelPLT() const
+const OutputRelocSection& HexagonLDBackend::getRelaPLT() const
 {
-  assert(NULL != m_pRelPLT && ".rel.plt section not exist");
-  return *m_pRelPLT;
+  assert(NULL != m_pRelaPLT && ".rela.plt section not exist");
+  return *m_pRelaPLT;
+}
+
+HexagonGOTPLT& HexagonLDBackend::getGOTPLT()
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+const HexagonGOTPLT& HexagonLDBackend::getGOTPLT() const
+{
+  assert(NULL != m_pGOTPLT);
+  return *m_pGOTPLT;
+}
+
+void HexagonLDBackend::setRelaDynSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaDyn().setSize
+    (m_pRelaDyn->numOfRelocs() * getRelaEntrySize());
+}
+
+void HexagonLDBackend::setRelaPLTSize()
+{
+  ELFFileFormat* file_format = getOutputFormat();
+  file_format->getRelaPlt().setSize
+    (m_pRelaPLT->numOfRelocs() * getRelaEntrySize());
+}
+
+void HexagonLDBackend::setGOTSectionSize(IRBuilder& pBuilder)
+{
+  // set .got.plt size
+  if (LinkerConfig::DynObj == config().codeGenType() ||
+      m_pGOTPLT->hasGOT1() ||
+      NULL != m_pGOTSymbol) {
+    m_pGOTPLT->finalizeSectionSize();
+    defineGOTSymbol(pBuilder, *(m_pGOTPLT->begin()));
+  }
+
+  // set .got size
+  if (!m_pGOT->empty())
+    m_pGOT->finalizeSectionSize();
+}
+
+uint64_t HexagonLDBackend::emitGOTSectionData(MemoryRegion& pRegion) const
+{
+  assert(m_pGOT && "emitGOTSectionData failed, m_pGOT is NULL!");
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  HexagonGOTEntry* got = 0;
+  unsigned int EntrySize = HexagonGOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (HexagonGOT::iterator it = m_pGOT->begin(),
+       ie = m_pGOT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<HexagonGOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
+}
+
+void HexagonLDBackend::defineGOTSymbol(IRBuilder& pBuilder,
+                                      Fragment& pFrag)
+{
+  // define symbol _GLOBAL_OFFSET_TABLE_
+  if (m_pGOTSymbol != NULL) {
+    pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Unresolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(pFrag, 0x0),
+                     ResolveInfo::Hidden);
+  }
+  else {
+    m_pGOTSymbol = pBuilder.AddSymbol<IRBuilder::Force, IRBuilder::Resolve>(
+                     "_GLOBAL_OFFSET_TABLE_",
+                     ResolveInfo::Object,
+                     ResolveInfo::Define,
+                     ResolveInfo::Local,
+                     0x0, // size
+                     0x0, // value
+                     FragmentRef::Create(pFrag, 0x0),
+                     ResolveInfo::Hidden);
+  }
+}
+
+uint64_t HexagonLDBackend::emitGOTPLTSectionData(MemoryRegion& pRegion,
+                                         const ELFFileFormat* FileFormat) const
+{
+  assert(m_pGOTPLT && "emitGOTPLTSectionData failed, m_pGOTPLT is NULL!");
+  m_pGOTPLT->applyGOT0(FileFormat->getDynamic().addr());
+  m_pGOTPLT->applyAllGOTPLT(*m_pPLT);
+
+  uint32_t* buffer = reinterpret_cast<uint32_t*>(pRegion.getBuffer());
+
+  HexagonGOTEntry* got = 0;
+  unsigned int EntrySize = HexagonGOTEntry::EntrySize;
+  uint64_t RegionSize = 0;
+
+  for (HexagonGOTPLT::iterator it = m_pGOTPLT->begin(),
+       ie = m_pGOTPLT->end(); it != ie; ++it, ++buffer) {
+    got = &(llvm::cast<HexagonGOTEntry>((*it)));
+    *buffer = static_cast<uint32_t>(got->getValue());
+    RegionSize += EntrySize;
+  }
+
+  return RegionSize;
 }
 
 unsigned int
@@ -216,41 +394,61 @@ HexagonLDBackend::getTargetSectionOrder(const LDSection& pSectHdr) const
 {
   const ELFFileFormat* file_format = getOutputFormat();
 
-  if (&pSectHdr == &file_format->getGOT()) {
-    if (config().options().hasNow())
-      return SHO_RELRO;
-    return SHO_RELRO_LAST;
+  if (LinkerConfig::Object != config().codeGenType()) {
+    if (&pSectHdr == &file_format->getGOT()) {
+      if (config().options().hasNow())
+        return SHO_RELRO;
+      return SHO_RELRO_LAST;
+    }
+
+    if (&pSectHdr == &file_format->getGOTPLT()) {
+      if (config().options().hasNow())
+        return SHO_RELRO;
+      return SHO_NON_RELRO_FIRST;
+    }
+
+    if (&pSectHdr == &file_format->getPLT())
+      return SHO_PLT;
   }
 
-  if (&pSectHdr == &file_format->getPLT())
-    return SHO_PLT;
+  if (&pSectHdr == m_pstart)
+    return SHO_INIT;
 
-  return SHO_SMALL_DATA;
+  if (&pSectHdr == m_psdata)
+    return SHO_SMALL_DATA;
+
+  return SHO_UNDEFINED;
 }
 
 void HexagonLDBackend::initTargetSections(Module& pModule,
                                           ObjectBuilder& pBuilder)
 {
-  if (LinkerConfig::Object != config().codeGenType()) {
+
+  if ((LinkerConfig::Object != config().codeGenType()) &&
+      (!config().isCodeStatic())) {
     ELFFileFormat* file_format = getOutputFormat();
     // initialize .got
     LDSection& got = file_format->getGOT();
     m_pGOT = new HexagonGOT(got);
 
+    // initialize .got.plt
+    LDSection& gotplt = file_format->getGOTPLT();
+    m_pGOTPLT = new HexagonGOTPLT(gotplt);
+
     // initialize .plt
     LDSection& plt = file_format->getPLT();
     m_pPLT = new HexagonPLT(plt,
-                        *m_pGOT,
+                        *m_pGOTPLT,
                         config());
 
-    // initialize .rel.plt
-    LDSection& relplt = file_format->getRelPlt();
-    relplt.setLink(&plt);
-    m_pRelPLT = new OutputRelocSection(pModule, relplt);
+    // initialize .rela.plt
+    LDSection& relaplt = file_format->getRelaPlt();
+    relaplt.setLink(&plt);
+    m_pRelaPLT = new OutputRelocSection(pModule, relaplt);
 
-    // initialize .rel.dyn
-    LDSection& reldyn = file_format->getRelDyn();
-    m_pRelDyn = new OutputRelocSection(pModule, reldyn);
+    // initialize .rela.dyn
+    LDSection& reladyn = file_format->getRelaDyn();
+    m_pRelaDyn = new OutputRelocSection(pModule, reladyn);
 
   }
   m_psdata = pBuilder.CreateSection(".sdata",
@@ -285,6 +483,13 @@ void HexagonLDBackend::initTargetSections(Module& pModule,
                                     llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
                                     8);
   IRBuilder::CreateSectionData(*m_pscommon_8);
+
+  m_pstart = pBuilder.CreateSection(".start",
+                                    LDFileFormat::Target,
+                                    llvm::ELF::SHT_PROGBITS,
+                                    llvm::ELF::SHF_ALLOC | llvm::ELF::SHF_WRITE,
+                                    8);
+  IRBuilder::CreateSectionData(*m_pstart);
 }
 
 void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
@@ -313,7 +518,24 @@ void HexagonLDBackend::initTargetSymbols(IRBuilder& pBuilder, Module& pModule)
                                                   0x0,  // value
                                                   FragmentRef::Null(),
                                                   ResolveInfo::Hidden);
-
+  pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                "__sbss_start",
+                                                ResolveInfo::Object,
+                                                ResolveInfo::Define,
+                                                ResolveInfo::Absolute,
+                                                0x0,  // size
+                                                0x0,  // value
+                                                FragmentRef::Null(),
+                                                ResolveInfo::Hidden);
+  pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
+                                                "__sbss_end",
+                                                ResolveInfo::Object,
+                                                ResolveInfo::Define,
+                                                ResolveInfo::Absolute,
+                                                0x0,  // size
+                                                0x0,  // value
+                                                FragmentRef::Null(),
+                                                ResolveInfo::Hidden);
 }
 
 bool HexagonLDBackend::initTargetStubs()
@@ -450,10 +672,12 @@ bool HexagonLDBackend::finalizeTargetSymbols()
       f_pBSSStart->setValue(edata->vaddr() + edata->filesz());
     }
     if (NULL != f_pEnd && ResolveInfo::ThreadLocal != f_pEnd->type()) {
-      f_pEnd->setValue(edata->vaddr() + edata->memsz());
+      f_pEnd->setValue(((edata->vaddr() +
+                       edata->memsz()) + 7) & ~7);
     }
     if (NULL != f_p_End && ResolveInfo::ThreadLocal != f_p_End->type()) {
-      f_p_End->setValue(edata->vaddr() + edata->memsz());
+      f_p_End->setValue(((edata->vaddr() +
+                       edata->memsz()) + 7) & ~7);
     }
   }
   return true;
@@ -480,10 +704,10 @@ bool HexagonLDBackend::mergeSection(Module& pModule, LDSection& pInputSection)
   return true;
 }
 
-bool HexagonLDBackend::SetSDataSection(bool moveCommonData) {
+bool HexagonLDBackend::SetSDataSection() {
   SectionData *pTo = (m_psdata->getSectionData());
 
-  if ((moveCommonData) && (pTo)) {
+  if (pTo) {
     MoveCommonData(*m_pscommon_1->getSectionData(), *pTo);
     MoveCommonData(*m_pscommon_2->getSectionData(), *pTo);
     MoveCommonData(*m_pscommon_4->getSectionData(), *pTo);
@@ -522,6 +746,8 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
     SetSDataSection();
     return true;
   }
+
+  int8_t maxGPSize = config().options().getGPSize();
 
   SymbolCategory::iterator com_sym, com_end;
 
@@ -563,21 +789,29 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
 
       switch((*com_sym)->size())  {
       case 1:
+        if (maxGPSize <= 0)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_1->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 2:
+        if (maxGPSize <= 1)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_2->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 4:
+        if (maxGPSize <= 3)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_4->getSectionData()),
                                       (*com_sym)->value());
         continue;
       case 8:
+        if (maxGPSize <= 7)
+          break;
         ObjectBuilder::AppendFragment(*frag,
                                       *(m_pscommon_8->getSectionData()),
                                       (*com_sym)->value());
@@ -615,21 +849,29 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
 
     switch((*com_sym)->size())  {
     case 1:
+      if (maxGPSize <= 0)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_1->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 2:
+      if (maxGPSize <= 1)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_2->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 4:
+      if (maxGPSize <= 3)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_4->getSectionData()),
                                     (*com_sym)->value());
       continue;
     case 8:
+      if (maxGPSize <= 7)
+        break;
       ObjectBuilder::AppendFragment(*frag,
                                     *(m_pscommon_8->getSectionData()),
                                     (*com_sym)->value());
@@ -655,7 +897,7 @@ bool HexagonLDBackend::allocateCommonSymbols(Module& pModule)
   bss_sect.setSize(bss_offset);
   tbss_sect.setSize(tbss_offset);
   symbol_list.changeCommonsToGlobal();
-  SetSDataSection(true);
+  SetSDataSection();
   return true;
 }
 

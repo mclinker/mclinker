@@ -269,6 +269,13 @@ public:
   bool printMap() const
   { return m_bPrintMap; }
 
+  // -G, max GP size option
+  void setGPSize(int gpsize)
+  { m_GPSize = gpsize; }
+
+  int getGPSize() const
+  { return m_GPSize; }
+
   unsigned int getHashStyle() const { return m_HashStyle; }
 
   void setHashStyle(unsigned int pStyle)
@@ -350,6 +357,7 @@ private:
   bool m_bNewDTags: 1; // --enable-new-dtags
   bool m_bNoStdlib: 1; // -nostdlib
   bool m_bPrintMap: 1; // --print-map
+  uint32_t m_GPSize; // -G, --gpsize
   StripSymbolMode m_StripSymbols;
   RpathList m_RpathList;
   unsigned int m_HashStyle;

@@ -98,7 +98,7 @@ bool SectionMap::matched(const NamePair& pNamePair,
   if (pNamePair.from.size() > pInput.size())
     return false;
 
-  if (!StringHash<ES>::may_include(pNamePair.hash, pHashValue))
+  if (!hash::StringHash<hash::ES>::may_include(pNamePair.hash, pHashValue))
     return false;
 
   if (0 == strncmp(pInput.c_str(),
@@ -112,7 +112,7 @@ bool SectionMap::matched(const NamePair& pNamePair,
 
 unsigned int SectionMap::hash(const std::string& pString)
 {
-  static StringHash<ES> hash_func;
+  static hash::StringHash<hash::ES> hash_func;
   return hash_func(pString);
 }
 
