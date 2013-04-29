@@ -42,7 +42,7 @@ public:
     Unknown,
   };
 
-  struct StrToken {
+  struct ParserStrToken {
     const char* text;
     size_t length;
   };
@@ -82,16 +82,16 @@ public:
   void activate();
 
   /// ENTRY(symbol)
-  void addEntryPoint(const StrToken& pSymbol, LinkerScript& pScript);
+  void addEntryPoint(const ParserStrToken& pSymbol, LinkerScript& pScript);
 
   /// OUTPUT_FORMAT(bfdname)
   /// OUTPUT_FORMAT(default, big, little)
-  void addOutputFormatCmd(const StrToken& pFormat);
-  void addOutputFormatCmd(const StrToken& pDefault,
-                          const StrToken& pBig,
-                          const StrToken& pLittle);
+  void addOutputFormatCmd(const ParserStrToken& pFormat);
+  void addOutputFormatCmd(const ParserStrToken& pDefault,
+                          const ParserStrToken& pBig,
+                          const ParserStrToken& pLittle);
 
-  void addScriptInput(const StrToken& pPath);
+  void addScriptInput(const ParserStrToken& pPath);
 
   /// AS_NEEDED(file, file, ...)
   /// AS_NEEDED(file file ...)
@@ -102,10 +102,10 @@ public:
   void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
 
   /// SEARCH_DIR(path)
-  void addSearchDirCmd(const StrToken& pPath, LinkerScript& pScript);
+  void addSearchDirCmd(const ParserStrToken& pPath, LinkerScript& pScript);
 
   /// OUTPUT_ARCH(bfdarch)
-  void addOutputArchCmd(const StrToken& pArch);
+  void addOutputArchCmd(const ParserStrToken& pArch);
 
 private:
   Kind m_Kind;

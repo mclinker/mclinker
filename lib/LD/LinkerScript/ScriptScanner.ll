@@ -35,12 +35,12 @@ typedef mcld::ScriptParser::token_type token_type;
 /* abbrev. of RE @ref binutils ld/ldlex.l */
 FILENAMECHAR1 [_a-zA-Z\/\.\\\$\_\~]
 SYMBOLCHARN   [_a-zA-Z\/\.\\\$\_\~0-9]
-FILENAMECHAR    [_a-zA-Z0-9\/\.\-\_\+\=\$\:\[\]\\\,\~]
 NOCFILENAMECHAR [_a-zA-Z0-9\/\.\-\_\+\$\:\[\]\\\~]
 WS [ \t\r]
 
 /* Starte conditions */
 %s LDSCRIPT
+%s EXPRESSION
 
 %% /* Regular Expressions */
 
@@ -76,32 +76,80 @@ WS [ \t\r]
  /* Misc Commands */
 <LDSCRIPT>"OUTPUT_ARCH"                { return token::OUTPUT_ARCH; }
 
+ /* Operators */
+<EXPRESSION>"<<"                       { return token::LSHIFT; }
+<EXPRESSION>">>"                       { return token::RSHIFT; }
+<EXPRESSION>"=="                       { return token::EQ; }
+<EXPRESSION>"!="                       { return token::NE; }
+<EXPRESSION>"<="                       { return token::LE; }
+<EXPRESSION>">="                       { return token::GE; }
+<EXPRESSION>"&&"                       { return token::LOGICAL_AND; }
+<EXPRESSION>"||"                       { return token::LOGICAL_OR; }
+<EXPRESSION>"+="                       { return token::ADD_ASSIGN; }
+<EXPRESSION>"-="                       { return token::SUB_ASSIGN; }
+<EXPRESSION>"*="                       { return token::MUL_ASSIGN; }
+<EXPRESSION>"/="                       { return token::DIV_ASSIGN; }
+<EXPRESSION>"&="                       { return token::AND_ASSIGN; }
+<EXPRESSION>"|="                       { return token::OR_ASSIGN; }
+<EXPRESSION>"<<="                      { return token::LS_ASSIGN; }
+<EXPRESSION>">>="                      { return token::RS_ASSIGN; }
+<EXPRESSION>","                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"="                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"?"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>":"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"|"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"^"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"&"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"<"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>">"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"+"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"-"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"*"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"/"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"%"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"!"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>"~"                        { return static_cast<token_type>(*yytext); }
+<EXPRESSION>";"                        { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>"("               { return static_cast<token_type>(*yytext); }
+<LDSCRIPT,EXPRESSION>")"               { return static_cast<token_type>(*yytext); }
+
+ /* Numbers */
+<EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
+  yylval->strToken.text = yytext;
+  yylval->strToken.length = yyleng;
+  return token::INTEGER;
+}
+
+ /* Expression string */
+<EXPRESSION>{FILENAMECHAR1}{SYMBOLCHARN}* {
+  yylval->strToken.text = yytext;
+  yylval->strToken.length = yyleng;
+  return token::STRING;
+}
+
  /* String */
-<LDSCRIPT>{FILENAMECHAR1}{FILENAMECHAR}* {
+<LDSCRIPT>{FILENAMECHAR1}{NOCFILENAMECHAR}* {
   yylval->strToken.text = yytext;
   yylval->strToken.length = yyleng;
   return token::STRING;
 }
 
  /* gobble up C comments */
-<LDSCRIPT>"/*" {
+<LDSCRIPT,EXPRESSION>"/*" {
   enterComments(*yylloc);
   yylloc->step();
 }
 
  /* gobble up white-spaces */
-<LDSCRIPT>{WS}+ {
+<LDSCRIPT,EXPRESSION>{WS}+ {
   yylloc->step();
 }
 
  /* gobble up end-of-lines */
-<LDSCRIPT>\n {
+<LDSCRIPT,EXPRESSION>\n {
   yylloc->lines(1);
   yylloc->step();
 }
-
- /* pass all other characters up to bison */
-. { return static_cast<token_type>(*yytext); }
 
 %% /* Additional Code */
 
@@ -171,6 +219,7 @@ void ScriptScanner::setLexState(ScriptFile::Kind pKind)
     BEGIN(LDSCRIPT);
     break;
   case ScriptFile::Expression:
+    BEGIN(EXPRESSION);
     break;
   case ScriptFile::VersionScript:
   case ScriptFile::DynamicList:
@@ -192,6 +241,7 @@ void ScriptScanner::popLexState()
       BEGIN(LDSCRIPT);
       break;
     case ScriptFile::Expression:
+      BEGIN(EXPRESSION);
       break;
     case ScriptFile::VersionScript:
     case ScriptFile::DynamicList:

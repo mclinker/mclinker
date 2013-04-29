@@ -53,21 +53,21 @@ void ScriptFile::activate()
     (*it)->activate();
 }
 
-void ScriptFile::addEntryPoint(const StrToken& pSymbol, LinkerScript& pScript)
+void ScriptFile::addEntryPoint(const ParserStrToken& pSymbol, LinkerScript& pScript)
 {
   std::string sym(pSymbol.text, pSymbol.length);
   m_CommandQueue.push_back(new EntryCmd(sym, pScript));
 }
 
-void ScriptFile::addOutputFormatCmd(const StrToken& pName)
+void ScriptFile::addOutputFormatCmd(const ParserStrToken& pName)
 {
   std::string format(pName.text, pName.length);
   m_CommandQueue.push_back(new OutputFormatCmd(format));
 }
 
-void ScriptFile::addOutputFormatCmd(const StrToken& pDefault,
-                                    const StrToken& pBig,
-                                    const StrToken& pLittle)
+void ScriptFile::addOutputFormatCmd(const ParserStrToken& pDefault,
+                                    const ParserStrToken& pBig,
+                                    const ParserStrToken& pLittle)
 {
   std::string def(pDefault.text, pDefault.length);
   std::string big(pBig.text, pDefault.length);
@@ -75,7 +75,7 @@ void ScriptFile::addOutputFormatCmd(const StrToken& pDefault,
   m_CommandQueue.push_back(new OutputFormatCmd(def, big, lit));
 }
 
-void ScriptFile::addScriptInput(const StrToken& pPath)
+void ScriptFile::addScriptInput(const ParserStrToken& pPath)
 {
   assert(!m_CommandQueue.empty());
   std::string path(pPath.text, pPath.length);
@@ -111,14 +111,14 @@ void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
     new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
-void ScriptFile::addSearchDirCmd(const StrToken& pPath,
+void ScriptFile::addSearchDirCmd(const ParserStrToken& pPath,
                                  LinkerScript& pScript)
 {
   std::string path(pPath.text, pPath.length);
   m_CommandQueue.push_back(new SearchDirCmd(path, pScript));
 }
 
-void ScriptFile::addOutputArchCmd(const StrToken& pArch)
+void ScriptFile::addOutputArchCmd(const ParserStrToken& pArch)
 {
   std::string arch(pArch.text, pArch.length);
   m_CommandQueue.push_back(new OutputArchCmd(arch));
