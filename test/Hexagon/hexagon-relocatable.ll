@@ -1,6 +1,6 @@
 ; Build the shared library.
 ; RUN: %MCLinker -r -march=hexagon %p/../libs/Hexagon/v4objs/crt.o\
-; RUN:  %p/../libs/Hexagon/v4objs/minicrt.o -o %t
+; RUN:  %p/../libs/Hexagon/v4objs/minicrt.o -o %t -mtriple=hexagon-none-linux
 ; RUN: readelf -r %t | FileCheck -check-prefix=RELOCS %s
 
 RELOCS: Relocation section '.rela.text' at offset 0x5348 contains 2 entries:

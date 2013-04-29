@@ -1,6 +1,6 @@
 ; Build the shared library.
 ; RUN: %MCLinker -march=hexagon %p/../libs/Hexagon/v4objs/sdata.o\
-; RUN:  -o %t
+; RUN:  -o %t -mtriple=hexagon-none-linux
 ; RUN: llvm-nm -n %t | FileCheck %s -check-prefix=SORTORDER
 
 SORTORDER: {{[0-9a-f]+}} {{[?A-Z]}} A1
