@@ -99,7 +99,7 @@ private:
     struct Compare {
       bool operator()(const Key& KEY1, const Key& KEY2) const
       {
-        return KEY1.offset() + KEY1.length() <= KEY2.offset() ||
+        return KEY1.offset() + KEY1.length() < KEY2.offset() ||
                (KEY1.offset() < KEY2.offset() &&
                 (KEY1.offset() + KEY1.length() < KEY2.offset() + KEY2.length()));
       }
