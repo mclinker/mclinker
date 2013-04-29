@@ -33,21 +33,6 @@ T1 ApplyMask(T2 pMask, T1 pData) {
   return result;
 }
 
-static uint32_t findBitMask(uint32_t insn, Instruction *encodings, int32_t numInsns) {
-  for (int32_t i = 0; i < numInsns ; i++) {
-    if (((insn & 0xc000) == 0) && !(encodings[i].isDuplex))
-      continue;
-
-    if (((insn & 0xc000) != 0) && (encodings[i].isDuplex))
-      continue;
-
-    if (((encodings[i].insnMask) & insn) == encodings[i].insnCmpMask)
-      return encodings[i].insnBitMask;
-  }
-  assert(0);
-}
-
-
 #define DECL_HEXAGON_APPLY_RELOC_FUNC(Name) \
 static HexagonRelocator::Result Name    (Relocation& pEntry, \
                                      HexagonRelocator& pParent);
