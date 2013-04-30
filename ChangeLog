@@ -1,8 +1,50 @@
+2013-04-39 Luba Tang <lubatang@gmail.com>
+  * Executive Summary:
+  1. Add three new backends - x86_64, x32 and Hexagon.
+  2. Support MinGW platform
+  3. Support Mips multiple global offset tables.
+  4. Support variant-length relocation entry. (Mips/x32/x86_64)
+  5. Export libmcld library
+  6. Migrate to LLVM r176038
+
+  * Command Line Options and Building System:
+  1. Support -m <emulation> option.
+  2. Support --defsym option.
+  3. ./configure script supports --target options. (Conform to binutils)
+
+  * New Features:
+  1. Support weak alias symbols in shared libraries.
+  2. Support 64-bit architecture.
+  3. Support GNU linkonce sections.
+  4. Support GNU excluded sections.
+  5. Able to link ELF objects with GNU LTO sections.
+  6. Support empty eh_frame section.
+
+  * Target Backends:
+  1. ARM backend supports more relocations. (R_ARM_PC24, R_ARM_THM_*)
+  2. ARM backend defines __exidx_start/_end symbols for .ARM.exidx section.
+  3. Mature x86_64 backend. Support variant-length relocation entries.
+  4. Mature x32 backend.
+  5. x86 backend supports more relocations.
+  6. Mips backend supports multiple GOT.
+  7. Mips backend supports variant-length relocation entries.
+  8. Hexagon backend supports partial linking.
+  9. Hexagon backend can emit dynamic linked libraries.
+
+  * Architectural Change:
+  1. Move LinkerScript from LinkerConfig to Module.
+  2. Add Relocator::initializeScan() and finalizeScan(). Backends can know the
+     the timing of input file change during relocation scanning.
+  3. Add 64-bit reader and writer.
+  4. class Path is stick on UTF-8 locale.
+  5. rename Linker::config() -> Linker::emulate().
+  6. extract Linker::normalize() form Linker::resolve().
+
 2013-01-31 Diana Chen <mysekki@gmail.com>
   * Executive Summary:
   1. IRBuilder supports define Symbols
   2. Remove memory leakage
-	3. Enhance GNU ld compatibility for FreeBSD and NetBSD
+  3. Enhance GNU ld compatibility for FreeBSD and NetBSD
   4. Support part of X86 TLS optimization
   5. Migrate to LLVM r171906
 
