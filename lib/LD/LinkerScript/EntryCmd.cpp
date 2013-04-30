@@ -17,7 +17,7 @@ using namespace mcld;
 //===----------------------------------------------------------------------===//
 EntryCmd::EntryCmd(const std::string& pEntry, LinkerScript& pScript)
   : ScriptCommand(ScriptCommand::Entry),
-    m_Entry(pEntry.data(), pEntry.size()),
+    m_Entry(pEntry),
     m_Script(pScript)
 {
 }

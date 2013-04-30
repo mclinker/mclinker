@@ -42,11 +42,6 @@ public:
     Unknown,
   };
 
-  struct ParserStrToken {
-    const char* text;
-    size_t length;
-  };
-
   typedef std::vector<ScriptCommand*> CommandQueue;
   typedef CommandQueue::const_iterator const_iterator;
   typedef CommandQueue::iterator iterator;
@@ -82,16 +77,16 @@ public:
   void activate();
 
   /// ENTRY(symbol)
-  void addEntryPoint(const ParserStrToken& pSymbol, LinkerScript& pScript);
+  void addEntryPoint(const std::string& pSymbol, LinkerScript& pScript);
 
   /// OUTPUT_FORMAT(bfdname)
   /// OUTPUT_FORMAT(default, big, little)
-  void addOutputFormatCmd(const ParserStrToken& pFormat);
-  void addOutputFormatCmd(const ParserStrToken& pDefault,
-                          const ParserStrToken& pBig,
-                          const ParserStrToken& pLittle);
+  void addOutputFormatCmd(const std::string& pFormat);
+  void addOutputFormatCmd(const std::string& pDefault,
+                          const std::string& pBig,
+                          const std::string& pLittle);
 
-  void addScriptInput(const ParserStrToken& pPath);
+  void addScriptInput(const std::string& pPath);
 
   /// AS_NEEDED(file, file, ...)
   /// AS_NEEDED(file file ...)
@@ -102,10 +97,14 @@ public:
   void addGroupCmd(GroupReader& pGroupReader, const LinkerConfig& pConfig);
 
   /// SEARCH_DIR(path)
-  void addSearchDirCmd(const ParserStrToken& pPath, LinkerScript& pScript);
+  void addSearchDirCmd(const std::string& pPath, LinkerScript& pScript);
 
   /// OUTPUT_ARCH(bfdarch)
-  void addOutputArchCmd(const ParserStrToken& pArch);
+  void addOutputArchCmd(const std::string& pArch);
+
+  static const std::string& createParserStr(const char* pText, size_t pLength);
+
+  static void clearParserStrPool();
 
 private:
   Kind m_Kind;

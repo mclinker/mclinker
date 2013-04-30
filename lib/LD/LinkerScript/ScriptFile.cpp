@@ -18,10 +18,25 @@
 #include <mcld/MC/InputBuilder.h>
 #include <mcld/InputTree.h>
 #include <llvm/Support/Casting.h>
+#include <mcld/ADT/HashEntry.h>
+#include <mcld/ADT/HashTable.h>
+#include <mcld/ADT/StringHash.h>
+#include <llvm/Support/ManagedStatic.h>
 #include <cassert>
 
 using namespace mcld;
 
+typedef HashEntry<std::string,
+                  void*,
+                  hash::StringCompare<std::string> > ParserStrEntry;
+typedef HashTable<ParserStrEntry,
+                  hash::StringHash<hash::ELF>,
+                  EntryFactory<ParserStrEntry> > ParserStrPool;
+static llvm::ManagedStatic<ParserStrPool> g_ParserStrPool;
+
+//===----------------------------------------------------------------------===//
+// ScriptFile
+//===----------------------------------------------------------------------===//
 ScriptFile::ScriptFile(Kind pKind, Input& pInput, InputBuilder& pBuilder)
   : m_Kind(pKind),
     m_Name(pInput.path().native()),
@@ -53,36 +68,30 @@ void ScriptFile::activate()
     (*it)->activate();
 }
 
-void ScriptFile::addEntryPoint(const ParserStrToken& pSymbol, LinkerScript& pScript)
+void ScriptFile::addEntryPoint(const std::string& pSymbol, LinkerScript& pScript)
 {
-  std::string sym(pSymbol.text, pSymbol.length);
-  m_CommandQueue.push_back(new EntryCmd(sym, pScript));
+  m_CommandQueue.push_back(new EntryCmd(pSymbol, pScript));
 }
 
-void ScriptFile::addOutputFormatCmd(const ParserStrToken& pName)
+void ScriptFile::addOutputFormatCmd(const std::string& pName)
 {
-  std::string format(pName.text, pName.length);
-  m_CommandQueue.push_back(new OutputFormatCmd(format));
+  m_CommandQueue.push_back(new OutputFormatCmd(pName));
 }
 
-void ScriptFile::addOutputFormatCmd(const ParserStrToken& pDefault,
-                                    const ParserStrToken& pBig,
-                                    const ParserStrToken& pLittle)
+void ScriptFile::addOutputFormatCmd(const std::string& pDefault,
+                                    const std::string& pBig,
+                                    const std::string& pLittle)
 {
-  std::string def(pDefault.text, pDefault.length);
-  std::string big(pBig.text, pDefault.length);
-  std::string lit(pLittle.text, pLittle.length);
-  m_CommandQueue.push_back(new OutputFormatCmd(def, big, lit));
+  m_CommandQueue.push_back(new OutputFormatCmd(pDefault, pBig, pLittle));
 }
 
-void ScriptFile::addScriptInput(const ParserStrToken& pPath)
+void ScriptFile::addScriptInput(const std::string& pPath)
 {
   assert(!m_CommandQueue.empty());
-  std::string path(pPath.text, pPath.length);
   ScriptCommand* cmd = back();
   switch (cmd->getKind()) {
   case ScriptCommand::Group:
-    llvm::cast<GroupCmd>(cmd)->scriptInput().append(path);
+    llvm::cast<GroupCmd>(cmd)->scriptInput().append(pPath);
     break;
   default:
     assert(0 && "Invalid command to add script input!");
@@ -111,15 +120,28 @@ void ScriptFile::addGroupCmd(GroupReader& pGroupReader,
     new GroupCmd(*m_pInputTree, m_Builder, pGroupReader, pConfig));
 }
 
-void ScriptFile::addSearchDirCmd(const ParserStrToken& pPath,
+void ScriptFile::addSearchDirCmd(const std::string& pPath,
                                  LinkerScript& pScript)
 {
-  std::string path(pPath.text, pPath.length);
-  m_CommandQueue.push_back(new SearchDirCmd(path, pScript));
+  m_CommandQueue.push_back(new SearchDirCmd(pPath, pScript));
 }
 
-void ScriptFile::addOutputArchCmd(const ParserStrToken& pArch)
+void ScriptFile::addOutputArchCmd(const std::string& pArch)
 {
-  std::string arch(pArch.text, pArch.length);
-  m_CommandQueue.push_back(new OutputArchCmd(arch));
+  m_CommandQueue.push_back(new OutputArchCmd(pArch));
 }
+
+const std::string& ScriptFile::createParserStr(const char* pText,
+                                               size_t pLength)
+{
+  bool exist = false;
+  ParserStrEntry* entry =
+    g_ParserStrPool->insert(std::string(pText, pLength), exist);
+  return entry->key();
+}
+
+void ScriptFile::clearParserStrPool()
+{
+  g_ParserStrPool->clear();
+}
+

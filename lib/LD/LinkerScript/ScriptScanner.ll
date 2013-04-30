@@ -11,6 +11,7 @@
 /* C/C++ Declarations */
 
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
+#include <mcld/LD/LinkerScript/ScriptFile.h>
 #include <mcld/Support/MsgHandling.h>
 #include <string>
 
@@ -115,22 +116,22 @@ WS [ \t\r]
 
  /* Numbers */
 <EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
-  yylval->strToken.text = yytext;
-  yylval->strToken.length = yyleng;
+  const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
+  yylval->strToken = &str;
   return token::INTEGER;
 }
 
  /* Expression string */
 <EXPRESSION>{FILENAMECHAR1}{SYMBOLCHARN}* {
-  yylval->strToken.text = yytext;
-  yylval->strToken.length = yyleng;
+  const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
+  yylval->strToken = &str;
   return token::STRING;
 }
 
  /* String */
 <LDSCRIPT>{FILENAMECHAR1}{NOCFILENAMECHAR}* {
-  yylval->strToken.text = yytext;
-  yylval->strToken.length = yyleng;
+  const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
+  yylval->strToken = &str;
   return token::STRING;
 }
 

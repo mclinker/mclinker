@@ -48,7 +48,7 @@
 }
 
 %union {
-  ScriptFile::ParserStrToken strToken;
+  const std::string* strToken;
 }
 
 %token END 0 /* EOF */
@@ -187,13 +187,13 @@ script_command : entry_command
                ;
 
 entry_command : ENTRY '(' STRING ')'
-                { pScriptFile.addEntryPoint($3, pLDScript); }
+                { pScriptFile.addEntryPoint(*$3, pLDScript); }
               ;
 
 output_format_command : OUTPUT_FORMAT '(' STRING ')'
-                        { pScriptFile.addOutputFormatCmd($3); }
+                        { pScriptFile.addOutputFormatCmd(*$3); }
                       | OUTPUT_FORMAT '(' STRING ',' STRING ',' STRING ')'
-                        { pScriptFile.addOutputFormatCmd($3, $5, $7); }
+                        { pScriptFile.addOutputFormatCmd(*$3, *$5, *$7); }
                       ;
 
 group_command : GROUP
@@ -205,11 +205,11 @@ group_command : GROUP
               ;
 
 search_dir_command : SEARCH_DIR '(' STRING ')'
-                     { pScriptFile.addSearchDirCmd($3, pLDScript); }
+                     { pScriptFile.addSearchDirCmd(*$3, pLDScript); }
                    ;
 
 output_arch_command : OUTPUT_ARCH '(' STRING ')'
-                      { pScriptFile.addOutputArchCmd($3); }
+                      { pScriptFile.addOutputArchCmd(*$3); }
                     ;
 
 input_list : input_list input_node
@@ -218,7 +218,7 @@ input_list : input_list input_node
            ;
 
 input_node : string
-             { pScriptFile.addScriptInput($1); }
+             { pScriptFile.addScriptInput(*$1); }
            | AS_NEEDED
              { pScriptFile.setAsNeeded(true); }
              '(' input_list ')'
