@@ -13,6 +13,7 @@
 #include <mcld/LD/LinkerScript/ScriptScanner.h>
 #include <mcld/LD/LinkerScript/ScriptFile.h>
 #include <mcld/Support/MsgHandling.h>
+#include <llvm/ADT/StringRef.h>
 #include <string>
 
 typedef mcld::ScriptParser::token token;
@@ -116,8 +117,22 @@ WS [ \t\r]
 
  /* Numbers */
 <EXPRESSION>((("$"|0[xX])([0-9A-Fa-f])+)|(([0-9])+))(M|K|m|k)? {
-  const std::string& str = pScriptFile.createParserStr(yytext, yyleng);
-  yylval->strToken = &str;
+  llvm::StringRef str(yytext, yyleng);
+  switch (str.back()) {
+  case 'k':
+  case 'K':
+    str.substr(0, yyleng - 1).getAsInteger(0, yylval->intToken);
+    yylval->intToken *= 1024;
+    break;
+  case 'm':
+  case 'M':
+    str.substr(0, yyleng - 1).getAsInteger(0, yylval->intToken);
+    yylval->intToken *= 1024 * 1024;
+    break;
+  default:
+    str.getAsInteger(0, yylval->intToken);
+    break;
+  }
   return token::INTEGER;
 }
 

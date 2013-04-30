@@ -44,16 +44,17 @@
 %start script_file
 
 %code requires {
-#include <mcld/LD/LinkerScript/ScriptFile.h>
+#include <llvm/Support/DataTypes.h>
 }
 
 %union {
   const std::string* strToken;
+  uint64_t intToken;
 }
 
 %token END 0 /* EOF */
 %token <strToken> STRING
-%token <strToken> INTEGER
+%token <intToken> INTEGER
 
 /* Initial states */
 %token LINKER_SCRIPT DEFSYM VERSION_SCRIPT DYNAMIC_LIST
@@ -289,6 +290,7 @@ exp : '(' exp ')'
     ;
 
 symbol : STRING
+         { $$ = $1; }
        ;
 
 string : STRING
