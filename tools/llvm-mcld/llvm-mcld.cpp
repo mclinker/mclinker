@@ -645,6 +645,21 @@ ArgAuxiliaryAlias("auxiliary",
                   cl::aliasopt(ArgAuxiliary));
 
 static cl::opt<bool>
+ArgUseGold("use-gold",
+          cl::desc("GCC/collect2 compatibility: uses ld.gold.  Ignored"),
+          cl::init(false));
+
+static cl::opt<bool>
+ArgUseMCLD("use-mcld",
+          cl::desc("GCC/collect2 compatibility: uses ld.mcld.  Ignored"),
+          cl::init(false));
+
+static cl::opt<bool>
+ArgUseLD("use-ld",
+          cl::desc("GCC/collect2 compatibility: uses ld.bfd.  Ignored"),
+          cl::init(false));
+
+static cl::opt<bool>
 ArgEB("EB",
       cl::desc("Link big-endian objects. This affects the default output format."),
       cl::init(false));
