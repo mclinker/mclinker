@@ -48,6 +48,19 @@
 # include <unistd.h>
 #endif
 
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <io.h>
+#ifndef STDIN_FILENO
+# define STDIN_FILENO 0
+#endif
+#ifndef STDOUT_FILENO
+# define STDOUT_FILENO 1
+#endif
+#ifndef STDERR_FILENO
+# define STDERR_FILENO 2
+#endif
+#endif
+
 using namespace llvm;
 
 #ifdef ENABLE_UNITTEST
