@@ -147,7 +147,7 @@ bool ELFObjectReader::readSections(Input& pInput)
       case LDFileFormat::LinkOnce: {
         bool exist = false;
         // .gnu.linkonce + "." + type + "." + name
-        llvm::StringRef name((*section)->name().substr(14));
+        llvm::StringRef name(llvm::StringRef((*section)->name()).drop_front(14));
         signatures().insert(name.split(".").second, exist);
         if (!exist) {
           if (name.startswith("wi")) {

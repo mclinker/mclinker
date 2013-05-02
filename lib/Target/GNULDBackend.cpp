@@ -222,7 +222,7 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
     } // end of switch
 
     if (isCIdentifier(section->name())) {
-      llvm::StringRef start_name = llvm::StringRef("__start_" + section->name());
+      std::string start_name = "__start_" + section->name();
       FragmentRef* start_fragref = FragmentRef::Create(
                                        section->getSectionData()->front(), 0x0);
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
@@ -235,7 +235,7 @@ bool GNULDBackend::initStandardSymbols(IRBuilder& pBuilder,
                                                     start_fragref, // FragRef
                                                     ResolveInfo::Default);
 
-      llvm::StringRef stop_name = llvm::StringRef("__stop_" + section->name());
+      std::string stop_name = "__stop_" + section->name();
       FragmentRef* stop_fragref = FragmentRef::Create(
                            section->getSectionData()->front(), section->size());
       pBuilder.AddSymbol<IRBuilder::AsReferred, IRBuilder::Resolve>(
