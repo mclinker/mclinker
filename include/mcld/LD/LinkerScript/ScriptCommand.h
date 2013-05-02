@@ -28,6 +28,7 @@ public:
     Group,
     SearchDir,
     OutputArch,
+    Assignment
   };
 
 protected:
