@@ -11,6 +11,7 @@
 #include <mcld/LD/LinkerScript/Operand.h>
 #include <mcld/Support/raw_ostream.h>
 #include <mcld/LinkerScript.h>
+#include <cassert>
 
 using namespace mcld;
 
@@ -70,6 +71,16 @@ void Assignment::dump() const
 
 void Assignment::activate()
 {
-  // TODO
+  switch (m_Symbol.type()) {
+  case Operand::SYMBOL:
+    m_Script.assignments().push_back(*this);
+    break;
+  case Operand::DOT:
+    // TODO
+    break;
+  default:
+    assert(0 && "Vaild lvalue required as left operand of assignment!");
+    break;
+  }
 }
 
