@@ -39,6 +39,19 @@ public:
                     hash::StringHash<hash::ELF>,
                     StringEntryFactory<llvm::StringRef> > DefSymMap;
 
+  class DefSyms {
+  public:
+    void append(const std::string& pDefSym)
+    {
+      m_DefSymList.append(pDefSym).append(";");
+    }
+    const std::string& data() const { return m_DefSymList; }
+    std::string&       data()       { return m_DefSymList; }
+
+  private:
+    std::string m_DefSymList;
+  };
+
 public:
   LinkerScript();
 
@@ -55,6 +68,10 @@ public:
 
   const DefSymMap& defSymMap() const { return m_DefSymMap; }
   DefSymMap&       defSymMap()       { return m_DefSymMap; }
+
+  // --defsym
+  const DefSyms& defSyms() const { return m_DefSyms; }
+  DefSyms&       defSyms()       { return m_DefSyms; }
 
   /// search directory
   const SearchDirs& directories() const { return m_SearchDirs; }
@@ -82,6 +99,7 @@ private:
   AddressMap m_AddressMap;
   SectionMap m_SectionMap;
   DefSymMap m_DefSymMap;
+  DefSyms m_DefSyms;
   SearchDirs m_SearchDirs;
   std::string m_Entry;
 };
